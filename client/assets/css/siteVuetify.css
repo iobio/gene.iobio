@@ -1,0 +1,19 @@
+html {
+  -webkit-font-smoothing: auto;
+}
+
+.application, body {
+  font-family: 'Open Sans', 'Quattrocento Sans', 'sans serif';
+}
+
+.application.theme--light {
+  background: #fafafa;
+  color:  rgb(113,113,113);
+  fill:  rgb(113,113,113);
+}
+
+.theme--light .card,
+.application .theme--light.card {
+  color:  rgb(113,113,113);
+  fill:  rgb(113,113,113);
+}
