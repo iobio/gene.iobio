@@ -60,6 +60,22 @@ export default {
         default: function(brush) {
         }
 
+      },
+      showLabel: {
+        type: Boolean,
+        default: false
+      },
+      showXAxis: {
+        type: Boolean,
+        default: true
+      },
+      showBrush: {
+        type: Boolean,
+        default: false
+      },
+      fixedWidth: {
+        type: Number,
+        default: 0
       }
 
     },
@@ -78,15 +94,15 @@ export default {
         var self = this;
 
         this.geneChart = geneD3()
-              .width(this.width)
+              .width(self.fixedWidth > 0 ? self.fixedWidth : this.width)
               .widthPercent("100%")
               .heightPercent("100%")
               .margin(this.margin)
-              .showXAxis(true)
-              .showBrush(true)
+              .showXAxis(this.showXAxis)
+              .showBrush(this.showBrush)
               .trackHeight(this.trackHeight)
               .cdsHeight(this.cdsHeight)
-              .showLabel(false)
+              .showLabel(this.showLabel)
               .featureClass( this.featureClass )
               .regionStart( this.regionStart)
               .regionEnd( this.regionEnd )
@@ -99,7 +115,7 @@ export default {
         this.geneChart.regionStart(this.regionStart);
         this.geneChart.regionEnd(this.regionEnd);
         if (self.data && self.data.length > 0 && self.data[0] != null) {
-          this.geneChart.width(this.$el.clientWidth);
+          this.geneChart.width(self.fixedWidth > 0 ? self.fixedWidth : this.$el.clientWidth);
           var selection = d3.select(this.$el).datum( self.data );
           this.geneChart(selection);
         }

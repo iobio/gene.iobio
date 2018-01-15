@@ -1,27 +1,184 @@
 <style lang="css">
   .card {
-    width: 100%;
     min-height: 50px;
-    padding-left: 10px;
-    padding-right: 10px;
-
   }
+
+  #region-track .input-group {
+    padding: 0px;
+  }
+  #region-track .input-group__messages {
+    display: none;
+  }
+  #region-track  .input-group--text-field input {
+    height: 20px;
+  }
+  #region-track .input-group__input {
+    min-height: 20px;
+  }
+  #region-track .input-group__details {
+    min-height: 0px;
+  }
+
+  #region-buffer-box .input-group--text-field input{
+      font-size: 14px;
+      color:  rgb(113,113,113);
+      fill:  rgb(113,113,113);
+  }
+
+  #gene-source-box .input-group--select .input-group__selections__comma {
+    font-size: 14px;
+    padding: 0px 0px 0px 0px;
+  }
+  #gene-source-box .input-group label {
+    font-size: 14px;
+    line-height: 25px;
+    height: 25px;
+  }
+  #gene-source-box .input-group__input {
+    min-height: 0px;
+    margin-top: 10px;
+  }
+
+  #select-transcripts-box .theme--light .btn,
+  #select-transcripts-box.application .theme--light.btn {
+    color:  rgb(113,113,113);
+  }
+
+  #select-transcripts-box .btn {
+    margin: 0px;
+  }
+
+
 </style>
 
 <template>
 
   <v-card tile id="gene-track track">
-   <v-card-title primary-title>Gene {{ selectedGene.gene_name }}</v-card-title>
-   <gene-viz id="gene-viz"
-    :data="[selectedTranscript]"
-    :margin="geneVizMargin"
-    :height=40
-    :trackHeight="geneVizTrackHeight"
-    :cdsHeight="geneVizCdsHeight"
-    :regionStart="selectedGene.start"
-    :regionEnd="selectedGene.end">
-  </gene-viz>
+    <v-card-title primary-title>Selected Gene</v-card-title>
+
+    <div id="region-track" class="level-edu level-basic" style="clear:both;margin-top:-25px">
+
+
+        <div style="text-align:center;display:inline-block;width:100%;padding-top:5px">
+          <div style="vertical-align:top;display:inline-block">
+
+            <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
+            <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
+
+            <span id="gene-region"  v-if="showGene"  class="level-edu level-basic gene-card-label keep-case">{{ selectedGene.start | formatRegion }} - {{ selectedGene.end | formatRegion }}</span>
+
+            <span id="minus_strand"  v-if="selectedGene.strand == '-'"  class=" level-edu level-basic" style="font-size:12px;padding-left: 5px;font-style: italic;">reverse strand</span>
+
+            <span  id="gene-plus-minus-label"  v-if="showGene"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
+
+            <div id="region-buffer-box" style="display:inline-block;width:50px"  v-if="showGene" >
+              <v-form>
+                <v-text-field
+                    id="gene-region-buffer-input"
+                    class="sm level-edu level-basic  fullview"
+                    v-model="regionBuffer">
+                </v-text-field>
+              </v-form>
+            </div>
+
+
+          </div>
+
+          <div id="gene-source-box" v-if="showGene" style="margin-top:-7px;margin-left:20px;display:inline-block;width:150px">
+            <v-select
+                v-bind:items="geneSources"
+                v-model="geneSource"
+                label="Gene source"
+                class="input-group--focused"
+                item-value="text">
+            </v-select>
+          </div>
+
+          <div id="select-transcripts-box" v-if="showGene" style="vertical-align:top;margin-top:-5px;margin-left:20px;display:inline-block">
+            <v-layout row justify-center>
+              <v-dialog v-model="showTranscriptsDialog"  width="700px">
+                  <v-btn  flat slot="activator" @click="showTranscriptsDialog = true"
+                  light>Choose transcript</v-btn>
+                  <v-card>
+                    <v-card-title>Select transcript</v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text style="height: 300px;">
+                        <gene-viz id="select-transcript-viz"
+                          :data="myTranscripts"
+                          :margin=transcriptVizMargin
+                          :trackHeight=transcriptVizTrackHeight
+                          :cdsHeight=transcriptVizCdsHeight
+                          :showLabel=true
+                          :fixedWidth=600
+                          :regionStart="selectedGene.start"
+                          :regionEnd="selectedGene.end"
+                          :showBrush=false
+                          :showXAxis=false>
+                        </gene-viz>
+
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                      <v-btn color="blue darken-1" flat @click.native="showTranscriptsDialog = false">Close</v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
+            </v-layout>
+          </div>
+
+        </div>
+    </div>
+
+    <!-- Non protein-coding gene badges -->
+    <div id="non-protein-coding" class="level-edu level-basic"  style="clear: both;padding-bottom: 0px;display: block;">
+        <div id="no-gene-selected-badge" class="hide label label-warning" style="display:block;margin-bottom:2px;">
+          Enter a gene name
+        </div>
+        <div id="gene-type-badge" v-if="showGene && selectedGene.gene_type != 'protein_coding'  && selectedGene.gene_type != 'gene'" class="label label-warning" style="display:block;margin-bottom:2px;">
+          {{ selectedGene.gene_type }}
+        </div>
+        <div id="transcript-type-badge" class="hide label label-warning" style="display:block;">
+        </div>
+        <div id="no-transcripts-badge" class="hide label label-warning" style="display:block;">
+        </div>
+    </div>
+
+    <div id="transcript-panel" class="level-edu fullview" >
+
+      <div id="top-coordinate-frame" class="hide">
+        <svg height="23" width="28">
+            <g  transform="translate(0,0)">
+              <rect class="coordinate-arrow" x="9" y="1" width="10" height="8">
+              </rect>
+            </g>
+            <g transform="translate(24,23),rotate(180)">
+              <polygon class="coordinate-arrow" points="0,14 10,0 20,14" x="0" y="0">
+              </polygon>
+            </g>
+        </svg>
+      </div>
+
+
+      <gene-viz id="gene-viz"
+        :data="[selectedTranscript]"
+        :margin="geneVizMargin"
+        :height=40
+        :trackHeight="geneVizTrackHeight"
+        :cdsHeight="geneVizCdsHeight"
+        :regionStart="selectedGene.start"
+        :regionEnd="selectedGene.end">
+      </gene-viz>
+
+      <span id="zoom-hint"  v-if="showGene"  class="level-edu hint todo" style="margin-top: 0px;display: block;text-align: center;">
+          To zoom into region, drag over gene model.
+      </span>
+    </div>
+
+
+
   </v-card>
+
+
 
 </template>
 
@@ -45,14 +202,36 @@ export default {
         left: isLevelBasic || isLevelEdu ? 9 : 4
       },
       geneVizTrackHeight: (isLevelEdu || isLevelBasic ? 32 : 22),
-      geneVizCdsHeight: (isLevelEdu  || isLevelBasic  ? 24 : 18)
+      geneVizCdsHeight: (isLevelEdu  || isLevelBasic  ? 24 : 18),
+
+      transcriptVizMargin: {top: 5, right: 5, bottom: 5, left: 200},
+      transcriptVizTrackHeight: 20,
+      transcriptVizCdsHeight: 15,
+
+      regionBuffer: 1000,
+      geneSource: 'gencode',
+      geneSources: ['gencode', 'refseq'],
+      showTranscriptsDialog: false
+    }
+  },
+
+  filters: {
+    formatRegion: function (value) {
+      return !value ? '' : util.formatRegion()(value);
     }
   },
 
   computed: {
     selectedTranscript: function() {
       return geneModel.getCanonicalTranscript(this.selectedGene);
+    },
+    showGene: function() {
+      return this.selectedGene != null && Object.keys(this.selectedGene).length > 0
+    },
+    myTranscripts: function() {
+      return this.selectedGene.transcripts;
     }
+
   },
 
   created: function() {

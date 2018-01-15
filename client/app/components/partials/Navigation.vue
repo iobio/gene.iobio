@@ -4,8 +4,7 @@
     background-color: rgb(93, 128, 157) !important;
     font-weight: 300 !important;
   }
-  button i.material-icons {
-    font-size: 14px;
+  i.material-icons {
     margin-right: 2px
   }
   .btn {

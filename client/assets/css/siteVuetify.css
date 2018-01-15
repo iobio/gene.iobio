@@ -17,3 +17,31 @@ html {
   color:  rgb(113,113,113);
   fill:  rgb(113,113,113);
 }
+
+.theme--light .input-group.input-group--dirty .input-group__selections__comma:not(.input-group__selections__comma--active), .application .theme--light.input-group.input-group--dirty .input-group__selections__comma:not(.input-group__selections__comma--active) {
+  color:  rgb(113,113,113);
+  fill:  rgb(113,113,113);
+}
+
+.card {
+  width: 100%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.card__title--primary {
+    padding-top: 4px;
+}
+.card__title {
+    padding-top: 0px;
+    padding-right: 0px;
+    padding-bottom: 4px;
+    padding-left: 0px;
+}
+
+.list__tile {
+    font-size: 14px;
+    height: 25px;
+}
