@@ -43,7 +43,7 @@
   <div id="select-transcripts-box"  style="vertical-align:top;margin-top:-5px;margin-left:20px;display:inline-block">
     <v-layout row justify-center>
       <v-dialog  v-model="showTranscriptsDialog"   width="700px">
-          <v-btn  flat slot="activator" @click="showTranscriptsDialog = true"
+          <v-btn  raised slot="activator" @click="showTranscriptsDialog = true"
           light>{{ selectedTranscript.transcript_id }}</v-btn>
           <v-card>
             <v-card-title>Select transcript</v-card-title>
@@ -108,7 +108,7 @@ export default {
   methods: {
     onTranscriptSelected: function(theTranscript) {
       this.newTranscript = theTranscript;
-      this.showTranscriptsDialog = false;
+      this.onTranscriptVizClose();
     },
     onTranscriptVizClose: function() {
       var self = this;

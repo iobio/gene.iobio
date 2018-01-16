@@ -23,6 +23,11 @@ html {
   fill:  rgb(113,113,113);
 }
 
+.btn {
+  padding: 0px;
+  height: 30px;
+}
+
 .card {
   width: 100%;
   padding-top: 5px;

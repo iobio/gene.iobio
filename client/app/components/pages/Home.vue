@@ -14,7 +14,8 @@
         <gene-card
           v-bind:selectedGene="selectedGene"
           v-bind:selectedTranscript="selectedTranscript"
-          v-on:selection="onTranscriptSelected">
+          v-on:selection="onTranscriptSelected"
+          v-on:selectgenesource="onGeneSourceSelected">
         </gene-card>
       </v-container>
     </v-content>
@@ -61,6 +62,15 @@ export default {
     onTranscriptSelected: function(transcript) {
       var self = this;
       self.selectedTranscript = transcript;
+    },
+    onGeneSourceSelected: function(theGeneSource) {
+      var self = this;
+      geneModel.geneSource = theGeneSource;
+      geneModel.promiseGetGeneObject(self.selectedGene.gene_name)
+      .then(function(theGeneObject) {
+        self.selectedGene = theGeneObject;
+        self.selectedTranscript = geneModel.getCanonicalTranscript(self.selectedGene);
+      })
     }
 
   }

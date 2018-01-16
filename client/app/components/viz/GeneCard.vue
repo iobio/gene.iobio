@@ -1,21 +1,21 @@
 <style lang="css">
-  .card {
-    min-height: 50px;
-  }
 
-  #region-track .input-group {
+  #gene-track .btn__content {
+    color:  rgb(113,113,113);
+  }
+  #gene-track .input-group {
     padding: 0px;
   }
-  #region-track .input-group__messages {
+  #gene-track .input-group__messages {
     display: none;
   }
-  #region-track  .input-group--text-field input {
+  #gene-track  .input-group--text-field input {
     height: 20px;
   }
-  #region-track .input-group__input {
+  #gene-track .input-group__input {
     min-height: 20px;
   }
-  #region-track .input-group__details {
+  #gene-track .input-group__details {
     min-height: 0px;
   }
 
@@ -23,6 +23,19 @@
       font-size: 14px;
       color: rgb(113,113,113);
       fill:  rgb(113,113,113);
+  }
+
+  #gene-track #non-protein-coding {
+    clear: both;
+    padding-bottom: 0px;
+    display: block;
+    padding-top: 2px;
+  }
+
+  #gene-track .label-warning {
+    max-width: 300px;
+    min-width: 100px;
+    margin: auto;
   }
 
   #gene-source-box .input-group--select .input-group__selections__comma {
@@ -45,10 +58,10 @@
 
 <template>
 
-  <v-card tile id="gene-track track">
+  <v-card tile id="gene-track" class="track">
     <v-card-title primary-title>Selected Gene</v-card-title>
 
-    <div id="region-track" class="level-edu level-basic" style="clear:both;margin-top:-25px">
+    <div id="gene-info-box" class="level-edu level-basic" style="clear:both;margin-top:-25px">
 
 
         <div style="text-align:center;display:inline-block;width:100%;padding-top:5px">
@@ -82,7 +95,8 @@
                 v-model="geneSource"
                 label="Gene source"
                 class="input-group--focused"
-                item-value="text">
+                item-value="text"
+                v-on:input="onGeneSourceSelected">
             </v-select>
           </div>
 
@@ -97,23 +111,26 @@
     </div>
 
     <!-- Non protein-coding gene badges -->
-    <div id="non-protein-coding" class="level-edu level-basic"  style="clear: both;padding-bottom: 0px;display: block;">
+    <div id="non-protein-coding" class="level-edu level-basic">
         <div id="no-gene-selected-badge" class="hide label label-warning" style="display:block;margin-bottom:2px;">
           Enter a gene name
         </div>
         <div id="gene-type-badge"
-          v-if="showGene && selectedGene.gene_type != 'protein_coding'  && selectedGene.gene_type != 'gene'"
+          v-if="showGeneTypeWarning"
           class="label label-warning"
           style="display:block;margin-bottom:2px;">
           {{ selectedGene.gene_type }}
         </div>
         <div id="transcript-type-badge"
-          v-if="showTranscriptTypeBadge"
-          class="hide label label-warning"
+          v-if="showTranscriptTypeWarning"
+          class=" label label-warning"
           style="display:block;">
-          {{ selectedTranscript.transcript_type | formatTranscriptBadge }}
+          {{ selectedTranscript | formatTranscriptType }}
         </div>
-        <div id="no-transcripts-badge" class="hide label label-warning" style="display:block;">
+        <div id="no-transcripts-badge"
+          v-if="showNoTranscriptsWarning"
+          class=" label label-warning" style="display:block;">
+          {{ noTranscriptsWarning }}
         </div>
     </div>
 
@@ -141,6 +158,7 @@
         :cdsHeight="cdsHeight"
         :regionStart="selectedGene.start"
         :regionEnd="selectedGene.end"
+        :showBrush=true
         >
       </gene-viz>
 
@@ -148,8 +166,6 @@
           To zoom into region, drag over gene model.
       </span>
     </div>
-
-
 
   </v-card>
 
@@ -188,6 +204,9 @@ export default {
       regionBuffer: 1000,
       geneSource: 'gencode',
       geneSources: ['gencode', 'refseq'],
+
+      noTranscriptsWarning: null,
+      showNoTranscriptsWarning: false
     }
   },
 
@@ -195,7 +214,27 @@ export default {
     onTranscriptSelected: function(transcript) {
       var self = this;
       self.$emit('selection', transcript);
+    },
+
+
+    onGeneSourceSelected: function() {
+      let self = this;
+
+      var switchMsg = null;
+      if (geneModel.refseqOnly[self.selectedGene.gene_name] && self.geneSource != 'refseq') {
+        switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in RefSeq. Switching to this transcript set.';
+        self.geneSource = 'refseq';
+      } else if (geneModel.gencodeOnly[self.selectedGene.gene_name] && self.geneSource != 'gencode') {
+        switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in Gencode. Switching to this transcript set.';
+        self.geneSource = 'gencode';
+      }
+      if (switchMsg) {
+        self.noTranscriptsWarning = switchMsg;
+        self.showNoTranscriptsWarning = true;
+      }
+      self.$emit('selectgenesource', self.geneSource);
     }
+
   },
 
 
@@ -203,11 +242,11 @@ export default {
     formatRegion: function (value) {
       return !value ? '' : util.formatRegion()(value);
     },
-    formatTranscriptType: function() {
-      if (this.selectedTranscript.transcript_type.indexOf("transcript") < 0) {
-        return this.selectedTranscript.transcript_type + " transcript";
+    formatTranscriptType: function(transcript) {
+      if (transcript.transcript_type.indexOf("transcript") < 0) {
+        return transcript.transcript_type + " transcript";
       } else {
-        return this.selectedTranscript.transcript_type;
+        return transcript.transcript_type;
       }
     }
   },
@@ -219,7 +258,14 @@ export default {
       return this.selectedGene != null && Object.keys(this.selectedGene).length > 0
     },
 
-    showTranscriptTypeBadge: function() {
+    showGeneTypeWarning: function() {
+      return  this.selectedGene != null
+        && Object.keys(this.selectedGene).length > 0
+        && this.selectedGene.gene_type != 'protein_coding'
+        && this.selectedGene.gene_type != 'gene';
+    },
+
+    showTranscriptTypeWarning: function() {
       if (this.selectedTranscript == null || this.selectedTranscript.transcript_type == 'protein_coding'
        || this.selectedTranscript.transcript_type == 'mRNA'
        || this.selectedTranscript.transcript_type == 'transcript') {
