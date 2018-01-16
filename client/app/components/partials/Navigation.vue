@@ -110,6 +110,9 @@ export default {
     }
   },
   methods: {
+  },
+  mounted: function() {
+     $("#search-gene-name").attr('autocomplete', 'off');
   }
 }
 

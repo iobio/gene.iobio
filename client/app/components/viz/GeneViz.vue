@@ -1,5 +1,90 @@
 <style type="text/css">
-  @import '../../../assets/css/gene.d3.css';
+
+
+  .ibo-gene .cds, .ibo-gene .exon, .ibo-gene .utr {
+      fill: rgba(93, 128, 157, 0.63);
+      stroke: rgb(93, 128, 157);
+  }
+
+
+  #transcript-menu-item.ibo-gene .transcript.selected .utr,
+  #transcript-menu-item.ibo-gene .transcript.selected .exon,
+  #transcript-menu-item.ibo-gene .transcript.selected .cds
+  {
+    fill:   #2196f3 !important;
+    stroke: #2196f3 !important;
+  }
+  #transcript-menu-item.ibo-gene .transcript.current .utr,
+  #transcript-menu-item.ibo-gene .transcript.current .exon,
+  #transcript-menu-item.ibo-gene .transcript.current .cds
+  {
+      fill:   rgb(119, 167, 19) !important;
+      stroke: rgb(74, 130, 11)!important;
+  }
+  #transcript-menu-item.ibo-gene .utr:hover,
+  #transcript-menu-item.ibo-gene .cds:hover,
+  #transcript-menu-item.ibo-gene .exon:hover,
+  #transcript-menu-item.ibo-gene .reference:hover
+  {
+    cursor: pointer;
+  }
+
+  #transcript-menu-item.ibo-gene .transcript.current .reference {
+    stroke: rgb(0, 0, 0);
+    stroke-width: 1.5px;
+  }
+  #transcript-menu-item.ibo-gene .transcript.selected .reference {
+
+    stroke-width: 2px;
+  }
+  .ibo-gene .reference {
+    stroke: rgb(150,150,150);
+  }
+  .ibo-gene .name {
+    font-size: 13px; fill:
+    rgb(120,120,120);
+  }
+
+
+  #transcript-menu-item.ibo-gene .transcript.selected .name {
+    font-style: italic;
+    font-size: 13px;
+    fill:   #2196f3 !important;
+  }
+  #transcript-menu-item.ibo-gene .transcript.current .name {
+    font-weight: bold;
+    font-style: italic;
+    fill: black;
+    font-size: 13px;
+  }
+  #transcript-menu-item.ibo-gene .transcript .name:hover {
+    cursor: pointer;
+  }
+
+  #transcript-menu-item.ibo-gene .name {
+    font-size: 14px;
+    fill: rgb(120,120,120);
+  }
+  #transcript-menu-item.ibo-gene .type {
+    font-size: 14px;
+    fill: rgb(205, 71, 40);
+    font-style: italic;
+  }
+  .ibo-gene .arrow { stroke: rgb(150,150,150); fill: none; }
+  .ibo-gene .axis path, .ibo-gene .axis line { fill: none; stroke: lightgrey; shape-rendering: crispEdges; }
+  .ibo-gene .x.axis text{ font-size: 13px; }
+  .ibo-gene .tooltip {
+    position: absolute;
+    text-align: center;
+    z-index:20;
+    color:white;
+    padding: 4px 6px 4px 6px;
+    font: 11px arial;
+    background: rgb(80,80,80);
+    border: 0px;
+    border-radius: 4px;
+    pointer-events: none;
+  }
   .transcript .selection-box {
     fill: transparent;
   }
@@ -7,6 +92,7 @@
       stroke: #000;
       fill-opacity: 0.125;
       shape-rendering: crispEdges;
+
   }
 </style>
 <template>
@@ -47,6 +133,16 @@ export default {
         type: Object,
         default: function() {
           return {top: 10, bottom: 10, left: 10, right: 10}
+        }
+      },
+      transcriptClass: {
+        type: Function,
+        default: function(d,i) {
+          if (d.isCanonical) {
+            return 'transcript current';
+          } else {
+            return 'transcript';
+          }
         }
       },
       featureClass: {
@@ -103,10 +199,14 @@ export default {
               .trackHeight(this.trackHeight)
               .cdsHeight(this.cdsHeight)
               .showLabel(this.showLabel)
-              .featureClass( this.featureClass )
-              .regionStart( this.regionStart)
-              .regionEnd( this.regionEnd )
-              .on("d3brush", this.onBrush );
+              .transcriptClass(this.transcriptClass)
+              .featureClass(this.featureClass)
+              .regionStart(this.regionStart)
+              .regionEnd(this.regionEnd)
+              .on("d3brush", this.onBrush)
+              .on("d3selected", function(d) {
+                self.$emit('selection', d);
+              });
 
         this.setGeneChart();
       },

@@ -21,7 +21,7 @@
 
   #region-buffer-box .input-group--text-field input{
       font-size: 14px;
-      color:  rgb(113,113,113);
+      color: rgb(113,113,113);
       fill:  rgb(113,113,113);
   }
 
@@ -39,17 +39,9 @@
     margin-top: 10px;
   }
 
-  #select-transcripts-box .theme--light .btn,
-  #select-transcripts-box.application .theme--light.btn {
-    color:  rgb(113,113,113);
-  }
-
-  #select-transcripts-box .btn {
-    margin: 0px;
-  }
-
 
 </style>
+
 
 <template>
 
@@ -94,37 +86,12 @@
             </v-select>
           </div>
 
-          <div id="select-transcripts-box" v-if="showGene" style="vertical-align:top;margin-top:-5px;margin-left:20px;display:inline-block">
-            <v-layout row justify-center>
-              <v-dialog v-model="showTranscriptsDialog"  width="700px">
-                  <v-btn  flat slot="activator" @click="showTranscriptsDialog = true"
-                  light>Choose transcript</v-btn>
-                  <v-card>
-                    <v-card-title>Select transcript</v-card-title>
-                    <v-divider></v-divider>
-                    <v-card-text style="height: 300px;">
-                        <gene-viz id="select-transcript-viz"
-                          :data="myTranscripts"
-                          :margin=transcriptVizMargin
-                          :trackHeight=transcriptVizTrackHeight
-                          :cdsHeight=transcriptVizCdsHeight
-                          :showLabel=true
-                          :fixedWidth=600
-                          :regionStart="selectedGene.start"
-                          :regionEnd="selectedGene.end"
-                          :showBrush=false
-                          :showXAxis=false>
-                        </gene-viz>
-
-                    </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-actions>
-                      <v-btn color="blue darken-1" flat @click.native="showTranscriptsDialog = false">Close</v-btn>
-                    </v-card-actions>
-                  </v-card>
-              </v-dialog>
-            </v-layout>
-          </div>
+          <transcripts-viz
+            v-bind:class="{ hide: !showGene }"
+            :selectedGene="selectedGene"
+            :selectedTranscript="selectedTranscript"
+            v-on:selection="onTranscriptSelected">
+          </transcripts-viz>
 
         </div>
     </div>
@@ -134,10 +101,17 @@
         <div id="no-gene-selected-badge" class="hide label label-warning" style="display:block;margin-bottom:2px;">
           Enter a gene name
         </div>
-        <div id="gene-type-badge" v-if="showGene && selectedGene.gene_type != 'protein_coding'  && selectedGene.gene_type != 'gene'" class="label label-warning" style="display:block;margin-bottom:2px;">
+        <div id="gene-type-badge"
+          v-if="showGene && selectedGene.gene_type != 'protein_coding'  && selectedGene.gene_type != 'gene'"
+          class="label label-warning"
+          style="display:block;margin-bottom:2px;">
           {{ selectedGene.gene_type }}
         </div>
-        <div id="transcript-type-badge" class="hide label label-warning" style="display:block;">
+        <div id="transcript-type-badge"
+          v-if="showTranscriptTypeBadge"
+          class="hide label label-warning"
+          style="display:block;">
+          {{ selectedTranscript.transcript_type | formatTranscriptBadge }}
         </div>
         <div id="no-transcripts-badge" class="hide label label-warning" style="display:block;">
         </div>
@@ -161,12 +135,13 @@
 
       <gene-viz id="gene-viz"
         :data="[selectedTranscript]"
-        :margin="geneVizMargin"
+        :margin="margin"
         :height=40
-        :trackHeight="geneVizTrackHeight"
-        :cdsHeight="geneVizCdsHeight"
+        :trackHeight="trackHeight"
+        :cdsHeight="cdsHeight"
         :regionStart="selectedGene.start"
-        :regionEnd="selectedGene.end">
+        :regionEnd="selectedGene.end"
+        >
       </gene-viz>
 
       <span id="zoom-hint"  v-if="showGene"  class="level-edu hint todo" style="margin-top: 0px;display: block;text-align: center;">
@@ -185,61 +160,92 @@
 <script>
 
 import GeneViz from '../viz/GeneViz.vue'
+import TranscriptsViz from '../viz/TranscriptsViz.vue'
 
 
 export default {
   name: 'gene-card',
   components: {
-    GeneViz
+    GeneViz,
+    TranscriptsViz
   },
-  props: ['selectedGene'],
+  props: {
+    selectedGene: {},
+    selectedTranscript: {}
+  },
   data() {
     return {
-      geneVizMargin: {
+      margin: {
         top: isLevelBasic || isLevelEdu ? 0 : 20,
         right: isLevelBasic || isLevelEdu ? 7 : 2,
         bottom: 18,
         left: isLevelBasic || isLevelEdu ? 9 : 4
       },
-      geneVizTrackHeight: (isLevelEdu || isLevelBasic ? 32 : 22),
-      geneVizCdsHeight: (isLevelEdu  || isLevelBasic  ? 24 : 18),
+      trackHeight: (isLevelEdu || isLevelBasic ? 32 : 22),
+      cdsHeight: (isLevelEdu  || isLevelBasic  ? 24 : 18),
 
-      transcriptVizMargin: {top: 5, right: 5, bottom: 5, left: 200},
-      transcriptVizTrackHeight: 20,
-      transcriptVizCdsHeight: 15,
 
       regionBuffer: 1000,
       geneSource: 'gencode',
       geneSources: ['gencode', 'refseq'],
-      showTranscriptsDialog: false
     }
   },
+
+  methods: {
+    onTranscriptSelected: function(transcript) {
+      var self = this;
+      self.$emit('selection', transcript);
+    }
+  },
+
 
   filters: {
     formatRegion: function (value) {
       return !value ? '' : util.formatRegion()(value);
+    },
+    formatTranscriptType: function() {
+      if (this.selectedTranscript.transcript_type.indexOf("transcript") < 0) {
+        return this.selectedTranscript.transcript_type + " transcript";
+      } else {
+        return this.selectedTranscript.transcript_type;
+      }
     }
   },
 
   computed: {
-    selectedTranscript: function() {
-      return geneModel.getCanonicalTranscript(this.selectedGene);
-    },
+
+
     showGene: function() {
       return this.selectedGene != null && Object.keys(this.selectedGene).length > 0
     },
-    myTranscripts: function() {
-      return this.selectedGene.transcripts;
+
+    showTranscriptTypeBadge: function() {
+      if (this.selectedTranscript == null || this.selectedTranscript.transcript_type == 'protein_coding'
+       || this.selectedTranscript.transcript_type == 'mRNA'
+       || this.selectedTranscript.transcript_type == 'transcript') {
+       return false;
+      } else {
+        if (this.selectedGene.gene_type != this.selectedTranscript.transcript_type) {
+          return true;
+        } else {
+          return false;
+        }
+      }
     }
+
+  },
+
+  mounted: function() {
+
 
   },
 
   created: function() {
 
-  },
 
-  methods: {
   }
+
+
 }
 </script>
 

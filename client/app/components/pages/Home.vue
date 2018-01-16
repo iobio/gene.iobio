@@ -11,7 +11,11 @@
     <navigation v-on:input="onGeneSelected"></navigation>
     <v-content>
       <v-container fluid>
-        <gene-card v-bind:selectedGene="selectedGene"></gene-card>
+        <gene-card
+          v-bind:selectedGene="selectedGene"
+          v-bind:selectedTranscript="selectedTranscript"
+          v-on:selection="onTranscriptSelected">
+        </gene-card>
       </v-container>
     </v-content>
   </div>
@@ -37,6 +41,7 @@ export default {
     return {
       greeting: 'gene.iobio.vue',
       selectedGene: {},
+      selectedTranscript: {}
     }
   },
 
@@ -50,7 +55,12 @@ export default {
       geneModel.promiseGetGeneObject(geneObject.gene_name)
       .then(function(theGeneObject) {
         self.selectedGene = theGeneObject;
+        self.selectedTranscript = geneModel.getCanonicalTranscript(self.selectedGene);
       })
+    },
+    onTranscriptSelected: function(transcript) {
+      var self = this;
+      self.selectedTranscript = transcript;
     }
 
   }

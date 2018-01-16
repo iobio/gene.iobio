@@ -40,6 +40,9 @@ function geneD3() {
   var geneD3_trackHeight = 20,
       borderRadius = 1,
       minFtWidth = 0.5;
+  var transcriptClass = function(d,i) {
+    return 'transcript';
+  }
   var geneD3_utrHeight = undefined,
       geneD3_cdsHeight = undefined,
       geneD3_arrowHeight = undefined,
@@ -47,8 +50,6 @@ function geneD3() {
       geneD3_regionEnd = undefined,
       geneD3_widthPercent = undefined,
       geneD3_heightPercent = undefined;
-
-
 
   //  options
   var defaults = {};
@@ -189,9 +190,10 @@ function geneD3() {
 
       // Start gene model
       // add elements
-      var transcript = g.selectAll('.transcript').data(data);
+      var transcript = g.selectAll('.transcript')
+                        .data(data, function(d) { return d.transcript_id; });
       transcript.enter().append('g')
-          .attr('class', 'transcript')
+          .attr('class', transcriptClass)
           .attr("id", function(d,i) { return 'transcript_' +  d.transcript_id.split(".").join("_"); })
           .attr('transform', function(d,i) { return "translate(0," + y(i+1) + ")"});
       transcript.exit().remove();
@@ -208,18 +210,23 @@ function geneD3() {
         })
         .enter().append('rect')
           .attr('class', 'selection-box')
-          .attr('x', margin.left * -1)
+          .attr('x', (margin.left * -1) + 2)
           .attr('y', 0)
           .attr('width', margin.left + geneD3_width)
           .attr('height', geneD3_trackHeight)
           .on("mouseover", function(d) {
-            d3.selectAll('.transcript.selected').classed("selected", false);
+            svg.selectAll('.transcript.selected').classed("selected", false);
             d3.select(this.parentNode).classed("selected", true);
-            selectedTranscript = d3.select(this.parentNode)[0][0].__data__;
           })
           .on("mouseout", function(d) {
             d3.select(this.parentNode).classed("selected", false);
-          });
+          })
+          .on("click", function(d) {
+            selectedTranscript = d3.select(this.parentNode)[0][0].__data__;
+            svg.selectAll('.transcript.current').classed("current", false);
+            d3.select(this.parentNode).classed("current", true);
+            dispatch.d3selected(selectedTranscript);
+          })
 
       transcript.selectAll(".reference").remove();
       transcript.selectAll('.reference')
@@ -237,15 +244,7 @@ function geneD3() {
           .attr('x2', function(d) { return d3.round(x(d[1]))})
           .attr('y1', geneD3_trackHeight/2)
           .attr('y2', geneD3_trackHeight/2)
-          .on("mouseover", function(d) {
-            d3.selectAll('.transcript.selected').classed("selected", false);
-            d3.select(this.parentNode).classed("selected", true);
-            selectedTranscript = d3.select(this.parentNode)[0][0].__data__;
-          })
-          .on("mouseout", function(d) {
-            d3.select(this.parentNode).classed("selected", false);
-          });
-
+          .style("pointer-events", "none");
 
       transcript.selectAll(".name,.type").remove();
       if (geneD3_showLabel) {
@@ -260,33 +259,20 @@ function geneD3() {
                       return d[1];
                     })
                     .style('fill-opacity', 0)
-                    .on("mouseover", function(d) {
-                      d3.selectAll('.transcript.selected').classed("selected", false);
-                      d3.select(this.parentNode).classed("selected", true);
-                      selectedTranscript = d3.select(this.parentNode)[0][0].__data__;
-                    })
-                    .on("mouseout", function(d) {
-                      d3.select(this.parentNode).classed("selected", false);
-                    });
+                    .style("pointer-events", "none");
+
         transcript.selectAll('.type').data(function(d) { return [[d.start, d.transcript_type, (d.isCanonical ? ' CANONICAL' : ''), (d.xref != null ? "(" + d.xref + ")": ''),  d.sort]] })
                   .enter().append('text')
                     .attr('class', 'type')
-                    .attr('x', function(d) { return (geneD3_width - margin.left - margin.right) + 10 })
+                    .attr('x', function(d) { return (geneD3_width - margin.left - margin.right - 5) + 10 })
                     .attr('y', 12 )
                     .attr('text-anchor', 'top')
                     .attr('alignment-baseline', 'left')
+                    .style("pointer-events", "none")
                     .text(function(d) {
                       var type =  (d[1] == 'protein_coding' || d[1] == 'mRNA' ? '' : d[1]);
                       return type + ' ' + d[2] + ' ' + d[3];
                     })
-                    .on("mouseover", function(d) {
-                      d3.selectAll('.transcript.selected').classed("selected", false);
-                      d3.select(this.parentNode).classed("selected", true);
-                      selectedTranscript = d3.select(this.parentNode)[0][0].__data__;
-                    })
-                    .on("mouseout", function(d) {
-                      d3.select(this.parentNode).classed("selected", false);
-                    });
 
 
       }
@@ -322,18 +308,6 @@ function geneD3() {
           })
           .attr('rx', borderRadius)
           .attr('ry', borderRadius)
-
-          /*
-          .attr('x', function(d) {
-            return d3.round(x(d.start))
-          })
-          .attr('width', function(d) {
-            return Math.max(minFtWidth,d3.round(x(d.end) - x(d.start)))
-          })
-          .attr('y', geneD3_trackHeight /2)
-          .attr('height', 0)
-          */
-
           .attr('x', function(d) { return d3.round(x(d.start))})
           .attr('width', function(d) { return Math.max(minFtWidth, d3.round(x(d.end) - x(d.start)))})
           .attr('y', function(d) {
@@ -352,10 +326,8 @@ function geneD3() {
               dispatch.d3featuretooltip(featureObject, d, tooltip);
 
               // select the transcript
-              d3.selectAll('.transcript.selected').classed("selected", false);
+              svg.selectAll('.transcript.selected').classed("selected", false);
               d3.select(this.parentNode).classed("selected", true);
-
-              selectedTranscript = d3.select(this.parentNode)[0][0].__data__;
            })
            .on("mouseout", function(d) {
              if (container.select('.tooltip.locked').empty()) {
@@ -366,6 +338,13 @@ function geneD3() {
               }
            })
            .on("click", function(d) {
+              // select the transcript
+              svg.selectAll('.transcript.current').classed("current", false);
+              d3.select(this.parentNode).classed("current", true);
+              selectedTranscript = d3.select(this.parentNode)[0][0].__data__;
+              dispatch.d3selected(selectedTranscript);
+
+
               // show the tooltip
               var tooltip = container.select('.tooltip');
               tooltip.classed("locked", true);
@@ -523,6 +502,12 @@ function geneD3() {
          .style("opacity", 0);
   }
 
+
+  chart.transcriptClass = function(_) {
+    if (!arguments.length) return transcriptClass;
+    transcriptClass = _;
+    return chart;
+  };
 
   chart.featureClass = function(_) {
     if (!arguments.length) return featureClass;

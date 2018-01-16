@@ -1,5 +1,5 @@
 {
-  "name": "iobio-vue-skeleton",
+  "name": "gene-iobio-vue",
   "version": "0.0.0",
   "scripts": {
     "start": "./node_modules/webpack/bin/webpack.js && DEBUG=http ./node_modules/nodemon/bin/nodemon.js --inspect --ignore client/ www.js",
