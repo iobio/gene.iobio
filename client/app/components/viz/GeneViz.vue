@@ -205,7 +205,7 @@ export default {
               .regionEnd(this.regionEnd)
               .on("d3brush", this.onBrush)
               .on("d3selected", function(d) {
-                self.$emit('selection', d);
+                self.$emit('transcript-selected', d);
               });
 
         this.setGeneChart();

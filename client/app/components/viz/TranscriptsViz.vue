@@ -60,7 +60,7 @@
                   :regionEnd="selectedGene.end"
                   :showBrush=false
                   :showXAxis=false
-                  v-on:selection="onTranscriptSelected">
+                  v-on:transcript-selected="onTranscriptSelected">
                 </gene-viz>
 
             </v-card-text>
@@ -113,7 +113,7 @@ export default {
     onTranscriptVizClose: function() {
       var self = this;
       self.showTranscriptsDialog = false;
-      self.$emit('selection', self.newTranscript);
+      self.$emit('transcriptSelected', self.newTranscript);
     }
 
   },

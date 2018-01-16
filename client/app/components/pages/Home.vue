@@ -14,8 +14,8 @@
         <gene-card
           v-bind:selectedGene="selectedGene"
           v-bind:selectedTranscript="selectedTranscript"
-          v-on:selection="onTranscriptSelected"
-          v-on:selectgenesource="onGeneSourceSelected">
+          v-on:transcript-selected="onTranscriptSelected"
+          v-on:gene-source-selected="onGeneSourceSelected">
         </gene-card>
       </v-container>
     </v-content>

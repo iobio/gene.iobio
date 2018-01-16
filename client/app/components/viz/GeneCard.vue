@@ -104,7 +104,7 @@
             v-bind:class="{ hide: !showGene }"
             :selectedGene="selectedGene"
             :selectedTranscript="selectedTranscript"
-            v-on:selection="onTranscriptSelected">
+            v-on:transcriptSelected="onTranscriptSelected">
           </transcripts-viz>
 
         </div>
@@ -213,7 +213,7 @@ export default {
   methods: {
     onTranscriptSelected: function(transcript) {
       var self = this;
-      self.$emit('selection', transcript);
+      self.$emit('transcript-selected', transcript);
     },
 
 
@@ -232,7 +232,7 @@ export default {
         self.noTranscriptsWarning = switchMsg;
         self.showNoTranscriptsWarning = true;
       }
-      self.$emit('selectgenesource', self.geneSource);
+      self.$emit('gene-source-selected', self.geneSource);
     }
 
   },
