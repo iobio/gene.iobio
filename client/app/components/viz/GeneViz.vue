@@ -212,9 +212,9 @@ export default {
       },
       update: function() {
         var self = this;
-        this.geneChart.regionStart(this.regionStart);
-        this.geneChart.regionEnd(this.regionEnd);
         if (self.data && self.data.length > 0 && self.data[0] != null) {
+          this.geneChart.regionStart(this.regionStart);
+          this.geneChart.regionEnd(this.regionEnd);
           this.geneChart.width(self.fixedWidth > 0 ? self.fixedWidth : this.$el.clientWidth);
           var selection = d3.select(this.$el).datum( self.data );
           this.geneChart(selection);
@@ -226,7 +226,8 @@ export default {
     },
     watch: {
       data: function() {
-          this.update();
+        console.log("GeneViz data update detected.  Updating chart.");
+        this.update();
       }
     }
 }

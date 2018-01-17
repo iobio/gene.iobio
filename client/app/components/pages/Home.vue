@@ -15,7 +15,8 @@
           v-bind:selectedGene="selectedGene"
           v-bind:selectedTranscript="selectedTranscript"
           v-on:transcript-selected="onTranscriptSelected"
-          v-on:gene-source-selected="onGeneSourceSelected">
+          v-on:gene-source-selected="onGeneSourceSelected"
+          v-on:gene-region-buffer-change="onGeneRegionBufferChange">
         </gene-card>
       </v-container>
     </v-content>
@@ -42,7 +43,8 @@ export default {
     return {
       greeting: 'gene.iobio.vue',
       selectedGene: {},
-      selectedTranscript: {}
+      selectedTranscript: {},
+      geneRegionBuffer: 1000
     }
   },
 
@@ -53,8 +55,10 @@ export default {
   methods: {
     onGeneSelected: function(geneObject) {
       var self = this;
+      geneModel.addGeneName(geneObject.gene_name);
       geneModel.promiseGetGeneObject(geneObject.gene_name)
       .then(function(theGeneObject) {
+        geneModel.adjustGeneRegion(theGeneObject, parseInt(self.geneRegionBuffer));
         self.selectedGene = theGeneObject;
         self.selectedTranscript = geneModel.getCanonicalTranscript(self.selectedGene);
       })
@@ -66,11 +70,11 @@ export default {
     onGeneSourceSelected: function(theGeneSource) {
       var self = this;
       geneModel.geneSource = theGeneSource;
-      geneModel.promiseGetGeneObject(self.selectedGene.gene_name)
-      .then(function(theGeneObject) {
-        self.selectedGene = theGeneObject;
-        self.selectedTranscript = geneModel.getCanonicalTranscript(self.selectedGene);
-      })
+      this.onGeneSelected(this.selectedGene);
+    },
+    onGeneRegionBufferChange: function(theGeneRegionBuffer) {
+      this.geneRegionBuffer = theGeneRegionBuffer;
+      this.onGeneSelected(this.selectedGene);
     }
 
   }

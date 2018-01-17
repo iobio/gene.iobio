@@ -4,6 +4,8 @@ class GeneModel {
     this.refseqOnly = {};
     this.gencodeOnly = {};
 
+    this.geneNames = [];
+
     this.transcriptCodingRegions = {};
 
     this.geneNCBISummaries = {};
@@ -18,6 +20,15 @@ class GeneModel {
 
     this.clinvarGenes = {};
 
+  }
+
+  addGeneName(theGeneName) {
+    let me = this;
+    let geneName = theGeneName.toUpperCase();
+
+    if (me.geneNames.indexOf(geneName) < 0) {
+      me.geneNames.push(geneName);
+    }
   }
 
   promiseLoadFullGeneSet(callback) {
@@ -583,7 +594,7 @@ class GeneModel {
   }
 
 
-  adjustGeneRegion(geneObject) {
+  adjustGeneRegion(geneObject, geneRegionBuffer) {
     let me = this;
     if (geneObject.startOrig == null) {
       geneObject.startOrig = geneObject.start;
@@ -592,9 +603,9 @@ class GeneModel {
       geneObject.endOrig = geneObject.end;
     }
     // Open up gene region to include upstream and downstream region;
-    geneObject.start = geneObject.startOrig < GENE_REGION_BUFFER ? 0 : geneObject.startOrig - GENE_REGION_BUFFER;
+    geneObject.start = geneObject.startOrig < geneRegionBuffer ? 0 : geneObject.startOrig - geneRegionBuffer;
     // TODO: Don't go past length of reference
-    geneObject.end   = geneObject.endOrig + GENE_REGION_BUFFER;
+    geneObject.end   = geneObject.endOrig + geneRegionBuffer;
 
   }
 

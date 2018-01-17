@@ -1,21 +1,21 @@
 <style lang="css">
 
-  #gene-track .btn__content {
+  .content .btn__content {
     color:  rgb(113,113,113);
   }
-  #gene-track .input-group {
+  .content .input-group {
     padding: 0px;
   }
-  #gene-track .input-group__messages {
+  .content .input-group__messages {
     display: none;
   }
-  #gene-track  .input-group--text-field input {
+  .content  .input-group--text-field input {
     height: 20px;
   }
-  #gene-track .input-group__input {
+  .content .input-group__input {
     min-height: 20px;
   }
-  #gene-track .input-group__details {
+  .content .input-group__details {
     min-height: 0px;
   }
 
@@ -70,20 +70,21 @@
             <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
             <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
 
-            <span id="gene-region"  v-if="showGene"  class="level-edu level-basic gene-card-label keep-case">{{ selectedGene.start | formatRegion }} - {{ selectedGene.end | formatRegion }}</span>
+            <span id="gene-region"  v-if="showGene"  class="level-edu level-basic gene-card-label keep-case">
+            {{ selectedGene.start | formatRegion }} - {{ selectedGene.end | formatRegion }}
+            </span>
 
             <span id="minus_strand"  v-if="selectedGene.strand == '-'"  class=" level-edu level-basic" style="font-size:12px;padding-left: 5px;font-style: italic;">reverse strand</span>
 
             <span  id="gene-plus-minus-label"  v-if="showGene"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
 
             <div id="region-buffer-box" style="display:inline-block;width:50px"  v-if="showGene" >
-              <v-form>
                 <v-text-field
                     id="gene-region-buffer-input"
                     class="sm level-edu level-basic  fullview"
-                    v-model="regionBuffer">
+                    v-on:input="onGeneRegionBufferChange"
+                    v-model="geneRegionBuffer">
                 </v-text-field>
-              </v-form>
             </div>
 
 
@@ -156,8 +157,8 @@
         :height=40
         :trackHeight="trackHeight"
         :cdsHeight="cdsHeight"
-        :regionStart="selectedGene.start"
-        :regionEnd="selectedGene.end"
+        :regionStart="parseInt(selectedGene.start)"
+        :regionEnd="parseInt(selectedGene.end)"
         :showBrush=true
         >
       </gene-viz>
@@ -201,14 +202,16 @@ export default {
       cdsHeight: (isLevelEdu  || isLevelBasic  ? 24 : 18),
 
 
-      regionBuffer: 1000,
       geneSource: 'gencode',
       geneSources: ['gencode', 'refseq'],
+
+      geneRegionBuffer: 1000,
 
       noTranscriptsWarning: null,
       showNoTranscriptsWarning: false
     }
   },
+
 
   methods: {
     onTranscriptSelected: function(transcript) {
@@ -233,7 +236,11 @@ export default {
         self.showNoTranscriptsWarning = true;
       }
       self.$emit('gene-source-selected', self.geneSource);
-    }
+    },
+
+    onGeneRegionBufferChange: _.debounce(function (e) {
+      this.$emit('gene-region-buffer-change', this.geneRegionBuffer);
+    }, 2000)
 
   },
 
@@ -279,6 +286,7 @@ export default {
       }
     }
 
+
   },
 
   mounted: function() {
@@ -287,8 +295,6 @@ export default {
   },
 
   created: function() {
-
-
   }
 
 

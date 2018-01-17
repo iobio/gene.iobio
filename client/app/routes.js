@@ -2,6 +2,7 @@ import jQuery from 'jquery'
 global.jQuery = jQuery
 global.$ = jQuery
 import d3 from 'd3'
+import _ from 'lodash'
 
 import Vue from 'vue'
 import VueRouter from 'vue-router'
