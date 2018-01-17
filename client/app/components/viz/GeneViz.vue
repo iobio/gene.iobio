@@ -226,7 +226,6 @@ export default {
     },
     watch: {
       data: function() {
-        console.log("GeneViz data update detected.  Updating chart.");
         this.update();
       }
     }

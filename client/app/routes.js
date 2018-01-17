@@ -37,7 +37,7 @@ const router = new VueRouter({
 })
 
 
-new Vue({
+window.vm = new Vue({
   el: '#app',
   created: function() {
   },

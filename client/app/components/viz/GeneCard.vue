@@ -82,8 +82,8 @@
                 <v-text-field
                     id="gene-region-buffer-input"
                     class="sm level-edu level-basic  fullview"
-                    v-on:input="onGeneRegionBufferChange"
-                    v-model="geneRegionBuffer">
+                    v-model="regionBuffer"
+                    v-on:change="onGeneRegionBufferChange">
                 </v-text-field>
             </div>
 
@@ -178,7 +178,7 @@
 
 import GeneViz from '../viz/GeneViz.vue'
 import TranscriptsViz from '../viz/TranscriptsViz.vue'
-
+import Vue from 'vue'
 
 export default {
   name: 'gene-card',
@@ -205,10 +205,10 @@ export default {
       geneSource: 'gencode',
       geneSources: ['gencode', 'refseq'],
 
-      geneRegionBuffer: 1000,
-
       noTranscriptsWarning: null,
-      showNoTranscriptsWarning: false
+      showNoTranscriptsWarning: false,
+
+      geneRegionBuffer: 1000
     }
   },
 
@@ -238,9 +238,9 @@ export default {
       self.$emit('gene-source-selected', self.geneSource);
     },
 
-    onGeneRegionBufferChange: _.debounce(function (e) {
-      this.$emit('gene-region-buffer-change', this.geneRegionBuffer);
-    }, 2000)
+    onGeneRegionBufferChange: _.debounce(function (newGeneRegionBuffer) {
+      this.$emit('gene-region-buffer-change', newGeneRegionBuffer);
+    }, 100)
 
   },
 
@@ -284,10 +284,23 @@ export default {
           return false;
         }
       }
+    },
+
+    regionBuffer: {
+      get() {
+        return this.value == undefined ? 1000 : this.value
+      },
+      set(val) {
+        Vue.nextTick(() => {
+          this.$emit('input', val)
+        })
+      }
     }
 
 
   },
+
+
 
   mounted: function() {
 
