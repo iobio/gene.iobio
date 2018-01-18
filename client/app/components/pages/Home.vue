@@ -1,4 +1,7 @@
-
+/*
+ * Home.vue
+ *
+ */
 <style lang="sass">
 
 </style>
