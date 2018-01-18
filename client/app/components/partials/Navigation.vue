@@ -79,7 +79,7 @@
 <script>
 
 import { Typeahead } from 'uiv'
-import geneData from '../../../dist/genes.json'
+import geneData from '../../../data/genes.json'
 
 export default {
   name: 'navigation',
