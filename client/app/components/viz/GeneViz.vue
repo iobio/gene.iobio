@@ -151,12 +151,6 @@ export default {
           return d.feature_type.toLowerCase();
         }
       },
-      onBrush: {
-        type: Function,
-        default: function(brush) {
-        }
-
-      },
       showLabel: {
         type: Boolean,
         default: false
@@ -203,7 +197,15 @@ export default {
               .featureClass(this.featureClass)
               .regionStart(this.regionStart)
               .regionEnd(this.regionEnd)
-              .on("d3brush", this.onBrush)
+              .on("d3brush", function(brush) {
+                if (!brush.empty()) {
+                  let regionStart = d3.round(brush.extent()[0]);
+                  let regionEnd   = d3.round(brush.extent()[1]);
+                  self.$emit('region-zoom', regionStart, regionEnd);
+                } else {
+                  self.$emit('region-zoom-reset');
+                }
+              })
               .on("d3selected", function(d) {
                 self.$emit('transcript-selected', d);
               });

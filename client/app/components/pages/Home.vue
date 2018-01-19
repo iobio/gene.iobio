@@ -19,7 +19,10 @@
           v-bind:selectedTranscript="selectedTranscript"
           v-on:transcript-selected="onTranscriptSelected"
           v-on:gene-source-selected="onGeneSourceSelected"
-          v-on:gene-region-buffer-change="onGeneRegionBufferChange">
+          v-on:gene-region-buffer-change="onGeneRegionBufferChange"
+          v-on:gene-region-zoom="onGeneRegionZoom"
+          v-on:gene-region-zoom-reset="onGeneRegionZoomReset"
+          >
         </gene-card>
       </v-container>
     </v-content>
@@ -47,7 +50,9 @@ export default {
       greeting: 'gene.iobio.vue',
       selectedGene: {},
       selectedTranscript: {},
-      geneRegionBuffer: 1000
+      geneRegionBuffer: 1000,
+      geneRegionStart: null,
+      geneRegionEnd: null
     }
   },
 
@@ -78,6 +83,16 @@ export default {
     onGeneRegionBufferChange: function(theGeneRegionBuffer) {
       this.geneRegionBuffer = theGeneRegionBuffer;
       this.onGeneSelected(this.selectedGene);
+    },
+    onGeneRegionZoom: function(theStart, theEnd) {
+      this.geneRegionStart = theStart;
+      this.geneRegionEnd = theEnd;
+      console.log("gene region zoom = " + this.geneRegionStart + '-' + this.geneRegionEnd);
+    },
+    onGeneRegionZoomReset: function() {
+      console.log("gene region zoom reset ");
+      this.geneRegionStart = null;
+      this.geneRegionEnd = null;
     }
 
   }

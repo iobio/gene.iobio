@@ -160,6 +160,8 @@
         :regionStart="parseInt(selectedGene.start)"
         :regionEnd="parseInt(selectedGene.end)"
         :showBrush=true
+        v-on:region-zoom="onRegionZoom"
+        v-on:region-zoom-reset="onRegionZoomReset"
         >
       </gene-viz>
 
@@ -240,7 +242,14 @@ export default {
 
     onGeneRegionBufferChange: _.debounce(function (newGeneRegionBuffer) {
       this.$emit('gene-region-buffer-change', newGeneRegionBuffer);
-    }, 100)
+    }, 100),
+
+    onRegionZoom: function(regionStart, regionEnd) {
+      this.$emit('gene-region-zoom', regionStart, regionEnd);
+    },
+    onRegionZoomReset: function() {
+      this.$emit('gene-region-zoom-reset');
+    }
 
   },
 
