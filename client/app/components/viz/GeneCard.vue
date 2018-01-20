@@ -256,7 +256,7 @@ export default {
 
   filters: {
     formatRegion: function (value) {
-      return !value ? '' : util.formatRegion()(value);
+      return !value ? '' : utility.formatRegion()(value);
     },
     formatTranscriptType: function(transcript) {
       if (transcript.transcript_type.indexOf("transcript") < 0) {
