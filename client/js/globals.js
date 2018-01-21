@@ -7,7 +7,7 @@ var IMPACT_FIELD_TO_COLOR     = 'vepImpact';
 //
 var DEV_IOBIO                 = "nv-dev-new.iobio.io/";
 var STAGE_IOBIO               = "nv-purple.iobio.io/";
-var PROD_IOBIO                = "nv-blue.iobio.io/";
+var PROD_IOBIO                = "nv-green.iobio.io/";
 
 var CURRENT_IOBIO             = PROD_IOBIO;
 

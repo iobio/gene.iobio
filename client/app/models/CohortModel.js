@@ -68,6 +68,7 @@ class CohortModel {
       vm.setRelationship(rel);
       vm.onVcfUrlEntered(self.demoVcf, null, function() {
         vm.setSampleName(sampleName);
+        vm.setName(rel + " " + sampleName)
         vm.onBamUrlEntered(self.demoBams[rel], null, function() {
           resolve({'relationship': rel, 'model': vm})
         })
@@ -85,6 +86,7 @@ class CohortModel {
       var vm = new VariantModel();
       vm.init(self);
       vm.setRelationship('known-variants');
+      vm.setName('Clinvar')
       var clinvarUrl = genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
       vm.onVcfUrlEntered(clinvarUrl, null, function() {
         resolve({'relationship': 'known-variants', 'model': vm})

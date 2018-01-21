@@ -58,7 +58,7 @@
 
 <template>
 
-  <v-card tile id="gene-track" class="track">
+  <v-card tile id="gene-track" class="app-card">
     <v-card-title primary-title>Selected Gene</v-card-title>
 
     <div id="gene-info-box" class="level-edu level-basic" style="clear:both;margin-top:-25px">

@@ -4,6 +4,8 @@
  */
 <style lang="sass">
 
+  .app-card
+    margin-bottom: 10px
 </style>
 
 
@@ -24,6 +26,12 @@
           v-on:gene-region-zoom-reset="onGeneRegionZoomReset"
           >
         </gene-card>
+
+        <variant-card v-for="model in cohortModels"
+        v-bind:name="model.name"
+        >
+        </variant-card>
+
       </v-container>
     </v-content>
   </div>
@@ -35,6 +43,7 @@
 
 import Navigation from '../partials/Navigation.vue'
 import GeneCard  from  '../viz/GeneCard.vue'
+import VariantCard    from  '../viz/VariantCard.vue'
 
 import CohortModel    from  '../../models/CohortModel.js'
 import FilterModel    from  '../../models/FilterModel.js'
@@ -45,7 +54,8 @@ export default {
   name: 'home',
   components: {
       Navigation,
-      GeneCard
+      GeneCard,
+      VariantCard
   },
   props: [],
   data() {
@@ -99,7 +109,14 @@ export default {
     })
   },
 
+  computed: {
+    cohortModels: function() {
+      return this.cohortModel ? this.cohortModel.getModels() : [];
+    }
+  },
+
   methods: {
+
 
     promiseInitCache: function() {
       return new Promise(function(resolve, reject) {
