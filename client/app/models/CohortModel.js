@@ -146,6 +146,12 @@ class CohortModel {
     return this.sampleMap[relationship].model;
   }
 
+  getCanonicalModels() {
+    return this.sampleModels.filter(function(model) {
+      return model.relationship != 'known-variants';
+    })
+  }
+
 
 
   isAlignmentsOnly(callback) {
@@ -245,7 +251,7 @@ class CohortModel {
       var annotatePromises = [];
       var theResultMap = {};
       if (isMultiSample) {
-        p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.sampleModels, isMultiSample, isBackground)
+        p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.getCanonicalModels(), isMultiSample, isBackground)
         .then(function(resultMap) {
           theResultMap = resultMap;
         })
