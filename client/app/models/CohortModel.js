@@ -2,7 +2,10 @@ class CohortModel {
 
   constructor(geneModel) {
     this.geneModel = geneModel;
+
+    this.sampleModels  = [];
     this.sampleMap = {};
+
     this.demoVcf = "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz";
     this.demoBams = {
       'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
@@ -18,43 +21,28 @@ class CohortModel {
     let self = this;
 
     return new Promise(function(resolve, reject) {
-      self.samples = [];
-
-      let promises = [];
-
+      self.sampleModels = [];
       self.mode = 'trio';
 
-      var p = self.promiseAddDemoSample('proband', 'NA12878')
+      self.promiseAddDemoSample('proband', 'NA12878')
       .then(function(sample) {
-        self.sampleMap[sample.relationship] = sample;
-      })
-      promises.push(p);
 
-      p = self.promiseAddDemoSample('mother', 'NA12892')
-      .then(function(sample) {
-        self.sampleMap[sample.relationship] = sample;
-      })
-      promises.push(p);
+        self.promiseAddDemoSample('mother', 'NA12892')
+        .then(function(sample) {
 
-      p = self.promiseAddDemoSample('father', 'NA12891')
-      .then(function(sample) {
-        self.sampleMap[sample.relationship] = sample;
-      })
-      promises.push(p);
+          self.promiseAddDemoSample('father', 'NA12891')
+          .then(function(sample) {
 
-      p = self.promiseAddClinvarSample()
-      .then(function(sample) {
-        self.sampleMap[sample.relationship] = sample;
-      })
-
-
-      Promise.all(promises)
-      .then(function() {
-        self.setAffectedInfo();
-        resolve(self.sampleMap);
-      },
-      function(error) {
-        reject(error);
+            self.promiseAddClinvarSample()
+            .then(function(sample) {
+              self.setAffectedInfo();
+              resolve(self.sampleModels);
+            })
+            .catch(function(error) {
+              reject(error);
+            })
+          })
+        })
       })
 
     })
@@ -70,7 +58,13 @@ class CohortModel {
         vm.setSampleName(sampleName);
         vm.setName(rel + " " + sampleName)
         vm.onBamUrlEntered(self.demoBams[rel], null, function() {
-          resolve({'relationship': rel, 'model': vm})
+
+          self.sampleModels.push(vm);
+
+          let sample = {'relationship': rel, 'model': vm};
+          self.sampleMap[rel] = sample;
+
+          resolve(sample);
         })
       },
       function(error) {
@@ -89,7 +83,12 @@ class CohortModel {
       vm.setName('Clinvar')
       var clinvarUrl = genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
       vm.onVcfUrlEntered(clinvarUrl, null, function() {
-        resolve({'relationship': 'known-variants', 'model': vm})
+        self.sampleModels.push(vm);
+
+        var sample = {'relationship': 'known-variants', 'model': vm};
+        self.sampleMap['known-variants'] = sample;
+
+        resolve(sample);
       },
       function(error) {
         reject(error);
@@ -138,17 +137,6 @@ class CohortModel {
     }
   }
 
-  getModels() {
-    let self = this;
-    let models = [];
-
-    if (self.sampleMap) {
-      for (var rel in self.sampleMap) {
-        models.push(self.sampleMap[rel].model);
-      }
-    }
-    return models;
-  }
 
   getProbandModel() {
     return this.sampleMap['proband'].model;
@@ -161,16 +149,16 @@ class CohortModel {
 
 
   isAlignmentsOnly(callback) {
-    var theModels = this.getModels().filter(function(model) {
+    var theModels = this.sampleModels.filter(function(model) {
       return model.isAlignmentsOnly();
     });
-    return theModels.length == this.getModels().length;
+    return theModels.length == this.sampleModels.length;
   }
 
 
   samplesInSingleVcf() {
     var theVcfs = {};
-    var cards = this.getModels().forEach(function(model) {
+    var cards = this.sampleModels.forEach(function(model) {
       if (!model.isAlignmentsOnly() && model.getRelationship() != 'known-variants') {
         if (model.vcfUrlEntered) {
           theVcfs[model.vcf.getVcfURL()] = true;
@@ -184,13 +172,14 @@ class CohortModel {
   }
 
 
-  promiseLoadData(theGene, theTranscript, getKnownVariants, filterModel) {
+  promiseLoadData(theGene, theTranscript, filterModel, options) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
+      self.clearLoadedVariants();
 
       let cohortResultMap = null;
-      self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, getKnownVariants)
+      self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, options.getKnownVariants)
       .then(function(resultMap) {
         cohortResultMap = resultMap;
         // the variants are fully annotated so determine inheritance (if trio).
@@ -206,11 +195,46 @@ class CohortModel {
         // Now summarize the danger for the selected gene
         self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null, filterModel)
         .then(function() {
+          self.setLoadedVariants(theGene);
           resolve();
         })
       })
     })
 
+  }
+
+
+  clearLoadedVariants() {
+    let self = this;
+    self.sampleModels.forEach(function(model) {
+      model.loadedVariants = {loadState: {}, features: [], maxLevel: 1, featureWidth: 0};
+    });
+  }
+
+  setLoadedVariants(theGene, regionStart, regionEnd) {
+    let self = this;
+    self.sampleModels.forEach(function(model) {
+      if (model.vcfData && model.vcfData.features) {
+        var loadedVariants = $.extend({}, model.vcfData);
+        loadedVariants.features = model.vcfData.features.filter( function(feature) {
+          var loaded = feature.fbCalled == null;
+          var inRegion = true;
+          if (regionStart && regionEnd) {
+            inRegion = feature.start >= regionStart && feature.start <= regionEnd;
+          }
+          return loaded && inRegion;
+        });
+
+        var pileupObject = model._pileupVariants(loadedVariants.features, theGene.start, theGene.end);
+        loadedVariants.maxLevel = pileupObject.maxLevel + 1;
+        loadedVariants.featureWidth = pileupObject.featureWidth;
+
+        model.loadedVariants = loadedVariants;
+
+      } else {
+        model.loadedVariants = {loadState: {}, features: []};
+      }
+    })
   }
 
 
@@ -221,7 +245,7 @@ class CohortModel {
       var annotatePromises = [];
       var theResultMap = {};
       if (isMultiSample) {
-        p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.getModels(), isMultiSample, isBackground)
+        p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.sampleModels, isMultiSample, isBackground)
         .then(function(resultMap) {
           theResultMap = resultMap;
         })
@@ -317,7 +341,7 @@ class CohortModel {
         }
       }
       if (Object.keys(uniqueVariants).length == 0) {
-        resolve();
+        resolve(resultMap);
       } else {
 
         for (var key in uniqueVariants) {
@@ -365,8 +389,8 @@ class CohortModel {
             Promise.all(refreshPromises)
             .then(function() {
               resolve(resultMap);
-            },
-            function(error) {
+            })
+            .catch(function(error) {
               reject(error);
             })
 
@@ -383,7 +407,7 @@ class CohortModel {
     var resolveIt = function(resolve, resultMap, geneObject, theTranscript, options) {
 
       // Now that inheritance mode has been determined, we can assess each variant's impact
-      self.getModels().forEach(function(model) {
+      self.sampleModels.forEach(function(model) {
         if (resultMap[model.getRelationship()]) {
           model.assessVariantImpact(resultMap[model.getRelationship()], theTranscript);
         }
@@ -454,7 +478,7 @@ class CohortModel {
       var cachePromise = null;
       if (cacheIt) {
         var cachedPromises = [];
-        self.getModels().forEach(function(model) {
+        self.sampleModels.forEach(function(model) {
           if (resultMap[model.getRelationship()]) {
             var p = model._promiseCacheData(resultMap[model.getRelationship()], dataKind, geneObject.gene_name, theTranscript);
             cachedPromises.push(p);
@@ -501,16 +525,16 @@ class CohortModel {
         .then(function(theDangerSummary) {
 
           resolve();
-        },
-        function(error) {
+        })
+        .catch(function(error) {
           var msg = "An error occurred in promiseSummarizeDanger() when calling VariantModel.promiseGetDangerSummary(): " + error;
           console.log(msg);
           reject(msg);
         })
 
 
-      },
-      function(error) {
+      })
+      .catch(function(error) {
         var msg = "An error occurred in CohortModel.promiseSummarizeDanger() when calling promiseGetCachedGeneCoverage(): " + error;
         console.log(msg);
         reject(msg);
@@ -528,7 +552,7 @@ class CohortModel {
       var geneCoverageAll = {gene: geneObject, transcript: transcript, geneCoverage: {}};
 
       var promises = [];
-      self.getModels().forEach(function(model) {
+      self.sampleModels.forEach(function(model) {
         if (model.isBamLoaded()) {
           if (showProgress) {
             //vc.showBamProgress("Analyzing coverage in coding regions");
@@ -540,8 +564,8 @@ class CohortModel {
             if (showProgress) {
               //getVariantCard(data.model.getRelationship()).endBamProgress();
             }
-           },
-           function(error) {
+           })
+           .catch(function(error) {
             reject(error);
            })
           promises.push(promise);

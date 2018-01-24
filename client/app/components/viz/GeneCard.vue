@@ -1,5 +1,7 @@
 <style lang="css">
-
+  #gene-viz .current {
+      outline: none;
+  }
   .content .btn__content {
     color:  rgb(113,113,113);
   }
@@ -97,7 +99,7 @@
                 label="Gene source"
                 class="input-group--focused"
                 item-value="text"
-                v-on:input="onGeneSourceSelected">
+                @input="onGeneSourceSelected">
             </v-select>
           </div>
 
@@ -105,7 +107,7 @@
             v-bind:class="{ hide: !showGene }"
             :selectedGene="selectedGene"
             :selectedTranscript="selectedTranscript"
-            v-on:transcriptSelected="onTranscriptSelected">
+            @transcriptSelected="onTranscriptSelected">
           </transcripts-viz>
 
         </div>
@@ -160,8 +162,8 @@
         :regionStart="parseInt(selectedGene.start)"
         :regionEnd="parseInt(selectedGene.end)"
         :showBrush=true
-        v-on:region-zoom="onRegionZoom"
-        v-on:region-zoom-reset="onRegionZoomReset"
+        @region-zoom="onRegionZoom"
+        @region-zoom-reset="onRegionZoomReset"
         >
       </gene-viz>
 

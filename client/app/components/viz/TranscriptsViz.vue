@@ -60,7 +60,7 @@
                   :regionEnd="selectedGene.end"
                   :showBrush=false
                   :showXAxis=false
-                  v-on:transcript-selected="onTranscriptSelected">
+                  @transcript-selected="onTranscriptSelected">
                 </gene-viz>
 
             </v-card-text>

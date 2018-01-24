@@ -8,6 +8,8 @@ function VariantModel() {
   this.fbData = null;
   this.bamData = null;
 
+  this.loadedVariants = null;
+
   this.vcfUrlEntered = false;
   this.vcfFileOpened = false;
   this.getVcfRefName = null;

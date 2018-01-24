@@ -530,8 +530,8 @@ class GeneModel {
       } else {
         me.promiseGetGeneObject(geneName).then(function(geneObject) {
           resolve(geneObject);
-        },
-        function(error) {
+        })
+        .catch(function(error) {
           if (resolveOnError) {
             resolve(null);
           } else {

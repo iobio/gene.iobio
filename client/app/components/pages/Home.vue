@@ -17,20 +17,31 @@
     <v-content>
       <v-container fluid>
         <gene-card
-          v-bind:selectedGene="selectedGene"
-          v-bind:selectedTranscript="selectedTranscript"
-          v-on:transcript-selected="onTranscriptSelected"
-          v-on:gene-source-selected="onGeneSourceSelected"
-          v-on:gene-region-buffer-change="onGeneRegionBufferChange"
-          v-on:gene-region-zoom="onGeneRegionZoom"
-          v-on:gene-region-zoom-reset="onGeneRegionZoomReset"
+          :selectedGene="selectedGene"
+          :selectedTranscript="selectedTranscript"
+          @transcript-selected="onTranscriptSelected"
+          @gene-source-selected="onGeneSourceSelected"
+          @gene-region-buffer-change="onGeneRegionBufferChange"
+          @gene-region-zoom="onGeneRegionZoom"
+          @gene-region-zoom-reset="onGeneRegionZoomReset"
           >
         </gene-card>
 
-        <variant-card v-for="model in cohortModels"
-        v-bind:name="model.name"
-        >
-        </variant-card>
+          <variant-card
+          v-for="model in models"
+          :name="model.name"
+          :relationship="model.relationship"
+          :width="cardWidth"
+          :key="model.relationship"
+          :selectedGene="selectedGene"
+          :selectedTranscript="selectedTranscript"
+          :regionStart="geneRegionStart"
+          :regionEnd="geneRegionEnd"
+          :loadedVariants="model.loadedVariants"
+          :inProgress="inProgress"
+          :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
+          >
+          </variant-card>
 
       </v-container>
     </v-content>
@@ -69,8 +80,12 @@ export default {
 
 
       cohortModel: null,
+      models: [],
       geneModel: null,
-      filterModel: null
+      filterModel: null,
+      inProgress: false,
+
+      cardWidth: 0
     }
   },
 
@@ -80,6 +95,8 @@ export default {
 
   mounted: function() {
     let self = this;
+
+    self.cardWidth = self.$el.offsetWidth;
 
 
     genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
@@ -102,6 +119,7 @@ export default {
       return self.cohortModel.promiseInitDemo();
     })
     .then(function() {
+      self.models = self.cohortModel.sampleModels;
       self.filterModel = new FilterModel(self.cohortModel.affectedInfo);
     },
     function(error) {
@@ -110,8 +128,14 @@ export default {
   },
 
   computed: {
-    cohortModels: function() {
-      return this.cohortModel ? this.cohortModel.getModels() : [];
+
+  },
+
+  watch: {
+    cohortModel: function() {
+      if (this.cohortModel) {
+        this.models = this.cohortModel.sampleModels;
+      }
     }
   },
 
@@ -124,8 +148,8 @@ export default {
          .then(function() {
           cacheHelper.isolateSession();
           resolve();
-         },
-         function(error) {
+         })
+         .catch(function(error) {
           var msg = "A problem occurred in promiseInitCache(): " + error;
           console.log(msg);
           reject(msg);
@@ -135,18 +159,23 @@ export default {
 
     promiseLoadData: function() {
       let self = this;
-      console.log("Loading data"  + self.geneModel);
+
+      self.inProgress = true;
 
       return new Promise(function(resolve, reject) {
-        self.cohortModel.promiseLoadData(self.selectedGene, self.selectedTranscript, false, self.filterModel)
+        self.cohortModel.promiseLoadData(self.selectedGene,
+          self.selectedTranscript,
+          self.filterModel,
+          {getKnownVariants: true})
         .then(function(resultMap) {
             self.filterModel.populateEffectFilters(resultMap);
             self.filterModel.populateRecFilters(resultMap);
             //var bp = me._promiseDetermineVariantBookmarks(vcfData, theGene, theTranscript);
             //bookmarkPromises.push(bp);
+            self.inProgress = false;
             resolve();
-        },
-        function(error) {
+        })
+        .catch(function(error) {
           reject(error);
         })
 
@@ -162,6 +191,8 @@ export default {
       .then(function(theGeneObject) {
         self.geneModel.adjustGeneRegion(theGeneObject, parseInt(self.geneRegionBuffer));
         self.selectedGene = theGeneObject;
+        self.geneRegionStart = self.selectedGene.start;
+        self.geneRegionEnd   = self.selectedGene.end;
         self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
         self.promiseLoadData()
         .then(function() {
@@ -185,11 +216,13 @@ export default {
     onGeneRegionZoom: function(theStart, theEnd) {
       this.geneRegionStart = theStart;
       this.geneRegionEnd = theEnd;
+      this.cohortModel.setLoadedVariants(this.selectedGene, this.geneRegionStart, this.geneRegionEnd);
       console.log("gene region zoom = " + this.geneRegionStart + '-' + this.geneRegionEnd);
     },
     onGeneRegionZoomReset: function() {
-      this.geneRegionStart = null;
-      this.geneRegionEnd = null;
+      this.geneRegionStart = this.selectedGene.start;
+      this.geneRegionEnd = this.selectedGene.end;
+      this.cohortModel.setLoadedVariants(this.selectedGene);
        console.log("gene region zoom reset");
     }
 
