@@ -38,8 +38,12 @@
           :regionStart="geneRegionStart"
           :regionEnd="geneRegionEnd"
           :loadedVariants="model.loadedVariants"
+          :coverage="model.coverage"
+          :maxDepth="cohortModel.maxDepth"
           :inProgress="inProgress"
           :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
+          :showDepthViz="model.relationship != 'known-variants'"
+          :showVariantViz="model.relationship != 'known-variants' || showClinvarVariants"
           >
           </variant-card>
 
@@ -85,7 +89,9 @@ export default {
       filterModel: null,
       inProgress: false,
 
-      cardWidth: 0
+      cardWidth: 0,
+
+      showClinvarVariants: false
     }
   },
 
@@ -166,7 +172,7 @@ export default {
         self.cohortModel.promiseLoadData(self.selectedGene,
           self.selectedTranscript,
           self.filterModel,
-          {getKnownVariants: true})
+          {getKnownVariants: self.showClinvarVariants})
         .then(function(resultMap) {
             self.filterModel.populateEffectFilters(resultMap);
             self.filterModel.populateRecFilters(resultMap);

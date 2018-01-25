@@ -15,6 +15,7 @@ class CohortModel {
     this.mode = 'single';
     this.maxAlleleCount = null;
     this.affectedInfo = null;
+    this.maxDepth = 0;
    }
 
   promiseInitDemo() {
@@ -182,7 +183,7 @@ class CohortModel {
     let self = this;
 
     return new Promise(function(resolve, reject) {
-      self.clearLoadedVariants();
+      self.clearLoadedData();
 
       let cohortResultMap = null;
       self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, options.getKnownVariants)
@@ -196,7 +197,12 @@ class CohortModel {
         // determine if there is insufficient coverage in any of the sample's coding regions
         return self.promiseGetCachedGeneCoverage(theGene, theTranscript, true);
       })
-      .then(function() {
+      .then(function(data) {
+        return self.promiseLoadBamDepth(theGene, theTranscript);
+      })
+      .then(function(data) {
+
+        self.setCoverage();
 
         // Now summarize the danger for the selected gene
         self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null, filterModel)
@@ -210,10 +216,11 @@ class CohortModel {
   }
 
 
-  clearLoadedVariants() {
+  clearLoadedData() {
     let self = this;
     self.sampleModels.forEach(function(model) {
       model.loadedVariants = {loadState: {}, features: [], maxLevel: 1, featureWidth: 0};
+      model.coverage = [[0,0]];
     });
   }
 
@@ -243,7 +250,20 @@ class CohortModel {
     })
   }
 
-
+  setCoverage() {
+    let self = this;
+    self.getCanonicalModels().forEach(function(model) {
+      if (model.bamData) {
+        model.coverage = model.bamData.coverage;
+        if (model.coverage) {
+          var max = d3.max(model.coverage, function(d,i) { return d[1]});
+          if (max > self.maxDepth) {
+            self.maxDepth = max;
+          }
+        }
+      }
+    })
+  }
 
   promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, getKnownVariants) {
     let self = this;
@@ -585,6 +605,35 @@ class CohortModel {
 
   }
 
+  promiseLoadBamDepth(theGene, theTranscript) {
+    let self = this;
+
+    return new Promise(function(resolve, reject) {
+      let promises = [];
+      let theResultMap = {};
+      self.getCanonicalModels().forEach(function(model) {
+        if (model.isBamLoaded()) {
+
+          var p =  new Promise(function(innerResolve, innerReject) {
+            var theModel = model;
+            theModel.getBamDepth(theGene, theTranscript, function(coverageData) {
+              theResultMap[theModel.relationship] = coverageData;
+              innerResolve();
+            });
+          })
+          promises.push(p);
+
+        }
+      })
+
+      Promise.all(promises)
+      .then(function() {
+        resolve(theResultMap);
+      })
+
+    })
+
+  }
 
 }
 

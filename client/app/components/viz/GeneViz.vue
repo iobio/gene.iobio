@@ -1,4 +1,20 @@
+<style lang="sass">
+.iobio-gene .axis
+  line, path
+    fill: none
+    stroke: lightgrey
+    shape-rendering: crispEdges
+    stroke-width: 3px
+
+.iobio-gene .brush .extent
+  stroke: #000
+  fill-opacity: .125
+  shape-rendering: crispEdges
+
+</style>
+
 <style type="text/css">
+
 
 
   .ibo-gene .cds, .ibo-gene .exon, .ibo-gene .utr {

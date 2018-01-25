@@ -8,7 +8,6 @@ function VariantModel() {
   this.fbData = null;
   this.bamData = null;
 
-  this.loadedVariants = null;
 
   this.vcfUrlEntered = false;
   this.vcfFileOpened = false;
@@ -33,6 +32,9 @@ function VariantModel() {
   this.cohort = null;
 
   this.debugMe = false;
+
+  this.loadedVariants = null;
+  this.coverage = [[]];
 
 
 }

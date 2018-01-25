@@ -243,7 +243,8 @@ lineD3 = function module() {
 
           var width = 130;
           var height = 40;
-          var left = sidebarAdjustX(d3.event.pageX - 130);
+          //var left = sidebarAdjustX(d3.event.pageX - 130);
+          var left = d3.event.pageX - 130;
           var top = d3.event.pageY - 42;
 
           // if the tooltip approaches the left sidebar, flip it to the right side
