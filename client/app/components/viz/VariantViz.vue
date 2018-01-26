@@ -218,7 +218,6 @@ export default {
     },
     watch: {
       data: function() {
-        console.log("VariantViz data has changed")
         this.update();
       }
 

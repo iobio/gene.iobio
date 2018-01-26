@@ -123,11 +123,11 @@ export default {
         type: Number,
         default: 3
       },
-      xStart: {
+      regionStart: {
         type: Number,
         default: 0
       },
-      xEnd: {
+      regionEnd: {
         type: Number,
         default: 0
       },
@@ -202,6 +202,8 @@ export default {
         var self = this;
         if (self.data) {
           self.depthChart.maxDepth(self.maxDepth);
+          self.depthChart.xStart(self.regionStart);
+          self.depthChart.xEnd(self.regionEnd);
           var selection = d3.select(self.$el).datum( self.data );
           self.depthChart(selection);
         } else {

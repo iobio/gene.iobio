@@ -250,11 +250,18 @@ class CohortModel {
     })
   }
 
-  setCoverage() {
+  setCoverage(regionStart, regionEnd) {
     let self = this;
     self.getCanonicalModels().forEach(function(model) {
       if (model.bamData) {
-        model.coverage = model.bamData.coverage;
+        if (regionStart && regionEnd) {
+          model.coverage = model.bamData.coverage.filter(function(depth) {
+            return depth[0] >= regionStart && depth[0] <= regionEnd;
+          })
+        } else {
+          model.coverage = model.bamData.coverage;
+        }
+
         if (model.coverage) {
           var max = d3.max(model.coverage, function(d,i) { return d[1]});
           if (max > self.maxDepth) {
@@ -263,7 +270,6 @@ class CohortModel {
         }
       }
     })
-    console.log("max depth calculated = " + self.maxDepth);
   }
 
   promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, getKnownVariants) {

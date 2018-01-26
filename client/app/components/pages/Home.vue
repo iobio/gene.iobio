@@ -204,7 +204,6 @@ export default {
         self.geneModel.adjustGeneRegion(theGeneObject, parseInt(self.geneRegionBuffer));
         self.geneRegionStart = theGeneObject.start;
         self.geneRegionEnd   = theGeneObject.end;
-        console.log(self.geneRegionStart + " " + self.geneRegionEnd);
         self.selectedGene = theGeneObject;
         self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
         self.promiseLoadData()
@@ -230,13 +229,13 @@ export default {
       this.geneRegionStart = theStart;
       this.geneRegionEnd = theEnd;
       this.cohortModel.setLoadedVariants(this.selectedGene, this.geneRegionStart, this.geneRegionEnd);
-      console.log("gene region zoom = " + this.geneRegionStart + '-' + this.geneRegionEnd);
+      this.cohortModel.setCoverage(this.geneRegionStart, this.geneRegionEnd);
     },
     onGeneRegionZoomReset: function() {
       this.geneRegionStart = this.selectedGene.start;
       this.geneRegionEnd = this.selectedGene.end;
       this.cohortModel.setLoadedVariants(this.selectedGene);
-       console.log("gene region zoom reset");
+      this.cohortModel.setCoverage();
     }
 
   }

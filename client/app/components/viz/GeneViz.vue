@@ -244,7 +244,6 @@ export default {
     },
     watch: {
       data: function() {
-        console.log("gene viz updating....");
         this.update();
       }
     }

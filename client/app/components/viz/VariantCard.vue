@@ -82,6 +82,8 @@
             :data="coverage"
             :currentPoint="coveragePoint"
             :maxDepth="maxDepth"
+            :regionStart="regionStart"
+            :regionEnd="regionEnd"
             :width="width"
             :margin="depthVizMargin"
             :height="60"
