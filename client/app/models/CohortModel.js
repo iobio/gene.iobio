@@ -263,6 +263,7 @@ class CohortModel {
         }
       }
     })
+    console.log("max depth calculated = " + self.maxDepth);
   }
 
   promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, getKnownVariants) {

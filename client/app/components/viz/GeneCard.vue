@@ -73,7 +73,7 @@
             <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
 
             <span id="gene-region"  v-if="showGene"  class="level-edu level-basic gene-card-label keep-case">
-            {{ selectedGene.start | formatRegion }} - {{ selectedGene.end | formatRegion }}
+            {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
             </span>
 
             <span id="minus_strand"  v-if="selectedGene.strand == '-'"  class=" level-edu level-basic" style="font-size:12px;padding-left: 5px;font-style: italic;">reverse strand</span>

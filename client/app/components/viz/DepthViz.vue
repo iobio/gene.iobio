@@ -81,6 +81,12 @@ export default {
         type: Number,
         default: 0
       },
+      currentPoint: {
+        type: Object,
+        default: function() {
+          return null;
+        }
+      },
       width: {
         type: Number,
         default: 0
@@ -125,9 +131,9 @@ export default {
         type: Number,
         default: 0
       },
-      maxDepth: {
-        type: Number,
-        default: 0
+      showTooltip: {
+        type: Boolean,
+        default: false
       }
 
     },
@@ -166,6 +172,10 @@ export default {
               return val + "x";
             }
           })
+          .showTooltip(this.showTooltip)
+          .formatCircleText( function(pos, depth) {
+            return depth + 'x' ;
+          })
           /*
           .regionGlyph(function(d,i,regionX) {
             var parent = d3.select(this.parentNode);
@@ -184,19 +194,6 @@ export default {
                       .data([d]);
             }
           })
-          .showTooltip(true)
-          .pos( function(d) { return d[0] })
-            .depth( function(d) { return d[1] })
-            .formatCircleText( function(pos, depth) {
-              return depth + 'x' ;
-            })
-            .on("d3regiontooltip", function(featureObject, feature, tooltip, lock, onClose) {
-            me.showExonTooltip(featureObject, feature, tooltip, lock, onClose);
-            })
-            .on("d3horizontallineclick", function(label) {
-            showSidebar('Filter')
-              $('#filter-track #coverage-thresholds').addClass('attention');
-            })
 */
 
           this.setDepthChart();
@@ -204,6 +201,7 @@ export default {
       update: function() {
         var self = this;
         if (self.data) {
+          self.depthChart.maxDepth(self.maxDepth);
           var selection = d3.select(self.$el).datum( self.data );
           self.depthChart(selection);
         } else {
@@ -217,10 +215,14 @@ export default {
     },
     watch: {
       data: function() {
-        console.log("data for DepthViz has changed");
         this.update();
+      },
+      currentPoint: function() {
+        let self = this;
+        if (self.currentPoint) {
+          self.depthChart.showCircle()(self.currentPoint.pos, self.currentPoint.depth);
+        }
       }
-
     }
 }
 </script>

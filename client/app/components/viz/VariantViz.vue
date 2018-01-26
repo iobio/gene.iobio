@@ -132,7 +132,8 @@ export default {
           })
           .on('d3click', function(d) {
           })
-          .on('d3mouseover', function(d) {
+          .on('d3mouseover', function(variant) {
+            self.onMouseOver(variant);
           })
           .on('d3mouseout', function() {
           })
@@ -156,9 +157,17 @@ export default {
             self.variantChart.showXAxis(self.showXAxis);
           }
 
+          self.variantChart.regionStart(self.regionStart);
+          self.variantChart.regionEnd(self.regionEnd);
+
+
           var selection = d3.select(self.$el).datum( [self.data] );
           self.variantChart(selection);
         }
+      },
+      onMouseOver: function(variant) {
+        let self = this;
+        self.$emit("variantHover", variant);
       },
       setVariantChart: function() {
         this.$emit('updateVariantChart', this.variantChart);

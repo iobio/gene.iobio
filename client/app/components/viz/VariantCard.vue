@@ -4,6 +4,9 @@
  */
 <style lang="sass">
 
+#bam-track
+  margin-top: -5px
+
 #variant-card
   #gene-viz
     .axis
@@ -59,31 +62,34 @@
           </div>
         </div>
 
-<div>
         <variant-viz
           v-if="showVariantViz"
           :data="loadedVariants"
           :regionStart="regionStart"
-          :reginEnd="regionEnd"
+          :regionEnd="regionEnd"
           :width="width"
           :margin="variantVizMargin"
           :variantHeight="variantSymbolHeight"
           :variantPadding="variantSymbolPadding"
           :showBrush="false"
-          :showXAxis="true">
+          :showXAxis="true"
+          @variantHover="showCoverageCircle">
         </variant-viz>
-</div>
 
-        <depth-viz
-          v-if="showDepthViz"
-          :data="coverage"
-          :maxDepth="maxDepth"
-          :width="width"
-          :margin="depthVizMargin"
-          :height="80"
-          :showXAxis="false"
-        >
-        </depth-viz>
+        <div id="bam-track">
+          <depth-viz
+            v-if="showDepthViz"
+            :data="coverage"
+            :currentPoint="coveragePoint"
+            :maxDepth="maxDepth"
+            :width="width"
+            :margin="depthVizMargin"
+            :height="60"
+            :showTooltip="false"
+            :showXAxis="false"
+          >
+          </depth-viz>
+        </div>
 
         <gene-viz id="gene-viz"
           v-bind:class="{ hide: !showGeneViz }"
@@ -98,6 +104,7 @@
           :showBrush="false"
           >
         </gene-viz>
+
       </div>
     </v-card-title>
 
@@ -171,10 +178,11 @@ export default {
       depthVizMargin: {
         top: 22,
         right: isLevelBasic || isLevelEdu ? 7 : 2,
-        bottom: 20,
+        bottom: 0,
         left: isLevelBasic || isLevelEdu ? 9 : 4
       },
-      depthVizYTickFormatFunc: null
+      depthVizYTickFormatFunc: null,
+      coveragePoint: null
 
     }
   },
@@ -187,6 +195,35 @@ export default {
       } else {
         return val + "x";
       }
+    },
+    showCoverageCircle: function(variant) {
+      let self = this;
+
+      if (self.coverage != null) {
+        let theDepth = null;
+        if (variant.bamDepth != null && variant.bamDepth != '') {
+          theDepth = variant.bamDepth;
+        } else {
+          var matchingVariants = self.loadedVariants.features.filter(function(v) {
+            return v.start == variant.start && v.alt == variant.alt && v.ref == variant.ref;
+          })
+
+          if (matchingVariants.length > 0) {
+            theDepth = matchingVariants[0].bamDepth;
+            // If samtools mpileup didn't return coverage for this position, use the variant's depth
+            // field.
+            if (theDepth == null || theDepth == '') {
+              theDepth = matchingVariants[0].genotypeDepth;
+            }
+          }
+        }
+
+        if (theDepth) {
+          self.coveragePoint = {pos: variant.start, depth: theDepth};
+        }
+      }
+
+
     }
 
   },
@@ -196,6 +233,9 @@ export default {
   },
 
   computed: {
+    depthVizHeight: function() {
+      this.showDepthViz ? 0 : 60;
+    }
 
   },
 

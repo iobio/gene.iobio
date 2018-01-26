@@ -39,7 +39,7 @@
           :regionEnd="geneRegionEnd"
           :loadedVariants="model.loadedVariants"
           :coverage="model.coverage"
-          :maxDepth="cohortModel.maxDepth"
+          :maxDepth="maxDepth"
           :inProgress="inProgress"
           :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
           :showDepthViz="model.relationship != 'known-variants'"
@@ -134,7 +134,13 @@ export default {
   },
 
   computed: {
-
+    maxDepth: function() {
+      if (this.cohortModel && this.cohortModel.maxDepth) {
+        return this.cohortModel.maxDepth;
+      } else {
+        return 0;
+      }
+    }
   },
 
   watch: {
@@ -196,9 +202,10 @@ export default {
       self.geneModel.promiseGetGeneObject(geneObject.gene_name)
       .then(function(theGeneObject) {
         self.geneModel.adjustGeneRegion(theGeneObject, parseInt(self.geneRegionBuffer));
+        self.geneRegionStart = theGeneObject.start;
+        self.geneRegionEnd   = theGeneObject.end;
+        console.log(self.geneRegionStart + " " + self.geneRegionEnd);
         self.selectedGene = theGeneObject;
-        self.geneRegionStart = self.selectedGene.start;
-        self.geneRegionEnd   = self.selectedGene.end;
         self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
         self.promiseLoadData()
         .then(function() {
