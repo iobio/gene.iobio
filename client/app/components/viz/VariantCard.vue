@@ -79,6 +79,7 @@
         <div id="bam-track">
           <depth-viz
             v-if="showDepthViz"
+            ref="depthVizRef"
             :data="coverage"
             :currentPoint="coveragePoint"
             :maxDepth="maxDepth"
@@ -221,7 +222,8 @@ export default {
         }
 
         if (theDepth) {
-          self.coveragePoint = {pos: variant.start, depth: theDepth};
+          //self.coveragePoint = {pos: variant.start, depth: theDepth};
+          self.$refs.depthVizRef.showCurrentPoint({pos: variant.start, depth: theDepth});
         }
       }
 

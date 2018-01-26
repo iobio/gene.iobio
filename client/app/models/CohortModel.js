@@ -642,6 +642,7 @@ class CohortModel {
 
   }
 
+
 }
 
 export default CohortModel;

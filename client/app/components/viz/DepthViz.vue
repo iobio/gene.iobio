@@ -213,17 +213,14 @@ export default {
       },
       setDepthChart: function() {
         this.$emit('updateDepthChart', this.depthChart);
+      },
+      showCurrentPoint: function(point) {
+        this.depthChart.showCircle()(point.pos, point.depth);
       }
     },
     watch: {
       data: function() {
         this.update();
-      },
-      currentPoint: function() {
-        let self = this;
-        if (self.currentPoint) {
-          self.depthChart.showCircle()(self.currentPoint.pos, self.currentPoint.depth);
-        }
       }
     }
 }
