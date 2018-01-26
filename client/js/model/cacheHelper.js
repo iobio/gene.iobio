@@ -1003,8 +1003,8 @@ CacheHelper.prototype._promiseClearCache = function(launchTimestampToClear, clea
           if (keyObject.launchTimestamp == theLaunchTimeStamp && !clearOther && !clearOtherApp) {
             keysToRemove.push(key);
             if (keyObject.gene && keyObject.relationship == 'proband') {
-              genesCard.clearGeneGlyphs(keyObject.gene);
-              genesCard.clearGeneInfo(keyObject.gene);
+              //genesCard.clearGeneGlyphs(keyObject.gene);
+              //genesCard.clearGeneInfo(keyObject.gene);
 
             }
           } else if (keyObject.launchTimestamp != theLaunchTimeStamp && clearOther && !clearOtherApp) {
@@ -1024,16 +1024,16 @@ CacheHelper.prototype._promiseClearCache = function(launchTimestampToClear, clea
 
       Promise.all(promises).then(function() {
         if (clearCurrentSessionCache) {
-          window.gene = null;
-          genesCard._hideCurrentGene();
+          //window.gene = null;
+          //genesCard._hideCurrentGene();
 
-          filterCard.clearFilters();
-          if (window.variantCards && window.variantCards.length > 0) {
-            filterVariants();
-          }
-          filterCard.resetStandardFilterCounts();
+          //filterCard.clearFilters();
+          //if (window.variantCards && window.variantCards.length > 0) {
+          //  filterVariants();
+          //}
+          //filterCard.resetStandardFilterCounts();
 
-          me.hideAnalyzeAllProgress();
+          //me.hideAnalyzeAllProgress();
         }
 
         //if (clearOther || clearOtherApp) {

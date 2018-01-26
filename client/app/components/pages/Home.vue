@@ -169,6 +169,10 @@ export default {
       })
     },
 
+    promiseClearCache: function() {
+       return cacheHelper._promiseClearCache(cacheHelper.launchTimestampToClear);
+    },
+
     promiseLoadData: function() {
       let self = this;
 
@@ -222,8 +226,13 @@ export default {
       this.onGeneSelected(this.selectedGene);
     },
     onGeneRegionBufferChange: function(theGeneRegionBuffer) {
-      this.geneRegionBuffer = theGeneRegionBuffer;
-      this.onGeneSelected(this.selectedGene);
+      let self = this;
+      self.geneRegionBuffer = theGeneRegionBuffer;
+      // We have to clear the cache since the gene regions change
+      self.promiseClearCache()
+      .then(function() {
+        self.onGeneSelected(self.selectedGene);
+      })
     },
     onGeneRegionZoom: function(theStart, theEnd) {
       this.geneRegionStart = theStart;
