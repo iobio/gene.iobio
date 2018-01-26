@@ -104,7 +104,7 @@ function variantD3() {
       // scroll position in the container.
       matchingVariant.screenY = d3.round((window.pageYOffset + matrix.f + margin.top) - boundRect.height);
 
-      showCoordinateFrame(matchingVariant.screenX);
+      //showCoordinateFrame(matchingVariant.screenX);
 
     } else if (indicateMissingVariant) {
       var mousex = d3.round(x(d.start));

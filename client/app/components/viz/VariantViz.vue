@@ -1,4 +1,6 @@
 <style lang="sass">
+@import ../../../assets/sass/variables
+
 
 .variant
   opacity: 1
@@ -30,6 +32,30 @@
       shape-rendering: crispEdges
 
     font-size: 13px
+
+.ibo-variant .circle, .ibo-variant .arrow-line
+  stroke: $arrow-color
+  stroke-width: 2
+
+  fill: none
+  pointer-events: none
+
+.ibo-variant.circle.emphasize, .ibo-variant .arrow-line.emphasize
+  stroke: $arrow-color
+  fill: none
+  stroke-width: 3
+  pointer-events: none
+
+.ibo-variant .arrow, .ibo-variant .arrow.emphasize
+  stroke: $arrow-color
+  pointer-events: none
+
+.ibo-variant
+  .axis.x
+    .tick
+      line
+        display: none
+        stroke: rgba(211, 211, 211, 0.84)
 
 </style>
 
@@ -131,11 +157,13 @@ export default {
           .on("d3rendered", function() {
           })
           .on('d3click', function(d) {
+
           })
           .on('d3mouseover', function(variant) {
-            self.onMouseOver(variant);
+            self.onVariantHover(variant);
           })
           .on('d3mouseout', function() {
+            self.onVariantHoverEnd();
           })
 
 
@@ -165,9 +193,26 @@ export default {
           self.variantChart(selection);
         }
       },
-      onMouseOver: function(variant) {
+      onVariantHover: function(variant) {
         let self = this;
         self.$emit("variantHover", variant);
+
+        global.bus.$emit('cohortVariantHover', variant);
+      },
+      onVariantHoverEnd: function(variant) {
+        let self = this;
+        self.$emit("variantHoverEnd", variant);
+
+        global.bus.$emit('cohortVariantHoverEnd');
+      },
+      showVariantCircle: function(variant, container, lock) {
+        let matchingVariants = this.data.features.filter(function(v) {
+          return v.start == variant.start && v.ref == variant.ref && v.end == variant.end;
+        })
+        this.variantChart.showCircle()(variant, container, matchingVariants.length == 0, lock);
+      },
+      hideVariantCircle: function(container) {
+        this.variantChart.hideCircle()(container);
       },
       setVariantChart: function() {
         this.$emit('updateVariantChart', this.variantChart);

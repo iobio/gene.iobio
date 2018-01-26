@@ -216,6 +216,9 @@ export default {
       },
       showCurrentPoint: function(point) {
         this.depthChart.showCircle()(point.pos, point.depth);
+      },
+      hideCurrentPoint: function(point) {
+        this.depthChart.hideCircle()();
       }
     },
     watch: {

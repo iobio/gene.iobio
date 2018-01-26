@@ -20,6 +20,7 @@ import '../assets/css/siteVuetify.css'
 Vue.use(Vuetify)
 
 
+global.bus = new Vue();
 
 
 

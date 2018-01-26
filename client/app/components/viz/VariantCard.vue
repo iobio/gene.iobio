@@ -62,8 +62,9 @@
           </div>
         </div>
 
-        <variant-viz
+        <variant-viz id="loaded-variant-viz"
           v-if="showVariantViz"
+          ref="variantVizRef"
           :data="loadedVariants"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
@@ -73,7 +74,8 @@
           :variantPadding="variantSymbolPadding"
           :showBrush="false"
           :showXAxis="true"
-          @variantHover="showCoverageCircle">
+          @variantHover="onVariantHover"
+          @variantHoverEnd="onVariantHoverEnd">
         </variant-viz>
 
         <div id="bam-track">
@@ -199,6 +201,33 @@ export default {
         return val + "x";
       }
     },
+    onVariantHover: function(variant) {
+      if (this.showDepthViz) {
+        this.showCoverageCircle(variant);
+      }
+      if (this.showVariantViz) {
+        this.showVariantCircle(variant);
+      }
+    },
+    onVariantHoverEnd: function() {
+      if (this.showDepthViz) {
+        this.hideCoverageCircle();
+      }
+      if (this.showVariantViz) {
+        this.hideVariantCircle();
+      }
+    },
+    showVariantCircle: function(variant) {
+      var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
+      this.$refs.variantVizRef.showVariantCircle(variant, container, false);
+    },
+    hideVariantCircle: function(variant) {
+      var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
+      this.$refs.variantVizRef.hideVariantCircle(container);
+    },
+    hideCoverageCircle: function() {
+      this.$refs.depthVizRef.hideCurrentPoint();
+    },
     showCoverageCircle: function(variant) {
       let self = this;
 
@@ -222,7 +251,6 @@ export default {
         }
 
         if (theDepth) {
-          //self.coveragePoint = {pos: variant.start, depth: theDepth};
           self.$refs.depthVizRef.showCurrentPoint({pos: variant.start, depth: theDepth});
         }
       }

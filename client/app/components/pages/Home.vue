@@ -28,6 +28,7 @@
         </gene-card>
 
           <variant-card
+          ref="variantCardRef"
           v-for="model in models"
           :name="model.name"
           :relationship="model.relationship"
@@ -55,6 +56,7 @@
 
 
 <script>
+
 
 import Navigation from '../partials/Navigation.vue'
 import GeneCard  from  '../viz/GeneCard.vue'
@@ -104,6 +106,17 @@ export default {
 
     self.cardWidth = self.$el.offsetWidth;
 
+    global.bus.$on('cohortVariantHover', function (variant) {
+      self.$refs.variantCardRef.forEach(function(variantCard) {
+        variantCard.onVariantHover(variant);
+      })
+    })
+
+    global.bus.$on('cohortVariantHoverEnd', function (variant) {
+      self.$refs.variantCardRef.forEach(function(variantCard) {
+        variantCard.onVariantHoverEnd();
+      })
+    })
 
     genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
     .then(function() {
