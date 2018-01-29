@@ -6,6 +6,13 @@
 
   .app-card
     margin-bottom: 10px
+
+  #data-sources-loader
+    margin-top: 20px
+    margin-left: auto
+    margin-right: auto
+    text-align: center
+
 </style>
 
 
@@ -13,10 +20,15 @@
 <template>
 
   <div>
-    <navigation v-on:input="onGeneSelected"></navigation>
+    <navigation
+      @input="onGeneSelected"
+      @navLoadDemoData="onLoadDemoData"
+    >
+    </navigation>
     <v-content>
       <v-container fluid>
         <gene-card
+          v-bind:class="{ hide: Object.keys(selectedGene).length == 0 }"
           :selectedGene="selectedGene"
           :selectedTranscript="selectedTranscript"
           @transcript-selected="onTranscriptSelected"
@@ -27,26 +39,36 @@
           >
         </gene-card>
 
-          <variant-card
-          ref="variantCardRef"
-          v-for="model in models"
-          :name="model.name"
-          :relationship="model.relationship"
-          :width="cardWidth"
-          :key="model.relationship"
-          :selectedGene="selectedGene"
-          :selectedTranscript="selectedTranscript"
-          :regionStart="geneRegionStart"
-          :regionEnd="geneRegionEnd"
-          :loadedVariants="model.loadedVariants"
-          :coverage="model.coverage"
-          :maxDepth="maxDepth"
-          :inProgress="inProgress"
-          :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
-          :showDepthViz="model.relationship != 'known-variants'"
-          :showVariantViz="model.relationship != 'known-variants' || showClinvarVariants"
-          >
-          </variant-card>
+
+        <div
+        id="data-sources-loader"
+        class="loader"
+        v-bind:class="{ hide: !cohortModel ||  !cohortModel.inProgress.loadingDataSources }">
+          <span class="loader-label">Loading files</span>
+          <img src="../../../assets/images/wheel.gif">
+        </div>
+
+        <variant-card
+        ref="variantCardRef"
+        v-for="model in models"
+        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources }"
+        :name="model.name"
+        :relationship="model.relationship"
+        :width="cardWidth"
+        :key="model.relationship"
+        :selectedGene="selectedGene"
+        :selectedTranscript="selectedTranscript"
+        :regionStart="geneRegionStart"
+        :regionEnd="geneRegionEnd"
+        :loadedVariants="model.loadedVariants"
+        :coverage="model.coverage"
+        :maxDepth="maxDepth"
+        :inProgress="cohortModel.inProgress"
+        :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
+        :showDepthViz="model.relationship != 'known-variants'"
+        :showVariantViz="model.relationship != 'known-variants' || showClinvarVariants"
+        >
+        </variant-card>
 
       </v-container>
     </v-content>
@@ -89,7 +111,7 @@ export default {
       models: [],
       geneModel: null,
       filterModel: null,
-      inProgress: false,
+
 
       cardWidth: 0,
 
@@ -135,7 +157,7 @@ export default {
       self.geneModel.geneSource = siteGeneSource;
 
       self.cohortModel = new CohortModel(self.geneModel);
-      return self.cohortModel.promiseInitDemo();
+
     })
     .then(function() {
       self.models = self.cohortModel.sampleModels;
@@ -157,11 +179,6 @@ export default {
   },
 
   watch: {
-    cohortModel: function() {
-      if (this.cohortModel) {
-        this.models = this.cohortModel.sampleModels;
-      }
-    }
   },
 
   methods: {
@@ -186,10 +203,20 @@ export default {
        return cacheHelper._promiseClearCache(cacheHelper.launchTimestampToClear);
     },
 
+    onLoadDemoData: function() {
+      let self = this;
+      self.cohortModel.promiseInitDemo()
+      .then(function() {
+        self.models = self.cohortModel.sampleModels;
+        if (self.selectedGene) {
+          self.promiseLoadData();
+        }
+      })
+    },
+
     promiseLoadData: function() {
       let self = this;
 
-      self.inProgress = true;
 
       return new Promise(function(resolve, reject) {
         self.cohortModel.promiseLoadData(self.selectedGene,
@@ -201,7 +228,6 @@ export default {
             self.filterModel.populateRecFilters(resultMap);
             //var bp = me._promiseDetermineVariantBookmarks(vcfData, theGene, theTranscript);
             //bookmarkPromises.push(bp);
-            self.inProgress = false;
             resolve();
         })
         .catch(function(error) {

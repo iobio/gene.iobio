@@ -13,7 +13,9 @@
 
   .toolbar__title {
     font-family: Quicksand;
-    font-size: 26px;
+    font-size: 28px;
+    margin-right: 20px;
+    padding-bottom: 5px;
   }
 </style>
 
@@ -49,7 +51,20 @@
           <v-icon>bookmark</v-icon>
           Bookmark
         </v-btn>
+
+
       </v-toolbar-items>
+
+      <v-spacer></v-spacer>
+
+      <v-menu offset-y>
+        <v-btn flat slot="activator">Help</v-btn>
+        <v-list>
+          <v-list-tile  @click="onLoadDemoData">
+            <v-list-tile-title>Load Demo Data</v-list-tile-title>
+          </v-list-tile>
+        </v-list>
+      </v-menu>
     </v-toolbar>
     <v-navigation-drawer
       fixed
@@ -110,6 +125,9 @@ export default {
     }
   },
   methods: {
+    onLoadDemoData: function() {
+      this.$emit("navLoadDemoData");
+    }
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');

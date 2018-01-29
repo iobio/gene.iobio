@@ -16,10 +16,21 @@ class CohortModel {
     this.maxAlleleCount = null;
     this.affectedInfo = null;
     this.maxDepth = 0;
+
+
+    this.inProgress = {
+      'loadingDataSources': false,
+      'loadingVariants': false,
+      'callingVariants': false,
+      'loadingCoverage': false
+    };
+
    }
 
   promiseInitDemo() {
     let self = this;
+
+    self.inProgress.loadingDataSources = true;
 
     return new Promise(function(resolve, reject) {
       self.sampleModels = [];
@@ -37,9 +48,11 @@ class CohortModel {
             self.promiseAddClinvarSample()
             .then(function(sample) {
               self.setAffectedInfo();
+              self.inProgress.loadingDataSources = false;
               resolve(self.sampleModels);
             })
             .catch(function(error) {
+              self.inProgress.loadingDataSources = false;
               reject(error);
             })
           })
@@ -181,35 +194,84 @@ class CohortModel {
 
   promiseLoadData(theGene, theTranscript, filterModel, options) {
     let self = this;
+    let promises = [];
 
     return new Promise(function(resolve, reject) {
-      self.clearLoadedData();
+      if (Object.keys(self.sampleMap).length == 0) {
+        resolve();
+      } else {
+        self.clearLoadedData();
+        self.inProgress.loadingVariants = true;
+        self.inProgress.loadingCoverage = true;
 
-      let cohortResultMap = null;
+        let cohortResultMap = null;
+
+        let p1 = self.promiseLoadVariants(theGene, theTranscript, filterModel, options)
+        .then(function(data) {
+          cohortResultMap = data.resultMap;
+          self.setLoadedVariants(data.gene);
+          self.inProgress.loadingVariants = false;
+        })
+        promises.push(p1);
+
+        let p2 = self.promiseLoadCoverage(theGene, theTranscript)
+        .then(function() {
+          self.setCoverage();
+          self.inProgress.loadingCoverage = false;
+        })
+        promises.push(p2);
+
+        Promise.all(promises)
+        .then(function() {
+            // Now summarize the danger for the selected gene
+            self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null, filterModel)
+            .then(function() {
+              resolve();
+            })
+        })
+        .catch(function(error) {
+          self.inProgress.loadingVariants = false;
+          self.inProgress.loadingCoverage = false;
+          reject(error);
+        })
+
+      }
+
+    })
+  }
+
+  promiseLoadVariants(theGene, theTranscript, filterModel, options) {
+    let self = this;
+
+    return new Promise(function(resolve, reject) {
       self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, options.getKnownVariants)
       .then(function(resultMap) {
-        cohortResultMap = resultMap;
         // the variants are fully annotated so determine inheritance (if trio).
-        return self.promiseAnnotateInheritance(theGene, theTranscript, cohortResultMap, {isBackground: false, cacheData: true})
+        return self.promiseAnnotateInheritance(theGene, theTranscript, resultMap, {isBackground: false, cacheData: true})
       })
-      .then(function(data) {
-        cohortResultMap = data.resultMap;
-        // determine if there is insufficient coverage in any of the sample's coding regions
-        return self.promiseGetCachedGeneCoverage(theGene, theTranscript, true);
+      .then(function(resultMap) {
+        resolve(resultMap);
       })
+      .catch(function(error) {
+        reject(error);
+      })
+    })
+
+  }
+  promiseLoadCoverage(theGene, theTranscript) {
+    let self = this;
+
+    return new Promise(function(resolve, reject) {
+
+      self.promiseGetCachedGeneCoverage(theGene, theTranscript, true)
       .then(function(data) {
         return self.promiseLoadBamDepth(theGene, theTranscript);
       })
       .then(function(data) {
-
-        self.setCoverage();
-
-        // Now summarize the danger for the selected gene
-        self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null, filterModel)
-        .then(function() {
-          self.setLoadedVariants(theGene);
-          resolve();
-        })
+        resolve(data);
+      })
+      .catch(function(error) {
+        reject(error);
       })
     })
 

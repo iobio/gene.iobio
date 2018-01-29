@@ -20,6 +20,7 @@ class GeneModel {
 
     this.clinvarGenes = {};
 
+
   }
 
   addGeneName(theGeneName) {

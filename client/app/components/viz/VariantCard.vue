@@ -48,15 +48,15 @@
       <div style="width:100%">
 
         <div style="text-align: center;clear: both;">
-          <div class="loader vcfloader" v-bind:class="{ hide: !inProgress }" style="display: inline-block;">
+          <div class="loader vcfloader" v-bind:class="{ hide: !inProgress.loadingVariants }" style="display: inline-block;">
             <span class="loader-label">Annotating variants</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
-          <div class="loader fbloader hide" style="display: inline-block;padding-left: 20px;">
+          <div class="loader fbloader" v-bind:class="{ hide: !inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;">
             <span class="loader-label">Calling variants</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
-          <div class="loader covloader hide" style="display: inline-block;padding-left: 20px;">
+          <div class="loader covloader" v-bind:class="{ hide: !inProgress.loadingCoverage }"style="display: inline-block;padding-left: 20px;">
             <span class="loader-label">Analyzing gene coverage</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
@@ -150,7 +150,7 @@ export default {
     regionStart: 0,
     regionEnd: 0,
     width: 0,
-    inProgress: false,
+    inProgress: {},
     showVariantViz: true,
     showGeneViz: true,
     showDepthViz: true
