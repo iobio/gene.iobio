@@ -7,9 +7,5 @@ var cacheHelper = new CacheHelper();
 var annotationScheme = 'vep';
 
 
-var glyph = new Glyph();
-var translator = new Translator();
-
-
 
 

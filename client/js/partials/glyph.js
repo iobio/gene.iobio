@@ -1,12 +1,13 @@
 class Glyph {
 
-  constructor() {
+  constructor(translator) {
+    this.translator = translator;
+
     this.CELL_SIZE_SMALL           = 18;
     this.CELL_SIZE_LARGE           = 22;
     this.CELL_SIZE                 = this.CELL_SIZE_LARGE;
     this.CELL_SIZE_EDU             = 23;
     this.CELL_WIDTH_BASIC          = 160;
-
   }
 
 
@@ -437,13 +438,6 @@ class Glyph {
     }
   }
 
-  showHighestImpactSymbol(selection, options) {
-    var variant = d3.select(selection.node().parentNode).datum();
-    var vepHighestImpacts = VariantModel.getNonCanonicalHighestImpactsVep(variant);
-    if (Object.keys(vepHighestImpacts).length > 0) {
-      matrixCard.showImpactSymbol(selection, options);
-    }
-  }
 
   showImpactBadge(selection, variant, impactClazz) {
     var me = this;

@@ -506,7 +506,7 @@ VariantModel.prototype.promiseGetVariantCount = function(data) {
 VariantModel.prototype.promiseSummarizeDanger = function(geneName, theVcfData, options, geneCoverageAll, filterModel) {
   var me = this;
   return new Promise(function(resolve, reject) {
-    var dangerSummary = VariantModel._summarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel);
+    var dangerSummary = VariantModel._summarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator());
     me.promiseCacheDangerSummary(dangerSummary, geneName).then(function() {
       resolve(dangerSummary);
     },
@@ -517,7 +517,7 @@ VariantModel.prototype.promiseSummarizeDanger = function(geneName, theVcfData, o
 }
 
 
-VariantModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel) {
+VariantModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator) {
   var dangerCounts = $().extend({}, options);
   dangerCounts.geneName = geneName;
   VariantModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel);
@@ -562,12 +562,12 @@ VariantModel._summarizeDanger = function(geneName, theVcfData, options = {}, gen
       }
 
       for (key in variant.highestSIFT) {
-      if (translator.siftMap.hasOwnProperty(key) && translator.siftMap[key].badge) {
-        var clazz = translator.siftMap[key].clazz;
-        dangerCounts.SIFT = {};
-        dangerCounts.SIFT[clazz] = {};
-        dangerCounts.SIFT[clazz][key] = variant.highestSIFT[key];
-      }
+        if (translator.siftMap.hasOwnProperty(key) && translator.siftMap[key].badge) {
+          var clazz = translator.siftMap[key].clazz;
+          dangerCounts.SIFT = {};
+          dangerCounts.SIFT[clazz] = {};
+          dangerCounts.SIFT[clazz][key] = variant.highestSIFT[key];
+        }
       }
 
       for (key in variant.highestPolyphen) {
@@ -926,6 +926,10 @@ VariantModel.prototype.getDefaultSampleName = function() {
 
 VariantModel.prototype.getAffectedInfo = function() {
   return this.cohort.affectedInfo;
+}
+
+VariantModel.prototype.getTranslator = function() {
+  return this.cohort.translator;
 }
 
 
@@ -1409,7 +1413,7 @@ VariantModel.prototype.promiseGetVariantExtraAnnotations = function(theGene, the
              false,  // is multi-sample
              me._getSamplesToRetrieve(),  // sample names
              annotationScheme.toLowerCase(), // annot scheme
-             translator.clinvarMap,  // clinvar map
+             me.getTranslator().clinvarMap,  // clinvar map
              me.getGeneModel().geneSource == 'refseq' ? true : false,
              true,  // hgvs notation
              true,  // rsid
@@ -1576,7 +1580,7 @@ VariantModel.prototype.promiseGetImpactfulVariantIds = function(theGeneObject, t
              false,        // is multi-sample
              me._getSamplesToRetrieve(),  // sample names
              annotationScheme.toLowerCase(), // annot scheme
-             translator.clinvarMap,  // clinvar map
+             me.getTranslator().clinvarMap,  // clinvar map
              me.getGeneModel().geneSource == 'refseq' ? true : false,
              true,  // hgvs notation
              true,  // rsid
@@ -1684,7 +1688,7 @@ VariantModel.prototype.promiseAnnotateVariants = function(theGene, theTranscript
              isMultiSample, // is multi-sample
              me._getSamplesToRetrieve(),
              me.getRelationship() == 'known-variants' ? 'none' : annotationScheme.toLowerCase(),
-             translator.clinvarMap,
+             me.getTranslator().clinvarMap,
              me.getGeneModel().geneSource == 'refseq' ? true : false,
              window.isLevelBasic || global_getVariantIdsForGene,  // hgvs notation
              global_getVariantIdsForGene,  // rsid
@@ -1884,7 +1888,7 @@ VariantModel.prototype.assessVariantImpact = function(theVcfData, theTranscript)
 
 
       for (key in variant.highestImpactVep) {
-        if (translator.impactMap.hasOwnProperty(key) && translator.impactMap[key].badge) {
+        if (me.getTranslator().impactMap.hasOwnProperty(key) && me.getTranslator().impactMap[key].badge) {
           if (key == 'HIGH' || key == 'MODERATE') {
             variantDanger.impact = key.toLowerCase();
           }
@@ -1892,13 +1896,13 @@ VariantModel.prototype.assessVariantImpact = function(theVcfData, theTranscript)
       }
 
       for (key in variant.highestSIFT) {
-      if (translator.siftMap.hasOwnProperty(key) && translator.siftMap[key].badge) {
+      if (me.getTranslator().siftMap.hasOwnProperty(key) && me.getTranslator().siftMap[key].badge) {
         variantDanger.sift = key.split("_").join(" ").toLowerCase();
       }
       }
 
       for (key in variant.highestPolyphen) {
-        if (translator.polyphenMap.hasOwnProperty(key) && translator.polyphenMap[key].badge) {
+        if (me.getTranslator().polyphenMap.hasOwnProperty(key) && me.getTranslator().polyphenMap[key].badge) {
         variantDanger.polyphen = key.split("_").join(" ").toLowerCase();
         }
       }
@@ -1907,8 +1911,8 @@ VariantModel.prototype.assessVariantImpact = function(theVcfData, theTranscript)
         var clinvarEntry = null;
         var clinvarDisplay = null;
         var clinvarKey = null;
-        for (var key in translator.clinvarMap) {
-          var self = translator.clinvarMap[key];
+        for (var key in me.getTranslator().clinvarMap) {
+          var self = me.getTranslator().clinvarMap[key];
           if (self.clazz == variant.clinvar) {
             clinvarEntry = self;
             clinvarDisplay = key;
@@ -1929,7 +1933,7 @@ VariantModel.prototype.assessVariantImpact = function(theVcfData, theTranscript)
 
     // Determine if the highest AF is in a range that we consider 'rare'
     if (variant.afFieldHighest) {
-      translator.afHighestMap.forEach( function(rangeEntry) {
+      me.getTranslator().afHighestMap.forEach( function(rangeEntry) {
         if (+variant.afHighest > rangeEntry.min && +variant.afHighest <= rangeEntry.max) {
           if (rangeEntry.badge) {
             variantDanger.af = +variant.afHighest;
@@ -2404,7 +2408,7 @@ VariantModel.prototype._refreshVariantsWithClinvarVCFRecs= function(theVcfData, 
           recs[vcfIter].ref == clinvarRec.ref) {
           var variant = recs[vcfIter];
 
-          var result = me.vcf.parseClinvarInfo(clinvarRec.info, translator.clinvarMap);
+          var result = me.vcf.parseClinvarInfo(clinvarRec.info, me.getTranslator().clinvarMap);
           for (var key in result) {
             variant[key] = result[key];
           }
@@ -2440,6 +2444,7 @@ VariantModel.prototype._refreshVariantsWithClinvarVCFRecs= function(theVcfData, 
 
 
 VariantModel.prototype._addClinVarInfoToVariant = function(variant, clinvar) {
+  var me = this;
   variant.clinVarUid = clinvar.uid;
 
   if (!variant.clinVarAccession) {
@@ -2463,7 +2468,7 @@ VariantModel.prototype._addClinVarInfoToVariant = function(variant, clinvar) {
 
       // Get the clinvar "classification" for the highest ranked clinvar
       // designation. (e.g. "pathogenic" trumps "benign");
-      var mapEntry = translator.clinvarMap[clinSigToken];
+      var mapEntry = me.getTranslator().clinvarMap[clinSigToken];
       if (mapEntry != null) {
         if (variant.clinvarRank == null ||
           mapEntry.value < variant.clinvarRank) {
@@ -3024,7 +3029,7 @@ VariantModel.prototype.promiseCompareVariants = function(theVcfData, compareAttr
            false,    // is multi-sample
            me._getSamplesToRetrieve(),
            annotationScheme.toLowerCase(),
-           translator.clinvarMap,
+           me.getTranslator().clinvarMap,
            me.getGeneModel().geneSource == 'refseq' ? true : false)
         .then( function(data) {
 
@@ -3138,7 +3143,7 @@ VariantModel.prototype._promiseCacheData = function(data, dataKind, geneName, tr
 *     }
 * }
 */
-VariantModel.getNonCanonicalHighestImpactsVep = function(variant) {
+VariantModel.getNonCanonicalHighestImpactsVep = function(variant, translator) {
   var vepHighestImpacts = {};
   for (var impactKey in variant.highestImpactVep) {
     var nonCanonicalEffects = [];

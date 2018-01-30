@@ -1,7 +1,10 @@
 class VariantTooltip {
 
-  constructor(genericAnnotation) {
+  constructor(genericAnnotation, glyph, translator) {
     this.genericAnnotation = genericAnnotation;
+    this.glyph = glyph;
+    this.translator = translator;
+
     this.WIDTH_LOCK             = 680;
     this.WIDTH_EXTRA_WIDE       = 840;
     this.WIDTH_HOVER            = 360;
@@ -236,13 +239,14 @@ class VariantTooltip {
 
 
   injectVariantGlyphs(tooltip, variant, selector) {
+    var me = this;
     var tooltipNode = $(tooltip.node());
 
     var injectClinvarBadge = function(clinsig, key, translate) {
       clinsig.split(",").forEach( function(clinsigToken) {
-        if (translator.clinvarMap.hasOwnProperty(clinsigToken)) {
-            var clazz = translator.clinvarMap[clinsigToken].clazz;
-            var badge = translator.clinvarMap[clinsigToken].examineBadge;
+        if (me.translator.clinvarMap.hasOwnProperty(clinsigToken)) {
+            var clazz = me.translator.clinvarMap[clinsigToken].clazz;
+            var badge = me.translator.clinvarMap[clinsigToken].examineBadge;
 
             var linkSelector =  ".tooltip-clinsig-link" + key;
             if (badge && tooltipNode.find(linkSelector).length > 0) {
@@ -250,7 +254,7 @@ class VariantTooltip {
             $(div).prepend("<svg class=\"clinvar-badge\" style=\"float:left\"  height=\"12\" width=\"14\">");
             var svg = d3.select($(div).find("svg.clinvar-badge")[0]);
             var selection = svg.data([{width:10, height:10, transform: (translate ? translate : 'translate(0,1)'), clazz: clazz}]);
-            glyph.showClinVarSymbol(selection);
+            me.glyph.showClinVarSymbol(selection);
             }
 
         }
@@ -269,7 +273,7 @@ class VariantTooltip {
       if (tooltipNode.find(impactDivSelector  + '.impact-badge').length > 0) {
         tooltipNode.find(impactDivSelector  + '.impact-badge').prepend("<svg class=\"impact-badge\" height=\"12\" width=\"14\" " + impactStyle + ">" );
         var selection = tooltip.select(impactDivSelector + '.impact-badge svg.impact-badge ').data([{width:10, height:10,clazz: theClazz,  transform: translate, type: variant.type}]);
-        glyph.showImpactBadge(selection);
+        me.glyph.showImpactBadge(selection);
       }
     }
 
@@ -280,7 +284,7 @@ class VariantTooltip {
         if (tooltipNode.find(impactDivSelector  + '.highest-impact-badge').length > 0) {
           tooltipNode.find(impactDivSelector  + '.highest-impact-badge').prepend("<svg class=\"impact-badge\" height=\"12\" width=\"14\" " + impactStyle + ">");
           var selection = tooltip.select(impactDivSelector + '.highest-impact-badge svg.impact-badge').data([{width:10, height:10,clazz: theClazz, transform: translate, type: variant.type}]);
-          glyph.showImpactBadge(selection);
+          me.glyph.showImpactBadge(selection);
         }
       }
     }
@@ -289,13 +293,13 @@ class VariantTooltip {
     if (selector == ".tooltip") {
 
       for (var key in variant.vepSIFT) {
-        if (translator.siftMap[key]) {
-          var clazz = translator.siftMap[key].clazz;
+        if (me.translator.siftMap[key]) {
+          var clazz = me.translator.siftMap[key].clazz;
           if (clazz) {
             if (!tooltip.select(".sift").empty()) {
               $(tooltip[0]).find(".sift").prepend("<svg class=\"sift-badge\" height=\"12\" width=\"13\">");
               var selection = tooltip.select('.sift-badge').data([{width:11, height:11, transform: 'translate(0,1)', clazz: clazz }]);
-              glyph.showSiftSymbol(selection);
+              me.glyph.showSiftSymbol(selection);
             }
           }
         }
@@ -303,13 +307,13 @@ class VariantTooltip {
       }
 
       for (var key in variant.vepPolyPhen) {
-        if (translator.polyphenMap[key]) {
-          var clazz = translator.polyphenMap[key].clazz;
+        if (me.translator.polyphenMap[key]) {
+          var clazz = me.translator.polyphenMap[key].clazz;
           if (clazz) {
             if (!tooltip.select(".polyphen").empty()) {
               $(tooltip[0]).find(".polyphen").prepend("<svg class=\"polyphen-badge\" height=\"12\" width=\"12\">");
               var selection = tooltip.select('.polyphen-badge').data([{width:10, height:10, transform: 'translate(0,2)', clazz: clazz }]);
-              glyph.showPolyPhenSymbol(selection);
+              me.glyph.showPolyPhenSymbol(selection);
             }
           }
         }
@@ -356,24 +360,24 @@ class VariantTooltip {
 
 
     for (var key in variant.vepSIFT) {
-      if (translator.siftMap[key]) {
-        var clazz = translator.siftMap[key].clazz;
+      if (me.translator.siftMap[key]) {
+        var clazz = me.translator.siftMap[key].clazz;
         if (clazz && tooltipNode.find(".tooltip-value.sift-glyph").length > 0) {
           tooltipNode.find(".tooltip-value.sift-glyph").prepend("<svg class=\"sift-badge\" style=\"float:left\"  height=\"12\" width=\"13\">");
           var selection = tooltip.select('.sift-badge').data([{width:11, height:11, transform: 'translate(0,1)', clazz: clazz }]);
-          glyph.showSiftSymbol(selection);
+          me.glyph.showSiftSymbol(selection);
         }
       }
 
     }
 
     for (var key in variant.vepPolyPhen) {
-      if (translator.polyphenMap[key]) {
-        var clazz = translator.polyphenMap[key].clazz;
+      if (me.translator.polyphenMap[key]) {
+        var clazz = me.translator.polyphenMap[key].clazz;
         if (clazz && tooltipNode.find(".tooltip-value.polyphen-glyph").length > 0) {
           tooltipNode.find(".tooltip-value.polyphen-glyph").prepend("<svg class=\"polyphen-badge\" style=\"float:left\"   height=\"12\" width=\"12\">");
           var selection = tooltip.select('.polyphen-badge').data([{width:10, height:10, transform: 'translate(0,2)', clazz: clazz }]);
-          glyph.showPolyPhenSymbol(selection);
+          me.glyph.showPolyPhenSymbol(selection);
         }
       }
     }
@@ -381,8 +385,8 @@ class VariantTooltip {
 
 
     if (variant.inheritance && variant.inheritance != '') {
-      var clazz = translator.inheritanceMap[variant.inheritance].clazz;
-      var symbolFunction = translator.inheritanceMap[variant.inheritance].symbolFunction;
+      var clazz = me.translator.inheritanceMap[variant.inheritance].clazz;
+      var symbolFunction = me.translator.inheritanceMap[variant.inheritance].symbolFunction;
       if (tooltipNode.find(".tooltip-title:contains('inheritance')").length > 0) {
         tooltipNode.find(".tooltip-title:contains('inheritance')").prepend("<svg class=\"inheritance-badge\"  height=\"15\" width=\"16\">");
         var options = {width:15, height:15, transform: 'translate(0,0)'};
@@ -576,7 +580,7 @@ class VariantTooltip {
 
     // If the highest impact occurs in a non-canonical transcript, show the impact followed by
     // the consequence and corresponding transcripts
-    var vepHighestImpacts = VariantModel.getNonCanonicalHighestImpactsVep(variant);
+    var vepHighestImpacts = VariantModel.getNonCanonicalHighestImpactsVep(variant, me.translator);
     var vepHighestImpactDisplay = "";
     var vepHighestImpactDisplaySimple = "";
     var vepHighestImpactSimple = "";
@@ -732,7 +736,7 @@ class VariantTooltip {
 
     var inheritanceModeRow =  variant.inheritance == null || variant.inheritance == '' || variant.inheritance == 'none'
                               ? ''
-                    : me._tooltipHeaderRow('<span class="tooltip-inheritance-mode-label">' + translator.getInheritanceLabel(variant.inheritance) + ' inheritance</span>', '', '', '', null, 'padding-top:0px;');
+                    : me._tooltipHeaderRow('<span class="tooltip-inheritance-mode-label">' + me.translator.getInheritanceLabel(variant.inheritance) + ' inheritance</span>', '', '', '', null, 'padding-top:0px;');
 
 
     var siftLabel = vepSIFTDisplay != ''  && vepSIFTDisplay != 'unknown'
@@ -815,7 +819,7 @@ class VariantTooltip {
 
 
     if (rec) {
-      rec.inheritance      = variant.inheritance ? translator.getInheritanceLabel(variant.inheritance) : "";
+      rec.inheritance      = variant.inheritance ? me.translator.getInheritanceLabel(variant.inheritance) : "";
       rec.impact           = vepImpactDisplay;
       rec.highestImpact    = vepHighestImpactValue;
       rec.highestImpactInfo = vepHighestImpactInfo;

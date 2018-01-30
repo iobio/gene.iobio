@@ -157,14 +157,18 @@ export default {
       self.geneModel = new GeneModel();
       self.geneModel.geneSource = siteGeneSource;
 
-      let genericAnnotation = new GenericAnnotation();
+      let glyph = new Glyph();
 
-      self.variantTooltip = new VariantTooltip(genericAnnotation);
+      let translator = new Translator(glyph);
+
+      let genericAnnotation = new GenericAnnotation(glyph);
+
+      self.variantTooltip = new VariantTooltip(genericAnnotation, glyph, translator);
 
       // Instantiate helper class than encapsulates IOBIO commands
       let endpoint = new EndpointCmd(useSSL, IOBIO, cacheHelper.launchTimestamp, genomeBuildHelper, utility.getHumanRefNames);
 
-      self.cohortModel = new CohortModel(endpoint, genericAnnotation, self.geneModel);
+      self.cohortModel = new CohortModel(endpoint, genericAnnotation, translator, self.geneModel);
 
     })
     .then(function() {
