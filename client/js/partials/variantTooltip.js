@@ -1,9 +1,10 @@
 class VariantTooltip {
 
-  constructor(genericAnnotation, glyph, translator) {
+  constructor(genericAnnotation, glyph, translator, annotationScheme) {
     this.genericAnnotation = genericAnnotation;
     this.glyph = glyph;
     this.translator = translator;
+    this.annotationScheme = annotationScheme;
 
     this.WIDTH_LOCK             = 680;
     this.WIDTH_EXTRA_WIDE       = 840;
@@ -265,7 +266,7 @@ class VariantTooltip {
 
     var translate = variant.type.toLowerCase() == "snp" || variant.type.toLowerCase() == "mnp" ? 'translate(1,2)' : 'translate(5,6)';
 
-    var impactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? variant.impact : variant[IMPACT_FIELD_TO_COLOR]);
+    var impactList =  (me.annotationScheme == null || me.annotationScheme.toLowerCase() == 'snpeff' ? variant.impact : variant[IMPACT_FIELD_TO_COLOR]);
     var impactDivSelector = selector == '.tooltip-wide' ? '.tooltip-value' : '.tooltip-title';
     var impactStyle       = selector == '.tooltip-wide' ? " style='float:left' "             : " style='padding-top:2px;float:none' ";
     for (var impact in impactList) {
@@ -278,7 +279,7 @@ class VariantTooltip {
     }
 
     if ($(selector + ' ' + impactDivSelector + '.highest-impact-badge').length > 0) {
-      var highestImpactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? variant.highestImpact : variant.highestImpactVep);
+      var highestImpactList =  (me.annotationScheme == null || me.annotationScheme.toLowerCase() == 'snpeff' ? variant.highestImpact : variant.highestImpactVep);
       for (var impact in highestImpactList) {
         var theClazz = 'impact_' + impact;
         if (tooltipNode.find(impactDivSelector  + '.highest-impact-badge').length > 0) {

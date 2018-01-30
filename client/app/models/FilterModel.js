@@ -6,7 +6,6 @@ class FilterModel {
     this.clickedAnnotIds = new Object();
     this.annotsToInclude = new Object();
 
-    this.annotationScheme = "vep";
     this.pathogenicityScheme = "clinvar";
 
     this.annotClasses     = ".type, .impact, ." + IMPACT_FIELD_TO_FILTER + ", .effect, .vepConsequence, .sift, .polyphen, .regulatory, .zygosity, .inheritance, .clinvar, .uasibs, .recfilter";

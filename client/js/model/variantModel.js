@@ -506,7 +506,7 @@ VariantModel.prototype.promiseGetVariantCount = function(data) {
 VariantModel.prototype.promiseSummarizeDanger = function(geneName, theVcfData, options, geneCoverageAll, filterModel) {
   var me = this;
   return new Promise(function(resolve, reject) {
-    var dangerSummary = VariantModel._summarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator());
+    var dangerSummary = VariantModel._summarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme());
     me.promiseCacheDangerSummary(dangerSummary, geneName).then(function() {
       resolve(dangerSummary);
     },
@@ -517,7 +517,7 @@ VariantModel.prototype.promiseSummarizeDanger = function(geneName, theVcfData, o
 }
 
 
-VariantModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator) {
+VariantModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator, annotationScheme) {
   var dangerCounts = $().extend({}, options);
   dangerCounts.geneName = geneName;
   VariantModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel);
@@ -930,6 +930,18 @@ VariantModel.prototype.getAffectedInfo = function() {
 
 VariantModel.prototype.getTranslator = function() {
   return this.cohort.translator;
+}
+
+VariantModel.prototype.getAnnotationScheme = function() {
+
+    // If this is the refseq gene model, set the annotation
+    // scheme on the filter card to 'VEP' since snpEff will
+    // be bypassed at this time.
+    if (this.getGeneModel().geneSource == 'refseq') {
+      return "VEP";
+    } else {
+      return this.cohort.annotationScheme;
+    }
 }
 
 
@@ -1412,7 +1424,7 @@ VariantModel.prototype.promiseGetVariantExtraAnnotations = function(theGene, the
              null,   // regions
              false,  // is multi-sample
              me._getSamplesToRetrieve(),  // sample names
-             annotationScheme.toLowerCase(), // annot scheme
+             me.getAnnotationScheme().toLowerCase(), // annot scheme
              me.getTranslator().clinvarMap,  // clinvar map
              me.getGeneModel().geneSource == 'refseq' ? true : false,
              true,  // hgvs notation
@@ -1579,7 +1591,7 @@ VariantModel.prototype.promiseGetImpactfulVariantIds = function(theGeneObject, t
              regions,   // regions
              false,        // is multi-sample
              me._getSamplesToRetrieve(),  // sample names
-             annotationScheme.toLowerCase(), // annot scheme
+             me.getAnnotationScheme().toLowerCase(), // annot scheme
              me.getTranslator().clinvarMap,  // clinvar map
              me.getGeneModel().geneSource == 'refseq' ? true : false,
              true,  // hgvs notation
@@ -1637,12 +1649,6 @@ VariantModel.prototype.promiseAnnotateVariants = function(theGene, theTranscript
   var me = this;
 
 
-    // If this is the refseq gene model, set the annotation
-    // scheme on the filter card to 'VEP' since snpEff will
-    // be bypassed at this time.
-    if (me.getGeneModel().geneSource == 'refseq') {
-      annotationScheme = "VEP";
-    }
 
   return new Promise( function(resolve, reject) {
 
@@ -1687,7 +1693,7 @@ VariantModel.prototype.promiseAnnotateVariants = function(theGene, theTranscript
              null,   // regions
              isMultiSample, // is multi-sample
              me._getSamplesToRetrieve(),
-             me.getRelationship() == 'known-variants' ? 'none' : annotationScheme.toLowerCase(),
+             me.getRelationship() == 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
              me.getTranslator().clinvarMap,
              me.getGeneModel().geneSource == 'refseq' ? true : false,
              window.isLevelBasic || global_getVariantIdsForGene,  // hgvs notation
@@ -2084,12 +2090,13 @@ VariantModel.prototype.promiseIsCachedAndInheritanceDetermined = function(geneOb
 
 
 VariantModel.prototype._getCacheKey = function(dataKind, geneName, transcript) {
+  var me = this;
   return cacheHelper.getCacheKey(
     {relationship: this.getRelationship(),
      sample: (this.sampleName != null ? this.sampleName : "null"),
      gene: (geneName != null ? geneName : gene.gene_name),
      transcript: (transcript != null ? transcript.transcript_id : "null"),
-     annotationScheme: (annotationScheme.toLowerCase()),
+     annotationScheme: (me.getAnnotationScheme().toLowerCase()),
      dataKind: dataKind
     }
   );
@@ -2727,8 +2734,8 @@ VariantModel.prototype.filterVariants = function(data, filterObject, start, end,
   }
 
 
-  var impactField = annotationScheme.toLowerCase() === 'snpeff' ? 'impact' : IMPACT_FIELD_TO_FILTER;
-  var effectField = annotationScheme.toLowerCase() === 'snpeff' ? 'effect' : 'vepConsequence';
+  var impactField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'impact' : IMPACT_FIELD_TO_FILTER;
+  var effectField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'effect' : 'vepConsequence';
 
   // coverageMin is always an integer or NaN
   var coverageMin = filterObject.coverageMin;
@@ -3028,7 +3035,7 @@ VariantModel.prototype.promiseCompareVariants = function(theVcfData, compareAttr
            null,     // regions
            false,    // is multi-sample
            me._getSamplesToRetrieve(),
-           annotationScheme.toLowerCase(),
+           me.getAnnotationScheme().toLowerCase(),
            me.getTranslator().clinvarMap,
            me.getGeneModel().geneSource == 'refseq' ? true : false)
         .then( function(data) {

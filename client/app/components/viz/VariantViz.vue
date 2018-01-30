@@ -73,6 +73,10 @@ export default {
     name: 'variant-viz',
     props: {
       data: {},
+      annotationScheme: {
+        default: 'vep',
+        type: String
+      },
       regionStart: {
         default: 0,
         type: Number
@@ -218,6 +222,7 @@ export default {
         this.$emit('updateVariantChart', this.variantChart);
       },
       classifySymbolsByImpact: function(d,i) {
+        let self = this;
         var impacts = "";
         var colorimpacts = "";
         var effects = "";
@@ -225,9 +230,9 @@ export default {
         var polyphen = "";
         var regulatory = "";
 
-        var effectList = (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.effect : d.vepConsequence);
+        var effectList = (self.annotationScheme == null || self.annotationScheme.toLowerCase() == 'snpeff' ? d.effect : d.vepConsequence);
         for (var key in effectList) {
-          if (annotationScheme.toLowerCase() == 'vep' && key.indexOf("&") > 0) {
+          if (self.annotationScheme.toLowerCase() == 'vep' && key.indexOf("&") > 0) {
               var tokens = key.split("&");
               tokens.forEach( function(token) {
               effects += " " + token;
@@ -237,11 +242,11 @@ export default {
               effects += " " + key;
             }
           }
-          var impactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_FILTER]);
+          var impactList =  (self.annotationScheme == null || self.annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_FILTER]);
           for (var key in impactList) {
             impacts += " " + key;
           }
-          var colorImpactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_COLOR]);
+          var colorImpactList =  (self.annotationScheme == null || self.annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_COLOR]);
           for (var key in colorImpactList) {
             colorimpacts += " " + 'impact_'+key;
           }

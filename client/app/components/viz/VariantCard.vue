@@ -68,6 +68,7 @@
           :data="loadedVariants"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
+          :annotationScheme="annotationScheme"
           :width="width"
           :margin="variantVizMargin"
           :variantHeight="variantSymbolHeight"
@@ -147,6 +148,7 @@ export default {
     },
     affectedInfo: null,
     cohortMode: '',
+    annotationScheme: null,
     variantTooltip: null,
     maxAlleleCount: 0,
     maxDepth: 0,

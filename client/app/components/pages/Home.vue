@@ -60,6 +60,7 @@
         :cohortMode="cohortModel.mode"
         :maxAlleleCount="cohortModel.maxAlleleCount"
         :variantTooltip="variantTooltip"
+        :annotationScheme="annotationScheme"
         :width="cardWidth"
         :key="model.relationship"
         :selectedGene="selectedGene"
@@ -133,7 +134,9 @@ export default {
       cardWidth: 0,
 
       selectedVariant: null,
-      showClinvarVariants: false
+      showClinvarVariants: false,
+
+      annotationScheme: 'vep'
     }
   },
 
@@ -163,12 +166,12 @@ export default {
 
       let genericAnnotation = new GenericAnnotation(glyph);
 
-      self.variantTooltip = new VariantTooltip(genericAnnotation, glyph, translator);
+      self.variantTooltip = new VariantTooltip(genericAnnotation, glyph, translator, self.annotationScheme);
 
       // Instantiate helper class than encapsulates IOBIO commands
       let endpoint = new EndpointCmd(useSSL, IOBIO, cacheHelper.launchTimestamp, genomeBuildHelper, utility.getHumanRefNames);
 
-      self.cohortModel = new CohortModel(endpoint, genericAnnotation, translator, self.geneModel);
+      self.cohortModel = new CohortModel(endpoint, genericAnnotation, translator, self.annotationScheme, self.geneModel);
 
     })
     .then(function() {
