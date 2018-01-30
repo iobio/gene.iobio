@@ -23,6 +23,7 @@
 
 
     <navigation
+      :rightDrawer="showRightDrawer"
       @input="onGeneSelected"
       @navLoadDemoData="onLoadDemoData"
     >
@@ -63,6 +64,7 @@
         :key="model.relationship"
         :selectedGene="selectedGene"
         :selectedTranscript="selectedTranscript"
+        :selectedVariant="selectedVariant"
         :regionStart="geneRegionStart"
         :regionEnd="geneRegionEnd"
         :loadedVariants="model.loadedVariants"
@@ -72,11 +74,22 @@
         :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
         :showDepthViz="model.relationship != 'known-variants'"
         :showVariantViz="model.relationship != 'known-variants' || showClinvarVariants"
+        @cohortVariantClick="onCohortVariantClick"
+        @cohortVariantClickEnd="onCohortVariantClickEnd"
+        @cohortVariantHover="onCohortVariantHover"
+        @cohortVariantHoverEnd="onCohortVariantHoverEnd"
         >
         </variant-card>
 
       </v-container>
     </v-content>
+
+    <v-bottom-sheet  v-model="showBottomDrawer">
+          <v-card>
+            <v-card-title primary-title>Variant detail</v-card-title>
+          </v-card>
+    </v-bottom-sheet>
+
   </div>
 
 </template>
@@ -120,6 +133,10 @@ export default {
 
       cardWidth: 0,
 
+      showBottomDrawer: false,
+      showRightDrawer: false,
+
+      selectedVariant: null,
       showClinvarVariants: false
     }
   },
@@ -132,18 +149,6 @@ export default {
     let self = this;
 
     self.cardWidth = self.$el.offsetWidth;
-
-    global.bus.$on('cohortVariantHover', function (variant) {
-      self.$refs.variantCardRef.forEach(function(variantCard) {
-        variantCard.onVariantHover(variant);
-      })
-    })
-
-    global.bus.$on('cohortVariantHoverEnd', function (variant) {
-      self.$refs.variantCardRef.forEach(function(variantCard) {
-        variantCard.onVariantHoverEnd();
-      })
-    })
 
     genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
     .then(function() {
@@ -245,6 +250,7 @@ export default {
     onGeneSelected: function(geneObject) {
       var self = this;
 
+      self.deselectVariant();
 
       self.geneModel.addGeneName(geneObject.gene_name);
       self.geneModel.promiseGetGeneObject(geneObject.gene_name)
@@ -289,6 +295,55 @@ export default {
       this.geneRegionEnd = this.selectedGene.end;
       this.cohortModel.setLoadedVariants(this.selectedGene);
       this.cohortModel.setCoverage();
+    },
+    onCohortVariantClick: function(variant, sourceVariantCard) {
+      let self = this;
+      self.selectedVariant = variant;
+      self.$refs.variantCardRef.forEach(function(variantCard) {
+        if (variantCard != sourceVariantCard) {
+          variantCard.showVariantCircle(variant);
+          variantCard.showCoverageCircle(variant);
+        }
+      })
+    },
+    onCohortVariantClickEnd: function(sourceVariantCard) {
+      let self = this;
+      self.selectedVariant = null;
+      self.$refs.variantCardRef.forEach(function(variantCard) {
+        variantCard.hideVariantCircle();
+        variantCard.hideCoverageCircle();
+      })
+    },
+    onCohortVariantHover: function(variant, sourceVariantCard) {
+      let self = this;
+      if (self.selectedVariant == null) {
+        self.$refs.variantCardRef.forEach(function(variantCard) {
+          if (variantCard != sourceVariantCard) {
+            variantCard.showVariantCircle(variant);
+            variantCard.showCoverageCircle(variant);
+          }
+        })
+      }
+    },
+    onCohortVariantHoverEnd: function(sourceVariantCard) {
+      let self = this;
+      if (self.selectedVariant == null && self.$refs.variantCardRef) {
+        self.$refs.variantCardRef.forEach(function(variantCard) {
+          variantCard.hideVariantCircle();
+          variantCard.hideCoverageCircle();
+        })
+      }
+    },
+    deselectVariant: function() {
+      let self = this;
+      self.selectedVariant = null;
+      if (self.$refs.variantCardRef) {
+        self.$refs.variantCardRef.forEach(function(variantCard) {
+          variantCard.hideVariantTooltip();
+          variantCard.hideVariantCircle();
+          variantCard.hideCoverageCircle();
+        })
+      }
     }
 
   }

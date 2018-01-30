@@ -74,6 +74,7 @@
           :variantPadding="variantSymbolPadding"
           :showBrush="false"
           :showXAxis="true"
+          @variantClick="onVariantClick"
           @variantHover="onVariantHover"
           @variantHoverEnd="onVariantHoverEnd">
         </variant-viz>
@@ -150,6 +151,7 @@ export default {
     maxDepth: 0,
     selectedGene: {},
     selectedTranscript: {},
+    selectedVariant: null,
     regionStart: 0,
     regionEnd: 0,
     width: 0,
@@ -204,7 +206,7 @@ export default {
         return val + "x";
       }
     },
-    onVariantHover: function(variant) {
+    onVariantClick: function(variant) {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
       }
@@ -212,15 +214,32 @@ export default {
         this.showVariantCircle(variant);
         this.showVariantTooltip(variant, true);
       }
+      this.$emit('cohortVariantClick', variant, this);
+    },
+    onVariantHover: function(variant, showTooltip=true) {
+      if (this.selectedVariant == null) {
+        if (this.showDepthViz) {
+          this.showCoverageCircle(variant);
+        }
+        if (this.showVariantViz) {
+          this.showVariantCircle(variant);
+          this.showVariantTooltip(variant, false);
+        }
+        this.$emit('cohortVariantHover', variant, this);
+      }
     },
     onVariantHoverEnd: function() {
-      if (this.showDepthViz) {
-        this.hideCoverageCircle();
+      if (this.selectedVariant == null) {
+        if (this.showDepthViz) {
+          this.hideCoverageCircle();
+        }
+        if (this.showVariantViz) {
+          this.hideVariantCircle();
+          this.hideVariantTooltip(this);
+        }
+        this.$emit('cohortVariantHoverEnd');
       }
-      if (this.showVariantViz) {
-        this.hideVariantCircle();
-        this.hideVariantTooltip();
-      }
+
     },
     showVariantTooltip: function(variant, lock) {
       let self = this;
@@ -271,10 +290,7 @@ export default {
       variantTooltip.scroll(direction, "#main-tooltip");
     },
     unpin(saveClickedVariant, unpinMatrixTooltip) {
-      //if (!saveClickedVariant) {
-      //  clickedVariant = null;
-      //  clickedVariantCard = null;
-      //}
+      this.$emit("cohortVariantClickEnd", this);
 
       this.hideVariantTooltip();
       this.hideVariantCircle();
@@ -293,20 +309,26 @@ export default {
            .style("pointer-events", "none");
     },
     showVariantCircle: function(variant) {
-      var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-      this.$refs.variantVizRef.showVariantCircle(variant, container, false);
+      if (this.showVariantViz) {
+        var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
+        this.$refs.variantVizRef.showVariantCircle(variant, container, false);
+      }
     },
     hideVariantCircle: function(variant) {
-      var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-      this.$refs.variantVizRef.hideVariantCircle(container);
+      if (this.showVariantViz) {
+        var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
+        this.$refs.variantVizRef.hideVariantCircle(container);
+      }
     },
     hideCoverageCircle: function() {
-      this.$refs.depthVizRef.hideCurrentPoint();
+      if (this.showDepthViz) {
+        this.$refs.depthVizRef.hideCurrentPoint();
+      }
     },
     showCoverageCircle: function(variant) {
       let self = this;
 
-      if (self.coverage != null) {
+      if (self.showDepthViz && self.coverage != null) {
         let theDepth = null;
         if (variant.bamDepth != null && variant.bamDepth != '') {
           theDepth = variant.bamDepth;

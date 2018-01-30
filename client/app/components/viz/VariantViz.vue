@@ -156,8 +156,8 @@ export default {
           .regionEnd(this.regionEnd)
           .on("d3rendered", function() {
           })
-          .on('d3click', function(d) {
-
+          .on('d3click', function(variant) {
+            self.onVariantClick(variant);
           })
           .on('d3mouseover', function(variant) {
             self.onVariantHover(variant);
@@ -193,17 +193,17 @@ export default {
           self.variantChart(selection);
         }
       },
+      onVariantClick: function(variant) {
+        let self = this;
+        self.$emit("variantClick", variant);
+      },
       onVariantHover: function(variant) {
         let self = this;
         self.$emit("variantHover", variant);
-
-        global.bus.$emit('cohortVariantHover', variant);
       },
       onVariantHoverEnd: function(variant) {
         let self = this;
         self.$emit("variantHoverEnd", variant);
-
-        global.bus.$emit('cohortVariantHoverEnd');
       },
       showVariantCircle: function(variant, container, lock) {
         let matchingVariants = this.data.features.filter(function(v) {
