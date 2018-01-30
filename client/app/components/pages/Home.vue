@@ -23,7 +23,6 @@
 
 
     <navigation
-      :rightDrawer="showRightDrawer"
       @input="onGeneSelected"
       @navLoadDemoData="onLoadDemoData"
     >
@@ -84,11 +83,6 @@
       </v-container>
     </v-content>
 
-    <v-bottom-sheet  v-model="showBottomDrawer">
-          <v-card>
-            <v-card-title primary-title>Variant detail</v-card-title>
-          </v-card>
-    </v-bottom-sheet>
 
   </div>
 
@@ -132,9 +126,6 @@ export default {
 
 
       cardWidth: 0,
-
-      showBottomDrawer: false,
-      showRightDrawer: false,
 
       selectedVariant: null,
       showClinvarVariants: false
@@ -299,6 +290,7 @@ export default {
     onCohortVariantClick: function(variant, sourceVariantCard) {
       let self = this;
       self.selectedVariant = variant;
+      self.showVariantExtraAnnots(sourceVariantCard, variant);
       self.$refs.variantCardRef.forEach(function(variantCard) {
         if (variantCard != sourceVariantCard) {
           variantCard.showVariantCircle(variant);
@@ -344,7 +336,53 @@ export default {
           variantCard.hideCoverageCircle();
         })
       }
+    },
+    showVariantExtraAnnots: function(variantCard, variant) {
+      let self = this;
+      if (!isLevelEdu && !isLevelBasic)  {
+
+        self.cohortModel
+          .getModel(variantCard.relationship)
+          .promiseGetImpactfulVariantIds(self.selectedGene, self.selectedTranscript)
+          .then( function(annotatedVariants) {
+            // If the clicked variant is in the list of annotated variants, show the
+            // tooltip; otherwise, the callback will get the extra annots for this
+            // specific variant
+            self.showVariantTooltipExtraAnnots(variantCard, variant, annotatedVariants, function() {
+              // The clicked variant wasn't annotated in the batch of variants.  Get the
+              // extra annots for this specific variant.
+              self.cohortModel
+                .getModel(variantCard.relationship)
+                .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
+                .then( function(refreshedVariant) {
+                  self.showVariantTooltipExtraAnnots(variantCard, variant, [refreshedVariant]);
+                })
+            })
+          });
+
+      }
+    },
+    showVariantTooltipExtraAnnots: function(variantCard, variant, annotatedVariants, callbackNotFound) {
+      let self = this;
+      var targetVariants = annotatedVariants.filter(function(v) {
+        return variant &&
+               variant.start == v.start &&
+               variant.ref   == v.ref &&
+               variant.alt   == v.alt;
+      });
+      if (targetVariants.length > 0) {
+        var annotatedVariant = targetVariants[0];
+        annotatedVariant.screenX = variant.screenX;
+        annotatedVariant.screenY = variant.screenY;
+        variantCard.showVariantTooltip(annotatedVariant, true);
+      } else {
+        if (callbackNotFound) {
+          callbackNotFound();
+        }
+      }
+
     }
+
 
   }
 }

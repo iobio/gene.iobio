@@ -65,7 +65,7 @@
     </v-toolbar>
     <v-navigation-drawer
       fixed
-      :clipped="false"
+      :clipped="clipped"
       v-model="leftDrawer"
       app
     >
@@ -73,16 +73,6 @@
 
     </v-navigation-drawer>
 
-    <v-navigation-drawer
-      fixed
-      right
-      :clipped="false"
-      v-model="rightDrawer"
-      app
-    >
-      <div></div>
-
-    </v-navigation-drawer>
   </div>
 </template>
 
@@ -97,14 +87,15 @@ export default {
     Typeahead
   },
   props: {
-    leftDrawer: false,
-    rightDrawer: false
   },
   data () {
       return {
         title: 'gene.iobio',
         selectedGene: {},
-        allGenes: geneData
+        clipped: false,
+        allGenes: geneData,
+        leftDrawer: false,
+        rightDrawer: false
       }
   },
   watch: {
