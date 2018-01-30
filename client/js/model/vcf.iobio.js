@@ -2395,7 +2395,7 @@ exports._getServerCacheKey = function(vcfName, service, refName, geneObject, sam
   var me = this;
 
   var key =  "backend.gene.iobio"
-    + "-" + cacheHelper.launchTimestamp
+//    + "-" + cacheHelper.launchTimestamp
     + "-" + vcfName
     + "-" + service
     + "-" + refName

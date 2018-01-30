@@ -352,7 +352,7 @@ var Bam = Class.extend({
   _getServerCacheKey: function(service, refName, start, end, miscObject) {
     var me = this;
     var key =  "backend.gene.iobio"
-      + "-" + cacheHelper.launchTimestamp
+      //+ "-" + cacheHelper.launchTimestamp
       + "-" + me.bamUri ? me.bamUri : (me.bamFile ? me.bamFile.name : "?")
       + "-" + service
       + "-" + refName

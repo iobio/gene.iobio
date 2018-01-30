@@ -1,11 +1,12 @@
 class CohortModel {
 
-  constructor(endpoint, genericAnnotation, translator, annotationScheme, geneModel) {
+  constructor(endpoint, genericAnnotation, translator, annotationScheme, geneModel, cacheHelper) {
     this.endpoint = endpoint;
     this.genericAnnotation = genericAnnotation;
     this.translator = translator;
     this.annotationScheme = annotationScheme;
     this.geneModel = geneModel;
+    this.cacheHelper = cacheHelper;
 
     this.sampleModels  = [];
     this.sampleMap = {};

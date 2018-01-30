@@ -136,7 +136,9 @@ export default {
       selectedVariant: null,
       showClinvarVariants: false,
 
-      annotationScheme: 'vep'
+      annotationScheme: 'vep',
+
+      cacheHelper: null
     }
   },
 
@@ -154,7 +156,7 @@ export default {
       return self.promiseInitCache();
     })
     .then(function() {
-      return cacheHelper.promiseClearStaleCache();
+      return self.cacheHelper.promiseClearStaleCache();
     })
     .then(function() {
       self.geneModel = new GeneModel();
@@ -169,9 +171,9 @@ export default {
       self.variantTooltip = new VariantTooltip(genericAnnotation, glyph, translator, self.annotationScheme);
 
       // Instantiate helper class than encapsulates IOBIO commands
-      let endpoint = new EndpointCmd(useSSL, IOBIO, cacheHelper.launchTimestamp, genomeBuildHelper, utility.getHumanRefNames);
+      let endpoint = new EndpointCmd(useSSL, IOBIO, self.cacheHelper.launchTimestamp, genomeBuildHelper, utility.getHumanRefNames);
 
-      self.cohortModel = new CohortModel(endpoint, genericAnnotation, translator, self.annotationScheme, self.geneModel);
+      self.cohortModel = new CohortModel(endpoint, genericAnnotation, translator, self.annotationScheme, self.geneModel, self.cacheHelper);
 
     })
     .then(function() {
@@ -200,10 +202,12 @@ export default {
 
 
     promiseInitCache: function() {
+      let self = this;
       return new Promise(function(resolve, reject) {
-        cacheHelper.promiseInit()
+        self.cacheHelper = new CacheHelper();
+        self.cacheHelper.promiseInit()
          .then(function() {
-          cacheHelper.isolateSession();
+          self.cacheHelper.isolateSession();
           resolve();
          })
          .catch(function(error) {
@@ -215,7 +219,8 @@ export default {
     },
 
     promiseClearCache: function() {
-       return cacheHelper._promiseClearCache(cacheHelper.launchTimestampToClear);
+      let self = this;
+      return self.cacheHelper._promiseClearCache(self.cacheHelper.launchTimestampToClear);
     },
 
     onLoadDemoData: function() {

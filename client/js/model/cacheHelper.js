@@ -7,14 +7,14 @@ function CacheHelper() {
   this.cacheQueue = [];
   this.batchSize = null;
   this.showCallAllProgress = false;
-  this.KEY_DELIM = "^";
+
   this.start = null;
   this.cacheIndexStore = new CacheIndexStore();
 
 
 }
 
-
+CacheHelper.KEY_DELIM = "^";
 CacheHelper.VCF_DATA            = "vcfData";
 CacheHelper.BAM_DATA            = "bamData";
 CacheHelper.FB_DATA             = "fbData";
@@ -865,15 +865,16 @@ CacheHelper.prototype.refreshNextGeneBadge = function(keys, geneCount, callback)
 }
 
 CacheHelper.prototype.getCacheKey = function(cacheObject) {
+  var me = this;
   var key =  "gene.iobio"
-    + cacheHelper.KEY_DELIM + this.launchTimestamp
-    + cacheHelper.KEY_DELIM + cacheObject.relationship
-    + cacheHelper.KEY_DELIM + cacheObject.sample
-    + cacheHelper.KEY_DELIM + cacheObject.gene
-    + cacheHelper.KEY_DELIM + cacheObject.transcript
-    + cacheHelper.KEY_DELIM + cacheObject.dataKind;
+    + CacheHelper.KEY_DELIM + this.launchTimestamp
+    + CacheHelper.KEY_DELIM + cacheObject.relationship
+    + CacheHelper.KEY_DELIM + cacheObject.sample
+    + CacheHelper.KEY_DELIM + cacheObject.gene
+    + CacheHelper.KEY_DELIM + cacheObject.transcript
+    + CacheHelper.KEY_DELIM + cacheObject.dataKind;
   if (cacheObject.dataKind != CacheHelper.GENE_COVERAGE_DATA) {
-      key += cacheHelper.KEY_DELIM + cacheObject.annotationScheme;
+      key += CacheHelper.KEY_DELIM + cacheObject.annotationScheme;
   }
   return key;
 }
@@ -1060,7 +1061,7 @@ CacheHelper.prototype.clearAll = function() {
       // user clicked "ok"
       me._promiseClearCache(me.launchTimestampToClear, false, false)
        .then(function() {
-        cacheHelper.showAnalyzeAllProgress();
+        me.showAnalyzeAllProgress();
           me.refreshDialog();
        });
 
@@ -1262,8 +1263,8 @@ CacheHelper._sizeMB = function(size, decimalPlaces=1) {
 
 
 CacheHelper._parseCacheKey = function(cacheKey) {
-  if (cacheKey.indexOf(cacheHelper.KEY_DELIM) > 0) {
-    var tokens = cacheKey.split(cacheHelper.KEY_DELIM);
+  if (cacheKey.indexOf(CacheHelper.KEY_DELIM) > 0) {
+    var tokens = cacheKey.split(CacheHelper.KEY_DELIM);
     if (tokens.length >= 7 && tokens[0] == "gene.iobio") {
       var keyObject = {
            app: tokens[0],
@@ -1301,7 +1302,7 @@ CacheHelper.showError = function(key, cacheError) {
     cacheErrorTypes[cacheError.name] = errorCount;
 
     var errorType = cacheError.name && cacheError.name.length > 0 ? cacheError.name : "A problem";
-    var errorKey = cacheObject.gene + cacheHelper.KEY_DELIM + errorType;
+    var errorKey = cacheObject.gene + CacheHelper.KEY_DELIM + errorType;
 
     var consoleMessage = errorType + " occurred when caching analyzed " + cacheObject.dataKind + " data for gene " + cacheObject.gene + ". Click on 'Clear cache...' link to clear cache."
       console.log(consoleMessage);
@@ -1457,12 +1458,12 @@ CacheHelper.prototype.promiseGetDataThreaded = function(key, keyObject) {
   var me = this;
 
   return new Promise(function(resolve, reject) {
-    cacheHelper.promiseGetData(key, false)
+    me.promiseGetData(key, false)
      .then(function(dataCompressed) {
 
           if (dataCompressed != null) {
 
-        var worker = new Worker('./app/model/cacheHelperWorker.js');
+        var worker = new Worker('./js/model/cacheHelperWorker.js');
 
         worker.onmessage = function(e) {
           resolve(e.data);

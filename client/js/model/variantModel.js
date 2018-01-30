@@ -116,6 +116,39 @@ VariantModel.prototype.isInheritanceLoaded = function() {
   return (this.vcfData != null && this.vcfData.loadState != null && this.vcfData.loadState['inheritance']);
 }
 
+
+VariantModel.prototype.getGeneModel = function() {
+  return this.cohort.geneModel;
+}
+
+
+
+VariantModel.prototype.getAffectedInfo = function() {
+  return this.cohort.affectedInfo;
+}
+
+VariantModel.prototype.getTranslator = function() {
+  return this.cohort.translator;
+}
+
+VariantModel.prototype.getCacheHelper = function() {
+  return this.cohort.cacheHelper;
+}
+
+VariantModel.prototype.getAnnotationScheme = function() {
+
+    // If this is the refseq gene model, set the annotation
+    // scheme on the filter card to 'VEP' since snpEff will
+    // be bypassed at this time.
+    if (this.getGeneModel().geneSource == 'refseq') {
+      return "VEP";
+    } else {
+      return this.cohort.annotationScheme;
+    }
+}
+
+
+
 VariantModel.prototype.promiseGetVcfData = function(geneObject, selectedTranscript, whenEmptyUseFbData=true) {
   var me = this;
   var dataKind = CacheHelper.VCF_DATA;
@@ -923,28 +956,6 @@ VariantModel.prototype.getDefaultSampleName = function() {
   return this.defaultSampleName;
 }
 
-
-VariantModel.prototype.getAffectedInfo = function() {
-  return this.cohort.affectedInfo;
-}
-
-VariantModel.prototype.getTranslator = function() {
-  return this.cohort.translator;
-}
-
-VariantModel.prototype.getAnnotationScheme = function() {
-
-    // If this is the refseq gene model, set the annotation
-    // scheme on the filter card to 'VEP' since snpEff will
-    // be bypassed at this time.
-    if (this.getGeneModel().geneSource == 'refseq') {
-      return "VEP";
-    } else {
-      return this.cohort.annotationScheme;
-    }
-}
-
-
 VariantModel.prototype.init = function(cohort) {
   var me = this;
 
@@ -954,10 +965,6 @@ VariantModel.prototype.init = function(cohort) {
   this.vcf.setEndpoint(this.cohort.endpoint);
   this.vcf.setGenericAnnotation(this.cohort.genericAnnotation);
 };
-
-VariantModel.prototype.getGeneModel = function() {
-  return this.cohort.geneModel;
-}
 
 VariantModel.prototype.promiseBamFilesSelected = function(event) {
   var me = this;
@@ -2055,7 +2062,7 @@ VariantModel.prototype.promiseIsCached = function(geneName, transcript) {
 
   return new Promise(function(resolve, reject) {
     var key = me._getCacheKey(CacheHelper.VCF_DATA, geneName.toUpperCase(), transcript);
-    cacheHelper.promiseGetData(key)
+    me.getCacheHelper().promiseGetData(key)
      .then(function(data) {
       resolve(data != null && data != "");
      },
@@ -2091,7 +2098,7 @@ VariantModel.prototype.promiseIsCachedAndInheritanceDetermined = function(geneOb
 
 VariantModel.prototype._getCacheKey = function(dataKind, geneName, transcript) {
   var me = this;
-  return cacheHelper.getCacheKey(
+  return me.getCacheHelper().getCacheKey(
     {relationship: this.getRelationship(),
      sample: (this.sampleName != null ? this.sampleName : "null"),
      gene: (geneName != null ? geneName : gene.gene_name),
@@ -2109,7 +2116,7 @@ VariantModel.prototype.promiseCacheDangerSummary = function(dangerSummary, geneN
 VariantModel.prototype.clearCacheItem = function(dataKind, geneName, transcript) {
   var me = this;
   var key = me._getCacheKey(dataKind, geneName, transcript);
-  cacheHelper.promiseRemoveCacheItem(dataKind, key);
+  me.getCacheHelper().promiseRemoveCacheItem(dataKind, key);
 }
 
 /*
@@ -3094,7 +3101,7 @@ VariantModel.prototype._promiseGetData = function(dataKind, geneName, transcript
       reject(msg);
     } else {
       var key = me._getCacheKey(dataKind, geneName.toUpperCase(), transcript)
-      cacheHelper.promiseGetData(key)
+      me.getCacheHelper().promiseGetData(key)
        .then(function(data) {
         resolve(data);
        },
@@ -3111,7 +3118,7 @@ VariantModel.prototype._promiseCacheData = function(data, dataKind, geneName, tr
   var me = this;
   return new Promise(function(resolve, reject) {
     var key = me._getCacheKey(dataKind, geneName.toUpperCase(), transcript);
-    cacheHelper.promiseCacheData(key, data)
+    me.getCacheHelper().promiseCacheData(key, data)
      .then(function() {
       resolve();
      },
