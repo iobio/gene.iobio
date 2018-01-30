@@ -3,7 +3,8 @@
 
 var Bam = Class.extend({
 
-   init: function(bamUri, baiUri, options) {
+   init: function(endpoint, bamUri, baiUri, options) {
+      this.endpoint = endpoint;
       this.bamUri = bamUri;
       this.baiUri = baiUri;
       this.options = options; // *** add options mapper ***
@@ -78,7 +79,7 @@ var Bam = Class.extend({
   checkBamUrl: function(url, baiUrl, callback) {
     var me = this;
 
-    var cmd = endpoint.getBamHeader(url, baiUrl);
+    var cmd = this.endpoint.getBamHeader(url, baiUrl);
 
     var success = null;
     cmd.on('data', function(data) {
@@ -252,7 +253,7 @@ var Bam = Class.extend({
       callback(null);
     } else {
 
-      var cmd = endpoint.getBamHeader(me.bamUri, me.baiUri);
+      var cmd = me.endpoint.getBamHeader(me.bamUri, me.baiUri);
 
       var success = null;
       var rawHeader = "";
@@ -287,7 +288,7 @@ var Bam = Class.extend({
       callback(null);
     } else {
 
-      var   cmd = endpoint.getBamHeader(me.bamUri, me.baiUri);
+      var cmd = me.endpoint.getBamHeader(me.bamUri, me.baiUri);
 
       var success = null;
       var rawHeader = "";
@@ -397,7 +398,7 @@ var Bam = Class.extend({
 
       var serverCacheKey = me._getServerCacheKey("coverage", trRefName, regionStart, regionEnd, {maxPoints: maxPoints});
 
-      var cmd = endpoint.getBamCoverage(bamSource, trRefName, regionStart, regionEnd, regions, maxPoints, useServerCache, serverCacheKey);
+      var cmd = me.endpoint.getBamCoverage(bamSource, trRefName, regionStart, regionEnd, regions, maxPoints, useServerCache, serverCacheKey);
 
       var samData = "";
       cmd.on('data', function(data) {
@@ -466,7 +467,7 @@ var Bam = Class.extend({
       var bamSources = [];
       me._initializeBamSource(bams, trRefName, regionStart, regionEnd, bamSources, index, function() {
 
-        var cmd = endpoint.freebayesJointCall(bamSources, trRefName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF);
+        var cmd = me.endpoint.freebayesJointCall(bamSources, trRefName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF);
 
         var variantData = "";
         cmd.on('data', function(data) {
@@ -544,7 +545,7 @@ var Bam = Class.extend({
       var index = 0;
       var bamSources = [];
       me._initializeBamSource(bams, trRefName, regionStart, regionEnd, bamSources, index, function() {
-        var cmd = endpoint.getGeneCoverage(bamSources, trRefName, geneObject.gene_name, regionStart, regionEnd, regions);
+        var cmd = me.endpoint.getGeneCoverage(bamSources, trRefName, geneObject.gene_name, regionStart, regionEnd, regions);
 
         var geneCoverageData = "";
         cmd.on('data', function(data) {

@@ -147,6 +147,7 @@ export default {
     },
     affectedInfo: null,
     cohortMode: '',
+    variantTooltip: null,
     maxAlleleCount: 0,
     maxDepth: 0,
     selectedGene: {},
@@ -266,7 +267,7 @@ export default {
                                            {bottom: ['center', 'right','left'  ]} ] };
 
 
-      variantTooltip.fillAndPositionTooltip(tooltip,
+      self.variantTooltip.fillAndPositionTooltip(tooltip,
         variant,
         lock,
         coord,
@@ -287,7 +288,7 @@ export default {
 
     },
     tooltipScroll(direction) {
-      variantTooltip.scroll(direction, "#main-tooltip");
+      this.variantTooltip.scroll(direction, "#main-tooltip");
     },
     unpin(saveClickedVariant, unpinMatrixTooltip) {
       this.$emit("cohortVariantClickEnd", this);

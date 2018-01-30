@@ -59,6 +59,7 @@
         :affectedInfo="cohortModel.affectedInfo"
         :cohortMode="cohortModel.mode"
         :maxAlleleCount="cohortModel.maxAlleleCount"
+        :variantTooltip="variantTooltip"
         :width="cardWidth"
         :key="model.relationship"
         :selectedGene="selectedGene"
@@ -101,6 +102,8 @@ import FilterModel    from  '../../models/FilterModel.js'
 import GeneModel      from  '../../models/GeneModel.js'
 
 
+
+
 export default {
   name: 'home',
   components: {
@@ -123,6 +126,8 @@ export default {
       models: [],
       geneModel: null,
       filterModel: null,
+
+      variantTooltip: new VariantTooltip(),
 
 
       cardWidth: 0,
@@ -149,15 +154,13 @@ export default {
       return cacheHelper.promiseClearStaleCache();
     })
     .then(function() {
-      // Instantiate helper class than encapsulates IOBIO commands
-      endpoint = new EndpointCmd(useSSL, IOBIO, cacheHelper.launchTimestamp, genomeBuildHelper, utility.getHumanRefNames);
-
-    })
-    .then(function() {
       self.geneModel = new GeneModel();
       self.geneModel.geneSource = siteGeneSource;
 
-      self.cohortModel = new CohortModel(self.geneModel);
+      // Instantiate helper class than encapsulates IOBIO commands
+      let endpoint = new EndpointCmd(useSSL, IOBIO, cacheHelper.launchTimestamp, genomeBuildHelper, utility.getHumanRefNames);
+
+      self.cohortModel = new CohortModel(endpoint, self.geneModel);
 
     })
     .then(function() {

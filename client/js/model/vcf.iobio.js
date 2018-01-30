@@ -21,7 +21,7 @@ vcfiobio = function module() {
   var SOURCE_TYPE_FILE = "file";
   var sourceType = "url";
 
-
+  var endpoint = null;
   var vcfURL;
   var tbiUrl;
   var vcfReader;
@@ -112,6 +112,14 @@ var effectCategories = [
     annotators = [];
   }
 
+  exports.setEndpoint = function(theEndpoint) {
+    endpoint = theEndpoint;
+  }
+
+  exports.getEndpoint = function() {
+    return endpoint;
+  }
+
   exports.getAnnotators = function() {
     return this.infoFields ? Object.keys(this.infoFields) : [];
   }
@@ -152,12 +160,13 @@ var effectCategories = [
   }
 
   exports.getHeader = function(callback) {
+    var me = this;
     if (sourceType.toLowerCase() == SOURCE_TYPE_URL.toLowerCase() && vcfURL != null) {
 
       var buffer = "";
       var success = false;
 
-      var cmd = endpoint.getVcfHeader(vcfURL, tbiUrl);
+      var cmd = me.getEndpoint().getVcfHeader(vcfURL, tbiUrl);
 
       cmd.on('data', function(data) {
         if (data != undefined) {
@@ -199,7 +208,7 @@ var effectCategories = [
     var buffer = "";
     var recordCount = 0;
 
-    var cmd = endpoint.getVcfHeader(url, tbiUrl);
+    var cmd = me.getEndpoint().getVcfHeader(url, tbiUrl);
 
     cmd.on('data', function(data) {
       if (data != undefined) {
@@ -458,7 +467,7 @@ var effectCategories = [
     var buffer = "";
     var refName;
 
-    var cmd = endpoint.getVcfDepth(vcfURL, tbiUrl)
+    var cmd = me.getEndpoint().getVcfDepth(vcfURL, tbiUrl)
 
     cmd.on('data', function(data) {
 
@@ -695,7 +704,7 @@ var effectCategories = [
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
-    var cmd = endpoint.annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey);
+    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey);
 
 
     var annotatedData = "";
@@ -804,7 +813,7 @@ var effectCategories = [
 
     var clinvarUrl = genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
 
-    var cmd = endpoint.getClinvarCountsForGene(clinvarUrl, refName, geneObject, binLength, (binLength == null ? me._getExonRegions(transcript) : null));
+    var cmd = me.getEndpoint().getClinvarCountsForGene(clinvarUrl, refName, geneObject, binLength, (binLength == null ? me._getExonRegions(transcript) : null));
 
     var summaryData = "";
     // Get the results from the iobio command
@@ -932,7 +941,7 @@ var effectCategories = [
   exports._getRemoteSampleNames = function(callback) {
     var me = this;
 
-    var cmd = endpoint.getVcfHeader(vcfURL, tbiUrl);
+    var cmd = me.getEndpoint().getVcfHeader(vcfURL, tbiUrl);
 
 
     var headerData = "";
@@ -1148,7 +1157,7 @@ var effectCategories = [
 
       var regions = me._getClinvarVariantRegions(refName, geneObject, variants, clinvarGenes);
 
-      var cmd = endpoint.normalizeVariants(clinvarUrl, null, refName, regions);
+      var cmd = me.getEndpoint().normalizeVariants(clinvarUrl, null, refName, regions);
 
 
       var clinvarData = "";
@@ -1344,7 +1353,7 @@ var effectCategories = [
       stream.end();
     }
 
-    var cmd = endpoint.annotateVariants({'writeStream': writeStream}, refName, null, regions, null, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache);
+    var cmd = me.getEndpoint().annotateVariants({'writeStream': writeStream}, refName, null, regions, null, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache);
 
 
     var buffer = "";

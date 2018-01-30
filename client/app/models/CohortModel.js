@@ -1,6 +1,7 @@
 class CohortModel {
 
-  constructor(geneModel) {
+  constructor(endpoint, geneModel) {
+    this.endpoint = endpoint;
     this.geneModel = geneModel;
 
     this.sampleModels  = [];

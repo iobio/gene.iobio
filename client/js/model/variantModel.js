@@ -933,8 +933,9 @@ VariantModel.prototype.init = function(cohort) {
   var me = this;
 
   // init vcf.iobio
-  this.vcf = vcfiobio();
   this.cohort = cohort;
+  this.vcf = vcfiobio();
+  this.vcf.setEndpoint(this.cohort.endpoint);
 };
 
 VariantModel.prototype.getGeneModel = function() {
@@ -987,7 +988,7 @@ VariantModel.prototype.onBamUrlEntered = function(bamUrl, baiUrl, callback) {
   } else {
 
     this.bamUrlEntered = true;
-    this.bam = new Bam(bamUrl, baiUrl);
+    this.bam = new Bam(this.cohort.endpoint, bamUrl, baiUrl);
 
     this.bam.checkBamUrl(bamUrl, baiUrl, function(success, errorMsg) {
       if (me.lastBamAlertify) {
