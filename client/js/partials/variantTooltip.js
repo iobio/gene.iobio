@@ -1,7 +1,7 @@
 class VariantTooltip {
 
-  constructor() {
-    this.examinedVariant = null;
+  constructor(genericAnnotation) {
+    this.genericAnnotation = genericAnnotation;
     this.WIDTH_LOCK             = 680;
     this.WIDTH_EXTRA_WIDE       = 840;
     this.WIDTH_HOVER            = 360;
@@ -690,7 +690,7 @@ class VariantTooltip {
     var vepRegMotifDisplay = "";
     if (variant.vepRegs) {
       for (var i = 0; i < variant.vepRegs.length; i++) {
-        vr = variant.vepRegs[i];
+        var vr = variant.vepRegs[i];
         if (vr.motifName != null && vr.motifName != '') {
 
           if (vepRegMotifDisplay.length > 0) {
@@ -910,7 +910,7 @@ class VariantTooltip {
 
 
       var clazzMap = {container: 'tooltip-info-column', row: 'tooltip-row', label: 'tooltip-header', value: 'tooltip-value'};
-      var otherDiv = genericAnnotation.formatContent(variant, clazzMap, this.VALUE_EMPTY);
+      var otherDiv = me.genericAnnotation.formatContent(variant, clazzMap, this.VALUE_EMPTY);
 
 
       var div =

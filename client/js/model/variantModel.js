@@ -936,6 +936,7 @@ VariantModel.prototype.init = function(cohort) {
   this.cohort = cohort;
   this.vcf = vcfiobio();
   this.vcf.setEndpoint(this.cohort.endpoint);
+  this.vcf.setGenericAnnotation(this.cohort.genericAnnotation);
 };
 
 VariantModel.prototype.getGeneModel = function() {

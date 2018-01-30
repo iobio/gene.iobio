@@ -10,7 +10,6 @@ var annotationScheme = 'vep';
 var glyph = new Glyph();
 var translator = new Translator();
 
-var genericAnnotation = new GenericAnnotation();
 
 
 

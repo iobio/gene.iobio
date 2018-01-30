@@ -21,12 +21,13 @@ vcfiobio = function module() {
   var SOURCE_TYPE_FILE = "file";
   var sourceType = "url";
 
-  var endpoint = null;
   var vcfURL;
   var tbiUrl;
+
   var vcfReader;
   var vcfFile;
   var tabixFile;
+
   var size16kb = Math.pow(2, 14);
   var refData = [];
   var refDensity = [];
@@ -36,6 +37,10 @@ vcfiobio = function module() {
   var regions = [];
   var regionIndex = 0;
   var stream = null;
+
+  var endpoint = null;
+  var genericAnnotation = null;
+
 
   var VEP_FIELDS_AF_1000G  = "AF|AFR_AF|AMR_AF|EAS_AF|EUR_AF|SAS_AF".split("|");
   var VEP_FIELDS_AF_ESP    = "AA_AF|EA_AF".split("|");
@@ -118,6 +123,15 @@ var effectCategories = [
 
   exports.getEndpoint = function() {
     return endpoint;
+  }
+
+
+  exports.setGenericAnnotation = function(theGenericAnnotation) {
+    genericAnnotation = theGenericAnnotation;
+  }
+
+  exports.getGenericAnnotation = function() {
+    return genericAnnotation;
   }
 
   exports.getAnnotators = function() {
@@ -1581,8 +1595,8 @@ var effectCategories = [
                     variant[key] = clinvarResult[key];
                   }
 
-                  if (window.genericAnnotation !== undefined) {
-                    genericAnnotation.setSimpleFields(variant);
+                  if (me.getGenericAnnotation() !== undefined) {
+                    me.getGenericAnnotation().setSimpleFields(variant);
                   }
 
                   allVariants[i].push(variant);

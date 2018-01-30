@@ -127,7 +127,7 @@ export default {
       geneModel: null,
       filterModel: null,
 
-      variantTooltip: new VariantTooltip(),
+      variantTooltip: null,
 
 
       cardWidth: 0,
@@ -157,10 +157,14 @@ export default {
       self.geneModel = new GeneModel();
       self.geneModel.geneSource = siteGeneSource;
 
+      let genericAnnotation = new GenericAnnotation();
+
+      self.variantTooltip = new VariantTooltip(genericAnnotation);
+
       // Instantiate helper class than encapsulates IOBIO commands
       let endpoint = new EndpointCmd(useSSL, IOBIO, cacheHelper.launchTimestamp, genomeBuildHelper, utility.getHumanRefNames);
 
-      self.cohortModel = new CohortModel(endpoint, self.geneModel);
+      self.cohortModel = new CohortModel(endpoint, genericAnnotation, self.geneModel);
 
     })
     .then(function() {
