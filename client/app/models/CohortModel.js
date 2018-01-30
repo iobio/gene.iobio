@@ -1,12 +1,13 @@
 class CohortModel {
 
-  constructor(endpoint, genericAnnotation, translator, annotationScheme, geneModel, cacheHelper) {
+  constructor(endpoint, genericAnnotation, translator, annotationScheme, geneModel, cacheHelper, genomeBuildHelper) {
     this.endpoint = endpoint;
     this.genericAnnotation = genericAnnotation;
     this.translator = translator;
     this.annotationScheme = annotationScheme;
     this.geneModel = geneModel;
     this.cacheHelper = cacheHelper;
+    this.genomeBuildHelper = genomeBuildHelper;
 
     this.sampleModels  = [];
     this.sampleMap = {};
@@ -100,7 +101,7 @@ class CohortModel {
       vm.init(self);
       vm.setRelationship('known-variants');
       vm.setName('Clinvar')
-      var clinvarUrl = genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
+      var clinvarUrl = self.genomeBuildHelper.getBuildResource(self.genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
       vm.onVcfUrlEntered(clinvarUrl, null, function() {
         self.sampleModels.push(vm);
 

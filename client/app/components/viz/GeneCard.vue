@@ -192,7 +192,8 @@ export default {
   },
   props: {
     selectedGene: {},
-    selectedTranscript: {}
+    selectedTranscript: {},
+    geneModel: null
   },
   data() {
     return {
@@ -228,10 +229,10 @@ export default {
       let self = this;
 
       var switchMsg = null;
-      if (geneModel.refseqOnly[self.selectedGene.gene_name] && self.geneSource != 'refseq') {
+      if (self.geneModel.refseqOnly[self.selectedGene.gene_name] && self.geneSource != 'refseq') {
         switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in RefSeq. Switching to this transcript set.';
         self.geneSource = 'refseq';
-      } else if (geneModel.gencodeOnly[self.selectedGene.gene_name] && self.geneSource != 'gencode') {
+      } else if (self.geneModel.gencodeOnly[self.selectedGene.gene_name] && self.geneSource != 'gencode') {
         switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in Gencode. Switching to this transcript set.';
         self.geneSource = 'gencode';
       }

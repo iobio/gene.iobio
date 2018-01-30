@@ -4,6 +4,8 @@ class GeneModel {
     this.refseqOnly = {};
     this.gencodeOnly = {};
 
+    this.genomeBuildHelper = null;
+
     this.geneNames = [];
 
     this.transcriptCodingRegions = {};
@@ -552,12 +554,12 @@ class GeneModel {
       var url = geneInfoServer + 'api/gene/' + geneName;
 
       // If current build not specified, default to GRCh37
-      var buildName = genomeBuildHelper.getCurrentBuildName() ? genomeBuildHelper.getCurrentBuildName() : "GRCh37";
+      var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
       $('#build-link').text(buildName);
 
 
       url += "?source="  + (me.geneSource ? me.geneSource : siteGeneSource);
-      url += "&species=" + genomeBuildHelper.getCurrentSpeciesLatinName();
+      url += "&species=" + me.genomeBuildHelper.getCurrentSpeciesLatinName();
       url += "&build="   + buildName;
 
 

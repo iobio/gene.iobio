@@ -1,10 +1,11 @@
 class VariantTooltip {
 
-  constructor(genericAnnotation, glyph, translator, annotationScheme) {
+  constructor(genericAnnotation, glyph, translator, annotationScheme, genomeBuildHelper) {
     this.genericAnnotation = genericAnnotation;
     this.glyph = glyph;
     this.translator = translator;
     this.annotationScheme = annotationScheme;
+    this.genomeBuildHelper = genomeBuildHelper;
 
     this.WIDTH_LOCK             = 680;
     this.WIDTH_EXTRA_WIDE       = 840;
@@ -781,7 +782,7 @@ class VariantTooltip {
     var gnomADAfRowWide = "";
     var exacAfRow = "";
     var exacAfRowWide = "";
-    if (global_vepAF && genomeBuildHelper.getCurrentBuildName() == "GRCh37" && variant.vepAf.gnomAD.hasOwnProperty("AF")) {
+    if (global_vepAF && me.genomeBuildHelper.getCurrentBuildName() == "GRCh37" && variant.vepAf.gnomAD.hasOwnProperty("AF")) {
       gnomADAfRow = me._tooltipLabeledRow('Allele Freq gnomAD', (variant.vepAf.gnomAD.AF == "." ? "0%" : utility.percentage(variant.vepAf.gnomAD.AF)), '6px');
       var af   =  variant.vepAf.gnomAD.AF == "." ? "0%" : utility.percentage(variant.vepAf.gnomAD.AF);
       var link =  "<a target='_gnomad' href='http://gnomad.broadinstitute.org/variant/" + variant.chrom + "-" + variant.start + "-" + variant.ref + "-" + variant.alt + "'>" + af + "</a>";

@@ -31,6 +31,7 @@
       <v-container fluid>
         <gene-card
           v-bind:class="{ hide: Object.keys(selectedGene).length == 0 }"
+          :geneModel="geneModel"
           :selectedGene="selectedGene"
           :selectedTranscript="selectedTranscript"
           @transcript-selected="onTranscriptSelected"
@@ -127,6 +128,9 @@ export default {
       models: [],
       geneModel: null,
       filterModel: null,
+      cacheHelper: null,
+      genomeBuildHelper: null,
+      annotationScheme: 'vep',
 
       variantTooltip: null,
 
@@ -134,11 +138,8 @@ export default {
       cardWidth: 0,
 
       selectedVariant: null,
-      showClinvarVariants: false,
+      showClinvarVariants: false
 
-      annotationScheme: 'vep',
-
-      cacheHelper: null
     }
   },
 
@@ -151,7 +152,8 @@ export default {
 
     self.cardWidth = self.$el.offsetWidth;
 
-    genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
+    self.genomeBuildHelper = new GenomeBuildHelper();
+    self.genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
     .then(function() {
       return self.promiseInitCache();
     })
@@ -161,6 +163,7 @@ export default {
     .then(function() {
       self.geneModel = new GeneModel();
       self.geneModel.geneSource = siteGeneSource;
+      self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
 
       let glyph = new Glyph();
 
@@ -168,12 +171,12 @@ export default {
 
       let genericAnnotation = new GenericAnnotation(glyph);
 
-      self.variantTooltip = new VariantTooltip(genericAnnotation, glyph, translator, self.annotationScheme);
+      self.variantTooltip = new VariantTooltip(genericAnnotation, glyph, translator, self.annotationScheme, self.genomeBuildHelper);
 
       // Instantiate helper class than encapsulates IOBIO commands
-      let endpoint = new EndpointCmd(useSSL, IOBIO, self.cacheHelper.launchTimestamp, genomeBuildHelper, utility.getHumanRefNames);
+      let endpoint = new EndpointCmd(useSSL, IOBIO, self.cacheHelper.launchTimestamp, self.genomeBuildHelper, utility.getHumanRefNames);
 
-      self.cohortModel = new CohortModel(endpoint, genericAnnotation, translator, self.annotationScheme, self.geneModel, self.cacheHelper);
+      self.cohortModel = new CohortModel(endpoint, genericAnnotation, translator, self.annotationScheme, self.geneModel, self.cacheHelper, self.genomeBuildHelper);
 
     })
     .then(function() {

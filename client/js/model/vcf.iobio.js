@@ -40,6 +40,7 @@ vcfiobio = function module() {
 
   var endpoint = null;
   var genericAnnotation = null;
+  var genomeBuildHelper = null;
 
 
   var VEP_FIELDS_AF_1000G  = "AF|AFR_AF|AMR_AF|EAS_AF|EUR_AF|SAS_AF".split("|");
@@ -134,6 +135,13 @@ var effectCategories = [
     return genericAnnotation;
   }
 
+  exports.setGenomeBuildHelper = function(theGenomeBuildHelper) {
+    genomeBuildHelper = theGenomeBuildHelper;
+  }
+
+  exports.getGenomeBuildHelper = function() {
+    return genomeBuildHelper;
+  }
   exports.getAnnotators = function() {
     return this.infoFields ? Object.keys(this.infoFields) : [];
   }
@@ -825,7 +833,7 @@ var effectCategories = [
 
     var me = this;
 
-    var clinvarUrl = genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
+    var clinvarUrl = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_S3);
 
     var cmd = me.getEndpoint().getClinvarCountsForGene(clinvarUrl, refName, geneObject, binLength, (binLength == null ? me._getExonRegions(transcript) : null));
 
@@ -1164,9 +1172,9 @@ var effectCategories = [
 
       var clinvarUrl = null;
       if (isOffline) {
-        clinvarUrl = OFFLINE_CLINVAR_VCF_BASE_URL + genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_CLINVAR_VCF_OFFLINE)
+        clinvarUrl = OFFLINE_CLINVAR_VCF_BASE_URL + me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_OFFLINE)
       } else {
-        clinvarUrl = genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
+        clinvarUrl = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_S3);
       }
 
       var regions = me._getClinvarVariantRegions(refName, geneObject, variants, clinvarGenes);
@@ -1279,7 +1287,7 @@ var effectCategories = [
         }
       });
 
-      var clinvarBuild = genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_CLINVAR_POSITION);
+      var clinvarBuild = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_POSITION);
       url = url.slice(0,url.length-1) + '[' + clinvarBuild + '])';
 
       var clinvarVariants = null;
@@ -1315,8 +1323,8 @@ var effectCategories = [
                     resolve();
                   } else {
                     var sorted = sumData.result.uids.sort(function(a,b){
-                      var aStart = parseInt(sumData.result[a].variation_set[0].variation_loc.filter(function(v){return v["assembly_name"] == genomeBuildHelper.getCurrentBuildName()})[0].start);
-                      var bStart = parseInt(sumData.result[b].variation_set[0].variation_loc.filter(function(v){return v["assembly_name"] == genomeBuildHelper.getCurrentBuildName()})[0].start);
+                      var aStart = parseInt(sumData.result[a].variation_set[0].variation_loc.filter(function(v){return v["assembly_name"] == me.getGenomeBuildHelper().getCurrentBuildName()})[0].start);
+                      var bStart = parseInt(sumData.result[b].variation_set[0].variation_loc.filter(function(v){return v["assembly_name"] == me.getGenomeBuildHelper().getCurrentBuildName()})[0].start);
                       if ( aStart > bStart)
                         return 1;
                       else
@@ -1353,7 +1361,7 @@ var effectCategories = [
     var me = this;
 
     //  Figure out the reference sequence file path
-    var refFastaFile = genomeBuildHelper.getFastaPath(refName);
+    var refFastaFile = me.getGenomeBuildHelper().getFastaPath(refName);
 
 
     var writeStream = function(stream) {
@@ -1821,7 +1829,7 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
 
           var valueUrl = "";
           if (feature != "" && feature != null) {
-            var url = genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_ENSEMBL_URL) + "Regulation/Context?db=core;fdb=funcgen;rf=" + feature;
+            var url = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_ENSEMBL_URL) + "Regulation/Context?db=core;fdb=funcgen;rf=" + feature;
             valueUrl = '<a href="' + url + '" target="_reg">' + reg.split("_").join(" ").toLowerCase() + '</a>';
           } else {
             valueUrl = reg.split("_").join(" ").toLowerCase();
