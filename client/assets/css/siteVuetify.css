@@ -2,6 +2,10 @@ html {
   -webkit-font-smoothing: auto;
 }
 
+.btn {
+  text-transform: none;
+}
+
 .application, body {
   font-family: 'Open Sans', 'Quattrocento Sans', 'sans serif';
 }

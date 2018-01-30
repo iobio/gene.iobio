@@ -144,6 +144,9 @@ export default {
         return [[0,0]];
       }
     },
+    affectedInfo: null,
+    cohortMode: '',
+    maxAlleleCount: 0,
     maxDepth: 0,
     selectedGene: {},
     selectedTranscript: {},
@@ -207,6 +210,7 @@ export default {
       }
       if (this.showVariantViz) {
         this.showVariantCircle(variant);
+        this.showVariantTooltip(variant, true);
       }
     },
     onVariantHoverEnd: function() {
@@ -215,7 +219,78 @@ export default {
       }
       if (this.showVariantViz) {
         this.hideVariantCircle();
+        this.hideVariantTooltip();
       }
+    },
+    showVariantTooltip: function(variant, lock) {
+      let self = this;
+
+      let tooltip = d3.select("#main-tooltip");
+
+      if (lock) {
+        tooltip.style("pointer-events", "all");
+      } else {
+        tooltip.style("pointer-events", "none");
+      }
+
+
+      var x = variant.screenX;
+      var y = variant.screenY;
+
+      var coord = {'x':                  x,
+                   'y':                  y,
+                   'height':             33,
+                   'parentWidth':        self.$el.offsetWidth,
+                   'preferredPositions': [ {top:    ['center', 'right','left'  ]},
+                                           {right:  ['middle', 'top',  'bottom']},
+                                           {left:   ['middle', 'top',  'bottom']},
+                                           {bottom: ['center', 'right','left'  ]} ] };
+
+
+      variantTooltip.fillAndPositionTooltip(tooltip,
+        variant,
+        lock,
+        coord,
+        self.relationship,
+        self.affectedInfo,
+        self.cohortMode,
+        self.maxAlleleCount);
+
+      tooltip.selectAll("#unpin").on('click', function() {
+        self.unpin(null, true);
+      });
+      tooltip.selectAll("#tooltip-scroll-up").on('click', function() {
+        self.tooltipScroll("up");
+      });
+      tooltip.selectAll("#tooltip-scroll-down").on('click', function() {
+        self.tooltipScroll("down");
+      });
+
+    },
+    tooltipScroll(direction) {
+      variantTooltip.scroll(direction, "#main-tooltip");
+    },
+    unpin(saveClickedVariant, unpinMatrixTooltip) {
+      //if (!saveClickedVariant) {
+      //  clickedVariant = null;
+      //  clickedVariantCard = null;
+      //}
+
+      this.hideVariantTooltip();
+      this.hideVariantCircle();
+      this.hideCoverageCircle();
+
+      //if (unpinMatrixTooltip) {
+      //  matrixCard.unpin();
+      //}
+    },
+    hideVariantTooltip: function() {
+      let tooltip = d3.select("#main-tooltip");
+      tooltip.transition()
+           .duration(500)
+           .style("opacity", 0)
+           .style("z-index", 0)
+           .style("pointer-events", "none");
     },
     showVariantCircle: function(variant) {
       var container = d3.select(this.$el).select('#loaded-variant-viz > svg');

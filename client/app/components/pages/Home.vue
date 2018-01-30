@@ -20,6 +20,8 @@
 <template>
 
   <div>
+
+
     <navigation
       @input="onGeneSelected"
       @navLoadDemoData="onLoadDemoData"
@@ -54,6 +56,9 @@
         v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources }"
         :name="model.name"
         :relationship="model.relationship"
+        :affectedInfo="cohortModel.affectedInfo"
+        :cohortMode="cohortModel.mode"
+        :maxAlleleCount="cohortModel.maxAlleleCount"
         :width="cardWidth"
         :key="model.relationship"
         :selectedGene="selectedGene"

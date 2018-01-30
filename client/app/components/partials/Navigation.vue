@@ -4,11 +4,8 @@
     background-color: rgb(93, 128, 157) !important;
     font-weight: 300 !important;
   }
-  i.material-icons {
+  nav.toolbar i.material-icons {
     margin-right: 2px
-  }
-  .btn {
-    text-transform: none;
   }
 
   .toolbar__title {

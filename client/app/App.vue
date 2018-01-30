@@ -1,5 +1,5 @@
 <style lang="sass">
-
+@import "../assets/sass/site.sass";
 
 .container
   margin-top: 0px
@@ -10,7 +10,6 @@
   padding: 0px 5px 0px 5px
 
 
-  @import '../assets/sass/site.sass';
 </style>
 
 <template>

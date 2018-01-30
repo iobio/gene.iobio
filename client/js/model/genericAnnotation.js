@@ -56,12 +56,12 @@ function GenericAnnotation() {
         type:       'number',
         filter:     'range',
         valueMap: [
-                   {min:    0,   max: +0,     value: +2,  badge: false,  clazz:  'af_unique',     symbolFunction: matrixCard.showAfSymbol},
-                   {min:    0,   max: +.0001, value: +3,  badge: false,  clazz:  'af_uberrare',   symbolFunction: matrixCard.showAfSymbol},
-                   {min:    0,   max: +.001,  value: +4,  badge: false,  clazz:  'af_superrare',  symbolFunction: matrixCard.showAfSymbol},
-                   {min:    0,   max: +.01,   value: +5,  badge: false,  clazz:  'af_rare',       symbolFunction: matrixCard.showAfSymbol},
-                   {min:    0,   max: +.05,   value: +6,  badge: false,  clazz:  'af_uncommon',   symbolFunction: matrixCard.showAfSymbol},
-                   {min: +.05,   max: +1,     value: +7,  badge: false,  clazz:  'af_common',     symbolFunction: matrixCard.showAfSymbol}
+                   {min:    0,   max: +0,     value: +2,  badge: false,  clazz:  'af_unique',     symbolFunction: glyph.showAfSymbol},
+                   {min:    0,   max: +.0001, value: +3,  badge: false,  clazz:  'af_uberrare',   symbolFunction: glyph.showAfSymbol},
+                   {min:    0,   max: +.001,  value: +4,  badge: false,  clazz:  'af_superrare',  symbolFunction: glyph.showAfSymbol},
+                   {min:    0,   max: +.01,   value: +5,  badge: false,  clazz:  'af_rare',       symbolFunction: glyph.showAfSymbol},
+                   {min:    0,   max: +.05,   value: +6,  badge: false,  clazz:  'af_uncommon',   symbolFunction: glyph.showAfSymbol},
+                   {min: +.05,   max: +1,     value: +7,  badge: false,  clazz:  'af_common',     symbolFunction: glyph.showAfSymbol}
                 ]
       },
       'GNOMAD_EXOME.gnomAD_exome_AFR': { label: 'Allele Freq AFR'},
@@ -81,10 +81,10 @@ function GenericAnnotation() {
         type:       'category',
         filter:     'category',
         valueMap:   {
-                        'Disease Causing Automatic': {value: 1,    badge: false, clazz: 'mt_disease_causing_auto', symbolFunction: matrixCard.showMutationTasterSymbol},
-                        'Disease Causing':           {value: 2,    badge: false, clazz: 'mt_disease_causing',      symbolFunction: matrixCard.showMutationTasterSymbol},
-                    'Polymorphism':              {value: 103,  badge: false, clazz: 'mt_polymorphism',         symbolFunction: matrixCard.showMutationTasterSymbol},
-                    'Polymorphism Automatic':    {value: 104,  badge: false, clazz: 'mt_polymorphism_auto',    symbolFunction: matrixCard.showMutationTasterSymbol},
+                        'Disease Causing Automatic': {value: 1,    badge: false, clazz: 'mt_disease_causing_auto', symbolFunction: glyph.showMutationTasterSymbol},
+                        'Disease Causing':           {value: 2,    badge: false, clazz: 'mt_disease_causing',      symbolFunction: glyph.showMutationTasterSymbol},
+                    'Polymorphism':              {value: 103,  badge: false, clazz: 'mt_polymorphism',         symbolFunction: glyph.showMutationTasterSymbol},
+                    'Polymorphism Automatic':    {value: 104,  badge: false, clazz: 'mt_polymorphism_auto',    symbolFunction: glyph.showMutationTasterSymbol},
                         none:                        {value: 105,  badge: false, clazz: ''}
                      }
       },
