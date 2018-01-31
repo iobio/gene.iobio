@@ -1,0 +1,242 @@
+<style lang="sass">
+@import ../../../assets/sass/variables
+
+#feature-matrix
+  rect.cellbox
+    fill: white
+    stroke: $cell-border-color
+    stroke-width: 1px
+
+  .col
+    &.danger
+      rect.cellbox
+        fill: rgba(187, 0, 0, 0.13)
+
+    &.low-quality
+      rect.cellbox
+        fill: $low-quality-cell-color
+
+  .colhdr text
+    font-size: 11px
+    pointer-events: none
+
+
+  rect.cellbox:hover
+    cursor: pointer
+    font-weight: bold
+
+  .col.active rect.cellbox
+    fill: transparent
+
+  rect.colbox
+    fill: none
+    opacity: 0
+    pointer-events: none
+
+    &.current
+      stroke: $current-frame-color !important
+      stroke-width: 1.5px !important
+      opacity: 1
+      pointer-events: none
+      outline-offset: -2px
+
+  .col.active
+
+    rect.colbox
+      stroke: $current-frame-color
+      stroke-width: 1px
+      opacity: 1
+
+  text
+    font-size: 12px
+    fill: rgb(120, 120, 120)
+    pointer-events: none
+
+    &.clickable
+      text-decoration: underline
+      fill: $app-color !important
+
+      &:hover
+        fill: $current-color !important
+
+  .axis .tick text.current
+    font-weight: bold !important
+    fill: black !important
+
+  .y.axis .tick
+    .up #arrow-up, .down #arrow-down
+      opacity: 0
+
+#feature-matrix
+
+  &.shift-rows
+
+    .y.axis .tick
+      .up #arrow-up, .down #arrow-down
+        fill: #E0E0E0
+        stroke: #ABABAB
+        stroke-width: .5px
+        opacity: 1
+
+      text
+        &:hover, &.current, &.active
+          font-weight: bold
+          fill: $current-color
+
+      .up #arrow-up:hover, .down #arrow-down:hover
+        cursor: pointer
+        fill: $current-color
+
+      pointer-events: all
+
+
+
+</style>
+
+
+<template>
+    <div id="feature-matrix-viz">
+
+    </div>
+</template>
+
+<script>
+
+
+export default {
+    name: 'feature-matrix-viz',
+    props: {
+      data: {
+        type: Array,
+        default: function() {
+          return [];
+        }
+      },
+      matrixRows: {
+        type: Array,
+        default: function() {
+          return [];
+        }
+      },
+      width: {
+        type: Number,
+        default: 0
+      },
+      height: {
+        type: Number,
+        default: 0
+      },
+      margin: {
+        type: Object,
+        default: {}
+      },
+      cellSize: {
+        type: Number,
+        default: 0
+      },
+      cellWidth: {
+        type: Number,
+        default: 0
+      },
+      rowLabelWidth: {
+        type: Number,
+        default: 0
+      },
+      cellHeights: {
+        type: Array,
+        default: function() {
+          return [];
+        }
+      },
+      columnLabelHeight: {
+        type: Number,
+        default: 0
+      },
+      columnLabel: {
+        type: Function,
+        default: function(d, i) {
+          return "";
+        }
+      },
+      columnLabelClass: {
+        type: Function,
+        default: function(d, i) {
+          return "";
+        }
+      },
+      columnLabelSymbol: {
+        type: Function,
+        default: function(d, i) {
+          return "";
+        }
+      },
+      adjustTooltipCoordinates: {
+        type: Function,
+        default: function(variant) {
+          return;
+        }
+      },
+
+    },
+    data() {
+      return {
+        featureMatrixChart: null
+      }
+    },
+    created: function() {
+    },
+    mounted: function() {
+      this.draw();
+    },
+    methods: {
+      draw: function() {
+        var self = this;
+
+        this.featureMatrixChart = featureMatrixD3()
+          .margin(this.margin)
+          .matrixRows(this.matrixRows)
+          .cellSize(this.cellSize)
+          .cellWidth(this.cellWidth)
+          .cellHeights(this.cellHeights)
+          .columnLabelHeight(this.columnLabelHeight)
+          .columnLabel(this.columnLabel)
+          .columnLabelClass(this.columnLabelClass )
+          .columnLabelSymbol(this.columnLabelSymbol)
+          .rowLabelWidth(this.rowLabelWidth)
+          .adjustTooltipCoordinates(this.adjustTooltipCoordinates)
+          .on('d3mouseover', function(variant) {
+
+          })
+          .on('d3mouseout', function() {
+
+          })
+          .on('d3rowup', function(i) {
+
+          })
+          .on('d3rowdown', function(i) {
+          });
+
+
+          this.setFeatureMatrixChart();
+      },
+      update: function() {
+        var self = this;
+        if (self.data) {
+          var selection = d3.select(self.$el).data( [self.data] );
+          self.featureMatrixChart(selection, {showColumnLabels: true, simpleColumnLabels: true});
+        } else {
+          var selection = d3.select(self.$el).data( []);
+          self.featureMatrixChart(selection, {showColumnLabels: true, simpleColumnLabels: true});
+        }
+      },
+      setFeatureMatrixChart: function() {
+        this.$emit('updateFeatureMatrixChart', this.featureMatrixChart);
+      }
+    },
+    watch: {
+      data: function() {
+        this.update();
+      }
+    }
+}
+</script>

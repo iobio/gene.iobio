@@ -493,6 +493,94 @@ class Glyph {
   }
 
 
+  showTextSymbol(selection, options) {
+    var translate = options.cellSize > 18 ? "translate(3,0)" : "translate(0,0)";
+    var text =  selection.append("g")
+                   .attr("transform", translate)
+                   .append("text")
+                   .attr("class", function(d,i) {
+                      if (selection.datum().clickFunction) {
+                        return "clickable";
+                      } else {
+                        return "";
+                      }
+                   })
+                   .attr("x", 0)
+                   .attr("y", isLevelBasic ? 14 : 11)
+                   .attr("dy", "0em")
+                   .text(selection.datum().value)
+
+    this.wrap(text, options.cellSize, 3);
+  }
+
+  showNumericSymbol(selection, options) {
+    var translate = options.cellSize > 18 ? "translate(0,4)" : "translate(0,0)";
+    var text =  selection.append("g")
+                   .attr("transform", translate)
+                   .append("text")
+                   .attr("class", function(d,i) {
+                    if (selection.datum().clickFunction) {
+                      return "clickable";
+                    } else {
+                      return "";
+                    }
+                 })
+                   .attr("x", 0)
+                   .attr("y", isLevelBasic ? 14 : 11)
+                   .attr("dy", "0em")
+                   .text(selection.datum().value);
+    this.wrap(text, options.cellSize, 3, options.cellSize - 1);
+  }
+
+  wrap(text, width, maxLines, x) {
+    if (maxLines == null) {
+      maxLines = 10;
+    }
+    var theX       = x ? x : 0;
+    var textAnchor = x ? "end" : "start";
+
+    text.each(function() {
+      var text = d3.select(this),
+          words = text.text()
+                      .split(/\s+/)
+                      .filter( function(d,i) {
+                        return d != null && d != '' && d.trim() != '';
+                })
+                      .reverse();
+      var wordCount = words.length;
+      var word,
+          line = [],
+          lineNumber = 0,
+          lineHeight = 1.1, // ems
+          y = text.attr("y"),
+          dy = parseFloat(text.attr("dy")),
+          tspan = text.text(null)
+                      .append("tspan")
+                      .style("text-anchor", textAnchor)
+                      .attr("x", theX)
+                      .attr("y", y)
+                      .attr("dy", dy + "em");
+      while (word = words.pop()) {
+        line.push(word);
+        if (lineNumber < maxLines) {
+            if (lineNumber == maxLines-1) {
+              word = " more ...";
+            }
+          tspan.text(line.join(" "));
+          if (tspan.node().getComputedTextLength() > width && wordCount > 1) {
+            line.pop();
+            tspan.text(line.join(" "));
+            line = [word];
+            tspan = text.append("tspan").attr("x", theX).attr("y", y)
+                        .attr("dy", ++lineNumber * lineHeight + dy + "em")
+                        .style("text-anchor", textAnchor)
+                        .text(word);
+          }
+        }
+      }
+    })
+  }
+
 }
 
 

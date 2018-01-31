@@ -454,5 +454,66 @@ class Util {
     }
   }
 
+/*
+  *  Evaluate the highest impacts for a variant across all transcripts.
+  *  Cull the impact if it already annotated for the canonical transcript
+  *  or the impact is less severe than the one for the canonical
+  *  transcripts.  Returns an object that looks like this:
+  *  {HIGH: {frameshift:
+  *            {
+  *       transcripts: [ENST000245.1,ENSTxxxx],
+  *       display: 'ENST000241.1,ENSTxxxx'
+  *     }
+  *     stop_gain:
+  *       {
+  *       transcripts: [ENST000245.1,ENSTxxxx],
+  *       display: 'ENST000241.1,ENSTxxxx'
+  *     }
+  *     }
+  * }
+  */
+  getNonCanonicalHighestImpactsVep(variant, impactMap) {
+    let self = this;
+    var vepHighestImpacts = {};
+    for (var impactKey in variant.highestImpactVep) {
+      var nonCanonicalEffects = [];
+      var allEffects = variant.highestImpactVep[impactKey];
+
+      var lowestImpactValue = 99;
+      for (var key in variant.vepImpact) {
+        var value = impactMap[key].value;
+        if (value < lowestImpactValue) {
+          lowestImpactValue = value;
+        }
+      }
+
+      var theValue = impactMap[impactKey].value;
+      if (theValue < lowestImpactValue) {
+        for (var effectKey in allEffects) {
+          var allTranscripts = allEffects[effectKey];
+          if (Object.keys(allTranscripts).length > 0) {
+            var ncObject = {};
+            var transcriptUrls = "";
+            for(var transcriptId in allTranscripts) {
+              if (transcriptUrls.length > 0) {
+                transcriptUrls += ", ";
+              }
+              var url = '<a href="javascript:void(0)" onclick="selectTranscript(\'' + transcriptId + '\')">' + transcriptId + '</a>';
+              transcriptUrls += url;
+            }
+            ncObject[effectKey] = {transcripts: Object.keys(allTranscripts), display: Object.keys(allTranscripts).join(","), url: transcriptUrls};
+            nonCanonicalEffects.push(ncObject);
+          }
+
+        }
+
+        if (nonCanonicalEffects.length > 0) {
+          vepHighestImpacts[impactKey] = nonCanonicalEffects;
+        }
+      }
+    }
+    return vepHighestImpacts;
+  }
+
 
 }

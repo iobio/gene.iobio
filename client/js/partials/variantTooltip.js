@@ -582,7 +582,7 @@ class VariantTooltip {
 
     // If the highest impact occurs in a non-canonical transcript, show the impact followed by
     // the consequence and corresponding transcripts
-    var vepHighestImpacts = VariantModel.getNonCanonicalHighestImpactsVep(variant, me.translator);
+    var vepHighestImpacts = utility.getNonCanonicalHighestImpactsVep(variant, me.translator.impactMap);
     var vepHighestImpactDisplay = "";
     var vepHighestImpactDisplaySimple = "";
     var vepHighestImpactSimple = "";

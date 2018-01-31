@@ -33,10 +33,10 @@ class Translator {
                         none:     {value: 5, badge: false, clazz: 'impact_none',      symbolFunction: this.glyph.showImpactSymbol}
                      };
     this.highestImpactMap = {
-                      HIGH:     {value: 1, badge: true, clazz: 'impact_HIGH',     symbolFunction: this.showHighestImpactSymbol},
-                        MODERATE: {value: 2, badge: true, clazz: 'impact_MODERATE', symbolFunction: this.showHighestImpactSymbol},
-                        MODIFIER: {value: 3, badge: false, clazz: 'impact_MODIFIER', symbolFunction: this.showHighestImpactSymbol},
-                        LOW:      {value: 4, badge: false, clazz: 'impact_LOW',      symbolFunction: this.showHighestImpactSymbol}
+                      HIGH:     {value: 1, badge: true, clazz: 'impact_HIGH',     symbolFunction: this.showHighestImpactSymbol, bind: this},
+                        MODERATE: {value: 2, badge: true, clazz: 'impact_MODERATE', symbolFunction: this.showHighestImpactSymbol, bind: this},
+                        MODIFIER: {value: 3, badge: false, clazz: 'impact_MODIFIER', symbolFunction: this.showHighestImpactSymbol, bind: this},
+                        LOW:      {value: 4, badge: false, clazz: 'impact_LOW',      symbolFunction: this.showHighestImpactSymbol, bind: this}
                      };
     this.siftMap = {
                       deleterious:                 {value: 1, badge: true, clazz: 'sift_deleterious', symbolFunction: this.glyph.showSiftSymbol},
@@ -104,15 +104,14 @@ class Translator {
   }
 
   showHighestImpactSymbol(selection, options) {
-    let me = this;
     var variant = d3.select(selection.node().parentNode).datum();
-    var vepHighestImpacts = VariantModel.getNonCanonicalHighestImpactsVep(variant, me);
+    var vepHighestImpacts = utility.getNonCanonicalHighestImpactsVep(variant, options.self.impactMap);
     if (Object.keys(vepHighestImpacts).length > 0) {
-      me.glyph.showImpactSymbol(selection, options);
+      options.self.glyph.showImpactSymbol(selection, options);
     }
   }
 
 
-
 }
+
 

@@ -51,6 +51,16 @@
           <img src="../../../assets/images/wheel.gif">
         </div>
 
+        <feature-matrix-card
+        v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
+        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources }"
+        :featureMatrixModel="featureMatrixModel"
+        :width="cardWidth"
+        :inProgress="inProgress"
+        :annotationScheme="annotationScheme"
+        >
+        </feature-matrix-card>
+
         <variant-card
         ref="variantCardRef"
         v-for="model in models"
@@ -72,7 +82,7 @@
         :loadedVariants="model.loadedVariants"
         :coverage="model.coverage"
         :maxDepth="maxDepth"
-        :inProgress="cohortModel.inProgress"
+        :inProgress="inProgress"
         :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
         :showDepthViz="model.relationship != 'known-variants'"
         :showVariantViz="model.relationship != 'known-variants' || showClinvarVariants"
@@ -97,9 +107,11 @@
 
 import Navigation from '../partials/Navigation.vue'
 import GeneCard  from  '../viz/GeneCard.vue'
+import FeatureMatrixCard from  '../viz/FeatureMatrixCard.vue'
 import VariantCard    from  '../viz/VariantCard.vue'
 
 import CohortModel    from  '../../models/CohortModel.js'
+import FeatureMatrixModel from  '../../models/FeatureMatrixModel.js'
 import FilterModel    from  '../../models/FilterModel.js'
 import GeneModel      from  '../../models/GeneModel.js'
 
@@ -111,6 +123,7 @@ export default {
   components: {
       Navigation,
       GeneCard,
+      FeatureMatrixCard,
       VariantCard
   },
   props: [],
@@ -126,6 +139,7 @@ export default {
 
       cohortModel: null,
       models: [],
+      featureMatrixModel: null,
       geneModel: null,
       filterModel: null,
       cacheHelper: null,
@@ -138,7 +152,9 @@ export default {
       cardWidth: 0,
 
       selectedVariant: null,
-      showClinvarVariants: false
+      showClinvarVariants: false,
+
+      inProgress: {}
 
     }
   },
@@ -177,6 +193,10 @@ export default {
       let endpoint = new EndpointCmd(useSSL, IOBIO, self.cacheHelper.launchTimestamp, self.genomeBuildHelper, utility.getHumanRefNames);
 
       self.cohortModel = new CohortModel(endpoint, genericAnnotation, translator, self.annotationScheme, self.geneModel, self.cacheHelper, self.genomeBuildHelper);
+      self.inProgress = self.cohortModel.inProgress;
+
+      self.featureMatrixModel = new FeatureMatrixModel(self.cohortModel);
+      self.featureMatrixModel.init();
 
     })
     .then(function() {
@@ -242,20 +262,25 @@ export default {
 
 
       return new Promise(function(resolve, reject) {
-        self.cohortModel.promiseLoadData(self.selectedGene,
-          self.selectedTranscript,
-          self.filterModel,
-          {getKnownVariants: self.showClinvarVariants})
-        .then(function(resultMap) {
-            self.filterModel.populateEffectFilters(resultMap);
-            self.filterModel.populateRecFilters(resultMap);
-            //var bp = me._promiseDetermineVariantBookmarks(vcfData, theGene, theTranscript);
-            //bookmarkPromises.push(bp);
-            resolve();
-        })
-        .catch(function(error) {
-          reject(error);
-        })
+        if (self.models && self.models.length > 0) {
+          self.cohortModel.promiseLoadData(self.selectedGene,
+            self.selectedTranscript,
+            self.filterModel,
+            {getKnownVariants: self.showClinvarVariants})
+          .then(function(resultMap) {
+              self.featureMatrixModel.promiseRankVariants(self.cohortModel.getModel('proband').loadedVariants);
+              self.filterModel.populateEffectFilters(resultMap);
+              self.filterModel.populateRecFilters(resultMap);
+              //var bp = me._promiseDetermineVariantBookmarks(vcfData, theGene, theTranscript);
+              //bookmarkPromises.push(bp);
+              resolve();
+          })
+          .catch(function(error) {
+            reject(error);
+          })
+        } else {
+          Promise.resolve();
+        }
 
       })
     },

@@ -34,12 +34,6 @@
     padding-top: 2px;
   }
 
-  #gene-track .label-warning {
-    max-width: 300px;
-    min-width: 100px;
-    margin: auto;
-  }
-
   #gene-source-box .input-group--select .input-group__selections__comma {
     font-size: 14px;
     padding: 0px 0px 0px 0px;
