@@ -128,6 +128,8 @@
             :columnLabelSymbol="columnLabelSymbol"
             :rowLabelWidth="rowLabelWidth"
             :adjustTooltipCoordinates="adjustTooltipCoordinates"
+            @featureMatrixRowUp="onFeatureMatrixRowUp"
+            @featureMatrixRowDown="onFeatureMatrixRowDown"
           >
           </feature-matrix-viz>
         </div>
@@ -221,6 +223,7 @@ export default {
   methods: {
 
     toggleMoveRows: function() {
+      $('#feature-matrix .y.axis .tick text').removeClass("current");
       if ($('#feature-matrix.shift-rows').length > 0) {
         $('#move-rows').text("Reorder");
       } else {
@@ -283,6 +286,48 @@ export default {
         }
 
       })
+    },
+
+    onFeatureMatrixRowUp: function(i) {
+      let self = this;
+      if (isLevelEdu  || isLevelBasic) {
+        return;
+      }
+      var column = null;
+      var columnPrev = null;
+      self.featureMatrixModel.filteredMatrixRows.forEach(function(col) {
+        if (col.order == i) {
+          column = col;
+        } else if (col.order == i - 1) {
+          columnPrev = col;
+        }
+      });
+      if (column && columnPrev) {
+        column.order = column.order - 1;
+        columnPrev.order = columnPrev.order + 1;
+      }
+      self.$emit("variantRankChange");
+    },
+
+    onFeatureMatrixRowDown: function(i) {
+      let self = this;
+      if (isLevelEdu  || isLevelBasic) {
+        return;
+      }
+      var column = null;
+      var columnNext = null;
+      self.featureMatrixModel.filteredMatrixRows.forEach(function(col) {
+        if (col.order == i) {
+          column = col;
+        } else if (col.order == i + 1) {
+          columnNext = col;
+        }
+      });
+      if (column && columnNext) {
+        column.order = column.order + 1;
+        columnNext.order = columnNext.order - 1;
+      }
+      self.$emit("variantRankChange");
     }
 
   },

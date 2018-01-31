@@ -48,6 +48,10 @@ function featureMatrixD3() {
     // merge options and defaults
     options = $.extend(defaults,options);
 
+    matrixRowNames = matrixRows.map( function(row) {
+      return row.name;
+    });
+
     selection.each(function(data) {
       // Calculate height of matrix
 
@@ -103,6 +107,7 @@ function featureMatrixD3() {
 
 
 
+      //container.selectAll("svg").remove();
 
       // Select the svg element, if it exists.
       var svg = container.selectAll("svg").data([0]);
@@ -609,9 +614,6 @@ function featureMatrixD3() {
   chart.matrixRows = function(_) {
     if (!arguments.length) return matrixRows;
     matrixRows = _;
-    matrixRowNames = matrixRows.map( function(row) {
-      return row.name;
-    });
     return chart;
   }
 

@@ -211,9 +211,11 @@ export default {
 
           })
           .on('d3rowup', function(i) {
+            self.$emit("featureMatrixRowUp", i);
 
           })
           .on('d3rowdown', function(i) {
+            self.$emit("featureMatrixRowDown", i);
           });
 
 

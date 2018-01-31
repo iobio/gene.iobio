@@ -53,11 +53,12 @@
 
         <feature-matrix-card
         v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
-        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources }"
+        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
         :featureMatrixModel="featureMatrixModel"
         :width="cardWidth"
         :inProgress="inProgress"
         :annotationScheme="annotationScheme"
+        @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
         >
         </feature-matrix-card>
 

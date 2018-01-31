@@ -178,6 +178,7 @@ class FeatureMatrixModel {
     return this.cohortModel.genericAnnotation;
   }
 
+
   promiseRankVariants(theVcfData) {
     let self = this;
 
@@ -234,6 +235,8 @@ class FeatureMatrixModel {
             return 1;
           }
         });
+
+        console.log(self.filteredMatrixRows.map(function(d) {return d.name}).join(" "));
 
 
         // Fill all features used in feature matrix for each variant
