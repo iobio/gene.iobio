@@ -240,11 +240,23 @@ export default {
       },
       setGeneChart: function() {
         this.$emit('updateGeneChart', this.geneChart);
+      },
+      concatKeys: function(transcripts) {
+        if (transcripts) {
+          return transcripts.map(function(tx) {
+            return tx.transcript_id;
+          }).join(" ");
+        } else {
+          return "";
+        }
       }
     },
     watch: {
-      data: function() {
-        this.update();
+      data: function(newData, oldData) {
+        let self = this;
+        if ($(self.$el).find("svg").length == 0 || self.concatKeys(newData) != self.concatKeys(oldData)) {
+          this.update();
+        }
       }
     }
 }
