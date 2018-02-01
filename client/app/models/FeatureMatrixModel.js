@@ -178,6 +178,10 @@ class FeatureMatrixModel {
     return this.cohort.genericAnnotation;
   }
 
+  clearRankedVariants() {
+    this.rankedVariants = [];
+  }
+
 
   promiseRankVariants(theVcfData) {
     let self = this;

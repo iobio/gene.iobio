@@ -60,7 +60,6 @@
         :variantTooltip="variantTooltip"
         :width="cardWidth"
         :inProgress="inProgress"
-        :annotationScheme="annotationScheme"
         @cohortVariantClick="onCohortVariantClick"
         @cohortVariantClickEnd="onCohortVariantClickEnd"
         @cohortVariantHover="onCohortVariantHover"
@@ -72,24 +71,16 @@
         <variant-card
         ref="variantCardRef"
         v-for="model in models"
-        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources }"
-        :name="model.name"
-        :relationship="model.relationship"
-        :affectedInfo="cohortModel.affectedInfo"
-        :cohortMode="cohortModel.mode"
-        :maxAlleleCount="cohortModel.maxAlleleCount"
-        :variantTooltip="variantTooltip"
-        :annotationScheme="annotationScheme"
-        :width="cardWidth"
         :key="model.relationship"
+        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources }"
+        :variantModel="model"
+        :variantTooltip="variantTooltip"
         :selectedGene="selectedGene"
         :selectedTranscript="selectedTranscript"
         :selectedVariant="selectedVariant"
         :regionStart="geneRegionStart"
         :regionEnd="geneRegionEnd"
-        :loadedVariants="model.loadedVariants"
-        :coverage="model.coverage"
-        :maxDepth="maxDepth"
+        :width="cardWidth"
         :inProgress="inProgress"
         :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
         :showDepthViz="model.relationship != 'known-variants'"
@@ -152,7 +143,6 @@ export default {
       filterModel: null,
       cacheHelper: null,
       genomeBuildHelper: null,
-      annotationScheme: 'vep',
 
       variantTooltip: null,
 
@@ -196,16 +186,29 @@ export default {
 
       let genericAnnotation = new GenericAnnotation(glyph);
 
-      self.variantTooltip = new VariantTooltip(genericAnnotation, glyph, translator, self.annotationScheme, self.genomeBuildHelper);
-
       // Instantiate helper class than encapsulates IOBIO commands
-      let endpoint = new EndpointCmd(useSSL, IOBIO, self.cacheHelper.launchTimestamp, self.genomeBuildHelper, utility.getHumanRefNames);
+      let endpoint = new EndpointCmd(useSSL,
+        IOBIO,
+        self.cacheHelper.launchTimestamp,
+        self.genomeBuildHelper,
+        utility.getHumanRefNames);
 
-      self.cohortModel = new CohortModel(endpoint, genericAnnotation, translator, self.annotationScheme, self.geneModel, self.cacheHelper, self.genomeBuildHelper);
+      self.cohortModel = new CohortModel(endpoint,
+        genericAnnotation,
+        translator,
+        self.geneModel,
+        self.cacheHelper,
+        self.genomeBuildHelper);
       self.inProgress = self.cohortModel.inProgress;
 
       self.featureMatrixModel = new FeatureMatrixModel(self.cohortModel);
       self.featureMatrixModel.init();
+
+      self.variantTooltip = new VariantTooltip(genericAnnotation,
+        glyph,
+        translator,
+        self.cohortModel.annotationScheme,
+        self.genomeBuildHelper);
 
     })
     .then(function() {
@@ -266,6 +269,7 @@ export default {
       })
     },
 
+
     promiseLoadData: function() {
       let self = this;
 
@@ -298,6 +302,12 @@ export default {
       var self = this;
 
       self.deselectVariant();
+      if (self.cohortModel) {
+        self.cohortModel.clearLoadedData();
+      }
+      if (self.featureMatrixModel) {
+        self.featureMatrixModel.clearRankedVariants();
+      }
 
       self.geneModel.addGeneName(geneObject.gene_name);
       self.geneModel.promiseGetGeneObject(geneObject.gene_name)

@@ -116,7 +116,7 @@
             v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }"
             :data="featureMatrixModel.rankedVariants"
             :matrixRows="featureMatrixModel.filteredMatrixRows"
-            :annotationScheme="annotationScheme"
+            :annotationScheme="featureMatrixModel.cohort.annotationScheme"
             :width="width"
             :margin="margin"
             :cellSize="cellSize"
@@ -190,7 +190,6 @@ export default {
     selectedVariant: null,
     relationship: null,
     variantTooltip: null,
-    annotationScheme: null,
     width: 0,
     inProgress: {}
   },
