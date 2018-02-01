@@ -124,7 +124,15 @@ export default {
       barChart: null,
       tooManyVariants: false,
 
-      categories: ['pathogenic', 'likely pathogenic', 'benign'],
+      categories: [
+        {'key': 'clinvar', 'selected': true,  value: 'clinvar_path',   text: 'Pathogenic' },
+        {'key': 'clinvar', 'selected': true,  value: 'clinvar_lpath',  text: 'Likely pathogenic' },
+        {'key': 'clinvar', 'selected': true,  value: 'clinvar_uc',     text: 'Uncertain significance' },
+        {'key': 'clinvar', 'selected': true,  value: 'clinvar_cd',     text: 'Conflicting data'},
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_other',  text: 'Other' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_benign', text: 'Benign'},
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_lbenign',text: 'Likely benign' }
+      ],
       selectedCategories: []
     }
   },

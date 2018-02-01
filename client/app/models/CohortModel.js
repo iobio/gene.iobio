@@ -217,7 +217,7 @@ class CohortModel {
         let p1 = self.promiseLoadVariants(theGene, theTranscript, filterModel, options)
         .then(function(data) {
           cohortResultMap = data.resultMap;
-          self.setLoadedVariants(data.gene);
+          self.setLoadedVariants(data.gene, filterModel);
           self.inProgress.loadingVariants = false;
         })
         promises.push(p1);
@@ -248,11 +248,19 @@ class CohortModel {
     })
   }
 
+  promiseLoadKnownVariants(theGene, theTranscript, filterModel) {
+    let self = this;
+    self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], false, false)
+    .then(function(resultMap) {
+      self.setLoadedVariants(theGene, filterModel, 'known-variants');
+    })
+  }
+
   promiseLoadVariants(theGene, theTranscript, filterModel, options) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
-      self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, options.getKnownVariants)
+      self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, options)
       .then(function(resultMap) {
         // the variants are fully annotated so determine inheritance (if trio).
         return self.promiseAnnotateInheritance(theGene, theTranscript, resultMap, {isBackground: false, cacheData: true})
@@ -294,28 +302,34 @@ class CohortModel {
     });
   }
 
-  setLoadedVariants(theGene, regionStart, regionEnd) {
+  setLoadedVariants(gene, filterModel, relationship=null) {
     let self = this;
     self.sampleModels.forEach(function(model) {
-      if (model.vcfData && model.vcfData.features) {
-        var loadedVariants = $.extend({}, model.vcfData);
-        loadedVariants.features = model.vcfData.features.filter( function(feature) {
-          var loaded = feature.fbCalled == null;
-          var inRegion = true;
-          if (regionStart && regionEnd) {
-            inRegion = feature.start >= regionStart && feature.start <= regionEnd;
-          }
-          return loaded && inRegion;
-        });
+      if (relationship == null || relationship == model.relationship) {
+        if (model.vcfData && model.vcfData.features) {
+          var loadedVariants = $.extend({}, model.vcfData);
+          loadedVariants.features = model.vcfData.features.filter( function(feature) {
+            var loaded = feature.fbCalled == null;
+            var inRegion = true;
+            if (filterModel.regionStart && filterModel.regionEnd) {
+              inRegion = feature.start >= filterModel.regionStart && feature.start <= filterModel.regionEnd;
+            }
+            var passesModelFilter = filterModel.passesModelFilter(model.relationship, feature);
+            return loaded && inRegion && passesModelFilter;
+          });
 
-        var pileupObject = model._pileupVariants(loadedVariants.features, theGene.start, theGene.end);
-        loadedVariants.maxLevel = pileupObject.maxLevel + 1;
-        loadedVariants.featureWidth = pileupObject.featureWidth;
+          var start = filterModel.regionStart ? filterModel.regionStart : gene.start;
+          var end   = filterModel.regionEnd   ? filterModel.regionEnd   : gene.end;
+          var pileupObject = model._pileupVariants(loadedVariants.features, start, end);
+          loadedVariants.maxLevel = pileupObject.maxLevel + 1;
+          loadedVariants.featureWidth = pileupObject.featureWidth;
 
-        model.loadedVariants = loadedVariants;
+          model.loadedVariants = loadedVariants;
 
-      } else {
-        model.loadedVariants = {loadState: {}, features: []};
+        } else {
+          model.loadedVariants = {loadState: {}, features: []};
+        }
+
       }
     })
   }
@@ -342,7 +356,7 @@ class CohortModel {
     })
   }
 
-  promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, getKnownVariants) {
+  promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, options) {
     let self = this;
     return new Promise(function(resolve, reject) {
       var annotatePromises = [];
@@ -371,7 +385,7 @@ class CohortModel {
       }
 
 
-      if (getKnownVariants) {
+      if (options.getKnownVariants) {
         let p = self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], false, isBackground)
         .then(function(resultMap) {
           for (var rel in resultMap) {

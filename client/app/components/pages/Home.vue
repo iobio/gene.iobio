@@ -277,11 +277,13 @@ export default {
 
 
       return new Promise(function(resolve, reject) {
+        var options = {'getKnownVariants': self.showClinvarVariants};
+
         if (self.models && self.models.length > 0) {
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,
             self.filterModel,
-            {getKnownVariants: self.showClinvarVariants})
+            options)
           .then(function(resultMap) {
               self.featureMatrixModel.promiseRankVariants(self.cohortModel.getModel('proband').loadedVariants);
               self.filterModel.populateEffectFilters(resultMap);
@@ -346,15 +348,25 @@ export default {
     onGeneRegionZoom: function(theStart, theEnd) {
       this.geneRegionStart = theStart;
       this.geneRegionEnd = theEnd;
+
       this.featureMatrixModel.setRankedVariants(this.geneRegionStart, this.geneRegionEnd);
-      this.cohortModel.setLoadedVariants(this.selectedGene, this.geneRegionStart, this.geneRegionEnd);
+
+      this.filterModel.regionStart = this.geneRegionStart;
+      this.filterModel.regionEnd = this.geneRegionEnd;
+      this.cohortModel.setLoadedVariants(this.selectedGene, this.filterModel);
+
       this.cohortModel.setCoverage(this.geneRegionStart, this.geneRegionEnd);
     },
     onGeneRegionZoomReset: function() {
       this.geneRegionStart = this.selectedGene.start;
       this.geneRegionEnd = this.selectedGene.end;
+
       this.featureMatrixModel.setRankedVariants();
-      this.cohortModel.setLoadedVariants(this.selectedGene);
+
+      this.filterModel.regionStart = null;
+      this.filterModel.regionEnd = null;
+      this.cohortModel.setLoadedVariants(this.selectedGene, this.filterModel);
+
       this.cohortModel.setCoverage();
     },
     onCohortVariantClick: function(variant, sourceComponent) {
@@ -455,13 +467,17 @@ export default {
 
     },
     onKnownVariantsVizChange: function(viz) {
-      this.showClinvarVariants = viz == 'variants';
-      if (this.showClinvarVariants) {
-        this.promiseLoadData();
+      let self = this;
+      self.showClinvarVariants = viz == 'variants';
+      if (self.showClinvarVariants) {
+        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, self.filterModel);
       }
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
-      console.log("known variants filters: " + selectedCategories.join(", "));
+      let self = this;
+      self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
+
+      self.cohortModel.setLoadedVariants(self.selectedGene, self.filterModel, 'known-variants');
     }
 
 

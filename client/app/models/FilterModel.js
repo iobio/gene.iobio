@@ -6,6 +6,9 @@ class FilterModel {
     this.clickedAnnotIds = new Object();
     this.annotsToInclude = new Object();
 
+    this.regionStart = null;
+    this.regionEnd = null;
+
     this.pathogenicityScheme = "clinvar";
 
     this.annotClasses     = ".type, .impact, ." + IMPACT_FIELD_TO_FILTER + ", .effect, .vepConsequence, .sift, .polyphen, .regulatory, .zygosity, .inheritance, .clinvar, .uasibs, .recfilter";
@@ -30,15 +33,9 @@ class FilterModel {
     this.geneCoverageMedian        = 30;
 
 
-    this.modelSpecificFilters = {
+    this.modelFilters = {
       'known-variants': {
-        clinvar_path:    {'key': 'clinvar', 'value': true,  clazz: 'clinvar_path',   display: 'Pathogenic' },
-        clinvar_lpath:   {'key': 'clinvar', 'value': true,  clazz: 'clinvar_lpath',  display: 'Likely pathogenic' },
-        clinvar_uc:      {'key': 'clinvar', 'value': true,  clazz: 'clinvar_uc',     display: 'Uncertain significance' },
-        clinvar_cd:      {'key': 'clinvar', 'value': true,  clazz: 'clinvar_cd',     display: 'Conflicting data'},
-        clinvar_unknown: {'key': 'clinvar', 'value': false, clazz: 'clinvar_other',  display: 'Other' },
-        clinvar_benign:  {'key': 'clinvar', 'value': false, clazz: 'clinvar_benign', display: 'Benign'},
-        clinvar_lbenign: {'key': 'clinvar', 'value': false, clazz: 'clinvar_lbenign',display: 'Likely benign' }
+        'clinvar': []
       }
     }
   }
@@ -228,47 +225,32 @@ class FilterModel {
   }
 
 
-  getModelSpecificFilters(relationship) {
+
+  passesModelFilter(relationship, variant) {
     let self = this;
-    let specificFilters = [];
-
-    let theFilterMap = this.modelSpecificFilters[relationship];
-
-    if (theFilterMap) {
-      for (var key in theFilterMap) {
-        var theFilter = theFilterMap[key];
-        specificFilters.push(theFilter);
+    let theFilters = self.modelFilters[relationship];
+    if (theFilters) {
+      let passCount = 0;
+      for (var key in theFilters) {
+        let filterEntries = theFilters[key];
+        if (filterEntries && filterEntries.length > 0) {
+          if (filterEntries.indexOf(variant[key]) >= 0) {
+            passCount++;
+          }
+        } else {
+          passCount++;
+        }
       }
-    }
-
-    return specificFilters;
-  }
-
-  hasModelSpecificFilters(relationship) {
-    return this.getModelSpecificFilters(relationship).filter(function(theFilter) {
-      return theFilter.value == true;
-    }).length > 0;
-  }
-
-  getModelSpecificFilter(relationship, id) {
-    var theFilter = null;
-    if (this.modelSpecificFilters[relationship]) {
-      theFilter = this.modelSpecificFilters[relationship][id];
-    }
-    return theFilter;
-  }
-
-  setModelSpecificFilter(relationship, id, value) {
-    var theFilter = this.getModelSpecificFilter(relationship, id, value);
-    if (theFilter) {
-      theFilter.value = value;
+      return passCount == Object.keys(theFilters).length;
+    } else {
+      return true;
     }
   }
-  clearModelSpecificFilters(relationship) {
-    return this.getModelSpecificFilters(relationship).forEach(function(theFilter) {
-      theFilter.value = false;
-    })
+
+  setModelFilter(relationship, key, entries) {
+    this.modelFilters[relationship][key] = entries;
   }
+
 
 
   isLowCoverage(gc) {
