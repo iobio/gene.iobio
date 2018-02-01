@@ -2,6 +2,7 @@ class FeatureMatrixModel {
   constructor(cohort) {
       this.cohort = cohort;
 
+      this.featureVcfData = [];
       this.rankedVariants = [];
       this.warning = "";
 
@@ -182,9 +183,23 @@ class FeatureMatrixModel {
     this.rankedVariants = [];
   }
 
+  setRankedVariants(regionStart, regionEnd) {
+    if (this.featureVcfData) {
+      if (regionStart && regionEnd) {
+        this.rankedVariants = this.featureVcfData.features.filter(function(feature) {
+          return feature.start >= regionStart && feature.start <= regionEnd;
+        })
+      } else {
+        this.rankedVariants = this.featureVcfData.features;
+      }
+    }
+
+  }
+
 
   promiseRankVariants(theVcfData) {
     let self = this;
+    self.featureVcfData = theVcfData;
 
     return new Promise(function(resolve, reject) {
 

@@ -344,12 +344,14 @@ export default {
     onGeneRegionZoom: function(theStart, theEnd) {
       this.geneRegionStart = theStart;
       this.geneRegionEnd = theEnd;
+      this.featureMatrixModel.setRankedVariants(this.geneRegionStart, this.geneRegionEnd);
       this.cohortModel.setLoadedVariants(this.selectedGene, this.geneRegionStart, this.geneRegionEnd);
       this.cohortModel.setCoverage(this.geneRegionStart, this.geneRegionEnd);
     },
     onGeneRegionZoomReset: function() {
       this.geneRegionStart = this.selectedGene.start;
       this.geneRegionEnd = this.selectedGene.end;
+      this.featureMatrixModel.setRankedVariants();
       this.cohortModel.setLoadedVariants(this.selectedGene);
       this.cohortModel.setCoverage();
     },
