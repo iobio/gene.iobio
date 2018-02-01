@@ -27,8 +27,7 @@ class CohortModel {
 
 
     this.inProgress = {
-      'loadingDataSources': false,
-      'callingVariants': false
+      'loadingDataSources': false
     };
 
    }
@@ -207,8 +206,6 @@ class CohortModel {
         resolve();
       } else {
         self.clearLoadedData();
-        self.inProgress.loadingVariants = true;
-        self.inProgress.loadingCoverage = true;
 
         let cohortResultMap = null;
 
@@ -216,14 +213,12 @@ class CohortModel {
         .then(function(data) {
           cohortResultMap = data.resultMap;
           self.setLoadedVariants(data.gene, filterModel);
-          self.inProgress.loadingVariants = false;
         })
         promises.push(p1);
 
         let p2 = self.promiseLoadCoverage(theGene, theTranscript)
         .then(function() {
           self.setCoverage();
-          self.inProgress.loadingCoverage = false;
         })
         promises.push(p2);
 
@@ -236,8 +231,6 @@ class CohortModel {
             })
         })
         .catch(function(error) {
-          self.inProgress.loadingVariants = false;
-          self.inProgress.loadingCoverage = false;
           reject(error);
         })
 
@@ -298,7 +291,7 @@ class CohortModel {
     let self = this;
     self.sampleModels.forEach(function(model) {
       model.loadedVariants = {loadState: {}, features: [], maxLevel: 1, featureWidth: 0};
-      model.coverage = [[0,0]];
+      model.coverage = [[]];
     });
   }
 
