@@ -92,8 +92,13 @@
     <div style="width:100%">
 
       <div style="text-align: center;clear: both;">
-        <div class="loader featureMatrixLoader" v-bind:class="{ hide: inProgress && !inProgress.loadingVariants }" style="display: inline-block;">
-          <span class="loader-label">Ranking variants</span>
+        <div class="loader featureMatrixLoader"
+        v-bind:class="{hide: featureMatrixModel.inProgress
+          && !featureMatrixModel.inProgress.loadingVariants
+          && !featureMatrixModel.inProgress.rankingVariants}" style="display: inline-block;">
+          <span class="loader-label">
+            {{ featureMatrixModel.getProgressText() }}
+          </span>
           <img src="../../../assets/images/wheel.gif">
         </div>
       </div>
@@ -190,8 +195,7 @@ export default {
     selectedVariant: null,
     relationship: null,
     variantTooltip: null,
-    width: 0,
-    inProgress: {}
+    width: 0
   },
   data() {
     return {

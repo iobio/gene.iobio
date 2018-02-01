@@ -6,6 +6,11 @@ class FeatureMatrixModel {
       this.rankedVariants = [];
       this.warning = "";
 
+      this.inProgress = {
+        loadingVariants: false,
+        rankingVariants: false
+      }
+
 
       this.matrixRows = [
         {name:'Harmful variant'              , id:'harmfulVariant', order:0, index:12,  match: 'exact', attribute: 'harmfulVariantLevel',     map: this.getTranslator().harmfulVariantMap },
@@ -38,6 +43,7 @@ class FeatureMatrixModel {
       ];
       this.filteredMatrixRows = this.matrixRows;
       this.featureUnknown = 199;
+
   }
 
   init() {
@@ -74,6 +80,16 @@ class FeatureMatrixModel {
       this.removeRow('Genotype', self.matrixRows);
     }
 
+  }
+
+  getProgressText() {
+    if (this.inProgress.loadingVariants) {
+      return "Annotation variants";
+    } else if (this.inProgress.rankingVariants) {
+      return "Ranking variants";
+    } else {
+      return "";
+    }
   }
 
 
@@ -200,6 +216,7 @@ class FeatureMatrixModel {
   promiseRankVariants(theVcfData) {
     let self = this;
     self.featureVcfData = theVcfData;
+    self.inProgress.rankingVariants = true;
 
     return new Promise(function(resolve, reject) {
 
@@ -413,6 +430,7 @@ class FeatureMatrixModel {
           self.warning = "";
         }
 
+        self.inProgress.rankingVariants = false;
 
         resolve();
 

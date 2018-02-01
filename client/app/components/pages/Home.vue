@@ -59,7 +59,6 @@
         :relationship="PROBAND"
         :variantTooltip="variantTooltip"
         :width="cardWidth"
-        :inProgress="inProgress"
         @cohortVariantClick="onCohortVariantClick"
         @cohortVariantClickEnd="onCohortVariantClickEnd"
         @cohortVariantHover="onCohortVariantHover"
@@ -82,7 +81,6 @@
         :regionStart="geneRegionStart"
         :regionEnd="geneRegionEnd"
         :width="cardWidth"
-        :inProgress="inProgress"
         :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
         :showDepthViz="model.relationship != 'known-variants'"
         :showVariantViz="model.relationship != 'known-variants' || showClinvarVariants"
@@ -280,12 +278,15 @@ export default {
       return new Promise(function(resolve, reject) {
         var options = {'getKnownVariants': self.showClinvarVariants};
 
+        self.featureMatrixModel.inProgress.loadingVariants = true;
+
         if (self.models && self.models.length > 0) {
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,
             self.filterModel,
             options)
           .then(function(resultMap) {
+              self.featureMatrixModel.inProgress.loadingVariants = false;
               self.featureMatrixModel.promiseRankVariants(self.cohortModel.getModel('proband').loadedVariants);
               self.filterModel.populateEffectFilters(resultMap);
               self.filterModel.populateRecFilters(resultMap);

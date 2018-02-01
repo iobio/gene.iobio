@@ -28,9 +28,7 @@ class CohortModel {
 
     this.inProgress = {
       'loadingDataSources': false,
-      'loadingVariants': false,
-      'callingVariants': false,
-      'loadingCoverage': false
+      'callingVariants': false
     };
 
    }
@@ -250,8 +248,10 @@ class CohortModel {
 
   promiseLoadKnownVariants(theGene, theTranscript, filterModel) {
     let self = this;
+    self.getModel('known-variants').inProgress.loadingVariants = true;
     self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], false, false)
     .then(function(resultMap) {
+      self.getModel('known-variants').inProgress.loadingVariants = false;
       self.setLoadedVariants(theGene, filterModel, 'known-variants');
     })
   }
@@ -362,18 +362,26 @@ class CohortModel {
       var annotatePromises = [];
       var theResultMap = {};
       if (isMultiSample) {
+        self.getCanonicalModels().forEach(function(model) {
+          model.inProgress.loadingVariants = true;
+        })
         p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.getCanonicalModels(), isMultiSample, isBackground)
         .then(function(resultMap) {
+          self.getCanonicalModels().forEach(function(model) {
+            model.inProgress.loadingVariants = false;
+          })
           theResultMap = resultMap;
         })
         annotatePromises.push(p);
       } else {
         for (var rel in self.sampleMap) {
           var model = self.sampleMap[rel].model;
+          model.inProgress.loadingVariants = true;
           if (model.isVcfReadyToLoad() || vc.model.isLoaded()) {
             if (rel != 'known-variants') {
               var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], isMultiSample, isBackground)
               .then(function(resultMap) {
+                self.getModel(rel).inProgress.loadingVariants = false;
                 for (var rel in resultMap) {
                   theResultMap[rel] = resultMap[rel];
                 }
@@ -386,8 +394,10 @@ class CohortModel {
 
 
       if (options.getKnownVariants) {
+        self.getModel('known-variants').inProgress.loadingVariants = true;
         let p = self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], false, isBackground)
         .then(function(resultMap) {
+          self.getModel('known-variants').inProgress.loadingVariants = false;
           for (var rel in resultMap) {
             theResultMap[rel] = resultMap[rel];
           }
@@ -704,10 +714,11 @@ class CohortModel {
       let theResultMap = {};
       self.getCanonicalModels().forEach(function(model) {
         if (model.isBamLoaded()) {
-
+          model.inProgress.loadingCoverage = true;
           var p =  new Promise(function(innerResolve, innerReject) {
             var theModel = model;
             theModel.getBamDepth(theGene, theTranscript, function(coverageData) {
+              theModel.inProgress.loadingCoverage = false;
               theResultMap[theModel.relationship] = coverageData;
               innerResolve();
             });

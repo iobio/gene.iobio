@@ -36,6 +36,12 @@ function VariantModel() {
   this.loadedVariants = null;
   this.coverage = [[]];
 
+  this.inProgress = {
+    'loadingVariants': false,
+    'callingVariants': false,
+    'loadingCoverage': false
+  };
+
 
 }
 
