@@ -82,6 +82,7 @@
           :variantPadding="variantSymbolPadding"
           :showBrush="false"
           :showXAxis="true"
+          :classifySymbolFunc="classifyVariantSymbolFunc"
           @variantClick="onVariantClick"
           @variantHover="onVariantHover"
           @variantHoverEnd="onVariantHoverEnd">
@@ -148,6 +149,7 @@ export default {
   props: {
     variantModel: null,
     annotationScheme: null,
+    classifyVariantSymbolFunc: null,
 
     variantTooltip: null,
     selectedGene: {},

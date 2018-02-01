@@ -74,6 +74,7 @@
         :key="model.relationship"
         v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources }"
         :variantModel="model"
+        :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
         :selectedGene="selectedGene"
         :selectedTranscript="selectedTranscript"

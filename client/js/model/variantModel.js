@@ -3094,6 +3094,55 @@ VariantModel.prototype.promiseCompareVariants = function(theVcfData, compareAttr
 
 }
 
+VariantModel.prototype.classifyByImpact = function(d, annotationScheme) {
+  let self = this;
+  var impacts = "";
+  var colorimpacts = "";
+  var effects = "";
+  var sift = "";
+  var polyphen = "";
+  var regulatory = "";
+
+  var effectList = (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.effect : d.vepConsequence);
+  for (var key in effectList) {
+    if (annotationScheme.toLowerCase() == 'vep' && key.indexOf("&") > 0) {
+        var tokens = key.split("&");
+        tokens.forEach( function(token) {
+        effects += " " + token;
+
+        });
+    } else {
+      effects += " " + key;
+    }
+  }
+  var impactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_FILTER]);
+  for (var key in impactList) {
+    impacts += " " + key;
+  }
+  var colorImpactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_COLOR]);
+  for (var key in colorImpactList) {
+    colorimpacts += " " + 'impact_'+key;
+  }
+  if (colorimpacts == "") {
+    colorimpacts = "impact_none";
+  }
+  for (var key in d.sift) {
+    sift += " " + key;
+  }
+  for (var key in d.polyphen) {
+    polyphen += " " + key;
+  }
+  for (var key in d.regulatory) {
+    regulatory += " " + key;
+  }
+
+  return  'variant ' + d.type.toLowerCase()  + ' ' + d.zygosity.toLowerCase() + ' ' + (d.inheritance ? d.inheritance.toLowerCase() : "") + ' ua_' + d.ua + ' '  + sift + ' ' + polyphen + ' ' + regulatory +  ' ' + + ' ' + d.clinvar + ' ' + impacts + ' ' + effects + ' ' + d.consensus + ' ' + colorimpacts;
+}
+
+VariantModel.prototype.classifyByClinvar = function(d) {
+  return  'variant ' + d.type.toLowerCase()  +  ' '  + d.clinvar + ' colorby_' + d.clinvar;
+}
+
 
 
 

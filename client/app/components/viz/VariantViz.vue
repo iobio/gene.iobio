@@ -127,18 +127,16 @@ export default {
           return "";
         }
       },
-      clazz: null
+      classifySymbolFunc: null
     },
     data() {
       return {
-        variantChart: {},
-        classifyFunc: null
+        variantChart: {}
       }
     },
     created: function() {
     },
     mounted: function() {
-      this.classifyFunc = this.clazz ? this.clazz : this.classifySymbolsByImpact;
       this.draw();
     },
     methods: {
@@ -147,7 +145,9 @@ export default {
 
         this.variantChart =  variantD3()
           .width(this.width)
-          .clazz(this.classifyFunc)
+          .clazz(function(variant) {
+            return self.classifySymbolFunc(variant, self.annotationScheme);
+          })
           .margin(this.margin)
           .showXAxis(this.showXAxis)
           .xTickFormat(this.xTickFormat)
@@ -220,50 +220,6 @@ export default {
       },
       setVariantChart: function() {
         this.$emit('updateVariantChart', this.variantChart);
-      },
-      classifySymbolsByImpact: function(d,i) {
-        let self = this;
-        var impacts = "";
-        var colorimpacts = "";
-        var effects = "";
-        var sift = "";
-        var polyphen = "";
-        var regulatory = "";
-
-        var effectList = (self.annotationScheme == null || self.annotationScheme.toLowerCase() == 'snpeff' ? d.effect : d.vepConsequence);
-        for (var key in effectList) {
-          if (self.annotationScheme.toLowerCase() == 'vep' && key.indexOf("&") > 0) {
-              var tokens = key.split("&");
-              tokens.forEach( function(token) {
-              effects += " " + token;
-
-              });
-            } else {
-              effects += " " + key;
-            }
-          }
-          var impactList =  (self.annotationScheme == null || self.annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_FILTER]);
-          for (var key in impactList) {
-            impacts += " " + key;
-          }
-          var colorImpactList =  (self.annotationScheme == null || self.annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_COLOR]);
-          for (var key in colorImpactList) {
-            colorimpacts += " " + 'impact_'+key;
-          }
-          if (colorimpacts == "") {
-            colorimpacts = "impact_none";
-          }
-          for (var key in d.sift) {
-            sift += " " + key;
-          }
-          for (var key in d.polyphen) {
-            polyphen += " " + key;
-          }
-          for (var key in d.regulatory) {
-            regulatory += " " + key;
-          }
-
-        return  'variant ' + d.type.toLowerCase()  + ' ' + d.zygosity.toLowerCase() + ' ' + (d.inheritance ? d.inheritance.toLowerCase() : "") + ' ua_' + d.ua + ' '  + sift + ' ' + polyphen + ' ' + regulatory +  ' ' + + ' ' + d.clinvar + ' ' + impacts + ' ' + effects + ' ' + d.consensus + ' ' + colorimpacts;
       }
     },
     watch: {
