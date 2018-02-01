@@ -89,6 +89,8 @@
         @cohortVariantClickEnd="onCohortVariantClickEnd"
         @cohortVariantHover="onCohortVariantHover"
         @cohortVariantHoverEnd="onCohortVariantHoverEnd"
+        @knownVariantsVizChange="onKnownVariantsVizChange"
+        @knownVariantsFilterChange="onKnownVariantsFilterChange"
         >
         </variant-card>
 
@@ -451,6 +453,15 @@ export default {
         }
       }
 
+    },
+    onKnownVariantsVizChange: function(viz) {
+      this.showClinvarVariants = viz == 'variants';
+      if (this.showClinvarVariants) {
+        this.promiseLoadData();
+      }
+    },
+    onKnownVariantsFilterChange: function(selectedCategories) {
+      console.log("known variants filters: " + selectedCategories.join(", "));
     }
 
 

@@ -52,5 +52,14 @@ html {
 
 .list__tile {
     font-size: 14px;
-    height: 25px;
+ }
+.input-group label {
+  font-size: 14px;
+}
+.radio + .radio, .checkbox + .checkbox {
+  margin-top: 10px;
+}
+.radio label, .checkbox label {
+  padding-left: 0px;
+  line-height: 20px;
 }

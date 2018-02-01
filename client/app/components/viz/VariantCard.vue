@@ -62,6 +62,13 @@
           </div>
         </div>
 
+        <known-variants-toolbar
+          v-if="variantModel.relationship == 'known-variants'"
+          @knownVariantsVizChange="onKnownVariantsVizChange"
+          @knownVariantsFilterChange="onKnownVariantsFilterChange"
+        >
+        </known-variants-toolbar>
+
         <variant-viz id="loaded-variant-viz"
           v-if="showVariantViz"
           ref="variantVizRef"
@@ -124,9 +131,10 @@
 <script>
 
 
-import GeneViz    from "../viz/GeneViz.vue"
-import VariantViz from "../viz/VariantViz.vue"
-import DepthViz   from "../viz/DepthViz.vue"
+import GeneViz              from "../viz/GeneViz.vue"
+import VariantViz           from "../viz/VariantViz.vue"
+import DepthViz             from "../viz/DepthViz.vue"
+import KnownVariantsToolbar from "../partials/KnownVariantsToolbar.vue"
 
 
 export default {
@@ -134,7 +142,8 @@ export default {
   components: {
     VariantViz,
     GeneViz,
-    DepthViz
+    DepthViz,
+    KnownVariantsToolbar
   },
   props: {
     variantModel: null,
@@ -349,6 +358,12 @@ export default {
       }
 
 
+    },
+    onKnownVariantsVizChange: function(viz) {
+      this.$emit("knownVariantsVizChange", viz);
+    },
+    onKnownVariantsFilterChange: function(selectedCategories) {
+      this.$emit("knownVariantsFilterChange", selectedCategories);
     }
 
   },
