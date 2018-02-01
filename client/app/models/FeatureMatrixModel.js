@@ -1,6 +1,6 @@
 class FeatureMatrixModel {
-  constructor(cohortModel) {
-      this.cohortModel = cohortModel;
+  constructor(cohort) {
+      this.cohort = cohort;
 
       this.rankedVariants = [];
       this.warning = "";
@@ -167,15 +167,15 @@ class FeatureMatrixModel {
   }
 
   getTranslator() {
-    return this.cohortModel.translator;
+    return this.cohort.translator;
   }
 
   getAffectedInfo() {
-    return this.cohortModel.affectedInfo;
+    return this.cohort.affectedInfo;
   }
 
   getGenericAnnotation() {
-    return this.cohortModel.genericAnnotation;
+    return this.cohort.genericAnnotation;
   }
 
 
@@ -235,9 +235,6 @@ class FeatureMatrixModel {
             return 1;
           }
         });
-
-        console.log(self.filteredMatrixRows.map(function(d) {return d.name}).join(" "));
-
 
         // Fill all features used in feature matrix for each variant
         self.featureVcfData.features.forEach( function(variant) {

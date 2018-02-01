@@ -204,11 +204,14 @@ export default {
           .columnLabelSymbol(this.columnLabelSymbol)
           .rowLabelWidth(this.rowLabelWidth)
           .adjustTooltipCoordinates(this.adjustTooltipCoordinates)
+          .on('d3click', function(variant) {
+            self.$emit("variantClick", variant);
+          })
           .on('d3mouseover', function(variant) {
-
+            self.$emit("variantHover", variant);
           })
           .on('d3mouseout', function() {
-
+            self.$emit("variantHoverEnd");
           })
           .on('d3rowup', function(i) {
             self.$emit("featureMatrixRowUp", i);

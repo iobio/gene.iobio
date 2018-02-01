@@ -55,9 +55,16 @@
         v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
         v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
         :featureMatrixModel="featureMatrixModel"
+        :selectedVariant="selectedVariant"
+        :relationship="PROBAND"
+        :variantTooltip="variantTooltip"
         :width="cardWidth"
         :inProgress="inProgress"
         :annotationScheme="annotationScheme"
+        @cohortVariantClick="onCohortVariantClick"
+        @cohortVariantClickEnd="onCohortVariantClickEnd"
+        @cohortVariantHover="onCohortVariantHover"
+        @cohortVariantHoverEnd="onCohortVariantHoverEnd"
         @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
         >
         </feature-matrix-card>
@@ -149,13 +156,14 @@ export default {
 
       variantTooltip: null,
 
-
       cardWidth: 0,
 
       selectedVariant: null,
       showClinvarVariants: false,
 
-      inProgress: {}
+      inProgress: {},
+
+      PROBAND: 'proband'
 
     }
   },
@@ -335,12 +343,12 @@ export default {
       this.cohortModel.setLoadedVariants(this.selectedGene);
       this.cohortModel.setCoverage();
     },
-    onCohortVariantClick: function(variant, sourceVariantCard) {
+    onCohortVariantClick: function(variant, sourceComponent) {
       let self = this;
       self.selectedVariant = variant;
-      self.showVariantExtraAnnots(sourceVariantCard, variant);
+      self.showVariantExtraAnnots(sourceComponent, variant);
       self.$refs.variantCardRef.forEach(function(variantCard) {
-        if (variantCard != sourceVariantCard) {
+        if (variantCard != sourceComponent) {
           variantCard.showVariantCircle(variant);
           variantCard.showCoverageCircle(variant);
         }
@@ -385,32 +393,32 @@ export default {
         })
       }
     },
-    showVariantExtraAnnots: function(variantCard, variant) {
+    showVariantExtraAnnots: function(sourceComponent, variant) {
       let self = this;
       if (!isLevelEdu && !isLevelBasic)  {
 
         self.cohortModel
-          .getModel(variantCard.relationship)
+          .getModel(sourceComponent.relationship)
           .promiseGetImpactfulVariantIds(self.selectedGene, self.selectedTranscript)
           .then( function(annotatedVariants) {
             // If the clicked variant is in the list of annotated variants, show the
             // tooltip; otherwise, the callback will get the extra annots for this
             // specific variant
-            self.showVariantTooltipExtraAnnots(variantCard, variant, annotatedVariants, function() {
+            self.showVariantTooltipExtraAnnots(sourceComponent, variant, annotatedVariants, function() {
               // The clicked variant wasn't annotated in the batch of variants.  Get the
               // extra annots for this specific variant.
               self.cohortModel
-                .getModel(variantCard.relationship)
+                .getModel(sourceComponent.relationship)
                 .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
                 .then( function(refreshedVariant) {
-                  self.showVariantTooltipExtraAnnots(variantCard, variant, [refreshedVariant]);
+                  self.showVariantTooltipExtraAnnots(sourceComponent, variant, [refreshedVariant]);
                 })
             })
           });
 
       }
     },
-    showVariantTooltipExtraAnnots: function(variantCard, variant, annotatedVariants, callbackNotFound) {
+    showVariantTooltipExtraAnnots: function(sourceComponent, variant, annotatedVariants, callbackNotFound) {
       let self = this;
       var targetVariants = annotatedVariants.filter(function(v) {
         return variant &&
@@ -422,7 +430,9 @@ export default {
         var annotatedVariant = targetVariants[0];
         annotatedVariant.screenX = variant.screenX;
         annotatedVariant.screenY = variant.screenY;
-        variantCard.showVariantTooltip(annotatedVariant, true);
+        annotatedVariant.screenXMatrix = variant.screenXMatrix;
+        annotatedVariant.screenYMatrix = variant.screenYMatrix;
+        sourceComponent.showVariantTooltip(annotatedVariant, true);
       } else {
         if (callbackNotFound) {
           callbackNotFound();

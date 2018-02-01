@@ -130,6 +130,9 @@
             :adjustTooltipCoordinates="adjustTooltipCoordinates"
             @featureMatrixRowUp="onFeatureMatrixRowUp"
             @featureMatrixRowDown="onFeatureMatrixRowDown"
+            @variantClick="onVariantClick"
+            @variantHover="onVariantHover"
+            @variantHoverEnd="onVariantHoverEnd"
           >
           </feature-matrix-viz>
         </div>
@@ -184,6 +187,9 @@ export default {
   props: {
     name: "",
     featureMatrixModel: {},
+    selectedVariant: null,
+    relationship: null,
+    variantTooltip: null,
     annotationScheme: null,
     width: 0,
     inProgress: {}
@@ -211,7 +217,6 @@ export default {
       columnLabelClass: this.getVariantLabelClass,
       columnLabelSymbol: this.columnHeaderSymbol,
       adjustTooltipCoordinates: function(variant) {
-          variant.screenYMatrix += $('nav .toolbar').outerHeight();
       }
 
 
@@ -328,7 +333,88 @@ export default {
         columnNext.order = columnNext.order - 1;
       }
       self.$emit("variantRankChange");
-    }
+    },
+
+    onVariantClick: function(variant) {
+      this.showVariantTooltip(variant, true);
+      this.$emit('cohortVariantClick', variant, this);
+    },
+
+    onVariantHover: function(variant) {
+      if (this.selectedVariant == null) {
+        this.showVariantTooltip(variant, false);
+        this.$emit('cohortVariantHover', variant, this);
+      }
+    },
+
+    onVariantHoverEnd: function() {
+      if (this.selectedVariant == null) {
+        this.hideVariantTooltip();
+        this.$emit('cohortVariantHoverEnd', this);
+      }
+    },
+
+    showVariantTooltip: function(variant, lock) {
+      let self = this;
+
+      let tooltip = d3.select("#main-tooltip");
+
+      if (lock) {
+        tooltip.style("pointer-events", "all");
+      } else {
+        tooltip.style("pointer-events", "none");
+      }
+      var x = variant.screenXMatrix;
+      var y = variant.screenYMatrix;
+      var coord = {'x':                  x,
+                   'y':                  y,
+                   'height':             self.$el.offsetHeight,
+                   'parentWidth':        self.$el.offsetWidth,
+                   'preferredPositions': [ {top:    ['center', 'right', 'left' ]},
+                                           {right:  ['middle', 'top',   'bottom']},
+                                           {left:   ['middle', 'top',   'bottom']},
+                                           {bottom: ['right',  'left',  'center']} ]
+                  };
+
+      self.variantTooltip.fillAndPositionTooltip(tooltip,
+        variant,
+        lock,
+        coord,
+        'proband',
+        self.featureMatrixModel.cohort.affectedInfo,
+        self.featureMatrixModel.cohort.mode,
+        self.featureMatrixModel.cohort.maxAlleleCount);
+
+      tooltip.selectAll("#unpin").on('click', function() {
+        self.unpin(null, true);
+      });
+      tooltip.selectAll("#tooltip-scroll-up").on('click', function() {
+        self.tooltipScroll("up");
+      });
+      tooltip.selectAll("#tooltip-scroll-down").on('click', function() {
+        self.tooltipScroll("down");
+      });
+
+    },
+
+    tooltipScroll(direction) {
+      this.variantTooltip.scroll(direction, "#main-tooltip");
+    },
+
+    unpin(saveClickedVariant, unpinMatrixTooltip) {
+      this.$emit("cohortVariantClickEnd", this);
+
+      this.hideVariantTooltip();
+    },
+
+    hideVariantTooltip() {
+      let tooltip = d3.select("#main-tooltip");
+      tooltip.transition()
+           .duration(500)
+           .style("opacity", 0)
+           .style("z-index", 0)
+           .style("pointer-events", "none");
+    },
 
   },
 
