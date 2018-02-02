@@ -8,6 +8,7 @@
     margin-right: 2px
   }
 
+
   .toolbar__title {
     font-family: Quicksand;
     font-size: 28px;

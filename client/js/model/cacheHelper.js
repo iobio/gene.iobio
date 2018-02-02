@@ -1218,8 +1218,8 @@ CacheHelper.prototype.clearCacheForGene = function(geneName) {
 
       Promise.all(promises).then(function() {
         // Clear out the loading message by the page control for this gene
-        me.geneBadgeLoaderDisplay.setPageCount(genesCard.getPageCount())
-                     .removeGene(geneName);
+        //me.geneBadgeLoaderDisplay.setPageCount(genesCard.getPageCount())
+        //             .removeGene(geneName);
 
         // Clear the gene out from the cache 'analyze all' queue
         if (me.isGeneInProgress(geneName)) {

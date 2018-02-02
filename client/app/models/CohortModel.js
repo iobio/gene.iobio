@@ -643,7 +643,7 @@ class CohortModel {
             return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, filteredVcfData, theOptions, geneCoverageAll, filterModel);
         })
         .then(function(theDangerSummary) {
-
+          self.geneModel.setDangerSummary(geneObject, theDangerSummary);
           resolve();
         })
         .catch(function(error) {

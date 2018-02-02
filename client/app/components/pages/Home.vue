@@ -29,6 +29,17 @@
     </navigation>
     <v-content>
       <v-container fluid>
+
+        <genes-card
+         v-if="geneModel"
+         :geneNames="geneModel.geneNames"
+         :loadedGeneNames="Object.keys(geneModel.geneDangerSummaries)"
+         :geneModel="geneModel"
+         :genesInProgress="cacheHelper.cacheQueue"
+         :selectedGene="selectedGene"
+         @removeGene="onRemoveGene">
+        </genes-card>
+
         <gene-card
           v-bind:class="{ hide: Object.keys(selectedGene).length == 0 }"
           :geneModel="geneModel"
@@ -107,6 +118,7 @@
 
 import Navigation from '../partials/Navigation.vue'
 import GeneCard  from  '../viz/GeneCard.vue'
+import GenesCard  from  '../viz/GenesCard.vue'
 import FeatureMatrixCard from  '../viz/FeatureMatrixCard.vue'
 import VariantCard    from  '../viz/VariantCard.vue'
 
@@ -123,6 +135,7 @@ export default {
   name: 'home',
   components: {
       Navigation,
+      GenesCard,
       GeneCard,
       FeatureMatrixCard,
       VariantCard
@@ -481,6 +494,9 @@ export default {
       self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
 
       self.cohortModel.setLoadedVariants(self.selectedGene, self.filterModel, 'known-variants');
+    },
+    onRemoveGene: function(geneName) {
+      this.cacheHelper.clearCacheForGene(geneName);
     }
 
 

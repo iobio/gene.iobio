@@ -1,5 +1,6 @@
 class GeneModel {
   constructor() {
+
     this.geneSource = null;
     this.refseqOnly = {};
     this.gencodeOnly = {};
@@ -7,21 +8,19 @@ class GeneModel {
     this.genomeBuildHelper = null;
 
     this.geneNames = [];
+    this.geneDangerSummaries = {};
 
-    this.transcriptCodingRegions = {};
 
     this.geneNCBISummaries = {};
-
     this.genePhenotypes = {};
-
     this.geneObjects = {};
-
     this.geneToLatestTranscript = {};
 
-    this.allKnownGeneNames = {};
 
+    this.allKnownGeneNames = {};
     this.clinvarGenes = {};
 
+    this.transcriptCodingRegions = {};
 
   }
 
@@ -31,7 +30,17 @@ class GeneModel {
 
     if (me.geneNames.indexOf(geneName) < 0) {
       me.geneNames.push(geneName);
+      me.promiseGetGenePhenotypes(geneName);
     }
+  }
+
+  setDangerSummary(geneObject, dangerSummary) {
+    delete this.geneDangerSummaries[geneObject.gene_name];
+    this.geneDangerSummaries[geneObject.gene_name] = dangerSummary;
+  }
+
+  getDangerSummary(geneName) {
+    return this.geneDangerSummaries[geneName];
   }
 
   promiseLoadFullGeneSet(callback) {
@@ -465,21 +474,34 @@ class GeneModel {
     })
   }
 
-  clearGene(geneName) {
-    let me = this;
-    if (me.geneObjects && me.geneObjects.hasOwnProperty(geneName)) {
-      delete me.geneObjects[geneName];
+  removeGene(geneName) {
+    let self = this;
+
+    var index = self.geneNames.indexOf(geneName);
+    if (index >= 0) {
+      self.geneNames.splice(index, 1);
     }
 
-    if (me.geneNCBISummaries && me.geneNCBISummaries.hasOwnProperty(geneName)) {
-      delete me.geneNCBISummaries[geneName];
+    if (self.geneDangerSummaries && self.geneDangerSummaries.hasOwnProperty(geneName)) {
+      delete self.geneDangerSummaries[geneName];
+    }
+      if (self.genePhenotypes && self.genePhenotypes.hasOwnProperty(geneName)) {
+      delete self.genePhenotypes[geneName];
     }
 
-    if (me.geneToLatestTranscript && me.geneToLatestTranscript.hasOwnProperty(geneName)) {
-      delete me.geneToLatestTranscript[geneName];
+    if (self.geneObjects && self.geneObjects.hasOwnProperty(geneName)) {
+      delete self.geneObjects[geneName];
     }
-    if (me.geneToLatestTranscript && me.geneToLatestTranscript[geneName]) {
-      delete me.geneToLatestTranscript[geneName];
+
+    if (self.geneNCBISummaries && self.geneNCBISummaries.hasOwnProperty(geneName)) {
+      delete self.geneNCBISummaries[geneName];
+    }
+
+    if (self.geneToLatestTranscript && self.geneToLatestTranscript.hasOwnProperty(geneName)) {
+      delete self.geneToLatestTranscript[geneName];
+    }
+    if (self.geneToLatestTranscript && self.geneToLatestTranscript[geneName]) {
+      delete self.geneToLatestTranscript[geneName];
     }
   }
 
