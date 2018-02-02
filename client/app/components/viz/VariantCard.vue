@@ -44,26 +44,26 @@
 
   <v-card tile id="variant-card" class="app-card">
     <v-card-title primary-title>
-      {{ variantModel.name }}
+      {{ sampleModel.name }}
       <div style="width:100%">
 
         <div style="text-align: center;clear: both;">
-          <div class="loader vcfloader" v-bind:class="{ hide: !variantModel.inProgress.loadingVariants }" style="display: inline-block;">
+          <div class="loader vcfloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingVariants }" style="display: inline-block;">
             <span class="loader-label">Annotating variants</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
-          <div class="loader fbloader" v-bind:class="{ hide: !variantModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;">
+          <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;">
             <span class="loader-label">Calling variants</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
-          <div class="loader covloader" v-bind:class="{ hide: !variantModel.inProgress.loadingCoverage }"style="display: inline-block;padding-left: 20px;">
+          <div class="loader covloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingCoverage }"style="display: inline-block;padding-left: 20px;">
             <span class="loader-label">Analyzing gene coverage</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
         </div>
 
         <known-variants-toolbar
-          v-if="variantModel.relationship == 'known-variants'"
+          v-if="sampleModel.relationship == 'known-variants'"
           @knownVariantsVizChange="onKnownVariantsVizChange"
           @knownVariantsFilterChange="onKnownVariantsFilterChange"
         >
@@ -72,7 +72,7 @@
         <variant-viz id="loaded-variant-viz"
           v-if="showVariantViz"
           ref="variantVizRef"
-          :data="variantModel.loadedVariants"
+          :data="sampleModel.loadedVariants"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
           :annotationScheme="annotationScheme"
@@ -92,9 +92,9 @@
           <depth-viz
             v-if="showDepthViz"
             ref="depthVizRef"
-            :data="variantModel.coverage"
+            :data="sampleModel.coverage"
             :currentPoint="coveragePoint"
-            :maxDepth="variantModel.maxDepth"
+            :maxDepth="sampleModel.maxDepth"
             :regionStart="regionStart"
             :regionEnd="regionEnd"
             :width="width"
@@ -147,7 +147,7 @@ export default {
     KnownVariantsToolbar
   },
   props: {
-    variantModel: null,
+    sampleModel: null,
     annotationScheme: null,
     classifyVariantSymbolFunc: null,
 
@@ -198,7 +198,8 @@ export default {
         left: isLevelBasic || isLevelEdu ? 9 : 4
       },
       depthVizYTickFormatFunc: null,
-      coveragePoint: null
+      coveragePoint: null,
+      relationship: null
 
     }
   },
@@ -276,10 +277,10 @@ export default {
         variant,
         lock,
         coord,
-        self.variantModel.relationship,
-        self.variantModel.getAffectedInfo(),
-        self.variantModel.cohort.mode,
-        self.variantModel.cohort.maxAlleleCount);
+        self.sampleModel.relationship,
+        self.sampleModel.getAffectedInfo(),
+        self.sampleModel.cohort.mode,
+        self.sampleModel.cohort.maxAlleleCount);
 
       tooltip.selectAll("#unpin").on('click', function() {
         self.unpin(null, true);
@@ -334,12 +335,12 @@ export default {
     showCoverageCircle: function(variant) {
       let self = this;
 
-      if (self.showDepthViz && self.variantModel.coverage != null) {
+      if (self.showDepthViz && self.sampleModel.coverage != null) {
         let theDepth = null;
         if (variant.bamDepth != null && variant.bamDepth != '') {
           theDepth = variant.bamDepth;
         } else {
-          var matchingVariants = self.variantModel.loadedVariants.features.filter(function(v) {
+          var matchingVariants = self.sampleModel.loadedVariants.features.filter(function(v) {
             return v.start == variant.start && v.alt == variant.alt && v.ref == variant.ref;
           })
 
@@ -387,7 +388,7 @@ export default {
 
 
   mounted: function() {
-
+    this.relationship = this.sampleModel.relationship;
 
   },
 

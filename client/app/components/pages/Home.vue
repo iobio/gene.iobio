@@ -72,7 +72,7 @@
         v-for="model in models"
         :key="model.relationship"
         v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources }"
-        :variantModel="model"
+        :sampleModel="model"
         :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
         :selectedGene="selectedGene"
@@ -110,6 +110,7 @@ import GeneCard  from  '../viz/GeneCard.vue'
 import FeatureMatrixCard from  '../viz/FeatureMatrixCard.vue'
 import VariantCard    from  '../viz/VariantCard.vue'
 
+import SampleModel    from  '../../models/SampleModel.js'
 import CohortModel    from  '../../models/CohortModel.js'
 import FeatureMatrixModel from  '../../models/FeatureMatrixModel.js'
 import FilterModel    from  '../../models/FilterModel.js'

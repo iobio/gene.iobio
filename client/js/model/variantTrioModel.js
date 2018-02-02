@@ -95,7 +95,7 @@ VariantTrioModel.prototype.compareVariantsToMotherFather = function(callback) {
 
 
   // Sort the variants
-  me.probandVcfData.features = me.probandVcfData.features.sort(VariantModel.orderVariantsByPosition);
+  me.probandVcfData.features = me.probandVcfData.features.sort(SampleModel.orderVariantsByPosition);
 
   // Compare the proband's variants to the mother's variants
   me.promiseCompareVariants(
@@ -281,7 +281,7 @@ VariantTrioModel.prototype.promiseCompareVariants = function(vcfData, otherVcfDa
         comparisonAttribute = 'consensus';
       }
 
-      otherVcfData.features = otherVcfData.features.sort(VariantModel.orderVariantsByPosition);
+      otherVcfData.features = otherVcfData.features.sort(SampleModel.orderVariantsByPosition);
     if (comparisonAttribute) {
       otherVcfData.features.forEach( function(feature) {
         feature[comparisonAttribute] = '';

@@ -70,7 +70,7 @@ class CohortModel {
   promiseAddDemoSample(rel, sampleName) {
     let self = this;
     return new Promise(function(resolve,reject) {
-      var vm = new VariantModel();
+      var vm = new SampleModel();
       vm.init(self);
       vm.setRelationship(rel);
       vm.onVcfUrlEntered(self.demoVcf, null, function() {
@@ -96,7 +96,7 @@ class CohortModel {
   promiseAddClinvarSample() {
     let self = this;
     return new Promise(function(resolve,reject) {
-      var vm = new VariantModel();
+      var vm = new SampleModel();
       vm.init(self);
       vm.setRelationship('known-variants');
       vm.setName('Clinvar')
@@ -557,7 +557,7 @@ class CohortModel {
           // the allele counts bars in the tooltip
           self.maxAlleleCount = 0;
           for(var rel in resultMap) {
-            self.maxAlleleCount = VariantModel.calcMaxAlleleCount(resultMap[rel], self.maxAlleleCount);
+            self.maxAlleleCount = SampleModel.calcMaxAlleleCount(resultMap[rel], self.maxAlleleCount);
           }
 
 
@@ -647,7 +647,7 @@ class CohortModel {
           resolve();
         })
         .catch(function(error) {
-          var msg = "An error occurred in promiseSummarizeDanger() when calling VariantModel.promiseGetDangerSummary(): " + error;
+          var msg = "An error occurred in promiseSummarizeDanger() when calling SampleModel.promiseGetDangerSummary(): " + error;
           console.log(msg);
           reject(msg);
         })
