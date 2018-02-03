@@ -91,7 +91,6 @@
                 v-bind:items="geneSources"
                 v-model="geneSource"
                 label="Gene source"
-                class="input-group--focused"
                 item-value="text"
                 @input="onGeneSourceSelected">
             </v-select>

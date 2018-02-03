@@ -9,6 +9,16 @@
   width: 100%
   padding: 0px 5px 0px 5px
 
+button
+  color: $text-color
+
+.theme--light
+  .content--wrap
+    .btn
+      color: $text-color
+      padding-top: 2px
+      padding-bottom: 2px
+      height: 30px
 
 </style>
 
