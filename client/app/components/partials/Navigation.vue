@@ -44,16 +44,22 @@ textarea#copy-paste-genes
         v-model="menuGenes"
         >
           <v-btn flat slot="activator">Genes</v-btn>
+
           <v-card>
              <v-text-field
               id="copy-paste-genes"
-              label="Copy/paste genes"
               multi-line
+              label="Enter gene names genes"
               v-model="copyPasteGenes"
-            ></v-text-field>
-
-
+            >
+            </v-text-field>
+            <v-divider></v-divider>
+            <v-btn @click="onACMGGenes">
+              ACMG Genes
+            </v-btn>
           </v-card>
+
+
         </v-menu>
 
         <v-btn flat>
@@ -149,6 +155,9 @@ export default {
       if (!this.menuGenes) {
         this.$emit("copy-paste-genes", this.copyPasteGenes);
       }
+    },
+    onACMGGenes: function() {
+      this.copyPasteGenes = this.geneModel.ACMG_GENES.join(", ");
     }
   },
   mounted: function() {

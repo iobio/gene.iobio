@@ -28,6 +28,9 @@ class GeneModel {
 
     this.geneRegionBuffer = 1000;
 
+    this.ACMG_GENES = ["BRCA1", "BRCA2", "TP53", "STK11", "MLH1", "MSH2", "MSH6", "PMS2", "APC", "MUTYH", "VHL", "MEN1", "RET", "PTEN", "RB1", "SDHD", "SDHAF2", "SDHC", "SDHB", "TSC1", "TSC2", "WT1", "NF2", "COL3A1", "FBN1", "TGFBR1", "TGFBR2", "SMAD3", "ACTA2", "MYH11", "MYBPC3", "MYH7", "TNNT2", "TNNI3", "TPM1", "MYL3", "ACTC1", "PRKAG2", "GLA", "MYL2", "LMNA", "RYR2", "PKP2", "DSP", "DSC2", "TMEM43", "DSG2", "KCNQ1", "KCNH2", "SCN5A", "LDLR", "APOB", "PCSK9", "RYR1", "CACNA1S", "ATP7B", "BMPR1A", "SMAD4", "OTC"];
+
+
   }
 
   addGeneName(theGeneName) {
@@ -50,6 +53,10 @@ class GeneModel {
     })
   }
 
+  ACMGGenes() {
+    this.copyPasteGenes(this.ACMG_GENES.join(","));
+  }
+
 
   copyPasteGenes(genesString) {
     var me = this;
@@ -59,6 +66,7 @@ class GeneModel {
     var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
 
     me.geneNames = [];
+    me.sortedGeneNames = [];
     var unknownGeneNames = {};
     var duplicateGeneNames = {};
     geneNameList.forEach( function(geneName) {
@@ -76,7 +84,7 @@ class GeneModel {
       }
     });
 
-    var message = null;
+    var message = "";
     if (Object.keys(unknownGeneNames).length > 0) {
       message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
       alertify.alert("Warning", message);
@@ -87,7 +95,7 @@ class GeneModel {
       }
       message += "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
     }
-    if (message) {
+    if (message.length > 0) {
       alertify.alert("Warning", message);
     }
 

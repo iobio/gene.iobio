@@ -520,8 +520,8 @@ export default {
     clearCache: function() {
       this.cacheHelper.promiseClearCache(this.cacheHelper.launchTimestamp);
     },
-    onCopyPasteGenes: function(genes) {
-      this.geneModel.copyPasteGenes(genes);
+    onCopyPasteGenes: function(genesString) {
+      this.geneModel.copyPasteGenes(genesString);
     },
     onSortGenes: function(sortBy) {
       this.geneModel.sortGenes(sortBy);
