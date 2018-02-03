@@ -219,6 +219,7 @@ export default {
 
   },
   mounted: function() {
+    this.updateGeneSummaries();
   },
   computed: {
   },

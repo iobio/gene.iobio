@@ -202,16 +202,15 @@ export default {
       return self.cacheHelper.promiseClearStaleCache();
     })
     .then(function() {
+      let glyph = new Glyph();
+      let translator = new Translator(glyph);
+      let genericAnnotation = new GenericAnnotation(glyph);
+
       self.geneModel = new GeneModel();
       self.geneModel.geneSource = siteGeneSource;
       self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
       self.geneModel.setAllKnownGenes(self.allGenes);
-
-      let glyph = new Glyph();
-
-      let translator = new Translator(glyph);
-
-      let genericAnnotation = new GenericAnnotation(glyph);
+      self.geneModel.translator = translator;
 
       // Instantiate helper class than encapsulates IOBIO commands
       let endpoint = new EndpointCmd(useSSL,

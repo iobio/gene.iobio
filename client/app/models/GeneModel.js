@@ -5,10 +5,13 @@ class GeneModel {
     this.refseqOnly = {};
     this.gencodeOnly = {};
 
+    this.translator = null;
+
     this.genomeBuildHelper = null;
 
     this.geneNames = [];
     this.geneDangerSummaries = {};
+    this.sortedGeneNames = [];
 
 
     this.geneNCBISummaries = {};
@@ -33,6 +36,7 @@ class GeneModel {
 
     if (me.geneNames.indexOf(geneName) < 0) {
       me.geneNames.push(geneName);
+      me.sortedGeneNames.push(geneName);
       me.promiseGetGenePhenotypes(geneName);
     }
   }
@@ -62,6 +66,7 @@ class GeneModel {
         if (me.isKnownGene(geneName)) {
           if (me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0) {
             me.geneNames.push(geneName.trim().toUpperCase());
+            me.sortedGeneNames.push(geneName.trim().toUpperCase());
           } else {
             duplicateGeneNames[geneName.trim().toUpperCase()] = true;
           }
@@ -99,6 +104,10 @@ class GeneModel {
       }
 
     }
+
+    me.geneNames.forEach(function(geneName) {
+      me.promiseGetGeneObject(geneName);
+    })
  }
 
 
@@ -479,6 +488,11 @@ class GeneModel {
       self.geneNames.splice(index, 1);
     }
 
+    index = self.sortedGeneNames.indexOf(geneName);
+    if (index >= 0) {
+      self.sortedGeneNames.splice(index, 1);
+    }
+
     if (self.geneDangerSummaries && self.geneDangerSummaries.hasOwnProperty(geneName)) {
       delete self.geneDangerSummaries[geneName];
     }
@@ -631,7 +645,174 @@ class GeneModel {
 
   }
 
+  sortGenes(sortBy) {
+    var me = this;
+
+    me.sortedGeneNames = null;
+
+
+    if (sortBy.indexOf("gene name") >= 0) {
+      me.sortedGeneNames = me.geneNames.slice().sort();
+    } else if (sortBy.indexOf("harmful variant") >= 0) {
+      me.sortedGeneNames = me.geneNames.slice().sort(me.compareDangerSummary);
+    } else if (sortBy.indexOf("converage") >= 0) {
+      me.sortedGeneNames = me.geneNames.slice().sort(me.compareDangerSummaryByLowCoverage);
+    }
+
+  }
+
+  compareDangerSummary(geneName1, geneName2) {
+    var me = this;
+
+    var danger1 = me.geneDangerSummaries[geneName1];
+    var danger2 = me.geneDangerSummaries[geneName2];
+
+    if (danger1 == null && danger2 == null) {
+      return 0;
+    } else if (danger2 == null) {
+      return -1;
+    } else if (danger1 == null) {
+      return 1;
+    }
+
+    var dangers = [danger1, danger2];
+
+
+    // lowests (non-zero) harmful variant level  = highest relevance
+    var harmfulVariantValues = [9999, 9999];
+    dangers.forEach(function(danger, index) {
+      if (danger.harmfulVariantsLevel) {
+        harmfulVariantValues[index] = danger.harmfulVariantsLevel;
+      }
+    });
+    if (harmfulVariantValues[0] !== harmfulVariantValues[1]) {
+      return harmfulVariantValues[0] - harmfulVariantValues[1];
+    }
+
+    // lowest clinvar value = highest relevance
+    var clinvarValues = [9999, 9999];
+    dangers.forEach(function(danger, index) {
+      if (danger.CLINVAR) {
+        for (key in danger.CLINVAR) {
+          var showBadge = me.translator.clinvarMap[key].badge;
+          if (showBadge) {
+            clinvarValues[index] = danger.CLINVAR[key].value;
+          }
+        }
+      }
+    });
+    if (clinvarValues[0] !== clinvarValues[1]) {
+      return clinvarValues[0] - clinvarValues[1];
+    }
+
+    // sift
+    var siftValues = [9999, 9999];
+    dangers.forEach(function(danger, index) {
+      if (danger.SIFT) {
+        for (key in danger.SIFT) {
+          var siftClass = Object.keys(danger.SIFT[key])[0];
+          var showBadge = me.translator.siftMap[siftClass].badge;
+          if (showBadge) {
+            siftValues[index] = me.translator.siftMap[siftClass].value;
+          }
+        }
+      }
+    });
+    if (siftValues[0] !== siftValues[1]) {
+      return siftValues[0] - siftValues[1];
+    }
+
+    // polyphen
+    var polyphenValues = [9999, 9999];
+    dangers.forEach(function(danger, index) {
+      if (danger.POLYPHEN) {
+        for (key in danger.POLYPHEN) {
+          var polyphenClass = Object.keys(danger.POLYPHEN[key])[0];
+          var showBadge = me.translator.polyphenMap[polyphenClass].badge;
+          if (showBadge) {
+            polyphenValues[index] = me.translator.polyphenMap[polyphenClass].value;
+          }
+        }
+      }
+    });
+    if (polyphenValues[0] !== polyphenValues[1]) {
+      return polyphenValues[0] - polyphenValues[1];
+    }
+
+    // lowest impact value = highest relevance
+    var impactValues = [9999, 9999];
+    dangers.forEach(function(danger, index) {
+      if (danger.IMPACT) {
+        for (key in danger.IMPACT) {
+          impactValues[index] = me.translator.impactMap[key].value;
+        }
+      }
+    });
+    if (impactValues[0] !== impactValues[1]) {
+      return impactValues[0] - impactValues[1];
+    }
+
+    // lowest allele frequency = highest relevance
+    var afValues = [9999,9999];
+    dangers.forEach(function(danger, index) {
+      if (danger.AF && Object.keys(danger.AF).length > 0) {
+        var clazz   = Object.keys(danger.AF)[0];
+        var afValue  = danger.AF[clazz].value;
+        afValues[index] = afValue;
+      }
+    });
+    if (afValues[0] !== afValues[1]) {
+      return afValues[0] - afValues[1];
+    }
+
+
+
+    if (geneName1 < geneName2) {
+      return -1;
+    } else if (geneName2 < geneName1) {
+      return 1;
+    }
+    return 0;
+  }
+
+
+  compareDangerSummaryByLowCoverage(geneName1, geneName2) {
+    var me = this;
+
+    var danger1 = me.geneDangerSummaries[geneName1];
+    var danger2 = me.geneDangerSummaries[geneName2];
+
+
+    if (danger1 == null && danger2 == null) {
+      return 0;
+    } else if (danger2 == null) {
+      return -1;
+    } else if (danger1 == null) {
+      return 1;
+    }
+
+    geneCoverageProblem1 = danger1.geneCoverageProblem ? danger1.geneCoverageProblem : false;
+    geneCoverageProblem2 = danger2.geneCoverageProblem ? danger2.geneCoverageProblem : false;
+
+
+    if (geneCoverageProblem1 == geneCoverageProblem2) {
+      if (geneName1 < geneName2) {
+        return -1;
+      } else if (geneName2 < geneName1) {
+        return 1;
+      } else {
+        return 0;
+      }
+    } else if (geneCoverageProblem1) {
+      return -1;
+    } else if (geneCoverageProblem2) {
+      return 1;
+    }
+
+  }
 
 }
+
+
 
 export default GeneModel
