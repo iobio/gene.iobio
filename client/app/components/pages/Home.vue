@@ -29,7 +29,6 @@
       @load-demo-data="onLoadDemoData"
       @clear-cache="clearCache"
       @copy-paste-genes="onCopyPasteGenes"
-
     >
     </navigation>
     <v-content>
@@ -39,18 +38,19 @@
          v-if="geneModel && geneModel.geneNames.length > 0"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
-         :geneNames="geneModel.geneNames"
+         :geneNames="geneModel.sortedGeneNames"
          :loadedGeneNames="Object.keys(geneModel.geneDangerSummaries)"
          :genesInProgress="cacheHelper.cacheQueue"
          :isLoaded="cohortModel && cohortModel.isLoaded"
          @gene-selected="onGeneSelected"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
+         @sort-genes="onSortGenes"
         >
         </genes-card>
 
         <gene-card
-          v-bind:class="{ hide: Object.keys(selectedGene).length == 0 }"
+          v-if="geneModel && Object.keys(selectedGene).length > 0"
           :geneModel="geneModel"
           :selectedGene="selectedGene"
           :selectedTranscript="selectedTranscript"
@@ -522,6 +522,9 @@ export default {
     },
     onCopyPasteGenes: function(genes) {
       this.geneModel.copyPasteGenes(genes);
+    },
+    onSortGenes: function(sortBy) {
+      this.geneModel.sortGenes(sortBy);
     }
 
 

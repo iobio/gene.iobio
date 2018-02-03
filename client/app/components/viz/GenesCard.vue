@@ -113,7 +113,7 @@
             <v-select
               label="Order by"
               v-bind:items="sortCategories"
-              v-model="selectedSort"
+              v-model="sortBy"
               max-height="auto"
               autocomplete
             >
@@ -133,23 +133,6 @@
            @remove-gene="onRemoveGene"
           >
           </gene-badge>
-          <div id="after-genes" style="display:inline-block;margin-top:5px;"></div>
-          <div id="gene-page-control" class="hide level-edu level-basic">
-            <div id="gene-badge-loading-display" class="level-edu level-basic"></div>
-
-            <div id="gene-page-selection" class="level-basic"></div>
-
-            <div id="gene-paging-links" class="hide">
-              <a href="javascript:void(0)" id="view-50-genes"
-                 class="gene-paging-link" onclick="genesCard.viewDefaultsGenesPerPage()" >
-                    View 40
-              </a>
-              <a href="javascript:void(0)" id="view-all-genes"
-                 class="gene-paging-link" onclick="genesCard.viewAllGenes()" >
-                | all
-              </a>
-            </div>
-          </div>
         </div>
       </div>
   </v-card>
@@ -183,7 +166,7 @@ export default {
         "gene name",
         "(original order)",
       ],
-      selectedSort: "harmful variants"
+      sortBy: "harmful variants"
     }
   },
   methods: {
@@ -229,6 +212,9 @@ export default {
     },
     loadedGeneNames: function(newDangerSummaries, oldDangerSummaries) {
       this.updateGeneSummaries();
+    },
+    sortBy: function() {
+      this.$emit("sort-genes", this.sortBy);
     }
   },
   computed: {

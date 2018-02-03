@@ -654,9 +654,15 @@ class GeneModel {
     if (sortBy.indexOf("gene name") >= 0) {
       me.sortedGeneNames = me.geneNames.slice().sort();
     } else if (sortBy.indexOf("harmful variant") >= 0) {
-      me.sortedGeneNames = me.geneNames.slice().sort(me.compareDangerSummary);
+      me.sortedGeneNames = me.geneNames.slice().sort( function(a,b) {
+        return me.compareDangerSummary(a,b);
+      });
     } else if (sortBy.indexOf("converage") >= 0) {
-      me.sortedGeneNames = me.geneNames.slice().sort(me.compareDangerSummaryByLowCoverage);
+      me.sortedGeneNames = me.geneNames.slice().sort( function(a,b) {
+        return me.compareDangerSummaryByLowCoverage(a,b);
+      });
+    } else if (sortBy.indexOf("original") >= 0) {
+      me.sortedGeneNames = me.geneNames.slice();
     }
 
   }
@@ -693,7 +699,7 @@ class GeneModel {
     var clinvarValues = [9999, 9999];
     dangers.forEach(function(danger, index) {
       if (danger.CLINVAR) {
-        for (key in danger.CLINVAR) {
+        for (var key in danger.CLINVAR) {
           var showBadge = me.translator.clinvarMap[key].badge;
           if (showBadge) {
             clinvarValues[index] = danger.CLINVAR[key].value;
@@ -709,7 +715,7 @@ class GeneModel {
     var siftValues = [9999, 9999];
     dangers.forEach(function(danger, index) {
       if (danger.SIFT) {
-        for (key in danger.SIFT) {
+        for (var key in danger.SIFT) {
           var siftClass = Object.keys(danger.SIFT[key])[0];
           var showBadge = me.translator.siftMap[siftClass].badge;
           if (showBadge) {
@@ -726,7 +732,7 @@ class GeneModel {
     var polyphenValues = [9999, 9999];
     dangers.forEach(function(danger, index) {
       if (danger.POLYPHEN) {
-        for (key in danger.POLYPHEN) {
+        for (var key in danger.POLYPHEN) {
           var polyphenClass = Object.keys(danger.POLYPHEN[key])[0];
           var showBadge = me.translator.polyphenMap[polyphenClass].badge;
           if (showBadge) {
@@ -743,7 +749,7 @@ class GeneModel {
     var impactValues = [9999, 9999];
     dangers.forEach(function(danger, index) {
       if (danger.IMPACT) {
-        for (key in danger.IMPACT) {
+        for (var key in danger.IMPACT) {
           impactValues[index] = me.translator.impactMap[key].value;
         }
       }

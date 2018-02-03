@@ -137,153 +137,6 @@ CacheHelper.prototype.promiseCheckCacheSize = function() {
 
 }
 
-CacheHelper.prototype.showAnalyzeAllProgress = function(clearStandardFilterCounts) {
-  var me = this;
-
-  me.getAnalyzeAllCounts(function(counts) {
-    me.showGeneCounts(counts, clearStandardFilterCounts)
-  });
-}
-
-CacheHelper.prototype.showGeneCounts = function(counts, clearStandardFilterCounts) {
-  /*
-  var me = this;
-  if (counts.geneCount == 0) {
-    $('#analyzed-progress-bar').addClass("hide");
-    $('#total-genes-label').addClass("hide");
-    return;
-  }
-  $('#analyzed-progress-bar').removeClass("hide");
-
-
-  $('#total-genes-label').removeClass("hide");
-  $('#total-genes-label').text(counts.geneCount + " genes");
-
-
-  me.fillProgressBar($("#analyze-all-progress"), counts, 'loaded', clearStandardFilterCounts);
-
-
-  if (!filterCard.applyLowCoverageFilter && (me.showCallAllProgress || counts.called.analyzed > 0 || counts.called.error > 0) ) {
-    me.fillProgressBar($("#call-all-progress"), counts, 'called', clearStandardFilterCounts);
-  } else {
-    $('#call-all-progress').addClass("hide");
-  }
-  */
-
-}
-
-CacheHelper.prototype.fillProgressBar = function(progressBar, countObject, field, clearStandardFilterCounts) {
-  var me = this;
-  var geneCount = countObject.geneCount;
-  var counts    = countObject[field];
-
-/*
-  progressBar.removeClass("hide");
-  if (counts.analyzed == 0) {
-    progressBar.find(".text").removeClass("hide");
-    progressBar.find(".text").text("0 analyzed");
-  } else {
-    progressBar.find(".text").html("&nbsp;");
-  }
-
-
-  if (counts.analyzed == geneCount) {
-    progressBar.addClass("done");
-    progressBar.find(".text").text(counts.analyzed + " analyzed");
-    if (me.geneBadgeLoaderDisplay) {
-      me.geneBadgeLoaderDisplay.clearAll();
-    }
-  } else {
-    progressBar.removeClass("done");
-  }
-
-  var notAnalyzedCount        = geneCount - counts.analyzed;
-  var analyzedNotPassedCount  = counts.analyzed - counts.pass;
-
-  var analyzed                = Math.round(counts.analyzed / geneCount * 100) / 100;
-  var notAnalyzed             = 1 - analyzed;
-
-  var analyzedPassed          = filterCard.hasFilters() && counts.analyzed > 0 ? Math.round(counts.pass / counts.analyzed * 100) / 100 : 1;
-  var analyzedNotPassed       = filterCard.hasFilters() ? 1 - analyzedPassed : 0;
-
-  progressBar.find('#analyzed-bar'           ).css("width", utility.percentage(analyzed));
-  progressBar.find('#not-analyzed-bar'       ).css("width", utility.percentage(notAnalyzed));
-
-  progressBar.find('#passed-filter-bar'      ).css("width", utility.percentage(analyzedPassed));
-  progressBar.find('#not-passed-filter-bar'  ).css("width", utility.percentage(analyzedNotPassed));
-
-  if (geneCount > counts.analyzed && counts.analyzed > 0) {
-    progressBar.find('#not-analyzed-bar'       ).text(notAnalyzedCount);
-
-  } else {
-    progressBar.find('#not-analyzed-bar'       ).text("");
-  }
-
-  // Show analyze progress counts on hover
-  progressBar.find('#passed-filter-bar').attr("data-toggle", "tooltip");
-  progressBar.find('#passed-filter-bar').attr("data-placement", "top");
-
-  progressBar.find('#not-passed-filter-bar').attr("data-toggle", "tooltip");
-  progressBar.find('#not-passed-filter-bar').attr("data-placement", "top");
-
-  progressBar.find('#not-analyzed-bar').attr("data-toggle", "tooltip");
-  progressBar.find('#not-analyzed-bar').attr("data-placement", "top");
-
-
-  if (counts.analyzed > 0) {
-    if (filterCard.hasFilters()) {
-      progressBar.find('#passed-filter-bar'      ).text(counts.pass > 0 ? counts.pass : "");
-
-
-      progressBar.find('#not-passed-filter-bar'  ).text(analyzedNotPassedCount > 0 ? analyzedNotPassedCount : "");
-
-      progressBar.find('#passed-filter-bar'    ).attr("title", counts.pass > 0             ? counts.pass + " pass filter" : "");
-      progressBar.find('#not-passed-filter-bar').attr("title", analyzedNotPassedCount > 0  ? analyzedNotPassedCount +  " fail filter" : "");
-
-      progressBar.find('#not-analyzed-bar'     ).attr("title", notAnalyzedCount > 0        ? notAnalyzedCount + " not analyzed" : "");
-      progressBar.find('.text').html("&nbsp;");
-
-
-    } else {
-      progressBar.find('#not-passed-filter-bar'    ).text("");
-      progressBar.find('#not-passed-filter-bar'    ).attr("title", "");
-
-      if (geneCount > counts.analyzed) {
-        progressBar.find('#passed-filter-bar'  ).text(counts.analyzed);
-      } else {
-        progressBar.find('#passed-filter-bar'  ).text("");
-        progressBar.find("#analyze-all-progress .text").text(counts.analyzed + " analyzed");
-      }
-
-      progressBar.find('#passed-filter-bar').attr("title", counts.analyzed  + " analyzed");
-      progressBar.find('#not-analyzed-bar' ).attr("title", notAnalyzedCount + " not analyzed");
-
-    }
-  } else {
-      progressBar.find('#passed-filter-bar').text("");
-      progressBar.find('#passed-filter-bar'    ).attr("title", "");
-
-      progressBar.find('#not-passed-filter-bar').text("");
-      progressBar.find('#not-passed-filter-bar').attr("title", "");
-
-      progressBar.find('#not-analyzed-bar'     ).attr("title", notAnalyzedCount + " not analyzed");
-  }
-
-
-
-  // Refresh the standard filter count if it applies
-  filterCard.setStandardFilterCount(field, counts, notAnalyzedCount, clearStandardFilterCounts);
-*/
-
-}
-
-CacheHelper.prototype.hideAnalyzeAllProgress = function() {
-  $("#analyze-all-progress .bar").css("width", "0%");
-
-  $("#call-all-progress .bar").css("width", "0%");
-  $("#call-all-progress #not-analyzed-bar").text("");
-}
-
 
 CacheHelper.prototype.queueGene = function(geneName) {
   if (this.cacheQueue == null) {
@@ -311,8 +164,6 @@ CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
     me.showCallAllProgress = true;
   }
 
-  me.showAnalyzeAllProgress();
-
   // Start over with a new queue of genes to be analyzed
   // is all of the genes that need to be analyzed (and cached.)
   me.genesToCache = [];
@@ -323,16 +174,14 @@ CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
   });
   me.cacheGenes(analyzeCalledVariants, function() {
 
+    me.cohort.geneModel.sortGenes("harmful variants");
+
     console.log("");
     console.log("******   ANALYZE ALL ELAPSED TIME *******");
     console.log((new Date() - me.start) / 1000 + " seconds ");
     console.log("*******************************************")
     console.log("");
 
-    // After all genes have been cached, refresh the gene badges in case
-    // filters were applied while genes were still in the process of being
-    // analyzed.
-    //filterCard.filterGenes();
   });
 
 }
@@ -525,7 +374,6 @@ CacheHelper.prototype.isGeneInProgress = function(geneName) {
 }
 
 CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants, callback) {
-  this.showAnalyzeAllProgress();
 
   // Take the analyzed (and cached) gene off of the cache queue
   var idx = this.cacheQueue.indexOf(geneName);
@@ -562,262 +410,6 @@ CacheHelper.prototype.promiseIsCachedForProband = function(geneObject, transcrip
       resolve({geneObject: geneObject, transcript: transcript, shouldCallVariants: checkForCalledVariants, 'isCached': isCached})
     })
   })
-}
-
-
-CacheHelper.prototype.getAnalyzeAllCounts = function(callback) {
-  var me = this;
-  var counts = {
-    geneCount: 0,
-    all:    {analyzed: 0, unanalyzed: 0, error: 0, pass: 0},
-    loaded: {analyzed: 0, unanalyzed: 0, error: 0, pass: 0},
-    called: {analyzed: 0, unanalyzed: 0, error: 0, pass: 0}
-  }
-
-  // Clone the array of gene names
-  var genesToCount = me.cohort.geneModel.geneNames.slice(0);
-
-  // Sequentially examine the danger summary for each gene (recursive).
-  // When all genes have been examined, the callback will be invoked
-  // with the counts object.
-  me.getNextGeneCounts(genesToCount, counts, callback);
-
-
-}
-
-
-CacheHelper.prototype.getNextGeneCounts = function(genesToCount, counts, callback) {
-  var me = this;
-
-
-  var incrementLoadedVsCalled = function(danger, counts, field) {
-    if (danger) {
-      counts.all[field]++;
-      if (!me.cohort.isAlignmentsOnly() ) {
-        counts.loaded[field]++;
-      }
-      if (danger.CALLED) {
-        counts.called[field]++;
-      }
-    }
-  }
-
-  if (genesToCount.length == 0) {
-    callback(counts);
-  } else {
-    // Remove the next gene from the list
-    var geneName = genesToCount.splice(0,1);
-
-    counts.geneCount++;
-
-    var key = me.cohort.getProbandModel()._getCacheKey(CacheHelper.DANGER_SUMMARY_DATA, geneName);
-
-    // Get danger summary for gene
-      me.promiseGetData(key)
-        .then(function(danger) {
-        if (danger != null) {
-
-          // Increment the loaded variants count for the gene
-          incrementLoadedVsCalled(danger, counts, 'analyzed');
-
-          // Increment the called variant count for the gene
-          if (danger.featureCount && danger.featureCount > 0) {
-            counts.all.pass++;
-            if (!me.cohort.isAlignmentsOnly() && danger.loadedCount && danger.loadedCount > 0) {
-              counts.loaded.pass++;
-            }
-            if (danger.calledCount && danger.calledCount > 0) {
-              counts.called.pass++;
-            }
-          }
-
-
-        } else {
-          // We don't have a danger summary for the gene.  Increment the unanlyzed count
-          incrementLoadedVsCalled(danger, counts, 'unanalyzed');
-        }
-
-        // Now get the counts for the next gene in the list
-        me.getNextGeneCounts(genesToCount, counts, callback);
-
-        },
-        function(error) {
-          console.log("An error occurred in getAnalyzeAllCounts when calling promiseGetData: " + error);
-          callback(counts);
-        });
-  }
-
-
-}
-
-
-CacheHelper.prototype.refreshGeneBadges = function(callback) {
-  var me = this;
-  var geneCount = {total: 0, pass: 0};
-
-  $('#gene-badges-loader').removeClass("hide");
-
-  var theGeneNames = {};
-  me.cohort.geneModel.geneNames.forEach(function(geneName) {
-    theGeneNames[geneName] = true;
-  });
-
-  var dataKind = CacheHelper.VCF_DATA;
-
-  me.promiseGetKeys()
-   .then(function(allKeys) {
-    var keys = [];
-
-    allKeys.forEach(function(key) {
-      keyObject = CacheHelper._parseCacheKey(key);
-      if (keyObject && keyObject.launchTimestamp == me.launchTimestamp) {
-
-          if (keyObject.dataKind == dataKind && keyObject.relationship == "proband" && theGeneNames[keyObject.gene]) {
-            keys.push({'key': key, 'keyObject': keyObject});
-          }
-       }
-    })
-
-    me.refreshNextGeneBadge(keys, geneCount, function() {
-      //genesCard.sortGenes();
-
-      $('#gene-badges-loader').addClass("hide");
-
-      if (callback) {
-        callback();
-      }
-
-    });
-
-   },
-   function(error) {
-    var msg = "A problem occurred in CacheHelper.refreshGeneBadges(): " + error;
-    console.log(msg);
-    if (callback) {
-      callback();
-    }
-   })
-
-}
-
-
-CacheHelper.prototype.promiseRefreshGeneBadgesGeneCoverage = function(refreshOnly=false) {
-  var me = this;
-
-  return new Promise(function(resolve, reject) {
-    var counts = {
-      geneCount: 0,
-      all:    {analyzed: 0, unanalyzed: 0, error: 0, pass: 0},
-      loaded: {analyzed: 0, unanalyzed: 0, error: 0, pass: 0},
-      called: {analyzed: 0, unanalyzed: 0, error: 0, pass: 0}
-    }
-
-    $('#gene-badges-loader').removeClass("hide");
-
-    var theGeneNames = {};
-    me.cohort.geneModel.geneNames.forEach(function(geneName) {
-      theGeneNames[geneName] = true;
-    });
-
-
-    me.promiseGetKeys()
-     .then(function(allKeys) {
-
-      var thePromises = [];
-      var dangerPromises = [];
-
-      allKeys.forEach(function(key) {
-        keyObject = CacheHelper._parseCacheKey(key);
-        if (keyObject && keyObject.launchTimestamp == me.launchTimestamp) {
-
-            if (keyObject.dataKind == CacheHelper.VCF_DATA && keyObject.relationship == "proband" && theGeneNames[keyObject.gene]) {
-              counts.geneCount++;
-
-              var geneObject   = me.cohort.geneModel.geneObjects[keyObject.gene];
-              var p = me.cohort.promiseGetCachedGeneCoverage(geneObject, {transcript_id: keyObject.transcript})
-              .then(function(data) {
-                var geneCoverageAll = data.geneCoverage;
-
-                var dp = me.cohort.getProbandModel().promiseGetDangerSummary(data.gene.gene_name)
-                .then(function(dangerObject) {
-                  if (geneCoverageAll && dangerObject) {
-                    var clearOtherDanger = refreshOnly ? false : true;
-
-                    SampleModel.summarizeDangerForGeneCoverage(dangerObject, geneCoverageAll, clearOtherDanger, refreshOnly);
-
-                    counts.all.analyzed++;
-                    if (me.cohort.isAlignmentsOnly()) {
-                      counts.called.analyzed++;
-                    } else {
-                      counts.loaded.analyzed++;
-                    }
-
-                    if (dangerObject.geneCoverageProblem) {
-                      counts.all.pass++;
-                      if (me.cohort.isAlignmentsOnly()) {
-                        counts.called.pass++;
-                      } else {
-                        counts.loaded.pass++;
-                      }
-                    }
-
-                    me.cohort.getProbandModel().promiseCacheDangerSummary(dangerObject, data.gene.gene_name).then(function() {
-                      //genesCard.setGeneBadgeGlyphs(data.gene.gene_name, dangerObject, false);
-                    })
-                  } else {
-                    counts.all.unanalyzed++;
-                    if (me.cohort.isAlignmentsOnly()) {
-                      counts.called.unanalyzed++;
-                    } else {
-                      counts.loaded.unanalyzed++;
-                    }
-
-                  }
-                })
-                dangerPromises.push(dp);
-
-              }, function(error) {
-                var msg = "Problem encountered in CacheHelper.refreshGeneBadgesGeneCoverage() " + error;
-                console.log(msg);
-                reject(msg);
-
-              });
-
-              thePromises.push(p);
-            }
-        }
-
-      })
-
-      Promise.all(thePromises).then(function() {
-        Promise.all(dangerPromises).then(function() {
-          if (!refreshOnly) {
-            //genesCard.sortGenes(genesCard.LOW_COVERAGE_OPTION, true);
-          }
-
-          $('#gene-badges-loader').addClass("hide");
-          resolve(counts);
-
-        },
-        function(error) {
-          reject(error);
-        })
-      },
-      function(error) {
-        reject(error);
-      })
-     },
-     function(error) {
-      var msg = "A problem occurred in CacheHelper.promiseRefreshGeneBadgesGeneCoverage(): " + error;
-      console.log(msg);
-      reject(msg);
-
-    });
-
-
-  })
-
-
 }
 
 
@@ -1086,7 +678,6 @@ CacheHelper.prototype.clearAll = function() {
       // user clicked "ok"
       me._promiseClearCache(me.launchTimestampToClear, false, false)
        .then(function() {
-        me.showAnalyzeAllProgress();
           me.refreshDialog();
        });
 

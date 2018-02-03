@@ -230,12 +230,14 @@ export default {
       },
       update: function() {
         var self = this;
-        if (self.data && self.data.length > 0 && self.data[0] != null) {
-          this.geneChart.regionStart(this.regionStart);
-          this.geneChart.regionEnd(this.regionEnd);
-          this.geneChart.width(self.fixedWidth > 0 ? self.fixedWidth : this.$el.clientWidth);
-          var selection = d3.select(this.$el).datum( self.data );
-          this.geneChart(selection);
+        if (this.$el.clientWidth > 0 && $(self.$el).length > 0) {
+          if (self.data && self.data.length > 0 && self.data[0] != null) {
+            this.geneChart.regionStart(this.regionStart);
+            this.geneChart.regionEnd(this.regionEnd);
+            this.geneChart.width(self.fixedWidth > 0 ? self.fixedWidth : this.$el.clientWidth);
+            d3.select(this.$el).datum( self.data );
+            this.geneChart(selection);
+          }
         }
       },
       setGeneChart: function() {
@@ -254,7 +256,8 @@ export default {
     watch: {
       data: function(newData, oldData) {
         let self = this;
-        if ($(self.$el).find("svg").length == 0 || self.concatKeys(newData) != self.concatKeys(oldData)) {
+        if ( ($(self.$el).length > 0 && $(self.$el).find("svg").length == 0)
+         ||  self.concatKeys(newData) != self.concatKeys(oldData) ) {
           this.update();
         }
       }
