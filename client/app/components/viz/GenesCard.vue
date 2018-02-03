@@ -169,8 +169,8 @@ export default {
   data () {
     return {
       geneSummaries: [],
-      loadedPercentage: 70,
-      calledPercentage: 10,
+      loadedPercentage: 0,
+      calledPercentage: 0,
       sortCategories: [
         "harmful variants",
         "insufficient coverage",

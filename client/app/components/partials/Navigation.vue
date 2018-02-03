@@ -1,20 +1,21 @@
 
-<style type="text/css">
-  nav.toolbar {
-    background-color: rgb(93, 128, 157) !important;
-    font-weight: 300 !important;
-  }
-  nav.toolbar i.material-icons {
+<style lang="sass">
+nav.toolbar
+  background-color: rgb(93, 128, 157) !important
+  font-weight: 300 !important
+
+  i.material-icons
     margin-right: 2px
-  }
 
+  .toolbar__title
+    font-family: Quicksand
+    font-size: 28px
+    margin-right: 20px
+    padding-bottom: 5px
 
-  .toolbar__title {
-    font-family: Quicksand;
-    font-size: 28px;
-    margin-right: 20px;
-    padding-bottom: 5px;
-  }
+textarea#copy-paste-genes
+  font-size: 14px
+
 </style>
 
 <template>
@@ -32,13 +33,28 @@
         <v-form >
           <v-text-field id="search-gene-name" label="Gene">
           </v-text-field>
-          <typeahead v-model="selectedGene" force-select match-start  target="#search-gene-name" :data="allGenes" item-key="gene_name"/>
+          <typeahead v-model="selectedGene" force-select match-start  target="#search-gene-name" :data="geneModel.allKnownGenes" item-key="gene_name"/>
         </v-form>
 
-        <v-btn flat>
-          <v-icon>explore</v-icon>
-          Genes
-        </v-btn>
+
+        <v-menu
+        offset-y
+        :close-on-content-click="false"
+        :nudge-width="200"
+        v-model="menuGenes"
+        >
+          <v-btn flat slot="activator">Genes</v-btn>
+          <v-card>
+             <v-text-field
+              id="copy-paste-genes"
+              label="Copy/paste genes"
+              multi-line
+              v-model="copyPasteGenes"
+            ></v-text-field>
+
+
+          </v-card>
+        </v-menu>
 
         <v-btn flat>
           <v-icon>tune</v-icon>
@@ -83,7 +99,7 @@
 <script>
 
 import { Typeahead } from 'uiv'
-import geneData from '../../../data/genes.json'
+
 
 export default {
   name: 'navigation',
@@ -91,21 +107,34 @@ export default {
     Typeahead
   },
   props: {
+    geneModel: null
   },
   data () {
       return {
         title: 'gene.iobio',
+
         selectedGene: {},
         clipped: false,
-        allGenes: geneData,
         leftDrawer: false,
-        rightDrawer: false
+        rightDrawer: false,
+
+        menuGenes: false,
+        copyPasteGenes: null
       }
   },
   watch: {
     selectedGene: function(a, b) {
       if (this.selectedGene) {
         this.$emit("input", this.selectedGene);
+      }
+    },
+    menuGenes: function() {
+      if (!this.menuGenes && this.copyPasteGenes && this.copyPasteGenes.length > 0) {
+        this.onCopyPasteGenes();
+      } else {
+        if (this.geneModel) {
+          this.copyPasteGenes = this.geneModel.geneNames.join(", ");
+        }
       }
     }
   },
@@ -115,6 +144,11 @@ export default {
     },
     onClearCache: function() {
       this.$emit("clear-cache")
+    },
+    onCopyPasteGenes: function() {
+      if (!this.menuGenes) {
+        this.$emit("copy-paste-genes", this.copyPasteGenes);
+      }
     }
   },
   mounted: function() {

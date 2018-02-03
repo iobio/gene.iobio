@@ -23,9 +23,13 @@
 
 
     <navigation
+      v-if="geneModel"
+      :geneModel="geneModel"
       @input="onGeneSelected"
       @load-demo-data="onLoadDemoData"
       @clear-cache="clearCache"
+      @copy-paste-genes="onCopyPasteGenes"
+
     >
     </navigation>
     <v-content>
@@ -131,7 +135,7 @@ import FeatureMatrixModel from  '../../models/FeatureMatrixModel.js'
 import FilterModel    from  '../../models/FilterModel.js'
 import GeneModel      from  '../../models/GeneModel.js'
 
-
+import allGenesData from '../../../data/genes.json'
 
 
 export default {
@@ -147,6 +151,9 @@ export default {
   data() {
     return {
       greeting: 'gene.iobio.vue',
+
+      allGenes: allGenesData,
+
       selectedGene: {},
       selectedTranscript: {},
       geneRegionStart: null,
@@ -196,6 +203,7 @@ export default {
       self.geneModel = new GeneModel();
       self.geneModel.geneSource = siteGeneSource;
       self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
+      self.geneModel.setAllKnownGenes(self.allGenes);
 
       let glyph = new Glyph();
 
@@ -513,6 +521,9 @@ export default {
     },
     clearCache: function() {
       this.cacheHelper.promiseClearCache(this.cacheHelper.launchTimestamp);
+    },
+    onCopyPasteGenes: function(genes) {
+      this.geneModel.copyPasteGenes(genes);
     }
 
 
