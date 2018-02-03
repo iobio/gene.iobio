@@ -37,11 +37,11 @@
 
         <genes-card
          v-if="geneModel"
+         :geneModel="geneModel"
+         :selectedGene="selectedGene"
          :geneNames="geneModel.geneNames"
          :loadedGeneNames="Object.keys(geneModel.geneDangerSummaries)"
-         :geneModel="geneModel"
          :genesInProgress="cacheHelper.cacheQueue"
-         :selectedGene="selectedGene"
          @gene-selected="onGeneSelected"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll">

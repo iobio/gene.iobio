@@ -193,8 +193,14 @@ export default {
           'dangerSummary': self.geneModel.getDangerSummary(geneName),
           'inProgress': inProgress};
         })
+        if (self.loadedGeneNames.length > 0) {
+          self.loadedPercentage = (self.loadedGeneNames.length / self.geneNames.length) * 100;
+        } else {
+          self.loadedPercentage = 0;
+        }
       } else {
         self.geneSummaries = [];
+        self.loadedPercentage = 0;
       }
     },
     onGeneSelected: function(geneName) {
