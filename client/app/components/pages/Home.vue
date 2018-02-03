@@ -24,7 +24,8 @@
 
     <navigation
       @input="onGeneSelected"
-      @navLoadDemoData="onLoadDemoData"
+      @load-demo-data="onLoadDemoData"
+      @clear-cache="clearCache"
     >
     </navigation>
     <v-content>
@@ -37,7 +38,9 @@
          :geneModel="geneModel"
          :genesInProgress="cacheHelper.cacheQueue"
          :selectedGene="selectedGene"
-         @removeGene="onRemoveGene">
+         @gene-selected="onGeneSelected"
+         @remove-gene="onRemoveGene"
+         @analyze-all="onAnalyzeAll">
         </genes-card>
 
         <gene-card
@@ -146,7 +149,6 @@ export default {
       greeting: 'gene.iobio.vue',
       selectedGene: {},
       selectedTranscript: {},
-      geneRegionBuffer: 1000,
       geneRegionStart: null,
       geneRegionEnd: null,
 
@@ -213,7 +215,9 @@ export default {
         translator,
         self.geneModel,
         self.cacheHelper,
-        self.genomeBuildHelper);
+        self.genomeBuildHelper,
+        new FreebayesSettings());
+
       self.inProgress = self.cohortModel.inProgress;
 
       self.featureMatrixModel = new FeatureMatrixModel(self.cohortModel);
@@ -229,6 +233,7 @@ export default {
     .then(function() {
       self.models = self.cohortModel.sampleModels;
       self.filterModel = new FilterModel(self.cohortModel.affectedInfo);
+      self.cohortModel.filterModel = self.filterModel;
     },
     function(error) {
 
@@ -290,14 +295,16 @@ export default {
 
 
       return new Promise(function(resolve, reject) {
-        var options = {'getKnownVariants': self.showClinvarVariants};
 
-        self.featureMatrixModel.inProgress.loadingVariants = true;
 
         if (self.models && self.models.length > 0) {
+
+          self.featureMatrixModel.inProgress.loadingVariants = true;
+          self.cacheHelper.queueGene(self.selectedGene.gene_name);
+          var options = {'getKnownVariants': self.showClinvarVariants};
+
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,
-            self.filterModel,
             options)
           .then(function(resultMap) {
               self.featureMatrixModel.inProgress.loadingVariants = false;
@@ -306,9 +313,12 @@ export default {
               self.filterModel.populateRecFilters(resultMap);
               //var bp = me._promiseDetermineVariantBookmarks(vcfData, theGene, theTranscript);
               //bookmarkPromises.push(bp);
+
+              self.cacheHelper.dequeueGene(self.selectedGene.gene_name);
               resolve();
           })
           .catch(function(error) {
+            self.cacheHelper.dequeueGene(self.selectedGene.gene_name);
             reject(error);
           })
         } else {
@@ -332,7 +342,7 @@ export default {
       self.geneModel.addGeneName(geneObject.gene_name);
       self.geneModel.promiseGetGeneObject(geneObject.gene_name)
       .then(function(theGeneObject) {
-        self.geneModel.adjustGeneRegion(theGeneObject, parseInt(self.geneRegionBuffer));
+        self.geneModel.adjustGeneRegion(theGeneObject);
         self.geneRegionStart = theGeneObject.start;
         self.geneRegionEnd   = theGeneObject.end;
         self.selectedGene = theGeneObject;
@@ -354,7 +364,7 @@ export default {
     },
     onGeneRegionBufferChange: function(theGeneRegionBuffer) {
       let self = this;
-      self.geneRegionBuffer = theGeneRegionBuffer;
+      self.geneModel.geneRegionBuffer = theGeneRegionBuffer;
       // We have to clear the cache since the gene regions change
       self.promiseClearCache()
       .then(function() {
@@ -369,7 +379,7 @@ export default {
 
       this.filterModel.regionStart = this.geneRegionStart;
       this.filterModel.regionEnd = this.geneRegionEnd;
-      this.cohortModel.setLoadedVariants(this.selectedGene, this.filterModel);
+      this.cohortModel.setLoadedVariants(this.selectedGene);
 
       this.cohortModel.setCoverage(this.geneRegionStart, this.geneRegionEnd);
     },
@@ -381,7 +391,7 @@ export default {
 
       this.filterModel.regionStart = null;
       this.filterModel.regionEnd = null;
-      this.cohortModel.setLoadedVariants(this.selectedGene, this.filterModel);
+      this.cohortModel.setLoadedVariants(this.selectedGene);
 
       this.cohortModel.setCoverage();
     },
@@ -486,17 +496,23 @@ export default {
       let self = this;
       self.showClinvarVariants = viz == 'variants';
       if (self.showClinvarVariants) {
-        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, self.filterModel);
+        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
       }
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
       let self = this;
       self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
 
-      self.cohortModel.setLoadedVariants(self.selectedGene, self.filterModel, 'known-variants');
+      self.cohortModel.setLoadedVariants(self.selectedGene, 'known-variants');
     },
     onRemoveGene: function(geneName) {
       this.cacheHelper.clearCacheForGene(geneName);
+    },
+    onAnalyzeAll: function() {
+      this.cacheHelper.analyzeAll(this.cohortModel);
+    },
+    clearCache: function() {
+      this.cacheHelper.promiseClearCache(this.cacheHelper.launchTimestamp);
     }
 
 

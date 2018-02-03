@@ -82,7 +82,8 @@
 
         <div id="genes-toolbar">
 
-          <button  id="analyze-all-button" class="level-edu  btn btn-default icon-button-sm btn-raised"  onclick="cacheHelper.analyzeAll()">
+          <button  id="analyze-all-button" class="level-edu  btn btn-default icon-button-sm btn-raised"
+          @click="onAnalyzeAll">
             Analyze all genes
           </button>
 
@@ -123,7 +124,8 @@
            :gene="gene"
            :phenotypes="geneModel.genePhenotypes[gene.name]"
            :selectedGene="selectedGene"
-           @removeGene="onRemoveGene"
+           @gene-selected="onGeneSelected"
+           @remove-gene="onRemoveGene"
           >
           </gene-badge>
           <div id="after-genes" style="display:inline-block;margin-top:5px;"></div>
@@ -179,6 +181,9 @@ export default {
     }
   },
   methods: {
+    onAnalyzeAll: function() {
+      this.$emit("analyze-all");
+    },
     updateGeneSummaries: function() {
       let self = this;
       if (self.geneNames) {
@@ -192,9 +197,12 @@ export default {
         self.geneSummaries = [];
       }
     },
+    onGeneSelected: function(geneName) {
+      this.$emit('gene-selected', this.geneModel.geneObjects[geneName]);
+    },
     onRemoveGene: function(geneName) {
       this.geneModel.removeGene(geneName);
-      this.$emit('removeGene', geneName);
+      this.$emit('remove-gene', geneName);
     }
 
   },

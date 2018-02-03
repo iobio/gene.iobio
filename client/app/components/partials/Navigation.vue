@@ -61,6 +61,9 @@
           <v-list-tile  @click="onLoadDemoData">
             <v-list-tile-title>Load Demo Data</v-list-tile-title>
           </v-list-tile>
+          <v-list-tile  @click="onClearCache">
+            <v-list-tile-title>Clear session data</v-list-tile-title>
+          </v-list-tile>
         </v-list>
       </v-menu>
     </v-toolbar>
@@ -108,7 +111,10 @@ export default {
   },
   methods: {
     onLoadDemoData: function() {
-      this.$emit("navLoadDemoData");
+      this.$emit("load-demo-data");
+    },
+    onClearCache: function() {
+      this.$emit("clear-cache")
     }
   },
   mounted: function() {

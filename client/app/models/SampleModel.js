@@ -561,6 +561,19 @@ class SampleModel {
     })
   }
 
+  promiseSummarizeError(geneName, error) {
+    var me = this;
+    return new Promise(function(resolve, reject) {
+      var dangerSummary = SampleModel.summarizeError(error);
+      me.promiseCacheDangerSummary(dangerSummary, geneName)
+       .then(function() {
+        resolve(dangerSummary);
+       },
+       function(error) {
+        reject(error);
+       })
+    })
+  }
 
   filterBamDataByRegion(coverage, regionStart, regionEnd) {
     return coverage.filter(function(d) {

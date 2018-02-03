@@ -261,7 +261,7 @@
 
 <div id="gene-badge" v-bind:class="classObject" >
 
-  <a id="gene-badge-button" style="display:inline-block" onclick="genesCard.selectGeneBadge(this)"
+  <a id="gene-badge-button" style="display:inline-block" @click="selectGene"
     rel="tooltip"   data-html="true" href="#"
     data-placement="bottom">
 
@@ -336,7 +336,7 @@
   </a>
 
   <div id="gene-badge-remove" href="javascript:void(0)"
-    @click="removeGeneBadge"
+    @click="removeGene"
     style="display: inline-block;cursor: pointer;float:right">
       <i style="vertical-align:middle" class="material-icons">close</i>
 
@@ -363,14 +363,17 @@ export default {
   watch: {
   },
   methods: {
-    removeGeneBadge: function() {
+    selectGene: function() {
+      this.$emit("gene-selected", this.gene.name);
+    },
+    removeGene: function() {
       let self = this;
       let theGeneName = self.gene.name;
       alertify.confirm("",
         "Are you sure you want to remove gene " + theGeneName + "?",
         function (e) {
           // ok
-          self.$emit("removeGene", theGeneName);
+          self.$emit("remove-gene", theGeneName);
         },
         function() {
           // cancel

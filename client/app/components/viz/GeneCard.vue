@@ -207,7 +207,7 @@ export default {
       noTranscriptsWarning: null,
       showNoTranscriptsWarning: false,
 
-      geneRegionBuffer: 1000
+      geneRegionBuffer: null
     }
   },
 
@@ -306,10 +306,13 @@ export default {
 
   },
 
-
+  watch: {
+    geneModel: function() {
+      this.geneRegionBuffer = this.geneModel ? this.geneModel.geneRegionBuffer : 0;
+    }
+  },
 
   mounted: function() {
-
 
   },
 

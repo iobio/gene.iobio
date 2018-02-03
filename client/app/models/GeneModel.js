@@ -22,6 +22,8 @@ class GeneModel {
 
     this.transcriptCodingRegions = {};
 
+    this.geneRegionBuffer = 1000;
+
   }
 
   addGeneName(theGeneName) {
@@ -328,51 +330,6 @@ class GeneModel {
 
 
 
-  promiseMarkCodingRegions(geneObject, transcript) {
-    let me = this;
-    return new Promise(function(resolve, reject) {
-
-      var exonPromises = [];
-      transcript.features.forEach(function(feature) {
-        if (!feature.hasOwnProperty("danger")) {
-          feature.danger = {proband: false, mother: false, father: false};
-        }
-        if (!feature.hasOwnProperty("geneCoverage")) {
-          feature.geneCoverage = {proband: false, mother: false, father: false};
-        }
-
-
-        getRelevantVariantCards().forEach(function(vc) {
-          var promise = vc.model.promiseGetCachedGeneCoverage(geneObject, transcript)
-           .then(function(geneCoverage) {
-              if (geneCoverage) {
-                var matchingFeatureCoverage = geneCoverage.filter(function(gc) {
-                  return feature.start == gc.start && feature.end == gc.end;
-                });
-                if (matchingFeatureCoverage.length > 0) {
-                  var gc = matchingFeatureCoverage[0];
-                  feature.geneCoverage[vc.getRelationship()] = gc;
-                  feature.danger[vc.getRelationship()] = filterCard.isLowCoverage(gc);
-                } else {
-                  feature.danger[vc.getRelationship()]  = false;
-                }
-              } else {
-                feature.danger[vc.getRelationship()] = false;
-              }
-
-           })
-          exonPromises.push(promise);
-        })
-      })
-
-      Promise.all(exonPromises).then(function() {
-        var sortedExons = me._getSortedExonsForTranscript(transcript);
-        me._setTranscriptExonNumbers(transcript, sortedExons);
-        resolve({'gene': geneObject, 'transcript': transcript});
-      });
-    })
-
-  }
 
   _getSortedExonsForTranscript(transcript) {
     var sortedExons = transcript
@@ -619,7 +576,7 @@ class GeneModel {
   }
 
 
-  adjustGeneRegion(geneObject, geneRegionBuffer) {
+  adjustGeneRegion(geneObject) {
     let me = this;
     if (geneObject.startOrig == null) {
       geneObject.startOrig = geneObject.start;
@@ -628,9 +585,9 @@ class GeneModel {
       geneObject.endOrig = geneObject.end;
     }
     // Open up gene region to include upstream and downstream region;
-    geneObject.start = geneObject.startOrig < geneRegionBuffer ? 0 : geneObject.startOrig - geneRegionBuffer;
+    geneObject.start = geneObject.startOrig < me.geneRegionBuffer ? 0 : geneObject.startOrig - me.geneRegionBuffer;
     // TODO: Don't go past length of reference
-    geneObject.end   = geneObject.endOrig + geneRegionBuffer;
+    geneObject.end   = geneObject.endOrig + me.geneRegionBuffer;
 
   }
 

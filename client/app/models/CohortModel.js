@@ -1,6 +1,6 @@
 class CohortModel {
 
-  constructor(endpoint, genericAnnotation, translator, geneModel, cacheHelper, genomeBuildHelper) {
+  constructor(endpoint, genericAnnotation, translator, geneModel, cacheHelper, genomeBuildHelper, freebayesSettings) {
 
     this.endpoint = endpoint;
     this.genericAnnotation = genericAnnotation;
@@ -8,6 +8,8 @@ class CohortModel {
     this.geneModel = geneModel;
     this.cacheHelper = cacheHelper;
     this.genomeBuildHelper = genomeBuildHelper;
+    this.freebayesSettings = freebayesSettings;
+    this.filterModel = null;
 
     this.annotationScheme = 'vep';
 
@@ -197,7 +199,7 @@ class CohortModel {
   }
 
 
-  promiseLoadData(theGene, theTranscript, filterModel, options) {
+  promiseLoadData(theGene, theTranscript, options) {
     let self = this;
     let promises = [];
 
@@ -209,10 +211,10 @@ class CohortModel {
 
         let cohortResultMap = null;
 
-        let p1 = self.promiseLoadVariants(theGene, theTranscript, filterModel, options)
+        let p1 = self.promiseLoadVariants(theGene, theTranscript, options)
         .then(function(data) {
           cohortResultMap = data.resultMap;
-          self.setLoadedVariants(data.gene, filterModel);
+          self.setLoadedVariants(data.gene);
         })
         promises.push(p1);
 
@@ -225,7 +227,7 @@ class CohortModel {
         Promise.all(promises)
         .then(function() {
             // Now summarize the danger for the selected gene
-            self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null, filterModel)
+            self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
             .then(function() {
               resolve();
             })
@@ -239,17 +241,17 @@ class CohortModel {
     })
   }
 
-  promiseLoadKnownVariants(theGene, theTranscript, filterModel) {
+  promiseLoadKnownVariants(theGene, theTranscript) {
     let self = this;
     self.getModel('known-variants').inProgress.loadingVariants = true;
     self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], false, false)
     .then(function(resultMap) {
       self.getModel('known-variants').inProgress.loadingVariants = false;
-      self.setLoadedVariants(theGene, filterModel, 'known-variants');
+      self.setLoadedVariants(theGene, 'known-variants');
     })
   }
 
-  promiseLoadVariants(theGene, theTranscript, filterModel, options) {
+  promiseLoadVariants(theGene, theTranscript, options) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
@@ -295,7 +297,7 @@ class CohortModel {
     });
   }
 
-  setLoadedVariants(gene, filterModel, relationship=null) {
+  setLoadedVariants(gene, relationship=null) {
     let self = this;
     self.sampleModels.forEach(function(model) {
       if (relationship == null || relationship == model.relationship) {
@@ -304,15 +306,15 @@ class CohortModel {
           loadedVariants.features = model.vcfData.features.filter( function(feature) {
             var loaded = feature.fbCalled == null;
             var inRegion = true;
-            if (filterModel.regionStart && filterModel.regionEnd) {
-              inRegion = feature.start >= filterModel.regionStart && feature.start <= filterModel.regionEnd;
+            if (self.filterModel.regionStart && self.filterModel.regionEnd) {
+              inRegion = feature.start >= self.filterModel.regionStart && feature.start <= self.filterModel.regionEnd;
             }
-            var passesModelFilter = filterModel.passesModelFilter(model.relationship, feature);
+            var passesModelFilter = self.filterModel.passesModelFilter(model.relationship, feature);
             return loaded && inRegion && passesModelFilter;
           });
 
-          var start = filterModel.regionStart ? filterModel.regionStart : gene.start;
-          var end   = filterModel.regionEnd   ? filterModel.regionEnd   : gene.end;
+          var start = self.filterModel.regionStart ? self.filterModel.regionStart : gene.start;
+          var end   = self.filterModel.regionEnd   ? self.filterModel.regionEnd   : gene.end;
           var pileupObject = model._pileupVariants(loadedVariants.features, start, end);
           loadedVariants.maxLevel = pileupObject.maxLevel + 1;
           loadedVariants.featureWidth = pileupObject.featureWidth;
@@ -349,7 +351,7 @@ class CohortModel {
     })
   }
 
-  promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, options) {
+  promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, options={}) {
     let self = this;
     return new Promise(function(resolve, reject) {
       var annotatePromises = [];
@@ -615,7 +617,7 @@ class CohortModel {
 
   }
 
-  promiseSummarizeDanger(geneObject, theTranscript, probandVcfData, options, filterModel) {
+  promiseSummarizeDanger(geneObject, theTranscript, probandVcfData, options) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
@@ -632,7 +634,7 @@ class CohortModel {
             var filteredVcfData = null;
             var filteredFbData = null;
             if (probandVcfData.features && probandVcfData.features.length > 0) {
-              filteredVcfData = self.getProbandModel().filterVariants(probandVcfData, filterModel.getFilterObject(), geneObject.start, geneObject.end, true);
+              filteredVcfData = self.getProbandModel().filterVariants(probandVcfData, self.filterModel.getFilterObject(), geneObject.start, geneObject.end, true);
               filteredFbData  = self.getProbandModel().reconstituteFbData(filteredVcfData);
             }
             var theOptions = $.extend({}, options);
@@ -640,7 +642,7 @@ class CohortModel {
                 theOptions.CALLED = true;
             }
 
-            return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, filteredVcfData, theOptions, geneCoverageAll, filterModel);
+            return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, filteredVcfData, theOptions, geneCoverageAll, self.filterModel);
         })
         .then(function(theDangerSummary) {
           self.geneModel.setDangerSummary(geneObject, theDangerSummary);
@@ -726,6 +728,52 @@ class CohortModel {
         resolve(theResultMap);
       })
 
+    })
+
+  }
+
+  promiseMarkCodingRegions(geneObject, transcript) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+
+      var exonPromises = [];
+      transcript.features.forEach(function(feature) {
+        if (!feature.hasOwnProperty("danger")) {
+          feature.danger = {proband: false, mother: false, father: false};
+        }
+        if (!feature.hasOwnProperty("geneCoverage")) {
+          feature.geneCoverage = {proband: false, mother: false, father: false};
+        }
+
+
+        self.getCanonicalModels().forEach(function(model) {
+          var promise = model.promiseGetCachedGeneCoverage(geneObject, transcript)
+           .then(function(geneCoverage) {
+              if (geneCoverage) {
+                var matchingFeatureCoverage = geneCoverage.filter(function(gc) {
+                  return feature.start == gc.start && feature.end == gc.end;
+                });
+                if (matchingFeatureCoverage.length > 0) {
+                  var gc = matchingFeatureCoverage[0];
+                  feature.geneCoverage[model.getRelationship()] = gc;
+                  feature.danger[model.getRelationship()] = self.filterModel.isLowCoverage(gc);
+                } else {
+                  feature.danger[model.getRelationship()]  = false;
+                }
+              } else {
+                feature.danger[model.getRelationship()] = false;
+              }
+
+           })
+          exonPromises.push(promise);
+        })
+      })
+
+      Promise.all(exonPromises).then(function() {
+        var sortedExons = self.geneModel._getSortedExonsForTranscript(transcript);
+        self.geneModel._setTranscriptExonNumbers(transcript, sortedExons);
+        resolve({'gene': geneObject, 'transcript': transcript});
+      });
     })
 
   }
