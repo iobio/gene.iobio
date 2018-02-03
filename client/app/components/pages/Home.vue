@@ -36,15 +36,17 @@
       <v-container fluid>
 
         <genes-card
-         v-if="geneModel"
+         v-if="geneModel && geneModel.geneNames.length > 0"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
          :geneNames="geneModel.geneNames"
          :loadedGeneNames="Object.keys(geneModel.geneDangerSummaries)"
          :genesInProgress="cacheHelper.cacheQueue"
+         :isLoaded="cohortModel && cohortModel.isLoaded"
          @gene-selected="onGeneSelected"
          @remove-gene="onRemoveGene"
-         @analyze-all="onAnalyzeAll">
+         @analyze-all="onAnalyzeAll"
+        >
         </genes-card>
 
         <gene-card
@@ -291,7 +293,7 @@ export default {
       self.cohortModel.promiseInitDemo()
       .then(function() {
         self.models = self.cohortModel.sampleModels;
-        if (self.selectedGene) {
+        if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
           self.promiseLoadData();
         }
       })
@@ -308,7 +310,6 @@ export default {
         if (self.models && self.models.length > 0) {
 
           self.featureMatrixModel.inProgress.loadingVariants = true;
-          self.cacheHelper.queueGene(self.selectedGene.gene_name);
           var options = {'getKnownVariants': self.showClinvarVariants};
 
           self.cohortModel.promiseLoadData(self.selectedGene,
@@ -322,11 +323,9 @@ export default {
               //var bp = me._promiseDetermineVariantBookmarks(vcfData, theGene, theTranscript);
               //bookmarkPromises.push(bp);
 
-              self.cacheHelper.dequeueGene(self.selectedGene.gene_name);
               resolve();
           })
           .catch(function(error) {
-            self.cacheHelper.dequeueGene(self.selectedGene.gene_name);
             reject(error);
           })
         } else {

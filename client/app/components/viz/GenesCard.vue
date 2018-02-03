@@ -82,13 +82,17 @@
 
         <div id="genes-toolbar">
 
-          <button  id="analyze-all-button" class="level-edu  btn btn-default icon-button-sm btn-raised"
+          <button  id="analyze-all-button"
+          v-if="isLoaded"
+          class="level-edu  btn btn-default icon-button-sm btn-raised"
           @click="onAnalyzeAll">
             Analyze all genes
           </button>
 
 
-          <div id="analyze-genes-progress" class="level-edu level-basic">
+          <div id="analyze-genes-progress"
+          v-if="isLoaded"
+          class="level-edu level-basic">
             <div id="analyzed-progress-bar" >
               <div>
                 <span class="progress-bar-label">Loaded</span>
@@ -104,7 +108,8 @@
             <span id="total-genes-label">{{ geneSummaries.length }} genes</span>
           </div>
 
-          <div id="genes-sort-dropdown">
+          <div id="genes-sort-dropdown"
+           v-if="isLoaded">
             <v-select
               label="Order by"
               v-bind:items="sortCategories"
@@ -164,7 +169,8 @@ export default {
     loadedGeneNames: null,
     geneModel: null,
     genesInProgress: null,
-    selectedGene: null
+    selectedGene: null,
+    isLoaded: null
   },
   data () {
     return {

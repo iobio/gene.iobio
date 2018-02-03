@@ -67,4 +67,4 @@ var autocall              = null       // If only alignments provided, should va
 
 
 var siteGeneSource        = isMygene2 ? "refseq" : "gencode";      // what should the gene source default to: refseq or gencode?
-var DEFAULT_BATCH_SIZE    = 5;              // how many genes can be analyzed simultaneously for 'Analyze all'
+var DEFAULT_BATCH_SIZE    = 10;              // how many genes can be analyzed simultaneously for 'Analyze all'

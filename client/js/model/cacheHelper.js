@@ -393,7 +393,7 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
       console.log("problem caching data for gene " + error.geneName + ". " + error.message);
       //genesCard._geneBadgeLoading(error.geneName, false);
 
-      me.cohort.getProbandModel().promiseSummarizeError(error.geneName, error.message)
+      me.cohort.promiseSummarizeError(error.geneName, error.message)
       .then(function(dangerObject) {
         // take this gene off of the queue and see
         // if next batch of genes should be analyzed

@@ -13,6 +13,8 @@ class CohortModel {
 
     this.annotationScheme = 'vep';
 
+    this.isLoaded = false;
+
     this.sampleModels  = [];
     this.sampleMap = {};
 
@@ -37,6 +39,8 @@ class CohortModel {
   promiseInitDemo() {
     let self = this;
 
+    self.isLoaded = false;
+
     self.inProgress.loadingDataSources = true;
 
     return new Promise(function(resolve, reject) {
@@ -54,8 +58,11 @@ class CohortModel {
 
             self.promiseAddClinvarSample()
             .then(function(sample) {
+
               self.setAffectedInfo();
               self.inProgress.loadingDataSources = false;
+              self.isLoaded = true;
+
               resolve(self.sampleModels);
             })
             .catch(function(error) {
@@ -617,6 +624,20 @@ class CohortModel {
 
   }
 
+  promiseSummarizeError(error) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getProbandModel().promiseSummarizeError(error.geneName, error.message)
+      .then(function(dangerObject) {
+          self.geneModel.setDangerSummary(geneObject, dangerObject);
+          resolve();
+      }).
+      catch(function(error) {
+        reject(error);
+      })
+    })
+  }
+
   promiseSummarizeDanger(geneObject, theTranscript, probandVcfData, options) {
     let self = this;
 
@@ -636,6 +657,8 @@ class CohortModel {
             if (probandVcfData.features && probandVcfData.features.length > 0) {
               filteredVcfData = self.getProbandModel().filterVariants(probandVcfData, self.filterModel.getFilterObject(), geneObject.start, geneObject.end, true);
               filteredFbData  = self.getProbandModel().reconstituteFbData(filteredVcfData);
+            } else if (probandVcfData.features) {
+              filteredVcfData = probandVcfData;
             }
             var theOptions = $.extend({}, options);
             if ((dangerSummary && dangerSummary.CALLED) || (filteredFbData && filteredFbData.features.length > 0)) {
