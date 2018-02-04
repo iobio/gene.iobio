@@ -38,97 +38,44 @@ class CohortModel {
 
   promiseInitDemo() {
     let self = this;
-
-    self.isLoaded = false;
-
-    self.inProgress.loadingDataSources = true;
-
-    return new Promise(function(resolve, reject) {
-      self.sampleModels = [];
-      self.mode = 'trio';
-
-      self.promiseAddDemoSample('proband', 'NA12878')
-      .then(function(sample) {
-
-        self.promiseAddDemoSample('mother', 'NA12892')
-        .then(function(sample) {
-
-          self.promiseAddDemoSample('father', 'NA12891')
-          .then(function(sample) {
-
-            self.promiseAddClinvarSample()
-            .then(function(sample) {
-
-              self.setAffectedInfo();
-              self.inProgress.loadingDataSources = false;
-              self.isLoaded = true;
-
-              resolve(self.sampleModels);
-            })
-            .catch(function(error) {
-              self.inProgress.loadingDataSources = false;
-              reject(error);
-            })
-          })
-        })
-      })
-
-    })
+    var modelInfos = [
+      {relationship: 'proband', 'sample': 'NA12878', 'vcf': self.demoVcf, 'bam': self.demoBams['proband'] },
+      {relationship: 'mother',  'sample': 'NA12892', 'vcf': self.demoVcf, 'bam': self.demoBams['mother'] },
+      {relationship: 'father',  'sample': 'NA12891', 'vcf': self.demoVcf, 'bam': self.demoBams['father'] },
+    ];
+    return self.promiseInit(modelInfos);
   }
 
   promiseInit(modelInfos) {
     let self = this;
 
-    self.isLoaded = false;
-    self.inProgress.loadingDataSources = true;
-
     return new Promise(function(resolve, reject) {
+      self.isLoaded = false;
+      self.inProgress.loadingDataSources = true;
+
       self.sampleModels = [];
       self.mode = modelInfos.length > 1 ? 'trio': 'single';
 
-      let idx = 0;
-      self.promiseAddSamples(modelInfos, idx)
-      .then(function() {
-
-        return self.promiseAddClinvarSample();
-
+      let promises = [];
+      modelInfos.forEach(function(modelInfo) {
+        promises.push(self.promiseAddSample(modelInfo));
       })
-      .then(function() {
+      promises.push(self.promiseAddClinvarSample());
 
+
+      Promise.all(promises)
+      .then(function() {
         self.setAffectedInfo();
         self.inProgress.loadingDataSources = false;
         self.isLoaded = true;
 
+        self.sortSampleModels();
+
         resolve();
-
       })
       .catch(function(error) {
         reject(error);
       })
-    })
-  }
-
-
-  promiseAddSamples(modelInfos, idx) {
-    let self = this;
-
-    var nextSample = function(modelInfoInfos, idx, resolve, reject) {
-      self.promiseAddSample(modelInfos[idx])
-      .then(function() {
-        idx++;
-        if (idx >= modelInfos.length) {
-          resolve();
-        } else {
-          nextSample(modelInfos, idx, resolve, reject);
-        }
-      })
-      .catch(function(error) {
-        reject(error);
-      })
-    }
-
-    return new Promise(function(resolve, reject) {
-      nextSample(modelInfos, idx, resolve, reject);
     })
   }
 
@@ -173,38 +120,12 @@ class CohortModel {
       Promise.all([vcfPromise, bamPromise])
       .then(function() {
 
+        var theModel = {'relationship': modelInfo.relationship, 'model': vm};
         self.sampleModels.push(vm);
-        let theModel = {'relationship': modelInfo.relationship, 'model': vm};
         self.sampleMap[modelInfo.relationship] = theModel;
+
         resolve();
       })
-
-    })
-  }
-
-
-  promiseAddDemoSample(rel, sampleName) {
-    let self = this;
-    return new Promise(function(resolve,reject) {
-      var vm = new SampleModel();
-      vm.init(self);
-      vm.setRelationship(rel);
-      vm.onVcfUrlEntered(self.demoVcf, null, function() {
-        vm.setSampleName(sampleName);
-        vm.setName(rel + " " + sampleName)
-        vm.onBamUrlEntered(self.demoBams[rel], null, function() {
-
-          self.sampleModels.push(vm);
-
-          let sample = {'relationship': rel, 'model': vm};
-          self.sampleMap[rel] = sample;
-
-          resolve(sample);
-        })
-      },
-      function(error) {
-        reject(error);
-      });
 
     })
   }
@@ -228,7 +149,18 @@ class CohortModel {
       function(error) {
         reject(error);
       });
+    })
+  }
 
+  sortSampleModels() {
+    var MODEL_ORDER = {
+      'proband': 2,
+      'mother': 3,
+      'father': 4,
+      'known-variants': 1
+    };
+    this.sampleModels = this.sampleModels.sort(function(a,b) {
+      return MODEL_ORDER[a.relationship] - MODEL_ORDER[b.relationship];
     })
   }
 
