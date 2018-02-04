@@ -87,20 +87,20 @@ class CohortModel {
       self.mode = modelInfos.length > 1 ? 'trio': 'single';
 
       let idx = 0;
+      self.promiseAddSamples(modelInfos, idx)
+      .then(function() {
 
-      self.addNextSample(modelInfos, idx,
-      function(error) {
-        reject(error);
-      });
+        return self.promiseAddClinvarSample();
 
-      self.promiseAddClinvarSample()
-      .then(function(sample) {
+      })
+      .then(function() {
 
         self.setAffectedInfo();
         self.inProgress.loadingDataSources = false;
         self.isLoaded = true;
 
         resolve();
+
       })
       .catch(function(error) {
         reject(error);
@@ -109,22 +109,27 @@ class CohortModel {
   }
 
 
-  addNextSample(modelInfos, idx, errorCallback) {
+  promiseAddSamples(modelInfos, idx) {
     let self = this;
-    if (idx >= modelInfos.length) {
-      return;
-    } else {
+
+    var nextSample = function(modelInfoInfos, idx, resolve, reject) {
       self.promiseAddSample(modelInfos[idx])
       .then(function() {
         idx++;
-        self.addNextSample(modelInfos, idx, errorCallback)
-      })
-      .catch(function(error) {
-        if (errorCallback) {
-          errorCallback(error);
+        if (idx >= modelInfos.length) {
+          resolve();
+        } else {
+          nextSample(modelInfos, idx, resolve, reject);
         }
       })
+      .catch(function(error) {
+        reject(error);
+      })
     }
+
+    return new Promise(function(resolve, reject) {
+      nextSample(modelInfos, idx, resolve, reject);
+    })
   }
 
   promiseAddSample(modelInfo) {
