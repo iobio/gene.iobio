@@ -193,7 +193,7 @@ export default {
       }
     },
     onGeneSelected: function(geneName) {
-      this.$emit('gene-selected', this.geneModel.geneObjects[geneName]);
+      this.$emit('gene-selected', geneName);
     },
     onRemoveGene: function(geneName) {
       this.geneModel.removeGene(geneName);

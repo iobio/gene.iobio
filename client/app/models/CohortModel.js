@@ -76,6 +76,108 @@ class CohortModel {
     })
   }
 
+  promiseInit(modelInfos) {
+    let self = this;
+
+    self.isLoaded = false;
+    self.inProgress.loadingDataSources = true;
+
+    return new Promise(function(resolve, reject) {
+      self.sampleModels = [];
+      self.mode = modelInfos.length > 1 ? 'trio': 'single';
+
+      let idx = 0;
+
+      self.addNextSample(modelInfos, idx,
+      function(error) {
+        reject(error);
+      });
+
+      self.promiseAddClinvarSample()
+      .then(function(sample) {
+
+        self.setAffectedInfo();
+        self.inProgress.loadingDataSources = false;
+        self.isLoaded = true;
+
+        resolve();
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+    })
+  }
+
+
+  addNextSample(modelInfos, idx, errorCallback) {
+    let self = this;
+    if (idx >= modelInfos.length) {
+      return;
+    } else {
+      self.promiseAddSample(modelInfos[idx])
+      .then(function() {
+        idx++;
+        self.addNextSample(modelInfos, idx, errorCallback)
+      })
+      .catch(function(error) {
+        if (errorCallback) {
+          errorCallback(error);
+        }
+      })
+    }
+  }
+
+  promiseAddSample(modelInfo) {
+    let self = this;
+    return new Promise(function(resolve,reject) {
+      var vm = new SampleModel();
+      vm.init(self);
+      vm.setRelationship(modelInfo.relationship);
+
+      var vcfPromise = null;
+      if (modelInfo.vcf) {
+        vcfPromise = new Promise(function(vcfResolve, vcfReject) {
+          vm.onVcfUrlEntered(modelInfo.vcf, modelInfo.tbi, function() {
+            vm.setSampleName(modelInfo.sample);
+            vm.setName(modelInfo.relationship + " " + modelInfo.sample)
+            vcfResolve();
+          })
+        },
+        function(error) {
+          vcfReject(error);
+        });
+      } else {
+        vcfPromise = Promise.resolve();
+      }
+
+
+      var bamPromise = null;
+      if (modelInfo.bam) {
+        bamPromise = new Promise(function(bamResolve, bamReject) {
+          vm.onBamUrlEntered(modelInfo.bam, modelInfo.bai, function() {
+            bamResolve();
+          })
+        },
+        function(error) {
+          bamReject(error);
+        });
+      } else {
+        bamPromise = Promise.resolve();
+      }
+
+      Promise.all([vcfPromise, bamPromise])
+      .then(function() {
+
+        self.sampleModels.push(vm);
+        let theModel = {'relationship': modelInfo.relationship, 'model': vm};
+        self.sampleMap[modelInfo.relationship] = theModel;
+        resolve();
+      })
+
+    })
+  }
+
+
   promiseAddDemoSample(rel, sampleName) {
     let self = this;
     return new Promise(function(resolve,reject) {

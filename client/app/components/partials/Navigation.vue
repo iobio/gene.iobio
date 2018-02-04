@@ -24,10 +24,6 @@ textarea#copy-paste-genes
       <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer"></v-toolbar-side-icon>
       <v-toolbar-title v-text="title"></v-toolbar-title>
       <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat>
-         <v-icon>input</v-icon>
-         Files
-        </v-btn>
 
         <v-icon>search</v-icon>
         <v-form >
@@ -71,6 +67,12 @@ textarea#copy-paste-genes
           <v-icon>bookmark</v-icon>
           Bookmark
         </v-btn>
+
+        <v-btn flat>
+         <v-icon>input</v-icon>
+         Files
+        </v-btn>
+
 
 
       </v-toolbar-items>
@@ -131,7 +133,7 @@ export default {
   watch: {
     selectedGene: function(a, b) {
       if (this.selectedGene) {
-        this.$emit("input", this.selectedGene);
+        this.$emit("input", this.selectedGene.gene_name);
       }
     },
     menuGenes: function() {

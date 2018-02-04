@@ -149,7 +149,27 @@ export default {
       FeatureMatrixCard,
       VariantCard
   },
-  props: [],
+  props: {
+    paramGene:             null,
+    paramGenes:            null,
+    paramSpecies:          null,
+    paramBuild:            null,
+    paramBatchSize:        null,
+    paramGeneSource:       null,
+    paramMyGene2:          null,
+    paramMode:             null,
+    paramAffectedSibs:     null,
+    paramUnaffectedSibs:   null,
+
+    paramRelationships:    null,
+    paramSamples:          null,
+    paramNames:            null,
+    paramBams:             null,
+    paramBais:             null,
+    paramVcfs:             null,
+    paramTbis:             null,
+    paramAffectedStatuses: null
+  },
   data() {
     return {
       greeting: 'gene.iobio.vue',
@@ -243,6 +263,8 @@ export default {
       self.models = self.cohortModel.sampleModels;
       self.filterModel = new FilterModel(self.cohortModel.affectedInfo);
       self.cohortModel.filterModel = self.filterModel;
+
+      self.initFromUrl();
     },
     function(error) {
 
@@ -334,7 +356,7 @@ export default {
       })
     },
 
-    onGeneSelected: function(geneObject) {
+    onGeneSelected: function(geneName) {
       var self = this;
 
       self.deselectVariant();
@@ -345,8 +367,8 @@ export default {
         self.featureMatrixModel.clearRankedVariants();
       }
 
-      self.geneModel.addGeneName(geneObject.gene_name);
-      self.geneModel.promiseGetGeneObject(geneObject.gene_name)
+      self.geneModel.addGeneName(geneName);
+      self.geneModel.promiseGetGeneObject(geneName)
       .then(function(theGeneObject) {
         self.geneModel.adjustGeneRegion(theGeneObject);
         self.geneRegionStart = theGeneObject.start;
@@ -366,7 +388,7 @@ export default {
     onGeneSourceSelected: function(theGeneSource) {
       var self = this;
       self.geneModel.geneSource = theGeneSource;
-      this.onGeneSelected(this.selectedGene);
+      this.onGeneSelected(this.selectedGene.gene_name);
     },
     onGeneRegionBufferChange: function(theGeneRegionBuffer) {
       let self = this;
@@ -374,7 +396,7 @@ export default {
       // We have to clear the cache since the gene regions change
       self.promiseClearCache()
       .then(function() {
-        self.onGeneSelected(self.selectedGene);
+        self.onGeneSelected(self.selectedGene.gene_name);
       })
     },
     onGeneRegionZoom: function(theStart, theEnd) {
@@ -525,6 +547,69 @@ export default {
     },
     onSortGenes: function(sortBy) {
       this.geneModel.sortGenes(sortBy);
+    },
+    initFromUrl: function() {
+      let self = this;
+
+      if ( self.paramMygene2 && self.paramMygene2 != "" ) {
+        isMygene2   = self.paramMygene2 == "false" || self.paramMygene2.toUpperCase() == "N" ? false : true;
+      }
+      if (self.paramMode && self.paramMode != "") {
+        isLevelBasic     = self.paramMode == "basic" ? true : false;
+        isLevelEdu       = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
+      }
+
+
+      if (self.paramGeneSource) {
+        self.geneModel.geneSource = self.paramGeneSource;
+      }
+      if (self.paramGenes) {
+        self.paramGenes.split(",").forEach( function(geneName) {
+          self.geneModel.addGeneName(geneName);
+        });
+      }
+      if (self.paramGene) {
+        self.geneModel.addGeneName(self.paramGene);
+        self.onGeneSelected(self.paramGene);
+      }
+      if (self.paramSpecies) {
+        self.genomeBuildHelper.setCurrentSpecies(self.paramSpecies);
+      }
+      if (self.paramBuild) {
+        self.genomeBuildHelper.setCurrentBuild(self.paramBuild);
+      }
+      if (self.paramBatchSize) {
+        DEFAULT_BATCH_SIZE = self.paramBatchSize;
+      }
+
+      var modelInfos = [];
+      for (var i = 0; i < self.paramRelationships.length; i++) {
+        var rel  = self.paramRelationships[i];
+        if (rel) {
+          var modelInfo = {'relationship': rel};
+          modelInfo.name           = self.paramNames[i];
+          modelInfo.vcf            = self.paramVcfs[i];
+          modelInfo.tbi            = self.paramTbis[i];
+          modelInfo.bam            = self.paramBams[i];
+          modelInfo.bai            = self.paramBais[i];
+          modelInfo.sample         = self.paramSamples[i];
+          modelInfo.affectedStatus = self.paramAffectedStatuses[i];
+          modelInfos.push(modelInfo);
+        }
+      }
+      if (modelInfos.length > 0) {
+        self.cohortModel.promiseInit(modelInfos)
+        .then(function() {
+
+          self.models = self.cohortModel.sampleModels;
+          if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+            self.promiseLoadData();
+          }
+
+        })
+      }
+
+
     }
 
 

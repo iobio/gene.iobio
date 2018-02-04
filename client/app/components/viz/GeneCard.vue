@@ -200,7 +200,7 @@ export default {
       cdsHeight: (isLevelEdu  || isLevelBasic  ? 24 : 18),
 
 
-      geneSource: 'gencode',
+      geneSource: null,
       geneSources: ['gencode', 'refseq'],
 
       noTranscriptsWarning: null,
@@ -312,6 +312,7 @@ export default {
   },
 
   mounted: function() {
+    this.geneSource = this.geneModel.geneSource;
 
   },
 
