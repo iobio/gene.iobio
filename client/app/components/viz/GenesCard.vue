@@ -82,12 +82,13 @@
 
         <div id="genes-toolbar">
 
-          <button  id="analyze-all-button"
+          <v-btn  id="analyze-all-button"
           v-if="isLoaded"
-          class="level-edu  btn btn-default icon-button-sm btn-raised"
+          class="level-edu"
+          raised
           @click="onAnalyzeAll">
             Analyze all genes
-          </button>
+          </v-btn>
 
 
           <div id="analyze-genes-progress"

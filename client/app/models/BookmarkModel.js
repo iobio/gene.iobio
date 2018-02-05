@@ -1,6 +1,7 @@
 class BookmarkModel {
-  constructor() {
+  constructor(geneModel) {
     this.bookmarks = [];
+    this.geneModel = geneModel;
   }
 
   addBookmark(variant, gene) {
@@ -41,6 +42,115 @@ class BookmarkModel {
   getKey(bookmark) {
     return bookmark.variant.chrom + ":" + bookmark.variant.start + ":" + bookmark.variant.ref + ":" + bookmark.variant.alt;
   }
+
+  onBookmarkFileSelected(fileSelection, bookmarkFileType) {
+    var files = fileSelection.currentTarget.files;
+    var me = this;
+    // Check for the various File API support.
+    if (window.FileReader) {
+      var bookmarkFile = files[0];
+      var reader = new FileReader();
+
+      reader.readAsText(bookmarkFile);
+
+      // Handle errors load
+      reader.onload = function(event) {
+        var data = event.target.result;
+        me.importBookmarks(bookmarkFileType, data);
+        fileSelection.value = null;
+      }
+      reader.onerror = function(event) {
+        alert("Cannot read file. Error: " + event.target.error.name);
+        console.log(event.toString())
+      }
+
+    } else {
+      alert('FileReader are not supported in this browser.');
+    }
+  }
+
+
+  importBookmarks(bookmarkFileType, data) {
+    var me = this;
+
+    // Prompt user to keep or remove existing bookmarks (if any exist)
+    if (me.bookmarks.length > 0) {
+      alertify.confirm("",
+        "There are " + me.bookmarks.length + " bookmarked variants already loaded.  Do you want to keep these?",
+        function (e) {
+          // user clicked "keep bookmarks"
+          me.importBookmarksImpl(importSource, data);
+
+          alertify.defaults.glossary.ok = 'OK';
+          alertify.defaults.glossary.cancel = 'Cancel';
+        },
+        function() {
+          // user clicked 'remove bookmarks'.
+
+          //  clear out the bookmarks
+          me.bookmarks = [];
+
+          // Now import the new bookmarks
+          me.importBookmarksImpl(bookmarkFileType, data);
+
+          alertify.defaults.glossary.ok = 'OK';
+          alertify.defaults.glossary.cancel = 'Cancel';
+        }
+
+      ).set('labels', {ok:'Keep bookmarks', cancel:'Clear out existing bookmarks'});
+    } else {
+      me.importBookmarksImpl(bookmarkFileType, data);
+    }
+  }
+
+
+
+  importBookmarksImpl(bookmarkFileType, data) {
+    var me = this;
+
+    var importRecords = VariantImporter.parseRecords(bookmarkFileType, data);
+
+    // If the number of bookmarks exceeds the max gene limit, truncate the
+    // bookmarked variants to this max.
+    if (global_maxGeneCount && importRecords.length > global_maxGeneCount) {
+      var bypassedCount = importRecords.length - global_maxGeneCount;
+      importRecords = importRecords.slice(0, global_maxGeneCount);
+      alertify.alert("Only first " + global_maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.");
+    }
+
+
+    // We need to make sure each imported record has a transcript.
+    // So first, cache all of the gene objects for the imported bookmarks
+    var promises = []
+
+    importRecords.forEach( function(ir) {
+      if (!ir.transcript || ir.transcript == '') {
+        var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true);
+        promises.push(promise);
+      }
+    })
+
+    // Now that all of the gene objects have been cached, we can fill in the
+    // transcript if necessary and then find load the imported bookmarks
+    Promise.all(promises).then(function() {
+      importRecords.forEach( function(ir) {
+        var geneObject = me.geneModel.geneObjects[ir.gene];
+        if (!ir.transcript || ir.transcript == '') {
+          var tx = geneObject ? me.geneModel.getCanonicalTranscript(geneObject) : null;
+          if (tx) {
+            ir.transcript = tx.transcript_id;
+          }
+        }
+        me.bookmarks.push({'gene': geneObject, 'variant': ir, isProxy: true, isFavorite: ir.isFavorite })
+
+      });
+
+
+
+    })
+
+  }
+
 
 }
 

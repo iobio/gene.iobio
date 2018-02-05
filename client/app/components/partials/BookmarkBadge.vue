@@ -252,21 +252,39 @@ export default {
   },
   computed: {
     rsId: function() {
-      return this.bookmark && this.bookmark.variant ? utility.getRsId(this.bookmark.variant) : "";
+      if (this.bookmark.isProxy) {
+        return this.bookmark.variant.rsId;
+      } else {
+        return utility.getRsId(this.bookmark.variant);
+      }
     },
     hgvsP: function() {
-      return this.bookmark && this.bookmark.variant && this.bookmark.variant.extraAnnot ? utility.formatHgvsP(this.bookmark.variant, this.bookmark.variant.vepHGVSp) : "";
+      if (this.bookmark.isProxy) {
+        return utility.formatHgvsP(this.bookmark.variant, this.bookmark.variant.HGVSp)
+      } else {
+        return this.bookmark.variant.extraAnnot ? utility.formatHgvsP(this.bookmark.variant, this.bookmark.variant.vepHGVSp) : "";
+      }
     },
     vepConsequence: function() {
-      return this.bookmark.variant && this.bookmark.variant.vepConsequence ? Object.keys(this.bookmark.variant.vepConsequence).join(" ").split("_").join(" ") : "";
+      if (this.bookmark.isProxy) {
+        return this.bookmark.variant.consequence;
+      } else {
+        return this.bookmark.variant.vepConsequence ? Object.keys(this.bookmark.variant.vepConsequence).join(" ").split("_").join(" ") : "";
+
+      }
     },
     highestImpactClass: function() {
       let clazz = "filter-symbol";
-      for (var impact in this.bookmark.variant.highestImpactVep) {
-        if (clazz.length > 0) {
-          clazz += " ";
+
+      if (this.bookmark.isProxy) {
+        clazz += " impact_" + this.bookmark.variant.impact;
+      } else {
+        for (var impact in this.bookmark.variant.highestImpactVep) {
+          if (clazz.length > 0) {
+            clazz += " ";
+          }
+          clazz += "impact_" + impact.toUpperCase();
         }
-        clazz += "impact_" + impact.toUpperCase();
       }
       return clazz;
     },

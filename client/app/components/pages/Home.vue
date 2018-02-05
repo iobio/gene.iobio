@@ -240,7 +240,7 @@ export default {
       self.geneModel.setAllKnownGenes(self.allGenes);
       self.geneModel.translator = translator;
 
-      self.bookmarkModel = new BookmarkModel();
+      self.bookmarkModel = new BookmarkModel(self.geneModel);
 
       // Instantiate helper class than encapsulates IOBIO commands
       let endpoint = new EndpointCmd(useSSL,
