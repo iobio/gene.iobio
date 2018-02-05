@@ -11,7 +11,7 @@
 
   <div class="bookmark-gene">
     <div>
-      {{ bookmarkGene.gene.gene_name }}
+      {{ bookmarkGene.gene.gene_name }} {{ bookmarkGene.gene.chr }}
     </div>
 
     <bookmark-badge

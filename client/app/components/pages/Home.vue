@@ -24,6 +24,7 @@
 
     <navigation
       v-if="geneModel"
+      ref="navRef"
       :geneModel="geneModel"
       :bookmarkModel="bookmarkModel"
       @input="onGeneSelected"
@@ -203,6 +204,8 @@ export default {
       showClinvarVariants: false,
 
       inProgress: {},
+
+      activateBookmarksDrawer: null,
 
       PROBAND: 'proband'
 
@@ -622,6 +625,7 @@ export default {
 
     },
     onBookmarkVariant(variant) {
+      this.$refs.navRef.onBookmarks();
       this.bookmarkModel.addBookmark(variant, this.selectedGene);
       this.selectedVariant = null;
     }
