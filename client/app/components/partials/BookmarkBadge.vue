@@ -115,7 +115,7 @@
   <div class="bookmark-badge">
     <a class="bookmark">
       <span class="bookmark-number">
-        {{ index+1 }}.
+        {{ bookmark.index + 1 }}.
       </span>
 
       <span class="variant-symbols">
@@ -228,8 +228,7 @@ export default {
   components: {
   },
   props: {
-    bookmark: null,
-    index: null
+    bookmark: null
   },
   data () {
     return {
@@ -248,7 +247,7 @@ export default {
       return this.bookmark && this.bookmark.variant && this.bookmark.variant.extraAnnot ? utility.formatHgvsP(this.bookmark.variant, this.bookmark.variant.vepHGVSp) : "";
     },
     vepConsequence: function() {
-      return this.bookmark.variant && this.bookmark.variant.vepConsequence ? Object.keys(this.bookmark.variant.vepConsequence).join(" ") : "";
+      return this.bookmark.variant && this.bookmark.variant.vepConsequence ? Object.keys(this.bookmark.variant.vepConsequence).join(" ").split("_").join(" ") : "";
     },
     highestImpactClass: function() {
       let clazz = "filter-symbol";

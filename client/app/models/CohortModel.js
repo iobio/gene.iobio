@@ -19,21 +19,23 @@ class CohortModel {
     this.sampleModels  = [];
     this.sampleMap = {};
 
+    this.mode = 'single';
+    this.maxAlleleCount = null;
+    this.affectedInfo = null;
+    this.maxDepth = 0;
+
+    this.inProgress = {
+      'loadingDataSources': false
+    };
+
+
     this.demoVcf = "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz";
     this.demoBams = {
       'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
       'mother':  'https://s3.amazonaws.com/iobio/samples/bam/NA12892.exome.bam',
       'father':  'https://s3.amazonaws.com/iobio/samples/bam/NA12891.exome.bam'
     }
-    this.mode = 'single';
-    this.maxAlleleCount = null;
-    this.affectedInfo = null;
-    this.maxDepth = 0;
-
-
-    this.inProgress = {
-      'loadingDataSources': false
-    };
+    this.demoGenes = ['RAI1', 'MYLK2', 'PDHA1', 'PDGFB', 'AIRE'];
 
    }
 

@@ -319,6 +319,8 @@ export default {
 
     onLoadDemoData: function() {
       let self = this;
+      self.geneModel.copyPasteGenes(self.cohortModel.demoGenes.join(", "));
+      self.onGeneSelected(self.cohortModel.demoGenes[0]);
       self.cohortModel.promiseInitDemo()
       .then(function() {
         self.models = self.cohortModel.sampleModels;
@@ -621,6 +623,7 @@ export default {
     },
     onBookmarkVariant(variant) {
       this.bookmarkModel.addBookmark(variant, this.selectedGene);
+      this.selectedVariant = null;
     }
 
 

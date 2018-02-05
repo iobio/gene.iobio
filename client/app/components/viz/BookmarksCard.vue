@@ -13,25 +13,27 @@
     Bookmarked Variants
 
     <div class="bookmarks-panel">
-      <bookmark-badge
-      v-for="(bookmark, index) in bookmarkModel.bookmarks"
-      :key="bookmarkModel.getKey(bookmark)"
-      :bookmark="bookmark"
-      :index="index"
+
+      <bookmark-gene
+      v-for="bookmarkGene in bookmarkGenes"
+      :key="bookmarkGene.gene_name"
+      :bookmarkGene="bookmarkGene"
+      :bookmarkModel="bookmarkModel"
       >
-      </bookmark-badge>
+      </bookmark-gene>
+
     </div>
   </div>
 </template>
 
 <script>
 
-import BookmarkBadge from '../partials/BookmarkBadge.vue'
+import BookmarkGene from '../partials/BookmarkGene.vue'
 
 export default {
   name: 'bookmarks-card',
   components: {
-    BookmarkBadge
+    BookmarkGene
   },
   props: {
     bookmarkModel: null
@@ -46,11 +48,37 @@ export default {
   },
   computed: {
     bookmarkGenes: function() {
+      if (this.bookmarkModel && this.bookmarkModel.bookmarks) {
+        let genes = {};
+        this.bookmarkModel.bookmarks.forEach(function(bookmark) {
+          let theGene = genes[bookmark.gene.gene_name];
+          if (theGene == null) {
+            theGene = {};
+            theGene.gene = bookmark.gene;
+            theGene.bookmarks = [];
+            genes[bookmark.gene.gene_name] = theGene;
+          }
+          theGene.bookmarks.push(bookmark);
+        })
+        let geneNames = Object.keys(genes).sort();
+        let bookmarkGenes = geneNames.map(function(geneName) {
+          return genes[geneName];
+        })
+        let i = 0;
+        bookmarkGenes.forEach(function(bookmarkGene) {
+          bookmarkGene.bookmarks.forEach(function(bookmark) {
+            bookmark.index = i;
+            i++;
+          })
+        })
+        return bookmarkGenes;
+      } else {
+        return [];
+      }
+
     }
   },
   watch: {
-  },
-  computed: {
   }
 }
 
