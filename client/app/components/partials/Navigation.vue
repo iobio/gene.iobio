@@ -100,6 +100,7 @@ textarea#copy-paste-genes
       :clipped="clipped"
       v-model="leftDrawer"
       app
+      width=330
     >
       <div>
         <bookmarks-card

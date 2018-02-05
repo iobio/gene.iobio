@@ -10,9 +10,10 @@ class BookmarkModel {
     }
   }
 
-  removeBookmark(variant) {
-    var idx = this.getIndex(variant);
+  removeBookmark(bookmark) {
+    var idx = this.getIndex(bookmark.variant);
     if (idx >= 0) {
+      bookmark.variant.isBookmark = false;
       this.bookmarks.splice(idx,1);
     }
   }
@@ -34,7 +35,7 @@ class BookmarkModel {
       }
       i++;
     });
-    return index ? index : -1;
+    return index == null ?  -1 : index;
   }
 
   getKey(bookmark) {

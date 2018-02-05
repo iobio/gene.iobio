@@ -525,7 +525,13 @@ export default {
         annotatedVariant.screenY = variant.screenY;
         annotatedVariant.screenXMatrix = variant.screenXMatrix;
         annotatedVariant.screenYMatrix = variant.screenYMatrix;
-        sourceComponent.showVariantTooltip(annotatedVariant, true);
+
+        variant.extraAnnot      = true;
+        variant.vepHGVSc        = annotatedVariant.vepHGVSc;
+        variant.vepHGVSp        = annotatedVariant.vepHGVSp;
+        variant.vepVariationIds = annotatedVariant.vepVariationIds;
+
+        sourceComponent.showVariantTooltip(variant, true);
       } else {
         if (callbackNotFound) {
           callbackNotFound();

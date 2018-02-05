@@ -18,6 +18,8 @@
     v-for="bookmark in bookmarkGene.bookmarks"
     :key="bookmarkModel.getKey(bookmark)"
     :bookmark="bookmark"
+    :isEditMode="isEditMode"
+    @remove-bookmark="onRemoveBookmark"
     >
     </bookmark-badge>
 
@@ -37,13 +39,17 @@ export default {
   },
   props: {
     bookmarkModel: null,
-    bookmarkGene: null
+    bookmarkGene: null,
+    isEditMode: null
   },
   data () {
     return {
     }
   },
   methods: {
+    onRemoveBookmark: function(bookmark) {
+      this.bookmarkModel.removeBookmark(bookmark);
+    }
 
   },
   mounted: function() {

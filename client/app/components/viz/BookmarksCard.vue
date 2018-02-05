@@ -6,11 +6,28 @@
 
   .bookmarks-panel
     margin-top: 10px
+
+  #edit-bookmarks
+    color: $text-color
+  #done-edit-bookmarks
+    color: $text-color
+
 </style>
 
 <template>
   <div id="bookmarks-card">
     Bookmarked Variants
+
+    <div
+     v-if="bookmarkGenes && bookmarkGenes.length > 0"
+     id="edit-bookmarks-box" style="clear:both;text-align:right;clear:both;">
+      <a v-if="!isEditMode" href="javascript:void(0)" @click="isEditMode = true" id="edit-bookmarks">
+        Edit
+      </a>
+      <a v-if="isEditMode" href="javascript:void(0)" @click="isEditMode = false" id="done-edit-bookmarks" >
+        Done
+      </a>
+    </div>
 
     <div class="bookmarks-panel">
 
@@ -19,6 +36,7 @@
       :key="bookmarkGene.gene_name"
       :bookmarkGene="bookmarkGene"
       :bookmarkModel="bookmarkModel"
+      :isEditMode="isEditMode"
       >
       </bookmark-gene>
 
@@ -40,6 +58,7 @@ export default {
   },
   data () {
     return {
+      isEditMode: false
     }
   },
   methods: {

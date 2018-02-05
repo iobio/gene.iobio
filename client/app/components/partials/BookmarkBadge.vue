@@ -44,7 +44,7 @@
 
       .coord
         display: inline-block
-        width: 97px
+        width: 112px
         line-height: 12px
         vertical-align: top
         &:hover
@@ -52,14 +52,14 @@
       .hgvs
         margin-left: 3px
         display: inline-block
-        width: 70px
+        width: 80px
         line-height: 12px
         vertical-align: top
         &:hover
           text-decoration: underline !important
       .vep-consequence
         display: inline-block
-        width: 97px
+        width: 112px
         line-height: 12px
         vertical-align: top
         &:hover
@@ -67,7 +67,7 @@
       .rsid
         display: inline-block
         margin-left: 3px
-        width: 70px
+        width: 80px
         line-height: 12px
         vertical-align: top
         &:hover
@@ -98,15 +98,14 @@
     vertical-align: top
     margin-top: -2px
     margin-left: 5px
-    margin-right: 5px
 
   i#remove-bookmark
     color: #E0292B !important
     font-weight: bold
-    font-size: 13px
-    display: none
+    font-size: 15px
+    display: inline-block
     float: right
-    padding-top: 3px
+
 
 </style>
 
@@ -206,14 +205,19 @@
       </span>
       <span class="favorite-indicator"
        style="float: right;">
-        <svg class="favorite-badge" height="15" width="14">
+        <svg class="favorite-badge"
+         @click="toggleFavorite"
+         height="15" width="14">
           <g transform="translate(0,0)">
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#star-symbol" id="favorite-badge"
             width="14" height="14"
             v-bind:style="favoriteStyle"></use>
           </g>
         </svg>
-        <i class="material-icons" id="remove-bookmark">close</i>
+        <i class="material-icons"
+        v-if="isEditMode"
+        @click="onRemoveBookmark"
+        id="remove-bookmark">close</i>
       </span>
     </a>
   </div>
@@ -228,13 +232,20 @@ export default {
   components: {
   },
   props: {
-    bookmark: null
+    bookmark: null,
+    isEditMode: null
   },
   data () {
     return {
     }
   },
   methods: {
+    onRemoveBookmark: function() {
+      this.$emit("remove-bookmark", this.bookmark);
+    },
+    toggleFavorite: function() {
+      this.bookmark.isFavorite = !this.bookmark.isFavorite;
+    }
 
   },
   mounted: function() {
