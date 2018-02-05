@@ -997,9 +997,9 @@ class VariantTooltip {
 
     var bookmarkBadge = '<svg class="bookmark-badge" height="14" width="14" style="padding-top:2px" ><g class="bookmark" transform="translate(0,0)"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#bookmark-symbol" width="14" height="14"></use></g></svg>';
 
-    var bookmarkLink =  '<button id="bookmarkLink"  class="hide tooltip-button tooltip-control-button btn btn-raised btn-default" onclick="bookmarkVariant();showAsBookmarked(this);"><i class="material-icons">bookmark_border</i>bookmark</button>';
+    var bookmarkLink =  '<button id="bookmark"  class="hide tooltip-button tooltip-control-button btn btn-raised btn-default" ><i class="material-icons">bookmark_border</i>bookmark</button>';
 
-    var removeBookmarkLink  =  '<button id="remove-bookmark-link" class="hide tooltip-control-button tooltip-button btn btn-raised btn-default" onclick="removeBookmarkOnVariant();showAsNotBookmarked(this)">remove<i class="material-icons">bookmark</i></button>';
+    var removeBookmarkLink  =  '<button id="remove-bookmark" class="hide tooltip-control-button tooltip-button btn btn-raised btn-default">remove<i class="material-icons">bookmark</i></button>';
     var showAsBookmarked = function(container) {
       $(container).parent().html(bookmarkBadge + removeBookmarkLink);
     };

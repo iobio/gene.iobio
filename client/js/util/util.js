@@ -516,4 +516,55 @@ class Util {
   }
 
 
+  formatHgvsP(variant, value) {
+    let me = this;
+    if (value == null || value == '' || Object.keys(value).length == 0) {
+      return "";
+    } else {
+      var buf = "";
+      for(var key in value) {
+        var tokens = key.split(":p.");
+        if (buf.length > 0) {
+          buf += " ";
+        }
+        if (tokens.length == 2) {
+          var basicNotation = "p." + tokens[1];
+          buf += basicNotation;
+        } else if (tokens.length == 1 && me.endsWith(tokens[0],"(p.=)")) {
+          // If synoymous variants, show p.(=) in cell
+          if (variant.vepConsequence && Object.keys(variant.vepConsequence).length > 0) {
+            for( consequence in variant.vepConsequence) {
+              if (consequence == "synonymous_variant") {
+                buf += "p.(=)";
+              }
+            }
+          }
+        }
+      }
+      return buf;
+    }
+  }
+
+  formatHgvsC(variant, value) {
+    let me = this;
+    if (value == null || value == '' || Object.keys(value).length == 0) {
+      return "";
+    } else {
+      var buf = "";
+      for(var key in value) {
+        var tokens = key.split(":c.");
+        if (buf.length > 0) {
+          buf += " ";
+        }
+        if (tokens.length == 2) {
+          var basicNotation = "c." + tokens[1];
+          buf += basicNotation;
+        }
+      }
+      return buf;
+    }
+
+  }
+
+
 }

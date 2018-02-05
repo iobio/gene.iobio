@@ -397,7 +397,10 @@ export default {
       tooltip.selectAll("#tooltip-scroll-down").on('click', function() {
         self.tooltipScroll("down");
       });
-
+      tooltip.selectAll("#bookmark").on('click', function() {
+        self.unpin(null, true);
+        self.$emit('bookmark-variant', self.selectedVariant);
+      });
     },
 
     tooltipScroll(direction) {

@@ -25,6 +25,7 @@
     <navigation
       v-if="geneModel"
       :geneModel="geneModel"
+      :bookmarkModel="bookmarkModel"
       @input="onGeneSelected"
       @load-demo-data="onLoadDemoData"
       @clear-cache="clearCache"
@@ -83,6 +84,7 @@
         @cohortVariantClickEnd="onCohortVariantClickEnd"
         @cohortVariantHover="onCohortVariantHover"
         @cohortVariantHoverEnd="onCohortVariantHoverEnd"
+        @bookmark-variant="onBookmarkVariant"
         @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
         >
         </feature-matrix-card>
@@ -108,6 +110,7 @@
         @cohortVariantClickEnd="onCohortVariantClickEnd"
         @cohortVariantHover="onCohortVariantHover"
         @cohortVariantHoverEnd="onCohortVariantHoverEnd"
+        @bookmark-variant="onBookmarkVariant"
         @knownVariantsVizChange="onKnownVariantsVizChange"
         @knownVariantsFilterChange="onKnownVariantsFilterChange"
         >
@@ -125,17 +128,18 @@
 <script>
 
 
-import Navigation from '../partials/Navigation.vue'
-import GeneCard  from  '../viz/GeneCard.vue'
-import GenesCard  from  '../viz/GenesCard.vue'
-import FeatureMatrixCard from  '../viz/FeatureMatrixCard.vue'
-import VariantCard    from  '../viz/VariantCard.vue'
+import Navigation         from '../partials/Navigation.vue'
+import GeneCard           from  '../viz/GeneCard.vue'
+import GenesCard          from  '../viz/GenesCard.vue'
+import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
+import VariantCard        from  '../viz/VariantCard.vue'
 
-import SampleModel    from  '../../models/SampleModel.js'
-import CohortModel    from  '../../models/CohortModel.js'
+import SampleModel        from  '../../models/SampleModel.js'
+import CohortModel        from  '../../models/CohortModel.js'
 import FeatureMatrixModel from  '../../models/FeatureMatrixModel.js'
-import FilterModel    from  '../../models/FilterModel.js'
-import GeneModel      from  '../../models/GeneModel.js'
+import FilterModel        from  '../../models/FilterModel.js'
+import GeneModel          from  '../../models/GeneModel.js'
+import BookmarkModel      from  '../../models/BookmarkModel.js'
 
 import allGenesData from '../../../data/genes.json'
 
@@ -186,6 +190,7 @@ export default {
       models: [],
       featureMatrixModel: null,
       geneModel: null,
+      bookmarkModel: null,
       filterModel: null,
       cacheHelper: null,
       genomeBuildHelper: null,
@@ -232,6 +237,8 @@ export default {
       self.geneModel.setAllKnownGenes(self.allGenes);
       self.geneModel.translator = translator;
 
+      self.bookmarkModel = new BookmarkModel();
+
       // Instantiate helper class than encapsulates IOBIO commands
       let endpoint = new EndpointCmd(useSSL,
         IOBIO,
@@ -243,6 +250,7 @@ export default {
         genericAnnotation,
         translator,
         self.geneModel,
+        self.bookmarkModel,
         self.cacheHelper,
         self.genomeBuildHelper,
         new FreebayesSettings());
@@ -610,6 +618,9 @@ export default {
       }
 
 
+    },
+    onBookmarkVariant(variant) {
+      this.bookmarkModel.addBookmark(variant, this.selectedGene);
     }
 
 

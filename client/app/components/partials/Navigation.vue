@@ -21,8 +21,12 @@ textarea#copy-paste-genes
 <template>
   <div>
     <v-toolbar fixed app :clipped-left="clipped"  dark prominent >
-      <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer"></v-toolbar-side-icon>
+
+      <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
+      </v-toolbar-side-icon>
+
       <v-toolbar-title v-text="title"></v-toolbar-title>
+
       <v-toolbar-items class="hidden-sm-and-down">
 
         <v-icon>search</v-icon>
@@ -63,7 +67,7 @@ textarea#copy-paste-genes
           Filter
         </v-btn>
 
-        <v-btn flat>
+        <v-btn flat @click="onBookmarks">
           <v-icon>bookmark</v-icon>
           Bookmark
         </v-btn>
@@ -97,7 +101,14 @@ textarea#copy-paste-genes
       v-model="leftDrawer"
       app
     >
-      <div></div>
+      <div>
+        <bookmarks-card
+        v-if="leftDrawerContents == 'bookmarks'"
+        :bookmarkModel="bookmarkModel">
+        </bookmarks-card>
+
+
+      </div>
 
     </v-navigation-drawer>
 
@@ -107,15 +118,18 @@ textarea#copy-paste-genes
 <script>
 
 import { Typeahead } from 'uiv'
+import BookmarksCard from '../viz/BookmarksCard.vue'
 
 
 export default {
   name: 'navigation',
   components: {
-    Typeahead
+    Typeahead,
+    BookmarksCard
   },
   props: {
-    geneModel: null
+    geneModel: null,
+    bookmarkModel: null
   },
   data () {
       return {
@@ -125,6 +139,8 @@ export default {
         clipped: false,
         leftDrawer: false,
         rightDrawer: false,
+
+        leftDrawerContents: "",
 
         menuGenes: false,
         copyPasteGenes: null
@@ -160,6 +176,10 @@ export default {
     },
     onACMGGenes: function() {
       this.copyPasteGenes = this.geneModel.ACMG_GENES.join(", ");
+    },
+    onBookmarks: function() {
+      this.leftDrawerContents = "bookmarks";
+      this.leftDrawer = true;
     }
   },
   mounted: function() {
