@@ -1,13 +1,14 @@
 class BookmarkModel {
-  constructor(geneModel) {
+  constructor(cohort) {
     this.bookmarks = [];
-    this.geneModel = geneModel;
+    this.cohort = cohort;
+    this.variantExporter = new VariantExporter(this.cohort);
   }
 
-  addBookmark(variant, gene) {
+  addBookmark(variant, gene, transcript) {
     if (!this.exists(variant)) {
       variant.isBookmark = true;
-      this.bookmarks.push({'gene': gene, 'variant': variant, 'isFavorite': false});
+      this.bookmarks.push({'gene': gene,  'transcript': transcript, 'variant': variant, 'isFavorite': false});
     }
   }
 
@@ -125,7 +126,7 @@ class BookmarkModel {
 
     importRecords.forEach( function(ir) {
       if (!ir.transcript || ir.transcript == '') {
-        var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true);
+        var promise = me.cohort.geneModel.promiseGetCachedGeneObject(ir.gene, true);
         promises.push(promise);
       }
     })
@@ -134,9 +135,9 @@ class BookmarkModel {
     // transcript if necessary and then find load the imported bookmarks
     Promise.all(promises).then(function() {
       importRecords.forEach( function(ir) {
-        var geneObject = me.geneModel.geneObjects[ir.gene];
+        var geneObject = me.cohort.geneModel.geneObjects[ir.gene];
         if (!ir.transcript || ir.transcript == '') {
-          var tx = geneObject ? me.geneModel.getCanonicalTranscript(geneObject) : null;
+          var tx = geneObject ? me.cohort.geneModel.getCanonicalTranscript(geneObject) : null;
           if (tx) {
             ir.transcript = tx.transcript_id;
           }
@@ -149,6 +150,26 @@ class BookmarkModel {
 
     })
 
+  }
+
+  promiseExportBookmarks(format = 'csv', scope="all") {
+    var me = this;
+
+    var bookmarksToExport = me.bookmarks.filter(function(bookmark) {
+      return (scope == "all" || bookmark.isFavorite );
+    });
+
+    // If this is a trio, the exporter will be getting the genotype info for proband, mother
+    // and father, so pass in a comma separated value of sample names for trio.  Otherwise,
+    // just pass null, which will default to the proband's sample name
+    var sampleNames = null;
+    if (me.cohort.mode == 'trio') {
+      me.cohort.getCanonicalModels().map(function(model) {
+        return model.sampleName;
+      })
+    }
+
+    return me.variantExporter.promiseExportVariants(bookmarksToExport, format, sampleNames);
   }
 
 

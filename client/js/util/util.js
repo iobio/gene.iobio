@@ -76,7 +76,6 @@ class Util {
       $(anchorSelector).attr("download", fileName);
       $(anchorSelector).attr("href", url);
     }
-    $(anchorSelector).animateIt('tada', 'animate-twice');
   }
 
 
@@ -564,6 +563,204 @@ class Util {
       return buf;
     }
 
+  }
+
+  formatDisplay(variant, translator) {
+    var info = {
+      exon: "",
+      inheritance: "",
+      clinvarSig: "",
+      clinvarUrl: "",
+      clinvarLink: "",
+      phenotype: "",
+      phenotypeSimple: "",
+      zygosity: "",
+      vepImpact: "",
+      vepHighestImpact: "",
+      vepHighestImpactSimple: "",
+      vepHighestImpactInfo: "",
+      vepHighestImpactValue: "",
+      vepConsequence: "",
+      HGVSc: "",
+      HGVSp: "",
+      HGVScLoading: false,
+      HGVSpLoading: false,
+      sift: "",
+      polyphen: "",
+      regulatory: "",
+      rsId: "",
+      dbSnpUrl: "",
+      dbSnpLink: "",
+    };
+
+
+    if (variant.hasOwnProperty("vepExon") && !$.isEmptyObject(variant.vepExon)) {
+      info.exon += "Exon ";
+      info.exon += Object.keys(variant.vepExon).join(",");
+    }
+
+    info.inheritance = translator.getInheritanceLabel(variant.inheritance);
+
+    for (var key in variant.clinVarClinicalSignificance) {
+      if (key != 'none' && key != 'undefined' ) {
+        if (!isLevelEdu || (key.indexOf("uncertain_significance") >= 0 || key.indexOf("pathogenic") >= 0)) {
+          if (info.clinvarSig.length > 0 ) {
+              info.clinvarSig += ", ";
+          }
+          info.clinvarSig += key.split("_").join(" ");
+        }
+      }
+    }
+
+    for (var key in variant.clinVarPhenotype) {
+      if (key != 'not_specified'  && key != 'undefined') {
+        if (info.phenotype.length > 0) {
+            info.phenotype += ", ";
+        }
+        info.phenotype += key.split("_").join(" ").split("\\x2c").join(", ");
+      }
+    }
+
+
+    if (info.clinvarSig != null && info.clinvarSig != "") {
+      if (variant.clinVarUid != null && variant.clinVarUid != '') {
+        info.clinvarUrl = 'http://www.ncbi.nlm.nih.gov/clinvar/variation/' + variant.clinVarUid;
+      } else if (variant.clinvarSubmissions != null && variant.clinvarSubmissions.length > 0) {
+        var clinsigUniq = {};
+        for (var idx = 0; idx < variant.clinvarSubmissions.length; idx++) {
+          var submission = variant.clinvarSubmissions[idx];
+          submission.clinsig.split(",").forEach(function(clinsig) {
+            clinsigUniq[clinsig] = "";
+          })
+          var accessions = submission.accession.split(",");
+          var clinsigs   = submission.clinsig.split(",");
+          for (var i = 0; i < accessions.length; i++) {
+            var accessionSingle = accessions[i];
+            var clinsigSingle   = clinsigs.length > i ? clinsigs[i] : "?";
+
+            info.clinvarUrl   = 'http://www.ncbi.nlm.nih.gov/clinvar/' + accessionSingle;
+            info.clinvarLink  +=  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
+          }
+        };
+      }
+    }
+
+    if (variant.zygosity && variant.zygosity.toLowerCase() == 'het') {
+      info.zygosity = "Heterozygous";
+    } else if (variant.zygosity && variant.zygosity.toLowerCase() == 'hom') {
+      info.zygosity = "Homozygous";
+    }
+
+
+    for (var key in variant.vepImpact) {
+      if (info.vepImpact.length > 0) {
+          info.vepImpact += ", ";
+      }
+      if (isLevelEdu) {
+        info.vepImpact = levelEduImpact[key];
+      } else {
+        info.vepImpact += key.toLowerCase();
+      }
+    }
+
+    // If the highest impact occurs in a non-canonical transcript, show the impact followed by
+    // the consequence and corresponding transcripts
+    var vepHighestImpacts = utility.getNonCanonicalHighestImpactsVep(variant, translator.impactMap);
+    for (var impactKey in vepHighestImpacts) {
+
+
+      var nonCanonicalEffects = vepHighestImpacts[impactKey];
+      if (info.vepHighestImpact.length > 0) {
+          info.vepHighestImpact += ", ";
+          info.vepHighestImpactSimple += ", ";
+          info.vepHighestImpactInfo += ", ";
+      }
+
+      info.vepHighestImpact       += impactKey.toLowerCase();
+      info.vepHighestImpactSimple += impactKey.toLowerCase();
+      info.vepHighestImpactInfo   += impactKey.toLowerCase();
+      info.vepHighestImpactValue   = impactKey.toUpperCase();
+
+      nonCanonicalEffects.forEach(function(nonCanonicalEffect) {
+        info.vepHighestImpact += "<span>  (";
+        for (var effectKey in nonCanonicalEffect) {
+          var transcriptString = nonCanonicalEffect[effectKey].url;
+          info.vepHighestImpact     += " " + effectKey.split("\&").join(" & ") + 'in ' + transcriptString;
+          info.vepHighestImpactInfo += " " + effectKey.split("\&").join(" & ") + " in " + nonCanonicalEffect[effectKey].display;
+
+        }
+        info.vepHighestImpact += ")</span> ";
+      })
+      info.vepHighestImpacSimple += " in non-canonical transcripts";
+    }
+
+
+    for (var key in variant.vepConsequence) {
+      if (info.vepConsequence.length > 0) {
+          info.vepConsequence += ", ";
+      }
+      if (isLevelEdu) {
+        info.vepConsequence = key.split("_").join(" ").toLowerCase();
+      } else {
+        info.vepConsequence += key.split("_").join(" ").toLowerCase();
+      }
+    }
+    if (variant.fbCalled == 'Y' || variant.extraAnnot) {
+      for (var key in variant.vepHGVSc) {
+        if (key.length > 0) {
+          if (info.HGVSc.length > 0) {
+              info.HGVSc += ", ";
+          }
+          info.HGVSc += key;
+        }
+      }
+      for (var key in variant.vepHGVSp) {
+        if (key.length > 0) {
+          if (info.HGVSp.length > 0) {
+              info.HGVSp += ", ";
+          }
+          info.HGVSp += key;
+        }
+      }
+    } else {
+      info.HGVScLoading = true;
+      info.HGVSpLoading = true;
+    }
+
+    for (var key in variant.vepSIFT) {
+      if (info.sift.length > 0) {
+          info.sift += ", ";
+      }
+      info.sift += key.split("_").join(" ");
+    }
+    for (var key in variant.vepPolyPhen) {
+      if (info.polyphen.length > 0) {
+          info.polyphen += ", ";
+      }
+      if (isLevelEdu) {
+        info.polyphen = key.split("_").join(" ");
+      } else {
+        info.polyphen += key.split("_").join(" ");
+      }
+    }
+
+    for (var key in variant.regulatory) {
+      // Bypass motif-based features
+      if (key.indexOf("mot_") == 0) {
+        continue;
+      }
+      if (info.regulatory.length > 0) {
+          info.regulatory += ", ";
+      }
+      var value = variant.regulatory[key];
+      info.regulatory += value;
+    }
+
+    info.rsId = utility.getRsId(variant);
+    info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + info.rsId ;
+    info.dbSnpLink +=  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';
+
+    return info;
   }
 
 

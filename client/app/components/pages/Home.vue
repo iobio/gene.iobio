@@ -240,7 +240,6 @@ export default {
       self.geneModel.setAllKnownGenes(self.allGenes);
       self.geneModel.translator = translator;
 
-      self.bookmarkModel = new BookmarkModel(self.geneModel);
 
       // Instantiate helper class than encapsulates IOBIO commands
       let endpoint = new EndpointCmd(useSSL,
@@ -259,6 +258,8 @@ export default {
         new FreebayesSettings());
 
       self.inProgress = self.cohortModel.inProgress;
+
+      self.bookmarkModel = new BookmarkModel(self.cohortModel);
 
       self.featureMatrixModel = new FeatureMatrixModel(self.cohortModel);
       self.featureMatrixModel.init();
@@ -632,7 +633,7 @@ export default {
     },
     onBookmarkVariant(variant) {
       this.$refs.navRef.onBookmarks();
-      this.bookmarkModel.addBookmark(variant, this.selectedGene);
+      this.bookmarkModel.addBookmark(variant, this.selectedGene, this.selectedTranscript);
       this.selectedVariant = null;
     }
 
