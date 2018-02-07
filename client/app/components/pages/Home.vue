@@ -45,9 +45,11 @@
          :loadedGeneNames="Object.keys(geneModel.geneDangerSummaries)"
          :genesInProgress="cacheHelper.cacheQueue"
          :isLoaded="cohortModel && cohortModel.isLoaded"
+         :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
          @gene-selected="onGeneSelected"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
+         @call-variants="callVariants"
          @sort-genes="onSortGenes"
         >
         </genes-card>
@@ -307,6 +309,7 @@ export default {
       let self = this;
       return new Promise(function(resolve, reject) {
         self.cacheHelper = new CacheHelper();
+        globalCacheHelper = self.cacheHelper;
         self.cacheHelper.promiseInit()
          .then(function() {
           self.cacheHelper.isolateSession();
@@ -375,6 +378,23 @@ export default {
         }
 
       })
+    },
+
+
+    callVariants: function(theGene) {
+      let self = this;
+      if (theGene == null) {
+        self.cacheHelper.analyzeAll(self.cohortModel, true);
+      } else {
+        self.selectedGene.inProgress = true;
+        self.cohortModel.promiseJointCallVariants(self.selectedGene,
+          self.selectedTranscript,
+          self.cohortModel.getCurrentTrioVcfData(),
+          {checkCache: false, isBackground: false})
+        .then(function() {
+          self.selectedGene.inProgress = false;
+        })
+      }
     },
 
     onGeneSelected: function(geneName) {

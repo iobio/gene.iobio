@@ -2,7 +2,7 @@ class FreebayesSettings {
   constructor() {
 
     this.onClose = null;
-    this.visited = false;
+    this.visited = true;
     this.arguments = {
       'useSuggestedVariants':     {value: true,  defaultValue: true},
       'limitToSuggestedVariants': {value: false, defaultValue: false, argName: '-l',                    isFlag: true},

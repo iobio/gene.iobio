@@ -472,7 +472,7 @@ EndpointCmd.prototype._getSuggestedVariants = function(refName, regionStart, reg
   // Create an iobio command get get the variants from clinvar for the region of the gene
   var regionParm = refName + ":" + regionStart + "-" + regionEnd;
 
-  var clinvarUrl = me.genomeBuildHelper.getBuildResource(genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
+  var clinvarUrl = me.genomeBuildHelper.getBuildResource(me.genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
 
   var tabixArgs = ['-h', clinvarUrl, regionParm];
   var cmd = new iobio.cmd (me.IOBIO.tabix, tabixArgs, {ssl: me.useSSL});

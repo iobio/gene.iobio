@@ -14,10 +14,19 @@
       margin-left: 0px
       margin-right: 15px
 
+    #call-variants-dropdown
+      display: inline-block
+      width: 150px
+      vertical-align: top
+      margin-right: 15px
+
+      button
+        margin-top: 0px
+
     #analyze-genes-progress
       display: inline-block
       margin-right: 15px
-      margin-left: 10px
+      margin-left: 0px
       margin-top: -1px
 
       #total-genes-label
@@ -90,6 +99,18 @@
             Analyze all genes
           </v-btn>
 
+          <div id="call-variants-dropdown"
+            v-if="isLoaded && hasAlignments"
+          >
+            <v-menu offset-y>
+              <v-btn raised slot="activator">Call variants</v-btn>
+              <v-list>
+                <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
+                  <v-list-tile-title>{{ action }}</v-list-tile-title>
+                </v-list-tile>
+              </v-list>
+            </v-menu>
+          </div>
 
           <div id="analyze-genes-progress"
           v-if="isLoaded"
@@ -154,7 +175,8 @@ export default {
     geneModel: null,
     genesInProgress: null,
     selectedGene: null,
-    isLoaded: null
+    isLoaded: null,
+    hasAlignments: null
   },
   data () {
     return {
@@ -167,7 +189,8 @@ export default {
         "gene name",
         "(original order)",
       ],
-      sortBy: "harmful variants"
+      sortBy: "harmful variants",
+      callVariantsActions: ['All genes', 'Selected gene']
     }
   },
   methods: {
@@ -204,6 +227,9 @@ export default {
     onRemoveGene: function(geneName) {
       this.geneModel.removeGene(geneName);
       this.$emit('remove-gene', geneName);
+    },
+    onCallVariants: function(action) {
+      this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
     }
 
   },

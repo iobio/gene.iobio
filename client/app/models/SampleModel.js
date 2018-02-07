@@ -2300,7 +2300,6 @@ class SampleModel {
     return !this.isVcfReadyToLoad() && this.isBamLoaded();
   }
 
-
   /*
    *  For trios, mother and father vcf data cache was cleared out, so now
    *  we need to reconstruct vcf data to equal loaded variants + unique freebayes
@@ -2397,7 +2396,7 @@ class SampleModel {
     });
     theVcfData.maxLevel = maxLevel;
 
-    pileupObject = me._pileupVariants(theFbData.features, geneObject.start, geneObject.end);
+    var pileupObject = me._pileupVariants(theFbData.features, geneObject.start, geneObject.end);
     theFbData.maxLevel = pileupObject.maxLevel + 1;
     theFbData.featureWidth = pileupObject.featureWidth;
 
@@ -2839,14 +2838,23 @@ class SampleModel {
        },
        function(error) {
         CacheHelper.showError(key, error);
-          genesCard.hideGeneBadgeLoading(geneName);
-          genesCard.clearGeneGlyphs(geneName);
-          genesCard.setGeneBadgeError(geneName);
-          alertify.set('notifier','position', 'top-right');
-          alertify.error("Error occurred when compressing analyzed data before caching.", 15);
+        alertify.set('notifier','position', 'top-right');
+        alertify.error("Error occurred when compressing analyzed data before caching.", 15);
         reject(error);
        })
     })
+  }
+
+  getSampleNamesToGenotype() {
+    var sampleNames = null;
+    var me = this;
+    if (this.getRelationship() == 'proband') {
+      sampleNames = [];
+      me.getAffectedInfo().forEach(function(info) {
+        sampleNames.push(info.model.getSampleName());
+      })
+    }
+    return sampleNames;
   }
 
 }

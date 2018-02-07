@@ -27,7 +27,7 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
   var me = this;
   this.cohort = cohort;
 
-  if (this.isAlignmentsOnly) {
+  if (this.cohort.isAlignmentsOnly()) {
     analyzeCalledVariants = true;
   }
 
@@ -342,13 +342,13 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       // Now clear out mother and father from cache (localStorage browser cache only)
       //if (window.gene == null || window.gene.gene_name != geneObject.gene_name) {
         if (CacheHelper.useLocalStorage()) {
-          getVariantCard("mother" ).model.clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
-          getVariantCard("father" ).model.clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
+          me.cohort.getModel("mother").clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
+          me.cohort.getModel("father").model.clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
         }
       //}
       // Clear out the called variants cache since this is now cached in vcf data
       if (analyzeCalledVariants) {
-        getVariantCard("proband" ).model.clearCacheItem(CacheHelper.FB_DATA, geneObject.gene_name, transcript);
+        me.cohort.getProbandModel().clearCacheItem(CacheHelper.FB_DATA, geneObject.gene_name, transcript);
       }
 
       // We have analyzed the gene, now move on to another gene
@@ -458,9 +458,9 @@ CacheHelper.prototype.refreshNextGeneBadge = function(keys, geneCount, callback)
       }
 
       var theFbData = null;
-      getVariantCard("proband").promiseGetDangerSummary(theGeneObject.gene_name).then(function(ds) {
+      me.cohort.getProbandModel().promiseGetDangerSummary(theGeneObject.gene_name).then(function(ds) {
         if (theVcfData && theVcfData.features && ds && ds.CALLED) {
-          theFbData = getVariantCard("proband").model.reconstituteFbData(theVcfData);
+          theFbData = me.cohort.getProbandModel().reconstituteFbData(theVcfData);
         }
 
         var options = {};
@@ -470,7 +470,7 @@ CacheHelper.prototype.refreshNextGeneBadge = function(keys, geneCount, callback)
 
         me.cohort.promiseGetCachedGeneCoverage(theGeneObject, {transcript_id: theKeyObject.transcript}).then(function(data) {
           var geneCoverageAll = data.geneCoverage;
-          getVariantCard("proband").promiseSummarizeDanger(data.gene.gene_name, filteredVcfData, options, geneCoverageAll).then(function(dangerObject) {
+          me.cohort.getProbandModel().promiseSummarizeDanger(data.gene.gene_name, filteredVcfData, options, geneCoverageAll).then(function(dangerObject) {
             //genesCard.setGeneBadgeGlyphs(data.gene.gene_name, dangerObject, false);
             me.refreshNextGeneBadge(keys, geneCount, callback);
           })
@@ -956,7 +956,19 @@ CacheHelper.useIndexedDB = function() {
 CacheHelper.promiseCompressData = function(data) {
   return new Promise(function(resolve, reject) {
     if (data && data != "") {
-      var dataString = JSON.stringify(data);
+      var cache = [];
+      var dataString = JSON.stringify(data, function(key, value) {
+        if (typeof value === 'object' && value !== null) {
+            if (cache.indexOf(value) !== -1) {
+                // Circular reference found, discard key
+                return;
+            }
+            // Store value in our collection
+            cache.push(value);
+        }
+        return value;
+      });
+      cache = null;
       var dataStringCompressed = null;
       try {
         dataStringCompressed = LZString.compressToUTF16(dataString);

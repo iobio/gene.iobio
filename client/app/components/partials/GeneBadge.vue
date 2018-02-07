@@ -390,7 +390,7 @@ export default {
         'user-visited':          false,
         'in-progress':           this.gene.inProgress,
         'loaded':                this.gene.dangerSummary != null,
-        'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED,
+        'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
         'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.INHERITANCE && this.gene.dangerSummary.INHERITANCE.recessive && this.gene.dangerSummary.harmfulVariantsLevel >= 1,
         'inheritance-denovo':    this.gene.dangerSummary && this.gene.dangerSummary.INHERITANCE && this.gene.dangerSummary.INHERITANCE.denovo  && this.gene.dangerSummary.harmfulVariantsLevel >= 1,
