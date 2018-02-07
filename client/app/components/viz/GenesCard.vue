@@ -178,7 +178,12 @@ export default {
       let self = this;
       if (self.geneNames) {
         self.geneSummaries = self.geneNames.map(function(geneName) {
-          let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
+          let inProgress = false;
+          if (self.selectedGene.gene_name == geneName && self.selectedGene.inProgress) {
+            inProgress = true;
+          } else {
+            inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
+          }
           return {'name': geneName,
           'dangerSummary': self.geneModel.getDangerSummary(geneName),
           'inProgress': inProgress};

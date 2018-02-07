@@ -346,6 +346,7 @@ export default {
 
 
         if (self.models && self.models.length > 0) {
+          self.selectedGene.inProgress = true;
 
           self.featureMatrixModel.inProgress.loadingVariants = true;
           var options = {'getKnownVariants': self.showClinvarVariants};
@@ -361,9 +362,11 @@ export default {
               //var bp = me._promiseDetermineVariantBookmarks(vcfData, theGene, theTranscript);
               //bookmarkPromises.push(bp);
 
+              self.selectedGene.inProgress = false;
               resolve();
           })
           .catch(function(error) {
+            self.selectedGene.inProgress = false;
             reject(error);
           })
         } else {
