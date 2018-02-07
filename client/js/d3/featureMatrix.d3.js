@@ -42,6 +42,29 @@ function featureMatrixD3() {
   //  options
   var defaults = {};
 
+  var selectVariant = function(variant, clazz) {
+    if (variant != null) {
+      if (clazz == null) {
+        clazz = "current";
+      }
+      container.selectAll("g.group>g.group>.col .colbox").classed(clazz, false);
+      container.selectAll("g.group>g.group>.col").each( function(d,i) {
+        if (d.start == variant.start &&
+            d.ref == variant.ref &&
+            d.alt == variant.alt) {
+          d3.select(this).select(".colbox").classed(clazz, true);
+        }
+      });
+
+    } else {
+      if (container) {
+        container.selectAll("g.group>g.group>.col .colbox").attr('class', function(d,i) {
+          return "colbox";
+        });
+      }
+    }
+  }
+
 
   function chart(selection, options) {
     var me = this;
@@ -665,6 +688,15 @@ function featureMatrixD3() {
     if (!arguments.length) return tooltipHTML;
     tooltipHTML = _;
     return chart;
+  }
+
+  chart.selectVariant = function(_) {
+    if (!arguments.length) {
+      return selectVariant;
+    } else {
+      selectVariant = _;
+      return chart;
+    }
   }
 
 

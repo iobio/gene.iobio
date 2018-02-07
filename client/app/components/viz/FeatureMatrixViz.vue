@@ -40,6 +40,14 @@
       pointer-events: none
       outline-offset: -2px
 
+    &.bookmark
+      fill: none
+      stroke: #1574C7
+      stroke-width: 4.5
+      opacity: .6
+      width: 17px
+      x: 2
+
   .col.active
 
     rect.colbox
@@ -236,6 +244,9 @@ export default {
       },
       setFeatureMatrixChart: function() {
         this.$emit('updateFeatureMatrixChart', this.featureMatrixChart);
+      },
+      selectVariant: function(variant, clazz) {
+        this.featureMatrixChart.selectVariant()(variant, clazz);
       }
     },
     watch: {

@@ -65,7 +65,7 @@
       fill: none
       stroke: #1574C7
       stroke-width: 7
-      opacity: .9
+      opacity: .8
 
     line
       stroke: #1574C7

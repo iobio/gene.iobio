@@ -118,6 +118,7 @@
         <div id="feature-matrix" style="overflow-x: auto;">
 
           <feature-matrix-viz id="feature-matrix-viz"
+            ref="featureMatrixVizRef"
             v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }"
             :data="featureMatrixModel.rankedVariants"
             :matrixRows="featureMatrixModel.filteredMatrixRows"
@@ -336,6 +337,10 @@ export default {
         columnNext.order = columnNext.order - 1;
       }
       self.$emit("variantRankChange");
+    },
+
+    selectVariant: function(variant, clazz) {
+      this.$refs.featureMatrixVizRef.selectVariant(variant, clazz);
     },
 
     onVariantClick: function(variant) {

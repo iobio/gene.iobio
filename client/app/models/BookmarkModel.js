@@ -30,6 +30,8 @@ class BookmarkModel {
       vcfData.features.forEach(function(variant) {
         if (self.exists(variant)) {
           variant.isBookmark = true;
+        } else {
+          variant.isBookmark = false;
         }
       });
     }

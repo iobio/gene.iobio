@@ -1436,8 +1436,6 @@ class SampleModel {
   promiseAnnotateVariants(theGene, theTranscript, variantModels, isMultiSample, isBackground, onVcfData) {
     var me = this;
 
-
-
     return new Promise( function(resolve, reject) {
 
       // First the gene vcf data has been cached, just return
@@ -1461,9 +1459,6 @@ class SampleModel {
       })
 
       Promise.all(promises)
-      //.then(function() {
-      //  return Promise.all(bookmarkPromises)
-      //})
       .then(function() {
         if (Object.keys(resultMap).length == variantModels.length) {
           resolve(resultMap);
@@ -1503,17 +1498,7 @@ class SampleModel {
             if (results && results.length > 0) {
               var data = results[0];
 
-              // Associate the correct gene with the data
-              var theGeneObject = null;
-              for( var key in me.getGeneModel().geneObjects) {
-                var geneObject = me.getGeneModel().geneObjects[key];
-                if (me.getVcfRefName(geneObject.chr) == data.ref &&
-                  geneObject.start == data.start &&
-                  geneObject.end == data.end &&
-                  geneObject.strand == data.strand) {
-                  theGeneObject = geneObject;
-                }
-              }
+              var theGeneObject = me.getGeneModel().geneObjects[data.gene];
               if (theGeneObject) {
 
                 var resultMap = {};
@@ -1538,18 +1523,11 @@ class SampleModel {
                     theVcfData.gene = theGeneObject;
                     resultMap[model.relationship] = theVcfData;
 
-
-                    // Flag any bookmarked variants
-                    //me._promiseDetermineVariantBookmarks(theVcfData, theGeneObject, theTranscript).then(function() {
-
-
-                        if (!isBackground) {
-                          model.vcfData = theVcfData;
-                        }
-                        idx++;
-                        postProcessNextVariantCard(idx, callback);
-
-                    //})
+                    if (!isBackground) {
+                      model.vcfData = theVcfData;
+                    }
+                    idx++;
+                    postProcessNextVariantCard(idx, callback);
 
                   }
                 }
@@ -1583,20 +1561,6 @@ class SampleModel {
       });
 
     });
-
-  }
-
-
-  _promiseDetermineVariantBookmarks(theVcfData, theGeneObject, theTranscript) {
-    var me = this;
-
-    if (me.getRelationship() == 'proband') {
-      return bookmarkCard.promiseDetermineVariantBookmarks(theVcfData, theGeneObject, theTranscript);
-    } else {
-      return new Promise(function(resolve, reject) {
-        resolve();
-      })
-    }
 
   }
 

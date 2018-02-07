@@ -75,6 +75,7 @@
         </div>
 
         <feature-matrix-card
+        ref="featureMatrixCardRef"
         v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
         v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
         :featureMatrixModel="featureMatrixModel"
@@ -464,6 +465,7 @@ export default {
           variantCard.showCoverageCircle(variant);
         }
       })
+      self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
     },
     onCohortVariantClickEnd: function(sourceVariantCard) {
       let self = this;
@@ -472,6 +474,7 @@ export default {
         variantCard.hideVariantCircle();
         variantCard.hideCoverageCircle();
       })
+      self.$refs.featureMatrixCardRef.selectVariant(null);
     },
     onCohortVariantHover: function(variant, sourceVariantCard) {
       let self = this;
@@ -482,7 +485,9 @@ export default {
             variantCard.showCoverageCircle(variant);
           }
         })
+        self.$refs.featureMatrixCardRef.selectVariant(variant);
       }
+
     },
     onCohortVariantHoverEnd: function(sourceVariantCard) {
       let self = this;
@@ -491,6 +496,8 @@ export default {
           variantCard.hideVariantCircle();
           variantCard.hideCoverageCircle();
         })
+        self.$refs.featureMatrixCardRef.selectVariant(null);
+
       }
     },
     deselectVariant: function() {
@@ -503,6 +510,7 @@ export default {
           variantCard.hideCoverageCircle();
         })
       }
+      self.$refs.featureMatrixCardRef.selectVariant(null);
     },
     showVariantExtraAnnots: function(sourceComponent, variant) {
       let self = this;
@@ -651,7 +659,6 @@ export default {
     onBookmarkVariant: function(variant) {
       this.$refs.navRef.onBookmarks();
       let bookmark = this.bookmarkModel.addBookmark(variant, this.selectedGene, this.selectedTranscript);
-
       // This will refresh the loaded variants so that the ranked variants and variant
       // chart flag the bookmarked variants
       this.onBookmarkSelected(bookmark);
@@ -664,11 +671,17 @@ export default {
       self.onGeneSelected(self.selectedGene.gene_name);
       self.promiseLoadGene(self.selectedGene.gene_name)
       .then(function() {
-        self.$refs.variantCardRef.forEach(function(variantCard) {
-          if (variantCard.relationship == 'proband') {
-            variantCard.showBookmark(bookmark.variant);
-          }
-        })
+        setTimeout(
+          function(){
+            self.$refs.variantCardRef.forEach(function(variantCard) {
+              if (variantCard.relationship == 'proband') {
+                variantCard.showBookmark(bookmark.variant);
+              }
+            })
+            self.$refs.featureMatrixCardRef.selectVariant(bookmark.variant, "bookmark");
+          },
+          1000);
+
       });
     }
 
