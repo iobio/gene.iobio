@@ -87,10 +87,6 @@
   <v-card tile id="matrix-card" class="app-card">
     <v-card-title primary-title>
       Ranked Variants
-      <a id="show-legend" class="level-edu level-basic"  onclick="showLegend()" href="javascript:void(0)">
-          <i class="material-icons">map</i>
-          Show legend
-      </a>
     </v-card-title>
 
     <div style="width:100%">
