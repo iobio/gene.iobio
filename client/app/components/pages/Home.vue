@@ -31,6 +31,7 @@
       @load-demo-data="onLoadDemoData"
       @clear-cache="clearCache"
       @copy-paste-genes="onCopyPasteGenes"
+      @bookmark-selected="onBookmarkSelected"
     >
     </navigation>
     <v-content>
@@ -248,6 +249,8 @@ export default {
         self.genomeBuildHelper,
         utility.getHumanRefNames);
 
+      self.bookmarkModel = new BookmarkModel();
+
       self.cohortModel = new CohortModel(endpoint,
         genericAnnotation,
         translator,
@@ -256,10 +259,10 @@ export default {
         self.cacheHelper,
         self.genomeBuildHelper,
         new FreebayesSettings());
+      self.bookmarkModel.cohort = self.cohortModel;
 
       self.inProgress = self.cohortModel.inProgress;
 
-      self.bookmarkModel = new BookmarkModel(self.cohortModel);
 
       self.featureMatrixModel = new FeatureMatrixModel(self.cohortModel);
       self.featureMatrixModel.init();
@@ -374,24 +377,35 @@ export default {
       var self = this;
 
       self.deselectVariant();
-      if (self.cohortModel) {
-        self.cohortModel.clearLoadedData();
-      }
-      if (self.featureMatrixModel) {
-        self.featureMatrixModel.clearRankedVariants();
-      }
+      self.promiseLoadGene(geneName);
+    },
 
-      self.geneModel.addGeneName(geneName);
-      self.geneModel.promiseGetGeneObject(geneName)
-      .then(function(theGeneObject) {
-        self.geneModel.adjustGeneRegion(theGeneObject);
-        self.geneRegionStart = theGeneObject.start;
-        self.geneRegionEnd   = theGeneObject.end;
-        self.selectedGene = theGeneObject;
-        self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
-        self.promiseLoadData()
-        .then(function() {
+    promiseLoadGene: function(geneName) {
+      let self = this;
 
+      return new Promise(function(resolve, reject) {
+        if (self.cohortModel) {
+          self.cohortModel.clearLoadedData();
+        }
+        if (self.featureMatrixModel) {
+          self.featureMatrixModel.clearRankedVariants();
+        }
+
+        self.geneModel.addGeneName(geneName);
+        self.geneModel.promiseGetGeneObject(geneName)
+        .then(function(theGeneObject) {
+          self.geneModel.adjustGeneRegion(theGeneObject);
+          self.geneRegionStart = theGeneObject.start;
+          self.geneRegionEnd   = theGeneObject.end;
+          self.selectedGene = theGeneObject;
+          self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
+          self.promiseLoadData()
+          .then(function() {
+            resolve();
+          })
+        })
+        .catch(function(error) {
+          reject(error);
         })
       })
     },
@@ -631,10 +645,28 @@ export default {
 
 
     },
-    onBookmarkVariant(variant) {
+    onBookmarkVariant: function(variant) {
       this.$refs.navRef.onBookmarks();
-      this.bookmarkModel.addBookmark(variant, this.selectedGene, this.selectedTranscript);
-      this.selectedVariant = null;
+      let bookmark = this.bookmarkModel.addBookmark(variant, this.selectedGene, this.selectedTranscript);
+
+      // This will refresh the loaded variants so that the ranked variants and variant
+      // chart flag the bookmarked variants
+      this.onBookmarkSelected(bookmark);
+    },
+    onBookmarkSelected: function(bookmark) {
+      let self = this;
+      self.selectedVariant = bookmark.variant;
+      self.selectedGene = bookmark.gene;
+      self.selectedTranscript = bookmark.transcript;
+      self.onGeneSelected(self.selectedGene.gene_name);
+      self.promiseLoadGene(self.selectedGene.gene_name)
+      .then(function() {
+        self.$refs.variantCardRef.forEach(function(variantCard) {
+          if (variantCard.relationship == 'proband') {
+            variantCard.showBookmark(bookmark.variant);
+          }
+        })
+      });
     }
 
 

@@ -614,7 +614,7 @@ function variantD3() {
       return;
     }
 
-    matchingVariant.isBookmark = 'Y';
+    matchingVariant.isBookmark = true;
 
     // Get the x, y for the variant's position
     var mousex = d3.round(x(matchingVariant.start));
@@ -638,37 +638,12 @@ function variantD3() {
 
 
     var flagGroup = group.append("g")
-       .attr("transform", "translate(-3,-2)");
+       .attr("transform", "translate(-5,-5)");
     flagGroup.append("rect")
              .attr("x", 1)
              .attr("y", 0)
-             .attr("width", 15)
-             .attr("height", 15);
-    /*
-    flagGroup.append("g")
-             .attr("transform", "translate(1,0),rotate(90)")
-             .append("use")
-             .attr("xlink:href", "#bookmark-symbol")
-             .attr("width", "12")
-             .attr("height", "12");
-    */
-
-
-    /*
-    var flagGroup = group.append("g")
-       .attr("transform", "translate(-1,-5)");
-    flagGroup.append("line")
-             .attr("x1", 4)
-             .attr("x2", 4)
-             .attr("y1", -2)
-             .attr("y2", "14");
-    flagGroup.append("g")
-             .attr("transform", "translate(2,1),rotate(270)")
-             .append("use")
-             .attr("xlink:href", "#bookmark-symbol")
-             .attr("width", "12")
-             .attr("height", "12");
-    */
+             .attr("width", 20)
+             .attr("height", 20);
 
     return chart;
 
@@ -690,7 +665,7 @@ function variantD3() {
     if (!matchingVariant) {
       return;
     }
-    matchingVariant.isBookmark = 'N';
+    matchingVariant.isBookmark = false;
   }
 
   function tickFormatter (d) {

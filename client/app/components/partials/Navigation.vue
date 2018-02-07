@@ -104,8 +104,10 @@ textarea#copy-paste-genes
     >
       <div>
         <bookmarks-card
-        v-if="leftDrawerContents == 'bookmarks'"
-        :bookmarkModel="bookmarkModel">
+         v-if="leftDrawerContents == 'bookmarks'"
+         :bookmarkModel="bookmarkModel"
+         @bookmark-selected="onBookmarkSelected"
+        >
         </bookmarks-card>
 
 
@@ -181,6 +183,9 @@ export default {
     onBookmarks: function() {
       this.leftDrawerContents = "bookmarks";
       this.leftDrawer = true;
+    },
+    onBookmarkSelected: function(bookmark) {
+      this.$emit("bookmark-selected", bookmark)
     }
   },
   mounted: function() {

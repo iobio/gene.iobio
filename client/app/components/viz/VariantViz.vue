@@ -57,11 +57,29 @@
         display: none
         stroke: rgba(211, 211, 211, 0.84)
 
+
+
+.variant-viz
+  .bookmark
+    rect
+      fill: none
+      stroke: #1574C7
+      stroke-width: 7
+      opacity: .9
+
+    line
+      stroke: #1574C7
+      stroke-width: 5
+      opacity: .8
+
+    g
+      fill: #1574C7
+      opacity: .8
 </style>
 
 
 <template>
-    <div>
+    <div class="variant-viz">
 
     </div>
 </template>
@@ -220,6 +238,9 @@ export default {
       },
       setVariantChart: function() {
         this.$emit('updateVariantChart', this.variantChart);
+      },
+      showBookmark: function(variant, container) {
+        this.variantChart.addBookmark(container, variant);
       }
     },
     watch: {

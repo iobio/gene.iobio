@@ -20,6 +20,7 @@
     :bookmark="bookmark"
     :isEditMode="isEditMode"
     @remove-bookmark="onRemoveBookmark"
+    @bookmark-selected="onBookmarkSelected"
     >
     </bookmark-badge>
 
@@ -49,6 +50,9 @@ export default {
   methods: {
     onRemoveBookmark: function(bookmark) {
       this.bookmarkModel.removeBookmark(bookmark);
+    },
+    onBookmarkSelected: function(bookmark) {
+      this.$emit("bookmark-selected", bookmark);
     }
 
   },

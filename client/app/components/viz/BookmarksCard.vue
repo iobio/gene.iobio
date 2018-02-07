@@ -123,6 +123,7 @@
       :bookmarkGene="bookmarkGene"
       :bookmarkModel="bookmarkModel"
       :isEditMode="isEditMode"
+      @bookmark-selected="onBookmarkSelected"
       >
       </bookmark-gene>
 
@@ -226,6 +227,9 @@ export default {
           "gene-iobio-bookmarked-variants." + self.exportFormat );
         self.readyToDownload = true;
       })
+    },
+    onBookmarkSelected: function(bookmark) {
+      this.$emit("bookmark-selected", bookmark);
     }
   },
   mounted: function() {

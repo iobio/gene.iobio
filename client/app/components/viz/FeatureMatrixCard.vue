@@ -13,6 +13,10 @@
         font-size: 18px
         vertical-align: middle
 
+  g.bookmark
+    fill: #3773A7
+    opacity: .7
+
   .matrix-note-text
     margin-top: -7px
     color: $hint-color
@@ -399,6 +403,7 @@ export default {
       });
       tooltip.selectAll("#bookmark").on('click', function() {
         self.unpin(null, true);
+        self.selectedVariant.isBookmark = true;
         self.$emit('bookmark-variant', self.selectedVariant);
       });
     },

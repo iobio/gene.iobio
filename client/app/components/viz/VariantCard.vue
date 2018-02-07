@@ -293,6 +293,7 @@ export default {
       });
       tooltip.selectAll("#bookmark").on('click', function() {
         self.unpin(null, true);
+        self.selectedVariant.isBookmark = true;
         self.$emit('bookmark-variant', self.selectedVariant);
       });
 
@@ -370,7 +371,13 @@ export default {
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
       this.$emit("knownVariantsFilterChange", selectedCategories);
-    }
+    },
+    showBookmark: function(variant) {
+      if (this.showVariantViz) {
+        var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
+        this.$refs.variantVizRef.showBookmark(variant, container);
+      }
+    },
 
   },
 

@@ -257,7 +257,8 @@ class FeatureMatrixModel {
           self.featureVcfData = {};
           self.featureVcfData.features = [];
           theVcfData.features.forEach(function(variant) {
-            self.featureVcfData.features.push($.extend({}, variant));
+            self.featureVcfData.features.push(variant);
+//            self.featureVcfData.features.push($.extend({}, variant));
           });
         }
 

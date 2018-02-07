@@ -8,7 +8,11 @@ class BookmarkModel {
   addBookmark(variant, gene, transcript) {
     if (!this.exists(variant)) {
       variant.isBookmark = true;
-      this.bookmarks.push({'gene': gene,  'transcript': transcript, 'variant': variant, 'isFavorite': false});
+      let bookmark = {'gene': gene,  'transcript': transcript, 'variant': variant, 'isFavorite': false};
+      this.bookmarks.push(bookmark);
+      return bookmark;
+    } else {
+      return this.bookmarks[this.getIndex(variant)];
     }
   }
 
@@ -17,6 +21,17 @@ class BookmarkModel {
     if (idx >= 0) {
       bookmark.variant.isBookmark = false;
       this.bookmarks.splice(idx,1);
+    }
+  }
+
+  flagBookmarks(vcfData) {
+    let self = this;
+    if (vcfData) {
+      vcfData.features.forEach(function(variant) {
+        if (self.exists(variant)) {
+          variant.isBookmark = true;
+        }
+      });
     }
   }
 

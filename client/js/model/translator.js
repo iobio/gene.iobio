@@ -65,8 +65,8 @@ class Translator {
                       gt_unknown: {value: 4, badge: false, clazz: 'gt_unknown' }
                        };
     this.bookmarkMap = {
-                      Y: {value: 1, badge: true,  clazz: 'bookmark',  symbolFunction: this.glyph.showBookmarkSymbol},
-                      N: {value: 2, badge: false, clazz: '',          symbolFunction: this.glyph.showBookmarkSymbol}
+                      true: {value: 1, badge: true,  clazz: 'bookmark',  symbolFunction: this.glyph.showBookmarkSymbol},
+                      false: {value: 2, badge: false, clazz: '',          symbolFunction: this.glyph.showBookmarkSymbol}
                        };
     this.unaffectedMap = {
                           present_some:   {value: 104, badge: false, clazz: 'unaffected', symbolFunction: this.glyph.showAffectedPresentSymbol},

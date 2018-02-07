@@ -306,6 +306,9 @@ class CohortModel {
     return new Promise(function(resolve, reject) {
       self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, options)
       .then(function(resultMap) {
+        // Flag bookmarked variants
+        self.bookmarkModel.flagBookmarks(resultMap.proband);
+
         // the variants are fully annotated so determine inheritance (if trio).
         return self.promiseAnnotateInheritance(theGene, theTranscript, resultMap, {isBackground: false, cacheData: true})
       })
@@ -571,6 +574,7 @@ class CohortModel {
 
     })
   }
+
 
   promiseAnnotateInheritance(geneObject, theTranscript, resultMap, options={isBackground: false, cacheData: true}) {
     let self = this;

@@ -112,7 +112,7 @@
 <template>
 
   <div class="bookmark-badge">
-    <a class="bookmark">
+    <a class="bookmark" @click="onBookmarkSelected">
       <span class="bookmark-number">
         {{ bookmark.index + 1 }}.
       </span>
@@ -245,6 +245,9 @@ export default {
     },
     toggleFavorite: function() {
       this.bookmark.isFavorite = !this.bookmark.isFavorite;
+    },
+    onBookmarkSelected: function(bookmark) {
+      this.$emit("bookmark-selected", this.bookmark);
     }
 
   },
