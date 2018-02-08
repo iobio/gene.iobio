@@ -2386,20 +2386,6 @@ class SampleModel {
       theVcfData.features.push(variantObject);
       v.source = variantObject;
     });
-
-    // Figure out max level (lost for some reason)
-    var maxLevel = 1;
-    theVcfData.features.forEach(function(feature) {
-      if (feature.level > maxLevel) {
-        maxLevel = feature.level;
-      }
-    });
-    theVcfData.maxLevel = maxLevel;
-
-    var pileupObject = me._pileupVariants(theFbData.features, geneObject.start, geneObject.end);
-    theFbData.maxLevel = pileupObject.maxLevel + 1;
-    theFbData.featureWidth = pileupObject.featureWidth;
-
   }
 
 
@@ -2625,14 +2611,11 @@ class SampleModel {
       return (!isHomRef || isGenotypeAbsent) && meetsRegion && meetsAf && meetsCoverage && meetsAnnot && meetsNotEqualAnnot && meetsExonic && meetsLoadedVsCalled && passAffectedStatus;
     });
 
-    var pileupObject = this._pileupVariants(filteredFeatures, start, end);
 
     var vcfDataFiltered = {
       intronsExcludedCount: intronsExcludedCount,
       end: end,
       features: filteredFeatures,
-      maxLevel: pileupObject.maxLevel + 1,
-      featureWidth: pileupObject.featureWidth,
       name: data.name,
       start: start,
       strand: data.strand,

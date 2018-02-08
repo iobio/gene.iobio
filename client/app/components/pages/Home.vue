@@ -42,8 +42,8 @@
          :geneModel="geneModel"
          :selectedGene="selectedGene"
          :geneNames="geneModel.sortedGeneNames"
-         :loadedGeneNames="Object.keys(geneModel.geneDangerSummaries)"
-         :genesInProgress="cacheHelper.cacheQueue"
+         :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
+         :genesInProgress="cohortModel.genesInProgress"
          :isLoaded="cohortModel && cohortModel.isLoaded"
          :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
          @gene-selected="onGeneSelected"
@@ -190,6 +190,8 @@ export default {
       geneRegionStart: null,
       geneRegionEnd: null,
 
+      genesInProgress: {},
+
 
       cohortModel: null,
       models: [],
@@ -269,6 +271,7 @@ export default {
 
       self.featureMatrixModel = new FeatureMatrixModel(self.cohortModel);
       self.featureMatrixModel.init();
+      self.cohortModel.featureMatrixModel = self.featureMatrixModel;
 
       self.variantTooltip = new VariantTooltip(genericAnnotation,
         glyph,
@@ -297,6 +300,7 @@ export default {
         return 0;
       }
     }
+
   },
 
   watch: {
@@ -350,27 +354,21 @@ export default {
 
 
         if (self.models && self.models.length > 0) {
-          self.selectedGene.inProgress = true;
 
-          self.featureMatrixModel.inProgress.loadingVariants = true;
+
           var options = {'getKnownVariants': self.showClinvarVariants};
 
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,
             options)
           .then(function(resultMap) {
-              self.featureMatrixModel.inProgress.loadingVariants = false;
-              self.featureMatrixModel.promiseRankVariants(self.cohortModel.getModel('proband').loadedVariants);
+
               self.filterModel.populateEffectFilters(resultMap);
               self.filterModel.populateRecFilters(resultMap);
-              //var bp = me._promiseDetermineVariantBookmarks(vcfData, theGene, theTranscript);
-              //bookmarkPromises.push(bp);
 
-              self.selectedGene.inProgress = false;
               resolve();
           })
           .catch(function(error) {
-            self.selectedGene.inProgress = false;
             reject(error);
           })
         } else {
@@ -386,13 +384,11 @@ export default {
       if (theGene == null) {
         self.cacheHelper.analyzeAll(self.cohortModel, true);
       } else {
-        self.selectedGene.inProgress = true;
         self.cohortModel.promiseJointCallVariants(self.selectedGene,
           self.selectedTranscript,
           self.cohortModel.getCurrentTrioVcfData(),
           {checkCache: false, isBackground: false})
         .then(function() {
-          self.selectedGene.inProgress = false;
         })
       }
     },

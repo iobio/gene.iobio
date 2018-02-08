@@ -171,9 +171,9 @@ export default {
   },
   props: {
     geneNames: null,
-    loadedGeneNames: null,
-    geneModel: null,
     genesInProgress: null,
+    loadedDangerSummaries: null,
+    geneModel: null,
     selectedGene: null,
     isLoaded: null,
     hasAlignments: null
@@ -201,18 +201,16 @@ export default {
       let self = this;
       if (self.geneNames) {
         self.geneSummaries = self.geneNames.map(function(geneName) {
-          let inProgress = false;
-          if (self.selectedGene.gene_name == geneName && self.selectedGene.inProgress) {
-            inProgress = true;
-          } else {
-            inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
+          let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
+          if (inProgress) {
+            console.log(geneName + " is in progress");
           }
           return {'name': geneName,
           'dangerSummary': self.geneModel.getDangerSummary(geneName),
           'inProgress': inProgress};
         })
-        if (self.loadedGeneNames.length > 0) {
-          self.loadedPercentage = (self.loadedGeneNames.length / self.geneNames.length) * 100;
+        if (self.loadedDangerSummaries.length > 0) {
+          self.loadedPercentage = (self.loadedDangerSummaries.length / self.geneNames.length) * 100;
         } else {
           self.loadedPercentage = 0;
         }
@@ -236,20 +234,18 @@ export default {
   mounted: function() {
     this.updateGeneSummaries();
   },
-  computed: {
-  },
   watch: {
     geneNames: function(newGeneNames, oldGeneNames) {
+      console.log("watch geneNames");
       this.updateGeneSummaries();
     },
-    loadedGeneNames: function(newDangerSummaries, oldDangerSummaries) {
+    genesInProgress: function() {
+      console.log("watch genes in progress " + this.genesInProgress.join(" "));
       this.updateGeneSummaries();
     },
     sortBy: function() {
       this.$emit("sort-genes", this.sortBy);
     }
-  },
-  computed: {
   }
 }
 

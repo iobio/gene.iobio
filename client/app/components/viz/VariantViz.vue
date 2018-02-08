@@ -228,10 +228,10 @@ export default {
         self.$emit("variantHoverEnd", variant);
       },
       showVariantCircle: function(variant, container, lock) {
-        let matchingVariants = this.data.features.filter(function(v) {
-          return v.start == variant.start && v.ref == variant.ref && v.end == variant.end;
-        })
-        this.variantChart.showCircle()(variant, container, matchingVariants.length == 0, lock);
+        this.variantChart.showCircle()(variant,
+          container,
+          variant.fbCalled && variant.fbCalled == 'Y' ? false : true,
+          lock);
       },
       hideVariantCircle: function(container) {
         this.variantChart.hideCircle()(container);

@@ -11,6 +11,7 @@ class CohortModel {
     this.genomeBuildHelper = genomeBuildHelper;
     this.freebayesSettings = freebayesSettings;
     this.filterModel = null;
+    this.featureMatrixModel = null;
 
     this.annotationScheme = 'vep';
 
@@ -27,6 +28,8 @@ class CohortModel {
     this.inProgress = {
       'loadingDataSources': false
     };
+
+    this.genesInProgress = [];
 
 
     this.demoVcf = "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz";
@@ -173,8 +176,7 @@ class CohortModel {
     let self = this;
     if (self.affectedInfo == null || forceRefresh) {
       self.affectedInfo = [];
-      for (var rel in self.sampleMap) {
-        var model = self.sampleMap[rel].model;
+      self.getCanonicalModels().forEach(function(model) {
         if (model && model.getRelationship() != 'known-variants') {
           var info = {};
           info.model = model;
@@ -186,7 +188,7 @@ class CohortModel {
 
           self.affectedInfo.push(info);
         }
-      }
+      })
       /*
       var sibIdx = 0;
       for (var status in variantCardsSibs) {
@@ -259,10 +261,14 @@ class CohortModel {
     let self = this;
     let promises = [];
 
+
     return new Promise(function(resolve, reject) {
       if (Object.keys(self.sampleMap).length == 0) {
         resolve();
       } else {
+
+        self.startGeneProgress(theGene);
+
         self.clearLoadedData();
 
         let cohortResultMap = null;
@@ -282,19 +288,39 @@ class CohortModel {
 
         Promise.all(promises)
         .then(function() {
+
+
             // Now summarize the danger for the selected gene
             self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
             .then(function() {
+              self.endGeneProgress(theGene);
               resolve();
             })
         })
         .catch(function(error) {
+          me.endGeneProgress(theGene);
           reject(error);
         })
 
       }
 
     })
+  }
+
+  startGeneProgress(theGene) {
+    var idx = this.genesInProgress.indexOf(theGene.gene_name);
+    if (idx < 0) {
+      this.genesInProgress.push(theGene.gene_name);
+    }
+    console.log("starting gene progress " + Object.keys(this.genesInProgress));
+  }
+
+  endGeneProgress(theGene) {
+    var idx = this.genesInProgress.indexOf(theGene.gene_name);
+    if (idx >= 0) {
+      this.genesInProgress.splice(idx,1);
+    }
+    console.log("ending gene progress " + Object.keys(this.genesInProgress));
   }
 
   promiseLoadKnownVariants(theGene, theTranscript) {
@@ -352,6 +378,7 @@ class CohortModel {
     let self = this;
     self.sampleModels.forEach(function(model) {
       model.loadedVariants = {loadState: {}, features: [], maxLevel: 1, featureWidth: 0};
+      model.calledVariants = {loadState: {}, features: [], maxLevel: 1, featureWidth: 0};
       model.coverage = [[]];
     });
   }
@@ -371,6 +398,10 @@ class CohortModel {
           isTarget = true;
         }
 
+        var isHomRef = (feature.zygosity && feature.zygosity.toUpperCase() == "HOMREF")
+           || feature.zygosity == "NONE"
+           || feature.zygosity == "";
+
         var inRegion = true;
         if (self.filterModel.regionStart && self.filterModel.regionEnd) {
           inRegion = feature.start >= self.filterModel.regionStart && feature.start <= self.filterModel.regionEnd;
@@ -378,12 +409,13 @@ class CohortModel {
 
         var passesModelFilter = self.filterModel.passesModelFilter(model.relationship, feature);
 
-        return isTarget && inRegion && passesModelFilter;
+        return isTarget && !isHomRef && inRegion && passesModelFilter;
       });
 
       var pileupObject = model._pileupVariants(filteredVariants.features, start, end);
       filteredVariants.maxLevel = pileupObject.maxLevel + 1;
       filteredVariants.featureWidth = pileupObject.featureWidth;
+
       return filteredVariants;
     }
 
@@ -400,6 +432,12 @@ class CohortModel {
 
           var calledVariants = filterAndPileupVariants(model, start, end, 'called');
           model.calledVariants = calledVariants;
+
+          if (model.getRelationship() == 'proband') {
+            var allVariants = $.extend({}, model.loadedVariants);
+            allVariants.features = model.loadedVariants.features.concat(model.calledVariants.features);
+            self.featureMatrixModel.promiseRankVariants(allVariants);
+          }
 
         } else {
           model.loadedVariants = {loadState: {}, features: []};
@@ -948,6 +986,8 @@ class CohortModel {
       var trioFbData  = {'proband': null, 'mother': null, 'father': null};
       var trioVcfData = loadedTrioVcfData ? loadedTrioVcfData : null;
 
+      me.startGeneProgress(geneObject);
+
       me.promiseHasCachedCalledVariants(geneObject, theTranscript)
       .then(function(hasCalledVariants) {
 
@@ -999,6 +1039,7 @@ class CohortModel {
 
             },
             function(error) {
+              me.endGeneProgress(geneObject);
               var msg = "A problem occurred in jointCallVariantsImpl(): " + error;
               console.log(msg);
               reject(msg);
@@ -1007,6 +1048,7 @@ class CohortModel {
             promises.push(p);
           })
           Promise.all(promises).then(function() {
+            me.endGeneProgress(geneObject);
             showCalledVariants();
               resolve({
                 'gene': geneObject,
@@ -1081,7 +1123,7 @@ class CohortModel {
                         }
                       })
                     }
-
+                    me.endGeneProgress(geneObject);
                     resolve({
                       'gene': geneObject,
                       'transcript': theTranscript,
@@ -1119,9 +1161,6 @@ class CohortModel {
         emptyVcfData = true;
       } else {
 
-        if (theVcfData.loadState == null) {
-          theVcfData.loadState = {};
-        }
         theVcfData.loadState['called'] = true;
         var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, global_vepAF);
 
@@ -1132,13 +1171,6 @@ class CohortModel {
           variant.fbCalled = "Y";
           variant.extraAnnot = true;
         })
-
-        if (options.isBackground) {
-          var pileupObject = model._pileupVariants(theFbData.features, geneObject.start, geneObject.end);
-          theFbData.maxLevel = pileupObject.maxLevel + 1;
-          theFbData.featureWidth = pileupObject.featureWidth;
-        }
-
 
         // Flag the called variants
         theFbData.features.forEach( function(feature) {

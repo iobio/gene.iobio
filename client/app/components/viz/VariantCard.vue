@@ -69,6 +69,25 @@
         >
         </known-variants-toolbar>
 
+        <variant-viz id="called-variant-viz"
+          v-if="showVariantViz"
+          ref="calledVariantVizRef"
+          :data="sampleModel.calledVariants"
+          :regionStart="regionStart"
+          :regionEnd="regionEnd"
+          :annotationScheme="annotationScheme"
+          :width="width"
+          :margin="variantVizMargin"
+          :variantHeight="variantSymbolHeight"
+          :variantPadding="variantSymbolPadding"
+          :showBrush="false"
+          :showXAxis="true"
+          :classifySymbolFunc="classifyVariantSymbolFunc"
+          @variantClick="onVariantClick"
+          @variantHover="onVariantHover"
+          @variantHoverEnd="onVariantHoverEnd">
+        </variant-viz>
+
         <variant-viz id="loaded-variant-viz"
           v-if="showVariantViz"
           ref="variantVizRef"
@@ -322,15 +341,21 @@ export default {
     },
     showVariantCircle: function(variant) {
       if (this.showVariantViz) {
-        var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-        this.$refs.variantVizRef.showVariantCircle(variant, container, false);
+        this.$refs.variantVizRef.showVariantCircle(variant,this.getVariantSVG(variant),false);
       }
     },
-    hideVariantCircle: function(variant) {
+    hideVariantCircle: function() {
       if (this.showVariantViz) {
         var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
         this.$refs.variantVizRef.hideVariantCircle(container);
+        container = d3.select(this.$el).select('#called-variant-viz > svg');
+        this.$refs.variantVizRef.hideVariantCircle(container);
       }
+    },
+    getVariantSVG: function(variant) {
+      return variant.fbCalled && variant.fbCalled == 'Y'
+          ? d3.select(this.$el).select('#called-variant-viz > svg')
+          : d3.select(this.$el).select('#loaded-variant-viz > svg');
     },
     hideCoverageCircle: function() {
       if (this.showDepthViz) {
