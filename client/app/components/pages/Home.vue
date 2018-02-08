@@ -481,9 +481,11 @@ export default {
           variantCard.showCoverageCircle(variant);
         }
       })
-      self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
+      if (self.$refs.featureMatrixCardRef != sourceComponent) {
+        self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
+      }
     },
-    onCohortVariantClickEnd: function(sourceVariantCard) {
+    onCohortVariantClickEnd: function(sourceComponent) {
       let self = this;
       self.selectedVariant = null;
       self.$refs.variantCardRef.forEach(function(variantCard) {
@@ -492,16 +494,18 @@ export default {
       })
       self.$refs.featureMatrixCardRef.selectVariant(null);
     },
-    onCohortVariantHover: function(variant, sourceVariantCard) {
+    onCohortVariantHover: function(variant, sourceComponent) {
       let self = this;
       if (self.selectedVariant == null) {
         self.$refs.variantCardRef.forEach(function(variantCard) {
-          if (variantCard != sourceVariantCard) {
+          if (variantCard != sourceComponent) {
             variantCard.showVariantCircle(variant);
             variantCard.showCoverageCircle(variant);
           }
         })
-        self.$refs.featureMatrixCardRef.selectVariant(variant);
+        if (self.$refs.featureMatrixCardRef != sourceComponent) {
+          self.$refs.featureMatrixCardRef.selectVariant(variant);
+        }
       }
 
     },
