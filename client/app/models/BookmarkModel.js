@@ -24,6 +24,14 @@ class BookmarkModel {
     }
   }
 
+  removeBookmarkForVariant(variant) {
+    var idx = this.getIndex(variant);
+    if (idx >= 0) {
+      variant.isBookmark = false;
+      this.bookmarks.splice(idx,1);
+    }
+  }
+
   flagBookmarks(vcfData) {
     let self = this;
     if (vcfData) {

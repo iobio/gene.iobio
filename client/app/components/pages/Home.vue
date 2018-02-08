@@ -90,6 +90,7 @@
         @cohortVariantHover="onCohortVariantHover"
         @cohortVariantHoverEnd="onCohortVariantHoverEnd"
         @bookmark-variant="onBookmarkVariant"
+        @remove-bookmark="onRemoveBookmark"
         @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
         >
         </feature-matrix-card>
@@ -116,6 +117,7 @@
         @cohortVariantHover="onCohortVariantHover"
         @cohortVariantHoverEnd="onCohortVariantHoverEnd"
         @bookmark-variant="onBookmarkVariant"
+        @remove-bookmark="onRemoveBookmark"
         @knownVariantsVizChange="onKnownVariantsVizChange"
         @knownVariantsFilterChange="onKnownVariantsFilterChange"
         >
@@ -677,11 +679,19 @@ export default {
 
     },
     onBookmarkVariant: function(variant) {
-      this.$refs.navRef.onBookmarks();
-      let bookmark = this.bookmarkModel.addBookmark(variant, this.selectedGene, this.selectedTranscript);
-      // This will refresh the loaded variants so that the ranked variants and variant
-      // chart flag the bookmarked variants
-      this.onBookmarkSelected(bookmark);
+      let self = this;
+      self.$refs.navRef.onBookmarks();
+      let bookmark = self.bookmarkModel.addBookmark(variant, self.selectedGene, self.selectedTranscript);
+      // Refresh the loaded variants so that the ranked variants table
+      // reflects the bookmark flag
+      self.promiseLoadGene(self.selectedGene.gene_name)
+    },
+    onRemoveBookmark: function(variant) {
+      let self = this;
+      self.bookmarkModel.removeBookmarkForVariant(variant);
+      // Refresh the loaded variants so that the ranked variants table
+      // reflects the bookmark flag
+      self.promiseLoadGene(self.selectedGene.gene_name);
     },
     onBookmarkSelected: function(bookmark) {
       let self = this;

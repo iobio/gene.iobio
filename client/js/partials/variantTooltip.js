@@ -1010,7 +1010,7 @@ class VariantTooltip {
     var unpin =  '<button id="unpin"  class="hide tooltip-control-button tooltip-button btn btn raised btn-default"><i class="material-icons">close</i></button>'
 
     if (lock) {
-      if (variant.hasOwnProperty('isBookmark') && variant.isBookmark == 'Y') {
+      if (variant.isBookmark) {
         return '<div class="row tooltip-footer">'
           + '<div class="col-sm-4 left-footer" id="bookmarkLink" style="text-align:left;">'  + unpin + removeBookmarkLink  + '</div>'
           + '<div class="col-sm-4 center-footer"  style="text-align:center;">'  +  removeBookmarkLink  +  unpin + (relationship == 'known-variants' ? '' : scrollUpButton + scrollDownButton) + '</div>'

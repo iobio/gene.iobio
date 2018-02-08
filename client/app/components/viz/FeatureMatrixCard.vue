@@ -407,6 +407,12 @@ export default {
         self.selectedVariant.isBookmark = true;
         self.$emit('bookmark-variant', self.selectedVariant);
       });
+      tooltip.selectAll("#remove-bookmark").on('click', function() {
+        self.unpin(null, true);
+        self.selectedVariant.isBookmark = false;
+        self.$emit('remove-bookmark', self.selectedVariant);
+      });
+
     },
 
     tooltipScroll(direction) {
