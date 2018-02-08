@@ -383,6 +383,13 @@ class CohortModel {
     });
   }
 
+  clearCalledVariants() {
+    let self = this;
+    self.sampleModels.forEach(function(model) {
+      model.calledVariants = {loadState: {}, features: [], maxLevel: 1, featureWidth: 0};
+    })
+  }
+
   setLoadedVariants(gene, relationship=null) {
     let self = this;
 
@@ -398,8 +405,9 @@ class CohortModel {
           isTarget = true;
         }
 
-        var isHomRef = (feature.zygosity && feature.zygosity.toUpperCase() == "HOMREF")
-           || feature.zygosity == "NONE"
+        var isHomRef = feature.zygosity == null
+           || feature.zygosity.toUpperCase() == "HOMREF"
+           || feature.zygosity.toUpperCase() == "NONE"
            || feature.zygosity == "";
 
         var inRegion = true;
@@ -947,8 +955,9 @@ class CohortModel {
 
       var showCalledVariants = function() {
         if (!options.isBackground) {
+          me.endGeneProgress(geneObject);
+          me.setLoadedVariants(geneObject);
           me.getCanonicalModels().forEach( function(model) {
-            model.setLoadedVariants(geneObject);
             model.inProgress.callingVariants = false;
           });
         }
@@ -987,6 +996,8 @@ class CohortModel {
       var trioVcfData = loadedTrioVcfData ? loadedTrioVcfData : null;
 
       me.startGeneProgress(geneObject);
+
+      me.clearCalledVariants();
 
       me.promiseHasCachedCalledVariants(geneObject, theTranscript)
       .then(function(hasCalledVariants) {
@@ -1048,7 +1059,6 @@ class CohortModel {
             promises.push(p);
           })
           Promise.all(promises).then(function() {
-            me.endGeneProgress(geneObject);
             showCalledVariants();
               resolve({
                 'gene': geneObject,
@@ -1123,7 +1133,6 @@ class CohortModel {
                         }
                       })
                     }
-                    me.endGeneProgress(geneObject);
                     resolve({
                       'gene': geneObject,
                       'transcript': theTranscript,
