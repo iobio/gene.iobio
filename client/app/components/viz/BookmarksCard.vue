@@ -30,7 +30,7 @@
 .bookmark-dialog-body
   .card__text
     padding-top: 0px
-    padding-bottom: 0px
+    padding-bottom: 20px
 
   .radio-group.radio-group--column
     margin-top: 0px
@@ -131,7 +131,7 @@
 
     <v-dialog v-model="showOpenDialog" max-width="400">
       <v-card>
-        <v-card-title>Open bookmarks file</v-card-title>
+        <v-card-title class="headline">Open bookmarks file</v-card-title>
         <v-card-text class="bookmark-dialog-body">
           <div id="bookmark-file" >
             <v-radio-group hide-details v-model="bookmarkFileType" >
@@ -152,6 +152,7 @@
           </div>
         </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn raised class="bookmark-button" @click.native="showOpenDialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>
@@ -160,7 +161,7 @@
 
     <v-dialog v-model="showSaveDialog" max-width="400">
       <v-card>
-        <v-card-title>Save bookmarks file</v-card-title>
+        <v-card-title class="headline">Save bookmarks file</v-card-title>
         <v-card-text class="bookmark-dialog-body">
           <div id="bookmark-save" >
             <v-radio-group hide-details v-model="exportFormat" >
@@ -171,6 +172,7 @@
           </div>
         </v-card-text>
         <v-card-actions>
+          <v-spacer></v-spacer>
           <v-btn
             v-if="!readyToDownload"
             class="bookmark-button" raised @click="onSaveBookmarkFile">
