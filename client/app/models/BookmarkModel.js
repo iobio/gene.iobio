@@ -1,8 +1,7 @@
 class BookmarkModel {
-  constructor(cohort) {
+  constructor() {
     this.bookmarks = [];
-    this.cohort = cohort;
-    this.variantExporter = new VariantExporter(this.cohort);
+    this.cohort = null;
   }
 
   addBookmark(variant, gene, transcript) {
@@ -194,7 +193,7 @@ class BookmarkModel {
       })
     }
 
-    return me.variantExporter.promiseExportVariants(bookmarksToExport, format, sampleNames);
+    return me.cohort.variantExporter.promiseExportVariants(bookmarksToExport, format, sampleNames);
   }
 
 

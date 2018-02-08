@@ -257,16 +257,20 @@ export default {
         utility.getHumanRefNames);
 
       self.bookmarkModel = new BookmarkModel();
+      self.variantExporter = new VariantExporter();
 
       self.cohortModel = new CohortModel(endpoint,
         genericAnnotation,
         translator,
         self.geneModel,
         self.bookmarkModel,
+        self.variantExporter,
         self.cacheHelper,
         self.genomeBuildHelper,
         new FreebayesSettings());
+
       self.bookmarkModel.cohort = self.cohortModel;
+      self.variantExporter.cohort = self.cohortModel;
 
       self.inProgress = self.cohortModel.inProgress;
 

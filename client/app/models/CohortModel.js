@@ -1,12 +1,14 @@
 class CohortModel {
 
-  constructor(endpoint, genericAnnotation, translator, geneModel, bookmarkModel, cacheHelper, genomeBuildHelper, freebayesSettings) {
+  constructor(endpoint, genericAnnotation, translator, geneModel, bookmarkModel,
+    variantExporter, cacheHelper, genomeBuildHelper, freebayesSettings) {
 
     this.endpoint = endpoint;
     this.genericAnnotation = genericAnnotation;
     this.translator = translator;
     this.geneModel = geneModel;
     this.bookmarkModel = bookmarkModel;
+    this.variantExporter = variantExporter;
     this.cacheHelper = cacheHelper;
     this.genomeBuildHelper = genomeBuildHelper;
     this.freebayesSettings = freebayesSettings;

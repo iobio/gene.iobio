@@ -1,7 +1,7 @@
 class VariantExporter {
 
-  constructor(cohort) {
-    this.cohort = cohort;
+  constructor() {
+    this.cohort = null;
     this.exportFields = [
       {field: 'chrom',            exportVcf: false},
       {field: 'start',            exportVcf: false},
