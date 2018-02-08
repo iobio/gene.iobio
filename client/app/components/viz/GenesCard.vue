@@ -200,20 +200,30 @@ export default {
     updateGeneSummaries: function() {
       let self = this;
       if (self.geneNames) {
+
+        let calledCount = 0;
+        let loadedCount = 0;
+
         self.geneSummaries = self.geneNames.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
           if (inProgress) {
             console.log(geneName + " is in progress");
           }
+          var dangerSummary = self.geneModel.getDangerSummary(geneName);
+          if (dangerSummary) {
+            loadedCount++;
+          }
+          if (dangerSummary && dangerSummary.CALLED) {
+            calledCount++;
+          }
           return {'name': geneName,
           'dangerSummary': self.geneModel.getDangerSummary(geneName),
           'inProgress': inProgress};
         })
-        if (self.loadedDangerSummaries.length > 0) {
-          self.loadedPercentage = (self.loadedDangerSummaries.length / self.geneNames.length) * 100;
-        } else {
-          self.loadedPercentage = 0;
-        }
+
+        self.loadedPercentage = loadedCount >  0 ? (loadedCount / self.geneNames.length) * 100 : 0;
+        self.calledPercentage = calledCount >  0 ? (calledCount / self.geneNames.length) * 100 : 0;
+
       } else {
         self.geneSummaries = [];
         self.loadedPercentage = 0;

@@ -267,7 +267,7 @@ class CohortModel {
         resolve();
       } else {
 
-        self.startGeneProgress(theGene);
+        self.startGeneProgress(theGene.gene_name);
 
         self.clearLoadedData();
 
@@ -293,12 +293,12 @@ class CohortModel {
             // Now summarize the danger for the selected gene
             self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
             .then(function() {
-              self.endGeneProgress(theGene);
+              self.endGeneProgress(theGene.gene_name);
               resolve();
             })
         })
         .catch(function(error) {
-          me.endGeneProgress(theGene);
+          me.endGeneProgress(theGene.gene_name);
           reject(error);
         })
 
@@ -307,20 +307,18 @@ class CohortModel {
     })
   }
 
-  startGeneProgress(theGene) {
-    var idx = this.genesInProgress.indexOf(theGene.gene_name);
+  startGeneProgress(geneName) {
+    var idx = this.genesInProgress.indexOf(geneName);
     if (idx < 0) {
-      this.genesInProgress.push(theGene.gene_name);
+      this.genesInProgress.push(geneName);
     }
-    console.log("starting gene progress " + Object.keys(this.genesInProgress));
   }
 
-  endGeneProgress(theGene) {
-    var idx = this.genesInProgress.indexOf(theGene.gene_name);
+  endGeneProgress(geneName) {
+    var idx = this.genesInProgress.indexOf(geneName);
     if (idx >= 0) {
       this.genesInProgress.splice(idx,1);
     }
-    console.log("ending gene progress " + Object.keys(this.genesInProgress));
   }
 
   promiseLoadKnownVariants(theGene, theTranscript) {
@@ -955,7 +953,7 @@ class CohortModel {
 
       var showCalledVariants = function() {
         if (!options.isBackground) {
-          me.endGeneProgress(geneObject);
+          me.endGeneProgress(geneObject.gene_name);
           me.setLoadedVariants(geneObject);
           me.getCanonicalModels().forEach( function(model) {
             model.inProgress.callingVariants = false;
@@ -995,7 +993,7 @@ class CohortModel {
       var trioFbData  = {'proband': null, 'mother': null, 'father': null};
       var trioVcfData = loadedTrioVcfData ? loadedTrioVcfData : null;
 
-      me.startGeneProgress(geneObject);
+      me.startGeneProgress(geneObject.gene_name);
 
       me.clearCalledVariants();
 
@@ -1050,7 +1048,7 @@ class CohortModel {
 
             },
             function(error) {
-              me.endGeneProgress(geneObject);
+              me.endGeneProgress(geneObject.gene_name);
               var msg = "A problem occurred in jointCallVariantsImpl(): " + error;
               console.log(msg);
               reject(msg);

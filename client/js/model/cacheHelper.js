@@ -145,6 +145,7 @@ CacheHelper.prototype.queueGene = function(geneName) {
   if (this.cacheQueue.indexOf(geneName) < 0) {
     this.cacheQueue.push(geneName);
   }
+  this.cohort.startGeneProgress(geneName);
 }
 
 CacheHelper.prototype.dequeueGene = function(geneName) {
@@ -152,6 +153,7 @@ CacheHelper.prototype.dequeueGene = function(geneName) {
   if (idx >= 0) {
     this.cacheQueue.splice(idx,1);
   }
+  this.cohort.endGeneProgress(geneName);
 }
 
 
@@ -217,16 +219,13 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
 
   // Place next batch of genes in caching queue
   for (var i = 0; i < sizeToQueue; i++) {
-    me.cacheQueue.push(me.genesToCache[i]);
+    me.queueGene(me.genesToCache[i]);
   }
   // Remove this batch of genes from the list of all genes to be cached
   for (var i = 0; i < sizeToQueue; i++) {
     me.genesToCache.shift();
   }
-  // Make sure we are still showing the genes as 'loading...' that are still in the cache
-  //for (var idx = 0; idx < startingPos; idx++) {
-  //   genesCard._geneBadgeLoading(me.cacheQueue[idx], true);
-  //}
+
 
   // Invoke method to cache each of the genes in the queue
   var count = 0;
@@ -375,26 +374,8 @@ CacheHelper.prototype.isGeneInProgress = function(geneName) {
 
 CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants, callback) {
 
-  // Take the analyzed (and cached) gene off of the cache queue
-  var idx = this.cacheQueue.indexOf(geneName);
-  if (idx >= 0) {
-    this.cacheQueue.splice(idx,1);
-    //this.geneBadgeLoaderDisplay.setPageCount(genesCard.getPageCount())
-      //                         .removeGene(geneName);
-  } else {
-    idx = this.cacheQueue.indexOf(geneName.toUpperCase());
-    if (idx >= 0) {
-      this.cacheQueue.splice(idx,1);
-      //this.geneBadgeLoaderDisplay.setPageCount(genesCard.getPageCount())
-       //                          .removeGene(geneName);
-    } else {
-      console.log("Unexpected error occurred during caching of genes.  Could not remove " + geneName + " from cache queue");
-      if (callback) {
-        callback();
-      }
-      return;
-    }
-  }
+
+  this.dequeueGene(geneName);
   // Invoke cacheGenes, which will kick off the next batch
   // of genes to analyze once all of the genes in
   // the current batch have been analyzed.
