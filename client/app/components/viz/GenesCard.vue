@@ -140,6 +140,8 @@
           </gene-count-badges>
 
 
+<!--
+
           <div id="genes-sort-dropdown"
            v-if="isLoaded">
             <v-select
@@ -151,7 +153,7 @@
             >
             </v-select>
           </div>
-
+-->
         </div>
 
 

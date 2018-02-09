@@ -395,6 +395,7 @@ export default {
         'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.INHERITANCE && this.gene.dangerSummary.INHERITANCE.recessive && this.gene.dangerSummary.harmfulVariantsLevel >= 1,
         'inheritance-denovo':    this.gene.dangerSummary && this.gene.dangerSummary.INHERITANCE && this.gene.dangerSummary.INHERITANCE.denovo  && this.gene.dangerSummary.harmfulVariantsLevel >= 1,
         'has-phenotypes':        this.phenotypes && this.phenotypes.length > 0,
+        'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem,
         'has-harmful1-variant':  this.gene.dangerSummary && this.gene.dangerSummary.harmfulVariantsLevel == 1,
         'has-harmful2-variant':  this.gene.dangerSummary && this.gene.dangerSummary.harmfulVariantsLevel == 2,
         'has-harmful3-variant':  this.gene.dangerSummary && this.gene.dangerSummary.harmfulVariantsLevel == 3

@@ -4,13 +4,12 @@
 #gene-count-badges
     display: inline-block
     vertical-align: top
-    padding-top: 8px
     margin-right: 35px
 
     button
       padding-left: 0px
       padding-right: 0px
-      min-width: 50px
+      min-width: 46px
       margin-left: 0px
       margin-right: 0px
 
@@ -19,27 +18,33 @@
 
       &.selected
         background-color: lightgray !important
+      &.disabled
+        opacity: .6
+        pointer-events: none
 
+        .badge__badge
+          display: none
 
-    .badge
-      background-color: transparent
+      .badge
+        padding: 0px 5px 0px 0px
+        background-color: transparent
 
-    svg
-      width: 20px
-      height: 20px
+      svg
+        width: 20px
+        height: 20px
 
-    .badge__badge
-      font-weight: normal
-      font-size: 12px
-      width: 18px
-      height: 18px
-      right: -10px
-      top: -10px
-      background-color: gray !important
+      .badge__badge
+        font-weight: normal
+        font-size: 12px
+        width: 18px
+        height: 18px
+        right: -10px
+        top: -10px
+        background-color: gray !important
 
-    .gene-badge-coverage-problem
-      color: $coverage-problem-color
-      fill: $coverage-problem-color
+      .gene-badge-coverage-problem
+        color: $coverage-problem-color
+        fill: $coverage-problem-color
 
 </style>
 
@@ -47,7 +52,10 @@
   <div  id="gene-count-badges" >
 
 
-    <v-btn  flat ref="pathogenic"  v-if="badgeCounts.pathogenic > 0" @click="onBadgeClick('pathogenic')" slot="activator" flat>
+    <v-btn  flat ref="pathogenic"
+    v-bind:class="badgeCounts.pathogenic == 0 ? 'disabled' : ''"
+    @click="onBadgeClick('pathogenic')" slot="activator" flat
+    >
       <v-badge right >
         <span slot="badge"> {{ badgeCounts.pathogenic }} </span>
         <span>
@@ -61,7 +69,10 @@
       </v-badge>
     </v-btn>
 
-    <v-btn flat ref="recessive" v-if="badgeCounts.recessive > 0"  @click="onBadgeClick('recessive')" >
+    <v-btn flat ref="recessive"
+      v-bind:class="badgeCounts.recessive == 0 ? 'disabled' : ''"
+      @click="onBadgeClick('recessive')"
+    >
       <v-badge   right>
         <span  slot="badge">{{ badgeCounts.recessive }}</span>
         <span>
@@ -75,7 +86,9 @@
       </v-badge>
     </v-btn>
 
-    <v-btn flat ref="denovo" v-if="badgeCounts.denovo > 0"  @click="onBadgeClick('denovo')" >
+    <v-btn flat ref="denovo"
+     v-bind:class="badgeCounts.denovo == 0 ? 'disabled' : ''"
+    @click="onBadgeClick('denovo')" >
       <v-badge  right >
         <span   slot="badge">{{ badgeCounts.denovo }}</span>
         <span>
@@ -90,7 +103,10 @@
     </v-btn>
 
 
-    <v-btn flat ref="high" v-if="badgeCounts.high > 0"  @click="onBadgeClick('high')" >
+    <v-btn flat ref="high"
+     v-bind:class="badgeCounts.high == 0 ? 'disabled' : ''"
+     @click="onBadgeClick('high')"
+    >
       <v-badge  right >
         <span   slot="badge">{{ badgeCounts.high }}</span>
         <span>
@@ -103,7 +119,9 @@
       </v-badge>
     </v-btn>
 
-    <v-btn flat ref="moderate" v-if="badgeCounts.moderate > 0"  @click="onBadgeClick('moderate')" >
+    <v-btn flat ref="moderate"
+     v-bind:class="badgeCounts.moderate == 0 ? 'disabled' : ''"
+     @click="onBadgeClick('moderate')" >
       <v-badge  right >
         <span   slot="badge">{{ badgeCounts.moderate }}</span>
         <span>
@@ -117,7 +135,10 @@
     </v-btn>
 
 
-    <v-btn flat ref="coverage" v-if="badgeCounts.coverage > 0"  @click="onBadgeClick('coverage')" >
+    <v-btn flat ref="coverage"
+     v-bind:class="badgeCounts.coverage == 0 ? 'disabled' : ''"
+     @click="onBadgeClick('coverage')"
+    >
       <v-badge  right >
         <span   slot="badge">{{ badgeCounts.coverage }}</span>
         <span>
