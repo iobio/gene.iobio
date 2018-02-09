@@ -291,12 +291,11 @@ class CohortModel {
         Promise.all(promises)
         .then(function() {
 
-
             // Now summarize the danger for the selected gene
             self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
             .then(function() {
               self.endGeneProgress(theGene.gene_name);
-              resolve();
+              resolve(cohortResultMap);
             })
         })
         .catch(function(error) {

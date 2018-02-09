@@ -181,13 +181,6 @@ function geneD3() {
             .attr("height", brushHeight);
       }
 
-      // add tooltip div
-      var tooltip = container.selectAll(".tooltip").data([0])
-        .enter().append('div')
-          .attr("class", "tooltip")
-          .style("opacity", 0);
-
-
       // Start gene model
       // add elements
       var transcript = g.selectAll('.transcript')
@@ -321,21 +314,18 @@ function geneD3() {
           .style("cursor", "pointer")
           .on("mouseover", function(d) {
               // show the tooltip
-              var tooltip = container.select('.tooltip');
               var featureObject = d3.select(this);
-              dispatch.d3featuretooltip(featureObject, d, tooltip);
+              dispatch.d3featuretooltip(featureObject, d, false);
 
               // select the transcript
               svg.selectAll('.transcript.selected').classed("selected", false);
               d3.select(this.parentNode).classed("selected", true);
            })
            .on("mouseout", function(d) {
-             if (container.select('.tooltip.locked').empty()) {
-                chart.hideTooltip();
+              dispatch.d3featuretooltip();
+              // de-select the transcript
+              d3.select(this.parentNode).classed("selected", false);
 
-                // de-select the transcript
-                d3.select(this.parentNode).classed("selected", false);
-              }
            })
            .on("click", function(d) {
               // select the transcript
@@ -346,10 +336,8 @@ function geneD3() {
 
 
               // show the tooltip
-              var tooltip = container.select('.tooltip');
-              tooltip.classed("locked", true);
               var featureObject = d3.select(this);
-              dispatch.d3featuretooltip(featureObject, d, tooltip, true, chart.hideTooltip);
+              dispatch.d3featuretooltip(featureObject, d, true);
            })
 
 
@@ -371,21 +359,18 @@ function geneD3() {
       transcript.selectAll(".feature_glyph")
                 .on("mouseover", function(d) {
                   // show the tooltip
-                  var tooltip = container.select('.tooltip');
                   var featureObject = d3.select(this);
-                  dispatch.d3featureglyphtooltip(featureObject, d, tooltip);
+                  dispatch.d3featureglyphtooltip(featureObject, d, false);
                 })
                 .on("mouseout", function(d) {
                   if (container.select('.tooltip.locked').empty()) {
-                    chart.hideTooltip();
+                    dispatch.d3featureglyphtooltip();
                   }
                 })
                 .on("click", function(d) {
                   // show the tooltip
-                  var tooltip = container.select('.tooltip');
-                  tooltip.classed("locked", true);
                   var featureObject = d3.select(this);
-                  dispatch.d3featureglyphtooltip(featureObject, d, tooltip, true, chart.hideTooltip);
+                  dispatch.d3featureglyphtooltip(featureObject, d, true);
                })
 
 
@@ -492,15 +477,6 @@ function geneD3() {
     return d;
   }
 
-  chart.hideTooltip = function() {
-      container.select('.tooltip').classed("locked", false);
-      container.select('.tooltip').classed("black-arrow-left", false);
-      container.select('.tooltip').classed("black-arrow-right", false);
-      container.select('.tooltip').style("pointer-events", "none");
-      container.select('.tooltip').transition()
-         .duration(500)
-         .style("opacity", 0);
-  }
 
 
   chart.transcriptClass = function(_) {

@@ -77,6 +77,16 @@ export default {
           return [[]];
         }
       },
+      coverageDangerRegions: {
+        type: Array,
+        default: function() {
+          return [];
+        }
+      },
+      coverageMedian: {
+        type: Number,
+        default: 0
+      },
       maxDepth: {
         type: Number,
         default: 0
@@ -131,9 +141,10 @@ export default {
         type: Number,
         default: 0
       },
-      showTooltip: {
-        type: Boolean,
-        default: false
+      regionGlyph: {
+        type: Function,
+        default: function(d,i,regionX) {
+        }
       }
 
     },
@@ -172,29 +183,16 @@ export default {
               return val + "x";
             }
           })
-          .showTooltip(this.showTooltip)
           .formatCircleText( function(pos, depth) {
             return depth + 'x' ;
           })
-          /*
-          .regionGlyph(function(d,i,regionX) {
+          .regionGlyph(function(d, i, regionX) {
             var parent = d3.select(this.parentNode);
-            var exonId = 'exon' + d.exon_number.replace("/", "-");
-            if (parent.select("g#" + exonId).empty()) {
-                parent.append('g')
-                      .attr("id", exonId)
-                      .attr('class',      'region-glyph coverage-problem-glyph')
-                      .attr('transform',  'translate(' + (regionX - 12) + ',-16)')
-                      .data([d])
-                      .append('use')
-                      .attr('height',     '22')
-                      .attr('width',      '22')
-                      .attr('href', '#long-arrow-down-symbol')
-                      .attr('xlink','http://www.w3.org/1999/xlink')
-                      .data([d]);
-            }
+            return self.regionGlyph(d, parent, regionX);
           })
-*/
+          .on("d3region", function(featureObject, feature, lock) {
+            self.$emit("region-selected", featureObject, feature, lock );
+          })
 
           this.setDepthChart();
       },
@@ -227,6 +225,14 @@ export default {
     watch: {
       data: function() {
         this.update();
+      },
+      coverageDangerRegions: function() {
+        let self = this;
+        self.depthChart.highlightRegions(self.coverageDangerRegions,
+          {},
+          self.regionStart,
+          self.regionEnd,
+          self.coverageMedian);
       }
     }
 }

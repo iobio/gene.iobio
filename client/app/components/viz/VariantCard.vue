@@ -33,6 +33,8 @@
           transform: translateY(-20px)
           display: none
 
+
+
 </style>
 
 <style lang="css">
@@ -112,6 +114,8 @@
             v-if="showDepthViz"
             ref="depthVizRef"
             :data="sampleModel.coverage"
+            :coverageMedian="sampleModel.cohort.filterModel.geneCoverageMedian"
+            :coverageDangerRegions="coverageDangerRegions"
             :currentPoint="coveragePoint"
             :maxDepth="sampleModel.maxDepth"
             :regionStart="regionStart"
@@ -121,6 +125,8 @@
             :height="60"
             :showTooltip="false"
             :showXAxis="false"
+            :regionGlyph="depthVizRegionGlyph"
+            @region-selected="showExonTooltip"
           >
           </depth-viz>
         </div>
@@ -136,6 +142,8 @@
           :regionStart="regionStart"
           :regionEnd="regionEnd"
           :showBrush="false"
+          :featureClass="getExonClass"
+          @feature-selected="showExonTooltip"
           >
         </gene-viz>
 
@@ -173,10 +181,13 @@ export default {
     variantTooltip: null,
     selectedGene: {},
     selectedTranscript: {},
+
     selectedVariant: null,
     regionStart: 0,
     regionEnd: 0,
     width: 0,
+
+
     showVariantViz: true,
     showGeneViz: true,
     showDepthViz: true
@@ -218,7 +229,8 @@ export default {
       },
       depthVizYTickFormatFunc: null,
       coveragePoint: null,
-      relationship: null
+      relationship: null,
+      selectedExon: null
 
     }
   },
@@ -230,6 +242,22 @@ export default {
         return "";
       } else {
         return val + "x";
+      }
+    },
+    depthVizRegionGlyph: function(exon, regionGroup, regionX) {
+      var exonId = 'exon' + exon.exon_number.replace("/", "-");
+      if (regionGroup.select("g#" + exonId).empty()) {
+        regionGroup.append('g')
+              .attr("id", exonId)
+              .attr('class',      'region-glyph coverage-problem-glyph')
+              .attr('transform',  'translate(' + (regionX - 12) + ',-16)')
+              .data([exon])
+              .append('use')
+              .attr('height',     '22')
+              .attr('width',      '22')
+              .attr('href', '#long-arrow-down-symbol')
+              .attr('xlink','http://www.w3.org/1999/xlink')
+              .data([exon]);
       }
     },
     onVariantClick: function(variant) {
@@ -408,6 +436,100 @@ export default {
         this.$refs.variantVizRef.showBookmark(variant, container);
       }
     },
+    getExonClass: function(exon, i) {
+      if (this.showDepthViz && exon.danger) {
+        return exon.feature_type.toLowerCase() + (exon.danger[this.sampleModel.relationship] ? " danger" : "");
+      } else {
+        return exon.feature_type.toLowerCase();
+      }
+    },
+    showExonTooltip: function(featureObject, feature, lock) {
+      let self = this;
+      let tooltip = d3.select("#exon-tooltip");
+
+      if (featureObject == null) {
+        self.hideExonTooltip();
+        return;
+      }
+
+      if (self.selectedExon) {
+        return;
+      }
+
+      if (lock) {
+        self.selectedExon = feature;
+        tooltip.style("pointer-events", "all");
+        tooltip.classed("locked", true);
+      } else {
+        tooltip.style("pointer-events", "none");
+        tooltip.classed("locked", false);
+      }
+
+      var coverageRow = function(fieldName, coverageVal, covFields) {
+        var row = '<div>';
+        row += '<span style="padding-left:10px;width:60px;display:inline-block">' + fieldName   + '</span>';
+        row += '<span style="width:40px;display:inline-block">' + d3.round(coverageVal) + '</span>';
+        row += '<span class="' + (covFields[fieldName] ? 'danger' : '') + '">' + (covFields[fieldName] ? covFields[fieldName]: '') + '</span>';
+        row += "</div>";
+        return row;
+      }
+
+      var html = '<div>'
+               + '<span id="exon-tooltip-title"' + (lock ? 'style="margin-top:8px">' : '>') + (feature.hasOwnProperty("exon_number") ? "Exon " + feature.exon_number : "") + '</span>'
+               + (lock ? '<a href="javascript:void(0)" id="exon-tooltip-close">X</a>' : '')
+               + '</div>';
+      html     += '<div style="clear:both">' + feature.feature_type + ' ' + utility.addCommas(feature.start) + ' - '       + utility.addCommas(feature.end) + '</div>';
+
+      if (feature.geneCoverage && feature.geneCoverage[self.sampleModel.getRelationship()]) {
+          var covFields = self.sampleModel.cohort.filterModel.whichLowCoverage(feature.geneCoverage[self.sampleModel.getRelationship()]);
+          html += "<div style='margin-top:4px'>" + "Coverage:"
+               +  coverageRow('min',    feature.geneCoverage[self.sampleModel.getRelationship()].min, covFields)
+               +  coverageRow('median', feature.geneCoverage[self.sampleModel.getRelationship()].median, covFields)
+               +  coverageRow('mean',   feature.geneCoverage[self.sampleModel.getRelationship()].mean, covFields)
+               +  coverageRow('max',    feature.geneCoverage[self.sampleModel.getRelationship()].max, covFields)
+               +  coverageRow('sd',     feature.geneCoverage[self.sampleModel.getRelationship()].sd, covFields)
+
+      }
+      if (lock) {
+        html += '<div style="text-align:right;margin-top:8px">'
+        + '<a href="javascript:void(0)" id="exon-tooltip-thresholds" class="danger" style="float:left"  >Set cutoffs</a>'
+        + '</div>'
+      }
+      tooltip.html(html);
+      if (lock) {
+        //tooltip.select("#exon-tooltip-thresholds").on("click", function() {
+          //$('#filter-track #coverage-thresholds').addClass('attention');
+        //})
+        tooltip.select("#exon-tooltip-close").on("click", function() {
+          self.selectedExon = null;
+          self.hideExonTooltip(true);
+        })
+      }
+
+      var coord = utility.getTooltipCoordinates(featureObject.node(),
+        tooltip, self.$el.offsetWidth, $('nav.toolbar').outerHeight());
+      tooltip.style("left", coord.x + "px")
+             .style("text-align", 'left')
+             .style("top", (coord.y-60) + "px");
+
+      tooltip.style("z-index", 1032);
+      tooltip.transition()
+             .duration(200)
+             .style("opacity", .9);
+    },
+    hideExonTooltip: function(force) {
+      let self = this;
+      let tooltip = d3.select("#exon-tooltip");
+      if (force || !self.selectedExon) {
+        tooltip.classed("locked", false);
+        tooltip.classed("black-arrow-left", false);
+        tooltip.classed("black-arrow-right", false);
+        tooltip.style("pointer-events", "none");
+        tooltip.transition()
+           .duration(500)
+           .style("opacity", 0);
+      }
+    }
 
   },
 
@@ -418,6 +540,24 @@ export default {
   computed: {
     depthVizHeight: function() {
       this.showDepthViz ? 0 : 60;
+    },
+    coverageDangerRegions: function() {
+      let self = this;
+      if (self.selectedTranscript.features) {
+        var regions = [];
+        self.selectedTranscript.features
+        .filter( function(feature) {
+            return feature.feature_type == 'CDS' || feature.feature_type == 'UTR';
+        })
+        .forEach(function(feature) {
+          if (feature.danger[self.sampleModel.getRelationship()]) {
+            regions.push(feature)
+          }
+        })
+        return regions;
+      } else {
+        return [];
+      }
     }
 
   },

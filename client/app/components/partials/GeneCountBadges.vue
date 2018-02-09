@@ -36,11 +36,11 @@
       .badge__badge
         font-weight: normal
         font-size: 12px
-        width: 18px
-        height: 18px
-        right: -10px
-        top: -10px
-        background-color: gray !important
+        width: 15px
+        height: 15px
+        right: -7px
+        top: -9px
+        background-color: #ababab !important
 
       .gene-badge-coverage-problem
         color: $coverage-problem-color

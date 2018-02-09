@@ -109,10 +109,24 @@
       fill-opacity: 0.125;
       shape-rendering: crispEdges;
 
-  }
+}
 </style>
+
+<style lang="sass">
+
+@import ../../../assets/sass/variables
+
+#gene-viz.ibo-gene
+  .cds.danger
+    fill:   $danger-exon-color
+    stroke: $danger-exon-border-color
+  .utr.danger
+    fill:   $danger-exon-color
+    stroke: $danger-exon-border-color
+</style>
+
 <template>
-    <div>
+    <div id="gene-viz">
 
     </div>
 </template>
@@ -211,7 +225,9 @@ export default {
               .cdsHeight(this.cdsHeight)
               .showLabel(this.showLabel)
               .transcriptClass(this.transcriptClass)
-              .featureClass(this.featureClass)
+              .featureClass( function(feature, i) {
+                return self.featureClass(feature, i);
+              })
               .regionStart(this.regionStart)
               .regionEnd(this.regionEnd)
               .on("d3brush", function(brush) {
@@ -225,13 +241,16 @@ export default {
               })
               .on("d3selected", function(d) {
                 self.$emit('transcript-selected', d);
-              });
+              })
+              .on("d3featuretooltip", function(featureObject, feature, lock) {
+                self.$emit("feature-selected", featureObject, feature, lock );
+              })
 
         this.setGeneChart();
       },
       update: function() {
         var self = this;
-        if (self.data && self.data.length > 0 && self.data[0] != null) {
+        if (self.data && self.data.length > 0 && self.data[0] != null && Object.keys(self.data[0]).length > 0) {
           this.geneChart.regionStart(this.regionStart);
           this.geneChart.regionEnd(this.regionEnd);
           this.geneChart.width(self.fixedWidth > 0 ? self.fixedWidth : this.$el.clientWidth);

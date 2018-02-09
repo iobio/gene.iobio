@@ -104,12 +104,12 @@
         :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
         :selectedGene="selectedGene"
-        :selectedTranscript="selectedTranscript"
+        :selectedTranscript="analyzedTranscript"
         :selectedVariant="selectedVariant"
         :regionStart="geneRegionStart"
         :regionEnd="geneRegionEnd"
         :width="cardWidth"
-        :showGeneViz="model.relationship == 'proband' || model.relationship == 'known-variants'"
+        :showGeneViz=true
         :showDepthViz="model.relationship != 'known-variants'"
         :showVariantViz="model.relationship != 'known-variants' || showClinvarVariants"
         @cohortVariantClick="onCohortVariantClick"
@@ -189,6 +189,8 @@ export default {
 
       selectedGene: {},
       selectedTranscript: {},
+      analyzedTranscript: {},
+      coverageDangerRegions: null,
       geneRegionStart: null,
       geneRegionEnd: null,
 
@@ -372,7 +374,12 @@ export default {
               self.filterModel.populateEffectFilters(resultMap);
               self.filterModel.populateRecFilters(resultMap);
 
-              resolve();
+              self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
+              .then(function(data) {
+                self.analyzedTranscript = data.transcript;
+                self.coverageDangerRegions = data.dangerRegions;
+                resolve();
+              })
           })
           .catch(function(error) {
             reject(error);

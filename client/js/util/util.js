@@ -565,6 +565,49 @@ class Util {
 
   }
 
+  getTooltipCoordinates(node, tooltip, containerWidth, topMargin) {
+    var coord = {};
+    var tooltipWidth  = d3.round(tooltip.node().offsetWidth);
+    var tooltipHeight = d3.round(tooltip.node().offsetHeight);
+
+    var matrix    = node.getScreenCTM()
+                        .translate(+node.getAttribute("cx"), +node.getAttribute("cy"));
+    var boundRect = node.getBoundingClientRect();
+    coord.x       = d3.round(boundRect.left + (boundRect.width/2));
+    coord.y       = window.pageYOffset + matrix.f + topMargin;
+    coord.width   = boundRect.width;
+    coord.height  = boundRect.height;
+
+    // Position tooltip in the middle of the node
+    coord.x = coord.x - (tooltipWidth/2);
+    // Position tooltip above the node
+    coord.y = coord.y - tooltipHeight;
+
+    // If the tooltip will be cropped to the right, adjust its position
+    // so that it is immediately to the left of the node
+    if  ((coord.x + (tooltipWidth/2) + 150) > containerWidth) {
+      coord.x -= tooltipWidth/2;
+      coord.x -= 6;
+      tooltip.classed("black-arrow-left", false);
+      tooltip.classed("black-arrow-right", true);
+    } else if (coord.x < tooltipWidth/2) {
+      // If the tooltip will be cropped to the left, adjust its position
+      // so that it is immediately to the right of the node
+      coord.x += tooltipWidth/2;
+      coord.x += 6;
+      tooltip.classed("black-arrow-left", true);
+      tooltip.classed("black-arrow-down-right", false);
+    } else {
+      // No cropping of tooltip on either side, just default to show tooltip
+      // immediately to the left of the node
+      coord.x += tooltipWidth/2;
+      coord.x += 6;
+      tooltip.classed("black-arrow-left", true);
+      tooltip.classed("black-arrow-right", false);
+    }
+    return coord;
+  }
+
   formatDisplay(variant, translator) {
     var info = {
       exon: "",
