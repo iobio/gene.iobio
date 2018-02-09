@@ -317,6 +317,35 @@ class FilterModel {
     return self.affectedInfo;
   }
 
+  getVariantBadgeCounts(theVcfData) {
+    var counts = {
+      'pathogenic': 0,
+      'recessive': 0,
+      'denovo': 0,
+      'high': 0,
+      'moderate': 0 };
+
+    var AF_MIN = 0;
+    var AF_MAX = .1;
+
+    if (theVcfData && theVcfData.features) {
+      theVcfData.features.forEach(function(variant) {
+        var passesAf = (variant.afHighest >= AF_MIN && variant.afHighest <= AF_MAX);
+
+        counts.pathogenic += variant.clinvar == "clinvar_path" || variant.clinvar == "clinvar_lpath" ? 1 : 0;
+        if (passesAf) {
+          counts.recessive  += variant.inheritance && variant.inheritance == "recessive" ? 1 : 0;
+          counts.denovo     += variant.inheritance && variant.inheritance == "denovo"    ? 1 : 0;
+          counts.high       += Object.keys(variant.vepImpact).indexOf("HIGH")     >= 0   ? 1 : 0;
+          counts.moderate   += Object.keys(variant.vepImpact).indexOf("MODERATE") >= 0    ? 1 : 0;
+        }
+
+      })
+      return counts;
+
+    }
+  }
+
 
 }
 

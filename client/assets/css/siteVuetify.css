@@ -59,3 +59,28 @@ html {
   padding-left: 0px;
   line-height: 20px;
 }
+
+.tooltip {
+  position: absolute;
+  z-index: initial;
+  display: initial;
+  font-family: initial;
+  font-size: initial;
+  font-style: initial;
+  font-weight: initial;
+  line-height: initial;
+  text-align: initial;
+  text-align: initial;
+  text-decoration: initial;
+  text-shadow: initial;
+  text-transform: initial;
+  letter-spacing: initial;
+  word-break: initial;
+  word-spacing: initial;
+  word-wrap: initial;
+  white-space: initial;
+  filter: initial;
+  opacity: initial;
+
+  line-break: auto;
+}

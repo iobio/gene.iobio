@@ -6,6 +6,8 @@
   #genes-toolbar
     margin-top: 6px
     margin-bottom: 10px
+    float: left
+    display: inline-block
 
     #analyze-all-button
       display: inline-block
@@ -62,24 +64,24 @@
       .progress-linear
         margin: 1px 0
 
-    #genes-sort-dropdown
-      display: inline-block
-      width: 200px
-      vertical-align: top
+  #genes-sort-dropdown
+    display: inline-block
+    width: 200px
+    vertical-align: top
 
-      .input-group--select
-        .input-group__selections__comma
-          font-size: 14px
-          padding: 0px 0px 0px 0px
-
-      .input-group label
+    .input-group--select
+      .input-group__selections__comma
         font-size: 14px
-        line-height: 25px
-        height: 25px
+        padding: 0px 0px 0px 0px
 
-      .input-group__input
-        min-height: 0px
-        margin-top: 10px
+    .input-group label
+      font-size: 14px
+      line-height: 25px
+      height: 25px
+
+    .input-group__input
+      min-height: 0px
+      margin-top: 10px
 
 
 </style>
@@ -89,7 +91,9 @@
     <v-card-title primary-title>Selected Genes</v-card-title>
       <div id="genes-panel" class="nav-center">
 
+
         <div id="genes-toolbar">
+
 
           <v-btn  id="analyze-all-button"
           v-if="isLoaded"
@@ -130,6 +134,12 @@
             <span id="total-genes-label">{{ geneSummaries.length }} genes</span>
           </div>
 
+          <gene-count-badges v-if="isLoaded"
+           :badgeCounts="badgeCounts"
+           @badge-click="onBadgeClick">
+          </gene-count-badges>
+
+
           <div id="genes-sort-dropdown"
            v-if="isLoaded">
             <v-select
@@ -143,6 +153,9 @@
           </div>
 
         </div>
+
+
+
 
         <div id="gene-badge-container" class="level-basic" style="clear:both;">
           <gene-badge
@@ -163,11 +176,13 @@
 <script>
 
 import GeneBadge from '../partials/GeneBadge.vue'
+import GeneCountBadges from '../partials/GeneCountBadges.vue'
 
 export default {
   name: 'genes-card',
   components: {
-    GeneBadge
+    GeneBadge,
+    GeneCountBadges
   },
   props: {
     geneNames: null,
@@ -190,25 +205,25 @@ export default {
         "(original order)",
       ],
       sortBy: "harmful variants",
-      callVariantsActions: ['All genes', 'Selected gene']
+      callVariantsActions: ['All genes', 'Selected gene'],
+      badgeCounts: {}
     }
   },
   methods: {
     onAnalyzeAll: function() {
       this.$emit("analyze-all");
     },
-    updateGeneSummaries: function() {
+    updateGeneSummaries: function(filteredGeneNames) {
       let self = this;
-      if (self.geneNames) {
+      var theGeneNames = filteredGeneNames ? filteredGeneNames: self.geneNames;
+
+      if (theGeneNames) {
 
         let calledCount = 0;
         let loadedCount = 0;
 
-        self.geneSummaries = self.geneNames.map(function(geneName) {
+        self.geneSummaries = theGeneNames.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
-          if (inProgress) {
-            console.log(geneName + " is in progress");
-          }
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
           if (dangerSummary) {
             loadedCount++;
@@ -216,6 +231,7 @@ export default {
           if (dangerSummary && dangerSummary.CALLED) {
             calledCount++;
           }
+
           return {'name': geneName,
           'dangerSummary': self.geneModel.getDangerSummary(geneName),
           'inProgress': inProgress};
@@ -229,6 +245,32 @@ export default {
         self.loadedPercentage = 0;
       }
     },
+    updateGeneBadgeCounts: function() {
+      let self = this;
+      self.badgeCounts = {
+          pathogenic: 0,
+          denovo: 0,
+          recessive: 0,
+          high: 0,
+          moderate: 0,
+          coverage: 0
+      }
+
+      if (self.geneNames) {
+        self.geneNames.forEach(function(geneName) {
+          var dangerSummary = self.geneModel.getDangerSummary(geneName);
+
+          if (dangerSummary) {
+            for (var badge in self.badgeCounts) {
+              self.badgeCounts[badge] += dangerSummary.badgeCounts[badge] > 0;
+            }
+            if (dangerSummary.geneCoverageProblem) {
+              self.badgeCounts.coverage++;
+            }
+          }
+        })
+      }
+    },
     onGeneSelected: function(geneName) {
       this.$emit('gene-selected', geneName);
     },
@@ -238,6 +280,25 @@ export default {
     },
     onCallVariants: function(action) {
       this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
+    },
+    onBadgeClick: function(badge) {
+      let self = this;
+
+      var filteredGeneNames = null;
+      if (badge && badge == 'coverage') {
+        filteredGeneNames = self.geneNames.filter(function(geneName) {
+          var dangerSummary = self.geneModel.getDangerSummary(geneName);
+          return dangerSummary && dangerSummary.geneCoverageProblem;
+        });
+      } else if (badge) {
+        filteredGeneNames = self.geneNames.filter(function(geneName) {
+          var dangerSummary = self.geneModel.getDangerSummary(geneName);
+          return dangerSummary && dangerSummary.badgeCounts && dangerSummary.badgeCounts[badge] > 0;
+        });
+      }
+
+      self.updateGeneSummaries(filteredGeneNames);
+
     }
 
   },
@@ -246,12 +307,12 @@ export default {
   },
   watch: {
     geneNames: function(newGeneNames, oldGeneNames) {
-      console.log("watch geneNames");
       this.updateGeneSummaries();
+      this.updateGeneBadgeCounts();
     },
     genesInProgress: function() {
-      console.log("watch genes in progress " + this.genesInProgress.join(" "));
       this.updateGeneSummaries();
+      this.updateGeneBadgeCounts();
     },
     sortBy: function() {
       this.$emit("sort-genes", this.sortBy);

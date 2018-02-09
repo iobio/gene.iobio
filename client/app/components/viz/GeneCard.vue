@@ -161,7 +161,7 @@
       </gene-viz>
 
       <span id="zoom-hint"  v-if="showGene"  class="level-edu hint todo" style="margin-top: 0px;display: block;text-align: center;">
-          To zoom into region, drag over gene model.
+          (drag to zoom)
       </span>
     </div>
 

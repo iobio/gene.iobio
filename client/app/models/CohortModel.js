@@ -583,10 +583,12 @@ class CohortModel {
       var unionVcfData = {features: []}
       for (var rel in resultMap) {
         var vcfData = resultMap[rel];
-        if (!vcfData.loadState['clinvar'] && rel != 'known-variants') {
-         vcfData.features.forEach(function(feature) {
-            uniqueVariants[formatClinvarKey(feature)] = true;
-         })
+        if (vcfData) {
+          if (!vcfData.loadState['clinvar'] && rel != 'known-variants') {
+           vcfData.features.forEach(function(feature) {
+              uniqueVariants[formatClinvarKey(feature)] = true;
+           })
+          }
         }
       }
       if (Object.keys(uniqueVariants).length == 0) {
@@ -625,13 +627,15 @@ class CohortModel {
             // Use the clinvar variant lookup to initialize variants with clinvar annotations
             for (var rel in resultMap) {
               var vcfData = resultMap[rel];
-              if (!vcfData.loadState['clinvar']) {
-                var p = refreshVariantsWithClinvarLookup(vcfData, clinvarLookup);
-                if (!isBackground) {
-                  self.getModel(rel).vcfData = vcfData;
+              if (vcfData) {
+                if (!vcfData.loadState['clinvar']) {
+                  var p = refreshVariantsWithClinvarLookup(vcfData, clinvarLookup);
+                  if (!isBackground) {
+                    self.getModel(rel).vcfData = vcfData;
+                  }
+                  //var p = getVariantCard(rel).model._promiseCacheData(vcfData, CacheHelper.VCF_DATA, vcfData.gene.gene_name, vcfData.transcript);
+                  refreshPromises.push(p);
                 }
-                //var p = getVariantCard(rel).model._promiseCacheData(vcfData, CacheHelper.VCF_DATA, vcfData.gene.gene_name, vcfData.transcript);
-                refreshPromises.push(p);
               }
             }
 
@@ -973,17 +977,19 @@ class CohortModel {
       }
       var refreshClinvarAnnots = function(trioFbData) {
         for (var rel in trioFbData) {
-          trioFbData[rel].features.forEach(function (fbVariant) {
-            if (fbVariant.source) {
-              fbVariant.source.clinVarUid                  = fbVariant.clinVarUid;
-              fbVariant.source.clinVarClinicalSignificance = fbVariant.clinVarClinicalSignificance;
-              fbVariant.source.clinVarAccession            = fbVariant.clinVarAccession;
-              fbVariant.source.clinvarRank                 = fbVariant.clinvarRank;
-              fbVariant.source.clinvar                     = fbVariant.clinvar;
-              fbVariant.source.clinVarPhenotype            = fbVariant.clinVarPhenotype;
-              fbVariant.source.clinvarSubmissions          = fbVariant.clinvarSubmissions;
-            }
-          });
+          if (trioFbData) {
+            trioFbData[rel].features.forEach(function (fbVariant) {
+              if (fbVariant.source) {
+                fbVariant.source.clinVarUid                  = fbVariant.clinVarUid;
+                fbVariant.source.clinVarClinicalSignificance = fbVariant.clinVarClinicalSignificance;
+                fbVariant.source.clinVarAccession            = fbVariant.clinVarAccession;
+                fbVariant.source.clinvarRank                 = fbVariant.clinvarRank;
+                fbVariant.source.clinvar                     = fbVariant.clinvar;
+                fbVariant.source.clinVarPhenotype            = fbVariant.clinVarPhenotype;
+                fbVariant.source.clinvarSubmissions          = fbVariant.clinvarSubmissions;
+              }
+            });
+          }
         }
       }
 

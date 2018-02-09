@@ -2846,7 +2846,10 @@ class SampleModel {
 SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator, annotationScheme) {
   var dangerCounts = $().extend({}, options);
   dangerCounts.geneName = geneName;
+
   SampleModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel);
+
+  dangerCounts.badgeCounts = filterModel.getVariantBadgeCounts(theVcfData);
 
   if (theVcfData == null ) {
     console.log("unable to summarize danger due to null data");
