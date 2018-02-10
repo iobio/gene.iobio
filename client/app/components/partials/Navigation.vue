@@ -77,7 +77,12 @@ textarea#copy-paste-genes
          Files
         </v-btn>
 
+        <v-spacer></v-spacer>
 
+        <v-btn flat @click="onLegend">
+          <v-icon>description</v-icon>
+          Legend
+        </v-btn>
 
       </v-toolbar-items>
 
@@ -110,6 +115,11 @@ textarea#copy-paste-genes
         >
         </bookmarks-card>
 
+        <legend-panel
+         v-if="leftDrawerContents == 'legend'"
+        >
+        </legend-panel>
+
 
       </div>
 
@@ -122,13 +132,15 @@ textarea#copy-paste-genes
 
 import { Typeahead } from 'uiv'
 import BookmarksCard from '../viz/BookmarksCard.vue'
+import LegendPanel from '../partials/LegendPanel.vue'
 
 
 export default {
   name: 'navigation',
   components: {
     Typeahead,
-    BookmarksCard
+    BookmarksCard,
+    LegendPanel
   },
   props: {
     geneModel: null,
@@ -186,7 +198,11 @@ export default {
     },
     onBookmarkSelected: function(bookmark) {
       this.$emit("bookmark-selected", bookmark)
-    }
+    },
+    onLegend: function() {
+      this.leftDrawerContents = "legend";
+      this.leftDrawer = true;
+    },
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
