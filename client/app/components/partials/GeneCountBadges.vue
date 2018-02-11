@@ -2,49 +2,63 @@
 @import ../../../assets/sass/variables
 
 #gene-count-badges
-    display: inline-block
-    vertical-align: top
-    margin-right: 35px
+  display: inline-block
+  vertical-align: top
+  margin-right: 35px
 
-    button
-      padding-left: 0px
-      padding-right: 0px
-      min-width: 46px
-      margin-left: 0px
-      margin-right: 0px
+  button
+    padding-left: 0px
+    padding-right: 0px
+    min-width: 46px
+    margin-left: 0px
+    margin-right: 0px
 
-      .btn__content
-        padding: 0px
+    .btn__content
+      padding: 0px
 
-      &.selected
-        background-color: lightgray !important
-      &.disabled
-        opacity: .6
-        pointer-events: none
-
-        .badge__badge
-          display: none
-
-      .badge
-        padding: 0px 5px 0px 0px
-        background-color: transparent
-
-      svg
-        width: 20px
-        height: 20px
+    &.selected
+      background-color: lightgray !important
+    &.disabled
+      opacity: .6
+      pointer-events: none
 
       .badge__badge
-        font-weight: normal
-        font-size: 12px
-        width: 15px
-        height: 15px
-        right: -7px
-        top: -9px
-        background-color: #ababab !important
+        display: none
 
-      .gene-badge-coverage-problem
-        color: $coverage-problem-color
-        fill: $coverage-problem-color
+    .badge
+      padding: 0px 5px 0px 0px
+      background-color: transparent
+
+    svg
+      width: 20px
+      height: 20px
+
+    .badge__badge
+      font-weight: normal
+      font-size: 12px
+      width: 15px
+      height: 15px
+      right: -7px
+      top: -9px
+      background-color: #ababab !important
+
+    .gene-badge-coverage-problem
+      color: $coverage-problem-color
+      fill: $coverage-problem-color
+
+
+  #max-af
+    .input-group label
+      font-size: 14px
+      line-height: 25px
+      height: 25px
+    .input-group__input
+      min-height: 0px
+      margin-top: 13px
+    .input-group--text-field input
+      font-size: 14px
+      color: $text-color
+
 
 </style>
 
@@ -69,70 +83,79 @@
       </v-badge>
     </v-btn>
 
-    <v-btn flat ref="recessive"
-      v-bind:class="badgeCounts.recessive == 0 ? 'disabled' : ''"
-      @click="onBadgeClick('recessive')"
-    >
-      <v-badge   right>
-        <span  slot="badge">{{ badgeCounts.recessive }}</span>
-        <span>
-          <svg id="recessive-badge" class="inheritance-badge">
-            <g transform="translate(0,0)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="20" height="20" style="pointer-events: none;">
-              </use>
-            </g>
-          </svg>
-        </span>
-      </v-badge>
-    </v-btn>
 
-    <v-btn flat ref="denovo"
-     v-bind:class="badgeCounts.denovo == 0 ? 'disabled' : ''"
-    @click="onBadgeClick('denovo')" >
-      <v-badge  right >
-        <span   slot="badge">{{ badgeCounts.denovo }}</span>
-        <span>
-          <svg id="denovo-badge" class="inheritance-badge">
-            <g transform="translate(0,0)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#denovo-symbol" width="20" height="20" style="pointer-events: none;">
-              </use>
-            </g>
-          </svg>
-        </span>
-      </v-badge>
-    </v-btn>
+      <v-btn flat ref="recessive"
+        v-bind:class="badgeCounts.recessive == 0 ? 'disabled' : ''"
+        @click="onBadgeClick('recessive')"
+      >
+        <v-badge   right>
+          <span  slot="badge">{{ badgeCounts.recessive }}</span>
+          <span>
+            <svg id="recessive-badge" class="inheritance-badge">
+              <g transform="translate(0,0)">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="20" height="20" style="pointer-events: none;">
+                </use>
+              </g>
+            </svg>
+          </span>
+        </v-badge>
+      </v-btn>
+
+      <v-btn flat ref="denovo"
+       v-bind:class="badgeCounts.denovo == 0 ? 'disabled' : ''"
+      @click="onBadgeClick('denovo')" >
+        <v-badge  right >
+          <span   slot="badge">{{ badgeCounts.denovo }}</span>
+          <span>
+            <svg id="denovo-badge" class="inheritance-badge">
+              <g transform="translate(0,0)">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#denovo-symbol" width="20" height="20" style="pointer-events: none;">
+                </use>
+              </g>
+            </svg>
+          </span>
+        </v-badge>
+      </v-btn>
 
 
-    <v-btn flat ref="high"
-     v-bind:class="badgeCounts.high == 0 ? 'disabled' : ''"
-     @click="onBadgeClick('high')"
-    >
-      <v-badge  right >
-        <span   slot="badge">{{ badgeCounts.high }}</span>
-        <span>
-          <svg id="denovo-badge" class="inheritance-badge">
-            <g transform="translate(4,5)">
-              <rect width="13" height="13" class="filter-symbol impact_HIGH snp" style="pointer-events: none;"></rect>
-            </g>
-          </svg>
-        </span>
-      </v-badge>
-    </v-btn>
+      <v-btn flat ref="high"
+       v-bind:class="badgeCounts.high == 0 ? 'disabled' : ''"
+       @click="onBadgeClick('high')"
+      >
+        <v-badge  right >
+          <span   slot="badge">{{ badgeCounts.high }}</span>
+          <span>
+            <svg id="denovo-badge" class="inheritance-badge">
+              <g transform="translate(4,5)">
+                <rect width="13" height="13" class="filter-symbol impact_HIGH snp" style="pointer-events: none;"></rect>
+              </g>
+            </svg>
+          </span>
+        </v-badge>
+      </v-btn>
 
-    <v-btn flat ref="moderate"
-     v-bind:class="badgeCounts.moderate == 0 ? 'disabled' : ''"
-     @click="onBadgeClick('moderate')" >
-      <v-badge  right >
-        <span   slot="badge">{{ badgeCounts.moderate }}</span>
-        <span>
-          <svg id="denovo-badge" class="inheritance-badge">
-            <g transform="translate(4,5)">
-              <rect width="13" height="13" class="filter-symbol impact_MODERATE snp" style="pointer-events: none;"></rect>
-            </g>
-          </svg>
-        </span>
-      </v-badge>
-    </v-btn>
+      <v-btn flat ref="moderate"
+       v-bind:class="badgeCounts.moderate == 0 ? 'disabled' : ''"
+       @click="onBadgeClick('moderate')" >
+        <v-badge  right >
+          <span   slot="badge">{{ badgeCounts.moderate }}</span>
+          <span>
+            <svg id="denovo-badge" class="inheritance-badge">
+              <g transform="translate(4,5)">
+                <rect width="13" height="13" class="filter-symbol impact_MODERATE snp" style="pointer-events: none;"></rect>
+              </g>
+            </svg>
+          </span>
+        </v-badge>
+      </v-btn>
+
+
+      <!--
+      <div id="max-af" style="display:inline-block;width:85px;margin-right: 10px">
+        <v-text-field label="Allele Freq" prefix="<" suffix="%" v-model="af">
+        </v-text-field>
+      </div>
+      -->
 
 
     <v-btn flat ref="coverage"
@@ -165,7 +188,7 @@ export default {
   data () {
     return {
       badge: 'pathogenic',
-      dummy: null
+      af: 5
     }
   },
   methods: {

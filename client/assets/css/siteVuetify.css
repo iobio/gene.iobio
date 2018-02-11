@@ -60,6 +60,12 @@ html {
   line-height: 20px;
 }
 
+.input-group.input-group--slider label {
+  font-size: 14px;
+  font-weight: normal;
+  color: rgb(113,113,113);
+}
+
 .tooltip {
   position: absolute;
   z-index: initial;
