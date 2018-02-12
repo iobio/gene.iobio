@@ -2,7 +2,7 @@
 <style lang="sass">
 nav.toolbar
   background-color: rgb(93, 128, 157) !important
-  font-weight: 350 !important
+  font-weight: 300 !important
 
   i.material-icons
     margin-right: 2px
@@ -107,7 +107,7 @@ textarea#copy-paste-genes
       :clipped="clipped"
       v-model="leftDrawer"
       app
-      width=330
+      width=350
     >
       <div>
         <bookmarks-card

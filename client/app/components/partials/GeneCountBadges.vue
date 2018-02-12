@@ -153,6 +153,7 @@
         </v-badge>
       </v-btn>
 
+<!--
       <v-btn flat ref="moderate"
        v-bind:class="badgeCounts.moderate == 0 ? 'disabled' : ''"
        @click="onBadgeClick('moderate')" >
@@ -167,7 +168,7 @@
           </span>
         </v-badge>
       </v-btn>
-
+-->
 
       <!--
       <div id="max-af" style="display:inline-block;width:85px;margin-right: 10px">

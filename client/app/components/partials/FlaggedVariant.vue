@@ -5,13 +5,13 @@
   font-size: 12px
 
   a
+    width: 305px
     color: $text-color !important
     text-decoration: none !important
     font-size: 12px
     cursor: pointer
     display: inline-block
     float: left
-    width: 100%
     text-align: left
     padding-top: 4px
     margin-left: 0px
@@ -44,28 +44,28 @@
 
       .coord
         display: inline-block
-        width: 112px
+        width: 122px
         line-height: 12px
         vertical-align: top
         &:hover
           text-decoration: underline !important
       .hgvs
         display: inline-block
-        width: 80px
+        width: 122px
         line-height: 12px
         vertical-align: top
         &:hover
           text-decoration: underline !important
       .vep-consequence
         display: inline-block
-        width: 112px
+        width: 122px
         line-height: 12px
         vertical-align: top
         &:hover
           text-decoration: underline !important
       .rsid
         display: inline-block
-        width: 80px
+        width: 122px
         line-height: 12px
         vertical-align: top
         &:hover
@@ -85,11 +85,8 @@
 
   .favorite-indicator
     cursor: pointer
-    float: right
     display: inline-block
-    vertical-align: top
-    margin-top: -2px
-    margin-left: 5px
+    padding-top: 18px
 
   .phenotype-symbol
     stroke: $sidebar-text-color
@@ -195,11 +192,11 @@
       </span>
 
       <span class="variant-label">
-        <div style="display:inline-block;width:112px" >
+        <div style="display:inline-block;width:122px" >
           <span class="coord"> {{ variant.start + " " + variant.ref + "->" + variant.alt }} </span>
           <span class="hgvs">  {{ hgvsP }} </span>
         </div>
-        <div style="display:inline-block;width:112px">
+        <div style="display:inline-block;width:122px">
           <span class="vep-consequence">{{ vepConsequence }}</span>
           <span class="rsid">{{ rsId }}</span>
         </div>
