@@ -137,38 +137,25 @@
       </v-btn>
 
 
-      <v-btn flat ref="high"
-       v-bind:class="badgeCounts.high == 0 ? 'disabled' : ''"
-       @click="onBadgeClick('high')"
+      <v-btn flat ref="highOrModerate"
+       v-bind:class="badgeCounts.highOrModerate == 0 ? 'disabled' : ''"
+       @click="onBadgeClick('highOrModerate')"
       >
         <v-badge  right >
-          <span   slot="badge">{{ badgeCounts.high }}</span>
+          <span   slot="badge">{{ badgeCounts.highOrModerate }}</span>
           <span>
-            <svg id="denovo-badge" class="inheritance-badge">
-              <g transform="translate(4,5)">
-                <rect width="13" height="13" class="filter-symbol impact_HIGH snp" style="pointer-events: none;"></rect>
+            <svg>
+              <g transform="translate(0,8)">
+                <rect width="9" height="9" class="filter-symbol impact_HIGH snp" style="pointer-events: none;"></rect>
+              </g>
+              <g transform="translate(10,8)">
+                <rect width="9" height="9" class="filter-symbol impact_MODERATE snp" style="pointer-events: none;"></rect>
               </g>
             </svg>
           </span>
         </v-badge>
       </v-btn>
 
-<!--
-      <v-btn flat ref="moderate"
-       v-bind:class="badgeCounts.moderate == 0 ? 'disabled' : ''"
-       @click="onBadgeClick('moderate')" >
-        <v-badge  right >
-          <span   slot="badge">{{ badgeCounts.moderate }}</span>
-          <span>
-            <svg id="denovo-badge" class="inheritance-badge">
-              <g transform="translate(4,5)">
-                <rect width="13" height="13" class="filter-symbol impact_MODERATE snp" style="pointer-events: none;"></rect>
-              </g>
-            </svg>
-          </span>
-        </v-badge>
-      </v-btn>
--->
 
       <!--
       <div id="max-af" style="display:inline-block;width:85px;margin-right: 10px">

@@ -330,8 +330,7 @@ class FilterModel {
       'pathogenic': [],
       'recessive': [],
       'denovo': [],
-      'high': [],
-      'moderate': [],
+      'highOrModerate': [],
       'bookmark': []
     };
 
@@ -342,7 +341,10 @@ class FilterModel {
       theVcfData.features.forEach(function(variant) {
         var passesAf = (variant.afHighest >= AF_MIN && variant.afHighest <= AF_MAX);
 
-        if (passesAf) {
+        var isHighOrModerateImpact = Object.keys(variant.vepImpact).indexOf("HIGH") >= 0
+          || Object.keys(variant.vepImpact).indexOf("MODERATE") >= 0;
+
+        if (passesAf && isHighOrModerateImpact) {
           if (variant.clinvar == "clinvar_path" || variant.clinvar == "clinvar_lpath") {
             badges.pathogenic.push(variant);
             variant.isBookmark = true;
@@ -350,19 +352,13 @@ class FilterModel {
           if (variant.inheritance && variant.inheritance == "recessive" ) {
             badges.recessive.push(variant);
             variant.isBookmark = true;
-          }
-          if (variant.inheritance && variant.inheritance == "denovo" ) {
+          } else if (variant.inheritance && variant.inheritance == "denovo" ) {
             badges.denovo.push(variant);
             variant.isBookmark = true;
-        }
-          if (Object.keys(variant.vepImpact).indexOf("HIGH")     >= 0 ) {
-            badges.high.push(variant);
+          } else {
+            badges.highOrModerate.push(variant);
             variant.isBookmark = true;
           }
-          if (Object.keys(variant.vepImpact).indexOf("MODERATE")     >= 0 ) {
-            badges.moderate.push(variant);
-            variant.isBookmark = true;
-        }
         }
         if (variant.isBookmark) {
           badges.bookmark.push(variant);

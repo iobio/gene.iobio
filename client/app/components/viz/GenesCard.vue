@@ -253,8 +253,7 @@ export default {
           pathogenic: 0,
           denovo: 0,
           recessive: 0,
-          high: 0,
-          moderate: 0,
+          highOrModerate: 0,
           bookmark: 0,
           coverage: 0
       }
