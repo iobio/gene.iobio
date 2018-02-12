@@ -117,7 +117,7 @@
 
       <span class="variant-symbols">
         <svg
-         v-if="variant.type == 'snp'"
+         v-if="variant.type == 'snp' || variant.type == 'mnp'"
          class="impact-badge" height="12" width="13">
           <g transform="translate(1,3)">
             <rect width="8" height="8"
