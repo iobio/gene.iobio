@@ -2,7 +2,7 @@
 <style lang="sass">
 nav.toolbar
   background-color: rgb(93, 128, 157) !important
-  font-weight: 300 !important
+  font-weight: 350 !important
 
   i.material-icons
     margin-right: 2px
@@ -61,7 +61,7 @@ textarea#copy-paste-genes
 
 
         </v-menu>
-
+<!--
         <v-btn flat>
           <v-icon>tune</v-icon>
           Filter
@@ -71,6 +71,8 @@ textarea#copy-paste-genes
           <v-icon>bookmark</v-icon>
           Bookmark
         </v-btn>
+
+-->
 
         <v-btn flat>
          <v-icon>input</v-icon>
@@ -115,6 +117,13 @@ textarea#copy-paste-genes
         >
         </bookmarks-card>
 
+        <flagged-variants-card
+         v-if="leftDrawerContents == 'flagged-variants'"
+         :cohortModel="cohortModel"
+         @flagged-variant-selected="onFlaggedVariantSelected"
+        >
+        </flagged-variants-card>
+
         <legend-panel
          v-if="leftDrawerContents == 'legend'"
         >
@@ -132,6 +141,7 @@ textarea#copy-paste-genes
 
 import { Typeahead } from 'uiv'
 import BookmarksCard from '../viz/BookmarksCard.vue'
+import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
 import LegendPanel from '../partials/LegendPanel.vue'
 
 
@@ -140,11 +150,13 @@ export default {
   components: {
     Typeahead,
     BookmarksCard,
+    FlaggedVariantsCard,
     LegendPanel
   },
   props: {
     geneModel: null,
-    bookmarkModel: null
+    bookmarkModel: null,
+    cohortModel: null
   },
   data () {
       return {
@@ -203,6 +215,13 @@ export default {
       this.leftDrawerContents = "legend";
       this.leftDrawer = true;
     },
+    onFlaggedVariants: function() {
+      this.leftDrawerContents = "flagged-variants";
+      this.leftDrawer = true;
+    },
+    onFlaggedVariantSelected: function(variant) {
+      this.$emit("flagged-variant-selected", variant)
+    }
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');

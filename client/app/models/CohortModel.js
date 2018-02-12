@@ -32,6 +32,7 @@ class CohortModel {
     };
 
     this.genesInProgress = [];
+    this.flaggedVariants = [];
 
 
     this.demoVcf = "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz";
@@ -62,6 +63,9 @@ class CohortModel {
       self.inProgress.loadingDataSources = true;
 
       self.sampleModels = [];
+      self.flaggedVariants = [];
+      self.genesInProgress = [];
+
       self.mode = modelInfos.length > 1 ? 'trio': 'single';
 
       let promises = [];
@@ -1259,6 +1263,14 @@ class CohortModel {
       })
 
     })
+  }
+
+  addFlaggedVariant(variant) {
+    this.flaggedVariants.push(variant);
+  }
+
+  clearFlaggedVariants() {
+    this.flaggedVariants = [];
   }
 
 

@@ -2849,7 +2849,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
 
   SampleModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel);
 
-  dangerCounts.badgeCounts = filterModel.getVariantBadgeCounts(theVcfData);
+  dangerCounts.badges = filterModel.flagVariants(theVcfData);
 
   if (theVcfData == null ) {
     console.log("unable to summarize danger due to null data");

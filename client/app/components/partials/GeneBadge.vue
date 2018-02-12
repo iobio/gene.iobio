@@ -64,6 +64,10 @@
     #gene-badge-has-called-variants
       display: inline
 
+  &.is-bookmarked
+    #gene-badge-bookmark
+      display: inline
+
   &.in-progress
     .gene-badge-loader
       display: inline
@@ -179,6 +183,15 @@
   float: left
   display: none
 
+#gene-badge-bookmark
+  color: $bookmark-color
+  opacity: .7
+  font-size: 14px
+  vertical-align: top
+  float: left
+  padding-right: 2px
+  display: none
+
 #gene-badge-warning
   float: left
   font-size: 12px
@@ -276,7 +289,6 @@
         <i id="gene-badge-warning" class="material-icons glyph">warning</i>
         <i id="gene-badge-error" class="material-icons glyph">report_problem</i>
 
-        <span id="gene-badge-bookmark" class="glyph" style="float:left"></span>
 
         <span id="gene-badge-name" style="float:left;margin-left:2px;margin-right:2px">
           {{ gene.name }}
@@ -289,6 +301,8 @@
             </g>
           </svg>
         </span>
+
+        <i id="gene-badge-bookmark" class="material-icons">bookmark</i>
 
         <svg id="gene-badge-harmful1-variant" class="gene-badge-harmful-variant level-edu glyph" width="13" height="14">
             <g transform="translate(0,2)">
@@ -392,6 +406,7 @@ export default {
         'loaded':                this.gene.dangerSummary != null,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
+        'is-bookmarked':         this.gene.dangerSummary && this.gene.dangerSummary.badges && this.gene.dangerSummary.badges.bookmark.length > 0,
         'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.INHERITANCE && this.gene.dangerSummary.INHERITANCE.recessive && this.gene.dangerSummary.harmfulVariantsLevel >= 1,
         'inheritance-denovo':    this.gene.dangerSummary && this.gene.dangerSummary.INHERITANCE && this.gene.dangerSummary.INHERITANCE.denovo  && this.gene.dangerSummary.harmfulVariantsLevel >= 1,
         'has-phenotypes':        this.phenotypes && this.phenotypes.length > 0,

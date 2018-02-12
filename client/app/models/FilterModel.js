@@ -325,31 +325,50 @@ class FilterModel {
     return self.affectedInfo;
   }
 
-  getVariantBadgeCounts(theVcfData) {
-    var counts = {
-      'pathogenic': 0,
-      'recessive': 0,
-      'denovo': 0,
-      'high': 0,
-      'moderate': 0 };
+  flagVariants(theVcfData) {
+    var badges = {
+      'pathogenic': [],
+      'recessive': [],
+      'denovo': [],
+      'high': [],
+      'moderate': [],
+      'bookmark': []
+    };
 
     var AF_MIN = 0;
-    var AF_MAX = .1;
+    var AF_MAX = .05;
 
     if (theVcfData && theVcfData.features) {
       theVcfData.features.forEach(function(variant) {
         var passesAf = (variant.afHighest >= AF_MIN && variant.afHighest <= AF_MAX);
 
-        counts.pathogenic += variant.clinvar == "clinvar_path" || variant.clinvar == "clinvar_lpath" ? 1 : 0;
         if (passesAf) {
-          counts.recessive  += variant.inheritance && variant.inheritance == "recessive" ? 1 : 0;
-          counts.denovo     += variant.inheritance && variant.inheritance == "denovo"    ? 1 : 0;
-          counts.high       += Object.keys(variant.vepImpact).indexOf("HIGH")     >= 0   ? 1 : 0;
-          counts.moderate   += Object.keys(variant.vepImpact).indexOf("MODERATE") >= 0    ? 1 : 0;
+          if (variant.clinvar == "clinvar_path" || variant.clinvar == "clinvar_lpath") {
+            badges.pathogenic.push(variant);
+            variant.isBookmark = true;
+          }
+          if (variant.inheritance && variant.inheritance == "recessive" ) {
+            badges.recessive.push(variant);
+            variant.isBookmark = true;
+          }
+          if (variant.inheritance && variant.inheritance == "denovo" ) {
+            badges.denovo.push(variant);
+            variant.isBookmark = true;
         }
-
+          if (Object.keys(variant.vepImpact).indexOf("HIGH")     >= 0 ) {
+            badges.high.push(variant);
+            variant.isBookmark = true;
+          }
+          if (Object.keys(variant.vepImpact).indexOf("MODERATE")     >= 0 ) {
+            badges.moderate.push(variant);
+            variant.isBookmark = true;
+        }
+        }
+        if (variant.isBookmark) {
+          badges.bookmark.push(variant);
+        }
       })
-      return counts;
+      return badges;
 
     }
   }

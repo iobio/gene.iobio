@@ -255,6 +255,7 @@ export default {
           recessive: 0,
           high: 0,
           moderate: 0,
+          bookmark: 0,
           coverage: 0
       }
 
@@ -264,7 +265,9 @@ export default {
 
           if (dangerSummary) {
             for (var badge in self.badgeCounts) {
-              self.badgeCounts[badge] += dangerSummary.badgeCounts[badge] > 0;
+              if (dangerSummary.badges[badge] && dangerSummary.badges[badge].length > 0) {
+                self.badgeCounts[badge] ++;
+              }
             }
             if (dangerSummary.geneCoverageProblem) {
               self.badgeCounts.coverage++;
@@ -286,20 +289,30 @@ export default {
     onBadgeClick: function(badge) {
       let self = this;
 
-      var filteredGeneNames = null;
+      var flaggedGeneNames = null;
+      var flaggedVariants = [];
+
       if (badge && badge == 'coverage') {
-        filteredGeneNames = self.geneNames.filter(function(geneName) {
+        flaggedGeneNames = self.geneNames.filter(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
           return dangerSummary && dangerSummary.geneCoverageProblem;
         });
       } else if (badge) {
-        filteredGeneNames = self.geneNames.filter(function(geneName) {
+        flaggedGeneNames = self.geneNames.filter(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
-          return dangerSummary && dangerSummary.badgeCounts && dangerSummary.badgeCounts[badge] > 0;
+          if (dangerSummary && dangerSummary.badges
+            && dangerSummary.badges[badge] && dangerSummary.badges[badge].length > 0) {
+            dangerSummary.badges[badge].forEach(function(variant) {
+              variant.geneName = geneName;
+              flaggedVariants.push(variant);
+            })
+            return true;
+          }
         });
       }
 
-      self.updateGeneSummaries(filteredGeneNames);
+      self.updateGeneSummaries(flaggedGeneNames);
+      self.$emit("flagged-genes-selected", flaggedGeneNames, flaggedVariants);
 
     }
 

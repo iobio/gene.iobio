@@ -25,6 +25,7 @@
     <navigation
       v-if="geneModel"
       ref="navRef"
+      :cohortModel="cohortModel"
       :geneModel="geneModel"
       :bookmarkModel="bookmarkModel"
       @input="onGeneSelected"
@@ -32,6 +33,7 @@
       @clear-cache="clearCache"
       @copy-paste-genes="onCopyPasteGenes"
       @bookmark-selected="onBookmarkSelected"
+      @flagged-variant-selected="onFlaggedVariantSelected"
     >
     </navigation>
     <v-content>
@@ -51,6 +53,7 @@
          @analyze-all="onAnalyzeAll"
          @call-variants="callVariants"
          @sort-genes="onSortGenes"
+         @flagged-genes-selected="onFlaggedGenesSelected"
         >
         </genes-card>
 
@@ -724,7 +727,38 @@ export default {
           1000);
 
       });
-    }
+    },
+    onFlaggedGenesSelected: function(flaggedGeneNames, flaggedVariants) {
+      let self = this;
+      self.cohortModel.clearFlaggedVariants();
+      flaggedVariants.forEach(function(variant) {
+        variant.gene = self.geneModel.geneObjects[variant.geneName];
+        self.cohortModel.addFlaggedVariant(variant);
+      })
+      self.$refs.navRef.onFlaggedVariants();
+
+    },
+    onFlaggedVariantSelected: function(flaggedVariant) {
+      let self = this;
+      self.selectedVariant = flaggedVariant;
+      self.selectedGene = flaggedVariant.gene;
+      self.selectedTranscript = null;
+      self.onGeneSelected(self.selectedGene.gene_name);
+      self.promiseLoadGene(self.selectedGene.gene_name)
+      .then(function() {
+        setTimeout(
+          function(){
+            self.$refs.variantCardRef.forEach(function(variantCard) {
+              if (variantCard.relationship == 'proband') {
+                variantCard.showBookmark(flaggedVariant);
+              }
+            })
+            self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant, "bookmark");
+          },
+          1000);
+
+      });
+    },
 
 
   }

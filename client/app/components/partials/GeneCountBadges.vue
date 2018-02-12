@@ -29,6 +29,14 @@
       padding: 0px 5px 0px 0px
       background-color: transparent
 
+      &.bookmark
+        color: $bookmark-color
+        opacity: .7
+
+        i.material-icons
+          font-size: 21px
+
+
     svg
       width: 20px
       height: 20px
@@ -45,6 +53,7 @@
     .gene-badge-coverage-problem
       color: $coverage-problem-color
       fill: $coverage-problem-color
+
 
 
   #max-af
@@ -65,6 +74,16 @@
 <template>
   <div  id="gene-count-badges" >
 
+
+
+      <v-btn flat ref="bookmark"
+       v-bind:class="badgeCounts.bookmark == 0 ? 'disabled' : ''"
+       @click="onBadgeClick('bookmark')" >
+        <v-badge class="bookmark"  right >
+          <span   slot="badge">{{ badgeCounts.bookmark }}</span>
+          <v-icon>bookmark</v-icon>
+        </v-badge>
+      </v-btn>
 
     <v-btn  flat ref="pathogenic"
     v-bind:class="badgeCounts.pathogenic == 0 ? 'disabled' : ''"
@@ -158,7 +177,9 @@
       -->
 
 
-    <v-btn flat ref="coverage"
+
+
+    <v-btn flat ref="coverage"  style="margin-left:20px"
      v-bind:class="badgeCounts.coverage == 0 ? 'disabled' : ''"
      @click="onBadgeClick('coverage')"
     >
