@@ -652,14 +652,14 @@ class GeneModel {
           statusCallback('queued');
         }
         setTimeout(function() {
-            me.searchForPhenolyzerGenes();
+            me.searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback);
           }, 5000);
       } else if (data.record == 'pending') {
         if (statusCallback) {
           statusCallback('running');
         }
         setTimeout(function() {
-            me.searchForPhenolyzerGenes();
+            me.searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback);
           }, 5000);
       } else {
         me.parsePhenolyzerGenes(data.record, selectGeneCount, me.NUMBER_PHENOLYZER_GENES);
@@ -700,6 +700,20 @@ class GeneModel {
 
       }
     });
+  }
+
+  getAllPhenotypeTerms() {
+    $.ajax({
+          url: hpoUrl + '?term='+encodeURIComponent(query),
+          type: 'GET',
+          error: function() {
+              callback();
+          },
+          success: function(res) {
+            if (!query.length) return callback();
+              callback(res);
+          }
+      });
   }
 
   isKnownGene(geneName) {

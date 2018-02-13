@@ -13,6 +13,8 @@ nav.toolbar
     margin-right: 20px
     padding-bottom: 5px
 
+#phenolyzer-loader
+  width: 22px
 
 textarea#copy-paste-genes
   font-size: 14px
@@ -65,8 +67,15 @@ textarea#copy-paste-genes
             <div slot="header">Search by Phenotype</div>
             <v-card>
                 <div id="phenotype-input" style="display:inline-block;width:260px">
-                  <v-text-field v-model="phenotypeTerm" hide-details label="enter phenotype">
+                  <v-text-field id="phenotype-term" v-model="phenotypeTermEntered"
+                  label="enter phenotype">
                   </v-text-field>
+                  <typeahead
+                   v-model="phenotypeTerm"
+                  hide-details="false"
+                  force-select match-start
+                  target="#phenotype-term"
+                  async-src="http://nv-blue.iobio.io/hpo/hot/lookup/?term=" item-key="value"/>
                 </div>
                 <div style="display:inline-block;width:95px;margin-left:10px">
                   <v-select
@@ -81,6 +90,12 @@ textarea#copy-paste-genes
                 <div style="float:right;display:inline-block;margin-top:10px">
                  <v-btn  small @click="onSearchPhenolyzerGenes" >Search</v-btn>
                 </div>
+                <div >
+                  <img style="width:22px;height:22px"
+                     v-if="phenolyzerStatus == 'queued' || phenolyzerStatus == 'running'"
+                     class="loader  glyph" src="../../../assets/images/wheel.gif"/>
+                  {{ phenolyzerStatus }}
+                </div>
             </v-card>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -93,7 +108,6 @@ textarea#copy-paste-genes
                 rows="12"
                 label="Enter gene names"
                 v-model="copyPasteGenes"
-                hide-details="true"
               >
               </v-text-field>
             </div>
@@ -273,7 +287,10 @@ export default {
 
         phenolyzerTopCounts: [30, 50, 80, 100],
         phenolyzerTop: 50,
-        phenotypeTerm: null
+        phenotypeTerm: "",
+        phenotypeTermEntered: "",
+        allPhenotypeTerms: [],
+        phenolyzerStatus: null
       }
   },
   watch: {
@@ -331,17 +348,32 @@ export default {
     },
     onSearchPhenolyzerGenes: function() {
       let self = this;
-      self.geneModel.searchPhenolyzerGenes(this.phenotypeTerm, this.phenolyzerTop,
+      self.phenolyzerStatus = null;
+      self.copyPasteGenes = "";
+      var searchTerm = self.phenotypeTerm.value;
+      self.phenotypeTermEntered = self.phenotypeTerm.value;
+      self.geneModel.searchPhenolyzerGenes(searchTerm, this.phenolyzerTop,
       function(status, error) {
         if (status == 'done') {
-          self.copyPasteGenes = self.geneModel.phenolyzerGenes
-          .filter(function(gene) {
-            return gene.selected;
-          })
-          .map( function(gene) {
-            return gene.geneName;
-          })
-          .join(", ");
+          if (self.geneModel.phenolyzerGenes.length == 0) {
+            self.phenolyzerStatus = "no genes found."
+            self.copyPasteGenes = "";
+          } else {
+            var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
+              return gene.selected;
+            }).length;
+            self.copyPasteGenes = self.geneModel.phenolyzerGenes
+            .filter(function(gene) {
+              return gene.selected;
+            })
+            .map( function(gene) {
+              return gene.geneName;
+            })
+            .join(", ");
+            self.phenolyzerStatus = geneCount + " genes shown."
+          }
+        } else {
+          self.phenolyzerStatus = status;
         }
       });
     }
@@ -350,6 +382,8 @@ export default {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
+     $("#phenotype-term").attr('autocomplete', 'off');
+
   }
 }
 
