@@ -49,6 +49,7 @@ textarea#copy-paste-genes
              <v-text-field
               id="copy-paste-genes"
               multi-line
+              rows="15"
               label="Enter gene names genes"
               v-model="copyPasteGenes"
             >

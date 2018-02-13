@@ -21,6 +21,10 @@
     min-height: 0px;
   }
 
+  #zoom-hint {
+    font-size: 12px
+  }
+
   #region-buffer-box .input-group--text-field input{
       font-size: 14px;
       color: rgb(113,113,113);

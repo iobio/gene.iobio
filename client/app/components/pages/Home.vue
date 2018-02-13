@@ -735,7 +735,9 @@ export default {
         variant.gene = self.geneModel.geneObjects[variant.geneName];
         self.cohortModel.addFlaggedVariant(variant);
       })
-      self.$refs.navRef.onFlaggedVariants();
+      if (flaggedGeneNames.length > 0) {
+        self.$refs.navRef.onFlaggedVariants();
+      }
 
     },
     onFlaggedVariantSelected: function(flaggedVariant) {

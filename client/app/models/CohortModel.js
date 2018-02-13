@@ -1273,6 +1273,12 @@ class CohortModel {
     this.flaggedVariants = [];
   }
 
+  sortFlaggedGeneNames(flaggedGeneNames) {
+    return flaggedGeneNames.slice().sort( function(a,b) {
+        return me.geneModel.compareDangerSummary(a,b);
+    });
+  }
+
 
 }
 

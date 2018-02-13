@@ -56,6 +56,7 @@ export default {
   },
   computed: {
     flaggedGenes: function() {
+      let self = this;
       if (this.cohortModel && this.cohortModel.flaggedVariants) {
         let genes = {};
         this.cohortModel.flaggedVariants.forEach(function(variant) {
@@ -68,18 +69,21 @@ export default {
           }
           theGene.variants.push(variant);
         })
-        let geneNames = Object.keys(genes).sort();
-        let flaggedGenes = geneNames.map(function(geneName) {
+        let geneNames = Object.keys(genes); //.sort(this.cohortModel.geneModel.compareDangerSummary);
+        geneNames = geneNames.sort(function(a,b) {
+          return self.cohortModel.geneModel.compareDangerSummary(a,b);
+        })
+        let theFlaggedGenes = geneNames.map(function(geneName) {
           return genes[geneName];
         })
         let i = 0;
-        flaggedGenes.forEach(function(flaggedGene) {
+        theFlaggedGenes.forEach(function(flaggedGene) {
           flaggedGene.variants.forEach(function(variant) {
             variant.index = i;
             i++;
           })
         })
-        return flaggedGenes;
+        return theFlaggedGenes;
       } else {
         return [];
       }

@@ -2865,7 +2865,6 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
   var polyphenClasses = {};
   var clinvarClasses = {};
   var impactClasses = {};
-  var consequenceClasses = {};
   var inheritanceClasses = {};
   var afClazz = null;
   var afField = null;
@@ -2875,18 +2874,10 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
 
   theVcfData.features.forEach( function(variant) {
 
-
-      for (key in variant.highestImpactSnpeff) {
-        if (translator.impactMap.hasOwnProperty(key) && translator.impactMap[key].badge) {
-          impactClasses[key] = impactClasses[key] || {};
-          impactClasses[key][variant.type] = variant.highestImpactSnpeff[key]; // key = effect, value = transcript id
-        }
-      }
-
       for (key in variant.highestImpactVep) {
         if (translator.impactMap.hasOwnProperty(key) && translator.impactMap[key].badge) {
-          consequenceClasses[key] = consequenceClasses[key] || {};
-          consequenceClasses[key][variant.type] = variant.highestImpactVep[key]; // key = consequence, value = transcript id
+          impactClasses[key] = impactClasses[key] || {};
+          impactClasses[key][variant.type] = true; // key = consequence, value = transcript id
         }
       }
 
@@ -2986,8 +2977,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
                 .reduce( (min, cur) => Math.min( min, cur ), Infinity );
   dangerCounts.harmfulVariantsLevel = hvLevel == Infinity ? null : hvLevel;
 
-  dangerCounts.CONSEQUENCE = getLowestImpact(consequenceClasses);
-  dangerCounts.IMPACT = annotationScheme.toLowerCase() == 'vep' ? dangerCounts.CONSEQUENCE : getLowestImpact(impactClasses);
+  dangerCounts.IMPACT = getLowestImpact(impactClasses);
   dangerCounts.CLINVAR = getLowestClinvarClazz(clinvarClasses);
   dangerCounts.INHERITANCE = inheritanceClasses;
 

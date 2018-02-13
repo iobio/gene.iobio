@@ -661,11 +661,11 @@ class GeneModel {
 
     if (sortBy.indexOf("gene name") >= 0) {
       me.sortedGeneNames = me.geneNames.slice().sort();
-    } else if (sortBy.indexOf("harmful variant") >= 0) {
+    } else if (sortBy.indexOf("harmful variant") >= 0 || sortBy.indexOf("danger summary") >= 0) {
       me.sortedGeneNames = me.geneNames.slice().sort( function(a,b) {
         return me.compareDangerSummary(a,b);
       });
-    } else if (sortBy.indexOf("converage") >= 0) {
+    } else if (sortBy.indexOf("coverage") >= 0) {
       me.sortedGeneNames = me.geneNames.slice().sort( function(a,b) {
         return me.compareDangerSummaryByLowCoverage(a,b);
       });
@@ -676,6 +676,93 @@ class GeneModel {
   }
 
   compareDangerSummary(geneName1, geneName2) {
+    var me = this;
+
+    var danger1 = me.geneDangerSummaries[geneName1];
+    var danger2 = me.geneDangerSummaries[geneName2];
+
+    if (danger1 == null && danger2 == null) {
+      return 0;
+    } else if (danger2 == null) {
+      return -1;
+    } else if (danger1 == null) {
+      return 1;
+    }
+
+    var dangers = [danger1, danger2];
+
+
+    // clinvar badges
+    if (danger1.badges.pathogenic.length !== danger2.badges.pathogenic.length) {
+      return danger2.badges.pathogenic.length -  danger1.badges.pathogenic.length;
+    }
+
+    // inheritance badges
+    if (danger1.badges.recessive.length !== danger2.badges.recessive.length) {
+      return danger2.badges.recessive.length -  danger1.badges.recessive.length;
+    }
+    if (danger1.badges.denovo.length !== danger2.badges.denovo.length) {
+      return danger2.badges.denovo.length -  danger1.badges.denovo.length;
+    }
+
+    // high or moderate badge
+    if (danger1.badges.highOrModerate.length !== danger2.badges.highOrModerate.length) {
+      return danger2.badges.highOrModerate.length -  danger1.badges.highOrModerate.length;
+    }
+
+
+    // lowest clinvar value = highest relevance
+    var clinvarValues = [9999, 9999];
+    dangers.forEach(function(danger, index) {
+      if (danger.CLINVAR) {
+        for (var key in danger.CLINVAR) {
+          var showBadge = me.translator.clinvarMap[key].badge;
+          if (showBadge) {
+            clinvarValues[index] = danger.CLINVAR[key].value;
+          }
+        }
+      }
+    });
+    if (clinvarValues[0] !== clinvarValues[1]) {
+      return clinvarValues[0] - clinvarValues[1];
+    }
+
+    // lowest impact value = highest relevance
+    var impactValues = [9999, 9999];
+    dangers.forEach(function(danger, index) {
+      if (danger.IMPACT) {
+        for (var key in danger.IMPACT) {
+          impactValues[index] = me.translator.impactMap[key].value;
+        }
+      }
+    });
+    if (impactValues[0] !== impactValues[1]) {
+      return impactValues[0] - impactValues[1];
+    }
+
+    // lowest allele frequency = highest relevance
+    var afValues = [9999,9999];
+    dangers.forEach(function(danger, index) {
+      if (danger.AF && Object.keys(danger.AF).length > 0) {
+        var clazz   = Object.keys(danger.AF)[0];
+        var afValue  = danger.AF[clazz].value;
+        afValues[index] = afValue;
+      }
+    });
+    if (afValues[0] !== afValues[1]) {
+      return afValues[0] - afValues[1];
+    }
+
+
+    if (geneName1 < geneName2) {
+      return -1;
+    } else if (geneName2 < geneName1) {
+      return 1;
+    }
+    return 0;
+  }
+
+  compareDangerSummaryOld(geneName1, geneName2) {
     var me = this;
 
     var danger1 = me.geneDangerSummaries[geneName1];

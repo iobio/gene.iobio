@@ -116,45 +116,7 @@
       </span>
 
       <span class="variant-symbols">
-        <svg
-         v-if="variant.type == 'snp' || variant.type == 'mnp'"
-         class="impact-badge" height="12" width="13">
-          <g transform="translate(1,3)">
-            <rect width="8" height="8"
-            v-bind:class="highestImpactClass"
-            style="pointer-events: none;"></rect>
-          </g>
-        </svg>
 
-        <svg
-         v-if="variant.type == 'del'"
-         class="impact-badge" height="12" width="13">
-          <g transform="translate(5,6)">
-            <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
-            v-bind:class="highestImpactClass">
-            </path>
-          </g>
-        </svg>
-
-        <svg
-         v-if="variant.type == 'ins'"
-         class="impact-badge" height="12" width="13">
-          <g transform="translate(5,6)">
-            <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
-            v-bind:class="highestImpactClass">
-            </path>
-          </g>
-        </svg>
-
-        <svg
-         v-if="variant.type == 'complex'"
-         class="impact-badge" height="12" width="13">
-          <g transform="translate(5,6)">
-            <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
-            v-bind:class="highestImpactClass">
-            </path>
-          </g>
-        </svg>
 
 <!--
         <i class="material-icons bookmark" v-if="variant.isBookmark">
@@ -164,26 +126,86 @@
 
         <svg
          v-if="variant.clinvar && variant.clinvar == 'clinvar_path'"
-         class="clinvar-badge" height="12" width="13">
+         class="clinvar-badge" height="13" width="14">
           <g transform="translate(0,1)">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="10" height="10" style="pointer-events: none; fill: rgb(173, 73, 74);"></use>
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="pointer-events: none; fill: rgb(173, 73, 74);"></use>
           </g>
         </svg>
 
         <svg
          v-if="variant.inheritance && variant.inheritance == 'recessive'"
-         class="inheritance-badge" height="13" width="13">
+         class="inheritance-badge" height="15" width="15">
           <g transform="translate(0,0)">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="15" height="15" style="pointer-events: none;"></use>
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="16" height="16" style="pointer-events: none;"></use>
           </g>
         </svg>
         <svg
          v-if="variant.inheritance && variant.inheritance == 'denovo'"
-         class="inheritance-badge" height="13" width="13">
+         class="inheritance-badge" height="15" width="15">
           <g transform="translate(0,0)">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#denovo-symbol" width="15" height="15" style="pointer-events: none;"></use>
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#denovo-symbol" width="16" height="16" style="pointer-events: none;"></use>
           </g>
         </svg>
+
+        <svg
+         v-if="variant.type == 'snp' || variant.type == 'mnp'"
+         class="impact-badge" height="12" width="13">
+          <g transform="translate(1,2)">
+            <rect width="8" height="8"
+            v-bind:class="highestImpactClass"
+            style="pointer-events: none;"></rect>
+          </g>
+        </svg>
+
+        <svg
+         v-if="variant.type == 'del'"
+         class="impact-badge" height="12" width="13">
+          <g transform="translate(5,5)">
+            <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
+            v-bind:class="highestImpactClass">
+            </path>
+          </g>
+        </svg>
+
+        <svg
+         v-if="variant.type == 'ins'"
+         class="impact-badge" height="12" width="13">
+          <g transform="translate(5,5)">
+            <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
+            v-bind:class="highestImpactClass">
+            </path>
+          </g>
+        </svg>
+
+        <svg
+         v-if="variant.type == 'complex'"
+         class="impact-badge" height="13" width="13">
+          <g transform="translate(5,6)">
+            <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
+            v-bind:class="highestImpactClass">
+            </path>
+          </g>
+        </svg>
+
+        <svg v-if="variant.zygosity && variant.zygosity.toUpperCase() == 'HOM'" width="24" height="14">
+          <g transform="translate(0,3)">
+            <rect width="24" height="10" class="zyg_hom" style="pointer-events: none;">
+            </rect>
+            <text x="1" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
+            Hom
+            </text>
+          </g>
+        </svg>
+        <svg v-if="variant.zygosity && variant.zygosity.toUpperCase() == 'HET'" width="24" height="14">
+          <g transform="translate(0,3)">
+            <rect width="24" height="10" class="zyg_het" style="pointer-events: none;">
+            </rect>
+            <text x="2" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
+            Het
+            </text>
+          </g>
+        </svg>
+
       </span>
 
       <span

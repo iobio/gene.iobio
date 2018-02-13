@@ -10,9 +10,8 @@
   line-height: 15px
   border: thin solid #e8e6e6
 
-  &.user-visited
-    border: 2px solid #c5c4c4
-    padding: 2px 1px 0px 1px
+  &.flagged
+    border: 2px solid $app-color-light
 
   #gene-badge-symbols
     height: 14px
@@ -37,6 +36,9 @@
     display: none
 
   #denovo-badge
+    display: none
+
+  #gene-badge-clinvar
     display: none
 
 #gene-badge
@@ -72,21 +74,12 @@
     .gene-badge-loader
       display: inline
 
-  &.has-coverage-problem
-    #gene-badge-coverage-problem
+  &.is-pathogenic
+    #gene-badge-clinvar
       display: inline-block
 
-  &.has-harmful-variant
-    #gene-badge-harmful-variant
-      display: inline-block
-  &.has-harmful1-variant
-    #gene-badge-harmful1-variant
-      display: inline-block
-  &.has-harmful2-variant
-    #gene-badge-harmful2-variant
-      display: inline-block
-  &.has-harmful3-variant
-    #gene-badge-harmful3-variant
+  &.has-coverage-problem
+    #gene-badge-coverage-problem
       display: inline-block
 
   &.has-phenotypes
@@ -158,10 +151,6 @@
 #gene-badge.phenolyzer
   #gene-badge-button
     border: solid 1px #9FC2D0
-    //height: 21px
-
-    &.user-visited
-      border: solid 2px #9FC2D0
 
 #gene-badge-loaded
   font-size: 14px
@@ -252,13 +241,7 @@
   display: none
   fill: #9d2024
 
-#gene-badge-harmful2-variant
-  display: none
-  fill: #d84d4d
 
-#gene-badge-harmful3-variant
-  display: none
-  fill: #ef9754
 
 #gene-badge-remove
   i
@@ -274,7 +257,9 @@
 
 <div id="gene-badge" v-bind:class="classObject" >
 
-  <a id="gene-badge-button" style="display:inline-block" @click="selectGene"
+  <a id="gene-badge-button"
+    v-bind:class="gene.isFlagged ? 'flagged' : ''"
+    style="display:inline-block" @click="selectGene"
     rel="tooltip"   data-html="true" href="#"
     data-placement="bottom">
 
@@ -304,26 +289,16 @@
 
         <i id="gene-badge-bookmark" class="material-icons">bookmark</i>
 
-        <svg id="gene-badge-harmful1-variant" class="gene-badge-harmful-variant level-edu glyph" width="13" height="14">
-            <g transform="translate(0,2)">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#lightning-symbol" width="11.5"   height="11.5" style="pointer-events: none;">
-                </use>
-            </g>
-        </svg>
-        <svg id="gene-badge-harmful2-variant" class="gene-badge-harmful-variant level-edu glyph" width="13" height="14">
-            <g transform="translate(0,1)">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#error-symbol" width="14"   height="14" style="pointer-events: none;">
-                </use>
-            </g>
-        </svg>
-        <svg id="gene-badge-harmful3-variant" class="gene-badge-harmful-variant level-edu glyph" width="13" height="14">
-            <g transform="translate(0,1)">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#error-symbol" width="14"   height="14" style="pointer-events: none;">
-                </use>
-            </g>
-        </svg>
+
+
       <span id="gene-badge-symbols" class="glyph">
 
+          <svg id="gene-badge-clinvar" class=" level-edu glyph" width="13" height="14">
+              <g transform="translate(0,0)">
+                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11.5"   height="11.5" style="fill: rgb(173, 73, 74);pointer-events: none;">
+                  </use>
+              </g>
+          </svg>
           <svg id="recessive-badge" class="inheritance-badge" height="15" width="15">
             <g transform="translate(0,0)">
               <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="15" height="15" style="pointer-events: none;">
@@ -337,8 +312,48 @@
             </g>
           </svg>
 
+          <svg
+           v-if="getImpactClass({'snp': true, 'mnp': true}) != null"
+           class="impact-badge" height="12" width="13">
+            <g transform="translate(0,2)">
+              <rect width="8" height="8"
+              v-bind:class="getImpactClass({'snp': true, 'mnp': true})"
+              style="pointer-events: none;"></rect>
+            </g>
+          </svg>
 
-      </span>
+          <svg
+           v-if="getImpactClass({'del': true}) != null"
+           class="impact-badge" height="12" width="13">
+            <g transform="translate(5,3)">
+              <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
+              v-bind:class="getImpactClass({'del': true})">
+              </path>
+            </g>
+          </svg>
+
+          <svg
+           v-if="getImpactClass({'ins': true}) != null"
+           class="impact-badge" height="12" width="13">
+            <g transform="translate(5,3)">
+              <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
+              v-bind:class="getImpactClass({'ins': true})">
+              </path>
+            </g>
+          </svg>
+
+          <svg
+           v-if="getImpactClass({'complex': true}) != null"
+           class="impact-badge" height="13" width="13">
+            <g transform="translate(4,6)">
+              <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
+              v-bind:class="getImpactClass({'complex': true})">
+              </path>
+            </g>
+          </svg>
+
+
+        </span>
 
         <svg id="gene-badge-coverage-problem" class="gene-badge-coverage-problem level-edu glyph" width="14" height="14">
             <g transform="translate(1,2)">
@@ -395,26 +410,37 @@ export default {
 
       ).set('labels', {ok:'OK', cancel:'Cancel'});
 
+    },
+    getImpactClass: function(variantTypes) {
+      var self = this;
+      var clazz = null;
+      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highOrModerate.length > 0 ) {
+        for (var variantType in variantTypes) {
+          if (self.gene.dangerSummary.IMPACT.HIGH && self.gene.dangerSummary.IMPACT.HIGH[variantType]) {
+            clazz = 'filter-symbol impact_HIGH';
+          } else if (self.gene.dangerSummary.IMPACT.MODERATE && self.gene.dangerSummary.IMPACT.MODERATE[variantType]) {
+            clazz = 'filter-symbol impact_MODERATE';
+          }
+        }
+      }
+      return clazz;
     }
   },
   computed: {
     classObject: function () {
       return {
+
         'selected':              this.selectedGene && this.selectedGene.gene_name == this.gene.name,
-        'user-visited':          false,
         'in-progress':           this.gene.inProgress,
         'loaded':                this.gene.dangerSummary != null,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
-        'is-bookmarked':         this.gene.dangerSummary && this.gene.dangerSummary.badges && this.gene.dangerSummary.badges.bookmark.length > 0,
-        'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.INHERITANCE && this.gene.dangerSummary.INHERITANCE.recessive && this.gene.dangerSummary.harmfulVariantsLevel >= 1,
-        'inheritance-denovo':    this.gene.dangerSummary && this.gene.dangerSummary.INHERITANCE && this.gene.dangerSummary.INHERITANCE.denovo  && this.gene.dangerSummary.harmfulVariantsLevel >= 1,
         'has-phenotypes':        this.phenotypes && this.phenotypes.length > 0,
-        'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem,
-        'has-harmful1-variant':  this.gene.dangerSummary && this.gene.dangerSummary.harmfulVariantsLevel == 1,
-        'has-harmful2-variant':  this.gene.dangerSummary && this.gene.dangerSummary.harmfulVariantsLevel == 2,
-        'has-harmful3-variant':  this.gene.dangerSummary && this.gene.dangerSummary.harmfulVariantsLevel == 3
-
+        'is-bookmarked':         this.gene.dangerSummary && this.gene.dangerSummary.badges && this.gene.dangerSummary.badges.bookmark.length > 0,
+        'is-pathogenic':         this.gene.dangerSummary && this.gene.dangerSummary.badges.pathogenic.length > 0,
+        'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.badges.recessive.length > 0,
+        'inheritance-denovo':    this.gene.dangerSummary && this.gene.dangerSummary.badges.denovo.length > 0,
+        'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem
       }
     }
   },

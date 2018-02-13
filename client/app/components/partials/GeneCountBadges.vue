@@ -9,7 +9,7 @@
   button
     padding-left: 0px
     padding-right: 0px
-    min-width: 46px
+    min-width: 50px
     margin-left: 0px
     margin-right: 0px
 
@@ -17,7 +17,13 @@
       padding: 0px
 
     &.selected
-      background-color: lightgray !important
+      border: thick solid #717171 !important
+      height: 50px
+      margin-top: -10px
+
+      .btn__content
+        padding-top: 5px;
+
     &.disabled
       opacity: .6
       pointer-events: none
@@ -47,7 +53,7 @@
       width: 15px
       height: 15px
       right: -7px
-      top: -9px
+      top: -6px
       background-color: #ababab !important
 
     .gene-badge-coverage-problem

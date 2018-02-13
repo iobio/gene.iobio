@@ -1,8 +1,8 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
-.bookmark-gene
-  font-size: 12px
+.flagged-gene
+  clear: both
 
 
 </style>

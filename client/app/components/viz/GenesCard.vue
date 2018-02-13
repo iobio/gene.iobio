@@ -131,7 +131,7 @@
                 </v-progress-linear>
               </div>
             </div>
-            <span id="total-genes-label">{{ geneSummaries.length }} genes</span>
+            <span id="total-genes-label">{{ geneNames.length }} genes</span>
           </div>
 
           <gene-count-badges v-if="isLoaded"
@@ -208,24 +208,46 @@ export default {
       ],
       sortBy: "harmful variants",
       callVariantsActions: ['All genes', 'Selected gene'],
-      badgeCounts: {}
+      badgeCounts: {},
+
+      flaggedGeneNames: [],
+      flaggedVariants: [],
+
+      filteredGeneNames: []
+
     }
   },
   methods: {
     onAnalyzeAll: function() {
       this.$emit("analyze-all");
     },
-    updateGeneSummaries: function(filteredGeneNames) {
+    updateGeneSummaries: function() {
       let self = this;
-      var theGeneNames = filteredGeneNames ? filteredGeneNames: self.geneNames;
 
+      // Create an array of gene summaries for the genes to show in the genes card
+      var theGeneNames = self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
       if (theGeneNames) {
-
-        let calledCount = 0;
-        let loadedCount = 0;
-
         self.geneSummaries = theGeneNames.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
+
+          var dangerSummary = self.geneModel.getDangerSummary(geneName);
+          var isFlagged = self.flaggedGeneNames.indexOf(geneName) >= 0;
+
+          return {'name': geneName,
+          'isFlagged': isFlagged,
+          'dangerSummary': self.geneModel.getDangerSummary(geneName),
+          'inProgress': inProgress};
+        })
+
+      } else {
+        self.geneSummaries = [];
+      }
+
+      // Determine loaded gene and called gene progress
+      if (self.geneNames && self.geneNames.length > 0) {
+        let calledCount = 0;
+        let loadedCount = 0;
+        self.geneNames.forEach(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
           if (dangerSummary) {
             loadedCount++;
@@ -233,19 +255,14 @@ export default {
           if (dangerSummary && dangerSummary.CALLED) {
             calledCount++;
           }
-
-          return {'name': geneName,
-          'dangerSummary': self.geneModel.getDangerSummary(geneName),
-          'inProgress': inProgress};
         })
 
         self.loadedPercentage = loadedCount >  0 ? (loadedCount / self.geneNames.length) * 100 : 0;
         self.calledPercentage = calledCount >  0 ? (calledCount / self.geneNames.length) * 100 : 0;
-
       } else {
-        self.geneSummaries = [];
         self.loadedPercentage = 0;
       }
+
     },
     updateGeneBadgeCounts: function() {
       let self = this;
@@ -287,31 +304,42 @@ export default {
     },
     onBadgeClick: function(badge) {
       let self = this;
+      self.determineFlaggedGenes(badge);
+      if (badge) {
+        self.filteredGeneNames = self.flaggedGeneNames;
+      } else {
+        self.filteredGeneNames = [];
+      }
+      self.updateGeneSummaries();
+    },
+    determineFlaggedGenes: function(badge) {
+      let self = this;
 
-      var flaggedGeneNames = null;
-      var flaggedVariants = [];
+      self.flaggedGeneNames = [];
+      self.flaggedVariants = [];
 
       if (badge && badge == 'coverage') {
-        flaggedGeneNames = self.geneNames.filter(function(geneName) {
+        self.flaggedGeneNames = self.geneNames.filter(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
           return dangerSummary && dangerSummary.geneCoverageProblem;
         });
-      } else if (badge) {
-        flaggedGeneNames = self.geneNames.filter(function(geneName) {
+      } else {
+        var theBadge = badge ? badge : 'bookmark';
+        self.flaggedGeneNames = self.geneNames.filter(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
           if (dangerSummary && dangerSummary.badges
-            && dangerSummary.badges[badge] && dangerSummary.badges[badge].length > 0) {
-            dangerSummary.badges[badge].forEach(function(variant) {
+            && dangerSummary.badges[theBadge] && dangerSummary.badges[theBadge].length > 0) {
+            dangerSummary.badges[theBadge].forEach(function(variant) {
               variant.geneName = geneName;
-              flaggedVariants.push(variant);
+              self.flaggedVariants.push(variant);
             })
             return true;
           }
         });
       }
 
-      self.updateGeneSummaries(flaggedGeneNames);
-      self.$emit("flagged-genes-selected", flaggedGeneNames, flaggedVariants);
+      self.$emit("flagged-genes-selected", self.flaggedGeneNames, self.flaggedVariants);
+
 
     }
 
@@ -325,6 +353,7 @@ export default {
       this.updateGeneBadgeCounts();
     },
     genesInProgress: function() {
+      this.determineFlaggedGenes();
       this.updateGeneSummaries();
       this.updateGeneBadgeCounts();
     },
