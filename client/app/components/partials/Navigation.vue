@@ -13,8 +13,22 @@ nav.toolbar
     margin-right: 20px
     padding-bottom: 5px
 
+
 textarea#copy-paste-genes
   font-size: 14px
+
+#phenotype-input, #enter-genes-input
+  .input-group label
+    font-size: 13px
+    line-height: 25px
+    height: 25px
+  .input-group__input
+    min-height: 0px
+    margin-top: 13px
+  .input-group--text-field input
+    font-size: 13px
+  .input-group
+    padding-top: 0px
 
 </style>
 
@@ -40,26 +54,109 @@ textarea#copy-paste-genes
         <v-menu
         offset-y
         :close-on-content-click="false"
-        :nudge-width="200"
+        :nudge-width="400"
         v-model="menuGenes"
         >
-          <v-btn flat slot="activator">Genes</v-btn>
 
-          <v-card>
-             <v-text-field
-              id="copy-paste-genes"
-              multi-line
-              rows="15"
-              label="Enter gene names genes"
-              v-model="copyPasteGenes"
-            >
-            </v-text-field>
-            <v-divider></v-divider>
-            <v-btn @click="onACMGGenes">
-              ACMG Genes
-            </v-btn>
+        <v-btn flat slot="activator">Genes</v-btn>
+
+        <v-expansion-panel expand>
+          <v-expansion-panel-content>
+            <div slot="header">Search by Phenotype</div>
+            <v-card>
+                <div id="phenotype-input" style="display:inline-block;width:260px">
+                  <v-text-field v-model="phenotypeTerm" hide-details label="enter phenotype">
+                  </v-text-field>
+                </div>
+                <div style="display:inline-block;width:95px;margin-left:10px">
+                  <v-select
+                  v-model="phenolyzerTop"
+                  label="Select top"
+                  hint="Genes"
+                  combobox
+                  :items="phenolyzerTopCounts"
+                  >
+                  </v-select>
+                </div>
+                <div style="float:right;display:inline-block;margin-top:10px">
+                 <v-btn  small @click="onSearchPhenolyzerGenes" >Search</v-btn>
+                </div>
+            </v-card>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+        <v-card>
+
+            <div id="enter-genes-input">
+              <v-text-field
+                id="copy-paste-genes"
+                multi-line
+                rows="12"
+                label="Enter gene names"
+                v-model="copyPasteGenes"
+                hide-details="true"
+              >
+              </v-text-field>
+            </div>
+            <div>
+                <v-btn @click="onACMGGenes">
+                ACMG Genes
+                </v-btn>
+                <v-btn style="float:right" @click="onCopyPasteGenes">
+                 Apply
+               </v-btn>
+            </div>
+
+
           </v-card>
+        <!--
+        <v-card>
+          <div id="phenotype-input">
+            <v-text-field  label="enter phenotype">
+            </v-text-field>
+          </div>
+          <div>
+            <div style="display:inline-block;width:100px">
+              <v-select
+              v-model="phenolyzerTop"
+              label="Select top"
+              hint="Genes"
+              combobox
+              :items="phenolyzerTopCounts"
+              >
+              </v-select>
+            </div>
+            <div style="float:right;display:inline-block">
+              <v-btn >Search</v-btn>
+            </div>
 
+          </div>
+          <v-divider></v-divider>
+          <v-card>
+
+            <div id="enter-genes-input">
+              <v-text-field
+                id="copy-paste-genes"
+                multi-line
+                rows="12"
+                label="Enter gene names"
+                v-model="copyPasteGenes"
+                hide-details="true"
+              >
+              </v-text-field>
+            </div>
+            <div>
+                <v-btn @click="onACMGGenes">
+                ACMG Genes
+                </v-btn>
+                <v-btn style="float:right" @click="onCopyPasteGenes">
+                 Apply
+               </v-btn>
+            </div>
+
+
+          </v-card>
+      </v-card>
+    -->
 
         </v-menu>
 <!--
@@ -158,6 +255,7 @@ export default {
     geneModel: null,
     bookmarkModel: null,
     cohortModel: null
+
   },
   data () {
       return {
@@ -171,7 +269,11 @@ export default {
         leftDrawerContents: "",
 
         menuGenes: false,
-        copyPasteGenes: null
+        copyPasteGenes: null,
+
+        phenolyzerTopCounts: [30, 50, 80, 100],
+        phenolyzerTop: 50,
+        phenotypeTerm: null
       }
   },
   watch: {
@@ -188,6 +290,11 @@ export default {
           this.copyPasteGenes = this.geneModel.geneNames.join(", ");
         }
       }
+    },
+    phenolyzerTop: function() {
+      if (this.geneModel.phenolyzerGenes.length > 0) {
+        this.onSearchPhenolyzerGenes();
+      }
     }
   },
   methods: {
@@ -198,9 +305,8 @@ export default {
       this.$emit("clear-cache")
     },
     onCopyPasteGenes: function() {
-      if (!this.menuGenes) {
-        this.$emit("copy-paste-genes", this.copyPasteGenes);
-      }
+      this.$emit("copy-paste-genes", this.copyPasteGenes);
+      this.menuGenes = false;
     },
     onACMGGenes: function() {
       this.copyPasteGenes = this.geneModel.ACMG_GENES.join(", ");
@@ -222,7 +328,25 @@ export default {
     },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)
+    },
+    onSearchPhenolyzerGenes: function() {
+      let self = this;
+      self.geneModel.searchPhenolyzerGenes(this.phenotypeTerm, this.phenolyzerTop,
+      function(status, error) {
+        if (status == 'done') {
+          self.copyPasteGenes = self.geneModel.phenolyzerGenes
+          .filter(function(gene) {
+            return gene.selected;
+          })
+          .map( function(gene) {
+            return gene.geneName;
+          })
+          .join(", ");
+        }
+      });
     }
+  },
+  created: function() {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');

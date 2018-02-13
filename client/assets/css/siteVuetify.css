@@ -90,3 +90,7 @@ html {
 
   line-break: auto;
 }
+
+.btn {
+  line-height: 1;
+}

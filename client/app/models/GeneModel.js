@@ -30,6 +30,8 @@ class GeneModel {
 
     this.ACMG_GENES = ["BRCA1", "BRCA2", "TP53", "STK11", "MLH1", "MSH2", "MSH6", "PMS2", "APC", "MUTYH", "VHL", "MEN1", "RET", "PTEN", "RB1", "SDHD", "SDHAF2", "SDHC", "SDHB", "TSC1", "TSC2", "WT1", "NF2", "COL3A1", "FBN1", "TGFBR1", "TGFBR2", "SMAD3", "ACTA2", "MYH11", "MYBPC3", "MYH7", "TNNT2", "TNNI3", "TPM1", "MYL3", "ACTC1", "PRKAG2", "GLA", "MYL2", "LMNA", "RYR2", "PKP2", "DSP", "DSC2", "TMEM43", "DSG2", "KCNQ1", "KCNH2", "SCN5A", "LDLR", "APOB", "PCSK9", "RYR1", "CACNA1S", "ATP7B", "BMPR1A", "SMAD4", "OTC"];
 
+    this.NUMBER_PHENOLYZER_GENES = 300;
+    this.phenolyzerGenes = [];
 
   }
 
@@ -630,6 +632,73 @@ class GeneModel {
         }
       });
 
+    });
+  }
+
+  searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback) {
+    var me = this;
+
+    var url = phenolyzerServer + '?term=' + phenotypeTerm;
+    var status = null;
+
+    $.ajax({
+      url: url,
+      type: "GET",
+      dataType: "json",
+      success: function( data ) {
+      if (data == "") {
+      } else if (data.record == 'queued') {
+        if (statusCallback) {
+          statusCallback('queued');
+        }
+        setTimeout(function() {
+            me.searchForPhenolyzerGenes();
+          }, 5000);
+      } else if (data.record == 'pending') {
+        if (statusCallback) {
+          statusCallback('running');
+        }
+        setTimeout(function() {
+            me.searchForPhenolyzerGenes();
+          }, 5000);
+      } else {
+        me.parsePhenolyzerGenes(data.record, selectGeneCount, me.NUMBER_PHENOLYZER_GENES);
+        if (statusCallback) {
+          statusCallback('done');
+        }
+
+      }
+
+      },
+      fail: function() {
+        alert("An error occurred in Phenolyzer iobio services. " + thrownError);
+        if (statusCallback) {
+          statusCallback('error', thrownError)
+        }
+      }
+    });
+
+  }
+
+  parsePhenolyzerGenes(data, selectGeneCount, numberPhenolyzerGenes) {
+    var me = this;
+    var count = 0;
+    me.phenolyzerGenes = [];
+    data.split("\n").forEach( function(rec) {
+      var fields = rec.split("\t");
+      if (fields.length > 2) {
+        var geneName               = fields[1];
+        if (count < numberPhenolyzerGenes) {
+          var rank                 = fields[0];
+          var score                = fields[3];
+          var haploInsuffScore     = fields[5];
+          var geneIntoleranceScore = fields[6];
+          var selected             = count < selectGeneCount ? true : false;
+          me.phenolyzerGenes.push({rank: rank, geneName: geneName, score: score, haploInsuffScore: haploInsuffScore, geneIntoleranceScore: geneIntoleranceScore, selected: selected});
+        }
+        count++;
+
+      }
     });
   }
 
