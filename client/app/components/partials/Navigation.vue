@@ -13,25 +13,6 @@ nav.toolbar
     margin-right: 20px
     padding-bottom: 5px
 
-#phenolyzer-loader
-  width: 22px
-
-textarea#copy-paste-genes
-  font-size: 14px
-
-#phenotype-input, #enter-genes-input
-  .input-group label
-    font-size: 13px
-    line-height: 25px
-    height: 25px
-  .input-group__input
-    min-height: 0px
-    margin-top: 13px
-  .input-group--text-field input
-    font-size: 13px
-  .input-group
-    padding-top: 0px
-
 </style>
 
 <template>
@@ -53,138 +34,13 @@ textarea#copy-paste-genes
         </v-form>
 
 
-        <v-menu
-        offset-y
-        :close-on-content-click="false"
-        :nudge-width="400"
-        v-model="menuGenes"
-        >
-
-        <v-btn flat slot="activator">Genes</v-btn>
-
-        <v-expansion-panel expand>
-          <v-expansion-panel-content>
-            <div slot="header">Search by Phenotype</div>
-            <v-card>
-                <div id="phenotype-input" style="display:inline-block;width:260px">
-                  <v-text-field id="phenotype-term" v-model="phenotypeTermEntered"
-                  label="enter phenotype">
-                  </v-text-field>
-                  <typeahead
-                   v-model="phenotypeTerm"
-                  hide-details="false"
-                  force-select match-start
-                  target="#phenotype-term"
-                  async-src="http://nv-blue.iobio.io/hpo/hot/lookup/?term=" item-key="value"/>
-                </div>
-                <div style="display:inline-block;width:95px;margin-left:10px">
-                  <v-select
-                  v-model="phenolyzerTop"
-                  label="Select top"
-                  hint="Genes"
-                  combobox
-                  :items="phenolyzerTopCounts"
-                  >
-                  </v-select>
-                </div>
-                <div style="float:right;display:inline-block;margin-top:10px">
-                 <v-btn  small @click="onSearchPhenolyzerGenes" >Search</v-btn>
-                </div>
-                <div >
-                  <img style="width:22px;height:22px"
-                     v-if="phenolyzerStatus == 'queued' || phenolyzerStatus == 'running'"
-                     class="loader  glyph" src="../../../assets/images/wheel.gif"/>
-                  {{ phenolyzerStatus }}
-                </div>
-            </v-card>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-        <v-card>
-
-            <div id="enter-genes-input">
-              <v-text-field
-                id="copy-paste-genes"
-                multi-line
-                rows="12"
-                label="Enter gene names"
-                v-model="copyPasteGenes"
-              >
-              </v-text-field>
-            </div>
-            <div>
-                <v-btn @click="onACMGGenes">
-                ACMG Genes
-                </v-btn>
-                <v-btn style="float:right" @click="onCopyPasteGenes">
-                 Apply
-               </v-btn>
-            </div>
+        <genes-menu
+         :gene-model="geneModel"
+         @apply-genes="onApplyGenes">
+        </genes-menu>
 
 
-          </v-card>
-        <!--
-        <v-card>
-          <div id="phenotype-input">
-            <v-text-field  label="enter phenotype">
-            </v-text-field>
-          </div>
-          <div>
-            <div style="display:inline-block;width:100px">
-              <v-select
-              v-model="phenolyzerTop"
-              label="Select top"
-              hint="Genes"
-              combobox
-              :items="phenolyzerTopCounts"
-              >
-              </v-select>
-            </div>
-            <div style="float:right;display:inline-block">
-              <v-btn >Search</v-btn>
-            </div>
 
-          </div>
-          <v-divider></v-divider>
-          <v-card>
-
-            <div id="enter-genes-input">
-              <v-text-field
-                id="copy-paste-genes"
-                multi-line
-                rows="12"
-                label="Enter gene names"
-                v-model="copyPasteGenes"
-                hide-details="true"
-              >
-              </v-text-field>
-            </div>
-            <div>
-                <v-btn @click="onACMGGenes">
-                ACMG Genes
-                </v-btn>
-                <v-btn style="float:right" @click="onCopyPasteGenes">
-                 Apply
-               </v-btn>
-            </div>
-
-
-          </v-card>
-      </v-card>
-    -->
-
-        </v-menu>
-<!--
-        <v-btn flat>
-          <v-icon>tune</v-icon>
-          Filter
-        </v-btn>
-
-        <v-btn flat @click="onBookmarks">
-          <v-icon>bookmark</v-icon>
-          Bookmark
-        </v-btn>
-
--->
 
         <v-btn flat>
          <v-icon>input</v-icon>
@@ -252,6 +108,7 @@ textarea#copy-paste-genes
 <script>
 
 import { Typeahead } from 'uiv'
+import GenesMenu from '../partials/GenesMenu.vue'
 import BookmarksCard from '../viz/BookmarksCard.vue'
 import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
 import LegendPanel from '../partials/LegendPanel.vue'
@@ -261,6 +118,7 @@ export default {
   name: 'navigation',
   components: {
     Typeahead,
+    GenesMenu,
     BookmarksCard,
     FlaggedVariantsCard,
     LegendPanel
@@ -269,48 +127,24 @@ export default {
     geneModel: null,
     bookmarkModel: null,
     cohortModel: null
-
   },
   data () {
-      return {
-        title: 'gene.iobio',
+    return {
+      title: 'gene.iobio',
 
-        selectedGene: {},
-        clipped: false,
-        leftDrawer: false,
-        rightDrawer: false,
+      selectedGene: {},
+      clipped: false,
+      leftDrawer: false,
+      rightDrawer: false,
 
-        leftDrawerContents: "",
+      leftDrawerContents: ""
 
-        menuGenes: false,
-        copyPasteGenes: null,
-
-        phenolyzerTopCounts: [30, 50, 80, 100],
-        phenolyzerTop: 50,
-        phenotypeTerm: "",
-        phenotypeTermEntered: "",
-        allPhenotypeTerms: [],
-        phenolyzerStatus: null
-      }
+    }
   },
   watch: {
     selectedGene: function(a, b) {
       if (this.selectedGene) {
         this.$emit("input", this.selectedGene.gene_name);
-      }
-    },
-    menuGenes: function() {
-      if (!this.menuGenes && this.copyPasteGenes && this.copyPasteGenes.length > 0) {
-        this.onCopyPasteGenes();
-      } else {
-        if (this.geneModel) {
-          this.copyPasteGenes = this.geneModel.geneNames.join(", ");
-        }
-      }
-    },
-    phenolyzerTop: function() {
-      if (this.geneModel.phenolyzerGenes.length > 0) {
-        this.onSearchPhenolyzerGenes();
       }
     }
   },
@@ -321,12 +155,8 @@ export default {
     onClearCache: function() {
       this.$emit("clear-cache")
     },
-    onCopyPasteGenes: function() {
-      this.$emit("copy-paste-genes", this.copyPasteGenes);
-      this.menuGenes = false;
-    },
-    onACMGGenes: function() {
-      this.copyPasteGenes = this.geneModel.ACMG_GENES.join(", ");
+    onApplyGenes: function(genesToApply) {
+      this.$emit("apply-genes", genesToApply);
     },
     onBookmarks: function() {
       this.leftDrawerContents = "bookmarks";
@@ -345,44 +175,12 @@ export default {
     },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)
-    },
-    onSearchPhenolyzerGenes: function() {
-      let self = this;
-      self.phenolyzerStatus = null;
-      self.copyPasteGenes = "";
-      var searchTerm = self.phenotypeTerm.value;
-      self.phenotypeTermEntered = self.phenotypeTerm.value;
-      self.geneModel.searchPhenolyzerGenes(searchTerm, this.phenolyzerTop,
-      function(status, error) {
-        if (status == 'done') {
-          if (self.geneModel.phenolyzerGenes.length == 0) {
-            self.phenolyzerStatus = "no genes found."
-            self.copyPasteGenes = "";
-          } else {
-            var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
-              return gene.selected;
-            }).length;
-            self.copyPasteGenes = self.geneModel.phenolyzerGenes
-            .filter(function(gene) {
-              return gene.selected;
-            })
-            .map( function(gene) {
-              return gene.geneName;
-            })
-            .join(", ");
-            self.phenolyzerStatus = geneCount + " genes shown."
-          }
-        } else {
-          self.phenolyzerStatus = status;
-        }
-      });
     }
   },
   created: function() {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
-     $("#phenotype-term").attr('autocomplete', 'off');
 
   }
 }

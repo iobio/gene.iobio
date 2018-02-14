@@ -31,7 +31,7 @@
       @input="onGeneSelected"
       @load-demo-data="onLoadDemoData"
       @clear-cache="clearCache"
-      @copy-paste-genes="onCopyPasteGenes"
+      @apply-genes="onApplyGenes"
       @bookmark-selected="onBookmarkSelected"
       @flagged-variant-selected="onFlaggedVariantSelected"
     >
@@ -623,7 +623,7 @@ export default {
     clearCache: function() {
       this.cacheHelper.promiseClearCache(this.cacheHelper.launchTimestamp);
     },
-    onCopyPasteGenes: function(genesString) {
+    onApplyGenes: function(genesString) {
       this.geneModel.copyPasteGenes(genesString);
     },
     onSortGenes: function(sortBy) {

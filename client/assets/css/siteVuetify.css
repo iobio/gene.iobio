@@ -94,3 +94,8 @@ html {
 .btn {
   line-height: 1;
 }
+
+.menuable__content__active {
+  background-color: white;
+}
+
