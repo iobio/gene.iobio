@@ -34,71 +34,69 @@ textarea#copy-paste-genes
     v-model="showGenesMenu"
     >
 
-        <v-btn flat slot="activator">Genes</v-btn>
+      <v-btn flat slot="activator">Genes</v-btn>
 
-        <v-expansion-panel expand>
-          <v-expansion-panel-content>
-            <div slot="header">Search by Phenotype</div>
-            <v-card style="margin-bottom:15px">
-                <div id="phenotype-input" style="display:inline-block;width:260px">
-                  <v-text-field id="phenotype-term" hide-details v-model="phenotypeTermEntered"
-                  label="enter phenotype">
-                  </v-text-field>
-                  <typeahead
-                   v-model="phenotypeTerm"
-                  hide-details="false"
-                  force-select match-start
-                  target="#phenotype-term"
-                  async-src="http://nv-blue.iobio.io/hpo/hot/lookup/?term=" item-key="value"/>
-                </div>
-                <div style="display:inline-block;width:95px;margin-left:10px">
-                  <v-select
-                  v-model="phenolyzerTop"
-                  label="Select top"
-                  hide-details
-                  hint="Genes"
-                  combobox
-                  :items="phenolyzerTopCounts"
-                  >
-                  </v-select>
-                </div>
-                <div style="float:right;display:inline-block;margin-top:10px">
-                 <v-btn  small @click="onSearchPhenolyzerGenes" >Search</v-btn>
-                </div>
-                <div >
-                  <img style="width:22px;height:22px"
-                     v-if="phenolyzerStatus == 'queued' || phenolyzerStatus == 'running'"
-                     class="loader  glyph" src="../../../assets/images/wheel.gif"/>
-                  {{ phenolyzerStatus }}
-                </div>
-            </v-card>
-          </v-expansion-panel-content>
-        </v-expansion-panel>
-        <v-card>
-
-            <div id="enter-genes-input">
-              <v-text-field
-                id="copy-paste-genes"
-                multi-line
-                rows="12"
-                label="Enter gene names"
-                v-model="genesToApply"
-              >
-              </v-text-field>
-            </div>
-            <div>
-                <v-btn @click="onACMGGenes">
-                ACMG Genes
-                </v-btn>
-                <v-btn style="float:right" @click="onApplyGenes">
-                 Apply
-               </v-btn>
-            </div>
-
-
+      <v-expansion-panel expand>
+        <v-expansion-panel-content>
+          <div slot="header">Search by Phenotype</div>
+          <v-card style="margin-bottom:15px">
+              <div id="phenotype-input" style="display:inline-block;width:260px">
+                <v-text-field id="phenotype-term" hide-details v-model="phenotypeTermEntered"
+                label="enter phenotype">
+                </v-text-field>
+                <typeahead
+                 v-model="phenotypeTerm"
+                hide-details="false"
+                force-select match-start
+                target="#phenotype-term"
+                async-src="http://nv-blue.iobio.io/hpo/hot/lookup/?term=" item-key="value"/>
+              </div>
+              <div style="display:inline-block;width:95px;margin-left:10px">
+                <v-select
+                v-model="phenolyzerTop"
+                label="Select top"
+                hide-details
+                hint="Genes"
+                combobox
+                :items="phenolyzerTopCounts"
+                >
+                </v-select>
+              </div>
+              <div style="float:right;display:inline-block;margin-top:10px">
+               <v-btn  small @click="onSearchPhenolyzerGenes" >Search</v-btn>
+              </div>
+              <div >
+                <img style="width:22px;height:22px"
+                   v-if="phenolyzerStatus == 'queued' || phenolyzerStatus == 'running'"
+                   class="loader  glyph" src="../../../assets/images/wheel.gif"/>
+                {{ phenolyzerStatus }}
+              </div>
           </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+      <v-card>
+
+          <div id="enter-genes-input">
+            <v-text-field
+              id="copy-paste-genes"
+              multi-line
+              rows="12"
+              label="Enter gene names"
+              v-model="genesToApply"
+            >
+            </v-text-field>
+          </div>
+          <div>
+              <v-btn @click="onACMGGenes">
+              ACMG Genes
+              </v-btn>
+              <v-btn style="float:right" @click="onApplyGenes">
+               Apply
+             </v-btn>
+          </div>
 
 
+      </v-card>
     </v-menu>
 </template>
 

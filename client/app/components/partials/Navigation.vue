@@ -60,10 +60,21 @@ nav.toolbar
 
       <v-spacer></v-spacer>
 
-      <v-btn flat @click="onLegend">
-        <v-icon>description</v-icon>
-        Legend
-      </v-btn>
+      <v-menu
+      offset-y
+      :close-on-content-click="false"
+      :nudge-width="400"
+      v-model="showLegendMenu"
+      >
+        <v-btn flat slot="activator">
+          <v-icon>description</v-icon>
+          Legend
+        </v-btn>
+
+        <legend-panel>
+        </legend-panel>
+      </v-menu>
+
 
       <v-menu offset-y>
         <v-btn flat slot="activator">Help</v-btn>
@@ -95,10 +106,6 @@ nav.toolbar
         >
         </flagged-variants-card>
 
-        <legend-panel
-         v-if="leftDrawerContents == 'legend'"
-        >
-        </legend-panel>
 
 
       </div>
@@ -138,7 +145,8 @@ export default {
       leftDrawer: false,
       rightDrawer: false,
 
-      leftDrawerContents: ""
+      leftDrawerContents: "",
+      showLegendMenu: false
 
     }
   },
