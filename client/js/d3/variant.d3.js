@@ -311,10 +311,10 @@ function variantD3() {
 
 
 
-      // Add grouping for bookmarks
-      svg.select("g.bookmarks").remove();
+      // Add grouping for flagged variants
+      svg.select("g.flagged-variants").remove();
       svg.append("g")
-         .attr("class", "bookmarks");
+         .attr("class", "flagged-variants");
 
 
       // Create the X-axis.
@@ -597,7 +597,7 @@ function variantD3() {
 
   }
 
-  chart.addBookmark = function(svg, variant, key) {
+  chart.showFlaggedVariant = function(svg, variant, key) {
 
     // Find the matching variant
     var matchingVariant = null;
@@ -614,7 +614,7 @@ function variantD3() {
       return;
     }
 
-    matchingVariant.isBookmark = true;
+
 
     // Get the x, y for the variant's position
     var mousex = d3.round(x(matchingVariant.start));
@@ -630,9 +630,9 @@ function variantD3() {
       xpos =  mousex+.5;
     }
 
-    var group = svg.select("g.bookmarks")
+    var group = svg.select("g.flagged-variants")
        .append("g")
-       .attr("class", "bookmark")
+       .attr("class", "flagged-variant")
        .attr("id", key ? key : "")
        .attr("transform", "translate(" + xpos + "," +  ypos + ")" );
 
@@ -650,7 +650,7 @@ function variantD3() {
   }
 
 
-  chart.removeBookmark = function(svg, variant) {
+  chart.removeFlaggedVariant = function(svg, variant) {
     // Find the matching variant
     var matchingVariant = null;
     svg.selectAll(".variant").each( function (d,i) {
@@ -665,7 +665,6 @@ function variantD3() {
     if (!matchingVariant) {
       return;
     }
-    matchingVariant.isBookmark = false;
   }
 
   function tickFormatter (d) {

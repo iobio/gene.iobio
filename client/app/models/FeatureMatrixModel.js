@@ -19,7 +19,7 @@ class FeatureMatrixModel {
         {name:'Pathogenicity - SIFT'         , id:'sift',           order:2, index:7,   match: 'exact', attribute: 'vepSIFT',     map: this.getTranslator().siftMap},
         {name:'Impact (VEP)'                 , id:'impact',         order:3, index:0,   match: 'exact', attribute: IMPACT_FIELD_TO_COLOR,   map: this.getTranslator().impactMap},
         {name:'Most severe impact (VEP)'     , id:'highest-impact', order:4, index:1,   match: 'exact', attribute: IMPACT_FIELD_TO_FILTER,  map: this.getTranslator().highestImpactMap},
-        {name:'Bookmark'                     , id:'bookmark',       order:5, index:10,  match: 'exact', attribute: 'isBookmark',     map: this.getTranslator().bookmarkMap },
+        {name:'Bookmark'                     , id:'bookmark',       order:5, index:10,  match: 'exact', attribute: 'isFlagged',     map: this.getTranslator().bookmarkMap },
         {name:'Inheritance Mode'             , id:'inheritance',    order:6, index:3,   match: 'exact', attribute: 'inheritance', map: this.getTranslator().inheritanceMap},
         {name:'Present in Affected'          , id:'affected',       order:7, index:8,   match: 'exact', attribute: 'affected_summary',  map: this.getTranslator().affectedMap},
         {name:'Absent in Unaffected'         , id:'unaffected',     order:8, index:9,   match: 'exact', attribute: 'unaffected_summary',  map: this.getTranslator().unaffectedMap},

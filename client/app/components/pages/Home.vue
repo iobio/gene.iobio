@@ -219,8 +219,6 @@ export default {
 
       inProgress: {},
 
-      activateBookmarksDrawer: null,
-
       PROBAND: 'proband'
 
     }
@@ -701,17 +699,17 @@ export default {
       self.cohortModel.addFlaggedVariant(variant);
       self.flaggedVariants = this.cohortModel.flaggedVariants;
       // Refresh the loaded variants so that the ranked variants table
-      // reflects the bookmark flag
+      // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
     },
     onRemoveFlaggedVariant: function(variant) {
       let self = this;
-      variant.isBookmark = false;
+      variant.isFlagged = false;
       self.cohortModel.removeFlaggedVariant(variant);
       self.flaggedVariants = this.cohortModel.flaggedVariants;
       self.$refs.navRef.onShowFlaggedVariants();
       // Refresh the loaded variants so that the ranked variants table
-      // reflects the bookmark flag
+      // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
 
     },
@@ -749,10 +747,10 @@ export default {
           function(){
             self.$refs.variantCardRef.forEach(function(variantCard) {
               if (variantCard.relationship == 'proband') {
-                variantCard.showBookmark(flaggedVariant);
+                variantCard.showFlaggedVariant(flaggedVariant);
               }
             })
-            self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant, "bookmark");
+            self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant, "flagged");
           },
           500);
 

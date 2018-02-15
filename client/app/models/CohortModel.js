@@ -1311,9 +1311,9 @@ class CohortModel {
     if (vcfData) {
       vcfData.features.forEach(function(variant) {
         if (self.isFlaggedVariant(variant)) {
-          variant.isBookmark = true;
+          variant.isFlagged = true;
         } else {
-          variant.isBookmark = false;
+          variant.isFlagged = false;
         }
       });
     }
@@ -1416,7 +1416,7 @@ class CohortModel {
         variant.geneName = variant.gene;
         variant.gene = geneObject;
         variant.isProxy = true;
-        variant.isBookmark = true;
+        variant.isFlagged = true;
         if (variant.transcript && variant.transcript.length > 0) {
           variant.transcript = me.geneModel.getTranscript(geneObject, variant.transcript);
         } else {
@@ -1495,7 +1495,7 @@ class CohortModel {
                     var geneObject = importedVariant.gene;
                     var transcript = importedVariant.transcript;
                     importedVariant = matchingVariants[0];
-                    importedVariant.isBookmark = true;
+                    importedVariant.isFlagged = true;
                     importedVariant.isProxy = false;
                     importedVariant.gene = geneObject;
                     importedVariant.transcript = transcript;

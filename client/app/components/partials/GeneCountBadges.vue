@@ -35,7 +35,7 @@
       padding: 0px 5px 0px 0px
       background-color: transparent
 
-      &.bookmark
+      &.flagged
         color: $bookmark-color
         opacity: .7
 
@@ -82,11 +82,11 @@
 
 
 
-      <v-btn flat ref="bookmark"
-       v-bind:class="badgeCounts.bookmark == 0 ? 'disabled' : ''"
-       @click="onBadgeClick('bookmark')" >
-        <v-badge class="bookmark"  right >
-          <span   slot="badge">{{ badgeCounts.bookmark }}</span>
+      <v-btn flat ref="flagged"
+       v-bind:class="badgeCounts.flagged == 0 ? 'disabled' : ''"
+       @click="onBadgeClick('flagged')" >
+        <v-badge class="flagged"  right >
+          <span   slot="badge">{{ badgeCounts.flagged }}</span>
           <v-icon>bookmark</v-icon>
         </v-badge>
       </v-btn>

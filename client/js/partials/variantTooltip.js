@@ -63,10 +63,6 @@ class VariantTooltip {
 
     if (lock && !isLevelEdu) {
       me.showScrollButtons($(tooltip[0]));
-
-      if (variant.hasOwnProperty('isBookmark') && variant.isBookmark == 'Y')  {
-        flagBookmarkedVariant(variant);
-      }
     }
 
 
@@ -812,9 +808,9 @@ class VariantTooltip {
       }
     }
 
-    var bookmarkBadge = '';
-    if (lock && variant.hasOwnProperty('isBookmark') && variant.isBookmark == 'Y') {
-      bookmarkBadge = '<svg class="bookmark-badge" height="14" width="14" style="padding-top:2px" ><g class="bookmark" transform="translate(0,0)"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#bookmark-symbol" width="14" height="14"></use></g></svg>';
+    var flaggedBadge = '';
+    if (lock && variant.isFlagged) {
+      flaggedBadge = '<svg class="bookmark-badge" height="14" width="14" style="padding-top:2px" ><g class="bookmark" transform="translate(0,0)"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#bookmark-symbol" width="14" height="14"></use></g></svg>';
     }
 
 
@@ -921,7 +917,7 @@ class VariantTooltip {
 
       var div =
           '<div class="tooltip-wide">'
-        + me._tooltipMainHeaderRow(bookmarkBadge + (geneObject ? geneObject.gene_name : ""), variant.type ? variant.type.toUpperCase() : "", refalt + " " + coord + " " + exonDisplay, dbSnpLink , 'ref-alt')
+        + me._tooltipMainHeaderRow(flaggedBadge + (geneObject ? geneObject.gene_name : ""), variant.type ? variant.type.toUpperCase() : "", refalt + " " + coord + " " + exonDisplay, dbSnpLink , 'ref-alt')
         + calledVariantRow
         + inheritanceModeRow
         + '<div id="tooltip-body" class="row">'
@@ -1000,17 +996,11 @@ class VariantTooltip {
     var flagVariantLink =  '<button id="flag-variant"  class="hide tooltip-button tooltip-control-button btn btn-raised btn-default" ><i class="material-icons">bookmark_border</i>flag variant</button>';
 
     var removeFlaggedVariant  =  '<button id="remove-flagged-variant" class="hide tooltip-control-button tooltip-button btn btn-raised btn-default">remove<i class="material-icons">bookmark</i></button>';
-    var showAsBookmarked = function(container) {
-      $(container).parent().html(flaggedBadge + removeFlaggedVariant);
-    };
-    var showAsNotBookmarked = function(container) {
-      $(container).parent().html(flagVariantLink);
-    };
 
     var unpin =  '<button id="unpin"  class="hide tooltip-control-button tooltip-button btn btn raised btn-default"><i class="material-icons">close</i></button>'
 
     if (lock) {
-      if (variant.isBookmark) {
+      if (variant.isFlagged) {
         return '<div class="row tooltip-footer">'
           + '<div class="col-sm-4 left-footer" id="bookmarkLink" style="text-align:left;">'  + unpin + removeFlaggedVariant  + '</div>'
           + '<div class="col-sm-4 center-footer"  style="text-align:center;">'  +  removeFlaggedVariant  +  unpin + (relationship == 'known-variants' ? '' : scrollUpButton + scrollDownButton) + '</div>'

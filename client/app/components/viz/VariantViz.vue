@@ -60,7 +60,7 @@
 
 
 .variant-viz
-  .bookmark
+  .flagged-variant
     rect
       fill: none
       stroke: #1574C7
@@ -239,8 +239,8 @@ export default {
       setVariantChart: function() {
         this.$emit('updateVariantChart', this.variantChart);
       },
-      showBookmark: function(variant, container) {
-        this.variantChart.addBookmark(container, variant);
+      showFlaggedVariant: function(variant, container) {
+        this.variantChart.showFlaggedVariant(container, variant);
       }
     },
     watch: {

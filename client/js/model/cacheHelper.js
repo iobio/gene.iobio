@@ -692,7 +692,7 @@ CacheHelper.prototype.clearAll = function() {
 CacheHelper.prototype.clearOther = function() {
   var me = this;
   // confirm dialog
-  alertify.confirm("Clear all cached data for other gene.iobio sessions?  IMPORTANT: To save analysis, bookmark any variants of interest in other browser tabs before clearing the cache.", function (e) {
+  alertify.confirm("Clear all cached data for other gene.iobio sessions?  IMPORTANT: To save analysis, flag any variants of interest in other browser tabs before clearing the cache.", function (e) {
       if (e) {
       // user clicked "ok"
       me._promiseClearCache(null, true, false)

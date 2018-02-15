@@ -271,7 +271,7 @@ export default {
           denovo: 0,
           recessive: 0,
           highOrModerate: 0,
-          bookmark: 0,
+          flagged: 0,
           coverage: 0
       }
 
@@ -324,7 +324,7 @@ export default {
           return dangerSummary && dangerSummary.geneCoverageProblem;
         });
       } else {
-        var theBadge = badge ? badge : 'bookmark';
+        var theBadge = badge ? badge : 'flagged';
         self.flaggedGeneNames = self.geneNames.filter(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
           if (dangerSummary && dangerSummary.badges

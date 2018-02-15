@@ -340,12 +340,12 @@ export default {
       });
       tooltip.selectAll("#flag-variant").on('click', function() {
         self.unpin(null, true);
-        self.selectedVariant.isBookmark = true;
+        self.selectedVariant.isFlagged = true;
         self.$emit('flag-variant', self.selectedVariant);
       });
       tooltip.selectAll("#remove-flagged-variant").on('click', function() {
         self.unpin(null, true);
-        self.selectedVariant.isBookmark = false;
+        self.selectedVariant.isFlagged = false;
         self.$emit('remove-flagged-variant', self.selectedVariant);
       });
 
@@ -430,10 +430,10 @@ export default {
     onKnownVariantsFilterChange: function(selectedCategories) {
       this.$emit("knownVariantsFilterChange", selectedCategories);
     },
-    showBookmark: function(variant) {
+    showFlaggedVariant: function(variant) {
       if (this.showVariantViz) {
         var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-        this.$refs.variantVizRef.showBookmark(variant, container);
+        this.$refs.variantVizRef.showFlaggedVariant(variant, container);
       }
     },
     getExonClass: function(exon, i) {

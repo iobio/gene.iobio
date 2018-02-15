@@ -22,12 +22,12 @@
       font-size: 16px
       padding-right: 4px
 
-  #edit-bookmarks
+  #edit-link
     color: $text-color
-  #done-edit-bookmarks
+  #done-edit-link
     color: $text-color
 
-.bookmark-dialog-body
+.variant-file-body
   .card__text
     padding-top: 0px
     padding-bottom: 20px
@@ -69,7 +69,7 @@
       .icon--selection-control
         height: 0px
 
-.bookmark-button
+.variant-file-button
   color: $text-color !important
   height: 28px
   margin-top: 10px
@@ -120,21 +120,21 @@
 
     <v-dialog v-model="showOpenDialog" max-width="400">
       <v-card>
-        <v-card-title class="headline">Open bookmarks file</v-card-title>
-        <v-card-text class="bookmark-dialog-body">
-          <div id="bookmark-file" >
-            <v-radio-group hide-details v-model="bookmarkFileType" >
+        <v-card-title class="headline">Open variants file</v-card-title>
+        <v-card-text class="variant-file-body">
+          <div id="open-variant-file" >
+            <v-radio-group hide-details v-model="fileType" >
                   <v-radio label="gene.iobio (comma separated)" value="gene"></v-radio>
                   <v-radio label="gemini (tab delimited)" value="gemini"></v-radio>
                   <v-radio label="Tab delimited" value="tsv"></v-radio>
             </v-radio-group>
 
-            <div v-if="bookmarkFileType == 'gene'">
+            <div v-if="fileType == 'gene'">
               <input type="text" readonly=""   placeholder="choose .csv file..." >
               <input type="file"  @change="onFileSelected"  accept=".csv">
             </div>
 
-            <div v-if="bookmarkFileType != 'gene'">
+            <div v-if="fileType != 'gene'">
               <input type="text" readonly=""    placeholder="choose txt file..." >
               <input type="file"  @change="onFileSelected"  accept=".txt, .tsv">
             </div>
@@ -142,7 +142,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn raised class="bookmark-button" @click.native="showOpenDialog = false">Close</v-btn>
+          <v-btn raised class="variant-file-button" @click.native="showOpenDialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -150,9 +150,9 @@
 
     <v-dialog v-model="showSaveDialog" max-width="400">
       <v-card>
-        <v-card-title class="headline">Save bookmarks file</v-card-title>
-        <v-card-text class="bookmark-dialog-body">
-          <div id="bookmark-save" >
+        <v-card-title class="headline">Save variants file</v-card-title>
+        <v-card-text class="variant-file-body">
+          <div id="save-format" >
             <v-radio-group hide-details v-model="exportFormat" >
                   <v-radio label="Comma separated" value="csv"></v-radio>
                   <v-radio label="VCF" value="vcf"></v-radio>
@@ -164,17 +164,17 @@
           <v-spacer></v-spacer>
           <v-btn
             v-if="!readyToDownload"
-            class="bookmark-button" raised @click="onSaveFile">
+            class="variant-file-button" raised @click="onSaveFile">
             <v-icon>save</v-icon>
             Save
           </v-btn>
-          <a id="download-bookmarks"
-          v-bind:class="(!readyToDownload ? 'hide' : '') + ' btn bookmark-button'"
+          <a id="download-file"
+          v-bind:class="(!readyToDownload ? 'hide' : '') + ' btn variant-file-button'"
           download="gene-iobio-variants.csv" href="#">
             <i class="material-icons" style="font-size:20px">file_download</i>
             <span>Download file</span>
           </a>
-          <v-btn class="bookmark-button" raised @click="showSaveDialog = false;readyToDownload = false;">Close</v-btn>
+          <v-btn class="variant-file-button" raised @click="showSaveDialog = false;readyToDownload = false;">Close</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -200,7 +200,7 @@ export default {
       showOpenDialog: false,
       showSaveDialog: false,
       exportFormat: 'csv',
-      bookmarkFileType: 'gene',
+      fileType: 'gene',
       readyToDownload: false
     }
   },
@@ -210,7 +210,7 @@ export default {
     },
     onFileSelected: function(fileSelection) {
       let self = this;
-      self.cohortModel.onFlaggedVariantsFileSelected(fileSelection, self.bookmarkFileType,
+      self.cohortModel.onFlaggedVariantsFileSelected(fileSelection, self.fileType,
       function() {
         self.$emit("flagged-variants-imported");
         self.showOpenDialog = false;
@@ -221,7 +221,7 @@ export default {
       let self = this;
       this.cohortModel.promiseExportFlaggedVariants(self.exportFormat)
       .then(function(output) {
-        utility.createDownloadLink("#download-bookmarks",
+        utility.createDownloadLink("#download-file",
           output,
           "gene-iobio-flagged-variants." + self.exportFormat );
         self.readyToDownload = true;

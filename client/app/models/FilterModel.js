@@ -331,7 +331,7 @@ class FilterModel {
       'recessive': [],
       'denovo': [],
       'highOrModerate': [],
-      'bookmark': []
+      'flagged': []
     };
 
     var AF_MIN = 0;
@@ -348,21 +348,21 @@ class FilterModel {
           if (passesAf && isHighOrModerateImpact) {
             if (variant.clinvar == "clinvar_path" || variant.clinvar == "clinvar_lpath") {
               badges.pathogenic.push(variant);
-              variant.isBookmark = true;
+              variant.isFlagged = true;
             }
             if (variant.inheritance && variant.inheritance == "recessive" ) {
               badges.recessive.push(variant);
-              variant.isBookmark = true;
+              variant.isFlagged = true;
             } else if (variant.inheritance && variant.inheritance == "denovo" ) {
               badges.denovo.push(variant);
-              variant.isBookmark = true;
+              variant.isFlagged = true;
             } else {
               badges.highOrModerate.push(variant);
-              variant.isBookmark = true;
+              variant.isFlagged = true;
             }
           }
-          if (variant.isBookmark) {
-            badges.bookmark.push(variant);
+          if (variant.isFlagged) {
+            badges.flagged.push(variant);
           }
 
         }
