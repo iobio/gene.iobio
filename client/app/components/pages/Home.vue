@@ -27,7 +27,6 @@
       ref="navRef"
       :cohortModel="cohortModel"
       :geneModel="geneModel"
-      :bookmarkModel="bookmarkModel"
       :flaggedVariants="flaggedVariants"
       @input="onGeneSelected"
       @load-demo-data="onLoadDemoData"
@@ -95,8 +94,8 @@
         @cohortVariantClickEnd="onCohortVariantClickEnd"
         @cohortVariantHover="onCohortVariantHover"
         @cohortVariantHoverEnd="onCohortVariantHoverEnd"
-        @bookmark-variant="onBookmarkVariant"
-        @remove-bookmark="onRemoveBookmark"
+        @flag-variant="onFlagVariant"
+        @remove-flagged-variant="onRemoveFlaggedVariant"
         @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
         >
         </feature-matrix-card>
@@ -122,8 +121,8 @@
         @cohortVariantClickEnd="onCohortVariantClickEnd"
         @cohortVariantHover="onCohortVariantHover"
         @cohortVariantHoverEnd="onCohortVariantHoverEnd"
-        @bookmark-variant="onBookmarkVariant"
-        @remove-bookmark="onRemoveBookmark"
+        @flag-variant="onFlagVariant"
+        @remove-flagged-variant="onRemoveFlaggedVariant"
         @knownVariantsVizChange="onKnownVariantsVizChange"
         @knownVariantsFilterChange="onKnownVariantsFilterChange"
         >
@@ -152,7 +151,6 @@ import CohortModel        from  '../../models/CohortModel.js'
 import FeatureMatrixModel from  '../../models/FeatureMatrixModel.js'
 import FilterModel        from  '../../models/FilterModel.js'
 import GeneModel          from  '../../models/GeneModel.js'
-import BookmarkModel      from  '../../models/BookmarkModel.js'
 
 import allGenesData from '../../../data/genes.json'
 
@@ -208,7 +206,6 @@ export default {
       models: [],
       featureMatrixModel: null,
       geneModel: null,
-      bookmarkModel: null,
       filterModel: null,
       cacheHelper: null,
       genomeBuildHelper: null,
@@ -265,20 +262,17 @@ export default {
         self.genomeBuildHelper,
         utility.getHumanRefNames);
 
-      self.bookmarkModel = new BookmarkModel();
       self.variantExporter = new VariantExporter();
 
       self.cohortModel = new CohortModel(endpoint,
         genericAnnotation,
         translator,
         self.geneModel,
-        self.bookmarkModel,
         self.variantExporter,
         self.cacheHelper,
         self.genomeBuildHelper,
         new FreebayesSettings());
 
-      self.bookmarkModel.cohort = self.cohortModel;
       self.variantExporter.cohort = self.cohortModel;
 
       self.inProgress = self.cohortModel.inProgress;
@@ -328,6 +322,10 @@ export default {
       let self = this;
       return new Promise(function(resolve, reject) {
         self.cacheHelper = new CacheHelper();
+        self.cacheHelper.on("geneAnalyzed", function(geneName) {
+          self.$refs.genesCardRef.determineFlaggedGenes();
+          self.$refs.navRef.onShowFlaggedVariants();
+        });
         globalCacheHelper = self.cacheHelper;
         self.cacheHelper.promiseInit()
          .then(function() {
@@ -696,7 +694,7 @@ export default {
 
 
     },
-    onBookmarkVariant: function(variant) {
+    onFlagVariant: function(variant) {
       let self = this;
       variant.gene = this.selectedGene;
       variant.transcript = this.selectedTranscript;
@@ -706,33 +704,16 @@ export default {
       // reflects the bookmark flag
       self.promiseLoadGene(self.selectedGene.gene_name)
     },
-    onRemoveBookmark: function(variant) {
+    onRemoveFlaggedVariant: function(variant) {
       let self = this;
-      self.bookmarkModel.removeBookmarkForVariant(variant);
+      variant.isBookmark = false;
+      self.cohortModel.removeFlaggedVariant(variant);
+      self.flaggedVariants = this.cohortModel.flaggedVariants;
+      self.$refs.navRef.onShowFlaggedVariants();
       // Refresh the loaded variants so that the ranked variants table
       // reflects the bookmark flag
-      self.promiseLoadGene(self.selectedGene.gene_name);
-    },
-    onBookmarkSelected: function(bookmark) {
-      let self = this;
-      self.selectedVariant = bookmark.variant;
-      self.selectedGene = bookmark.gene;
-      self.selectedTranscript = bookmark.transcript;
-      self.onGeneSelected(self.selectedGene.gene_name);
       self.promiseLoadGene(self.selectedGene.gene_name)
-      .then(function() {
-        setTimeout(
-          function(){
-            self.$refs.variantCardRef.forEach(function(variantCard) {
-              if (variantCard.relationship == 'proband') {
-                variantCard.showBookmark(bookmark.variant);
-              }
-            })
-            self.$refs.featureMatrixCardRef.selectVariant(bookmark.variant, "bookmark");
-          },
-          1000);
 
-      });
     },
     onAddFlaggedVariants: function(flaggedVariants) {
       let self = this;

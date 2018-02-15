@@ -1,13 +1,12 @@
 class CohortModel {
 
-  constructor(endpoint, genericAnnotation, translator, geneModel, bookmarkModel,
+  constructor(endpoint, genericAnnotation, translator, geneModel,
     variantExporter, cacheHelper, genomeBuildHelper, freebayesSettings) {
 
     this.endpoint = endpoint;
     this.genericAnnotation = genericAnnotation;
     this.translator = translator;
     this.geneModel = geneModel;
-    this.bookmarkModel = bookmarkModel;
     this.variantExporter = variantExporter;
     this.cacheHelper = cacheHelper;
     this.genomeBuildHelper = genomeBuildHelper;
@@ -1275,6 +1274,24 @@ class CohortModel {
     })
     if (existingVariants.length == 0) {
       this.flaggedVariants.push(variant);
+    }
+  }
+
+  removeFlaggedVariant(variant) {
+    var index = -1;
+    var i = 0;
+    this.flaggedVariants.forEach(function(v) {
+      var matches = (v.chrom == variant.chrom
+        && v.start == variant.start
+        && v.ref == variant.ref
+        && v.alt == variant.alt);
+      if (matches) {
+        index = i;
+      }
+      i++;
+    })
+    if (index >= 0) {
+      this.flaggedVariants.splice(index, 1);
     }
   }
 

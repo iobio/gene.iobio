@@ -338,15 +338,15 @@ export default {
       tooltip.selectAll("#tooltip-scroll-down").on('click', function() {
         self.tooltipScroll("down");
       });
-      tooltip.selectAll("#bookmark").on('click', function() {
+      tooltip.selectAll("#flag-variant").on('click', function() {
         self.unpin(null, true);
         self.selectedVariant.isBookmark = true;
-        self.$emit('bookmark-variant', self.selectedVariant);
+        self.$emit('flag-variant', self.selectedVariant);
       });
-      tooltip.selectAll("#remove-bookmark").on('click', function() {
+      tooltip.selectAll("#remove-flagged-variant").on('click', function() {
         self.unpin(null, true);
         self.selectedVariant.isBookmark = false;
-        self.$emit('remove-bookmark', self.selectedVariant);
+        self.$emit('remove-flagged-variant', self.selectedVariant);
       });
 
     },

@@ -327,8 +327,6 @@ export default {
         var theBadge = badge ? badge : 'bookmark';
         self.flaggedGeneNames = self.geneNames.filter(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
-          console.log(geneName + " " +
-            (dangerSummary && dangerSummary.badges ? dangerSummary.badges.bookmark.length : 'none'));
           if (dangerSummary && dangerSummary.badges
             && dangerSummary.badges[theBadge] && dangerSummary.badges[theBadge].length > 0) {
             dangerSummary.badges[theBadge].forEach(function(variant) {
@@ -356,9 +354,12 @@ export default {
       this.updateGeneBadgeCounts();
     },
     genesInProgress: function() {
-      this.determineFlaggedGenes();
       this.updateGeneSummaries();
       this.updateGeneBadgeCounts();
+    },
+    badgeCounts: function(newBadgeCounts, oldBadgeCounts) {
+      console.log("badge count watch")
+
     },
     sortBy: function() {
       this.$emit("sort-genes", this.sortBy);

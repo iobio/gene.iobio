@@ -995,16 +995,16 @@ class VariantTooltip {
     var scrollUpButton = '<button id="tooltip-scroll-up" class="tooltip-button  btn btn-raised btn-default" ><i class="material-icons">arrow_upward</i>scroll</button>'
     var scrollDownButton = '<button id="tooltip-scroll-down" class="tooltip-button btn btn-raised btn-default" ><i class="material-icons">arrow_downward</i>scroll</button>'
 
-    var bookmarkBadge = '<svg class="bookmark-badge" height="14" width="14" style="padding-top:2px" ><g class="bookmark" transform="translate(0,0)"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#bookmark-symbol" width="14" height="14"></use></g></svg>';
+    var flaggedBadge = '<svg class="bookmark-badge" height="14" width="14" style="padding-top:2px" ><g class="bookmark" transform="translate(0,0)"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#bookmark-symbol" width="14" height="14"></use></g></svg>';
 
-    var bookmarkLink =  '<button id="bookmark"  class="hide tooltip-button tooltip-control-button btn btn-raised btn-default" ><i class="material-icons">bookmark_border</i>bookmark</button>';
+    var flagVariantLink =  '<button id="flag-variant"  class="hide tooltip-button tooltip-control-button btn btn-raised btn-default" ><i class="material-icons">bookmark_border</i>flag variant</button>';
 
-    var removeBookmarkLink  =  '<button id="remove-bookmark" class="hide tooltip-control-button tooltip-button btn btn-raised btn-default">remove<i class="material-icons">bookmark</i></button>';
+    var removeFlaggedVariant  =  '<button id="remove-flagged-variant" class="hide tooltip-control-button tooltip-button btn btn-raised btn-default">remove<i class="material-icons">bookmark</i></button>';
     var showAsBookmarked = function(container) {
-      $(container).parent().html(bookmarkBadge + removeBookmarkLink);
+      $(container).parent().html(flaggedBadge + removeFlaggedVariant);
     };
     var showAsNotBookmarked = function(container) {
-      $(container).parent().html(bookmarkLink);
+      $(container).parent().html(flagVariantLink);
     };
 
     var unpin =  '<button id="unpin"  class="hide tooltip-control-button tooltip-button btn btn raised btn-default"><i class="material-icons">close</i></button>'
@@ -1012,16 +1012,16 @@ class VariantTooltip {
     if (lock) {
       if (variant.isBookmark) {
         return '<div class="row tooltip-footer">'
-          + '<div class="col-sm-4 left-footer" id="bookmarkLink" style="text-align:left;">'  + unpin + removeBookmarkLink  + '</div>'
-          + '<div class="col-sm-4 center-footer"  style="text-align:center;">'  +  removeBookmarkLink  +  unpin + (relationship == 'known-variants' ? '' : scrollUpButton + scrollDownButton) + '</div>'
-          + '<div class="col-sm-4 right-footer" style="text-align:right;">' + removeBookmarkLink + unpin + '</div>'
+          + '<div class="col-sm-4 left-footer" id="bookmarkLink" style="text-align:left;">'  + unpin + removeFlaggedVariant  + '</div>'
+          + '<div class="col-sm-4 center-footer"  style="text-align:center;">'  +  removeFlaggedVariant  +  unpin + (relationship == 'known-variants' ? '' : scrollUpButton + scrollDownButton) + '</div>'
+          + '<div class="col-sm-4 right-footer" style="text-align:right;">' + removeFlaggedVariant + unpin + '</div>'
           + '</div>';
 
       } else {
         return '<div class="row tooltip-footer" style="">'
-          + '<div class="col-sm-4 left-footer" style="text-align:left;">' + unpin + bookmarkLink + '</div>'
-          + '<div class="col-sm-4 center-footer"  style="text-align:center;">'   +   bookmarkLink + unpin  + (relationship == 'known-variants' ? '' : scrollUpButton + scrollDownButton) + '</div>'
-          + '<div class="col-sm-4 right-footer" style="text-align:right;">' + bookmarkLink + unpin + '</div>'
+          + '<div class="col-sm-4 left-footer" style="text-align:left;">' + unpin + flagVariantLink + '</div>'
+          + '<div class="col-sm-4 center-footer"  style="text-align:center;">'   +   flagVariantLink + unpin  + (relationship == 'known-variants' ? '' : scrollUpButton + scrollDownButton) + '</div>'
+          + '<div class="col-sm-4 right-footer" style="text-align:right;">' + flagVariantLink + unpin + '</div>'
           + '</div>';
 
       }

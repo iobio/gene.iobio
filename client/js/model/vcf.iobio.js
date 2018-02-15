@@ -1027,7 +1027,7 @@ var effectCategories = [
 
 
           // Turn vcf record into a JSON object and add it to an array
-          var vcfObject = {'pos': pos, 'id': 'id', 'ref': ref, 'alt': alt,
+          var vcfObject = {gene: geneObject, 'pos': pos, 'id': 'id', 'ref': ref, 'alt': alt,
                            'qual': qual, 'filter': filter, 'info': info, 'format': format, 'genotypes': genotypes};
           vcfObjects.push(vcfObject);
         }

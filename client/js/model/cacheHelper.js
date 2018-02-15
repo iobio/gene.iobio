@@ -12,6 +12,9 @@ function CacheHelper() {
   this.cacheIndexStore = new CacheIndexStore();
 
   this.cohort = null;
+
+  this.dispatch = d3.dispatch("geneAnalyzed");
+  d3.rebind(this, this.dispatch, "on");
 }
 
 CacheHelper.KEY_DELIM = "^";
@@ -391,6 +394,7 @@ CacheHelper.prototype.isGeneInProgress = function(geneName) {
 
 CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants, callback) {
 
+  this.dispatch.geneAnalyzed(geneName);
 
   this.dequeueGene(geneName);
   // Invoke cacheGenes, which will kick off the next batch
