@@ -235,7 +235,7 @@ export default {
 
           return {'name': geneName,
           'isFlagged': isFlagged,
-          'dangerSummary': self.geneModel.getDangerSummary(geneName),
+          'dangerSummary': dangerSummary,
           'inProgress': inProgress};
         })
 
@@ -327,6 +327,8 @@ export default {
         var theBadge = badge ? badge : 'bookmark';
         self.flaggedGeneNames = self.geneNames.filter(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
+          console.log(geneName + " " +
+            (dangerSummary && dangerSummary.badges ? dangerSummary.badges.bookmark.length : 'none'));
           if (dangerSummary && dangerSummary.badges
             && dangerSummary.badges[theBadge] && dangerSummary.badges[theBadge].length > 0) {
             dangerSummary.badges[theBadge].forEach(function(variant) {
@@ -338,8 +340,9 @@ export default {
         });
       }
 
-      self.$emit("flagged-genes-selected", self.flaggedGeneNames, self.flaggedVariants);
+      self.$emit("add-flagged-variants", self.flaggedVariants);
 
+      self.$emit("show-flagged-variants", self.flaggedGeneNames, self.flaggedVariants);
 
     }
 

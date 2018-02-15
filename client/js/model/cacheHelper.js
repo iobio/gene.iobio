@@ -44,6 +44,23 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
   }
 }
 
+CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, analyzeCalledVariants=false) {
+  var me = this;
+  me.cohort = cohort;
+
+  return new Promise(function(resolve, reject) {
+    theGeneNames.forEach(function(geneName) {
+      me.genesToCache.push(geneName);
+    });
+    me.cacheGenes(analyzeCalledVariants, function() {
+      me.cohort.geneModel.sortGenes("harmful variants");
+      resolve();
+    });
+
+  })
+
+}
+
 CacheHelper.prototype.setLoaderDisplay = function(loaderDisplay) {
   this.geneBadgeLoaderDisplay = loaderDisplay;
 }

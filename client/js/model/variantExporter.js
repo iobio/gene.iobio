@@ -85,20 +85,20 @@ class VariantExporter {
       var headerRecordsCalledVariants = [];
       var getHeader = format == 'vcf' ? true : false;
 
-      variantEntries.forEach(function(entry) {
+      variantEntries.forEach(function(variant) {
 
         var exportRec = {};
-        exportRec.start        = entry.variant.start;
-        exportRec.end          = entry.variant.end;
-        exportRec.chrom        = entry.variant.chrom.indexOf("chr") == 0 ? entry.variant.chrom : 'chr' + entry.variant.chrom;
-        exportRec.ref          = entry.variant.ref;
-        exportRec.alt          = entry.variant.alt;
-        exportRec.gene         = entry.gene.gene_name;
-        exportRec.transcript   = entry.transcript.transcript_id;
-        exportRec.starred      = entry.isFavorite == true ? "Y" : "";
+        exportRec.start        = variant.start;
+        exportRec.end          = variant.end;
+        exportRec.chrom        = variant.chrom.indexOf("chr") == 0 ? variant.chrom : 'chr' + variant.chrom;
+        exportRec.ref          = variant.ref;
+        exportRec.alt          = variant.alt;
+        exportRec.gene         = variant.gene.gene_name;
+        exportRec.transcript   = variant.transcript.transcript_id;
+        exportRec.starred      = variant.isFavorite == true ? "Y" : "";
 
         var promise = null;
-        promise = me._promiseCreateExportRecord(entry, exportRec, format, getHeader, sampleNames)
+        promise = me._promiseCreateExportRecord(variant, exportRec, format, getHeader, sampleNames)
         .then(function(data) {
           var record = data[0];
 
@@ -306,7 +306,7 @@ class VariantExporter {
 
 
 
-  _promiseCreateExportRecord(variantEntry, exportRec, format, getHeader, sampleNames) {
+  _promiseCreateExportRecord(variant, exportRec, format, getHeader, sampleNames) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
@@ -325,13 +325,13 @@ class VariantExporter {
         if (theTranscript) {
 
 
-          if ((variantEntry.hasOwnProperty('fbCalled')        && variantEntry.fbCalled == 'Y') ||
-            (variantEntry.hasOwnProperty('freebayesCalled') && variantEntry.freebayesCalled == 'Y')) {
+          if ((variant.hasOwnProperty('fbCalled')        && variant.fbCalled == 'Y') ||
+            (variant.hasOwnProperty('freebayesCalled') && variant.freebayesCalled == 'Y')) {
             // If the variant was called on-demand, issue the service calls to
             // generate the vcf records.
 
 
-            promiseJointCallVariants(theGeneObject, theTranscript, getCurrentTrioVcfData(), {sourceVariant: variantEntry, checkCache: true, isBackground: true})
+            me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, me.cohort.getCurrentTrioVcfData(), {sourceVariant: variant, checkCache: true, isBackground: true})
             .then(function(data) {
                 var theGeneObject1    = data.gene;
                 var theTranscript1    = data.transcript;
@@ -345,13 +345,13 @@ class VariantExporter {
                   theVcfRecs = me._formatJointVcfRecs(jointVcfRecs, sourceVariant);
                 }
 
-                var sampleNamesToGenotype = getProbandVariantCard().getSampleNamesToGenotype();
-                var data = getProbandVariantCard().model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, matrixCard.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, global_vepAF)
+                var sampleNamesToGenotype = me.cohort.getProbandModel().getSampleNamesToGenotype();
+                var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, global_vepAF)
                 var theFbData = data.results;
 
                 theFbData.features.forEach(function(v) {
                   if (theVariant == null
-                    && getProbandVariantCard().model._stripRefName(v.chrom) == getProbandVariantCard().model._stripRefName(sourceVariant.chrom)
+                    && me.cohort.getProbandModel()._stripRefName(v.chrom) == me.cohort.getProbandModel()._stripRefName(sourceVariant.chrom)
                     && v.start  == sourceVariant.start
                     && v.ref    == sourceVariant.ref
                     && v.alt    == sourceVariant.alt) {
@@ -367,7 +367,7 @@ class VariantExporter {
           } else {
 
             me.cohort.getProbandModel()
-             .promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variantEntry.variant, format, getHeader, sampleNames)
+             .promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variant, format, getHeader, sampleNames)
              .then(function(data) {
               var theVariant = data[0];
               var sourceVariant = data[1];
@@ -400,13 +400,13 @@ class VariantExporter {
         theVcfRecs.push(vcfRec);
       } else  {
         fields = vcfRec.split("\t");
-        var chrom = getProbandVariantCard().model._stripRefName(fields[0]);
+        var chrom = me.cohort.getProbandModel()._stripRefName(fields[0]);
         var start = fields[1];
         var ref   = fields[3];
         var alt   = fields[4];
 
         if (theVcfRec == null
-          && chrom  == getProbandVariantCard().model._stripRefName(sourceVariant.chrom)
+          && chrom  == me.cohort.getProbandModel()._stripRefName(sourceVariant.chrom)
           && start  == sourceVariant.start
           && ref    == sourceVariant.ref
           && alt    == sourceVariant.alt) {

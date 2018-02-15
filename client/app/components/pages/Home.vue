@@ -28,11 +28,12 @@
       :cohortModel="cohortModel"
       :geneModel="geneModel"
       :bookmarkModel="bookmarkModel"
+      :flaggedVariants="flaggedVariants"
       @input="onGeneSelected"
       @load-demo-data="onLoadDemoData"
       @clear-cache="clearCache"
       @apply-genes="onApplyGenes"
-      @bookmark-selected="onBookmarkSelected"
+      @flagged-variants-imported="onFlaggedVariantsImported"
       @flagged-variant-selected="onFlaggedVariantSelected"
     >
     </navigation>
@@ -41,6 +42,7 @@
 
         <genes-card
          v-if="geneModel && geneModel.geneNames.length > 0"
+         ref="genesCardRef"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
          :geneNames="geneModel.sortedGeneNames"
@@ -53,7 +55,8 @@
          @analyze-all="onAnalyzeAll"
          @call-variants="callVariants"
          @sort-genes="onSortGenes"
-         @flagged-genes-selected="onFlaggedGenesSelected"
+         @add-flagged-variants="onAddFlaggedVariants"
+         @show-flagged-variants="onShowFlaggedVariants"
         >
         </genes-card>
 
@@ -199,6 +202,7 @@ export default {
 
       genesInProgress: {},
 
+      flaggedVariants: [],
 
       cohortModel: null,
       models: [],
@@ -694,8 +698,10 @@ export default {
     },
     onBookmarkVariant: function(variant) {
       let self = this;
-      self.$refs.navRef.onBookmarks();
-      let bookmark = self.bookmarkModel.addBookmark(variant, self.selectedGene, self.selectedTranscript);
+      variant.gene = this.selectedGene;
+      variant.transcript = this.selectedTranscript;
+      self.cohortModel.addFlaggedVariant(variant);
+      self.flaggedVariants = this.cohortModel.flaggedVariants;
       // Refresh the loaded variants so that the ranked variants table
       // reflects the bookmark flag
       self.promiseLoadGene(self.selectedGene.gene_name)
@@ -728,23 +734,33 @@ export default {
 
       });
     },
-    onFlaggedGenesSelected: function(flaggedGeneNames, flaggedVariants) {
+    onAddFlaggedVariants: function(flaggedVariants) {
       let self = this;
-      self.cohortModel.clearFlaggedVariants();
       flaggedVariants.forEach(function(variant) {
         variant.gene = self.geneModel.geneObjects[variant.geneName];
+        variant.transcript =  self.geneModel.getCanonicalTranscript(variant.gene);
         self.cohortModel.addFlaggedVariant(variant);
       })
-      if (flaggedGeneNames.length > 0) {
-        self.$refs.navRef.onFlaggedVariants();
-      }
+    },
+    onShowFlaggedVariants: function(flaggedGeneNames, flaggedVariants) {
+      let self = this;
+      self.flaggedVariants = [];
+      self.flaggedVariants = flaggedVariants;
+      self.$refs.navRef.onShowFlaggedVariants();
 
+    },
+    onFlaggedVariantsImported: function() {
+      let self = this;
+      self.flaggedVariants = [];
+      self.flaggedVariants = this.cohortModel.flaggedVariants;
+      self.$refs.genesCardRef.determineFlaggedGenes();
+      self.$refs.genesCardRef.updateGeneBadgeCounts();
     },
     onFlaggedVariantSelected: function(flaggedVariant) {
       let self = this;
       self.selectedVariant = flaggedVariant;
       self.selectedGene = flaggedVariant.gene;
-      self.selectedTranscript = null;
+      self.selectedTranscript = flaggedVariant.transcript;
       self.onGeneSelected(self.selectedGene.gene_name);
       self.promiseLoadGene(self.selectedGene.gene_name)
       .then(function() {
@@ -757,7 +773,7 @@ export default {
             })
             self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant, "bookmark");
           },
-          1000);
+          500);
 
       });
     },

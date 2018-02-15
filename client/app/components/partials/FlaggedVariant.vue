@@ -118,17 +118,19 @@
       <span class="variant-symbols">
 
 
-<!--
-        <i class="material-icons bookmark" v-if="variant.isBookmark">
-          bookmark
-        </i>
--->
-
         <svg
-         v-if="variant.clinvar && variant.clinvar == 'clinvar_path'"
+         v-if="clinvar == 'clinvar_path'"
          class="clinvar-badge" height="13" width="14">
           <g transform="translate(0,1)">
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="pointer-events: none; fill: rgb(173, 73, 74);"></use>
+          </g>
+        </svg>
+
+        <svg
+         v-if="clinvar == 'clinvar_lpath'"
+         class="clinvar-badge" height="13" width="14">
+          <g transform="translate(0,1)">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="pointer-events: none; fill: rgb(251, 119, 55);"></use>
           </g>
         </svg>
 
@@ -187,7 +189,7 @@
           </g>
         </svg>
 
-        <svg v-if="variant.zygosity && variant.zygosity.toUpperCase() == 'HOM'" width="24" height="14">
+        <svg v-if="zygosity == 'HOM'" width="24" height="14">
           <g transform="translate(0,3)">
             <rect width="24" height="10" class="zyg_hom" style="pointer-events: none;">
             </rect>
@@ -196,7 +198,7 @@
             </text>
           </g>
         </svg>
-        <svg v-if="variant.zygosity && variant.zygosity.toUpperCase() == 'HET'" width="24" height="14">
+        <svg v-if="zygosity == 'HET'" width="24" height="14">
           <g transform="translate(0,3)">
             <rect width="24" height="10" class="zyg_het" style="pointer-events: none;">
             </rect>
@@ -280,27 +282,67 @@ export default {
 
   },
   computed: {
+    clinvar: function() {
+      if (this.variant.isProxy) {
+        if (this.variant.clinvarClinSig == "pathogenic") {
+          return "clinvar_path";
+        } else if (this.variant.clinvarClinSig == "likely pathogenic") {
+          return "clinvar_lpath";
+        } else {
+          return "";
+        }
+      } else {
+        return this.variant.clinvar;
+      }
+    },
     rsId: function() {
-      return utility.getRsId(this.variant);
+      if (this.variant.isProxy) {
+        return this.variant.rsId;
+      } else {
+        return utility.getRsId(this.variant);
+      }
     },
     hgvsP: function() {
-      return this.variant.extraAnnot ? utility.formatHgvsP(this.variant, this.variant.vepHGVSp) : "";
+      if (this.variant.isProxy) {
+        return utility.formatHgvsP(this.variant, this.variant.HGVSp);
+      } else {
+        return this.variant.extraAnnot ? utility.formatHgvsP(this.variant, this.variant.vepHGVSp) : "";
+      }
     },
     vepConsequence: function() {
-      return this.variant.vepConsequence ? Object.keys(this.variant.vepConsequence).join(" ").split("_").join(" ") : "";
+      if (this.variant.isProxy) {
+        return this.variant.consequence;
+      } else {
+        return this.variant.vepConsequence ? Object.keys(this.variant.vepConsequence).join(" ").split("_").join(" ") : "";
+      }
     },
     highestImpactClass: function() {
       let clazz = "filter-symbol";
-      for (var impact in this.variant.highestImpactVep) {
-        if (clazz.length > 0) {
-          clazz += " ";
+      if (this.variant.isProxy) {
+        clazz += " impact_" + this.variant.impact.toUpperCase();
+      } else {
+        for (var impact in this.variant.highestImpactVep) {
+          if (clazz.length > 0) {
+            clazz += " ";
+          }
+          clazz += "impact_" + impact.toUpperCase();
         }
-        clazz += "impact_" + impact.toUpperCase();
       }
       return clazz;
     },
     afDisplay: function() {
-      return  "af " +  utility.percentage(this.variant.afHighest ? this.variant.afHighest : 0);
+      if (this.variant.isProxy) {
+        return  "af " +  utility.percentage(this.variant.afgnomAD ? this.variant.afgnomAD : 0);
+      } else {
+        return  "af " +  utility.percentage(this.variant.afHighest ? this.variant.afHighest : 0);
+      }
+    },
+    zygosity: function() {
+      if (this.variant.isProxy) {
+        return this.variant.zygosityProband.toUpperCase();
+      } else {
+        return this.variant.zygosity.toUpperCase();
+      }
     }
   },
   watch: {

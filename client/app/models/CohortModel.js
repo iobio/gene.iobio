@@ -343,7 +343,7 @@ class CohortModel {
       self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, options)
       .then(function(resultMap) {
         // Flag bookmarked variants
-        self.bookmarkModel.flagBookmarks(resultMap.proband);
+        self.flagBookmarkedVariants(resultMap.proband);
 
         // the variants are fully annotated so determine inheritance (if trio).
         return self.promiseAnnotateInheritance(theGene, theTranscript, resultMap, {isBackground: false, cacheData: true})
@@ -1266,8 +1266,18 @@ class CohortModel {
   }
 
   addFlaggedVariant(variant) {
-    this.flaggedVariants.push(variant);
+    var existingVariants = this.flaggedVariants.filter(function(v) {
+      var matches = (v.gene.gene_name == variant.gene.gene_name
+        && v.start == variant.start
+        && v.ref == variant.ref
+        && v.alt == variant.alt);
+      return matches;
+    })
+    if (existingVariants.length == 0) {
+      this.flaggedVariants.push(variant);
+    }
   }
+
 
   clearFlaggedVariants() {
     this.flaggedVariants = [];
@@ -1279,6 +1289,234 @@ class CohortModel {
     });
   }
 
+  flagBookmarkedVariants(vcfData) {
+    let self = this;
+    if (vcfData) {
+      vcfData.features.forEach(function(variant) {
+        if (self.isFlaggedVariant(variant)) {
+          variant.isBookmark = true;
+        } else {
+          variant.isBookmark = false;
+        }
+      });
+    }
+  }
+
+  isFlaggedVariant(variant) {
+    var matchingVariants = this.flaggedVariants.filter(function(v) {
+      return v.start == variant.start
+       && v.ref      == variant.ref
+       && v.alt      == variant.alt;
+    });
+    return matchingVariants.length > 0;
+  }
+
+  promiseExportFlaggedVariants(format = 'csv') {
+    let self = this;
+    // If this is a trio, the exporter will be getting the genotype info for proband, mother
+    // and father, so pass in a comma separated value of sample names for trio.  Otherwise,
+    // just pass null, which will default to the proband's sample name
+    var sampleNames = null;
+    if (self.mode == 'trio') {
+      self.getCanonicalModels().map(function(model) {
+        return model.sampleName;
+      })
+    }
+
+    return self.variantExporter.promiseExportVariants(self.flaggedVariants, format, sampleNames);
+  }
+
+  onFlaggedVariantsFileSelected(fileSelection, fileType, callback) {
+    var files = fileSelection.currentTarget.files;
+    var me = this;
+    // Check for the various File API support.
+    if (window.FileReader) {
+      var variantsFile = files[0];
+      var reader = new FileReader();
+
+      reader.readAsText(variantsFile);
+
+      // Handle errors load
+      reader.onload = function(event) {
+        var data = event.target.result;
+        me.importFlaggedVariants(fileType, data, function() {
+          if (callback) {
+            callback();
+          }
+        });
+        fileSelection.value = null;
+      }
+      reader.onerror = function(event) {
+        alert("Cannot read file. Error: " + event.target.error.name);
+        console.log(event.toString())
+        if (callback) {
+          callback();
+        }
+      }
+
+    } else {
+      alert('FileReader are not supported in this browser.');
+      if (callback) {
+        callback();
+      }
+    }
+  }
+
+
+  importFlaggedVariants(fileType, data, callback) {
+    var me = this;
+    me.flaggedVariants = [];
+
+    var importRecords = VariantImporter.parseRecords(fileType, data);
+
+    // If the number of bookmarks exceeds the max gene limit, truncate the
+    // bookmarked variants to this max.
+    if (global_maxGeneCount && importRecords.length > global_maxGeneCount) {
+      var bypassedCount = importRecords.length - global_maxGeneCount;
+      importRecords = importRecords.slice(0, global_maxGeneCount);
+      alertify.alert("Only first " + global_maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.");
+    }
+
+
+    // We need to make sure each imported record has a transcript.
+    // So first, cache all of the gene objects for the imported bookmarks
+    var promises = []
+
+    importRecords.forEach( function(ir) {
+      if (!ir.transcript || ir.transcript == '') {
+        var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true);
+        promises.push(promise);
+      }
+    })
+
+    // Now that all of the gene objects have been cached, we can fill in the
+    // transcript if necessary and then find load the imported bookmarks
+    Promise.all(promises).then(function() {
+      var genesToAnalyze = {load: [], call: []};
+      importRecords.forEach( function(variant) {
+        var geneObject = me.geneModel.geneObjects[variant.gene];
+
+        variant.geneName = variant.gene;
+        variant.gene = geneObject;
+        variant.isProxy = true;
+        variant.isBookmark = true;
+        if (variant.transcript && variant.transcript.length > 0) {
+          variant.transcript = me.geneModel.getTranscript(geneObject, variant.transcript);
+        } else {
+          var tx = geneObject ? me.geneModel.getCanonicalTranscript(geneObject) : null;
+          if (tx) {
+            variant.transcript = tx;
+          }
+        }
+        me.flaggedVariants.push(variant);
+
+        var analyzeKind = variant.freebayesCalled == 'Y' ? 'call' : 'load';
+        var theVariants = genesToAnalyze[analyzeKind][variant.gene.gene_name];
+        if (theVariants == null) {
+          theVariants = [];
+          genesToAnalyze[analyzeKind][variant.gene.gene_name] = theVariants;
+        }
+        theVariants.push(variant);
+
+      });
+
+
+      var intersectedGenes = {};
+      for (var analyzeKind in genesToAnalyze) {
+        for (var geneName in genesToAnalyze[analyzeKind]) {
+          var variants = genesToAnalyze[analyzeKind][geneName];
+          var allVariants = intersectedGenes[geneName];
+          if (allVariants == null) {
+            allVariants = [];
+            intersectedGenes[geneName] = allVariants;
+          }
+          variants.forEach(function(v) {
+            allVariants.push(v);
+          })
+        }
+      }
+
+
+
+      me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), false)
+      .then(function() {
+        if (Object.keys(genesToAnalyze.call).length > 0) {
+          return me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.call), true)
+        } else {
+          return Promise.resolve();
+        }
+      })
+      .then(function() {
+
+        // Get all of the cached vcf data
+        let dataPromises = [];
+        for (let geneName in intersectedGenes) {
+
+          var uniqueTranscripts = {};
+          intersectedGenes[geneName].forEach(function(importedVariant) {
+            uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
+          })
+
+          for (var transcriptId in uniqueTranscripts) {
+            let dataPromise =  new Promise(function(resolve, reject) {
+
+              var geneObject = me.geneModel.geneObjects[geneName];
+              var transcript = uniqueTranscripts[transcriptId];
+              var importedVariants = intersectedGenes[geneName];
+
+              me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
+              .then(function(data) {
+
+                // Refresh imported variant records with real variants
+                importedVariants.forEach(function(importedVariant) {
+                  var matchingVariants = data.vcfData.features.filter(function(v) {
+                    return v.start == importedVariant.start
+                     && v.ref      == importedVariant.ref
+                     && v.alt      == importedVariant.alt;
+                  })
+                  if (matchingVariants.length > 0) {
+                    var geneObject = importedVariant.gene;
+                    var transcript = importedVariant.transcript;
+                    importedVariant = matchingVariants[0];
+                    importedVariant.isBookmark = true;
+                    importedVariant.isProxy = false;
+                    importedVariant.gene = geneObject;
+                    importedVariant.transcript = transcript;
+                  }
+                })
+
+                // Now recalc the badge counts on danger summary to reflect imported variants
+                me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
+                .then(function(dangerSummary) {
+                  dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
+                  me.geneModel.setDangerSummary(geneObject, dangerSummary);
+
+                  resolve();
+                });
+
+              })
+              .catch(function(error) {
+                reject(error)
+              })
+
+            })
+            dataPromises.push(dataPromise);
+          }
+        }
+
+        // Finished with syncing imported variants for all imported genes.
+        Promise.all(dataPromises)
+        .then(function() {
+
+          if (callback) {
+            callback();
+          }
+        })
+      })
+
+    })
+
+  }
 
 }
 

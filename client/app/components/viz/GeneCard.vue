@@ -259,10 +259,12 @@ export default {
       return !value ? '' : utility.formatRegion()(value);
     },
     formatTranscriptType: function(transcript) {
-      if (transcript.transcript_type.indexOf("transcript") < 0) {
+      if (transcript && transcript.transcript_type.indexOf("transcript") < 0) {
         return transcript.transcript_type + " transcript";
-      } else {
+      } else if (transcript) {
         return transcript.transcript_type;
+      } else {
+        return "";
       }
     }
   },

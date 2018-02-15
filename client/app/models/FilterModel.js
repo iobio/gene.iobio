@@ -339,29 +339,32 @@ class FilterModel {
 
     if (theVcfData && theVcfData.features) {
       theVcfData.features.forEach(function(variant) {
-        var passesAf = (variant.afHighest >= AF_MIN && variant.afHighest <= AF_MAX);
+        if (variant.zygosity.toUpperCase() == 'HOM' || variant.zygosity.toUpperCase() == 'HET') {
+          var passesAf = (variant.afHighest >= AF_MIN && variant.afHighest <= AF_MAX);
 
-        var isHighOrModerateImpact = Object.keys(variant.vepImpact).indexOf("HIGH") >= 0
-          || Object.keys(variant.vepImpact).indexOf("MODERATE") >= 0;
+          var isHighOrModerateImpact = Object.keys(variant.vepImpact).indexOf("HIGH") >= 0
+            || Object.keys(variant.vepImpact).indexOf("MODERATE") >= 0;
 
-        if (passesAf && isHighOrModerateImpact) {
-          if (variant.clinvar == "clinvar_path" || variant.clinvar == "clinvar_lpath") {
-            badges.pathogenic.push(variant);
-            variant.isBookmark = true;
+          if (passesAf && isHighOrModerateImpact) {
+            if (variant.clinvar == "clinvar_path" || variant.clinvar == "clinvar_lpath") {
+              badges.pathogenic.push(variant);
+              variant.isBookmark = true;
+            }
+            if (variant.inheritance && variant.inheritance == "recessive" ) {
+              badges.recessive.push(variant);
+              variant.isBookmark = true;
+            } else if (variant.inheritance && variant.inheritance == "denovo" ) {
+              badges.denovo.push(variant);
+              variant.isBookmark = true;
+            } else {
+              badges.highOrModerate.push(variant);
+              variant.isBookmark = true;
+            }
           }
-          if (variant.inheritance && variant.inheritance == "recessive" ) {
-            badges.recessive.push(variant);
-            variant.isBookmark = true;
-          } else if (variant.inheritance && variant.inheritance == "denovo" ) {
-            badges.denovo.push(variant);
-            variant.isBookmark = true;
-          } else {
-            badges.highOrModerate.push(variant);
-            variant.isBookmark = true;
+          if (variant.isBookmark) {
+            badges.bookmark.push(variant);
           }
-        }
-        if (variant.isBookmark) {
-          badges.bookmark.push(variant);
+
         }
       })
       return badges;

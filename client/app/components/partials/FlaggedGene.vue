@@ -3,6 +3,7 @@
 
 .flagged-gene
   clear: both
+  padding-top: 10px
 
 
 </style>

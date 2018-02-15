@@ -218,6 +218,13 @@ class GeneModel {
     });
   }
 
+  getTranscript(geneObject, transcriptId) {
+    var theTranscripts = geneObject.transcripts.filter(function(transcript) {
+      return transcript.transcript_id == transcriptId;
+    });
+    return theTranscripts.length > 0 ? theTranscripts[0] : null;
+  }
+
   getCanonicalTranscript(theGeneObject) {
     let me = this;
     var geneObject = theGeneObject != null ? theGeneObject : window.gene;

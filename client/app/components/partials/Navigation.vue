@@ -41,22 +41,29 @@ nav.toolbar
 
 
 
+        <v-btn flat  @click="onVariants">
+         <v-icon>bookmark</v-icon>
+         Variants
+        </v-btn>
+
+
 
         <v-btn flat>
          <v-icon>input</v-icon>
          Files
         </v-btn>
 
-        <v-spacer></v-spacer>
 
-        <v-btn flat @click="onLegend">
-          <v-icon>description</v-icon>
-          Legend
-        </v-btn>
+
 
       </v-toolbar-items>
 
       <v-spacer></v-spacer>
+
+      <v-btn flat @click="onLegend">
+        <v-icon>description</v-icon>
+        Legend
+      </v-btn>
 
       <v-menu offset-y>
         <v-btn flat slot="activator">Help</v-btn>
@@ -78,16 +85,12 @@ nav.toolbar
       width=350
     >
       <div>
-        <bookmarks-card
-         v-if="leftDrawerContents == 'bookmarks'"
-         :bookmarkModel="bookmarkModel"
-         @bookmark-selected="onBookmarkSelected"
-        >
-        </bookmarks-card>
 
         <flagged-variants-card
          v-if="leftDrawerContents == 'flagged-variants'"
          :cohortModel="cohortModel"
+         :flaggedVariants="flaggedVariants"
+         @flagged-variants-imported="onFlaggedVariantsImported"
          @flagged-variant-selected="onFlaggedVariantSelected"
         >
         </flagged-variants-card>
@@ -107,11 +110,10 @@ nav.toolbar
 
 <script>
 
-import { Typeahead } from 'uiv'
-import GenesMenu from '../partials/GenesMenu.vue'
-import BookmarksCard from '../viz/BookmarksCard.vue'
+import { Typeahead }       from 'uiv'
+import GenesMenu           from '../partials/GenesMenu.vue'
 import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
-import LegendPanel from '../partials/LegendPanel.vue'
+import LegendPanel         from '../partials/LegendPanel.vue'
 
 
 export default {
@@ -119,14 +121,13 @@ export default {
   components: {
     Typeahead,
     GenesMenu,
-    BookmarksCard,
     FlaggedVariantsCard,
     LegendPanel
   },
   props: {
     geneModel: null,
-    bookmarkModel: null,
-    cohortModel: null
+    cohortModel: null,
+    flaggedVariants: null,
   },
   data () {
     return {
@@ -158,23 +159,23 @@ export default {
     onApplyGenes: function(genesToApply) {
       this.$emit("apply-genes", genesToApply);
     },
-    onBookmarks: function() {
-      this.leftDrawerContents = "bookmarks";
+    onVariants: function() {
+      this.leftDrawerContents = "flagged-variants";
       this.leftDrawer = true;
-    },
-    onBookmarkSelected: function(bookmark) {
-      this.$emit("bookmark-selected", bookmark)
     },
     onLegend: function() {
       this.leftDrawerContents = "legend";
       this.leftDrawer = true;
     },
-    onFlaggedVariants: function() {
+    onShowFlaggedVariants: function() {
       this.leftDrawerContents = "flagged-variants";
       this.leftDrawer = true;
     },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)
+    },
+    onFlaggedVariantsImported: function() {
+      this.$emit("flagged-variants-imported")
     }
   },
   created: function() {
