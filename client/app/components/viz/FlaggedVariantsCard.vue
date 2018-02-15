@@ -28,9 +28,9 @@
     color: $text-color
 
 .variant-file-body
-  .card__text
-    padding-top: 0px
-    padding-bottom: 20px
+  padding-top: 0px
+  padding-bottom: 18px
+  margin-bottom: 20px
 
   .radio-group.radio-group--column
     margin-top: 0px
@@ -129,14 +129,22 @@
                   <v-radio label="Tab delimited" value="tsv"></v-radio>
             </v-radio-group>
 
-            <div v-if="fileType == 'gene'">
-              <input type="text" readonly=""   placeholder="choose .csv file..." >
-              <input type="file"  @change="onFileSelected"  accept=".csv">
-            </div>
+            <div style="margin-top:10px;margin-bottom:20px">
+              <div v-if="fileType == 'gene'">
+                <input type="text" readonly=""   placeholder="choose .csv file..." >
+                <input type="file"  @change="onFileSelected"  accept=".csv">
+              </div>
 
-            <div v-if="fileType != 'gene'">
-              <input type="text" readonly=""    placeholder="choose txt file..." >
-              <input type="file"  @change="onFileSelected"  accept=".txt, .tsv">
+              <div v-if="fileType != 'gene'">
+                <input type="text" readonly=""    placeholder="choose txt file..." >
+                <input type="file" class="btn btn-raised"  @change="onFileSelected"  accept=".txt, .tsv">
+              </div>
+              <div style="text-align:center;margin-top:10px"
+              v-if="importInProgress" >
+                <img style="width:22px;height:22px"
+                     class="loader  glyph" src="../../../assets/images/wheel.gif"/>
+                Loading variants...
+              </div>
             </div>
           </div>
         </v-card-text>
@@ -158,6 +166,12 @@
                   <v-radio label="VCF" value="vcf"></v-radio>
             </v-radio-group>
 
+          </div>
+          <div style="text-align:center;margin-top:10px"
+            v-if="exportInProgress" >
+              <img style="width:22px;height:22px"
+                   class="loader  glyph" src="../../../assets/images/wheel.gif"/>
+              Saving variants to file...
           </div>
         </v-card-text>
         <v-card-actions>
@@ -201,7 +215,9 @@ export default {
       showSaveDialog: false,
       exportFormat: 'csv',
       fileType: 'gene',
-      readyToDownload: false
+      readyToDownload: false,
+      importInProgress: false,
+      exportInProgress: false
     }
   },
   methods: {
@@ -210,17 +226,20 @@ export default {
     },
     onFileSelected: function(fileSelection) {
       let self = this;
+      self.importInProgress = true;
       self.cohortModel.onFlaggedVariantsFileSelected(fileSelection, self.fileType,
       function() {
+        self.importInProgress = false;
         self.$emit("flagged-variants-imported");
         self.showOpenDialog = false;
-
       });
     },
     onSaveFile: function() {
       let self = this;
+      self.exportInProgress = true;
       this.cohortModel.promiseExportFlaggedVariants(self.exportFormat)
       .then(function(output) {
+        self.exportInProgress = false;
         utility.createDownloadLink("#download-file",
           output,
           "gene-iobio-flagged-variants." + self.exportFormat );
