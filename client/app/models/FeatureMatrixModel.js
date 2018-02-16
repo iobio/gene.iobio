@@ -13,19 +13,16 @@ class FeatureMatrixModel {
 
 
       this.matrixRows = [
-//        {name:'Harmful variant'              , id:'harmfulVariant', order:0, index:12,  match: 'exact', attribute: 'harmfulVariantLevel',     map: this.getTranslator().harmfulVariantMap },
-        {name:'Pathogenicity - ClinVar'      , id:'clinvar',        order:0, index:2,   match: 'exact', attribute: 'clinVarClinicalSignificance',     map: this.getTranslator().clinvarMap },
-        {name:'Pathogenicity - PolyPhen'     , id:'polyphen',       order:1, index:6,   match: 'exact', attribute: 'vepPolyPhen', map: this.getTranslator().polyphenMap},
-        {name:'Pathogenicity - SIFT'         , id:'sift',           order:2, index:7,   match: 'exact', attribute: 'vepSIFT',     map: this.getTranslator().siftMap},
-        {name:'Impact (VEP)'                 , id:'impact',         order:3, index:0,   match: 'exact', attribute: IMPACT_FIELD_TO_COLOR,   map: this.getTranslator().impactMap},
-        {name:'Most severe impact (VEP)'     , id:'highest-impact', order:4, index:1,   match: 'exact', attribute: IMPACT_FIELD_TO_FILTER,  map: this.getTranslator().highestImpactMap},
-        {name:'Bookmark'                     , id:'bookmark',       order:5, index:10,  match: 'exact', attribute: 'isFlagged',     map: this.getTranslator().bookmarkMap },
-        {name:'Inheritance Mode'             , id:'inheritance',    order:6, index:3,   match: 'exact', attribute: 'inheritance', map: this.getTranslator().inheritanceMap},
-        {name:'Present in Affected'          , id:'affected',       order:7, index:8,   match: 'exact', attribute: 'affected_summary',  map: this.getTranslator().affectedMap},
-        {name:'Absent in Unaffected'         , id:'unaffected',     order:8, index:9,   match: 'exact', attribute: 'unaffected_summary',  map: this.getTranslator().unaffectedMap},
-        {name:'Allele Frequency <5%'         , id:'af-highest',     order:9, index:11, match: 'range', attribute: 'afHighest',      map: this.getTranslator().afHighestMap},
-        {name:'Zygosity'                     , id:'zygosity',       order:10, index:4, match: 'exact', attribute: 'zygosity',      map: this.getTranslator().zygosityMap},
-        {name:'Genotype'                     , id:'genotype',       order:11, index:5, match: 'field', attribute: 'eduGenotypeReversed' }
+        {name:'Pathogenicity - ClinVar'      , id:'clinvar',        order:0, index:0,   match: 'exact', attribute: 'clinVarClinicalSignificance',     map: this.getTranslator().clinvarMap },
+        {name:'Impact (VEP)'                 , id:'impact',         order:1, index:1,   match: 'exact', attribute: IMPACT_FIELD_TO_COLOR,   map: this.getTranslator().impactMap},
+        {name:'Most severe impact (VEP)'     , id:'highest-impact', order:2, index:2,   match: 'exact', attribute: IMPACT_FIELD_TO_FILTER,  map: this.getTranslator().highestImpactMap},
+        {name:'Flagged'                      , id:'bookmark',       order:3, index:3,  match: 'exact', attribute: 'isFlagged',     map: this.getTranslator().bookmarkMap },
+        {name:'Inheritance Mode'             , id:'inheritance',    order:4, index:4,   match: 'exact', attribute: 'inheritance', map: this.getTranslator().inheritanceMap},
+        {name:'Present in Affected'          , id:'affected',       order:5, index:5,   match: 'exact', attribute: 'affected_summary',  map: this.getTranslator().affectedMap},
+        {name:'Absent in Unaffected'         , id:'unaffected',     order:6, index:6,   match: 'exact', attribute: 'unaffected_summary',  map: this.getTranslator().unaffectedMap},
+        {name:'Allele Frequency <5%'         , id:'af-highest',     order:7, index:7, match: 'range', attribute: 'afHighest',      map: this.getTranslator().afHighestMap},
+        {name:'Zygosity'                     , id:'zygosity',       order:8, index:8, match: 'exact', attribute: 'zygosity',      map: this.getTranslator().zygosityMap},
+        {name:'Genotype'                     , id:'genotype',       order:9, index:9, match: 'field', attribute: 'eduGenotypeReversed' }
       ];
 
       this.matrixRowsBasic = [

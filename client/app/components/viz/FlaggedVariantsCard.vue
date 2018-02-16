@@ -89,7 +89,7 @@
 
 <template>
   <div id="flagged-variants-card">
-    Variants
+    Flagged Variants
 
 
     <div>

@@ -86,7 +86,7 @@
 
   <v-card tile id="matrix-card" class="app-card">
     <v-card-title primary-title>
-      Ranked Variants
+      Ranked Variants for {{ selectedGene.gene_name }}
     </v-card-title>
 
     <div style="width:100%">
@@ -193,6 +193,7 @@ export default {
   props: {
     name: "",
     featureMatrixModel: {},
+    selectedGene: null,
     selectedVariant: null,
     relationship: null,
     variantTooltip: null,

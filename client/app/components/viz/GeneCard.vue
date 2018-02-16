@@ -25,6 +25,18 @@
     font-size: 12px
   }
 
+  #gene-name {
+    margin-left: 0px
+  }
+
+  #gene-chr {
+    margin-left: 10px
+  }
+
+  #gene-region {
+    margin-left: 3px
+  }
+
   #region-buffer-box .input-group--text-field input{
       font-size: 14px;
       color: rgb(113,113,113);
@@ -59,56 +71,56 @@
 <template>
 
   <v-card tile id="gene-track" class="app-card">
-    <v-card-title primary-title>Selected Gene</v-card-title>
+    <v-card-title primary-title style="width:100%">
+      <span style="width:400px;">Gene</span>
 
-    <div id="gene-info-box" class="level-edu level-basic" style="clear:both;margin-top:-25px">
+      <div style="margin-left:auto;margin-right:auto">
+        <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
 
+        <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
 
-        <div style="text-align:center;display:inline-block;width:100%;padding-top:5px">
-          <div style="vertical-align:top;display:inline-block">
+        <span id="gene-region"  v-if="showGene"  class="level-edu level-basic gene-card-label keep-case">
+        {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
+        </span>
 
-            <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
-            <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
+        <span id="minus-strand"  v-if="selectedGene.strand == '-'"  class=" level-edu level-basic" style="font-size:12px;padding-left: 5px;font-style: italic;">reverse strand</span>
 
-            <span id="gene-region"  v-if="showGene"  class="level-edu level-basic gene-card-label keep-case">
-            {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
-            </span>
+        <span  id="gene-plus-minus-label"  v-if="showGene"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
 
-            <span id="minus_strand"  v-if="selectedGene.strand == '-'"  class=" level-edu level-basic" style="font-size:12px;padding-left: 5px;font-style: italic;">reverse strand</span>
-
-            <span  id="gene-plus-minus-label"  v-if="showGene"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
-
-            <div id="region-buffer-box" style="display:inline-block;width:50px"  v-if="showGene" >
-                <v-text-field
-                    id="gene-region-buffer-input"
-                    class="sm level-edu level-basic  fullview"
-                    v-model="regionBuffer"
-                    v-on:change="onGeneRegionBufferChange">
-                </v-text-field>
-            </div>
-
-
-          </div>
-
-          <div id="gene-source-box" v-if="showGene" style="margin-top:-7px;margin-left:20px;display:inline-block;width:150px">
-            <v-select
-                v-bind:items="geneSources"
-                v-model="geneSource"
-                label="Gene source"
-                item-value="text"
-                @input="onGeneSourceSelected">
-            </v-select>
-          </div>
-
-          <transcripts-viz
-            v-bind:class="{ hide: !showGene }"
-            :selectedGene="selectedGene"
-            :selectedTranscript="selectedTranscript"
-            @transcriptSelected="onTranscriptSelected">
-          </transcripts-viz>
-
+        <div id="region-buffer-box" style="display:inline-block;width:50px;height:21px"  v-if="showGene" >
+            <v-text-field
+                id="gene-region-buffer-input"
+                class="sm level-edu level-basic  fullview"
+                v-model="regionBuffer"
+                v-on:change="onGeneRegionBufferChange">
+            </v-text-field>
         </div>
-    </div>
+        </div>
+
+      <div id="gene-info-box" class="level-edu level-basic" style="float:right;margin-left:20px;clear:both;display:inline-block;margin-top:3px">
+
+            Transcript
+
+            <transcripts-viz
+              v-bind:class="{ hide: !showGene }"
+              :selectedGene="selectedGene"
+              :selectedTranscript="selectedTranscript"
+              @transcriptSelected="onTranscriptSelected">
+            </transcripts-viz>
+
+            <div id="gene-source-box" v-if="showGene" style="margin-top:-7px;margin-left:20px;display:inline-block;width:120px">
+              <v-select
+                  v-bind:items="geneSources"
+                  v-model="geneSource"
+                  label="Gene source"
+                  item-value="text"
+                  @input="onGeneSourceSelected">
+              </v-select>
+            </div>
+      </div>
+
+    </v-card-title>
+
 
     <!-- Non protein-coding gene badges -->
     <div id="non-protein-coding" class="level-edu level-basic">

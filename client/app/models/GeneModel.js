@@ -117,6 +117,7 @@ class GeneModel {
 
     me.geneNames.forEach(function(geneName) {
       me.promiseGetGeneObject(geneName);
+      me.promiseGetGenePhenotypes(geneName);
     })
  }
 

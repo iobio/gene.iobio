@@ -24,7 +24,7 @@ nav.toolbar
 
       <v-toolbar-title v-text="title"></v-toolbar-title>
 
-      <v-toolbar-items class="hidden-sm-and-down">
+      <v-toolbar-items style="margin-left:20px" class="hidden-sm-and-down">
 
         <v-icon>search</v-icon>
         <v-form >

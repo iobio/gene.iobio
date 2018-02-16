@@ -6,7 +6,9 @@
   }
 
   #select-transcripts-box .btn {
-    margin: 0px;
+    margin: 5px 0px 0px 0px;
+    height: 26px;
+    padding: 0px;
   }
 
   .dialog__content hr {

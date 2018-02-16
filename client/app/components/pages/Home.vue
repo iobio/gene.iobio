@@ -86,6 +86,7 @@
         v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
         v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
         :featureMatrixModel="featureMatrixModel"
+        :selectedGene="selectedGene"
         :selectedVariant="selectedVariant"
         :relationship="PROBAND"
         :variantTooltip="variantTooltip"
@@ -104,7 +105,7 @@
         ref="variantCardRef"
         v-for="model in models"
         :key="model.relationship"
-        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources }"
+        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false) }"
         :sampleModel="model"
         :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
@@ -117,6 +118,7 @@
         :showGeneViz=true
         :showDepthViz="model.relationship != 'known-variants'"
         :showVariantViz="model.relationship != 'known-variants' || showClinvarVariants"
+        @show-known-variants-card="onShowKnownVariantsCard"
         @cohortVariantClick="onCohortVariantClick"
         @cohortVariantClickEnd="onCohortVariantClickEnd"
         @cohortVariantHover="onCohortVariantHover"
@@ -215,11 +217,15 @@ export default {
       cardWidth: 0,
 
       selectedVariant: null,
+
+      showKnownVariantsCard: false,
       showClinvarVariants: false,
 
       inProgress: {},
 
-      PROBAND: 'proband'
+      PROBAND: 'proband',
+
+
 
     }
   },
@@ -756,6 +762,9 @@ export default {
 
       });
     },
+    onShowKnownVariantsCard: function(show) {
+      this.showKnownVariantsCard = show;
+    }
 
 
   }

@@ -4,6 +4,8 @@
  */
 <style lang="sass">
 
+@import ../../../assets/sass/variables
+
 #bam-track
   margin-top: -5px
 
@@ -33,7 +35,16 @@
           transform: translateY(-20px)
           display: none
 
+  .clinvar-switch
+    margin-left: 25px
 
+    label
+      padding-left: 7px
+      line-height: 18px
+      font-size: 14px
+      font-weight: normal
+      padding-top: 2px
+      color: $text-color
 
 </style>
 
@@ -47,6 +58,14 @@
   <v-card tile id="variant-card" class="app-card">
     <v-card-title primary-title>
       {{ sampleModel.name }}
+
+      <v-switch class="clinvar-switch"
+      v-if="sampleModel.relationship == 'proband'"
+      v-bind:label="`Display all ${selectedGene.gene_name} ClinVar variants`"
+      v-model="showKnownVariantsCard"
+      >
+      </v-switch>
+
       <div style="width:100%">
 
         <div style="text-align: center;clear: both;">
@@ -72,7 +91,7 @@
         </known-variants-toolbar>
 
         <variant-viz id="called-variant-viz"
-          v-if="showVariantViz"
+          v-if="showVariantViz && sampleModel.calledVariants.length > 0"
           ref="calledVariantVizRef"
           :data="sampleModel.calledVariants"
           :regionStart="regionStart"
@@ -230,7 +249,9 @@ export default {
       depthVizYTickFormatFunc: null,
       coveragePoint: null,
       relationship: null,
-      selectedExon: null
+      selectedExon: null,
+
+      showKnownVariantsCard: false
 
     }
   },
@@ -563,6 +584,9 @@ export default {
   },
 
   watch: {
+    showKnownVariantsCard: function() {
+      this.$emit("show-known-variants-card", this.showKnownVariantsCard);
+    }
   },
 
 
