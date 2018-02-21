@@ -47,13 +47,11 @@ nav.toolbar
         </v-btn>
 
 
-
-        <v-btn flat>
-         <v-icon>input</v-icon>
-         Files
-        </v-btn>
-
-
+        <files-menu
+         :cohortModel="cohortModel"
+         @on-files-loaded="onFilesLoaded"
+        >
+        </files-menu>
 
 
       </v-toolbar-items>
@@ -119,8 +117,9 @@ nav.toolbar
 
 import { Typeahead }       from 'uiv'
 import GenesMenu           from '../partials/GenesMenu.vue'
-import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
+import FilesMenu           from '../partials/FilesMenu.vue'
 import LegendPanel         from '../partials/LegendPanel.vue'
+import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
 
 
 export default {
@@ -128,6 +127,7 @@ export default {
   components: {
     Typeahead,
     GenesMenu,
+    FilesMenu,
     FlaggedVariantsCard,
     LegendPanel
   },
@@ -184,6 +184,9 @@ export default {
     },
     onFlaggedVariantsImported: function() {
       this.$emit("flagged-variants-imported")
+    },
+    onFilesLoaded: function() {
+      this.$emit("on-files-loaded");
     }
   },
   created: function() {

@@ -141,23 +141,23 @@ var Bam = Class.extend({
     return message ? message : error;
   },
 
-  openBamFile: function(event, callback) {
+  openBamFile: function(fileSelection, callback) {
     var me = this;
 
 
-    if (event.target.files.length != 2) {
+    if (fileSelection.files.length != 2) {
        callback(false, 'must select 2 files, both a .bam and .bam.bai file');
        return;
     }
 
-    if (utility.endsWith(event.target.files[0].name, ".sam") ||
-        utility.endsWith(event.target.files[1].name, ".sam")) {
+    if (utility.endsWith(fileSelection.files[0].name, ".sam") ||
+        utility.endsWith(fileSelection.files[1].name, ".sam")) {
       callback(false, 'You must select a bam file, not a sam file');
       return;
     }
 
-    var fileType0 = /([^.]*)\.(bam(\.bai)?)$/.exec(event.target.files[0].name);
-    var fileType1 = /([^.]*)\.(bam(\.bai)?)$/.exec(event.target.files[1].name);
+    var fileType0 = /([^.]*)\.(bam(\.bai)?)$/.exec(fileSelection.files[0].name);
+    var fileType1 = /([^.]*)\.(bam(\.bai)?)$/.exec(fileSelection.files[1].name);
 
     var fileExt0 = fileType0 && fileType0.length > 1 ? fileType0[2] : null;
     var fileExt1 = fileType1 && fileType1.length > 1 ? fileType1[2] : null;
@@ -177,8 +177,8 @@ var Bam = Class.extend({
         callback(false, 'The index (.bam.bai) file must be named ' +  rootFileName0 + ".bam.bai");
         return;
       } else {
-        me.bamFile   = event.target.files[0];
-        me.baiFile = event.target.files[1];
+        me.bamFile   = fileSelection.files[0];
+        me.baiFile   = fileSelection.files[1];
 
       }
     } else if (fileExt1 == 'bam' && fileExt0 == 'bam.bai') {
@@ -186,8 +186,8 @@ var Bam = Class.extend({
         callback(false, 'The index (.bam.bai) file must be named ' +  rootFileName1 + ".bam.bai");
         return;
       } else {
-        me.bamFile   = event.target.files[1];
-        me.baiFile = event.target.files[0];
+        me.bamFile   = fileSelection.files[1];
+        me.baiFile   = fileSelection.files[0];
       }
     } else {
       callback(false, 'You must select BOTH  a bam and an index (.bam.bai)  file');

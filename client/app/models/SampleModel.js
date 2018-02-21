@@ -747,14 +747,14 @@ class SampleModel {
     this.vcf.setGenomeBuildHelper(this.cohort.genomeBuildHelper);
   };
 
-  promiseBamFilesSelected(event) {
+  promiseBamFilesSelected(fileSelection) {
     var me = this;
     return new Promise(function(resolve, reject) {
       me.bamData = null;
       me.fbData = null;
 
       me.bam = new Bam();
-      me.bam.openBamFile(event, function(success, message) {
+      me.bam.openBamFile(fileSelection, function(success, message) {
         if (me.lastBamAlertify) {
           me.lastBamAlertify.dismiss();
         }
@@ -789,6 +789,9 @@ class SampleModel {
     if (bamUrl == null || bamUrl.trim() == "") {
       this.bamUrlEntered = false;
       this.bam = null;
+      if (callback) {
+        callback(false)
+      }
 
     } else {
 
@@ -818,14 +821,14 @@ class SampleModel {
 
   }
 
-  promiseVcfFilesSelected(event) {
+  promiseVcfFilesSelected(fileSelection) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
       me.sampleName = null;
       me.vcfData = null;
 
-      me.vcf.openVcfFile( event,
+      me.vcf.openVcfFile( fileSelection,
         function(success, message) {
           if (me.lastVcfAlertify) {
             me.lastVcfAlertify.dismiss();
@@ -889,6 +892,9 @@ class SampleModel {
     if (vcfUrl == null || vcfUrl == '') {
       this.vcfUrlEntered = false;
       success = false;
+      if (callback) {
+        callback(success)
+      }
 
     } else {
       me.vcfUrlEntered = true;
@@ -902,7 +908,7 @@ class SampleModel {
           }
           if (success) {
 
-          me.vcfUrlEntered = true;
+            me.vcfUrlEntered = true;
             me.vcfFileOpened = false;
             me.getVcfRefName = null;
             // Get the sample names from the vcf header

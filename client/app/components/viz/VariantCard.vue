@@ -91,7 +91,7 @@
         </known-variants-toolbar>
 
         <variant-viz id="called-variant-viz"
-          v-if="showVariantViz && sampleModel.calledVariants.length > 0"
+          v-if="showVariantViz"
           ref="calledVariantVizRef"
           :data="sampleModel.calledVariants"
           :regionStart="regionStart"

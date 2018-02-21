@@ -42,16 +42,17 @@ class CohortModel {
     }
     this.demoGenes = ['RAI1', 'MYLK2', 'PDHA1', 'PDGFB', 'AIRE'];
 
+
+    this.demoModelInfos = [
+      {relationship: 'proband', affectedStatus: 'affected', name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf, 'bam': this.demoBams['proband'] },
+      {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf, 'bam': this.demoBams['mother'] },
+      {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf, 'bam': this.demoBams['father'] },
+    ];
    }
 
   promiseInitDemo() {
     let self = this;
-    var modelInfos = [
-      {relationship: 'proband', 'sample': 'NA12878', 'vcf': self.demoVcf, 'bam': self.demoBams['proband'] },
-      {relationship: 'mother',  'sample': 'NA12892', 'vcf': self.demoVcf, 'bam': self.demoBams['mother'] },
-      {relationship: 'father',  'sample': 'NA12891', 'vcf': self.demoVcf, 'bam': self.demoBams['father'] },
-    ];
-    return self.promiseInit(modelInfos);
+    return self.promiseInit(self.demoModelInfos);
   }
 
   promiseInit(modelInfos) {
@@ -96,13 +97,14 @@ class CohortModel {
       var vm = new SampleModel();
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
+      vm.affectedStatus = modelInfo.affectedStatus;
 
       var vcfPromise = null;
       if (modelInfo.vcf) {
         vcfPromise = new Promise(function(vcfResolve, vcfReject) {
           vm.onVcfUrlEntered(modelInfo.vcf, modelInfo.tbi, function() {
             vm.setSampleName(modelInfo.sample);
-            vm.setName(modelInfo.relationship + " " + modelInfo.sample)
+            vm.setName(modelInfo.relationship + " " + modelInfo.sample);
             vcfResolve();
           })
         },
@@ -110,6 +112,9 @@ class CohortModel {
           vcfReject(error);
         });
       } else {
+        vm.sampleName = null;
+        vm.samplesNames = null;
+        vm.name = null;
         vcfPromise = Promise.resolve();
       }
 
@@ -125,6 +130,7 @@ class CohortModel {
           bamReject(error);
         });
       } else {
+        vm.bam = null;
         bamPromise = Promise.resolve();
       }
 
@@ -141,26 +147,47 @@ class CohortModel {
     })
   }
 
+  removeSample(relationship) {
+    let self = this;
+    delete self.sampleMap[relationship];
+    var idx = -1;
+    var i = 0;
+    self.sampleModels.forEach(function(m) {
+      if (m.relationship == relationship) {
+        idx = i;
+      }
+      i++;
+    })
+    if (idx >= 0) {
+      self.sampleModels.splice(idx,1);
+    }
+  }
+
   promiseAddClinvarSample() {
     let self = this;
-    return new Promise(function(resolve,reject) {
-      var vm = new SampleModel();
-      vm.init(self);
-      vm.setRelationship('known-variants');
-      vm.setName('Clinvar')
-      var clinvarUrl = self.genomeBuildHelper.getBuildResource(self.genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
-      vm.onVcfUrlEntered(clinvarUrl, null, function() {
-        self.sampleModels.push(vm);
+    if (self.sampleMap['known-variants']) {
+      Promise.resolve();
+    } else {
+      return new Promise(function(resolve,reject) {
+        var vm = new SampleModel();
+        vm.init(self);
+        vm.setRelationship('known-variants');
+        vm.setName('Clinvar')
+        var clinvarUrl = self.genomeBuildHelper.getBuildResource(self.genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
+        vm.onVcfUrlEntered(clinvarUrl, null, function() {
+          self.sampleModels.push(vm);
 
-        var sample = {'relationship': 'known-variants', 'model': vm};
-        self.sampleMap['known-variants'] = sample;
+          var sample = {'relationship': 'known-variants', 'model': vm};
+          self.sampleMap['known-variants'] = sample;
 
-        resolve(sample);
-      },
-      function(error) {
-        reject(error);
-      });
-    })
+          resolve(sample);
+        },
+        function(error) {
+          reject(error);
+        });
+      })
+    }
+
   }
 
   sortSampleModels() {
@@ -505,9 +532,9 @@ class CohortModel {
             if (rel != 'known-variants') {
               var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], isMultiSample, isBackground)
               .then(function(resultMap) {
-                self.getModel(rel).inProgress.loadingVariants = false;
-                for (var rel in resultMap) {
-                  theResultMap[rel] = resultMap[rel];
+                for (var theRelationship in resultMap) {
+                  self.getModel(theRelationship).inProgress.loadingVariants = false;
+                  theResultMap[theRelationship] = resultMap[theRelationship];
                 }
               })
               annotatePromises.push(p);

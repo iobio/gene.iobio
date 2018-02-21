@@ -121,8 +121,8 @@ VariantTrioModel.prototype.compareVariantsToMotherFather = function(callback) {
         variantB.bamDepthProband         = variantA.bamDepth;
 
       me._syncGenotypes(variantA, variantB,
-        me.probandAffectedInfo ? me.probandAffectedInfo.variantCard.getSampleName() : null,
-        me.motherAffectedInfo  ? me.motherAffectedInfo.variantCard.getSampleName() : null);
+        me.probandAffectedInfo ? me.probandAffectedInfo.model.getSampleName() : null,
+        me.motherAffectedInfo  ? me.motherAffectedInfo.model.getSampleName() : null);
 
       }
   ).then( function() {
@@ -151,8 +151,8 @@ VariantTrioModel.prototype.compareVariantsToMotherFather = function(callback) {
           variantB.bamDepthProband         = variantA.bamDepth;
 
         me._syncGenotypes(variantA, variantB,
-          me.probandAffectedInfo ? me.probandAffectedInfo.variantCard.getSampleName() : null,
-          me.fatherAffectedInfo  ? me.fatherAffectedInfo.variantCard.getSampleName() : null);
+          me.probandAffectedInfo ? me.probandAffectedInfo.model.getSampleName() : null,
+          me.fatherAffectedInfo  ? me.fatherAffectedInfo.model.getSampleName() : null);
 
 
           });

@@ -1,0 +1,191 @@
+<style lang="sass">
+
+  #sample-selection
+    .input-group--select
+      .input-group__selections__comma
+        font-size: 12px
+        padding: 0px 0px 0px 0px
+    .input-group
+      label
+        font-size: 12px
+        line-height: 25px
+        height: 25px
+    .input-group__input
+      min-height: 0px
+      margin-top: 0px
+
+    .input-group--text-field.input-group--dirty.input-group--select
+      label
+        -webkit-transform: translate(0, -18px) scale(0.95)
+        transform: translate(0, -18px) scale(0.95)
+
+    .input-group--text-field.input-group--dirty:not(.input-group--textarea)
+      label
+        -webkit-transform: translate(0, -18px) scale(0.95)
+        transform: translate(0, -18px) scale(0.95)
+
+  .sample-label
+    .chip
+      vertical-align: top
+    .switch
+      display: inline-block
+      width: 100px
+
+</style>
+<template>
+
+ <v-layout row wrap class="ml-2">
+    <v-flex xs12 class="sample-label" >
+      <v-chip color="primary" small text-color="white"> {{ modelInfo.relationship }}</v-chip>
+      <v-switch  label="Affected" hide-details @change="onIsAffected" v-model="isAffected"></v-switch>
+    </v-flex>
+    <v-flex xs12  class="ml-3">
+      <sample-data-file
+       :defaultUrl="modelInfo.vcf"
+       :label="`VCF`"
+       :filePlaceholder="filePlaceholder.vcf"
+       :fileAccept="fileAccept.vcf"
+       @url-entered="onVcfUrlEntered"
+       @file-selected="onVcfFilesSelected">
+      </sample-data-file>
+    </v-flex>
+
+    <v-flex xs4 class="ml-3" id="sample-selection">
+      <v-select
+        v-bind:class="samples == null || samples.length == 0 ? 'hide' : ''"
+        label="Sample"
+        v-model="sample"
+        :items="samples"
+        @input="onSampleSelected"
+        hide-details
+      ></v-select>
+    </v-flex>
+
+    <v-flex xs12  class="ml-3" >
+      <sample-data-file
+       :defaultUrl="modelInfo.bam"
+       :label="`BAM`"
+       :filePlaceholder="filePlaceholder.bam"
+       :fileAccept="fileAccept.bam"
+       @url-entered="onBamUrlEntered"
+       @file-selected="onBamFilesSelected">
+      </sample-data-file>
+    </v-flex>
+
+ </v-layout>
+
+
+</template>
+
+<script>
+
+import SampleDataFile           from '../partials/SampleDataFile.vue'
+
+
+export default {
+  name: 'sample-data',
+  components: {
+    SampleDataFile
+  },
+  props: {
+    modelInfo: null
+  },
+  data () {
+    return {
+        isValid: false,
+        filePlaceholder: {
+          'vcf': '.vcf.gz and .tbi files',
+          'bam': '.bam and .bai files'
+        },
+        fileAccept: {
+          'vcf': '.vcf.gz, .tbi',
+          'bam': '.bam, .bai'
+        },
+        samples: [],
+        sample: null,
+        isAffected: true
+
+    }
+  },
+  computed: {
+  },
+  watch: {
+    modelInfo: function() {
+    }
+  },
+  methods: {
+    onVcfUrlEntered: function(vcfUrl) {
+      let self = this;
+      self.$set(self, "sample", null);
+      self.$set(self, "samples", []);
+
+      self.modelInfo.model.onVcfUrlEntered(vcfUrl, null, function(success, sampleNames) {
+        if (success) {
+          self.samples = sampleNames;
+        }
+        self.$emit("sample-data-changed");
+      })
+    },
+    onVcfFilesSelected: function(fileSelection) {
+      let self = this;
+      self.$set(self, "sample", null);
+      self.$set(self, "samples", []);
+      self.modelInfo.model.promiseVcfFilesSelected(fileSelection)
+      .then(function(data) {
+        self.samples = data.sampleNames;
+        self.$emit("sample-data-changed");
+      })
+      .catch(function(error) {
+        self.$emit("sample-data-changed");
+      })
+    },
+    onIsAffected: function() {
+      this.modelInfo.isAffected = this.isAffected;
+    },
+    updateSamples: function(samples) {
+      this.samples = samples;
+      this.sample = null;
+    },
+    onSampleSelected: function() {
+      let self = this;
+      self.modelInfo.sample = this.sample;
+      self.modelInfo.model.setSampleName(this.modelInfo.sample);
+      self.modelInfo.model.setName(this.modelInfo.relationship + " " + this.modelInfo.sample);
+      self.$emit("sample-data-changed");
+    },
+    onBamUrlEntered: function(bamUrl) {
+      let self = this;
+      self.modelInfo.model.onBamUrlEntered(bamUrl, null, function(success) {
+        if (success) {
+        } else {
+        }
+        self.$emit("sample-data-changed");
+      })
+    },
+    onBamFilesSelected: function(fileSelection) {
+      let self = this;
+      self.modelInfo.model.promiseBamFilesSelected(fileSelection)
+      .then(function() {
+        self.$emit("sample-data-changed");
+      })
+      .catch(function(error) {
+        self.$emit("sample-data-changed");
+      })
+    },
+
+
+  },
+  created: function() {
+
+  },
+  mounted: function() {
+    this.samples = this.modelInfo.samples;
+    this.isAffected = this.modelInfo.isAffected;
+    if (this.modelInfo.vcf) {
+      this.onVcfUrlEntered(this.modelInfo.vcf);
+    }
+
+  }
+}
+
+</script>

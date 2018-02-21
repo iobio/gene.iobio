@@ -34,6 +34,7 @@
       @apply-genes="onApplyGenes"
       @flagged-variants-imported="onFlaggedVariantsImported"
       @flagged-variant-selected="onFlaggedVariantSelected"
+      @on-files-loaded="onFilesLoaded"
     >
     </navigation>
     <v-content>
@@ -413,6 +414,18 @@ export default {
         .then(function() {
         })
       }
+    },
+
+    onFilesLoaded: function() {
+      let self = this;
+      self.promiseClearCache()
+      .then(function() {
+        if (self.selectedGene && self.selectedGene.gene_name) {
+          self.promiseLoadGene(self.selectedGene.gene_name);
+        } else {
+          alertify.alert("Please enter a gene name")
+        }
+      })
     },
 
     onGeneSelected: function(geneName) {

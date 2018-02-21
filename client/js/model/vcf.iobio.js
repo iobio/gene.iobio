@@ -292,22 +292,22 @@ var effectCategories = [
     return message ? message : error;
   }
 
-  exports.openVcfFile = function(event, callback) {
+  exports.openVcfFile = function(fileSelection, callback) {
     sourceType = SOURCE_TYPE_FILE;
 
-    if (event.target.files.length != 2) {
+    if (fileSelection.files.length != 2) {
        callback(false, 'must select 2 files, both a .vcf.gz and .vcf.gz.tbi file');
        return;
     }
 
-    if (endsWith(event.target.files[0].name, ".vcf") ||
-        endsWith(event.target.files[1].name, ".vcf")) {
+    if (endsWith(fileSelection.files[0].name, ".vcf") ||
+        endsWith(fileSelection.files[1].name, ".vcf")) {
       callback(false, 'You must select a compressed vcf file (.vcf.gz), not a vcf file');
       return;
     }
 
-    var fileType0 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(event.target.files[0].name);
-    var fileType1 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(event.target.files[1].name);
+    var fileType0 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(fileSelection.files[0].name);
+    var fileType1 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(fileSelection.files[1].name);
 
     var fileExt0 = fileType0 && fileType0.length > 1 ? fileType0[2] : null;
     var fileExt1 = fileType1 && fileType1.length > 1 ? fileType1[2] : null;
@@ -327,16 +327,16 @@ var effectCategories = [
         callback(false, 'The index (.tbi) file must be named ' +  rootFileName0 + ".tbi");
         return;
       } else {
-        vcfFile   = event.target.files[0];
-        tabixFile = event.target.files[1];
+        vcfFile   = fileSelection.files[0];
+        tabixFile = fileSelection.files[1];
       }
     } else if (fileExt1 == 'vcf.gz' && fileExt0 == 'vcf.gz.tbi') {
       if (rootFileName0 != rootFileName1) {
         callback(false, 'The index (.tbi) file must be named ' +  rootFileName1 + ".tbi");
         return;
       } else {
-        vcfFile   = event.target.files[1];
-        tabixFile = event.target.files[0];
+        vcfFile   = fileSelection.files[1];
+        tabixFile = fileSelection.files[0];
       }
     } else {
       callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi)  file');

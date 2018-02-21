@@ -175,6 +175,7 @@ function variantD3() {
     var innerHeight = height - margin.top - margin.bottom;
 
     selection.each(function(data) {
+
        // set svg element
        container = d3.select(this).classed('ibo-variant', true);
 
