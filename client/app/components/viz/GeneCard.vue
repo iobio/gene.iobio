@@ -26,7 +26,8 @@
   }
 
   #gene-name {
-    margin-left: 0px
+    margin-left: 0px;
+    font-weight: bold;
   }
 
   #gene-chr {

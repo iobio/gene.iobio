@@ -161,6 +161,10 @@ export default {
   methods: {
     onLoad: function() {
       let self = this;
+      if (self.demoAction) {
+        self.cohortModel.geneModel.copyPasteGenes(self.cohortModel.demoGenes.join(", "));
+      }
+
       this.cohortModel.mode = this.mode;
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);

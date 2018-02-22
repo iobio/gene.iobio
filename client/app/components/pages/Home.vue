@@ -422,6 +422,8 @@ export default {
       .then(function() {
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.promiseLoadGene(self.selectedGene.gene_name);
+        } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+          self.onGeneSelected(self.geneModel.sortedGeneNames[0]);
         } else {
           alertify.alert("", "Please enter a gene name");
         }
