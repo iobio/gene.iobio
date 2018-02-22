@@ -68,7 +68,7 @@
 
       <div style="width:100%">
 
-        <div style="text-align: center;clear: both;">
+        <div style="text-align: center;clear: both;margin-bottom:20px">
           <div class="loader vcfloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingVariants }" style="display: inline-block;">
             <span class="loader-label">Annotating variants</span>
             <img src="../../../assets/images/wheel.gif">

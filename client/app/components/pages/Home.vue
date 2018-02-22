@@ -425,7 +425,8 @@ export default {
         } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           self.onGeneSelected(self.geneModel.sortedGeneNames[0]);
         } else {
-          alertify.alert("", "Please enter a gene name");
+          alertify.set('notifier','position', 'top-left');
+          alertify.warning("Please enter a gene name");
         }
       })
     },

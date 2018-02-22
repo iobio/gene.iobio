@@ -153,7 +153,7 @@ function variantD3() {
     options = $.extend(defaults,options);
 
     if (verticalLayers == null) {
-      console.log("variant chart - null vertical layers");
+      verticalLayers = 1;
     }
 
     // Recalculate the height based on the number of vertical layers
@@ -176,423 +176,429 @@ function variantD3() {
 
     selection.each(function(data) {
 
-       // set svg element
-       container = d3.select(this).classed('ibo-variant', true);
+      // set svg element
+      container = d3.select(this).classed('ibo-variant', true);
 
 
-       container.selectAll("svg").remove();
+      container.selectAll("svg").remove();
 
+      if (data.features && data.features.length > 0) {
 
-      // Update the x-scale.
-      // Update the x-scale.
-      if (regionStart && regionEnd) {
-        x.domain([regionStart, regionEnd]);
-      }  else {
-        x.domain([ d3.min(data, function(d) {
-                       return d3.min(d.features, function(f) {
-                        return parseInt(f.start);
-                      })
-                     }),
-                     d3.max(data, function(d) {
-                       return d3.max(d.features, function(f) {
-                        return parseInt(f.end);
-                      })
-                     })
-                  ]);
+        // Update the x-scale.
+        if (regionStart && regionEnd) {
+          x.domain([regionStart, regionEnd]);
+        }  else {
+          x.domain([ d3.min(data, function(d) {
+                         return d3.min(d.features, function(f) {
+                          return parseInt(f.start);
+                        })
+                       }),
+                       d3.max(data, function(d) {
+                         return d3.max(d.features, function(f) {
+                          return parseInt(f.end);
+                        })
+                       })
+                    ]);
 
-      }
-      x.range([0, width - margin.left - margin.right]);
+        }
+        x.range([0, width - margin.left - margin.right]);
 
-      // Update the y-scale.
-      y  .domain([0, data.length]);
-      y  .range([innerHeight , 0]);
+        // Update the y-scale.
+        y  .domain([0, data.length]);
+        y  .range([innerHeight , 0]);
 
-      // Find out the smallest interval between variants on the x-axis
-      // for each level. For a single nucleotide variant, what is
-      // the standard width we would like to show given the minimum
-      // distance between all variants.
-      // TODO:  Need to use this as a factor for increasing
-      // width of multi-base variants.
-      minWidth = 6;
-      // For each level
-      for (var l = 0; l < verticalLayers; l++) {
-        // For each row in array (per variant set; only one variant set)
-        var minInterval = null;
-        data.forEach( function(d) {
-          // For each variant.  Calculate the distance on the screen
-          // between the 2 variants.
-          for (var i = 0; i < d.features.length - 1; i++) {
-            if (d.features[i].level == l) {
-              // find the next feature at the same level
-              var nextPos = null;
-              for (var next = i+1; next < d.features.length; next++) {
-                if (d.features[next].level == l) {
-                  nextPos = next;
-                  break;
+        // Find out the smallest interval between variants on the x-axis
+        // for each level. For a single nucleotide variant, what is
+        // the standard width we would like to show given the minimum
+        // distance between all variants.
+        // TODO:  Need to use this as a factor for increasing
+        // width of multi-base variants.
+        minWidth = 6;
+        // For each level
+        for (var l = 0; l < verticalLayers; l++) {
+          // For each row in array (per variant set; only one variant set)
+          var minInterval = null;
+          data.forEach( function(d) {
+            // For each variant.  Calculate the distance on the screen
+            // between the 2 variants.
+            for (var i = 0; i < d.features.length - 1; i++) {
+              if (d.features[i].level == l) {
+                // find the next feature at the same level
+                var nextPos = null;
+                for (var next = i+1; next < d.features.length; next++) {
+                  if (d.features[next].level == l) {
+                    nextPos = next;
+                    break;
+                  }
                 }
-              }
-              if (nextPos) {
-                var interval = Math.round(x(d.features[nextPos].start) - x(d.features[i].end));
-                interval = Math.max(interval, 1);
-                if (minInterval == null || interval < minInterval) {
-                  minInterval = interval;
+                if (nextPos) {
+                  var interval = Math.round(x(d.features[nextPos].start) - x(d.features[i].end));
+                  interval = Math.max(interval, 1);
+                  if (minInterval == null || interval < minInterval) {
+                    minInterval = interval;
+                  }
+                } else {
+                  // We couldn't find a second position at the same
+                  // level
                 }
-              } else {
-                // We couldn't find a second position at the same
-                // level
               }
             }
-          }
-          // Once we know the smallest interval for a level, compare it
-          // so that we can keep track of the smallest between all levels.
-          // This will determine the width of a snp.
-          if ( minInterval != null && minInterval < minWidth) {
-            minWidth = minInterval;
-          }
+            // Once we know the smallest interval for a level, compare it
+            // so that we can keep track of the smallest between all levels.
+            // This will determine the width of a snp.
+            if ( minInterval != null && minInterval < minWidth) {
+              minWidth = minInterval;
+            }
 
-        });
-      }
-
-      // TODO:  Come up with a better pileup algorithm to ensure
-      // there is at least one pixel between each variant.  This
-      // works if the variant can be 1 pixel width, but we really want
-      // to signify a square for snps.  For now, try out
-      // a rectangle with a min width of 3.
-      minWidth = Math.max(minWidth, lowestWidth);
-
-      // TODO:  Need to review this code!!!  Added for exhibit
-      minWidth = variantHeight;
-
-      var symbolScaleCircle = d3.scale.ordinal()
-                    .domain([3,4,5,6,7,8,10,12,14,16])
-                    .range([9,15,25,38,54,58,70,100,130,260]);
-      var symbolSizeCircle = symbolScaleCircle(minWidth);
-
-      var symbolScale = d3.scale.ordinal()
-                    .domain([3,4,5,6,7,8,10,12,14,16])
-                    .range([9,15,20,25,32,58,70,100,130,160]);
-
-      var symbolSize = symbolScale(minWidth);
-
-
-
-      // Brush
-      var brush = d3.svg.brush()
-        .x(x)
-        .on("brushend", function() {
-            dispatch.d3brush(brush);
-         });
-
-
-      // Select the svg element, if it exists.
-      var svg = container.selectAll("svg").data([0]);
-
-
-
-      svg.enter()
-        .append("svg")
-        .attr("width", widthPercent)
-        .attr("height", heightPercent)
-        .attr('viewBox', "0 0 " + parseInt(width+margin.left+margin.right) + " " + parseInt(height+margin.top+margin.bottom))
-        .attr("preserveAspectRatio", "none")
-        .append("g")
-        .attr("class", "group")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-      var g = svg.select("g.group");
-
-
-      // The chart dimensions could change after instantiation, so update viewbox dimensions
-      // every time we draw the chart.
-      d3.select(this).selectAll("svg")
-        .filter(function() {
-            return this.parentNode === container.node();
-        })
-        .attr('viewBox', "0 0 " + parseInt(width+margin.left+margin.right) + " " + parseInt(height+margin.top+margin.bottom));
-
-
-
-      // Add grouping for flagged variants
-      svg.select("g.flagged-variants").remove();
-      svg.append("g")
-         .attr("class", "flagged-variants");
-
-
-      // Create the X-axis.
-      g.selectAll(".x.axis").remove();
-      if (showXAxis) {
-        g.append("g").attr("class", "x axis").attr("transform", "translate(0," + (y.range()[0] + margin.bottom) + ")");
-      }
-
-      // Create dividing line
-      g.selectAll(".divider").remove();
-      if (dividerLevel) {
-        var divider = g.append("g")
-                         .attr("class", "divider")
-                         .attr("transform", "translate(0," + dividerY + ")");
-        divider.append("line").attr("class", "dashed")
-                              .attr("x1", 0)
-                              .attr("x2", width)
-                              .attr("y",  0);
-        divider.append("text").attr("x", width / 2)
-                              .attr("y", 20)
-                              .text("Heterozygous");
-        divider.append("text").attr("x", width / 2)
-                              .attr("y", -10)
-                              .text("Homozygous");
-
-      }
-
-
-
-      // add tooltip div
-      var tooltip = container.selectAll(".tooltip").data([0])
-        .enter().append('div')
-          .attr("class", "tooltip")
-          .style("opacity", 0);
-
-
-      // Start variant model
-      // add elements
-      var track = g.selectAll('.track.snp').data(data);
-      track.enter().append('g')
-          .attr('class', 'track snp')
-          .attr('transform', function(d,i) { return "translate(0," + y(i+1) + ")"});
-
-      var trackindel = g.selectAll('.track.indel').data(data);
-      trackindel.enter().append('g')
-          .attr('class', 'track indel')
-          .attr('transform', function(d,i) { return "translate(0," + y(i+1) + ")"});
-
-
-      if (showBrush) {
-        if (brushHeight == null ) {
-          brushHeight = variantHeight;
-          brushY = 0;
-        } else {
-          brushY = 0;
+          });
         }
-        track.selectAll("g.x.brush").data([0]).enter().append("g")
-            .attr("class", "x brush")
-            .call(brush)
-            .selectAll("rect")
-            .attr("y", brushY)
-            .attr("height", brushHeight);
-      }
+
+        // TODO:  Come up with a better pileup algorithm to ensure
+        // there is at least one pixel between each variant.  This
+        // works if the variant can be 1 pixel width, but we really want
+        // to signify a square for snps.  For now, try out
+        // a rectangle with a min width of 3.
+        minWidth = Math.max(minWidth, lowestWidth);
+
+        // TODO:  Need to review this code!!!  Added for exhibit
+        minWidth = variantHeight;
+
+        var symbolScaleCircle = d3.scale.ordinal()
+                      .domain([3,4,5,6,7,8,10,12,14,16])
+                      .range([9,15,25,38,54,58,70,100,130,260]);
+        var symbolSizeCircle = symbolScaleCircle(minWidth);
+
+        var symbolScale = d3.scale.ordinal()
+                      .domain([3,4,5,6,7,8,10,12,14,16])
+                      .range([9,15,20,25,32,58,70,100,130,160]);
+
+        var symbolSize = symbolScale(minWidth);
 
 
-      track.selectAll('.variant').remove();
-      trackindel.selectAll('.variant').remove();
 
-
-      // snps
-      track.selectAll('.variant').data(function(d) {
-        return d['features'].filter( function(d) { return d.type.toUpperCase() == 'SNP' || d.type.toUpperCase() == 'MNP'; }) ;
-      }).enter().append('rect')
-          .attr('class', function(d) { return chart.clazz()(d); })
-          .attr('rx', borderRadius)
-          .attr('ry', borderRadius)
-          .attr('x', function(d) {
-            return Math.round(x(d.start) - (minWidth/2) + (minWidth/4));
-          })
-          .attr('width', function(d) {
-//            return showTransition ? 0 : Math.max(Math.round(x(d.end) - x(d.start)), minWidth);
-            return showTransition ? 0 : variantHeight;
-          })
-          .attr('y', function(d) {
-            return showTransition ? 0 :  height - ((d.level + 1) * (variantHeight + verticalPadding));
-          })
-          .attr('height', variantHeight);
-
-
-      // insertions and deletions
-      trackindel.selectAll('.variant').data(function(d) {
-        var indels = d['features'].filter( function(d){
-          return d.type.toUpperCase() == 'DEL'
-              || d.type.toUpperCase() == 'INS'
-              || d.type.toUpperCase() == 'COMPLEX';
-        });
-        return indels;
-      }).enter().append('path')
-          .attr("d", function(d,i) {
-            return d3.svg
-                     .symbol()
-                     .type( getSymbol(d,i) )
-                     .size(symbolSize)();
-          })
-          .attr('class', function(d) { return chart.clazz()(d); })
-          .attr("transform", function(d) {
-            var xCoord = x(d.start) + 2;
-            var yCoord = showTransition ? 0 : height - ((d.level + 1) * (variantHeight + verticalPadding)) + 3;
-            var tx = "translate(" + xCoord + "," + yCoord + ")";
-            return tx;
+        // Brush
+        var brush = d3.svg.brush()
+          .x(x)
+          .on("brushend", function() {
+              dispatch.d3brush(brush);
            });
 
 
+        // Select the svg element, if it exists.
+        var svg = container.selectAll("svg").data([0]);
 
 
 
-      g.selectAll('.variant')
-           .on("click", function(d) {
-              dispatch.d3click(d);
-           })
-           .on("mouseover", function(d) {
-              dispatch.d3mouseover(d);
-            })
-           .on("mouseout", function(d) {
-              dispatch.d3mouseout();
-            });
+        svg.enter()
+          .append("svg")
+          .attr("width", widthPercent)
+          .attr("height", heightPercent)
+          .attr('viewBox', "0 0 " + parseInt(width+margin.left+margin.right) + " " + parseInt(height+margin.top+margin.bottom))
+          .attr("preserveAspectRatio", "none")
+          .append("g")
+          .attr("class", "group")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var g = svg.select("g.group");
+
+
+        // The chart dimensions could change after instantiation, so update viewbox dimensions
+        // every time we draw the chart.
+        d3.select(this).selectAll("svg")
+          .filter(function() {
+              return this.parentNode === container.node();
+          })
+          .attr('viewBox', "0 0 " + parseInt(width+margin.left+margin.right) + " " + parseInt(height+margin.top+margin.bottom));
 
 
 
+        // Add grouping for flagged variants
+        svg.select("g.flagged-variants").remove();
+        svg.append("g")
+           .attr("class", "flagged-variants");
 
 
-      // exit
-      track.exit().remove();
-      trackindel.exit().remove();
+        // Create the X-axis.
+        g.selectAll(".x.axis").remove();
+        if (showXAxis) {
+          g.append("g").attr("class", "x axis").attr("transform", "translate(0," + (y.range()[0] + margin.bottom) + ")");
+        }
 
-      // update
-      if (showTransition) {
-        var interval = 1000 / data[0].features.length;
+        // Create dividing line
+        g.selectAll(".divider").remove();
+        if (dividerLevel) {
+          var divider = g.append("g")
+                           .attr("class", "divider")
+                           .attr("transform", "translate(0," + dividerY + ")");
+          divider.append("line").attr("class", "dashed")
+                                .attr("x1", 0)
+                                .attr("x2", width)
+                                .attr("y",  0);
+          divider.append("text").attr("x", width / 2)
+                                .attr("y", 20)
+                                .text("Heterozygous");
+          divider.append("text").attr("x", width / 2)
+                                .attr("y", -10)
+                                .text("Homozygous");
 
-        track.transition()
-            .duration(1000)
+        }
+
+
+
+        // add tooltip div
+        var tooltip = container.selectAll(".tooltip").data([0])
+          .enter().append('div')
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+
+        // Start variant model
+        // add elements
+        var track = g.selectAll('.track.snp').data(data);
+        track.enter().append('g')
+            .attr('class', 'track snp')
+            .attr('transform', function(d,i) { return "translate(0," + y(i+1) + ")"});
+
+        var trackindel = g.selectAll('.track.indel').data(data);
+        trackindel.enter().append('g')
+            .attr('class', 'track indel')
             .attr('transform', function(d,i) { return "translate(0," + y(i+1) + ")"});
 
 
-        track.selectAll('.variant.snp, .variant.mnp').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
-            .transition()
-              .duration(1000)
-              .delay(function(d, i) { return i * interval; })
-              .ease("bounce")
-              .attr('x', function(d) {
-                return d3.round(x(d.start) - (minWidth/2) + (minWidth/4));
-              })
-              .attr('width', function(d) {
-                // TODO:  Need to review!!
-//                return Math.max(Math.round(x(d.end) - x(d.start)), minWidth);
-                return variantHeight;
-              })
-              .attr('y', function(d) {
-                return height - ((d.level + 1) * (variantHeight + verticalPadding));
-              })
-              .attr('height', function(d) {
-                return variantHeight;
-              });
-
-        trackindel.selectAll('.variant.del')
-            .transition()
-              .duration(1000)
-              .delay(function(d, i) { return i * interval; })
-              .ease("bounce")
-              .attr("d", function(d,i) {
-                return d3.svg
-                     .symbol()
-                     .type(getSymbol(d,i))
-                     .size(symbolSize)();
-              })
-              .attr("transform", function(d) {
-                  var xCoord = x(d.start) + 2;
-                  var yCoord = height - ((d.level + 1) * (variantHeight + verticalPadding)) + 3;
-                  var tx = "translate(" + xCoord +  "," + yCoord + ")";
-                  return tx;
-              });
-
-        trackindel.selectAll('.variant.ins')
-            .transition()
-              .duration(1000)
-              .delay(function(d, i) { return i * interval; })
-              .ease("bounce")
-              .attr("d", function(d,i) {
-                return d3.svg
-                     .symbol()
-                     .type(getSymbol(d,i))
-                     .size(symbolSizeCircle)();
-              })
-              .attr("transform", function(d) {
-                  var xCoord = x(d.start) + 2;
-                  var yCoord = height - ((d.level + 1) * (variantHeight + verticalPadding)) + 3;
-                  var tx = "translate(" + xCoord + "," + yCoord + ")";
-                  return tx;
-              });
-
-          trackindel.selectAll('.variant.complex')
-            .transition()
-              .duration(1000)
-              .delay(function(d, i) { return i * interval; })
-              .attr("d", function(d,i) {
-                return d3.svg
-                     .symbol()
-                     .type(getSymbol(d,i))
-                     .size(symbolSize)();
-              })
-              .attr("transform", function(d) {
-                  var xCoord = x(d.start) + 2;
-                  var yCoord = height - ((d.level + 1) * (variantHeight + verticalPadding)) + 3;
-                  var tx = "translate(" + xCoord + "," + yCoord + ")";
-                  return tx;
-              });
-
-
-      }
-
-
-
-
-      // Generate the x axis
-      if (showXAxis) {
-        if (xTickFormat) {
-          xAxis.tickFormat(xTickFormat);
+        if (showBrush) {
+          if (brushHeight == null ) {
+            brushHeight = variantHeight;
+            brushY = 0;
+          } else {
+            brushY = 0;
+          }
+          track.selectAll("g.x.brush").data([0]).enter().append("g")
+              .attr("class", "x brush")
+              .call(brush)
+              .selectAll("rect")
+              .attr("y", brushY)
+              .attr("height", brushHeight);
         }
-        svg.select(".x.axis").transition()
-            .duration(200)
-            .call(xAxis);
-      }
+
+
+        track.selectAll('.variant').remove();
+        trackindel.selectAll('.variant').remove();
+
+
+        // snps
+        track.selectAll('.variant').data(function(d) {
+          return d['features'].filter( function(d) { return d.type.toUpperCase() == 'SNP' || d.type.toUpperCase() == 'MNP'; }) ;
+        }).enter().append('rect')
+            .attr('class', function(d) { return chart.clazz()(d); })
+            .attr('rx', borderRadius)
+            .attr('ry', borderRadius)
+            .attr('x', function(d) {
+              return Math.round(x(d.start) - (minWidth/2) + (minWidth/4));
+            })
+            .attr('width', function(d) {
+  //            return showTransition ? 0 : Math.max(Math.round(x(d.end) - x(d.start)), minWidth);
+              return showTransition ? 0 : variantHeight;
+            })
+            .attr('y', function(d) {
+              return showTransition ? 0 :  height - ((d.level + 1) * (variantHeight + verticalPadding));
+            })
+            .attr('height', variantHeight);
+
+
+        // insertions and deletions
+        trackindel.selectAll('.variant').data(function(d) {
+          var indels = d['features'].filter( function(d){
+            return d.type.toUpperCase() == 'DEL'
+                || d.type.toUpperCase() == 'INS'
+                || d.type.toUpperCase() == 'COMPLEX';
+          });
+          return indels;
+        }).enter().append('path')
+            .attr("d", function(d,i) {
+              return d3.svg
+                       .symbol()
+                       .type( getSymbol(d,i) )
+                       .size(symbolSize)();
+            })
+            .attr('class', function(d) { return chart.clazz()(d); })
+            .attr("transform", function(d) {
+              var xCoord = x(d.start) + 2;
+              var yCoord = showTransition ? 0 : height - ((d.level + 1) * (variantHeight + verticalPadding)) + 3;
+              var tx = "translate(" + xCoord + "," + yCoord + ")";
+              return tx;
+             });
 
 
 
-      // add a circle and label
-      if (svg.selectAll(".circle").empty()) {
-        //svg.selectAll(".circle").remove();
-        var circle = svg.selectAll(".circle").data([0])
-          .enter().append('circle')
-            .attr("class", "circle")
-            .attr("cx", 0)
-            .attr("cy", 0)
-            .attr("r", variantHeight + 2)
-            .style("opacity", 0);
-
-      }
 
 
+        g.selectAll('.variant')
+             .on("click", function(d) {
+                dispatch.d3click(d);
+             })
+             .on("mouseover", function(d) {
+                dispatch.d3mouseover(d);
+              })
+             .on("mouseout", function(d) {
+                dispatch.d3mouseout();
+              });
 
-      // add a arrow on the x-axis
-      if (svg.selectAll(".arrow").empty()) {
-        //svg.selectAll("g.arrow").remove();
-          var garrow = svg.selectAll("g.arrow").data([0])
-                          .enter().append("g")
-                          .attr("class", "arrow")
-                          .attr("transform", "translate(1,0)");
 
-          garrow.append('line')
-              .attr("class", "arrow arrow-line")
-              .attr("x1", variantHeight + 2)
-              .attr("x2", -2)
-              .attr("y1", variantHeight + 2)
-              .attr("y2", 0)
+
+
+
+        // exit
+        track.exit().remove();
+        trackindel.exit().remove();
+
+        // update
+        if (showTransition) {
+          var interval = 1000 / data[0].features.length;
+
+          track.transition()
+              .duration(1000)
+              .attr('transform', function(d,i) { return "translate(0," + y(i+1) + ")"});
+
+
+          track.selectAll('.variant.snp, .variant.mnp').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
+              .transition()
+                .duration(1000)
+                .delay(function(d, i) { return i * interval; })
+                .ease("bounce")
+                .attr('x', function(d) {
+                  return d3.round(x(d.start) - (minWidth/2) + (minWidth/4));
+                })
+                .attr('width', function(d) {
+                  // TODO:  Need to review!!
+  //                return Math.max(Math.round(x(d.end) - x(d.start)), minWidth);
+                  return variantHeight;
+                })
+                .attr('y', function(d) {
+                  return height - ((d.level + 1) * (variantHeight + verticalPadding));
+                })
+                .attr('height', function(d) {
+                  return variantHeight;
+                });
+
+          trackindel.selectAll('.variant.del')
+              .transition()
+                .duration(1000)
+                .delay(function(d, i) { return i * interval; })
+                .ease("bounce")
+                .attr("d", function(d,i) {
+                  return d3.svg
+                       .symbol()
+                       .type(getSymbol(d,i))
+                       .size(symbolSize)();
+                })
+                .attr("transform", function(d) {
+                    var xCoord = x(d.start) + 2;
+                    var yCoord = height - ((d.level + 1) * (variantHeight + verticalPadding)) + 3;
+                    var tx = "translate(" + xCoord +  "," + yCoord + ")";
+                    return tx;
+                });
+
+          trackindel.selectAll('.variant.ins')
+              .transition()
+                .duration(1000)
+                .delay(function(d, i) { return i * interval; })
+                .ease("bounce")
+                .attr("d", function(d,i) {
+                  return d3.svg
+                       .symbol()
+                       .type(getSymbol(d,i))
+                       .size(symbolSizeCircle)();
+                })
+                .attr("transform", function(d) {
+                    var xCoord = x(d.start) + 2;
+                    var yCoord = height - ((d.level + 1) * (variantHeight + verticalPadding)) + 3;
+                    var tx = "translate(" + xCoord + "," + yCoord + ")";
+                    return tx;
+                });
+
+            trackindel.selectAll('.variant.complex')
+              .transition()
+                .duration(1000)
+                .delay(function(d, i) { return i * interval; })
+                .attr("d", function(d,i) {
+                  return d3.svg
+                       .symbol()
+                       .type(getSymbol(d,i))
+                       .size(symbolSize)();
+                })
+                .attr("transform", function(d) {
+                    var xCoord = x(d.start) + 2;
+                    var yCoord = height - ((d.level + 1) * (variantHeight + verticalPadding)) + 3;
+                    var tx = "translate(" + xCoord + "," + yCoord + ")";
+                    return tx;
+                });
+
+
+        }
+
+
+
+
+        // Generate the x axis
+        if (showXAxis) {
+          if (xTickFormat) {
+            xAxis.tickFormat(xTickFormat);
+          }
+          svg.select(".x.axis").transition()
+              .duration(200)
+              .call(xAxis);
+        }
+
+
+
+        // add a circle and label
+        if (svg.selectAll(".circle").empty()) {
+          //svg.selectAll(".circle").remove();
+          var circle = svg.selectAll(".circle").data([0])
+            .enter().append('circle')
+              .attr("class", "circle")
+              .attr("cx", 0)
+              .attr("cy", 0)
+              .attr("r", variantHeight + 2)
               .style("opacity", 0);
-          garrow.append('line')
-              .attr("class", "arrow arrow-line")
-              .attr("x1", variantHeight + 2)
-              .attr("x2", -2)
-              .attr("y1", 0)
-              .attr("y2", variantHeight + 2)
-              .style("opacity", 0);
+
+        }
+
+
+
+        // add a arrow on the x-axis
+        if (svg.selectAll(".arrow").empty()) {
+          //svg.selectAll("g.arrow").remove();
+            var garrow = svg.selectAll("g.arrow").data([0])
+                            .enter().append("g")
+                            .attr("class", "arrow")
+                            .attr("transform", "translate(1,0)");
+
+            garrow.append('line')
+                .attr("class", "arrow arrow-line")
+                .attr("x1", variantHeight + 2)
+                .attr("x2", -2)
+                .attr("y1", variantHeight + 2)
+                .attr("y2", 0)
+                .style("opacity", 0);
+            garrow.append('line')
+                .attr("class", "arrow arrow-line")
+                .attr("x1", variantHeight + 2)
+                .attr("x2", -2)
+                .attr("y1", 0)
+                .attr("y2", variantHeight + 2)
+                .style("opacity", 0);
+        }
+
+
+
+        dispatch.d3rendered();
+
+
+
       }
 
 
-
-      dispatch.d3rendered();
 
     });
 

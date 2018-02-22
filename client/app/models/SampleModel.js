@@ -757,28 +757,37 @@ class SampleModel {
       me.bamData = null;
       me.fbData = null;
 
-      me.bam = new Bam();
-      me.bam.openBamFile(fileSelection, function(success, message) {
-        if (me.lastBamAlertify) {
-          me.lastBamAlertify.dismiss();
-        }
-        if (success) {
-          me.bamFileOpened = true;
-          me.getBamRefName = me._stripRefName;
-          resolve(me.bam.bamFile.name);
-
-        } else {
+      if (fileSelection == null) {
+        me.bam = new Bam();
+        me.bamFileOpened = false;
+        me.bamRefName = null;
+        resolve();
+      } else {
+        me.bam = new Bam(me.cohort.endpoint);
+        me.bam.openBamFile(fileSelection, function(success, message) {
           if (me.lastBamAlertify) {
             me.lastBamAlertify.dismiss();
           }
-          var msg = "<span style='font-size:18px'>" + message + "</span>";
-              alertify.set('notifier','position', 'top-right');
-          me.lastBamAlertify = alertify.error(msg, 15);
+          if (success) {
+            me.bamFileOpened = true;
+            me.getBamRefName = me._stripRefName;
+            resolve(me.bam.bamFile.name);
 
-          reject(message);
+          } else {
+            if (me.lastBamAlertify) {
+              me.lastBamAlertify.dismiss();
+            }
+            var msg = "<span style='font-size:18px'>" + message + "</span>";
+                alertify.set('notifier','position', 'top-right');
+            me.lastBamAlertify = alertify.error(msg, 15);
 
-        }
-      });
+            reject(message);
+
+          }
+        });
+      }
+
+
 
     });
 
@@ -807,8 +816,8 @@ class SampleModel {
           me.lastBamAlertify.dismiss();
         }
         if (!success) {
-          this.bamUrlEntered = false;
-          this.bam = null;
+          me.bamUrlEntered = false;
+          me.bam = null;
           var msg = "<span style='font-size:18px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + bamUrl + "</span>";
               alertify.set('notifier','position', 'top-right');
           me.lastBamAlertify = alertify.error(msg, 15);
@@ -832,7 +841,15 @@ class SampleModel {
       me.sampleName = null;
       me.vcfData = null;
 
-      me.vcf.openVcfFile( fileSelection,
+      if (fileSelection == null) {
+        me.vcfFileOpened = false;
+        me.vcfUrlEntered = false;
+        me.getVcfRefName = null;
+        me.isMultiSample = false;
+        me.vcf.clearVcfFile();
+        resolve();
+      } else {
+        me.vcf.openVcfFile( fileSelection,
         function(success, message) {
           if (me.lastVcfAlertify) {
             me.lastVcfAlertify.dismiss();
@@ -858,8 +875,9 @@ class SampleModel {
 
             reject(message);
           }
-        }
-      );
+        });
+      }
+
 
     });
   }
@@ -2855,13 +2873,23 @@ class SampleModel {
 
 SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator, annotationScheme) {
   var dangerCounts = $().extend({}, options);
+  dangerCounts.CONSEQUENCE = {};
+  dangerCounts.IMPACT = {};
+  dangerCounts.CLINVAR = {};
+  dangerCounts.INHERITANCE = {};
+  dangerCounts.AF = {};
+  dangerCounts.featureCount = 0;
+  dangerCounts.loadedCount  = 0;
+  dangerCounts.calledCount  = 0;
+  dangerCounts.harmfulVariantsInfo = [];
+  dangerCounts.failedFilter = false;
   dangerCounts.geneName = geneName;
 
   SampleModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel);
 
   dangerCounts.badges = filterModel.flagVariants(theVcfData);
 
-  if (theVcfData == null ) {
+  if (theVcfData == null || theVcfData.features == null ) {
     console.log("unable to summarize danger due to null data");
     dangerCounts.error = "unable to summarize danger due to null data";
     return dangerCounts;

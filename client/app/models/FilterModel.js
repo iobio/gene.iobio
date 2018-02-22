@@ -367,9 +367,10 @@ class FilterModel {
 
         }
       })
-      return badges;
 
     }
+    return badges;
+
   }
 
 

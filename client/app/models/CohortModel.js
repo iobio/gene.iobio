@@ -55,14 +55,14 @@ class CohortModel {
 
     this.demoModelInfos = {
       'exome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.exome, 'bam': this.demoBams.exome['proband'] },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.exome, 'bam': this.demoBams.exome['mother'] },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.exome, 'bam': this.demoBams.exome['father'] },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['proband'], 'bai': null },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['mother'], 'bai': null  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['father'], 'bai': null  },
       ],
       'genome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.genome, 'bam': this.demoBams.genome['proband'] },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.genome, 'bam': this.demoBams.genome['mother'] },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.genome, 'bam': this.demoBams.genome['father'] },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['proband'], 'bai': null  },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['mother'],  'bai': null  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['father'],  'bai': null  },
       ]
     }
   }
@@ -544,8 +544,8 @@ class CohortModel {
       } else {
         for (var rel in self.sampleMap) {
           var model = self.sampleMap[rel].model;
-          model.inProgress.loadingVariants = true;
           if (model.isVcfReadyToLoad() || model.isLoaded()) {
+            model.inProgress.loadingVariants = true;
             if (rel != 'known-variants') {
               var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], isMultiSample, isBackground)
               .then(function(resultMap) {
@@ -825,15 +825,17 @@ class CohortModel {
             // Summarize the danger for the gene based on the filtered annotated variants and gene coverage
             var filteredVcfData = null;
             var filteredFbData = null;
-            if (probandVcfData.features && probandVcfData.features.length > 0) {
-              filteredVcfData = self.getProbandModel().filterVariants(probandVcfData, self.filterModel.getFilterObject(), geneObject.start, geneObject.end, true);
-              filteredFbData  = self.getProbandModel().reconstituteFbData(filteredVcfData);
-            } else if (probandVcfData.features) {
-              filteredVcfData = probandVcfData;
-            }
-            var theOptions = $.extend({}, options);
-            if ((dangerSummary && dangerSummary.CALLED) || (filteredFbData && filteredFbData.features.length > 0)) {
-                theOptions.CALLED = true;
+            if (probandVcfData) {
+              if (probandVcfData.features && probandVcfData.features.length > 0) {
+                filteredVcfData = self.getProbandModel().filterVariants(probandVcfData, self.filterModel.getFilterObject(), geneObject.start, geneObject.end, true);
+                filteredFbData  = self.getProbandModel().reconstituteFbData(filteredVcfData);
+              } else if (probandVcfData.features) {
+                filteredVcfData = probandVcfData;
+              }
+              var theOptions = $.extend({}, options);
+              if ((dangerSummary && dangerSummary.CALLED) || (filteredFbData && filteredFbData.features.length > 0)) {
+                  theOptions.CALLED = true;
+              }
             }
 
             return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, filteredVcfData, theOptions, geneCoverageAll, self.filterModel);

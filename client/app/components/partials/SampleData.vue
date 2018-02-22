@@ -27,6 +27,7 @@
   .sample-label
     .chip
       vertical-align: top
+      margin-left: 0px
     .switch
       display: inline-block
       width: 100px
@@ -34,7 +35,7 @@
 </style>
 <template>
 
- <v-layout row wrap class="ml-2">
+ <v-layout row wrap class="ml-2 mt-2">
     <v-flex xs12 class="sample-label" >
       <v-chip color="primary" small text-color="white"> {{ modelInfo.relationship }}</v-chip>
       <v-switch  label="Affected" hide-details @change="onIsAffected" v-model="isAffected"></v-switch>
@@ -42,9 +43,12 @@
     <v-flex xs12  class="ml-3">
       <sample-data-file
        :defaultUrl="modelInfo.vcf"
-       :label="`VCF`"
+       :defaultIndexUrl="modelInfo.tbi"
+       :label="`vcf`"
+       :indexLabel="`tbi`"
        :filePlaceholder="filePlaceholder.vcf"
        :fileAccept="fileAccept.vcf"
+       :separateUrlForIndex="separateUrlForIndex"
        @url-entered="onVcfUrlEntered"
        @file-selected="onVcfFilesSelected">
       </sample-data-file>
@@ -64,9 +68,12 @@
     <v-flex xs12  class="ml-3" >
       <sample-data-file
        :defaultUrl="modelInfo.bam"
-       :label="`BAM`"
+       :defaultIndexUrl="modelInfo.bai"
+       :label="`bam`"
+        :indexLabel="`bai`"
        :filePlaceholder="filePlaceholder.bam"
        :fileAccept="fileAccept.bam"
+       :separateUrlForIndex="separateUrlForIndex"
        @url-entered="onBamUrlEntered"
        @file-selected="onBamFilesSelected">
       </sample-data-file>
@@ -88,7 +95,8 @@ export default {
     SampleDataFile
   },
   props: {
-    modelInfo: null
+    modelInfo: null,
+    separateUrlForIndex: null
   },
   data () {
     return {
@@ -114,13 +122,13 @@ export default {
     }
   },
   methods: {
-    onVcfUrlEntered: function(vcfUrl) {
+    onVcfUrlEntered: function(vcfUrl, tbiUrl) {
       let self = this;
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
 
       if (self.modelInfo && self.modelInfo.model) {
-        self.modelInfo.model.onVcfUrlEntered(vcfUrl, null, function(success, sampleNames) {
+        self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
           if (success) {
             self.samples = sampleNames;
           }
@@ -162,10 +170,10 @@ export default {
       }
       self.$emit("sample-data-changed");
     },
-    onBamUrlEntered: function(bamUrl) {
+    onBamUrlEntered: function(bamUrl, baiUrl) {
       let self = this;
       if (self.modelInfo && self.modelInfo.model) {
-        self.modelInfo.model.onBamUrlEntered(bamUrl, null, function(success) {
+        self.modelInfo.model.onBamUrlEntered(bamUrl, baiUrl, function(success) {
           if (success) {
           } else {
           }

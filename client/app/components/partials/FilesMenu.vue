@@ -5,18 +5,27 @@
   >form
     margin-left: 30px
     margin-right: 30px
-    max-width: 660px
+    max-width: 720px
     font-size: 12px !important
+
+  .input-group.radio
+    margin-top: 0px
+    margin-bottom: 0px
 
   .radio label
     line-height: 25px
 
-  .input-group.v-radio-group
+  .input-group.radio-group
     padding-top: 0px
 
   .input-group__selections__comma
     font-size: 13px
 
+  .input-group.input-group--selection-controls.switch
+    label
+      font-weight: normal
+      font-size: 12px
+      padding-left: 5px
 
 </style>
 
@@ -39,15 +48,20 @@
 
       <v-layout row wrap class="mt-2">
 
-        <v-flex xs3 class="px-2" >
-            <v-radio-group v-model="mode" @change="onModeChanged"  hide-details row>
+        <v-flex xs2  >
+            <v-radio-group v-model="mode" @change="onModeChanged"  hide-details column>
                   <v-radio label="Single"  value="single"></v-radio>
                   <v-radio label="Trio"    value="trio"></v-radio>
             </v-radio-group>
         </v-flex>
 
+        <v-flex xs3 class="mt-2" >
+            <v-switch  label="Separate URL for index" hide-details v-model="separateUrlForIndex">
+            </v-switch>
+        </v-flex>
 
-        <v-flex xs3 class="px-2">
+
+        <v-flex xs2 class="px-2">
           <v-select
             label="Species"
             hide-details
@@ -56,7 +70,7 @@
           ></v-select>
         </v-flex>
 
-        <v-flex xs3 class="px-2">
+        <v-flex xs2 class="px-2">
           <v-select
             label="Genome Build"
             hide-details
@@ -65,7 +79,7 @@
           ></v-select>
          </v-flex>
 
-        <v-flex xs3 sm3>
+        <v-flex xs3>
             <v-select
               :items="demoActions"
               item-value="value"
@@ -73,11 +87,16 @@
               @input="onLoadDemoData"
               v-model="demoAction"
               overflow
+              hide-details
               label="Demo data"></v-select>
         </v-flex>
 
 
-         <v-flex xs12 class="pt-2"
+
+
+
+
+         <v-flex xs12 class="pt-3"
            v-for="rel in rels[mode]"
               :key="rel"
               :id="rel"
@@ -87,6 +106,7 @@
              ref="sampleDataRef"
              v-if="modelInfoMap && modelInfoMap[rel] && Object.keys(modelInfoMap[rel]).length > 0"
              :modelInfo="modelInfoMap[rel]"
+             :separateUrlForIndex="separateUrlForIndex"
              @sample-data-changed="validate"
             >
           </sample-data>
@@ -147,7 +167,8 @@ export default {
         {'display': 'Demo WES trio', 'value': 'exome'},
         {'display': 'Demo WGS trio', 'value': 'genome'}
       ],
-      demoAction: null
+      demoAction: null,
+      separateUrlForIndex: false
     }
   },
   watch: {
@@ -171,6 +192,11 @@ export default {
       self.cohortModel.promiseAddClinvarSample();
       self.cohortModel.setAffectedInfo();
       self.cohortModel.isLoaded = true;
+      self.cohortModel.getCanonicalModels().forEach(function(model) {
+        if (model.name == null || model.name.length == 0) {
+          model.name = model.relationship;
+        }
+      })
       self.$emit("on-files-loaded");
       self.showFilesMenu = false;
     },
@@ -289,7 +315,9 @@ export default {
           modelInfo = {};
           modelInfo.relationship = model.relationship;
           modelInfo.vcf          = model.vcf ? model.vcf.getVcfURL() : null;
+          modelInfo.tbi          = model.vcf ? model.vcf.getTbiURL() : null;
           modelInfo.bam          = model.bam ? model.bam.bamUri : null;
+          modelInfo.bai          = model.bam ? model.bam.baiUri : null;
           modelInfo.sample       = model.getSampleName();
           modelInfo.name         = model.getName();
           modelInfo.samples      = model.sampleNames;

@@ -292,6 +292,12 @@ var effectCategories = [
     return message ? message : error;
   }
 
+  exports.clearVcfFile = function() {
+    vcfReader = null;
+    vcfFile = null;
+    tabixFile = null;
+  }
+
   exports.openVcfFile = function(fileSelection, callback) {
     sourceType = SOURCE_TYPE_FILE;
 
@@ -391,6 +397,10 @@ var effectCategories = [
 
   exports.getVcfURL = function() {
     return vcfURL;
+  }
+
+  exports.getTbiURL = function() {
+    return tbiUrl;
   }
 
   exports.setVcfURL = function(url, tbiUrl) {
