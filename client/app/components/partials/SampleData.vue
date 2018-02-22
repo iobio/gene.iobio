@@ -119,12 +119,15 @@ export default {
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
 
-      self.modelInfo.model.onVcfUrlEntered(vcfUrl, null, function(success, sampleNames) {
-        if (success) {
-          self.samples = sampleNames;
-        }
-        self.$emit("sample-data-changed");
-      })
+      if (self.modelInfo && self.modelInfo.model) {
+        self.modelInfo.model.onVcfUrlEntered(vcfUrl, null, function(success, sampleNames) {
+          if (success) {
+            self.samples = sampleNames;
+          }
+          self.$emit("sample-data-changed");
+        })
+      }
+
     },
     onVcfFilesSelected: function(fileSelection) {
       let self = this;
@@ -142,25 +145,33 @@ export default {
     onIsAffected: function() {
       this.modelInfo.isAffected = this.isAffected;
     },
-    updateSamples: function(samples) {
+    updateSamples: function(samples, sampleToSelect) {
       this.samples = samples;
-      this.sample = null;
+      if (sampleToSelect) {
+        this.sample = sampleToSelect;
+      } else {
+        this.sample = null;
+      }
     },
     onSampleSelected: function() {
       let self = this;
       self.modelInfo.sample = this.sample;
-      self.modelInfo.model.setSampleName(this.modelInfo.sample);
-      self.modelInfo.model.setName(this.modelInfo.relationship + " " + this.modelInfo.sample);
+      if (self.modelInfo.model) {
+        self.modelInfo.model.sampleName  = this.modelInfo.sample;
+        self.modelInfo.model.setName(this.modelInfo.relationship + " " + this.modelInfo.sample);
+      }
       self.$emit("sample-data-changed");
     },
     onBamUrlEntered: function(bamUrl) {
       let self = this;
-      self.modelInfo.model.onBamUrlEntered(bamUrl, null, function(success) {
-        if (success) {
-        } else {
-        }
-        self.$emit("sample-data-changed");
-      })
+      if (self.modelInfo && self.modelInfo.model) {
+        self.modelInfo.model.onBamUrlEntered(bamUrl, null, function(success) {
+          if (success) {
+          } else {
+          }
+          self.$emit("sample-data-changed");
+        })
+      }
     },
     onBamFilesSelected: function(fileSelection) {
       let self = this;

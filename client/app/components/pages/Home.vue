@@ -423,7 +423,7 @@ export default {
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.promiseLoadGene(self.selectedGene.gene_name);
         } else {
-          alertify.alert("Please enter a gene name")
+          alertify.alert("", "Please enter a gene name");
         }
       })
     },

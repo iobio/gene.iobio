@@ -34,25 +34,42 @@ class CohortModel {
     this.flaggedVariants = [];
 
 
-    this.demoVcf = "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz";
+    this.demoVcf = {
+      'exome': "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz",
+      'genome': "https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz"
+    }
     this.demoBams = {
-      'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
-      'mother':  'https://s3.amazonaws.com/iobio/samples/bam/NA12892.exome.bam',
-      'father':  'https://s3.amazonaws.com/iobio/samples/bam/NA12891.exome.bam'
+      'exome': {
+        'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
+        'mother':  'https://s3.amazonaws.com/iobio/samples/bam/NA12892.exome.bam',
+        'father':  'https://s3.amazonaws.com/iobio/samples/bam/NA12891.exome.bam'
+      },
+      'genome': {
+        'proband': 'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam',
+        'mother':  'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam',
+        'father':  'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam'
+      }
     }
     this.demoGenes = ['RAI1', 'MYLK2', 'PDHA1', 'PDGFB', 'AIRE'];
 
 
-    this.demoModelInfos = [
-      {relationship: 'proband', affectedStatus: 'affected', name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf, 'bam': this.demoBams['proband'] },
-      {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf, 'bam': this.demoBams['mother'] },
-      {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf, 'bam': this.demoBams['father'] },
-    ];
-   }
+    this.demoModelInfos = {
+      'exome': [
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.exome, 'bam': this.demoBams.exome['proband'] },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.exome, 'bam': this.demoBams.exome['mother'] },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.exome, 'bam': this.demoBams.exome['father'] },
+      ],
+      'genome': [
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.genome, 'bam': this.demoBams.genome['proband'] },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.genome, 'bam': this.demoBams.genome['mother'] },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.genome, 'bam': this.demoBams.genome['father'] },
+      ]
+    }
+  }
 
-  promiseInitDemo() {
+  promiseInitDemo(demoKind='exome') {
     let self = this;
-    return self.promiseInit(self.demoModelInfos);
+    return self.promiseInit(self.demoModelInfos[demoKind]);
   }
 
   promiseInit(modelInfos) {

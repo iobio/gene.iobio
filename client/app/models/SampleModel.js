@@ -94,7 +94,11 @@ class SampleModel {
 
 
   isReadyToLoad() {
-    return (this.isVcfReadyToLoad() && this.isSampleSelected()) || this.isBamReadyToLoad();
+    if (this.isVcfReadyToLoad()) {
+      return this.isSampleSelected();
+    } else {
+      return this.isBamReadyToLoad();
+    }
   }
 
   isBamReadyToLoad() {

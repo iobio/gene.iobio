@@ -50,6 +50,7 @@ nav.toolbar
         <files-menu
          :cohortModel="cohortModel"
          @on-files-loaded="onFilesLoaded"
+         @load-demo-data="onLoadDemoData"
         >
         </files-menu>
 
@@ -158,8 +159,8 @@ export default {
     }
   },
   methods: {
-    onLoadDemoData: function() {
-      this.$emit("load-demo-data");
+    onLoadDemoData: function(loadAction) {
+      this.$emit("load-demo-data", loadAction);
     },
     onClearCache: function() {
       this.$emit("clear-cache")
