@@ -20,8 +20,6 @@
 <template>
 
   <div>
-
-
     <navigation
       v-if="geneModel"
       ref="navRef"
@@ -118,7 +116,7 @@
         :width="cardWidth"
         :showGeneViz=true
         :showDepthViz="model.relationship != 'known-variants'"
-        :showVariantViz="model.relationship != 'known-variants' || showClinvarVariants"
+        :showVariantViz="model.relationship != 'known-variants' || showKnownVariantsCard"
         @show-known-variants-card="onShowKnownVariantsCard"
         @cohortVariantClick="onCohortVariantClick"
         @cohortVariantClickEnd="onCohortVariantClickEnd"
@@ -220,7 +218,6 @@ export default {
       selectedVariant: null,
 
       showKnownVariantsCard: false,
-      showClinvarVariants: false,
 
       inProgress: {},
 
@@ -374,7 +371,7 @@ export default {
         if (self.models && self.models.length > 0) {
 
 
-          var options = {'getKnownVariants': self.showClinvarVariants};
+          var options = {'getKnownVariants': self.showKnownVariantsCard};
 
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,
@@ -625,8 +622,7 @@ export default {
     },
     onKnownVariantsVizChange: function(viz) {
       let self = this;
-      self.showClinvarVariants = viz == 'variants';
-      if (self.showClinvarVariants) {
+      if (viz == 'variants') {
         self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
       }
     },
@@ -779,7 +775,11 @@ export default {
       });
     },
     onShowKnownVariantsCard: function(show) {
-      this.showKnownVariantsCard = show;
+      let self = this;
+      self.showKnownVariantsCard = show;
+      if (self.showKnownVariantsCard) {
+        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
+      }
     }
 
 

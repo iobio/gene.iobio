@@ -108,6 +108,7 @@ class CohortModel {
     })
   }
 
+
   promiseAddSample(modelInfo) {
     let self = this;
     return new Promise(function(resolve,reject) {
@@ -209,14 +210,16 @@ class CohortModel {
 
   sortSampleModels() {
     var MODEL_ORDER = {
-      'proband': 2,
+      'proband': 1,
       'mother': 3,
       'father': 4,
-      'known-variants': 1
+      'known-variants': 2
     };
-    this.sampleModels = this.sampleModels.sort(function(a,b) {
+    let sortedModels = this.sampleModels.sort(function(a,b) {
       return MODEL_ORDER[a.relationship] - MODEL_ORDER[b.relationship];
-    })
+    });
+    this.sampleModels = [];
+    this.sampleModels = sortedModels;
   }
 
 

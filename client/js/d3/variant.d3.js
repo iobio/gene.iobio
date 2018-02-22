@@ -182,7 +182,7 @@ function variantD3() {
 
       container.selectAll("svg").remove();
 
-      if (data.features && data.features.length > 0) {
+      if (data && data.length > 0 && data[0] && data[0].features && data[0].features.length > 0) {
 
         // Update the x-scale.
         if (regionStart && regionEnd) {

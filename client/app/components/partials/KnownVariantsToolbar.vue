@@ -5,30 +5,40 @@
   display: inline-block
   padding-top: 0px
   float: left
+  margin-left: 20px
 
-  #clinvar-filter-box
-    .input-group--select
-      .input-group__selections__comma
-        font-size: 14px
-        padding: 0px 0px 0px 0px
+  .input-group.radio
+    margin-top: 0px
+    margin-bottom: 0px
 
-    .input-group
-      label
-        font-size: 14px
-        line-height: 25px
-        height: 25px
+  .radio label
+    line-height: 20px
+    left: 28px
+    font-size: 12px
 
+
+  .input-group.radio-group
+    padding-top: 0px
+
+  .input-group__selections__comma
+    font-size: 12px
+
+  .input-group--select
     .input-group__input
-      min-height: 0px
       margin-top: 10px
 
-    .input-group__input
-      .input-group__selections__comma
-        font-size: 14px
 
-    .input-group--text-field
-      label
-        top: 6px
+  .input-group--text-field.input-group--dirty.input-group--select
+    label
+      -webkit-transform: translate(0, -20px) scale(0.75)
+      transform: translate(0, -20px) scale(0.75)
+
+  .input-group--text-field.input-group--dirty:not(.input-group--textarea)
+    label
+      -webkit-transform: translate(0, -20px) scale(0.75)
+      transform: translate(0, -20px) scale(0.75)
+
+
 
   text
     color: $text-color
@@ -72,18 +82,17 @@
 
 <template>
     <div id="known-variants-toolbar">
-      <div style="width:310px;float:left;margin-top:0px">
+      <div style="width:180px;float:left;padding-top:10px;margin-top:0px">
         <v-radio-group v-model="viz" row>
               <v-radio label="Variants" value="variants"></v-radio>
               <v-radio label="Counts" value="counts"></v-radio>
-              <v-radio label="None" value="none"></v-radio>
         </v-radio-group>
       </div>
 
 
       <div id="clinvar-filter-box" style="margin-left:10px;width:400px;float:left">
         <v-select
-                label="Filter"
+                label="Filter by clinical significance..."
                 v-bind:items="categories"
                 v-model="selectedCategories"
                 multiple
@@ -133,7 +142,8 @@ export default {
         {'key': 'clinvar', 'selected': false, value: 'clinvar_benign', text: 'Benign'},
         {'key': 'clinvar', 'selected': false, value: 'clinvar_lbenign',text: 'Likely benign' }
       ],
-      selectedCategories: []
+      selectedCategories: ['clinvar_path', 'clinvar_lpath']
+
     }
   },
   watch: {
@@ -148,8 +158,9 @@ export default {
   methods: {
   },
   mounted: function() {
-    this.viz = this.VIZ_NONE;
+    this.viz = this.VIZ_VARIANTS;
     this.chartType = this.CHART_TYPE_EXON;
+    this.$emit("knownVariantsFilterChange", this.selectedCategories);
   }
 }
 

@@ -40,7 +40,7 @@
       <v-chip color="primary" small text-color="white"> {{ modelInfo.relationship }}</v-chip>
       <v-switch  label="Affected" hide-details @change="onIsAffected" v-model="isAffected"></v-switch>
     </v-flex>
-    <v-flex xs12  class="ml-3">
+    <v-flex xs12  class="ml-3" style="margin-top: -10px">
       <sample-data-file
        :defaultUrl="modelInfo.vcf"
        :defaultIndexUrl="modelInfo.tbi"

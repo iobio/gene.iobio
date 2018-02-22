@@ -96,7 +96,7 @@
 
 
 
-         <v-flex xs12 class="pt-3"
+         <v-flex xs12
            v-for="rel in rels[mode]"
               :key="rel"
               :id="rel"
@@ -189,16 +189,19 @@ export default {
       this.cohortModel.mode = this.mode;
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
-      self.cohortModel.promiseAddClinvarSample();
-      self.cohortModel.setAffectedInfo();
-      self.cohortModel.isLoaded = true;
-      self.cohortModel.getCanonicalModels().forEach(function(model) {
-        if (model.name == null || model.name.length == 0) {
-          model.name = model.relationship;
-        }
+      self.cohortModel.promiseAddClinvarSample()
+      .then(function() {
+        self.cohortModel.setAffectedInfo();
+        self.cohortModel.isLoaded = true;
+        self.cohortModel.getCanonicalModels().forEach(function(model) {
+          if (model.name == null || model.name.length == 0) {
+            model.name = model.relationship;
+          }
+        })
+        self.cohortModel.sortSampleModels();
+        self.$emit("on-files-loaded");
+        self.showFilesMenu = false;
       })
-      self.$emit("on-files-loaded");
-      self.showFilesMenu = false;
     },
     onCancel:  function() {
       this.showFilesMenu = false;

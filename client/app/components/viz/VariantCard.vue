@@ -66,29 +66,31 @@
       >
       </v-switch>
 
+      <known-variants-toolbar
+        v-if="sampleModel.relationship == 'known-variants'"
+        @knownVariantsVizChange="onKnownVariantsVizChange"
+        @knownVariantsFilterChange="onKnownVariantsFilterChange"
+      >
+      </known-variants-toolbar>
+
       <div style="width:100%">
 
-        <div style="text-align: center;clear: both;margin-bottom:20px">
-          <div class="loader vcfloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingVariants }" style="display: inline-block;">
+        <div style="text-align: center;clear: both;">
+          <div class="loader vcfloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingVariants }" style="display: inline-block;padding-bottom:10px">
             <span class="loader-label">Annotating variants</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
-          <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;">
+          <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;adding-bottom:10px">
             <span class="loader-label">Calling variants</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
-          <div class="loader covloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingCoverage }"style="display: inline-block;padding-left: 20px;">
+          <div class="loader covloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingCoverage }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
             <span class="loader-label">Analyzing gene coverage</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
         </div>
 
-        <known-variants-toolbar
-          v-if="sampleModel.relationship == 'known-variants'"
-          @knownVariantsVizChange="onKnownVariantsVizChange"
-          @knownVariantsFilterChange="onKnownVariantsFilterChange"
-        >
-        </known-variants-toolbar>
+
 
         <variant-viz id="called-variant-viz"
           v-if="showVariantViz"
