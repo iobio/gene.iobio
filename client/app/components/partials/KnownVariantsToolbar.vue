@@ -27,14 +27,20 @@
     .input-group__input
       margin-top: 10px
 
+  .input-group--text-field
+    label
+      font-size: 12px
+      top: 5px
 
   .input-group--text-field.input-group--dirty.input-group--select
     label
+      top: 18px
       -webkit-transform: translate(0, -20px) scale(0.75)
       transform: translate(0, -20px) scale(0.75)
 
   .input-group--text-field.input-group--dirty:not(.input-group--textarea)
     label
+      top: 18px
       -webkit-transform: translate(0, -20px) scale(0.75)
       transform: translate(0, -20px) scale(0.75)
 
