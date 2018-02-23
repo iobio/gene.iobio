@@ -129,9 +129,10 @@ a
         :regionStart="geneRegionStart"
         :regionEnd="geneRegionEnd"
         :width="cardWidth"
-        :showGeneViz=true
+        :showGeneViz="true"
         :showDepthViz="model.relationship != 'known-variants'"
         :showVariantViz="model.relationship != 'known-variants' || showKnownVariantsCard"
+        :geneVizShowXAxis="model.relationship == 'proband' || model.relationship == 'known-variants'"
         @show-known-variants-card="onShowKnownVariantsCard"
         @cohortVariantClick="onCohortVariantClick"
         @cohortVariantClickEnd="onCohortVariantClickEnd"

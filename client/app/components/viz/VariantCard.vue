@@ -162,6 +162,7 @@
           :cdsHeight="geneVizCdsHeight"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
+          :showXAxis="geneVizShowXAxis"
           :showBrush="false"
           :featureClass="getExonClass"
           @feature-selected="showExonTooltip"
@@ -211,13 +212,15 @@ export default {
 
     showVariantViz: true,
     showGeneViz: true,
-    showDepthViz: true
+    showDepthViz: true,
+    geneVizShowXAxis: null
   },
 
 
 
 
   data() {
+    let self = this;
     return {
       margin: {
         top: isLevelBasic || isLevelEdu ? 0 : 20,
@@ -237,8 +240,8 @@ export default {
       geneVizMargin: {
         top: 0,
         right: isLevelBasic || isLevelEdu ? 7 : 2,
-        bottom: 18, left:
-        isLevelBasic || isLevelEdu ? 9 : 4
+        bottom: self.geneVizShowXAxis ? 18 : 0,
+        left: isLevelBasic || isLevelEdu ? 9 : 4
       },
       geneVizTrackHeight: isLevelEdu || isLevelBasic ? 32 : 16,
       geneVizCdsHeight: isLevelEdu || isLevelBasic ? 24 : 12,
