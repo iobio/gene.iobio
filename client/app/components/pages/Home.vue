@@ -54,6 +54,7 @@ a
          :genesInProgress="cohortModel.genesInProgress"
          :isLoaded="cohortModel && cohortModel.isLoaded"
          :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
+         :filterModel="cohortModel.filterModel"
          @gene-selected="onGeneSelected"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
@@ -61,6 +62,7 @@ a
          @sort-genes="onSortGenes"
          @add-flagged-variants="onAddFlaggedVariants"
          @show-flagged-variants="onShowFlaggedVariants"
+         @filter-applied="onFilterApplied"
         >
         </genes-card>
 
@@ -796,6 +798,14 @@ export default {
       if (self.showKnownVariantsCard) {
         self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
       }
+    },
+    onFilterApplied: function(badge) {
+      let self = this;
+      self.cohortModel.cacheHelper.refreshGeneBadges(function() {
+        self.$refs.genesCardRef.determineFlaggedGenes();
+        self.$refs.genesCardRef.updateGeneBadgeCounts();
+        self.$refs.navRef.onShowFlaggedVariants();
+      })
     }
 
 

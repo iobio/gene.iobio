@@ -61,19 +61,18 @@
       fill: $coverage-problem-color
 
 
+  .btn--floating.btn--small
+    height: 20px
+    width: 20px
+    margin-left: 25px
+    margin-top: -35px
+    position: relative
+    padding: 0px
+    min-width: 20px
 
-  #max-af
-    .input-group label
-      font-size: 14px
-      line-height: 25px
-      height: 25px
-    .input-group__input
-      min-height: 0px
-      margin-top: 13px
-    .input-group--text-field input
-      font-size: 14px
-      color: $text-color
-
+  .badge-wrapper
+    display: inline-block
+    width: 50px
 
 </style>
 
@@ -82,6 +81,9 @@
 
 
 
+  <v-layout row>
+
+    <span class="badge-wrapper">
       <v-btn flat ref="flagged"
        v-bind:class="badgeCounts.flagged == 0 ? 'disabled' : ''"
        @click="onBadgeClick('flagged')" >
@@ -90,25 +92,36 @@
           <v-icon>bookmark</v-icon>
         </v-badge>
       </v-btn>
-
-    <v-btn  flat ref="pathogenic"
-    v-bind:class="badgeCounts.pathogenic == 0 ? 'disabled' : ''"
-    @click="onBadgeClick('pathogenic')" slot="activator" flat
-    >
-      <v-badge right >
-        <span slot="badge"> {{ badgeCounts.pathogenic }} </span>
-        <span>
-          <svg>
-            <g transform="translate(1,0)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="18" height="18" style="pointer-events: none; fill: rgb(173, 73, 74);">
-              </use>
-            </g>
-          </svg>
-        </span>
-      </v-badge>
-    </v-btn>
+    </span>
 
 
+    <span class="badge-wrapper">
+      <v-btn  flat ref="pathogenic"
+      v-bind:class="badgeCounts.pathogenic == 0 ? 'disabled' : ''"
+      @click="onBadgeClick('pathogenic')" slot="activator" flat
+      >
+        <v-badge right >
+          <span slot="badge"> {{ badgeCounts.pathogenic }} </span>
+          <span>
+            <svg>
+              <g transform="translate(1,0)">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="18" height="18" style="pointer-events: none; fill: rgb(173, 73, 74);">
+                </use>
+              </g>
+            </svg>
+          </span>
+        </v-badge>
+      </v-btn>
+      <filter-menu
+      ref="pathogenic-menu"
+      :filterModel="filterModel"
+      :badge="`pathogenic`"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
+    </span>
+
+  <span class="badge-wrapper">
       <v-btn flat ref="recessive"
         v-bind:class="badgeCounts.recessive == 0 ? 'disabled' : ''"
         @click="onBadgeClick('recessive')"
@@ -125,7 +138,17 @@
           </span>
         </v-badge>
       </v-btn>
+      <filter-menu
+      ref="recessive-menu"
+      :filterModel="filterModel"
+      :badge="`recessive`"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
+  </span>
 
+
+  <span class="badge-wrapper">
       <v-btn flat ref="denovo"
        v-bind:class="badgeCounts.denovo == 0 ? 'disabled' : ''"
       @click="onBadgeClick('denovo')" >
@@ -141,8 +164,18 @@
           </span>
         </v-badge>
       </v-btn>
+      <filter-menu
+      ref="denovo-menu"
+      :filterModel="filterModel"
+      :badge="`denovo`"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
+
+  </span>
 
 
+  <span class="badge-wrapper">
       <v-btn flat ref="highOrModerate"
        v-bind:class="badgeCounts.highOrModerate == 0 ? 'disabled' : ''"
        @click="onBadgeClick('highOrModerate')"
@@ -161,49 +194,66 @@
           </span>
         </v-badge>
       </v-btn>
+      <filter-menu
+      ref="highOrModerate-menu"
+      :filterModel="filterModel"
+      :badge="`highOrModerate`"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
+
+  </span>
 
 
-      <!--
-      <div id="max-af" style="display:inline-block;width:85px;margin-right: 10px">
-        <v-text-field label="Allele Freq" prefix="<" suffix="%" v-model="af">
-        </v-text-field>
-      </div>
-      -->
 
-
-
-
-    <v-btn flat ref="coverage"  style="margin-left:20px"
-     v-bind:class="badgeCounts.coverage == 0 ? 'disabled' : ''"
-     @click="onBadgeClick('coverage')"
-    >
-      <v-badge  right >
-        <span   slot="badge">{{ badgeCounts.coverage }}</span>
-        <span>
-        <svg class="gene-badge-coverage-problem" >
-          <g transform="translate(0,1)">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#trending-down-symbol" width="17" height="17"  style="pointer-events: none;">
-            </use>
-          </g>
-        </svg>
-       </span>
-      </v-badge>
+  <span class="badge-wrapper">
+    <v-btn flat ref="coverage"
+       v-bind:class="badgeCounts.coverage == 0 ? 'disabled' : ''"
+       @click="onBadgeClick('coverage')"
+      >
+        <v-badge  right >
+          <span   slot="badge">{{ badgeCounts.coverage }}</span>
+          <span>
+          <svg class="gene-badge-coverage-problem" >
+            <g transform="translate(0,1)">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#trending-down-symbol" width="17" height="17"  style="pointer-events: none;">
+              </use>
+            </g>
+          </svg>
+         </span>
+        </v-badge>
     </v-btn>
+    <filter-coverage-menu
+      ref="coverage-menu"
+      :filterModel="filterModel"
+      :badge="`coverage`"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+    </filter-coverage-menu>
+
+  </span>
+
+  </v-layout>
   </div>
 </template>
 
 <script>
+import FilterMenu         from '../partials/FilterMenu.vue'
+import FilterCoverageMenu from '../partials/FilterCoverageMenu.vue'
+
 export default {
   name: 'gene-count-badges',
   components: {
+    FilterMenu,
+    FilterCoverageMenu
   },
   props: {
-    badgeCounts: null
+    badgeCounts: null,
+    filterModel: null
   },
   data () {
     return {
-      badge: 'pathogenic',
-      af: 5
+      badge: 'pathogenic'
     }
   },
   methods: {
@@ -217,6 +267,18 @@ export default {
         }
       }
       self.$emit("badge-click", $(self.$refs[badge].$el).hasClass("selected") ? badge : null);
+    },
+    onFilterMenuOpen: function(badge) {
+      let self = this;
+      var badgeRefs = ['pathogenic', 'recessive', 'denovo', 'highOrModerate'];
+      badgeRefs.forEach(function(refName) {
+        if (refName != badge) {
+          self.$refs[refName + "-menu"].close();
+        }
+      })
+    },
+    onFilterApplied: function(badge) {
+      this.$emit('filter-applied', badge);
     }
   }
 }

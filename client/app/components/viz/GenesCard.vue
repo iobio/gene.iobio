@@ -136,6 +136,8 @@
 
           <gene-count-badges v-if="isLoaded"
            :badgeCounts="badgeCounts"
+           :filterModel="filterModel"
+           @filter-applied="onFilterApplied"
            @badge-click="onBadgeClick">
           </gene-count-badges>
 
@@ -193,7 +195,8 @@ export default {
     geneModel: null,
     selectedGene: null,
     isLoaded: null,
-    hasAlignments: null
+    hasAlignments: null,
+    filterModel: null
   },
   data () {
     return {
@@ -311,6 +314,9 @@ export default {
         self.filteredGeneNames = [];
       }
       self.updateGeneSummaries();
+    },
+    onFilterApplied: function(badge) {
+      this.$emit("filter-applied", badge);
     },
     determineFlaggedGenes: function(badge) {
       let self = this;

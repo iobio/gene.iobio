@@ -436,7 +436,51 @@ CacheHelper.prototype.promiseClearCache = function(launchTimestampToClear) {
 
 }
 
-CacheHelper.prototype.refreshNextGeneBadge = function(keys, geneCount, callback) {
+CacheHelper.prototype.refreshGeneBadges = function(callback) {
+  var me = this;
+
+  var theGeneNames = {};
+  me.cohort.geneModel.sortedGeneNames.forEach(function(geneName) {
+    theGeneNames[geneName] = true;
+  });
+
+  var dataKind = CacheHelper.VCF_DATA;
+
+  me.promiseGetKeys()
+   .then(function(allKeys) {
+    var keys = [];
+
+    allKeys.forEach(function(key) {
+      keyObject = CacheHelper._parseCacheKey(key);
+      if (keyObject && keyObject.launchTimestamp == me.launchTimestamp) {
+
+          if (keyObject.dataKind == dataKind && keyObject.relationship == "proband" && theGeneNames[keyObject.gene]) {
+            keys.push({'key': key, 'keyObject': keyObject});
+          }
+       }
+    })
+
+    me.refreshNextGeneBadge(keys, function() {
+      me.cohort.geneModel.sortGenes("harmful variants");
+
+      if (callback) {
+        callback();
+      }
+
+    });
+
+   },
+   function(error) {
+    var msg = "A problem occurred in CacheHelper.refreshGeneBadges(): " + error;
+    console.log(msg);
+    if (callback) {
+      callback();
+    }
+   })
+
+}
+
+CacheHelper.prototype.refreshNextGeneBadge = function(keys, callback) {
   var me = this;
   if (keys.length == 0) {
     callback();
@@ -446,40 +490,17 @@ CacheHelper.prototype.refreshNextGeneBadge = function(keys, geneCount, callback)
     var keyObject = theKey.keyObject;
 
 
-    me.promiseGetDataThreaded(key, keyObject).then(function(cachedData) {
+    me.promiseGetDataThreaded(key, keyObject)
+    .then(function(cachedData) {
       var theVcfData    = cachedData.data;
       var theKeyObject  = cachedData.keyObject;
       var theGeneObject = me.cohort.geneModel.geneObjects[theKeyObject.gene];
-
-      //var filteredVcfData = getVariantCard('proband').model.filterVariants(theVcfData, filterCard.getFilterObject(), theGeneObject.start, theGeneObject.end, true);
-      var filteredVcfData = me.cohort.getProbandModel().loadedVariants;
-
-      geneCount.total++;
-      if (filteredVcfData.features.length > 0) {
-        geneCount.pass++;
-      }
-
-      var theFbData = null;
-      me.cohort.getProbandModel().promiseGetDangerSummary(theGeneObject.gene_name).then(function(ds) {
-        if (theVcfData && theVcfData.features && ds && ds.CALLED) {
-          theFbData = me.cohort.getProbandModel().reconstituteFbData(theVcfData);
-        }
-
-        var options = {};
-        if (theFbData) {
-          options.CALLED = true;
-        }
-
-        me.cohort.promiseGetCachedGeneCoverage(theGeneObject, {transcript_id: theKeyObject.transcript}).then(function(data) {
-          var geneCoverageAll = data.geneCoverage;
-          me.cohort.getProbandModel().promiseSummarizeDanger(data.gene.gene_name, filteredVcfData, options, geneCoverageAll).then(function(dangerObject) {
-            //genesCard.setGeneBadgeGlyphs(data.gene.gene_name, dangerObject, false);
-            me.refreshNextGeneBadge(keys, geneCount, callback);
-          })
-        })
+      var theTranscript = {transcript_id: theKeyObject.transcript};
+      me.cohort.promiseSummarizeDanger(theGeneObject, theTranscript, theVcfData, {})
+      .then(function() {
+        me.refreshNextGeneBadge(keys, callback);
       })
-     });
-
+    });
   }
 }
 

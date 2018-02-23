@@ -73,9 +73,10 @@
 
   <v-card tile id="gene-track" class="app-card">
     <v-card-title primary-title style="width:100%">
-      <span style="display:inline-block;margin-top:-12px">Gene</span>
-
-      <div style="margin-top:-10px;margin-left:10px;margin-right:auto;">
+      <span style="display:inline-block">Gene</span>
+    </v-card-title>
+    <div>
+      <div style="display:inline-block;margin-right:auto;">
         <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
 
         <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
@@ -96,9 +97,8 @@
                 v-on:change="onGeneRegionBufferChange">
             </v-text-field>
         </div>
-        </div>
-
-      <div id="gene-info-box" class="level-edu level-basic" style="float:right;margin-left:20px;clear:both;display:inline-block;margin-top:3px">
+      </div>
+      <div id="gene-info-box" class="level-edu level-basic" style="float:right;margin-left:20px;clear:both;display:inline-block;margin-top:-2px">
 
             Transcript
 
@@ -119,9 +119,7 @@
               </v-select>
             </div>
       </div>
-
-    </v-card-title>
-
+    </div>
 
     <!-- Non protein-coding gene badges -->
     <div id="non-protein-coding" class="level-edu level-basic">

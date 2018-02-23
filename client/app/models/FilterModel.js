@@ -3,7 +3,6 @@ class FilterModel {
   constructor(affectedInfo) {
     this.affectedInfo = affectedInfo;
 
-    this.clickedAnnotIds = new Object();
     this.annotsToInclude = new Object();
 
     this.regionStart = null;
@@ -31,6 +30,45 @@ class FilterModel {
     this.geneCoverageMin           = 10;
     this.geneCoverageMean          = 30;
     this.geneCoverageMedian        = 30;
+
+    this.flagCriteria = {
+      'pathogenic': {
+        maxAf: .05,
+        clinvar: ['clinvar_path', 'clinvar_lpath'],
+        impact: null,
+        consequence: null,
+        inheritance: null,
+        zyosity: null,
+        exclusiveOf: null
+      },
+      'recessive': {
+        maxAf: .05,
+        clinvar: null,
+        impact: ['HIGH', 'MODERATE'],
+        consequence: null,
+        inheritance: ['recessive'],
+        zyosity: null,
+        exclusiveOf: null
+      },
+      'denovo': {
+        maxAf: .05,
+        clinvar: null,
+        impact: ['HIGH', 'MODERATE'],
+        consequence: null,
+        inheritance: ['denovo'],
+        zyosity: null,
+        exclusiveOf: null
+      },
+      'highOrModerate': {
+        maxAf: .05,
+        clinvar: null,
+        impact: ['HIGH', 'MODERATE'],
+        consequence: null,
+        inheritance: null,
+        zyosity: null,
+        exclusiveOf: ['pathogenic', 'recessive', 'denovo']
+      }
+    }
 
 
     this.modelFilters = {
@@ -326,6 +364,7 @@ class FilterModel {
   }
 
   flagVariants(theVcfData) {
+    let self = this;
     var badges = {
       'pathogenic': [],
       'recessive': [],
@@ -339,33 +378,79 @@ class FilterModel {
 
     if (theVcfData && theVcfData.features) {
       theVcfData.features.forEach(function(variant) {
-        if (variant.zygosity.toUpperCase() == 'HOM' || variant.zygosity.toUpperCase() == 'HET') {
-          var passesAf = (variant.afHighest >= AF_MIN && variant.afHighest <= AF_MAX);
 
-          var isHighOrModerateImpact = Object.keys(variant.vepImpact).indexOf("HIGH") >= 0
-            || Object.keys(variant.vepImpact).indexOf("MODERATE") >= 0;
-
-          if (passesAf && isHighOrModerateImpact) {
-            if (variant.clinvar == "clinvar_path" || variant.clinvar == "clinvar_lpath") {
-              badges.pathogenic.push(variant);
-              variant.isFlagged = true;
-            }
-            if (variant.inheritance && variant.inheritance == "recessive" ) {
-              badges.recessive.push(variant);
-              variant.isFlagged = true;
-            } else if (variant.inheritance && variant.inheritance == "denovo" ) {
-              badges.denovo.push(variant);
-              variant.isFlagged = true;
-            } else {
-              badges.highOrModerate.push(variant);
-              variant.isFlagged = true;
-            }
+        variant.isFlagged = false;
+        var badgePassState = {
+          'pathogenic': false,
+          'recessive': false,
+          'denovo': false,
+          'highOrModerate': false,
+          'flagged': false
+        }
+        for (var badge in self.flagCriteria) {
+          var badgeCriteria = self.flagCriteria[badge];
+          var passesAf = false;
+          var passesImpact = false;
+          var passesClinvar = false;
+          var passesInheritance = false;
+          if (badgeCriteria.maxAf == null || (variant.afHighest <= badgeCriteria.maxAf)) {
+            passesAf = true;
           }
-          if (variant.isFlagged) {
-            badges.flagged.push(variant);
+          if (badgeCriteria.impact) {
+            badgeCriteria.impact.forEach(function(key) {
+              if (Object.keys(variant.highestImpactVep).indexOf(key) >= 0) {
+                passesImpact = true;
+              }
+            })
+          } else {
+            passesImpact = true;
+          }
+          if (badgeCriteria.clinvar == null || badgeCriteria.clinvar.indexOf(variant.clinvar) >= 0) {
+            passesClinvar = true;
+          }
+          if (badgeCriteria.inheritance == null || badgeCriteria.inheritance.indexOf(variant.inheritance) >= 0) {
+            passesInheritance = true;
+          }
+
+          if (passesAf && passesImpact && passesClinvar && passesInheritance) {
+            badgePassState[badge] = true;
           }
 
         }
+
+        // If a badge is exclusive of passing other criteria, fail the badge
+        // if the other badges passed the criteria for the filter
+        // Example:  highOrModerate is exclusive of the clinvar badge.
+        //           So if the variant passes the clinvar criteria, it does
+        //           not pass the highOrModerate criteria.
+        for (var badge in self.flagCriteria) {
+          var badgeCriteria = self.flagCriteria[badge];
+          if (badgeCriteria.exclusiveOf) {
+            var matchesOther = false;
+            badgeCriteria.exclusiveOf.forEach(function(exclusiveBadge) {
+              if (badgePassState[exclusiveBadge]) {
+                matchesOther = true;
+              }
+            })
+            if (matchesOther) {
+              badgePassState[badge] = false;
+            }
+          }
+        }
+
+        // Now add the variant to any badges that passes the critera
+        for (var badge in badgePassState) {
+          var pass = badgePassState[badge];
+          if (pass) {
+            variant.isFlagged = true;
+            badges[badge].push(variant);
+          }
+        }
+
+        if (variant.isFlagged) {
+          badges.flagged.push(variant);
+        }
+
       })
 
     }
