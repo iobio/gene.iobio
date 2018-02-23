@@ -184,7 +184,7 @@ class CohortModel {
   promiseAddClinvarSample() {
     let self = this;
     if (self.sampleMap['known-variants']) {
-      Promise.resolve();
+      return Promise.resolve();
     } else {
       return new Promise(function(resolve,reject) {
         var vm = new SampleModel();

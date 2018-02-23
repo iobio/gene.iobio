@@ -4,14 +4,20 @@
  */
 <style lang="sass">
 
-  .app-card
-    margin-bottom: 10px
+@import ../../../assets/sass/variables
 
-  #data-sources-loader
-    margin-top: 20px
-    margin-left: auto
-    margin-right: auto
-    text-align: center
+.app-card
+  margin-bottom: 10px
+
+#data-sources-loader
+  margin-top: 20px
+  margin-left: auto
+  margin-right: auto
+  text-align: center
+
+a
+  color: $app-color !important
+
 
 </style>
 
@@ -58,18 +64,45 @@
         >
         </genes-card>
 
-        <gene-card
-          v-if="geneModel && Object.keys(selectedGene).length > 0"
-          :geneModel="geneModel"
-          :selectedGene="selectedGene"
-          :selectedTranscript="selectedTranscript"
-          @transcript-selected="onTranscriptSelected"
-          @gene-source-selected="onGeneSourceSelected"
-          @gene-region-buffer-change="onGeneRegionBufferChange"
-          @gene-region-zoom="onGeneRegionZoom"
-          @gene-region-zoom-reset="onGeneRegionZoomReset"
+        <v-layout row style="margin-left: 0px;margin-right:0px">
+          <v-flex d-flex class="mr-1">
+            <gene-card
+              v-if="geneModel && Object.keys(selectedGene).length > 0"
+              :geneModel="geneModel"
+              :selectedGene="selectedGene"
+              :selectedTranscript="selectedTranscript"
+              @transcript-selected="onTranscriptSelected"
+              @gene-source-selected="onGeneSourceSelected"
+              @gene-region-buffer-change="onGeneRegionBufferChange"
+              @gene-region-zoom="onGeneRegionZoom"
+              @gene-region-zoom-reset="onGeneRegionZoomReset"
+              >
+            </gene-card>
+          </v-flex>
+
+          <v-flex d-flex style="max-width: 400px;"
+           v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
           >
-        </gene-card>
+            <feature-matrix-card
+            ref="featureMatrixCardRef"
+            v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
+            :featureMatrixModel="featureMatrixModel"
+            :selectedGene="selectedGene"
+            :selectedVariant="selectedVariant"
+            :relationship="PROBAND"
+            :variantTooltip="variantTooltip"
+            :width="cardWidth"
+            @cohortVariantClick="onCohortVariantClick"
+            @cohortVariantClickEnd="onCohortVariantClickEnd"
+            @cohortVariantHover="onCohortVariantHover"
+            @cohortVariantHoverEnd="onCohortVariantHoverEnd"
+            @flag-variant="onFlagVariant"
+            @remove-flagged-variant="onRemoveFlaggedVariant"
+            @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
+            >
+            </feature-matrix-card>
+          </v-flex>
+        </v-layout>
 
 
         <div
@@ -80,25 +113,7 @@
           <img src="../../../assets/images/wheel.gif">
         </div>
 
-        <feature-matrix-card
-        ref="featureMatrixCardRef"
-        v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
-        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
-        :featureMatrixModel="featureMatrixModel"
-        :selectedGene="selectedGene"
-        :selectedVariant="selectedVariant"
-        :relationship="PROBAND"
-        :variantTooltip="variantTooltip"
-        :width="cardWidth"
-        @cohortVariantClick="onCohortVariantClick"
-        @cohortVariantClickEnd="onCohortVariantClickEnd"
-        @cohortVariantHover="onCohortVariantHover"
-        @cohortVariantHoverEnd="onCohortVariantHoverEnd"
-        @flag-variant="onFlagVariant"
-        @remove-flagged-variant="onRemoveFlaggedVariant"
-        @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
-        >
-        </feature-matrix-card>
+
 
         <variant-card
         ref="variantCardRef"

@@ -73,9 +73,9 @@
 
   <v-card tile id="gene-track" class="app-card">
     <v-card-title primary-title style="width:100%">
-      <span style="width:400px;">Gene</span>
+      <span style="display:inline-block;margin-top:-12px">Gene</span>
 
-      <div style="margin-left:auto;margin-right:auto">
+      <div style="margin-top:-10px;margin-left:10px;margin-right:auto;">
         <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
 
         <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
@@ -147,7 +147,7 @@
         </div>
     </div>
 
-    <div id="transcript-panel" class="level-edu fullview" >
+    <div id="transcript-panel" class="level-edu fullview" style="padding-top:30px" >
 
       <div id="top-coordinate-frame" class="hide">
         <svg height="23" width="28">
@@ -181,6 +181,7 @@
           (drag to zoom)
       </span>
     </div>
+
 
   </v-card>
 

@@ -70,10 +70,10 @@
   #feature-matrix-note
     padding-left: 180px
     font-size: 12px
-    margin-top: -5px
+    margin-top: -15px
 
   #move-rows
-    float: left
+    float: right
     font-size: 13px !important
     color: $text-color !important
     margin-top: 0px
@@ -86,10 +86,18 @@
 
   <v-card tile id="matrix-card" class="app-card">
     <v-card-title primary-title>
-      Ranked Variants for {{ selectedGene.gene_name }}
+        <span style="float:left;width:70%">
+          Ranked Variants for {{ selectedGene.gene_name }}
+        </span>
+        <a id="move-rows" class="level-edu level-basic" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" href="javascript:void(0)" @click="toggleMoveRows">
+           <i class="material-icons">swap_vert</i>
+          Reorder
+        </a>
+
+
     </v-card-title>
 
-    <div style="width:100%">
+    <div style="width:100%;margin-top:-20px">
 
       <div style="text-align: center;clear: both;">
         <div class="loader featureMatrixLoader"
@@ -143,10 +151,6 @@
           </feature-matrix-viz>
         </div>
 
-        <a id="move-rows" class="level-edu level-basic" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" href="javascript:void(0)" @click="toggleMoveRows">
-           <i class="material-icons">swap_vert</i>
-          Reorder
-        </a>
 
         <div id="feature-matrix-note" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" >
 
@@ -278,7 +282,7 @@ export default {
     columnHeaderSymbol: function(selection, options) {
       options = options || {};
       if (!options.cellSize) {
-        options.cellSize = matrixCard.CELL_SIZE;
+        options.cellSize = this.CELL_SIZE;
       }
 
       selection.each(function(d) {
@@ -451,7 +455,7 @@ export default {
   },
 
   created: function() {
-    this.CELL_SIZE = this.CELL_SIZE_LARGE;
+    this.setCellSize('small');
     this.cellSize = isLevelEdu ? this.CELL_SIZE_EDU : (isLevelBasic ? null : this.CELL_SIZE);
     this.cellWidth = isLevelBasic ? this.CELL_WIDTH_BASIC : null;
     this.columnLabelHeight = isLevelEdu  || isLevelBasic ?  this.COLUMN_LABEL_HEIGHT_BASIC : this.COLUMN_LABEL_HEIGHT;
