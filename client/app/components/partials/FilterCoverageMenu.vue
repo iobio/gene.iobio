@@ -92,9 +92,9 @@ export default {
   methods: {
     onApply: function() {
 
-      filterModel.geneCoverageMin         = this.minCoverage;
-      filterModel.geneCoverageMean        = this.meanCoverage;
-      filterModel.geneCoverageMedian      = this.medianCoverage;
+      this.filterModel.geneCoverageMin         = this.minCoverage;
+      this.filterModel.geneCoverageMean        = this.meanCoverage;
+      this.filterModel.geneCoverageMedian      = this.medianCoverage;
 
       this.$emit("filter-applied", this.badge);
 
