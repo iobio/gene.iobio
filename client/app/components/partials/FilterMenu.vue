@@ -30,15 +30,19 @@
 
       <v-layout row wrap class="filter-form mt-3 mx-2 px-2" style="max-width:500px;">
          <v-flex id="name" xs12 class="mb-3" >
-              <v-text-field label="Name"  v-model="name" hide-details>
-              </v-text-field>
+          <v-text-field label="Name"  v-model="name" hide-details>
+          </v-text-field>
         </v-flex>
 
-         <v-flex id="max-af" xs4 class="mb-3" >
-              <v-text-field label="Allele Freq" prefix="<" suffix="%" v-model="maxAf" hide-details>
-              </v-text-field>
+        <v-flex id="max-af" xs4 class="mb-3" >
+          <v-text-field label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
+          </v-text-field>
         </v-flex>
-        <v-flex xs8>
+        <v-flex xs4>
+        </v-flex>
+        <v-flex  id="max-genotype-depth" xs4 class="mb-3" >
+          <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
+          </v-text-field>
         </v-flex>
 
         <v-flex xs12 class="mb-3" >
@@ -141,6 +145,7 @@ export default {
       selectedZygosity: null,
       selectedInheritanceModes: null,
       selectedConsequences: null,
+      minGenotypeDepth: null,
 
       clinvarCategories: [
         {'key': 'clinvar', 'selected': true,  value: 'clinvar_path',   text: 'Pathogenic' },
@@ -218,6 +223,7 @@ export default {
           flagCriteria.consequence = null;
           flagCriteria.inheritance = null;
           flagCriteria.zygosity = null;
+          flagCriteria.genotypeDepth = null;
           this.filterModel.flagCriteria[this.theBadge] = flagCriteria;
         }
         this.name                      = flagCriteria.name;
@@ -227,6 +233,7 @@ export default {
         this.selectedConsequences      = flagCriteria.consequence;
         this.selectedInheritanceModes  = flagCriteria.inheritance;
         this.selectedZygosity          = flagCriteria.zygosity;
+        this.minGenotypeDepth          = flagCriteria.minGenotypeDepth;
 
 
       }
@@ -241,14 +248,15 @@ export default {
     onApply: function() {
       let flagCriteria = this.filterModel.flagCriteria[this.theBadge];
 
-      flagCriteria.name        = this.name;
-      flagCriteria.maxAf       = this.maxAf ? this.maxAf / 100 : null;
-      flagCriteria.clinvar     = this.selectedClinvarCategories;
-      flagCriteria.impact      = this.selectedImpacts;
-      flagCriteria.consequence = this.selectedConsequences;
-      flagCriteria.inheritance = this.selectedInheritanceModes;
-      flagCriteria.zygosity    = this.selectedZygosity;
-      flagCriteria.active      = true;
+      flagCriteria.name             = this.name;
+      flagCriteria.maxAf            = this.maxAf ? this.maxAf / 100 : null;
+      flagCriteria.clinvar          = this.selectedClinvarCategories;
+      flagCriteria.impact           = this.selectedImpacts;
+      flagCriteria.consequence      = this.selectedConsequences;
+      flagCriteria.inheritance      = this.selectedInheritanceModes;
+      flagCriteria.zygosity         = this.selectedZygosity;
+      flagCriteria.minGenotypeDepth = this.minGenotypeDepth;
+      flagCriteria.active           = true;
 
       this.$emit("filter-applied", this.theBadge);
 

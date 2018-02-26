@@ -42,6 +42,7 @@ class FilterModel {
         consequence: null,
         inheritance: null,
         zyosity: null,
+        minGenotypeDepth: null,
         exclusiveOf: null
       },
       'recessive': {
@@ -54,6 +55,7 @@ class FilterModel {
         consequence: null,
         inheritance: ['recessive'],
         zyosity: null,
+        minGenotypeDepth: null,
         exclusiveOf: null
       },
       'denovo': {
@@ -66,6 +68,7 @@ class FilterModel {
         consequence: null,
         inheritance: ['denovo'],
         zyosity: null,
+        minGenotypeDepth: null,
         exclusiveOf: null
       },
       'highOrModerate': {
@@ -78,6 +81,7 @@ class FilterModel {
         consequence: null,
         inheritance: null,
         zyosity: null,
+        minGenotypeDepth: null,
         exclusiveOf: ['pathogenic', 'recessive', 'denovo']
       }
     }
@@ -405,8 +409,12 @@ class FilterModel {
             var passesClinvar = false;
             var passesInheritance = false;
             var passesZygosity = false;
+            var passesDepth = false;
             if (badgeCriteria.maxAf == null || (variant.afHighest <= badgeCriteria.maxAf)) {
               passesAf = true;
+            }
+            if (badgeCriteria.minGenotypeDepth == null || (variant.genotypeDepth >= badgeCriteria.minGenotypeDepth)) {
+              passesDepth = true;
             }
             if (badgeCriteria.impact && badgeCriteria.impact.length > 0) {
               badgeCriteria.impact.forEach(function(key) {
@@ -436,7 +444,7 @@ class FilterModel {
               passesZygosity = true;
             }
 
-            if (passesAf && passesImpact && passesConsequence && passesClinvar && passesInheritance && passesZygosity) {
+            if (passesAf && passesImpact && passesConsequence && passesClinvar && passesInheritance && passesZygosity && passesDepth) {
               badgePassState[badge] = true;
             }
           }
