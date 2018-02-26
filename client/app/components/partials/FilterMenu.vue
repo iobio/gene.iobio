@@ -18,13 +18,21 @@
   v-model="showFilterMenu"
   >
 
-    <v-btn slot="activator" fab small flat>
-      <v-icon>more_vert</v-icon>
+    <v-btn slot="activator" v-if="!showAddActivator" v-bind:class="showAddActivator ? 'hide' : ''" fab small flat>
+      <v-icon  >more_vert</v-icon>
+    </v-btn>
+
+    <v-btn slot="activator" v-if="showAddActivator" v-bind:class="!showAddActivator ? 'hide' : ''" fab medium flat>
+      <v-icon color="grey darken-2">add</v-icon>
     </v-btn>
 
 
 
       <v-layout row wrap class="filter-form mt-3 mx-2 px-2" style="max-width:500px;">
+         <v-flex id="name" xs12 class="mb-3" >
+              <v-text-field label="Name"  v-model="name" hide-details>
+              </v-text-field>
+        </v-flex>
 
          <v-flex id="max-af" xs4 class="mb-3" >
               <v-text-field label="Allele Freq" prefix="<" suffix="%" v-model="maxAf" hide-details>
@@ -115,12 +123,18 @@ export default {
   },
   props: {
     badge: null,
-    filterModel: null
+    filterModel: null,
+    showAddActivator: false,
+    showMenu: null,
+    idx: null
   },
   data () {
     return {
       showFilterMenu: false,
 
+      theBadge: null,
+
+      name: null,
       maxAf: null,
       selectedClinvarCategories: null,
       selectedImpacts: null,
@@ -185,28 +199,58 @@ export default {
   watch: {
     showFilterMenu: function() {
       if (this.showFilterMenu) {
-        this.$emit("filter-menu-open", this.badge);
+        if (this.badge == 'add-custom') {
+          this.theBadge = 'custom' + this.idx;
+        }
 
-        let flagCriteria = this.filterModel.flagCriteria[this.badge];
-        this.maxAf                     = flagCriteria.maxAf * 100;
+
+        this.$emit("filter-menu-open", this.theBadge);
+
+        let flagCriteria = this.filterModel.flagCriteria[this.theBadge];
+        if (flagCriteria == null) {
+          flagCriteria = {};
+          flagCriteria.custom = true;
+          flagCriteria.active = false;
+          flagCriteria.name = 'unknown';
+          flagCriteria.maxAf = null;
+          flagCriteria.clinvar = null;
+          flagCriteria.impact = null;
+          flagCriteria.consequence = null;
+          flagCriteria.inheritance = null;
+          flagCriteria.zygosity = null;
+          this.filterModel.flagCriteria[this.theBadge] = flagCriteria;
+        }
+        this.name                      = flagCriteria.name;
+        this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
         this.selectedClinvarCategories = flagCriteria.clinvar;
         this.selectedImpacts           = flagCriteria.impact;
+        this.selectedConsequences      = flagCriteria.consequence;
         this.selectedInheritanceModes  = flagCriteria.inheritance;
+        this.selectedZygosity          = flagCriteria.zygosity;
 
 
+      }
+    },
+    showMenu: function() {
+      if (this.showMenu) {
+        this.showFilterMenu = true;
       }
     }
   },
   methods: {
     onApply: function() {
-      let flagCriteria = this.filterModel.flagCriteria[this.badge];
+      let flagCriteria = this.filterModel.flagCriteria[this.theBadge];
 
-      flagCriteria.maxAf       = this.maxAf / 100;
+      flagCriteria.name        = this.name;
+      flagCriteria.maxAf       = this.maxAf ? this.maxAf / 100 : null;
       flagCriteria.clinvar     = this.selectedClinvarCategories;
       flagCriteria.impact      = this.selectedImpacts;
+      flagCriteria.consequence = this.selectedConsequences;
       flagCriteria.inheritance = this.selectedInheritanceModes;
+      flagCriteria.zygosity    = this.selectedZygosity;
+      flagCriteria.active      = true;
 
-      this.$emit("filter-applied", this.badge);
+      this.$emit("filter-applied", this.theBadge);
 
       this.showFilterMenu = false;
     },
@@ -220,6 +264,7 @@ export default {
   computed: {
   },
   created: function() {
+    this.theBadge = this.badge;
   },
   mounted: function() {
   }

@@ -269,14 +269,15 @@ export default {
     },
     updateGeneBadgeCounts: function() {
       let self = this;
-      self.badgeCounts = {
-          pathogenic: 0,
-          denovo: 0,
-          recessive: 0,
-          highOrModerate: 0,
-          flagged: 0,
-          coverage: 0
+      self.badgeCounts = {};
+
+      for (var key in self.filterModel.flagCriteria) {
+        if (self.filterModel.flagCriteria[key].active) {
+          self.badgeCounts[key] = 0;
+        }
       }
+      self.badgeCounts.coverage = 0;
+      self.badgeCounts.flagged = 0;
 
       if (self.geneNames) {
         self.geneNames.forEach(function(geneName) {

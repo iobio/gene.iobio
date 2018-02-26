@@ -35,6 +35,9 @@
       padding: 0px 5px 0px 0px
       background-color: transparent
 
+      &.custom
+        padding: 3px 7px
+
       &.flagged
         color: $bookmark-color
         opacity: .7
@@ -74,6 +77,10 @@
     display: inline-block
     width: 50px
 
+  .custom-badge
+    color: $app-color
+    font-size: 11px
+
 </style>
 
 <template>
@@ -85,6 +92,7 @@
 
     <span class="badge-wrapper">
       <v-btn flat ref="flagged"
+       id="flagged"
        v-bind:class="badgeCounts.flagged == 0 ? 'disabled' : ''"
        @click="onBadgeClick('flagged')" >
         <v-badge class="flagged"  right >
@@ -97,6 +105,7 @@
 
     <span class="badge-wrapper">
       <v-btn  flat ref="pathogenic"
+      id="pathogenic"
       v-bind:class="badgeCounts.pathogenic == 0 ? 'disabled' : ''"
       @click="onBadgeClick('pathogenic')" slot="activator" flat
       >
@@ -116,6 +125,7 @@
       ref="pathogenic-menu"
       :filterModel="filterModel"
       :badge="`pathogenic`"
+      :showAddActivator="false"
       @filter-applied="onFilterApplied"
       @filter-menu-open="onFilterMenuOpen">
       </filter-menu>
@@ -123,6 +133,7 @@
 
   <span class="badge-wrapper">
       <v-btn flat ref="recessive"
+       id="recessive"
         v-bind:class="badgeCounts.recessive == 0 ? 'disabled' : ''"
         @click="onBadgeClick('recessive')"
       >
@@ -142,6 +153,7 @@
       ref="recessive-menu"
       :filterModel="filterModel"
       :badge="`recessive`"
+      :showAddActivator="false"
       @filter-applied="onFilterApplied"
       @filter-menu-open="onFilterMenuOpen">
       </filter-menu>
@@ -150,6 +162,7 @@
 
   <span class="badge-wrapper">
       <v-btn flat ref="denovo"
+       id="denovo"
        v-bind:class="badgeCounts.denovo == 0 ? 'disabled' : ''"
       @click="onBadgeClick('denovo')" >
         <v-badge  right >
@@ -168,6 +181,7 @@
       ref="denovo-menu"
       :filterModel="filterModel"
       :badge="`denovo`"
+      :showAddActivator="false"
       @filter-applied="onFilterApplied"
       @filter-menu-open="onFilterMenuOpen">
       </filter-menu>
@@ -177,6 +191,7 @@
 
   <span class="badge-wrapper">
       <v-btn flat ref="highOrModerate"
+       id="highOrModerate"
        v-bind:class="badgeCounts.highOrModerate == 0 ? 'disabled' : ''"
        @click="onBadgeClick('highOrModerate')"
       >
@@ -198,6 +213,7 @@
       ref="highOrModerate-menu"
       :filterModel="filterModel"
       :badge="`highOrModerate`"
+      :showAddActivator="false"
       @filter-applied="onFilterApplied"
       @filter-menu-open="onFilterMenuOpen">
       </filter-menu>
@@ -208,6 +224,7 @@
 
   <span class="badge-wrapper">
     <v-btn flat ref="coverage"
+       id="coverage"
        v-bind:class="badgeCounts.coverage == 0 ? 'disabled' : ''"
        @click="onBadgeClick('coverage')"
       >
@@ -227,9 +244,53 @@
       ref="coverage-menu"
       :filterModel="filterModel"
       :badge="`coverage`"
+      :showAddActivator="false"
       @filter-applied="onFilterApplied"
       @filter-menu-open="onFilterMenuOpen">
     </filter-coverage-menu>
+
+  </span>
+
+
+  <span class="badge-wrapper"
+   v-for="customBadge in customBadges"
+   :key="customBadge"
+   >
+      <v-btn flat v-bind:ref="customBadge"
+       v-bind:id="customBadge"
+       v-bind:class="badgeCounts[customBadge] && badgeCounts[customBadge] == 0 ? 'disabled' : badgeCounts[customBadge] == null ? 'hide' : ''"
+       @click="onBadgeClick(customBadge)"
+      >
+        <v-badge class="custom" right >
+          <span  slot="badge">{{ badgeCounts[customBadge] }}</span>
+          <span  class="custom-badge">
+            {{ filterModel.flagCriteria[customBadge].name }}
+          </span>
+        </v-badge>
+      </v-btn>
+      <filter-menu
+      v-bind:ref="customBadge + `-menu`"
+      :filterModel="filterModel"
+      :badge="customBadge"
+      :showAddActivator="false"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
+
+  </span>
+
+  <span class="badge-wrapper" >
+
+      <filter-menu
+      ref="custom-menu"
+      :filterModel="filterModel"
+      :badge="`add-custom`"
+      :idx="customBadges ? customBadges.length : 0"
+      :showMenu="showCustomMenu"
+      :showAddActivator="true"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
 
   </span>
 
@@ -253,31 +314,50 @@ export default {
   },
   data () {
     return {
-      badge: 'pathogenic'
+      badge: null,
+      showCustomMenu: false,
+      customBadges: null
     }
+  },
+  computed: {
+
   },
   methods: {
     onBadgeClick: function(badge) {
       let self = this;
-      for (var name in this.$refs) {
-        if (name == badge) {
-          $(self.$refs[name].$el).toggleClass("selected");
-        } else {
-          $(self.$refs[name].$el).removeClass("selected");
+      $(self.$el).find("#" + badge).toggleClass("selected");
+      for (var key in  (self.filterModel.flagCriteria)) {
+        if (key != badge) {
+         $(self.$el).find("#" + key).removeClass("selected");
         }
       }
-      self.$emit("badge-click", $(self.$refs[badge].$el).hasClass("selected") ? badge : null);
+      if (badge != 'coverage') {
+         $(self.$el).find("#coverage").removeClass("selected");
+      }
+      self.$emit("badge-click", $(self.$el).find("#" + badge).hasClass("selected") ? badge : null);
     },
     onFilterMenuOpen: function(badge) {
       let self = this;
-      var badgeRefs = ['pathogenic', 'recessive', 'denovo', 'highOrModerate'];
+      var badgeRefs = Object.keys(self.filterModel.flagCriteria);
       badgeRefs.forEach(function(refName) {
         if (refName != badge) {
           self.$refs[refName + "-menu"].close();
         }
       })
+      if (badge != 'coverage') {
+        self.$refs['coverage-menu'].close();
+      }
     },
     onFilterApplied: function(badge) {
+      let self = this;
+
+      self.customBadges = [];
+      for (var badge in self.filterModel.flagCriteria) {
+        if (self.filterModel.flagCriteria[badge].active && self.filterModel.flagCriteria[badge].custom) {
+          self.customBadges.push(badge);
+        }
+      }
+
       this.$emit('filter-applied', badge);
     }
   }
