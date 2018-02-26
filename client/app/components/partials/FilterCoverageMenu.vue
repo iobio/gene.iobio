@@ -73,7 +73,7 @@ export default {
     return {
       showFilterMenu: false,
 
-      maxCoverage: null,
+      minCoverage: null,
       meanCoverage: null,
       medianCoverage: null
     }
