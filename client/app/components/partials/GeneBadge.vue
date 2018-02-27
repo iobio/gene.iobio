@@ -11,7 +11,7 @@
   border: thin solid #e8e6e6
 
   &.flagged
-    border: 2px solid $app-color-light
+    border: 2px solid rgba(149, 149, 149, 0.65)
 
   #gene-badge-symbols
     height: 14px
@@ -435,7 +435,7 @@ export default {
         'loaded':                this.gene.dangerSummary != null,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
-        'has-phenotypes':        this.phenotypes && this.phenotypes.length > 0,
+        'has-phenotypes':        false, //this.phenotypes && this.phenotypes.length > 0,
         'is-flagged':            this.gene.dangerSummary && this.gene.dangerSummary.badges && this.gene.dangerSummary.badges.flagged.length > 0,
         'is-pathogenic':         this.gene.dangerSummary && this.gene.dangerSummary.badges.pathogenic.length > 0,
         'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.badges.recessive.length > 0,

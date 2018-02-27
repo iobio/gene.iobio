@@ -80,7 +80,7 @@
 
   <v-card tile id="variant-card" class="app-card">
     <v-card-title primary-title>
-      {{ sampleModel.name }}
+      <span style="min-width:200px;max-width:200px">{{ sampleModel.name }}</span>
 
       <v-badge class="ml-4 mr-4 mt-1 loaded" >
         <span v-if="sampleModel.loadedVariants" slot="badge"> {{ sampleModel.loadedVariants.features.length }} </span>
