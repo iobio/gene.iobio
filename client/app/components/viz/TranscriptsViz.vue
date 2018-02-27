@@ -36,13 +36,15 @@
 
 #select-transcripts-box
   .btn--floating.btn--small
-    height: 24px !important
-    width: 24px !important
+    height: 20px !important
+    width: 22px !important
     padding: 0px !important
     margin: 0px;
+    margin-left: 4px;
 
   .btn--floating.btn--small .btn__content
     padding: 0px
+
 
 </style>
 
@@ -54,9 +56,9 @@
       <span style="display:inline-block;padding-top:2px">{{ `Transcript ` + selectedTranscript.transcript_id }}</span>
       <v-dialog  v-model="showTranscriptsDialog"   width="700px">
 
-          <v-btn flat fab small slot="activator" @click="showTranscriptsDialog = true"
+          <v-btn raised fab small slot="activator" @click="showTranscriptsDialog = true"
           light>
-            <v-icon style="font-size:20px" >more_vert</v-icon>
+            <v-icon style="font-size:20px" >expand_more</v-icon>
           </v-btn>
 
           <v-card>

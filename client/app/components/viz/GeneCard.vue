@@ -89,10 +89,11 @@
   }
 
   #phenotypes .btn--floating.btn--small {
-    height: 20px !important;
-    width: 20px !important;
+    height: 18px !important;
+    width: 16px !important;
     padding: 0px !important;
     margin: 0px;
+    margin-left: 3px;
   }
   #phenotypes .btn--floating.btn--small .btn__content {
     padding: 0px;
@@ -215,8 +216,8 @@
       <div id="phenotypes" v-if="geneModel.genePhenotypes[selectedGene.gene_name] && geneModel.genePhenotypes[selectedGene.gene_name].length > 0">
         <span id="phenotypes-heading" style="text-align:center">
           HPO Phenotypes
-          <v-btn flat fab small @click="showPhenotypes = !showPhenotypes">
-            <v-icon  style="font-size:17px"  >more_vert</v-icon>
+          <v-btn raised fab small @click="showPhenotypes = !showPhenotypes">
+            <v-icon  style="font-size:17px"  >expand_more</v-icon>
           </v-btn>
         </span>
 

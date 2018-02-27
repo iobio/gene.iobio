@@ -65,8 +65,8 @@
 
 
   .btn--floating.btn--small
-    height: 20px
-    width: 20px
+    height: 18px
+    width: 16px
     margin-left: 25px
     margin-top: -35px
     position: relative

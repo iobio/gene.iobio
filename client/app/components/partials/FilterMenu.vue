@@ -18,8 +18,8 @@
   v-model="showFilterMenu"
   >
 
-    <v-btn slot="activator" v-if="!showAddActivator" v-bind:class="showAddActivator ? 'hide' : ''" fab small flat>
-      <v-icon  >more_vert</v-icon>
+    <v-btn  slot="activator" v-if="!showAddActivator" v-bind:class="showAddActivator ? 'hide' : ''" fab small raised>
+      <v-icon  >expand_more</v-icon>
     </v-btn>
 
     <v-btn slot="activator" v-if="showAddActivator" v-bind:class="!showAddActivator ? 'hide' : ''" fab medium flat>
