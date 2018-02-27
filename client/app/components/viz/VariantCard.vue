@@ -41,10 +41,33 @@
     label
       padding-left: 7px
       line-height: 18px
-      font-size: 14px
-      font-weight: normal
+      font-size: 12px
+      font-weight: bold
       padding-top: 2px
       color: $text-color
+
+  .badge
+    padding: 0px 5px 0px 0px
+    padding: 3px 7px
+    background-color: white !important
+    color: $text-color !important
+
+    &.called
+      .badge__badge
+        background-color: $called-variant-color !important
+    &.loaded
+      .badge__badge
+        background-color: $loaded-variant-progress-color !important
+
+    .badge__badge
+      font-size: 11px
+      font-weight: bold
+      width: 24px
+      height: 16px
+      right: -17px
+      top: -6px
+
+
 
 </style>
 
@@ -59,7 +82,18 @@
     <v-card-title primary-title>
       {{ sampleModel.name }}
 
-      <v-switch class="clinvar-switch"
+      <v-badge class="ml-4 mr-4 mt-1 loaded" >
+        <span v-if="sampleModel.loadedVariants" slot="badge"> {{ sampleModel.loadedVariants.features.length }} </span>
+        Loaded
+      </v-badge>
+      <v-badge
+        v-if="sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
+        class="mr-4 mt-1 called">
+        <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
+        Called
+      </v-badge>
+
+      <v-switch class="clinvar-switch mt-1"
       v-if="sampleModel.relationship == 'proband'"
       v-bind:label="`Display all ${selectedGene.gene_name} ClinVar variants`"
       v-model="showKnownVariantsCard"
@@ -72,6 +106,9 @@
         @knownVariantsFilterChange="onKnownVariantsFilterChange"
       >
       </known-variants-toolbar>
+
+
+
 
       <div style="width:100%">
 
