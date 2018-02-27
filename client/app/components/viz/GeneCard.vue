@@ -26,12 +26,12 @@
   }
 
   #gene-name {
-    margin-left: 10px;
+    margin-left: 0px;
     font-weight: bold;
   }
 
   #gene-chr {
-    margin-left: 0px
+    margin-left: 5px
   }
 
   #gene-region {
@@ -73,6 +73,10 @@
     margin-top: 10px;
   }
 
+  #phenotypes {
+    margin-top: 15px;
+  }
+
   #phenotypes-heading {
     text-align: center;
     margin-left: auto;
@@ -80,8 +84,8 @@
     width: 100%;
     display: inline-block;
     margin-top: 5px;
-    font-size: 11px;
-    font-weight: bold;
+    font-size: 12px;
+    font-weight: normal;
   }
 
   #phenotypes .btn--floating.btn--small {
@@ -103,10 +107,10 @@
   <v-card tile id="gene-track" class="app-card">
     <v-card-title primary-title style="width:100%">
       <span style="display:inline-block">Gene</span>
-      <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
     </v-card-title>
     <div>
       <div style="display:inline-block;margin-right:auto;">
+        <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
 
         <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
 
@@ -210,7 +214,7 @@
 
       <div id="phenotypes" v-if="geneModel.genePhenotypes[selectedGene.gene_name] && geneModel.genePhenotypes[selectedGene.gene_name].length > 0">
         <span id="phenotypes-heading" style="text-align:center">
-          HPO Phenotypes associated with gene
+          HPO Phenotypes
           <v-btn flat fab small @click="showPhenotypes = !showPhenotypes">
             <v-icon  style="font-size:17px"  >more_vert</v-icon>
           </v-btn>
