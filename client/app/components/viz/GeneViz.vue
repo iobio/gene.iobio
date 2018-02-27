@@ -266,7 +266,7 @@ export default {
       concatKeys: function(transcripts) {
         if (transcripts) {
           return transcripts.map(function(tx) {
-            return tx.transcript_id;
+            return tx && tx.transcript_id ? tx.transcript_id : '';
           }).join(" ");
         } else {
           return "";

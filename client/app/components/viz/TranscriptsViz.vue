@@ -5,11 +5,7 @@
     color:  rgb(113,113,113);
   }
 
-  #select-transcripts-box .btn {
-    margin: 5px 0px 0px 0px;
-    height: 26px;
-    padding: 0px;
-  }
+
 
   .dialog__content hr {
     margin-top: 10px;
@@ -37,16 +33,32 @@
     .selection-box
       font-weight: bold
       outline: solid 2px $current-color
+
+#select-transcripts-box
+  .btn--floating.btn--small
+    height: 24px !important
+    width: 24px !important
+    padding: 0px !important
+    margin: 0px;
+
+  .btn--floating.btn--small .btn__content
+    padding: 0px
+
 </style>
 
 <template>
 
 
-  <div id="select-transcripts-box"  style="vertical-align:top;margin-top:-5px;margin-left:20px;display:inline-block">
+  <div id="select-transcripts-box"  style="vertical-align:top;margin-right:15px;margin-left:0px;display:inline-block">
     <v-layout row justify-center>
+      <span style="display:inline-block;padding-top:2px">{{ `Transcript ` + selectedTranscript.transcript_id }}</span>
       <v-dialog  v-model="showTranscriptsDialog"   width="700px">
-          <v-btn  raised slot="activator" @click="showTranscriptsDialog = true"
-          light>{{ `Transcript ` + selectedTranscript.transcript_id }}</v-btn>
+
+          <v-btn flat fab small slot="activator" @click="showTranscriptsDialog = true"
+          light>
+            <v-icon style="font-size:20px" >more_vert</v-icon>
+          </v-btn>
+
           <v-card>
             <v-card-title>Select transcript</v-card-title>
             <v-divider></v-divider>
@@ -67,9 +79,9 @@
 
             </v-card-text>
             <v-divider></v-divider>
-            <v-card-actions>
-              <v-btn color="blue darken-1" flat @click.native="onTranscriptVizClose">Close</v-btn>
-            </v-card-actions>
+            <v-flex xs12 class="text-xs-right">
+                <v-btn raised @click.native="onTranscriptVizClose">Close</v-btn>
+            </v-flex>
           </v-card>
       </v-dialog>
     </v-layout>
@@ -114,8 +126,11 @@ export default {
     },
     onTranscriptVizClose: function() {
       var self = this;
-      self.showTranscriptsDialog = false;
+      if (self.newTranscript == null) {
+        self.newTranscript = self.selectedTranscript;
+      }
       self.$emit('transcriptSelected', self.newTranscript);
+      self.showTranscriptsDialog = false;
     }
 
   },
