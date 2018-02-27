@@ -46,7 +46,7 @@
     <v-layout row justify-center>
       <v-dialog  v-model="showTranscriptsDialog"   width="700px">
           <v-btn  raised slot="activator" @click="showTranscriptsDialog = true"
-          light>{{ selectedTranscript.transcript_id }}</v-btn>
+          light>{{ `Transcript ` + selectedTranscript.transcript_id }}</v-btn>
           <v-card>
             <v-card-title>Select transcript</v-card-title>
             <v-divider></v-divider>

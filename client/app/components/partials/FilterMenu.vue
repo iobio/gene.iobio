@@ -216,7 +216,7 @@ export default {
           flagCriteria = {};
           flagCriteria.custom = true;
           flagCriteria.active = false;
-          flagCriteria.name = 'unknown';
+          flagCriteria.name = 'custom';
           flagCriteria.maxAf = null;
           flagCriteria.clinvar = null;
           flagCriteria.impact = null;

@@ -1,4 +1,4 @@
-<style lang="css">
+<style lang="css" >
   #gene-viz .current {
       outline: none;
   }
@@ -26,12 +26,12 @@
   }
 
   #gene-name {
-    margin-left: 0px;
+    margin-left: 10px;
     font-weight: bold;
   }
 
   #gene-chr {
-    margin-left: 10px
+    margin-left: 0px
   }
 
   #gene-region {
@@ -51,9 +51,17 @@
     padding-top: 2px;
   }
 
+  #gene-source-box {
+    margin-top: -7px;
+    margin-left: 20px;
+    display: inline-block;
+    width: 115px;
+  }
+
   #gene-source-box .input-group--select .input-group__selections__comma {
     font-size: 14px;
     padding: 0px 0px 0px 0px;
+
   }
   #gene-source-box .input-group label {
     font-size: 14px;
@@ -65,6 +73,27 @@
     margin-top: 10px;
   }
 
+  #phenotypes-heading {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    display: inline-block;
+    margin-top: 5px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  #phenotypes .btn--floating.btn--small {
+    height: 20px !important;
+    width: 20px !important;
+    padding: 0px !important;
+    margin: 0px;
+  }
+  #phenotypes .btn--floating.btn--small .btn__content {
+    padding: 0px;
+  }
+
 
 </style>
 
@@ -74,10 +103,10 @@
   <v-card tile id="gene-track" class="app-card">
     <v-card-title primary-title style="width:100%">
       <span style="display:inline-block">Gene</span>
+      <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
     </v-card-title>
     <div>
       <div style="display:inline-block;margin-right:auto;">
-        <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
 
         <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
 
@@ -99,9 +128,6 @@
         </div>
       </div>
       <div id="gene-info-box" class="level-edu level-basic" style="float:right;margin-left:20px;clear:both;display:inline-block;margin-top:-2px">
-
-            Transcript
-
             <transcripts-viz
               v-bind:class="{ hide: !showGene }"
               :selectedGene="selectedGene"
@@ -109,7 +135,7 @@
               @transcriptSelected="onTranscriptSelected">
             </transcripts-viz>
 
-            <div id="gene-source-box" v-if="showGene" style="margin-top:-7px;margin-left:20px;display:inline-block;width:120px">
+            <div id="gene-source-box" v-if="showGene">
               <v-select
                   v-bind:items="geneSources"
                   v-model="geneSource"
@@ -145,7 +171,13 @@
         </div>
     </div>
 
-    <div id="transcript-panel" class="level-edu fullview" style="padding-top:30px" >
+    <div id="transcript-panel" class="level-edu fullview" >
+
+
+      <span id="zoom-hint"  v-if="showGene"  class="level-edu hint todo" style="margin-top: 0px;display: block;text-align: center;">
+          (drag to zoom)
+      </span>
+
 
       <div id="top-coordinate-frame" class="hide">
         <svg height="23" width="28">
@@ -175,10 +207,25 @@
         >
       </gene-viz>
 
-      <span id="zoom-hint"  v-if="showGene"  class="level-edu hint todo" style="margin-top: 0px;display: block;text-align: center;">
-          (drag to zoom)
-      </span>
+
+      <div id="phenotypes" v-if="geneModel.genePhenotypes[selectedGene.gene_name] && geneModel.genePhenotypes[selectedGene.gene_name].length > 0">
+        <span id="phenotypes-heading" style="text-align:center">
+          HPO Phenotypes associated with gene
+          <v-btn flat fab small @click="showPhenotypes = !showPhenotypes">
+            <v-icon  style="font-size:17px"  >more_vert</v-icon>
+          </v-btn>
+        </span>
+
+        <v-layout v-if="showPhenotypes" column wrap style="max-height: 80px;overflow-x: scroll;">
+          <v-flex xs2 class="pr-2" style="font-size:10px"
+           v-for="phenotype in geneModel.genePhenotypes[selectedGene.gene_name]"
+           :key="phenotype">
+           {{ phenotype.hpo_term_name }}
+          </v-flex>
+        </v-layout>
+      </div>
     </div>
+
 
 
   </v-card>
@@ -222,7 +269,9 @@ export default {
       noTranscriptsWarning: null,
       showNoTranscriptsWarning: false,
 
-      geneRegionBuffer: null
+      geneRegionBuffer: null,
+
+      showPhenotypes: false
     }
   },
 
