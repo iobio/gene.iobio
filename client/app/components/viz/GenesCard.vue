@@ -365,8 +365,6 @@ export default {
       this.updateGeneBadgeCounts();
     },
     badgeCounts: function(newBadgeCounts, oldBadgeCounts) {
-      console.log("badge count watch")
-
     },
     sortBy: function() {
       this.$emit("sort-genes", this.sortBy);

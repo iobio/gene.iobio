@@ -15,8 +15,7 @@
   margin-right: auto
   text-align: center
 
-a
-  color: $app-color !important
+
 
 
 </style>
@@ -73,6 +72,8 @@ a
               :geneModel="geneModel"
               :selectedGene="selectedGene"
               :selectedTranscript="selectedTranscript"
+              :geneRegionStart="geneRegionStart"
+              :geneRegionEnd="geneRegionEnd"
               @transcript-selected="onTranscriptSelected"
               @gene-source-selected="onGeneSourceSelected"
               @gene-region-buffer-change="onGeneRegionBufferChange"
@@ -583,7 +584,9 @@ export default {
           variantCard.hideCoverageCircle();
         })
       }
-      self.$refs.featureMatrixCardRef.selectVariant(null);
+      if (self.$refs.featureMatrixCardRef) {
+        self.$refs.featureMatrixCardRef.selectVariant(null);
+      }
     },
     showVariantExtraAnnots: function(sourceComponent, variant) {
       let self = this;

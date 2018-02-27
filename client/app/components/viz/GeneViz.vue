@@ -279,6 +279,9 @@ export default {
         if ( $(self.$el).find("svg").length == 0 ||  self.concatKeys(newData) != self.concatKeys(oldData) ) {
           this.update();
         }
+      },
+      regionStart: function() {
+        this.update();
       }
     }
 }

@@ -102,6 +102,12 @@
 
 </style>
 
+<style lang="sass">
+@import ../../../assets/sass/variables
+#gene-name
+  color: $app-color !important
+</style>
+
 
 <template>
 
@@ -254,6 +260,8 @@ export default {
   props: {
     selectedGene: {},
     selectedTranscript: {},
+    geneRegionStart: null,
+    geneRegionEnd: null,
     geneModel: null
   },
   data() {
@@ -307,7 +315,7 @@ export default {
     },
 
     onGeneRegionBufferChange: _.debounce(function (newGeneRegionBuffer) {
-      this.$emit('gene-region-buffer-change', newGeneRegionBuffer);
+      this.$emit('gene-region-buffer-change', parseInt(newGeneRegionBuffer));
     }, 100),
 
     onRegionZoom: function(regionStart, regionEnd) {
@@ -380,6 +388,12 @@ export default {
   watch: {
     geneModel: function() {
       this.geneRegionBuffer = this.geneModel ? this.geneModel.geneRegionBuffer : 0;
+    },
+    geneRegionStart: function() {
+
+    },
+    geneRegionEnd: function() {
+
     }
   },
 
