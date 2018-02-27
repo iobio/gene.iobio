@@ -131,6 +131,8 @@ export default {
         self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
           if (success) {
             self.samples = sampleNames;
+            self.$emit("samples-available", self.modelInfo.relationship, self.samples);
+
           }
           self.$emit("sample-data-changed");
         })
@@ -145,6 +147,7 @@ export default {
       .then(function(data) {
         self.samples = data.sampleNames;
         self.$emit("sample-data-changed");
+        self.$emit("samples-available", self.modelInfo.relationship, self.samples);
       })
       .catch(function(error) {
         self.$emit("sample-data-changed");

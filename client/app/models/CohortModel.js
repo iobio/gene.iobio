@@ -20,6 +20,7 @@ class CohortModel {
 
     this.sampleModels  = [];
     this.sampleMap = {};
+    this.sampleMapSibs = { affected: [], unaffected: []}
 
     this.mode = 'single';
     this.maxAlleleCount = null;
@@ -181,6 +182,79 @@ class CohortModel {
     }
   }
 
+  promiseSetSibs(affectedSamples, unaffectedSamples) {
+    let self = this;
+    self.sampleMapSibs.affected = [];
+    self.sampleMapSibs.unaffected = [];
+
+    var promises = [];
+    if (affectedSamples) {
+      affectedSamples.forEach(function(sampleName) {
+        var modelInfo =  {
+          'relationship': 'sibling',
+          'affectedStatus': 'affected',
+          'name': sampleName,
+          'sample': sampleName,
+          'vcf': self.getProbandModel().vcf.getVcfURL(),
+          'tbi': null, 'bam': null, 'bai': null };
+        var p = self.promiseAddSib(modelInfo);
+        promises.push(p);
+      });
+    }
+    if (unaffectedSamples) {
+      unaffectedSamples.forEach(function(sampleName) {
+        var modelInfo =  {
+          'relationship': 'sibling',
+          'affectedStatus': 'unaffected',
+          'name': sampleName,
+          'sample': sampleName,
+          'vcf': self.getProbandModel().vcf.getVcfURL(),
+          'tbi': null, 'bam': null, 'bai': null };
+        var p = self.promiseAddSib(modelInfo);
+        promises.push(p);
+      });
+    }
+    return Promise.all(promises);
+
+  }
+
+  promiseAddSib(modelInfo) {
+    let self = this;
+    return new Promise(function(resolve,reject) {
+      var vm = new SampleModel();
+      vm.init(self);
+      vm.setRelationship(modelInfo.relationship);
+      vm.affectedStatus = modelInfo.affectedStatus;
+
+      var vcfPromise = null;
+      if (modelInfo.vcf) {
+        vcfPromise = new Promise(function(vcfResolve, vcfReject) {
+          vm.onVcfUrlEntered(modelInfo.vcf, modelInfo.tbi, function() {
+            vm.setSampleName(modelInfo.sample);
+            vm.setName(modelInfo.relationship + " " + modelInfo.sample);
+            vcfResolve();
+          })
+        },
+        function(error) {
+          vcfReject(error);
+        });
+      } else {
+        vm.sampleName = null;
+        vm.samplesNames = null;
+        vm.name = null;
+        vcfPromise = Promise.resolve();
+      }
+
+
+      vcfPromise
+      .then(function() {
+        self.sampleMapSibs[modelInfo.affectedStatus].push(vm);
+        resolve();
+      })
+
+    })
+  }
+
   promiseAddClinvarSample() {
     let self = this;
     if (self.sampleMap['known-variants']) {
@@ -241,22 +315,22 @@ class CohortModel {
           self.affectedInfo.push(info);
         }
       })
-      /*
-      var sibIdx = 0;
-      for (var status in variantCardsSibs) {
-        var sibs = variantCardsSibs[status];
-        sibs.forEach(function(vc) {
-          var info = {};
-          info.relationship = vc.getRelationship();
-          info.status = status;
-          info.variantCard = vc;
-          info.label = vc.getRelationship() + " " + vc.getSampleName();
-          info.id = info.status + "-_-" + vc.getRelationship() + "-_-" + vc.getSampleName();
 
-          window.affectedInfo.push(info);
+      var sibIdx = 0;
+      for (var status in self.sampleMapSibs) {
+        var sibs = self.sampleMapSibs[status];
+        sibs.forEach(function(model) {
+          var info = {};
+          info.relationship = model.getRelationship();
+          info.status = status;
+          info.model = model;
+          info.label = model.getRelationship() + " " + model.getSampleName();
+          info.id = info.status + "-_-" + model.getRelationship() + "-_-" + model.getSampleName();
+
+          self.affectedInfo.push(info);
         })
       }
-      */
+
 
     }
   }

@@ -108,8 +108,43 @@
              :modelInfo="modelInfoMap[rel]"
              :separateUrlForIndex="separateUrlForIndex"
              @sample-data-changed="validate"
+             @samples-available="onSamplesAvailable"
             >
           </sample-data>
+         </v-flex>
+
+
+         <v-flex xs2 class=" mt-3 pl-2 pr-3" >
+          <v-chip v-if="probandSamples && probandSamples.length > 0"
+          color="primary" small text-color="white">
+            Siblings
+          </v-chip>
+         </v-flex>
+
+         <v-flex xs5 class=" pl-2 pr-3" >
+           <v-select
+            v-if="probandSamples && probandSamples.length > 0"
+            v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
+            label="Affected Siblings"
+            multiple
+            v-model="affectedSibs"
+            :items="probandSamples"
+            hide-details
+            >
+          </v-select>
+         </v-flex>
+
+         <v-flex xs5  class="pr-2">
+           <v-select
+            v-if="probandSamples && probandSamples.length > 0"
+            v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
+            label="Unaffected Siblings"
+            multiple
+            v-model="unaffectedSibs"
+            :items="probandSamples"
+            hide-details
+            >
+          </v-select>
          </v-flex>
 
 
@@ -168,7 +203,10 @@ export default {
         {'display': 'Demo WGS trio', 'value': 'genome'}
       ],
       demoAction: null,
-      separateUrlForIndex: false
+      separateUrlForIndex: false,
+      probandSamples: null,
+      affectedSibs: null,
+      unaffectedSibs: null
     }
   },
   watch: {
@@ -191,6 +229,9 @@ export default {
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
       self.cohortModel.promiseAddClinvarSample()
       .then(function() {
+        return  self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+      })
+      .then(function() {
         self.cohortModel.setAffectedInfo();
         self.cohortModel.isLoaded = true;
         self.cohortModel.getCanonicalModels().forEach(function(model) {
@@ -199,6 +240,9 @@ export default {
           }
         })
         self.cohortModel.sortSampleModels();
+
+      })
+      .then(function() {
         self.$emit("on-files-loaded");
         self.showFilesMenu = false;
       })
@@ -247,6 +291,9 @@ export default {
         theModel.onVcfUrlEntered(theModelInfo.vcf, null, function(success, sampleNames) {
           if (success) {
             theModelInfo.samples = sampleNames;
+            if (theModel.relationship == 'proband') {
+              self.probandSamples = sampleNames;
+            }
             self.$refs.sampleDataRef.forEach(function(ref) {
               if (ref.modelInfo.relationship == theModel.relationship) {
                 theModel.sampleName = theModelInfo.sample;
@@ -281,6 +328,11 @@ export default {
             && this.modelInfoMap.father && this.modelInfoMap.father.model && this.modelInfoMap.father.model.isReadyToLoad()) {
           this.isValid = true;
         }
+      }
+    },
+    onSamplesAvailable: function(relationship, samples) {
+      if (relationship == 'proband') {
+        this.probandSamples = samples;
       }
     },
     getModel: function(relationship) {
