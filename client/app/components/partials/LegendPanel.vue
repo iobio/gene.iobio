@@ -229,21 +229,21 @@
 
       <div style="width:140px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">PolyPhen</div>
-        <svg id="polyphen_probably_damaging" class="legend-element " width="120" height="14" transform="translate(0,0)">
+        <svg id="polyphen_probably_damaging" class="legend-element " width="130" height="14" transform="translate(0,0)">
           <g class="polyphen_probably_damaging" transform="translate(1,0)" style="opacity: 1;">
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#biohazard-symbol" width="12" height="12" style="fill: #ad494A"></use>
           </g>
           <text class="name" style="fill-opacity: 1;" x="15" y="10">Probably damaging</text>
         </svg>
 
-        <svg id="polyphen_possibly_damaging" class="legend-element " width="120" height="14" transform="translate(0,0)">
+        <svg id="polyphen_possibly_damaging" class="legend-element " width="130" height="14" transform="translate(0,0)">
           <g class="polyphen_possibly_damaging" transform="translate(1,0)" style="opacity: 1;">
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#biohazard-symbol" width="12" height="12" style="fill: #FB7737"></use>
           </g>
           <text class="name" style="fill-opacity: 1;" x="17" y="10">Possibly damaging</text>
         </svg>
 
-        <svg id="polyphen_benign" class="legend-element " width="120" height="14" transform="translate(0,0)">
+        <svg id="polyphen_benign" class="legend-element " width="130" height="14" transform="translate(0,0)">
           <g class="polyphen_benign" transform="translate(1,0)" style="opacity: 1;">
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#biohazard-symbol" width="12" height="12" style="fill: rgba(181, 207, 107,1)"></use>
           </g>
