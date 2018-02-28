@@ -35,16 +35,27 @@ class GeneModel {
 
   }
 
-  addGeneName(theGeneName) {
+  promiseAddGeneName(theGeneName) {
     let me = this;
-    let geneName = theGeneName.toUpperCase();
 
-    if (me.geneNames.indexOf(geneName) < 0) {
-      me.geneNames.push(geneName);
-      me.sortedGeneNames.push(geneName);
-      me.promiseGetGenePhenotypes(geneName);
-      me.promiseGetNCBIGeneSummary(geneName);
-    }
+    return new Promise(function(resolve, reject) {
+      let geneName = theGeneName.toUpperCase();
+
+      if (me.geneNames.indexOf(geneName) < 0) {
+        me.geneNames.push(geneName);
+        me.sortedGeneNames.push(geneName);
+        me.promiseGetGenePhenotypes(geneName)
+        .then(function() {
+          return me.promiseGetNCBIGeneSummary(geneName);
+        })
+        .then(function() {
+          resolve();
+        })
+      } else {
+        resolve();
+      }
+
+    })
   }
 
   setAllKnownGenes(allKnownGenes) {
@@ -61,10 +72,37 @@ class GeneModel {
   }
 
 
-  copyPasteGenes(genesString) {
+  promiseCopyPasteGenes(genesString) {
     var me = this;
 
-    // trim newline at very end
+    return new Promise(function(resolve, reject) {
+
+      var promises = [];
+
+      me.copyPasteGenes(genesString);
+
+      me.geneNames.forEach(function(geneName) {
+        promises.push(me.promiseGetGeneObject(geneName));
+        promises.push(me.promiseGetGenePhenotypes(geneName));
+        promises.push(me.promiseGetNCBIGeneSummary(geneName));
+      })
+
+      Promise.all(promises)
+      .then(function() {
+        resolve();
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+
+
+    })
+
+
+ }
+
+ copyPasteGenes(genesString) {
+    var me = this;
     genesString = genesString.replace(/\s*$/, "");
     var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
 
@@ -116,11 +154,6 @@ class GeneModel {
 
     }
 
-    me.geneNames.forEach(function(geneName) {
-      me.promiseGetGeneObject(geneName);
-      me.promiseGetGenePhenotypes(geneName);
-      me.promiseGetNCBIGeneSummary(geneName);
-    })
  }
 
 

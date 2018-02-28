@@ -220,14 +220,22 @@ export default {
   methods: {
     onLoad: function() {
       let self = this;
-      if (self.demoAction) {
-        self.cohortModel.geneModel.copyPasteGenes(self.cohortModel.demoGenes.join(", "));
-      }
 
-      this.cohortModel.mode = this.mode;
+      self.cohortModel.mode = self.mode;
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
-      self.cohortModel.promiseAddClinvarSample()
+
+      let genesPromise = null;
+      if (self.demoAction) {
+        genesPromise = self.cohortModel.geneModel.promiseCopyPasteGenes(self.cohortModel.demoGenes.join(", "));
+      } else {
+        genesPromise = Promise.resolve();
+      }
+
+      genesPromise
+      .then(function() {
+        return  self.cohortModel.promiseAddClinvarSample()
+      })
       .then(function() {
         return  self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
       })

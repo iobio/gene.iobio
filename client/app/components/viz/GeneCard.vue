@@ -138,7 +138,7 @@
 
         <span  id="gene-plus-minus-label"  v-if="showGene"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
 
-        <div id="region-buffer-box" style="display:inline-block;width:50px;height:21px"  v-if="showGene" >
+        <div id="region-buffer-box" style="display:inline-block;width:50px;height:21px;margin-right:30px"  v-if="showGene" >
             <v-text-field
                 id="gene-region-buffer-input"
                 class="sm level-edu level-basic  fullview"
@@ -146,24 +146,27 @@
                 v-on:change="onGeneRegionBufferChange">
             </v-text-field>
         </div>
+        <transcripts-viz
+          v-bind:class="{ hide: !showGene }"
+          :selectedGene="selectedGene"
+          :selectedTranscript="selectedTranscript"
+          @transcriptSelected="onTranscriptSelected">
+        </transcripts-viz>
+
+        <v-btn flat fab small slot="activator" style="margin-left: 20px;position: relative;margin-top: -3px;margin-bottom: 0px;margin-right: 0px;" @click="showSettings = !showSettings"
+        light>
+          <v-icon style="font-size:17px" >settings</v-icon>
+        </v-btn>
       </div>
-      <div id="gene-info-box" class="level-edu level-basic" style="margin-left:30px;clear:both;display:inline-block;">
-            <transcripts-viz
-              v-bind:class="{ hide: !showGene }"
-              :selectedGene="selectedGene"
-              :selectedTranscript="selectedTranscript"
-              @transcriptSelected="onTranscriptSelected">
-            </transcripts-viz>
-            <v-icon style="margin-left:20px;font-size:17px" @click="showSettings = !showSettings">settings</v-icon>
-            <div id="gene-source-box" v-if="showGene && showSettings">
-              <v-select
-                  v-bind:items="geneSources"
-                  v-model="geneSource"
-                  label="Gene source"
-                  item-value="text"
-                  @input="onGeneSourceSelected">
-              </v-select>
-            </div>
+
+      <div id="gene-source-box" v-if="showGene && showSettings">
+        <v-select
+            v-bind:items="geneSources"
+            v-model="geneSource"
+            label="Gene source"
+            item-value="text"
+            @input="onGeneSourceSelected">
+        </v-select>
       </div>
     </div>
 
@@ -335,6 +338,20 @@ export default {
     },
     onRegionZoomReset: function() {
       this.$emit('gene-region-zoom-reset');
+    },
+    initSummaryInfo: function() {
+      if (this.selectedGene && this.selectedGene.gene_name) {
+        this.ncbiSummary = this.geneModel.geneNCBISummaries[this.selectedGene.gene_name];
+        this.phenotypes = this.geneModel.genePhenotypes[this.selectedGene.gene_name]
+        if (this.phenotypes) {
+          this.phenotypeTerms =  this.phenotypes.map(function(d) {
+            return d.hpo_term_name;
+          }).join(", ");
+        }
+      } else {
+        this.ncbiSummary = null;
+        this.phenotypes = null;
+      }
     }
 
   },
@@ -408,23 +425,13 @@ export default {
 
     },
     selectedGene: function() {
-      if (this.selectedGene && this.selectedGene.gene_name) {
-        this.ncbiSummary = this.geneModel.geneNCBISummaries[this.selectedGene.gene_name];
-        this.phenotypes = this.geneModel.genePhenotypes[this.selectedGene.gene_name]
-        if (this.phenotypes) {
-          this.phenotypeTerms =  this.phenotypes.map(function(d) {
-            return d.hpo_term_name;
-          }).join(", ");
-        }
-      } else {
-        this.ncbiSummary = null;
-        this.phenotypes = null;
-      }
+      this.initSummaryInfo();
     }
   },
 
   mounted: function() {
     this.geneSource = this.geneModel.geneSource;
+    this.initSummaryInfo();
 
   },
 

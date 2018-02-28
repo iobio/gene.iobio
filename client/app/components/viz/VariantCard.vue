@@ -72,10 +72,7 @@
       font-size: 11px
       font-weight: bold
       width: 24px
-      height: 16px
-      right: -17px
-      top: -6px
-
+      top: -3px;
 
 
 </style>
@@ -91,8 +88,8 @@
     <v-card-title primary-title>
       <span style="min-width:200px;max-width:200px">{{ sampleModel.name }}</span>
 
-      <v-badge class="ml-4 mr-4 mt-1 loaded" >
-        <span v-if="sampleModel.loadedVariants" slot="badge"> {{ sampleModel.loadedVariants.features.length }} </span>
+      <v-badge  v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
+        <span slot="badge"> {{ sampleModel.loadedVariants.features.length }} </span>
         Loaded
       </v-badge>
       <v-badge
@@ -102,15 +99,14 @@
         Called
       </v-badge>
 
-      <v-switch class="zoom-switch mt-1" style="max-width:80px"
-      v-if="sampleModel.relationship == 'proband'"
+      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="zoom-switch mt-1" style="max-width:80px"
       label="Zoom"
       v-model="showZoom"
       >
       </v-switch>
 
       <v-switch class="clinvar-switch mt-1"
-      v-if="sampleModel.relationship == 'proband'"
+      v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]"
       v-bind:label="`Display all ${selectedGene.gene_name} ClinVar variants`"
       v-model="showKnownVariantsCard"
       >

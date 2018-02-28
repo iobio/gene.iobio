@@ -371,9 +371,11 @@ export default {
 
     onLoadDemoData: function() {
       let self = this;
-      self.geneModel.copyPasteGenes(self.cohortModel.demoGenes.join(", "));
-      self.onGeneSelected(self.cohortModel.demoGenes[0]);
-      self.cohortModel.promiseInitDemo()
+      self.geneModel.promiseCopyPasteGenes(self.cohortModel.demoGenes.join(", "))
+      .then(function() {
+        self.onGeneSelected(self.cohortModel.demoGenes[0]);
+        return self.cohortModel.promiseInitDemo()
+      })
       .then(function() {
         self.models = self.cohortModel.sampleModels;
         if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
@@ -468,8 +470,10 @@ export default {
           self.featureMatrixModel.clearRankedVariants();
         }
 
-        self.geneModel.addGeneName(geneName);
-        self.geneModel.promiseGetGeneObject(geneName)
+        self.geneModel.promiseAddGeneName(geneName)
+        .then(function() {
+          return self.geneModel.promiseGetGeneObject(geneName)
+        })
         .then(function(theGeneObject) {
           self.geneModel.adjustGeneRegion(theGeneObject);
           self.geneRegionStart = theGeneObject.start;
@@ -688,11 +692,11 @@ export default {
       }
       if (self.paramGenes) {
         self.paramGenes.split(",").forEach( function(geneName) {
-          self.geneModel.addGeneName(geneName);
+          self.geneModel.promiseAddGeneName(geneName);
         });
       }
       if (self.paramGene) {
-        self.geneModel.addGeneName(self.paramGene);
+        self.geneModel.promiseAddGeneName(self.paramGene);
         self.onGeneSelected(self.paramGene);
       }
       if (self.paramSpecies) {

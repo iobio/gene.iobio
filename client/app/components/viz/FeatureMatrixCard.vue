@@ -95,29 +95,15 @@
         </a>
 
 
-    </v-card-title>
-
-    <div style="width:100%;margin-top:-20px">
-
-      <div style="text-align: center;clear: both;">
-        <div class="loader featureMatrixLoader"
-        v-bind:class="{hide: featureMatrixModel.inProgress
-          && !featureMatrixModel.inProgress.loadingVariants
-          && !featureMatrixModel.inProgress.rankingVariants}" style="display: inline-block;">
-          <span class="loader-label">
-            {{ featureMatrixModel.getProgressText() }}
-          </span>
-          <img src="../../../assets/images/wheel.gif">
-        </div>
-      </div>
-
 
 
       <div id="rank-variants-title" class="hide card-label" style="">Evaluate Variants</div>
 
-      <div  class="label label-warning level-edu" v-bind:class="{ hide: featureMatrixModel.warning.length == 0 }">
-        {{ featureMatrixModel.warning }}
-      </div>
+
+    </v-card-title>
+
+    <div style="width:100%;margin-top:-20px">
+
 
       <div id="matrix-panel"  style="clear:both;min-height:30px"
         class="fullview" aria-expanded="true">
@@ -152,6 +138,7 @@
         </div>
 
 
+
         <div id="feature-matrix-note" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" >
 
           <div style="display:inline-block">
@@ -175,6 +162,23 @@
 
 
         </div>
+
+
+      </div>
+
+      <div style="text-align: center;clear: both;">
+        <div class="loader featureMatrixLoader"
+        v-bind:class="{hide: featureMatrixModel.inProgress
+          && !featureMatrixModel.inProgress.loadingVariants
+          && !featureMatrixModel.inProgress.rankingVariants}" style="display: inline-block;">
+          <span class="loader-label">
+            {{ featureMatrixModel.getProgressText() }}
+          </span>
+          <img src="../../../assets/images/wheel.gif">
+        </div>
+      </div>
+      <div  class="label label-warning level-edu" v-bind:class="{ hide: featureMatrixModel.warning.length == 0 }">
+        {{ featureMatrixModel.warning }}
       </div>
 
     </div>

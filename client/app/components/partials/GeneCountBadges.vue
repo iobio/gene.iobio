@@ -67,20 +67,23 @@
   .btn--floating.btn--small
     height: 18px
     width: 16px
-    margin-left: 25px
-    margin-top: -35px
     position: relative
     padding: 0px
     min-width: 20px
+    margin-left: 25px
+    margin-top: -35px
 
   .badge-wrapper
     display: inline-block
     width: 50px
+    height: 45px
 
   .custom-badge
     color: $app-color
     font-size: 11px
 
+  #filter-menu, #filter-coverage-menu
+    .menu__activator
 </style>
 
 <template>
