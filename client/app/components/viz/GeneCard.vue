@@ -89,8 +89,6 @@
     font-weight: bold;
   }
   #phenotype-terms {
-    max-height: 74px;
-    overflow-y: scroll;
     font-size: 12px;
   }
 
@@ -232,19 +230,20 @@
 
     </div>
 
+    <div style="max-height:180px;overflow-y:scroll">
+      <div v-if="showGene && ncbiSummary" id="ncbi-summary">
+        {{ ncbiSummary.summary }}
+      </div>
 
-    <div v-if="showGene && ncbiSummary" id="ncbi-summary">
-      {{ ncbiSummary.summary }}
-    </div>
-
-    <div id="phenotypes" v-if="showGene && phenotypes">
+      <div id="phenotypes" v-if="showGene && phenotypes">
 
 
-      <span id="phenotypes-heading" style="text-align:left">
-        Phenotypes
-      </span>
-      <div id="phenotype-terms">
-      {{ phenotypeTerms }}
+        <span id="phenotypes-heading" style="text-align:left">
+          Phenotypes
+        </span>
+        <div id="phenotype-terms">
+        {{ phenotypeTerms }}
+        </div>
       </div>
     </div>
 
