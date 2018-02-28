@@ -350,7 +350,7 @@ export default {
 
       self.$emit("add-flagged-variants", self.flaggedVariants);
 
-      self.$emit("show-flagged-variants", self.flaggedGeneNames, self.flaggedVariants);
+      self.$emit("register-flagged-variants", self.flaggedGeneNames, self.flaggedVariants);
 
     }
 

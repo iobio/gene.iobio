@@ -60,30 +60,12 @@
          @call-variants="callVariants"
          @sort-genes="onSortGenes"
          @add-flagged-variants="onAddFlaggedVariants"
-         @show-flagged-variants="onShowFlaggedVariants"
+         @register-flagged-variants="onRegisterFlaggedVariants"
          @filter-applied="onFilterApplied"
         >
         </genes-card>
 
         <v-layout row style="margin-left: 0px;margin-right:0px">
-          <v-flex d-flex class="mr-1">
-            <gene-card
-              v-if="geneModel && Object.keys(selectedGene).length > 0"
-              :geneModel="geneModel"
-              :selectedGene="selectedGene"
-              :selectedTranscript="selectedTranscript"
-              :geneRegionStart="geneRegionStart"
-              :geneRegionEnd="geneRegionEnd"
-              :showGeneViz="cohortModel == null || !cohortModel.isLoaded"
-              @transcript-selected="onTranscriptSelected"
-              @gene-source-selected="onGeneSourceSelected"
-              @gene-region-buffer-change="onGeneRegionBufferChange"
-              @gene-region-zoom="onGeneRegionZoom"
-              @gene-region-zoom-reset="onGeneRegionZoomReset"
-              >
-            </gene-card>
-          </v-flex>
-
           <v-flex d-flex style="min-width:400px;max-width: 400px;"
            v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
           >
@@ -105,6 +87,24 @@
             @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
             >
             </feature-matrix-card>
+          </v-flex>
+
+          <v-flex d-flex class="ml-1">
+            <gene-card
+              v-if="geneModel && Object.keys(selectedGene).length > 0"
+              :geneModel="geneModel"
+              :selectedGene="selectedGene"
+              :selectedTranscript="selectedTranscript"
+              :geneRegionStart="geneRegionStart"
+              :geneRegionEnd="geneRegionEnd"
+              :showGeneViz="cohortModel == null || !cohortModel.isLoaded"
+              @transcript-selected="onTranscriptSelected"
+              @gene-source-selected="onGeneSourceSelected"
+              @gene-region-buffer-change="onGeneRegionBufferChange"
+              @gene-region-zoom="onGeneRegionZoom"
+              @gene-region-zoom-reset="onGeneRegionZoomReset"
+              >
+            </gene-card>
           </v-flex>
         </v-layout>
 
@@ -348,6 +348,8 @@ export default {
         self.cacheHelper = new CacheHelper();
         self.cacheHelper.on("geneAnalyzed", function(geneName) {
           self.$refs.genesCardRef.determineFlaggedGenes();
+        });
+        self.cacheHelper.on("analyzeAllCompleted", function() {
           self.$refs.navRef.onShowFlaggedVariants();
         });
         globalCacheHelper = self.cacheHelper;
@@ -781,11 +783,11 @@ export default {
         self.cohortModel.addFlaggedVariant(variant);
       })
     },
-    onShowFlaggedVariants: function(flaggedGeneNames, flaggedVariants) {
+    onRegisterFlaggedVariants: function(flaggedGeneNames, flaggedVariants) {
       let self = this;
       self.flaggedVariants = [];
       self.flaggedVariants = flaggedVariants;
-      self.$refs.navRef.onShowFlaggedVariants();
+      //self.$refs.navRef.onShowFlaggedVariants();
 
     },
     onFlaggedVariantsImported: function() {

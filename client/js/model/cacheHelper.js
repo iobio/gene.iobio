@@ -13,7 +13,7 @@ function CacheHelper() {
 
   this.cohort = null;
 
-  this.dispatch = d3.dispatch("geneAnalyzed");
+  this.dispatch = d3.dispatch("geneAnalyzed", "analyzeAllCompleted");
   d3.rebind(this, this.dispatch, "on");
 }
 
@@ -197,6 +197,8 @@ CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
   me.cacheGenes(analyzeCalledVariants, function() {
 
     me.cohort.geneModel.sortGenes("harmful variants");
+
+    me.dispatch.analyzeAllCompleted();
 
     console.log("");
     console.log("******   ANALYZE ALL ELAPSED TIME *******");
