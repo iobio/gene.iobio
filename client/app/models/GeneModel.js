@@ -43,6 +43,7 @@ class GeneModel {
       me.geneNames.push(geneName);
       me.sortedGeneNames.push(geneName);
       me.promiseGetGenePhenotypes(geneName);
+      me.promiseGetNCBIGeneSummary(geneName);
     }
   }
 
@@ -118,6 +119,7 @@ class GeneModel {
     me.geneNames.forEach(function(geneName) {
       me.promiseGetGeneObject(geneName);
       me.promiseGetGenePhenotypes(geneName);
+      me.promiseGetNCBIGeneSummary(geneName);
     })
  }
 

@@ -10,7 +10,7 @@
   margin-top: -5px
 
 #variant-card
-  #gene-viz
+  #gene-viz, #gene-viz-zoom
     .axis
       padding-left: 0px
       padding-right: 0px
@@ -35,7 +35,16 @@
           transform: translateY(-20px)
           display: none
 
-  .clinvar-switch
+  #gene-viz-zoom
+    .current
+      outline: none
+
+    .cds, .exon, .utr
+      fill: rgba(159, 159, 159, 0.63)
+      stroke: rgb(159, 159, 159)
+
+
+  .clinvar-switch, .zoom-switch
     margin-left: 25px
 
     label
@@ -93,12 +102,22 @@
         Called
       </v-badge>
 
+      <v-switch class="zoom-switch mt-1" style="max-width:80px"
+      v-if="sampleModel.relationship == 'proband'"
+      label="Zoom"
+      v-model="showZoom"
+      >
+      </v-switch>
+
       <v-switch class="clinvar-switch mt-1"
       v-if="sampleModel.relationship == 'proband'"
       v-bind:label="`Display all ${selectedGene.gene_name} ClinVar variants`"
       v-model="showKnownVariantsCard"
       >
       </v-switch>
+
+
+
 
       <known-variants-toolbar
         v-if="sampleModel.relationship == 'known-variants'"
@@ -128,6 +147,22 @@
         </div>
 
 
+        <span v-if="showZoom" class=" label label-warning text-xs-center">{{ zoomMessage }}</span>
+        <gene-viz id="gene-viz-zoom"
+        v-if="showZoom"
+        :data="[selectedTranscript]"
+        :margin="geneZoomVizMargin"
+        :width="width"
+        :showXAxis="false"
+        :trackHeight="geneVizTrackHeight + 20"
+        :cdsHeight="geneVizCdsHeight + 20"
+        :regionStart="parseInt(selectedGene.start)"
+        :regionEnd="parseInt(selectedGene.end)"
+        :showBrush="true"
+        @region-zoom="onRegionZoom"
+        @region-zoom-reset="onRegionZoomReset"
+        >
+        </gene-viz>
 
         <variant-viz id="called-variant-viz"
           v-if="showVariantViz"
@@ -168,6 +203,7 @@
         </variant-viz>
 
         <div id="bam-track">
+
           <depth-viz
             v-if="showDepthViz"
             ref="depthVizRef"
@@ -205,6 +241,8 @@
           @feature-selected="showExonTooltip"
           >
         </gene-viz>
+
+
 
       </div>
     </v-card-title>
@@ -282,6 +320,14 @@ export default {
       },
       geneVizTrackHeight: isLevelEdu || isLevelBasic ? 32 : 16,
       geneVizCdsHeight: isLevelEdu || isLevelBasic ? 24 : 12,
+
+      geneZoomVizMargin: {
+        top: 10,
+        right: 2,
+        bottom: 10,
+        left: 4
+      },
+
       depthVizMargin: {
         top: 22,
         right: isLevelBasic || isLevelEdu ? 7 : 2,
@@ -293,7 +339,10 @@ export default {
       relationship: null,
       selectedExon: null,
 
-      showKnownVariantsCard: false
+      showKnownVariantsCard: false,
+
+      showZoom: false,
+      zoomMessage: "Drag to zoom"
 
     }
   },
@@ -592,8 +641,15 @@ export default {
            .duration(500)
            .style("opacity", 0);
       }
+    },
+    onRegionZoom: function(regionStart, regionEnd) {
+      this.zoomMessage = "Click to zoom out";
+      this.$emit('gene-region-zoom', regionStart, regionEnd);
+    },
+    onRegionZoomReset: function() {
+      this.zoomMessage = "Drag to zoom";
+      this.$emit('gene-region-zoom-reset');
     }
-
   },
 
 
@@ -628,6 +684,12 @@ export default {
   watch: {
     showKnownVariantsCard: function() {
       this.$emit("show-known-variants-card", this.showKnownVariantsCard);
+    },
+    showZoom: function() {
+      if (!this.showZoom) {
+        this.zoomMessage = "Drag to zoom";
+        this.$emit('gene-region-zoom-reset');
+      }
     }
   },
 

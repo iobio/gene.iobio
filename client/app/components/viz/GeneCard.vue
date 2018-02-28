@@ -2,6 +2,7 @@
   #gene-viz .current {
       outline: none;
   }
+
   .content .btn__content {
     color:  rgb(113,113,113);
   }
@@ -52,8 +53,8 @@
   }
 
   #gene-source-box {
-    margin-top: -7px;
-    margin-left: 20px;
+    margin-top: 0px;
+    margin-left: 5px;
     display: inline-block;
     width: 115px;
   }
@@ -74,7 +75,7 @@
   }
 
   #phenotypes {
-    margin-top: 15px;
+    margin-top: 8px;
   }
 
   #phenotypes-heading {
@@ -85,7 +86,12 @@
     display: inline-block;
     margin-top: 5px;
     font-size: 12px;
-    font-weight: normal;
+    font-weight: bold;
+  }
+  #phenotype-terms {
+    max-height: 74px;
+    overflow-y: scroll;
+    font-size: 12px;
   }
 
   #phenotypes .btn--floating.btn--small {
@@ -97,6 +103,11 @@
   }
   #phenotypes .btn--floating.btn--small .btn__content {
     padding: 0px;
+  }
+  #ncbi-summary {
+    margin-top: 5px;
+    font-size: 12px;
+    font-weight: normal;
   }
 
 
@@ -138,15 +149,15 @@
             </v-text-field>
         </div>
       </div>
-      <div id="gene-info-box" class="level-edu level-basic" style="float:right;margin-left:20px;clear:both;display:inline-block;margin-top:-2px">
+      <div id="gene-info-box" class="level-edu level-basic" style="margin-left:30px;clear:both;display:inline-block;">
             <transcripts-viz
               v-bind:class="{ hide: !showGene }"
               :selectedGene="selectedGene"
               :selectedTranscript="selectedTranscript"
               @transcriptSelected="onTranscriptSelected">
             </transcripts-viz>
-
-            <div id="gene-source-box" v-if="showGene">
+            <v-icon style="margin-left:20px;font-size:17px" @click="showSettings = !showSettings">settings</v-icon>
+            <div id="gene-source-box" v-if="showGene && showSettings">
               <v-select
                   v-bind:items="geneSources"
                   v-model="geneSource"
@@ -182,7 +193,7 @@
         </div>
     </div>
 
-    <div id="transcript-panel" class="level-edu fullview" >
+    <div id="transcript-panel"  v-if="showGeneViz" class="level-edu fullview" >
 
 
       <span id="zoom-hint"  v-if="showGene"  class="level-edu hint todo" style="margin-top: 0px;display: block;text-align: center;">
@@ -207,7 +218,6 @@
       <gene-viz id="gene-viz"
         :data="[selectedTranscript]"
         :margin="margin"
-        :height=40
         :trackHeight="trackHeight"
         :cdsHeight="cdsHeight"
         :regionStart="parseInt(selectedGene.start)"
@@ -219,25 +229,24 @@
       </gene-viz>
 
 
-      <div id="phenotypes" v-if="geneModel.genePhenotypes[selectedGene.gene_name] && geneModel.genePhenotypes[selectedGene.gene_name].length > 0">
-        <span id="phenotypes-heading" style="text-align:center">
-          HPO Phenotypes
-          <v-btn raised fab small @click="showPhenotypes = !showPhenotypes">
-            <v-icon  style="font-size:17px"  >expand_more</v-icon>
-          </v-btn>
-        </span>
 
-        <v-layout v-if="showPhenotypes" column wrap style="max-height: 80px;overflow-x: scroll;">
-          <v-flex xs2 class="pr-2" style="font-size:10px"
-           v-for="phenotype in geneModel.genePhenotypes[selectedGene.gene_name]"
-           :key="phenotype">
-           {{ phenotype.hpo_term_name }}
-          </v-flex>
-        </v-layout>
-      </div>
     </div>
 
 
+    <div v-if="showGene && ncbiSummary" id="ncbi-summary">
+      {{ ncbiSummary.summary }}
+    </div>
+
+    <div id="phenotypes" v-if="showGene && phenotypes">
+
+
+      <span id="phenotypes-heading" style="text-align:left">
+        Phenotypes
+      </span>
+      <div id="phenotype-terms">
+      {{ phenotypeTerms }}
+      </div>
+    </div>
 
   </v-card>
 
@@ -262,7 +271,8 @@ export default {
     selectedTranscript: {},
     geneRegionStart: null,
     geneRegionEnd: null,
-    geneModel: null
+    geneModel: null,
+    showGeneViz: null
   },
   data() {
     return {
@@ -284,7 +294,10 @@ export default {
 
       geneRegionBuffer: null,
 
-      showPhenotypes: false
+      phenotypes: null,
+      phenotypeTerms: null,
+      ncbiSummary: null,
+      showSettings: false
     }
   },
 
@@ -394,6 +407,20 @@ export default {
     },
     geneRegionEnd: function() {
 
+    },
+    selectedGene: function() {
+      if (this.selectedGene && this.selectedGene.gene_name) {
+        this.ncbiSummary = this.geneModel.geneNCBISummaries[this.selectedGene.gene_name];
+        this.phenotypes = this.geneModel.genePhenotypes[this.selectedGene.gene_name]
+        if (this.phenotypes) {
+          this.phenotypeTerms =  this.phenotypes.map(function(d) {
+            return d.hpo_term_name;
+          }).join(", ");
+        }
+      } else {
+        this.ncbiSummary = null;
+        this.phenotypes = null;
+      }
     }
   },
 

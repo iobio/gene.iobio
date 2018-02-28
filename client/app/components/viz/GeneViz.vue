@@ -108,8 +108,15 @@
       stroke: #000;
       fill-opacity: 0.125;
       shape-rendering: crispEdges;
+  }
+  .resize {
+    display: inline !important;
+    fill: #7A7A7A;
+    fill-opacity: 1;
+    stroke: #7A7A7A;
+    stroke-width: 3px;
+  }
 
-}
 </style>
 
 <style lang="sass">

@@ -51,9 +51,9 @@
 <template>
 
 
-  <div id="select-transcripts-box"  style="vertical-align:top;margin-right:15px;margin-left:0px;display:inline-block">
+  <div id="select-transcripts-box"  style="vertical-align:top;display:inline-block">
     <v-layout row justify-center>
-      <span style="display:inline-block;padding-top:2px">{{ `Transcript ` + selectedTranscript.transcript_id }}</span>
+      <span style="display:inline-block;">{{ `Transcript ` + selectedTranscript.transcript_id }}</span>
       <v-dialog  v-model="showTranscriptsDialog"   width="700px">
 
           <v-btn raised fab small slot="activator" @click="showTranscriptsDialog = true"

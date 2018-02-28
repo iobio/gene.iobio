@@ -153,11 +153,23 @@ function geneD3() {
 
             extentRect.attr("x", xExtent - 1);
 
+            if (brush.empty()) {
+              container.selectAll("svg").selectAll(".x.brush .resize line")
+                       .style("visibility", "hidden");
+              container.selectAll("svg").selectAll(".x.brush .resize path")
+                        .style("visibility", "hidden");
+            }
+
             dispatch.d3brush(brush);
 
 
-         });
-
+        })
+        .on("brush", function() {
+          container.selectAll("svg").selectAll(".x.brush .resize line")
+             .style("visibility", "visible");
+          container.selectAll("svg").selectAll(".x.brush .resize path")
+             .style("visibility", "visible");
+        })
 
 
       var axisEnter = svg.selectAll("g.x.axis").data([0]).enter().append('g');
@@ -167,19 +179,6 @@ function geneD3() {
         svg.selectAll("g.x.axis").attr("transform",   "translate(" + margin.left + "," + parseInt(geneD3_height+margin.top+margin.bottom+featureGlyphHeight) + ")");
       }
 
-
-      if (geneD3_showBrush) {
-        var brushHeight = geneD3_height + margin.top;
-        var brushY = (margin.top-1) * -1;
-        g.selectAll("g.x.brush").remove();
-        var theBrush = g.selectAll("g.x.brush").data([0]);
-        theBrush.enter().append("g")
-            .attr("class", "x brush")
-            .call(brush)
-            .selectAll("rect")
-            .attr("y", brushY)
-            .attr("height", brushHeight);
-      }
 
       // Start gene model
       // add elements
@@ -428,6 +427,36 @@ function geneD3() {
       svg.select(".x.axis").transition()
           .duration(200)
           .call(xAxis);
+
+
+
+      if (geneD3_showBrush) {
+        var brushHeight = geneD3_height + margin.top + margin.bottom;
+        var brushY = (margin.top-1) * -1;
+        container.select('svg').selectAll("g.x.brush").remove();
+        var theBrush = container.select('svg').selectAll("g.x.brush").data([0]);
+        theBrush.enter().append("g")
+            .attr("class", "x brush")
+            .call(brush)
+            .selectAll("rect")
+            .attr("y", 0)
+            .attr("height", brushHeight);
+
+        theBrush.selectAll(".resize")
+          .append("line")
+          .style("visibility",  "visible" )
+          .attr("y2", brushHeight);
+        theBrush.selectAll(".resize.e rect")
+          .attr("y0", 0);
+        theBrush.selectAll(".resize")
+          .append("path")
+          .style("visibility",  "visible")
+          .attr("d", d3.svg.symbol().type("triangle-up").size(20))
+          .attr("transform", function(d,i) {
+            return i ?  "translate(-4," + (brushHeight/2) + ") rotate(-90)" : "translate(4," + (brushHeight/2) + ") rotate(90)";
+          });
+
+      }
 
     });
 

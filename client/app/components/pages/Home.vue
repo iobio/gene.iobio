@@ -74,6 +74,7 @@
               :selectedTranscript="selectedTranscript"
               :geneRegionStart="geneRegionStart"
               :geneRegionEnd="geneRegionEnd"
+              :showGeneViz="false"
               @transcript-selected="onTranscriptSelected"
               @gene-source-selected="onGeneSourceSelected"
               @gene-region-buffer-change="onGeneRegionBufferChange"
@@ -83,7 +84,7 @@
             </gene-card>
           </v-flex>
 
-          <v-flex d-flex style="max-width: 400px;"
+          <v-flex d-flex style="min-width:400px;max-width: 400px;"
            v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
           >
             <feature-matrix-card
@@ -145,6 +146,8 @@
         @remove-flagged-variant="onRemoveFlaggedVariant"
         @knownVariantsVizChange="onKnownVariantsVizChange"
         @knownVariantsFilterChange="onKnownVariantsFilterChange"
+        @gene-region-zoom="onGeneRegionZoom"
+        @gene-region-zoom-reset="onGeneRegionZoomReset"
         >
         </variant-card>
 
