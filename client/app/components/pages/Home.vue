@@ -380,6 +380,9 @@ export default {
         self.models = self.cohortModel.sampleModels;
         if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
           self.promiseLoadData();
+          if (self.cohortModel && self.cohortModel.isLoaded) {
+            self.cacheHelper.analyzeAll(self.cohortModel, false);
+          }
         }
       })
     },
@@ -437,12 +440,17 @@ export default {
       }
     },
 
-    onFilesLoaded: function() {
+    onFilesLoaded: function(analyzeAll) {
       let self = this;
       self.promiseClearCache()
       .then(function() {
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.promiseLoadGene(self.selectedGene.gene_name);
+          if (analyzeAll) {
+            if (self.cohortModel && self.cohortModel.isLoaded) {
+              self.cacheHelper.analyzeAll(self.cohortModel, false);
+            }
+          }
         } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           self.onGeneSelected(self.geneModel.sortedGeneNames[0]);
         } else {
@@ -650,7 +658,7 @@ export default {
     },
     onKnownVariantsVizChange: function(viz) {
       let self = this;
-      if (viz == 'variants') {
+      if (viz == 'variants' && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
         self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
       }
     },
@@ -670,7 +678,13 @@ export default {
       this.cacheHelper.promiseClearCache(this.cacheHelper.launchTimestamp);
     },
     onApplyGenes: function(genesString) {
-      this.geneModel.copyPasteGenes(genesString);
+      let self = this;
+      self.geneModel.promiseCopyPasteGenes(genesString)
+      .then(function() {
+        if (self.cohortModel && self.cohortModel.isLoaded) {
+          self.cacheHelper.analyzeAll(self.cohortModel, false);
+        }
+      })
     },
     onSortGenes: function(sortBy) {
       this.geneModel.sortGenes(sortBy);

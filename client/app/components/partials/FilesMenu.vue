@@ -251,7 +251,9 @@ export default {
 
       })
       .then(function() {
-        self.$emit("on-files-loaded");
+        let performAnalyzeAll = self.demoAction ? true : false;
+
+        self.$emit("on-files-loaded", performAnalyzeAll);
         self.showFilesMenu = false;
       })
     },

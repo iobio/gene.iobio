@@ -186,8 +186,8 @@ export default {
     onFlaggedVariantsImported: function() {
       this.$emit("flagged-variants-imported")
     },
-    onFilesLoaded: function() {
-      this.$emit("on-files-loaded");
+    onFilesLoaded: function(analyzeAll) {
+      this.$emit("on-files-loaded", analyzeAll);
     }
   },
   created: function() {
