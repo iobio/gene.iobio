@@ -284,10 +284,10 @@ class CohortModel {
 
   sortSampleModels() {
     var MODEL_ORDER = {
-      'proband': 1,
+      'proband': 2,
       'mother': 3,
       'father': 4,
-      'known-variants': 2
+      'known-variants': 1
     };
     let sortedModels = this.sampleModels.sort(function(a,b) {
       return MODEL_ORDER[a.relationship] - MODEL_ORDER[b.relationship];
