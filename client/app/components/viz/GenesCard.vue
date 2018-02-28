@@ -64,6 +64,9 @@
       .progress-linear
         margin: 1px 0
 
+  #genes-panel
+    margin-top: 5px
+
   #genes-sort-dropdown
     display: inline-block
     width: 200px
@@ -88,7 +91,7 @@
 
 <template>
   <v-card tile id="genes-card" class="app-card">
-    <v-card-title primary-title>Selected Genes</v-card-title>
+    <v-card-title primary-title>Genes</v-card-title>
       <div id="genes-panel" class="nav-center">
 
 

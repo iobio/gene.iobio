@@ -5,6 +5,7 @@
   display: inline-block
   vertical-align: top
   margin-right: 35px
+  margin-top: -20px
 
   button
     padding-left: 0px
@@ -89,6 +90,11 @@
 <template>
   <div  id="gene-count-badges" >
 
+  <v-layout row>
+   <v-flex xs12 class="text-xs-center" style="font-size:12px;">
+    Flagged Genes
+   </v-flex>
+  </v-layout>
 
 
   <v-layout row>
