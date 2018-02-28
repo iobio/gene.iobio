@@ -74,7 +74,7 @@
               :selectedTranscript="selectedTranscript"
               :geneRegionStart="geneRegionStart"
               :geneRegionEnd="geneRegionEnd"
-              :showGeneViz="false"
+              :showGeneViz="cohortModel == null || !cohortModel.isLoaded"
               @transcript-selected="onTranscriptSelected"
               @gene-source-selected="onGeneSourceSelected"
               @gene-region-buffer-change="onGeneRegionBufferChange"
@@ -243,7 +243,7 @@ export default {
 
       inProgress: {},
 
-      PROBAND: 'proband',
+      PROBAND: 'proband'
 
 
 

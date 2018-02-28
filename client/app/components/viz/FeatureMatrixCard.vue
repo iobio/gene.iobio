@@ -102,7 +102,7 @@
 
     </v-card-title>
 
-    <div style="width:100%;margin-top:-20px">
+    <div style="width:100%;margin-top:-10px">
 
 
       <div id="matrix-panel"  style="clear:both;min-height:30px"

@@ -197,25 +197,6 @@
     <div id="transcript-panel"  v-if="showGeneViz" class="level-edu fullview" >
 
 
-      <span id="zoom-hint"  v-if="showGene"  class="level-edu hint todo" style="margin-top: 0px;display: block;text-align: center;">
-          (drag to zoom)
-      </span>
-
-
-      <div id="top-coordinate-frame" class="hide">
-        <svg height="23" width="28">
-            <g  transform="translate(0,0)">
-              <rect class="coordinate-arrow" x="9" y="1" width="10" height="8">
-              </rect>
-            </g>
-            <g transform="translate(24,23),rotate(180)">
-              <polygon class="coordinate-arrow" points="0,14 10,0 20,14" x="0" y="0">
-              </polygon>
-            </g>
-        </svg>
-      </div>
-
-
       <gene-viz id="gene-viz"
         :data="[selectedTranscript]"
         :margin="margin"
@@ -223,7 +204,7 @@
         :cdsHeight="cdsHeight"
         :regionStart="parseInt(selectedGene.start)"
         :regionEnd="parseInt(selectedGene.end)"
-        :showBrush=true
+        :showBrush=false
         @region-zoom="onRegionZoom"
         @region-zoom-reset="onRegionZoomReset"
         >
