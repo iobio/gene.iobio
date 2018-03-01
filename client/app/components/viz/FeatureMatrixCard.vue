@@ -202,6 +202,7 @@ export default {
     name: "",
     featureMatrixModel: {},
     selectedGene: null,
+    selectedTranscript: null,
     selectedVariant: null,
     relationship: null,
     variantTooltip: null,
@@ -386,7 +387,8 @@ export default {
       var coord = {'x':                  x,
                    'y':                  y,
                    'height':             self.$el.offsetHeight,
-                   'parentWidth':        self.$el.offsetWidth,
+                    // tooltip can span across width of main window
+                   'parentWidth':        self.$el.parentNode.parentNode.offsetWidth,
                    'preferredPositions': [ {top:    ['center', 'right', 'left' ]},
                                            {right:  ['middle', 'top',   'bottom']},
                                            {left:   ['middle', 'top',   'bottom']},
@@ -395,6 +397,8 @@ export default {
 
       self.variantTooltip.fillAndPositionTooltip(tooltip,
         variant,
+        self.selectedGene,
+        self.selectedTranscript,
         lock,
         coord,
         'proband',

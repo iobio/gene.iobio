@@ -610,11 +610,15 @@ class Util {
 
   formatDisplay(variant, translator) {
     var info = {
+      coord: "",
+      refalt: "",
       exon: "",
       inheritance: "",
       clinvarSig: "",
+      clinvarSigSummary: "",
       clinvarUrl: "",
       clinvarLink: "",
+      clinvarLinkKnownVariants: "",
       phenotype: "",
       phenotypeSimple: "",
       zygosity: "",
@@ -631,10 +635,19 @@ class Util {
       sift: "",
       polyphen: "",
       regulatory: "",
+      regulatoryMotifLinks: "",
       rsId: "",
       dbSnpUrl: "",
       dbSnpLink: "",
     };
+
+
+    info.coord = variant.chrom + ":" + variant.start;
+    info.refalt = variant.ref + "->" + variant.alt;
+    if (variant.ref == '' && variant.alt == '') {
+      info.refalt = '(' + variant.len + ' bp)';
+    }
+
 
 
     if (variant.hasOwnProperty("vepExon") && !$.isEmptyObject(variant.vepExon)) {
@@ -683,8 +696,23 @@ class Util {
 
             info.clinvarUrl   = 'http://www.ncbi.nlm.nih.gov/clinvar/' + accessionSingle;
             info.clinvarLink  +=  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
+
+            info.clinvarLinkKnownVariants += "<span style='clear:both' class='tooltip-clinsig-link" + clinsigSingle + "'>";
+            info.clinvarLinkKnownVariants += '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
+
           }
+
         };
+        info.clinvarSigSummary = "";
+        for (var clinsig in clinsigUniq) {
+          var style = 'display:inline-block;'
+          if (info.clinvarSigSummary.length > 0) {
+            style += 'padding-left:5px';
+          }
+          info.clinvarSigSummary += "<span style='" + style +"' class='tooltip-clinsig-link" + clinsig + "'>";
+          info.clinvarSigSummary += "<span style='float:left'>" + clinsig.split("_").join(" ") + "</span>";
+          info.clinvarSigSummary += "</span>";
+        }
       }
     }
 
@@ -797,6 +825,28 @@ class Util {
       }
       var value = variant.regulatory[key];
       info.regulatory += value;
+    }
+
+
+    if (variant.vepRegs) {
+      for (var i = 0; i < variant.vepRegs.length; i++) {
+        var vr = variant.vepRegs[i];
+        if (vr.motifName != null && vr.motifName != '') {
+
+          if (info.regulatoryMotifLinks.length > 0) {
+              info.regulatoryMotifLinks += ", ";
+          }
+
+          var tokens = vr.motifName.split(":");
+          var baseMotifName;
+          if (tokens.length == 2) {
+            baseMotifName = tokens[1];
+          }
+
+          var regUrl = "http://jaspar.genereg.net/cgi-bin/jaspar_db.pl?ID=" + baseMotifName + "&rm=present&collection=CORE"
+          info.regulatoryMotifLinks += '<a href="' + regUrl + '" target="_motif">' + vr.motifName + '</a>';
+        }
+      }
     }
 
     info.rsId = utility.getRsId(variant);

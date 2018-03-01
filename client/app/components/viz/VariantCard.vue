@@ -430,6 +430,8 @@ export default {
 
       self.variantTooltip.fillAndPositionTooltip(tooltip,
         variant,
+        self.selectedGene,
+        self.selectedTranscript,
         lock,
         coord,
         self.sampleModel.relationship,

@@ -74,6 +74,7 @@
             v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
             :featureMatrixModel="featureMatrixModel"
             :selectedGene="selectedGene"
+            :selectedTranscript="analyzedTranscript"
             :selectedVariant="selectedVariant"
             :relationship="PROBAND"
             :variantTooltip="variantTooltip"

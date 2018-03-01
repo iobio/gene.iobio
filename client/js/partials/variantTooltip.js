@@ -25,7 +25,7 @@ class VariantTooltip {
   }
 
 
-  fillAndPositionTooltip(tooltip, variant, lock, coord, relationship, affectedInfo, cohortMode, maxAlleleCount, html) {
+  fillAndPositionTooltip(tooltip, variant, geneObject, theTranscript, lock, coord, relationship, affectedInfo, cohortMode, maxAlleleCount, html) {
     var me = this;
 
     tooltip.style("z-index", 1032);
@@ -45,10 +45,10 @@ class VariantTooltip {
 
     if (html == null) {
       if (lock) {
-        html = me.formatContent(variant, null, 'tooltip-wide', null, null, null, relationship, lock);
+        html = me.formatContent(variant, null, 'tooltip-wide', geneObject, theTranscript, relationship, lock);
       } else {
         var pinMessage = "click on variant for more details";
-        html = me.formatContent(variant, pinMessage, null, null, null, null, relationship, lock);
+        html = me.formatContent(variant, pinMessage, 'tooltip', geneObject, theTranscript, relationship, lock);
       }
     }
     tooltip.html(html);
@@ -398,338 +398,53 @@ class VariantTooltip {
   }
 
 
-  formatContent(variant, pinMessage, type, rec, geneObject, theTranscript, relationship, lock) {
+  formatContent(variant, pinMessage, tooltipClazz, geneObject, theTranscript, relationship, lock) {
     var me = this;
 
-    geneObject = geneObject ? geneObject : window.gene;
-    theTranscript  = theTranscript ? theTranscript : window.selectedTranscript;
+    var info = utility.formatDisplay(variant, me.translator);
 
-    if (type == null) {
-      type = 'tooltip';
-    }
-
-    var exonDisplay = "";
-    if (variant.hasOwnProperty("vepExon") && !$.isEmptyObject(variant.vepExon)) {
-      exonDisplay += "Exon ";
-      exonDisplay += Object.keys(variant.vepExon).join(",");
-    }
 
     var calledVariantRow = "";
     if (variant.hasOwnProperty("fbCalled") && variant.fbCalled == "Y") {
       var calledGlyph = '<i id="gene-badge-called" class="material-icons glyph" style="display: inline-block;font-size: 15px;vertical-align: top;float:initial">check_circle</i>';
-      var marginTop = type == 'tooltip-wide' ? ';margin-top: 1px;' : ';margin-top: 3px;';
+      var marginTop = tooltipClazz == 'tooltip-wide' ? ';margin-top: 1px;' : ';margin-top: 3px;';
       calledGlyph    += '<span style="display: inline-block;vertical-align: top;margin-left:3px' + marginTop + '">Called variant</span>';
       calledVariantRow = me._tooltipMainHeaderRow(calledGlyph, '', '', '');
     }
 
-    var effectDisplay = "";
-    for (var key in variant.effect) {
-      if (effectDisplay.length > 0) {
-          effectDisplay += ", ";
-      }
-      // Strip out "_" from effect
-      var tokens = key.split("_");
-      if (isLevelEdu) {
-        effectDisplay = tokens.join(" ");
-      } else {
-        effectDisplay += tokens.join(" ");
-      }
-    }
-    var impactDisplay = "";
-    for (var key in variant.impact) {
-      if (impactDisplay.length > 0) {
-          impactDisplay += ", ";
-      }
-      if (isLevelEdu) {
-        impactDisplay = levelEduImpact[key];
-      } else {
-        impactDisplay += key;
-      }
-    }
 
-    var coord = variant.chrom + ":" + variant.start;
-    var refalt = variant.ref + "->" + variant.alt;
-    if (variant.ref == '' && variant.alt == '') {
-      refalt = '(' + variant.len + ' bp)';
-    }
-
-    var clinSigDisplay = "";
-    for (var key in variant.clinVarClinicalSignificance) {
-      if (key != 'none' && key != 'undefined' ) {
-        if (!isLevelEdu || (key.indexOf("uncertain_significance") >= 0 || key.indexOf("pathogenic") >= 0)) {
-          if (clinSigDisplay.length > 0 ) {
-              clinSigDisplay += ", ";
-          }
-          clinSigDisplay += key.split("_").join(" ");
-        }
-      }
-    }
-
-    var phenotypeDisplay = "";
-    for (var key in variant.clinVarPhenotype) {
-      if (key != 'not_specified'  && key != 'undefined') {
-        if (phenotypeDisplay.length > 0) {
-            phenotypeDisplay += ", ";
-        }
-        phenotypeDisplay += key.split("_").join(" ").split("\\x2c").join(", ");
-      }
-    }
-
-
-    var clinvarUrl = "";
-    var clinvarLink = "";
     var clinvarSimpleRow1 = '';
     var clinvarSimpleRow2 = '';
-    var knownVariantsClinvarLink = '';
     if (isLevelEdu) {
-      if (clinSigDisplay != null && clinSigDisplay != "") {
-        clinvarSimpleRow1 = me._tooltipWideHeadingRow('Known from research', clinSigDisplay, '6px');
+      if (info.clinvarSig != "") {
+        clinvarSimpleRow1 = me._tooltipWideHeadingRow('Known from research', info.clinvarSig, '6px');
         if (phenotypeDisplay) {
-          clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('', phenotypeDisplay, null, 'tooltip-clinvar-pheno');
+          clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('', info.phenotype, null, 'tooltip-clinvar-pheno');
         }
       }
     }
 
-    if (clinSigDisplay != null && clinSigDisplay != "") {
+    if (info.clinvarSig != "") {
       if (variant.clinVarUid != null && variant.clinVarUid != '') {
-        clinvarUrl = 'http://www.ncbi.nlm.nih.gov/clinvar/variation/' + variant.clinVarUid;
-
-        clinvarLink  = '<div class="tooltip-clinsig-link0" style="clear:both">';
-        clinvarLink += '<a  href="' + clinvarUrl + '" target="_new"' + '>' + clinSigDisplay + '</a>';
-        clinvarLink += '</div>';
-
-        clinvarSimpleRow1 = me._tooltipWideHeadingSecondRow('ClinVar', '<span class="tooltip-clinsig-link0">' + clinSigDisplay + '</span>', null);
-        if (phenotypeDisplay) {
-          clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('&nbsp;', phenotypeDisplay, null, 'tooltip-clinvar-pheno');
+        clinvarSimpleRow1 = me._tooltipWideHeadingSecondRow('ClinVar', '<span class="tooltip-clinsig-link0">' + info.clinvarSig + '</span>', null);
+        if (info.phenotype) {
+          clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('&nbsp;', info.phenotype, null, 'tooltip-clinvar-pheno');
         }
 
       } else if (variant.clinvarSubmissions != null && variant.clinvarSubmissions.length > 0) {
-        phenotypeDisplay = "";
-        var simplePhenotypeDisplay = "";
-        var clinsigUniq = {};
-        for (var idx = 0; idx < variant.clinvarSubmissions.length; idx++) {
-          var submission = variant.clinvarSubmissions[idx];
-
-          submission.clinsig.split(",").forEach(function(clinsig) {
-            clinsigUniq[clinsig] = "";
-          })
-
-          clinvarLink += "<div style='clear:both' class='tooltip-clinsig-link" + idx.toString() + "'>";
-
-          var accessions = submission.accession.split(",");
-          var clinsigs   = submission.clinsig.split(",");
-          for (var i = 0; i < accessions.length; i++) {
-            var accessionSingle = accessions[i];
-            var clinsigSingle   = clinsigs.length > i ? clinsigs[i] : "?";
-
-            clinvarUrl   = 'http://www.ncbi.nlm.nih.gov/clinvar/' + accessionSingle;
-            clinvarLink +=  '<a class="tooltip-clinvar-link"' + '" href="' + clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
-
-            knownVariantsClinvarLink += "<span style='clear:both' class='tooltip-clinsig-link" + clinsigSingle + "'>";
-            knownVariantsClinvarLink += '<a class="tooltip-clinvar-link"' + '" href="' + clinvarUrl + '" style="padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
-
-          }
-          if (submission.phenotype != 'not_provided' && submission.phenotype != "not_specified") {
-            clinvarLink += '<span class="tooltip-clinvar-pheno" style="float:left;word-break:break-word">' + submission.phenotype.split("_").join(" ").split("\\x2c").join(", ") + '</span>';
-            if (simplePhenotypeDisplay.length > 0) {
-              simplePhenotypeDisplay += ", ";
-            }
-            simplePhenotypeDisplay += submission.phenotype.split("_").join(" ").split("\\x2c").join(", ");
-          }
-
-          clinvarLink += "</div>"
-        };
-
-        var clinsigSummary = "";
-        for (var clinsig in clinsigUniq) {
-          var style = 'display:inline-block;'
-          if (clinsigSummary.length > 0) {
-            style += 'padding-left:5px';
-          }
-          clinsigSummary += "<span style='" + style +"' class='tooltip-clinsig-link" + clinsig + "'>";
-          clinsigSummary += "<span style='float:left'>" + clinsig.split("_").join(" ") + "</span>";
-          clinsigSummary += "</span>";
-        }
-        clinvarSimpleRow1 = me._tooltipSimpleClinvarSigRow('ClinVar', clinsigSummary );
-        clinvarSimpleRow2 = me._tooltipHeaderRow(simplePhenotypeDisplay, '', '', '', '', null, 'style=padding-top:0px');
+        clinvarSimpleRow1 = me._tooltipSimpleClinvarSigRow('ClinVar', info.clinvarSigSummary );
+        clinvarSimpleRow2 = me._tooltipHeaderRow(info.simplePhenotype, '', '', '', '', null, 'style=padding-top:0px');
       } else {
-        clinvarLink = clinSigDisplay;
+        clinvarLink = info.clinvarSig;
       }
     }
 
-    var zygosity = "";
-    if (variant.zygosity && variant.zygosity.toLowerCase() == 'het') {
-      zygosity = "Heterozygous";
-    } else if (variant.zygosity && variant.zygosity.toLowerCase() == 'hom') {
-      zygosity = "Homozygous";
-    }
-
-    var vepImpactDisplay = "";
-    for (var key in variant.vepImpact) {
-      if (vepImpactDisplay.length > 0) {
-          vepImpactDisplay += ", ";
-      }
-      if (isLevelEdu) {
-        vepImpactDisplay = levelEduImpact[key];
-      } else {
-        vepImpactDisplay += key.toLowerCase();
-      }
-    }
-
-    // If the highest impact occurs in a non-canonical transcript, show the impact followed by
-    // the consequence and corresponding transcripts
-    var vepHighestImpacts = utility.getNonCanonicalHighestImpactsVep(variant, me.translator.impactMap);
-    var vepHighestImpactDisplay = "";
-    var vepHighestImpactDisplaySimple = "";
-    var vepHighestImpactSimple = "";
-    var vepHighestImpactInfo = "";
-    var vepHighestImpactValue = "";
-    for (var impactKey in vepHighestImpacts) {
-
-
-      var nonCanonicalEffects = vepHighestImpacts[impactKey];
-      if (vepHighestImpactDisplay.length > 0) {
-          vepHighestImpactDisplay += ", ";
-          vepHighestImpactDisplaySimple += ", ";
-          vepHighestImpactInfo += ", ";
-      }
-
-      vepHighestImpactDisplay       += impactKey.toLowerCase();
-      vepHighestImpactDisplaySimple += impactKey.toLowerCase();
-      vepHighestImpactInfo          += impactKey.toLowerCase();
-      vepHighestImpactValue          = impactKey.toUpperCase();
-
-      nonCanonicalEffects.forEach(function(nonCanonicalEffect) {
-        vepHighestImpactDisplay += "<span>  (";
-        for (var effectKey in nonCanonicalEffect) {
-          var transcriptString = nonCanonicalEffect[effectKey].url;
-          vepHighestImpactDisplay += " " + effectKey.split("\&").join(" & ") + 'in ' + transcriptString;
-          vepHighestImpactInfo += " " + effectKey.split("\&").join(" & ") + " in " + nonCanonicalEffect[effectKey].display;
-
-        }
-        vepHighestImpactDisplay += ")</span> ";
-      })
-      vepHighestImpactDisplaySimple += " in non-canonical transcripts";
-    }
 
     var vepHighestImpactRow = "";
-    var vepHighestImpactExamineRow = "";
-    if (vepHighestImpactDisplay.length > 0) {
-      vepHighestImpactRow = me._tooltipHeaderRow(vepHighestImpactDisplaySimple, '', '', '', 'highest-impact-badge');
-      vepHighestImpactExamineRow = me._tooltipRow('Most severe impact', vepHighestImpactDisplay, null, true, 'highest-impact-badge');
-    }
-
-    var vepConsequenceDisplay = "";
-    for (var key in variant.vepConsequence) {
-      if (vepConsequenceDisplay.length > 0) {
-          vepConsequenceDisplay += ", ";
-      }
-      if (isLevelEdu) {
-        vepConsequenceDisplay = key.split("_").join(" ").toLowerCase();
-      } else {
-        vepConsequenceDisplay += key.split("_").join(" ").toLowerCase();
-      }
-    }
-    var vepHGVScDisplay = "";
-    var vepHGVSpDisplay = "";
-    if (variant.fbCalled == 'Y' || variant.extraAnnot) {
-      for (var key in variant.vepHGVSc) {
-        if (key.length > 0) {
-          if (vepHGVScDisplay.length > 0) {
-              vepHGVScDisplay += ", ";
-          }
-          vepHGVScDisplay += key;
-        }
-      }
-      for (var key in variant.vepHGVSp) {
-        if (key.length > 0) {
-          if (vepHGVSpDisplay.length > 0) {
-              vepHGVSpDisplay += ", ";
-          }
-          vepHGVSpDisplay += key;
-        }
-      }
-    } else {
-      // Show the loading gif for the hgvs notations (for tooltips only; not export record)
-      if (!rec) {
-        var loading = '<img class="gene-badge-loader glyph" style="width: 12px;height: 12px;" src="assets/images/wheel.gif"><span style="font-style:italic;margin-left:4px">loading</span>';
-        vepHGVScDisplay = loading;
-        vepHGVSpDisplay = loading;
-      }
-    }
-
-    var vepSIFTDisplay = "";
-    for (var key in variant.vepSIFT) {
-      if (vepSIFTDisplay.length > 0) {
-          vepSIFTDisplay += ", ";
-      }
-      vepSIFTDisplay += key.split("_").join(" ");
-    }
-    var vepPolyPhenDisplay = "";
-    for (var key in variant.vepPolyPhen) {
-      if (vepPolyPhenDisplay.length > 0) {
-          vepPolyPhenDisplay += ", ";
-      }
-      if (isLevelEdu) {
-        vepPolyPhenDisplay = key.split("_").join(" ");
-      } else {
-        vepPolyPhenDisplay += key.split("_").join(" ");
-      }
-    }
-
-    var vepRegDisplay = "";
-    for (var key in variant.regulatory) {
-      // Bypass motif-based features
-      if (key.indexOf("mot_") == 0) {
-        continue;
-      }
-      if (vepRegDisplay.length > 0) {
-          vepRegDisplay += ", ";
-      }
-      var value = variant.regulatory[key];
-      vepRegDisplay += value;
-    }
-    var vepRegMotifDisplay = "";
-    if (variant.vepRegs) {
-      for (var i = 0; i < variant.vepRegs.length; i++) {
-        var vr = variant.vepRegs[i];
-        if (vr.motifName != null && vr.motifName != '') {
-
-          if (vepRegMotifDisplay.length > 0) {
-              vepRegMotifDisplay += ", ";
-          }
-
-          var tokens = vr.motifName.split(":");
-          var baseMotifName;
-          if (tokens.length == 2) {
-            baseMotifName = tokens[1];
-          }
-
-          var regUrl = "http://jaspar.genereg.net/cgi-bin/jaspar_db.pl?ID=" + baseMotifName + "&rm=present&collection=CORE"
-          vepRegMotifDisplay += '<a href="' + regUrl + '" target="_motif">' + vr.motifName + '</a>';
-        }
-      }
-    }
-
-    var dbSnpLink = "";
-    var dbSnpUrl = "";
-    for (var key in variant.vepVariationIds) {
-      if (key != 0 && key != '') {
-        var tokens = key.split("&");
-        tokens.forEach( function(id) {
-          if (id.indexOf("rs") == 0) {
-            if (dbSnpLink.length > 0) {
-              dbSnpLink += ",";
-            }
-            dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + id;
-            dbSnpLink +=  '<a href="' + dbSnpUrl + '" target="_dbsnp"' + '>' + id + '</a>';
-          }
-        });
-      }
-    };
-    if (dbSnpLink.length == 0 && variant.rsid && variant.rsid.length > 0) {
-      dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + variant.rsid;
-      dbSnpLink +=  '<a href="' + dbSnpUrl + '" target="_dbsnp"' + '>' + 'rs' + variant.rsid + '</a>';
+    var vepHighestImpactRowSimple = "";
+    if (info.vepHighestImpact.length > 0) {
+      vepHighestImpactRow       = me._tooltipRow('Most severe impact', info.vepHighestImpact, null, true, 'highest-impact-badge');
+      vepHighestImpactRowSimple = me._tooltipHeaderRow(info.vepHighestImpactSimple, '', '', '', 'highest-impact-badge');
     }
 
     var inheritanceModeRow =  variant.inheritance == null || variant.inheritance == '' || variant.inheritance == 'none'
@@ -737,11 +452,11 @@ class VariantTooltip {
                     : me._tooltipHeaderRow('<span class="tooltip-inheritance-mode-label">' + me.translator.getInheritanceLabel(variant.inheritance) + ' inheritance</span>', '', '', '', null, 'padding-top:0px;');
 
 
-    var siftLabel = vepSIFTDisplay != ''  && vepSIFTDisplay != 'unknown'
-                    ? 'SIFT ' + vepSIFTDisplay
+    var siftLabel = info.sift != ''  && info.sift  != 'unknown'
+                    ? 'SIFT ' + info.sift
                     : "";
-    var polyphenLabel = vepPolyPhenDisplay != '' && vepPolyPhenDisplay != 'unknown'
-                        ? 'PolyPhen ' + vepPolyPhenDisplay
+    var polyphenLabel = info.polyphen  != '' && info.polyphen != 'unknown'
+                        ? 'PolyPhen ' + info.polyphen
                         : "";
     var sep = siftLabel != '' && polyphenLabel != '' ? '&nbsp;&nbsp;&nbsp;&nbsp;' : ''
     var siftPolyphenRow = '';
@@ -750,10 +465,7 @@ class VariantTooltip {
     }
 
 
-    var polyphenRowSimple = vepPolyPhenDisplay != "" ? me._tooltipWideHeadingRow('Predicted effect', vepPolyPhenDisplay + ' to protein', '3px') : "";
-
-
-    var dbSnpId = utility.getRsId(variant);
+    var polyphenRowSimple = info.polyphen != "" ? me._tooltipWideHeadingRow('Predicted effect', info.polyphen + ' to protein', '3px') : "";
 
     var genotypeRow = isLevelEdu && eduTourNumber == 2 ? me._tooltipHeaderRow('Genotype', utility.switchGenotype(variant.eduGenotype), '','')  : "";
 
@@ -813,90 +525,47 @@ class VariantTooltip {
       flaggedBadge = '<svg class="bookmark-badge" height="14" width="14" style="padding-top:2px" ><g class="bookmark" transform="translate(0,0)"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#bookmark-symbol" width="14" height="14"></use></g></svg>';
     }
 
+    var loadingGlyph = '<img class="gene-badge-loader glyph" style="width: 12px;height: 12px;" src="assets/images/wheel.gif"><span style="font-style:italic;margin-left:4px">loading</span>';
 
 
-
-    if (rec) {
-      rec.inheritance      = variant.inheritance ? me.translator.getInheritanceLabel(variant.inheritance) : "";
-      rec.impact           = vepImpactDisplay;
-      rec.highestImpact    = vepHighestImpactValue;
-      rec.highestImpactInfo = vepHighestImpactInfo;
-      rec.consequence      = vepConsequenceDisplay;
-      rec.polyphen         = vepPolyPhenDisplay;
-      rec.type             = variant.type;
-      rec.SIFT             = vepSIFTDisplay;
-      rec.regulatory       = vepRegDisplay;
-      rec.rsId             = dbSnpId;
-      rec.dbSnpUrl         = dbSnpUrl;
-      rec.clinvarUrl       = clinvarUrl;
-      rec.clinvarClinSig   = clinSigDisplay;
-      rec.clinvarPhenotype = phenotypeDisplay;
-      rec.HGVSc            = vepHGVScDisplay;
-      rec.HGVSp            = vepHGVSpDisplay;
-      rec.afExAC           = (variant.afExAC == -100 ? "n/a" : variant.afExAC);
-      rec.af1000G          = variant.af1000G;
-      rec.afgnomAD         = variant.afgnomAD == "." ? 0 : variant.afgnomAD;
-      rec.qual             = variant.qual;
-      rec.filter           = variant.filter;
-      rec.freebayesCalled  = variant.fbCalled;
-
-      rec.zygosityProband  = variant.zygosity;
-      rec.altCountProband  = variant.genotypeAltCount;
-      rec.refCountProband  = variant.genotypeRefCount;
-      rec.depthProband     = variant.genotypeDepth;
-      rec.bamDepthProband  = variant.bamDepth;
-
-      rec.zygosityMother   = variant.motherZygosity;
-      rec.altCountMother   = variant.genotypeAltCountMother;
-      rec.refCountMother   = variant.genotypeRefCountMother;
-      rec.depthMother      = variant.genotypeDepthMother;
-      rec.bamDepthMother   = variant.bamDepthMother;
-
-      rec.zygosityFather   = variant.fatherZygosity;
-      rec.altCountFather   = variant.genotypeAltCountFather;
-      rec.refCountFather   = variant.genotypeRefCountFather;
-      rec.depthFather      = variant.genotypeDepthFather;
-      rec.bamDepthFather   = variant.bamDepthFather;
-
-      return rec;
-    } else if (isLevelEdu) {
+    if (isLevelEdu) {
       return (
         genotypeRow
-        + me._tooltipMainHeaderRow('Severity - ' + vepImpactDisplay , '', '', '')
+        + me._tooltipMainHeaderRow('Severity - ' + info.vepImpact , '', '', '')
         + inheritanceModeRow
         + polyphenRowSimple
         + clinvarSimpleRow1
         + clinvarSimpleRow2 );
-    } else if (type == 'tooltip') {
+    } else if (tooltipClazz == 'tooltip') {
       return (
-        me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", refalt + " " + coord, dbSnpLink, 'ref-alt')
+        me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, info.dbSnpLink, 'ref-alt')
         + calledVariantRow
-        + me._tooltipMainHeaderRow(vepImpactDisplay, vepConsequenceDisplay, '', '', 'impact-badge')
-        + vepHighestImpactRow
+        + me._tooltipMainHeaderRow(info.vepImpact, info.vepConsequence, '', '', 'impact-badge')
+        + vepHighestImpactRowSimple
         + inheritanceModeRow
         + siftPolyphenRow
         + gnomADAfRow
         + exacAfRow
         + me._tooltipLabeledRow('Allele Freq 1000G', utility.percentage(variant.af1000G), null)
-        + (relationship == 'known-variants' ? me._tooltipRow('&nbsp;', knownVariantsClinvarLink, '6px')  : clinvarSimpleRow1)
+        + (relationship == 'known-variants' ? me._tooltipRow('&nbsp;', info.clinvarLinkKnownVariants, '6px')  : clinvarSimpleRow1)
         + (relationship == 'known-variants' ? clinvarSimpleRow2 : '')
         + me._linksRow(variant, pinMessage, relationship, lock)
       );
 
-    } else if (type == 'tooltip-wide') {
+    } else if (tooltipClazz == 'tooltip-wide') {
 
       var leftDiv =
           '<div class="tooltip-left-column">'
-          +   me._tooltipRow('VEP Consequence', vepConsequenceDisplay)
-        +   me._tooltipRow('VEP Impact', ' '  + vepImpactDisplay, null, true, 'impact-badge')
-        +   vepHighestImpactExamineRow
-        +   me._tooltipRow('ClinVar', '<span style="float:left">' + (clinvarLink != '' ? clinvarLink : me.VALUE_EMPTY) + '</span>', null, true)
-        +   me._tooltipRow('&nbsp;', phenotypeDisplay, null, false, 'tooltip-clinvar-pheno')
-        +   me._tooltipRow('HGVSc', vepHGVScDisplay, null, true)
-        +   me._tooltipRow('HGVSp', vepHGVSpDisplay, null, true)
-        +   me._tooltipRow('PolyPhen', vepPolyPhenDisplay, null, true, 'polyphen-glyph')
-        +   me._tooltipRow('SIFT', vepSIFTDisplay, null, true, 'sift-glyph')
-        +   me._tooltipRowURL('Regulatory', vepRegDisplay, null, true)
+          +   me._tooltipRow('VEP Consequence', info.vepConsequence)
+        +   me._tooltipRow('VEP Impact', ' '  + info.vepConsequence, null, true, 'impact-badge')
+        +   vepHighestImpactRow
+        +   me._tooltipRow('ClinVar', '<span style="float:left">' + (info.clinvarLink != '' ? info.clinvarLink : me.VALUE_EMPTY) + '</span>', null, true)
+        +   me._tooltipRow('&nbsp;', info.phenotype, null, false, 'tooltip-clinvar-pheno')
+        +   me._tooltipRow('HGVSc', info.HGVScLoading ? loadingGlyph : info.HGVSc, null, true)
+        +   me._tooltipRow('HGVSp', info.HGVSpLoading ? loadingGlyph : info.HGVSp, null, true)
+        +   me._tooltipRow('PolyPhen', info.polyphen, null, true, 'polyphen-glyph')
+        +   me._tooltipRow('SIFT', info.sift, null, true, 'sift-glyph')
+        +   me._tooltipRowURL('Regulatory', info.regulatory, null, true)
         + "</div>";
 
       var rightDiv =
@@ -917,7 +586,7 @@ class VariantTooltip {
 
       var div =
           '<div class="tooltip-wide">'
-        + me._tooltipMainHeaderRow(flaggedBadge + (geneObject ? geneObject.gene_name : ""), variant.type ? variant.type.toUpperCase() : "", refalt + " " + coord + " " + exonDisplay, dbSnpLink , 'ref-alt')
+        + me._tooltipMainHeaderRow(flaggedBadge + (geneObject ? geneObject.gene_name : ""), variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord + " " + info.exon, info.dbSnpLink , 'ref-alt')
         + calledVariantRow
         + inheritanceModeRow
         + '<div id="tooltip-body" class="row">'
@@ -929,31 +598,6 @@ class VariantTooltip {
         + "</div>";
 
       return div;
-
-    } else {
-      return (
-         me._tooltipMainHeaderRow(variant.type ? variant.type.toUpperCase() : "", refalt, '   ', dbSnpLink, 'ref-alt')
-        + me._tooltipHeaderRow(geneObject ? geneObject.gene_name : "", coord, exonDisplay, '')
-        + inheritanceModeRow
-
-        + me._tooltipRow('VEP Consequence', vepConsequenceDisplay, "10px")
-        + me._tooltipRow('VEP Impact', vepImpactDisplay.toLowerCase(), null, true, 'impact-badge')
-        + vepHighestImpactExamineRow
-        + me._tooltipRow('SIFT', vepSIFTDisplay, null, false, 'sift-glyph')
-        + me._tooltipRow('PolyPhen', vepPolyPhenDisplay, null, false, 'polyphen-glyph')
-        + me._tooltipRow('ClinVar', clinvarLink, null, false, 'tooltip-clinvar-pheno')
-        + me._tooltipRow('&nbsp;', phenotypeDisplay)
-        + me._tooltipRow('Allele Freq gnomAD', utility.percentage(variant.afgnomAD))
-        + me._tooltipRow('Allele Freq ExAC', (variant.afExAC == -100 ? "n/a" : utility.percentage(variant.afExAC)))
-        + me._tooltipRow('Allele Freq 1000G', utility.percentage(variant.af1000G))
-        + me._tooltipRowURL('Regulatory', vepRegDisplay)
-        + me._tooltipRow('HGVSc', vepHGVScDisplay)
-        + me._tooltipRow('HGVSp', vepHGVSpDisplay)
-        + me._tooltipRow('Qual', variant.qual)
-        + me._tooltipRow('Filter', variant.recfilter)
-        + me._tooltipRowAlleleCounts()
-        + me._linksRow(variant, null, relationship, lock)
-      );
 
     }
 
