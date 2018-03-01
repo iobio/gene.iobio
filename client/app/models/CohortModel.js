@@ -467,7 +467,7 @@ class CohortModel {
       self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, options)
       .then(function(resultMap) {
         // Flag bookmarked variants
-        self.flagBookmarkedVariants(resultMap.proband);
+        self.setVariantFlags(resultMap.proband);
 
         // the variants are fully annotated so determine inheritance (if trio).
         return self.promiseAnnotateInheritance(theGene, theTranscript, resultMap, {isBackground: false, cacheData: true})
@@ -1428,7 +1428,7 @@ class CohortModel {
     });
   }
 
-  flagBookmarkedVariants(vcfData) {
+  setVariantFlags(vcfData) {
     let self = this;
     if (vcfData) {
       vcfData.features.forEach(function(variant) {

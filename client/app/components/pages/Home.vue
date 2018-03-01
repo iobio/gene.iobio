@@ -354,6 +354,9 @@ export default {
         self.cacheHelper = new CacheHelper();
         self.cacheHelper.on("geneAnalyzed", function(geneName) {
           self.$refs.genesCardRef.determineFlaggedGenes();
+          if (geneName == self.selectedGene.gene_name) {
+            self.promiseLoadData();
+          }
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
           self.$refs.navRef.onShowFlaggedVariants();
