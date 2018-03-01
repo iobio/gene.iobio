@@ -336,9 +336,9 @@
 
           <svg
            v-if="getImpactClass({'snp': true, 'mnp': true}) != null"
-           class="impact-badge" height="12" width="13">
-            <g transform="translate(0,2)">
-              <rect width="8" height="8"
+           class="impact-badge" height="12" width="12">
+            <g transform="translate(1,3)">
+              <rect width="7" height="7"
               v-bind:class="getImpactClass({'snp': true, 'mnp': true})"
               style="pointer-events: none;"></rect>
             </g>
