@@ -33,7 +33,7 @@
       :flaggedVariants="flaggedVariants"
       @input="onGeneSelected"
       @load-demo-data="onLoadDemoData"
-      @clear-cache="clearCache"
+      @clear-cache="promiseClearCache"
       @apply-genes="onApplyGenes"
       @flagged-variants-imported="onFlaggedVariantsImported"
       @flagged-variant-selected="onFlaggedVariantSelected"
@@ -377,12 +377,29 @@ export default {
 
     promiseClearCache: function() {
       let self = this;
-      return self.cacheHelper._promiseClearCache(self.cacheHelper.launchTimestampToClear);
+
+      return new Promise(function(resolve, reject) {
+        self.geneModel.clearDangerSummaries();
+        self.cacheHelper.promiseClearCache(self.cacheHelper.launchTimestampToClear)
+        .then(function() {
+          self.cohortModel.cacheHelper.refreshGeneBadges(function() {
+            resolve();
+          })
+        })
+        .catch(function(error) {
+          resolve(error);
+        })
+
+      })
     },
+
 
     onLoadDemoData: function() {
       let self = this;
-      self.geneModel.promiseCopyPasteGenes(self.cohortModel.demoGenes.join(", "))
+      self.promiseClearCache()
+      .then(function() {
+        return self.geneModel.promiseCopyPasteGenes(self.cohortModel.demoGenes.join(", "))
+      })
       .then(function() {
         self.onGeneSelected(self.cohortModel.demoGenes[0]);
         return self.cohortModel.promiseInitDemo()
@@ -684,9 +701,6 @@ export default {
     },
     onAnalyzeAll: function() {
       this.cacheHelper.analyzeAll(this.cohortModel);
-    },
-    clearCache: function() {
-      this.cacheHelper.promiseClearCache(this.cacheHelper.launchTimestamp);
     },
     onApplyGenes: function(genesString) {
       let self = this;

@@ -118,8 +118,6 @@ export default {
   computed: {
   },
   watch: {
-    modelInfo: function() {
-    }
   },
   methods: {
     onVcfUrlEntered: function(vcfUrl, tbiUrl) {
@@ -131,6 +129,10 @@ export default {
         self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
           if (success) {
             self.samples = sampleNames;
+            if (self.modelInfo.sample) {
+              self.sample = self.modelInfo.sample;
+              self.modelInfo.model.sampleName  = self.modelInfo.sample;
+            }
             self.$emit("samples-available", self.modelInfo.relationship, self.samples);
 
           }

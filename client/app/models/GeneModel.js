@@ -166,6 +166,10 @@ class GeneModel {
     return this.geneDangerSummaries[geneName];
   }
 
+  clearDangerSummaries() {
+    this.geneDangerSummaries = {};
+  }
+
 
   promiseLoadClinvarGenes() {
     let me = this;

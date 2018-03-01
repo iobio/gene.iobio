@@ -302,9 +302,6 @@ class CohortModel {
   setAffectedInfo(forceRefresh) {
     let self = this;
     if (self.affectedInfo == null || forceRefresh) {
-      if (self.affectedInfo) {
-        alertify.alert("resetting affected info!");
-      }
       self.affectedInfo = [];
       self.getCanonicalModels().forEach(function(model) {
         if (model && model.getRelationship() != 'known-variants') {

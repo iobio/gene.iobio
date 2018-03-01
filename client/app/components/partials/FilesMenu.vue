@@ -240,7 +240,7 @@ export default {
         return  self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
       })
       .then(function() {
-        self.cohortModel.setAffectedInfo();
+        self.cohortModel.setAffectedInfo(true);
         self.cohortModel.isLoaded = true;
         self.cohortModel.getCanonicalModels().forEach(function(model) {
           if (model.name == null || model.name.length == 0) {
