@@ -186,7 +186,7 @@
   font-size: 14px
   vertical-align: top
   float: left
-  padding-right: 2px
+  padding-right: 0px
   display: none
 
 #gene-badge-warning
