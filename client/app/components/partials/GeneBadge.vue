@@ -15,7 +15,7 @@
 
   #gene-badge-symbols
     height: 14px
-    padding-left: 3px
+    padding-left: 0px
     padding-top: 0px
     float: left
 
@@ -279,6 +279,9 @@
         <i id="gene-badge-has-called-variants" class="level-edu material-icons glyph">check_circle</i>
 
 
+        <i id="gene-badge-bookmark" class="material-icons">bookmark</i>
+
+
         <i id="gene-badge-warning" class="material-icons glyph">warning</i>
         <i id="gene-badge-error" class="material-icons glyph">report_problem</i>
 
@@ -295,7 +298,6 @@
           </svg>
         </span>
 
-        <i id="gene-badge-bookmark" class="material-icons">bookmark</i>
 
 
 

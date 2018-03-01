@@ -296,7 +296,7 @@ class Glyph {
 
     var width = (options.cellSize > 18) ? "19" : (options.width || "16");
 
-    var transform = (options.cellSize > 18) ? "translate(1,2)" : (options.transform || "translate(1,0)");
+    var transform = (options.cellSize > 18) ? "translate(2,3)" : (options.transform || "translate(1,2)");
 
     selection.append("g")
              .attr("transform", transform)
@@ -313,7 +313,7 @@ class Glyph {
 
     var width = (options.cellSize > 18) ? "19" : (options.width || "16");
 
-    var transform = (options.cellSize > 18) ? "translate(1,2)" : (options.transform || "translate(1,0)");
+    var transform = (options.cellSize > 18) ? "translate(2,3)" : (options.transform || "translate(1,2)");
 
     selection.append("g")
              .attr("transform", transform)
@@ -330,7 +330,7 @@ class Glyph {
 
     var width = (options.cellSize > 18) ? "19" : (options.width || "16");
 
-    var transform = (options.cellSize > 18) ? "translate(1,2)" : (options.transform || "translate(1,0)");
+    var transform = (options.cellSize > 18) ? "translate(2,3)" : (options.transform || "translate(1,2)");
 
     selection.append("g")
              .attr("transform", transform)
