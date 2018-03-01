@@ -308,8 +308,39 @@ class Glyph {
 
   };
 
+  showXLinkedSymbol(selection, options) {
+    options = options || {};
 
+    var width = (options.cellSize > 18) ? "19" : (options.width || "16");
 
+    var transform = (options.cellSize > 18) ? "translate(1,2)" : (options.transform || "translate(1,0)");
+
+    selection.append("g")
+             .attr("transform", transform)
+             .append("use")
+             .attr("xlink:href", '#x-linked-symbol')
+             .attr("width", width)
+             .attr("height", width)
+             .style("pointer-events", "none");
+
+  };
+
+  showCompoundHetSymbol(selection, options) {
+    options = options || {};
+
+    var width = (options.cellSize > 18) ? "19" : (options.width || "16");
+
+    var transform = (options.cellSize > 18) ? "translate(1,2)" : (options.transform || "translate(1,0)");
+
+    selection.append("g")
+             .attr("transform", transform)
+             .append("use")
+             .attr("xlink:href", '#compound-het-symbol')
+             .attr("width", width)
+             .attr("height", width)
+             .style("pointer-events", "none");
+
+  };
   showAffectedPresentSymbol(selection, options) {
     var symbolLink = null;
     var id = "thumbs-grey-symbol";

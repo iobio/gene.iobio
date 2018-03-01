@@ -95,11 +95,12 @@ class CohortModel {
 
       Promise.all(promises)
       .then(function() {
+        self.sortSampleModels();
+
         self.setAffectedInfo();
         self.inProgress.loadingDataSources = false;
         self.isLoaded = true;
 
-        self.sortSampleModels();
 
         resolve();
       })
@@ -301,6 +302,9 @@ class CohortModel {
   setAffectedInfo(forceRefresh) {
     let self = this;
     if (self.affectedInfo == null || forceRefresh) {
+      if (self.affectedInfo) {
+        alertify.alert("resetting affected info!");
+      }
       self.affectedInfo = [];
       self.getCanonicalModels().forEach(function(model) {
         if (model && model.getRelationship() != 'known-variants') {
@@ -423,7 +427,7 @@ class CohortModel {
             })
         })
         .catch(function(error) {
-          me.endGeneProgress(theGene.gene_name);
+          self.endGeneProgress(theGene.gene_name);
           reject(error);
         })
 
@@ -650,7 +654,6 @@ class CohortModel {
         annotatePromises.push(p);
       }
 
-
       Promise.all(annotatePromises)
       .then(function() {
 
@@ -783,14 +786,6 @@ class CohortModel {
 
     var resolveIt = function(resolve, resultMap, geneObject, theTranscript, options) {
 
-      // Now that inheritance mode has been determined, we can assess each variant's impact
-      self.sampleModels.forEach(function(model) {
-        if (resultMap[model.getRelationship()]) {
-          model.assessVariantImpact(resultMap[model.getRelationship()], theTranscript);
-        }
-      })
-
-
       self.promiseCacheCohortVcfData(geneObject, theTranscript, CacheHelper.VCF_DATA, resultMap, options.cacheData)
       .then(function() {
         resolve({'resultMap': resultMap, 'gene': geneObject, 'transcript': theTranscript});
@@ -828,13 +823,17 @@ class CohortModel {
           // mode on the proband's variants
           trioModel.compareVariantsToMotherFather(function() {
 
-            // Now set the affected status for the family on each variant of the proband
-            self.getProbandModel().determineAffectedStatus(resultMap.proband, geneObject, theTranscript, self.affectedInfo, function() {
+            self.getProbandModel().promiseDetermineCompoundHets(resultMap.proband, geneObject, theTranscript)
+            .then(function() {
+              // Now set the affected status for the family on each variant of the proband
+              self.getProbandModel().determineAffectedStatus(resultMap.proband, geneObject, theTranscript, self.affectedInfo, function() {
 
-              // Determine harmful variants, cache data, etc.
-              resolveIt(resolve, resultMap, geneObject, theTranscript, options);
+                // Determine harmful variants, cache data, etc.
+                resolveIt(resolve, resultMap, geneObject, theTranscript, options);
 
-            });
+              });
+            })
+
 
 
           })

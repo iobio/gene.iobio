@@ -148,9 +148,23 @@
             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#denovo-symbol" width="16" height="16" style="pointer-events: none;"></use>
           </g>
         </svg>
+        <svg
+         v-if="variant.inheritance && variant.inheritance == 'x-linked'"
+         class="inheritance-badge" height="15" width="15">
+          <g transform="translate(0,0)">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#x-linked-symbol" width="16" height="16" style="pointer-events: none;"></use>
+          </g>
+        </svg>
+        <svg
+         v-if="variant.inheritance && variant.inheritance == 'compound het'"
+         class="inheritance-badge" height="15" width="15">
+          <g transform="translate(0,0)">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#compound-het-symbol" width="16" height="16" style="pointer-events: none;"></use>
+          </g>
+        </svg>
 
         <svg
-         v-if="variant.type == 'snp' || variant.type == 'mnp'"
+         v-if="variant.type.toLowerCase() == 'snp' || variant.type.toLowerCase() == 'mnp'"
          class="impact-badge" height="12" width="13">
           <g transform="translate(1,2)">
             <rect width="8" height="8"
@@ -160,7 +174,7 @@
         </svg>
 
         <svg
-         v-if="variant.type == 'del'"
+         v-if="variant.type.toLowerCase() == 'del'"
          class="impact-badge" height="12" width="13">
           <g transform="translate(5,5)">
             <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
@@ -170,7 +184,7 @@
         </svg>
 
         <svg
-         v-if="variant.type == 'ins'"
+         v-if="variant.type.toLowerCase() == 'ins'"
          class="impact-badge" height="12" width="13">
           <g transform="translate(5,5)">
             <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
@@ -180,7 +194,7 @@
         </svg>
 
         <svg
-         v-if="variant.type == 'complex'"
+         v-if="variant.type.toLowerCase() == 'complex'"
          class="impact-badge" height="13" width="13">
           <g transform="translate(5,6)">
             <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
@@ -189,7 +203,7 @@
           </g>
         </svg>
 
-        <svg v-if="zygosity == 'HOM'" width="24" height="14">
+        <svg v-if="zygosity.toUpperCase() == 'HOM'" width="24" height="14">
           <g transform="translate(0,3)">
             <rect width="24" height="10" class="zyg_hom" style="pointer-events: none;">
             </rect>
@@ -198,7 +212,7 @@
             </text>
           </g>
         </svg>
-        <svg v-if="zygosity == 'HET'" width="24" height="14">
+        <svg v-if="zygosity.toUpperCase() == 'HET'" width="24" height="14">
           <g transform="translate(0,3)">
             <rect width="24" height="10" class="zyg_het" style="pointer-events: none;">
             </rect>

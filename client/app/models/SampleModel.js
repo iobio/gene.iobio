@@ -311,10 +311,14 @@ class SampleModel {
     // Add the unique freebayes variants to vcf data to include
     // in feature matrix
     theVcfData.features.forEach( function(v) {
-      if (v.hasOwnProperty('fbCalled') && v.fbCalled == 'Y') {
-        var variantObject = $.extend({}, v);
-          theFbData.features.push(variantObject);
-          variantObject.source = v;
+      if (v == null) {
+        console.log("empty variant!")
+      } else {
+        if (v.hasOwnProperty('fbCalled') && v.fbCalled == 'Y') {
+          var variantObject = $.extend({}, v);
+            theFbData.features.push(variantObject);
+            variantObject.source = v;
+        }
       }
     });
     return theFbData;
@@ -1562,6 +1566,18 @@ class SampleModel {
 
                 postProcessNextVariantCard(idx, function() {
 
+
+                  // Set the highest allele freq for all variants
+                  for (var key in resultMap) {
+                    var theVcfData = resultMap[key];
+                    if (theVcfData && theVcfData.features) {
+                      theVcfData.features.forEach(function(variant) {
+                        me._determineHighestAf(variant);
+                      })
+                    }
+                  }
+
+
                   resolve(resultMap);
 
                 });
@@ -1641,110 +1657,84 @@ class SampleModel {
 
   }
 
-
-  assessVariantImpact(theVcfData, theTranscript) {
+  promiseDetermineCompoundHets(data, theGene, theTranscript) {
     var me = this;
-    if (theVcfData == null || theVcfData.features == null) {
-      return;
-    }
 
-    theVcfData.features.forEach(function(variant) {
+    return new Promise(function(resolve, reject) {
 
-      variant.harmfulVariantLevel = 'none';
-      variant.harmfulVariant = null;
-      variant.afFieldHighest = null;
-      variant.afHighest = '.';
-
-      var variantDanger = {meetsAf: false, af: false, impact: false,  clinvar: false, sift: false, polyphen: false, inheritance: false};
-
-        // For ExAC levels, differentiate between af not found and in
-        // coding region (level = private) and af not found and intronic (non-coding)
-        // region (level = unknown)
-        if (variant.afExAC == 0) {
-        variant.afExAC = -100;
-          me.getGeneModel().getCodingRegions(theTranscript).forEach(function(codingRegion) {
-            if (variant.start >= codingRegion.start && variant.end <= codingRegion.end) {
-              variant.afExAC = 0;
-            }
-          });
-        }
-        if (variant.afgnomAD == '.') {
-          variant.afgnomAD = 0;
-        }
-
-
-        for (key in variant.highestImpactVep) {
-          if (me.getTranslator().impactMap.hasOwnProperty(key) && me.getTranslator().impactMap[key].badge) {
-            if (key == 'HIGH' || key == 'MODERATE') {
-              variantDanger.impact = key.toLowerCase();
-            }
-          }
-        }
-
-        for (key in variant.highestSIFT) {
-        if (me.getTranslator().siftMap.hasOwnProperty(key) && me.getTranslator().siftMap[key].badge) {
-          variantDanger.sift = key.split("_").join(" ").toLowerCase();
-        }
-        }
-
-        for (key in variant.highestPolyphen) {
-          if (me.getTranslator().polyphenMap.hasOwnProperty(key) && me.getTranslator().polyphenMap[key].badge) {
-          variantDanger.polyphen = key.split("_").join(" ").toLowerCase();
-          }
-        }
-
-        if (variant.hasOwnProperty('clinvar')) {
-          var clinvarEntry = null;
-          var clinvarDisplay = null;
-          var clinvarKey = null;
-          for (var key in me.getTranslator().clinvarMap) {
-            var self = me.getTranslator().clinvarMap[key];
-            if (self.clazz == variant.clinvar) {
-              clinvarEntry = self;
-              clinvarDisplay = key;
-              clinvarKey = key;
-            }
-          }
-          if (clinvarEntry && clinvarEntry.badge) {
-          variantDanger.clinvar = clinvarDisplay;
-          }
-        }
-
-        if (variant.inheritance && variant.inheritance != 'none') {
-          variantDanger.inheritance = true;
-        }
-
-        // Figure out which is the highest AF between exac, 1000g, and gnomAD
-      me._determineHighestAf(variant);
-
-      // Determine if the highest AF is in a range that we consider 'rare'
-      if (variant.afFieldHighest) {
-        me.getTranslator().afHighestMap.forEach( function(rangeEntry) {
-          if (+variant.afHighest > rangeEntry.min && +variant.afHighest <= rangeEntry.max) {
-            if (rangeEntry.badge) {
-              variantDanger.af = +variant.afHighest;
-              variantDanger.meetsAf = true;
-            }
-          }
-        });
+      var dataPromise = null;
+      if (data != null) {
+        dataPromise = Promise.resolve(data);
+      } else {
+        dataPromise = me._promiseGetData(CacheHelper.VCF_DATA, theGene.gene_name, theTranscript);
       }
 
-      // Turn on flag for harmful variant if one is found
-      if (variantDanger.meetsAf && (variantDanger.impact || variantDanger.clinvar || variantDanger.sift || variantDanger.polyphen)) {
-        variant.harmfulVariant = {
-                  'type'       : variant.type,
-                    'clinvar'    : variantDanger.clinvar,
-                    'polyphen'   : variantDanger.polyphen,
-                    'SIFT'       : variantDanger.sift,
-                  'impact'     : variantDanger.impact,
-                    'inheritance': variant.inheritance && variant.inheritance != 'none' ? variant.inheritance : false,
-                    'level'      : variantDanger.clinvar ? 1 : (variantDanger.impact == 'high' ? 2 : 3)
-        };
-        variant.harmfulVariantLevel = variant.harmfulVariant.level;
-      }
-    });
+      dataPromise.then(function(data) {
+        var theVcfData = data;
+        var candidateVariants = {
+          'mother': [],
+          'father': []
+        }
+
+        theVcfData.features.forEach(function(variant) {
+          let passes = me.cohort.filterModel.determinePassCriteria('compoundHet', variant, {'ignore': ['inheritance']});
+          if (passes.all) {
+            // Create a bag of candidate variants inherited from mother and another one for variants
+            // inherited by father
+            if (variant.motherZygosity && (variant.motherZygosity.toLowerCase() == 'het' || variant.motherZygosity.toLowerCase() == 'hom')) {
+              candidateVariants.mother.push(variant);
+            }
+            if (variant.fatherZygosity && (variant.fatherZygosity.toLowerCase() == 'het' || variant.fatherZygosity.toLowerCase() == 'hom')) {
+              candidateVariants.father.push(variant);
+            }
+          }
+        })
+
+        // Associate all possible compoundHet variants with a variant
+        for (var key in candidateVariants) {
+          var theVariants = candidateVariants[key];
+          theVariants.forEach(function(theVariant) {
+            for (var otherKey in candidateVariants) {
+              if (otherKey != key) {
+                var otherVariants = candidateVariants[otherKey];
+                otherVariants.forEach(function(otherVariant) {
+                  if (theVariant != otherVariant) {
+                    if (theVariant.compoundHets == null) {
+                      theVariant.compoundHets = [];
+                    }
+                    if (theVariant.inheritance == null || theVariant.inheritance == 'none') {
+                      theVariant.inheritance = 'compound het';
+                    }
+                    let proxyVariant = {
+                      chrom: otherVariant.chrom,
+                      start: otherVariant.start,
+                      ref:   otherVariant.ref,
+                      alt:   otherVariant.alt
+                    }
+                    theVariant.compoundHets.push(proxyVariant);
+                  }
+                })
+              }
+            }
+          })
+        }
+
+        resolve(theVcfData);
+
+
+      })
+      .catch(function(error) {
+        var msg = "An error occurred in SampleModel.determineCompoundHets(): " + error;
+        console.log(msg);
+        reject(msg);
+      })
+    })
+
+
 
   }
+
+
 
   _determineHighestAf(variant) {
     var me = this;

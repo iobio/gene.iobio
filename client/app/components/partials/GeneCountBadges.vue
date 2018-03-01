@@ -140,33 +140,7 @@
       </filter-menu>
     </span>
 
-  <span class="badge-wrapper">
-      <v-btn flat ref="recessive"
-       id="recessive"
-        v-bind:class="badgeCounts.recessive == 0 ? 'disabled' : ''"
-        @click="onBadgeClick('recessive')"
-      >
-        <v-badge   right>
-          <span  slot="badge">{{ badgeCounts.recessive }}</span>
-          <span>
-            <svg id="recessive-badge" class="inheritance-badge">
-              <g transform="translate(0,0)">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="20" height="20" style="pointer-events: none;">
-                </use>
-              </g>
-            </svg>
-          </span>
-        </v-badge>
-      </v-btn>
-      <filter-menu
-      ref="recessive-menu"
-      :filterModel="filterModel"
-      :badge="`recessive`"
-      :showAddActivator="false"
-      @filter-applied="onFilterApplied"
-      @filter-menu-open="onFilterMenuOpen">
-      </filter-menu>
-  </span>
+
 
 
   <span class="badge-wrapper">
@@ -197,6 +171,87 @@
 
   </span>
 
+  <span class="badge-wrapper">
+      <v-btn flat ref="recessive"
+       id="recessive"
+        v-bind:class="badgeCounts.recessive == 0 ? 'disabled' : ''"
+        @click="onBadgeClick('recessive')"
+      >
+        <v-badge   right>
+          <span  slot="badge">{{ badgeCounts.recessive }}</span>
+          <span>
+            <svg id="recessive-badge" class="inheritance-badge">
+              <g transform="translate(0,0)">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="20" height="20" style="pointer-events: none;">
+                </use>
+              </g>
+            </svg>
+          </span>
+        </v-badge>
+      </v-btn>
+      <filter-menu
+      ref="recessive-menu"
+      :filterModel="filterModel"
+      :badge="`recessive`"
+      :showAddActivator="false"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
+  </span>
+
+  <span class="badge-wrapper">
+      <v-btn flat ref="xlinked"
+       id="xlinked"
+       v-bind:class="badgeCounts.xlinked == 0 ? 'disabled' : ''"
+      @click="onBadgeClick('xlinked')" >
+        <v-badge  right >
+          <span   slot="badge">{{ badgeCounts.xlinked }}</span>
+          <span>
+            <svg id="xlinked-badge" class="inheritance-badge">
+              <g transform="translate(0,0)">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#x-linked-symbol" width="20" height="20" style="pointer-events: none;">
+                </use>
+              </g>
+            </svg>
+          </span>
+        </v-badge>
+      </v-btn>
+      <filter-menu
+      ref="xlinked-menu"
+      :filterModel="filterModel"
+      :badge="`xlinked`"
+      :showAddActivator="false"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
+  </span>
+
+  <span class="badge-wrapper">
+      <v-btn flat ref="compoundHet"
+       id="compoundHet"
+       v-bind:class="badgeCounts.compoundHet == 0 ? 'disabled' : ''"
+      @click="onBadgeClick('compoundHet')" >
+        <v-badge  right >
+          <span   slot="badge">{{ badgeCounts.compoundHet }}</span>
+          <span>
+            <svg id="compoundHet-badge" class="inheritance-badge">
+              <g transform="translate(0,0)">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#compound-het-symbol" width="20" height="20" style="pointer-events: none;">
+                </use>
+              </g>
+            </svg>
+          </span>
+        </v-badge>
+      </v-btn>
+      <filter-menu
+      ref="compoundHet-menu"
+      :filterModel="filterModel"
+      :badge="`compoundHet`"
+      :showAddActivator="false"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
+  </span>
 
   <span class="badge-wrapper">
       <v-btn flat ref="highOrModerate"

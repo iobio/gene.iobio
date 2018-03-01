@@ -30,6 +30,7 @@
       margin-right: 15px
       margin-left: 0px
       margin-top: -1px
+      margin-bottom: 15px
 
       #total-genes-label
         float: left

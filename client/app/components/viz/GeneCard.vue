@@ -138,7 +138,7 @@
 
         <span  id="gene-plus-minus-label"  v-if="showGene"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
 
-        <div id="region-buffer-box" style="display:inline-block;width:50px;height:21px;margin-right:30px"  v-if="showGene" >
+        <div id="region-buffer-box" style="display:inline-block;width:50px;height:21px;margin-right:15px"  v-if="showGene" >
             <v-text-field
                 id="gene-region-buffer-input"
                 class="sm level-edu level-basic  fullview"

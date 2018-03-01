@@ -66,7 +66,7 @@
         </genes-card>
 
         <v-layout row style="margin-left: 0px;margin-right:0px">
-          <v-flex d-flex style="min-width:400px;max-width: 400px;"
+          <v-flex d-flex style="min-width:400px;max-width: 400px;margin-right:10px"
            v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
           >
             <feature-matrix-card
@@ -89,7 +89,7 @@
             </feature-matrix-card>
           </v-flex>
 
-          <v-flex d-flex class="ml-1">
+          <v-flex d-flex >
             <gene-card
               v-if="geneModel && Object.keys(selectedGene).length > 0"
               :geneModel="geneModel"
@@ -314,11 +314,16 @@ export default {
 
     })
     .then(function() {
-      self.models = self.cohortModel.sampleModels;
       self.filterModel = new FilterModel(self.cohortModel.affectedInfo);
       self.cohortModel.filterModel = self.filterModel;
 
-      self.initFromUrl();
+      self.promiseInitFromUrl()
+      .then(function() {
+          self.models = self.cohortModel.sampleModels;
+          if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+            self.promiseLoadData();
+          }
+      })
     },
     function(error) {
 
@@ -691,67 +696,66 @@ export default {
     onSortGenes: function(sortBy) {
       this.geneModel.sortGenes(sortBy);
     },
-    initFromUrl: function() {
+    promiseInitFromUrl: function() {
       let self = this;
 
-      if ( self.paramMygene2 && self.paramMygene2 != "" ) {
-        isMygene2   = self.paramMygene2 == "false" || self.paramMygene2.toUpperCase() == "N" ? false : true;
-      }
-      if (self.paramMode && self.paramMode != "") {
-        isLevelBasic     = self.paramMode == "basic" ? true : false;
-        isLevelEdu       = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
-      }
-
-
-      if (self.paramGeneSource) {
-        self.geneModel.geneSource = self.paramGeneSource;
-      }
-      if (self.paramGenes) {
-        self.paramGenes.split(",").forEach( function(geneName) {
-          self.geneModel.promiseAddGeneName(geneName);
-        });
-      }
-      if (self.paramGene) {
-        self.geneModel.promiseAddGeneName(self.paramGene);
-        self.onGeneSelected(self.paramGene);
-      }
-      if (self.paramSpecies) {
-        self.genomeBuildHelper.setCurrentSpecies(self.paramSpecies);
-      }
-      if (self.paramBuild) {
-        self.genomeBuildHelper.setCurrentBuild(self.paramBuild);
-      }
-      if (self.paramBatchSize) {
-        DEFAULT_BATCH_SIZE = self.paramBatchSize;
-      }
-
-      var modelInfos = [];
-      for (var i = 0; i < self.paramRelationships.length; i++) {
-        var rel  = self.paramRelationships[i];
-        if (rel) {
-          var modelInfo = {'relationship': rel};
-          modelInfo.name           = self.paramNames[i];
-          modelInfo.vcf            = self.paramVcfs[i];
-          modelInfo.tbi            = self.paramTbis[i];
-          modelInfo.bam            = self.paramBams[i];
-          modelInfo.bai            = self.paramBais[i];
-          modelInfo.sample         = self.paramSamples[i];
-          modelInfo.affectedStatus = self.paramAffectedStatuses[i];
-          modelInfos.push(modelInfo);
+      return new Promise(function(resolve, reject) {
+        if ( self.paramMygene2 && self.paramMygene2 != "" ) {
+          isMygene2   = self.paramMygene2 == "false" || self.paramMygene2.toUpperCase() == "N" ? false : true;
         }
-      }
-      if (modelInfos.length > 0) {
-        self.cohortModel.promiseInit(modelInfos)
-        .then(function() {
+        if (self.paramMode && self.paramMode != "") {
+          isLevelBasic     = self.paramMode == "basic" ? true : false;
+          isLevelEdu       = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
+        }
+        if (self.paramGeneSource) {
+          self.geneModel.geneSource = self.paramGeneSource;
+        }
+        if (self.paramGenes) {
+          self.paramGenes.split(",").forEach( function(geneName) {
+            self.geneModel.promiseAddGeneName(geneName);
+          });
+        }
+        if (self.paramGene) {
+          self.geneModel.promiseAddGeneName(self.paramGene);
+          self.onGeneSelected(self.paramGene);
+        }
+        if (self.paramSpecies) {
+          self.genomeBuildHelper.setCurrentSpecies(self.paramSpecies);
+        }
+        if (self.paramBuild) {
+          self.genomeBuildHelper.setCurrentBuild(self.paramBuild);
+        }
+        if (self.paramBatchSize) {
+          DEFAULT_BATCH_SIZE = self.paramBatchSize;
+        }
 
-          self.models = self.cohortModel.sampleModels;
-          if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-            self.promiseLoadData();
+        var modelInfos = [];
+        for (var i = 0; i < self.paramRelationships.length; i++) {
+          var rel  = self.paramRelationships[i];
+          if (rel) {
+            var modelInfo = {'relationship': rel};
+            modelInfo.name           = self.paramNames[i];
+            modelInfo.vcf            = self.paramVcfs[i];
+            modelInfo.tbi            = self.paramTbis[i];
+            modelInfo.bam            = self.paramBams[i];
+            modelInfo.bai            = self.paramBais[i];
+            modelInfo.sample         = self.paramSamples[i];
+            modelInfo.affectedStatus = self.paramAffectedStatuses[i];
+            modelInfos.push(modelInfo);
           }
-
-        })
-      }
-
+        }
+        if (modelInfos.length > 0) {
+          self.cohortModel.promiseInit(modelInfos)
+          .then(function() {
+            resolve();
+          }).
+          catch(function(error) {
+            reject(error);
+          })
+        } else {
+          resolve();
+        }
+      })
 
     },
     onFlagVariant: function(variant) {

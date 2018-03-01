@@ -71,6 +71,32 @@ class FilterModel {
         minGenotypeDepth: null,
         exclusiveOf: null
       },
+      'compoundHet': {
+        active: true,
+        custom: false,
+        name: "Compound het inheritance, low allele freq",
+        maxAf: .15,
+        clinvar: null,
+        impact: ['HIGH', 'MODERATE'],
+        consequence: null,
+        inheritance: ['compound het'],
+        zyosity: null,
+        minGenotypeDepth: null,
+        exclusiveOf: null
+      },
+      'xlinked': {
+        active: true,
+        custom: false,
+        name: "X-linked recessive inheritance, low allele freq",
+        maxAf: .05,
+        clinvar: null,
+        impact: ['HIGH', 'MODERATE'],
+        consequence: null,
+        inheritance: ['x-linked'],
+        zyosity: null,
+        minGenotypeDepth: null,
+        exclusiveOf: null
+      },
       'highOrModerate': {
         active: true,
         custom: false,
@@ -82,7 +108,7 @@ class FilterModel {
         inheritance: null,
         zyosity: null,
         minGenotypeDepth: null,
-        exclusiveOf: ['pathogenic', 'recessive', 'denovo']
+        exclusiveOf: ['pathogenic', 'recessive', 'denovo', 'compoundHet', 'xlinked']
       }
     }
 
@@ -402,49 +428,10 @@ class FilterModel {
         badgePassState.flagged = false;
         for (var badge in self.flagCriteria) {
           if (self.flagCriteria[badge].active) {
-            var badgeCriteria = self.flagCriteria[badge];
-            var passesAf = false;
-            var passesImpact = false;
-            var passesConsequence = false;
-            var passesClinvar = false;
-            var passesInheritance = false;
-            var passesZygosity = false;
-            var passesDepth = false;
-            if (badgeCriteria.maxAf == null || (variant.afHighest <= badgeCriteria.maxAf)) {
-              passesAf = true;
-            }
-            if (badgeCriteria.minGenotypeDepth == null || (variant.genotypeDepth >= badgeCriteria.minGenotypeDepth)) {
-              passesDepth = true;
-            }
-            if (badgeCriteria.impact && badgeCriteria.impact.length > 0) {
-              badgeCriteria.impact.forEach(function(key) {
-                if (Object.keys(variant.highestImpactVep).indexOf(key) >= 0) {
-                  passesImpact = true;
-                }
-              })
-            } else {
-              passesImpact = true;
-            }
-            if (badgeCriteria.consequence && badgeCriteria.consequence.length > 0) {
-              badgeCriteria.consequence.forEach(function(key) {
-                if (Object.keys(variant.vepConsequence).indexOf(key) >= 0) {
-                  passesConsequence = true;
-                }
-              })
-            } else {
-              passesConsequence = true;
-            }
-            if (badgeCriteria.clinvar == null || badgeCriteria.clinvar.length == 0 || badgeCriteria.clinvar.indexOf(variant.clinvar) >= 0) {
-              passesClinvar = true;
-            }
-            if (badgeCriteria.inheritance == null || badgeCriteria.inheritance.length == 0 || badgeCriteria.inheritance.indexOf(variant.inheritance) >= 0) {
-              passesInheritance = true;
-            }
-            if (badgeCriteria.zygosity == null || variant.zygosity.toUpperCase() == badgeCriteria.zygosity.toUpperCase() ) {
-              passesZygosity = true;
-            }
 
-            if (passesAf && passesImpact && passesConsequence && passesClinvar && passesInheritance && passesZygosity && passesDepth) {
+            var passes = self.determinePassCriteria(badge, variant);
+
+            if (passes.all) {
               badgePassState[badge] = true;
             }
           }
@@ -488,6 +475,65 @@ class FilterModel {
     }
     return badges;
 
+  }
+
+  determinePassCriteria(badge, variant, options) {
+    let self = this;
+    var badgeCriteria = self.flagCriteria[badge];
+    var passes = {
+      all: false,
+      af: false,
+      impact: false,
+      consequence: false,
+      clinvar: false,
+      inheritance: false,
+      zygosity: false,
+      depth: false
+    };
+
+    if (badgeCriteria.maxAf == null || (variant.afHighest <= badgeCriteria.maxAf)) {
+      passes.af = true;
+    }
+    if (badgeCriteria.minGenotypeDepth == null || (variant.genotypeDepth >= badgeCriteria.minGenotypeDepth)) {
+      passes.depth = true;
+    }
+    if (badgeCriteria.impact && badgeCriteria.impact.length > 0) {
+      badgeCriteria.impact.forEach(function(key) {
+        if (Object.keys(variant.highestImpactVep).indexOf(key) >= 0) {
+          passes.impact = true;
+        }
+      })
+    } else {
+      passes.impact = true;
+    }
+    if (badgeCriteria.consequence && badgeCriteria.consequence.length > 0) {
+      badgeCriteria.consequence.forEach(function(key) {
+        if (Object.keys(variant.vepConsequence).indexOf(key) >= 0) {
+          passes.consequence = true;
+        }
+      })
+    } else {
+      passes.consequence = true;
+    }
+    if (badgeCriteria.clinvar == null || badgeCriteria.clinvar.length == 0 || badgeCriteria.clinvar.indexOf(variant.clinvar) >= 0) {
+      passes.clinvar = true;
+    }
+    if (badgeCriteria.inheritance == null || badgeCriteria.inheritance.length == 0 || badgeCriteria.inheritance.indexOf(variant.inheritance) >= 0) {
+      passes.inheritance = true;
+    }
+    if (badgeCriteria.zygosity == null || variant.zygosity.toUpperCase() == badgeCriteria.zygosity.toUpperCase() ) {
+      passes.zygosity = true;
+    }
+
+    if (options && options.ignore) {
+      options.ignore.forEach(function(criterion) {
+        passes[criterion] = true;
+      })
+    }
+    if (passes.af && passes.depth && passes.impact && passes.consequence && passes.clinvar && passes.inheritance && passes.zygosity) {
+      passes.all = true;
+    }
+    return passes;
   }
 
 

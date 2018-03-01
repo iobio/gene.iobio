@@ -34,8 +34,11 @@
 
   #recessive-badge
     display: none
-
   #denovo-badge
+    display: none
+  #x-linked-badge
+    display: none
+  #compound-het-badge
     display: none
 
   #gene-badge-clinvar
@@ -89,9 +92,14 @@
   &.inheritance-recessive
     #recessive-badge
       display: inline
-
   &.inheritance-denovo
     #denovo-badge
+      display: inline
+  &.inheritance-x-linked
+    #x-linked-badge
+      display: inline
+  &.inheritance-compound-het
+    #compound-het-badge
       display: inline
 
   &:hover #gene-badge-remove
@@ -311,6 +319,18 @@
               </use>
             </g>
           </svg>
+          <svg id="x-linked-badge" class="inheritance-badge" height="15" width="15">
+            <g transform="translate(0,0)">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#x-linked-symbol" width="15" height="15" style="pointer-events: none;">
+              </use>
+            </g>
+          </svg>
+          <svg id="compound-het-badge" class="inheritance-badge" height="15" width="15">
+            <g transform="translate(0,0)">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#compound-het-symbol" width="15" height="15" style="pointer-events: none;">
+              </use>
+            </g>
+          </svg>
 
           <svg
            v-if="getImpactClass({'snp': true, 'mnp': true}) != null"
@@ -440,6 +460,9 @@ export default {
         'is-pathogenic':         this.gene.dangerSummary && this.gene.dangerSummary.badges.pathogenic.length > 0,
         'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.badges.recessive.length > 0,
         'inheritance-denovo':    this.gene.dangerSummary && this.gene.dangerSummary.badges.denovo.length > 0,
+        'inheritance-x-linked':  this.gene.dangerSummary && this.gene.dangerSummary.badges.xlinked.length > 0,
+        'inheritance-compound-het':
+                                 this.gene.dangerSummary && this.gene.dangerSummary.badges.compoundHet.length > 0,
         'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem
       }
     }

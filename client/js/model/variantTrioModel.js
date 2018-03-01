@@ -261,6 +261,15 @@ VariantTrioModel.determineInheritance = function(variant, fieldCompareMother, fi
            && (variant.motherZygosity != null && variant.motherZygosity.toLowerCase() == 'homref')
          && (variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'homref')) {
     variant.inheritance = 'denovo';
+  } else if (
+    (variant.chrom == "X" || variant.chrom == "chrX")
+    && variant.zygosity != null && variant.zygosity.toLowerCase() == 'hom'
+    && (
+           (variant.motherZygosity != null && (variant.motherZygosity.toLowerCase() == 'het' || variant.motherZygosity.toLowerCase() == 'hom'))
+        || (variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'hom')
+       )
+    ){
+    variant.inheritance = 'x-linked';
   } else {
     variant.inheritance = 'none';
   }
