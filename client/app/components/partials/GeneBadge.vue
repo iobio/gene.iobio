@@ -438,9 +438,12 @@ export default {
       var clazz = null;
       if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highOrModerate.length > 0 ) {
         for (var variantType in variantTypes) {
-          if (self.gene.dangerSummary.IMPACT.HIGH && self.gene.dangerSummary.IMPACT.HIGH[variantType]) {
+          var theVariantType = variantType.toUpperCase();
+          if (self.gene.dangerSummary.IMPACT.HIGH
+            && (self.gene.dangerSummary.IMPACT.HIGH[theVariantType] || self.gene.dangerSummary.IMPACT.HIGH[variantType])) {
             clazz = 'filter-symbol impact_HIGH';
-          } else if (self.gene.dangerSummary.IMPACT.MODERATE && self.gene.dangerSummary.IMPACT.MODERATE[variantType]) {
+          } else if (self.gene.dangerSummary.IMPACT.MODERATE
+            && (self.gene.dangerSummary.IMPACT.MODERATE[theVariantType] || self.gene.dangerSummary.IMPACT.MODERATE[variantType])) {
             clazz = 'filter-symbol impact_MODERATE';
           }
         }
