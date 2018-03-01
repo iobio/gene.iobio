@@ -1079,9 +1079,9 @@ class SampleModel {
       return;
     }
 
-    var performCallbackForCachedData = function(regions, theVcfData, coverageData, coverageForPoints) {
+    var performCallbackForCachedData = function(regions, theVcfData, coverageData) {
       if (regions.length > 0) {
-        me._refreshVariantsWithCoverage(theVcfData, coverageForPoints, function() {
+        me._refreshVariantsWithCoverage(theVcfData, coverageData, function() {
           if (callbackDataLoaded) {
                 callbackDataLoaded(coverageData);
               }
@@ -1984,7 +1984,7 @@ class SampleModel {
     var me = this;
     var vcfIter = 0;
     var covIter = 0;
-    if (theVcfData == null) {
+    if (theVcfData == null || coverage == null) {
       callback();
     }
     var recs = theVcfData.features;

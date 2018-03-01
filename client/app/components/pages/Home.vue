@@ -440,6 +440,7 @@ export default {
               .then(function(data) {
                 self.analyzedTranscript = data.transcript;
                 self.coverageDangerRegions = data.dangerRegions;
+                self.$refs.genesCardRef.determineFlaggedGenes();
                 resolve();
               })
           })

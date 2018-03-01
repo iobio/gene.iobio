@@ -146,7 +146,7 @@ export default {
       leftDrawer: false,
       rightDrawer: false,
 
-      leftDrawerContents: "",
+      leftDrawerContents: "flagged-variants",
       showLegendMenu: false
 
     }
