@@ -4,7 +4,6 @@
 #gene-count-badges
   display: inline-block
   vertical-align: top
-  margin-right: 35px
   margin-top: -20px
 
   button

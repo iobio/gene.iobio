@@ -470,6 +470,7 @@ export default {
 
     onFilesLoaded: function(analyzeAll) {
       let self = this;
+      this.setUrlParameters();
       self.promiseClearCache()
       .then(function() {
         if (self.selectedGene && self.selectedGene.gene_name) {
@@ -486,6 +487,55 @@ export default {
           alertify.warning("Please enter a gene name");
         }
       })
+    },
+
+    setUrlParameters: function() {
+      let self = this;
+
+      let geneName = "";
+      let geneNames = "";
+      if (self.selectedGene && self.selectedGene.gene_name) {
+        geneName = self.selectedGene.gene_name
+      } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+        geneName = self.geneModel.sortedGeneNames[0];
+      }
+      if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0)  {
+        geneNames = self.geneModel.sortedGeneNames.join(",");
+      }
+
+      var affectedSibIds = self.cohortModel.sampleMapSibs.affected.map(function(model) {
+        return model.sampleName;
+      }).join(",");
+      var unaffectedSibIds = self.cohortModel.sampleMapSibs.unaffected.map(function(model) {
+        return model.sampleName;
+      }).join(",");
+
+
+      var queryObject = {
+          gene: geneName,
+          genes: geneNames,
+          species: self.genomeBuildHelper.getCurrentSpeciesName(),
+          build:   self.genomeBuildHelper.getCurrentBuildName(),
+          affectedSibs: affectedSibIds,
+          unaffectedSibs: unaffectedSibIds
+      };
+
+      var i = 0;
+      self.cohortModel.getCanonicalModels().forEach(function(model) {
+        queryObject['rel'+i]    = model.relationship;
+        queryObject['vcf'+i]    = model.vcf && model.vcf.getVcfURL() ? model.vcf.getVcfURL() : "";
+        queryObject['tbi'+i]    = model.vcf && model.vcf.getTbiURL() ? model.vcf.getTbiURL() : "";
+        queryObject['bam'+i]    = model.bam && model.bam.bamUri ? model.bam.bamUri : "";
+        queryObject['bai'+i]    = model.bam && model.bam.baiUri ? model.bam.baiUri : "";
+        queryObject['sample'+i] = model.sampleName ? model.sampleName : "";
+        i++;
+      })
+
+
+      self.$router.replace({ query: queryObject });
+
+
+
     },
 
     onGeneSelected: function(geneName) {

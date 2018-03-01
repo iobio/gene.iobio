@@ -14,7 +14,7 @@
       vertical-align: top
       margin-top: 0px
       margin-left: 0px
-      margin-right: 15px
+      margin-right: 5px
 
     #call-variants-dropdown
       display: inline-block
@@ -47,7 +47,7 @@
       .progress-bar-label
         float: left
         margin-right: 4px
-        width: 50px
+        width: 40px
         font-size: 12px
 
       .loaded-progress

@@ -1079,9 +1079,9 @@ class SampleModel {
       return;
     }
 
-    var performCallbackForCachedData = function(regions, theVcfData, coverageData) {
+    var performCallbackForCachedData = function(regions, theVcfData, coverageData, coverageForPoints) {
       if (regions.length > 0) {
-        me._refreshVariantsWithCoverage(theVcfData, coverageData, function() {
+        me._refreshVariantsWithCoverage(theVcfData, coverageForPoints, function() {
           if (callbackDataLoaded) {
                 callbackDataLoaded(coverageData);
               }
