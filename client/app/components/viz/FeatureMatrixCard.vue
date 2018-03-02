@@ -354,7 +354,8 @@ export default {
     },
 
     onVariantClick: function(variant) {
-      this.showVariantTooltip(variant, true);
+      //this.showVariantTooltip(variant, true);
+      this.hideVariantTooltip();
       this.$emit('cohortVariantClick', variant, this);
     },
 

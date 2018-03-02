@@ -1,3 +1,4 @@
+
 <style lang="css" >
   #gene-viz .current {
       outline: none;
@@ -122,7 +123,7 @@
 
   <v-card tile id="gene-track" class="app-card">
     <v-card-title primary-title style="width:100%">
-      <span style="display:inline-block">Gene</span>
+      <span style="display:inline-block" v-if="showTitle ">Gene</span>
     </v-card-title>
     <div>
       <div style="display:inline-block;margin-right:auto;">
@@ -255,7 +256,8 @@ export default {
     geneRegionStart: null,
     geneRegionEnd: null,
     geneModel: null,
-    showGeneViz: null
+    showGeneViz: null,
+    showTitle: null
   },
   data() {
     return {

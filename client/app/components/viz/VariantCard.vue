@@ -372,9 +372,10 @@ export default {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
       }
+      this.hideVariantTooltip();
+
       if (this.showVariantViz) {
         this.showVariantCircle(variant);
-        this.showVariantTooltip(variant, true);
       }
       this.$emit('cohortVariantClick', variant, this);
     },

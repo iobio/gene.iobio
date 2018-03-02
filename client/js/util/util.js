@@ -756,7 +756,7 @@ class Util {
         info.vepHighestImpact += "<span>  (";
         for (var effectKey in nonCanonicalEffect) {
           var transcriptString = nonCanonicalEffect[effectKey].url;
-          info.vepHighestImpact     += " " + effectKey.split("\&").join(" & ") + 'in ' + transcriptString;
+          info.vepHighestImpact     += " " + effectKey.split("\&").join(" & ") + ' in ' + transcriptString;
           info.vepHighestImpactInfo += " " + effectKey.split("\&").join(" & ") + " in " + nonCanonicalEffect[effectKey].display;
 
         }
@@ -850,8 +850,10 @@ class Util {
     }
 
     info.rsId = utility.getRsId(variant);
-    info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + info.rsId ;
-    info.dbSnpLink +=  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';
+    if (info.rsId && info.rsId != '') {
+      info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + info.rsId ;
+      info.dbSnpLink =  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';
+    }
 
     return info;
   }

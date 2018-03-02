@@ -98,8 +98,8 @@ class VariantTooltip {
     }
 
     if (lock) {
-      tooltipPos.left = $('#gene-track')[0].offsetLeft;
-      tooltipPos.top  = $('#gene-track')[0].offsetTop;
+      tooltipPos.left = $('#gene-track')[0].offsetLeft - 300;
+      tooltipPos.top  = $('#gene-track')[0].offsetTop + 300;
       var footerClass = "left-footer";
       tooltip.selectAll('.' + footerClass + " .tooltip-control-button").classed("hide", false);
     } else {
@@ -420,7 +420,7 @@ class VariantTooltip {
 
       } else if (variant.clinvarSubmissions != null && variant.clinvarSubmissions.length > 0) {
         clinvarSimpleRow1 = me._tooltipSimpleClinvarSigRow('ClinVar', info.clinvarSigSummary );
-        clinvarSimpleRow2 = me._tooltipHeaderRow(info.simplePhenotype, '', '', '', '', null, 'style=padding-top:0px');
+        clinvarSimpleRow2 = me._tooltipHeaderRow(info.phenotypeSimple, '', '', '', '', null, 'style=padding-top:0px');
       } else {
         clinvarLink = info.clinvarSig;
       }

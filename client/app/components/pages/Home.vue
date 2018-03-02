@@ -15,8 +15,21 @@
   margin-right: auto
   text-align: center
 
+.tabs__container
+  height: 32px !important
+  margin-left: 10px
+
+  .tabs__item
+    color: $text-color
 
 
+
+.tabs__div
+  text-transform: none !important
+
+.tabs__slider
+  background-color: $app-color !important
+  border-color: $app-color !important
 
 </style>
 
@@ -91,21 +104,50 @@
           </v-flex>
 
           <v-flex d-flex >
-            <gene-card
-              v-if="geneModel && Object.keys(selectedGene).length > 0"
-              :geneModel="geneModel"
-              :selectedGene="selectedGene"
-              :selectedTranscript="selectedTranscript"
-              :geneRegionStart="geneRegionStart"
-              :geneRegionEnd="geneRegionEnd"
-              :showGeneViz="cohortModel == null || !cohortModel.isLoaded"
-              @transcript-selected="onTranscriptSelected"
-              @gene-source-selected="onGeneSourceSelected"
-              @gene-region-buffer-change="onGeneRegionBufferChange"
-              @gene-region-zoom="onGeneRegionZoom"
-              @gene-region-zoom-reset="onGeneRegionZoomReset"
+             <v-tabs
+                v-if="geneModel && Object.keys(selectedGene).length > 0"
+                v-model="activeGeneVariantTab"
+                light
               >
-            </gene-card>
+                <v-tab>
+                  Gene
+                </v-tab>
+                <v-tab >
+                  Variant
+                </v-tab>
+                <v-tab-item>
+                  <gene-card
+                    v-if="geneModel && Object.keys(selectedGene).length > 0"
+                    :showTitle="false"
+                    :geneModel="geneModel"
+                    :selectedGene="selectedGene"
+                    :selectedTranscript="selectedTranscript"
+                    :geneRegionStart="geneRegionStart"
+                    :geneRegionEnd="geneRegionEnd"
+                    :showGeneViz="cohortModel == null || !cohortModel.isLoaded"
+                    @transcript-selected="onTranscriptSelected"
+                    @gene-source-selected="onGeneSourceSelected"
+                    @gene-region-buffer-change="onGeneRegionBufferChange"
+                    @gene-region-zoom="onGeneRegionZoom"
+                    @gene-region-zoom-reset="onGeneRegionZoomReset"
+                    >
+                  </gene-card>
+                </v-tab-item>
+                <v-tab-item >
+                  <variant-detail-card
+                  v-if="selectedVariant"
+                  :showTitle="false"
+                  :selectedGene="selectedGene"
+                  :selectedTranscript="analyzedTranscript"
+                  :selectedVariant="selectedVariant"
+                  :genomeBuildHelper="genomeBuildHelper"
+                  :variantTooltip="variantTooltip"
+                  :cohortModel="cohortModel"
+                  :info="selectedVariantInfo"
+                  >
+                  </variant-detail-card>
+                </v-tab-item>
+              </v-tabs>
           </v-flex>
         </v-layout>
 
@@ -166,6 +208,7 @@
 
 import Navigation         from '../partials/Navigation.vue'
 import GeneCard           from  '../viz/GeneCard.vue'
+import VariantDetailCard  from  '../viz/VariantDetailCard.vue'
 import GenesCard          from  '../viz/GenesCard.vue'
 import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
@@ -185,6 +228,7 @@ export default {
       Navigation,
       GenesCard,
       GeneCard,
+      VariantDetailCard,
       FeatureMatrixCard,
       VariantCard
   },
@@ -244,7 +288,9 @@ export default {
 
       inProgress: {},
 
-      PROBAND: 'proband'
+      PROBAND: 'proband',
+
+      activeGeneVariantTab: null
 
 
 
@@ -337,6 +383,13 @@ export default {
         return this.cohortModel.maxDepth;
       } else {
         return 0;
+      }
+    },
+    selectedVariantInfo: function() {
+      if (this.selectedVariant) {
+        return utility.formatDisplay(this.selectedVariant, this.cohortModel.translator)
+      } else {
+        return null;
       }
     }
 
@@ -544,6 +597,8 @@ export default {
 
       self.deselectVariant();
       self.promiseLoadGene(geneName);
+      self.activeGeneVariantTab = "0";
+
     },
 
     promiseLoadGene: function(geneName) {
@@ -621,16 +676,19 @@ export default {
     },
     onCohortVariantClick: function(variant, sourceComponent) {
       let self = this;
-      self.selectedVariant = variant;
-      self.showVariantExtraAnnots(sourceComponent, variant);
-      self.$refs.variantCardRef.forEach(function(variantCard) {
-        if (variantCard != sourceComponent) {
-          variantCard.showVariantCircle(variant);
-          variantCard.showCoverageCircle(variant);
+      if (variant) {
+        self.selectedVariant = variant;
+        self.activeGeneVariantTab = "1";
+        self.showVariantExtraAnnots(sourceComponent, variant);
+        self.$refs.variantCardRef.forEach(function(variantCard) {
+          if (variantCard != sourceComponent) {
+            variantCard.showVariantCircle(variant);
+            variantCard.showCoverageCircle(variant);
+          }
+        })
+        if (self.$refs.featureMatrixCardRef != sourceComponent) {
+          self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
         }
-      })
-      if (self.$refs.featureMatrixCardRef != sourceComponent) {
-        self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
       }
     },
     onCohortVariantClickEnd: function(sourceComponent) {
@@ -671,6 +729,7 @@ export default {
     deselectVariant: function() {
       let self = this;
       self.selectedVariant = null;
+      self.activeGeneVariantTab = "0";
       if (self.$refs.variantCardRef) {
         self.$refs.variantCardRef.forEach(function(variantCard) {
           variantCard.hideVariantTooltip();
@@ -693,21 +752,22 @@ export default {
             // If the clicked variant is in the list of annotated variants, show the
             // tooltip; otherwise, the callback will get the extra annots for this
             // specific variant
-            self.showVariantTooltipExtraAnnots(sourceComponent, variant, annotatedVariants, function() {
+            self.refreshVariantExtraAnnots(sourceComponent, variant, annotatedVariants, function() {
               // The clicked variant wasn't annotated in the batch of variants.  Get the
               // extra annots for this specific variant.
               self.cohortModel
                 .getModel(sourceComponent.relationship)
                 .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
                 .then( function(refreshedVariant) {
-                  self.showVariantTooltipExtraAnnots(sourceComponent, variant, [refreshedVariant]);
+                  self.refreshVariantExtraAnnots(sourceComponent, variant, [refreshedVariant]);
                 })
             })
           });
 
       }
     },
-    showVariantTooltipExtraAnnots: function(sourceComponent, variant, annotatedVariants, callbackNotFound) {
+
+    refreshVariantExtraAnnots: function(sourceComponent, variant, annotatedVariants, callbackNotFound) {
       let self = this;
       var targetVariants = annotatedVariants.filter(function(v) {
         return variant &&
@@ -727,7 +787,7 @@ export default {
         variant.vepHGVSp        = annotatedVariant.vepHGVSp;
         variant.vepVariationIds = annotatedVariant.vepVariationIds;
 
-        sourceComponent.showVariantTooltip(variant, true);
+
       } else {
         if (callbackNotFound) {
           callbackNotFound();
