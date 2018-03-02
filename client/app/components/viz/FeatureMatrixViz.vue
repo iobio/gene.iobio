@@ -40,12 +40,12 @@
       pointer-events: none
       outline-offset: -2px
 
-    &.bookmark
+    &.flagged
       fill: none
       stroke: #1574C7
       stroke-width: 4.5
       opacity: .6
-      width: 17px
+      width: 13px
       x: 2
 
   .col.active

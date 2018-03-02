@@ -689,6 +689,8 @@ export default {
         if (self.$refs.featureMatrixCardRef != sourceComponent) {
           self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
         }
+      } else {
+        self.deselectVariant();
       }
     },
     onCohortVariantClickEnd: function(sourceComponent) {
@@ -932,7 +934,6 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant) {
       let self = this;
-      self.selectedVariant = flaggedVariant;
       self.selectedGene = flaggedVariant.gene;
       self.selectedTranscript = flaggedVariant.transcript;
       self.onGeneSelected(self.selectedGene.gene_name);
@@ -940,12 +941,14 @@ export default {
       .then(function() {
         setTimeout(
           function(){
+            self.selectedVariant = flaggedVariant;
             self.$refs.variantCardRef.forEach(function(variantCard) {
               if (variantCard.relationship == 'proband') {
                 variantCard.showFlaggedVariant(flaggedVariant);
               }
             })
             self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant, "flagged");
+            self.activeGeneVariantTab = "1";
           },
           500);
 
