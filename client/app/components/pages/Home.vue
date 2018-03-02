@@ -135,7 +135,7 @@
                 </v-tab-item>
                 <v-tab-item >
                   <variant-detail-card
-                  v-if="selectedVariant"
+                  ref="variantDetailCardRef"
                   :showTitle="false"
                   :selectedGene="selectedGene"
                   :selectedTranscript="analyzedTranscript"
@@ -941,7 +941,7 @@ export default {
       .then(function() {
         setTimeout(
           function(){
-            self.selectedVariant = flaggedVariant;
+            self.$set(self, "selectedVariant", flaggedVariant);
             self.$refs.variantCardRef.forEach(function(variantCard) {
               if (variantCard.relationship == 'proband') {
                 variantCard.showFlaggedVariant(flaggedVariant);
@@ -949,6 +949,7 @@ export default {
             })
             self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant, "flagged");
             self.activeGeneVariantTab = "1";
+            self.$refs.variantDetailCardRef.refreshGlyphs();
           },
           500);
 

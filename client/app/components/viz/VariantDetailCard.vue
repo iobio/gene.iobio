@@ -221,6 +221,12 @@ export default {
       }
       return popAF;
     },
+    refreshGlyphs: function() {
+      if (this.selectedVariant) {
+        this.createAlleleCountsSVG();
+        this.addInheritanceGlyph();
+      }
+    },
     createAlleleCountsSVG: function() {
       var selection = d3.select("#variant-detail #coverage-svg");
       selection.selectAll(".ped-info").remove();
