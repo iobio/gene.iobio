@@ -77,17 +77,6 @@ class VariantTooltip {
     var centerPos = (w/2);
     tooltip.style("--tooltip-center", centerPos + "px");
     tooltip.style("--tooltip-center-before", (centerPos - 3) + "px");
-
-    var x = coord.x;
-    var y = coord.y;
-    var yScroll = window.pageYOffset;
-
-    //var navbarHeight = (+$('body #container').css('top').split("px")[0] - 5);
-    //y -= navbarHeight;
-
-    //var navbarHeight = $('nav').outerHeight();
-    //y -= navbarHeight;
-
     tooltip.classed("chevron", false);
     tooltip.classed("chevron-vertical", false);
     tooltip.classed("chevron-horizontal", false);
@@ -98,7 +87,39 @@ class VariantTooltip {
     tooltip.classed("chevron-right", false);
     tooltip.classed("chevron-center", false);
 
+    var x = coord.x;
+    var y = coord.y;
+    var yScroll = window.pageYOffset;
 
+    var tooltipPos = {
+      top: null,
+      left: null,
+      arrowClasses: []
+    }
+
+    if (lock) {
+      tooltipPos.left = $('#gene-track')[0].offsetLeft;
+      tooltipPos.top  = $('#gene-track')[0].offsetTop;
+      var footerClass = "left-footer";
+      tooltip.selectAll('.' + footerClass + " .tooltip-control-button").classed("hide", false);
+    } else {
+      me.findBestTooltipPosition(tooltipPos, coord, x, y, h, w, yScroll);
+    }
+
+    if (tooltipPos.left && tooltipPos.top) {
+      tooltipPos.arrowClasses.forEach(function(arrowClass) {
+        tooltip.classed(arrowClass, true);
+      })
+      tooltip.style("width", w + "px")
+             .style("left", tooltipPos.left + "px")
+             .style("text-align", 'left')
+             .style("top", tooltipPos.top + "px");
+    }
+
+  }
+
+  findBestTooltipPosition(tooltipPos, coord, x, y, h, w, yScroll ) {
+    var me = this;
     var availSpace = {
       'top':    {allowed: false},
       'bottom': {allowed: false},
@@ -156,49 +177,27 @@ class VariantTooltip {
       availSpace.center.sideTooltipHorzOffset = 0;
     }
 
-    var tooltipTop = null;
-    var tooltipLeft = null;
-    var arrowClasses = null;
     var found = false;
-
     var assignTooltip = function(key1, key2, force=false) {
       found = false;
-      tooltipTop = null;
-      tooltipLeft = null;
-      arrowClasses = ['chevron'];
+      tooltipPos.top = null;
+      tooltipPos.left = null;
+      tooltipPos.arrowClasses = ['chevron'];
 
-
-      tooltipTop  = availSpace[key1].tooltipTop  ? availSpace[key1].tooltipTop  : availSpace[key2].tooltipTop;
-      tooltipLeft = availSpace[key1].tooltipLeft ? availSpace[key1].tooltipLeft + availSpace[key1].tooltipLeftOffset : availSpace[key2].tooltipLeft + availSpace[key2].tooltipLeftOffset;
-      found = (tooltipTop && tooltipLeft) || force;
+      tooltipPos.top  = availSpace[key1].tooltipTop  ? availSpace[key1].tooltipTop  : availSpace[key2].tooltipTop;
+      tooltipPos.left = availSpace[key1].tooltipLeft ? availSpace[key1].tooltipLeft + availSpace[key1].tooltipLeftOffset : availSpace[key2].tooltipLeft + availSpace[key2].tooltipLeftOffset;
+      found = (tooltipPos.top && tooltipPos.left) || force;
 
       if (found) {
         if (key1 == 'top' || key1 == 'bottom') {
-          arrowClasses.push('chevron-vertical');
+          tooltipPos.arrowClasses.push('chevron-vertical');
         } else {
           arrowClasses.push('chevron-horizontal');
-          tooltipLeft += availSpace[key1].sideTooltipHorzOffset;
-          tooltipTop  += availSpace[key2].sideTooltipVertOffset;
+          tooltipPos.left += availSpace[key1].sideTooltipHorzOffset;
+          tooltipPos.top  += availSpace[key2].sideTooltipVertOffset;
         }
-        if (lock) {
-          var footerClass = null;
-          if (key1 == 'left' || key2 == 'left') {
-            footerClass = "right-footer";
-          } else if (key1 == 'right' || key2 == 'right') {
-            footerClass = "left-footer";
-          } else {
-            footerClass = 'center-footer';
-
-            // Make more room for the center so that buttons down't wrap
-            tooltip.select('.center-footer').style("width", "100%");
-            tooltip.select('.right-footer').classed("hide", true);
-            tooltip.select('.left-footer').classed("hide", true);
-          }
-          tooltip.selectAll('.' + footerClass + " .tooltip-control-button").classed("hide", false);
-        }
-        arrowClasses.push("chevron-" + key1);
-        arrowClasses.push("chevron-" + key2);
-
+        tooltipPos.arrowClasses.push("chevron-" + key1);
+        tooltipPos.arrowClasses.push("chevron-" + key2);
       }
     }
 
@@ -221,18 +220,6 @@ class VariantTooltip {
       var key2 = pp[key1][0];
       assignTooltip(key1, key2, true)
     }
-
-
-    if (found) {
-      arrowClasses.forEach(function(arrowClass) {
-        tooltip.classed(arrowClass, true);
-      })
-      tooltip.style("width", w + "px")
-             .style("left", tooltipLeft + "px")
-             .style("text-align", 'left')
-             .style("top", tooltipTop + "px");
-    }
-
   }
 
 

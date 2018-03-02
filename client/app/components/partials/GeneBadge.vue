@@ -249,7 +249,8 @@
   display: none
   fill: #9d2024
 
-
+.impact-badge
+  vertical-align: top
 
 #gene-badge-remove
   i
@@ -347,7 +348,7 @@
           <svg
            v-if="getImpactClass({'del': true}) != null"
            class="impact-badge" height="12" width="13">
-            <g transform="translate(5,3)">
+            <g transform="translate(5,6)">
               <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
               v-bind:class="getImpactClass({'del': true})">
               </path>
@@ -357,7 +358,7 @@
           <svg
            v-if="getImpactClass({'ins': true}) != null"
            class="impact-badge" height="12" width="13">
-            <g transform="translate(5,3)">
+            <g transform="translate(5,6)">
               <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
               v-bind:class="getImpactClass({'ins': true})">
               </path>

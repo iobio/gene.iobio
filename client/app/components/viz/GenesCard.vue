@@ -55,12 +55,14 @@
           background-color: $loaded-variant-progress-color !important
         .progress-linear__background
           background-color: $loaded-variant-progress-color !important
+          height: 20px !important
 
       .called-progress
         .progress-linear__bar__determinate
           background-color: $called-variant-color !important
         .progress-linear__background
           background-color: $called-variant-color !important
+          height: 20px !important
 
       .progress-linear
         margin: 1px 0

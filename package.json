@@ -18,7 +18,7 @@
     "vue": "^2.3.4",
     "vue-material": "^1.0.0-beta-7",
     "vue-router": "^2.5.3",
-    "vuetify": "^0.17.6"
+    "vuetify": "^1.0.4"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",

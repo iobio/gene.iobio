@@ -67,11 +67,11 @@
 
         <v-layout row style="margin-left: 0px;margin-right:0px">
           <v-flex d-flex style="min-width:400px;max-width: 400px;margin-right:10px"
-           v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || models.length == 0 }"
+           v-if="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants"
           >
             <feature-matrix-card
             ref="featureMatrixCardRef"
-            v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
+            v-if="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants"
             :featureMatrixModel="featureMatrixModel"
             :selectedGene="selectedGene"
             :selectedTranscript="analyzedTranscript"
