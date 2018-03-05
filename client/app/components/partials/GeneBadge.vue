@@ -71,7 +71,7 @@
 
   &.is-flagged
     #gene-badge-bookmark
-      display: inline
+      display: none
 
   &.in-progress
     .gene-badge-loader

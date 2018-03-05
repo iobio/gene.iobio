@@ -18,7 +18,7 @@
   v-model="showFilterMenu"
   >
 
-    <v-btn slot="activator" fab small raised>
+    <v-btn slot="activator" fab small flat>
       <v-icon>expand_more</v-icon>
     </v-btn>
 

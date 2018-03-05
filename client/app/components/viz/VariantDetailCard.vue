@@ -6,15 +6,15 @@
   min-height: 218px
   max-height: 218px
   padding-top: 0px
+  overflow-x: scroll
 
   .content
     font-size: 12px
-    max-height: 180px
     padding-left: 10px
-    overflow-x: scroll
+    margin-bottom: 10px
     float: left
-    max-width: 300px
-    min-width: 300px
+    max-width: 350px
+    min-width: 350px
 
   .field-label
     color: #b4b3b3

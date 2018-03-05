@@ -102,7 +102,7 @@
         Called
       </v-badge>
       <v-badge  v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].geneCoverageProblem" class="ml-4 mr-4 mt-1 coverage-problem" >
-        <span slot="badge"> {{ Object.keys(sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].geneCoverageInfo).length }} </span>
+        <span slot="badge"> {{ coverageDangerRegions.length }} </span>
         Exons with insufficient coverage
       </v-badge>
 
