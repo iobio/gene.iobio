@@ -135,7 +135,6 @@
                 </v-tab-item>
                 <v-tab-item >
                   <variant-detail-card
-                  v-if="selectedVariant"
                   ref="variantDetailCardRef"
                   :showTitle="false"
                   :selectedGene="selectedGene"

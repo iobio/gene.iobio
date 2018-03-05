@@ -153,12 +153,12 @@
 
 <template>
 
-  <v-card tile id="variant-detail" class="app-card">
+  <v-card  tile id="variant-detail" class="app-card">
     <v-card-title primary-title style="width:100%">
       <span style="display:inline-block" v-if="showTitle ">Variant</span>
     </v-card-title>
 
-      <div class="text-xs-center" style="padding-bottom: 4px;">
+      <div  v-if="selectedVariant" class="text-xs-center" style="padding-bottom: 4px;">
         <span>{{ selectedGene.gene_name }}</span>
         <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1 refalt">{{ info.refalt  }}</span>
@@ -169,7 +169,7 @@
         <span class="variant-label pl-3" id="inheritance">{{ info.inheritance }}</span>
       </div>
 
-    <v-layout class="content" column nowrap>
+    <v-layout  v-if="selectedVariant" class="content" column nowrap>
       <v-flex>
         <v-layout row>
            <v-flex xs4 class="field-label">Impact</v-flex>
