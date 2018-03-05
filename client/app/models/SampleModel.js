@@ -1249,7 +1249,7 @@ class SampleModel {
                me.getGeneModel().geneSource == 'refseq' ? true : false,
                true,  // hgvs notation
                true,  // rsid
-               false, // vep af
+               true, // vep af
                useServerCache // serverside cache
             ).then( function(data) {
 
@@ -1305,8 +1305,9 @@ class SampleModel {
                       reject('Cannot find vcf record for variant ' + theGene.gene_name + " " + variant.start + " " + variant.ref + "->" + variant.alt);
                     }
                   } else {
-                    me._promiseGetData(CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
-                     .then(function(cachedVcfData) {
+                    me.promiseGetVcfData(theGene, theTranscript)
+                     .then(function(data) {
+                      var cachedVcfData = data.vcfData;
                       if (cachedVcfData) {
                         var theVariants = cachedVcfData.features.filter(function(d) {
                           if (d.start == v.start &&
@@ -1320,11 +1321,28 @@ class SampleModel {
                         if (theVariants && theVariants.length > 0) {
                           var theVariant = theVariants[0];
 
-                        // set the hgvs and rsid on the existing variant
-                          theVariant.extraAnnot = true;
-                          theVariant.vepHGVSc = v.vepHGVSc;
-                          theVariant.vepHGVSp = v.vepHGVSp;
-                          theVariant.vepVariationIds = v.vepVariationIds;
+                          // set the hgvs and rsid on the existing variant
+                          theVariant.extraAnnot      = true;
+                          var vepAnnots = [
+                            'vepConsequence',
+                            'vepImpact',
+                            'vepExon',
+                            'vepHGVSc',
+                            'vepHGVSp',
+                            'vepAminoAcids',
+                            'vepVariationIds',
+                            'vepSIFT',
+                            'vepPolyPhen',
+                            'vepRegs',
+                            'regulatory',
+                            'vepAf',
+                            'highestImpactVep',
+                            'highestSIFT',
+                            'highestPolyphen'
+                            ];
+                          vepAnnots.forEach(function(vepAnnot) {
+                            theVariant[vepAnnot]        = v[vepAnnot];
+                          })
 
                           // re-cache the data
                           me._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
@@ -1386,9 +1404,10 @@ class SampleModel {
         trRefName = me.getVcfRefName(theGeneObject.chr);
 
         // Get the coords for variants of high or moder impact
-        return me._promiseGetData(CacheHelper.VCF_DATA, theGeneObject.gene_name, theTranscript)
+        return me.promiseGetVcfData(theGeneObject, theTranscript)
        })
-       .then( function(theVcfData) {
+       .then( function(data) {
+        var theVcfData = data.vcfData;
 
         var regions   = theVcfData.features.filter(function(variant) {
           if (variant.fbCalled == 'Y')  {

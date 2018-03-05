@@ -166,7 +166,7 @@
         <span class="pl-3">{{ info.coord }}</span>
         <span class="pl-1">{{ info.exon }}</span>
         <span class="pl-3" v-if="info.dbSnpLink" v-html="info.dbSnpLink"></span>
-        <span class="variant-label pl-3" id="inheritance">{{ info.inheritance }}</span>
+        <span class="variant-label pl-3" id="inheritance"></span>
       </div>
 
     <v-layout  v-if="selectedVariant" class="content" column nowrap>
@@ -195,7 +195,7 @@
         </v-layout>
       </v-flex>
       <v-flex >
-        <v-layout row>
+        <v-layout  row>
            <v-flex xs4 class="field-label">HGVSc </v-flex>
            <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
         </v-layout>
@@ -225,7 +225,7 @@
         </v-layout>
       </v-flex>
 
-      <v-flex >
+      <v-flex>
         <v-layout row>
            <v-flex xs4 class="field-label">gnomAD</v-flex>
            <v-flex xs9 class="field-value" v-html="afGnomAD"></v-flex>
@@ -321,6 +321,8 @@ export default {
     },
     addInheritanceGlyph: function() {
       let self = this;
+      d3.select("#variant-detail #inheritance span").remove();
+      d3.select("#variant-detail #inheritance .inheritance-badge").remove();
       if (self.selectedVariant && self.selectedVariant.inheritance != '') {
         var clazz = self.cohortModel.translator.inheritanceMap[self.selectedVariant.inheritance].clazz;
         var symbolFunction = self.cohortModel.translator.inheritanceMap[self.selectedVariant.inheritance].symbolFunction;
@@ -416,7 +418,7 @@ export default {
            .text("Read Counts");
 
       var g = svg.append("g")
-                 .attr("transform", "translate(77,1)");
+                 .attr("transform", "translate(86,1)");
 
       g.append("text")
            .attr("x", "13")
@@ -639,7 +641,9 @@ export default {
 
   computed: {
     afGnomAD: function(af) {
-      if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
+      if (this.selectedVariant.vepAf.gnomAD.AF == null) {
+        return "unknown";
+      } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
         return "0%";
       } else  {
         var af = utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
