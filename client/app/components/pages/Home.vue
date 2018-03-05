@@ -79,7 +79,7 @@
         </genes-card>
 
         <v-layout row style="margin-left: 0px;margin-right:0px">
-          <v-flex d-flex style="min-width:400px;max-width: 400px;margin-right:10px"
+          <v-flex d-flex style="min-width:350px;max-width: 350px;margin-right:10px"
            v-if="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants"
           >
             <feature-matrix-card
@@ -135,6 +135,7 @@
                 </v-tab-item>
                 <v-tab-item >
                   <variant-detail-card
+                  v-if="selectedVariant"
                   ref="variantDetailCardRef"
                   :showTitle="false"
                   :selectedGene="selectedGene"

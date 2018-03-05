@@ -68,7 +68,7 @@
       border: solid thin $filter-summary-border-color
 
   #feature-matrix-note
-    padding-left: 180px
+    padding-left: 50px
     font-size: 12px
     margin-top: -15px
 
@@ -78,18 +78,29 @@
     color: $text-color !important
     margin-top: 0px
 
-
+  .show-settings-button
+    margin-left: 5px
+    margin-right: 0px
+    margin-top: -5px
+    margin-bottom: 0px
+    float: right
 
 </style>
 
 <template>
 
   <v-card tile id="matrix-card" class="app-card">
-    <v-card-title primary-title>
-        <span style="float:left;width:70%">
+    <div style="width:100%">
+        <span style="float:left">
           Ranked Variants for {{ selectedGene.gene_name }}
         </span>
-        <a id="move-rows" class="level-edu level-basic" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" href="javascript:void(0)" @click="toggleMoveRows">
+        <div id="rank-variants-title" class="hide card-label" style="">Evaluate Variants</div>
+
+        <v-btn flat fab small slot="activator" class="show-settings-button" @click="showSettings = !showSettings"
+        light>
+          <v-icon style="font-size:17px" >settings</v-icon>
+        </v-btn>
+        <a v-if="showSettings" id="move-rows" class="level-edu level-basic" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" href="javascript:void(0)" @click="toggleMoveRows">
            <i class="material-icons">swap_vert</i>
           Reorder
         </a>
@@ -97,12 +108,11 @@
 
 
 
-      <div id="rank-variants-title" class="hide card-label" style="">Evaluate Variants</div>
 
 
-    </v-card-title>
+    </div>
 
-    <div style="width:100%;margin-top:-10px">
+    <div style="clear:both;width:100%;margin-top:-10px">
 
 
       <div id="matrix-panel"  style="clear:both;min-height:30px"
@@ -141,7 +151,7 @@
 
         <div id="feature-matrix-note" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" >
 
-          <div style="display:inline-block">
+          <div style="display:inline-block;margin-left:130px">
             <svg style="height: 10px;width:108px">
               <g transform="translate(8,6)">
                 <line x1="0" y1="0" x2="100" y2="0" style="stroke: lightgrey;stroke-width: 4;"></line>
@@ -231,7 +241,9 @@ export default {
       columnLabelClass: this.getVariantLabelClass,
       columnLabelSymbol: this.columnHeaderSymbol,
       adjustTooltipCoordinates: function(variant) {
-      }
+      },
+
+      showSettings: false
 
 
     }

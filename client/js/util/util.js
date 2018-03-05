@@ -609,6 +609,7 @@ class Util {
   }
 
   formatDisplay(variant, translator) {
+    var me = this;
     var info = {
       coord: "",
       refalt: "",
@@ -630,6 +631,7 @@ class Util {
       vepConsequence: "",
       HGVSc: "",
       HGVSp: "",
+      HGVSpAbbrev: "",
       HGVScLoading: false,
       HGVSpLoading: false,
       sift: "",
@@ -793,6 +795,7 @@ class Util {
           info.HGVSp += key;
         }
       }
+      info.HGVSpAbbrev = me.formatHgvsP(variant, variant.vepHGVSp);
     } else {
       info.HGVScLoading = true;
       info.HGVSpLoading = true;
