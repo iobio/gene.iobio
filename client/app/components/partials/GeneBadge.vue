@@ -439,7 +439,20 @@ export default {
       var clazz = null;
       if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highOrModerate.length > 0 ) {
         for (var variantType in variantTypes) {
-          var theVariantType = variantType.toUpperCase();
+
+
+          this.gene.dangerSummary.badges.highOrModerate.forEach(function(variant) {
+            if (variant.type.toUpperCase() == variantType.toUpperCase()) {
+              if (variant.highestImpactVep.HIGH) {
+                clazz = 'filter-symbol impact_HIGH';
+              } else if (variant.highestImpactVep.MODERATE) {
+                clazz = 'filter-symbol impact_MODERATE';
+              }
+            }
+          })
+
+
+          /*
           if (self.gene.dangerSummary.IMPACT.HIGH
             && (self.gene.dangerSummary.IMPACT.HIGH[theVariantType] || self.gene.dangerSummary.IMPACT.HIGH[variantType])) {
             clazz = 'filter-symbol impact_HIGH';
@@ -447,6 +460,7 @@ export default {
             && (self.gene.dangerSummary.IMPACT.MODERATE[theVariantType] || self.gene.dangerSummary.IMPACT.MODERATE[variantType])) {
             clazz = 'filter-symbol impact_MODERATE';
           }
+          */
         }
       }
       return clazz;
