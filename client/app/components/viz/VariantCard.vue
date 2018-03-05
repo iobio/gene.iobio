@@ -67,6 +67,9 @@
     &.loaded
       .badge__badge
         background-color: $loaded-variant-progress-color !important
+    &.coverage-problem
+      .badge__badge
+        background-color: $coverage-problem-color !important
 
     .badge__badge
       font-size: 11px
@@ -97,6 +100,10 @@
         class="mr-4 mt-1 called">
         <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
         Called
+      </v-badge>
+      <v-badge  v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].geneCoverageProblem" class="ml-4 mr-4 mt-1 coverage-problem" >
+        <span slot="badge"> {{ Object.keys(sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].geneCoverageInfo).length }} </span>
+        Exons with insufficient coverage
       </v-badge>
 
       <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="zoom-switch mt-1" style="max-width:80px"
