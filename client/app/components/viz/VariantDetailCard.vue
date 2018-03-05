@@ -145,7 +145,7 @@
       <v-flex  v-if="info.regulatory != ''">
         <v-layout row>
            <v-flex xs4 class="field-label">Regulatory</v-flex>
-           <v-flex xs8 class="field-value">{{ info.regulatory }}</v-flex>
+           <v-flex xs8  v-html="info.regulatory" class="field-value"></v-flex>
         </v-layout>
       </v-flex>
 
