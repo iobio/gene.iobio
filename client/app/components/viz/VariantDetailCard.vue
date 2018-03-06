@@ -26,6 +26,9 @@
     padding-right: 25px
     word-break: break-word
 
+  #inheritance
+    height: 18px
+
   #coverage-svg
     float: left
 
@@ -166,10 +169,15 @@
         <span class="pl-3">{{ info.coord }}</span>
         <span class="pl-1">{{ info.exon }}</span>
         <span class="pl-3" v-if="info.dbSnpLink" v-html="info.dbSnpLink"></span>
-        <span class="variant-label pl-3" id="inheritance"></span>
       </div>
 
     <v-layout  v-if="selectedVariant" class="content" column nowrap>
+      <v-flex v-if="selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
+        <v-layout row>
+           <v-flex xs4 class="field-label">Inheritance</v-flex>
+           <v-flex id="inheritance" xs9 class="field-value"></v-flex>
+        </v-layout>
+      </v-flex>
       <v-flex>
         <v-layout row>
            <v-flex xs4 class="field-label">Impact</v-flex>
@@ -328,7 +336,7 @@ export default {
         var symbolFunction = self.cohortModel.translator.inheritanceMap[self.selectedVariant.inheritance].symbolFunction;
         var display = self.cohortModel.translator.inheritanceMap[self.selectedVariant.inheritance].display;
         $(self.$el).find("#inheritance").html("");
-        $(self.$el).find("#inheritance").append("<svg class=\"inheritance-badge\"  height=\"15\" width=\"16\">");
+        $(self.$el).find("#inheritance").append("<svg class=\"inheritance-badge\"  height=\"15\" width=\"15\">");
         var options = {width:15, height:15, transform: 'translate(0,2)'};
         var selection = d3.select(self.$el).select("#inheritance .inheritance-badge").data([{clazz: clazz}]);
         symbolFunction(selection, options);
