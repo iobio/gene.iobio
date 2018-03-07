@@ -39,6 +39,18 @@ nav.toolbar
       padding-bottom: 7px
       clear: none
       font-size: 13px !important
+
+#credits
+  font-size: 12px
+
+.citation-title
+  margin-bottom: 0px !important
+  margin-top: 5px !important
+  font-size: 12px
+  color: #717171
+  font-weight: 600
+  clear: both
+
 </style>
 
 <template>
@@ -110,6 +122,9 @@ nav.toolbar
           </v-list-tile>
           <v-list-tile  @click="onShowVersion">
             <v-list-tile-title>Version</v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile  @click="onShowCitations">
+            <v-list-tile-title>Software and Resources</v-list-tile-title>
           </v-list-tile>
           <v-list-tile  @click="onLoadDemoData">
             <v-list-tile-title>Load Demo Data</v-list-tile-title>
@@ -199,6 +214,99 @@ nav.toolbar
           </v-card-actions>
         </v-card>
     </v-dialog>
+
+
+   <v-dialog v-model="showCitations" max-width="700">
+        <v-card>
+          <v-card-title class="headline">Software and Resources</v-card-title>
+          <v-card-text>
+
+
+            <div id="credits">
+
+
+
+              <div class="citation-title">Human Phenotype Ontology</div>
+              Sebastian Köhler, Sandra C Doelken, Christopher J. Mungall, Sebastian Bauer, Helen V. Firth, et al.The Human Phenotype Ontology project: linking molecular biology and disease through phenotype data
+              <a href="http://nar.oxfordjournals.org/content/42/D1/D966.full" target="_new">Nucliec Acids Res. (1 January 2014) 42 (D1): D966-D974 doi:10.1093/nar/gkt1026</a>
+
+
+              <div class="citation-title">Phenolyzer</div>
+              Yang, Hui, Peter N. Robinson, and Kai Wang. Phenolyzer: phenotype-based prioritization of candidate genes for human diseases.
+              <a href="http://www.nature.com/nmeth/journal/v12/n9/abs/nmeth.3484.html" target="_new">Nature Methods (2015).
+              </a>
+
+              <div class="citation-title">SnpEff</div>
+               "A program for annotating and predicting the effects of single nucleotide polymorphisms, SnpEff: SNPs in the genome of Drosophila melanogaster strain w1118; iso-2; iso-3.", Cingolani P, Platts A, Wang le L, Coon M, Nguyen T, Wang L, Land SJ, Lu X, Ruden DM. Fly (Austin). <a href="http://snpeff.sourceforge.net/SnpEff_paper.pdf" target="_new">2012 Apr-Jun;6(2):80-92.</a> PMID: 22728672 [PubMed - in process]
+
+              <div class="citation-title">Variant Effect Predictor</div>
+              McLaren W, Pritchard B, Rios D, Chen Y, Flicek P, Cunningham F.Deriving the consequences of genomic variants with the Ensembl API and SNP Effect Predictor.
+              <a href="http://dx.doi.org/10.1093/bioinformatics/btq330" target="_new">Bioinformatics 26(16):2069-70(2010)doi:10.1093/bioinformatics/btq330</a>
+
+              <div class="citation-title">PolyPhen</div>
+              Adzhubei IA, Schmidt S, Peshkin L, Ramensky VE, Gerasimova A, Bork P, Kondrashov AS, Sunyaev SR. Nat Methods <strong>7</strong>(4):248-249 (2010). <a href="http://www.ncbi.nlm.nih.gov/pubmed/20354512" class="urlextern" title="http://www.ncbi.nlm.nih.gov/pubmed/20354512" rel="nofollow">PubMed</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248.pdf" class="media mediafile mf_pdf" title="nmeth0410-248.pdf">PDF</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248-s1.pdf" class="media mediafile mf_pdf" title="nmeth0410-248-s1.pdf">Supplemental Information</a>
+
+              <div class="citation-title">SIFT</div>
+                       Kumar P, Henikoff S, Ng PC. Predicting the effects of coding non-synonymous variants on
+                       protein function using the SIFT algorithm.
+                       <i>Nat Protoc. 2009</i>;4(7):1073-81.
+               <a href="http://www.ncbi.nlm.nih.gov/pubmed/19561590">PubMed</a> <a href="/www/nprot.2009.86.pdf" target="_blank">PDF</a>
+
+              <div class="citation-title">FreeBayes</div>
+              Garrison E, Marth G. Haplotype-based variant detection from short-read sequencing
+              <a href="/abs/1207.3907v2">arXiv:1207.3907v2</a> [q-bio.GN]
+
+              <div class="citation-title">ClinVar</div>
+              Landrum MJ, Lee JM, Riley GR, Jang W, Rubinstein WS, Church DM, Maglott DR. <u>ClinVar: public archive of relationships among sequence variation and human phenotype</u>. Nucleic Acids Res. 2014 Jan 1;42(1):D980-5. doi: 10.1093/nar/gkt1113. PubMed PMID: <a href="/pubmed/24234437">24234437</a>
+
+              <div class="citation-title">Samtools</div>
+              Li H.*, Handsaker B.*, Wysoker A., Fennell T., Ruan J., Homer N.,
+              Marth G., Abecasis G., Durbin R. and 1000 Genome Project Data
+              Processing Subgroup (2009) The Sequence alignment/map (SAM) format and
+              SAMtools. Bioinformatics, 25,
+              2078-9. [PMID: <a href="http://www.ncbi.nlm.nih.gov/pubmed/19505943">19505943</a>]
+
+              <div class="citation-title">Bamtools</div>
+              BamTools: a C++ API and toolkit for analyzing and managing BAM files</span>. Bioinformatics 2011;27:1691-1692.
+              <a href="/cgi/ijlink?linkType=ABST&amp;journalCode=bioinfo&amp;resid=27/12/1691" class="cit-ref-sprinkles cit-ref-sprinkles-ijlinks"><span class="cit-reflinks-abstract">Abstract</span><span class="cit-sep cit-reflinks-variant-name-sep">/</span><span class="cit-reflinks-full-text"><span class="free-full-text">FREE </span>Full Text</span></a>
+
+              <div class="citation-title">vt</div>
+              <a rel="nofollow" class="external text" href="http://bioinformatics.oxfordjournals.org/content/31/13/2202">Adrian Tan, Gonçalo R. Abecasis and Hyun Min Kang. Unified Representation of Genetic Variants. Bioinformatics (2015) 31(13): 2202-2204</a>
+
+              <div class="citation-title">ExAC</div>
+              Analysis of protein-coding genetic variation in 60,706 humans<a href="http://biorxiv.org/content/early/2015/10/30/030338">preprint on bioRxiv</a>
+
+              <br>
+                      The authors would like to thank the Exome Aggregation Consortium and the groups that provided exome variant data for comparison. A full list of contributing groups can be found at
+                      <a href="/about">http://exac.broadinstitute.org/about</a>.
+
+              <div class="citation-title">1000 Genomes</div>
+              Pilot Analysis
+              <br>
+                <a href="http://www.nature.com/nature/journal/v467/n7319/full/nature09534.html">A map of human genome variation from population-scale sequencing</a>
+                <em>Nature 467, 1061–1073 (28 October 2010)</em>
+                <br>Phase 1 Analysis<br>
+                    <a href="http://www.nature.com/nature/journal/v491/n7422/full/nature11632.html">An integrated map of genetic variation from 1,092 human genomes</a>
+                    <em>Nature 491, 56–65 (01 November 2012)</em>
+                <br>Phase 3 Analysis <br>
+                    <a href="http://www.nature.com/nature/journal/v526/n7571/full/nature15393.html">A global reference for human genetic variation</a>
+                    <em>Nature 526, 68–74 (01 October 2015)</em>
+                <br>
+                    <a href="http://www.nature.com/nature/journal/v526/n7571/full/nature15394.html">An integrated map of structural variation in 2,504 human genomes</a>
+                    <em>Nature 526, 75–81 (01 October 2015)</em>
+
+
+
+
+            </div>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn raised  @click.native="showCitations = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+    </v-dialog>
+
   </div>
 </template>
 
@@ -238,6 +346,8 @@ export default {
       showLegendMenu: false,
       showDisclaimer: false,
       showVersion: false,
+      showCitations: false,
+
       appVersionNumber: version
 
     }
@@ -287,6 +397,9 @@ export default {
     },
     onShowVersion: function() {
       this.showVersion = true;
+    },
+    onShowCitations: function() {
+      this.showCitations = true;
     }
   },
   created: function() {
