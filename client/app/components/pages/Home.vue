@@ -17,7 +17,7 @@
 
 .tabs__container
   height: 32px !important
-  margin-left: 10px
+  margin-left: 0px
 
   .tabs__item
     color: $text-color

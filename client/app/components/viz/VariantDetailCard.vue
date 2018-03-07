@@ -156,10 +156,10 @@
 
 <template>
 
-  <v-card  tile id="variant-detail" class="app-card">
-    <v-card-title primary-title style="width:100%">
+  <div tile id="variant-detail" class="app-card">
+    <div style="width:100%">
       <span style="display:inline-block" v-if="showTitle ">Variant</span>
-    </v-card-title>
+    </div>
 
       <div  v-if="selectedVariant" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
         <span>{{ selectedVariantRelationship | capitalize }}</span>
@@ -262,7 +262,7 @@
 
     <div  id="coverage-svg">
     </div>
-  </v-card>
+  </div>
 
 </template>
 

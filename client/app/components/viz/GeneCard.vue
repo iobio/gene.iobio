@@ -121,10 +121,10 @@
 
 <template>
 
-  <v-card tile id="gene-track" class="app-card">
-    <v-card-title primary-title style="width:100%">
+  <div tile id="gene-track" class="app-card">
+    <div primary-title style="width:100%">
       <span style="display:inline-block" v-if="showTitle ">Gene</span>
-    </v-card-title>
+    </div>
     <div>
       <div style="display:inline-block;margin-right:auto;">
         <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
@@ -215,7 +215,7 @@
 
     </div>
 
-    <div style="min-height:150px;max-height:150px;overflow-y:scroll">
+    <div style="min-height:180px;max-height:180px;overflow-y:scroll">
       <div v-if="showGene && ncbiSummary" id="ncbi-summary">
         {{ ncbiSummary.summary }}
       </div>
@@ -232,7 +232,7 @@
       </div>
     </div>
 
-  </v-card>
+  </div>
 
 
 
