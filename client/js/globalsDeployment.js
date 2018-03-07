@@ -2,7 +2,7 @@
     with for a local deployment.  This entire .js can be replaced or modified to suit the
     specific iobio deployment environment.
 */
-var version               = "2.6";
+var version               = "3.0";
 
 var isOffline             = false;          // is there any internet connect to outside services and resources?
 var isClinvarOffline      = false;          // is clinvar offline?  (Pull from clinvar hosted from URL?)

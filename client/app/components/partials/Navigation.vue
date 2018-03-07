@@ -13,6 +13,32 @@ nav.toolbar
     margin-right: 20px
     padding-bottom: 5px
 
+#versions
+  font-size: 14px
+  color:  rgb(132,132,132)
+  padding-top: 5px
+  margin-bottom: 20px !important
+
+  div
+    margin-bottom: 0px !important
+    clear: both
+
+    .version-label
+      width: 230px
+      float: left
+      padding-right: 5px
+      clear: none
+      padding-bottom: 7px
+      color: #717171
+      font-weight: 600
+      font-size: 13px !important
+
+    .number
+      width: 220px
+      float: left
+      padding-bottom: 7px
+      clear: none
+      font-size: 13px !important
 </style>
 
 <template>
@@ -78,6 +104,13 @@ nav.toolbar
       <v-menu offset-y>
         <v-btn flat slot="activator">Help</v-btn>
         <v-list>
+
+          <v-list-tile  @click="onShowDisclaimer">
+            <v-list-tile-title>Disclaimer</v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile  @click="onShowVersion">
+            <v-list-tile-title>Version</v-list-tile-title>
+          </v-list-tile>
           <v-list-tile  @click="onLoadDemoData">
             <v-list-tile-title>Load Demo Data</v-list-tile-title>
           </v-list-tile>
@@ -87,6 +120,7 @@ nav.toolbar
           <v-list-tile  @click="onClearCache">
             <v-list-tile-title>Clear session data</v-list-tile-title>
           </v-list-tile>
+
         </v-list>
       </v-menu>
     </v-toolbar>
@@ -114,6 +148,57 @@ nav.toolbar
 
     </v-navigation-drawer>
 
+    <v-dialog v-model="showDisclaimer" max-width="400">
+        <v-card>
+          <v-card-title class="headline">Disclaimer</v-card-title>
+          <v-card-text>
+
+                  The University of Utah makes no claims that iobio applications, including gene.iobio are approved for clinical use. All users of iobio applications including gene.iobio understand and accept that any information gained by using these applications, whether the information comes from visualization, processing, internal or external databases, or analysis, may not in any way be used for clinical purposes. The University of Utah makes no representation that iobio or gene.iobio is either safe or effective for any intended use for which research may currently be performed.
+                  <br><br>
+                  iobio, or any iobio applications ARE TO BE USED FOR RESEARCH PURPOSES ONLY. USE FOR CLINICAL PURPOSES IS EXPRESSLY FORBIDDEN. Approval of iobio applications for clinical use has neither been applied for, nor received, in any country, including the United States of America.
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn raised  @click.native="showDisclaimer = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+
+    <v-dialog v-model="showVersion" max-width="580">
+        <v-card>
+          <v-card-title class="headline">gene.iobio {{ appVersionNumber }}</v-card-title>
+          <v-card-text>
+
+
+            <div  style="margin-top:4px;padding-top:0px;padding-bottom:0px;font-size:12px;color:rgb(132,132,132)">
+              <div id="versions" >
+                <div><span class="version-label">Human Genome Reference</span><span class="number">GRCh37, GRCh38</span></div>
+                <div><span class="version-label">Gencode Human Reference</span><span class="number">19, 25</span></div>
+                <div><span class="version-label">REFSEQ Human Reference</span><span class="number">ref_GRCh37.p5, ref_GRCh38.p7</span></div>
+                <div><span class="version-label">Human Phenotype Ontology</span><span class="number">Build #102 (12-15-2015)</span></div>
+                <div><div class="version-label">Phenolyzer</div><div class="number">1.0.5 (02-21-2015)</div></div>
+                <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 90</div></div>
+                <div><div class="version-label">&nbsp;&nbsp;&nbsp;SIFT</div><div class="number">5.2.2</div></div>
+                <div><div class="version-label">&nbsp;&nbsp;&nbsp;PolyPhen</div><div class="number">2.2.2</div></div>
+                <div><div class="version-label">FreeBayes</div><div class="number">v1.0.2-33-gdbb6160-dirty</div></div>
+                <div><div class="version-label">Samtools</div><div class="number">samtools 1.3.1-33-gb25695b-dirty</div></div>
+                <div><div class="version-label">vt subset, normalize</div><div class="number">v0.5</div></div>
+                <div><div class="version-label">ExAC</div><div class="number">Release 0.3.1 (03-13-2016)</div></div>
+                <div><div class="version-label">1000G</div><div class="number">Phase 3 (05-02-2013)</div></div>
+                <div><div class="version-label">ACMG Genes</div> <div class="number">v2.0</div></div>
+
+
+              </div>
+            </div>
+
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn raised  @click.native="showVersion = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -138,7 +223,7 @@ export default {
   props: {
     geneModel: null,
     cohortModel: null,
-    flaggedVariants: null,
+    flaggedVariants: null
   },
   data () {
     return {
@@ -150,7 +235,10 @@ export default {
       rightDrawer: false,
 
       leftDrawerContents: "flagged-variants",
-      showLegendMenu: false
+      showLegendMenu: false,
+      showDisclaimer: false,
+      showVersion: false,
+      appVersionNumber: version
 
     }
   },
@@ -193,6 +281,12 @@ export default {
     },
     onWelcome: function() {
       this.$emit("on-show-welcome");
+    },
+    onShowDisclaimer: function() {
+      this.showDisclaimer = true;
+    },
+    onShowVersion: function() {
+      this.showVersion = true;
     }
   },
   created: function() {
