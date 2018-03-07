@@ -10,6 +10,7 @@ import VueRouter from 'vue-router'
 import App from './App.vue'
 import Home from './components/pages/Home.vue'
 
+
 import bootstrap from 'bootstrap/dist/css/bootstrap.css'
 import { Typeahead } from 'uiv'
 Vue.use(Typeahead)

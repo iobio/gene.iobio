@@ -81,7 +81,6 @@
 
 
 
-
         <div v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-bottom:10px">
          <split-pane :leftPercent="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (this.isLeftDrawerOpen ? 35 : 25) : 0">
             <feature-matrix-card slot="left" style="min-height:251px;max-height:251px;overflow-y:scroll"
@@ -154,8 +153,12 @@
             </v-card>
 
          </split-pane>
-      </div>
+        </div>
 
+
+        <welcome
+         v-if="!cohortModel || !cohortModel.isLoaded ">
+        </welcome>
 
         <div
         id="data-sources-loader"
@@ -211,7 +214,8 @@
 <script>
 
 
-import Navigation         from '../partials/Navigation.vue'
+import Navigation         from  '../partials/Navigation.vue'
+import Welcome            from  '../partials/Welcome.vue'
 import GeneCard           from  '../viz/GeneCard.vue'
 import VariantDetailCard  from  '../viz/VariantDetailCard.vue'
 import GenesCard          from  '../viz/GenesCard.vue'
@@ -231,6 +235,7 @@ export default {
   name: 'home',
   components: {
       Navigation,
+      Welcome,
       GenesCard,
       GeneCard,
       VariantDetailCard,
