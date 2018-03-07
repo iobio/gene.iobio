@@ -78,13 +78,14 @@
         >
         </genes-card>
 
-        <v-layout row style="margin-left: 0px;margin-right:0px">
-          <v-flex d-flex style="min-width:350px;max-width: 350px;margin-right:10px"
-           v-if="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants"
-          >
-            <feature-matrix-card
+
+
+
+        <div v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-bottom:10px">
+         <split-pane :leftPercent="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? 30 : 0">
+            <feature-matrix-card slot="left" style="min-height:251px;max-height:251px;overflow-y:scroll"
             ref="featureMatrixCardRef"
-            v-if="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants"
+            v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
             :featureMatrixModel="featureMatrixModel"
             :selectedGene="selectedGene"
             :selectedTranscript="analyzedTranscript"
@@ -101,10 +102,10 @@
             @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
             >
             </feature-matrix-card>
-          </v-flex>
 
-          <v-flex d-flex >
-             <v-tabs
+            <v-card slot="right" style="min-height:251px;max-height:251px;overflow-y:scroll">
+
+              <v-tabs
                 v-if="geneModel && Object.keys(selectedGene).length > 0"
                 v-model="activeGeneVariantTab"
                 light
@@ -115,7 +116,7 @@
                 <v-tab >
                   Variant
                 </v-tab>
-                <v-tab-item>
+                <v-tab-item style="max-height:210px;overflow-y:scroll">
                   <gene-card
                     v-if="geneModel && Object.keys(selectedGene).length > 0"
                     :showTitle="false"
@@ -133,13 +134,14 @@
                     >
                   </gene-card>
                 </v-tab-item>
-                <v-tab-item >
+                <v-tab-item  style="max-height:210px;overflow-y:scroll">
                   <variant-detail-card
                   ref="variantDetailCardRef"
                   :showTitle="false"
                   :selectedGene="selectedGene"
                   :selectedTranscript="analyzedTranscript"
                   :selectedVariant="selectedVariant"
+                  :selectedVariantRelationship="selectedVariantRelationship"
                   :genomeBuildHelper="genomeBuildHelper"
                   :variantTooltip="variantTooltip"
                   :cohortModel="cohortModel"
@@ -148,8 +150,10 @@
                   </variant-detail-card>
                 </v-tab-item>
               </v-tabs>
-          </v-flex>
-        </v-layout>
+            </v-card>
+
+         </split-pane>
+      </div>
 
 
         <div
@@ -220,7 +224,7 @@ import FilterModel        from  '../../models/FilterModel.js'
 import GeneModel          from  '../../models/GeneModel.js'
 
 import allGenesData from '../../../data/genes.json'
-
+import SplitPane from '../partials/SplitPane.vue'
 
 export default {
   name: 'home',
@@ -230,7 +234,8 @@ export default {
       GeneCard,
       VariantDetailCard,
       FeatureMatrixCard,
-      VariantCard
+      VariantCard,
+      SplitPane
   },
   props: {
     paramGene:             null,
@@ -283,6 +288,7 @@ export default {
       cardWidth: 0,
 
       selectedVariant: null,
+      selectedVariantRelationship: null,
 
       showKnownVariantsCard: false,
 
@@ -674,10 +680,11 @@ export default {
 
       this.cohortModel.setCoverage();
     },
-    onCohortVariantClick: function(variant, sourceComponent) {
+    onCohortVariantClick: function(variant, sourceComponent, sourceRelationship) {
       let self = this;
       if (variant) {
         self.selectedVariant = variant;
+        self.selectedVariantRelationship = sourceRelationship;
         self.activeGeneVariantTab = "1";
         self.showVariantExtraAnnots(sourceComponent, variant);
         self.$refs.variantCardRef.forEach(function(variantCard) {
@@ -696,6 +703,7 @@ export default {
     onCohortVariantClickEnd: function(sourceComponent) {
       let self = this;
       self.selectedVariant = null;
+      self.selectedVariantRelationship = null;
       self.$refs.variantCardRef.forEach(function(variantCard) {
         variantCard.hideVariantCircle();
         variantCard.hideCoverageCircle();
@@ -730,6 +738,7 @@ export default {
     deselectVariant: function() {
       let self = this;
       self.selectedVariant = null;
+      self.selectedVariantRelationship = null;
       self.activeGeneVariantTab = "0";
       if (self.$refs.variantCardRef) {
         self.$refs.variantCardRef.forEach(function(variantCard) {
@@ -968,6 +977,9 @@ export default {
         self.$refs.genesCardRef.updateGeneBadgeCounts();
         self.$refs.navRef.onShowFlaggedVariants();
       })
+    },
+    resizeSplitPane: function() {
+
     }
 
 

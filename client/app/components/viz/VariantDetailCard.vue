@@ -161,8 +161,9 @@
       <span style="display:inline-block" v-if="showTitle ">Variant</span>
     </v-card-title>
 
-      <div  v-if="selectedVariant" class="text-xs-center" style="padding-bottom: 4px;">
-        <span>{{ selectedGene.gene_name }}</span>
+      <div  v-if="selectedVariant" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
+        <span>{{ selectedVariantRelationship | capitalize }}</span>
+        <span class="pl-1">{{ selectedGene.gene_name }}</span>
         <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1 refalt">{{ info.refalt  }}</span>
         <span class="pl-1">{{ info.HGVSpAbbrev }}</span>
@@ -277,6 +278,7 @@ export default {
     selectedGene: null,
     selectedTranscript: null,
     selectedVariant: null,
+    selectedVariantRelationship: null,
     genomeBuildHelper: null,
     cohortModel: null,
     variantTooltip: null,
@@ -686,6 +688,9 @@ export default {
   },
 
   filters: {
+    capitalize: function(buf) {
+      return utility.capitalizeFirstLetter(buf);
+    }
 
 
   },

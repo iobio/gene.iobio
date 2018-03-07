@@ -215,7 +215,7 @@
 
     </div>
 
-    <div style="min-height:180px;max-height:180px;overflow-y:scroll">
+    <div style="min-height:150px;max-height:150px;overflow-y:scroll">
       <div v-if="showGene && ncbiSummary" id="ncbi-summary">
         {{ ncbiSummary.summary }}
       </div>

@@ -384,7 +384,7 @@ export default {
       if (this.showVariantViz) {
         this.showVariantCircle(variant);
       }
-      this.$emit('cohortVariantClick', variant, this);
+      this.$emit('cohortVariantClick', variant, this, this.sampleModel.relationship);
     },
     onVariantHover: function(variant, showTooltip=true) {
       if (this.showDepthViz) {
