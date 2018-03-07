@@ -162,16 +162,17 @@
 
 
         <welcome
-         v-if="showWelcome">
+         v-if="showWelcome"
+         @load-demo-data="onLoadDemoData">
         </welcome>
 
-        <div
+        <v-card style="width:400px;height:50px;padding-top:15px"
         id="data-sources-loader"
         class="loader"
         v-bind:class="{ hide: !cohortModel ||  !cohortModel.inProgress.loadingDataSources }">
           <span class="loader-label">Loading files</span>
           <img src="../../../assets/images/wheel.gif">
-        </div>
+        </v-card>
 
 
 

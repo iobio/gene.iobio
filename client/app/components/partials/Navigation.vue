@@ -126,15 +126,38 @@ nav.toolbar
           <v-list-tile  @click="onShowCitations">
             <v-list-tile-title>Software and Resources</v-list-tile-title>
           </v-list-tile>
+
+          <v-divider></v-divider>
+
           <v-list-tile  @click="onLoadDemoData">
             <v-list-tile-title>Load Demo Data</v-list-tile-title>
           </v-list-tile>
           <v-list-tile  @click="onWelcome">
             <v-list-tile-title>Welcome</v-list-tile-title>
           </v-list-tile>
+           <v-divider></v-divider>
           <v-list-tile  @click="onClearCache">
             <v-list-tile-title>Clear session data</v-list-tile-title>
           </v-list-tile>
+
+
+
+          <v-divider></v-divider>
+          <v-list-tile >
+            <v-list-tile-title><a href="http://iobio.io/tags/gene.iobio/" target="_iobio">Blog</a></v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile >
+            <v-list-tile-title><a href="http://gene.iobio.io/help_resources.html" target="_iobio">Tutorials</a></v-list-tile-title>
+          </v-list-tile>
+
+          <v-list-tile >
+            <v-list-tile-title><a href="http://iobio.io" target=")iobio">iobio</a></v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile >
+            <v-list-tile-title><a href="http://iobio.io/support.html" target=")iobio">Support the iobio project</a></v-list-tile-title>
+          </v-list-tile>
+
+
 
         </v-list>
       </v-menu>

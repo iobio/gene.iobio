@@ -317,7 +317,7 @@
 
 
         <div style="margin-top:30px">
-          <button id="load-demo-data" class="btn btn-raised btn-default" onclick="$('#welcome-panel').addClass('hide');dataCard.loadDemoData()">
+          <button id="load-demo-data" class="btn btn-raised btn-default" @click="onLoadDemoData">
             <span style="">Try it with demo data</span>
           </button>
           <button   class="btn btn-raised btn-default" onclick="$('#welcome-panel').addClass('hide');pageGuide.open()">
@@ -553,6 +553,10 @@ export default {
       self.videoPlayer.pauseVideo();
       $('#welcome-area').removeClass('hide');
       $('#screencast-panel').addClass('hide');
+    },
+
+    onLoadDemoData: function() {
+      this.$emit("load-demo-data");
     }
   }
 }
