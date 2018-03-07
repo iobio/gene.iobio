@@ -51,6 +51,7 @@
       @flagged-variants-imported="onFlaggedVariantsImported"
       @flagged-variant-selected="onFlaggedVariantSelected"
       @on-files-loaded="onFilesLoaded"
+      @on-left-drawer="onLeftDrawer"
     >
     </navigation>
     <v-content>
@@ -82,7 +83,7 @@
 
 
         <div v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-bottom:10px">
-         <split-pane :leftPercent="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? 30 : 0">
+         <split-pane :leftPercent="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (this.isLeftDrawerOpen ? 35 : 25) : 0">
             <feature-matrix-card slot="left" style="min-height:251px;max-height:251px;overflow-y:scroll"
             ref="featureMatrixCardRef"
             v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
@@ -285,8 +286,6 @@ export default {
 
       variantTooltip: null,
 
-      cardWidth: 0,
-
       selectedVariant: null,
       selectedVariantRelationship: null,
 
@@ -295,11 +294,9 @@ export default {
       inProgress: {},
 
       PROBAND: 'proband',
-
-      activeGeneVariantTab: null
-
-
-
+      cardWidth: 0,
+      activeGeneVariantTab: null,
+      isLeftDrawerOpen: null
     }
   },
 
@@ -978,8 +975,8 @@ export default {
         self.$refs.navRef.onShowFlaggedVariants();
       })
     },
-    resizeSplitPane: function() {
-
+    onLeftDrawer: function(isOpen) {
+      this.isLeftDrawerOpen = isOpen;
     }
 
 

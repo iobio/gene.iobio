@@ -156,6 +156,9 @@ export default {
       if (this.selectedGene) {
         this.$emit("input", this.selectedGene.gene_name);
       }
+    },
+    leftDrawer: function() {
+      this.$emit("on-left-drawer", this.leftDrawer);
     }
   },
   methods: {
@@ -170,10 +173,6 @@ export default {
     },
     onVariants: function() {
       this.leftDrawerContents = "flagged-variants";
-      this.leftDrawer = true;
-    },
-    onLegend: function() {
-      this.leftDrawerContents = "legend";
       this.leftDrawer = true;
     },
     onShowFlaggedVariants: function() {
