@@ -81,6 +81,9 @@ nav.toolbar
           <v-list-tile  @click="onLoadDemoData">
             <v-list-tile-title>Load Demo Data</v-list-tile-title>
           </v-list-tile>
+          <v-list-tile  @click="onWelcome">
+            <v-list-tile-title>Welcome</v-list-tile-title>
+          </v-list-tile>
           <v-list-tile  @click="onClearCache">
             <v-list-tile-title>Clear session data</v-list-tile-title>
           </v-list-tile>
@@ -187,6 +190,9 @@ export default {
     },
     onFilesLoaded: function(analyzeAll) {
       this.$emit("on-files-loaded", analyzeAll);
+    },
+    onWelcome: function() {
+      this.$emit("on-show-welcome");
     }
   },
   created: function() {

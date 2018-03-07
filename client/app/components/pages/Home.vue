@@ -52,6 +52,7 @@
       @flagged-variant-selected="onFlaggedVariantSelected"
       @on-files-loaded="onFilesLoaded"
       @on-left-drawer="onLeftDrawer"
+      @on-show-welcome="onShowWelcome"
     >
     </navigation>
     <v-content>
@@ -59,6 +60,7 @@
 
         <genes-card
          v-if="geneModel && geneModel.geneNames.length > 0"
+         v-bind:class="{hide : showWelcome }"
          ref="genesCardRef"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
@@ -81,7 +83,10 @@
 
 
 
-        <div v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-bottom:10px">
+        <div
+          v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-bottom:10px"
+          v-bind:class="{hide : showWelcome }"
+          >
          <split-pane :leftPercent="cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (this.isLeftDrawerOpen ? 35 : 25) : 0">
             <feature-matrix-card slot="left" style="min-height:251px;max-height:251px;overflow-y:scroll"
             ref="featureMatrixCardRef"
@@ -157,7 +162,7 @@
 
 
         <welcome
-         v-if="!cohortModel || !cohortModel.isLoaded ">
+         v-if="showWelcome">
         </welcome>
 
         <div
@@ -174,7 +179,7 @@
         ref="variantCardRef"
         v-for="model in models"
         :key="model.relationship"
-        v-bind:class="{ hide: Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false) }"
+        v-bind:class="{ hide: showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false) }"
         :sampleModel="model"
         :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
@@ -301,7 +306,8 @@ export default {
       PROBAND: 'proband',
       cardWidth: 0,
       activeGeneVariantTab: null,
-      isLeftDrawerOpen: null
+      isLeftDrawerOpen: null,
+      showWelcome: true
     }
   },
 
@@ -611,6 +617,8 @@ export default {
 
     promiseLoadGene: function(geneName) {
       let self = this;
+
+      this.showWelcome = false;
 
       return new Promise(function(resolve, reject) {
         if (self.cohortModel) {
@@ -982,6 +990,9 @@ export default {
     },
     onLeftDrawer: function(isOpen) {
       this.isLeftDrawerOpen = isOpen;
+    },
+    onShowWelcome: function() {
+      this.showWelcome = true;
     }
 
 
