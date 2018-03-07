@@ -186,7 +186,7 @@ class VariantTooltip {
         if (key1 == 'top' || key1 == 'bottom') {
           tooltipPos.arrowClasses.push('chevron-vertical');
         } else {
-          arrowClasses.push('chevron-horizontal');
+          tooltipPos.arrowClasses.push('chevron-horizontal');
           tooltipPos.left += availSpace[key1].sideTooltipHorzOffset;
           tooltipPos.top  += availSpace[key2].sideTooltipVertOffset;
         }

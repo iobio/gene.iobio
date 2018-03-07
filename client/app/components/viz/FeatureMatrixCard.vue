@@ -372,17 +372,13 @@ export default {
     },
 
     onVariantHover: function(variant) {
-      if (this.selectedVariant == null) {
-        this.showVariantTooltip(variant, false);
-        this.$emit('cohortVariantHover', variant, this);
-      }
+      this.showVariantTooltip(variant, false);
+      this.$emit('cohortVariantHover', variant, this);
     },
 
     onVariantHoverEnd: function() {
-      if (this.selectedVariant == null) {
-        this.hideVariantTooltip();
-        this.$emit('cohortVariantHoverEnd', this);
-      }
+      this.hideVariantTooltip();
+      this.$emit('cohortVariantHoverEnd', this);
     },
 
     showVariantTooltip: function(variant, lock) {

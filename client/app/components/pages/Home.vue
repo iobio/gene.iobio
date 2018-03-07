@@ -704,27 +704,26 @@ export default {
     },
     onCohortVariantHover: function(variant, sourceComponent) {
       let self = this;
-      if (self.selectedVariant == null) {
-        self.$refs.variantCardRef.forEach(function(variantCard) {
-          if (variantCard != sourceComponent) {
-            variantCard.showVariantCircle(variant);
-            variantCard.showCoverageCircle(variant);
-          }
-        })
-        if (self.$refs.featureMatrixCardRef != sourceComponent) {
-          self.$refs.featureMatrixCardRef.selectVariant(variant);
+      self.$refs.variantCardRef.forEach(function(variantCard) {
+        if (variantCard != sourceComponent) {
+          variantCard.showVariantCircle(variant);
+          variantCard.showCoverageCircle(variant);
         }
+      })
+      if (self.$refs.featureMatrixCardRef != sourceComponent) {
+        self.$refs.featureMatrixCardRef.selectVariant(variant);
       }
-
     },
     onCohortVariantHoverEnd: function(sourceVariantCard) {
       let self = this;
-      if (self.selectedVariant == null && self.$refs.variantCardRef) {
+      if (self.$refs.variantCardRef) {
         self.$refs.variantCardRef.forEach(function(variantCard) {
           variantCard.hideVariantCircle();
           variantCard.hideCoverageCircle();
         })
-        self.$refs.featureMatrixCardRef.selectVariant(null);
+        if (self.selectedVariant == null) {
+          self.$refs.featureMatrixCardRef.selectVariant(null);
+        }
 
       }
     },

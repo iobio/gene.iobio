@@ -387,28 +387,24 @@ export default {
       this.$emit('cohortVariantClick', variant, this);
     },
     onVariantHover: function(variant, showTooltip=true) {
-      if (this.selectedVariant == null) {
-        if (this.showDepthViz) {
-          this.showCoverageCircle(variant);
-        }
-        if (this.showVariantViz) {
-          this.showVariantCircle(variant);
-          this.showVariantTooltip(variant, false);
-        }
-        this.$emit('cohortVariantHover', variant, this);
+      if (this.showDepthViz) {
+        this.showCoverageCircle(variant);
       }
+      if (this.showVariantViz) {
+        this.showVariantCircle(variant);
+        this.showVariantTooltip(variant, false);
+      }
+      this.$emit('cohortVariantHover', variant, this);
     },
     onVariantHoverEnd: function() {
-      if (this.selectedVariant == null) {
-        if (this.showDepthViz) {
-          this.hideCoverageCircle();
-        }
-        if (this.showVariantViz) {
-          this.hideVariantCircle();
-          this.hideVariantTooltip(this);
-        }
-        this.$emit('cohortVariantHoverEnd');
+      if (this.showDepthViz) {
+        this.hideCoverageCircle();
       }
+      if (this.showVariantViz) {
+        this.hideVariantCircle();
+        this.hideVariantTooltip(this);
+      }
+      this.$emit('cohortVariantHoverEnd');
 
     },
     showVariantTooltip: function(variant, lock) {
