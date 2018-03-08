@@ -101,7 +101,7 @@
         <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
         Called
       </v-badge>
-      <v-badge  v-if="sampleModel.loadedVariants && coverageDangerRegions.length > 0" class="ml-4 mr-4 mt-1 coverage-problem" >
+      <v-badge id="loaded-count" v-if="sampleModel.loadedVariants && coverageDangerRegions.length > 0" class="ml-4 mr-4 mt-1 coverage-problem" >
         <span slot="badge"> {{ coverageDangerRegions.length }} </span>
         Exons with insufficient coverage
       </v-badge>

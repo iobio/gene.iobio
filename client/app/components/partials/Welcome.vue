@@ -320,7 +320,7 @@
           <button id="load-demo-data" class="btn btn-raised btn-default" @click="onLoadDemoData">
             <span style="">Try it with demo data</span>
           </button>
-          <button   class="btn btn-raised btn-default" onclick="$('#welcome-panel').addClass('hide');pageGuide.open()">
+          <button   class="btn btn-raised btn-default" @click="onAppTour">
             <span style="">Take guided tour</span>
           </button>
         </div>
@@ -557,6 +557,10 @@ export default {
 
     onLoadDemoData: function() {
       this.$emit("load-demo-data");
+    },
+
+    onAppTour: function() {
+      this.$emit("take-app-tour");
     }
   }
 }

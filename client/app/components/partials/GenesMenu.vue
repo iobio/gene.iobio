@@ -34,11 +34,11 @@ textarea#copy-paste-genes
     v-model="showGenesMenu"
     >
 
-      <v-btn flat slot="activator">Genes</v-btn>
+      <v-btn id="show-genes-button" flat slot="activator">Genes</v-btn>
 
       <v-expansion-panel expand>
         <v-expansion-panel-content>
-          <div slot="header">Search by Phenotype</div>
+          <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
           <v-card style="margin-bottom:15px">
               <div id="phenotype-input" style="display:inline-block;width:260px">
                 <v-text-field id="phenotype-term" hide-details v-model="phenotypeTermEntered"
@@ -87,7 +87,7 @@ textarea#copy-paste-genes
             </v-text-field>
           </div>
           <div>
-              <v-btn @click="onACMGGenes">
+              <v-btn id="acmg-genes-button" @click="onACMGGenes">
               ACMG Genes
               </v-btn>
               <v-btn style="float:right" @click="onApplyGenes">

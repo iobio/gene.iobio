@@ -154,7 +154,7 @@
           @transcriptSelected="onTranscriptSelected">
         </transcripts-viz>
 
-        <v-btn flat fab small slot="activator" style="margin-left: 20px;position: relative;margin-top: -3px;margin-bottom: 0px;margin-right: 0px;" @click="showSettings = !showSettings"
+        <v-btn id="show-gene-source-button" flat fab small slot="activator" style="margin-left: 20px;position: relative;margin-top: -3px;margin-bottom: 0px;margin-right: 0px;" @click="showSettings = !showSettings"
         light>
           <v-icon style="font-size:17px" >settings</v-icon>
         </v-btn>

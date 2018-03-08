@@ -162,7 +162,7 @@
     </div>
 
       <div  v-if="selectedVariant" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
-        <span>{{ selectedVariantRelationship | capitalize }}</span>
+        <span>{{ selectedVariantRelationship | showRelationship }}</span>
         <span class="pl-1">{{ selectedGene.gene_name }}</span>
         <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1 refalt">{{ info.refalt  }}</span>
@@ -688,8 +688,12 @@ export default {
   },
 
   filters: {
-    capitalize: function(buf) {
-      return utility.capitalizeFirstLetter(buf);
+    showRelationship: function(buf) {
+      if (buf == 'known-variants') {
+        return 'ClinVar';
+      } else {
+        return utility.capitalizeFirstLetter(buf);
+      }
     }
 
 

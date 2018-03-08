@@ -56,7 +56,7 @@
       <span style="display:inline-block;margin-left:15px">{{ `Transcript ` + selectedTranscript.transcript_id }}</span>
       <v-dialog  v-model="showTranscriptsDialog"   width="700px">
 
-          <v-btn raised fab small slot="activator" @click="showTranscriptsDialog = true"
+          <v-btn id="show-transcripts-button" raised fab small slot="activator" @click="showTranscriptsDialog = true"
           light>
             <v-icon style="font-size:20px" >expand_more</v-icon>
           </v-btn>

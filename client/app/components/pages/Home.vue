@@ -163,7 +163,9 @@
 
         <welcome
          v-if="showWelcome"
-         @load-demo-data="onLoadDemoData">
+         @load-demo-data="onLoadDemoData"
+         @take-app-tour="onTakeAppTour"
+         >
         </welcome>
 
         <v-card style="width:400px;height:50px;padding-top:15px"
@@ -180,7 +182,11 @@
         ref="variantCardRef"
         v-for="model in models"
         :key="model.relationship"
-        v-bind:class="{ hide: showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false) }"
+        v-bind:class="[
+        { 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false)
+        },
+        model.relationship
+        ]"
         :sampleModel="model"
         :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
@@ -211,6 +217,9 @@
       </v-container>
     </v-content>
 
+    <app-tour
+     ref="appTourRef"
+    ></app-tour>
 
   </div>
 
@@ -227,6 +236,7 @@ import VariantDetailCard  from  '../viz/VariantDetailCard.vue'
 import GenesCard          from  '../viz/GenesCard.vue'
 import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
+import AppTour            from  '../partials/AppTour.vue'
 
 import SampleModel        from  '../../models/SampleModel.js'
 import CohortModel        from  '../../models/CohortModel.js'
@@ -234,8 +244,8 @@ import FeatureMatrixModel from  '../../models/FeatureMatrixModel.js'
 import FilterModel        from  '../../models/FilterModel.js'
 import GeneModel          from  '../../models/GeneModel.js'
 
-import allGenesData from '../../../data/genes.json'
-import SplitPane from '../partials/SplitPane.vue'
+import allGenesData       from '../../../data/genes.json'
+import SplitPane          from '../partials/SplitPane.vue'
 
 export default {
   name: 'home',
@@ -247,7 +257,8 @@ export default {
       VariantDetailCard,
       FeatureMatrixCard,
       VariantCard,
-      SplitPane
+      SplitPane,
+      AppTour
   },
   props: {
     paramGene:             null,
@@ -296,6 +307,7 @@ export default {
       genomeBuildHelper: null,
 
       variantTooltip: null,
+      appTour: null,
 
       selectedVariant: null,
       selectedVariantRelationship: null,
@@ -373,6 +385,7 @@ export default {
         translator,
         self.cohortModel.annotationScheme,
         self.genomeBuildHelper);
+
 
     })
     .then(function() {
@@ -994,6 +1007,9 @@ export default {
     },
     onShowWelcome: function() {
       this.showWelcome = true;
+    },
+    onTakeAppTour: function() {
+      this.$refs.appTourRef.startTour("main");
     }
 
 

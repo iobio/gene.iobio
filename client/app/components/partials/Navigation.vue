@@ -79,7 +79,7 @@ nav.toolbar
 
 
 
-        <v-btn flat  @click="onVariants">
+        <v-btn id="show-variants-button" flat  @click="onVariants">
          <v-icon>bookmark</v-icon>
          Variants
         </v-btn>
