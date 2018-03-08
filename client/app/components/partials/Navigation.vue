@@ -114,7 +114,7 @@ nav.toolbar
 
 
       <v-menu offset-y>
-        <v-btn flat slot="activator">Help</v-btn>
+        <v-btn id="help-menu-button" flat slot="activator">Help</v-btn>
         <v-list>
 
           <v-list-tile  @click="onShowDisclaimer">

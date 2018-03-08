@@ -384,8 +384,9 @@
               <br><br>
             </div>
           </li>
-          <!--
-            <li class="tlypageguide_top" data-tourtarget="#gene-viz">
+
+
+          <li class="tlypageguide_top" data-tourtarget="#variant-card.proband #gene-viz">
             <div>
               This shows the gene model for the canonical transcript.
             </div>
@@ -429,14 +430,14 @@
               When an alignment file is specified, the base coverage chart is displayed, allowing the user to identify regions of abnormal or unexpected sequence coverage.
             </div>
           </li>
-          <li class="tlypageguide_top" data-tourtarget="#variant-card.proband #matrix-card">
+          <li class="tlypageguide_top" data-tourtarget="#matrix-card">
             <div>
               The variants are ranked according to different criteria.
               <br><br>
               Click on a column to see details about the variant.  Click the column again and the tooltip disappears.
             </div>
           </li>
-          <li class="tlypageguide_top" data-tourtarget="#variant-card.proband #matrix-card .show-settings-button">
+          <li class="tlypageguide_top" data-tourtarget="#matrix-card .show-settings-button">
             <div>
              The criteria used to rank the variants can be reordered by clicking on their respective arrows. Click on 'Reorder' link and then click on the up/down arrows to reorder variants.
             </div>
@@ -483,7 +484,6 @@
               Variants are called in real-time.  In a few seconds, Freebayes will return
               the called variants.
             </div>
-            </div>
           </li>
           <li class="tlypageguide_bottom" data-tourtarget="#variant-card.proband #called-variant-viz">
             <div>
@@ -501,6 +501,7 @@
               The proband variant card now shows one variant.
             </div>
           </li>
+
 
           <li class="tlypageguide_top" data-tourtarget="#variant-card.proband #loaded-variant-viz svg g.group g.snp">
             <div>
@@ -533,7 +534,7 @@
             </div>
           </li>
 
-          <li class="tlypageguide_top" data-tourtarget="#help-button">
+          <li class="tlypageguide_top" data-tourtarget="#help-menu-button">
             <div>
               To learn more about the Flagged Variants feature, select 'Tour flagged variants' from the 'Help' menu.
             </div>
@@ -553,7 +554,7 @@
           </li>
 
 
-           <li class="tlypageguide_right" data-tourtarget="#acmg-genes-btton">
+           <li class="tlypageguide_right" data-tourtarget="#acmg-genes-button">
             <div>
               Click on 'ACMG 56 Genes' button.  These genes have been selected and now appear in the Genes panel.
             </div>
@@ -594,7 +595,7 @@
               <br>
             </div>
           </li>
--->
+
         </ul>
 
 

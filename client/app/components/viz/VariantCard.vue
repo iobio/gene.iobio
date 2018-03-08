@@ -91,7 +91,7 @@
     <v-card-title primary-title>
       <span style="min-width:200px;max-width:200px">{{ sampleModel.name }}</span>
 
-      <v-badge  v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
+      <v-badge  id="loaded-count" v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
         <span slot="badge"> {{ sampleModel.loadedVariants.features.length }} </span>
         Loaded
       </v-badge>
@@ -101,7 +101,7 @@
         <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
         Called
       </v-badge>
-      <v-badge id="loaded-count" v-if="sampleModel.loadedVariants && coverageDangerRegions.length > 0" class="ml-4 mr-4 mt-1 coverage-problem" >
+      <v-badge  v-if="sampleModel.loadedVariants && coverageDangerRegions.length > 0" class="ml-4 mr-4 mt-1 coverage-problem" >
         <span slot="badge"> {{ coverageDangerRegions.length }} </span>
         Exons with insufficient coverage
       </v-badge>
