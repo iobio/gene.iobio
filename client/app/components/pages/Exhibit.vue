@@ -101,7 +101,7 @@ export default {
     },
     showCaseStudies: function() {
       this.stopVideo();
-      this.$router.push({ name: 'exhibit-cases-complete'});
+      this.$router.push({ name: 'exhibit-cases'});
     }
 
   },

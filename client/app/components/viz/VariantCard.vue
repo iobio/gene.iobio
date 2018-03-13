@@ -9,6 +9,12 @@
 #bam-track
   margin-top: -5px
 
+#variant-card.edu
+  .ibo-variant
+    .circle
+      stroke: red
+      stroke-width: 6
+
 #variant-card
   #gene-viz, #gene-viz-zoom
     .axis
@@ -34,6 +40,9 @@
         path
           transform: translateY(-20px)
           display: none
+
+
+
 
   #gene-viz-zoom
     .current

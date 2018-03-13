@@ -79,7 +79,11 @@ class CohortModel {
         {relationship: 'proband', affectedStatus: 'affected', name: 'Anna',   'sample': 'sample2', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
       ]
 
-    }
+    };
+    this.eduTourGeneNames = {
+      "1": null,
+      "2": ['VKORC1']
+    };
   }
 
   promiseInitDemo(demoKind='exome') {
@@ -89,7 +93,25 @@ class CohortModel {
 
   promiseInitEduTour(tourNumber, idx) {
     let self = this;
-    return self.promiseInit([self.eduTourModelInfos[tourNumber][idx]]);
+    return new Promise(function(resolve, reject) {
+      var promise = null;
+      if (self.eduTourGeneNames[tourNumber]) {
+        promise = self.geneModel.promiseCopyPasteGenes(self.eduTourGeneNames[tourNumber].join(","));
+      } else {
+        promise = Promise.resolve();
+      }
+      promise
+      .then(function() {
+        self.promiseInit([self.eduTourModelInfos[tourNumber][idx]])
+        .then(function() {
+          resolve();
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      })
+
+    })
   }
 
   promiseInit(modelInfos) {
@@ -818,21 +840,18 @@ class CohortModel {
       if (self.isAlignmentsOnly() && !autocall && (resultMap == null || resultMap.proband == null)) {
           resolve({'resultMap': {'proband': {features: []}}, 'gene': geneObject, 'transcript': theTranscript});
       } else {
+        // Set the max allele count across all variants in the trio.  We use this to properly scale
+        // the allele counts bars in the tooltip
+        self.maxAlleleCount = 0;
+        for(var rel in resultMap) {
+          self.maxAlleleCount = SampleModel.calcMaxAlleleCount(resultMap[rel], self.maxAlleleCount);
+        }
 
 
         if (self.mode == 'single') {
           // Determine harmful variants, cache data, etc.
           resolveIt(resolve, resultMap, geneObject, theTranscript, options);
         } else {
-
-          // Set the max allele count across all variants in the trio.  We use this to properly scale
-          // the allele counts bars in the tooltip
-          self.maxAlleleCount = 0;
-          for(var rel in resultMap) {
-            self.maxAlleleCount = SampleModel.calcMaxAlleleCount(resultMap[rel], self.maxAlleleCount);
-          }
-
-
           // We only pass in the affected info if we need to sync up genotypes because samples
           // where in separate vcf files
           var affectedInfoToSync = self.isAlignmentsOnly() || self.samplesInSingleVcf() ? null : self.affectedInfo;

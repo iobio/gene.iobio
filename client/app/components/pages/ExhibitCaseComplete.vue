@@ -62,10 +62,16 @@ export default {
     showNextCaseStudy: function() {
       completedEduTourNumber = eduTourNumber;
       eduTourNumber = completedEduTourNumber == "1" ? "2" : "1";
-      this.$router.push(
-      { name: 'home',
-        query: {mode: 'edu', tour: eduTourNumber}
-      });
+      if (completedEduTourNumber == "1") {
+        this.$router.push(
+        { name: 'home',
+          query: {mode: 'edu', tour: eduTourNumber}
+        });
+      } else {
+        this.$router.push(
+        { name: 'exhibit-cases'
+        });
+      }
     }
   }
 

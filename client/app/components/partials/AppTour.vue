@@ -1024,14 +1024,9 @@ export default {
             var step = me.eduTour2Steps[currentTour];
             me.customizeTourStep(me.pageGuideEduTour2, step);
 
-            if (currentTour == "#proband-variant-card #vcf-track") {
-              if (getProbandVariantCard().model.vcfData && getProbandVariantCard().model.vcfData.features && getProbandVariantCard().model.vcfData.features.length > 2) {
-                var variant = getProbandVariantCard().model.vcfData.features[2];
-                var tooltip = getProbandVariantCard().d3CardSelector.select("#vcf-variants .tooltip");
-                getProbandVariantCard().showTooltip(tooltip, variant, getProbandVariantCard(), false );
-                getProbandVariantCard().showVariantCircle(variant, getProbandVariantCard());
-              }
-            }
+            //if (currentTour == "#variant-card.proband #loaded-variant-viz") {
+              me.$emit('circle-variant', 2);
+            //}
 
           }
         });
@@ -1039,7 +1034,6 @@ export default {
 
 
         if (eduTourNumber == "1") {
-
           me.pageGuideEduTour1.open();
         } else if (eduTourNumber == "2") {
           me.pageGuideEduTour2.open();

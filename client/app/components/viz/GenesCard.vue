@@ -97,7 +97,7 @@
     <v-card-title v-if="!isEduTour" primary-title>Genes</v-card-title>
 
       <genes-menu
-       v-if="isEduTour"
+       v-if="isEduTour && tourNumber == '1'"
        id="app-tour-genes-menu"
        :geneModel="geneModel"
        :isEduTour="isEduTour"
@@ -210,6 +210,7 @@ export default {
   },
   props: {
     isEduTour: null,
+    tourNumber: null,
     geneNames: null,
     genesInProgress: null,
     loadedDangerSummaries: null,

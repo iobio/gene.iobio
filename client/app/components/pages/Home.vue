@@ -72,6 +72,7 @@
          v-bind:class="{hide : showWelcome && !isEduTour}"
          ref="genesCardRef"
          :isEduTour="isEduTour"
+         :tourNumber="tourNumber"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
          :geneNames="geneModel.sortedGeneNames"
@@ -195,7 +196,8 @@
         v-for="model in models"
         :key="model.relationship"
         v-bind:class="[
-        { 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false)
+        { 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false),
+          'edu' : isEduTour
         },
         model.relationship
         ]"
@@ -234,6 +236,7 @@
      ref="appTourRef"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
+      @circle-variant="onCircleVariant"
     ></app-tour>
 
   </div>
@@ -728,6 +731,11 @@ export default {
 
       this.cohortModel.setCoverage();
     },
+    onCircleVariant: function(idx) {
+      let self = this;
+      var variant = self.cohortModel.getProbandModel().loadedVariants.features[2];
+      self.onCohortVariantClick(variant, null, 'proband');
+    },
     onCohortVariantClick: function(variant, sourceComponent, sourceRelationship) {
       let self = this;
       if (variant) {
@@ -736,12 +744,12 @@ export default {
         self.activeGeneVariantTab = "1";
         self.showVariantExtraAnnots(sourceComponent, variant);
         self.$refs.variantCardRef.forEach(function(variantCard) {
-          if (variantCard != sourceComponent) {
+          if (sourceComponent == null || variantCard != sourceComponent) {
             variantCard.showVariantCircle(variant);
             variantCard.showCoverageCircle(variant);
           }
         })
-        if (self.$refs.featureMatrixCardRef != sourceComponent) {
+        if (sourceComponent == null || self.$refs.featureMatrixCardRef != sourceComponent) {
           self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
         }
         if (self.isEduTour) {
@@ -933,7 +941,7 @@ export default {
         for (var i = 0; i < self.paramRelationships.length; i++) {
           var rel  = self.paramRelationships[i];
           if (rel) {
-            var modelInfo = {'relationship': rel};
+            var modelInfo            = {'relationship': rel};
             modelInfo.name           = self.paramNames[i];
             modelInfo.vcf            = self.paramVcfs[i];
             modelInfo.tbi            = self.paramTbis[i];
@@ -953,7 +961,7 @@ export default {
             reject(error);
           })
         } else if (isLevelEdu && eduTourNumber != '') {
-          self.cohortModel.promiseInitEduTour(eduTourNumber, 0)
+          self.promiseInitTourSample(eduTourNumber, 0)
           .then(function() {
             resolve();
           })
@@ -1056,21 +1064,31 @@ export default {
     },
     onInitTourSample: function(tour, sampleIndex) {
       let self = this;
-      self.promiseClearCache()
-
-      .then(function() {
-        return self.cohortModel.promiseInitEduTour(tour, sampleIndex);
-      })
-      .then(function() {
-
-        self.models = self.cohortModel.sampleModels;
-        if (self.selectedGene && self.selectedGene.gene_name) {
-          self.promiseLoadGene(self.selectedGene.gene_name);
-
-        } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
-          self.onGeneSelected(self.geneModel.sortedGeneNames[0]);
-        }
-
+      self.promiseInitTourSample(tour, sampleIndex)
+    },
+    promiseInitTourSample: function(tour, sampleIndex) {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        self.promiseClearCache()
+        .then(function() {
+          return self.cohortModel.promiseInitEduTour(tour, sampleIndex);
+        })
+        .then(function() {
+          self.models = self.cohortModel.sampleModels;
+          var geneName = null;
+          if (self.selectedGene && self.selectedGene.gene_name) {
+            geneName = self.selectedGene.gene_name;
+          } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+            geneName = self.geneModel.sortedGeneNames[0];
+          }
+           self.promiseLoadGene(geneName)
+           .then(function() {
+              resolve();
+           })
+           .catch(function(error) {
+              reject(error);
+           })
+        })
       })
     }
 
