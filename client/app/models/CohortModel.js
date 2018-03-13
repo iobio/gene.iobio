@@ -74,7 +74,9 @@ class CohortModel {
         {relationship: 'proband', affectedStatus: 'affected', name: 'Sarah',  'sample': 'sample5', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
       ],
       "2": [
-        {relationship: 'proband', affectedStatus: 'affected', name: 'John',   'sample': 'sample1', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
+        {relationship: 'proband', affectedStatus: 'affected', name: 'John',   'sample': 'sample1', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Diego',  'sample': 'sample3', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Anna',   'sample': 'sample2', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
       ]
 
     }
