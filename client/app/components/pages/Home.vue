@@ -1069,10 +1069,11 @@ export default {
     promiseInitTourSample: function(tour, sampleIndex) {
       let self = this;
       return new Promise(function(resolve, reject) {
-        self.promiseClearCache()
-        .then(function() {
-          return self.cohortModel.promiseInitEduTour(tour, sampleIndex);
-        })
+        //self.promiseClearCache()
+        //.then(function() {
+          //return
+          self.cohortModel.promiseInitEduTour(tour, sampleIndex)
+        //})
         .then(function() {
           self.models = self.cohortModel.sampleModels;
           var geneName = null;
@@ -1081,13 +1082,17 @@ export default {
           } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
             geneName = self.geneModel.sortedGeneNames[0];
           }
-           self.promiseLoadGene(geneName)
-           .then(function() {
+          if (geneName) {
+            self.promiseLoadGene(geneName)
+            .then(function() {
               resolve();
-           })
-           .catch(function(error) {
+            })
+            .catch(function(error) {
               reject(error);
-           })
+            })
+          } else {
+            resolve();
+          }
         })
       })
     }
