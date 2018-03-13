@@ -94,11 +94,20 @@
 
 <template>
   <v-card tile id="genes-card" class="app-card">
-    <v-card-title primary-title>Genes</v-card-title>
+    <v-card-title v-if="!isEduTour" primary-title>Genes</v-card-title>
+
+      <genes-menu
+       v-if="isEduTour"
+       id="app-tour-genes-menu"
+       :geneModel="geneModel"
+       :isEduTour="isEduTour"
+       @apply-genes="onApplyGenes">
+      </genes-menu>
+
       <div id="genes-panel" class="nav-center">
 
 
-        <div id="genes-toolbar">
+        <div id="genes-toolbar" v-bind:class="isEduTour ? 'hide' : ''">
 
 
           <v-btn  id="analyze-all-button"
@@ -167,6 +176,7 @@
 
 
 
+
         <div id="gene-badge-container" class="level-basic" style="clear:both;">
           <gene-badge
            v-for="gene in geneSummaries"
@@ -179,6 +189,8 @@
           >
           </gene-badge>
         </div>
+
+
       </div>
   </v-card>
 </template>
@@ -187,14 +199,17 @@
 
 import GeneBadge from '../partials/GeneBadge.vue'
 import GeneCountBadges from '../partials/GeneCountBadges.vue'
+import GenesMenu from '../partials/GenesMenu.vue'
 
 export default {
   name: 'genes-card',
   components: {
     GeneBadge,
-    GeneCountBadges
+    GeneCountBadges,
+    GenesMenu
   },
   props: {
+    isEduTour: null,
     geneNames: null,
     genesInProgress: null,
     loadedDangerSummaries: null,
@@ -355,7 +370,10 @@ export default {
 
       self.$emit("register-flagged-variants", self.flaggedGeneNames, self.flaggedVariants);
 
-    }
+    },
+    onApplyGenes: function(genesToApply) {
+      this.$emit("apply-genes", genesToApply);
+    },
 
   },
   mounted: function() {

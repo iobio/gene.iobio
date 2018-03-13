@@ -1,34 +1,36 @@
-import jQuery from 'jquery'
+import jQuery               from 'jquery'
 global.jQuery = jQuery
 global.$ = jQuery
-import d3 from 'd3'
-import _ from 'lodash'
 
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import d3                   from 'd3'
+import _                    from 'lodash'
 
-import App from './App.vue'
-import Home from './components/pages/Home.vue'
+import Vue                  from 'vue'
+import VueRouter            from 'vue-router'
+
+import App                  from './App.vue'
+import Home                 from './components/pages/Home.vue'
+import Exhibit              from './components/pages/Exhibit.vue'
+import ExhibitCases         from './components/pages/ExhibitCases.vue'
+import ExhibitCaseComplete  from './components/pages/ExhibitCaseComplete.vue'
+import ExhibitCasesComplete from './components/pages/ExhibitCaseComplete.vue'
 
 
-import bootstrap from 'bootstrap/dist/css/bootstrap.css'
-import { Typeahead } from 'uiv'
+import bootstrap            from 'bootstrap/dist/css/bootstrap.css'
+import { Typeahead }        from 'uiv'
 Vue.use(Typeahead)
 
-import Vuetify from 'vuetify'
-import 'vuetify/dist/vuetify.css'
-import '../assets/css/siteVuetify.css'
+import Vuetify              from 'vuetify'
+import                           'vuetify/dist/vuetify.css'
+import                           '../assets/css/siteVuetify.css'
 Vue.use(Vuetify)
-
-
-global.bus = new Vue();
-
 
 
 Vue.use(VueRouter);
 
 const routes = [
   {
+    name: 'home',
     path: '/',
     component: Home,
     props: (route) => ({
@@ -40,9 +42,9 @@ const routes = [
         paramGeneSource:       route.query.geneSource,
         paramMyGene2:          route.query.mygene2,
         paramMode:             route.query.mode,
+        paramTour:             route.query.tour,
         paramAffectedSibs:     route.query.affectedSibs,
         paramUnaffectedSibs:   route.query.unaffectedSibs,
-
         paramRelationships:    [route.query.rel0, route.query.rel1, route.query.rel2],
         paramSamples:          [route.query.sample0, route.query.sample1, route.query.sample2],
         paramNames:            [route.query.name0, route.query.name1, route.query.name2],
@@ -52,6 +54,26 @@ const routes = [
         paramTbis:             [route.query.tbi0, route.query.tbi1, route.query.tbi2],
         paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2]
     })
+  },
+  {
+    name: 'exhibit',
+    path: '/exhibit',
+    component: Exhibit
+  },
+  {
+    name: 'exhibit-cases',
+    path: '/exhibit-cases',
+    component: ExhibitCases
+  },
+  {
+    name: 'exhibit-case-complete',
+    path: '/exhibit-case-complete',
+    component: ExhibitCaseComplete
+  },
+  {
+    name: 'exhibit-cases-complete',
+    path: '/exhibit-cases-complete',
+    component: ExhibitCasesComplete
   }
 ]
 

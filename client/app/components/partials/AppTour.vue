@@ -1,5 +1,9 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
+
+$tour-button-color:      rgba(165, 185, 65, 1)
+$tour-hilite-color:      #F05B5B
+
 // Don't show the number box
 .tlypageguide_index
   display: none !important
@@ -187,17 +191,21 @@
           <li class="tlypageguide_down" data-tourtarget="#edu-tour-label">
           </li>
 
-          <li class="tlypageguide_right" data-tourtarget="#phenolyzer-search-box .selectize-control.single">
+
+          <li class="tlypageguide_right" data-tourtarget="#app-tour-genes-menu">
             <div>
                Look at the father’s genome first. Select 'Colon cancer' from the ‘Phenolyzer’ box at the left of the screen.
             </div>
           </li>
 
 
-          <li class="tlypageguide_right" data-tourtarget="#phenolyzer-results">
+          <li class="tlypageguide_right" data-tourtarget="#gene-badge-container #gene-badge-button">
+            <div>
+              #gene-badge-container #gene-badge-button
+            </div>
           </li>
 
-          <li class="tlypageguide_right" data-tourtarget="#proband-variant-card #zoom-region-chart">
+          <li class="tlypageguide_right" data-tourtarget="#variant-card.proband #gene-viz">
             <div>
               Gene model
             </div>
@@ -220,6 +228,7 @@
 
            <li class="tlypageguide_up" data-tourtarget="#edu-tour-1 #start-over">
             <div>
+              #edu-tour-1 #start-over
             </div>
           </li>
 
@@ -228,16 +237,17 @@
             Search the APC genes of the children for the harmful variant. Touch each child’s name at the top of the screen. Based on what you find, select which children should get frequent colon cancer screenings below.
 
               <div style="text-align:center;margin-top:20px;margin-bottom:0px;">
+
+                <div  class="custom-checkbox" style="display:inline-block;margin-right:20px">
+                    <input type="checkbox" onclick="onTour1Check($(this))"  id="jimmy">
+                    <label for="jimmy">Jimmy</label>
+                 </div>
                 <div class="custom-checkbox" style="display:inline-block;margin-right:20px">
-                    <input type="checkbox" onclick="edutour.onTour1Check($(this))" id="jimmy">
-                    <label for="jimmy" >Jimmy</label>
-                </div>
-                <div class="custom-checkbox" style="display:inline-block;margin-right:20px">
-                    <input type="checkbox"  onclick="edutour.onTour1Check($(this))" id="bobby">
+                    <input type="checkbox"   onclick="onTour1Check($(this))" id="bobby">
                     <label for="bobby">Bobby</label>
                  </div>
                 <div class="custom-checkbox" style="display:inline-block">
-                    <input type="checkbox"  onclick="edutour.onTour1Check($(this))" id="sarah">
+                    <input type="checkbox"   onclick="onTour1Check($(this))" id="sarah">
                     <label for="sarah" >Sarah</label>
                  </div>
               </div>
@@ -258,7 +268,6 @@
 
            <li class="tlypageguide_down" data-tourtarget=".edu-tour-1-child-buttons">
           </li>
-
         </ul>
 
         <!-- Tour for warfarin screening case -->
@@ -271,7 +280,7 @@
           <li class="tlypageguide_up" data-tourtarget="#edu-tour-2 #start-over">
           </li>
 
-          <li class="tlypageguide_down" data-tourtarget="#proband-variant-card #vcf-track">
+          <li class="tlypageguide_down" data-tourtarget="#variant-card.proband #loaded-variant-viz">
               <div style="margin-right:120px">
                 The variant with a red circle around it determines Warfarin sensitivity. This is the variant you need to examine in your patients.
               </div>
@@ -289,15 +298,15 @@
                 <div class="answer-label">John</div>
                 <div style="text-align:left;margin-top:0px;margin-bottom:0px">
                   <div class="custom-checkbox" style="display:block;">
-                      <input type="checkbox" class="john-checkbox" onclick="edutour.onTour2Check($(this))" id="john-normal">
+                      <input type="checkbox" class="john-checkbox" onclick="onTour2Check($(this))" id="john-normal">
                       <label for="john-normal" >Normal GG</label>
                   </div>
                   <div class="custom-checkbox" style="display:block;">
-                      <input type="checkbox" class="john-checkbox" onclick="edutour.onTour2Check($(this))" id="john-lower">
+                      <input type="checkbox" class="john-checkbox" onclick="onTour2Check($(this))" id="john-lower">
                       <label for="john-lower">Lower AG</label>
                    </div>
                   <div class="custom-checkbox" style="display:inline">
-                      <input type="checkbox" class="john-checkbox" onclick="edutour.onTour2Check($(this))" id="john-lowest">
+                      <input type="checkbox" class="john-checkbox" onclick="onTour2Check($(this))" id="john-lowest">
                       <label for="john-lowest" >Lowest AA</label>
                    </div>
                    <div  style="text-align:left;margin-top:-7px;margin-bottom:0px;">
@@ -312,15 +321,15 @@
                 <div class="answer-label">Diego</div>
                 <div  style="text-align:left;margin-top:0px;margin-bottom:0px">
                   <div class="custom-checkbox" style="display:block;">
-                      <input type="checkbox" class="diego-checkbox" onclick="edutour.onTour2Check($(this))" id="diego-normal">
+                      <input type="checkbox" class="diego-checkbox" onclick="onTour2Check($(this))" id="diego-normal">
                       <label for="diego-normal" >Normal GG</label>
                   </div>
                   <div class="custom-checkbox" style="display:block;">
-                      <input type="checkbox" class="diego-checkbox" onclick="edutour.onTour2Check($(this))" id="diego-lower">
+                      <input type="checkbox" class="diego-checkbox" onclick="onTour2Check($(this))" id="diego-lower">
                       <label for="diego-lower">Lower AG</label>
                    </div>
                   <div class="custom-checkbox" style="display:inline">
-                      <input type="checkbox" class="diego-checkbox" onclick="edutour.onTour2Check($(this))" id="diego-lowest">
+                      <input type="checkbox" class="diego-checkbox" onclick="onTour2Check($(this))" id="diego-lowest">
                       <label for="diego-lowest" >Lowest AA</label>
                    </div>
                    <div  style="text-align:left;margin-top:-7px;margin-bottom:0px;">
@@ -336,15 +345,15 @@
                 <div class="answer-label">Anna</div>
                 <div style="text-align:left;margin-top:0px;margin-bottom:0px">
                   <div class="custom-checkbox" style="display:block;">
-                      <input type="checkbox" class="anna-checkbox" onclick="edutour.onTour2Check($(this))" id="anna-normal">
+                      <input type="checkbox" class="anna-checkbox" onclick="onTour2Check($(this))" id="anna-normal">
                       <label for="anna-normal" >Normal GG</label>
                   </div>
                   <div class="custom-checkbox" style="display:block;">
-                      <input type="checkbox" class="anna-checkbox" onclick="edutour.onTour2Check($(this))" id="anna-lower">
+                      <input type="checkbox" class="anna-checkbox" onclick="onTour2Check($(this))" id="anna-lower">
                       <label for="anna-lower">Lower AG</label>
                    </div>
                   <div class="custom-checkbox" style="display:inline">
-                      <input type="checkbox" class="anna-checkbox" onclick="edutour.onTour2Check($(this))" id="anna-lowest">
+                      <input type="checkbox" class="anna-checkbox" onclick="onTour2Check($(this))" id="anna-lowest">
                       <label for="anna-lowest" >Lowest AA</label>
                    </div>
                    <div  style="text-align:left;margin-top:-7px;margin-bottom:0px;">
@@ -743,6 +752,8 @@ export default {
   components: {
   },
   props: {
+    selectedGene: null,
+    selectedVariant: null
   },
   data () {
     let self = this;
@@ -753,6 +764,10 @@ export default {
       pageGuideEduTour1: null,
       pageGuideEduTour2: null,
       edgeObject: null,
+
+      tour1Check: true,
+
+
       mainTourSteps: {
         '#enter-gene-name': {},
         '#gene-track': {},
@@ -800,9 +815,10 @@ export default {
         }
       },
 
+
       eduTour1Steps: {
         '#edu-tour-label':
-          {index: 0, first: true, noElement: true, disableTourButtons: true,
+          {index: 0, first: true, noElement: true, disableTourButtons: false,
           audio: '#tour1-recording1',
           height: 'full',
           animation: {
@@ -814,14 +830,14 @@ export default {
             showFunction: this.showAnimation,
             delay: 0}
           },
-        '#phenolyzer-search-box .selectize-control.single': {index: 1, height: '20px', disableNext: true, correct: false, disableTourButtons: true},
-        '#phenolyzer-results':                              {index: 2, disableTourButtons: true,
+        '#app-tour-genes-menu': {index: 1, height: '20px', disableNext: false, correct: false, disableTourButtons: false},
+        '#gene-badge-container #gene-badge-button':                              {index: 2, disableTourButtons: false,
           audio: '#tour1-recording2'
         },
-        '#proband-variant-card #zoom-region-chart':         {index: 3, audio: '#tour1-recording3', height: '0px', disableTourButtons: true},
-        '#gene-badge-container':                            {index: 4, disableNext: true, correct: false, disableTourButtons: true},
-        '#edu-tour-1 #start-over':                          {index: 5, audio: '#tour1-recording4', noElement: true, disableTourButtons: true},
-        '#children-buttons':                                {index: 6, disableNext: true, height: '100px', correct: false, disableTourButtons: false},
+        '#variant-card.proband #gene-viz':         {index: 3, audio: '#tour1-recording3', height: '0px', disableTourButtons: false},
+        '#gene-badge-container':                            {index: 4, disableNext: false, correct: false, disableTourButtons: false},
+        '#edu-tour-1 #start-over':                          {index: 5, audio: '#tour1-recording4', noElement: true, disableTourButtons: false},
+        '#children-buttons':                                {index: 6, disableNext: false, height: '100px', correct: false, disableTourButtons: false},
         '.edu-tour-1-child-buttons':                        {index: 7, close: true, noElement: true, disableTourButtons: false,
           audio: '#tour1-recording5',
           height: 'full',
@@ -861,7 +877,7 @@ export default {
                 delay: 0
               }
           },
-        '#proband-variant-card #vcf-track':      {index: 2, noElement: true, disableTourButtons: true},
+        '#variant-card.proband #loaded-variant-viz':    {index: 2, noElement: true, disableTourButtons: true},
         '#child-buttons-tour2':          {index: 3, disableNext: true, height: '120px', correct: false, disableTourButtons: false},
         '#edu-tour-2':                   {index: 4, noElement: true, audio: '#tour2-recording3', close: true, disableTourButtons: false}
       }
@@ -942,7 +958,7 @@ export default {
           'auto_refresh': true,
           'show_numbers': false,
           'close_button_text': 'close',
-          'custom_open_button': '#show-case1-tour',
+          'custom_open_button': '#show-main-tour',
           'steps_element': '#tourEduCase1',
           'track_events_cb': function(interactionName) {
 
@@ -974,7 +990,11 @@ export default {
             }
 
             var step = me.eduTour1Steps[currentTour];
-            me.customizeTourStep(me.pageGuideEduTour1, step);
+            if (step) {
+              me.customizeTourStep(me.pageGuideEduTour1, step);
+            } else {
+              console.log("step " + currentTour + " not found.");
+            }
 
 
           }
@@ -1016,9 +1036,12 @@ export default {
           }
         });
 
+
+
         if (eduTourNumber == "1") {
+
           me.pageGuideEduTour1.open();
-        } else if (eduTourNumber = "2") {
+        } else if (eduTourNumber == "2") {
           me.pageGuideEduTour2.open();
         }
       }
@@ -1026,10 +1049,19 @@ export default {
     },
 
 
-    startTour: function(tourName) {
+    startTour: function(tour) {
       var me = this;
-      if (tourName == 'main') {
+
+      if (me.pageGuide == null || me.pageGuideEduTour1 == null || me.pageGuideEduTour2 == null) {
+        me.init();
+      }
+
+      if (tour == 'main') {
         me.pageGuide.open();
+      } else if (tour == '1') {
+        me.pageGuideEduTour1.open();
+      } else if (tour == '2') {
+        me.pageGuideEduTour2.open();
       }
     },
 
@@ -1086,11 +1118,6 @@ export default {
           step.animation.delay);
       } else {
         this.showAnimation(false);
-      }
-      if (step.dialog) {
-        $('#edu-tour-modal').modal('show');
-      } else {
-        $('#edu-tour-modal').modal("hide");
       }
       if (step.audio) {
         var audioSelector = step.audio;
@@ -1158,93 +1185,13 @@ export default {
         && me.pageGuideEduTour1.cur_idx == 4
         && variant.vepImpact[HIGH] != "HIGH"
         && variant.start == 112116592
-        && window.gene.gene_name == 'APC') {
+        && me.selectedGene.gene_name == 'APC') {
         me.eduTour1Steps['#gene-badge-container'].correct = true;
         $('.pageguide-next').addClass("disabled");
         me.pageGuideEduTour1.navigateForward();
       } else {
         me.eduTour1Steps['#gene-badge-container'].correct = false;
 
-      }
-    },
-
-    onTour1Check: function(checkbox) {
-      let me = this;
-      var answer   = { "jimmy": true, "bobby": false, "sarah": true};
-      var name     = checkbox[0].id;
-      var checked  = checkbox[0].checked
-      var answerLabel = $('#' + name + "-answer");
-      // If the correct answer is "true"
-      if (answer[name] == true) {
-        if (answer[name] == checked) {
-          answerLabel.css("visibility", "visible");
-        } else {
-          answerLabel.css("visibility", "hidden");
-        }
-      } else {
-        if (answer[name] == checked) {
-          answerLabel.css("visibility", "hidden");
-        } else {
-          answerLabel.css("visibility", "visible");
-        }
-
-      }
-      if ($('#jimmy')[0].checked == answer['jimmy']
-        && $('#bobby')[0].checked == answer['bobby']
-        && $('#sarah')[0].checked == answer['sarah']) {
-        me.eduTour1Steps['#children-buttons'].correct = true;
-        $('#pageguide-next-button').removeClass("disabled");
-      } else {
-        me.eduTour1Steps['#children-buttons'].correct = false;
-        $('#pageguide-next-button').addClass("disabled");
-      }
-    },
-
-    onTour2Check: function(checkbox) {
-      let me = this;
-      var answer   = { "john": 'lower', "diego": 'lowest', "anna": 'normal'};
-      var checkboxId       = checkbox[0].id;
-      var tokens  = checkboxId.split("-");
-      var name    = tokens[0];
-      var dosage  = tokens[1];
-      var checked          = checkbox[0].checked
-      var answerLabel      = $('#' + checkboxId + "-answer");
-      var allAnswerLabels  = $('.' + name + "-answer");
-      var allCheckboxes    = $('.' + name + "-checkbox");
-
-      allCheckboxes.each(function(i,val) {
-        if ($(this)[0].id == checkboxId) {
-
-        } else {
-          $(this)[0].checked = false;
-        }
-      })
-
-      // Show if the answer is correct or incorrect
-      allAnswerLabels.addClass("hide");
-      if (checked) {
-        answerLabel.removeClass("hide");
-      } else {
-        answerLabel.addClass("hide");
-      }
-
-      var correctCount = 0;
-      for (var key in answer) {
-        var dosage = answer[key];
-        var selector = "#" + key + "-" + dosage;
-        if ($(selector)[0].checked) {
-          correctCount++;
-        }
-      }
-
-      var stepSelector = '#child-buttons-tour2';
-      if (correctCount == 3) {
-        me.eduTour2Steps[stepSelector].correct = true;
-        //pageGuideEduTour2.navigateForward();
-        $('#pageguide-next-button').removeClass("disabled");
-      } else {
-        me.eduTour2Steps[stepSelector].correct = false;
-        $('#pageguide-next-button').addClass("disabled");
       }
     },
 
@@ -1276,25 +1223,6 @@ export default {
             {"dom":{}}
           );
           step.animation.edgeObject = AdobeEdge.getComposition(step.animation.clazz);
-        /*
-          AdobeEdge.Symbol.bindElementAction(step.animation.clazz, step.animation.name, "document", "compositionReady",
-            function(sym, e) {
-              alert('trigger');
-
-            });
-          var stage = $(step.animation.edgeObject.getStage());
-          var rescale = '.5';
-          stage.scale(.5);
-        */
-          /*
-          stage.css('transform', 'scale(' + rescale + ')');
-          stage.css( '-o-transform', 'scale(' + rescale + ')');
-          stage.css('-ms-transform', 'scale(' + rescale + ')');
-          stage.css('-webkit-transform', 'scale(' + rescale + ')');
-          stage.css('-moz-transform', 'scale(' + rescale + ')');
-          stage.css('-o-transform', 'scale(' + rescale + ')');
-          */
-
         }
 
         return me.edgeObject;
@@ -1307,16 +1235,19 @@ export default {
     },
 
     completeTour: function() {
-      let me = this;
       if (isLevelEdu) {
-        var completedTour = utility.getUrlParameter("completedTour");
-        var url = null;
-        if (completedTour != null && completedTour != "") {
-          url = EXHIBIT_URL2;
-        } else {
-          url = EXHIBIT_URL1 + '?tour=' + (eduTourNumber == 1 ? 2 : 1) + '&completedTour=' + eduTourNumber;
+        if (eduTourNumber == "1") {
+          this.pageGuideEduTour1.close();
+        } else if (eduTourNumber == "2") {
+          this.pageGuideEduTour2.close();
         }
-        window.location.href = url;
+        this.showAnimation(false);
+        completedEduTourNumber = eduTourNumber;
+        eduTourNumber = completedEduTourNumber == "1" ? "2" : "1";
+        this.$router.push(
+        { name: 'exhibit-case-complete',
+          query: {mode: 'edu', tour: eduTourNumber}
+        });
       }
     }
 

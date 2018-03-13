@@ -37,7 +37,7 @@ textarea#copy-paste-genes
       <v-btn id="show-genes-button" flat slot="activator">Genes</v-btn>
 
       <v-expansion-panel expand>
-        <v-expansion-panel-content>
+        <v-expansion-panel-content :value="openPhenolyzerPanel">
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
           <v-card style="margin-bottom:15px">
               <div id="phenotype-input" style="display:inline-block;width:260px">
@@ -111,20 +111,22 @@ export default {
     Typeahead
   },
   props: {
-    geneModel: null
+    geneModel: null,
+    isEduTour: null
   },
   data () {
     return {
       showGenesMenu: null,
+      openPhenolyzerPanel: this.isEduTour,
 
       genesToApply: null,
 
-      phenolyzerTopCounts: [30, 50, 80, 100],
-      phenolyzerTop: 50,
+      phenolyzerTopCounts: [5, 10, 30, 50, 80, 100],
+      phenolyzerTop: this.isEduTour ? 5 : 50,
       phenotypeTerm: "",
       phenotypeTermEntered: "",
       allPhenotypeTerms: [],
-      phenolyzerStatus: null
+      phenolyzerStatus: null,
     }
   },
   watch: {
@@ -146,32 +148,40 @@ export default {
       let self = this;
       self.phenolyzerStatus = null;
       self.genesToApply = "";
-      var searchTerm = self.phenotypeTerm.value;
-      self.phenotypeTermEntered = self.phenotypeTerm.value;
-      self.geneModel.searchPhenolyzerGenes(searchTerm, this.phenolyzerTop,
-      function(status, error) {
-        if (status == 'done') {
-          if (self.geneModel.phenolyzerGenes.length == 0) {
-            self.phenolyzerStatus = "no genes found."
-            self.genesToApply = "";
+      var searchTerm = null;
+      if (self.phenotypeTerm) {
+        searchTerm = self.phenotypeTerm.value;
+        self.phenotypeTermEntered = self.phenotypeTerm.value;
+      } else if (self.phenotypeTermEntered) {
+        searchTerm = self.phenotypeTermEntered;
+      }
+      if (searchTerm) {
+        self.geneModel.searchPhenolyzerGenes(searchTerm, this.phenolyzerTop,
+        function(status, error) {
+          if (status == 'done') {
+            if (self.geneModel.phenolyzerGenes.length == 0) {
+              self.phenolyzerStatus = "no genes found."
+              self.genesToApply = "";
+            } else {
+              var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
+                return gene.selected;
+              }).length;
+              self.genesToApply = self.geneModel.phenolyzerGenes
+              .filter(function(gene) {
+                return gene.selected;
+              })
+              .map( function(gene) {
+                return gene.geneName;
+              })
+              .join(", ");
+              self.phenolyzerStatus = geneCount + " genes shown."
+            }
           } else {
-            var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
-              return gene.selected;
-            }).length;
-            self.genesToApply = self.geneModel.phenolyzerGenes
-            .filter(function(gene) {
-              return gene.selected;
-            })
-            .map( function(gene) {
-              return gene.geneName;
-            })
-            .join(", ");
-            self.phenolyzerStatus = geneCount + " genes shown."
+            self.phenolyzerStatus = status;
           }
-        } else {
-          self.phenolyzerStatus = status;
-        }
-      });
+        });
+
+      }
     }
   },
   created: function() {

@@ -488,10 +488,13 @@ tl.pg.interval = {};
                     diff.targetStyle[prop] = newTargetData.targetStyle[prop];
                 }
             }
+            // TDS - We don't want to skip/advance steps when the visible elements change
+            /*
             // compare index with existing index
             if (newTargetData.index !== self.targetData[target].index) {
                 diff.index = newTargetData.index;
             }
+            */
             // push diff onto changequeue if changes have been made
             if (diff.targetStyle != null || diff.index != null) {
                 self.changeQueue.push(diff);
@@ -550,8 +553,12 @@ tl.pg.interval = {};
         this.refreshVisibleSteps();
         if (this.cur_selector != null && this.cur_selector !== this.visibleTargets[this.cur_idx]) {
             // mod by target length in case user was viewing last target and it got removed
+
+            // TDS - We don't want to skip/advance steps when the visible elements change
+            /*
             var newIndex = this.cur_idx % this.visibleTargets.length;
             this.show_message(newIndex);
+            */
         }
     };
 

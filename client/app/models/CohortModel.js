@@ -66,11 +66,28 @@ class CohortModel {
         {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['father'],  'bai': null  },
       ]
     }
+    this.eduTourModelInfos = {
+      "1": [
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Father', 'sample': 'sample2', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Jimmy',  'sample': 'sample3', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Bobby',  'sample': 'sample4', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Sarah',  'sample': 'sample5', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
+      ],
+      "2": [
+        {relationship: 'proband', affectedStatus: 'affected', name: 'John',   'sample': 'sample1', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
+      ]
+
+    }
   }
 
   promiseInitDemo(demoKind='exome') {
     let self = this;
     return self.promiseInit(self.demoModelInfos[demoKind]);
+  }
+
+  promiseInitEduTour(tourNumber, idx) {
+    let self = this;
+    return self.promiseInit([self.eduTourModelInfos[tourNumber][idx]]);
   }
 
   promiseInit(modelInfos) {
@@ -83,6 +100,10 @@ class CohortModel {
       self.sampleModels = [];
       self.flaggedVariants = [];
       self.genesInProgress = [];
+      self.sampleMap = {};
+      self.sampleMapSibs = { affected: [], unaffected: []};
+
+      self.clearLoadedData();
 
       self.mode = modelInfos.length > 1 ? 'trio': 'single';
 

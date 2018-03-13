@@ -399,7 +399,7 @@ class VariantTooltip {
     if (isLevelEdu) {
       if (info.clinvarSig != "") {
         clinvarSimpleRow1 = me._tooltipWideHeadingRow('Known from research', info.clinvarSig, '6px');
-        if (phenotypeDisplay) {
+        if (info.phenotype) {
           clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('', info.phenotype, null, 'tooltip-clinvar-pheno');
         }
       }

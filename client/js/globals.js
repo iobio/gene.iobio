@@ -74,10 +74,9 @@ var EXHIBIT_URL1            = 'exhibit-case-complete.html';
 var EXHIBIT_URL2            = 'exhibit-cases-complete.html';
 
 
-var eduTourNumber           = "0";
 var eduTourShowPhenolyzer   = [true, false];
 
-var EDU_TOUR_VARIANT_SIZE   = 16;
+var EDU_TOUR_VARIANT_SIZE   = 10;
 
 var levelEduImpact = {
   HIGH:      'Harmful',

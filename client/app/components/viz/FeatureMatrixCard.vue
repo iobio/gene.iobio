@@ -473,10 +473,10 @@ export default {
 
   created: function() {
     this.setCellSize('small');
-    this.cellSize = isLevelEdu ? this.CELL_SIZE_EDU : (isLevelBasic ? null : this.CELL_SIZE);
+    this.cellSize = (isLevelBasic ? null : this.CELL_SIZE);
     this.cellWidth = isLevelBasic ? this.CELL_WIDTH_BASIC : null;
-    this.columnLabelHeight = isLevelEdu  || isLevelBasic ?  this.COLUMN_LABEL_HEIGHT_BASIC : this.COLUMN_LABEL_HEIGHT;
-    this.rowLabelWidth = isLevelEdu  ? this.ROW_LABEL_WIDTH_EDU : (isLevelBasic ? this.ROW_LABEL_WIDTH_BASIC : this.ROW_LABEL_WIDTH);
+    this.columnLabelHeight =  isLevelBasic ?  this.COLUMN_LABEL_HEIGHT_BASIC : this.COLUMN_LABEL_HEIGHT;
+    this.rowLabelWidth = (isLevelBasic ? this.ROW_LABEL_WIDTH_BASIC : this.ROW_LABEL_WIDTH);
   }
 
 

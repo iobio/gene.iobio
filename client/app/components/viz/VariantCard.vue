@@ -106,14 +106,14 @@
         Exons with insufficient coverage
       </v-badge>
 
-      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="zoom-switch mt-1" style="max-width:80px"
+      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduTour" class="zoom-switch mt-1" style="max-width:80px"
       label="Zoom"
       v-model="showZoom"
       >
       </v-switch>
 
       <v-switch class="clinvar-switch mt-1"
-      v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]"
+      v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !isEduTour"
       v-bind:label="`Display all ${selectedGene.gene_name} ClinVar variants`"
       v-model="showKnownVariantsCard"
       >
@@ -274,6 +274,7 @@ export default {
     KnownVariantsToolbar
   },
   props: {
+    isEduTour: null,
     sampleModel: null,
     annotationScheme: null,
     classifyVariantSymbolFunc: null,
