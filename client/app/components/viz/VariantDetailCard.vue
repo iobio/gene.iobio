@@ -165,7 +165,7 @@
         <span>{{ selectedVariantRelationship | showRelationship }}</span>
         <span class="pl-1">{{ selectedGene.gene_name }}</span>
         <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-        <span class="pl-1 refalt">{{ info.refalt  }}</span>
+        <span class="pl-1 refalt">{{ refAlt  }}</span>
         <span class="pl-1">{{ info.HGVSpAbbrev }}</span>
         <span class="pl-3">{{ info.coord }}</span>
         <span class="pl-1">{{ info.exon }}</span>
@@ -650,6 +650,22 @@ export default {
 
 
   computed: {
+    refAlt: function() {
+      let self = this;
+      var refAlt = "";
+      if (self.selectedGene && self.selectedGene.strand && self.selectedVariant) {
+        if (isLevelEdu) {
+          if (self.selectedGene.strand == "-") {
+            refAlt = utility.switchGenotype(self.selectedVariant.eduGenotype)
+          } else {
+            refAlt =  self.selectedVariant.eduGenotype;
+          }
+        } else {
+          refAlt =  self.info.refalt;
+        }
+      }
+      return refAlt;
+    },
     afGnomAD: function(af) {
       if (this.selectedVariant.vepAf.gnomAD.AF == null) {
         return "unknown";

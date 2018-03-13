@@ -1069,11 +1069,7 @@ export default {
     promiseInitTourSample: function(tour, sampleIndex) {
       let self = this;
       return new Promise(function(resolve, reject) {
-        //self.promiseClearCache()
-        //.then(function() {
-          //return
-          self.cohortModel.promiseInitEduTour(tour, sampleIndex)
-        //})
+        self.cohortModel.promiseInitEduTour(tour, sampleIndex)
         .then(function() {
           self.models = self.cohortModel.sampleModels;
           var geneName = null;

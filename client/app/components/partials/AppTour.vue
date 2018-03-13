@@ -865,7 +865,7 @@ export default {
             delay: 0
           }
         },
-        '#edu-tour-2 #start-over':       {index: 1, noElement: true, audio: '#tour2-recording2', disableTourButtons: true,
+        '#edu-tour-2 #start-over':       {index: 1, noElement: true, audio: '#tour2-recording2', disableTourButtons: false,
             height: 'full',
           animation: {
                 name: 'use-case02-scene02-v1',
@@ -877,7 +877,7 @@ export default {
                 delay: 0
               }
           },
-        '#variant-card.proband #loaded-variant-viz':    {index: 2, noElement: true, disableTourButtons: true},
+        '#variant-card.proband #loaded-variant-viz':    {index: 2, noElement: true, disableTourButtons: false},
         '#child-buttons-tour2':          {index: 3, disableNext: true, height: '120px', correct: false, disableTourButtons: false},
         '#edu-tour-2':                   {index: 4, noElement: true, audio: '#tour2-recording3', close: true, disableTourButtons: false}
       }

@@ -651,7 +651,6 @@ class Util {
     }
 
 
-
     if (variant.hasOwnProperty("vepExon") && !$.isEmptyObject(variant.vepExon)) {
       info.exon += "Exon ";
       info.exon += Object.keys(variant.vepExon).join(",");

@@ -142,7 +142,7 @@ class CohortModel {
       .then(function() {
         self.sortSampleModels();
 
-        self.setAffectedInfo();
+        self.setAffectedInfo(true);
         self.inProgress.loadingDataSources = false;
         self.isLoaded = true;
 
