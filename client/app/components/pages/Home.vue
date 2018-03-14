@@ -176,7 +176,7 @@
 
 
         <welcome
-         v-if="showWelcome"
+         v-if="showWelcome && !isEduTour"
          @load-demo-data="onLoadDemoData"
          @take-app-tour="onTakeAppTour"
          >
@@ -237,6 +237,7 @@
      ref="appTourRef"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
+      :phenotypeTerm="phenotypeTerm"
       @circle-variant="onCircleVariant"
     ></app-tour>
 
@@ -345,7 +346,9 @@ export default {
       isLeftDrawerOpen: null,
       showWelcome: true,
       isEduTour:  isLevelEdu,
-      tourNumber: eduTourNumber
+      tourNumber: eduTourNumber,
+
+      phenotypeTerm: null
     }
   },
 
@@ -883,8 +886,11 @@ export default {
     onAnalyzeAll: function() {
       this.cacheHelper.analyzeAll(this.cohortModel);
     },
-    onApplyGenes: function(genesString) {
+    onApplyGenes: function(genesString, phenotypeTerm) {
       let self = this;
+      if (phenotypeTerm) {
+        self.phenotypeTerm = phenotypeTerm;
+      }
       self.geneModel.promiseCopyPasteGenes(genesString)
       .then(function() {
         let geneName = Object.keys(self.selectedGene).length == 0 && self.geneModel.sortedGeneNames.length > 0 ?

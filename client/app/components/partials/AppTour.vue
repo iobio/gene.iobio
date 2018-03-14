@@ -194,15 +194,13 @@ $tour-hilite-color:      #F05B5B
 
           <li class="tlypageguide_right" data-tourtarget="#app-tour-genes-menu">
             <div>
-               Look at the father’s genome first. Select 'Colon cancer' from the ‘Phenolyzer’ box at the left of the screen.
+
+              Look at the father’s genome first. Click on the 'Genes' button and enter 'colon cancer' in the phenotype dropdown and click 'Search'.
             </div>
           </li>
 
 
           <li class="tlypageguide_right" data-tourtarget="#gene-badge-container #gene-badge-button">
-            <div>
-              #gene-badge-container #gene-badge-button
-            </div>
           </li>
 
           <li class="tlypageguide_right" data-tourtarget="#variant-card.proband #gene-viz">
@@ -210,7 +208,6 @@ $tour-hilite-color:      #F05B5B
               Gene model
             </div>
           </li>
-
 
 
           <li class="tlypageguide_left" data-tourtarget="#gene-badge-container">
@@ -226,10 +223,7 @@ $tour-hilite-color:      #F05B5B
             </div>
           </li>
 
-           <li class="tlypageguide_up" data-tourtarget="#edu-tour-1 #start-over">
-            <div>
-              #edu-tour-1 #start-over
-            </div>
+          <li class="tlypageguide_up" data-tourtarget="#edu-tour-1 #start-over">
           </li>
 
            <li class="tlypageguide_down" data-tourtarget="#children-buttons">
@@ -252,7 +246,7 @@ $tour-hilite-color:      #F05B5B
                  </div>
               </div>
 
-              <div style="text-align:center;margin-top: -5px;margin-bottom:0px;">
+              <div style="text-align:center;margin-top: 0px;margin-bottom:0px;">
                   <div style="display:inline-block;margin-right: 45px;margin-left: -8px;">
                       <label id="jimmy-answer" class=" edu-tour-answer" style="visibility:hidden">correct</label>
                   </div>
@@ -753,7 +747,8 @@ export default {
   },
   props: {
     selectedGene: null,
-    selectedVariant: null
+    selectedVariant: null,
+    phenotypeTerm: null
   },
   data () {
     let self = this;
@@ -831,9 +826,7 @@ export default {
             delay: 0}
           },
         '#app-tour-genes-menu': {index: 1, height: '20px', disableNext: false, correct: false, disableTourButtons: false},
-        '#gene-badge-container #gene-badge-button':                              {index: 2, disableTourButtons: false,
-          audio: '#tour1-recording2'
-        },
+        '#gene-badge-container #gene-badge-button"':{index: 2, disableTourButtons: false, audio: '#tour1-recording2'},
         '#variant-card.proband #gene-viz':         {index: 3, audio: '#tour1-recording3', height: '0px', disableTourButtons: false},
         '#gene-badge-container':                            {index: 4, disableNext: false, correct: false, disableTourButtons: false},
         '#edu-tour-1 #start-over':                          {index: 5, audio: '#tour1-recording4', noElement: true, disableTourButtons: false},
@@ -885,6 +878,11 @@ export default {
   },
   mounted: function() {
     this.init();
+  },
+  watch: {
+    phenotypeTerm: function() {
+      this.checkPhenolyzer();
+    }
   },
   methods: {
     init: function() {
@@ -1148,29 +1146,26 @@ export default {
     },
 
     checkPhenolyzer: function() {
-      let me = this;
-      $('#select-phenotype-edutour').selectize();
-      $('#select-phenotype-edutour')[0].selectize.clear();
-      $('#select-phenotype-edutour')[0].selectize.on('change', function() {
-        var phenotype = $('#select-phenotype-edutour')[0].selectize.getValue().toLowerCase();
-        var correct = true;
-        if (isLevelEdu && eduTourNumber == 1) {
-          if (phenotype != 'colon_cancer') {
-            alertify.alert("Please select 'Colon cancer' to continue with this tour.")
-            correct = false;
-          }
+      let self = this;
+      var correct = true;
+      if (isLevelEdu && eduTourNumber == 1) {
+        if (self.phenotypeTerm.toLowerCase() != 'colon cancer') {
+          alert("Please select 'Colon cancer' to continue with this tour.")
+          correct = false;
         }
-        if (correct) {
-          me.eduTour1Steps['#phenolyzer-search-box .selectize-control.single'].correct = true;
-          genesCard.getPhenolyzerGenes(phenotype);
-          if (eduTourNumber == 1  && me.pageGuideEduTour1.cur_idx == 1) {
-            me.pageGuideEduTour1.navigateForward();
-          }
+      }
+      if (correct) {
+        self.eduTour1Steps['#app-tour-genes-menu'].correct = true;
+        if (eduTourNumber == 1  && self.pageGuideEduTour1.cur_idx == 1) {
+          setTimeout(function() {
+              self.pageGuideEduTour1.navigateForward();
+          }, 4000)
 
-        } else {
-          me.eduTour1Steps['#phenolyzer-search-box .selectize-control.single'].correct = false;
         }
-      });
+
+      } else {
+        self.eduTour1Steps['#app-tour-genes-menu'].correct = false;
+      }
     },
 
     checkVariant: function(variant) {

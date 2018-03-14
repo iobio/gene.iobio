@@ -372,8 +372,8 @@ export default {
       self.$emit("register-flagged-variants", self.flaggedGeneNames, self.flaggedVariants);
 
     },
-    onApplyGenes: function(genesToApply) {
-      this.$emit("apply-genes", genesToApply);
+    onApplyGenes: function(genesToApply, phenotypeTerm) {
+      this.$emit("apply-genes", genesToApply, phenotypeTerm);
     },
 
   },

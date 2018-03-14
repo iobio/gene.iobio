@@ -31,6 +31,7 @@ textarea#copy-paste-genes
     offset-y
     :close-on-content-click="false"
     :nudge-width="400"
+    top
     v-model="showGenesMenu"
     >
 
@@ -138,7 +139,7 @@ export default {
   },
   methods: {
     onApplyGenes: function() {
-      this.$emit("apply-genes", this.genesToApply);
+      this.$emit("apply-genes", this.genesToApply, this.phenotypeTermEntered);
       this.showGenesMenu = false;
     },
     onACMGGenes: function() {
@@ -175,6 +176,11 @@ export default {
               })
               .join(", ");
               self.phenolyzerStatus = geneCount + " genes shown."
+              if (self.isEduTour) {
+                setTimeout(function() {
+                  self.onApplyGenes();
+                }, 1000);
+              }
             }
           } else {
             self.phenolyzerStatus = status;

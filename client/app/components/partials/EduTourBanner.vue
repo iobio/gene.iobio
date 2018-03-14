@@ -157,7 +157,7 @@ body#tlypageguide-open
 
     &.custom-checkbox
       padding:  10px
-      margin-right: 30px
+      margin-right: 15px
       min-height: initial
       max-height: initial
       width:  initial

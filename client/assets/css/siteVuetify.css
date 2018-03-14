@@ -101,6 +101,7 @@ html {
 
 .menuable__content__active {
   background-color: white;
+  z-index: 100 !important;
 }
 
 
