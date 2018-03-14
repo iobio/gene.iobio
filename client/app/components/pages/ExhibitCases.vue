@@ -70,10 +70,10 @@ export default {
   },
   methods: {
     exhibitStartOver: function() {
-      this.$router.push({ name: 'exhibit' });
+      this.$router.replace({ name: 'exhibit' });
     },
     showCaseStudy: function(tourNumber) {
-      this.$router.push(
+      this.$router.replace(
       { name: 'home',
         query: {mode: 'edu', tour: tourNumber}
       });

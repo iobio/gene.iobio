@@ -42,7 +42,8 @@
      v-if="isEduTour"
      :tourNumber="tourNumber"
      :geneModel="geneModel"
-     @init-tour-sample="onInitTourSample">
+     @init-tour-sample="onInitTourSample"
+     @tour-start-over="onTourStartOver">
     </edu-tour-banner>
 
     <navigation
@@ -354,6 +355,7 @@ export default {
 
   created: function() {
 
+
   },
 
   mounted: function() {
@@ -434,6 +436,8 @@ export default {
     function(error) {
 
     })
+
+
   },
 
   computed: {
@@ -491,16 +495,21 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
-        self.geneModel.clearDangerSummaries();
-        self.cacheHelper.promiseClearCache(self.cacheHelper.launchTimestampToClear)
-        .then(function() {
-          self.cohortModel.cacheHelper.refreshGeneBadges(function() {
-            resolve();
+        if (isLevelEdu) {
+          resolve();
+        } else {
+          self.geneModel.clearDangerSummaries();
+          self.cacheHelper.promiseClearCache(self.cacheHelper.launchTimestampToClear)
+          .then(function() {
+            self.cohortModel.cacheHelper.refreshGeneBadges(function() {
+              resolve();
+            })
           })
-        })
-        .catch(function(error) {
-          resolve(error);
-        })
+          .catch(function(error) {
+            resolve(error);
+          })
+
+        }
 
       })
     },
@@ -1098,6 +1107,10 @@ export default {
           }
         })
       })
+    },
+    onTourStartOver: function() {
+      this.$refs.appTourRef.completeTour();
+      this.$router.push({ name: 'exhibit' });
     }
 
 

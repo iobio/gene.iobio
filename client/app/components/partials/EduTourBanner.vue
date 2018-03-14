@@ -378,17 +378,7 @@ export default {
       this.$emit("init-tour-sample", tour, sampleIndex);
     },
     exhibitStartOver: function() {
-      this.$router.push({ name: 'exhibit' });
-    },
-    completeTour: function() {
-      if (isLevelEdu) {
-        completedEduTourNumber = eduTourNumber;
-        eduTourNumber = completedEduTourNumber == "1" ? "2" : "1";
-        this.$router.push(
-        { name: 'exhibit-case-complete',
-          query: {mode: 'edu', tour: eduTourNumber}
-        });
-      }
+      this.$emit("tour-start-over");
     },
     getButtonClass: function(tour, sampleIndex) {
       let self = this;

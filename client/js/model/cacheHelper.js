@@ -74,7 +74,11 @@ CacheHelper.prototype.promiseInit = function() {
 
 
 CacheHelper.prototype.isolateSession = function() {
-  this.launchTimestamp = Date.now().valueOf();
+  if (isLevelEdu) {
+    this.launchTimestamp = 9999;
+  } else {
+    this.launchTimestamp = Date.now().valueOf();
+  }
 }
 
 CacheHelper.prototype.promiseClearStaleCache = function() {

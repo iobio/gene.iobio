@@ -87,7 +87,7 @@ textarea#copy-paste-genes
             >
             </v-text-field>
           </div>
-          <div>
+          <div v-if="!isEduTour">
               <v-btn id="acmg-genes-button" @click="onACMGGenes">
               ACMG Genes
               </v-btn>
