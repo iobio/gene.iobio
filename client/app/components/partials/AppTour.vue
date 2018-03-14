@@ -1230,7 +1230,8 @@ export default {
         } else if (eduTourNumber == "2") {
           this.pageGuideEduTour2.close();
         }
-        this.showAnimation(false);
+        $('#animation-container-1 #Stage').html("");
+        $('#animation-container-2 #Stage').html("");
         completedEduTourNumber = eduTourNumber;
         eduTourNumber = completedEduTourNumber == "1" ? "2" : "1";
         this.$router.push(

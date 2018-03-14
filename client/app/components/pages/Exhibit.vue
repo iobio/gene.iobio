@@ -23,7 +23,7 @@
         <button id="start-here" @click="showVideo()" class="exhibit-button large btn btn-raised">Start here</button>
         <div id="video-container" class="hide">
           <video id="exhibit-video" width="100%" controls="false" height="100%" >
-            <source src="../../../assets/video/gene_exhibit_video.mp4" type="video/mp4">
+            <source src="assets/video/gene_exhibit_video.mp4" type="video/mp4">
           </video>
         </div>
         <button id="returning-player" @click="showCaseStudies()" class="exhibit-button large btn btn-raised">

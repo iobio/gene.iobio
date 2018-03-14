@@ -272,11 +272,11 @@ span.arrow
 
       </span>
 
-      <audio id="tour1-recording1" src="../../../assets/audio/tour1-recording1.m4v" ></audio>
-      <audio id="tour1-recording2" src="../../../assets/audio/tour1-recording2.m4v"></audio>
-      <audio id="tour1-recording3" src="../../../assets/audio/tour1-recording3.m4v"></audio>
-      <audio id="tour1-recording4" src="../../../assets/audio/tour1-recording4.m4v"></audio>
-      <audio id="tour1-recording5" src="../../../assets/audio/tour1-recording5.m4v"></audio>
+      <audio id="tour1-recording1" src="assets/audio/tour1-recording1.m4v" ></audio>
+      <audio id="tour1-recording2" src="assets/audio/tour1-recording2.m4v"></audio>
+      <audio id="tour1-recording3" src="assets/audio/tour1-recording3.m4v"></audio>
+      <audio id="tour1-recording4" src="assets/audio/tour1-recording4.m4v"></audio>
+      <audio id="tour1-recording5" src="assets/audio/tour1-recording5.m4v"></audio>
 
 
     </div>
@@ -324,9 +324,9 @@ span.arrow
       </span>
 
 
-      <audio id="tour2-recording1" src="../../../assets/audio/tour2-recording1.m4v"></audio>
-      <audio id="tour2-recording2" src="../../../assets/audio/tour2-recording2.m4v"></audio>
-      <audio id="tour2-recording3" src="../../../assets/audio/tour2-recording3.m4v"></audio>
+      <audio id="tour2-recording1" src="assets/audio/tour2-recording1.m4v"></audio>
+      <audio id="tour2-recording2" src="assets/audio/tour2-recording2.m4v"></audio>
+      <audio id="tour2-recording3" src="assets/audio/tour2-recording3.m4v"></audio>
 
 
     </div>
