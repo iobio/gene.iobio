@@ -155,6 +155,7 @@
                 <v-tab-item  style="max-height:210px;overflow-y:scroll">
                   <variant-detail-card
                   ref="variantDetailCardRef"
+                  :isEduTour="isEduTour"
                   :showTitle="false"
                   :selectedGene="selectedGene"
                   :selectedTranscript="analyzedTranscript"

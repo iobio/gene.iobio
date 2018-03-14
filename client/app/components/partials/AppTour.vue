@@ -238,15 +238,15 @@ $tour-hilite-color:      #F05B5B
 
               <div style="text-align:center;margin-top:20px;margin-bottom:0px;">
 
-                <div  class="custom-checkbox" style="display:inline-block;margin-right:20px">
+                <div  id="jimmy-answers" class="answers custom-checkbox" style="display:inline-block;margin-right:20px">
                     <input type="checkbox" onclick="onTour1Check($(this))"  id="jimmy">
                     <label for="jimmy">Jimmy</label>
                  </div>
-                <div class="custom-checkbox" style="display:inline-block;margin-right:20px">
+                <div id="bobby-answers" class="answers custom-checkbox" style="display:inline-block;margin-right:20px">
                     <input type="checkbox"   onclick="onTour1Check($(this))" id="bobby">
                     <label for="bobby">Bobby</label>
                  </div>
-                <div class="custom-checkbox" style="display:inline-block">
+                <div id="sarah-answers" class="answers custom-checkbox" style="display:inline-block">
                     <input type="checkbox"   onclick="onTour1Check($(this))" id="sarah">
                     <label for="sarah" >Sarah</label>
                  </div>
@@ -296,7 +296,7 @@ $tour-hilite-color:      #F05B5B
 
               <div id="john-answers"  class="answers selected" >
                 <div class="answer-label">John</div>
-                <div style="text-align:left;margin-top:0px;margin-bottom:0px">
+                <div  style="text-align:left;margin-top:0px;margin-bottom:0px">
                   <div class="custom-checkbox" style="display:block;">
                       <input type="checkbox" class="john-checkbox" onclick="onTour2Check($(this))" id="john-normal">
                       <label for="john-normal" >Normal GG</label>

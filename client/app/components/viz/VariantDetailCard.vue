@@ -161,7 +161,7 @@
       <span style="display:inline-block" v-if="showTitle ">Variant</span>
     </div>
 
-      <div  v-if="selectedVariant" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
+      <div  v-if="selectedVariant && !isEduTour" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
         <span>{{ selectedVariantRelationship | showRelationship }}</span>
         <span class="pl-1">{{ selectedGene.gene_name }}</span>
         <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
@@ -171,8 +171,13 @@
         <span class="pl-1">{{ info.exon }}</span>
         <span class="pl-3" v-if="info.dbSnpLink" v-html="info.dbSnpLink"></span>
       </div>
+      <div  v-if="selectedVariant && isEduTour" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
+        <span class="pl-1">{{ selectedGene.gene_name }}</span>
+        <span class="pl-1 refalt">Genotype {{ refAlt  }}</span>
+        <span class="pl-1">{{ info.vepImpact }}</span>
+      </div>
 
-    <v-layout  v-if="selectedVariant" class="content" column nowrap>
+    <v-layout  v-if="selectedVariant && !isEduTour" class="content" column nowrap>
       <v-flex v-if="selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
         <v-layout row>
            <v-flex xs4 class="field-label">Inheritance</v-flex>
@@ -182,7 +187,7 @@
       <v-flex>
         <v-layout row>
            <v-flex xs4 class="field-label">Impact</v-flex>
-           <v-flex xs9 class="field-value">{{ info.vepImpact }} - {{ info.vepConsequence }}</v-flex>
+           <v-flex xs9  class="field-value">{{ info.vepImpact }} - {{ info.vepConsequence }}</v-flex>
         </v-layout>
       </v-flex>
       <v-flex v-if="info.vepHighestImpact != ''">
@@ -235,7 +240,7 @@
       </v-flex>
 
       <v-flex>
-        <v-layout row>
+        <v-layout  row>
            <v-flex xs4 class="field-label">gnomAD</v-flex>
            <v-flex xs9 class="field-value" v-html="afGnomAD"></v-flex>
         </v-layout>
@@ -260,7 +265,7 @@
 
     </v-layout>
 
-    <div  id="coverage-svg">
+    <div  id="coverage-svg" v-bind:class="{hide: isEduTour}">
     </div>
   </div>
 
@@ -275,6 +280,7 @@ export default {
   components: {
   },
   props: {
+    isEduTour: null,
     selectedGene: null,
     selectedTranscript: null,
     selectedVariant: null,

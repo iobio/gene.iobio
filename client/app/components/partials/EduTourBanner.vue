@@ -155,6 +155,13 @@ body#tlypageguide-open
     display: inline-block
     width:  280px
 
+    &.custom-checkbox
+      padding:  10px
+      margin-right: 30px
+      min-height: initial
+      max-height: initial
+      width:  initial
+
     &.selected
       border: solid 3px #a5b941
 
@@ -218,7 +225,8 @@ span.arrow
       <span style="inline-block">
 
 
-          <button id="button-load-father-data" class="active edu-tour-button icon-button-sm btn btn-default btn-raised"
+          <button id="button-load-father-data"
+          v-bind:class="getButtonClass(1, 0)"
           @click="onInitTourSample(1, 0)">
             <span>
               <i class="material-icons" >star</i>
@@ -228,7 +236,8 @@ span.arrow
 
           <span id="children-buttons" class="edu-tour-1-child-buttons" style="display:inline-block;">
              <span id="jimmy-and-sarah-buttons" style="display:inline-block;">
-            <button id="button-load-jimmy-data" class="edu-tour-data-button edu-tour-button icon-button-sm btn btn-default btn-raised"
+            <button id="button-load-jimmy-data"
+            v-bind:class="getButtonClass(1, 1)"
             @click="onInitTourSample(1, 1)">
               <span>
                 <i class="material-icons" >star</i>
@@ -236,7 +245,8 @@ span.arrow
               </span>
             </button>
 
-            <button class="edu-tour-button edu-tour-data-button icon-button-sm btn btn-default btn-raised"
+            <button
+            v-bind:class="getButtonClass(1, 2)"
             @click="onInitTourSample(1, 2)">
               <span>
                 <i class="material-icons" >star</i>
@@ -245,7 +255,9 @@ span.arrow
             </button>
            </span>
 
-            <button class="edu-tour-button edu-tour-data-button icon-button-sm btn btn-default btn-raised"  style="margin-right:20px;"
+            <button
+            v-bind:class="getButtonClass(1, 3)"
+            style="margin-right:20px;"
             @click="onInitTourSample(1, 3)">
             <span>
                 <i class="material-icons" >star</i>
@@ -279,8 +291,9 @@ span.arrow
 
       <span id="child-buttons-tour2" style="display:inline-block">
 
-          <button id="button-load-john-data" class="active edu-tour-button icon-button-sm btn btn-default btn-raised"
-          @click="onInitTourSample(2, 0)">
+          <button id="button-load-john-data"
+           v-bind:class="getButtonClass(2, 0)"
+           @click="onInitTourSample(2, 0)">
           <span>
               <i class="material-icons" >star</i>
               John
@@ -288,16 +301,19 @@ span.arrow
 
           </button>
 
-          <button id="button-load-diego-data"  class="edu-tour-data-button edu-tour-button icon-button-sm btn btn-default btn-raised"
-          @click="onInitTourSample(2, 1)">
+          <button id="button-load-diego-data"
+           v-bind:class="getButtonClass(2, 1)"
+           @click="onInitTourSample(2, 1)">
             <span>
               <i class="material-icons" >star</i>
               Diego
             </span>
           </button>
 
-          <button id="button-load-anna-data"  class="edu-tour-data-button edu-tour-button icon-button-sm btn btn-default btn-raised"  style="margin-right:20px;"
-          @click="onInitTourSample(2, 2)">
+          <button id="button-load-anna-data"
+           v-bind:class="getButtonClass(2, 2)"
+           style="margin-right:20px;"
+           @click="onInitTourSample(2, 2)">
             <span>
               <i class="material-icons" >star</i>
               Anna
@@ -333,10 +349,32 @@ export default {
   },
   data () {
     return {
+      activeButtons: [
+        [true, false, false, false],
+        [true, false, false]
+      ],
+      names: [
+        ['father', 'jimmy', 'bobby', 'sarah'],
+        ['john', 'diego', 'anna']
+      ]
     }
   },
   methods: {
     onInitTourSample: function(tour, sampleIndex) {
+      let self = this;
+      var tourIdx = parseInt(tour) - 1;
+      var buttonCount = tourIdx == 0 ? 4 : 3;
+
+      var buttons = [];
+      for (var i = 0; i < buttonCount; i++) {
+        buttons.push( (i == sampleIndex ? true : false) );
+      }
+      self.$set(self.activeButtons, tourIdx, buttons);
+
+
+      $('.answers').removeClass('selected');
+      $('#' + self.names[tourIdx][sampleIndex] + '-answers').addClass('selected');
+
       this.$emit("init-tour-sample", tour, sampleIndex);
     },
     exhibitStartOver: function() {
@@ -351,6 +389,15 @@ export default {
           query: {mode: 'edu', tour: eduTourNumber}
         });
       }
+    },
+    getButtonClass: function(tour, sampleIndex) {
+      let self = this;
+      var tourIndex = parseInt(tour) - 1;
+      return [
+        {'active': self.activeButtons[tourIndex][sampleIndex]},
+        'edu-tour-button', 'icon-button-sm', 'btn', 'btn-default', 'btn-raised'
+      ];
+
     }
   }
 }
