@@ -711,7 +711,9 @@ export default {
 
   filters: {
     showRelationship: function(buf) {
-      if (buf == 'known-variants') {
+      if (buf == null) {
+        return "";
+      } else if (buf == 'known-variants') {
         return 'ClinVar';
       } else {
         return utility.capitalizeFirstLetter(buf);
