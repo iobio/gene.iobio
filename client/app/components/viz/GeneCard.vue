@@ -137,9 +137,9 @@
 
         <span id="minus-strand"  v-if="selectedGene.strand == '-'"  class=" level-edu level-basic" style="font-size:12px;padding-left: 5px;font-style: italic;">reverse strand</span>
 
-        <span  id="gene-plus-minus-label"  v-if="showGene"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
+        <span  id="gene-plus-minus-label"  v-if="showGene && !isEduMode && !isBasicMode"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
 
-        <div id="region-buffer-box" style="display:inline-block;width:50px;height:21px;margin-right:15px"  v-if="showGene" >
+        <div v-if="showGene && !isEduMode && !isBasicMode" id="region-buffer-box" style="display:inline-block;width:50px;height:21px;margin-right:15px"  >
             <v-text-field
                 id="gene-region-buffer-input"
                 class="sm level-edu level-basic  fullview"
@@ -148,13 +148,19 @@
             </v-text-field>
         </div>
         <transcripts-viz
+          v-if="!isEduMode && !isBasicMode"
           v-bind:class="{ hide: !showGene }"
           :selectedGene="selectedGene"
           :selectedTranscript="selectedTranscript"
           @transcriptSelected="onTranscriptSelected">
         </transcripts-viz>
 
-        <v-btn id="show-gene-source-button" flat fab small slot="activator" style="margin-left: 20px;position: relative;margin-top: -3px;margin-bottom: 0px;margin-right: 0px;" @click="showSettings = !showSettings"
+        <v-btn
+        v-if="!isEduMode && !isBasicMode"
+        id="show-gene-source-button" flat fab small
+        slot="activator"
+        style="margin-left: 20px;position: relative;margin-top: -3px;margin-bottom: 0px;margin-right: 0px;"
+        @click="showSettings = !showSettings"
         light>
           <v-icon style="font-size:17px" >settings</v-icon>
         </v-btn>
@@ -251,6 +257,8 @@ export default {
     TranscriptsViz
   },
   props: {
+    isEduMode: null,
+    isBasicMode: null,
     selectedGene: {},
     selectedTranscript: {},
     geneRegionStart: null,

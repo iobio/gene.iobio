@@ -26,9 +26,6 @@ $tour-hilite-color:      #F05B5B
   &:hover, &:focus
     color: white !important
 
-.dropdown-menu > li > a
-  color: $text-color !important
-
 
 .tlypageguide_text
   padding-bottom: 10px !important

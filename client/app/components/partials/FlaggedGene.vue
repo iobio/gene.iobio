@@ -19,6 +19,8 @@
     v-for="variant in flaggedGene.variants"
     :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
     :variant="variant"
+    :isEduMode="isEduMode"
+    :isBasicMode="isBasicMode"
     @flagged-variant-selected="onFlaggedVariantSelected"
     >
     </flagged-variant>
@@ -38,7 +40,9 @@ export default {
     FlaggedVariant
   },
   props: {
-    flaggedGene: null
+    flaggedGene: null,
+    isEduMode: null,
+    isBasicMode: null
   },
   data () {
     return {

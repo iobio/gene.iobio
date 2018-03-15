@@ -166,7 +166,7 @@
         <svg
          v-if="variant.type.toLowerCase() == 'snp' || variant.type.toLowerCase() == 'mnp'"
          class="impact-badge" height="12" width="13">
-          <g transform="translate(1,2)">
+          <g transform="translate(1,4)">
             <rect width="8" height="8"
             v-bind:class="highestImpactClass"
             style="pointer-events: none;"></rect>
@@ -234,9 +234,9 @@
           <span class="coord"> {{ variant.start + " " + variant.ref + "->" + variant.alt }} </span>
           <span class="hgvs">  {{ hgvsP }} </span>
         </div>
-        <div style="display:inline-block;width:122px">
+        <div style="display:inline-block;width:122px;vertical-align:top">
           <span class="vep-consequence">{{ vepConsequence }}</span>
-          <span class="rsid">{{ rsId }}</span>
+          <span v-if="!isBasicMode" class="rsid">{{ rsId }}</span>
         </div>
         <span class="af">{{ afDisplay }}</span>
       </span>
@@ -244,7 +244,7 @@
 
     </a>
 
-   <span class="favorite-indicator"
+   <span v-if="!isBasicMode" class="favorite-indicator"
    style="float: right;">
     <svg class="favorite-badge"
      @click="toggleFavorite"
@@ -269,7 +269,9 @@ export default {
   components: {
   },
   props: {
-    variant: null
+    variant: null,
+    isEduMode: null,
+    isBasicMode: null
   },
   data () {
     return {
@@ -345,10 +347,11 @@ export default {
       return clazz;
     },
     afDisplay: function() {
+      var label = this.isBasicMode ? "freq " : "af ";
       if (this.variant.isProxy) {
-        return  "af " +  utility.percentage(this.variant.afgnomAD ? this.variant.afgnomAD : 0);
+        return  label +  utility.percentage(this.variant.afgnomAD ? this.variant.afgnomAD : 0);
       } else {
-        return  "af " +  utility.percentage(this.variant.afHighest ? this.variant.afHighest : 0);
+        return  label +  utility.percentage(this.variant.afHighest ? this.variant.afHighest : 0);
       }
     },
     zygosity: function() {

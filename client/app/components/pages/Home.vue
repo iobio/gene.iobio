@@ -39,7 +39,7 @@
   <div>
 
     <edu-tour-banner
-     v-if="isEduTour"
+     v-if="isEduMode"
      :tourNumber="tourNumber"
      :geneModel="geneModel"
      @init-tour-sample="onInitTourSample"
@@ -49,6 +49,8 @@
     <navigation
       v-if="geneModel"
       ref="navRef"
+      :isEduMode="isEduMode"
+      :isBasicMode="isBasicMode"
       :cohortModel="cohortModel"
       :geneModel="geneModel"
       :flaggedVariants="flaggedVariants"
@@ -68,11 +70,16 @@
     <v-content>
       <v-container fluid>
 
+        <intro-panel v-if="forMyGene2"
+        :closeIntro="closeIntro">
+        </intro-panel>
+
         <genes-card
-         v-if="geneModel && (geneModel.geneNames.length > 0 || isEduTour)"
-         v-bind:class="{hide : showWelcome && !isEduTour}"
+         v-if="geneModel && (geneModel.geneNames.length > 0 || isEduMode)"
+         v-bind:class="{hide : showWelcome && !isEduMode}"
          ref="genesCardRef"
-         :isEduTour="isEduTour"
+         :isEduMode="isEduMode"
+         :isBasicMode="isBasicMode"
          :tourNumber="tourNumber"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
@@ -101,10 +108,10 @@
           v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-bottom:10px"
           v-bind:class="{hide : showWelcome }"
           >
-         <split-pane :leftPercent="(cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (isEduTour ? 50 : (this.isLeftDrawerOpen ?  35 : 25)) : 0)">
+         <split-pane :leftPercent="(!isBasicMode && cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (isEduMode ? 50 : (this.isLeftDrawerOpen ?  35 : 25)) : 0)">
             <feature-matrix-card slot="left" style="min-height:251px;max-height:251px;overflow-y:scroll"
             ref="featureMatrixCardRef"
-            v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
+            v-bind:class="{ hide: isBasicMode || !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
             :featureMatrixModel="featureMatrixModel"
             :selectedGene="selectedGene"
             :selectedTranscript="analyzedTranscript"
@@ -139,6 +146,8 @@
                   <gene-card
                     v-if="geneModel && Object.keys(selectedGene).length > 0"
                     :showTitle="false"
+                    :isEduMode="isEduMode"
+                    :isBasicMode="isBasicMode"
                     :geneModel="geneModel"
                     :selectedGene="selectedGene"
                     :selectedTranscript="selectedTranscript"
@@ -156,7 +165,8 @@
                 <v-tab-item  style="max-height:210px;overflow-y:scroll">
                   <variant-detail-card
                   ref="variantDetailCardRef"
-                  :isEduTour="isEduTour"
+                  :isEduMode="isEduMode"
+                  :isBasicMode="isBasicMode"
                   :showTitle="false"
                   :selectedGene="selectedGene"
                   :selectedTranscript="analyzedTranscript"
@@ -177,7 +187,7 @@
 
 
         <welcome
-         v-if="showWelcome && !isEduTour"
+         v-if="showWelcome && !isEduMode && !forMyGene2"
          @load-demo-data="onLoadDemoData"
          @take-app-tour="onTakeAppTour"
          >
@@ -199,11 +209,12 @@
         :key="model.relationship"
         v-bind:class="[
         { 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false),
-          'edu' : isEduTour
+          'edu' : isEduMode
         },
         model.relationship
         ]"
-        :isEduTour="isEduTour"
+        :isEduMode="isEduMode"
+        :isBasicMode="isBasicMode"
         :sampleModel="model"
         :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
@@ -252,6 +263,7 @@
 
 import EduTourBanner      from  '../partials/EduTourBanner.vue'
 import Navigation         from  '../partials/Navigation.vue'
+import IntroPanel         from  '../partials/IntroPanel.vue'
 import Welcome            from  '../partials/Welcome.vue'
 import GeneCard           from  '../viz/GeneCard.vue'
 import VariantDetailCard  from  '../viz/VariantDetailCard.vue'
@@ -274,6 +286,7 @@ export default {
   components: {
       EduTourBanner,
       Navigation,
+      IntroPanel,
       Welcome,
       GenesCard,
       GeneCard,
@@ -345,9 +358,13 @@ export default {
       cardWidth: 0,
       activeGeneVariantTab: null,
       isLeftDrawerOpen: null,
-      showWelcome: true,
-      isEduTour:  isLevelEdu,
+      showWelcome: false,
+
+      isEduMode:  isLevelEdu,
       tourNumber: eduTourNumber,
+      isBasicMode: isLevelBasic,
+      forMyGene2: isMygene2,
+      closeIntro: false,
 
       phenotypeTerm: null
     }
@@ -424,7 +441,7 @@ export default {
 
       self.promiseInitFromUrl()
       .then(function() {
-          if (self.isEduTour && eduTourNumber) {
+          if (self.isEduMode && eduTourNumber) {
             self.$refs.appTourRef.startTour(eduTourNumber);
           }
           self.models = self.cohortModel.sampleModels;
@@ -529,7 +546,7 @@ export default {
         self.models = self.cohortModel.sampleModels;
         if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
           self.promiseLoadData();
-          if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduTour) {
+          if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
             self.cacheHelper.analyzeAll(self.cohortModel, false);
           }
         }
@@ -675,6 +692,15 @@ export default {
       this.showWelcome = false;
 
       return new Promise(function(resolve, reject) {
+
+        if (self.forMyGene2) {
+          if (!self.closeIntro) {
+            setTimeout(function() {
+              self.closeIntro = true;
+            }, 2000);
+          }
+        }
+
         if (self.cohortModel) {
           self.cohortModel.clearLoadedData();
         }
@@ -765,7 +791,7 @@ export default {
         if (sourceComponent == null || self.$refs.featureMatrixCardRef != sourceComponent) {
           self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
         }
-        if (self.isEduTour) {
+        if (self.isEduMode) {
           self.$refs.appTourRef.checkVariant(variant);
         }
       } else {
@@ -907,7 +933,7 @@ export default {
         return self.promiseLoadGene(geneName);
       })
       .then(function() {
-        if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduTour) {
+        if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
           self.cacheHelper.analyzeAll(self.cohortModel, false);
         }
       })
@@ -919,13 +945,18 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
-        if ( self.paramMygene2 && self.paramMygene2 != "" ) {
-          isMygene2   = self.paramMygene2 == "false" || self.paramMygene2.toUpperCase() == "N" ? false : true;
+        if ( self.paramMyGene2 && self.paramMyGene2 != "" ) {
+          isMygene2   = self.paramMyGene2 == "false" || self.paramMyGene2.toUpperCase() == "N" ? false : true;
+          self.forMyGene2 = isMygene2;
         }
         if (self.paramMode && self.paramMode != "") {
           isLevelBasic     = self.paramMode == "basic" ? true : false;
+          self.isBasicMode = isLevelBasic;
           isLevelEdu       = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
-          self.isEduTour   = isLevelEdu;
+          self.isEduMode   = isLevelEdu;
+        }
+        if (!self.isEduMode && !self.isBasicMode) {
+          self.showWelcome = true;
         }
         if (self.paramTour) {
           eduTourNumber = self.paramTour;

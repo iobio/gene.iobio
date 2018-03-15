@@ -11,7 +11,7 @@ class VariantTooltip {
     this.WIDTH_EXTRA_WIDE       = 840;
     this.WIDTH_HOVER            = 360;
     this.WIDTH_SIMPLE           = 280;
-    this.WIDTH_SIMPLE_WIDER     = 500;
+    this.WIDTH_SIMPLE_WIDER     = 380;
     this.ARROW_OFFSET           = 10;
     this.ARROW_WIDTH            = 10;
     this.SIDE_TOOLTIP_HORZ_OFFSET = 35;
@@ -515,6 +515,13 @@ class VariantTooltip {
         + me._tooltipMainHeaderRow('Severity - ' + info.vepImpact , '', '', '')
         + inheritanceModeRow
         + polyphenRowSimple
+        + clinvarSimpleRow1
+        + clinvarSimpleRow2 );
+    } if (isLevelBasic) {
+      return (
+        me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, '', 'ref-alt')
+        + me._tooltipMainHeaderRow(info.vepImpact, info.vepConsequence, '', '', 'impact-badge')
+        + vepHighestImpactRowSimple
         + clinvarSimpleRow1
         + clinvarSimpleRow2 );
     } else if (tooltipClazz == 'tooltip') {

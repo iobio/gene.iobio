@@ -102,7 +102,7 @@
 
       <v-badge  id="loaded-count" v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
         <span slot="badge"> {{ sampleModel.loadedVariants.features.length }} </span>
-        Loaded
+        {{ isBasicMode ? 'Variants' : 'Loaded' }}
       </v-badge>
       <v-badge
         v-if="sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
@@ -115,14 +115,14 @@
         Exons with insufficient coverage
       </v-badge>
 
-      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduTour" class="zoom-switch mt-1" style="max-width:80px"
+      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode" class="zoom-switch mt-1" style="max-width:80px"
       label="Zoom"
       v-model="showZoom"
       >
       </v-switch>
 
       <v-switch class="clinvar-switch mt-1"
-      v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !isEduTour"
+      v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !isEduMode && !isBasicMode"
       v-bind:label="`Display all ${selectedGene.gene_name} ClinVar variants`"
       v-model="showKnownVariantsCard"
       >
@@ -283,7 +283,8 @@ export default {
     KnownVariantsToolbar
   },
   props: {
-    isEduTour: null,
+    isEduMode: null,
+    isBasicMode: null,
     sampleModel: null,
     annotationScheme: null,
     classifyVariantSymbolFunc: null,

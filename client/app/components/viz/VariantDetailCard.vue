@@ -161,23 +161,23 @@
       <span style="display:inline-block" v-if="showTitle ">Variant</span>
     </div>
 
-      <div  v-if="selectedVariant && !isEduTour" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
-        <span>{{ selectedVariantRelationship | showRelationship }}</span>
+      <div  v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
+        <span v-if="!isBasicMode">{{ selectedVariantRelationship | showRelationship }}</span>
         <span class="pl-1">{{ selectedGene.gene_name }}</span>
         <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
         <span class="pl-1">{{ info.HGVSpAbbrev }}</span>
         <span class="pl-3">{{ info.coord }}</span>
-        <span class="pl-1">{{ info.exon }}</span>
-        <span class="pl-3" v-if="info.dbSnpLink" v-html="info.dbSnpLink"></span>
+        <span class="pl-1" v-if="!isBasicMode">{{ info.exon }}</span>
+        <span class="pl-3" v-if="info.dbSnpLink && !isBasicMode" v-html="info.dbSnpLink"></span>
       </div>
-      <div  v-if="selectedVariant && isEduTour" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
+      <div  v-if="selectedVariant && isEduMode" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
         <span class="pl-1">{{ selectedGene.gene_name }}</span>
         <span class="pl-1 refalt">Genotype {{ refAlt  }}</span>
         <span class="pl-1">{{ info.vepImpact }}</span>
       </div>
 
-    <v-layout  v-if="selectedVariant && !isEduTour" class="content" column nowrap>
+    <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
       <v-flex v-if="selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
         <v-layout row>
            <v-flex xs4 class="field-label">Inheritance</v-flex>
@@ -190,7 +190,7 @@
            <v-flex xs9  class="field-value">{{ info.vepImpact }} - {{ info.vepConsequence }}</v-flex>
         </v-layout>
       </v-flex>
-      <v-flex v-if="info.vepHighestImpact != ''">
+      <v-flex v-if="info.vepHighestImpact != '' && !isBasicMode">
         <v-layout row >
            <v-flex xs4 class="field-label">Most severe impact</v-flex>
            <v-flex xs9 class="field-value" v-html="info.vepHighestImpact"></v-flex>
@@ -208,46 +208,80 @@
            <v-flex xs9 class="field-value">{{ info.phenotype }}</v-flex>
         </v-layout>
       </v-flex>
-      <v-flex >
-        <v-layout  row>
+      <v-flex  v-if="!isBasicMode">
+        <v-layout row>
            <v-flex xs4 class="field-label">HGVSc </v-flex>
            <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
         </v-layout>
       </v-flex>
-      <v-flex  >
+      <v-flex   v-if="!isBasicMode">
         <v-layout row>
            <v-flex xs4 class="field-label">HGVSp </v-flex>
            <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
         </v-layout>
       </v-flex>
-      <v-flex   v-if="info.polyphen != ''">
+      <v-flex   v-if="info.polyphen != '' && !isBasicMode">
         <v-layout row  >
            <v-flex xs4 class="field-label">Polyphen</v-flex>
            <v-flex xs9 class="field-value">{{ info.polyphen }}</v-flex>
         </v-layout>
       </v-flex>
-      <v-flex v-if="info.sift != ''" >
+      <v-flex v-if="info.sift != '' && !isBasicMode" >
         <v-layout row>
            <v-flex xs4 class="field-label">SIFT</v-flex>
            <v-flex xs9 class="field-value">{{ info.sift }}</v-flex>
         </v-layout>
       </v-flex>
-      <v-flex  v-if="info.regulatory != ''">
+      <v-flex  v-if="info.regulatory != '' & !isBasicMode">
         <v-layout row>
            <v-flex xs4 class="field-label">Regulatory</v-flex>
            <v-flex xs9  v-html="info.regulatory" class="field-value"></v-flex>
         </v-layout>
       </v-flex>
 
-      <v-flex>
+      <v-flex  v-if="!isBasicMode">
         <v-layout  row>
            <v-flex xs4 class="field-label">gnomAD</v-flex>
            <v-flex xs9 class="field-value" v-html="afGnomAD"></v-flex>
         </v-layout>
       </v-flex>
 
+      <v-flex  v-if="isBasicMode">
+        <v-layout  row>
+           <v-flex xs4 class="field-label">Population frequency</v-flex>
+           <v-flex xs9 class="field-value" v-html="afGnomAD"></v-flex>
+        </v-layout>
+      </v-flex>
 
-      <v-flex   v-if="selectedVariant.afExAC && genomeBuildHelper.getCurrentBuildName() != 'GRCh37'" xs6>
+       <v-flex  v-if="isBasicMode">
+        <v-layout  row>
+           <v-flex xs4 class="field-label">Zygosity</v-flex>
+           <v-flex xs9 class="field-value">
+
+            <svg v-if="selectedVariant.zygosity.toUpperCase() == 'HOM'" width="24" height="14">
+              <g transform="translate(0,3)">
+                <rect width="24" height="10" class="zyg_hom" style="pointer-events: none;">
+                </rect>
+                <text x="1" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
+                Hom
+                </text>
+              </g>
+            </svg>
+            <svg v-if="selectedVariant.zygosity.toUpperCase() == 'HET'" width="24" height="14">
+              <g transform="translate(0,3)">
+                <rect width="24" height="10" class="zyg_het" style="pointer-events: none;">
+                </rect>
+                <text x="2" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
+                Het
+                </text>
+              </g>
+            </svg>
+           </v-flex>
+        </v-layout>
+      </v-flex>
+
+
+      <v-flex   v-if="selectedVariant.afExAC && genomeBuildHelper.getCurrentBuildName() != 'GRCh37' && !isBasicMode" xs6>
         <v-layout row>
            <v-flex xs4 class="field-label">ExAC</v-flex>
            <v-flex xs9 class="field-value" v-html="afExAC"></v-flex>
@@ -255,7 +289,7 @@
       </v-flex>
 
 
-      <v-flex v-if="selectedVariant.af1000G">
+      <v-flex v-if="selectedVariant.af1000G & !isBasicMode">
         <v-layout  row>
            <v-flex xs4 class="field-label">1000G</v-flex>
            <v-flex xs9 class="field-value" v-html="af1000G"></v-flex>
@@ -265,7 +299,7 @@
 
     </v-layout>
 
-    <div  id="coverage-svg" v-bind:class="{hide: isEduTour}">
+    <div  id="coverage-svg" v-bind:class="{hide: isEduMode || isBasicMode}">
     </div>
   </div>
 
@@ -280,7 +314,8 @@ export default {
   components: {
   },
   props: {
-    isEduTour: null,
+    isEduMode: null,
+    isBasicMode: null,
     selectedGene: null,
     selectedTranscript: null,
     selectedVariant: null,
@@ -677,6 +712,8 @@ export default {
         return "unknown";
       } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
         return "0%";
+      } else if (this.isBasicMode) {
+        return utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
       } else  {
         var af = utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
         var link = "<a target='_gnomad' href='http://gnomad.broadinstitute.org/variant/" + this.selectedVariant.chrom + "-" + this.selectedVariant.start + "-" + this.selectedVariant.ref + "-" + this.selectedVariant.alt + "'>" + af + "</a>";

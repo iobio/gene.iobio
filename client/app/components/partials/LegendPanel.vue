@@ -70,15 +70,7 @@
     cursor: auto
 
 
-#legend.level-basic
-  .legend-element
-
-    text
-      font-size: initial
-
-  .legend-label
-    font-size: 14px
-
+#legend
 
   .legend-symbol.exon
     cursor: pointer
@@ -90,6 +82,8 @@
       font-size: 14px
       fill: $text-color
 
+
+
 </style>
 
 <template>
@@ -97,7 +91,18 @@
     Legend
     <div style="margin-top:20px;display:flex;flex-wrap:wrap;justify-content:flex-start">
 
-      <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:10px">
+
+      <div v-if="isBasicMode" style="text-align:left;margin-right:10px">
+        <div class="legend-label" style="width:130px">Exon (coding region)</div>
+        <svg id="exon" class="exon-symbol legend-element pl-4" width="130" height="30">
+          <rect class="legend-symbol exon" rx="1" ry="1" x="25" width="9" y="4" height="24">
+          </rect>
+          <line x1="0" x2="60" y1="17" y2="17" style="stroke: #b0b0b0;stroke-width: 1.5px;"></line>
+        </svg>
+      </div>
+
+
+      <div v-if="!isBasicMode" style="text-align:left;width:80px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label" style="width:130px">Inheritance</div>
          <svg id="denovo" class="legend-element" width="100" height="16" transform="translate(0,0)">
           <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
@@ -160,7 +165,7 @@
           </svg>
       </div>
 
-      <div style="width:110px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode" style="width:110px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">Allele Frequency</div>
         <svg id="afexac_unique" class="legend-element" width="70" height="14" transform="translate(0,0)">
           <text class="name" x="20" y="11" style="fill-opacity: 1;">&lt; 5%</text>
@@ -227,7 +232,7 @@
 
 
 
-      <div style="width:140px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode" style="width:140px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">PolyPhen</div>
         <svg id="polyphen_probably_damaging" class="legend-element " width="130" height="14" transform="translate(0,0)">
           <g class="polyphen_probably_damaging" transform="translate(1,0)" style="opacity: 1;">
@@ -251,7 +256,7 @@
         </svg>
       </div>
 
-      <div style="width:160px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode"  style="width:160px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">SIFT</div>
         <svg id="sift_deleterious" class="legend-element " width="110" height="14" transform="translate(0,0)">
           <g class="sift_deleterious" transform="translate(1,0)" style="opacity: 1;">
@@ -292,6 +297,7 @@ export default {
   components: {
   },
   props: {
+    isBasicMode: null
   },
   data () {
       return {

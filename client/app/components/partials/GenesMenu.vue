@@ -1,24 +1,10 @@
 
 <style lang="sass">
 
-#phenolyzer-loader
-  width: 18px
 
 textarea#copy-paste-genes
   font-size: 14px
 
-#phenotype-input, #enter-genes-input
-  .input-group label
-    font-size: 13px
-    line-height: 25px
-    height: 25px
-  .input-group__input
-    min-height: 0px
-    margin-top: 13px
-  .input-group--text-field input
-    font-size: 13px
-  .input-group
-    padding-top: 0px
 
 .menu__content
   .expansion-panel__header
@@ -41,37 +27,12 @@ textarea#copy-paste-genes
         <v-expansion-panel-content :value="openPhenolyzerPanel">
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
           <v-card style="margin-bottom:15px">
-              <div id="phenotype-input" style="display:inline-block;width:260px">
-                <v-text-field id="phenotype-term" hide-details v-model="phenotypeTermEntered"
-                label="enter phenotype">
-                </v-text-field>
-                <typeahead
-                 v-model="phenotypeTerm"
-                hide-details="false"
-                force-select match-start
-                target="#phenotype-term"
-                async-src="http://nv-blue.iobio.io/hpo/hot/lookup/?term=" item-key="value"/>
-              </div>
-              <div style="display:inline-block;width:95px;margin-left:10px">
-                <v-select
-                v-model="phenolyzerTop"
-                label="Select top"
-                hide-details
-                hint="Genes"
-                combobox
-                :items="phenolyzerTopCounts"
-                >
-                </v-select>
-              </div>
-              <div style="float:right;display:inline-block;margin-top:10px">
-               <v-btn  small @click="onSearchPhenolyzerGenes" >Search</v-btn>
-              </div>
-              <div >
-                <img style="width:22px;height:22px"
-                   v-if="phenolyzerStatus == 'queued' || phenolyzerStatus == 'running'"
-                   class="loader  glyph" src="../../../assets/images/wheel.gif"/>
-                {{ phenolyzerStatus }}
-              </div>
+              <phenotype-search
+              :isEduMode="isEduMode"
+              :isBasicMode="isBasicMode"
+              :geneModel="geneModel"
+              @on-search-genes="onSearchPhenolyzerGenes">
+              </phenotype-search>
           </v-card>
         </v-expansion-panel-content>
       </v-expansion-panel>
@@ -87,7 +48,7 @@ textarea#copy-paste-genes
             >
             </v-text-field>
           </div>
-          <div v-if="!isEduTour">
+          <div v-if="!isEduMode">
               <v-btn id="acmg-genes-button" @click="onACMGGenes">
               ACMG Genes
               </v-btn>
@@ -103,39 +64,30 @@ textarea#copy-paste-genes
 
 <script>
 
-import { Typeahead } from 'uiv'
+import PhenotypeSearch from '../partials/PhenotypeSearch.vue'
+
 
 
 export default {
   name: 'genes-menu',
   components: {
-    Typeahead
+    PhenotypeSearch
   },
   props: {
     geneModel: null,
-    isEduTour: null
+    isEduMode: null,
+    isBasicMode: null
   },
   data () {
     return {
       showGenesMenu: null,
-      openPhenolyzerPanel: this.isEduTour,
+      openPhenolyzerPanel: this.isEduMode,
 
-      genesToApply: null,
+      genesToApply: null
 
-      phenolyzerTopCounts: [5, 10, 30, 50, 80, 100],
-      phenolyzerTop: this.isEduTour ? 5 : 50,
-      phenotypeTerm: "",
-      phenotypeTermEntered: "",
-      allPhenotypeTerms: [],
-      phenolyzerStatus: null,
     }
   },
   watch: {
-    phenolyzerTop: function() {
-      if (this.geneModel.phenolyzerGenes.length > 0) {
-        this.onSearchPhenolyzerGenes();
-      }
-    }
   },
   methods: {
     onApplyGenes: function() {
@@ -145,55 +97,31 @@ export default {
     onACMGGenes: function() {
       this.genesToApply = this.geneModel.ACMG_GENES.join(", ");
     },
-    onSearchPhenolyzerGenes: function() {
+    onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
-      self.phenolyzerStatus = null;
-      self.genesToApply = "";
-      var searchTerm = null;
-      if (self.phenotypeTerm) {
-        searchTerm = self.phenotypeTerm.value;
-        self.phenotypeTermEntered = self.phenotypeTerm.value;
-      } else if (self.phenotypeTermEntered) {
-        searchTerm = self.phenotypeTermEntered;
-      }
       if (searchTerm) {
-        self.geneModel.searchPhenolyzerGenes(searchTerm, this.phenolyzerTop,
-        function(status, error) {
-          if (status == 'done') {
-            if (self.geneModel.phenolyzerGenes.length == 0) {
-              self.phenolyzerStatus = "no genes found."
-              self.genesToApply = "";
-            } else {
-              var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
-                return gene.selected;
-              }).length;
-              self.genesToApply = self.geneModel.phenolyzerGenes
-              .filter(function(gene) {
-                return gene.selected;
-              })
-              .map( function(gene) {
-                return gene.geneName;
-              })
-              .join(", ");
-              self.phenolyzerStatus = geneCount + " genes shown."
-              if (self.isEduTour) {
-                setTimeout(function() {
-                  self.onApplyGenes();
-                }, 1000);
-              }
-            }
-          } else {
-            self.phenolyzerStatus = status;
-          }
-        });
-
+        var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
+          return gene.selected;
+        }).length;
+        self.genesToApply = self.geneModel.phenolyzerGenes
+        .filter(function(gene) {
+          return gene.selected;
+        })
+        .map( function(gene) {
+          return gene.geneName;
+        })
+        .join(", ");
+        if (self.isEduMode) {
+          setTimeout(function() {
+            self.onApplyGenes();
+          }, 1000);
+        }
       }
     }
   },
   created: function() {
   },
   mounted: function() {
-     $("#phenotype-term").attr('autocomplete', 'off');
   }
 }
 </script>

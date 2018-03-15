@@ -94,20 +94,20 @@
 
 <template>
   <v-card tile id="genes-card" class="app-card">
-    <v-card-title v-if="!isEduTour" primary-title>Genes</v-card-title>
+    <v-card-title v-if="!isEduMode" primary-title>Genes</v-card-title>
 
       <genes-menu
-       v-if="isEduTour && tourNumber == '1'"
+       v-if="isEduMode && tourNumber == '1'"
        id="app-tour-genes-menu"
        :geneModel="geneModel"
-       :isEduTour="isEduTour"
+       :isEduMode="isEduMode"
        @apply-genes="onApplyGenes">
       </genes-menu>
 
-      <div id="genes-panel" class="nav-center">
+      <div id="genes-panel"  class="nav-center">
 
 
-        <div id="genes-toolbar" v-bind:class="isEduTour ? 'hide' : ''">
+        <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
 
 
           <v-btn  id="analyze-all-button"
@@ -209,7 +209,8 @@ export default {
     GenesMenu
   },
   props: {
-    isEduTour: null,
+    isEduMode: null,
+    isBasicMode: null,
     tourNumber: null,
     geneNames: null,
     genesInProgress: null,

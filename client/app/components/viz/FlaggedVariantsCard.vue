@@ -90,9 +90,11 @@
 <template>
   <div id="flagged-variants-card">
     Flagged Variants
+    <div class="pt-2 pb-2" style="font-size:12px;font-style:italic" v-if="isBasicMode">
+      Variants in clinvar with &lt; 1% population frequency
+    </div>
 
-
-    <div>
+    <div v-if="!isBasicMode">
       <v-btn raised @click="showOpenDialog = true">
         <v-icon>open_in_browser</v-icon>
         Open
@@ -112,6 +114,8 @@
       v-for="flaggedGene in flaggedGenes"
       :key="flaggedGene.gene_name"
       :flaggedGene="flaggedGene"
+      :isEduMode="isEduMode"
+      :isBasicMode="isBasicMode"
       @flagged-variant-selected="onVariantSelected"
       >
       </flagged-gene>
@@ -206,6 +210,8 @@ export default {
     FlaggedGene
   },
   props: {
+    isEduMode: null,
+    isBasicMode: null,
     flaggedVariants: null,
     cohortModel: null
   },

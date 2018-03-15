@@ -122,20 +122,16 @@ class FilterModel {
 
   getFilterObject() {
     let self = this;
-    // For mygene2 beginner mode, return a fixed filter of AF < 1% and PASS filter.
+    // For mygene2 basic mode, return a fixed filter of clinvar path / likely path and AF < 1%
     if (isLevelBasic) {
       var annots =  {
         clinvar_path:     {key: 'clinvar',       state: true, value: 'clinvar_path'},
         clinvar_lpath:    {key: 'clinvar',       state: true, value: 'clinvar_lpath'}
       }
-      //annots.PASS = {key: 'recfilter', state: true, value: 'PASS'};
 
       return { afMin: 0, afMax: .01, annotsToInclude: annots };
     }
 
-    //var afMin = $('#afhighest-range-filter #af-amount-start').val() != '' ? +$('#afhighest-range-filter #af-amount-start').val() / 100 : null;
-    //var afMax = $('#afhighest-range-filter #af-amount-end').val()   != '' ? +$('#afhighest-range-filter #af-amount-end').val()   / 100 : null;
-    //var coverageMin = +$('#coverage-min').val();
     var afMin = 0;
     var afMax = 1;
     var coverageMin = 0;
@@ -272,7 +268,7 @@ class FilterModel {
 
 
     var annots = {};
-    for (key in filterObject.annotsToInclude) {
+    for (var key in filterObject.annotsToInclude) {
       var annot = filterObject.annotsToInclude[key];
       if (annot.state) {
         var annotObject = annots[annot.key];
@@ -284,7 +280,7 @@ class FilterModel {
       }
     }
 
-    for (key in annots) {
+    for (var key in annots) {
       var annotObject = annots[key];
       var theValues = "";
       annotObject.values.forEach(function(theValue) {

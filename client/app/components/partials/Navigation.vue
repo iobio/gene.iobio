@@ -12,6 +12,11 @@ nav.toolbar
     font-size: 28px
     margin-right: 20px
     padding-bottom: 5px
+#phenotype-input, #gene-name-input
+  label
+    color: white !important
+  .material-icons
+    color: white !important
 
 #versions
   font-size: 14px
@@ -64,28 +69,41 @@ nav.toolbar
 
       <v-toolbar-items style="margin-left:20px" class="hidden-sm-and-down">
 
-        <v-icon>search</v-icon>
-        <v-form >
-          <v-text-field id="search-gene-name" label="Gene">
+        <v-form id="gene-name-input">
+          <v-text-field id="search-gene-name" label="Gene" prepend-icon="search">
           </v-text-field>
           <typeahead v-model="selectedGene" force-select match-start  target="#search-gene-name" :data="geneModel.allKnownGenes" item-key="gene_name"/>
         </v-form>
 
 
+        <phenotype-search
+         class="ml-5 mt-1"
+         v-if="isBasicMode"
+         :isEduMode="isEduMode"
+         :isBasicMode="isBasicMode"
+         :geneModel="geneModel"
+         @on-search-genes="onSearchPhenolyzerGenes">
+        </phenotype-search>
+
+
         <genes-menu
+         v-if="!isEduMode && !isBasicMode"
          :gene-model="geneModel"
+         :isBasicMode="isBasicMode"
+         :isEduMode="isEduMode"
          @apply-genes="onApplyGenes">
         </genes-menu>
 
 
 
-        <v-btn id="show-variants-button" flat  @click="onVariants">
+        <v-btn v-if="!isEduMode && !isBasicMode" id="show-variants-button" flat  @click="onVariants">
          <v-icon>bookmark</v-icon>
          Variants
         </v-btn>
 
 
         <files-menu
+         v-if="!isEduMode && !isBasicMode"
          :cohortModel="cohortModel"
          @on-files-loaded="onFilesLoaded"
          @load-demo-data="onLoadDemoData"
@@ -100,7 +118,7 @@ nav.toolbar
       <v-menu
       offset-y
       :close-on-content-click="false"
-      :nudge-width="400"
+      :nudge-width="isBasicMode ? 300 : 400"
       v-model="showLegendMenu"
       >
         <v-btn flat slot="activator">
@@ -108,7 +126,8 @@ nav.toolbar
           Legend
         </v-btn>
 
-        <legend-panel>
+        <legend-panel
+        :isBasicMode="isBasicMode">
         </legend-panel>
       </v-menu>
 
@@ -173,6 +192,8 @@ nav.toolbar
 
         <flagged-variants-card
          v-if="leftDrawerContents == 'flagged-variants'"
+         :isEduMode="isEduMode"
+         :isBasicMode="isBasicMode"
          :cohortModel="cohortModel"
          :flaggedVariants="flaggedVariants"
          @flagged-variants-imported="onFlaggedVariantsImported"
@@ -340,6 +361,7 @@ import GenesMenu           from '../partials/GenesMenu.vue'
 import FilesMenu           from '../partials/FilesMenu.vue'
 import LegendPanel         from '../partials/LegendPanel.vue'
 import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
+import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
 
 
 export default {
@@ -349,9 +371,12 @@ export default {
     GenesMenu,
     FilesMenu,
     FlaggedVariantsCard,
-    LegendPanel
+    LegendPanel,
+    PhenotypeSearch
   },
   props: {
+    isEduMode: null,
+    isBasicMode: null,
     geneModel: null,
     cohortModel: null,
     flaggedVariants: null
@@ -394,6 +419,24 @@ export default {
     },
     onApplyGenes: function(genesToApply) {
       this.$emit("apply-genes", genesToApply);
+    },
+    onSearchPhenolyzerGenes: function(searchTerm) {
+      let self = this;
+      let genesToApply = null;
+      if (searchTerm) {
+        var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
+          return gene.selected;
+        }).length;
+        genesToApply = self.geneModel.phenolyzerGenes
+        .filter(function(gene) {
+          return gene.selected;
+        })
+        .map( function(gene) {
+          return gene.geneName;
+        })
+        .join(", ");
+        this.$emit("apply-genes", genesToApply, searchTerm);
+      }
     },
     onVariants: function() {
       this.leftDrawerContents = "flagged-variants";

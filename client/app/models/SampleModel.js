@@ -2514,13 +2514,13 @@ class SampleModel {
 
       var meetsExonic = false;
       if (filterObject.exonicOnly) {
-        for (key in d[impactField]) {
+        for (var key in d[impactField]) {
           if (key.toLowerCase() == 'high' || key.toLowerCase() == 'moderate') {
             meetsExonic = true;
           }
         }
         if (!meetsExonic) {
-          for (key in d[effectField]) {
+          for (var key in d[effectField]) {
             if (key.toLowerCase() != 'intron_variant' && key.toLowerCase() != 'intron variant' && key.toLowerCase() != "intron") {
               meetsExonic = true;
             }
@@ -2553,7 +2553,7 @@ class SampleModel {
       // at least one of the selected values (e.g. HIGH or MODERATE for IMPACT)
       // for each annotation (e.g. IMPACT and ZYGOSITY) to be included.
       var evaluations = {};
-      for (key in filterObject.annotsToInclude) {
+      for (var key in filterObject.annotsToInclude) {
         var annot = filterObject.annotsToInclude[key];
         if (annot.state) {
           var evalObject = evaluations[annot.key];
@@ -2609,7 +2609,7 @@ class SampleModel {
       // If annots are to be evaluated, the variant must match
       // at least one value for each annot to meet criteria
       var meetsAnnot = true;
-      for (key in evaluations) {
+      for (var key in evaluations) {
         var evalObject = evaluations[key];
 
         // Bypass evaluation for non-proband on inheritance mode.  This only
@@ -2628,7 +2628,7 @@ class SampleModel {
       // clinvar 'not equal' pathogenic, and variant.clinvar == 'pathogenic' matchCount > 0,
       // so the variants does not meet the annotation criteria
       var meetsNotEqualAnnot = true
-      for (key in evaluations) {
+      for (var key in evaluations) {
         var evalObject = evaluations[key];
 
         // Bypass evaluation for non-proband on inheritance mode.  This only

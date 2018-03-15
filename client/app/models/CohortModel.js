@@ -913,7 +913,7 @@ class CohortModel {
   promiseSummarizeError(error) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      self.getProbandModel().promiseSummarizeError(error.geneName, error.message)
+      self.getProbandModel().promiseSummarizeError(error)
       .then(function(dangerObject) {
           self.geneModel.setDangerSummary(geneObject, dangerObject);
           resolve();
