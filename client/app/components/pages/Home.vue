@@ -145,7 +145,7 @@
                 <v-tab >
                   Variant
                 </v-tab>
-                <v-tab-item style="max-height:210px;overflow-y:scroll">
+                <v-tab-item style="margin-top:10px;max-height:210px;overflow-y:scroll">
                   <gene-card
                     v-if="geneModel && Object.keys(selectedGene).length > 0"
                     :showTitle="false"
@@ -569,9 +569,6 @@ export default {
     onLoadDemoData: function() {
       let self = this;
       self.promiseClearCache()
-      .then(function() {
-        return self.geneModel.promiseCopyPasteGenes(self.cohortModel.demoGenes.join(", "))
-      })
       .then(function() {
         self.onGeneSelected(self.cohortModel.demoGenes[0]);
         return self.cohortModel.promiseInitDemo()

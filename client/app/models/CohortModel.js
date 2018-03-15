@@ -89,7 +89,24 @@ class CohortModel {
 
   promiseInitDemo(demoKind='exome') {
     let self = this;
-    return self.promiseInit(self.demoModelInfos[demoKind]);
+    return new Promise(function(resolve, reject) {
+      var promise = null;
+      if (self.demoGenes) {
+        promise = self.geneModel.promiseCopyPasteGenes(self.demoGenes.join(","));
+      } else {
+        promise = Promise.resolve();
+      }
+      promise
+      .then(function() {
+        self.promiseInit(self.demoModelInfos[demoKind])
+        .then(function() {
+          resolve();
+        })
+        .catch(function(error) {
+          reject(error);
+        })
+      })
+    })
   }
 
   promiseInitEduTour(tourNumber, idx) {

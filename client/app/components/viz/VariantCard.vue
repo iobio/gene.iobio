@@ -98,7 +98,7 @@
 
   <v-card tile id="variant-card" class="app-card">
     <v-card-title primary-title>
-      <span style="min-width:200px;max-width:200px">{{ sampleModel.name }}</span>
+      <span style="min-width:200px;max-width:200px">{{ (isBasicMode ? 'Variants for ' : '') + sampleModel.name }}</span>
 
       <v-badge  id="loaded-count" v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
         <span slot="badge"> {{ sampleModel.loadedVariants.features.length }} </span>
