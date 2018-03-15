@@ -67,6 +67,14 @@ nav.toolbar
 
       <v-toolbar-title v-text="title"></v-toolbar-title>
 
+      <v-btn v-if="isBasicMode"  flat  @click="onAdvancedMode">
+         Advanced mode
+      </v-btn>
+
+      <v-btn v-if="forMyGene2 && !isBasicMode"  flat  @click="onBasicMode">
+         Basic mode
+      </v-btn>
+
       <v-toolbar-items style="margin-left:20px" class="hidden-sm-and-down">
 
         <v-form id="gene-name-input">
@@ -377,6 +385,7 @@ export default {
   props: {
     isEduMode: null,
     isBasicMode: null,
+    forMyGene2: null,
     geneModel: null,
     cohortModel: null,
     flaggedVariants: null
@@ -466,6 +475,12 @@ export default {
     },
     onShowCitations: function() {
       this.showCitations = true;
+    },
+    onAdvancedMode: function() {
+      this.$emit("on-advanced-mode");
+    },
+    onBasicMode: function() {
+      this.$emit("on-basic-mode");
     }
   },
   created: function() {

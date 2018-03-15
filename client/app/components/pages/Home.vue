@@ -51,6 +51,7 @@
       ref="navRef"
       :isEduMode="isEduMode"
       :isBasicMode="isBasicMode"
+      :forMyGene2="forMyGene2"
       :cohortModel="cohortModel"
       :geneModel="geneModel"
       :flaggedVariants="flaggedVariants"
@@ -63,6 +64,8 @@
       @on-files-loaded="onFilesLoaded"
       @on-left-drawer="onLeftDrawer"
       @on-show-welcome="onShowWelcome"
+      @on-advanced-mode="onAdvancedMode"
+      @on-basic-mode="onBasicMode"
     >
     </navigation>
 
@@ -1142,6 +1145,14 @@ export default {
     onTourStartOver: function() {
       this.$refs.appTourRef.completeTour();
       this.$router.push({ name: 'exhibit' });
+    },
+    onAdvancedMode: function() {
+      this.isBasicMode = false;
+      this.$router.push( { name: 'home', query: {mygene2: this.forMyGene2 ? true : false } })
+    },
+    onBasicMode: function() {
+      this.isBasicMode = true;
+      this.$router.push( { name: 'home', query: {mode: 'basic', mygene2: this.forMyGene2 ? true : false } })
     }
 
 
