@@ -84,6 +84,7 @@ class CohortModel {
       "1": null,
       "2": ['VKORC1']
     };
+    this.myGene2GeneNames = ['KDM1A'];
   }
 
   promiseInitDemo(demoKind='exome') {
@@ -111,6 +112,100 @@ class CohortModel {
         })
       })
 
+    })
+  }
+
+
+  promiseInitMyGene2(siteConfig, fileId) {
+    let self = this;
+
+    return new Promise(function(resolve, reject) {
+      var validationMsg = "";
+      if (siteConfig == null || Object.keys(siteConfig).length == 0 || !siteConfig.hasOwnProperty('mygene2')) {
+        validationMsg += "<br>&nbsp;&nbsp;Site configuration is missing for mygene2. "
+      } else {
+        if (siteConfig.mygene2.tokenEndpoint == "") {
+          validationMsg += "<br>&nbsp;&nbsp;Missing site configuration field 'tokenEndpoint'. ";
+        }
+        if (siteConfig.mygene2.xAuthToken == "") {
+          validationMsg += "<br>&nbsp;&nbsp;Missing site configuration field 'xAuthToken'. ";
+        }
+      }
+      if (fileId == null || fileId == "") {
+        validationMsg += "<br>&nbsp;&nbsp;Missing request parameter 'fileId'."
+      }
+
+      if (!self.genomeBuildHelper.getCurrentBuild()) {
+        validationMsg += "<br>&nbsp;&nbsp;Missing request parameter 'build'.";
+      }
+
+      if (validationMsg.length > 0) {
+        alertify.confirm("Warning", "Cannot load data due to the following errors: " + validationMsg,
+         function(){
+          reject();
+         },
+         function(){
+           self.promiseInitDemo()
+           .then(function() {
+            resolve();
+           })
+         }).set('labels', {ok:'OK', cancel:'Continue, but just use demo data'});
+      } else {
+
+        var endpointUrl = siteConfig.mygene2.tokenEndpoint + "token/" + fileId;
+
+        $.ajax({
+            type: 'get',
+            url: endpointUrl,
+            dataType: 'json',
+            contentType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            headers: {
+                'X-Auth-Token': siteConfig.mygene2.xAuthToken
+            },
+            success: function(res) {
+              var vcfUrl = siteConfig.mygene2.dataEndpoint + res.token + "/" + res.fileUpload.name;
+              var modelInfo = {relationship: 'proband', affectedStatus: 'affected', name: 'Proband', 'sample': '', vcf: vcfUrl, 'tbi': null, 'bam': null, 'bai': null};
+
+              var genePromise = null;
+              if (self.geneModel.geneNames.length == 0 && self.myGene2GeneNames) {
+                genePromise = self.geneModel.promiseCopyPasteGenes(self.myGene2GeneNames.join(","));
+              } else {
+                genePromise = Promise.resolve();
+              }
+
+              genePromise.
+              then(function() {
+                self.promiseInit([modelInfo])
+                .then(function() {
+                  resolve();
+                })
+                .catch(function(error) {
+                  reject(error);
+                })
+
+              });
+            },
+            error: function( xhr, status, errorThrown ) {
+              console.log( "Error: " + errorThrown );
+              console.log( "Status: " + status );
+              console.log( xhr );
+              console.log("Unable to get MyGene2 endpoint filenames");
+              alertify.confirm("Unable to obtain variant files using MyGene2 token.",
+               function(){
+                  reject(errorThrown);
+               },
+               function(){
+                  self.promiseInitDemo()
+                  .then(function() {
+                    resolve();
+                  })
+               }).set('labels', {ok:'OK', cancel:'Continue, but just use demo data'});
+            }
+        });
+      }
     })
   }
 

@@ -43,6 +43,7 @@ const routes = [
         paramMyGene2:          route.query.mygene2,
         paramMode:             route.query.mode,
         paramTour:             route.query.tour,
+        paramFileId:           route.query.fileId,
         paramAffectedSibs:     route.query.affectedSibs,
         paramUnaffectedSibs:   route.query.unaffectedSibs,
         paramRelationships:    [route.query.rel0, route.query.rel1, route.query.rel2],

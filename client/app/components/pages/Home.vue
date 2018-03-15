@@ -310,6 +310,8 @@ export default {
     paramMode:             null,
     paramTour:             null,
 
+    paramFileId:           null,
+
     paramAffectedSibs:     null,
     paramUnaffectedSibs:   null,
 
@@ -369,7 +371,9 @@ export default {
       forMyGene2: isMygene2,
       closeIntro: false,
 
-      phenotypeTerm: null
+      phenotypeTerm: null,
+
+      siteConfig: null
     }
   },
 
@@ -390,6 +394,9 @@ export default {
     })
     .then(function() {
       return self.cacheHelper.promiseClearStaleCache();
+    })
+    .then(function() {
+      return self.promiseLoadSiteConfig();
     })
     .then(function() {
       let glyph = new Glyph();
@@ -534,6 +541,30 @@ export default {
       })
     },
 
+    promiseLoadSiteConfig: function() {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+
+        $.ajax({
+            url: global_siteConfigUrl,
+            type: "GET",
+            crossDomain: true,
+            dataType: "json",
+            success: function( res ) {
+              self.siteConfig = res;
+              resolve();
+            },
+            error: function( xhr, status, errorThrown ) {
+              console.log( "Error: " + errorThrown );
+              console.log( "Status: " + status );
+              console.log( xhr );
+              reject("Error " + errorThrown + " occurred in promiseLoadSiteConfig() when attempting get siteConfig.json ");
+            }
+        });
+
+      });
+
+    },
 
     onLoadDemoData: function() {
       let self = this;
@@ -1015,7 +1046,12 @@ export default {
           .then(function() {
             resolve();
           })
-        }else {
+        } else if (self.forMyGene2) {
+          self.promiseInitMyGene2()
+          .then(function() {
+            resolve();
+          })
+        } else {
           resolve();
         }
       })
@@ -1108,6 +1144,33 @@ export default {
     onShowWelcome: function() {
       this.showWelcome = true;
     },
+    promiseInitMyGene2: function() {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        self.cohortModel.promiseInitMyGene2(self.siteConfig, self.paramFileId)
+        .then(function() {
+          self.models = self.cohortModel.sampleModels;
+          var geneName = null;
+          if (self.selectedGene && self.selectedGene.gene_name) {
+            geneName = self.selectedGene.gene_name;
+          } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+            geneName = self.geneModel.sortedGeneNames[0];
+          }
+          if (geneName) {
+            self.promiseLoadGene(geneName)
+            .then(function() {
+              resolve();
+            })
+            .catch(function(error) {
+              reject(error);
+            })
+          } else {
+            resolve();
+          }
+        })
+      })
+    },
+
     onTakeAppTour: function() {
       this.onLoadDemoData();
       this.$refs.appTourRef.startTour("main");
