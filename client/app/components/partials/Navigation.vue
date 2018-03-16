@@ -12,11 +12,21 @@ nav.toolbar
     font-size: 28px
     margin-right: 20px
     padding-bottom: 5px
-#phenotype-input, #gene-name-input
-  label
-    color: white !important
-  .material-icons
-    color: white !important
+
+  #phenotype-input, #gene-name-input, #phenolyzer-top-input
+    label
+      color: white !important
+    .material-icons
+      color: white !important
+    .input-group__selections__comma
+      color: white !important
+
+  #search-phenotype-button
+    background-color: #ffffff1f
+    min-width: 70px
+
+    .btn__content
+      padding: 0px
 
 #versions
   font-size: 14px
@@ -56,6 +66,16 @@ nav.toolbar
   font-weight: 600
   clear: both
 
+.mode-switch
+
+    label
+      padding-left: 7px
+      line-height: 18px
+      font-size: 12px
+      font-weight: bold
+      padding-top: 2px
+      color: white
+
 </style>
 
 <template>
@@ -65,19 +85,14 @@ nav.toolbar
       <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
-      <v-toolbar-title v-text="title"></v-toolbar-title>
+      <v-toolbar-title v-text="title">
+      </v-toolbar-title>
 
-      <v-btn v-if="isBasicMode"  flat  @click="onAdvancedMode">
-         Go to advanced mode
-      </v-btn>
 
-      <v-btn v-if="forMyGene2 && !isBasicMode"  flat  @click="onBasicMode">
-         Go to basic mode
-      </v-btn>
 
-      <v-toolbar-items style="margin-left:20px" class="hidden-sm-and-down">
+      <v-toolbar-items  class="hidden-sm-and-down">
 
-        <v-form id="gene-name-input">
+        <v-form id="gene-name-input" style="width:140px">
           <v-text-field id="search-gene-name" label="Gene" prepend-icon="search">
           </v-text-field>
           <typeahead v-model="selectedGene" force-select match-start  target="#search-gene-name" :data="geneModel.allKnownGenes" item-key="gene_name"/>
@@ -85,7 +100,7 @@ nav.toolbar
 
 
         <phenotype-search
-         class="ml-5 mt-1"
+         class="ml-3 mt-1"
          v-if="isBasicMode"
          :isEduMode="isEduMode"
          :isBasicMode="isBasicMode"
@@ -477,12 +492,6 @@ export default {
     },
     onShowCitations: function() {
       this.showCitations = true;
-    },
-    onAdvancedMode: function() {
-      this.$emit("on-advanced-mode");
-    },
-    onBasicMode: function() {
-      this.$emit("on-basic-mode");
     }
   },
   created: function() {

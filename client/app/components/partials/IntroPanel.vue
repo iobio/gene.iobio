@@ -5,10 +5,21 @@
 <template>
 
 <v-card class="app-card">
-  <div style="padding-bottom:5px;text-align:center">
-    <h3 style="font-size:18px;margin-top:5px;margin-bottom:0px">Welcome to Gene.iobio on MyGene2</h3>
+  <div style="text-align:center">
+    <div>
+      <span style="display:inline-block;font-size:18px;margin-top:5px;margin-bottom:0px">Welcome to Gene.iobio on MyGene2</span>
+      <div style="display: inline-block;float: right;margin-top: -3px;margin-right: -8px;">
+        <v-btn raised v-if="isBasicMode"    @click="onAdvancedMode">
+           Go to advanced
+        </v-btn>
 
-    <a id="intro-link" v-if="!showIntro" href="javascript:void(0)" @click="showIntro = true">Tell me more...</a>
+        <v-btn raised v-if="!isBasicMode"    @click="onBasicMode">
+           Go to basic
+        </v-btn>
+      </div>
+    </div>
+
+      <a id="intro-link" v-if="!showIntro" href="javascript:void(0)" @click="showIntro = true">Tell me more...</a>
 
   </div>
   <div id="intro-text" v-if="showIntro" >
@@ -41,7 +52,8 @@ export default {
   components: {
   },
   props: {
-    closeIntro: false
+    closeIntro: false,
+    isBasicMode: null
   },
   data () {
     return {
@@ -56,8 +68,15 @@ export default {
     }
   },
   methods: {
+onAdvancedMode: function() {
+    this.$emit("on-advanced-mode");
+    },
+    onBasicMode: function() {
+      this.$emit("on-basic-mode");
+    }
   },
   mounted: function() {
+
   }
 }
 

@@ -64,8 +64,6 @@
       @on-files-loaded="onFilesLoaded"
       @on-left-drawer="onLeftDrawer"
       @on-show-welcome="onShowWelcome"
-      @on-advanced-mode="onAdvancedMode"
-      @on-basic-mode="onBasicMode"
     >
     </navigation>
 
@@ -74,7 +72,10 @@
       <v-container fluid>
 
         <intro-panel v-if="forMyGene2"
-        :closeIntro="closeIntro">
+        :closeIntro="closeIntro"
+        :isBasicMode="isBasicMode"
+        @on-advanced-mode="onAdvancedMode"
+        @on-basic-mode="onBasicMode">
         </intro-panel>
 
         <genes-card
@@ -576,10 +577,12 @@ export default {
       .then(function() {
         self.models = self.cohortModel.sampleModels;
         if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-          self.promiseLoadData();
-          if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
-            self.cacheHelper.analyzeAll(self.cohortModel, false);
-          }
+          self.promiseLoadData()
+          .then(function() {
+            if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
+              self.cacheHelper.analyzeAll(self.cohortModel, false);
+            }
+          });
         }
       })
     },
@@ -1156,6 +1159,7 @@ export default {
           if (geneName) {
             self.promiseLoadGene(geneName)
             .then(function() {
+              self.cacheHelper.analyzeAll(self.cohortModel, false);
               resolve();
             })
             .catch(function(error) {
@@ -1208,10 +1212,12 @@ export default {
     },
     onAdvancedMode: function() {
       this.isBasicMode = false;
+      isLevelBasic = false;
       this.$router.push( { name: 'home', query: {mygene2: this.forMyGene2 ? true : false } })
     },
     onBasicMode: function() {
       this.isBasicMode = true;
+      isLevelBasic = true;
       this.$router.push( { name: 'home', query: {mode: 'basic', mygene2: this.forMyGene2 ? true : false } })
     }
 

@@ -4,7 +4,7 @@
 #phenolyzer-loader
   width: 18px
 
-#phenotype-input, #enter-genes-input
+#phenotype-input, #enter-genes-input, #phenolyzer-top-input
   .input-group label
     font-size: 13px
     line-height: 25px
@@ -16,6 +16,9 @@
     font-size: 13px
   .input-group
     padding-top: 0px
+  .input-group__selections__comma
+    font-size: 13px
+
 
 .menu__content
   .expansion-panel__header
@@ -25,7 +28,7 @@
 
 <template>
   <div>
-    <div id="phenotype-input" style="display:inline-block;width:260px">
+    <div id="phenotype-input" style="vertical-align:bottom;display:inline-block;width:200px">
       <v-text-field id="phenotype-term" hide-details v-model="phenotypeTermEntered"
       v-bind:label="isBasicMode ? 'Disorder' : 'Phenotype'" prepend-icon="search" v-bind:loading="loadingStatus">
       </v-text-field>
@@ -36,10 +39,10 @@
       target="#phenotype-term"
       async-src="http://nv-blue.iobio.io/hpo/hot/lookup/?term=" item-key="value"/>
     </div>
-    <div v-if="!isBasicMode" style="display:inline-block;width:95px;margin-left:10px">
+    <div id="phenolyzer-top-input" style="display:inline-block;width:60px;margin-left:5px">
       <v-select
       v-model="phenolyzerTop"
-      label="Select top"
+      label="Genes"
       hide-details
       hint="Genes"
       combobox
@@ -47,8 +50,8 @@
       >
       </v-select>
     </div>
-    <div  v-bind:class="isBasicMode ? 'mt-3' : 'mt-2'" style="float:right;display:inline-block;">
-     <v-btn  small flat @click="onSearch" >Search</v-btn>
+    <div  v-bind:class="isBasicMode ? 'mt-3 ml-1' : 'mt-2'" style="float:right;display:inline-block;">
+     <v-btn  id="search-phenotype-button" small raised @click="onSearch" >Search</v-btn>
     </div>
     <div v-if="!isBasicMode">
       <img style="width:22px;height:22px"

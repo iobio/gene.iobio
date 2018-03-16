@@ -27,6 +27,11 @@ html {
   fill:  rgb(113,113,113);
 }
 
+.input-group--text-field.input-group--prepend-icon .input-group__prepend-icon {
+  padding-right: 3px;
+  justify-content: flex-end;
+}
+
 
 .card {
   width: 100%;
