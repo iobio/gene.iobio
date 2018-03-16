@@ -89,7 +89,9 @@
       min-height: 0px
       margin-top: 10px
 
-
+  #gene-badge-container
+    max-height: 120px
+    overflow-y: scroll
 </style>
 
 <template>

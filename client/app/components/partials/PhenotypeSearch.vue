@@ -30,7 +30,7 @@
   <div>
     <div id="phenotype-input" style="vertical-align:bottom;display:inline-block;width:200px">
       <v-text-field id="phenotype-term" hide-details v-model="phenotypeTermEntered"
-      v-bind:label="isBasicMode ? 'Disorder' : 'Phenotype'" prepend-icon="search" v-bind:loading="loadingStatus">
+      v-bind:label="phenotypeLabel ? phenotypeLabel : 'Phenotype'" prepend-icon="search" v-bind:loading="loadingStatus">
       </v-text-field>
       <typeahead
       v-model="phenotypeTerm"
@@ -50,10 +50,10 @@
       >
       </v-select>
     </div>
-    <div  v-bind:class="isBasicMode ? 'mt-3 ml-1' : 'mt-2'" style="float:right;display:inline-block;">
+    <div  v-bind:class="isNav ? 'mt-3 ml-1' : 'mt-2'" style="float:right;display:inline-block;">
      <v-btn  id="search-phenotype-button" small raised @click="onSearch" >Search</v-btn>
     </div>
-    <div v-if="!isBasicMode">
+    <div v-if="!isNav">
       <img style="width:22px;height:22px"
          v-if="phenolyzerStatus == 'queued' || phenolyzerStatus == 'running'"
          class="loader  glyph" src="../../../assets/images/wheel.gif"/>
@@ -73,15 +73,16 @@ export default {
   },
   props: {
     geneModel: null,
-    isEduMode: null,
-    isBasicMode: null
+    isNav: null,
+    defaultTopGenes: null,
+    phenotypeLabel: null
   },
   data () {
     return {
       genesToApply: null,
 
       phenolyzerTopCounts: [5, 10, 30, 50, 80, 100],
-      phenolyzerTop: this.isEduMode ? 5 : (this.isBasicMode ? 10 : 50),
+      phenolyzerTop: this.defaultTopGenes ? this.defaultTopGenes : (this.isNav ? 10 : 50),
       phenotypeTerm: "",
       phenotypeTermEntered: "",
       allPhenotypeTerms: [],

@@ -6,13 +6,21 @@ nav.toolbar
   background-color: $app-color !important
   font-weight: 300 !important
 
+  .btn
+    margin: 0px
+
+    .btn__content
+      padding: 0 4px
+
+
   i.material-icons
     margin-right: 2px
 
   .toolbar__title
     font-family: Quicksand
-    font-size: 28px
-    margin-right: 20px
+    font-size: 24px
+    margin-right: 5px
+    margin-left: 5px
     padding-bottom: 5px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
@@ -101,31 +109,34 @@ nav.toolbar
         </v-form>
 
 
-        <phenotype-search
-         class="ml-3 mt-1"
-         v-if="isBasicMode"
-         :isEduMode="isEduMode"
-         :isBasicMode="isBasicMode"
-         :geneModel="geneModel"
-         @on-search-genes="onSearchPhenolyzerGenes">
-        </phenotype-search>
-
-
         <genes-menu
          v-if="!isEduMode && !isBasicMode"
-         :gene-model="geneModel"
+         :buttonIcon="`expand_more`"
+         :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
          @apply-genes="onApplyGenes">
         </genes-menu>
 
 
+        <phenotype-search
+         class="ml-2 mt-1"
+         :isNav="true"
+         :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
+         :defaultTopGenes="isBasicMode ? '10' : '30'"
+         :geneModel="geneModel"
+         @on-search-genes="onSearchPhenolyzerGenes">
+        </phenotype-search>
 
+
+
+
+<!--
         <v-btn v-if="!isEduMode && !isBasicMode" id="show-variants-button" flat  @click="onVariants">
          <v-icon>bookmark</v-icon>
          Variants
         </v-btn>
-
+-->
 
 
 

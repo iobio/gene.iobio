@@ -10,6 +10,15 @@ textarea#copy-paste-genes
   .expansion-panel__header
     padding-left: 10px
 
+#show-genes-button.icon
+  min-width: 20px
+  margin: 0px
+  padding: 0px
+
+  .btn__content
+    padding: 0px
+    margin: 0px
+
 </style>
 
 <template>
@@ -21,21 +30,36 @@ textarea#copy-paste-genes
     v-model="showGenesMenu"
     >
 
-      <v-btn id="show-genes-button" flat slot="activator">Genes</v-btn>
+      <v-btn id="show-genes-button"
+       v-bind:class="{'icon': buttonIcon != null}"
+       v-bind:raised="isEduMode"
+       v-bind:flat="!isEduMode"
+       v-bind:small="buttonIcon != null"
+       slot="activator">
+        <v-icon v-if="buttonIcon">
+          {{ buttonIcon }}
+        </v-icon>
+        <span v-if="!buttonIcon">
+          Genes
+        </span>
+      </v-btn>
 
+<!--
       <v-expansion-panel expand>
         <v-expansion-panel-content :value="openPhenolyzerPanel">
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
           <v-card style="margin-bottom:15px">
               <phenotype-search
-              :isEduMode="isEduMode"
-              :isBasicMode="isBasicMode"
+              :isNav="false"
+              :defaultTopGenes="isEduMode ? '5' : '30'"
+              :phenotypeLabel="isEduMode ? 'Disorder' : 'Phenotype'"
               :geneModel="geneModel"
               @on-search-genes="onSearchPhenolyzerGenes">
               </phenotype-search>
           </v-card>
         </v-expansion-panel-content>
       </v-expansion-panel>
+-->
       <v-card>
 
           <div id="enter-genes-input">
@@ -76,7 +100,8 @@ export default {
   props: {
     geneModel: null,
     isEduMode: null,
-    isBasicMode: null
+    isBasicMode: null,
+    buttonIcon: null
   },
   data () {
     return {
