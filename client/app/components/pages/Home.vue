@@ -71,12 +71,12 @@
     <v-content>
       <v-container fluid>
 
-        <intro-panel v-if="forMyGene2"
+        <intro-card v-if="forMyGene2"
         :closeIntro="closeIntro"
         :isBasicMode="isBasicMode"
         @on-advanced-mode="onAdvancedMode"
         @on-basic-mode="onBasicMode">
-        </intro-panel>
+        </intro-card>
 
         <genes-card
          v-if="geneModel && (geneModel.geneNames.length > 0 || isEduMode)"
@@ -265,16 +265,16 @@
 <script>
 
 
-import EduTourBanner      from  '../partials/EduTourBanner.vue'
-import Navigation         from  '../partials/Navigation.vue'
-import IntroPanel         from  '../partials/IntroPanel.vue'
-import Welcome            from  '../partials/Welcome.vue'
+import Navigation         from  '../viz/Navigation.vue'
+import EduTourBanner      from  '../viz/EduTourBanner.vue'
+import Welcome            from  '../viz/Welcome.vue'
+import IntroCard          from  '../viz/IntroCard.vue'
 import GeneCard           from  '../viz/GeneCard.vue'
 import VariantDetailCard  from  '../viz/VariantDetailCard.vue'
 import GenesCard          from  '../viz/GenesCard.vue'
 import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
-import AppTour            from  '../partials/AppTour.vue'
+import AppTour            from  '../viz/AppTour.vue'
 
 import SampleModel        from  '../../models/SampleModel.js'
 import CohortModel        from  '../../models/CohortModel.js'
@@ -290,7 +290,7 @@ export default {
   components: {
       EduTourBanner,
       Navigation,
-      IntroPanel,
+      IntroCard,
       Welcome,
       GenesCard,
       GeneCard,

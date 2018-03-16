@@ -39,8 +39,8 @@
         padding: 3px 7px
 
       &.flagged
-        color: $bookmark-color
-        opacity: .7
+        color: $app-color
+        padding: 3px 7px
 
         i.material-icons
           font-size: 21px
@@ -105,7 +105,7 @@
        @click="onBadgeClick('flagged')" >
         <v-badge class="flagged"  right >
           <span   slot="badge">{{ badgeCounts.flagged }}</span>
-          <v-icon>bookmark</v-icon>
+          All
         </v-badge>
       </v-btn>
     </span>

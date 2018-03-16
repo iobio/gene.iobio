@@ -1,21 +1,28 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
+
+#intro-card
+  a
+    color: $app-color !important
+
+  .switch-mode
+    font-size: 16px
 </style>
 
 <template>
 
-<v-card class="app-card">
+<v-card id="intro-card" class="app-card">
   <div style="text-align:center">
     <div>
-      <span style="display:inline-block;font-size:18px;margin-top:5px;margin-bottom:0px">Welcome to Gene.iobio on MyGene2</span>
-      <div style="display: inline-block;float: right;margin-top: -3px;margin-right: -8px;">
-        <v-btn raised v-if="isBasicMode"    @click="onAdvancedMode">
+      <span style="display:inline-block;font-size:16px;margin-top:5px;margin-bottom:0px">Welcome to Gene.iobio on MyGene2</span>
+      <div style="display: inline-block;float: right;padding-top:6px;margin-right:20px">
+        <a class="switch-mode" v-if="isBasicMode"    @click="onAdvancedMode">
            Go to advanced
-        </v-btn>
+        </a>
 
-        <v-btn raised v-if="!isBasicMode"    @click="onBasicMode">
+        <a class="switch-mode" raised v-if="!isBasicMode"    @click="onBasicMode">
            Go to basic
-        </v-btn>
+        </a>
       </div>
     </div>
 
@@ -48,7 +55,7 @@
 <script>
 
 export default {
-  name: 'intro-panel',
+  name: 'intro-card',
   components: {
   },
   props: {

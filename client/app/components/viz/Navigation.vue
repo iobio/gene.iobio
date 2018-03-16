@@ -1,7 +1,9 @@
-
 <style lang="sass">
+
+@import ../../../assets/sass/variables
+
 nav.toolbar
-  background-color: rgb(93, 128, 157) !important
+  background-color: $app-color !important
   font-weight: 300 !important
 
   i.material-icons
@@ -160,6 +162,18 @@ nav.toolbar
       <v-menu offset-y>
         <v-btn id="help-menu-button" flat slot="activator">Help</v-btn>
         <v-list>
+          <v-list-tile  @click="onLoadDemoData">
+            <v-list-tile-title>Load Demo Data</v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile  @click="onWelcome">
+            <v-list-tile-title>Welcome</v-list-tile-title>
+          </v-list-tile>
+           <v-divider></v-divider>
+          <v-list-tile  @click="onClearCache">
+            <v-list-tile-title>Clear session data</v-list-tile-title>
+          </v-list-tile>
+
+          <v-divider></v-divider>
 
           <v-list-tile  @click="onShowDisclaimer">
             <v-list-tile-title>Disclaimer</v-list-tile-title>
@@ -173,20 +187,6 @@ nav.toolbar
 
           <v-divider></v-divider>
 
-          <v-list-tile  @click="onLoadDemoData">
-            <v-list-tile-title>Load Demo Data</v-list-tile-title>
-          </v-list-tile>
-          <v-list-tile  @click="onWelcome">
-            <v-list-tile-title>Welcome</v-list-tile-title>
-          </v-list-tile>
-           <v-divider></v-divider>
-          <v-list-tile  @click="onClearCache">
-            <v-list-tile-title>Clear session data</v-list-tile-title>
-          </v-list-tile>
-
-
-
-          <v-divider></v-divider>
           <v-list-tile >
             <v-list-tile-title><a href="http://iobio.io/tags/gene.iobio/" target="_iobio">Blog</a></v-list-tile-title>
           </v-list-tile>
