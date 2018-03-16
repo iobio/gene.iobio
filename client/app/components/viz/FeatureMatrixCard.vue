@@ -209,6 +209,8 @@ export default {
     FeatureMatrixViz
   },
   props: {
+    isBasicMode: null,
+    isEduMode: null,
     name: "",
     featureMatrixModel: {},
     selectedGene: null,
@@ -223,11 +225,11 @@ export default {
       CELL_SIZE_SMALL: 18,
       CELL_SIZE_LARGE: 22,
       CELL_SIZE_EDU: 23,
-      CELL_WIDTH_BASIC: 160,
+      CELL_WIDTH_BASIC: 18,
       COLUMN_LABEL_HEIGHT: 28,
-      COLUMN_LABEL_HEIGHT_BASIC: 30,
+      COLUMN_LABEL_HEIGHT_BASIC: 28,
       ROW_LABEL_WIDTH: 165,
-      ROW_LABEL_WIDTH_BASIC: 25,
+      ROW_LABEL_WIDTH_BASIC: 165,
       ROW_LABEL_WIDTH_EDU: 130,
       CELL_SIZE: null,
 
@@ -321,7 +323,7 @@ export default {
 
     onFeatureMatrixRowUp: function(i) {
       let self = this;
-      if (isLevelEdu  || isLevelBasic) {
+      if (self.isEduMode  || self.isBasicMode) {
         return;
       }
       var column = null;
@@ -342,7 +344,7 @@ export default {
 
     onFeatureMatrixRowDown: function(i) {
       let self = this;
-      if (isLevelEdu  || isLevelBasic) {
+      if (self.isEduMode  || self.isBasicMode) {
         return;
       }
       var column = null;
@@ -473,10 +475,10 @@ export default {
 
   created: function() {
     this.setCellSize('small');
-    this.cellSize = (isLevelBasic ? null : this.CELL_SIZE);
-    this.cellWidth = isLevelBasic ? this.CELL_WIDTH_BASIC : null;
-    this.columnLabelHeight =  isLevelBasic ?  this.COLUMN_LABEL_HEIGHT_BASIC : this.COLUMN_LABEL_HEIGHT;
-    this.rowLabelWidth = (isLevelBasic ? this.ROW_LABEL_WIDTH_BASIC : this.ROW_LABEL_WIDTH);
+    this.cellSize = (this.isBasicMode ? null : this.CELL_SIZE);
+    this.cellWidth = this.isBasicMode ? this.CELL_WIDTH_BASIC : null;
+    this.columnLabelHeight =  this.isBasicMode ?  this.COLUMN_LABEL_HEIGHT_BASIC : this.COLUMN_LABEL_HEIGHT;
+    this.rowLabelWidth = (this.isBasicMode ? this.ROW_LABEL_WIDTH_BASIC : this.ROW_LABEL_WIDTH);
   }
 
 

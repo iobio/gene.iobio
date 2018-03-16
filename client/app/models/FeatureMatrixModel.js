@@ -26,17 +26,17 @@ class FeatureMatrixModel {
       ];
 
       this.matrixRowsBasic = [
-        {name:'Pathogenicity - ClinVar',id:'clinvar',         order:0,  index:0,  match:  'field', height: 33, attribute: 'clinVarClinicalSignificance', formatFunction: this.formatClinvar, clickFunction: this.clickClinvar,  rankFunction: this.getClinvarRank  },
-        {name:'Inheritance Mode'       ,id:'inheritance',     order:1,  index:1,  match:  'field', height: 21, attribute: 'inheritance',                 formatFunction: this.formatInheritance},
-        {name:'Transcript'             ,id:'transcript',      order:2,  index:2,  match:  'field', height: 21, attribute: 'start',                       formatFunction: this.formatCanonicalTranscript},
-        {name:'cDNA'                   ,id:'cdna',            order:3,  index:3,  match:  'field', height: 31, attribute: 'vepHGVSc',                    formatFunction: this.formatHgvsC    },
-        {name:'Protein'                ,id:'protien',         order:4,  index:4,  match:  'field', height: 21, attribute: 'vepHGVSp',                    formatFunction: this.formatHgvsP    },
-        {name:'Chr'                    ,id:'chr',             order:5,  index:5,  match:  'field', height: 21, attribute: 'chrom',                       },
-        {name:'Position'               ,id:'position',        order:6,  index:6,  match:  'field', height: 21, attribute: 'start',                       },
-        {name:'Ref'                    ,id:'ref',             order:7,  index:7,  match:  'field', height: 21, attribute: 'ref',                         },
-        {name:'Alt'                    ,id:'alt',             order:8,  index:8,  match:  'field', height: 21, attribute: 'alt'                          },
-        {name:'Mutation Freq 1000G'    ,id:'af-1000g',        order:9,  index:9,  match:  'field', height: 21, attribute: 'af1000G',                     formatFunction: this.formatAlleleFrequencyPercentage },
-        {name:'Mutation Freq gnomAD'   ,id:'af-gnomAD',       order:10, index:10,  match: 'field', height: 21, attribute: 'afgnomAD',                    formatFunction: this.formatAlleleFrequencyPercentage }
+        {name:'Pathogenicity - ClinVar',id:'clinvar',         order:0,  index:0,  match:  'field', height: 18, attribute: 'clinVarClinicalSignificance', formatFunction: this.formatClinvar, clickFunction: this.clickClinvar,  rankFunction: this.getClinvarRank  },
+        {name:'Inheritance Mode'       ,id:'inheritance',     order:1,  index:1,  match:  'field', height: 18, attribute: 'inheritance',                 formatFunction: this.formatInheritance},
+        {name:'Transcript'             ,id:'transcript',      order:2,  index:2,  match:  'field', height: 18, attribute: 'start',                       formatFunction: this.formatCanonicalTranscript},
+        {name:'cDNA'                   ,id:'cdna',            order:3,  index:3,  match:  'field', height: 18, attribute: 'vepHGVSc',                    formatFunction: this.formatHgvsC    },
+        {name:'Protein'                ,id:'protien',         order:4,  index:4,  match:  'field', height: 18, attribute: 'vepHGVSp',                    formatFunction: this.formatHgvsP    },
+        {name:'Chr'                    ,id:'chr',             order:5,  index:5,  match:  'field', height: 18, attribute: 'chrom',                       },
+        {name:'Position'               ,id:'position',        order:6,  index:6,  match:  'field', height: 18, attribute: 'start',                       },
+        {name:'Ref'                    ,id:'ref',             order:7,  index:7,  match:  'field', height: 18, attribute: 'ref',                         },
+        {name:'Alt'                    ,id:'alt',             order:8,  index:8,  match:  'field', height: 18, attribute: 'alt'                          },
+        {name:'Mutation Freq 1000G'    ,id:'af-1000g',        order:9,  index:9,  match:  'field', height: 18, attribute: 'af1000G',                     formatFunction: this.formatAlleleFrequencyPercentage },
+        {name:'Mutation Freq gnomAD'   ,id:'af-gnomAD',       order:10, index:10,  match: 'field', height: 18, attribute: 'afgnomAD',                    formatFunction: this.formatAlleleFrequencyPercentage }
       ];
       this.filteredMatrixRows = this.matrixRows;
       this.featureUnknown = 199;

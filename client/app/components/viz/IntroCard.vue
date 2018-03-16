@@ -14,8 +14,14 @@
 <v-card id="intro-card" class="app-card">
   <div style="text-align:center">
     <div>
-      <span style="display:inline-block;font-size:16px;margin-top:5px;margin-bottom:0px">Welcome to Gene.iobio on MyGene2</span>
-      <div style="display: inline-block;float: right;padding-top:6px;margin-right:20px">
+      <span style="display:inline-block;font-size:16px;margin-left:90px;margin-top:5px;margin-bottom:0px;margin-right:15px;">
+
+        Welcome to Gene.iobio on MyGene2
+
+      </span>
+      <a id="intro-link" v-if="!showIntro" href="javascript:void(0)" @click="showIntro = true">tell me more...</a>
+
+      <div style="display: inline-block;float: right;padding-top:5px;margin-right:20px">
         <a class="switch-mode" v-if="isBasicMode"    @click="onAdvancedMode">
            Go to advanced
         </a>
@@ -26,7 +32,6 @@
       </div>
     </div>
 
-      <a id="intro-link" v-if="!showIntro" href="javascript:void(0)" @click="showIntro = true">Tell me more...</a>
 
   </div>
   <div id="intro-text" v-if="showIntro" >

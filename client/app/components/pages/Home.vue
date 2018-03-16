@@ -116,6 +116,8 @@
             <feature-matrix-card slot="left" style="min-height:251px;max-height:251px;overflow-y:scroll"
             ref="featureMatrixCardRef"
             v-bind:class="{ hide: isBasicMode || !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
+            :isEduMode="isEduMode"
+            :isBasicMode="isBasicMode"
             :featureMatrixModel="featureMatrixModel"
             :selectedGene="selectedGene"
             :selectedTranscript="analyzedTranscript"
