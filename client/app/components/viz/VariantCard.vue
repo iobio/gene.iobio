@@ -16,6 +16,13 @@
       stroke-width: 6
 
 #variant-card
+  #sample-label
+    min-width: 200px
+    max-width: 200px
+    &.known-variants
+      min-width: 100px
+      max-width: 100px
+
   #gene-viz, #gene-viz-zoom
     .axis
       padding-left: 0px
@@ -137,11 +144,14 @@
 
   <v-card tile id="variant-card" class="app-card">
     <v-card-title primary-title>
-      <span style="min-width:200px;max-width:200px">{{ (isBasicMode ? 'Variants for ' : '') + sampleModel.name }}</span>
+      <span id="sample-label" v-bind:class="sampleModel.relationship">
+        {{ (isBasicMode ? 'Variants for ' : '') + sampleModel.name }}
+      </span>
 
-      <v-badge  id="loaded-count" v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
-        <span slot="badge"> {{ sampleModel.loadedVariants.features.length }} </span>
-        {{ isBasicMode ? 'Variants' : 'Loaded' }}
+      <v-badge  id="loaded-count"
+      v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
+        <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
+        {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Loaded' }}
       </v-badge>
       <v-badge
         v-if="sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
@@ -180,7 +190,7 @@
       <stacked-bar-chart-viz
         id="known-variants-chart"
         style="width:100%"
-        v-if="sampleModel.relationship == 'known-variants'"
+        v-if="sampleModel.relationship == 'known-variants' && knownVariantsViz != 'variants'"
         :data="sampleModel.variantHistoData"
         :width="width"
         :xStart="selectedGene.start"
@@ -228,8 +238,9 @@
         </gene-viz>
 
         <variant-viz id="called-variant-viz"
-          v-if="showVariantViz"
           ref="calledVariantVizRef"
+          v-if="showVariantViz"
+          v-bind:class="{hide: sampleModel.relationship == 'known-variants' && knownVariantsViz != 'variants'}"
           :data="sampleModel.calledVariants"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
@@ -247,8 +258,9 @@
         </variant-viz>
 
         <variant-viz id="loaded-variant-viz"
-          v-if="showVariantViz"
           ref="variantVizRef"
+          v-if="showVariantViz"
+          v-bind:class="{hide: sampleModel.relationship == 'known-variants' && knownVariantsViz != 'variants'}"
           :data="sampleModel.loadedVariants"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
@@ -407,6 +419,7 @@ export default {
       selectedExon: null,
 
       showKnownVariantsCard: false,
+      knownVariantsViz: null,
 
       showZoom: false,
       zoomMessage: "Drag to zoom",
@@ -604,6 +617,7 @@ export default {
 
     },
     onKnownVariantsVizChange: function(viz) {
+      this.knownVariantsViz = viz;
       this.$emit("knownVariantsVizChange", viz);
     },
     onKnownVariantsFilterChange: function(selectedCategories) {

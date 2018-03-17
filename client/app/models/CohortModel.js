@@ -34,7 +34,7 @@ class CohortModel {
     this.genesInProgress = [];
     this.flaggedVariants = [];
 
-    this.knownVariantsViz = 'variants';
+    this.knownVariantsViz = 'variants'; // variants, histo, histoExon
 
 
     this.demoVcf = {
@@ -610,7 +610,7 @@ class CohortModel {
     let self = this;
     if (self.knownVariantsViz == 'variants') {
       return self._promiseLoadKnownVariants(theGene, theTranscript);
-    } else if (self.knownVariantsViz == 'counts') {
+    } else  {
       return self._promiseLoadKnownVariantCounts(theGene, theTranscript);
     }
   }
@@ -633,7 +633,11 @@ class CohortModel {
     let self = this;
     return new Promise(function(resolve, reject) {
       self.getModel('known-variants').inProgress.loadingVariants = true;
-      self.sampleMap['known-variants'].model.promiseGetKnownVariantHistoData(theGene, theTranscript)
+      var binLength = null;
+      if (self.knownVariantsViz == 'histo') {
+        binLength = Math.floor( ((+theGene.end - +theGene.start) / $('#gene-viz').innerWidth()) * 8);
+      }
+      self.sampleMap['known-variants'].model.promiseGetKnownVariantHistoData(theGene, theTranscript, binLength)
       .then(function(data) {
         self.getModel('known-variants').inProgress.loadingVariants = false;
         self.setVariantHistoData('known-variants', data);
@@ -798,6 +802,11 @@ class CohortModel {
     } else {
       model.variantHistoData = data;
     }
+
+    model.variantHistoCount = 0;
+    model.variantHistoData.forEach(function(histo) {
+      model.variantHistoCount += histo.total;
+    })
   }
 
   promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, options={}) {
@@ -838,7 +847,7 @@ class CohortModel {
 
 
       if (options.getKnownVariants) {
-        let p = self.promiseLoadKnownVariants
+        let p = self.promiseLoadKnownVariants(theGene, theTranscript)
         .then(function(result) {
           if (self.knownVariantViz == 'variants') {
             for (var rel in resultMap) {

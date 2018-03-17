@@ -13,7 +13,7 @@
 
   .radio label
     line-height: 20px
-    left: 28px
+    left: 24px
     font-size: 12px
 
 
@@ -88,15 +88,17 @@
 
 <template>
     <div id="known-variants-toolbar">
-      <div style="width:180px;float:left;padding-top:10px;margin-top:0px">
+      <div style="width:285px;float:left;padding-top:10px;margin-top:0px;margin-right:10px">
         <v-radio-group v-model="viz" row>
-              <v-radio label="Variants" value="variants"></v-radio>
-              <v-radio label="Counts" value="counts"></v-radio>
+            <v-radio label="Variants" value="variants"></v-radio>
+            <v-radio label="Counts" value="histo"></v-radio>
+            <v-radio style="min-width: 120px" label="Counts in Exons" value="histoExon"></v-radio>
         </v-radio-group>
       </div>
 
 
-      <div id="clinvar-filter-box" style="margin-left:10px;width:400px;float:left">
+      <div id="clinvar-filter-box" style="margin-left:10px;width:400px;float:left"
+       v-if="viz == 'variants'">
         <v-select
                 label="Filter by clinical significance..."
                 v-bind:items="categories"
@@ -119,25 +121,10 @@ export default {
   },
   data () {
     return {
-      VIZ_VARIANTS: 'variants',
-      VIZ_COUNTS: 'counts',
-      VIZ_NONE: 'none',
-
-      CHART_TYPE_EXON: 'exon-bar',
-      CHART_TYPE_AREA: 'area',
-      CHART_TYPE_BAR: 'bar',
 
       VARIANT_DISPLAY_THRESHOLD: 300,
 
-      BIN_SPAN:  {'bar': +6, 'exon-bar': +2,  'area': +6},
-      BAR_WIDTH:  {'bar': +6, 'exon-bar': +6,  'area': +6},
-
       viz: null,
-      chart: null,
-      chartType: null,
-      areaChart: null,
-      barChart: null,
-      tooManyVariants: false,
 
       categories: [
         {'key': 'clinvar', 'selected': true,  value: 'clinvar_path',   text: 'Pathogenic' },
@@ -164,8 +151,7 @@ export default {
   methods: {
   },
   mounted: function() {
-    this.viz = this.VIZ_VARIANTS;
-    this.chartType = this.CHART_TYPE_EXON;
+    this.viz = 'variants';
     this.$emit("knownVariantsFilterChange", this.selectedCategories);
   }
 }

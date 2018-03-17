@@ -328,13 +328,15 @@ class SampleModel {
   promiseGetKnownVariantHistoData(geneObject, transcript, binLength) {
     var me = this;
     return new Promise( function(resolve, reject) {
-      var binLength = Math.floor( ((+geneObject.end - +geneObject.start) / $('#gene-viz').innerWidth()) * 8);
       var refName = me._stripRefName(geneObject.chr);
-      me.vcf.promiseGetKnownVariantsHistoData(refName, geneObject, transcript, binLength)
+      me.vcf.promiseGetKnownVariantsHistoData(refName, geneObject, binLength == null ? transcript : null, binLength)
       .then(function(results) {
-        var exonBins = me.binKnownVariantsByExons(geneObject, transcript, binLength, results);
-
-        resolve(exonBins);
+        if (binLength == null) {
+          var exonBins = me.binKnownVariantsByExons(geneObject, transcript, binLength, results);
+          resolve(exonBins);
+        } else {
+          resolve(results);
+        }
       })
       .catch(function(error) {
         reject(error);

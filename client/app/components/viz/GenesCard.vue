@@ -3,6 +3,9 @@
 
 #genes-card
 
+  .btn__content
+    padding: 0 4px
+
   #genes-toolbar
     margin-top: 6px
     margin-bottom: 10px
