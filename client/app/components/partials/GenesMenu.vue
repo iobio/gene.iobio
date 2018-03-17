@@ -44,8 +44,8 @@ textarea#copy-paste-genes
         </span>
       </v-btn>
 
-<!--
-      <v-expansion-panel expand>
+
+      <v-expansion-panel v-if="isEduMode" expand>
         <v-expansion-panel-content :value="openPhenolyzerPanel">
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
           <v-card style="margin-bottom:15px">
@@ -59,7 +59,7 @@ textarea#copy-paste-genes
           </v-card>
         </v-expansion-panel-content>
       </v-expansion-panel>
--->
+
       <v-card>
 
           <div id="enter-genes-input">
