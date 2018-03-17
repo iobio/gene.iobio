@@ -34,6 +34,8 @@ class CohortModel {
     this.genesInProgress = [];
     this.flaggedVariants = [];
 
+    this.knownVariantsViz = 'variants';
+
 
     this.demoVcf = {
       'exome': "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz",
@@ -606,11 +608,37 @@ class CohortModel {
 
   promiseLoadKnownVariants(theGene, theTranscript) {
     let self = this;
-    self.getModel('known-variants').inProgress.loadingVariants = true;
-    self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], false, false)
-    .then(function(resultMap) {
-      self.getModel('known-variants').inProgress.loadingVariants = false;
-      self.setLoadedVariants(theGene, 'known-variants');
+    if (self.knownVariantsViz == 'variants') {
+      return self._promiseLoadKnownVariants(theGene, theTranscript);
+    } else if (self.knownVariantsViz == 'counts') {
+      return self._promiseLoadKnownVariantCounts(theGene, theTranscript);
+    }
+  }
+
+  _promiseLoadKnownVariants(theGene, theTranscript) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getModel('known-variants').inProgress.loadingVariants = true;
+      self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], false, false)
+      .then(function(resultMap) {
+        self.getModel('known-variants').inProgress.loadingVariants = false;
+        self.setLoadedVariants(theGene, 'known-variants');
+        resolve(resultMap);
+      })
+
+    })
+  }
+
+  _promiseLoadKnownVariantCounts(theGene, theTranscript) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getModel('known-variants').inProgress.loadingVariants = true;
+      self.sampleMap['known-variants'].model.promiseGetKnownVariantHistoData(theGene, theTranscript)
+      .then(function(data) {
+        self.getModel('known-variants').inProgress.loadingVariants = false;
+        self.setVariantHistoData('known-variants', data);
+        resolve(data);
+      })
     })
   }
 
@@ -660,6 +688,7 @@ class CohortModel {
     self.sampleModels.forEach(function(model) {
       model.loadedVariants = {loadState: {}, features: [], maxLevel: 1, featureWidth: 0};
       model.calledVariants = {loadState: {}, features: [], maxLevel: 1, featureWidth: 0};
+      model.variantHistoData = [];
       model.coverage = [[]];
     });
   }
@@ -759,6 +788,18 @@ class CohortModel {
     })
   }
 
+  setVariantHistoData(relationship, data, regionStart, regionEnd) {
+    let self = this;
+    var model = self.getModel(relationship);
+    if (regionStart && regionEnd) {
+      model.variantHistoData = data.filter(function(binObject) {
+        binObject.start >= regionStart && binObject.end <= regionEnd;
+      })
+    } else {
+      model.variantHistoData = data;
+    }
+  }
+
   promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, options={}) {
     let self = this;
     return new Promise(function(resolve, reject) {
@@ -797,12 +838,13 @@ class CohortModel {
 
 
       if (options.getKnownVariants) {
-        self.getModel('known-variants').inProgress.loadingVariants = true;
-        let p = self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], false, isBackground)
-        .then(function(resultMap) {
-          self.getModel('known-variants').inProgress.loadingVariants = false;
-          for (var rel in resultMap) {
-            theResultMap[rel] = resultMap[rel];
+        let p = self.promiseLoadKnownVariants
+        .then(function(result) {
+          if (self.knownVariantViz == 'variants') {
+            for (var rel in resultMap) {
+              theResultMap[rel] = resultMap[rel];
+            }
+
           }
         })
         annotatePromises.push(p);

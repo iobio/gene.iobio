@@ -1,4 +1,3 @@
-
 <style lang="sass" >
 @import ../../../assets/sass/variables
 #variant-detail

@@ -86,6 +86,45 @@
       width: 24px
       top: -3px;
 
+  #known-variants-chart
+    padding: 0px
+    margin-top: 0px
+    margin-bottom: 0px
+
+
+    svg
+      vertical-align: bottom
+      .axis
+        text
+          font-size: 12px !important
+
+        &.axis--x
+          .tick
+            visibility: hidden
+
+      .layer.benign
+        .stacked-element
+          fill: rgba(156, 194, 49, 1)
+          stroke: $text-color
+          stroke-width: .5px
+
+      .layer.path
+        .stacked-element
+          fill: #ad494A
+          stroke: $text-color
+          stroke-width: .5px
+
+      .layer.other
+        .stacked-element
+          fill: rgba(231, 186, 82, 1)
+          stroke: $text-color
+          stroke-width: .5px
+
+      .layer.unknown
+        .stacked-element
+          fill: rgb(189, 189, 189)
+          stroke: $text-color
+          stroke-width: .5px
 
 </style>
 
@@ -138,7 +177,19 @@
       >
       </known-variants-toolbar>
 
-
+      <stacked-bar-chart-viz
+        id="known-variants-chart"
+        style="width:100%"
+        v-if="sampleModel.relationship == 'known-variants'"
+        :data="sampleModel.variantHistoData"
+        :width="width"
+        :xStart="selectedGene.start"
+        :xEnd="selectedGene.end"
+        :regionStart="regionStart"
+        :regionEnd="regionEnd"
+        :categories="['unknown', 'other', 'benign', 'path']"
+      >
+      </stacked-bar-chart-viz>
 
 
       <div style="width:100%">
@@ -271,6 +322,7 @@
 import GeneViz              from "../viz/GeneViz.vue"
 import VariantViz           from "../viz/VariantViz.vue"
 import DepthViz             from "../viz/DepthViz.vue"
+import StackedBarChartViz   from "../viz/StackedBarChartViz.vue"
 import KnownVariantsToolbar from "../partials/KnownVariantsToolbar.vue"
 
 
@@ -280,7 +332,8 @@ export default {
     VariantViz,
     GeneViz,
     DepthViz,
-    KnownVariantsToolbar
+    KnownVariantsToolbar,
+    StackedBarChartViz
   },
   props: {
     isEduMode: null,
@@ -356,7 +409,8 @@ export default {
       showKnownVariantsCard: false,
 
       showZoom: false,
-      zoomMessage: "Drag to zoom"
+      zoomMessage: "Drag to zoom",
+
 
     }
   },

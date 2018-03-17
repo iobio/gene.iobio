@@ -801,13 +801,13 @@ var effectCategories = [
 
 
 
-  exports.promiseGetKnownVariants = function(refName, geneObject, transcript, binLength) {
+  exports.promiseGetKnownVariantsHistoData = function(refName, geneObject, transcript, binLength) {
     var me = this;
 
 
     return new Promise( function(resolve, reject) {
 
-      me._getKnownVariantsImpl(refName, geneObject, transcript, binLength,
+      me._getKnownVariantsHistoDataImpl(refName, geneObject, transcript, binLength,
         function(data) {
           if (data) {
             resolve(data);
@@ -839,7 +839,7 @@ var effectCategories = [
       })
   }
 
-  exports._getKnownVariantsImpl = function(refName, geneObject, transcript, binLength, callback) {
+  exports._getKnownVariantsHistoDataImpl = function(refName, geneObject, transcript, binLength, callback) {
 
     var me = this;
 

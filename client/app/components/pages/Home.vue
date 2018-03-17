@@ -148,7 +148,7 @@
                 <v-tab >
                   Variant
                 </v-tab>
-                <v-tab-item style="margin-top:10px;max-height:210px;overflow-y:scroll">
+                <v-tab-item style="margin-top:10px;max-height:190px;overflow-y:scroll">
                   <gene-card
                     v-if="geneModel && Object.keys(selectedGene).length > 0"
                     :showTitle="false"
@@ -941,7 +941,10 @@ export default {
     },
     onKnownVariantsVizChange: function(viz) {
       let self = this;
-      if (self.showKnownVariantsCard && viz == 'variants' && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
+      if (viz) {
+        self.cohortModel.knownVariantsViz = viz;
+      }
+      if (self.showKnownVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
         self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
       }
     },
@@ -1129,7 +1132,7 @@ export default {
       let self = this;
       self.showKnownVariantsCard = show;
       if (self.showKnownVariantsCard) {
-        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
+        self.onKnownVariantsVizChange();
       }
     },
     onFilterApplied: function(badge) {

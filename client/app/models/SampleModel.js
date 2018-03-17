@@ -34,6 +34,7 @@ class SampleModel {
     this.debugMe = false;
 
     this.loadedVariants = null;
+    this.variantHistoData = null;
     this.coverage = [[]];
 
     this.inProgress = {
@@ -324,25 +325,20 @@ class SampleModel {
     return theFbData;
   }
 
-  promiseGetKnownVariants(geneObject, transcript, binLength) {
+  promiseGetKnownVariantHistoData(geneObject, transcript, binLength) {
     var me = this;
     return new Promise( function(resolve, reject) {
+      var binLength = Math.floor( ((+geneObject.end - +geneObject.start) / $('#gene-viz').innerWidth()) * 8);
       var refName = me._stripRefName(geneObject.chr);
-      me.vcf.promiseGetKnownVariants(refName, geneObject, transcript, binLength)
-              .then(function(results) {
-                resolve(results);
-                /*
-                if (transcript) {
-              var exonBins = me.binKnownVariantsByExons(geneObject, transcript, binLength, results);
-              resolve(exonBins);
-            } else {
-                  resolve(results);
-            }
-            */
-              },
-              function(error) {
-                reject(error);
-              });
+      me.vcf.promiseGetKnownVariantsHistoData(refName, geneObject, transcript, binLength)
+      .then(function(results) {
+        var exonBins = me.binKnownVariantsByExons(geneObject, transcript, binLength, results);
+
+        resolve(exonBins);
+      })
+      .catch(function(error) {
+        reject(error);
+      })
     })
   }
 
