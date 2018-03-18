@@ -268,15 +268,16 @@ export default {
     showTitle: null
   },
   data() {
+    let self = this;
     return {
       margin: {
-        top: isLevelBasic || isLevelEdu ? 0 : 20,
-        right: isLevelBasic || isLevelEdu ? 7 : 2,
+        top: self.isBasicMode || self.isEduMode ? 0 : 20,
+        right: self.isBasicMode || self.isEduMode ? 7 : 2,
         bottom: 18,
-        left: isLevelBasic || isLevelEdu ? 9 : 4
+        left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
-      trackHeight: (isLevelEdu || isLevelBasic ? 32 : 22),
-      cdsHeight: (isLevelEdu  || isLevelBasic  ? 24 : 18),
+      trackHeight: (self.isEduMode || self.isBasicMode ? 32 : 22),
+      cdsHeight: (self.isEduMode  || self.isBasicMode  ? 24 : 18),
 
 
       geneSource: null,
@@ -350,7 +351,7 @@ export default {
 
   filters: {
     formatRegion: function (value) {
-      return !value ? '' : utility.formatRegion()(value);
+      return !value ? '' : globalApp.utility.formatRegion()(value);
     },
     formatTranscriptType: function(transcript) {
       if (transcript && transcript.transcript_type.indexOf("transcript") < 0) {

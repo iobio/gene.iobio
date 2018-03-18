@@ -346,7 +346,7 @@ class VariantExporter {
                 }
 
                 var sampleNamesToGenotype = me.cohort.getProbandModel().getSampleNamesToGenotype();
-                var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, global_vepAF)
+                var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, globalApp.vepAF)
                 var theFbData = data.results;
 
                 theFbData.features.forEach(function(v) {
@@ -491,7 +491,7 @@ class VariantExporter {
 
       // Get the clinvar data and load into the variant record
       var dummyVcfData  = {features: [revisedVariant]};
-      var clinvarLoader = isClinvarOffline || clinvarSource == "vcf" ? me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData) : me.cohort.getProbandModel()._refreshVariantsWithClinvarEutils.bind(me.cohort.getProbandModel(), dummyVcfData);
+      var clinvarLoader = globalApp.isClinvarOffline || globalApp.clinvarSource == "vcf" ? me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData) : me.cohort.getProbandModel()._refreshVariantsWithClinvarEutils.bind(me.cohort.getProbandModel(), dummyVcfData);
       me.cohort.getProbandModel()
       .vcf
       .promiseGetClinvarRecords(dummyVcfData,
@@ -517,7 +517,7 @@ class VariantExporter {
     var me = this;
 
 
-    var info    = utility.formatDisplay(variant, this.cohort.translator);
+    var info    = globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
 
     rec.inheritance       = info.inheritance ? this.cohort.translator.getInheritanceLabel(info.inheritance) : "";
     rec.impact            = info.vepImpact;

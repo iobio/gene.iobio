@@ -743,6 +743,8 @@ export default {
   components: {
   },
   props: {
+    isEduMode: null,
+    tourNumber: null,
     selectedGene: null,
     selectedVariant: null,
     phenotypeTerm: null
@@ -758,6 +760,8 @@ export default {
       edgeObject: null,
 
       tour1Check: true,
+
+      hideNextButtonAnim: false,
 
 
       mainTourSteps: {
@@ -884,7 +888,7 @@ export default {
   methods: {
     init: function() {
       let me = this;
-      if (!isLevelEdu) {
+      if (!me.isEduMode) {
           // Initialize app tour
         me.pageGuide = tl.pg.init({
           'auto_refresh': true,
@@ -947,7 +951,7 @@ export default {
 
 
       // Initialize colon cancer tour
-      if (isLevelEdu) {
+      if (me.isEduMode) {
 
         me.pageGuideEduTour1 = tl.pg.init({
           'auto_refresh': true,
@@ -1028,9 +1032,9 @@ export default {
 
 
 
-        if (eduTourNumber == "1") {
+        if (me.tourNumber == "1") {
           me.pageGuideEduTour1.open();
-        } else if (eduTourNumber == "2") {
+        } else if (me.tourNumber == "2") {
           me.pageGuideEduTour2.open();
         }
       }
@@ -1137,7 +1141,7 @@ export default {
         $('#pageguide-next-button').removeClass("hide");
       }
 
-      if (step.animation  && hideNextButtonAnim) {
+      if (step.animation  && me.hideNextButtonAnim) {
         $('#pageguide-next-button').addClass("hide");
       }
     },
@@ -1145,7 +1149,7 @@ export default {
     checkPhenolyzer: function() {
       let self = this;
       var correct = true;
-      if (isLevelEdu && eduTourNumber == 1) {
+      if (self.isEduMode && self.tourNumber == 1) {
         if (self.phenotypeTerm.toLowerCase() != 'colon cancer') {
           alert("Please select 'Colon cancer' to continue with this tour.")
           correct = false;
@@ -1153,7 +1157,7 @@ export default {
       }
       if (correct) {
         self.eduTour1Steps['#app-tour-genes-menu'].correct = true;
-        if (eduTourNumber == 1  && self.pageGuideEduTour1.cur_idx == 1) {
+        if (self.tourNumber == 1  && self.pageGuideEduTour1.cur_idx == 1) {
           setTimeout(function() {
               self.pageGuideEduTour1.navigateForward();
           }, 4000)
@@ -1167,7 +1171,7 @@ export default {
 
     checkVariant: function(variant) {
       let me = this;
-      if (isLevelEdu && eduTourNumber == "1"
+      if (me.isEduMode && me.tourNumber == "1"
         && me.pageGuideEduTour1.cur_idx == 4
         && variant.vepImpact[HIGH] != "HIGH"
         && variant.start == 112116592
@@ -1221,19 +1225,21 @@ export default {
     },
 
     completeTour: function() {
-      if (isLevelEdu) {
-        if (eduTourNumber == "1") {
-          this.pageGuideEduTour1.close();
-        } else if (eduTourNumber == "2") {
-          this.pageGuideEduTour2.close();
+      let self = this;
+      if (self.isEduMode) {
+        if (self.tourNumber == "1") {
+          self.pageGuideEduTour1.close();
+        } else if (self.tourNumber == "2") {
+          self.pageGuideEduTour2.close();
         }
         $('#animation-container-1 #Stage').html("");
         $('#animation-container-2 #Stage').html("");
-        completedEduTourNumber = eduTourNumber;
-        eduTourNumber = completedEduTourNumber == "1" ? "2" : "1";
-        this.$router.push(
+        globalApp.completedTour = self.tourNumber;
+        self.tourNumber = globalApp.completedTour == "1" ? "2" : "1";
+        globalApp.tour = self.tourNumber;
+        self.$router.push(
         { name: 'exhibit-case-complete',
-          query: {mode: 'edu', tour: eduTourNumber}
+          query: {mode: 'edu', tour: self.tourNumber}
         });
       }
     }

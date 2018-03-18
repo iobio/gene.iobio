@@ -15,6 +15,8 @@ vcfiobio = function module() {
 
   var exports = {};
 
+  var isEduMode = false;
+
   var dispatch = d3.dispatch( 'dataReady', 'dataLoading');
 
   var SOURCE_TYPE_URL = "URL";
@@ -41,6 +43,10 @@ vcfiobio = function module() {
   var endpoint = null;
   var genericAnnotation = null;
   var genomeBuildHelper = null;
+
+  // Url for offline Clinvar URL
+  var OFFLINE_CLINVAR_VCF_BASE_URL  = globalApp.isOffline ?  ("http://" + globalApp.serverInstance + globalApp.serverCacheDir) : "";
+
 
 
   var VEP_FIELDS_AF_1000G  = "AF|AFR_AF|AMR_AF|EAS_AF|EUR_AF|SAS_AF".split("|");
@@ -124,6 +130,10 @@ var effectCategories = [
 
   exports.getEndpoint = function() {
     return endpoint;
+  }
+
+  exports.setIsEduMode = function(flagIsEduMode) {
+    isEduMode = flagIsEduMode;
   }
 
 
@@ -370,7 +380,7 @@ var effectCategories = [
         if (e) {
             return;
         } else {
-            window.location = 'http://IOBIO.io/2015/09/03/install-run-tabix/';
+            window.location = 'http://iobio.io/2015/09/03/install-run-tabix/';
         }
      }).set('labels', {ok:'OK', cancel:'Cancel'});
   }
@@ -1105,7 +1115,7 @@ var effectCategories = [
       // When the clinvar vcf is used, just use 1 batch to get all clinvar variants.  But if accessing clinvar
       // via eutils, for every 100 variants, make an http request to eutils to get clinvar records.  Keep
       // repeating until all variants have been processed.
-      var numberOfBatches = isClinvarOffline || clinvarSource == 'vcf' ? 1 : Math.ceil(theVcfData.features.length / batchSize);
+      var numberOfBatches = globalApp.isClinvarOffline || globalApp.clinvarSource == 'vcf' ? 1 : Math.ceil(theVcfData.features.length / batchSize);
       if (numberOfBatches == 0) {
         numberOfBatches = 1;
       }
@@ -1115,7 +1125,7 @@ var effectCategories = [
         var end = start + batchSize;
         var batchOfVariants = theVcfData.features.slice(start, end <= theVcfData.features.length ? end : theVcfData.features.length);
 
-        if (isClinvarOffline || clinvarSource == 'vcf') {
+        if (globalApp.isClinvarOffline || globalApp.clinvarSource == 'vcf') {
           var promise = me.promiseGetClinvarVCFImpl(batchOfVariants, refName, geneObject, clinvarGenes, clinvarLoadVariantsFunction)
           .then(  function() {
 
@@ -1181,7 +1191,7 @@ var effectCategories = [
     return new Promise( function(resolve, reject) {
 
       var clinvarUrl = null;
-      if (isOffline) {
+      if (globalApp.isOffline) {
         clinvarUrl = OFFLINE_CLINVAR_VCF_BASE_URL + me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_OFFLINE)
       } else {
         clinvarUrl = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_S3);
@@ -1411,7 +1421,7 @@ var effectCategories = [
   exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF) {
 
       var me = this;
-      var selectedTranscriptID = utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
+      var selectedTranscriptID = globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
 
       // Use the sample index to grab the right genotype column from the vcf record
       // If it isn't provided, assume that the first genotype column is the one
@@ -1422,7 +1432,7 @@ var effectCategories = [
       var gtSampleNames = null;
 
       if (sampleNames != null && sampleNames != "") {
-        gtSampleNames   = utility.uniq(sampleNames.split(","))
+        gtSampleNames   = globalApp.utility.uniq(sampleNames.split(","))
         gtSampleIndices = gtSampleNames.map(function(sampleName,i) {
           return i;
         });
@@ -1460,7 +1470,7 @@ var effectCategories = [
           var alts = [];
           if(rec.alt.indexOf(',') > -1) {
             // Done split apart multiple alt alleles for education edition
-            if (isLevelEdu) {
+            if (isEduMode) {
               alts.push(rec.alt);
             } else {
               alts = rec.alt.split(",");
@@ -2333,7 +2343,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
         if (delim) {
           var tokens = gt.gt.split(delim);
           if (tokens.length == 2) {
-            if (isLevelEdu && alt.indexOf(",") > 0) {
+            if (isEduMode && alt.indexOf(",") > 0) {
               if ((tokens[0] == 1 ) && (tokens[1] == 2)) {
                 gt.keep = true;
               } if (tokens[0] == tokens[1]) {
@@ -2369,7 +2379,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
           }
 
           gt.eduGenotype = "";
-          if (isLevelEdu) {
+          if (isEduMode) {
             var alts = alt.split(",");
             var gtIdx1 = +tokens[0];
             var gtIdx2 = +tokens[1];
@@ -2383,7 +2393,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
               gt.eduGenotype = rec.ref + " " + rec.ref;
             }
           }
-          gt.eduGenotypeReversed = utility.switchGenotype(gt.eduGenotype);
+          gt.eduGenotypeReversed = globalApp.utility.switchGenotype(gt.eduGenotype);
 
         }
       }
@@ -2449,7 +2459,7 @@ exports._cullTranscripts = function(transcriptObject, theTranscriptId) {
     var transcripts = transcriptObject[key];
     var found = false;
     for (var transcriptId in transcripts) {
-      var strippedTranscriptId = utility.stripTranscriptPrefix(transcriptId);
+      var strippedTranscriptId = globalApp.utility.stripTranscriptPrefix(transcriptId);
       if (theTranscriptId.indexOf(strippedTranscriptId) == 0) {
         found = true;
       }

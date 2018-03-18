@@ -1,9 +1,26 @@
-function EndpointCmd(useSSL, IOBIOServiceNames, launchTimestamp, genomeBuildHelper, getHumanRefNamesFunc) {
+function EndpointCmd(useSSL, launchTimestamp, genomeBuildHelper, getHumanRefNamesFunc) {
   this.useSSL            = useSSL;
-  this.IOBIO             = IOBIOServiceNames;
   this.launchTimestamp   = launchTimestamp;
   this.genomeBuildHelper = genomeBuildHelper;
   this.getHumanRefNames  = getHumanRefNamesFunc;
+
+  // iobio services
+  this.IOBIO = {};
+  this.IOBIO.tabix                   = globalApp.IOBIO_SERVICES  + (globalApp.useOnDemand ? "od_tabix/" : "tabix/");
+  this.IOBIO.vcfReadDepther          = globalApp.IOBIO_SERVICES  + "vcfdepther/";
+  this.IOBIO.snpEff                  = globalApp.IOBIO_SERVICES  + "snpeff/";
+  this.IOBIO.vt                      = globalApp.IOBIO_SERVICES  + "vt/";
+  this.IOBIO.af                      = globalApp.IOBIO_SERVICES  + "af/";
+  this.IOBIO.vep                     = globalApp.IOBIO_SERVICES  + "vep/";
+  this.IOBIO.contigAppender          = globalApp.IOBIO_SERVICES  + "ctgapndr/";
+  this.IOBIO.bcftools                = globalApp.IOBIO_SERVICES  + "bcftools/";
+  this.IOBIO.coverage                = globalApp.IOBIO_SERVICES  + "coverage/";
+  this.IOBIO.samtools                = globalApp.IOBIO_SERVICES  +  "samtools/";
+  this.IOBIO.samtoolsOnDemand        = globalApp.IOBIO_SERVICES  + (globalApp.useOnDemand ? "od_samtools/" : "samtools/");
+  this.IOBIO.freebayes               = globalApp.IOBIO_SERVICES  + "freebayes/";
+  this.IOBIO.vcflib                  = globalApp.IOBIO_SERVICES  + "vcflib/";
+  this.IOBIO.geneCoverage            = globalApp.IOBIO_SERVICES  + "genecoverage/";
+  this.IOBIO.knownvariants           = globalApp.IOBIO_SERVICES  + "knownvariants/";
 
 }
 
@@ -124,7 +141,7 @@ EndpointCmd.prototype.annotateVariants = function(vcfSource, refName, regions, v
     if (getRsId) {
       vepArgs.push("--check_existing");
     }
-    if (hgvsNotation || utility.getRsId || isRefSeq) {
+    if (hgvsNotation || globalApp.utility.getRsId || isRefSeq) {
       vepArgs.push("--fasta");
       vepArgs.push(refFastaFile);
     }

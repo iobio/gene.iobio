@@ -60,12 +60,12 @@ export default {
       this.$router.push({ name: 'exhibit' });
     },
     showNextCaseStudy: function() {
-      completedEduTourNumber = eduTourNumber;
-      eduTourNumber = completedEduTourNumber == "1" ? "2" : "1";
-      if (completedEduTourNumber == "1") {
+      globalApp.completedTour = globalApp.tour;
+      globalApp.tour = globalApp.completedTour == "1" ? "2" : "1";
+      if (globalApp.completedTour == "1") {
         this.$router.push(
         { name: 'home',
-          query: {mode: 'edu', tour: eduTourNumber}
+          query: {mode: 'edu', tour: globalApp.tour}
         });
       } else {
         this.$router.push(

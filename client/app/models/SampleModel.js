@@ -8,6 +8,9 @@ class SampleModel {
     this.fbData = null;
     this.bamData = null;
 
+    this.isBasicMode = null;
+    this.isEduMode = null;
+
 
     this.vcfUrlEntered = false;
     this.vcfFileOpened = false;
@@ -751,6 +754,7 @@ class SampleModel {
     this.vcf.setEndpoint(this.cohort.endpoint);
     this.vcf.setGenericAnnotation(this.cohort.genericAnnotation);
     this.vcf.setGenomeBuildHelper(this.cohort.genomeBuildHelper);
+    this.vcf.setIsEduMode(this.cohort.isEduMode);
   };
 
   promiseBamFilesSelected(fileSelection) {
@@ -890,9 +894,9 @@ class SampleModel {
     this.vcfUrlEntered = false;
     this.vcfFileOpened = false;
     this.sampleName = null;
-    window.utility.removeUrl('sample'+ cardIndex);
-    window.utility.removeUrl('vcf' + cardIndex);
-    window.utility.removeUrl('name'+ cardIndex);
+    window.globalApp.utility.removeUrl('sample'+ cardIndex);
+    window.globalApp.utility.removeUrl('vcf' + cardIndex);
+    window.globalApp.utility.removeUrl('name'+ cardIndex);
     this.vcf.clear();
   }
 
@@ -901,7 +905,7 @@ class SampleModel {
     this.bamData = null;
     this.bamUrlEntered = false;
     this.bamFileOpened = false;
-    window.utility.removeUrl('bam' + cardIndex);
+    window.globalApp.utility.removeUrl('bam' + cardIndex);
     if (this.bam) {
       this.bam.clear();
     }
@@ -1137,7 +1141,7 @@ class SampleModel {
           performCallbackForCachedData(regions, theVcfData, data.coverage);
 
         } else {
-          me.bam.getCoverageForRegion(refName, gene.start, gene.end, regions, 2000, useServerCache,
+          me.bam.getCoverageForRegion(refName, gene.start, gene.end, regions, 2000, globalApp.useServerCache,
             function(coverageForRegion, coverageForPoints) {
               if (coverageForRegion != null) {
               me.bamData = {gene: gene.gene_name,
@@ -1148,7 +1152,7 @@ class SampleModel {
 
               // Use browser cache for storage coverage data if app is not relying on
               // server-side cache
-              if (!useServerCache) {
+              if (!globalApp.useServerCache) {
                 me._promiseCacheData(me.bamData, CacheHelper.BAM_DATA, gene.gene_name)
                  .then(function() {
                   performCallback(regions, theVcfData, coverageForRegion, coverageForPoints);
@@ -1248,7 +1252,7 @@ class SampleModel {
                true,  // hgvs notation
                true,  // rsid
                true, // vep af
-               useServerCache // serverside cache
+               globalApp.useServerCache // serverside cache
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
@@ -1434,7 +1438,7 @@ class SampleModel {
                true,  // hgvs notation
                true,  // rsid
                false, // vep af
-               useServerCache // serverside cache
+               globalApp.useServerCache // serverside cache
             ).then( function(data) {
 
               var annotVcfData = data[1];
@@ -1528,9 +1532,9 @@ class SampleModel {
                me.getRelationship() == 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
                me.getTranslator().clinvarMap,
                me.getGeneModel().geneSource == 'refseq' ? true : false,
-               window.isLevelBasic || global_getVariantIdsForGene,  // hgvs notation
-               global_getVariantIdsForGene,  // rsid
-               global_vepAF    // vep af
+               me.isBasicMode || globalApp.getVariantIdsForGene,  // hgvs notation
+               globalApp.getVariantIdsForGene,  // rsid
+               globalApp.vepAF    // vep af
               );
           })
           .then( function(data) {
@@ -1773,7 +1777,7 @@ class SampleModel {
     }
     afHighest = me.getHighestAf(variant);
 
-    if (global_vepAF) {
+    if (globalApp.vepAF) {
       if ($.isNumeric(variant.vepAf.gnomAD.AF) && afHighest) {
         if (variant.vepAf.gnomAD.AF >= afHighest) {
           variant.afFieldHighest = 'afgnomAD';
@@ -1947,9 +1951,9 @@ class SampleModel {
       v.level = 0;
     });
 
-    var featureWidth = isLevelEdu || isLevelBasic ? EDU_TOUR_VARIANT_SIZE : 4;
+    var featureWidth = me.isEduMode || me.isBasicMode ? globalApp.eduModeVariantSize : 4;
     var posToPixelFactor = Math.round((end - start) / width);
-    var widthFactor = featureWidth + (isLevelEdu || isLevelBasic ? EDU_TOUR_VARIANT_SIZE * 2 : 4);
+    var widthFactor = featureWidth + ( me.isEduMode || me.isBasicMode ? globalApp.eduModeVariantSize * 2 : 4);
     var maxLevel = this.vcf.pileupVcfRecords(theFeatures, start, posToPixelFactor, widthFactor);
     if ( maxLevel > 30) {
       for(var i = 1; i < posToPixelFactor; i++) {
@@ -2438,7 +2442,7 @@ class SampleModel {
     }
 
 
-    var impactField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'impact' : IMPACT_FIELD_TO_FILTER;
+    var impactField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'impact' : globalApp.impactFieldToFilter;
     var effectField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'effect' : 'vepConsequence';
 
     // coverageMin is always an integer or NaN
@@ -2792,11 +2796,11 @@ class SampleModel {
         effects += " " + key;
       }
     }
-    var impactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_FILTER]);
+    var impactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[globalApp.impactFieldToFilter]);
     for (var key in impactList) {
       impacts += " " + key;
     }
-    var colorImpactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[IMPACT_FIELD_TO_COLOR]);
+    var colorImpactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[globalApp.impactFieldToColor]);
     for (var key in colorImpactList) {
       colorimpacts += " " + 'impact_'+key;
     }

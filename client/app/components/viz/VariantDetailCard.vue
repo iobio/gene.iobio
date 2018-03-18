@@ -345,7 +345,7 @@ export default {
             if (popAF.length > 0) {
               popAF += ", ";
             }
-            popAF += label + " " + (afObject[key] == "." ? "0%" : utility.percentage(afObject[key]));
+            popAF += label + " " + (afObject[key] == "." ? "0%" : globalApp.utility.percentage(afObject[key]));
           }
         }
       }
@@ -420,7 +420,7 @@ export default {
                .attr("class", rel + "-alt-count header-small ")
                .html("<span class='ped-label "
                 + selectedClazz + "'>"
-                + " " + (rel == 'sibling' ? 'Sib' : utility.capitalizeFirstLetter(rel))
+                + " " + (rel == 'sibling' ? 'Sib' : globalApp.utility.capitalizeFirstLetter(rel))
                 + " " + (rel == 'sibling' ? sampleName : '')
                 + "</span>"
                 + (affectedStatus == 'affected' ? me.AFFECTED_GLYPH : ''));
@@ -428,7 +428,7 @@ export default {
               var zyg = genotype ? (!genotype.hasOwnProperty('zygosity') || genotype.zygosity == null || genotype.zygosity == "gt_unknown" ? "unknown" : genotype.zygosity.toLowerCase()) : "none";
           row.append("div")
              .attr("class",  "zygosity label " + zyg)
-             .text(utility.capitalizeFirstLetter(zyg));
+             .text(globalApp.utility.capitalizeFirstLetter(zyg));
 
 
           var barContainer = row.append("div")
@@ -694,9 +694,9 @@ export default {
       let self = this;
       var refAlt = "";
       if (self.selectedGene && self.selectedGene.strand && self.selectedVariant) {
-        if (isLevelEdu) {
+        if (self.isEduMode) {
           if (self.selectedGene.strand == "-") {
-            refAlt = utility.switchGenotype(self.selectedVariant.eduGenotype)
+            refAlt = globalApp.utility.switchGenotype(self.selectedVariant.eduGenotype)
           } else {
             refAlt =  self.selectedVariant.eduGenotype;
           }
@@ -712,9 +712,9 @@ export default {
       } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
         return "0%";
       } else if (this.isBasicMode) {
-        return utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
+        return globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
       } else  {
-        var af = utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
+        var af = globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
         var link = "<a target='_gnomad' href='http://gnomad.broadinstitute.org/variant/" + this.selectedVariant.chrom + "-" + this.selectedVariant.start + "-" + this.selectedVariant.ref + "-" + this.selectedVariant.alt + "'>" + af + "</a>";
         link += "&nbsp;&nbsp;" + this.formatPopAF(this.selectedVariant.vepAf.gnomAD);
         return link;
@@ -724,13 +724,13 @@ export default {
       if (this.selectedVariant.af1000G == null) {
         return "0%";
       } else  {
-        var af = utility.percentage(this.selectedVariant.af1000G);
+        var af = globalApp.utility.percentage(this.selectedVariant.af1000G);
         var popAF = this.formatPopAF(this.selectedVariant.vepAf['1000G']);
         return af + "&nbsp;&nbsp;" + popAF;
       }
     },
     afExAC: function() {
-      return this.selectedVariant.afExAC ? utility.percentage(this.selectedVariant.afExAC) : "";
+      return this.selectedVariant.afExAC ? globalApp.utility.percentage(this.selectedVariant.afExAC) : "";
     }
   },
 
@@ -752,7 +752,7 @@ export default {
       } else if (buf == 'known-variants') {
         return 'ClinVar';
       } else {
-        return utility.capitalizeFirstLetter(buf);
+        return globalApp.utility.capitalizeFirstLetter(buf);
       }
     }
 

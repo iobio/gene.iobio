@@ -1,7 +1,10 @@
 class CohortModel {
 
-  constructor(endpoint, genericAnnotation, translator, geneModel,
+  constructor(isEduMode, isBasicMode, endpoint, genericAnnotation, translator, geneModel,
     variantExporter, cacheHelper, genomeBuildHelper, freebayesSettings) {
+
+    this.isEduMode = isEduMode;
+    this.isBasicMode = isBasicMode;
 
     this.endpoint = endpoint;
     this.genericAnnotation = genericAnnotation;
@@ -277,6 +280,8 @@ class CohortModel {
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
       vm.affectedStatus = modelInfo.affectedStatus;
+      vm.isBasicMode = self.isBasicMode;
+      vm.isEduMode = self.isEduMode;
 
       var vcfPromise = null;
       if (modelInfo.vcf) {
@@ -930,7 +935,7 @@ class CohortModel {
           unionVcfData.features.push(formatClinvarThinVariant(key));
         }
 
-        var refreshVariantsFunction = isClinvarOffline || clinvarSource == 'vcf'
+        var refreshVariantsFunction = globalApp.isClinvarOffline || globalApp.clinvarSource == 'vcf'
           ? self.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(self.getProbandModel(), unionVcfData)
           : self.getProbandModel()._refreshVariantsWithClinvarEutils.bind(self.getProbandModel(), unionVcfData);
 
@@ -1000,7 +1005,7 @@ class CohortModel {
 
     return new Promise(function(resolve,reject) {
 
-      if (self.isAlignmentsOnly() && !autocall && (resultMap == null || resultMap.proband == null)) {
+      if (self.isAlignmentsOnly() && !globalApp.autocall && (resultMap == null || resultMap.proband == null)) {
           resolve({'resultMap': {'proband': {features: []}}, 'gene': geneObject, 'transcript': theTranscript});
       } else {
         // Set the max allele count across all variants in the trio.  We use this to properly scale
@@ -1417,7 +1422,7 @@ class CohortModel {
             bams,
             me.geneModel.geneSource == 'refseq' ? true : false,
             me.freebayesSettings.arguments,
-            global_vepAF, // vep af
+            globalApp.vepAF, // vep af
             function(theData, trRefName) {
 
               var jointVcfRecs =  theData.split("\n");
@@ -1503,7 +1508,7 @@ class CohortModel {
       } else {
 
         theVcfData.loadState['called'] = true;
-        var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, global_vepAF);
+        var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, globalApp.vepAF);
 
         var theFbData = data.results;
         theFbData.loadState['called'] = true;
@@ -1712,10 +1717,10 @@ class CohortModel {
 
     // If the number of bookmarks exceeds the max gene limit, truncate the
     // bookmarked variants to this max.
-    if (global_maxGeneCount && importRecords.length > global_maxGeneCount) {
-      var bypassedCount = importRecords.length - global_maxGeneCount;
-      importRecords = importRecords.slice(0, global_maxGeneCount);
-      alertify.alert("Only first " + global_maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.");
+    if (globalApp.maxGeneCount && importRecords.length > globalApp.maxGeneCount) {
+      var bypassedCount = importRecords.length - globalApp.maxGeneCount;
+      importRecords = importRecords.slice(0, globalApp.maxGeneCount);
+      alertify.alert("Only first " + globalApp.maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.");
     }
 
 

@@ -1,6 +1,10 @@
 class FeatureMatrixModel {
-  constructor(cohort) {
+  constructor(cohort, isEduMode, isBasicMode, tourNumber) {
       this.cohort = cohort;
+
+      this.isEduMode = isEduMode;
+      this.isBasicMode = isBasicMode;
+      this.tourNumber = tourNumber;
 
       this.featureVcfData = [];
       this.rankedVariants = [];
@@ -14,8 +18,8 @@ class FeatureMatrixModel {
 
       this.matrixRows = [
         {name:'Pathogenicity - ClinVar'      , id:'clinvar',        order:0, index:0,   match: 'exact', attribute: 'clinVarClinicalSignificance',     map: this.getTranslator().clinvarMap },
-        {name:'Impact (VEP)'                 , id:'impact',         order:1, index:1,   match: 'exact', attribute: IMPACT_FIELD_TO_COLOR,   map: this.getTranslator().impactMap},
-        {name:'Most severe impact (VEP)'     , id:'highest-impact', order:2, index:2,   match: 'exact', attribute: IMPACT_FIELD_TO_FILTER,  map: this.getTranslator().highestImpactMap},
+        {name:'Impact (VEP)'                 , id:'impact',         order:1, index:1,   match: 'exact', attribute: globalApp.impactFieldToColor,   map: this.getTranslator().impactMap},
+        {name:'Most severe impact (VEP)'     , id:'highest-impact', order:2, index:2,   match: 'exact', attribute: globalApp.impactFieldToFilter,  map: this.getTranslator().highestImpactMap},
         {name:'Flagged'                      , id:'bookmark',       order:3, index:3,  match: 'exact', attribute: 'isFlagged',     map: this.getTranslator().bookmarkMap },
         {name:'Inheritance Mode'             , id:'inheritance',    order:4, index:4,   match: 'exact', attribute: 'inheritance', map: this.getTranslator().inheritanceMap},
         {name:'Present in Affected'          , id:'affected',       order:5, index:5,   match: 'exact', attribute: 'affected_summary',  map: this.getTranslator().affectedMap},
@@ -46,20 +50,20 @@ class FeatureMatrixModel {
   init() {
     let self = this;
 
-    if (isLevelBasic) {
+    if (self.isBasicMode) {
       this.matrixRows = this.matrixRowsBasic;
-    } else if (isLevelEdu || isLevelBasic) {
+    } else if (self.isEduMode) {
       this.removeRow('Pathogenicity - SIFT', self.matrixRows);
 
       this.removeRow('Zygosity', self.matrixRows);
       this.removeRow('Bookmark', self.matrixRows);
 
       // Only show genotype on second educational tour or level basic
-      if (!isLevelEdu || eduTourNumber != 2) {
+      if (!self.isEduMode || self.tourNumber != 2) {
         this.removeRow('Genotype', self.matrixRows);
       }
       // Only show inheritance on first educational tour or level basic
-      if (!isLevelEdu || eduTourNumber != 1) {
+      if (!self.isEduMode || self.tourNumber != 1) {
         this.removeRow('Inheritance Mode', self.matrixRows);
       }
       this.removeRow('Most severe impact (VEP)', self.matrixRows);
@@ -177,7 +181,7 @@ class FeatureMatrixModel {
 
 
   getCellHeights() {
-    return isLevelBasic ? this.matrixRowsBasic.map(function(d){return d.height}) : null;
+    return this.isBasicMode ? this.matrixRowsBasic.map(function(d){return d.height}) : null;
   }
 
   getTranslator() {
@@ -456,13 +460,14 @@ class FeatureMatrixModel {
   }
 
   formatClinvar(variant, clinvarSig) {
+    let self = this;
     var display = "";
     for (key in clinvarSig) {
       if (key == "none" || key == "not_provided") {
 
       } else {
         // Highlight the column as 'danger' if variant is considered pathogenic or likely pathogenic
-        if (isLevelBasic) {
+        if (self.isBasicMode) {
           if (key.indexOf("pathogenic") >= 0) {
             if (variant.featureClass == null) {
               variant.featureClass = "";
@@ -481,23 +486,23 @@ class FeatureMatrixModel {
 
 
   formatAlleleFrequencyPercentage(variant, value) {
-    return value && value != "" && +value >= 0 ? utility.round(+value * 100, 2) + "%" : "";
+    return value && value != "" && +value >= 0 ? globalApp.utility.round(+value * 100, 2) + "%" : "";
   }
 
   formatCanonicalTranscript(variant, value) {
-    return utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
+    return globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
   }
 
   formatHgvsP(variant, value) {
-    return utility.formatHgvsP(variant, value);
+    return globalApp.utility.formatHgvsP(variant, value);
   }
 
   formatHgvsC(variant, value) {
-    return utility.formatHgvsC(variantValue);
+    return globalApp.utility.formatHgvsC(variantValue);
   }
 
   formatAfHighest(variant, afField) {
-    return afField && afField.length > 0 && +variant[afField] < .1 ? utility.percentage(variant[afField], false) : "";
+    return afField && afField.length > 0 && +variant[afField] < .1 ? globalApp.utility.percentage(variant[afField], false) : "";
   }
 
   formatInheritance(variant, value) {

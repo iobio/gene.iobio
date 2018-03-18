@@ -253,6 +253,8 @@
 
     <app-tour
      ref="appTourRef"
+      :isEduMode="isEduMode"
+      :tourNumber="tourNumber"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
       :phenotypeTerm="phenotypeTerm"
@@ -265,7 +267,6 @@
 
 
 <script>
-
 
 import Navigation         from  '../viz/Navigation.vue'
 import EduTourBanner      from  '../viz/EduTourBanner.vue'
@@ -283,9 +284,11 @@ import CohortModel        from  '../../models/CohortModel.js'
 import FeatureMatrixModel from  '../../models/FeatureMatrixModel.js'
 import FilterModel        from  '../../models/FilterModel.js'
 import GeneModel          from  '../../models/GeneModel.js'
+import GenomeBuildHelper  from  '../../models/GenomeBuildHelper.js'
 
 import allGenesData       from '../../../data/genes.json'
 import SplitPane          from '../partials/SplitPane.vue'
+
 
 export default {
   name: 'home',
@@ -368,10 +371,22 @@ export default {
       isLeftDrawerOpen: null,
       showWelcome: false,
 
-      isEduMode:  isLevelEdu,
-      tourNumber: eduTourNumber,
-      isBasicMode: isLevelBasic,
-      forMyGene2: isMygene2,
+
+      /*
+      * This variable controls special behavior for running gene.iobio education edition, with
+      * a simplified interface and logic.
+      */
+      isEduMode:  false,
+      tourNumber: null,
+
+      /*
+      * These flags control special behavior for running gene.iobio basic mode, with
+      * a simplified interface and logic.
+      */
+      isBasicMode: false,
+      forMyGene2: false,
+
+
       closeIntro: false,
 
       phenotypeTerm: null,
@@ -390,6 +405,8 @@ export default {
 
     self.cardWidth = self.$el.offsetWidth;
 
+    self.setAppMode();
+
     self.genomeBuildHelper = new GenomeBuildHelper();
     self.genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
     .then(function() {
@@ -407,22 +424,24 @@ export default {
       let genericAnnotation = new GenericAnnotation(glyph);
 
       self.geneModel = new GeneModel();
-      self.geneModel.geneSource = siteGeneSource;
+      self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
       self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
       self.geneModel.setAllKnownGenes(self.allGenes);
       self.geneModel.translator = translator;
 
 
       // Instantiate helper class than encapsulates IOBIO commands
-      let endpoint = new EndpointCmd(useSSL,
-        IOBIO,
+      let endpoint = new EndpointCmd(globalApp.useSSL,
         self.cacheHelper.launchTimestamp,
         self.genomeBuildHelper,
-        utility.getHumanRefNames);
+        globalApp.utility.getHumanRefNames);
 
       self.variantExporter = new VariantExporter();
 
-      self.cohortModel = new CohortModel(endpoint,
+      self.cohortModel = new CohortModel(
+        self.isEduMode,
+        self.isBasicMode,
+        endpoint,
         genericAnnotation,
         translator,
         self.geneModel,
@@ -436,26 +455,27 @@ export default {
       self.inProgress = self.cohortModel.inProgress;
 
 
-      self.featureMatrixModel = new FeatureMatrixModel(self.cohortModel);
+      self.featureMatrixModel = new FeatureMatrixModel(self.cohortModel, self.isEduMode, self.isBasicMode, self.tourNumber);
       self.featureMatrixModel.init();
       self.cohortModel.featureMatrixModel = self.featureMatrixModel;
 
-      self.variantTooltip = new VariantTooltip(genericAnnotation,
+      self.variantTooltip = new VariantTooltip(
+        self.isEduMode,
+        self.isBasicMode,
+        self.tourNumber,
+        genericAnnotation,
         glyph,
         translator,
         self.cohortModel.annotationScheme,
         self.genomeBuildHelper);
 
-
-    })
-    .then(function() {
-      self.filterModel = new FilterModel(self.cohortModel.affectedInfo);
+      self.filterModel = new FilterModel(self.cohortModel.affectedInfo, self.isBasicMode);
       self.cohortModel.filterModel = self.filterModel;
 
       self.promiseInitFromUrl()
       .then(function() {
-          if (self.isEduMode && eduTourNumber) {
-            self.$refs.appTourRef.startTour(eduTourNumber);
+          if (self.isEduMode && self.tourNumber) {
+            self.$refs.appTourRef.startTour(self.tourNumber);
           }
           self.models = self.cohortModel.sampleModels;
           if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
@@ -480,7 +500,7 @@ export default {
     },
     selectedVariantInfo: function() {
       if (this.selectedVariant) {
-        return utility.formatDisplay(this.selectedVariant, this.cohortModel.translator)
+        return globalApp.utility.formatDisplay(this.selectedVariant, this.cohortModel.translator, this.isEduMode)
       } else {
         return null;
       }
@@ -507,10 +527,10 @@ export default {
         self.cacheHelper.on("analyzeAllCompleted", function() {
           self.$refs.navRef.onShowFlaggedVariants();
         });
-        globalCacheHelper = self.cacheHelper;
+        globalApp.cacheHelper = self.cacheHelper;
         self.cacheHelper.promiseInit()
          .then(function() {
-          self.cacheHelper.isolateSession();
+          self.cacheHelper.isolateSession(self.isEduMode);
           resolve();
          })
          .catch(function(error) {
@@ -525,7 +545,7 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
-        if (isLevelEdu) {
+        if (self.isEduMode) {
           resolve();
         } else {
           self.geneModel.clearDangerSummaries();
@@ -549,7 +569,7 @@ export default {
       return new Promise(function(resolve, reject) {
 
         $.ajax({
-            url: global_siteConfigUrl,
+            url: globalApp.siteConfigUrl,
             type: "GET",
             crossDomain: true,
             dataType: "json",
@@ -887,7 +907,7 @@ export default {
     },
     showVariantExtraAnnots: function(sourceComponent, variant) {
       let self = this;
-      if (!isLevelEdu && !isLevelBasic)  {
+      if (!self.isEduMode && !self.isBasicMode)  {
 
         self.cohortModel
           .getModel(sourceComponent.relationship)
@@ -980,27 +1000,26 @@ export default {
     onSortGenes: function(sortBy) {
       this.geneModel.sortGenes(sortBy);
     },
+    setAppMode: function() {
+      let self = this;
+      if ( self.paramMyGene2 && self.paramMyGene2 != "" ) {
+        self.forMyGene2   = self.paramMyGene2 == "false" || self.paramMyGene2.toUpperCase() == "N" ? false : true;
+      }
+      if (self.paramMode && self.paramMode != "") {
+        self.isBasicMode  = self.paramMode == "basic" ? true : false;
+        self.isEduMode    = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
+      }
+      if (!self.isEduMode && !self.isBasicMode) {
+        self.showWelcome = true;
+      }
+      if (self.paramTour) {
+        self.tourNumber = self.paramTour;
+      }
+    },
     promiseInitFromUrl: function() {
       let self = this;
 
       return new Promise(function(resolve, reject) {
-        if ( self.paramMyGene2 && self.paramMyGene2 != "" ) {
-          isMygene2   = self.paramMyGene2 == "false" || self.paramMyGene2.toUpperCase() == "N" ? false : true;
-          self.forMyGene2 = isMygene2;
-        }
-        if (self.paramMode && self.paramMode != "") {
-          isLevelBasic     = self.paramMode == "basic" ? true : false;
-          self.isBasicMode = isLevelBasic;
-          isLevelEdu       = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
-          self.isEduMode   = isLevelEdu;
-        }
-        if (!self.isEduMode && !self.isBasicMode) {
-          self.showWelcome = true;
-        }
-        if (self.paramTour) {
-          eduTourNumber = self.paramTour;
-          self.tourNumber  = eduTourNumber;
-        }
         if (self.paramGeneSource) {
           self.geneModel.geneSource = self.paramGeneSource;
         }
@@ -1020,7 +1039,7 @@ export default {
           self.genomeBuildHelper.setCurrentBuild(self.paramBuild);
         }
         if (self.paramBatchSize) {
-          DEFAULT_BATCH_SIZE = self.paramBatchSize;
+          globalApp.DEFAULT_BATCH_SIZE = self.paramBatchSize;
         }
 
         var modelInfos = [];
@@ -1046,8 +1065,8 @@ export default {
           catch(function(error) {
             reject(error);
           })
-        } else if (isLevelEdu && eduTourNumber != '') {
-          self.promiseInitTourSample(eduTourNumber, 0)
+        } else if (self.isEduMode && self.tourNumber != '') {
+          self.promiseInitTourSample(self.tourNumber, 0)
           .then(function() {
             resolve();
           })
@@ -1217,12 +1236,10 @@ export default {
     },
     onAdvancedMode: function() {
       this.isBasicMode = false;
-      isLevelBasic = false;
       this.$router.push( { name: 'home', query: {mygene2: this.forMyGene2 ? true : false } })
     },
     onBasicMode: function() {
       this.isBasicMode = true;
-      isLevelBasic = true;
       this.$router.push( { name: 'home', query: {mode: 'basic', mygene2: this.forMyGene2 ? true : false } })
     }
 

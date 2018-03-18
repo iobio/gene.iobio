@@ -73,8 +73,8 @@ CacheHelper.prototype.promiseInit = function() {
 }
 
 
-CacheHelper.prototype.isolateSession = function() {
-  if (isLevelEdu) {
+CacheHelper.prototype.isolateSession = function(isEduMode) {
+  if (isEduMode) {
     this.launchTimestamp = 9999;
   } else {
     this.launchTimestamp = Date.now().valueOf();
@@ -105,7 +105,7 @@ CacheHelper.prototype.promiseClearStaleCache = function() {
   })
 }
 
-CacheHelper.prototype.promiseCheckCacheSize = function() {
+CacheHelper.prototype.promiseCheckCacheSize = function(force) {
   var me = this;
 
   var clearCacheAndResolve = function(resolve, reject, counts) {
@@ -134,7 +134,7 @@ CacheHelper.prototype.promiseCheckCacheSize = function() {
      .then(function(counts) {
 
       if (counts.otherSessions > 0 || counts.otherUse > 0) {
-        if (isLevelEdu || (isMygene2 && isLevelBasic)) {
+        if (force) {
           clearCacheAndResolve(resolve, reject, counts);
         } else {
           alertify.confirm("Before proceeding, it is recommended that the browser's cache be cleared.", function (e) {
@@ -229,13 +229,13 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
 
   // If we are already have the max size of genes in the queue, don't
   // queue anymore.
-  if (me.cacheQueue.length >= DEFAULT_BATCH_SIZE) {
+  if (me.cacheQueue.length >= globalApp.DEFAULT_BATCH_SIZE) {
     return;
   }
 
 
   // Figure out how much to replinish in the cache queue
-  var sizeToQueue = DEFAULT_BATCH_SIZE - me.cacheQueue.length;
+  var sizeToQueue = globalApp.DEFAULT_BATCH_SIZE - me.cacheQueue.length;
 
   // Just queue genes to the end of the (unanalyzed) genes list
   if (sizeToQueue > me.genesToCache.length) {
@@ -255,7 +255,7 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
 
   // Invoke method to cache each of the genes in the queue
   var count = 0;
-  for (var i = startingPos; i < DEFAULT_BATCH_SIZE && count < sizeToQueue; i++) {
+  for (var i = startingPos; i < globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue; i++) {
     me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants)
     .then(function(theGeneObject) {
       me.cacheNextGene(theGeneObject.gene_name, analyzeCalledVariants, callback);
@@ -425,7 +425,7 @@ CacheHelper.prototype.promiseIsCachedForProband = function(geneObject, transcrip
 CacheHelper.prototype.promiseClearCache = function(launchTimestampToClear) {
   var me = this;
   return new Promise(function(resolve, reject) {
-    if (keepLocalStorage) {
+    if (globalApp.keepLocalStorage) {
       resolve();
 
     } else {
@@ -788,7 +788,7 @@ CacheHelper.prototype.refreshDialog = function() {
       var sortedDates = Object.keys(otherSessions).sort();
       sortedDates.forEach(function(theDate) {
         var size = otherSessions[theDate];
-        html += '<div><span style="display:inline-block;width:140px">' + utility.formatDate(new Date(theDate * 1)) + '</span><span style="display:inline-block;width:100px">' + CacheHelper._sizeMB(size, 1) + " MB</span>" + "<a href='javascript:void(0)' + onclick='cacheHelper.clearCache(" + theDate + ",true)'>Clear</a></div>";
+        html += '<div><span style="display:inline-block;width:140px">' + globalApp.utility.formatDate(new Date(theDate * 1)) + '</span><span style="display:inline-block;width:100px">' + CacheHelper._sizeMB(size, 1) + " MB</span>" + "<a href='javascript:void(0)' + onclick='cacheHelper.clearCache(" + theDate + ",true)'>Clear</a></div>";
       });
       return html;
     }
@@ -976,10 +976,10 @@ CacheHelper.showError = function(key, cacheError) {
 
 
 CacheHelper.useLocalStorage = function() {
-  return window.global_browserCache == BROWSER_CACHE_LOCAL_STORAGE;
+  return globalApp.browserCache == globalApp.BROWSER_CACHE_LOCAL_STORAGE;
 }
 CacheHelper.useIndexedDB = function() {
-  return window.global_browserCache == BROWSER_CACHE_INDEXED_DB;
+  return globalApp.browserCache == globalApp.BROWSER_CACHE_INDEXED_DB;
 }
 
 CacheHelper.promiseCompressData = function(data) {

@@ -1,7 +1,9 @@
 class FilterModel {
 
-  constructor(affectedInfo) {
+  constructor(affectedInfo, isBasicMode) {
     this.affectedInfo = affectedInfo;
+
+    this.isBasicMode = isBasicMode;
 
     this.annotsToInclude = new Object();
 
@@ -10,7 +12,7 @@ class FilterModel {
 
     this.pathogenicityScheme = "clinvar";
 
-    this.annotClasses     = ".type, .impact, ." + IMPACT_FIELD_TO_FILTER + ", .effect, .vepConsequence, .sift, .polyphen, .regulatory, .zygosity, .inheritance, .clinvar, .uasibs, .recfilter";
+    this.annotClasses     = ".type, .impact, ." + globalApp.impactFieldToFilter + ", .effect, .vepConsequence, .sift, .polyphen, .regulatory, .zygosity, .inheritance, .clinvar, .uasibs, .recfilter";
     this.annotClassLabels = "Type, Impact, VEP Impact, Effect, VEP Consequence, SIFT, PolyPhen, Regulatory, Zygosity, Inheritance mode, ClinVar, Unaffected Sibs, VCF Filter Status";
 
     this.applyLowCoverageFilter = false;
@@ -123,7 +125,7 @@ class FilterModel {
   getFilterObject() {
     let self = this;
     // For mygene2 basic mode, return a fixed filter of clinvar path / likely path and AF < 1%
-    if (isLevelBasic) {
+    if (self.isBasicMode) {
       var annots =  {
         clinvar_path:     {key: 'clinvar',       state: true, value: 'clinvar_path'},
         clinvar_lpath:    {key: 'clinvar',       state: true, value: 'clinvar_lpath'}

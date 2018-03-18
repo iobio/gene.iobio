@@ -246,7 +246,7 @@ export default {
       this.cohortModel.promiseExportFlaggedVariants(self.exportFormat)
       .then(function(output) {
         self.exportInProgress = false;
-        utility.createDownloadLink("#download-file",
+        globalApp.utility.createDownloadLink("#download-file",
           output,
           "gene-iobio-flagged-variants." + self.exportFormat );
         self.readyToDownload = true;

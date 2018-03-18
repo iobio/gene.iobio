@@ -1,6 +1,12 @@
 import { mount } from 'vue-test-utils'
 import { expect } from 'chai'
+
+import _                    from 'lodash'
+
+
 import Home from '../../../app/components/pages/Home.vue'
+
+
 
 describe('Home page component', () => {
   it('sets a hello world greeting', () => {

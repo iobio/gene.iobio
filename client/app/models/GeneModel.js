@@ -1,6 +1,16 @@
 class GeneModel {
   constructor() {
 
+    this.geneInfoServer            = globalApp.HTTP_SERVICES + "geneinfo/";
+    this.geneToPhenoServer         = globalApp.HTTP_SERVICES + "gene2pheno/";
+    this.phenolyzerServer          = "https://7z68tjgpw4.execute-api.us-east-1.amazonaws.com/dev/phenolyzer/";
+    this.phenolyzerOnlyServer      = globalApp.HTTP_SERVICES + "phenolyzer/";
+
+    this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
+    this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
+
+
+
     this.geneSource = null;
     this.refseqOnly = {};
     this.gencodeOnly = {};
@@ -141,10 +151,10 @@ class GeneModel {
     }
 
     if (CacheHelper.useLocalStorage()) {
-      if (global_maxGeneCount && me.geneNames.length > global_maxGeneCount) {
-        var bypassedCount = me.geneNames.length - global_maxGeneCount;
-        me.geneNames = me.geneNames.slice(0, global_maxGeneCount);
-        alertify.alert("Due to browser cache limitations, only the first " + global_maxGeneCount
+      if (globalApp.maxGeneCount && me.geneNames.length > globalApp.maxGeneCount) {
+        var bypassedCount = me.geneNames.length - globalApp.maxGeneCount;
+        me.geneNames = me.geneNames.slice(0, globalApp.maxGeneCount);
+        alertify.alert("Due to browser cache limitations, only the first " + globalApp.maxGeneCount
           + " genes were added. "
           + bypassedCount.toString()
           + " "
@@ -178,7 +188,7 @@ class GeneModel {
       me.clinvarGenes = {};
 
       $.ajax({
-          url: global_clinvarGenesUrl,
+          url: globalApp.clinvarGenesUrl,
           type: "GET",
           crossDomain: true,
           dataType: "text",
@@ -482,14 +492,14 @@ class GeneModel {
         resolve(geneInfo);
       } else {
           // Search NCBI based on the gene name to obtain the gene ID
-        var url = NCBI_GENE_SEARCH_URL + "&term=" + "(" + geneName + "[Gene name]" + " AND 9606[Taxonomy ID]";
+        var url = me.NCBI_GENE_SEARCH_URL + "&term=" + "(" + geneName + "[Gene name]" + " AND 9606[Taxonomy ID]";
         $.ajax( url )
         .done(function(data) {
 
           // Now that we have the gene ID, get the NCBI gene summary
           var webenv = data["esearchresult"]["webenv"];
           var queryKey = data["esearchresult"]["querykey"];
-          var summaryUrl = NCBI_GENE_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv;
+          var summaryUrl = me.NCBI_GENE_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv;
           $.ajax( summaryUrl )
           .done(function(sumData) {
 
@@ -582,7 +592,7 @@ class GeneModel {
       if (phenotypes != null) {
         resolve([phenotypes, geneName]);
       } else {
-        var url = geneToPhenoServer + "api/gene/" + geneName;
+        var url = me.geneToPhenoServer + "api/gene/" + geneName;
         $.ajax({
         url: url,
         jsonp: "callback",
@@ -641,14 +651,14 @@ class GeneModel {
     var me = this;
     return new Promise(function(resolve, reject) {
 
-      var url = geneInfoServer + 'api/gene/' + geneName;
+      var url = me.geneInfoServer + 'api/gene/' + geneName;
 
       // If current build not specified, default to GRCh37
       var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
       $('#build-link').text(buildName);
 
 
-      url += "?source="  + (me.geneSource ? me.geneSource : siteGeneSource);
+      url += "?source="  + (me.geneSource ? me.geneSource : 'gencode');
       url += "&species=" + me.genomeBuildHelper.getCurrentSpeciesLatinName();
       url += "&build="   + buildName;
 
@@ -685,7 +695,7 @@ class GeneModel {
   searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback) {
     var me = this;
 
-    var url = phenolyzerServer + '?term=' + phenotypeTerm;
+    var url = me.phenolyzerServer + '?term=' + phenotypeTerm;
     var status = null;
 
     $.ajax({
@@ -749,19 +759,6 @@ class GeneModel {
     });
   }
 
-  getAllPhenotypeTerms() {
-    $.ajax({
-          url: hpoUrl + '?term='+encodeURIComponent(query),
-          type: 'GET',
-          error: function() {
-              callback();
-          },
-          success: function(res) {
-            if (!query.length) return callback();
-              callback(res);
-          }
-      });
-  }
 
   isKnownGene(geneName) {
     return this.allKnownGeneNames[geneName] || this.allKnownGeneNames[geneName.toUpperCase()]

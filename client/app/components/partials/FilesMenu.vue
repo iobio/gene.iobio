@@ -447,15 +447,17 @@ export default {
   },
   created: function() {
     let self = this;
-    this.speciesName =  this.cohortModel.genomeBuildHelper.getCurrentSpeciesName();
-    this.buildName   =  this.cohortModel.genomeBuildHelper.getCurrentBuildName();
-    this.speciesList =  this.cohortModel.genomeBuildHelper.speciesList.map(function(sp) {
-      return sp.name;
-    });
-
 
   },
   mounted: function() {
+    if (this.cohortModel) {
+      this.speciesName =  this.cohortModel.genomeBuildHelper.getCurrentSpeciesName();
+      this.buildName   =  this.cohortModel.genomeBuildHelper.getCurrentBuildName();
+      this.speciesList =  this.cohortModel.genomeBuildHelper.speciesList.map(function(sp) {
+        return sp.name;
+      });
+    }
+
 
 
   }

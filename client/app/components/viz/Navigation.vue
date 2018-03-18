@@ -433,7 +433,7 @@ export default {
       showVersion: false,
       showCitations: false,
 
-      appVersionNumber: version
+      appVersionNumber: globalApp.version
 
     }
   },

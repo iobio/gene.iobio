@@ -377,28 +377,28 @@ export default {
     let self = this;
     return {
       margin: {
-        top: isLevelBasic || isLevelEdu ? 0 : 20,
-        right: isLevelBasic || isLevelEdu ? 7 : 2,
+        top: self.isBasicMode || self.isEduMode ? 0 : 20,
+        right: self.isBasicMode || self.isEduMode ? 7 : 2,
         bottom: 18,
-        left: isLevelBasic || isLevelEdu ? 9 : 4
+        left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
       variantVizMargin: {
         top: 0,
-        right: isLevelBasic || isLevelEdu ? 7 : 2,
+        right: self.isBasicMode || self.isEduMode ? 7 : 2,
         bottom: 5,
-        left: isLevelBasic || isLevelEdu ? 9 : 4
+        left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
-      variantSymbolHeight: isLevelEdu  || isLevelBasic ? EDU_TOUR_VARIANT_SIZE : 8,
+      variantSymbolHeight: self.isEduMode  || self.isBasicMode ? globalApp.eduModeVariantSize : 8,
       variantSymbolPadding: 2,
 
       geneVizMargin: {
         top: 0,
-        right: isLevelBasic || isLevelEdu ? 7 : 2,
+        right: self.isBasicMode || self.isEduMode ? 7 : 2,
         bottom: self.geneVizShowXAxis ? 18 : 0,
-        left: isLevelBasic || isLevelEdu ? 9 : 4
+        left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
-      geneVizTrackHeight: isLevelEdu || isLevelBasic ? 32 : 16,
-      geneVizCdsHeight: isLevelEdu || isLevelBasic ? 24 : 12,
+      geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,
+      geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,
 
       geneZoomVizMargin: {
         top: 10,
@@ -409,9 +409,9 @@ export default {
 
       depthVizMargin: {
         top: 22,
-        right: isLevelBasic || isLevelEdu ? 7 : 2,
+        right: self.isBasicMode || self.isEduMode ? 7 : 2,
         bottom: 0,
-        left: isLevelBasic || isLevelEdu ? 9 : 4
+        left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
       depthVizYTickFormatFunc: null,
       coveragePoint: null,
@@ -671,7 +671,7 @@ export default {
                + '<span id="exon-tooltip-title"' + (lock ? 'style="margin-top:8px">' : '>') + (feature.hasOwnProperty("exon_number") ? "Exon " + feature.exon_number : "") + '</span>'
                + (lock ? '<a href="javascript:void(0)" id="exon-tooltip-close">X</a>' : '')
                + '</div>';
-      html     += '<div style="clear:both">' + feature.feature_type + ' ' + utility.addCommas(feature.start) + ' - '       + utility.addCommas(feature.end) + '</div>';
+      html     += '<div style="clear:both">' + feature.feature_type + ' ' + globalApp.utility.addCommas(feature.start) + ' - '       + globalApp.utility.addCommas(feature.end) + '</div>';
 
       if (feature.geneCoverage && feature.geneCoverage[self.sampleModel.getRelationship()]) {
           var covFields = self.sampleModel.cohort.filterModel.whichLowCoverage(feature.geneCoverage[self.sampleModel.getRelationship()]);
@@ -699,7 +699,7 @@ export default {
         })
       }
 
-      var coord = utility.getTooltipCoordinates(featureObject.node(),
+      var coord = globalApp.utility.getTooltipCoordinates(featureObject.node(),
         tooltip, self.$el.offsetWidth, $('nav.toolbar').outerHeight());
       tooltip.style("left", coord.x + "px")
              .style("text-align", 'left')

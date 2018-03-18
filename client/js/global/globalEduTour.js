@@ -1,10 +1,3 @@
-var utility = new Util();
-var globalCacheHelper = null;
-
-var eduTourNumber           = "";
-var completedEduTourNumber  = "";
-
-
 var onTour1Check = function(checkbox) {
   var answer   = { "jimmy": true, "bobby": false, "sarah": true};
   var name     = checkbox[0].id;
@@ -80,10 +73,3 @@ var onTour2Check = function(checkbox) {
     $('#pageguide-next-button').addClass("disabled");
   }
 }
-
-
-
-
-
-
-

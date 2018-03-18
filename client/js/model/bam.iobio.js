@@ -150,8 +150,8 @@ var Bam = Class.extend({
        return;
     }
 
-    if (utility.endsWith(fileSelection.files[0].name, ".sam") ||
-        utility.endsWith(fileSelection.files[1].name, ".sam")) {
+    if (globalApp.utility.endsWith(fileSelection.files[0].name, ".sam") ||
+        globalApp.utility.endsWith(fileSelection.files[1].name, ".sam")) {
       callback(false, 'You must select a bam file, not a sam file');
       return;
     }

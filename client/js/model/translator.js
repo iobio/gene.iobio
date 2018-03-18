@@ -107,7 +107,7 @@ class Translator {
 
   showHighestImpactSymbol(selection, options) {
     var variant = d3.select(selection.node().parentNode).datum();
-    var vepHighestImpacts = utility.getNonCanonicalHighestImpactsVep(variant, options.self.impactMap);
+    var vepHighestImpacts = globalApp.utility.getNonCanonicalHighestImpactsVep(variant, options.self.impactMap);
     if (Object.keys(vepHighestImpacts).length > 0) {
       options.self.glyph.showImpactSymbol(selection, options);
     }

@@ -1,5 +1,12 @@
 class Util {
   constructor() {
+    this.impactEduMode = {
+      HIGH:      'Harmful',
+      MODERATE:  'Probably harmful',
+      MODIFIER:  'Probably benign',
+      LOW:       'Benign'
+    }
+
 
   }
 
@@ -159,11 +166,11 @@ class Util {
   *  that is the snapshop of vcfiobio.
   */
   sendFeedbackEmail(name, email, note, htmlAttachment) {
-    var client = BinaryClient(emailServer);
+    var client = BinaryClient(globalApp.emailServer);
 
     // Strip of the #modal-report-problem from the URL
     var appURL = "";
-    if (feedbackShowURL) {
+    if (globalApp.feedbackShowURL) {
       appURL = location.href;
       if (appURL.indexOf("#feedback-modal") > -1){
           appURL = appURL.substr(0, appURL.indexOf("#feedback-modal"));
@@ -173,18 +180,18 @@ class Util {
     // Format the body of the email
     var htmlBody = '<span style="padding-right: 4px">Reported by:</span>' + name  + "<br><br>";
     htmlBody    += '<span style="padding-right: 4px">Email:</span>' + email  + "<br><br>";
-    if (feedbackShowURL) {
+    if (globalApp.feedbackShowURL) {
       htmlBody +=  '<span style="padding-right: 51px">gene.iobio URL:</span>' + appURL + "<br><br>";
     }
     htmlBody += note + '<br><br>';
 
     var emailObject = {
         'from':     email,
-        'to':       feedbackEmails,
+        'to':       globalApp.feedbackEmails,
         'subject':  'Feedback on gene.iobio',
         'body':     htmlBody
      };
-     if (feedbackAttachScreenCapture && htmlAttachment) {
+     if (globalApp.feedbackAttachScreenCapture && htmlAttachment) {
       emailObject.filename = 'gene.iobio.screencapture.' + util.formatCurrentDateTime('.') + '.html';
      } else {
       emailObject.filename = '';
@@ -192,7 +199,7 @@ class Util {
 
     client.on('open', function(stream){
       var stream = client.createStream(emailObject);
-      if (feedbackAttachScreenCapture && htmlAttachment) {
+      if (globalApp.feedbackAttachScreenCapture && htmlAttachment) {
         stream.write(htmlAttachment);
       }
       stream.end();
@@ -201,7 +208,7 @@ class Util {
 
 
   sendFeedbackReceivedEmail(emailTo) {
-    var client = BinaryClient(emailServer);
+    var client = BinaryClient(globalApp.emailServer);
 
     // Format the body of the email
     var htmlBody = 'Thank you for your feedback on gene.iobio.  We will review your email as soon as possible.';
@@ -210,7 +217,7 @@ class Util {
       htmlBody     += 'The IOBIO team';
 
     var emailObject = {
-        'from':     feedbackEmails,
+        'from':     globalApp.feedbackEmails,
         'to':       emailTo,
         'subject':  'gene.iobio feedback received',
         'body':     htmlBody
@@ -608,7 +615,7 @@ class Util {
     return coord;
   }
 
-  formatDisplay(variant, translator) {
+  formatDisplay(variant, translator, isEduMode) {
     var me = this;
     var info = {
       coord: "",
@@ -660,7 +667,7 @@ class Util {
 
     for (var key in variant.clinVarClinicalSignificance) {
       if (key != 'none' && key != 'undefined' ) {
-        if (!isLevelEdu || (key.indexOf("uncertain_significance") >= 0 || key.indexOf("pathogenic") >= 0)) {
+        if (!isEduMode || (key.indexOf("uncertain_significance") >= 0 || key.indexOf("pathogenic") >= 0)) {
           if (info.clinvarSig.length > 0 ) {
               info.clinvarSig += ", ";
           }
@@ -728,8 +735,8 @@ class Util {
       if (info.vepImpact.length > 0) {
           info.vepImpact += ", ";
       }
-      if (isLevelEdu) {
-        info.vepImpact = levelEduImpact[key];
+      if (isEduMode) {
+        info.vepImpact = me.impactEduMode[key];
       } else {
         info.vepImpact += key.toLowerCase();
       }
@@ -737,7 +744,7 @@ class Util {
 
     // If the highest impact occurs in a non-canonical transcript, show the impact followed by
     // the consequence and corresponding transcripts
-    var vepHighestImpacts = utility.getNonCanonicalHighestImpactsVep(variant, translator.impactMap);
+    var vepHighestImpacts = globalApp.utility.getNonCanonicalHighestImpactsVep(variant, translator.impactMap);
     for (var impactKey in vepHighestImpacts) {
 
 
@@ -771,7 +778,7 @@ class Util {
       if (info.vepConsequence.length > 0) {
           info.vepConsequence += ", ";
       }
-      if (isLevelEdu) {
+      if (isEduMode) {
         info.vepConsequence = key.split("_").join(" ").toLowerCase();
       } else {
         info.vepConsequence += key.split("_").join(" ").toLowerCase();
@@ -810,7 +817,7 @@ class Util {
       if (info.polyphen.length > 0) {
           info.polyphen += ", ";
       }
-      if (isLevelEdu) {
+      if (isEduMode) {
         info.polyphen = key.split("_").join(" ");
       } else {
         info.polyphen += key.split("_").join(" ");
@@ -851,7 +858,7 @@ class Util {
       }
     }
 
-    info.rsId = utility.getRsId(variant);
+    info.rsId = globalApp.utility.getRsId(variant);
     if (info.rsId && info.rsId != '') {
       info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + info.rsId ;
       info.dbSnpLink =  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';
@@ -859,6 +866,5 @@ class Util {
 
     return info;
   }
-
-
 }
+
