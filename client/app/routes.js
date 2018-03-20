@@ -96,7 +96,9 @@ Vue.mixin({
     };
   },
   created: function(){
+    this.utility.globalApp = this.globalApp;
     this.globalApp.utility = this.utility;
+
   }
 })
 

@@ -348,7 +348,7 @@ export default {
     StackedBarChartViz
   },
   props: {
-    globalApp: null,  //For some reason, global mixin not working on variant card.  possible cause for-item?
+    globalAppProp: null,  //For some reason, global mixin not working on variant card.  possible cause for-item?
     isEduMode: null,
     isBasicMode: null,
     sampleModel: null,
@@ -389,7 +389,7 @@ export default {
         bottom: 5,
         left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
-      variantSymbolHeight: self.isEduMode  || self.isBasicMode ? self.globalApp.eduModeVariantSize : 8,
+      variantSymbolHeight: self.isEduMode  || self.isBasicMode ? self.globalAppProp.eduModeVariantSize : 8,
       variantSymbolPadding: 2,
 
       geneVizMargin: {
@@ -672,7 +672,7 @@ export default {
                + '<span id="exon-tooltip-title"' + (lock ? 'style="margin-top:8px">' : '>') + (feature.hasOwnProperty("exon_number") ? "Exon " + feature.exon_number : "") + '</span>'
                + (lock ? '<a href="javascript:void(0)" id="exon-tooltip-close">X</a>' : '')
                + '</div>';
-      html     += '<div style="clear:both">' + feature.feature_type + ' ' + self.globalApp.utility.addCommas(feature.start) + ' - '       + self.globalApp.utility.addCommas(feature.end) + '</div>';
+      html     += '<div style="clear:both">' + feature.feature_type + ' ' + self.globalAppProp.utility.addCommas(feature.start) + ' - '       + self.globalAppProp.utility.addCommas(feature.end) + '</div>';
 
       if (feature.geneCoverage && feature.geneCoverage[self.sampleModel.getRelationship()]) {
           var covFields = self.sampleModel.cohort.filterModel.whichLowCoverage(feature.geneCoverage[self.sampleModel.getRelationship()]);
@@ -700,7 +700,7 @@ export default {
         })
       }
 
-      var coord = self.globalApp.utility.getTooltipCoordinates(featureObject.node(),
+      var coord = self.globalAppProp.utility.getTooltipCoordinates(featureObject.node(),
         tooltip, self.$el.offsetWidth, $('nav.toolbar').outerHeight());
       tooltip.style("left", coord.x + "px")
              .style("text-align", 'left')

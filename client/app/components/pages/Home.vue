@@ -219,7 +219,7 @@
         },
         model.relationship
         ]"
-        :globalApp="globalApp"
+        :globalAppProp="globalApp"
         :isEduMode="isEduMode"
         :isBasicMode="isBasicMode"
         :sampleModel="model"
