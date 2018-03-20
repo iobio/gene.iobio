@@ -348,6 +348,7 @@ export default {
     StackedBarChartViz
   },
   props: {
+    globalApp: null,  //For some reason, global mixin not working on variant card.  possible cause for-item?
     isEduMode: null,
     isBasicMode: null,
     sampleModel: null,
