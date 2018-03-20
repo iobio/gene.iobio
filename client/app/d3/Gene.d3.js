@@ -6,7 +6,7 @@
 //            }, ... ]
 //
 
-function geneD3() {
+export default function geneD3() {
   // defaults
 
   // dispatch events

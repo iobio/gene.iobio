@@ -1,8 +1,13 @@
+import CacheHelper      from './CacheHelper.js'
+import VariantImporter  from './VariantImporter.js'
+import VariantTrioModel from './VariantTrioModel.js'
+import SampleModel      from './SampleModel.js'
 class CohortModel {
 
-  constructor(isEduMode, isBasicMode, endpoint, genericAnnotation, translator, geneModel,
+  constructor(globalApp, isEduMode, isBasicMode, endpoint, genericAnnotation, translator, geneModel,
     variantExporter, cacheHelper, genomeBuildHelper, freebayesSettings) {
 
+    this.globalApp = globalApp;
     this.isEduMode = isEduMode;
     this.isBasicMode = isBasicMode;
 
@@ -276,7 +281,7 @@ class CohortModel {
   promiseAddSample(modelInfo) {
     let self = this;
     return new Promise(function(resolve,reject) {
-      var vm = new SampleModel();
+      var vm = new SampleModel(self.globalApp);
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
       vm.affectedStatus = modelInfo.affectedStatus;
@@ -386,7 +391,7 @@ class CohortModel {
   promiseAddSib(modelInfo) {
     let self = this;
     return new Promise(function(resolve,reject) {
-      var vm = new SampleModel();
+      var vm = new SampleModel(self.globalApp);
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
       vm.affectedStatus = modelInfo.affectedStatus;
@@ -426,7 +431,7 @@ class CohortModel {
       return Promise.resolve();
     } else {
       return new Promise(function(resolve,reject) {
-        var vm = new SampleModel();
+        var vm = new SampleModel(self.globalApp);
         vm.init(self);
         vm.setRelationship('known-variants');
         vm.setName('Clinvar')
@@ -935,7 +940,7 @@ class CohortModel {
           unionVcfData.features.push(formatClinvarThinVariant(key));
         }
 
-        var refreshVariantsFunction = globalApp.isClinvarOffline || globalApp.clinvarSource == 'vcf'
+        var refreshVariantsFunction = self.globalApp.isClinvarOffline || self.globalApp.clinvarSource == 'vcf'
           ? self.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(self.getProbandModel(), unionVcfData)
           : self.getProbandModel()._refreshVariantsWithClinvarEutils.bind(self.getProbandModel(), unionVcfData);
 
@@ -1005,7 +1010,7 @@ class CohortModel {
 
     return new Promise(function(resolve,reject) {
 
-      if (self.isAlignmentsOnly() && !globalApp.autocall && (resultMap == null || resultMap.proband == null)) {
+      if (self.isAlignmentsOnly() && !self.globalApp.autocall && (resultMap == null || resultMap.proband == null)) {
           resolve({'resultMap': {'proband': {features: []}}, 'gene': geneObject, 'transcript': theTranscript});
       } else {
         // Set the max allele count across all variants in the trio.  We use this to properly scale
@@ -1422,7 +1427,7 @@ class CohortModel {
             bams,
             me.geneModel.geneSource == 'refseq' ? true : false,
             me.freebayesSettings.arguments,
-            globalApp.vepAF, // vep af
+            me.globalApp.vepAF, // vep af
             function(theData, trRefName) {
 
               var jointVcfRecs =  theData.split("\n");
@@ -1508,7 +1513,7 @@ class CohortModel {
       } else {
 
         theVcfData.loadState['called'] = true;
-        var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, globalApp.vepAF);
+        var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, me.globalApp.vepAF);
 
         var theFbData = data.results;
         theFbData.loadState['called'] = true;
@@ -1717,10 +1722,10 @@ class CohortModel {
 
     // If the number of bookmarks exceeds the max gene limit, truncate the
     // bookmarked variants to this max.
-    if (globalApp.maxGeneCount && importRecords.length > globalApp.maxGeneCount) {
-      var bypassedCount = importRecords.length - globalApp.maxGeneCount;
-      importRecords = importRecords.slice(0, globalApp.maxGeneCount);
-      alertify.alert("Only first " + globalApp.maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.");
+    if (me.globalApp.maxGeneCount && importRecords.length > me.globalApp.maxGeneCount) {
+      var bypassedCount = importRecords.length - me.globalApp.maxGeneCount;
+      importRecords = importRecords.slice(0, me.globalApp.maxGeneCount);
+      alertify.alert("Only first " + me.globalApp.maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.");
     }
 
 

@@ -1,8 +1,9 @@
+//import jDataView    from './jdataview.js'
 (function () {
 
-if (typeof jDataView === 'undefined' && typeof require !== 'undefined') {
-	jDataView = require('jDataView');
-}
+//if (typeof jDataView === 'undefined' && typeof require !== 'undefined') {
+//	jDataView = require('jDataView');
+//}
 
 // Extend code from underscorejs (modified for fast inheritance using prototypes)
 function inherit(obj) {

@@ -1234,9 +1234,9 @@ export default {
         }
         $('#animation-container-1 #Stage').html("");
         $('#animation-container-2 #Stage').html("");
-        globalApp.completedTour = self.tourNumber;
-        self.tourNumber = globalApp.completedTour == "1" ? "2" : "1";
-        globalApp.tour = self.tourNumber;
+        self.globalApp.completedTour = self.tourNumber;
+        self.tourNumber = self.globalApp.completedTour == "1" ? "2" : "1";
+        self.globalApp.tour = self.tourNumber;
         self.$router.push(
         { name: 'exhibit-case-complete',
           query: {mode: 'edu', tour: self.tourNumber}

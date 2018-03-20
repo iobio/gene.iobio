@@ -73,8 +73,9 @@ export default {
       this.$router.replace({ name: 'exhibit' });
     },
     showCaseStudy: function(tourNumber) {
-      globalApp.tour = tourNumber;
-      this.$router.replace(
+      let self = this;
+      self.globalApp.tour = tourNumber;
+      self.$router.replace(
       { name: 'home',
         query: {mode: 'edu', tour: tourNumber}
       });

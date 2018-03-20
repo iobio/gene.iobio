@@ -67,6 +67,7 @@
 
 <script>
 
+import lineD3 from '../../d3/Line.d3.js'
 
 export default {
     name: 'depth-viz',

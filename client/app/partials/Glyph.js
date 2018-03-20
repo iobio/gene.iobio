@@ -1,4 +1,4 @@
-class Glyph {
+export default class Glyph {
 
   constructor(translator) {
     this.translator = translator;

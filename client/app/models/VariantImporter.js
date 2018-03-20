@@ -1,4 +1,4 @@
-function VariantImporter() {
+export default function VariantImporter() {
 
 
 
@@ -182,3 +182,5 @@ VariantImporter.parseRecordsTSV = function(data) {
   }
   return importRecords;
 }
+
+

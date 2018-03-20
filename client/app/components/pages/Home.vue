@@ -268,6 +268,16 @@
 
 <script>
 
+/*
+import pako          from '../../third-party/pako_deflate.min.js'
+import jsbgzf        from '../../third-party/jsbgzf.js'
+import jsbvsampling  from '../../third-party/js-bv-sampling.js'
+import jslocalvcf    from '../../third-party/js-local-vcf.js'
+import jsbvcommon    from '../../third-party/js-bv-common.js'
+import jslocalbam    from '../../third-party/js-local-bam.js'
+import readBinaryVCF from '../../third-party/binary-vcf.js'
+*/
+
 import Navigation         from  '../viz/Navigation.vue'
 import EduTourBanner      from  '../viz/EduTourBanner.vue'
 import Welcome            from  '../viz/Welcome.vue'
@@ -279,15 +289,26 @@ import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
 import AppTour            from  '../viz/AppTour.vue'
 
-import SampleModel        from  '../../models/SampleModel.js'
+import Bam                from  '../../models/Bam.iobio.js'
+import vcfiobio           from  '../../models/Vcf.iobio.js'
+import Translator         from  '../../models/Translator.js'
+import EndpointCmd        from  '../../models/EndpointCmd.js'
+import GenericAnnotation  from  '../../models/GenericAnnotation.js'
+import CacheHelper        from  '../../models/CacheHelper.js'
 import CohortModel        from  '../../models/CohortModel.js'
 import FeatureMatrixModel from  '../../models/FeatureMatrixModel.js'
 import FilterModel        from  '../../models/FilterModel.js'
 import GeneModel          from  '../../models/GeneModel.js'
 import GenomeBuildHelper  from  '../../models/GenomeBuildHelper.js'
+import VariantExporter    from  '../../models/VariantExporter.js'
+import FreebayesSettings  from  '../../models/FreebayesSettings.js'
+
+import Glyph              from '../../partials/Glyph.js'
+import VariantTooltip     from '../../partials/VariantTooltip.js'
 
 import allGenesData       from '../../../data/genes.json'
 import SplitPane          from '../partials/SplitPane.vue'
+
 
 
 export default {
@@ -407,7 +428,7 @@ export default {
 
     self.setAppMode();
 
-    self.genomeBuildHelper = new GenomeBuildHelper();
+    self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp);
     self.genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
     .then(function() {
       return self.promiseInitCache();
@@ -420,10 +441,10 @@ export default {
     })
     .then(function() {
       let glyph = new Glyph();
-      let translator = new Translator(glyph);
+      let translator = new Translator(self.globalApp, glyph);
       let genericAnnotation = new GenericAnnotation(glyph);
 
-      self.geneModel = new GeneModel();
+      self.geneModel = new GeneModel(self.globalApp);
       self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
       self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
       self.geneModel.setAllKnownGenes(self.allGenes);
@@ -431,14 +452,15 @@ export default {
 
 
       // Instantiate helper class than encapsulates IOBIO commands
-      let endpoint = new EndpointCmd(globalApp.useSSL,
+      let endpoint = new EndpointCmd(self.globalApp,
         self.cacheHelper.launchTimestamp,
         self.genomeBuildHelper,
-        globalApp.utility.getHumanRefNames);
+        self.globalApp.utility.getHumanRefNames);
 
-      self.variantExporter = new VariantExporter();
+      self.variantExporter = new VariantExporter(self.globalApp);
 
       self.cohortModel = new CohortModel(
+        self.globalApp,
         self.isEduMode,
         self.isBasicMode,
         endpoint,
@@ -455,11 +477,12 @@ export default {
       self.inProgress = self.cohortModel.inProgress;
 
 
-      self.featureMatrixModel = new FeatureMatrixModel(self.cohortModel, self.isEduMode, self.isBasicMode, self.tourNumber);
+      self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.tourNumber);
       self.featureMatrixModel.init();
       self.cohortModel.featureMatrixModel = self.featureMatrixModel;
 
       self.variantTooltip = new VariantTooltip(
+        self.globalApp,
         self.isEduMode,
         self.isBasicMode,
         self.tourNumber,
@@ -469,7 +492,7 @@ export default {
         self.cohortModel.annotationScheme,
         self.genomeBuildHelper);
 
-      self.filterModel = new FilterModel(self.cohortModel.affectedInfo, self.isBasicMode);
+      self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode);
       self.cohortModel.filterModel = self.filterModel;
 
       self.promiseInitFromUrl()
@@ -500,7 +523,7 @@ export default {
     },
     selectedVariantInfo: function() {
       if (this.selectedVariant) {
-        return globalApp.utility.formatDisplay(this.selectedVariant, this.cohortModel.translator, this.isEduMode)
+        return this.globalApp.utility.formatDisplay(this.selectedVariant, this.cohortModel.translator, this.isEduMode)
       } else {
         return null;
       }
@@ -517,7 +540,7 @@ export default {
     promiseInitCache: function() {
       let self = this;
       return new Promise(function(resolve, reject) {
-        self.cacheHelper = new CacheHelper();
+        self.cacheHelper = new CacheHelper(self.globalApp);
         self.cacheHelper.on("geneAnalyzed", function(geneName) {
           self.$refs.genesCardRef.determineFlaggedGenes();
           if (geneName == self.selectedGene.gene_name) {
@@ -527,7 +550,7 @@ export default {
         self.cacheHelper.on("analyzeAllCompleted", function() {
           self.$refs.navRef.onShowFlaggedVariants();
         });
-        globalApp.cacheHelper = self.cacheHelper;
+        self.globalApp.cacheHelper = self.cacheHelper;
         self.cacheHelper.promiseInit()
          .then(function() {
           self.cacheHelper.isolateSession(self.isEduMode);
@@ -569,7 +592,7 @@ export default {
       return new Promise(function(resolve, reject) {
 
         $.ajax({
-            url: globalApp.siteConfigUrl,
+            url: self.globalApp.siteConfigUrl,
             type: "GET",
             crossDomain: true,
             dataType: "json",
@@ -1039,7 +1062,7 @@ export default {
           self.genomeBuildHelper.setCurrentBuild(self.paramBuild);
         }
         if (self.paramBatchSize) {
-          globalApp.DEFAULT_BATCH_SIZE = self.paramBatchSize;
+          self.globalApp.DEFAULT_BATCH_SIZE = self.paramBatchSize;
         }
 
         var modelInfos = [];

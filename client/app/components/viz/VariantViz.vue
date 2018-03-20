@@ -86,6 +86,7 @@
 
 <script>
 
+import variantD3 from '../../d3/Variant.d3.js'
 
 export default {
     name: 'variant-viz',

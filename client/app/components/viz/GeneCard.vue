@@ -351,7 +351,7 @@ export default {
 
   filters: {
     formatRegion: function (value) {
-      return !value ? '' : globalApp.utility.formatRegion()(value);
+      return !value ? '' : d3.format(",")(value);
     },
     formatTranscriptType: function(transcript) {
       if (transcript && transcript.transcript_type.indexOf("transcript") < 0) {

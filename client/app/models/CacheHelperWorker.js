@@ -2,7 +2,7 @@ if( 'function' === typeof importScripts) {
 
   self.addEventListener('message', function(e) {
     var data = e.data;
-    importScripts('../thirdparty/lz-string.min.js');
+    importScripts('../../js/thirdparty/lz-string.min.js');
 
     switch (data.cmd) {
       case 'start':

@@ -109,5 +109,9 @@ html {
   z-index: 100 !important;
 }
 
+.menu__content--select.menuable__content__active {
+  z-index: 200 !important;
+}
+
 
 

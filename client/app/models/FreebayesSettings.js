@@ -1,4 +1,4 @@
-class FreebayesSettings {
+export default class FreebayesSettings {
   constructor() {
 
     this.onClose = null;
@@ -29,7 +29,6 @@ class FreebayesSettings {
       me.onClose();
     }
 
-    //$('#freebayes-settings-modal').modal("hide");
   }
 }
 

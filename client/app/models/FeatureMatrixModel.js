@@ -1,5 +1,6 @@
 class FeatureMatrixModel {
-  constructor(cohort, isEduMode, isBasicMode, tourNumber) {
+  constructor(globalApp, cohort, isEduMode, isBasicMode, tourNumber) {
+      this.globalApp = globalApp;
       this.cohort = cohort;
 
       this.isEduMode = isEduMode;
@@ -18,8 +19,8 @@ class FeatureMatrixModel {
 
       this.matrixRows = [
         {name:'Pathogenicity - ClinVar'      , id:'clinvar',        order:0, index:0,   match: 'exact', attribute: 'clinVarClinicalSignificance',     map: this.getTranslator().clinvarMap },
-        {name:'Impact (VEP)'                 , id:'impact',         order:1, index:1,   match: 'exact', attribute: globalApp.impactFieldToColor,   map: this.getTranslator().impactMap},
-        {name:'Most severe impact (VEP)'     , id:'highest-impact', order:2, index:2,   match: 'exact', attribute: globalApp.impactFieldToFilter,  map: this.getTranslator().highestImpactMap},
+        {name:'Impact (VEP)'                 , id:'impact',         order:1, index:1,   match: 'exact', attribute: this.globalApp.impactFieldToColor,   map: this.getTranslator().impactMap},
+        {name:'Most severe impact (VEP)'     , id:'highest-impact', order:2, index:2,   match: 'exact', attribute: this.globalApp.impactFieldToFilter,  map: this.getTranslator().highestImpactMap},
         {name:'Flagged'                      , id:'bookmark',       order:3, index:3,  match: 'exact', attribute: 'isFlagged',     map: this.getTranslator().bookmarkMap },
         {name:'Inheritance Mode'             , id:'inheritance',    order:4, index:4,   match: 'exact', attribute: 'inheritance', map: this.getTranslator().inheritanceMap},
         {name:'Present in Affected'          , id:'affected',       order:5, index:5,   match: 'exact', attribute: 'affected_summary',  map: this.getTranslator().affectedMap},
@@ -486,23 +487,23 @@ class FeatureMatrixModel {
 
 
   formatAlleleFrequencyPercentage(variant, value) {
-    return value && value != "" && +value >= 0 ? globalApp.utility.round(+value * 100, 2) + "%" : "";
+    return value && value != "" && +value >= 0 ? this.globalApp.utility.round(+value * 100, 2) + "%" : "";
   }
 
   formatCanonicalTranscript(variant, value) {
-    return globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
+    return this.globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
   }
 
   formatHgvsP(variant, value) {
-    return globalApp.utility.formatHgvsP(variant, value);
+    return this.globalApp.utility.formatHgvsP(variant, value);
   }
 
   formatHgvsC(variant, value) {
-    return globalApp.utility.formatHgvsC(variantValue);
+    return this.globalApp.utility.formatHgvsC(variantValue);
   }
 
   formatAfHighest(variant, afField) {
-    return afField && afField.length > 0 && +variant[afField] < .1 ? globalApp.utility.percentage(variant[afField], false) : "";
+    return afField && afField.length > 0 && +variant[afField] < .1 ? this.globalApp.utility.percentage(variant[afField], false) : "";
   }
 
   formatInheritance(variant, value) {

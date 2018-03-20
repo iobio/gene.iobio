@@ -60,15 +60,16 @@ export default {
       this.$router.push({ name: 'exhibit' });
     },
     showNextCaseStudy: function() {
-      globalApp.completedTour = globalApp.tour;
-      globalApp.tour = globalApp.completedTour == "1" ? "2" : "1";
-      if (globalApp.completedTour == "1") {
-        this.$router.push(
+      let self = this;
+      self.globalApp.completedTour = self.globalApp.tour;
+      self.globalApp.tour = self.globalApp.completedTour == "1" ? "2" : "1";
+      if (self.globalApp.completedTour == "1") {
+        self.$router.push(
         { name: 'home',
-          query: {mode: 'edu', tour: globalApp.tour}
+          query: {mode: 'edu', tour: self.globalApp.tour}
         });
       } else {
-        this.$router.push(
+        self.$router.push(
         { name: 'exhibit-cases'
         });
       }

@@ -1,8 +1,10 @@
-var recordedCacheErrors = {};
-var cacheErrorTypes = {};
 
-function CacheHelper() {
+import CacheHelperWorker from './CacheHelperWorker.js'
+import CacheIndexStore from './CacheIndexStore.js'
 
+function CacheHelper(globalApp) {
+
+  this.globalApp = globalApp;
   this.genesToCache = [];
   this.cacheQueue = [];
   this.batchSize = null;
@@ -16,6 +18,9 @@ function CacheHelper() {
   this.dispatch = d3.dispatch("geneAnalyzed", "analyzeAllCompleted");
   d3.rebind(this, this.dispatch, "on");
 }
+
+CacheHelper.recordedCacheErrors = {};
+CacheHelper.cacheErrorTypes = {};
 
 CacheHelper.KEY_DELIM = "^";
 CacheHelper.VCF_DATA            = "vcfData";
@@ -229,13 +234,13 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
 
   // If we are already have the max size of genes in the queue, don't
   // queue anymore.
-  if (me.cacheQueue.length >= globalApp.DEFAULT_BATCH_SIZE) {
+  if (me.cacheQueue.length >= me.globalApp.DEFAULT_BATCH_SIZE) {
     return;
   }
 
 
   // Figure out how much to replinish in the cache queue
-  var sizeToQueue = globalApp.DEFAULT_BATCH_SIZE - me.cacheQueue.length;
+  var sizeToQueue = me.globalApp.DEFAULT_BATCH_SIZE - me.cacheQueue.length;
 
   // Just queue genes to the end of the (unanalyzed) genes list
   if (sizeToQueue > me.genesToCache.length) {
@@ -255,7 +260,7 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
 
   // Invoke method to cache each of the genes in the queue
   var count = 0;
-  for (var i = startingPos; i < globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue; i++) {
+  for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue; i++) {
     me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants)
     .then(function(theGeneObject) {
       me.cacheNextGene(theGeneObject.gene_name, analyzeCalledVariants, callback);
@@ -366,7 +371,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     .then(function() {
       // Now clear out mother and father from cache (localStorage browser cache only)
       //if (window.gene == null || window.gene.gene_name != geneObject.gene_name) {
-        if (CacheHelper.useLocalStorage()) {
+        if (me.globalApp.useLocalStorage()) {
           me.cohort.getModel("mother").clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
           me.cohort.getModel("father").model.clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
         }
@@ -425,7 +430,7 @@ CacheHelper.prototype.promiseIsCachedForProband = function(geneObject, transcrip
 CacheHelper.prototype.promiseClearCache = function(launchTimestampToClear) {
   var me = this;
   return new Promise(function(resolve, reject) {
-    if (globalApp.keepLocalStorage) {
+    if (me.globalApp.keepLocalStorage) {
       resolve();
 
     } else {
@@ -604,7 +609,7 @@ CacheHelper.prototype.cleanupCacheOnClose = function(launchTimestampToClear) {
   if (launchTimestampToClear == null) {
     launchTimestampToClear = me.launchTimestamp;
   }
-  if (CacheHelper.useLocalStorage() && localStorage) {
+  if (me.globalApp.useLocalStorage() && localStorage) {
     var keys = [];
     for (var i=0; i<=localStorage.length-1; i++)  {
       var key = localStorage.key(i);
@@ -788,7 +793,7 @@ CacheHelper.prototype.refreshDialog = function() {
       var sortedDates = Object.keys(otherSessions).sort();
       sortedDates.forEach(function(theDate) {
         var size = otherSessions[theDate];
-        html += '<div><span style="display:inline-block;width:140px">' + globalApp.utility.formatDate(new Date(theDate * 1)) + '</span><span style="display:inline-block;width:100px">' + CacheHelper._sizeMB(size, 1) + " MB</span>" + "<a href='javascript:void(0)' + onclick='cacheHelper.clearCache(" + theDate + ",true)'>Clear</a></div>";
+        html += '<div><span style="display:inline-block;width:140px">' + me.globalApp.utility.formatDate(new Date(theDate * 1)) + '</span><span style="display:inline-block;width:100px">' + CacheHelper._sizeMB(size, 1) + " MB</span>" + "<a href='javascript:void(0)' + onclick='cacheHelper.clearCache(" + theDate + ",true)'>Clear</a></div>";
       });
       return html;
     }
@@ -939,12 +944,12 @@ CacheHelper.showError = function(key, cacheError) {
   var cacheObject = CacheHelper._parseCacheKey(key);
   if (cacheObject) {
 
-    var errorCount = cacheErrorTypes[cacheError.name];
+    var errorCount = CacheHelper.cacheErrorTypes[cacheError.name];
     if (errorCount == null) {
       errorCount = 0;
     }
     errorCount++;
-    cacheErrorTypes[cacheError.name] = errorCount;
+    CacheHelper.cacheErrorTypes[cacheError.name] = errorCount;
 
     var errorType = cacheError.name && cacheError.name.length > 0 ? cacheError.name : "A problem";
     var errorKey = cacheObject.gene + CacheHelper.KEY_DELIM + errorType;
@@ -954,33 +959,26 @@ CacheHelper.showError = function(key, cacheError) {
       console.log(cacheError.toString());
 
       // Only show the error once
-      if (!recordedCacheErrors[errorKey] ) {
-        recordedCacheErrors[errorKey] = message;
+      if (!CacheHelper.recordedCacheErrors[errorKey] ) {
+        CacheHelper.recordedCacheErrors[errorKey] = message;
         var message = errorType + " occurred when caching analyzed data for gene " + cacheObject.gene + ". Unable to analyze remaining genes.  Click on 'Clear cache...' link to clear cache.";
         // If we have shown this kind of cache error 2 times already, just show in right hand corner instead
         // of showning dialog with ok/cancel.
       if (errorCount < 3) {
         alertify.alert(message, function() {
-          recordedCacheErrors[errorKey] = null;
+          CacheHelper.recordedCacheErrors[errorKey] = null;
         });
       } else if (errorCount < 8) {
           var msg = "<span style='font-size:12px'>" + message + "</span>";
           alertify.set('notifier','position', 'top-right');
           alertify.error(msg,  5);
-        recordedCacheErrors[errorKey] = null;
+        CacheHelper.recordedCacheErrors[errorKey] = null;
       }
       }
   }
 
 }
 
-
-CacheHelper.useLocalStorage = function() {
-  return globalApp.browserCache == globalApp.BROWSER_CACHE_LOCAL_STORAGE;
-}
-CacheHelper.useIndexedDB = function() {
-  return globalApp.browserCache == globalApp.BROWSER_CACHE_INDEXED_DB;
-}
 
 CacheHelper.promiseCompressData = function(data) {
   return new Promise(function(resolve, reject) {
@@ -1037,7 +1035,7 @@ CacheHelper.prototype.promiseCacheData = function(key, data) {
 
   return new Promise(function(resolve, reject) {
 
-    if (CacheHelper.useLocalStorage()) {
+    if (me.globalApp.useLocalStorage()) {
       if (localStorage) {
 
           CacheHelper.promiseCompressData(data)
@@ -1051,7 +1049,7 @@ CacheHelper.prototype.promiseCacheData = function(key, data) {
       } else {
         reject("no local storage found")
       }
-    } else if (CacheHelper.useIndexedDB()) {
+    } else if (me.globalApp.useIndexedDB()) {
       CacheHelper.promiseCompressData(data)
          .then(function(dataStringCompressed) {
         var keyObject = CacheHelper._parseCacheKey(key);
@@ -1077,7 +1075,7 @@ CacheHelper.prototype.promiseGetData = function(key, decompressIt=true) {
   var me = this;
   return new Promise(function(resolve, reject) {
 
-    if (CacheHelper.useLocalStorage()) {
+    if (me.globalApp.useLocalStorage()) {
       if (localStorage) {
             var dataCompressed = localStorage.getItem(key);
             CacheHelper.promiseDecompressData(dataCompressed, decompressIt).then(function(data) {
@@ -1089,7 +1087,7 @@ CacheHelper.prototype.promiseGetData = function(key, decompressIt=true) {
               reject(errorMsg);
             });
         }
-    } else if (CacheHelper.useIndexedDB()) {
+    } else if (me.globalApp.useIndexedDB()) {
       var keyObject = CacheHelper._parseCacheKey(key);
       me.cacheIndexStore.promiseGetData(keyObject.dataKind, key, decompressIt)
        .then(function(dataCompressed) {
@@ -1155,11 +1153,11 @@ CacheHelper.prototype.promiseRemoveCacheItem = function(dataKind, key) {
 
   return new Promise(function(resolve, reject) {
 
-    if (CacheHelper.useLocalStorage()) {
+    if (me.globalApp.useLocalStorage()) {
       if (localStorage) {
         localStorage.removeItem(key);
         }
-    } else if (CacheHelper.useIndexedDB()) {
+    } else if (me.globalApp.useIndexedDB()) {
       me.cacheIndexStore.promiseRemoveData(dataKind, key)
        .then(function() {
         resolve();
@@ -1200,7 +1198,7 @@ CacheHelper.prototype.promiseGetAllKeys = function() {
   var me = this;
   return new Promise(function(resolve, reject) {
 
-    if (CacheHelper.useLocalStorage()) {
+    if (me.globalApp.useLocalStorage()) {
       if (localStorage) {
         var keys = [];
         for (var i=0; i<=localStorage.length-1; i++)  {
@@ -1212,7 +1210,7 @@ CacheHelper.prototype.promiseGetAllKeys = function() {
         reject("No local storage found");
       }
 
-    } else if (CacheHelper.useIndexedDB()) {
+    } else if (me.globalApp.useIndexedDB()) {
       me.cacheIndexStore.promiseGetAllKeys()
        .then(function(allKeys) {
         resolve(allKeys);
@@ -1328,6 +1326,7 @@ CacheHelper.prototype.logData = function(key) {
    })
 }
 
+export default CacheHelper
 
 
 

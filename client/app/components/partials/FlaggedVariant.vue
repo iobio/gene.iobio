@@ -315,14 +315,14 @@ export default {
       if (this.variant.isProxy) {
         return this.variant.rsId;
       } else {
-        return globalApp.utility.getRsId(this.variant);
+        return this.globalApp.utility.getRsId(this.variant);
       }
     },
     hgvsP: function() {
       if (this.variant.isProxy) {
-        return globalApp.utility.formatHgvsP(this.variant, this.variant.HGVSp);
+        return this.globalApp.utility.formatHgvsP(this.variant, this.variant.HGVSp);
       } else {
-        return this.variant.extraAnnot ? globalApp.utility.formatHgvsP(this.variant, this.variant.vepHGVSp) : "";
+        return this.variant.extraAnnot ? this.globalApp.utility.formatHgvsP(this.variant, this.variant.vepHGVSp) : "";
       }
     },
     vepConsequence: function() {
@@ -349,9 +349,9 @@ export default {
     afDisplay: function() {
       var label = this.isBasicMode ? "freq " : "af ";
       if (this.variant.isProxy) {
-        return  label +  globalApp.utility.percentage(this.variant.afgnomAD ? this.variant.afgnomAD : 0);
+        return  label +  this.globalApp.utility.percentage(this.variant.afgnomAD ? this.variant.afgnomAD : 0);
       } else {
-        return  label +  globalApp.utility.percentage(this.variant.afHighest ? this.variant.afHighest : 0);
+        return  label +  this.globalApp.utility.percentage(this.variant.afHighest ? this.variant.afHighest : 0);
       }
     },
     zygosity: function() {

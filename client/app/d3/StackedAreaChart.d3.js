@@ -1,4 +1,4 @@
-function stackedAreaChartD3() {
+export default function stackedAreaChartD3() {
 
   var defaults = {};
 

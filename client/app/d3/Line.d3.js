@@ -1,4 +1,4 @@
-lineD3 = function module() {
+export default function lineD3() {
 
   var dispatch = d3.dispatch("d3brush", "d3rendered", "d3region", "d3horizontallineclick");
 
@@ -63,7 +63,7 @@ lineD3 = function module() {
       return;
     }
     // Find the closest position in the data
-    d = null;
+    var d = null;
     if (theData) {
       for (var i = 0; i < theData.length - 1; i++) {
         if (start >= pos(theData[i])  &&  start <= pos(theData[i+1])) {

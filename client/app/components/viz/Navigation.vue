@@ -262,7 +262,7 @@ nav.toolbar
 
     <v-dialog v-model="showVersion" max-width="580">
         <v-card>
-          <v-card-title class="headline">gene.iobio {{ appVersionNumber }}</v-card-title>
+          <v-card-title class="headline">gene.iobio {{ globalApp.version }}</v-card-title>
           <v-card-text>
 
 
@@ -419,6 +419,7 @@ export default {
     flaggedVariants: null
   },
   data () {
+    let self = this;
     return {
       title: 'gene.iobio',
 
@@ -431,9 +432,7 @@ export default {
       showLegendMenu: false,
       showDisclaimer: false,
       showVersion: false,
-      showCitations: false,
-
-      appVersionNumber: globalApp.version
+      showCitations: false
 
     }
   },

@@ -2,6 +2,8 @@ import jQuery               from 'jquery'
 global.jQuery = jQuery
 global.$ = jQuery
 
+import globalEduTour        from './partials/GlobalEduTour.js'
+
 import d3                   from 'd3'
 import _                    from 'lodash'
 
@@ -25,6 +27,8 @@ import                           'vuetify/dist/vuetify.css'
 import                           '../assets/css/siteVuetify.css'
 Vue.use(Vuetify)
 
+import Util                 from './globals/Util.js'
+import GlobalApp            from './globals/GlobalApp.js'
 
 Vue.use(VueRouter);
 
@@ -82,6 +86,20 @@ const router = new VueRouter({
   //'mode':  'history',
   'routes': routes
 })
+
+// define a globals mixin object
+Vue.mixin({
+  data: function() {
+    return {
+      utility: new Util(),
+      globalApp: new GlobalApp()
+    };
+  },
+  created: function(){
+    this.globalApp.utility = this.utility;
+  }
+})
+
 
 
 window.vm = new Vue({

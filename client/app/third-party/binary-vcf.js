@@ -536,7 +536,7 @@ readTabixFile.prototype.getChunks =
 // Constructor for BGZF VCF reader and decoder.  tabixfile is a
 // bgzipped tabix binary index file for VCFFILE, a BGZF encoded VCF
 // file.  Inits and builds index and initializes the VCF reader.
-function readBinaryVCF (tbxFile, vcfFile, callback) {
+export function readBinaryVCF (tbxFile, vcfFile, callback) {
     if (!(this instanceof arguments.callee)) {
         throw new Error("Constructor may not be called as a function");
     }
@@ -581,7 +581,7 @@ readBinaryVCF.prototype.getRecords =
         };
 
         if (cnks.length == 0) {
-            console.log("no cnks found for ref " + ref + " start=" + beg + " end=" + end ); 
+            console.log("no cnks found for ref " + ref + " start=" + beg + " end=" + end );
             cbfn.call(this, null);
         }  else {
             var rng0 = cnks.pop();
@@ -589,7 +589,7 @@ readBinaryVCF.prototype.getRecords =
         }
     };
 
-readBinaryVCF.prototype.getHeader = 
+readBinaryVCF.prototype.getHeader =
     function (cbfn) {
         var vcfRthis = this;
         var f = vcfRthis.theFile;
@@ -735,3 +735,5 @@ function reg2bins(beg, end)
 // var resStgs = []
 // inflateBlock2stg(files[0], 0, function(stg){x = x.concat(stg);})
 // resStgs = x.split("\n")
+
+

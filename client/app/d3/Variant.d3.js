@@ -1,4 +1,4 @@
-function variantD3() {
+export default function variantD3() {
    var dispatch = d3.dispatch("d3brush", "d3rendered", "d3click", "d3mouseover", "d3mouseout", "d3glyphmouseover", "d3glyphmouseout");
 
   // dimensions
@@ -213,7 +213,7 @@ function variantD3() {
         // distance between all variants.
         // TODO:  Need to use this as a factor for increasing
         // width of multi-base variants.
-        minWidth = 6;
+        var minWidth = 6;
         // For each level
         for (var l = 0; l < verticalLayers; l++) {
           // For each row in array (per variant set; only one variant set)

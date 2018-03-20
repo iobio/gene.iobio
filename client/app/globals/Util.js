@@ -6,6 +6,7 @@ class Util {
       MODIFIER:  'Probably benign',
       LOW:       'Benign'
     }
+    this.globalApp = null;
 
 
   }
@@ -166,11 +167,12 @@ class Util {
   *  that is the snapshop of vcfiobio.
   */
   sendFeedbackEmail(name, email, note, htmlAttachment) {
-    var client = BinaryClient(globalApp.emailServer);
+    let self = this;
+    var client = BinaryClient(this.globalApp.emailServer);
 
     // Strip of the #modal-report-problem from the URL
     var appURL = "";
-    if (globalApp.feedbackShowURL) {
+    if (this.globalApp.feedbackShowURL) {
       appURL = location.href;
       if (appURL.indexOf("#feedback-modal") > -1){
           appURL = appURL.substr(0, appURL.indexOf("#feedback-modal"));
@@ -180,18 +182,18 @@ class Util {
     // Format the body of the email
     var htmlBody = '<span style="padding-right: 4px">Reported by:</span>' + name  + "<br><br>";
     htmlBody    += '<span style="padding-right: 4px">Email:</span>' + email  + "<br><br>";
-    if (globalApp.feedbackShowURL) {
+    if (this.globalApp.feedbackShowURL) {
       htmlBody +=  '<span style="padding-right: 51px">gene.iobio URL:</span>' + appURL + "<br><br>";
     }
     htmlBody += note + '<br><br>';
 
     var emailObject = {
         'from':     email,
-        'to':       globalApp.feedbackEmails,
+        'to':       self.globalApp.feedbackEmails,
         'subject':  'Feedback on gene.iobio',
         'body':     htmlBody
      };
-     if (globalApp.feedbackAttachScreenCapture && htmlAttachment) {
+     if (this.globalApp.feedbackAttachScreenCapture && htmlAttachment) {
       emailObject.filename = 'gene.iobio.screencapture.' + util.formatCurrentDateTime('.') + '.html';
      } else {
       emailObject.filename = '';
@@ -199,7 +201,7 @@ class Util {
 
     client.on('open', function(stream){
       var stream = client.createStream(emailObject);
-      if (globalApp.feedbackAttachScreenCapture && htmlAttachment) {
+      if (self.globalApp.feedbackAttachScreenCapture && htmlAttachment) {
         stream.write(htmlAttachment);
       }
       stream.end();
@@ -208,7 +210,8 @@ class Util {
 
 
   sendFeedbackReceivedEmail(emailTo) {
-    var client = BinaryClient(globalApp.emailServer);
+    let self = this;
+    var client = BinaryClient(self.globalApp.emailServer);
 
     // Format the body of the email
     var htmlBody = 'Thank you for your feedback on gene.iobio.  We will review your email as soon as possible.';
@@ -217,7 +220,7 @@ class Util {
       htmlBody     += 'The IOBIO team';
 
     var emailObject = {
-        'from':     globalApp.feedbackEmails,
+        'from':     self.globalApp.feedbackEmails,
         'to':       emailTo,
         'subject':  'gene.iobio feedback received',
         'body':     htmlBody
@@ -744,7 +747,7 @@ class Util {
 
     // If the highest impact occurs in a non-canonical transcript, show the impact followed by
     // the consequence and corresponding transcripts
-    var vepHighestImpacts = globalApp.utility.getNonCanonicalHighestImpactsVep(variant, translator.impactMap);
+    var vepHighestImpacts = me.globalApp.utility.getNonCanonicalHighestImpactsVep(variant, translator.impactMap);
     for (var impactKey in vepHighestImpacts) {
 
 
@@ -858,7 +861,7 @@ class Util {
       }
     }
 
-    info.rsId = globalApp.utility.getRsId(variant);
+    info.rsId = me.globalApp.utility.getRsId(variant);
     if (info.rsId && info.rsId != '') {
       info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + info.rsId ;
       info.dbSnpLink =  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';
@@ -867,4 +870,6 @@ class Util {
     return info;
   }
 }
+export default Util
+
 

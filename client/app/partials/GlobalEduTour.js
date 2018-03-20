@@ -1,4 +1,4 @@
-var onTour1Check = function(checkbox) {
+global.onTour1Check = function(checkbox) {
   var answer   = { "jimmy": true, "bobby": false, "sarah": true};
   var name     = checkbox[0].id;
   var checked  = checkbox[0].checked
@@ -28,7 +28,7 @@ var onTour1Check = function(checkbox) {
     $('#pageguide-next-button').addClass("disabled");
   }
 }
-var onTour2Check = function(checkbox) {
+global.onTour2Check = function(checkbox) {
   var answer   = { "john": 'lower', "diego": 'lowest', "anna": 'normal'};
   var checkboxId       = checkbox[0].id;
   var tokens  = checkboxId.split("-");

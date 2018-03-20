@@ -1,4 +1,4 @@
-function featureMatrixD3() {
+export default function featureMatrixD3() {
    var dispatch = d3.dispatch("d3click", "d3mouseover", "d3mouseout", "d3rowup", "d3rowdown");
 
   // dimensions
@@ -29,9 +29,11 @@ function featureMatrixD3() {
   // variables
   var heightPercent = "100%",
       widthPercent = "100%",
+      height = null,
+      width = null,
       showTransition = true,
       matrixRows = null,
-      matrixRowNames = null;
+      matrixRowNames = null,
       cellSize = 10,
       cellWidth = null,
       cellHeight = null,

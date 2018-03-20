@@ -1,4 +1,4 @@
-function GenericAnnotation(glyph) {
+export default function GenericAnnotation(glyph) {
   var me = this;
   me.glyph = glyph;
   me.descriptor = {

@@ -9,7 +9,9 @@
 //    1. the bgzipped vcf (.vcf.gz)
 //    2. its corresponding tabix file (.vcf.gz.tbi).
 //
-vcfiobio = function module() {
+export default function vcfiobio(theGlobalApp) {
+
+  var globalApp = theGlobalApp;
 
   var debug =  false;
 
@@ -537,8 +539,8 @@ var effectCategories = [
             var tokens = recs[i].substr(1).split("\t");
             if (tokens.length >= 3) {
               var refNamePrev = refName;
-              refIndex = tokens[0];
-              refName = tokens[1];
+              var refIndex = tokens[0];
+              var refName = tokens[1];
               var refLength = tokens[2];
 
               // Zero fill the previous reference point data and callback with the
@@ -716,7 +718,7 @@ var effectCategories = [
 
         var allRecs = headerRecords.concat(recordsForRegions);
 
-        me._promiseAnnotateVcfRecords(allRecs, refName, geneObject, selectedTranscript, clinvarMap, isRefSeq && hgvsNotation, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF)
+        me._promiseAnnotateVcfRecords(allRecs, refName, geneObject, selectedTranscript, clinvarMap, isRefSeq && hgvsNotation, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, cache)
         .then( function(data) {
             callback(data[0], data[1]);
         }, function(error) {
@@ -1060,14 +1062,14 @@ var effectCategories = [
 
   }
 
-  exports._promiseAnnotateVcfRecords = function(records, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF) {
+  exports._promiseAnnotateVcfRecords = function(records, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
       // For each vcf records, call snpEff to get the annotations.
       // Each vcf record returned will have an EFF field in the
       // info field.
-      me._annotateVcfRegion(records, refName, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, function(annotatedData) {
+      me._annotateVcfRegion(records, refName, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, function(annotatedData) {
 
         var annotatedRecs = annotatedData.split("\n");
         var vcfObjects = [];
@@ -1377,7 +1379,7 @@ var effectCategories = [
 
 
 
-  exports._annotateVcfRegion = function(records, refName, sampleName, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, callback, callbackClinvar) {
+  exports._annotateVcfRegion = function(records, refName, sampleName, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, callbackClinvar) {
     var me = this;
 
     //  Figure out the reference sequence file path
@@ -1395,7 +1397,7 @@ var effectCategories = [
       stream.end();
     }
 
-    var cmd = me.getEndpoint().annotateVariants({'writeStream': writeStream}, refName, null, regions, null, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache);
+    var cmd = me.getEndpoint().annotateVariants({'writeStream': writeStream}, refName, regions, null, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache);
 
 
     var buffer = "";
@@ -2076,7 +2078,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
 
         codePart.split(",").forEach(function(code) {
 
-            clinvarToken = CLINVAR_CODES[code];
+            var clinvarToken = CLINVAR_CODES[code];
             var mapEntry = clinvarMap[clinvarToken];
             if (mapEntry != null) {
               if (result.clinvarRank == null || mapEntry.value < result.clinvarRank) {
@@ -2212,7 +2214,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
       } else {
 
         var tokens = genotype.split(":");
-        gtFieldIndex = gtTokens["GT"];
+        var gtFieldIndex = gtTokens["GT"];
         gt.gt = tokens[gtFieldIndex];
 
         var gtDepthIndex = gtTokens["DP"];
@@ -2433,7 +2435,7 @@ exports._getServerCacheKey = function(vcfName, service, refName, geneObject, sam
     + "-" + sampleName;
 
   if (miscObject) {
-    for (miscKey in miscObject) {
+    for (var miscKey in miscObject) {
       key += "-" + miscKey + "=" + miscObject[miscKey];
     }
   }
@@ -2496,7 +2498,7 @@ exports._getHighestImpact = function(theObject, cullFunction, theTranscriptId) {
 exports._getLowestScore = function(theObject, cullFunction, theTranscriptId) {
   var me = this;
   var minScore = 99;
-  for( score in theObject) {
+  for( var score in theObject) {
     if (+score < minScore) {
       minScore = +score;
     }
@@ -2522,7 +2524,7 @@ exports._getLowestScore = function(theObject, cullFunction, theTranscriptId) {
 exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
   var me = this;
   var maxScore = -99;
-  for( score in theObject) {
+  for( var score in theObject) {
     if (+score > maxScore) {
       maxScore = +score;
     }
@@ -2816,3 +2818,5 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
   // will be made on this scope.
   return exports;
 };
+
+

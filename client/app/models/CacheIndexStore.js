@@ -1,4 +1,4 @@
-function CacheIndexStore() {
+export default function CacheIndexStore() {
   this.db = null;
   this.version = 3;
   this.app = "gene.iobio";

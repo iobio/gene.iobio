@@ -1,9 +1,14 @@
+//import BamFile  from '../third-party/bam.js'
+//import bin      from '../third-party/bin.js'
+//import inflate  from '../third-party/inflate.js'
+//import binary   from '../third-party/binary.js'
+
 
 // extending Thomas Down's original BAM js work
 
-var Bam = Class.extend({
-
-   init: function(endpoint, bamUri, baiUri, options) {
+export default class Bam {
+   constructor(globalApp, endpoint, bamUri, baiUri, options) {
+      this.globalApp = globalApp;
       this.endpoint = endpoint;
       this.bamUri = bamUri;
       this.baiUri = baiUri;
@@ -48,22 +53,22 @@ var Bam = Class.extend({
 
 
       return this;
-   },
+   }
 
-   clear: function() {
+   clear() {
     this.bamFile = null;
     this.baiFile = null;
     this.bamUri = null;
     this.baiUri = null;
     this.header = null;
     this.headerStr =  null;
-   },
+   }
 
-   isEmpty: function() {
+   isEmpty() {
     return this.bamFile == null && this.bamUri == null;
-   },
+   }
 
-   makeBamBlob: function(callback) {
+   makeBamBlob(callback) {
      var me = this;
      this.bamBlob = new BlobFetchable(this.bamFile);
      this.baiBlob = new BlobFetchable(this.baiFile); // *** add if statement if here ***
@@ -74,9 +79,9 @@ var Bam = Class.extend({
           callback();
         }
      });
-   },
+   }
 
-  checkBamUrl: function(url, baiUrl, callback) {
+  checkBamUrl(url, baiUrl, callback) {
     var me = this;
 
     var cmd = this.endpoint.getBamHeader(url, baiUrl);
@@ -113,11 +118,11 @@ var Bam = Class.extend({
 
     cmd.run();
 
-  },
+  }
 
 
 
-  ignoreErrorMessage: function(error) {
+  ignoreErrorMessage(error) {
     var me = this;
     var ignore = false;
     me.ignoreMessages.forEach( function(regExp) {
@@ -127,9 +132,9 @@ var Bam = Class.extend({
     });
     return ignore;
 
-  },
+  }
 
-  translateErrorMessage: function(error) {
+  translateErrorMessage(error) {
     var me = this;
     var message = null;
     for (key in me.errorMessageMap) {
@@ -139,9 +144,9 @@ var Bam = Class.extend({
       }
     }
     return message ? message : error;
-  },
+  }
 
-  openBamFile: function(fileSelection, callback) {
+  openBamFile(fileSelection, callback) {
     var me = this;
 
 
@@ -150,8 +155,8 @@ var Bam = Class.extend({
        return;
     }
 
-    if (globalApp.utility.endsWith(fileSelection.files[0].name, ".sam") ||
-        globalApp.utility.endsWith(fileSelection.files[1].name, ".sam")) {
+    if (me.globalApp.utility.endsWith(fileSelection.files[0].name, ".sam") ||
+        me.globalApp.utility.endsWith(fileSelection.files[1].name, ".sam")) {
       callback(false, 'You must select a bam file, not a sam file');
       return;
     }
@@ -198,31 +203,31 @@ var Bam = Class.extend({
       callback(true);
     });
     return;
-  },
+  }
 
 
-  fetch: function( name, start, end, callback, options ) {
+  fetch( name, start, end, callback, options ) {
     var me = this;
     // handle bam has been created yet
     if(this.bam == undefined) // **** TEST FOR BAD BAM ***
        this.promise(function() { me.fetch( name, start, end, callback, options ); });
     else
        this.bam.fetch( name, start, end, callback, options );
-  },
+  }
 
-  promise: function( callback ) {
+  promise( callback ) {
     this.promises.push( callback );
-  },
+  }
 
-  provide: function(bam) {
+  provide(bam) {
     this.bam = bam;
     while( this.promises.length != 0 )
        this.promises.shift()();
-  },
+  }
 
 
   // *** bamtools functionality ***
-  convert: function(format, name, start, end, callback, options) {
+  convert(format, name, start, end, callback, options) {
     // Converts between BAM and a number of other formats
     if (!format || !name || !start || !end)
        return "Error: must supply format, sequenceid, start nucleotide and end nucleotide"
@@ -239,10 +244,10 @@ var Bam = Class.extend({
           })
        }
     }, { 'format': format })
-   },
+   }
 
 
-   getHeaderStr: function(callback) {
+   getHeaderStr(callback) {
     var me = this;
 
     if (me.headerStr) {
@@ -275,9 +280,9 @@ var Bam = Class.extend({
 
 
     }
-  },
+  }
 
-  getHeader: function(callback) {
+  getHeader(callback) {
     var me = this;
 
     if (me.header) {
@@ -310,11 +315,11 @@ var Bam = Class.extend({
 
 
     }
-   },
+  }
 
 
 
-   setHeader: function(headerStr) {
+   setHeader(headerStr) {
       this.headerStr = headerStr;
       var header = { sq:[], toStr : headerStr };
       var lines = headerStr.split("\n");
@@ -332,11 +337,11 @@ var Bam = Class.extend({
          }
       }
       this.header = header;
-   },
+   }
 
 
 
-  transformRefName: function(refName, callback) {
+  transformRefName(refName, callback) {
     var found = false;
     this.getHeader(function(header) {
       header.sq.forEach(function(seq) {
@@ -347,9 +352,9 @@ var Bam = Class.extend({
       })
       if (!found) callback(refName); // not found
     })
-  },
+  }
 
-  _getServerCacheKey: function(service, refName, start, end, miscObject) {
+  _getServerCacheKey(service, refName, start, end, miscObject) {
     var me = this;
     var key =  "backend.gene.iobio"
       //+ "-" + cacheHelper.launchTimestamp
@@ -359,12 +364,12 @@ var Bam = Class.extend({
       + "-" + start.toString()
       + "-" + end.toString();
     if (miscObject) {
-      for (miscKey in miscObject) {
+      for (var miscKey in miscObject) {
         key += "-" + miscKey + "=" + miscObject[miscKey];
       }
     }
     return key;
-  },
+  }
 
   /*
   *  This method will return coverage as point data.  It takes the reference name along
@@ -376,7 +381,7 @@ var Bam = Class.extend({
   *  the second for coverage of specific positions.  The latter can then be matched to vcf records
   *  , for example, to obtain the coverage for each variant.
   */
-  getCoverageForRegion: function(refName, regionStart, regionEnd, regions, maxPoints, useServerCache, callback, callbackError) {
+  getCoverageForRegion(refName, regionStart, regionEnd, regions, maxPoints, useServerCache, callback, callbackError) {
     var me = this;
 
     this.transformRefName(refName, function(trRefName){
@@ -449,10 +454,10 @@ var Bam = Class.extend({
 
       cmd.run();
     });
-  },
+  }
 
 
-  freebayesJointCall: function(geneObject, transcript, bams, isRefSeq, fbArgs, vepAF, callback) {
+  freebayesJointCall(geneObject, transcript, bams, isRefSeq, fbArgs, vepAF, callback) {
     var me = this;
 
     var refName     = geneObject.chr;
@@ -492,13 +497,13 @@ var Bam = Class.extend({
 
     });
 
-  },
+  }
 
   /*
    * Sequentially examine each bam source, either specifying the bamUrl, or creating
    * a blob (for local files)
    */
-  _initializeBamSource: function(bams, refName, regionStart, regionEnd, bamSources, idx, callback) {
+  _initializeBamSource(bams, refName, regionStart, regionEnd, bamSources, idx, callback) {
     var me  = this;
     if (idx == bams.length) {
       callback();
@@ -520,12 +525,12 @@ var Bam = Class.extend({
         );
       }
     }
-  },
+  }
 
 
 
 
-  getGeneCoverage: function(geneObject, transcript, bams, callback) {
+  getGeneCoverage(geneObject, transcript, bams, callback) {
     var me = this;
 
     var refName     = geneObject.chr;
@@ -570,10 +575,10 @@ var Bam = Class.extend({
     });
 
 
-  },
+  }
 
 
-  reducePoints: function(data, factor, xvalue, yvalue) {
+  reducePoints(data, factor, xvalue, yvalue) {
     if (!factor || factor <= 1 ) {
       return data;
     }
@@ -593,4 +598,6 @@ var Bam = Class.extend({
     return results;
   }
 
-});
+}
+
+

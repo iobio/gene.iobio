@@ -1,6 +1,11 @@
+import CacheHelper      from './CacheHelper.js';
+import Bam              from './Bam.iobio.js';
+import vcfiobio         from './Vcf.iobio.js';
+
 class SampleModel {
 
-  constructor() {
+  constructor(globalApp) {
+    this.globalApp = globalApp;
     this.vcf = null;
     this.bam = null;
 
@@ -750,7 +755,7 @@ class SampleModel {
 
     // init vcf.iobio
     this.cohort = cohort;
-    this.vcf = vcfiobio();
+    this.vcf = vcfiobio(this.globalApp);
     this.vcf.setEndpoint(this.cohort.endpoint);
     this.vcf.setGenericAnnotation(this.cohort.genericAnnotation);
     this.vcf.setGenomeBuildHelper(this.cohort.genomeBuildHelper);
@@ -764,12 +769,12 @@ class SampleModel {
       me.fbData = null;
 
       if (fileSelection == null) {
-        me.bam = new Bam();
+        me.bam = new Bam(me.globalApp);
         me.bamFileOpened = false;
         me.bamRefName = null;
         resolve();
       } else {
-        me.bam = new Bam(me.cohort.endpoint);
+        me.bam = new Bam(me.globalApp, me.cohort.endpoint);
         me.bam.openBamFile(fileSelection, function(success, message) {
           if (me.lastBamAlertify) {
             me.lastBamAlertify.dismiss();
@@ -815,7 +820,7 @@ class SampleModel {
     } else {
 
       this.bamUrlEntered = true;
-      this.bam = new Bam(this.cohort.endpoint, bamUrl, baiUrl);
+      this.bam = new Bam(this.globalApp, this.cohort.endpoint, bamUrl, baiUrl);
 
       this.bam.checkBamUrl(bamUrl, baiUrl, function(success, errorMsg) {
         if (me.lastBamAlertify) {
@@ -894,9 +899,9 @@ class SampleModel {
     this.vcfUrlEntered = false;
     this.vcfFileOpened = false;
     this.sampleName = null;
-    window.globalApp.utility.removeUrl('sample'+ cardIndex);
-    window.globalApp.utility.removeUrl('vcf' + cardIndex);
-    window.globalApp.utility.removeUrl('name'+ cardIndex);
+    this.globalApp.utility.removeUrl('sample'+ cardIndex);
+    this.globalApp.utility.removeUrl('vcf' + cardIndex);
+    this.globalApp.utility.removeUrl('name'+ cardIndex);
     this.vcf.clear();
   }
 
@@ -905,7 +910,7 @@ class SampleModel {
     this.bamData = null;
     this.bamUrlEntered = false;
     this.bamFileOpened = false;
-    window.globalApp.utility.removeUrl('bam' + cardIndex);
+    this.globalApp.utility.removeUrl('bam' + cardIndex);
     if (this.bam) {
       this.bam.clear();
     }
@@ -1141,7 +1146,7 @@ class SampleModel {
           performCallbackForCachedData(regions, theVcfData, data.coverage);
 
         } else {
-          me.bam.getCoverageForRegion(refName, gene.start, gene.end, regions, 2000, globalApp.useServerCache,
+          me.bam.getCoverageForRegion(refName, gene.start, gene.end, regions, 2000, me.globalApp.useServerCache,
             function(coverageForRegion, coverageForPoints) {
               if (coverageForRegion != null) {
               me.bamData = {gene: gene.gene_name,
@@ -1152,7 +1157,7 @@ class SampleModel {
 
               // Use browser cache for storage coverage data if app is not relying on
               // server-side cache
-              if (!globalApp.useServerCache) {
+              if (!me.globalApp.useServerCache) {
                 me._promiseCacheData(me.bamData, CacheHelper.BAM_DATA, gene.gene_name)
                  .then(function() {
                   performCallback(regions, theVcfData, coverageForRegion, coverageForPoints);
@@ -1252,7 +1257,7 @@ class SampleModel {
                true,  // hgvs notation
                true,  // rsid
                true, // vep af
-               globalApp.useServerCache // serverside cache
+               me.globalApp.useServerCache // serverside cache
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
@@ -1438,7 +1443,7 @@ class SampleModel {
                true,  // hgvs notation
                true,  // rsid
                false, // vep af
-               globalApp.useServerCache // serverside cache
+               me.globalApp.useServerCache // serverside cache
             ).then( function(data) {
 
               var annotVcfData = data[1];
@@ -1532,9 +1537,9 @@ class SampleModel {
                me.getRelationship() == 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
                me.getTranslator().clinvarMap,
                me.getGeneModel().geneSource == 'refseq' ? true : false,
-               me.isBasicMode || globalApp.getVariantIdsForGene,  // hgvs notation
-               globalApp.getVariantIdsForGene,  // rsid
-               globalApp.vepAF    // vep af
+               me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
+               me.globalApp.getVariantIdsForGene,  // rsid
+               me.globalApp.vepAF    // vep af
               );
           })
           .then( function(data) {
@@ -1777,7 +1782,7 @@ class SampleModel {
     }
     afHighest = me.getHighestAf(variant);
 
-    if (globalApp.vepAF) {
+    if (me.globalApp.vepAF) {
       if ($.isNumeric(variant.vepAf.gnomAD.AF) && afHighest) {
         if (variant.vepAf.gnomAD.AF >= afHighest) {
           variant.afFieldHighest = 'afgnomAD';
@@ -1951,9 +1956,9 @@ class SampleModel {
       v.level = 0;
     });
 
-    var featureWidth = me.isEduMode || me.isBasicMode ? globalApp.eduModeVariantSize : 4;
+    var featureWidth = me.isEduMode || me.isBasicMode ? me.globalApp.eduModeVariantSize : 4;
     var posToPixelFactor = Math.round((end - start) / width);
-    var widthFactor = featureWidth + ( me.isEduMode || me.isBasicMode ? globalApp.eduModeVariantSize * 2 : 4);
+    var widthFactor = featureWidth + ( me.isEduMode || me.isBasicMode ? me.globalApp.eduModeVariantSize * 2 : 4);
     var maxLevel = this.vcf.pileupVcfRecords(theFeatures, start, posToPixelFactor, widthFactor);
     if ( maxLevel > 30) {
       for(var i = 1; i < posToPixelFactor; i++) {
@@ -2442,7 +2447,7 @@ class SampleModel {
     }
 
 
-    var impactField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'impact' : globalApp.impactFieldToFilter;
+    var impactField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'impact' : me.globalApp.impactFieldToFilter;
     var effectField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'effect' : 'vepConsequence';
 
     // coverageMin is always an integer or NaN
@@ -2796,11 +2801,11 @@ class SampleModel {
         effects += " " + key;
       }
     }
-    var impactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[globalApp.impactFieldToFilter]);
+    var impactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[self.globalApp.impactFieldToFilter]);
     for (var key in impactList) {
       impacts += " " + key;
     }
-    var colorImpactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[globalApp.impactFieldToColor]);
+    var colorImpactList =  (annotationScheme == null || annotationScheme.toLowerCase() == 'snpeff' ? d.impact : d[self.globalApp.impactFieldToColor]);
     for (var key in colorImpactList) {
       colorimpacts += " " + 'impact_'+key;
     }
@@ -2994,7 +2999,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
     var lowestOrder = 9999;
     var lowestClazz = null;
     var dangerObject = null;
-    for (clazz in clazzes) {
+    for (var clazz in clazzes) {
       var object = clazzes[clazz];
       if (object.value < lowestOrder) {
         lowestOrder = object.value;
@@ -3058,13 +3063,46 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
   return dangerCounts;
 }
 
+
+SampleModel._determineAffectedStatusForVariant = function(variant, affectedStatus, affectedInfo) {
+  var matchesCount = 0;
+  var summaryField    = affectedStatus + "_summary";
+
+  variant[summaryField]                         = "none";
+
+  affectedInfo.forEach(function(info) {
+    var sampleName  = info.model.getSampleName();
+    var genotype    = variant.genotypes[sampleName];
+
+    if (genotype) {
+
+      var zyg  = genotype.zygosity ? genotype.zygosity : "none";
+      if (zyg.toLowerCase() != 'none' && zyg.toLowerCase() != 'gt_unknown' && zyg.toLowerCase() != 'homref') {
+        matchesCount++;
+      }
+    }
+  })
+
+  if (matchesCount > 0 && matchesCount == affectedInfo.length) {
+    variant[summaryField] = "present_all";
+  }  else if (matchesCount > 0) {
+    variant[summaryField] = "present_some"
+  }  else {
+    variant[summaryField] = "present_none";
+  }
+}
+
+
+
+
+
 SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverageAll, filterModel, clearOtherDanger=false, refreshOnly=false ) {
   dangerObject.geneCoverageInfo = {};
   dangerObject.geneCoverageProblem = false;
 
 
   if (geneCoverageAll && Object.keys(geneCoverageAll).length > 0) {
-    for (relationship in geneCoverageAll) {
+    for (var relationship in geneCoverageAll) {
       var geneCoverage = geneCoverageAll[relationship];
       if (geneCoverage) {
         geneCoverage.forEach(function(gc) {
@@ -3130,33 +3168,6 @@ SampleModel.summarizeError =  function(theError) {
 }
 
 
-SampleModel._determineAffectedStatusForVariant = function(variant, affectedStatus, affectedInfo) {
-  var matchesCount = 0;
-  var summaryField    = affectedStatus + "_summary";
-
-  variant[summaryField]                         = "none";
-
-  affectedInfo.forEach(function(info) {
-    var sampleName  = info.model.getSampleName();
-    var genotype    = variant.genotypes[sampleName];
-
-    if (genotype) {
-
-      var zyg  = genotype.zygosity ? genotype.zygosity : "none";
-      if (zyg.toLowerCase() != 'none' && zyg.toLowerCase() != 'gt_unknown' && zyg.toLowerCase() != 'homref') {
-        matchesCount++;
-      }
-    }
-  })
-
-  if (matchesCount > 0 && matchesCount == affectedInfo.length) {
-    variant[summaryField] = "present_all";
-  }  else if (matchesCount > 0) {
-    variant[summaryField] = "present_some"
-  }  else {
-    variant[summaryField] = "present_none";
-  }
-}
 
 SampleModel.calcMaxAlleleCount = function(theVcfData, maxAlleleCount=0) {
   if (theVcfData && theVcfData.features) {
@@ -3254,6 +3265,8 @@ SampleModel.orderVcfRecords = function(rec1, rec2) {
   }
 
 }
+export default SampleModel
+
 
 
 

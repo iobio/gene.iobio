@@ -1,6 +1,10 @@
-class VariantExporter {
+import VariantTrioModel from './VariantTrioModel.js'
+import SampleModel from './SampleModel.js'
 
-  constructor() {
+export default class VariantExporter {
+
+  constructor(globalApp) {
+    this.globalApp = globalApp;
     this.cohort = null;
     this.exportFields = [
       {field: 'chrom',            exportVcf: false},
@@ -346,7 +350,7 @@ class VariantExporter {
                 }
 
                 var sampleNamesToGenotype = me.cohort.getProbandModel().getSampleNamesToGenotype();
-                var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, globalApp.vepAF)
+                var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, me.globalApp.vepAF)
                 var theFbData = data.results;
 
                 theFbData.features.forEach(function(v) {
@@ -491,7 +495,7 @@ class VariantExporter {
 
       // Get the clinvar data and load into the variant record
       var dummyVcfData  = {features: [revisedVariant]};
-      var clinvarLoader = globalApp.isClinvarOffline || globalApp.clinvarSource == "vcf" ? me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData) : me.cohort.getProbandModel()._refreshVariantsWithClinvarEutils.bind(me.cohort.getProbandModel(), dummyVcfData);
+      var clinvarLoader = me.globalApp.isClinvarOffline || me.globalApp.clinvarSource == "vcf" ? me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData) : me.cohort.getProbandModel()._refreshVariantsWithClinvarEutils.bind(me.cohort.getProbandModel(), dummyVcfData);
       me.cohort.getProbandModel()
       .vcf
       .promiseGetClinvarRecords(dummyVcfData,
@@ -517,7 +521,7 @@ class VariantExporter {
     var me = this;
 
 
-    var info    = globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
+    var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
 
     rec.inheritance       = info.inheritance ? this.cohort.translator.getInheritanceLabel(info.inheritance) : "";
     rec.impact            = info.vepImpact;

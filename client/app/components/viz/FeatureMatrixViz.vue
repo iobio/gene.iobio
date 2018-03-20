@@ -110,6 +110,7 @@
 
 <script>
 
+import featureMatrixD3 from '../../d3/FeatureMatrix.d3.js'
 
 export default {
     name: 'feature-matrix-viz',

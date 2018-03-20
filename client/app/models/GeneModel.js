@@ -1,10 +1,11 @@
 class GeneModel {
-  constructor() {
+  constructor(globalApp) {
 
-    this.geneInfoServer            = globalApp.HTTP_SERVICES + "geneinfo/";
-    this.geneToPhenoServer         = globalApp.HTTP_SERVICES + "gene2pheno/";
+    this.globalApp                 = globalApp;
+    this.geneInfoServer            = this.globalApp.HTTP_SERVICES + "geneinfo/";
+    this.geneToPhenoServer         = this.globalApp.HTTP_SERVICES + "gene2pheno/";
     this.phenolyzerServer          = "https://7z68tjgpw4.execute-api.us-east-1.amazonaws.com/dev/phenolyzer/";
-    this.phenolyzerOnlyServer      = globalApp.HTTP_SERVICES + "phenolyzer/";
+    this.phenolyzerOnlyServer      = this.globalApp.HTTP_SERVICES + "phenolyzer/";
 
     this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
     this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
@@ -150,11 +151,11 @@ class GeneModel {
       alertify.alert("Warning", message);
     }
 
-    if (CacheHelper.useLocalStorage()) {
-      if (globalApp.maxGeneCount && me.geneNames.length > globalApp.maxGeneCount) {
-        var bypassedCount = me.geneNames.length - globalApp.maxGeneCount;
-        me.geneNames = me.geneNames.slice(0, globalApp.maxGeneCount);
-        alertify.alert("Due to browser cache limitations, only the first " + globalApp.maxGeneCount
+    if (me.globalApp.useLocalStorage()) {
+      if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
+        var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
+        me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
+        alertify.alert("Due to browser cache limitations, only the first " + me.globalApp.maxGeneCount
           + " genes were added. "
           + bypassedCount.toString()
           + " "
@@ -188,7 +189,7 @@ class GeneModel {
       me.clinvarGenes = {};
 
       $.ajax({
-          url: globalApp.clinvarGenesUrl,
+          url: me.globalApp.clinvarGenesUrl,
           type: "GET",
           crossDomain: true,
           dataType: "text",

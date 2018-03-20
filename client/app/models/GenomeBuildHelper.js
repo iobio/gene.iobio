@@ -1,6 +1,7 @@
-class GenomeBuildHelper {
+export class GenomeBuildHelper {
 
-  constructor() {
+  constructor(globalApp) {
+    this.globalApp = globalApp;
     this.currentSpecies = null;
     this.currentBuild = null;
     this.speciesList = [];
@@ -19,7 +20,7 @@ class GenomeBuildHelper {
     this.RESOURCE_CLINVAR_POSITION    = "CLINVAR EUTILS BASE POSITION";
     this.RESOURCE_ENSEMBL_URL         = "ENSEMBL URL";
 
-    this.genomeBuildServer            = globalApp.HTTP_SERVICES + "genomebuild/";
+    this.genomeBuildServer            = this.globalApp.HTTP_SERVICES + "genomebuild/";
 
   }
 

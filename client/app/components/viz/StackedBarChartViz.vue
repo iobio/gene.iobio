@@ -10,6 +10,7 @@
 
 <script>
 
+import stackedBarChartD3 from '../../d3/StackedBarChart.d3.js'
 
 export default {
 

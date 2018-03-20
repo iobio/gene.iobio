@@ -1,4 +1,4 @@
-function stackedBarChartD3() {
+export default function stackedBarChartD3() {
   var dispatch = d3.dispatch("d3click");
 
   var defaults = {};
@@ -15,6 +15,8 @@ function stackedBarChartD3() {
 
   var xAxisLabel = null;
   var yAxisLabel = null;
+
+  var tooltipText = null;
 
   var xValue = null;
   var xValueStart = null;

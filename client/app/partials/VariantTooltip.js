@@ -1,6 +1,7 @@
-class VariantTooltip {
+export default class VariantTooltip {
 
-  constructor(isEduMode, isBasicMode, tourNumber, genericAnnotation, glyph, translator, annotationScheme, genomeBuildHelper) {
+  constructor(globalApp, isEduMode, isBasicMode, tourNumber, genericAnnotation, glyph, translator, annotationScheme, genomeBuildHelper) {
+    this.globalApp = globalApp;
     this.isEduMode = isEduMode;
     this.isBasicMode = isBasicMode;
     this.tourNumber = tourNumber;
@@ -137,7 +138,7 @@ class VariantTooltip {
     }
     // If the tooltip sits below the elements, is the bottom of the tooltip
     // above the bottom of the window?
-    if ( (y + coord.height + h) - yScroll < globalApp.utility.visibleHeight($('body'))) {
+    if ( (y + coord.height + h) - yScroll < me.globalApp.utility.visibleHeight($('body'))) {
       availSpace.bottom.allowed = true;
       availSpace.bottom.tooltipTop = y + coord.height;
       availSpace.bottom.sideTooltipVertOffset = -1 * me.SIDE_TOOLTIP_VERT_OFFSET;
@@ -145,7 +146,7 @@ class VariantTooltip {
     // If the tooltip sits in the center (either to the left or right) of the element,
     // are both top and bottom edges within the window?
     if ((y + coord.height/2) - (h/2) - yScroll >= 0
-      && ((y + coord.height/2) + (h/2) - yScroll < globalApp.utility.visibleHeight($('body')))) {
+      && ((y + coord.height/2) + (h/2) - yScroll < me.globalApp.utility.visibleHeight($('body')))) {
       availSpace.middle.allowed = true;
       availSpace.middle.tooltipTop = y + (coord.height/2);
       availSpace.middle.sideTooltipVertOffset = -1 * (h/2);
@@ -248,7 +249,7 @@ class VariantTooltip {
 
     var translate = variant.type.toLowerCase() == "snp" || variant.type.toLowerCase() == "mnp" ? 'translate(1,2)' : 'translate(5,6)';
 
-    var impactList =  (me.annotationScheme == null || me.annotationScheme.toLowerCase() == 'snpeff' ? variant.impact : variant[globalApp.impactFieldToColor]);
+    var impactList =  (me.annotationScheme == null || me.annotationScheme.toLowerCase() == 'snpeff' ? variant.impact : variant[me.globalApp.impactFieldToColor]);
     var impactDivSelector = selector == '.tooltip-wide' ? '.tooltip-value' : '.tooltip-title';
     var impactStyle       = selector == '.tooltip-wide' ? " style='float:left' "             : " style='padding-top:2px;float:none' ";
     for (var impact in impactList) {
@@ -386,7 +387,7 @@ class VariantTooltip {
   formatContent(variant, pinMessage, tooltipClazz, geneObject, theTranscript, relationship, lock) {
     var me = this;
 
-    var info = globalApp.utility.formatDisplay(variant, me.translator, me.isEduMode);
+    var info = me.globalApp.utility.formatDisplay(variant, me.translator, me.isEduMode);
 
 
     var calledVariantRow = "";
@@ -452,7 +453,7 @@ class VariantTooltip {
 
     var polyphenRowSimple = info.polyphen != "" ? me._tooltipWideHeadingRow('Predicted effect', info.polyphen + ' to protein', '3px') : "";
 
-    var genotypeRow = me.isEduMode && me.tourNumber == 2 ? me._tooltipHeaderRow('Genotype', globalApp.utility.switchGenotype(variant.eduGenotype), '','')  : "";
+    var genotypeRow = me.isEduMode && me.tourNumber == 2 ? me._tooltipHeaderRow('Genotype', me.globalApp.utility.switchGenotype(variant.eduGenotype), '','')  : "";
 
 
     var formatPopAF = function(afObject) {
@@ -464,7 +465,7 @@ class VariantTooltip {
             if (popAF.length > 0) {
               popAF += ", ";
             }
-            popAF += label + " " + (afObject[key] == "." ? "0%" : globalApp.utility.percentage(afObject[key]));
+            popAF += label + " " + (afObject[key] == "." ? "0%" : me.globalApp.utility.percentage(afObject[key]));
           }
         }
       }
@@ -475,9 +476,9 @@ class VariantTooltip {
     var gnomADAfRowWide = "";
     var exacAfRow = "";
     var exacAfRowWide = "";
-    if (globalApp.vepAF && me.genomeBuildHelper.getCurrentBuildName() == "GRCh37" && variant.vepAf.gnomAD.hasOwnProperty("AF")) {
-      gnomADAfRow = me._tooltipLabeledRow('Allele Freq gnomAD', (variant.vepAf.gnomAD.AF == "." ? "0%" : globalApp.utility.percentage(variant.vepAf.gnomAD.AF)), '6px');
-      var af   =  variant.vepAf.gnomAD.AF == "." ? "0%" : globalApp.utility.percentage(variant.vepAf.gnomAD.AF);
+    if (me.globalApp.vepAF && me.genomeBuildHelper.getCurrentBuildName() == "GRCh37" && variant.vepAf.gnomAD.hasOwnProperty("AF")) {
+      gnomADAfRow = me._tooltipLabeledRow('Allele Freq gnomAD', (variant.vepAf.gnomAD.AF == "." ? "0%" : me.globalApp.utility.percentage(variant.vepAf.gnomAD.AF)), '6px');
+      var af   =  variant.vepAf.gnomAD.AF == "." ? "0%" : me.globalApp.utility.percentage(variant.vepAf.gnomAD.AF);
       var link =  "<a target='_gnomad' href='http://gnomad.broadinstitute.org/variant/" + variant.chrom + "-" + variant.start + "-" + variant.ref + "-" + variant.alt + "'>" + af + "</a>";
       var popAF = formatPopAF(variant.vepAf.gnomAD);
       gnomADAfRowWide  = me._tooltipRow('Allele Freq gnomAD', '<span style="float:left">' + (variant.vepAf.gnomAD.AF == "." ? af : link) + '</span>', null, true, null, '0px');
@@ -487,15 +488,15 @@ class VariantTooltip {
 
     }
 
-    exacAfRow = me._tooltipLabeledRow('Allele Freq ExAC', (variant.afExAC == -100 ? "n/a" : globalApp.utility.percentage(variant.afExAC)),  '0px' );
-    exacAfRowWide = me._tooltipRow('Allele Freq ExAC', '<span style="float:left">' + (variant.afExAC == -100 ? "n/a" : globalApp.utility.percentage(variant.afExAC) + '</span>'), null, true, null, '0px');
+    exacAfRow = me._tooltipLabeledRow('Allele Freq ExAC', (variant.afExAC == -100 ? "n/a" : me.globalApp.utility.percentage(variant.afExAC)),  '0px' );
+    exacAfRowWide = me._tooltipRow('Allele Freq ExAC', '<span style="float:left">' + (variant.afExAC == -100 ? "n/a" : me.globalApp.utility.percentage(variant.afExAC) + '</span>'), null, true, null, '0px');
 
     var popAf1000GRow = "";
     var af1000GRow = "";
-    if (globalApp.vepAF && variant.vepAf['1000G']) {
+    if (me.globalApp.vepAF && variant.vepAf['1000G']) {
       popAF = formatPopAF(variant.vepAf['1000G']);
       if (variant.af1000G) {
-        af1000GRow    = me._tooltipRow('Allele Freq 1000G', '<span style="float:left">' + globalApp.utility.percentage(variant.af1000G) + '</span>', null, true, null, popAF.length > 0 ? '0px' : null);
+        af1000GRow    = me._tooltipRow('Allele Freq 1000G', '<span style="float:left">' + me.globalApp.utility.percentage(variant.af1000G) + '</span>', null, true, null, popAF.length > 0 ? '0px' : null);
         if (popAF.length > 0) {
           popAf1000GRow = me._tooltipRow('&nbsp;', '<span style="float:left">' + popAF + '</span>');
         }
@@ -538,7 +539,7 @@ class VariantTooltip {
         + siftPolyphenRow
         + gnomADAfRow
         + exacAfRow
-        + me._tooltipLabeledRow('Allele Freq 1000G', globalApp.utility.percentage(variant.af1000G), null)
+        + me._tooltipLabeledRow('Allele Freq 1000G', me.globalApp.utility.percentage(variant.af1000G), null)
         + (relationship == 'known-variants' ? me._tooltipRow('&nbsp;', info.clinvarLinkKnownVariants, '6px')  : clinvarSimpleRow1)
         + (relationship == 'known-variants' ? clinvarSimpleRow2 : '')
         + me._linksRow(variant, pinMessage, relationship, lock)

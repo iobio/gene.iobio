@@ -1,6 +1,7 @@
 class FilterModel {
 
-  constructor(affectedInfo, isBasicMode) {
+  constructor(globalApp, affectedInfo, isBasicMode) {
+    this.globalApp = globalApp;
     this.affectedInfo = affectedInfo;
 
     this.isBasicMode = isBasicMode;
@@ -12,7 +13,7 @@ class FilterModel {
 
     this.pathogenicityScheme = "clinvar";
 
-    this.annotClasses     = ".type, .impact, ." + globalApp.impactFieldToFilter + ", .effect, .vepConsequence, .sift, .polyphen, .regulatory, .zygosity, .inheritance, .clinvar, .uasibs, .recfilter";
+    this.annotClasses     = ".type, .impact, ." + this.globalApp.impactFieldToFilter + ", .effect, .vepConsequence, .sift, .polyphen, .regulatory, .zygosity, .inheritance, .clinvar, .uasibs, .recfilter";
     this.annotClassLabels = "Type, Impact, VEP Impact, Effect, VEP Consequence, SIFT, PolyPhen, Regulatory, Zygosity, Inheritance mode, ClinVar, Unaffected Sibs, VCF Filter Status";
 
     this.applyLowCoverageFilter = false;
