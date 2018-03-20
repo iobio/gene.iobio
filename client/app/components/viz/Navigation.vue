@@ -173,7 +173,7 @@ nav.toolbar
       <v-menu offset-y>
         <v-btn id="help-menu-button" flat slot="activator">Help</v-btn>
         <v-list>
-          <v-list-tile  @click="onLoadDemoData">
+          <v-list-tile id="load-demo-data-menu-item"  @click="onLoadDemoData">
             <v-list-tile-title>Load Demo Data</v-list-tile-title>
           </v-list-tile>
           <v-list-tile  @click="onWelcome">
