@@ -17,7 +17,6 @@
     "serve-favicon": "^2.4.3",
     "uiv": "^0.16.0",
     "vue": "^2.3.4",
-    "vue-material": "^1.0.0-beta-8",
     "vue-router": "^2.5.3",
     "vuetify": "^1.0.4"
   },
