@@ -4,6 +4,7 @@
 .flagged-variant
   font-size: 12px
 
+
   a
     width: 305px
     color: $text-color !important
@@ -25,12 +26,21 @@
       vertical-align: top
 
     .variant-number
-      margin-right: 7px
-      font-size: 12px
-      line-height: 12px
+      margin-right: 4px
+      margin-left: 0px
+      font-size: 11px
       display: inline-block
       vertical-align: top
-      margin-bottom: 1px
+      margin-bottom: 0px
+      margin-top: -2px
+      color: white
+      background: $app-color
+
+      .chip__content
+        width: 17px
+        height: 17px
+        justify-content: space-around
+        padding: 0px
 
     .variant-symbols
       display: inline-block
@@ -41,6 +51,8 @@
 
     .variant-label
       display: inline-block
+      margin-left: 23px
+      margin-bottom: 7px
 
       .coord
         display: inline-block
@@ -111,9 +123,9 @@
 
   <div class="flagged-variant">
     <a  @click="onVariantSelected">
-      <span class="variant-number">
+      <v-chip class="variant-number">
         {{ variant.index + 1 }}.
-      </span>
+      </v-chip>
 
       <span class="variant-symbols">
 
@@ -172,8 +184,8 @@
 
         <svg
          v-if="variant.type.toLowerCase() == 'snp' || variant.type.toLowerCase() == 'mnp'"
-         class="impact-badge" height="12" width="13">
-          <g transform="translate(1,4)">
+         class="impact-badge" height="15" width="13">
+          <g transform="translate(1,5)">
             <rect width="8" height="8"
             v-bind:class="highestImpactClass"
             style="pointer-events: none;"></rect>
@@ -182,8 +194,8 @@
 
         <svg
          v-if="variant.type.toLowerCase() == 'del'"
-         class="impact-badge" height="12" width="13">
-          <g transform="translate(5,5)">
+         class="impact-badge" height="15" width="13">
+          <g transform="translate(5,7)">
             <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
             v-bind:class="highestImpactClass">
             </path>
@@ -192,8 +204,8 @@
 
         <svg
          v-if="variant.type.toLowerCase() == 'ins'"
-         class="impact-badge" height="12" width="13">
-          <g transform="translate(5,5)">
+         class="impact-badge" height="15" width="13">
+          <g transform="translate(5,7)">
             <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
             v-bind:class="highestImpactClass">
             </path>
@@ -202,7 +214,7 @@
 
         <svg
          v-if="variant.type.toLowerCase() == 'complex'"
-         class="impact-badge" height="13" width="13">
+         class="impact-badge" height="15" width="13">
           <g transform="translate(5,6)">
             <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
             v-bind:class="highestImpactClass">
@@ -237,11 +249,11 @@
       </span>
 
       <span class="variant-label">
-        <div style="display:inline-block;width:122px" >
+        <div style="display:inline-block;width:117px" >
           <span class="coord"> {{ variant.start + " " + variant.ref + "->" + variant.alt }} </span>
           <span class="hgvs">  {{ hgvsP }} </span>
         </div>
-        <div style="display:inline-block;width:122px;vertical-align:top">
+        <div style="display:inline-block;width:112px;vertical-align:top">
           <span class="vep-consequence">{{ vepConsequence }}</span>
           <span v-if="!isBasicMode" class="rsid">{{ rsId }}</span>
         </div>
@@ -251,18 +263,6 @@
 
     </a>
 
-   <span v-if="!isBasicMode" class="favorite-indicator"
-   style="float: right;">
-    <svg class="favorite-badge"
-     @click="toggleFavorite"
-     height="16" width="16">
-      <g transform="translate(0,0)">
-        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#star-symbol" id="favorite-badge"
-        width="16" height="16"
-        v-bind:style="favoriteStyle"></use>
-      </g>
-    </svg>
-  </span>
 
   </div>
 

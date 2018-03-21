@@ -26,7 +26,7 @@
 
 
     #welcome-label
-      color: $app-color
+      color: $text-color
       font-size: 20px
 
     #what-is-new-link
@@ -95,8 +95,8 @@
 
       .video-thumbprint-well
         position: relative
-        width: 170px
-        height: 140px
+        width: 110px
+        height: 120px
         text-align: center
         margin-left: 0px
 
@@ -105,12 +105,12 @@
           margin-left: 10px
           margin-right: 10px
           color: $app-color
-          font-size: 16px
+          font-size: 14px
           line-height: 17px
 
         .video-thumbprint
-          width: 150px
-          height: 100px
+          width: 90px
+          height: 50px
           margin-top: 5px
           margin-left: 10px
           background-color: grey
@@ -120,10 +120,10 @@
             cursor: pointer
             opacity: 0.5
             color: rgba(70, 70, 70, 0.9)
-            font-size: 90px
+            font-size: 60px
             position: absolute
-            top: 15px
-            left: 40px
+            top: 0px
+            left: 25px
 
 
         #welcome-screencast-panel-multigene-analysis
@@ -317,16 +317,16 @@
 
 
         <div style="margin-top:30px">
-          <button id="load-demo-data" class="btn btn-raised btn-default" @click="onLoadDemoData">
+          <button id="load-demo-data" class="btn btn-raised " @click="onLoadDemoData">
             <span style="">Try it with demo data</span>
           </button>
-          <button   class="btn btn-raised btn-default" @click="onAppTour">
+          <button   class="btn btn-raised " @click="onAppTour">
             <span style="">Take guided tour</span>
           </button>
         </div>
       </div>
 
-      <v-card class="welcome-panel" style="background:transparent;margin-top:30px">
+      <div class="welcome-panel" style="background:transparent;margin-top:30px">
         <div id="welcome-label">
           Learn more
         </div>
@@ -421,7 +421,7 @@
 
 
 
-      </v-card>
+      </div>
 
     </div>
   </div>

@@ -143,7 +143,7 @@
 
   <span class="badge-wrapper">
       <v-btn flat ref="autosomalDominant"
-       id="denovo"
+       id="autosomalDominant"
        v-bind:class="badgeCounts.autosomalDominant == 0 ? 'disabled' : ''"
       @click="onBadgeClick('autosomalDominant')" >
         <v-badge  right >
