@@ -27,19 +27,20 @@
 </style>
 
 <template>
-  <div>
-    <div id="phenotype-input" style="vertical-align:bottom;display:inline-block;width:200px">
+  <v-layout row no-wrap>
+    <v-flex id="phenotype-input" style="vertical-align:bottom;display:inline-block;">
       <v-text-field id="phenotype-term" hide-details v-model="phenotypeTermEntered"
-      v-bind:label="phenotypeLabel ? phenotypeLabel : 'Phenotype'" prepend-icon="search" v-bind:loading="loadingStatus">
+      v-bind:label="phenotypeLabel ? phenotypeLabel : 'Phenotype'"  v-bind:loading="loadingStatus">
       </v-text-field>
       <typeahead
       v-model="phenotypeTerm"
       hide-details="false"
-      force-select match-start
+      force-select="false"
+      limit="100"
       target="#phenotype-term"
       async-src="http://nv-blue.iobio.io/hpo/hot/lookup/?term=" item-key="value"/>
-    </div>
-    <div id="phenolyzer-top-input" style="display:inline-block;width:60px;margin-left:5px">
+    </v-flex>
+    <v-flex id="phenolyzer-top-input" style="display:inline-block;max-width:60px;width:60px;margin-left:5px;padding-top:4px">
       <v-select
       v-model="phenolyzerTop"
       label="Genes"
@@ -49,17 +50,17 @@
       :items="phenolyzerTopCounts"
       >
       </v-select>
-    </div>
-    <div  v-bind:class="isNav ? 'mt-3 ml-1' : 'mt-2'" style="float:right;display:inline-block;">
+    </v-flex>
+    <v-flex  v-bind:class="isNav ? 'mt-3 ml-1' : 'mt-2'" style="float:right;display:inline-block;">
      <v-btn  id="search-phenotype-button" small raised @click="onSearch" >Search</v-btn>
-    </div>
-    <div v-if="!isNav">
+    </v-flex>
+    <v-flex v-if="!isNav">
       <img style="width:22px;height:22px"
          v-if="phenolyzerStatus == 'queued' || phenolyzerStatus == 'running'"
          class="loader  glyph" src="../../../assets/images/wheel.gif"/>
       {{ phenolyzerStatus }}
-    </div>
-  </div>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>

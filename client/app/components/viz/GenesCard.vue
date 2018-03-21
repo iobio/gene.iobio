@@ -101,7 +101,7 @@
   <v-card tile id="genes-card" class="app-card">
     <v-card-title v-if="!isEduMode" primary-title>Genes</v-card-title>
 
-      <genes-menu
+      <genes-menu style="padding-left:16px"
        v-if="isEduMode && tourNumber == '1'"
        id="app-tour-genes-menu"
        :geneModel="geneModel"

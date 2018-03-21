@@ -113,5 +113,10 @@ html {
   z-index: 200 !important;
 }
 
+.dropdown.open .dropdown-menu {
+  max-height: 400px !important;
+  overflow-y: scroll !important
+}
+
 
 

@@ -6,6 +6,9 @@ nav.toolbar
   background-color: $app-color !important
   font-weight: 300 !important
 
+  .toolbar__items
+    width: 65%
+
   .btn
     margin: 0px
 
@@ -105,7 +108,7 @@ nav.toolbar
         <v-form id="gene-name-input" style="width:140px">
           <v-text-field id="search-gene-name" label="Gene" prepend-icon="search">
           </v-text-field>
-          <typeahead v-model="selectedGene" force-select match-start  target="#search-gene-name" :data="geneModel.allKnownGenes" item-key="gene_name"/>
+          <typeahead v-model="selectedGene" force-select="true" limit="100" match-start  target="#search-gene-name" :data="geneModel.allKnownGenes" item-key="gene_name"/>
         </v-form>
 
 

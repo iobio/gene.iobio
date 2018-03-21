@@ -48,7 +48,7 @@ textarea#copy-paste-genes
       <v-expansion-panel v-if="isEduMode" expand>
         <v-expansion-panel-content :value="openPhenolyzerPanel">
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
-          <v-card style="margin-bottom:15px">
+          <v-card style="margin-bottom:15px;margin-left:16px;">
               <phenotype-search
               :isNav="false"
               :defaultTopGenes="isEduMode ? '5' : '30'"
