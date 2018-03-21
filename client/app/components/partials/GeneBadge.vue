@@ -32,6 +32,8 @@
     padding-top: 1px
     display: none
 
+  #autosomal-dominant-badge
+    display: none
   #recessive-badge
     display: none
   #denovo-badge
@@ -89,6 +91,9 @@
     #gene-badge-phenotype-symbol
       display: inline-block
 
+  &.inheritance-autosomal-dominant
+    #autosomal-dominant-badge
+      display: inline
   &.inheritance-recessive
     #recessive-badge
       display: inline
@@ -310,6 +315,12 @@
                   </use>
               </g>
           </svg>
+          <svg id="autosomal-dominant-badge" class="inheritance-badge" height="15" width="15">
+            <g transform="translate(0,0)">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#autosomal-dominant-symbol" width="15" height="15" style="pointer-events: none;">
+              </use>
+            </g>
+          </svg>
           <svg id="recessive-badge" class="inheritance-badge" height="15" width="15">
             <g transform="translate(0,0)">
               <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="15" height="15" style="pointer-events: none;">
@@ -478,6 +489,7 @@ export default {
         'has-phenotypes':        false, //this.phenotypes && this.phenotypes.length > 0,
         'is-flagged':            this.gene.dangerSummary && this.gene.dangerSummary.badges && this.gene.dangerSummary.badges.flagged.length > 0,
         'is-pathogenic':         this.gene.dangerSummary && this.gene.dangerSummary.badges.pathogenic.length > 0,
+        'inheritance-autosomal-dominant': this.gene.dangerSummary && this.gene.dangerSummary.badges.autosomalDominant.length > 0,
         'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.badges.recessive.length > 0,
         'inheritance-denovo':    this.gene.dangerSummary && this.gene.dangerSummary.badges.denovo.length > 0,
         'inheritance-x-linked':  this.gene.dangerSummary && this.gene.dangerSummary.badges.xlinked.length > 0,

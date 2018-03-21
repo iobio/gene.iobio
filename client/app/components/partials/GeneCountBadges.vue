@@ -141,6 +141,34 @@
 
 
 
+  <span class="badge-wrapper">
+      <v-btn flat ref="autosomalDominant"
+       id="denovo"
+       v-bind:class="badgeCounts.autosomalDominant == 0 ? 'disabled' : ''"
+      @click="onBadgeClick('autosomalDominant')" >
+        <v-badge  right >
+          <span   slot="badge">{{ badgeCounts.autosomalDominant }}</span>
+          <span>
+            <svg id="autosomal-dominant-badge" class="inheritance-badge">
+              <g transform="translate(0,0)">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#autosomal-dominant-symbol" width="20" height="20" style="pointer-events: none;">
+                </use>
+              </g>
+            </svg>
+          </span>
+        </v-badge>
+      </v-btn>
+      <filter-menu
+      ref="autosomalDominant-menu"
+      :filterModel="filterModel"
+      :badge="`autosomalDominant`"
+      :showAddActivator="false"
+      @filter-applied="onFilterApplied"
+      @filter-menu-open="onFilterMenuOpen">
+      </filter-menu>
+
+  </span>
+
 
   <span class="badge-wrapper">
       <v-btn flat ref="denovo"

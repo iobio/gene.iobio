@@ -470,7 +470,7 @@ export default class VariantExporter {
         }
 
       }
-      VariantTrioModel.determineInheritance(revisedVariant);
+      VariantTrioModel.determineInheritance(revisedVariant, 'compareMother', 'compareFather', me.cohort.getModel('mother').affectedStatus, me.cohort.getModel('father').affectedStatus);
 
       // The bookmarkEntry contains fields that need to be in loaded
       // into the record that will be exported.  These include trio

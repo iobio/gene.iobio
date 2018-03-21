@@ -473,6 +473,8 @@ export default {
         self.genomeBuildHelper,
         new FreebayesSettings());
 
+      self.cacheHelper.cohort = self.cohortModel;
+
       self.variantExporter.cohort = self.cohortModel;
 
       self.inProgress = self.cohortModel.inProgress;
@@ -747,6 +749,7 @@ export default {
         queryObject['bam'+i]    = model.bam && model.bam.bamUri ? model.bam.bamUri : "";
         queryObject['bai'+i]    = model.bam && model.bam.baiUri ? model.bam.baiUri : "";
         queryObject['sample'+i] = model.sampleName ? model.sampleName : "";
+        queryObject['affectedStatus'+i] = model.affectedStatus;
         i++;
       })
 

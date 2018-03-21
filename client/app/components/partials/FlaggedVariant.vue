@@ -135,6 +135,13 @@
         </svg>
 
         <svg
+         v-if="variant.inheritance && variant.inheritance == 'autosomal dominant'"
+         class="inheritance-badge" height="15" width="15">
+          <g transform="translate(0,0)">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#autosomal-dominant-symbol" width="16" height="16" style="pointer-events: none;"></use>
+          </g>
+        </svg>
+        <svg
          v-if="variant.inheritance && variant.inheritance == 'recessive'"
          class="inheritance-badge" height="15" width="15">
           <g transform="translate(0,0)">

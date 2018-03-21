@@ -1,7 +1,7 @@
 import SampleModel      from './SampleModel.js'
 
 export default class VariantTrioModel {
-  constructor(probandVcfData, motherVcfData, fatherVcfData, sibsVcfData, affectedInfo) {
+  constructor(probandVcfData, motherVcfData, fatherVcfData, sibsVcfData, syncGenotypes, affectedInfo) {
     this.probandVcfData = probandVcfData;
     this.motherVcfData = motherVcfData;
     this.fatherVcfData = fatherVcfData;
@@ -168,7 +168,7 @@ export default class VariantTrioModel {
 
       // Fill in the inheritance mode.
       me.probandVcfData.features.forEach(function(variant) {
-        VariantTrioModel.determineInheritance(variant, 'compareMother', 'compareFather');
+        VariantTrioModel.determineInheritance(variant, 'compareMother', 'compareFather', me.motherAffectedInfo.status, me.fatherAffectedInfo.status);
       });
 
       if (me.probandVcfData) {
@@ -225,6 +225,7 @@ export default class VariantTrioModel {
 
   _syncGenotypes(variantA, variantB, polyFillSampleA, polyFillSampleB) {
     var me = this;
+    if (me.syncGenotypes) {
       if (polyFillSampleA && polyFillSampleB) {
         // Polyfill the genotypes for the trio if the samples for parent in separate file from proband
         variantA.genotypes[polyFillSampleB] = variantB.genotype;
@@ -232,14 +233,15 @@ export default class VariantTrioModel {
       }
       // Sync up the genotypes across all samples.  There may be affected/unaffected sib genotypes
       // in the parent vcf, so sync both proband->parent and parent->proband
-    for (var sampleName in variantA.genotypes) {
-      if (!variantB.genotypes[sampleName]) {
-        variantB.genotypes[sampleName] = variantA.genotypes[sampleName];
+      for (var sampleName in variantA.genotypes) {
+        if (!variantB.genotypes[sampleName]) {
+          variantB.genotypes[sampleName] = variantA.genotypes[sampleName];
+        }
       }
-    }
-    for (var sampleName in variantB.genotypes) {
-      if (!variantA.genotypes[sampleName]) {
-        variantA.genotypes[sampleName] = variantB.genotypes[sampleName];
+      for (var sampleName in variantB.genotypes) {
+        if (!variantA.genotypes[sampleName]) {
+          variantA.genotypes[sampleName] = variantB.genotypes[sampleName];
+        }
       }
     }
   }
@@ -418,19 +420,33 @@ export default class VariantTrioModel {
  *  denovo     - proband has variant, but not present in mom and dad
  *             (homref parents are also the same as variant not being present)
  */
-VariantTrioModel.determineInheritance = function(variant, fieldCompareMother, fieldCompareFather) {
+VariantTrioModel.determineInheritance = function(variant, fieldCompareMother, fieldCompareFather, motherAffectedStatus, fatherAffectedStatus) {
   if (variant.zygosity != null && variant.zygosity.toLowerCase() == 'hom'
     && variant.motherZygosity != null && variant.motherZygosity.toLowerCase() == 'het'
-    && variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'het') {
+    && variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'het'
+    && motherAffectedStatus == "unaffected"
+    && fatherAffectedStatus == "unaffected") {
     variant.inheritance = 'recessive';
   } else if (fieldCompareMother && fieldCompareFather
-           && (variant[fieldCompareMother] == 'unique1' || (variant[fieldCompareMother]  == 'common' && variant.motherZygosity != null && variant.motherZygosity.toLowerCase() == 'homref'))
-         && (variant[fieldCompareFather] == 'unique1' || (variant[fieldCompareFather]  == 'common' && variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'homref'))) {
+         && (variant[fieldCompareMother] == 'unique1' || (variant[fieldCompareMother]  == 'common' && variant.motherZygosity != null && variant.motherZygosity.toLowerCase() == 'homref'))
+         && (variant[fieldCompareFather] == 'unique1' || (variant[fieldCompareFather]  == 'common' && variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'homref'))
+         && motherAffectedStatus == "unaffected"
+         && fatherAffectedStatus == "unaffected") {
     variant.inheritance = 'denovo';
   } else if (fieldCompareMother == null && fieldCompareFather == null
-           && (variant.motherZygosity != null && variant.motherZygosity.toLowerCase() == 'homref')
-         && (variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'homref')) {
+        && (variant.motherZygosity != null && variant.motherZygosity.toLowerCase() == 'homref')
+         && (variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'homref')
+         && motherAffectedStatus == "unaffected"
+         && fatherAffectedStatus == "unaffected") {
     variant.inheritance = 'denovo';
+  } else if (variant.zygosity != null && (variant.zygosity != null && variant.zygosity.toLowerCase() == 'hom' || variant.zygosity.toLowerCase() == 'het')
+     &&  motherAffectedStatus == "affected"
+     &&  (variant.motherZygosity != null && (variant.motherZygosity.toLowerCase() == 'het' || variant.motherZygosity.toLowerCase() == 'hom')) ) {
+    variant.inheritance = 'autosomal dominant';
+  } else if (variant.zygosity != null && (variant.zygosity.toLowerCase() == 'hom' || variant.zygosity.toLowerCase() == 'het')
+     && fatherAffectedStatus == "affected"
+     && (variant.fatherZygosity != null && (variant.fatherZygosity.toLowerCase() == 'het' || variant.fatherZygosity.toLowerCase() == 'hom')) ) {
+    variant.inheritance = 'autosomal dominant';
   } else if (
     (variant.chrom == "X" || variant.chrom == "chrX")
     && variant.zygosity != null && variant.zygosity.toLowerCase() == 'hom'

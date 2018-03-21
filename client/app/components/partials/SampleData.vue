@@ -157,6 +157,8 @@ export default {
     },
     onIsAffected: function() {
       this.modelInfo.isAffected = this.isAffected;
+      this.modelInfo.affectedStatus = this.isAffected ? 'affected' : 'unaffected';
+      this.modelInfo.model.affectedStatus = this.modelInfo.affectedStatus;
     },
     updateSamples: function(samples, sampleToSelect) {
       this.samples = samples;

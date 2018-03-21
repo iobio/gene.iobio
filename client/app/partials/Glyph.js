@@ -341,6 +341,24 @@ export default class Glyph {
              .style("pointer-events", "none");
 
   };
+
+  showAutosomalDominantSymbol(selection, options) {
+    options = options || {};
+
+    var width = (options.cellSize > 18) ? "19" : (options.width || "16");
+
+    var transform = (options.cellSize > 18) ? "translate(2,3)" : (options.transform || "translate(1,2)");
+
+    selection.append("g")
+             .attr("transform", transform)
+             .append("use")
+             .attr("xlink:href", '#autosomal-dominant-symbol')
+             .attr("width", width)
+             .attr("height", width)
+             .style("pointer-events", "none");
+
+  };
+
   showAffectedPresentSymbol(selection, options) {
     var symbolLink = null;
     var id = "thumbs-grey-symbol";

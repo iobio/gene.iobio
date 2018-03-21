@@ -55,11 +55,12 @@ export default class Translator {
                       none:                 {value: 104, badge: false, clazz: ''}
                        };
     this.inheritanceMap = {
-                      denovo:         {value: 1, badge: true,  clazz: 'denovo',       display: 'de novo',      symbolFunction: this.glyph.showDeNovoSymbol},
-                      recessive:      {value: 2, badge: true,  clazz: 'recessive',    display: 'recessive',    symbolFunction: this.glyph.showRecessiveSymbol},
-                      'x-linked':     {value: 3, badge: true,  clazz: 'x-linked',     display: 'x-linked',     symbolFunction: this.glyph.showXLinkedSymbol},
-                      'compound het': {value: 4, badge: true,  clazz: 'compound-het', display: 'compound het', symbolFunction: this.glyph.showCompoundHetSymbol},
-                      none:           {value: 3, badge: false, clazz: 'noinherit',    display: '',             symbolFunction: this.glyph.showNoInheritSymbol}
+                      denovo:               {value: 1, badge: true,  clazz: 'denovo',       display: 'de novo',      symbolFunction: this.glyph.showDeNovoSymbol},
+                      recessive:            {value: 2, badge: true,  clazz: 'recessive',    display: 'recessive',    symbolFunction: this.glyph.showRecessiveSymbol},
+                      'x-linked':           {value: 3, badge: true,  clazz: 'x-linked',     display: 'x-linked',     symbolFunction: this.glyph.showXLinkedSymbol},
+                      'compound het':       {value: 4, badge: true,  clazz: 'compound-het', display: 'compound het', symbolFunction: this.glyph.showCompoundHetSymbol},
+                      'autosomal dominant': {value: 5, badge: true,  clazz: 'autosomal-dominant', display: 'autosomal dominant', symbolFunction: this.glyph.showAutosomalDominantSymbol},
+                      none:                 {value: 3, badge: false, clazz: 'noinherit',    display: '',             symbolFunction: this.glyph.showNoInheritSymbol}
                        };
     this.zygosityMap = {
                       HOM:        {value: 1, badge: true,  clazz: 'zyg_hom',        symbolFunction: this.glyph.showHomSymbol},

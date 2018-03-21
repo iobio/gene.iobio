@@ -1027,9 +1027,9 @@ class CohortModel {
         } else {
           // We only pass in the affected info if we need to sync up genotypes because samples
           // where in separate vcf files
-          var affectedInfoToSync = self.isAlignmentsOnly() || self.samplesInSingleVcf() ? null : self.affectedInfo;
+          var syncGenotypes = self.isAlignmentsOnly() || self.samplesInSingleVcf() ? false : true;
 
-          var trioModel = new VariantTrioModel(resultMap.proband, resultMap.mother, resultMap.father, null, affectedInfoToSync);
+          var trioModel = new VariantTrioModel(resultMap.proband, resultMap.mother, resultMap.father, null, syncGenotypes, self.affectedInfo);
 
           // Compare the mother and father variants to the proband, setting the inheritance
           // mode on the proband's variants

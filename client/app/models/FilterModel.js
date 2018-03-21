@@ -48,10 +48,23 @@ class FilterModel {
         minGenotypeDepth: null,
         exclusiveOf: null
       },
+      'autosomalDominant': {
+        active: true,
+        custom: false,
+        name: "Autosomal dominant inhertance, low allele freq",
+        maxAf: .05,
+        clinvar: null,
+        impact: ['HIGH', 'MODERATE'],
+        consequence: null,
+        inheritance: ['autosomal dominant'],
+        zyosity: null,
+        minGenotypeDepth: null,
+        exclusiveOf: null
+      },
       'recessive': {
         active: true,
         custom: false,
-        name: "Recessive inhertance, low allele freq",
+        name: "Recessive inheritance, low allele freq",
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -111,7 +124,7 @@ class FilterModel {
         inheritance: null,
         zyosity: null,
         minGenotypeDepth: null,
-        exclusiveOf: ['pathogenic', 'recessive', 'denovo', 'compoundHet', 'xlinked']
+        exclusiveOf: ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked']
       }
     }
 

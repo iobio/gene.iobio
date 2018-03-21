@@ -158,8 +158,11 @@ export default {
       ],
       impacts: ['HIGH', 'MODERATE', 'MODIFIER', 'LOW'],
       inheritanceModes: [
+        {text: 'autosomal dominant',   value: 'autosomal dominant'},
         {text: 'recessive', value:'recessive'},
-        {text: 'de novo',   value: 'denovo'}
+        {text: 'de novo',   value: 'denovo'},
+        {text: 'compound het',   value: 'compound het'},
+        {text: 'x-linked',   value: 'x-linked'}
       ],
       zygosities: ['HOM', 'HET'],
       consequences: [

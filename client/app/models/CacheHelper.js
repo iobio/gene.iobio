@@ -462,7 +462,7 @@ CacheHelper.prototype.refreshGeneBadges = function(callback) {
     var keys = [];
 
     allKeys.forEach(function(key) {
-      keyObject = CacheHelper._parseCacheKey(key);
+      var keyObject = CacheHelper._parseCacheKey(key);
       if (keyObject && keyObject.launchTimestamp == me.launchTimestamp) {
 
           if (keyObject.dataKind == dataKind && keyObject.relationship == "proband" && theGeneNames[keyObject.gene]) {
@@ -1118,7 +1118,7 @@ CacheHelper.prototype.promiseGetDataThreaded = function(key, keyObject) {
 
           if (dataCompressed != null) {
 
-        var worker = new Worker('./js/model/cacheHelperWorker.js');
+        var worker = new Worker('./app/models/cacheHelperWorker.js');
 
         worker.onmessage = function(e) {
           resolve(e.data);
