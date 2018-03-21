@@ -872,7 +872,7 @@ var effectCategories = [
     cmd.on('end', function(data) {
       var results = [];
       var records = summaryData.split("\n");
-      var fieldsNames = {};
+      var fieldNames = {};
 
       var idx = 0;
       records.forEach(function(record) {
