@@ -37,7 +37,7 @@
 
     button
       color: $app-color
-      font-size: 17px !important
+      font-size: 16px !important
       margin-left: 7px
       margin-right: 7px
 
@@ -226,7 +226,7 @@
 
 
       <div id="screencast-intro" class="hide video-container">
-        <button  class="video-stop-button btn btn-default" @click="stopVideo('screencast-intro')">
+        <button  class="video-stop-button btn " @click="stopVideo('screencast-intro')">
           <i class="material-icons">arrow_back</i>
         </button>
         <h4>Introducing gene.iobio</h4>
@@ -234,7 +234,7 @@
       </div>
 
       <div id="screencast-coverage-analysis" class="hide video-container" >
-          <button class="video-stop-button btn btn-default" @click="stopVideo('screencast-coverage-analysis')">
+          <button class="video-stop-button btn " @click="stopVideo('screencast-coverage-analysis')">
             <i class="material-icons">arrow_back</i>
           </button>
           <h4>Assessing insufficient coverage</h4>
@@ -326,106 +326,102 @@
         </div>
       </div>
 
-      <div class="welcome-panel" style="background:transparent;width:100%;margin-top:30px">
+      <v-card class="welcome-panel" style="background:transparent;margin-top:30px">
         <div id="welcome-label">
-         <a  id="what-is-new-link" style="" data-toggle="collapse" href="#what-is-new" aria-expanded="true">
           Learn more
-         </a>
         </div>
-        <div id="what-is-new" class="collapse in" aria-expanded="true">
-          <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
+        <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
 
 
-            <div id="video-thumbprint-panel">
-              <div id="video-thumbprint-content">
+          <div id="video-thumbprint-panel">
+            <div id="video-thumbprint-content">
 
 
 
 
-                <a href="http://iobio.io/2017/09/27/loading-data/" target="_new">
-                  <div class="video-thumbprint-well ">
-                    <div class="video-thumbprint shadow-z-2" >
-                      <img src="http://iobio.io/public/images/blog/loading_data/blog_image_data.jpg" width="100%" height="100%">
-                    </div>
-                    <div class="video-title">
-                      How to load your data
-                    </div>
-                  </div>
-                </a>
-
+              <a href="http://iobio.io/2017/09/27/loading-data/" target="_new">
                 <div class="video-thumbprint-well ">
-                  <div id="welcome-screencast-panel-saving-analysis" class="video-thumbprint shadow-z-2" >
-                    <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
-                    </i>
+                  <div class="video-thumbprint shadow-z-2" >
+                    <img src="http://iobio.io/public/images/blog/loading_data/blog_image_data.jpg" width="100%" height="100%">
                   </div>
-                  <div class="video-title">Saving your analysis video</div>
+                  <div class="video-title">
+                    How to load your data
+                  </div>
                 </div>
+              </a>
 
-
-                <a href="http://iobio.io/2017/04/26/gene_2.3.0/" target="_new">
-                  <div class="video-thumbprint-well ">
-                    <div class="video-thumbprint shadow-z-2" >
-                      <img src="http://iobio.io/public/images/blog/gene_2.3.0/main.png" width="100%" height="100%">
-                    </div>
-                    <div class="video-title">
-                      Saving and loading your analysis
-                    </div>
-                  </div>
-                </a>
-
-                <div class="video-thumbprint-well ">
-                  <div id="welcome-screencast-panel-coverage-analysis" class="video-thumbprint shadow-z-2" >
-                    <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
-                    </i>
-                  </div>
-                  <div class="video-title">Coverage analysis video</div>
+              <div class="video-thumbprint-well ">
+                <div id="welcome-screencast-panel-saving-analysis" class="video-thumbprint shadow-z-2" >
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
+                  </i>
                 </div>
-
-                <a href="http://iobio.io/2017/07/11/coverage/" target="_new">
-                  <div class="video-thumbprint-well ">
-                    <div class="video-thumbprint shadow-z-2" >
-                      <img src="http://iobio.io/public/images/blog/coverage/main.png" width="100%" height="100%">
-                    </div>
-                    <div class="video-title">
-                      Coverage analysis
-                    </div>
-                  </div>
-                </a>
-
-                <div class="video-thumbprint-well ">
-                  <div id="welcome-screencast-panel-multigene-analysis" class="video-thumbprint shadow-z-2">
-                    <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
-                    </i>
-                  </div>
-                  <div class="video-title">Multi-gene analysis video</div>
-                </div>
-
-
-                <a href="http://iobio.io/2017/09/29/gene_2.5.0/" target="_new">
-                  <div class="video-thumbprint-well ">
-                    <div class="video-thumbprint shadow-z-2" >
-                      <img src="http://iobio.io/public/images/blog/gene_2.5.0/banner.png" width="100%" height="100%">
-                    </div>
-                    <div class="video-title">
-                      ClinVar and gnomAD
-                    </div>
-                  </div>
-                </a>
-
-
-
-
-
-
-
+                <div class="video-title">Saving your analysis video</div>
               </div>
+
+
+              <a href="http://iobio.io/2017/04/26/gene_2.3.0/" target="_new">
+                <div class="video-thumbprint-well ">
+                  <div class="video-thumbprint shadow-z-2" >
+                    <img src="http://iobio.io/public/images/blog/gene_2.3.0/main.png" width="100%" height="100%">
+                  </div>
+                  <div class="video-title">
+                    Saving and loading your analysis
+                  </div>
+                </div>
+              </a>
+
+              <div class="video-thumbprint-well ">
+                <div id="welcome-screencast-panel-coverage-analysis" class="video-thumbprint shadow-z-2" >
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
+                  </i>
+                </div>
+                <div class="video-title">Coverage analysis video</div>
+              </div>
+
+              <a href="http://iobio.io/2017/07/11/coverage/" target="_new">
+                <div class="video-thumbprint-well ">
+                  <div class="video-thumbprint shadow-z-2" >
+                    <img src="http://iobio.io/public/images/blog/coverage/main.png" width="100%" height="100%">
+                  </div>
+                  <div class="video-title">
+                    Coverage analysis
+                  </div>
+                </div>
+              </a>
+
+              <div class="video-thumbprint-well ">
+                <div id="welcome-screencast-panel-multigene-analysis" class="video-thumbprint shadow-z-2">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
+                  </i>
+                </div>
+                <div class="video-title">Multi-gene analysis video</div>
+              </div>
+
+
+              <a href="http://iobio.io/2017/09/29/gene_2.5.0/" target="_new">
+                <div class="video-thumbprint-well ">
+                  <div class="video-thumbprint shadow-z-2" >
+                    <img src="http://iobio.io/public/images/blog/gene_2.5.0/banner.png" width="100%" height="100%">
+                  </div>
+                  <div class="video-title">
+                    ClinVar and gnomAD
+                  </div>
+                </div>
+              </a>
+
+
+
+
+
+
+
             </div>
           </div>
         </div>
 
 
 
-      </div>
+      </v-card>
 
     </div>
   </div>
