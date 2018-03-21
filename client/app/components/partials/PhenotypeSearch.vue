@@ -119,6 +119,10 @@ export default {
             if (self.geneModel.phenolyzerGenes.length == 0) {
               self.phenolyzerStatus = "no genes found."
               self.genesToApply = "";
+              if (self.isNav) {
+                alertify.set('notifier','position', 'top-left');
+                alertify.warning("No genes found.");
+              }
             } else {
               var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
                 return gene.selected;
