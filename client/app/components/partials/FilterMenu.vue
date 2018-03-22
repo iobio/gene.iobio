@@ -73,6 +73,7 @@
                 v-bind:items="consequences"
                 v-model="selectedConsequences"
                 multiple
+                autocomplete
                 hide-details
           >
           </v-select>

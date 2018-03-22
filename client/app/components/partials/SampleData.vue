@@ -60,6 +60,7 @@
         label="Sample"
         v-model="sample"
         :items="samples"
+        autocomplete
         @input="onSampleSelected"
         hide-details
       ></v-select>

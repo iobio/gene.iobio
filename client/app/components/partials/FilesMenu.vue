@@ -127,6 +127,7 @@
             v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
             label="Affected Siblings"
             multiple
+            autocomplete
             v-model="affectedSibs"
             :items="probandSamples"
             hide-details
@@ -140,6 +141,7 @@
             v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
             label="Unaffected Siblings"
             multiple
+            autocomplete
             v-model="unaffectedSibs"
             :items="probandSamples"
             hide-details
