@@ -293,7 +293,11 @@ class CohortModel {
         vcfPromise = new Promise(function(vcfResolve, vcfReject) {
           vm.onVcfUrlEntered(modelInfo.vcf, modelInfo.tbi, function() {
             vm.setSampleName(modelInfo.sample);
-            vm.setName(modelInfo.relationship + " " + modelInfo.sample);
+            if (modelInfo.name && modelInfo.name != "") {
+              vm.setName(modelInfo.name);
+            } else {
+              vm.setName(modelInfo.relationship + " " + modelInfo.sample);
+            }
             vcfResolve();
           })
         },

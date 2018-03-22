@@ -123,6 +123,7 @@ nav.toolbar
 
 
         <phenotype-search
+         v-if="!isEduMode"
          class="ml-2 mt-1"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
