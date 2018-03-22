@@ -1018,7 +1018,32 @@ export default {
       if (phenotypeTerm) {
         self.phenotypeTerm = phenotypeTerm;
       }
-      self.geneModel.promiseCopyPasteGenes(genesString)
+      var replace = false;
+      var message = null;
+      if (self.geneModel.geneNames.length > 0) {
+        var count = self.geneModel.getCopyPasteGeneCount(genesString);
+        if (phenotypeTerm && phenotypeTerm.length > 0) {
+          message = count + " genes for phenotype " + phenotypeTerm + " ready to apply.  Remove currently listed genes first?";
+        } else {
+          message = count + " genes ready to apply.  Remove currently listed genes first?";
+        }
+        alertify.confirm(message,
+                function(){
+                  replace = true;
+                  self.applyGenesImpl(genesString, replace)
+                },
+                function(){
+                  replace = false;
+                  self.applyGenesImpl(genesString, replace)
+                }).set('labels', {ok:'Yes', cancel:'No'});
+      } else {
+        self.applyGenesImpl(genesString, false);
+      }
+
+    },
+    applyGenesImpl: function(genesString, replace) {
+      let self = this;
+      self.geneModel.promiseCopyPasteGenes(genesString, replace)
       .then(function() {
         self.setUrlGeneParameters();
         let geneName = Object.keys(self.selectedGene).length == 0 && self.geneModel.sortedGeneNames.length > 0 ?
@@ -1030,6 +1055,7 @@ export default {
           self.cacheHelper.analyzeAll(self.cohortModel, false);
         }
       })
+
     },
     onSortGenes: function(sortBy) {
       this.geneModel.sortGenes(sortBy);

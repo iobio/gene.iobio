@@ -112,21 +112,27 @@ class GeneModel {
 
  }
 
- copyPasteGenes(genesString) {
+ getCopyPasteGeneCount(genesString) {
+    genesString = genesString.replace(/\s*$/, "");
+    var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
+    return geneNameList.length;
+ }
+
+ copyPasteGenes(genesString, replace=true) {
     var me = this;
     genesString = genesString.replace(/\s*$/, "");
     var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
 
-    me.geneNames = [];
-    me.sortedGeneNames = [];
+
+
+    var genesToAdd = [];
     var unknownGeneNames = {};
     var duplicateGeneNames = {};
     geneNameList.forEach( function(geneName) {
       if (geneName.trim().length > 0) {
         if (me.isKnownGene(geneName)) {
-          if (me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0) {
-            me.geneNames.push(geneName.trim().toUpperCase());
-            me.sortedGeneNames.push(geneName.trim().toUpperCase());
+          if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0) {
+            genesToAdd.push(geneName.trim().toUpperCase());
           } else {
             duplicateGeneNames[geneName.trim().toUpperCase()] = true;
           }
@@ -135,6 +141,18 @@ class GeneModel {
         }
       }
     });
+
+    if (replace) {
+      me.geneNames = [];
+      me.sortedGeneNames = [];
+    }
+
+    genesToAdd.forEach(function(geneName) {
+      me.geneNames.push(geneName);
+      me.sortedGeneNames.push(geneName);
+    })
+
+
 
     var message = "";
     if (Object.keys(unknownGeneNames).length > 0) {
