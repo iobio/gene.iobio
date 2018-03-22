@@ -105,9 +105,12 @@ export default {
       self.phenolyzerStatus = null;
       self.genesToApply = "";
       var searchTerm = null;
-      if (self.phenotypeTerm) {
+      if (self.phenotypeTerm && self.phenotypeTerm.value) {
         searchTerm = self.phenotypeTerm.value;
         self.phenotypeTermEntered = self.phenotypeTerm.value;
+      } if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
+        searchTerm = self.phenotypeTerm;
+        self.phenotypeTermEntered = self.phenotypeTerm;
       } else if (self.phenotypeTermEntered) {
         searchTerm = self.phenotypeTermEntered;
       }

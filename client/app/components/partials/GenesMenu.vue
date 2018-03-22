@@ -147,6 +147,16 @@ export default {
   created: function() {
   },
   mounted: function() {
+  },
+  updated: function() {
+  },
+  watch: {
+    showGenesMenu: function() {
+      let self = this;
+      if (self.showGenesMenu) {
+        this.genesToApply = self.geneModel.geneNames.join(", ");
+      }
+    }
   }
 }
 </script>

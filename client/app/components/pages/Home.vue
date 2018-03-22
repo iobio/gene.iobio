@@ -713,16 +713,7 @@ export default {
     setUrlParameters: function() {
       let self = this;
 
-      let geneName = "";
-      let geneNames = "";
-      if (self.selectedGene && self.selectedGene.gene_name) {
-        geneName = self.selectedGene.gene_name
-      } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
-        geneName = self.geneModel.sortedGeneNames[0];
-      }
-      if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0)  {
-        geneNames = self.geneModel.sortedGeneNames.join(",");
-      }
+      this.setUrlGeneParameters();
 
       var affectedSibIds = self.cohortModel.sampleMapSibs.affected.map(function(model) {
         return model.sampleName;
@@ -757,6 +748,21 @@ export default {
       self.$router.replace({ query: queryObject });
 
 
+
+    },
+
+    setUrlGeneParameters() {
+      let self = this;
+      let geneName = "";
+      let geneNames = "";
+      if (self.selectedGene && self.selectedGene.gene_name) {
+        geneName = self.selectedGene.gene_name
+      } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+        geneName = self.geneModel.sortedGeneNames[0];
+      }
+      if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0)  {
+        geneNames = self.geneModel.sortedGeneNames.join(",");
+      }
 
     },
 
@@ -1014,6 +1020,7 @@ export default {
       }
       self.geneModel.promiseCopyPasteGenes(genesString)
       .then(function() {
+        self.setUrlGeneParameters();
         let geneName = Object.keys(self.selectedGene).length == 0 && self.geneModel.sortedGeneNames.length > 0 ?
           self.geneModel.sortedGeneNames[0] : self.selectedGene.gene_name;
         return self.promiseLoadGene(geneName);
