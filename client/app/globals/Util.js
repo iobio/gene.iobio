@@ -650,7 +650,7 @@ class Util {
       regulatoryMotifLinks: "",
       rsId: "",
       dbSnpUrl: "",
-      dbSnpLink: "",
+      dbSnpLink: ""
     };
 
 

@@ -303,13 +303,14 @@
       </v-layout>
     </div>
 
-    <div style="float:left;width:33%;"v-if="selectedVariant.genericAnnots && selectedVariant.genericAnnots.AVIA3">
+    <div style="float:left;width:33%;"
+      v-if="selectedVariant && selectedVariant.genericAnnots && selectedVariant.genericAnnots.AVIA3">
       <span style="text-align:center;font-size:12px">AVIA3 Annotations</span>
       <v-layout row nowrap
        v-for="(annotValue, annotName) in selectedVariant.genericAnnots.AVIA3"
        :key="annotName">
-           <v-flex xs4 class="field-label">{{ annotName }}</v-flex>
-           <v-flex xs8 class="field-value">{{ annotValue }}</v-flex>
+           <v-flex xs5 class="field-label">{{ annotName }}</v-flex>
+           <v-flex xs7 class="field-value">{{ annotValue }}</v-flex>
       </v-layout>
     </div>
 

@@ -35,8 +35,7 @@
       <typeahead
       v-model="phenotypeTerm"
       hide-details="false"
-      force-select="false"
-      limit="100"
+      v-bind:limit="typeaheadLimit"
       target="#phenotype-term"
       async-src="http://nv-blue.iobio.io/hpo/hot/lookup/?term=" item-key="value"/>
     </v-flex>
@@ -88,7 +87,8 @@ export default {
       phenotypeTermEntered: "",
       allPhenotypeTerms: [],
       phenolyzerStatus: null,
-      loadingStatus: false
+      loadingStatus: false,
+      typeaheadLimit: parseInt(100)
 
     }
   },
