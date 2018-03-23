@@ -7,13 +7,14 @@ nav.toolbar
   font-weight: 300 !important
 
   .toolbar__items
-    width: 65%
+    width: 60%
 
   .btn
     margin: 0px
+    min-width: 78px
 
     .btn__content
-      padding: 0 4px
+      padding: 0 0px
 
 
   i.material-icons
@@ -165,7 +166,6 @@ nav.toolbar
       v-model="showLegendMenu"
       >
         <v-btn flat slot="activator">
-          <v-icon>description</v-icon>
           Legend
         </v-btn>
 

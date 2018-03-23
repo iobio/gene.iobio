@@ -39,7 +39,6 @@
   >
 
     <v-btn id="files-menu-button" flat slot="activator">
-     <v-icon>input</v-icon>
      Files
     </v-btn>
 
