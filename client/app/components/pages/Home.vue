@@ -713,7 +713,16 @@ export default {
     setUrlParameters: function() {
       let self = this;
 
-      this.setUrlGeneParameters();
+      let geneName = "";
+      let geneNames = "";
+      if (self.selectedGene && self.selectedGene.gene_name) {
+        geneName = self.selectedGene.gene_name
+      } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+        geneName = self.geneModel.sortedGeneNames[0];
+      }
+      if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0)  {
+        geneNames = self.geneModel.sortedGeneNames.join(",");
+      }
 
       var affectedSibIds = self.cohortModel.sampleMapSibs.affected.map(function(model) {
         return model.sampleName;
@@ -752,6 +761,7 @@ export default {
     },
 
     setUrlGeneParameters() {
+      /*
       let self = this;
       let geneName = "";
       let geneNames = "";
@@ -763,6 +773,12 @@ export default {
       if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0)  {
         geneNames = self.geneModel.sortedGeneNames.join(",");
       }
+      var queryObject = {
+          gene: geneName,
+          genes: geneNames
+      };
+      self.$router.replace({ query: queryObject });
+      */
 
     },
 
@@ -1019,6 +1035,7 @@ export default {
       }
       var replace = false;
       var message = null;
+      /*
       if (self.geneModel.geneNames.length > 0) {
         var count = self.geneModel.getCopyPasteGeneCount(genesString);
         if (phenotypeTerm && phenotypeTerm.length > 0) {
@@ -1036,8 +1053,10 @@ export default {
                   self.applyGenesImpl(genesString, replace)
                 }).set('labels', {ok:'Yes', cancel:'No'});
       } else {
+        */
         self.applyGenesImpl(genesString, false);
-      }
+
+      //}
 
     },
     applyGenesImpl: function(genesString, replace) {
@@ -1046,7 +1065,7 @@ export default {
       self.geneModel.promiseCopyPasteGenes(genesString, replace)
       .then(function() {
         self.setUrlGeneParameters();
-        if (self.sortedGenes && self.sortedGeneNames.length > 0) {
+        if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           let geneName = self.geneModel.sortedGeneNames[0];
           return self.promiseLoadGene(geneName);
         } else {
@@ -1054,7 +1073,7 @@ export default {
         }
       })
       .then(function() {
-        if (self.sortedGenes && self.sortedGeneNames.length > 0) {
+        if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
             self.cacheHelper.analyzeAll(self.cohortModel, false);
           }
