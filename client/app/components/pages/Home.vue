@@ -112,8 +112,8 @@
           v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-bottom:10px"
           v-bind:class="{hide : showWelcome }"
           >
-         <split-pane :leftPercent="(!isBasicMode && cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (isEduMode ? 50 : (this.isLeftDrawerOpen ?  35 : 25)) : 0)">
-            <feature-matrix-card slot="left" style="min-height:251px;max-height:251px;overflow-y:scroll"
+         <split-pane :leftPercent="(!isBasicMode && cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (isEduMode ? 50 : (this.isLeftDrawerOpen ?  45 : 35)) : 0)">
+            <feature-matrix-card slot="left" style="min-width:310px;min-height:251px;max-height:251px;overflow-y:scroll"
             ref="featureMatrixCardRef"
             v-bind:class="{ hide: isBasicMode || !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
             :isEduMode="isEduMode"
