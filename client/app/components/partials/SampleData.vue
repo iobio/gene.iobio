@@ -26,6 +26,8 @@
 
   .sample-label
     .chip
+      margin-top: 2px
+      margin-bottom: 2px
       vertical-align: top
       margin-left: 0px
     .switch
@@ -35,12 +37,12 @@
 </style>
 <template>
 
- <v-layout row wrap class="ml-2 mt-2">
+ <v-layout row wrap class="ml-2  mt-4">
     <v-flex xs12 class="sample-label" >
-      <v-chip color="primary" small text-color="white"> {{ modelInfo.relationship }}</v-chip>
+      <v-chip dark small> {{ modelInfo.relationship }}</v-chip>
       <v-switch  label="Affected" hide-details @change="onIsAffected" v-model="isAffected"></v-switch>
     </v-flex>
-    <v-flex xs12  class="ml-3" style="margin-top: -10px">
+    <v-flex xs12  class="ml-3" style="margin-top: -15px">
       <sample-data-file
        :defaultUrl="modelInfo.vcf"
        :defaultIndexUrl="modelInfo.tbi"
@@ -54,7 +56,7 @@
       </sample-data-file>
     </v-flex>
 
-    <v-flex xs4 class="ml-3" id="sample-selection">
+    <v-flex xs4 class="ml-3" style="margin-top:-5px" id="sample-selection">
       <v-select
         v-bind:class="samples == null || samples.length == 0 ? 'hide' : ''"
         label="Sample"
@@ -66,7 +68,7 @@
       ></v-select>
     </v-flex>
 
-    <v-flex xs12  class="ml-3" >
+    <v-flex xs12  class="ml-3 " style="margin-top:-5px" >
       <sample-data-file
        :defaultUrl="modelInfo.bam"
        :defaultIndexUrl="modelInfo.bai"
@@ -130,9 +132,17 @@ export default {
         self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
           if (success) {
             self.samples = sampleNames;
-            if (self.modelInfo.sample) {
+            if (self.modelInfo.sample && self.samples.indexOf(self.modelInfo.sample) >= 0 ) {
               self.sample = self.modelInfo.sample;
               self.modelInfo.model.sampleName  = self.modelInfo.sample;
+            } else if (self.samples.length == 1) {
+              self.sample = self.samples[0];
+              self.modelInfo.sample = self.sample;
+              self.modelInfo.model.sampleName = self.sample;
+            } else {
+              self.sample = null;
+              self.modelInfo.sample = null;
+              self.modelInfo.model.sampleName =  null;
             }
             self.$emit("samples-available", self.modelInfo.relationship, self.samples);
 
@@ -149,6 +159,18 @@ export default {
       self.modelInfo.model.promiseVcfFilesSelected(fileSelection)
       .then(function(data) {
         self.samples = data.sampleNames;
+        if (self.modelInfo.sample && self.samples.indexOf(self.modelInfo.sample) >= 0 ) {
+          self.sample = self.modelInfo.sample;
+          self.modelInfo.model.sampleName  = self.modelInfo.sample;
+        } else if (self.samples.length == 1) {
+          self.sample = self.samples[0];
+          self.modelInfo.sample = self.sample;
+          self.modelInfo.model.sampleName = self.sample;
+        } else {
+          self.sample = null;
+          self.modelInfo.sample = null;
+          self.modelInfo.model.sampleName =  null;
+        }
         self.$emit("sample-data-changed");
         self.$emit("samples-available", self.modelInfo.relationship, self.samples);
       })

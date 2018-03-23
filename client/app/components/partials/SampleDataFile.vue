@@ -22,6 +22,12 @@
         height: 20px
         width: 20px
 
+    #clear-file-button
+      color: #82b1ff
+      font-size: 12px
+      font-style: italic
+      margin: 0px
+
 
 
 </style>
@@ -53,10 +59,10 @@
 
     <v-flex xs12 >
       <span> {{ fileName }} </span>
-      <v-btn small fab color="red" outline
+      <v-btn small flat id="clear-file-button"
       @click="clearFile"
       v-if="fileName != null && fileName.length > 0">
-        <v-icon style="font-size:14px">clear</v-icon>
+        Clear
       </v-btn>
     </v-flex>
   </v-layout>

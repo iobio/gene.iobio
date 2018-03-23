@@ -1,5 +1,6 @@
 
 <style lang="sass">
+@import ../../../assets/sass/variables
 
 .menuable__content__active
   >form
@@ -26,6 +27,17 @@
       font-weight: normal
       font-size: 12px
       padding-left: 5px
+
+#files-form
+  .chip
+    .chip__content
+      background-color:  $app-color
+      color: white
+      height: 24px
+
+  .radio-group
+    .input-group__input
+      min-height: 25px
 
 </style>
 
@@ -115,7 +127,7 @@
 
          <v-flex xs2 class=" mt-3 pl-2 pr-3" >
           <v-chip v-if="probandSamples && probandSamples.length > 0"
-          color="primary" small text-color="white">
+          outline small color="primary" >
             Siblings
           </v-chip>
          </v-flex>
@@ -150,7 +162,7 @@
 
 
 
-        <v-flex xs12 class="mt-4 text-xs-right">
+        <v-flex xs12 class="mt-2 text-xs-right">
           <v-btn
             @click="onLoad"
             :disabled="!isValid">

@@ -9,12 +9,12 @@
     height: 26px;
     font-size: 12px;
     font-weight: 600 !important;
-    text-transform: uppercase !important;
+    text-transform: none !important;
   }
   .jbtn-file .btn__content {
     font-size: 12px !important;
     font-weight: 600 !important;
-    text-transform: uppercase !important;
+    text-transform: none !important;
   }
   .jbtn-file input[type=file] {
     position: absolute;
