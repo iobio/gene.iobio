@@ -455,16 +455,21 @@ export default {
       }
     },
     onVariantClick: function(variant) {
-      if (this.showDepthViz) {
-        this.showCoverageCircle(variant);
+      if (this.selectedVariant == variant) {
+        this.$emit('cohortVariantClickEnd');
+      } else {
+        if (this.showDepthViz) {
+          this.showCoverageCircle(variant);
+        }
+
+        if (this.showVariantViz) {
+          this.showVariantCircle(variant);
+          this.showVariantTooltip(variant, true);
+
+         }
+        this.$emit('cohortVariantClick', variant, this, this.sampleModel.relationship);
+
       }
-
-      if (this.showVariantViz) {
-        this.showVariantCircle(variant);
-        this.showVariantTooltip(variant, true);
-
-       }
-      this.$emit('cohortVariantClick', variant, this, this.sampleModel.relationship);
     },
     onVariantHover: function(variant, showTooltip=true) {
       if (this.selectedVariant == null) {

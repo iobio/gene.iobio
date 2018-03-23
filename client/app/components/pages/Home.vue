@@ -888,14 +888,7 @@ export default {
       }
     },
     onCohortVariantClickEnd: function(sourceComponent) {
-      let self = this;
-      self.selectedVariant = null;
-      self.selectedVariantRelationship = null;
-      self.$refs.variantCardRef.forEach(function(variantCard) {
-        variantCard.hideVariantCircle();
-        variantCard.hideCoverageCircle();
-      })
-      self.$refs.featureMatrixCardRef.selectVariant(null);
+      this.deselectVariant();
     },
     onCohortVariantHover: function(variant, sourceComponent) {
       let self = this;

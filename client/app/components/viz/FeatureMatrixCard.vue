@@ -368,8 +368,13 @@ export default {
     },
 
     onVariantClick: function(variant) {
-      this.showVariantTooltip(variant, true);
-      this.$emit('cohortVariantClick', variant, this, 'proband');
+      if (variant) {
+        this.showVariantTooltip(variant, true);
+        this.$emit('cohortVariantClick', variant, this, 'proband');
+      } else {
+        this.hideVariantTooltip();
+        this.$emit('cohortVariantClickEnd');
+      }
     },
 
     onVariantHover: function(variant) {
