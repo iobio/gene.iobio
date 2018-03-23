@@ -566,6 +566,10 @@ class GeneModel {
     })
   }
 
+  clearAllGenes() {
+    this.copyPasteGenes("", true);
+  }
+
   removeGene(geneName) {
     let self = this;
 

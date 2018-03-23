@@ -59,6 +59,7 @@
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
       @apply-genes="onApplyGenes"
+      @clear-all-genes="onClearAllGenes"
       @flagged-variants-imported="onFlaggedVariantsImported"
       @flagged-variant-selected="onFlaggedVariantSelected"
       @on-files-loaded="onFilesLoaded"
@@ -102,7 +103,6 @@
          @register-flagged-variants="onRegisterFlaggedVariants"
          @filter-applied="onFilterApplied"
          @apply-genes="onApplyGenes"
-
         >
         </genes-card>
 
@@ -1013,6 +1013,12 @@ export default {
     onAnalyzeAll: function() {
       this.cacheHelper.analyzeAll(this.cohortModel);
     },
+    onClearAllGenes: function() {
+      this.selectedGene = {};
+      this.geneModel.clearAllGenes();
+      this.flaggedVariants = [];
+      this.cohortModel.flaggedVariants = [];
+    },
     onApplyGenes: function(genesString, phenotypeTerm) {
       let self = this;
       if (phenotypeTerm) {
@@ -1043,16 +1049,22 @@ export default {
     },
     applyGenesImpl: function(genesString, replace) {
       let self = this;
+      self.selectedGene = {};
       self.geneModel.promiseCopyPasteGenes(genesString, replace)
       .then(function() {
         self.setUrlGeneParameters();
-        let geneName = Object.keys(self.selectedGene).length == 0 && self.geneModel.sortedGeneNames.length > 0 ?
-          self.geneModel.sortedGeneNames[0] : self.selectedGene.gene_name;
-        return self.promiseLoadGene(geneName);
+        if (self.sortedGenes && self.sortedGeneNames.length > 0) {
+          let geneName = self.geneModel.sortedGeneNames[0];
+          return self.promiseLoadGene(geneName);
+        } else {
+          return Promise.resolve();
+        }
       })
       .then(function() {
-        if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
-          self.cacheHelper.analyzeAll(self.cohortModel, false);
+        if (self.sortedGenes && self.sortedGeneNames.length > 0) {
+          if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
+            self.cacheHelper.analyzeAll(self.cohortModel, false);
+          }
         }
       })
 

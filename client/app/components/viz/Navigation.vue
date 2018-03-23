@@ -118,7 +118,8 @@ nav.toolbar
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
-         @apply-genes="onApplyGenes">
+         @apply-genes="onApplyGenes"
+         @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
 
@@ -457,6 +458,9 @@ export default {
     },
     onClearCache: function() {
       this.$emit("clear-cache")
+    },
+    onClearAllGenes: function() {
+      this.$emit("clear-all-genes");
     },
     onApplyGenes: function(genesToApply) {
       this.$emit("apply-genes", genesToApply);

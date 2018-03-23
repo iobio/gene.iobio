@@ -73,6 +73,9 @@ textarea#copy-paste-genes
             </v-text-field>
           </div>
           <div v-if="!isEduMode">
+              <v-btn id="aclear-all-genes-button" @click="onClearAllGenes">
+              Clear all
+              </v-btn>
               <v-btn id="acmg-genes-button" @click="onACMGGenes">
               ACMG Genes
               </v-btn>
@@ -142,6 +145,10 @@ export default {
           }, 1000);
         }
       }
+    },
+    onClearAllGenes: function() {
+      this.$emit("clear-all-genes");
+      this.showGenesMenu = false;
     }
   },
   created: function() {
