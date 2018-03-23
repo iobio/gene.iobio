@@ -26,6 +26,7 @@ nav.toolbar
     margin-right: 5px
     margin-left: 5px
     padding-bottom: 5px
+    min-width: 130px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
     label
