@@ -40,14 +40,10 @@ export default class VariantTooltip {
       tooltip.classed("level-edu", "true");
     }
 
-    tooltip.classed("tooltip-wide", lock && !me.isEduMode);
-
-    var extraWide = lock && !me.isEduMode && variant.genericAnnots && Object.keys(variant.genericAnnots).length > 0;
-    tooltip.classed("tooltip-extra-wide", extraWide);
 
     if (html == null) {
       if (lock) {
-        html = me.formatContent(variant, null, 'tooltip-wide', geneObject, theTranscript, relationship, lock);
+        html = me.formatContent(variant, null, 'tooltip', geneObject, theTranscript, relationship, lock);
       } else {
         var pinMessage = "click on variant for more details";
         html = me.formatContent(variant, pinMessage, 'tooltip', geneObject, theTranscript, relationship, lock);
@@ -58,15 +54,8 @@ export default class VariantTooltip {
 
 
 
-
-
-    if (lock && !me.isEduMode) {
-      me.showScrollButtons($(tooltip[0]));
-    }
-
-
     var hasLongText = $(tooltip[0]).find('.col-sm-8').length > 0  || $(tooltip[0]).find('.col-sm-9').length > 0;
-    var w = me.isEduMode || me.isBasicMode ? (hasLongText ? me.WIDTH_SIMPLE_WIDER : me.WIDTH_SIMPLE) : (lock ? (extraWide ? me.WIDTH_EXTRA_WIDE : me.WIDTH_LOCK) : me.WIDTH_HOVER);
+    var w = me.WIDTH_HOVER;
     var h = d3.round(tooltip[0][0].offsetHeight);
 
     // We use css variables to place the tooltip chevron in the middle, center of the tooltip
@@ -96,14 +85,7 @@ export default class VariantTooltip {
       arrowClasses: []
     }
 
-    if (lock) {
-      tooltipPos.left = $('#gene-track')[0].offsetLeft - 300;
-      tooltipPos.top  = $('#gene-track')[0].offsetTop + 300;
-      var footerClass = "left-footer";
-      tooltip.selectAll('.' + footerClass + " .tooltip-control-button").classed("hide", false);
-    } else {
-      me.findBestTooltipPosition(tooltipPos, coord, x, y, h, w, yScroll);
-    }
+    me.findBestTooltipPosition(tooltipPos, coord, x, y, h, w, yScroll);
 
     if (tooltipPos.left && tooltipPos.top) {
       tooltipPos.arrowClasses.forEach(function(arrowClass) {
@@ -529,7 +511,7 @@ export default class VariantTooltip {
         + vepHighestImpactRowSimple
         + clinvarSimpleRow1
         + clinvarSimpleRow2 );
-    } else if (tooltipClazz == 'tooltip') {
+    } else {
       return (
         me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, info.dbSnpLink, 'ref-alt')
         + calledVariantRow
@@ -544,53 +526,6 @@ export default class VariantTooltip {
         + (relationship == 'known-variants' ? clinvarSimpleRow2 : '')
         + me._linksRow(variant, pinMessage, relationship, lock)
       );
-
-    } else if (tooltipClazz == 'tooltip-wide') {
-
-      var leftDiv =
-          '<div class="tooltip-left-column">'
-          +   me._tooltipRow('VEP Consequence', info.vepConsequence)
-        +   me._tooltipRow('VEP Impact', ' '  + info.vepConsequence, null, true, 'impact-badge')
-        +   vepHighestImpactRow
-        +   me._tooltipRow('ClinVar', '<span style="float:left">' + (info.clinvarLink != '' ? info.clinvarLink : me.VALUE_EMPTY) + '</span>', null, true)
-        +   me._tooltipRow('&nbsp;', info.phenotype, null, false, 'tooltip-clinvar-pheno')
-        +   me._tooltipRow('HGVSc', info.HGVScLoading ? loadingGlyph : info.HGVSc, null, true)
-        +   me._tooltipRow('HGVSp', info.HGVSpLoading ? loadingGlyph : info.HGVSp, null, true)
-        +   me._tooltipRow('PolyPhen', info.polyphen, null, true, 'polyphen-glyph')
-        +   me._tooltipRow('SIFT', info.sift, null, true, 'sift-glyph')
-        +   me._tooltipRowURL('Regulatory', info.regulatory, null, true)
-        + "</div>";
-
-      var rightDiv =
-        '<div class="tooltip-right-column">'
-        + gnomADAfRowWide
-        + exacAfRowWide
-        + af1000GRow
-        + popAf1000GRow
-        + me._tooltipRowAlleleCounts()
-        +   me._tooltipRow('Qual', variant.qual, null, true)
-        +   me._tooltipRow('VCF filter status', (variant.recfilter == '.' ? '. (unassigned)' : variant.recfilter), null, true)
-        + "</div>";
-
-
-      var clazzMap = {container: 'tooltip-info-column', row: 'tooltip-row', label: 'tooltip-header', value: 'tooltip-value'};
-      var otherDiv = me.genericAnnotation.formatContent(variant, clazzMap, this.VALUE_EMPTY);
-
-
-      var div =
-          '<div class="tooltip-wide">'
-        + me._tooltipMainHeaderRow(flaggedBadge + (geneObject ? geneObject.gene_name : ""), variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord + " " + info.exon, info.dbSnpLink , 'ref-alt')
-        + calledVariantRow
-        + inheritanceModeRow
-        + '<div id="tooltip-body" class="row">'
-          + leftDiv
-          + rightDiv
-          + otherDiv
-        + '</div>'
-        + me._linksRow(variant, null, relationship, lock)
-        + "</div>";
-
-      return div;
 
     }
 
@@ -625,30 +560,28 @@ export default class VariantTooltip {
     if (pinMessage == null) {
       pinMessage = 'Click on variant for more details';
     }
-    var scrollUpButton = '<button id="tooltip-scroll-up" class="tooltip-button  btn btn-raised btn-default" ><i class="material-icons">arrow_upward</i>scroll</button>'
-    var scrollDownButton = '<button id="tooltip-scroll-down" class="tooltip-button btn btn-raised btn-default" ><i class="material-icons">arrow_downward</i>scroll</button>'
 
     var flaggedBadge = '<svg class="bookmark-badge" height="14" width="14" style="padding-top:2px" ><g class="bookmark" transform="translate(0,0)"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#bookmark-symbol" width="14" height="14"></use></g></svg>';
 
-    var flagVariantLink =  '<button id="flag-variant"  class="hide tooltip-button tooltip-control-button btn btn-raised btn-default" ><i class="material-icons">bookmark_border</i>flag variant</button>';
+    var flagVariantLink =  '<button id="flag-variant"  class=" tooltip-button tooltip-control-button btn btn-raised btn-default" ><i class="material-icons">bookmark_border</i>flag variant</button>';
 
-    var removeFlaggedVariant  =  '<button id="remove-flagged-variant" class="hide tooltip-control-button tooltip-button btn btn-raised btn-default">remove<i class="material-icons">bookmark</i></button>';
+    var removeFlaggedVariant  =  '<button id="remove-flagged-variant" class=" tooltip-control-button tooltip-button btn btn-raised btn-default">remove<i class="material-icons">bookmark</i></button>';
 
-    var unpin =  '<button id="unpin"  class="hide tooltip-control-button tooltip-button btn btn raised btn-default"><i class="material-icons">close</i></button>'
+    var unpin =  '<button id="unpin"  class=" tooltip-control-button tooltip-button btn btn raised btn-default"><i class="material-icons">close</i></button>'
 
     if (lock) {
       if (variant.isFlagged) {
         return '<div class="row tooltip-footer">'
-          + '<div class="col-sm-4 left-footer" id="bookmarkLink" style="text-align:left;">'  + unpin + removeFlaggedVariant  + '</div>'
-          + '<div class="col-sm-4 center-footer"  style="text-align:center;">'  +  removeFlaggedVariant  +  unpin + (relationship == 'known-variants' ? '' : scrollUpButton + scrollDownButton) + '</div>'
-          + '<div class="col-sm-4 right-footer" style="text-align:right;">' + removeFlaggedVariant + unpin + '</div>'
+          + '<div class="col-sm-4 left-footer" id="bookmarkLink" style="text-align:left;">' + removeFlaggedVariant  + '</div>'
+          + '<div class="col-sm-4 center-footer"  style="text-align:center;">' +  '</div>'
+          + '<div class="col-sm-4 right-footer" style="text-align:right;">' + unpin + '</div>'
           + '</div>';
 
       } else {
         return '<div class="row tooltip-footer" style="">'
-          + '<div class="col-sm-4 left-footer" style="text-align:left;">' + unpin + flagVariantLink + '</div>'
-          + '<div class="col-sm-4 center-footer"  style="text-align:center;">'   +   flagVariantLink + unpin  + (relationship == 'known-variants' ? '' : scrollUpButton + scrollDownButton) + '</div>'
-          + '<div class="col-sm-4 right-footer" style="text-align:right;">' + flagVariantLink + unpin + '</div>'
+          + '<div class="col-sm-4 left-footer" style="text-align:left;">' +  flagVariantLink + '</div>'
+          + '<div class="col-sm-4 center-footer"  style="text-align:center;">'   + '</div>'
+          + '<div class="col-sm-4 right-footer" style="text-align:right;">' + unpin + '</div>'
           + '</div>';
 
       }
@@ -814,39 +747,9 @@ export default class VariantTooltip {
        + '</div>';
   }
 
-  scroll(dir="down", parentContainerSelector) {
-    var me = this;
 
-    var topPos = $(parentContainerSelector + ' #tooltip-body').scrollTop();
-    var scrollHeight = $(parentContainerSelector + ' #tooltip-body').innerHeight();
-    var multiplier = 1;
-    if (dir == "up") {
-      multiplier =  -1;
-    }
-    $(parentContainerSelector + ' #tooltip-body').animate({
-        scrollTop: (topPos + scrollHeight) * multiplier
-    }, 1000, function() {
-      me.showScrollButtons($(parentContainerSelector));
-    });
-  }
 
-  showScrollButtons(parentNode) {
-      var pos = parentNode.find('#tooltip-body').scrollTop();
-      var contentHeight = parentNode.find('#tooltip-body')[0].scrollHeight - parentNode.find('.tooltip-wide .tooltip-row').css('padding-bottom').split("px")[0];
-      var scrollHeight = parentNode.find('#tooltip-body').innerHeight();
 
-      if (scrollHeight + pos < contentHeight - 5) {
-        parentNode.find('#tooltip-scroll-down').removeClass("hide");
-      } else {
-        parentNode.find('#tooltip-scroll-down').addClass("hide");
-      }
-
-      if (pos == 0) {
-        parentNode.find('#tooltip-scroll-up').addClass("hide");
-      } else {
-        parentNode.find('#tooltip-scroll-up').removeClass("hide");
-      }
-  }
 }
 
 

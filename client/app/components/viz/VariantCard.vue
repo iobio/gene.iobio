@@ -458,32 +458,38 @@ export default {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
       }
-      this.hideVariantTooltip();
 
       if (this.showVariantViz) {
         this.showVariantCircle(variant);
-      }
+        this.showVariantTooltip(variant, true);
+
+       }
       this.$emit('cohortVariantClick', variant, this, this.sampleModel.relationship);
     },
     onVariantHover: function(variant, showTooltip=true) {
-      if (this.showDepthViz) {
-        this.showCoverageCircle(variant);
+      if (this.selectedVariant == null) {
+        if (this.showDepthViz) {
+          this.showCoverageCircle(variant);
+        }
+        if (this.showVariantViz) {
+          this.showVariantCircle(variant);
+          this.showVariantTooltip(variant, false);
+        }
+        this.$emit('cohortVariantHover', variant, this);
+
       }
-      if (this.showVariantViz) {
-        this.showVariantCircle(variant);
-        this.showVariantTooltip(variant, false);
-      }
-      this.$emit('cohortVariantHover', variant, this);
     },
     onVariantHoverEnd: function() {
-      if (this.showDepthViz) {
-        this.hideCoverageCircle();
+      if (this.selectedVariant == null) {
+        if (this.showDepthViz) {
+          this.hideCoverageCircle();
+        }
+        if (this.showVariantViz) {
+          this.hideVariantCircle();
+          this.hideVariantTooltip(this);
+        }
+        this.$emit('cohortVariantHoverEnd');
       }
-      if (this.showVariantViz) {
-        this.hideVariantCircle();
-        this.hideVariantTooltip(this);
-      }
-      this.$emit('cohortVariantHoverEnd');
 
     },
     showVariantTooltip: function(variant, lock) {

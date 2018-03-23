@@ -368,19 +368,22 @@ export default {
     },
 
     onVariantClick: function(variant) {
-      //this.showVariantTooltip(variant, true);
-      this.hideVariantTooltip();
+      this.showVariantTooltip(variant, true);
       this.$emit('cohortVariantClick', variant, this, 'proband');
     },
 
     onVariantHover: function(variant) {
-      this.showVariantTooltip(variant, false);
-      this.$emit('cohortVariantHover', variant, this);
+      if (this.selectedVariant == null) {
+        this.showVariantTooltip(variant, false);
+        this.$emit('cohortVariantHover', variant, this);
+      }
     },
 
     onVariantHoverEnd: function() {
-      this.hideVariantTooltip();
-      this.$emit('cohortVariantHoverEnd', this);
+      if (this.selectedVariant == null) {
+        this.hideVariantTooltip();
+        this.$emit('cohortVariantHoverEnd', this);
+      }
     },
 
     showVariantTooltip: function(variant, lock) {
@@ -419,12 +422,6 @@ export default {
 
       tooltip.selectAll("#unpin").on('click', function() {
         self.unpin(null, true);
-      });
-      tooltip.selectAll("#tooltip-scroll-up").on('click', function() {
-        self.tooltipScroll("up");
-      });
-      tooltip.selectAll("#tooltip-scroll-down").on('click', function() {
-        self.tooltipScroll("down");
       });
       tooltip.selectAll("#flag-variant").on('click', function() {
         self.unpin(null, true);
