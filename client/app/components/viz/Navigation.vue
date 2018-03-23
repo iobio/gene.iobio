@@ -93,7 +93,7 @@ nav.toolbar
 
 <template>
   <div>
-    <v-toolbar fixed app :clipped-left="true"  dark prominent >
+    <v-toolbar fixed app  dark prominent >
 
       <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
@@ -224,7 +224,7 @@ nav.toolbar
     </v-toolbar>
     <v-navigation-drawer
       fixed
-      :clipped="true"
+
       v-model="leftDrawer"
       app
       width=350
