@@ -94,6 +94,7 @@
          :isLoaded="cohortModel && cohortModel.isLoaded"
          :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
          :filterModel="cohortModel.filterModel"
+         :isLeftDrawerOpen="isLeftDrawerOpen"
          @gene-selected="onGeneSelected"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"

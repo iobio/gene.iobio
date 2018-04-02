@@ -6,6 +6,10 @@ nav.toolbar
   background-color: $app-color !important
   font-weight: 300 !important
 
+  .toolbar__side-icon.btn.btn--icon
+    max-width: 40px
+    min-width: 40px
+
   .toolbar__items
     width: 60%
 
@@ -228,7 +232,7 @@ nav.toolbar
 
       v-model="leftDrawer"
       app
-      width=350
+      width=330
     >
       <div>
 

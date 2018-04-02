@@ -4,7 +4,7 @@
 #gene-count-badges
   display: inline-block
   vertical-align: top
-  margin-top: -20px
+  margin-top: -5px
 
   button
     padding-left: 0px
@@ -91,13 +91,14 @@
 
   <v-layout row>
    <v-flex xs12 class="text-xs-center" style="font-size:12px;">
-    Flagged Genes
+    Filters
    </v-flex>
   </v-layout>
 
 
   <v-layout row>
 
+  <!--
     <span class="badge-wrapper">
       <v-btn flat ref="flagged"
        id="flagged"
@@ -105,11 +106,11 @@
        @click="onBadgeClick('flagged')" >
         <v-badge class="flagged"  right >
           <span   slot="badge">{{ badgeCounts.flagged }}</span>
-          All
+          Any
         </v-badge>
       </v-btn>
     </span>
-
+  -->
 
     <span class="badge-wrapper">
       <v-btn  flat ref="pathogenic"

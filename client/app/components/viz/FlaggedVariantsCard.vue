@@ -89,7 +89,7 @@
 
 <template>
   <div id="flagged-variants-card">
-    Flagged Variants
+    Variants passing filters
     <div class="pt-2 pb-2" style="font-size:12px;font-style:italic" v-if="isBasicMode">
       Variants in clinvar with &lt; 1% population frequency
     </div>

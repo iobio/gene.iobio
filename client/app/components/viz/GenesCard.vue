@@ -3,36 +3,43 @@
 
 #genes-card
 
+  #analyze-all-button
+    display: inline-block
+    vertical-align: top
+    margin-top: 10px
+    margin-left: 0px
+    margin-right: 10px
+    float: left
+
+  #call-variants-dropdown
+    display: inline-block
+    width: 150px
+    vertical-align: top
+    margin-right: 15px
+    text-align: left
+    float: left
+
+    button
+      margin-top: 10px
+      margin-left: 0px
+
   .btn__content
     padding: 0 4px
 
   #genes-toolbar
     margin-top: 6px
     margin-bottom: 10px
-    float: left
     display: inline-block
+    width: 100%
+    text-align: center
 
-    #analyze-all-button
-      display: inline-block
-      vertical-align: top
-      margin-top: 0px
-      margin-left: 0px
-      margin-right: 5px
-
-    #call-variants-dropdown
-      display: inline-block
-      width: 150px
-      vertical-align: top
-      margin-right: 15px
-
-      button
-        margin-top: 0px
 
     #analyze-genes-progress
+      float: right
       display: inline-block
-      margin-right: 15px
+      margin-right: 0px
       margin-left: 0px
-      margin-top: -1px
+      margin-top: 5px
       margin-bottom: 15px
 
       #total-genes-label
@@ -99,47 +106,45 @@
 
 <template>
   <v-card tile id="genes-card" class="app-card">
-    <v-card-title v-if="!isEduMode" primary-title>Genes</v-card-title>
+    <v-card-title v-if="!isEduMode" primary-title>
 
-      <genes-menu style="padding-left:16px"
-       v-if="isEduMode && tourNumber == '1'"
-       id="app-tour-genes-menu"
-       :geneModel="geneModel"
-       :isEduMode="isEduMode"
-       @apply-genes="onApplyGenes">
-      </genes-menu>
-
-      <div id="genes-panel"  class="nav-center">
+      <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
 
 
-        <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
+            <v-btn  id="analyze-all-button"
+            v-if="isLoaded"
+            class="level-edu"
+            raised
+            @click="onAnalyzeAll">
+              Analyze all
+            </v-btn>
 
 
-          <v-btn  id="analyze-all-button"
-          v-if="isLoaded"
-          class="level-edu"
-          raised
-          @click="onAnalyzeAll">
-            Analyze all genes
-          </v-btn>
+            <div id="call-variants-dropdown"
+              v-if="isLoaded && hasAlignments"
+            >
+              <v-menu offset-y>
+                <v-btn raised slot="activator">Call variants</v-btn>
+                <v-list>
+                    <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
+                    <v-list-tile-title>{{ action }}</v-list-tile-title>
+                  </v-list-tile>
+                </v-list>
+              </v-menu>
+            </div>
 
-          <div id="call-variants-dropdown"
-            v-if="isLoaded && hasAlignments"
-          >
-            <v-menu offset-y>
-              <v-btn raised slot="activator">Call variants</v-btn>
-              <v-list>
-                <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
-                  <v-list-tile-title>{{ action }}</v-list-tile-title>
-                </v-list-tile>
-              </v-list>
-            </v-menu>
-          </div>
+
+          <gene-count-badges v-if="isLoaded"
+           :badgeCounts="badgeCounts"
+           :filterModel="filterModel"
+           @filter-applied="onFilterApplied"
+           @badge-click="onBadgeClick">
+          </gene-count-badges>
 
           <div id="analyze-genes-progress"
           v-if="isLoaded"
           class="level-edu level-basic">
-            <div id="analyzed-progress-bar" >
+            <div v-if="!isLeftDrawerOpen" id="analyzed-progress-bar" >
               <div>
                 <span class="progress-bar-label">Loaded</span>
                 <v-progress-linear  class="loaded-progress"   style="height:18px;width:150px" v-model="loadedPercentage">
@@ -154,12 +159,23 @@
             <span id="total-genes-label">{{ geneNames.length }} genes</span>
           </div>
 
-          <gene-count-badges v-if="isLoaded"
-           :badgeCounts="badgeCounts"
-           :filterModel="filterModel"
-           @filter-applied="onFilterApplied"
-           @badge-click="onBadgeClick">
-          </gene-count-badges>
+        </div>
+
+    </v-card-title>
+
+      <genes-menu style="padding-left:16px"
+       v-if="isEduMode && tourNumber == '1'"
+       id="app-tour-genes-menu"
+       :geneModel="geneModel"
+       :isEduMode="isEduMode"
+       @apply-genes="onApplyGenes">
+      </genes-menu>
+
+      <div id="genes-panel"  class="nav-center">
+
+
+
+
 
 
 <!--
@@ -176,13 +192,16 @@
             </v-select>
           </div>
 -->
-        </div>
+
 
 
 
 
 
         <div id="gene-badge-container" class="level-basic" style="clear:both;">
+
+
+
           <gene-badge
            v-for="gene in geneSummaries"
            :key="gene.name"
@@ -224,7 +243,8 @@ export default {
     selectedGene: null,
     isLoaded: null,
     hasAlignments: null,
-    filterModel: null
+    filterModel: null,
+    isLeftDrawerOpen: null
   },
   data () {
     return {
@@ -238,7 +258,7 @@ export default {
         "(original order)",
       ],
       sortBy: "harmful variants",
-      callVariantsActions: ['All genes', 'Selected gene'],
+      callVariantsActions: ['Call variants, all genes', 'Call variants, selected gene'],
       badgeCounts: {},
 
       flaggedGeneNames: [],
@@ -332,7 +352,7 @@ export default {
       this.$emit('remove-gene', geneName);
     },
     onCallVariants: function(action) {
-      this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
+      this.$emit("call-variants", action == 'Call variants, all genes' ? null : this.selectedGene)
     },
     onBadgeClick: function(badge) {
       let self = this;
