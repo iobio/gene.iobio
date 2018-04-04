@@ -44,10 +44,10 @@
 
       #total-genes-label
         float: left
-        font-size: 12px
+        font-size: 14px
         color: $text-color
         margin-left: 5px
-        margin-right: 5px
+        margin-right: 15px
         margin-top: 10px
         display: inline-block
 
@@ -134,16 +134,17 @@
             </div>
 
 
-          <gene-count-badges v-if="isLoaded"
+          <filter-badges v-if="isLoaded"
            :badgeCounts="badgeCounts"
            :filterModel="filterModel"
            @filter-applied="onFilterApplied"
            @badge-click="onBadgeClick">
-          </gene-count-badges>
+          </filter-badges>
 
           <div id="analyze-genes-progress"
           v-if="isLoaded"
           class="level-edu level-basic">
+            <span id="total-genes-label">{{ geneNames.length }} genes</span>
             <div v-if="!isLeftDrawerOpen" id="analyzed-progress-bar" >
               <div>
                 <span class="progress-bar-label">Loaded</span>
@@ -156,7 +157,6 @@
                 </v-progress-linear>
               </div>
             </div>
-            <span id="total-genes-label">{{ geneNames.length }} genes</span>
           </div>
 
         </div>
@@ -222,14 +222,14 @@
 <script>
 
 import GeneBadge from '../partials/GeneBadge.vue'
-import GeneCountBadges from '../partials/GeneCountBadges.vue'
+import FilterBadges from '../partials/FilterBadges.vue'
 import GenesMenu from '../partials/GenesMenu.vue'
 
 export default {
   name: 'genes-card',
   components: {
     GeneBadge,
-    GeneCountBadges,
+    FilterBadges,
     GenesMenu
   },
   props: {
@@ -258,7 +258,7 @@ export default {
         "(original order)",
       ],
       sortBy: "harmful variants",
-      callVariantsActions: ['Call variants, all genes', 'Call variants, selected gene'],
+      callVariantsActions: ['All genes', 'Selected gene'],
       badgeCounts: {},
 
       flaggedGeneNames: [],
@@ -352,7 +352,7 @@ export default {
       this.$emit('remove-gene', geneName);
     },
     onCallVariants: function(action) {
-      this.$emit("call-variants", action == 'Call variants, all genes' ? null : this.selectedGene)
+      this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
     },
     onBadgeClick: function(badge) {
       let self = this;

@@ -167,7 +167,7 @@ nav.toolbar
       <v-menu
       offset-y
       :close-on-content-click="false"
-      :nudge-width="isBasicMode ? 300 : 400"
+      :nudge-width="isBasicMode ? 300 : 350"
       v-model="showLegendMenu"
       >
         <v-btn flat slot="activator">
@@ -175,7 +175,8 @@ nav.toolbar
         </v-btn>
 
         <legend-panel
-        :isBasicMode="isBasicMode">
+        :isBasicMode="isBasicMode"
+        style="max-width:400px">
         </legend-panel>
       </v-menu>
 

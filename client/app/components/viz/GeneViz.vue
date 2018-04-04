@@ -18,8 +18,8 @@
 
 
   .ibo-gene .cds, .ibo-gene .exon, .ibo-gene .utr {
-      fill: rgba(93, 128, 157, 0.63);
-      stroke: rgb(93, 128, 157);
+      fill: rgba(167, 167, 167, 0.63);
+      stroke: rgb(159, 159, 159);
   }
 
 

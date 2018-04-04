@@ -102,23 +102,41 @@
       </div>
 
 
-      <div v-if="!isBasicMode" style="text-align:left;width:80px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode" style="text-align:left;width:150px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label" style="width:130px">Inheritance</div>
-         <svg id="denovo" class="legend-element" width="100" height="16" transform="translate(0,0)">
-          <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
-            <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#denovo-symbol" width="16" height="16"></use>
-          </g>
-          <text class="name" style="fill-opacity: 1;" x="20" y="11">Denovo</text></svg>
-        </svg>
-        <svg id="recessive" class="legend-element" width="100" height="16" transform="translate(0,0)">
-          <g class=" recessive" style="opacity: 1;" transform="translate(0,0)">
-            <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#recessive-symbol" width="16" height="16"></use>
-          </g>
-          <text class="name" style="fill-opacity: 1;" x="20" y="11">Recessive</text></svg>
-        </svg>
+          <svg id="autosomal-dominant" class="legend-element" width="150" height="16" transform="translate(0,0)">
+            <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
+              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#autosomal-dominant-symbol" width="16" height="16"></use>
+            </g>
+            <text class="name" style="fill-opacity: 1;" x="20" y="11">Autosomal dominant</text></svg>
+          </svg>
+          <svg id="denovo" class="legend-element" width="150" height="16" transform="translate(0,0)">
+            <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
+              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#denovo-symbol" width="16" height="16"></use>
+            </g>
+            <text class="name" style="fill-opacity: 1;" x="20" y="11">De novo</text></svg>
+          </svg>
+          <svg id="recessive" class="legend-element" width="150" height="16" transform="translate(0,0)">
+            <g class=" recessive" style="opacity: 1;" transform="translate(0,0)">
+              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#recessive-symbol" width="16" height="16"></use>
+            </g>
+            <text class="name" style="fill-opacity: 1;" x="20" y="11">Recessive</text></svg>
+          </svg>
+          <svg id="x-linked" class="legend-element" width="150" height="16" transform="translate(0,0)">
+            <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
+              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#x-linked-symbol" width="16" height="16"></use>
+            </g>
+            <text class="name" style="fill-opacity: 1;" x="20" y="11">X-linked</text></svg>
+          </svg>
+          <svg id="compound-het" class="legend-element" width="150" height="16" transform="translate(0,0)">
+            <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
+              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#compound-het-symbol" width="16" height="16"></use>
+            </g>
+            <text class="name" style="fill-opacity: 1;" x="20" y="11">Compound het</text></svg>
+          </svg>
       </div>
 
-      <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:10px">
+      <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Impact</div>
         <svg id="HIGH" class="legend-element" width="80" height="14" transform="translate(0,0)">
           <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">High</text>
@@ -138,44 +156,7 @@
         </svg>
       </div>
 
-      <div style="text-align:left;width:70px;margin-right:10px;margin-bottom:10px">
-          <div class="legend-label">Type</div>
-          <svg id="snp" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-            <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">SNP</text>
-            <rect class="legend-symbol snp" rx="2" ry="1" x="1" width="10" y="1" height="10" style="opacity: 1; fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px;"></rect>
-          </svg>
-
-          <svg id="ins" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-            <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;"> Insertion</text>
-            <circle class="legend-symbol ins" cx="5" cy="5" r="5" style="fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px; opacity: 1;"></circle>
-          </svg>
-
-          <svg id="del" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-            <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">Deletion</text>
-
-            <polygon class="legend-symbol del  legend-element" points="0,10 5,0 10,10" rx="1" ry="1" x="1" y="2" style="fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px; opacity: 1;">
-            </polygon>
-          </svg>
-
-          <svg id="complex" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-            <text class="name" x="15" y="11" style="fill-opacity: 1;font-size: 12px;">Complex</text>
-            <g transform="translate(7,6)">
-              <path d="M0,-6.771323825530848L5.79617697938849,0 0,6.771323825530848 -5.79617697938849,0Z" class="legend-symbol complex" style="opacity: 1;fill: none;stroke-width: 1.5px !important;"></path>
-            </g>
-          </svg>
-      </div>
-
-      <div v-if="!isBasicMode" style="width:110px;margin-right:10px;margin-bottom:10px">
-        <div class="legend-label">Allele Frequency</div>
-        <svg id="afexac_unique" class="legend-element" width="70" height="14" transform="translate(0,0)">
-          <text class="name" x="20" y="11" style="fill-opacity: 1;">&lt; 5%</text>
-          <g class=" afexac_unique">
-            <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#af-symbol" width="12" height="12" style="fill: rgb(199, 0, 1);"></use>
-          </g>
-        </svg>
-      </div>
-
-      <div style="width:140px;margin-right:10px;margin-bottom:10px">
+      <div style="width:140px;margin-right:10px;margin-bottom:15px">
           <div class="legend-label">Clinvar</div>
             <svg id="clinvar_path" class="legend-element" width="110" height="14" transform="translate(0,0)">
             <g class="clinvar_path" transform="translate(1,0)" style="opacity: 1;">
@@ -185,7 +166,7 @@
 
             </svg>
 
-            <svg id="clinvar_lpath" class="legend-element" width="110" height="14" transform="translate(0,0)">
+            <svg id="clinvar_lpath" class="legend-element" width="140" height="14" transform="translate(0,0)">
             <g class="clinvar_lpath" transform="translate(1,0)" style="opacity: 1;">
               <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="fill: #FB7737;"></use>
             </g>
@@ -229,10 +210,63 @@
             </svg>
       </div>
 
+      <div v-if="!isBasicMode" style="width:150px;margin-right:10px;">
+          <div class="legend-label">Coverage</div>
+          <svg height="36" width="150" class="gene-badge-coverage-problem legend-element" >
+            <g transform="translate(0,1)">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#trending-down-symbol" width="13" height="13"  style="pointer-events: none;">
+              </use>
+            </g>
+            <text class="name" style="fill-opacity: 1;" x="17" y="11">Insufficient coverage</text>
+            <text class="name" style="fill-opacity: 1;" x="17" y="23">in exons</text>
+          </svg>
+      </div>
+
+      <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
+          <div class="legend-label">Type</div>
+          <svg id="snp" class="  legend-element" width="80" height="14" transform="translate(0,0)">
+            <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">SNP</text>
+            <rect class="legend-symbol snp" rx="2" ry="1" x="1" width="10" y="1" height="10" style="opacity: 1; fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px;"></rect>
+          </svg>
+
+          <svg id="ins" class="  legend-element" width="80" height="14" transform="translate(0,0)">
+            <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;"> Insertion</text>
+            <circle class="legend-symbol ins" cx="5" cy="5" r="5" style="fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px; opacity: 1;"></circle>
+          </svg>
+
+          <svg id="del" class="  legend-element" width="80" height="14" transform="translate(0,0)">
+            <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">Deletion</text>
+
+            <polygon class="legend-symbol del  legend-element" points="0,10 5,0 10,10" rx="1" ry="1" x="1" y="2" style="fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px; opacity: 1;">
+            </polygon>
+          </svg>
+
+          <svg id="complex" class="  legend-element" width="80" height="14" transform="translate(0,0)">
+            <text class="name" x="15" y="11" style="fill-opacity: 1;font-size: 12px;">Complex</text>
+            <g transform="translate(7,6)">
+              <path d="M0,-6.771323825530848L5.79617697938849,0 0,6.771323825530848 -5.79617697938849,0Z" class="legend-symbol complex" style="opacity: 1;fill: none;stroke-width: 1.5px !important;"></path>
+            </g>
+          </svg>
+      </div>
+
+      <div v-if="!isBasicMode" style="width:140px;margin-right:10px;margin-bottom:15px">
+        <div class="legend-label">Allele Frequency</div>
+        <svg id="afexac_unique" class="legend-element" width="70" height="14" transform="translate(0,0)">
+          <text class="name" x="20" y="11" style="fill-opacity: 1;">&lt; 5%</text>
+          <g class=" afexac_unique">
+            <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#af-symbol" width="12" height="12" style="fill: rgb(199, 0, 1);"></use>
+          </g>
+        </svg>
 
 
 
-      <div v-if="!isBasicMode" style="width:140px;margin-right:10px;margin-bottom:10px">
+      </div>
+
+
+
+
+
+      <div v-if="!isBasicMode" style="width:150px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">PolyPhen</div>
         <svg id="polyphen_probably_damaging" class="legend-element " width="130" height="14" transform="translate(0,0)">
           <g class="polyphen_probably_damaging" transform="translate(1,0)" style="opacity: 1;">
@@ -286,7 +320,12 @@
           <text class="name" style="fill-opacity: 1;" x="15" y="9">Tolerated (low confidence)</text>
         </svg>
       </div>
+
+
+
+
     </div>
+
 
   </div>
 </template>
