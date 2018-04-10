@@ -85,7 +85,7 @@
     span
       padding-top: 4px
       display: inline-block
-      margin-right: -30px
+      margin-right: -40px
 
     button
      float: right
@@ -113,12 +113,15 @@
       <span
        v-for="filter in filters"
        :key="filter.name"
-       class="badge-wrapper">
+       class="badge-wrapper"
+       v-tooltip.top-center="filter.display"
+       >
         <v-btn  flat
         v-bind:ref="filter.name"
         v-bind:id="filter.name"
         v-bind:class="badgeCounts[filter.name] == 0 ? 'disabled' : ''"
         @click="onBadgeClick(filter)" slot="activator" flat
+
         >
           <v-badge right >
             <span slot="badge"> {{ badgeCounts[filter.name] }} </span>
@@ -126,9 +129,7 @@
             </filter-icon>
           </v-badge>
         </v-btn>
-
       </span>
-
 
 
       <span class="badge-wrapper"
@@ -151,19 +152,22 @@
       </span>
 
 
+
       <filter-settings-menu
        class="ml-2"
        :filterModel="filterModel"
-       @filter-applied="onFilterApplied">
+       @filter-applied="onFilterApplied"
+       v-tooltip.top-center="`Customize filters`">
       </filter-settings-menu>
+
 
     </v-layout>
     <v-alert   id="active-filter-info"
       :value="showFilterInfo"
       transition="scale-transition"
     >
-      <span>Showing {{ showFilterInfo ? activeFilter.display : "" }}</span>
-      <v-btn flat @click="onClearFilter">CLEAR</v-btn>
+      <span>{{ showFilterInfo ? activeFilter.display : "" }}</span>
+      <v-btn flat @click="onClearFilter">CLEAR FILTER</v-btn>
     </v-alert>
   </div>
 </template>
@@ -187,14 +191,14 @@ export default {
     return {
       customFilters: null,
       filters: [
-        {name: 'pathogenic',        display: 'Known pathogenic'        },
-        {name: 'autosomalDominant', display: 'Autosomal dominant'      },
-        {name: 'denovo',            display: 'De novo'                 },
-        {name: 'recessive',         display: 'Recessive'               },
-        {name: 'xlinked',           display: 'X-linked'                },
-        {name: 'compoundHet',       display: 'Compound het'            },
-        {name: 'highOrModerate',    display: 'High or moderate impact' },
-        {name: 'coverage',          display: 'Insufficient coverage'   }
+        {name: 'pathogenic',        display: 'Known pathogenic variants'        },
+        {name: 'autosomalDominant', display: 'Autosomal dominant variants'      },
+        {name: 'denovo',            display: 'De novo variants'                 },
+        {name: 'recessive',         display: 'Recessive variants'               },
+        {name: 'xlinked',           display: 'X-linked variants'                },
+        {name: 'compoundHet',       display: 'Compound het variants'            },
+        {name: 'highOrModerate',    display: 'High or moderate impact variants' },
+        {name: 'coverage',          display: 'Insufficient coverage in genes'   }
       ],
       activeFilter: null,
       showFilterInfo: false

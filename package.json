@@ -16,6 +16,7 @@
     "lodash": "^4.17.4",
     "serve-favicon": "^2.4.3",
     "uiv": "^0.16.0",
+    "v-tooltip": "^2.0.0-rc.31",
     "vue": "^2.3.4",
     "vue-router": "^2.5.3",
     "vuetify": "^1.0.4"

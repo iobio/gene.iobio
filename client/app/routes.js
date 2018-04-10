@@ -18,6 +18,7 @@ import ExhibitCaseComplete  from './components/pages/ExhibitCaseComplete.vue'
 import ExhibitCasesComplete from './components/pages/ExhibitCaseComplete.vue'
 
 
+
 import bootstrap            from 'bootstrap/dist/css/bootstrap.css'
 import { Typeahead }        from 'uiv'
 Vue.use(Typeahead)
@@ -26,6 +27,12 @@ import Vuetify              from 'vuetify'
 import                           'vuetify/dist/vuetify.css'
 import                           '../assets/css/siteVuetify.css'
 Vue.use(Vuetify)
+
+
+import VTooltip from 'v-tooltip'
+import                           '../assets/css/v-tooltip.css'
+Vue.use(VTooltip)
+
 
 import Util                 from './globals/Util.js'
 import GlobalApp            from './globals/GlobalApp.js'
