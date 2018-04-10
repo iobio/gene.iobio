@@ -125,7 +125,7 @@
   <v-card tile id="genes-card" class="app-card" style="padding-top:0px">
 
     <v-progress-linear
-    v-if="genesInProgress && genesInProgress.length > 0"
+    v-if="analyzeAllInProgress || callAllInProgress"
     id="analyzing-indeterminate-bar"
     :indeterminate="true"
     height="6"
@@ -186,7 +186,7 @@
           v-if="isLoaded"
           class="level-edu level-basic">
             <span id="total-genes-label">{{ geneNames.length }} genes</span>
-            <div v-if="!isLeftDrawerOpen || (genesInProgress && genesInProgress.length > 1)" id="analyzed-progress-bar" >
+            <div v-if="!isLeftDrawerOpen || analyzeAllInProgress || callAllInProgress" id="analyzed-progress-bar" >
               <div>
                 <span class="progress-bar-label">Loaded</span>
                 <v-progress-linear  class="loaded-progress"   style="height:18px;width:150px" v-model="loadedPercentage">
