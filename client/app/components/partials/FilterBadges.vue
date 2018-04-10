@@ -135,6 +135,7 @@
       <span class="badge-wrapper"
        v-for="customFilter in customFilters"
        :key="customFilter.name"
+        v-tooltip.top-center="customFilter.display"
        >
           <v-btn flat v-bind:ref="customFilter.name"
            v-bind:id="customFilter.name"
