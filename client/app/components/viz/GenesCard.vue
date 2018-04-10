@@ -13,9 +13,8 @@
 
   #call-variants-dropdown
     display: inline-block
-    width: 150px
     vertical-align: top
-    margin-right: 15px
+    margin-right: 0px
     text-align: left
     float: left
 
@@ -32,6 +31,15 @@
     display: inline-block
     width: 100%
     text-align: center
+
+    .stop-analysis-button
+      float: left
+      position: relative
+      min-width: 30px
+      padding: 0px
+      margin-top: 10px
+      margin-right: 20px
+      margin-left: 0px
 
 
     #analyze-genes-progress
@@ -102,10 +110,29 @@
   #gene-badge-container
     max-height: 120px
     overflow-y: scroll
+
+
+
+  #analyzing-indeterminate-bar
+    margin: 0px
+    .progress-linear__bar__indeterminate
+      background-color: $loaded-variant-progress-color !important
+
+
 </style>
 
 <template>
-  <v-card tile id="genes-card" class="app-card">
+  <v-card tile id="genes-card" class="app-card" style="padding-top:0px">
+
+    <v-progress-linear
+    v-if="genesInProgress && genesInProgress.length > 0"
+    id="analyzing-indeterminate-bar"
+    :indeterminate="true"
+    height="6"
+    color="lime darken-1"
+    background-color="grey lighten-3">
+    </v-progress-linear>
+
     <v-card-title v-if="!isEduMode" primary-title>
 
       <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
@@ -117,6 +144,13 @@
             raised
             @click="onAnalyzeAll">
               Analyze all
+            </v-btn>
+
+            <v-btn
+            v-if="analyzeAllInProgress"
+            class="stop-analysis-button"
+            @click="onStopAnalysis" small raised >
+              <v-icon>stop</v-icon>
             </v-btn>
 
 
@@ -133,6 +167,13 @@
               </v-menu>
             </div>
 
+            <v-btn
+            v-if="callAllInProgress"
+            class="stop-analysis-button"
+            @click="onStopAnalysis" small raised >
+              <v-icon>stop</v-icon>
+            </v-btn>
+
 
           <filter-badges v-if="isLoaded"
            :badgeCounts="badgeCounts"
@@ -145,7 +186,7 @@
           v-if="isLoaded"
           class="level-edu level-basic">
             <span id="total-genes-label">{{ geneNames.length }} genes</span>
-            <div v-if="!isLeftDrawerOpen" id="analyzed-progress-bar" >
+            <div v-if="!isLeftDrawerOpen || (genesInProgress && genesInProgress.length > 1)" id="analyzed-progress-bar" >
               <div>
                 <span class="progress-bar-label">Loaded</span>
                 <v-progress-linear  class="loaded-progress"   style="height:18px;width:150px" v-model="loadedPercentage">
@@ -244,7 +285,9 @@ export default {
     isLoaded: null,
     hasAlignments: null,
     filterModel: null,
-    isLeftDrawerOpen: null
+    isLeftDrawerOpen: null,
+    analyzeAllInProgress: null,
+    callAllInProgress: null
   },
   data () {
     return {
@@ -401,6 +444,9 @@ export default {
     onApplyGenes: function(genesToApply, phenotypeTerm) {
       this.$emit("apply-genes", genesToApply, phenotypeTerm);
     },
+    onStopAnalysis: function() {
+      this.$emit("stop-analysis");
+    }
 
   },
   mounted: function() {

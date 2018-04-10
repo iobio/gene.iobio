@@ -99,6 +99,8 @@
          :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
          :filterModel="cohortModel.filterModel"
          :isLeftDrawerOpen="isLeftDrawerOpen"
+         :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
+         :callAllInProgress="cacheHelper.callAllInProgress"
          @gene-selected="onGeneSelected"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
@@ -108,6 +110,7 @@
          @register-flagged-variants="onRegisterFlaggedVariants"
          @filter-applied="onFilterApplied"
          @apply-genes="onApplyGenes"
+         @stop-analysis="onStopAnalysis"
         >
         </genes-card>
 
@@ -1330,6 +1333,10 @@ export default {
     onBasicMode: function() {
       this.isBasicMode = true;
       this.$router.push( { name: 'home', query: {mode: 'basic', mygene2: this.forMyGene2 ? true : false } })
+    },
+    onStopAnalysis: function() {
+      this.cohortModel.stopAnalysis();
+      this.cacheHelper.stopAnalysis();
     }
 
 

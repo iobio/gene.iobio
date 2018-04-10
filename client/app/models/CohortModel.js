@@ -711,6 +711,10 @@ class CohortModel {
     });
   }
 
+  stopAnalysis() {
+    this.genesInProgress = [];
+  }
+
   clearCalledVariants() {
     let self = this;
     self.sampleModels.forEach(function(model) {

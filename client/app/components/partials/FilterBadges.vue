@@ -80,7 +80,7 @@
 
   #active-filter-info
     padding: 0px
-    background-color: #f0ad4e !important
+    background-color: $info-color !important
 
     span
       padding-top: 4px

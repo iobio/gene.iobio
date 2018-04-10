@@ -15,6 +15,9 @@ function CacheHelper(globalApp) {
 
   this.cohort = null;
 
+  this.analyzeAllInProgress = false;
+  this.callAllInProgress    = false;
+
   this.dispatch = d3.dispatch("geneAnalyzed", "analyzeAllCompleted");
   d3.rebind(this, this.dispatch, "on");
 }
@@ -67,6 +70,14 @@ CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, anal
 
   })
 
+}
+
+CacheHelper.prototype.stopAnalysis = function() {
+
+  this.analyzeAllInProgress = false;
+  this.callAllInProgress = false;
+  this.genesToCache = [];
+  this.cacheQueue = [];
 }
 
 CacheHelper.prototype.setLoaderDisplay = function(loaderDisplay) {
@@ -189,6 +200,9 @@ CacheHelper.prototype.dequeueGene = function(geneName) {
 CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
   var me = this;
 
+  this.analyzeAllInProgress = !analyzeCalledVariants
+  this.callAllInProgress    = analyzeCalledVariants;
+
   this.start = new Date();
 
   if (analyzeCalledVariants) {
@@ -204,6 +218,9 @@ CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
     me.genesToCache.push(geneName);
   });
   me.cacheGenes(analyzeCalledVariants, function() {
+
+    me.analyzeAllInProgress = false;
+    me.callAllInProgress    = false;
 
     me.cohort.geneModel.sortGenes("harmful variants");
 

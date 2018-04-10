@@ -125,7 +125,6 @@
             top: 0px
             left: 25px
 
-
         #welcome-screencast-panel-multigene-analysis
           background-image: url('../../../assets/images/thumbprint-multigene.png')
 
@@ -138,10 +137,10 @@
 
 
       #video-thumbprint-heading-large
-        font-size: 21px
-        color: white
+        font-size: 18px
+        color: $text-color
         position: relative
-        top: 95px
+        top: 55px
         z-index: 1
         cursor: default
 
@@ -170,17 +169,18 @@
 
           #play-button
             cursor: pointer
-            opacity: 0.4
-            color: white
+            opacity: .65
+            color: #abb519
             font-size: 90px
             position: absolute
-            top: 35px
+            top: 40px
             left: 80px
-            cuursor: pointer
+            cursor: pointer
             z-index: 200
 
         #welcome-screencast-panel-intro
-          background-image: url('../../../assets/images/blue-green-background.png')
+          background-color: white
+          border: thin solid #d4d3d3
 
 #screencast-panel
   text-align: center

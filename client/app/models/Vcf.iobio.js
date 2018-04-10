@@ -2777,7 +2777,7 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
     // mark the remaining as unique
     //
     if (idx1 < features1.length) {
-      for(x = idx1; x < features1.length; x++) {
+      for(var x = idx1; x < features1.length; x++) {
         var variant1 = features1[x];
         variant1[comparisonAttribute] = set1Label;
         if (onNoMatchFunction) {
@@ -2786,7 +2786,7 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
       }
     }
     if (idx2 < features2.length) {
-      for(x = idx2; x < features2.length; x++) {
+      for(var x = idx2; x < features2.length; x++) {
         var variant2 = features2[x];
         variant2[comparisonAttribute] = set2Label;
         if (onNoMatchFunction) {
