@@ -78,6 +78,23 @@
     color: $app-color
     font-size: 11px
 
+  #active-filter-info
+    padding: 0px
+    background-color: #f0ad4e !important
+
+    span
+      padding-top: 4px
+      display: inline-block
+      margin-right: -30px
+
+    button
+     float: right
+     margin: 0px
+     margin-right: 15px
+
+    .btn__content
+      color: white !important
+
 
 </style>
 
@@ -95,17 +112,17 @@
 
       <span
        v-for="filter in filters"
-       :key="filter"
+       :key="filter.name"
        class="badge-wrapper">
         <v-btn  flat
-        v-bind:ref="filter"
-        v-bind:id="filter"
-        v-bind:class="badgeCounts[filter] == 0 ? 'disabled' : ''"
+        v-bind:ref="filter.name"
+        v-bind:id="filter.name"
+        v-bind:class="badgeCounts[filter.name] == 0 ? 'disabled' : ''"
         @click="onBadgeClick(filter)" slot="activator" flat
         >
           <v-badge right >
-            <span slot="badge"> {{ badgeCounts[filter] }} </span>
-            <filter-icon v-bind:icon="filter">
+            <span slot="badge"> {{ badgeCounts[filter.name] }} </span>
+            <filter-icon v-bind:icon="filter.name">
             </filter-icon>
           </v-badge>
         </v-btn>
@@ -114,37 +131,19 @@
 
 
 
-
-      <span class="badge-wrapper">
-        <v-btn flat ref="coverage"
-           id="coverage"
-           v-bind:class="badgeCounts.coverage == 0 ? 'disabled' : ''"
-           @click="onBadgeClick('coverage')"
-          >
-            <v-badge  right >
-              <span   slot="badge">{{ badgeCounts.coverage }}</span>
-              <filter-icon icon="coverage">
-              </filter-icon>
-            </v-badge>
-        </v-btn>
-
-
-      </span>
-
-
       <span class="badge-wrapper"
-       v-for="customBadge in customBadges"
-       :key="customBadge"
+       v-for="customFilter in customFilters"
+       :key="customFilter.name"
        >
-          <v-btn flat v-bind:ref="customBadge"
-           v-bind:id="customBadge"
-           v-bind:class="badgeCounts[customBadge] && badgeCounts[customBadge] == 0 ? 'disabled' : badgeCounts[customBadge] == null ? 'hide' : ''"
-           @click="onBadgeClick(customBadge)"
+          <v-btn flat v-bind:ref="customFilter.name"
+           v-bind:id="customFilter.name"
+           v-bind:class="badgeCounts[customFilter.name] && badgeCounts[customFilter.name] == 0 ? 'disabled' : badgeCounts[customFilter.name] == null ? 'hide' : ''"
+           @click="onBadgeClick(customFilter)"
           >
             <v-badge class="custom" right >
-              <span  slot="badge">{{ badgeCounts[customBadge] }}</span>
+              <span  slot="badge">{{ badgeCounts[customFilter.name] }}</span>
               <span  class="custom-badge">
-                {{ filterModel.flagCriteria[customBadge].name }}
+                {{ filterModel.flagCriteria[customFilter.name].name }}
               </span>
             </v-badge>
           </v-btn>
@@ -159,6 +158,13 @@
       </filter-settings-menu>
 
     </v-layout>
+    <v-alert   id="active-filter-info"
+      :value="showFilterInfo"
+      transition="scale-transition"
+    >
+      <span>Showing {{ showFilterInfo ? activeFilter.display : "" }}</span>
+      <v-btn flat @click="onClearFilter">CLEAR</v-btn>
+    </v-alert>
   </div>
 </template>
 
@@ -179,48 +185,58 @@ export default {
   },
   data () {
     return {
-      badge: null,
-      showCustomMenu: false,
-      customBadges: null,
+      customFilters: null,
       filters: [
-        'pathogenic',
-        'autosomalDominant',
-        'denovo',
-        'recessive',
-        'xlinked',
-        'compoundHet',
-        'highOrModerate'
-      ]
+        {name: 'pathogenic',        display: 'Known pathogenic'        },
+        {name: 'autosomalDominant', display: 'Autosomal dominant'      },
+        {name: 'denovo',            display: 'De novo'                 },
+        {name: 'recessive',         display: 'Recessive'               },
+        {name: 'xlinked',           display: 'X-linked'                },
+        {name: 'compoundHet',       display: 'Compound het'            },
+        {name: 'highOrModerate',    display: 'High or moderate impact' },
+        {name: 'coverage',          display: 'Insufficient coverage'   }
+      ],
+      activeFilter: null,
+      showFilterInfo: false
     }
   },
   computed: {
 
   },
   methods: {
-    onBadgeClick: function(badge) {
+    onBadgeClick: function(filter) {
       let self = this;
-      $(self.$el).find("#" + badge).toggleClass("selected");
+      $(self.$el).find("#" + filter.name).toggleClass("selected");
       for (var key in  (self.filterModel.flagCriteria)) {
-        if (key != badge) {
+        if (key != filter.name) {
          $(self.$el).find("#" + key).removeClass("selected");
         }
       }
-      if (badge != 'coverage') {
+      if (filter.name != 'coverage') {
          $(self.$el).find("#coverage").removeClass("selected");
       }
-      self.$emit("badge-click", $(self.$el).find("#" + badge).hasClass("selected") ? badge : null);
+      self.activeFilter = $(self.$el).find("#" + filter.name).hasClass("selected") ? filter : null;
+      self.showFilterInfo = self.activeFilter != null ? true : false;
+      self.$emit("badge-click", $(self.$el).find("#" + filter.name).hasClass("selected") ? filter.name : null);
     },
-    onFilterApplied: function(badge) {
+    onClearFilter: function() {
+      let self = this;
+      $(self.$el).find("#" + self.activeFilter.name).toggleClass("selected");
+      self.showFilterInfo = false;
+      self.activeFilter = null;
+      self.$emit("badge-click", null);
+    },
+    onFilterApplied: function(filter) {
       let self = this;
 
-      self.customBadges = [];
-      for (var badge in self.filterModel.flagCriteria) {
-        if (self.filterModel.flagCriteria[badge].active && self.filterModel.flagCriteria[badge].custom) {
-          self.customBadges.push(badge);
+      self.customFilters = [];
+      for (var filterName in self.filterModel.flagCriteria) {
+        if (self.filterModel.flagCriteria[filterName].active && self.filterModel.flagCriteria[filterName].custom) {
+          self.customFilters.push({name: filterName, display: self.filterModel.flagCriteria[filterName].name});
         }
       }
 
-      this.$emit('filter-applied', badge);
+      this.$emit('filter-applied', filter.name);
     }
   }
 }

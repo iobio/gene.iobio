@@ -157,7 +157,7 @@ export default {
         self.$refs[refName].forEach(function(component) {
           component.apply();
         })
-        self.$emit('filter-applied', filter.name);
+        self.$emit('filter-applied', filter);
       })
       this.showMenu = false;
     },
