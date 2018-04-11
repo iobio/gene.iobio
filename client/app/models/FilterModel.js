@@ -457,6 +457,7 @@ class FilterModel {
           badgePassState['userFlagged'] = true;
         } else {
           variant.isFlagged = false;
+          variant.featureClass = "";
           for (var badge in self.flagCriteria) {
             if (self.flagCriteria[badge].active) {
 
@@ -495,6 +496,7 @@ class FilterModel {
           var pass = badgePassState[badge];
           if (pass) {
             variant.isFlagged = true;
+            variant.featureClass = 'flagged';
             badges[badge].push(variant);
           }
         }

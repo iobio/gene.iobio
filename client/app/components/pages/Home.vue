@@ -1179,6 +1179,7 @@ export default {
     onFlagVariant: function(variant) {
       let self = this;
       variant.isFlagged = true;
+      variant.featureClass = "flagged";
       variant.gene = this.selectedGene;
       variant.transcript = this.selectedTranscript;
       self.cohortModel.addFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
@@ -1190,6 +1191,7 @@ export default {
     onRemoveFlaggedVariant: function(variant) {
       let self = this;
       variant.isFlagged = false;
+      variant.featureClass = "";
       self.cohortModel.removeFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
       self.flaggedVariants = this.cohortModel.flaggedVariants;
       self.$refs.navRef.onShowFlaggedVariants();

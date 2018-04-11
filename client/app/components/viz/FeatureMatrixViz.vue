@@ -16,6 +16,15 @@
       rect.cellbox
         fill: $low-quality-cell-color
 
+    &.flagged
+      rect.colbox
+        fill: none
+        stroke: #1574C7
+        stroke-width: 4.5
+        opacity: .3
+        width: 13px
+        x: 2
+
   .colhdr text
     font-size: 11px
     pointer-events: none
@@ -44,9 +53,9 @@
       fill: none
       stroke: #1574C7
       stroke-width: 4.5
-      opacity: .6
+      opacity: .6 !important
       width: 13px
-      x: 2
+      x: 1
 
   .col.active
 

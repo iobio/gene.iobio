@@ -576,7 +576,6 @@ class CohortModel {
         let p1 = self.promiseLoadVariants(theGene, theTranscript, options)
         .then(function(data) {
           cohortResultMap = data.resultMap;
-          self.setLoadedVariants(data.gene);
         })
         promises.push(p1);
 
@@ -592,6 +591,8 @@ class CohortModel {
             // Now summarize the danger for the selected gene
             self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
             .then(function() {
+              self.setLoadedVariants(theGene);
+
               self.endGeneProgress(theGene.gene_name);
               resolve(cohortResultMap);
             })
