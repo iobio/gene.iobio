@@ -14,7 +14,7 @@ export default class VariantExporter {
       {field: 'alt',              exportVcf: false},
       {field: 'gene',             exportVcf: true},
       {field: 'transcript',       exportVcf: true},
-      {field: 'starred',          exportVcf: true},
+      {field: 'isUserFlagged',    exportVcf: true},
       {field: 'freebayesCalled',  exportVcf: true},
       {field: 'type',             exportVcf: true},
       {field: 'impact',           exportVcf: true},
@@ -470,7 +470,9 @@ export default class VariantExporter {
         }
 
       }
-      VariantTrioModel.determineInheritance(revisedVariant, 'compareMother', 'compareFather', me.cohort.getModel('mother').affectedStatus, me.cohort.getModel('father').affectedStatus);
+      if (me.cohort.mode == 'trio') {
+        VariantTrioModel.determineInheritance(revisedVariant, 'compareMother', 'compareFather', me.cohort.getModel('mother').affectedStatus, me.cohort.getModel('father').affectedStatus);
+      }
 
       // The bookmarkEntry contains fields that need to be in loaded
       // into the record that will be exported.  These include trio
@@ -523,6 +525,7 @@ export default class VariantExporter {
 
     var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
 
+    rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
     rec.inheritance       = info.inheritance ? this.cohort.translator.getInheritanceLabel(info.inheritance) : "";
     rec.impact            = info.vepImpact;
     rec.highestImpact     = info.vepHighestImpactValue;

@@ -1779,6 +1779,11 @@ class CohortModel {
         variant.gene = geneObject;
         variant.isProxy = true;
         variant.isFlagged = true;
+        if (variant.isUserFlagged == 'Y') {
+          variant.isUserFlagged = true;
+        } else {
+          variant.isUserFlagged = null;
+        }
         if (variant.transcript && variant.transcript.length > 0) {
           variant.transcript = me.geneModel.getTranscript(geneObject, variant.transcript);
         } else {
@@ -1856,22 +1861,30 @@ class CohortModel {
                   if (matchingVariants.length > 0) {
                     var geneObject = importedVariant.gene;
                     var transcript = importedVariant.transcript;
+                    var isUserFlagged = importedVariant.isUserFlagged;
                     importedVariant = matchingVariants[0];
                     importedVariant.isFlagged = true;
+                    importedVariant.isUserFlagged = isUserFlagged;
                     importedVariant.isProxy = false;
                     importedVariant.gene = geneObject;
                     importedVariant.transcript = transcript;
                   }
                 })
 
-                // Now recalc the badge counts on danger summary to reflect imported variants
-                me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
-                .then(function(dangerSummary) {
-                  dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
-                  me.geneModel.setDangerSummary(geneObject, dangerSummary);
+                // We need to recache the variants since the isUserFlag has been established
+                me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
+                .then(function() {
 
-                  resolve();
-                });
+                  // Now recalc the badge counts on danger summary to reflect imported variants
+                  me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
+                  .then(function(dangerSummary) {
+                    dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
+                    me.geneModel.setDangerSummary(geneObject, dangerSummary);
+
+                    resolve();
+                  });
+
+                })
 
               })
               .catch(function(error) {
