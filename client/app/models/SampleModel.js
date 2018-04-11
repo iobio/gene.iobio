@@ -1470,10 +1470,7 @@ class SampleModel {
           });
 
         } else {
-          var alreadyAnnotVariants = theVcfData.features.filter(function(variant) {
-            return (variant.fbCalled != 'Y' && variant.extraAnnot);
-          });
-          resolve(alreadyAnnotVariants);
+          resolve(theVcfData.features);
         }
 
        },
@@ -2859,7 +2856,19 @@ class SampleModel {
     var me = this;
     return new Promise(function(resolve, reject) {
       var key = me._getCacheKey(dataKind, geneName.toUpperCase(), transcript);
-      me.getCacheHelper().promiseCacheData(key, data)
+
+      // In order to avoid circular references that cause vcfData.features
+      // to have null elements, we just blank out the 'features' property
+      // on every variant
+      if (dataKind == 'vcfData' || dataKind == 'fbData') {
+        if (data.features) {
+          data.features.forEach(function(f) {
+            delete f.features;
+          })
+        }
+      }
+
+      me.getCacheHelper().promiseCacheData(key, data, debug)
        .then(function() {
         resolve();
        },

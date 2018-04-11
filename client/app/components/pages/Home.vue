@@ -561,7 +561,10 @@ export default {
         self.cacheHelper.on("analyzeAllCompleted", function() {
           self.$refs.navRef.onShowFlaggedVariants();
         });
+
         self.globalApp.cacheHelper = self.cacheHelper;
+        window.globalCacheHelper = self.cacheHelper;
+
         self.cacheHelper.promiseInit()
          .then(function() {
           self.cacheHelper.isolateSession(self.isEduMode);
