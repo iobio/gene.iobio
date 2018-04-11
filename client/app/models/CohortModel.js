@@ -1606,9 +1606,9 @@ class CohortModel {
     })
   }
 
-  addFlaggedVariant(variant) {
+  addFlaggedVariant(theGene, theTranscript, variant) {
     var existingVariants = this.flaggedVariants.filter(function(v) {
-      var matches = (v.gene.gene_name == variant.gene.gene_name
+      var matches = (v.chrom == variant.chrom
         && v.start == variant.start
         && v.ref == variant.ref
         && v.alt == variant.alt);
@@ -1617,9 +1617,10 @@ class CohortModel {
     if (existingVariants.length == 0) {
       this.flaggedVariants.push(variant);
     }
+    this._recacheForFlaggedVariant(theGene, theTranscript, variant);
   }
 
-  removeFlaggedVariant(variant) {
+  removeFlaggedVariant(theGene, theTranscript, variant) {
     var index = -1;
     var i = 0;
     this.flaggedVariants.forEach(function(v) {
@@ -1635,6 +1636,25 @@ class CohortModel {
     if (index >= 0) {
       this.flaggedVariants.splice(index, 1);
     }
+    this._recacheForFlaggedVariant(theGene, theTranscript, variant);
+  }
+
+  _recacheForFlaggedVariant(theGene, theTranscript, variant) {
+    let self = this;
+    self.getProbandModel().promiseGetVcfData(theGene, theTranscript)
+    .then(function(data) {
+      let cachedVcfData = data.vcfData;
+      cachedVcfData.features.forEach(function(v) {
+        var matches = (v.chrom == variant.chrom
+                      && v.start == variant.start
+                      && v.ref == variant.ref
+                      && v.alt == variant.alt);
+        if (matches) {
+          v.isUserFlagged = variant.isUserFlagged;
+        }
+      });
+      self.getProbandModel()._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, theGene.gene_name, theTranscript);
+    });
   }
 
 
@@ -1642,11 +1662,10 @@ class CohortModel {
     this.flaggedVariants = [];
   }
 
-  sortFlaggedGeneNames(flaggedGeneNames) {
-    return flaggedGeneNames.slice().sort( function(a,b) {
-        return me.geneModel.compareDangerSummary(a,b);
-    });
+  summarizeDangerForFlaggedVariants(geneName, flaggedVariants) {
+    return SampleModel._summarizeDanger (geneName, {features: flaggedVariants}, {}, [], this.filterModel, this.translator, this.annotationScheme);
   }
+
 
   setVariantFlags(vcfData) {
     let self = this;

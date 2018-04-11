@@ -430,12 +430,12 @@ export default {
       });
       tooltip.selectAll("#flag-variant").on('click', function() {
         self.unpin(null, true);
-        self.selectedVariant.isFlagged = true;
+        self.selectedVariant.isUserFlagged = true;
         self.$emit('flag-variant', self.selectedVariant);
       });
       tooltip.selectAll("#remove-flagged-variant").on('click', function() {
         self.unpin(null, true);
-        self.selectedVariant.isFlagged = false;
+        self.selectedVariant.isUserFlagged = false;
         self.$emit('remove-flagged-variant', self.selectedVariant);
       });
 

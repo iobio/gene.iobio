@@ -1178,9 +1178,10 @@ export default {
     },
     onFlagVariant: function(variant) {
       let self = this;
+      variant.isFlagged = true;
       variant.gene = this.selectedGene;
       variant.transcript = this.selectedTranscript;
-      self.cohortModel.addFlaggedVariant(variant);
+      self.cohortModel.addFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
       self.flaggedVariants = this.cohortModel.flaggedVariants;
       // Refresh the loaded variants so that the ranked variants table
       // reflects the flagged variants
@@ -1189,7 +1190,7 @@ export default {
     onRemoveFlaggedVariant: function(variant) {
       let self = this;
       variant.isFlagged = false;
-      self.cohortModel.removeFlaggedVariant(variant);
+      self.cohortModel.removeFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
       self.flaggedVariants = this.cohortModel.flaggedVariants;
       self.$refs.navRef.onShowFlaggedVariants();
       // Refresh the loaded variants so that the ranked variants table
@@ -1202,7 +1203,7 @@ export default {
       flaggedVariants.forEach(function(variant) {
         variant.gene = self.geneModel.geneObjects[variant.geneName];
         variant.transcript =  self.geneModel.getCanonicalTranscript(variant.gene);
-        self.cohortModel.addFlaggedVariant(variant);
+        self.cohortModel.addFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
       })
     },
     onRegisterFlaggedVariants: function(flaggedGeneNames, flaggedVariants) {

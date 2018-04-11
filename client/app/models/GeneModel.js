@@ -831,6 +831,19 @@ class GeneModel {
     var danger1 = me.geneDangerSummaries[geneName1];
     var danger2 = me.geneDangerSummaries[geneName2];
 
+    var value = me.compareDangerSummaryObjects(danger1, danger2);
+    if (value == 0) {
+      if (geneName1 < geneName2) {
+        value = -1;
+      } else if (geneName2 < geneName1) {
+        value = 1;
+      }
+    }
+    return value;
+  }
+
+  compareDangerSummaryObjects(danger1, danger2) {
+    var me = this;
     if (danger1 == null && danger2 == null) {
       return 0;
     } else if (danger2 == null) {
@@ -890,6 +903,10 @@ class GeneModel {
       return impactValues[0] - impactValues[1];
     }
 
+    /*
+    // FIXME: Can't compare allele frequencies because it would be lowest for all variants, not
+    // a particular variant
+
     // lowest allele frequency = highest relevance
     var afValues = [9999,9999];
     dangers.forEach(function(danger, index) {
@@ -902,13 +919,8 @@ class GeneModel {
     if (afValues[0] !== afValues[1]) {
       return afValues[0] - afValues[1];
     }
+    */
 
-
-    if (geneName1 < geneName2) {
-      return -1;
-    } else if (geneName2 < geneName1) {
-      return 1;
-    }
     return 0;
   }
 

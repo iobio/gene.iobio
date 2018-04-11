@@ -2868,7 +2868,7 @@ class SampleModel {
         }
       }
 
-      me.getCacheHelper().promiseCacheData(key, data, debug)
+      me.getCacheHelper().promiseCacheData(key, data)
        .then(function() {
         resolve();
        },

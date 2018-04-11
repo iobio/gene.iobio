@@ -2,30 +2,46 @@
 @import ../../../assets/sass/variables
 
 #flagged-variants-card
-  margin: 10px
 
-  .flagged-variants-panel
+  .toolbar
+    width: calc(100% - 1px)
+    padding-right: 20px
+
+    .toolbar__title
+      font-family: inherit
+      font-size: 15px
+      min-width: initial
+      padding-right: 30px
+
+    .toolbar-button
+      background-color: #ffffff1f
+      min-width: 70px
+      color: white
+      margin-right: 5px
+      margin-left: 0px
+      font-size: 13px
+
+      .btn__content
+        padding: 0px
+
+      i.material-icons
+        font-size: 16px
+        padding-right: 4px
+
+
+  .filtered-variants-panel
     margin-top: 10px
+    margin-left: 10px
 
-  button
-    color: $text-color
-    height: 28px
-    margin-top: 10px
-    margin-bottom: 10px
-    margin-left: 0px
-    padding-left: 0px
-    padding-right: 0px
-    padding-top: 0px
-    padding-bottom: 0px
+  .user-flagged-variants-panel
+    margin-top: 30px
+    margin-left: 10px
 
-    i.material-icons
-      font-size: 16px
-      padding-right: 4px
 
-  #edit-link
-    color: $text-color
-  #done-edit-link
-    color: $text-color
+
+
+  .subheader
+      color: $text-color
 
 .variant-file-body
   padding-top: 0px
@@ -85,33 +101,70 @@
     font-size: 16px
     padding-right: 4px
 
+
 </style>
 
 <template>
   <div id="flagged-variants-card">
-    Variants passing filters
-    <div class="pt-2 pb-2" style="font-size:12px;font-style:italic" v-if="isBasicMode">
-      Variants in clinvar with &lt; 1% population frequency
-    </div>
-
-    <div v-if="!isBasicMode">
-      <v-btn raised @click="showOpenDialog = true">
+    <v-toolbar color="light-blue" dark >
+      <v-toolbar-title >
+        Variants
+      </v-toolbar-title>
+      <v-btn  v-if="!isBasicMode" flat
+        class="toolbar-button"
+        @click="showOpenDialog = true">
         <v-icon>open_in_browser</v-icon>
         Open
       </v-btn>
 
-      <v-btn v-if="flaggedGenes && flaggedGenes.length > 0" raised
+      <v-btn v-if="!isBasicMode && flaggedVariants && flaggedVariants.length > 0" flat
+        class="toolbar-button"
         @click="showSaveDialog = true">
         <v-icon>save</v-icon>
         Save
       </v-btn>
-    </div>
+    </v-toolbar>
 
 
-    <div class="flagged-variants-panel">
+
+    <div class="filtered-variants-panel">
+      <v-subheader inset>
+        <span v-if="!isBasicMode">
+          Variants passing filters
+        </span>
+        <span v-if="isBasicMode">
+          Variants in clinvar with &lt; 1% population frequency
+        </span>
+      </v-subheader>
+      <v-divider style="margin-top:0px;margin-bottom:0px">
+      </v-divider>
 
       <flagged-gene
-      v-for="flaggedGene in flaggedGenes"
+      v-for="filteredGene in filteredGenes"
+      :key="filteredGene.gene_name"
+      :flaggedGene="filteredGene"
+      :isEduMode="isEduMode"
+      :isBasicMode="isBasicMode"
+      @flagged-variant-selected="onVariantSelected"
+      >
+      </flagged-gene>
+
+
+    </div>
+
+    <div
+    v-if="!isBasicMode && userFlaggedGenes.length > 0"
+    class="user-flagged-variants-panel">
+
+      <v-subheader inset>
+        Variants flagged by user
+      </v-subheader>
+      <v-divider style="margin-top:0px;margin-bottom:0px">
+      </v-divider>
+
+
+      <flagged-gene
+      v-for="flaggedGene in userFlaggedGenes"
       :key="flaggedGene.gene_name"
       :flaggedGene="flaggedGene"
       :isEduMode="isEduMode"
@@ -119,6 +172,7 @@
       @flagged-variant-selected="onVariantSelected"
       >
       </flagged-gene>
+
 
     </div>
 
@@ -251,42 +305,80 @@ export default {
           "gene-iobio-flagged-variants." + self.exportFormat );
         self.readyToDownload = true;
       })
+    },
+    getSortedGeneMap: function(userFlagged) {
+      let self = this;
+      let geneMap        = {};
+      let flaggedGenes   = [];
+      this.flaggedVariants.forEach(function(variant) {
+        if ((!userFlagged && !variant.isUserFlagged) ||
+            (userFlagged && variant.isUserFlagged)) {
+          let flaggedGene = geneMap[variant.gene.gene_name];
+          if (flaggedGene == null) {
+            flaggedGene = {};
+            flaggedGene.gene = variant.gene;
+            flaggedGene.transcript = variant.transcript;
+            flaggedGene.variants = [];
+            geneMap[variant.gene.gene_name] = flaggedGene;
+            flaggedGenes.push(flaggedGene);
+          }
+          flaggedGene.variants.push(variant);
+        }
+      })
+
+      var sortedGenes = flaggedGenes.sort(function(a,b) {
+        var dangerSummaryA = self.cohortModel.summarizeDangerForFlaggedVariants(a.gene.gene_name, a.variants);
+        var dangerSummaryB = self.cohortModel.summarizeDangerForFlaggedVariants(b.gene.gene_name, b.variants);
+        return self.cohortModel.geneModel.compareDangerSummaryObjects(dangerSummaryA, dangerSummaryB);
+      })
+      let i = 0;
+      sortedGenes.forEach(function(flaggedGene) {
+        flaggedGene.variants.forEach(function(variant) {
+          variant.index = i;
+          i++;
+        })
+      });
+      return sortedGenes;
+
+
+      /*
+      let geneNames = Object.keys(genes);
+      geneNames = geneNames.sort(function(a,b) {
+        return self.cohortModel.geneModel.compareDangerSummary(a,b);
+      })
+      let theFlaggedGenes = geneNames.map(function(geneName) {
+        return genes[geneName];
+      })
+      let i = 0;
+      theFlaggedGenes.forEach(function(flaggedGene) {
+        flaggedGene.variants.forEach(function(variant) {
+          variant.index = i;
+          i++;
+        })
+      })
+      return theFlaggedGenes;
+      */
+
+
     }
   },
   mounted: function() {
 
   },
   computed: {
-    flaggedGenes: function() {
+    filteredGenes: function() {
       let self = this;
       if (this.flaggedVariants) {
-        let genes = {};
-        this.flaggedVariants.forEach(function(variant) {
-          let flaggedGene = genes[variant.gene.gene_name];
-          if (flaggedGene == null) {
-            flaggedGene = {};
-            flaggedGene.gene = variant.gene;
-            flaggedGene.transcript = variant.transcript;
-            flaggedGene.variants = [];
-            genes[variant.gene.gene_name] = flaggedGene;
-          }
-          flaggedGene.variants.push(variant);
-        })
-        let geneNames = Object.keys(genes);
-        geneNames = geneNames.sort(function(a,b) {
-          return self.cohortModel.geneModel.compareDangerSummary(a,b);
-        })
-        let theFlaggedGenes = geneNames.map(function(geneName) {
-          return genes[geneName];
-        })
-        let i = 0;
-        theFlaggedGenes.forEach(function(flaggedGene) {
-          flaggedGene.variants.forEach(function(variant) {
-            variant.index = i;
-            i++;
-          })
-        })
-        return theFlaggedGenes;
+        return self.getSortedGeneMap(false);
+      } else {
+        return [];
+      }
+
+    },
+    userFlaggedGenes: function() {
+      let self = this;
+      if (this.flaggedVariants) {
+        return self.getSortedGeneMap(true);
       } else {
         return [];
       }

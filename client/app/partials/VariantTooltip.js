@@ -570,16 +570,23 @@ export default class VariantTooltip {
     var unpin =  '<button id="unpin"  class=" tooltip-control-button tooltip-button btn btn raised btn-default"><i class="material-icons">close</i></button>'
 
     if (lock) {
-      if (variant.isFlagged) {
+      if (variant.isUserFlagged) {
         return '<div class="row tooltip-footer">'
           + '<div class="col-sm-4 left-footer" id="bookmarkLink" style="text-align:left;">' + removeFlaggedVariant  + '</div>'
           + '<div class="col-sm-4 center-footer"  style="text-align:center;">' +  '</div>'
           + '<div class="col-sm-4 right-footer" style="text-align:right;">' + unpin + '</div>'
           + '</div>';
 
-      } else {
+      } else if (!variant.isFlagged){
         return '<div class="row tooltip-footer" style="">'
           + '<div class="col-sm-4 left-footer" style="text-align:left;">' +  flagVariantLink + '</div>'
+          + '<div class="col-sm-4 center-footer"  style="text-align:center;">'   + '</div>'
+          + '<div class="col-sm-4 right-footer" style="text-align:right;">' + unpin + '</div>'
+          + '</div>';
+
+      } else {
+        return '<div class="row tooltip-footer" style="">'
+          + '<div class="col-sm-4 left-footer" style="text-align:left;">'  + '</div>'
           + '<div class="col-sm-4 center-footer"  style="text-align:center;">'   + '</div>'
           + '<div class="col-sm-4 right-footer" style="text-align:right;">' + unpin + '</div>'
           + '</div>';

@@ -4,6 +4,7 @@
 .flagged-gene
   clear: both
   padding-top: 10px
+  font-size: 12px
 
 
 </style>

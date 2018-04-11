@@ -6,12 +6,12 @@
 
 
   a
+    display: inline-block !important
     width: 305px
     color: $text-color !important
     text-decoration: none !important
     font-size: 12px
     cursor: pointer
-    display: inline-block
     float: left
     text-align: left
     padding-top: 4px
@@ -121,7 +121,7 @@
 
 <template>
 
-  <div class="flagged-variant">
+  <div class="flagged-variant" style="display:inline-block">
     <a  @click="onVariantSelected">
       <v-chip class="variant-number">
         {{ variant.index + 1 }}.
