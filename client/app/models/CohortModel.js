@@ -1757,13 +1757,20 @@ class CohortModel {
     }
 
 
-    // We need to make sure each imported record has a transcript.
-    // So first, cache all of the gene objects for the imported bookmarks
+    // We need to make sure each imported record has a cached gene object and is assigned
+    // a transcript.
+    // So first, cache all of the gene objects for the imported variants
     var promises = []
 
     importRecords.forEach( function(ir) {
-      if (!ir.transcript || ir.transcript == '') {
-        var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true);
+      let geneObject = me.geneModel.geneObjects[ir.gene];
+      if (geneObject == null || !ir.transcript || ir.transcript == '') {
+        var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true)
+        .then(function() {
+          if (geneObject == null) {
+            me.geneModel.promiseAddGeneName(ir.gene);
+          }
+        })
         promises.push(promise);
       }
     })

@@ -112,7 +112,7 @@
       </v-toolbar-title>
       <v-btn  v-if="!isBasicMode" flat
         class="toolbar-button"
-        @click="clearFileInputs();showOpenDialog = true">
+        @click="importInProgress = false;clearFileInputs();showOpenDialog = true">
         <v-icon>open_in_browser</v-icon>
         Open
       </v-btn>
