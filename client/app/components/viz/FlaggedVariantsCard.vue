@@ -327,9 +327,7 @@ export default {
       })
 
       var sortedGenes = flaggedGenes.sort(function(a,b) {
-        var dangerSummaryA = self.cohortModel.summarizeDangerForFlaggedVariants(a.gene.gene_name, a.variants);
-        var dangerSummaryB = self.cohortModel.summarizeDangerForFlaggedVariants(b.gene.gene_name, b.variants);
-        return self.cohortModel.geneModel.compareDangerSummaryObjects(dangerSummaryA, dangerSummaryB);
+        return self.cohortModel.geneModel.compareDangerSummary(a.gene, b.gene);
       })
       let i = 0;
       sortedGenes.forEach(function(flaggedGene) {
@@ -339,26 +337,6 @@ export default {
         })
       });
       return sortedGenes;
-
-
-      /*
-      let geneNames = Object.keys(genes);
-      geneNames = geneNames.sort(function(a,b) {
-        return self.cohortModel.geneModel.compareDangerSummary(a,b);
-      })
-      let theFlaggedGenes = geneNames.map(function(geneName) {
-        return genes[geneName];
-      })
-      let i = 0;
-      theFlaggedGenes.forEach(function(flaggedGene) {
-        flaggedGene.variants.forEach(function(variant) {
-          variant.index = i;
-          i++;
-        })
-      })
-      return theFlaggedGenes;
-      */
-
 
     },
     clearFileInputs: function() {
