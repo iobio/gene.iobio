@@ -112,7 +112,7 @@
       </v-toolbar-title>
       <v-btn  v-if="!isBasicMode" flat
         class="toolbar-button"
-        @click="showOpenDialog = true">
+        @click="clearFileInputs();showOpenDialog = true">
         <v-icon>open_in_browser</v-icon>
         Open
       </v-btn>
@@ -190,12 +190,12 @@
             <div style="margin-top:10px;margin-bottom:20px">
               <div v-if="fileType == 'gene'">
                 <input type="text" readonly=""   placeholder="choose .csv file..." >
-                <input type="file"  @change="onFileSelected"  accept=".csv">
+                <input type="file" id="input-csv-file"  @change="onFileSelected"  accept=".csv">
               </div>
 
               <div v-if="fileType != 'gene'">
                 <input type="text" readonly=""    placeholder="choose txt file..." >
-                <input type="file" class="btn btn-raised"  @change="onFileSelected"  accept=".txt, .tsv">
+                <input type="file" id="input-txt-file"class="btn btn-raised"  @change="onFileSelected"  accept=".txt, .tsv">
               </div>
               <div style="text-align:center;margin-top:10px"
               v-if="importInProgress" >
@@ -360,6 +360,18 @@ export default {
       */
 
 
+    },
+    clearFileInputs: function() {
+      this.clearFileInput($("#input-csv-file")[0]);
+      this.clearFileInput($("input-txt-file")[0]);
+    },
+    clearFileInput: function(ctrl) {
+      try {
+        ctrl.value = null;
+      } catch(ex) { }
+      //if (ctrl.value) {
+      //  ctrl.parentNode.replaceChild(ctrl.cloneNode(true), ctrl);
+      //}
     }
   },
   mounted: function() {
