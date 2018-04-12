@@ -1,4 +1,4 @@
-import iobiocmd from '../third-party/iobio.min.js'
+import iobiocmd from '../third-party/iobio.js'
 
 export default class EndpointCmd {
 
