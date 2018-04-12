@@ -327,7 +327,7 @@ export default {
       })
 
       var sortedGenes = flaggedGenes.sort(function(a,b) {
-        return self.cohortModel.geneModel.compareDangerSummary(a.gene, b.gene);
+        return self.cohortModel.geneModel.compareDangerSummary(a.gene.gene_name, b.gene.gene_name);
       })
       let i = 0;
       sortedGenes.forEach(function(flaggedGene) {
@@ -347,9 +347,6 @@ export default {
       try {
         ctrl.value = null;
       } catch(ex) { }
-      //if (ctrl.value) {
-      //  ctrl.parentNode.replaceChild(ctrl.cloneNode(true), ctrl);
-      //}
     }
   },
   mounted: function() {
