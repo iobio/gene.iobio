@@ -9,9 +9,11 @@
 
     .toolbar__title
       font-family: inherit
-      font-size: 15px
+      font-size: 14px
       min-width: initial
       padding-right: 30px
+      PADDING-top: 2px
+      font-weight: 600
 
     .toolbar-button
       background-color: #ffffff1f
@@ -130,7 +132,7 @@
     <div class="filtered-variants-panel">
       <v-subheader inset>
         <span v-if="!isBasicMode">
-          Variants passing filters
+          Passing filters
         </span>
         <span v-if="isBasicMode">
           Variants in clinvar with &lt; 1% population frequency
@@ -157,7 +159,7 @@
     class="user-flagged-variants-panel">
 
       <v-subheader inset>
-        Variants flagged by user
+        Flagged by user
       </v-subheader>
       <v-divider style="margin-top:0px;margin-bottom:0px">
       </v-divider>
@@ -187,16 +189,30 @@
                   <v-radio label="Tab delimited" value="tsv"></v-radio>
             </v-radio-group>
 
-            <div style="margin-top:10px;margin-bottom:20px">
-              <div v-if="fileType == 'gene'">
-                <input type="text" readonly=""   placeholder="choose .csv file..." >
-                <input type="file" id="input-csv-file"  @change="onFileSelected"  accept=".csv">
-              </div>
 
-              <div v-if="fileType != 'gene'">
-                <input type="text" readonly=""    placeholder="choose txt file..." >
-                <input type="file" id="input-txt-file"class="btn btn-raised"  @change="onFileSelected"  accept=".txt, .tsv">
-              </div>
+
+
+
+            <div style="margin-top:10px;margin-bottom:20px">
+
+
+              <file-chooser
+                v-if="fileType == 'gene'"
+                title="Choose .csv file"
+                :isMultiple="false" :accept="`.csv`"
+                showLabel="true"
+                @file-selected="onFileSelected">
+              </file-chooser>
+
+              <file-chooser
+                v-if="fileType != 'gene'"
+                title="Choose .txt file"
+                :isMultiple="false"
+                :accept="`.txt, .tsv`"
+                showLabel="true"
+                @file-selected="onFileSelected">
+              </file-chooser>
+
               <div style="text-align:center;margin-top:10px"
               v-if="importInProgress" >
                 <img style="width:22px;height:22px"
@@ -257,11 +273,13 @@
 <script>
 
 import FlaggedGene from '../partials/FlaggedGene.vue'
+import FileChooser from '../partials/FileChooser.vue'
 
 export default {
   name: 'flagged-variants-card',
   components: {
-    FlaggedGene
+    FlaggedGene,
+    FileChooser
   },
   props: {
     isEduMode: null,
@@ -269,7 +287,7 @@ export default {
     flaggedVariants: null,
     cohortModel: null
   },
-  data () {
+  data() {
     return {
       showOpenDialog: false,
       showSaveDialog: false,
@@ -288,6 +306,16 @@ export default {
       let self = this;
       self.importInProgress = true;
       self.cohortModel.onFlaggedVariantsFileSelected(fileSelection, self.fileType,
+      function() {
+        self.importInProgress = false;
+        self.$emit("flagged-variants-imported");
+        self.showOpenDialog = false;
+      });
+    },
+    onFileSelected1: function(event) {
+      let self = this;
+      self.importInProgress = true;
+      self.cohortModel.onFlaggedVariantsFileSelected(event, self.fileType,
       function() {
         self.importInProgress = false;
         self.$emit("flagged-variants-imported");
@@ -340,6 +368,7 @@ export default {
 
     },
     clearFileInputs: function() {
+
       this.clearFileInput($("#input-csv-file")[0]);
       this.clearFileInput($("input-txt-file")[0]);
     },

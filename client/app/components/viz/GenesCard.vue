@@ -128,7 +128,7 @@
     v-if="analyzeAllInProgress || callAllInProgress"
     id="analyzing-indeterminate-bar"
     :indeterminate="true"
-    height="6"
+    height="3"
     color="lime darken-1"
     background-color="grey lighten-3">
     </v-progress-linear>

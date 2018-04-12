@@ -53,8 +53,12 @@
 
     <v-flex xs3 class="mt-2" >
       or
-      <upload-button title="Browse" :selectedCallback="onFileSelected">
-      </upload-button>
+      <file-chooser  class="ml-1"
+      title="Choose files"
+      :isMultiple="true"
+      :showLabel="false"
+      @file-selected="onFileSelected">
+      </file-chooser>
     </v-flex>
 
     <v-flex xs12 >
@@ -73,13 +77,13 @@
 <script>
 
 import { Typeahead }       from 'uiv'
-import UploadButton from '../partials/UploadButton.vue'
+import FileChooser from '../partials/FileChooser.vue'
 
 export default {
   name: 'sample-data-file',
   components: {
     Typeahead,
-    UploadButton
+    FileChooser
   },
   props: {
     defaultUrl: null,
