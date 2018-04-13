@@ -53,11 +53,17 @@
     padding-top: 2px;
   }
 
+  #select-transcripts-box {
+    margin-right: 25px;
+    vertical-align: middle !important;
+  }
+
   #gene-source-box {
-    margin-top: 0px;
-    margin-left: 5px;
+    margin-top: -5px;
+    margin-left: 0px;
     display: inline-block;
     width: 115px;
+    vertical-align: initial;
   }
 
   #gene-source-box .input-group--select .input-group__selections__comma {
@@ -155,26 +161,18 @@
           @transcriptSelected="onTranscriptSelected">
         </transcripts-viz>
 
-        <v-btn
-        v-if="!isEduMode && !isBasicMode"
-        id="show-gene-source-button" flat fab small
-        slot="activator"
-        style="margin-left: 20px;position: relative;margin-top: -3px;margin-bottom: 0px;margin-right: 0px;"
-        @click="showSettings = !showSettings"
-        light>
-          <v-icon style="font-size:17px" >settings</v-icon>
-        </v-btn>
+        <div id="gene-source-box" v-if="showGene">
+          <v-select
+              v-bind:items="geneSources"
+              v-model="geneSource"
+              label="Gene source"
+              item-value="text"
+              @input="onGeneSourceSelected">
+          </v-select>
+        </div>
+
       </div>
 
-      <div id="gene-source-box" v-if="showGene && showSettings">
-        <v-select
-            v-bind:items="geneSources"
-            v-model="geneSource"
-            label="Gene source"
-            item-value="text"
-            @input="onGeneSourceSelected">
-        </v-select>
-      </div>
     </div>
 
     <!-- Non protein-coding gene badges -->
@@ -290,8 +288,7 @@ export default {
 
       phenotypes: null,
       phenotypeTerms: null,
-      ncbiSummary: null,
-      showSettings: false
+      ncbiSummary: null
     }
   },
 
