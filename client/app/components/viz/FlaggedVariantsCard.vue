@@ -92,7 +92,7 @@
       margin-bottom: 0px
       margin-top: -2px
       color: white !important
-      background: $app-color !important
+      background: $default-badge-color !important
 
       .chip__content
         width: 17px

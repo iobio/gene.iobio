@@ -57,7 +57,7 @@
       height: 15px
       right: -7px
       top: -6px
-      background-color: #ababab !important
+      background-color: $default-badge-color !important
 
 
 

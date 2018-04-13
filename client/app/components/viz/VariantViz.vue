@@ -63,18 +63,11 @@
   .flagged-variant
     rect
       fill: none
-      stroke: #1574C7
+      stroke: $flagged-border-color
       stroke-width: 7
-      opacity: .8
+      opacity: .6
 
-    line
-      stroke: #1574C7
-      stroke-width: 5
-      opacity: .8
 
-    g
-      fill: #1574C7
-      opacity: .8
 </style>
 
 

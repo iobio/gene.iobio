@@ -79,10 +79,10 @@
 
     &.called
       .badge__badge
-        background-color: $called-variant-color !important
+        background-color: $default-badge-color !important
     &.loaded
       .badge__badge
-        background-color: $loaded-variant-progress-color !important
+        background-color: $default-badge-color !important
     &.coverage-problem
       .badge__badge
         background-color: $coverage-problem-color !important

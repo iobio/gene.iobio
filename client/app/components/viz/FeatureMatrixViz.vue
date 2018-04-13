@@ -19,7 +19,7 @@
     &.flagged
       rect.colbox
         fill: none
-        stroke: #1574C7
+        stroke: $flagged-border-color
         stroke-width: 4.5
         opacity: .3
         width: 13px
@@ -51,7 +51,7 @@
 
     &.flagged
       fill: none
-      stroke: #1574C7
+      stroke: $flagged-border-color
       stroke-width: 4.5
       opacity: .6 !important
       width: 13px
