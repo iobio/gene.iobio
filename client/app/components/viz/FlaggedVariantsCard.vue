@@ -43,7 +43,97 @@
 
 
   .subheader
-      color: $text-color
+    color: $text-color
+    height: initial
+
+    span
+      width: 100%
+      text-align: center
+
+  .list--three-line
+    padding-top: 5px
+    .subheader
+      height: initial
+      font-size: 13px
+      margin-left: -5px
+      text-color: $text-color
+      margin-top: 5px
+
+    hr
+      margin-bottom: 1px
+      margin-top: 1px
+
+    .divider--inset
+      margin-left: 22px
+      width: calc(100% - 42px)
+
+    .list__tile
+      padding: 0px
+      height: 55px
+      padding-left: 3px
+
+    .list__tile__avatar
+      min-width: initial
+
+    .list__tile__sub-title
+      height: 32px
+      line-height: 18px
+
+    .list__tile__title
+      height: 22px
+      line-height: 22px
+
+    .variant-number
+      margin-right: 4px
+      margin-left: 0px
+      font-size: 11px
+      display: inline-block
+      vertical-align: top
+      margin-bottom: 0px
+      margin-top: -2px
+      color: white !important
+      background: $app-color !important
+
+      .chip__content
+        width: 17px
+        height: 17px
+        justify-content: space-around
+        padding: 0px
+
+    .variant-label
+      font-size: 12px
+      color: $text-color !important
+
+
+      .coord
+        display: inline-block
+        width: 122px
+        line-height: 12px
+        vertical-align: top
+      .hgvs
+        display: inline-block
+        width: 122px
+        line-height: 12px
+        vertical-align: top
+      .vep-consequence
+        display: inline-block
+        width: 122px
+        line-height: 12px
+        vertical-align: top
+      .rsid
+        display: inline-block
+        width: 122px
+        line-height: 12px
+        vertical-align: top
+
+      .af
+        display: inline-block
+        width: 45px
+        vertical-align: top
+        line-height: 12px
+
+
+
 
 .variant-file-body
   padding-top: 0px
@@ -104,6 +194,8 @@
     padding-right: 4px
 
 
+
+
 </style>
 
 <template>
@@ -128,55 +220,187 @@
     </v-toolbar>
 
 
-
-    <div class="filtered-variants-panel">
-      <v-subheader inset>
-        <span v-if="!isBasicMode">
-          Passing filters
-        </span>
-        <span v-if="isBasicMode">
-          Variants in clinvar with &lt; 1% population frequency
-        </span>
-      </v-subheader>
-      <v-divider style="margin-top:0px;margin-bottom:0px">
-      </v-divider>
-
-      <flagged-gene
-      v-for="filteredGene in filteredGenes"
-      :key="filteredGene.gene_name"
-      :flaggedGene="filteredGene"
-      :isEduMode="isEduMode"
-      :isBasicMode="isBasicMode"
-      @flagged-variant-selected="onVariantSelected"
+    <template v-for="geneList in geneLists">
+      <v-subheader
+      :key="geneList.label"
+      v-if="geneList.show"
+      :style="geneList.style"
       >
-      </flagged-gene>
-
-
-    </div>
-
-    <div
-    v-if="!isBasicMode && userFlaggedGenes.length > 0"
-    class="user-flagged-variants-panel">
-
-      <v-subheader inset>
-        Flagged by user
+        <span>{{ geneList.label }}</span>
       </v-subheader>
-      <v-divider style="margin-top:0px;margin-bottom:0px">
-      </v-divider>
+      <v-list three-line>
+        <template
+         v-for="flaggedGene in geneList.genes">
+
+          <v-subheader :key="flaggedGene.gene.gene_name">{{ flaggedGene.gene.gene_name }}</v-subheader>
+
+          <template v-for="(variant, index) in flaggedGene.variants">
+
+            <v-list-tile
+            :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
+            avatar
+            ripple
+            @click="onVariantSelected(variant)">
 
 
-      <flagged-gene
-      v-for="flaggedGene in userFlaggedGenes"
-      :key="flaggedGene.gene_name"
-      :flaggedGene="flaggedGene"
-      :isEduMode="isEduMode"
-      :isBasicMode="isBasicMode"
-      @flagged-variant-selected="onVariantSelected"
-      >
-      </flagged-gene>
+              <v-list-tile-avatar>
+               <v-chip class="variant-number">
+                {{ variant.index + 1 }}.
+               </v-chip>
+              </v-list-tile-avatar>
+
+              <v-list-tile-content>
+
+                <v-list-tile-title>
+
+                  <div class="variant-symbols">
 
 
-    </div>
+                    <svg
+                     v-if="clinvar(variant) == 'clinvar_path'"
+                     class="clinvar-badge" height="15" width="15">
+                      <g transform="translate(0,3)">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="12" height="12" style="pointer-events: none; fill: rgb(173, 73, 74);"></use>
+                      </g>
+                    </svg>
+
+                    <svg
+                     v-if="clinvar(variant) == 'clinvar_lpath'"
+                     class="clinvar-badge" height="13" width="14">
+                      <g transform="translate(0,3)">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="12" height="12" style="pointer-events: none; fill: rgb(251, 119, 55);"></use>
+                      </g>
+                    </svg>
+
+                    <svg
+                     v-if="variant.inheritance && variant.inheritance == 'autosomal dominant'"
+                     class="inheritance-badge" height="15" width="15">
+                      <g transform="translate(0,0)">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#autosomal-dominant-symbol" width="16" height="16" style="pointer-events: none;"></use>
+                      </g>
+                    </svg>
+                    <svg
+                     v-if="variant.inheritance && variant.inheritance == 'recessive'"
+                     class="inheritance-badge" height="15" width="15">
+                      <g transform="translate(0,0)">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="16" height="16" style="pointer-events: none;"></use>
+                      </g>
+                    </svg>
+                    <svg
+                     v-if="variant.inheritance && variant.inheritance == 'denovo'"
+                     class="inheritance-badge" height="15" width="15">
+                      <g transform="translate(0,0)">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#denovo-symbol" width="16" height="16" style="pointer-events: none;"></use>
+                      </g>
+                    </svg>
+                    <svg
+                     v-if="variant.inheritance && variant.inheritance == 'x-linked'"
+                     class="inheritance-badge" height="15" width="15">
+                      <g transform="translate(0,0)">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#x-linked-symbol" width="16" height="16" style="pointer-events: none;"></use>
+                      </g>
+                    </svg>
+                    <svg
+                     v-if="variant.inheritance && variant.inheritance == 'compound het'"
+                     class="inheritance-badge" height="15" width="15">
+                      <g transform="translate(0,0)">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#compound-het-symbol" width="16" height="16" style="pointer-events: none;"></use>
+                      </g>
+                    </svg>
+
+                    <svg
+                     v-if="variant.type.toLowerCase() == 'snp' || variant.type.toLowerCase() == 'mnp'"
+                     class="impact-badge" height="15" width="13">
+                      <g transform="translate(1,6)">
+                        <rect width="8" height="8"
+                        v-bind:class="highestImpactClass(variant)"
+                        style="pointer-events: none;"></rect>
+                      </g>
+                    </svg>
+
+                    <svg
+                     v-if="variant.type.toLowerCase() == 'del'"
+                     class="impact-badge" height="15" width="13">
+                      <g transform="translate(5,10)">
+                        <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
+                        v-bind:class="highestImpactClass(variant)">
+                        </path>
+                      </g>
+                    </svg>
+
+                    <svg
+                     v-if="variant.type.toLowerCase() == 'ins'"
+                     class="impact-badge" height="15" width="13">
+                      <g transform="translate(5,7)">
+                        <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
+                        v-bind:class="highestImpactClass(variant)">
+                        </path>
+                      </g>
+                    </svg>
+
+                    <svg
+                     v-if="variant.type.toLowerCase() == 'complex'"
+                     class="impact-badge" height="15" width="13">
+                      <g transform="translate(5,6)">
+                        <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
+                        v-bind:class="highestImpactClass(variant)">
+                        </path>
+                      </g>
+                    </svg>
+
+                    <svg v-if="zygosity(variant).toUpperCase() == 'HOM'" width="24" height="14">
+                      <g transform="translate(0,4)">
+                        <rect width="24" height="10" class="zyg_hom" style="pointer-events: none;">
+                        </rect>
+                        <text x="1" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
+                        Hom
+                        </text>
+                      </g>
+                    </svg>
+                    <svg v-if="zygosity(variant).toUpperCase() == 'HET'" width="24" height="14">
+                      <g transform="translate(0,4)">
+                        <rect width="24" height="10" class="zyg_het" style="pointer-events: none;">
+                        </rect>
+                        <text x="2" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
+                        Het
+                        </text>
+                      </g>
+                    </svg>
+
+                  </div>
+                </v-list-tile-title>
+
+                <v-list-tile-sub-title >
+                  <div class="variant-label">
+                    <div style="display:inline-block;width:117px" >
+                      <span class="coord"> {{ variant.start + " " + variant.ref + "->" + variant.alt }} </span>
+                    </div>
+                    <div style="display:inline-block;width:112px;vertical-align:top">
+                      <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
+                    </div>
+                    <span class="af">{{ afDisplay(variant) }}</span>
+                  </div>
+                  <div class="variant-label">
+                    <div style="display:inline-block;width:117px" >
+                      <span class="hgvs">  {{ hgvsP(variant) }} </span>
+                    </div>
+                    <div style="display:inline-block;width:112px;vertical-align:top">
+                      <span v-if="!isBasicMode" class="rsid">{{ rsId(variant) }}</span>
+                    </div>
+                  </div>
+                </v-list-tile-sub-title>
+
+              </v-list-tile-content>
+
+            </v-list-tile>
+            <v-divider inset  ></v-divider>
+
+          </template>
+
+        </template>
+      </v-list>
+    </template>
+
 
     <v-dialog v-model="showOpenDialog" max-width="400">
       <v-card>
@@ -270,15 +494,14 @@
   </div>
 </template>
 
+
 <script>
 
-import FlaggedGene from '../partials/FlaggedGene.vue'
 import FileChooser from '../partials/FileChooser.vue'
 
 export default {
   name: 'flagged-variants-card',
   components: {
-    FlaggedGene,
     FileChooser
   },
   props: {
@@ -306,16 +529,6 @@ export default {
       let self = this;
       self.importInProgress = true;
       self.cohortModel.onFlaggedVariantsFileSelected(fileSelection, self.fileType,
-      function() {
-        self.importInProgress = false;
-        self.$emit("flagged-variants-imported");
-        self.showOpenDialog = false;
-      });
-    },
-    onFileSelected1: function(event) {
-      let self = this;
-      self.importInProgress = true;
-      self.cohortModel.onFlaggedVariantsFileSelected(event, self.fileType,
       function() {
         self.importInProgress = false;
         self.$emit("flagged-variants-imported");
@@ -376,12 +589,96 @@ export default {
       try {
         ctrl.value = null;
       } catch(ex) { }
+    },
+
+
+
+
+    clinvar: function(variant) {
+      if (variant.isProxy) {
+        if (variant.clinvarClinSig == "pathogenic") {
+          return "clinvar_path";
+        } else if (variant.clinvarClinSig == "likely pathogenic") {
+          return "clinvar_lpath";
+        } else {
+          return "";
+        }
+      } else {
+        return variant.clinvar;
+      }
+    },
+    rsId: function(variant) {
+      if (variant.isProxy) {
+        return variant.rsId;
+      } else {
+        return this.globalApp.utility.getRsId(variant);
+      }
+    },
+    hgvsP: function(variant) {
+      if (variant.isProxy) {
+        return this.globalApp.utility.formatHgvsP(variant, variant.HGVSp);
+      } else {
+        return variant.extraAnnot ? this.globalApp.utility.formatHgvsP(variant, variant.vepHGVSp) : "";
+      }
+    },
+    vepConsequence: function(variant) {
+      if (variant.isProxy) {
+        return variant.consequence;
+      } else {
+        return variant.vepConsequence ? Object.keys(variant.vepConsequence).join(" ").split("_").join(" ") : "";
+      }
+    },
+    highestImpactClass: function(variant) {
+      let clazz = "filter-symbol";
+      if (variant.isProxy) {
+        clazz += " impact_" + variant.impact.toUpperCase();
+      } else {
+        for (var impact in variant.highestImpactVep) {
+          if (clazz.length > 0) {
+            clazz += " ";
+          }
+          clazz += "impact_" + impact.toUpperCase();
+        }
+      }
+      return clazz;
+    },
+    afDisplay: function(variant) {
+      var label = this.isBasicMode ? "freq " : "af ";
+      if (variant.isProxy) {
+        return  label +  this.globalApp.utility.percentage(variant.afgnomAD ? variant.afgnomAD : 0);
+      } else {
+        return  label +  this.globalApp.utility.percentage(variant.afHighest ? variant.afHighest : 0);
+      }
+    },
+    zygosity: function(variant) {
+      if (variant.isProxy) {
+        return variant.zygosityProband.toUpperCase();
+      } else {
+        return variant.zygosity.toUpperCase();
+      }
     }
   },
   mounted: function() {
 
   },
   computed: {
+    geneLists: function() {
+      let self = this;
+      return [
+       {
+         label: self.isBasicMode ? 'Variants in clinvar with &lt; 1% population frequency' : 'Passing filters',
+         show:  true,
+         genes: self.filteredGenes,
+         style: 'margin-top:10px'
+       },
+       {
+         label: 'Flagged by User',
+         show:  self.userFlaggedGenes.length > 0,
+         genes: self.userFlaggedGenes,
+         style: 'margin-top:30px'
+       }
+      ]
+    },
     filteredGenes: function() {
       let self = this;
       if (this.flaggedVariants) {

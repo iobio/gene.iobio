@@ -80,8 +80,8 @@ export default {
     }
   },
   methods: {
-onAdvancedMode: function() {
-    this.$emit("on-advanced-mode");
+    onAdvancedMode: function() {
+      this.$emit("on-advanced-mode");
     },
     onBasicMode: function() {
       this.$emit("on-basic-mode");

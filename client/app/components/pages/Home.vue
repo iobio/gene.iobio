@@ -115,7 +115,6 @@
         </genes-card>
 
 
-
         <div
           v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-bottom:10px"
           v-bind:class="{hide : showWelcome }"

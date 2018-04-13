@@ -16,6 +16,11 @@ html {
   fill:  rgb(113,113,113);
 }
 
+.application.theme--light a {
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
 .theme--light .card,
 .application .theme--light.card {
   color:  rgb(113,113,113);
