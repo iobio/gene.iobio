@@ -695,6 +695,7 @@ export default {
           self.cohortModel.getCurrentTrioVcfData(),
           {checkCache: false, isBackground: false})
         .then(function() {
+          self.$refs.genesCardRef.determineFlaggedGenes();
         })
       }
     },
