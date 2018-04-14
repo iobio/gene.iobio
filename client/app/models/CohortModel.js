@@ -1453,6 +1453,7 @@ class CohortModel {
               } else {
                 trioFbData = data.trioFbData;
 
+
                 // Annotate called variants with clinvar
                 me.promiseAnnotateWithClinvar(trioFbData, geneObject, theTranscript, true)
                 .then(function() {
@@ -1530,13 +1531,9 @@ class CohortModel {
           variant.extraAnnot = true;
           variant.fbCalled = "Y";
           variant.extraAnnot = true;
+          model._determineHighestAf(variant);
         })
 
-        // Flag the called variants
-        theFbData.features.forEach( function(feature) {
-          feature.fbCalled = 'Y';
-          feature.extraAnnot = true;
-        });
 
         // Filter the freebayes variants to only keep the ones
         // not present in the vcf variant set.
