@@ -1701,7 +1701,7 @@ class SampleModel {
 
         theVcfData.features.forEach(function(variant) {
           let passes = me.cohort.filterModel.determinePassCriteria('compoundHet', variant, {'ignore': ['inheritance']});
-          if (passes.all && variant.inheritance == 'none') {
+          if (passes.all && variant.inheritance == 'none' && variant.zygosity && variant.zygosity.toUpperCase() != 'HOMREF') {
             // Create a bag of candidate variants inherited from mother and another one for variants
             // inherited by father
             if (variant.motherZygosity && (variant.motherZygosity.toLowerCase() == 'het' || variant.motherZygosity.toLowerCase() == 'hom')) {

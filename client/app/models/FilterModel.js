@@ -444,7 +444,10 @@ class FilterModel {
     badges.flagged = [];
 
     if (theVcfData && theVcfData.features) {
-      theVcfData.features.forEach(function(variant) {
+      theVcfData.features.filter(function(variant) {
+        return variant.zygosity == null || variant.zygosity.toUpperCase() != 'HOMREF';
+      })
+      .forEach(function(variant) {
         var badgePassState = {};
         for (var key in self.flagCriteria) {
           if (self.flagCriteria[key].active) {
