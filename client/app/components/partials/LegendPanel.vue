@@ -57,6 +57,11 @@
       fill:  $text-color
       font-size: 12px
 
+  .called-variant
+    font-size: 15px
+    color: $called-variant-color
+    vertical-align: top
+
   .legend-text
     color:  $text-color
     font-size: 12px
@@ -68,6 +73,7 @@
     color: $text-color
     margin-bottom: 5px
     cursor: auto
+    line-height: 15px
 
 
 #legend
@@ -101,7 +107,25 @@
         </svg>
       </div>
 
-
+      <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
+        <div class="legend-label">Impact</div>
+        <svg id="HIGH" class="legend-element" width="80" height="14" transform="translate(0,0)">
+          <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">High</text>
+          <rect class="legend-symbol impact_HIGH" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
+        </svg>
+        <svg id="MODERATE" class="legend-element" width="80" height="14" transform="translate(0,0)">
+          <text class="name" x=15 y="10" style="fill-opacity: 1;font-size: 12px;">Moderate</text>
+          <rect class="legend-symbol impact_MODERATE" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
+        </svg>
+        <svg id="MODIFIER" class="legend-element" width="80" height="14" transform="translate(0,0)">
+          <text class="name" x=15 y="10" style="fill-opacity: 1;font-size: 12px;">Modifier</text>
+          <rect class="legend-symbol impact_MODIFIER" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
+        </svg>
+        <svg id="LOW" class="  legend-element" width="80" height="14" transform="translate(0,0)">
+          <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">Low</text>
+          <rect class="legend-symbol  impact_LOW" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
+        </svg>
+      </div>
       <div v-if="!isBasicMode" style="text-align:left;width:150px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label" style="width:130px">Inheritance</div>
           <svg id="autosomal-dominant" class="legend-element" width="150" height="16" transform="translate(0,0)">
@@ -136,25 +160,7 @@
           </svg>
       </div>
 
-      <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
-        <div class="legend-label">Impact</div>
-        <svg id="HIGH" class="legend-element" width="80" height="14" transform="translate(0,0)">
-          <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">High</text>
-          <rect class="legend-symbol impact_HIGH" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
-        </svg>
-        <svg id="MODERATE" class="legend-element" width="80" height="14" transform="translate(0,0)">
-          <text class="name" x=15 y="10" style="fill-opacity: 1;font-size: 12px;">Moderate</text>
-          <rect class="legend-symbol impact_MODERATE" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
-        </svg>
-        <svg id="MODIFIER" class="legend-element" width="80" height="14" transform="translate(0,0)">
-          <text class="name" x=15 y="10" style="fill-opacity: 1;font-size: 12px;">Modifier</text>
-          <rect class="legend-symbol impact_MODIFIER" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
-        </svg>
-        <svg id="LOW" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-          <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">Low</text>
-          <rect class="legend-symbol  impact_LOW" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
-        </svg>
-      </div>
+
 
       <div style="width:140px;margin-right:10px;margin-bottom:15px">
           <div class="legend-label">Clinvar</div>
@@ -210,20 +216,8 @@
             </svg>
       </div>
 
-      <div v-if="!isBasicMode" style="width:150px;margin-right:10px;">
-          <div class="legend-label">Coverage</div>
-          <svg height="36" width="150" class="gene-badge-coverage-problem legend-element" >
-            <g transform="translate(0,1)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#trending-down-symbol" width="13" height="13"  style="pointer-events: none;">
-              </use>
-            </g>
-            <text class="name" style="fill-opacity: 1;" x="17" y="11">Insufficient coverage</text>
-            <text class="name" style="fill-opacity: 1;" x="17" y="23">in exons</text>
-          </svg>
-      </div>
-
       <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
-          <div class="legend-label">Type</div>
+          <div class="legend-label">Variant type</div>
           <svg id="snp" class="  legend-element" width="80" height="14" transform="translate(0,0)">
             <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">SNP</text>
             <rect class="legend-symbol snp" rx="2" ry="1" x="1" width="10" y="1" height="10" style="opacity: 1; fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px;"></rect>
@@ -249,7 +243,7 @@
           </svg>
       </div>
 
-      <div v-if="!isBasicMode" style="width:140px;margin-right:10px;margin-bottom:15px">
+      <div v-if="!isBasicMode" style="width:70px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Allele Frequency</div>
         <svg id="afexac_unique" class="legend-element" width="70" height="14" transform="translate(0,0)">
           <text class="name" x="20" y="11" style="fill-opacity: 1;">&lt; 5%</text>
@@ -257,10 +251,39 @@
             <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#af-symbol" width="12" height="12" style="fill: rgb(199, 0, 1);"></use>
           </g>
         </svg>
+      </div>
+
+      <div v-if="!isBasicMode" style="width:120px;margin-right:10px;">
+          <div class="legend-label">Called variant</div>
+           <v-icon class="called-variant">
+              check_circle
+           </v-icon>
+           <svg height="48" width="80" class="legend-element">
+             <text class="name" style="fill-opacity: 1;" x="0" y="11">Variant called</text>
+             <text class="name" style="fill-opacity: 1;" x="0" y="23">from </text>
+             <text class="name" style="fill-opacity: 1;" x="0" y="35">alignments</text>
+           </svg>
+      </div>
 
 
+
+      <div v-if="!isBasicMode" style="width:80px;margin-right:0px;">
+          <div class="legend-label">Coverage</div>
+          <svg height="48" width="80" class="gene-badge-coverage-problem legend-element" >
+            <g transform="translate(0,1)">
+              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#trending-down-symbol" width="13" height="13"  style="pointer-events: none;">
+              </use>
+            </g>
+            <text class="name" style="fill-opacity: 1;" x="17" y="11">Insufficient</text>
+            <text class="name" style="fill-opacity: 1;" x="17" y="23">coverage</text>
+            <text class="name" style="fill-opacity: 1;" x="17" y="35">in exons</text>
+          </svg>
 
       </div>
+
+
+
+
 
 
 
