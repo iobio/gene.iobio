@@ -48,7 +48,8 @@
           transform: translateY(-20px)
           display: none
 
-
+  .chart-label
+    font-size: 11px
 
 
   #gene-viz-zoom
@@ -237,6 +238,12 @@
         >
         </gene-viz>
 
+        <div class="chart-label"
+        v-if="showVariantViz && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.length > 0"
+        >
+          called variants
+        </div>
+
         <variant-viz id="called-variant-viz"
           ref="calledVariantVizRef"
           v-if="showVariantViz"
@@ -257,6 +264,12 @@
           @variantHoverEnd="onVariantHoverEnd">
         </variant-viz>
 
+        <div class="chart-label"
+        v-if="showVariantViz && sampleModel.loadedVariants > 0"
+        >
+          loaded variants
+        </div>
+
         <variant-viz id="loaded-variant-viz"
           ref="variantVizRef"
           v-if="showVariantViz"
@@ -276,6 +289,12 @@
           @variantHover="onVariantHover"
           @variantHoverEnd="onVariantHoverEnd">
         </variant-viz>
+
+        <div class="chart-label"
+        v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1"
+        >
+          coverage
+        </div>
 
         <div id="bam-track">
 
@@ -635,8 +654,13 @@ export default {
     },
     showFlaggedVariant: function(variant) {
       if (this.showVariantViz) {
-        var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-        this.$refs.variantVizRef.showFlaggedVariant(variant, container);
+        if (variant.fbCalled == 'Y') {
+          var container = d3.select(this.$el).select('#called-variant-viz > svg');
+          this.$refs.calledVariantVizRef.showFlaggedVariant(variant, container);
+        } else {
+           var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
+          this.$refs.variantVizRef.showFlaggedVariant(variant, container);
+        }
       }
     },
     getExonClass: function(exon, i) {
