@@ -60,8 +60,8 @@
       margin-top: 5px
 
     hr
-      margin-bottom: 1px
-      margin-top: 1px
+      margin-bottom: 4px
+      margin-top: 4px
 
     .divider--inset
       margin-left: 22px
@@ -69,14 +69,15 @@
 
     .list__tile
       padding: 0px
-      height: 55px
+      height: initial
       padding-left: 3px
+      padding-top: 10px
 
     .list__tile__avatar
       min-width: initial
 
     .list__tile__sub-title
-      height: 32px
+      height: initial
       line-height: 18px
 
     .list__tile__title
@@ -107,31 +108,36 @@
 
       .coord
         display: inline-block
-        width: 122px
+        width: 105px
         line-height: 12px
         vertical-align: top
       .hgvs
         display: inline-block
-        width: 122px
+        width: 105px
         line-height: 12px
         vertical-align: top
       .vep-consequence
         display: inline-block
-        width: 122px
+        width: 105px
         line-height: 12px
         vertical-align: top
       .rsid
         display: inline-block
-        width: 122px
+        width: 105px
         line-height: 12px
         vertical-align: top
 
       .af
         display: inline-block
-        width: 45px
+        width: 60px
         vertical-align: top
         line-height: 12px
-
+    .variant-symbols
+      .has-called-variants
+        font-size: 15px
+        color: $called-variant-color
+        margin-top: -3px
+        margin-left: 2px
 
 
 
@@ -259,15 +265,15 @@
                     <svg
                      v-if="clinvar(variant) == 'clinvar_path'"
                      class="clinvar-badge" height="15" width="15">
-                      <g transform="translate(0,3)">
+                      <g transform="translate(0,2)">
                         <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="12" height="12" style="pointer-events: none; fill: rgb(173, 73, 74);"></use>
                       </g>
                     </svg>
 
                     <svg
                      v-if="clinvar(variant) == 'clinvar_lpath'"
-                     class="clinvar-badge" height="13" width="14">
-                      <g transform="translate(0,3)">
+                     class="clinvar-badge" height="15" width="15">
+                      <g transform="translate(0,2)">
                         <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="12" height="12" style="pointer-events: none; fill: rgb(251, 119, 55);"></use>
                       </g>
                     </svg>
@@ -331,7 +337,7 @@
                     <svg
                      v-if="variant.type.toLowerCase() == 'ins'"
                      class="impact-badge" height="15" width="13">
-                      <g transform="translate(5,7)">
+                      <g transform="translate(5,10)">
                         <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
                         v-bind:class="highestImpactClass(variant)">
                         </path>
@@ -341,7 +347,7 @@
                     <svg
                      v-if="variant.type.toLowerCase() == 'complex'"
                      class="impact-badge" height="15" width="13">
-                      <g transform="translate(5,6)">
+                      <g transform="translate(5,9)">
                         <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
                         v-bind:class="highestImpactClass(variant)">
                         </path>
@@ -367,24 +373,28 @@
                       </g>
                     </svg>
 
+                    <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
+                      check_circle
+                    </v-icon>
+
                   </div>
                 </v-list-tile-title>
 
                 <v-list-tile-sub-title >
                   <div class="variant-label">
-                    <div style="display:inline-block;width:117px" >
+                    <div style="display:inline-block;" >
                       <span class="coord"> {{ variant.start + " " + variant.ref + "->" + variant.alt }} </span>
                     </div>
-                    <div style="display:inline-block;width:112px;vertical-align:top">
+                    <div style="display:inline-block;vertical-align:top">
                       <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
                     </div>
                     <span class="af">{{ afDisplay(variant) }}</span>
                   </div>
                   <div class="variant-label">
-                    <div style="display:inline-block;width:117px" >
+                    <div style="display:inline-block;" >
                       <span class="hgvs">  {{ hgvsP(variant) }} </span>
                     </div>
-                    <div style="display:inline-block;width:112px;vertical-align:top">
+                    <div style="display:inline-block;vertical-align:top">
                       <span v-if="!isBasicMode" class="rsid">{{ rsId(variant) }}</span>
                     </div>
                   </div>
