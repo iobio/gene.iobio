@@ -178,17 +178,21 @@
   fill: #458b00
 
 .zyg_hom
-  fill: rgba(173, 38, 38, 0.65)
+  fill: $hom-color
   stroke: rgba(0, 0, 0, 0.26)
 
 .zyg_het
-  fill: #b5b4b4
+  fill: $het-color
+  stroke: rgba(0, 0, 0, 0.26)
+
+.zyg_homref
+  fill: $homref-color
   stroke: rgba(0, 0, 0, 0.26)
 
 .impact, .vepImpact, .highestImpactVep, .effect, .vepConsequence, .type, .zygosity, .recfilter
 
   text
-    fill: $sidebar-text-color
+    fill: $text-color
 
 .impact.nocolor rect, .vepImpact.nocolor rect, .highestImpactVep.nocolor rect, .effect.nocolor rect, .vepConsequence.nocolor rect, .zygosity.nocolor rect, .regulatory.nocolor rect, .polyphen.nocolor rect, .sift.nocolor rect
   fill: lightgrey !important

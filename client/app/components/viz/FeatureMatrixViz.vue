@@ -12,10 +12,6 @@
       rect.cellbox
         fill: rgba(187, 0, 0, 0.13)
 
-    &.low-quality
-      rect.cellbox
-        fill: $low-quality-cell-color
-
     &.flagged
       rect.colbox
         fill: none

@@ -20,6 +20,16 @@ button
       padding-bottom: 2px
       height: 30px
 
+.chip
+  background-color:  $default-badge-color
+  .chip__content
+    color: white
+    background-color:  $default-badge-color
+    font-size: 14px
+    height: 22px
+
+
+
 </style>
 
 <template>

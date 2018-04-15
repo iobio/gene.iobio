@@ -57,7 +57,7 @@
     #gene-badge-loaded
       display: inline
     #gene-badge-name
-      color: $sidebar-text-color !important
+      color: $text-color !important
 
   &.loaded
     #gene-badge-loaded
@@ -134,7 +134,7 @@
     #gene-badge-has-called-variants
       display: none
   a
-    color:  $sidebar-text-color !important
+    color:  $text-color !important
 
     &:hover
       text-decoration: underline !important
@@ -167,7 +167,7 @@
 
 #gene-badge-loaded
   font-size: 14px
-  color: $heading-color
+  color: $loaded-variant-color
   font-weight: bold
   float: left
   display: none

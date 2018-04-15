@@ -70,9 +70,9 @@
 
       .loaded-progress
         .progress-linear__bar__determinate
-          background-color: $loaded-variant-progress-color !important
+          background-color: $loaded-variant-color !important
         .progress-linear__background
-          background-color: $loaded-variant-progress-color !important
+          background-color: $loaded-variant-color !important
           height: 20px !important
 
       .called-progress
@@ -116,7 +116,7 @@
   #analyzing-indeterminate-bar
     margin: 0px
     .progress-linear__bar__indeterminate
-      background-color: $loaded-variant-progress-color !important
+      background-color: $loaded-variant-color !important
 
 
 </style>

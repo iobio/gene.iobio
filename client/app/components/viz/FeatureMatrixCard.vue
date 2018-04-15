@@ -19,36 +19,8 @@
 
   .matrix-note-text
     margin-top: -7px
-    color: $hint-color
+    color: $text-color
     font-style: italic
-
-  #low-quality-legend
-    font-size: 12px
-    margin-left: 20px
-    font-style: italic
-    clear:both
-    overflow: visible
-    float: left
-
-    #low-quality-legend-box
-      display: inline-block
-      width: 15px
-      height: 15px
-      background-color: $low-quality-cell-color
-      border: solid thin $cell-border-color
-      vertical-align: bottom
-      float: left
-      margin-top: 5px
-
-
-  #low-quality-legend-text
-    width: 160px
-    float: left
-    margin-left: 5px
-    margin-bottom: 0px
-    color:  $hint-color
-    font-style: italic
-    line-height: 13px
 
 
   #zero-variants
@@ -56,16 +28,16 @@
     font-size: 14px
     text-align: center
     margin-bottom: 10px
-    background-color:  $warning-background-color
-    border: thin solid $warning-border-color
+    background-color:  $info-color
+    border: thin solid $info-color-dark
     width: 300px
     margin-left: auto
     margin-right: auto
 
     &.zero-filtered-variants
       color: $text-color
-      background-color: $filter-summary-background-color
-      border: solid thin $filter-summary-border-color
+      background-color: lightgrey
+      border: solid thin lightgrey
 
   #feature-matrix-note
     padding-left: 50px

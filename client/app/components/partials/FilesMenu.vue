@@ -29,11 +29,6 @@
       padding-left: 5px
 
 #files-form
-  .chip
-    .chip__content
-      background-color:  $app-color
-      color: white
-      height: 24px
 
   .radio-group
     .input-group__input
@@ -127,8 +122,8 @@
 
          <v-flex xs2 class=" mt-3 pl-2 pr-3" >
           <v-chip v-if="probandSamples && probandSamples.length > 0"
-          outline small color="primary" >
-            Siblings
+           small color="primary" >
+            siblings
           </v-chip>
          </v-flex>
 

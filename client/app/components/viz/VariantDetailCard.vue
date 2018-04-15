@@ -7,6 +7,9 @@
   padding-top: 0px
   overflow-x: scroll
 
+  a
+    color:  $link-color !important
+
   .content
     font-size: 12px
     padding-left: 10px
@@ -42,7 +45,7 @@
         fill: none !important
 
       &.alt-count
-        fill: #6A9C2F !important
+        fill: $app-color-light !important
 
       &.other-count
         stroke: black !important
@@ -135,20 +138,24 @@
 
     .zygosity
       &.hom
-        background-color: rgba(165, 48, 48, 0.76) !important
+        background-color: $hom-color !important
+        color: white
+
+      &.het
+        background-color: $het-color !important
         color: white
 
 
       &.homref
-        background-color: #5D809D !important
-        color: rgba(255,255,255,1)
+        background-color: $homref-color !important
+        color: $text-color !important
 
       &.unknown
-        background-color: #b9edf3 !important
+        background-color: $info-color !important
 
       &.none
         background-color: transparent !important
-        border: solid thin #5D809D !important
+        border: solid thin $info-color !important
 
 
 

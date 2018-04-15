@@ -87,19 +87,17 @@
     .variant-number
       margin-right: 4px
       margin-left: 0px
-      font-size: 11px
       display: inline-block
       vertical-align: top
       margin-bottom: 0px
       margin-top: -2px
-      color: white !important
-      background: $default-badge-color !important
 
       .chip__content
-        width: 17px
-        height: 17px
+        width: 24px !important
+        height: 24px !important
         justify-content: space-around
         padding: 0px
+        font-size: 11px
 
     .variant-label
       font-size: 12px
@@ -251,7 +249,7 @@
 
               <v-list-tile-avatar>
                <v-chip class="variant-number">
-                {{ variant.index + 1 }}.
+                {{ variant.index + 1 }}
                </v-chip>
               </v-list-tile-avatar>
 

@@ -36,7 +36,6 @@
       font-size: 18px
 
     button
-      color: $app-color
       font-size: 16px !important
       margin-left: 7px
       margin-right: 7px
@@ -104,7 +103,7 @@
           margin-top: 10px
           margin-left: 10px
           margin-right: 10px
-          color: $app-color
+          color: $text-color
           font-size: 14px
           line-height: 17px
 
@@ -317,12 +316,12 @@
 
 
         <div style="margin-top:30px">
-          <button id="load-demo-data" class="btn btn-raised " @click="onLoadDemoData">
-            <span style="">Try it with demo data</span>
-          </button>
-          <button   class="btn btn-raised " @click="onAppTour">
-            <span style="">Take guided tour</span>
-          </button>
+          <v-btn id="load-demo-data" raised @click="onLoadDemoData">
+            Try it with demo data
+          </v-btn>
+          <v-btn  raised @click="onAppTour">
+            Take guided tour
+          </v-btn>
         </div>
       </div>
 

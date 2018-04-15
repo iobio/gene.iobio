@@ -37,6 +37,13 @@ html {
   justify-content: flex-end;
 }
 
+.theme--light .list, .application .theme--light.list {
+  color: rgb(113, 113, 113)
+}
+.menu__content .list__tile__title a {
+  color: rgb(113, 113, 113)
+}
+
 
 .card {
   width: 100%;
