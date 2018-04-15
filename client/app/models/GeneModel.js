@@ -11,6 +11,13 @@ class GeneModel {
     this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
 
 
+    this.linkTemplates = {
+        ncbi:      { display: 'NCBI',      url: 'https://www.ncbi.nlm.nih.gov/gene/GENEUID'},
+        omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
+        genecards: { display: 'GeneCards', url: 'https://www.genecards.org/cgi-bin/carddisp.pl?gene=GENESYMBOL'},
+        gtex:      { display: 'GTex',      url: 'https://www.gtexportal.org/home/gene/GENESYMBOL'},
+        ucsc:      { display: 'UCSC',      url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=GENECOORD'}
+    }
 
     this.geneSource = null;
     this.refseqOnly = {};
@@ -780,6 +787,44 @@ class GeneModel {
 
       }
     });
+  }
+
+  getLinks(geneName) {
+    let me = this;
+    let links = [];
+
+    var geneCoord = null;
+    var geneObject = me.geneObjects[geneName];
+    if (geneObject) {
+      geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
+    }
+
+    var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
+
+    var geneUID = null;
+    var ncbiInfo = me.geneNCBISummaries[geneName];
+    if (ncbiInfo) {
+      geneUID = ncbiInfo.uid;
+    }
+    for (var linkName in me.linkTemplates) {
+      var theLink = $.extend({}, me.linkTemplates[linkName]);
+      theLink.name = linkName;
+      if (geneUID) {
+        theLink.url = theLink.url.replace('GENEUID', geneUID );
+      }
+      if (geneObject) {
+        theLink.url = theLink.url.replace('GENESYMBOL', geneName);
+      }
+      if (geneCoord) {
+        theLink.url = theLink.url.replace('GENECOORD', geneCoord);
+      }
+      if (buildAliasUCSC) {
+        theLink.url = theLink.url.replace("GENOMEBUILD-ALIAS-UCSC", buildAliasUCSC);
+      }
+      links.push(theLink);
+    }
+
+    return links;
   }
 
 

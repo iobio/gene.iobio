@@ -23,105 +23,114 @@
     min-height: 0px;
   }
 
-  #zoom-hint {
-    font-size: 12px
-  }
-
-  #gene-name {
-    margin-left: 0px;
-    font-weight: bold;
-  }
-
-  #gene-chr {
-    margin-left: 5px
-  }
-
-  #gene-region {
-    margin-left: 3px
-  }
-
-  #region-buffer-box .input-group--text-field input{
-      font-size: 14px;
-      color: rgb(113,113,113);
-      fill:  rgb(113,113,113);
-  }
-
-  #gene-track #non-protein-coding {
-    clear: both;
-    padding-bottom: 0px;
-    display: block;
-    padding-top: 2px;
-  }
-
-  #select-transcripts-box {
-    margin-right: 25px;
-    vertical-align: middle !important;
-  }
-
-  #gene-source-box {
-    margin-top: -5px;
-    margin-left: 0px;
-    display: inline-block;
-    width: 115px;
-    vertical-align: initial;
-  }
-
-  #gene-source-box .input-group--select .input-group__selections__comma {
-    font-size: 14px;
-    padding: 0px 0px 0px 0px;
-
-  }
-  #gene-source-box .input-group label {
-    font-size: 14px;
-    line-height: 25px;
-    height: 25px;
-  }
-  #gene-source-box .input-group__input {
-    min-height: 0px;
-    margin-top: 10px;
-  }
-
-  #phenotypes {
-    margin-top: 8px;
-  }
-
-  #phenotypes-heading {
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    display: inline-block;
-    margin-top: 5px;
-    font-size: 12px;
-    font-weight: bold;
-  }
-  #phenotype-terms {
-    font-size: 12px;
-  }
-
-  #phenotypes .btn--floating.btn--small {
-    height: 18px !important;
-    width: 16px !important;
-    padding: 0px !important;
-    margin: 0px;
-    margin-left: 3px;
-  }
-  #phenotypes .btn--floating.btn--small .btn__content {
-    padding: 0px;
-  }
-  #ncbi-summary {
-    margin-top: 5px;
-    font-size: 12px;
-    font-weight: normal;
-  }
 
 
 </style>
 
 <style lang="sass">
 @import ../../../assets/sass/variables
-#gene-name
-  color: $app-color !important
+
+#gene-track
+  #gene-name
+    margin-left: 0px
+    background-color:  $app-color
+
+    .chip__content
+      background-color:  $app-color
+
+
+  #gene-chr
+    margin-left: 5px
+
+
+  #gene-region
+    margin-left: 3px
+
+  #region-buffer-box
+    .input-group--text-field
+      input
+        font-size: 14px
+        color: $text-color
+        fill:  $text-color
+
+
+  #select-transcripts-box
+    margin-right: 30px
+    vertical-align: middle !important
+
+
+  #gene-source-box
+    margin-top: -5px
+    margin-left: 5px
+    display: inline-block
+    width: 115px
+    vertical-align: initial
+    margin-right: 20px
+
+    .input-group--select
+      .input-group__selections__comma
+        font-size: 14px
+        padding: 0px 0px 0px 0px
+
+
+    .input-group
+      label
+        font-size: 14px
+        line-height: 25px
+        height: 25px
+
+    .input-group__input
+      min-height: 0px
+      margin-top: 10px
+
+
+
+  #gene-links
+    display: inline-block
+    margin-left: 5px
+
+    .gene-link
+      display: inline-block
+      margin-right: 10px
+      color: $link-color !important
+
+
+
+
+
+  #non-protein-coding
+    clear: both;
+    padding-bottom: 0px;
+    display: block;
+    padding-top: 2px;
+
+  #ncbi-summary
+    margin-top: 5px
+    font-size: 12px
+    font-weight: normal
+    margin-left: 5px
+
+  #phenotypes
+    margin-top: 8px
+    margin-left: 5px
+
+
+    #phenotypes-heading
+      text-align: center
+      margin-left: auto
+      margin-right: auto
+      width: 100%
+      display: inline-block
+      margin-top: 5px
+      font-size: 12px
+      font-weight: bold
+
+    #phenotype-terms
+      font-size: 12px
+
+
+
+
 </style>
 
 
@@ -133,7 +142,9 @@
     </div>
     <div>
       <div style="display:inline-block;margin-right:auto;">
-        <a id="gene-name" target="_genecards" class="level-basic gene-card-label heading " data-toggle="tooltip" data-placement="right" >{{ selectedGene.gene_name }}</a>
+        <v-chip id="gene-name"  class="level-basic gene-card-label heading ">
+          {{ selectedGene.gene_name }}
+        </v-chip>
 
         <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
 
@@ -170,6 +181,18 @@
               @input="onGeneSourceSelected">
           </v-select>
         </div>
+        <span id="gene-links">
+          <a
+          v-if="showGene"
+          v-for="link in links"
+          :key="link.name"
+          :href="link.url"
+          :target="`_` + link.name"
+          class="gene-link"
+          >
+            {{ link.display }}
+          </a>
+        </span>
 
       </div>
 
@@ -288,7 +311,10 @@ export default {
 
       phenotypes: null,
       phenotypeTerms: null,
-      ncbiSummary: null
+      ncbiSummary: null,
+      links: null
+
+
     }
   },
 
@@ -331,15 +357,17 @@ export default {
     initSummaryInfo: function() {
       if (this.selectedGene && this.selectedGene.gene_name) {
         this.ncbiSummary = this.geneModel.geneNCBISummaries[this.selectedGene.gene_name];
-        this.phenotypes = this.geneModel.genePhenotypes[this.selectedGene.gene_name]
+        this.phenotypes  = this.geneModel.genePhenotypes[this.selectedGene.gene_name]
         if (this.phenotypes) {
           this.phenotypeTerms =  this.phenotypes.map(function(d) {
             return d.hpo_term_name;
           }).join(", ");
         }
+        this.links = this.geneModel.getLinks(this.selectedGene.gene_name);
       } else {
         this.ncbiSummary = null;
         this.phenotypes = null;
+        this.links = null;
       }
     }
 
