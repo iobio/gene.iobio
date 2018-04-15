@@ -169,7 +169,7 @@
           #play-button
             cursor: pointer
             opacity: .65
-            color: #abb519
+            color: $app-color-light
             font-size: 90px
             position: absolute
             top: 40px
