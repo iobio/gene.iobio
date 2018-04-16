@@ -44,6 +44,10 @@ html {
   color: rgb(113, 113, 113)
 }
 
+.theme--light .btn:not(.btn--icon):not(.btn--flat),
+.application .theme--light.btn:not(.btn--icon):not(.btn--flat) {
+  background-color: white;
+}
 
 .card {
   width: 100%;

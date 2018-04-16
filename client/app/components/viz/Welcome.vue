@@ -154,7 +154,7 @@
 
       #video-thumbprint-heading-large
         font-size: 20px
-        color: $app-color
+        color: $text-color
         position: relative
         top: 105px
         z-index: 1
@@ -165,7 +165,7 @@
       .video-thumbprint-well-large
         position: relative
         width: 250px
-        height: 160px
+        height: 160px !important
         text-align: center
         margin-left: 0px
 
@@ -179,8 +179,6 @@
 
 
         .video-thumbprint-large
-          width: 250px
-          height: 160px
           background-color: grey
           background-size: cover
 
@@ -198,7 +196,6 @@
 
         #welcome-screencast-panel-intro
           background-color: white
-          border: thin solid $welcome-border-color
 
 #screencast-panel
   text-align: center
@@ -294,14 +291,14 @@
             <div id="video-thumbprint-heading-large">Introducing<br>gene.iobio</div>
             <div id="video-thumbprint-content">
 
-              <div class="video-thumbprint-well-large shadow-z-2">
+              <v-card  class="video-thumbprint-well-large shadow-z-2">
                 <div id="welcome-screencast-panel-intro" class="video-thumbprint-large" >
                   <i class="material-icons" id="play-button" @click="playVideo('screencast-intro')">
                     play_arrow
                   </i>
                 </div>
                 <div class="video-title"></div>
-              </div>
+              </v-card>
             </div>
           </div>
 
@@ -335,10 +332,10 @@
 
 
         <div style="margin-top:30px">
-          <v-btn id="load-demo-data" raised @click="onLoadDemoData">
+          <v-btn id="load-demo-data"  @click="onLoadDemoData">
             Try it with demo data
           </v-btn>
-          <v-btn  raised @click="onAppTour">
+          <v-btn   @click="onAppTour">
             Take guided tour
           </v-btn>
         </div>
