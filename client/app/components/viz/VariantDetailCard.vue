@@ -122,7 +122,7 @@
     .zygosity
       float: left
       font-size: 9px
-      font-weight: normal !important
+      font-weight: bold !important
       padding-top: 1px !important
       padding-bottom: 0px !important
       padding-right: 0px !important
@@ -140,10 +140,14 @@
       &.hom
         background-color: $hom-color !important
         color: white
+        width: 29px !important
+        margin-right: 10px
 
       &.het
         background-color: $het-color !important
         color: white
+        width: 29px !important
+        margin-right: 10px
 
 
       &.homref

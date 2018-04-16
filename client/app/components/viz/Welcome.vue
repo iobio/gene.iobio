@@ -51,6 +51,7 @@
         display: inline-block
         padding-top: 2px
         float: left
+        color: $welcome-accent-color
 
       span.bullet-item
         display: inline-block
@@ -59,6 +60,7 @@
         width: 260px
         margin-left: 5px
         margin-bottom: 15px
+
 
 
       .description-paragraph
@@ -103,9 +105,23 @@
           margin-top: 10px
           margin-left: 10px
           margin-right: 10px
-          color: $text-color
+          color: $welcome-header-color
           font-size: 14px
           line-height: 17px
+          height: 65px
+          border: $welcome-border-color solid thin
+          padding: 5px
+          width: 100px
+
+          #play-button
+            cursor: pointer
+            opacity: 0.4
+            color: $welcome-accent-color
+            font-size: 50px
+            position: absolute
+            top: 18px
+            left: 30px
+
 
         .video-thumbprint
           width: 90px
@@ -114,6 +130,7 @@
           margin-left: 10px
           background-color: grey
           background-size: cover
+          display: none
 
           #play-button
             cursor: pointer
@@ -136,10 +153,10 @@
 
 
       #video-thumbprint-heading-large
-        font-size: 18px
-        color: $text-color
+        font-size: 20px
+        color: $welcome-header-color
         position: relative
-        top: 55px
+        top: 105px
         z-index: 1
         cursor: default
 
@@ -160,6 +177,7 @@
           font-size: 16px
           line-height: 17px
 
+
         .video-thumbprint-large
           width: 250px
           height: 160px
@@ -168,8 +186,8 @@
 
           #play-button
             cursor: pointer
-            opacity: .65
-            color: $app-color-light
+            opacity: .4
+            color: $welcome-accent-color
             font-size: 90px
             position: absolute
             top: 40px
@@ -177,9 +195,10 @@
             cursor: pointer
             z-index: 200
 
+
         #welcome-screencast-panel-intro
           background-color: white
-          border: thin solid #d4d3d3
+          border: thin solid $welcome-border-color
 
 #screencast-panel
   text-align: center
@@ -272,7 +291,7 @@
         <div id="welcome-panel-content">
 
           <div id="video-thumbprint-panel">
-            <div id="video-thumbprint-heading-large">Introducing gene.iobio</div>
+            <div id="video-thumbprint-heading-large">Introducing<br>gene.iobio</div>
             <div id="video-thumbprint-content">
 
               <div class="video-thumbprint-well-large shadow-z-2">
@@ -354,7 +373,12 @@
                   <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
                   </i>
                 </div>
-                <div class="video-title">Saving your analysis video</div>
+                <div class="video-title">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
+                  </i>
+                  Saving your analysis screencast
+
+                </div>
               </div>
 
 
@@ -374,7 +398,11 @@
                   <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
                   </i>
                 </div>
-                <div class="video-title">Coverage analysis video</div>
+                <div class="video-title">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
+                  </i>
+                  Coverage analysis screencast
+                </div>
               </div>
 
               <a href="http://iobio.io/2017/07/11/coverage/" target="_new">
@@ -390,10 +418,12 @@
 
               <div class="video-thumbprint-well ">
                 <div id="welcome-screencast-panel-multigene-analysis" class="video-thumbprint shadow-z-2">
+                </div>
+                <div class="video-title">
                   <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
                   </i>
-                </div>
-                <div class="video-title">Multi-gene analysis video</div>
+                 Multi-gene analysis screencast
+                 </div>
               </div>
 
 

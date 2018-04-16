@@ -5,7 +5,7 @@
 
 #depth-viz .circle-label
   fill: $arrow-color
-  font-size: 13px
+  font-size: 15px
   font-weight: bold
   stroke: none
   pointer-events: none

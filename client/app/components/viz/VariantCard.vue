@@ -155,7 +155,7 @@
         {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Loaded' }}
       </v-badge>
       <v-badge
-        v-if="sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
+        v-if="sampleModel.relationship != 'known-variants' && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
         class="mr-4 mt-1 called">
         <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
         Called

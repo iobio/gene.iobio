@@ -35,11 +35,15 @@
     .stop-analysis-button
       float: left
       position: relative
-      min-width: 30px
+      min-width: 0px
+      height: 20px
       padding: 0px
-      margin-top: 10px
+      margin-top: 15px
       margin-right: 20px
       margin-left: 0px
+
+      i.material-icons
+        font-size: 18px
 
 
     #analyze-genes-progress
@@ -116,7 +120,6 @@
   #analyzing-indeterminate-bar
     margin: 0px
     .progress-linear__bar__indeterminate
-      background-color: $loaded-variant-color !important
 
 
 </style>
@@ -128,8 +131,8 @@
     v-if="analyzeAllInProgress || callAllInProgress"
     id="analyzing-indeterminate-bar"
     :indeterminate="true"
-    height="3"
-    color="lime darken-1"
+    height="4"
+    color="lime "
     background-color="grey lighten-3">
     </v-progress-linear>
 
@@ -142,14 +145,17 @@
             v-if="isLoaded"
             class="level-edu"
             raised
-            @click="onAnalyzeAll">
+            @click="onAnalyzeAll"
+            v-tooltip.top-center="`Analyze variants in all genes`" >
               Analyze all
             </v-btn>
+
 
             <v-btn
             v-if="analyzeAllInProgress"
             class="stop-analysis-button"
-            @click="onStopAnalysis" small raised >
+            @click="onStopAnalysis" small raised
+            v-tooltip.top-center="`Stop analysis`" >
               <v-icon>stop</v-icon>
             </v-btn>
 
@@ -158,7 +164,8 @@
               v-if="isLoaded && hasAlignments"
             >
               <v-menu offset-y>
-                <v-btn raised slot="activator">Call variants</v-btn>
+                <v-btn raised slot="activator"
+                v-tooltip.top-center="`Call variants from alignments`">Call variants</v-btn>
                 <v-list>
                     <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
                     <v-list-tile-title>{{ action }}</v-list-tile-title>
@@ -170,7 +177,8 @@
             <v-btn
             v-if="callAllInProgress"
             class="stop-analysis-button"
-            @click="onStopAnalysis" small raised >
+            @click="onStopAnalysis" small raised
+            v-tooltip.top-center="`Stop calling variants`" >
               <v-icon>stop</v-icon>
             </v-btn>
 

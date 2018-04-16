@@ -511,6 +511,10 @@ export default class VariantTooltip {
         + vepHighestImpactRowSimple
         + clinvarSimpleRow1
         + clinvarSimpleRow2 );
+    } else if (lock) {
+        return me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, info.dbSnpLink, 'ref-alt')
+        + calledVariantRow
+        + me._linksRow(variant, pinMessage, relationship, lock)
     } else {
       return (
         me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, info.dbSnpLink, 'ref-alt')
