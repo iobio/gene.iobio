@@ -116,7 +116,7 @@
           #play-button
             cursor: pointer
             opacity: 0.4
-            color: $welcome-accent-color
+            color: $play-button-color
             font-size: 50px
             position: absolute
             top: 18px
@@ -154,7 +154,7 @@
 
       #video-thumbprint-heading-large
         font-size: 20px
-        color: $welcome-header-color
+        color: $app-color
         position: relative
         top: 105px
         z-index: 1
@@ -187,7 +187,7 @@
           #play-button
             cursor: pointer
             opacity: .4
-            color: $welcome-accent-color
+            color: $play-button-color
             font-size: 90px
             position: absolute
             top: 40px
