@@ -122,7 +122,7 @@
 
          <v-flex xs2 class=" mt-3 pl-2 pr-3" >
           <v-chip v-if="probandSamples && probandSamples.length > 0"
-           small color="primary" >
+           dark small >
             siblings
           </v-chip>
          </v-flex>

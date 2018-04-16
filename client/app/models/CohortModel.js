@@ -835,13 +835,17 @@ class CohortModel {
       var theResultMap = {};
       if (isMultiSample) {
         self.getCanonicalModels().forEach(function(model) {
-          model.inProgress.loadingVariants = true;
+          if (!isBackground) {
+            model.inProgress.loadingVariants = true;
+          }
         })
         p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.getCanonicalModels(), isMultiSample, isBackground)
         .then(function(resultMap) {
-          self.getCanonicalModels().forEach(function(model) {
-            model.inProgress.loadingVariants = false;
-          })
+          if (!isBackground) {
+            self.getCanonicalModels().forEach(function(model) {
+              model.inProgress.loadingVariants = false;
+            })
+          }
           theResultMap = resultMap;
         })
         annotatePromises.push(p);
@@ -849,12 +853,16 @@ class CohortModel {
         for (var rel in self.sampleMap) {
           var model = self.sampleMap[rel].model;
           if (model.isVcfReadyToLoad() || model.isLoaded()) {
-            model.inProgress.loadingVariants = true;
+            if (!isBackground) {
+              model.inProgress.loadingVariants = true;
+            }
             if (rel != 'known-variants') {
               var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], isMultiSample, isBackground)
               .then(function(resultMap) {
                 for (var theRelationship in resultMap) {
-                  self.getModel(theRelationship).inProgress.loadingVariants = false;
+                  if (!isBackground) {
+                    self.getModel(theRelationship).inProgress.loadingVariants = false;
+                  }
                   theResultMap[theRelationship] = resultMap[theRelationship];
                 }
               })

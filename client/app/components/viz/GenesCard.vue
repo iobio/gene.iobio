@@ -120,6 +120,7 @@
   #analyzing-indeterminate-bar
     margin: 0px
     .progress-linear__bar__indeterminate
+      background-color:  $app-color-light
 
 
 </style>
@@ -132,7 +133,7 @@
     id="analyzing-indeterminate-bar"
     :indeterminate="true"
     height="4"
-    color="lime "
+
     background-color="grey lighten-3">
     </v-progress-linear>
 
