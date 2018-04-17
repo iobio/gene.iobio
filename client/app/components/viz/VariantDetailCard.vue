@@ -202,7 +202,7 @@
         <span class="pl-1 refalt">Genotype {{ refAlt  }}</span>
         <span class="pl-1">{{ info.vepImpact }}</span>
       </div>
-      <div style="overflow:auto;width:100%">
+      <div  v-if="selectedVariant && !isEduMode" style="overflow:auto;width:100%">
         <v-btn class="flag-button" small raised
         v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"
         @click="setUserFlag">
