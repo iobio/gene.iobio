@@ -554,7 +554,9 @@ export default {
           }
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
-          self.$refs.navRef.onShowFlaggedVariants();
+          if (!self.isEduMode) {
+            self.$refs.navRef.onShowFlaggedVariants();
+          }
         });
 
         self.globalApp.cacheHelper = self.cacheHelper;
@@ -1204,7 +1206,9 @@ export default {
       variant.featureClass = "";
       self.cohortModel.removeFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
       self.flaggedVariants = this.cohortModel.flaggedVariants;
-      self.$refs.navRef.onShowFlaggedVariants();
+      if (!self.isEduMode) {
+        self.$refs.navRef.onShowFlaggedVariants();
+      }
       // Refresh the loaded variants so that the ranked variants table
       // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
@@ -1222,7 +1226,6 @@ export default {
       let self = this;
       self.flaggedVariants = [];
       self.flaggedVariants = flaggedVariants;
-      //self.$refs.navRef.onShowFlaggedVariants();
 
     },
     onFlaggedVariantsImported: function() {
@@ -1267,7 +1270,9 @@ export default {
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
         self.$refs.genesCardRef.determineFlaggedGenes();
         self.$refs.genesCardRef.updateGeneBadgeCounts();
-        self.$refs.navRef.onShowFlaggedVariants();
+        if (!self.isEduMode) {
+          self.$refs.navRef.onShowFlaggedVariants();
+        }
       })
     },
     onLeftDrawer: function(isOpen) {

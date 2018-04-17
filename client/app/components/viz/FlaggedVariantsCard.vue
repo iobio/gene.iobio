@@ -674,7 +674,7 @@ export default {
       let self = this;
       return [
        {
-         label: self.isBasicMode ? 'Variants in clinvar with &lt; 1% population frequency' : 'Passing filters',
+         label: self.isBasicMode ? 'Variants in clinvar with < 1% population frequency' : 'Passing filters',
          show:  true,
          genes: self.filteredGenes,
          style: 'margin-top:10px'
