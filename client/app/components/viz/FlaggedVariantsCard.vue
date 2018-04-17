@@ -7,12 +7,23 @@
     width: calc(100% - 1px)
     padding-right: 20px
 
+    #close-button
+      padding-right: 0px
+      position: absolute
+      right: 0px
+      display: inline-block
+      margin-left: 0px
+      min-width: 22px
+
+      i.material-icons
+        font-size: 22px
+
     .toolbar__title
       font-family: inherit
       font-size: 14px
       min-width: initial
       padding-right: 30px
-      PADDING-top: 2px
+      PADDING-top: 3px
       font-weight: 600
 
     .toolbar-button
@@ -220,6 +231,9 @@
         @click="showSaveDialog = true">
         <v-icon>save</v-icon>
         Save
+      </v-btn>
+      <v-btn id="close-button" flat @click="$emit('close-left-drawer')">
+        <v-icon style="color: white">close</v-icon>
       </v-btn>
     </v-toolbar>
 

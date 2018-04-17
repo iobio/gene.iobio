@@ -245,6 +245,7 @@ nav.toolbar
          :flaggedVariants="flaggedVariants"
          @flagged-variants-imported="onFlaggedVariantsImported"
          @flagged-variant-selected="onFlaggedVariantSelected"
+         @close-left-drawer="leftDrawer = false"
         >
         </flagged-variants-card>
 
