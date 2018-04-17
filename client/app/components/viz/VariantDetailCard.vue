@@ -324,7 +324,7 @@
         </v-flex>
 
 
-        <v-flex   v-if="selectedVariant.afExAC && genomeBuildHelper.getCurrentBuildName() != 'GRCh37' && !isBasicMode" xs6>
+        <v-flex   v-if="genomeBuildHelper.getCurrentBuildName() != 'GRCh37' && !isBasicMode" xs6>
           <v-layout row>
              <v-flex xs3 class="field-label">ExAC</v-flex>
              <v-flex xs9 class="field-value" v-html="afExAC"></v-flex>
@@ -332,7 +332,7 @@
         </v-flex>
 
 
-        <v-flex v-if="selectedVariant.af1000G & !isBasicMode">
+        <v-flex v-if="!isBasicMode">
           <v-layout  row>
              <v-flex xs3 class="field-label">1000G</v-flex>
              <v-flex xs9 class="field-value" v-html="af1000G"></v-flex>
