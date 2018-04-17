@@ -37,7 +37,8 @@
       hide-details="false"
       v-bind:limit="typeaheadLimit"
       target="#phenotype-term"
-      async-src="http://nv-blue.iobio.io/hpo/hot/lookup/?term=" item-key="value"/>
+      :async-function="phenotypeLookup"
+      item-key="value"/>
     </v-flex>
     <v-flex id="phenolyzer-top-input" style="display:inline-block;max-width:60px;width:60px;margin-left:5px;padding-top:4px">
       <v-select
@@ -148,6 +149,32 @@ export default {
         });
 
       }
+    },
+    phenotypeLookup: function(term, done) {
+      let self = this;
+
+      $.ajax({
+          url: self.globalApp.hpoLookupUrl + encodeURIComponent(term),
+          type: 'GET',
+          error: function() {
+              done([])
+          },
+          success: function(res) {
+            if (!res.length) {
+              done([]);
+            }
+            var sortedTerms = res.sort(function(a,b) {
+              if (a.label < b.label) {
+                return -1;
+              } else if (a.label > b.label) {
+                return 1;
+              } else {
+                return 0;
+              }
+            });
+            done(sortedTerms);
+          }
+      });
     }
   },
   created: function() {

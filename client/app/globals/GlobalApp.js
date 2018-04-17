@@ -38,7 +38,7 @@ class GlobalApp {
     this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SERVICES + "email/";
 
 
-
+    this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
 
     // config files
     this.siteConfigUrl         =  "https://s3.amazonaws.com/gene.iobio.config/site-config.json";
