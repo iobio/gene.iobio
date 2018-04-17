@@ -101,6 +101,7 @@
          :isLeftDrawerOpen="isLeftDrawerOpen"
          :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
          :callAllInProgress="cacheHelper.callAllInProgress"
+         :showCoverageCutoffs="showCoverageCutoffs"
          @gene-selected="onGeneSelected"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
@@ -109,6 +110,7 @@
          @add-flagged-variants="onAddFlaggedVariants"
          @register-flagged-variants="onRegisterFlaggedVariants"
          @filter-applied="onFilterApplied"
+         @filter-settings-closed="showCoverageCutoffs = false"
          @apply-genes="onApplyGenes"
          @stop-analysis="onStopAnalysis"
         >
@@ -249,6 +251,7 @@
         @known-variants-filter-change="onKnownVariantsFilterChange"
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
+        @show-coverage-cutoffs="showCoverageCutoffs = true"
         >
         </variant-card>
 
@@ -416,7 +419,9 @@ export default {
 
       phenotypeTerm: null,
 
-      siteConfig: null
+      siteConfig: null,
+
+      showCoverageCutoffs: false
     }
   },
 

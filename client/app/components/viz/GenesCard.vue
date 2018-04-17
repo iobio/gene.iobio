@@ -190,8 +190,10 @@
              ref="filterBadgesRef"
              :badgeCounts="badgeCounts"
              :filterModel="filterModel"
+             :showCoverageCutoffs="showCoverageCutoffs"
              @filter-applied="onFilterApplied"
-             @badge-click="onBadgeClick">
+             @badge-click="onBadgeClick"
+             @filter-settings-closed="onFilterSettingsClosed">
             </filter-badges>
 
             <div id="analyze-genes-progress"
@@ -277,7 +279,8 @@ export default {
     filterModel: null,
     isLeftDrawerOpen: null,
     analyzeAllInProgress: null,
-    callAllInProgress: null
+    callAllInProgress: null,
+    showCoverageCutoffs: null
   },
   data () {
     return {
@@ -446,6 +449,9 @@ export default {
       self.determineFlaggedGenes(null);
       self.filteredGeneNames = [];
       self.updateGeneSummaries();
+    },
+    onFilterSettingsClosed: function() {
+      this.$emit('filter-settings-closed');
     }
 
   },

@@ -119,7 +119,8 @@ export default {
     FilterSettingsCoverage
   },
   props: {
-    filterModel: null
+    filterModel: null,
+    showCoverageCutoffs: null
   },
   data () {
     return {
@@ -137,6 +138,14 @@ export default {
     }
   },
   watch: {
+    showCoverageCutoffs: function() {
+      if (this.showCoverageCutoffs) {
+        this.showMenu = true;
+        this.filters.forEach(function(f) {
+          f.active =  f.name == 'coverage';
+        })
+      }
+    }
   },
   methods: {
     onNewFilter: function() {
@@ -159,13 +168,16 @@ export default {
         })
         self.$emit('filter-applied', filter);
       })
+      this.$emit('filter-settings-closed');
       this.showMenu = false;
     },
     onCancel: function() {
       this.showMenu = false;
+      this.$emit('filter-settings-closed');
     },
     close: function() {
       this.showMenu = false;
+      this.$emit('filter-settings-closed');
     },
     onRemoveCustomFilter: function(filter) {
       var idx = this.filters.indexOf(filter);

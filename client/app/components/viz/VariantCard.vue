@@ -684,9 +684,9 @@ export default {
       }
       tooltip.html(html);
       if (lock) {
-        //tooltip.select("#exon-tooltip-thresholds").on("click", function() {
-          //$('#filter-track #coverage-thresholds').addClass('attention');
-        //})
+        tooltip.select("#exon-tooltip-thresholds").on("click", function() {
+          self.$emit("show-coverage-cutoffs");
+        })
         tooltip.select("#exon-tooltip-close").on("click", function() {
           self.selectedExon = null;
           self.hideExonTooltip(true);

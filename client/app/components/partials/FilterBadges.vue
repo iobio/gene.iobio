@@ -157,7 +157,9 @@
       <filter-settings-menu
        class="ml-2"
        :filterModel="filterModel"
+       :showCoverageCutoffs="showCoverageCutoffs"
        @filter-applied="onFilterApplied"
+       @filter-settings-closed="$emit('filter-settings-closed')"
        v-tooltip.top-center="`Customize filters`">
       </filter-settings-menu>
 
@@ -186,7 +188,8 @@ export default {
   },
   props: {
     badgeCounts: null,
-    filterModel: null
+    filterModel: null,
+    showCoverageCutoffs: null
   },
   data () {
     return {
