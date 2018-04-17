@@ -120,7 +120,8 @@
   #analyzing-indeterminate-bar
     margin: 0px
     .progress-linear__bar__indeterminate
-      background-color:  $app-color-light
+      background-color:  $app-color-lighter
+
 
 
 </style>
@@ -132,8 +133,7 @@
     v-if="analyzeAllInProgress || callAllInProgress"
     id="analyzing-indeterminate-bar"
     :indeterminate="true"
-    height="4"
-
+    height="3"
     background-color="grey lighten-3">
     </v-progress-linear>
 
@@ -185,6 +185,7 @@
 
 
           <filter-badges v-if="isLoaded"
+           ref="filterBadgesRef"
            :badgeCounts="badgeCounts"
            :filterModel="filterModel"
            @filter-applied="onFilterApplied"
@@ -455,6 +456,16 @@ export default {
     },
     onStopAnalysis: function() {
       this.$emit("stop-analysis");
+    },
+    clearFilter: function() {
+      let self = this;
+      if (this.$refs.filterBadgesRef) {
+        this.$refs.filterBadgesRef.clearFilter();
+      }
+      this.$emit("filter-applied", null);
+      self.determineFlaggedGenes(null);
+      self.filteredGeneNames = [];
+      self.updateGeneSummaries();
     }
 
   },

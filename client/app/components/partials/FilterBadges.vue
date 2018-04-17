@@ -226,10 +226,16 @@ export default {
     },
     onClearFilter: function() {
       let self = this;
-      $(self.$el).find("#" + self.activeFilter.name).toggleClass("selected");
-      self.showFilterInfo = false;
-      self.activeFilter = null;
+      self.clearFilter();
       self.$emit("badge-click", null);
+    },
+    clearFilter: function() {
+      let self = this;
+      if (self.activeFilter) {
+        $(self.$el).find("#" + self.activeFilter.name).toggleClass("selected");
+        self.showFilterInfo = false;
+        self.activeFilter = null;
+      }
     },
     onFilterApplied: function(filter) {
       let self = this;

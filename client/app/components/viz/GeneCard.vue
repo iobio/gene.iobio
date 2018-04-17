@@ -34,6 +34,8 @@
   #gene-name
     margin-left: 0px
     background-color:  $app-color
+    margin-top: 0px
+    margin-bottom: 8px
 
     .chip__content
       background-color:  $app-color

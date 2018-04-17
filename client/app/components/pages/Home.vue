@@ -59,7 +59,7 @@
       :cohortModel="cohortModel"
       :geneModel="geneModel"
       :flaggedVariants="flaggedVariants"
-      @input="onGeneSelected"
+      @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
       @apply-genes="onApplyGenes"
@@ -580,6 +580,9 @@ export default {
     promiseClearCache: function() {
       let self = this;
 
+      this.clearFilter();
+      this.flaggedVariants = [];
+
       return new Promise(function(resolve, reject) {
         if (self.isEduMode) {
           resolve();
@@ -791,6 +794,11 @@ export default {
       self.$router.replace({ query: queryObject });
       */
 
+    },
+
+    onGeneNameEntered: function(geneName) {
+      this.clearFilter();
+      this.onGeneSelected(geneName);
     },
 
     onGeneSelected: function(geneName) {
@@ -1034,13 +1042,22 @@ export default {
       this.cacheHelper.analyzeAll(this.cohortModel);
     },
     onClearAllGenes: function() {
+      this.clearFilter();
       this.selectedGene = {};
       this.geneModel.clearAllGenes();
       this.flaggedVariants = [];
       this.cohortModel.flaggedVariants = [];
     },
+    clearFilter: function() {
+      if (this.$refs.genesCardRef) {
+        this.$refs.genesCardRef.clearFilter();
+      }
+    },
     onApplyGenes: function(genesString, phenotypeTerm) {
       let self = this;
+
+      self.clearFilter();
+
       if (phenotypeTerm) {
         self.phenotypeTerm = phenotypeTerm;
       }
