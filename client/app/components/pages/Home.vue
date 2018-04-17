@@ -132,13 +132,10 @@
             :relationship="PROBAND"
             :variantTooltip="variantTooltip"
             :width="cardWidth"
-            @cohortVariantClick="onCohortVariantClick"
-            @cohortVariantClickEnd="onCohortVariantClickEnd"
-            @cohortVariantHover="onCohortVariantHover"
-            @cohortVariantHoverEnd="onCohortVariantHoverEnd"
-            @flag-variant="onFlagVariant"
-            @remove-flagged-variant="onRemoveFlaggedVariant"
-            @variantRankChange="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
+            @cohort-variant-click="onCohortVariantClick"
+            @cohort-variant-hover="onCohortVariantHover"
+            @cohort-variant-hover-end="onCohortVariantHoverEnd"
+            @variant-rank-change="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
             >
             </feature-matrix-card>
 
@@ -189,6 +186,8 @@
                   :variantTooltip="variantTooltip"
                   :cohortModel="cohortModel"
                   :info="selectedVariantInfo"
+                  @flag-variant="onFlagVariant"
+                  @remove-flagged-variant="onRemoveFlaggedVariant"
                   >
                   </variant-detail-card>
                 </v-tab-item>
@@ -243,14 +242,11 @@
         :showVariantViz="model.relationship != 'known-variants' || showKnownVariantsCard"
         :geneVizShowXAxis="model.relationship == 'proband' || model.relationship == 'known-variants'"
         @show-known-variants-card="onShowKnownVariantsCard"
-        @cohortVariantClick="onCohortVariantClick"
-        @cohortVariantClickEnd="onCohortVariantClickEnd"
-        @cohortVariantHover="onCohortVariantHover"
-        @cohortVariantHoverEnd="onCohortVariantHoverEnd"
-        @flag-variant="onFlagVariant"
-        @remove-flagged-variant="onRemoveFlaggedVariant"
-        @knownVariantsVizChange="onKnownVariantsVizChange"
-        @knownVariantsFilterChange="onKnownVariantsFilterChange"
+        @cohort-variant-click="onCohortVariantClick"
+        @cohort-variant-hover="onCohortVariantHover"
+        @cohort-variant-hover-end="onCohortVariantHoverEnd"
+        @known-variants-viz-change="onKnownVariantsVizChange"
+        @known-variants-filter-change="onKnownVariantsFilterChange"
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
         >
@@ -908,7 +904,7 @@ export default {
         self.showVariantExtraAnnots(sourceComponent, variant);
         self.$refs.variantCardRef.forEach(function(variantCard) {
           if (sourceComponent == null || variantCard != sourceComponent) {
-            variantCard.showVariantCircle(variant);
+            variantCard.showVariantCircle(variant, true);
             variantCard.showCoverageCircle(variant);
           }
         })
@@ -922,14 +918,11 @@ export default {
         self.deselectVariant();
       }
     },
-    onCohortVariantClickEnd: function(sourceComponent) {
-      this.deselectVariant();
-    },
     onCohortVariantHover: function(variant, sourceComponent) {
       let self = this;
       self.$refs.variantCardRef.forEach(function(variantCard) {
         if (variantCard != sourceComponent) {
-          variantCard.showVariantCircle(variant);
+          variantCard.showVariantCircle(variant, false);
           variantCard.showCoverageCircle(variant);
         }
       })
@@ -941,7 +934,7 @@ export default {
       let self = this;
       if (self.$refs.variantCardRef) {
         self.$refs.variantCardRef.forEach(function(variantCard) {
-          variantCard.hideVariantCircle();
+          variantCard.hideVariantCircle(false);
           variantCard.hideCoverageCircle();
         })
         if (self.selectedVariant == null) {
@@ -950,7 +943,7 @@ export default {
 
       }
     },
-    deselectVariant: function() {
+    deselectVariant: function(lock) {
       let self = this;
       self.selectedVariant = null;
       self.selectedVariantRelationship = null;
@@ -958,7 +951,7 @@ export default {
       if (self.$refs.variantCardRef) {
         self.$refs.variantCardRef.forEach(function(variantCard) {
           variantCard.hideVariantTooltip();
-          variantCard.hideVariantCircle();
+          variantCard.hideVariantCircle(lock);
           variantCard.hideCoverageCircle();
         })
       }

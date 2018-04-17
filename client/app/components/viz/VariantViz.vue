@@ -40,13 +40,13 @@
   fill: none
   pointer-events: none
 
-.ibo-variant.circle.emphasize, .ibo-variant .arrow-line.emphasize
+.ibo-variant .circle.pinned, .ibo-variant .arrow-line.pinned
   stroke: $arrow-color
   fill: none
-  stroke-width: 3
+  stroke-width: 4
   pointer-events: none
 
-.ibo-variant .arrow, .ibo-variant .arrow.emphasize
+.ibo-variant .arrow
   stroke: $arrow-color
   pointer-events: none
 
@@ -221,14 +221,14 @@ export default {
         let self = this;
         self.$emit("variantHoverEnd", variant);
       },
-      showVariantCircle: function(variant, container, lock) {
+      showVariantCircle: function(variant, container, pinned) {
         this.variantChart.showCircle()(variant,
           container,
           variant.fbCalled && variant.fbCalled == 'Y' ? false : true,
-          lock);
+          pinned);
       },
-      hideVariantCircle: function(container) {
-        this.variantChart.hideCircle()(container);
+      hideVariantCircle: function(container, pinned) {
+        this.variantChart.hideCircle()(container, pinned);
       },
       setVariantChart: function() {
         this.$emit('updateVariantChart', this.variantChart);

@@ -10,6 +10,17 @@
   a
     color:  $link-color !important
 
+  .flag-button
+    float: left
+    padding: 0px
+    margin-top: 1px
+    margin-left: 2px
+    height: 24px
+
+    .material-icons
+      font-size: 17px
+      color: $link-color !important
+
   .content
     font-size: 12px
     padding-left: 10px
@@ -183,10 +194,28 @@
         <span class="pl-1" v-if="!isBasicMode">{{ info.exon }}</span>
         <span class="pl-3" v-if="info.dbSnpLink && !isBasicMode" v-html="info.dbSnpLink"></span>
       </div>
-      <div  v-if="selectedVariant && isEduMode" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
+      <div
+       v-if="selectedVariant && isEduMode"
+       class="mt-1 text-xs-center" style="padding-bottom: 4px;"
+       >
         <span class="pl-1">{{ selectedGene.gene_name }}</span>
         <span class="pl-1 refalt">Genotype {{ refAlt  }}</span>
         <span class="pl-1">{{ info.vepImpact }}</span>
+      </div>
+      <div style="overflow:auto;width:100%">
+        <v-btn class="flag-button" small raised
+        v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"
+        @click="setUserFlag">
+          <v-icon>turned_in</v-icon>
+          Flag variant
+        </v-btn>
+
+        <v-btn class="flag-button" small raised
+        v-if="selectedVariant.isUserFlagged"
+        @click="removeUserFlag">
+          <v-icon>turned_in_not</v-icon>
+          Remove flag
+        </v-btn>
       </div>
 
     <div style="width:33%">
@@ -717,8 +746,17 @@ export default {
              .text(genotypeRefCount);
       }
 
+    },
+    setUserFlag: function() {
+      let self = this;
+      self.selectedVariant.isUserFlagged = true;
+      self.$emit('flag-variant', self.selectedVariant);
+    },
+    removeUserFlag: function() {
+      let self = this;
+      self.selectedVariant.isUserFlagged = false;
+      self.$emit('remove-flagged-variant', self.selectedVariant);
     }
-
   },
 
 

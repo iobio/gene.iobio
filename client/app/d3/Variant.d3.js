@@ -52,7 +52,7 @@ export default function variantD3() {
      }
   }
 
-  var showCircle = function(d, svgContainer, indicateMissingVariant, emphasize) {
+  var showCircle = function(d, svgContainer, indicateMissingVariant, pinned) {
     // Find the matching variant
     var matchingVariant = null;
     svgContainer.selectAll(".variant").each( function (variant,i) {
@@ -79,15 +79,14 @@ export default function variantD3() {
       var mousey = height - ((matchingVariant.level + 1) * (variantHeight + verticalPadding));
 
 
-
-      var circle = svgContainer.select(".circle");
+      var circleClazz = pinned ? '.pinned.circle' : '.hover.circle';
+      var circle = svgContainer.select(circleClazz);
       circle.transition()
             .duration(200)
             .style("opacity", 1);
       circle.attr("cx", mousex + margin.left + 2)
             .attr("cy", mousey + margin.top + 4);
 
-      circle.classed("emphasize", emphasize);
 
 
       var matrix = circle.node()
@@ -111,14 +110,14 @@ export default function variantD3() {
       var mousey = height - verticalPadding;
 
 
-      var garrow = svgContainer.select("g.arrow");
+      var arrowClazz = pinned ? 'g.pinned.arrow' : 'g.hover.arrow';
+      var garrow = svgContainer.select(arrowClazz);
       garrow.attr("transform", "translate(" + (mousex + margin.left - variantHeight/2) + "," + (mousey + margin.top - 6) + ")");
       garrow.selectAll('.arrow').transition()
             .duration(200)
             .style("opacity", 1);
 
 
-      svgContainer.select(".circle").classed("emphasize", false);
     }
 
 
@@ -127,13 +126,16 @@ export default function variantD3() {
 
 
 
-  var hideCircle = function(svgContainer, parentContainer) {
-    svgContainer.select(".circle").transition()
+  var hideCircle = function(svgContainer, parentContainer, pinned) {
+    var circleClazz = pinned ? '.pinned.circle' : '.hover.circle';
+    var arrowClazz = pinned ? 'g.pinned.arrow' : 'g.hover.arrow';
+    svgContainer.select(circleClazz).transition()
                 .duration(500)
                 .style("opacity", 0);
-    svgContainer.select("g.arrow").selectAll('.arrow').transition()
+    svgContainer.select("g.arrow").selectAll(arrowClazz).transition()
                 .duration(500)
                 .style("opacity", 0);
+    /*
     if (parentContainer) {
       parentContainer.select('.tooltip').transition()
                    .duration(500)
@@ -142,6 +144,7 @@ export default function variantD3() {
                    .style("pointer-events", "none");
 
     }
+    */
   }
 
 
@@ -551,44 +554,44 @@ export default function variantD3() {
 
 
 
-        // add a circle and label
-        if (svg.selectAll(".circle").empty()) {
-          //svg.selectAll(".circle").remove();
-          var circle = svg.selectAll(".circle").data([0])
-            .enter().append('circle')
-              .attr("class", "circle")
-              .attr("cx", 0)
-              .attr("cy", 0)
-              .attr("r", variantHeight + 2)
-              .style("opacity", 0);
-
-        }
-
-
-
-        // add a arrow on the x-axis
-        if (svg.selectAll(".arrow").empty()) {
-          //svg.selectAll("g.arrow").remove();
-            var garrow = svg.selectAll("g.arrow").data([0])
-                            .enter().append("g")
-                            .attr("class", "arrow")
-                            .attr("transform", "translate(1,0)");
-
-            garrow.append('line')
-                .attr("class", "arrow arrow-line")
-                .attr("x1", variantHeight + 2)
-                .attr("x2", -2)
-                .attr("y1", variantHeight + 2)
-                .attr("y2", 0)
+        // add a circle and arrows for 'hover' event and 'pinned' event
+        ['hover', 'pinned'].forEach(function(clazz) {
+          var circleClazz = '.' + clazz + '.circle';
+          if (svg.selectAll(circleClazz).empty()) {
+            svg.selectAll(circleClazz).data([0])
+              .enter().append('circle')
+                .attr("class", clazz + " circle")
+                .attr("cx", 0)
+                .attr("cy", 0)
+                .attr("r", variantHeight + 2)
                 .style("opacity", 0);
-            garrow.append('line')
-                .attr("class", "arrow arrow-line")
-                .attr("x1", variantHeight + 2)
-                .attr("x2", -2)
-                .attr("y1", 0)
-                .attr("y2", variantHeight + 2)
-                .style("opacity", 0);
-        }
+          }
+
+          var arrowClazz = 'g.' + clazz + '.arrow';
+          if (svg.selectAll(arrowClazz).empty()) {
+            //svg.selectAll("g.arrow").remove();
+              var garrow = svg.selectAll(arrowClazz).data([0])
+                              .enter().append("g")
+                              .attr("class", clazz + " arrow")
+                              .attr("transform", "translate(1,0)");
+
+              garrow.append('line')
+                  .attr("class", "arrow arrow-line")
+                  .attr("x1", variantHeight + 2)
+                  .attr("x2", -2)
+                  .attr("y1", variantHeight + 2)
+                  .attr("y2", 0)
+                  .style("opacity", 0);
+              garrow.append('line')
+                  .attr("class", "arrow arrow-line")
+                  .attr("x1", variantHeight + 2)
+                  .attr("x2", -2)
+                  .attr("y1", 0)
+                  .attr("y2", variantHeight + 2)
+                  .style("opacity", 0);
+          }
+        })
+
 
 
 

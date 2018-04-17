@@ -30,6 +30,10 @@ export default class VariantTooltip {
   fillAndPositionTooltip(tooltip, variant, geneObject, theTranscript, lock, coord, relationship, affectedInfo, cohortMode, maxAlleleCount, html) {
     var me = this;
 
+    if (lock) {
+      return;
+    }
+
     tooltip.style("z-index", 1032);
     tooltip.transition()
      .duration(1000)

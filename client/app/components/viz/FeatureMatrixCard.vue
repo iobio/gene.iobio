@@ -13,9 +13,6 @@
         font-size: 18px
         vertical-align: middle
 
-  g.bookmark
-    fill: #3773A7
-    opacity: .7
 
   .matrix-note-text
     margin-top: -7px
@@ -311,7 +308,7 @@ export default {
         column.order = column.order - 1;
         columnPrev.order = columnPrev.order + 1;
       }
-      self.$emit("variantRankChange");
+      self.$emit("variant-rank-change");
     },
 
     onFeatureMatrixRowDown: function(i) {
@@ -332,7 +329,7 @@ export default {
         column.order = column.order + 1;
         columnNext.order = columnNext.order - 1;
       }
-      self.$emit("variantRankChange");
+      self.$emit("variant-rank-change");
     },
 
     selectVariant: function(variant, clazz) {
@@ -340,27 +337,17 @@ export default {
     },
 
     onVariantClick: function(variant) {
-      if (variant) {
-        this.showVariantTooltip(variant, true);
-        this.$emit('cohortVariantClick', variant, this, 'proband');
-      } else {
-        this.hideVariantTooltip();
-        this.$emit('cohortVariantClickEnd');
-      }
+      this.$emit('cohort-variant-click', variant, this, 'proband');
     },
 
     onVariantHover: function(variant) {
-      if (this.selectedVariant == null) {
-        this.showVariantTooltip(variant, false);
-        this.$emit('cohortVariantHover', variant, this);
-      }
+      this.showVariantTooltip(variant, false);
+      this.$emit('cohort-variant-hover', variant, this);
     },
 
     onVariantHoverEnd: function() {
-      if (this.selectedVariant == null) {
-        this.hideVariantTooltip();
-        this.$emit('cohortVariantHoverEnd', this);
-      }
+      this.hideVariantTooltip(false);
+      this.$emit('cohort-variant-hover-end', this);
     },
 
     showVariantTooltip: function(variant, lock) {
@@ -396,32 +383,12 @@ export default {
         self.featureMatrixModel.cohort.affectedInfo,
         self.featureMatrixModel.cohort.mode,
         self.featureMatrixModel.cohort.maxAlleleCount);
-
-      tooltip.selectAll("#unpin").on('click', function() {
-        self.unpin(null, true);
-      });
-      tooltip.selectAll("#flag-variant").on('click', function() {
-        self.unpin(null, true);
-        self.selectedVariant.isUserFlagged = true;
-        self.$emit('flag-variant', self.selectedVariant);
-      });
-      tooltip.selectAll("#remove-flagged-variant").on('click', function() {
-        self.unpin(null, true);
-        self.selectedVariant.isUserFlagged = false;
-        self.$emit('remove-flagged-variant', self.selectedVariant);
-      });
-
     },
 
     tooltipScroll(direction) {
       this.variantTooltip.scroll(direction, "#main-tooltip");
     },
 
-    unpin(saveClickedVariant, unpinMatrixTooltip) {
-      this.$emit("cohortVariantClickEnd", this);
-
-      this.hideVariantTooltip();
-    },
 
     hideVariantTooltip() {
       let tooltip = d3.select("#main-tooltip");

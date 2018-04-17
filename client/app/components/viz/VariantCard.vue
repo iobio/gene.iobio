@@ -474,46 +474,35 @@ export default {
       }
     },
     onVariantClick: function(variant) {
-      if (this.selectedVariant == variant) {
-        this.$emit('cohortVariantClickEnd');
-      } else {
-        if (this.showDepthViz) {
-          this.showCoverageCircle(variant);
-        }
+      if (this.showDepthViz) {
+        this.showCoverageCircle(variant);
+      }
 
-        if (this.showVariantViz) {
-          this.showVariantCircle(variant);
-          this.showVariantTooltip(variant, true);
-
-         }
-        this.$emit('cohortVariantClick', variant, this, this.sampleModel.relationship);
+      if (this.showVariantViz) {
+        this.showVariantCircle(variant, true);
 
       }
+      this.$emit('cohort-variant-click', variant, this, this.sampleModel.relationship);
     },
     onVariantHover: function(variant, showTooltip=true) {
-      if (this.selectedVariant == null) {
-        if (this.showDepthViz) {
-          this.showCoverageCircle(variant);
-        }
-        if (this.showVariantViz) {
-          this.showVariantCircle(variant);
-          this.showVariantTooltip(variant, false);
-        }
-        this.$emit('cohortVariantHover', variant, this);
-
+      if (this.showDepthViz) {
+        this.showCoverageCircle(variant);
       }
+      if (this.showVariantViz) {
+        this.showVariantCircle(variant);
+        this.showVariantTooltip(variant, false);
+      }
+      this.$emit('cohort-varian-hover', variant, this);
     },
-    onVariantHoverEnd: function() {
-      if (this.selectedVariant == null) {
-        if (this.showDepthViz) {
-          this.hideCoverageCircle();
-        }
-        if (this.showVariantViz) {
-          this.hideVariantCircle();
-          this.hideVariantTooltip(this);
-        }
-        this.$emit('cohortVariantHoverEnd');
+    onVariantHoverEnd: function(lock) {
+      if (this.showDepthViz) {
+        this.hideCoverageCircle();
       }
+      if (this.showVariantViz) {
+        this.hideVariantCircle(false);
+        this.hideVariantTooltip(this);
+      }
+      this.$emit('cohort-variant-hover-end');
 
     },
     showVariantTooltip: function(variant, lock) {
@@ -552,38 +541,9 @@ export default {
         self.sampleModel.cohort.mode,
         self.sampleModel.cohort.maxAlleleCount);
 
-      tooltip.selectAll("#unpin").on('click', function() {
-        self.unpin(null, true);
-      });
-      tooltip.selectAll("#tooltip-scroll-up").on('click', function() {
-        self.tooltipScroll("up");
-      });
-      tooltip.selectAll("#tooltip-scroll-down").on('click', function() {
-        self.tooltipScroll("down");
-      });
-      tooltip.selectAll("#flag-variant").on('click', function() {
-        self.unpin(null, true);
-        self.$emit('flag-variant', self.selectedVariant);
-      });
-      tooltip.selectAll("#remove-flagged-variant").on('click', function() {
-        self.unpin(null, true);
-        self.$emit('remove-flagged-variant', self.selectedVariant);
-      });
-
     },
     tooltipScroll(direction) {
       this.variantTooltip.scroll(direction, "#main-tooltip");
-    },
-    unpin(saveClickedVariant, unpinMatrixTooltip) {
-      this.$emit("cohortVariantClickEnd", this);
-
-      this.hideVariantTooltip();
-      this.hideVariantCircle();
-      this.hideCoverageCircle();
-
-      //if (unpinMatrixTooltip) {
-      //  matrixCard.unpin();
-      //}
     },
     hideVariantTooltip: function() {
       let tooltip = d3.select("#main-tooltip");
@@ -593,17 +553,17 @@ export default {
            .style("z-index", 0)
            .style("pointer-events", "none");
     },
-    showVariantCircle: function(variant) {
+    showVariantCircle: function(variant, lock) {
       if (this.showVariantViz) {
-        this.$refs.variantVizRef.showVariantCircle(variant,this.getVariantSVG(variant),false);
+        this.$refs.variantVizRef.showVariantCircle(variant,this.getVariantSVG(variant),lock);
       }
     },
-    hideVariantCircle: function() {
+    hideVariantCircle: function(lock) {
       if (this.showVariantViz) {
         var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-        this.$refs.variantVizRef.hideVariantCircle(container);
+        this.$refs.variantVizRef.hideVariantCircle(container, lock);
         container = d3.select(this.$el).select('#called-variant-viz > svg');
-        this.$refs.variantVizRef.hideVariantCircle(container);
+        this.$refs.variantVizRef.hideVariantCircle(container, lock);
       }
     },
     getVariantSVG: function(variant) {
@@ -647,10 +607,10 @@ export default {
     },
     onKnownVariantsVizChange: function(viz) {
       this.knownVariantsViz = viz;
-      this.$emit("knownVariantsVizChange", viz);
+      this.$emit("known-variants-viz-change", viz);
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
-      this.$emit("knownVariantsFilterChange", selectedCategories);
+      this.$emit("known-variants-filter-change", selectedCategories);
     },
     showFlaggedVariant: function(variant) {
       if (this.showVariantViz) {
