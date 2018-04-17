@@ -146,7 +146,7 @@
   <v-card tile id="variant-card" class="app-card">
     <v-card-title primary-title>
       <span id="sample-label" v-bind:class="sampleModel.relationship">
-        {{ (isBasicMode ? 'Variants for ' : '') + sampleModel.name }}
+        {{ (isBasicMode ? 'Variants for ' : '') + sampleModel.relationship + ' ' + sampleModel.name }}
       </span>
 
       <v-badge  id="loaded-count"
