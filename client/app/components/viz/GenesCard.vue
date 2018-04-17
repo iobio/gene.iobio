@@ -120,14 +120,14 @@
   #analyzing-indeterminate-bar
     margin: 0px
     .progress-linear__bar__indeterminate
-      background-color:  $app-color-lighter
+      background-color:  $app-color-light !important
 
 
 
 </style>
 
 <template>
-  <v-card tile id="genes-card" class="app-card" style="padding-top:0px">
+  <v-card tile id="genes-card" class="app-card" style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px;padding-top:0px">
 
     <v-progress-linear
     v-if="analyzeAllInProgress || callAllInProgress"
@@ -137,82 +137,84 @@
     background-color="grey lighten-3">
     </v-progress-linear>
 
-    <v-card-title v-if="!isEduMode" primary-title>
+    <div style="margin-left:10px;margin-right:10px">
 
-      <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
+      <v-card-title v-if="!isEduMode" primary-title>
+
+        <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
 
 
-            <v-btn  id="analyze-all-button"
+              <v-btn  id="analyze-all-button"
+              v-if="isLoaded"
+              class="level-edu"
+              raised
+              @click="onAnalyzeAll"
+              v-tooltip.top-center="`Analyze variants in all genes`" >
+                Analyze all
+              </v-btn>
+
+
+              <v-btn
+              v-if="analyzeAllInProgress"
+              class="stop-analysis-button"
+              @click="onStopAnalysis" small raised
+              v-tooltip.top-center="`Stop analysis`" >
+                <v-icon>stop</v-icon>
+              </v-btn>
+
+
+              <div id="call-variants-dropdown"
+                v-if="isLoaded && hasAlignments"
+              >
+                <v-menu offset-y>
+                  <v-btn raised slot="activator"
+                  v-tooltip.top-center="`Call variants from alignments`">Call variants</v-btn>
+                  <v-list>
+                      <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
+                      <v-list-tile-title>{{ action }}</v-list-tile-title>
+                    </v-list-tile>
+                  </v-list>
+                </v-menu>
+              </div>
+
+              <v-btn
+              v-if="callAllInProgress"
+              class="stop-analysis-button"
+              @click="onStopAnalysis" small raised
+              v-tooltip.top-center="`Stop calling variants`" >
+                <v-icon>stop</v-icon>
+              </v-btn>
+
+
+            <filter-badges v-if="isLoaded"
+             ref="filterBadgesRef"
+             :badgeCounts="badgeCounts"
+             :filterModel="filterModel"
+             @filter-applied="onFilterApplied"
+             @badge-click="onBadgeClick">
+            </filter-badges>
+
+            <div id="analyze-genes-progress"
             v-if="isLoaded"
-            class="level-edu"
-            raised
-            @click="onAnalyzeAll"
-            v-tooltip.top-center="`Analyze variants in all genes`" >
-              Analyze all
-            </v-btn>
-
-
-            <v-btn
-            v-if="analyzeAllInProgress"
-            class="stop-analysis-button"
-            @click="onStopAnalysis" small raised
-            v-tooltip.top-center="`Stop analysis`" >
-              <v-icon>stop</v-icon>
-            </v-btn>
-
-
-            <div id="call-variants-dropdown"
-              v-if="isLoaded && hasAlignments"
-            >
-              <v-menu offset-y>
-                <v-btn raised slot="activator"
-                v-tooltip.top-center="`Call variants from alignments`">Call variants</v-btn>
-                <v-list>
-                    <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
-                    <v-list-tile-title>{{ action }}</v-list-tile-title>
-                  </v-list-tile>
-                </v-list>
-              </v-menu>
-            </div>
-
-            <v-btn
-            v-if="callAllInProgress"
-            class="stop-analysis-button"
-            @click="onStopAnalysis" small raised
-            v-tooltip.top-center="`Stop calling variants`" >
-              <v-icon>stop</v-icon>
-            </v-btn>
-
-
-          <filter-badges v-if="isLoaded"
-           ref="filterBadgesRef"
-           :badgeCounts="badgeCounts"
-           :filterModel="filterModel"
-           @filter-applied="onFilterApplied"
-           @badge-click="onBadgeClick">
-          </filter-badges>
-
-          <div id="analyze-genes-progress"
-          v-if="isLoaded"
-          class="level-edu level-basic">
-            <span id="total-genes-label">{{ geneNames.length }} genes</span>
-            <div v-if="!isLeftDrawerOpen || analyzeAllInProgress || callAllInProgress" id="analyzed-progress-bar" >
-              <div>
-                <span class="progress-bar-label">Loaded</span>
-                <v-progress-linear  class="loaded-progress"   style="height:18px;width:150px" v-model="loadedPercentage">
-                </v-progress-linear>
-              </div>
-              <div style="clear:both">
-                <span class="progress-bar-label">Called</span>
-                <v-progress-linear  class="called-progress"   style="height:18px;width:150px"  v-model="calledPercentage">
-                </v-progress-linear>
+            class="level-edu level-basic">
+              <span id="total-genes-label">{{ geneNames.length }} genes</span>
+              <div v-if="!isLeftDrawerOpen || analyzeAllInProgress || callAllInProgress" id="analyzed-progress-bar" >
+                <div>
+                  <span class="progress-bar-label">Loaded</span>
+                  <v-progress-linear  class="loaded-progress"   style="height:18px;width:150px" v-model="loadedPercentage">
+                  </v-progress-linear>
+                </div>
+                <div style="clear:both">
+                  <span class="progress-bar-label">Called</span>
+                  <v-progress-linear  class="called-progress"   style="height:18px;width:150px"  v-model="calledPercentage">
+                  </v-progress-linear>
+                </div>
               </div>
             </div>
+
           </div>
 
-        </div>
-
-    </v-card-title>
+      </v-card-title>
 
       <genes-menu style="padding-left:16px"
        v-if="isEduMode && tourNumber == '1'"
@@ -223,30 +225,6 @@
       </genes-menu>
 
       <div id="genes-panel"  class="nav-center">
-
-
-
-
-
-
-<!--
-
-          <div id="genes-sort-dropdown"
-           v-if="isLoaded">
-            <v-select
-              label="Order by"
-              v-bind:items="sortCategories"
-              v-model="sortBy"
-              max-height="auto"
-              autocomplete
-            >
-            </v-select>
-          </div>
--->
-
-
-
-
 
 
         <div id="gene-badge-container" class="level-basic" style="clear:both;">
@@ -267,6 +245,8 @@
 
 
       </div>
+
+    </div>
   </v-card>
 </template>
 
