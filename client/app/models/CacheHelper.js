@@ -514,13 +514,10 @@ CacheHelper.prototype.promiseGetCacheSize = function() {  // provide the size in
     var oldSize         = 0;
     var oldSessions     = {};
 
-    // Any session older than 24 hours is considered 'old'
+    // Any session older than the expiration time limit is considered 'old'
     // Any session that is not the current session that
-    // has occurred in the last 24 hours is considered
+    // has occurred in the before the end of the expiration is considered
     // 'recent'
-    var durationMilliseconds =  24 * 60 * 60 * 1000;
-
-
     me.promiseGetAllKeys()
    .then(function(allKeys) {
       var promises = []
@@ -531,7 +528,7 @@ CacheHelper.prototype.promiseGetCacheSize = function() {  // provide the size in
           .then(function(data) {
             if (keyObject.launchTimestamp == me.launchTimestamp) {
               currentSize += data != null ? data.length : 0;
-            } else if ((me.launchTimestamp - +keyObject.launchTimestamp) < durationMilliseconds ) {
+            } else if ((me.launchTimestamp - +keyObject.launchTimestamp) < me.globalApp.BROWSER_CACHE_EXPIRATION ) {
               recentSize += data != null ? data.length : 0;
               recentSessions[keyObject.launchTimestamp] = new Date(parseInt(keyObject.launchTimestamp)).toLocaleString();
             } else {

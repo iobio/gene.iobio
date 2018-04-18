@@ -62,6 +62,9 @@ class GlobalApp {
     this.BROWSER_CACHE_INDEXED_DB    = 'indexedDB';
     this.browserCache                = this.BROWSER_CACHE_INDEXED_DB;
 
+    this.BROWSER_CACHE_EXPIRATION    = 3 * 60 * 60 * 1000;  // 3 HOURS
+
+
 
     this.feedbackEmails              = "gene.iobio.feedback@gmail.com";  // what emails should feedback be sent to?   if no emails are provided, the feedback link will be hidden
     this.feedbackAttachScreenCapture = false;          // should the feedback include a screen capture?
