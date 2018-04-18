@@ -98,6 +98,12 @@ export default {
       if (this.geneModel.phenolyzerGenes.length > 0) {
         this.onSearch();
       }
+    },
+    phenotypeTerm: function() {
+      let self = this;
+      if (self.phenotypeTerm && self.phenotypeTerm.value) {
+        self.onSearch();
+      }
     }
   },
   methods: {
@@ -144,7 +150,7 @@ export default {
             }
           } else {
             self.phenolyzerStatus = status;
-            self.loadingStatus = 'success'
+            self.loadingStatus = true;
           }
         });
 
