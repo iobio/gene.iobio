@@ -778,7 +778,7 @@ export default {
     },
 
     setUrlGeneParameters() {
-      /*
+
       let self = this;
       let geneName = "";
       let geneNames = "";
@@ -795,13 +795,19 @@ export default {
           genes: geneNames
       };
       self.$router.replace({ query: queryObject });
-      */
+
 
     },
 
     onGeneNameEntered: function(geneName) {
-      this.clearFilter();
-      this.onGeneSelected(geneName);
+      let self = this;
+      self.clearFilter();
+      self.deselectVariant();
+      self.promiseLoadGene(geneName)
+      .then(function() {
+        self.activeGeneVariantTab = "0";
+        self.setUrlGeneParameters();
+      })
     },
 
     onGeneSelected: function(geneName) {
@@ -845,10 +851,14 @@ export default {
           self.geneRegionEnd   = theGeneObject.end;
           self.selectedGene = theGeneObject;
           self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
-          self.promiseLoadData()
-          .then(function() {
+          if (self.cohortModel.isLoaded) {
+            self.promiseLoadData()
+            .then(function() {
+              resolve();
+            })
+          } else {
             resolve();
-          })
+          }
         })
         .catch(function(error) {
           reject(error);
@@ -1046,7 +1056,22 @@ export default {
       self.cohortModel.setLoadedVariants(self.selectedGene, 'known-variants');
     },
     onRemoveGene: function(geneName) {
-      this.cacheHelper.clearCacheForGene(geneName);
+      let self = this;
+      self.clearFilter();
+      self.cacheHelper.clearCacheForGene(geneName);
+      var newGeneToSelect = null;
+      if (geneName == this.selectedGene.gene_name && this.geneModel.sortedGeneNames.length > 0) {
+        newGeneToSelect = this.geneModel.sortedGeneNames[0];
+        self.deselectVariant();
+        self.promiseLoadGene(newGeneToSelect)
+        .then(function() {
+          self.activeGeneVariantTab = "0";
+          self.setUrlGeneParameters();
+        })
+      } else {
+        self.setUrlGeneParameters();
+      }
+
     },
     onAnalyzeAll: function() {
       this.cacheHelper.analyzeAll(this.cohortModel);
