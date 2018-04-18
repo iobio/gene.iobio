@@ -427,7 +427,6 @@ export default {
 
   created: function() {
 
-
   },
 
   mounted: function() {
@@ -443,7 +442,7 @@ export default {
       return self.promiseInitCache();
     })
     .then(function() {
-      return self.cacheHelper.promiseClearStaleCache();
+        return self.cacheHelper.promiseClearOlderCache();
     })
     .then(function() {
       return self.promiseLoadSiteConfig();
@@ -546,7 +545,6 @@ export default {
   },
 
   methods: {
-
 
     promiseInitCache: function() {
       let self = this;

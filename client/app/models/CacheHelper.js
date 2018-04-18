@@ -97,85 +97,39 @@ CacheHelper.prototype.isolateSession = function(isEduMode) {
   }
 }
 
-CacheHelper.prototype.promiseClearStaleCache = function() {
-  var me = this;
-  return new Promise(function(resolve, reject) {
 
-    var staleSessions = localStorage["gene.iobio.stale"];
-    if (staleSessions && staleSessions.length > 0) {
-      var promises = [];
-      staleSessions.split(",").forEach(function(timestamp) {
-        var p = me._promiseClearCache(timestamp, false, false);
-        promises.push(p);
-      });
-      Promise.all(promises).then(function() {
-        localStorage["gene.iobio.stale"] = "";
-        resolve();
-      },
-      function(error) {
-        reject();
-      })
-    } else {
-      resolve();
-    }
-  })
-}
-
-CacheHelper.prototype.promiseCheckCacheSize = function(force) {
+CacheHelper.prototype.promiseClearOlderCache = function() {
   var me = this;
 
-  var clearCacheAndResolve = function(resolve, reject, counts) {
-      if (counts.otherSessions > 0) {
-        me._promiseClearCache(null, true, false)
-         .then(function() {
-          resolve();
-         },
-         function(error) {
-          reject(error);
-         })
-      }
-      if (counts.otherUse > 0) {
-        me._promiseClearCache(null, false, true)
-         .then(function() {
-          resolve();
-         },
-         function(error) {
-          reject(error);
-         })
-      }
-  }
-
   return new Promise(function(resolve, reject) {
+    var counts = null;
     me.promiseGetCacheSize(false)
-     .then(function(counts) {
+    .then(function(data) {
+      counts = data;
+      console.log(counts);
 
-      if (counts.otherSessions > 0 || counts.otherUse > 0) {
-        if (force) {
-          clearCacheAndResolve(resolve, reject, counts);
-        } else {
-          alertify.confirm("Before proceeding, it is recommended that the browser's cache be cleared.", function (e) {
-              if (e) {
-                // user clicked "ok", clear the cache for other, and other app
-                clearCacheAndResolve(resolve, reject, counts);
-              }
-          }, function() {
-            // user clicked cancel
-            me.openDialog();
-            resolve();
-          })
-          .set('labels', {ok:'Yes, clear cache', cancel:'No, show me more details'});
-
-        }
+      if (counts.oldSessions.length > 0) {
+        var promises = [];
+        counts.oldSessions.forEach(function(timestamp) {
+          console.log("clearing cache for older gene.iobio session " + timestamp);
+          var p = me._promiseClearCache(timestamp);
+          promises.push(p);
+        })
+        return Promise.all(promises);
       } else {
-        resolve();
+        return Promise.resolve();
       }
-
-     })
-
-
+    })
+    .then(function() {
+      resolve();
+    })
+    .catch(function(error) {
+      reject(error);
+    })
   })
 
 }
+
 
 
 CacheHelper.prototype.queueGene = function(geneName) {
@@ -451,7 +405,7 @@ CacheHelper.prototype.promiseClearCache = function(launchTimestampToClear) {
       resolve();
 
     } else {
-      me._promiseClearCache(launchTimestampToClear, false, false)
+      me._promiseClearCache(launchTimestampToClear)
        .then(function() {
         me.genesToCache = [];
         resolve();
@@ -548,138 +502,84 @@ CacheHelper.prototype.getCacheKey = function(cacheObject) {
 }
 
 
-CacheHelper.prototype.promiseGetCacheSize = function(format=true) {  // provide the size in bytes of the data currently stored
+CacheHelper.prototype.promiseGetCacheSize = function() {  // provide the size in bytes of the data currently stored
   var me = this;
 
   return new Promise(function(resolve, reject) {
-    var size = 0;
-    var coverageSize = 0;
+    var currentSize     = 0;
 
-    var otherSessionsSize = 0;
-    var otherSessionsInfo = {};
+    var recentSize      = 0;
+    var recentSessions  = {};
 
-    var otherUseSize = 0;
+    var oldSize         = 0;
+    var oldSessions     = {};
+
+    // Any session older than 24 hours is considered 'old'
+    // Any session that is not the current session that
+    // has occurred in the last 24 hours is considered
+    // 'recent'
+    var durationMilliseconds =  24 * 60 * 60 * 1000;
+
+
     me.promiseGetAllKeys()
-     .then(function(allKeys) {
+   .then(function(allKeys) {
       var promises = []
       allKeys.forEach(function(key) {
         var keyObject = CacheHelper._parseCacheKey(key);
         if (keyObject) {
-            var p = me.promiseGetData(key, false)
-             .then(function(data) {
-              if (data != null) {
-              if (keyObject.launchTimestamp == me.launchTimestamp) {
-                size += data.length;
-                  if (keyObject.dataKind == CacheHelper.BAM_DATA) {
-                    coverageSize +=  data.length;
-                  }
-
-              } else {
-                otherSessionsSize += data.length;
-
-
-                var sessionTotal = otherSessionsInfo[keyObject.launchTimestamp];
-                if (sessionTotal == null) {
-                  sessionTotal = 0;
-                }
-                sessionTotal += data.length;
-                otherSessionsInfo[keyObject.launchTimestamp] = sessionTotal;
-              }
-              }
+          var p = me.promiseGetData(key, false)
+          .then(function(data) {
+            if (keyObject.launchTimestamp == me.launchTimestamp) {
+              currentSize += data != null ? data.length : 0;
+            } else if ((me.launchTimestamp - +keyObject.launchTimestamp) < durationMilliseconds ) {
+              recentSize += data != null ? data.length : 0;
+              recentSessions[keyObject.launchTimestamp] = new Date(parseInt(keyObject.launchTimestamp)).toLocaleString();
+            } else {
+              oldSize += data != null ? data.length : 0;
+              oldSessions[keyObject.launchTimestamp] = new Date(parseInt(keyObject.launchTimestamp)).toLocaleString();
+            }
           });
-            promises.push(p);
-        } else {
-          // TODO - How to determine size of cache items for other apps?
-          otherUseSize += 0;
+          promises.push(p);
         }
       })
+
       Promise.all(promises).then(function() {
-
-          resolve({ total:           format ? (CacheHelper._sizeMB(size) + " MB") : size,
-                    coverage:        format ? (CacheHelper._sizeMB(coverageSize) + " MB") : coverageSize,
-                    otherSessions:   format ? (CacheHelper._sizeMB(otherSessionsSize) + " MB") : otherSessionsSize,
-                    otherUse:        format ? (CacheHelper._sizeMB(otherUseSize) + " MB") : otherUseSize,
-                    'otherSessionsInfo':  otherSessionsInfo
-                  });
-
-
-
-      },
-      function(error) {
+        resolve({ currentSize:            CacheHelper._sizeMB(currentSize) + " MB",
+                  currentSession:         me.launchTimestamp,
+                  recentSize:             CacheHelper._sizeMB(recentSize) + " MB",
+                  recentSessions:         Object.keys(recentSessions),
+                  recentSessionsDisplay:  Object.values(recentSessions),
+                  oldSize:                CacheHelper._sizeMB(oldSize) + " MB",
+                  oldSessions:            Object.keys(oldSessions),
+                  oldSessionsDisplay:     Object.values(oldSessions)
+        });
+      })
+      .catch(function(error) {
         var msg = "A problem ocurred in CacheHelper.promiseGetCacheSize(): +  " + error;
         console.log(msg);
         reject(msg);
       })
-
-     },
-     function(error) {
-      reject(error);
-     })
-
+    })
 
   })
 
 }
 
-CacheHelper.prototype.cleanupCacheOnClose = function(launchTimestampToClear) {
-  var me = this;
-  if (launchTimestampToClear == null) {
-    launchTimestampToClear = me.launchTimestamp;
-  }
-  if (me.globalApp.useLocalStorage() && localStorage) {
-    var keys = [];
-    for (var i=0; i<=localStorage.length-1; i++)  {
-      var key = localStorage.key(i);
-      var keyObject = CacheHelper._parseCacheKey(key);
-      if (keyObject && keyObject.launchTimestamp == launchTimestampToClear) {
-        keys.push(key);
-      }
-    }
-
-    keys.forEach(function(key) {
-      localStorage.removeItem(key);
-    })
-  } else {
-    var key = 'gene.iobio.stale';
-    var staleSessions = localStorage[key];
-    if (staleSessions == null || staleSessions == "") {
-      staleSessions = launchTimestampToClear;
-    } else {
-      staleSessions += "," + launchTimestampToClear;
-    }
-    localStorage[key] = staleSessions;
-  }
-}
 
 
-CacheHelper.prototype._promiseClearCache = function(launchTimestampToClear, clearOther, clearOtherApp) {
+CacheHelper.prototype._promiseClearCache = function(launchTimestampToClear) {
   var me = this;
 
   return new Promise(function(resolve, reject) {
 
 
-    var clearCurrentSessionCache = false;
-    if (launchTimestampToClear == me.launchTimestamp) {
-      clearCurrentSessionCache = true;
-    }
-    var theLaunchTimeStamp = launchTimestampToClear ? launchTimestampToClear : me.launchTimestamp;
+    launchTimestampToClear = launchTimestampToClear ? launchTimestampToClear : me.launchTimestamp;
     var keysToRemove = [];
     me.promiseGetAllKeys()
      .then(function(allKeys) {
       allKeys.forEach(function(key) {
         var keyObject = CacheHelper._parseCacheKey(key);
-        if (keyObject) {
-          if (keyObject.launchTimestamp == theLaunchTimeStamp && !clearOther && !clearOtherApp) {
-            keysToRemove.push(key);
-            if (keyObject.gene && keyObject.relationship == 'proband') {
-              //genesCard.clearGeneGlyphs(keyObject.gene);
-              //genesCard.clearGeneInfo(keyObject.gene);
-
-            }
-          } else if (keyObject.launchTimestamp != theLaunchTimeStamp && clearOther && !clearOtherApp) {
-            keysToRemove.push(key);
-          }
-        } else if (clearOtherApp) {
+        if (keyObject && keyObject.launchTimestamp == launchTimestampToClear) {
           keysToRemove.push(key);
         }
       })
@@ -692,24 +592,7 @@ CacheHelper.prototype._promiseClearCache = function(launchTimestampToClear, clea
       })
 
       Promise.all(promises).then(function() {
-        if (clearCurrentSessionCache) {
-          //window.gene = null;
-          //genesCard._hideCurrentGene();
-
-          //filterCard.clearFilters();
-          //if (window.variantCards && window.variantCards.length > 0) {
-          //  filterVariants();
-          //}
-          //filterCard.resetStandardFilterCounts();
-
-          //me.hideAnalyzeAllProgress();
-        }
-
-        //if (clearOther || clearOtherApp) {
-        //  me.checkCacheSize();
-        //}
         resolve();
-
       })
 
      },
@@ -727,7 +610,7 @@ CacheHelper.prototype.clearAll = function() {
   alertify.confirm("Clear all cached data for this session?", function (e) {
       if (e) {
       // user clicked "ok"
-      me._promiseClearCache(me.launchTimestampToClear, false, false)
+      me._promiseClearCache(me.launchTimestampToClear)
        .then(function() {
           me.refreshDialog();
        });
@@ -738,125 +621,7 @@ CacheHelper.prototype.clearAll = function() {
   })
   .set('labels', {ok:'OK', cancel:'Cancel'});       ;
 }
-CacheHelper.prototype.clearOther = function() {
-  var me = this;
-  // confirm dialog
-  alertify.confirm("Clear all cached data for other gene.iobio sessions?  IMPORTANT: To save analysis, flag any variants of interest in other browser tabs before clearing the cache.", function (e) {
-      if (e) {
-      // user clicked "ok"
-      me._promiseClearCache(null, true, false)
-       .then(function() {
-          me.refreshDialog();
-       })
 
-      }
-
-  })
-  .set('labels', {ok:'OK', cancel:'Cancel'});
-}
-CacheHelper.prototype.clearOtherApp = function() {
-  var me = this;
-  // confirm dialog
-  alertify.confirm("Clear all cached data for other web applications?", function (e) {
-      if (e) {
-      // user clicked "ok"
-      me._promiseClearCache(null, false, true)
-       .then(function() {
-          me.refreshDialog();
-
-       })
-
-      }
-
-  }) .set('labels', {ok:'OK', cancel:'Cancel'});
-}
-
-CacheHelper.prototype.promiseClearCoverageCache = function() {
-  var me = this;
-
-  return new Promise(function(resolve, reject) {
-    me.promiseGetKeys()
-     .then(function(allKeys) {
-      var promises = [];
-      allKeys.forEach(function(key) {
-        var keyObject = CacheHelper._parseCacheKey(key);
-          if (keyObject && keyObject.launchTimestamp == me.launchTimestamp) {
-          if (keyObject.dataKind == CacheHelper.BAM_DATA) {
-            var p = me.promiseRemoveCacheItem(keyObject.dataKind, key);
-            promises.push(p);
-          }
-          }
-
-      })
-      Promise.all(promises).then(function() {
-        me.refreshDialog();
-        resolve();
-      })
-
-     },
-     function(error) {
-      reject(error);
-     })
-
-  })
-}
-
-
-CacheHelper.prototype.refreshDialog = function() {
-  var me = this;
-  return new Promise(function(resolve, reject) {
-    var formatOtherSessions = function(otherSessions) {
-      var html = "";
-      var sortedDates = Object.keys(otherSessions).sort();
-      sortedDates.forEach(function(theDate) {
-        var size = otherSessions[theDate];
-        html += '<div><span style="display:inline-block;width:140px">' + me.globalApp.utility.formatDate(new Date(theDate * 1)) + '</span><span style="display:inline-block;width:100px">' + CacheHelper._sizeMB(size, 1) + " MB</span>" + "<a href='javascript:void(0)' + onclick='cacheHelper.clearCache(" + theDate + ",true)'>Clear</a></div>";
-      });
-      return html;
-    }
-
-    me.promiseGetCacheSize(false)
-     .then(function(counts) {
-      $('#other-use-cache-alert').addClass("hide");
-      $("#other-use-cache-panel").removeClass("attention");
-
-      $('#other-sessions-cache-alert').addClass("hide");
-      $("#other-sessions-cache-panel").removeClass("attention-warning");
-
-      if (counts.otherSessions > 0) {
-        $('#other-sessions-cache-alert').removeClass("hide");
-        $("#other-sessions-cache-panel").addClass("attention-warning");
-        $("#other-sessions-cache-detail-link").attr("aria-expanded", true);
-        $("#other-sessions-cache-detail").attr("aria-expanded", true);
-        $("#other-sessions-cache-detail").addClass("in");
-      }
-
-      if (counts.otherUse > 0) {
-        $('#other-use-cache-alert').removeClass("hide");
-        $("#other-app-use-cache-panel").addClass("attention");
-        $("#other-app-use-cache-detail-link").attr("aria-expanded", true);
-        $("#other-app-use-cache-detail").attr("aria-expanded", true);
-        $("#other-app-use-cache-detail").addClass("in");
-      }
-
-
-      $("#cache-size").text(CacheHelper._sizeMB(counts.total) + " MB");
-      $("#coverage-size").text(CacheHelper._sizeMB(counts.coverage) + " MB");
-      $("#other-sessions-cache-size").text(CacheHelper._sizeMB(counts.otherSessions) + " MB");
-      $('#other-sessions-cache-info').html(formatOtherSessions(counts.otherSessionsInfo));
-      $("#other-use-cache-size").text(CacheHelper._sizeMB(counts.otherUse) + " MB");
-      resolve();
-     })
-  })
-
-}
-
-CacheHelper.prototype.openDialog = function() {
-  this.refreshDialog()
-   .then(function() {
-    $('#manage-cache-modal').modal('show');
-   })
-}
 
 
 

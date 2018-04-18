@@ -114,6 +114,7 @@ Vue.mixin({
 window.vm = new Vue({
   el: '#app',
   created: function() {
+
   },
   render: h => h(App),
   router
