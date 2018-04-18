@@ -1098,28 +1098,30 @@ export default {
       }
       var replace = false;
       var message = null;
-      /*
+
       if (self.geneModel.geneNames.length > 0) {
         var count = self.geneModel.getCopyPasteGeneCount(genesString);
         if (phenotypeTerm && phenotypeTerm.length > 0) {
-          message = count + " genes for phenotype " + phenotypeTerm + " ready to apply.  Remove currently listed genes first?";
-        } else {
-          message = count + " genes ready to apply.  Remove currently listed genes first?";
-        }
-        alertify.confirm(message,
-                function(){
-                  replace = true;
-                  self.applyGenesImpl(genesString, replace)
-                },
-                function(){
-                  replace = false;
-                  self.applyGenesImpl(genesString, replace)
-                }).set('labels', {ok:'Yes', cancel:'No'});
-      } else {
-        */
-        self.applyGenesImpl(genesString, false);
+          message = count + " genes for phenotype " + "<em>'"  + phenotypeTerm + "'</em> ready to apply.  Remove currently listed genes first?";
 
-      //}
+          alertify.confirm("Applying new gene list",
+            message,
+            function(){
+              replace = true;
+              self.applyGenesImpl(genesString, replace)
+            },
+            function(){
+              replace = false;
+              self.applyGenesImpl(genesString, replace)
+            })
+            .set('labels', {ok:'Yes', cancel:'No'});
+
+        } else {
+          self.applyGenesImpl(genesString, false);
+        }
+      } else {
+        self.applyGenesImpl(genesString, false);
+      }
 
     },
     applyGenesImpl: function(genesString, replace) {

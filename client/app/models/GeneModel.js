@@ -90,14 +90,14 @@ class GeneModel {
   }
 
 
-  promiseCopyPasteGenes(genesString) {
+  promiseCopyPasteGenes(genesString, replace) {
     var me = this;
 
     return new Promise(function(resolve, reject) {
 
       var promises = [];
 
-      me.copyPasteGenes(genesString);
+      me.copyPasteGenes(genesString, replace);
 
       me.geneNames.forEach(function(geneName) {
         promises.push(me.promiseGetGeneObject(geneName));
