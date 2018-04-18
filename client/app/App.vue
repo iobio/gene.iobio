@@ -28,6 +28,20 @@ button
     font-size: 14px
     height: 22px
 
+.progress-linear__background.primary
+  background-color: $amber-lighten-4 !important
+.progress-linear__bar__indeterminate--active
+  .progress-linear__bar__indeterminate
+    background-color: $amber-lighten-3 !important
+
+
+.toolbar
+  .input-group__details
+    .progress-linear__background
+      background-color: $amber-lighten-3 !important
+    .progress-linear__bar__indeterminate--active
+      .progress-linear__bar__indeterminate
+        background-color: $amber-lighten-2 !important
 
 
 </style>

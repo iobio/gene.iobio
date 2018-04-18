@@ -81,6 +81,7 @@
   #active-filter-info
     padding: 0px
     background-color: $info-color !important
+    color: $text-color !important
 
     span
       padding-top: 4px
@@ -93,7 +94,7 @@
      margin-right: 15px
 
     .btn__content
-      color: white !important
+      color: $text-color !important
 
 
 </style>

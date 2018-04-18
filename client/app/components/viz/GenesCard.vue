@@ -119,8 +119,8 @@
 
   #analyzing-indeterminate-bar
     margin: 0px
-    .progress-linear__bar__indeterminate
-      background-color:  $app-color-light !important
+
+
 
 
 
@@ -133,8 +133,8 @@
     v-if="analyzeAllInProgress || callAllInProgress"
     id="analyzing-indeterminate-bar"
     :indeterminate="true"
-    height="3"
-    background-color="grey lighten-3">
+    height="4"
+    >
     </v-progress-linear>
 
     <div style="margin-left:10px;margin-right:10px">
@@ -197,10 +197,9 @@
             </filter-badges>
 
             <div id="analyze-genes-progress"
-            v-if="isLoaded"
             class="level-edu level-basic">
-              <span id="total-genes-label">{{ geneNames.length }} genes</span>
-              <div v-if="!isLeftDrawerOpen || analyzeAllInProgress || callAllInProgress" id="analyzed-progress-bar" >
+              <span v-if="geneNames.length > 0" id="total-genes-label">{{ geneNames.length }} genes</span>
+              <div v-if="isLoaded && (!isLeftDrawerOpen || analyzeAllInProgress || callAllInProgress)" id="analyzed-progress-bar" >
                 <div>
                   <span class="progress-bar-label">Loaded</span>
                   <v-progress-linear  class="loaded-progress"   style="height:18px;width:150px" v-model="loadedPercentage">
