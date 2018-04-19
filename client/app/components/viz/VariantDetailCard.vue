@@ -7,6 +7,19 @@
   padding-top: 0px
   overflow-x: scroll
 
+  .scroll-button
+    color: $link-color !important
+    height: 24px
+    padding: 0px
+    max-width: 80px
+
+    .btn__content
+      color: $link-color !important
+      padding: 0px
+
+    .material-icons
+      font-size: 17px
+
   a
     color:  $link-color !important
 
@@ -180,10 +193,19 @@
 <template>
 
   <div tile id="variant-detail" class="app-card">
-    <div style="width:100%">
+    <div style="width:100%;">
       <span style="display:inline-block" v-if="showTitle ">Variant</span>
     </div>
-
+      <div style="position:absolute;bottom: 0px; right: 0px">
+          <v-btn flat outline small class="scroll-button" v-if="showScrollDown" @click="scroll('down')">
+            <v-icon>arrow_downward</v-icon>
+            read more
+          </v-btn>
+          <v-btn flat outline small class="scroll-button" v-if="showScrollUp" @click="scroll('up')">
+            <v-icon>arrow_upward</v-icon>
+            top
+          </v-btn>
+      </div>
       <div  v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
         <span v-if="!isBasicMode">{{ selectedVariantRelationship | showRelationship }}</span>
         <span class="pl-1">{{ selectedGene.gene_name }}</span>
@@ -390,7 +412,9 @@ export default {
     return {
       WIDTH_ALLELE_COUNT_BAR: 120,
       WIDTH_ALLELE_COUNT_ROW: 270,
-      AFFECTED_GLYPH: "<i class='material-icons affected-symbol'>spellcheck</i>"
+      AFFECTED_GLYPH: "<i class='material-icons affected-symbol'>spellcheck</i>",
+      showScrollUp: false,
+      showScrollDown: false
 
     }
   },
@@ -417,6 +441,7 @@ export default {
       if (this.selectedVariant) {
         this.createAlleleCountsSVG();
         this.addInheritanceGlyph();
+        this.showScrollButtons();
       }
     },
     createAlleleCountsSVG: function() {
@@ -756,6 +781,38 @@ export default {
       let self = this;
       self.selectedVariant.isUserFlagged = false;
       self.$emit('remove-flagged-variant', self.selectedVariant);
+    },
+    scroll: function(dir="down") {
+      let self = this;
+
+      var topPos = $('#variant-detail').scrollTop();
+      var scrollHeight = $('#variant-detail').innerHeight();
+      var multiplier = 1;
+      if (dir == "up") {
+        multiplier =  -1;
+      }
+      $('#variant-detail').animate({
+          scrollTop: (topPos + scrollHeight) * multiplier
+      }, 1000, function() {
+        self.showScrollButtons();
+      });
+    },
+    showScrollButtons: function(parentNode) {
+        var pos = $('#variant-detail').scrollTop();
+        var contentHeight = $('#variant-detail')[0].scrollHeight;
+        var scrollHeight = $('#variant-detail').innerHeight();
+
+        if (scrollHeight + pos < contentHeight - 5) {
+          this.showScrollDown = true;
+        } else {
+          this.showScrollDown = false;
+        }
+
+        if (pos == 0) {
+          this.showScrollUp = false;
+        } else {
+          this.showScrollUp = true;
+        }
     }
   },
 
@@ -810,6 +867,7 @@ export default {
       if (this.selectedVariant) {
         this.createAlleleCountsSVG();
         this.addInheritanceGlyph();
+        this.showScrollButtons();
 
       }
 
@@ -835,6 +893,7 @@ export default {
     if (this.selectedVariant) {
       this.createAlleleCountsSVG();
       this.addInheritanceGlyph();
+      this.showScrollButtons();
     }
   },
 
