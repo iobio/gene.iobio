@@ -11,11 +11,12 @@
     color: $link-color !important
     height: 24px
     padding: 0px
-    max-width: 80px
+    max-width: 90px
 
     .btn__content
       color: $link-color !important
       padding: 0px
+
 
     .material-icons
       font-size: 17px
