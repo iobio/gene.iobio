@@ -16,7 +16,7 @@
   text-align: center
 
 .tabs__container
-  height: 32px !important
+  height: 26px !important
   margin-left: 0px
 
   .tabs__item
@@ -118,7 +118,7 @@
 
 
         <div
-          v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-bottom:10px"
+          v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-top:10px;margin-bottom:10px"
           v-bind:class="{hide : showWelcome }"
           >
          <split-pane :leftPercent="(!isBasicMode && cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (isEduMode ? 50 : (this.isLeftDrawerOpen ?  30 : 30)) : 0)">
@@ -141,7 +141,7 @@
             >
             </feature-matrix-card>
 
-            <v-card slot="right" style="min-height:251px;max-height:251px;overflow-y:scroll">
+            <v-card slot="right" style="min-height:251px;max-height:251px;margin-bottom:0px;padding-top:0px;margin-top:0px;overflow-y:scroll">
 
               <v-tabs
                 v-if="geneModel && Object.keys(selectedGene).length > 0"
@@ -154,7 +154,7 @@
                 <v-tab >
                   Variant
                 </v-tab>
-                <v-tab-item style="margin-top:10px;max-height:190px;overflow-y:scroll">
+                <v-tab-item style="margin-top:5px;margin-bottom:0px;overflow-y:scroll">
                   <gene-card
                     v-if="geneModel && Object.keys(selectedGene).length > 0"
                     :showTitle="false"
@@ -173,8 +173,12 @@
                     @gene-region-zoom-reset="onGeneRegionZoomReset"
                     >
                   </gene-card>
+
+                  <scroll-button ref="scrollButtonRefGene" :parentId="`gene-summary-box`">
+                  </scroll-button>
+
                 </v-tab-item>
-                <v-tab-item  style="max-height:210px;overflow-y:scroll">
+                <v-tab-item  style="margin-top:5px;margin-bottom:0px;overflow-y:scroll">
                   <variant-detail-card
                   ref="variantDetailCardRef"
                   :isEduMode="isEduMode"
@@ -192,6 +196,11 @@
                   @remove-flagged-variant="onRemoveFlaggedVariant"
                   >
                   </variant-detail-card>
+
+                  <scroll-button ref="scrollButtonRefVariant" :parentId="`variant-detail`">
+                  </scroll-button>
+
+
                 </v-tab-item>
               </v-tabs>
             </v-card>
@@ -315,6 +324,7 @@ import VariantTooltip     from '../../partials/VariantTooltip.js'
 
 import allGenesData       from '../../../data/genes.json'
 import SplitPane          from '../partials/SplitPane.vue'
+import ScrollButton       from '../partials/ScrollButton.vue'
 
 
 
@@ -327,11 +337,12 @@ export default {
       Welcome,
       GenesCard,
       GeneCard,
+      ScrollButton,
       VariantDetailCard,
       FeatureMatrixCard,
       VariantCard,
       SplitPane,
-      AppTour
+      AppTour,
   },
   props: {
     paramGene:             null,
@@ -849,6 +860,9 @@ export default {
           self.geneRegionEnd   = theGeneObject.end;
           self.selectedGene = theGeneObject;
           self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
+          if (self.$refs.scrollButtonRefGene) {
+            self.$refs.scrollButtonRefGene.showScrollButtons();
+          }
           if (self.cohortModel.isLoaded) {
             self.promiseLoadData()
             .then(function() {
@@ -929,6 +943,10 @@ export default {
         if (self.isEduMode) {
           self.$refs.appTourRef.checkVariant(variant);
         }
+        if (self.$refs.scrollButtonRefVariant) {
+          self.$refs.scrollButtonRefVariant.showScrollButtons();
+        }
+
       } else {
         self.deselectVariant();
       }

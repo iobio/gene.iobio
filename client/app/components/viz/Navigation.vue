@@ -104,6 +104,7 @@ nav.toolbar
       <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
+
       <v-toolbar-title v-text="title">
       </v-toolbar-title>
 

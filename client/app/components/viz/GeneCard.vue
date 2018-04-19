@@ -31,6 +31,8 @@
 @import ../../../assets/sass/variables
 
 #gene-track
+  max-height: 182px
+
   #gene-name
     margin-left: 0px
     background-color:  $app-color
@@ -139,6 +141,7 @@
 <template>
 
   <div tile id="gene-track" class="app-card">
+
     <div primary-title style="width:100%">
       <span style="display:inline-block" v-if="showTitle ">Gene</span>
     </div>
@@ -244,7 +247,9 @@
 
     </div>
 
-    <div style="min-height:180px;max-height:180px;overflow-y:scroll">
+    <div id="gene-summary-box" style="min-height:120px;max-height:120px;overflow-y:scroll">
+
+
       <div v-if="showGene && ncbiSummary" id="ncbi-summary">
         {{ ncbiSummary.summary }}
       </div>
@@ -269,15 +274,17 @@
 
 <script>
 
-import GeneViz from '../viz/GeneViz.vue'
+import GeneViz        from '../viz/GeneViz.vue'
 import TranscriptsViz from '../viz/TranscriptsViz.vue'
+import ScrollButton   from '../partials/ScrollButton.vue'
 import Vue from 'vue'
 
 export default {
   name: 'gene-card',
   components: {
     GeneViz,
-    TranscriptsViz
+    TranscriptsViz,
+    ScrollButton
   },
   props: {
     isEduMode: null,
@@ -452,6 +459,9 @@ export default {
     this.geneSource = this.geneModel.geneSource;
     this.initSummaryInfo();
 
+  },
+
+  updated: function() {
   },
 
   created: function() {

@@ -66,6 +66,7 @@
 <script>
 
 import { Typeahead } from 'uiv'
+import Vue                  from 'vue'
 
 export default {
   name: 'phenotype-search',
@@ -109,52 +110,55 @@ export default {
   methods: {
     onSearch: function() {
       let self = this;
-      self.phenolyzerStatus = null;
-      self.genesToApply = "";
-      var searchTerm = null;
-      if (self.phenotypeTerm && self.phenotypeTerm.value) {
-        searchTerm = self.phenotypeTerm.value;
-        self.phenotypeTermEntered = self.phenotypeTerm.value;
-      } if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
-        searchTerm = self.phenotypeTerm;
-        self.phenotypeTermEntered = self.phenotypeTerm;
-      } else if (self.phenotypeTermEntered) {
-        searchTerm = self.phenotypeTermEntered;
-      }
-      if (searchTerm) {
-        self.geneModel.searchPhenolyzerGenes(searchTerm, this.phenolyzerTop,
-        function(status, error) {
-          if (status == 'done') {
-            self.loadingStatus = false;
-            if (self.geneModel.phenolyzerGenes.length == 0) {
-              self.phenolyzerStatus = "no genes found."
-              self.genesToApply = "";
-              if (self.isNav) {
-                alertify.set('notifier','position', 'top-left');
-                alertify.warning("No genes found.");
+      setTimeout(function () {
+        self.phenolyzerStatus = null;
+        self.genesToApply = "";
+        var searchTerm = null;
+        if (self.phenotypeTerm && self.phenotypeTerm.value) {
+          searchTerm = self.phenotypeTerm.value;
+          self.phenotypeTermEntered = self.phenotypeTerm.value;
+        } if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
+          searchTerm = self.phenotypeTerm;
+          self.phenotypeTermEntered = self.phenotypeTerm;
+        } else if (self.phenotypeTermEntered) {
+          searchTerm = self.phenotypeTermEntered;
+        }
+        if (searchTerm) {
+          self.geneModel.searchPhenolyzerGenes(searchTerm, self.phenolyzerTop,
+          function(status, error) {
+            if (status == 'done') {
+              self.loadingStatus = false;
+              if (self.geneModel.phenolyzerGenes.length == 0) {
+                self.phenolyzerStatus = "no genes found."
+                self.genesToApply = "";
+                if (self.isNav) {
+                  alertify.set('notifier','position', 'top-left');
+                  alertify.warning("No genes found.");
+                }
+              } else {
+                var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
+                  return gene.selected;
+                }).length;
+                self.genesToApply = self.geneModel.phenolyzerGenes
+                .filter(function(gene) {
+                  return gene.selected;
+                })
+                .map( function(gene) {
+                  return gene.geneName;
+                })
+                .join(", ");
+                self.phenolyzerStatus = geneCount + " genes shown."
+                self.$emit("on-search-genes", searchTerm);
               }
             } else {
-              var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
-                return gene.selected;
-              }).length;
-              self.genesToApply = self.geneModel.phenolyzerGenes
-              .filter(function(gene) {
-                return gene.selected;
-              })
-              .map( function(gene) {
-                return gene.geneName;
-              })
-              .join(", ");
-              self.phenolyzerStatus = geneCount + " genes shown."
-              self.$emit("on-search-genes", searchTerm);
+              self.phenolyzerStatus = status;
+              self.loadingStatus = true;
             }
-          } else {
-            self.phenolyzerStatus = status;
-            self.loadingStatus = true;
-          }
-        });
+          });
 
-      }
+        }
+      },
+      200);
     },
     phenotypeLookup: function(term, done) {
       let self = this;

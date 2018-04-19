@@ -25,8 +25,8 @@ button
   .chip__content
     color: white
     background-color:  $default-badge-color
-    font-size: 14px
-    height: 22px
+    font-size: 12px
+    height: 20px
 
 .progress-linear__background.primary
   background-color: $amber-lighten-4 !important

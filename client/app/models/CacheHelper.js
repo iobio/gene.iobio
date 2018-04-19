@@ -111,7 +111,6 @@ CacheHelper.prototype.promiseClearOlderCache = function() {
       if (counts.oldSessions.length > 0) {
         var promises = [];
         counts.oldSessions.forEach(function(timestamp) {
-          console.log("clearing cache for older gene.iobio session " + timestamp);
           var p = me._promiseClearCache(timestamp);
           promises.push(p);
         })
