@@ -9,9 +9,12 @@
   margin: 0px !important
   margin-left: 10px
 
+
   .btn__content
     color: $link-color !important
     padding: 0px
+    width: 98px
+    background-color: rgba(255, 255, 255, 0.59) !important
 
 
   .material-icons
