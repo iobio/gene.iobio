@@ -16,7 +16,11 @@ class GeneModel {
         omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
         genecards: { display: 'GeneCards', url: 'https://www.genecards.org/cgi-bin/carddisp.pl?gene=GENESYMBOL'},
         gtex:      { display: 'GTex',      url: 'https://www.gtexportal.org/home/gene/GENESYMBOL'},
-        ucsc:      { display: 'UCSC',      url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=GENECOORD'}
+        ucsc:      { display: 'UCSC',      url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=GENECOORD'},
+        uniprot:   { display: 'UniProt',   url: 'http://www.uniprot.org/uniprot/?query=gene:GENESYMBOL mnemonic:GENESYMBOL_HUMAN AND organism:"Homo sapiens (Human) [9606]"'},
+        humanmine: { display: 'HumanMine', url: 'http://www.humanmine.org/humanmine/keywordSearchResults.do?searchTerm=+GENESYMBOL&searchSubmit=GO'},
+        humanproteinatlas:
+                   { display: 'Human Protein Atlas', url: 'https://www.proteinatlas.org/search/gene_name:GENESYMBOL'}
     }
 
     this.geneSource = null;
@@ -810,16 +814,16 @@ class GeneModel {
       var theLink = $.extend({}, me.linkTemplates[linkName]);
       theLink.name = linkName;
       if (geneUID) {
-        theLink.url = theLink.url.replace('GENEUID', geneUID );
+        theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
       }
       if (geneObject) {
-        theLink.url = theLink.url.replace('GENESYMBOL', geneName);
+        theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
       }
       if (geneCoord) {
-        theLink.url = theLink.url.replace('GENECOORD', geneCoord);
+        theLink.url = theLink.url.replace('/GENECOORD/g', geneCoord);
       }
       if (buildAliasUCSC) {
-        theLink.url = theLink.url.replace("GENOMEBUILD-ALIAS-UCSC", buildAliasUCSC);
+        theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
       }
       links.push(theLink);
     }
