@@ -1702,7 +1702,7 @@ class CohortModel {
     // just pass null, which will default to the proband's sample name
     var sampleNames = null;
     if (self.mode == 'trio') {
-      self.getCanonicalModels().map(function(model) {
+      sampleNames = self.getCanonicalModels().map(function(model) {
         return model.sampleName;
       })
     }

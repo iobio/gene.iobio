@@ -244,9 +244,11 @@ nav.toolbar
          :isBasicMode="isBasicMode"
          :cohortModel="cohortModel"
          :flaggedVariants="flaggedVariants"
+         :launchedFromClin="launchedFromClin"
          @flagged-variants-imported="onFlaggedVariantsImported"
          @flagged-variant-selected="onFlaggedVariantSelected"
          @close-left-drawer="leftDrawer = false"
+         @send-flagged-variants-to-clin="onSendFlaggedVariantsToClin"
         >
         </flagged-variants-card>
 
@@ -429,7 +431,8 @@ export default {
     forMyGene2: null,
     geneModel: null,
     cohortModel: null,
-    flaggedVariants: null
+    flaggedVariants: null,
+    launchedFromClin: null
   },
   data () {
     let self = this;
@@ -519,6 +522,9 @@ export default {
     },
     onShowCitations: function() {
       this.showCitations = true;
+    },
+    onSendFlaggedVariantsToClin: function(flaggedVariants) {
+      this.$emit('send-flagged-variants-to-clin', flaggedVariants)
     }
   },
   created: function() {

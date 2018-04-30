@@ -154,6 +154,7 @@
   padding-top: 0px
   padding-bottom: 18px
   margin-bottom: 20px
+  margin-top: 20px
 
   .radio-group.radio-group--column
     margin-top: 0px
@@ -187,7 +188,7 @@
       top: 6px
 
   .input-group.input-group--selection-controls
-    height: 20px
+    height: 24px
     .input-group__input
       .icon--selection-control
         height: 0px
@@ -202,7 +203,7 @@
   padding-right: 0px
   padding-top: 0px
   padding-bottom: 0px
-  width: 140px
+
 
   i.material-icons
     font-size: 16px
@@ -228,7 +229,7 @@
 
       <v-btn v-if="!isBasicMode && flaggedVariants && flaggedVariants.length > 0" flat
         class="toolbar-button"
-        @click="showSaveDialog = true">
+        @click="onClickSave">
         <v-icon>save</v-icon>
         Save
       </v-btn>
@@ -424,7 +425,16 @@
     </template>
 
 
-    <v-dialog v-model="showOpenDialog" max-width="400">
+    <v-menu
+    offset-y
+    :close-on-content-click="false"
+    :nudge-width="400"
+    bottom
+    v-model="showOpenDialog"
+    >
+
+
+
       <v-card>
         <v-card-title class="headline">Open variants file</v-card-title>
         <v-card-text class="variant-file-body">
@@ -473,12 +483,22 @@
           <v-btn raised class="variant-file-button" @click.native="showOpenDialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-menu>
 
 
-    <v-dialog v-model="showSaveDialog" max-width="400">
+
+
+
+    <v-menu
+    offset-y
+    :close-on-content-click="false"
+    :nudge-width="400"
+    bottom
+    v-model="showSaveDialog"
+    >
+
       <v-card>
-        <v-card-title class="headline">Save variants file</v-card-title>
+        <v-card-title class="headline">{{ Save variants file</v-card-title>
         <v-card-text class="variant-file-body">
           <div id="save-format" >
             <v-radio-group hide-details v-model="exportFormat" >
@@ -511,7 +531,7 @@
           <v-btn class="variant-file-button" raised @click="showSaveDialog = false;readyToDownload = false;">Close</v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-menu>
 
   </div>
 </template>
@@ -530,7 +550,8 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     flaggedVariants: null,
-    cohortModel: null
+    cohortModel: null,
+    launchedFromClin: null
   },
   data() {
     return {
@@ -555,6 +576,22 @@ export default {
         self.importInProgress = false;
         self.$emit("flagged-variants-imported");
         self.showOpenDialog = false;
+      });
+    },
+    onClickSave: function() {
+      let self = this;
+      if (self.launchedFromClin) {
+        self.sendVariantsToClin();
+      } else {
+        showSaveDialog = true;
+      }
+    },
+    sendVariantsToClin: function() {
+      let self = this;
+      this.cohortModel.promiseExportFlaggedVariants('json')
+      .then(function(output) {
+        console.log(output);
+        self.$emit('send-flagged-variants-to-clin', output);
       });
     },
     onSaveFile: function() {

@@ -106,7 +106,7 @@ export default class VariantExporter {
         .then(function(data) {
           var record = data[0];
 
-          if (format == 'csv') {
+          if (format == 'csv' || format == 'json') {
             records.push(record);
           } else if (format == 'vcf') {
             var annotatedVcfRecs = data[1];
@@ -149,7 +149,9 @@ export default class VariantExporter {
         me._appendHeaderRecords(headerRecords, headerRecordsCalledVariants);
 
         var output = "";
-        if (format == 'csv') {
+        if (format == 'json') {
+          resolve(records);
+        } else if (format == 'csv') {
           var sortedRecords = records.sort(SampleModel.orderVariantsByPosition);
           output = me._outputCSV(sortedRecords);
           resolve(output);
@@ -509,7 +511,7 @@ export default class VariantExporter {
 
         me.formatDisplay(revisedVariant, rec);
 
-        if (format == 'csv') {
+        if (format == 'csv' || format == 'json') {
           resolve([rec]);
         } else {
           resolve([rec, theRawVcfRecords]);

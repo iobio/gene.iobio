@@ -204,6 +204,8 @@ export default {
           self.variantChart.regionStart(self.regionStart);
           self.variantChart.regionEnd(self.regionEnd);
 
+          self.variantChart.width(self.width);
+
 
           var selection = d3.select(self.$el).datum( [self.data] );
           self.variantChart(selection);

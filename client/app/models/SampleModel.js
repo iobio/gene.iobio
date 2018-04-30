@@ -1235,7 +1235,7 @@ class SampleModel {
         // variant.  However, if we are returning raw vcf records, the
         // services need to be called so that the info field is formatted
         // with all of the annotations.
-        if (format && format == 'csv') {
+        if (format && (format == 'csv' || format == 'json')) {
           // Exporting data requires additional data to be returned to link
           // the extra annotations back to the original bookmarked entries.
           resolve([variant, variant, ""]);
@@ -1303,7 +1303,7 @@ class SampleModel {
                 });
                 if (matchingVariants.length > 0) {
                   var v = matchingVariants[0];
-                  if (format && format == 'csv') {
+                  if (format && (format == 'csv' || format == 'json')) {
                     resolve([v, variant, vcfRecords]);
                   } else if (format && format == 'vcf') {
                     if (vcfRecords) {
@@ -1385,7 +1385,7 @@ class SampleModel {
               } else {
                 var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
                 console.log(msg);
-                if (format == 'csv' || format == 'vcf') {
+                if (format == 'csv' || format == 'json' || format == 'vcf') {
                   resolve([variant, variant, []]);
                 }
                 reject(msg);

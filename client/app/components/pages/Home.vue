@@ -59,6 +59,7 @@
       :cohortModel="cohortModel"
       :geneModel="geneModel"
       :flaggedVariants="flaggedVariants"
+      :launchedFromClin="launchedFromClin"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -69,6 +70,7 @@
       @on-files-loaded="onFilesLoaded"
       @on-left-drawer="onLeftDrawer"
       @on-show-welcome="onShowWelcome"
+      @send-flagged-variants-to-clin="onSendFlaggedVariantsToClin"
     >
     </navigation>
 
@@ -373,6 +375,9 @@ export default {
     return {
       greeting: 'gene.iobio.vue',
 
+      launchedFromClin: false,
+
+
       allGenes: allGenesData,
 
       selectedGene: {},
@@ -432,7 +437,9 @@ export default {
 
       siteConfig: null,
 
-      showCoverageCutoffs: false
+      showCoverageCutoffs: false,
+
+      clinIobioUrl: "http://localhost:4030"
     }
   },
 
@@ -444,8 +451,11 @@ export default {
     let self = this;
 
     self.cardWidth = self.$el.offsetWidth;
+    self.cardWidth = window.innerWidth;
 
     self.setAppMode();
+
+    window.addEventListener("message", self.receiveClinMessage, false);
 
     self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp);
     self.genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
@@ -670,7 +680,7 @@ export default {
 
         if (self.models && self.models.length > 0) {
 
-
+          self.cardWidth = $('#genes-card').innerWidth();
           var options = {'getKnownVariants': self.showKnownVariantsCard};
 
           self.cohortModel.promiseLoadData(self.selectedGene,
@@ -833,6 +843,7 @@ export default {
 
       this.showWelcome = false;
 
+
       return new Promise(function(resolve, reject) {
 
         if (self.forMyGene2) {
@@ -867,6 +878,10 @@ export default {
             self.promiseLoadData()
             .then(function() {
               resolve();
+            })
+            .catch(function(err) {
+              console.log(err)
+              reject(err);
             })
           } else {
             resolve();
@@ -1104,21 +1119,21 @@ export default {
         this.$refs.genesCardRef.clearFilter();
       }
     },
-    onApplyGenes: function(genesString, phenotypeTerm) {
+    onApplyGenes: function(genesString, searchTermsString) {
       let self = this;
 
       self.clearFilter();
 
-      if (phenotypeTerm) {
-        self.phenotypeTerm = phenotypeTerm;
+      if (searchTermsString) {
+        self.phenotypeTerm = searchTermsString;
       }
       var replace = false;
       var message = null;
 
       if (self.geneModel.geneNames.length > 0) {
         var count = self.geneModel.getCopyPasteGeneCount(genesString);
-        if (phenotypeTerm && phenotypeTerm.length > 0) {
-          message = count + " genes for phenotype " + "<em>'"  + phenotypeTerm + "'</em> ready to apply.  Remove currently listed genes first?";
+        if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
+          message = count + " genes for phenotype " + "<em>'"  + self.phenotypeTerm + "'</em> ready to apply.  Remove currently listed genes first?";
 
           alertify.confirm("Applying new gene list",
             message,
@@ -1416,6 +1431,35 @@ export default {
     onStopAnalysis: function() {
       this.cohortModel.stopAnalysis();
       this.cacheHelper.stopAnalysis();
+    },
+    receiveClinMessage: function(event)
+    {
+      let self = this;
+      // Do we trust the sender of this message?
+      if (event.origin !== this.clinIobioUrl) {
+        return;
+      }
+
+      var clinObject = JSON.parse(event.data);
+
+      if (clinObject.type == 'apply-genes') {
+        this.onApplyGenes(clinObject.genes, clinObject.searchTerms.join(","));
+      } else if (clinObject.type == 'set-data') {
+        self.launchedFromClin = true;
+        self.cohortModel.promiseInit(clinObject.modelInfos)
+        .then(function() {
+          self.models = self.cohortModel.sampleModels;
+
+        })
+      }
+
+      var responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
+      window.parent.postMessage(JSON.stringify(responseObject), this.clinIobioUrl);
+    },
+
+    onSendFlaggedVariantsToClin: function(flaggedVariants) {
+      var msgObject = {success: true, type: 'save-variants', sender: 'gene.iobio.io', variants: flaggedVariants};
+      window.parent.postMessage(JSON.stringify(msgObject), this.clinIobioUrl);
     }
 
 
