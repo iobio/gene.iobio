@@ -9,64 +9,57 @@
 
   <span>
 
-    <span v-if="icon == 'pathogenic'">
-      <svg>
-        <g transform="translate(1,0)">
-          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="18" height="18" style="pointer-events: none; fill: rgb(173, 73, 74);">
-          </use>
-        </g>
-      </svg>
-    </span>
-
-    <span v-if="icon == 'autosomalDominant'">
-      <svg id="autosomal-dominant-badge" class="inheritance-badge">
-        <g transform="translate(0,0)">
-          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#autosomal-dominant-symbol" width="20" height="20" style="pointer-events: none;">
-          </use>
-        </g>
-      </svg>
-    </span>
-
-    <span v-if="icon == 'denovo'">
-      <svg id="denovo-badge" class="inheritance-badge">
-        <g transform="translate(0,0)">
-          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#denovo-symbol" width="20" height="20" style="pointer-events: none;">
-          </use>
-        </g>
-      </svg>
-    </span>
-
-    <span v-if="icon == 'recessive'">
-      <svg id="recessive-badge" class="inheritance-badge">
-        <g transform="translate(0,0)">
-          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="20" height="20" style="pointer-events: none;">
-          </use>
-        </g>
-      </svg>
-    </span>
+    <app-icon
+     v-if="icon == 'pathogenic'"
+     icon="clinvar_path"
+     width="18"
+     height="18">
+    </app-icon>
 
 
-    <span v-if="icon == 'xlinked'">
-      <svg id="xlinked-badge" class="inheritance-badge">
-        <g transform="translate(0,0)">
-          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#x-linked-symbol" width="20" height="20" style="pointer-events: none;">
-          </use>
-        </g>
-      </svg>
-    </span>
+    <app-icon
+     v-if="icon == 'autosomalDominant'"
+     icon="autosomal dominant"
+     width="20"
+     height="20">
+    </app-icon>
 
-    <span v-if="icon == 'compoundHet'">
-      <svg id="compoundHet-badge" class="inheritance-badge">
-        <g transform="translate(0,0)">
-          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#compound-het-symbol" width="20" height="20" style="pointer-events: none;">
-          </use>
-        </g>
-      </svg>
-    </span>
+    <app-icon
+     v-if="icon == 'denovo'"
+     icon="denovo"
+     width="20"
+     height="20">
+    </app-icon>
+
+    <app-icon
+     v-if="icon == 'recessive'"
+     icon="recessive"
+     width="20"
+     height="20">
+    </app-icon>
+
+
+
+    <app-icon
+     v-if="icon == 'xlinked'"
+     icon="x-linked"
+     width="20"
+     height="20">
+    </app-icon>
+
+
+    <app-icon
+     v-if="icon == 'compoundHet'"
+     icon="compound het"
+     width="20"
+     height="20">
+    </app-icon>
+
+
 
 
     <span v-if="icon == 'highOrModerate'" >
-      <svg>
+      <svg width="20" height="20">
         <g transform="translate(0,8)">
           <rect width="9" height="9" class="filter-symbol impact_HIGH snp" style="pointer-events: none;"></rect>
         </g>
@@ -76,24 +69,25 @@
       </svg>
     </span>
 
+    <app-icon
+     v-if="icon == 'coverage'"
+     icon="coverage"
+     width="18"
+     height="18">
+    </app-icon>
 
-    <span v-if="icon == 'coverage'">
-      <svg class="gene-badge-coverage-problem" >
-        <g transform="translate(0,1)">
-          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#trending-down-symbol" width="17" height="17"  style="pointer-events: none;">
-          </use>
-        </g>
-      </svg>
-    </span>
 
   </span>
 </template>
 
 <script>
 
+import AppIcon from '../partials/AppIcon.vue'
+
 export default {
   name: 'filter-icon',
   components: {
+    AppIcon
   },
   props: {
     icon: null

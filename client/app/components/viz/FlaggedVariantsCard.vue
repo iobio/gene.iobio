@@ -275,116 +275,30 @@
                   <div class="variant-symbols">
 
 
-                    <svg
-                     v-if="clinvar(variant) == 'clinvar_path'"
-                     class="clinvar-badge" height="15" width="15">
-                      <g transform="translate(0,2)">
-                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="12" height="12" style="pointer-events: none; fill: rgb(173, 73, 74);"></use>
-                      </g>
-                    </svg>
+                    <app-icon
+                     :icon="clinvar(variant)"
+                     v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
+                     class="clinvar-badge" height="12" width="12">
+                    </app-icon>
 
-                    <svg
-                     v-if="clinvar(variant) == 'clinvar_lpath'"
-                     class="clinvar-badge" height="15" width="15">
-                      <g transform="translate(0,2)">
-                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="12" height="12" style="pointer-events: none; fill: rgb(251, 119, 55);"></use>
-                      </g>
-                    </svg>
-
-                    <svg
-                     v-if="variant.inheritance && variant.inheritance == 'autosomal dominant'"
+                    <app-icon
+                     :icon="variant.inheritance"
+                     v-if="variant.inheritance"
                      class="inheritance-badge" height="15" width="15">
-                      <g transform="translate(0,0)">
-                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#autosomal-dominant-symbol" width="16" height="16" style="pointer-events: none;"></use>
-                      </g>
-                    </svg>
-                    <svg
-                     v-if="variant.inheritance && variant.inheritance == 'recessive'"
-                     class="inheritance-badge" height="15" width="15">
-                      <g transform="translate(0,0)">
-                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="16" height="16" style="pointer-events: none;"></use>
-                      </g>
-                    </svg>
-                    <svg
-                     v-if="variant.inheritance && variant.inheritance == 'denovo'"
-                     class="inheritance-badge" height="15" width="15">
-                      <g transform="translate(0,0)">
-                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#denovo-symbol" width="16" height="16" style="pointer-events: none;"></use>
-                      </g>
-                    </svg>
-                    <svg
-                     v-if="variant.inheritance && variant.inheritance == 'x-linked'"
-                     class="inheritance-badge" height="15" width="15">
-                      <g transform="translate(0,0)">
-                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#x-linked-symbol" width="16" height="16" style="pointer-events: none;"></use>
-                      </g>
-                    </svg>
-                    <svg
-                     v-if="variant.inheritance && variant.inheritance == 'compound het'"
-                     class="inheritance-badge" height="15" width="15">
-                      <g transform="translate(0,0)">
-                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#compound-het-symbol" width="16" height="16" style="pointer-events: none;"></use>
-                      </g>
-                    </svg>
+                    </app-icon>
 
-                    <svg
-                     v-if="variant.type.toLowerCase() == 'snp' || variant.type.toLowerCase() == 'mnp'"
-                     class="impact-badge" height="15" width="13">
-                      <g transform="translate(1,6)">
-                        <rect width="8" height="8"
-                        v-bind:class="highestImpactClass(variant)"
-                        style="pointer-events: none;"></rect>
-                      </g>
-                    </svg>
+                    <app-icon
+                     icon="impact"
+                     :type="variant.type.toLowerCase()"
+                     :clazz="highestImpactClass(variant)"
+                     class="impact-badge" height="15" width="15">
+                    </app-icon>
 
-                    <svg
-                     v-if="variant.type.toLowerCase() == 'del'"
-                     class="impact-badge" height="15" width="13">
-                      <g transform="translate(5,10)">
-                        <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
-                        v-bind:class="highestImpactClass(variant)">
-                        </path>
-                      </g>
-                    </svg>
-
-                    <svg
-                     v-if="variant.type.toLowerCase() == 'ins'"
-                     class="impact-badge" height="15" width="13">
-                      <g transform="translate(5,10)">
-                        <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
-                        v-bind:class="highestImpactClass(variant)">
-                        </path>
-                      </g>
-                    </svg>
-
-                    <svg
-                     v-if="variant.type.toLowerCase() == 'complex'"
-                     class="impact-badge" height="15" width="13">
-                      <g transform="translate(5,9)">
-                        <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
-                        v-bind:class="highestImpactClass(variant)">
-                        </path>
-                      </g>
-                    </svg>
-
-                    <svg v-if="zygosity(variant).toUpperCase() == 'HOM'" width="24" height="14">
-                      <g transform="translate(0,4)">
-                        <rect width="24" height="10" class="zyg_hom" style="pointer-events: none;">
-                        </rect>
-                        <text x="1" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
-                        Hom
-                        </text>
-                      </g>
-                    </svg>
-                    <svg v-if="zygosity(variant).toUpperCase() == 'HET'" width="24" height="14">
-                      <g transform="translate(0,4)">
-                        <rect width="24" height="10" class="zyg_het" style="pointer-events: none;">
-                        </rect>
-                        <text x="2" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
-                        Het
-                        </text>
-                      </g>
-                    </svg>
+                   <app-icon
+                     icon="zygosity"
+                     :type="zygosity(variant).toLowerCase()"
+                     height="14" width="24">
+                    </app-icon>
 
                     <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
                       check_circle
@@ -539,12 +453,15 @@
 
 <script>
 
+
 import FileChooser from '../partials/FileChooser.vue'
+import AppIcon from '../partials/AppIcon.vue'
 
 export default {
   name: 'flagged-variants-card',
   components: {
-    FileChooser
+    FileChooser,
+    AppIcon
   },
   props: {
     isEduMode: null,

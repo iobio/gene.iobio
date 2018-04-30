@@ -15,7 +15,7 @@
 
   #gene-badge-symbols
     height: 14px
-    padding-left: 0px
+    padding-left: 4px
     padding-top: 0px
     float: left
 
@@ -32,19 +32,7 @@
     padding-top: 1px
     display: none
 
-  #autosomal-dominant-badge
-    display: none
-  #recessive-badge
-    display: none
-  #denovo-badge
-    display: none
-  #x-linked-badge
-    display: none
-  #compound-het-badge
-    display: none
 
-  #gene-badge-clinvar
-    display: none
 
 #gene-badge
   margin-top: 0px
@@ -53,11 +41,6 @@
   height: 21px
   display: inline-block
 
-  &.visited
-    #gene-badge-loaded
-      display: inline
-    #gene-badge-name
-      color: $text-color !important
 
   &.loaded
     #gene-badge-loaded
@@ -79,60 +62,10 @@
     .gene-badge-loader
       display: inline
 
-  &.is-pathogenic
-    #gene-badge-clinvar
-      display: inline-block
-
-  &.has-coverage-problem
-    #gene-badge-coverage-problem
-      display: inline-block
-
-  &.has-phenotypes
-    #gene-badge-phenotype-symbol
-      display: inline-block
-
-  &.inheritance-autosomal-dominant
-    #autosomal-dominant-badge
-      display: inline
-  &.inheritance-recessive
-    #recessive-badge
-      display: inline
-  &.inheritance-denovo
-    #denovo-badge
-      display: inline
-  &.inheritance-x-linked
-    #x-linked-badge
-      display: inline
-  &.inheritance-compound-het
-    #compound-het-badge
-      display: inline
 
   &:hover #gene-badge-remove
     visibility: visible
 
-  &.visited.error
-    #gene-badge-loaded
-      display: none
-    #gene-badge-error
-      display: inline
-  &.called.error
-    #gene-badge-called
-      display: none
-  &.has-called-variants.error
-    #gene-badge-has-called-variants
-      display: none
-
-  &.visited.warning
-    #gene-badge-loaded
-      display: none
-    #gene-badge-warning
-      display: inline
-  &.called.warning
-    #gene-badge-called
-      display: none
-  &.has-called-variants.warning
-    #gene-badge-has-called-variants
-      display: none
   a
     color:  $text-color !important
 
@@ -185,14 +118,6 @@
   float: left
   display: none
 
-#gene-badge-bookmark
-  color: $bookmark-color
-  opacity: .7
-  font-size: 14px
-  vertical-align: top
-  float: left
-  padding-right: 0px
-  display: none
 
 #gene-badge-warning
   float: left
@@ -229,30 +154,7 @@
 .coverage-problem-glyph
   fill: $coverage-problem-color
 
-#gene-badge-harmful-variant
-  font-size: 15px
-  margin-top: -1px
-  margin-left: 2px
-  float: left
-  color: #c70001
-  display: none
 
-  &.dropdown-item
-    display: inline-block
-    margin-right: 3px
-    margin-top: 1px
-
-
-.gene-badge-harmful-variant
-  font-size: 15px
-  margin-top: -1px
-  margin-left: 2px
-  float: left
-
-
-#gene-badge-harmful1-variant
-  display: none
-  fill: #9d2024
 
 .impact-badge
   vertical-align: top
@@ -285,9 +187,6 @@
         <i id="gene-badge-has-called-variants" class="level-edu material-icons glyph">check_circle</i>
 
 
-        <i id="gene-badge-bookmark" class="material-icons">bookmark</i>
-
-
         <i id="gene-badge-warning" class="material-icons glyph">warning</i>
         <i id="gene-badge-error" class="material-icons glyph">report_problem</i>
 
@@ -309,92 +208,100 @@
 
       <span id="gene-badge-symbols" class="glyph">
 
-          <svg id="gene-badge-clinvar" class=" level-edu glyph" width="13" height="14">
-              <g transform="translate(0,0)">
-                  <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11.5"   height="11.5" style="fill: rgb(173, 73, 74);pointer-events: none;">
-                  </use>
-              </g>
-          </svg>
-          <svg id="autosomal-dominant-badge" class="inheritance-badge" height="15" width="15">
-            <g transform="translate(0,0)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#autosomal-dominant-symbol" width="15" height="15" style="pointer-events: none;">
-              </use>
-            </g>
-          </svg>
-          <svg id="recessive-badge" class="inheritance-badge" height="15" width="15">
-            <g transform="translate(0,0)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#recessive-symbol" width="15" height="15" style="pointer-events: none;">
-              </use>
-            </g>
-          </svg>
-          <svg id="denovo-badge" class="inheritance-badge" height="15" width="15">
-            <g transform="translate(0,0)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#denovo-symbol" width="15" height="15" style="pointer-events: none;">
-              </use>
-            </g>
-          </svg>
-          <svg id="x-linked-badge" class="inheritance-badge" height="15" width="15">
-            <g transform="translate(0,0)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#x-linked-symbol" width="15" height="15" style="pointer-events: none;">
-              </use>
-            </g>
-          </svg>
-          <svg id="compound-het-badge" class="inheritance-badge" height="15" width="15">
-            <g transform="translate(0,0)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#compound-het-symbol" width="15" height="15" style="pointer-events: none;">
-              </use>
-            </g>
-          </svg>
+          <app-icon
+           v-if="gene && gene.dangerSummary && gene.dangerSummary.badges.pathogenic.length > 0"
+           icon="clinvar_path"
+           id="gene-badge-clinvar"
+           class=" level-edu glyph"
+           width="13" height="14">
+          </app-icon>
 
-          <svg
+          <app-icon
+           v-if="hasFilteredVariants('autosomalDominant')"
+           icon="autosomal dominant"
+           class=" level-edu glyph"
+           width="15" height="15">
+          </app-icon>
+
+
+          <app-icon
+           v-if="hasFilteredVariants('recessive')"
+           icon="recessive"
+           class=" level-edu glyph"
+           width="15" height="15">
+          </app-icon>
+
+
+          <app-icon
+           v-if="hasFilteredVariants('denovo')"
+           icon="denovo"
+           class=" level-edu glyph"
+           width="15" height="15">
+          </app-icon>
+
+          <app-icon
+           v-if="hasFilteredVariants('xlinked')"
+           icon="xlinked"
+           class=" level-edu glyph"
+           width="15" height="15">
+          </app-icon>
+
+
+          <app-icon
+           v-if="hasFilteredVariants('compoundHet')"
+           icon="compound het"
+           class=" level-edu glyph"
+           width="15" height="15">
+          </app-icon>
+
+
+
+          <app-icon
            v-if="getImpactClass({'snp': true, 'mnp': true}) != null"
-           class="impact-badge" height="12" width="12">
-            <g transform="translate(1,3)">
-              <rect width="7" height="7"
-              v-bind:class="getImpactClass({'snp': true, 'mnp': true})"
-              style="pointer-events: none;"></rect>
-            </g>
-          </svg>
+           icon="impact"
+           type="snp"
+           :clazz="getImpactClass({'snp': true, 'mnp': true})"
+           width="15" height="15">
+          </app-icon>
 
-          <svg
+
+          <app-icon style="vertical-align:top"
            v-if="getImpactClass({'del': true}) != null"
-           class="impact-badge" height="12" width="13">
-            <g transform="translate(5,6)">
-              <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
-              v-bind:class="getImpactClass({'del': true})">
-              </path>
-            </g>
-          </svg>
+           icon="impact"
+           type="del"
+           :clazz="getImpactClass({'del': true})"
+           width="15" height="15">
+          </app-icon>
 
-          <svg
+          <app-icon style="vertical-align:top"
            v-if="getImpactClass({'ins': true}) != null"
-           class="impact-badge" height="12" width="13">
-            <g transform="translate(5,6)">
-              <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
-              v-bind:class="getImpactClass({'ins': true})">
-              </path>
-            </g>
-          </svg>
+           icon="impact"
+           type="ins"
+           :clazz="getImpactClass({'ins': true})"
+           width="15" height="15">
+          </app-icon>
 
-          <svg
+
+          <app-icon style="vertical-align:top"
            v-if="getImpactClass({'complex': true}) != null"
-           class="impact-badge" height="13" width="13">
-            <g transform="translate(4,6)">
-              <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
-              v-bind:class="getImpactClass({'complex': true})">
-              </path>
-            </g>
-          </svg>
+           icon="impact"
+           type="complex"
+           :clazz="getImpactClass({'complex': true})"
+            width="15" height="15">
+          </app-icon>
+
+          <app-icon style="vertical-align:top"
+           v-if="hasCoverageProblem()"
+           icon="coverage"
+           class=" level-edu glyph"
+           width="10" height="10">
+          </app-icon>
+
+      </span>
 
 
-        </span>
 
-        <svg id="gene-badge-coverage-problem" class="gene-badge-coverage-problem level-edu glyph" width="14" height="14">
-            <g transform="translate(1,2)">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#trending-down-symbol" width="11"   height="11" style="pointer-events: none;">
-                </use>
-            </g>
-        </svg>
+
 
   </a>
 
@@ -410,9 +317,13 @@
 
 <script>
 
+import AppIcon         from '../partials/AppIcon.vue'
+
+
 export default {
   name: 'gene-badge',
   components: {
+    AppIcon
   },
   props: {
     gene: null,
@@ -475,6 +386,12 @@ export default {
         }
       }
       return clazz;
+    },
+    hasFilteredVariants: function(filterName) {
+      return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.badges[filterName].length > 0;
+    },
+    hasCoverageProblem: function() {
+      return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem;
     }
   },
   computed: {
@@ -498,6 +415,7 @@ export default {
         'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem
       }
     }
+
   },
   mounted: function() {
   }

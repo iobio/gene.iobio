@@ -46,9 +46,6 @@
           font-size: 21px
 
 
-    svg
-      width: 20px
-      height: 20px
 
     .badge__badge
       font-weight: normal
