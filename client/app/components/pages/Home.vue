@@ -1148,7 +1148,7 @@ export default {
             .set('labels', {ok:'Yes', cancel:'No'});
 
         } else {
-          self.applyGenesImpl(genesString, false);
+          self.applyGenesImpl(genesString, true);
         }
       } else {
         self.applyGenesImpl(genesString, false);
