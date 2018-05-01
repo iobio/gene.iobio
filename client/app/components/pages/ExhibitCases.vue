@@ -19,11 +19,13 @@
       <div id="button-container">
         <button id="case-study-1" @click="showCaseStudy(1)" class="exhibit-button fat large btn btn-raised">
           <div style="padding-top:0px;padding-right:0px;">
-            <svg height="38" width="38">
-                    <g transform="translate(0,0)">
-                      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#search-dna-symbol" width="38" height="38" fill="white"></use>
-                    </g>
-                  </svg>
+            <app-icon
+            icon="search-dna"
+            height="38"
+            width="38"
+            fill="white"
+            >
+            </app-icon>
           </div>
           Hunt for a cancer gene in a family
         </button>
@@ -55,9 +57,12 @@
 
 <script>
 
+import AppIcon from "../partials/AppIcon.vue"
+
 export default {
   name: 'exhibit-cases',
   components: {
+    AppIcon
 
   },
   props: {

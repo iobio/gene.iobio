@@ -66,6 +66,7 @@
     color:  $text-color
     font-size: 12px
     cursor: auto
+    vertical-align: top
 
 
   .legend-label
@@ -89,6 +90,15 @@
       fill: $text-color
 
 
+.legend-wrap-text
+  width: 60px !important
+  display: inline-block !important
+  line-height: 12px !important
+
+.clinvar-legend
+  .legend-text
+    padding-top: 2px
+    display: inline-block
 
 </style>
 
@@ -109,175 +119,213 @@
 
       <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Impact</div>
-        <svg id="HIGH" class="legend-element" width="80" height="14" transform="translate(0,0)">
-          <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">High</text>
-          <rect class="legend-symbol impact_HIGH" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
-        </svg>
-        <svg id="MODERATE" class="legend-element" width="80" height="14" transform="translate(0,0)">
-          <text class="name" x=15 y="10" style="fill-opacity: 1;font-size: 12px;">Moderate</text>
-          <rect class="legend-symbol impact_MODERATE" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
-        </svg>
-        <svg id="MODIFIER" class="legend-element" width="80" height="14" transform="translate(0,0)">
-          <text class="name" x=15 y="10" style="fill-opacity: 1;font-size: 12px;">Modifier</text>
-          <rect class="legend-symbol impact_MODIFIER" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
-        </svg>
-        <svg id="LOW" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-          <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">Low</text>
-          <rect class="legend-symbol  impact_LOW" rx="1" ry="1" x="1" width="10" y="0" height="10" style="opacity: 1;"></rect>
-        </svg>
+
+
+        <legend-icon
+         icon="impact"
+         type="snp"
+         clazz="impact_HIGH"
+         width="14"
+         height="14"
+         label="High">
+        </legend-icon>
+        <legend-icon
+         icon="impact"
+         type="snp"
+         clazz="impact_MODERATE"
+         width="14"
+         height="14"
+         label="Moderate">
+        </legend-icon>
+        <legend-icon
+         icon="impact"
+         type="snp"
+         clazz="impact_MODIFIER"
+         width="14"
+         height="14"
+         label="Modifier">
+        </legend-icon>
+        <legend-icon
+         icon="impact"
+         type="snp"
+         clazz="impact_LOW"
+         width="14"
+         height="14"
+         label="Low">
+        </legend-icon>
+
       </div>
       <div v-if="!isBasicMode" style="text-align:left;width:150px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label" style="width:130px">Inheritance</div>
-          <svg id="autosomal-dominant" class="legend-element" width="150" height="16" transform="translate(0,0)">
-            <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
-              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#autosomal-dominant-symbol" width="16" height="16"></use>
-            </g>
-            <text class="name" style="fill-opacity: 1;" x="20" y="11">Autosomal dominant</text></svg>
-          </svg>
-          <svg id="denovo" class="legend-element" width="150" height="16" transform="translate(0,0)">
-            <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
-              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#denovo-symbol" width="16" height="16"></use>
-            </g>
-            <text class="name" style="fill-opacity: 1;" x="20" y="11">De novo</text></svg>
-          </svg>
-          <svg id="recessive" class="legend-element" width="150" height="16" transform="translate(0,0)">
-            <g class=" recessive" style="opacity: 1;" transform="translate(0,0)">
-              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#recessive-symbol" width="16" height="16"></use>
-            </g>
-            <text class="name" style="fill-opacity: 1;" x="20" y="11">Recessive</text></svg>
-          </svg>
-          <svg id="x-linked" class="legend-element" width="150" height="16" transform="translate(0,0)">
-            <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
-              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#x-linked-symbol" width="16" height="16"></use>
-            </g>
-            <text class="name" style="fill-opacity: 1;" x="20" y="11">X-linked</text></svg>
-          </svg>
-          <svg id="compound-het" class="legend-element" width="150" height="16" transform="translate(0,0)">
-            <g class="denovo" transform="translate(0,0)" style="opacity: 1;">
-              <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#compound-het-symbol" width="16" height="16"></use>
-            </g>
-            <text class="name" style="fill-opacity: 1;" x="20" y="11">Compound het</text></svg>
-          </svg>
-      </div>
+
+        <legend-icon
+         icon="autosomal dominant"
+         width="16"
+         height="16"
+         label="Autosomal dominant">
+        </legend-icon>
+        <legend-icon
+         icon="denovo"
+         width="16"
+         height="16"
+         label="De novo">
+        </legend-icon>
+        <legend-icon
+         icon="recessive"
+         width="16"
+         height="16"
+         label="Recessive">
+        </legend-icon>
+        <legend-icon
+         icon="x-linked"
+         width="16"
+         height="16"
+         label="X-linked">
+        </legend-icon>
+        <legend-icon
+         icon="compound-het"
+         width="16"
+         height="16"
+         label="Compound het">
+        </legend-icon>
+     </div>
 
 
 
-      <div style="width:140px;margin-right:10px;margin-bottom:15px">
+      <div class="clinvar-legend" style="width:140px;margin-right:10px;margin-bottom:15px">
           <div class="legend-label">Clinvar</div>
-            <svg id="clinvar_path" class="legend-element" width="110" height="14" transform="translate(0,0)">
-            <g class="clinvar_path" transform="translate(1,0)" style="opacity: 1;">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="fill: #ad494A;"></use>
-            </g>
-            <text class="name" style="fill-opacity: 1;" x="15" y="10">Pathogenic</text>
 
-            </svg>
+          <legend-icon
+          icon="clinvar"
+          width="12"
+          height="12"
+          level="high"
+          label="Pathogenic">
+          </legend-icon>
 
-            <svg id="clinvar_lpath" class="legend-element" width="140" height="14" transform="translate(0,0)">
-            <g class="clinvar_lpath" transform="translate(1,0)" style="opacity: 1;">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="fill: #FB7737;"></use>
-            </g>
-            <text class="name" style="fill-opacity: 1;" x="15" y="10">Likely Pathogenic</text>
-            </svg>
+          <legend-icon
+          icon="clinvar"
+          width="12"
+          height="12"
+          level="likely-high"
+          label="Likely pathogenic">
+          </legend-icon>
 
-            <svg id="clinvar_uc" class="legend-element" width="140" height="14" transform="translate(0,0)">
-              <g class="clinvar_uc" transform="translate(1,0)" style="opacity: 1;">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="fill:rgba(231, 186, 82, 1);"></use>
-              </g>
-              <text class="name" style="fill-opacity: 1;" x="15" y="10">Unknown significance </text>
-            </svg>
+          <legend-icon
+          icon="clinvar"
+          width="12"
+          height="12"
+          level="unknown-significance"
+          label="Unknown significance">
+          </legend-icon>
 
-            <svg id="clinvar_cd" class="legend-element" width="110" height="14" transform="translate(0,0)">
-              <g class="clinvar_cd" transform="translate(1,0)" style="opacity: 1;">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="fill: rgb(111, 182, 180);"></use>
-              </g>
-              <text class="name" style="fill-opacity: 1;" x="15" y="10">Conflicting data</text>
-            </svg>
+          <legend-icon
+          icon="clinvar"
+          width="12"
+          height="12"
+          level="conflicting"
+          label="Conflicting data">
+          </legend-icon>
 
+          <legend-icon
+          icon="clinvar"
+          width="12"
+          height="12"
+          level="other"
+          label="Other">
+          </legend-icon>
 
-            <svg id="clinvar_other" class="legend-element" width="73" height="14" transform="translate(0,0)">
-              <g class="clinvar_other" transform="translate(1,0)" style="opacity: 1;">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="fill: rgb(189, 189, 189);"></use>
-              </g>
-              <text class="name" style="fill-opacity: 1;" x="15" y="10">Other </text>
-            </svg>
+          <legend-icon
+          icon="clinvar"
+          width="12"
+          height="12"
+          level="low"
+          label="Benign">
+          </legend-icon>
 
-            <svg id="clinvar_benign" class="legend-element" width="73" height="14" transform="translate(0,0)">
-              <g class="clinvar_benign" transform="translate(1,0)" style="opacity: 1;">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="fill: rgba(156, 194, 49, 1);"></use>
-              </g>
-              <text class="name" style="fill-opacity: 1;" x="15" y="10">Benign</text>
-            </svg>
-
-            <svg id="clinvar_lbenign" class="legend-element" width="93" height="14" transform="translate(0,0)">
-              <g class="clinvar_lbenign" transform="translate(1,0)" style="opacity: 1;">
-                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#clinvar-symbol" width="11" height="11" style="fill: rgba(181, 207, 107, 1);"></use>
-              </g>
-              <text class="name" style="fill-opacity: 1;" x="15" y="10">Likely Benign</text>
-            </svg>
+          <legend-icon
+          icon="clinvar"
+          width="12"
+          height="12"
+          level="likely-low"
+          label="Likely benign">
+          </legend-icon>
       </div>
 
       <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
           <div class="legend-label">Variant type</div>
-          <svg id="snp" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-            <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">SNP</text>
-            <rect class="legend-symbol snp" rx="2" ry="1" x="1" width="10" y="1" height="10" style="opacity: 1; fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px;"></rect>
-          </svg>
 
-          <svg id="ins" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-            <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;"> Insertion</text>
-            <circle class="legend-symbol ins" cx="5" cy="5" r="5" style="fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px; opacity: 1;"></circle>
-          </svg>
+        <legend-icon
+         icon="impact"
+         type="snp"
+         level="none"
+         width="14"
+         height="14"
+         label="SNP">
+        </legend-icon>
 
-          <svg id="del" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-            <text class="name" x="15" y="10" style="fill-opacity: 1;font-size: 12px;">Deletion</text>
+        <legend-icon
+         icon="impact"
+         type="del"
+         level="none"
+         width="16"
+         height="16"
+         label="Deletion">
+        </legend-icon>
 
-            <polygon class="legend-symbol del  legend-element" points="0,10 5,0 10,10" rx="1" ry="1" x="1" y="2" style="fill: none; stroke: rgb(0, 0, 0); stroke-width: 1px; opacity: 1;">
-            </polygon>
-          </svg>
+        <legend-icon
+         icon="impact"
+         type="ins"
+         level="none"
+         width="16"
+         height="16"
+         label="Insertion">
+        </legend-icon>
 
-          <svg id="complex" class="  legend-element" width="80" height="14" transform="translate(0,0)">
-            <text class="name" x="15" y="11" style="fill-opacity: 1;font-size: 12px;">Complex</text>
-            <g transform="translate(7,6)">
-              <path d="M0,-6.771323825530848L5.79617697938849,0 0,6.771323825530848 -5.79617697938849,0Z" class="legend-symbol complex" style="opacity: 1;fill: none;stroke-width: 1.5px !important;"></path>
-            </g>
-          </svg>
+        <legend-icon
+         icon="impact"
+         type="complex"
+         level="none"
+         width="18"
+         height="18"
+         label="Complex">
+        </legend-icon>
+
       </div>
 
       <div v-if="!isBasicMode" style="width:70px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Allele Frequency</div>
-        <svg id="afexac_unique" class="legend-element" width="70" height="14" transform="translate(0,0)">
-          <text class="name" x="20" y="11" style="fill-opacity: 1;">&lt; 5%</text>
-          <g class=" afexac_unique">
-            <use xmlns:xlink="http://www.w4.org/1999/xlink" xlink:href="#af-symbol" width="12" height="12" style="fill: rgb(199, 0, 1);"></use>
-          </g>
-        </svg>
+        <legend-icon
+          icon="af"
+          width="12"
+          height="12"
+          level="high"
+          label="> 5%">
+        </legend-icon>
       </div>
 
       <div v-if="!isBasicMode" style="width:120px;margin-right:10px;">
-          <div class="legend-label">Called variant</div>
-           <v-icon class="called-variant">
-              check_circle
-           </v-icon>
-           <svg height="48" width="80" class="legend-element">
-             <text class="name" style="fill-opacity: 1;" x="0" y="11">Variant called</text>
-             <text class="name" style="fill-opacity: 1;" x="0" y="23">from </text>
-             <text class="name" style="fill-opacity: 1;" x="0" y="35">alignments</text>
-           </svg>
+        <div class="legend-label">Called variant</div>
+        <legend-icon
+          icon="called-variant"
+          label="Variants called from alignments"
+          wrapLabel="true">
+        </legend-icon>
       </div>
 
 
 
       <div v-if="!isBasicMode" style="width:80px;margin-right:0px;">
           <div class="legend-label">Coverage</div>
-          <svg height="48" width="80" class="gene-badge-coverage-problem legend-element" >
-            <g transform="translate(0,1)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#trending-down-symbol" width="13" height="13"  style="pointer-events: none;">
-              </use>
-            </g>
-            <text class="name" style="fill-opacity: 1;" x="17" y="11">Insufficient</text>
-            <text class="name" style="fill-opacity: 1;" x="17" y="23">coverage</text>
-            <text class="name" style="fill-opacity: 1;" x="17" y="35">in exons</text>
-          </svg>
+
+          <legend-icon
+            icon="coverage"
+            width="13"
+            height="13"
+            level="high"
+            wrapLabel="true"
+            label="Insufficient coverage in exons">
+          </legend-icon>
 
       </div>
 
@@ -291,57 +339,68 @@
 
       <div v-if="!isBasicMode" style="width:150px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">PolyPhen</div>
-        <svg id="polyphen_probably_damaging" class="legend-element " width="130" height="14" transform="translate(0,0)">
-          <g class="polyphen_probably_damaging" transform="translate(1,0)" style="opacity: 1;">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#biohazard-symbol" width="12" height="12" style="fill: #ad494A"></use>
-          </g>
-          <text class="name" style="fill-opacity: 1;" x="15" y="10">Probably damaging</text>
-        </svg>
 
-        <svg id="polyphen_possibly_damaging" class="legend-element " width="130" height="14" transform="translate(0,0)">
-          <g class="polyphen_possibly_damaging" transform="translate(1,0)" style="opacity: 1;">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#biohazard-symbol" width="12" height="12" style="fill: #FB7737"></use>
-          </g>
-          <text class="name" style="fill-opacity: 1;" x="17" y="10">Possibly damaging</text>
-        </svg>
+          <legend-icon
+            icon="polyphen"
+            width="12"
+            height="12"
+            level="high"
+            label="Probably damaging">
+          </legend-icon>
 
-        <svg id="polyphen_benign" class="legend-element " width="130" height="14" transform="translate(0,0)">
-          <g class="polyphen_benign" transform="translate(1,0)" style="opacity: 1;">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#biohazard-symbol" width="12" height="12" style="fill: rgba(181, 207, 107,1)"></use>
-          </g>
-          <text class="name" style="fill-opacity: 1;" x="15" y="10">Benign</text>
-        </svg>
+
+          <legend-icon
+            icon="polyphen"
+            width="12"
+            height="12"
+            level="likely-high"
+            label="Possibly damaging">
+          </legend-icon>
+
+          <legend-icon
+            icon="polyphen"
+            width="12"
+            height="12"
+            level="low"
+            label="Benign">
+          </legend-icon>
       </div>
 
-      <div v-if="!isBasicMode"  style="width:160px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode"  style="width:180px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">SIFT</div>
-        <svg id="sift_deleterious" class="legend-element " width="110" height="14" transform="translate(0,0)">
-          <g class="sift_deleterious" transform="translate(1,0)" style="opacity: 1;">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#danger-symbol" width="12" height="12" style="fill: #ad494A"></use>
-          </g>
-          <text class="name" style="fill-opacity: 1;" x="14" y="9">Deleterious</text>
-        </svg>
 
-        <svg id="sift_deleterious_low_confidence" class="legend-element " height="14" width="175"  transform="translate(0,0)">
-          <g class="sift_deleterious_low_confidence" transform="translate(1,0)" style="opacity: 1;">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#danger-symbol" width="12" height="12" style="fill: #FB7737"></use>
-          </g>
-          <text class="name" style="fill-opacity: 1;" x="15" y="9">Deleterious (low confidence)</text>
-        </svg>
 
-        <svg id="sift_tolerated" class="legend-element " width="67" height="14" transform="translate(0,0)">
-          <g class="sift_tolerated" transform="translate(1,0)" style="opacity: 1;">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#danger-symbol" width="12" height="12" style="fill: rgba(181, 207, 107,1)"></use>
-          </g>
-          <text class="name" style="fill-opacity: 1;" x="14" y="9">Tolerated</text>
-        </svg>
+          <legend-icon
+            icon="sift"
+            width="12"
+            height="12"
+            level="high"
+            label="Deleterious">
+          </legend-icon>
 
-        <svg id="sift_tolerated_low_confidence" class="legend-element " height="14" width="180" transform="translate(0,0)">
-          <g class="sift_tolerated_low_confidence" transform="translate(1,0)" style="opacity: 1;">
-            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#danger-symbol" width="12" height="12" style="fill: rgba(231,186,82,1)"></use>
-          </g>
-          <text class="name" style="fill-opacity: 1;" x="15" y="9">Tolerated (low confidence)</text>
-        </svg>
+          <legend-icon
+            icon="sift"
+            width="12"
+            height="12"
+            level="likely-high"
+            label="Deleterious (low confidence)">
+          </legend-icon>
+
+          <legend-icon
+            icon="sift"
+            width="12"
+            height="12"
+            level="low"
+            label="Tolerated">
+          </legend-icon>
+
+          <legend-icon
+            icon="sift"
+            width="12"
+            height="12"
+            level="medium"
+            label="Tolerated (low confidence)">
+          </legend-icon>
       </div>
 
 
@@ -354,9 +413,15 @@
 </template>
 
 <script>
+
+import LegendIcon from "../partials/LegendIcon.vue"
+import AppIcon from "../partials/AppIcon.vue"
+
 export default {
   name: 'legend-panel',
   components: {
+    AppIcon,
+    LegendIcon
   },
   props: {
     isBasicMode: null

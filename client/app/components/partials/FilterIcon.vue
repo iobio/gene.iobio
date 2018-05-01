@@ -11,7 +11,8 @@
 
     <app-icon
      v-if="icon == 'pathogenic'"
-     icon="clinvar_path"
+     icon="clinvar"
+     level="high"
      width="18"
      height="18">
     </app-icon>

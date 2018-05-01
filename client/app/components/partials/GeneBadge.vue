@@ -18,12 +18,8 @@
     padding-left: 4px
     padding-top: 0px
     float: left
+    padding-right: 2px
 
-  #gene-badge-phenotype-symbol
-    float: right
-    height: 14px
-    padding-top: 1px
-    display: none
 
   .gene-badge-loader
     width: 14px
@@ -194,14 +190,7 @@
         <span id="gene-badge-name" style="float:left;margin-left:2px;margin-right:2px">
           {{ gene.name }}
         </span>
-        <span id="gene-badge-phenotype-symbol" class="glyph" style="float:left;height:14px;">
-          <svg class="phenotype-badge" height="14" width="14">
-            <g class="phenotype" transform="translate(0,-1)">
-              <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#phenotype-symbol" width="13" height="13">
-              </use>
-            </g>
-          </svg>
-        </span>
+
 
 
 
@@ -210,7 +199,8 @@
 
           <app-icon
            v-if="gene && gene.dangerSummary && gene.dangerSummary.badges.pathogenic.length > 0"
-           icon="clinvar_path"
+           icon="clinvar"
+           level="high"
            id="gene-badge-clinvar"
            class=" level-edu glyph"
            width="13" height="14">
@@ -294,7 +284,7 @@
            v-if="hasCoverageProblem()"
            icon="coverage"
            class=" level-edu glyph"
-           width="10" height="10">
+           width="12" height="12">
           </app-icon>
 
       </span>

@@ -3,6 +3,11 @@
 
 #flagged-variants-card
 
+  #clinvar-symbol
+    display: inline-block
+    vertical-align: top
+    margin-top: 2px
+
   .toolbar
     width: calc(100% - 1px)
     padding-right: 20px
@@ -276,14 +281,15 @@
 
 
                     <app-icon
-                     :icon="clinvar(variant)"
+                     icon="clinvar"
                      v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
-                     class="clinvar-badge" height="12" width="12">
+                     :level="clinvar(variant) == 'clinvar_path' ? 'high' : 'likely-high'"
+                     class="clinvar-badge" height="13" width="13">
                     </app-icon>
 
                     <app-icon
                      :icon="variant.inheritance"
-                     v-if="variant.inheritance"
+                     v-if="variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
                      class="inheritance-badge" height="15" width="15">
                     </app-icon>
 
