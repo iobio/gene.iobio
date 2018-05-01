@@ -112,11 +112,17 @@ nav.toolbar
 
       <v-toolbar-items  class="hidden-sm-and-down">
 
-        <v-form id="gene-name-input" style="width:140px">
-          <v-text-field id="search-gene-name" label="Gene" prepend-icon="search">
+
+        <span id="gene-name-input" style="display:inline-block">
+          <v-text-field id="search-gene-name"  v-model="geneEntered" label="Gene" prepend-icon="search">
           </v-text-field>
-          <typeahead v-model="selectedGene"  force-select v-bind:limit="typeaheadLimit" match-start  target="#search-gene-name" :data="geneModel.allKnownGenes" item-key="gene_name"/>
-        </v-form>
+          <typeahead v-model="selectedGene"
+          force-select v-bind:limit="typeaheadLimit" match-start
+          target="#search-gene-name" :data="geneModel.allKnownGenes"
+          item-key="gene_name"/>
+        </span>
+
+
 
 
         <genes-menu
@@ -231,7 +237,6 @@ nav.toolbar
     </v-toolbar>
     <v-navigation-drawer
       fixed
-
       v-model="leftDrawer"
       app
       width=330
@@ -440,6 +445,7 @@ export default {
       title: 'gene.iobio',
 
       selectedGene: {},
+      geneEntered: null,
       clipped: false,
       leftDrawer: false,
       rightDrawer: false,
@@ -456,6 +462,7 @@ export default {
   watch: {
     selectedGene: function(a, b) {
       if (this.selectedGene) {
+        this.geneEntered = this.selectedGene.gene_name;
         this.$emit("input", this.selectedGene.gene_name);
       }
     },
