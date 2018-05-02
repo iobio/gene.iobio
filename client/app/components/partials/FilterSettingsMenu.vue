@@ -166,8 +166,8 @@ export default {
         self.$refs[refName].forEach(function(component) {
           component.apply();
         })
-        self.$emit('filter-applied', filter);
       })
+      self.$emit('filter-settings-applied');
       this.$emit('filter-settings-closed');
       this.showMenu = false;
     },

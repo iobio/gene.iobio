@@ -156,7 +156,7 @@
        class="ml-2"
        :filterModel="filterModel"
        :showCoverageCutoffs="showCoverageCutoffs"
-       @filter-applied="onFilterApplied"
+       @filter-settings-applied="onFilterSettingsApplied"
        @filter-settings-closed="$emit('filter-settings-closed')"
        v-tooltip.top-center="`Customize filters`">
       </filter-settings-menu>
@@ -238,7 +238,7 @@ export default {
         self.activeFilter = null;
       }
     },
-    onFilterApplied: function(filter) {
+    onFilterSettingsApplied: function() {
       let self = this;
 
       self.customFilters = [];
@@ -248,7 +248,7 @@ export default {
         }
       }
 
-      this.$emit('filter-applied', filter.name);
+      this.$emit('filter-settings-applied');
     }
   }
 }

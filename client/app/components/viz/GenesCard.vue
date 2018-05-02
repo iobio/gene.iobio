@@ -191,7 +191,7 @@
              :badgeCounts="badgeCounts"
              :filterModel="filterModel"
              :showCoverageCutoffs="showCoverageCutoffs"
-             @filter-applied="onFilterApplied"
+             @filter-settings-applied="onFilterSettingsApplied"
              @badge-click="onBadgeClick"
              @filter-settings-closed="onFilterSettingsClosed">
             </filter-badges>
@@ -399,8 +399,8 @@ export default {
       }
       self.updateGeneSummaries();
     },
-    onFilterApplied: function(badge) {
-      this.$emit("filter-applied", badge);
+    onFilterSettingsApplied: function() {
+      this.$emit("filter-settings-applied");
     },
     determineFlaggedGenes: function(badge) {
       let self = this;

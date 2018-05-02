@@ -1704,14 +1704,25 @@ class SampleModel {
           if (passes.all && variant.inheritance == 'none' && variant.zygosity && variant.zygosity.toUpperCase() != 'HOMREF') {
             // Create a bag of candidate variants inherited from mother and another one for variants
             // inherited by father
+            var fromMother = false;
             if (variant.motherZygosity && (variant.motherZygosity.toLowerCase() == 'het' || variant.motherZygosity.toLowerCase() == 'hom')) {
-              candidateVariants.mother.push(variant);
+              fromMother = true;
             }
+            var fromFather = false;
             if (variant.fatherZygosity && (variant.fatherZygosity.toLowerCase() == 'het' || variant.fatherZygosity.toLowerCase() == 'hom')) {
+              fromFather = true;
+            }
+            if (fromMother && fromFather) {
+              // ignore variants that are inherited from both mom and dad
+            } else if (fromMother) {
+              candidateVariants.mother.push(variant);
+            } else if (fromFather) {
               candidateVariants.father.push(variant);
             }
           }
         })
+
+
 
         // Associate all possible compoundHet variants with a variant
         for (var key in candidateVariants) {

@@ -114,7 +114,7 @@
          @sort-genes="onSortGenes"
          @add-flagged-variants="onAddFlaggedVariants"
          @register-flagged-variants="onRegisterFlaggedVariants"
-         @filter-applied="onFilterApplied"
+         @filter-settings-applied="onFilterSettingsApplied"
          @filter-settings-closed="showCoverageCutoffs = false"
          @apply-genes="onApplyGenes"
          @stop-analysis="onStopAnalysis"
@@ -1360,7 +1360,7 @@ export default {
         self.onKnownVariantsVizChange();
       }
     },
-    onFilterApplied: function(badge) {
+    onFilterSettingsApplied: function() {
       let self = this;
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
         if (self.$refs.genesCardRef) {
