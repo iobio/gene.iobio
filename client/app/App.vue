@@ -60,6 +60,13 @@ button
   outline-style: solid
   outline-offset: -3px
 
+.dropdown-menu > .active > a, .dropdown-menu > .active > a:hover, .dropdown-menu > .active > a:focus
+  background-color: $active-menu-background-color
+  color: $app-color
+
+.dropdown-menu > li > a:hover, .dropdown-menu > li >a:focus
+  background-color:  $hover-menu-background-color !important
+
 </style>
 
 <template>
