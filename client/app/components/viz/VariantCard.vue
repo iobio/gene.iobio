@@ -492,7 +492,7 @@ export default {
         this.showVariantCircle(variant);
         this.showVariantTooltip(variant, false);
       }
-      this.$emit('cohort-varian-hover', variant, this);
+      this.$emit('cohort-variant-hover', variant, this);
     },
     onVariantHoverEnd: function(lock) {
       if (this.showDepthViz) {

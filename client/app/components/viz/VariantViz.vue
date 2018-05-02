@@ -40,7 +40,7 @@
   fill: none
   pointer-events: none
 
-.ibo-variant .circle.pinned, .ibo-variant .arrow-line.pinned
+.ibo-variant .circle.pinned, .ibo-variant .arrow.pinned .arrow-line
   stroke: $arrow-color
   fill: none
   stroke-width: 4
@@ -224,10 +224,14 @@ export default {
         self.$emit("variantHoverEnd", variant);
       },
       showVariantCircle: function(variant, container, pinned) {
-        this.variantChart.showCircle()(variant,
-          container,
-          variant.fbCalled && variant.fbCalled == 'Y' ? false : true,
-          pinned);
+        if (variant == null) {
+          this.hideVariantCircle(container, pinned);
+        } else {
+          this.variantChart.showCircle()(variant,
+            container,
+            variant.fbCalled && variant.fbCalled == 'Y' ? false : true,
+            pinned);
+        }
       },
       hideVariantCircle: function(container, pinned) {
         this.variantChart.hideCircle()(container, pinned);

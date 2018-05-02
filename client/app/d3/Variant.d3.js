@@ -132,7 +132,7 @@ export default function variantD3() {
     svgContainer.select(circleClazz).transition()
                 .duration(500)
                 .style("opacity", 0);
-    svgContainer.select("g.arrow").selectAll(arrowClazz).transition()
+    svgContainer.select(arrowClazz).selectAll(".arrow").transition()
                 .duration(500)
                 .style("opacity", 0);
     /*
