@@ -1123,6 +1123,7 @@ class CohortModel {
       .then(function(data) {
 
         var geneCoverageAll = data.geneCoverage;
+        var theOptions = null;
 
         self.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
         .then(function(dangerSummary) {
@@ -1137,13 +1138,20 @@ class CohortModel {
               } else if (probandVcfData.features) {
                 filteredVcfData = probandVcfData;
               }
-              var theOptions = $.extend({}, options);
+
+
+              theOptions = $.extend({}, options);
               if ((dangerSummary && dangerSummary.CALLED) || (filteredFbData && filteredFbData.features.length > 0)) {
                   theOptions.CALLED = true;
               }
             }
 
-            return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, filteredVcfData, theOptions, geneCoverageAll, self.filterModel);
+            return self.getProbandModel().promiseDetermineCompoundHets(filteredVcfData, geneObject, theTranscript);
+
+
+        })
+        .then(function(theVcfData) {
+            return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel);
         })
         .then(function(theDangerSummary) {
           self.geneModel.setDangerSummary(geneObject, theDangerSummary);
