@@ -25,11 +25,11 @@
 
 <template>
   <div style="text-align:center">
-      <v-btn flat outline small class="scroll-button" v-if="showScrollDown" @click="scroll('down')">
+      <v-btn flat  small class="scroll-button" v-if="showScrollDown" @click="scroll('down')">
         <v-icon>arrow_downward</v-icon>
         read more
       </v-btn>
-      <v-btn flat outline small class="scroll-button" v-if="showScrollUp" @click="scroll('up')">
+      <v-btn flat  small class="scroll-button" v-if="showScrollUp" @click="scroll('up')">
         <v-icon>arrow_upward</v-icon>
         top
       </v-btn>
