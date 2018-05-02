@@ -43,6 +43,22 @@ button
       .progress-linear__bar__indeterminate
         background-color: $amber-lighten-2 !important
 
+.snack
+  top: 0px
+
+.snack__wrapper
+  background-color: rgba(50,50,50,.75) !important
+
+.snack__content
+  padding-right: 2px
+
+
+.attention
+  display: inline-block
+  outline-color: $amber-darken-1
+  outline-width: 3px
+  outline-style: solid
+  outline-offset: -3px
 
 </style>
 

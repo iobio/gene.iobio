@@ -113,7 +113,7 @@ nav.toolbar
       <v-toolbar-items  class="hidden-sm-and-down">
 
 
-        <span id="gene-name-input" style="display:inline-block">
+        <span id="gene-name-input" :class="clazzAttention" style="display:inline-block">
           <v-text-field id="search-gene-name"  v-model="geneEntered" label="Gene" prepend-icon="search">
           </v-text-field>
           <typeahead v-model="selectedGene"
@@ -143,7 +143,9 @@ nav.toolbar
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
          :defaultTopGenes="isBasicMode ? '10' : '30'"
          :geneModel="geneModel"
-         @on-search-genes="onSearchPhenolyzerGenes">
+         @on-search-genes="onSearchPhenolyzerGenes"
+         @show-snackbar="onShowSnackbar"
+         @hide-snackbar="onHideSnackbar">
         </phenotype-search>
 
 
@@ -437,7 +439,8 @@ export default {
     geneModel: null,
     cohortModel: null,
     flaggedVariants: null,
-    launchedFromClin: null
+    launchedFromClin: null,
+    bringAttention: null
   },
   data () {
     let self = this;
@@ -532,6 +535,12 @@ export default {
     },
     onSendFlaggedVariantsToClin: function(flaggedVariants) {
       this.$emit('send-flagged-variants-to-clin', flaggedVariants)
+    },
+    onShowSnackbar: function(snackbar) {
+      this.$emit('show-snackbar', snackbar)
+    },
+    onHideSnackbar: function() {
+      this.$emit('hide-snackbar')
     }
   },
   created: function() {
@@ -539,6 +548,15 @@ export default {
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
 
+  },
+  computed:  {
+    clazzAttention: function() {
+      if (this.bringAttention && this.bringAttention == 'gene' && this.selectedGene && Object.keys(this.selectedGene).length == 0) {
+        return 'attention';
+      } else {
+        return '';
+      }
+    }
   }
 }
 

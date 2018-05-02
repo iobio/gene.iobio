@@ -24,6 +24,7 @@
   .expansion-panel__header
     padding-left: 10px
 
+
 </style>
 
 <template>
@@ -90,7 +91,10 @@ export default {
       allPhenotypeTerms: [],
       phenolyzerStatus: null,
       loadingStatus: false,
-      typeaheadLimit: parseInt(100)
+      typeaheadLimit: parseInt(100),
+
+      creditsMessage: "Running Phenolyzer...  <a target='_phenolyzer' style='padding-left:10px;color:white;font-style:italic;color:white' href='http://phenolyzer.wglab.org/'>learn more</a>"
+
 
     }
   },
@@ -110,6 +114,9 @@ export default {
   methods: {
     onSearch: function() {
       let self = this;
+
+      self.$emit('show-snackbar', { message: self.creditsMessage, timeout: 10000 });
+
       setTimeout(function () {
         self.phenolyzerStatus = null;
         self.genesToApply = "";
@@ -132,8 +139,7 @@ export default {
                 self.phenolyzerStatus = "no genes found."
                 self.genesToApply = "";
                 if (self.isNav) {
-                  alertify.set('notifier','position', 'top-left');
-                  alertify.warning("No genes found.");
+                  self.$emit('show-snackbar', { message: "No genes found", timeout: 4000 });
                 }
               } else {
                 var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
@@ -149,6 +155,7 @@ export default {
                 .join(", ");
                 self.phenolyzerStatus = geneCount + " genes shown."
                 self.$emit("on-search-genes", searchTerm);
+                self.$emit('hide-snackbar');
               }
             } else {
               self.phenolyzerStatus = status;

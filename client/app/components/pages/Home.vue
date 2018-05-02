@@ -60,6 +60,7 @@
       :geneModel="geneModel"
       :flaggedVariants="flaggedVariants"
       :launchedFromClin="launchedFromClin"
+      :bringAttention="bringAttention"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -71,6 +72,8 @@
       @on-left-drawer="onLeftDrawer"
       @on-show-welcome="onShowWelcome"
       @send-flagged-variants-to-clin="onSendFlaggedVariantsToClin"
+      @show-snackbar="onShowSnackbar"
+      @hide-snackbar="onHideSnackbar"
     >
     </navigation>
 
@@ -266,6 +269,21 @@
         >
         </variant-card>
 
+
+
+        <v-snackbar
+          :timeout="snackbar.timeout"
+          absolute
+          auto-height
+          v-model="showSnackbar"
+
+         >
+          <span v-html="snackbar.message"></span>
+          <v-btn flat color="white"  @click.native="showSnackbar = false">
+            <v-icon color="white">close</v-icon>
+          </v-btn>
+        </v-snackbar>
+
       </v-container>
     </v-content>
 
@@ -414,6 +432,10 @@ export default {
       activeGeneVariantTab: null,
       isLeftDrawerOpen: null,
       showWelcome: false,
+
+      showSnackbar: false,
+      snackbar: {message: '', timeout: 0},
+      bringAttention: null,
 
 
       /*
@@ -740,8 +762,8 @@ export default {
         } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           self.onGeneSelected(self.geneModel.sortedGeneNames[0]);
         } else {
-          alertify.set('notifier', 'position', 'top-right');
-          alertify.warning("Please enter a gene name");
+          self.onShowSnackbar( {message: 'Enter a gene name', timeout: 5000});
+          self.bringAttention = 'gene';
         }
       })
     },
@@ -1341,8 +1363,10 @@ export default {
     onFilterApplied: function(badge) {
       let self = this;
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
-        self.$refs.genesCardRef.determineFlaggedGenes();
-        self.$refs.genesCardRef.updateGeneBadgeCounts();
+        if (self.$refs.genesCardRef) {
+          self.$refs.genesCardRef.determineFlaggedGenes();
+          self.$refs.genesCardRef.updateGeneBadgeCounts();
+        }
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
           self.$refs.navRef.onShowFlaggedVariants();
         }
@@ -1432,6 +1456,21 @@ export default {
       this.cohortModel.stopAnalysis();
       this.cacheHelper.stopAnalysis();
     },
+    onShowSnackbar: function(snackbar) {
+      if (snackbar && snackbar.message) {
+        this.showSnackbar = true;
+
+        this.snackbar = snackbar;
+
+        if (this.snackbar.timeout == null) {
+          this.snackbar.timeout = 6000;
+        }
+      }
+    },
+    onHideSnackbar: function() {
+      this.showSnackbar = false;
+    },
+
     receiveClinMessage: function(event)
     {
       let self = this;
