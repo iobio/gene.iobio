@@ -1343,7 +1343,7 @@ export default {
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
         self.$refs.genesCardRef.determineFlaggedGenes();
         self.$refs.genesCardRef.updateGeneBadgeCounts();
-        if (!self.isEduMode) {
+        if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
           self.$refs.navRef.onShowFlaggedVariants();
         }
       })
