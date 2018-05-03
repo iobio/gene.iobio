@@ -31,6 +31,7 @@
 
 
 
+
 </style>
 
 <template>
@@ -175,6 +176,7 @@
           </g>
         </g>
       </svg>
+
 
 
       <svg v-if="icon == 'clinvar'" id="clinvar-symbol"

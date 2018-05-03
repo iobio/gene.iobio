@@ -76,10 +76,12 @@ export default class Glyph {
       clinvar_cd: "rgb(111, 182, 180)"
     };
 
+
+
     selection.append("g")
              .attr("transform", attrs.transform)
              .append("use")
-             .attr("xlink:href", "#clinvar-symbol")
+             .attr("xlink:href", "#clinvar-glyph")
              .attr("width", attrs.width)
              .attr("height", attrs.height)
              .style("pointer-events", "none")
