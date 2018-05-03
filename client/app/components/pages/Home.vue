@@ -1,4 +1,4 @@
-/*
+∂/*
  * Home.vue
  *
  */
@@ -888,6 +888,9 @@ export default {
           return self.geneModel.promiseGetGeneObject(geneName)
         })
         .then(function(theGeneObject) {
+          if (self.bringAttention == 'gene') {
+            self.bringAttention = null;
+          }
           self.geneModel.adjustGeneRegion(theGeneObject);
           self.geneRegionStart = theGeneObject.start;
           self.geneRegionEnd   = theGeneObject.end;
