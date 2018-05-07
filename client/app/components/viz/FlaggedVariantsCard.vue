@@ -12,6 +12,9 @@
     width: calc(100% - 1px)
     padding-right: 20px
 
+    &.clin
+      background-color: $app-color-clin
+
     #close-button
       padding-right: 0px
       position: absolute
@@ -221,7 +224,7 @@
 
 <template>
   <div id="flagged-variants-card">
-    <v-toolbar color="light-blue" dark >
+    <v-toolbar color="light-blue" dark :class="launchedFromClin ? 'clin' : '' ">
       <v-toolbar-title >
         Variants
       </v-toolbar-title>

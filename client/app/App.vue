@@ -29,19 +29,19 @@ button
     height: 20px
 
 .progress-linear__background.primary
-  background-color: $amber-lighten-4 !important
+  background-color: $lime-darken-1 !important
 .progress-linear__bar__indeterminate--active
   .progress-linear__bar__indeterminate
-    background-color: $amber-lighten-3 !important
+    background-color: $lime-lighten-1 !important
 
 
 .toolbar
   .input-group__details
     .progress-linear__background
-      background-color: $amber-lighten-3 !important
+      background-color: $lime-darken-1 !important
     .progress-linear__bar__indeterminate--active
       .progress-linear__bar__indeterminate
-        background-color: $amber-lighten-2 !important
+        background-color: $lime !important
 
 .snack
   top: 0px

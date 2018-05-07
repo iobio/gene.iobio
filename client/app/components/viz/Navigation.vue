@@ -6,6 +6,9 @@ nav.toolbar
   background-color: $app-color !important
   font-weight: 300 !important
 
+  &.clin
+    background-color: $app-color-clin !important
+
   .toolbar__side-icon.btn.btn--icon
     max-width: 40px
     min-width: 40px
@@ -39,6 +42,9 @@ nav.toolbar
       color: white !important
     .input-group__selections__comma
       color: white !important
+
+  #gene-name-input
+    width: 130px
 
   #search-phenotype-button
     background-color: #ffffff1f
@@ -99,7 +105,7 @@ nav.toolbar
 
 <template>
   <div>
-    <v-toolbar fixed app  dark prominent >
+    <v-toolbar fixed app  dark prominent :class="launchedFromClin ? 'clin' : '' " >
 
       <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
@@ -127,7 +133,7 @@ nav.toolbar
 
         <genes-menu
          v-if="!isEduMode && !isBasicMode"
-         :buttonIcon="`expand_more`"
+         :buttonIcon="`add`"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
@@ -137,8 +143,8 @@ nav.toolbar
 
 
         <phenotype-search
-         v-if="!isEduMode"
-         class="ml-2 mt-1"
+         v-if="!isEduMode && !launchedFromClin"
+         class="ml-4 mt-1"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
          :defaultTopGenes="isBasicMode ? '10' : '30'"
@@ -166,7 +172,7 @@ nav.toolbar
 
 
       <files-menu
-       v-if="!isEduMode && !isBasicMode"
+       v-if="!isEduMode && !isBasicMode && !launchedFromClin"
        :cohortModel="cohortModel"
        @on-files-loaded="onFilesLoaded"
        @load-demo-data="onLoadDemoData"
@@ -241,6 +247,7 @@ nav.toolbar
       fixed
       v-model="leftDrawer"
       app
+      :stateless="true"
       width=330
     >
       <div>

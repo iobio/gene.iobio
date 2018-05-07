@@ -215,7 +215,7 @@
 
 
         <welcome
-         v-if="showWelcome && !isEduMode && !forMyGene2"
+         v-if="showWelcome && !isEduMode && !forMyGene2 && !launchedFromClin"
          @load-demo-data="onLoadDemoData"
          @take-app-tour="onTakeAppTour"
          >
@@ -1487,7 +1487,7 @@ export default {
       var clinObject = JSON.parse(event.data);
 
       if (clinObject.type == 'apply-genes') {
-        this.onApplyGenes(clinObject.genes, clinObject.searchTerms.join(","));
+        this.onApplyGenes(clinObject.genes.join(" "), clinObject.searchTerms.join(","));
       } else if (clinObject.type == 'set-data') {
         self.launchedFromClin = true;
         self.cohortModel.promiseInit(clinObject.modelInfos)
