@@ -204,6 +204,7 @@ export default {
           self.depthChart.maxDepth(self.maxDepth);
           self.depthChart.xStart(self.regionStart);
           self.depthChart.xEnd(self.regionEnd);
+          self.depthChart.width(self.width);
           self.depthChart.height(self.height);
           var selection = d3.select(self.$el).datum( self.data );
           self.depthChart(selection);
