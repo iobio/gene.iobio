@@ -290,7 +290,7 @@ export default class VariantTooltip {
 
       } else if (variant.clinvarSubmissions != null && variant.clinvarSubmissions.length > 0) {
         clinvarSimpleRow1 = me._tooltipSimpleClinvarSigRow('ClinVar', info.clinvarSigSummary );
-        clinvarSimpleRow2 = me._tooltipHeaderRow(info.phenotypeSimple, '', '', '', '', null, 'style=padding-top:0px');
+        clinvarSimpleRow2 = me._tooltipHeaderRow(info.phenotypeSimple != '' ? info.phenotypeSimple : info.phenotype, '', '', '', '', null, 'style=padding-top:0px');
       }
     }
 
@@ -349,7 +349,7 @@ export default class VariantTooltip {
         + siftPolyphenRow
         + afRow
         + (relationship == 'known-variants' ? me._tooltipRow('&nbsp;', info.clinvarLinkKnownVariants, '6px')  : clinvarSimpleRow1)
-        + (relationship == 'known-variants' ? clinvarSimpleRow2 : '')
+        + clinvarSimpleRow2
         + me._linksRow(variant, pinMessage)
       );
 
