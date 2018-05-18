@@ -23,6 +23,7 @@
       display: inline-block
       margin-left: 0px
       min-width: 22px
+      margin-top: 0px
 
       i.material-icons
         font-size: 22px
@@ -245,8 +246,8 @@
         <v-icon>save</v-icon>
         Save
       </v-btn>
-      <v-btn id="close-button" flat @click="$emit('close-left-drawer')">
-        <v-icon style="color: white">close</v-icon>
+      <v-btn id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
+        <v-icon >close</v-icon>
       </v-btn>
     </div>
 
