@@ -1501,7 +1501,7 @@ export default {
         self.cohortModel.promiseInit(clinObject.modelInfos)
         .then(function() {
           self.models = self.cohortModel.sampleModels;
-          this.onApplyGenes(clinObject.genes.join(" "), clinObject.phenotypes.join(","));
+          self.onApplyGenes(clinObject.genes.join(" "), clinObject.phenotypes.join(","));
 
         })
       }
