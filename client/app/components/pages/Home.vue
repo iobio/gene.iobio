@@ -461,7 +461,8 @@ export default {
 
       showCoverageCutoffs: false,
 
-      clinIobioUrl: "http://localhost:4030"
+      clinIobioUrls: ["http://localhost:4030", "http://clin.iobio.io"],
+      clinIobioUrl: null
     }
   },
 
@@ -1480,9 +1481,10 @@ export default {
     {
       let self = this;
       // Do we trust the sender of this message?
-      if (event.origin !== this.clinIobioUrl) {
+      if (this.clinIobioUrls.indexOf(event.origin) == -1) {
         return;
       }
+      this.clinIobioUrl = event.origin;
 
       var clinObject = JSON.parse(event.data);
 
