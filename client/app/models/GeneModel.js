@@ -145,7 +145,7 @@ class GeneModel {
           // Make sure this isn't a duplicate.  If we are not replacing the current genes,
           // make sure to check for dups in the existing gene list as well.
           if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
-              && (replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) > 0)) {
+              && (replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
             genesToAdd.push(geneName.trim().toUpperCase());
           } else {
             duplicateGeneNames[geneName.trim().toUpperCase()] = true;
