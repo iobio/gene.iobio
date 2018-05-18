@@ -243,6 +243,25 @@ class CohortModel {
       self.isLoaded = false;
       self.inProgress.loadingDataSources = true;
 
+      // sort models by proband, mother, father, sibling
+      modelInfos = modelInfos.sort(function(a,b) {
+        let getOrder = function(modelInfo) {
+          let order = null;
+          if (modelInfo.relationship == 'proband') {
+            order = 0;
+          } else if (modelInfo.relationship == 'mother') {
+            order = 1;
+          } else if (modelInfo.relationship == 'father') {
+            order = 2;
+          } else {
+            order = 3;
+          }
+          return order;
+        }
+
+        return getOrder(a) - getOrder(b);
+      })
+
       self.sampleModels = [];
       self.flaggedVariants = [];
       self.genesInProgress = [];
