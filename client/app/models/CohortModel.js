@@ -261,6 +261,10 @@ class CohortModel {
 
         return getOrder(a) - getOrder(b);
       })
+      .filter(function(modelInfo) {
+        // We exclude siblings here; use a separate method to set siblinigs
+        return modelInfo.relationship != 'sibling';
+      })
 
       self.sampleModels = [];
       self.flaggedVariants = [];
