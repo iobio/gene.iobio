@@ -172,7 +172,7 @@ nav.toolbar
 
 
       <files-menu
-       v-if="!isEduMode && !isBasicMode && !launchedFromClin"
+       v-if="!isEduMode && !isBasicMode"
        :cohortModel="cohortModel"
        @on-files-loaded="onFilesLoaded"
        @load-demo-data="onLoadDemoData"
