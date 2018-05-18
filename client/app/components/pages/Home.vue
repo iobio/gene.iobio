@@ -1160,9 +1160,7 @@ export default {
 
       self.clearFilter();
 
-      if (searchTermsString) {
-        self.phenotypeTerm = searchTermsString;
-      }
+      self.phenotypeTerm = searchTermsString;
       var replace = false;
       var message = null;
 
