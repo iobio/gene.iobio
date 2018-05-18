@@ -8,9 +8,10 @@
     vertical-align: top
     margin-top: 2px
 
-  .toolbar
+  .variant-toolbar
     width: calc(100% - 1px)
     padding-right: 20px
+    background-color: white
 
     &.clin
       background-color: $app-color-clin
@@ -28,19 +29,21 @@
 
     .toolbar__title
       font-family: inherit
-      font-size: 14px
+      font-size: 15px
       min-width: initial
       padding-right: 30px
-      PADDING-top: 3px
-      font-weight: 600
+      padding-top: 10px
+      display: inline-block
+      color:  $app-color
 
     .toolbar-button
-      background-color: #ffffff1f
       min-width: 70px
-      color: white
+      color: $text-color
       margin-right: 5px
       margin-left: 0px
       font-size: 13px
+      height: 30px
+      margin-top: -7px
 
       .btn__content
         padding: 0px
@@ -224,7 +227,8 @@
 
 <template>
   <div id="flagged-variants-card">
-    <v-toolbar color="light-blue" dark :class="launchedFromClin ? 'clin' : '' ">
+
+    <div class="variant-toolbar">
       <v-toolbar-title >
         Variants
       </v-toolbar-title>
@@ -244,7 +248,8 @@
       <v-btn id="close-button" flat @click="$emit('close-left-drawer')">
         <v-icon style="color: white">close</v-icon>
       </v-btn>
-    </v-toolbar>
+    </div>
+
 
 
     <template v-for="geneList in geneLists">
@@ -253,7 +258,7 @@
       v-if="geneList.show"
       :style="geneList.style"
       >
-        <span>{{ geneList.label }}</span>
+        <span v-show="geneList.genes.length > 0">{{ geneList.label }}</span>
       </v-subheader>
       <v-list three-line>
         <template

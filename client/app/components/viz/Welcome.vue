@@ -156,8 +156,7 @@
         font-size: 20px
         color: $text-color
         position: relative
-        top: 105px
-        z-index: 1
+        top: 55px
         cursor: default
 
 
@@ -191,7 +190,6 @@
             top: 40px
             left: 80px
             cursor: pointer
-            z-index: 200
 
 
         #welcome-screencast-panel-intro
@@ -287,12 +285,12 @@
         </div>
         <div id="welcome-panel-content">
 
-          <div id="video-thumbprint-panel">
-            <div id="video-thumbprint-heading-large">Introducing<br>gene.iobio</div>
+          <div id="video-thumbprint-panel" style="margin-top:55px">
             <div id="video-thumbprint-content">
 
               <v-card  class="video-thumbprint-well-large shadow-z-2">
                 <div id="welcome-screencast-panel-intro" class="video-thumbprint-large" >
+                  <span id="video-thumbprint-heading-large">Introducing<br>gene.iobio</span>
                   <i class="material-icons" id="play-button" @click="playVideo('screencast-intro')">
                     play_arrow
                   </i>

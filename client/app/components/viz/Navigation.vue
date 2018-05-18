@@ -2,6 +2,9 @@
 
 @import ../../../assets/sass/variables
 
+aside.navigation-drawer
+  margin-top: 65px !important
+
 nav.toolbar
   background-color: $app-color !important
   font-weight: 300 !important
@@ -105,7 +108,7 @@ nav.toolbar
 
 <template>
   <div>
-    <v-toolbar fixed app  dark prominent :class="launchedFromClin ? 'clin' : '' " >
+    <v-toolbar fixed app clipped-left="false" dark flat :class="launchedFromClin ? 'clin' : '' " >
 
       <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
@@ -244,9 +247,10 @@ nav.toolbar
       </v-menu>
     </v-toolbar>
     <v-navigation-drawer
+      clipped
       fixed
-      v-model="leftDrawer"
       app
+      v-model="leftDrawer"
       :stateless="true"
       width=330
     >
