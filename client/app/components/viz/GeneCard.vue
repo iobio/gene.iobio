@@ -34,6 +34,12 @@
   max-height: 215px
   margin-bottom: 0px
 
+  &.full
+    max-height: initial
+
+    #gene-summary-box
+      max-height: initial
+
   #gene-summary-box
     min-height: 145px
     max-height: 145px
@@ -146,7 +152,7 @@
 
 <template>
 
-  <div tile id="gene-track" class="app-card">
+  <div tile id="gene-track" :class="{'app-card': true, 'full': showGeneViz}">
 
     <div primary-title style="width:100%">
       <span style="display:inline-block" v-if="showTitle ">Gene</span>

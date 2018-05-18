@@ -4,9 +4,10 @@
 
 aside.navigation-drawer
   margin-top: 65px !important
+  z-index: 0
 
 nav.toolbar
-  background-color: $app-color !important
+  background-color: $nav-color !important
   font-weight: 300 !important
 
   &.clin
@@ -108,7 +109,7 @@ nav.toolbar
 
 <template>
   <div>
-    <v-toolbar fixed app clipped-left="false" dark flat :class="launchedFromClin ? 'clin' : '' " >
+    <v-toolbar fixed    dark  :class="launchedFromClin ? 'clin' : '' " >
 
       <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>

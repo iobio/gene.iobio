@@ -34,7 +34,7 @@
       padding-right: 30px
       padding-top: 10px
       display: inline-block
-      color:  $app-color
+      color:  $text-color
 
     .toolbar-button
       min-width: 70px

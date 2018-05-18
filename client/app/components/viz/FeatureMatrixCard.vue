@@ -6,6 +6,7 @@
 @import ../../../assets/sass/variables
 
 #matrix-card
+  margin-bottom: 0px !important
 
   #show-legend
       margin-left: 40px

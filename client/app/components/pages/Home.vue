@@ -6,6 +6,9 @@
 
 @import ../../../assets/sass/variables
 
+main.content
+  margin-top: 64px
+
 .app-card
   margin-bottom: 10px
 
@@ -34,6 +37,10 @@
 .gene-badge-coverage-problem
   color: $coverage-problem-color
   fill: $coverage-problem-color
+
+.split-pane-item
+  height: initial !important
+  display: flex !important
 
 </style>
 
@@ -123,11 +130,11 @@
 
 
         <div
-          v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:251px;margin-top:10px;margin-bottom:10px"
+          v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:auto;margin-top:10px;margin-bottom:10px"
           v-bind:class="{hide : showWelcome }"
           >
          <split-pane :leftPercent="(!isBasicMode && cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (isEduMode ? 50 : (this.isLeftDrawerOpen ?  30 : 30)) : 0)">
-            <feature-matrix-card slot="left" style="min-width:310px;min-height:251px;max-height:251px;overflow-y:scroll"
+            <feature-matrix-card slot="left" style="min-width:310px;min-height:auto;max-height:auto;overflow-y:scroll"
             ref="featureMatrixCardRef"
             v-bind:class="{ hide: isBasicMode || !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
             :isEduMode="isEduMode"
@@ -146,7 +153,7 @@
             >
             </feature-matrix-card>
 
-            <v-card slot="right" style="min-height:251px;max-height:251px;margin-bottom:0px;padding-top:0px;margin-top:0px;overflow-y:scroll">
+            <v-card slot="right" style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;overflow-y:scroll">
 
               <v-tabs
                 v-if="geneModel && Object.keys(selectedGene).length > 0"
