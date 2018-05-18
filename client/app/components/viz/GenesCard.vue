@@ -199,7 +199,7 @@
             <div id="analyze-genes-progress"
             class="level-edu level-basic">
               <span v-if="geneNames.length > 0" id="total-genes-label">{{ geneNames.length }} genes</span>
-              <div v-if="isLoaded && (!isLeftDrawerOpen || analyzeAllInProgress || callAllInProgress)" id="analyzed-progress-bar" >
+              <div v-if="isLoaded &&  (analyzeAllInProgress || callAllInProgress)" id="analyzed-progress-bar" >
                 <div>
                   <span class="progress-bar-label">Loaded</span>
                   <v-progress-linear  class="loaded-progress"   style="height:18px;width:150px" v-model="loadedPercentage">
