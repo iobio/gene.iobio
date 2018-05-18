@@ -31,7 +31,13 @@
 @import ../../../assets/sass/variables
 
 #gene-track
-  max-height: 182px
+  max-height: 215px
+  margin-bottom: 0px
+
+  #gene-summary-box
+    min-height: 145px
+    max-height: 145px
+    overflow-y: scroll
 
   #gene-name
     margin-left: 0px
@@ -71,6 +77,7 @@
     vertical-align: initial
     margin-right: 20px
 
+
     .input-group--select
       .input-group__selections__comma
         font-size: 14px
@@ -97,7 +104,6 @@
       display: inline-block
       margin-right: 10px
       color: $link-color !important
-
 
 
 
@@ -247,7 +253,7 @@
 
     </div>
 
-    <div id="gene-summary-box" style="min-height:120px;max-height:120px;overflow-y:scroll">
+    <div id="gene-summary-box" >
 
 
       <div v-if="showGene && ncbiSummary" id="ncbi-summary">

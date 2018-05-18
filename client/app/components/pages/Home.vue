@@ -179,8 +179,9 @@
                     >
                   </gene-card>
 
-                  <scroll-button ref="scrollButtonRefGene" :parentId="`gene-summary-box`">
+<!--              <scroll-button ref="scrollButtonRefGene" :parentId="`gene-summary-box`">
                   </scroll-button>
+-->
 
                 </v-tab-item>
                 <v-tab-item  style="margin-top:5px;margin-bottom:0px;overflow-y:scroll">
