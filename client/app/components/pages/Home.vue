@@ -470,12 +470,13 @@ export default {
       showCoverageCutoffs: false,
 
       clinIobioUrls: ["http://localhost:4030", "http://clin.iobio.io"],
-      clinIobioUrl: null
+      clinIobioUrl: null,
+
+      forceLocalStorage: null
     }
   },
 
   created: function() {
-
   },
 
   mounted: function() {
@@ -483,6 +484,12 @@ export default {
 
     self.cardWidth = self.$el.offsetWidth;
     self.cardWidth = window.innerWidth;
+
+    // Safari can't use IndexedDB in iframes, so in this situation, use
+    // local storage instead.
+    if (window != top && self.utility.detectSafari()) {
+      self.forceLocalStorage = true;
+    }
 
     self.setAppMode();
 
@@ -504,7 +511,7 @@ export default {
       let translator = new Translator(self.globalApp, glyph);
       let genericAnnotation = new GenericAnnotation(glyph);
 
-      self.geneModel = new GeneModel(self.globalApp);
+      self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage);
       self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
       self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
       self.geneModel.setAllKnownGenes(self.allGenes);
@@ -601,7 +608,7 @@ export default {
     promiseInitCache: function() {
       let self = this;
       return new Promise(function(resolve, reject) {
-        self.cacheHelper = new CacheHelper(self.globalApp);
+        self.cacheHelper = new CacheHelper(self.globalApp, self.forceLocalStorage);
         self.cacheHelper.on("geneAnalyzed", function(geneName) {
           self.$refs.genesCardRef.determineFlaggedGenes();
           if (geneName == self.selectedGene.gene_name) {
@@ -1503,6 +1510,9 @@ export default {
           self.models = self.cohortModel.sampleModels;
           self.onApplyGenes(clinObject.genes.join(" "), clinObject.phenotypes.join(","));
 
+        })
+        .catch(function(error) {
+          console.log(error);
         })
       } else if (clinObject.type == 'show-tooltip') {
         if (clinObject.task.key == 'genes-menu') {

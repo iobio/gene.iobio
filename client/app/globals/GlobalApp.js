@@ -60,7 +60,7 @@ class GlobalApp {
     // What browser cache implementation is used: 'localStorage' or 'indexedDB'
     this.BROWSER_CACHE_LOCAL_STORAGE = 'localStorage';
     this.BROWSER_CACHE_INDEXED_DB    = 'indexedDB';
-    this.browserCache                = this.BROWSER_CACHE_INDEXED_DB;
+    this.defaultBrowserCache         = this.BROWSER_CACHE_INDEXED_DB;
 
     this.BROWSER_CACHE_EXPIRATION    = 3 * 60 * 60 * 1000;  // 3 HOURS
 
@@ -86,12 +86,6 @@ class GlobalApp {
 
 
 
-  useLocalStorage() {
-    return this.browserCache == this.BROWSER_CACHE_LOCAL_STORAGE;
-  }
-  useIndexedDB() {
-    return this.browserCache == this.BROWSER_CACHE_INDEXED_DB;
-  }
 }
 
 export default GlobalApp

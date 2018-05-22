@@ -2,9 +2,10 @@
 import CacheHelperWorker from './CacheHelperWorker.js'
 import CacheIndexStore from './CacheIndexStore.js'
 
-function CacheHelper(globalApp) {
+function CacheHelper(globalApp, forceLocalStorage) {
 
   this.globalApp = globalApp;
+  this.forceLocalStorage = forceLocalStorage;
   this.genesToCache = [];
   this.cacheQueue = [];
   this.batchSize = null;
@@ -85,9 +86,28 @@ CacheHelper.prototype.setLoaderDisplay = function(loaderDisplay) {
 }
 
 CacheHelper.prototype.promiseInit = function() {
-  return this.cacheIndexStore.promiseInit();
+  if (this.useLocalStorage()) {
+    return Promise.resolve();
+  } else {
+    return this.cacheIndexStore.promiseInit();
+  }
 }
 
+CacheHelper.prototype.useLocalStorage = function() {
+  if (this.forceLocalStorage || this.globalApp.defaultBrowserCache == this.globalApp.BROWSER_CACHE_LOCAL_STORAGE) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+CacheHelper.prototype.useIndexedDB = function() {
+  if (!this.forceLocalStorage &&  this.globalApp.defaultBrowserCache == this.globalApp.BROWSER_CACHE_INDEXED_DB) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 CacheHelper.prototype.isolateSession = function(isEduMode) {
   if (isEduMode) {
@@ -341,9 +361,9 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     .then(function() {
       // Now clear out mother and father from cache (localStorage browser cache only)
       //if (window.gene == null || window.gene.gene_name != geneObject.gene_name) {
-        if (me.globalApp.useLocalStorage()) {
+        if (me.useLocalStorage()) {
           me.cohort.getModel("mother").clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
-          me.cohort.getModel("father").model.clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
+          me.cohort.getModel("father").clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
         }
       //}
       // Clear out the called variants cache since this is now cached in vcf data
@@ -813,7 +833,7 @@ CacheHelper.prototype.promiseCacheData = function(key, data) {
 
   return new Promise(function(resolve, reject) {
 
-    if (me.globalApp.useLocalStorage()) {
+    if (me.useLocalStorage()) {
       if (localStorage) {
 
           CacheHelper.promiseCompressData(data)
@@ -827,7 +847,7 @@ CacheHelper.prototype.promiseCacheData = function(key, data) {
       } else {
         reject("no local storage found")
       }
-    } else if (me.globalApp.useIndexedDB()) {
+    } else if (me.useIndexedDB()) {
       CacheHelper.promiseCompressData(data)
          .then(function(dataStringCompressed) {
         var keyObject = CacheHelper._parseCacheKey(key);
@@ -853,7 +873,7 @@ CacheHelper.prototype.promiseGetData = function(key, decompressIt=true) {
   var me = this;
   return new Promise(function(resolve, reject) {
 
-    if (me.globalApp.useLocalStorage()) {
+    if (me.useLocalStorage()) {
       if (localStorage) {
             var dataCompressed = localStorage.getItem(key);
             CacheHelper.promiseDecompressData(dataCompressed, decompressIt).then(function(data) {
@@ -865,7 +885,7 @@ CacheHelper.prototype.promiseGetData = function(key, decompressIt=true) {
               reject(errorMsg);
             });
         }
-    } else if (me.globalApp.useIndexedDB()) {
+    } else if (me.useIndexedDB()) {
       var keyObject = CacheHelper._parseCacheKey(key);
       me.cacheIndexStore.promiseGetData(keyObject.dataKind, key, decompressIt)
        .then(function(dataCompressed) {
@@ -931,11 +951,11 @@ CacheHelper.prototype.promiseRemoveCacheItem = function(dataKind, key) {
 
   return new Promise(function(resolve, reject) {
 
-    if (me.globalApp.useLocalStorage()) {
+    if (me.useLocalStorage()) {
       if (localStorage) {
         localStorage.removeItem(key);
         }
-    } else if (me.globalApp.useIndexedDB()) {
+    } else if (me.useIndexedDB()) {
       me.cacheIndexStore.promiseRemoveData(dataKind, key)
        .then(function() {
         resolve();
@@ -976,7 +996,7 @@ CacheHelper.prototype.promiseGetAllKeys = function() {
   var me = this;
   return new Promise(function(resolve, reject) {
 
-    if (me.globalApp.useLocalStorage()) {
+    if (me.useLocalStorage()) {
       if (localStorage) {
         var keys = [];
         for (var i=0; i<=localStorage.length-1; i++)  {
@@ -988,7 +1008,7 @@ CacheHelper.prototype.promiseGetAllKeys = function() {
         reject("No local storage found");
       }
 
-    } else if (me.globalApp.useIndexedDB()) {
+    } else if (me.useIndexedDB()) {
       me.cacheIndexStore.promiseGetAllKeys()
        .then(function(allKeys) {
         resolve(allKeys);

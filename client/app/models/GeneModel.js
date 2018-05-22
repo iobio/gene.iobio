@@ -1,7 +1,8 @@
 class GeneModel {
-  constructor(globalApp) {
+  constructor(globalApp, limitGenes) {
 
     this.globalApp                 = globalApp;
+    this.limitGenes                = limitGenes;
     this.geneInfoServer            = this.globalApp.HTTP_SERVICES + "geneinfo/";
     this.geneToPhenoServer         = this.globalApp.HTTP_SERVICES + "gene2pheno/";
     this.phenolyzerServer          = "https://7z68tjgpw4.execute-api.us-east-1.amazonaws.com/dev/phenolyzer/";
@@ -183,7 +184,7 @@ class GeneModel {
       alertify.alert("Warning", message);
     }
 
-    if (me.globalApp.useLocalStorage()) {
+    if (me.limitGenes) {
       if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
         var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
         me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
