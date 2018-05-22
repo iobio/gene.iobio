@@ -1,4 +1,4 @@
-∂/*
+/*
  * Home.vue
  *
  */
@@ -1504,7 +1504,20 @@ export default {
           self.onApplyGenes(clinObject.genes.join(" "), clinObject.phenotypes.join(","));
 
         })
+      } else if (clinObject.type == 'show-tooltip') {
+        if (clinObject.task.key == 'genes-menu') {
+          self.$refs.navRef.$refs.genesMenuRef.showTooltip(clinObject.task.tooltip);
+        } else {
+          self.$refs.genesCardRef.$refs.filterBadgesRef.showTooltip(clinObject.task.key, clinObject.task.tooltip);
+        }
+      } else if (clinObject.type == 'hide-tooltip') {
+        if (clinObject.task.key == 'genes-menu') {
+          self.$refs.navRef.$refs.genesMenuRef.hideTooltip();
+        } else {
+          self.$refs.genesCardRef.$refs.filterBadgesRef.hideTooltip(clinObject.task.key);
+        }
       }
+
 
       var responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), this.clinIobioUrl);

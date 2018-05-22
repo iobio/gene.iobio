@@ -136,6 +136,7 @@ nav.toolbar
 
 
         <genes-menu
+         ref="genesMenuRef"
          v-if="!isEduMode && !isBasicMode"
          :buttonIcon="`add`"
          :geneModel="geneModel"

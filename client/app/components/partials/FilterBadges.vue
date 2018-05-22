@@ -112,7 +112,9 @@
        v-for="filter in filters"
        :key="filter.name"
        class="badge-wrapper"
-       v-tooltip.top-center="filter.display"
+       @mouseover="onMouseOver(filter)"
+       @mouseleave="onMouseLeave(filter)"
+       v-tooltip.top-center="{content: filter.tooltip, show: filter.showTooltip, trigger: 'manual'}"
        >
         <v-btn  flat
         v-bind:ref="filter.name"
@@ -193,14 +195,14 @@ export default {
     return {
       customFilters: null,
       filters: [
-        {name: 'pathogenic',        display: 'Known pathogenic variants'        },
-        {name: 'autosomalDominant', display: 'Autosomal dominant variants'      },
-        {name: 'denovo',            display: 'De novo variants'                 },
-        {name: 'recessive',         display: 'Recessive variants'               },
-        {name: 'xlinked',           display: 'X-linked variants'                },
-        {name: 'compoundHet',       display: 'Compound het variants'            },
-        {name: 'highOrModerate',    display: 'High or moderate impact variants' },
-        {name: 'coverage',          display: 'Insufficient coverage in genes'   }
+        {name: 'pathogenic',        display: 'Known pathogenic variants'        , tooltip: null, showTooltip: false},
+        {name: 'autosomalDominant', display: 'Autosomal dominant variants'      , tooltip: null, showTooltip: false},
+        {name: 'denovo',            display: 'De novo variants'                 , tooltip: null, showTooltip: false},
+        {name: 'recessive',         display: 'Recessive variants'               , tooltip: null, showTooltip: false},
+        {name: 'xlinked',           display: 'X-linked variants'                , tooltip: null, showTooltip: false},
+        {name: 'compoundHet',       display: 'Compound het variants'            , tooltip: null, showTooltip: false},
+        {name: 'highOrModerate',    display: 'High or moderate impact variants' , tooltip: null, showTooltip: false},
+        {name: 'coverage',          display: 'Insufficient coverage in genes'   , tooltip: null, showTooltip: false}
       ],
       activeFilter: null,
       showFilterInfo: false
@@ -249,6 +251,28 @@ export default {
       }
 
       this.$emit('filter-settings-applied');
+    },
+    onMouseOver: function(filter) {
+      filter.tooltip = filter.display;
+      filter.showTooltip = true;
+    },
+    onMouseLeave: function(filter) {
+      filter.showTooltip = false;
+    },
+    showTooltip: function(filterName, tooltip) {
+      let self = this;
+      let filter = self.filters.filter(function(f) {
+        return f.name == filterName;
+      })[0];
+      filter.showTooltip = true;
+      filter.tooltip = tooltip;
+    },
+    hideTooltip: function(filterName) {
+      let self = this;
+      let filter = self.filters.filter(function(f) {
+        return f.name == filterName;
+      })[0];
+      filter.showTooltip = false;
     }
   }
 }

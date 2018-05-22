@@ -35,7 +35,11 @@ textarea#copy-paste-genes
        v-bind:raised="isEduMode"
        v-bind:flat="!isEduMode"
        v-bind:small="buttonIcon != null"
-       slot="activator">
+       slot="activator"
+       @mouseover="onMouseOver()"
+       @mouseleave="onMouseLeave()"
+       v-tooltip.top-center="{content: tooltipContent, show: showTooltipFlag, trigger: 'manual'}"
+      >
         <v-icon v-if="buttonIcon">
           {{ buttonIcon }}
         </v-icon>
@@ -111,7 +115,10 @@ export default {
       showGenesMenu: null,
       openPhenolyzerPanel: this.isEduMode,
 
-      genesToApply: null
+      genesToApply: null,
+
+      showTooltipFlag: false,
+      tooltipContent: null
 
     }
   },
@@ -149,6 +156,22 @@ export default {
     onClearAllGenes: function() {
       this.$emit("clear-all-genes");
       this.showGenesMenu = false;
+    },
+    onMouseOver: function() {
+      this.showTooltipFlag = true;
+      this.tooltipContent = "Click this button to add / edit the list of genes to be analyzed."
+    },
+    onMouseLeave: function() {
+      this.showTooltipFlag = false;
+    },
+    showTooltip: function(tooltip) {
+      let self = this;
+      self.showTooltipFlag = true;
+      self.tooltipContent = tooltip;
+    },
+    hideTooltip: function() {
+      let self = this;
+      this.showTooltipFlag = false;
     }
   },
   created: function() {
