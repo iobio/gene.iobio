@@ -13,7 +13,7 @@ class GlobalApp {
 
     this.DEV_IOBIO             = "nv-dev-new.iobio.io/";
     this.STAGE_IOBIO           = "nv-purple.iobio.io/";
-    this.PROD_IOBIO            = "nv-green.iobio.io/";
+    this.PROD_IOBIO            = "nv-prod.iobio.io/";
     this.CURRENT_IOBIO         = this.PROD_IOBIO;
 
 
