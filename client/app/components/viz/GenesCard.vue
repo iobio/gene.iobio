@@ -55,7 +55,6 @@
       margin-bottom: 15px
 
       #total-genes-label
-        float: left
         font-size: 14px
         color: $text-color
         margin-left: 5px
@@ -64,7 +63,6 @@
         display: inline-block
 
       #analyzed-progress-bar
-        float: left
 
       .progress-bar-label
         float: left
@@ -119,8 +117,11 @@
 
   #analyzing-indeterminate-bar
     margin: 0px
-
-
+    .progress-linear__bar__indeterminate
+      background-color: $loaded-variant-color !important
+    .progress-linear__background
+      background-color: $loaded-variant-color !important
+      opacity: .3
 
 
 
@@ -201,13 +202,11 @@
               <span v-if="geneNames.length > 0" id="total-genes-label">{{ geneNames.length }} genes</span>
               <div v-if="isLoaded &&  (analyzeAllInProgress || callAllInProgress)" id="analyzed-progress-bar" >
                 <div>
-                  <span class="progress-bar-label">Loaded</span>
-                  <v-progress-linear  class="loaded-progress"   style="height:18px;width:150px" v-model="loadedPercentage">
+                  <v-progress-linear v-show="analyzeAllInProgress" class="loaded-progress"   style="height:5px;width:150px" v-model="loadedPercentage">
                   </v-progress-linear>
                 </div>
                 <div style="clear:both">
-                  <span class="progress-bar-label">Called</span>
-                  <v-progress-linear  class="called-progress"   style="height:18px;width:150px"  v-model="calledPercentage">
+                  <v-progress-linear v-show="callAllInProgress" class="called-progress"   style="height:5px;width:150px"  v-model="calledPercentage">
                   </v-progress-linear>
                 </div>
               </div>
