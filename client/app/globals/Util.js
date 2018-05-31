@@ -155,6 +155,21 @@ class Util {
     return nameTokens.length > 0 ? nameTokens[0] : transcriptId;
   }
 
+  stripRefName(refName) {
+    var tokens = refName.split("chr");
+    var strippedName = refName;
+    if (tokens.length > 1) {
+      strippedName = tokens[1];
+    } else {
+      tokens = refName.split("ch");
+      if (tokens.length > 1) {
+        strippedName = tokens[1];
+      }
+    }
+    return strippedName;
+  }
+
+
   uniq(theArray) {
      return Array.from(new Set(theArray));
   }

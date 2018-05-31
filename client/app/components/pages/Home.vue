@@ -1162,7 +1162,7 @@ export default {
         this.$refs.genesCardRef.clearFilter();
       }
     },
-    onApplyGenes: function(genesString, searchTermsString) {
+    onApplyGenes: function(genesString, searchTermsString, callback) {
       let self = this;
 
       self.clearFilter();
@@ -1174,34 +1174,34 @@ export default {
       if (self.geneModel.geneNames.length > 0) {
         var count = self.geneModel.getCopyPasteGeneCount(genesString);
         if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
-          message = count + " genes for phenotype " + "<em>'"  + self.phenotypeTerm + "'</em> ready to apply.  Remove currently listed genes first?";
+          self.applyGenesImpl(genesString, false);
+          self.onShowSnackbar({messsage: 'Adding genes associated with ' + self.phenotypeTerm, timeout: 6000})
 
-          alertify.confirm("Applying new gene list",
-            message,
-            function(){
-              replace = true;
-              self.applyGenesImpl(genesString, replace)
-            },
-            function(){
-              replace = false;
-              self.applyGenesImpl(genesString, replace)
-            })
-            .set('labels', {ok:'Yes', cancel:'No'});
 
         } else {
-          self.applyGenesImpl(genesString, true);
+          self.applyGenesImpl(genesString, true, function() {
+            if (callback) {
+              callback();
+            }
+          })
         }
       } else {
-        self.applyGenesImpl(genesString, false);
+        self.applyGenesImpl(genesString, false, function() {
+          if (callback) {
+            callback();
+          }
+        })
       }
 
     },
-    applyGenesImpl: function(genesString, replace) {
+    applyGenesImpl: function(genesString, replace, callback) {
       let self = this;
       self.selectedGene = {};
       self.geneModel.promiseCopyPasteGenes(genesString, replace)
       .then(function() {
-        self.setUrlGeneParameters();
+        if (!self.launchedFromClin) {
+          self.setUrlGeneParameters();
+        }
         if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           let geneName = self.geneModel.sortedGeneNames[0];
           return self.promiseLoadGene(geneName);
@@ -1210,9 +1210,18 @@ export default {
         }
       })
       .then(function() {
-        if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
-          if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
-            self.cacheHelper.analyzeAll(self.cohortModel, false);
+        if (!self.launchedFromClin) {
+          if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+            if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
+              self.cacheHelper.analyzeAll(self.cohortModel, false);
+              if (callback) {
+                callback();
+              }
+            }
+          }
+        } else {
+          if (callback) {
+            callback();
           }
         }
       })
@@ -1508,7 +1517,13 @@ export default {
         self.cohortModel.promiseInit(clinObject.modelInfos)
         .then(function() {
           self.models = self.cohortModel.sampleModels;
-          self.onApplyGenes(clinObject.genes.join(" "), clinObject.phenotypes.join(","));
+          self.onApplyGenes(clinObject.genes.join(" "), clinObject.phenotypes.join(","), function() {
+            self.cohortModel.importFlaggedVariants('json', clinObject.variants, function() {
+              self.onFlaggedVariantsImported();
+              self.$refs.navRef.onShowFlaggedVariants();
+              self.cacheHelper.analyzeAll(self.cohortModel, false);
+            })
+          });
 
         })
         .catch(function(error) {

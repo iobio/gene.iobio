@@ -1515,7 +1515,7 @@ class CohortModel {
                     if (options.sourceVariant) {
                       trioVcfData.proband.features.forEach(function(variant) {
                         if (!refreshedSourceVariant &&
-                          variant.chrom == options.sourceVariant.chrom &&
+                          me.globalApp.utility.stripRefName(variant.chrom) == me.globalApp.utility.stripRefName(options.sourceVariant.chrom) &&
                           variant.start == options.sourceVariant.start &&
                           variant.ref == options.sourceVariant.ref &&
                           variant.alt == options.sourceVariant.alt) {
@@ -1544,6 +1544,7 @@ class CohortModel {
     })
 
   }
+
 
   _parseCalledVariants(geneObject, theTranscript, translatedRefName, jointVcfRecs, trioVcfData, options) {
     var me = this;
@@ -1644,8 +1645,10 @@ class CohortModel {
   }
 
   addFlaggedVariant(theGene, theTranscript, variant) {
+    var self = this;
     var existingVariants = this.flaggedVariants.filter(function(v) {
-      var matches = (v.chrom == variant.chrom
+      var matches = (
+        self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(variant.chrom)
         && v.start == variant.start
         && v.ref == variant.ref
         && v.alt == variant.alt);
@@ -1658,10 +1661,12 @@ class CohortModel {
   }
 
   removeFlaggedVariant(theGene, theTranscript, variant) {
+    var self = this;
     var index = -1;
     var i = 0;
     this.flaggedVariants.forEach(function(v) {
-      var matches = (v.chrom == variant.chrom
+      var matches = (
+        self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(variant.chrom)
         && v.start == variant.start
         && v.ref == variant.ref
         && v.alt == variant.alt);
@@ -1682,7 +1687,8 @@ class CohortModel {
     .then(function(data) {
       let cachedVcfData = data.vcfData;
       cachedVcfData.features.forEach(function(v) {
-        var matches = (v.chrom == variant.chrom
+        var matches = (
+                      self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(variant.chrom)
                       && v.start == variant.start
                       && v.ref == variant.ref
                       && v.alt == variant.alt);
@@ -1782,7 +1788,12 @@ class CohortModel {
     var me = this;
     me.flaggedVariants = [];
 
-    var importRecords = VariantImporter.parseRecords(fileType, data);
+    var importRecords = null;
+    if (fileType == 'json') {
+      importRecords = data;
+    } else {
+      importRecords = VariantImporter.parseRecords(fileType, data);
+    }
 
     // If the number of bookmarks exceeds the max gene limit, truncate the
     // bookmarked variants to this max.
