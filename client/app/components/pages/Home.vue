@@ -7,7 +7,7 @@
 @import ../../../assets/sass/variables
 
 main.content
-  margin-top: 64px
+  margin-top: 54px
 
 .app-card
   margin-bottom: 10px

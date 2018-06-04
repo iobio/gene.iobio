@@ -4,20 +4,7 @@
 #phenolyzer-loader
   width: 18px
 
-#phenotype-input, #enter-genes-input, #phenolyzer-top-input
-  .input-group label
-    font-size: 13px
-    line-height: 25px
-    height: 25px
-  .input-group__input
-    min-height: 0px
-    margin-top: 13px
-  .input-group--text-field input
-    font-size: 13px
-  .input-group
-    padding-top: 0px
-  .input-group__selections__comma
-    font-size: 13px
+
 
 
 .menu__content
@@ -52,7 +39,7 @@
       >
       </v-select>
     </v-flex>
-    <v-flex  v-bind:class="isNav ? 'mt-3 ml-1' : 'mt-2'" style="float:right;display:inline-block;">
+    <v-flex  v-bind:class="isNav ? 'mt-2 ml-1' : 'mt-2'" style="float:right;display:inline-block;">
      <v-btn  id="search-phenotype-button" small raised @click="onSearch" >Search</v-btn>
     </v-flex>
     <v-flex v-if="!isNav">

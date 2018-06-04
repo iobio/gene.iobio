@@ -3,12 +3,50 @@
 @import ../../../assets/sass/variables
 
 aside.navigation-drawer
-  margin-top: 65px !important
+  margin-top: 45px !important
   z-index: 0
 
 nav.toolbar
   background-color: $nav-color !important
   font-weight: 300 !important
+
+  .toolbar__title
+    color: $nav-title-color
+    font-weight:  600
+  .btn
+    color: $nav-text-color
+
+  #phenotype-input, #gene-name-input, #phenolyzer-top-input
+    .input-group input
+      color: $nav-text-color
+    .input-group
+      padding: 10px 0 0
+    .input-group
+      label
+        font-size: 13px
+        line-height: 25px
+        height: 25px
+        top: 14px
+    .input-group__input
+      min-height: 0px
+      margin-top: 13px
+    .input-group--text-field input
+      font-size: 13px
+      height: 24px
+    .input-group
+      padding-top: 0px
+    .input-group__selections__comma
+      font-size: 13px
+    .input-group__details:before
+      background-color: $nav-text-color
+    .input-group__details:after
+      background-color: $nav-text-color
+
+  #phenolyzer-top-input
+    .input-group__input
+      height: 20px
+  .primary--text input, .primary--text textarea
+    caret-color: $nav-text-color !important
 
   &.clin
     background-color: $app-color-clin !important
@@ -30,6 +68,7 @@ nav.toolbar
 
   i.material-icons
     margin-right: 2px
+    color:  $nav-text-color !important
 
   .toolbar__title
     font-family: Quicksand
@@ -41,14 +80,15 @@ nav.toolbar
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
     label
-      color: white !important
+      color: $nav-text-color !important
     .material-icons
-      color: white !important
+      color: $nav-text-color !important
     .input-group__selections__comma
-      color: white !important
+      color: $nav-text-color !important
 
   #gene-name-input
     width: 130px
+    margin-left: 20px
 
   #search-phenotype-button
     background-color: #ffffff1f
@@ -97,19 +137,19 @@ nav.toolbar
 
 .mode-switch
 
-    label
-      padding-left: 7px
-      line-height: 18px
-      font-size: 12px
-      font-weight: bold
-      padding-top: 2px
-      color: white
+  label
+    padding-left: 7px
+    line-height: 18px
+    font-size: 12px
+    font-weight: bold
+    padding-top: 2px
+    color: $nav-text-color
 
 </style>
 
 <template>
   <div>
-    <v-toolbar fixed    dark  :class="launchedFromClin ? 'clin' : '' " >
+    <v-toolbar fixed height="50"   dark  :class="launchedFromClin ? 'clin' : '' " >
 
       <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
@@ -118,6 +158,8 @@ nav.toolbar
       <v-toolbar-title v-text="title">
       </v-toolbar-title>
 
+
+      <v-spacer></v-spacer>
 
 
       <v-toolbar-items  class="hidden-sm-and-down">
@@ -149,7 +191,7 @@ nav.toolbar
 
         <phenotype-search
          v-if="!isEduMode && !launchedFromClin"
-         class="ml-4 mt-1"
+         class="ml-5 "
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
          :defaultTopGenes="isBasicMode ? '10' : '30'"
@@ -172,8 +214,6 @@ nav.toolbar
 
 
       </v-toolbar-items>
-
-      <v-spacer></v-spacer>
 
 
       <files-menu
