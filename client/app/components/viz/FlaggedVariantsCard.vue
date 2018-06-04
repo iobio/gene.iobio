@@ -12,6 +12,7 @@
     width: calc(100% - 1px)
     padding-right: 20px
     background-color: white
+    margin-bottom: 20px
 
     &.clin
       background-color: $app-color-clin
@@ -64,6 +65,7 @@
 
 
 
+  .gene-list
 
   .subheader
     color: $text-color
@@ -71,16 +73,24 @@
 
     span
       width: 100%
-      text-align: center
+      text-align: left;
+      margin-left: -2px;
 
   .list--three-line
+    margin-bottom: 20px
     padding-top: 5px
     .subheader
       height: initial
       font-size: 13px
-      margin-left: -5px
+      margin-left: -3px
       text-color: $text-color
       margin-top: 5px
+
+    li
+      margin-left: 10px
+
+    .list__tile__content
+      margin-left: 20px
 
     hr
       margin-bottom: 4px
@@ -153,7 +163,15 @@
         width: 60px
         vertical-align: top
         line-height: 12px
+
+
     .variant-symbols
+      .gene-name
+        display: inline-block
+        margin-top: -2px
+        vertical-align: top
+        width: 105px
+
       .has-called-variants
         font-size: 15px
         color: $called-variant-color
@@ -257,27 +275,30 @@
       <v-subheader
       :key="geneList.label"
       v-if="geneList.show"
-      :style="geneList.style"
+      class="gene-list"
       >
-        <span v-show="geneList.genes.length > 0">{{ geneList.label }}</span>
+        <span v-show="geneList.genes.length > 0">
+          <filter-icon :icon="geneList.name"></filter-icon>
+          {{ geneList.label }}
+        </span>
       </v-subheader>
       <v-list three-line>
         <template
          v-for="flaggedGene in geneList.genes">
 
-          <v-subheader :key="flaggedGene.gene.gene_name">{{ flaggedGene.gene.gene_name }}</v-subheader>
+          <!-- <v-subheader :key="flaggedGene.gene.gene_name">{{ flaggedGene.gene.gene_name }}</v-subheader>
+        -->
 
           <template v-for="(variant, index) in flaggedGene.variants">
 
             <v-list-tile
             :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
-            avatar
             ripple
             @click="onVariantSelected(variant)">
 
 
-              <v-list-tile-avatar>
-               <v-chip class="variant-number">
+              <v-list-tile-avatar v-show="false">
+               <v-chip class="variant-number" >
                 {{ variant.index + 1 }}
                </v-chip>
               </v-list-tile-avatar>
@@ -288,7 +309,7 @@
 
                   <div class="variant-symbols">
 
-
+                    <span class="gene-name"> {{ flaggedGene.gene.gene_name }}</span>
                     <app-icon
                      icon="clinvar"
                      v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
@@ -345,7 +366,7 @@
               </v-list-tile-content>
 
             </v-list-tile>
-            <v-divider inset  ></v-divider>
+
 
           </template>
 
@@ -471,12 +492,14 @@
 
 import FileChooser from '../partials/FileChooser.vue'
 import AppIcon from '../partials/AppIcon.vue'
+import FilterIcon from '../partials/FilterIcon.vue'
 
 export default {
   name: 'flagged-variants-card',
   components: {
     FileChooser,
-    AppIcon
+    AppIcon,
+    FilterIcon
   },
   props: {
     isEduMode: null,
@@ -538,13 +561,15 @@ export default {
         self.readyToDownload = true;
       })
     },
-    getSortedGeneMap: function(userFlagged) {
+    getSortedGeneMap: function(userFlagged, filterName) {
       let self = this;
       let geneMap        = {};
       let flaggedGenes   = [];
       this.flaggedVariants.forEach(function(variant) {
-        if ((!userFlagged && !variant.isUserFlagged) ||
-            (userFlagged && variant.isUserFlagged)) {
+        if ((!userFlagged && !variant.isUserFlagged
+             && (filterName == null || variant.filtersPassed.indexOf(filterName) >= 0))
+           ||
+           (userFlagged && variant.isUserFlagged)) {
           let flaggedGene = geneMap[variant.gene.gene_name];
           if (flaggedGene == null) {
             flaggedGene = {};
@@ -580,6 +605,14 @@ export default {
       try {
         ctrl.value = null;
       } catch(ex) { }
+    },
+    getFilteredGenes: function(filterName) {
+      let self = this;
+      if (self.flaggedVariants) {
+        return self.getSortedGeneMap(false, filterName);
+      } else {
+        return [];
+      }
     },
 
 
@@ -655,6 +688,43 @@ export default {
   computed: {
     geneLists: function() {
       let self = this;
+      var theGeneLists = [];
+      if (self.isBasicMode) {
+
+      } else {
+        var filtersPresent = [];
+        self.flaggedVariants.forEach(function(variant) {
+          if (!variant.isUserFlagged) {
+            variant.filtersPassed.forEach(function(filterName) {
+              if (filtersPresent.indexOf(filterName) < 0) {
+                filtersPresent.push(filterName);
+              }
+            })
+          }
+        })
+
+        filtersPresent = filtersPresent.sort(function(filterName1, filterName2) {
+          return self.cohortModel.filterModel.flagCriteria[filterName1].order >
+                 self.cohortModel.filterModel.flagCriteria[filterName2].order;
+        })
+
+        filtersPresent.forEach(function(filterName) {
+          theGeneLists.push( {
+            name: filterName,
+            label: self.cohortModel.filterModel.flagCriteria[filterName].title,
+            show: true,
+            genes: self.getFilteredGenes(filterName)
+          })
+        })
+        theGeneLists.push( {
+          name: 'userFlagged',
+          label: 'Flagged by User',
+          show:  self.userFlaggedGenes.length > 0,
+          genes: self.userFlaggedGenes,
+        })
+      }
+      return theGeneLists;
+      /*
       return [
        {
          label: self.isBasicMode ? 'Variants in clinvar with < 1% population frequency' : 'Passing filters',
@@ -669,6 +739,7 @@ export default {
          style: 'margin-top:30px'
        }
       ]
+      */
     },
     filteredGenes: function() {
       let self = this;

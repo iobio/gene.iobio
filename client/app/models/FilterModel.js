@@ -38,7 +38,9 @@ class FilterModel {
       'pathogenic': {
         active: true,
         custom: false,
+        title: "Pathogenic",
         name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
+        order: 0,
         maxAf: .05,
         clinvar: ['clinvar_path', 'clinvar_lpath'],
         impact: null,
@@ -51,7 +53,9 @@ class FilterModel {
       'autosomalDominant': {
         active: true,
         custom: false,
+        title: "Autosomal dominant",
         name: "Autosomal dominant inhertance, low allele freq",
+        order: 1,
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -59,12 +63,14 @@ class FilterModel {
         inheritance: ['autosomal dominant'],
         zyosity: null,
         minGenotypeDepth: null,
-        exclusiveOf: null
+        exclusiveOf: ['pathogenic']
       },
       'recessive': {
         active: true,
         custom: false,
+        title: "Recessive",
         name: "Recessive inheritance, low allele freq",
+        order: 2,
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -73,12 +79,14 @@ class FilterModel {
         zyosity: null,
         minGenotypeDepth: null,
         isUserFlagged: false,
-        exclusiveOf: null
+        exclusiveOf: ['pathogenic']
       },
       'denovo': {
         active: true,
         custom: false,
+        title: "De novo",
         name: "De novo inheritance, low allele freq",
+        order: 3,
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -86,12 +94,14 @@ class FilterModel {
         inheritance: ['denovo'],
         zyosity: null,
         minGenotypeDepth: null,
-        exclusiveOf: null
+        exclusiveOf: ['pathogenic']
       },
       'compoundHet': {
         active: true,
         custom: false,
+        title: "Compound Hets",
         name: "Compound het inheritance, low allele freq",
+        order: 4,
         maxAf: .15,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -99,12 +109,14 @@ class FilterModel {
         inheritance: ['compound het'],
         zyosity: null,
         minGenotypeDepth: null,
-        exclusiveOf: null
+        exclusiveOf: ['pathogenic']
       },
       'xlinked': {
         active: true,
         custom: false,
+        title: "X-linked recessive",
         name: "X-linked recessive inheritance, low allele freq",
+        order: 5,
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -112,12 +124,14 @@ class FilterModel {
         inheritance: ['x-linked'],
         zyosity: null,
         minGenotypeDepth: null,
-        exclusiveOf: null
+        exclusiveOf: ['pathogenic']
       },
       'highOrModerate': {
         active: true,
         custom: false,
+        title: "Other variants, moderate/high impact",
         name: "High or moderate impact, low allele freq",
+        order: 6,
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -131,7 +145,9 @@ class FilterModel {
       'userFlagged': {
         active: true,
         custom: false,
+        title: "Variants flagged by user",
         name: "Variants flagged by user",
+        order: 7,
         userFlagged: true,
         maxAf: null,
         clinvar: null,
@@ -495,13 +511,17 @@ class FilterModel {
 
         }
         // Now add the variant to any badges that passes the critera
-        for (var badge in badgePassState) {
-          var pass = badgePassState[badge];
-          if (pass) {
-            variant.isFlagged = true;
-            variant.featureClass = 'flagged';
-            badges[badge].push(variant);
+        var filtersPassed = [];
+        for (var filterName in self.flagCriteria) {
+          if (badgePassState[filterName]) {
+            filtersPassed.push(filterName);
+            badges[filterName].push(variant);
           }
+        }
+        if (filtersPassed.length > 0) {
+          variant.isFlagged = true;
+          variant.featureClass = 'flagged';
+          variant.filtersPassed = filtersPassed;
         }
 
         if (variant.isFlagged) {

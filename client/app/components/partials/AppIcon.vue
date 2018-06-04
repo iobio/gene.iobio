@@ -28,7 +28,8 @@
 .level-other
   fill: rgb(189, 189, 189)
 
-
+#bookmark-symbol
+  fill: $link-color !important
 
 
 
