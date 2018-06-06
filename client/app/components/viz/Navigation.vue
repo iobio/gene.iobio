@@ -51,8 +51,11 @@ nav.toolbar
   .primary--text input, .primary--text textarea
     caret-color: $nav-text-color !important
 
-  &.clin
-    background-color: $app-color-clin !important
+    i.material-icons
+      color:  $nav-text-color-clin !important
+
+    .toolbar__title
+      color:  $nav-text-color-clin
 
   .toolbar__side-icon.btn.btn--icon
     max-width: 40px
@@ -99,6 +102,34 @@ nav.toolbar
 
     .btn__content
       padding: 0px
+
+  &.clin
+    background-color: $nav-color-clin !important
+
+    .btn
+      color: $nav-text-color-clin
+
+    #phenotype-input, #gene-name-input, #phenolyzer-top-input
+      label
+        color: $nav-text-color-clin !important
+      .material-icons
+        color: $nav-text-color-clin !important
+      .input-group__selections__comma
+        color: $nav-text-color-clin !important
+
+    #phenotype-input, #gene-name-input, #phenolyzer-top-input
+      .input-group input
+        color: $nav-text-color-clin !important
+      .input-group__details:before
+        background-color: $nav-text-color-clin !important
+      .input-group__details:after
+        background-color: $nav-text-color-clin !important
+
+    .toolbar__title
+      color: $nav-text-color-clin !important
+
+    i.material-icons
+      color:  $nav-text-color-clin !important
 
 #versions
   font-size: 14px
@@ -292,9 +323,11 @@ nav.toolbar
       </v-menu>
     </v-toolbar>
     <v-navigation-drawer
+      mobile-break-point="800"
       clipped
       fixed
       app
+      :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
       width=330

@@ -14,8 +14,6 @@
     background-color: white
     margin-bottom: 20px
 
-    &.clin
-      background-color: $app-color-clin
 
     #close-button
       padding-right: 0px
