@@ -41,6 +41,7 @@ class FilterModel {
         title: "Pathogenic",
         name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
         order: 0,
+        userFlagged: false,
         maxAf: .05,
         clinvar: ['clinvar_path', 'clinvar_lpath'],
         impact: null,
@@ -56,6 +57,7 @@ class FilterModel {
         title: "Autosomal dominant",
         name: "Autosomal dominant inhertance, low allele freq",
         order: 1,
+        userFlagged: false,
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -71,6 +73,7 @@ class FilterModel {
         title: "Recessive",
         name: "Recessive inheritance, low allele freq",
         order: 2,
+        userFlagged: false,
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -87,6 +90,7 @@ class FilterModel {
         title: "De novo",
         name: "De novo inheritance, low allele freq",
         order: 3,
+        userFlagged: false,
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -102,6 +106,7 @@ class FilterModel {
         title: "Compound Hets",
         name: "Compound het inheritance, low allele freq",
         order: 4,
+        userFlagged: false,
         maxAf: .15,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -116,6 +121,7 @@ class FilterModel {
         custom: false,
         title: "X-linked recessive",
         name: "X-linked recessive inheritance, low allele freq",
+        userFlagged: false,
         order: 5,
         maxAf: .05,
         clinvar: null,
@@ -132,6 +138,7 @@ class FilterModel {
         title: "Other variants, moderate/high impact",
         name: "High or moderate impact, low allele freq",
         order: 6,
+        userFlagged: false,
         maxAf: .05,
         clinvar: null,
         impact: ['HIGH', 'MODERATE'],
@@ -551,8 +558,8 @@ class FilterModel {
       userFlagged: false
     };
 
-    if (badgeCriteria.hasOwnProperty('userFlagged')) {
-      if (badgeCriteria.userFlagged == true && variant.isUserFlagged) {
+    if (badgeCriteria.userFlagged == true) {
+      if (variant.isUserFlagged) {
         passes.userFlagged = true;
         passes.all = true;
       }

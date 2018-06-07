@@ -1964,6 +1964,61 @@ class CohortModel {
 
   }
 
+  getFlaggedGenesSortedByFilter() {
+    let self = this;
+    let filters = [];
+    for (var filterName in self.filterModel.flagCriteria) {
+      let flagCriteria = self.filterModel.flagCriteria[filterName];
+      var sortedGenes = self._getFlaggedGenes(filterName, flagCriteria.userFlagged);
+      if (sortedGenes.length > 0) {
+        filters.push({key: filterName, filter: flagCriteria, genes: sortedGenes});
+      }
+    }
+
+    return filters.sort(function(filterObject1, filterObject2) {
+      return filterObject1.filter.order > filterObject2.filter.order;
+    })
+  }
+
+
+  _getFlaggedGenes(filterName, userFlagged) {
+    let self = this;
+    let geneMap        = {};
+    let flaggedGenes   = [];
+    if (this.flaggedVariants) {
+      this.flaggedVariants.forEach(function(variant) {
+        if (variant.filtersPassed.indexOf(filterName) >= 0) {
+          let flaggedGene = geneMap[variant.gene.gene_name];
+          if (flaggedGene == null) {
+            flaggedGene = {};
+            flaggedGene.gene = variant.gene;
+            flaggedGene.transcript = variant.transcript;
+            flaggedGene.variants = [];
+            geneMap[variant.gene.gene_name] = flaggedGene;
+            flaggedGenes.push(flaggedGene);
+          }
+          flaggedGene.variants.push(variant);
+        }
+      })
+
+      var sortedGenes = flaggedGenes.sort(function(a,b) {
+        return self.geneModel.compareDangerSummary(a.gene.gene_name, b.gene.gene_name);
+      })
+      let i = 0;
+      sortedGenes.forEach(function(flaggedGene) {
+        flaggedGene.variants.forEach(function(variant) {
+          variant.index = i;
+          i++;
+        })
+      });
+      return sortedGenes;
+
+    } else {
+      return [];
+    }
+
+  }
+
 }
 
 export default CohortModel;

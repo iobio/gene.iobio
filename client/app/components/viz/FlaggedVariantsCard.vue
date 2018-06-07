@@ -514,7 +514,8 @@ export default {
       fileType: 'gene',
       readyToDownload: false,
       importInProgress: false,
-      exportInProgress: false
+      exportInProgress: false,
+      geneLists: null
     }
   },
   methods: {
@@ -559,41 +560,6 @@ export default {
         self.readyToDownload = true;
       })
     },
-    getSortedGeneMap: function(userFlagged, filterName) {
-      let self = this;
-      let geneMap        = {};
-      let flaggedGenes   = [];
-      this.flaggedVariants.forEach(function(variant) {
-        if ((!userFlagged && !variant.isUserFlagged
-             && (filterName == null || variant.filtersPassed.indexOf(filterName) >= 0))
-           ||
-           (userFlagged && variant.isUserFlagged)) {
-          let flaggedGene = geneMap[variant.gene.gene_name];
-          if (flaggedGene == null) {
-            flaggedGene = {};
-            flaggedGene.gene = variant.gene;
-            flaggedGene.transcript = variant.transcript;
-            flaggedGene.variants = [];
-            geneMap[variant.gene.gene_name] = flaggedGene;
-            flaggedGenes.push(flaggedGene);
-          }
-          flaggedGene.variants.push(variant);
-        }
-      })
-
-      var sortedGenes = flaggedGenes.sort(function(a,b) {
-        return self.cohortModel.geneModel.compareDangerSummary(a.gene.gene_name, b.gene.gene_name);
-      })
-      let i = 0;
-      sortedGenes.forEach(function(flaggedGene) {
-        flaggedGene.variants.forEach(function(variant) {
-          variant.index = i;
-          i++;
-        })
-      });
-      return sortedGenes;
-
-    },
     clearFileInputs: function() {
 
       this.clearFileInput($("#input-csv-file")[0]);
@@ -604,16 +570,25 @@ export default {
         ctrl.value = null;
       } catch(ex) { }
     },
-    getFilteredGenes: function(filterName) {
+    populateGeneLists: function() {
       let self = this;
-      if (self.flaggedVariants) {
-        return self.getSortedGeneMap(false, filterName);
+      self.geneLists = [];
+      if (self.isBasicMode) {
+        self.geneLists = [];
       } else {
-        return [];
+
+        var filters = self.cohortModel.getFlaggedGenesSortedByFilter();
+
+        self.geneLists = filters.map(function(filterObject) {
+          return {
+            name:  filterObject.key,
+            label: filterObject.filter.title,
+            show:  filterObject.genes.length > 0,
+            genes: filterObject.genes
+          }
+        })
       }
     },
-
-
 
 
     clinvar: function(variant) {
@@ -684,81 +659,13 @@ export default {
 
   },
   computed: {
-    geneLists: function() {
-      let self = this;
-      var theGeneLists = [];
-      if (self.isBasicMode) {
 
-      } else {
-        var filtersPresent = [];
-        self.flaggedVariants.forEach(function(variant) {
-          if (!variant.isUserFlagged) {
-            variant.filtersPassed.forEach(function(filterName) {
-              if (filtersPresent.indexOf(filterName) < 0) {
-                filtersPresent.push(filterName);
-              }
-            })
-          }
-        })
-
-        filtersPresent = filtersPresent.sort(function(filterName1, filterName2) {
-          return self.cohortModel.filterModel.flagCriteria[filterName1].order >
-                 self.cohortModel.filterModel.flagCriteria[filterName2].order;
-        })
-
-        filtersPresent.forEach(function(filterName) {
-          theGeneLists.push( {
-            name: filterName,
-            label: self.cohortModel.filterModel.flagCriteria[filterName].title,
-            show: true,
-            genes: self.getFilteredGenes(filterName)
-          })
-        })
-        theGeneLists.push( {
-          name: 'userFlagged',
-          label: 'Flagged by User',
-          show:  self.userFlaggedGenes.length > 0,
-          genes: self.userFlaggedGenes,
-        })
-      }
-      return theGeneLists;
-      /*
-      return [
-       {
-         label: self.isBasicMode ? 'Variants in clinvar with < 1% population frequency' : 'Passing filters',
-         show:  true,
-         genes: self.filteredGenes,
-         style: 'margin-top:10px'
-       },
-       {
-         label: 'Flagged by User',
-         show:  self.userFlaggedGenes.length > 0,
-         genes: self.userFlaggedGenes,
-         style: 'margin-top:30px'
-       }
-      ]
-      */
-    },
-    filteredGenes: function() {
-      let self = this;
-      if (this.flaggedVariants) {
-        return self.getSortedGeneMap(false);
-      } else {
-        return [];
-      }
-
-    },
-    userFlaggedGenes: function() {
-      let self = this;
-      if (this.flaggedVariants) {
-        return self.getSortedGeneMap(true);
-      } else {
-        return [];
-      }
-
-    }
   },
   watch: {
+    flaggedVariants: function() {
+      let self = this;
+      self.populateGeneLists();
+    }
   }
 }
 
