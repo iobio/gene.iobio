@@ -133,7 +133,7 @@ main.content
           v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:auto;margin-top:10px;margin-bottom:10px"
           v-bind:class="{hide : showWelcome }"
           >
-         <split-pane :leftPercent="(!isBasicMode && cohortModel && cohortModel.isLoaded && featureMatrixModel && featureMatrixModel.rankedVariants ? (isEduMode ? 50 : (this.isLeftDrawerOpen ?  30 : 30)) : 0)">
+         <split-pane :leftPercent="featureMatrixWidthPercent">
             <feature-matrix-card slot="left" style="min-width:310px;min-height:auto;max-height:auto;overflow-y:scroll"
             ref="featureMatrixCardRef"
             v-bind:class="{ hide: isBasicMode || !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
@@ -436,10 +436,13 @@ export default {
       inProgress: {},
 
       PROBAND: 'proband',
-      cardWidth: 0,
       activeGeneVariantTab: null,
       isLeftDrawerOpen: null,
       showWelcome: false,
+
+      cardWidth: 0,
+      mainContentWidth: null,
+      featureMatrixWidthPercent: 30,
 
       showSnackbar: false,
       snackbar: {message: '', timeout: 0},
@@ -473,6 +476,7 @@ export default {
       clinIobioUrl: null,
 
       forceLocalStorage: null
+
     }
   },
 
@@ -484,6 +488,12 @@ export default {
 
     self.cardWidth = self.$el.offsetWidth;
     self.cardWidth = window.innerWidth;
+
+    self.mainContentWidth = $('main.content .container').outerWidth();
+    $(window).resize(function() {
+      self.mainContentWidth = $('main.content .container').outerWidth();
+      self.calcFeatureMatrixWidthPercent();
+    });
 
     // Safari can't use IndexedDB in iframes, so in this situation, use
     // local storage instead.
@@ -596,11 +606,20 @@ export default {
       } else {
         return null;
       }
-    }
+    },
+
+
 
   },
 
   watch: {
+    isLeftDrawerOpen: function() {
+      let self = this;
+      setTimeout(function() {
+        self.mainContentWidth = $('main.content .container').outerWidth();
+        self.calcFeatureMatrixWidthPercent();
+      }, 1000)
+    }
   },
 
   methods: {
@@ -701,6 +720,7 @@ export default {
           self.promiseLoadData()
           .then(function() {
             if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
+              self.calcFeatureMatrixWidthPercent();
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             }
           });
@@ -770,6 +790,8 @@ export default {
       .then(function() {
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.promiseLoadGene(self.selectedGene.gene_name);
+          self.calcFeatureMatrixWidthPercent();
+
           if (analyzeAll) {
             if (self.cohortModel && self.cohortModel.isLoaded) {
               self.cacheHelper.analyzeAll(self.cohortModel, false);
@@ -1501,6 +1523,26 @@ export default {
       this.showSnackbar = false;
     },
 
+    calcFeatureMatrixWidthPercent: function() {
+      let self = this;
+      if (!self.isBasicMode && self.cohortModel && self.cohortModel.isLoaded
+          && self.featureMatrixModel && self.featureMatrixModel.rankedVariants) {
+        if (self.isEduMode) {
+          self.featureMatrixWidthPercent = 50;
+        } else {
+          let minWidth = 0;
+          if ($('#matrix-card').length > 0) {
+            minWidth = $('#matrix-card').css('min-width').split("px")[0];
+          } else {
+            minWidth = 310;
+          }
+          self.featureMatrixWidthPercent = Math.round((+minWidth / self.mainContentWidth) * 100) +  1;
+        }
+      } else {
+        self.featureMatrixWidthPercent = 0;
+      }
+
+    },
     receiveClinMessage: function(event)
     {
       let self = this;
@@ -1520,6 +1562,7 @@ export default {
         .then(function() {
           self.models = self.cohortModel.sampleModels;
           self.onApplyGenes(clinObject.genes.join(" "), clinObject.phenotypes.join(","), function() {
+            self.calcFeatureMatrixWidthPercent();
             self.cohortModel.importFlaggedVariants('json', clinObject.variants, function() {
               self.onFlaggedVariantsImported();
               self.$refs.navRef.onShowFlaggedVariants();

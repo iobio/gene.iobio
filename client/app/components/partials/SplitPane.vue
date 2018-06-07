@@ -71,7 +71,7 @@ export default {
 
 .split-pane-item,
 .split-pane-gutter {
-  height: 100%;
+  height: auto;
 }
 
 .split-pane-gutter {
