@@ -442,7 +442,7 @@ export default {
 
       cardWidth: 0,
       mainContentWidth: null,
-      featureMatrixWidthPercent: 30,
+      featureMatrixWidthPercent: 0,
 
       showSnackbar: false,
       snackbar: {message: '', timeout: 0},
@@ -720,7 +720,6 @@ export default {
           self.promiseLoadData()
           .then(function() {
             if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
-              self.calcFeatureMatrixWidthPercent();
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             }
           });
@@ -745,6 +744,9 @@ export default {
             self.selectedTranscript,
             options)
           .then(function(resultMap) {
+              if (self.featureMatrixWidthPercent == 0) {
+                self.calcFeatureMatrixWidthPercent();
+              }
 
               self.filterModel.populateEffectFilters(resultMap);
               self.filterModel.populateRecFilters(resultMap);
@@ -790,7 +792,6 @@ export default {
       .then(function() {
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.promiseLoadGene(self.selectedGene.gene_name);
-          self.calcFeatureMatrixWidthPercent();
 
           if (analyzeAll) {
             if (self.cohortModel && self.cohortModel.isLoaded) {
@@ -1526,7 +1527,7 @@ export default {
     calcFeatureMatrixWidthPercent: function() {
       let self = this;
       if (!self.isBasicMode && self.cohortModel && self.cohortModel.isLoaded
-          && self.featureMatrixModel && self.featureMatrixModel.rankedVariants) {
+          && self.featureMatrixModel) {
         if (self.isEduMode) {
           self.featureMatrixWidthPercent = 50;
         } else {
@@ -1562,7 +1563,6 @@ export default {
         .then(function() {
           self.models = self.cohortModel.sampleModels;
           self.onApplyGenes(clinObject.genes.join(" "), clinObject.phenotypes.join(","), function() {
-            self.calcFeatureMatrixWidthPercent();
             self.cohortModel.importFlaggedVariants('json', clinObject.variants, function() {
               self.onFlaggedVariantsImported();
               self.$refs.navRef.onShowFlaggedVariants();
