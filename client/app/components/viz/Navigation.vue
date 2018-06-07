@@ -336,6 +336,7 @@ nav.toolbar
 
         <flagged-variants-card
          v-if="leftDrawerContents == 'flagged-variants'"
+         ref="flaggedVariantsRef"
          :isEduMode="isEduMode"
          :isBasicMode="isBasicMode"
          :cohortModel="cohortModel"

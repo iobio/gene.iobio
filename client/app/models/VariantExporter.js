@@ -15,6 +15,7 @@ export default class VariantExporter {
       {field: 'gene',             exportVcf: true},
       {field: 'transcript',       exportVcf: true},
       {field: 'isUserFlagged',    exportVcf: true},
+      {field: 'filtersPassed',    exportVcf: true},
       {field: 'freebayesCalled',  exportVcf: true},
       {field: 'type',             exportVcf: true},
       {field: 'impact',           exportVcf: true},
@@ -528,6 +529,7 @@ export default class VariantExporter {
     var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
 
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
+    rec.filtersPassed     = variant.filtersPassed;
     rec.inheritance       = info.inheritance ? this.cohort.translator.getInheritanceLabel(info.inheritance) : "";
     rec.impact            = info.vepImpact;
     rec.highestImpact     = info.vepHighestImpactValue;

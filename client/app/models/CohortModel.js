@@ -1987,7 +1987,8 @@ class CohortModel {
     let flaggedGenes   = [];
     if (this.flaggedVariants) {
       this.flaggedVariants.forEach(function(variant) {
-        if (variant.filtersPassed.indexOf(filterName) >= 0) {
+        if ((userFlagged && variant.isUserFlagged) ||
+            (filterName && variant.filtersPassed && variant.filtersPassed.indexOf(filterName) >= 0)) {
           let flaggedGene = geneMap[variant.gene.gene_name];
           if (flaggedGene == null) {
             flaggedGene = {};

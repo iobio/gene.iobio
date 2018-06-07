@@ -665,7 +665,8 @@ class Util {
       regulatoryMotifLinks: "",
       rsId: "",
       dbSnpUrl: "",
-      dbSnpLink: ""
+      dbSnpLink: "",
+      filtersPassed: "",
     };
 
 
@@ -881,6 +882,8 @@ class Util {
       info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + info.rsId ;
       info.dbSnpLink =  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';
     }
+
+    info.filtersPassed = variant.filtersPassed ? variant.filtersPassed.join(",") : "";
 
     return info;
   }

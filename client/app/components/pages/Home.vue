@@ -1357,6 +1357,8 @@ export default {
       self.flaggedVariants = this.cohortModel.flaggedVariants;
       self.$refs.genesCardRef.determineFlaggedGenes();
       self.$refs.genesCardRef.updateGeneBadgeCounts();
+      this.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+
     },
     onFlaggedVariantSelected: function(flaggedVariant) {
       let self = this;
