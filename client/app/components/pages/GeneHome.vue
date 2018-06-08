@@ -979,7 +979,7 @@ export default {
         .catch(function(error) {
           console.log(error);
           self.geneModel.removeGene(geneName);
-          self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 6000})
+          self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 60000})
         })
       })
     },
@@ -1216,25 +1216,24 @@ export default {
       self.clearFilter();
 
       self.phenotypeTerm = searchTermsString;
-      var replace = false;
       var message = null;
 
       if (self.geneModel.geneNames.length > 0) {
         var count = self.geneModel.getCopyPasteGeneCount(genesString);
         if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
-          self.applyGenesImpl(genesString, false);
-          self.onShowSnackbar({messsage: 'Adding genes associated with ' + self.phenotypeTerm, timeout: 6000})
+          self.applyGenesImpl(genesString, {replace: false, warnOnDup: false} );
+          self.onShowSnackbar({message: 'Adding genes associated with ' + self.phenotypeTerm, timeout: 6000})
 
 
         } else {
-          self.applyGenesImpl(genesString, true, function() {
+          self.applyGenesImpl(genesString, {replace: true}, function() {
             if (callback) {
               callback();
             }
           })
         }
       } else {
-        self.applyGenesImpl(genesString, false, function() {
+        self.applyGenesImpl(genesString, {replace: false}, function() {
           if (callback) {
             callback();
           }
@@ -1242,10 +1241,10 @@ export default {
       }
 
     },
-    applyGenesImpl: function(genesString, replace, callback) {
+    applyGenesImpl: function(genesString, options, callback) {
       let self = this;
       self.selectedGene = {};
-      self.geneModel.promiseCopyPasteGenes(genesString, replace)
+      self.geneModel.promiseCopyPasteGenes(genesString, options)
       .then(function() {
         if (!self.launchedFromClin) {
           self.setUrlGeneParameters();
@@ -1626,15 +1625,23 @@ export default {
         })
       } else if (clinObject.type == 'show-tooltip') {
         if (clinObject.task.key == 'genes-menu') {
-          self.$refs.navRef.$refs.genesMenuRef.showTooltip(clinObject.task.tooltip);
+          if (self.$refs.navRef && self.$refs.navRef.$refs.genesMenuRef) {
+            self.$refs.navRef.$refs.genesMenuRef.showTooltip(clinObject.task.tooltip);
+          }
         } else {
-          self.$refs.genesCardRef.$refs.filterBadgesRef.showTooltip(clinObject.task.key, clinObject.task.tooltip);
+          if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
+            self.$refs.genesCardRef.$refs.filterBadgesRef.showTooltip(clinObject.task.key, clinObject.task.tooltip);
+          }
         }
       } else if (clinObject.type == 'hide-tooltip') {
         if (clinObject.task.key == 'genes-menu') {
-          self.$refs.navRef.$refs.genesMenuRef.hideTooltip();
+          if (self.$refs.navRef && self.$refs.navRef.$refs.genesMenuRef) {
+            self.$refs.navRef.$refs.genesMenuRef.hideTooltip();
+          }
         } else {
-          self.$refs.genesCardRef.$refs.filterBadgesRef.hideTooltip(clinObject.task.key);
+          if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
+            self.$refs.genesCardRef.$refs.filterBadgesRef.hideTooltip(clinObject.task.key);
+          }
         }
       }
 

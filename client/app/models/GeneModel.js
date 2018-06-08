@@ -95,14 +95,14 @@ class GeneModel {
   }
 
 
-  promiseCopyPasteGenes(genesString, replace) {
+  promiseCopyPasteGenes(genesString, options={replace:true, warnOnDup: true}) {
     var me = this;
 
     return new Promise(function(resolve, reject) {
 
       var promises = [];
 
-      me.copyPasteGenes(genesString, replace);
+      me.copyPasteGenes(genesString, options);
 
       me.geneNames.forEach(function(geneName) {
         promises.push(me.promiseGetGeneObject(geneName));
@@ -130,7 +130,7 @@ class GeneModel {
     return geneNameList.length;
  }
 
- copyPasteGenes(genesString, replace=true) {
+ copyPasteGenes(genesString, options={replace: true, warnOnDup: true}) {
     var me = this;
     genesString = genesString.replace(/\s*$/, "");
     var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
@@ -146,7 +146,7 @@ class GeneModel {
           // Make sure this isn't a duplicate.  If we are not replacing the current genes,
           // make sure to check for dups in the existing gene list as well.
           if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
-              && (replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
+              && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
             genesToAdd.push(geneName.trim().toUpperCase());
           } else {
             duplicateGeneNames[geneName.trim().toUpperCase()] = true;
@@ -157,7 +157,7 @@ class GeneModel {
       }
     });
 
-    if (replace) {
+    if (options.replace) {
       me.geneNames = [];
       me.sortedGeneNames = [];
     }
@@ -174,7 +174,7 @@ class GeneModel {
       message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
       alertify.alert("Warning", message);
     }
-    if (Object.keys(duplicateGeneNames).length > 0) {
+    if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
       if (message.length > 0) {
         message += "   ";
       }
@@ -582,7 +582,7 @@ class GeneModel {
   }
 
   clearAllGenes() {
-    this.copyPasteGenes("", true);
+    this.copyPasteGenes("");
   }
 
   removeGene(geneName) {
