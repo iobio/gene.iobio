@@ -196,7 +196,7 @@ nav.toolbar
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items  class="hidden-sm-and-down">
+      <v-toolbar-items  class="hidden-sm-and-down" style="padding-top:3px">
 
 
         <span id="gene-name-input" :class="clazzAttention" style="display:inline-block">

@@ -1,6 +1,7 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+
 #genes-card
 
   #analyze-all-button
@@ -55,12 +56,16 @@
       margin-bottom: 15px
 
       #total-genes-label
-        font-size: 14px
+        font-size: 15px
         color: $text-color
         margin-left: 5px
         margin-right: 15px
         margin-top: 10px
         display: inline-block
+
+
+
+
 
       #analyzed-progress-bar
 
@@ -124,7 +129,22 @@
       opacity: .3
 
 
+div.container.small
+  #genes-card
+    #genes-toolbar
+      #analyze-genes-progress
+        float: none
+        display: block
+        margin-top: 0px
+        margin-bottom: 0px
 
+        #total-genes-label
+          margin-left: 0px
+          margin-right: 0px
+          margin-top: 0px
+    #analyzed-progress-bar
+      width: 150px
+      margin: auto
 </style>
 
 <template>
@@ -200,7 +220,7 @@
             <div id="analyze-genes-progress"
             class="level-edu level-basic">
               <span v-if="geneNames.length > 0" id="total-genes-label">{{ geneNames.length }} genes</span>
-              <div v-if="isLoaded &&  (analyzeAllInProgress || callAllInProgress)" id="analyzed-progress-bar" >
+              <div v-show="isLoaded &&  (analyzeAllInProgress || callAllInProgress)" id="analyzed-progress-bar" >
                 <div>
                   <v-progress-linear v-show="analyzeAllInProgress" class="loaded-progress"   style="height:5px;width:150px" v-model="loadedPercentage">
                   </v-progress-linear>

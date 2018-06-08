@@ -510,8 +510,7 @@ export default {
 
     self.mainContentWidth = $('main.content .container').outerWidth();
     $(window).resize(function() {
-      self.mainContentWidth = $('main.content .container').outerWidth();
-      self.calcFeatureMatrixWidthPercent();
+      self.onResize();
     });
 
     // Safari can't use IndexedDB in iframes, so in this situation, use
@@ -625,7 +624,7 @@ export default {
       } else {
         return null;
       }
-    },
+    }
 
 
 
@@ -635,8 +634,7 @@ export default {
     isLeftDrawerOpen: function() {
       let self = this;
       setTimeout(function() {
-        self.mainContentWidth = $('main.content .container').outerWidth();
-        self.calcFeatureMatrixWidthPercent();
+        self.onResize();
       }, 1000)
     },
     showKnownVariantsCard: function() {
@@ -1562,6 +1560,18 @@ export default {
     },
     onHideSnackbar: function() {
       this.showSnackbar = false;
+    },
+
+    onResize: function() {
+      let self = this;
+      self.mainContentWidth = $('main.content .container').outerWidth();
+      self.calcFeatureMatrixWidthPercent();
+      if (self.mainContentWidth > 905) {
+        $('main.content .container').removeClass("small");
+      } else {
+        $('main.content .container').addClass("small");
+      }
+
     },
 
     calcFeatureMatrixWidthPercent: function() {
