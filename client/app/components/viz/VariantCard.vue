@@ -71,7 +71,8 @@
 
 
   .zoom-switch
-    margin-left: 205px
+    margin-left: 20px
+    display: inline-block
 
     label
       padding-left: 7px
@@ -271,7 +272,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="showVariantViz && sampleModel.loadedVariants.features.length > 0 && sampleModel.relationship != 'known-variants'"
+        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.loadedVariants.features.length > 0 && sampleModel.relationship != 'known-variants'"
         >
           loaded variants
         </div>
