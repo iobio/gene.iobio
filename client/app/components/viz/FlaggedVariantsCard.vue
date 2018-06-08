@@ -125,13 +125,17 @@
       vertical-align: top
       margin-bottom: 0px
       margin-top: -2px
+      background-color: transparent
+      width: 18px !important
+      height: 18px !important
 
       .chip__content
-        width: 24px !important
-        height: 24px !important
+        width: 18px !important
+        height: 18px !important
         justify-content: space-around
         padding: 0px
         font-size: 11px
+        background-color: $light-badge-color
 
     .variant-label
       font-size: 12px

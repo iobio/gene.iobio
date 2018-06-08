@@ -47,12 +47,12 @@
 
   #gene-name
     margin-left: 0px
-    background-color:  $app-color
+    color:  $app-color
     margin-top: 0px
     margin-bottom: 8px
+    font-weight: bold
+    font-size: 15px
 
-    .chip__content
-      background-color:  $app-color
 
 
   #gene-chr
@@ -104,7 +104,7 @@
 
   #gene-links
     display: inline-block
-    margin-left: 5px
+
 
     .gene-link
       display: inline-block
@@ -120,15 +120,17 @@
     display: block;
     padding-top: 2px;
 
-  #ncbi-summary
+  #ncbi-heading
     margin-top: 5px
     font-size: 12px
+    font-weight: bold
+
+  #ncbi-summary
+    font-size: 12px
     font-weight: normal
-    margin-left: 5px
 
   #phenotypes
     margin-top: 8px
-    margin-left: 5px
 
 
     #phenotypes-heading
@@ -159,9 +161,9 @@
     </div>
     <div>
       <div style="display:inline-block;margin-right:auto;">
-        <v-chip id="gene-name"  class="level-basic gene-card-label heading ">
+        <span id="gene-name"  class="level-basic gene-card-label heading ">
           {{ selectedGene.gene_name }}
-        </v-chip>
+        </span>
 
         <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
 
@@ -262,6 +264,7 @@
     <div id="gene-summary-box" >
 
 
+      <div id="ncbi-heading">NCBI summary</div>
       <div v-if="showGene && ncbiSummary" id="ncbi-summary">
         {{ ncbiSummary.summary }}
       </div>
