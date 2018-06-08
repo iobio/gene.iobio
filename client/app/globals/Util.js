@@ -522,7 +522,7 @@ class Util {
               if (transcriptUrls.length > 0) {
                 transcriptUrls += ", ";
               }
-              var url = '<a href="javascript:void(0)" onclick="selectTranscript(\'' + transcriptId + '\')">' + transcriptId + '</a>';
+              var url = '<a href="javascript:void(0)" @click="selectTranscript(\'' + transcriptId + '\')">' + transcriptId + '</a>';
               transcriptUrls += url;
             }
             ncObject[effectKey] = {transcripts: Object.keys(allTranscripts), display: Object.keys(allTranscripts).join(","), url: transcriptUrls};
@@ -653,6 +653,7 @@ class Util {
       vepHighestImpactSimple: "",
       vepHighestImpactInfo: "",
       vepHighestImpactValue: "",
+      vepHighestImpactRecs: [],
       vepConsequence: "",
       HGVSc: "",
       HGVSp: "",
@@ -764,8 +765,10 @@ class Util {
     // If the highest impact occurs in a non-canonical transcript, show the impact followed by
     // the consequence and corresponding transcripts
     var vepHighestImpacts = me.globalApp.utility.getNonCanonicalHighestImpactsVep(variant, translator.impactMap);
+    info.vepHighestImpactRecs = [];
     for (var impactKey in vepHighestImpacts) {
 
+      let impactRec = {impact: impactKey, effects: []};
 
       var nonCanonicalEffects = vepHighestImpacts[impactKey];
       if (info.vepHighestImpact.length > 0) {
@@ -781,15 +784,22 @@ class Util {
 
       nonCanonicalEffects.forEach(function(nonCanonicalEffect) {
         info.vepHighestImpact += "<span>  (";
+        let effectRec = {};
         for (var effectKey in nonCanonicalEffect) {
+          effectRec = {key: effectKey, display: effectKey.split("_").join(" ").split("\&").join(" & ").split(" variant").join(""), transcripts: nonCanonicalEffect[effectKey].transcripts};
+
           var transcriptString = nonCanonicalEffect[effectKey].url;
           info.vepHighestImpact     += " " + effectKey.split("\&").join(" & ") + ' in ' + transcriptString;
           info.vepHighestImpactInfo += " " + effectKey.split("\&").join(" & ") + " in " + nonCanonicalEffect[effectKey].display;
 
+          impactRec.effects.push(effectRec);
         }
         info.vepHighestImpact += ")</span> ";
       })
-      info.vepHighestImpacSimple += " in non-canonical transcripts";
+      info.vepHighestImpactSimple += " in non-canonical transcripts";
+
+      info.vepHighestImpactRecs.push(impactRec);
+
     }
 
 

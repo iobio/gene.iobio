@@ -6,6 +6,14 @@
   padding-top: 0px
   overflow-x: scroll
 
+
+  .layout.row
+    margin-bottom: 5px
+
+  .layout.row.no-bottom-margin
+    margin-bottom: 0px
+
+
   #user-flag-buttons
     position: absolute
     bottom: 0px
@@ -242,7 +250,11 @@
         <v-flex v-if="selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
           <v-layout row>
              <v-flex xs3 class="field-label">Inheritance</v-flex>
-             <v-flex id="inheritance" xs9 class="field-value"></v-flex>
+             <v-flex id="inheritance" xs9 class="field-value">
+               <app-icon :icon="selectedVariant.inheritance" height="16" width="16">
+               </app-icon>
+               {{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}
+             </v-flex>
           </v-layout>
         </v-flex>
         <v-flex>
@@ -254,23 +266,37 @@
         <v-flex v-if="info.vepHighestImpact != '' && !isBasicMode">
           <v-layout row >
              <v-flex xs3 class="field-label">Most severe impact</v-flex>
-             <v-flex xs9 class="field-value" v-html="info.vepHighestImpact"></v-flex>
+             <v-flex xs9 class="field-value">
+                <span v-for="(impactRec, idx) in info.vepHighestImpactRecs" :key="impactRec.impact">
+                 {{ getNonCanonicalImpactDisplay(idx, impactRec) }}
+                  <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
+                    {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
+                    <a v-for="transcriptId in effectRec.transcripts"
+                     :key="transcriptId"
+                     href="javascript:void(0)"
+                     @click="selectTranscript(transcriptId)">
+                      {{ transcriptId }}
+                    </a>
+                  </span>
+                </span>
+
+             </v-flex>
           </v-layout>
         </v-flex>
         <v-flex >
-          <v-layout row v-if="info.clinvarLink != ''">
+          <v-layout row :class="{'no-bottom-margin': info.phenotype != ''}" v-if="info.clinvarLink != ''">
              <v-flex xs3 class="field-label">Clinvar</v-flex>
              <v-flex xs9 class="field-value" v-html="info.clinvarLink"></v-flex>
           </v-layout>
         </v-flex>
         <v-flex >
-          <v-layout row v-if="info.phenotype != ''">
+          <v-layout row  v-if="info.phenotype != ''">
              <v-flex xs3 class="field-label"></v-flex>
              <v-flex xs9 class="field-value">{{ info.phenotype }}</v-flex>
           </v-layout>
         </v-flex>
         <v-flex  v-if="!isBasicMode">
-          <v-layout row>
+          <v-layout row class="no-bottom-margin">
              <v-flex xs3 class="field-label">HGVSc </v-flex>
              <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
           </v-layout>
@@ -282,13 +308,13 @@
           </v-layout>
         </v-flex>
         <v-flex   v-if="info.polyphen != '' && !isBasicMode">
-          <v-layout row  >
+          <v-layout row class="no-bottom-margin" >
              <v-flex xs3 class="field-label">Polyphen</v-flex>
              <v-flex xs9 class="field-value">{{ info.polyphen }}</v-flex>
           </v-layout>
         </v-flex>
-        <v-flex v-if="info.sift != '' && !isBasicMode" >
-          <v-layout row>
+        <v-flex  v-if="info.sift != '' && !isBasicMode" >
+          <v-layout row class="no-bottom-margin">
              <v-flex xs3 class="field-label">SIFT</v-flex>
              <v-flex xs9 class="field-value">{{ info.sift }}</v-flex>
           </v-layout>
@@ -386,10 +412,12 @@
 <script>
 
 import Vue from 'vue'
+import AppIcon from "../partials/AppIcon.vue"
 
 export default {
   name: 'variant-detail-card',
   components: {
+    AppIcon
   },
   props: {
     isEduMode: null,
@@ -434,7 +462,6 @@ export default {
     refreshGlyphs: function() {
       if (this.selectedVariant) {
         this.createAlleleCountsSVG();
-        this.addInheritanceGlyph();
 
       }
     },
@@ -450,22 +477,26 @@ export default {
         this.WIDTH_ALLELE_COUNT_BAR);
 
     },
-    addInheritanceGlyph: function() {
-      let self = this;
-      d3.select("#variant-detail #inheritance span").remove();
-      d3.select("#variant-detail #inheritance .inheritance-badge").remove();
-      if (self.selectedVariant && self.selectedVariant.inheritance != '') {
-        var clazz = self.cohortModel.translator.inheritanceMap[self.selectedVariant.inheritance].clazz;
-        var symbolFunction = self.cohortModel.translator.inheritanceMap[self.selectedVariant.inheritance].symbolFunction;
-        var display = self.cohortModel.translator.inheritanceMap[self.selectedVariant.inheritance].display;
-        $(self.$el).find("#inheritance").html("");
-        $(self.$el).find("#inheritance").append("<svg class=\"inheritance-badge\"  height=\"15\" width=\"15\">");
-        var options = {width:15, height:15, transform: 'translate(0,2)'};
-        var selection = d3.select(self.$el).select("#inheritance .inheritance-badge").data([{clazz: clazz}]);
-        symbolFunction(selection, options);
-        d3.select(self.$el).select("#inheritance").append("span").text(display);
-      }
+    selectTranscript: function(transcriptId) {
+      this.$emit("transcript-id-selected", transcriptId);
     },
+    getNonCanonicalImpactDisplay: function(idx, impactRec) {
+      let buf = "";
+      if (idx > 0) {
+        buf += " | ";
+      }
+      buf += impactRec.impact.toLowerCase() + ' impact - ';
+      return buf;
+    },
+    getNonCanonicalEffectDisplay: function(idx, effectRec) {
+      let buf = "";
+      if (idx > 0) {
+        buf += " ,";
+      }
+      buf += effectRec.display + " in transcripts ";
+      return buf;
+    },
+
 
 
 
@@ -828,7 +859,6 @@ export default {
     selectedVariant: function() {
       if (this.selectedVariant) {
         this.createAlleleCountsSVG();
-        this.addInheritanceGlyph();
       }
 
     }
@@ -852,7 +882,6 @@ export default {
   updated: function() {
     if (this.selectedVariant) {
       this.createAlleleCountsSVG();
-      this.addInheritanceGlyph();
 
     }
   },

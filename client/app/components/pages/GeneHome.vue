@@ -233,6 +233,7 @@ main.content
                   :variantTooltip="variantTooltip"
                   :cohortModel="cohortModel"
                   :info="selectedVariantInfo"
+                  @transcript-id-selected="onTranscriptIdSelected"
                   @flag-variant="onFlagVariant"
                   @remove-flagged-variant="onRemoveFlaggedVariant"
                   >
@@ -967,7 +968,9 @@ export default {
           self.geneRegionStart = theGeneObject.start;
           self.geneRegionEnd   = theGeneObject.end;
           self.selectedGene = theGeneObject;
-          self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
+          if (self.selectedTranscript == null || Object.keys(self.selectedTranscript).length == 0) {
+            self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
+          }
           if (self.$refs.scrollButtonRefGene) {
             self.$refs.scrollButtonRefGene.showScrollButtons();
           }
@@ -991,9 +994,22 @@ export default {
         })
       })
     },
+    onTranscriptIdSelected: function(transcriptId) {
+      var self = this;
+      let theTranscript = null;
+      self.selectedGene.transcripts.filter(function(transcript) {
+        if (transcript.transcript_id.indexOf(transcriptId) == 0) {
+          theTranscript = transcript;
+        }
+      })
+      if (theTranscript != null) {
+        self.onTranscriptSelected(theTranscript);
+      }
+    },
     onTranscriptSelected: function(transcript) {
       var self = this;
       self.selectedTranscript = transcript;
+      self.onGeneSelected(self.selectedGene.gene_name);
     },
     onGeneSourceSelected: function(theGeneSource) {
       var self = this;
