@@ -6,6 +6,12 @@
   padding-top: 0px
   overflow-x: scroll
 
+  #user-flag-buttons
+    position: absolute
+    bottom: 0px
+    right: 0px
+    margin-bottom: 0px
+
   .scroll-button
     color: $link-color !important
     height: 24px
@@ -24,9 +30,8 @@
     color:  $link-color !important
 
   .flag-button
-    float: left
     padding: 0px
-    margin-top: 1px
+    margin-bottom: 3px
     margin-left: 2px
     height: 24px
 
@@ -198,7 +203,7 @@
     </div>
 
       <div  v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
-        <span v-if="!isBasicMode">{{ selectedVariantRelationship | showRelationship }}</span>
+        <span class="pr-1"v-if="!isBasicMode">{{ selectedVariantRelationship | showRelationship }}</span>
         <span class="pl-1">{{ selectedGene.gene_name }}</span>
         <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
@@ -215,7 +220,7 @@
         <span class="pl-1 refalt">Genotype {{ refAlt  }}</span>
         <span class="pl-1">{{ info.vepImpact }}</span>
       </div>
-      <div  v-if="selectedVariant && !isEduMode && !isBasicMode" style="overflow:auto;width:100%">
+      <div id="user-flag-buttons" v-if="selectedVariant && !isEduMode && !isBasicMode && selectedVariantRelationship != 'known-variants'" >
         <v-btn class="flag-button" small raised
         v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"
         @click="setUserFlag">
