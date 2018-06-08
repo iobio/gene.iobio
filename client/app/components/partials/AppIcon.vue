@@ -11,7 +11,7 @@
   fill: #ad494A
 
 .level-likely-high
-  fill:  #FB7737
+  fill:  #de6d37
 
 .level-medium, .level-unknown-significance
   fill: rgba(231, 186, 82, 1)
