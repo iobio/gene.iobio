@@ -25,12 +25,6 @@
     &.known-variants
       min-width: 100px
       max-width: 100px
-  #loaded-count
-    vertical-align: top
-    padding-top: 4px
-  #called-count
-    vertical-align: top
-    padding-top: 4px
 
   #gene-viz, #gene-viz-zoom
     .axis
@@ -90,12 +84,17 @@
     font-weight: normal
 
     &.called
+      vertical-align: top
+      padding-top: 4px
       .badge__badge
         background-color: $light-badge-color !important
     &.loaded
+      vertical-align: top
+      padding-top: 4px
       .badge__badge
         background-color: $light-badge-color !important
     &.coverage-problem
+      vertical-align: top
       .badge__badge
         background-color: $coverage-problem-color !important
 
@@ -165,7 +164,7 @@
         <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
         {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Loaded' }}
       </v-badge>
-      <v-badge
+      <v-badge id="called-count"
         v-if="sampleModel.relationship != 'known-variants' && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
         class="mr-4 mt-1 called">
         <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>

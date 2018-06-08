@@ -55,6 +55,14 @@ main.content
     padding-top: 2px
     color: $text-color
 
+.switch
+  &.accent--text
+    color:  $app-color !important
+
+.radio
+  &.accent--text
+    color:  $app-color !important
+
 </style>
 
 
