@@ -17,11 +17,20 @@
 
 #variant-card
   #sample-label
+    vertical-align: top
+    display: inline-block
     min-width: 200px
     max-width: 200px
+    padding-top: 2px
     &.known-variants
       min-width: 100px
       max-width: 100px
+  #loaded-count
+    vertical-align: top
+    padding-top: 4px
+  #called-count
+    vertical-align: top
+    padding-top: 4px
 
   #gene-viz, #gene-viz-zoom
     .axis
@@ -61,8 +70,8 @@
       stroke: rgb(159, 159, 159)
 
 
-  .clinvar-switch, .zoom-switch
-    margin-left: 25px
+  .zoom-switch
+    margin-left: 205px
 
     label
       padding-left: 7px
@@ -77,20 +86,21 @@
     padding: 3px 7px
     background-color: white !important
     color: $text-color !important
+    font-weight: normal
 
     &.called
       .badge__badge
-        background-color: $default-badge-color !important
+        background-color: $light-badge-color !important
     &.loaded
       .badge__badge
-        background-color: $default-badge-color !important
+        background-color: $light-badge-color !important
     &.coverage-problem
       .badge__badge
         background-color: $coverage-problem-color !important
 
     .badge__badge
       font-size: 11px
-      font-weight: bold
+      font-weight: normal
       width: 24px
       top: -3px;
 
@@ -144,9 +154,9 @@
 <template>
 
   <v-card tile id="variant-card" class="app-card">
-    <v-card-title primary-title>
+    <div>
       <span id="sample-label" v-bind:class="sampleModel.relationship">
-        {{ (isBasicMode ? 'Variants for ' : '') + sampleModel.relationship + ' ' + sampleModel.name }}
+        {{ (isBasicMode ? 'Variants for ' : '') + (sampleModel.relationship != 'known-variants' ? sampleModel.relationship + ' ' : '')  + sampleModel.name }}
       </span>
 
       <v-badge  id="loaded-count"
@@ -171,15 +181,6 @@
       >
       </v-switch>
 
-      <v-switch class="clinvar-switch mt-1"
-      v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !isEduMode && !isBasicMode"
-      v-bind:label="`Display all ${selectedGene.gene_name} ClinVar variants`"
-      v-model="showKnownVariantsCard"
-      >
-      </v-switch>
-
-
-
 
       <known-variants-toolbar
         v-if="sampleModel.relationship == 'known-variants'"
@@ -187,6 +188,8 @@
         @knownVariantsFilterChange="onKnownVariantsFilterChange"
       >
       </known-variants-toolbar>
+    </div>
+
 
       <stacked-bar-chart-viz
         id="known-variants-chart"
@@ -222,6 +225,9 @@
 
 
         <span v-if="showZoom" class=" label label-warning text-xs-center">{{ zoomMessage }}</span>
+      </div>
+
+      <div style="width:100%">
         <gene-viz id="gene-viz-zoom"
         v-if="showZoom"
         :data="[selectedTranscript]"
@@ -239,7 +245,7 @@
         </gene-viz>
 
         <div class="chart-label"
-        v-if="showVariantViz && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.length > 0"
+        v-if="showVariantViz && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0"
         >
           called variants
         </div>
@@ -265,7 +271,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-if="showVariantViz && sampleModel.loadedVariants > 0"
+        v-show="showVariantViz && sampleModel.loadedVariants.features.length > 0 && sampleModel.relationship != 'known-variants'"
         >
           loaded variants
         </div>
@@ -339,7 +345,6 @@
 
 
       </div>
-    </v-card-title>
 
   </v-card>
 
@@ -438,7 +443,6 @@ export default {
       relationship: null,
       selectedExon: null,
 
-      showKnownVariantsCard: false,
       knownVariantsViz: null,
 
       showZoom: false,
@@ -757,9 +761,6 @@ export default {
   },
 
   watch: {
-    showKnownVariantsCard: function() {
-      this.$emit("show-known-variants-card", this.showKnownVariantsCard);
-    },
     showZoom: function() {
       if (!this.showZoom) {
         this.zoomMessage = "Drag to zoom";

@@ -4,8 +4,8 @@
 #known-variants-toolbar
   display: inline-block
   padding-top: 0px
-  float: left
   margin-left: 20px
+  margin-top: -6px
 
   .input-group.radio
     margin-top: 0px

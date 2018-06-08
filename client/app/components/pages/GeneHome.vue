@@ -19,7 +19,7 @@ main.content
   text-align: center
 
 .tabs__container
-  height: 26px !important
+  height: 31px !important
   margin-left: 0px
 
   .tabs__item
@@ -41,6 +41,19 @@ main.content
 .split-pane-item
   height: initial !important
   display: flex !important
+
+.clinvar-switch, .zoom-switch
+  position: absolute
+  top: 5px
+  left: 200px
+
+  label
+    padding-left: 7px
+    line-height: 18px
+    font-size: 12px
+    font-weight: bold
+    padding-top: 2px
+    color: $text-color
 
 </style>
 
@@ -134,7 +147,7 @@ main.content
           v-bind:class="{hide : showWelcome }"
           >
          <split-pane :leftPercent="featureMatrixWidthPercent">
-            <feature-matrix-card slot="left" style="min-width:310px;min-height:auto;max-height:auto;overflow-y:scroll"
+            <feature-matrix-card v-show="featureMatrixWidthPercent > 0" slot="left" style="min-width:310px;min-height:auto;max-height:auto;overflow-y:scroll"
             ref="featureMatrixCardRef"
             v-bind:class="{ hide: isBasicMode || !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
             :isEduMode="isEduMode"
@@ -155,6 +168,7 @@ main.content
 
             <v-card slot="right" style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;overflow-y:scroll">
 
+
               <v-tabs
                 v-if="geneModel && Object.keys(selectedGene).length > 0"
                 v-model="activeGeneVariantTab"
@@ -166,6 +180,12 @@ main.content
                 <v-tab >
                   Variant
                 </v-tab>
+                <v-switch class="clinvar-switch"
+                  v-if="geneModel.geneDangerSummaries[selectedGene.gene_name] && !isEduMode && !isBasicMode"
+                  v-bind:label="`Display all ${selectedGene.gene_name} ClinVar variants`"
+                  v-model="showKnownVariantsCard"
+                  >
+                </v-switch>
                 <v-tab-item style="margin-top:5px;margin-bottom:0px;overflow-y:scroll">
                   <gene-card
                     v-if="geneModel && Object.keys(selectedGene).length > 0"
@@ -265,7 +285,6 @@ main.content
         :showDepthViz="model.relationship != 'known-variants'"
         :showVariantViz="model.relationship != 'known-variants' || showKnownVariantsCard"
         :geneVizShowXAxis="model.relationship == 'proband' || model.relationship == 'known-variants'"
-        @show-known-variants-card="onShowKnownVariantsCard"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-hover="onCohortVariantHover"
         @cohort-variant-hover-end="onCohortVariantHoverEnd"
@@ -619,6 +638,9 @@ export default {
         self.mainContentWidth = $('main.content .container').outerWidth();
         self.calcFeatureMatrixWidthPercent();
       }, 1000)
+    },
+    showKnownVariantsCard: function() {
+      this.onShowKnownVariantsCard();
     }
   },
 
@@ -1422,9 +1444,8 @@ export default {
 
       });
     },
-    onShowKnownVariantsCard: function(show) {
+    onShowKnownVariantsCard: function() {
       let self = this;
-      self.showKnownVariantsCard = show;
       if (self.showKnownVariantsCard) {
         self.onKnownVariantsVizChange();
       }
