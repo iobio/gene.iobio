@@ -1,5 +1,5 @@
 /*
- * Home.vue
+ * GeneHome.vue
  *
  */
 <style lang="sass">
@@ -630,6 +630,7 @@ export default {
         self.cacheHelper = new CacheHelper(self.globalApp, self.forceLocalStorage);
         self.cacheHelper.on("geneAnalyzed", function(geneName) {
           self.$refs.genesCardRef.determineFlaggedGenes();
+
           if (geneName == self.selectedGene.gene_name) {
             self.promiseLoadData();
           }
@@ -637,6 +638,10 @@ export default {
         self.cacheHelper.on("analyzeAllCompleted", function() {
           if (!self.isEduMode) {
             self.$refs.navRef.onShowFlaggedVariants();
+          }
+          if (self.launchedFromClin) {
+            self.onSendFiltersToClin();
+            self.onSendFlaggedVariantsToClin();
           }
         });
 
@@ -1345,6 +1350,10 @@ export default {
       // Refresh the loaded variants so that the ranked variants table
       // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
+
+      if (self.launchedFromClin) {
+        onSendFlaggedVariantsToClin();
+      }
     },
     onRemoveFlaggedVariant: function(variant) {
       let self = this;
@@ -1359,6 +1368,10 @@ export default {
       // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
 
+      if (self.launchedFromClin) {
+        onSendFlaggedVariantsToClin();
+      }
+
     },
     onAddFlaggedVariants: function(flaggedVariants) {
       let self = this;
@@ -1372,6 +1385,9 @@ export default {
       let self = this;
       self.flaggedVariants = [];
       self.flaggedVariants = flaggedVariants;
+      if (self.launchedFromClin) {
+        self.onSendFlaggedVariantsToClin();
+      }
 
     },
     onFlaggedVariantsImported: function() {
@@ -1422,6 +1438,9 @@ export default {
         }
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
           self.$refs.navRef.onShowFlaggedVariants();
+        }
+        if (self.launchedFromClin) {
+          self.onSendFiltersToClin();
         }
       })
     },
@@ -1593,9 +1612,28 @@ export default {
       window.parent.postMessage(JSON.stringify(responseObject), this.clinIobioUrl);
     },
 
-    onSendFlaggedVariantsToClin: function(flaggedVariants) {
-      var msgObject = {success: true, type: 'save-variants', sender: 'gene.iobio.io', variants: flaggedVariants};
-      window.parent.postMessage(JSON.stringify(msgObject), this.clinIobioUrl);
+    onSendFlaggedVariantsToClin: function() {
+      let self = this;
+      self.cohortModel.promiseExportFlaggedVariants('json')
+      .then(function(data) {
+        var msgObject = {
+          success: true,
+          type: 'save-variants',
+          sender: 'gene.iobio.io',
+          variants: data};
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+      });
+    },
+
+    onSendFiltersToClin: function() {
+      let self = this;
+      var msgObject = {
+        success: true,
+        type: 'save-filters',
+        sender: 'gene.iobio.io',
+        filters: self.filterModel.flagCriteria
+      };
+      window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
     }
 
 

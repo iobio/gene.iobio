@@ -11,7 +11,7 @@ import Vue                  from 'vue'
 import VueRouter            from 'vue-router'
 
 import App                  from './App.vue'
-import Home                 from './components/pages/Home.vue'
+import GeneHome             from './components/pages/GeneHome.vue'
 import Exhibit              from './components/pages/Exhibit.vue'
 import ExhibitCases         from './components/pages/ExhibitCases.vue'
 import ExhibitCaseComplete  from './components/pages/ExhibitCaseComplete.vue'
@@ -43,7 +43,7 @@ const routes = [
   {
     name: 'home',
     path: '/',
-    component: Home,
+    component: GeneHome,
     props: (route) => ({
         paramGene:             route.query.gene,
         paramGenes:            route.query.genes,

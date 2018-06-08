@@ -542,11 +542,7 @@ export default {
     },
     sendVariantsToClin: function() {
       let self = this;
-      this.cohortModel.promiseExportFlaggedVariants('json')
-      .then(function(output) {
-        console.log(output);
-        self.$emit('send-flagged-variants-to-clin', output);
-      });
+      self.$emit('send-flagged-variants-to-clin');
     },
     onSaveFile: function() {
       let self = this;

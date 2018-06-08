@@ -496,7 +496,7 @@ export default class VariantExporter {
       });
 
       // Set the clinvar start, alt, ref for clinvar web access
-      me.cohort.getProbandModel().vcf._formatClinvarCoordinates(theVariant, theVariant);
+      me.cohort.getProbandModel().vcf._formatClinvarCoordinates(theVariant, theVariant.alt);
 
       // Get the clinvar data and load into the variant record
       var dummyVcfData  = {features: [revisedVariant]};
