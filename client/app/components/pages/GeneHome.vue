@@ -42,7 +42,7 @@ main.content
   height: initial !important
   display: flex !important
 
-.clinvar-switch, .zoom-switch
+.clinvar-switch
   position: absolute
   top: 5px
   left: 200px
