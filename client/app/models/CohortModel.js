@@ -1964,24 +1964,35 @@ class CohortModel {
 
   }
 
-  getFlaggedGenesSortedByFilter() {
+  organizeVariantsByFilterAndGene() {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       let flagCriteria = self.filterModel.flagCriteria[filterName];
-      var sortedGenes = self._getFlaggedGenes(filterName, flagCriteria.userFlagged);
+      var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged);
       if (sortedGenes.length > 0) {
         filters.push({key: filterName, filter: flagCriteria, genes: sortedGenes});
       }
     }
 
-    return filters.sort(function(filterObject1, filterObject2) {
+    let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
       return filterObject1.filter.order > filterObject2.filter.order;
     })
+
+    var variantIndex = 0;
+    sortedFilters.forEach(function(filterObject) {
+      filterObject.genes.forEach(function(geneList) {
+        geneList.variants.forEach(function(variant) {
+          variant.index = variantIndex++;
+        })
+      })
+    })
+    return sortedFilters;
+
   }
 
 
-  _getFlaggedGenes(filterName, userFlagged) {
+  _organizeVariantsForFilter(filterName, userFlagged) {
     let self = this;
     let geneMap        = {};
     let flaggedGenes   = [];

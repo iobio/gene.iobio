@@ -75,7 +75,7 @@
       margin-left: -2px;
 
   .list--three-line
-    margin-bottom: 20px
+    margin-bottom: 30px
     padding-top: 5px
     .subheader
       height: initial
@@ -87,8 +87,11 @@
     li
       margin-left: 10px
 
+    .list__tile__avatar
+      margin-left: 0px
+
     .list__tile__content
-      margin-left: 20px
+      margin-left: 0px
 
     hr
       margin-bottom: 4px
@@ -169,6 +172,8 @@
         margin-top: -2px
         vertical-align: top
         width: 105px
+        font-weight: bold
+        font-size: 13px
 
       .has-called-variants
         font-size: 15px
@@ -295,7 +300,7 @@
             @click="onVariantSelected(variant)">
 
 
-              <v-list-tile-avatar v-show="false">
+              <v-list-tile-avatar >
                <v-chip class="variant-number" >
                 {{ variant.index + 1 }}
                </v-chip>
@@ -573,7 +578,7 @@ export default {
         self.geneLists = [];
       } else {
 
-        var filters = self.cohortModel.getFlaggedGenesSortedByFilter();
+        var filters = self.cohortModel.organizeVariantsByFilterAndGene();
 
         self.geneLists = filters.map(function(filterObject) {
           return {
