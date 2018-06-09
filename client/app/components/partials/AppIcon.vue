@@ -13,7 +13,7 @@
 .level-likely-high
   fill:  #de6d37
 
-.level-medium, .level-unknown-significance
+.level-medium, .level-unknown-significance, .level-unknown
   fill: rgba(231, 186, 82, 1)
 
 .level-low
@@ -397,15 +397,29 @@ export default {
     width: null,
     height: null,
     fill: null,
-    level: null
+    level: null,
+    significance: null
   },
   data () {
     return {
+      clinvarLevels: {
+        clinvar_path: 'high',
+        clinvar_lpath: 'likely-high',
+        clinvar_uc: "unknown",
+        clinvar_benign: "low",
+        clinvar_lbenign: "likely-low",
+        clinvar_other: "other",
+        clinvar_cd: "conflicting"
+      }
     }
   },
   methods: {
     getClassObject: function(clazzes) {
-      var levelClass = this.level ? 'level-' + this.level : null;
+      let theLevel = this.level
+      if (this.icon == 'clinvar' && this.significance) {
+        theLevel = this.clinvarLevels[this.significance];
+      }
+      var levelClass = theLevel ? 'level-' + theLevel : null;
 
       if (levelClass) {
         if (clazzes == null) {

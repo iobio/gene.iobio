@@ -211,7 +211,13 @@
     </div>
 
       <div  v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
-        <span class="pr-1"v-if="!isBasicMode">{{ selectedVariantRelationship | showRelationship }}</span>
+        <span class="pr-1"v-if="!isBasicMode">
+          <app-icon v-show="selectedVariantRelationship == 'known-variants'"
+            :icon="selectedVariantRelationship == 'known-variants' ? 'clinvar' : ''"
+            :significance="selectedVariant.clinvar" width="16" height="16">
+          </app-icon>
+          {{ selectedVariantRelationship | showRelationship }}
+        </span>
         <span class="pl-1">{{ selectedGene.gene_name }}</span>
         <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
