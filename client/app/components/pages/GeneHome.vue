@@ -1395,7 +1395,7 @@ export default {
       self.promiseLoadGene(self.selectedGene.gene_name)
 
       if (self.launchedFromClin) {
-        onSendFlaggedVariantsToClin();
+        self.onSendFlaggedVariantsToClin();
       }
     },
     onRemoveFlaggedVariant: function(variant) {
@@ -1412,7 +1412,7 @@ export default {
       self.promiseLoadGene(self.selectedGene.gene_name)
 
       if (self.launchedFromClin) {
-        onSendFlaggedVariantsToClin();
+        self.onSendFlaggedVariantsToClin();
       }
 
     },
