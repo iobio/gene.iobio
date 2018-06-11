@@ -616,9 +616,6 @@ class GeneModel {
     if (self.geneToLatestTranscript && self.geneToLatestTranscript.hasOwnProperty(geneName)) {
       delete self.geneToLatestTranscript[geneName];
     }
-    if (self.geneToLatestTranscript && self.geneToLatestTranscript[geneName]) {
-      delete self.geneToLatestTranscript[geneName];
-    }
   }
 
   promiseGetGenePhenotypes(geneName) {
@@ -854,6 +851,14 @@ class GeneModel {
     // TODO: Don't go past length of reference
     geneObject.end   = geneObject.endOrig + me.geneRegionBuffer;
 
+  }
+
+  getLatestGeneTranscript(geneName) {
+    return this.geneToLatestTranscript[geneName];
+  }
+
+  setLatestGeneTranscript(geneName, transcript) {
+    this.geneToLatestTranscript[geneName] = transcript;
   }
 
   sortGenes(sortBy) {

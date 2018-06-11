@@ -455,7 +455,9 @@
     >
 
       <v-card>
-        <v-card-title class="headline">{{ Save variants file</v-card-title>
+        <v-card-title class="headline">
+         Save variants file
+        </v-card-title>
         <v-card-text class="variant-file-body">
           <div id="save-format" >
             <v-radio-group hide-details v-model="exportFormat" >
@@ -546,7 +548,7 @@ export default {
       if (self.launchedFromClin) {
         self.sendVariantsToClin();
       } else {
-        showSaveDialog = true;
+        self.showSaveDialog = true;
       }
     },
     sendVariantsToClin: function() {

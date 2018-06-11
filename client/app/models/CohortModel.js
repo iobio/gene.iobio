@@ -1656,8 +1656,8 @@ class CohortModel {
     })
     if (existingVariants.length == 0) {
       this.flaggedVariants.push(variant);
+      this._recacheForFlaggedVariant(theGene, theTranscript, variant);
     }
-    this._recacheForFlaggedVariant(theGene, theTranscript, variant);
   }
 
   removeFlaggedVariant(theGene, theTranscript, variant) {

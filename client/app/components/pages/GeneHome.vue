@@ -968,9 +968,18 @@ export default {
           self.geneRegionStart = theGeneObject.start;
           self.geneRegionEnd   = theGeneObject.end;
           self.selectedGene = theGeneObject;
-          if (self.selectedTranscript == null || Object.keys(self.selectedTranscript).length == 0) {
+
+          // Determine the transcript that should be selected for this gene
+          // If the transcript wasn't previously selected for this gene,
+          // set it to the canonical transcript
+          let latestTranscript = self.geneModel.getLatestGeneTranscript(geneName);
+          if (latestTranscript == null) {
             self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
+            self.geneModel.setLatestGeneTranscript(geneName, self.selectedTranscript);
+          } else {
+            self.selectedTranscript = latestTranscript;
           }
+
           if (self.$refs.scrollButtonRefGene) {
             self.$refs.scrollButtonRefGene.showScrollButtons();
           }
@@ -1009,6 +1018,7 @@ export default {
     onTranscriptSelected: function(transcript) {
       var self = this;
       self.selectedTranscript = transcript;
+      self.geneModel.setLatestGeneTranscript(self.selectedTranscript);
       self.onGeneSelected(self.selectedGene.gene_name);
     },
     onGeneSourceSelected: function(theGeneSource) {
@@ -1058,6 +1068,7 @@ export default {
       let self = this;
       if (variant) {
         self.selectedVariant = variant;
+        self.transcript = self.selectedTranscript;
         self.selectedVariantRelationship = sourceRelationship;
         self.activeGeneVariantTab = "1";
         self.showVariantExtraAnnots(sourceComponent, variant);
@@ -1394,14 +1405,17 @@ export default {
       // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
 
-      if (self.launchedFromClin) {
-        self.onSendFlaggedVariantsToClin();
-      }
+      //if (self.launchedFromClin) {
+      //  self.onSendFlaggedVariantsToClin();
+      //}
     },
     onRemoveFlaggedVariant: function(variant) {
       let self = this;
       variant.isFlagged = false;
       variant.featureClass = "";
+      if (variant.filtersPassed == null) {
+        variant.filtersPassed = ['userFlagged'];
+      }
       self.cohortModel.removeFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
       self.flaggedVariants = this.cohortModel.flaggedVariants;
       if (!self.isEduMode) {
