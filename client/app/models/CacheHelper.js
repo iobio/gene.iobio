@@ -10,6 +10,7 @@ function CacheHelper(globalApp, forceLocalStorage) {
   this.cacheQueue = [];
   this.batchSize = null;
   this.showCallAllProgress = false;
+  this.geneToAltTranscript = {};
 
   this.start = null;
   this.cacheIndexStore = new CacheIndexStore();
@@ -56,9 +57,10 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
   }
 }
 
-CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, analyzeCalledVariants=false) {
+CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, geneToAltTranscript, analyzeCalledVariants=false) {
   var me = this;
   me.cohort = cohort;
+  me.geneToAltTranscript = geneToAltTranscript;
 
   return new Promise(function(resolve, reject) {
     theGeneNames.forEach(function(geneName) {
@@ -299,10 +301,12 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     .then( function(data) {
       // Get the gene model
       geneObject = data;
-      //me.geneBadgeLoaderDisplay.setPageCount(genesCard.getPageCount())
-      //me.geneBadgeLoaderDisplay.addGene(geneName, genesCard.pageNumberForGene(geneName));
       me.cohort.geneModel.adjustGeneRegion(geneObject);
-      transcript = me.cohort.geneModel.getCanonicalTranscript(geneObject);
+      if (me.geneToAltTranscript && me.geneToAltTranscript[geneObject.gene_name]) {
+        transcript = me.geneToAltTranscript[geneObject.gene_name];
+      } else {
+        transcript = me.cohort.geneModel.getCanonicalTranscript(geneObject);
+      }
 
       return me.cohort.promiseMarkCodingRegions(geneObject, transcript);
     })
@@ -588,6 +592,7 @@ CacheHelper.prototype._promiseClearCache = function(launchTimestampToClear) {
 
   return new Promise(function(resolve, reject) {
 
+    me.geneToAltTranscript = {};
 
     launchTimestampToClear = launchTimestampToClear ? launchTimestampToClear : me.launchTimestamp;
     var keysToRemove = [];
@@ -648,6 +653,9 @@ CacheHelper.prototype.clearCacheForGene = function(geneName) {
     me.promiseGetKeys()
      .then(function(allKeys) {
       var keys = [];
+
+      delete me.geneToAltTranscript[geneName];
+
       allKeys.forEach(function(key) {
         var keyObject = CacheHelper._parseCacheKey(key);
         if (keyObject && keyObject.launchTimestamp == me.launchTimestamp) {

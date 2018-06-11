@@ -762,6 +762,7 @@ class Util {
       }
     }
 
+
     // If the highest impact occurs in a non-canonical transcript, show the impact followed by
     // the consequence and corresponding transcripts
     var vepHighestImpacts = me.globalApp.utility.getNonCanonicalHighestImpactsVep(variant, translator.impactMap);
@@ -780,7 +781,9 @@ class Util {
       info.vepHighestImpact       += impactKey.toLowerCase();
       info.vepHighestImpactSimple += impactKey.toLowerCase();
       info.vepHighestImpactInfo   += impactKey.toLowerCase();
-      info.vepHighestImpactValue   = impactKey.toUpperCase();
+      if (info.vepHighestImpactValue == null || info.vepHighestImpactValue.length == 0) {
+        info.vepHighestImpactValue  = impactKey.toUpperCase();
+      }
 
       nonCanonicalEffects.forEach(function(nonCanonicalEffect) {
         info.vepHighestImpact += "<span>  (";

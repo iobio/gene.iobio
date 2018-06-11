@@ -933,7 +933,7 @@ export default {
 
     },
 
-    promiseLoadGene: function(geneName) {
+    promiseLoadGene: function(geneName, theTranscript) {
       let self = this;
 
       this.showWelcome = false;
@@ -969,15 +969,22 @@ export default {
           self.geneRegionEnd   = theGeneObject.end;
           self.selectedGene = theGeneObject;
 
-          // Determine the transcript that should be selected for this gene
-          // If the transcript wasn't previously selected for this gene,
-          // set it to the canonical transcript
-          let latestTranscript = self.geneModel.getLatestGeneTranscript(geneName);
-          if (latestTranscript == null) {
-            self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
-            self.geneModel.setLatestGeneTranscript(geneName, self.selectedTranscript);
+          if (theTranscript) {
+            // If we have selected a flagged variant, we want to use the flagged
+            // variant's transcript
+            self.selectedTranscript = theTranscript;
           } else {
-            self.selectedTranscript = latestTranscript;
+            // Determine the transcript that should be selected for this gene
+            // If the transcript wasn't previously selected for this gene,
+            // set it to the canonical transcript
+            let latestTranscript = self.geneModel.getLatestGeneTranscript(geneName);
+            if (latestTranscript == null) {
+              self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
+              self.geneModel.setLatestGeneTranscript(geneName, self.selectedTranscript);
+            } else {
+              self.selectedTranscript = latestTranscript;
+            }
+
           }
 
           if (self.$refs.scrollButtonRefGene) {
@@ -1018,7 +1025,7 @@ export default {
     onTranscriptSelected: function(transcript) {
       var self = this;
       self.selectedTranscript = transcript;
-      self.geneModel.setLatestGeneTranscript(self.selectedTranscript);
+      self.geneModel.setLatestGeneTranscript(self.selectedGene.gene_name, self.selectedTranscript);
       self.onGeneSelected(self.selectedGene.gene_name);
     },
     onGeneSourceSelected: function(theGeneSource) {
@@ -1068,7 +1075,6 @@ export default {
       let self = this;
       if (variant) {
         self.selectedVariant = variant;
-        self.transcript = self.selectedTranscript;
         self.selectedVariantRelationship = sourceRelationship;
         self.activeGeneVariantTab = "1";
         self.showVariantExtraAnnots(sourceComponent, variant);
@@ -1434,7 +1440,6 @@ export default {
       let self = this;
       flaggedVariants.forEach(function(variant) {
         variant.gene = self.geneModel.geneObjects[variant.geneName];
-        variant.transcript =  self.geneModel.getCanonicalTranscript(variant.gene);
         self.cohortModel.addFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
       })
     },
@@ -1459,9 +1464,14 @@ export default {
     onFlaggedVariantSelected: function(flaggedVariant) {
       let self = this;
       self.selectedGene = flaggedVariant.gene;
-      self.selectedTranscript = flaggedVariant.transcript;
-      self.onGeneSelected(self.selectedGene.gene_name);
-      self.promiseLoadGene(self.selectedGene.gene_name)
+
+      if (flaggedVariant.transcript) {
+        self.selectedTranscript = flaggedVariant.transcript;
+      } else {
+        self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
+      }
+      self.activeGeneVariantTab = "0";
+      self.promiseLoadGene(self.selectedGene.gene_name, self.selectedTranscript)
       .then(function() {
         setTimeout(
           function(){

@@ -484,8 +484,8 @@
           <a id="download-file"
           v-bind:class="(!readyToDownload ? 'hide' : '') + ' btn variant-file-button'"
           download="gene-iobio-variants.csv" href="#">
-            <i class="material-icons" style="font-size:20px">file_download</i>
-            <span>Download file</span>
+            <i class="material-icons" style="padding-right:0px;font-size:20px">file_download</i>
+            <span style="padding-right:8px">Download file</span>
           </a>
           <v-btn class="variant-file-button" raised @click="showSaveDialog = false;readyToDownload = false;">Close</v-btn>
         </v-card-actions>
@@ -635,7 +635,7 @@ export default {
     highestImpactClass: function(variant) {
       let clazz = "filter-symbol";
       if (variant.isProxy) {
-        clazz += " impact_" + variant.impact.toUpperCase();
+        clazz += " impact_" + (variant.impact && variant.impact.length > 0 ? variant.impact.toUpperCase() : 'none');
       } else {
         for (var impact in variant.highestImpactVep) {
           if (clazz.length > 0) {

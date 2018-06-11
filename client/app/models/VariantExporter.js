@@ -99,7 +99,6 @@ export default class VariantExporter {
         exportRec.ref          = variant.ref;
         exportRec.alt          = variant.alt;
         exportRec.gene         = variant.gene.gene_name;
-        exportRec.transcript   = variant.transcript.transcript_id;
         exportRec.starred      = variant.isFavorite == true ? "Y" : "";
 
         var promise = null;
@@ -324,25 +323,28 @@ export default class VariantExporter {
           console.log(msg);
           reject(msg);
         }
-        theGeneObject.transcripts.forEach(function(transcript) {
-          if (!theTranscript && transcript.transcript_id == exportRec.transcript) {
-            theTranscript = transcript;
-          }
-        });
+        if (variant.transcript && typeof variant == 'object') {
+          theTranscript = variant.transcript;
+        } else if (variant.transcript && typeof variant.transcript === 'string') {
+          theTranscript = me.cohort.geneModel.getTranscript(theGeneObject, variant.transcript);
+        } else {
+          theTranscript = me.cohort.geneModel.getCanonicalTranscript(theGeneObject);
+        }
         if (theTranscript) {
+          exportRec.transcript = theTranscript.transcript_id;
 
 
           if ((variant.hasOwnProperty('fbCalled')        && variant.fbCalled == 'Y') ||
             (variant.hasOwnProperty('freebayesCalled') && variant.freebayesCalled == 'Y')) {
             // If the variant was called on-demand, issue the service calls to
-            // generate the vcf records.
+            // generate the vcf records.∂
 
 
             me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, me.cohort.getCurrentTrioVcfData(), {sourceVariant: variant, checkCache: true, isBackground: true})
             .then(function(data) {
                 var theGeneObject1    = data.gene;
                 var theTranscript1    = data.transcript;
-                var jointVcfRecs      = data.jointVcfRecs
+                var jointVcfRecs      = data.jointVcfRecs;
                 var translatedRefName = data.refName;
                 var sourceVariant     = data.sourceVariant;
                 var theVariant = null;

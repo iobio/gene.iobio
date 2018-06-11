@@ -1790,7 +1790,7 @@ class CohortModel {
 
     var importRecords = null;
     if (fileType == 'json') {
-      importRecords = data;
+      importRecords = data == null ? [] : data;
     } else {
       importRecords = VariantImporter.parseRecords(fileType, data);
     }
@@ -1826,6 +1826,7 @@ class CohortModel {
     // transcript if necessary and then find load the imported bookmarks
     Promise.all(promises).then(function() {
       var genesToAnalyze = {load: [], call: []};
+      var geneToAltTranscripts = {};
       importRecords.forEach( function(variant) {
         var geneObject = me.geneModel.geneObjects[variant.gene];
 
@@ -1838,7 +1839,9 @@ class CohortModel {
         } else {
           variant.isUserFlagged = null;
         }
-        if (variant.transcript && variant.transcript.length > 0) {
+        if (variant.transcript && typeof variant.transcript === 'object') {
+
+        } else if (variant.transcript && variant.transcript.length > 0) {
           variant.transcript = me.geneModel.getTranscript(geneObject, variant.transcript);
         } else {
           var tx = geneObject ? me.geneModel.getCanonicalTranscript(geneObject) : null;
@@ -1846,6 +1849,7 @@ class CohortModel {
             variant.transcript = tx;
           }
         }
+        geneToAltTranscripts[geneObject.gene_name] = variant.transcript;
         me.flaggedVariants.push(variant);
 
         var analyzeKind = variant.freebayesCalled == 'Y' ? 'call' : 'load';
@@ -1876,10 +1880,10 @@ class CohortModel {
 
 
 
-      me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), false)
+      me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), geneToAltTranscripts, false)
       .then(function() {
         if (Object.keys(genesToAnalyze.call).length > 0) {
-          return me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.call), true)
+          return me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.call), geneToAltTranscripts, true)
         } else {
           return Promise.resolve();
         }
@@ -1905,6 +1909,13 @@ class CohortModel {
               me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
               .then(function(data) {
 
+                if (data == null || data.vcfData == null || data.vcfData.features == null) {
+                  var msg = "Unable to get variant vcf data for " + geneObject.gene_name + " " + transcript.transcript_id;
+                  console.log(msg);
+                  alert(msg);
+                  reject(msg);
+                }
+
                 // Refresh imported variant records with real variants
                 importedVariants.forEach(function(importedVariant) {
                   var matchingVariants = data.vcfData.features.filter(function(v) {
@@ -1916,12 +1927,15 @@ class CohortModel {
                     var geneObject = importedVariant.gene;
                     var transcript = importedVariant.transcript;
                     var isUserFlagged = importedVariant.isUserFlagged;
-                    importedVariant = matchingVariants[0];
+                    importedVariant = $.extend(importedVariant, matchingVariants[0]);
                     importedVariant.isFlagged = true;
                     importedVariant.isUserFlagged = isUserFlagged;
                     importedVariant.isProxy = false;
                     importedVariant.gene = geneObject;
                     importedVariant.transcript = transcript;
+                    console.log(importedVariant);
+                  } else {
+                    console.log("Unable to match imported variant to vcf data for " + importedVariant.gene + " " + importedVariant.transcript + " " + importedVariant.start)
                   }
                 })
 

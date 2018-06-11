@@ -886,10 +886,9 @@ export default {
   },
 
   updated: function() {
-    if (this.selectedVariant) {
-      this.createAlleleCountsSVG();
-
-    }
+    //if (this.selectedVariant) {
+    //  this.createAlleleCountsSVG();
+    //}
   },
 
   mounted: function() {
