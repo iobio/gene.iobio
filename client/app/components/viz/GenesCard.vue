@@ -57,7 +57,7 @@
 
       #total-genes-label
         font-size: 15px
-        color: $text-color
+        color: $app-color
         margin-left: 5px
         margin-right: 15px
         margin-top: 10px
