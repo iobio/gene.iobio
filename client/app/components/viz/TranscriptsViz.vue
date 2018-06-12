@@ -24,11 +24,12 @@
 
 #edit-transcript-button
   color:  $app-color
-  margin: 0px
+  margin: 0px 8px 0px 0px
+  padding: 0px
 
   .btn__content
     color: $app-color
-    padding: 0px 8px
+    padding: 0px
 
 #select-transcript-viz
 
@@ -94,6 +95,7 @@
     :close-on-content-click="false"
     :nudge-width="500"
     bottom
+    left
     v-model="showTranscriptsMenu"
     >
 
