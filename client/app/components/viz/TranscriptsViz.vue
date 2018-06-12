@@ -104,6 +104,7 @@
        v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
       >
          {{ `Transcript ` + selectedTranscript.transcript_id }}
+         {{ !isCanonical ? ` (non canonical) ` : `` }}
       </v-btn>
 
 
@@ -161,7 +162,8 @@ export default {
   props: {
     selectedGene: {},
     selectedTranscript: {},
-    geneSources: null
+    geneSources: null,
+    geneModel: null
   },
   data() {
     return {
@@ -170,13 +172,16 @@ export default {
       cdsHeight: 15,
       showTranscriptsMenu: false,
       newTranscript: null,
-      geneSource: null
+      geneSource: null,
+      isCanonical: true
     }
   },
 
   methods: {
     onTranscriptSelected: function(theTranscript) {
       this.newTranscript = theTranscript;
+      let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
+      this.isCanonical = canonical.transcript_id == this.newTranscript.transcript_id;
       this.onTranscriptVizClose();
     },
     onTranscriptVizClose: function() {

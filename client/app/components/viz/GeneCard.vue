@@ -164,6 +164,7 @@
           :selectedGene="selectedGene"
           :selectedTranscript="selectedTranscript"
           :geneSources="geneSources"
+          :geneModel="geneModel"
           @transcriptSelected="onTranscriptSelected"
           @gene-source-selected="onGeneSourceSelected">
         </transcripts-viz>
