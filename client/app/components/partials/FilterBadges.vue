@@ -100,13 +100,13 @@
   <div  id="gene-count-badges" >
 
     <v-layout row>
-     <v-flex xs12 class="text-xs-center" >
+     <v-flex xs12class="text-xs-center" >
       Filters
      </v-flex>
     </v-layout>
 
 
-    <v-layout row>
+    <v-layout row style="margin-top:-5px">
 
       <span
        v-for="filter in filters"
