@@ -179,6 +179,10 @@ export default {
     }
   },
 
+  mounted: function() {
+    this.geneSource = this.geneModel.geneSource;
+  },
+
   methods: {
     onTranscriptSelected: function(theTranscript) {
       this.newTranscript = theTranscript;

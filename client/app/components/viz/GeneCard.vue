@@ -158,7 +158,7 @@
                 v-on:change="onGeneRegionBufferChange">
             </v-text-field>
         </div>
-        <transcripts-viz
+        <transcripts-menu
           v-if="!isEduMode && !isBasicMode"
           v-bind:class="{ hide: !showGene }"
           :selectedGene="selectedGene"
@@ -167,7 +167,7 @@
           :geneModel="geneModel"
           @transcriptSelected="onTranscriptSelected"
           @gene-source-selected="onGeneSourceSelected">
-        </transcripts-viz>
+        </transcripts-menu>
 
 
         <span id="gene-links">
@@ -260,7 +260,7 @@
 <script>
 
 import GeneViz        from '../viz/GeneViz.vue'
-import TranscriptsViz from '../viz/TranscriptsViz.vue'
+import TranscriptsMenu from '../partials/TranscriptsMenu.vue'
 import ScrollButton   from '../partials/ScrollButton.vue'
 import Vue from 'vue'
 
@@ -268,7 +268,7 @@ export default {
   name: 'gene-card',
   components: {
     GeneViz,
-    TranscriptsViz,
+    TranscriptsMenu,
     ScrollButton
   },
   props: {
