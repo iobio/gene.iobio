@@ -660,7 +660,8 @@ export default {
         self.cacheHelper.on("geneAnalyzed", function(geneName) {
           self.$refs.genesCardRef.determineFlaggedGenes();
 
-          if (geneName == self.selectedGene.gene_name) {
+          if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
+              && geneName == self.selectedGene.gene_name) {
             self.promiseLoadData();
           }
         });

@@ -21,18 +21,28 @@
 
 <style lang="sass">
 @import "../../../assets/sass/_variables.sass";
+
+#edit-transcript-button
+  color:  $app-color
+  margin: 0px
+
+  .btn__content
+    color: $app-color
+    padding: 0px 8px
+
 #select-transcript-viz
 
   .selected
+    outline: solid 1px $current-color
+
     .selection-box
-      stroke: $current-color
-      stroke-width: 2px
       cursor: pointer
 
   .current
+    font-weight: bold
+    outline: solid 2px $current-color
+
     .selection-box
-      font-weight: bold
-      outline: solid 2px $current-color
 
 #select-transcripts-box
   .btn--floating.btn--small
@@ -45,53 +55,94 @@
   .btn--floating.btn--small .btn__content
     padding: 0px
 
+  .btn__content
+    color: $text-color
+
+
+  #gene-source-box
+    display: block
+    margin-top: 0px
+    margin-bottom: 10px
+    width: 200px
+
+
+    .input-group--select
+      .input-group__selections__comma
+        font-size: 14px
+        padding: 0px 0px 0px 0px
+
+
+    .input-group
+      label
+        font-size: 14px
+        line-height: 25px
+        height: 25px
+
+    .input-group__input
+      min-height: 0px
+      margin-top: 10px
+
+
+
 
 </style>
 
 <template>
 
+ <v-menu
+    offset-y
+    :close-on-content-click="false"
+    :nudge-width="500"
+    bottom
+    v-model="showTranscriptsMenu"
+    >
 
-  <div id="select-transcripts-box"  style="vertical-align:top;display:inline-block">
-    <v-layout row justify-center>
-      <span style="display:inline-block;margin-left:15px">{{ `Transcript ` + selectedTranscript.transcript_id }}</span>
-      <v-dialog  v-model="showTranscriptsDialog"   width="700px">
 
-          <v-btn id="show-transcripts-button" raised fab small slot="activator" @click="showTranscriptsDialog = true"
-          light>
-            <v-icon style="font-size:20px" >expand_more</v-icon>
-          </v-btn>
-
-          <v-card>
-            <v-card-title>Select transcript</v-card-title>
-            <v-divider></v-divider>
-            <v-card-text style="min-height:100px;max-height: 300px;overflow-y:scroll">
-                <gene-viz id="select-transcript-viz"
-                  :data="selectedGene.transcripts"
-                  :margin=margin
-                  :trackHeight=trackHeight
-                  :cdsHeight=cdsHeight
-                  :showLabel=true
-                  :fixedWidth=600
-                  :regionStart="selectedGene.start"
-                  :regionEnd="selectedGene.end"
-                  :showBrush=false
-                  :showXAxis=false
-                  @transcript-selected="onTranscriptSelected">
-                </gene-viz>
-
-            </v-card-text>
-            <v-divider></v-divider>
-            <v-flex xs12 class="text-xs-right">
-                <v-btn raised @click.native="onTranscriptVizClose">Close</v-btn>
-            </v-flex>
-          </v-card>
-      </v-dialog>
-    </v-layout>
-  </div>
+      <v-btn id="edit-transcript-button"
+       slot="activator"
+       flat
+       v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
+      >
+         {{ `Transcript ` + selectedTranscript.transcript_id }}
+      </v-btn>
 
 
 
-  </v-card>
+      <v-card id="select-transcripts-box">
+        <div id="gene-source-box" >
+          <v-select
+            v-bind:items="geneSources"
+            v-model="geneSource"
+            label="Gene source"
+            item-value="text"
+            @input="onGeneSourceSelected">
+          </v-select>
+        </div>
+
+        <div style="min-height:100px;max-height: 300px;overflow-y:scroll">
+            <gene-viz id="select-transcript-viz"
+              :data="selectedGene.transcripts"
+              :margin=margin
+              :trackHeight=trackHeight
+              :cdsHeight=cdsHeight
+              :showLabel=true
+              :fixedWidth=600
+              :regionStart="selectedGene.start"
+              :regionEnd="selectedGene.end"
+              :showBrush=false
+              :showXAxis=false
+              @transcript-selected="onTranscriptSelected">
+            </gene-viz>
+
+        </div>
+        <div class="text-xs-right">
+            <v-btn small class="mb-0" raised @click.native="onTranscriptVizClose">Close</v-btn>
+        </div>
+      </v-card>
+
+
+
+  </v-menu>
 
 
 
@@ -109,15 +160,17 @@ export default {
   },
   props: {
     selectedGene: {},
-    selectedTranscript: {}
+    selectedTranscript: {},
+    geneSources: null
   },
   data() {
     return {
       margin: {top: 5, right: 5, bottom: 5, left: 200},
       trackHeight: 20,
       cdsHeight: 15,
-      showTranscriptsDialog: false,
-      newTranscript: null
+      showTranscriptsMenu: false,
+      newTranscript: null,
+      geneSource: null
     }
   },
 
@@ -132,8 +185,12 @@ export default {
         self.newTranscript = self.selectedTranscript;
       }
       self.$emit('transcriptSelected', self.newTranscript);
-      self.showTranscriptsDialog = false;
-    }
+      self.showTranscriptsMenu = false;
+    },
+    onGeneSourceSelected: function() {
+      let self = this;
+      self.$emit('gene-source-selected', self.geneSource);
+    },
 
   },
 

@@ -75,41 +75,16 @@
     vertical-align: middle !important
 
 
-  #gene-source-box
-    margin-top: -5px
-    margin-left: 5px
-    display: inline-block
-    width: 115px
-    vertical-align: initial
-    margin-right: 20px
-
-
-    .input-group--select
-      .input-group__selections__comma
-        font-size: 14px
-        padding: 0px 0px 0px 0px
-
-
-    .input-group
-      label
-        font-size: 14px
-        line-height: 25px
-        height: 25px
-
-    .input-group__input
-      min-height: 0px
-      margin-top: 10px
-
 
 
   #gene-links
     display: inline-block
 
-
     .gene-link
       display: inline-block
       margin-right: 10px
       color: $link-color !important
+      font-size: 12px
 
 
 
@@ -175,7 +150,7 @@
 
         <span  id="gene-plus-minus-label"  v-if="showGene && !isEduMode && !isBasicMode"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
 
-        <div v-if="showGene && !isEduMode && !isBasicMode" id="region-buffer-box" style="display:inline-block;width:50px;height:21px;margin-right:15px"  >
+        <div v-if="showGene && !isEduMode && !isBasicMode" id="region-buffer-box" style="display:inline-block;width:50px;height:21px;"  >
             <v-text-field
                 id="gene-region-buffer-input"
                 class="sm level-edu level-basic  fullview"
@@ -188,18 +163,12 @@
           v-bind:class="{ hide: !showGene }"
           :selectedGene="selectedGene"
           :selectedTranscript="selectedTranscript"
-          @transcriptSelected="onTranscriptSelected">
+          :geneSources="geneSources"
+          @transcriptSelected="onTranscriptSelected"
+          @gene-source-selected="onGeneSourceSelected">
         </transcripts-viz>
 
-        <div id="gene-source-box" v-if="showGene">
-          <v-select
-              v-bind:items="geneSources"
-              v-model="geneSource"
-              label="Gene source"
-              item-value="text"
-              @input="onGeneSourceSelected">
-          </v-select>
-        </div>
+
         <span id="gene-links">
           <a
           v-if="showGene"
@@ -350,16 +319,18 @@ export default {
     },
 
 
-    onGeneSourceSelected: function() {
+    onGeneSourceSelected: function(geneSource) {
       let self = this;
 
       var switchMsg = null;
-      if (self.geneModel.refseqOnly[self.selectedGene.gene_name] && self.geneSource != 'refseq') {
+      if (self.geneModel.refseqOnly[self.selectedGene.gene_name] && geneSource != 'refseq') {
         switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in RefSeq. Switching to this transcript set.';
         self.geneSource = 'refseq';
-      } else if (self.geneModel.gencodeOnly[self.selectedGene.gene_name] && self.geneSource != 'gencode') {
+      } else if (self.geneModel.gencodeOnly[self.selectedGene.gene_name] && geneSource != 'gencode') {
         switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in Gencode. Switching to this transcript set.';
         self.geneSource = 'gencode';
+      } else {
+        self.geneSource = geneSource;
       }
       if (switchMsg) {
         self.noTranscriptsWarning = switchMsg;
