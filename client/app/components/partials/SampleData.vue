@@ -1,5 +1,6 @@
 <style lang="sass">
-
+@import ../../../assets/sass/variables
+#sample-data-form
   #sample-selection
     .input-group--select
       .input-group__selections__comma
@@ -25,11 +26,15 @@
         transform: translate(0, -18px) scale(0.95)
 
   .sample-label
-    .chip
+    span
       margin-top: 2px
       margin-bottom: 2px
       vertical-align: top
       margin-left: 0px
+      font-size: 15px
+      color: $app-color
+      display: inline-block
+      margin-right: 20px
     .switch
       display: inline-block
       width: 100px
@@ -37,9 +42,9 @@
 </style>
 <template>
 
- <v-layout row wrap class="ml-2  mt-4">
+ <v-layout id="sample-data-form" row wrap :class="{'ml-2': true,   'mt-3' : modelInfo.relationship != 'proband', 'mt-1' : modelInfo.relationship == 'proband'}">
     <v-flex xs12 class="sample-label" >
-      <v-chip dark small> {{ modelInfo.relationship }}</v-chip>
+      <span> {{ modelInfo.relationship }} </span>
       <v-switch  label="Affected" hide-details @change="onIsAffected" v-model="isAffected"></v-switch>
     </v-flex>
     <v-flex xs12  class="ml-3" style="margin-top: -15px">
@@ -56,7 +61,7 @@
       </sample-data-file>
     </v-flex>
 
-    <v-flex xs4 class="ml-3" style="margin-top:-5px" id="sample-selection">
+    <v-flex xs4   id="sample-selection">
       <v-select
         v-bind:class="samples == null || samples.length == 0 ? 'hide' : ''"
         label="Sample"
@@ -68,7 +73,7 @@
       ></v-select>
     </v-flex>
 
-    <v-flex xs12  class="ml-3 " style="margin-top:-5px" >
+    <v-flex xs12  class="ml-3 "  >
       <sample-data-file
        :defaultUrl="modelInfo.bam"
        :defaultIndexUrl="modelInfo.bai"

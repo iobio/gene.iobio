@@ -34,6 +34,29 @@
     .input-group__input
       min-height: 25px
 
+  .loader
+    display: inline-block
+    margin-right: 2px
+
+    img
+      width: 20px
+      height: 20px
+
+  .sample-label
+    span
+      margin-top: 2px
+      margin-bottom: 2px
+      vertical-align: top
+      margin-left: 0px
+      font-size: 15px
+      color: $app-color
+      display: inline-block
+      margin-right: 20px
+    .switch
+      display: inline-block
+      width: 100px
+
+</style>
 </style>
 
 <template>
@@ -120,11 +143,11 @@
          </v-flex>
 
 
-         <v-flex xs2 class=" mt-3 pl-2 pr-3" >
-          <v-chip v-if="probandSamples && probandSamples.length > 0"
+         <v-flex xs2 class="sample-label mt-3 pl-2 pr-3" >
+          <span v-if="probandSamples && probandSamples.length > 0"
            dark small >
             siblings
-          </v-chip>
+          </span>
          </v-flex>
 
          <v-flex xs5 class=" pl-2 pr-3" >
@@ -158,6 +181,9 @@
 
 
         <v-flex xs12 class="mt-2 text-xs-right">
+          <div class="loader" v-show="inProgress">
+            <img src="../../../assets/images/wheel.gif">
+          </div>
           <v-btn
             @click="onLoad"
             :disabled="!isValid">
@@ -214,7 +240,8 @@ export default {
       separateUrlForIndex: false,
       probandSamples: null,
       affectedSibs: null,
-      unaffectedSibs: null
+      unaffectedSibs: null,
+      inProgress: false
     }
   },
   watch: {
@@ -228,6 +255,7 @@ export default {
   methods: {
     onLoad: function() {
       let self = this;
+      self.inProgress = true;
 
       self.cohortModel.mode = self.mode;
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
@@ -260,6 +288,7 @@ export default {
       })
       .then(function() {
         let performAnalyzeAll = self.demoAction ? true : false;
+        self.inProgress = false;
 
         self.$emit("on-files-loaded", performAnalyzeAll);
         self.showFilesMenu = false;
