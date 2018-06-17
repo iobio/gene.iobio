@@ -361,6 +361,7 @@ import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
 import AppTour            from  '../viz/AppTour.vue'
 
+import HubSession         from  '../../models/HubSession.js'
 import Bam                from  '../../models/Bam.iobio.js'
 import vcfiobio           from  '../../models/Vcf.iobio.js'
 import Translator         from  '../../models/Translator.js'
@@ -410,6 +411,8 @@ export default {
     paramMyGene2:          null,
     paramMode:             null,
     paramTour:             null,
+    paramSampleId:         null,
+    paramSource:           null,
 
     paramFileId:           null,
 
@@ -606,11 +609,26 @@ export default {
           if (self.isEduMode && self.tourNumber) {
             self.$refs.appTourRef.startTour(self.tourNumber);
           }
-          self.models = self.cohortModel.sampleModels;
-          if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-            self.promiseLoadData();
+          if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0 && self.paramSampleId && self.paramSource) {
+            self.hubSession = new HubSession();
+            self.hubSession.promiseInit(self.paramSampleId, self.paramSource)
+            .then(modelInfos => {
+              self.modelInfos = modelInfos;
+              self.cohortModel.promiseInit(modelInfos);
+              self.models = self.cohortModel.sampleModels;
+              if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+                self.promiseLoadData();
+              }
+            })
+          } else {
+            self.models = self.cohortModel.sampleModels;
+            if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+              self.promiseLoadData();
+            }
           }
+
       })
+
     },
     function(error) {
 
@@ -766,9 +784,7 @@ export default {
     promiseLoadData: function() {
       let self = this;
 
-
       return new Promise(function(resolve, reject) {
-
 
         if (self.models && self.models.length > 0) {
 

@@ -64,8 +64,28 @@ const routes = [
         paramBais:             [route.query.bai0, route.query.bai1, route.query.bai2],
         paramVcfs:             [route.query.vcf0, route.query.vcf1, route.query.vcf2],
         paramTbis:             [route.query.tbi0, route.query.tbi1, route.query.tbi2],
-        paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2]
+        paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2],
+        paramSampleId:         route.query.sample_uuid,
+        paramSource:           route.query.source
     })
+  },
+  {
+    name: 'home-hub',
+    path: '/access_token*',
+    beforeEnter: (to, from, next) => {
+            // remove initial slash from path and parse
+      let queryParams = Qs.parse(to.path.substring(1));
+      let { access_token, expires_in, token_type, ...otherQueryParams } = queryParams;
+      localStorage.setItem('hub-iobio-tkn', token_type + ' ' + access_token);
+      next('/' + Qs.stringify(otherQueryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
+    },
+    // component: GeneHome,
+    // props: (route) => ({
+    //   paramSampleId:         route.query.sample_uuid,
+    //   paramTokenType:        route.query.token_type,
+    //   paramToken:            route.query.access_token,
+    //   paramSource:           route.query.source
+    // })
   },
   {
     name: 'exhibit',

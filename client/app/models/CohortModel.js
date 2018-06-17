@@ -584,7 +584,6 @@ class CohortModel {
     let self = this;
     let promises = [];
 
-
     return new Promise(function(resolve, reject) {
       if (Object.keys(self.sampleMap).length == 0) {
         resolve();
