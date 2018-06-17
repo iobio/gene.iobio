@@ -917,6 +917,10 @@ export default {
     setUrlGeneParameters() {
 
       let self = this;
+
+      var queryObjectExisting = this.$route.query;
+      var queryObject = $().extend({}, queryObjectExisting);
+
       let geneName = "";
       let geneNames = "";
       if (self.selectedGene && self.selectedGene.gene_name) {
@@ -927,10 +931,9 @@ export default {
       if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0)  {
         geneNames = self.geneModel.sortedGeneNames.join(",");
       }
-      var queryObject = {
-          gene: geneName,
-          genes: geneNames
-      };
+      queryObject.gene = geneName;
+      queryObject.geneNames = geneNames;
+
       self.$router.replace({ query: queryObject });
 
 
