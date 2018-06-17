@@ -610,12 +610,26 @@ export default {
             self.$refs.appTourRef.startTour(self.tourNumber);
           }
           if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0 && self.paramSampleId && self.paramSource) {
-            self.onShowSnackbar( {message: 'Loading data...', timeout: 3000});
+            self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
             self.hubSession = new HubSession();
             self.hubSession.promiseInit(self.paramSampleId, self.paramSource)
             .then(modelInfos => {
               self.modelInfos = modelInfos;
-              self.cohortModel.promiseInit(modelInfos)
+
+              // TEMPORARY WORKAROUND UNTIL HUB CAN PASS sample_id
+              self.modelInfos.forEach(function(modelInfo) {
+                if (modelInfo.sample.lastIndexOf(".") > 0) {
+                  let pos = modelInfo.sample.lastIndexOf(".");
+                  let baseSample = modelInfo.sample.substring(0, pos);
+                  let suffix = modelInfo.sample.substring(pos)
+                  if (suffix == '.mo' || suffix == '.fa' || suffix == '.p1' || suffix == '.s1') {
+                    var vcfTokens = modelInfo.vcf.split("\/Sample_");
+                    var vcfSampleTokens = vcfTokens[1].split("\/");
+                    modelInfo.sample  = vcfSampleTokens[0];
+                  }
+                }
+              })
+              self.cohortModel.promiseInit(self.modelInfos)
               .then(function() {
                 self.models = self.cohortModel.sampleModels;
                 if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {

@@ -73,7 +73,9 @@ export default class HubSession {
 
     let pedigree = {}
 
-    const probandIndex = raw_pedigree.findIndex(d => d.pedigree.affection_status == 1 || d.pedigree.affection_status == 2);
+    const probandIndex = raw_pedigree.findIndex(d => (d.pedigree.affection_status == 1 || d.pedigree.affection_status == 2)
+                                                      && (d.pedigree.maternal_id && d.pedigree.maternal_id.length > 0
+                                                          && d.pedigree.paternal_id && d.pedigree.paternal_id.length > 0) );
     if (probandIndex != -1) {
       const proband  = raw_pedigree.splice(probandIndex, 1)[0];
 
