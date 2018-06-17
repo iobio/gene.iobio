@@ -610,15 +610,21 @@ export default {
             self.$refs.appTourRef.startTour(self.tourNumber);
           }
           if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0 && self.paramSampleId && self.paramSource) {
+            self.onShowSnackbar( {message: 'Loading data...', timeout: 3000});
             self.hubSession = new HubSession();
             self.hubSession.promiseInit(self.paramSampleId, self.paramSource)
             .then(modelInfos => {
               self.modelInfos = modelInfos;
-              self.cohortModel.promiseInit(modelInfos);
-              self.models = self.cohortModel.sampleModels;
-              if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-                self.promiseLoadData();
-              }
+              self.cohortModel.promiseInit(modelInfos)
+              .then(function() {
+                self.models = self.cohortModel.sampleModels;
+                if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+                  self.promiseLoadData();
+                } else {
+                  self.onShowSnackbar( {message: 'Enter a gene name', timeout: 5000});
+                  self.bringAttention = 'gene';
+                }
+              })
             })
           } else {
             self.models = self.cohortModel.sampleModels;
