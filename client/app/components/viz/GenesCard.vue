@@ -402,7 +402,6 @@ export default {
       this.$emit('gene-selected', geneName);
     },
     onRemoveGene: function(geneName) {
-      this.geneModel.removeGene(geneName);
       this.$emit('remove-gene', geneName);
     },
     onCallVariants: function(action) {

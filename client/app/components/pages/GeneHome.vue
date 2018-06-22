@@ -1260,6 +1260,36 @@ export default {
     },
     onRemoveGene: function(geneName) {
       let self = this;
+      let msg = "";
+      var filters = this.cohortModel.getFlaggedVariantsByFilter(geneName);
+      filters.forEach(function(filter) {
+        msg += filter.variants.length
+            + (filter.variants.length  > 1 ? " variants " : " variant ")
+            + " marked as '"
+            + filter.filter.title
+            + "' "
+            + (filter.variants.length  > 1 ? " exist in gene " : " exists in gene ")
+            + geneName + ".<br><br>";
+      })
+      msg += "Are you sure you want to remove gene " + geneName + "?"
+      alertify.confirm("",
+        msg,
+        function (e) {
+          // ok
+          self.removeGeneImpl(geneName);
+        },
+        function() {
+          // cancel
+        }
+
+      ).set('labels', {ok:'OK', cancel:'Cancel'});
+
+    },
+
+    removeGeneImpl: function(geneName) {
+      let self = this;
+      self.geneModel.removeGene(geneName);
+      self.cohortModel.removeFlaggedVariantsForGene(geneName);
       self.clearFilter();
       self.cacheHelper.clearCacheForGene(geneName);
       var newGeneToSelect = null;

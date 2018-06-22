@@ -333,17 +333,7 @@ export default {
     removeGene: function() {
       let self = this;
       let theGeneName = self.gene.name;
-      alertify.confirm("",
-        "Are you sure you want to remove gene " + theGeneName + "?",
-        function (e) {
-          // ok
-          self.$emit("remove-gene", theGeneName);
-        },
-        function() {
-          // cancel
-        }
-
-      ).set('labels', {ok:'OK', cancel:'Cancel'});
+      self.$emit("remove-gene", theGeneName);
 
     },
     getImpactClass: function(variantTypes) {

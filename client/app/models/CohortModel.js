@@ -2004,6 +2004,60 @@ class CohortModel {
 
   }
 
+  getFlaggedVariantsByFilter(geneName) {
+    let self = this;
+    let variants = this.flaggedVariants.filter(function(flaggedVariant) {
+      return flaggedVariant.gene.gene_name == geneName;
+    });
+    let filterToVariantMap = {};
+    variants.forEach(function(v) {
+      if (v.isUserFlagged) {
+        var filterName = 'userFlagged';
+        let theVariants = filterToVariantMap[filterName];
+        if (theVariants == null) {
+          theVariants =[];
+          filterToVariantMap[filterName] = theVariants;
+        }
+        theVariants.push(v);
+      } else if (v.filtersPassed) {
+        v.filtersPassed.forEach(function(filterName) {
+          let theVariants = filterToVariantMap[filterName];
+          if (theVariants == null) {
+            theVariants =[];
+            filterToVariantMap[filterName] = theVariants;
+          }
+          theVariants.push(v);
+        })
+      }
+    })
+    let filters = [];
+    for (var filterName in self.filterModel.flagCriteria) {
+      var theFilter = self.filterModel.flagCriteria[filterName];
+      var theVariants = filterToVariantMap[filterName];
+      if (theVariants) {
+        filters.push({filter: theFilter, variants: theVariants});
+      }
+    }
+    return filters.sort(function(filterObject1, filterObject2) {
+      return filterObject1.filter.order > filterObject2.filter.order;
+    })
+
+
+  }
+
+  removeFlaggedVariantsForGene(geneName) {
+    let self = this;
+    let variantsToRemove = this.flaggedVariants.filter(function(flaggedVariant) {
+      return flaggedVariant.gene.gene_name == geneName;
+    });
+    variantsToRemove.forEach(function(variant) {
+      var index = self.flaggedVariants.indexOf(variant);
+      if (index !== -1) {
+        self.flaggedVariants.splice(index, 1);
+      }
+    })
+  }
+
 
   _organizeVariantsForFilter(filterName, userFlagged) {
     let self = this;
