@@ -522,10 +522,12 @@ class GeneModel {
     return new Promise( function(resolve, reject) {
 
       var geneInfo = me.geneNCBISummaries[geneName];
+      let unknownGeneInfo = {description: '?', summary: '?'};
+
       if (geneInfo != null) {
         resolve(geneInfo);
       } else {
-          // Search NCBI based on the gene name to obtain the gene ID
+        // Search NCBI based on the gene name to obtain the gene ID
         var url = me.NCBI_GENE_SEARCH_URL + "&term=" + "(" + geneName + "[Gene name]" + " AND 9606[Taxonomy ID]";
         $.ajax( url )
         .done(function(data) {
@@ -536,14 +538,15 @@ class GeneModel {
           var summaryUrl = me.NCBI_GENE_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv;
           $.ajax( summaryUrl )
           .done(function(sumData) {
-
               if (sumData.result == null || sumData.result.uids.length == 0) {
                 if (sumData.esummaryresult && sumData.esummaryresult.length > 0) {
                   sumData.esummaryresult.forEach( function(message) {
+                    console.log("Unable to get NCBI gene summary from eutils esummary")
                     console.log(message);
                   });
                 }
-                reject("No NCBI gene summary returned for gene " + geneName);
+                me.geneNCBISummaries[geneName] = unknownGeneInfo;
+                resolve(unknownGeneInfo);
 
               } else {
 
@@ -555,12 +558,16 @@ class GeneModel {
               }
           })
           .fail(function() {
-            reject("Unable to get NCBI Gene Summary for gene " + geneName);
+            console.log("Error occurred when making http request to NCBI eutils esummary for gene " + geneName);
+            me.geneNCBISummaries[geneName] = unknownGeneInfo;
+            resolve(unknownGeneInfo);
           })
 
         })
         .fail(function() {
-          reject("Unable to get NCBI Gene Summary for gene with gene search " + geneName);
+          console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneName);
+          me.geneNCBISummaries[geneName] = unknownGeneInfo;
+          resolve(geneInfo);
         })
       }
     });

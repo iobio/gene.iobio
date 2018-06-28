@@ -243,7 +243,7 @@
 
 
         <span id="phenotypes-heading" style="text-align:left">
-          Phenotypes
+          Phenotypes (HPO)
         </span>
         <div id="phenotype-terms">
         {{ phenotypeTerms }}
