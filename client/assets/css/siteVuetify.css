@@ -155,6 +155,11 @@ html {
 }
 
 
+.menu__content ul hr {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
 
 .alertify .ajs-footer .ajs-buttons.ajs-auxiliary .ajs-button,
 .alertify .ajs-footer .ajs-buttons.ajs-primary .ajs-button {

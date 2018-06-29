@@ -278,30 +278,34 @@ nav.toolbar
       <v-menu offset-y>
         <v-btn id="help-menu-button" flat slot="activator">Help</v-btn>
         <v-list>
+
+          <v-list-tile  @click="onShowDisclaimer">
+            <v-list-tile-title>Disclaimer</v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile  @click="onShowVersion">
+            <v-list-tile-title>About</v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile  @click="onShowCitations">
+            <v-list-tile-title>Software and resources</v-list-tile-title>
+          </v-list-tile>
+
+          <v-divider></v-divider>
+
           <v-list-tile id="load-demo-data-menu-item"  @click="onLoadDemoData">
-            <v-list-tile-title>Load Demo Data</v-list-tile-title>
+            <v-list-tile-title>Load demo data</v-list-tile-title>
           </v-list-tile>
-          <v-list-tile  @click="onWelcome">
-            <v-list-tile-title>Welcome</v-list-tile-title>
-          </v-list-tile>
-           <v-divider></v-divider>
+
+          <v-divider></v-divider>
+
           <v-list-tile  @click="onClearCache">
             <v-list-tile-title>Clear session data</v-list-tile-title>
           </v-list-tile>
 
           <v-divider></v-divider>
 
-          <v-list-tile  @click="onShowDisclaimer">
-            <v-list-tile-title>Disclaimer</v-list-tile-title>
+          <v-list-tile  @click="onWelcome">
+            <v-list-tile-title>Show welcome page</v-list-tile-title>
           </v-list-tile>
-          <v-list-tile  @click="onShowVersion">
-            <v-list-tile-title>Version</v-list-tile-title>
-          </v-list-tile>
-          <v-list-tile  @click="onShowCitations">
-            <v-list-tile-title>Software and Resources</v-list-tile-title>
-          </v-list-tile>
-
-          <v-divider></v-divider>
 
           <v-list-tile >
             <v-list-tile-title><a href="http://iobio.io/tags/gene.iobio/" target="_iobio">Blog</a></v-list-tile-title>
@@ -390,7 +394,7 @@ nav.toolbar
                 <div><div class="version-label">&nbsp;&nbsp;&nbsp;PolyPhen</div><div class="number">2.2.2</div></div>
                 <div><div class="version-label">FreeBayes</div><div class="number">v1.0.2-33-gdbb6160-dirty</div></div>
                 <div><div class="version-label">Samtools</div><div class="number">samtools 1.3.1-33-gb25695b-dirty</div></div>
-                <div><div class="version-label">vt subset, normalize</div><div class="number">v0.5</div></div>
+                <div><div class="version-label">vt subset, normalize</div><div class="number">0.577</div></div>
                 <div><div class="version-label">gnomAD</div><div class="number">version 2.0.2 (October 3, 2017)</div></div>
                 <div><div class="version-label">ExAC</div><div class="number">Release 0.3.1 (03-13-2016)</div></div>
                 <div><div class="version-label">1000G</div><div class="number">Phase 3 (05-02-2013)</div></div>
