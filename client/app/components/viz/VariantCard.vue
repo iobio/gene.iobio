@@ -311,7 +311,7 @@
             :coverageMedian="sampleModel.cohort.filterModel.geneCoverageMedian"
             :coverageDangerRegions="coverageDangerRegions"
             :currentPoint="coveragePoint"
-            :maxDepth="sampleModel.maxDepth"
+            :maxDepth="sampleModel.cohort.maxDepth"
             :regionStart="regionStart"
             :regionEnd="regionEnd"
             :width="width"
