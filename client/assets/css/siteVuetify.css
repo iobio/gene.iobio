@@ -156,3 +156,27 @@ html {
 
 
 
+.alertify .ajs-footer .ajs-buttons.ajs-auxiliary .ajs-button,
+.alertify .ajs-footer .ajs-buttons.ajs-primary .ajs-button {
+  margin: 8px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.alertify .ajs-footer {
+  border-top: none;
+}
+
+.alertify .ajs-header {
+  border-bottom: none;
+  color: #7f7f7f;
+}
+.alertify .ajs-body {
+  color: #7f7f7f;
+}
+.alertify .ajs-footer .ajs-buttons .ajs-button {
+  text-transform: none;
+  color: #7f7f7f;
+}
+
+

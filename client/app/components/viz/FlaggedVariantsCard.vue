@@ -14,6 +14,11 @@
     background-color: white
     margin-bottom: 20px
 
+    #mygene2-basic-title
+      word-break: break-word
+      display: inline-block
+      white-space: normal
+      line-height: 18px
 
     #close-button
       padding-right: 0px
@@ -23,6 +28,7 @@
       margin-left: 0px
       min-width: 22px
       margin-top: 0px
+      top: 5px
 
       i.material-icons
         font-size: 22px
@@ -246,17 +252,31 @@
     font-size: 16px
     padding-right: 4px
 
+#flagged-variants-card.basic
+  .list--three-line
+    li
+      margin-left: 0px
+
 
 
 
 </style>
 
 <template>
-  <div id="flagged-variants-card">
+  <div id="flagged-variants-card" :class="{basic: isBasicMode}">
+
 
     <div class="variant-toolbar">
+      <v-btn id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
+        <v-icon >close</v-icon>
+      </v-btn>
       <v-toolbar-title >
-        Variants
+        <span v-show="!isBasicMode">
+          Variants
+        </span>
+        <span id="mygene2-basic-title" v-show="isBasicMode">
+          Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
+        </span>
       </v-toolbar-title>
       <v-btn  v-if="!isBasicMode" flat
         class="toolbar-button"
@@ -271,9 +291,6 @@
         <v-icon>save</v-icon>
         Save
       </v-btn>
-      <v-btn id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
-        <v-icon >close</v-icon>
-      </v-btn>
     </div>
 
 
@@ -282,6 +299,7 @@
       <v-subheader
       :key="geneList.label"
       v-if="geneList.show"
+      v-show="!isBasicMode"
       class="gene-list"
       >
         <span v-show="geneList.genes.length > 0">
@@ -580,21 +598,16 @@ export default {
     populateGeneLists: function() {
       let self = this;
       self.geneLists = [];
-      if (self.isBasicMode) {
-        self.geneLists = [];
-      } else {
 
-        var filters = self.cohortModel.organizeVariantsByFilterAndGene();
-
-        self.geneLists = filters.map(function(filterObject) {
-          return {
-            name:  filterObject.key,
-            label: filterObject.filter.title,
-            show:  filterObject.genes.length > 0,
-            genes: filterObject.genes
-          }
-        })
-      }
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene();
+      self.geneLists = filters.map(function(filterObject) {
+        return {
+          name:  filterObject.key,
+          label: filterObject.filter.title,
+          show:  filterObject.genes.length > 0,
+          genes: filterObject.genes
+        }
+      })
     },
 
 

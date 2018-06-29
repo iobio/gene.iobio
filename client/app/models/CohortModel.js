@@ -10,6 +10,7 @@ class CohortModel {
     this.globalApp = globalApp;
     this.isEduMode = isEduMode;
     this.isBasicMode = isBasicMode;
+    this.defaultingToDemoData = false;
 
     this.endpoint = endpoint;
     this.genericAnnotation = genericAnnotation;
@@ -172,10 +173,11 @@ class CohortModel {
           reject();
          },
          function(){
-           self.promiseInitDemo()
-           .then(function() {
-            resolve();
-           })
+            self.defaultingToDemoData = true;
+            self.promiseInitDemo()
+            .then(function() {
+              resolve();
+            })
          }).set('labels', {ok:'OK', cancel:'Continue, but just use demo data'});
       } else {
 

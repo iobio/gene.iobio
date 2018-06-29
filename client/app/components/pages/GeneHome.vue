@@ -112,6 +112,8 @@ main.content
         <intro-card v-if="forMyGene2"
         :closeIntro="closeIntro"
         :isBasicMode="isBasicMode"
+        :siteConfig="siteConfig"
+        :defaultingToDemoData="cohortModel.defaultingToDemoData"
         @on-advanced-mode="onAdvancedMode"
         @on-basic-mode="onBasicMode">
         </intro-card>

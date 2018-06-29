@@ -2,11 +2,33 @@
 @import ../../../assets/sass/variables
 
 #intro-card
+  #intro-text
+    clear: both
+
   a
-    color: $app-color !important
+    color: $link-color !important
 
   .switch-mode
     font-size: 16px
+
+  .welcome-title
+    display: inline-block
+    font-size: 16px
+    margin-bottom: 0px
+    margin-right: 15px
+    color: $app-color
+
+  .left-info
+    width: 200px
+    float: left
+
+  .right-info
+    display: inline-block
+    width: 200px
+    float: right
+    margin-right: 5px
+    text-align: right
+
 </style>
 
 <template>
@@ -14,19 +36,24 @@
 <v-card id="intro-card" class="app-card">
   <div style="text-align:center">
     <div>
-      <span style="display:inline-block;font-size:16px;margin-left:90px;margin-top:5px;margin-bottom:0px;margin-right:15px;">
+      <div class="left-info">
+        <span class="label-warning" v-show="defaultingToDemoData">
+            Warning:  Using Demo Data
+        </span>
+      </div>
+      <span class="welcome-title">
 
         Welcome to Gene.iobio on MyGene2
 
       </span>
       <a id="intro-link" v-if="!showIntro" href="javascript:void(0)" @click="showIntro = true">tell me more...</a>
 
-      <div style="display: inline-block;float: right;padding-top:5px;margin-right:20px">
-        <a class="switch-mode" v-if="isBasicMode"    @click="onAdvancedMode">
+      <div class="right-info" >
+        <a class="switch-mode" v-show="siteConfig != null && isBasicMode" @click="onAdvancedMode">
            Go to advanced
         </a>
 
-        <a class="switch-mode" raised v-if="!isBasicMode"    @click="onBasicMode">
+        <a class="switch-mode" raised v-if="siteConfig != null && !isBasicMode"  @click="onBasicMode">
            Go to basic
         </a>
       </div>
@@ -65,7 +92,9 @@ export default {
   },
   props: {
     closeIntro: false,
-    isBasicMode: null
+    isBasicMode: null,
+    siteConfig: null,
+    defaultingToDemoData: null
   },
   data () {
     return {
