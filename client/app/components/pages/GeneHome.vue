@@ -1294,6 +1294,7 @@ export default {
       self.cohortModel.removeFlaggedVariantsForGene(geneName);
       self.clearFilter();
       self.cacheHelper.clearCacheForGene(geneName);
+      self.onSendGenesToClin();
       var newGeneToSelect = null;
       if (geneName == this.selectedGene.gene_name && this.geneModel.sortedGeneNames.length > 0) {
         newGeneToSelect = this.geneModel.sortedGeneNames[0];
@@ -1323,12 +1324,12 @@ export default {
         this.$refs.genesCardRef.clearFilter();
       }
     },
-    onApplyGenes: function(genesString, searchTermsString, callback) {
+    onApplyGenes: function(genesString, clinObject, callback) {
       let self = this;
 
       self.clearFilter();
 
-      self.phenotypeTerm = searchTermsString;
+      self.phenotypeTerm = clinObject ? clinObject.phenotypes : null;
       var message = null;
 
       if (self.geneModel.geneNames.length > 0) {
@@ -1340,6 +1341,9 @@ export default {
 
         } else {
           self.applyGenesImpl(genesString, {replace: true}, function() {
+            if (clinObject == null) {
+              self.onSendGenesToClin();
+            }
             if (callback) {
               callback();
             }
@@ -1347,6 +1351,9 @@ export default {
         }
       } else {
         self.applyGenesImpl(genesString, {replace: false}, function() {
+          if (clinObject == null) {
+            self.onSendGenesToClin();
+          }
           if (callback) {
             callback();
           }
@@ -1725,13 +1732,13 @@ export default {
       var clinObject = JSON.parse(event.data);
 
       if (clinObject.type == 'apply-genes') {
-        this.onApplyGenes(clinObject.genes.join(" "), clinObject.searchTerms.join(","));
+        this.onApplyGenes(clinObject.genes.join(" "), {phenotypes: clinObject.searchTerms.join(",")});
       } else if (clinObject.type == 'set-data') {
         self.launchedFromClin = true;
         self.cohortModel.promiseInit(clinObject.modelInfos)
         .then(function() {
           self.models = self.cohortModel.sampleModels;
-          self.onApplyGenes(clinObject.genes.join(" "), clinObject.phenotypes.join(","), function() {
+          self.onApplyGenes(clinObject.genes.join(" "), {phenotypes: clinObject.phenotypes.join(",")}, function() {
             self.cohortModel.importFlaggedVariants('json', clinObject.variants, function() {
               self.onFlaggedVariantsImported();
               self.$refs.navRef.onShowFlaggedVariants();
@@ -1769,6 +1776,18 @@ export default {
       var responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), this.clinIobioUrl);
     },
+
+
+    onSendGenesToClin: function() {
+      let self = this;
+      var msgObject = {
+          success: true,
+          type: 'apply-genes',
+          sender: 'gene.iobio.io',
+          genes: self.geneModel.sortedGeneNames};
+      window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+    },
+
 
     onSendFlaggedVariantsToClin: function() {
       let self = this;
