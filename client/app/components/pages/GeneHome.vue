@@ -1781,37 +1781,44 @@ export default {
 
     onSendGenesToClin: function() {
       let self = this;
-      var msgObject = {
-          success: true,
-          type: 'apply-genes',
-          sender: 'gene.iobio.io',
-          genes: self.geneModel.sortedGeneNames};
-      window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+      if (this.launchedFromClin) {
+        var msgObject = {
+            success: true,
+            type: 'apply-genes',
+            sender: 'gene.iobio.io',
+            genes: self.geneModel.sortedGeneNames};
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+      }
     },
 
 
     onSendFlaggedVariantsToClin: function() {
       let self = this;
-      self.cohortModel.promiseExportFlaggedVariants('json')
-      .then(function(data) {
-        var msgObject = {
-          success: true,
-          type: 'save-variants',
-          sender: 'gene.iobio.io',
-          variants: data};
-        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
-      });
+      if (this.launchedFromClin) {
+        self.cohortModel.promiseExportFlaggedVariants('json')
+        .then(function(data) {
+          var msgObject = {
+            success: true,
+            type: 'save-variants',
+            sender: 'gene.iobio.io',
+            variants: data};
+          window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+        });
+
+      }
     },
 
     onSendFiltersToClin: function() {
       let self = this;
-      var msgObject = {
-        success: true,
-        type: 'save-filters',
-        sender: 'gene.iobio.io',
-        filters: self.filterModel.flagCriteria
-      };
-      window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+      if (this.launchedFromClin) {
+        var msgObject = {
+          success: true,
+          type: 'save-filters',
+          sender: 'gene.iobio.io',
+          filters: self.filterModel.flagCriteria
+        };
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+      }
     }
 
 
