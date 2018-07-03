@@ -29,6 +29,10 @@
       color: $text-color
       font-size: 20px
 
+    #welcome-label-small
+      color: $text-color
+      font-size: 16px
+
     #what-is-new-link
       font-size: 18px
 
@@ -339,7 +343,7 @@
       </div>
 
       <div class="welcome-panel" style="padding:0px;background:transparent;margin-top:20px">
-        <div id="welcome-label">
+        <div id="welcome-label-small">
           Videos
         </div>
         <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
@@ -403,7 +407,7 @@
       </div>
 
       <div class="welcome-panel" style="background:transparent;margin-top:0px;padding-top:10px">
-        <div id="welcome-label">
+        <div id="welcome-label-small">
           Blog Posts
         </div>
         <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
