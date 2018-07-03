@@ -531,7 +531,7 @@ export default class VariantExporter {
     var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
 
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
-    rec.filtersPassed     = variant.filtersPassed;
+    rec.filtersPassed     = variant.filtersPassed ? variant.filtersPassed.join(",") : "";
     rec.inheritance       = info.inheritance ? this.cohort.translator.getInheritanceLabel(info.inheritance) : "";
     rec.impact            = info.vepImpact;
     rec.highestImpact     = info.vepHighestImpactValue;
