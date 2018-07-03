@@ -475,14 +475,6 @@ export default {
           frameborder: "0",
           allowfullscreen: ""
         },
-        'screencast-getting-started': {
-          src: "https://www.youtube.com/embed/5g5wT1xDCfY?autoplay=1&rel=0&ecver=2",
-          videoId: '5g5wT1xDCfY',
-          width: 623,
-          height: 369,
-          frameborder: "0",
-          allowfullscreen: ""
-        },
         'screencast-coverage-analysis': {
           src: "https://www.youtube.com/embed/dnq8HtthDgU?autoplay=1&rel=0&ecver=2",
           videoId: 'dnq8HtthDgU',
@@ -500,8 +492,8 @@ export default {
           allowfullscreen: ""
         },
         'screencast-multi-gene-analysis': {
-          src: "https://www.youtube.com/embed/QiJ7wuN8LYQ?autoplay=1&rel=0&ecver=2",
-          videoId: 'QiJ7wuN8LYQ',
+          src: "https://www.youtube.com/embed/EW2Sm4HEAPg?autoplay=1&rel=0&ecver=2",
+          videoId: 'EW2Sm4HEAPg',
           width: 623,
           height: 369,
           frameborder: "0",
