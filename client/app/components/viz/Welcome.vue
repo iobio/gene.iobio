@@ -353,18 +353,14 @@
             <div id="video-thumbprint-content">
 
 
-
               <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-saving-analysis" class="video-thumbprint shadow-z-2" >
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
-                  </i>
+                <div id="welcome-screencast-panel-multigene-analysis" class="video-thumbprint shadow-z-2">
                 </div>
                 <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
                   </i>
-                  Saving your analysis
-
-                </div>
+                 Multi-gene analysis
+                 </div>
               </div>
 
 
@@ -380,17 +376,20 @@
                 </div>
               </div>
 
+
+
               <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-multigene-analysis" class="video-thumbprint shadow-z-2">
+                <div id="welcome-screencast-panel-saving-analysis" class="video-thumbprint shadow-z-2" >
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
+                  </i>
                 </div>
                 <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
                   </i>
-                 Multi-gene analysis
-                 </div>
+                  Saving your analysis
+
+                </div>
               </div>
-
-
 
 
 
