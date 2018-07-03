@@ -342,15 +342,6 @@ main.content
 
 <script>
 
-/*
-import pako          from '../../third-party/pako_deflate.min.js'
-import jsbgzf        from '../../third-party/jsbgzf.js'
-import jsbvsampling  from '../../third-party/js-bv-sampling.js'
-import jslocalvcf    from '../../third-party/js-local-vcf.js'
-import jsbvcommon    from '../../third-party/js-bv-common.js'
-import jslocalbam    from '../../third-party/js-local-bam.js'
-import readBinaryVCF from '../../third-party/binary-vcf.js'
-*/
 
 import Navigation         from  '../viz/Navigation.vue'
 import EduTourBanner      from  '../viz/EduTourBanner.vue'

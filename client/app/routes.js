@@ -12,6 +12,8 @@ import VueRouter            from 'vue-router'
 
 import App                  from './App.vue'
 import GeneHome             from './components/pages/GeneHome.vue'
+import Tutorial             from './components/pages/Tutorial.vue'
+import UseCases             from './components/pages/UseCases.vue'
 import Exhibit              from './components/pages/Exhibit.vue'
 import ExhibitCases         from './components/pages/ExhibitCases.vue'
 import ExhibitCaseComplete  from './components/pages/ExhibitCaseComplete.vue'
@@ -86,6 +88,19 @@ const routes = [
     //   paramToken:            route.query.access_token,
     //   paramSource:           route.query.source
     // })
+  },
+  {
+    name: 'tutorial',
+    path: '/tutorial',
+    component: Tutorial
+  },
+  {
+    name: 'use-cases',
+    path: '/use-cases',
+    component: UseCases,
+    props: (route) => ({
+        paramTopic:             route.query.topic
+    })
   },
   {
     name: 'exhibit',
