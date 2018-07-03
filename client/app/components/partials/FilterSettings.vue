@@ -203,6 +203,9 @@ export default {
       let flagCriteria = this.filterModel.flagCriteria[this.theFilter.name];
 
       flagCriteria.name             = this.name;
+      if (flagCriteria.custom) {
+        flagCriteria.title = this.name;
+      }
       flagCriteria.maxAf            = this.maxAf ? this.maxAf / 100 : null;
       flagCriteria.clinvar          = this.selectedClinvarCategories;
       flagCriteria.impact           = this.selectedImpacts;
