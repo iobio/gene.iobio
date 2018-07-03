@@ -43,7 +43,7 @@
     #welcome-panel-content
       display: flex
       justify-content: center
-      margin-top: 10px
+      margin-top: 0px
 
       i.material-icons
         font-size: 20px
@@ -81,11 +81,11 @@
       #video-thumbprint-heading
         font-size: 18px
         color: $text-color
-        margin-top: 10px
+        margin-top: 0px
         margin-bottom: 3px
 
       #video-thumbprint-panel
-        margin-top: 5px
+        margin-top: 0px
         margin-bottom: 10px
 
 
@@ -97,7 +97,6 @@
       .video-thumbprint-well
         position: relative
         width: 110px
-        height: 120px
         text-align: center
         margin-left: 0px
 
@@ -339,9 +338,73 @@
         </div>
       </div>
 
-      <div class="welcome-panel" style="background:transparent;margin-top:30px">
+      <div class="welcome-panel" style="padding:0px;background:transparent;margin-top:20px">
         <div id="welcome-label">
-          Videos and Blog Posts
+          Videos
+        </div>
+        <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
+
+
+          <div id="video-thumbprint-panel">
+            <div id="video-thumbprint-content">
+
+
+
+              <div class="video-thumbprint-well ">
+                <div id="welcome-screencast-panel-saving-analysis" class="video-thumbprint shadow-z-2" >
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
+                  </i>
+                </div>
+                <div class="video-title">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
+                  </i>
+                  Saving your analysis
+
+                </div>
+              </div>
+
+
+              <div class="video-thumbprint-well ">
+                <div id="welcome-screencast-panel-coverage-analysis" class="video-thumbprint shadow-z-2" >
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
+                  </i>
+                </div>
+                <div class="video-title">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
+                  </i>
+                  Coverage analysis
+                </div>
+              </div>
+
+              <div class="video-thumbprint-well ">
+                <div id="welcome-screencast-panel-multigene-analysis" class="video-thumbprint shadow-z-2">
+                </div>
+                <div class="video-title">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
+                  </i>
+                 Multi-gene analysis
+                 </div>
+              </div>
+
+
+
+
+
+
+
+
+
+            </div>
+          </div>
+        </div>
+
+
+
+      </div>
+
+      <div class="welcome-panel" style="background:transparent;margin-top:0px;padding-top:10px">
+        <div id="welcome-label">
+          Blog Posts
         </div>
         <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
 
@@ -363,19 +426,6 @@
                 </div>
               </a>
 
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-saving-analysis" class="video-thumbprint shadow-z-2" >
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
-                  </i>
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
-                  </i>
-                  Saving your analysis screencast
-
-                </div>
-              </div>
-
 
               <a href="http://iobio.io/2017/04/26/gene_2.3.0/" target="_new">
                 <div class="video-thumbprint-well ">
@@ -388,17 +438,7 @@
                 </div>
               </a>
 
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-coverage-analysis" class="video-thumbprint shadow-z-2" >
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
-                  </i>
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
-                  </i>
-                  Coverage analysis screencast
-                </div>
-              </div>
+
 
               <a href="http://iobio.io/2017/07/11/coverage/" target="_new">
                 <div class="video-thumbprint-well ">
@@ -410,16 +450,6 @@
                   </div>
                 </div>
               </a>
-
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-multigene-analysis" class="video-thumbprint shadow-z-2">
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
-                  </i>
-                 Multi-gene analysis screencast
-                 </div>
-              </div>
 
 
               <a href="http://iobio.io/2017/09/29/gene_2.5.0/" target="_new">
@@ -446,7 +476,6 @@
 
 
       </div>
-
     </div>
   </div>
 </template>
