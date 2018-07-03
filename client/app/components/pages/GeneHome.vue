@@ -1578,8 +1578,9 @@ export default {
       let self = this;
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
         if (self.$refs.genesCardRef) {
-          self.$refs.genesCardRef.determineFlaggedGenes();
           self.$refs.genesCardRef.updateGeneBadgeCounts();
+          self.$refs.genesCardRef.determineFlaggedGenes();
+          self.cohortModel.flaggedVariants = self.flaggedVariants;
         }
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
           self.$refs.navRef.onShowFlaggedVariants();
