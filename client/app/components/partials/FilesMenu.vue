@@ -261,17 +261,7 @@ export default {
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
 
-      let genesPromise = null;
-      if (self.demoAction) {
-        genesPromise = self.cohortModel.geneModel.promiseCopyPasteGenes(self.cohortModel.demoGenes.join(", "));
-      } else {
-        genesPromise = Promise.resolve();
-      }
-
-      genesPromise
-      .then(function() {
-        return  self.cohortModel.promiseAddClinvarSample()
-      })
+      self.cohortModel.promiseAddClinvarSample()
       .then(function() {
         return  self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
       })
