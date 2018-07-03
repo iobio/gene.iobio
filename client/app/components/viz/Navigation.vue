@@ -228,7 +228,7 @@ nav.toolbar
          class="ml-5 "
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
-         :defaultTopGenes="isBasicMode ? '10' : '30'"
+         :defaultTopGenes="10"
          :geneModel="geneModel"
          @on-search-genes="onSearchPhenolyzerGenes"
          @show-snackbar="onShowSnackbar"
