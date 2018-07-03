@@ -258,7 +258,7 @@
           <button class="video-stop-button btn btn-default" @click="stopVideo('screencast-saving-analysis')">
             <i class="material-icons">arrow_back</i>
           </button>
-          <h4>Saving your analysis with Bookmarks</h4>
+          <h4>Saving your variant analysis</h4>
           <div id="screencast-saving-analysis-iframe-placeholder"></div>
       </div>
 
@@ -341,7 +341,7 @@
 
       <div class="welcome-panel" style="background:transparent;margin-top:30px">
         <div id="welcome-label">
-          Learn more
+          Videos and Blog Posts
         </div>
         <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
 
@@ -369,7 +369,7 @@
                   </i>
                 </div>
                 <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
                   </i>
                   Saving your analysis screencast
 
@@ -468,8 +468,8 @@ export default {
       videoStyle: "position:absolute;width:100%;height:100%;left:0",
       videoConfigs : {
         'screencast-intro': {
-          src: "https://www.youtube.com/embed/ormbcpKfJ6w?autoplay=1&rel=0&ecver=2&start=0",
-          videoId: 'ormbcpKfJ6w',
+          src: "https://www.youtube.com/embed/1R3kuXh6seQ?autoplay=1&rel=0&ecver=2",
+          videoId: '1R3kuXh6seQ',
           width: 623,
           height: 369,
           frameborder: "0",
@@ -484,16 +484,16 @@ export default {
           allowfullscreen: ""
         },
         'screencast-coverage-analysis': {
-          src: "https://www.youtube.com/embed/4VG1au5txn0?autoplay=1&rel=0&ecver=2",
-          videoId: '4VG1au5txn0',
+          src: "https://www.youtube.com/embed/dnq8HtthDgU?autoplay=1&rel=0&ecver=2",
+          videoId: 'dnq8HtthDgU',
           width: 623,
           height: 369,
           frameborder: "0",
           allowfullscreen: ""
         },
         'screencast-saving-analysis': {
-          src: "https://www.youtube.com/embed/JlXoBlWvniE?autoplay=1&rel=0&ecver=2",
-          videoId: 'JlXoBlWvniE',
+          src: "https://www.youtube.com/embed/6T8DkrJWd6w?autoplay=1&rel=0&ecver=2",
+          videoId: '6T8DkrJWd6w',
           width: 623,
           height: 369,
           frameborder: "0",
