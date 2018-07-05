@@ -67,6 +67,7 @@ const routes = [
         paramVcfs:             [route.query.vcf0, route.query.vcf1, route.query.vcf2],
         paramTbis:             [route.query.tbi0, route.query.tbi1, route.query.tbi2],
         paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2],
+        paramGeneName:         route.query.geneName,
         paramSampleId:         route.query.sample_uuid,
         paramSource:           route.query.source
     })
@@ -82,11 +83,10 @@ const routes = [
       next('/' + Qs.stringify(otherQueryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
     },
     // component: GeneHome,
-    // props: (route) => ({
-    //   paramSampleId:         route.query.sample_uuid,
-    //   paramTokenType:        route.query.token_type,
-    //   paramToken:            route.query.access_token,
-    //   paramSource:           route.query.source
+     //props: (route) => ({
+     //  paramSampleId:         route.query.sample_uuid,
+     //  paramSource:           route.query.source,
+     //  paramGene:             route.query.geneName
     // })
   },
   {

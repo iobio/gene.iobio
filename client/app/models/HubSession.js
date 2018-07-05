@@ -16,38 +16,41 @@ export default class HubSession {
 
       // Get pedigree for sample
       self.getPedigreeForSample(sampleId).done(data => {
-        let pedigree = self.parsePedigree(data);
+        let pedigree = self.parsePedigree(data, sampleId);
 
         let promises = [];
         for (var rel in pedigree) {
-          let samples = [];
-          if (Array.isArray(pedigree[rel])) {
-            samples = pedigree[rel];
-          } else {
-            samples = [pedigree[rel]];
-          }
-          samples.forEach(s => {
-            let p =  self.promiseGetFileMapForSample(s, rel).then(data => {
-              let theSample = data.sample;
-              theSample.files = data.fileMap;
+          if (rel != 'unparsed') {
+            let samples = [];
+            if (Array.isArray(pedigree[rel])) {
+              samples = pedigree[rel];
+            } else {
+              samples = [pedigree[rel]];
+            }
+            samples.forEach(s => {
+              let p =  self.promiseGetFileMapForSample(s, rel).then(data => {
+                let theSample = data.sample;
+                theSample.files = data.fileMap;
 
-              // TEMPORARY WORKAROUND - get rid of .exome from sample id
-              if (theSample.id.indexOf(".exome") > 0) {
-                theSample.id = theSample.id.substr(0,theSample.id.indexOf(".exome"));
-              }
-              var modelInfo = {
-                'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
-                'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
-                'name':           theSample.id,
-                'sample':         theSample.id,
-                'vcf':            theSample.files.vcf,
-                'tbi':            theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
-                'bam':            theSample.files.bam,
-                'bai':            theSample.files.bai.indexOf(theSample.files.bam) == 0 ? null : theSample.files.bai };
-              modelInfos.push(modelInfo);
+                // TEMPORARY WORKAROUND - get rid of .exome from sample id
+                if (theSample.id.indexOf(".exome") > 0) {
+                  theSample.id = theSample.id.substr(0,theSample.id.indexOf(".exome"));
+                }
+                var modelInfo = {
+                  'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
+                  'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
+                  'name':           theSample.id,
+                  'sample':         theSample.id,
+                  'vcf':            theSample.files.vcf,
+                  'tbi':            theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
+                  'bam':            theSample.files.bam,
+                  'bai':            theSample.files.bai.indexOf(theSample.files.bam) == 0 ? null : theSample.files.bai };
+                modelInfos.push(modelInfo);
+              })
+              promises.push(p);
             })
-            promises.push(p);
-          })
+          }
+
 
         }
 
@@ -66,33 +69,54 @@ export default class HubSession {
 
   }
 
-  parsePedigree(raw_pedigree) {
+  parsePedigree(raw_pedigree, sample_uuid) {
     // This assumes only 1 proband. If there are multiple affected samples then
     // the proband will be overwritten
     // This also assume no grandparents/grandchildren
 
     let pedigree = {}
 
-    const probandIndex = raw_pedigree.findIndex(d => d.pedigree.affection_status == 2
-                                                      && d.pedigree.maternal_id &&  d.pedigree.paternal_id);
+    // Look for proband, which should have mother and father filled in and is the sample selected
+    let probandIndex = raw_pedigree.findIndex(d => ( d.uuid == sample_uuid && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+    // If the sample selected doesn't have a mother and father (isn't a proband), find
+    // the proband by looking for a child with mother and father filled in and affected status
+    if (probandIndex == -1) {
+      probandIndex = raw_pedigree.findIndex(d => ( d.affection_status == 2 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+    }
+    // If the sample selected doesn't have a mother and father (isn't a proband), find
+    // the proband by looking for a child with mother and father filled in and unknown affected status
+    if (probandIndex == -1) {
+      probandIndex = raw_pedigree.findIndex(d => ( d.affection_status == 0 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+    }
+
     if (probandIndex != -1) {
+      // Proband
       const proband  = raw_pedigree.splice(probandIndex, 1)[0];
+      pedigree['proband'] = proband;
 
       // Get mother
       const motherIndex = raw_pedigree.findIndex(d => d.uuid == proband.pedigree.maternal_id)
-      pedigree['mother'] = raw_pedigree.splice(motherIndex, 1)[0]
+      if (motherIndex != -1) {
+        pedigree['mother'] = raw_pedigree.splice(motherIndex, 1)[0]
+      }
 
       // Get mother
       const fatherIndex = raw_pedigree.findIndex(d => d.uuid == proband.pedigree.paternal_id)
-      pedigree['father'] = raw_pedigree.splice(fatherIndex, 1)[0]
+      if (fatherIndex != -1) {
+        pedigree['father'] = raw_pedigree.splice(fatherIndex, 1)[0]
+      }
 
-      // Proband
+    } else {
+      // If we can't find a full trio with a proband, mother, and father, just load the selected sample
+      let idx = raw_pedigree.findIndex(d => ( d.pedigree.uuid == sample_uuid ) );
+      let proband    = raw_pedigree.splice(idx, 1)[0];
       pedigree['proband'] = proband;
     }
 
 
     raw_pedigree.forEach(sample => {
-      if (sample.pedigree.maternal_id != null || sample.pedigree.paternal_id != null) {
+      if (sample.pedigree.maternal_id != null || sample.pedigree.paternal_id != null
+          && sample.pedigree.uuid != pedigree.proband.uuid) {
         pedigree['siblings'] = (pedigree['siblings'] || [])
         pedigree['siblings'].push(sample);
       } else {

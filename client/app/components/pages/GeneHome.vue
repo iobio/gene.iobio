@@ -396,6 +396,7 @@ export default {
   },
   props: {
     paramGene:             null,
+    paramGeneName:         null,
     paramGenes:            null,
     paramSpecies:          null,
     paramBuild:            null,
@@ -1419,6 +1420,9 @@ export default {
         if (self.paramGene) {
           self.geneModel.promiseAddGeneName(self.paramGene);
           self.onGeneSelected(self.paramGene);
+        } else if (self.paramGeneName) {
+          self.geneModel.promiseAddGeneName(self.paramGeneName);
+          self.onGeneSelected(self.paramGeneName);
         }
         if (self.paramSpecies) {
           self.genomeBuildHelper.setCurrentSpecies(self.paramSpecies);
