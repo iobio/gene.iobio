@@ -370,6 +370,16 @@ export default {
     onSamplesAvailable: function(relationship, samples) {
       if (relationship == 'proband') {
         this.probandSamples = samples;
+        if (this.cohortModel.sampleMapSibs.affected && this.cohortModel.sampleMapSibs.affected.length > 0) {
+          this.affectedSibs = this.cohortModel.sampleMapSibs.affected.map(function(sampleModel) {
+            return sampleModel.sampleName;
+          })
+        }
+        if (this.cohortModel.sampleMapSibs.unaffected && this.cohortModel.sampleMapSibs.unaffected.length > 0) {
+          this.unaffectedSibs = this.cohortModel.sampleMapSibs.unaffected.map(function(sampleModel) {
+            return sampleModel.sampleName;
+          })
+        }
       }
     },
     getModel: function(relationship) {

@@ -54,7 +54,8 @@ class CohortModel {
       'exome': {
         'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
         'mother':  'https://s3.amazonaws.com/iobio/samples/bam/NA12892.exome.bam',
-        'father':  'https://s3.amazonaws.com/iobio/samples/bam/NA12891.exome.bam'
+        'father':  'https://s3.amazonaws.com/iobio/samples/bam/NA12891.exome.bam',
+        'sibling': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam'
       },
       'genome': {
         'proband': 'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam',
@@ -70,6 +71,7 @@ class CohortModel {
         {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['proband'], 'bai': null },
         {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['mother'], 'bai': null  },
         {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['father'], 'bai': null  },
+        {relationship: 'sibling', affectedStatus: 'unaffected',   name: 'NA12877', 'sample': 'NA12877', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['sibling'], 'bai': null }
       ],
       'genome': [
         {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['proband'], 'bai': null  },
@@ -245,6 +247,23 @@ class CohortModel {
       self.isLoaded = false;
       self.inProgress.loadingDataSources = true;
 
+
+
+      let affectedSibs = modelInfos.filter(function(modelInfo) {
+        return modelInfo.relationship == 'sibling' && modelInfo.affectedStatus == 'affected';
+      })
+      .map(function(modelInfo) {
+        return modelInfo.sample;
+      })
+
+
+      let unaffectedSibs = modelInfos.filter(function(modelInfo) {
+        return modelInfo.relationship == 'sibling' && modelInfo.affectedStatus != 'affected';
+      })
+      .map(function(modelInfo) {
+        return modelInfo.sample;
+      })
+
       // sort models by proband, mother, father, sibling
       modelInfos = modelInfos.sort(function(a,b) {
         let getOrder = function(modelInfo) {
@@ -264,9 +283,13 @@ class CohortModel {
         return getOrder(a) - getOrder(b);
       })
       .filter(function(modelInfo) {
-        // We exclude siblings here; use a separate method to set siblinigs
+        // We exclude siblings here; use a separate method to set siblings
         return modelInfo.relationship != 'sibling';
       })
+
+
+
+
 
       self.sampleModels = [];
       self.flaggedVariants = [];
@@ -287,12 +310,15 @@ class CohortModel {
 
       Promise.all(promises)
       .then(function() {
+        return self.promiseSetSibs(affectedSibs, unaffectedSibs)
+      })
+      .then(function() {
+
         self.sortSampleModels();
 
         self.setAffectedInfo(true);
         self.inProgress.loadingDataSources = false;
         self.isLoaded = true;
-
 
         resolve();
       })
@@ -383,6 +409,12 @@ class CohortModel {
 
   promiseSetSibs(affectedSamples, unaffectedSamples) {
     let self = this;
+
+    if ((affectedSamples == null || affectedSamples.length == 0) &&
+        (unaffectedSamples == null || unaffectedSamples.length == 0)) {
+      return Promise.resolve();
+    }
+
     self.sampleMapSibs.affected = [];
     self.sampleMapSibs.unaffected = [];
 

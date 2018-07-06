@@ -1449,6 +1449,31 @@ export default {
             modelInfos.push(modelInfo);
           }
         }
+
+        if (self.paramUnaffectedSibs && self.paramUnaffectedSibs.length > 0 && modelInfos.length > 0) {
+          self.paramUnaffectedSibs.split(",").forEach(function(sibId) {
+            var sibModelInfo = $.extend({}, modelInfos[0]);
+            sibModelInfo.name = sibId;
+            sibModelInfo.sample = sibId;
+            sibModelInfo.relationship = 'sibling';
+            sibModelInfo.affectedStatus = 'unaffected';
+            sibModelInfo.bam = null;
+            sibModelInfo.bai = null;
+            modelInfos.push(sibModelInfo);
+          })
+        }
+        if (self.paramAffectedSibs && self.paramAffectedSibs.length > 0 && modelInfos.length > 0) {
+          self.paramAffectedSibs.split(",").forEach(function(sibId) {
+            var sibModelInfo = $.extend({}, modelInfos[0]);
+            sibModelInfo.name = sibId;
+            sibModelInfo.sample = sibId;
+            sibModelInfo.relationship = 'sibling';
+            sibModelInfo.affectedStatus = 'affected';
+            sibModelInfo.bam = null;
+            sibModelInfo.bai = null;
+            modelInfos.push(sibModelInfo);
+          })
+        }
         if (modelInfos.length > 0) {
           self.cohortModel.promiseInit(modelInfos)
           .then(function() {
