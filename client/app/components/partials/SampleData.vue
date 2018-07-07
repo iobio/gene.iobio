@@ -236,7 +236,7 @@ export default {
     this.samples = this.modelInfo.samples;
     this.isAffected = this.modelInfo.isAffected;
     if (this.modelInfo.vcf) {
-      this.onVcfUrlEntered(this.modelInfo.vcf);
+      this.onVcfUrlEntered(this.modelInfo.vcf, this.modelInfo.tbi);
     }
 
   }

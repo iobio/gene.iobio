@@ -43,7 +43,7 @@
         @change="onUrlChange"
       ></v-text-field>
       <v-text-field
-        v-if="fileType == 'url' && separateUrlForIndex"
+        v-if="fileType == 'url' && (separateUrlForIndex || indexUrl)"
         v-bind:label="'Enter ' + indexLabel +  ' URL'"
         hide-details
         v-model="indexUrl"
@@ -130,6 +130,7 @@ export default {
     }
   },
   created: function() {
+    this.indexUrl = this.defaultIndexUrl;
     this.url = this.defaultUrl;
   }
 }

@@ -427,7 +427,9 @@ class CohortModel {
           'name': sampleName,
           'sample': sampleName,
           'vcf': self.getProbandModel().vcf.getVcfURL(),
-          'tbi': null, 'bam': null, 'bai': null };
+          'tbi': self.getProbandModel().vcf.getTbiURL(),
+          'bam': null,
+          'bai': null };
         var p = self.promiseAddSib(modelInfo);
         promises.push(p);
       });
@@ -440,7 +442,8 @@ class CohortModel {
           'name': sampleName,
           'sample': sampleName,
           'vcf': self.getProbandModel().vcf.getVcfURL(),
-          'tbi': null, 'bam': null, 'bai': null };
+          'tbi': self.getProbandModel().vcf.getTbiURL(),
+          'bam': null, 'bai': null };
         var p = self.promiseAddSib(modelInfo);
         promises.push(p);
       });

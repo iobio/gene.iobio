@@ -411,6 +411,7 @@ export default {
     },
     initModelInfo: function() {
       let self = this;
+      self.separateUrlForIndex = true;
       self.cohortModel.getCanonicalModels().forEach(function(model) {
         var modelInfo = self.modelInfoMap[model.relationship];
         if (modelInfo == null) {
