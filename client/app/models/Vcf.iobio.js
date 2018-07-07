@@ -295,7 +295,7 @@ var effectCategories = [
   exports.translateErrorMessage = function(error) {
     var me = this;
     var message = null;
-    for (key in errorMessageMap) {
+    for (var key in errorMessageMap) {
       var errMsg = errorMessageMap[key];
       if (message == null && error.match(errMsg.regExp)) {
         message = errMsg.message;
