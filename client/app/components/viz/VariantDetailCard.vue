@@ -301,22 +301,10 @@
              <v-flex xs9 class="field-value">{{ info.phenotype }}</v-flex>
           </v-layout>
         </v-flex>
-        <v-flex  v-if="!isBasicMode">
-          <v-layout row >
-             <v-flex xs3 class="field-label">Transcript</v-flex>
-             <v-flex xs9 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
-          </v-layout>
-        </v-flex>
-        <v-flex  v-if="!isBasicMode">
+        <v-flex  v-if="info.revel != '' && !isBasicMode" >
           <v-layout row class="no-bottom-margin">
-             <v-flex xs3 class="field-label">HGVSc </v-flex>
-             <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
-          </v-layout>
-        </v-flex>
-        <v-flex   v-if="!isBasicMode">
-          <v-layout row>
-             <v-flex xs3 class="field-label">HGVSp </v-flex>
-             <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
+             <v-flex xs3 class="field-label">REVEL</v-flex>
+             <v-flex xs9 class="field-value">{{ info.revel }}</v-flex>
           </v-layout>
         </v-flex>
         <v-flex   v-if="info.polyphen != '' && !isBasicMode">
@@ -335,6 +323,24 @@
           <v-layout row>
              <v-flex xs3 class="field-label">Regulatory</v-flex>
              <v-flex xs9  v-html="info.regulatory" class="field-value"></v-flex>
+          </v-layout>
+        </v-flex>
+        <v-flex  v-if="!isBasicMode">
+          <v-layout row >
+             <v-flex xs3 class="field-label">Transcript</v-flex>
+             <v-flex xs9 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
+          </v-layout>
+        </v-flex>
+        <v-flex  v-if="!isBasicMode">
+          <v-layout row class="no-bottom-margin">
+             <v-flex xs3 class="field-label">HGVSc </v-flex>
+             <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
+          </v-layout>
+        </v-flex>
+        <v-flex   v-if="!isBasicMode">
+          <v-layout row>
+             <v-flex xs3 class="field-label">HGVSp </v-flex>
+             <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
           </v-layout>
         </v-flex>
 

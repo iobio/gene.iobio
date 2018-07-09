@@ -57,6 +57,8 @@ class GlobalApp {
     // Should vep retrieve allele frequencies (for gnomad, 1000G, ESP)
     this.vepAF                = true ;
 
+    this.vepREVELFile         = './vep-cache/revel_all_chromosomes_for_vep.tsv.gz';
+
     // What browser cache implementation is used: 'localStorage' or 'indexedDB'
     this.BROWSER_CACHE_LOCAL_STORAGE = 'localStorage';
     this.BROWSER_CACHE_INDEXED_DB    = 'indexedDB';

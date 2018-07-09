@@ -660,6 +660,7 @@ class Util {
       HGVSpAbbrev: "",
       HGVScLoading: false,
       HGVSpLoading: false,
+      revel: "",
       sift: "",
       polyphen: "",
       regulatory: "",
@@ -838,6 +839,8 @@ class Util {
       info.HGVScLoading = true;
       info.HGVSpLoading = true;
     }
+
+    info.revel = variant.vepREVEL;
 
     for (var key in variant.vepSIFT) {
       if (info.sift.length > 0) {

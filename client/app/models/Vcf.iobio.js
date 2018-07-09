@@ -1603,6 +1603,7 @@ var effectCategories = [
                     'vepHGVSp':                annot.vep.vepHGVSp,
                     'vepAminoAcids':           annot.vep.vepAminoAcids,
                     'vepVariationIds' :        annot.vep.vepVariationIds,
+                    'vepREVEL':                annot.vep.revel,
                     'vepSIFT':                 annot.vep.vepSIFT,
                     'sift' :                   annot.vep.sift,
                     'vepPolyPhen':             annot.vep.vepPolyPhen,
@@ -1891,6 +1892,8 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
             if (consequencesObject == null) {
               consequencesObject = {};
             }
+            annot.vep.revel       = vepFields.REVEL ? vepTokens[vepFields.REVEL] : "";
+
             me._appendTranscript(consequencesObject, theConsequences, theTranscriptId);
             annot.vep.allVep[theImpact] = consequencesObject;
 

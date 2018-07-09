@@ -128,6 +128,9 @@ export default class EndpointCmd {
       vepArgs.push(me.genomeBuildHelper.getCurrentBuildName());
       vepArgs.push(" --format vcf");
       vepArgs.push(" --allele_number");
+      if (me.globalApp.vepREVELFile) {
+        vepArgs.push(" --plugin REVEL," + me.globalApp.vepREVELFile);
+      }
       if (vepAF) {
         vepArgs.push("--af");
         vepArgs.push("--af_gnomad");
