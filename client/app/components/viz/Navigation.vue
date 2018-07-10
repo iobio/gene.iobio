@@ -579,7 +579,7 @@ export default {
       this.$emit("clear-all-genes");
     },
     onApplyGenes: function(genesToApply) {
-      this.$emit("apply-genes", genesToApply);
+      this.$emit("apply-genes", genesToApply, {replace: true, warnOnDup: true, isFromClin: false});
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
@@ -596,7 +596,7 @@ export default {
           return gene.geneName;
         })
         .join(", ");
-        this.$emit("apply-genes", genesToApply, searchTerm);
+        this.$emit("apply-genes", genesToApply, {phenotypes: searchTerm, replace: true});
       }
     },
     onVariants: function() {

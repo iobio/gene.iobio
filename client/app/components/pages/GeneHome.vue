@@ -424,7 +424,7 @@ export default {
   },
   data() {
     return {
-      greeting: 'gene.iobio.vue',
+      greeting: 'gene.iobio',
 
       launchedFromClin: false,
 
@@ -1301,6 +1301,22 @@ export default {
       }
 
     },
+
+    onGenesReplaced: function(oldGeneNames, newGeneNames) {
+      let self = this;
+
+      var removedGeneNames = oldGeneNames.filter(function(geneName) {
+        return newGeneNames.indexOf(geneName) == -1;
+      })
+
+      removedGeneNames.forEach(function(geneName) {
+        self.cohortModel.removeFlaggedVariantsForGene(geneName);
+        self.clearFilter();
+        self.cacheHelper.clearCacheForGene(geneName);
+      })
+      self.onSendGenesToClin();
+    },
+
     onAnalyzeAll: function() {
       this.cacheHelper.analyzeAll(this.cohortModel);
     },
@@ -1316,41 +1332,62 @@ export default {
         this.$refs.genesCardRef.clearFilter();
       }
     },
-    onApplyGenes: function(genesString, clinObject, callback) {
+    onApplyGenes: function(genesString, options, callback) {
       let self = this;
 
       self.clearFilter();
 
-      self.phenotypeTerm = clinObject ? clinObject.phenotypes : null;
-      var message = null;
+      self.phenotypeTerm = options ? options.phenotypes : null;
+      var theOptions = $.extend(
+        {
+          isFromClin: false,
+          replace: self.geneModel.geneNames.length == 0 ? false : true,
+          warnOnDup: false
+        },
+        options);
 
-      if (self.geneModel.geneNames.length > 0) {
-        var count = self.geneModel.getCopyPasteGeneCount(genesString);
-        if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
-          self.applyGenesImpl(genesString, {replace: false, warnOnDup: false} );
-          self.onShowSnackbar({message: 'Adding genes associated with ' + self.phenotypeTerm, timeout: 6000})
 
+      let genesToApplyCount = self.geneModel.getCopyPasteGeneCount(genesString);
 
-        } else {
-          self.applyGenesImpl(genesString, {replace: true}, function() {
-            if (clinObject == null) {
-              self.onSendGenesToClin();
-            }
-            if (callback) {
-              callback();
-            }
-          })
-        }
-      } else {
-        self.applyGenesImpl(genesString, {replace: false}, function() {
-          if (clinObject == null) {
+      let doIt = function() {
+        let oldGeneNames = $.extend([], self.geneModel.sortedGeneNames);
+        self.applyGenesImpl(genesString, options, function() {
+          if (options && options.replace) {
+            self.onGenesReplaced(oldGeneNames, self.geneModel.sortedGeneNames);
+          }
+          if (!options.isFromClin) {
             self.onSendGenesToClin();
           }
           if (callback) {
             callback();
           }
         })
+        if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
+          self.onShowSnackbar({message: 'Adding genes associated with ' + self.phenotypeTerm, timeout: 6000})
+        }
       }
+
+      if (self.phenotypeTerm && !options.isFromClin) {
+        let msg = "Replace existing genes with the " + genesToApplyCount + " genes associated with " + self.phenotypeTerm + "?";
+        alertify.confirm("",
+          msg,
+          function (e) {
+            // ok
+            options.replace = true;
+            doIt();
+          },
+          function() {
+            // cancel
+            options.replace = false;
+            doIt();
+          }
+
+        ).set('labels', {ok:'Replace genes', cancel:'No, add genes to current list'});
+
+      } else {
+        doIt();
+      }
+
 
     },
     applyGenesImpl: function(genesString, options, callback) {
@@ -1753,13 +1790,13 @@ export default {
       var clinObject = JSON.parse(event.data);
 
       if (clinObject.type == 'apply-genes') {
-        this.onApplyGenes(clinObject.genes.join(" "), {phenotypes: clinObject.searchTerms.join(",")});
+        this.onApplyGenes(clinObject.genes.join(" "), {isFromClin: true, replace: true, warnOnDup: false, phenotypes: clinObject.searchTerms.join(",")});
       } else if (clinObject.type == 'set-data') {
         self.launchedFromClin = true;
         self.cohortModel.promiseInit(clinObject.modelInfos)
         .then(function() {
           self.models = self.cohortModel.sampleModels;
-          self.onApplyGenes(clinObject.genes.join(" "), {phenotypes: clinObject.phenotypes.join(",")}, function() {
+          self.onApplyGenes(clinObject.genes.join(" "), {isFromClin: true, replace: true, warnOnDup: false, phenotypes: clinObject.phenotypes.join(",")}, function() {
             self.cohortModel.importFlaggedVariants('json', clinObject.variants, function() {
               self.onFlaggedVariantsImported();
               self.$refs.navRef.onShowFlaggedVariants();
