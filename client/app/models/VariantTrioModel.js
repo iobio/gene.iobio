@@ -6,6 +6,7 @@ export default class VariantTrioModel {
     this.motherVcfData = motherVcfData;
     this.fatherVcfData = fatherVcfData;
     this.sibsVcfData = sibsVcfData;
+    this.syncGenotypes = syncGenotypes;
 
     // This is only passed in when the genotypes must be 'stitched together' because
     // samples of mother and father are in separate vcf files
@@ -117,13 +118,13 @@ export default class VariantTrioModel {
           variantA.genotypeDepthMother    = variantB.genotypeDepth;
           variantA.bamDepthMother         = variantB.bamDepth;
 
-            variantB.probandZygosity         = variantA.zygosity != null ? variantA.zygosity : '';
+          variantB.probandZygosity         = variantA.zygosity != null ? variantA.zygosity : '';
           variantB.genotypeAltCountProband = variantA.genotypeAltCount;
           variantB.genotypeRefCountProband = variantA.genotypeRefCount;
           variantB.genotypeDepthProband    = variantA.genotypeDepth;
           variantB.bamDepthProband         = variantA.bamDepth;
 
-        me._syncGenotypes(variantA, variantB,
+          me._syncGenotypes(variantA, variantB,
           me.probandAffectedInfo ? me.probandAffectedInfo.model.getSampleName() : null,
           me.motherAffectedInfo  ? me.motherAffectedInfo.model.getSampleName() : null);
 
@@ -144,18 +145,18 @@ export default class VariantTrioModel {
               variantA.fatherZygosity = variantB.zygosity != null ? variantB.zygosity : '';
               variantA.genotypeAltCountFather = variantB.genotypeAltCount;
               variantA.genotypeRefCountFather = variantB.genotypeRefCount;
-            variantA.genotypeDepthFather    = variantB.genotypeDepth;
-            variantA.bamDepthFather         = variantB.bamDepth;
+              variantA.genotypeDepthFather    = variantB.genotypeDepth;
+              variantA.bamDepthFather         = variantB.bamDepth;
 
               variantB.probandZygosity         = variantA.zygosity != null ? variantA.zygosity : '';
               variantB.genotypeAltCountProband = variantA.genotypeAltCount;
               variantB.genotypeRefCountProband = variantA.genotypeRefCount;
-            variantB.genotypeDepthProband    = variantA.genotypeDepth;
-            variantB.bamDepthProband         = variantA.bamDepth;
+              variantB.genotypeDepthProband    = variantA.genotypeDepth;
+              variantB.bamDepthProband         = variantA.bamDepth;
 
-          me._syncGenotypes(variantA, variantB,
-            me.probandAffectedInfo ? me.probandAffectedInfo.model.getSampleName() : null,
-            me.fatherAffectedInfo  ? me.fatherAffectedInfo.model.getSampleName() : null);
+              me._syncGenotypes(variantA, variantB,
+              me.probandAffectedInfo ? me.probandAffectedInfo.model.getSampleName() : null,
+              me.fatherAffectedInfo  ? me.fatherAffectedInfo.model.getSampleName() : null);
 
 
             });
@@ -206,7 +207,7 @@ export default class VariantTrioModel {
           variantMother.genotypeDepthFather    = variantFather.genotypeDepth;
           variantMother.bamDepthFather         = variantFather.bamDepth;
 
-            variantFather.motherZygosity         = variantMother.zygosity != null ? variantMother.zygosity : '';
+          variantFather.motherZygosity         = variantMother.zygosity != null ? variantMother.zygosity : '';
           variantFather.genotypeAltCountMother = variantMother.genotypeAltCount;
           variantFather.genotypeRefCountMother = variantMother.genotypeRefCount;
           variantFather.genotypeDepthMother    = variantMother.genotypeDepth;
