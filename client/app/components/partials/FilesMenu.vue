@@ -493,6 +493,8 @@ export default {
       this.buildName   =  this.cohortModel.genomeBuildHelper.getCurrentBuildName();
       this.speciesList =  this.cohortModel.genomeBuildHelper.speciesList.map(function(sp) {
         return sp.name;
+      }).filter(function(name) {
+        return name == 'Human';
       });
     }
 
