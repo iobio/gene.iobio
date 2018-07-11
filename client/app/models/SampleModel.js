@@ -1651,12 +1651,12 @@ class SampleModel {
       theVcfData = data;
 
       var affectedSibs = affectedInfo.filter(function(info) {
-        return info.status == 'affected' && info.relationship != 'proband';
+        return info.status == 'affected' && info.relationship == 'sibling';
       })
       me._determineAffectedStatusImpl(theVcfData, 'affected', affectedSibs)
 
       var unaffectedSibs = affectedInfo.filter(function(info) {
-        return info.status == 'unaffected' && info.relationship != 'proband';
+        return info.status == 'unaffected' && info.relationship == 'sibling';
       })
       me._determineAffectedStatusImpl(theVcfData, 'unaffected', unaffectedSibs)
 

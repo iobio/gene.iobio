@@ -71,7 +71,6 @@ class CohortModel {
         {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['proband'], 'bai': null },
         {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['mother'], 'bai': null  },
         {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['father'], 'bai': null  },
-        {relationship: 'sibling', affectedStatus: 'unaffected',   name: 'NA12877', 'sample': 'NA12877', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['sibling'], 'bai': null }
       ],
       'genome': [
         {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['proband'], 'bai': null  },
@@ -410,13 +409,14 @@ class CohortModel {
   promiseSetSibs(affectedSamples, unaffectedSamples) {
     let self = this;
 
+    self.sampleMapSibs.affected = [];
+    self.sampleMapSibs.unaffected = [];
+
     if ((affectedSamples == null || affectedSamples.length == 0) &&
         (unaffectedSamples == null || unaffectedSamples.length == 0)) {
       return Promise.resolve();
     }
 
-    self.sampleMapSibs.affected = [];
-    self.sampleMapSibs.unaffected = [];
 
     var promises = [];
     if (affectedSamples) {

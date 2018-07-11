@@ -23,8 +23,8 @@ class FeatureMatrixModel {
         {name:'Most severe impact (VEP)'     , id:'highest-impact', order:2, index:2,   match: 'exact', attribute: this.globalApp.impactFieldToFilter,  map: this.getTranslator().highestImpactMap},
         //{name:'Flagged'                      , id:'bookmark',       order:3, index:3,  match: 'exact', attribute: 'isFlagged',     map: this.getTranslator().bookmarkMap },
         {name:'Inheritance Mode'             , id:'inheritance',    order:3, index:3,   match: 'exact', attribute: 'inheritance', map: this.getTranslator().inheritanceMap},
-        {name:'Present in Affected'          , id:'affected',       order:4, index:4,   match: 'exact', attribute: 'affected_summary',  map: this.getTranslator().affectedMap},
-        {name:'Absent in Unaffected'         , id:'unaffected',     order:5, index:5,   match: 'exact', attribute: 'unaffected_summary',  map: this.getTranslator().unaffectedMap},
+        {name:'Present in Affected Sibs'     , id:'affected',       order:4, index:4,   match: 'exact', attribute: 'affected_summary',  map: this.getTranslator().affectedMap},
+        {name:'Absent in Unaffected Sibs'    , id:'unaffected',     order:5, index:5,   match: 'exact', attribute: 'unaffected_summary',  map: this.getTranslator().unaffectedMap},
         {name:'Allele Frequency <5%'         , id:'af-highest',     order:6, index:6, match: 'range', attribute: 'afHighest',      map: this.getTranslator().afHighestMap},
         {name:'Zygosity'                     , id:'zygosity',       order:7, index:7, match: 'exact', attribute: 'zygosity',      map: this.getTranslator().zygosityMap},
         {name:'Genotype'                     , id:'genotype',       order:8, index:8, match: 'field', attribute: 'eduGenotypeReversed' }
@@ -43,35 +43,40 @@ class FeatureMatrixModel {
         {name:'Mutation Freq 1000G'    ,id:'af-1000g',        order:9,  index:9,  match:  'field', height: 18, attribute: 'af1000G',                     formatFunction: this.formatAlleleFrequencyPercentage },
         {name:'Mutation Freq gnomAD'   ,id:'af-gnomAD',       order:10, index:10,  match: 'field', height: 18, attribute: 'afgnomAD',                    formatFunction: this.formatAlleleFrequencyPercentage }
       ];
-      this.filteredMatrixRows = this.matrixRows;
+      this.filteredMatrixRows = null;
       this.featureUnknown = 199;
+      this.matrixRowsEvaluated = false;
 
   }
 
   init() {
     let self = this;
+    this.matrixRowsEvaluated = false;
+    this.clearRankedVariants();
 
     if (self.isBasicMode) {
-      this.matrixRows = this.matrixRowsBasic;
+      this.matrixRows = $.extend([], this.matrixRowsBasic);
+      this.filteredMatrixRows = $.extend([], this.matrixRows);
     } else if (self.isEduMode) {
-      this.removeRow('Pathogenicity - SIFT', self.matrixRows);
+      this.filteredMatrixRows = $.extend([], this.matrixRows);
+      this.removeRow('Pathogenicity - SIFT', self.filteredMatrixRows);
 
-      this.removeRow('Zygosity', self.matrixRows);
-      this.removeRow('Bookmark', self.matrixRows);
+      this.removeRow('Zygosity', self.filteredMatrixRows);
+      this.removeRow('Bookmark', self.filteredMatrixRows);
 
       // Only show genotype on second educational tour or level basic
       if (!self.isEduMode || self.tourNumber != 2) {
-        this.removeRow('Genotype', self.matrixRows);
+        this.removeRow('Genotype', self.filteredMatrixRows);
       }
       // Only show inheritance on first educational tour or level basic
       if (!self.isEduMode || self.tourNumber != 1) {
-        this.removeRow('Inheritance Mode', self.matrixRows);
+        this.removeRow('Inheritance Mode', self.filteredMatrixRows);
       }
-      this.removeRow('Most severe impact (VEP)', self.matrixRows);
-      this.removeRow('Present in Affected', self.matrixRows);
-      this.removeRow('Absent in Unaffected', self.matrixRows);
-      this.removeRow('Allele Frequency - 1000G', self.matrixRows);
-      this.removeRow('Allele Frequency - ExAC', self.matrixRows);
+      this.removeRow('Most severe impact (VEP)', self.filteredMatrixRows);
+      this.removeRow('Present in Affected Sibs', self.filteredMatrixRows);
+      this.removeRow('Absent in Unaffected Sibs', self.filteredMatrixRows);
+      this.removeRow('Allele Frequency - 1000G', self.filteredMatrixRows);
+      this.removeRow('Allele Frequency - ExAC', self.filteredMatrixRows);
 
       this.setRowLabel('Impact - SnpEff',             'Severity');
       this.setRowLabel('Impact - VEP',                'Severity');
@@ -79,7 +84,8 @@ class FeatureMatrixModel {
       this.setRowLabel('Pathogenicity - PolyPhen',    'Predicted effect');
       this.setRowLabel('Inheritance Mode',            'Inheritance');
     } else {
-      this.removeRow('Genotype', self.matrixRows);
+      this.filteredMatrixRows = $.extend([], this.matrixRows);
+      this.removeRow('Genotype', self.filteredMatrixRows);
     }
 
   }
@@ -104,11 +110,11 @@ class FeatureMatrixModel {
     if (idx >= 0) {
       var removedOrder = theMatrixRows[idx].order;
       theMatrixRows.splice(idx, 1);
-      theMatrixRows.forEach(function(row) {
-        if (+row.order > +removedOrder) {
-          row.order--;
-        }
-      });
+
+      var order = 0;
+      for (order = 0; order < theMatrixRows.length; order++) {
+        theMatrixRows[order].order = order;
+      }
     }
   }
 
@@ -219,30 +225,31 @@ class FeatureMatrixModel {
     let self = this;
     self.featureVcfData = theVcfData;
     self.inProgress.rankingVariants = true;
+    self.clearRankedVariants();
 
     return new Promise(function(resolve, reject) {
 
       var unfilteredVcfData = theVcfData;
+
 
       if (theVcfData == null) {
         resolve();
       } else {
 
         // Figure out if we should show the unaffected sibs row
-        if (self.filteredMatrixRows == null) {
-          self.filteredMatrixRows = $.extend(true, [], self.matrixRows);
+        if (!self.matrixRowsEvaluated) {
           var affectedInfo = self.getAffectedInfo();
           var affected = affectedInfo.filter(function(info) {
-            return info.status == 'affected' && info.relationship != 'proband';
+            return info.status == 'affected' && info.relationship == 'sibling';
           })
           var unaffected = affectedInfo.filter(function(info) {
-            return info.status == 'unaffected' && info.relationship != 'proband';
+            return info.status == 'unaffected' && info.relationship == 'sibling';
           })
           if (affected.length == 0) {
-            self.removeRow('Present in Affected', self.filteredMatrixRows);
+            self.removeRow('Present in Affected Sibs', self.filteredMatrixRows);
           }
           if (unaffected.length == 0) {
-            self.removeRow('Absent in Unaffected', self.filteredMatrixRows);
+            self.removeRow('Absent in Unaffected Sibs', self.filteredMatrixRows);
           }
 
           // Figure out if we should show any rows for generic annotations
@@ -253,6 +260,8 @@ class FeatureMatrixModel {
             matrixRow.order = self.filteredMatrixRows.length;
             self.filteredMatrixRows.push(matrixRow);
           })
+
+          self.matrixRowsEvaluated = true;
         }
 
         if (theVcfData != null) {

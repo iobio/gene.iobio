@@ -852,8 +852,13 @@ export default {
 
     onFilesLoaded: function(analyzeAll) {
       let self = this;
-      this.setUrlParameters();
+      self.setUrlParameters();
+
       self.promiseClearCache()
+      .then(function() {
+        self.featureMatrixModel.init();
+        return self.promiseResetAllGenes();
+      })
       .then(function() {
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.promiseLoadGene(self.selectedGene.gene_name);
@@ -1326,6 +1331,30 @@ export default {
       this.geneModel.clearAllGenes();
       this.flaggedVariants = [];
       this.cohortModel.flaggedVariants = [];
+    },
+    promiseResetAllGenes: function() {
+      let self = this;
+      if (self.geneModel.sortedGeneNames == null || self.geneModel.sortedGeneNames.length == 0) {
+        return Promise.resolve();
+      } else {
+        return new Promise(function(resolve, reject) {
+          self.clearFilter();
+          let geneToSelect   = $.extend(self.selectedGene);
+          self.selectedGene = {};
+
+          let genesToReapply = $.extend([], self.geneModel.sortedGeneNames);
+
+          self.geneModel.clearAllGenes();
+          self.flaggedVariants = [];
+          self.cohortModel.flaggedVariants = [];
+
+          self.applyGenesImpl(genesToReapply.join(","), {replace: true, warnOnDup: false, isFromClin: false},
+          function() {
+            self.selectedGene = geneToSelect;
+            resolve();
+          });
+        })
+      }
     },
     clearFilter: function() {
       if (this.$refs.genesCardRef) {
