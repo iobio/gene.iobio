@@ -26,7 +26,7 @@ export default class HubSession {
           probandSample.files = data.fileMap;
         })
         .then( () => {
-          for (var rel in sortedPedigreeRoles) {
+          for (var rel in pedigree) {
             if (rel != 'unparsed') {
               let samples = [];
               if (Array.isArray(pedigree[rel])) {
