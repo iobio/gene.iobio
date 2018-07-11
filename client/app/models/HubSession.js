@@ -18,9 +18,9 @@ export default class HubSession {
       self.getPedigreeForSample(sampleId).done(data => {
         let pedigree = self.parsePedigree(data, sampleId);
 
+        let promises = [];
+
         // Let's get the proband info first
-
-
         let probandSample = pedigree.proband;
         self.promiseGetFileMapForSample(probandSample, 'proband').then(data => {
           probandSample.files = data.fileMap;
@@ -73,7 +73,6 @@ export default class HubSession {
 
 
           }
-          let promises = [];
           Promise.all(promises).then(response => {
             console.log(pedigree);
             resolve(modelInfos);
