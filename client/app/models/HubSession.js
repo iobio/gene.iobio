@@ -22,7 +22,7 @@ export default class HubSession {
 
 
         let probandSample = pedigree.proband;
-        self.promiseGetFileMapForSample(probandSample, rel).then(data => {
+        self.promiseGetFileMapForSample(probandSample, 'proband').then(data => {
           probandSample.files = data.fileMap;
         })
         .then( () => {
