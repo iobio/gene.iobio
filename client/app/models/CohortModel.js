@@ -347,7 +347,7 @@ class CohortModel {
             if (modelInfo.name && modelInfo.name != "") {
               vm.setName(modelInfo.name);
             } else {
-              vm.setName(modelInfo.relationship + " " + modelInfo.sample);
+              vm.setName(modelInfo.sample);
             }
             vcfResolve();
           })
