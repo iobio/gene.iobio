@@ -18,49 +18,74 @@ export default class HubSession {
       self.getPedigreeForSample(sampleId).done(data => {
         let pedigree = self.parsePedigree(data, sampleId);
 
-        let promises = [];
-        for (var rel in pedigree) {
-          if (rel != 'unparsed') {
-            let samples = [];
-            if (Array.isArray(pedigree[rel])) {
-              samples = pedigree[rel];
-            } else {
-              samples = [pedigree[rel]];
-            }
-            samples.forEach(s => {
-              let p =  self.promiseGetFileMapForSample(s, rel).then(data => {
-                let theSample = data.sample;
-                theSample.files = data.fileMap;
+        // Let's get the proband info first
 
-                // TEMPORARY WORKAROUND - get rid of .exome from sample id
-                if (theSample.id.indexOf(".exome") > 0) {
-                  theSample.id = theSample.id.substr(0,theSample.id.indexOf(".exome"));
-                }
-                var modelInfo = {
-                  'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
-                  'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
-                  'name':           theSample.id,
-                  'sample':         theSample.id,
-                  'vcf':            theSample.files.vcf,
-                  'tbi':            theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
-                  'bam':            theSample.files.bam,
-                  'bai':            theSample.files.bai.indexOf(theSample.files.bam) == 0 ? null : theSample.files.bai };
-                modelInfos.push(modelInfo);
+
+        let probandSample = pedigree.proband;
+        self.promiseGetFileMapForSample(probandSample, rel).then(data => {
+          probandSample.files = data.fileMap;
+        })
+        .then( () => {
+          for (var rel in sortedPedigreeRoles) {
+            if (rel != 'unparsed') {
+              let samples = [];
+              if (Array.isArray(pedigree[rel])) {
+                samples = pedigree[rel];
+              } else {
+                samples = [pedigree[rel]];
+              }
+              samples.forEach(s => {
+                let p =  self.promiseGetFileMapForSample(s, rel).then(data => {
+                  let theSample = data.sample;
+                  theSample.files = data.fileMap;
+
+
+
+                  // gene.iobio only supports siblings in same multi-sample vcf as proband.
+                  // bypass siblings in their own vcf.
+                  let bypass = false;
+                  if (data.relationship == 'siblings' && theSample.files.vcf != probandSample.files.vcf) {
+                    bypass = true;
+                    console.log("Bypassing sibling " + theSample.id + ".  This sample must reside in the same vcf as the proband in order to be processed.")
+                  }
+
+                  if (!bypass) {
+                    // TEMPORARY WORKAROUND - get rid of .exome from sample id
+                    if (theSample.id.indexOf(".exome") > 0) {
+                      theSample.id = theSample.id.substr(0,theSample.id.indexOf(".exome"));
+                    }
+                    var modelInfo = {
+                      'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
+                      'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
+                      'name':           theSample.id,
+                      'sample':         theSample.id,
+                      'vcf':            theSample.files.vcf,
+                      'tbi':            theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
+                      'bam':            theSample.files.bam,
+                      'bai':            theSample.files.bai.indexOf(theSample.files.bam) == 0 ? null : theSample.files.bai };
+                    modelInfos.push(modelInfo);
+                  }
+
+                })
+                promises.push(p);
               })
-              promises.push(p);
-            })
+            }
+
+
           }
-
-
-        }
-
-        Promise.all(promises).then(response => {
-          console.log(pedigree);
-          resolve(modelInfos);
+          let promises = [];
+          Promise.all(promises).then(response => {
+            console.log(pedigree);
+            resolve(modelInfos);
+          })
+          .catch(error => {
+            reject(error);
+          })
         })
-        .catch(error => {
-          reject(error);
-        })
+
+
+
+
       })
     })
 
@@ -117,7 +142,7 @@ export default class HubSession {
     raw_pedigree.forEach(sample => {
       if (sample.pedigree.maternal_id != null || sample.pedigree.paternal_id != null
           && sample.pedigree.uuid != pedigree.proband.uuid) {
-        pedigree['siblings'] = (pedigree['siblings'] || [])
+        pedigree['siblings'] = (pedigree['siblings'] || [] )
         pedigree['siblings'].push(sample);
       } else {
         pedigree['unparsed'] = (pedigree['siblings'] || []).push(sample)
