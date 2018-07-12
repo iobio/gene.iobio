@@ -1,7 +1,7 @@
 <style lang="sass" >
 @import ../../../assets/sass/variables
 #variant-detail
-  padding-left: 30px
+  padding-left: 0px
   max-height: 182px
   padding-top: 0px
   overflow-x: scroll
