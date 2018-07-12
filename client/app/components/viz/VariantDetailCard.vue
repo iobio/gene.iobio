@@ -13,6 +13,17 @@
   .layout.row.no-bottom-margin
     margin-bottom: 0px
 
+  .field-label.last-col
+    padding-left: 16px
+    min-width: 80px
+
+  .field-label.revel
+    color: $app-color
+    font-weight: bold
+
+  .field-value.revel
+    color: $app-color
+    font-weight: bold
 
   #user-flag-buttons
     position: absolute
@@ -56,7 +67,7 @@
     min-width: 350px
 
   .field-label
-    color: #b4b3b3
+    color: #9c9a9a
     font-style: italic
     padding-left: 6px
     text-align: left
@@ -254,7 +265,7 @@
 
       <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
         <v-flex v-if="selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
-          <v-layout row>
+          <v-layout row class="no-bottom-margin">
              <v-flex xs3 class="field-label">Inheritance</v-flex>
              <v-flex id="inheritance" xs9 class="field-value">
                <app-icon :icon="selectedVariant.inheritance" height="16" width="16">
@@ -303,8 +314,8 @@
         </v-flex>
         <v-flex  v-if="info.revel != '' && !isBasicMode" >
           <v-layout row class="no-bottom-margin">
-             <v-flex xs3 class="field-label">REVEL</v-flex>
-             <v-flex xs9 class="field-value">{{ info.revel }}</v-flex>
+             <v-flex xs3 class="field-label revel">REVEL</v-flex>
+             <v-flex xs9 class="field-value revel">{{ info.revel }}</v-flex>
           </v-layout>
         </v-flex>
         <v-flex   v-if="info.polyphen != '' && !isBasicMode">
@@ -314,7 +325,7 @@
           </v-layout>
         </v-flex>
         <v-flex  v-if="info.sift != '' && !isBasicMode" >
-          <v-layout row class="no-bottom-margin">
+          <v-layout row class="">
              <v-flex xs3 class="field-label">SIFT</v-flex>
              <v-flex xs9 class="field-value">{{ info.sift }}</v-flex>
           </v-layout>
@@ -325,29 +336,28 @@
              <v-flex xs9  v-html="info.regulatory" class="field-value"></v-flex>
           </v-layout>
         </v-flex>
-        <v-flex  v-if="!isBasicMode">
-          <v-layout row >
-             <v-flex xs3 class="field-label">Transcript</v-flex>
-             <v-flex xs9 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
-          </v-layout>
-        </v-flex>
-        <v-flex  v-if="!isBasicMode">
-          <v-layout row class="no-bottom-margin">
-             <v-flex xs3 class="field-label">HGVSc </v-flex>
-             <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
-          </v-layout>
-        </v-flex>
-        <v-flex   v-if="!isBasicMode">
-          <v-layout row>
-             <v-flex xs3 class="field-label">HGVSp </v-flex>
-             <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
-          </v-layout>
-        </v-flex>
+
+
 
         <v-flex  v-if="!isBasicMode">
           <v-layout  row>
              <v-flex xs3 class="field-label">gnomAD</v-flex>
              <v-flex xs9 class="field-value" v-html="afGnomAD"></v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex   v-if="genomeBuildHelper.getCurrentBuildName() != 'GRCh37' && !isBasicMode" xs6>
+          <v-layout row>
+             <v-flex xs3 class="field-label">ExAC</v-flex>
+             <v-flex xs9 class="field-value" v-html="afExAC"></v-flex>
+          </v-layout>
+        </v-flex>
+
+
+        <v-flex v-if="!isBasicMode">
+          <v-layout  row>
+             <v-flex xs3 class="field-label">1000G</v-flex>
+             <v-flex xs9 class="field-value" v-html="af1000G"></v-flex>
           </v-layout>
         </v-flex>
 
@@ -357,6 +367,7 @@
              <v-flex xs9 class="field-value" v-html="afGnomAD"></v-flex>
           </v-layout>
         </v-flex>
+
 
          <v-flex  v-if="isBasicMode">
           <v-layout  row>
@@ -386,20 +397,7 @@
         </v-flex>
 
 
-        <v-flex   v-if="genomeBuildHelper.getCurrentBuildName() != 'GRCh37' && !isBasicMode" xs6>
-          <v-layout row>
-             <v-flex xs3 class="field-label">ExAC</v-flex>
-             <v-flex xs9 class="field-value" v-html="afExAC"></v-flex>
-          </v-layout>
-        </v-flex>
 
-
-        <v-flex v-if="!isBasicMode">
-          <v-layout  row>
-             <v-flex xs3 class="field-label">1000G</v-flex>
-             <v-flex xs9 class="field-value" v-html="af1000G"></v-flex>
-          </v-layout>
-        </v-flex>
 
 
       </v-layout>
@@ -417,7 +415,26 @@
     </div>
 
 
-    <div style="float:left;width:33%" id="coverage-svg" v-bind:class="{hide: isEduMode || isBasicMode}">
+    <div id="coverage-svg" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode}">
+         <v-flex  v-if="!isBasicMode">
+          <v-layout row class="no-bottom-margin">
+             <v-flex xs3 class="field-label last-col" >Transcript</v-flex>
+             <v-flex xs9 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex  v-if="!isBasicMode">
+          <v-layout row class="no-bottom-margin">
+             <v-flex xs3 class="field-label last-col"  >HGVSc </v-flex>
+             <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
+          </v-layout>
+        </v-flex>
+        <v-flex   v-if="!isBasicMode">
+          <v-layout row>
+             <v-flex xs3 class="field-label last-col"  >HGVSp </v-flex>
+             <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
+          </v-layout>
+        </v-flex>
     </div>
 
 
