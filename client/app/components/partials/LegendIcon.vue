@@ -12,7 +12,8 @@
      :clazz="clazz"
      :width="width"
      :height="height"
-     :level="level">
+     :level="level"
+     :style="iconStyle">
     </app-icon>
     <span :class="wrapLabel ? 'legend-wrap-text legend-text' : 'legend-text'">{{ label }}</span>
   </div>
@@ -35,7 +36,8 @@ export default {
     height: null,
     level: null,
     label: null,
-    wrapLabel: null
+    wrapLabel: null,
+    iconStyle: null
   },
   data () {
     return {

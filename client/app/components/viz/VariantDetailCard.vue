@@ -265,7 +265,7 @@
     <div style="width:33%">
 
       <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
-        <v-flex v-if="selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
+        <v-flex v-if="!isBasicMode && selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
           <v-layout row class="no-bottom-margin">
              <v-flex xs3 class="field-label">Inheritance</v-flex>
              <v-flex id="inheritance" xs9 class="field-value">
@@ -370,32 +370,7 @@
         </v-flex>
 
 
-         <v-flex  v-if="isBasicMode">
-          <v-layout  row>
-             <v-flex xs3 class="field-label">Zygosity</v-flex>
-             <v-flex xs9 class="field-value">
 
-              <svg v-if="selectedVariant.zygosity.toUpperCase() == 'HOM'" width="24" height="14">
-                <g transform="translate(0,3)">
-                  <rect width="24" height="10" class="zyg_hom" style="pointer-events: none;">
-                  </rect>
-                  <text x="1" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
-                  Hom
-                  </text>
-                </g>
-              </svg>
-              <svg v-if="selectedVariant.zygosity.toUpperCase() == 'HET'" width="24" height="14">
-                <g transform="translate(0,3)">
-                  <rect width="24" height="10" class="zyg_het" style="pointer-events: none;">
-                  </rect>
-                  <text x="2" y="8" style="fill: white; font-weight: bold; font-size: 9px;">
-                  Het
-                  </text>
-                </g>
-              </svg>
-             </v-flex>
-          </v-layout>
-        </v-flex>
 
 
 

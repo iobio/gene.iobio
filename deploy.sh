@@ -17,3 +17,5 @@ cd deploy/tmp
 
 zip -r  ../gene.iobio.vue.zip ./gene.iobio.vue/*
 
+#aws s3 cp ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/  s3://static.iobio.io/vue.gene.iobio.io/ --recursive
+

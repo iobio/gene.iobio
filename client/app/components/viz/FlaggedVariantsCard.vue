@@ -344,7 +344,7 @@
 
                     <app-icon
                      :icon="variant.inheritance"
-                     v-if="variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
+                     v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
                      class="inheritance-badge" height="15" width="15">
                     </app-icon>
 
@@ -356,7 +356,7 @@
                     </app-icon>
 
                    <app-icon
-                     icon="zygosity"
+                     icon="zygosity" v-if="!isBasicMode"
                      :type="zygosity(variant).toLowerCase()"
                      height="14" width="24">
                     </app-icon>
@@ -399,6 +399,11 @@
       </v-list>
     </template>
 
+
+    <legend-panel v-if="isBasicMode"
+        :isBasicMode="isBasicMode"
+        style="position:fixed;bottom:20px;max-width:300px">
+    </legend-panel>
 
     <v-menu
     offset-y
@@ -520,13 +525,15 @@
 import FileChooser from '../partials/FileChooser.vue'
 import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
+import LegendPanel from '../partials/LegendPanel.vue'
 
 export default {
   name: 'flagged-variants-card',
   components: {
     FileChooser,
     AppIcon,
-    FilterIcon
+    FilterIcon,
+    LegendPanel
   },
   props: {
     isEduMode: null,

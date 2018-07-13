@@ -104,8 +104,15 @@
 
 <template>
   <div id="legend" >
+
+
+    <v-divider v-if="isBasicMode" style="margin-top:5px;margin-bottom:5px">
+    </v-divider>
+
+    <div :style="isBasicMode ? 'margin-bottom:5px;' : 'margin-bottom:20px'">
     Legend
-    <div style="margin-top:20px;display:flex;flex-wrap:wrap;justify-content:flex-start">
+    </div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:flex-start">
 
 
       <div v-if="isBasicMode" style="text-align:left;margin-right:10px">
@@ -211,7 +218,7 @@
           label="Likely pathogenic">
           </legend-icon>
 
-          <legend-icon
+          <legend-icon v-if="!isBasicMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -219,7 +226,7 @@
           label="Unknown significance">
           </legend-icon>
 
-          <legend-icon
+          <legend-icon v-if="!isBasicMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -227,7 +234,7 @@
           label="Conflicting data">
           </legend-icon>
 
-          <legend-icon
+          <legend-icon v-if="!isBasicMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -235,7 +242,7 @@
           label="Other">
           </legend-icon>
 
-          <legend-icon
+          <legend-icon v-if="!isBasicMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -243,7 +250,7 @@
           label="Benign">
           </legend-icon>
 
-          <legend-icon
+          <legend-icon v-if="!isBasicMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -332,12 +339,31 @@
 
 
 
+      <div v-if="!isBasicMode" style="width:170px;margin-right:10px;margin-bottom:10px">
+        <div class="legend-label">Zygosity</div>
+
+        <legend-icon
+         icon="zygosity"
+         type="het"
+         height="14" width="24"
+         iconStyle="margin-top:-2px"
+         label="Heterozygous alternate">
+        </legend-icon>
+
+
+        <legend-icon
+         icon="zygosity"
+         type="hom"
+         height="14" width="24"
+         iconStyle="margin-top:-2px"
+         label="Homozygous alternate">
+        </legend-icon>
+      </div>
 
 
 
 
-
-      <div v-if="!isBasicMode" style="width:150px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode" v-show="false" style="width:150px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">PolyPhen</div>
 
           <legend-icon
@@ -366,7 +392,7 @@
           </legend-icon>
       </div>
 
-      <div v-if="!isBasicMode"  style="width:180px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode" v-show="false" style="width:180px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">SIFT</div>
 
 

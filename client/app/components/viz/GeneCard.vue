@@ -239,7 +239,7 @@
         {{ ncbiSummary.summary }}
       </div>
 
-      <div id="phenotypes" v-if="showGene && phenotypes">
+      <div id="phenotypes" v-if="showGene && phenotypes && !isBasicMode">
 
 
         <span id="phenotypes-heading" style="text-align:left">
