@@ -25,6 +25,11 @@
     font-size: 11px
     pointer-events: none
 
+  .colhdr text.long-label
+    transform: translate(6px,0) rotate(-45deg)
+    font-weight: 600
+
+
 
   rect.cellbox:hover
     cursor: pointer

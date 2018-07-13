@@ -257,11 +257,17 @@ export default {
 
 
     getVariantLabelClass: function(variant, i) {
+      var clazz = "";
+      if (i > 98) {
+        clazz += "long-label ";
+      };
       if (variant.hasOwnProperty("fbCalled") && variant.fbCalled == "Y") {
-        return "called"
-      } else {
-        return "";
+        clazz +=  "called "
       }
+      if (variant.isFlagged || variant.isUserFlagged) {
+        clazz +=  "flagged "
+      }
+      return clazz;
     },
 
     getVariantLabel: function(variant, i) {
