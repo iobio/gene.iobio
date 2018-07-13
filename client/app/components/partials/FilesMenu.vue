@@ -411,7 +411,7 @@ export default {
     },
     initModelInfo: function() {
       let self = this;
-      self.separateUrlForIndex = true;
+      self.separateUrlForIndex = false;
       self.cohortModel.getCanonicalModels().forEach(function(model) {
         var modelInfo = self.modelInfoMap[model.relationship];
         if (modelInfo == null) {
@@ -426,6 +426,9 @@ export default {
           modelInfo.samples      = model.sampleNames;
           modelInfo.isAffected   = model.isAffected();
           modelInfo.model        = model;
+          if (modelInfo.tbi || modelInfo.bai) {
+            self.separateUrlForIndex = true;
+          }
           self.$set(self.modelInfoMap, model.relationship, modelInfo);
         }
       })
