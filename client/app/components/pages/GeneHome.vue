@@ -1794,13 +1794,23 @@ export default {
         if (self.isEduMode) {
           self.featureMatrixWidthPercent = 50;
         } else {
-          let minWidth = 0;
-          if ($('#matrix-card').length > 0) {
-            minWidth = $('#matrix-card').css('min-width').split("px")[0];
+          let minVariantDetailWidth = 0;
+          if ($('#variant-detail').length > 0) {
+            minVariantDetailWidth = $('#variant-detail').css('min-width').split("px")[0];
           } else {
-            minWidth = 310;
+            minVariantDetailWidth = 652;
           }
-          self.featureMatrixWidthPercent = Math.round((+minWidth / self.mainContentWidth) * 100) +  1;
+
+          let minFeatureMatrixWidth = 0;
+          if ($('#matrix-card').length > 0) {
+            minFeatureMatrixWidth = $('#matrix-card').css('min-width').split("px")[0];
+          } else {
+            minFeatureMatrixWidth = 351;
+          }
+
+          let calcFeatureMatrixWidth = 100 - Math.round((+minVariantDetailWidth / self.mainContentWidth) * 100);
+          let shortedFeatureMatrixWidth = Math.round((+minFeatureMatrixWidth / self.mainContentWidth) * 100) + 1;
+          self.featureMatrixWidthPercent = Math.max(shortedFeatureMatrixWidth, calcFeatureMatrixWidth);
         }
       } else {
         self.featureMatrixWidthPercent = 0;

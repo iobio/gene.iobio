@@ -5,6 +5,7 @@
   max-height: 182px
   padding-top: 0px
   overflow-x: scroll
+  min-width: 651px
 
 
   .layout.row
