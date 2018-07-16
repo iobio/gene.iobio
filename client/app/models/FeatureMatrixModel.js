@@ -59,6 +59,9 @@ class FeatureMatrixModel {
 
     if (self.isBasicMode) {
       this.filteredMatrixRows = $.extend([], this.matrixRowsBasic);
+      if (this.cohort.mode == 'single') {
+        this.removeRow('Inheritance Mode', self.filteredMatrixRows);
+      }
     } else if (self.isEduMode) {
       this.filteredMatrixRows = $.extend([], this.matrixRows);
       this.removeRow('Pathogenicity - SIFT', self.filteredMatrixRows);
@@ -88,6 +91,10 @@ class FeatureMatrixModel {
     } else {
       this.filteredMatrixRows = $.extend([], this.matrixRows);
       this.removeRow('Genotype', self.filteredMatrixRows);
+      if (this.cohort.mode == 'single') {
+        this.removeRow('Inheritance Mode', self.filteredMatrixRows);
+      }
+
     }
 
   }
