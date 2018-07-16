@@ -1351,6 +1351,9 @@ export default {
           self.clearFilter();
           let geneToSelect   = $.extend(self.selectedGene);
           self.selectedGene = {};
+          self.selectedTranscript = null;
+          self.selectedVariant = null;
+          self.activeGeneVariantTab = "0";
 
           let genesToReapply = $.extend([], self.geneModel.sortedGeneNames);
 
@@ -1652,6 +1655,7 @@ export default {
       .then(function() {
         setTimeout(
           function(){
+            self.calcFeatureMatrixWidthPercent();
             self.showVariantExtraAnnots(self.$refs.featureMatrixCardRef, flaggedVariant);
 
 
@@ -1767,6 +1771,7 @@ export default {
       let self = this;
       this.isBasicMode = false;
       this.featureMatrixModel.isBasicMode = false;
+      this.filterModel.isBasicMode = false;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
         self.$router.push( { name: 'home', query: { mode: 'advanced', mygene2: self.forMyGene2 ? true : false} })
@@ -1776,9 +1781,10 @@ export default {
       let self = this;
       this.isBasicMode = true;
       this.featureMatrixModel.isBasicMode = true;
+      this.filterModel.isBasicMode = true;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
-        self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: this.forMyGene2 ? true : false } })
+        self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 ? true : false } })
       });
     },
     onStopAnalysis: function() {

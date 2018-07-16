@@ -339,8 +339,11 @@
         </v-flex>
         <v-flex>
           <v-layout row>
-             <v-flex xs3 class="field-label">Impact</v-flex>
-             <v-flex xs9  class="field-value">{{ info.vepImpact }} - {{ info.vepConsequence }}</v-flex>
+             <v-flex xs3 v-if="!isBasicMode" class="field-label">Impact</v-flex>
+             <v-flex xs9 v-if="!isBasicMode"  class="field-value">{{ info.vepImpact }} - {{ info.vepConsequence }}</v-flex>
+
+             <v-flex xs4 v-if="isBasicMode" class="field-label">Predicted impact</v-flex>
+             <v-flex xs8 v-if="isBasicMode" class="field-value">{{ info.vepImpact }}</v-flex>
           </v-layout>
         </v-flex>
         <v-flex v-if="info.vepHighestImpact != '' && !isBasicMode">
@@ -365,14 +368,20 @@
         </v-flex>
         <v-flex >
           <v-layout row :class="{'no-bottom-margin': info.phenotype != ''}" v-if="info.clinvarLink != ''">
-             <v-flex xs3 class="field-label">Clinvar</v-flex>
-             <v-flex xs9 class="field-value" v-html="info.clinvarLink"></v-flex>
+             <v-flex xs3 v-if="!isBasicMode" class="field-label">Clinvar</v-flex>
+             <v-flex xs9 v-if="!isBasicMode" class="field-value" v-html="info.clinvarLink"></v-flex>
+
+             <v-flex xs4 v-if="isBasicMode" class="field-label">Clinvar</v-flex>
+             <v-flex xs8 v-if="isBasicMode"class="field-value" v-html="info.clinvarLink"></v-flex>
           </v-layout>
         </v-flex>
         <v-flex >
           <v-layout row  v-if="info.phenotype != ''">
-             <v-flex xs3 class="field-label"></v-flex>
-             <v-flex xs9 class="field-value">{{ info.phenotype }}</v-flex>
+             <v-flex xs3 v-if="!isBasicMode" class="field-label"></v-flex>
+             <v-flex xs9 v-if="!isBasicMode" class="field-value">{{ info.phenotype }}</v-flex>
+
+             <v-flex xs4 v-if="isBasicMode" class="field-label"></v-flex>
+             <v-flex xs8 v-if="isBasicMode" class="field-value">{{ info.phenotype }}</v-flex>
           </v-layout>
         </v-flex>
         <v-flex  v-if="info.revel != '' && !isBasicMode" >
@@ -451,20 +460,6 @@
 
     <div id="coverage-svg" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
-        <v-flex v-if="isBasicMode">
-          <v-layout  row>
-             <v-flex xs3 class="field-label last-col ">Mutation Freq 1000G</v-flex>
-             <v-flex xs9 class="field-value">{{ info.af1000G }}</v-flex>
-          </v-layout>
-        </v-flex>
-
-        <v-flex v-if="isBasicMode">
-          <v-layout  row>
-             <v-flex xs3 class="field-label last-col">Mutation Freq gnomAD</v-flex>
-             <v-flex xs9 class="field-value">{{ info.afgnomAD }}</v-flex>
-          </v-layout>
-        </v-flex>
-
         <v-flex  v-if="!isBasicMode">
           <v-layout row class="no-bottom-margin">
              <v-flex xs3 class="field-label last-col" >Transcript</v-flex>
@@ -497,14 +492,14 @@
 
         <v-flex v-if="isBasicMode">
           <v-layout  row>
-             <v-flex xs5 class="field-label  ">Mutation Freq 1000G</v-flex>
+             <v-flex xs5 class="field-label  ">Frequency (1000G)</v-flex>
              <v-flex xs7 class="field-value">{{ info.af1000G }}</v-flex>
           </v-layout>
         </v-flex>
 
         <v-flex v-if="isBasicMode">
           <v-layout  row>
-             <v-flex xs5 class="field-label ">Mutation Freq gnomAD</v-flex>
+             <v-flex xs5 class="field-label ">Frequency (gnomAD)</v-flex>
              <v-flex xs7 class="field-value">{{ info.afgnomAD }}</v-flex>
           </v-layout>
         </v-flex>
