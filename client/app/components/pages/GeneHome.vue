@@ -113,7 +113,7 @@ main.content
         :closeIntro="closeIntro"
         :isBasicMode="isBasicMode"
         :siteConfig="siteConfig"
-        :defaultingToDemoData="cohortModel.defaultingToDemoData"
+        :defaultingToDemoData="cohortModel ? cohortModel.defaultingToDemoData : false"
         @on-advanced-mode="onAdvancedMode"
         @on-basic-mode="onBasicMode">
         </intro-card>
@@ -159,7 +159,7 @@ main.content
          <split-pane :leftPercent="featureMatrixWidthPercent">
             <feature-matrix-card v-show="featureMatrixWidthPercent > 0" slot="left" style="min-width:310px;min-height:auto;max-height:auto;overflow-y:scroll"
             ref="featureMatrixCardRef"
-            v-bind:class="{ hide: isBasicMode || !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
+            v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
             :isEduMode="isEduMode"
             :isBasicMode="isBasicMode"
             :featureMatrixModel="featureMatrixModel"
@@ -850,7 +850,7 @@ export default {
       }
     },
 
-    onFilesLoaded: function(analyzeAll) {
+    onFilesLoaded: function(analyzeAll, callback) {
       let self = this;
       self.setUrlParameters();
 
@@ -861,7 +861,12 @@ export default {
       })
       .then(function() {
         if (self.selectedGene && self.selectedGene.gene_name) {
-          self.promiseLoadGene(self.selectedGene.gene_name);
+          self.promiseLoadGene(self.selectedGene.gene_name)
+          .then(function() {
+            if (callback) {
+              callback();
+            }
+          })
 
           if (analyzeAll) {
             if (self.cohortModel && self.cohortModel.isLoaded) {
@@ -870,9 +875,15 @@ export default {
           }
         } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           self.onGeneSelected(self.geneModel.sortedGeneNames[0]);
+          if (callback) {
+            callback();
+          }
         } else {
           self.onShowSnackbar( {message: 'Enter a gene name', timeout: 5000});
           self.bringAttention = 'gene';
+          if (callback) {
+            callback();
+          }
         }
       })
     },
@@ -1749,12 +1760,20 @@ export default {
       this.$router.push({ name: 'exhibit' });
     },
     onAdvancedMode: function() {
+      let self = this;
       this.isBasicMode = false;
-      this.$router.push( { name: 'home', query: {mygene2: this.forMyGene2 ? true : false } })
+      this.featureMatrixModel.isBasicMode = false;
+      this.onFilesLoaded(true, function() {
+        self.$router.push( { name: 'home', query: { mode: 'advanced', mygene2: self.forMyGene2 ? true : false} })
+      });
     },
     onBasicMode: function() {
+      let self = this;
       this.isBasicMode = true;
-      this.$router.push( { name: 'home', query: {mode: 'basic', mygene2: this.forMyGene2 ? true : false } })
+      this.featureMatrixModel.isBasicMode = true;
+      this.onFilesLoaded(true, function() {
+        self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: this.forMyGene2 ? true : false } })
+      });
     },
     onStopAnalysis: function() {
       this.cohortModel.stopAnalysis();
@@ -1789,9 +1808,9 @@ export default {
 
     calcFeatureMatrixWidthPercent: function() {
       let self = this;
-      if (!self.isBasicMode && self.cohortModel && self.cohortModel.isLoaded
+      if (self.cohortModel && self.cohortModel.isLoaded
           && self.featureMatrixModel) {
-        if (self.isEduMode) {
+        if (self.isEduMode && self.isBasicMode) {
           self.featureMatrixWidthPercent = 50;
         } else {
           let minVariantDetailWidth = 0;

@@ -184,7 +184,8 @@ export default function featureMatrixD3() {
                                   .enter().append('g')
                                   .attr('class', 'colhdr')
                                   .attr('transform', function(d,i) {
-                                    return "translate(" + ( (cellWidth != null ? cellWidth : cellSize) * (i+1)) + ",0)";
+                                    return "translate(" + ( (cellWidth != null ? cellWidth : cellSize) * (i)) + ",0)";
+
                                   });
 
         if (columnLabelSymbol) {
@@ -360,7 +361,7 @@ export default function featureMatrixD3() {
             return "col  " + d.featureClass;
           })
           .attr('transform', function(d,i) {
-            return "translate(" + ( (cellWidth != null ? cellWidth : cellSize) * (i+1)) + ",0)";
+            return "translate(" + ( (cellWidth != null ? cellWidth : cellSize) * (i)) + ",0)";
           });
 
 
@@ -417,11 +418,18 @@ export default function featureMatrixD3() {
           .text( function(d,i) {
             return d.value;
           })
-          .attr('class', 'hide')
-          .attr("x", 0)
+          .attr("class", function(d,i) {
+            if (!d.isText) {
+              return "hide";
+            } else {
+              return "";
+            }
+          })
+          .attr("x", 4)
           .attr("y", function(d,i) {
-            return (y.rangeBand()/2);
+            return (y.rangeBand()/2) + 2;
           });
+
 
       var symbolCells = cells.filter( function(d,i) {
               return matrixRows[i].symbol != null;

@@ -362,12 +362,7 @@
           </v-layout>
         </v-flex>
 
-        <v-flex  v-if="isBasicMode">
-          <v-layout  row>
-             <v-flex xs3 class="field-label">Population frequency</v-flex>
-             <v-flex xs9 class="field-value" v-html="afGnomAD"></v-flex>
-          </v-layout>
-        </v-flex>
+
 
 
 

@@ -10,7 +10,7 @@
   .col
     &.danger
       rect.cellbox
-        fill: rgba(187, 0, 0, 0.13)
+        fill: rgba(255, 236, 179, 0.54)
 
     &.flagged
       rect.colbox
@@ -35,8 +35,8 @@
     cursor: pointer
     font-weight: bold
 
-  .col.active rect.cellbox
-    fill: transparent
+
+
 
   rect.colbox
     fill: none
@@ -84,6 +84,13 @@
   .y.axis .tick
     .up #arrow-up, .down #arrow-down
       opacity: 0
+
+#feature-matrix
+  #feature-matrix-viz.basic
+    .col
+      &.flagged
+        rect.colbox
+          width: 157px
 
 #feature-matrix
 

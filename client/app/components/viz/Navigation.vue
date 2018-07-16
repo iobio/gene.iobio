@@ -545,7 +545,7 @@ export default {
       selectedGene: {},
       geneEntered: null,
       clipped: false,
-      leftDrawer: false,
+      leftDrawer: self.forMyGene2 ? true : false,
       rightDrawer: false,
 
       leftDrawerContents: "flagged-variants",

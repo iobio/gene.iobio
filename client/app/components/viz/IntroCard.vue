@@ -40,6 +40,9 @@
         <span class="label-warning" v-show="defaultingToDemoData">
             Warning:  Using Demo Data
         </span>
+        <span  v-show="!defaultingToDemoData">
+            &nbsp;
+        </span>
       </div>
       <span class="welcome-title">
 

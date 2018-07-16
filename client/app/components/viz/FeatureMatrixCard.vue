@@ -93,7 +93,7 @@
 
           <feature-matrix-viz id="feature-matrix-viz"
             ref="featureMatrixVizRef"
-            v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }"
+            v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0, 'basic' : isBasicMode}"
             :data="featureMatrixModel.rankedVariants"
             :matrixRows="featureMatrixModel.filteredMatrixRows"
             :annotationScheme="featureMatrixModel.cohort.annotationScheme"
@@ -195,7 +195,7 @@ export default {
       CELL_SIZE_SMALL: 18,
       CELL_SIZE_LARGE: 22,
       CELL_SIZE_EDU: 23,
-      CELL_WIDTH_BASIC: 18,
+      CELL_WIDTH_BASIC: 160,
       COLUMN_LABEL_HEIGHT: 28,
       COLUMN_LABEL_HEIGHT_BASIC: 28,
       ROW_LABEL_WIDTH: 165,

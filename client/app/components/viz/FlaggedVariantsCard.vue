@@ -274,7 +274,7 @@
         <span v-show="!isBasicMode">
           Variants
         </span>
-        <span id="mygene2-basic-title" v-show="isBasicMode">
+        <span id="mygene2-basic-title" v-show="isBasicMode && flaggedVariants && flaggedVariants.length > 0">
           Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
         </span>
       </v-toolbar-title>

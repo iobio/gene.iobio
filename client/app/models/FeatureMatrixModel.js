@@ -7,6 +7,9 @@ class FeatureMatrixModel {
       this.isBasicMode = isBasicMode;
       this.tourNumber = tourNumber;
 
+      this.currentGene = null;
+      this.currentTranscript = null;
+
       this.featureVcfData = [];
       this.rankedVariants = [];
       this.warning = "";
@@ -55,8 +58,7 @@ class FeatureMatrixModel {
     this.clearRankedVariants();
 
     if (self.isBasicMode) {
-      this.matrixRows = $.extend([], this.matrixRowsBasic);
-      this.filteredMatrixRows = $.extend([], this.matrixRows);
+      this.filteredMatrixRows = $.extend([], this.matrixRowsBasic);
     } else if (self.isEduMode) {
       this.filteredMatrixRows = $.extend([], this.matrixRows);
       this.removeRow('Pathogenicity - SIFT', self.filteredMatrixRows);
@@ -119,11 +121,6 @@ class FeatureMatrixModel {
   }
 
   setRowLabel(searchTerm, newRowLabel) {
-    this.matrixRows.forEach( function (row) {
-      if (row.name.indexOf(searchTerm) >= 0) {
-        row.name = newRowLabel;
-      }
-    });
     if (this.filteredMatrixRows) {
       this.filteredMatrixRows.forEach( function (row) {
         if (row.name.indexOf(searchTerm) >= 0) {
@@ -135,11 +132,6 @@ class FeatureMatrixModel {
   }
 
   setRowLabelById(id, newRowLabel) {
-    this.matrixRows.forEach( function (row) {
-      if (row.id == id) {
-        row.name = newRowLabel;
-      }
-    });
     if (this.filteredMatrixRows) {
       this.filteredMatrixRows.forEach( function (row) {
         if (row.id == id) {
@@ -151,11 +143,6 @@ class FeatureMatrixModel {
   }
 
   setRowAttributeById(id, newRowAttribute) {
-    this.matrixRows.forEach( function (row) {
-      if (row.id == id) {
-        row.attribute = newRowAttribute;
-      }
-    });
     if (this.filteredMatrixRows) {
       this.filteredMatrixRows.forEach( function (row) {
         if (row.id == id) {
@@ -168,7 +155,7 @@ class FeatureMatrixModel {
 
   getRowAttribute(searchTerm) {
     var attribute = "";
-    this.matrixRows.forEach( function (row) {
+    this.filteredMatrixRows.forEach( function (row) {
       if (row.name.indexOf(searchTerm) >= 0) {
         attribute = row.attribute;
       }
@@ -178,7 +165,7 @@ class FeatureMatrixModel {
 
   getRowOrder(searchTerm) {
     var order = "";
-    this.matrixRows.forEach( function (row) {
+    this.filteredMatrixRows.forEach( function (row) {
       if (row.name.indexOf(searchTerm) >= 0) {
         order = row.order;
       }
@@ -233,8 +220,13 @@ class FeatureMatrixModel {
 
 
       if (theVcfData == null) {
+        self.currentGene = null;
+        self.currentTranscript = null;
         resolve();
       } else {
+
+        self.currentGene       = theVcfData.gene;
+        self.currentTranscript = theVcfData.transcript;
 
         // Figure out if we should show the unaffected sibs row
         if (!self.matrixRowsEvaluated) {
@@ -303,6 +295,7 @@ class FeatureMatrixModel {
             var mappedClazz = null;
             var symbolFunction = null;
             var bindTo = null;
+            var isText = false;
             var clickFunction = matrixRow.clickFunction;
             // Don't fill in clinvar for now
             if (matrixRow.attribute == 'clinvar') {
@@ -311,19 +304,19 @@ class FeatureMatrixModel {
             if (rawValue != null && (self.isNumeric(rawValue) || rawValue != "")) {
               if (matrixRow.match == 'field') {
                 if (matrixRow.formatFunction) {
-                  theValue = matrixRow.formatFunction.call(me, variant, rawValue);
+                  theValue = matrixRow.formatFunction.call(self, variant, rawValue);
                 } else {
                   theValue = rawValue;
                 }
                 mappedClazz = matrixRow.attribute;
                 if (matrixRow.rankFunction) {
-                  mappedValue = matrixRow.rankFunction.call(me, variant, rawValue);
+                  mappedValue = matrixRow.rankFunction.call(self, variant, rawValue);
                 } else {
                   mappedValue = theValue;
                 }
                 symbolFunction = matrixRow.symbolFunction ? matrixRow.symbolFunction : self.showTextSymbol;
                 bindTo = matrixRow.bind ? matrixRow.bind : null;
-
+                isText = matrixRow.symbolFunction ? false : true;
               } else if (matrixRow.match == 'exact') {
                 // We are going to get the mapped value through exact match,
                 // so this will involve a simple associative array lookup.
@@ -396,6 +389,7 @@ class FeatureMatrixModel {
                                   'rank': (mappedValue ? mappedValue : self.featureUnknown),
                                   'clazz': mappedClazz,
                                   'symbolFunction': symbolFunction,
+                                  'isText': isText,
                                   'bindTo': bindTo,
                                   'clickFunction': clickFunction
                                 };
@@ -472,7 +466,7 @@ class FeatureMatrixModel {
   formatClinvar(variant, clinvarSig) {
     let self = this;
     var display = "";
-    for (key in clinvarSig) {
+    for (var key in clinvarSig) {
       if (key == "none" || key == "not_provided") {
 
       } else {
@@ -500,7 +494,11 @@ class FeatureMatrixModel {
   }
 
   formatCanonicalTranscript(variant, value) {
-    return this.globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
+    if (this.currentTranscript) {
+      return this.globalApp.utility.stripTranscriptPrefix(this.currentTranscript.transcript_id);
+    } else {
+      return "";
+    }
   }
 
   formatHgvsP(variant, value) {
@@ -508,7 +506,7 @@ class FeatureMatrixModel {
   }
 
   formatHgvsC(variant, value) {
-    return this.globalApp.utility.formatHgvsC(variantValue);
+    return this.globalApp.utility.formatHgvsC(variant, value);
   }
 
   formatAfHighest(variant, afField) {
@@ -520,10 +518,33 @@ class FeatureMatrixModel {
   }
 
   getInheritanceLabel(inheritance) {
-    var matrixRow = this.inheritanceMap[inheritance];
+    var matrixRow = this.getTranslator().inheritanceMap[inheritance];
     return matrixRow ? matrixRow.display : inheritance;
   }
 
+  getClinvarRank(variant, clinvarSig) {
+    var me = this;
+    var lowestRank = 9999;
+    for (var key in clinvarSig) {
+      var rank = me.getTranslator().clinvarMap[key].value;
+      if (rank < lowestRank) {
+        lowestRank = rank;
+      }
+    }
+    return lowestRank;
+  }
+
+  getImpactRank(variant, highestImpactVep) {
+    var me = this;
+    var lowestRank = 99;
+    for (var key in highestImpactVep) {
+      var rank = me.getTranslator().impactMap[key].value;
+      if (rank < lowestRank) {
+        lowestRank = rank;
+      }
+    }
+    return lowestRank;
+  }
 
 }
 

@@ -172,7 +172,7 @@
 
         <span id="gene-links">
           <a
-          v-if="showGene"
+          v-if="showGene && !isBasicMode"
           v-for="link in links"
           :key="link.name"
           :href="link.url"
