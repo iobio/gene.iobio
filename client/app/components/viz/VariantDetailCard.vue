@@ -5,7 +5,7 @@
   max-height: 182px
   padding-top: 0px
   overflow-x: scroll
-  min-width: 651px
+  min-width: 700px
 
 
   .layout.row
@@ -73,11 +73,13 @@
     padding-left: 6px
     text-align: left
     font-size: 12px
+    line-height: 13px
 
   .field-value
     padding-right: 35px
     word-break: break-word
     font-size: 12px
+    line-height: 13px
 
   #inheritance
     height: 18px
@@ -262,9 +264,69 @@
         </v-btn>
       </div>
 
-    <div style="width:33%">
+
+    <div v-if="isBasicMode" style="margin-left: 10px;float:left;min-width:220px;">
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs5 class="field-label">Transcript</v-flex>
+             <v-flex xs7 class="field-value">{{ formatCanonicalTranscript() }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs5 class="field-label">cDNA</v-flex>
+             <v-flex xs7 class="field-value">{{ info.HGVScAbbrev }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs5 class="field-label">Protein</v-flex>
+             <v-flex xs7 class="field-value">{{ info.HGVSpAbbrev }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs5 class="field-label">Chr</v-flex>
+             <v-flex xs7 class="field-value">{{ selectedVariant.chrom }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs5 class="field-label">Position</v-flex>
+             <v-flex xs7 class="field-value">{{ selectedVariant.start }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs5 class="field-label">Reference</v-flex>
+             <v-flex xs7 class="field-value">{{ selectedVariant.ref }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs5 class="field-label">Alternate</v-flex>
+             <v-flex xs7 class="field-value">{{ selectedVariant.alt }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+
+
+    </div>
+
+
+    <div style="float:left;width:33%;min-width:340px">
+
 
       <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
+
+
         <v-flex v-if="!isBasicMode && selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
           <v-layout row class="no-bottom-margin">
              <v-flex xs3 class="field-label">Inheritance</v-flex>
@@ -368,9 +430,6 @@
 
 
 
-
-
-
       </v-layout>
     </div>
 
@@ -386,8 +445,27 @@
     </div>
 
 
-    <div id="coverage-svg" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode}">
-         <v-flex  v-if="!isBasicMode">
+
+
+
+
+    <div id="coverage-svg" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs3 class="field-label last-col ">Mutation Freq 1000G</v-flex>
+             <v-flex xs9 class="field-value">{{ info.af1000G }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs3 class="field-label last-col">Mutation Freq gnomAD</v-flex>
+             <v-flex xs9 class="field-value">{{ info.afgnomAD }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex  v-if="!isBasicMode">
           <v-layout row class="no-bottom-margin">
              <v-flex xs3 class="field-label last-col" >Transcript</v-flex>
              <v-flex xs9 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
@@ -406,8 +484,32 @@
              <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
           </v-layout>
         </v-flex>
+
+
+
+
+
+
     </div>
 
+
+    <div v-if="isBasicMode" style="float:left;width:33%;">
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs5 class="field-label  ">Mutation Freq 1000G</v-flex>
+             <v-flex xs7 class="field-value">{{ info.af1000G }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+        <v-flex v-if="isBasicMode">
+          <v-layout  row>
+             <v-flex xs5 class="field-label ">Mutation Freq gnomAD</v-flex>
+             <v-flex xs7 class="field-value">{{ info.afgnomAD }}</v-flex>
+          </v-layout>
+        </v-flex>
+
+    </div>
 
 
 
@@ -503,6 +605,15 @@ export default {
       return buf;
     },
 
+
+
+    formatCanonicalTranscript: function() {
+      if (this.selectedTranscript) {
+        return this.globalApp.utility.stripTranscriptPrefix(this.selectedTranscript.transcript_id);
+      } else {
+        return "";
+      }
+    },
 
 
 

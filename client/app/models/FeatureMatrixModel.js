@@ -59,9 +59,7 @@ class FeatureMatrixModel {
 
     if (self.isBasicMode) {
       this.filteredMatrixRows = $.extend([], this.matrixRowsBasic);
-      if (this.cohort.mode == 'single') {
-        this.removeRow('Inheritance Mode', self.filteredMatrixRows);
-      }
+
     } else if (self.isEduMode) {
       this.filteredMatrixRows = $.extend([], this.matrixRows);
       this.removeRow('Pathogenicity - SIFT', self.filteredMatrixRows);
@@ -91,9 +89,6 @@ class FeatureMatrixModel {
     } else {
       this.filteredMatrixRows = $.extend([], this.matrixRows);
       this.removeRow('Genotype', self.filteredMatrixRows);
-      if (this.cohort.mode == 'single') {
-        this.removeRow('Inheritance Mode', self.filteredMatrixRows);
-      }
 
     }
 
@@ -237,6 +232,10 @@ class FeatureMatrixModel {
 
         // Figure out if we should show the unaffected sibs row
         if (!self.matrixRowsEvaluated) {
+          if (self.cohort.mode == 'single') {
+            self.removeRow('Inheritance Mode', self.filteredMatrixRows);
+          }
+
           var affectedInfo = self.getAffectedInfo();
           var affected = affectedInfo.filter(function(info) {
             return info.status == 'affected' && info.relationship == 'sibling';
@@ -405,6 +404,7 @@ class FeatureMatrixModel {
           variant.features = features;
         });
         // Sort the variants by the criteria that matches
+        // For mygene2 basic, filter out everything that isn't clinvar pathogenic < 1% af
         self.rankedVariants = self.featureVcfData.features.sort(function (a, b) {
           var featuresA = "";
           var featuresB = "";
@@ -435,7 +435,11 @@ class FeatureMatrixModel {
           }
           }
           return 0;
-        });
+        })
+        .filter(function(variant) {
+          return !self.isBasicMode || variant.isFlagged;
+        })
+
 
         if (self.rankedVariants.length == 0) {
           self.warning = "0 variants";

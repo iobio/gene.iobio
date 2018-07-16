@@ -1191,8 +1191,7 @@ export default {
     },
     showVariantExtraAnnots: function(sourceComponent, variant) {
       let self = this;
-      if (!self.isEduMode && !self.isBasicMode)  {
-
+      if (!self.isEduMode )  {
         if (sourceComponent.relationship == 'known-variants') {
           self.cohortModel
               .getModel(sourceComponent.relationship)
@@ -1646,11 +1645,16 @@ export default {
       } else {
         self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
       }
+
+
       self.activeGeneVariantTab = "0";
       self.promiseLoadGene(self.selectedGene.gene_name, self.selectedTranscript)
       .then(function() {
         setTimeout(
           function(){
+            self.showVariantExtraAnnots(self.$refs.featureMatrixCardRef, flaggedVariant);
+
+
             self.$set(self, "selectedVariant", flaggedVariant);
             self.$refs.variantCardRef.forEach(function(variantCard) {
               if (variantCard.relationship == 'proband') {
@@ -1763,6 +1767,7 @@ export default {
       let self = this;
       this.isBasicMode = false;
       this.featureMatrixModel.isBasicMode = false;
+      this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
         self.$router.push( { name: 'home', query: { mode: 'advanced', mygene2: self.forMyGene2 ? true : false} })
       });
@@ -1771,6 +1776,7 @@ export default {
       let self = this;
       this.isBasicMode = true;
       this.featureMatrixModel.isBasicMode = true;
+      this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
         self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: this.forMyGene2 ? true : false } })
       });
@@ -1810,7 +1816,10 @@ export default {
       let self = this;
       if (self.cohortModel && self.cohortModel.isLoaded
           && self.featureMatrixModel) {
-        if (self.isEduMode && self.isBasicMode) {
+        if (self.isBasicMode) {
+          self.featureMatrixWidthPercent = 0;
+        }
+        else if (self.isEduMode ) {
           self.featureMatrixWidthPercent = 50;
         } else {
           let minVariantDetailWidth = 0;

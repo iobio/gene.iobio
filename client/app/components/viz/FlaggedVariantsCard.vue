@@ -68,6 +68,12 @@
     margin-left: 10px
 
 
+  #mygene2-basic-none
+    display: inline-block
+    white-space: normal
+    line-height: 18px
+    font-style: italic
+    margin-left: 20px
 
   .gene-list
 
@@ -274,7 +280,7 @@
         <span v-show="!isBasicMode">
           Variants
         </span>
-        <span id="mygene2-basic-title" v-show="isBasicMode && flaggedVariants && flaggedVariants.length > 0">
+        <span id="mygene2-basic-title" v-show="isBasicMode && flaggedVariants">
           Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
         </span>
       </v-toolbar-title>
@@ -293,6 +299,10 @@
       </v-btn>
     </div>
 
+
+    <span id="mygene2-basic-none" v-show="isBasicMode && flaggedVariants && flaggedVariants.length == 0">
+      (none)
+    </span>
 
 
     <template v-for="geneList in geneLists">

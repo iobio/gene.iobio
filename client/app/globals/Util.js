@@ -648,6 +648,8 @@ class Util {
       phenotype: "",
       phenotypeSimple: "",
       zygosity: "",
+      af1000G: "",
+      afgnomAD: "",
       vepImpact: "",
       vepHighestImpact: "",
       vepHighestImpactSimple: "",
@@ -657,6 +659,7 @@ class Util {
       vepConsequence: "",
       HGVSc: "",
       HGVSp: "",
+      HGVScAbbrev: "",
       HGVSpAbbrev: "",
       HGVScLoading: false,
       HGVSpLoading: false,
@@ -751,6 +754,13 @@ class Util {
       info.zygosity = "Homozygous";
     }
 
+    if (variant.af1000G) {
+      info.af1000G =  +variant.af1000G >= 0 ? me.globalApp.utility.round(+variant.af1000G * 100, 2) + "%" : "";
+    }
+    if (variant.afgnomAD) {
+      info.afgnomAD =  +variant.afgnomAD >= 0 ? me.globalApp.utility.round(+variant.afgnomAD * 100, 2) + "%" : "";
+    }
+
 
     for (var key in variant.vepImpact) {
       if (info.vepImpact.length > 0) {
@@ -835,6 +845,7 @@ class Util {
         }
       }
       info.HGVSpAbbrev = me.formatHgvsP(variant, variant.vepHGVSp);
+      info.HGVScAbbrev = me.formatHgvsC(variant, variant.vepHGVSc);
     } else {
       info.HGVScLoading = true;
       info.HGVSpLoading = true;
