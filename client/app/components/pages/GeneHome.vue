@@ -1124,6 +1124,7 @@ export default {
     onCohortVariantClick: function(variant, sourceComponent, sourceRelationship) {
       let self = this;
       if (variant) {
+        self.calcFeatureMatrixWidthPercent();
         self.selectedVariant = variant;
         self.selectedVariantRelationship = sourceRelationship;
         self.activeGeneVariantTab = "1";
