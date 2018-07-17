@@ -67,34 +67,39 @@ export default {
     scroll: function(dir="down") {
       let self = this;
 
-      var topPos = $('#' + self.parentId).scrollTop();
-      var scrollHeight = $('#' + self.parentId).innerHeight();
-      var multiplier = 1;
-      if (dir == "up") {
-        multiplier =  -1;
+      if ($('#' + self.parentId) && $('#' + self.parentId).length > 0) {
+        var topPos = $('#' + self.parentId).scrollTop();
+        var scrollHeight = $('#' + self.parentId).innerHeight();
+        var multiplier = 1;
+        if (dir == "up") {
+          multiplier =  -1;
+        }
+        $('#' + self.parentId).animate({
+            scrollTop: (topPos + scrollHeight) * multiplier
+        }, 1000, function() {
+          self.showScrollButtons();
+        });
       }
-      $('#' + self.parentId).animate({
-          scrollTop: (topPos + scrollHeight) * multiplier
-      }, 1000, function() {
-        self.showScrollButtons();
-      });
     },
     showScrollButtons: function() {
       let self = this;
-      var pos           = $('#' + self.parentId).scrollTop();
-      var contentHeight = $('#' + self.parentId)[0].scrollHeight;
-      var scrollHeight  = $('#' + self.parentId).innerHeight();
+      if ($('#' + self.parentId) && $('#' + self.parentId).length > 0) {
+        var pos           = $('#' + self.parentId).scrollTop();
+        var contentHeight = $('#' + self.parentId)[0].scrollHeight;
+        var scrollHeight  = $('#' + self.parentId).innerHeight();
 
-      if (scrollHeight + pos < contentHeight - 5) {
-        self.showScrollDown = true;
-      } else {
-        self.showScrollDown = false;
-      }
+        if (scrollHeight + pos < contentHeight - 5) {
+          self.showScrollDown = true;
+        } else {
+          self.showScrollDown = false;
+        }
 
-      if (pos == 0) {
-        self.showScrollUp = false;
-      } else {
-        self.showScrollUp = true;
+        if (pos == 0) {
+          self.showScrollUp = false;
+        } else {
+          self.showScrollUp = true;
+        }
+
       }
     }
 
