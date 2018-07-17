@@ -283,162 +283,18 @@ class FeatureMatrixModel {
         });
 
         // Fill all features used in feature matrix for each variant
-        self.featureVcfData.features.forEach( function(variant) {
-          var features = [];
-          for (var i = 0; i < self.filteredMatrixRows.length; i++) {
-            features.push(null);
-          }
+        self.setFeaturesForVariants(self.featureVcfData.features);
 
-          self.filteredMatrixRows.forEach( function(matrixRow) {
-            var rawValue = null;
-            if (matrixRow.attribute instanceof Array) {
-              rawValue = self.getGenericAnnotation().getValue(variant, matrixRow.attribute);
-            } else {
-              rawValue = variant[matrixRow.attribute];
-            }
-            var theValue    = null;
-            var mappedValue = null;
-            var mappedClazz = null;
-            var symbolFunction = null;
-            var bindTo = null;
-            var isText = false;
-            var clickFunction = matrixRow.clickFunction;
-            // Don't fill in clinvar for now
-            if (matrixRow.attribute == 'clinvar') {
-              rawValue = 'N';
-            }
-            if (rawValue != null && (self.isNumeric(rawValue) || rawValue != "")) {
-              if (matrixRow.match == 'field') {
-                if (matrixRow.formatFunction) {
-                  theValue = matrixRow.formatFunction.call(self, variant, rawValue);
-                } else {
-                  theValue = rawValue;
-                }
-                mappedClazz = matrixRow.attribute;
-                if (matrixRow.rankFunction) {
-                  mappedValue = matrixRow.rankFunction.call(self, variant, rawValue);
-                } else {
-                  mappedValue = theValue;
-                }
-                symbolFunction = matrixRow.symbolFunction ? matrixRow.symbolFunction : self.showTextSymbol;
-                bindTo = matrixRow.bind ? matrixRow.bind : null;
-                isText = matrixRow.symbolFunction ? false : true;
-              } else if (matrixRow.match == 'exact') {
-                // We are going to get the mapped value through exact match,
-                // so this will involve a simple associative array lookup.
-                // Some features (like impact) are multi-value and are stored in a
-                // an associative array.  In this case, we loop through the feature
-                // values, keeping the lowest (more important) mapped value.
-                if (self.isDictionary(rawValue)) {
-                  // Iterate through the objects in the associative array.
-                  // Keep the lowest mapped value
-                  if (Object.keys(rawValue).length > 0) {
-                    for (var val in rawValue) {
-                      var entry = matrixRow.map[val];
-                      if (entry != null && entry.symbolFunction && (mappedValue == null || entry.value < mappedValue)) {
-                        mappedValue = entry.value;
-                        mappedClazz = entry.clazz;
-                        symbolFunction = entry.symbolFunction;
-                        bindTo = entry.bind ? entry.bind : null;
-                        theValue = val;
-                      }
-                    }
-                  } else {
-                    var entry = matrixRow.map.none;
-                    if (entry != null && entry.symbolFunction && (mappedValue == null || entry.value < mappedValue)) {
-                      mappedValue = entry.value;
-                      mappedClazz = entry.clazz;
-                      symbolFunction = entry.symbolFunction;
-                      bindTo = entry.bind ? entry.bind : null;
+        // Order the variants according to the features
+        self.rankedVariants = self.sortVariantsByFeatures(self.featureVcfData.features);
 
-                      theValue = '';
-                    }
-                  }
-                } else {
-                  if (matrixRow.map.hasOwnProperty(rawValue)) {
-                    mappedValue = matrixRow.map[rawValue].value;
-                    mappedClazz = matrixRow.map[rawValue].clazz;
-                    symbolFunction = matrixRow.map[rawValue].symbolFunction;
-                    bindTo = matrixRow.map[rawValue].bind ? matrixRow.map[rawValue].bind : null;
-                    theValue = rawValue;
-                  } else {
-                    console.log("No matrix value to map to " + rawValue + " for " + matrixRow.attribute);
-                  }
-
-                }
-              } else if (matrixRow.match == 'range') {
-                // If this feature is a range, get the mapped value be testing if the
-                // value is within a min-max range.
-                if (self.isNumeric(rawValue)) {
-                  theValue = d3.format(",.3%")(+rawValue);
-                  var lowestValue = 9999;
-                  matrixRow.map.forEach( function(rangeEntry) {
-                    if (+rawValue > rangeEntry.min && +rawValue <= rangeEntry.max) {
-                      if (rangeEntry.value < lowestValue) {
-                        lowestValue = rangeEntry.value;
-                        mappedValue = rangeEntry.value;
-                        mappedClazz = rangeEntry.clazz;
-                        symbolFunction = rangeEntry.symbolFunction;
-                        bindTo = rangeEntry.bind ? rangeEntry.bind : null;
-                      }
-                    }
-                  });
-                }
-              }
-
-            } else {
-              rawValue = '';
-              mappedClazz = '';
-            }
-            features[matrixRow.order] = {
-                                  'value': theValue,
-                                  'rank': (mappedValue ? mappedValue : self.featureUnknown),
-                                  'clazz': mappedClazz,
-                                  'symbolFunction': symbolFunction,
-                                  'isText': isText,
-                                  'bindTo': bindTo,
-                                  'clickFunction': clickFunction
-                                };
-          });
-
-          variant.features = features;
-        });
-        // Sort the variants by the criteria that matches
-        // For mygene2 basic, filter out everything that isn't clinvar pathogenic < 1% af
-        self.rankedVariants = self.featureVcfData.features.sort(function (a, b) {
-          var featuresA = "";
-          var featuresB = "";
-
-          // The features have been initialized in the same order as
-          // the matrix column order. In each interation,
-          // exit with -1 or 1 if we have non-matching values;
-          // otherwise, go to next iteration.  After iterating
-          // through every column, if we haven't exited the
-          // loop, that means all features of a and b match
-          // so return 0;
-          for (var i = 0; i < self.filteredMatrixRows.length; i++) {
-            if (a.features[i] == null) {
-              return 1;
-            } else if (b.features[i] == null) {
-              return -1;
-            } else if (a.features[i].rank > 99  && b.features[i].rank > 99) {
-              // In this case, we don't consider the rank and will look at the next feature for ordering
-            } else if (a.features[i].rank > 99) {
-              return 1;
-            } else if (b.features[i].rank > 99) {
-              return -1;
-            } else if (a.features[i].rank < b.features[i].rank) {
-              return -1;
-            } else if (a.features[i].rank > b.features[i].rank) {
-            return 1;
-          } else {
-          }
-          }
-          return 0;
-        })
-        .filter(function(variant) {
-          return !self.isBasicMode || variant.isFlagged;
-        })
+        // For basic mode, filter out all variants that aren't flagged
+        if (self.isBasicMode) {
+          self.rankedVariants = self.rankedVariants
+          .filter(function(variant) {
+            return variant.isFlagged;
+          })
+        }
 
 
         if (self.rankedVariants.length == 0) {
@@ -455,6 +311,174 @@ class FeatureMatrixModel {
     })
 
 
+  }
+
+  setFeaturesForVariants(theVariants) {
+    let self = this;
+
+    theVariants.forEach( function(variant) {
+      var features = [];
+      for (var i = 0; i < self.filteredMatrixRows.length; i++) {
+        features.push(null);
+      }
+
+      self.filteredMatrixRows.forEach( function(matrixRow) {
+        var rawValue = null;
+        if (matrixRow.attribute instanceof Array) {
+          rawValue = self.getGenericAnnotation().getValue(variant, matrixRow.attribute);
+        } else {
+          rawValue = variant[matrixRow.attribute];
+        }
+        var theValue    = null;
+        var mappedValue = null;
+        var mappedClazz = null;
+        var symbolFunction = null;
+        var bindTo = null;
+        var isText = false;
+        var clickFunction = matrixRow.clickFunction;
+        // Don't fill in clinvar for now
+        if (matrixRow.attribute == 'clinvar') {
+          rawValue = 'N';
+        }
+        if (rawValue != null && (self.isNumeric(rawValue) || rawValue != "")) {
+          if (matrixRow.match == 'field') {
+            if (matrixRow.formatFunction) {
+              theValue = matrixRow.formatFunction.call(self, variant, rawValue);
+            } else {
+              theValue = rawValue;
+            }
+            mappedClazz = matrixRow.attribute;
+            if (matrixRow.rankFunction) {
+              mappedValue = matrixRow.rankFunction.call(self, variant, rawValue);
+            } else {
+              mappedValue = theValue;
+            }
+            symbolFunction = matrixRow.symbolFunction ? matrixRow.symbolFunction : self.showTextSymbol;
+            bindTo = matrixRow.bind ? matrixRow.bind : null;
+            isText = matrixRow.symbolFunction ? false : true;
+          } else if (matrixRow.match == 'exact') {
+            // We are going to get the mapped value through exact match,
+            // so this will involve a simple associative array lookup.
+            // Some features (like impact) are multi-value and are stored in a
+            // an associative array.  In this case, we loop through the feature
+            // values, keeping the lowest (more important) mapped value.
+            if (self.isDictionary(rawValue)) {
+              // Iterate through the objects in the associative array.
+              // Keep the lowest mapped value
+              if (Object.keys(rawValue).length > 0) {
+                for (var val in rawValue) {
+                  var entry = matrixRow.map[val];
+                  if (entry != null && entry.symbolFunction && (mappedValue == null || entry.value < mappedValue)) {
+                    mappedValue = entry.value;
+                    mappedClazz = entry.clazz;
+                    symbolFunction = entry.symbolFunction;
+                    bindTo = entry.bind ? entry.bind : null;
+                    theValue = val;
+                  }
+                }
+              } else {
+                var entry = matrixRow.map.none;
+                if (entry != null && entry.symbolFunction && (mappedValue == null || entry.value < mappedValue)) {
+                  mappedValue = entry.value;
+                  mappedClazz = entry.clazz;
+                  symbolFunction = entry.symbolFunction;
+                  bindTo = entry.bind ? entry.bind : null;
+
+                  theValue = '';
+                }
+              }
+            } else {
+              if (matrixRow.map.hasOwnProperty(rawValue)) {
+                mappedValue = matrixRow.map[rawValue].value;
+                mappedClazz = matrixRow.map[rawValue].clazz;
+                symbolFunction = matrixRow.map[rawValue].symbolFunction;
+                bindTo = matrixRow.map[rawValue].bind ? matrixRow.map[rawValue].bind : null;
+                theValue = rawValue;
+              } else {
+                console.log("No matrix value to map to " + rawValue + " for " + matrixRow.attribute);
+              }
+
+            }
+          } else if (matrixRow.match == 'range') {
+            // If this feature is a range, get the mapped value be testing if the
+            // value is within a min-max range.
+            if (self.isNumeric(rawValue)) {
+              theValue = d3.format(",.3%")(+rawValue);
+              var lowestValue = 9999;
+              matrixRow.map.forEach( function(rangeEntry) {
+                if (+rawValue > rangeEntry.min && +rawValue <= rangeEntry.max) {
+                  if (rangeEntry.value < lowestValue) {
+                    lowestValue = rangeEntry.value;
+                    mappedValue = rangeEntry.value;
+                    mappedClazz = rangeEntry.clazz;
+                    symbolFunction = rangeEntry.symbolFunction;
+                    bindTo = rangeEntry.bind ? rangeEntry.bind : null;
+                  }
+                }
+              });
+
+              // TODO:  This should be more generic.  In this case, we want to classify
+              // the af level by glyph, but we want to rank with the af value (lowest sorts first)
+              if (matrixRow.id == 'af-highest') {
+                mappedValue = +rawValue;
+              }
+            }
+          }
+
+        } else {
+          rawValue = '';
+          mappedClazz = '';
+        }
+        features[matrixRow.order] = {
+                              'value': theValue,
+                              'rank': (mappedValue ? mappedValue : self.featureUnknown),
+                              'clazz': mappedClazz,
+                              'symbolFunction': symbolFunction,
+                              'isText': isText,
+                              'bindTo': bindTo,
+                              'clickFunction': clickFunction
+                            };
+      });
+
+      variant.features = features;
+    });
+  }
+
+  sortVariantsByFeatures(theVariants) {
+    let self = this;
+    // Sort the variants by the criteria that matches
+    // For mygene2 basic, filter out everything that isn't clinvar pathogenic < 1% af
+    return theVariants.sort(function (a, b) {
+      var featuresA = "";
+      var featuresB = "";
+
+      // The features have been initialized in the same order as
+      // the matrix column order. In each interation,
+      // exit with -1 or 1 if we have non-matching values;
+      // otherwise, go to next iteration.  After iterating
+      // through every column, if we haven't exited the
+      // loop, that means all features of a and b match
+      // so return 0;
+      for (var i = 0; i < self.filteredMatrixRows.length; i++) {
+        if (a.features[i] == null) {
+          return 1;
+        } else if (b.features[i] == null) {
+          return -1;
+        } else if (a.features[i].rank > 99  && b.features[i].rank > 99) {
+          // In this case, we don't consider the rank and will look at the next feature for ordering
+        } else if (a.features[i].rank > 99) {
+          return 1;
+        } else if (b.features[i].rank > 99) {
+          return -1;
+        } else if (a.features[i].rank < b.features[i].rank) {
+          return -1;
+        } else if (a.features[i].rank > b.features[i].rank) {
+        return 1;
+      } else {
+      }
+      }
+      return 0;
+    })
   }
 
   isNumeric(n) {

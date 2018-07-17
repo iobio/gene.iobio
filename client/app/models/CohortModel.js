@@ -2033,6 +2033,12 @@ class CohortModel {
     var variantIndex = 0;
     sortedFilters.forEach(function(filterObject) {
       filterObject.genes.forEach(function(geneList) {
+
+        // Sort the variants according to the Ranked Variants table features
+        self.featureMatrixModel.setFeaturesForVariants(geneList.variants);
+        geneList.variants = self.featureMatrixModel.sortVariantsByFeatures(geneList.variants)
+
+
         geneList.variants.forEach(function(variant) {
           variant.index = variantIndex++;
         })
@@ -2072,8 +2078,13 @@ class CohortModel {
     for (var filterName in self.filterModel.flagCriteria) {
       var theFilter = self.filterModel.flagCriteria[filterName];
       var theVariants = filterToVariantMap[filterName];
+
       if (theVariants) {
-        filters.push({filter: theFilter, variants: theVariants});
+        // Sort the variants according to the Ranked Variants table features
+        self.featureMatrixModel.setFeaturesForVariants(theVariants);
+        let sortedVariants = self.featureMatrixModel.sortVariantsByFeatures(theVariants)
+
+        filters.push({filter: theFilter, variants: sortedVariants});
       }
     }
     return filters.sort(function(filterObject1, filterObject2) {
@@ -2123,10 +2134,15 @@ class CohortModel {
       })
       let i = 0;
       sortedGenes.forEach(function(flaggedGene) {
-        flaggedGene.variants.forEach(function(variant) {
+        // Sort the variants according to the Ranked Variants table features
+        self.featureMatrixModel.setFeaturesForVariants(flaggedGene.variants);
+        let sortedVariants = self.featureMatrixModel.sortVariantsByFeatures(flaggedGene.variants)
+
+        sortedVariants.forEach(function(variant) {
           variant.index = i;
           i++;
         })
+        flaggedGene.variants = sortedVariants;
       });
       return sortedGenes;
 
