@@ -477,7 +477,10 @@ class FeatureMatrixModel {
       } else {
       }
       }
-      return 0;
+
+      // All features between variant a and b have the same rank, so just sort
+      // by position at this point
+      return a.start - b.start;
     })
   }
 
