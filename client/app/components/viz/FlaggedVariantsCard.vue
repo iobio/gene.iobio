@@ -8,6 +8,7 @@
     vertical-align: top
     margin-top: 2px
 
+
   .variant-toolbar
     width: calc(100% - 1px)
     padding-right: 20px
@@ -269,7 +270,7 @@
 </style>
 
 <template>
-  <div id="flagged-variants-card" :class="{basic: isBasicMode}">
+  <v-card id="flagged-variants-card" :class="{basic: isBasicMode}">
 
 
     <div class="variant-toolbar">
@@ -409,12 +410,6 @@
       </v-list>
     </template>
 
-
-    <legend-panel v-if="isBasicMode"
-        :isBasicMode="isBasicMode"
-        style="position:fixed;bottom:20px;max-width:300px">
-    </legend-panel>
-
     <v-menu
     offset-y
     :close-on-content-click="false"
@@ -525,7 +520,7 @@
       </v-card>
     </v-menu>
 
-  </div>
+  </v-card>
 </template>
 
 
@@ -535,15 +530,14 @@
 import FileChooser from '../partials/FileChooser.vue'
 import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
-import LegendPanel from '../partials/LegendPanel.vue'
+
 
 export default {
   name: 'flagged-variants-card',
   components: {
     FileChooser,
     AppIcon,
-    FilterIcon,
-    LegendPanel
+    FilterIcon
   },
   props: {
     isEduMode: null,

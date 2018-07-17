@@ -342,7 +342,7 @@
              <v-flex xs3 v-if="!isBasicMode" class="field-label">Impact</v-flex>
              <v-flex xs9 v-if="!isBasicMode"  class="field-value">{{ info.vepImpact }} - {{ info.vepConsequence }}</v-flex>
 
-             <v-flex xs4 v-if="isBasicMode" class="field-label">Predicted impact</v-flex>
+             <v-flex xs4 v-if="isBasicMode" class="field-label">Predicted Impact</v-flex>
              <v-flex xs8 v-if="isBasicMode" class="field-value">{{ info.vepImpact }}</v-flex>
           </v-layout>
         </v-flex>

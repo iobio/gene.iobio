@@ -2,8 +2,10 @@
 @import ../../../assets/sass/variables
 
 #legend
-  margin: 10px
-
+  margin-left: 10px
+  margin-right: 10px
+  margin-top: 5px
+  margin-bottom: 0px
 
 #legend-tooltip.tooltip
   font-size: 11px
@@ -106,8 +108,6 @@
   <div id="legend" >
 
 
-    <v-divider v-if="isBasicMode" style="margin-top:5px;margin-bottom:5px">
-    </v-divider>
 
     <div :style="isBasicMode ? 'margin-bottom:5px;' : 'margin-bottom:20px'">
     Legend
@@ -125,7 +125,8 @@
       </div>
 
       <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
-        <div class="legend-label">Impact</div>
+        <div v-if="!isBasicMode" class="legend-label">Impact</div>
+        <div v-if="isBasicMode" class="legend-label">Predicted Impact</div>
 
 
         <legend-icon

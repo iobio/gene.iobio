@@ -5,6 +5,25 @@
 aside.navigation-drawer
   margin-top: 45px !important
   z-index: 0
+  padding-bottom: 0px
+
+  #side-panel-container
+    display: flex
+    flex-flow: column
+    flex: 1 1 auto
+    justify-content: space-between
+    margin-bottom: 0px
+    padding-bottom: 0px
+    height: calc(100% - 10px)
+    overflow-y: scroll
+
+    #flagged-variants-card
+      flex-grow: 1
+
+    #legend-card
+      margin-top: 5px
+      margin-bottom: 38px
+      padding: 0px
 
 nav.toolbar
   -webkit-box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.13), 0px 4px 5px 0px rgba(0, 0, 0, 0.06), 0px 1px 10px 0px rgba(0,0,0,0.12)
@@ -336,7 +355,7 @@ nav.toolbar
       :stateless="true"
       width=330
     >
-      <div>
+      <div id="side-panel-container">
 
         <flagged-variants-card
          v-if="leftDrawerContents == 'flagged-variants'"
@@ -352,6 +371,14 @@ nav.toolbar
          @send-flagged-variants-to-clin="onSendFlaggedVariantsToClin"
         >
         </flagged-variants-card>
+
+
+
+        <v-card id="legend-card" v-if="isBasicMode" >
+          <legend-panel :isBasicMode="isBasicMode">
+          </legend-panel>
+        </v-card>
+
 
 
 
@@ -515,7 +542,6 @@ import FilesMenu           from '../partials/FilesMenu.vue'
 import LegendPanel         from '../partials/LegendPanel.vue'
 import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
 import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
-
 
 export default {
   name: 'navigation',
