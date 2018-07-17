@@ -180,7 +180,7 @@ main.content
 
 
               <v-tabs
-                v-if="geneModel && Object.keys(selectedGene).length > 0"
+                v-if="geneModel"
                 v-model="activeGeneVariantTab"
                 light
               >
@@ -198,7 +198,6 @@ main.content
                 </v-switch>
                 <v-tab-item style="margin-top:5px;margin-bottom:0px;overflow-y:scroll">
                   <gene-card
-                    v-if="geneModel && Object.keys(selectedGene).length > 0"
                     :showTitle="false"
                     :isEduMode="isEduMode"
                     :isBasicMode="isBasicMode"

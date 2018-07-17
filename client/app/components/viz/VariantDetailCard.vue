@@ -569,15 +569,19 @@ export default {
       }
     },
     createAlleleCountsSVG: function() {
-      var selection = d3.select("#variant-detail #coverage-svg");
-      selection.selectAll(".ped-info").remove();
-      this.createAlleleCountSVGTrio(selection,
-        this.selectedVariant,
-        'proband',   // FIXME - This needs to be passed in from event that sends variant selected event
-        this.cohortModel.affectedInfo,
-        this.cohortModel.mode,
-        this.cohortModel.maxAlleleCount,
-        this.WIDTH_ALLELE_COUNT_BAR);
+      let self = this;
+      self.$nextTick(function() {
+        var selection = d3.select("#variant-detail #coverage-svg");
+        selection.selectAll(".ped-info").remove();
+        self.createAlleleCountSVGTrio(selection,
+          self.selectedVariant,
+          'proband',   // FIXME - This needs to be passed in from event that sends variant selected event
+          self.cohortModel.affectedInfo,
+          self.cohortModel.mode,
+          self.cohortModel.maxAlleleCount,
+          self.WIDTH_ALLELE_COUNT_BAR);
+
+      });
 
     },
     selectTranscript: function(transcriptId) {
@@ -614,9 +618,6 @@ export default {
 
     createAlleleCountSVGTrio: function(container, variant, relationship, affectedInfo, cohortMode, maxAlleleCount, barWidth) {
       var me = this;
-
-
-      container.select("div.ped-info").remove();
 
       var firstTime = true;
       affectedInfo.forEach(function(info) {

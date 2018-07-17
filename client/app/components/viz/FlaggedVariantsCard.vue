@@ -270,7 +270,7 @@
 </style>
 
 <template>
-  <v-card id="flagged-variants-card" :class="{basic: isBasicMode}">
+  <v-card  style="padding: 0px" id="flagged-variants-card" :class="{basic: isBasicMode}">
 
 
     <div class="variant-toolbar">
