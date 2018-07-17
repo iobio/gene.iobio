@@ -335,7 +335,7 @@ export default {
               if (ref.modelInfo.relationship == theModel.relationship) {
                 theModel.sampleName = theModelInfo.sample;
                 ref.updateSamples(sampleNames, theModelInfo.sample);
-                theModel.name = theModel.relationship + " " + theModel.sampleName;
+                theModel.name = theModel.sampleName;
                 self.validate();
               }
             })
