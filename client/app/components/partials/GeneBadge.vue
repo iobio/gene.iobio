@@ -170,9 +170,10 @@
 <div id="gene-badge" v-bind:class="classObject" >
 
   <a id="gene-badge-button"
+    href="javascript:void(0)"
     v-bind:class="gene.isFlagged ? 'flagged' : ''"
     style="display:inline-block" @click="selectGene"
-    rel="tooltip"   data-html="true" href="#"
+    rel="tooltip"   data-html="true"
     data-placement="bottom">
 
 

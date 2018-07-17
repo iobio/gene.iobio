@@ -458,7 +458,7 @@
 
 
 
-    <div id="coverage-svg" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
+    <div id="coverage-svg" v-if="selectedVariant" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
         <v-flex  v-if="!isBasicMode">
           <v-layout row class="no-bottom-margin">

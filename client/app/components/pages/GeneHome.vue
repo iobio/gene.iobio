@@ -137,7 +137,7 @@ main.content
          :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
          :callAllInProgress="cacheHelper.callAllInProgress"
          :showCoverageCutoffs="showCoverageCutoffs"
-         @gene-selected="onGeneSelected"
+         @gene-selected="onGeneClicked"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
          @call-variants="callVariants"
@@ -626,7 +626,10 @@ export default {
               .then(function() {
                 self.models = self.cohortModel.sampleModels;
                 if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-                  self.promiseLoadData();
+                  self.promiseLoadData()
+                  .then(function() {
+                    self.showLeftPanelWhenFlaggedVariants();
+                  })
                 } else {
                   self.onShowSnackbar( {message: 'Enter a gene name', timeout: 5000});
                   self.bringAttention = 'gene';
@@ -636,7 +639,10 @@ export default {
           } else {
             self.models = self.cohortModel.sampleModels;
             if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-              self.promiseLoadData();
+              self.promiseLoadData()
+              .then(function() {
+                self.showLeftPanelWhenFlaggedVariants();
+              })
             }
           }
 
@@ -649,6 +655,8 @@ export default {
 
 
   },
+
+
 
   computed: {
     maxDepth: function() {
@@ -970,7 +978,22 @@ export default {
       .then(function() {
         self.activeGeneVariantTab = "0";
         self.setUrlGeneParameters();
+        self.showLeftPanelWhenFlaggedVariants();
       })
+    },
+
+    onGeneClicked: function(geneName) {
+      var self = this;
+
+      self.deselectVariant();
+
+      self.promiseLoadGene(geneName)
+      .then(function() {
+        self.setUrlGeneParameters();
+        self.showLeftPanelWhenFlaggedVariants();
+      })
+      self.activeGeneVariantTab = "0";
+
     },
 
     onGeneSelected: function(geneName) {
@@ -980,6 +1003,15 @@ export default {
       self.promiseLoadGene(geneName);
       self.activeGeneVariantTab = "0";
 
+    },
+
+    showLeftPanelWhenFlaggedVariants: function() {
+      let self = this;
+      if (self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
+        if (self.$refs.navRef) {
+          self.$refs.navRef.onShowFlaggedVariants();
+        }
+      }
     },
 
     promiseLoadGene: function(geneName, theTranscript) {
