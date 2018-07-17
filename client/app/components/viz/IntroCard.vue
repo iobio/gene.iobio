@@ -75,7 +75,7 @@
       Below that is the 'Variants' panel, showing the variants you have in the gene. Different types of variants are presented by different shapes (see legend in the navigation menu for more details). Hovering or clicking on a variant shape will highlight the corresponding column in the table.
     </p>
     <p>
-      In the side panel 'Flagged variants', you will see variants that predicted to underlie a condition according to a database called <a href="https://www.ncbi.nlm.nih.gov/clinvar/intro/">ClinVar</a>. A person who has a variant does not necessarily have the condition. In Basic mode, only variants that have a classification in ClinVar and have a frequency of &lt;1% in the general population are shown. If there are no matching variants, the side panel will be empty. You may have other variants in this gene that are not yet classified in ClinVar. These variants are shown in the 'Variants' panel and can also be seen in Advanced mode.
+      In the left side panel, you will see variants that predicted to underlie a condition according to a database called <a href="https://www.ncbi.nlm.nih.gov/clinvar/intro/">ClinVar</a>. A person who has a variant does not necessarily have the condition. In Basic mode, only variants that have a classification in ClinVar and have a frequency of &lt;1% in the general population are shown. If there are no matching variants, the side panel will be empty. You may have other variants in this gene that are not yet classified in ClinVar. These variants are shown in the 'Variants' panel and can also be seen in Advanced mode.
     </p>
     <div style="text-align:center">
       <a id="intro-less-link" v-if="showIntro" href="javascript:void(0)" @click="showIntro = false">Close</a>
