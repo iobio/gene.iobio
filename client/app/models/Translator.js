@@ -68,9 +68,16 @@ export default class Translator {
                       HOMREF:     {value: 3, badge: false, clazz: 'homref'     },
                       gt_unknown: {value: 4, badge: false, clazz: 'gt_unknown' }
                        };
-    this.bookmarkMap = {
-                      true: {value: 1, badge: true,  clazz: 'bookmark',  symbolFunction: this.glyph.showBookmarkSymbol},
-                      false: {value: 2, badge: false, clazz: '',          symbolFunction: this.glyph.showBookmarkSymbol}
+    this.filtersPassedMap = {
+                      'pathogenic':        {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
+                      'denovo':            {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
+                      'recessive':         {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
+                      'xlinked':           {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
+                      'autosomalDominant': {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
+                      'compoundHet':       {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
+                      'highOrModerate':    {value: 2, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
+                      'userFlagged':       {value: 3, badge: false, clazz: 'user-flagged',    symbolFunction: this.glyph.showFlaggedSymbol},
+                      '':                  {value: 3, badge: false, clazz: '',                symbolFunction: ''}
                        };
     this.unaffectedMap = {
                           present_some:   {value: 104, badge: false, clazz: 'unaffected', symbolFunction: this.glyph.showAffectedPresentSymbol},

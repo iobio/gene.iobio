@@ -321,8 +321,6 @@
         </legend-icon>
       </div>
 
-
-
       <div v-if="!isBasicMode" style="width:80px;margin-right:0px;">
           <div class="legend-label">Coverage</div>
 
@@ -335,6 +333,25 @@
             label="Insufficient coverage in exons">
           </legend-icon>
 
+      </div>
+
+
+
+
+     <div  style="width:170px;margin-right:10px;margin-bottom:15px">
+       <div class="legend-label">Flagged</div>
+        <legend-icon
+         icon="system-flagged"
+         width="16"
+         height="16"
+         label="Variant passes a filter">
+        </legend-icon>
+        <legend-icon
+         icon="user-flagged"
+         width="16"
+         height="16"
+         label="Flagged by User">
+        </legend-icon>
       </div>
 
 

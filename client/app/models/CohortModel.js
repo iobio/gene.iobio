@@ -1696,10 +1696,18 @@ class CohortModel {
     }
   }
 
+  removeFilterPassed(variant, filterName) {
+    var idx = variant.filtersPassed.indexOf(filterName);
+    if (idx >= 0 ) {
+      variant.filtersPassed.splice(idx, 1);
+    }
+  }
+
   removeFlaggedVariant(theGene, theTranscript, variant) {
     var self = this;
     var index = -1;
     var i = 0;
+    this.removeFilterPassed(variant, "userFlagged");
     this.flaggedVariants.forEach(function(v) {
       var matches = (
         self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(variant.chrom)
@@ -1708,6 +1716,8 @@ class CohortModel {
         && v.alt == variant.alt);
       if (matches) {
         index = i;
+        v.isUserFlagged = false;
+        self.removeFilterPassed(v, "userFlagged");
       }
       i++;
     })
@@ -1730,6 +1740,7 @@ class CohortModel {
                       && v.alt == variant.alt);
         if (matches) {
           v.isUserFlagged = variant.isUserFlagged;
+          v.filtersPassed = variant.filtersPassed;
         }
       });
       self.getProbandModel()._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, theGene.gene_name, theTranscript);
@@ -2101,6 +2112,7 @@ class CohortModel {
     });
     variantsToRemove.forEach(function(variant) {
       var index = self.flaggedVariants.indexOf(variant);
+      variant.filtersPassed = [];
       if (index !== -1) {
         self.flaggedVariants.splice(index, 1);
       }

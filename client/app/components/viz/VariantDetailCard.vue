@@ -252,14 +252,14 @@
         <v-btn class="flag-button" small raised
         v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"
         @click="setUserFlag">
-          <v-icon>turned_in</v-icon>
+          <app-icon icon="user-flagged"></app-icon>
           Flag variant
         </v-btn>
 
         <v-btn class="flag-button" small raised
         v-if="selectedVariant.isUserFlagged"
         @click="removeUserFlag">
-          <v-icon>turned_in_not</v-icon>
+          <v-icon>outlined_flag</v-icon>
           Remove flag
         </v-btn>
       </div>

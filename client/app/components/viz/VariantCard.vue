@@ -479,12 +479,14 @@ export default {
     },
     onVariantClick: function(variant) {
       if (this.showDepthViz) {
-        this.showCoverageCircle(variant);
+        if (variant) {
+          this.showCoverageCircle(variant);
+        }
       }
-
       if (this.showVariantViz) {
-        this.showVariantCircle(variant, true);
-
+        if (variant) {
+          this.showVariantCircle(variant, true);
+        }
       }
       this.$emit('cohort-variant-click', variant, this, this.sampleModel.relationship);
     },

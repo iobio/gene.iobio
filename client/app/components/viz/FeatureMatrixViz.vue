@@ -12,14 +12,6 @@
       rect.cellbox
         fill: rgba(255, 236, 179, 0.54)
 
-    &.flagged
-      rect.colbox
-        fill: none
-        stroke: $flagged-border-color
-        stroke-width: 4.5
-        opacity: .3
-        width: 13px
-        x: 2
 
   .colhdr text
     font-size: 11px
@@ -38,6 +30,7 @@
 
 
 
+
   rect.colbox
     fill: none
     opacity: 0
@@ -50,19 +43,18 @@
       pointer-events: none
       outline-offset: -2px
 
-    &.flagged
-      fill: none
-      stroke: $flagged-border-color
-      stroke-width: 4.5
-      opacity: .6 !important
-      width: 13px
-      x: 1
+    &.highlight
+      stroke: $current-frame-color !important
+      stroke-width: 1.5px !important
+      opacity: 1
+      pointer-events: none
+      outline-offset: -2px
 
   .col.active
 
     rect.colbox
       stroke: $current-frame-color
-      stroke-width: 1px
+      stroke-width: 1.5px
       opacity: 1
 
   text

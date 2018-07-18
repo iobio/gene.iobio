@@ -1,5 +1,5 @@
 export default function variantD3() {
-   var dispatch = d3.dispatch("d3brush", "d3rendered", "d3click", "d3mouseover", "d3mouseout", "d3glyphmouseover", "d3glyphmouseout");
+   var dispatch = d3.dispatch("d3brush", "d3rendered", "d3outsideclick", "d3click", "d3mouseover", "d3mouseout", "d3glyphmouseover", "d3glyphmouseout");
 
   // dimensions
   var margin = {top: 30, right: 0, bottom: 20, left: 110},
@@ -126,7 +126,7 @@ export default function variantD3() {
 
 
 
-  var hideCircle = function(svgContainer, parentContainer, pinned) {
+  var hideCircle = function(svgContainer, pinned) {
     var circleClazz = pinned ? '.pinned.circle' : '.hover.circle';
     var arrowClazz = pinned ? 'g.pinned.arrow' : 'g.hover.arrow';
     svgContainer.select(circleClazz).transition()
@@ -302,6 +302,10 @@ export default function variantD3() {
           .attr("class", "group")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+        svg.on("click", function(d) {
+          dispatch.d3outsideclick(null);
+        })
+
         var g = svg.select("g.group");
 
 
@@ -438,6 +442,7 @@ export default function variantD3() {
         g.selectAll('.variant')
              .on("click", function(d) {
                 dispatch.d3click(d);
+                d3.event.stopPropagation();
              })
              .on("mouseover", function(d) {
                 dispatch.d3mouseover(d);

@@ -118,6 +118,8 @@ main.content
         @on-basic-mode="onBasicMode">
         </intro-card>
 
+
+
         <genes-card
          v-if="geneModel && (geneModel.geneNames.length > 0 || isEduMode)"
          v-bind:class="{hide : showWelcome && !isEduMode}"
@@ -1189,7 +1191,7 @@ export default {
         }
       })
       if (self.$refs.featureMatrixCardRef != sourceComponent) {
-        self.$refs.featureMatrixCardRef.selectVariant(variant);
+        self.$refs.featureMatrixCardRef.selectVariant(variant, 'highlight');
       }
     },
     onCohortVariantHoverEnd: function(sourceVariantCard) {
@@ -1199,13 +1201,11 @@ export default {
           variantCard.hideVariantCircle(false);
           variantCard.hideCoverageCircle();
         })
-        if (self.selectedVariant == null) {
-          self.$refs.featureMatrixCardRef.selectVariant(null);
-        }
+        self.$refs.featureMatrixCardRef.selectVariant(null, 'highlight');
 
       }
     },
-    deselectVariant: function(lock) {
+    deselectVariant: function() {
       let self = this;
       self.selectedVariant = null;
       self.selectedVariantRelationship = null;
@@ -1213,7 +1213,7 @@ export default {
       if (self.$refs.variantCardRef) {
         self.$refs.variantCardRef.forEach(function(variantCard) {
           variantCard.hideVariantTooltip();
-          variantCard.hideVariantCircle(lock);
+          variantCard.hideVariantCircle(true);
           variantCard.hideCoverageCircle();
         })
       }
@@ -1673,18 +1673,39 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant) {
       let self = this;
-      self.selectedGene = flaggedVariant.gene;
 
-      if (flaggedVariant.transcript) {
-        self.selectedTranscript = flaggedVariant.transcript;
+
+
+
+      let canonicalTranscript = self.geneModel.getCanonicalTranscript(flaggedVariant.gene);
+
+      // Only select the gene if it hasn't previously been selected or the transcript is different
+      let genePromise = null;
+      if (self.selectedGene.gene_name == flaggedVariant.gene.gene_name) {
+        genePromise = Promise.resolve();
+      } else if (flaggedVariant.transcript == null
+        && self.selectedTranscript
+        && self.selectedTranscript.transcript_id == canonicalTranscript.transcript_id) {
+        // No need to reselect the gene if the canonical transcript is already selected for the same gene
+        genePromise = Promise.resolve();
+      } else if (flaggedVariant.transcript
+        && self.selectedTranscript.transcript_id == flaggedVariant.transcript.transcript_id) {
+        // No need to reselect the gene if the same transcript on the same gene is already selecte
+        genePromise = Promise.resolve();
       } else {
-        self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
+        self.selectedGene = flaggedVariant.gene;
+        if (flaggedVariant.transcript) {
+          self.selectedTranscript = flaggedVariant.transcript;
+        } else {
+          self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
+        }
+        self.selectedVariant = null;
+        genePromise = self.promiseLoadGene(self.selectedGene.gene_name, self.selectedTranscript);
       }
 
-
-      self.activeGeneVariantTab = "0";
-      self.promiseLoadGene(self.selectedGene.gene_name, self.selectedTranscript)
+      genePromise
       .then(function() {
+
         setTimeout(
           function(){
             self.calcFeatureMatrixWidthPercent();
@@ -1697,7 +1718,16 @@ export default {
                 variantCard.showFlaggedVariant(flaggedVariant);
               }
             })
-            self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant, "flagged");
+
+            self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
+
+
+            self.$refs.variantCardRef.forEach(function(variantCard) {
+                variantCard.showVariantCircle(flaggedVariant, true);
+                variantCard.showCoverageCircle(flaggedVariant);
+            })
+
+
             self.activeGeneVariantTab = "1";
             self.$refs.variantDetailCardRef.refreshGlyphs();
           },

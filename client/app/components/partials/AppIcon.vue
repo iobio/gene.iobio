@@ -28,10 +28,11 @@
 .level-other
   fill: rgb(189, 189, 189)
 
-#bookmark-symbol
+#user-flagged-symbol
   fill: $link-color !important
 
-
+#system-flagged-symbol
+  fill: #ad494A !important
 
 </style>
 
@@ -122,6 +123,15 @@
         </g>
       </svg>
 
+      <svg v-if="icon == 'system-flagged'" id="system-flagged-symbol"  width="16" height="16" viewBox="0 0 24 24" :style="iconStyle">
+          <path d="M0 0h24v24H0z" fill="none"/>
+          <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
+      </svg>
+
+      <svg v-if="icon == 'user-flagged'"  id="user-flagged-symbol"  width="16" height="16" viewBox="0 0 24 24"  :style="iconStyle" >
+          <path d="M0 0h24v24H0z" fill="none"/>
+          <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
+      </svg>
 
       <svg  v-if="icon == 'denovo' || icon == 'de novo'" id="denovo-symbol" viewBox="0 0 27 27" :style="iconStyle">
         <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="8" cy="4" r="3.5"/>
@@ -292,9 +302,8 @@
         <path d="M0 0h24v24H0z" fill="none"/>
       </svg>
 
-      <svg v-if="icon == 'bookmark'"  id="bookmark-symbol" :style="iconStyle" viewBox="0 0 32 32">
-        <path d="M6 2 L26 2 L26 30 L16 24 L6 30 Z"/>
-      </svg>
+
+
 
       <svg v-if="icon == 'star'"  id="star-symbol" :style="iconStyle" viewBox="0 0 50 50">
         <polygon points="25,3.553 30.695,18.321 46.5,19.173   34.214,29.152 38.287,44.447 25,35.848 11.712,44.447 15.786,29.152 3.5,19.173 19.305,18.321 "  stroke-miterlimit="10" stroke-width="2"/>

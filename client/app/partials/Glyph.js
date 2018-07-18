@@ -11,25 +11,25 @@ export default class Glyph {
   }
 
 
-  showHarmfulVariantSymbol(selection, options) {
+  showFlaggedSymbol(selection, options) {
     var width, height, clazz;
     options = options || {};
 
     var datumAttrs = selection.datum() || {};
 
     var attrs = {
-      width: "13",
-      height: "13",
-      transform: datumAttrs.rank && datumAttrs.rank == 1 ? "translate(2,3)" : "translate(2,2)",
+      width: "15" ,
+      height: "15" ,
+      transform: "translate(1,1)",
       clazz: ""
     };
 
 
     var cellSizeAttrs = {};
     if (options.cellSize > 18) {
-      cellSizeAttrs.width = "16",
-      cellSizeAttrs.height = "16",
-      cellSizeAttrs.transform = datumAttrs.rank && datumAttrs.rank == 1 ? "translate(2,3)" : "translate(2,2)"
+      cellSizeAttrs.width  = "18",
+      cellSizeAttrs.height = "18",
+      cellSizeAttrs.transform =  "translate(1,1)"
     }
 
     $.extend(attrs, datumAttrs, cellSizeAttrs, options);
@@ -37,11 +37,10 @@ export default class Glyph {
     selection.append("g")
              .attr("transform", attrs.transform)
              .append("use")
-             .attr("xlink:href", datumAttrs.rank == 1 ? "#lightning-symbol" : "#error-symbol")
-             .attr("class", attrs.clazz)
-             .attr("width",  datumAttrs.rank == 1 ? attrs.width - 2  : attrs.width )
-             .attr("height", datumAttrs.rank == 1 ? attrs.height - 2 : attrs.height)
-             .style("pointer-events", "none");
+             .attr("xlink:href", "#" + datumAttrs.clazz + "-symbol")
+             .style("pointer-events", "none")
+             .attr("width", function(d,i)  { return cellSizeAttrs.width })
+             .attr("height", function(d,i) { return cellSizeAttrs.height  });
   };
 
   showClinVarSymbol(selection, options) {

@@ -60,9 +60,14 @@ export default function featureMatrixD3() {
 
     } else {
       if (container) {
-        container.selectAll("g.group>g.group>.col .colbox").attr('class', function(d,i) {
-          return "colbox";
-        });
+        if (clazz) {
+          container.selectAll("g.group>g.group>.col .colbox").classed(clazz, false);
+        } else {
+          container.selectAll("g.group>g.group>.col .colbox").attr('class', function(d,i) {
+            return "colbox";
+          });
+
+        }
       }
     }
   }
@@ -709,6 +714,14 @@ export default function featureMatrixD3() {
     }
   }
 
+  chart.highlightVariant = function(_) {
+    if (!arguments.length) {
+      return highlightVariant;
+    } else {
+      highlightVariant = _;
+      return chart;
+    }
+  }
 
 
   // This adds the "on" methods to our custom exports

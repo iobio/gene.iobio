@@ -264,9 +264,6 @@ export default {
       if (variant.hasOwnProperty("fbCalled") && variant.fbCalled == "Y") {
         clazz +=  "called "
       }
-      if (variant.isFlagged || variant.isUserFlagged) {
-        clazz +=  "flagged "
-      }
       return clazz;
     },
 
@@ -283,16 +280,16 @@ export default {
       selection.each(function(d) {
         var colhdr = d3.select(this);
         if (d.hasOwnProperty("fbCalled") && d.fbCalled == "Y") {
-              colhdr.append("g")
-                     .attr("transform", "translate(" + (options.cellSize - 17)/2 + ",-25)")
-                     .append("use")
-                     .attr("id", "checkmark-called")
-                     .attr("xlink:href", "#circle-checkmark-symbol")
-                     .attr("width",  17)
-                     .attr("height", 17)
-                     .style("pointer-events", "none");
-
+          colhdr.append("g")
+                 .attr("transform", "translate(" + (options.cellSize - 17)/2 + ",-25)")
+                 .append("use")
+                 .attr("id", "checkmark-called")
+                 .attr("xlink:href", "#circle-checkmark-symbol")
+                 .attr("width",  17)
+                 .attr("height", 17)
+                 .style("pointer-events", "none");
         }
+
 
       })
     },

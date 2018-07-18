@@ -34,7 +34,7 @@
     font-size: 13px
 
 .ibo-variant .circle, .ibo-variant .arrow-line
-  stroke: $arrow-color
+  stroke: $current-frame-color
   stroke-width: 2
 
   fill: none
@@ -59,13 +59,13 @@
 
 
 
-.variant-viz
-  .flagged-variant
-    rect
-      fill: none
-      stroke: $flagged-border-color
-      stroke-width: 7
-      opacity: .6
+//.variant-viz
+//  .flagged-variant
+//    rect
+//      fill: none
+//      stroke: $flagged-border-color
+//      stroke-width: 7
+//      opacity: .6
 
 
 </style>
@@ -171,6 +171,9 @@ export default {
           .regionStart(this.regionStart)
           .regionEnd(this.regionEnd)
           .on("d3rendered", function() {
+          })
+          .on('d3outsideclick', function() {
+            self.onVariantClick(null);
           })
           .on('d3click', function(variant) {
             self.onVariantClick(variant);

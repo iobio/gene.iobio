@@ -79,10 +79,12 @@
 
     <app-icon
      v-if="icon == 'userFlagged'"
-     icon="bookmark"
+     icon="user-flagged"
      width="20"
      height="20">
     </app-icon>
+
+
   </span>
 </template>
 
