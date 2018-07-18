@@ -326,18 +326,20 @@ nav.toolbar
             <v-list-tile-title>Show welcome page</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile >
-            <v-list-tile-title><a href="http://iobio.io/tags/gene.iobio/" target="_iobio">Blog</a></v-list-tile-title>
-          </v-list-tile>
-          <v-list-tile >
-            <v-list-tile-title><a href="#/tutorial" target="_tutorial">Tutorials</a></v-list-tile-title>
+          <v-list-tile @click="onShowBlog">
+            <v-list-tile-title>Blog</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile >
-            <v-list-tile-title><a href="http://iobio.io" target="_iobio">iobio</a></v-list-tile-title>
+          <v-list-tile @click="onShowTutorial" >
+            <v-list-tile-title>Tutorials</v-list-tile-title>
           </v-list-tile>
-          <v-list-tile >
-            <v-list-tile-title><a href="http://iobio.io/support.html" target=")iobio">Support the iobio project</a></v-list-tile-title>
+
+          <v-list-tile @click="onShowIOBIO" >
+            <v-list-tile-title>iobio</v-list-tile-title>
+          </v-list-tile>
+
+          <v-list-tile @click="onSupportIOBIO" >
+            <v-list-tile-title>Support the iobio project</v-list-tile-title>
           </v-list-tile>
 
 
@@ -662,6 +664,18 @@ export default {
     },
     onHideSnackbar: function() {
       this.$emit('hide-snackbar')
+    },
+    onShowBlog: function() {
+      window.open("http://iobio.io/tags/gene.iobio/", "_iobio");
+    },
+    onShowTutorial: function() {
+      window.open("#/tutorial", "_tutorial");
+    },
+    onShowIOBIO: function() {
+      window.open("http://iobio.io", "_iobio");
+    },
+    onSupportIOBIO: function() {
+      window.open("http://iobio.io/support.html", "_iobio");
     }
   },
   created: function() {
