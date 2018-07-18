@@ -338,7 +338,7 @@
 
 
 
-     <div  style="width:170px;margin-right:10px;margin-bottom:15px">
+     <div v-if="!isBasicMode" style="width:170px;margin-right:10px;margin-bottom:15px">
        <div class="legend-label">Flagged</div>
         <legend-icon
          icon="system-flagged"
