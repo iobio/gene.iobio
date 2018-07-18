@@ -15,7 +15,9 @@
      :level="level"
      :style="iconStyle">
     </app-icon>
-    <span :class="wrapLabel ? 'legend-wrap-text legend-text' : 'legend-text'">{{ label }}</span>
+    <span :class="wrapLabel ? 'legend-wrap-text legend-text' : 'legend-text'"
+      :style="wrapLabel ? 'width:' + (wrapWidth ? wrapWidth : '60') + 'px' : ''"
+    >{{ label }}</span>
   </div>
 </template>
 
@@ -37,6 +39,7 @@ export default {
     level: null,
     label: null,
     wrapLabel: null,
+    wrapWidth: null,
     iconStyle: null
   },
   data () {

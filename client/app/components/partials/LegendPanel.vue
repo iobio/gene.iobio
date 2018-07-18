@@ -93,7 +93,6 @@
 
 
 .legend-wrap-text
-  width: 60px !important
   display: inline-block !important
   line-height: 12px !important
 
@@ -378,8 +377,62 @@
         </legend-icon>
       </div>
 
+     <div v-if="!isBasicMode" style="width:150px;margin-right:10px;margin-bottom:15px">
+       <div class="legend-label">Affected Siblings</div>
+        <legend-icon id="thumbs-green-symbol"
+         icon="thumbs-up"
+         width="14"
+         height="14"
+         wrapWidth="130"
+         wrapLabel="true"
+         label="All affected sibs have variant">
+        </legend-icon>
+        <legend-icon
+         icon="thumbs-down"
+         width="14"
+         height="14"
+         wrapLabel="true"
+         wrapWidth="130"
+         label="None of affected sibs have variant">
+        </legend-icon>
+        <legend-icon
+         icon="question-mark"
+         width="14"
+         height="14"
+         wrapWidth="130"
+         wrapLabel="true"
+         label="Only some affected sibs have variant">
+        </legend-icon>
+      </div>
 
 
+     <div v-if="!isBasicMode" style="width:150px;margin-right:10px;margin-bottom:15px">
+       <div class="legend-label">Unaffected Siblings</div>
+        <legend-icon id="thumbs-green-symbol"
+         icon="thumbs-up"
+         width="14"
+         height="14"
+         wrapWidth="130"
+         wrapLabel="true"
+         label="None of unaffected sibs have variant">
+        </legend-icon>
+        <legend-icon
+         icon="thumbs-down"
+         width="14"
+         height="14"
+         wrapWidth="130"
+         wrapLabel="true"
+         label="All unaffected sibs have variant">
+        </legend-icon>
+        <legend-icon
+         icon="question-mark"
+         width="14"
+         height="14"
+         wrapWidth="130"
+         wrapLabel="true"
+         label="Some unaffected sibs have variant">
+        </legend-icon>
+      </div>
 
       <div v-if="!isBasicMode" v-show="false" style="width:150px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">PolyPhen</div>

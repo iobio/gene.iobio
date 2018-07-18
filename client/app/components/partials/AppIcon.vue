@@ -133,6 +133,12 @@
           <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
       </svg>
 
+
+      <svg v-if="icon == 'circle-checkmark'"  id="circle-checkmark-symbol" width="16" height="25" viewBox="0 0 24 24" :style="iconStyle" >
+          <path d="M0 0h24v24H0z" fill="none"/>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+      </svg>
+
       <svg  v-if="icon == 'denovo' || icon == 'de novo'" id="denovo-symbol" viewBox="0 0 27 27" :style="iconStyle">
         <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="8" cy="4" r="3.5"/>
         <g>
@@ -268,10 +274,6 @@
         </g>
       </svg>
 
-      <svg v-if="icon == 'circle-checkmark'"  id="circle-checkmark-symbol" :style="iconStyle" viewBox="0 0 24 24">
-          <path d="M0 0h24v24H0z" fill="none"/>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-      </svg>
 
       <svg v-if="icon == 'checkmark'"  id="checkmark-symbol" :style="iconStyle" viewBox="0 0 512 512">
         <polygon id="check-mark-icon" points="398.218,92.985 199.729,291.475 113.754,205.476 50,269.242 199.733,419.015 462,156.726 "/>
