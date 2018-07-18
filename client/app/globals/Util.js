@@ -569,20 +569,27 @@ class Util {
     }
   }
 
-  formatHgvsC(variant, value) {
+  formatHgvsC(variant, value, stripTranscript=true) {
     let me = this;
     if (value == null || value == '' || Object.keys(value).length == 0) {
       return "";
     } else {
       var buf = "";
       for(var key in value) {
-        var tokens = key.split(":c.");
-        if (buf.length > 0) {
-          buf += " ";
-        }
-        if (tokens.length == 2) {
-          var basicNotation = "c." + tokens[1];
-          buf += basicNotation;
+        if (stripTranscript) {
+          var tokens = key.split(":c.");
+          if (buf.length > 0) {
+            buf += " ";
+          }
+          if (tokens.length == 2) {
+            var basicNotation = "c." + tokens[1];
+            buf += basicNotation;
+          }
+        } else {
+          if (buf.length > 0) {
+            buf += " ";
+          }
+          buf+= key;
         }
       }
       return buf;

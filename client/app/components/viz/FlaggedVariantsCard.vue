@@ -96,6 +96,11 @@
       margin-left: -3px
       text-color: $text-color
       margin-top: 5px
+      padding: 0 12px 0 5px
+
+    .avatar
+      width: 32px !important
+      height: 32px !important
 
     li
       margin-left: 10px
@@ -137,7 +142,6 @@
       display: inline-block
       vertical-align: top
       margin-bottom: 0px
-      margin-top: -2px
       background-color: transparent
       width: 18px !important
       height: 18px !important
@@ -157,22 +161,24 @@
 
       .coord
         display: inline-block
-        width: 105px
+        width: 115px
         line-height: 12px
         vertical-align: top
-      .hgvs
+      .hgvsp
         display: inline-block
-        width: 105px
+        width: 115px
         line-height: 12px
         vertical-align: top
+
+
       .vep-consequence
         display: inline-block
-        width: 105px
+        width: 103px
         line-height: 12px
         vertical-align: top
       .rsid
         display: inline-block
-        width: 105px
+        width: 103px
         line-height: 12px
         vertical-align: top
 
@@ -183,12 +189,18 @@
         line-height: 12px
 
 
+      .hgvsc
+        display: inline-block
+        width: 228px
+        line-height: 12px
+        vertical-align: top
+
+
     .variant-symbols
       .gene-name
         display: inline-block
-        margin-top: -2px
         vertical-align: top
-        width: 105px
+        width: 125px
         font-weight: bold
         font-size: 13px
 
@@ -382,16 +394,21 @@
                 <v-list-tile-sub-title >
                   <div class="variant-label">
                     <div style="display:inline-block;" >
-                      <span class="coord"> {{ variant.start + " " + variant.ref + "->" + variant.alt }} </span>
+                      <span class="coord"> {{ coord(flaggedGene, variant) }} </span>
                     </div>
                     <div style="display:inline-block;vertical-align:top">
                       <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
                     </div>
                     <span class="af">{{ afDisplay(variant) }}</span>
                   </div>
+                  <div class="variant-label" v-if="isBasicMode">
+                    <div style="display:inline-block;" >
+                      <span class="hgvsc">  {{ hgvsC(variant) }} </span>
+                    </div>
+                  </div>
                   <div class="variant-label">
                     <div style="display:inline-block;" >
-                      <span class="hgvs">  {{ hgvsP(variant) }} </span>
+                      <span class="hgvsp">  {{ hgvsP(variant) }} </span>
                     </div>
                     <div style="display:inline-block;vertical-align:top">
                       <span v-if="!isBasicMode" class="rsid">{{ rsId(variant) }}</span>
@@ -622,6 +639,11 @@ export default {
     },
 
 
+
+    coord: function(flaggedGene, variant) {
+      return this.globalApp.utility.stripRefName(flaggedGene.gene.chr) + ":" + variant.start + " " + variant.ref + ">" + variant.alt;
+    },
+
     clinvar: function(variant) {
       if (variant.isProxy) {
         if (variant.clinvarClinSig == "pathogenic") {
@@ -647,6 +669,13 @@ export default {
         return this.globalApp.utility.formatHgvsP(variant, variant.HGVSp);
       } else {
         return variant.extraAnnot ? this.globalApp.utility.formatHgvsP(variant, variant.vepHGVSp) : "";
+      }
+    },
+    hgvsC: function(variant) {
+      if (variant.isProxy) {
+        return this.globalApp.utility.formatHgvsC(variant, variant.HGVSc, false);
+      } else {
+        return variant.extraAnnot ? this.globalApp.utility.formatHgvsC(variant, variant.vepHGVSc, false) : "";
       }
     },
     vepConsequence: function(variant) {
