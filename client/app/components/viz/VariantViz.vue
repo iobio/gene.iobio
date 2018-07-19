@@ -59,13 +59,13 @@
 
 
 
-//.variant-viz
-//  .flagged-variant
-//    rect
-//      fill: none
-//      stroke: $flagged-border-color
-//      stroke-width: 7
-//      opacity: .6
+.variant-viz
+  .flagged-variant
+    rect
+      fill: none
+      stroke: transparent
+      stroke-width: 7
+      opacity: .6
 
 
 </style>
