@@ -428,6 +428,8 @@ export default {
       greeting: 'gene.iobio',
 
       launchedFromClin: false,
+      launchedFromHub: false,
+      launchedWithUrlParms: false,
 
 
       allGenes: allGenesData,
@@ -604,7 +606,11 @@ export default {
           if (self.isEduMode && self.tourNumber) {
             self.$refs.appTourRef.startTour(self.tourNumber);
           }
-          if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0 && self.paramSampleId && self.paramSource) {
+
+          if (!self.isEduMode && !self.isBasicMode && !self.launchedFromHub && !self.launchedWithUrlParms) {
+            self.showWelcome = true;
+          }
+          if (self.launchedFromHub) {
             self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
             self.hubSession = new HubSession();
             self.hubSession.promiseInit(self.paramSampleId, self.paramSource)
@@ -1509,9 +1515,10 @@ export default {
         self.isBasicMode  = self.paramMode == "basic" ? true : false;
         self.isEduMode    = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
       }
-      if (!self.isEduMode && !self.isBasicMode) {
-        self.showWelcome = true;
+      if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0 && self.paramSampleId && self.paramSource) {
+        self.launchedFromHub = true;
       }
+
       if (self.paramTour) {
         self.tourNumber = self.paramTour;
       }
@@ -1586,6 +1593,7 @@ export default {
           })
         }
         if (modelInfos.length > 0) {
+          self.launchedWithUrlParms = true;
           self.cohortModel.promiseInit(modelInfos)
           .then(function() {
             resolve();
