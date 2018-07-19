@@ -54,6 +54,7 @@ const routes = [
         paramBatchSize:        route.query.batchSize,
         paramGeneSource:       route.query.geneSource,
         paramMyGene2:          route.query.mygene2,
+        paramLaunchedFromClin: route.query.launchedFromClin,
         paramMode:             route.query.mode,
         paramTour:             route.query.tour,
         paramFileId:           route.query.fileId,

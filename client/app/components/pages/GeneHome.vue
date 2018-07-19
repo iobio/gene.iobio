@@ -255,7 +255,7 @@ main.content
 
 
         <welcome
-         v-if="showWelcome && !isEduMode && !forMyGene2 && !launchedFromClin"
+         v-if="showWelcome"
          @load-demo-data="onLoadDemoData"
          @take-app-tour="onTakeAppTour"
          >
@@ -405,6 +405,7 @@ export default {
     paramGeneSource:       null,
     paramMyGene2:          null,
     paramMode:             null,
+    paramLaunchedFromClin: null,
     paramTour:             null,
     paramSampleId:         null,
     paramSource:           null,
@@ -607,9 +608,6 @@ export default {
             self.$refs.appTourRef.startTour(self.tourNumber);
           }
 
-          if (!self.isEduMode && !self.isBasicMode && !self.launchedFromHub && !self.launchedWithUrlParms) {
-            self.showWelcome = true;
-          }
           if (self.launchedFromHub) {
             self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
             self.hubSession = new HubSession();
@@ -651,6 +649,11 @@ export default {
               .then(function() {
                 self.showLeftPanelWhenFlaggedVariants();
               })
+            } else {
+
+              if (!self.isEduMode && !self.isBasicMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length == 0 ) {
+                self.showWelcome = true;
+              }
             }
           }
 
@@ -1527,6 +1530,9 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
+        if (self.paramLaunchedFromClin) {
+          self.launchedFromClin = true;
+        }
         if (self.paramGeneSource) {
           self.geneModel.geneSource = self.paramGeneSource;
         }
@@ -1565,6 +1571,8 @@ export default {
             modelInfo.sample         = self.paramSamples[i];
             modelInfo.affectedStatus = self.paramAffectedStatuses[i];
             modelInfos.push(modelInfo);
+            self.launchedWithUrlParms = true;
+
           }
         }
 
@@ -1593,7 +1601,6 @@ export default {
           })
         }
         if (modelInfos.length > 0) {
-          self.launchedWithUrlParms = true;
           self.cohortModel.promiseInit(modelInfos)
           .then(function() {
             resolve();
@@ -1929,13 +1936,13 @@ export default {
         return;
       }
       this.clinIobioUrl = event.origin;
+      this.launchedFromClin = true;
 
       var clinObject = JSON.parse(event.data);
 
       if (clinObject.type == 'apply-genes') {
         this.onApplyGenes(clinObject.genes.join(" "), {isFromClin: true, replace: true, warnOnDup: false, phenotypes: clinObject.searchTerms.join(",")});
       } else if (clinObject.type == 'set-data') {
-        self.launchedFromClin = true;
         self.cohortModel.promiseInit(clinObject.modelInfos)
         .then(function() {
           self.models = self.cohortModel.sampleModels;
