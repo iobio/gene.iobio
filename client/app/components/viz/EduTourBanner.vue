@@ -7,10 +7,10 @@ $tour-hilite-color:      #F05B5B
 #edu-tour-banner
   background-color:  $tour-background-color
   display: block !important
-  height: 65px
+  height: 50px
   width: 100%
   text-align: center
-  padding-top: 6px
+  padding-top: 2px
   position: fixed
   top: 0px
   z-index: 1900
@@ -21,7 +21,7 @@ $tour-hilite-color:      #F05B5B
     margin-right: -190px !important
     font-size: 23px !important
     padding: 4px !important
-    margin-top: 10px !important
+    margin-top: 5px !important
     color: white !important
     background-color: $tour-button-color !important
     width:  178px
@@ -33,8 +33,8 @@ $tour-hilite-color:      #F05B5B
     font-size: 24px !important
     padding: 4px !important
     padding-left: 10px !important
-    padding-right: 10px !important
-    margin-top: 10px !important
+    padding-right: 5px !important
+    margin-top: 5px !important
 
   .card-label
     color: white !important
