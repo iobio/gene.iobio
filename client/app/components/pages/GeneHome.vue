@@ -159,7 +159,7 @@ main.content
           v-bind:class="{hide : showWelcome }"
           >
          <split-pane :leftPercent="featureMatrixWidthPercent">
-            <feature-matrix-card v-show="featureMatrixWidthPercent > 0" slot="left" style="min-width:310px;min-height:auto;max-height:auto;overflow-y:scroll"
+            <feature-matrix-card v-show="featureMatrixWidthPercent > 0" slot="left" style="min-width:300px;min-height:auto;max-height:auto;overflow-y:scroll"
             ref="featureMatrixCardRef"
             v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
             :isEduMode="isEduMode"
@@ -827,9 +827,7 @@ export default {
             self.selectedTranscript,
             options)
           .then(function(resultMap) {
-              if (self.featureMatrixWidthPercent == 0) {
-                self.calcFeatureMatrixWidthPercent();
-              }
+              self.calcFeatureMatrixWidthPercent();
 
               self.filterModel.populateEffectFilters(resultMap);
               self.filterModel.populateRecFilters(resultMap);
@@ -1911,23 +1909,45 @@ export default {
         else if (self.isEduMode ) {
           self.featureMatrixWidthPercent = 50;
         } else {
-          let minVariantDetailWidth = 0;
+          let minVariantDetailWidth = 50;
           if ($('#variant-detail').length > 0) {
-            minVariantDetailWidth = $('#variant-detail').css('min-width').split("px")[0];
+            minVariantDetailWidth = +$('#variant-detail').css('min-width').split("px")[0];
           } else {
             minVariantDetailWidth = 652;
           }
 
           let minFeatureMatrixWidth = 0;
           if ($('#matrix-card').length > 0) {
-            minFeatureMatrixWidth = $('#matrix-card').css('min-width').split("px")[0];
+            minFeatureMatrixWidth = +$('#matrix-card').css('min-width').split("px")[0];
           } else {
-            minFeatureMatrixWidth = 351;
+            minFeatureMatrixWidth = 300;
           }
 
-          let calcFeatureMatrixWidth = 100 - Math.round((+minVariantDetailWidth / self.mainContentWidth) * 100);
-          let shortedFeatureMatrixWidth = Math.round((+minFeatureMatrixWidth / self.mainContentWidth) * 100) + 1;
-          self.featureMatrixWidthPercent = Math.max(shortedFeatureMatrixWidth, calcFeatureMatrixWidth);
+          let fullFeatureMatrixWidth = 0;
+          if ($('#feature-matrix-viz svg').length > 0) {
+            fullFeatureMatrixWidth = +$('#feature-matrix-viz svg').outerWidth();
+          }
+
+          let width1 = minFeatureMatrixWidth;
+          let width2 = minVariantDetailWidth;
+          var remaining = +self.mainContentWidth - (minFeatureMatrixWidth + minVariantDetailWidth);
+          if (remaining > 0) {
+            var remaining = +self.mainContentWidth - (minFeatureMatrixWidth + minVariantDetailWidth);
+            // If there are more ranked variants than min feature matrix width, give
+            // remaining to feature matrix
+            if (fullFeatureMatrixWidth > minFeatureMatrixWidth) {
+              width1 = minFeatureMatrixWidth + remaining;
+            } else {
+              width2 = minVariantDetailWidth + remaining;
+            }
+          } else if (remaining < 0) {
+            // If there isn't enough width for the min feature matrix width and variant card width,
+            // make sure that feature matrix min is met;
+            width1 = minFeatureMatrixWidth;
+            width2 = +self.mainContentWidth - minFeatureMatrixWidth;
+          }
+
+          self.featureMatrixWidthPercent = Math.round((width1 / self.mainContentWidth) * 100);
         }
       } else {
         self.featureMatrixWidthPercent = 0;

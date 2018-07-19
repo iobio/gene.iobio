@@ -121,7 +121,7 @@
 
         <div id="feature-matrix-note" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" >
 
-          <div style="display:inline-block;margin-left:130px">
+          <div style="display:inline-block;margin-left:110px">
             <svg style="height: 10px;width:108px">
               <g transform="translate(8,6)">
                 <line x1="0" y1="0" x2="100" y2="0" style="stroke: lightgrey;stroke-width: 4;"></line>
