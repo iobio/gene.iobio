@@ -1635,6 +1635,9 @@ export default {
       // Refresh the loaded variants so that the ranked variants table
       // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
+      .then(function() {
+        self.onCohortVariantClick(variant, self.$refs.variantCardRef[0], 'proband');
+      })
 
       //if (self.launchedFromClin) {
       //  self.onSendFlaggedVariantsToClin();
@@ -1655,6 +1658,9 @@ export default {
       // Refresh the loaded variants so that the ranked variants table
       // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
+      .then(function() {
+        self.onCohortVariantClick(variant, self.$refs.variantCardRef[0], 'proband');
+      })
 
       if (self.launchedFromClin) {
         self.onSendFlaggedVariantsToClin();

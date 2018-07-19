@@ -1697,9 +1697,11 @@ class CohortModel {
   }
 
   removeFilterPassed(variant, filterName) {
-    var idx = variant.filtersPassed.indexOf(filterName);
-    if (idx >= 0 ) {
-      variant.filtersPassed.splice(idx, 1);
+    if (variant && variant.filtersPassed && variant.filtersPassed.length > 0) {
+      var idx = variant.filtersPassed.indexOf(filterName);
+      if (idx >= 0 ) {
+        variant.filtersPassed.splice(idx, 1);
+      }
     }
   }
 

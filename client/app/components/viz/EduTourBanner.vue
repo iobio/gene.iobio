@@ -2,7 +2,7 @@
 @import ../../../assets/sass/variables
 
 $tour-button-color:      rgba(165, 185, 65, 1)
-$tour-hilite-color:      #F05B5B
+$tour-hilite-color:      #a5b941
 
 #edu-tour-banner
   background-color:  $tour-background-color
@@ -13,7 +13,8 @@ $tour-hilite-color:      #F05B5B
   padding-top: 2px
   position: fixed
   top: 0px
-  z-index: 1900
+  z-index: 50
+
 
   #start-over
     float: left !important
