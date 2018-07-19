@@ -42,7 +42,7 @@
     <v-flex  v-bind:class="isNav ? 'mt-2 ml-1' : 'mt-2'" style="float:right;display:inline-block;">
      <v-btn  id="search-phenotype-button" small raised @click="onSearch" >Search</v-btn>
     </v-flex>
-    <v-flex v-if="!isNav">
+    <v-flex v-if="!isNav" >
       <img style="width:22px;height:22px"
          v-if="phenolyzerStatus == 'queued' || phenolyzerStatus == 'running'"
          class="loader  glyph" src="../../../assets/images/wheel.gif"/>

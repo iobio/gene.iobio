@@ -121,7 +121,7 @@ main.content
 
 
         <genes-card
-         v-if="geneModel && (geneModel.geneNames.length > 0 || isEduMode)"
+         v-if="geneModel && (geneModel.geneNames.length > 0  || isEduMode)"
          v-bind:class="{hide : showWelcome && !isEduMode}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
@@ -189,7 +189,7 @@ main.content
                 <v-tab>
                   Gene
                 </v-tab>
-                <v-tab >
+                <v-tab v-if="!isEduMode" >
                   Variant
                 </v-tab>
                 <v-switch class="clinvar-switch"
@@ -208,7 +208,7 @@ main.content
                     :selectedTranscript="selectedTranscript"
                     :geneRegionStart="geneRegionStart"
                     :geneRegionEnd="geneRegionEnd"
-                    :showGeneViz="cohortModel == null || !cohortModel.isLoaded"
+                    :showGeneViz="!isEduMode && !isBasicMode && (cohortModel == null || !cohortModel.isLoaded)"
                     @transcript-selected="onTranscriptSelected"
                     @gene-source-selected="onGeneSourceSelected"
                     @gene-region-buffer-change="onGeneRegionBufferChange"
@@ -1016,7 +1016,7 @@ export default {
 
     showLeftPanelWhenFlaggedVariants: function() {
       let self = this;
-      if (self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
+      if (!isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
         if (self.$refs.navRef) {
           self.$refs.navRef.onShowFlaggedVariants();
         }
@@ -1777,7 +1777,9 @@ export default {
       })
     },
     onLeftDrawer: function(isOpen) {
-      this.isLeftDrawerOpen = isOpen;
+      if (!this.isEduMode) {
+        this.isLeftDrawerOpen = isOpen;
+      }
     },
     onShowWelcome: function() {
       this.showWelcome = true;
@@ -1821,18 +1823,31 @@ export default {
     promiseInitTourSample: function(tour, sampleIndex) {
       let self = this;
       return new Promise(function(resolve, reject) {
+
+
+        var geneName = null;
+        if (self.selectedGene && self.selectedGene.gene_name) {
+          geneName = self.selectedGene.gene_name;
+        }
+        self.selectedGene = {};
+
+        self.cohortModel.isLoaded = false;
+        self.calcFeatureMatrixWidthPercent();
         self.cohortModel.promiseInitEduTour(tour, sampleIndex)
         .then(function() {
           self.models = self.cohortModel.sampleModels;
-          var geneName = null;
-          if (self.selectedGene && self.selectedGene.gene_name) {
-            geneName = self.selectedGene.gene_name;
-          } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
-            geneName = self.geneModel.sortedGeneNames[0];
+
+          if (geneName == null) {
+            if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+              geneName = self.geneModel.sortedGeneNames[0];
+            }
           }
+
           if (geneName) {
             self.promiseLoadGene(geneName)
             .then(function() {
+              self.onGeneSelected(geneName);
+              self.calcFeatureMatrixWidthPercent();
               resolve();
             })
             .catch(function(error) {
@@ -1902,7 +1917,7 @@ export default {
     calcFeatureMatrixWidthPercent: function() {
       let self = this;
       if (self.cohortModel && self.cohortModel.isLoaded
-          && self.featureMatrixModel) {
+          && self.featureMatrixModel && self.featureMatrixModel.rankedVariants) {
         if (self.isBasicMode) {
           self.featureMatrixWidthPercent = 0;
         }

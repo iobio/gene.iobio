@@ -64,6 +64,7 @@ class FeatureMatrixModel {
       this.filteredMatrixRows = $.extend([], this.matrixRows);
       this.removeRow('Pathogenicity - SIFT', self.filteredMatrixRows);
 
+      this.removeRow('Flagged', self.filteredMatrixRows);
       this.removeRow('Zygosity', self.filteredMatrixRows);
       this.removeRow('Bookmark', self.filteredMatrixRows);
 

@@ -9,11 +9,7 @@
 #bam-track
   margin-top: -5px
 
-#variant-card.edu
-  .ibo-variant
-    .circle
-      stroke: red
-      stroke-width: 6
+
 
 #variant-card
   #sample-label

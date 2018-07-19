@@ -237,11 +237,13 @@ export default {
 
     setCellSize: function(sizeEnum) {
       var toggle = false;
-      if (sizeEnum == 'small' && this.CELL_SIZE != this.CELL_SIZE_SMALL) {
-        this.CELL_SIZE = this.CELL_SIZE_SMALL;
+      let cellSizeSmall = this.isEduMode ? this.CELL_SIZE_EDU : this.CELL_SIZE_SMALL;
+      let cellSizeLarge = this.isEduMode ? this.CELL_SIZE_EDU : this.CELL_SIZE_LARGE;
+      if (sizeEnum == 'small' && this.CELL_SIZE != cellSizeSmall) {
+        this.CELL_SIZE = cellSizeSmall;
         toggle = true;
-      } else if (sizeEnum == 'large' && this.CELL_SIZE != this.CELL_SIZE_LARGE) {
-        this.CELL_SIZE = this.CELL_SIZE_LARGE;
+      } else if (sizeEnum == 'large' && this.CELL_SIZE != cellSizeLarge) {
+        this.CELL_SIZE = cellSizeLarge;
         toggle = true;
       }
 

@@ -145,10 +145,26 @@ div.container.small
     #analyzed-progress-bar
       width: 150px
       margin: auto
+
+#genes-card.edu
+  #gene-badge-container
+    text-align: center
+  #gene-badge
+    #gene-badge-button
+      height: 28px !important
+      font-size: 18px !important
+      padding: 4px 6px 2px 6px !important
+
+      #gene-badge-symbols
+        display: none
+    &.selected
+      border-left: $app-color solid 12px
+      height: 28px
+
 </style>
 
 <template>
-  <v-card tile id="genes-card" class="app-card" style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px;padding-top:0px;margin-bottom:0px">
+  <v-card tile id="genes-card" :class="{'app-card': true, 'edu' : isEduMode}" style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px;padding-top:0px;margin-bottom:0px">
 
     <v-progress-linear
     v-if="analyzeAllInProgress || callAllInProgress"
@@ -158,7 +174,7 @@ div.container.small
     >
     </v-progress-linear>
 
-    <div style="margin-left:10px;margin-right:10px">
+    <div :style="isEduMode ? 'padding-top:5px;margin-bottom:-5px;margin-left:10px;margin-right:10px' : 'margin-left:10px;margin-right:10px'">
 
       <v-card-title v-if="!isEduMode" primary-title>
 

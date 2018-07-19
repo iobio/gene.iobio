@@ -240,14 +240,7 @@
         <span class="pl-1" v-if="!isBasicMode">{{ info.exon }}</span>
         <span class="pl-3" v-if="info.dbSnpLink && !isBasicMode" v-html="info.dbSnpLink"></span>
       </div>
-      <div
-       v-if="selectedVariant && isEduMode"
-       class="mt-1 text-xs-center" style="padding-bottom: 4px;"
-       >
-        <span class="pl-1">{{ selectedGene.gene_name }}</span>
-        <span class="pl-1 refalt">Genotype {{ refAlt  }}</span>
-        <span class="pl-1">{{ info.vepImpact }}</span>
-      </div>
+
       <div id="user-flag-buttons" v-if="selectedVariant && !isEduMode && !isBasicMode && selectedVariantRelationship != 'known-variants'" >
         <v-btn class="flag-button" small raised
         v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"

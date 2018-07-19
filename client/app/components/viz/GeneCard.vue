@@ -172,7 +172,7 @@
 
         <span id="gene-links">
           <a
-          v-if="showGene && !isBasicMode"
+          v-if="showGene && !isBasicMode && !isEduMode"
           v-for="link in links"
           :key="link.name"
           :href="link.url"
@@ -239,7 +239,7 @@
         {{ ncbiSummary.summary }}
       </div>
 
-      <div id="phenotypes" v-if="showGene && phenotypes && !isBasicMode">
+      <div id="phenotypes" v-if="showGene && phenotypes && !isBasicMode && !isEduMode">
 
 
         <span id="phenotypes-heading" style="text-align:left">

@@ -25,7 +25,7 @@ textarea#copy-paste-genes
     <v-menu
     offset-y
     :close-on-content-click="false"
-    :nudge-width="400"
+    :nudge-width="isEduMode ? 450 : 400"
     top
     v-model="showGenesMenu"
     >
