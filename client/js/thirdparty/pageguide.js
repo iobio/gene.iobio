@@ -539,9 +539,9 @@ tl.pg.interval = {};
      * (e.g. resize)
      **/
     tl.pg.PageGuide.prototype.refreshVisibleSteps = function () {
-        this.addSteps();
-        this.checkTargets();
-        this.positionOverlays();
+      this.addSteps();
+      this.checkTargets();
+      this.positionOverlays();
     };
 
     /**
@@ -625,10 +625,12 @@ tl.pg.interval = {};
      * navigate to the next step. if at last step, loop back to the first.
      **/
     tl.pg.PageGuide.prototype.navigateForward = function () {
+
         var new_index = (this.cur_idx + 1) % this.visibleTargets.length;
 
         this.track_event('PG.fwd');
         this.show_message(new_index, true);
+
         return false;
     };
 

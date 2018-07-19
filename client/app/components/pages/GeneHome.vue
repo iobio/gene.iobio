@@ -178,7 +178,7 @@ main.content
             >
             </feature-matrix-card>
 
-            <v-card slot="right" style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;overflow-y:scroll">
+            <v-card id="gene-and-variant-tabs" slot="right" style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;overflow-y:scroll">
 
 
               <v-tabs
