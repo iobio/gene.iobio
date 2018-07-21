@@ -417,6 +417,18 @@
 
 
 
+              <a href="http://iobio.io/2018/07/20/gene_3.0/" target="_new">
+                <div class="video-thumbprint-well ">
+                  <div class="video-thumbprint shadow-z-2" >
+
+                  </div>
+                  <div class="video-title">
+                    New gene.iobio 3.0
+                  </div>
+                </div>
+              </a>
+
+
 
               <a href="http://iobio.io/2017/09/27/loading-data/" target="_new">
                 <div class="video-thumbprint-well ">
