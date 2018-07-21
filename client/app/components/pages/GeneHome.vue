@@ -1016,7 +1016,7 @@ export default {
 
     showLeftPanelWhenFlaggedVariants: function() {
       let self = this;
-      if (!isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
+      if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
         if (self.$refs.navRef) {
           self.$refs.navRef.onShowFlaggedVariants();
         }
