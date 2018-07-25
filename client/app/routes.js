@@ -70,6 +70,7 @@ const routes = [
         paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2],
         paramGeneName:         route.query.geneName,
         paramSampleId:         route.query.sample_uuid,
+        paramIsPedigree:       route.query.is_pedigree,
         paramSource:           route.query.source
     })
   },

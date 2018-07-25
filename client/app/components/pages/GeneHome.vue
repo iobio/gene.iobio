@@ -408,6 +408,7 @@ export default {
     paramLaunchedFromClin: null,
     paramTour:             null,
     paramSampleId:         null,
+    paramIsPedigree:       null,
     paramSource:           null,
 
     paramFileId:           null,
@@ -611,7 +612,8 @@ export default {
           if (self.launchedFromHub) {
             self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
             self.hubSession = new HubSession();
-            self.hubSession.promiseInit(self.paramSampleId, self.paramSource)
+            let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
+            self.hubSession.promiseInit(self.paramSampleId, self.paramSource, isPedigree )
             .then(modelInfos => {
               self.modelInfos = modelInfos;
 

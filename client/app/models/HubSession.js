@@ -7,16 +7,15 @@ export default class HubSession {
     this.apiVersion =  '/apiv1';
   }
 
-  promiseInit(sampleId, source) {
+  promiseInit(sampleId, source, isPedigree) {
     let self = this;
     self.api = source + self.apiVersion;
 
     return new Promise((resolve, reject) => {
       let modelInfos = [];
 
-      // Get pedigree for sample
-      self.getPedigreeForSample(sampleId).done(data => {
-        let pedigree = self.parsePedigree(data, sampleId);
+
+      self.promiseGetSampleInfo(sampleId, isPedigree).then( pedigree => {
 
         let promises = [];
 
@@ -93,6 +92,46 @@ export default class HubSession {
 
   }
 
+  promiseGetSampleInfo(sample_uuid, isPedigree) {
+    let self = this;
+    if (isPedigree) {
+      return self.promiseGetPedigreeForSample(sample_uuid);
+    } else {
+      return self.promiseGetSample(sample_uuid);
+    }
+  }
+
+  promiseGetSample(sample_uuid) {
+    let self = this;
+
+    return new Promise(function(resolve, reject) {
+      // Get pedigree for sample
+      self.getSample(sample_uuid)
+      .done(data => {
+        resolve({'proband': data});
+      })
+      .fail(error => {
+        reject("Error getting  sample " + sample_uuid + ": " + error);
+      })
+    })
+  }
+
+  promiseGetPedigreeForSample(sample_uuid) {
+    let self = this;
+
+    return new Promise(function(resolve, reject) {
+      // Get pedigree for sample
+      self.getPedigreeForSample(sample_uuid)
+      .done(data => {
+        let pedigree = self.parsePedigree(data, sample_uuid);
+        resolve(pedigree);
+      })
+      .fail(error => {
+        reject("Error getting pedigree for sample " + sample_uuid + ": " + error);
+      })
+    })
+  }
+
   parsePedigree(raw_pedigree, sample_uuid) {
     // This assumes only 1 proband. If there are multiple affected samples then
     // the proband will be overwritten
@@ -113,6 +152,7 @@ export default class HubSession {
       probandIndex = raw_pedigree.findIndex(d => ( d.affection_status == 0 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
     }
 
+
     if (probandIndex != -1) {
       // Proband
       const proband  = raw_pedigree.splice(probandIndex, 1)[0];
@@ -129,14 +169,11 @@ export default class HubSession {
       if (fatherIndex != -1) {
         pedigree['father'] = raw_pedigree.splice(fatherIndex, 1)[0]
       }
-
     } else {
-      // If we can't find a full trio with a proband, mother, and father, just load the selected sample
-      let idx = raw_pedigree.findIndex(d => ( d.pedigree.uuid == sample_uuid ) );
-      let proband    = raw_pedigree.splice(idx, 1)[0];
-      pedigree['proband'] = proband;
+      console.log("Cannot find proband for pedigree of sample " + sample_uuid);
+      console.log("raw pedigree");
+      console.log(raw_pedigree);
     }
-
 
     raw_pedigree.forEach(sample => {
       if (sample.pedigree.maternal_id != null || sample.pedigree.paternal_id != null
@@ -155,6 +192,19 @@ export default class HubSession {
     let self = this;
     return $.ajax({
       url: self.api + '/samples/' + sample_uuid + '/pedigree',
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': localStorage.getItem('hub-iobio-tkn')
+      }
+    });
+  }
+
+
+  getSample(sample_uuid) {
+    let self = this;
+    return $.ajax({
+      url: self.api + '/samples/' + sample_uuid,
       type: 'GET',
       contentType: 'application/json',
       headers: {
