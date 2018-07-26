@@ -828,7 +828,7 @@ class GeneModel {
         theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
       }
       if (geneCoord) {
-        theLink.url = theLink.url.replace('/GENECOORD/g', geneCoord);
+        theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
       }
       if (buildAliasUCSC) {
         theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
