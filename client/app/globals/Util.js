@@ -858,7 +858,6 @@ class Util {
       info.HGVSpLoading = true;
     }
 
-    info.revel = variant.vepREVEL;
 
     for (var key in variant.vepSIFT) {
       if (info.sift.length > 0) {
@@ -874,6 +873,16 @@ class Util {
         info.polyphen = key.split("_").join(" ");
       } else {
         info.polyphen += key.split("_").join(" ");
+      }
+    }
+    for (var key in variant.vepREVEL) {
+      if (info.revel.length > 0) {
+          info.revel += ", ";
+      }
+      if (isEduMode) {
+        info.revel = key.split("_").join(" ");
+      } else {
+        info.revel += key.split("_").join(" ");
       }
     }
 

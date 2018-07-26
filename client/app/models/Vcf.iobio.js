@@ -1533,6 +1533,7 @@ var effectCategories = [
               var highestImpactVep    = me._getHighestImpact(annot.vep.allVep,       me._cullTranscripts, selectedTranscriptID);
               var highestSIFT         = me._getLowestScore(  annot.vep.allSIFT,      me._cullTranscripts, selectedTranscriptID);
               var highestPolyphen     = me._getHighestScore( annot.vep.allPolyphen,  me._cullTranscripts, selectedTranscriptID);
+              var highestREVEL        = me._getHighestScore( annot.vep.allREVEL,     me._cullTranscripts, selectedTranscriptID);
 
               for (var i = 0; i < allVariants.length; i++) {
                 var genotype = gtResult.genotypes[i];
@@ -1603,7 +1604,7 @@ var effectCategories = [
                     'vepHGVSp':                annot.vep.vepHGVSp,
                     'vepAminoAcids':           annot.vep.vepAminoAcids,
                     'vepVariationIds' :        annot.vep.vepVariationIds,
-                    'vepREVEL':                annot.vep.revel,
+                    'vepREVEL':                annot.vep.vepREVEL,
                     'vepSIFT':                 annot.vep.vepSIFT,
                     'sift' :                   annot.vep.sift,
                     'vepPolyPhen':             annot.vep.vepPolyPhen,
@@ -1619,7 +1620,8 @@ var effectCategories = [
                     'highestImpactSnpeff':     highestImpactSnpeff,
                     'highestImpactVep':        highestImpactVep,
                     'highestSIFT':             highestSIFT,
-                    'highestPolyphen':         highestPolyphen
+                    'highestPolyphen':         highestPolyphen,
+                    'highestREVEL':            highestREVEL
                   }
 
                   for (var key in clinvarResult) {
@@ -1692,6 +1694,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
       allVep: {},
       allSIFT: {},
       allPolyphen: {},
+      allREVEL: {},
       vepConsequence: {},
       vepImpact: {},
       vepFeatureType: {},
@@ -1703,6 +1706,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
       vepVariationIds: {},
       vepSIFT: {},
       vepPolyPhen: {},
+      vepREVEL: {},
       sift: {},       // need a special field for filtering purposes
       polyphen: {},   // need a special field for filtering purposes
       regulatory: {}, // need a special field for filtering purposes
@@ -1835,6 +1839,10 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
           annot.vep.vepPolyPhen[polyphenDisplay] = polyphenDisplay;
           annot.vep.polyphen['polyphen_' + polyphenDisplay] = 'polyphen_' + polyphenDisplay;
 
+          var revelScore = vepTokens[vepFields.REVEL];
+          annot.vep.vepREVEL[revelScore] = revelScore;
+
+
         } else if (featureType == 'RegulatoryFeature' || featureType == 'MotifFeature' ) {
           annot.vep.vepRegs.push( {
             'impact' :  vepTokens[vepFields.IMPACT],
@@ -1888,11 +1896,12 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
               polyphenScore = polyphenString.split("(")[1].split(")")[0];
             }
 
+            var revelScore  = vepFields.REVEL ? vepTokens[vepFields.REVEL] : "";
+
             var consequencesObject = annot.vep.allVep[theImpact];
             if (consequencesObject == null) {
               consequencesObject = {};
             }
-            annot.vep.revel       = vepFields.REVEL ? vepTokens[vepFields.REVEL] : "";
 
             me._appendTranscript(consequencesObject, theConsequences, theTranscriptId);
             annot.vep.allVep[theImpact] = consequencesObject;
@@ -1910,6 +1919,14 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
             }
             me._appendTranscript(polyphenObject, polyphenDisplay, theTranscriptId);
             annot.vep.allPolyphen[polyphenScore] = polyphenObject;
+
+            var revelObject = annot.vep.allREVEL[revelScore];
+            if (revelObject == null) {
+              revelObject = {};
+            }
+            me._appendTranscript(revelObject, revelScore, theTranscriptId);
+            annot.vep.allREVEL[revelScore] = revelObject;
+
 
             if (vepAF) {
               me._parseVepAfAnnot(VEP_FIELDS_AF_GNOMAD, vepFields, vepTokens, "gnomAD", "gnomAD", annot);
