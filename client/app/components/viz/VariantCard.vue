@@ -152,7 +152,7 @@
   <v-card tile id="variant-card" class="app-card">
     <div>
       <span id="sample-label" v-bind:class="sampleModel.relationship">
-        {{ (isBasicMode || isEduMode ? 'Variants for ' : '') + (sampleModel.cohort.mode == 'trio' && sampleModel.relationship != 'known-variants' ? sampleModel.relationship + ' ' : '')  + sampleModel.name }}
+        {{ (isBasicMode || isEduMode ? 'Variants for ' : '') + (sampleModel.cohort.mode == 'trio' && sampleModel.relationship != 'known-variants' && sampleModel.relationship != sampleModel.name ? sampleModel.relationship + ' ' : '')  + sampleModel.name }}
       </span>
 
       <v-badge  id="loaded-count"

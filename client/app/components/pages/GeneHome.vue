@@ -319,7 +319,6 @@ main.content
          >
           <span v-html="snackbar.message"></span>
           <v-btn flat color="white"  @click.native="showSnackbar = false">
-            <v-icon color="white">close</v-icon>
           </v-btn>
         </v-snackbar>
 
