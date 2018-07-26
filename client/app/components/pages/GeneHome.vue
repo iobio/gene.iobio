@@ -1171,8 +1171,10 @@ export default {
         self.selectedVariantRelationship = sourceRelationship;
         self.activeGeneVariantTab = "1";
         self.showVariantExtraAnnots(sourceComponent, variant);
+
         self.$refs.variantCardRef.forEach(function(variantCard) {
           if (sourceComponent == null || variantCard != sourceComponent) {
+            variantCard.hideVariantCircle(true);
             variantCard.showVariantCircle(variant, true);
             variantCard.showCoverageCircle(variant);
           }

@@ -128,23 +128,21 @@ export default function variantD3() {
 
   var hideCircle = function(svgContainer, pinned) {
     var circleClazz = pinned ? '.pinned.circle' : '.hover.circle';
-    var arrowClazz = pinned ? 'g.pinned.arrow' : 'g.hover.arrow';
+    var pinnedArrowClazz = 'g.pinned.arrow';
+    var hoverArrowClazz  = 'g.hover.arrow';
     svgContainer.select(circleClazz).transition()
                 .duration(500)
                 .style("opacity", 0);
-    svgContainer.select(arrowClazz).selectAll(".arrow").transition()
-                .duration(500)
-                .style("opacity", 0);
-    /*
-    if (parentContainer) {
-      parentContainer.select('.tooltip').transition()
-                   .duration(500)
-                   .style("opacity", 0)
-                   .style("z-index", 0)
-                   .style("pointer-events", "none");
-
+    if (pinned) {
+      svgContainer.select(pinnedArrowClazz).selectAll(".arrow").transition()
+                  .duration(500)
+                  .style("opacity", 0);
     }
-    */
+    if (!pinned) {
+      svgContainer.select(hoverArrowClazz).selectAll(".arrow").transition()
+                  .duration(500)
+                  .style("opacity", 0);
+    }
   }
 
 

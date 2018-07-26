@@ -33,22 +33,19 @@
 
     font-size: 13px
 
-.ibo-variant .circle, .ibo-variant .arrow-line
+.ibo-variant .circle, .ibo-variant .arrow-line, iobio-variant .arrow
   stroke: $current-frame-color
   stroke-width: 2
 
   fill: none
   pointer-events: none
 
-.ibo-variant .circle.pinned, .ibo-variant .arrow.pinned .arrow-line
+.ibo-variant .circle.pinned, .ibo-variant .arrow.pinned .arrow-line, .ibo-variant .arrow.pinned .arrow
   stroke: $arrow-color
   fill: none
   stroke-width: 4
   pointer-events: none
 
-.ibo-variant .arrow
-  stroke: $arrow-color
-  pointer-events: none
 
 .ibo-variant
   .axis.x
@@ -230,6 +227,9 @@ export default {
         if (variant == null) {
           this.hideVariantCircle(container, pinned);
         } else {
+          if (pinned) {
+            this.variantChart.hideCircle()(container, pinned);
+          }
           this.variantChart.showCircle()(variant,
             container,
             variant.fbCalled && variant.fbCalled == 'Y' ? false : true,
