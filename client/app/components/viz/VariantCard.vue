@@ -583,26 +583,22 @@ export default {
 
       if (self.showDepthViz && self.sampleModel.coverage != null) {
         let theDepth = null;
-        if (variant.bamDepth != null && variant.bamDepth != '') {
-          theDepth = variant.bamDepth;
-        } else {
-          var matchingVariants = self.sampleModel.loadedVariants.features.filter(function(v) {
-            return v.start == variant.start && v.alt == variant.alt && v.ref == variant.ref;
-          })
+        var matchingVariants = self.sampleModel.loadedVariants.features.filter(function(v) {
+          return v.start == variant.start && v.alt == variant.alt && v.ref == variant.ref;
+        })
 
-          if (matchingVariants.length > 0) {
-            theDepth = matchingVariants[0].bamDepth;
-            // If samtools mpileup didn't return coverage for this position, use the variant's depth
-            // field.
-            if (theDepth == null || theDepth == '') {
-              theDepth = matchingVariants[0].genotypeDepth;
-            }
+        if (matchingVariants.length > 0) {
+          theDepth = matchingVariants[0].bamDepth;
+          // If samtools mpileup didn't return coverage for this position, use the variant's depth
+          // field.
+          if (theDepth == null || theDepth == '') {
+            theDepth = matchingVariants[0].genotypeDepth;
           }
         }
 
-        if (theDepth) {
-          self.$refs.depthVizRef.showCurrentPoint({pos: variant.start, depth: theDepth});
-        }
+        // If we have the exact depth for this variant, show it.  Otherwise, we will show
+        // the calculated (binned, averaged) depth at this position.
+        self.$refs.depthVizRef.showCurrentPoint({pos: variant.start, depth: theDepth});
       }
 
 
