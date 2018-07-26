@@ -152,7 +152,7 @@
   <v-card tile id="variant-card" class="app-card">
     <div>
       <span id="sample-label" v-bind:class="sampleModel.relationship">
-        {{ (isBasicMode || isEduMode ? 'Variants for ' : '') + (sampleModel.cohort.mode == 'trio' && sampleModel.relationship != 'known-variants' && sampleModel.relationship != sampleModel.name ? sampleModel.relationship + ' ' : '')  + sampleModel.name }}
+        {{ sampleLabel }}
       </span>
 
       <v-badge  id="loaded-count"
@@ -730,6 +730,22 @@ export default {
   },
 
   computed: {
+    sampleLabel: function() {
+      var label = "";
+      if (this.isBasicMode || this.isEduMode ) {
+        label += "Variants for ";
+      }
+      if (this.sampleModel.isAlignmentsOnly()) {
+        label += this.sampleModel.relationship;
+      } else {
+        if (this.sampleModel.cohort.mode == 'trio' && this.sampleModel.relationship != 'known-variants'
+          && this.sampleModel.relationship != this.sampleModel.name) {
+          label += this.sampleModel.relationship;
+        }
+        label += this.sampleModel.name;
+      }
+      return label;
+    },
     depthVizHeight: function() {
       this.showDepthViz ? 0 : 60;
     },

@@ -587,10 +587,10 @@ class CohortModel {
 
 
   isAlignmentsOnly() {
-    var theModels = this.sampleModels.filter(function(model) {
+    var theModels = this.getCanonicalModels().filter(function(model) {
       return model.isAlignmentsOnly();
     });
-    return theModels.length == this.sampleModels.length;
+    return theModels.length == this.getCanonicalModels().length;
   }
 
   hasAlignments() {
@@ -1205,7 +1205,11 @@ class CohortModel {
               }
             }
 
-            return self.getProbandModel().promiseDetermineCompoundHets(filteredVcfData, geneObject, theTranscript);
+            if (filteredVcfData && filteredVcfData.features) {
+              return self.getProbandModel().promiseDetermineCompoundHets(filteredVcfData, geneObject, theTranscript);
+            } else {
+              return Promise.resolve();
+            }
 
 
         })
@@ -1398,17 +1402,20 @@ class CohortModel {
       var refreshClinvarAnnots = function(trioFbData) {
         for (var rel in trioFbData) {
           if (trioFbData) {
-            trioFbData[rel].features.forEach(function (fbVariant) {
-              if (fbVariant.source) {
-                fbVariant.source.clinVarUid                  = fbVariant.clinVarUid;
-                fbVariant.source.clinVarClinicalSignificance = fbVariant.clinVarClinicalSignificance;
-                fbVariant.source.clinVarAccession            = fbVariant.clinVarAccession;
-                fbVariant.source.clinvarRank                 = fbVariant.clinvarRank;
-                fbVariant.source.clinvar                     = fbVariant.clinvar;
-                fbVariant.source.clinVarPhenotype            = fbVariant.clinVarPhenotype;
-                fbVariant.source.clinvarSubmissions          = fbVariant.clinvarSubmissions;
-              }
-            });
+            if (trioFbData[rel]) {
+              trioFbData[rel].features.forEach(function (fbVariant) {
+                if (fbVariant.source) {
+                  fbVariant.source.clinVarUid                  = fbVariant.clinVarUid;
+                  fbVariant.source.clinVarClinicalSignificance = fbVariant.clinVarClinicalSignificance;
+                  fbVariant.source.clinVarAccession            = fbVariant.clinVarAccession;
+                  fbVariant.source.clinvarRank                 = fbVariant.clinvarRank;
+                  fbVariant.source.clinvar                     = fbVariant.clinvar;
+                  fbVariant.source.clinVarPhenotype            = fbVariant.clinVarPhenotype;
+                  fbVariant.source.clinvarSubmissions          = fbVariant.clinvarSubmissions;
+                }
+              });
+
+            }
           }
         }
       }
@@ -1587,50 +1594,47 @@ class CohortModel {
     var trioFbData  = {'proband': null, 'mother': null, 'father': null};
     var fbPromises = [];
     var idx = 0;
-    var emptyVcfData = false;
 
     me.getCanonicalModels().forEach(function(model) {
 
       var sampleNamesToGenotype = model.getSampleNamesToGenotype();
 
       var theVcfData = trioVcfData[model.getRelationship()];
-      if (emptyVcfData || theVcfData == null) {
-        emptyVcfData = true;
-      } else {
-
-        theVcfData.loadState['called'] = true;
-        var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, me.globalApp.vepAF);
-
-        var theFbData = data.results;
-        theFbData.loadState['called'] = true;
-        theFbData.features.forEach(function(variant) {
-          variant.extraAnnot = true;
-          variant.fbCalled = "Y";
-          variant.extraAnnot = true;
-          model._determineHighestAf(variant);
-        })
-
-
-        // Filter the freebayes variants to only keep the ones
-        // not present in the vcf variant set.
-        model._determineUniqueFreebayesVariants(geneObject, theTranscript, theVcfData, theFbData);
-
-
-        if (!options.isBackground) {
-          model.fbData = theFbData;
-          model.vcfData = theVcfData;
-        }
-        trioFbData[model.getRelationship()]  = theFbData;
+      if (theVcfData == null) {
+        theVcfData = {loadState: [], features: []};
+        trioVcfData[model.getRelationship()] = theVcfData;
       }
+
+      theVcfData.loadState['called'] = true;
+      var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, me.globalApp.vepAF);
+
+      var theFbData = data.results;
+      theFbData.loadState['called'] = true;
+      theFbData.features.forEach(function(variant) {
+        variant.extraAnnot = true;
+        variant.fbCalled = "Y";
+        variant.extraAnnot = true;
+        model._determineHighestAf(variant);
+      })
+
+
+      // Filter the freebayes variants to only keep the ones
+      // not present in the vcf variant set.
+      model._determineUniqueFreebayesVariants(geneObject, theTranscript, theVcfData, theFbData);
+
+
+      if (!options.isBackground) {
+        model.fbData = theFbData;
+        model.vcfData = theVcfData;
+      }
+      trioFbData[model.getRelationship()]  = theFbData;
+
       idx++;
     });
 
-    if (emptyVcfData) {
-      alertify.alert("Make sure selected gene has loaded before calling variants.")
-      return null;
-    } else {
-      return {'trioVcfData': trioVcfData, 'trioFbData': trioFbData};
-    }
+
+    return {'trioVcfData': trioVcfData, 'trioFbData': trioFbData};
+
   }
 
   promiseHasCalledVariants() {
