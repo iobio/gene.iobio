@@ -284,6 +284,7 @@ main.content
         :globalAppProp="globalApp"
         :isEduMode="isEduMode"
         :isBasicMode="isBasicMode"
+        :clearZoom="clearZoom"
         :sampleModel="model"
         :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
@@ -477,6 +478,7 @@ export default {
       snackbar: {message: '', timeout: 0},
       bringAttention: null,
 
+      clearZoom: false,
 
       /*
       * This variable controls special behavior for running gene.iobio education edition, with
@@ -1040,6 +1042,8 @@ export default {
           }
         }
 
+        self.clearZoom = true;
+
         if (self.cohortModel) {
           self.cohortModel.clearLoadedData();
         }
@@ -1084,6 +1088,7 @@ export default {
           if (self.cohortModel.isLoaded) {
             self.promiseLoadData()
             .then(function() {
+              self.clearZoom = false;
               resolve();
             })
             .catch(function(err) {

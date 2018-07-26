@@ -371,6 +371,7 @@ export default {
     globalAppProp: null,  //For some reason, global mixin not working on variant card.  possible cause for-item?
     isEduMode: null,
     isBasicMode: null,
+    clearZoom: null,
     sampleModel: null,
     annotationScheme: null,
     classifyVariantSymbolFunc: null,
@@ -776,6 +777,10 @@ export default {
         this.zoomMessage = "Drag to zoom";
         this.$emit('gene-region-zoom-reset');
       }
+    },
+    clearZoom: function() {
+      this.showZoom = false;
+      this.zoomMessage = "Drag to zoom";
     }
   },
 
