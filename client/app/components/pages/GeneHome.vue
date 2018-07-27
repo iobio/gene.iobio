@@ -1238,7 +1238,7 @@ export default {
     },
     showVariantExtraAnnots: function(sourceComponent, variant) {
       let self = this;
-      if (!self.isEduMode )  {
+      if (!self.isEduMode && !self.cohortModel.getModel(sourceComponent.relationship).isAlignmentsOnly() )  {
         if (sourceComponent.relationship == 'known-variants') {
           self.cohortModel
               .getModel(sourceComponent.relationship)

@@ -558,7 +558,7 @@ export default {
     },
     showVariantCircle: function(variant, lock) {
       if (this.showVariantViz) {
-        this.$refs.variantVizRef.showVariantCircle(variant,this.getVariantSVG(variant),lock);
+        this.getVariantViz(variant).showVariantCircle(variant,this.getVariantSVG(variant),lock);
       }
     },
     hideVariantCircle: function(lock) {
@@ -568,6 +568,11 @@ export default {
         container = d3.select(this.$el).select('#called-variant-viz > svg');
         this.$refs.variantVizRef.hideVariantCircle(container, lock);
       }
+    },
+    getVariantViz: function(variant) {
+      return variant.fbCalled && variant.fbCalled == 'Y'
+          ? this.$refs.calledVariantVizRef
+          : this.$refs.variantVizRef;
     },
     getVariantSVG: function(variant) {
       return variant.fbCalled && variant.fbCalled == 'Y'
@@ -613,13 +618,7 @@ export default {
     },
     showFlaggedVariant: function(variant) {
       if (this.showVariantViz) {
-        if (variant.fbCalled == 'Y') {
-          var container = d3.select(this.$el).select('#called-variant-viz > svg');
-          this.$refs.calledVariantVizRef.showFlaggedVariant(variant, container);
-        } else {
-           var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-          this.$refs.variantVizRef.showFlaggedVariant(variant, container);
-        }
+        this.getVariantViz(variant).showFlaggedVariant(variant, this.getVariantSVG(variant));
       }
     },
     getExonClass: function(exon, i) {
