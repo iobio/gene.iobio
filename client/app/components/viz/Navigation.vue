@@ -38,6 +38,17 @@ nav.toolbar
   .btn
     color: $nav-text-color
 
+  #gene-name-input
+    .input-group--text-field.input-group--prepend-icon
+      .input-group__prepend-icon
+        padding-right: 13px
+
+  #search-or
+    display: inline-block
+    padding-top: 16px
+    margin-left: 10px
+    margin-right: 16px
+
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
     .input-group input
       color: $nav-text-color
@@ -219,7 +230,8 @@ nav.toolbar
 
 
         <span id="gene-name-input" :class="clazzAttention" style="display:inline-block">
-          <v-text-field id="search-gene-name"  v-model="geneEntered" label="Gene" prepend-icon="search">
+          <v-text-field id="search-gene-name"
+          v-model="geneEntered" label="Gene" prepend-icon="search">
           </v-text-field>
           <typeahead v-model="selectedGene"
           force-select v-bind:limit="typeaheadLimit" match-start
@@ -233,7 +245,7 @@ nav.toolbar
         <genes-menu
          ref="genesMenuRef"
          v-if="!isEduMode && !isBasicMode"
-         :buttonIcon="`add`"
+         :buttonIcon="`edit`"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
@@ -241,10 +253,15 @@ nav.toolbar
          @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
+        <div v-if="!isEduMode && !isBasicMode && !launchedFromClin" id="search-or" style="display:inline-block">
+          OR
+        </div>
+
 
         <phenotype-search
          v-if="!isEduMode && !launchedFromClin"
-         class="ml-5 "
+         style="margin-right:60px"
+         class="ml-1 "
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
          :defaultTopGenes="10"
