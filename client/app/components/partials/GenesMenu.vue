@@ -159,7 +159,7 @@ export default {
     },
     onMouseOver: function() {
       this.showTooltipFlag = true;
-      this.tooltipContent = "Click this button to add / edit the list of genes to be analyzed."
+      this.tooltipContent = "Click this button to add / edit the list of genes to be analyzed.  You can add the list of ACMG genes here."
     },
     onMouseLeave: function() {
       this.showTooltipFlag = false;

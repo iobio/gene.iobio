@@ -1434,6 +1434,9 @@ export default {
 
       self.clearFilter();
 
+      let existingGeneCount = self.geneModel.sortedGeneNames.length;
+      let existingPhenotypeTerm = self.phenotypeTerm;
+
       self.phenotypeTerm = options ? options.phenotypes : null;
       var theOptions = $.extend(
         {
@@ -1460,12 +1463,12 @@ export default {
           }
         })
         if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
-          self.onShowSnackbar({message: 'Adding genes associated with ' + self.phenotypeTerm, timeout: 6000})
+          self.onShowSnackbar({message: "Adding genes associated with '" + self.phenotypeTerm + "'", timeout: 6000})
         }
       }
 
-      if (self.phenotypeTerm && !options.isFromClin) {
-        let msg = "Replace existing genes with the " + genesToApplyCount + " genes associated with " + self.phenotypeTerm + "?";
+      if (self.phenotypeTerm && !options.isFromClin && existingGeneCount > 0 && existingPhenotypeTerm != self.phenotypeTerm) {
+        let msg = "Replace existing genes with the " + genesToApplyCount + " genes associated with <br>'" + self.phenotypeTerm + "'?";
         alertify.confirm("",
           msg,
           function (e) {
@@ -1479,7 +1482,7 @@ export default {
             doIt();
           }
 
-        ).set('labels', {ok:'Replace genes', cancel:'No, add genes to current list'});
+        ).set('labels', {ok:'Replace gene list', cancel:'Combine genes with current list'});
 
       } else {
         doIt();

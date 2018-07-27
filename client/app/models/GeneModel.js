@@ -748,14 +748,14 @@ class GeneModel {
       if (data == "") {
       } else if (data.record == 'queued') {
         if (statusCallback) {
-          statusCallback('queued');
+          statusCallback({status:'queued', 'phenotypeTerm': phenotypeTerm});
         }
         setTimeout(function() {
             me.searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback);
           }, 5000);
       } else if (data.record == 'pending') {
         if (statusCallback) {
-          statusCallback('running');
+          statusCallback({status:'running', 'phenotypeTerm': phenotypeTerm});
         }
         setTimeout(function() {
             me.searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback);
@@ -763,7 +763,7 @@ class GeneModel {
       } else {
         me.parsePhenolyzerGenes(data.record, selectGeneCount, me.NUMBER_PHENOLYZER_GENES);
         if (statusCallback) {
-          statusCallback('done');
+          statusCallback({status:'done', 'phenotypeTerm': phenotypeTerm, 'genes': me.phenolyzerGenes});
         }
 
       }
@@ -772,7 +772,7 @@ class GeneModel {
       fail: function() {
         alert("An error occurred in Phenolyzer iobio services. " + thrownError);
         if (statusCallback) {
-          statusCallback('error', thrownError)
+          statusCallback({status:'error', error: thrownError})
         }
       }
     });
