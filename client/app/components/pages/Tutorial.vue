@@ -162,12 +162,12 @@
     <h2 style="text-align:left;margin-top:30px;">Datasets</h2>
 
     <div style="text-align:left">
-       <a class="example-datasets" href="http://newgene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2&gene=AIRE"
+       <a class="example-datasets" href="http://gene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2&gene=AIRE"
         target="_example_datasets">
         Platinum trio - whole genome sequencing
        </a>
        <br>
-       <a class="example-datasets" href="http://newgene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&gene=RAI1&name0=&bam0=https://s3.amazonaws.com/iobio/samples/bam/NA19240.bam&name1=&bam1=https://s3.amazonaws.com/iobio/samples/bam/NA19238.bam&name2=&bam2=https://s3.amazonaws.com/iobio/samples/bam/NA19239.bam&vcf0=https://s3.amazonaws.com/iobio/samples/vcf/exome-trio.vcf.gz&sample0=NA19240&vcf1=https://s3.amazonaws.com/iobio/samples/vcf/exome-trio.vcf.gz&sample1=NA19238&vcf2=https://s3.amazonaws.com/iobio/samples/vcf/exome-trio.vcf.gz&sample2=NA19239&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1"
+       <a class="example-datasets" href="http://gene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&gene=RAI1&name0=&bam0=https://s3.amazonaws.com/iobio/samples/bam/NA19240.bam&name1=&bam1=https://s3.amazonaws.com/iobio/samples/bam/NA19238.bam&name2=&bam2=https://s3.amazonaws.com/iobio/samples/bam/NA19239.bam&vcf0=https://s3.amazonaws.com/iobio/samples/vcf/exome-trio.vcf.gz&sample0=NA19240&vcf1=https://s3.amazonaws.com/iobio/samples/vcf/exome-trio.vcf.gz&sample1=NA19238&vcf2=https://s3.amazonaws.com/iobio/samples/vcf/exome-trio.vcf.gz&sample2=NA19239&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1"
        s>
         1000 Genomes project trio - exome sequencing
        </a>
@@ -180,7 +180,7 @@
         <span class="name">Recessive variant - RAI1</span>
         <span class="description"><a href="#/use-cases?topic=RAI1" target="_self">description</a></span>
         <span class="screencast"><a href="https://www.youtube.com/watch?v=vsnv6YU1gDc" target="_usecase">screencast</a></span>
-        <span class="link" ><a href="http://newgene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=RAI1" target="_usecase">gene.iobio</a>
+        <span class="link" ><a href="http://gene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=RAI1" target="_usecase">gene.iobio</a>
         </span>
 
       </div>
@@ -188,7 +188,7 @@
         <span class="name">Realtime variant calling - MYLK2</span>
         <span class="description"><a href="#/use-cases?topic=MYLK2" target="_self">description</a></span>
         <span class="screencast"><a href="https://www.youtube.com/watch?v=l-YsG1C6TkI" target="_usecase">screencast</a></span>
-        <span class="link"><a href="http://newgene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=MYLK2" target="_usecase">gene.iobio</a>
+        <span class="link"><a href="http://gene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=MYLK2" target="_usecase">gene.iobio</a>
         </span>
 
       </div>
@@ -196,7 +196,7 @@
         <span class="name" >Low coverage variants - AIRE</span>
         <span class="description"><a href="#/use-cases?topic=AIRE" target="_self">description</a></span>
         <span class="screencast"><a href="https://www.youtube.com/watch?v=MxIyc23HGxc" target="_usecase">screencast</a></span>
-        <span class="link"><a href="http://newgene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=AIRE" target="_usecase">gene.iobio</a>
+        <span class="link"><a href="http://gene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=AIRE" target="_usecase">gene.iobio</a>
         </span>
 
       </div>
@@ -205,7 +205,7 @@
         <span class="name">Alternate transcripts - PDGFB</span>
         <span class="description"><a href="#/use-cases?topic=PDGFB" target="_self">description</a></span>
         <span class="screencast"><a href="https://www.youtube.com/watch?v=k_nfrXgP-N0" target="_usecase">screencast</a></span>
-        <span class="link"><a href="http://newgene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=PDGFB" target="_usecase">gene.iobio</a>
+        <span class="link"><a href="http://gene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=PDGFB" target="_usecase">gene.iobio</a>
         </span>
       </div>
 
@@ -213,7 +213,7 @@
         <span class="name">Phenotype driven analysis - PDHA1</span>
         <span class="description"><a href="#/use-cases?topic=PDHA1" target="_self">description</a></span>
         <span class="screencast"><a href="">          </a></span> <!--https://www.youtube.com/watch?v=k_nfrXgP-N0" target="_usecase">screencast</a></span>-->
-        <span class="link"><a href="http://newgene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=PDHA1" target="_usecase">gene.iobio</a>
+        <span class="link"><a href="http://gene.iobio.io/#?rel0=proband&rel1=mother&rel2=father&name0=&vcf0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam0=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam&name1=&vcf1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam1=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12892.bam&name2=&vcf2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz&bam2=https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam&sample0=NA12878&sample1=NA12891&sample2=NA12892&genes=RAI1,AIRE,PDGFB,MYLK2,PDHA1&gene=PDHA1" target="_usecase">gene.iobio</a>
         </span>
 
       </div>
