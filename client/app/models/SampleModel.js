@@ -924,6 +924,7 @@ class SampleModel {
 
     if (vcfUrl == null || vcfUrl == '') {
       this.vcfUrlEntered = false;
+      this.vcf.clearVcfURL();
       success = false;
       if (callback) {
         callback(success)

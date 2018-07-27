@@ -123,7 +123,11 @@ var effectCategories = [
     vcfURL = null;
     tbiUrl = null;
     vcfFile = null;
-    annotators = [];
+  }
+
+  exports.clearVcfURL = function() {
+    vcfURL = null;
+    tbiUrl = null;
   }
 
   exports.setEndpoint = function(theEndpoint) {
