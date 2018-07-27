@@ -229,8 +229,10 @@ nav.toolbar
       <v-toolbar-items  class="hidden-sm-and-down" style="padding-top:3px">
 
 
-        <span id="gene-name-input" :class="clazzAttention" style="display:inline-block">
+        <span id="gene-name-input"  style="display:inline-block">
           <v-text-field id="search-gene-name"
+          :class="clazzAttention"
+          :hide-details="true"
           v-model="geneEntered" label="Gene" prepend-icon="search">
           </v-text-field>
           <typeahead v-model="selectedGene"
@@ -260,13 +262,14 @@ nav.toolbar
 
         <phenotype-search
          v-if="!isEduMode && !launchedFromClin"
-         style="margin-right:60px"
-         class="ml-1 "
+         style="margin-left:5px;margin-right:60px"
+         :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
          :defaultTopGenes="10"
          :geneModel="geneModel"
          @on-search-genes="onSearchPhenolyzerGenes"
+         @on-start-search-genes="onStartSearchPhenolyzerGenes"
          @show-snackbar="onShowSnackbar"
          @hide-snackbar="onHideSnackbar">
         </phenotype-search>
@@ -643,6 +646,9 @@ export default {
         .join(", ");
         this.$emit("apply-genes", genesToApply, {phenotypes: searchTerm, replace: true});
       }
+    },
+    onStartSearchPhenolyzerGenes: function() {
+      this.$emit("on-start-search-genes");
     },
     onVariants: function() {
       this.leftDrawerContents = "flagged-variants";

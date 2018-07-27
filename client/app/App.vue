@@ -29,19 +29,19 @@ button
     height: 20px
 
 .progress-linear__background.primary
-  background-color: $lime-darken-1 !important
+  background-color: $app-gray !important
 .progress-linear__bar__indeterminate--active
   .progress-linear__bar__indeterminate
-    background-color: $lime-lighten-1 !important
+    background-color: $amber-darken-1 !important
 
 
 .toolbar
   .input-group__details
     .progress-linear__background
-      background-color: $lime-darken-1 !important
+      background-color: $app-gray !important
     .progress-linear__bar__indeterminate--active
       .progress-linear__bar__indeterminate
-        background-color: $lime !important
+        background-color: $amber-darken-1 !important
 
 .snack
   top: 0px
@@ -58,7 +58,7 @@ button
   outline-color: $amber-darken-1
   outline-width: 3px
   outline-style: solid
-  outline-offset: -3px
+  outline-offset: 0px
 
 .dropdown-menu > .active > a, .dropdown-menu > .active > a:hover, .dropdown-menu > .active > a:focus
   background-color: $active-menu-background-color

@@ -93,6 +93,7 @@ main.content
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
       @apply-genes="onApplyGenes"
+      @on-start-search-genes="onStartSearchGenes"
       @clear-all-genes="onClearAllGenes"
       @flagged-variants-imported="onFlaggedVariantsImported"
       @flagged-variant-selected="onFlaggedVariantSelected"
@@ -640,7 +641,7 @@ export default {
                     self.showLeftPanelWhenFlaggedVariants();
                   })
                 } else {
-                  self.onShowSnackbar( {message: 'Enter a gene name', timeout: 5000});
+                  self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
                   self.bringAttention = 'gene';
                 }
               })
@@ -653,6 +654,10 @@ export default {
                 self.showLeftPanelWhenFlaggedVariants();
               })
             } else {
+              if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length == 0 ) {
+                self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
+                self.bringAttention = 'gene';
+              }
 
               if (!self.isEduMode && !self.isBasicMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length == 0 ) {
                 self.showWelcome = true;
@@ -898,7 +903,7 @@ export default {
             callback();
           }
         } else {
-          self.onShowSnackbar( {message: 'Enter a gene name', timeout: 5000});
+          self.onShowSnackbar( {message: 'Enter a gene name or a phenotype term.', timeout: 5000});
           self.bringAttention = 'gene';
           if (callback) {
             callback();
@@ -1388,6 +1393,9 @@ export default {
       this.geneModel.clearAllGenes();
       this.flaggedVariants = [];
       this.cohortModel.flaggedVariants = [];
+    },
+    onStartSearchGenes: function() {
+      this.bringAttention = null;
     },
     promiseResetAllGenes: function() {
       let self = this;
