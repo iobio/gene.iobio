@@ -256,7 +256,7 @@ nav.toolbar
         </genes-menu>
 
         <div v-if="!isEduMode && !isBasicMode && !launchedFromClin" id="search-or" style="display:inline-block">
-          OR
+          or
         </div>
 
 
