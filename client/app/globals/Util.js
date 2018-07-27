@@ -879,11 +879,7 @@ class Util {
       if (info.revel.length > 0) {
           info.revel += ", ";
       }
-      if (isEduMode) {
-        info.revel = key.split("_").join(" ");
-      } else {
-        info.revel += key.split("_").join(" ");
-      }
+      info.revel += key;
     }
 
     for (var key in variant.regulatory) {

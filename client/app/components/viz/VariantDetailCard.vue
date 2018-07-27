@@ -377,7 +377,7 @@
              <v-flex xs8 v-if="isBasicMode" class="field-value">{{ info.phenotype }}</v-flex>
           </v-layout>
         </v-flex>
-        <v-flex  v-if="info.revel != '' && !isBasicMode" >
+        <v-flex  v-if="info.revel != '' && info.revel != null && !isBasicMode" >
           <v-layout row class="no-bottom-margin">
              <v-flex xs3 class="field-label revel">REVEL</v-flex>
              <v-flex xs9 class="field-value revel">{{ info.revel }}</v-flex>

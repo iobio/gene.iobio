@@ -1843,8 +1843,10 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
           annot.vep.vepPolyPhen[polyphenDisplay] = polyphenDisplay;
           annot.vep.polyphen['polyphen_' + polyphenDisplay] = 'polyphen_' + polyphenDisplay;
 
-          var revelScore = vepTokens[vepFields.REVEL];
-          annot.vep.vepREVEL[revelScore] = revelScore;
+          if (vepFields.REVEL) {
+            var revelScore = vepTokens[vepFields.REVEL];
+            annot.vep.vepREVEL[revelScore] = revelScore;
+          }
 
 
         } else if (featureType == 'RegulatoryFeature' || featureType == 'MotifFeature' ) {
