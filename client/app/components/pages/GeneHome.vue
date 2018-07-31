@@ -26,7 +26,6 @@ main.content
     color: $text-color
 
 
-
 .tabs__div
   text-transform: none !important
 
@@ -1704,9 +1703,13 @@ export default {
       let self = this;
       self.flaggedVariants = [];
       self.flaggedVariants = this.cohortModel.flaggedVariants;
-      self.$refs.genesCardRef.determineFlaggedGenes();
-      self.$refs.genesCardRef.updateGeneBadgeCounts();
-      this.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+      if (self.$refs.genesCardRef) {
+        self.$refs.genesCardRef.determineFlaggedGenes();
+        self.$refs.genesCardRef.updateGeneBadgeCounts();
+      }
+      if (self.$refs.navRef && self.$refs.navRef.$refs.flagedVariantsRef) {
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+      }
 
     },
     onFlaggedVariantSelected: function(flaggedVariant) {
