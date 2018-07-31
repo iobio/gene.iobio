@@ -15,7 +15,7 @@ ln -s ~/work/gene.iobio.vue/server/views/index.html ~/work/gene.iobio.vue/deploy
 
 cd deploy/tmp
 
-zip -r  ../gene.iobio.vue.zip ./gene.iobio.vue/*
+#zip -r  ../gene.iobio.vue.zip ./gene.iobio.vue/*
 
 #aws s3 cp ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/  s3://static.iobio.io/vue.gene.iobio.io/ --recursive
 
