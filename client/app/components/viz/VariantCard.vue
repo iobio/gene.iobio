@@ -736,7 +736,7 @@ export default {
         label += "Variants for ";
       }
       if (this.sampleModel.isAlignmentsOnly()) {
-        label += this.sampleModel.relationship;
+        label += this.sampleModel.relationship + " ";
       } else {
         if (this.sampleModel.cohort.mode == 'trio' && this.sampleModel.relationship != 'known-variants'
           && this.sampleModel.relationship != this.sampleModel.name) {
