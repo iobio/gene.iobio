@@ -59,9 +59,9 @@ export default class HubSession {
                       'name':           theSample.id,
                       'sample':         theSample.id,
                       'vcf':            theSample.files.vcf,
-                      'tbi':            theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
+                      'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
                       'bam':            theSample.files.bam,
-                      'bai':            theSample.files.bai.indexOf(theSample.files.bam) == 0 ? null : theSample.files.bai };
+                      'bai':            theSample.files.bai == null || theSample.files.bai.indexOf(theSample.files.bam) == 0 ? null : theSample.files.bai };
                     modelInfos.push(modelInfo);
                   }
 
