@@ -1007,6 +1007,7 @@ export default {
       self.deselectVariant();
       self.promiseLoadGene(geneName)
       .then(function() {
+        self.onSendGenesToClin();
         self.activeGeneVariantTab = "0";
         self.setUrlGeneParameters();
         self.showLeftPanelWhenFlaggedVariants();
@@ -2019,7 +2020,13 @@ export default {
       var clinObject = JSON.parse(event.data);
 
       if (clinObject.type == 'apply-genes') {
-        this.onApplyGenes(clinObject.genes.join(" "), {isFromClin: true, replace: true, warnOnDup: false, phenotypes: clinObject.searchTerms.join(",")});
+        let genesString = clinObject.genes && Array.isArray(clinObject.genes) ? clinObject.genes.join(" ") : "";
+        let phenotypeTerms = clinObject.searchTerms && Array.isArray(searchTerms) ? clinObject.searchTerms.join(",") : "";
+        this.onApplyGenes(genesString,
+          { isFromClin: true,
+            replace: true,
+            warnOnDup: false,
+            phenotypes: phenotypeTerms });
       } else if (clinObject.type == 'set-data') {
         self.cohortModel.promiseInit(clinObject.modelInfos)
         .then(function() {
