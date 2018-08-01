@@ -307,7 +307,7 @@
           width="12"
           height="12"
           level="high"
-          label="> 5%">
+          label="< 5%">
         </legend-icon>
       </div>
 
