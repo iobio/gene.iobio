@@ -1887,7 +1887,7 @@ class CohortModel {
         variant.gene = geneObject;
         variant.isProxy = true;
         variant.isFlagged = true;
-        variant.filtersPassed = variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : [variant.filtersPassed];
+        variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : []);
         if (variant.isUserFlagged == 'Y') {
           variant.isUserFlagged = true;
         } else {
