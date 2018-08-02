@@ -527,7 +527,9 @@ export default {
 
     document.addEventListener("visibilitychange", function() {
       if (!document.hidden) {
-        self.onResize();
+        setTimeout(function() {
+          self.onResize();
+        },1000)
       }
     }, false);
 
