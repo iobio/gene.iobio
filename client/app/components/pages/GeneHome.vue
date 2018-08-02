@@ -1956,6 +1956,7 @@ export default {
       let self = this;
       if (self.cohortModel && self.cohortModel.isLoaded
           && self.featureMatrixModel && self.featureMatrixModel.rankedVariants) {
+        self.mainContentWidth = $('main.content .container').outerWidth();
         if (self.isBasicMode) {
           self.featureMatrixWidthPercent = 0;
         }
