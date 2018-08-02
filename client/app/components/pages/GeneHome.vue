@@ -525,6 +525,12 @@ export default {
       self.onResize();
     });
 
+    document.addEventListener("visibilitychange", function() {
+      if (!document.hidden) {
+        self.onResize();
+      }
+    }, false);
+
     // Safari can't use IndexedDB in iframes, so in this situation, use
     // local storage instead.
     if (window != top && self.utility.detectSafari()) {
