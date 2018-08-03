@@ -46,6 +46,25 @@ const routes = [
     name: 'home',
     path: '/',
     component: GeneHome,
+    beforeEnter: (to, from, next) => {
+      var idx = to.hash.indexOf("#");
+      var start = 0;
+      if (idx == 0) {
+        start = 2;
+      } else {
+        idx = to.hash.indexOf("#\/");
+        if (idx == 0) {
+          start = 3;
+        }
+      }
+
+      if (idx == 0) {
+        let queryParams = Qs.parse(to.hash.substring(start));
+        next('/' + Qs.stringify(queryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
+      } else {
+        next();
+      }
+    },
     props: (route) => ({
         paramGene:             route.query.gene,
         paramGenes:            route.query.genes,
@@ -74,11 +93,16 @@ const routes = [
         paramSource:           route.query.source
     })
   },
+   {
+    name: 'home-backward-compat',
+    path: '/#',
+    redirect: '/'
+  },
   {
     name: 'home-hub',
     path: '/access_token*',
     beforeEnter: (to, from, next) => {
-            // remove initial slash from path and parse
+      // remove initial slash from path and parse
       let queryParams = Qs.parse(to.path.substring(1));
       let { access_token, expires_in, token_type, ...otherQueryParams } = queryParams;
       localStorage.setItem('hub-iobio-tkn', token_type + ' ' + access_token);
