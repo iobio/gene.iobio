@@ -46,15 +46,15 @@ const routes = [
     name: 'home',
     path: '/',
     component: GeneHome,
-    /*beforeEnter: (to, from, next) => {
-      var idx = to.hash.indexOf("#");
+    beforeEnter: (to, from, next) => {
+      var idx = to.hash.indexOf("#\/");
       var start = 0;
       if (idx == 0) {
-        start = 2;
+        start = 3;
       } else {
-        idx = to.hash.indexOf("#\/");
+        idx = to.hash.indexOf("#");
         if (idx == 0) {
-          start = 3;
+          start = 2;
         }
       }
 
@@ -65,7 +65,6 @@ const routes = [
         next();
       }
     },
-    */
     props: (route) => ({
         paramGene:             route.query.gene,
         paramGenes:            route.query.genes,
@@ -94,11 +93,16 @@ const routes = [
         paramSource:           route.query.source
     })
   },
-   //{
-   // name: 'home-backward-compat',
-   // path: '/#',
-   // redirect: '/'
-  //},
+  {
+    name: 'home-backward-compat',
+    path: '/#',
+    redirect: '/'
+  },
+  {
+    name: 'home-backward-compat',
+    path: '/#/',
+    redirect: '/'
+  },
   {
     name: 'home-hub',
     path: '/access_token*',
@@ -109,12 +113,6 @@ const routes = [
       localStorage.setItem('hub-iobio-tkn', token_type + ' ' + access_token);
       next('/' + Qs.stringify(otherQueryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
     },
-    // component: GeneHome,
-     //props: (route) => ({
-     //  paramSampleId:         route.query.sample_uuid,
-     //  paramSource:           route.query.source,
-     //  paramGene:             route.query.geneName
-    // })
   },
   {
     name: 'tutorial',
@@ -152,10 +150,12 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  //'mode':  'history',
+  'mode':  'history',
+  'hashbang': false,
   'base': '/',
   'routes': routes
 })
+
 
 // define a globals mixin object
 Vue.mixin({

@@ -219,7 +219,7 @@
 
 <template>
 
-  <div tile id="variant-detail" class="app-card">
+  <div v-if="selectedVariant && info" tile id="variant-detail" class="app-card">
     <div style="width:100%;">
       <span style="display:inline-block" v-if="showTitle ">Variant</span>
     </div>
