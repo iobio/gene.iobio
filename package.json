@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "start": "./node_modules/webpack/bin/webpack.js && DEBUG=http ./node_modules/nodemon/bin/nodemon.js --inspect --ignore client/ www.js",
+    "build": "./node_modules/webpack/bin/webpack.js",
     "webpack": "./node_modules/webpack/bin/webpack.js --watch",
     "test": "cross-env NODE_ENV=test karma start",
     "test:watch": "npm test -- --auto-watch --no-single-run"
@@ -13,7 +14,7 @@
     "debug": "^2.6.8",
     "express": "^4.15.3",
     "jquery": "^3.3.1",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.10",
     "serve-favicon": "^2.4.3",
     "uiv": "^0.16.0",
     "v-tooltip": "^2.0.0-rc.31",
@@ -23,7 +24,7 @@
   },
   "devDependencies": {
     "@vue/test-utils": "1.0.0-beta.10",
-    "babel-core": "^6.25.0",
+    "babel-core": "^6.26.3",
     "babel-loader": "^7.0.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26.0",
@@ -37,7 +38,7 @@
     "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^0.11.2",
     "flush-promises": "^1.0.0",
-    "karma": "^2.0.0",
+    "karma": "^2.0.5",
     "karma-chrome-launcher": "^2.2.0",
     "karma-mocha": "^1.3.0",
     "karma-mocha-reporter": "^2.2.5",
@@ -45,7 +46,7 @@
     "karma-webpack": "^2.0.9",
     "mocha": "^5.0.4",
     "node-sass": "^4.9.2",
-    "nodemon": "^1.11.0",
+    "nodemon": "^1.18.3",
     "sass-loader": "^6.0.6",
     "sinon": "^4.4.6",
     "sinon-chai": "^2.14.0",
