@@ -137,7 +137,7 @@ export default class Bam {
   translateErrorMessage(error) {
     var me = this;
     var message = null;
-    for (key in me.errorMessageMap) {
+    for (var key in me.errorMessageMap) {
       var errMsg = me.errorMessageMap[key];
       if (message == null && error.match(errMsg.regExp)) {
         message = errMsg.message;
