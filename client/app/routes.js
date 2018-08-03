@@ -46,7 +46,7 @@ const routes = [
     name: 'home',
     path: '/',
     component: GeneHome,
-    beforeEnter: (to, from, next) => {
+    /*beforeEnter: (to, from, next) => {
       var idx = to.hash.indexOf("#");
       var start = 0;
       if (idx == 0) {
@@ -65,6 +65,7 @@ const routes = [
         next();
       }
     },
+    */
     props: (route) => ({
         paramGene:             route.query.gene,
         paramGenes:            route.query.genes,
@@ -93,18 +94,17 @@ const routes = [
         paramSource:           route.query.source
     })
   },
-   {
-    name: 'home-backward-compat',
-    path: '/#',
-    redirect: '/'
-  },
+   //{
+   // name: 'home-backward-compat',
+   // path: '/#',
+   // redirect: '/'
+  //},
   {
     name: 'home-hub',
     path: '/access_token*',
     beforeEnter: (to, from, next) => {
       // remove initial slash from path and parse
-      //let queryParams = Qs.parse(to.path.substring(1));
-      let queryParams = Qs.parse(to.path);
+      let queryParams = Qs.parse(to.path.substring(1));
       let { access_token, expires_in, token_type, ...otherQueryParams } = queryParams;
       localStorage.setItem('hub-iobio-tkn', token_type + ' ' + access_token);
       next('/' + Qs.stringify(otherQueryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
@@ -152,7 +152,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  'mode':  'history',
+  //'mode':  'history',
   'base': '/',
   'routes': routes
 })
