@@ -644,7 +644,8 @@ export default {
                       }
                     } else {
                       if (modelInfo.bam && modelInfo.bam.indexOf("SSC") >= 0) {
-                        var bamTokens = modelInfo.bam.split(".final");
+                        var bamName = modelInfo.bam.substring(modelInfo.bam.indexOf("SSC"));
+                        var bamTokens = bamName.split(".final");
                         if (bamTokens.length > 0) {
                           var bamSampleToken = bamTokens[0];
                           modelInfo.sample = bamTokens;
