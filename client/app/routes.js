@@ -103,7 +103,8 @@ const routes = [
     path: '/access_token*',
     beforeEnter: (to, from, next) => {
       // remove initial slash from path and parse
-      let queryParams = Qs.parse(to.path.substring(1));
+      //let queryParams = Qs.parse(to.path.substring(1));
+      let queryParams = Qs.parse(to.path);
       let { access_token, expires_in, token_type, ...otherQueryParams } = queryParams;
       localStorage.setItem('hub-iobio-tkn', token_type + ' ' + access_token);
       next('/' + Qs.stringify(otherQueryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
