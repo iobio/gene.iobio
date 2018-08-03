@@ -47,23 +47,37 @@ const routes = [
     path: '/',
     component: GeneHome,
     beforeEnter: (to, from, next) => {
-      var idx = to.hash.indexOf("#\/");
-      var start = 0;
+      var idx = to.hash.indexOf("#access_token");
       if (idx == 0) {
-        start = 3;
+        let queryParams = Qs.parse(to.hash.substring(1));
+        let { access_token, expires_in, token_type, ...otherQueryParams } = queryParams;
+        localStorage.setItem('hub-iobio-tkn', token_type + ' ' + access_token);
+        next('/' + Qs.stringify(otherQueryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
       } else {
-        idx = to.hash.indexOf("#");
+        var start = 0;
         if (idx == 0) {
-          start = 2;
+          start = 3;
+        } else {
+          var idx = to.hash.indexOf("#\/");
+          var start = 0;
+          if (idx == 0) {
+            start = 3;
+          } else {
+            idx = to.hash.indexOf("#");
+            if (idx == 0) {
+              start = 2;
+            }
+          }
         }
+        if (idx == 0) {
+          let queryParams = Qs.parse(to.hash.substring(start));
+          next('/' + Qs.stringify(queryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
+        } else {
+          next();
+        }
+
       }
 
-      if (idx == 0) {
-        let queryParams = Qs.parse(to.hash.substring(start));
-        next('/' + Qs.stringify(queryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
-      } else {
-        next();
-      }
     },
     props: (route) => ({
         paramGene:             route.query.gene,
@@ -94,25 +108,19 @@ const routes = [
     })
   },
   {
-    name: 'home-backward-compat',
+    name: 'home-backward-compat1',
     path: '/#',
     redirect: '/'
   },
   {
-    name: 'home-backward-compat',
+    name: 'home-backward-compat2',
     path: '/#/',
     redirect: '/'
   },
   {
     name: 'home-hub',
     path: '/access_token*',
-    beforeEnter: (to, from, next) => {
-      // remove initial slash from path and parse
-      let queryParams = Qs.parse(to.path.substring(1));
-      let { access_token, expires_in, token_type, ...otherQueryParams } = queryParams;
-      localStorage.setItem('hub-iobio-tkn', token_type + ' ' + access_token);
-      next('/' + Qs.stringify(otherQueryParams, { addQueryPrefix: true, arrayFormat: 'brackets' }));
-    },
+    redirect: '/'
   },
   {
     name: 'tutorial',
