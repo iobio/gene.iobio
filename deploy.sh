@@ -1,28 +1,40 @@
-#NODE_ENV=production npm run webpack
+#!/bin/bash
 
 rm -rf deploy
 mkdir deploy
+mkdir deploy/js
+mkdir deploy/app
+mkdir deploy/dist
 
-mkdir deploy/tmp
-mkdir deploy/tmp/gene.iobio.vue
-mkdir deploy/tmp/gene.iobio.vue/js
-mkdir deploy/tmp/gene.iobio.vue/app
-mkdir deploy/tmp/gene.iobio.vue/dist
+# build vue app
+if [[ $1 == "prod" ]]; then
+  echo "** Building prod **"
+  NODE_ENV=production npm run build
+else
+  echo "** Building dev **"
+  npm run build
+fi
 
-ln -s ~/work/gene.iobio.vue/client/assets ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/assets
-ln -s ~/work/gene.iobio.vue/client/js/thirdparty ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/js/thirdparty
-ln -s ~/work/gene.iobio.vue/client/app/third-party ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/app/third-party
-ln -s ~/work/gene.iobio.vue/client/dist/build.js ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/dist/build.js
-ln -s ~/work/gene.iobio.vue/client/dist/build.js.map ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/dist/build.js.map
-ln -s ~/work/gene.iobio.vue/server/views/index.html ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/index.html
+# link to files needed for static page
+ln -s ~/work/gene.iobio.vue/server/views/index.html ~/work/gene.iobio.vue/deploy/index.html
+ln -s ~/work/gene.iobio.vue/client/assets ~/work/gene.iobio.vue/deploy/assets
+ln -s ~/work/gene.iobio.vue/client/js/thirdparty ~/work/gene.iobio.vue/deploy/js/thirdparty
+ln -s ~/work/gene.iobio.vue/client/app/third-party ~/work/gene.iobio.vue/deploy/app/third-party
+ln -s ~/work/gene.iobio.vue/client/dist/build.js ~/work/gene.iobio.vue/deploy/dist/build.js
+if [[ $1 == "prod" ]]; then
+  ln -s ~/work/gene.iobio.vue/client/dist/build.js.map ~/work/gene.iobio.vue/deploy/dist/build.js.map
+fi
 
-cd deploy/tmp
-
-#zip -r  ../gene.iobio.vue.zip ./gene.iobio.vue/*
-
-#production - upload to cloudfront
-#aws s3 cp ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/  s3://static.iobio.io/vue.gene.iobio.io/ --recursive
-
-#dev - upload to cloudfront
-#aws s3 cp ~/work/gene.iobio.vue/deploy/tmp/gene.iobio.vue/  s3://static.iobio.io/dev/gene.iobio.io/ --recursive
-
+# upload to cloudfront
+if [[ $1 == "prod" ]]; then
+  echo "** Uploaded to prod s3 bucket **"
+  aws s3 cp ./deploy/  s3://static.iobio.io/vue.gene.iobio.io/ --recursive
+  echo "** Renew cloudfrount cache **"
+  aws cloudfront create-invalidation --distribution-id E1XQPXIPNUHVOH --paths /
+else
+  echo "** Syncing to dev s3 bucket **"
+  #aws s3 sync ./deploy/  s3://static.iobio.io/dev/gene.iobio.io/
+  aws s3 cp ./deploy/  s3://static.iobio.io/dev/gene.iobio.io/ --recursive
+  echo "** Renew cloudfrount cache **"
+  aws cloudfront create-invalidation --distribution-id E1RAE4AL1ULL9A --paths /
+fi
