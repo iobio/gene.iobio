@@ -2031,7 +2031,7 @@ export default {
 
       if (clinObject.type == 'apply-genes') {
         let genesString = clinObject.genes && Array.isArray(clinObject.genes) ? clinObject.genes.join(" ") : "";
-        let phenotypeTerms = clinObject.searchTerms && Array.isArray(searchTerms) ? clinObject.searchTerms.join(",") : "";
+        let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
         this.onApplyGenes(genesString,
           { isFromClin: true,
             replace: true,
