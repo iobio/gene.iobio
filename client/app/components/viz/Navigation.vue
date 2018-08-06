@@ -389,6 +389,7 @@ nav.toolbar
          :launchedFromClin="launchedFromClin"
          @flagged-variants-imported="onFlaggedVariantsImported"
          @flagged-variant-selected="onFlaggedVariantSelected"
+         @apply-variant-notes="onApplyVariantNotes"
          @close-left-drawer="leftDrawer = false"
          @send-flagged-variants-to-clin="onSendFlaggedVariantsToClin"
         >
@@ -628,6 +629,9 @@ export default {
     },
     onApplyGenes: function(genesToApply) {
       this.$emit("apply-genes", genesToApply, {replace: true, warnOnDup: true, isFromClin: false});
+    },
+    onApplyVariantNotes: function(variant) {
+      this.$emit("apply-variant-notes", variant);
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;

@@ -413,6 +413,13 @@
                     <div style="display:inline-block;vertical-align:top">
                       <span v-if="!isBasicMode" class="rsid">{{ rsId(variant) }}</span>
                     </div>
+
+                    <variant-notes-menu
+                     :variant="variant"
+                     :cohortModel="cohortModel"
+                     @apply-variant-notes="onApplyVariantNotes">
+                    </variant-notes-menu>
+
                   </div>
                 </v-list-tile-sub-title>
 
@@ -547,6 +554,7 @@
 import FileChooser from '../partials/FileChooser.vue'
 import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
+import VariantNotesMenu from '../partials/VariantNotesMenu.vue'
 
 
 export default {
@@ -554,7 +562,8 @@ export default {
   components: {
     FileChooser,
     AppIcon,
-    FilterIcon
+    FilterIcon,
+    VariantNotesMenu
   },
   props: {
     isEduMode: null,
@@ -636,6 +645,9 @@ export default {
           genes: filterObject.genes
         }
       })
+    },
+    onApplyVariantNotes: function(variant) {
+      this.$emit("apply-variant-notes", variant);
     },
 
 

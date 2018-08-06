@@ -96,6 +96,7 @@ main.content
       @clear-all-genes="onClearAllGenes"
       @flagged-variants-imported="onFlaggedVariantsImported"
       @flagged-variant-selected="onFlaggedVariantSelected"
+      @apply-variant-notes="onApplyVariantNotes"
       @on-files-loaded="onFilesLoaded"
       @on-left-drawer="onLeftDrawer"
       @on-show-welcome="onShowWelcome"
@@ -231,6 +232,7 @@ main.content
                   :selectedGene="selectedGene"
                   :selectedTranscript="analyzedTranscript"
                   :selectedVariant="selectedVariant"
+                  :selectedVariantNotes="selectedVariantNotes"
                   :selectedVariantRelationship="selectedVariantRelationship"
                   :genomeBuildHelper="genomeBuildHelper"
                   :variantTooltip="variantTooltip"
@@ -459,6 +461,7 @@ export default {
       appTour: null,
 
       selectedVariant: null,
+      selectedVariantNotes: null,
       selectedVariantRelationship: null,
 
       showKnownVariantsCard: false,
@@ -1202,6 +1205,7 @@ export default {
         self.calcFeatureMatrixWidthPercent();
         self.selectedVariant = variant;
         self.selectedVariantRelationship = sourceRelationship;
+        self.selectedVariantNotes = variant.notes;
         self.activeGeneVariantTab = "1";
         self.showVariantExtraAnnots(sourceComponent, variant);
 
@@ -1252,6 +1256,7 @@ export default {
     deselectVariant: function() {
       let self = this;
       self.selectedVariant = null;
+      self.selectedVariantNotes = null;
       self.selectedVariantRelationship = null;
       self.activeGeneVariantTab = "0";
       if (self.$refs.variantCardRef) {
@@ -1432,6 +1437,8 @@ export default {
           self.selectedGene = {};
           self.selectedTranscript = null;
           self.selectedVariant = null;
+          self.selectedVariantRelationship = null;
+          self.selectedVariantNotes = null;
           self.activeGeneVariantTab = "0";
 
           let genesToReapply = $.extend([], self.geneModel.sortedGeneNames);
@@ -1737,10 +1744,17 @@ export default {
       }
 
     },
+    onApplyVariantNotes: function(variant) {
+      let self = this;
+      if (self.launchedFromClin) {
+        self.onSendFlaggedVariantsToClin();
+      }
+      if (variant == self.selectedVariant) {
+        self.selectedVariantNotes = variant.notes;
+      }
+    },
     onFlaggedVariantSelected: function(flaggedVariant) {
       let self = this;
-
-
 
 
       let canonicalTranscript = self.geneModel.getCanonicalTranscript(flaggedVariant.gene);
@@ -1766,6 +1780,8 @@ export default {
           self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
         }
         self.selectedVariant = null;
+        self.selectedVariantNotes = null;
+        self.selectedVariantRelationship = null;
         genePromise = self.promiseLoadGene(self.selectedGene.gene_name, self.selectedTranscript);
       }
 
@@ -1779,6 +1795,7 @@ export default {
 
 
             self.$set(self, "selectedVariant", flaggedVariant);
+            self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
             self.$refs.variantCardRef.forEach(function(variantCard) {
               if (variantCard.relationship == 'proband') {
                 variantCard.showFlaggedVariant(flaggedVariant);
