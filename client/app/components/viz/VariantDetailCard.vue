@@ -253,7 +253,13 @@
     </div>
 
     <div  v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
-      <span class="pr-1"v-if="!isBasicMode">
+      <variant-notes-menu style="float:left"
+        :variant="selectedVariant"
+        :cohortModel="cohortModel"
+        @apply-variant-notes="onApplyVariantNotes">
+      </variant-notes-menu>
+
+      <span class="pr-1" v-if="!isBasicMode">
         <app-icon v-show="selectedVariantRelationship == 'known-variants'"
           :icon="selectedVariantRelationship == 'known-variants' ? 'clinvar' : ''"
           :significance="selectedVariant.clinvar" width="16" height="16">
@@ -539,11 +545,13 @@
 
 import Vue from 'vue'
 import AppIcon from "../partials/AppIcon.vue"
+import VariantNotesMenu from "../partials/VariantNotesMenu.vue"
 
 export default {
   name: 'variant-detail-card',
   components: {
-    AppIcon
+    AppIcon,
+    VariantNotesMenu
   },
   props: {
     isEduMode: null,
@@ -943,6 +951,9 @@ export default {
       let self = this;
       self.selectedVariant.isUserFlagged = false;
       self.$emit('remove-flagged-variant', self.selectedVariant);
+    },
+    onApplyVariantNotes: function(variant) {
+      this.$emit("apply-variant-notes", variant);
     }
   },
 

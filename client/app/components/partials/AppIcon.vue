@@ -8,31 +8,31 @@
   margin-top: 2px
 
 .level-high
-  fill: #ad494A
+  fill: $level-high-color
 
 .level-likely-high
-  fill:  #de6d37
+  fill:  $level-likely-high-color
 
 .level-medium, .level-unknown-significance, .level-unknown
-  fill: rgba(231, 186, 82, 1)
+  fill: $level-medium-color
 
 .level-low
-  fill: rgba(156, 194, 49, 1)
+  fill: $level-low-color
 
 .level-likely-low
-  fill: rgba(181, 207, 107, 1)
+  fill: $level-likely-low-color
 
 .level-conflicting
-  fill: rgb(111, 182, 180)
+  fill: $level-conflicting-color
 
 .level-other
-  fill: rgb(189, 189, 189)
+  fill: $level-other-color
 
 #user-flagged-symbol
   fill: $link-color !important
 
 #system-flagged-symbol
-  fill: #ad494A !important
+  fill: $level-high-color !important
 
 </style>
 

@@ -200,9 +200,18 @@
       .gene-name
         display: inline-block
         vertical-align: top
-        width: 125px
+        width: 50px
         font-weight: bold
         font-size: 13px
+
+      .variant-glyphs
+        width: 90px
+        display: inline-block
+        padding-top: 1px
+
+      .variant-notes
+        margin-top: -6px
+
 
       .has-called-variants
         font-size: 15px
@@ -285,7 +294,7 @@
   <v-card  style="padding: 0px" id="flagged-variants-card" :class="{basic: isBasicMode}">
 
 
-    <div class="variant-toolbar">
+    <div class="variant-toolbar" >
       <v-btn id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
         <v-icon >close</v-icon>
       </v-btn>
@@ -293,18 +302,18 @@
         <span v-show="!isBasicMode">
           Variants
         </span>
-        <span id="mygene2-basic-title" v-show="isBasicMode && flaggedVariants">
+        <span id="mygene2-basic-title" v-show="isBasicMode && !launchedFromClin && flaggedVariants">
           Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
         </span>
       </v-toolbar-title>
-      <v-btn  v-if="!isBasicMode" flat
+      <v-btn  v-if="!isBasicMode && !launchedFromClin" flat
         class="toolbar-button"
         @click="importInProgress = false;clearFileInputs();showOpenDialog = true">
         <v-icon>open_in_browser</v-icon>
         Open
       </v-btn>
 
-      <v-btn v-if="!isBasicMode && flaggedVariants && flaggedVariants.length > 0" flat
+      <v-btn v-if="!isBasicMode && !launchedFromClin && flaggedVariants && flaggedVariants.length > 0" flat
         class="toolbar-button"
         @click="onClickSave">
         <v-icon>save</v-icon>
@@ -358,35 +367,46 @@
                   <div class="variant-symbols">
 
                     <span class="gene-name"> {{ flaggedGene.gene.gene_name }}</span>
-                    <app-icon
-                     icon="clinvar"
-                     v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
-                     :level="clinvar(variant) == 'clinvar_path' ? 'high' : 'likely-high'"
-                     class="clinvar-badge" height="13" width="13">
-                    </app-icon>
 
-                    <app-icon
-                     :icon="variant.inheritance"
-                     v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
-                     class="inheritance-badge" height="15" width="15">
-                    </app-icon>
+                    <span class="variant-glyphs">
+                      <app-icon
+                       icon="clinvar"
+                       v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
+                       :level="clinvar(variant) == 'clinvar_path' ? 'high' : 'likely-high'"
+                       class="clinvar-badge" height="13" width="13">
+                      </app-icon>
 
-                    <app-icon
-                     icon="impact"
-                     :type="variant.type.toLowerCase()"
-                     :clazz="highestImpactClass(variant)"
-                     class="impact-badge" height="15" width="15">
-                    </app-icon>
+                      <app-icon
+                       :icon="variant.inheritance"
+                       v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
+                       class="inheritance-badge" height="15" width="15">
+                      </app-icon>
 
-                   <app-icon
-                     icon="zygosity" v-if="!isBasicMode"
-                     :type="zygosity(variant).toLowerCase()"
-                     height="14" width="24">
-                    </app-icon>
+                      <app-icon
+                       icon="impact"
+                       :type="variant.type.toLowerCase()"
+                       :clazz="highestImpactClass(variant)"
+                       class="impact-badge" height="15" width="15">
+                      </app-icon>
+
+                      <app-icon
+                       icon="zygosity" v-if="!isBasicMode"
+                       :type="zygosity(variant).toLowerCase()"
+                       height="14" width="24">
+                      </app-icon>
+                    </span>
 
                     <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
                       check_circle
                     </v-icon>
+
+                    <variant-notes-menu
+                      class="variant-notes"
+                     :variant="variant"
+                     :cohortModel="cohortModel"
+                     @apply-variant-notes="onApplyVariantNotes">
+                    </variant-notes-menu>
+
 
                   </div>
                 </v-list-tile-title>
@@ -413,12 +433,6 @@
                     <div style="display:inline-block;vertical-align:top">
                       <span v-if="!isBasicMode" class="rsid">{{ rsId(variant) }}</span>
                     </div>
-
-                    <variant-notes-menu
-                     :variant="variant"
-                     :cohortModel="cohortModel"
-                     @apply-variant-notes="onApplyVariantNotes">
-                    </variant-notes-menu>
 
                   </div>
                 </v-list-tile-sub-title>

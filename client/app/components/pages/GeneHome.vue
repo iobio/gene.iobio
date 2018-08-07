@@ -241,6 +241,7 @@ main.content
                   @transcript-id-selected="onTranscriptIdSelected"
                   @flag-variant="onFlagVariant"
                   @remove-flagged-variant="onRemoveFlaggedVariant"
+                  @apply-variant-notes="onApplyVariantNotes"
                   >
                   </variant-detail-card>
 
