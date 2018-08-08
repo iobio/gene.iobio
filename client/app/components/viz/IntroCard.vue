@@ -38,7 +38,7 @@
     <div>
       <div class="left-info">
         <span class="label-warning" v-show="defaultingToDemoData">
-            Warning:  Using Demo Data
+            Using Demo Data
         </span>
         <span  v-show="!defaultingToDemoData">
             &nbsp;
