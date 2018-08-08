@@ -86,7 +86,7 @@ class GeneModel {
     me.allKnownGenes = allKnownGenes;
     me.allKnownGeneNames = {};
     me.allKnownGenes.forEach(function(gene) {
-      me.allKnownGeneNames[gene.gene_name] = true;
+      me.allKnownGeneNames[gene.gene_name] = gene;
     })
   }
 
@@ -699,37 +699,55 @@ class GeneModel {
       var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
       $('#build-link').text(buildName);
 
+      var defaultGeneSource = me.geneSource ? me.geneSource : 'gencode';
+      let knownGene = me.getKnownGene(geneName);
+      let theGeneSource = null;
+      if (knownGene && knownGene[defaultGeneSource]) {
+        theGeneSource = defaultGeneSource
+      } else if (knownGene && knownGene.refseq) {
+        theGeneSource = 'refseq';
+      } else if (knownGene && knownGene.gencode) {
+        theGeneSource == 'gencode';
+      }
 
-      url += "?source="  + (me.geneSource ? me.geneSource : 'gencode');
-      url += "&species=" + me.genomeBuildHelper.getCurrentSpeciesLatinName();
-      url += "&build="   + buildName;
+      if (theGeneSource) {
+        url += "?source="  + theGeneSource;
+        url += "&species=" + me.genomeBuildHelper.getCurrentSpeciesLatinName();
+        url += "&build="   + buildName;
 
 
-      $.ajax({
-        url: url,
-        jsonp: "callback",
-        type: "GET",
-        dataType: "jsonp",
-        success: function( response ) {
-          if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
-            var theGeneObject = response[0];
-            me.geneObjects[theGeneObject.gene_name] = theGeneObject;
-            resolve(theGeneObject);
-          } else {
-          console.log("Gene model for " + geneName + " not found.  Empty results returned from " + url);
-            reject("Gene model for " + geneName + " not found.");
+        $.ajax({
+          url: url,
+          jsonp: "callback",
+          type: "GET",
+          dataType: "jsonp",
+          success: function( response ) {
+            if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
+              var theGeneObject = response[0];
+              me.geneObjects[theGeneObject.gene_name] = theGeneObject;
+              resolve(theGeneObject);
+            } else {
+              let msg = "Gene model for " + geneName + " not found.  Empty results returned from " + url;
+              console.log(msg);
+              reject(msg);
+            }
+          },
+          error: function( xhr, status, errorThrown ) {
+
+            console.log("Gene model for " +  geneName + " not found.  Error occurred.");
+            console.log( "Error: " + errorThrown );
+            console.log( "Status: " + status );
+            console.log( xhr );
+            reject("Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName);
+
           }
-        },
-        error: function( xhr, status, errorThrown ) {
+        });
 
-          console.log("Gene model for " +  geneName + " not found.  Error occurred.");
-          console.log( "Error: " + errorThrown );
-          console.log( "Status: " + status );
-          console.log( xhr );
-          reject("Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName);
+      } else {
+        reject("No known gene source for gene " + geneName);
+      }
 
-        }
-      });
+
 
     });
   }
@@ -842,6 +860,14 @@ class GeneModel {
 
   isKnownGene(geneName) {
     return this.allKnownGeneNames[geneName] || this.allKnownGeneNames[geneName.toUpperCase()]
+  }
+
+  getKnownGene(geneName) {
+    if (this.allKnownGeneNames[geneName]) {
+      return this.allKnownGeneNames[geneName];
+    } else {
+      return this.allKnownGeneNames[geneName.toUpperCase()]
+    };
   }
 
 
