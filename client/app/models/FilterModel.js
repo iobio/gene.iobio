@@ -135,7 +135,7 @@ class FilterModel {
       'highOrModerate': {
         active: true,
         custom: false,
-        title: "VUS Other variants, moderate/high impact",
+        title: "VUS Other variants",
         name: "VUS High or moderate impact, low allele freq",
         order: 6,
         userFlagged: false,
@@ -152,7 +152,7 @@ class FilterModel {
       'userFlagged': {
         active: true,
         custom: false,
-        title: "Variants flagged by user",
+        title: "Flagged by user",
         name: "Variants flagged by user",
         order: 7,
         userFlagged: true,

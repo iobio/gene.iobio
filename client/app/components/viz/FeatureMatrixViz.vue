@@ -2,6 +2,8 @@
 @import ../../../assets/sass/variables
 
 #feature-matrix
+
+
   rect.cellbox
     fill: white
     stroke: $cell-border-color

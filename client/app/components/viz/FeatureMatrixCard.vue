@@ -8,6 +8,9 @@
 #matrix-card
   margin-bottom: 0px !important
 
+  .label-warning
+      max-width: 120px
+
   #show-legend
       margin-left: 40px
       i

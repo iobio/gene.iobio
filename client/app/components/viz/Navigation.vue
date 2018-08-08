@@ -3,7 +3,7 @@
 @import ../../../assets/sass/variables
 
 aside.navigation-drawer
-  margin-top: 45px !important
+  margin-top: 55px !important
   z-index: 0
   padding-bottom: 0px
 
@@ -26,17 +26,25 @@ aside.navigation-drawer
       padding: 0px
 
 nav.toolbar
-  -webkit-box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.13), 0px 4px 5px 0px rgba(0, 0, 0, 0.06), 0px 1px 10px 0px rgba(0,0,0,0.12)
-  box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.13), 0px 4px 5px 0px rgba(0, 0, 0, 0.06), 0px 1px 10px 0px rgba(0,0,0,0.12)
+
+  .toolbar__content
+    margin-top: 2px
+    align-items: flex-end
+    margin-bottom: 2px
 
   background-color: $nav-color !important
   font-weight: 300 !important
 
   .toolbar__title
     color: $nav-title-color
-    font-weight:  600
+    font-weight:  400
+    font-family: $iobio-font
   .btn
     color: $nav-text-color
+
+  #variants-button
+    margin-left: 20px
+    margin-right: 30px
 
   #gene-name-input
     .input-group--text-field.input-group--prepend-icon
@@ -48,8 +56,10 @@ nav.toolbar
     padding-top: 16px
     margin-left: 10px
     margin-right: 16px
+    color: $nav-text-color
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
+    margin-top: 8px
     .input-group input
       color: $nav-text-color
     .input-group
@@ -57,15 +67,16 @@ nav.toolbar
     .input-group
       label
         font-size: 13px
-        line-height: 25px
-        height: 25px
-        top: 14px
+        line-height: 14px
+        height: 18px
+        top: 8px
+        font-weight: normal
     .input-group__input
       min-height: 0px
-      margin-top: 13px
+      margin-top: 8px
     .input-group--text-field input
       font-size: 13px
-      height: 24px
+      height: 14px
     .input-group
       padding-top: 0px
     .input-group__selections__comma
@@ -77,7 +88,7 @@ nav.toolbar
 
   #phenolyzer-top-input
     .input-group__input
-      height: 20px
+      height: 14px
   .primary--text input, .primary--text textarea
     caret-color: $nav-text-color !important
 
@@ -107,11 +118,10 @@ nav.toolbar
     color:  $nav-text-color !important
 
   .toolbar__title
-    font-family: Quicksand
-    font-size: 24px
+    font-size: 20px
     margin-right: 5px
     margin-left: 5px
-    padding-bottom: 5px
+    padding-bottom: 4px
     min-width: 130px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
@@ -124,7 +134,7 @@ nav.toolbar
 
   #gene-name-input
     width: 130px
-    margin-left: 20px
+    margin-left: 5px
 
   #search-phenotype-button
     background-color: #ffffff1f
@@ -213,14 +223,20 @@ nav.toolbar
 
 <template>
   <div>
-    <v-toolbar fixed height="50"   dark  :class="launchedFromClin ? 'clin' : '' " >
+    <v-toolbar fixed  height="45"   dark  :class="launchedFromClin ? 'clin' : '' " >
 
-      <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
+      <v-toolbar-side-icon  style="margin-bottom:2px" @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
 
       <v-toolbar-title v-text="title">
       </v-toolbar-title>
+
+      <v-spacer></v-spacer>
+
+      <v-btn id="variants-button" flat @click.stop="leftDrawer = !leftDrawer">
+        Variants
+      </v-btn>
 
 
       <v-spacer></v-spacer>
@@ -228,12 +244,15 @@ nav.toolbar
 
       <v-toolbar-items  class="hidden-sm-and-down" style="padding-top:3px">
 
+        <v-icon>
+          search
+        </v-icon>
 
         <span id="gene-name-input"  style="display:inline-block">
           <v-text-field id="search-gene-name"
           :class="clazzAttention"
           :hide-details="true"
-          v-model="geneEntered" label="Gene" prepend-icon="search">
+          v-model="geneEntered" label="Gene" >
           </v-text-field>
           <typeahead v-model="selectedGene"
           force-select v-bind:limit="typeaheadLimit" match-start
@@ -274,15 +293,6 @@ nav.toolbar
          @hide-snackbar="onHideSnackbar">
         </phenotype-search>
 
-
-
-
-<!--
-        <v-btn v-if="!isEduMode && !isBasicMode" id="show-variants-button" flat  @click="onVariants">
-         <v-icon>bookmark</v-icon>
-         Variants
-        </v-btn>
--->
 
 
 
@@ -375,7 +385,7 @@ nav.toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      width=330
+      width=360
     >
       <div id="side-panel-container">
 

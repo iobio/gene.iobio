@@ -38,6 +38,7 @@
       font-size: 18px
 
 #show-notes-button
+  font-family: 'Open sans'
   min-width: 20px
   margin: 0px
   padding: 0px

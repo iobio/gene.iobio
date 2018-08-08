@@ -33,7 +33,7 @@
       :forceSelect="true"
       :preselect="false"/>
     </v-flex>
-    <v-flex id="phenolyzer-top-input" style="display:inline-block;max-width:60px;width:60px;margin-left:5px;padding-top:4px">
+    <v-flex id="phenolyzer-top-input" style="display:inline-block;max-width:60px;width:60px;margin-left:5px;">
       <v-select
       v-model="phenolyzerTop"
       label="Genes"

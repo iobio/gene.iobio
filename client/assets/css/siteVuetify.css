@@ -6,9 +6,6 @@ html {
   text-transform: none;
 }
 
-.application, body {
-  font-family: 'Open Sans', 'Quattrocento Sans', 'sans serif';
-}
 
 .application.theme--light {
   background: #fafafa;
