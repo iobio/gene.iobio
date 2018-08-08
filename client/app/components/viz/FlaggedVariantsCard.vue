@@ -134,8 +134,8 @@
       line-height: 18px
 
     .list__tile__title
-      height: 22px
-      line-height: 22px
+      height: auto
+      line-height: 18px;
 
     .variant-number
       margin-right: 0px
@@ -163,6 +163,13 @@
       vertical-align: top
       padding-top: 1px
 
+    .vep-consequence
+      display: inline-block
+      width: 103px
+      line-height: 12px
+      vertical-align: top
+      font-size: 12px
+
     .variant-label
       font-size: 12px
       color: $text-color !important
@@ -180,11 +187,7 @@
         vertical-align: top
 
 
-      .vep-consequence
-        display: inline-block
-        width: 103px
-        line-height: 12px
-        vertical-align: top
+
       .rsid
         display: inline-block
         width: 103px
@@ -207,7 +210,7 @@
 
     .variant-symbols
       .variant-moniker
-        width: 140px
+        width: 170px
         display: inline-block
 
         .gene-name
@@ -216,16 +219,17 @@
           font-weight: bold
           font-size: 13px
           margin-right: 4px
+          padding-top: 2px
 
         .variant-glyphs
           display: inline-block
-          padding-top: 1px
+          padding-top: 0px
 
         .has-called-variants
           font-size: 15px
           color: $called-variant-color
-          margin-top: -3px
-          margin-left: 1px
+          margin-top: 0px
+          margin-left: 0px
 
 
       .variant-notes
@@ -377,61 +381,71 @@
 
                 <v-list-tile-title>
 
-                  <div class="variant-symbols">
+                  <div style="float:left">
+                    <div class="variant-symbols">
 
-                    <span class="variant-moniker">
-                      <span class="gene-name"> {{ flaggedGene.gene.gene_name }}</span>
+                      <span class="variant-moniker">
+                        <span class="gene-name"> {{ flaggedGene.gene.gene_name }}</span>
 
-                      <span class="variant-glyphs">
-                        <app-icon
-                         icon="clinvar"
-                         v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
-                         :level="clinvar(variant) == 'clinvar_path' ? 'high' : 'likely-high'"
-                         class="clinvar-badge" height="13" width="13">
-                        </app-icon>
+                        <span class="variant-glyphs">
+                          <app-icon
+                           icon="clinvar"
+                           v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
+                           :level="clinvar(variant) == 'clinvar_path' ? 'high' : 'likely-high'"
+                           class="clinvar-badge" height="13" width="13">
+                          </app-icon>
 
-                        <app-icon
-                         :icon="variant.inheritance"
-                         v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
-                         class="inheritance-badge" height="15" width="15">
-                        </app-icon>
+                          <app-icon
+                          style="width: 15px;height: 15px;display: inline-block;margin-top: 2px;"
+                           :icon="variant.inheritance"
+                           v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
+                           class="inheritance-badge" height="15" width="15">
+                          </app-icon>
 
-                        <app-icon
-                         icon="impact"
-                         :type="variant.type.toLowerCase()"
-                         :clazz="highestImpactClass(variant)"
-                         class="impact-badge" height="15" width="11">
-                        </app-icon>
+                          <app-icon
+                           icon="impact"
+                           :type="variant.type.toLowerCase()"
+                           :clazz="highestImpactClass(variant)"
+                           class="impact-badge" height="15" width="11">
+                          </app-icon>
 
-                        <app-icon
-                         icon="zygosity" v-if="!isBasicMode"
-                         :type="zygosity(variant).toLowerCase()"
-                         height="14" width="24">
-                        </app-icon>
+                          <app-icon
+                           icon="zygosity" v-if="!isBasicMode"
+                           :type="zygosity(variant).toLowerCase()"
+                           height="14" width="24">
+                          </app-icon>
+                        </span>
+
+                        <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
+                          check_circle
+                        </v-icon>
+
+
                       </span>
 
-                      <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
-                        check_circle
-                      </v-icon>
+                      <span v-if="!isBasicMode" class="af-small">{{ afDisplay(variant) }}</span>
 
-
-                    </span>
-
-                    <span v-if="!isBasicMode" class="af-small">{{ afDisplay(variant) }}</span>
-
-                    <variant-notes-menu
-                     v-if="!isBasicMode"
+                    </div>
+                    <div>
+                      <div  v-if="!isBasicMode" style="display:inline-block;vertical-align:top">
+                        <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <variant-notes-menu
+                     style="float:left;margin-left:4px"
+                     v-if="!isBasicMode && !forMyGene2"
                       class="variant-notes"
+                      wrap="true"
                      :variant="variant"
                      :cohortModel="cohortModel"
                      @apply-variant-notes="onApplyVariantNotes">
-                    </variant-notes-menu>
+                  </variant-notes-menu>
 
 
-                  </div>
                 </v-list-tile-title>
 
-                <v-list-tile-sub-title >
+                <v-list-tile-sub-title v-if="isBasicMode" >
                   <div class="variant-label">
                     <div v-if="isBasicMode" style="display:inline-block;" >
                       <span class="coord"> {{ coord(flaggedGene, variant) }} </span>
@@ -599,6 +613,7 @@ export default {
   props: {
     isEduMode: null,
     isBasicMode: null,
+    forMyGene2: null,
     flaggedVariants: null,
     cohortModel: null,
     launchedFromClin: null

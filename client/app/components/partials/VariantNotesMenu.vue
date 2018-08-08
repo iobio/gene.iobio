@@ -42,7 +42,7 @@
   min-width: 20px
   margin: 0px
   padding: 0px
-  height: 18px
+  height: auto
   font-size: 12px
   margin-top: 0px
   border-radius: 28px
@@ -67,6 +67,14 @@
     span
       padding-left: 3px
       padding-right: 3px
+      display: inline-block
+      word-break: break-word
+      width: 90px
+      white-space: normal !important
+      word-wrap: break-word !important
+      height: auto
+      padding-top: 2px
+      padding-bottom: 2px
 
     .material-icons
       font-size: 18px
@@ -75,6 +83,16 @@
       &.has-notes
         color: $app-color
 
+#show-notes-button
+  &.no-wrap
+
+    .btn__content
+      padding: 0px
+      margin: 0px
+      color: white !important
+
+      span
+        width: initial
 </style>
 
 <template>
@@ -89,7 +107,7 @@
       <v-btn id="show-notes-button"
        flat
        small
-       :class="variant.interpretation ? variant.interpretation : 'not-reviewed'"
+       :class="[{'no-wrap' : !wrap}, variant.interpretation ? variant.interpretation : 'not-reviewed']"
        slot="activator"
        @mouseover="onMouseOver()"
        @mouseleave="onMouseLeave()"
@@ -151,7 +169,8 @@ export default {
   },
   props: {
     variant: null,
-    cohortModel: null
+    cohortModel: null,
+    wrap: null
   },
   data () {
     return {
