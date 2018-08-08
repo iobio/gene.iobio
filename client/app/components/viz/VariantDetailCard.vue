@@ -254,6 +254,7 @@
 
     <div  v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
       <variant-notes-menu style="float:left"
+        v-if="!isBasicMode && !forMyGene2"
         :variant="selectedVariant"
         :cohortModel="cohortModel"
         @apply-variant-notes="onApplyVariantNotes">
@@ -556,6 +557,7 @@ export default {
   props: {
     isEduMode: null,
     isBasicMode: null,
+    forMyGene2: null,
     selectedGene: null,
     selectedTranscript: null,
     selectedVariant: null,

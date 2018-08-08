@@ -394,6 +394,7 @@ nav.toolbar
          ref="flaggedVariantsRef"
          :isEduMode="isEduMode"
          :isBasicMode="isBasicMode"
+         :forMyGene2="forMyGene2"
          :cohortModel="cohortModel"
          :flaggedVariants="flaggedVariants"
          :launchedFromClin="launchedFromClin"

@@ -228,6 +228,7 @@ main.content
                   ref="variantDetailCardRef"
                   :isEduMode="isEduMode"
                   :isBasicMode="isBasicMode"
+                  :forMyGene2="forMyGene2"
                   :showTitle="false"
                   :selectedGene="selectedGene"
                   :selectedTranscript="analyzedTranscript"
