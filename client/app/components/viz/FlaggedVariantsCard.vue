@@ -86,7 +86,7 @@
     span
       width: 100%
       text-align: center
-      background-color: #ececec
+      background-color: #f2efef
 
   .list--three-line
     margin-bottom: 10px
