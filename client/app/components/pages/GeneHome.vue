@@ -508,7 +508,7 @@ export default {
 
       showCoverageCutoffs: false,
 
-      clinIobioUrls: ["http://localhost:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io"],
+      clinIobioUrls: ["http://localhost:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io", "http://dev.clin.iobio.io"],
       clinIobioUrl: null,
 
       forceLocalStorage: null
