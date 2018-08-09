@@ -37,7 +37,6 @@ nav.toolbar
 
   .toolbar__title
     color: $nav-title-color
-    font-weight:  400
     font-family: $iobio-font
   .btn
     color: $nav-text-color
@@ -95,8 +94,7 @@ nav.toolbar
     i.material-icons
       color:  $nav-text-color-clin !important
 
-    .toolbar__title
-      color:  $nav-text-color-clin
+
 
   .toolbar__side-icon.btn.btn--icon
     max-width: 40px
@@ -118,10 +116,10 @@ nav.toolbar
     color:  $nav-text-color !important
 
   .toolbar__title
-    font-size: 20px
+    font-size: 18px
     margin-right: 5px
     margin-left: 5px
-    padding-bottom: 4px
+    padding-bottom: 5px
     min-width: 130px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
@@ -146,6 +144,9 @@ nav.toolbar
   &.clin
     background-color: $nav-color-clin !important
 
+    .toolbar__title
+      color: $nav-title-color-clin
+
     .btn
       color: $nav-text-color-clin
 
@@ -165,8 +166,6 @@ nav.toolbar
       .input-group__details:after
         background-color: $nav-text-color-clin !important
 
-    .toolbar__title
-      color: $nav-text-color-clin !important
 
     i.material-icons
       color:  $nav-text-color-clin !important
@@ -225,7 +224,7 @@ nav.toolbar
   <div>
     <v-toolbar fixed  height="45"   dark  :class="launchedFromClin ? 'clin' : '' " >
 
-      <v-toolbar-side-icon  style="margin-bottom:2px" @click.stop="leftDrawer = !leftDrawer">
+      <v-toolbar-side-icon  v-if="!launchedFromClin" style="margin-bottom:2px" @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
 
