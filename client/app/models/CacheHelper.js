@@ -61,12 +61,14 @@ CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, gene
   var me = this;
   me.cohort = cohort;
   me.geneToAltTranscript = geneToAltTranscript;
+  me.analyzeAllInProgress = true;
 
   return new Promise(function(resolve, reject) {
     theGeneNames.forEach(function(geneName) {
       me.genesToCache.push(geneName);
     });
     me.cacheGenes(analyzeCalledVariants, function() {
+      me.analyzeAllInProgress = false;
       me.cohort.geneModel.sortGenes("harmful variants");
       resolve();
     });

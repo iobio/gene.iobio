@@ -104,6 +104,10 @@ VariantImporter.parseRecordsGemini = function(data) {
       for (var i = 0; i < fields.length; i++) {
         importRec[fieldNames[i]] = fields[i];
       }
+
+      // We need to revise the coordinate for gemini as it is 1 based (bed)
+      importRec.start++;
+
       importRec.importSource = "gemini"
       importRec.importFormat = "tsv";
       importRecords.push(importRec);

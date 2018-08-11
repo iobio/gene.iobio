@@ -1297,7 +1297,7 @@ class SampleModel {
                 // Now update the hgvs notation on the variant
                 var matchingVariants = theVcfData.features.filter(function(aVariant) {
                   var matches =
-                       ( variant.start == aVariant.start &&
+                       ( +variant.start == aVariant.start &&
                          variant.alt   == aVariant.alt &&
                          variant.ref   == aVariant.ref );
                   return matches;

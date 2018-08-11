@@ -1887,7 +1887,7 @@ class CohortModel {
         variant.gene = geneObject;
         variant.isProxy = true;
         variant.isFlagged = true;
-        variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : []);
+        variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : ['userFlagged']);
         if (variant.isUserFlagged == 'Y') {
           variant.isUserFlagged = true;
         } else {
@@ -1992,6 +1992,11 @@ class CohortModel {
                     console.log("Unable to match imported variant to vcf data for " + importedVariant.gene + " " + importedVariant.transcript + " " + importedVariant.start)
                   }
                 })
+
+                // Make sure that the imported variants are re-assessed to determine the filters they
+                // pass.  We need this so that the imported variants show up in the left flagged variants
+                // side panel
+                me.filterModel.flagImportedVariants(importedVariants);
 
                 // We need to recache the variants since the isUserFlag has been established
                 me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)

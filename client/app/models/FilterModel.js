@@ -471,75 +471,104 @@ class FilterModel {
         return variant.zygosity == null || variant.zygosity.toUpperCase() != 'HOMREF';
       })
       .forEach(function(variant) {
-        var badgePassState = {};
-        for (var key in self.flagCriteria) {
-          if (self.flagCriteria[key].active) {
-            badgePassState[key] = false;
-          }
-        }
-        badgePassState.flagged = false;
-
-        if (variant.isUserFlagged) {
-          badgePassState['userFlagged'] = true;
-        } else {
-          variant.isFlagged = false;
-          variant.featureClass = "";
-          for (var badge in self.flagCriteria) {
-            if (self.flagCriteria[badge].active) {
-
-              var passes = self.determinePassCriteria(badge, variant);
-
-              if (passes.all) {
-                badgePassState[badge] = true;
-              }
-            }
-          }
-
-          // If a badge is exclusive of passing other criteria, fail the badge
-          // if the other badges passed the criteria for the filter
-          // Example:  highOrModerate is exclusive of the clinvar badge.
-          //           So if the variant passes the clinvar criteria, it does
-          //           not pass the highOrModerate criteria.
-          for (var badge in self.flagCriteria) {
-            var badgeCriteria = self.flagCriteria[badge];
-            if (badgeCriteria.exclusiveOf) {
-              var matchesOther = false;
-              badgeCriteria.exclusiveOf.forEach(function(exclusiveBadge) {
-                if (badgePassState[exclusiveBadge]) {
-                  matchesOther = true;
-                }
-              })
-              if (matchesOther) {
-                badgePassState[badge] = false;
-              }
-            }
-          }
-
-
-        }
-        // Now add the variant to any badges that passes the critera
-        var filtersPassed = [];
-        for (var filterName in self.flagCriteria) {
-          if (badgePassState[filterName]) {
-            filtersPassed.push(filterName);
-            badges[filterName].push(variant);
-          }
-        }
-        if (filtersPassed.length > 0) {
-          variant.isFlagged = true;
-          variant.featureClass = 'flagged';
-          variant.filtersPassed = filtersPassed;
-        }
-
-        if (variant.isFlagged) {
-          badges.flagged.push(variant);
-        }
-
-
+        self._flagVariant(variant, badges);
       })
 
     }
     return badges;
+
+  }
+
+  flagImportedVariants(importedVariants) {
+    let self = this;
+    var badges = {};
+    for (var key in this.flagCriteria) {
+      if (this.flagCriteria[key].active) {
+        badges[key] = [];
+      }
+    }
+    badges.flagged = [];
+
+    importedVariants.forEach(function(variant) {
+      self._flagVariant(variant, badges, true);
+    })
+
+    return badges;
+  }
+
+  _flagVariant(variant, badges, defaultNoneToUserFlagged=false) {
+    let self = this;
+    var badgePassState = {};
+
+    for (var key in self.flagCriteria) {
+      if (self.flagCriteria[key].active) {
+        badgePassState[key] = false;
+      }
+    }
+    badgePassState.flagged = false;
+
+    if (variant.isUserFlagged) {
+      badgePassState['userFlagged'] = true;
+    } else {
+      variant.isFlagged = false;
+      variant.featureClass = "";
+      for (var badge in self.flagCriteria) {
+        if (self.flagCriteria[badge].active) {
+
+          var passes = self.determinePassCriteria(badge, variant);
+
+          if (passes.all) {
+            badgePassState[badge] = true;
+          }
+        }
+      }
+
+      // If a badge is exclusive of passing other criteria, fail the badge
+      // if the other badges passed the criteria for the filter
+      // Example:  highOrModerate is exclusive of the clinvar badge.
+      //           So if the variant passes the clinvar criteria, it does
+      //           not pass the highOrModerate criteria.
+      for (var badge in self.flagCriteria) {
+        var badgeCriteria = self.flagCriteria[badge];
+        if (badgeCriteria.exclusiveOf) {
+          var matchesOther = false;
+          badgeCriteria.exclusiveOf.forEach(function(exclusiveBadge) {
+            if (badgePassState[exclusiveBadge]) {
+              matchesOther = true;
+            }
+          })
+          if (matchesOther) {
+            badgePassState[badge] = false;
+          }
+        }
+      }
+
+
+    }
+    // Now add the variant to any badges that passes the critera
+    var filtersPassed = [];
+    for (var filterName in self.flagCriteria) {
+      if (badgePassState[filterName]) {
+        filtersPassed.push(filterName);
+        badges[filterName].push(variant);
+      }
+    }
+    if (filtersPassed.length > 0) {
+      variant.isFlagged = true;
+      variant.featureClass = 'flagged';
+      variant.filtersPassed = filtersPassed;
+    } else if (defaultNoneToUserFlagged) {
+      // If this is an imported variant but didn't pass any of the current filters,
+      // just indicate that it is user flagged
+      variant.isFlagged = true;
+      variant.isUserFlagged = true;
+      variant.featureClass = 'flagged';
+      variants.filtersPass = 'userFlagged';
+    }
+
+    if (variant.isFlagged) {
+      badges.flagged.push(variant);
+    }
 
   }
 

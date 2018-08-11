@@ -53,7 +53,7 @@ class GlobalApp {
     this.getVariantIdsForGene = false;
 
     // How many genes can be analyzed in one session.  Set to null if no limitation.
-    this.maxGeneCount         = 100;
+    this.maxGeneCount         = null;
 
     // Should vep retrieve allele frequencies (for gnomad, 1000G, ESP)
     this.vepAF                = true ;
