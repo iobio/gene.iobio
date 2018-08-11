@@ -384,7 +384,7 @@ nav.toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      width=360
+      width=330
     >
       <div id="side-panel-container">
 
@@ -400,6 +400,7 @@ nav.toolbar
          @flagged-variants-imported="onFlaggedVariantsImported"
          @flagged-variant-selected="onFlaggedVariantSelected"
          @apply-variant-notes="onApplyVariantNotes"
+         @apply-variant-interpretation="onApplyVariantInterpretation"
          @close-left-drawer="leftDrawer = false"
          @send-flagged-variants-to-clin="onSendFlaggedVariantsToClin"
         >
@@ -642,6 +643,9 @@ export default {
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
+    },
+    onApplyVariantInterpretation: function(variant) {
+      this.$emit("apply-variant-interpretation", variant);
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;

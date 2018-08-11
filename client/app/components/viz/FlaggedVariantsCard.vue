@@ -157,11 +157,12 @@
 
     .af-small
       display: inline-block
-      width: 40px
+      width: 50px
       font-size: 12px
       margin-left: 4px
       vertical-align: top
-      padding-top: 1px
+      padding-top: 0px
+      line-height: 12px
 
     .vep-consequence
       display: inline-block
@@ -169,6 +170,7 @@
       line-height: 12px
       vertical-align: top
       font-size: 12px
+      white-space: normal
 
     .variant-label
       font-size: 12px
@@ -423,24 +425,38 @@
 
                       </span>
 
-                      <span v-if="!isBasicMode" class="af-small">{{ afDisplay(variant) }}</span>
+
 
                     </div>
                     <div>
                       <div  v-if="!isBasicMode" style="display:inline-block;vertical-align:top">
                         <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
+                        <span class="af-small">{{ afDisplay(variant) }}</span>
                       </div>
                     </div>
                   </div>
+
+
+
+                  <variant-interpretation
+                     style="float:left;margin-left:4px;"
+                     v-if="!isBasicMode && !forMyGene2"
+                      class="variant-notes"
+                      wrap="true"
+                     :variant="variant"
+                     @apply-variant-interpretation="onApplyVariantInterpretation">
+                  </variant-interpretation>
+<!--
+
                   <variant-notes-menu
                      style="float:left;margin-left:4px"
                      v-if="!isBasicMode && !forMyGene2"
                       class="variant-notes"
                       wrap="true"
                      :variant="variant"
-                     :cohortModel="cohortModel"
                      @apply-variant-notes="onApplyVariantNotes">
                   </variant-notes-menu>
+-->
 
 
                 </v-list-tile-title>
@@ -600,6 +616,7 @@ import FileChooser from '../partials/FileChooser.vue'
 import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
 import VariantNotesMenu from '../partials/VariantNotesMenu.vue'
+import VariantInterpretation from '../partials/VariantInterpretation.vue'
 
 
 export default {
@@ -608,7 +625,8 @@ export default {
     FileChooser,
     AppIcon,
     FilterIcon,
-    VariantNotesMenu
+    VariantNotesMenu,
+    VariantInterpretation
   },
   props: {
     isEduMode: null,
@@ -695,7 +713,9 @@ export default {
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
     },
-
+    onApplyVariantInterpretation: function(variant) {
+      this.$emit("apply-variant-interpretation", variant);
+    },
 
 
     coord: function(flaggedGene, variant) {

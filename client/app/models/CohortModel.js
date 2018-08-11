@@ -1875,6 +1875,8 @@ class CohortModel {
       }
     })
 
+
+
     // Now that all of the gene objects have been cached, we can fill in the
     // transcript if necessary and then find load the imported bookmarks
     Promise.all(promises).then(function() {
@@ -1987,6 +1989,7 @@ class CohortModel {
                     importedVariant.isProxy = false;
                     importedVariant.gene = geneObject;
                     importedVariant.transcript = transcript;
+
                     console.log(importedVariant);
                   } else {
                     console.log("Unable to match imported variant to vcf data for " + importedVariant.gene + " " + importedVariant.transcript + " " + importedVariant.start)
@@ -2067,6 +2070,24 @@ class CohortModel {
       })
     })
     return sortedFilters;
+
+  }
+
+  getFlaggedVariant(theVariant) {
+    let self = this;
+    var existingVariants = this.flaggedVariants.filter(function(v) {
+      var matches = (
+        self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(theVariant.chrom)
+        && v.start == theVariant.start
+        && v.ref == theVariant.ref
+        && v.alt == theVariant.alt);
+      return matches;
+    })
+    if (existingVariants && existingVariants.length > 0) {
+      return existingVariants[0];
+    } else {
+      return null;
+    }
 
   }
 

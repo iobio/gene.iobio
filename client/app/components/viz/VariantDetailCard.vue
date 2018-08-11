@@ -256,7 +256,6 @@
       <variant-notes-menu style="float:left"
         v-if="!isBasicMode && !forMyGene2"
         :variant="selectedVariant"
-        :cohortModel="cohortModel"
         @apply-variant-notes="onApplyVariantNotes">
       </variant-notes-menu>
 
@@ -562,6 +561,7 @@ export default {
     selectedTranscript: null,
     selectedVariant: null,
     selectedVariantNotes: null,
+    selectedVariantInterpretation: null,
     selectedVariantRelationship: null,
     genomeBuildHelper: null,
     cohortModel: null,
@@ -1005,6 +1005,9 @@ export default {
     },
     notes: function() {
       return this.selectedVariantNotes && this.selectedVariantNotes.length > 0 ? this.selectedVariantNotes : null;
+    },
+    interpretation: function() {
+      return this.selectedVariantInterpretation && this.selectedVariantInterpretation.length > 0 ? this.selectedVariantInterpretation : 'not-reviewed';
     }
   },
 

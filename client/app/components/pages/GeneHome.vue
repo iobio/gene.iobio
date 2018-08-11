@@ -97,6 +97,7 @@ main.content
       @flagged-variants-imported="onFlaggedVariantsImported"
       @flagged-variant-selected="onFlaggedVariantSelected"
       @apply-variant-notes="onApplyVariantNotes"
+      @apply-variant-interpretation="onApplyVariantInterpretation"
       @on-files-loaded="onFilesLoaded"
       @on-left-drawer="onLeftDrawer"
       @on-show-welcome="onShowWelcome"
@@ -234,6 +235,7 @@ main.content
                   :selectedTranscript="analyzedTranscript"
                   :selectedVariant="selectedVariant"
                   :selectedVariantNotes="selectedVariantNotes"
+                  :selectedVariantInterpretation="selectedVariantInterpretation"
                   :selectedVariantRelationship="selectedVariantRelationship"
                   :genomeBuildHelper="genomeBuildHelper"
                   :variantTooltip="variantTooltip"
@@ -243,6 +245,7 @@ main.content
                   @flag-variant="onFlagVariant"
                   @remove-flagged-variant="onRemoveFlaggedVariant"
                   @apply-variant-notes="onApplyVariantNotes"
+                  @apply-variant-interpretation="onApplyVariantInterpretation"
                   >
                   </variant-detail-card>
 
@@ -464,6 +467,7 @@ export default {
 
       selectedVariant: null,
       selectedVariantNotes: null,
+      selectedVariantInterpretation: null,
       selectedVariantRelationship: null,
 
       showKnownVariantsCard: false,
@@ -1208,6 +1212,7 @@ export default {
         self.selectedVariant = variant;
         self.selectedVariantRelationship = sourceRelationship;
         self.selectedVariantNotes = variant.notes;
+        self.selectedVariantInterpretation = variant.interpretation;
         self.activeGeneVariantTab = "1";
         self.showVariantExtraAnnots(sourceComponent, variant);
 
@@ -1259,6 +1264,7 @@ export default {
       let self = this;
       self.selectedVariant = null;
       self.selectedVariantNotes = null;
+      self.selectedVariantInterpretation = null;
       self.selectedVariantRelationship = null;
       self.activeGeneVariantTab = "0";
       if (self.$refs.variantCardRef) {
@@ -1441,6 +1447,7 @@ export default {
           self.selectedVariant = null;
           self.selectedVariantRelationship = null;
           self.selectedVariantNotes = null;
+          self.selectedVariantInterpretation = null;
           self.activeGeneVariantTab = "0";
 
           let genesToReapply = $.extend([], self.geneModel.sortedGeneNames);
@@ -1743,18 +1750,34 @@ export default {
         self.$refs.genesCardRef.determineFlaggedGenes();
         self.$refs.genesCardRef.updateGeneBadgeCounts();
       }
-      if (self.$refs.navRef && self.$refs.navRef.$refs.flagedVariantsRef) {
+      if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
       }
 
     },
     onApplyVariantNotes: function(variant) {
       let self = this;
+
+      // Set the flagged variant notes and interpretation
+      let flaggedVariant = this.cohortModel.getFlaggedVariant(variant);
+      if (flaggedVariant) {
+        flaggedVariant.notes = variant.notes;
+        flaggedVariant.interpretation = variant.interpretation;
+      }
+
       if (self.launchedFromClin) {
         self.onSendFlaggedVariantsToClin();
       }
       if (variant == self.selectedVariant) {
-        self.selectedVariantNotes = variant.notes;
+      }
+    },
+    onApplyVariantInterpretation: function(variant) {
+      let self = this;
+      if (self.launchedFromClin) {
+        self.onSendFlaggedVariantsToClin();
+      }
+      if (variant == self.selectedVariant) {
+        self.$set(self, "selectedVariantInterpretation", variant.interpretation);
       }
     },
     onFlaggedVariantSelected: function(flaggedVariant) {
@@ -1785,6 +1808,7 @@ export default {
         }
         self.selectedVariant = null;
         self.selectedVariantNotes = null;
+        self.selectedVariantInterpretation = null;
         self.selectedVariantRelationship = null;
         genePromise = self.promiseLoadGene(self.selectedGene.gene_name, self.selectedTranscript);
       }
@@ -1800,6 +1824,7 @@ export default {
 
             self.$set(self, "selectedVariant", flaggedVariant);
             self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
+            self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
             self.$refs.variantCardRef.forEach(function(variantCard) {
               if (variantCard.relationship == 'proband') {
                 variantCard.showFlaggedVariant(flaggedVariant);

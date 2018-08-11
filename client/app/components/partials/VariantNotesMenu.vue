@@ -1,6 +1,19 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+.chip.not-reviewed
+  .chip__content
+    background-color: $not-reviewed-color !important
+.chip.sig
+  .chip__content
+    background-color: $significant-color !important
+.chip.unknown-sig
+  .chip__content
+    background-color: $unknown-significance-color !important
+.chip.not-sig
+  .chip__content
+    background-color: $not-significant-color !important
+
 #select-interpretation
   label
     display: initial !important
@@ -122,15 +135,30 @@
 
       <v-card>
 
-          <v-select
-          id="select-interpretation"
-          :items="interpretations"
-          :class="interpretation"
-          v-model="interpretation"
-          label="Interpretation"
-          single-line
-          chips
-          >
+
+            <variant-interpretation
+               wrap="true"
+               :variant="variant"
+               @apply-variant-interpretation="onApplyVariantInterpretation">
+            </variant-interpretation>
+
+            <template slot="selection" slot-scope="data">
+              <v-chip
+                :selected="data.selected"
+                :key="JSON.stringify(data.item)"
+                class="chip--select-multi"
+                @input="data.parent.selectItem(data.item)"
+              >
+                {{ data.item.text }}
+              </v-chip>
+            </template>
+            <template slot="item" slot-scope="data">
+              <v-chip :class="data.item.value"
+              >
+                {{ data.item.text }}
+              </v-chip>
+            </template>
+
           </v-select>
 
           <div id="enter-notes-input">
@@ -160,23 +188,21 @@
 
 <script>
 
-
+import VariantInterpretation from '../partials/VariantInterpretation.vue'
 
 export default {
   name: 'variant-notes-menu',
   components: {
-
+    VariantInterpretation
   },
   props: {
     variant: null,
-    cohortModel: null,
     wrap: null
   },
   data () {
     return {
       showNotesMenu: null,
 
-      interpretation: null,
       notes: null,
 
       showTooltipFlag: false,
@@ -210,9 +236,13 @@ export default {
   methods: {
     onApply: function() {
       this.variant.notes = this.notes;
-      this.variant.interpretation = this.interpretation;
       this.$emit("apply-variant-notes", this.variant);
       this.showNotesMenu = false;
+    },
+    onApplyVariantInterpretation: function() {
+      // We don't want to propogate this event because
+      // the update of interpretation doesn't take effect
+      // until user presses 'Apply' button
     },
     onCancel: function() {
       this.showNotesMenu = false;
