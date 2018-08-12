@@ -40,6 +40,7 @@
 
 #notes-input
   font-size: 12px
+  background-color:  $notes-background-color
 
 #enter-notes-input
   .input-group--text-field.input-group--prepend-icon
@@ -116,6 +117,9 @@
     color: $light-badge-color
     background-color: transparent !important
 
+    &.has-notes
+      color: $app-color
+
 </style>
 
 <template>
@@ -140,10 +144,10 @@
         <span v-if="!showNotesIcon">
           {{ interpretationDisplay }}
         </span>
-        <v-icon v-if="showNotesIcon && notes != null && notes.length > 0">
+        <v-icon class="has-notes" v-if="showNotesIcon && notes != null && notes.length > 0">
           comment
         </v-icon>
-        <v-icon v-if="showNotesIcon && (notes == null || notes.length == 0)">
+        <v-icon class="no-notes" v-if="showNotesIcon && (notes == null || notes.length == 0)">
           add_comment
         </v-icon>
       </v-btn>
@@ -153,8 +157,7 @@
 
 
           <variant-interpretation
-             wrap="true"
-             style="width: 250px"
+             wrap="true"s
              :variant="variant"
              :variantInterpretation="interpretation"
              @apply-variant-interpretation="onApplyVariantInterpretation">
