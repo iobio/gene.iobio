@@ -24,7 +24,7 @@
   font-family: 'Open sans'
   margin: 0px
   padding: 0px
-  width: auto
+  width: 110px
   height: auto
   font-size: 12px
   margin-top: 0px
@@ -40,6 +40,9 @@
     .input-group__details
       display: none
 
+
+  .input-group__selections
+    width: 91px
 
   .input-group__selections__comma
     color: white
@@ -105,6 +108,7 @@ export default {
   },
   props: {
     variant: null,
+    variantInterpretation: null,
     wrap: null
   },
   data () {
@@ -139,24 +143,28 @@ export default {
     onApply: function() {
       this.variant.interpretation = this.interpretation;
       this.$emit("apply-variant-interpretation", this.variant);
+    },
+    init: function() {
+      let self = this;
+      self.interpretation = self.variant.interpretation && self.variant.interpretation.length > 0 ? self.variant.interpretation : 'not-reviewed';
     }
   },
   created: function() {
   },
   mounted: function() {
     let self = this;
-    self.interpretation = self.variant.interpretation == null || self.variant.interpretation.length == 0 ? 'not-reviewed' : self.variant.interpretation;
+    self.init();
   },
   updated: function() {
   },
   watch: {
-    variant: function() {
-      let self = this;
-      self.interpretation = self.variant.interpretation == null || self.variant.interpretation.length == 0 ? 'not-reviewed' : self.variant.interpretation;
-    },
     interpretation: function() {
       this.onApply();
-    }
+    },
+    variantInterpretation: function() {
+      this.init();
+    },
+
   }
 }
 </script>

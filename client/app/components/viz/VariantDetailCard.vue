@@ -256,6 +256,8 @@
       <variant-notes-menu style="float:left"
         v-if="!isBasicMode && !forMyGene2"
         :variant="selectedVariant"
+        :variantInterpretation="interpretation"
+        :variantNotes="notes"
         @apply-variant-notes="onApplyVariantNotes">
       </variant-notes-menu>
 

@@ -429,7 +429,7 @@
 
                     </div>
                     <div>
-                      <div  v-if="!isBasicMode" style="display:inline-block;vertical-align:top">
+                      <div  v-if="!isBasicMode " style="display:inline-block;vertical-align:top">
                         <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
                         <span class="af-small">{{ afDisplay(variant) }}</span>
                       </div>
@@ -437,26 +437,32 @@
                   </div>
 
 
+                  <div style="float-left;margin-left:4px">
 
                   <variant-interpretation
-                     style="float:left;margin-left:4px;"
+                    style="float:left"
                      v-if="!isBasicMode && !forMyGene2"
-                      class="variant-notes"
-                      wrap="true"
+                     class="variant-notes"
+                     wrap="true"
                      :variant="variant"
+                     :variantInterpretation="variant.interpretation"
                      @apply-variant-interpretation="onApplyVariantInterpretation">
                   </variant-interpretation>
-<!--
 
                   <variant-notes-menu
-                     style="float:left;margin-left:4px"
-                     v-if="!isBasicMode && !forMyGene2"
-                      class="variant-notes"
-                      wrap="true"
-                     :variant="variant"
-                     @apply-variant-notes="onApplyVariantNotes">
+                    v-if="!isBasicMode && !forMyGene2"
+                    style="float:left;margin-left:5px"
+                    class="variant-notes"
+                    :showNotesIcon="true"
+                    :variant="variant"
+                    :variantInterpretation="variant.interpretation"
+                    :variantNotes="variant.notes"
+                    @apply-variant-notes="onApplyVariantNotes">
                   </variant-notes-menu>
--->
+
+
+                  </div>
+
 
 
                 </v-list-tile-title>

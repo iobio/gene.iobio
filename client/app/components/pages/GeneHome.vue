@@ -1761,14 +1761,16 @@ export default {
       // Set the flagged variant notes and interpretation
       let flaggedVariant = this.cohortModel.getFlaggedVariant(variant);
       if (flaggedVariant) {
-        flaggedVariant.notes = variant.notes;
-        flaggedVariant.interpretation = variant.interpretation;
+        if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+          self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+        }
       }
 
       if (self.launchedFromClin) {
         self.onSendFlaggedVariantsToClin();
       }
       if (variant == self.selectedVariant) {
+        self.$set(self, "selectedVariantNotes", variant.notes);
       }
     },
     onApplyVariantInterpretation: function(variant) {

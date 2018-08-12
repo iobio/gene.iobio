@@ -50,6 +50,8 @@
       align-self: start
       font-size: 18px
 
+
+
 #show-notes-button
   font-family: 'Open sans'
   min-width: 20px
@@ -59,8 +61,8 @@
   font-size: 12px
   margin-top: 0px
   border-radius: 28px
-  color: white !important
-  background-color: $not-reviewed-color  !important
+  color: white
+  background-color: transparent
 
   &.not-reviewed
     background-color: $not-reviewed-color !important
@@ -106,6 +108,14 @@
 
       span
         width: initial
+
+#show-notes-button.show-notes-icon
+  background-color: transparent !important
+
+  .material-icons
+    color: $light-badge-color
+    background-color: transparent !important
+
 </style>
 
 <template>
@@ -120,46 +130,36 @@
       <v-btn id="show-notes-button"
        flat
        small
-       :class="[{'no-wrap' : !wrap}, variant.interpretation ? variant.interpretation : 'not-reviewed']"
+       :class="[{'no-wrap' : !wrap, 'show-notes-icon': showNotesIcon}, showNotesIcon ? '' : interpretation]"
        slot="activator"
        @mouseover="onMouseOver()"
        @mouseleave="onMouseLeave()"
        v-tooltip.top-center="{content: tooltipContent, show: showTooltipFlag, trigger: 'manual'}"
       >
 
-        <span>
-          {{ variant.interpretation ? interpretationMap[variant.interpretation] : interpretationMap['not-reviewed'] }}
+        <span v-if="!showNotesIcon">
+          {{ interpretationDisplay }}
         </span>
+        <v-icon v-if="showNotesIcon && notes != null && notes.length > 0">
+          comment
+        </v-icon>
+        <v-icon v-if="showNotesIcon && (notes == null || notes.length == 0)">
+          add_comment
+        </v-icon>
       </v-btn>
 
 
       <v-card>
 
 
-            <variant-interpretation
-               wrap="true"
-               :variant="variant"
-               @apply-variant-interpretation="onApplyVariantInterpretation">
-            </variant-interpretation>
+          <variant-interpretation
+             wrap="true"
+             style="width: 250px"
+             :variant="variant"
+             :variantInterpretation="interpretation"
+             @apply-variant-interpretation="onApplyVariantInterpretation">
+          </variant-interpretation>
 
-            <template slot="selection" slot-scope="data">
-              <v-chip
-                :selected="data.selected"
-                :key="JSON.stringify(data.item)"
-                class="chip--select-multi"
-                @input="data.parent.selectItem(data.item)"
-              >
-                {{ data.item.text }}
-              </v-chip>
-            </template>
-            <template slot="item" slot-scope="data">
-              <v-chip :class="data.item.value"
-              >
-                {{ data.item.text }}
-              </v-chip>
-            </template>
-
-          </v-select>
 
           <div id="enter-notes-input">
             <v-text-field
@@ -197,16 +197,21 @@ export default {
   },
   props: {
     variant: null,
-    wrap: null
+    variantNotes: null,
+    variantInterpretation: null,
+    wrap: null,
+    showNotesIcon: false
   },
   data () {
     return {
       showNotesMenu: null,
 
       notes: null,
+      interpretation: null,
 
       showTooltipFlag: false,
       tooltipContent: null,
+
 
       interpretationMap: {
         'sig': 'Significant',
@@ -214,32 +219,28 @@ export default {
         'not-sig': 'Not significant',
         'not-reviewed': 'Not reviewed'
       }
-
     }
   },
   watch: {
   },
   computed: {
-
-    interpretations: function() {
-      let self = this;
-      var theInterpretations = [];
-      for (var key in self.interpretationMap) {
-        theInterpretations.push({ 'value': key, 'text': self.interpretationMap[key]});
-      }
-      return theInterpretations;
-    },
     interpretationDisplay: function() {
-      return this.interpretation ? this.interpretationMap[this.interpretation] : this.interpretationMap['not-reviewed'] ;
+      if (this.interpretation) {
+        return this.interpretationMap[this.interpretation];
+      } else {
+        return this.interpretationMap['not-reviewed'];
+      }
     }
   },
   methods: {
     onApply: function() {
       this.variant.notes = this.notes;
+      this.variant.interpretation = this.interpretation;
       this.$emit("apply-variant-notes", this.variant);
       this.showNotesMenu = false;
     },
     onApplyVariantInterpretation: function() {
+      this.interpretation = this.variant.interpretation;
       // We don't want to propogate this event because
       // the update of interpretation doesn't take effect
       // until user presses 'Apply' button
@@ -262,21 +263,37 @@ export default {
     hideTooltip: function() {
       let self = this;
       this.showTooltipFlag = false;
+    },
+    init: function() {
+      let self = this;
+      if (self.variant) {
+        self.notes = self.variant.notes;
+        self.interpretation = self.variant.interpretation  && self.variant.interpretation.length > 0 ? self.variant.interpretation : "not-reviewed";
+      } else {
+        self.notes = "";
+        self.interpretation = 'not-reviewed';
+      }
     }
   },
   created: function() {
   },
   mounted: function() {
+    this.init();
   },
   updated: function() {
   },
   watch: {
     showNotesMenu: function() {
       let self = this;
-      if (self.showNotesMenu && self.variant) {
-        self.notes = self.variant.notes;
-        self.interpretation = self.variant.interpretation == null || self.variant.interpretation.length == 0 ? 'not-reviewed' : self.variant.interpretation;
+      if (self.showNotesMenu) {
+        self.init();
       }
+    },
+    variantNotes: function() {
+      this.init();
+    },
+    variantInterpretation: function() {
+      this.init();
     }
   }
 }
