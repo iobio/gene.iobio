@@ -563,7 +563,7 @@ class FilterModel {
       variant.isFlagged = true;
       variant.isUserFlagged = true;
       variant.featureClass = 'flagged';
-      variants.filtersPass = 'userFlagged';
+      variant.filtersPassed = 'userFlagged';
     }
 
     if (variant.isFlagged) {

@@ -215,6 +215,7 @@ export default {
       showTooltipFlag: false,
       tooltipContent: null,
 
+      variantInterpretationOrig: null,
 
       interpretationMap: {
         'sig': 'Significant',
@@ -249,6 +250,7 @@ export default {
       // until user presses 'Apply' button
     },
     onCancel: function() {
+      this.variant.interpretation = this.variantInterpretationOrig;
       this.showNotesMenu = false;
     },
     onMouseOver: function() {
@@ -289,6 +291,7 @@ export default {
     showNotesMenu: function() {
       let self = this;
       if (self.showNotesMenu) {
+        self.variantInterpretationOrig = self.variant.interpretation;
         self.init();
       }
     },

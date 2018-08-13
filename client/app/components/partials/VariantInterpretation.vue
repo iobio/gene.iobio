@@ -158,10 +158,12 @@ export default {
   updated: function() {
   },
   watch: {
-    interpretation: function() {
-      this.onApply();
+    interpretation: function(newInterpretation, oldInterpretation) {
+      if (oldInterpretation != null && oldInterpretation.length > 0 && oldInterpretation != newInterpretation) {
+        this.onApply();
+      }
     },
-    variantInterpretation: function() {
+    variantInterpretation: function(newInterpretation, oldInterpretation) {
       this.init();
     },
 

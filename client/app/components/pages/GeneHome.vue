@@ -748,7 +748,9 @@ export default {
       return new Promise(function(resolve, reject) {
         self.cacheHelper = new CacheHelper(self.globalApp, self.forceLocalStorage);
         self.cacheHelper.on("geneAnalyzed", function(geneName) {
-          self.$refs.genesCardRef.determineFlaggedGenes();
+          if (!self.launchedFromClin) {
+            self.$refs.genesCardRef.determineFlaggedGenes();
+          }
 
           if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
               && geneName == self.selectedGene.gene_name) {
@@ -759,7 +761,7 @@ export default {
           if (!self.isEduMode) {
             self.$refs.navRef.onShowFlaggedVariants();
           }
-          if (self.launchedFromClin) {
+          if (self.launchedFromClin && (self.paramMode == null || self.paramMode.length == 0)) {
             self.onSendFiltersToClin();
             self.onSendFlaggedVariantsToClin();
           }
@@ -1696,9 +1698,9 @@ export default {
         self.onCohortVariantClick(variant, self.$refs.variantCardRef[0], 'proband');
       })
 
-      //if (self.launchedFromClin) {
-      //  self.onSendFlaggedVariantsToClin();
-      //}
+      if (self.launchedFromClin && (self.paramMode == null || self.paramMode.length == 0)) {
+        self.onSendFlaggedVariantsToClin();
+      }
     },
     onRemoveFlaggedVariant: function(variant) {
       let self = this;
@@ -1719,7 +1721,7 @@ export default {
         self.onCohortVariantClick(variant, self.$refs.variantCardRef[0], 'proband');
       })
 
-      if (self.launchedFromClin) {
+      if (self.launchedFromClin && (self.paramMode == null || self.paramMode.length == 0)) {
         self.onSendFlaggedVariantsToClin();
       }
 
@@ -1737,7 +1739,7 @@ export default {
       let self = this;
       self.flaggedVariants = [];
       self.flaggedVariants = flaggedVariants;
-      if (self.launchedFromClin) {
+      if (self.launchedFromClin && (self.paramMode == null || self.paramMode.length == 0)) {
         self.onSendFlaggedVariantsToClin();
       }
 
@@ -1753,10 +1755,14 @@ export default {
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
       }
+      if (self.launchedFromClin && self.paramMode != null && self.paramMode == 'full') {
+        self.onSendFlaggedVariantsToClin();
+      }
 
     },
     onApplyVariantNotes: function(variant) {
       let self = this;
+
 
       // Set the flagged variant notes and interpretation
       let flaggedVariant = this.cohortModel.getFlaggedVariant(variant);
@@ -1772,15 +1778,19 @@ export default {
       if (variant == self.selectedVariant) {
         self.$set(self, "selectedVariantNotes", variant.notes);
       }
+
     },
     onApplyVariantInterpretation: function(variant) {
       let self = this;
+
       if (self.launchedFromClin) {
         self.onSendFlaggedVariantsToClin();
       }
+
       if (variant == self.selectedVariant) {
         self.$set(self, "selectedVariantInterpretation", variant.interpretation);
       }
+
     },
     onFlaggedVariantSelected: function(flaggedVariant) {
       let self = this;
