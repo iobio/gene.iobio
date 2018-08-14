@@ -163,6 +163,10 @@
       vertical-align: top
       padding-top: 0px
       line-height: 12px
+    .revel
+      display: inline-block
+      vertical-align: top
+      font-size: 12px
 
     .vep-consequence
       display: inline-block
@@ -432,11 +436,15 @@
 
 
                     </div>
-                    <div>
-                      <div  v-if="!isBasicMode && !variant.notFound" style="display:inline-block;vertical-align:top">
+                    <div style="line-height:12px">
+                      <div  v-if="!isBasicMode && !variant.notFound"
+                      style="display:inline-block">
                         <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
                         <span class="af-small">{{ afDisplay(variant) }}</span>
                       </div>
+                    </div>
+                    <div  v-if="!isBasicMode && !variant.notFound && isFullAnalysis">
+                      <span class="revel">{{ revel(variant) }}</span>
                     </div>
                   </div>
 
@@ -757,6 +765,17 @@ export default {
         return this.globalApp.utility.getRsId(variant);
       }
     },
+    revel: function(variant) {
+      if (variant.isProxy) {
+        return variant.REVEL && variant.REVEL.length > 0 ?  "REVEL " + variant.REVEL : "";
+      } else {
+        if (variant.vepREVEL && Object.keys(variant.vepREVEL).join(",").length > 0) {
+          return "REVEL " + Object.keys(variant.vepREVEL).join(",");
+        } else {
+          return "";
+        }
+      }
+    },
     hgvsP: function(variant) {
       if (variant.isProxy) {
         return this.globalApp.utility.formatHgvsP(variant, variant.HGVSp);
@@ -793,7 +812,7 @@ export default {
       return clazz;
     },
     afDisplay: function(variant) {
-      var label = this.isBasicMode ? "freq " : "";
+      var label = this.isBasicMode ? "freq " : "af ";
       if (variant.isProxy) {
         return  label +  this.globalApp.utility.percentage(variant.afgnomAD ? variant.afgnomAD : 0);
       } else {

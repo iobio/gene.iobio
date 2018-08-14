@@ -10,8 +10,6 @@
   line-height: 15px
   border: thin solid #e8e6e6
 
-  &.flagged
-    border: 2px solid rgba(149, 149, 149, 0.65)
 
   #gene-badge-symbols
     height: 14px

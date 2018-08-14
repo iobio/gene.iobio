@@ -1849,7 +1849,7 @@ class CohortModel {
   }
 
 
-  importFlaggedVariants(fileType, data, callback) {
+  importFlaggedVariants(fileType, data, callbackPostImport, callbackPostAnalyze) {
     var me = this;
     me.flaggedVariants = [];
 
@@ -1945,6 +1945,11 @@ class CohortModel {
             allVariants.push(v);
           })
         }
+      }
+
+      // First callback when flagged variants are now populated by imported records
+      if (callbackPostImport) {
+        callbackPostImport();
       }
 
 
@@ -2054,9 +2059,19 @@ class CohortModel {
         Promise.all(dataPromises)
         .then(function() {
 
-          if (callback) {
-            callback();
+          // Second callback when every gene has been analyzed
+          if (callbackPostAnalyze) {
+            callbackPostAnalyze();
           }
+
+        })
+        .catch(function(error) {
+          var msg = "An error occurred when analyzing all genes from imported variants. " + error;
+          console.log(msg);
+          if (callbackPostAnalyze) {
+            callbackPostAnalyze();
+          }
+
         })
       })
 

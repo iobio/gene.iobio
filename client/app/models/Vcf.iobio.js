@@ -923,7 +923,7 @@ var effectCategories = [
     if (me.infoFields == null) {
       me.infoFields = {};
     }
-    if (record.indexOf("INFO=<ID=CSQ") > 0 && !me.infoFields.VEP) {
+    if (record.indexOf("INFO=<ID=CSQ") > 0) {
       var fieldMap = me._parseInfoHeaderRecord(record);
       me.infoFields.VEP = fieldMap;
     } else if (record.indexOf("INFO=<ID=AVIA3") > 0 && !me.infoFields.AVIA3) {

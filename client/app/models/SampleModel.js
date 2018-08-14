@@ -1034,10 +1034,10 @@ class SampleModel {
   }
 
 
-  promiseGetMatchingVariant(variant) {
+  promiseGetMatchingVariant(variant, geneObject, transcript) {
     var me = this;
     return new Promise(function(resolve, reject) {
-      var theVcfData = me.promiseGetVcfData(window.gene, window.selectedTranscript)
+      var theVcfData = me.promiseGetVcfData(geneObject, transcript)
        .then(function(data) {
         var theVcfData = data.vcfData;
         var matchingVariant = null;
@@ -1248,6 +1248,7 @@ class SampleModel {
           resolve(variant);
         }
       } else {
+        var sourceVariant = variant;
         me._promiseVcfRefName(theGene.chr).then( function() {
           me.vcf.promiseGetVariants(
              me.getVcfRefName(theGene.chr),
@@ -1335,6 +1336,7 @@ class SampleModel {
 
                           // set the hgvs and rsid on the existing variant
                           theVariant.extraAnnot      = true;
+                          sourceVariant.extraAnnot   = true;
                           var vepAnnots = [
                             'vepConsequence',
                             'vepImpact',
@@ -1354,6 +1356,7 @@ class SampleModel {
                             ];
                           vepAnnots.forEach(function(vepAnnot) {
                             theVariant[vepAnnot]        = v[vepAnnot];
+                            sourceVariant[vepAnnot]     = v[vepAnnot];
                           })
 
                           // re-cache the data

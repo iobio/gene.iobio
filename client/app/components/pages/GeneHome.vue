@@ -439,6 +439,8 @@ export default {
 
       launchedFromClin: false,
       isFullAnalysis:  false,
+      sendingVariantToClin: false,
+
       launchedFromHub: false,
       launchedWithUrlParms: false,
 
@@ -1777,13 +1779,8 @@ export default {
         }
       }
 
-      if (self.launchedFromClin && self.isFullAnalysis) {
-        self.onSendFlaggedVariantsToClin(function() {
-          showFlaggedVariants();
-        });
-      } else {
-        showFlaggedVariants();
-      }
+      showFlaggedVariants();
+
 
     },
     onApplyVariantNotes: function(variant) {
@@ -1854,31 +1851,55 @@ export default {
       .then(function() {
 
         setTimeout(
-          function(){
+          function() {
+
+            let matchingVariantPromise = null;
             self.calcFeatureMatrixWidthPercent();
-            self.showVariantExtraAnnots(self.$refs.featureMatrixCardRef, flaggedVariant);
+            if (flaggedVariant.isProxy) {
+              matchingVariantPromise = self.cohortModel.getProbandModel().promiseGetMatchingVariant(flaggedVariant, flaggedVariant.gene, flaggedVariant.transcript);
+            } else {
+              matchingVariantPromise = Promise.resolve(flaggedVariant);
+            }
 
 
-            self.$set(self, "selectedVariant", flaggedVariant);
-            self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
-            self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
-            self.$refs.variantCardRef.forEach(function(variantCard) {
-              if (variantCard.relationship == 'proband') {
-                variantCard.showFlaggedVariant(flaggedVariant);
+            matchingVariantPromise.then(function(matchingVariant) {
+
+              self.showVariantExtraAnnots(self.$refs.featureMatrixCardRef, matchingVariant);
+
+              if (flaggedVariant.isProxy) {
+                var isUserFlagged = flaggedVariant.isUserFlagged;
+                var notes = flaggedVariant.notes;
+                var interpretation = flaggedVariant.interpretation;
+                flaggedVariant = $.extend(flaggedVariant, matchingVariant);
+                flaggedVariant.isFlagged = true;
+                flaggedVariant.isUserFlagged = isUserFlagged;
+                flaggedVariant.notes = notes;
+                flaggedVariant.interpretation = interpretation;
+                flaggedVariant.isProxy = false;
               }
+
+              self.$set(self, "selectedVariant", flaggedVariant);
+              self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
+              self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
+              self.$refs.variantCardRef.forEach(function(variantCard) {
+                if (variantCard.relationship == 'proband') {
+                  variantCard.showFlaggedVariant(flaggedVariant);
+                }
+              })
+
+              self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
+
+
+              self.$refs.variantCardRef.forEach(function(variantCard) {
+                  variantCard.showVariantCircle(flaggedVariant, true);
+                  variantCard.showCoverageCircle(flaggedVariant);
+              })
+
+
+              self.activeGeneVariantTab = "1";
+              self.$refs.variantDetailCardRef.refreshGlyphs();
+
             })
-
-            self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
-
-
-            self.$refs.variantCardRef.forEach(function(variantCard) {
-                variantCard.showVariantCircle(flaggedVariant, true);
-                variantCard.showCoverageCircle(flaggedVariant);
-            })
-
-
-            self.activeGeneVariantTab = "1";
-            self.$refs.variantDetailCardRef.refreshGlyphs();
           },
           500);
 
@@ -2128,8 +2149,13 @@ export default {
               clinObject.genes.join(" "),
               {isFromClin: true, replace: true, warnOnDup: false, phenotypes: clinObject.phenotypes.join(",")},
           function() {
-            self.cohortModel.importFlaggedVariants('json', clinObject.variants, function() {
+            self.cohortModel.importFlaggedVariants('json', clinObject.variants,
+            function() {
               self.onFlaggedVariantsImported();
+              self.$refs.navRef.onShowFlaggedVariants();
+            },
+            function() {
+
               self.$refs.navRef.onShowFlaggedVariants();
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             })
@@ -2154,15 +2180,16 @@ export default {
             variantData = clinObject.variantData;
           }
 
-          self.cohortModel.importFlaggedVariants(fileType, variantData, function() {
+          self.cohortModel.importFlaggedVariants(fileType, variantData,
+          function() {
             self.onFlaggedVariantsImported();
             self.$refs.navRef.onShowFlaggedVariants();
-            if (self.launchedFromClin && self.isFullAnalysis) {
-              // Bypass analyze all for 'full analysis' mode when launched from clin
-            } else {
-              self.cacheHelper.analyzeAll(self.cohortModel, false);
+          },
+          function() {
+            self.onFlaggedVariantsImported();
+            self.onSendFlaggedVariantsToClin(function() {
+            });
 
-            }
           })
 
         })
@@ -2213,7 +2240,9 @@ export default {
 
     onSendFlaggedVariantsToClin: function(callback) {
       let self = this;
-      if (this.launchedFromClin) {
+      if (this.launchedFromClin && !self.sendingVariantToClin) {
+        self.sendingVariantToClin = true;
+        self.onShowSnackbar({message: 'Saving variants...', timeout: 1000})
         self.cohortModel.promiseExportFlaggedVariants('json')
         .then(function(data) {
           if (self.isFullAnalysis) {
@@ -2224,7 +2253,6 @@ export default {
               app: 'genefull',
               variantsFullAnalysis: data};
             window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
-
           } else {
             var msgObject = {
               success: true,
@@ -2235,10 +2263,12 @@ export default {
             window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
 
           }
+          self.sendingVariantToClin = false;
           if (callback) {
             callback();
           }
         });
+
 
       }
     },

@@ -30,6 +30,7 @@ export default class VariantExporter {
       {field: 'inheritance',      exportVcf: true},
       {field: 'polyphen',         exportVcf: true},
       {field: 'SIFT',             exportVcf: true},
+      {field: 'REVEL',            exportVcf: true},
       {field: 'rsId',             exportVcf: true},
       {field: 'clinvarClinSig',   exportVcf: true},
       {field: 'clinvarPhenotype', exportVcf: true},
@@ -499,29 +500,41 @@ export default class VariantExporter {
         }
       });
 
-      // Set the clinvar start, alt, ref for clinvar web access
-      me.cohort.getProbandModel().vcf._formatClinvarCoordinates(theVariant, theVariant.alt);
+      if (theVariant.isProxy) {
+        // Set the clinvar start, alt, ref for clinvar web access
+        me.cohort.getProbandModel().vcf._formatClinvarCoordinates(theVariant, theVariant.alt);
 
-      // Get the clinvar data and load into the variant record
-      var dummyVcfData  = {features: [revisedVariant]};
-      var clinvarLoader = me.globalApp.isClinvarOffline || me.globalApp.clinvarSource == "vcf" ? me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData) : me.cohort.getProbandModel()._refreshVariantsWithClinvarEutils.bind(me.cohort.getProbandModel(), dummyVcfData);
-      me.cohort.getProbandModel()
-      .vcf
-      .promiseGetClinvarRecords(dummyVcfData,
-        me.cohort.getProbandModel()._stripRefName(revisedVariant.chrom),
-        theGeneObject,
-        me.cohort.geneModel.clinvarGenes,
-        clinvarLoader)
-      .then(function() {
+        // Get the clinvar data and load into the variant record
+        var dummyVcfData  = {features: [revisedVariant]};
+        var clinvarLoader = me.globalApp.isClinvarOffline || me.globalApp.clinvarSource == "vcf" ? me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData) : me.cohort.getProbandModel()._refreshVariantsWithClinvarEutils.bind(me.cohort.getProbandModel(), dummyVcfData);
+        me.cohort.getProbandModel()
+        .vcf
+        .promiseGetClinvarRecords(dummyVcfData,
+          me.cohort.getProbandModel()._stripRefName(revisedVariant.chrom),
+          theGeneObject,
+          me.cohort.geneModel.clinvarGenes,
+          clinvarLoader)
+        .then(function() {
 
+          me.formatDisplay(revisedVariant, rec);
+
+          if (format == 'csv' || format == 'json') {
+            resolve([rec]);
+          } else {
+            resolve([rec, theRawVcfRecords]);
+          }
+        })
+      } else {
         me.formatDisplay(revisedVariant, rec);
 
         if (format == 'csv' || format == 'json') {
-          resolve([rec]);
+            resolve([rec]);
         } else {
           resolve([rec, theRawVcfRecords]);
         }
-      })
+
+      }
+
     });
   }
 
@@ -545,6 +558,7 @@ export default class VariantExporter {
     rec.type              = variant.type;
     rec.SIFT              = info.sift;
     rec.regulatory        = info.regulatory;
+    rec.REVEL             = info.revel;
     rec.rsId              = info.rsId;
     rec.dbSnpUrl          = info.dbSnpUrl;
     rec.clinvarUrl        = info.clinvarUrl;
