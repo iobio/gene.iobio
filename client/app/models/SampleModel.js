@@ -1057,7 +1057,11 @@ class SampleModel {
        function(error) {
         var msg = "A problem occurred in SampleModel.promiseGetMatchingVariant(): " + error;
         console.log(msg);
-        reject(msg);
+        if (variant.isProxy && variant.notFound) {
+          resolve(variant);
+        } else {
+          reject(msg);
+        }
        })
 
     });
@@ -1379,14 +1383,25 @@ class SampleModel {
 
                   }
                 } else {
-                  reject('Cannot find vcf record for variant ' + theGene.gene_name + " " + variant.start + " " + variant.ref + "->" + variant.alt);
+                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
+                  console.log(msg);
+                  if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
+                    variant.notFound = true;
+                    variant.isUserFlagged = false;
+                    resolve([variant, variant, []]);
+                  } else {
+                   reject(msg);
+                  }
+
                 }
 
 
               } else {
                 var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
                 console.log(msg);
-                if (format == 'csv' || format == 'json' || format == 'vcf') {
+                if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
+                  variant.notFound = true;
+                  variant.isUserFlagged = false;
                   resolve([variant, variant, []]);
                 }
                 reject(msg);
@@ -1489,10 +1504,13 @@ class SampleModel {
 
 
 
-  promiseAnnotateVariants(theGene, theTranscript, variantModels, isMultiSample, isBackground, onVcfData) {
+  promiseAnnotateVariants(theGene, theTranscript, variantModels, options, onVcfData) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
+
+      let isMultiSample = options.isMultiSample;
+      let isBackground = options.isBackground;
 
       // First the gene vcf data has been cached, just return
       // it.  (No need to retrieve the variants from the iobio service.)

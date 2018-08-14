@@ -533,7 +533,7 @@ export default class VariantExporter {
     var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
 
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
-    rec.filtersPassed     = variant.filtersPassed ? variant.filtersPassed.join(",") : "";
+    rec.filtersPassed     = variant.filtersPassed  && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
     rec.notes             = variant.notes && variant.notes.length > 0 ? variant.notes : "";
     rec.interpretation    = variant.interpretation && variant.interpretation.length > 0 ? variant.interpretation : "not-reviewed";
     rec.inheritance       = info.inheritance ? this.cohort.translator.getInheritanceLabel(info.inheritance) : "";

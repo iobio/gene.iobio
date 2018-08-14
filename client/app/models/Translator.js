@@ -77,6 +77,8 @@ export default class Translator {
                       'compoundHet':       {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
                       'highOrModerate':    {value: 2, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
                       'userFlagged':       {value: 3, badge: false, clazz: 'user-flagged',    symbolFunction: this.glyph.showFlaggedSymbol},
+                      'notCategorized':    {value: 3, badge: false, clazz: 'user-flagged',    symbolFunction: this.glyph.showFlaggedSymbol},
+                      'notFound':          {value: 3, badge: false, clazz: 'user-flagged',    symbolFunction: this.glyph.showFlaggedSymbol},
                       '':                  {value: 3, badge: false, clazz: '',                symbolFunction: ''}
                        };
     this.unaffectedMap = {

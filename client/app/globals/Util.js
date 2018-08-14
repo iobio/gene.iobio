@@ -922,7 +922,7 @@ class Util {
       info.dbSnpLink =  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';
     }
 
-    info.filtersPassed = variant.filtersPassed ? variant.filtersPassed.join(",") : "";
+    info.filtersPassed = variant.filtersPassed && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
 
     return info;
   }

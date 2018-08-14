@@ -314,12 +314,15 @@
 
 
     <div class="variant-toolbar" >
-      <v-btn id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
+      <v-btn v-if="!isFullAnalysis" id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
         <v-icon >close</v-icon>
       </v-btn>
       <v-toolbar-title >
-        <span v-show="!isBasicMode">
+        <span v-show="!isBasicMode && !isFullAnalysis">
           Variants
+        </span>
+        <span v-show="!isBasicMode && isFullAnalysis">
+          Variants - Full Analysis
         </span>
         <span id="mygene2-basic-title" v-show="isBasicMode && !launchedFromClin && flaggedVariants">
           Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
@@ -406,6 +409,7 @@
 
                           <app-icon
                            icon="impact"
+                           v-if="variant.type"
                            :type="variant.type.toLowerCase()"
                            :clazz="highestImpactClass(variant)"
                            class="impact-badge" height="15" width="11">
@@ -429,7 +433,7 @@
 
                     </div>
                     <div>
-                      <div  v-if="!isBasicMode " style="display:inline-block;vertical-align:top">
+                      <div  v-if="!isBasicMode && !variant.notFound" style="display:inline-block;vertical-align:top">
                         <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
                         <span class="af-small">{{ afDisplay(variant) }}</span>
                       </div>
@@ -441,7 +445,7 @@
 
                   <variant-interpretation
                     style="float:left"
-                     v-if="!isBasicMode && !forMyGene2"
+                     v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
                      class="variant-notes"
                      wrap="true"
                      :variant="variant"
@@ -450,7 +454,7 @@
                   </variant-interpretation>
 
                   <variant-notes-menu
-                    v-if="!isBasicMode && !forMyGene2"
+                    v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
                     style="float:left;margin-left:5px"
                     class="variant-notes"
                     :showNotesIcon="true"
@@ -459,6 +463,10 @@
                     :variantNotes="variant.notes"
                     @apply-variant-notes="onApplyVariantNotes">
                   </variant-notes-menu>
+
+                  <span v-if="variant.notFound"
+                    class="coord"> {{ coord(flaggedGene, variant) }} </span>
+                  </span>
 
 
                   </div>
@@ -640,7 +648,8 @@ export default {
     forMyGene2: null,
     flaggedVariants: null,
     cohortModel: null,
-    launchedFromClin: null
+    launchedFromClin: null,
+    isFullAnalysis: null
   },
   data() {
     return {
@@ -793,7 +802,7 @@ export default {
     },
     zygosity: function(variant) {
       if (variant.isProxy) {
-        return variant.zygosityProband.toUpperCase();
+        return variant.zygosityProband ? variant.zygosityProband.toUpperCase() : (variant.zygosity ? variant.zygosity.toUpperCase() : "");
       } else {
         return variant.zygosity.toUpperCase();
       }

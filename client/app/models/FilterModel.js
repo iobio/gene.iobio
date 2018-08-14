@@ -164,6 +164,38 @@ class FilterModel {
         zyosity: null,
         minGenotypeDepth: null,
         exclusiveOf:  null
+      },
+      'notCategorized': {
+        active: true,
+        custom: false,
+        title: "Variants not categorized",
+        name: "Variants found during full analysis, but not passing any app filters",
+        order: 8,
+        userFlagged: false,
+        maxAf: null,
+        clinvar: null,
+        impact: null,
+        consequence: null,
+        inheritance: null,
+        zyosity: null,
+        minGenotypeDepth: null,
+        exclusiveOf: null
+      },
+      'notFound': {
+        active: true,
+        custom: false,
+        title: "Variants not found",
+        name: "Variants not found",
+        order: 9,
+        userFlagged: false,
+        maxAf: null,
+        clinvar: null,
+        impact: null,
+        consequence: null,
+        inheritance: null,
+        zyosity: null,
+        minGenotypeDepth: null,
+        exclusiveOf: null
       }
     }
 
@@ -496,7 +528,7 @@ class FilterModel {
     return badges;
   }
 
-  _flagVariant(variant, badges, defaultNoneToUserFlagged=false) {
+  _flagVariant(variant, badges, defaultNoneToNotCategorized=false) {
     let self = this;
     var badgePassState = {};
 
@@ -507,7 +539,9 @@ class FilterModel {
     }
     badgePassState.flagged = false;
 
-    if (variant.isUserFlagged) {
+    if (variant.notFound) {
+      badgePassState['notFound'] = true;
+    } else if (variant.isUserFlagged) {
       badgePassState['userFlagged'] = true;
     } else {
       variant.isFlagged = false;
@@ -557,13 +591,14 @@ class FilterModel {
       variant.isFlagged = true;
       variant.featureClass = 'flagged';
       variant.filtersPassed = filtersPassed;
-    } else if (defaultNoneToUserFlagged) {
+    } else if (defaultNoneToNotCategorized) {
       // If this is an imported variant but didn't pass any of the current filters,
       // just indicate that it is user flagged
       variant.isFlagged = true;
-      variant.isUserFlagged = true;
+      variant.isUserFlagged = false;
+      variant.notCategorized = true;
       variant.featureClass = 'flagged';
-      variant.filtersPassed = 'userFlagged';
+      variant.filtersPassed = 'notCategorized';
     }
 
     if (variant.isFlagged) {
@@ -584,10 +619,22 @@ class FilterModel {
       inheritance: false,
       zygosity: false,
       depth: false,
-      userFlagged: false
+      userFlagged: false,
+      notCategorized: false,
+      notFound: false
     };
 
-    if (badgeCriteria.userFlagged == true) {
+    if (badge == 'notCategorized') {
+      if (variant.notCategorized) {
+        passes.notCategorized = true;
+        passes.all = true;
+      }
+    } else if (badge == 'notFound') {
+      if (variant.notFound) {
+        passes.notFound = true;
+        passes.all = true;
+      }
+    } else if (badgeCriteria.userFlagged == true) {
       if (variant.isUserFlagged) {
         passes.userFlagged = true;
         passes.all = true;

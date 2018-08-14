@@ -693,7 +693,7 @@ class CohortModel {
     let self = this;
     return new Promise(function(resolve, reject) {
       self.getModel('known-variants').inProgress.loadingVariants = true;
-      self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], false, false)
+      self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], {'isMultiSample': false, 'isBackground': false})
       .then(function(resultMap) {
         self.getModel('known-variants').inProgress.loadingVariants = false;
         self.setLoadedVariants(theGene, 'known-variants');
@@ -724,7 +724,8 @@ class CohortModel {
     let self = this;
 
     return new Promise(function(resolve, reject) {
-      self.promiseAnnotateVariants(theGene, theTranscript, self.mode == 'trio' && self.samplesInSingleVcf(), false, options)
+      let theOptions = $.extend({'isMultiSample': self.mode == 'trio' && self.samplesInSingleVcf(), 'isBackground': false}, options);
+      self.promiseAnnotateVariants(theGene, theTranscript, theOptions)
       .then(function(resultMap) {
         // Flag bookmarked variants
         self.setVariantFlags(resultMap.proband);
@@ -887,20 +888,21 @@ class CohortModel {
     })
   }
 
-  promiseAnnotateVariants(theGene, theTranscript, isMultiSample, isBackground, options={}) {
+  promiseAnnotateVariants(theGene, theTranscript, options={}) {
     let self = this;
     return new Promise(function(resolve, reject) {
+
       var annotatePromises = [];
       var theResultMap = {};
-      if (isMultiSample) {
+      if (options.isMultiSample) {
         self.getCanonicalModels().forEach(function(model) {
-          if (!isBackground) {
+          if (!options.isBackground) {
             model.inProgress.loadingVariants = true;
           }
         })
-        p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.getCanonicalModels(), isMultiSample, isBackground)
+        p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.getCanonicalModels(), options)
         .then(function(resultMap) {
-          if (!isBackground) {
+          if (!options.isBackground) {
             self.getCanonicalModels().forEach(function(model) {
               model.inProgress.loadingVariants = false;
             })
@@ -912,14 +914,14 @@ class CohortModel {
         for (var rel in self.sampleMap) {
           var model = self.sampleMap[rel].model;
           if (model.isVcfReadyToLoad() || model.isLoaded()) {
-            if (!isBackground) {
+            if (!options.isBackground) {
               model.inProgress.loadingVariants = true;
             }
             if (rel != 'known-variants') {
-              var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], isMultiSample, isBackground)
+              var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], options)
               .then(function(resultMap) {
                 for (var theRelationship in resultMap) {
-                  if (!isBackground) {
+                  if (!options.isBackground) {
                     self.getModel(theRelationship).inProgress.loadingVariants = false;
                   }
                   theResultMap[theRelationship] = resultMap[theRelationship];
@@ -948,7 +950,7 @@ class CohortModel {
       Promise.all(annotatePromises)
       .then(function() {
 
-        self.promiseAnnotateWithClinvar(theResultMap, theGene, theTranscript, isBackground)
+        self.promiseAnnotateWithClinvar(theResultMap, theGene, theTranscript, options.isBackground)
         .then(function(data) {
           resolve(data)
         })
@@ -1177,11 +1179,21 @@ class CohortModel {
     let self = this;
 
     return new Promise(function(resolve, reject) {
+      var checkGeneCoverage = options && options.hasOwnProperty('checkGeneCoverage') && options.checkGeneCoverage == true;
 
-      self.promiseGetCachedGeneCoverage(geneObject, theTranscript, false)
-      .then(function(data) {
+      var coveragePromise = null;
+      if (checkGeneCoverage) {
+        coveragePromise = self.promiseGetCachedGeneCoverage(geneObject, theTranscript, false);
+      } else {
+        coveragePromise = Promise.resolve();
+      }
 
-        var geneCoverageAll = data.geneCoverage;
+      coveragePromise.then(function(data) {
+
+        var geneCoverageAll = null;
+        if (checkGeneCoverage) {
+          geneCoverageAll =  data.geneCoverage;
+        }
         var theOptions = null;
 
         self.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
@@ -1889,7 +1901,8 @@ class CohortModel {
         variant.gene = geneObject;
         variant.isProxy = true;
         variant.isFlagged = true;
-        variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : ['userFlagged']);
+        variant.notCategorized = false;
+        variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : ['notCategorized']);
         if (variant.isUserFlagged == 'Y') {
           variant.isUserFlagged = true;
         } else {
@@ -1936,10 +1949,10 @@ class CohortModel {
 
 
 
-      me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), geneToAltTranscripts, false)
+      me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), geneToAltTranscripts, false, false)
       .then(function() {
         if (Object.keys(genesToAnalyze.call).length > 0) {
-          return me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.call), geneToAltTranscripts, true)
+          return me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.call), geneToAltTranscripts, true, false)
         } else {
           return Promise.resolve();
         }
@@ -1990,31 +2003,42 @@ class CohortModel {
                     importedVariant.gene = geneObject;
                     importedVariant.transcript = transcript;
 
+
                     console.log(importedVariant);
                   } else {
-                    console.log("Unable to match imported variant to vcf data for " + importedVariant.gene + " " + importedVariant.transcript + " " + importedVariant.start)
+                    importedVariant.isProxy = true;
+                    importedVariant.notFound = true;
+
+                    console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
                   }
                 })
+
 
                 // Make sure that the imported variants are re-assessed to determine the filters they
                 // pass.  We need this so that the imported variants show up in the left flagged variants
                 // side panel
-                me.filterModel.flagImportedVariants(importedVariants);
+                if (importedVariants.length > 0) {
+                  me.filterModel.flagImportedVariants(importedVariants);
 
-                // We need to recache the variants since the isUserFlag has been established
-                me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
-                .then(function() {
+                  // We need to recache the variants since the isUserFlag has been established
+                  me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
+                  .then(function() {
 
-                  // Now recalc the badge counts on danger summary to reflect imported variants
-                  me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
-                  .then(function(dangerSummary) {
-                    dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
-                    me.geneModel.setDangerSummary(geneObject, dangerSummary);
+                    // Now recalc the badge counts on danger summary to reflect imported variants
+                    me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
+                    .then(function(dangerSummary) {
+                      dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
+                      me.geneModel.setDangerSummary(geneObject, dangerSummary);
 
-                    resolve();
-                  });
+                      resolve();
+                    });
 
-                })
+                  })
+
+                } else {
+                  resolve();
+                }
+
 
               })
               .catch(function(error) {

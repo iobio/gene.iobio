@@ -86,7 +86,7 @@ class GeneModel {
     me.allKnownGenes = allKnownGenes;
     me.allKnownGeneNames = {};
     me.allKnownGenes.forEach(function(gene) {
-      me.allKnownGeneNames[gene.gene_name] = gene;
+      me.allKnownGeneNames[gene.gene_name.toUpperCase()] = gene;
     })
   }
 

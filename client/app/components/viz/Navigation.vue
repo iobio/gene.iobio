@@ -13,9 +13,9 @@ aside.navigation-drawer
     flex: 1 1 auto
     justify-content: space-between
     margin-bottom: 0px
-    padding-bottom: 0px
-    height: calc(100% - 10px)
     overflow-y: scroll
+    padding-bottom: 10px
+    height: calc(100% - 15px)
 
     #flagged-variants-card
       flex-grow: 1
@@ -231,17 +231,18 @@ nav.toolbar
       <v-toolbar-title v-text="title">
       </v-toolbar-title>
 
-      <v-spacer></v-spacer>
+      <v-spacer v-if="!isFullAnalysis"></v-spacer>
 
-      <v-btn id="variants-button" flat @click.stop="leftDrawer = !leftDrawer">
+      <v-btn  id="variants-button" flat @click.stop="leftDrawer = !leftDrawer">
         Variants
       </v-btn>
 
 
+
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items  class="hidden-sm-and-down" style="padding-top:3px">
+      <v-toolbar-items  v-if="!isFullAnalysis" class="hidden-sm-and-down" style="padding-top:3px">
 
         <v-icon>
           search
@@ -299,7 +300,7 @@ nav.toolbar
 
 
       <files-menu
-       v-if="!isEduMode && !isBasicMode"
+       v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
        :cohortModel="cohortModel"
        @on-files-loaded="onFilesLoaded"
        @load-demo-data="onLoadDemoData"
@@ -397,6 +398,7 @@ nav.toolbar
          :cohortModel="cohortModel"
          :flaggedVariants="flaggedVariants"
          :launchedFromClin="launchedFromClin"
+         :isFullAnalysis="isFullAnalysis"
          @flagged-variants-imported="onFlaggedVariantsImported"
          @flagged-variant-selected="onFlaggedVariantSelected"
          @apply-variant-notes="onApplyVariantNotes"
@@ -595,6 +597,7 @@ export default {
     cohortModel: null,
     flaggedVariants: null,
     launchedFromClin: null,
+    isFullAnalysis: null,
     bringAttention: null
   },
   data () {

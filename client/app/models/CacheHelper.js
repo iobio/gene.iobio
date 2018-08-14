@@ -57,7 +57,7 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
   }
 }
 
-CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, geneToAltTranscript, analyzeCalledVariants=false) {
+CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, geneToAltTranscript, analyzeCalledVariants=false, checkGeneCoverage=true) {
   var me = this;
   me.cohort = cohort;
   me.geneToAltTranscript = geneToAltTranscript;
@@ -67,7 +67,7 @@ CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, gene
     theGeneNames.forEach(function(geneName) {
       me.genesToCache.push(geneName);
     });
-    me.cacheGenes(analyzeCalledVariants, function() {
+    me.cacheGenes(analyzeCalledVariants, checkGeneCoverage, function() {
       me.analyzeAllInProgress = false;
       me.cohort.geneModel.sortGenes("harmful variants");
       resolve();
@@ -174,7 +174,7 @@ CacheHelper.prototype.dequeueGene = function(geneName) {
 }
 
 
-CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
+CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false, checkGeneCoverage=true) {
   var me = this;
 
   this.analyzeAllInProgress = !analyzeCalledVariants
@@ -194,7 +194,7 @@ CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
   me.cohort.geneModel.geneNames.forEach(function(geneName) {
     me.genesToCache.push(geneName);
   });
-  me.cacheGenes(analyzeCalledVariants, function() {
+  me.cacheGenes(analyzeCalledVariants, checkGeneCoverage, function() {
 
     me.analyzeAllInProgress = false;
     me.callAllInProgress    = false;
@@ -215,7 +215,7 @@ CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
 
 
 
-CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
+CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, checkGeneCoverage, callback) {
   var me = this;
 
   // If there are no more genes to cache,
@@ -255,9 +255,9 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
   // Invoke method to cache each of the genes in the queue
   var count = 0;
   for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue; i++) {
-    me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants)
+    me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants, checkGeneCoverage)
     .then(function(theGeneObject) {
-      me.cacheNextGene(theGeneObject.gene_name, analyzeCalledVariants, callback);
+      me.cacheNextGene(theGeneObject.gene_name, analyzeCalledVariants, checkGeneCoverage, callback);
     },
     function(error) {
       // An error occurred.  Set the gene badge with an error glyph
@@ -270,12 +270,12 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
       .then(function(dangerObject) {
         // take this gene off of the queue and see
         // if next batch of genes should be analyzed
-        me.cacheNextGene(error.geneName, analyzeCalledVariants, callback);
+        me.cacheNextGene(error.geneName, analyzeCalledVariants, checkGeneCoverage, callback);
       },
       function(error) {
         var msg = "A problem ocurred while summarizing error in CacheHelper.prototype.cacheGene(): " + error;
         console.log(msg);
-        me.cacheNextGene(error.geneName, analyzeCalledVariants, callback);
+        me.cacheNextGene(error.geneName, analyzeCalledVariants, checkGeneCoverage, callback);
       })
     })
     count++;
@@ -286,7 +286,7 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
 
 
 
-CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariants, callback) {
+CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariants, checkGeneCoverage, callback) {
   var me = this;
 
   return new Promise(function(cacheResolve, cacheReject) {
@@ -323,12 +323,18 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
         cacheResolve(geneObject);
       } else {
         // Get the gene coverage stats
-        return me.cohort.promiseGetCachedGeneCoverage(geneObject, transcript, false);
+        if (checkGeneCoverage) {
+          return me.cohort.promiseGetCachedGeneCoverage(geneObject, transcript, false);
+        } else {
+          return Promise.resolve();
+        }
       }
     })
     .then(function(data) {
       // Load and annotate the variants
-      geneCoverageAll = data.geneCoverage;
+      if (checkGeneCoverage) {
+        geneCoverageAll = data.geneCoverage;
+      }
 
       // Show that we are working on this gene
       //genesCard._geneBadgeLoading(geneObject.gene_name, true);
@@ -337,7 +343,9 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       if (me.cohort.isAlignmentsOnly()) {
         return Promise.resolve(trioVcfData);
       } else {
-        return me.cohort.promiseAnnotateVariants(geneObject, transcript, me.cohort.mode == 'trio' && me.cohort.samplesInSingleVcf(), true)
+        let annotationOptions = {'isMultSample': me.cohort.mode == 'trio' && me.cohort.samplesInSingleVcf(),
+                                 'isBackground': true};
+        return me.cohort.promiseAnnotateVariants(geneObject, transcript, annotationOptions)
       }
     })
     .then(function(data) {
@@ -362,7 +370,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     .then(function(data) {
 
       // Now summarize the danger for the  gene
-      return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants})
+      return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants, 'checkGeneCoverage': checkGeneCoverage})
     })
     .then(function() {
       // Now clear out mother and father from cache (localStorage browser cache only)
@@ -399,7 +407,7 @@ CacheHelper.prototype.isGeneInProgress = function(geneName) {
   return this.cacheQueue.indexOf(geneName) >= 0;
 }
 
-CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants, callback) {
+CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants=false, checkGeneCoverage=true, callback) {
 
   this.dispatch.geneAnalyzed(geneName);
 
@@ -407,7 +415,7 @@ CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants, 
   // Invoke cacheGenes, which will kick off the next batch
   // of genes to analyze once all of the genes in
   // the current batch have been analyzed.
-  this.cacheGenes(analyzeCalledVariants, callback);
+  this.cacheGenes(analyzeCalledVariants, checkGeneCoverage, callback);
 }
 
 CacheHelper.prototype.promiseIsCachedForProband = function(geneObject, transcript, checkForCalledVariants) {
