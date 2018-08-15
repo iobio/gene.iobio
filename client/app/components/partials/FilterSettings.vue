@@ -78,6 +78,7 @@
             v-bind:items="zygosities"
             v-model="selectedZygosity"
             single
+            clearable
             hide-details
       >
       </v-select>
