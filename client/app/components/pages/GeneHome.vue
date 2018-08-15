@@ -321,8 +321,7 @@ main.content
 
         <v-snackbar
           :timeout="snackbar.timeout"
-          absolute
-          auto-height
+          bottom
           v-model="showSnackbar"
 
          >
@@ -2180,6 +2179,7 @@ export default {
             variantData = clinObject.variantData;
           }
 
+          self.onShowSnackbar({message: 'Importing variants from full analysis..', timeout: 7000})
           self.cohortModel.importFlaggedVariants(fileType, variantData,
           function() {
             self.onFlaggedVariantsImported();
@@ -2188,6 +2188,7 @@ export default {
           function() {
             self.onFlaggedVariantsImported();
             self.onSendFlaggedVariantsToClin(function() {
+              self.onShowSnackbar({message:  self.cohortModel.flaggedVariants.length + ' variants imported.', timeout: 3000})
             });
 
           })
