@@ -318,11 +318,17 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     })
     .then(function(data) {
       isCached = data.isCached;
-      if (isCached) {
+      var isCachedGeneCoverage = data.isCachedGeneCoverage;
+      if (isCached && !checkGeneCoverage) {
         // if the gene has already been analyzed, move on to next gene
         cacheResolve(geneObject);
+      } else if (isCached && checkGeneCoverage && isCachedGeneCoverage ) {
+        // if the gene has already been analyzed (including gene coverage), move on to next gene
+        cacheResolve(geneObject);
       } else {
-        // Get the gene coverage stats
+        // At this point, we know that the variants are not cached.  So
+        // get the gene coverage (if needed), otherwise, continue on to next
+        // step to annotate the variants
         if (checkGeneCoverage) {
           return me.cohort.promiseGetCachedGeneCoverage(geneObject, transcript, false);
         } else {
@@ -424,7 +430,8 @@ CacheHelper.prototype.promiseIsCachedForProband = function(geneObject, transcrip
     me.cohort.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
     .then(function(dangerSummary) {
       var isCached = dangerSummary == null ? false : (checkForCalledVariants ? dangerSummary.CALLED : true);
-      resolve({geneObject: geneObject, transcript: transcript, shouldCallVariants: checkForCalledVariants, 'isCached': isCached})
+      var isCachedGeneCoverage = dangerSummary == null ? false : dangerSummary.hasOwnProperty('checkGeneCoverage') && !dangerSummary.checkGeneCoverage ? false : true;
+      resolve({geneObject: geneObject, transcript: transcript, shouldCallVariants: checkForCalledVariants, 'isCached': isCached, 'isCachedGeneCoverage': isCachedGeneCoverage})
     })
   })
 }

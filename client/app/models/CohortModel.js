@@ -1179,7 +1179,12 @@ class CohortModel {
     let self = this;
 
     return new Promise(function(resolve, reject) {
-      var checkGeneCoverage = options && options.hasOwnProperty('checkGeneCoverage') && options.checkGeneCoverage == true;
+      var checkGeneCoverage = null;
+      if (options && options.hasOwnProperty('checkGeneCoverage')) {
+        checkGeneCoverage = options.checkGeneCoverage;
+      } else {
+        checkGeneCoverage = true;
+      }
 
       var coveragePromise = null;
       if (checkGeneCoverage) {
