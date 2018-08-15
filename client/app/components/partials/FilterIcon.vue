@@ -13,9 +13,8 @@
      v-if="icon == 'pathogenic'"
      icon="clinvar"
      level="high"
-     style="margin-top:-2px"
-     width="18"
-     height="18">
+     width="20"
+     height="20">
     </app-icon>
 
 
