@@ -2086,7 +2086,7 @@ class CohortModel {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
-      if (activeFilterName == null || activeFilterName == filterName) {
+      if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
         let flagCriteria = self.filterModel.flagCriteria[filterName];
         var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged);
         if (sortedGenes.length > 0) {
