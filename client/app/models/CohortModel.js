@@ -1902,6 +1902,7 @@ class CohortModel {
         variant.isProxy = true;
         variant.isFlagged = true;
         variant.notCategorized = false;
+        variant.isImported = true;
         variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : ['notCategorized']);
         if (variant.isUserFlagged == 'Y') {
           variant.isUserFlagged = true;
@@ -1997,11 +1998,14 @@ class CohortModel {
                      && v.alt      == importedVariant.alt;
                   })
                   if (matchingVariants.length > 0) {
+                    matchingVariants[0].isImported = true;
                     var geneObject = importedVariant.gene;
+
                     var transcript = importedVariant.transcript;
                     var isUserFlagged = importedVariant.isUserFlagged;
                     importedVariant = $.extend(importedVariant, matchingVariants[0]);
                     importedVariant.isFlagged = true;
+                    importedVariant.isImported = true;
                     importedVariant.isUserFlagged = isUserFlagged;
                     importedVariant.isProxy = false;
                     importedVariant.gene = geneObject;

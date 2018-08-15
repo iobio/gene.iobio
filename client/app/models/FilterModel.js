@@ -522,13 +522,13 @@ class FilterModel {
     badges.flagged = [];
 
     importedVariants.forEach(function(variant) {
-      self._flagVariant(variant, badges, true);
+      self._flagVariant(variant, badges);
     })
 
     return badges;
   }
 
-  _flagVariant(variant, badges, defaultNoneToNotCategorized=false) {
+  _flagVariant(variant, badges) {
     let self = this;
     var badgePassState = {};
 
@@ -591,9 +591,7 @@ class FilterModel {
       variant.isFlagged = true;
       variant.featureClass = 'flagged';
       variant.filtersPassed = filtersPassed;
-    } else if (defaultNoneToNotCategorized) {
-      // If this is an imported variant but didn't pass any of the current filters,
-      // just indicate that it is user flagged
+    } else if (variant.isImported) {
       variant.isFlagged = true;
       variant.isUserFlagged = false;
       variant.notCategorized = true;
