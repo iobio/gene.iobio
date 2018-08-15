@@ -86,6 +86,7 @@ main.content
       :cohortModel="cohortModel"
       :geneModel="geneModel"
       :flaggedVariants="flaggedVariants"
+      :activeFilterName="activeFilterName"
       :launchedFromClin="launchedFromClin"
       :isFullAnalysis="isFullAnalysis"
       :bringAttention="bringAttention"
@@ -149,6 +150,7 @@ main.content
          @sort-genes="onSortGenes"
          @add-flagged-variants="onAddFlaggedVariants"
          @register-flagged-variants="onRegisterFlaggedVariants"
+         @filter-selected="onFilterSelected"
          @filter-settings-applied="onFilterSettingsApplied"
          @filter-settings-closed="showCoverageCutoffs = false"
          @apply-genes="onApplyGenes"
@@ -456,6 +458,7 @@ export default {
       genesInProgress: {},
 
       flaggedVariants: [],
+      activeFilterName: null,
 
       cohortModel: null,
       models: [],
@@ -1754,10 +1757,11 @@ export default {
         }
       })
     },
-    onRegisterFlaggedVariants: function(flaggedGeneNames, flaggedVariants) {
+    onRegisterFlaggedVariants: function(flaggedGeneNames, flaggedVariants, filterName) {
       let self = this;
       self.flaggedVariants = [];
       self.flaggedVariants = flaggedVariants;
+
       if (self.launchedFromClin && !self.isFullAnalysis) {
         self.onSendFlaggedVariantsToClin();
       }
@@ -1909,6 +1913,9 @@ export default {
       if (self.showKnownVariantsCard) {
         self.onKnownVariantsVizChange();
       }
+    },
+    onFilterSelected: function(filterName) {
+      this.activeFilterName = filterName;
     },
     onFilterSettingsApplied: function() {
       let self = this;

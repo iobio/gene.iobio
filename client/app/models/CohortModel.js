@@ -2082,14 +2082,16 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene() {
+  organizeVariantsByFilterAndGene(activeFilterName) {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
-      let flagCriteria = self.filterModel.flagCriteria[filterName];
-      var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged);
-      if (sortedGenes.length > 0) {
-        filters.push({key: filterName, filter: flagCriteria, genes: sortedGenes});
+      if (activeFilterName == null || activeFilterName == filterName) {
+        let flagCriteria = self.filterModel.flagCriteria[filterName];
+        var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged);
+        if (sortedGenes.length > 0) {
+          filters.push({key: filterName, filter: flagCriteria, genes: sortedGenes});
+        }
       }
     }
 

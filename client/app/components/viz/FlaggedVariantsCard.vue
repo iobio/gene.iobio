@@ -655,6 +655,7 @@ export default {
     isBasicMode: null,
     forMyGene2: null,
     flaggedVariants: null,
+    activeFilterName: null,
     cohortModel: null,
     launchedFromClin: null,
     isFullAnalysis: null
@@ -723,7 +724,7 @@ export default {
       let self = this;
       self.geneLists = [];
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene();
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName);
       self.geneLists = filters.map(function(filterObject) {
         return {
           name:  filterObject.key,

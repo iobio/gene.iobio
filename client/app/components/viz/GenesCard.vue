@@ -425,6 +425,8 @@ export default {
     },
     onBadgeClick: function(badge) {
       let self = this;
+      self.$emit('filter-selected', badge);
+
       self.determineFlaggedGenes(badge);
       if (badge) {
         self.filteredGeneNames = self.flaggedGeneNames;
@@ -432,6 +434,7 @@ export default {
         self.filteredGeneNames = [];
       }
       self.updateGeneSummaries();
+
     },
     onFilterSettingsApplied: function() {
       this.$emit("filter-settings-applied");
@@ -464,7 +467,7 @@ export default {
 
       self.$emit("add-flagged-variants", self.flaggedVariants);
 
-      self.$emit("register-flagged-variants", self.flaggedGeneNames, self.flaggedVariants);
+      self.$emit("register-flagged-variants", self.flaggedGeneNames, self.flaggedVariants, badge);
 
     },
     onApplyGenes: function(genesToApply, phenotypeTerm) {

@@ -397,6 +397,7 @@ nav.toolbar
          :forMyGene2="forMyGene2"
          :cohortModel="cohortModel"
          :flaggedVariants="flaggedVariants"
+         :activeFilterName="activeFilterName"
          :launchedFromClin="launchedFromClin"
          :isFullAnalysis="isFullAnalysis"
          @flagged-variants-imported="onFlaggedVariantsImported"
@@ -596,6 +597,7 @@ export default {
     geneModel: null,
     cohortModel: null,
     flaggedVariants: null,
+    activeFilterName: null,
     launchedFromClin: null,
     isFullAnalysis: null,
     bringAttention: null
