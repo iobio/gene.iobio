@@ -10,11 +10,11 @@
   <span>
 
     <app-icon
-     v-if="icon == 'pathogenic'"
+     v-if="icon == 'pathogenic'"  style="margin-top:2px"
      icon="clinvar"
      level="high"
-     width="20"
-     height="20">
+     width="18"
+     height="18">
     </app-icon>
 
 
