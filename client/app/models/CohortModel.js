@@ -1986,7 +1986,6 @@ class CohortModel {
                 if (data == null || data.vcfData == null || data.vcfData.features == null) {
                   var msg = "Unable to get variant vcf data for " + geneObject.gene_name + " " + transcript.transcript_id;
                   console.log(msg);
-                  alert(msg);
                   reject(msg);
                 }
 
