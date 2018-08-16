@@ -166,6 +166,9 @@ export default class VariantExporter {
           resolve(output);
         }
 
+      })
+      .catch(function(error) {
+        reject("Error occurred when exporting variants. " + error);
       });
 
     });
