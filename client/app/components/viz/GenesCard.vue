@@ -170,7 +170,7 @@ div.container.small
     v-if="analyzeAllInProgress || callAllInProgress"
     id="analyzing-indeterminate-bar"
     :indeterminate="true"
-    height="4"
+    height="2"
     >
     </v-progress-linear>
 
