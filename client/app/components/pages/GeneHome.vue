@@ -1244,7 +1244,7 @@ export default {
         self.selectedVariantNotes = variant.notes;
         self.selectedVariantInterpretation = variant.interpretation;
         self.activeGeneVariantTab = "1";
-        self.showVariantExtraAnnots(sourceComponent, variant);
+        self.showVariantExtraAnnots(sourceComponent.relationship, variant);
 
         self.$refs.variantCardRef.forEach(function(variantCard) {
           if (sourceComponent == null || variantCard != sourceComponent) {
@@ -1308,32 +1308,32 @@ export default {
         self.$refs.featureMatrixCardRef.selectVariant(null);
       }
     },
-    showVariantExtraAnnots: function(sourceComponent, variant) {
+    showVariantExtraAnnots: function(relationship, variant) {
       let self = this;
-      if (!self.isEduMode && !self.cohortModel.getModel(sourceComponent.relationship).isAlignmentsOnly() )  {
-        if (sourceComponent.relationship == 'known-variants') {
+      if (!self.isEduMode && !self.cohortModel.getModel(relationship).isAlignmentsOnly() )  {
+        if (relationship == 'known-variants') {
           self.cohortModel
-              .getModel(sourceComponent.relationship)
+              .getModel(relationship)
               .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
               .then( function(refreshedVariant) {
-                self.refreshVariantExtraAnnots(sourceComponent, variant, [refreshedVariant]);
+                self.refreshVariantExtraAnnots(variant, [refreshedVariant]);
               })
         } else {
           self.cohortModel
-            .getModel(sourceComponent.relationship)
+            .getModel(relationship)
             .promiseGetImpactfulVariantIds(self.selectedGene, self.selectedTranscript)
             .then( function(annotatedVariants) {
               // If the clicked variant is in the list of annotated variants, show the
               // tooltip; otherwise, the callback will get the extra annots for this
               // specific variant
-              self.refreshVariantExtraAnnots(sourceComponent, variant, annotatedVariants, function() {
+              self.refreshVariantExtraAnnots(variant, annotatedVariants, function() {
                 // The clicked variant wasn't annotated in the batch of variants.  Get the
                 // extra annots for this specific variant.
                 self.cohortModel
-                  .getModel(sourceComponent.relationship)
+                  .getModel(relationship)
                   .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
                   .then( function(refreshedVariant) {
-                    self.refreshVariantExtraAnnots(sourceComponent, variant, [refreshedVariant]);
+                    self.refreshVariantExtraAnnots(variant, [refreshedVariant]);
                   })
               })
             });
@@ -1343,7 +1343,7 @@ export default {
       }
     },
 
-    refreshVariantExtraAnnots: function(sourceComponent, variant, annotatedVariants, callbackNotFound) {
+    refreshVariantExtraAnnots: function(variant, annotatedVariants, callbackNotFound) {
       let self = this;
       var targetVariants = annotatedVariants.filter(function(v) {
         return variant &&
@@ -1867,7 +1867,7 @@ export default {
 
             matchingVariantPromise.then(function(matchingVariant) {
 
-              self.showVariantExtraAnnots(self.$refs.featureMatrixCardRef, matchingVariant);
+              self.showVariantExtraAnnots('proband', matchingVariant);
 
               if (flaggedVariant.isProxy) {
                 var isUserFlagged = flaggedVariant.isUserFlagged;
@@ -2181,22 +2181,29 @@ export default {
           if (clinObject.variantsFullAnalysis && clinObject.variantsFullAnalysis.length > 0) {
             fileType = 'json';
             variantData = clinObject.variantsFullAnalysis;
+            self.onShowSnackbar({message: 'Importing variants from full analysis..', timeout: 7000})
           } else {
             fileType = 'gemini';
             variantData = clinObject.variantData;
+            self.onShowSnackbar({message: 'Importing records from full analysis..', timeout: 7000})
           }
 
-          self.onShowSnackbar({message: 'Importing variants from full analysis..', timeout: 7000})
           self.cohortModel.importFlaggedVariants(fileType, variantData,
           function() {
-            self.onFlaggedVariantsImported();
-            self.$refs.navRef.onShowFlaggedVariants();
+            if (fileType == 'json') {
+              self.onFlaggedVariantsImported();
+              self.$refs.navRef.onShowFlaggedVariants();
+            }
           },
           function() {
+            self.onShowSnackbar({message:  self.cohortModel.flaggedVariants.length + ' variants imported.', timeout: 3000})
             self.onFlaggedVariantsImported();
-            self.onSendFlaggedVariantsToClin(function() {
-              self.onShowSnackbar({message:  self.cohortModel.flaggedVariants.length + ' variants imported.', timeout: 3000})
-            });
+            if (fileType != 'json') {
+              self.$refs.navRef.onShowFlaggedVariants();
+              self.onSendFlaggedVariantsToClin(function() {
+                self.onShowSnackbar({message:  self.cohortModel.flaggedVariants.length + ' variants saved.', timeout: 3000});
+              });
+            }
 
           })
 
@@ -2249,8 +2256,8 @@ export default {
     onSendFlaggedVariantsToClin: function(callback) {
       let self = this;
       if (this.launchedFromClin && !self.sendingVariantToClin) {
+        self.onShowSnackbar({message: 'Saving variants...', timeout: 5000})
         self.sendingVariantToClin = true;
-        self.onShowSnackbar({message: 'Saving variants...', timeout: 1000})
         self.cohortModel.promiseExportFlaggedVariants('json')
         .then(function(data) {
           if (self.isFullAnalysis) {
@@ -2271,11 +2278,15 @@ export default {
             window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
 
           }
+          self.onShowSnackbar({message: 'success', timeout: 3000})
           self.sendingVariantToClin = false;
           if (callback) {
             callback();
           }
-        });
+        })
+        .catch(function(error) {
+          alertify.alert("Error", erro);
+        })
 
 
       }
