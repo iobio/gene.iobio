@@ -2942,6 +2942,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
   dangerCounts.harmfulVariantsInfo = [];
   dangerCounts.failedFilter = false;
   dangerCounts.geneName = geneName;
+  dangerCounts.checkGeneCoverage = geneCoverageAll ? true : false;
 
   SampleModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel);
 
