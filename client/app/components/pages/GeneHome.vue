@@ -324,6 +324,7 @@ main.content
         <v-snackbar
           :timeout="snackbar.timeout"
           bottom
+          auto-height
           v-model="showSnackbar"
 
          >
