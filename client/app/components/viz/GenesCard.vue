@@ -457,8 +457,10 @@ export default {
           if (dangerSummary && dangerSummary.badges
             && dangerSummary.badges[theBadge] && dangerSummary.badges[theBadge].length > 0) {
             dangerSummary.badges[theBadge].forEach(function(variant) {
-              variant.geneName = geneName;
-              self.flaggedVariants.push(variant);
+              if (variant) {
+                variant.geneName = dangerSummary.geneName;
+                self.flaggedVariants.push(variant);
+              }
             })
             return true;
           }
