@@ -853,39 +853,45 @@ CacheHelper.promiseDecompressData = function(dataCompressed, decompressIt) {
   });
 }
 
-CacheHelper.prototype.promiseCacheData = function(key, data) {
+CacheHelper.prototype.promiseCacheData = function(key, data, options) {
   var me = this;
 
   return new Promise(function(resolve, reject) {
+    var compressIt =  options == null || (options.hasOwnProperty("compress") && options.compress);
+    var compressPromise = null;
+    if (compressIt) {
+      compressPromise = CacheHelper.promiseCompressData(data);
+    } else {
+      compressPromise = Promise.resolve(data);
+    }
 
     if (me.useLocalStorage()) {
       if (localStorage) {
-
-          CacheHelper.promiseCompressData(data)
-           .then(function(dataStringCompressed) {
+        compressPromise
+        .then(function(dataStringCompressed) {
           localStorage.setItem(key, dataStringCompressed);
-          resolve();
-           },
-           function(error) {
-            reject(error);
-           });
+          resolve(key);
+        })
+        .catch(function(error) {
+          reject(error);
+        });
       } else {
         reject("no local storage found")
       }
     } else if (me.useIndexedDB()) {
-      CacheHelper.promiseCompressData(data)
-         .then(function(dataStringCompressed) {
+      compressPromise
+      .then(function(dataStringCompressed) {
         var keyObject = CacheHelper._parseCacheKey(key);
         return me.cacheIndexStore.promiseSetData(keyObject.dataKind, keyObject.gene, key, dataStringCompressed)
-         })
-         .then(function() {
-          resolve();
-         },
-         function(error) {
-          var msg = "A problem occurred in CacheHelper.promiseCacheData() when calling cacheIndexStore.promiseSetData(): " + error;
+      })
+      .then(function() {
+        resolve(key);
+      })
+      .catch(function(error) {
+        var msg = "A problem occurred in CacheHelper.promiseCacheData() when calling cacheIndexStore.promiseSetData(): " + error;
         console.log(msg);
         reject(msg);
-         });
+      });
     } else {
       reject("Unable to determine browser cache method")
     }
@@ -1043,6 +1049,44 @@ CacheHelper.prototype.promiseGetAllKeys = function() {
        });
     }
   });
+
+}
+
+CacheHelper.prototype.promiseGetCacheItems = function(includeDataKinds=[]) {
+  let me = this;
+  return new Promise(function(resolve, reject) {
+
+    let cacheItems = [];
+
+    me.promiseGetKeys()
+    .then(function(keys) {
+
+      let promises = [];
+      keys.forEach(function(key) {
+
+        var keyObject = CacheHelper._parseCacheKey(key);
+        if (includeDataKinds.length == 0 || includeDataKinds.indexOf(keyObject.dataKind) >= 0) {
+          let p = me.promiseGetData(key, false)
+          .then(function(compressedCacheData) {
+            cacheItems.push({'cache_key': key, 'cache': compressedCacheData});
+          });
+
+          promises.push(p);
+        }
+
+
+      })
+      Promise.all(promises)
+      .then(function() {
+        resolve(cacheItems);
+      })
+      .catch(function(error) {
+        let msg = "Error in promiseGetCacheItems: " + error;
+        console.log(msg);
+        reject(msg);
+      })
+    })
+  })
 
 }
 

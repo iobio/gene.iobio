@@ -776,6 +776,7 @@ export default {
       let self = this;
       return new Promise(function(resolve, reject) {
         self.cacheHelper = new CacheHelper(self.globalApp, self.forceLocalStorage);
+        window.cacheHelper = self.cacheHelper;
         self.cacheHelper.on("geneAnalyzed", function(geneName) {
           if (!self.launchedFromClin) {
             self.$refs.genesCardRef.determineFlaggedGenes();
@@ -793,6 +794,7 @@ export default {
           if (self.launchedFromClin && !self.isFullAnalysis) {
             self.onSendFiltersToClin();
             self.onSendFlaggedVariantsToClin();
+            self.sendCacheToClin();
           }
         });
 
@@ -1803,6 +1805,11 @@ export default {
       }
       if (variant == self.selectedVariant) {
         self.$set(self, "selectedVariantNotes", variant.notes);
+
+        if (self.launchedFromClin) {
+          self.sendCacheToClin();
+        }
+
       }
 
     },
@@ -2152,6 +2159,12 @@ export default {
         self.cohortModel.promiseInit(clinObject.modelInfos)
         .then(function() {
           self.models = self.cohortModel.sampleModels;
+
+          return self.promiseSetCacheFromClin(clinObject)
+
+        })
+        .then(function() {
+
           self.onApplyGenes(
               clinObject.genes.join(" "),
               {isFromClin: true, replace: true, warnOnDup: false, phenotypes: clinObject.phenotypes.join(",")},
@@ -2162,7 +2175,6 @@ export default {
               self.$refs.navRef.onShowFlaggedVariants();
             },
             function() {
-
               self.$refs.navRef.onShowFlaggedVariants();
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             })
@@ -2177,6 +2189,11 @@ export default {
         .then(function() {
           self.models = self.cohortModel.sampleModels;
 
+
+          return self.promiseSetCacheFromClin(clinObject);
+
+        })
+        .then(function() {
           let variantData = null;
           let fileType = null;
           if (clinObject.variantsFullAnalysis && clinObject.variantsFullAnalysis.length > 0) {
@@ -2205,9 +2222,7 @@ export default {
                 self.onShowSnackbar({message:  self.cohortModel.flaggedVariants.length + ' variants saved.', timeout: 3000});
               });
             }
-
           })
-
         })
         .catch(function(error) {
           console.log(error);
@@ -2279,7 +2294,6 @@ export default {
             window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
 
           }
-          self.onShowSnackbar({message: 'success', timeout: 3000})
           self.sendingVariantToClin = false;
           if (callback) {
             callback();
@@ -2295,7 +2309,7 @@ export default {
 
     onSendFiltersToClin: function() {
       let self = this;
-      if (this.launchedFromClin && this.paramMode && this.paramMode != 'full') {
+      if (this.launchedFromClin && !this.isFullAnalysis) {
         var msgObject = {
           success: true,
           type: 'save-filters',
@@ -2304,7 +2318,71 @@ export default {
         };
         window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
       }
+    },
+
+    sendCacheToClin: function() {
+      let self = this;
+      if (this.launchedFromClin) {
+
+        self.cacheHelper.promiseGetCacheItems(['vcfData', 'dangerSummary', 'geneCoverage'])
+        .then(function(cacheItems) {
+          var msgObject = {
+            'success':       true,
+            'type':          'save-cache',
+            'sender':        'gene.iobio.io',
+            'app':           self.isFullAnalysis ? 'genefull' : 'gene',
+            'cache':         cacheItems
+          };
+          window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+        })
+        .catch(function(error) {
+          var msg = "An error occurred in sendCacheToClin: " + error;
+          console.log(msg);
+        });
+
+      }
+    },
+
+    promiseSetCacheFromClin: function(clinObject) {
+      let self = this;
+
+      return new Promise(function(resolve, reject) {
+        let cachePromises = [];
+        if (clinObject.cache && clinObject.cache.length > 0) {
+         clinObject.cache.forEach(function(cacheItem) {
+            let cacheKeyObject = CacheHelper._parseCacheKey(cacheItem.cache_key);
+            let newCacheKey = cacheHelper.getCacheKey(cacheKeyObject);
+            let p = self.cacheHelper.promiseCacheData(newCacheKey, cacheItem.cache, {compress: false})
+            .then(function(theKey) {
+              let theKeyObject = CacheHelper._parseCacheKey(theKey);
+              if (theKeyObject.dataKind == 'dangerSummary') {
+                self.cacheHelper.promiseGetData(theKey)
+                .then(function(data) {
+                  self.geneModel.setDangerSummary(data.geneName, data);
+                  console.log(data);
+                })
+              }
+            })
+            cachePromises.push(p);
+          })
+        } else {
+          cachePromises.push(Promise.resolve());
+        }
+
+        Promise.all(cachePromises)
+        .then(function() {
+          resolve();
+        })
+        .catch(function(error) {
+          let msg = "Problem in GeneHome.promiseSetCacheFromClin(): " + error;
+          reject();
+        })
+
+      })
+
     }
+
+
 
 
   }

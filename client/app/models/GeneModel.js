@@ -201,9 +201,9 @@ class GeneModel {
  }
 
 
-  setDangerSummary(geneObject, dangerSummary) {
-    delete this.geneDangerSummaries[geneObject.gene_name];
-    this.geneDangerSummaries[geneObject.gene_name] = dangerSummary;
+  setDangerSummary(geneName, dangerSummary) {
+    delete this.geneDangerSummaries[geneName];
+    this.geneDangerSummaries[geneName] = dangerSummary;
   }
 
   getDangerSummary(geneName) {

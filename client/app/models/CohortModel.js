@@ -1166,7 +1166,7 @@ class CohortModel {
     return new Promise(function(resolve, reject) {
       self.getProbandModel().promiseSummarizeError(error)
       .then(function(dangerObject) {
-          self.geneModel.setDangerSummary(geneObject, dangerObject);
+          self.geneModel.setDangerSummary(geneObject.gene_name, dangerObject);
           resolve();
       }).
       catch(function(error) {
@@ -1234,7 +1234,7 @@ class CohortModel {
             return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel);
         })
         .then(function(theDangerSummary) {
-          self.geneModel.setDangerSummary(geneObject, theDangerSummary);
+          self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
           resolve();
         })
         .catch(function(error) {
@@ -2041,7 +2041,7 @@ class CohortModel {
                     me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
                     .then(function(dangerSummary) {
                       dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
-                      me.geneModel.setDangerSummary(geneObject, dangerSummary);
+                      me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
 
                       resolve();
                     });
