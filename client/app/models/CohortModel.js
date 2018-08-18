@@ -1181,7 +1181,7 @@ class CohortModel {
     return new Promise(function(resolve, reject) {
       var analyzeGeneCoverage = null;
       if (options && options.hasOwnProperty('GENECOVERAGE')) {
-        analyzeGeneCoverage = options.analyzeGeneCoverage;
+        analyzeGeneCoverage = options.GENECOVERAGE;
       } else {
         analyzeGeneCoverage = true;
       }
