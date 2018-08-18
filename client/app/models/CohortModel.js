@@ -1179,15 +1179,15 @@ class CohortModel {
     let self = this;
 
     return new Promise(function(resolve, reject) {
-      var checkGeneCoverage = null;
-      if (options && options.hasOwnProperty('checkGeneCoverage')) {
-        checkGeneCoverage = options.checkGeneCoverage;
+      var analyzeGeneCoverage = null;
+      if (options && options.hasOwnProperty('GENECOVERAGE')) {
+        analyzeGeneCoverage = options.analyzeGeneCoverage;
       } else {
-        checkGeneCoverage = true;
+        analyzeGeneCoverage = true;
       }
 
       var coveragePromise = null;
-      if (checkGeneCoverage) {
+      if (analyzeGeneCoverage) {
         coveragePromise = self.promiseGetCachedGeneCoverage(geneObject, theTranscript, false);
       } else {
         coveragePromise = Promise.resolve();
@@ -1196,7 +1196,7 @@ class CohortModel {
       coveragePromise.then(function(data) {
 
         var geneCoverageAll = null;
-        if (checkGeneCoverage) {
+        if (analyzeGeneCoverage) {
           geneCoverageAll =  data.geneCoverage;
         }
         var theOptions = null;
@@ -1217,9 +1217,13 @@ class CohortModel {
 
 
               theOptions = $.extend({}, options);
+
+              theOptions.GENECOVERAGE = analyzeGeneCoverage;
+
               if ((dangerSummary && dangerSummary.CALLED) || (filteredFbData && filteredFbData.features.length > 0)) {
                   theOptions.CALLED = true;
               }
+
             }
 
             if (filteredVcfData && filteredVcfData.features) {
@@ -2016,8 +2020,6 @@ class CohortModel {
                     importedVariant.gene = geneObject;
                     importedVariant.transcript = transcript;
 
-
-                    console.log(importedVariant);
                   } else {
                     importedVariant.isProxy = true;
                     importedVariant.notFound = true;

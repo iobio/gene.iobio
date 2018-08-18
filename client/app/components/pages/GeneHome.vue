@@ -782,6 +782,10 @@ export default {
             self.$refs.genesCardRef.determineFlaggedGenes();
           }
 
+          if (self.launchedFromClin) {
+            self.sendCacheToClin(geneName);
+          }
+
           if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
               && geneName == self.selectedGene.gene_name) {
             self.promiseLoadData();
@@ -794,7 +798,6 @@ export default {
           if (self.launchedFromClin && !self.isFullAnalysis) {
             self.onSendFiltersToClin();
             self.onSendFlaggedVariantsToClin();
-            self.sendCacheToClin();
           }
         });
 
@@ -1805,11 +1808,6 @@ export default {
       }
       if (variant == self.selectedVariant) {
         self.$set(self, "selectedVariantNotes", variant.notes);
-
-        if (self.launchedFromClin) {
-          self.sendCacheToClin();
-        }
-
       }
 
     },
@@ -2320,11 +2318,11 @@ export default {
       }
     },
 
-    sendCacheToClin: function() {
+    sendCacheToClin: function(geneName) {
       let self = this;
       if (this.launchedFromClin) {
 
-        self.cacheHelper.promiseGetCacheItems(['vcfData', 'dangerSummary', 'geneCoverage'])
+        self.cacheHelper.promiseGetClinCacheItems(geneName, ['vcfData', 'dangerSummary', 'geneCoverage'])
         .then(function(cacheItems) {
           var msgObject = {
             'success':       true,
@@ -2347,20 +2345,27 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
+        self.onShowSnackbar({message: 'Setting analysis cache...', timeout: 5000})
         let cachePromises = [];
+        let summarizePromises = [];
+        let genesToAdd = [];
+
         if (clinObject.cache && clinObject.cache.length > 0) {
-         clinObject.cache.forEach(function(cacheItem) {
-            let cacheKeyObject = CacheHelper._parseCacheKey(cacheItem.cache_key);
-            let newCacheKey = cacheHelper.getCacheKey(cacheKeyObject);
+          console.log(" **** number of cache items from clin **** " + clinObject.cache.length);
+          clinObject.cache.forEach(function(cacheItem) {
+            let newCacheKey = cacheHelper.convertClinCacheKey(cacheItem.cache_key);
             let p = self.cacheHelper.promiseCacheData(newCacheKey, cacheItem.cache, {compress: false})
             .then(function(theKey) {
               let theKeyObject = CacheHelper._parseCacheKey(theKey);
+
               if (theKeyObject.dataKind == 'dangerSummary') {
-                self.cacheHelper.promiseGetData(theKey)
+
+                var dp = self.cacheHelper.promiseGetData(theKey)
                 .then(function(data) {
-                  self.geneModel.setDangerSummary(data.geneName, data);
-                  console.log(data);
+                  self.geneModel.setDangerSummary(data.geneName.toUpperCase(), data);
+                  genesToAdd.push(data.geneName);
                 })
+                summarizePromises.push(dp);
               }
             })
             cachePromises.push(p);
@@ -2371,6 +2376,14 @@ export default {
 
         Promise.all(cachePromises)
         .then(function() {
+          return Promise.all(summarizePromises)
+        })
+        .then(function() {
+          self.onShowSnackbar({message: 'Getting gene info...', timeout: 5000})
+          return self.geneModel.promiseCopyPasteGenes(genesToAdd.join(","), {replace: true, warnOnDup: false});
+        })
+        .then(function() {
+          console.log("gene summaries " + Object.keys(self.geneModel.geneDangerSummaries).length );
           resolve();
         })
         .catch(function(error) {
