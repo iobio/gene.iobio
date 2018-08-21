@@ -405,7 +405,6 @@ nav.toolbar
          @apply-variant-notes="onApplyVariantNotes"
          @apply-variant-interpretation="onApplyVariantInterpretation"
          @close-left-drawer="leftDrawer = false"
-         @send-flagged-variants-to-clin="onSendFlaggedVariantsToClin"
         >
         </flagged-variants-card>
 
@@ -701,9 +700,6 @@ export default {
     },
     onShowCitations: function() {
       this.showCitations = true;
-    },
-    onSendFlaggedVariantsToClin: function(flaggedVariants) {
-      this.$emit('send-flagged-variants-to-clin', flaggedVariants)
     },
     onShowSnackbar: function(snackbar) {
       this.$emit('show-snackbar', snackbar)

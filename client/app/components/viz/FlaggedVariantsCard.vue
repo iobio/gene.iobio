@@ -688,15 +688,7 @@ export default {
     },
     onClickSave: function() {
       let self = this;
-      if (self.launchedFromClin) {
-        self.sendVariantsToClin();
-      } else {
-        self.showSaveDialog = true;
-      }
-    },
-    sendVariantsToClin: function() {
-      let self = this;
-      self.$emit('send-flagged-variants-to-clin');
+      self.showSaveDialog = true;
     },
     onSaveFile: function() {
       let self = this;
