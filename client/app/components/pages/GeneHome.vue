@@ -1429,6 +1429,12 @@ export default {
       self.clearFilter();
       self.cacheHelper.clearCacheForGene(geneName);
       self.onSendGenesToClin();
+      if (self.launchedFromClin) {
+        let flaggedVariants = self.cohortModel.getFlaggedVariantsForGene(geneName);
+        flaggedVariants.forEach(function(v) {
+          self.sendFlaggedVariantToClin(v, 'delete');
+        })
+      }
       var newGeneToSelect = null;
       if (geneName == this.selectedGene.gene_name && this.geneModel.sortedGeneNames.length > 0) {
         newGeneToSelect = this.geneModel.sortedGeneNames[0];
