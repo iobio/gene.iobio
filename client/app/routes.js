@@ -19,6 +19,8 @@ import ExhibitCases         from './components/pages/ExhibitCases.vue'
 import ExhibitCaseComplete  from './components/pages/ExhibitCaseComplete.vue'
 import ExhibitCasesComplete from './components/pages/ExhibitCaseComplete.vue'
 
+import VueAnalytics from 'vue-analytics'
+
 
 
 import bootstrap            from 'bootstrap/dist/css/bootstrap.css'
@@ -164,6 +166,11 @@ const router = new VueRouter({
   'routes': routes
 })
 
+// Google analytics
+Vue.use(VueAnalytics, {
+  id: 'UA-47481907-5',
+  router
+})
 
 // define a globals mixin object
 Vue.mixin({
