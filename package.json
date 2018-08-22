@@ -19,6 +19,7 @@
     "uiv": "^0.16.0",
     "v-tooltip": "^2.0.0-rc.31",
     "vue": "^2.3.4",
+    "vue-analytics": "^5.14.0",
     "vue-router": "^2.5.3",
     "vuetify": "^1.0.4"
   },
