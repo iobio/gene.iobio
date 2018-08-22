@@ -88,6 +88,31 @@
       text-align: center
       background-color: #f2f1f1
 
+  .filter-subheader
+    color: $text-color
+    font-size: 15px
+
+    .badge
+      background-color: transparent
+
+      span.filter-label
+        color: $text-color
+        border-color: $text-color
+        font-size: 15px
+        font-weight: normal
+
+    .badge__badge.primary
+      background-color: $default-badge-color !important
+      font-size: 12px
+      color: white
+
+
+  .filter-variant-count
+    float: right
+    padding-right: 8px
+    font-size: 12px
+    color: $text-color
+
   .list--three-line
     margin-bottom: 10px
     padding-top: 5px
@@ -352,19 +377,25 @@
       (none)
     </span>
 
-
-    <template v-for="geneList in geneLists">
-      <v-subheader
-      :key="geneList.label"
+  <v-expansion-panel expand >
+    <v-expansion-panel-content v-for="geneList in geneLists"  :key="geneList.label"
+      :value="geneList.expand"
       v-if="geneList.show"
-      v-show="!isBasicMode"
-      class="gene-list"
-      >
-        <span v-show="geneList.genes.length > 0">
+      v-show="!isBasicMode">
+      <div slot="header">
+        <span v-show="geneList.genes.length > 0" class="filter-subheader">
           <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
-          {{ geneList.label }}
+
+
+          <v-badge>
+            <span class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
+            <span class="filter-label">{{ geneList.label }}</span>
+          </v-badge>
+
+
         </span>
-      </v-subheader>
+
+      </div>
       <v-list three-line>
         <template
          v-for="flaggedGene in geneList.genes">
@@ -515,7 +546,8 @@
 
         </template>
       </v-list>
-    </template>
+    </v-expansion-panel-content>
+  </v-expansion-panel>
 
     <v-menu
     offset-y
@@ -722,7 +754,9 @@ export default {
           name:  filterObject.key,
           label: filterObject.filter.title,
           show:  filterObject.genes.length > 0,
-          genes: filterObject.genes
+          genes: filterObject.genes,
+          variantCount: filterObject.variantCount,
+          expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' ?  true : false) : true
         }
       })
     },

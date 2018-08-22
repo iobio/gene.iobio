@@ -2108,8 +2108,9 @@ class CohortModel {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
         let flagCriteria = self.filterModel.flagCriteria[filterName];
         var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged);
+
         if (sortedGenes.length > 0) {
-          filters.push({key: filterName, filter: flagCriteria, genes: sortedGenes});
+          filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
         }
       }
     }
@@ -2120,6 +2121,7 @@ class CohortModel {
 
     var variantIndex = 0;
     sortedFilters.forEach(function(filterObject) {
+      filterObject.variantCount = 0;
       filterObject.genes.forEach(function(geneList) {
 
         // Sort the variants according to the Ranked Variants table features
@@ -2129,7 +2131,9 @@ class CohortModel {
 
         geneList.variants.forEach(function(variant) {
           variant.index = variantIndex++;
+          filterObject.variantCount++;
         })
+
       })
     })
     return sortedFilters;
