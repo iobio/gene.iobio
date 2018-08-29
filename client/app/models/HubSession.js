@@ -49,15 +49,12 @@ export default class HubSession {
                   }
 
                   if (!bypass) {
-                    // TEMPORARY WORKAROUND - get rid of .exome from sample id
-                    if (theSample.id.indexOf(".exome") > 0) {
-                      theSample.id = theSample.id.substr(0,theSample.id.indexOf(".exome"));
-                    }
+
                     var modelInfo = {
                       'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
                       'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
                       'name':           theSample.id,
-                      'sample':         theSample.id,
+                      'sample':         theSample.files.vcf ? theSample.vcf_sample_id : theSample.id,
                       'vcf':            theSample.files.vcf,
                       'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
                       'bam':            theSample.files.bam,
@@ -97,21 +94,27 @@ export default class HubSession {
     if (isPedigree) {
       return self.promiseGetPedigreeForSample(sample_uuid);
     } else {
-      return self.promiseGetSample(sample_uuid);
+      return self.promiseGetSample(sample_uuid, 'proband');
     }
   }
 
-  promiseGetSample(sample_uuid) {
+  promiseGetSample(sample_uuid, rel) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
       // Get pedigree for sample
       self.getSample(sample_uuid)
       .done(data => {
-        resolve({'proband': data});
+        if (rel) {
+          let sample = {};
+          sample[rel] = data;
+          resolve(sample);
+        } else {
+          resolve(data);
+        }
       })
       .fail(error => {
-        reject("Error getting  sample " + sample_uuid + ": " + error);
+        reject("Error getting sample " + sample_uuid + ": " + error);
       })
     })
   }
@@ -123,7 +126,7 @@ export default class HubSession {
       // Get pedigree for sample
       self.getPedigreeForSample(sample_uuid)
       .done(data => {
-        let pedigree = self.parsePedigree(data, sample_uuid);
+        let pedigree = self.parsePedigree(data, sample_uuid)
         resolve(pedigree);
       })
       .fail(error => {
@@ -133,6 +136,9 @@ export default class HubSession {
   }
 
   parsePedigree(raw_pedigree, sample_uuid) {
+
+    let self = this;
+
     // This assumes only 1 proband. If there are multiple affected samples then
     // the proband will be overwritten
     // This also assume no grandparents/grandchildren
@@ -185,6 +191,7 @@ export default class HubSession {
       }
     })
 
+
     return pedigree;
   }
 
@@ -226,6 +233,9 @@ export default class HubSession {
           var p = self.promiseGetSignedUrlForFile(file)
           .then(signed => {
             fileMap[file.type] = signed.url;
+            if (file.type == 'vcf') {
+              sample.vcf_sample_id = file.vcf_sample_id;
+            }
           })
           promises.push(p);
         })

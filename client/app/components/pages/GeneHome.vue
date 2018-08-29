@@ -626,35 +626,6 @@ export default {
             .then(modelInfos => {
               self.modelInfos = modelInfos;
 
-              // TEMPORARY WORKAROUND UNTIL HUB CAN PASS sample_id
-              self.modelInfos.forEach(function(modelInfo) {
-                if (modelInfo.sample.lastIndexOf(".") > 0) {
-                  let pos = modelInfo.sample.lastIndexOf(".");
-                  let baseSample = modelInfo.sample.substring(0, pos);
-                  let suffix = modelInfo.sample.substring(pos)
-                  if (suffix == '.mo' || suffix == '.fa' || suffix == '.p1' || suffix == '.s1') {
-                    modelInfo.sample = "";
-                    var vcfTokens = modelInfo.vcf.split("\/Sample_");
-                    if (vcfTokens.length > 1) {
-                      var vcfSampleTokens = vcfTokens[1].split("\/");
-                      if (vcfSampleTokens.length > 0) {
-                        modelInfo.sample  = vcfSampleTokens[0];
-                      } else {
-                        modelInfo.sample = "";
-                      }
-                    } else {
-                      if (modelInfo.bam && modelInfo.bam.indexOf("SSC") >= 0) {
-                        var bamName = modelInfo.bam.substring(modelInfo.bam.indexOf("SSC"));
-                        var bamTokens = bamName.split(".final");
-                        if (bamTokens.length > 0) {
-                          var bamSampleToken = bamTokens[0];
-                          modelInfo.sample = bamTokens;
-                        }
-                      }
-                    }
-                  }
-                }
-              })
               self.cohortModel.promiseInit(self.modelInfos)
               .then(function() {
                 self.models = self.cohortModel.sampleModels;
