@@ -583,6 +583,12 @@ export default {
     init: function(callback) {
       let self = this;
 
+      // var socket = io.connect('https://gene.iobio.io/');
+      var socket = io.connect('http://localhost:4026');
+      socket.on('geneData', function(data){
+        console.log("data is", data)
+      });
+
       self.cardWidth = self.$el.offsetWidth;
       self.cardWidth = window.innerWidth;
 

@@ -7,6 +7,7 @@
 var app = require('./server/express-app');
 var debug = require('debug')('http');
 var http = require('http');
+var socket = require('socket.io');
 
 /**
  * Get port from environment and store in Express.
@@ -22,11 +23,23 @@ var server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
-server.listen(port, function() {
+var server_express = server.listen(port, function() {
   debug('Express server listening on port ' + server.address().port);
 });
 server.on('error', onError);
 server.on('listening', onListening);
+
+var io = socket(server_express);
+io.on('connection', (socket) => {
+    console.log('made socket connection', socket.id);
+
+    socket.on('geneData', function(data){
+      console.log(data);
+      setTimeout(function(){
+        io.sockets.emit('geneData', data);
+       }, 3000);
+    })
+});
 
 
 /**
