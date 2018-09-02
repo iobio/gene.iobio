@@ -129,6 +129,7 @@ main.content
          ref="genesCardRef"
          :isEduMode="isEduMode"
          :isBasicMode="isBasicMode"
+         :isFullAnalysis="isFullAnalysis"
          :tourNumber="tourNumber"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
@@ -1394,14 +1395,15 @@ export default {
 
     removeGeneImpl: function(geneName) {
       let self = this;
+      let flaggedVariantsToDelete = self.cohortModel.getFlaggedVariantsForGene(geneName);
+
       self.geneModel.removeGene(geneName);
       self.cohortModel.removeFlaggedVariantsForGene(geneName);
       self.clearFilter();
       self.cacheHelper.clearCacheForGene(geneName);
       self.onSendGenesToClin();
-      if (self.launchedFromClin) {
-        let flaggedVariants = self.cohortModel.getFlaggedVariantsForGene(geneName);
-        flaggedVariants.forEach(function(v) {
+      if (self.launchedFromClin && flaggedVariantsToDelete.length > 0) {
+        flaggedVariantsToDelete.forEach(function(v) {
           self.sendFlaggedVariantToClin(v, 'delete');
         })
       }
@@ -1745,6 +1747,9 @@ export default {
       let self = this;
       self.flaggedVariants = [];
       self.flaggedVariants = flaggedVariants;
+      if (this.launchedFromClin && !this.isFullAnalysis) {
+        self.sendAllFlaggedVariantsToClin(self.flaggedVariants);
+      }
 
     },
     onFlaggedVariantsImported: function() {
@@ -2122,11 +2127,14 @@ export default {
       if (clinObject.type == 'apply-genes' && !self.isFullAnalysis) {
         let genesString = clinObject.genes && Array.isArray(clinObject.genes) ? clinObject.genes.join(" ") : "";
         let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
-        this.onApplyGenes(genesString,
-          { isFromClin: true,
-            replace: true,
-            warnOnDup: false,
-            phenotypes: phenotypeTerms });
+        if (genesString.length > 0) {
+          let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
+          this.onApplyGenes(genesString, options, function() {
+            if (self.cohortModel.isLoaded) {
+              self.cacheHelper.analyzeAll(self.cohortModel, false);
+            }
+          });
+        }
       } else if (clinObject.type == 'set-data' && !self.isFullAnalysis) {
         if (self.cohortModel == null) {
           self.init(function() {
@@ -2184,6 +2192,31 @@ export default {
             genes:   self.geneModel.sortedGeneNames};
         window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
       }
+    },
+
+    sendAllFlaggedVariantsToClin: function(variants, callback) {
+      let self = this;
+      if (this.launchedFromClin) {
+        self.cohortModel.promiseExportFlaggedVariants('json', variants)
+        .then(function(data) {
+          var msgObject = {
+              success:  true,
+              type:     'save-variants',
+              sender:   'gene.iobio.io',
+              action:   'replace',
+              app:      'gene',
+              variants: data};
+          window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+
+          if (callback) {
+            callback();
+          }
+        })
+        .catch(function(error) {
+          alertify.alert("Error", error);
+        })
+      }
+
     },
 
 

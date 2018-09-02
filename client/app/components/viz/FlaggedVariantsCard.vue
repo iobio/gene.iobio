@@ -42,6 +42,7 @@
       padding-top: 10px
       display: inline-block
       color:  $text-color
+      margin-left: 8px
 
     .toolbar-button
       min-width: 70px
@@ -88,9 +89,13 @@
       text-align: center
       background-color: #f2f1f1
 
+  .expansion-panel__header
+    background-color: #f2f1f1
+
   .filter-subheader
     color: $text-color
     font-size: 15px
+    margin-left: -24px
 
     .badge
       background-color: transparent
@@ -103,8 +108,11 @@
 
     .badge__badge.primary
       background-color: $default-badge-color !important
-      font-size: 12px
+      font-size: 11px
       color: white
+      top: 2px
+      width: 16px
+      height: 16px
 
 
   .filter-variant-count
@@ -348,10 +356,10 @@
       </v-btn>
       <v-toolbar-title >
         <span v-show="!isBasicMode && !isFullAnalysis">
-          Variants
+          Review variants in candidate genes
         </span>
         <span v-show="!isBasicMode && isFullAnalysis">
-          Variants - Full Analysis
+          Review variants in all genes
         </span>
         <span id="mygene2-basic-title" v-show="isBasicMode && !launchedFromClin && flaggedVariants">
           Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency

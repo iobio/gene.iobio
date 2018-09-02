@@ -224,7 +224,7 @@ nav.toolbar
   <div>
     <v-toolbar fixed  height="45"   dark  :class="launchedFromClin ? 'clin' : '' " >
 
-      <v-toolbar-side-icon  v-if="!launchedFromClin" style="margin-bottom:2px" @click.stop="leftDrawer = !leftDrawer">
+      <v-toolbar-side-icon   style="margin-bottom:2px" @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
 
@@ -233,7 +233,7 @@ nav.toolbar
 
       <v-spacer v-if="!isFullAnalysis"></v-spacer>
 
-      <v-btn  id="variants-button" flat @click.stop="leftDrawer = !leftDrawer">
+      <v-btn v-if="false" id="variants-button" flat @click.stop="leftDrawer = !leftDrawer">
         Variants
       </v-btn>
 

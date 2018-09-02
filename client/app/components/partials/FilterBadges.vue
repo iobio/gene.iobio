@@ -111,6 +111,7 @@
       <span
        v-for="filter in filters"
        :key="filter.name"
+       v-if="!isFullAnalysis || isFullAnalysis == filter.isFullAnalysis"
        class="badge-wrapper"
        @mouseover="onMouseOver(filter)"
        @mouseleave="onMouseLeave(filter)"
@@ -189,20 +190,21 @@ export default {
   props: {
     badgeCounts: null,
     filterModel: null,
-    showCoverageCutoffs: null
+    showCoverageCutoffs: null,
+    isFullAnalysis: null
   },
   data () {
     return {
       customFilters: null,
       filters: [
-        {name: 'pathogenic',        display: 'Known pathogenic variants'        , tooltip: null, showTooltip: false},
-        {name: 'autosomalDominant', display: 'Autosomal dominant variants'      , tooltip: null, showTooltip: false},
-        {name: 'denovo',            display: 'De novo variants'                 , tooltip: null, showTooltip: false},
-        {name: 'recessive',         display: 'Recessive variants'               , tooltip: null, showTooltip: false},
-        {name: 'xlinked',           display: 'X-linked variants'                , tooltip: null, showTooltip: false},
-        {name: 'compoundHet',       display: 'Compound het variants'            , tooltip: null, showTooltip: false},
-        {name: 'highOrModerate',    display: 'High or moderate impact variants' , tooltip: null, showTooltip: false},
-        {name: 'coverage',          display: 'Insufficient coverage in genes'   , tooltip: null, showTooltip: false}
+        {name: 'pathogenic',        display: 'Known pathogenic variants'        , tooltip: null, showTooltip: false, isFullAnalysis: true},
+        {name: 'autosomalDominant', display: 'Autosomal dominant variants'      , tooltip: null, showTooltip: false, isFullAnalysis: true},
+        {name: 'denovo',            display: 'De novo variants'                 , tooltip: null, showTooltip: false, isFullAnalysis: true},
+        {name: 'recessive',         display: 'Recessive variants'               , tooltip: null, showTooltip: false, isFullAnalysis: true},
+        {name: 'xlinked',           display: 'X-linked variants'                , tooltip: null, showTooltip: false, isFullAnalysis: true},
+        {name: 'compoundHet',       display: 'Compound het variants'            , tooltip: null, showTooltip: false, isFullAnalysis: true},
+        {name: 'highOrModerate',    display: 'High or moderate impact variants' , tooltip: null, showTooltip: false, isFullAnalysis: false},
+        {name: 'coverage',          display: 'Insufficient coverage in genes'   , tooltip: null, showTooltip: false, isFullAnalysis: false}
       ],
       activeFilter: null,
       showFilterInfo: false

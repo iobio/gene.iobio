@@ -225,6 +225,7 @@ div.container.small
 
             <filter-badges v-if="isLoaded"
              ref="filterBadgesRef"
+             :isFullAnalysis="isFullAnalysis"
              :badgeCounts="badgeCounts"
              :filterModel="filterModel"
              :showCoverageCutoffs="showCoverageCutoffs"
@@ -302,6 +303,7 @@ export default {
   props: {
     isEduMode: null,
     isBasicMode: null,
+    isFullAnalysis: null,
     tourNumber: null,
     geneNames: null,
     genesInProgress: null,
