@@ -349,7 +349,11 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     .then(function(data) {
       // Load and annotate the variants
       if (analyzeGeneCoverage) {
-        geneCoverageAll = data.geneCoverage;
+        if (data && data.geneCoverage) {
+          geneCoverageAll = data.geneCoverage;
+        } else {
+          console.log("promiseGetCachedGeneCoverage returning null for " + geneObject.gene_name);
+        }
       }
 
       // Show that we are working on this gene
