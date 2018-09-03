@@ -2,6 +2,7 @@
 @import ../../../assets/sass/variables
 
 #flagged-variants-card
+  padding-left: 5px
 
   #clinvar-symbol
     display: inline-block
@@ -43,6 +44,9 @@
       display: inline-block
       color:  $text-color
       margin-left: 8px
+
+      span
+        white-space: normal
 
     .toolbar-button
       min-width: 70px
@@ -168,7 +172,8 @@
 
     .list__tile__title
       height: auto
-      line-height: 18px;
+      line-height: 18px
+      padding-bottom: 5px
 
     .variant-number
       margin-right: 0px
@@ -502,7 +507,7 @@
 
                   <variant-notes-menu
                     v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
-                    style="float:left;margin-left:5px"
+                    style="float:left;margin-left:5px;padding-top: 4px"
                     class="variant-notes"
                     :showNotesIcon="true"
                     :variant="variant"

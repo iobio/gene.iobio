@@ -22,6 +22,10 @@
       min-width: 100px
       max-width: 100px
 
+  .coverage-problem-glyph
+    fill: $coverage-problem-glyph-color
+
+
   #gene-viz, #gene-viz-zoom
     .axis
       padding-left: 0px

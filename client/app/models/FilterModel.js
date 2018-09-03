@@ -31,14 +31,14 @@ class FilterModel {
     this.recFilters = {};
 
     this.geneCoverageMin           = 10;
-    this.geneCoverageMean          = 30;
-    this.geneCoverageMedian        = 30;
+    this.geneCoverageMean          = 15;
+    this.geneCoverageMedian        = 15;
 
     this.flagCriteria = {
       'pathogenic': {
         active: true,
         custom: false,
-        title: "Pathogenic / Likely Pathogenic",
+        title: "Pathogenic",
         name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
         order: 0,
         userFlagged: false,
@@ -54,8 +54,8 @@ class FilterModel {
       'autosomalDominant': {
         active: true,
         custom: false,
-        title: "VUS Autosomal dominant",
-        name: "VUS Autosomal dominant inhertance, low allele freq",
+        title: "Autosomal dominant",
+        name: "Autosomal dominant inhertance, low allele freq",
         order: 1,
         userFlagged: false,
         maxAf: .05,
@@ -103,7 +103,7 @@ class FilterModel {
       'compoundHet': {
         active: true,
         custom: false,
-        title: "Compound Hets",
+        title: "Compound hets",
         name: "Compound het inheritance, low allele freq",
         order: 4,
         userFlagged: false,
@@ -135,7 +135,7 @@ class FilterModel {
       'highOrModerate': {
         active: true,
         custom: false,
-        title: "High/moderate variants",
+        title: "High or moderate impact",
         name: "High or moderate impact, low allele freq",
         order: 6,
         userFlagged: false,
@@ -168,7 +168,7 @@ class FilterModel {
       'notCategorized': {
         active: true,
         custom: false,
-        title: "Variants not categorized",
+        title: "Not categorized",
         name: "Variants found during full analysis, but not passing any app filters",
         order: 8,
         userFlagged: false,
@@ -184,7 +184,7 @@ class FilterModel {
       'notFound': {
         active: true,
         custom: false,
-        title: "Variants not found",
+        title: "Not found",
         name: "Variants not found",
         order: 9,
         userFlagged: false,

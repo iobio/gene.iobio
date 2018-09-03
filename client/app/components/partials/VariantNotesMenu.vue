@@ -1,42 +1,6 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
-.chip.not-reviewed
-  .chip__content
-    background-color: $not-reviewed-color !important
-.chip.sig
-  .chip__content
-    background-color: $significant-color !important
-.chip.unknown-sig
-  .chip__content
-    background-color: $unknown-significance-color !important
-.chip.not-sig
-  .chip__content
-    background-color: $not-significant-color !important
-
-#select-interpretation
-  label
-    display: initial !important
-  .chip .chip__content
-    border-radius: none !important
-    background-color: $not-reviewed-color  !important
-
-  &.not-reviewed
-    .chip
-      .chip__content
-        background-color: $not-reviewed-color !important
-  &.sig
-    .chip
-      .chip__content
-        background-color: $significant-color !important
-  &.unknown-sig
-    .chip
-      .chip__content
-        background-color: $unknown-significance-color !important
-  &.not-sig
-    .chip
-      .chip__content
-        background-color: $not-significant-color !important
 
 #notes-input
   font-size: 12px
@@ -53,6 +17,7 @@
 
 
 
+
 #show-notes-button
   font-family: 'Open sans'
   min-width: 20px
@@ -61,18 +26,6 @@
   height: auto
   font-size: 12px
   margin-top: 0px
-  border-radius: 28px
-  color: white
-  background-color: transparent
-
-  &.not-reviewed
-    background-color: $not-reviewed-color !important
-  &.sig
-    background-color: $significant-color !important
-  &.unknown-sig
-    background-color: $unknown-significance-color !important
-  &.not-sig
-    background-color: $not-significant-color !important
 
 
   .btn__content
@@ -89,15 +42,20 @@
       white-space: normal !important
       word-wrap: break-word !important
       height: auto
-      padding-top: 2px
-      padding-bottom: 2px
+      padding-top: 0px
+      padding-bottom: 0px
 
     .material-icons
       font-size: 18px
       color: $text-color
+      vertical-align: top
 
       &.has-notes
         color: $app-color
+    .interpretation-label
+      color: $text-color
+      font-size: 13px
+      padding-top: 3px
 
 #show-notes-button
   &.no-wrap
@@ -142,7 +100,11 @@
       >
 
         <span v-if="!showNotesIcon">
-          {{ interpretationDisplay }}
+          <v-icon class="interpretation sig" v-if="interpretation == 'sig'">star</v-icon>
+          <v-icon class="interpretation unknown-sig" v-if="interpretation == 'unknown-sig'">star_half</v-icon>
+          <v-icon class="interpretation not-sig" v-if="interpretation == 'not-sig'">star_border</v-icon>
+          <v-icon class="interpretation not-reviewed" v-if="interpretation == 'not-reviewed'">help_outline</v-icon>
+          <span class="interpretation-label">{{ interpretationDisplay }} </span>
         </span>
         <v-icon class="has-notes" v-if="showNotesIcon && notes != null && notes.length > 0">
           comment
@@ -157,9 +119,10 @@
 
 
           <variant-interpretation
-             wrap="true"s
+             wrap="true"
              :variant="variant"
              :variantInterpretation="interpretation"
+             :showInterpretationLabel="true"
              @apply-variant-interpretation="onApplyVariantInterpretation">
           </variant-interpretation>
 

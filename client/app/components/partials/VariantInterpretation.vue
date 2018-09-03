@@ -1,37 +1,39 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
-.chip.not-reviewed
-  .chip__content
-    background-color: $not-reviewed-color !important
-.chip.sig
-  .chip__content
-    background-color: $significant-color !important
-.chip.unknown-sig
-  .chip__content
-    background-color: $unknown-significance-color !important
-.chip.not-sig
-  .chip__content
-    background-color: $not-significant-color !important
 
+i.material-icons.interpretation.not-reviewed
+  color: $not-reviewed-color !important
+i.material-icons.interpretation.sig
+  color: $significant-color !important
+i.material-icons.interpretation.unknown-sig
+  color: $significant-color !important
+i.material-icons.interpretation.not-sig
+  color: $not-significant-color !important
+
+.interpretation-label
+  padding-left: 5px
 
 #select-interpretation
   &.no-wrap
     .input-group__selections__comma
       width: initial
 
+
 #select-interpretation
   font-family: 'Open sans'
   margin: 0px
   padding: 0px
-  width: 110px
+  width: 41px
   height: auto
   font-size: 12px
   margin-top: 0px
-  border-radius: 28px
-  color: white !important
-  background-color: $not-reviewed-color  !important
 
+  &.show-interpretation-label
+    width: initial
+
+    .interpretation-label
+      color: $text-color !important
 
   .input-group__input
     min-height: 21px
@@ -42,35 +44,25 @@
 
 
   .input-group__selections
-    width: 91px
+    min-width: 22px
 
   .input-group__selections__comma
-    color: white
     font-size: 12px
     line-height: 13px
     text-align: center
     padding-left: 4px
     padding-right: 0px
-    width: 91px
     white-space: normal
     display: inline-block
 
   .input-group__append-icon
     line-height: 20px
-    line-height: 20px
+    color: #818181
+    display: none
+    width: 20px
     padding-left: 0px
     padding-right: 1px
-    color: white !important
-
-  &.not-reviewed
-    background-color: $not-reviewed-color !important
-  &.sig
-    background-color: $significant-color !important
-  &.unknown-sig
-    background-color: $unknown-significance-color !important
-  &.not-sig
-    background-color: $not-significant-color !important
-
+    color: $text-color !important
 
 
 </style>
@@ -80,17 +72,28 @@
   <v-select
   id="select-interpretation"
   :items="interpretations"
-  :class="interpretation"
+  :class="interpretation + ' ' + (showInterpretationLabel ? 'show-interpretation-label' : '')"
   v-model="interpretation"
   :hide-details="true"
   single-line
   >
 
+
+    <template slot="selection" slot-scope="data">
+      <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">star</v-icon>
+      <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">star_half</v-icon>
+      <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">star_border</v-icon>
+      <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">help_outline</v-icon>
+      <span v-if="showInterpretationLabel" class="interpretation-label"> {{ data.item.text }} </span>
+    </template>
+
     <template slot="item" slot-scope="data">
-      <v-chip :class="data.item.value"
-      >
-        {{ data.item.text }}
-      </v-chip>
+      <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">star</v-icon>
+      <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">star_half</v-icon>
+      <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">star_border</v-icon>
+      <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">help_outline</v-icon>
+      <span class="interpretation-label"> {{ data.item.text }} </span>
+
     </template>
 
   </v-select>
@@ -109,6 +112,7 @@ export default {
   props: {
     variant: null,
     variantInterpretation: null,
+    showInterpretationLabel: null,
     wrap: null
   },
   data () {

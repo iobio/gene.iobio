@@ -385,7 +385,7 @@ nav.toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      width=343
+      width=283
     >
       <div id="side-panel-container">
 
