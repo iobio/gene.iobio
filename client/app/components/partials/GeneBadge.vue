@@ -145,8 +145,6 @@
     margin-right: 3px
     margin-top: 1px
 
-.coverage-problem-glyph
-  fill: $coverage-problem-color
 
 
 
@@ -283,7 +281,7 @@
            v-if="hasCoverageProblem()"
            icon="coverage"
            class=" level-edu glyph"
-           width="12" height="12">
+           width="12" height="11">
           </app-icon>
 
       </span>
