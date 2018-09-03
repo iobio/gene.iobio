@@ -36,8 +36,8 @@
   v-model="showMenu"
   >
 
-    <v-btn slot="activator" raised  medium flat>
-      <v-icon id="filter-settings-icon">settings</v-icon>
+    <v-btn style="font-size: 12px" slot="activator" raised  medium flat>
+      customize
     </v-btn>
 
 
