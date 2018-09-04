@@ -336,7 +336,7 @@ export default {
     getImpactClass: function(variantTypes) {
       var self = this;
       var clazz = null;
-      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highOrModerate.length > 0 ) {
+      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highOrModerate && this.gene.dangerSummary.badges.highOrModerate.length > 0 ) {
         for (var variantType in variantTypes) {
 
 
@@ -349,6 +349,7 @@ export default {
               }
             }
           })
+
 
 
           /*

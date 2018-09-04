@@ -674,7 +674,7 @@ export default {
           self.cohortModel.annotationScheme,
           self.genomeBuildHelper);
 
-        self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode);
+        self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
         self.cohortModel.filterModel = self.filterModel;
 
 
