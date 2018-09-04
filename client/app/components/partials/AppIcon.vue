@@ -45,7 +45,7 @@
        :type="type"
        :style="iconStyle"
        :class="getClassObject(['impact-badge'])">
-        <g transform="translate(3,2)">
+        <g transform="translate(1,2)">
           <rect width="8" height="8"
           v-bind:class="clazz"
           style="pointer-events: none;"></rect>
@@ -58,7 +58,7 @@
        :type="type"
        :style="iconStyle"
        :class="getClassObject(['impact-badge'])">
-        <g transform="translate(7,6)">
+        <g transform="translate(5,6)">
           <path d="M0,-4.161791450287817L4.805622828269509,4.161791450287817 -4.805622828269509,4.161791450287817Z"
           v-bind:class="clazz">
           </path>
@@ -71,7 +71,7 @@
        :icon="icon"
        :type="type"
        :class="getClassObject(['impact-badge'])">
-        <g transform="translate(7,6)">
+        <g transform="translate(5,6)">
           <path d="M0,3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,-3.5682482323055424A3.5682482323055424,3.5682482323055424 0 1,1 0,3.5682482323055424Z"
           v-bind:class="clazz">
           </path>
@@ -85,7 +85,7 @@
        :type="type"
        :clazz="clazz"
        :class="getClassObject(['impact-badge'])">
-        <g transform="translate(7,6)">
+        <g transform="translate(5,6)">
           <path d="M0,-5.885661912765424L3.398088489694245,0 0,5.885661912765424 -3.398088489694245,0Z"
           v-bind:class="clazz">
           </path>
