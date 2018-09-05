@@ -496,7 +496,7 @@
                   <div style="float-left;margin-left:4px">
 
                   <variant-interpretation
-                    style="float:left"
+                    style="float:left;padding-left: 10px;"
                      v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
                      class="variant-notes"
                      wrap="true"

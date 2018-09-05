@@ -48,7 +48,7 @@
         v-for="filter in filters"
         :ref="filter.name + 'ExpansionRef'"
         :key="filter.name"
-        :value="filter.active"
+        :value="filter.expand"
         >
           <div slot="header">
             <filter-icon :icon="filter.name">
@@ -123,18 +123,12 @@ export default {
     showCoverageCutoffs: null
   },
   data () {
+    let self = this;
     return {
       showMenu: false,
-      filters: [
-        {name: 'pathogenic',        display: 'Known pathogenic',        active: false, custom: false},
-        {name: 'autosomalDominant', display: 'Autosomal dominant',      active: false, custom: false},
-        {name: 'denovo',            display: 'De novo',                 active: false, custom: false},
-        {name: 'recessive',         display: 'Recessive',               active: false, custom: false},
-        {name: 'xlinked',           display: 'X-linked',                active: false, custom: false},
-        {name: 'compoundHet',       display: 'Compound het',            active: false, custom: false},
-        {name: 'highOrModerate',    display: 'High or moderate impact', active: false, custom: false},
-        {name: 'coverage',          display: 'Insufficient coverage',   active: false, custom: false}
-      ]
+      filters: self.filterModel.getSortedActiveFilters().map(function(filter) {
+        return {'name': filter.key, 'display': filter.title, 'expand': false, 'custom': filter.custom};
+      })
     }
   },
   watch: {

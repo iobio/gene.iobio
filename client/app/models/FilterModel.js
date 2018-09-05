@@ -168,7 +168,8 @@ class FilterModel {
           exclusiveOf:  null
         },
         'notCategorized': {
-          active: true,
+          // TODO - figure out how to show when variants no longer match filters
+          active: false,
           custom: false,
           title: "Not categorized",
           name: "Variants found during full analysis, but not passing any app filters",
@@ -184,7 +185,8 @@ class FilterModel {
           exclusiveOf: null
         },
         'notFound': {
-          active: true,
+          // TODO - figure out how to notify user when bookmarked variants are not found in vcf
+          active: false,
           custom: false,
           title: "Not found",
           name: "Variants not found",
@@ -299,7 +301,8 @@ class FilterModel {
           exclusiveOf: ['pathogenic']
         },
         'notCategorized': {
-          active: true,
+          // TODO - figure out how to show when variants no longer match filters
+          active: false,
           custom: false,
           title: "Not categorized",
           name: "Variants found during full analysis, but not passing any app filters",
@@ -315,7 +318,8 @@ class FilterModel {
           exclusiveOf: null
         },
         'notFound': {
-          active: true,
+          // TODO - figure out how to show when variants no longer match filters
+          active: false,
           custom: false,
           title: "Not found",
           name: "Variants not found",
@@ -340,6 +344,23 @@ class FilterModel {
         'clinvar': []
       }
     }
+  }
+
+  getSortedActiveFilters() {
+    let self = this;
+    let filters = [];
+    for (var filterName in self.flagCriteria) {
+      let flagCriteria = self.flagCriteria[filterName];
+      if (flagCriteria.active) {
+        filters.push($.extend({'key': filterName}, flagCriteria));
+      }
+    }
+
+    let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
+      return filterObject1.order > filterObject2.order;
+    })
+
+    return sortedFilters;
   }
 
 
