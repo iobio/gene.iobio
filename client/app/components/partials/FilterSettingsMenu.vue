@@ -126,9 +126,7 @@ export default {
     let self = this;
     return {
       showMenu: false,
-      filters: self.filterModel.getSortedActiveFilters().map(function(filter) {
-        return {'name': filter.key, 'display': filter.title, 'expand': false, 'custom': filter.custom};
-      })
+      filters: self.initFilters()
     }
   },
   watch: {
@@ -142,6 +140,16 @@ export default {
     }
   },
   methods: {
+    initFilters: function() {
+      let self = this;
+      let sortedFilters = self.filterModel.getSortedActiveFilters().map(function(filter) {
+        return {'name': filter.key, 'display': filter.title, 'expand': false, 'custom': filter.custom};
+      })
+      sortedFilters.push(
+        {name: 'coverage', display: 'Insufficient coverage',   expand: false, custom: false}
+      );
+      return sortedFilters;
+    },
     onNewFilter: function() {
       let self = this;
       this.filters.forEach(function(filter) {

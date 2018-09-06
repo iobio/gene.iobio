@@ -766,6 +766,9 @@ export default {
           }
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
+          if (self.launchedFromClin && !self.isFullAnalysis) {
+            self.$refs.genesCardRef.determineFlaggedGenes();
+          }
           if (!self.isEduMode) {
             self.$refs.navRef.onShowFlaggedVariants();
           }
@@ -2382,6 +2385,8 @@ export default {
             // When all variants have been imported
             self.onFlaggedVariantsImported();
             self.$refs.navRef.onShowFlaggedVariants();
+
+
           },
           function() {
             // When analyzeSubset and variants have been cached
