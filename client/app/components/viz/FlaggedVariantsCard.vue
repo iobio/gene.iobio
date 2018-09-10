@@ -15,6 +15,7 @@
     padding-right: 20px
     background-color: white
     margin-bottom: 20px
+    margin-top: 20px
 
     #mygene2-basic-title
       word-break: break-word
@@ -22,31 +23,28 @@
       white-space: normal
       line-height: 18px
 
-    #close-button
-      padding-right: 0px
-      position: absolute
-      right: 0px
-      display: inline-block
-      margin-left: 0px
-      min-width: 22px
-      margin-top: 0px
-      top: 5px
 
-      i.material-icons
-        font-size: 22px
 
     .toolbar__title
       font-family: inherit
       font-size: 15px
       min-width: initial
-      padding-right: 30px
       padding-top: 10px
       display: inline-block
       color:  $text-color
-      margin-left: 8px
+      margin-top: 5px
+      margin-left: 0px
+      padding-right: 0px
 
       span
+        padding-right: 30px
+        margin-left: 8px
         white-space: normal
+        font-size: 14px
+        line-height: 15px
+        display: inline-block
+        color: $app-color
+
 
     .toolbar-button
       min-width: 70px
@@ -356,11 +354,9 @@
 
 
     <div class="variant-toolbar" >
-      <v-btn v-if="!isFullAnalysis" id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
-        <v-icon >close</v-icon>
-      </v-btn>
+
       <v-toolbar-title >
-        <span v-show="!isBasicMode && !isFullAnalysis">
+        <span v-show="!isBasicMode && !isFullAnalysis && launchedFromClin">
           Review variants in candidate genes
         </span>
         <span v-show="!isBasicMode && isFullAnalysis">

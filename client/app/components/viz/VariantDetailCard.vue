@@ -4,7 +4,7 @@
   padding-left: 0px
   max-height: 182px
   min-height: 182px
-  padding-top: 0px
+  padding-top: 5px
   overflow-x: scroll
   min-width: 700px
 
@@ -12,6 +12,15 @@
     max-height: 232px
     min-height: 232px
 
+  #variant-heading
+    color: $app-color
+    padding-bottom: 7px
+
+  #variant-notes
+    display: inline-block
+    vertical-align: top
+    float: left
+    margin-left: -5px
 
   .variant-notes
     width: 100%
@@ -252,8 +261,8 @@
       <span style="display:inline-block" v-if="showTitle ">Variant</span>
     </div>
 
-    <div  v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center" style="padding-bottom: 4px;">
-      <variant-notes-menu style="float:left"
+    <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center">
+      <variant-notes-menu id="variant-notes"
         v-if="!isBasicMode && !forMyGene2"
         :variant="selectedVariant"
         :variantInterpretation="interpretation"

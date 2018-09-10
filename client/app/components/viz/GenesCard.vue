@@ -3,6 +3,8 @@
 
 
 #genes-card
+  margin-bottom: 0px
+  padding-bottom: 0px
 
   #analyze-all-button
     display: inline-block
@@ -28,7 +30,7 @@
 
   #genes-toolbar
     margin-top: 6px
-    margin-bottom: 10px
+    margin-bottom: 0px
     display: inline-block
     width: 100%
     text-align: center
@@ -261,7 +263,7 @@ div.container.small
        @apply-genes="onApplyGenes">
       </genes-menu>
 
-      <div id="genes-panel"  class="nav-center">
+      <div id="genes-panel" v-if="false" class="nav-center">
 
 
         <div id="gene-badge-container" class="level-basic" style="clear:both;">

@@ -63,8 +63,8 @@
 <template>
 
   <v-card tile id="matrix-card" class="app-card">
-    <div style="width:100%">
-        <span style="float:left">
+    <div v-if="false" style="width:100%">
+        <span  style="float:left">
           Ranked Variants for {{ selectedGene.gene_name }}
         </span>
         <div id="rank-variants-title" class="hide card-label" style="">Evaluate Variants</div>

@@ -31,19 +31,18 @@
 @import ../../../assets/sass/variables
 
 #gene-track
-  max-height: 215px
   margin-bottom: 0px
 
   &.full
     max-height: initial
 
-    #gene-summary-box
-      max-height: initial
 
   #gene-summary-box
-    min-height: 145px
-    max-height: 145px
+    display: flex
+    min-height: 129px
+    max-height: 129px
     overflow-y: scroll
+
 
   #gene-name
     margin-left: 0px
@@ -96,16 +95,20 @@
     padding-top: 2px;
 
   #ncbi-heading
-    margin-top: 5px
+    margin-top: 0px
     font-size: 12px
     font-weight: bold
 
   #ncbi-summary
     font-size: 12px
     font-weight: normal
+    min-width: 60%
+    flex: 1 1 0
 
   #phenotypes
-    margin-top: 8px
+    margin-top: 0px
+    flex: 1 1 0
+    margin-left: 20px
 
 
     #phenotypes-heading
@@ -114,7 +117,7 @@
       margin-right: auto
       width: 100%
       display: inline-block
-      margin-top: 5px
+      margin-top: 0px
       font-size: 12px
       font-weight: bold
 
@@ -234,14 +237,12 @@
     <div id="gene-summary-box" >
 
 
-      <div id="ncbi-heading">NCBI summary</div>
       <div v-if="showGene && ncbiSummary" id="ncbi-summary">
+        <div id="ncbi-heading">NCBI summary</div>
         {{ ncbiSummary.summary }}
       </div>
 
       <div id="phenotypes" v-if="showGene && phenotypes && !isBasicMode && !isEduMode">
-
-
         <span id="phenotypes-heading" style="text-align:left">
           Phenotypes (HPO)
         </span>

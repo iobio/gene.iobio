@@ -7,6 +7,8 @@ aside.navigation-drawer
   z-index: 0
   padding-bottom: 0px
 
+
+
   #side-panel-container
     display: flex
     flex-flow: column
@@ -17,6 +19,37 @@ aside.navigation-drawer
     padding-bottom: 10px
     height: calc(100% - 15px)
 
+    .toolbar-button
+      min-width: 70px
+      color: $text-color
+      margin-right: 5px
+      margin-left: 0px
+      font-size: 13px
+      height: 30px
+      margin-top: -7px
+
+      .btn__content
+        padding: 0px
+
+      i.material-icons
+        font-size: 16px
+        padding-right: 4px
+
+    #close-button
+      position: absolute
+      padding-right: 0px
+      position: absolute
+      right: 0px
+      display: inline-block
+      margin-left: 0px
+      min-width: 22px
+      margin-top: 0px
+      top: 0px
+      z-index: 1
+
+      i.material-icons
+        font-size: 22px
+
     #flagged-variants-card
       flex-grow: 1
 
@@ -24,6 +57,19 @@ aside.navigation-drawer
       margin-top: 5px
       margin-bottom: 38px
       padding: 0px
+
+#side-panel-container
+  #genes-panel
+    #gene-badge-container
+      clear: both
+      display: flex
+      flex-flow: column
+
+      #gene-badge-button
+        min-width: 130px
+
+        #gene-badge
+          margin-bottom: 5px
 
 nav.toolbar
 
@@ -389,24 +435,69 @@ nav.toolbar
     >
       <div id="side-panel-container">
 
-        <flagged-variants-card
-         v-if="leftDrawerContents == 'flagged-variants'"
-         ref="flaggedVariantsRef"
-         :isEduMode="isEduMode"
-         :isBasicMode="isBasicMode"
-         :forMyGene2="forMyGene2"
-         :cohortModel="cohortModel"
-         :flaggedVariants="flaggedVariants"
-         :activeFilterName="activeFilterName"
-         :launchedFromClin="launchedFromClin"
-         :isFullAnalysis="isFullAnalysis"
-         @flagged-variants-imported="onFlaggedVariantsImported"
-         @flagged-variant-selected="onFlaggedVariantSelected"
-         @apply-variant-notes="onApplyVariantNotes"
-         @apply-variant-interpretation="onApplyVariantInterpretation"
-         @close-left-drawer="leftDrawer = false"
+        <v-btn v-if="!isFullAnalysis" id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
+          <v-icon >close</v-icon>
+        </v-btn>
+
+        <v-tabs
+          v-model="activeTab"
+          light
         >
-        </flagged-variants-card>
+          <v-tab >
+            Genes
+          </v-tab>
+          <v-tab>
+            Variants
+          </v-tab>
+
+          <v-tab-item>
+
+            <genes-panel
+             style="margin: 15px 10px 10px 10px"
+             v-if="geneModel && (geneModel.geneNames.length > 0  || isEduMode)"
+             ref="genesPanelRef"
+             :isEduMode="isEduMode"
+             :isBasicMode="isBasicMode"
+             :isFullAnalysis="isFullAnalysis"
+             :geneModel="geneModel"
+             :selectedGene="selectedGene"
+             :geneNames="geneModel.sortedGeneNames"
+             :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
+             :genesInProgress="cohortModel.genesInProgress"
+             @gene-selected="onGeneSelected"
+             @remove-gene="onRemoveGene"
+            >
+            </genes-panel>
+
+
+
+          </v-tab-item>
+
+
+          <v-tab-item>
+
+            <flagged-variants-card
+             v-if="leftDrawerContents == 'flagged-variants'"
+             ref="flaggedVariantsRef"
+             :isEduMode="isEduMode"
+             :isBasicMode="isBasicMode"
+             :forMyGene2="forMyGene2"
+             :cohortModel="cohortModel"
+             :flaggedVariants="flaggedVariants"
+             :activeFilterName="activeFilterName"
+             :launchedFromClin="launchedFromClin"
+             :isFullAnalysis="isFullAnalysis"
+             @flagged-variants-imported="onFlaggedVariantsImported"
+             @flagged-variant-selected="onFlaggedVariantSelected"
+             @apply-variant-notes="onApplyVariantNotes"
+             @apply-variant-interpretation="onApplyVariantInterpretation"
+             @close-left-drawer="leftDrawer = false"
+            >
+            </flagged-variants-card>
+
+          </v-tab-item>
+
+        </v-tabs>
 
 
 
@@ -577,6 +668,7 @@ import GenesMenu           from '../partials/GenesMenu.vue'
 import FilesMenu           from '../partials/FilesMenu.vue'
 import LegendPanel         from '../partials/LegendPanel.vue'
 import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
+import GenesPanel          from '../partials/GenesPanel.vue'
 import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
 
 export default {
@@ -586,6 +678,7 @@ export default {
     GenesMenu,
     FilesMenu,
     FlaggedVariantsCard,
+    GenesPanel,
     LegendPanel,
     PhenotypeSearch
   },
@@ -593,8 +686,10 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     forMyGene2: null,
+    selectedVariant: null,
     geneModel: null,
     cohortModel: null,
+    cacheHelper: null,
     flaggedVariants: null,
     activeFilterName: null,
     launchedFromClin: null,
@@ -609,7 +704,7 @@ export default {
       selectedGene: {},
       geneEntered: null,
       clipped: false,
-      leftDrawer: self.forMyGene2 ? true : false,
+      leftDrawer: self.forMyGene2  ? true : false,
       rightDrawer: false,
 
       leftDrawerContents: "flagged-variants",
@@ -617,7 +712,10 @@ export default {
       showDisclaimer: false,
       showVersion: false,
       showCitations: false,
-      typeaheadLimit: parseInt(100)
+      typeaheadLimit: parseInt(100),
+
+      activeTab: 0
+
 
     }
   },
@@ -674,10 +772,16 @@ export default {
     },
     onVariants: function() {
       this.leftDrawerContents = "flagged-variants";
+      this.activeTab = 1;
       this.leftDrawer = true;
     },
     onShowFlaggedVariants: function() {
       this.leftDrawerContents = "flagged-variants";
+      this.activeTab = 1;
+      this.leftDrawer = true;
+    },
+    onShowGenes: function() {
+      this.activeTab = 0;
       this.leftDrawer = true;
     },
     onFlaggedVariantSelected: function(variant) {
@@ -688,6 +792,12 @@ export default {
     },
     onFilesLoaded: function(analyzeAll) {
       this.$emit("on-files-loaded", analyzeAll);
+    },
+    onGeneSelected: function(geneName) {
+      this.$emit('gene-selected', geneName);
+    },
+    onRemoveGene: function(geneName) {
+      this.$emit('remove-gene', geneName);
     },
     onWelcome: function() {
       this.$emit("on-show-welcome");
