@@ -435,7 +435,7 @@ nav.toolbar
     >
       <div id="side-panel-container">
 
-        <v-btn v-if="!isFullAnalysis" id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
+        <v-btn v-if="!isFullAnalysis" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
 
@@ -491,7 +491,6 @@ nav.toolbar
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
-             @close-left-drawer="leftDrawer = false"
             >
             </flagged-variants-card>
 

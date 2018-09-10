@@ -41,18 +41,6 @@ main.content
   height: initial !important
   display: flex !important
 
-.clinvar-switch
-  position: absolute
-  top: 5px
-  left: 200px
-
-  label
-    padding-left: 7px
-    line-height: 18px
-    font-size: 12px
-    font-weight: bold
-    padding-top: 2px
-    color: $text-color
 
 .switch
   &.accent--text
@@ -159,6 +147,7 @@ main.content
          @filter-settings-closed="showCoverageCutoffs = false"
          @apply-genes="onApplyGenes"
          @stop-analysis="onStopAnalysis"
+         @show-known-variants="onShowKnownVariantsCard"
         >
         </genes-card>
 
@@ -573,9 +562,6 @@ export default {
       setTimeout(function() {
         self.onResize();
       }, 1000)
-    },
-    showKnownVariantsCard: function() {
-      this.onShowKnownVariantsCard();
     }
   },
 
@@ -1912,8 +1898,9 @@ export default {
 
       });
     },
-    onShowKnownVariantsCard: function() {
+    onShowKnownVariantsCard: function(showIt) {
       let self = this;
+      self.showKnownVariantsCard = showIt;
       if (self.showKnownVariantsCard) {
         self.onKnownVariantsVizChange();
       }

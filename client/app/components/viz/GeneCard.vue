@@ -39,8 +39,8 @@
 
   #gene-summary-box
     display: flex
-    min-height: 129px
-    max-height: 129px
+    min-height: 105px
+    max-height: 105px
     overflow-y: scroll
 
 

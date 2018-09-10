@@ -9,7 +9,7 @@
   button
     padding-left: 0px
     padding-right: 0px
-    min-width: 50px
+    min-width: 45px
     margin-left: 0px
     margin-right: 0px
 
