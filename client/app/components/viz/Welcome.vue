@@ -433,7 +433,7 @@
               <a href="http://iobio.io/2017/09/27/loading-data/" target="_new">
                 <div class="video-thumbprint-well ">
                   <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/loading_data/blog_image_data.jpg" width="100%" height="100%">
+
                   </div>
                   <div class="video-title">
                     How to load your data
@@ -445,7 +445,6 @@
               <a href="http://iobio.io/2017/04/26/gene_2.3.0/" target="_new">
                 <div class="video-thumbprint-well ">
                   <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/gene_2.3.0/main.png" width="100%" height="100%">
                   </div>
                   <div class="video-title">
                     Saving and loading your analysis
@@ -458,7 +457,6 @@
               <a href="http://iobio.io/2017/07/11/coverage/" target="_new">
                 <div class="video-thumbprint-well ">
                   <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/coverage/main.png" width="100%" height="100%">
                   </div>
                   <div class="video-title">
                     Coverage analysis
@@ -470,7 +468,6 @@
               <a href="http://iobio.io/2017/09/29/gene_2.5.0/" target="_new">
                 <div class="video-thumbprint-well ">
                   <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/gene_2.5.0/banner.png" width="100%" height="100%">
                   </div>
                   <div class="video-title">
                     ClinVar and gnomAD
