@@ -100,10 +100,25 @@
     font-weight: bold
 
   #ncbi-summary
-    font-size: 12px
-    font-weight: normal
     min-width: 60%
     flex: 1 1 0
+    margin-top: 0px
+
+    #ncbi-heading
+      text-align: left
+      margin-left: auto
+      margin-right: auto
+      width: 100%
+      display: inline-block
+      margin-top: 0px
+      font-size: 12px
+      font-weight: bold
+      vertical-align: top
+      color: $app-color
+
+    #ncbi-text
+      font-size: 12px
+      line-height: 18px
 
   #phenotypes
     margin-top: 0px
@@ -112,7 +127,7 @@
 
 
     #phenotypes-heading
-      text-align: center
+      text-align: left
       margin-left: auto
       margin-right: auto
       width: 100%
@@ -120,9 +135,12 @@
       margin-top: 0px
       font-size: 12px
       font-weight: bold
+      vertical-align: top
+      color: $app-color
 
     #phenotype-terms
       font-size: 12px
+      line-height: 18px
 
 
 
@@ -237,9 +255,11 @@
     <div id="gene-summary-box" >
 
 
-      <div v-if="showGene && ncbiSummary" id="ncbi-summary">
+      <div  v-if="showGene && ncbiSummary" id="ncbi-summary">
         <div id="ncbi-heading">NCBI summary</div>
+        <div id="ncbi-text">
         {{ ncbiSummary.summary }}
+        </div>
       </div>
 
       <div id="phenotypes" v-if="showGene && phenotypes && !isBasicMode && !isEduMode">
