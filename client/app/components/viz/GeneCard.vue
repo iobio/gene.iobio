@@ -83,7 +83,7 @@
       display: inline-block
       margin-right: 10px
       color: $link-color !important
-      font-size: 12px
+      font-size: 13px
 
 
 

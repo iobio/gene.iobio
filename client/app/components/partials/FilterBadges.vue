@@ -56,7 +56,9 @@
       top: -6px
       background-color: $default-badge-color !important
 
-
+  #coverage
+    .badge__badge
+      top: -10px
 
   .btn--floating.btn--small
     height: 18px
