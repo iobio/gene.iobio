@@ -4,6 +4,8 @@
 
 i.material-icons.interpretation.not-reviewed
   color: $not-reviewed-color !important
+  font-size: 20px
+  padding-top: 2px
 i.material-icons.interpretation.sig
   color: $significant-color !important
 i.material-icons.interpretation.unknown-sig

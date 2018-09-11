@@ -39,8 +39,8 @@
 
   #gene-summary-box
     display: flex
-    min-height: 105px
-    max-height: 105px
+    min-height: 108px
+    max-height: 108px
     overflow-y: scroll
 
 
@@ -94,15 +94,13 @@
     display: block;
     padding-top: 2px;
 
-  #ncbi-heading
-    margin-top: 0px
-    font-size: 12px
-    font-weight: bold
+
 
   #ncbi-summary
     min-width: 60%
     flex: 1 1 0
     margin-top: 0px
+    margin-right: 20px
 
     #ncbi-heading
       text-align: left
@@ -123,7 +121,6 @@
   #phenotypes
     margin-top: 0px
     flex: 1 1 0
-    margin-left: 20px
 
 
     #phenotypes-heading

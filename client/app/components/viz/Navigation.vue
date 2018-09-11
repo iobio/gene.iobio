@@ -19,6 +19,9 @@ aside.navigation-drawer
     padding-bottom: 10px
     height: calc(100% - 15px)
 
+    .tabs__bar
+      padding-left: 10px
+
     .toolbar-button
       min-width: 70px
       color: $text-color
@@ -461,6 +464,7 @@ nav.toolbar
              :isFullAnalysis="isFullAnalysis"
              :geneModel="geneModel"
              :selectedGene="selectedGene"
+             :filteredGeneNames="filteredGeneNames"
              :geneNames="geneModel.sortedGeneNames"
              :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
              :genesInProgress="cohortModel.genesInProgress"
@@ -686,6 +690,7 @@ export default {
     isBasicMode: null,
     forMyGene2: null,
     selectedVariant: null,
+    filteredGeneNames: null,
     geneModel: null,
     cohortModel: null,
     cacheHelper: null,

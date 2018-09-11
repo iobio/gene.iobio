@@ -76,6 +76,7 @@ main.content
       :cacheHelper="cacheHelper"
       :geneModel="geneModel"
       :flaggedVariants="flaggedVariants"
+      :filteredGeneNames="filteredGeneNames"
       :activeFilterName="activeFilterName"
       :launchedFromClin="launchedFromClin"
       :isFullAnalysis="isFullAnalysis"
@@ -151,7 +152,7 @@ main.content
         >
         </genes-card>
 
-        <v-card style="margin-top:10px" v-if="geneModel && Object.keys(selectedGene).length > 0"
+        <v-card style="margin-top:10px;padding-bottom:10px" v-if="geneModel && Object.keys(selectedGene).length > 0"
           v-bind:class="{hide : showWelcome }">
           <gene-card
             :showTitle="false"
@@ -448,6 +449,7 @@ export default {
 
       flaggedVariants: [],
       activeFilterName: null,
+      filteredGeneNames: null,
 
       cohortModel: null,
       models: [],
@@ -1905,8 +1907,9 @@ export default {
         self.onKnownVariantsVizChange();
       }
     },
-    onFilterSelected: function(filterName) {
+    onFilterSelected: function(filterName, filteredGeneNames) {
       this.activeFilterName = filterName;
+      this.filteredGeneNames = filteredGeneNames;
     },
     onFilterSettingsApplied: function() {
       let self = this;

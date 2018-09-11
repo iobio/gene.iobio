@@ -41,6 +41,7 @@ export default {
     isBasicMode: null,
     isFullAnalysis: null,
     geneNames: null,
+    filteredGeneNames: null,
     genesInProgress: null,
     loadedDangerSummaries: null,
     geneModel: null,
@@ -48,8 +49,7 @@ export default {
   },
   data () {
     return {
-      geneSummaries: [],
-      filteredGeneNames: []
+      geneSummaries: []
 
     }
   },
@@ -58,7 +58,7 @@ export default {
       let self = this;
 
       // Create an array of gene summaries for the genes to show in the genes card
-      var theGeneNames = self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
+      var theGeneNames = self.filteredGeneNames && self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
       if (theGeneNames) {
         self.geneSummaries = theGeneNames.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
@@ -109,6 +109,9 @@ export default {
   },
   watch: {
     geneNames: function(newGeneNames, oldGeneNames) {
+      this.updateGeneSummaries();
+    },
+    filteredGeneNames: function(newGeneNames, oldGeneNames) {
       this.updateGeneSummaries();
     },
     genesInProgress: function() {

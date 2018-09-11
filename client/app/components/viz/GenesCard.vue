@@ -457,7 +457,6 @@ export default {
     },
     onBadgeClick: function(badge) {
       let self = this;
-      self.$emit('filter-selected', badge);
 
       self.determineFlaggedGenes(badge);
       if (badge) {
@@ -467,6 +466,7 @@ export default {
       }
       self.updateGeneSummaries();
 
+      self.$emit('filter-selected', badge, self.filteredGeneNames);
     },
     onFilterSettingsApplied: function() {
       this.$emit("filter-settings-applied");

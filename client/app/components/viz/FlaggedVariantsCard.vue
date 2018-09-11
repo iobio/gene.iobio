@@ -92,7 +92,12 @@
       background-color: #f2f1f1
 
   .expansion-panel__header
-    background-color: #f2f1f1
+    border-top: #e1e1e1
+    border-top-style: solid
+    border-top-width: 1px
+
+  .expansion-panel__container
+    border-top: none
 
   .filter-subheader
     color: $text-color
@@ -103,8 +108,8 @@
       background-color: transparent
 
       span.filter-label
-        color: $text-color
-        border-color: $text-color
+        color: $app-color
+        border-color: none
         font-size: 15px
         font-weight: normal
 
