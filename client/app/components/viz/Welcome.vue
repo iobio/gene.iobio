@@ -300,17 +300,19 @@
     <div id="welcome-area" class="">
 
       <div class="welcome-panel" >
-        <div id="welcome-label">
-          A web tool for disease-causing variant interrogation
-        </div>
+        <transition-group  name="fade" >
+          <div v-if="showWelcomeLabel" key="welcome-label" id="welcome-label">
+            A web tool for disease-causing variant interrogation
+          </div>
+        </transition-group>
         <div id="welcome-panel-content">
 
 
           <div class="description-paragraph">
             <div style="display:flex;justify-content:space-between">
 
-              <transition-group :duration="2000" name="fade" tag="div" class="feature-container">
-                <div class="feature-item" v-for="feature in appFeaturesAnimated" :key="feature.key">
+              <transition-group  name="fadeLeftBig" tag="div" class="feature-container">
+                <div v-show="showWelcomeFeature" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
                   <app-icon :icon="feature.icon" width="50" height="50" style="display: block;margin: auto"></app-icon>
                   <div  class="bullet-item" v-html="feature.display"></div>
                 </div>
@@ -324,14 +326,17 @@
 
 
 
-        <div style="margin-top:30px">
-          <v-btn id="load-demo-data"  @click="onLoadDemoData">
-            Try it with demo data
-          </v-btn>
-          <v-btn   @click="onAppTour">
-            Take guided tour
-          </v-btn>
-        </div>
+        <transition-group  name="fade" tag="div" >
+          <div v-if="showWelcomeButton" key="welcome-button" style="margin-top:30px">
+            <v-btn id="load-demo-data"  @click="onLoadDemoData">
+              Try it with demo data
+            </v-btn>
+            <v-btn   @click="onAppTour">
+              Take guided tour
+            </v-btn>
+          </div>
+
+        </transition-group>
       </div>
 
       <div class="welcome-panel" style="padding:0px;background:transparent;margin-top:20px">
@@ -518,7 +523,6 @@ export default {
   },
   data() {
     return {
-      appFeaturesAnimated: [],
       appFeatures: [
         {key: 1, display: 'Analyze in<br>real-time',            icon: "feature-realtime"},
         {key: 2, display: 'Annotate and segregate variants',    icon: "feature-analysis"},
@@ -526,6 +530,9 @@ export default {
         {key: 4, display: 'Inspect<br>coverage',                icon: "feature-coverage"},
         {key: 5, display: 'Recall<br>variants',                 icon: "feature-on-demand"},
       ],
+      showWelcomeLabel: false,
+      showWelcomeFeature: false,
+      showWelcomeButton: false,
       videoPlayer: null,
       videoStyle: "position:absolute;width:100%;height:100%;left:0",
       videoConfigs : {
@@ -566,26 +573,16 @@ export default {
   },
   mounted: function() {
     let self = this;
-    let delay = 200;
+    let delay = 0;
 
-    let addFeature = function(idx) {
-      setTimeout(function() {
-        self.appFeaturesAnimated.push(self.appFeatures[idx]);
-        idx++;
-        if (idx < self.appFeatures.length) {
-          addFeature(idx);
-        }
-
-      }, delay);
-
-    }
-
-    var i = 0;
-
+    this.showWelcomeLabel = true;
+    self.showWelcomeButton = true;
     if (!this.launchedFromClin && !this.isBasicMode && !this.isEduMode) {
-      addFeature(i);
+      self.showWelcomeFeature = true;
+
 
     }
+
 
 
   },
