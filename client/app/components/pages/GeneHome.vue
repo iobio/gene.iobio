@@ -256,6 +256,9 @@ main.content
 
         <welcome
          v-if="showWelcome"
+         :launchedFromClin="launchedFromClin"
+         :isBasicMode="isBackground"
+         :isEduMode="isEduMode"
          @load-demo-data="onLoadDemoData"
          @take-app-tour="onTakeAppTour"
          >

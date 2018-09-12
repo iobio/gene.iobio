@@ -27,7 +27,7 @@
 
     #welcome-label
       color: $text-color
-      font-size: 20px
+      font-size: 26px
 
     #welcome-label-small
       color: $text-color
@@ -43,37 +43,49 @@
       font-size: 16px !important
       margin-left: 7px
       margin-right: 7px
+      height: 40px
+      margin-bottom: 10px
 
     #welcome-panel-content
       display: flex
       justify-content: center
       margin-top: 0px
 
-      i.material-icons
-        font-size: 20px
-        vertical-align: middle
-        display: inline-block
-        padding-top: 2px
-        float: left
-        color: $welcome-accent-color
+      .feature-container
+        display: flex
+        justify-content: flex-start
+        flex: 1 1 0
+        min-height: 161px
 
-      span.bullet-item
-        display: inline-block
-        float: left
-        word-wrap: break-word
-        width: 260px
-        margin-left: 5px
-        margin-bottom: 15px
+
+        .feature-item
+          margin-left: 0px
+          margin-right: 0px
+          text-align: center
+
+          .feature-icon
+            width: 140px
+            text-align: center
+
+          .bullet-item
+            display: inline-block
+            word-wrap: break-word
+            width: 140px
+            white-space: normal
+            margin-left: 5px
+            margin-bottom: 15px
+            line-height: 22px
+            font-size: 18px
+            padding-top: 10px
+            text-align: center
 
 
 
       .description-paragraph
-        text-align: left
+        width: 100%
+        margin-left: 40px
+        margin-right: 40px
         margin-top: 50px
-        color: $text-color
-        font-size: 18px
-        margin-right: 0px
-        margin-left: 100px
 
         li
           padding-bottom: 10px
@@ -115,6 +127,11 @@
           border: $welcome-border-color solid thin
           padding: 5px
           width: 100px
+          padding-top: 15px
+          background-color: white
+
+          &.three-line
+            padding-top: 5px
 
           #play-button
             cursor: pointer
@@ -288,41 +305,16 @@
         </div>
         <div id="welcome-panel-content">
 
-          <div id="video-thumbprint-panel" style="margin-top:55px">
-            <div id="video-thumbprint-content">
-
-              <v-card  class="video-thumbprint-well-large shadow-z-2">
-                <div id="welcome-screencast-panel-intro" class="video-thumbprint-large" >
-                  <span id="video-thumbprint-heading-large">Introducing<br>gene.iobio</span>
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-intro')">
-                    play_arrow
-                  </i>
-                </div>
-                <div class="video-title"></div>
-              </v-card>
-            </div>
-          </div>
 
           <div class="description-paragraph">
-            <div>
+            <div style="display:flex;justify-content:space-between">
 
-              <div>
-                <i class="material-icons">check_circle</i>
-                <span class="bullet-item">Real-time analysis</span>
-              </div>
-
-              <div>
-                <i class="material-icons">check_circle</i>
-                <span class="bullet-item">On-the-fly annotation</span>
-              </div>
-              <div>
-                <i class="material-icons">check_circle</i>
-                <span class="bullet-item">Integrated genomic visualizations</span>
-              </div>
-              <div>
-                <i class="material-icons">check_circle</i>
-                <span class="bullet-item">On-demand variant calling</span>
-              </div>
+              <transition-group :duration="2000" name="fade" tag="div" class="feature-container">
+                <div class="feature-item" v-for="feature in appFeaturesAnimated" :key="feature.key">
+                  <app-icon :icon="feature.icon" width="50" height="50" style="display: block;margin: auto"></app-icon>
+                  <div  class="bullet-item" v-html="feature.display"></div>
+                </div>
+              </transition-group>
             </div>
 
           </div>
@@ -349,8 +341,22 @@
         <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
 
 
+
           <div id="video-thumbprint-panel">
             <div id="video-thumbprint-content">
+
+
+              <div class="video-thumbprint-well ">
+                <div id="welcome-screencast-panel-coverage-analysis" class="video-thumbprint shadow-z-2" >
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-intro')">play_arrow
+                  </i>
+                </div>
+                <div class="video-title">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-intro')">play_arrow
+                  </i>
+                  Introducing gene.iobio
+                </div>
+              </div>
 
 
               <div class="video-thumbprint-well ">
@@ -422,7 +428,7 @@
                   <div class="video-thumbprint shadow-z-2" >
 
                   </div>
-                  <div class="video-title">
+                  <div class="video-title three-line">
                     New gene.iobio 3.0
                   </div>
                 </div>
@@ -447,7 +453,7 @@
                   <div class="video-thumbprint shadow-z-2" >
                     <img src="http://iobio.io/public/images/blog/gene_2.3.0/main.png" width="100%" height="100%">
                   </div>
-                  <div class="video-title">
+                  <div class="video-title three-line">
                     Saving and loading your analysis
                   </div>
                 </div>
@@ -498,16 +504,28 @@
 
 <script>
 
-
+import AppIcon         from  '../partials/AppIcon.vue'
 
 export default {
   name: 'welcome',
   components: {
+    AppIcon
   },
   props: {
+    isBasicMode: null,
+    isEduMode: null,
+    launchedFromClin: null
   },
   data() {
     return {
+      appFeaturesAnimated: [],
+      appFeatures: [
+        {key: 1, display: 'Analyze in<br>real-time',            icon: "feature-realtime"},
+        {key: 2, display: 'Annotate and segregate variants',    icon: "feature-analysis"},
+        {key: 3, display: 'Visualize<br>data',                  icon: "feature-viz"},
+        {key: 4, display: 'Inspect<br>coverage',                icon: "feature-coverage"},
+        {key: 5, display: 'Recall<br>variants',                 icon: "feature-on-demand"},
+      ],
       videoPlayer: null,
       videoStyle: "position:absolute;width:100%;height:100%;left:0",
       videoConfigs : {
@@ -545,6 +563,31 @@ export default {
         }
       }
     }
+  },
+  mounted: function() {
+    let self = this;
+    let delay = 200;
+
+    let addFeature = function(idx) {
+      setTimeout(function() {
+        self.appFeaturesAnimated.push(self.appFeatures[idx]);
+        idx++;
+        if (idx < self.appFeatures.length) {
+          addFeature(idx);
+        }
+
+      }, delay);
+
+    }
+
+    var i = 0;
+
+    if (!this.launchedFromClin && !this.isBasicMode && !this.isEduMode) {
+      addFeature(i);
+
+    }
+
+
   },
   methods: {
     playVideo: function(videoName) {

@@ -21,7 +21,7 @@ import ExhibitCasesComplete from './components/pages/ExhibitCaseComplete.vue'
 
 import VueAnalytics from 'vue-analytics'
 
-
+import vue2animate          from 'vue2-animate/dist/vue2-animate.min.css'
 
 import bootstrap            from 'bootstrap/dist/css/bootstrap.css'
 import { Typeahead }        from 'uiv'
@@ -104,7 +104,7 @@ const routes = [
         paramTbis:             [route.query.tbi0, route.query.tbi1, route.query.tbi2],
         paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2],
         paramGeneName:         route.query.geneName,
-        paramSampleId:         route.query.sample_uuid,
+        paramSampleId:         route.query.sample_id,
         paramIsPedigree:       route.query.is_pedigree,
         paramSource:           route.query.source
     })
