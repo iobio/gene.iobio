@@ -300,8 +300,8 @@
     <div id="welcome-area" class="">
 
       <div class="welcome-panel" >
-        <transition-group  name="fade" >
-          <div v-if="showWelcomeLabel" key="welcome-label" id="welcome-label">
+        <transition-group  name="fadeDown" >
+          <div v-if="showWelcomeLabel" style="animation-duration: 1s" key="welcome-label" id="welcome-label">
             A web tool for disease-causing variant interrogation
           </div>
         </transition-group>
@@ -311,8 +311,8 @@
           <div class="description-paragraph">
             <div style="display:flex;justify-content:space-between">
 
-              <transition-group  name="fadeLeftBig" tag="div" class="feature-container">
-                <div v-show="showWelcomeFeature" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
+              <transition-group  name="fadeDown" tag="div" class="feature-container">
+                <div v-show="showWelcomeFeature" style="animation-duration: 2s" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
                   <app-icon :icon="feature.icon" width="50" height="50" style="display: block;margin: auto"></app-icon>
                   <div  class="bullet-item" v-html="feature.display"></div>
                 </div>
@@ -326,8 +326,8 @@
 
 
 
-        <transition-group  name="fade" tag="div" >
-          <div v-if="showWelcomeButton" key="welcome-button" style="margin-top:30px">
+        <transition-group  name="fadeDown" tag="div" >
+          <div v-if="showWelcomeButton" key="welcome-button" style="animation-duration: 3s;margin-top:30px">
             <v-btn id="load-demo-data"  @click="onLoadDemoData">
               Try it with demo data
             </v-btn>
