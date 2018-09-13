@@ -71,6 +71,7 @@ main.content
       :isEduMode="isEduMode"
       :isBasicMode="isBasicMode"
       :forMyGene2="forMyGene2"
+      :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
       :cohortModel="cohortModel"
       :cacheHelper="cacheHelper"

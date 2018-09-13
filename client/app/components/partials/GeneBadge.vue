@@ -80,7 +80,8 @@
 
 
 #gene-badge.selected
-  border-left:  $app-color solid 12px
+  border-thickenss:  2px
+  border-color: $current-color
   //height: 22px
   #gene-badge-button
     //box-shadow: 0 6px 10px rgba(0, 0, 0, 0.23), 0 10px 10px rgba(0, 0, 0, 0.19)

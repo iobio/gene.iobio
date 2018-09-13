@@ -81,6 +81,17 @@
 
   .gene-list
 
+
+  .expansion-panel__body
+    padding-left: 3px
+    padding-right: 4px
+
+  li.selected
+    border-color: $current-color
+    border-width: 2px
+    border-style: solid
+    border-radius: 4px
+
   .subheader
     color: $text-color
     height: initial
@@ -95,14 +106,11 @@
     border-top: #e1e1e1
     border-top-style: solid
     border-top-width: 1px
+    padding:  12px 10px 10px 2px
 
   .expansion-panel__container
     border-top: none
 
-  .filter-subheader
-    color: $text-color
-    font-size: 15px
-    margin-left: -24px
 
     .badge
       background-color: transparent
@@ -131,10 +139,14 @@
   .list--three-line
     margin-bottom: 10px
     padding-top: 5px
+
+    .filter-subheader
+      margin-left: -20px
+
     .subheader
       height: initial
       font-size: 13px
-      margin-left: -3px
+      margin-left: 0px
       text-color: $text-color
       margin-top: 5px
       padding: 0 12px 0 5px
@@ -144,7 +156,7 @@
       height: 32px !important
 
     li
-      margin-left: -7px
+      margin-left: 0px
 
     .list__tile__avatar
       margin-left: 0px
@@ -163,7 +175,7 @@
     .list__tile
       padding: 0px
       height: initial
-      padding-left: 3px
+      padding-left: 0px
       padding-top: 10px
 
     .list__tile__avatar
@@ -422,6 +434,7 @@
             <v-list-tile
             :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
             ripple
+            :class="{selected: clickedVariant == variant ? true : false}"
             @click="onVariantSelected(variant)">
 
 
@@ -715,11 +728,13 @@ export default {
       readyToDownload: false,
       importInProgress: false,
       exportInProgress: false,
-      geneLists: null
+      geneLists: null,
+      clickedVariant: null
     }
   },
   methods: {
     onVariantSelected: function(variant) {
+      this.clickedVariant = variant;
       this.$emit("flagged-variant-selected", variant);
     },
     onFileSelected: function(fileSelection) {

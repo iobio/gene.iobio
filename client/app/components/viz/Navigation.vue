@@ -67,12 +67,20 @@ aside.navigation-drawer
       clear: both
       display: flex
       flex-flow: column
+      #gene-badge
+        margin-bottom: 5px
 
-      #gene-badge-button
-        min-width: 130px
+        #gene-badge-button
+          min-width: 150px
+          border-radius: 4px
 
-        #gene-badge
-          margin-bottom: 5px
+          #gene-badge-name
+            width: 60px
+        &.selected
+
+          #gene-badge-button
+            border-color: $current-color
+            border-width: 2px
 
 nav.toolbar
 
@@ -303,7 +311,7 @@ nav.toolbar
           :hide-details="true"
           v-model="geneEntered" label="Gene" >
           </v-text-field>
-          <typeahead v-model="selectedGene"
+          <typeahead v-model="lookupGene"
           force-select v-bind:limit="typeaheadLimit" match-start
           target="#search-gene-name" :data="geneModel.allKnownGenes"
           item-key="gene_name"/>
@@ -689,6 +697,7 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     forMyGene2: null,
+    selectedGene: null,
     selectedVariant: null,
     filteredGeneNames: null,
     geneModel: null,
@@ -705,7 +714,7 @@ export default {
     return {
       title: 'gene.iobio',
 
-      selectedGene: {},
+      lookupGene: {},
       geneEntered: null,
       clipped: false,
       leftDrawer: self.forMyGene2  ? true : false,
@@ -724,10 +733,10 @@ export default {
     }
   },
   watch: {
-    selectedGene: function(a, b) {
+    lookupGene: function(a, b) {
       if (this.selectedGene) {
-        this.geneEntered = this.selectedGene.gene_name;
-        this.$emit("input", this.selectedGene.gene_name);
+        this.geneEntered = this.lookupGene.gene_name;
+        this.$emit("input", this.lookupGene.gene_name);
       }
     },
     leftDrawer: function() {
@@ -842,7 +851,7 @@ export default {
   },
   computed:  {
     clazzAttention: function() {
-      if (this.bringAttention && this.bringAttention == 'gene' && this.selectedGene && Object.keys(this.selectedGene).length == 0) {
+      if (this.bringAttention && this.bringAttention == 'gene' && this.lookupGene && Object.keys(this.lookupGene).length == 0) {
         return 'attention';
       } else {
         return '';
