@@ -2,10 +2,59 @@
 @import ../../../assets/sass/variables
 #genes-panel
   margin-top: 5px
+
+  #analyze-genes-progress
+    margin-top: 10px
+    margin-bottom: 15px
+
+    .progress-bar-label
+      float: left
+      margin-right: 4px
+      width: 55px
+      font-size: 12px
+
+    .loaded-progress
+      height: 5px
+      width: 150px
+      display: inline-block
+      .progress-linear__bar__determinate
+        background-color: $loaded-variant-color !important
+      .progress-linear__background
+        background-color: $loaded-variant-color !important
+        height: 20px !important
+
+    .called-progress
+      height: 5px
+      width: 150px
+      display: inline-block
+      .progress-linear__bar__determinate
+        background-color: $called-variant-color !important
+      .progress-linear__background
+        background-color: $called-variant-color !important
+        height: 20px !important
+
+    .progress-linear
+        margin: 1px 0
+
 </style>
 
 <template>
   <div id="genes-panel"  class="nav-center">
+
+    <div id="analyze-genes-progress">
+      <div>
+        <div>
+          <span class="progress-bar-label">loaded</span>
+          <v-progress-linear  class="loaded-progress"   v-model="loadedPercentage">
+          </v-progress-linear>
+        </div>
+        <div style="clear:both">
+          <span v-show="callAllInProgress || calledPercentage > 0" class="progress-bar-label">called</span>
+          <v-progress-linear v-show="callAllInProgress || calledPercentage > 0" class="called-progress"  v-model="calledPercentage">
+          </v-progress-linear>
+        </div>
+      </div>
+    </div>
 
 
     <div id="gene-badge-container" class="level-basic" style="clear:both;">
@@ -40,6 +89,8 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     isFullAnalysis: null,
+    analyzeAllInProgress: null,
+    callAllInProgress: null,
     geneNames: null,
     filteredGeneNames: null,
     genesInProgress: null,
@@ -49,8 +100,9 @@ export default {
   },
   data () {
     return {
-      geneSummaries: []
-
+      geneSummaries: [],
+      loadedPercentage: 0,
+      calledPercentage: 0
     }
   },
   methods: {

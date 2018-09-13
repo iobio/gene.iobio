@@ -71,6 +71,8 @@ main.content
       :isEduMode="isEduMode"
       :isBasicMode="isBasicMode"
       :forMyGene2="forMyGene2"
+      :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
+      :callAllInProgress="cacheHelper.callAllInProgress"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
       :cohortModel="cohortModel"
@@ -872,7 +874,6 @@ export default {
             self.selectedTranscript,
             options)
           .then(function(resultMap) {
-              self.showLeftPanelForGenes();
               self.calcFeatureMatrixWidthPercent();
 
               self.filterModel.populateEffectFilters(resultMap);
@@ -900,6 +901,7 @@ export default {
     callVariants: function(theGene) {
       let self = this;
       if (theGene == null) {
+        self.showLeftPanelForGenes();
         self.cacheHelper.analyzeAll(self.cohortModel, true);
       } else {
         self.cohortModel.promiseJointCallVariants(self.selectedGene,
@@ -915,6 +917,7 @@ export default {
     onFilesLoaded: function(analyzeAll, callback) {
       let self = this;
       self.setUrlParameters();
+      self.showLeftPanelForGenes();
 
       self.promiseClearCache()
       .then(function() {
@@ -1073,7 +1076,7 @@ export default {
 
     showLeftPanelForGenes: function() {
       let self = this;
-      if (self.geneModel && self.geneModel.sortedGeneNames.length > 0 && !self.isLeftDrawerOpen) {
+      if (self.geneModel && self.geneModel.sortedGeneNames.length > 0) {
         if (self.$refs.navRef) {
           self.$refs.navRef.onShowGenes();
         }
@@ -1574,6 +1577,7 @@ export default {
         if (!self.launchedFromClin) {
           if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
             if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
+              self.showLeftPanelForGenes();
               self.cacheHelper.analyzeAll(self.cohortModel, false);
               if (callback) {
                 callback();

@@ -19,13 +19,6 @@
     padding-right: 2px
 
 
-  .gene-badge-loader
-    width: 14px
-    height: 14px
-    float: left
-    padding-top: 1px
-    display: none
-
 
 
 #gene-badge
@@ -34,6 +27,19 @@
   margin-right: 10px
   height: 21px
   display: inline-block
+
+  #gene-status
+    display: inline-block
+    width: 40px
+    vertical-align: top
+    padding-top: 5px
+
+  .gene-badge-loader
+    width: 14px
+    height: 14px
+    float: right
+    padding-top: 1px
+    display: none
 
 
   &.loaded
@@ -136,7 +142,6 @@
   font-size: 15px
   margin-top: -1px
   margin-left: 0px
-  float: left
   color: $coverage-problem-color
   fill: $coverage-problem-color
   display: none
@@ -166,13 +171,7 @@
 
 <div id="gene-badge" v-bind:class="classObject" >
 
-  <a id="gene-badge-button"
-    href="javascript:void(0)"
-    v-bind:class="gene.isFlagged ? 'flagged' : ''"
-    style="display:inline-block" @click="selectGene"
-    rel="tooltip"   data-html="true"
-    data-placement="bottom">
-
+  <span id="gene-status">
 
         <img class="gene-badge-loader  glyph" src="../../../assets/images/wheel.gif">
 
@@ -183,6 +182,17 @@
 
         <i id="gene-badge-warning" class="material-icons glyph">warning</i>
         <i id="gene-badge-error" class="material-icons glyph">report_problem</i>
+
+
+  </span>
+
+  <a id="gene-badge-button"
+    href="javascript:void(0)"
+    v-bind:class="gene.isFlagged ? 'flagged' : ''"
+    style="display:inline-block" @click="selectGene"
+    rel="tooltip"   data-html="true"
+    data-placement="bottom">
+
 
 
         <span id="gene-badge-name" style="float:left;margin-left:2px;margin-right:2px">
@@ -278,7 +288,7 @@
             width="15" height="15">
           </app-icon>
 
-          <app-icon style="vertical-align:top"
+          <app-icon style="float:right;vertical-align:top"
            v-if="hasCoverageProblem()"
            icon="coverage"
            class=" level-edu glyph"

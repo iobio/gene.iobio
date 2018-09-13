@@ -9,6 +9,7 @@ aside.navigation-drawer
 
 
 
+
   #side-panel-container
     display: flex
     flex-flow: column
@@ -21,6 +22,32 @@ aside.navigation-drawer
 
     .tabs__bar
       padding-left: 10px
+
+    .tabs__container
+      height: 40px !important
+
+      .tabs__item
+        margin-right: 20px !important
+
+        .badge
+          background-color: transparent
+
+          span.badge-label
+            color: $app-color
+            border-color: none
+            font-size: 15px
+            font-weight: normal
+
+        .badge__badge.primary
+          background-color: $app-color !important
+          font-size: 11px
+          color: white
+          top: 0px
+          width: 19px
+          height: 19px
+
+
+
 
     .toolbar-button
       min-width: 70px
@@ -73,6 +100,8 @@ aside.navigation-drawer
         #gene-badge-button
           min-width: 150px
           border-radius: 4px
+          #gene-badge-symbols
+            width: 80px
 
           #gene-badge-name
             width: 60px
@@ -81,6 +110,8 @@ aside.navigation-drawer
           #gene-badge-button
             border-color: $current-color
             border-width: 2px
+
+
 
 nav.toolbar
 
@@ -455,10 +486,19 @@ nav.toolbar
           light
         >
           <v-tab >
-            Genes
+            <v-badge>
+              <span class="badge-count" slot="badge">{{ geneModel.geneNames.length }}</span>
+              <span class="badge-label">Genes</span>
+            </v-badge>
+
           </v-tab>
           <v-tab>
-            Variants
+
+            <v-badge>
+              <span class="badge-count" slot="badge">{{ cohortModel.flaggedVariants.length }}</span>
+              <span class="badge-label">Variants</span>
+            </v-badge>
+
           </v-tab>
 
           <v-tab-item>
@@ -474,6 +514,8 @@ nav.toolbar
              :selectedGene="selectedGene"
              :filteredGeneNames="filteredGeneNames"
              :geneNames="geneModel.sortedGeneNames"
+             :analyzeAllInProgress="analyzeAllInProgress"
+             :callAllInProgress="callAllInProgress"
              :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
              :genesInProgress="cohortModel.genesInProgress"
              @gene-selected="onGeneSelected"
@@ -697,6 +739,8 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     forMyGene2: null,
+    analyzeAllInProgress: null,
+    callAllInProgress: null,
     selectedGene: null,
     selectedVariant: null,
     filteredGeneNames: null,
