@@ -27,7 +27,7 @@
 
     #welcome-label
       color: $text-color
-      font-size: 26px
+      font-size: 22px
 
     #welcome-label-small
       color: $text-color
@@ -55,7 +55,7 @@
         display: flex
         justify-content: flex-start
         flex: 1 1 0
-        min-height: 161px
+        min-height: 131px
 
 
         .feature-item
@@ -75,7 +75,7 @@
             margin-left: 5px
             margin-bottom: 15px
             line-height: 22px
-            font-size: 18px
+            font-size: 16px
             padding-top: 10px
             text-align: center
 
@@ -85,7 +85,7 @@
         width: 100%
         margin-left: 40px
         margin-right: 40px
-        margin-top: 50px
+        margin-top: 60px
 
         li
           padding-bottom: 10px
@@ -313,7 +313,7 @@
 
               <transition-group  name="fadeDown" tag="div" class="feature-container">
                 <div v-show="showWelcomeFeature" style="animation-duration: 1s" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
-                  <app-icon :icon="feature.icon" width="50" height="50" style="display: block;margin: auto"></app-icon>
+                  <app-icon :icon="feature.icon" width="40" height="40" style="display: block;margin: auto"></app-icon>
                   <div  class="bullet-item" v-html="feature.display"></div>
                 </div>
               </transition-group>

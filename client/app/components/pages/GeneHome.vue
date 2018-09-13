@@ -1078,7 +1078,11 @@ export default {
       let self = this;
       if (self.geneModel && self.geneModel.sortedGeneNames.length > 0) {
         if (self.$refs.navRef) {
-          self.$refs.navRef.onShowGenes();
+          if (!self.isLeftDrawerOpen) {
+            self.$refs.navRef.onShowGenes();
+          } else {
+            self.$refs.navRef.activeTab = 0;
+          }
         }
       }
 
