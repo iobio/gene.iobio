@@ -30,7 +30,7 @@
 
   #gene-status
     display: inline-block
-    width: 40px
+    width: 45px
     vertical-align: top
     padding-top: 5px
 
