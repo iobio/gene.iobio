@@ -206,7 +206,9 @@
         justify-content: space-around
         padding: 0px
         font-size: 11px
-        background-color: $light-badge-color
+        background-color: transparent
+        color: $text-color
+        border: #d5d5d5 solid thin
 
     .af-small
       display: inline-block
@@ -414,7 +416,7 @@
 
 
           <v-badge>
-            <span class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
+            <span v-if="false" class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
             <span class="filter-label">{{ geneList.label }}</span>
           </v-badge>
 
@@ -429,7 +431,7 @@
           <!-- <v-subheader :key="flaggedGene.gene.gene_name">{{ flaggedGene.gene.gene_name }}</v-subheader>
         -->
 
-          <template v-for="(variant, index) in flaggedGene.variants">
+          <template v-for="variant in flaggedGene.variants">
 
             <v-list-tile
             :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
@@ -440,7 +442,7 @@
 
               <v-list-tile-avatar >
                <v-chip class="variant-number" >
-                {{ variant.index + 1 }}
+                {{ variant.ordinalFilter  }}
                </v-chip>
               </v-list-tile-avatar>
 

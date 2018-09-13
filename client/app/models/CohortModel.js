@@ -2119,9 +2119,9 @@ class CohortModel {
       return filterObject1.filter.order > filterObject2.filter.order;
     })
 
-    var variantIndex = 0;
     sortedFilters.forEach(function(filterObject) {
       filterObject.variantCount = 0;
+      var variantIndex = 1;
       filterObject.genes.forEach(function(geneList) {
 
         // Sort the variants according to the Ranked Variants table features
@@ -2130,7 +2130,7 @@ class CohortModel {
 
 
         geneList.variants.forEach(function(variant) {
-          variant.index = variantIndex++;
+          variant.ordinalFilter = variantIndex++;
           filterObject.variantCount++;
         })
 
