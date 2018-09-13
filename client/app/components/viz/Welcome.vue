@@ -312,7 +312,7 @@
             <div style="display:flex;justify-content:space-between">
 
               <transition-group  name="fadeDown" tag="div" class="feature-container">
-                <div v-show="showWelcomeFeature" style="animation-duration: 2s" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
+                <div v-show="showWelcomeFeature" style="animation-duration: 1s" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
                   <app-icon :icon="feature.icon" width="50" height="50" style="display: block;margin: auto"></app-icon>
                   <div  class="bullet-item" v-html="feature.display"></div>
                 </div>
@@ -327,7 +327,7 @@
 
 
         <transition-group  name="fadeDown" tag="div" >
-          <div v-if="showWelcomeButton" key="welcome-button" style="animation-duration: 3s;margin-top:30px">
+          <div v-if="showWelcomeButton" key="welcome-button" style="animation-duration: 1s;margin-top:30px">
             <v-btn id="load-demo-data"  @click="onLoadDemoData">
               Try it with demo data
             </v-btn>
