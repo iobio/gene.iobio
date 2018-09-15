@@ -208,7 +208,7 @@
 
     .zygosity
       float: left
-      font-size: 9px
+      font-size: 10px
       font-weight: bold !important
       padding-top: 1px !important
       padding-bottom: 0px !important
@@ -219,9 +219,9 @@
       margin-top: 0px !important
       width: 39px !important
       color: black
-      border: solid thin rgba(0, 0, 0, 0.22)
       cursor: none
       pointer-events: none
+      height: 13px
 
     .zygosity
       &.hom
