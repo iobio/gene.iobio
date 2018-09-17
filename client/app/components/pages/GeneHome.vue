@@ -12,11 +12,14 @@ main.content
 .app-card
   margin-bottom: 10px
 
-#data-sources-loader
-  margin-top: 20px
+#data-sources-loader, #session-data-loader
+  margin-top: 30px
   margin-left: auto
   margin-right: auto
   text-align: center
+  width: 400px
+  height: 80px
+  padding-top: 15px
 
 .tabs__container
   height: 31px !important
@@ -267,7 +270,7 @@ main.content
          >
         </welcome>
 
-        <v-card style="width:400px;height:50px;padding-top:15px"
+        <v-card
         id="data-sources-loader"
         class="loader"
         v-bind:class="{ hide: !cohortModel ||  !cohortModel.inProgress.loadingDataSources }">
@@ -275,6 +278,13 @@ main.content
           <img src="../../../assets/images/wheel.gif">
         </v-card>
 
+        <v-card
+        id="session-data-loader"
+        class="loader"
+        v-show="launchedFromClin && (!cohortModel || (!cohortModel.isLoaded && !cohortModel.inProgress.loadingDataSources))">
+          <span class="loader-label">Initializing session data</span>
+          <img src="../../../assets/images/wheel.gif">
+        </v-card>
 
 
         <variant-card
@@ -883,7 +893,9 @@ export default {
               .then(function(data) {
                 self.analyzedTranscript = data.transcript;
                 self.coverageDangerRegions = data.dangerRegions;
-                self.$refs.genesCardRef.determineFlaggedGenes();
+                if (self.$refs.genesCard) {
+                  self.$refs.genesCardRef.determineFlaggedGenes();
+                }
                 resolve();
               })
           })
