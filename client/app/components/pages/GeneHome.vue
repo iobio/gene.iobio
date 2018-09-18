@@ -224,7 +224,6 @@ main.content
                 </v-tab-item>
                 <v-tab-item  style="margin-top:0px;margin-bottom:0px;overflow-y:scroll">
                   <variant-detail-card
-                  style="padding-left: 10px"
                   ref="variantDetailCardRef"
                   :isEduMode="isEduMode"
                   :isBasicMode="isBasicMode"

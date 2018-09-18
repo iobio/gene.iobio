@@ -85,7 +85,7 @@
 
     </div>
 
-    <div style="clear:both;width:100%;margin-top:-10px">
+    <div style="clear:both;width:100%;margin-top:-5px">
 
 
       <div id="matrix-panel"  style="clear:both;min-height:30px"

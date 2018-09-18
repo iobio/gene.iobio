@@ -4,9 +4,11 @@
   padding-left: 0px
   max-height: 182px
   min-height: 182px
-  padding-top: 5px
+  padding-top: 0px
   overflow-x: scroll
   min-width: 700px
+  margin-bottom: 0px
+  padding-left: 10px
 
   &.has-notes
     max-height: 232px
@@ -15,6 +17,8 @@
   #variant-heading
     color: $app-color
     padding-bottom: 7px
+    padding-top: 0px !important
+    margin-top: 0px !important
 
   #variant-notes
     display: inline-block
@@ -42,10 +46,13 @@
         font-size: 18px
         color: $app-color
 
-
+    #show-notes-button
+      .btn__content
+        .material-icons
+          padding-top: 0px !important
 
   .layout.row
-    margin-bottom: 10px
+    margin-bottom: 7px
 
   .layout.row.no-bottom-margin
     margin-bottom: 0px
@@ -98,10 +105,13 @@
   .content
     font-size: 13px
     padding-left: 10px
-    margin-bottom: 10px
+    margin-bottom: 0px
     float: left
-    max-width: 350px
-    min-width: 350px
+    min-width: 360px
+
+  span.clinvar-submission
+    display: flex
+    padding-bottom: 5px
 
   .field-label
     color: #9c9a9a
@@ -414,52 +424,21 @@
             </v-layout>
           </v-flex>
           <v-flex >
-            <v-layout row :class="{'no-bottom-margin': info.phenotype != ''}" v-if="info.clinvarLink != ''">
-               <v-flex xs3 v-if="!isBasicMode" class="field-label">Clinvar</v-flex>
-               <v-flex xs9 v-if="!isBasicMode" class="field-value" v-html="info.clinvarLink"></v-flex>
+            <v-layout row  v-if="info.clinvarLinks.length > 0">
+               <v-flex xs3  class="field-label">Clinvar</v-flex>
+               <v-flex xs9  class="field-value">
+                <span class="clinvar-submission" v-for="clinvarLink in info.clinvarLinks"
+                 :key="clinvarLink.key">
+                   <app-icon width="14" height="14" icon="clinvar" :significance="clinvarLink.significance">
+                   </app-icon>
 
-               <v-flex xs4 v-if="isBasicMode" class="field-label">Clinvar</v-flex>
-               <v-flex xs8 v-if="isBasicMode"class="field-value" v-html="info.clinvarLink"></v-flex>
+                   <span style="padding-left: 5px" v-html="clinvarLink.link">
+                   </span>
+
+                </span>
+               </v-flex>
             </v-layout>
           </v-flex>
-          <v-flex >
-            <v-layout row  v-if="info.phenotype != ''">
-               <v-flex xs3 v-if="!isBasicMode" class="field-label"></v-flex>
-               <v-flex xs9 v-if="!isBasicMode" class="field-value">{{ info.phenotype }}</v-flex>
-
-               <v-flex xs4 v-if="isBasicMode" class="field-label"></v-flex>
-               <v-flex xs8 v-if="isBasicMode" class="field-value">{{ info.phenotype }}</v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex  v-if="info.revel != '' && info.revel != null && !isBasicMode" >
-            <v-layout row class="">
-               <v-flex xs3 class="field-label revel">REVEL</v-flex>
-               <v-flex xs9 class="field-value revel">{{ info.revel }}</v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex   v-if="info.polyphen != '' && !isBasicMode">
-            <v-layout row class="" >
-               <v-flex xs3 class="field-label">Polyphen</v-flex>
-               <v-flex xs9 class="field-value">{{ info.polyphen }}</v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex  v-if="info.sift != '' && !isBasicMode" >
-            <v-layout row class="">
-               <v-flex xs3 class="field-label">SIFT</v-flex>
-               <v-flex xs9 class="field-value">{{ info.sift }}</v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex  v-if="info.regulatory != '' & !isBasicMode">
-            <v-layout row>
-               <v-flex xs3 class="field-label">Regulatory</v-flex>
-               <v-flex xs9  v-html="info.regulatory" class="field-value"></v-flex>
-            </v-layout>
-          </v-flex>
-
-
-
-
-
 
         </v-layout>
       </div>
@@ -490,18 +469,48 @@
           </v-flex>
 
 
+          <v-flex  v-if="info.revel != '' && info.revel != null && !isBasicMode" >
+            <v-layout row class="">
+               <v-flex xs3 class="field-label revel">REVEL</v-flex>
+               <v-flex xs9 class="field-value revel">{{ info.revel }}</v-flex>
+            </v-layout>
+          </v-flex>
+          <v-flex   v-if="info.polyphen != '' && !isBasicMode">
+            <v-layout row class="" >
+               <v-flex xs3 class="field-label">Polyphen</v-flex>
+               <v-flex xs9 class="field-value">{{ info.polyphen }}</v-flex>
+            </v-layout>
+          </v-flex>
+          <v-flex  v-if="info.sift != '' && !isBasicMode" >
+            <v-layout row class="">
+               <v-flex xs3 class="field-label">SIFT</v-flex>
+               <v-flex xs9 class="field-value">{{ info.sift }}</v-flex>
+            </v-layout>
+          </v-flex>
+          <v-flex  v-if="info.regulatory != '' & !isBasicMode">
+            <v-layout row>
+               <v-flex xs3 class="field-label">Regulatory</v-flex>
+               <v-flex xs9  v-html="info.regulatory" class="field-value"></v-flex>
+            </v-layout>
+          </v-flex>
 
+
+
+      </div>
+
+
+      <div id="coverage-svg" v-if="selectedVariant" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
 
           <v-flex  v-if="!isBasicMode">
-            <v-layout row class="">
+            <v-layout row class="no-bottom-margin">
                <v-flex xs3 class="field-label " >Transcript</v-flex>
                <v-flex xs9 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
             </v-layout>
           </v-flex>
 
           <v-flex  v-if="!isBasicMode">
-            <v-layout row class="">
+            <v-layout row class="no-bottom-margin">
                <v-flex xs3 class="field-label "  >HGVSc </v-flex>
                <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
             </v-layout>
@@ -512,10 +521,6 @@
                <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
             </v-layout>
           </v-flex>
-      </div>
-
-
-      <div id="coverage-svg" v-if="selectedVariant" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
 
       </div>

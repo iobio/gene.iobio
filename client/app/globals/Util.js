@@ -650,7 +650,7 @@ class Util {
       clinvarSig: "",
       clinvarSigSummary: "",
       clinvarUrl: "",
-      clinvarLink: "",
+      clinvarLinks: [],
       clinvarLinkKnownVariants: "",
       phenotype: "",
       phenotypeSimple: "",
@@ -729,12 +729,19 @@ class Util {
           })
           var accessions = submission.accession.split(",");
           var clinsigs   = submission.clinsig.split(",");
+          var phenotypes = submission.phenotype.split(",");
           for (var i = 0; i < accessions.length; i++) {
             var accessionSingle = accessions[i];
             var clinsigSingle   = clinsigs.length > i ? clinsigs[i] : "?";
+            var phenotype       = phenotypes.length > i ? phenotypes[i].split("_").join(" ").split("\\x2c") : null;
 
             info.clinvarUrl   = 'http://www.ncbi.nlm.nih.gov/clinvar/' + accessionSingle;
-            info.clinvarLink  +=  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
+
+            let clinvarLink =  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>'
+              + clinsigSingle.split("_").join(" ")
+              + ( phenotype  ? ': ' + phenotype : '') + '</a>';
+
+            info.clinvarLinks.push({'key': accessionSingle, 'link': clinvarLink, 'icon': 'clinvar', 'significance': translator.clinvarMap[clinsigSingle].clazz});
 
             info.clinvarLinkKnownVariants += "<span style='clear:both' class='tooltip-clinsig-link" + clinsigSingle + "'>";
             info.clinvarLinkKnownVariants += '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
