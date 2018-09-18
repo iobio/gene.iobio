@@ -210,10 +210,13 @@ export default function lineD3() {
       }
 
 
-      var svgGroup =  svg.selectAll("g.group").data([data]).enter()
+
+      svg.selectAll("g.group").data([data]).enter()
         .append("g")
         .attr("class", "group")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      var svgGroup =  svg.selectAll("g.group");
 
       svgGroup.select("g.regions").remove();
       svgGroup.append("g")
