@@ -1080,7 +1080,9 @@ export default {
       let self = this;
       if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
         if (self.$refs.navRef) {
-          self.$refs.navRef.onShowFlaggedVariants();
+          setTimeout(function() {
+            self.$refs.navRef.onShowFlaggedVariants();
+          }, 3000);
         }
       }
     },
@@ -1090,8 +1092,10 @@ export default {
       if (self.geneModel && self.geneModel.sortedGeneNames.length > 0) {
         if (self.$refs.navRef) {
           if (!self.isLeftDrawerOpen) {
-            self.$refs.navRef.onShowGenes();
-          } else {
+            setTimeout(function() {
+              self.$refs.navRef.onShowGenes();
+            }, 2000);
+          } else if (self.$refs.navRef) {
             self.$refs.navRef.activeTab = 0;
           }
         }
@@ -2163,6 +2167,7 @@ export default {
           let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
           this.onApplyGenes(genesString, options, function() {
             if (self.cohortModel.isLoaded) {
+              self.showLeftPanelForGenes();
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             }
           });
