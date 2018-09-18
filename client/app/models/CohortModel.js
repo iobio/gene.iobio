@@ -1521,7 +1521,7 @@ class CohortModel {
                 'trioVcfData': trioVcfData,
                 'trioFbData': trioFbData,
                 'refName': geneObject.chr,
-                'sourceVariant': null});
+                'sourceVariant': options.sourceVariant});
           })
 
 
@@ -1595,7 +1595,7 @@ class CohortModel {
                       'trioVcfData': trioVcfData,
                       'trioFbData': trioFbData,
                       'refName': trRefName,
-                      'sourceVariant': refreshedSourceVariant});
+                      'sourceVariant': refreshedSourceVariant ? refreshedSourceVariant : options.sourceVariant });
                   })
                 });
               }
