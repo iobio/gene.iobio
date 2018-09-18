@@ -45,7 +45,7 @@
 
 
   .layout.row
-    margin-bottom: 5px
+    margin-bottom: 10px
 
   .layout.row.no-bottom-margin
     margin-bottom: 0px
@@ -96,7 +96,7 @@
       color: $link-color !important
 
   .content
-    font-size: 12px
+    font-size: 13px
     padding-left: 10px
     margin-bottom: 10px
     float: left
@@ -108,14 +108,14 @@
     font-style: italic
     padding-left: 6px
     text-align: left
-    font-size: 12px
-    line-height: 13px
+    font-size: 13px
+    line-height: 14px
 
   .field-value
     padding-right: 35px
     word-break: break-word
-    font-size: 12px
-    line-height: 13px
+    font-size: 13px
+    line-height: 14px
 
   #inheritance
     height: 18px
@@ -375,7 +375,7 @@
 
 
           <v-flex v-if="!isBasicMode && selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
-            <v-layout row class="no-bottom-margin">
+            <v-layout row class="">
                <v-flex xs3 class="field-label">Inheritance</v-flex>
                <v-flex id="inheritance" xs9 class="field-value">
                  <app-icon :icon="selectedVariant.inheritance" height="16" width="16">
@@ -432,13 +432,13 @@
             </v-layout>
           </v-flex>
           <v-flex  v-if="info.revel != '' && info.revel != null && !isBasicMode" >
-            <v-layout row class="no-bottom-margin">
+            <v-layout row class="">
                <v-flex xs3 class="field-label revel">REVEL</v-flex>
                <v-flex xs9 class="field-value revel">{{ info.revel }}</v-flex>
             </v-layout>
           </v-flex>
           <v-flex   v-if="info.polyphen != '' && !isBasicMode">
-            <v-layout row class="no-bottom-margin" >
+            <v-layout row class="" >
                <v-flex xs3 class="field-label">Polyphen</v-flex>
                <v-flex xs9 class="field-value">{{ info.polyphen }}</v-flex>
             </v-layout>
@@ -458,6 +458,15 @@
 
 
 
+
+
+
+        </v-layout>
+      </div>
+
+
+
+      <div v-if="selectedVariant" style="float:left;width:33%">
           <v-flex  v-if="!isBasicMode">
             <v-layout  row>
                <v-flex xs3 class="field-label">gnomAD</v-flex>
@@ -484,44 +493,31 @@
 
 
 
-
-
-        </v-layout>
-      </div>
-
-      <div style="float:left;width:33%;"
-        v-if="selectedVariant && selectedVariant.genericAnnots && selectedVariant.genericAnnots.AVIA3">
-        <span style="text-align:center;font-size:12px">AVIA3 Annotations</span>
-        <v-layout row nowrap
-         v-for="(annotValue, annotName) in selectedVariant.genericAnnots.AVIA3"
-         :key="annotName">
-             <v-flex xs5 class="field-label">{{ annotName }}</v-flex>
-             <v-flex xs7 class="field-value">{{ annotValue }}</v-flex>
-        </v-layout>
-      </div>
-
-
-      <div id="coverage-svg" v-if="selectedVariant" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
-
           <v-flex  v-if="!isBasicMode">
-            <v-layout row class="no-bottom-margin">
-               <v-flex xs3 class="field-label last-col" >Transcript</v-flex>
+            <v-layout row class="">
+               <v-flex xs3 class="field-label " >Transcript</v-flex>
                <v-flex xs9 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
             </v-layout>
           </v-flex>
 
           <v-flex  v-if="!isBasicMode">
-            <v-layout row class="no-bottom-margin">
-               <v-flex xs3 class="field-label last-col"  >HGVSc </v-flex>
+            <v-layout row class="">
+               <v-flex xs3 class="field-label "  >HGVSc </v-flex>
                <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
             </v-layout>
           </v-flex>
           <v-flex   v-if="!isBasicMode">
             <v-layout row>
-               <v-flex xs3 class="field-label last-col"  >HGVSp </v-flex>
+               <v-flex xs3 class="field-label "  >HGVSp </v-flex>
                <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
             </v-layout>
           </v-flex>
+      </div>
+
+
+      <div id="coverage-svg" v-if="selectedVariant" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
+
+
       </div>
 
 
@@ -544,7 +540,16 @@
       </div>
 
 
-
+      <div style="float:left;width:33%;"
+        v-if="selectedVariant && selectedVariant.genericAnnots && selectedVariant.genericAnnots.AVIA3">
+        <span style="text-align:center;font-size:12px">AVIA3 Annotations</span>
+        <v-layout row nowrap
+         v-for="(annotValue, annotName) in selectedVariant.genericAnnots.AVIA3"
+         :key="annotName">
+             <v-flex xs5 class="field-label">{{ annotName }}</v-flex>
+             <v-flex xs7 class="field-value">{{ annotValue }}</v-flex>
+        </v-layout>
+      </div>
 
 
 
@@ -741,19 +746,19 @@ export default {
                  .attr("transform", "translate(86,1)");
 
       g.append("text")
-           .attr("x", "13")
+           .attr("x", "7")
            .attr("y", "9")
            .attr("class", "alt-count-under")
            .attr("anchor", "start")
            .text("alt");
       g.append("text")
-           .attr("x", "37")
+           .attr("x", "28")
            .attr("y", "9")
            .attr("class", "other-count-under")
            .attr("anchor", "start")
            .text("other");
       g.append("text")
-           .attr("x", "70")
+           .attr("x", "67")
            .attr("y", "9")
            .attr("class", "ref-count")
            .attr("anchor", "start")
