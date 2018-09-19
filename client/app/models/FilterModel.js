@@ -26,6 +26,7 @@ class FilterModel {
     this.FUNCTIONAL_IMPACT         = "functional_impact";
     this.LOW_COVERAGE              = "low_coverage";
 
+
     this.snpEffEffects = {};
     this.vepConsequences = {};
     this.exonicOnlyFilter = false;
@@ -34,6 +35,7 @@ class FilterModel {
     this.geneCoverageMin           = 10;
     this.geneCoverageMean          = 15;
     this.geneCoverageMedian        = 15;
+
 
     this.flagCriterion = {
       gene: {

@@ -44,12 +44,12 @@
     <div id="analyze-genes-progress">
       <div>
         <div>
-          <span class="progress-bar-label">loaded</span>
+          <span class="progress-bar-label">Analyzed</span>
           <v-progress-linear  class="loaded-progress"   v-model="loadedPercentage">
           </v-progress-linear>
         </div>
         <div style="clear:both">
-          <span v-show="callAllInProgress || calledPercentage > 0" class="progress-bar-label">called</span>
+          <span v-show="callAllInProgress || calledPercentage > 0" class="progress-bar-label">Called</span>
           <v-progress-linear v-show="callAllInProgress || calledPercentage > 0" class="called-progress"  v-model="calledPercentage">
           </v-progress-linear>
         </div>

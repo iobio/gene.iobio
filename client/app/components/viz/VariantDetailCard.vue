@@ -61,13 +61,8 @@
     padding-left: 16px
     min-width: 80px
 
-  .field-label.revel
-    color: $app-color
-    font-weight: bold
-
   .field-value.revel
     color: $app-color
-    font-weight: bold
 
   #user-flag-buttons
     position: absolute
@@ -108,6 +103,27 @@
     margin-bottom: 0px
     float: left
     min-width: 360px
+
+  .revel-progress-bar
+    display: inline-block
+    margin-bottom: 0px
+    width: 100px
+    margin-right: 4px
+    margin-top: 0px
+
+    .progress-linear__bar__determinate
+      background-color:  $app-gray !important
+      border-color:  $app-gray !important
+
+    &.revel_high
+      .progress-linear__bar__determinate
+        background-color:  $high-impact-color !important
+        border-color:  $high-impact-color !important
+
+    &.revel_moderate
+      .progress-linear__bar__determinate
+        background-color:  $moderate-impact-color !important
+        border-color:  $moderate-impact-color !important
 
   span.clinvar-submission
     display: flex
@@ -472,7 +488,11 @@
           <v-flex  v-if="info.revel != '' && info.revel != null && !isBasicMode" >
             <v-layout row class="">
                <v-flex xs3 class="field-label revel">REVEL</v-flex>
-               <v-flex xs9 class="field-value revel">{{ info.revel }}</v-flex>
+               <v-flex xs9 class="field-value revel">
+                  <v-progress-linear width="100" :class="getRevelClass(info)" v-model="revelValue">
+                  </v-progress-linear>
+                  {{ info.revel }}
+               </v-flex>
             </v-layout>
           </v-flex>
           <v-flex   v-if="info.polyphen != '' && !isBasicMode">
@@ -977,11 +997,28 @@ export default {
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
+    },
+    getRevelClass: function(info) {
+      let self = this;
+      let clazz = "revel-progress-bar";
+      if (info.revel == "") {
+        clazz += " hide";
+      } else {
+        self.cohortModel.translator.revelMap.forEach(function(revelRange) {
+          if (info.revel >= revelRange.min && info.revel < revelRange.max) {
+            clazz += " " + revelRange.clazz;
+          }
+        })
+      }
+      return clazz;
     }
   },
 
 
   computed: {
+    revelValue() {
+      return this.info.revel * 100;
+    },
     refAlt: function() {
       let self = this;
       var refAlt = "";

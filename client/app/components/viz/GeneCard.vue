@@ -149,10 +149,8 @@
 
   <div tile id="gene-track" :class="{'app-card': true, 'full': showGeneViz}">
 
-    <div primary-title style="width:100%">
-      <span style="display:inline-block" v-if="showTitle ">Gene</span>
-    </div>
     <div>
+      <span style="display:inline-block">Gene</span>
       <div style="display:inline-block;margin-right:auto;">
         <span id="gene-name"  class="level-basic gene-card-label heading ">
           {{ selectedGene.gene_name }}

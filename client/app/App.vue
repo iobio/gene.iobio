@@ -1,6 +1,8 @@
 <style lang="sass">
 @import "../assets/sass/site.sass";
 
+.application--wrap
+  background-color:  $app-background-color
 
 .container
   margin-top: 0px

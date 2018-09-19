@@ -6,6 +6,8 @@
 
 @import ../../../assets/sass/variables
 
+
+
 main.content
   margin-top: 55px
 
