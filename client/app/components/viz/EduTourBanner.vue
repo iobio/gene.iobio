@@ -20,7 +20,7 @@ $tour-hilite-color:      #a5b941
     float: left !important
     margin-left: 10px !important
     margin-right: -190px !important
-    font-size: 20px !important
+    font-size: 18px !important
     padding: 4px !important
     margin-top: 5px !important
     color: white !important
@@ -31,7 +31,7 @@ $tour-hilite-color:      #a5b941
     color: white !important
     background-color: $tour-data-button-color !important
     margin-left: 15px !important
-    font-size: 20px !important
+    font-size: 18px !important
     padding: 4px !important
     padding-left: 10px !important
     padding-right: 5px !important
