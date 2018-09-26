@@ -86,6 +86,15 @@
     </app-icon>
 
 
+    <app-icon
+     v-if="icon == 'filter'"
+     :iconClass="iconClass"
+     icon="filter"
+     width="10"
+     height="10">
+    </app-icon>
+
+
   </span>
 </template>
 
@@ -99,7 +108,8 @@ export default {
     AppIcon
   },
   props: {
-    icon: null
+    icon: null,
+    iconClass: null
   },
   data () {
     return {

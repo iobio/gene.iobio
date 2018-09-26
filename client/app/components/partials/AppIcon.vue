@@ -34,6 +34,33 @@
 #system-flagged-symbol
   fill: $level-high-color !important
 
+#filter-symbol
+  color: $text-color
+
+
+
+  &.custom-filter-0
+    color: #0091ea
+    margin: 0px 2px 14px 0px
+
+  &.custom-filter-1
+    color: #fb8c00
+    margin: 0px 2px 14px 0px
+
+  &.custom-filter-2
+    color: #00b8d4
+    margin: 0px 2px 14px 0px
+
+  &.custom-filter-3
+    color: #9e9d24
+    margin: 0px 2px 14px 0px
+
+  &.custom-filter-4
+    color: #43a047
+    margin: 0px 2px 14px 0px
+
+
+
 </style>
 
 <template>
@@ -133,6 +160,10 @@
           <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
       </svg>
 
+
+      <v-icon v-if="icon == 'filter'" :class="iconClass" id="filter-symbol">
+        find_in_page
+      </v-icon>
 
       <svg v-if="icon == 'circle-checkmark'"  id="circle-checkmark-symbol" width="16" height="25" viewBox="0 0 24 24" :style="iconStyle" >
           <path d="M0 0h24v24H0z" fill="none"/>
@@ -612,6 +643,7 @@ export default {
   },
   props: {
     icon: null,
+    iconClass: null,
     type: null,
     clazz: null,
     width: null,

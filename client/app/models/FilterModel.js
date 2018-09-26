@@ -53,6 +53,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: null
         },
         'autosomalDominant': {
@@ -69,6 +70,7 @@ class FilterModel {
           inheritance: ['autosomal dominant'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: ['pathogenic']
         },
         'recessive': {
@@ -85,6 +87,7 @@ class FilterModel {
           inheritance: ['recessive'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           isUserFlagged: false,
           exclusiveOf: ['pathogenic']
         },
@@ -102,6 +105,7 @@ class FilterModel {
           inheritance: ['denovo'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: ['pathogenic']
         },
         'compoundHet': {
@@ -118,6 +122,7 @@ class FilterModel {
           inheritance: ['compound het'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: ['pathogenic']
         },
         'xlinked': {
@@ -134,6 +139,7 @@ class FilterModel {
           inheritance: ['x-linked'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: ['pathogenic']
         },
         'highOrModerate': {
@@ -151,6 +157,7 @@ class FilterModel {
           zyosity: null,
           isUserFlagged: false,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked']
         },
         'userFlagged': {
@@ -167,6 +174,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf:  null
         },
         'notCategorized': {
@@ -184,6 +192,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: null
         },
         'notFound': {
@@ -201,6 +210,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: null
         }
       },
@@ -219,6 +229,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: null
         },
         'autosomalDominant': {
@@ -235,6 +246,7 @@ class FilterModel {
           inheritance: ['autosomal dominant'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: ['pathogenic']
         },
         'recessive': {
@@ -251,6 +263,7 @@ class FilterModel {
           inheritance: ['recessive'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           isUserFlagged: false,
           exclusiveOf: ['pathogenic']
         },
@@ -268,6 +281,7 @@ class FilterModel {
           inheritance: ['denovo'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: ['pathogenic']
         },
         'compoundHet': {
@@ -284,6 +298,7 @@ class FilterModel {
           inheritance: ['compound het'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: ['pathogenic']
         },
         'xlinked': {
@@ -300,6 +315,7 @@ class FilterModel {
           inheritance: ['x-linked'],
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: ['pathogenic']
         },
         'notCategorized': {
@@ -317,6 +333,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: null
         },
         'notFound': {
@@ -334,6 +351,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minRevel: null,
           exclusiveOf: null
         }
       }
@@ -776,6 +794,7 @@ class FilterModel {
       inheritance: false,
       zygosity: false,
       depth: false,
+      revel: false,
       userFlagged: false,
       notCategorized: false,
       notFound: false
@@ -799,6 +818,15 @@ class FilterModel {
     } else {
       if (badgeCriteria.maxAf == null || (variant.afHighest <= badgeCriteria.maxAf)) {
         passes.af = true;
+      }
+      if (badgeCriteria.minRevel == null || badgeCriteria.minRevel == "") {
+        passes.revel = true;
+      } else {
+        for (var revel in variant.vepREVEL) {
+          if (+revel >= badgeCriteria.minRevel) {
+            passes.revel = true;
+          }
+        }
       }
       if (badgeCriteria.minGenotypeDepth == null || (variant.genotypeDepth >= badgeCriteria.minGenotypeDepth)) {
         passes.depth = true;
@@ -835,7 +863,7 @@ class FilterModel {
           passes[criterion] = true;
         })
       }
-      if (passes.af && passes.depth && passes.impact && passes.consequence && passes.clinvar && passes.inheritance && passes.zygosity) {
+      if (passes.af && passes.revel && passes.depth && passes.impact && passes.consequence && passes.clinvar && passes.inheritance && passes.zygosity) {
         passes.all = true;
       }
     }

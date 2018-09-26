@@ -1,10 +1,33 @@
 
 <style lang="sass" >
 
+@import ../../../assets/sass/variables
+
 .filter-form
   .input-group
     label
       font-size: 13px
+
+.revel-progress-bar
+    display: inline-block
+    margin-bottom: 0px
+    width: 100px
+    margin-right: 4px
+    margin-top: 0px
+
+    .progress-linear__bar__determinate
+      background-color:  $app-gray !important
+      border-color:  $app-gray !important
+
+    &.revel_high
+      .progress-linear__bar__determinate
+        background-color:  $high-impact-color !important
+        border-color:  $high-impact-color !important
+
+    &.revel_moderate
+      .progress-linear__bar__determinate
+        background-color:  $moderate-impact-color !important
+        border-color:  $moderate-impact-color !important
 
 </style>
 
@@ -16,46 +39,18 @@
       </v-text-field>
     </v-flex>
 
-    <v-flex id="max-af" xs4 class="mb-3" >
+    <v-flex id="max-af" xs3 class="mb-3 mr-4" >
       <v-text-field label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
       </v-text-field>
     </v-flex>
-    <v-flex xs4>
-    </v-flex>
-    <v-flex  id="max-genotype-depth" xs4 class="mb-3" >
-      <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
-      </v-text-field>
-    </v-flex>
+
 
     <v-flex xs12 class="mb-3" >
-      <v-select
-            label="Clinical significance"
+      <v-select style="z-index:10"
+            label="ClinVar clinical significance"
             v-bind:items="clinvarCategories"
             v-model="selectedClinvarCategories"
             multiple
-            hide-details
-      >
-      </v-select>
-    </v-flex>
-
-    <v-flex xs6 class="mb-3" >
-      <v-select
-            label="Impact"
-            v-bind:items="impacts"
-            v-model="selectedImpacts"
-            multiple
-            hide-details
-      >
-      </v-select>
-    </v-flex>
-
-    <v-flex xs6 class="pl-2 mb-3" >
-      <v-select
-            label="Consequence"
-            v-bind:items="consequences"
-            v-model="selectedConsequences"
-            multiple
-            autocomplete
             hide-details
       >
       </v-select>
@@ -83,6 +78,65 @@
       >
       </v-select>
     </v-flex>
+
+
+
+
+
+    <v-flex xs6 class="mb-3" >
+      <v-select
+            label="Impact"
+            v-bind:items="impacts"
+            v-model="selectedImpacts"
+            multiple
+            hide-details
+      >
+      </v-select>
+    </v-flex>
+
+    <v-flex xs6 class="pl-2 mb-3" >
+      <v-select
+            label="Consequence"
+            v-bind:items="consequences"
+            v-model="selectedConsequences"
+            multiple
+            autocomplete
+            hide-details
+      >
+      </v-select>
+    </v-flex>
+
+    <v-flex id="min-revel" xs12 class="mb-2 mt-2 mr-4" >
+
+          <div style="display: inline-block;margin-right:15px">
+            Min REVEL score
+          </div>
+
+          <div style="display:inline-block">
+            <v-slider step="5" snap :hide-details="true" style="padding:0px;width:200px;"  snap v-model="minRevelSlider">
+            </v-slider>
+            <v-progress-linear class="revel-progress-bar" style="float:left;margin:0px;padding:0px;width:100px;display:inline-block" v-model="revelProgress">
+            </v-progress-linear>
+            <v-progress-linear class="revel-progress-bar revel_moderate" style="float:left;margin:0px;padding:0px;width:50px;display:inline-block" v-model="revelProgress">
+            </v-progress-linear>
+            <v-progress-linear class="revel-progress-bar revel_high" style="float:left;margin:0px;padding:0px;width:50px;display:inline-block" v-model="revelProgress">
+            </v-progress-linear>
+          </div>
+
+          <v-text-field :hide-details="true"  style="margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel"
+          @change="onChangeRevelScore" >
+          </v-text-field>
+
+    </v-flex>
+
+    <v-flex  id="max-genotype-depth" xs3 class="mb-3 mr-4" >
+      <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
+      </v-text-field>
+    </v-flex>
+
+
+
+
   </v-layout>
 
 </template>
@@ -106,12 +160,16 @@ export default {
 
       name: null,
       maxAf: null,
+      minRevel: null,
+      minRevelSlider: null,
       selectedClinvarCategories: null,
       selectedImpacts: null,
       selectedZygosity: null,
       selectedInheritanceModes: null,
       selectedConsequences: null,
       minGenotypeDepth: null,
+
+      revelProgress: 100,
 
       clinvarCategories: [
         {'key': 'clinvar', 'selected': true,  value: 'clinvar_path',   text: 'Pathogenic' },
@@ -170,8 +228,6 @@ export default {
       ]
     }
   },
-  watch: {
-  },
   methods: {
     init: function() {
 
@@ -182,6 +238,7 @@ export default {
         flagCriteria.active = false;
         flagCriteria.name = this.theFilter.display;
         flagCriteria.maxAf = null;
+        flagCriteria.minRevel = null;
         flagCriteria.clinvar = null;
         flagCriteria.impact = null;
         flagCriteria.consequence = null;
@@ -192,6 +249,8 @@ export default {
       }
       this.name                      = flagCriteria.name;
       this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
+      this.minRevel                  = flagCriteria.minRevel ? flagCriteria.minRevel : null;
+      this.minRevelSlider            = flagCriteria.minRevel ? flagCriteria.minRevel * 100 : null;
       this.selectedClinvarCategories = flagCriteria.clinvar;
       this.selectedImpacts           = flagCriteria.impact;
       this.selectedConsequences      = flagCriteria.consequence;
@@ -208,6 +267,7 @@ export default {
         flagCriteria.title = this.name;
       }
       flagCriteria.maxAf            = this.maxAf ? this.maxAf / 100 : null;
+      flagCriteria.minRevel         = this.minRevel;
       flagCriteria.clinvar          = this.selectedClinvarCategories;
       flagCriteria.impact           = this.selectedImpacts;
       flagCriteria.consequence      = this.selectedConsequences;
@@ -219,9 +279,17 @@ export default {
     },
     onChangeName: function() {
       this.theFilter.display = this.name;
+    },
+    onChangeRevelScore: function() {
+      this.minRevelSlider = this.minRevel * 100;
     }
   },
   computed: {
+  },
+  watch: {
+    minRevelSlider: function() {
+      this.minRevel = this.minRevelSlider > 0 ? this.minRevelSlider / 100 : "";
+    }
   },
   created: function() {
   },
