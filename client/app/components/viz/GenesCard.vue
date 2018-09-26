@@ -6,6 +6,10 @@
   margin-bottom: 0px
   padding-bottom: 0px
 
+  #gene-count-badges
+    margin-left: 40px
+    text-align: center
+
   .clinvar-switch
     padding: 0px
     width: 130px
@@ -51,7 +55,7 @@
     margin-bottom: 0px
     display: inline-block
     width: 100%
-    text-align: center
+    text-align: left
 
     .stop-analysis-button
       float: left
