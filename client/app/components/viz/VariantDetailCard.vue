@@ -2,8 +2,8 @@
 @import ../../../assets/sass/variables
 #variant-detail
   padding-left: 0px
-  max-height: 182px
-  min-height: 182px
+  max-height: 222px
+  min-height: 222px
   padding-top: 0px
   overflow-x: scroll
   min-width: 700px
@@ -16,7 +16,7 @@
 
   #variant-heading
     color: $app-color
-    padding-bottom: 7px
+    padding-bottom: 10px
     padding-top: 0px !important
     margin-top: 0px !important
 
@@ -25,6 +25,7 @@
     vertical-align: top
     float: left
     margin-left: -5px
+    margin-top: -5px
 
   .variant-notes
     width: 100%
@@ -135,7 +136,7 @@
   .field-label
     color: #9c9a9a
     font-style: italic
-    padding-left: 6px
+    padding-left: 0px
     text-align: left
     font-size: 13px
     line-height: 14px
@@ -151,6 +152,7 @@
 
   #coverage-svg
     float: left
+    margin-top: -4px
 
     rect
       &.alt-count
@@ -190,10 +192,18 @@
     .header-small
       overflow-wrap: break-word
       text-align: left
-      width: 85px
+      width: 100px
       float: left
-      color: $tooltip-label-color
-      fill:  $tooltip-label-color
+      color: #9c9a9a
+      fill:  #9c9a9a
+      font-style: italic
+      padding-left: 0px
+      font-size: 13px !important
+      line-height: 14px
+
+
+    .allele-count-legend
+      .header-small
 
     .allele-count-bar
       text
@@ -202,6 +212,7 @@
 
     #allele-count-legend
       padding-top: 0px
+      padding-bottom: 5px
 
 
     .affected-symbol
@@ -226,10 +237,11 @@
       padding-top: 0px
       vertical-align: top
       text-align: left
-      width: 69px
+      width: 75px
       float: left
-      font-size: 12px
-      color: $text-color
+      font-size: 13px
+      color: #9c9a9a
+      fill:  #9c9a9a
 
     .ped-zygosity
       width: 75px
@@ -291,13 +303,7 @@
     </div>
 
     <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center">
-      <variant-notes-menu id="variant-notes"
-        v-if="!isBasicMode && !forMyGene2"
-        :variant="selectedVariant"
-        :variantInterpretation="interpretation"
-        :variantNotes="notes"
-        @apply-variant-notes="onApplyVariantNotes">
-      </variant-notes-menu>
+
 
       <span class="pr-1" v-if="!isBasicMode">
         <app-icon v-show="selectedVariantRelationship == 'known-variants'"
@@ -397,10 +403,27 @@
       </div>
 
 
-      <div style="float:left;width:33%;min-width:340px">
+      <div style="float:left;width:33%;min-width:350px">
 
 
         <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
+
+
+          <v-flex v-if="!isBasicMode">
+            <v-layout row class="">
+               <v-flex xs3 class="field-label">Interpretation</v-flex>
+               <v-flex  xs9 class="field-value">
+                <variant-notes-menu id="variant-notes"
+                  v-if="!isBasicMode && !forMyGene2"
+                  :variant="selectedVariant"
+                  :variantInterpretation="interpretation"
+                  :variantNotes="notes"
+                  @apply-variant-notes="onApplyVariantNotes">
+                </variant-notes-menu>
+               </v-flex>
+            </v-layout>
+          </v-flex>
+
 
 
           <v-flex v-if="!isBasicMode && selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
@@ -516,6 +539,26 @@
           </v-flex>
 
 
+          <v-flex  v-if="!isBasicMode">
+            <v-layout row class="">
+               <v-flex xs3 class="field-label  " >Transcript</v-flex>
+               <v-flex xs9 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
+            </v-layout>
+          </v-flex>
+
+          <v-flex  v-if="!isBasicMode">
+            <v-layout row class="">
+               <v-flex xs3 class="field-label  "  >HGVSc </v-flex>
+               <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
+            </v-layout>
+          </v-flex>
+          <v-flex   v-if="!isBasicMode">
+            <v-layout row>
+               <v-flex xs3 class="field-label  "  >HGVSp </v-flex>
+               <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
+            </v-layout>
+          </v-flex>
+
 
       </div>
 
@@ -523,25 +566,6 @@
       <div id="coverage-svg" v-if="selectedVariant" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
 
-          <v-flex  v-if="!isBasicMode">
-            <v-layout row class="no-bottom-margin">
-               <v-flex xs3 class="field-label " >Transcript</v-flex>
-               <v-flex xs9 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex  v-if="!isBasicMode">
-            <v-layout row class="no-bottom-margin">
-               <v-flex xs3 class="field-label "  >HGVSc </v-flex>
-               <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex   v-if="!isBasicMode">
-            <v-layout row>
-               <v-flex xs3 class="field-label "  >HGVSp </v-flex>
-               <v-flex xs9 class="field-value">{{ info.HGVSp }}</v-flex>
-            </v-layout>
-          </v-flex>
 
 
       </div>
@@ -769,7 +793,7 @@ export default {
            .text("Read Counts");
 
       var g = svg.append("g")
-                 .attr("transform", "translate(86,1)");
+                 .attr("transform", "translate(100,1)");
 
       g.append("text")
            .attr("x", "7")
