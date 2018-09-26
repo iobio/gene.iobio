@@ -7,7 +7,6 @@
   padding-bottom: 0px
 
   #gene-count-badges
-    margin-left: 40px
     text-align: center
 
   .clinvar-switch
@@ -279,9 +278,9 @@ div.container.small
               </v-switch>
 
 
-
             <filter-badges
              ref="filterBadgesRef"
+             :style="isLoaded ? 'margin-left:40px' : ''"
              :isFullAnalysis="isFullAnalysis"
              :badgeCounts="badgeCounts"
              :filterModel="filterModel"

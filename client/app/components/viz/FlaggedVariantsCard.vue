@@ -82,6 +82,10 @@
   .gene-list
 
 
+  .expansion-panel
+    -webkit-box-shadow : none
+    box-shadow: none
+
   .expansion-panel__body
     padding-left: 3px
     padding-right: 4px
