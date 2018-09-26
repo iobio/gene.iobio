@@ -61,8 +61,30 @@
     padding-left: 16px
     min-width: 80px
 
-  .field-value.revel
-    color: $app-color
+  .field-value.revel-field
+    color: $app-gray
+
+    &.revel_high
+      color: $high-impact-color
+      font-weight: bold
+    &.revel_moderate
+      color: $moderate-impact-color
+      font-weight: bold
+
+
+  .field-value.sift-field
+    &.sift_deleterious
+      color: $high-impact-color
+      font-weight: bold
+
+  .field-value.polyphen-field
+    &.polyphen_probably_damaging
+      color: $high-impact-color
+      font-weight: bold
+
+    &.polyphen_possibly_damaging
+      color: $moderate-impact-color
+      font-weight: bold
 
   #user-flag-buttons
     position: absolute
@@ -104,26 +126,7 @@
     float: left
     min-width: 360px
 
-  .revel-progress-bar
-    display: inline-block
-    margin-bottom: 0px
-    width: 100px
-    margin-right: 4px
-    margin-top: 0px
 
-    .progress-linear__bar__determinate
-      background-color:  $app-gray !important
-      border-color:  $app-gray !important
-
-    &.revel_high
-      .progress-linear__bar__determinate
-        background-color:  $high-impact-color !important
-        border-color:  $high-impact-color !important
-
-    &.revel_moderate
-      .progress-linear__bar__determinate
-        background-color:  $moderate-impact-color !important
-        border-color:  $moderate-impact-color !important
 
   span.clinvar-submission
     display: flex
@@ -488,9 +491,7 @@
           <v-flex  v-if="info.revel != '' && info.revel != null && !isBasicMode" >
             <v-layout row class="">
                <v-flex xs3 class="field-label revel">REVEL</v-flex>
-               <v-flex xs9 class="field-value revel">
-                  <v-progress-linear width="100" :class="getRevelClass(info)" v-model="revelValue">
-                  </v-progress-linear>
+               <v-flex xs9 :class="getRevelClass(info)">
                   {{ info.revel }}
                </v-flex>
             </v-layout>
@@ -498,13 +499,13 @@
           <v-flex   v-if="info.polyphen != '' && !isBasicMode">
             <v-layout row class="" >
                <v-flex xs3 class="field-label">Polyphen</v-flex>
-               <v-flex xs9 class="field-value">{{ info.polyphen }}</v-flex>
+               <v-flex xs9 :class="getPolyphenClass(selectedVariant)">{{ info.polyphen }}</v-flex>
             </v-layout>
           </v-flex>
           <v-flex  v-if="info.sift != '' && !isBasicMode" >
             <v-layout row class="">
                <v-flex xs3 class="field-label">SIFT</v-flex>
-               <v-flex xs9 class="field-value">{{ info.sift }}</v-flex>
+               <v-flex xs9 :class="getSiftClass(selectedVariant)">{{ info.sift }}</v-flex>
             </v-layout>
           </v-flex>
           <v-flex  v-if="info.regulatory != '' & !isBasicMode">
@@ -1000,15 +1001,27 @@ export default {
     },
     getRevelClass: function(info) {
       let self = this;
-      let clazz = "revel-progress-bar";
-      if (info.revel == "") {
-        clazz += " hide";
-      } else {
-        self.cohortModel.translator.revelMap.forEach(function(revelRange) {
-          if (info.revel >= revelRange.min && info.revel < revelRange.max) {
-            clazz += " " + revelRange.clazz;
-          }
-        })
+      let clazz = "field-value revel-field";
+      self.cohortModel.translator.revelMap.forEach(function(revelRange) {
+      if (info.revel >= revelRange.min && info.revel < revelRange.max) {
+          clazz += " " + revelRange.clazz;
+        }
+      })
+      return clazz;
+    },
+    getSiftClass: function(variant) {
+      let self = this;
+      let clazz = "field-value sift-field";
+      for (var key in variant.vepSIFT) {
+        clazz += " " + self.cohortModel.translator.siftMap[key].clazz;
+      }
+      return clazz;
+    },
+    getPolyphenClass: function(variant) {
+      let self = this;
+      let clazz = "field-value polyphen-field";
+      for (var key in variant.vepPolyPhen) {
+        clazz += " " + self.cohortModel.translator.polyphenMap[key].clazz;
       }
       return clazz;
     }
@@ -1016,9 +1029,6 @@ export default {
 
 
   computed: {
-    revelValue() {
-      return this.info.revel * 100;
-    },
     refAlt: function() {
       let self = this;
       var refAlt = "";
