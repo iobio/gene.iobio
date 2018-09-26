@@ -140,6 +140,7 @@
 
 
 
+
   #analyzing-indeterminate-bar
     margin: 0px
     .progress-linear__bar__indeterminate
@@ -169,16 +170,26 @@ div.container.small
 #genes-card.edu
   #gene-badge-container
     text-align: center
+
   #gene-badge
+    border: thin solid #e8e6e6
+    height: 28px
+
+    #gene-status
+      padding-left: 4px
+      width: initial
+
     #gene-badge-button
       height: 28px !important
       font-size: 18px !important
-      padding: 4px 6px 2px 6px !important
+      padding: 5px 6px 2px 6px !important
+      border: none
 
       #gene-badge-symbols
         display: none
+
     &.selected
-      border-left: $app-color solid 12px
+      border: 1.5px solid $current-color
       height: 28px
 
 </style>
@@ -243,7 +254,7 @@ div.container.small
               </v-btn>
 
               <v-switch class="clinvar-switch"
-                v-if="geneModel.geneDangerSummaries[selectedGene.gene_name] && !isEduMode && !isBasicMode"
+                v-if=" isLoaded && !isEduMode && !isBasicMode"
                 label="ClinVar track"
                 v-model="showKnownVariantsCard"
                 >
@@ -251,7 +262,7 @@ div.container.small
 
 
 
-            <filter-badges v-if="isLoaded"
+            <filter-badges
              ref="filterBadgesRef"
              :isFullAnalysis="isFullAnalysis"
              :badgeCounts="badgeCounts"
@@ -289,7 +300,7 @@ div.container.small
        @apply-genes="onApplyGenes">
       </genes-menu>
 
-      <div id="genes-panel" v-if="false" class="nav-center">
+      <div id="genes-panel" v-if="isEduMode || isBasicMode" class="nav-center">
 
 
         <div id="gene-badge-container" class="level-basic" style="clear:both;">
@@ -302,6 +313,8 @@ div.container.small
            :gene="gene"
            :phenotypes="geneModel.genePhenotypes[gene.name]"
            :selectedGene="selectedGene"
+           :isEduMode="isEduMode"
+           :isBasicMode="isBasicMode"
            @gene-selected="onGeneSelected"
            @remove-gene="onRemoveGene"
           >

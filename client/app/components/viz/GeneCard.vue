@@ -141,7 +141,6 @@
 
 
 
-
 </style>
 
 
@@ -247,7 +246,7 @@
 
     </div>
 
-    <div id="gene-summary-box" >
+    <div id="gene-summary-box" v-if="!isEduMode" >
 
 
       <div  v-if="showGene && ncbiSummary" id="ncbi-summary">

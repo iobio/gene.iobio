@@ -125,7 +125,7 @@ main.content
 
 
         <genes-card
-         v-if="geneModel && (geneModel.geneNames.length > 0  || isEduMode)"
+         v-if="geneModel"
          v-bind:class="{hide : showWelcome && !isEduMode}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
