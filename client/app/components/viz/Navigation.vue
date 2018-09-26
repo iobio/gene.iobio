@@ -417,7 +417,7 @@ nav.toolbar
       :nudge-width="isBasicMode ? 300 : 350"
       v-model="showLegendMenu"
       >
-        <v-btn class="legend-title" flat slot="activator">
+        <v-btn  flat slot="activator">
           Legend
         </v-btn>
 
