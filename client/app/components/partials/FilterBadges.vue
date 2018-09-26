@@ -1,6 +1,9 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+.dialog__content.dialog__content__active
+  height: initial
+
 #gene-count-badges
   display: inline-block
   vertical-align: top
@@ -120,46 +123,48 @@
 
     <v-layout row style="margin-top:-5px">
 
-     <v-menu
-       v-if="!isFullAnalysis || isFullAnalysis == filter.isFullAnalysis"
-       v-for="filter in filters"
-       :key="filter.name"
-       open-on-hover bottom offset-y>
-      <span
-       slot="activator"
-       :id="filter.name"
-       v-if="!isFullAnalysis || isFullAnalysis == filter.isFullAnalysis"
-       class="badge-wrapper"
-       @mouseover="onMouseOver(filter)"
-       @mouseleave="onMouseLeave(filter)"
-       v-tooltip.top-center="{content: filter.tooltip, show: filter.showTooltip, trigger: 'manual'}"
-       >
-        <v-btn  flat
-        v-bind:ref="filter.name"
-        v-bind:id="filter.name"
-        v-bind:class="{'disabled' : badgeCounts[filter.name] == 0, 'custom-filter' : filter.custom}"
-         slot="activator" flat
-        >
-          <v-badge right  >
-            <span slot="badge"> {{ badgeCounts[filter.name] }} </span>
-            <filter-icon v-if="!filter.custom" v-bind:icon="filter.name">
-            </filter-icon>
-            <filter-icon v-if="filter.custom" icon="filter" :iconClass="filter.name">
-            </filter-icon>
-          </v-badge>
-        </v-btn>
 
-      </span>
-      <v-list>
-        <v-list-tile v-if="filter.name != 'userFlagged'" @click="onEditFilter(filter)">
-          <v-list-tile-title>Customize filter</v-list-tile-title>
-        </v-list-tile>
-        <v-list-tile @click="onBadgeClick(filter)">
-          <v-list-tile-title>Show '{{ filter.display.toLowerCase() }}' {{ filter.name == 'coverage' ? ' genes' : ' variants' }}</v-list-tile-title>
-        </v-list-tile>
-      </v-list>
+    <template v-for="filter in filters">
 
-    </v-menu>
+       <v-menu
+         :key="filter.name"
+         open-on-hover bottom offset-y>
+        <span
+         slot="activator"
+         :id="filter.name"
+         class="badge-wrapper"
+         @mouseover="onMouseOver(filter)"
+         @mouseleave="onMouseLeave(filter)"
+         v-tooltip.top-center="{content: filter.tooltip, show: filter.showTooltip, trigger: 'manual'}"
+         >
+          <v-btn  flat
+          v-bind:ref="filter.name"
+          v-bind:id="filter.name"
+          v-bind:class="{'disabled' : badgeCounts[filter.name] == 0, 'custom-filter' : filter.custom}"
+           slot="activator" flat
+          >
+            <v-badge right  >
+              <span slot="badge"> {{ badgeCounts[filter.name] }} </span>
+              <filter-icon v-if="!filter.custom" v-bind:icon="filter.name">
+              </filter-icon>
+              <filter-icon v-if="filter.custom" icon="filter" :iconClass="filter.name">
+              </filter-icon>
+            </v-badge>
+          </v-btn>
+
+        </span>
+        <v-list>
+          <v-list-tile v-if="filter.name != 'userFlagged'" @click="onEditFilter(filter)">
+            <v-list-tile-title>Customize filter</v-list-tile-title>
+          </v-list-tile>
+          <v-list-tile @click="onBadgeClick(filter)">
+            <v-list-tile-title>Show '{{ filter.display.toLowerCase() }}' {{ filter.name == 'coverage' ? ' genes' : ' variants' }}</v-list-tile-title>
+          </v-list-tile>
+        </v-list>
+
+      </v-menu>
+
+    </template>
 
 
 
@@ -181,7 +186,7 @@
     </v-alert>
 
     <v-layout row justify-center v-if="currentFilter && currentFilter.showEdit" class="text-xs-center">
-      <v-dialog persistent
+      <v-dialog persistent id="filter-settings-dialog"
         v-model="currentFilter.showEdit"
         width="500"
       >
