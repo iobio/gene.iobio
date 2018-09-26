@@ -303,7 +303,7 @@
 
   </a>
 
-  <div id="gene-badge-remove" href="javascript:void(0)"
+  <div id="gene-badge-remove" v-if="!isEduMode" href="javascript:void(0)"
     @click="removeGene"
     style="display: inline-block;cursor: pointer;float:right">
       <i style="vertical-align:middle" class="material-icons">close</i>
@@ -327,6 +327,8 @@ export default {
     gene: null,
     phenotypes: null,
     selectedGene: null,
+    isEduMode: null,
+    isBasicMode: null
   },
   data () {
     return {

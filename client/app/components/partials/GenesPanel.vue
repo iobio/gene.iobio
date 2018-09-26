@@ -67,6 +67,8 @@
        :gene="gene"
        :phenotypes="geneModel.genePhenotypes[gene.name]"
        :selectedGene="selectedGene"
+       :isBasicMode="isBasicMode"
+       :isEduMode="isEduMode"
        @gene-selected="onGeneSelected"
        @remove-gene="onRemoveGene"
       >
