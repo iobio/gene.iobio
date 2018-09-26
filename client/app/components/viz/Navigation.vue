@@ -87,8 +87,11 @@ aside.navigation-drawer
       margin-top: 5px
       margin-bottom: 38px
       padding: 0px
+      padding-top: 5px
+      border-top: $text-color solid 1px
 
 #side-panel-container
+
   #genes-panel
     #gene-badge-container
       clear: both
@@ -111,6 +114,19 @@ aside.navigation-drawer
             border-color: $current-color
             border-width: 2px
 
+
+#side-panel-container.basic
+  .variant-toolbar
+    margin-top: 0px
+    margin-bottom: 0px
+
+  .tabs__container
+    .tabs__slider
+      background-color: transparent !important
+      border-color: transparent !important
+
+    .tabs__item
+      margin-left: -18px
 
 
 nav.toolbar
@@ -401,7 +417,7 @@ nav.toolbar
       :nudge-width="isBasicMode ? 300 : 350"
       v-model="showLegendMenu"
       >
-        <v-btn flat slot="activator">
+        <v-btn class="legend-title" flat slot="activator">
           Legend
         </v-btn>
 
@@ -475,7 +491,7 @@ nav.toolbar
       :stateless="true"
       width=283
     >
-      <div id="side-panel-container">
+      <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
         <v-btn v-if="!isFullAnalysis" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
@@ -485,7 +501,7 @@ nav.toolbar
           v-model="activeTab"
           light
         >
-          <v-tab >
+          <v-tab v-if="!isBasicMode" >
             <v-badge>
               <span class="badge-count" slot="badge">{{ geneModel.geneNames.length }}</span>
               <span class="badge-label">Genes</span>
@@ -501,7 +517,7 @@ nav.toolbar
 
           </v-tab>
 
-          <v-tab-item>
+          <v-tab-item v-if="!isBasicMode">
 
             <genes-panel
              style="margin: 15px 10px 10px 10px"

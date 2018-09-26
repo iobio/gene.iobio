@@ -30,6 +30,14 @@ main.content
   .tabs__item
     color: $text-color
 
+.tabs.basic
+  .tabs__container
+    .tabs__slider
+      background-color: transparent !important
+      border-color: transparent !important
+
+    .tabs__item
+      margin-left: -10px
 
 .tabs__div
   text-transform: none !important
@@ -160,7 +168,8 @@ main.content
         >
         </genes-card>
 
-        <v-card style="margin-top:10px;padding-bottom:10px" v-if="geneModel && Object.keys(selectedGene).length > 0"
+        <v-card style="margin-top:10px;margin-bottom:10px;padding-bottom:10px"
+            v-if="geneModel && Object.keys(selectedGene).length > 0"
           v-bind:class="{hide : showWelcome }">
           <gene-card
             :showTitle="false"
@@ -182,26 +191,30 @@ main.content
         </v-card>
 
         <div
-          v-if="geneModel && Object.keys(selectedGene).length > 0" style="height:auto;margin-top:10px;margin-bottom:10px"
+          v-if="geneModel && Object.keys(selectedGene).length > 0 && (!isBasicMode || selectedVariant != null)"
+          style="height:auto;margin-bottom:10px"
           v-bind:class="{hide : showWelcome }"
           >
 
-            <v-card v-if="geneModel && cohortModel.isLoaded && Object.keys(selectedGene).length > 0" id="gene-and-variant-tabs" slot="right" style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;overflow-y:scroll">
+            <v-card v-if="geneModel && cohortModel.isLoaded && Object.keys(selectedGene).length > 0"
+            id="gene-and-variant-tabs" slot="right"
+            style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;overflow-y:scroll">
 
 
               <v-tabs
 
                 v-model="activeGeneVariantTab"
                 light
+                :class="{'basic': isBasicMode}"
               >
-                <v-tab>
+                <v-tab v-if="!isBasicMode">
                   Ranked Variants in Gene
                 </v-tab>
                 <v-tab v-if="!isEduMode" >
                   Variant
                 </v-tab>
 
-                <v-tab-item style="margin-top:5px;margin-bottom:0px;overflow-y:scroll">
+                <v-tab-item v-if="!isBasicMode" style="margin-top:5px;margin-bottom:0px;overflow-y:scroll">
 
                  <feature-matrix-card   style="min-width:300px;min-height:auto;max-height:auto;overflow-y:scroll"
                   ref="featureMatrixCardRef"

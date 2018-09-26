@@ -167,7 +167,7 @@ div.container.small
       width: 150px
       margin: auto
 
-#genes-card.edu
+#genes-card.edu, #genes-card.basic
   #gene-badge-container
     text-align: center
 
@@ -192,10 +192,24 @@ div.container.small
       border: 1.5px solid $current-color
       height: 28px
 
+#genes-card.basic
+  #gene-badge
+    height: 24px
+
+    #gene-badge-button
+      height: 24px !important
+      font-size: 14px !important
+      padding: 4px 6px 2px 6px !important
+
+
+    &.selected
+      border: 1.5px solid $app-color
+      height: 24px
+
 </style>
 
 <template>
-  <v-card tile id="genes-card" :class="{'app-card': true, 'edu' : isEduMode}" style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px;padding-top:0px;margin-bottom:0px">
+  <v-card tile id="genes-card" :class="{'app-card': true, 'edu' : isEduMode, 'basic' : isBasicMode}" style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px;padding-top:0px;margin-bottom:0px">
 
     <v-progress-linear
     v-if="analyzeAllInProgress || callAllInProgress"

@@ -86,6 +86,8 @@
     padding-left: 3px
     padding-right: 4px
 
+
+
   li.selected
     border-color: $current-color
     border-width: 2px
@@ -359,6 +361,20 @@
     padding-right: 4px
 
 #flagged-variants-card.basic
+
+  .toolbar__title
+    margin-top: 0px
+    padding-top: 0px
+    padding-left: 3px
+
+  .expansion-panel
+    -webkit-box-shadow : none
+    box-shadow: none
+    margin-top: -20px
+
+  .expansion-panel__header
+    display: none
+
   .list--three-line
     li
       margin-left: 0px
@@ -408,9 +424,8 @@
   <v-expansion-panel expand >
     <v-expansion-panel-content v-for="geneList in geneLists"  :key="geneList.label"
       :value="geneList.expand"
-      v-if="geneList.show"
-      v-show="!isBasicMode">
-      <div slot="header">
+      v-if="geneList.show">
+      <div slot="header" v-show="!isBasicMode">
         <span v-show="geneList.genes.length > 0" class="filter-subheader">
           <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
 

@@ -101,6 +101,9 @@
     padding-top: 2px
     display: inline-block
 
+.legend-title
+  color:  $app-color
+
 </style>
 
 <template>
@@ -108,7 +111,7 @@
 
 
 
-    <div :style="isBasicMode ? 'margin-bottom:5px;' : 'margin-bottom:20px'">
+    <div class="legend-title" :style="isBasicMode ? 'margin-bottom:10px;' : 'margin-bottom:20px'">
     Legend
     </div>
     <div style="display:flex;flex-wrap:wrap;justify-content:flex-start">
