@@ -233,6 +233,7 @@ nav.toolbar
       color: $nav-text-color !important
     .input-group__selections__comma
       color: $nav-text-color !important
+      margin-top: -4px
 
   #gene-name-input
     width: 130px

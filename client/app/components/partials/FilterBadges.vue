@@ -68,7 +68,7 @@
 
 
 
-  #coverage
+  #coverage, #pathogenic
     .badge__badge
       top: -10px
 
@@ -144,7 +144,8 @@
            slot="activator" flat
           >
             <v-badge right  >
-              <span slot="badge"> {{ badgeCounts[filter.name] }} </span>
+              <span v-if="badgeCounts[filter.name] && badgeCounts[filter.name] > 0"
+                slot="badge">{{ badgeCounts[filter.name] }}</span>
               <filter-icon v-if="!filter.custom" v-bind:icon="filter.name">
               </filter-icon>
               <filter-icon v-if="filter.custom" icon="filter" :iconClass="filter.name">

@@ -10,11 +10,11 @@
   <span>
 
     <app-icon
-     v-if="icon == 'pathogenic'"  style="margin-top:2px"
+     v-if="icon == 'pathogenic'"  style="margin-top:-3px"
      icon="clinvar"
      level="high"
-     width="18"
-     height="18">
+     width="17"
+     height="17">
     </app-icon>
 
 
@@ -73,9 +73,9 @@
     <app-icon
      v-if="icon == 'coverage'"
      icon="coverage"
-     style="margin-top:-1px"
-     width="17"
-     height="17">
+     style="margin-top:1px"
+     width="16"
+     height="16">
     </app-icon>
 
     <app-icon
