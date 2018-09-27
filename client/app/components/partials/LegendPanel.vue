@@ -202,7 +202,7 @@
 
 
 
-      <div class="clinvar-legend" style="width:140px;margin-right:10px;margin-bottom:15px">
+      <div class="clinvar-legend" style="width:150px;margin-right:10px;margin-bottom:15px">
           <div class="legend-label">Clinvar</div>
 
           <legend-icon

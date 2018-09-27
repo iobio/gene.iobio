@@ -223,7 +223,7 @@ nav.toolbar
     font-size: 18px
     margin-right: 5px
     margin-left: 5px
-    padding-bottom: 5px
+    padding-bottom: 7px
     min-width: 130px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
@@ -423,7 +423,7 @@ nav.toolbar
 
         <legend-panel
         :isBasicMode="isBasicMode"
-        style="max-width:400px">
+        style="max-width:410px">
         </legend-panel>
       </v-menu>
 
