@@ -363,7 +363,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       if (me.cohort.isAlignmentsOnly()) {
         return Promise.resolve(trioVcfData);
       } else {
-        let annotationOptions = {'isMultSample': me.cohort.mode == 'trio' && me.cohort.samplesInSingleVcf(),
+        let annotationOptions = {'isMultiSample': me.cohort.mode == 'trio' && me.cohort.samplesInSingleVcf(),
                                  'isBackground': true};
         return me.cohort.promiseAnnotateVariants(geneObject, transcript, annotationOptions)
       }
