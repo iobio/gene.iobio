@@ -1268,7 +1268,7 @@ export default {
         self.selectedVariantRelationship = sourceRelationship;
         self.selectedVariantNotes = variant.notes;
         self.selectedVariantInterpretation = variant.interpretation;
-        self.activeGeneVariantTab = "1";
+        self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
         self.showVariantExtraAnnots(sourceComponent.relationship, variant);
 
         self.$refs.variantCardRef.forEach(function(variantCard) {
@@ -1278,8 +1278,10 @@ export default {
             variantCard.showCoverageCircle(variant);
           }
         })
-        if (sourceComponent == null || self.$refs.featureMatrixCardRef != sourceComponent) {
-          self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
+        if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
+          if (sourceComponent == null || self.$refs.featureMatrixCardRef != sourceComponent) {
+            self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
+          }
         }
         if (self.isEduMode) {
           self.$refs.appTourRef.checkVariant(variant);
@@ -1300,8 +1302,10 @@ export default {
           variantCard.showCoverageCircle(variant);
         }
       })
-      if (self.$refs.featureMatrixCardRef != sourceComponent) {
-        self.$refs.featureMatrixCardRef.selectVariant(variant, 'highlight');
+      if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
+        if (self.$refs.featureMatrixCardRef != sourceComponent) {
+          self.$refs.featureMatrixCardRef.selectVariant(variant, 'highlight');
+        }
       }
     },
     onCohortVariantHoverEnd: function(sourceVariantCard) {
@@ -1311,7 +1315,9 @@ export default {
           variantCard.hideVariantCircle(false);
           variantCard.hideCoverageCircle();
         })
-        self.$refs.featureMatrixCardRef.selectVariant(null, 'highlight');
+        if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
+          self.$refs.featureMatrixCardRef.selectVariant(null, 'highlight');
+        }
 
       }
     },
@@ -1925,7 +1931,9 @@ export default {
                 }
               })
 
-              self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
+              if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
+                self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
+              }
 
 
               self.$refs.variantCardRef.forEach(function(variantCard) {
@@ -1934,7 +1942,7 @@ export default {
               })
 
 
-              self.activeGeneVariantTab = "1";
+              self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
               self.$refs.variantDetailCardRef.refreshGlyphs();
 
             })
