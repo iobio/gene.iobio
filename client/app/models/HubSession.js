@@ -7,7 +7,7 @@ export default class HubSession {
     this.apiVersion =  '/apiv1';
   }
 
-  promiseInit(sampleId, source, isPedigree) {
+  promiseInit(projectId, sampleId, source, isPedigree) {
     let self = this;
     self.api = source + self.apiVersion;
 
@@ -15,13 +15,13 @@ export default class HubSession {
       let modelInfos = [];
 
 
-      self.promiseGetSampleInfo(sampleId, isPedigree).then( pedigree => {
+      self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then( pedigree => {
 
         let promises = [];
 
         // Let's get the proband info first
         let probandSample = pedigree.proband;
-        self.promiseGetFileMapForSample(probandSample, 'proband').then(data => {
+        self.promiseGetFileMapForSample(projectId, probandSample, 'proband').then(data => {
           probandSample.files = data.fileMap;
         })
         .then( () => {
@@ -34,7 +34,7 @@ export default class HubSession {
                 samples = [pedigree[rel]];
               }
               samples.forEach(s => {
-                let p =  self.promiseGetFileMapForSample(s, rel).then(data => {
+                let p =  self.promiseGetFileMapForSample(projectId, s, rel).then(data => {
                   let theSample = data.sample;
                   theSample.files = data.fileMap;
 
@@ -89,21 +89,21 @@ export default class HubSession {
 
   }
 
-  promiseGetSampleInfo(sample_id, isPedigree) {
+  promiseGetSampleInfo(project_id, sample_id, isPedigree) {
     let self = this;
     if (isPedigree) {
-      return self.promiseGetPedigreeForSample(sample_id);
+      return self.promiseGetPedigreeForSample(project_id, sample_id);
     } else {
-      return self.promiseGetSample(sample_id, 'proband');
+      return self.promiseGetSample(project_id, sample_id, 'proband');
     }
   }
 
-  promiseGetSample(sample_id, rel) {
+  promiseGetSample(project_id, sample_id, rel) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
       // Get pedigree for sample
-      self.getSample(sample_id)
+      self.getSample(project_id, sample_id)
       .done(data => {
         if (rel) {
           let sample = {};
@@ -119,12 +119,12 @@ export default class HubSession {
     })
   }
 
-  promiseGetPedigreeForSample(sample_id) {
+  promiseGetPedigreeForSample(project_id, sample_id) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
       // Get pedigree for sample
-      self.getPedigreeForSample(sample_id)
+      self.getPedigreeForSample(project_id, sample_id)
       .done(data => {
         let pedigree = self.parsePedigree(data, sample_id)
         resolve(pedigree);
@@ -195,10 +195,10 @@ export default class HubSession {
     return pedigree;
   }
 
-  getPedigreeForSample(sample_id) {
+  getPedigreeForSample(project_id, sample_id) {
     let self = this;
     return $.ajax({
-      url: self.api + '/samples/' + sample_id + '/pedigree',
+      url: self.api + '/projects/' + project_id +  '/samples/' + sample_id + '/pedigree',
       type: 'GET',
       contentType: 'application/json',
       headers: {
@@ -208,10 +208,10 @@ export default class HubSession {
   }
 
 
-  getSample(sample_id) {
+  getSample(project_id, sample_id) {
     let self = this;
     return $.ajax({
-      url: self.api + '/samples/' + sample_id,
+      url: self.api + '/projects/' + project_id + '/samples/' + sample_id,
       type: 'GET',
       contentType: 'application/json',
       headers: {
@@ -221,16 +221,16 @@ export default class HubSession {
   }
 
 
-  promiseGetFileMapForSample(sample, relationship) {
+  promiseGetFileMapForSample(project_id, sample, relationship) {
     let self = this;
     return new Promise((resolve,reject) => {
       var promises = [];
       var fileMap = {};
       var currentSample = sample;
-      self.promiseGetFilesForSample(currentSample.id)
+      self.promiseGetFilesForSample(project_id, currentSample.id)
       .then(files => {
         files.forEach(file => {
-          var p = self.promiseGetSignedUrlForFile(file)
+          var p = self.promiseGetSignedUrlForFile(project_id, currentSample.id, file)
           .then(signed => {
             fileMap[file.type] = signed.url;
             if (file.type == 'vcf') {
@@ -252,10 +252,10 @@ export default class HubSession {
 
 
 
-  promiseGetFilesForSample(sample_id) {
+  promiseGetFilesForSample(project_id, sample_id) {
     let self = this;
     return new Promise((resolve,reject) => {
-      self.getFilesForSample(sample_id)
+      self.getFilesForSample(project_id, sample_id)
       .done(response => {
         resolve(response.data);
       })
@@ -267,10 +267,10 @@ export default class HubSession {
   }
 
 
-  getFilesForSample(sample_id) {
+  getFilesForSample(project_id, sample_id) {
     let self = this;
     return $.ajax({
-      url: self.api + '/samples/' + sample_id + '/files',
+      url: self.api +  '/samples/' + sample_id + '/files',
       type: 'GET',
       contentType: 'application/json',
       headers: {
@@ -279,10 +279,10 @@ export default class HubSession {
     });
   }
 
-  promiseGetSignedUrlForFile(file) {
+  promiseGetSignedUrlForFile(project_id, sample_id, file) {
     let self = this;
     return new Promise((resolve, reject) => {
-      self.getSignedUrlForFile(file)
+      self.getSignedUrlForFile(project_id, sample_id, file)
       .done(file => {
         resolve(file);
       })
@@ -292,10 +292,10 @@ export default class HubSession {
     })
   }
 
-  getSignedUrlForFile (file) {
+  getSignedUrlForFile (project_id, sample_id, file) {
     let self = this;
     return $.ajax({
-      url: self.api + '/files/' + file.id + '/url',
+      url: self.api +  '/projects/' + project_id + '/files/' + file.id + '/url',
       type: 'GET',
       contentType: 'application/json',
       headers: {
