@@ -65,26 +65,14 @@ export default class Glyph {
 
     $.extend(attrs, datumAttrs, cellSizeAttrs, options);
 
-    var colors = {
-      clinvar_path: "#ad494A",
-      clinvar_lpath: "#FB7737",
-      clinvar_uc: "rgba(231,186,82,1)",
-      clinvar_benign: "rgba(156,194,49,1)",
-      clinvar_lbenign: "rgba(181,207,107,1)",
-      clinvar_other: "rgb(189,189,189)",
-      clinvar_cd: "rgb(111, 182, 180)"
-    };
-
-
-
     selection.append("g")
              .attr("transform", attrs.transform)
              .append("use")
              .attr("xlink:href", "#clinvar-glyph")
+             .attr("class", "colorby_" + attrs.clazz)
              .attr("width", attrs.width)
              .attr("height", attrs.height)
-             .style("pointer-events", "none")
-             .style("fill", colors[attrs.clazz]);
+             .style("pointer-events", "none");
   };
 
   showPolyPhenSymbol(selection, options) {
