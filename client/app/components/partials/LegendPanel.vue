@@ -118,7 +118,7 @@
 
 
       <div v-if="isBasicMode" style="text-align:left;margin-right:10px">
-        <div class="legend-label" style="width:130px">Exon (coding region)</div>
+        <div class="legend-label" style="width:150px">Exon (coding region)</div>
         <svg id="exon" class="exon-symbol legend-element pl-4" width="130" height="30">
           <rect class="legend-symbol exon" rx="1" ry="1" x="25" width="9" y="4" height="24">
           </rect>
