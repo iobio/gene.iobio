@@ -54,7 +54,7 @@ export default class HubSession {
                       'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
                       'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
                       'name':           theSample.name,
-                      'sample':         theSample.files.vcf ? theSample.vcf_sample_id : theSample.name,
+                      'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
                       'vcf':            theSample.files.vcf,
                       'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
                       'bam':            theSample.files.bam,
@@ -234,7 +234,7 @@ export default class HubSession {
           .then(signed => {
             fileMap[file.type] = signed.url;
             if (file.type == 'vcf') {
-              sample.vcf_sample_id = file.vcf_sample_id;
+              sample.vcf_sample_name = file.vcf_sample_name;
             }
           })
           promises.push(p);
