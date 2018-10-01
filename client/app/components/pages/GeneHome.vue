@@ -1961,6 +1961,9 @@ export default {
     onFilterSelected: function(filterName, filteredGeneNames) {
       this.activeFilterName = filterName;
       this.filteredGeneNames = filteredGeneNames;
+      if (filterName == 'coverage') {
+        this.showLeftPanelForGenes();
+      }
     },
     onFilterSettingsApplied: function() {
       let self = this;
