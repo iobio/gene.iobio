@@ -33,6 +33,12 @@
 #gene-track
   margin-bottom: 0px
 
+
+  .card-title
+    color: $app-color
+    font-size: 15px
+    margin-right: 1px
+
   &.full
     max-height: initial
 
@@ -49,7 +55,6 @@
     color:  $app-color
     margin-top: 0px
     margin-bottom: 8px
-    font-weight: bold
     font-size: 15px
 
 
@@ -149,7 +154,7 @@
   <div tile id="gene-track" :class="{'app-card': true, 'full': showGeneViz}">
 
     <div>
-      <span style="display:inline-block">Gene</span>
+      <span class="card-title" style="display:inline-block">Gene</span>
       <div style="display:inline-block;margin-right:auto;">
         <span id="gene-name"  class="level-basic gene-card-label heading ">
           {{ selectedGene.gene_name }}

@@ -18,6 +18,8 @@
     min-width: 200px
     max-width: 200px
     padding-top: 2px
+    color: $app-color
+    font-size: 15px
     &.known-variants
       min-width: 100px
       max-width: 100px

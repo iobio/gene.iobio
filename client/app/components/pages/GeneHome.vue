@@ -23,12 +23,19 @@ main.content
   height: 80px
   padding-top: 15px
 
+
+
 .tabs__container
   height: 31px !important
   margin-left: 0px
 
   .tabs__item
-    color: $text-color
+    color: $app-color
+    font-size: 15px
+
+  .tabs__item--active
+    color:  $app-color
+
 
 .tabs.basic
   .tabs__container
