@@ -54,9 +54,6 @@
     #gene-badge-has-called-variants
       display: inline
 
-  &.is-flagged
-    #gene-badge-bookmark
-      display: none
 
   &.in-progress
     .gene-badge-loader
@@ -206,6 +203,13 @@
       <span id="gene-badge-symbols" class="glyph">
 
           <app-icon
+           v-if="hasFilteredVariants('userFlagged')"
+           icon="user-flagged"
+           class=" level-edu glyph"
+           width="15" height="15">
+          </app-icon>
+
+          <app-icon
            v-if="gene && gene.dangerSummary && gene.dangerSummary.badges.pathogenic.length > 0"
            icon="clinvar"
            level="high"
@@ -294,6 +298,8 @@
            class=" level-edu glyph"
            width="12" height="11">
           </app-icon>
+
+
 
       </span>
 
@@ -394,16 +400,7 @@ export default {
         'loaded':                this.gene.dangerSummary != null,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
-        'has-phenotypes':        false, //this.phenotypes && this.phenotypes.length > 0,
-        'is-flagged':            this.gene.dangerSummary && this.gene.dangerSummary.badges && this.gene.dangerSummary.badges.flagged.length > 0,
-        'is-pathogenic':         this.gene.dangerSummary && this.gene.dangerSummary.badges.pathogenic.length > 0,
-        'inheritance-autosomal-dominant': this.gene.dangerSummary && this.gene.dangerSummary.badges.autosomalDominant.length > 0,
-        'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.badges.recessive.length > 0,
-        'inheritance-denovo':    this.gene.dangerSummary && this.gene.dangerSummary.badges.denovo.length > 0,
-        'inheritance-x-linked':  this.gene.dangerSummary && this.gene.dangerSummary.badges.xlinked.length > 0,
-        'inheritance-compound-het':
-                                 this.gene.dangerSummary && this.gene.dangerSummary.badges.compoundHet.length > 0,
-        'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem
+        'has-phenotypes':        false  //this.phenotypes && this.phenotypes.length > 0,
       }
     }
 
