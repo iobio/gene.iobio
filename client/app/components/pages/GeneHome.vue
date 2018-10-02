@@ -1844,6 +1844,9 @@ export default {
         self.$set(self, "selectedVariantNotes", variant.notes);
       }
 
+      let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
+      self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
+
     },
     onApplyVariantInterpretation: function(variant) {
       let self = this;
@@ -1855,6 +1858,9 @@ export default {
       if (variant == self.selectedVariant) {
         self.$set(self, "selectedVariantInterpretation", variant.interpretation);
       }
+
+      let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
+      self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
 
     },
     onFlaggedVariantSelected: function(flaggedVariant) {

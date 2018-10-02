@@ -1711,6 +1711,11 @@ class CohortModel {
     })
   }
 
+  setVariantInterpretation(theGene, theTranscript, variant) {
+    var self = this;
+    this._recacheForFlaggedVariant(theGene, theTranscript, variant);
+  }
+
   addFlaggedVariant(theGene, theTranscript, variant) {
     var self = this;
     var existingVariants = this.flaggedVariants.filter(function(v) {
@@ -1772,8 +1777,10 @@ class CohortModel {
                       && v.ref == variant.ref
                       && v.alt == variant.alt);
         if (matches) {
-          v.isUserFlagged = variant.isUserFlagged;
-          v.filtersPassed = variant.filtersPassed;
+          v.isUserFlagged  = variant.isUserFlagged;
+          v.filtersPassed  = variant.filtersPassed;
+          v.interpretation = variant.interpretation;
+          v.notes          = variant.notes;
         }
       });
       self.getProbandModel()._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, theGene.gene_name, theTranscript);
