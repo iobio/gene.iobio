@@ -316,6 +316,7 @@ main.content
         :isBasicMode="isBasicMode"
         :clearZoom="clearZoom"
         :sampleModel="model"
+        :coverageDangerRegions="model.coverageDangerRegions"
         :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
         :selectedGene="selectedGene"
@@ -472,7 +473,6 @@ export default {
       selectedGene: {},
       selectedTranscript: {},
       analyzedTranscript: {},
-      coverageDangerRegions: null,
       geneRegionStart: null,
       geneRegionEnd: null,
 
@@ -907,7 +907,6 @@ export default {
               self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
               .then(function(data) {
                 self.analyzedTranscript = data.transcript;
-                self.coverageDangerRegions = data.dangerRegions;
                 if (self.$refs.genesCard) {
                   self.$refs.genesCardRef.determineFlaggedGenes();
                 }
@@ -1963,6 +1962,7 @@ export default {
       this.filteredGeneNames = filteredGeneNames;
       if (filterName == 'coverage') {
         this.showLeftPanelForGenes();
+        this.onGeneSelected(this.selectedGene.gene_name);
       }
     },
     onFilterSettingsApplied: function() {
@@ -1976,6 +1976,8 @@ export default {
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
           self.$refs.navRef.onShowFlaggedVariants();
         }
+        self.onGeneSelected(self.selectedGene.gene_name);
+
         if (self.launchedFromClin) {
           self.onSendFiltersToClin();
         }

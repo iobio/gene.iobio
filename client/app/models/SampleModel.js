@@ -44,6 +44,7 @@ class SampleModel {
     this.loadedVariants = null;
     this.variantHistoData = null;
     this.coverage = [[]];
+    this.coverageDangerRegions = [];
 
     this.inProgress = {
       'loadingVariants': false,
@@ -477,6 +478,20 @@ class SampleModel {
     geneObject = geneObject ? geneObject : window.gene;
     transcript = transcript ? transcript : window.selectedTranscript;
     this._promiseCacheData(geneCoverage, CacheHelper.GENE_COVERAGE_DATA, geneObject.gene_name, transcript);
+  }
+
+  determineCoverageDangerRegions(transcript) {
+    let self = this;
+    self.coverageDangerRegions = [];
+    transcript.features
+    .filter( function(feature) {
+        return feature.feature_type == 'CDS' || feature.feature_type == 'UTR';
+    })
+    .forEach(function(feature) {
+      if (feature.danger[self.getRelationship()]) {
+        self.coverageDangerRegions.push(feature);
+      }
+    })
   }
 
 

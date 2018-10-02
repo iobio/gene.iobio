@@ -62,9 +62,9 @@ export default {
       this.medianCoverage            = this.filterModel.geneCoverageMedian;
     },
     apply: function() {
-      this.filterModel.geneCoverageMin         = this.minCoverage;
-      this.filterModel.geneCoverageMean        = this.meanCoverage;
-      this.filterModel.geneCoverageMedian      = this.medianCoverage;
+      this.filterModel.geneCoverageMin         = +this.minCoverage;
+      this.filterModel.geneCoverageMean        = +this.meanCoverage;
+      this.filterModel.geneCoverageMedian      = +this.medianCoverage;
     }
   },
   computed: {

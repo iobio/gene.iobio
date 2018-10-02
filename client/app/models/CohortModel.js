@@ -1365,6 +1365,12 @@ class CohortModel {
       Promise.all(exonPromises).then(function() {
         var sortedExons = self.geneModel._getSortedExonsForTranscript(transcript);
         self.geneModel._setTranscriptExonNumbers(transcript, sortedExons);
+
+        // Keep track of exons in sample that don't meet coverage thresholds.
+        self.getCanonicalModels().forEach(function(model) {
+          model.determineCoverageDangerRegions(transcript);
+        })
+
         resolve({'gene': geneObject, 'transcript': transcript});
       });
     })

@@ -379,6 +379,7 @@ export default {
     sampleModel: null,
     annotationScheme: null,
     classifyVariantSymbolFunc: null,
+    coverageDangerRegions: null,
 
     variantTooltip: null,
     selectedGene: {},
@@ -752,24 +753,6 @@ export default {
     },
     depthVizHeight: function() {
       this.showDepthViz ? 0 : 60;
-    },
-    coverageDangerRegions: function() {
-      let self = this;
-      if (self.selectedTranscript.features) {
-        var regions = [];
-        self.selectedTranscript.features
-        .filter( function(feature) {
-            return feature.feature_type == 'CDS' || feature.feature_type == 'UTR';
-        })
-        .forEach(function(feature) {
-          if (feature.danger[self.sampleModel.getRelationship()]) {
-            regions.push(feature)
-          }
-        })
-        return regions;
-      } else {
-        return [];
-      }
     }
 
   },
