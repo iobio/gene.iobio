@@ -82,7 +82,7 @@
     .gene-link
       display: inline-block
       margin-right: 10px
-      color: $link-color !important
+      color: $app-color !important
       font-size: 13px
 
 
