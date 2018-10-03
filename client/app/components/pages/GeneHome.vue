@@ -847,10 +847,12 @@ export default {
 
     promiseLoadSiteConfig: function() {
       let self = this;
+      var target = window.document.URL.indexOf("dev.gene.iobio") > 0 || window.document.URL.indexOf("localhost") ? 'dev' : 'prod';
+
       return new Promise(function(resolve, reject) {
 
         $.ajax({
-            url: self.globalApp.siteConfigUrl,
+            url: self.globalApp.siteConfigUrl[target],
             type: "GET",
             crossDomain: true,
             dataType: "json",
