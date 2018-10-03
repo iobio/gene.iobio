@@ -2179,7 +2179,7 @@ class SampleModel {
           // add clinVar info to variant if it matches
           if (recs[vcfIter].clinvarAlt == clinVarAlt &&
             recs[vcfIter].clinvarRef == clinVarRef) {
-            me._addClinVarInfoToVariant(recs[vcfIter], clinVars[uid]);
+            me._addClinvarEutilInfoToVariant(recs[vcfIter], clinVars[uid]);
             vcfIter++;
             clinvarIter++;
           } else {
@@ -2264,17 +2264,17 @@ class SampleModel {
   }
 
 
-  _addClinVarInfoToVariant(variant, clinvar) {
+  _addClinvarEutilInfoToVariant(variant, clinvar) {
     var me = this;
-    variant.clinVarUid = clinvar.uid;
+    variant.clinvarUid = clinvar.uid;
 
-    if (!variant.clinVarAccession) {
-      variant.clinVarAccession = clinvar.accession;
+    if (!variant.clinvarAccession) {
+      variant.clinvarAccession = clinvar.accession;
     }
 
-    var clinSigObject = variant.clinVarClinicalSignificance;
+    var clinSigObject = variant.clinvarClinSig;
     if (clinSigObject == null) {
-      variant.clinVarClinicalSignificance = {"none": "0"};
+      variant.clinvarClinSig = {"none": "0"};
     }
 
     var clinSigString = clinvar.clinical_significance.description;
@@ -2284,7 +2284,7 @@ class SampleModel {
       if (clinSigToken != "") {
         // Replace space with underlink
         clinSigToken = clinSigToken.split(" ").join("_").toLowerCase();
-        variant.clinVarClinicalSignificance[clinSigToken] = idx.toString();
+        variant.clinvarClinSig[clinSigToken] = idx.toString();
         idx++;
 
         // Get the clinvar "classification" for the highest ranked clinvar
@@ -2303,9 +2303,9 @@ class SampleModel {
 
 
 
-    var phenotype = variant.clinVarPhenotype;
-    if (phenotype == null) {
-      variant.clinVarPhenotype = {};
+
+    if (variant.clinvarTrait == null) {
+      variant.clinvarTrait = {};
     }
 
     var phTokens = clinvar.trait_set.map(function(d) { return d.trait_name; }).join ('; ')
@@ -2315,7 +2315,7 @@ class SampleModel {
       tokens.forEach(function(phToken) {
         // Replace space with underlink
         phToken = phToken.split(" ").join("_");
-        variant.clinVarPhenotype[phToken.toLowerCase()] = idx.toString();
+        variant.clinvarTrait[phToken.toLowerCase()] = idx.toString();
         idx++;
       });
     }

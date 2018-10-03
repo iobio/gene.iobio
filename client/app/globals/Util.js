@@ -647,13 +647,15 @@ class Util {
       refalt: "",
       exon: "",
       inheritance: "",
-      clinvarSig: "",
-      clinvarSigSummary: "",
+
+      clinvarClinSig: "",
+      clinvarTrait: "",
+      clinvarUid: "",
       clinvarUrl: "",
+
+      clinvarSigSummary: "",
       clinvarLinks: [],
       clinvarLinkKnownVariants: "",
-      phenotype: "",
-      phenotypeSimple: "",
       zygosity: "",
       af1000G: "",
       afgnomAD: "",
@@ -696,71 +698,9 @@ class Util {
 
     info.inheritance = translator.getInheritanceLabel(variant.inheritance);
 
-    for (var key in variant.clinVarClinicalSignificance) {
-      if (key != 'none' && key != 'undefined' ) {
-        if (!isEduMode || (key.indexOf("uncertain_significance") >= 0 || key.indexOf("pathogenic") >= 0)) {
-          if (info.clinvarSig.length > 0 ) {
-              info.clinvarSig += ", ";
-          }
-          info.clinvarSig += key.split("_").join(" ");
-        }
-      }
-    }
 
-    for (var key in variant.clinVarPhenotype) {
-      if (key != 'not_specified'  && key != 'undefined') {
-        if (info.phenotype.length > 0) {
-            info.phenotype += ", ";
-        }
-        info.phenotype += key.split("_").join(" ").split("\\x2c").join(", ");
-      }
-    }
+    me.formatClinvarDisplay(variant, info, translator, isEduMode);
 
-
-    if (info.clinvarSig != null && info.clinvarSig != "") {
-      if (variant.clinVarUid != null && variant.clinVarUid != '') {
-        info.clinvarUrl = 'http://www.ncbi.nlm.nih.gov/clinvar/variation/' + variant.clinVarUid;
-      } else if (variant.clinvarSubmissions != null && variant.clinvarSubmissions.length > 0) {
-        var clinsigUniq = {};
-        for (var idx = 0; idx < variant.clinvarSubmissions.length; idx++) {
-          var submission = variant.clinvarSubmissions[idx];
-          submission.clinsig.split(",").forEach(function(clinsig) {
-            clinsigUniq[clinsig] = "";
-          })
-          var accessions = submission.accession.split(",");
-          var clinsigs   = submission.clinsig.split(",");
-          var phenotypes = submission.phenotype.split(",");
-          for (var i = 0; i < accessions.length; i++) {
-            var accessionSingle = accessions[i];
-            var clinsigSingle   = clinsigs.length > i ? clinsigs[i] : "?";
-            var phenotype       = phenotypes.length > i ? phenotypes[i].split("_").join(" ").split("\\x2c") : null;
-
-            info.clinvarUrl   = 'http://www.ncbi.nlm.nih.gov/clinvar/' + accessionSingle;
-
-            let clinvarLink =  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>'
-              + clinsigSingle.split("_").join(" ")
-              + ( phenotype  ? ': ' + phenotype : '') + '</a>';
-
-            info.clinvarLinks.push({'key': accessionSingle, 'link': clinvarLink, 'icon': 'clinvar', 'significance': translator.clinvarMap[clinsigSingle].clazz});
-
-            info.clinvarLinkKnownVariants += "<span style='clear:both' class='tooltip-clinsig-link" + clinsigSingle + "'>";
-            info.clinvarLinkKnownVariants += '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
-
-          }
-
-        };
-        info.clinvarSigSummary = "";
-        for (var clinsig in clinsigUniq) {
-          var style = 'display:inline-block;'
-          if (info.clinvarSigSummary.length > 0) {
-            style += 'padding-left:5px';
-          }
-          info.clinvarSigSummary += "<span style='" + style +"' class='tooltip-clinsig-link" + clinsig + "'>";
-          info.clinvarSigSummary += "<span style='float:left'>" + clinsig.split("_").join(" ") + "</span>";
-          info.clinvarSigSummary += "</span>";
-        }
-      }
-    }
 
     if (variant.zygosity && variant.zygosity.toLowerCase() == 'het') {
       info.zygosity = "Heterozygous";
@@ -932,6 +872,91 @@ class Util {
     info.filtersPassed = variant.filtersPassed && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
 
     return info;
+  }
+
+  formatClinvarDisplay(variant, info, translator, isEduMode) {
+    let me = this;
+
+
+
+
+
+    /*
+    *  Clinvar submissions come from vcf
+    */
+    if (variant.clinvarSubmissions != null && variant.clinvarSubmissions.length > 0) {
+      var clinsigUniq = {};
+      for (var idx = 0; idx < variant.clinvarSubmissions.length; idx++) {
+        var submission = variant.clinvarSubmissions[idx];
+        submission.clinsig.split(",").forEach(function(clinsig) {
+          clinsigUniq[clinsig] = "";
+        })
+        var accessions = submission.accession.split(",");
+        var clinsigs   = submission.clinsig.split(",");
+        var phenotypes = submission.phenotype.split(",");
+        info.clinvarTrait = phenotypes;
+        for (var i = 0; i < accessions.length; i++) {
+          var accessionSingle = accessions[i];
+          var clinsigSingle   = clinsigs.length > i ? clinsigs[i] : "?";
+          var phenotype       = phenotypes.length > i ? phenotypes[i].split("_").join(" ").split("\\x2c") : null;
+
+          info.clinvarUrl   = 'http://www.ncbi.nlm.nih.gov/clinvar/' + accessionSingle;
+
+          let clinvarLink =  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>'
+            + clinsigSingle.split("_").join(" ")
+            + ( phenotype  ? ': ' + phenotype : '') + '</a>';
+
+          info.clinvarLinks.push({'key': accessionSingle, 'link': clinvarLink, 'icon': 'clinvar', 'significance': translator.clinvarMap[clinsigSingle].clazz});
+
+          info.clinvarLinkKnownVariants += "<span style='clear:both' class='tooltip-clinsig-link" + clinsigSingle + "'>";
+          info.clinvarLinkKnownVariants += '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
+
+        }
+
+      };
+      info.clinvarSigSummary = "";
+      for (var clinsig in clinsigUniq) {
+        var style = 'display:inline-block;'
+        if (info.clinvarSigSummary.length > 0) {
+          style += 'padding-left:5px';
+        }
+        info.clinvarSigSummary += "<span style='" + style +"' class='tooltip-clinsig-link" + clinsig + "'>";
+        info.clinvarSigSummary += "<span style='float:left'>" + clinsig.split("_").join(" ") + "</span>";
+        info.clinvarSigSummary += "</span>";
+      }
+    } else {
+
+      /*
+      * clinvar eutils will have clinvarClinicalSignificance and clinvarTrait and uid
+      */
+      for (var key in variant.clinvarClinSig) {
+        if (key != 'none' && key != 'undefined' ) {
+          if (!isEduMode || (key.indexOf("uncertain_significance") >= 0 || key.indexOf("pathogenic") >= 0)) {
+            if (info.clinvarClinSig.length > 0 ) {
+                info.clinvarClinSig += ", ";
+            }
+            info.clinvarClinSig += key.split("_").join(" ");
+          }
+        }
+      }
+      for (var key in variant.clinvarTrait) {
+        if (key != 'not_specified'  && key != 'undefined') {
+          if (info.clinvarTrait.length > 0) {
+              info.clinvarTrait += ", ";
+          }
+          info.clinvarTrait += key.split("_").join(" ").split("\\x2c").join(", ");
+        }
+      }
+      if (variant.clinvarUid != null && variant.clinvarUid != '') {
+        info.clinvarUid = variant.clinvarUid;
+        info.clinvarUrl = 'http://www.ncbi.nlm.nih.gov/clinvar/variation/' + variant.clinvarUid;
+        let clinvarLink =  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>'
+            + info.clinvarClinSig
+            + ( info.clinvarTrait ? ' ' + info.clinvarTrait : '') + '</a>';
+        info.clinvarLinks.push({'key': info.clinvarUid, 'link': clinvarLink, 'icon': 'clinvar', 'significance': variant.clinvar});
+      }
+
+    }
   }
 }
 export default Util

@@ -233,9 +233,9 @@ export default class VariantTooltip {
       for (let clinsig in clinsigUniq) {
         injectClinvarBadge(clinsig, clinsig, 'translate(0,0)');
       }
-    } else if (variant.clinVarClinicalSignificance) {
-      for (let clinsig in variant.clinVarClinicalSignificance) {
-        var key = variant.clinVarClinicalSignificance[clinsig];
+    } else if (variant.clinvarClinSig) {
+      for (let clinsig in variant.clinvarClinSig) {
+        var key = variant.clinvarClinSig[clinsig];
         injectClinvarBadge(clinsig, key);
       }
     }
@@ -275,22 +275,24 @@ export default class VariantTooltip {
     if (me.isEduMode) {
       if (info.clinvarSig != "") {
         clinvarSimpleRow1 = me._tooltipWideHeadingRow('Known from research', info.clinvarSig, '2px');
-        if (info.phenotype) {
-          clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('', info.phenotype, null, 'tooltip-clinvar-pheno');
+        if (info.clinvarTrait) {
+          clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('', info.clinvarTrait, null, 'tooltip-clinvar-pheno');
         }
       }
     }
 
     if (info.clinvarSig != "") {
-      if (variant.clinVarUid != null && variant.clinVarUid != '') {
-        clinvarSimpleRow1 = me._tooltipWideHeadingSecondRow('ClinVar', '<span class="tooltip-clinsig-link0">' + info.clinvarSig + '</span>', null);
-        if (info.phenotype) {
-          clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('&nbsp;', info.phenotype, null, 'tooltip-clinvar-pheno');
+      if (variant.clinvarUid != null && variant.clinvarUid != '') {
+        clinvarSimpleRow1 = me._tooltipWideHeadingSecondRow('ClinVar', '<span class="tooltip-clinsig-link0">' + info.clinvarClinSig + '</span>', null);
+        if (info.clinvarTrait) {
+          clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('&nbsp;', info.clinvarTrait, null, 'tooltip-clinvar-pheno');
         }
 
       } else if (variant.clinvarSubmissions != null && variant.clinvarSubmissions.length > 0) {
         clinvarSimpleRow1 = me._tooltipSimpleClinvarSigRow('ClinVar', info.clinvarSigSummary );
-        clinvarSimpleRow2 = me._tooltipHeaderRow(info.phenotypeSimple != '' ? info.phenotypeSimple : info.phenotype, '', '', '', '', null, 'style=padding-top:0px');
+        if (info.clinvarTrait) {
+          clinvarSimpleRow2 = me._tooltipHeaderRow(info.clinvarTrait, '', '', '', '', null, 'style=padding-top:0px');
+        }
       }
     }
 

@@ -2068,10 +2068,11 @@ exports._parseSnpEffAnnot = function(annotToken, annot, geneObject, selectedTran
 
 exports.getClinvarAnnots = function() {
   return   {
+    clinvarUid: null,
     clinvarSubmissions: [],
-    clinVarClinicalSignificance: {},
-    clinVarPhenotype:  {},
-    clinVarAccession: {},
+    clinvarClinSig: {},
+    clinvarTrait:  {},
+    clinvarAccession: {},
     clinvarRank: null,
     clinvar: null
   };
@@ -2115,7 +2116,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
               }
               submission.clinsig += submission.clinsig.length > 0 ? "," : "";
               submission.clinsig += clinvarToken;
-              result.clinVarClinicalSignificance[clinvarToken] = idx.toString();
+              result.clinvarClinSig[clinvarToken] = idx.toString();
             }
 
         })
@@ -2130,7 +2131,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
         var submission = result.clinvarSubmissions[idx];
         submission.phenotype = pheno;
 
-        result.clinVarPhenotype[pheno] = idx.toString();
+        result.clinvarTrait[pheno] = idx.toString();
         idx++;
       })
     } else if (annotToken.indexOf("CLNACC=") == 0) {
@@ -2141,7 +2142,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
         var submission = result.clinvarSubmissions[idx];
         submission.accession = accessionId;
 
-          result.clinVarAccession[accessionId] = idx.toString();
+          result.clinvarAccession[accessionId] = idx.toString();
           idx++;
       })
     }

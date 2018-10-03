@@ -966,13 +966,26 @@ class CohortModel {
     let self = this;
     var formatClinvarKey = function(variant) {
       var delim = '^^';
-      return variant.chrom + delim + variant.ref + delim + variant.alt + delim + variant.start + delim + variant.end;
+      return variant.chrom + delim + variant.ref + delim + variant.alt + delim + variant.start + delim  + variant.end;
     }
 
     var formatClinvarThinVariant = function(key) {
       var delim = '^^';
       var tokens = key.split(delim);
-      return {'chrom': tokens[0], 'ref': tokens[1], 'alt': tokens[2], 'start': tokens[3], 'end': tokens[4]};
+      return {'chrom': tokens[0], 'ref': tokens[1], 'alt': tokens[2], 'start': tokens[3], 'clinvarStart': tokens[4], 'end': tokens[4]};
+    }
+
+    var formatClinvarCoord = function(variant) {
+      return {'chrom':        variant.chrom,
+              'ref':          variant.ref,
+              'alt':          variant.alt,
+              'start':        variant.start,
+              'end':          variant.end,
+              'clinvarRef':   variant.clinvarRef,
+              'clinvarAlt':   variant.clinvarAlt,
+              'clinvarStart': variant.clinvarStart
+            };
+
     }
 
 
@@ -1005,7 +1018,7 @@ class CohortModel {
         if (vcfData) {
           if (!vcfData.loadState['clinvar'] && rel != 'known-variants') {
            vcfData.features.forEach(function(feature) {
-              uniqueVariants[formatClinvarKey(feature)] = true;
+              uniqueVariants[formatClinvarKey(feature)] = formatClinvarCoord(feature);
            })
           }
         }
@@ -1015,7 +1028,7 @@ class CohortModel {
       } else {
 
         for (var key in uniqueVariants) {
-          unionVcfData.features.push(formatClinvarThinVariant(key));
+          unionVcfData.features.push(uniqueVariants[key]);
         }
 
         var refreshVariantsFunction = self.globalApp.isClinvarOffline || self.globalApp.clinvarSource == 'vcf'
@@ -1432,12 +1445,13 @@ class CohortModel {
             if (trioFbData[rel]) {
               trioFbData[rel].features.forEach(function (fbVariant) {
                 if (fbVariant.source) {
-                  fbVariant.source.clinVarUid                  = fbVariant.clinVarUid;
-                  fbVariant.source.clinVarClinicalSignificance = fbVariant.clinVarClinicalSignificance;
-                  fbVariant.source.clinVarAccession            = fbVariant.clinVarAccession;
+                  fbVariant.source.clinvarUid                  = fbVariant.clinvarUid;
+                  fbVariant.source.clinvarClinSig              = fbVariant.clinvarClinSig;
+                  fbVariant.source.clinvarTrait                = fbVariant.clinvarTrait;
+
+                  fbVariant.source.clinvarAccession            = fbVariant.clinvarAccession;
                   fbVariant.source.clinvarRank                 = fbVariant.clinvarRank;
                   fbVariant.source.clinvar                     = fbVariant.clinvar;
-                  fbVariant.source.clinVarPhenotype            = fbVariant.clinVarPhenotype;
                   fbVariant.source.clinvarSubmissions          = fbVariant.clinvarSubmissions;
                 }
               });

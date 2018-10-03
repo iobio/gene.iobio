@@ -22,7 +22,7 @@ class FeatureMatrixModel {
 
       this.matrixRows = [
         {name:'Flagged'                      , id:'isFlagged',      order:0, index:0, match: 'exact', attribute: 'filtersPassed',                    map: this.getTranslator().filtersPassedMap },
-        {name:'Pathogenicity - ClinVar'      , id:'clinvar',        order:1, index:1, match: 'exact', attribute: 'clinVarClinicalSignificance',      map: this.getTranslator().clinvarMap },
+        {name:'Pathogenicity - ClinVar'      , id:'clinvar',        order:1, index:1, match: 'exact', attribute: 'clinvarClinSig',      map: this.getTranslator().clinvarMap },
         {name:'Impact (VEP)'                 , id:'impact',         order:2, index:2, match: 'exact', attribute: this.globalApp.impactFieldToColor,  map: this.getTranslator().impactMap},
         {name:'Most severe impact (VEP)'     , id:'highest-impact', order:3, index:3, match: 'exact', attribute: this.globalApp.impactFieldToFilter, map: this.getTranslator().highestImpactMap},
         {name:'Inheritance Mode'             , id:'inheritance',    order:4, index:4, match: 'exact', attribute: 'inheritance',                      map: this.getTranslator().inheritanceMap},
