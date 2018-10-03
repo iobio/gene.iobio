@@ -813,6 +813,12 @@ class CohortModel {
         return isTarget && !isHomRef && inRegion && passesModelFilter;
       });
 
+      // For MyGene2 basic mode, we filter the variants to only show those that are clinvar pathogenic rare
+      // variants
+      if (self.isBasicMode) {
+        filteredVariants = model.filterVariants(filteredVariants, self.filterModel.getFilterObject(),self.filterModel.regionStart, self.filterModel.regionStart, true);
+      }
+
       var pileupObject = model._pileupVariants(filteredVariants.features, start, end);
       filteredVariants.maxLevel = pileupObject.maxLevel + 1;
       filteredVariants.featureWidth = pileupObject.featureWidth;

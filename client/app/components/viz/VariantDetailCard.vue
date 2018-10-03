@@ -350,7 +350,7 @@
 
 
 
-      <div v-if="isBasicMode" style="margin-left: 10px;float:left;min-width:220px;">
+      <div v-if="isBasicMode" style="margin-left: 10px;float:left;width:33%;">
 
           <v-flex v-if="isBasicMode">
             <v-layout  row>
@@ -467,8 +467,8 @@
           </v-flex>
           <v-flex >
             <v-layout row  v-if="info.clinvarLinks.length > 0">
-               <v-flex xs3  class="field-label">Clinvar</v-flex>
-               <v-flex xs9  class="field-value">
+               <v-flex :xs3="!isBasicMode" :xs4="isBasicMode"  class="field-label">Clinvar</v-flex>
+               <v-flex :xs9="!isBasicMode" :xs8="isBasicMode"   class="field-value">
                 <span class="clinvar-submission" v-for="clinvarLink in info.clinvarLinks"
                  :key="clinvarLink.key">
                    <app-icon width="14" height="14" icon="clinvar" :significance="clinvarLink.significance">
