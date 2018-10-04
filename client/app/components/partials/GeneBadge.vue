@@ -385,7 +385,11 @@ export default {
       return clazz;
     },
     hasFilteredVariants: function(filterName) {
-      return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.badges[filterName].length > 0;
+      return this.gene
+        && this.gene.dangerSummary
+        && this.gene.dangerSummary.badges
+        && this.gene.dangerSummary.badges[filterName]
+        && this.gene.dangerSummary.badges[filterName].length > 0;
     },
     hasCoverageProblem: function() {
       return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem;

@@ -1104,9 +1104,9 @@ export default {
       let self = this;
       if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
         if (self.$refs.navRef) {
-          setTimeout(function() {
+          self.$nextTick(function() {
             self.$refs.navRef.onShowFlaggedVariants();
-          }, 3000);
+          });
         }
       }
     },
@@ -1116,9 +1116,9 @@ export default {
       if (self.geneModel && self.geneModel.sortedGeneNames.length > 0) {
         if (self.$refs.navRef) {
           if (!self.isLeftDrawerOpen) {
-            setTimeout(function() {
+            self.$nextTick(function() {
               self.$refs.navRef.onShowGenes();
-            }, 2000);
+            });
           } else if (self.$refs.navRef) {
             self.$refs.navRef.activeTab = 0;
           }
