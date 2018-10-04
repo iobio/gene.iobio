@@ -115,7 +115,8 @@ class GeneModel {
         resolve();
       })
       .catch(function(error) {
-        reject(error);
+        console.log(error);
+        resolve();
       })
 
 
@@ -859,7 +860,7 @@ class GeneModel {
 
 
   isKnownGene(geneName) {
-    return this.allKnownGeneNames[geneName] || this.allKnownGeneNames[geneName.toUpperCase()]
+    return this.allKnownGeneNames[geneName] != null || this.allKnownGeneNames[geneName.toUpperCase()] != null;
   }
 
   getKnownGene(geneName) {

@@ -518,6 +518,7 @@
                <v-flex xs3 class="field-label revel">REVEL</v-flex>
                <v-flex xs9 :class="getRevelClass(info)">
                   {{ info.revel }}
+                  <info-popup name="revel"></info-popup>
                </v-flex>
             </v-layout>
           </v-flex>
@@ -602,12 +603,14 @@
 import Vue from 'vue'
 import AppIcon from "../partials/AppIcon.vue"
 import VariantNotesMenu from "../partials/VariantNotesMenu.vue"
+import InfoPopup from "../partials/InfoPopup.vue"
 
 export default {
   name: 'variant-detail-card',
   components: {
     AppIcon,
-    VariantNotesMenu
+    VariantNotesMenu,
+    InfoPopup
   },
   props: {
     isEduMode: null,

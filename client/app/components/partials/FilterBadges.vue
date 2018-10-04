@@ -1,8 +1,7 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
-.dialog__content.dialog__content__active
-  height: initial
+
 
 #gene-count-badges
   display: inline-block
