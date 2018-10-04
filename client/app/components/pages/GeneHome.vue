@@ -2410,8 +2410,10 @@ export default {
 
                 var dp = self.cacheHelper.promiseGetData(theKey)
                 .then(function(data) {
-                  self.geneModel.setDangerSummary(data.geneName.toUpperCase(), data);
-                  genesToAdd.push(data.geneName);
+                  if (data && data.geneName) {
+                    self.geneModel.setDangerSummary(data.geneName.toUpperCase(), data);
+                    genesToAdd.push(data.geneName);
+                  }
                 })
                 summarizePromises.push(dp);
               }
