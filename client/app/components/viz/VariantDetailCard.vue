@@ -521,18 +521,6 @@
                </v-flex>
             </v-layout>
           </v-flex>
-          <v-flex   v-if="info.polyphen != '' && !isBasicMode">
-            <v-layout row class="" >
-               <v-flex xs3 class="field-label">Polyphen</v-flex>
-               <v-flex xs9 :class="getPolyphenClass(selectedVariant)">{{ info.polyphen }}</v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex  v-if="info.sift != '' && !isBasicMode" >
-            <v-layout row class="">
-               <v-flex xs3 class="field-label">SIFT</v-flex>
-               <v-flex xs9 :class="getSiftClass(selectedVariant)">{{ info.sift }}</v-flex>
-            </v-layout>
-          </v-flex>
           <v-flex  v-if="info.regulatory != '' & !isBasicMode">
             <v-layout row>
                <v-flex xs3 class="field-label">Regulatory</v-flex>
