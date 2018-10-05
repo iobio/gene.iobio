@@ -69,6 +69,7 @@
        :selectedGene="selectedGene"
        :isBasicMode="isBasicMode"
        :isEduMode="isEduMode"
+       :launchedFromClin="launchedFromClin"
        @gene-selected="onGeneSelected"
        @remove-gene="onRemoveGene"
       >
@@ -91,6 +92,7 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     isFullAnalysis: null,
+    launchedFromClin: null,
     analyzeAllInProgress: null,
     callAllInProgress: null,
     geneNames: null,

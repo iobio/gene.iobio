@@ -20,7 +20,7 @@ main.content
   margin-right: auto
   text-align: center
   width: 400px
-  height: 80px
+  height: 90px
   padding-top: 15px
 
 
@@ -146,6 +146,7 @@ main.content
          :isEduMode="isEduMode"
          :isBasicMode="isBasicMode"
          :isFullAnalysis="isFullAnalysis"
+         :launchedFromClin="launchedFromClin"
          :tourNumber="tourNumber"
          :geneModel="geneModel"
          :selectedGene="selectedGene"

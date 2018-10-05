@@ -332,6 +332,7 @@ div.container.small
            :selectedGene="selectedGene"
            :isEduMode="isEduMode"
            :isBasicMode="isBasicMode"
+           :launchedFromClin="launchedFromClin"
            @gene-selected="onGeneSelected"
            @remove-gene="onRemoveGene"
           >
@@ -362,6 +363,7 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     isFullAnalysis: null,
+    launchedFromClin: null,
     tourNumber: null,
     geneNames: null,
     genesInProgress: null,

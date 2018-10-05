@@ -361,7 +361,7 @@ nav.toolbar
           </v-text-field>
           <typeahead v-model="lookupGene"
           force-select v-bind:limit="typeaheadLimit" match-start
-          target="#search-gene-name" :data="geneModel.allKnownGenes"
+          target="#search-gene-name" :data="knownGenes"
           item-key="gene_name"/>
         </span>
 
@@ -370,7 +370,7 @@ nav.toolbar
 
         <genes-menu
          ref="genesMenuRef"
-         v-if="!isEduMode && !isBasicMode"
+         v-if="!launchedFromClin && !isEduMode && !isBasicMode"
          :buttonIcon="`edit`"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
@@ -527,6 +527,7 @@ nav.toolbar
              :isEduMode="isEduMode"
              :isBasicMode="isBasicMode"
              :isFullAnalysis="isFullAnalysis"
+             :launchedFromClin="launchedFromClin"
              :geneModel="geneModel"
              :selectedGene="selectedGene"
              :filteredGeneNames="filteredGeneNames"
@@ -795,7 +796,7 @@ export default {
   },
   watch: {
     lookupGene: function(a, b) {
-      if (this.selectedGene) {
+      if (this.selectedGene && this.lookupGene && this.lookupGene.gene_name) {
         this.geneEntered = this.lookupGene.gene_name;
         this.$emit("input", this.lookupGene.gene_name);
       }
@@ -911,6 +912,16 @@ export default {
 
   },
   computed:  {
+    knownGenes: function() {
+      let self = this;
+      if (self.launchedFromClin) {
+        return self.geneModel.sortedGeneNames.map(function(geneName) {
+          return {gene_name: geneName};
+        });
+      } else {
+        return self.geneModel.allKnownGenes;
+      }
+    },
     clazzAttention: function() {
       if (this.bringAttention && this.bringAttention == 'gene' && this.lookupGene && Object.keys(this.lookupGene).length == 0) {
         return 'attention';
