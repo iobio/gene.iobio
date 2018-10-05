@@ -102,6 +102,7 @@ main.content
       :filteredGeneNames="filteredGeneNames"
       :activeFilterName="activeFilterName"
       :launchedFromClin="launchedFromClin"
+      :isClinFrameVisible="isClinFrameVisible"
       :isFullAnalysis="isFullAnalysis"
       :bringAttention="bringAttention"
       @input="onGeneNameEntered"
@@ -469,8 +470,9 @@ export default {
     return {
       greeting: 'gene.iobio',
 
-      launchedFromClin: false,
-      isFullAnalysis:  false,
+      launchedFromClin:   false,
+      isFullAnalysis:     false,
+      isClinFrameVisible: false,
 
       launchedFromHub: false,
       launchedWithUrlParms: false,
@@ -1103,7 +1105,7 @@ export default {
 
     showLeftPanelWhenFlaggedVariants: function() {
       let self = this;
-      if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
+      if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen && !self.paramLaunchedFromClin) {
         if (self.$refs.navRef) {
           self.$nextTick(function() {
             self.$refs.navRef.onShowFlaggedVariants();
@@ -1116,7 +1118,7 @@ export default {
       let self = this;
       if (self.geneModel && self.geneModel.sortedGeneNames.length > 0) {
         if (self.$refs.navRef) {
-          if (!self.isLeftDrawerOpen) {
+          if (!self.isLeftDrawerOpen && !self.paramLaunchedFromClin) {
             self.$nextTick(function() {
               self.$refs.navRef.onShowGenes();
             });
@@ -2205,6 +2207,8 @@ export default {
 
       var clinObject = JSON.parse(event.data);
 
+      this.isClinFrameVisible = clinObject.isFrameVisible;
+
       if (clinObject.type == 'apply-genes' && !self.isFullAnalysis) {
         let genesString = clinObject.genes && Array.isArray(clinObject.genes) ? clinObject.genes.join(" ") : "";
         let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
@@ -2235,6 +2239,18 @@ export default {
           self.setDataFullAnalysisFromClin(clinObject);
         }
 
+      } else if (clinObject.type == 'show') {
+        if (self.cohortModel && self.cohortModel.isLoaded) {
+          setTimeout(function() {
+            if (self.cohortModel.flaggedVariants.length > 0) {
+              // When all variants have been imported
+              self.onFlaggedVariantsImported();
+              self.$refs.navRef.onShowFlaggedVariants();
+            } else {
+              self.showLeftPanelForGenes();
+            }
+          }, 1000)
+        }
       } else if (clinObject.type == 'show-tooltip') {
         if (clinObject.task.key == 'genes-menu') {
           if (self.$refs.navRef && self.$refs.navRef.$refs.genesMenuRef) {
@@ -2463,11 +2479,8 @@ export default {
         function() {
           self.cohortModel.importFlaggedVariants('json', clinObject.variants,
           function() {
-            // When all variants have been imported
             self.onFlaggedVariantsImported();
             self.$refs.navRef.onShowFlaggedVariants();
-
-
           },
           function() {
             // When analyzeSubset and variants have been cached
@@ -2517,10 +2530,10 @@ export default {
         },
         function() {
           self.onShowSnackbar({message:  self.cohortModel.flaggedVariants.length + ' variants imported.', timeout: 3000})
-          self.onFlaggedVariantsImported();
-          if (fileType != 'json') {
-            self.$refs.navRef.onShowFlaggedVariants();
-          }
+            self.onFlaggedVariantsImported();
+            if (fileType != 'json') {
+              self.$refs.navRef.onShowFlaggedVariants();
+            }
         })
       })
       .catch(function(error) {

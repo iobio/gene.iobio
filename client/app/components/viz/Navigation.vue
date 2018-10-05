@@ -522,7 +522,6 @@ nav.toolbar
 
             <genes-panel
              style="margin: 15px 10px 10px 10px"
-             v-if="geneModel && (geneModel.geneNames.length > 0  || isEduMode)"
              ref="genesPanelRef"
              :isEduMode="isEduMode"
              :isBasicMode="isBasicMode"
@@ -549,7 +548,6 @@ nav.toolbar
           <v-tab-item>
 
             <flagged-variants-card
-             v-if="leftDrawerContents == 'flagged-variants'"
              ref="flaggedVariantsRef"
              :isEduMode="isEduMode"
              :isBasicMode="isBasicMode"
@@ -769,6 +767,7 @@ export default {
     activeFilterName: null,
     launchedFromClin: null,
     isFullAnalysis: null,
+    isClinFrameVisible: null,
     bringAttention: null
   },
   data () {
@@ -782,7 +781,6 @@ export default {
       leftDrawer: self.forMyGene2  ? true : false,
       rightDrawer: false,
 
-      leftDrawerContents: "flagged-variants",
       showLegendMenu: false,
       showDisclaimer: false,
       showVersion: false,
@@ -846,18 +844,31 @@ export default {
       this.$emit("on-start-search-genes");
     },
     onVariants: function() {
-      this.leftDrawerContents = "flagged-variants";
+      let self = this;
       this.activeTab = 1;
-      this.leftDrawer = true;
+      self.$nextTick(function() {
+        if (self.isClinFrameVisible) {
+          self.leftDrawer = true;
+        }
+      })
     },
     onShowFlaggedVariants: function() {
-      this.leftDrawerContents = "flagged-variants";
+      let self = this;
       this.activeTab = 1;
-      this.leftDrawer = true;
+      this.$nextTick(function() {
+        if (self.isClinFrameVisible) {
+          self.leftDrawer = true;
+        }
+      })
     },
     onShowGenes: function() {
+      let self = this;
       this.activeTab = 0;
-      this.leftDrawer = true;
+      this.$nextTick(function() {
+        if (self.cohortModel.isClinFrameVisible) {
+          self.leftDrawer = true;
+        }
+      })
     },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)
