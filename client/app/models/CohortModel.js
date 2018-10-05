@@ -2017,118 +2017,120 @@ class CohortModel {
       }
 
 
-
-      me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), geneToAltTranscripts, false, false)
-      .then(function() {
-        if (Object.keys(genesToAnalyze.call).length > 0) {
-          return me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.call), geneToAltTranscripts, true, false)
-        } else {
-          return Promise.resolve();
-        }
-      })
-      .then(function() {
-
-        // Get all of the cached vcf data
-        let dataPromises = [];
-        for (let geneName in intersectedGenes) {
-
-          var uniqueTranscripts = {};
-          intersectedGenes[geneName].forEach(function(importedVariant) {
-            uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
-          })
-
-          for (var transcriptId in uniqueTranscripts) {
-            let dataPromise =  new Promise(function(resolve, reject) {
-
-              var geneObject = me.geneModel.geneObjects[geneName];
-              var transcript = uniqueTranscripts[transcriptId];
-              var importedVariants = intersectedGenes[geneName];
-
-              me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
-              .then(function(data) {
-
-                if (data == null || data.vcfData == null || data.vcfData.features == null) {
-                  var msg = "Unable to get variant vcf data for " + geneObject.gene_name + " " + transcript.transcript_id;
-                  console.log(msg);
-                  resolve();
-                } else if (importedVariants.length > 0) {
-
-                  // Refresh imported variant records with real variants
-                  importedVariants.forEach(function(importedVariant) {
-                    var matchingVariants = data.vcfData.features.filter(function(v) {
-                      return v.start == importedVariant.start
-                       && v.ref      == importedVariant.ref
-                       && v.alt      == importedVariant.alt;
-                    })
-                    if (matchingVariants.length > 0) {
-                      matchingVariants[0].isImported = true;
-                      var geneObject = importedVariant.gene;
-
-                      var transcript = importedVariant.transcript;
-                      var isUserFlagged = importedVariant.isUserFlagged;
-                      importedVariant = $.extend(importedVariant, matchingVariants[0]);
-                      importedVariant.isFlagged = true;
-                      importedVariant.isImported = true;
-                      importedVariant.isUserFlagged = isUserFlagged;
-                      importedVariant.isProxy = false;
-                      importedVariant.gene = geneObject;
-                      importedVariant.transcript = transcript;
-
-                    } else {
-                      importedVariant.isProxy = true;
-                      importedVariant.notFound = true;
-                      console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
-                    }
-                  })
-
-                  // Make sure that the imported variants are re-assessed to determine the filters they
-                  // pass.  We need this so that the imported variants show up in the left flagged variants
-                  // side panel
-                  me.filterModel.flagImportedVariants(importedVariants);
-
-                  // We need to recache the variants since the isUserFlag has been established
-                  me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
-                  .then(function() {
-
-                    // Now recalc the badge counts on danger summary to reflect imported variants
-                    me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
-                    .then(function(dangerSummary) {
-                      dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
-                      me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
-
-                      resolve();
-                    });
-                  })
-                }
-              })
-              .catch(function(error) {
-                resolve();
-              })
-
-            })
-            dataPromises.push(dataPromise);
+      if (me.isLoaded) {
+        me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), geneToAltTranscripts, false, false)
+        .then(function() {
+          if (Object.keys(genesToAnalyze.call).length > 0) {
+            return me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.call), geneToAltTranscripts, true, false)
+          } else {
+            return Promise.resolve();
           }
-        }
-
-        // Finished with syncing imported variants for all imported genes.
-        Promise.all(dataPromises)
+        })
         .then(function() {
 
-          // Second callback when every gene has been analyzed
-          if (callbackPostAnalyze) {
-            callbackPostAnalyze();
+          // Get all of the cached vcf data
+          let dataPromises = [];
+          for (let geneName in intersectedGenes) {
+
+            var uniqueTranscripts = {};
+            intersectedGenes[geneName].forEach(function(importedVariant) {
+              uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
+            })
+
+            for (var transcriptId in uniqueTranscripts) {
+              let dataPromise =  new Promise(function(resolve, reject) {
+
+                var geneObject = me.geneModel.geneObjects[geneName];
+                var transcript = uniqueTranscripts[transcriptId];
+                var importedVariants = intersectedGenes[geneName];
+
+                me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
+                .then(function(data) {
+
+                  if (data == null || data.vcfData == null || data.vcfData.features == null) {
+                    var msg = "Unable to get variant vcf data for " + geneObject.gene_name + " " + transcript.transcript_id;
+                    console.log(msg);
+                    resolve();
+                  } else if (importedVariants.length > 0) {
+
+                    // Refresh imported variant records with real variants
+                    importedVariants.forEach(function(importedVariant) {
+                      var matchingVariants = data.vcfData.features.filter(function(v) {
+                        return v.start == importedVariant.start
+                         && v.ref      == importedVariant.ref
+                         && v.alt      == importedVariant.alt;
+                      })
+                      if (matchingVariants.length > 0) {
+                        matchingVariants[0].isImported = true;
+                        var geneObject = importedVariant.gene;
+
+                        var transcript = importedVariant.transcript;
+                        var isUserFlagged = importedVariant.isUserFlagged;
+                        importedVariant = $.extend(importedVariant, matchingVariants[0]);
+                        importedVariant.isFlagged = true;
+                        importedVariant.isImported = true;
+                        importedVariant.isUserFlagged = isUserFlagged;
+                        importedVariant.isProxy = false;
+                        importedVariant.gene = geneObject;
+                        importedVariant.transcript = transcript;
+
+                      } else {
+                        importedVariant.isProxy = true;
+                        importedVariant.notFound = true;
+                        console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
+                      }
+                    })
+
+                    // Make sure that the imported variants are re-assessed to determine the filters they
+                    // pass.  We need this so that the imported variants show up in the left flagged variants
+                    // side panel
+                    me.filterModel.flagImportedVariants(importedVariants);
+
+                    // We need to recache the variants since the isUserFlag has been established
+                    me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
+                    .then(function() {
+
+                      // Now recalc the badge counts on danger summary to reflect imported variants
+                      me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
+                      .then(function(dangerSummary) {
+                        dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
+                        me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
+
+                        resolve();
+                      });
+                    })
+                  }
+                })
+                .catch(function(error) {
+                  resolve();
+                })
+
+              })
+              dataPromises.push(dataPromise);
+            }
           }
 
-        })
-        .catch(function(error) {
-          var msg = "An error occurred when analyzing all genes from imported variants. " + error;
-          console.log(msg);
-          if (callbackPostAnalyze) {
-            callbackPostAnalyze();
-          }
+          // Finished with syncing imported variants for all imported genes.
+          Promise.all(dataPromises)
+          .then(function() {
 
+            // Second callback when every gene has been analyzed
+            if (callbackPostAnalyze) {
+              callbackPostAnalyze();
+            }
+
+          })
+          .catch(function(error) {
+            var msg = "An error occurred when analyzing all genes from imported variants. " + error;
+            console.log(msg);
+            if (callbackPostAnalyze) {
+              callbackPostAnalyze();
+            }
+
+          })
         })
-      })
+
+      }
 
     })
 
