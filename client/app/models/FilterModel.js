@@ -821,9 +821,11 @@ class FilterModel {
       }
       if (badgeCriteria.minRevel == null || badgeCriteria.minRevel == "") {
         passes.revel = true;
+      } else if (Object.keys(variant.vepREVEL).length == 0) {
+        passes.revel = true
       } else {
         for (var revel in variant.vepREVEL) {
-          if (+revel >= badgeCriteria.minRevel) {
+          if (revel == "" || +revel >= badgeCriteria.minRevel) {
             passes.revel = true;
           }
         }

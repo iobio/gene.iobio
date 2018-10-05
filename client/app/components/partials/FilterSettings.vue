@@ -110,6 +110,7 @@
 
           <div style="display: inline-block;margin-right:15px">
             Min REVEL score
+            <info-popup name="revel"></info-popup>
           </div>
 
           <div style="display:inline-block">
@@ -143,11 +144,12 @@
 
 <script>
 
-
+import InfoPopup from "../partials/InfoPopup.vue"
 
 export default {
   name: 'filter-settings',
   components: {
+    InfoPopup
   },
   props: {
     filter: null,
