@@ -216,6 +216,9 @@
         color: $text-color
         border: #d5d5d5 solid thin
 
+    #select-interpretation
+      width: 22px
+
     .af-small
       display: inline-block
       width: 50px
@@ -231,7 +234,7 @@
 
     .vep-consequence
       display: inline-block
-      width: 103px
+      width: 133px
       line-height: 12px
       vertical-align: top
       font-size: 12px
@@ -518,7 +521,20 @@
                     <div style="line-height:12px">
                       <div  v-if="!isBasicMode && !variant.notFound"
                       style="display:inline-block">
-                        <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
+                        <span class="vep-consequence">
+                          <span v-if="highestImpactRecs(variant).length == 0">
+                            {{ vepConsequence(variant) }}
+                          </span>
+
+                          <span
+                           v-for="(impactRec, idx) in highestImpactRecs(variant)" :key="impactRec.impact">
+                            <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
+                              {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
+                            </span>
+
+                          </span>
+
+                        </span>
                         <span class="af-small">{{ afDisplay(variant) }}</span>
                       </div>
                     </div>
@@ -528,10 +544,10 @@
                   </div>
 
 
-                  <div style="float-left;margin-left:4px">
+                  <div style="float-left;">
 
                   <variant-interpretation
-                    style="float:left;padding-left: 10px;"
+                    style="float:left;"
                      v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
                      class="variant-notes"
                      wrap="true"
@@ -542,7 +558,7 @@
 
                   <variant-notes-menu
                     v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
-                    style="float:left;margin-left:5px;padding-top: 4px"
+                    style="float:left;padding-top: 4px"
                     class="variant-notes"
                     :showNotesIcon="true"
                     :variant="variant"
@@ -887,6 +903,28 @@ export default {
         }
       }
       return clazz;
+    },
+    highestImpactRecs: function(variant) {
+      let self = this;
+      let info = {};
+      this.globalApp.utility.formatHighestImpactInfo(variant, info, self.cohortModel.translator);
+      return info.vepHighestImpactRecs;
+    },
+    getNonCanonicalImpactDisplay: function(idx, impactRec) {
+      let buf = "";
+      if (idx > 0) {
+        buf += " | ";
+      }
+      buf += impactRec.impact.toLowerCase() + ' impact - ';
+      return buf;
+    },
+    getNonCanonicalEffectDisplay: function(idx, effectRec) {
+      let buf = "";
+      if (idx > 0) {
+        buf += " ,";
+      }
+      buf += effectRec.display + " in non-canonical transcripts ";
+      return buf;
     },
     afDisplay: function(variant) {
       var label = this.isBasicMode ? "freq " : "af ";

@@ -730,45 +730,7 @@ class Util {
 
     // If the highest impact occurs in a non-canonical transcript, show the impact followed by
     // the consequence and corresponding transcripts
-    var vepHighestImpacts = me.globalApp.utility.getNonCanonicalHighestImpactsVep(variant, translator.impactMap);
-    info.vepHighestImpactRecs = [];
-    for (var impactKey in vepHighestImpacts) {
-
-      let impactRec = {impact: impactKey, effects: []};
-
-      var nonCanonicalEffects = vepHighestImpacts[impactKey];
-      if (info.vepHighestImpact.length > 0) {
-          info.vepHighestImpact += ", ";
-          info.vepHighestImpactSimple += ", ";
-          info.vepHighestImpactInfo += ", ";
-      }
-
-      info.vepHighestImpact       += impactKey.toLowerCase();
-      info.vepHighestImpactSimple += impactKey.toLowerCase();
-      info.vepHighestImpactInfo   += impactKey.toLowerCase();
-      if (info.vepHighestImpactValue == null || info.vepHighestImpactValue.length == 0) {
-        info.vepHighestImpactValue  = impactKey.toUpperCase();
-      }
-
-      nonCanonicalEffects.forEach(function(nonCanonicalEffect) {
-        info.vepHighestImpact += "<span>  (";
-        let effectRec = {};
-        for (var effectKey in nonCanonicalEffect) {
-          effectRec = {key: effectKey, display: effectKey.split("_").join(" ").split("\&").join(" & ").split(" variant").join(""), transcripts: nonCanonicalEffect[effectKey].transcripts};
-
-          var transcriptString = nonCanonicalEffect[effectKey].url;
-          info.vepHighestImpact     += " " + effectKey.split("\&").join(" & ") + ' in ' + transcriptString;
-          info.vepHighestImpactInfo += " " + effectKey.split("\&").join(" & ") + " in " + nonCanonicalEffect[effectKey].display;
-
-          impactRec.effects.push(effectRec);
-        }
-        info.vepHighestImpact += ")</span> ";
-      })
-      info.vepHighestImpactSimple += " in non-canonical transcripts";
-
-      info.vepHighestImpactRecs.push(impactRec);
-
-    }
+    me.formatHighestImpactInfo(variant, info, translator);
 
 
     for (var key in variant.vepConsequence) {
@@ -872,6 +834,54 @@ class Util {
     info.filtersPassed = variant.filtersPassed && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
 
     return info;
+  }
+
+  formatHighestImpactInfo(variant, info, translator) {
+    let me = this;
+    var vepHighestImpacts = me.globalApp.utility.getNonCanonicalHighestImpactsVep(variant, translator.impactMap);
+    info.vepHighestImpactRecs = [];
+    for (var impactKey in vepHighestImpacts) {
+
+      let impactRec = {impact: impactKey, effects: []};
+
+      var nonCanonicalEffects = vepHighestImpacts[impactKey];
+      if (info.vepHighestImpact == null) {
+        info.vepHighestImpact = {};
+        info.vepHighestImpactSimple = "";
+        info.vepHighestImpactInfo = "";
+      } else if (info.vepHighestImpact.length > 0) {
+          info.vepHighestImpact += ", ";
+          info.vepHighestImpactSimple += ", ";
+          info.vepHighestImpactInfo += ", ";
+      }
+
+      info.vepHighestImpact       += impactKey.toLowerCase();
+      info.vepHighestImpactSimple += impactKey.toLowerCase();
+      info.vepHighestImpactInfo   += impactKey.toLowerCase();
+      if (info.vepHighestImpactValue == null || info.vepHighestImpactValue.length == 0) {
+        info.vepHighestImpactValue  = impactKey.toUpperCase();
+      }
+
+      nonCanonicalEffects.forEach(function(nonCanonicalEffect) {
+        info.vepHighestImpact += "<span>  (";
+        let effectRec = {};
+        for (var effectKey in nonCanonicalEffect) {
+          effectRec = {key: effectKey, display: effectKey.split("_").join(" ").split("\&").join(" & ").split(" variant").join(""), transcripts: nonCanonicalEffect[effectKey].transcripts};
+
+          var transcriptString = nonCanonicalEffect[effectKey].url;
+          info.vepHighestImpact     += " " + effectKey.split("\&").join(" & ") + ' in ' + transcriptString;
+          info.vepHighestImpactInfo += " " + effectKey.split("\&").join(" & ") + " in " + nonCanonicalEffect[effectKey].display;
+
+          impactRec.effects.push(effectRec);
+        }
+        info.vepHighestImpact += ")</span> ";
+      })
+      info.vepHighestImpactSimple += " in non-canonical transcripts";
+
+      info.vepHighestImpactRecs.push(impactRec);
+
+    }
+
   }
 
   formatClinvarDisplay(variant, info, translator, isEduMode) {

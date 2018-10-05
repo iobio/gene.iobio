@@ -693,7 +693,7 @@ export default {
       if (idx > 0) {
         buf += " ,";
       }
-      buf += effectRec.display + " in transcripts ";
+      buf += effectRec.display + " in non-canonical transcripts ";
       return buf;
     },
 
