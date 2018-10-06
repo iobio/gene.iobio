@@ -62,6 +62,20 @@
     padding-left: 16px
     min-width: 80px
 
+  .field-value.level-high
+    color: $high-impact-color  !important
+    font-weight: bold !important
+  .field-value.level-medium
+    color: $moderate-impact-color !important
+    font-weight: bold !important
+
+  span.level-high
+    color: $high-impact-color !important
+    font-weight: bold !important
+  span.level-medium
+    color: $moderate-impact-color !important
+    font-weight: bold !important
+
   .field-value.revel-field
     color: $app-gray
 
@@ -109,6 +123,14 @@
 
   a
     color:  $link-color !important
+
+    &.level-high
+      color: $high-impact-color  !important
+      font-weight: bold !important
+    &.level-medium
+      color: $moderate-impact-color !important
+      font-weight: bold !important
+
 
   .flag-button
     padding: 0px
@@ -439,7 +461,7 @@
           <v-flex>
             <v-layout row>
                <v-flex xs3 v-if="!isBasicMode" class="field-label">Impact</v-flex>
-               <v-flex xs9 v-if="!isBasicMode"  class="field-value">{{ info.vepImpact }} - {{ info.vepConsequence }}</v-flex>
+               <v-flex xs9 v-if="!isBasicMode"  class="field-value" v-html="impactAndConsequence"></v-flex>
 
                <v-flex xs4 v-if="isBasicMode" class="field-label">Predicted Impact</v-flex>
                <v-flex xs8 v-if="isBasicMode" class="field-value">{{ info.vepImpact }}</v-flex>
@@ -450,7 +472,9 @@
                <v-flex xs3 class="field-label">Most severe impact</v-flex>
                <v-flex xs9 class="field-value">
                   <span v-for="(impactRec, idx) in info.vepHighestImpactRecs" :key="impactRec.impact">
-                   {{ getNonCanonicalImpactDisplay(idx, impactRec) }}
+                    <span :class="getImpactClass(impactRec.impact.toLowerCase())">
+                      {{ getNonCanonicalImpactDisplay(idx, impactRec) }}
+                    </span>
                     <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
                       {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
                       <a v-for="transcriptId in effectRec.transcripts"
@@ -685,13 +709,15 @@ export default {
       if (idx > 0) {
         buf += " | ";
       }
-      buf += impactRec.impact.toLowerCase() + ' impact - ';
+      buf += impactRec.impact.toLowerCase() + ' impact ';
       return buf;
     },
     getNonCanonicalEffectDisplay: function(idx, effectRec) {
       let buf = "";
       if (idx > 0) {
         buf += " ,";
+      } else {
+        buf += " - ";
       }
       buf += effectRec.display + " in non-canonical transcripts ";
       return buf;
@@ -1041,11 +1067,36 @@ export default {
         clazz += " " + self.cohortModel.translator.polyphenMap[key].clazz;
       }
       return clazz;
+    },
+    getAfClass: function(af) {
+      if (af <= .01) {
+        return 'level-high';
+      } else if (af <= .05) {
+        return 'level-medium';
+      } else {
+        return '';
+      }
+    },
+    getImpactClass: function(impact) {
+      if (impact == 'high') {
+        return 'level-high'
+      } else if (impact == 'moderate') {
+        return 'level-medium'
+      } else {
+        return '';
+      }
     }
   },
 
 
   computed: {
+    impactAndConsequence: function() {
+      return "<span class='" + this.getImpactClass(this.info.vepImpact) + "'>"
+       + this.info.vepImpact
+       + " - "
+       +  this.info.vepConsequence
+       + "</span>"
+    },
     refAlt: function() {
       let self = this;
       var refAlt = "";
@@ -1066,12 +1117,20 @@ export default {
       if (this.selectedVariant.vepAf.gnomAD.AF == null) {
         return "unknown";
       } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
-        return "0%";
+        return "<span class='"
+        + this.getAfClass(0)
+        + "'>"
+        + "0%"
+        + "</span>";
       } else if (this.isBasicMode) {
         return this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
       } else  {
         var af = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
-        var link = "<a target='_gnomad' href='http://gnomad.broadinstitute.org/variant/" + this.selectedVariant.chrom + "-" + this.selectedVariant.start + "-" + this.selectedVariant.ref + "-" + this.selectedVariant.alt + "'>" + af + "</a>";
+        var link = "<a target='_gnomad' "
+          + " class='" + this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF) + "' "
+          + " href='http://gnomad.broadinstitute.org/variant/" + this.selectedVariant.chrom + "-"
+          + this.selectedVariant.start + "-" + this.selectedVariant.ref + "-" + this.selectedVariant.alt + "'>"
+          + af + "</a>";
         link += "&nbsp;&nbsp;" + this.formatPopAF(this.selectedVariant.vepAf.gnomAD);
         return link;
       }
@@ -1082,7 +1141,13 @@ export default {
       } else  {
         var af = this.globalApp.utility.percentage(this.selectedVariant.af1000G);
         var popAF = this.formatPopAF(this.selectedVariant.vepAf['1000G']);
-        return af + "&nbsp;&nbsp;" + popAF;
+        return "<span class='"
+        + this.getAfClass(this.selectedVariant.af1000G) + "'>"
+        + af
+        + "</span>"
+        +"<span style='margin-left:2px''>"
+        + popAF
+        + "</span>";
       }
     },
     afExAC: function() {

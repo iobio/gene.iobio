@@ -227,6 +227,12 @@
       vertical-align: top
       padding-top: 0px
       line-height: 12px
+
+      &.level-high
+        color: $high-impact-color  !important
+      &.level-medium
+        color: $moderate-impact-color !important
+
     .revel
       display: inline-block
       vertical-align: top
@@ -535,7 +541,7 @@
                           </span>
 
                         </span>
-                        <span class="af-small">{{ afDisplay(variant) }}</span>
+                        <span :class="getAfClass(variant)">{{ afDisplay(variant) }}</span>
                       </div>
                     </div>
                     <div  v-if="!isBasicMode && !variant.notFound && isFullAnalysis">
@@ -940,7 +946,23 @@ export default {
       } else {
         return variant.zygosity.toUpperCase();
       }
-    }
+    },
+    getAfClass: function(variant) {
+      let af = null;
+      if (variant.isProxy) {
+        af = variant.afgnomAD ? variant.afgnomAD : 0;
+      } else {
+        af = variant.afHighest ? variant.afHighest : 0;
+      }
+
+      if (af <= .01) {
+        return 'af-small level-high';
+      } else if (af <= .05) {
+        return 'af-small level-medium';
+      } else {
+        return '';
+      }
+    },
   },
   mounted: function() {
 

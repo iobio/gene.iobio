@@ -347,7 +347,7 @@ nav.toolbar
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items  v-if="!isFullAnalysis" class="hidden-sm-and-down" style="padding-top:3px">
+      <v-toolbar-items  lass="hidden-sm-and-down" style="padding-top:3px">
 
         <v-icon>
           search
@@ -847,7 +847,7 @@ export default {
       let self = this;
       this.activeTab = 1;
       self.$nextTick(function() {
-        if (self.isClinFrameVisible) {
+        if (!self.launchedFromClin ||self.cohortModel.isClinFrameVisible) {
           self.leftDrawer = true;
         }
       })
@@ -856,7 +856,7 @@ export default {
       let self = this;
       this.activeTab = 1;
       this.$nextTick(function() {
-        if (self.isClinFrameVisible) {
+        if (!self.launchedFromClin ||self.cohortModel.isClinFrameVisible) {
           self.leftDrawer = true;
         }
       })
@@ -865,7 +865,7 @@ export default {
       let self = this;
       this.activeTab = 0;
       this.$nextTick(function() {
-        if (self.cohortModel.isClinFrameVisible) {
+        if (!self.launchedFromClin ||self.cohortModel.isClinFrameVisible) {
           self.leftDrawer = true;
         }
       })
