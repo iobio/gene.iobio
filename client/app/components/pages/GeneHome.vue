@@ -20,8 +20,9 @@ main.content
   margin-right: auto
   text-align: center
   width: 400px
-  height: 90px
+  height: 95px
   padding-top: 15px
+  padding-bottom: 15px
 
 
 
@@ -2207,7 +2208,10 @@ export default {
 
       var clinObject = JSON.parse(event.data);
 
-      this.isClinFrameVisible = clinObject.isFrameVisible;
+      if (!this.isClinFrameVisible) {
+        this.isClinFrameVisible = clinObject.isFrameVisible;
+        console.log( 'GeneHome.receiveClinMessage clin frame is visible ' + this.isClinFrameVisible);
+      }
 
       if (clinObject.type == 'apply-genes' && !self.isFullAnalysis) {
         let genesString = clinObject.genes && Array.isArray(clinObject.genes) ? clinObject.genes.join(" ") : "";
@@ -2240,17 +2244,17 @@ export default {
         }
 
       } else if (clinObject.type == 'show') {
-        if (self.cohortModel && self.cohortModel.isLoaded) {
-          setTimeout(function() {
-            if (self.cohortModel.flaggedVariants.length > 0) {
-              // When all variants have been imported
-              self.onFlaggedVariantsImported();
-              self.$refs.navRef.onShowFlaggedVariants();
-            } else {
-              self.showLeftPanelForGenes();
-            }
-          }, 1000)
-        }
+        setTimeout(function() {
+          self.isClinFrameVisible = true;
+          console.log( 'GeneHome clin frame is visible ' + self.isClinFrameVisible);
+          if (self.cohortModel && self.cohortModel.flaggedVariants.length > 0) {
+            // When all variants have been imported
+            self.onFlaggedVariantsImported();
+            self.$refs.navRef.onShowFlaggedVariants();
+          } else if (self.geneModel && self.geneModel.sortedGeneNames.length > 0) {
+            self.showLeftPanelForGenes();
+          }
+        }, 1000)
       } else if (clinObject.type == 'show-tooltip') {
         if (clinObject.task.key == 'genes-menu') {
           if (self.$refs.navRef && self.$refs.navRef.$refs.genesMenuRef) {
@@ -2344,9 +2348,9 @@ export default {
 
     sendNextImportedVariantToClin: function(importedVariants, callback) {
       let self = this;
-      if (importedVariants.length >= 0) {
+      if (importedVariants.length > 0) {
         var importedVariant = importedVariants.splice(0,1);
-          self.cohortModel.promiseExportFlaggedVariant('json', importedVariant[0])
+        self.cohortModel.promiseExportFlaggedVariant('json', importedVariant[0])
           .then(function(data) {
             var msgObject = {
                 success:  true,
@@ -2519,7 +2523,11 @@ export default {
         self.cohortModel.importFlaggedVariants(fileType, variantData,
         function() {
           if (fileType == 'gemini') {
-            self.sendNextImportedVariantToClin(self.cohortModel.flaggedVariants, function() {
+            // clone the imported variants array
+            let theImportedVariants = self.cohortModel.flaggedVariants.slice();
+
+            // sequentially send each imported variant to clin to be saved
+            self.sendNextImportedVariantToClin(theImportedVariants, function() {
               self.onShowSnackbar({message: 'Saving imported variants to clin..', timeout: 7000})
             });
 
@@ -2530,10 +2538,10 @@ export default {
         },
         function() {
           self.onShowSnackbar({message:  self.cohortModel.flaggedVariants.length + ' variants imported.', timeout: 3000})
-            self.onFlaggedVariantsImported();
-            if (fileType != 'json') {
-              self.$refs.navRef.onShowFlaggedVariants();
-            }
+          self.onFlaggedVariantsImported();
+          if (fileType != 'json') {
+            self.$refs.navRef.onShowFlaggedVariants();
+          }
         })
       })
       .catch(function(error) {

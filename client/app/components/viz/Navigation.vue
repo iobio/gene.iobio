@@ -847,7 +847,7 @@ export default {
       let self = this;
       this.activeTab = 1;
       self.$nextTick(function() {
-        if (!self.launchedFromClin ||self.cohortModel.isClinFrameVisible) {
+        if (!self.launchedFromClin || self.isClinFrameVisible) {
           self.leftDrawer = true;
         }
       })
@@ -856,7 +856,8 @@ export default {
       let self = this;
       this.activeTab = 1;
       this.$nextTick(function() {
-        if (!self.launchedFromClin ||self.cohortModel.isClinFrameVisible) {
+        console.log("FlaggedVariants.onShowFlaggedVariants isClinFrameVisible " + self.isClinFrameVisible);
+        if (!self.launchedFromClin || self.isClinFrameVisible) {
           self.leftDrawer = true;
         }
       })
@@ -865,7 +866,8 @@ export default {
       let self = this;
       this.activeTab = 0;
       this.$nextTick(function() {
-        if (!self.launchedFromClin ||self.cohortModel.isClinFrameVisible) {
+        console.log("FlaggedVariants.onShowFlaggedVariants isClinFrameVisible " + self.isClinFrameVisible);
+        if (!self.launchedFromClin || self.isClinFrameVisible) {
           self.leftDrawer = true;
         }
       })

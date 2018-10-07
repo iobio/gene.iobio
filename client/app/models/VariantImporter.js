@@ -4,7 +4,7 @@ export default function VariantImporter() {
 
 }
 
-VariantImporter.geminiFields = ['chrom', 'start', 'end', 'ref', 'alt', 'gene', 'transcript', 'filter'];
+VariantImporter.geminiFields = ['chrom', 'start', 'end', 'ref', 'alt', 'gene', 'filter'];
 
 VariantImporter.fields = {
   'chrom':      {required: true},

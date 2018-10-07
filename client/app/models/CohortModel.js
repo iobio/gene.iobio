@@ -2034,7 +2034,12 @@ class CohortModel {
 
             var uniqueTranscripts = {};
             intersectedGenes[geneName].forEach(function(importedVariant) {
-              uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
+              if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
+                console.log("No transcript for importedVariant");
+                console.log(importedVariant);
+              } else {
+                uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
+              }
             })
 
             for (var transcriptId in uniqueTranscripts) {
