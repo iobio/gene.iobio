@@ -91,7 +91,7 @@ export default {
         info: {
             'revel': {
                 title: 'REVEL Score',
-                description: 'REVEL scores apply to missense variants only.<br><br>5.4% of disease mutations but only 10.9% of neutral variants (and 12.4% of all ESVs)  have a REVEL score <strong>above 0.5</strong>, corresponding to a sensitivity of 0.754 and specificity of 0.891. <br><br> Selecting a more stringent REVEL score <strong>threshold of 0.75</strong> would result in higher specificity but lower sensitivity, with 52.1% of disease mutations, 3.3% of neutral variants, and 4.1% of all ESVs being classified as pathogenic.',
+                description: 'Revel scores only apply to missense variants.<br><br>The score is a predicted pathogenicity score from 0 to 1 where 0 is benign and 1 is pathogenic.<br><br>Revel scores are open to interpretation, but as a starting point, we have categorized a score > .5 as ‘moderate’ and a score > .75 as ‘high’.',
                 publication: 'REVEL: An Ensemble Method for Predicting the Pathogenicity of Rare Missense Variants',
                 publicationUrl: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5065685/'
 
