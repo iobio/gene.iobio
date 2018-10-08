@@ -821,14 +821,14 @@ export default {
       self.geneLists = [];
 
       var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName);
-      self.geneLists = filters.map(function(filterObject) {
+      self.geneLists = filters.map(function(filterObject, idx) {
         return {
           name:  filterObject.key,
           label: filterObject.filter.title,
           show:  filterObject.genes.length > 0,
           genes: filterObject.genes,
           variantCount: filterObject.variantCount,
-          expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' ?  true : false) : true
+          expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' || idx == 0 ?  true : false) : true
         }
       })
     },
