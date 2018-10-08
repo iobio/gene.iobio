@@ -835,9 +835,11 @@ class FilterModel {
       }
       if (badgeCriteria.impact && badgeCriteria.impact.length > 0) {
         badgeCriteria.impact.forEach(function(key) {
-          if (Object.keys(variant.highestImpactVep).indexOf(key) >= 0) {
-            passes.impact = true;
-          }
+          Object.keys(variant.highestImpactVep).forEach(function(highestImpactKey) {
+            if (highestImpactKey == key) {
+              passes.impact = true;
+            }
+          })
         })
       } else {
         passes.impact = true;
