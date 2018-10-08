@@ -46,7 +46,7 @@ class GlobalApp {
     this.clinvarGenesUrl       =  "https://s3.amazonaws.com/gene.iobio.config/clinvar-counts.txt";
 
     // Get clinvar annotations from 'eutils' or 'vcf'
-    this.clinvarSource         = "eutils";
+    this.clinvarSource         = "vcf";
 
 
     // get hgvs, rsid annotation for all variants
