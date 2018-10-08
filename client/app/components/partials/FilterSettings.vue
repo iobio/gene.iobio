@@ -33,7 +33,7 @@
 
 <template>
 
-  <v-layout row wrap class="filter-form mx-2 px-2" style="max-width:500px;">
+  <v-layout row wrap class="filter-form mx-2 px-2" style="max-width:520px;">
      <v-flex id="name" xs12 class="mb-3" >
       <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
       </v-text-field>

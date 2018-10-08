@@ -180,5 +180,8 @@ html {
   text-transform: none;
   color: #7f7f7f;
 }
+.dialog__content.dialog__content__active {
+  height: initial !important;
+}
 
 
