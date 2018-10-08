@@ -107,7 +107,7 @@ aside.navigation-drawer
             width: 80px
 
           #gene-badge-name
-            width: 60px
+            width: 100px
         &.selected
 
           #gene-badge-button
