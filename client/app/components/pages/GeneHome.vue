@@ -1106,7 +1106,7 @@ export default {
 
     showLeftPanelWhenFlaggedVariants: function() {
       let self = this;
-      if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen && !self.paramLaunchedFromClin) {
+      if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
         if (self.$refs.navRef) {
           self.$nextTick(function() {
             self.$refs.navRef.onShowFlaggedVariants();
@@ -1119,7 +1119,7 @@ export default {
       let self = this;
       if (self.geneModel && self.geneModel.sortedGeneNames.length > 0) {
         if (self.$refs.navRef) {
-          if (!self.isLeftDrawerOpen && !self.paramLaunchedFromClin) {
+          if (!self.isLeftDrawerOpen) {
             self.$nextTick(function() {
               self.$refs.navRef.onShowGenes();
             });
@@ -2523,6 +2523,8 @@ export default {
         self.cohortModel.importFlaggedVariants(fileType, variantData,
         function() {
           if (fileType == 'gemini') {
+            self.showLeftPanelForGenes();
+
             // clone the imported variants array
             let theImportedVariants = self.cohortModel.flaggedVariants.slice();
 
@@ -2533,7 +2535,9 @@ export default {
 
           } else if (fileType == 'json') {
             self.onFlaggedVariantsImported();
-            self.$refs.navRef.onShowFlaggedVariants();
+            if (self.$refs.navRef) {
+              self.$refs.navRef.onShowFlaggedVariants();
+            }
           }
         },
         function() {
