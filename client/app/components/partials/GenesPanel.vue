@@ -2,6 +2,7 @@
 @import ../../../assets/sass/variables
 #genes-panel
   margin-top: 5px
+  padding-bottom: 30px
 
   #analyze-genes-progress
     margin-top: 10px
