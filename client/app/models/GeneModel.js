@@ -141,63 +141,73 @@ class GeneModel {
     var genesToAdd = [];
     var unknownGeneNames = {};
     var duplicateGeneNames = {};
+    var promises = [];
     geneNameList.forEach( function(geneName) {
       if (geneName.trim().length > 0) {
-        if (me.isKnownGene(geneName)) {
-          // Make sure this isn't a duplicate.  If we are not replacing the current genes,
-          // make sure to check for dups in the existing gene list as well.
-          if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
-              && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
-            genesToAdd.push(geneName.trim().toUpperCase());
+        let p = me.promiseIsValidGene(geneName.trim())
+        .then(function(isValid) {
+          if (isValid) {
+            // Make sure this isn't a duplicate.  If we are not replacing the current genes,
+            // make sure to check for dups in the existing gene list as well.
+            if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
+                && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
+              genesToAdd.push(geneName.trim().toUpperCase());
+            } else {
+              duplicateGeneNames[geneName.trim().toUpperCase()] = true;
+            }
           } else {
-            duplicateGeneNames[geneName.trim().toUpperCase()] = true;
+            unknownGeneNames[geneName.trim().toUpperCase()] = true;
           }
-        } else {
-          unknownGeneNames[geneName.trim().toUpperCase()] = true;
-        }
+        })
+        promises.push(p);
       }
     });
 
-    if (options.replace) {
-      me.geneNames = [];
-      me.sortedGeneNames = [];
-    }
+    Promise.all(promises)
+    .then(function() {
 
-    genesToAdd.forEach(function(geneName) {
-      me.geneNames.push(geneName);
-      me.sortedGeneNames.push(geneName);
-    })
+      if (options.replace) {
+        me.geneNames = [];
+        me.sortedGeneNames = [];
+      }
+
+      genesToAdd.forEach(function(geneName) {
+        me.geneNames.push(geneName);
+        me.sortedGeneNames.push(geneName);
+      })
 
 
 
-    var message = "";
-    if (Object.keys(unknownGeneNames).length > 0) {
-      message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
-      alertify.alert("Warning", message);
-    }
-    if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
+      var message = "";
+      if (Object.keys(unknownGeneNames).length > 0) {
+        message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
+        alertify.alert("Warning", message);
+      }
+      if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
+        if (message.length > 0) {
+          message += "   ";
+        }
+        message += "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
+      }
       if (message.length > 0) {
-        message += "   ";
-      }
-      message += "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
-    }
-    if (message.length > 0) {
-      alertify.alert("Warning", message);
-    }
-
-    if (me.limitGenes) {
-      if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
-        var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
-        me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
-        alertify.alert("Due to browser cache limitations, only the first " + me.globalApp.maxGeneCount
-          + " genes were added. "
-          + bypassedCount.toString()
-          + " "
-          + (bypassedCount == 1 ? "gene" : "genes")
-          +  " bypassed.");
+        alertify.alert("Warning", message);
       }
 
-    }
+      if (me.limitGenes) {
+        if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
+          var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
+          me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
+          alertify.alert("Due to browser cache limitations, only the first " + me.globalApp.maxGeneCount
+            + " genes were added. "
+            + bypassedCount.toString()
+            + " "
+            + (bypassedCount == 1 ? "gene" : "genes")
+            +  " bypassed.");
+        }
+
+      }
+
+    })
 
  }
 
@@ -861,6 +871,23 @@ class GeneModel {
 
   isKnownGene(geneName) {
     return this.allKnownGeneNames[geneName] != null || this.allKnownGeneNames[geneName.toUpperCase()] != null;
+  }
+
+  promiseIsValidGene(geneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      if (self.isKnownGene(geneName)) {
+        self.promiseGetGeneObject(geneName)
+        .then(function() {
+          resolve(true);
+        })
+        .catch(function(error) {
+          resolve(false);
+        })
+      } else {
+        resolve(false);
+      }
+    })
   }
 
   getKnownGene(geneName) {
