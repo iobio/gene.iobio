@@ -42,7 +42,7 @@ class FilterModel {
         'pathogenic': {
           active: true,
           custom: false,
-          title: "Pathogenic",
+          title: "Pathogenic in ClinVar",
           name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
           order: 0,
           userFlagged: false,
@@ -218,7 +218,7 @@ class FilterModel {
         'pathogenic': {
           active: true,
           custom: false,
-          title: "Pathogenic",
+          title: "Pathogenic in ClinVar",
           name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
           order: 0,
           userFlagged: false,
