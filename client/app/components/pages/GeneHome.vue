@@ -397,7 +397,7 @@ import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
 import AppTour            from  '../viz/AppTour.vue'
 
-import HubSession         from  '../../models/HubSession.js'
+import HubSessionDeprecated         from  '../../models/HubSessionDeprecated.js'
 import Bam                from  '../../models/Bam.iobio.js'
 import vcfiobio           from  '../../models/Vcf.iobio.js'
 import Translator         from  '../../models/Translator.js'
@@ -717,9 +717,9 @@ export default {
 
             if (self.launchedFromHub) {
               self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
-              self.hubSession = new HubSession();
+              self.hubSession = new HubSessionDeprecated();
               let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
-              self.hubSession.promiseInit(self.paramProjectId, self.paramSampleId, self.paramSource, isPedigree )
+              self.hubSession.promiseInit(self.paramSampleId, self.paramSource, isPedigree )
               .then(modelInfos => {
                 self.modelInfos = modelInfos;
 
