@@ -467,10 +467,12 @@ export default {
 
           if (dangerSummary) {
             for (var badge in self.badgeCounts) {
+              // Tally up variants that pass the filter
               if (dangerSummary.badges[badge] && dangerSummary.badges[badge].length > 0) {
-                self.badgeCounts[badge] ++;
+                self.badgeCounts[badge] += dangerSummary.badges[badge].length;
               }
             }
+            // Tally up genes that have insufficient coverage
             if (dangerSummary.geneCoverageProblem) {
               self.badgeCounts.coverage++;
             }
