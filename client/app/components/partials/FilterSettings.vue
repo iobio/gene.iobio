@@ -130,10 +130,16 @@
 
     </v-flex>
 
-    <v-flex  id="max-genotype-depth" xs3 class="mb-3 mr-4" >
+    <v-flex  id="min-genotype-depth" xs3 class="mb-3 mr-4" >
       <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
       </v-text-field>
     </v-flex>
+
+    <v-flex  id="min-genotype-alt-count" xs4 class="mb-3 mr-4" >
+      <v-text-field label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
+      </v-text-field>
+    </v-flex>
+
 
 
 
@@ -170,6 +176,7 @@ export default {
       selectedInheritanceModes: null,
       selectedConsequences: null,
       minGenotypeDepth: null,
+      minGenotypeAltCount: null,
 
       revelProgress: 100,
 
@@ -259,6 +266,7 @@ export default {
       this.selectedInheritanceModes  = flagCriteria.inheritance;
       this.selectedZygosity          = flagCriteria.zygosity;
       this.minGenotypeDepth          = flagCriteria.minGenotypeDepth;
+      this.minGenotypeAltCount       = flagCriteria.minGenotypeAltCount;
 
     },
     apply: function() {
@@ -276,6 +284,7 @@ export default {
       flagCriteria.inheritance      = this.selectedInheritanceModes;
       flagCriteria.zygosity         = this.selectedZygosity;
       flagCriteria.minGenotypeDepth = this.minGenotypeDepth;
+      flagCriteria.minGenotypeAltCount = this.minGenotypeAltCount;
       flagCriteria.active           = true;
 
     },

@@ -53,6 +53,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: null
         },
@@ -70,6 +71,7 @@ class FilterModel {
           inheritance: ['autosomal dominant'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: ['pathogenic']
         },
@@ -87,6 +89,7 @@ class FilterModel {
           inheritance: ['recessive'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: 5,
           minRevel: null,
           isUserFlagged: false,
           exclusiveOf: ['pathogenic']
@@ -105,6 +108,7 @@ class FilterModel {
           inheritance: ['denovo'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: 5,
           minRevel: null,
           exclusiveOf: ['pathogenic']
         },
@@ -122,6 +126,7 @@ class FilterModel {
           inheritance: ['compound het'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: ['pathogenic']
         },
@@ -139,6 +144,7 @@ class FilterModel {
           inheritance: ['x-linked'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: ['pathogenic']
         },
@@ -157,6 +163,7 @@ class FilterModel {
           zyosity: null,
           isUserFlagged: false,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked']
         },
@@ -174,6 +181,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf:  null
         },
@@ -192,6 +200,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: null
         },
@@ -210,6 +219,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: null
         }
@@ -229,6 +239,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: null
         },
@@ -246,6 +257,7 @@ class FilterModel {
           inheritance: ['autosomal dominant'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: ['pathogenic']
         },
@@ -263,6 +275,7 @@ class FilterModel {
           inheritance: ['recessive'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: 5,
           minRevel: null,
           isUserFlagged: false,
           exclusiveOf: ['pathogenic']
@@ -281,6 +294,7 @@ class FilterModel {
           inheritance: ['denovo'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: 5,
           minRevel: null,
           exclusiveOf: ['pathogenic']
         },
@@ -298,6 +312,7 @@ class FilterModel {
           inheritance: ['compound het'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: ['pathogenic']
         },
@@ -315,6 +330,7 @@ class FilterModel {
           inheritance: ['x-linked'],
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: ['pathogenic']
         },
@@ -333,6 +349,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: null
         },
@@ -351,6 +368,7 @@ class FilterModel {
           inheritance: null,
           zyosity: null,
           minGenotypeDepth: null,
+          minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf: null
         }
@@ -794,6 +812,7 @@ class FilterModel {
       inheritance: false,
       zygosity: false,
       depth: false,
+      altCount: false,
       revel: false,
       userFlagged: false,
       notCategorized: false,
@@ -830,8 +849,11 @@ class FilterModel {
           }
         }
       }
-      if (badgeCriteria.minGenotypeDepth == null || (variant.genotypeDepth >= badgeCriteria.minGenotypeDepth)) {
+      if (badgeCriteria.minGenotypeDepth == null || badgeCriteria.minGenotypeDepth == ""  || (+variant.genotypeDepth >= +badgeCriteria.minGenotypeDepth)) {
         passes.depth = true;
+      }
+      if (badgeCriteria.minGenotypeAltCount == null || badgeCriteria.minGenotypeAltCount == "" ||( +variant.genotypeAltCount >= +badgeCriteria.minGenotypeAltCount)) {
+        passes.altCount = true;
       }
       if (badgeCriteria.impact && badgeCriteria.impact.length > 0) {
         badgeCriteria.impact.forEach(function(key) {
@@ -867,7 +889,7 @@ class FilterModel {
           passes[criterion] = true;
         })
       }
-      if (passes.af && passes.revel && passes.depth && passes.impact && passes.consequence && passes.clinvar && passes.inheritance && passes.zygosity) {
+      if (passes.af && passes.revel && passes.depth && passes.altCount && passes.impact && passes.consequence && passes.clinvar && passes.inheritance && passes.zygosity) {
         passes.all = true;
       }
     }
