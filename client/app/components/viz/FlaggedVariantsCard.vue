@@ -403,14 +403,8 @@
 
     <div class="variant-toolbar" >
 
-      <v-toolbar-title >
-        <span v-show="!isBasicMode && !isFullAnalysis && launchedFromClin">
-          Review variants in candidate genes
-        </span>
-        <span v-show="!isBasicMode && isFullAnalysis">
-          Review variants in all genes
-        </span>
-        <span id="mygene2-basic-title" v-show="isBasicMode && !launchedFromClin && flaggedVariants">
+      <v-toolbar-title v-show="isBasicMode && !launchedFromClin && flaggedVariants">
+        <span id="mygene2-basic-title">
           Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
         </span>
       </v-toolbar-title>
