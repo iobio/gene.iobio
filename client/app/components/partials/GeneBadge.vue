@@ -356,16 +356,14 @@ export default {
     getImpactClass: function(variantTypes) {
       var self = this;
       var clazz = null;
-      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highOrModerate && this.gene.dangerSummary.badges.highOrModerate.length > 0 ) {
+      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highe && this.gene.dangerSummary.badges.high.length > 0 ) {
         for (var variantType in variantTypes) {
 
 
-          this.gene.dangerSummary.badges.highOrModerate.forEach(function(variant) {
+          this.gene.dangerSummary.badges.high.forEach(function(variant) {
             if (variant.type.toUpperCase() == variantType.toUpperCase()) {
               if (variant.highestImpactVep.HIGH) {
                 clazz = 'filter-symbol impact_HIGH';
-              } else if (variant.highestImpactVep.MODERATE) {
-                clazz = 'filter-symbol impact_MODERATE';
               }
             }
           })

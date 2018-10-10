@@ -142,14 +142,14 @@ class FilterModel {
           minRevel: null,
           exclusiveOf: ['pathogenic']
         },
-        'highOrModerate': {
+        'high': {
           active: true,
           custom: false,
           title: "High or moderate impact",
-          name: "High or moderate impact, low allele freq",
+          name: "High impact, low allele freq",
           order: 6,
           userFlagged: false,
-          maxAf: .05,
+          maxAf: .01,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -736,9 +736,9 @@ class FilterModel {
 
       // If a badge is exclusive of passing other criteria, fail the badge
       // if the other badges passed the criteria for the filter
-      // Example:  highOrModerate is exclusive of the clinvar badge.
+      // Example:  high is exclusive of the clinvar badge.
       //           So if the variant passes the clinvar criteria, it does
-      //           not pass the highOrModerate criteria.
+      //           not pass the high criteria.
       for (var badge in self.flagCriteria) {
         var badgeCriteria = self.flagCriteria[badge];
         if (badgeCriteria.exclusiveOf) {

@@ -59,13 +59,10 @@
 
 
 
-    <span v-if="icon == 'highOrModerate'" >
+    <span v-if="icon == 'high'" >
       <svg width="20" height="20" style="margin-top:2px">
-        <g transform="translate(0,8)">
-          <rect width="9" height="9" class="filter-symbol impact_HIGH snp" style="pointer-events: none;"></rect>
-        </g>
-        <g transform="translate(10,8)">
-          <rect width="9" height="9" class="filter-symbol impact_MODERATE snp" style="pointer-events: none;"></rect>
+        <g transform="translate(4,4)">
+          <rect width="10" height="10" class="filter-symbol impact_HIGH snp" style="pointer-events: none;"></rect>
         </g>
       </svg>
     </span>

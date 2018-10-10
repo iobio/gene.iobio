@@ -1073,9 +1073,9 @@ class GeneModel {
     }
 
     // high or moderate badge
-    if (danger1.badges.highOrModerate && danger2.badges.highOrModerate) {
-      if (danger1.badges.highOrModerate.length !== danger2.badges.highOrModerate.length) {
-        return danger2.badges.highOrModerate.length -  danger1.badges.highOrModerate.length;
+    if (danger1.badges.high && danger2.badges.high) {
+      if (danger1.badges.high.length !== danger2.badges.high.length) {
+        return danger2.badges.high.length -  danger1.badges.high.length;
       }
     }
 
