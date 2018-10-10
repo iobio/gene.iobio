@@ -1571,6 +1571,7 @@ export default {
       let genesToApplyCount = self.geneModel.getCopyPasteGeneCount(genesString);
 
       let doIt = function() {
+        self.showLeftPanelForGenes();
         let oldGeneNames = $.extend([], self.geneModel.sortedGeneNames);
         self.applyGenesImpl(genesString, options, function() {
           if (options && options.replace) {

@@ -91,7 +91,7 @@ class GeneModel {
   }
 
   ACMGGenes() {
-    this.copyPasteGenes(this.ACMG_GENES.join(","));
+    this.promiseCopyPasteGenes(this.ACMG_GENES.join(","));
   }
 
 
@@ -100,17 +100,20 @@ class GeneModel {
 
     return new Promise(function(resolve, reject) {
 
-      var promises = [];
-
-      me.copyPasteGenes(genesString, options);
-
-      me.geneNames.forEach(function(geneName) {
-        promises.push(me.promiseGetGeneObject(geneName));
-        promises.push(me.promiseGetGenePhenotypes(geneName));
-        promises.push(me.promiseGetNCBIGeneSummary(geneName));
+      me._promiseCopyPasteGenesImpl(genesString, options)
+      .then(function() {
+        return me.promiseGetNCBIGeneSummaries(me.geneNames)
       })
+      .then(function() {
 
-      Promise.all(promises)
+        var promises = [];
+        me.geneNames.forEach(function(geneName) {
+          promises.push(me.promiseGetGeneObject(geneName));
+          promises.push(me.promiseGetGenePhenotypes(geneName));
+        })
+
+        return Promise.all(promises)
+      })
       .then(function() {
         resolve();
       })
@@ -118,7 +121,6 @@ class GeneModel {
         console.log(error);
         resolve();
       })
-
 
     })
 
@@ -131,81 +133,92 @@ class GeneModel {
     return geneNameList.length;
  }
 
- copyPasteGenes(genesString, options={replace: true, warnOnDup: true}) {
+ _promiseCopyPasteGenesImpl(genesString, options={replace: true, warnOnDup: true}) {
     var me = this;
-    genesString = genesString.replace(/\s*$/, "");
-    var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
+
+    return new Promise(function(resolve, reject) {
+
+      genesString = genesString.replace(/\s*$/, "");
+      var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
 
 
 
-    var genesToAdd = [];
-    var unknownGeneNames = {};
-    var duplicateGeneNames = {};
-    var promises = [];
-    geneNameList.forEach( function(geneName) {
-      if (geneName.trim().length > 0) {
-        let p = me.promiseIsValidGene(geneName.trim())
-        .then(function(isValid) {
-          if (isValid) {
-            // Make sure this isn't a duplicate.  If we are not replacing the current genes,
-            // make sure to check for dups in the existing gene list as well.
-            if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
-                && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
-              genesToAdd.push(geneName.trim().toUpperCase());
+      var genesToAdd = [];
+      var unknownGeneNames = {};
+      var duplicateGeneNames = {};
+      var promises = [];
+      geneNameList.forEach( function(geneName) {
+        if (geneName.trim().length > 0) {
+          let p = me.promiseIsValidGene(geneName.trim())
+          .then(function(isValid) {
+            if (isValid) {
+              // Make sure this isn't a duplicate.  If we are not replacing the current genes,
+              // make sure to check for dups in the existing gene list as well.
+              if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
+                  && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
+                genesToAdd.push(geneName.trim().toUpperCase());
+              } else {
+                duplicateGeneNames[geneName.trim().toUpperCase()] = true;
+              }
             } else {
-              duplicateGeneNames[geneName.trim().toUpperCase()] = true;
+              unknownGeneNames[geneName.trim().toUpperCase()] = true;
             }
-          } else {
-            unknownGeneNames[geneName.trim().toUpperCase()] = true;
-          }
+          })
+          promises.push(p);
+        }
+      });
+
+      Promise.all(promises)
+      .then(function() {
+
+        if (options.replace) {
+          me.geneNames = [];
+          me.sortedGeneNames = [];
+        }
+
+        genesToAdd.forEach(function(geneName) {
+          me.geneNames.push(geneName);
+          me.sortedGeneNames.push(geneName);
         })
-        promises.push(p);
-      }
-    });
 
-    Promise.all(promises)
-    .then(function() {
 
-      if (options.replace) {
-        me.geneNames = [];
-        me.sortedGeneNames = [];
-      }
 
-      genesToAdd.forEach(function(geneName) {
-        me.geneNames.push(geneName);
-        me.sortedGeneNames.push(geneName);
+        var message = "";
+        if (Object.keys(unknownGeneNames).length > 0) {
+          message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
+          alertify.alert("Warning", message);
+        }
+        if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
+          if (message.length > 0) {
+            message += "   ";
+          }
+          message += "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
+        }
+        if (message.length > 0) {
+          alertify.alert("Warning", message);
+        }
+
+        if (me.limitGenes) {
+          if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
+            var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
+            me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
+            alertify.alert("Due to browser cache limitations, only the first " + me.globalApp.maxGeneCount
+              + " genes were added. "
+              + bypassedCount.toString()
+              + " "
+              + (bypassedCount == 1 ? "gene" : "genes")
+              +  " bypassed.");
+          }
+
+        }
+
+        resolve();
+
+      })
+      .catch(function(error) {
+        reject(error);
       })
 
-
-
-      var message = "";
-      if (Object.keys(unknownGeneNames).length > 0) {
-        message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
-        alertify.alert("Warning", message);
-      }
-      if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
-        if (message.length > 0) {
-          message += "   ";
-        }
-        message += "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
-      }
-      if (message.length > 0) {
-        alertify.alert("Warning", message);
-      }
-
-      if (me.limitGenes) {
-        if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
-          var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
-          me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
-          alertify.alert("Due to browser cache limitations, only the first " + me.globalApp.maxGeneCount
-            + " genes were added. "
-            + bypassedCount.toString()
-            + " "
-            + (bypassedCount == 1 ? "gene" : "genes")
-            +  " bypassed.");
-        }
-
-      }
 
     })
 
@@ -527,6 +540,78 @@ class GeneModel {
     return sortedExons;
   }
 
+  promiseGetNCBIGeneSummaries(geneNames) {
+    let me = this;
+    return new Promise( function(resolve, reject) {
+
+      let unknownGeneInfo = {description: '?', summary: '?'};
+
+      let theGeneNames = geneNames.filter(function(geneName) {
+        return me.geneNCBISummaries[geneName] == null;
+      })
+
+      if (theGeneNames.length == 0) {
+        resolve();
+      } else {
+
+        let searchGeneExpr = "";
+        theGeneNames.forEach(function(geneName) {
+          var geneInfo = me.geneNCBISummaries[geneName];
+          if (geneInfo == null) {
+            if (searchGeneExpr.length > 0) {
+              searchGeneExpr += " OR ";
+            }
+            searchGeneExpr += geneName + "[Gene name]";
+          }
+        })
+        var searchUrl = me.NCBI_GENE_SEARCH_URL + "&term=" + "(9606[Taxonomy ID] AND (" + searchGeneExpr + "))";
+
+        $.ajax( searchUrl )
+         .done(function(data) {
+
+            // Now that we have the gene ID, get the NCBI gene summary
+            var webenv = data["esearchresult"]["webenv"];
+            var queryKey = data["esearchresult"]["querykey"];
+            var summaryUrl = me.NCBI_GENE_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv;
+            $.ajax( summaryUrl )
+            .done(function(sumData) {
+                if (sumData.result == null || sumData.result.uids.length == 0) {
+                  if (sumData.esummaryresult && sumData.esummaryresult.length > 0) {
+                    sumData.esummaryresult.forEach( function(message) {
+                      console.log("Unable to get NCBI gene summary from eutils esummary")
+                      console.log(message);
+                    });
+                  }
+                  reject();
+
+                } else {
+
+                  sumData.result.uids.forEach(function(uid) {
+                    var geneInfo = sumData.result[uid];
+                    me.geneNCBISummaries[geneInfo.name] = geneInfo;
+
+                  })
+                  resolve();
+                }
+            })
+           .fail(function() {
+              console.log("Error occurred when making http request to NCBI eutils esummary for genes " + geneNames.join(","));
+              reject();
+            })
+
+          })
+          .fail(function() {
+            console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneNames.join(","));
+            reject();
+          })
+
+
+      }
+  })
+
+
+  }
+
 
   promiseGetNCBIGeneSummary(geneName) {
     let me = this;
@@ -600,7 +685,7 @@ class GeneModel {
   }
 
   clearAllGenes() {
-    this.copyPasteGenes("");
+    this.promiseCopyPasteGenes("");
   }
 
   removeGene(geneName) {
