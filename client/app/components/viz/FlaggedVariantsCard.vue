@@ -113,6 +113,11 @@
     border-top-style: solid
     border-top-width: 1px
     padding:  12px 10px 10px 2px
+    background-color: #e9eaeb
+
+    .header__icon
+      i.material-icons
+        color: $app-color
 
   .expansion-panel__container
     border-top: none
@@ -126,14 +131,17 @@
         border-color: none
         font-size: 15px
         font-weight: normal
+        display: inline-block
+        text-align: left
+
 
     .badge__badge.primary
-      background-color: $default-badge-color !important
-      font-size: 11px
+      background-color: $light-badge-color !important
+      font-size: 10px
       color: white
       top: 2px
-      width: 16px
-      height: 16px
+      width: 17px
+      height: 17px
 
 
   .filter-variant-count
@@ -438,7 +446,7 @@
 
 
           <v-badge>
-            <span v-if="false" class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
+            <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
             <span class="filter-label">{{ geneList.label }}</span>
           </v-badge>
 
