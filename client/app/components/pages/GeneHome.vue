@@ -1113,6 +1113,10 @@ export default {
             self.$refs.navRef.onShowFlaggedVariants();
           });
         }
+      } else if (!self.isEduMode && self.flaggedVariants) {
+        self.$nextTick(function() {
+          self.$refs.navRef.activeTab = 1;
+        })
       }
     },
 
@@ -1125,7 +1129,9 @@ export default {
               self.$refs.navRef.onShowGenes();
             });
           } else if (self.$refs.navRef) {
-            self.$refs.navRef.activeTab = 0;
+            self.$nextTick(function() {
+              self.$refs.navRef.activeTab = 0;
+            })
           }
         }
       }
