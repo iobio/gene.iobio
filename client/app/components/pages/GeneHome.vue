@@ -1627,7 +1627,7 @@ export default {
         if (!self.launchedFromClin) {
           self.setUrlGeneParameters();
         }
-        if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+        if (!self.launchedFromClin && self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           let geneName = self.geneModel.sortedGeneNames[0];
           return self.promiseLoadGene(geneName);
         } else {
@@ -2485,6 +2485,7 @@ export default {
       })
       .then(function() {
 
+        self.showLeftPanelForGenes();
         self.onApplyGenes(
             clinObject.genes.join(" "),
             {isFromClin: true, replace: true, warnOnDup: false, phenotypes: clinObject.phenotypes.join(",")},
