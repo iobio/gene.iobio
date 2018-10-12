@@ -485,6 +485,7 @@ nav.toolbar
     <v-navigation-drawer
       mobile-break-point="800"
       clipped
+      :permanent="launchedFromClin ? true : false"
       fixed
       app
       :hide-overlay="true"
@@ -494,7 +495,7 @@ nav.toolbar
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
-        <v-btn v-if="!isFullAnalysis" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
 
