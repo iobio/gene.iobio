@@ -2018,10 +2018,10 @@ class CohortModel {
 
 
       if (me.isLoaded) {
-        me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), geneToAltTranscripts, false, true)
+        me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), geneToAltTranscripts, false, false)
         .then(function() {
           if (Object.keys(genesToAnalyze.call).length > 0) {
-            return me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.call), geneToAltTranscripts, true, true)
+            return me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.call), geneToAltTranscripts, true, false)
           } else {
             return Promise.resolve();
           }
