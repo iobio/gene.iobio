@@ -776,35 +776,32 @@ export default {
       return new Promise(function(resolve, reject) {
         self.cacheHelper = new CacheHelper(self.globalApp, self.forceLocalStorage);
         window.cacheHelper = self.cacheHelper;
-        self.cacheHelper.on("geneAnalyzed", function(geneName) {
-          if (!self.launchedFromClin) {
+        self.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
+          if (!self.isFullAnalysis) {
             self.$refs.genesCardRef.determineFlaggedGenes();
           }
 
           if (self.launchedFromClin) {
-            let flaggedVariantsForGene = self.cohortModel.getFlaggedVariantsForGene(geneName);
+            let flaggedVariantsForGene = self.cohortModel.getFlaggedVariantsForGene(theGene.gene_name);
             if (flaggedVariantsForGene.length > 0) {
               flaggedVariantsForGene.forEach(function(flaggedVariant) {
                 self.sendFlaggedVariantToClin(flaggedVariant);
               })
             }
-            self.sendCacheToClin(geneName);
+            self.sendCacheToClin(theGene.gene_name);
           }
 
           if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
-              && geneName == self.selectedGene.gene_name) {
+              && theGene.gene_name == self.selectedGene.gene_name) {
             self.promiseLoadData();
           }
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
           if (self.launchedFromClin && !self.isFullAnalysis) {
-            self.$refs.genesCardRef.determineFlaggedGenes();
-          }
-          if (!self.isEduMode) {
             self.$refs.navRef.onShowFlaggedVariants();
-          }
-          if (self.launchedFromClin && !self.isFullAnalysis) {
             self.onSendFiltersToClin();
+          } else if (!self.isEduMode) {
+            self.$refs.navRef.onShowFlaggedVariants();
           }
         });
 
@@ -1814,9 +1811,9 @@ export default {
       let self = this;
       flaggedVariants.forEach(function(variant) {
         variant.gene = self.geneModel.geneObjects[variant.geneName];
-        if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-          self.cohortModel.addFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
-        }
+        let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
+
+        self.cohortModel.addFlaggedVariant(variant.gene, theTranscript, variant);
       })
     },
     onRegisterFlaggedVariants: function(flaggedGeneNames, flaggedVariants, filterName) {

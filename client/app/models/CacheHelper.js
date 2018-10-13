@@ -270,8 +270,8 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, analyzeGeneCo
   var count = 0;
   for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue; i++) {
     me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants, analyzeGeneCoverage)
-    .then(function(theGeneObject) {
-      me.cacheNextGene(theGeneObject.gene_name, analyzeCalledVariants, analyzeGeneCoverage, callback);
+    .then(function(data) {
+      me.cacheNextGeneSuccess(data.gene, data.transcript, analyzeCalledVariants, analyzeGeneCoverage, callback);
     },
     function(error) {
       // An error occurred.  Set the gene badge with an error glyph
@@ -334,7 +334,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       isCached = data.isCached;
       if (isCached) {
         // if the gene has already been analyzed, move on to next gene
-        cacheResolve(geneObject);
+        cacheResolve({'gene': geneObject, 'transcript': transcript});
       } else {
         // At this point, we know that the variants are not cached.  So
         // get the gene coverage (if needed), otherwise, continue on to next
@@ -411,7 +411,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       //}
 
       // We are done analyzing this gene.  Move on to the next one.
-      cacheResolve(geneObject);
+      cacheResolve({'gene': geneObject, 'transcript': transcript});
 
     },
     function(error) {
@@ -429,7 +429,6 @@ CacheHelper.prototype.isGeneInProgress = function(geneName) {
 
 CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants=false, analyzeGeneCoverage=true, callback) {
 
-  this.dispatch.geneAnalyzed(geneName);
 
   this.dequeueGene(geneName);
   // Invoke cacheGenes, which will kick off the next batch
@@ -437,6 +436,19 @@ CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants=f
   // the current batch have been analyzed.
   this.cacheGenes(analyzeCalledVariants, analyzeGeneCoverage, callback);
 }
+
+
+CacheHelper.prototype.cacheNextGeneSuccess = function(theGene, transcript, analyzeCalledVariants=false, analyzeGeneCoverage=true, callback) {
+
+  this.dispatch.geneAnalyzed(theGene, transcript);
+
+  this.dequeueGene(theGene.gene_name);
+  // Invoke cacheGenes, which will kick off the next batch
+  // of genes to analyze once all of the genes in
+  // the current batch have been analyzed.
+  this.cacheGenes(analyzeCalledVariants, analyzeGeneCoverage, callback);
+}
+
 
 CacheHelper.prototype.promiseIsCachedForProband = function(geneObject, transcript, checkForCalledVariants, checkForGeneCoverage) {
   var me = this;
