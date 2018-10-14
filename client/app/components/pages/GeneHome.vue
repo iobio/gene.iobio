@@ -224,9 +224,9 @@ main.content
                   Variant
                 </v-tab>
 
-                <v-tab-item v-if="!isBasicMode" style="margin-top:5px;margin-bottom:0px;overflow-y:scroll">
+                <v-tab-item v-if="!isBasicMode" style="margin-top:5px;margin-bottom:0px;overflow-y:auto">
 
-                 <feature-matrix-card   style="min-width:300px;min-height:auto;max-height:auto;overflow-y:scroll"
+                 <feature-matrix-card   style="min-width:300px;min-height:auto;max-height:auto;"
                   ref="featureMatrixCardRef"
                   v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
                   :isEduMode="isEduMode"
@@ -247,7 +247,7 @@ main.content
 
 
                 </v-tab-item>
-                <v-tab-item  style="margin-top:0px;margin-bottom:0px;overflow-y:scroll">
+                <v-tab-item  style="margin-top:0px;margin-bottom:0px;overflow-y:auto">
                   <variant-detail-card
                   ref="variantDetailCardRef"
                   :isEduMode="isEduMode"
