@@ -565,7 +565,7 @@
                   </variant-interpretation>
 
                   <variant-notes-menu
-                    v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
+                    v-if="!isBasicMode && !forMyGene2 && (!variant.notFound && isFullAnalysis)"
                     style="float:left;padding-top: 4px"
                     class="variant-notes"
                     :showNotesIcon="true"
@@ -575,7 +575,7 @@
                     @apply-variant-notes="onApplyVariantNotes">
                   </variant-notes-menu>
 
-                  <span v-if="variant.notFound"
+                  <span v-if="variant.notFound && isFullAnalysis"
                     class="coord"> {{ coord(flaggedGene, variant) }} </span>
                   </span>
 

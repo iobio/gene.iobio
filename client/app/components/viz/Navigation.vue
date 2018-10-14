@@ -16,7 +16,7 @@ aside.navigation-drawer
     flex: 1 1 auto
     justify-content: space-between
     margin-bottom: 0px
-    overflow-y: scroll
+    overflow-y: hidden
     padding-bottom: 10px
     height: calc(100% - 15px)
 
