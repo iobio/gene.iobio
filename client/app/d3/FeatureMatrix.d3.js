@@ -49,14 +49,16 @@ export default function featureMatrixD3() {
       if (clazz == null) {
         clazz = "current";
       }
-      container.selectAll("g.group>g.group>.col .colbox").classed(clazz, false);
-      container.selectAll("g.group>g.group>.col").each( function(d,i) {
-        if (d.start == variant.start &&
-            d.ref == variant.ref &&
-            d.alt == variant.alt) {
-          d3.select(this).select(".colbox").classed(clazz, true);
-        }
-      });
+      if (container) {
+        container.selectAll("g.group>g.group>.col .colbox").classed(clazz, false);
+        container.selectAll("g.group>g.group>.col").each( function(d,i) {
+          if (d.start == variant.start &&
+              d.ref == variant.ref &&
+              d.alt == variant.alt) {
+            d3.select(this).select(".colbox").classed(clazz, true);
+          }
+        });
+      }
 
     } else {
       if (container) {
