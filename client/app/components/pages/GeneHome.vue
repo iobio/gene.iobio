@@ -208,7 +208,7 @@ main.content
 
             <v-card v-if="geneModel && cohortModel.isLoaded && Object.keys(selectedGene).length > 0"
             id="gene-and-variant-tabs" slot="right"
-            style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;overflow-y:scroll">
+            style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;">
 
 
               <v-tabs
