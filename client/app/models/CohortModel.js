@@ -1748,7 +1748,10 @@ class CohortModel {
     })
     if (existingVariants.length == 0) {
       this.flaggedVariants.push(variant);
-      this._recacheForFlaggedVariant(theGene, theTranscript, variant);
+      this.promiseLoadBamDepth(theGene, theTranscript)
+      .then(function() {
+        self._recacheForFlaggedVariant(theGene, theTranscript, variant);
+      })
     }
   }
 
@@ -2101,7 +2104,11 @@ class CohortModel {
                         dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
                         me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
 
-                        resolve();
+                        me.promiseLoadCoverage(geneObject, transcript)
+                        .then(function() {
+                          resolve();
+                        })
+
                       });
                     })
                   }
