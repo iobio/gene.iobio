@@ -372,7 +372,7 @@
 
 
 
-      <div v-if="isBasicMode" style="margin-left: 10px;float:left;width:33%;">
+      <div v-if="isBasicMode" style="margin-left: 10px;float:left;width:31%;">
 
           <v-flex v-if="isBasicMode">
             <v-layout  row>
@@ -425,7 +425,7 @@
       </div>
 
 
-      <div style="float:left;width:33%;min-width:350px">
+      <div style="float:left;width:31%;min-width:350px">
 
 
         <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
@@ -513,7 +513,7 @@
 
 
 
-      <div v-if="selectedVariant" style="float:left;width:33%">
+      <div v-if="selectedVariant" style="float:left;width:31%">
           <v-flex  v-if="!isBasicMode">
             <v-layout  row>
                <v-flex xs3 class="field-label">gnomAD</v-flex>
@@ -578,7 +578,7 @@
       </div>
 
 
-      <div id="coverage-svg" v-if="selectedVariant" style="float:left;width:33%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
+      <div id="coverage-svg" v-if="selectedVariant" style="float:left;width:31%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
 
 
@@ -586,7 +586,7 @@
       </div>
 
 
-      <div v-if="isBasicMode" style="float:left;width:33%;">
+      <div v-if="isBasicMode" style="float:left;width:31%;">
 
           <v-flex v-if="isBasicMode">
             <v-layout  row>
@@ -605,7 +605,7 @@
       </div>
 
 
-      <div style="float:left;width:33%;"
+      <div style="float:left;width:31%;"
         v-if="selectedVariant && selectedVariant.genericAnnots && selectedVariant.genericAnnots.AVIA3">
         <span style="text-align:center;font-size:12px">AVIA3 Annotations</span>
         <v-layout row nowrap
