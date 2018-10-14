@@ -1895,10 +1895,12 @@ export default {
         && self.selectedTranscript
         && self.selectedTranscript.transcript_id == canonicalTranscript.transcript_id) {
         // No need to reselect the gene if the canonical transcript is already selected for the same gene
+        self.selectedGene = flaggedVariant.gene;
         genePromise = Promise.resolve();
       } else if (flaggedVariant.transcript
         && self.selectedTranscript.transcript_id == flaggedVariant.transcript.transcript_id) {
         // No need to reselect the gene if the same transcript on the same gene is already selecte
+        self.selectedGene = flaggedVariant.gene;
         genePromise = Promise.resolve();
       } else {
         self.selectedGene = flaggedVariant.gene;
