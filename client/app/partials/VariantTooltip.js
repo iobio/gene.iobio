@@ -296,6 +296,10 @@ export default class VariantTooltip {
       }
     }
 
+    var uniqueClinvarClinSigRow = me._tooltipHeaderRow(Object.keys(info.clinvarUniqueClinSigs).join(", " ), '', '', '', null, "style='padding-top:4px;text-align:left'");
+    var uniqueClinvarTraitsRow = me._tooltipHeaderRow(Object.keys(info.clinvarUniqueTraits).join(", "), '', '', '', null, "style='padding-top:4px;text-align:left'");
+
+
 
     var vepHighestImpactRowSimple = "";
     if (info.vepHighestImpact.length > 0) {
@@ -341,6 +345,17 @@ export default class VariantTooltip {
         + vepHighestImpactRowSimple
         + clinvarSimpleRow1
         + clinvarSimpleRow2 );
+    } else if (relationship == 'known-variants') {
+      return (
+        me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, info.dbSnpLink, 'ref-alt')
+        + calledVariantRow
+        + me._tooltipMainHeaderRow(info.vepImpact, info.vepConsequence, '', '', 'impact-badge')
+        + vepHighestImpactRowSimple
+        + inheritanceModeRow
+        + uniqueClinvarClinSigRow
+        + uniqueClinvarTraitsRow
+        + me._linksRow(variant, pinMessage)
+      );
     } else {
       return (
         me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, info.dbSnpLink, 'ref-alt')
@@ -348,9 +363,8 @@ export default class VariantTooltip {
         + me._tooltipMainHeaderRow(info.vepImpact, info.vepConsequence, '', '', 'impact-badge')
         + vepHighestImpactRowSimple
         + inheritanceModeRow
-        + siftPolyphenRow
         + afRow
-        + (relationship == 'known-variants' ? me._tooltipRow('&nbsp;', info.clinvarLinkKnownVariants, '6px')  : clinvarSimpleRow1)
+        + clinvarSimpleRow1
         + clinvarSimpleRow2
         + me._linksRow(variant, pinMessage)
       );
@@ -376,13 +390,13 @@ export default class VariantTooltip {
 
 
   _tooltipHeaderRow(value1, value2, value3, value4, clazz, style) {
-    var theStyle = style ? style : '';
+    var theStyle = style ? style : "style='text-align:center'";
     var clazzList = "col-md-12 tooltip-title";
     if (clazz) {
       clazzList += " " + clazz;
     }
-    return '<div class="row" style="' + theStyle + '">'
-          + '<div class="' + clazzList + '" style="text-align:center">' + value1 + ' ' + value2 + ' ' + value3 +  ' ' + value4 + '</div>'
+    return '<div class="row">'
+          + '<div class="' + clazzList +  '" ' + theStyle + ">" + value1 + ' ' + value2 + ' ' + value3 +  ' ' + value4 + '</div>'
           + '</div>';
   }
   _tooltipMainHeaderRow(value1, value2, value3, value4, clazz) {

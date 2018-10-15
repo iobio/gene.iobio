@@ -655,7 +655,10 @@ class Util {
 
       clinvarSigSummary: "",
       clinvarLinks: [],
-      clinvarLinkKnownVariants: "",
+
+      clinvarUniqueClinSigs: {},
+      clinvarUniqueTraits: {},
+
       zygosity: "",
       af1000G: "",
       afgnomAD: "",
@@ -896,6 +899,7 @@ class Util {
     */
     if (variant.clinvarSubmissions != null && variant.clinvarSubmissions.length > 0) {
       var clinsigUniq = {};
+
       for (var idx = 0; idx < variant.clinvarSubmissions.length; idx++) {
         var submission = variant.clinvarSubmissions[idx];
         submission.clinsig.split(",").forEach(function(clinsig) {
@@ -918,9 +922,8 @@ class Util {
 
           info.clinvarLinks.push({'key': accessionSingle, 'link': clinvarLink, 'icon': 'clinvar', 'significance': translator.clinvarMap[clinsigSingle].clazz});
 
-          info.clinvarLinkKnownVariants += "<span style='clear:both' class='tooltip-clinsig-link" + clinsigSingle + "'>";
-          info.clinvarLinkKnownVariants += '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="padding-right:4px" target="_new"' + '>' + clinsigSingle.split("_").join(" ") + '</a>';
-
+          info.clinvarUniqueClinSigs[clinsigSingle.split("_").join(" ")] = null;
+          info.clinvarUniqueTraits[phenotype] = null;
         }
 
       };
@@ -945,7 +948,10 @@ class Util {
             if (info.clinvarClinSig.length > 0 ) {
                 info.clinvarClinSig += ", ";
             }
-            info.clinvarClinSig += key.split("_").join(" ");
+            let clinsig = key.split("_").join(" ");
+            info.clinvarClinSig += clinsig;
+            info.clinvarUniqueClinSigs[clinsig] = null;
+
           }
         }
       }
@@ -954,7 +960,8 @@ class Util {
           if (info.clinvarTrait.length > 0) {
               info.clinvarTrait += ", ";
           }
-          info.clinvarTrait += key.split("_").join(" ").split("\\x2c").join(", ");
+          let phenotype = key.split("_").join(" ").split("\\x2c").join(", ");
+          info.clinvarUniqueTraits[phenotype] = null;
         }
       }
       if (variant.clinvarUid != null && variant.clinvarUid != '') {
