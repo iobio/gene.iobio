@@ -239,7 +239,7 @@ export default class EndpointCmd {
     var tabixArgs = ['-h', clinvarUrl, regionParm];
 
     var cmd = new iobio.cmd (me.IOBIO.tabix,         tabixArgs,         {ssl: me.globalApp.useSSL})
-                       .pipe(me.IOBIO.knownvariants, knownVariantsArgs, {ssl: false});
+                       .pipe(me.IOBIO.knownvariants, knownVariantsArgs, {ssl: me.globalApp.useSSL});
 
     return cmd;
   }
