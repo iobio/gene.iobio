@@ -2221,17 +2221,39 @@ export default {
       }
 
       if (clinObject.type == 'apply-genes' && !self.isFullAnalysis) {
-        let genesString = clinObject.genes && Array.isArray(clinObject.genes) ? clinObject.genes.join(" ") : "";
-        let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
-        if (genesString.length > 0) {
-          let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
-          this.onApplyGenes(genesString, options, function() {
-            if (self.cohortModel.isLoaded) {
-              self.showLeftPanelForGenes();
-              self.cacheHelper.analyzeAll(self.cohortModel, false);
-            }
-          });
+        let genesToProcess = null;
+
+        if (clinObject.genes && Array.isArray(clinObject.genes)) {
+          let newGenes = clinObject.genes.filter(function(theGeneName) {
+            return self.geneModel.sortedGeneNames == null || self.geneModel.sortedGeneNames.indexOf(theGeneName) == -1;
+          })
+          let deprecatedGenes = [];
+          if (self.geneModel.sortedGeneNames) {
+            deprecatedGenes = self.geneModel.sortedGeneNames.filter(function(theGeneName) {
+              return clinObject.genes.indexOf(theGeneName) == -1;
+            })
+          }
+          if (deprecatedGenes.length > 0 || newGenes.length > 0) {
+            genesToProcess = clinObject.genes;
+          }
         }
+
+        if (genesToProcess) {
+          let genesString = genesToProcess ? genesToProcess.join(" ") : "";
+          let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
+
+          if (genesString.length > 0 ) {
+            let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
+            this.onApplyGenes(genesString, options, function() {
+              if (self.cohortModel.isLoaded) {
+                self.showLeftPanelForGenes();
+                self.cacheHelper.analyzeAll(self.cohortModel, false);
+              }
+            });
+          }
+
+        }
+
       } else if (clinObject.type == 'set-data' && !self.isFullAnalysis) {
         if (self.cohortModel == null) {
           self.init(function() {
