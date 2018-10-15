@@ -565,7 +565,7 @@
                   </variant-interpretation>
 
                   <variant-notes-menu
-                    v-if="!isBasicMode && !forMyGene2 && (!variant.notFound && isFullAnalysis)"
+                    v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
                     style="float:left;padding-top: 4px"
                     class="variant-notes"
                     :showNotesIcon="true"
