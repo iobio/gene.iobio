@@ -19,6 +19,7 @@ aside.navigation-drawer
     overflow-y: hidden
     padding-bottom: 10px
     height: calc(100% - 15px)
+    overflow-y: scroll
 
     .tabs__bar
       padding-left: 10px
