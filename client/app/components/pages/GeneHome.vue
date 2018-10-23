@@ -1069,13 +1069,19 @@ export default {
       let self = this;
       self.clearFilter();
       self.deselectVariant();
+      self.activeGeneVariantTab = "0";
+      self.showLeftPanelForGenes();
       self.promiseLoadGene(geneName)
       .then(function() {
         self.showLeftPanelForGenes();
         self.onSendGenesToClin();
-        self.activeGeneVariantTab = "0";
         self.setUrlGeneParameters();
-        self.showLeftPanelWhenFlaggedVariants();
+        if (self.$refs.genesCardRef) {
+          self.$refs.genesCardRef.determineFlaggedGenes();
+        }
+        setTimeout(function() {
+          self.showLeftPanelWhenFlaggedVariantsForGene();
+        },1000)
       })
     },
 
@@ -1102,6 +1108,24 @@ export default {
 
     },
 
+    showLeftPanelWhenFlaggedVariantsForGene: function() {
+      let self = this;
+      if (self.flaggedVariants && self.flaggedVariants.length > 0) {
+        let matchingVariants = self.cohortModel.getFlaggedVariantsForGene(self.selectedGene.gene_name);
+        if (!self.isEduMode && matchingVariants.length > 0 && !self.isLeftDrawerOpen) {
+          if (self.$refs.navRef) {
+            self.$nextTick(function() {
+              self.$refs.navRef.onShowFlaggedVariants();
+            });
+          }
+        } else if (!self.isEduMode && matchingVariants.length > 0) {
+          self.$nextTick(function() {
+            self.$refs.navRef.activeTab = 1;
+          })
+        }
+      }
+    },
+
     showLeftPanelWhenFlaggedVariants: function() {
       let self = this;
       if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
@@ -1110,7 +1134,7 @@ export default {
             self.$refs.navRef.onShowFlaggedVariants();
           });
         }
-      } else if (!self.isEduMode && self.flaggedVariants) {
+      } else if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0) {
         self.$nextTick(function() {
           self.$refs.navRef.activeTab = 1;
         })
