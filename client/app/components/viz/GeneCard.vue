@@ -80,19 +80,6 @@
 
 
 
-
-  #gene-links
-    display: inline-block
-
-    .gene-link
-      display: inline-block
-      margin-right: 10px
-      color: $link-color !important
-      font-size: 13px
-
-
-
-
   #non-protein-coding
     clear: both;
     padding-bottom: 0px;
@@ -190,18 +177,11 @@
         </transcripts-menu>
 
 
-        <span id="gene-links">
-          <a
-          v-if="showGene && !isBasicMode && !isEduMode"
-          v-for="link in links"
-          :key="link.name"
-          :href="link.url"
-          :target="`_` + link.name"
-          class="gene-link"
-          >
-            {{ link.display }}
-          </a>
-        </span>
+        <gene-links-menu
+        v-if="showGene && !isBasicMode && !isEduMode"
+        :geneModel="geneModel"
+        :selectedGene="selectedGene">
+        </gene-links-menu>
 
       </div>
 
@@ -279,15 +259,17 @@
 
 <script>
 
-import GeneViz        from '../viz/GeneViz.vue'
-import TranscriptsMenu from '../partials/TranscriptsMenu.vue'
-import ScrollButton   from '../partials/ScrollButton.vue'
+import GeneViz              from '../viz/GeneViz.vue'
+import GeneLinksMenu        from '../partials/GeneLinksMenu.vue'
+import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
+import ScrollButton         from '../partials/ScrollButton.vue'
 import Vue from 'vue'
 
 export default {
   name: 'gene-card',
   components: {
     GeneViz,
+    GeneLinksMenu,
     TranscriptsMenu,
     ScrollButton
   },
@@ -325,8 +307,7 @@ export default {
 
       phenotypes: null,
       phenotypeTerms: null,
-      ncbiSummary: null,
-      links: null
+      ncbiSummary: null
 
 
     }
@@ -379,11 +360,10 @@ export default {
             return d.hpo_term_name;
           }).join(", ");
         }
-        this.links = this.geneModel.getLinks(this.selectedGene.gene_name);
+
       } else {
         this.ncbiSummary = null;
         this.phenotypes = null;
-        this.links = null;
       }
     }
 

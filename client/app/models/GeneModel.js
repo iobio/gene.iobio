@@ -17,7 +17,7 @@ class GeneModel {
         omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
         genecards: { display: 'GeneCards', url: 'https://www.genecards.org/cgi-bin/carddisp.pl?gene=GENESYMBOL'},
         gtex:      { display: 'GTex',      url: 'https://www.gtexportal.org/home/gene/GENESYMBOL'},
-        ucsc:      { display: 'UCSC',      url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=GENECOORD'},
+        ucsc:      { display: 'UCSC Browser', url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=GENECOORD'},
         uniprot:   { display: 'UniProt',   url: 'http://www.uniprot.org/uniprot/?query=gene:GENESYMBOL AND organism:"Homo sapiens (Human) [9606]"'},
         humanmine: { display: 'HumanMine', url: 'http://www.humanmine.org/humanmine/keywordSearchResults.do?searchTerm=+GENESYMBOL&searchSubmit=GO'},
         humanproteinatlas:
