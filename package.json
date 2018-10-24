@@ -20,6 +20,7 @@
     "v-tooltip": "^2.0.0-rc.31",
     "vue": "^2.3.4",
     "vue-analytics": "^5.14.0",
+    "vue-pileup": "^0.2.1",
     "vue-router": "^2.5.3",
     "vuetify": "^1.0.4"
   },

@@ -109,6 +109,15 @@ main.content
     <v-content>
       <v-container fluid>
 
+        <v-dialog v-model="showPileup" width="800">
+          <pileup
+            :referenceURL="pileupReferenceURL"
+            :alignmentURL="pileupAlignmentURL"
+            :locus="pileupLocus"
+            :visible="showPileup"
+          />
+        </v-dialog>
+
         <intro-card v-if="forMyGene2"
         :closeIntro="closeIntro"
         :isBasicMode="isBasicMode"
@@ -241,6 +250,8 @@ main.content
                   @remove-flagged-variant="onRemoveFlaggedVariant"
                   >
                   </variant-detail-card>
+
+                  <v-btn @click="onShowPileupButton">Show Pileup</v-btn>
 
                   <scroll-button ref="scrollButtonRefVariant" :parentId="`variant-detail`">
                   </scroll-button>
@@ -377,11 +388,13 @@ import allGenesData       from '../../../data/genes.json'
 import SplitPane          from '../partials/SplitPane.vue'
 import ScrollButton       from '../partials/ScrollButton.vue'
 
+import VuePileup          from 'vue-pileup'
 
 
 export default {
   name: 'home',
   components: {
+      pileup: VuePileup,
       EduTourBanner,
       Navigation,
       IntroCard,
@@ -506,7 +519,13 @@ export default {
       clinIobioUrls: ["http://localhost:4030", "http://clin.iobio.io"],
       clinIobioUrl: null,
 
-      forceLocalStorage: null
+      forceLocalStorage: null,
+
+      showPileup: false,
+      // TODO: this needs to change depending on the currently selected reference
+      pileupReferenceURL: "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg19/hg19.fasta",
+      //pileupReferenceURL: "https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg38/hg38.fa",
+      pileupAlignmentURL: '',
 
     }
   },
@@ -684,6 +703,20 @@ export default {
         return this.globalApp.utility.formatDisplay(this.selectedVariant, this.cohortModel.translator, this.isEduMode)
       } else {
         return null;
+      }
+    },
+    pileupLocus: function() {
+      if (this.selectedVariant) {
+        // This controlls how many base pairs are displayed on either side of
+        // the center of the locus.
+        const SPAN = 200;
+        const chrom = this.selectedVariant.chrom;
+        const start = this.selectedVariant.start - SPAN;
+        const end = this.selectedVariant.start + SPAN;
+        return 'chr' + chrom + ':' + start + '-' + end;
+      }
+      else {
+        return '';
       }
     }
 
@@ -2092,6 +2125,12 @@ export default {
         };
         window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
       }
+    },
+
+    onShowPileupButton: function() {
+      // TODO: this should change depending on the selected model
+      this.pileupAlignmentURL = this.cohortModel.getModel('proband').bam.bamUri;
+      this.showPileup = true;
     }
 
 
