@@ -707,7 +707,7 @@ export default {
     },
     pileupLocus: function() {
       if (this.selectedVariant) {
-        // This controlls how many base pairs are displayed on either side of
+        // This controls how many base pairs are displayed on either side of
         // the center of the locus.
         const SPAN = 200;
         const chrom = this.selectedVariant.chrom;
