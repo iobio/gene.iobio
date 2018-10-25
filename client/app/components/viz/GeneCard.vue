@@ -50,23 +50,33 @@
     overflow-y: scroll
 
 
+  #gene-card-title
+    display:inline-block
+    vertical-align: middle
+
+
+
   #gene-name
     margin-left: 0px
     color:  $app-color
     margin-top: 0px
-    margin-bottom: 8px
     font-size: 15px
+    display:inline-block
+    vertical-align: middle
 
 
 
   #gene-chr
     margin-left: 5px
+    vertical-align: middle
 
 
   #gene-region
     margin-left: 3px
+    vertical-align: middle
 
   #region-buffer-box
+    vertical-align: middle
     .input-group--text-field
       input
         font-size: 14px
@@ -141,11 +151,11 @@
   <div tile id="gene-track" :class="{'app-card': true, 'full': showGeneViz}">
 
     <div>
-      <span class="card-title" style="display:inline-block">Gene</span>
-      <div style="display:inline-block;margin-right:auto;">
-        <span id="gene-name"  class="level-basic gene-card-label heading ">
-          {{ selectedGene.gene_name }}
-        </span>
+      <span class="card-title" id="gene-card-title">Gene</span>
+      <span id="gene-name"  class="level-basic gene-card-label heading ">
+        {{ selectedGene.gene_name }}
+      </span>
+      <div style="display:inline-block;vertical-align:top;margin-top:-4px">
 
         <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
 
@@ -157,7 +167,7 @@
 
         <span  id="gene-plus-minus-label"  v-if="showGene && !isEduMode && !isBasicMode"  class="level-edu level-basic fullview  " style="padding-left: 15px">+  -</span>
 
-        <div v-if="showGene && !isEduMode && !isBasicMode" id="region-buffer-box" style="display:inline-block;width:50px;height:21px;margin-right:5px"  >
+        <div v-if="showGene && !isEduMode && !isBasicMode" id="region-buffer-box" style="display:inline-block;width:50px;height:21px;margin-right:15px"  >
             <v-text-field
                 id="gene-region-buffer-input"
                 class="sm level-edu level-basic  fullview"
@@ -176,16 +186,16 @@
           @gene-source-selected="onGeneSourceSelected">
         </transcripts-menu>
 
-
-        <gene-links-menu
-        v-if="showGene && !isBasicMode && !isEduMode"
-        :geneModel="geneModel"
-        :selectedGene="selectedGene">
-        </gene-links-menu>
-
       </div>
 
     </div>
+
+    <gene-links-menu
+    v-if="showGene && !isBasicMode && !isEduMode"
+    :expanded="true"
+    :geneModel="geneModel"
+    :selectedGene="selectedGene">
+    </gene-links-menu>
 
     <!-- Non protein-coding gene badges -->
     <div id="non-protein-coding" class="level-edu level-basic">

@@ -18,7 +18,8 @@
     color: $app-color
     padding-bottom: 10px
     padding-top: 0px !important
-    margin-top: 0px !important
+    margin-top: 7px !important
+    margin-left: -12px
 
   #variant-notes
     display: inline-block
@@ -324,7 +325,7 @@
       <span style="display:inline-block" v-if="showTitle ">Variant</span>
     </div>
 
-    <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-center">
+    <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-left">
 
 
       <span class="pr-1" v-if="!isBasicMode">
@@ -336,11 +337,15 @@
       </span>
       <span class="pl-1">{{ selectedGene.gene_name }}</span>
       <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-      <span class="pl-1 refalt">{{ refAlt  }}</span>
-      <span class="pl-1">{{ info.HGVSpAbbrev }}</span>
       <span class="pl-3">{{ info.coord }}</span>
-      <span class="pl-1" v-if="!isBasicMode">{{ info.exon }}</span>
-      <span class="pl-3" v-if="info.dbSnpLink && !isBasicMode" v-html="info.dbSnpLink"></span>
+      <span class="pl-1 refalt">{{ refAlt  }}</span>
+      <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
+      <variant-links-menu
+      :expanded="true"
+      :selectedGene="selectedGene"
+      :selectedVariant="selectedVariant"
+      :geneModel="cohortModel.geneModel">
+      </variant-links-menu>
     </div>
 
     <div class="variant-notes" v-if="notes" id="notes">
@@ -563,6 +568,21 @@
 
           <v-flex  v-if="!isBasicMode">
             <v-layout row class="">
+               <v-flex xs3 class="field-label  "  >Exon </v-flex>
+               <v-flex xs9 class="field-value">{{ info.exon }}</v-flex>
+            </v-layout>
+          </v-flex>
+
+          <v-flex  v-if="!isBasicMode">
+            <v-layout row class="">
+               <v-flex xs3 class="field-label  "  >dbSNP ID</v-flex>
+               <v-flex xs9 class="field-value" v-html="info.dbSnpLink"></v-flex>
+            </v-layout>
+          </v-flex>
+
+
+          <v-flex  v-if="!isBasicMode">
+            <v-layout row class="">
                <v-flex xs3 class="field-label  "  >HGVSc </v-flex>
                <v-flex xs9 class="field-value">{{ info.HGVSc }}</v-flex>
             </v-layout>
@@ -624,17 +644,19 @@
 
 <script>
 
-import Vue from 'vue'
-import AppIcon from "../partials/AppIcon.vue"
+import Vue              from 'vue'
+import AppIcon          from "../partials/AppIcon.vue"
 import VariantNotesMenu from "../partials/VariantNotesMenu.vue"
-import InfoPopup from "../partials/InfoPopup.vue"
+import VariantLinksMenu from "../partials/VariantLinksMenu.vue"
+import InfoPopup        from "../partials/InfoPopup.vue"
 
 export default {
   name: 'variant-detail-card',
   components: {
     AppIcon,
     VariantNotesMenu,
-    InfoPopup
+    InfoPopup,
+    VariantLinksMenu
   },
   props: {
     isEduMode: null,

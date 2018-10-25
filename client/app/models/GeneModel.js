@@ -13,15 +13,24 @@ class GeneModel {
 
 
     this.linkTemplates = {
-        ncbi:      { display: 'NCBI',      url: 'https://www.ncbi.nlm.nih.gov/gene/GENEUID'},
         omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
-        genecards: { display: 'GeneCards', url: 'https://www.genecards.org/cgi-bin/carddisp.pl?gene=GENESYMBOL'},
-        gtex:      { display: 'GTex',      url: 'https://www.gtexportal.org/home/gene/GENESYMBOL'},
-        ucsc:      { display: 'UCSC Browser', url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=GENECOORD'},
-        uniprot:   { display: 'UniProt',   url: 'http://www.uniprot.org/uniprot/?query=gene:GENESYMBOL AND organism:"Homo sapiens (Human) [9606]"'},
         humanmine: { display: 'HumanMine', url: 'http://www.humanmine.org/humanmine/keywordSearchResults.do?searchTerm=+GENESYMBOL&searchSubmit=GO'},
+        ncbi:      { display: 'NCBI',      url: 'https://www.ncbi.nlm.nih.gov/gene/GENEUID'},
+        decipher:  { display: 'DECIPHER',  url: 'https://decipher.sanger.ac.uk/search?q=GENESYMBOL'},
+        marrvel:   { display: 'MARRVEL',   url: 'http://marrvel.org/search/gene/GENESYMBOL'},
+        genecards: { display: 'GeneCards', url: 'https://www.genecards.org/cgi-bin/carddisp.pl?gene=GENESYMBOL'},
+        uniprot:   { display: 'UniProt',   url: 'http://www.uniprot.org/uniprot/?query=gene:GENESYMBOL AND organism:"Homo sapiens (Human) [9606]"'},
+        gtex:      { display: 'GTex',      url: 'https://www.gtexportal.org/home/gene/GENESYMBOL'},
         humanproteinatlas:
-                   { display: 'Human Protein Atlas', url: 'https://www.proteinatlas.org/search/gene_name:GENESYMBOL'}
+                   { display: 'Human Protein Atlas', url: 'https://www.proteinatlas.org/search/gene_name:GENESYMBOL'},
+        ucsc:      { display: 'UCSC Browser', url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=GENECOORD'}
+    }
+
+    this.variantLinkTemplates = {
+        gnomad:    { display: 'gnomAD',       url: 'http://gnomad.broadinstitute.org/variant/VARIANTCOORD-GNOMAD'},
+        varsome:   { display: 'VarSome',      url: 'https://varsome.com/variant/GENOMEBUILD-ALIAS-UCSC/VARIANTCOORD-VARSOME'},
+        dbsnp:     { display: 'dbSNP',        url: 'http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=VARIANT-RSID'},
+        ucsc:      { display: 'UCSC Browser', url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=VARIANTCOORD-UCSC'}
     }
 
     this.geneSource = null;
@@ -951,6 +960,68 @@ class GeneModel {
     }
 
     return links;
+  }
+
+  getVariantLinks(geneName, variant) {
+
+    let me = this;
+    let variantLinks = [];
+
+    var variantCoordUCSC = null;
+    var variantCoordVarSome = null;
+    var variantCoordGNomAD
+    var geneObject = me.geneObjects[geneName];
+
+    var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
+
+    if (geneObject) {
+      variantCoordUCSC    = geneObject.chr + ":" + variant.start + "-" + variant.end;
+      variantCoordVarSome = geneObject.chr + "-" + variant.start + "-" + variant.ref + '>' + variant.alt;
+      variantCoordGNomAD  = geneObject.chr + "-" + variant.start + "-" + variant.ref + '-' + variant.alt;
+    }
+
+    var info = me.globalApp.utility.formatDisplay(variant, me.translator, false);
+
+
+    for (var linkName in me.variantLinkTemplates) {
+      var theLink = $.extend({}, me.variantLinkTemplates[linkName]);
+      theLink.name = linkName;
+
+      if (variantCoordGNomAD) {
+        theLink.url = theLink.url.replace(/VARIANTCOORD-GNOMAD/g, variantCoordUCSC);
+      }
+      if (variantCoordUCSC) {
+        theLink.url = theLink.url.replace(/VARIANTCOORD-UCSC/g, variantCoordUCSC);
+      }
+      if (variantCoordVarSome) {
+        theLink.url = theLink.url.replace(/VARIANTCOORD-VARSOME/g, variantCoordVarSome);
+      }
+      if (buildAliasUCSC) {
+        theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
+      }
+      if (info && info.rsId &&  info.rsId.length > 0) {
+        theLink.url = theLink.url.replace(/VARIANT-RSID/g, info.rsId);
+      }
+      var keep = false;
+
+      if (linkName == 'gnomad') {
+        if (variant.vepAf && variant.vepAf.gnomAD && variant.vepAf.gnomAD.AF && variant.vepAf.gnomAD.AF != ".") {
+          keep = true;
+        }
+      } else if (linkName == 'dbsnp') {
+        if (info && info.rsId &&  info.rsId.length > 0) {
+          keep = true;
+        }
+      } else {
+        keep = true;
+      }
+      if (keep) {
+        variantLinks.push(theLink);
+      }
+    }
+
+    return variantLinks;
+
   }
 
 

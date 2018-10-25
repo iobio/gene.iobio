@@ -2,9 +2,10 @@
 
 @import ../../../assets/sass/variables
 
-#show-gene-links-button
+#show-variant-links-button
   margin: 0px 8px 0px 8px
   padding: 0px
+  margin-top: -3px
 
   .btn__content
     color:  $app-color
@@ -14,16 +15,15 @@
       font-size: 17px
       padding-right: 3px
 
-#gene-links
+#variant-links
   display: inline-block
-
-  .gene-link
+  .variant-link
     display: inline-block
     margin-right: 10px
     color: $link-color !important
     font-size: 13px
 
-.gene-link-button
+.variant-link-button
   background-color: white !important
   padding: 0px
   height: 20px !important
@@ -47,7 +47,7 @@
 </style>
 
 <template>
-  <div :style="expanded ? 'margin-left:-10px;margin-bottom:5px;margin-top:3px' : 'display: inline-block'">
+  <span :style="expanded ? 'margin-left:40px' : ''">
     <v-menu
     v-if="!expanded"
     offset-y
@@ -56,10 +56,10 @@
     v-model="showMenu"
     >
 
-      <v-btn id="show-gene-links-button"
+      <v-btn id="show-variant-links-button"
        flat
        slot="activator"
-       v-tooltip.top-center="`External links to ` + selectedGene.gene_name + ` (e.g. OMIM, UCSC brower, GeneCards, etc.`"
+       v-tooltip.top-center="`External links to variant info (e.g. VarSome, UCSC Browser, etc.`"
       >
           <v-icon>open_in_new</v-icon>
           External links
@@ -75,7 +75,7 @@
               <a
                 :href="link.url"
                 :target="`_` + link.name"
-                class="gene-link"
+                class="variant-link"
                 >
                   {{ link.display }}
               </a>
@@ -89,15 +89,14 @@
 
     <v-btn v-if="expanded"
     flat
-    class="gene-link-button"
+    class="variant-link-button"
     v-for="link in links"
     @click="onClickLink(link)"
     :key="link.name">
       <v-icon>open_in_new</v-icon>
       {{ link.display }}
     </v-btn>
-
-  </div>
+  </span>
 </template>
 
 <script>
@@ -105,12 +104,13 @@
 
 
 export default {
-  name: 'gene-links-menu',
+  name: 'variant-links-menu',
   components: {
   },
   props: {
     geneModel: null,
     selectedGene: null,
+    selectedVariant: null,
     expanded: null
   },
   data () {
@@ -126,8 +126,8 @@ export default {
       window.open(link.url, "_" + link.display);
     },
     initLinks: function() {
-      if (this.selectedGene && this.geneModel) {
-        this.links = this.geneModel.getLinks(this.selectedGene.gene_name);
+      if (this.selectedGene && this.selectedVariant && this.geneModel) {
+        this.links = this.geneModel.getVariantLinks(this.selectedGene.gene_name, this.selectedVariant);
       }
     }
   },
@@ -142,10 +142,9 @@ export default {
     showMenu: function() {
       this.initLinks();
     },
-    selectedGene: function() {
+    selectedVariant: function() {
       this.initLinks();
     }
-
   }
 }
 </script>
