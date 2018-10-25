@@ -155,7 +155,7 @@
       <span id="gene-name"  class="level-basic gene-card-label heading ">
         {{ selectedGene.gene_name }}
       </span>
-      <div :style="isBasicMode ? 'display:inline-block;vertical-align:middle' : 'display:inline-block;vertical-align:top;margin-top:-4px'">
+      <div :style="isBasicMode || isEduMode ? 'display:inline-block;vertical-align:middle' : 'display:inline-block;vertical-align:top;margin-top:-4px'">
 
         <span id="gene-chr"  v-if="showGene"   class="level-basic gene-card-label keep-case" >{{ selectedGene.chr }}</span>
 
