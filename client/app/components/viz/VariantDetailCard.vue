@@ -10,6 +10,31 @@
   margin-bottom: 0px
   padding-left: 10px
 
+  .rel-header
+    font-style: italic
+
+  .variant-action-button
+    background-color: white
+    padding: 0px
+    height: 22px !important
+    min-width: 90px
+    margin-left: 15px
+    margin-right: 0px
+    margin-top: -2px
+    margin-bottom: 0px
+
+    .btn__content
+      color: $app-color !important
+      padding-left: 8px
+      padding-right: 8px
+      font-size: 13px
+
+      i.material-icons
+        color: $app-color
+        font-size: 14px
+        padding-right: 2px
+        padding-top: 0px
+
   &.has-notes
     max-height: 232px
     min-height: 232px
@@ -18,8 +43,9 @@
     color: $app-color
     padding-bottom: 10px
     padding-top: 0px !important
-    margin-top: 7px !important
-    margin-left: -12px
+    margin-top: 12px !important
+    margin-bottom: 7px
+    margin-left: -10px
 
   #variant-notes
     display: inline-block
@@ -103,9 +129,7 @@
       font-weight: bold
 
   #user-flag-buttons
-    position: absolute
-    bottom: 0px
-    right: 0px
+    display: inline-block
     margin-bottom: 0px
 
   .scroll-button
@@ -133,15 +157,6 @@
       font-weight: bold !important
 
 
-  .flag-button
-    padding: 0px
-    margin-bottom: 3px
-    margin-left: 2px
-    height: 24px
-
-    .material-icons
-      font-size: 17px
-      color: $link-color !important
 
   .content
     font-size: 13px
@@ -328,18 +343,39 @@
     <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-left">
 
 
-      <span class="pr-1" v-if="!isBasicMode">
+      <span class="pr-1 pl-1" v-if="!isBasicMode && (selectedVariantRelationship == 'known-variants' || selectedVariantRelationship)">
         <app-icon v-show="selectedVariantRelationship == 'known-variants'"
-          :icon="selectedVariantRelationship == 'known-variants' ? 'clinvar' : ''"
-          :significance="selectedVariant.clinvar" width="16" height="16">
+          :icon="clinvar" width="16" height="16">
         </app-icon>
-        {{ selectedVariantRelationship | showRelationship }}
+        <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
       </span>
       <span class="pl-1">{{ selectedGene.gene_name }}</span>
       <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
       <span class="pl-1">{{ info.coord }}</span>
       <span class="pl-1 refalt">{{ refAlt  }}</span>
       <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
+
+     <v-btn class="variant-action-button"  @click="onShowPileup">
+      <v-icon>line_style</v-icon>
+      Show pileup
+     </v-btn>
+
+      <div id="user-flag-buttons" v-if="selectedVariant && !isEduMode && !isBasicMode && selectedVariantRelationship != 'known-variants'" >
+        <v-btn class="flag-button variant-action-button" small raised
+        v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"
+        @click="setUserFlag">
+          <app-icon icon="user-flagged"></app-icon>
+          Flag variant
+        </v-btn>
+
+        <v-btn class="flag-button variant-action-button" small raised
+        v-if="selectedVariant.isUserFlagged"
+        @click="removeUserFlag">
+          <v-icon>outlined_flag</v-icon>
+          Remove flag
+        </v-btn>
+      </div>
+
       <variant-links-menu
       v-if="!isBasicMode && !isEduMode"
       :expanded="true"
@@ -347,6 +383,8 @@
       :selectedVariant="selectedVariant"
       :geneModel="cohortModel.geneModel">
       </variant-links-menu>
+
+
     </div>
 
     <div class="variant-notes" v-if="notes" id="notes">
@@ -360,21 +398,7 @@
       <hr class="bottom">
     </div>
 
-    <div id="user-flag-buttons" v-if="selectedVariant && !isEduMode && !isBasicMode && selectedVariantRelationship != 'known-variants'" >
-      <v-btn class="flag-button" small raised
-      v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"
-      @click="setUserFlag">
-        <app-icon icon="user-flagged"></app-icon>
-        Flag variant
-      </v-btn>
 
-      <v-btn class="flag-button" small raised
-      v-if="selectedVariant.isUserFlagged"
-      @click="removeUserFlag">
-        <v-icon>outlined_flag</v-icon>
-        Remove flag
-      </v-btn>
-    </div>
 
 
 
@@ -744,6 +768,9 @@ export default {
       }
       buf += effectRec.display + " in non-canonical transcripts ";
       return buf;
+    },
+    onShowPileup: function() {
+      this.$emit("show-pileup", this.selectedVariant, this.selectedVariantRelationship ? this.selectedVariantRelationship : 'proband');
     },
 
 

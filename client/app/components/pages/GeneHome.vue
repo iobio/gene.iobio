@@ -130,6 +130,15 @@ main.content
     <v-content>
       <v-container fluid>
 
+        <v-dialog v-model="pileupInfo.show" width="800">
+          <pileup
+            :referenceURL="pileupInfo.referenceURL"
+            :alignmentURL="pileupInfo.alignmentURL"
+            :locus="pileupInfo.coord"
+            :visible="pileupInfo.show"
+          />
+        </v-dialog>
+
         <intro-card v-if="forMyGene2"
         :closeIntro="closeIntro"
         :isBasicMode="isBasicMode"
@@ -269,6 +278,7 @@ main.content
                   @remove-flagged-variant="onRemoveFlaggedVariant"
                   @apply-variant-notes="onApplyVariantNotes"
                   @apply-variant-interpretation="onApplyVariantInterpretation"
+                  @show-pileup="onShowPileup"
                   >
                   </variant-detail-card>
 
@@ -419,6 +429,8 @@ import allGenesData       from '../../../data/genes.json'
 import SplitPane          from '../partials/SplitPane.vue'
 import ScrollButton       from '../partials/ScrollButton.vue'
 
+import VuePileup          from 'vue-pileup'
+
 
 
 export default {
@@ -436,6 +448,7 @@ export default {
       VariantCard,
       SplitPane,
       AppTour,
+      pileup: VuePileup
   },
   props: {
     paramGene:             null,
@@ -555,8 +568,29 @@ export default {
       clinIobioUrls: ["http://localhost:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io", "http://dev.clin.iobio.io"],
       clinIobioUrl: null,
 
-      forceLocalStorage: null
+      forceLocalStorage: null,
 
+
+      pileupInfo: {
+        // This controls how many base pairs are displayed on either side of
+        // the center of the locus.
+        SPAN: 200,
+        // These are the reference URLs for the human genome builds currently supported
+        referenceURLs: {
+          'GRCh37': 'https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg19/hg19.fasta',
+          'GRCh38': 'https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg38/hg38.fa'
+        },
+
+        // Show the pileup dialog
+        show: false,
+        // The bam file
+        alignmentURL: null,
+        // The vcf file
+        variantURL: null,
+        // The reference URL (for the current genome build)
+        referenceURL: 'https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg19/hg19.fasta'
+
+      }
     }
   },
 
@@ -596,7 +630,6 @@ export default {
         return null;
       }
     }
-
 
 
   },
@@ -2227,6 +2260,31 @@ export default {
       }
 
     },
+
+    onShowPileup: function(variant, relationship="proband") {
+      let theVariant = variant ? variant : this.selectedVariant;
+      if (theVariant) {
+
+        // Format the coordinate for the variant
+        const chrom = this.globalApp.utility.stripRefName(theVariant.chrom);
+        const start = theVariant.start - this.pileupInfo.SPAN;
+        const end   = theVariant.start + this.pileupInfo.SPAN;
+        this.pileupInfo.coord =  'chr' + chrom + ':' + start + '-' + end;
+
+        // Set the bam, vcf, and references
+        this.pileupInfo.alignmentURL = this.cohortModel.getModel(relationship).bam.bamUri;
+        this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
+        this.pileupInfo.show         = true;
+
+      }
+      else {
+        return '';
+      }
+
+    },
+
+
+
     receiveClinMessage: function(event)
     {
       let self = this;
