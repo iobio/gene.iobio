@@ -41,8 +41,10 @@
 
     i.material-icons
       color: $app-color
-      font-size: 15px
-      padding-right: 3px
+      font-size: 12px
+      padding-right: 2px
+      padding-top: 1px
+
 
 </style>
 
