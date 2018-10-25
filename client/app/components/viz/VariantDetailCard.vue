@@ -337,7 +337,7 @@
       </span>
       <span class="pl-1">{{ selectedGene.gene_name }}</span>
       <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-      <span class="pl-3">{{ info.coord }}</span>
+      <span class="pl-1">{{ info.coord }}</span>
       <span class="pl-1 refalt">{{ refAlt  }}</span>
       <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
       <variant-links-menu
