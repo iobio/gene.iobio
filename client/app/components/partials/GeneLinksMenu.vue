@@ -24,12 +24,12 @@
     font-size: 13px
 
 .gene-link-button
-  background-color: white !important
+  background-color: $link-button-color !important
   padding: 0px
   height: 20px !important
   min-width: 70px
-  margin-left: 2px
-  margin-right: 2px
+  margin-left: 8px
+  margin-right: 0px
   margin-top: -2px
   margin-bottom: 0px
 
@@ -37,13 +37,13 @@
     color: $app-color !important
     padding-left: 4px
     padding-right: 4px
-    font-size: 13px
+    font-size: 12px
 
     i.material-icons
       color: $app-color
       font-size: 12px
       padding-right: 2px
-      padding-top: 1px
+      padding-top: 0px
 
 </style>
 

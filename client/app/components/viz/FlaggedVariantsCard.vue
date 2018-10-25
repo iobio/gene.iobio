@@ -22,6 +22,10 @@
       display: inline-block
       white-space: normal
       line-height: 18px
+      margin-left: 10px
+      margin-right: 10px
+      color: $text-color
+      margin-bottom: 10px
 
 
 
@@ -391,7 +395,8 @@
   .expansion-panel
     -webkit-box-shadow : none
     box-shadow: none
-    margin-top: -20px
+    margin-top: 0px
+
 
   .expansion-panel__header
     display: none
@@ -411,11 +416,10 @@
 
     <div class="variant-toolbar" >
 
-      <v-toolbar-title v-show="isBasicMode && !launchedFromClin && flaggedVariants">
-        <span id="mygene2-basic-title">
-          Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
-        </span>
-      </v-toolbar-title>
+
+      <span  v-show="isBasicMode && !launchedFromClin && flaggedVariants" id="mygene2-basic-title">
+        Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
+      </span>
       <v-btn  v-if="!isBasicMode && !launchedFromClin" flat
         class="toolbar-button"
         @click="importInProgress = false;clearFileInputs();showOpenDialog = true">
