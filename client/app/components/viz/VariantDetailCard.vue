@@ -341,6 +341,7 @@
       <span class="pl-1 refalt">{{ refAlt  }}</span>
       <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
       <variant-links-menu
+      v-if="!isBasicMode && !isEduMode"
       :expanded="true"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
