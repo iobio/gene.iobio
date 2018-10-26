@@ -215,7 +215,7 @@
 
       <v-btn id="variant-pileup-button"
        class="variant-action-button"
-       v-if="selectedVariant"
+       v-if="sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship != 'known-variants' && !isEduMode && !isBasicMode"
        :style="variantPosition"
        @click="onShowPileupForVariant">
         <v-icon>line_style</v-icon>

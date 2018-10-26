@@ -343,7 +343,7 @@
     <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-left">
 
 
-      <span class="pr-1 pl-1" v-if="!isBasicMode && (selectedVariantRelationship == 'known-variants' || selectedVariantRelationship)">
+      <span class="pr-1 pl-1" v-if="!isBasicMode && (selectedVariantRelationship == 'known-variants')">
         <app-icon v-show="selectedVariantRelationship == 'known-variants'"
           icon="clinvar" width="16" height="16">
         </app-icon>
@@ -355,7 +355,8 @@
       <span class="pl-1 refalt">{{ refAlt  }}</span>
       <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
 
-     <v-btn class="variant-action-button"  @click="onShowPileup">
+     <v-btn v-if="!isBasicMode && !isEduMode && selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedRelationship ? selectedRelationship : 'proband').isBamLoaded() "
+      class="variant-action-button"  @click="onShowPileup">
       <v-icon>line_style</v-icon>
       Pileup
      </v-btn>
