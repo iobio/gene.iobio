@@ -103,7 +103,7 @@
           <v-icon class="interpretation sig" v-if="interpretation == 'sig'">star</v-icon>
           <v-icon class="interpretation unknown-sig" v-if="interpretation == 'unknown-sig'">star_half</v-icon>
           <v-icon class="interpretation not-sig" v-if="interpretation == 'not-sig'">star_border</v-icon>
-          <v-icon class="interpretation not-reviewed" v-if="interpretation == 'not-reviewed'">help_outline</v-icon>
+          <v-icon class="interpretation not-reviewed" style="font-size:19px;margin-top: -3px;" v-if="interpretation == 'not-reviewed'">help_outline</v-icon>
           <span class="interpretation-label">{{ interpretationDisplay }} </span>
         </span>
         <v-icon class="has-notes" v-if="showNotesIcon && notes != null && notes.length > 0">
