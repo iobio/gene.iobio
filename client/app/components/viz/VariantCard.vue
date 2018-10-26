@@ -623,7 +623,7 @@ export default {
     showVariantCircle: function(variant, lock) {
       if (this.showVariantViz) {
         let matchingVariant = this.getVariantViz(variant).showVariantCircle(variant,this.getVariantSVG(variant),lock);
-        if (matchingVariant && matchingVariant.screenX && matchingVariant.screenY) {
+        if (lock && matchingVariant && matchingVariant.screenX && matchingVariant.screenY) {
           let left = matchingVariant.screenX - this.$el.offsetLeft - 50;
           let top  = matchingVariant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
           this.variantPosition =  {'left': left + 'px', 'top': top + 'px'};
