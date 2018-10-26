@@ -226,14 +226,16 @@ export default {
       showVariantCircle: function(variant, container, pinned) {
         if (variant == null) {
           this.hideVariantCircle(container, pinned);
+          return null;
         } else {
           if (pinned) {
             this.variantChart.hideCircle()(container, pinned);
           }
-          this.variantChart.showCircle()(variant,
+          let matchingVariant = this.variantChart.showCircle()(variant,
             container,
             variant.fbCalled && variant.fbCalled == 'Y' ? false : true,
             pinned);
+          return matchingVariant;
         }
       },
       hideVariantCircle: function(container, pinned) {

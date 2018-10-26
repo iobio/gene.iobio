@@ -24,6 +24,35 @@
       min-width: 100px
       max-width: 100px
 
+  #variant-pileup-button
+    position: absolute
+    top: 0px
+    left: 0px
+
+  .variant-action-button
+    background-color: white
+    padding: 0px
+    height: 22px !important
+    min-width: 70px
+    margin-left: 15px
+    margin-right: 0px
+    margin-bottom: 0px
+    vertical-align: top
+    margin-top: 4px
+
+    .btn__content
+      color: $app-color !important
+      padding-left: 8px
+      padding-right: 8px
+      font-size: 13px
+
+      i.material-icons
+        color: $app-color
+        font-size: 14px
+        padding-right: 2px
+        padding-top: 0px
+
+
   .coverage-problem-glyph
     fill: $coverage-problem-glyph-color
 
@@ -182,6 +211,16 @@
       v-model="showZoom"
       >
       </v-switch>
+
+
+      <v-btn id="variant-pileup-button"
+       class="variant-action-button"
+       v-if="selectedVariant"
+       :style="variantPosition"
+       @click="onShowPileupForVariant">
+        <v-icon>line_style</v-icon>
+        Pileup
+      </v-btn>
 
 
       <known-variants-toolbar
@@ -453,6 +492,8 @@ export default {
       zoomMessage: "Drag to zoom",
 
 
+      variantPosition: {}
+
     }
   },
 
@@ -492,6 +533,12 @@ export default {
           this.showVariantCircle(variant, true);
         }
       }
+      if (variant) {
+        let left = variant.screenX - this.$el.offsetLeft - 50;
+        let top  = variant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
+        this.variantPosition =  {'left': left + 'px', 'top': top + 'px'};
+      }
+
       this.$emit('cohort-variant-click', variant, this, this.sampleModel.relationship);
     },
     onVariantHover: function(variant, showTooltip=true) {
@@ -515,41 +562,51 @@ export default {
       this.$emit('cohort-variant-hover-end');
 
     },
+    onShowPileupForGeneRegion: function() {
+      this.$emit("show-pileup-for-gene-region", this.sampleModel.relationship);
+    },
+    onShowPileupForVariant: function() {
+      this.$emit("show-pileup-for-variant", this.sampleModel.relationship, this.selectedVariant);
+    },
     showVariantTooltip: function(variant, lock) {
       let self = this;
 
-      let tooltip = d3.select("#main-tooltip");
+      if (this.isBasicMode || this.isEduMode) {
+        let tooltip = d3.select("#main-tooltip");
 
-      if (lock) {
-        tooltip.style("pointer-events", "all");
-      } else {
-        tooltip.style("pointer-events", "none");
+        if (lock) {
+          tooltip.style("pointer-events", "all");
+        } else {
+          tooltip.style("pointer-events", "none");
+        }
+
+
+        var x = variant.screenX;
+        var y = variant.screenY;
+
+        var coord = {'x':                  x,
+                     'y':                  y,
+                     'height':             33,
+                     'parentWidth':        self.$el.offsetWidth,
+                     'preferredPositions': [ {top:    ['center', 'right','left'  ]},
+                                             {right:  ['middle', 'top',  'bottom']},
+                                             {left:   ['middle', 'top',  'bottom']},
+                                             {bottom: ['center', 'right','left'  ]} ] };
+
+
+        self.variantTooltip.fillAndPositionTooltip(tooltip,
+          variant,
+          self.selectedGene,
+          self.selectedTranscript,
+          lock,
+          coord,
+          self.sampleModel.relationship,
+          self.sampleModel.getAffectedInfo(),
+          self.sampleModel.cohort.mode,
+          self.sampleModel.cohort.maxAlleleCount);
+
       }
 
-
-      var x = variant.screenX;
-      var y = variant.screenY;
-
-      var coord = {'x':                  x,
-                   'y':                  y,
-                   'height':             33,
-                   'parentWidth':        self.$el.offsetWidth,
-                   'preferredPositions': [ {top:    ['center', 'right','left'  ]},
-                                           {right:  ['middle', 'top',  'bottom']},
-                                           {left:   ['middle', 'top',  'bottom']},
-                                           {bottom: ['center', 'right','left'  ]} ] };
-
-
-      self.variantTooltip.fillAndPositionTooltip(tooltip,
-        variant,
-        self.selectedGene,
-        self.selectedTranscript,
-        lock,
-        coord,
-        self.sampleModel.relationship,
-        self.sampleModel.getAffectedInfo(),
-        self.sampleModel.cohort.mode,
-        self.sampleModel.cohort.maxAlleleCount);
 
     },
     tooltipScroll(direction) {
@@ -565,7 +622,12 @@ export default {
     },
     showVariantCircle: function(variant, lock) {
       if (this.showVariantViz) {
-        this.getVariantViz(variant).showVariantCircle(variant,this.getVariantSVG(variant),lock);
+        let matchingVariant = this.getVariantViz(variant).showVariantCircle(variant,this.getVariantSVG(variant),lock);
+        if (matchingVariant && matchingVariant.screenX && matchingVariant.screenY) {
+          let left = matchingVariant.screenX - this.$el.offsetLeft - 50;
+          let top  = matchingVariant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
+          this.variantPosition =  {'left': left + 'px', 'top': top + 'px'};
+        }
       }
     },
     hideVariantCircle: function(lock) {

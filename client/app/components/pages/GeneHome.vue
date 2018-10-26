@@ -278,7 +278,7 @@ main.content
                   @remove-flagged-variant="onRemoveFlaggedVariant"
                   @apply-variant-notes="onApplyVariantNotes"
                   @apply-variant-interpretation="onApplyVariantInterpretation"
-                  @show-pileup="onShowPileup"
+                  @show-pileup-for-variant="onShowPileupForVariant"
                   >
                   </variant-detail-card>
 
@@ -357,6 +357,9 @@ main.content
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
         @show-coverage-cutoffs="showCoverageCutoffs = true"
+        @show-pileup-for-gene-region="onShowPileupForGeneRegion"
+        @show-pileup-for-variant="onShowPileupForVariant"
+
         >
         </variant-card>
 
@@ -2261,7 +2264,7 @@ export default {
 
     },
 
-    onShowPileup: function(variant, relationship="proband") {
+    onShowPileupForVariant: function(relationship="proband", variant) {
       let theVariant = variant ? variant : this.selectedVariant;
       if (theVariant) {
 
@@ -2270,6 +2273,24 @@ export default {
         const start = theVariant.start - this.pileupInfo.SPAN;
         const end   = theVariant.start + this.pileupInfo.SPAN;
         this.pileupInfo.coord =  'chr' + chrom + ':' + start + '-' + end;
+
+        // Set the bam, vcf, and references
+        this.pileupInfo.alignmentURL = this.cohortModel.getModel(relationship).bam.bamUri;
+        this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
+        this.pileupInfo.show         = true;
+
+      }
+      else {
+        return '';
+      }
+
+    },
+    onShowPileupForGeneRegion: function(relationship="proband") {
+      if (this.selectedGene) {
+
+        // Format the coordinate for the variant
+        const chrom = this.globalApp.utility.stripRefName(this.selectedGene.chr);
+        this.pileupInfo.coord =  'chr' + chrom + ':' + this.geneRegionStart + '-' + this.geneRegionEnd;
 
         // Set the bam, vcf, and references
         this.pileupInfo.alignmentURL = this.cohortModel.getModel(relationship).bam.bamUri;

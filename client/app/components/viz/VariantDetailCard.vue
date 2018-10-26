@@ -17,7 +17,7 @@
     background-color: white
     padding: 0px
     height: 22px !important
-    min-width: 90px
+    min-width: 70px
     margin-left: 15px
     margin-right: 0px
     margin-top: -2px
@@ -345,7 +345,7 @@
 
       <span class="pr-1 pl-1" v-if="!isBasicMode && (selectedVariantRelationship == 'known-variants' || selectedVariantRelationship)">
         <app-icon v-show="selectedVariantRelationship == 'known-variants'"
-          :icon="clinvar" width="16" height="16">
+          icon="clinvar" width="16" height="16">
         </app-icon>
         <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
       </span>
@@ -357,7 +357,7 @@
 
      <v-btn class="variant-action-button"  @click="onShowPileup">
       <v-icon>line_style</v-icon>
-      Show pileup
+      Pileup
      </v-btn>
 
       <div id="user-flag-buttons" v-if="selectedVariant && !isEduMode && !isBasicMode && selectedVariantRelationship != 'known-variants'" >
@@ -770,7 +770,9 @@ export default {
       return buf;
     },
     onShowPileup: function() {
-      this.$emit("show-pileup", this.selectedVariant, this.selectedVariantRelationship ? this.selectedVariantRelationship : 'proband');
+      this.$emit("show-pileup-for-variant",
+        this.selectedVariantRelationship ? this.selectedVariantRelationship : 'proband',
+        this.selectedVariant);
     },
 
 
