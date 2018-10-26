@@ -365,7 +365,7 @@
         <v-btn class="flag-button variant-action-button" small raised
         v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"
         @click="setUserFlag">
-          <app-icon icon="user-flagged"></app-icon>
+          <app-icon icon="user-flagged" width="14" height="14" style="padding-top:1px;padding-right:3px"></app-icon>
           Flag variant
         </v-btn>
 
