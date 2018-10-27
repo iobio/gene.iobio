@@ -159,7 +159,11 @@ main.content
             transition is finished and set :visible after that -->
         <v-dialog v-model="pileupInfo.show" :transition='false' width="800">
           <v-card>
-            <span id="pileup-title">{{ pileupInfo.title }}</span>
+            <span id="pileup-title">
+              <span class="pl-2" v-for="titlePart in pileupInfo.title" key="titlePart">
+                {{ titlePart }}
+              </span>
+            </span>
             <pileup id="pileup-container"
               :referenceURL="pileupInfo.referenceURL"
               :alignmentURL="pileupInfo.alignmentURL"
@@ -2298,6 +2302,7 @@ export default {
     onShowPileupForVariant: function(relationship="proband", variant) {
       let theVariant = variant ? variant : this.selectedVariant;
       if (theVariant) {
+        let variantInfo = this.globalApp.utility.formatDisplay(variant, this.cohortModel.translator, this.isEduMode);
 
         // Format the coordinate for the variant
         const chrom = this.globalApp.utility.stripRefName(theVariant.chrom);
@@ -2308,10 +2313,16 @@ export default {
         // Set the bam, vcf, and references
         this.pileupInfo.alignmentURL = this.cohortModel.getModel(relationship).bam.bamUri;
         this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
-        this.pileupInfo.title        = "Read pileup for "
-          + this.selectedGene.gene_name + " "
-          + theVariant.chrom + ":" + theVariant.start + " " + theVariant.ref + " > " + theVariant.alt + " "
-          + (relationship == 'proband' ? '' : '(' + relationship + ")")
+
+        // set the title
+        this.pileupInfo.title = [];
+        this.pileupInfo.title.push("Read pileup");
+        this.pileupInfo.title.push(this.selectedGene.gene_name);
+        this.pileupInfo.title.push((variant.type ? variant.type.toUpperCase() + " " : "")
+          + theVariant.chrom + ":" + theVariant.start + " " + theVariant.ref + "->" + theVariant.alt);
+        this.pileupInfo.title.push(variantInfo.HGVSpAbbrev);
+        this.pileupInfo.title.push((relationship == 'proband' ? '' : '(' + relationship + ")"));
+
         this.pileupInfo.show         = true;
       }
       else {
