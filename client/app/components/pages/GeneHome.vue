@@ -130,7 +130,12 @@ main.content
     <v-content>
       <v-container fluid>
 
-        <v-dialog v-model="pileupInfo.show" width="800">
+        <!-- Note that the transition needs to be disabled because otherwise
+          the pileup doesn't render properly because it attempts to render in
+          the middle of the transition and gets the wrong window size. An
+          alternative to disabling the transition would be to detect when the
+          transition is finished and set :visible after that -->
+        <v-dialog v-model="pileupInfo.show" :transition='false' width="800">
           <pileup
             :referenceURL="pileupInfo.referenceURL"
             :alignmentURL="pileupInfo.alignmentURL"
