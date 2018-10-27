@@ -562,9 +562,6 @@ export default {
       this.$emit('cohort-variant-hover-end');
 
     },
-    onShowPileupForGeneRegion: function() {
-      this.$emit("show-pileup-for-gene-region", this.sampleModel.relationship);
-    },
     onShowPileupForVariant: function() {
       this.$emit("show-pileup-for-variant", this.sampleModel.relationship, this.selectedVariant);
     },

@@ -71,6 +71,28 @@ main.content
   &.accent--text
     color:  $app-color !important
 
+
+#pileup-title
+  color: $app-color
+  font-size: 15px
+
+#pileup-container
+  margin: 0px
+  padding: 0px
+
+
+  .card
+    margin: 0px
+    padding: 0px
+    -webkit-box-shadow: none !important
+    box-shadow: none !important
+
+    .igv-right-hand-gutter
+      right: initial
+      left: -10px
+    .igv-content-header
+      display: none
+
 </style>
 
 
@@ -130,13 +152,21 @@ main.content
     <v-content>
       <v-container fluid>
 
-        <v-dialog v-model="pileupInfo.show" width="800">
-          <pileup
-            :referenceURL="pileupInfo.referenceURL"
-            :alignmentURL="pileupInfo.alignmentURL"
-            :locus="pileupInfo.coord"
-            :visible="pileupInfo.show"
-          />
+        <!-- Note that the transition needs to be disabled because otherwise
+            the pileup doesn't render properly because it attempts to render in
+            the middle of the transition and gets the wrong window size. An
+            alternative to disabling the transition would be to detect when the
+            transition is finished and set :visible after that -->
+        <v-dialog v-model="pileupInfo.show" :transition='false' width="800">
+          <v-card>
+            <span id="pileup-title">{{ pileupInfo.title }}</span>
+            <pileup id="pileup-container"
+              :referenceURL="pileupInfo.referenceURL"
+              :alignmentURL="pileupInfo.alignmentURL"
+              :locus="pileupInfo.coord"
+              :visible="pileupInfo.show"
+            />
+          </v-card>
         </v-dialog>
 
         <intro-card v-if="forMyGene2"
@@ -357,7 +387,6 @@ main.content
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
         @show-coverage-cutoffs="showCoverageCutoffs = true"
-        @show-pileup-for-gene-region="onShowPileupForGeneRegion"
         @show-pileup-for-variant="onShowPileupForVariant"
 
         >
@@ -586,6 +615,8 @@ export default {
 
         // Show the pileup dialog
         show: false,
+        // Title in the pileup dialog
+        title: 'Pileup View',
         // The bam file
         alignmentURL: null,
         // The vcf file
@@ -2277,33 +2308,17 @@ export default {
         // Set the bam, vcf, and references
         this.pileupInfo.alignmentURL = this.cohortModel.getModel(relationship).bam.bamUri;
         this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
+        this.pileupInfo.title        = "Read pileup for "
+          + this.selectedGene.gene_name + " "
+          + theVariant.chrom + ":" + theVariant.start + " " + theVariant.ref + " > " + theVariant.alt + " "
+          + (relationship == 'proband' ? '' : '(' + relationship + ")")
         this.pileupInfo.show         = true;
-
       }
       else {
         return '';
       }
 
     },
-    onShowPileupForGeneRegion: function(relationship="proband") {
-      if (this.selectedGene) {
-
-        // Format the coordinate for the variant
-        const chrom = this.globalApp.utility.stripRefName(this.selectedGene.chr);
-        this.pileupInfo.coord =  'chr' + chrom + ':' + this.geneRegionStart + '-' + this.geneRegionEnd;
-
-        // Set the bam, vcf, and references
-        this.pileupInfo.alignmentURL = this.cohortModel.getModel(relationship).bam.bamUri;
-        this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
-        this.pileupInfo.show         = true;
-
-      }
-      else {
-        return '';
-      }
-
-    },
-
 
 
     receiveClinMessage: function(event)

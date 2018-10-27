@@ -355,7 +355,7 @@
       <span class="pl-1 refalt">{{ refAlt  }}</span>
       <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
 
-     <v-btn v-if="!isBasicMode && !isEduMode && selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedRelationship ? selectedRelationship : 'proband').isBamLoaded() "
+     <v-btn v-if="!isBasicMode && !isEduMode && selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
       class="variant-action-button"  @click="onShowPileup">
       <v-icon>line_style</v-icon>
       Pileup
