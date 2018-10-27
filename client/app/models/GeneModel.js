@@ -976,8 +976,22 @@ class GeneModel {
 
     if (geneObject) {
       variantCoordUCSC    = geneObject.chr + ":" + variant.start + "-" + variant.end;
-      variantCoordVarSome = geneObject.chr + "-" + variant.start + "-" + variant.ref + '>' + variant.alt;
-      variantCoordGNomAD  = geneObject.chr + "-" + variant.start + "-" + variant.ref + '-' + variant.alt;
+
+      if (variant.alt.length > variant.ref.length && variant.ref.length == 1) {
+        // ins
+        variantCoordVarSome = geneObject.chr + "-" + (variant.start+1) + "-"  + '-' + variant.alt.substr(1);
+      } else if (variant.ref.length > variant.alt.length && variant.alt.length == 1) {
+        // del
+        variantCoordVarSome = geneObject.chr + "-" + (variant.start+1) + "-"  + variant.ref.substr(1) ;
+      } else if (variant.ref.length == variant.alt.length) {
+        // snp
+        variantCoordVarSome = geneObject.chr + "-" + variant.start + "-" + variant.ref + '-' + variant.alt;
+      } else {
+        // complex - just show varsome = at given loci
+        variantCoordVarSome = geneObject.chr + "-" + variant.start
+      }
+
+      variantCoordGNomAD  = me.globalApp.utility.stripRefName(geneObject.chr) + "-" + variant.start + "-" + variant.ref + '-' + variant.alt;
     }
 
     var info = me.globalApp.utility.formatDisplay(variant, me.translator, false);
@@ -988,7 +1002,7 @@ class GeneModel {
       theLink.name = linkName;
 
       if (variantCoordGNomAD) {
-        theLink.url = theLink.url.replace(/VARIANTCOORD-GNOMAD/g, variantCoordUCSC);
+        theLink.url = theLink.url.replace(/VARIANTCOORD-GNOMAD/g, variantCoordGNomAD);
       }
       if (variantCoordUCSC) {
         theLink.url = theLink.url.replace(/VARIANTCOORD-UCSC/g, variantCoordUCSC);
