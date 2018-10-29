@@ -167,6 +167,7 @@ main.content
             <pileup id="pileup-container"
               :referenceURL="pileupInfo.referenceURL"
               :alignmentURL="pileupInfo.alignmentURL"
+              :variantURL="pileupInfo.variantURL"
               :locus="pileupInfo.coord"
               :visible="pileupInfo.show"
             />
@@ -624,7 +625,8 @@ export default {
         // The bam file
         alignmentURL: null,
         // The vcf file
-        variantURL: null,
+        // TODO: update this dynamically
+        variantURL: "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz",
         // The reference URL (for the current genome build)
         referenceURL: 'https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg19/hg19.fasta'
 
