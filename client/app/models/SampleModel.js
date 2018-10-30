@@ -2229,7 +2229,7 @@ class SampleModel {
             recs[vcfIter].ref == clinvarRec.ref) {
             var variant = recs[vcfIter];
 
-            var result = me.vcf.parseClinvarInfo(clinvarRec.info, me.getTranslator().clinvarMap);
+            var result = me.vcf.parseClinvarInfo(clinvarRec, me.getTranslator().clinvarMap);
             for (var key in result) {
               variant[key] = result[key];
             }

@@ -859,7 +859,7 @@ var effectCategories = [
 
     var me = this;
 
-    var clinvarUrl = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_S3);
+    var clinvarUrl = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_FTP);
 
     var cmd = me.getEndpoint().getClinvarCountsForGene(clinvarUrl, refName, geneObject, binLength, (binLength == null ? me._getExonRegions(transcript) : null));
 
@@ -1200,8 +1200,9 @@ var effectCategories = [
       if (globalApp.isOffline) {
         clinvarUrl = OFFLINE_CLINVAR_VCF_BASE_URL + me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_OFFLINE)
       } else {
-        clinvarUrl = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_S3);
+        clinvarUrl = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_FTP);
       }
+
 
       var regions = me._getClinvarVariantRegions(refName, geneObject, variants, clinvarGenes);
 
@@ -1243,7 +1244,7 @@ var effectCategories = [
 
             altBuf.split(",").forEach(function(alt) {
               // Turn vcf record into a JSON object and add it to an array
-              var vcfObject = {'pos': pos, 'start':  +pos,  'id': 'id', 'ref': ref, 'alt': alt, 'chrom': refName,
+              var vcfObject = { 'clinvarUid': id, 'pos': pos, 'start':  +pos,  'id': id, 'ref': ref, 'alt': alt, 'chrom': refName,
                                'qual': qual, 'filter': filter, 'info': info, 'format':format, 'genotypes': genotypes};
               vcfObjects.push(vcfObject);
             })
@@ -1525,7 +1526,7 @@ var effectCategories = [
 
             var annot = me._parseAnnot(rec, altIdx, isMultiAllelic, geneObject, selectedTranscript, selectedTranscriptID, vepAF);
 
-            var clinvarResult = me.parseClinvarInfo(rec.info, clinvarMap);
+            var clinvarResult = me.parseClinvarInfo(rec, clinvarMap);
 
             var gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames);
 
@@ -2069,6 +2070,7 @@ exports._parseSnpEffAnnot = function(annotToken, annot, geneObject, selectedTran
 exports.getClinvarAnnots = function() {
   return   {
     clinvarUid: null,
+    clinvarAlleleId: null,
     clinvarSubmissions: [],
     clinvarClinSig: {},
     clinvarTrait:  {},
@@ -2078,11 +2080,71 @@ exports.getClinvarAnnots = function() {
   };
 }
 
-exports.parseClinvarInfo = function(info, clinvarMap) {
+exports.parseClinvarInfo = function(rec, clinvarMap) {
+  var me = this;
+
+
+
+  var matchesNewFormat = rec.info.split(";").filter(function(annotToken) {
+    return annotToken.indexOf("ALLELEID") == 0;
+  });
+
+  if (matchesNewFormat.length > 0) {
+    return me._parseClinvarInfo(rec, clinvarMap)
+  } else {
+    return me._parseClinInfoDeprecated(rec, clinvarMap);
+  }
+
+}
+
+exports._parseClinvarInfo = function(rec, clinvarMap) {
   var me = this;
 
   var result = me.getClinvarAnnots();
+  result.clinvarUid = rec.id;
 
+  // This is the newest vcf fromat from clinvar
+  rec.info.split(";").forEach( function (annotToken) {
+
+    if (annotToken.indexOf("ALLELEID=") == 0) {
+      // allele id
+      result.clinvarAlleleId = annotToken.substring("ALLELEID=".length, annotToken.length);
+    } else if (annotToken.indexOf("CLNSIG=") == 0) {
+      // clinical sig
+      var clinsigString = annotToken.substring("CLNSIG=".length, annotToken.length);
+      clinsigString.split("|").forEach(function(clinsig) {
+        result.clinvarClinSig[clinsig.toLowerCase()] = clinsig.toLowerCase();
+
+        var mapEntry = clinvarMap[clinsig.toLowerCase()];
+        if (mapEntry != null) {
+          if (result.clinvarRank == null || mapEntry.value < result.clinvarRank) {
+
+            result.clinvarRank = mapEntry.value;
+            result.clinvar = mapEntry.clazz;
+
+          }
+        }
+
+      })
+    } else if (annotToken.indexOf("CLNDN=") == 0) {
+      // traits
+      var traitsString = annotToken.substring("CLNDN=".length, annotToken.length);
+      traitsString.split("|").forEach(function(trait) {
+        result.clinvarTrait[trait] = trait;
+      })
+    } else if (annotToken.indexOf("CLNREVSTAT=") == 0) {
+      // review status (stars)
+      result.clinvarRevStat = annotToken.substring("CLNREVSTAT=".length, annotToken.length);
+    }
+
+  })
+  return result;
+}
+
+exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
+  var me = this;
+
+  var result = me.getClinvarAnnots();
 
   var initClinvarSubmissions = function(clinvarSubmissions, length) {
     for (var i = 0; i < length; i++) {
@@ -2091,8 +2153,8 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
     }
   }
 
-
-  info.split(";").forEach( function (annotToken) {
+  // This is the older format (summer 2018 and earlier)
+  rec.info.split(";").forEach( function (annotToken) {
 
     if (annotToken.indexOf("CLNSIG=") == 0) {
       var clinvarCode = annotToken.substring(7, annotToken.length);
@@ -2148,6 +2210,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
     }
 
   })
+
   return result;
 }
 

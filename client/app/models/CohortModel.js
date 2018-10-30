@@ -499,7 +499,7 @@ class CohortModel {
         vm.init(self);
         vm.setRelationship('known-variants');
         vm.setName('Clinvar')
-        var clinvarUrl = self.genomeBuildHelper.getBuildResource(self.genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
+        var clinvarUrl = self.genomeBuildHelper.getBuildResource(self.genomeBuildHelper.RESOURCE_CLINVAR_VCF_FTP);
         vm.onVcfUrlEntered(clinvarUrl, null, function() {
           self.sampleModels.push(vm);
 
