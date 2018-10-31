@@ -87,12 +87,6 @@ main.content
     -webkit-box-shadow: none !important
     box-shadow: none !important
 
-    .igv-right-hand-gutter
-      right: initial
-      left: -10px
-    .igv-content-header
-      display: none
-
 </style>
 
 
