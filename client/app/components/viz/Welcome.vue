@@ -7,8 +7,12 @@
 @import ../../../assets/sass/variables
 
 
+.buttons-group
+    margin-top: 0px !important
+    padding-left: 40px
+
 #welcome-area
-  text-align: center
+  // text-align: center
   margin-top: 25px
   display: flex
   justify-content: space-around
@@ -21,13 +25,15 @@
     padding-top: 15px
     padding-left: 10px
     padding-right: 10px
-    margin-top: 20px
-    width:  850px
+    margin-top: 130px
+    width:  1475px
 
 
     #welcome-label
       color: $text-color
-      font-size: 22px
+      font-size: 42px
+      font-family: quicksand
+      padding: 40px
 
     #welcome-label-small
       color: $text-color
@@ -161,16 +167,6 @@
             top: 0px
             left: 25px
 
-        #welcome-screencast-panel-multigene-analysis
-          background-image: url('../../../assets/images/thumbprint-multigene.png')
-
-        #welcome-screencast-panel-saving-analysis
-          background-image: url('../../../assets/images/thumbprint-bookmarks.png')
-
-
-        #welcome-screencast-panel-coverage-analysis
-          background-image: url('../../../assets/images/thumbprint-coverage.png')
-
 
       #video-thumbprint-heading-large
         font-size: 20px
@@ -247,15 +243,19 @@
       height: 0
       padding-bottom: 75.0%
 
+.one
+  background-color: #FAFAFA
+  background-image: -webkit-linear-gradient(55deg, #FAFAFA 50%, #258AD5 50%)
+  min-height: 500px
+  margin-top: -35px
 
 
 
 </style>
 
 <template>
-  <div>
+  <div class="one">
     <div id="screencast-panel" class="hide">
-
 
 
       <div id="screencast-intro" class="hide video-container">
@@ -296,13 +296,35 @@
 
 
 
-
+    <section id="background-img-container">
+        <img class="elevation-5" style="position:absolute; left: 58%; top:110px; height:375px; width:550px" src="./geneBg.png">
+    </section>
     <div id="welcome-area" class="">
 
-      <div class="welcome-panel" >
+      <div class="welcome-panel elevation-5" >
+
         <transition-group  name="fadeDown" >
-          <div v-if="showWelcomeLabel" style="animation-duration: 1s" key="welcome-label" id="welcome-label">
-            A web tool for disease-causing variant interrogation
+          <div v-if="showWelcomeLabel" style="animation-duration: 1s; max-width:60%;" key="welcome-label" id="welcome-label">
+            <div>
+              <center>
+                A web tool for disease-causing variant interrogation
+              </center>
+            </div>
+          </div>
+        </transition-group>
+
+        <transition-group  name="fadeDown" tag="div" >
+          <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group" style="animation-duration: 1s;margin-top:30px">
+            <v-btn text-color="white" style="color:white" class="primary" id="load-demo-data"  @click="onLoadDemoData">
+              Try it with demo data
+            </v-btn>
+            <v-btn text-color="white" style="color:white" class="primary"  @click="onAppTour">
+              Take guided tour
+            </v-btn>
+            <v-btn outline color="indigo"  @click="playVideo('screencast-intro')">
+              <v-icon style="font-size:30px" color="primary">play_circle_filled_white</v-icon>
+              <span style="margin-left:-170px">WATCH THE VIDEO</span>
+            </v-btn>
           </div>
         </transition-group>
         <div id="welcome-panel-content">
@@ -310,36 +332,23 @@
 
           <div class="description-paragraph">
             <div style="display:flex;justify-content:space-between">
-
+              <center>
               <transition-group  name="fadeDown" tag="div" class="feature-container">
-                <div v-show="showWelcomeFeature" style="animation-duration: 1s" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
-                  <app-icon :icon="feature.icon" width="40" height="40" style="display: block;margin: auto"></app-icon>
-                  <div  class="bullet-item" v-html="feature.display"></div>
-                </div>
+                  <div v-show="showWelcomeFeature" style="animation-duration: 1s" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
+                    <div  class="bullet-item" v-html="feature.display"></div>
+                  </div>
               </transition-group>
+            </center>
+
             </div>
 
           </div>
 
         </div>
 
-
-
-
-        <transition-group  name="fadeDown" tag="div" >
-          <div v-if="showWelcomeButton" key="welcome-button" style="animation-duration: 1s;margin-top:30px">
-            <v-btn id="load-demo-data"  @click="onLoadDemoData">
-              Try it with demo data
-            </v-btn>
-            <v-btn   @click="onAppTour">
-              Take guided tour
-            </v-btn>
-          </div>
-
-        </transition-group>
       </div>
 
-      <div class="welcome-panel" style="padding:0px;background:transparent;margin-top:20px">
+      <div class="welcome-panel elevation-5" style="padding:20px;margin-top:30px">
         <div id="welcome-label-small">
           Videos
         </div>
@@ -416,7 +425,7 @@
 
       </div>
 
-      <div class="welcome-panel" style="background:transparent;margin-top:0px;padding-top:10px">
+      <div class="welcome-panel elevation-5" style="margin-top:30px;padding-top:20px">
         <div id="welcome-label-small">
           Blog Posts
         </div>
@@ -509,12 +518,10 @@
 
 <script>
 
-import AppIcon         from  '../partials/AppIcon.vue'
 
 export default {
   name: 'welcome',
   components: {
-    AppIcon
   },
   props: {
     isBasicMode: null,
@@ -598,6 +605,7 @@ export default {
       $('#welcome-area').addClass('hide');
       $('#screencast-panel').removeClass('hide');
       $('.video-container').addClass('hide');
+      $('#background-img-container').addClass('hide');
 
       videoContainer.removeClass('hide');
 
@@ -649,6 +657,8 @@ export default {
       self.videoPlayer.pauseVideo();
       $('#welcome-area').removeClass('hide');
       $('#screencast-panel').addClass('hide');
+      $('#background-img-container').removeClass('hide');
+
     },
 
     onLoadDemoData: function() {
