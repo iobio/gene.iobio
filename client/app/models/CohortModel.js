@@ -801,6 +801,7 @@ class CohortModel {
         var isHomRef = feature.zygosity == null
            || feature.zygosity.toUpperCase() == "HOMREF"
            || feature.zygosity.toUpperCase() == "NONE"
+           || feature.zygosity.toUpperCase() == "GT_UNKNOWN"
            || feature.zygosity == "";
 
         var inRegion = true;
