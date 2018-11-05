@@ -1146,9 +1146,7 @@ export default {
         if (self.$refs.genesCardRef) {
           self.$refs.genesCardRef.determineFlaggedGenes();
         }
-        setTimeout(function() {
-          self.showLeftPanelWhenFlaggedVariantsForGene();
-        },1000)
+
       })
     },
 
@@ -1160,7 +1158,6 @@ export default {
       self.promiseLoadGene(geneName)
       .then(function() {
         self.setUrlGeneParameters();
-        self.showLeftPanelWhenFlaggedVariants();
       })
       self.activeGeneVariantTab = "0";
 
