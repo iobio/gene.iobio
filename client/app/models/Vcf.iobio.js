@@ -2428,6 +2428,9 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
         } else if (gt.gt.indexOf("/") > 0){
           delim = "/";
           gt.phased = false;
+        } else if (gt.gt == ".") {
+          gt.keep = false;
+          gt.zygosity = "HOMREF";
         } else {
           gt.keep = false;
           gt.zygosity = "gt_unknown";
