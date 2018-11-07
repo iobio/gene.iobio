@@ -2428,6 +2428,9 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
         } else if (gt.gt.indexOf("/") > 0){
           delim = "/";
           gt.phased = false;
+        } else if (gt.gt == ".") {
+          gt.keep = false;
+          gt.zygosity = "HOMREF";
         } else {
           gt.keep = false;
           gt.zygosity = "gt_unknown";
@@ -2457,16 +2460,40 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
                 }
               }
 
-            } else if (tokens[0] == result.gtNumber || tokens[1] == result.gtNumber) {
+            }  else if (tokens[0] == result.gtNumber || tokens[1] == result.gtNumber) {
+              //  result.gtNumber will be a number > 1 if this is a multi-allelic
+              //  in this case, we have a genotype that is not 0 and matches
+              //  the "alt"
+              //    simple het example:
+              //      ref    alt   gt
+              //      A      T     0/1
+              //    simple hom example:
+              //      ref    alt   gt
+              //      A      T     1/1
+              //    multi-allelic het example:
+              //      ref    alt   gt
+              //      A      T,G   1/2  if gt.number is "2", that means we will is het for A->G
+              //    multi-allelic hom example:
+              //      ref    alt   gt
+              //      A      T,G   2/2  if gt.number is "2", that means we will is hom for A->G
               gt.keep = true;
               if (tokens[0] == tokens[1]) {
                 gt.zygosity = "HOM";
               } else {
                 gt.zygosity = "HET";
               }
-            } else if (tokens[0] == "0" && tokens[1] == "0" ) {
+            }
+            else if (tokens[0] == "0" && tokens[1] == "0" ) {
+              // Homozygous ref 0/0
               gt.keep = false;
               gt.zygosity = "HOMREF"
+            } else if (tokens[0] != result.gtNumber && tokens[1] != result.gtNumber ) {
+              // Multi-allelic, but this genotype doesn't have the alternate
+              //    multi-allelic  example:
+              //      ref    alt   gt
+              //      A      T,G   0/1  if gt.number is "2", that means this allele is not present
+              gt.keep = false;
+              gt.zygosity = "gt_unknown"
             }
           }
 

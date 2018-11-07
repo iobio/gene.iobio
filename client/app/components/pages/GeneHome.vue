@@ -438,7 +438,7 @@ import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
 import AppTour            from  '../viz/AppTour.vue'
 
-import HubSessionDeprecated         from  '../../models/HubSessionDeprecated.js'
+import HubSession         from  '../../models/HubSession.js'
 import Bam                from  '../../models/Bam.iobio.js'
 import vcfiobio           from  '../../models/Vcf.iobio.js'
 import Translator         from  '../../models/Translator.js'
@@ -784,9 +784,9 @@ export default {
 
             if (self.launchedFromHub) {
               self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
-              self.hubSession = new HubSessionDeprecated();
+              self.hubSession = new HubSession();
               let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
-              self.hubSession.promiseInit(self.paramSampleId, self.paramSource, isPedigree )
+              self.hubSession.promiseInit(self.paramProjectId, self.paramSampleId, self.paramSource, isPedigree )
               .then(modelInfos => {
                 self.modelInfos = modelInfos;
 
@@ -864,6 +864,7 @@ export default {
           }
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
+
           if (self.launchedFromClin && !self.isFullAnalysis) {
             self.$refs.navRef.onShowFlaggedVariants();
             self.onSendFiltersToClin();
@@ -1008,10 +1009,13 @@ export default {
         self.showLeftPanelForGenes();
         self.cacheHelper.analyzeAll(self.cohortModel, true);
       } else {
-        self.cohortModel.promiseJointCallVariants(self.selectedGene,
-          self.selectedTranscript,
-          self.cohortModel.getCurrentTrioVcfData(),
-          {checkCache: false, isBackground: false})
+        self.promiseLoadData()
+        .then(function() {
+          return self.cohortModel.promiseJointCallVariants(self.selectedGene,
+            self.selectedTranscript,
+            self.cohortModel.getCurrentTrioVcfData(),
+            {checkCache: false, isBackground: false})
+        })
         .then(function() {
           self.$refs.genesCardRef.determineFlaggedGenes();
         })
@@ -1146,9 +1150,7 @@ export default {
         if (self.$refs.genesCardRef) {
           self.$refs.genesCardRef.determineFlaggedGenes();
         }
-        setTimeout(function() {
-          self.showLeftPanelWhenFlaggedVariantsForGene();
-        },1000)
+
       })
     },
 
@@ -1160,7 +1162,6 @@ export default {
       self.promiseLoadGene(geneName)
       .then(function() {
         self.setUrlGeneParameters();
-        self.showLeftPanelWhenFlaggedVariants();
       })
       self.activeGeneVariantTab = "0";
 

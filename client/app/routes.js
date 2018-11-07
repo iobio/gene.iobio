@@ -105,7 +105,7 @@ const routes = [
         paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2],
         paramGeneName:         route.query.geneName,
         paramProjectId:        route.query.project_id,
-        paramSampleId:         route.query.sample_uuid,
+        paramSampleId:         route.query.sample_id,
         paramIsPedigree:       route.query.is_pedigree,
         paramSource:           route.query.source
 
