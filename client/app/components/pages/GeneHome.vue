@@ -864,6 +864,7 @@ export default {
           }
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
+
           if (self.launchedFromClin && !self.isFullAnalysis) {
             self.$refs.navRef.onShowFlaggedVariants();
             self.onSendFiltersToClin();
@@ -1008,10 +1009,13 @@ export default {
         self.showLeftPanelForGenes();
         self.cacheHelper.analyzeAll(self.cohortModel, true);
       } else {
-        self.cohortModel.promiseJointCallVariants(self.selectedGene,
-          self.selectedTranscript,
-          self.cohortModel.getCurrentTrioVcfData(),
-          {checkCache: false, isBackground: false})
+        self.promiseLoadData()
+        .then(function() {
+          return self.cohortModel.promiseJointCallVariants(self.selectedGene,
+            self.selectedTranscript,
+            self.cohortModel.getCurrentTrioVcfData(),
+            {checkCache: false, isBackground: false})
+        })
         .then(function() {
           self.$refs.genesCardRef.determineFlaggedGenes();
         })
