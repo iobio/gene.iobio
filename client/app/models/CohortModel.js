@@ -783,6 +783,8 @@ class CohortModel {
     })
   }
 
+
+
   setLoadedVariants(gene, relationship=null) {
     let self = this;
 
@@ -798,11 +800,7 @@ class CohortModel {
           isTarget = true;
         }
 
-        var isHomRef = feature.zygosity == null
-           || feature.zygosity.toUpperCase() == "HOMREF"
-           || feature.zygosity.toUpperCase() == "NONE"
-           || feature.zygosity.toUpperCase() == "GT_UNKNOWN"
-           || feature.zygosity == "";
+        var bypassZyg = SampleModel.isZygosityToBypass(feature, self.relationship);
 
         var inRegion = true;
         if (self.filterModel.regionStart && self.filterModel.regionEnd) {
@@ -811,7 +809,7 @@ class CohortModel {
 
         var passesModelFilter = self.filterModel.passesModelFilter(model.relationship, feature);
 
-        return isTarget && !isHomRef && inRegion && passesModelFilter;
+        return isTarget && !bypassZyg && inRegion && passesModelFilter;
       });
 
       // For MyGene2 basic mode, we filter the variants to only show those that are clinvar pathogenic rare

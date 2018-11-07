@@ -416,6 +416,7 @@ class SampleModel {
     });
   }
 
+
   _setGeneCoverageExonNumbers(transcript, geneCoverageObjects) {
     var me = this;
     transcript.features.forEach(function(feature) {
@@ -638,11 +639,7 @@ class SampleModel {
         if (theFbData && theFbData.features ) {
           var count = theFbData.features
            .filter(function(d) {
-            // Filter homozygous reference for proband only
-            if (d.zygosity && d.zygosity.toLowerCase() == 'homref') {
-              return false;
-            }
-            return true;
+              return !SampleModel.bypassZyg(d, me.relationship);
            }).length;
            resolve(count);
         } else {
@@ -668,7 +665,14 @@ class SampleModel {
       } else {
         me.promiseGetFbData(window.gene, window.selectedTranscript, true)
          .then(function(data) {
-          resolve(data.fbData != null && data.fbData.features != null && data.fbData.features.length > 0);
+          if (data.fbData && data.fbData.features) {
+            var calledVariants = data.fbData.features.filter(function(variant) {
+              return !SampleModel.bypassZyg(variant, me.relationship);
+            })
+            resolve(calledVariants.length > 0);
+          } else {
+            resolve(false);
+          }
          },
          function(error) {
           var msg = "Problem in SampleModel.promiseHasCalledVariants(): " + error;
@@ -3100,18 +3104,12 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
 
   dangerCounts.featureCount = theVcfData.features.length;
   dangerCounts.loadedCount  = theVcfData.features.filter(function(d) {
-    if (d.hasOwnProperty('zygosity') && d.zygosity != null) {
-      return d.zygosity.toUpperCase() != 'HOMREF' && !d.hasOwnProperty("fbCalled") || d.fbCalled != 'Y';
-    } else {
-      return !d.hasOwnProperty("fbCalled") || d.fbCalled != 'Y';
-    }
+    var bypassZyg = SampleModel.isZygosityToBypass(d, 'proband');
+    return (!d.hasOwnProperty("fbCalled") || d.fbCalled != 'Y') && !bypassZyg;
   }).length;
   dangerCounts.calledCount  = theVcfData.features.filter(function(d) {
-    if (d.hasOwnProperty('zygosity') && d.zygosity != null) {
-      return d.zygosity.toUpperCase() != 'HOMREF' && d.hasOwnProperty("fbCalled") && d.fbCalled == 'Y';
-    } else {
-      return d.hasOwnProperty("fbCalled") && d.fbCalled == 'Y';
-    }
+    var bypassZyg = SampleModel.isZygosityToBypass(d, 'proband');
+    return d.hasOwnProperty("fbCalled") && d.fbCalled == 'Y' && !bypassZyg;
   }).length;
 
   // Indicate if the gene pass the filter (if applicable)
@@ -3119,6 +3117,15 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
 
   return dangerCounts;
 }
+
+SampleModel.isZygosityToBypass = function(variant, relationship) {
+  return variant.zygosity == null
+         || variant.zygosity.toUpperCase() == "HOMREF"
+         || variant.zygosity.toUpperCase() == "NONE"
+         || (variant.zygosity.toUpperCase() == "GT_UNKNOWN" && relationship != 'known-variants')
+         || variant.zygosity == "";
+}
+
 
 
 SampleModel._determineAffectedStatusForVariant = function(variant, affectedStatus, affectedInfo) {
