@@ -800,7 +800,7 @@ class CohortModel {
           isTarget = true;
         }
 
-        var bypassZyg = SampleModel.isZygosityToBypass(feature, self.relationship);
+        var bypassZyg = SampleModel.isZygosityToBypass(feature, model.relationship);
 
         var inRegion = true;
         if (self.filterModel.regionStart && self.filterModel.regionEnd) {
