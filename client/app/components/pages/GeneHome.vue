@@ -439,6 +439,7 @@ import VariantCard        from  '../viz/VariantCard.vue'
 import AppTour            from  '../viz/AppTour.vue'
 
 import HubSession         from  '../../models/HubSession.js'
+import HubSessionDeprecated from  '../../models/HubSessionDeprecated.js'
 import Bam                from  '../../models/Bam.iobio.js'
 import vcfiobio           from  '../../models/Vcf.iobio.js'
 import Translator         from  '../../models/Translator.js'
@@ -495,6 +496,7 @@ export default {
     paramTour:             null,
     paramProjectId:        null,
     paramSampleId:         null,
+    paramSampleUuid:       null,
     paramIsPedigree:       null,
     paramSource:           null,
 
@@ -521,6 +523,9 @@ export default {
       isClinFrameVisible: false,
 
       launchedFromHub: false,
+      isHubDeprecated: false,
+      sampleId: null,
+      projectId: null,
       launchedWithUrlParms: false,
 
 
@@ -784,9 +789,9 @@ export default {
 
             if (self.launchedFromHub) {
               self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
-              self.hubSession = new HubSession();
+              self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
               let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
-              self.hubSession.promiseInit(self.paramProjectId, self.paramSampleId, self.paramSource, isPedigree )
+              self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
               .then(modelInfos => {
                 self.modelInfos = modelInfos;
 
@@ -1754,8 +1759,22 @@ export default {
         self.isBasicMode  = self.paramMode == "basic" ? true : false;
         self.isEduMode    = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
       }
-      if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0 && self.paramSampleId && self.paramSource) {
+      if (self.paramSampleId && self.paramSampleId.length > 0) {
+        self.sampleId = self.paramSampleId;
+      } else if (self.paramSampleUuid && self.paramSampleUuid.length > 0) {
+        self.sampleId = self.paramSampleUuid;
+      }
+      if (self.paramProjectId && self.paramProjectId.length > 0) {
+        self.projectId = self.paramProjectId;
+      }
+      if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
+        && self.sampleId && self.paramSource) {
         self.launchedFromHub = true;
+        if (self.projectId) {
+          self.isHubDeprecated = false;
+        } else {
+          self.isHubDeprecated = true;
+        }
       }
 
       if (self.paramTour) {

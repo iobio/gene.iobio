@@ -106,6 +106,7 @@ const routes = [
         paramGeneName:         route.query.geneName,
         paramProjectId:        route.query.project_id,
         paramSampleId:         route.query.sample_id,
+        paramSampleUuid:       route.query.sample_uuid,
         paramIsPedigree:       route.query.is_pedigree,
         paramSource:           route.query.source
 

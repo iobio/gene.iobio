@@ -7,7 +7,7 @@ export default class HubSession {
     this.apiVersion =  '/apiv1';
   }
 
-  promiseInit(projectId, sampleId, source, isPedigree) {
+  promiseInit(sampleId, source, isPedigree, projectId ) {
     let self = this;
     self.api = source + self.apiVersion;
 
