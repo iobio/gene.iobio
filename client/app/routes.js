@@ -104,7 +104,9 @@ const routes = [
         paramTbis:             [route.query.tbi0, route.query.tbi1, route.query.tbi2],
         paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2],
         paramGeneName:         route.query.geneName,
-        paramSampleId:         route.query.sample_uuid,
+        paramSampleId:         route.query.sample_id,
+        paramSampleUuid:       route.query.sample_uuid,
+        paramProjectId:        route.query.project_id,
         paramIsPedigree:       route.query.is_pedigree,
         paramSource:           route.query.source
     })
