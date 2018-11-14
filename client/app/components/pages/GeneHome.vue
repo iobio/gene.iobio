@@ -499,6 +499,7 @@ export default {
     paramSampleUuid:       null,
     paramIsPedigree:       null,
     paramSource:           null,
+    paramIobioSource:      null,
 
     paramFileId:           null,
 
@@ -530,10 +531,10 @@ export default {
       launchedWithUrlParms: false,
 
       hubToIobioSources: {
-        "https://mosaic.chpc.utah.edu":     "hub-chpc.iobio.io",
-        "https://mosaic-dev.chpc.utah.edu": "hub-chpc.iobio.io",
-        "http://mosaic-dev.chpc.utah.edu":  "hub-chpc.iobio.io",
-        "https://staging.frameshift.io":    "nv-blue.iobio.io"
+        "https://mosaic.chpc.utah.edu":         "hub-chpc.iobio.io",
+        "https://mosaic-dev.genetics.utah.edu": "hub-chpc.iobio.io",
+        "http://mosaic-dev.genetics.utah.edu":  "hub-chpc.iobio.io",
+        "https://staging.frameshift.io":        "nv-blue.iobio.io"
       },
 
 
@@ -1775,12 +1776,15 @@ export default {
       if (self.paramProjectId && self.paramProjectId.length > 0) {
         self.projectId = self.paramProjectId;
       }
+      if (self.paramIobioSource && self.paramIobioSource.length > 0) {
+        self.globalApp.IOBIO_SOURCE = self.paramIobioSource;
+      }
       if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
         && self.sampleId && self.paramSource) {
         self.launchedFromHub = true;
         // Figure out which IOBIO backend we should be using.
         // TODO - This should be a URL parameter from hub
-        if (self.hubToIobioSources[self.paramSource]) {
+        if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {
           self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource]
         }
         if (self.projectId) {
@@ -1793,6 +1797,13 @@ export default {
       if (self.paramTour) {
         self.tourNumber = self.paramTour;
       }
+
+      // TODO:  this should be a URL parameter.
+      if (self.globalApp.IOBIO_SOURCE == "hub-chpc.iobio.io") {
+        self.globalApp.useSSL = false;
+      }
+
+      self.globalApp.initServices();
     },
     promiseInitFromUrl: function() {
       let self = this;

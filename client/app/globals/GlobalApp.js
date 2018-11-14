@@ -34,9 +34,9 @@ class GlobalApp {
     this.useServerCache        = false;
 
 
-    this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.IOBIO_SOURCE;
-    this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
-    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
+    this.IOBIO_SERVICES        = null;
+    this.HTTP_SERVICES         = null;
+    this.emailServer           = null;
 
 
     this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
@@ -85,6 +85,17 @@ class GlobalApp {
     // Fields
     this.impactFieldToFilter         = 'highestImpactVep';
     this.impactFieldToColor          = 'vepImpact';
+
+  }
+
+  initServices() {
+
+    this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.IOBIO_SOURCE;
+    if (this.IOBIO_SERVICES.indexOf("/", this.IOBIO_SERVICES.length - 1) == -1) {
+        this.IOBIO_SERVICES += "/";
+    }
+    this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
+    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
 
   }
 
