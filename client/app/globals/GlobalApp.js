@@ -14,7 +14,9 @@ class GlobalApp {
     this.DEV_IOBIO             = "nv-dev-new.iobio.io/";
     this.STAGE_IOBIO           = "nv-green.iobio.io/";
     this.PROD_IOBIO            = "nv-prod.iobio.io/";
-    this.CURRENT_IOBIO         = this.PROD_IOBIO;
+
+    this.IOBIO_SOURCE          = this.PROD_IOBIO;
+    this.HTTP_SOURCE           = this.PROD_IOBIO;
 
 
     this.isOffline             = false;          // is there any internet connect to outside services and resources?
@@ -32,10 +34,9 @@ class GlobalApp {
     this.useServerCache        = false;
 
 
-
-    this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.CURRENT_IOBIO;
-    this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.CURRENT_IOBIO);
-    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SERVICES + "email/";
+    this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.IOBIO_SOURCE;
+    this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
+    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
 
 
     this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";

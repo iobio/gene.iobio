@@ -515,6 +515,7 @@ export default {
     paramAffectedStatuses: null
   },
   data() {
+    let self = this;
     return {
       greeting: 'gene.iobio',
 
@@ -527,6 +528,13 @@ export default {
       sampleId: null,
       projectId: null,
       launchedWithUrlParms: false,
+
+      hubToIobioSources: {
+        "https://mosaic.chpc.utah.edu":     "hub-chpc.iobio.io",
+        "https://mosaic-dev.chpc.utah.edu": "hub-chpc.iobio.io",
+        "http://mosaic-dev.chpc.utah.edu":  "hub-chpc.iobio.io",
+        "https://staging.frameshift.io":    "nv-blue.iobio.io"
+      },
 
 
       allGenes: allGenesData,
@@ -1770,6 +1778,11 @@ export default {
       if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
         && self.sampleId && self.paramSource) {
         self.launchedFromHub = true;
+        // Figure out which IOBIO backend we should be using.
+        // TODO - This should be a URL parameter from hub
+        if (self.hubToIobioSources[self.paramSource]) {
+          self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource]
+        }
         if (self.projectId) {
           self.isHubDeprecated = false;
         } else {
