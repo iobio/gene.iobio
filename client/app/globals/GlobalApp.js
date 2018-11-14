@@ -91,9 +91,12 @@ class GlobalApp {
   initServices() {
 
     this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.IOBIO_SOURCE;
+
+    // End with "/" for IOBIO services
     if (this.IOBIO_SERVICES.indexOf("/", this.IOBIO_SERVICES.length - 1) == -1) {
         this.IOBIO_SERVICES += "/";
     }
+
     this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
     this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
 
