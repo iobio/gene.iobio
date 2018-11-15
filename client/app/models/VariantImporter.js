@@ -93,9 +93,23 @@ VariantImporter.parseRecordsGemini = function(data) {
   var fieldNames = VariantImporter.geminiFields;
   var importRecords = [];
 
-  var recs = data.split(/[\r\n]+/g);
+  let recs = null;
+  let isCommaDelimited = false;
+  if (Array.isArray(data)) {
+    recs = data;
+    isCommaDelimited = true;
+  } else {
+    recs = data.split(/[\r\n]/g);
+  }
+
+
   recs.forEach( function(rec) {
-    var fields = rec.split(/\s+/);
+    var fields = null;
+    if (isCommaDelimited) {
+      fields = rec.split(/,/);
+    } else {
+      fields = rec.split(/\s/);
+    }
     if (fields.length == 0 || fields[0] == "chrom" || fields[0] == '') {
       // Ignore the header line or a blank link
     } else {
