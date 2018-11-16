@@ -37,6 +37,9 @@ import VTooltip from 'v-tooltip'
 import                           '../assets/css/v-tooltip.css'
 Vue.use(VTooltip)
 
+import vmodal from 'vue-js-modal'
+Vue.use(vmodal)
+
 
 import Util                 from './globals/Util.js'
 import GlobalApp            from './globals/GlobalApp.js'

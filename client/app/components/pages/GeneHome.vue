@@ -147,12 +147,23 @@ main.content
     <v-content>
       <v-container fluid>
 
+
         <!-- Note that the transition needs to be disabled because otherwise
             the pileup doesn't render properly because it attempts to render in
             the middle of the transition and gets the wrong window size. An
             alternative to disabling the transition would be to detect when the
             transition is finished and set :visible after that -->
-        <v-dialog v-model="pileupInfo.show" :transition='false' width="800">
+        <!--
+           <v-dialog v-model="pileupInfo.show" :transition='false' width="800">
+        -->
+        <modal name="pileup-modal"
+            :resizable="true"
+            :adaptive="false"
+            :draggable="true"
+            width="80%"
+            height="500"
+            >
+
           <v-card>
             <span id="pileup-title">
               <span class="pl-2" v-for="titlePart in pileupInfo.title" key="titlePart">
@@ -167,7 +178,9 @@ main.content
               :visible="pileupInfo.show"
             />
           </v-card>
-        </v-dialog>
+
+        </modal>
+
 
         <intro-card v-if="forMyGene2"
         :closeIntro="closeIntro"
@@ -2371,6 +2384,8 @@ export default {
         this.pileupInfo.title.push((relationship == 'proband' ? '' : '(' + relationship + ")"));
 
         this.pileupInfo.show         = true;
+
+        this.$modal.show('pileup-modal');
       }
       else {
         return '';
