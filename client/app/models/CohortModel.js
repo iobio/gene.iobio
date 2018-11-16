@@ -32,7 +32,7 @@ class CohortModel {
     this.sampleMapSibs = { affected: [], unaffected: []}
 
     this.mode = 'single';
-    this.maxAlleleCount = null;
+    this.maxAlleleCount = 0;
     this.affectedInfo = null;
     this.maxDepth = 0;
 
@@ -246,6 +246,8 @@ class CohortModel {
       self.isLoaded = false;
       self.inProgress.loadingDataSources = true;
 
+
+      self.maxAlleleCount = 0;
 
 
       let affectedSibs = modelInfos.filter(function(modelInfo) {
@@ -1111,7 +1113,6 @@ class CohortModel {
       } else {
         // Set the max allele count across all variants in the trio.  We use this to properly scale
         // the allele counts bars in the tooltip
-        self.maxAlleleCount = 0;
         for(var rel in resultMap) {
           self.maxAlleleCount = SampleModel.calcMaxAlleleCount(resultMap[rel], self.maxAlleleCount);
         }

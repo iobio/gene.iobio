@@ -263,11 +263,11 @@
     .allele-count-bar
       overflow-wrap: break-word
       float: left
-      width: 120px
+      width: 220px
       min-height: 25px
 
     .ped-info
-      width: 270px
+      width: 370px
       clear: both
       line-height: 13px !important
 
@@ -717,8 +717,8 @@ export default {
   },
   data() {
     return {
-      WIDTH_ALLELE_COUNT_BAR: 120,
-      WIDTH_ALLELE_COUNT_ROW: 270,
+      WIDTH_ALLELE_COUNT_BAR: 220,
+      WIDTH_ALLELE_COUNT_ROW: 370,
       AFFECTED_GLYPH: "<i class='material-icons affected-symbol'>spellcheck</i>"
 
     }
