@@ -23,6 +23,7 @@
       padding-left: 7px
       line-height: 18px
       font-size: 13px
+      font-weight: normal
       padding-top: 2px
       color: $text-color
 
