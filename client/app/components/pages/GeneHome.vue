@@ -148,14 +148,6 @@ main.content
       <v-container fluid>
 
 
-        <!-- Note that the transition needs to be disabled because otherwise
-            the pileup doesn't render properly because it attempts to render in
-            the middle of the transition and gets the wrong window size. An
-            alternative to disabling the transition would be to detect when the
-            transition is finished and set :visible after that -->
-        <!--
-           <v-dialog v-model="pileupInfo.show" :transition='false' width="800">
-        -->
         <modal name="pileup-modal"
             :resizable="true"
             :adaptive="false"
@@ -164,7 +156,7 @@ main.content
             height="500"
             >
 
-          <v-card>
+          <v-card style="overflow-y:auto;height:-webkit-fill-available;height:-moz-available;height:100%">
             <span id="pileup-title">
               <span class="pl-2" v-for="titlePart in pileupInfo.title" key="titlePart">
                 {{ titlePart }}
@@ -172,8 +164,7 @@ main.content
             </span>
             <pileup id="pileup-container"
               :referenceURL="pileupInfo.referenceURL"
-              :alignmentURL="pileupInfo.alignmentURL"
-              :variantURL="pileupInfo.variantURL"
+              :tracks="pileupInfo.tracks"
               :locus="pileupInfo.coord"
               :visible="pileupInfo.show"
             />
@@ -2360,6 +2351,7 @@ export default {
     },
 
     onShowPileupForVariant: function(relationship="proband", variant) {
+      let self = this;
       let theVariant = variant ? variant : this.selectedVariant;
       if (theVariant) {
         let variantInfo = this.globalApp.utility.formatDisplay(variant, this.cohortModel.translator, this.isEduMode);
@@ -2370,8 +2362,19 @@ export default {
         const end   = theVariant.start + this.pileupInfo.SPAN;
         this.pileupInfo.coord =  'chr' + chrom + ':' + start + '-' + end;
 
+
+        this.pileupInfo.tracks = [];
+
         // Set the bam, vcf, and references
-        this.pileupInfo.alignmentURL = this.cohortModel.getModel(relationship).bam.bamUri;
+        this.cohortModel.getCanonicalModels().forEach(function(model) {
+          let track = {name: model.relationship};
+          track.variantURL =  model.vcf.getVcfURL();
+          track.alignmentURL = model.bam.bamUri;
+          self.pileupInfo.tracks.push(track);
+        })
+
+
+        // Set the reference
         this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
 
         // set the title
