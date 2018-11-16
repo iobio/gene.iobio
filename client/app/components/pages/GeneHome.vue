@@ -910,6 +910,10 @@ export default {
 
       this.clearFilter();
       this.flaggedVariants = [];
+      self.cohortModel.clearFlaggedVariants();
+      if (self.$refs.genesCard) {
+        self.$refs.genesCardRef.determineFlaggedGenes();
+      }
 
       return new Promise(function(resolve, reject) {
         if (self.isEduMode) {
