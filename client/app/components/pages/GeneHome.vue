@@ -122,6 +122,7 @@ main.content
       :isClinFrameVisible="isClinFrameVisible"
       :isFullAnalysis="isFullAnalysis"
       :bringAttention="bringAttention"
+      :phenotypeLookupUrl="phenotypeLookupUrl"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -615,6 +616,7 @@ export default {
 
       forceLocalStorage: null,
 
+      phenotypeLookupUrl: null,
 
       pileupInfo: {
         // This controls how many base pairs are displayed on either side of
@@ -1804,6 +1806,7 @@ export default {
       }
 
       self.globalApp.initServices();
+      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
     promiseInitFromUrl: function() {
       let self = this;

@@ -37,9 +37,8 @@ class GlobalApp {
     this.IOBIO_SERVICES        = null;
     this.HTTP_SERVICES         = null;
     this.emailServer           = null;
+    this.hpoLookupUrl          = null;
 
-
-    this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
 
     // config files
     this.siteConfigUrl         =  { 'prod': "https://s3.amazonaws.com/gene.iobio.config/site-config.json",
@@ -99,6 +98,7 @@ class GlobalApp {
 
     this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
     this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
+    this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
 
   }
 

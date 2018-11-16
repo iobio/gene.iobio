@@ -393,6 +393,7 @@ nav.toolbar
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
          :defaultTopGenes="10"
          :geneModel="geneModel"
+         :phenotypeLookupUrl="phenotypeLookupUrl"
          @on-search-genes="onSearchPhenolyzerGenes"
          @on-start-search-genes="onStartSearchPhenolyzerGenes"
          @show-snackbar="onShowSnackbar"
@@ -770,7 +771,8 @@ export default {
     launchedFromClin: null,
     isFullAnalysis: null,
     isClinFrameVisible: null,
-    bringAttention: null
+    bringAttention: null,
+    phenotypeLookupUrl: null
   },
   data () {
     let self = this;
