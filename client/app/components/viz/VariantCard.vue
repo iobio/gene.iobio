@@ -305,6 +305,7 @@
           :variantPadding="variantSymbolPadding"
           :showBrush="false"
           :showXAxis="true"
+          :showWhenEmpty="false"
           :classifySymbolFunc="classifyVariantSymbolFunc"
           @variantClick="onVariantClick"
           @variantHover="onVariantHover"
@@ -312,7 +313,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.loadedVariants.features.length > 0 && sampleModel.relationship != 'known-variants'"
+        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship != 'known-variants'"
         >
           loaded variants
         </div>
@@ -331,6 +332,7 @@
           :variantPadding="variantSymbolPadding"
           :showBrush="false"
           :showXAxis="true"
+          :showWhenEmpty="true"
           :classifySymbolFunc="classifyVariantSymbolFunc"
           @variantClick="onVariantClick"
           @variantHover="onVariantHover"

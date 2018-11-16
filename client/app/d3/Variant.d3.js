@@ -19,6 +19,7 @@ export default function variantD3() {
       regionStart = undefined,
       regionEnd = undefined,
       showXAxis = false,
+      showWhenEmpty = true,
       xTickFormat = null,
       heightPercent = "100%",
       widthPercent = "100%",
@@ -183,7 +184,8 @@ export default function variantD3() {
 
       container.selectAll("svg").remove();
 
-      if (data && data.length > 0 && data[0] && data[0].features && data[0].features.length > 0) {
+      if (data && data.length > 0 && data[0]
+        && (showWhenEmpty || (data[0].features && data[0].features.length > 0))) {
 
         // Update the x-scale.
         if (regionStart && regionEnd) {
@@ -758,6 +760,12 @@ export default function variantD3() {
   chart.regionEnd = function(_) {
     if (!arguments.length) return regionEnd;
     regionEnd = _;
+    return chart;
+  };
+
+  chart.showWhenEmpty = function(_) {
+    if (!arguments.length) return showWhenEmpty;
+    showWhenEmpty = _;
     return chart;
   };
 
