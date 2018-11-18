@@ -11,7 +11,7 @@ $accent-color:      #a7be3a
 $accent-color-dark: #889f11
 $heading-font:      Cabin
 $blue-background-color: #6fa2d4
-$gray-background-color: #70716c
+$gray-background-color: #b3b3b3
 $navy-background-color: #416b9a
 $green-background-color: #b5c672
 $dark-background-color: #484848
@@ -65,9 +65,9 @@ $dark-background-color: #484848
     &.main
       background-color: $blue-background-color
     &.videos
-      background-color: $dark-background-color
+      background-color: $gray-background-color
     &.blogs
-      background-color: $dark-background-color
+      background-color: $gray-background-color
     &.how-it-works
       background-color: $navy-background-color
 
@@ -243,7 +243,7 @@ $dark-background-color: #484848
           </div>
 
           <div>
-            <img width="650px" src="../../../assets/images/landing_page/gene-iobio.png"></img>
+            <img width="750px" src="../../../assets/images/landing_page/laptop_gene_light.png"></img>
           </div>
         </div>
       </div>
