@@ -7,213 +7,165 @@
 @import ../../../assets/sass/variables
 
 
+$accent-color:      #a7be3a
+$accent-color-dark: #889f11
+$heading-font:      Cabin
+$blue-background-color: #6fa2d4
+$gray-background-color: #70716c
+$navy-background-color: #416b9a
+$green-background-color: #b5c672
+$dark-background-color: #484848
+
+
+
+
+.video-thumbnail-placeholder
+  height: 132px
+  width:  252px
+  cursor: pointer
+  outline: 1px solid lightgray
+  position: relative
+
+  img
+    width: 250px
+    height: 130px
+
+  #play-button
+    cursor: pointer
+    color: $app-color
+    font-size: 80px
+    top: 30px
+    left: 90px
+    opacity: .7
+    position: absolute
+
+.video-text-title
+  font-size: 18px
+  font-family: $heading-font
+  cursor: pointer
+  color: white
+  padding-bottom: 5px
+
+
 #welcome-area
-  text-align: center
-  margin-top: 25px
+  margin-top: -5px
   display: flex
   justify-content: space-around
   flex-direction: column
   align-items: center
 
   .welcome-panel
-    background-color: white
-    padding-bottom: 15px
-    padding-top: 15px
-    padding-left: 10px
+    padding-bottom: 35px
+    padding-top: 40px
+    padding-left: 30px
     padding-right: 10px
-    margin-top: 20px
-    width:  850px
+    width: 100%
+
+
+    &.main
+      background-color: $blue-background-color
+    &.videos
+      background-color: $dark-background-color
+    &.blogs
+      background-color: $dark-background-color
+    &.how-it-works
+      background-color: $navy-background-color
 
 
     #welcome-label
-      color: $text-color
-      font-size: 22px
+      color:          white
+      font-size:      38px
+      line-height:    42px
+      font-family:    $heading-font
+      font-weight:    600
+      padding-left:   10px
+      padding-bottom: 70px
 
     #welcome-label-small
-      color: $text-color
-      font-size: 16px
+      color:          white
+      font-size:      26px
+      font-family:    $heading-font
+      font-weight:    normal
+      padding-bottom: 10px
 
-    #what-is-new-link
-      font-size: 18px
 
-    #helpful-articles-link
-      font-size: 18px
+    .buttons-group
+      margin-top: 0px !important
+      padding-left: 10px
 
-    button
+    button.welcome-button
       font-size: 16px !important
       margin-left: 7px
       margin-right: 7px
       height: 40px
       margin-bottom: 10px
+      background-color: $accent-color
+      color: white
+
+    button.welcome-button-outline
+      color: $accent-color-dark
+      border-color: $accent-color
+      width: 150px
+      width: 200px
+      height: 40px
+      margin-top: 0px
+
+      i.material-icons
+        font-size: 30px
+        width: 30px
+        color: $accent-color-dark
+        margin-right: 4px
 
     #welcome-panel-content
       display: flex
       justify-content: center
       margin-top: 0px
 
-      .feature-container
-        display: flex
-        justify-content: flex-start
-        flex: 1 1 0
-        min-height: 131px
-
-
-        .feature-item
-          margin-left: 0px
-          margin-right: 0px
-          text-align: center
-
-          .feature-icon
-            width: 140px
-            text-align: center
-
-          .bullet-item
-            display: inline-block
-            word-wrap: break-word
-            width: 140px
-            white-space: normal
-            margin-left: 5px
-            margin-bottom: 15px
-            line-height: 22px
-            font-size: 16px
-            padding-top: 10px
-            text-align: center
 
 
 
-      .description-paragraph
-        width: 100%
-        margin-left: 40px
-        margin-right: 40px
-        margin-top: 60px
-
-        li
-          padding-bottom: 10px
-
-          li
-            padding-bottom: 4px
 
 
-      #video-thumbprint-heading
-        font-size: 18px
-        color: $text-color
-        margin-top: 0px
-        margin-bottom: 3px
-
-      #video-thumbprint-panel
-        margin-top: 0px
-        margin-bottom: 10px
-
-
-      #video-thumbprint-content
-        display: flex
-        flex-wrap: wrap
+#blog-post-content
+  display: flex
+  flex-wrap: wrap
+  flex-direction: row
+  justify-content: space-between
+  align-items: center
+  padding-bottom: 40px
+  padding-top: 10px
 
 
-      .video-thumbprint-well
-        position: relative
-        width: 110px
-        text-align: center
-        margin-left: 0px
+  .blog-post
+    height: 100px
+    width:  200px
 
-        .video-title
-          margin-top: 10px
-          margin-left: 10px
-          margin-right: 10px
-          color: $welcome-header-color
-          font-size: 14px
-          line-height: 17px
-          height: 65px
-          border: $welcome-border-color solid thin
-          padding: 5px
-          width: 100px
-          padding-top: 15px
-          background-color: white
-
-          &.three-line
-            padding-top: 5px
-
-          #play-button
-            cursor: pointer
-            opacity: 0.4
-            color: $play-button-color
-            font-size: 50px
-            position: absolute
-            top: 18px
-            left: 30px
+    .blog-post-title
+      font-family: $heading-font
+      color: white
+      font-size: 18px
+      padding-top: 15px
+      text-align: center
+      padding-bottom: 5px
 
 
-        .video-thumbprint
-          width: 90px
-          height: 50px
-          margin-top: 5px
-          margin-left: 10px
-          background-color: grey
-          background-size: cover
-          display: none
-
-          #play-button
-            cursor: pointer
-            opacity: 0.5
-            color: rgba(70, 70, 70, 0.9)
-            font-size: 60px
-            position: absolute
-            top: 0px
-            left: 25px
-
-        #welcome-screencast-panel-multigene-analysis
-          background-image: url('../../../assets/images/thumbprint-multigene.png')
-
-        #welcome-screencast-panel-saving-analysis
-          background-image: url('../../../assets/images/thumbprint-bookmarks.png')
-
-
-        #welcome-screencast-panel-coverage-analysis
-          background-image: url('../../../assets/images/thumbprint-coverage.png')
-
-
-      #video-thumbprint-heading-large
-        font-size: 20px
-        color: $text-color
-        position: relative
-        top: 55px
-        cursor: default
+    .blog-post-well
+      position: relative
+      cursor: pointer
+      position: relative
+      text-align: center
+      margin-left: 0px
+      outline: thin solid lightgray
 
 
 
-      .video-thumbprint-well-large
-        position: relative
-        width: 250px
-        height: 160px !important
-        text-align: center
-        margin-left: 0px
-
-        .video-title
-          margin-top: 10px
-          margin-left: 10px
-          margin-right: 10px
-          color: white
-          font-size: 16px
-          line-height: 17px
 
 
-        .video-thumbprint-large
-          background-color: grey
-          background-size: cover
-
-          #play-button
-            cursor: pointer
-            opacity: .4
-            color: $play-button-color
-            font-size: 90px
-            position: absolute
-            top: 40px
-            left: 80px
-            cursor: pointer
 
 
-        #welcome-screencast-panel-intro
-          background-color: white
+
+
+
 
 #screencast-panel
   text-align: center
@@ -221,16 +173,17 @@
   overflow: visible
 
   .video-container
-    height: 430px
-    width: 680px
+    height: 500px
+    width: 780px
     background-color: white
     margin-left: auto
     margin-right: auto
 
     h4
-      font-size: 21px
+      font-size: 22px
       padding-top: 10px
-      margin-right: 50px
+      margin-right: 90px
+      font-family:  $heading-font
 
     .video-stop-button
       float: left
@@ -249,19 +202,218 @@
 
 
 
-
 </style>
 
 <template>
   <div>
+
+
+
+
+    <div id="welcome-area" class="">
+
+      <div class="welcome-panel main">
+        <div style="display:flex;flex-direction:row;justify-content:center;align-items: center;">
+
+          <div style="padding-right: 40px">
+            <transition-group  name="fadeDown" >
+              <div v-if="showWelcomeLabel" style="animation-duration: 1s; " key="welcome-label" id="welcome-label">
+                <div>
+                  <center style="padding-bottom:15px">
+                    Analyze Genomic Variants <br> in Real-time.
+                  </center>
+
+
+                </div>
+              </div>
+            </transition-group>
+
+            <transition-group  name="fadeDown" tag="div" >
+              <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group"
+                   style="text-align:center;animation-duration: 1s;">
+                <v-btn class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
+                  TRY IT WITH DEMO DATA
+                </v-btn>
+                <v-btn  class="welcome-button-outline"  @click="playVideo('screencast-intro')">
+                  <i class="material-icons">play_circle_filled_white</i>
+                  WATCH THE VIDEO
+                </v-btn>
+              </div>
+            </transition-group>
+          </div>
+
+          <div>
+            <img width="650px" src="../../../assets/images/landing_page/gene-iobio.png"></img>
+          </div>
+        </div>
+      </div>
+
+      <div class="welcome-panel how-it-works" style="height:400px">
+        <div id="welcome-label-small" style="float:left">How it works</div>
+
+        <v-btn class="welcome-button"  style="float:right" @click="onAppTour">
+          TAKE GUIDED APP TOUR
+        </v-btn>
+
+      </div>
+
+      <div class="welcome-panel videos">
+        <div id="welcome-label-small">
+          Videos
+        </div>
+
+        <div class="videos-section">
+          <v-layout row wrap>
+            <v-flex xs4>
+              <center>
+                <div class="video-text-title" @click="playVideo('screencast-multi-gene-analysis')">Multi-gene analysis</div>
+                <div class="video-thumbnail-placeholder">
+                  <img src="../../../assets/images/landing_page/thumbnail_genes.png" alt="">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
+                  </i>
+                </div>
+              </center>
+
+            </v-flex>
+            <v-flex xs4>
+              <center>
+                <div class="video-text-title" @click="playVideo('screencast-coverage-analysis')">Coverage analysis</div>
+                <div class="video-thumbnail-placeholder">
+                  <img src="../../../assets/images/landing_page/thumbnail_coverage.png" alt="">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
+                  </i>
+                </div>
+              </center>
+            </v-flex>
+            <v-flex xs4>
+              <center>
+                <div class="video-text-title" @click="playVideo('screencast-saving-analysis')">Saving your analysis</div>
+                <div class="video-thumbnail-placeholder">
+                  <img src="../../../assets/images/landing_page/thumbnail_saving.png" alt="">
+                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
+                  </i>
+                </div>
+              </center>
+            </v-flex>
+          </v-layout>
+        </div>
+
+        <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
+        </div>
+
+
+
+      </div>
+
+      <div class="welcome-panel blogs">
+        <div id="welcome-label-small">
+          Blog Posts
+        </div>
+
+
+        <div id="blog-post-content">
+
+
+
+          <div class="blog-post">
+            <div class="blog-post-title ">
+              New gene.iobio 3.0
+            </div>
+            <a href="http://iobio.io/2018/07/20/gene_3.0/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                    <img src="http://iobio.io/public/images/blog/gene_3.0/banner.png" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+
+          <div class="blog-post ">
+            <div class="blog-post-title">
+              How to load your data
+            </div>
+            <a href="http://iobio.io/2017/09/27/loading-data/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                  <img src="http://iobio.io/public/images/blog/loading_data/blog_image_data.jpg" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+
+          <div class="blog-post ">
+            <div class="blog-post-title ">
+              Saving &amp; loading results
+            </div>
+            <a href="http://iobio.io/2017/04/26/gene_2.3.0/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                  <img src="http://iobio.io/public/images/blog/gene_2.3.0/main.png" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+
+          <div class="blog-post ">
+            <div class="blog-post-title">
+              Coverage analysis
+            </div>
+            <a href="http://iobio.io/2017/07/11/coverage/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                  <img src="http://iobio.io/public/images/blog/coverage/main.png" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+          <div class="blog-post ">
+            <div class="blog-post-title">
+              ClinVar and gnomAD
+            </div>
+            <a href="http://iobio.io/2017/09/29/gene_2.5.0/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                  <img src="http://iobio.io/public/images/blog/gene_2.5.0/banner.png" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+
+
+
+
+
+        </div>
+
+
+
+      </div>
+    </div>
+
+
+
+
+
+
+
+
     <div id="screencast-panel" class="hide">
 
 
-
       <div id="screencast-intro" class="hide video-container">
-        <button  class="video-stop-button btn " @click="stopVideo('screencast-intro')">
+        <v-btn style="float:left"   flat @click="stopVideo('screencast-intro')">
           <i class="material-icons">arrow_back</i>
-        </button>
+        </v-btn>
         <h4>Introducing gene.iobio</h4>
         <div id="screencast-intro-iframe-placeholder"></div>
       </div>
@@ -293,228 +445,16 @@
       </div>
     </div>
 
-
-
-
-
-    <div id="welcome-area" class="">
-
-      <div class="welcome-panel" >
-        <transition-group  name="fadeDown" >
-          <div v-if="showWelcomeLabel" style="animation-duration: 1s" key="welcome-label" id="welcome-label">
-            A web tool for disease-causing variant interrogation
-          </div>
-        </transition-group>
-        <div id="welcome-panel-content">
-
-
-          <div class="description-paragraph">
-            <div style="display:flex;justify-content:space-between">
-
-              <transition-group  name="fadeDown" tag="div" class="feature-container">
-                <div v-show="showWelcomeFeature" style="animation-duration: 1s" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
-                  <app-icon :icon="feature.icon" width="40" height="40" style="display: block;margin: auto"></app-icon>
-                  <div  class="bullet-item" v-html="feature.display"></div>
-                </div>
-              </transition-group>
-            </div>
-
-          </div>
-
-        </div>
-
-
-
-
-        <transition-group  name="fadeDown" tag="div" >
-          <div v-if="showWelcomeButton" key="welcome-button" style="animation-duration: 1s;margin-top:30px">
-            <v-btn id="load-demo-data"  @click="onLoadDemoData">
-              Try it with demo data
-            </v-btn>
-            <v-btn   @click="onAppTour">
-              Take guided tour
-            </v-btn>
-          </div>
-
-        </transition-group>
-      </div>
-
-      <div class="welcome-panel" style="padding:0px;background:transparent;margin-top:20px">
-        <div id="welcome-label-small">
-          Videos
-        </div>
-        <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
-
-
-
-          <div id="video-thumbprint-panel">
-            <div id="video-thumbprint-content">
-
-
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-coverage-analysis" class="video-thumbprint shadow-z-2" >
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-intro')">play_arrow
-                  </i>
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-intro')">play_arrow
-                  </i>
-                  Introducing gene.iobio
-                </div>
-              </div>
-
-
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-multigene-analysis" class="video-thumbprint shadow-z-2">
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
-                  </i>
-                 Multi-gene analysis
-                 </div>
-              </div>
-
-
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-coverage-analysis" class="video-thumbprint shadow-z-2" >
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
-                  </i>
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
-                  </i>
-                  Coverage analysis
-                </div>
-              </div>
-
-
-
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-saving-analysis" class="video-thumbprint shadow-z-2" >
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
-                  </i>
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
-                  </i>
-                  Saving your analysis
-
-                </div>
-              </div>
-
-
-
-
-
-
-
-            </div>
-          </div>
-        </div>
-
-
-
-      </div>
-
-      <div class="welcome-panel" style="background:transparent;margin-top:0px;padding-top:10px">
-        <div id="welcome-label-small">
-          Blog Posts
-        </div>
-        <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
-
-
-          <div id="video-thumbprint-panel">
-            <div id="video-thumbprint-content">
-
-
-
-              <a href="http://iobio.io/2018/07/20/gene_3.0/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-
-                  </div>
-                  <div class="video-title three-line">
-                    New gene.iobio 3.0
-                  </div>
-                </div>
-              </a>
-
-
-
-              <a href="http://iobio.io/2017/09/27/loading-data/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/loading_data/blog_image_data.jpg" width="100%" height="100%">
-                  </div>
-                  <div class="video-title">
-                    How to load your data
-                  </div>
-                </div>
-              </a>
-
-
-              <a href="http://iobio.io/2017/04/26/gene_2.3.0/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/gene_2.3.0/main.png" width="100%" height="100%">
-                  </div>
-                  <div class="video-title three-line">
-                    Saving and loading your analysis
-                  </div>
-                </div>
-              </a>
-
-
-
-              <a href="http://iobio.io/2017/07/11/coverage/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/coverage/main.png" width="100%" height="100%">
-                  </div>
-                  <div class="video-title">
-                    Coverage analysis
-                  </div>
-                </div>
-              </a>
-
-
-              <a href="http://iobio.io/2017/09/29/gene_2.5.0/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/gene_2.5.0/banner.png" width="100%" height="100%">
-                  </div>
-                  <div class="video-title">
-                    ClinVar and gnomAD
-                  </div>
-                </div>
-              </a>
-
-
-
-
-
-
-
-            </div>
-          </div>
-        </div>
-
-
-
-      </div>
-    </div>
   </div>
 </template>
 
 
 <script>
 
-import AppIcon         from  '../partials/AppIcon.vue'
 
 export default {
   name: 'welcome',
   components: {
-    AppIcon
   },
   props: {
     isBasicMode: null,
@@ -539,32 +479,32 @@ export default {
         'screencast-intro': {
           src: "https://www.youtube.com/embed/1R3kuXh6seQ?autoplay=1&rel=0&ecver=2",
           videoId: '1R3kuXh6seQ',
-          width: 623,
-          height: 369,
+          width: 670,
+          height: 420,
           frameborder: "0",
           allowfullscreen: ""
         },
         'screencast-coverage-analysis': {
           src: "https://www.youtube.com/embed/dnq8HtthDgU?autoplay=1&rel=0&ecver=2",
           videoId: 'dnq8HtthDgU',
-          width: 623,
-          height: 369,
+          width: 670,
+          height: 420,
           frameborder: "0",
           allowfullscreen: ""
         },
         'screencast-saving-analysis': {
           src: "https://www.youtube.com/embed/6T8DkrJWd6w?autoplay=1&rel=0&ecver=2",
           videoId: '6T8DkrJWd6w',
-          width: 623,
-          height: 369,
+          width: 670,
+          height: 420,
           frameborder: "0",
           allowfullscreen: ""
         },
         'screencast-multi-gene-analysis': {
           src: "https://www.youtube.com/embed/EW2Sm4HEAPg?autoplay=1&rel=0&ecver=2",
           videoId: 'EW2Sm4HEAPg',
-          width: 623,
-          height: 369,
+          width: 670,
+          height: 420,
           frameborder: "0",
           allowfullscreen: ""
         }
@@ -598,6 +538,9 @@ export default {
       $('#welcome-area').addClass('hide');
       $('#screencast-panel').removeClass('hide');
       $('.video-container').addClass('hide');
+      $('#background-img-container').addClass('hide');
+      $('#diagonal-background').addClass('hide');
+
 
       videoContainer.removeClass('hide');
 
@@ -649,6 +592,8 @@ export default {
       self.videoPlayer.pauseVideo();
       $('#welcome-area').removeClass('hide');
       $('#screencast-panel').addClass('hide');
+      $('#background-img-container').removeClass('hide');
+      $('#diagonal-background').removeClass('hide');
     },
 
     onLoadDemoData: function() {
