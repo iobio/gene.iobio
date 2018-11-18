@@ -63,11 +63,11 @@ $dark-background-color: #484848
 
 
     &.main
-      background-color: $blue-background-color
-    &.videos
-      background-color: $gray-background-color
-    &.blogs
-      background-color: $gray-background-color
+      //background-color: $blue-background-color
+      background: linear-gradient(132deg, rgba(0,174,217,1) 0%, rgba(253,187,45,1) 100%);
+    &.videos-and-blogs
+      //background-color: $gray-background-color
+      background: linear-gradient(132deg, rgba(87,85,85,1) 31%, rgba(145,235,66,1) 100%);
     &.how-it-works
       background-color: $navy-background-color
 
@@ -257,7 +257,7 @@ $dark-background-color: #484848
 
       </div>
 
-      <div class="welcome-panel videos">
+      <div class="welcome-panel videos-and-blogs">
         <div id="welcome-label-small">
           Videos
         </div>
@@ -298,22 +298,12 @@ $dark-background-color: #484848
           </v-layout>
         </div>
 
-        <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
-        </div>
+         <div id="blog-post-content">
 
 
-
-      </div>
-
-      <div class="welcome-panel blogs">
         <div id="welcome-label-small">
           Blog Posts
         </div>
-
-
-        <div id="blog-post-content">
-
-
 
           <div class="blog-post">
             <div class="blog-post-title ">
@@ -395,9 +385,8 @@ $dark-background-color: #484848
 
         </div>
 
-
-
       </div>
+
     </div>
 
 
