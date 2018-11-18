@@ -8,6 +8,8 @@
 
 
 $teal-color: #009688
+$dark-navy: #223b59
+$gray-navy: #495f77
 $blue-button-color: #425875
 // $accent-color:      #a7be3a
 // $accent-color-dark: #889f11
@@ -59,12 +61,14 @@ $teal-background-color: #009688
   justify-content: space-around
   flex-direction: column
   align-items: center
+  margin-left: -5px
+  margin-right: -5px
 
   .welcome-panel
     padding-bottom: 35px
     padding-top: 40px
-    padding-left: 30px
-    padding-right: 30px
+    padding-left: 50px
+    padding-right: 50px
     width: 100%
 
 
@@ -73,20 +77,20 @@ $teal-background-color: #009688
       background-color: $blue-background-color
       //background: linear-gradient(132deg, rgba(0,174,217,1) 0%, rgba(253,187,45,1) 100%)
     &.videos-and-blogs
-      background-color: $navy-background-color
+      background-color: $dark-navy
       //background:  linear-gradient(353deg, rgba(87,85,85,1) 27%, rgba(66,125,235,1) 100%)
     &.how-it-works
       background-color: $navy-background-color
     &.resources
-      background-color: $teal-background-color
+      background-color: $gray-navy
     &.collaborations
-      background-color: $blue-background-color
+      background-color: $navy-background-color
 
 
     #welcome-label
       color:          white
-      font-size:      38px
-      line-height:    42px
+      font-size:      36px
+      line-height:    40px
       font-family:    $heading-font
       font-weight:    600
       padding-left:   10px
@@ -295,7 +299,7 @@ $teal-background-color: #009688
               <div v-if="showWelcomeLabel" style="animation-duration: 1s; " key="welcome-label" id="welcome-label">
                 <div>
                   <center style="padding-bottom:15px">
-                    Analyze Genomic Variants <br> in Real-time.
+                    Analyze Genomic Variants <br> in Real-time
                   </center>
 
 
@@ -319,7 +323,7 @@ $teal-background-color: #009688
           </div>
 
           <div>
-            <img width="750px" src="../../../assets/images/landing_page/gene-iobio.png"></img>
+            <img width="650px" src="../../../assets/images/landing_page/gene-iobio.png"></img>
           </div>
         </div>
       </div>
