@@ -8,14 +8,17 @@
 
 
 $teal-color: #009688
+$teal-color-lighter: #12989a
+$turquoise-color: #25a9b9
 $dark-navy: #223b59
 $gray-navy: #495f77
 $blue-button-color: #425875
 // $accent-color:      #a7be3a
 // $accent-color-dark: #889f11
-$accent-color:      $teal-color
-$accent-color-dark: $teal-color
+$accent-color:      $turquoise-color
+$accent-color-dark: $turquoise-color
 $heading-font:      Cabin
+$mid-blue-background-color: #375b84
 $blue-background-color: #6fa2d4
 $gray-background-color: #b3b3b3
 $navy-background-color: #416b9a
@@ -74,13 +77,17 @@ $teal-background-color: #009688
 
 
     &.main
-      background-color: $blue-background-color
+      //background-color: $navy-background-color
       //background: linear-gradient(132deg, rgba(0,174,217,1) 0%, rgba(253,187,45,1) 100%)
+      background: linear-gradient(118deg, rgba(55,91,132,1) 40%, rgba(255,255,255,1) 99%, rgba(231,229,229,1) 100%)
     &.videos-and-blogs
       background-color: $dark-navy
       //background:  linear-gradient(353deg, rgba(87,85,85,1) 27%, rgba(66,125,235,1) 100%)
     &.how-it-works
-      background-color: $navy-background-color
+      //background-color: $mid-blue-background-color
+      //background: linear-gradient(30deg, rgba(55,91,132,1) 79%, rgba(255,255,255,1) 100%);
+      background: linear-gradient(30deg, rgba(55,91,132,1) 23%, rgba(61,99,142,1) 71%, rgba(255,255,255,1) 100%)
+
     &.resources
       background-color: $gray-navy
     &.collaborations
@@ -89,10 +96,10 @@ $teal-background-color: #009688
 
     #welcome-label
       color:          white
-      font-size:      36px
+      font-size:      30px
       line-height:    40px
       font-family:    $heading-font
-      font-weight:    600
+      font-weight:    400
       padding-left:   10px
       padding-bottom: 70px
 
@@ -101,7 +108,7 @@ $teal-background-color: #009688
       font-size:      28px
       font-family:    $heading-font
       font-weight:    normal
-      padding-bottom: 10px
+      padding-bottom: 30px
 
 
     .buttons-group
@@ -115,32 +122,15 @@ $teal-background-color: #009688
       height: 45px
       width: 230px
       margin-bottom: 10px
-      background-color: white
-      color: $accent-color
+      background-color: $accent-color
+      color: white
       font-family: $heading-font
 
       i.material-icons
         font-size: 26px
         width: 26px
-        color: $accent-color-dark
+        color: white
         margin-right: 7px
-
-
-
-    button.welcome-button-outline
-      color: $accent-color
-      border-color: $accent-color-dark
-      width: 200px
-      height: 40px
-      margin-top: 0px
-      font-family: $heading-font
-      font-size: 16px
-
-      i.material-icons
-        font-size: 30px
-        width: 30px
-        color: $accent-color-dark
-        margin-right: 4px
 
 
     #welcome-panel-content
@@ -159,6 +149,8 @@ $teal-background-color: #009688
     font-size: 18px
     margin-left: 25px
     margin-right: 25px
+    text-align: center
+    line-height: 22px
 
 .how-it-works-panel
   clear: both
@@ -182,6 +174,9 @@ $teal-background-color: #009688
 
     .avatar
       margin-right: 10px
+
+      &.teal
+        background-color: $accent-color !important
 
     .how-it-works-image
       max-width: 50%
@@ -331,7 +326,7 @@ $teal-background-color: #009688
       <div class="welcome-panel how-it-works" style="">
         <div id="welcome-label-small" style="float:left">How it works</div>
 
-        <v-btn class="welcome-button"  style="float:right" @click="onAppTour">
+        <v-btn class="welcome-button"  style="float:right;margin-right:30px" @click="onAppTour">
           TAKE GUIDED APP TOUR
         </v-btn>
 
@@ -407,6 +402,18 @@ $teal-background-color: #009688
             <v-avatar color="teal">
               <span class="white--text headline">6</span>
             </v-avatar>
+            <span class="how-it-works-title">Examine the alignments for a variant in the pileup view.</span>
+            <div class="how-it-works-image">
+              <img src="../../../assets/images/landing_page/pileup.png" style="width:95%"></img>
+            </div>
+          </div>
+
+          <v-divider></v-divider>
+
+          <div class="how-it-works-item">
+            <v-avatar color="teal">
+              <span class="white--text headline">7</span>
+            </v-avatar>
             <span class="how-it-works-title">Examine the gene in detail.  Change the transcript and annotations across the variants are reassessed.</span>
             <div class="how-it-works-image">
               <img src="../../../assets/images/landing_page/gene_card.png" style="width:95%"></img>
@@ -417,7 +424,7 @@ $teal-background-color: #009688
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
-              <span class="white--text headline">7</span>
+              <span class="white--text headline">8</span>
             </v-avatar>
             <span class="how-it-works-title">Examine all variants across the gene.  This is especially useful for compound hets and pinpointing data quality issues</span>
             <div class="how-it-works-image">
@@ -429,7 +436,7 @@ $teal-background-color: #009688
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
-              <span class="white--text headline">8</span>
+              <span class="white--text headline">9</span>
             </v-avatar>
             <span class="how-it-works-title">Display the ClinVar track to examine your variant in the context of nearby pathogenic variants</span>
             <div class="how-it-works-image">
@@ -442,7 +449,7 @@ $teal-background-color: #009688
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
-              <span class="white--text headline">9</span>
+              <span class="white--text headline">10</span>
             </v-avatar>
             <span class="how-it-works-title">As genes are being analyzed, filters are pinpointing out the most interesting variants for closer examination. Customize the filters and the filtered variants are instantly reassessed.</span>
             <div class="how-it-works-image">
@@ -454,7 +461,7 @@ $teal-background-color: #009688
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
-              <span class="white--text headline">10</span>
+              <span class="white--text headline">11</span>
             </v-avatar>
             <span class="how-it-works-title">When all genes have been analyzed, review each filtered variant to assess pathogenicity and association with known phenotypes.</span>
             <div class="how-it-works-image">
@@ -466,7 +473,7 @@ $teal-background-color: #009688
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
-              <span class="white--text headline">11</span>
+              <span class="white--text headline">12</span>
             </v-avatar>
             <span class="how-it-works-title">Click on the 'Insufficient Coverage' filter, set the coverage thresholds.  Now examine the pinpointed genes in detail.</span>
             <div class="how-it-works-image">
@@ -478,7 +485,7 @@ $teal-background-color: #009688
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
-              <span class="white--text headline">12</span>
+              <span class="white--text headline">13</span>
             </v-avatar>
             <span class="how-it-works-title">Look for missed variants by calling variants in real-time</span>
             <div class="how-it-works-image">
@@ -503,22 +510,14 @@ $teal-background-color: #009688
           <div>Phenolyzer</div>
           <div>RefSeq</div>
           <div>Gencode</div>
-        </div>
-      </div>
-
-      <div class="welcome-panel collaborations">
-        <div id="welcome-label-small">
-          Sites
-        </div>
-        <div class="collaborators-panel">
-          <div>MyGene2</div>
-          <div>Gencove</div>
+          <div>Human Phenotype Ontology</div>
+          <div>igv.js</div>
         </div>
       </div>
 
       <div class="welcome-panel videos-and-blogs" style="padding-bottom:40px">
         <div id="welcome-label-small">
-         More info
+         Videos and Blog
         </div>
 
         <div class="videos-section">
