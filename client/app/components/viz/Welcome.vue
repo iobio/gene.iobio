@@ -6,7 +6,7 @@
 
 @import ../../../assets/sass/variables
 
-
+$bright-blue: #245b96
 $teal-color: #009688
 $teal-color-lighter: #12989a
 $turquoise-color: #25a9b9
@@ -78,18 +78,18 @@ $teal-background-color: #009688
 
     &.main
       //background-color: $navy-background-color
-      //background: linear-gradient(132deg, rgba(0,174,217,1) 0%, rgba(253,187,45,1) 100%)
-      background: linear-gradient(118deg, rgba(55,91,132,1) 40%, rgba(255,255,255,1) 99%, rgba(231,229,229,1) 100%)
+      background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
     &.videos-and-blogs
       background-color: $dark-navy
       //background:  linear-gradient(353deg, rgba(87,85,85,1) 27%, rgba(66,125,235,1) 100%)
     &.how-it-works
       //background-color: $mid-blue-background-color
       //background: linear-gradient(30deg, rgba(55,91,132,1) 79%, rgba(255,255,255,1) 100%);
-      background: linear-gradient(30deg, rgba(55,91,132,1) 23%, rgba(61,99,142,1) 71%, rgba(255,255,255,1) 100%)
+      //background: linear-gradient(30deg, rgba(55,91,132,1) 23%, rgba(61,99,142,1) 71%, rgba(255,255,255,1) 100%)
+      background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
 
     &.resources
-      background-color: $gray-navy
+      background-color: $bright-blue
     &.collaborations
       background-color: $navy-background-color
 
@@ -97,7 +97,7 @@ $teal-background-color: #009688
     #welcome-label
       color:          white
       font-size:      30px
-      line-height:    40px
+      line-height:    36px
       font-family:    $heading-font
       font-weight:    400
       padding-left:   10px
