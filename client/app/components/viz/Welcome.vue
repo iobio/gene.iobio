@@ -12,7 +12,7 @@ $teal-color-lighter: #12989a
 $turquoise-color: #25a9b9
 $dark-navy: #223b59
 $gray-navy: #495f77
-$brown-gray: #545a61
+$brown-gray: #393c40
 $blue-button-color: #425875
 // $accent-color:      #a7be3a
 // $accent-color-dark: #889f11
@@ -84,7 +84,7 @@ $teal-background-color: #009688
     &.videos-and-blogs
       //background-color: $dark-navy
       //background:  linear-gradient(353deg, rgba(87,85,85,1) 27%, rgba(66,125,235,1) 100%)
-      background: linear-gradient(270deg, rgba(34,59,89,1) 11%, rgba(39,74,115,1) 50%, rgba(0,172,214,1) 97%)
+      background: linear-gradient(99deg, rgba(105,105,106,1) 6%, rgba(87,115,124,1) 48%, rgba(33,84,124,1) 84%);
     &.how-it-works
       //background-color: $mid-blue-background-color
       //background: linear-gradient(30deg, rgba(55,91,132,1) 79%, rgba(255,255,255,1) 100%);
@@ -538,9 +538,6 @@ $teal-background-color: #009688
           </v-avatar>
           <v-avatar color="teal" >
               <span class="white--text">Tabix</span>
-          </v-avatar>
-          <v-avatar color="teal" >
-              <span class="white--text">Variant Effect Predictor</span>
           </v-avatar>
           <v-avatar color="teal" >
               <span class="white--text">vt</span>
