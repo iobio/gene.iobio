@@ -46,7 +46,7 @@ $mid-blue-color:    #416b9a
   font-size: 18px
   font-family: $landing-page-font
   cursor: pointer
-  color: white
+  color: $accent-color-dark
   padding-bottom: 5px
 
 
@@ -72,7 +72,8 @@ $mid-blue-color:    #416b9a
       //background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
       background: white
     &.videos-and-blogs
-      background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
+      //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
+      background: white
     &.how-it-works
       background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
     &.features
@@ -100,8 +101,8 @@ $mid-blue-color:    #416b9a
       font-weight:    normal
       padding-bottom: 30px
 
-      &.accent
-        color:        $accent-color
+      &.accent-label
+        color:        $accent-color-dark
 
 
     .buttons-group
@@ -240,7 +241,7 @@ $mid-blue-color:    #416b9a
 
     .blog-post-title
       font-family: $landing-page-font
-      color: white
+      color: $accent-color-dark
       font-size: 18px
       padding-top: 15px
       text-align: center
@@ -373,9 +374,8 @@ $mid-blue-color:    #416b9a
             </v-avatar>
             <span class="how-it-works-title">
                Point to your variant and alignment files for an individual genome, or a family</span>
-            <div class="how-it-works-image">
-              <img src="../../../assets/images/landing_page/files_dialog.png"></img>
-            </div>
+               <div class="how-it-works-image" style="max-width: 50%;min-width: 50%;">
+               </div>
           </div>
 
           <v-divider></v-divider>
@@ -403,7 +403,7 @@ $mid-blue-color:    #416b9a
             </v-avatar>
             <span class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
             <div class="how-it-works-image">
-              <img src="../../../assets/images/landing_page/genes_being_analyzed.png" style="width:230px"></img>
+              <img src="../../../assets/images/landing_page/analyzing_genes.gif" style="width:230px"></img>
             </div>
           </div>
 
@@ -459,7 +459,7 @@ $mid-blue-color:    #416b9a
       </div>
 
       <div class="welcome-panel features">
-        <div id="welcome-label-small accent">
+        <div id="welcome-label-small" class="accent-label">
           Features
         </div>
 
@@ -501,7 +501,7 @@ $mid-blue-color:    #416b9a
           <div class="features-item">
             <span class="features-title">Display the ClinVar track to examine your variant in the context of nearby pathogenic variants</span>
             <div class="features-image">
-              <img src="../../../assets/images/landing_page/clinvar_track.png" style="width:94%"></img>
+              <img src="../../../assets/images/landing_page/clinvar_track.gif" style="width:94%"></img>
             </div>
           </div>
 
@@ -516,7 +516,7 @@ $mid-blue-color:    #416b9a
           <div class="features-item">
             <span class="features-title">Click on the 'Insufficient Coverage' filter, set the coverage thresholds.  Now examine the pinpointed genes in detail.</span>
             <div class="features-image">
-              <img src="../../../assets/images/landing_page/insufficient_coverage_multiple_exons.png" style="width:50%"></img>
+              <img src="../../../assets/images/landing_page/insufficient_coverage.gif" style="width:50%"></img>
             </div>
           </div>
 
@@ -573,7 +573,7 @@ $mid-blue-color:    #416b9a
       </div>
 
       <div class="welcome-panel videos-and-blogs" style="padding-bottom:40px">
-        <div id="welcome-label-small">
+        <div id="welcome-label-small" class="accent-label">
          Learn about gene.iobio
         </div>
 
