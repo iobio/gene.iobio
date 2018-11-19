@@ -82,8 +82,9 @@ $teal-background-color: #009688
       background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
       //background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(47,102,157,1) 50%, rgba(53,158,166,1) 97%);
     &.videos-and-blogs
-      background-color: $dark-navy
+      //background-color: $dark-navy
       //background:  linear-gradient(353deg, rgba(87,85,85,1) 27%, rgba(66,125,235,1) 100%)
+      background: linear-gradient(270deg, rgba(34,59,89,1) 11%, rgba(39,74,115,1) 50%, rgba(0,172,214,1) 97%)
     &.how-it-works
       //background-color: $mid-blue-background-color
       //background: linear-gradient(30deg, rgba(55,91,132,1) 79%, rgba(255,255,255,1) 100%);
@@ -141,6 +142,22 @@ $teal-background-color: #009688
       display: flex
       justify-content: center
       margin-top: 0px
+
+.resources-panel
+  flex-wrap: wrap
+  justify-content: center !important
+  .avatar
+    min-height: 120px
+    min-width: 120px
+    margin-bottom: 30px
+    margin-left: 30px
+    margin-right: 30px
+    background-color: transparent !important
+    border: 2px solid white
+    border-color: #3da9b9 !important
+
+    span
+      font-size: 18px
 
 .resources-panel, .collaborators-panel
   display: flex
@@ -513,17 +530,42 @@ $teal-background-color: #009688
           IOBIO.  Powered by state-of-the-art bioinformatics tools.
         </div>
         <div class="resources-panel">
-          <div>Variant Effect Predictor</div>
-          <div>Samtools</div>
-          <div>Tabix</div>
-          <div>vt</div>
-          <div>GNomAD</div>
-          <div>1000 Genomes</div>
-          <div>Phenolyzer</div>
-          <div>RefSeq</div>
-          <div>Gencode</div>
-          <div>Human Phenotype Ontology</div>
-          <div>igv.js</div>
+          <v-avatar color="teal" >
+              <span class="white--text">Variant Effect Predictor</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Samtools</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Tabix</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Variant Effect Predictor</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">vt</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">GNomAD</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">1000 Genomes</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Phenolyzer</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">RefSeq</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Gencode</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Human Phenotype Ontology</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">igv.js</span>
+          </v-avatar>
         </div>
       </div>
 
