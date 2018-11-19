@@ -39,7 +39,7 @@ if [[ $1 == "prod" ]]; then
 else
   echo "** Syncing to dev s3 bucket **"
   #aws s3 sync ./deploy/  s3://static.iobio.io/dev/gene.iobio.io/
-  aws s3 cp ./deploy/  s3://static.iobio.io/dev/gene.iobio.io/ --recursive
+  aws s3 cp  ./deploy/  s3://static.iobio.io/dev/gene.iobio.io/ --recursive
   echo "** Renew cloudfrount cache **"
   aws cloudfront create-invalidation --distribution-id E1RAE4AL1ULL9A --paths /\*
 fi
