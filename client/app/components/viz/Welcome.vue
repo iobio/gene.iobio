@@ -6,27 +6,14 @@
 
 @import ../../../assets/sass/variables
 
-$bright-blue: #245b96
-$teal-color: #009688
-$teal-color-lighter: #12989a
-$turquoise-color: #25a9b9
-$dark-navy: #223b59
-$gray-navy: #495f77
-$brown-gray: #393c40
-$blue-button-color: #425875
-// $accent-color:      #a7be3a
-// $accent-color-dark: #889f11
+$landing-page-font:      Cabin
+
+
+$turquoise-color:   #25a9b9
 $accent-color:      $turquoise-color
 $accent-color-dark: $turquoise-color
-$heading-font:      Cabin
-$mid-blue-background-color: #375b84
-$blue-background-color: #6fa2d4
-$gray-background-color: #b3b3b3
-$navy-background-color: #416b9a
-$green-background-color: #b5c672
-$dark-background-color: #484848
-$cyan-background-color: #2fa8b7
-$teal-background-color: #009688
+$brown-gray:        #393c40
+$mid-blue-color:    #416b9a
 
 
 
@@ -53,7 +40,7 @@ $teal-background-color: #009688
 
 .video-text-title
   font-size: 18px
-  font-family: $heading-font
+  font-family: $landing-page-font
   cursor: pointer
   color: white
   padding-bottom: 5px
@@ -78,32 +65,26 @@ $teal-background-color: #009688
 
 
     &.main
-      //background-color: $navy-background-color
       background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
-      //background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(47,102,157,1) 50%, rgba(53,158,166,1) 97%);
     &.videos-and-blogs
-      //background-color: $dark-navy
-      //background:  linear-gradient(353deg, rgba(87,85,85,1) 27%, rgba(66,125,235,1) 100%)
       background: linear-gradient(99deg, rgba(105,105,106,1) 6%, rgba(87,115,124,1) 48%, rgba(33,84,124,1) 84%);
     &.how-it-works
-      //background-color: $mid-blue-background-color
-      //background: linear-gradient(30deg, rgba(55,91,132,1) 79%, rgba(255,255,255,1) 100%);
-      //background: linear-gradient(30deg, rgba(55,91,132,1) 23%, rgba(61,99,142,1) 71%, rgba(255,255,255,1) 100%)
       background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
     &.features
-      background-color: $navy-background-color
+      background-color: $mid-blue-color
 
     &.resources
       background-color: $brown-gray
+
     &.collaborations
-      background-color: $navy-background-color
+      background-color: $mid-blue-color
 
 
     #welcome-label
       color:          white
       font-size:      30px
       line-height:    36px
-      font-family:    $heading-font
+      font-family:    $landing-page-font
       font-weight:    400
       padding-left:   10px
       padding-bottom: 70px
@@ -111,7 +92,7 @@ $teal-background-color: #009688
     #welcome-label-small
       color:          white
       font-size:      28px
-      font-family:    $heading-font
+      font-family:    $landing-page-font
       font-weight:    normal
       padding-bottom: 30px
 
@@ -129,7 +110,7 @@ $teal-background-color: #009688
       margin-bottom: 10px
       background-color: $accent-color
       color: white
-      font-family: $heading-font
+      font-family: $landing-page-font
 
       i.material-icons
         font-size: 26px
@@ -166,7 +147,7 @@ $teal-background-color: #009688
 
   div
     color: white
-    font-family: $heading-font
+    font-family: $landing-page-font
     font-size: 18px
     margin-left: 25px
     margin-right: 25px
@@ -244,7 +225,7 @@ $teal-background-color: #009688
     width:  200px
 
     .blog-post-title
-      font-family: $heading-font
+      font-family: $landing-page-font
       color: white
       font-size: 18px
       padding-top: 15px
@@ -271,22 +252,32 @@ $teal-background-color: #009688
 
 
 #screencast-panel
-  text-align: center
-  margin-top: 50px
-  overflow: visible
+  margin-top: -5px
+  display: flex
+  height: -webkit-fill-available
+  justify-content: space-around
+  flex-direction: column
+  align-items: center
+  margin-left: -5px
+  margin-right: -5px
+  background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
 
   .video-container
     height: 500px
     width: 780px
-    background-color: white
     margin-left: auto
     margin-right: auto
+    text-align: center
 
     h4
-      font-size: 22px
+      font-size: 24px
       padding-top: 10px
       margin-right: 90px
-      font-family:  $heading-font
+      font-family:  $landing-page-font
+      color: white
+
+    i.material-icons
+      color: white !important
 
     .video-stop-button
       float: left
@@ -297,6 +288,7 @@ $teal-background-color: #009688
 
       i.material-icons
         text-align: left
+        color: white !important
 
     .iframe-placeholder
       position: relative
