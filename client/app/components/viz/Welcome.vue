@@ -15,10 +15,14 @@ $accent-color-dark: $turquoise-color
 $brown-gray:        #393c40
 $mid-blue-color:    #416b9a
 
+.image-shadow
+  -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
+  box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
 
 
 
 .video-thumbnail-placeholder
+
   height: 132px
   width:  252px
   cursor: pointer
@@ -57,7 +61,7 @@ $mid-blue-color:    #416b9a
 
   .welcome-panel
     padding-bottom: 35px
-    padding-top: 40px
+    padding-top: 20px
     padding-left: 50px
     padding-right: 50px
     width: 100%
@@ -65,13 +69,14 @@ $mid-blue-color:    #416b9a
 
 
     &.main
-      background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
+      //background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
+      background: white
     &.videos-and-blogs
-      background: linear-gradient(281deg, rgba(32,19,26,1) 0%, rgba(39,106,158,1) 93%)
+      background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
     &.how-it-works
       background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
     &.features
-      background-color: $mid-blue-color
+      background-color: white
 
     &.resources
       background-color: $brown-gray
@@ -81,13 +86,12 @@ $mid-blue-color:    #416b9a
 
 
     #welcome-label
-      color:          white
-      font-size:      30px
+      color:          $accent-color
+      font-size:      32px
       line-height:    36px
       font-family:    $landing-page-font
-      font-weight:    400
-      padding-left:   10px
-      padding-bottom: 70px
+      font-weight:    600
+      padding-bottom: 10px
 
     #welcome-label-small
       color:          white
@@ -96,10 +100,14 @@ $mid-blue-color:    #416b9a
       font-weight:    normal
       padding-bottom: 30px
 
+      &.accent
+        color:        $accent-color
+
 
     .buttons-group
       margin-top: 0px !important
-      padding-left: 10px
+      padding-bottom: 20px
+
 
     button.welcome-button
       font-size: 16px !important
@@ -196,7 +204,8 @@ $mid-blue-color:    #416b9a
 
       img
         width: 60%
-        box-shadow: -3px 3px 1px -2px rgba(0, 0, 0, 0.72), 0px 2px 12px 0px rgba(0, 0, 0, 0.56), 0px 0 10px 0px rgba(0, 0, 0, 0.38)
+        -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
+        box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
 
 
 
@@ -209,6 +218,8 @@ $mid-blue-color:    #416b9a
       max-width:    300px
       margin-right: 40px
 
+    .features-title
+      color: $accent-color
 
 
 
@@ -317,7 +328,7 @@ $mid-blue-color:    #416b9a
             <transition-group  name="fadeDown" >
               <div v-if="showWelcomeLabel" style="animation-duration: 1s; " key="welcome-label" id="welcome-label">
                 <div>
-                  <center style="padding-bottom:15px">
+                  <center>
                     Analyze Genomic Variants <br> in Real-time
                   </center>
 
@@ -341,8 +352,8 @@ $mid-blue-color:    #416b9a
             </transition-group>
           </div>
 
-          <div>
-            <img width="730px" src="../../../assets/images/landing_page/gene-iobio-full-screenshot.png"></img>
+          <div class="image-shadow">
+            <img width="550px" src="../../../assets/images/landing_page/gene-iobio-screenshot.png"></img>
           </div>
         </div>
       </div>
@@ -448,7 +459,7 @@ $mid-blue-color:    #416b9a
       </div>
 
       <div class="welcome-panel features">
-        <div id="welcome-label-small">
+        <div id="welcome-label-small accent">
           Features
         </div>
 
