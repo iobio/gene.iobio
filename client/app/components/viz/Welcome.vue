@@ -12,6 +12,7 @@ $teal-color-lighter: #12989a
 $turquoise-color: #25a9b9
 $dark-navy: #223b59
 $gray-navy: #495f77
+$brown-gray: #545a61
 $blue-button-color: #425875
 // $accent-color:      #a7be3a
 // $accent-color-dark: #889f11
@@ -79,6 +80,7 @@ $teal-background-color: #009688
     &.main
       //background-color: $navy-background-color
       background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
+      //background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(47,102,157,1) 50%, rgba(53,158,166,1) 97%);
     &.videos-and-blogs
       background-color: $dark-navy
       //background:  linear-gradient(353deg, rgba(87,85,85,1) 27%, rgba(66,125,235,1) 100%)
@@ -87,9 +89,11 @@ $teal-background-color: #009688
       //background: linear-gradient(30deg, rgba(55,91,132,1) 79%, rgba(255,255,255,1) 100%);
       //background: linear-gradient(30deg, rgba(55,91,132,1) 23%, rgba(61,99,142,1) 71%, rgba(255,255,255,1) 100%)
       background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
+    &.features
+      background-color: $navy-background-color
 
     &.resources
-      background-color: $bright-blue
+      background-color: $brown-gray
     &.collaborations
       background-color: $navy-background-color
 
@@ -152,7 +156,11 @@ $teal-background-color: #009688
     text-align: center
     line-height: 22px
 
-.how-it-works-panel
+
+
+
+
+.how-it-works-panel, .features-panel
   clear: both
   display: flex
   flex-direction: column
@@ -166,7 +174,10 @@ $teal-background-color: #009688
     margin-top: 40px
     margin-bottom: 40px
 
-  div.how-it-works-item
+  div.features-item
+    margin-bottom: 40px
+
+  div.how-it-works-item, div.features-item
     margin-left: 5px
     width: 100%
     display: flex
@@ -178,7 +189,7 @@ $teal-background-color: #009688
       &.teal
         background-color: $accent-color !important
 
-    .how-it-works-image
+    .how-it-works-image, .features-image
       max-width: 50%
       min-width: 50%
 
@@ -188,7 +199,7 @@ $teal-background-color: #009688
 
 
 
-    .how-it-works-title
+    .how-it-works-title, .features-title
       color:        white
       font-family:  Cabin
       font-size:    20px
@@ -196,6 +207,7 @@ $teal-background-color: #009688
       line-height:  24px
       max-width:    300px
       margin-right: 40px
+
 
 
 
@@ -318,7 +330,7 @@ $teal-background-color: #009688
           </div>
 
           <div>
-            <img width="650px" src="../../../assets/images/landing_page/gene-iobio.png"></img>
+            <img width="730px" src="../../../assets/images/landing_page/gene-iobio-full-screenshot.png"></img>
           </div>
         </div>
       </div>
@@ -326,11 +338,11 @@ $teal-background-color: #009688
       <div class="welcome-panel how-it-works" style="">
         <div id="welcome-label-small" style="float:left">How it works</div>
 
-        <v-btn class="welcome-button"  style="float:right;margin-right:30px" @click="onAppTour">
+        <v-btn class="welcome-button"  style="float:left;margin-left:30px" @click="onAppTour">
           TAKE GUIDED APP TOUR
         </v-btn>
 
-        <div class="how-it-works-panel">
+                <div class="how-it-works-panel">
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
@@ -378,18 +390,6 @@ $teal-background-color: #009688
             <v-avatar color="teal">
               <span class="white--text headline">4</span>
             </v-avatar>
-            <span class="how-it-works-title">Within seconds, results are returned for each gene.  Variants are annotated with the most UP-TO-DATE information available</span>
-            <div class="how-it-works-image">
-              <img src="../../../assets/images/landing_page/variant_detail_card.png" style="width:95%"></img>
-            </div>
-          </div>
-
-          <v-divider></v-divider>
-
-          <div class="how-it-works-item">
-            <v-avatar color="teal">
-              <span class="white--text headline">5</span>
-            </v-avatar>
             <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  When alignments are provided, see coverage leverages across the gene.</span>
             <div class="how-it-works-image">
               <img src="../../../assets/images/landing_page/variant_card_wgs.png" style="width:95%"></img>
@@ -400,56 +400,7 @@ $teal-background-color: #009688
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
-              <span class="white--text headline">6</span>
-            </v-avatar>
-            <span class="how-it-works-title">Examine the alignments for a variant in the pileup view.</span>
-            <div class="how-it-works-image">
-              <img src="../../../assets/images/landing_page/pileup.png" style="width:95%"></img>
-            </div>
-          </div>
-
-          <v-divider></v-divider>
-
-          <div class="how-it-works-item">
-            <v-avatar color="teal">
-              <span class="white--text headline">7</span>
-            </v-avatar>
-            <span class="how-it-works-title">Examine the gene in detail.  Change the transcript and annotations across the variants are reassessed.</span>
-            <div class="how-it-works-image">
-              <img src="../../../assets/images/landing_page/gene_card.png" style="width:95%"></img>
-            </div>
-          </div>
-
-          <v-divider></v-divider>
-
-          <div class="how-it-works-item">
-            <v-avatar color="teal">
-              <span class="white--text headline">8</span>
-            </v-avatar>
-            <span class="how-it-works-title">Examine all variants across the gene.  This is especially useful for compound hets and pinpointing data quality issues</span>
-            <div class="how-it-works-image">
-              <img src="../../../assets/images/landing_page/ranked_variants.png" style="width: 280px;"></img>
-            </div>
-          </div>
-
-          <v-divider></v-divider>
-
-          <div class="how-it-works-item">
-            <v-avatar color="teal">
-              <span class="white--text headline">9</span>
-            </v-avatar>
-            <span class="how-it-works-title">Display the ClinVar track to examine your variant in the context of nearby pathogenic variants</span>
-            <div class="how-it-works-image">
-              <img src="../../../assets/images/landing_page/clinvar_track.png" style="width:94%"></img>
-            </div>
-          </div>
-
-          <v-divider></v-divider>
-
-
-          <div class="how-it-works-item">
-            <v-avatar color="teal">
-              <span class="white--text headline">10</span>
+              <span class="white--text headline">5</span>
             </v-avatar>
             <span class="how-it-works-title">As genes are being analyzed, filters are pinpointing out the most interesting variants for closer examination. Customize the filters and the filtered variants are instantly reassessed.</span>
             <div class="how-it-works-image">
@@ -461,7 +412,7 @@ $teal-background-color: #009688
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
-              <span class="white--text headline">11</span>
+              <span class="white--text headline">6</span>
             </v-avatar>
             <span class="how-it-works-title">When all genes have been analyzed, review each filtered variant to assess pathogenicity and association with known phenotypes.</span>
             <div class="how-it-works-image">
@@ -473,22 +424,83 @@ $teal-background-color: #009688
 
           <div class="how-it-works-item">
             <v-avatar color="teal">
-              <span class="white--text headline">12</span>
+              <span class="white--text headline">7</span>
             </v-avatar>
-            <span class="how-it-works-title">Click on the 'Insufficient Coverage' filter, set the coverage thresholds.  Now examine the pinpointed genes in detail.</span>
+            <span class="how-it-works-title">Click on a variant to view the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
             <div class="how-it-works-image">
+              <img src="../../../assets/images/landing_page/variant_detail_card.png" style="width: 90%;"></img>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="welcome-panel features">
+        <div id="welcome-label-small">
+          Features
+        </div>
+
+
+        <div class="features-panel ">
+
+          <div class="features-item">
+            <span class="features-title">Examine the alignments for a variant in the pileup view.</span>
+            <div class="features-image">
+              <img src="../../../assets/images/landing_page/pileup.png" style="width:95%"></img>
+            </div>
+          </div>
+
+
+          <div class="features-item">
+            <span class="features-title">Examine the gene in detail.  Change the transcript and annotations across the variants are reassessed.</span>
+            <div class="features-image">
+              <img src="../../../assets/images/landing_page/gene_card.png" style="width:95%"></img>
+            </div>
+          </div>
+
+
+
+          <div class="features-item">
+            <span class="features-title">Change the transcript and annotations across the variants are reassessed.</span>
+            <div class="features-image">
+              <img src="../../../assets/images/landing_page/transcript_selection.png" style="width:95%"></img>
+            </div>
+          </div>
+
+
+          <div class="features-item">
+            <span class="features-title">Examine all variants across the gene.  This is especially useful for compound hets and pinpointing data quality issues</span>
+            <div class="features-image">
+              <img src="../../../assets/images/landing_page/ranked_variants.png" style="width: 280px;"></img>
+            </div>
+          </div>
+
+          <div class="features-item">
+            <span class="features-title">Display the ClinVar track to examine your variant in the context of nearby pathogenic variants</span>
+            <div class="features-image">
+              <img src="../../../assets/images/landing_page/clinvar_track.png" style="width:94%"></img>
+            </div>
+          </div>
+
+
+          <div class="features-item">
+            <span class="features-title">Customize the filters and the filtered variants are instantly reassessed.</span>
+            <div class="features-image">
+              <img src="../../../assets/images/landing_page/filters_customize.png" style="height:400px"></img>
+            </div>
+          </div>
+
+          <div class="features-item">
+            <span class="features-title">Click on the 'Insufficient Coverage' filter, set the coverage thresholds.  Now examine the pinpointed genes in detail.</span>
+            <div class="features-image">
               <img src="../../../assets/images/landing_page/insufficient_coverage_multiple_exons.png" style="width:50%"></img>
             </div>
           </div>
 
-          <v-divider></v-divider>
 
-          <div class="how-it-works-item">
-            <v-avatar color="teal">
-              <span class="white--text headline">13</span>
-            </v-avatar>
-            <span class="how-it-works-title">Look for missed variants by calling variants in real-time</span>
-            <div class="how-it-works-image">
+          <div class="features-item">
+            <span class="features-title">Look for missed variants by calling variants in real-time</span>
+            <div class="features-image">
               <img src="../../../assets/images/landing_page/called_variants.png" style="width:300px"></img>
             </div>
           </div>
@@ -517,7 +529,7 @@ $teal-background-color: #009688
 
       <div class="welcome-panel videos-and-blogs" style="padding-bottom:40px">
         <div id="welcome-label-small">
-         Videos and Blog
+         Learn about gene.iobio
         </div>
 
         <div class="videos-section">
