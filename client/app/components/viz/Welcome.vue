@@ -67,7 +67,7 @@ $mid-blue-color:    #416b9a
     &.main
       background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
     &.videos-and-blogs
-      background: linear-gradient(99deg, rgba(105,105,106,1) 6%, rgba(87,115,124,1) 48%, rgba(33,84,124,1) 84%);
+      background: linear-gradient(281deg, rgba(32,19,26,1) 0%, rgba(39,106,158,1) 93%)
     &.how-it-works
       background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
     &.features
@@ -117,6 +117,9 @@ $mid-blue-color:    #416b9a
         width: 26px
         color: white
         margin-right: 7px
+
+      .btn__content
+        color: white
 
 
     #welcome-panel-content
