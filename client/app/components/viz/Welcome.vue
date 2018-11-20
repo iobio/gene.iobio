@@ -109,8 +109,7 @@ $mid-blue-color:     #416b9a
 
     .buttons-group
       margin-top: 0px !important
-      padding-bottom: 20px
-      padding-top 60px
+      padding-top: 60px
 
 
     button.welcome-button
@@ -199,6 +198,8 @@ $mid-blue-color:     #416b9a
 
     .avatar
       margin-right: 10px
+      min-width: 48px !important
+      min-height: 48px !important
 
       &.teal
         background-color: $accent-color-light !important
@@ -325,6 +326,9 @@ $mid-blue-color:     #416b9a
 .welcome-panel.main img {
     display: none
 }
+.how-it-works-panel {
+  padding: 0px;
+}
 }
 
 @media only screen and (max-width: 600px) {
@@ -336,19 +340,23 @@ $mid-blue-color:     #416b9a
 .features-image {
   display: none
 }
+.how-it-works-panel {
+  padding: 30px;
+}
+
 
 }
 
 </style>
 
 <template>
-  <div>
-    <div id="welcome-area" class="">
+  <div style="background-color:white">
+    <div id="welcome-area" style="background-color:white">
 
       <div class="welcome-panel main">
         <div style="display:flex;flex-direction:row;justify-content:center;align-items: center;">
 
-          <div style="padding-right: 40px">
+          <div>
             <transition-group  name="fadeDown" >
               <div v-if="showWelcomeLabel" style="animation-duration: 1s; " key="welcome-label" id="welcome-label">
                 <div>
@@ -376,7 +384,7 @@ $mid-blue-color:     #416b9a
             </transition-group>
           </div>
 
-          <div class="image-shadow">
+          <div class="image-shadow" style="margin-left: 40px">
             <img   id="gene_iobio_image" src="../../../assets/images/landing_page/gene-iobio-screenshot.png"  style="max-width:600px" alt="" ></img>
           </div>
 
