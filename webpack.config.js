@@ -44,12 +44,12 @@ module.exports = {
         }) : ['style-loader', 'css-loader', 'sass-loader']
       },
       {
-        test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
+        test: /\.(png|jpg|svg|eot|gif|ttf|woff|woff2)$/,
         use: [
           {
             loader: 'url-loader',
             options: {
-              limit: 100000,
+              limit: 600000,
               name: "[name].[hash].[ext]"
             }
           }

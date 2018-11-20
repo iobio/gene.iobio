@@ -9,11 +9,10 @@
 $landing-page-font:      Cabin
 
 
-$turquoise-color:   #25a9b9
-$accent-color:      $turquoise-color
-$accent-color-dark: $turquoise-color
-$brown-gray:        #393c40
-$mid-blue-color:    #416b9a
+$accent-color:       #1f96a5
+$accent-color-light: #25a9b9
+$brown-gray:         #393c40
+$mid-blue-color:     #416b9a
 
 .image-shadow
   -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
@@ -48,7 +47,7 @@ $mid-blue-color:    #416b9a
   font-size: 18px
   font-family: $landing-page-font
   cursor: pointer
-  color: $accent-color-dark
+  color: $accent-color
   padding-bottom: 5px
   text-align: center
 
@@ -105,12 +104,13 @@ $mid-blue-color:    #416b9a
       padding-bottom: 30px
 
       &.accent-label
-        color:        $accent-color-dark
+        color:        $accent-color
 
 
     .buttons-group
       margin-top: 0px !important
       padding-bottom: 20px
+      padding-top 60px
 
 
     button.welcome-button
@@ -201,7 +201,7 @@ $mid-blue-color:    #416b9a
       margin-right: 10px
 
       &.teal
-        background-color: $accent-color !important
+        background-color: $accent-color-light !important
 
     .how-it-works-image, .features-image
       max-width: 50%
@@ -247,7 +247,7 @@ $mid-blue-color:    #416b9a
 
     .blog-post-title
       font-family: $landing-page-font
-      color: $accent-color-dark
+      color: $accent-color
       font-size: 18px
       padding-top: 15px
       text-align: center
@@ -317,30 +317,32 @@ $mid-blue-color:    #416b9a
       padding-bottom: 75.0%
 
 
-
 </style>
 
-<style >
-@media only screen and (max-width: 1025px) {
+<style>
 
-.image-shadow.large {
-  display: none;
+@media only screen and (max-width: 1000px) {
+.welcome-panel.main img {
+    display: none
+}
 }
 
-img.large {
-  display: none;
+@media only screen and (max-width: 600px) {
+
+.welcome-panel.main img,
+.welcome-panel.how-it-works img,
+.welcome-panel.features img,
+.how-it-works-image,
+.features-image {
+  display: none
 }
 
-
 }
+
 </style>
 
 <template>
   <div>
-
-
-
-
     <div id="welcome-area" class="">
 
       <div class="welcome-panel main">
@@ -374,8 +376,8 @@ img.large {
             </transition-group>
           </div>
 
-          <div class="image-shadow large">
-            <img class="large" src="../../../assets/images/landing_page/gene-iobio-screenshot.png" style="width:700px" alt="" ></img>
+          <div class="image-shadow">
+            <img   id="gene_iobio_image" src="../../../assets/images/landing_page/gene-iobio-screenshot.png"  style="max-width:600px" alt="" ></img>
           </div>
 
         </div>
@@ -398,7 +400,7 @@ img.large {
             </v-avatar>
             <span class="how-it-works-title">Enter on a gene or search on a phenotype</span>
               <div class="how-it-works-image"  >
-                <img class="large" src="../../../assets/images/landing_page/search_gene_or_phenotype.gif" style="width:200px"></img>
+                <img  src="../../../assets/images/landing_page/search_gene_or_phenotype.gif" style=""></img>
               </div>
           </div>
 
@@ -410,7 +412,7 @@ img.large {
             </v-avatar>
             <span class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
             <div class="how-it-works-image">
-              <img class="large" src="../../../assets/images/landing_page/analyzing_genes.gif" style="width:230px"></img>
+              <img  src="../../../assets/images/landing_page/analyzing_genes.gif" style="width:230px"></img>
             </div>
           </div>
 
@@ -422,7 +424,7 @@ img.large {
             </v-avatar>
             <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  When alignments are provided, see coverage leverages across the gene.</span>
             <div class="how-it-works-image">
-              <img class="large" src="../../../assets/images/landing_page/variant_card_wgs.png" style="width:95%"></img>
+              <img  src="../../../assets/images/landing_page/variant_card_wgs.png" style="width:95%"></img>
             </div>
           </div>
 
@@ -434,7 +436,7 @@ img.large {
             </v-avatar>
             <span class="how-it-works-title">As genes are being analyzed, filters are pinpointing out the most interesting variants for closer examination. Customize the filters and the filtered variants are instantly reassessed.</span>
             <div class="how-it-works-image">
-              <img src="../../../assets/images/landing_page/filters.png"></img>
+              <img src="../../../assets/images/landing_page/filters_during_analysis.gif"></img>
             </div>
           </div>
 
@@ -458,7 +460,7 @@ img.large {
             </v-avatar>
             <span class="how-it-works-title">Click on a variant to view the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
             <div class="how-it-works-image">
-              <img class="large" src="../../../assets/images/landing_page/variant_detail_card.png" style="width: 90%;"></img>
+              <img  src="../../../assets/images/landing_page/variant_detail_card.png" style="width: 90%;"></img>
             </div>
           </div>
 
@@ -476,7 +478,7 @@ img.large {
           <div class="features-item">
             <span class="features-title">Examine the alignments for a variant in the pileup view.</span>
             <div class="features-image">
-              <img class="large" src="../../../assets/images/landing_page/pileup.gif" style="width:70%"></img>
+              <img  src="../../../assets/images/landing_page/pileup.png" style="width:100%"></img>
             </div>
           </div>
 
@@ -484,7 +486,7 @@ img.large {
           <div class="features-item">
             <span class="features-title">Examine the gene in detail.  Change the transcript and annotations across the variants are reassessed.</span>
             <div class="features-image">
-              <img class="large" src="../../../assets/images/landing_page/gene_card.png" style="width:95%"></img>
+              <img  src="../../../assets/images/landing_page/gene_card.png" style="width:95%"></img>
             </div>
           </div>
 
@@ -493,7 +495,7 @@ img.large {
           <div class="features-item">
             <span class="features-title">Change the transcript and annotations across the variants are reassessed.</span>
             <div class="features-image">
-              <img class="large" src="../../../assets/images/landing_page/transcript_selection.png" style="width:95%"></img>
+              <img  src="../../../assets/images/landing_page/transcript_selection.png" style="width:95%"></img>
             </div>
           </div>
 
@@ -508,7 +510,7 @@ img.large {
           <div class="features-item">
             <span class="features-title">Display the ClinVar track to examine your variant in the context of nearby pathogenic variants</span>
             <div class="features-image">
-              <img class="large" src="../../../assets/images/landing_page/clinvar_track.gif" style="width:94%"></img>
+              <img  src="../../../assets/images/landing_page/clinvar_track.png" style="width:100%"></img>
             </div>
           </div>
 
@@ -516,14 +518,14 @@ img.large {
           <div class="features-item">
             <span class="features-title">Customize the filters and the filtered variants are instantly reassessed.</span>
             <div class="features-image">
-              <img src="../../../assets/images/landing_page/filters_customize.png" style="width="200px"></img>
+              <img src="../../../assets/images/landing_page/filters_customize.png" style="width:300px"></img>
             </div>
           </div>
 
           <div class="features-item">
             <span class="features-title">Click on the 'Insufficient Coverage' filter, set the coverage thresholds.  Now examine the pinpointed genes in detail.</span>
             <div class="features-image">
-              <img class="large" src="../../../assets/images/landing_page/insufficient_coverage.gif" style="width:70%"></img>
+              <img  src="../../../assets/images/landing_page/insufficient_coverage_tooltip.png" style="width:300px"></img>
             </div>
           </div>
 
@@ -752,6 +754,7 @@ img.large {
 
 
 <script>
+
 
 
 export default {
