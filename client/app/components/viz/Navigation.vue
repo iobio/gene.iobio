@@ -162,6 +162,10 @@ nav.toolbar
     margin-right: 16px
     color: $nav-text-color
 
+  #phenolyzer-search
+    margin-left: 5px
+    margin-right: 60px
+
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
     margin-top: 8px
     .input-group input
@@ -324,6 +328,25 @@ nav.toolbar
     padding-top: 2px
     color: $nav-text-color
 
+
+
+</style>
+
+<style>
+
+@media only screen and (max-width: 600px) {
+#phenolyzer-search {
+  margin-right: 0px !important;
+}
+#search-or {
+  display: none !important;
+}
+.nav.toolbar.toolbar__title {
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+  min-width: 110px !important;
+}
+}
 </style>
 
 <template>
@@ -386,8 +409,8 @@ nav.toolbar
 
 
         <phenotype-search
+         id="phenolyzer-search"
          v-if="!isEduMode && !launchedFromClin"
-         style="margin-left:5px;margin-right:60px"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"

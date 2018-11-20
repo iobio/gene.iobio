@@ -44,12 +44,13 @@ $mid-blue-color:     #416b9a
     position: absolute
 
 .video-text-title
-  font-size: 18px
+  font-size: 20px
   font-family: $landing-page-font
   cursor: pointer
   color: $accent-color
   padding-bottom: 5px
   text-align: center
+  font-weight: 500
 
 
 #welcome-area
@@ -77,7 +78,8 @@ $mid-blue-color:     #416b9a
       //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
       background: white
     &.how-it-works
-      background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
+      //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
+      background: linear-gradient(304deg, rgba(43,70,101,1) 14%, rgba(61,99,142,1) 68%, rgba(94,141,184,1) 85%)
     &.features
       background-color: white
 
@@ -102,6 +104,8 @@ $mid-blue-color:     #416b9a
       font-family:    $landing-page-font
       font-weight:    normal
       padding-bottom: 30px
+      font-weight:    600
+      padding-left:   30px
 
       &.accent-label
         color:        $accent-color
@@ -226,6 +230,7 @@ $mid-blue-color:     #416b9a
 
     .features-title
       color: $accent-color
+      font-weight: 500
 
 
 
@@ -237,7 +242,7 @@ $mid-blue-color:     #416b9a
   align-items: center
   padding-bottom: 40px
   padding-top: 20px
-  padding-left: 20px
+  padding-left: 40px
   padding-right: 20px
 
 
@@ -249,11 +254,11 @@ $mid-blue-color:     #416b9a
     .blog-post-title
       font-family: $landing-page-font
       color: $accent-color
-      font-size: 18px
+      font-size: 20px
       padding-top: 15px
       text-align: center
       padding-bottom: 5px
-
+      font-weight: 500
 
     .blog-post-well
       position: relative
@@ -323,7 +328,8 @@ $mid-blue-color:     #416b9a
 <style>
 
 @media only screen and (max-width: 1000px) {
-.welcome-panel.main img {
+.welcome-panel.main img ,
+.welcome-panel.main .image-shadow {
     display: none
 }
 .how-it-works-panel {
@@ -334,6 +340,7 @@ $mid-blue-color:     #416b9a
 @media only screen and (max-width: 600px) {
 
 .welcome-panel.main img,
+.welcome-panel.main .image-shadow,
 .welcome-panel.how-it-works img,
 .welcome-panel.features img,
 .how-it-works-image,
@@ -343,7 +350,6 @@ $mid-blue-color:     #416b9a
 .how-it-works-panel {
   padding: 30px;
 }
-
 
 }
 
@@ -384,7 +390,7 @@ $mid-blue-color:     #416b9a
             </transition-group>
           </div>
 
-          <div class="image-shadow" style="margin-left: 40px">
+          <div class="image-shadow" style="margin-left: 40px;margin-top: 15px">
             <img   id="gene_iobio_image" src="../../../assets/images/landing_page/gene-iobio-screenshot.png"  style="max-width:600px" alt="" ></img>
           </div>
 
@@ -394,7 +400,7 @@ $mid-blue-color:     #416b9a
       <div class="welcome-panel how-it-works " >
         <div id="welcome-label-small" style="float:left">How it works</div>
 
-        <v-btn class="welcome-button"  style="float:right;margin-right:40px" @click="onAppTour">
+        <v-btn class="welcome-button"  style="float:right;margin-right:80px" @click="onAppTour">
           TAKE GUIDED APP TOUR
         </v-btn>
 
@@ -660,7 +666,7 @@ $mid-blue-color:     #416b9a
 
           <div class="blog-post ">
             <div class="blog-post-title ">
-              Saving &amp; loading results
+              Saving results
             </div>
             <a href="http://iobio.io/2017/04/26/gene_2.3.0/" target="_new">
               <div class="blog-post-well ">
