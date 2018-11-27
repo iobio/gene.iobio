@@ -6,11 +6,17 @@
 
 @import ../../../assets/sass/variables
 
-$landing-page-font:      Cabin
+$landing-page-font:      Poppins
 
 
-$accent-color:       #1f96a5
-$accent-color-light: #25a9b9
+
+$accent-color:       #4ec0a1
+$accent-color-light: #4ec0a1
+
+$accent-color-bright: #14c39a
+
+$header-color:       #818181
+
 $brown-gray:         #393c40
 $mid-blue-color:     #416b9a
 
@@ -18,39 +24,6 @@ $mid-blue-color:     #416b9a
   -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
   box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
 
-
-.video-item
-  margin-right: 30px
-  margin-bottom: 20px
-.video-thumbnail-placeholder
-
-  height: 132px
-  width:  252px
-  cursor: pointer
-  outline: 1px solid lightgray
-  position: relative
-
-  img
-    width: 250px
-    height: 130px
-
-  #play-button
-    cursor: pointer
-    color: $app-color
-    font-size: 80px
-    top: 30px
-    left: 90px
-    opacity: .7
-    position: absolute
-
-.video-text-title
-  font-size: 20px
-  font-family: $landing-page-font
-  cursor: pointer
-  color: $accent-color
-  padding-bottom: 5px
-  text-align: center
-  font-weight: 500
 
 
 #welcome-area
@@ -91,11 +64,11 @@ $mid-blue-color:     #416b9a
 
 
     #welcome-label
-      color:          $accent-color
+      color:          $header-color
       font-size:      32px
       line-height:    36px
       font-family:    $landing-page-font
-      font-weight:    600
+      font-weight:    normal
       padding-bottom: 10px
 
     #welcome-label-small
@@ -104,11 +77,11 @@ $mid-blue-color:     #416b9a
       font-family:    $landing-page-font
       font-weight:    normal
       padding-bottom: 30px
-      font-weight:    600
+      font-weight:    normal
       padding-left:   30px
 
       &.accent-label
-        color:        $accent-color
+        color:        $app-color
 
 
     .buttons-group
@@ -120,7 +93,7 @@ $mid-blue-color:     #416b9a
       font-size: 16px !important
       margin-left: 7px
       margin-right: 7px
-      height: 45px
+      height: 40px
       width: 230px
       margin-bottom: 10px
       background-color: $accent-color
@@ -153,7 +126,7 @@ $mid-blue-color:     #416b9a
     margin-right: 30px
     background-color: transparent !important
     border: 2px solid white
-    border-color: #3da9b9 !important
+    border-color: $accent-color !important
 
     span
       font-size: 18px
@@ -194,6 +167,12 @@ $mid-blue-color:     #416b9a
   div.features-item
     margin-bottom: 40px
 
+    i.material-icons
+      display: inline
+      margin-right: 8px
+      color: $accent-color
+      font-size: 42px
+
   div.how-it-works-item, div.features-item
     margin-left: 5px
     width: 100%
@@ -202,8 +181,8 @@ $mid-blue-color:     #416b9a
 
     .avatar
       margin-right: 10px
-      min-width: 48px !important
-      min-height: 48px !important
+      min-width: 42px !important
+      min-height: 42px !important
 
       &.teal
         background-color: $accent-color-light !important
@@ -221,7 +200,7 @@ $mid-blue-color:     #416b9a
 
     .how-it-works-title, .features-title
       color:        white
-      font-family:  Cabin
+      font-family:  $landing-page-font
       font-size:    20px
       display:      inline-block
       line-height:  24px
@@ -229,7 +208,7 @@ $mid-blue-color:     #416b9a
       margin-right: 40px
 
     .features-title
-      color: $accent-color
+      color: $header-color
       font-weight: 500
 
 
@@ -253,7 +232,7 @@ $mid-blue-color:     #416b9a
 
     .blog-post-title
       font-family: $landing-page-font
-      color: $accent-color
+      color: $app-color
       font-size: 20px
       padding-top: 15px
       text-align: center
@@ -269,6 +248,39 @@ $mid-blue-color:     #416b9a
       outline: thin solid lightgray
 
 
+
+  .video-item
+    margin-right: 30px
+    margin-bottom: 20px
+  .video-thumbnail-placeholder
+
+    height: 132px
+    width:  252px
+    cursor: pointer
+    outline: 1px solid lightgray
+    position: relative
+
+    img
+      width: 250px
+      height: 130px
+
+    #play-button
+      cursor: pointer
+      color: $app-color
+      font-size: 80px
+      top: 30px
+      left: 90px
+      opacity: .7
+      position: absolute
+
+  .video-text-title
+    font-size: 20px
+    font-family: $landing-page-font
+    cursor: pointer
+    color: $app-color
+    padding-bottom: 5px
+    text-align: center
+    font-weight: 500
 
 
 
@@ -409,7 +421,7 @@ $mid-blue-color:     #416b9a
 
 
           <div class="how-it-works-item">
-            <v-avatar color="teal">
+            <v-avatar size="42px" color="teal">
               <span class="white--text headline">1</span>
             </v-avatar>
             <span class="how-it-works-title">Enter on a gene or search on a phenotype</span>
@@ -421,7 +433,7 @@ $mid-blue-color:     #416b9a
           <v-divider></v-divider>
 
           <div class="how-it-works-item">
-            <v-avatar color="teal">
+            <v-avatar size="42px" color="teal">
               <span class="white--text headline">2</span>
             </v-avatar>
             <span class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
@@ -433,7 +445,7 @@ $mid-blue-color:     #416b9a
           <v-divider></v-divider>
 
           <div class="how-it-works-item">
-            <v-avatar color="teal">
+            <v-avatar size="42px" color="teal">
               <span class="white--text headline">3</span>
             </v-avatar>
             <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  When alignments are provided, see coverage leverages across the gene.</span>
@@ -445,7 +457,7 @@ $mid-blue-color:     #416b9a
           <v-divider></v-divider>
 
           <div class="how-it-works-item">
-            <v-avatar color="teal">
+            <v-avatar size="42px" color="teal">
               <span class="white--text headline">4</span>
             </v-avatar>
             <span class="how-it-works-title">As genes are being analyzed, filters are pinpointing out the most interesting variants for closer examination. Customize the filters and the filtered variants are instantly reassessed.</span>
@@ -457,7 +469,7 @@ $mid-blue-color:     #416b9a
           <v-divider></v-divider>
 
           <div class="how-it-works-item">
-            <v-avatar color="teal">
+            <v-avatar size="42px" color="teal">
               <span class="white--text headline">5</span>
             </v-avatar>
             <span class="how-it-works-title">When all genes have been analyzed, review each filtered variant to assess pathogenicity and association with known phenotypes.</span>
@@ -469,7 +481,7 @@ $mid-blue-color:     #416b9a
           <v-divider></v-divider>
 
           <div class="how-it-works-item">
-            <v-avatar color="teal">
+            <v-avatar size="42px" color="teal">
               <span class="white--text headline">6</span>
             </v-avatar>
             <span class="how-it-works-title">Click on a variant to view the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
@@ -490,6 +502,7 @@ $mid-blue-color:     #416b9a
         <div class="features-panel ">
 
           <div class="features-item">
+            <v-icon>check_circle</v-icon>
             <span class="features-title">Examine the alignments for a variant in the pileup view.</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/pileup.png" style="width:100%"></img>
@@ -498,6 +511,7 @@ $mid-blue-color:     #416b9a
 
 
           <div class="features-item">
+            <v-icon>check_circle</v-icon>
             <span class="features-title">Examine the gene in detail.  Change the transcript and annotations across the variants are reassessed.</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/gene_card.png" style="width:95%"></img>
@@ -507,6 +521,7 @@ $mid-blue-color:     #416b9a
 
 
           <div class="features-item">
+            <v-icon>check_circle</v-icon>
             <span class="features-title">Change the transcript and annotations across the variants are reassessed.</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/transcript_selection.png" style="width:95%"></img>
@@ -515,6 +530,7 @@ $mid-blue-color:     #416b9a
 
 
           <div class="features-item">
+            <v-icon>check_circle</v-icon>
             <span class="features-title">Examine all variants across the gene.  This is especially useful for compound hets and pinpointing data quality issues</span>
             <div class="features-image">
               <img src="../../../assets/images/landing_page/ranked_variants.png" style="width: 280px;"></img>
@@ -522,6 +538,7 @@ $mid-blue-color:     #416b9a
           </div>
 
           <div class="features-item">
+            <v-icon>check_circle</v-icon>
             <span class="features-title">Display the ClinVar track to examine your variant in the context of nearby pathogenic variants</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/clinvar_track.png" style="width:100%"></img>
@@ -530,6 +547,7 @@ $mid-blue-color:     #416b9a
 
 
           <div class="features-item">
+            <v-icon>check_circle</v-icon>
             <span class="features-title">Customize the filters and the filtered variants are instantly reassessed.</span>
             <div class="features-image">
               <img src="../../../assets/images/landing_page/filters_customize.png" style="width:300px"></img>
@@ -537,6 +555,7 @@ $mid-blue-color:     #416b9a
           </div>
 
           <div class="features-item">
+            <v-icon>check_circle</v-icon>
             <span class="features-title">Click on the 'Insufficient Coverage' filter, set the coverage thresholds.  Now examine the pinpointed genes in detail.</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/insufficient_coverage_tooltip.png" style="width:300px"></img>
@@ -545,6 +564,7 @@ $mid-blue-color:     #416b9a
 
 
           <div class="features-item">
+            <v-icon>check_circle</v-icon>
             <span class="features-title">Look for missed variants by calling variants in real-time</span>
             <div class="features-image">
               <img src="../../../assets/images/landing_page/called_variants.png" style="width:300px"></img>
@@ -651,7 +671,7 @@ $mid-blue-color:     #416b9a
 
           <div class="blog-post ">
             <div class="blog-post-title">
-              How to load your data
+              Loading your data
             </div>
             <a href="http://iobio.io/2017/09/27/loading-data/" target="_new">
               <div class="blog-post-well ">
@@ -695,7 +715,7 @@ $mid-blue-color:     #416b9a
 
           <div class="blog-post ">
             <div class="blog-post-title">
-              ClinVar and gnomAD
+              ClinVar &amp; gnomAD
             </div>
             <a href="http://iobio.io/2017/09/29/gene_2.5.0/" target="_new">
               <div class="blog-post-well ">
