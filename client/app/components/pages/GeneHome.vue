@@ -1808,11 +1808,6 @@ export default {
         self.tourNumber = self.paramTour;
       }
 
-      // TODO:  this should be a URL parameter.
-      if (self.globalApp.IOBIO_SOURCE == "hub-chpc.iobio.io") {
-        self.globalApp.useSSL = false;
-      }
-
       self.globalApp.initServices();
       self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
@@ -2689,8 +2684,27 @@ export default {
 
     },
 
+    setIobioSourceFromClin: function(clinObject) {
+      let self = this;
+
+      if (clinObject.iobioSource) {
+        self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
+        self.globalApp.initServices();
+      }
+
+
+      let endpoint = new EndpointCmd(self.globalApp,
+        self.cacheHelper.launchTimestamp,
+        self.genomeBuildHelper,
+        self.globalApp.utility.getHumanRefNames);
+
+      self.cohortModel.endpoint = endpoint;
+
+    },
+
     setDataFromClin: function(clinObject) {
       let self = this;
+      self.setIobioSourceFromClin(clinObject);
       self.cohortModel.promiseInit(clinObject.modelInfos)
       .then(function() {
         self.models = self.cohortModel.sampleModels;
@@ -2726,6 +2740,7 @@ export default {
 
     setDataFullAnalysisFromClin: function(clinObject) {
       let self = this;
+      self.setIobioSourceFromClin(clinObject);
       self.cohortModel.promiseInit(clinObject.modelInfos)
       .then(function() {
         self.models = self.cohortModel.sampleModels;
