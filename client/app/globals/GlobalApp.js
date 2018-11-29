@@ -76,7 +76,8 @@ class GlobalApp {
     this.autocall                    = null       // If only alignments provided, should variants be automatically called when gene is selected?
 
 
-    this.DEFAULT_BATCH_SIZE          = 10;              // how many genes can be analyzed simultaneously for 'Analyze all'
+    this.DEFAULT_BATCH_SIZE          = 10;         // how many genes can be analyzed simultaneously for 'Analyze all'
+    this.ignoreAlignments            = false;     // By pass any processing of aligments?
 
     this.keepLocalStorage            = false; // maintain cache between sessions?
     this.eduModeVariantSize          = 10;

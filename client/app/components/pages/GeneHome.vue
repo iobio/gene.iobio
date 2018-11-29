@@ -2684,8 +2684,13 @@ export default {
 
     },
 
-    setIobioSourceFromClin: function(clinObject) {
+    setIobioConfigFromClin: function(clinObject) {
       let self = this;
+
+      if (clinObject.batchSize) {
+        self.globalApp.DEFAULT_BATCH_SIZE = clinObject.batchSize;
+      }
+
 
       if (clinObject.iobioSource) {
         self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
@@ -2704,7 +2709,7 @@ export default {
 
     setDataFromClin: function(clinObject) {
       let self = this;
-      self.setIobioSourceFromClin(clinObject);
+      self.setIobioConfigFromClin(clinObject);
       self.cohortModel.promiseInit(clinObject.modelInfos)
       .then(function() {
         self.models = self.cohortModel.sampleModels;
@@ -2740,7 +2745,7 @@ export default {
 
     setDataFullAnalysisFromClin: function(clinObject) {
       let self = this;
-      self.setIobioSourceFromClin(clinObject);
+      self.setIobioConfigFromClin(clinObject);
       self.cohortModel.promiseInit(clinObject.modelInfos)
       .then(function() {
         self.models = self.cohortModel.sampleModels;
