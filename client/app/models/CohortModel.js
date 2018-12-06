@@ -604,6 +604,8 @@ class CohortModel {
 
 
   samplesInSingleVcf() {
+    let self = this;
+    let allSamplesInVcf = false;
     var theVcfs = {};
     var cards = this.sampleModels.forEach(function(model) {
       if (!model.isAlignmentsOnly() && model.getRelationship() != 'known-variants') {
@@ -615,7 +617,32 @@ class CohortModel {
 
       }
     });
-    return Object.keys(theVcfs).length == 1;
+    allSamplesInVcf =  Object.keys(theVcfs).length == 1 ? true : false;
+
+    if (!allSamplesInVcf) {
+      allSamplesInVcf = self.doesProbandContainTrioSamples('proband');
+    }
+    return allSamplesInVcf;
+
+  }
+
+  doesProbandContainTrioSamples() {
+    let self = this;
+    let hasAllSamples = false;
+
+    if (this.mode == 'trio'
+           && this.getModel('proband')
+           && this.getModel('proband').samples
+           && this.getModel('mother')
+           && this.getModel('mother').sampleName
+           && this.getModel('father')
+           && this.getModel('father').sampleName) {
+      hasAllSamples =
+        this.getModel('proband').doesContainOtherSample(this.getModel('mother')) &&
+        this.getModel('proband').doesContainOtherSample(this.getModel('father'));
+    }
+
+    return hasAllSamples;
   }
 
 

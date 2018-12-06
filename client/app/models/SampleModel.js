@@ -26,6 +26,8 @@ class SampleModel {
     this.bamFileOpened = false;
     this.getBamRefName = null;
 
+    this.samples = null;
+
     this.name = "";
     this.vcfRefNamesMap = {};
     this.sampleName = "";
@@ -894,6 +896,7 @@ class SampleModel {
 
             // Get the sample names from the vcf header
               me.vcf.getSampleNames( function(sampleNames) {
+                me.sampleNames = sampleName;
                 me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
                 resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
               });
@@ -966,6 +969,7 @@ class SampleModel {
             me.getVcfRefName = null;
             // Get the sample names from the vcf header
             me.vcf.getSampleNames( function(sampleNames) {
+              me.samples = sampleNames;
               me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
               callback(success, sampleNames);
             });
@@ -1954,7 +1958,7 @@ class SampleModel {
           // ignore the affected info for this sample.  We already added it
           // to the list of samples to retrieve
 
-        } else if (info.model.getVcfSampleName() && me._otherSampleInThisVcf(info.model) ) {
+        } else if (info.model.getVcfSampleName() && me.doesContainOtherSample(info.model) ) {
           // If the 'other' sample exists in the sample multi-sample vcf as this sample,
           // add it to the list of samples to retrieve.  For example, an affected sib could be in the
           // mother's vcf file.   In this case, we will retreive both the mother and affected sib at
@@ -1974,27 +1978,16 @@ class SampleModel {
 
   }
 
-  _otherSampleInThisVcf(otherModel) {
-    var me = this;
-    var theVcfs = {};
+  doesContainOtherSample(otherModel) {
+    let self = this;
+    let hasSample = false;
 
-    var pushVcfFile = function(model) {
-      if (model.vcfUrlEntered) {
-        theVcfs[model.vcf.getVcfURL()] = true;
-      } else {
-        theVcfs[model.vcf.getVcfFile().name] = true;
-      }
+    if (self.samples && otherModel.sampleName) {
+      hasSample = self.samples.indexOf(otherModel.sampleName) >= 0;
     }
 
-    pushVcfFile(me);
-    pushVcfFile(otherModel);
-
-    return Object.keys(theVcfs).length == 1;
+    return hasSample;
   }
-
-
-
-
 
 
   _pileupVariants(features, start, end) {
