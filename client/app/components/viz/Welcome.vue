@@ -86,7 +86,7 @@ $mid-blue-color:     #416b9a
 
     .buttons-group
       margin-top: 0px !important
-      padding-top: 60px
+      padding-top: 30px
 
 
     button.welcome-button
@@ -374,7 +374,7 @@ $mid-blue-color:     #416b9a
       <div class="welcome-panel main">
         <div style="display:flex;flex-direction:row;justify-content:center;align-items: center;">
 
-          <div>
+          <div style="padding-top:10px">
             <transition-group  name="fadeDown" >
               <div v-if="showWelcomeLabel" style="animation-duration: 1s; " key="welcome-label" id="welcome-label">
                 <div>
@@ -400,10 +400,6 @@ $mid-blue-color:     #416b9a
                 </v-btn>
               </div>
             </transition-group>
-          </div>
-
-          <div class="image-shadow" style="margin-left: 40px;margin-top: 15px">
-            <img   id="gene_iobio_image" src="../../../assets/images/landing_page/gene-iobio-screenshot.png"  style="max-width:600px" alt="" ></img>
           </div>
 
         </div>
