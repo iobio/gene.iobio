@@ -389,6 +389,12 @@ $light-gray-color:   #f0f1f3
 
 <style>
 
+@media only screen and (max-width: 1130px) {
+.how-it-works .how-it-works-panel .how-it-works-image img {
+    max-width: 300px !important;
+}
+}
+
 @media only screen and (max-width: 1000px) {
 .welcome-panel.main img ,
 .welcome-panel.main .image-shadow {
@@ -400,6 +406,20 @@ $light-gray-color:   #f0f1f3
 }
 
 @media only screen and (max-width: 600px) {
+
+
+#welcome-area .welcome-panel.main {
+  flex-direction: column !important;
+}
+#welcome-area .welcome-panel.how-it-works {
+  width: 100%;
+}
+.how-it-works-panel {
+  align-items: center;
+}
+#welcome-area .welcome-panel.main .main-headline {
+  padding-top: 15px;
+}
 
 .welcome-panel.main img,
 .welcome-panel.main .image-shadow,
@@ -424,7 +444,7 @@ $light-gray-color:   #f0f1f3
       <div class="welcome-panel main">
         <div class="main-headline">
 
-          <div style="padding-top:10px">
+          <div style="padding-top:10px;padding-left:20px;padding-right:20px">
             <transition-group  name="fadeDown" >
               <div v-if="showWelcomeLabel" style="animation-duration: 1s; " key="welcome-label" id="welcome-label">
                 <div>
@@ -455,7 +475,7 @@ $light-gray-color:   #f0f1f3
         </div>
 
         <div class="welcome-panel how-it-works  " >
-          <div id="welcome-label-small"  class="accent-label" style="padding-top:10px;float:left">How it works</div>
+          <div id="welcome-label-small"  class="accent-label" style="padding-top:10px;text-align:center">How it works</div>
 
 
           <div class="how-it-works-panel">
@@ -490,9 +510,9 @@ $light-gray-color:   #f0f1f3
               <v-avatar size="32px" color="teal">
                 <span class="white--text headline">3</span>
               </v-avatar>
-              <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  When alignments are provided, see coverage leverages across the gene.</span>
+              <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  When alignments are provided, see coverage levels across the gene.</span>
               <div class="how-it-works-image">
-                <img  src="../../../assets/images/landing_page/trio_variant_cards.png" style="min-width:500px;max-width:500px"></img>
+                <img  src="../../../assets/images/landing_page/trio_variant_cards.png" style="max-width:500px"></img>
               </div>
             </div>
 
@@ -528,7 +548,7 @@ $light-gray-color:   #f0f1f3
               </v-avatar>
               <span class="how-it-works-title">Click on a variant to view the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
               <div class="how-it-works-image">
-                <img  src="../../../assets/images/landing_page/variant_detail_card.png" style="min-width:500px;max-width:500px;"></img>
+                <img  src="../../../assets/images/landing_page/variant_detail_card.png" style="max-width:500px;"></img>
               </div>
             </div>
 
