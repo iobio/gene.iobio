@@ -60,6 +60,11 @@ $light-gray-color:   #f0f1f3
     &.videos-and-blogs
       //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
       background: white
+      padding-top: 20px
+      padding-bottom: 20px
+      padding-left: 30px
+      padding-right: 30px
+      width: 100%
     &.how-it-works
       //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
       //background: linear-gradient(304deg, rgba(43,70,101,1) 14%, rgba(61,99,142,1) 68%, rgba(94,141,184,1) 85%)
@@ -69,6 +74,8 @@ $light-gray-color:   #f0f1f3
 
     &.resources
       background-color: $brown-gray
+      padding-top: 20px
+      padding-bottom: 20px
 
     &.collaborations
       background-color: $mid-blue-color
@@ -169,6 +176,7 @@ $light-gray-color:   #f0f1f3
       font-size: 18px
 
 .resources-panel, .collaborators-panel
+  padding-top: 20px
   display: flex
   justify-content: space-around
   flex-direction: row
@@ -520,7 +528,7 @@ $light-gray-color:   #f0f1f3
               </v-avatar>
               <span class="how-it-works-title">Click on a variant to view the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
               <div class="how-it-works-image">
-                <img  src="../../../assets/images/landing_page/variant_detail_card.png" style="width: 100%;"></img>
+                <img  src="../../../assets/images/landing_page/variant_detail_card.png" style="min-width:500px;max-width:500px;"></img>
               </div>
             </div>
 
