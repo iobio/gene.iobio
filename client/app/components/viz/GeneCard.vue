@@ -364,6 +364,14 @@ export default {
     initSummaryInfo: function() {
       if (this.selectedGene && this.selectedGene.gene_name) {
         this.ncbiSummary = this.geneModel.geneNCBISummaries[this.selectedGene.gene_name];
+
+        if (this.ncbiSummary == null || this.ncbiSummary.summary == '?') {
+          this.geneModel.promiseGetNCBIGeneSummary(this.selectedGene.gene_name)
+          .then(function(data) {
+            this.ncbiSummary = data;
+          })
+        }
+
         this.phenotypes  = this.geneModel.genePhenotypes[this.selectedGene.gene_name]
         if (this.phenotypes) {
           this.phenotypeTerms =  this.phenotypes.map(function(d) {
