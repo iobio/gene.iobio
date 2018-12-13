@@ -536,10 +536,10 @@ export default {
       launchedWithUrlParms: false,
 
       hubToIobioSources: {
-        "https://mosaic.chpc.utah.edu":         "hub-chpc.iobio.io",
-        "https://mosaic-dev.genetics.utah.edu": "hub-chpc.iobio.io",
-        "http://mosaic-dev.genetics.utah.edu":  "hub-chpc.iobio.io",
-        "https://staging.frameshift.io":        "nv-blue.iobio.io"
+        "https://mosaic.chpc.utah.edu":          {iobio: "hub-chpc.iobio.io", batchSize: 3},
+        "https://mosaic-dev.genetics.utah.edu":  {iobio: "hub-chpc.iobio.io", batchSize: 3},
+        "http://mosaic-dev.genetics.utah.edu":   {iobio: "hub-chpc.iobio.io", batchSize: 3},
+        "https://staging.frameshift.io":         {iobio: "nv-blue.iobio.io",  batchSize: 10}
       },
 
 
@@ -886,6 +886,7 @@ export default {
         self.cacheHelper.on("analyzeAllCompleted", function() {
 
           if (self.launchedFromClin && !self.isFullAnalysis) {
+
             self.$refs.navRef.onShowFlaggedVariants();
             self.onSendFiltersToClin();
           } else if (!self.isEduMode) {
@@ -1795,7 +1796,8 @@ export default {
         // Figure out which IOBIO backend we should be using.
         // TODO - This should be a URL parameter from hub
         if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {
-          self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource]
+          self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
+          self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
         }
         if (self.projectId) {
           self.isHubDeprecated = false;
@@ -2464,7 +2466,6 @@ export default {
       } else if (clinObject.type == 'show') {
         setTimeout(function() {
           self.isClinFrameVisible = true;
-          console.log( 'GeneHome clin frame is visible ' + self.isClinFrameVisible);
           if (self.cohortModel && self.cohortModel.flaggedVariants.length > 0) {
             // When all variants have been imported
             self.onFlaggedVariantsImported();
@@ -2672,7 +2673,6 @@ export default {
           return self.geneModel.promiseCopyPasteGenes(genesToAdd.join(","), {replace: true, warnOnDup: false});
         })
         .then(function() {
-          console.log("gene summaries " + Object.keys(self.geneModel.geneDangerSummaries).length );
           resolve();
         })
         .catch(function(error) {
@@ -2749,6 +2749,7 @@ export default {
       self.cohortModel.promiseInit(clinObject.modelInfos)
       .then(function() {
         self.models = self.cohortModel.sampleModels;
+
         return self.promiseSetCacheFromClin(clinObject);
       })
       .then(function() {
