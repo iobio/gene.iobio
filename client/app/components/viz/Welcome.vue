@@ -10,8 +10,9 @@ $landing-page-font:      Poppins
 
 
 
-$accent-color:       #4ec0a1
-$accent-color-light: #4ec0a1
+$accent-color:       #787878
+$accent-color-light: #787878
+$powered-by-accent-color: #84d8fc
 
 $accent-color-bright: #14c39a
 
@@ -42,8 +43,8 @@ $light-gray-color:   #f0f1f3
 
 
     &.main
-      //background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
-      background: white
+      background: linear-gradient(128deg, #74aadb 0%, #7eb1dd 8%, #617da9 20%, #4a679b 36%)
+      //background: white
       display: flex
       flex-direction: row
       align-items: flex-start
@@ -54,8 +55,9 @@ $light-gray-color:   #f0f1f3
         display: flex
         flex-direction: row
         padding-top: 70px
-        margin-left: auto
-        margin-right: auto
+        margin-left: 30px
+        margin-right: 30px
+        width: 400px
 
     &.videos-and-blogs
       //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
@@ -66,9 +68,10 @@ $light-gray-color:   #f0f1f3
       padding-right: 30px
       width: 100%
     &.how-it-works
+      flex-grow: 2
       //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
       //background: linear-gradient(304deg, rgba(43,70,101,1) 14%, rgba(61,99,142,1) 68%, rgba(94,141,184,1) 85%)
-      background-color: $light-gray-color
+      background-color: white
     &.features
       background-color: white
 
@@ -82,7 +85,8 @@ $light-gray-color:   #f0f1f3
 
 
     #welcome-label
-      color:          $header-color
+      color: white
+      //color:          $header-color
       font-size:      32px
       line-height:    36px
       font-family:    $landing-page-font
@@ -117,19 +121,20 @@ $light-gray-color:   #f0f1f3
       height: 40px
       width: 230px
       margin-bottom: 10px
-      background-color: $accent-color
-      color: white
+      background-color: white
+      color: $accent-color
       font-family: $landing-page-font
       margin-bottom: 30px
 
       i.material-icons
         font-size: 26px
         width: 26px
-        color: white
+        color: $accent-color
         margin-right: 7px
 
       .btn__content
-        color: white
+        color: $accent-color
+        font-weight: bold
 
     button.welcome-button-outline
       font-size: 16px !important
@@ -170,7 +175,9 @@ $light-gray-color:   #f0f1f3
     margin-right: 30px
     background-color: transparent !important
     border: 2px solid white
-    border-color: $accent-color !important
+    border-color: $powered-by-accent-color !important
+
+
 
     span
       font-size: 18px
@@ -216,18 +223,21 @@ $light-gray-color:   #f0f1f3
       display: inline
       margin-right: 8px
       color: $accent-color
-      font-size: 42px
+      font-size: 25px
 
   div.how-it-works-item, div.features-item
     display: flex
 
     .avatar
       margin-right: 10px
-      min-width: 32px !important
-      min-height: 32px !important
+      min-width: 28px !important
+      min-height: 28px !important
 
       &.teal
         background-color: $accent-color-light !important
+
+      span.headline
+        font-size: 18px !important
 
     .how-it-works-image, .features-image
       margin-right: 0px
@@ -475,7 +485,7 @@ $light-gray-color:   #f0f1f3
         </div>
 
         <div class="welcome-panel how-it-works  " >
-          <div id="welcome-label-small"  class="accent-label" style="padding-top:10px;text-align:center">How it works</div>
+          <div id="welcome-label-small"  class="accent-label" style="padding-top:10px;text-align:center"></div>
 
 
           <div class="how-it-works-panel">
@@ -483,7 +493,7 @@ $light-gray-color:   #f0f1f3
 
 
             <div class="how-it-works-item">
-              <v-avatar size="32px" color="teal">
+              <v-avatar size="28px" color="teal">
                 <span class="white--text headline">1</span>
               </v-avatar>
               <span class="how-it-works-title">Enter on a gene or search on a phenotype</span>
