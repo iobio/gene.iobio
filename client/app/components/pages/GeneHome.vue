@@ -9,7 +9,7 @@
 
 
 main.content
-  margin-top: 55px
+  margin-top: 52px
 
 .app-card
   margin-bottom: 10px
