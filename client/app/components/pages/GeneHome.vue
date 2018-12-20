@@ -534,6 +534,7 @@ export default {
       sampleId: null,
       projectId: null,
       launchedWithUrlParms: false,
+      clinPersistCache: {'gene': true, 'genefull': true},
 
       hubToIobioSources: {
         "https://mosaic.chpc.utah.edu":          {iobio: "hub-chpc.iobio.io", batchSize: 3},
@@ -1674,7 +1675,9 @@ export default {
     onApplyGenes: function(genesString, options, callback) {
       let self = this;
 
-      self.clearFilter();
+      if (!options.isFromClin) {
+        self.clearFilter();
+      }
 
       let existingGeneCount = self.geneModel.sortedGeneNames.length;
       let existingPhenotypeTerm = self.phenotypeTerm;
@@ -2610,6 +2613,16 @@ export default {
       let self = this;
       if (this.launchedFromClin) {
 
+        // If cache should not persist, bypass this functionality
+        if (self.isFullAnalysis && !self.clinPersistCache.genefull) {
+          return;
+        } else if (!self.isFullAnalysis && !self.clinPersistCache.gene) {
+          return;
+        }
+
+        console.log(" **** getting cache from clin **** "
+          + self.isFullAnalysis ? " for full analysis " : " for candidate genes" );
+
         self.cacheHelper.promiseGetClinCacheItems(geneName, ['vcfData', 'dangerSummary', 'geneCoverage'])
         .then(function(cacheItems) {
           var msgObject = {
@@ -2631,6 +2644,13 @@ export default {
 
     promiseSetCacheFromClin: function(clinObject) {
       let self = this;
+
+      // If cache should not persist, bypass this functionality
+      if (self.isFullAnalysis && !self.clinPersistCache.genefull) {
+        return Promise.resolve();
+      } else if (!self.isFullAnalysis && !self.clinPersistCache.gene) {
+        return Promise.resolve();
+      }
 
       return new Promise(function(resolve, reject) {
         self.onShowSnackbar({message: 'Setting analysis cache...', timeout: 5000})
@@ -2687,6 +2707,8 @@ export default {
     setIobioConfigFromClin: function(clinObject) {
       let self = this;
 
+      self.clinPersistCache = clinObject.persistCache;
+
       if (clinObject.batchSize) {
         self.globalApp.DEFAULT_BATCH_SIZE = clinObject.batchSize;
       }
@@ -2724,6 +2746,7 @@ export default {
             clinObject.genes.join(" "),
             {isFromClin: true, replace: true, warnOnDup: false, phenotypes: clinObject.phenotypes.join(",")},
         function() {
+
           self.cohortModel.importFlaggedVariants('json', clinObject.variants,
           function() {
             self.onFlaggedVariantsImported();
@@ -2734,6 +2757,7 @@ export default {
             self.$refs.navRef.onShowFlaggedVariants();
             self.cacheHelper.analyzeAll(self.cohortModel, false);
           })
+
         });
 
       })
