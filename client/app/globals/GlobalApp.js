@@ -103,6 +103,16 @@ class GlobalApp {
 
   }
 
+  getClinvarUrl(build) {
+
+      var clinvarUrls = {
+        'GRCh37': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/archive_2.0/2018/clinvar_20181202.vcf.gz",
+        'GRCh38': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2018/clinvar_20181202.vcf.gz",
+      };
+      return clinvarUrls[build];
+
+  }
+
 
 
 }

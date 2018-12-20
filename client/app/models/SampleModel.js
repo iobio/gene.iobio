@@ -1382,6 +1382,8 @@ class SampleModel {
                             sourceVariant[vepAnnot]     = v[vepAnnot];
                           })
 
+
+
                           // re-cache the data
                           me._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
                            .then(function() {

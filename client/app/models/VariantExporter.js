@@ -33,7 +33,7 @@ export default class VariantExporter {
       {field: 'REVEL',            exportVcf: true},
       {field: 'rsId',             exportVcf: true},
       {field: 'clinvarClinSig',   exportVcf: true},
-      {field: 'clinvarPhenotype', exportVcf: true},
+      {field: 'clinvarTrait',     exportVcf: true},
       {field: 'HGVSc',            exportVcf: true},
       {field: 'HGVSp',            exportVcf: true},
       {field: 'regulatory',       exportVcf: true},
@@ -452,6 +452,28 @@ export default class VariantExporter {
       // Merge the properties of the bookmark entry with the variant with the full annotations
       // Always use the inheritance from the bookmarkEntry
       var revisedVariant = $().extend({}, sourceVariant, theVariant);
+
+      // If the source variant has clinvar annotations that are not initialized
+      // on the cached variant, make sure the cached variant is initialized with
+      // these fields
+      var clinvarAnnots = [
+        "clinvar",
+        "clinvarAccession",
+        "clinvarAlleleId",
+        "clinvarAlt",
+        "clinvarClinSig",
+        "clinvarRank",
+        "clinvarRef",
+        "clinvarStart",
+        "clinvarSubmissions",
+        "clinvarTrait",
+        "clinvarUid"
+      ];
+      if (revisedVariant.clinvar == null && sourceVariant.clinvar != null) {
+        clinvarAnnots.forEach(function(clinvarAnnot) {
+          revisedVariant[clinvarAnnot]  = sourceVariant[clinvarAnnot];
+        })
+      }
       revisedVariant.extraAnnot = true;
 
       // If this is a trio, get the genotypes for mother and father
@@ -565,8 +587,8 @@ export default class VariantExporter {
     rec.rsId              = info.rsId;
     rec.dbSnpUrl          = info.dbSnpUrl;
     rec.clinvarUrl        = info.clinvarUrl;
-    rec.clinvarClinSig    = info.clinvarSig;
-    rec.clinvarPhenotype  = info.phenotype;
+    rec.clinvarClinSig    = info.clinvarClinSig;
+    rec.clinvarTrait      = info.clinvarTrait;
     rec.HGVSc             = info.HGVSc;
     rec.HGVSp             = info.HGVSp;
     rec.afExAC            = (variant.afExAC == -100 ? "n/a" : variant.afExAC);

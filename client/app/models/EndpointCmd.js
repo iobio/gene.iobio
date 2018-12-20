@@ -500,7 +500,8 @@ export default class EndpointCmd {
     // Create an iobio command get get the variants from clinvar for the region of the gene
     var regionParm = refName + ":" + regionStart + "-" + regionEnd;
 
-    var clinvarUrl = me.genomeBuildHelper.getBuildResource(me.genomeBuildHelper.RESOURCE_CLINVAR_VCF_FTP);
+    //var clinvarUrl = me.genomeBuildHelper.getBuildResource(me.genomeBuildHelper.RESOURCE_CLINVAR_VCF_FTP);
+    var clinvarUrl  = me.globalApp.getClinvarUrl(me.genomeBuildHelper.getCurrentBuildName());
 
     var tabixArgs = ['-h', clinvarUrl, regionParm];
     var cmd = new iobio.cmd (me.IOBIO.tabix, tabixArgs, {ssl: me.globalApp.useSSL});
