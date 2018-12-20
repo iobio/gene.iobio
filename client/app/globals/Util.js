@@ -962,6 +962,7 @@ class Util {
           }
           let phenotype = key.split("_").join(" ").split("\\x2c").join(", ");
           info.clinvarUniqueTraits[phenotype] = null;
+          info.clinvarTrait += phenotype;
         }
       }
       if (variant.clinvarUid != null && variant.clinvarUid != '') {
