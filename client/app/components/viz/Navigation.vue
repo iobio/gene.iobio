@@ -530,7 +530,7 @@ nav.toolbar
         >
           <v-tab v-if="!isBasicMode" >
             <v-badge>
-              <span class="badge-count" slot="badge">{{ geneModel.geneNames.length }}</span>
+              <span class="badge-count" slot="badge">{{ geneModel.getGeneCount(isFullAnalysis) }}</span>
               <span class="badge-label">Genes</span>
             </v-badge>
 
@@ -538,7 +538,7 @@ nav.toolbar
           <v-tab>
 
             <v-badge>
-              <span class="badge-count" slot="badge">{{ cohortModel.flaggedVariants.length }}</span>
+              <span class="badge-count" slot="badge">{{ cohortModel.getFlaggedVariantCount(isFullAnalysis) }}</span>
               <span class="badge-label">Variants</span>
             </v-badge>
 

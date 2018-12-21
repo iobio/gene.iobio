@@ -45,6 +45,7 @@ class GeneModel {
     this.geneNames = [];
     this.geneDangerSummaries = {};
     this.sortedGeneNames = [];
+    this.candidateGenes = {};
 
 
     this.geneNCBISummaries = {};
@@ -68,6 +69,28 @@ class GeneModel {
 
     this.pendingNCBIRequests = {};
 
+  }
+
+  getGeneCount(isFullAnalysis) {
+    let self = this;
+    if (self.isFullAnalysis) {
+      return genes.length;
+    } else {
+      return Object.keys(self.candidateGenes).length;
+    }
+  }
+
+  setCandidateGenes(genes) {
+    let self = this;
+    self.candidateGenes = {};
+    genes.forEach(function(gene) {
+      self.candidateGenes[gene] = true;
+    })
+  }
+
+  isCandidateGene(theGeneName) {
+    let self = this;
+    return self.candidateGenes[theGeneName];
   }
 
   promiseAddGeneName(theGeneName) {

@@ -117,7 +117,14 @@ export default {
       // Create an array of gene summaries for the genes to show in the genes card
       var theGeneNames = self.filteredGeneNames && self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
       if (theGeneNames) {
-        self.geneSummaries = theGeneNames.map(function(geneName) {
+        let filteredGeneNames = theGeneNames.filter(function(geneName) {
+          if (self.isFullAnalysis) {
+            return true;
+          } else {
+            return self.geneModel.isCandidateGene(geneName);
+          }
+        })
+        self.geneSummaries = filteredGeneNames.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
 
           var dangerSummary = self.geneModel.getDangerSummary(geneName);

@@ -795,6 +795,15 @@ class FilterModel {
     }
 
     if (variant.isFlagged) {
+      if (!variant.analysisMode) {
+        variant.analysisMode = {gene: false, genefull: false};
+      }
+      if (self.isFullAnalysis) {
+        variant.analysisMode.genefull = true;
+      } else {
+        variant.analysisMode.gene = true;
+      }
+
       badges.flagged.push(variant);
     }
 

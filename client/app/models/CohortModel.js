@@ -2177,13 +2177,13 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName) {
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis) {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
         let flagCriteria = self.filterModel.flagCriteria[filterName];
-        var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged);
+        var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis);
 
         if (sortedGenes.length > 0) {
           filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
@@ -2232,6 +2232,18 @@ class CohortModel {
       return null;
     }
 
+  }
+
+  getFlaggedVariantCount(isFullAnalysis) {
+    let self = this;
+    if (isFullAnalysis) {
+      return self.flaggedVariants.length;
+    } else {
+      let theFlaggedVariants = self.flaggedVariants.filter(function(variant) {
+        return self.geneModel.isCandidateGene(variant.geneName);
+      })
+      return theFlaggedVariants.length;
+    }
   }
 
   getFlaggedVariantsByFilter(geneName) {
@@ -2303,7 +2315,7 @@ class CohortModel {
   }
 
 
-  _organizeVariantsForFilter(filterName, userFlagged) {
+  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis) {
     let self = this;
     let geneMap        = {};
     let flaggedGenes   = [];
@@ -2312,15 +2324,22 @@ class CohortModel {
         if ((userFlagged && variant.isUserFlagged) ||
             (filterName && variant.filtersPassed && variant.filtersPassed.indexOf(filterName) >= 0)) {
           let flaggedGene = geneMap[variant.gene.gene_name];
-          if (flaggedGene == null) {
-            flaggedGene = {};
-            flaggedGene.gene = variant.gene;
-            flaggedGene.transcript = variant.transcript;
-            flaggedGene.variants = [];
-            geneMap[variant.gene.gene_name] = flaggedGene;
-            flaggedGenes.push(flaggedGene);
+
+          let keepGene = isFullAnalysis ? true : self.geneModel.isCandidateGene(variant.gene.gene_name);
+
+          if (keepGene) {
+            if (flaggedGene == null) {
+              flaggedGene = {};
+              flaggedGene.gene = variant.gene;
+              flaggedGene.transcript = variant.transcript;
+              flaggedGene.variants = [];
+              geneMap[variant.gene.gene_name] = flaggedGene;
+              flaggedGenes.push(flaggedGene);
+            }
+
+            flaggedGene.variants.push(variant);
+
           }
-          flaggedGene.variants.push(variant);
         }
       })
 

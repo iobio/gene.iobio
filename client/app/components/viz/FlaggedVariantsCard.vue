@@ -826,7 +826,7 @@ export default {
       let self = this;
       self.geneLists = [];
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName);
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis);
       self.geneLists = filters.map(function(filterObject, idx) {
         return {
           name:  filterObject.key,
