@@ -2460,8 +2460,18 @@ export default {
       } else if (clinObject.type == 'show') {
         setTimeout(function() {
           self.isClinFrameVisible = true;
-          self.isFullAnalysis = clinObject.receiver == 'genefull' ? true : false;
+          self.$set(self, "isFullAnalysis", clinObject.receiver == 'genefull' ? true : false);
           self.filterModel.isFullAnalysis = self.isFullAnalysis;
+          self.$refs.genesCardRef.isFullAnalysis = self.isFullAnalysis;
+          self.$refs.genesCardRef.$refs.filterBadgesRef = self.isFullAnalysis;
+          self.$refs.navRef.isFullAnalysis = self.isFullAnalysis;
+          self.$refs.navRef.$refs.genesPanelRef.isFullAnalysis = self.isFullAnalysis;
+          self.$refs.navRef.$refs.flaggedVariantsRef.isFullAnalysis = self.isFullAnalysis;
+
+          //alert("isFullAnalysis=" + self.isFullAnalysis
+          //  + " filterModel.isFullAnalysis: " + self.filterModel.isFullAnalysis
+          //  + " genesCard.isFullAnalysis: " + self.$refs.genesCardRef.isFullAnalysis
+          //  + " nav.isFullAnalysis: " + self.$refs.navRef.isFullAnalysis);
           self.showClin();
           /*
           if (self.cohortModel && self.cohortModel.flaggedVariants.length > 0) {
@@ -2747,64 +2757,47 @@ export default {
       })
     },
 
+
+
+
     showClin: function() {
-      let self  = this;
-      if (self.isFullAnalysis) {
-        self.initClinFullAnalysis();
-      } else {
-        self.initClinCandidateGenes();
-      }
-    },
-
-
-    initClinCandidateGenes: function() {
       let self = this;
 
-      let theVariants = self.clinSetData.variants;
+      if (!self.clinSetData.isInitialized) {
 
-      self.showLeftPanelForGenes();
-      self.onApplyGenes(
-          self.clinSetData.genes.join(" "),
-          {isFromClin: true, replace: true, warnOnDup: false, phenotypes: self.clinSetData.phenotypes.join(",")},
-      function() {
+        self.showLeftPanelForGenes();
+        self.onApplyGenes(
+            self.clinSetData.genes.join(" "),
+            {isFromClin: true, replace: true, warnOnDup: false, phenotypes: self.clinSetData.phenotypes.join(",")},
+        function() {
 
-        if (theVariants.length > 0) {
-          self.cohortModel.importFlaggedVariants('json', theVariants,
-          function() {
+          if (self.clinSetData.variants.length > 0) {
+            self.cohortModel.importFlaggedVariants('json', self.clinSetData.variants,
+            function() {
 
-            self.onFlaggedVariantsImported();
-            self.$refs.navRef.onShowFlaggedVariants();
-          },
-          function() {
-            // When analyzeSubset and variants have been cached
-            self.$refs.navRef.onShowFlaggedVariants();
+              self.onFlaggedVariantsImported();
+              self.$refs.navRef.onShowFlaggedVariants();
+            },
+            function() {
+              // When analyzeSubset and variants have been cached
+              self.$refs.navRef.onShowFlaggedVariants();
+              self.cacheHelper.analyzeAll(self.cohortModel, false);
+            })
+            self.clinSetData.isInitialized = true;
+          } else {
             self.cacheHelper.analyzeAll(self.cohortModel, false);
-          })
-        } else {
-          self.cacheHelper.analyzeAll(self.cohortModel, false);
-        }
+          }
 
-      })
+        })
+      } else {
+        self.$refs.genesCardRef.refresh();
+      }
 
 
     },
 
     initClinFullAnalysis: function() {
       let self = this;
-
-
-      let theGenes = self.clinSetData.genesToAnalyze
-      .filter(function(gene) {
-        return gene.analysisMode && gene.analysisMode.genefull == true;
-      })
-      .map(function(gene) {
-        return gene.name;
-      })
-
-      let theVariants = self.clinSetData.variants
-      .filter(function(variant) {
-        return variant.analysisMode && variant.analysisMode.genefull == true;
-      })
 
       let variantData = null;
       let fileType = null;
@@ -2823,13 +2816,6 @@ export default {
         if (fileType == 'gemini') {
           self.showLeftPanelForGenes();
 
-          self.cohortModel.flaggedVariants.forEach(function(variant) {
-            if (!variant.analysisMode) {
-              variant.analysisMode = {gene: false, genefull: true};
-            } else {
-              variant.analysisMode.genefull = true;
-            }
-          })
 
           // clone the imported variants array
           let theImportedVariants = self.cohortModel.flaggedVariants.slice();

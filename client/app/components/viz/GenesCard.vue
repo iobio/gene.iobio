@@ -410,9 +410,20 @@ export default {
       let self = this;
 
       // Create an array of gene summaries for the genes to show in the genes card
-      var theGeneNames = self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
+      let theGeneNames = self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
+      let filteredGeneNames = null;
       if (theGeneNames) {
-        self.geneSummaries = theGeneNames.map(function(geneName) {
+        filteredGeneNames = theGeneNames.filter(function(geneName) {
+          if (self.isFullAnalysis) {
+            return true;
+          } else {
+            return self.geneModel.isCandidateGene(geneName);
+          }
+        })
+      }
+      if (filteredGeneNames) {
+
+        self.geneSummaries = filteredGeneNames.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
 
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
@@ -429,10 +440,10 @@ export default {
       }
 
       // Determine loaded gene and called gene progress
-      if (self.geneNames && self.geneNames.length > 0) {
+      if (filteredGeneNames && filteredGeneNames.length > 0) {
         let calledCount = 0;
         let loadedCount = 0;
-        self.geneNames.forEach(function(geneName) {
+        filteredGeneNames.forEach(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
           if (dangerSummary) {
             loadedCount++;
@@ -442,8 +453,8 @@ export default {
           }
         })
 
-        self.loadedPercentage = loadedCount >  0 ? (loadedCount / self.geneNames.length) * 100 : 0;
-        self.calledPercentage = calledCount >  0 ? (calledCount / self.geneNames.length) * 100 : 0;
+        self.loadedPercentage = loadedCount >  0 ? (loadedCount / filteredGeneNames.length) * 100 : 0;
+        self.calledPercentage = calledCount >  0 ? (calledCount / filteredGeneNames.length) * 100 : 0;
       } else {
         self.loadedPercentage = 0;
       }
@@ -453,6 +464,17 @@ export default {
       let self = this;
       self.badgeCounts = {};
 
+      let filteredGeneNames = null;
+      if (self.geneNames) {
+        filteredGeneNames = self.geneNames.filter(function(geneName) {
+          if (self.isFullAnalysis) {
+            return true;
+          } else {
+            return self.geneModel.isCandidateGene(geneName);
+          }
+        })
+      }
+
       for (var key in self.filterModel.flagCriteria) {
         if (self.filterModel.flagCriteria[key].active) {
           self.badgeCounts[key] = 0;
@@ -461,8 +483,8 @@ export default {
       self.badgeCounts.coverage = 0;
       self.badgeCounts.flagged = 0;
 
-      if (self.geneNames) {
-        self.geneNames.forEach(function(geneName) {
+      if (filteredGeneNames) {
+        filteredGeneNames.forEach(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
 
           if (dangerSummary) {
@@ -489,9 +511,8 @@ export default {
     onCallVariants: function(action) {
       this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
     },
-    onBadgeClick: function(badge) {
+    refresh: function(badge) {
       let self = this;
-
       self.determineFlaggedGenes(badge);
       if (badge) {
         self.filteredGeneNames = self.flaggedGeneNames;
@@ -499,7 +520,12 @@ export default {
         self.filteredGeneNames = [];
       }
       self.updateGeneSummaries();
+      self.updateGeneBadgeCounts();
 
+    },
+    onBadgeClick: function(badge) {
+      let self = this;
+      self.refresh(badge);
       self.$emit('filter-selected', badge, self.filteredGeneNames);
     },
     onFilterSettingsApplied: function() {
