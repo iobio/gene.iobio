@@ -398,7 +398,11 @@ export default {
 
       filteredGeneNames: [],
 
-      showKnownVariantsCard: false
+      showKnownVariantsCard: false,
+
+      loadedCount: 0,
+      calledCount: 0,
+      totalCount: 0
 
     }
   },
@@ -411,9 +415,9 @@ export default {
 
       // Create an array of gene summaries for the genes to show in the genes card
       let theGeneNames = self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
-      let filteredGeneNames = null;
+      let geneNamesToDisplay = null;
       if (theGeneNames) {
-        filteredGeneNames = theGeneNames.filter(function(geneName) {
+        geneNamesToDisplay = theGeneNames.filter(function(geneName) {
           if (self.isFullAnalysis) {
             return true;
           } else {
@@ -421,9 +425,9 @@ export default {
           }
         })
       }
-      if (filteredGeneNames) {
+      if (geneNamesToDisplay) {
 
-        self.geneSummaries = filteredGeneNames.map(function(geneName) {
+        self.geneSummaries = geneNamesToDisplay.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
 
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
@@ -440,21 +444,22 @@ export default {
       }
 
       // Determine loaded gene and called gene progress
-      if (filteredGeneNames && filteredGeneNames.length > 0) {
-        let calledCount = 0;
-        let loadedCount = 0;
-        filteredGeneNames.forEach(function(geneName) {
+      if (geneNamesToDisplay && geneNamesToDisplay.length > 0) {
+        self.calledCount = 0;
+        self.loadedCount = 0;
+        self.totalCount = geneNamesToDisplay.length;
+        geneNamesToDisplay.forEach(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
           if (dangerSummary) {
-            loadedCount++;
+            self.loadedCount++;
           }
           if (dangerSummary && dangerSummary.CALLED) {
-            calledCount++;
+            self.calledCount++;
           }
         })
 
-        self.loadedPercentage = loadedCount >  0 ? (loadedCount / filteredGeneNames.length) * 100 : 0;
-        self.calledPercentage = calledCount >  0 ? (calledCount / filteredGeneNames.length) * 100 : 0;
+        self.loadedPercentage = self.loadedCount >  0 ? (self.loadedCount / self.totalCount) * 100 : 0;
+        self.calledPercentage = self.calledCount >  0 ? (self.calledCount / self.totalCount) * 100 : 0;
       } else {
         self.loadedPercentage = 0;
       }
