@@ -530,7 +530,7 @@ nav.toolbar
         >
           <v-tab v-if="!isBasicMode" >
             <v-badge>
-              <span class="badge-count" slot="badge">{{ geneModel.getGeneCount(isFullAnalysis) }}</span>
+              <span class="badge-count" slot="badge">{{ geneCount }}</span>
               <span class="badge-label">Genes</span>
             </v-badge>
 
@@ -538,7 +538,7 @@ nav.toolbar
           <v-tab>
 
             <v-badge>
-              <span class="badge-count" slot="badge">{{ cohortModel.getFlaggedVariantCount(isFullAnalysis) }}</span>
+              <span class="badge-count" slot="badge">{{ flaggedVariantCount }}</span>
               <span class="badge-label">Variants</span>
             </v-badge>
 
@@ -800,7 +800,9 @@ export default {
     isFullAnalysis: null,
     isClinFrameVisible: null,
     bringAttention: null,
-    phenotypeLookupUrl: null
+    phenotypeLookupUrl: null,
+    geneCount: 0,
+    flaggedVariantCount: 0
   },
   data () {
     let self = this;

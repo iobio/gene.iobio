@@ -1943,6 +1943,16 @@ class CohortModel {
     }
   }
 
+  mergeImportedVariants(importedVariants) {
+    let self = this;
+    importedVariants.forEach(function(importedVariant) {
+      var matchingVariant = self.getFlaggedVariant(importedVariant);
+      if (!matchingVariant) {
+        self.flaggedVariants.push(importedVariant);
+      }
+    })
+  }
+
 
   importFlaggedVariants(fileType, data, callbackPostImport, callbackPostAnalyze) {
     var me = this;
