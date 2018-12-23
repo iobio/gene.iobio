@@ -158,6 +158,8 @@ export default {
       } else {
         self.loadedPercentage = 0;
       }
+      self.$emit("count-changed", self.geneModel.getGeneCount(self.isFullAnalysis));
+
 
     },
     onGeneSelected: function(geneName) {

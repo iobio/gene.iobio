@@ -563,6 +563,7 @@ nav.toolbar
              :genesInProgress="cohortModel.genesInProgress"
              @gene-selected="onGeneSelected"
              @remove-gene="onRemoveGene"
+             @count-changed="onGeneCountChanged"
             >
             </genes-panel>
 
@@ -587,6 +588,8 @@ nav.toolbar
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
+             @count-changed="onFlaggedVariantCountChanged"
+
             >
             </flagged-variants-card>
 
@@ -801,8 +804,7 @@ export default {
     isClinFrameVisible: null,
     bringAttention: null,
     phenotypeLookupUrl: null,
-    geneCount: 0,
-    flaggedVariantCount: 0
+
   },
   data () {
     let self = this;
@@ -821,7 +823,10 @@ export default {
       showCitations: false,
       typeaheadLimit: parseInt(100),
 
-      activeTab: 0
+      activeTab: 0,
+
+      geneCount: 0,
+      flaggedVariantCount: 0
 
 
     }
@@ -948,7 +953,13 @@ export default {
     },
     onSupportIOBIO: function() {
       window.open("http://iobio.io/support.html", "_iobio");
-    }
+    },
+    onGeneCountChanged: function(count) {
+      this.geneCount = count;
+    },
+    onFlaggedVariantCountChanged: function(count) {
+      this.flaggedVariantCount = count;
+    },
   },
   created: function() {
   },

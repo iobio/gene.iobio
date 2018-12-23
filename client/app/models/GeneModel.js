@@ -73,8 +73,8 @@ class GeneModel {
 
   getGeneCount(isFullAnalysis) {
     let self = this;
-    if (self.isFullAnalysis) {
-      return genes.length;
+    if (isFullAnalysis) {
+      return self.geneNames.length;
     } else {
       return Object.keys(self.candidateGenes).length;
     }

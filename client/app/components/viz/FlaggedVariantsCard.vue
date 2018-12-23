@@ -837,6 +837,7 @@ export default {
           expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' || idx == 0 ?  true : false) : true
         }
       })
+      self.$emit("count-changed", self.cohortModel.getFlaggedVariantCount(self.isFullAnalysis));
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);

@@ -117,8 +117,6 @@ main.content
       :geneModel="geneModel"
       :flaggedVariants="flaggedVariants"
       :filteredGeneNames="filteredGeneNames"
-      :geneCount="geneCount"
-      :flaggedVariantCount="flaggedVariantCount"
       :activeFilterName="activeFilterName"
       :launchedFromClin="launchedFromClin"
       :isClinFrameVisible="isClinFrameVisible"
@@ -560,8 +558,6 @@ export default {
       flaggedVariants: [],
       activeFilterName: null,
       filteredGeneNames: null,
-      geneCount: null,
-      flaggedVariantCount: null,
 
       cohortModel: null,
       models: [],
@@ -2002,9 +1998,12 @@ export default {
     },
     refreshFlaggedCounts: function() {
       let self = this;
-      self.geneCount           = self.geneModel.getGeneCount(self.isFullAnalysis);
-      self.flaggedVariantCount = self.cohortModel.getFlaggedVariantCount(self.isFullAnalysis);
-
+      if (self.$refs.genesCardRef ) {
+        self.$refs.genesCardRef.updateGeneSummaries();
+      }
+      if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
+        self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
+      }
     },
     onApplyVariantNotes: function(variant) {
       let self = this;
@@ -2814,6 +2813,7 @@ export default {
 
 
       } else {
+        self.refreshFlaggedCounts();
         self.$refs.genesCardRef.refresh();
       }
 
