@@ -2004,6 +2004,9 @@ export default {
       if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
         self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
       }
+      if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+      }
     },
     onApplyVariantNotes: function(variant) {
       let self = this;
@@ -2759,65 +2762,82 @@ export default {
     },
 
 
-
-
     showClin: function() {
       let self = this;
+      self.promiseImportClin()
+      .then(function() {
+        self.refreshFlaggedCounts();
+      })
+    },
 
-      if (!self.clinSetData.isInitialized) {
-        self.showLeftPanelForGenes();
 
 
-        self.importVariantData(self.clinSetData.variantData,
-        function(importedVariants, importedGenes) {
-          self.flaggedVariants = [];
-          self.cohortModel.flaggedVariants = [];
 
-          let theGenes = self.clinSetData.genes.slice();
-          importedGenes.forEach(function(geneName) {
-            if (theGenes.indexOf(geneName) == -1) {
-              theGenes.push(geneName);
-            }
-          })
+    promiseImportClin: function() {
+      let self = this;
 
-          self.onApplyGenes( theGenes.join(" "),
-          {isFromClin: true, replace: true, warnOnDup: false, phenotypes: self.clinSetData.phenotypes.join(",")},
-          function() {
+      return new Promise(function(resolve, reject) {
 
-            if (self.clinSetData.variants.length > 0) {
-              self.cohortModel.importFlaggedVariants('json', self.clinSetData.variants,
-              function() {
+        if (!self.clinSetData.isImported) {
+          self.showLeftPanelForGenes();
+
+
+          self.importVariantData(self.clinSetData.variantData,
+          function(importedVariants, importedGenes) {
+            self.flaggedVariants = [];
+            self.cohortModel.flaggedVariants = [];
+
+            let theGenes = self.clinSetData.genes.slice();
+            importedGenes.forEach(function(geneName) {
+              if (theGenes.indexOf(geneName) == -1) {
+                theGenes.push(geneName);
+              }
+            })
+
+            self.onApplyGenes( theGenes.join(" "),
+            {isFromClin: true, replace: true, warnOnDup: false, phenotypes: self.clinSetData.phenotypes.join(",")},
+            function() {
+
+              if (self.clinSetData.variants.length > 0) {
+                self.cohortModel.importFlaggedVariants('json', self.clinSetData.variants,
+                function() {
+
+                  self.cohortModel.mergeImportedVariants(importedVariants);
+                  self.clinSetData.isImported = true;
+
+                  self.refreshFlaggedCounts();
+                  self.onFlaggedVariantsImported();
+                  self.$refs.navRef.onShowFlaggedVariants();
+
+                  resolve();
+
+
+                },
+                function() {
+                  // When analyzeSubset and variants have been cached
+                  self.refreshFlaggedCounts();
+                  self.$refs.navRef.onShowFlaggedVariants();
+                  self.cacheHelper.analyzeAll(self.cohortModel, false);
+                })
+              } else {
 
                 self.cohortModel.mergeImportedVariants(importedVariants);
+                self.clinSetData.isImported = true;
 
-                self.clinSetData.isInitialized = true;
-                self.onFlaggedVariantsImported();
-                self.$refs.navRef.onShowFlaggedVariants();
-              },
-              function() {
-                // When analyzeSubset and variants have been cached
-                self.$refs.navRef.onShowFlaggedVariants();
                 self.cacheHelper.analyzeAll(self.cohortModel, false);
-              })
-            } else {
 
-              self.cohortModel.mergeImportedVariants(importedVariants);
-              self.clinSetData.isInitialized = true;
+                resolve();
 
-              self.cacheHelper.analyzeAll(self.cohortModel, false);
-            }
-
+              }
+            })
           })
 
-        })
+        } else {
+          self.refreshFlaggedCounts();
+          resolve();
+        }
 
-
-      } else {
-        self.refreshFlaggedCounts();
-        self.$refs.genesCardRef.refresh();
-      }
-
-
+      })
     },
 
     importVariantData: function(variantData, callback) {
