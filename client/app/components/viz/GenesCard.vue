@@ -419,7 +419,7 @@ export default {
       if (theGeneNames) {
         geneNamesToDisplay = theGeneNames.filter(function(geneName) {
           if (self.isFullAnalysis) {
-            return true;
+            return !self.geneModel.isCandidateGene(geneName);
           } else {
             return self.geneModel.isCandidateGene(geneName);
           }

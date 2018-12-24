@@ -1776,6 +1776,8 @@ class CohortModel {
       })
     } else {
       if (existingVariant.filtersPassed == "notCategorized" || existingVariant.isProxy) {
+        variant.notes = existingVariant.notes;
+        variant.interpretation = existingVariant.interpretation;
         self._removeFlaggedVariantImpl(existingVariant);
         self.flaggedVariants.push(variant);
       }
@@ -2267,14 +2269,16 @@ class CohortModel {
 
   getFlaggedVariantCount(isFullAnalysis) {
     let self = this;
-    if (isFullAnalysis) {
-      return self.flaggedVariants.length;
-    } else {
-      let theFlaggedVariants = self.flaggedVariants.filter(function(variant) {
+    let theFlaggedVariants = self.flaggedVariants.filter(function(variant) {
+      if (isFullAnalysis) {
+        return !self.geneModel.isCandidateGene(variant.geneName);
+
+      } else {
         return self.geneModel.isCandidateGene(variant.geneName);
-      })
-      return theFlaggedVariants.length;
-    }
+
+      }
+    })
+    return theFlaggedVariants.length;
   }
 
   getFlaggedVariantsByFilter(geneName) {
@@ -2356,7 +2360,7 @@ class CohortModel {
             (filterName && variant.filtersPassed && variant.filtersPassed.indexOf(filterName) >= 0)) {
           let flaggedGene = geneMap[variant.gene.gene_name];
 
-          let keepGene = isFullAnalysis ? true : self.geneModel.isCandidateGene(variant.gene.gene_name);
+          let keepGene = isFullAnalysis ? !self.geneModel.isCandidateGene(variant.gene.gene_name) : self.geneModel.isCandidateGene(variant.gene.gene_name);
 
           if (keepGene) {
             if (flaggedGene == null) {

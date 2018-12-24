@@ -45,7 +45,7 @@ class GeneModel {
     this.geneNames = [];
     this.geneDangerSummaries = {};
     this.sortedGeneNames = [];
-    this.candidateGenes = {};
+    this.candidateGenes = null;
 
 
     this.geneNCBISummaries = {};
@@ -71,15 +71,6 @@ class GeneModel {
 
   }
 
-  getGeneCount(isFullAnalysis) {
-    let self = this;
-    if (isFullAnalysis) {
-      return self.geneNames.length;
-    } else {
-      return Object.keys(self.candidateGenes).length;
-    }
-  }
-
   setCandidateGenes(genes) {
     let self = this;
     self.candidateGenes = {};
@@ -90,7 +81,11 @@ class GeneModel {
 
   isCandidateGene(theGeneName) {
     let self = this;
-    return self.candidateGenes[theGeneName];
+    if (self.candidateGenes != null) {
+      return self.candidateGenes[theGeneName];
+    } else {
+      return true;
+    }
   }
 
   promiseAddGeneName(theGeneName) {

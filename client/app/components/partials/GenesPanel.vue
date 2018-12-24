@@ -14,7 +14,6 @@
       color: $text-color
 
     .progress-bar-label
-      float: left
       margin-right: 4px
       width: 55px
       font-size: 12px
@@ -133,7 +132,7 @@ export default {
       if (theGeneNames) {
         geneNamesToDisplay = theGeneNames.filter(function(geneName) {
           if (self.isFullAnalysis) {
-            return true;
+            return !self.geneModel.isCandidateGene(geneName);;
           } else {
             return self.geneModel.isCandidateGene(geneName);
           }
@@ -173,7 +172,7 @@ export default {
       } else {
         self.loadedPercentage = 0;
       }
-      self.$emit("count-changed", self.geneModel.getGeneCount(self.isFullAnalysis));
+      self.$emit("count-changed", self.totalCount);
 
 
     },
