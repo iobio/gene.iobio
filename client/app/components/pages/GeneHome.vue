@@ -535,7 +535,7 @@ export default {
       projectId: null,
       launchedWithUrlParms: false,
       clinSetData: null,
-      clinPersistCache: {'gene': true, 'genefull': true},
+      clinPersistCache: true,
 
       hubToIobioSources: {
         "https://mosaic.chpc.utah.edu":          {iobio: "hub-chpc.iobio.io", batchSize: 3},
@@ -1703,9 +1703,6 @@ export default {
             callback();
           }
         })
-        if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
-          self.onShowSnackbar({message: "Adding genes associated with '" + self.phenotypeTerm + "'", timeout: 6000})
-        }
       }
 
       if (self.phenotypeTerm && !options.isFromClin && existingGeneCount > 0 && existingPhenotypeTerm != self.phenotypeTerm) {
@@ -2429,46 +2426,7 @@ export default {
 
       if (clinObject.type == 'apply-genes' && !self.isFullAnalysis) {
 
-        let genesToProcess = null;
-
-        let candidateGenesOld = $.extend({}, self.geneModel.candidateGenes);
-
-        self.geneModel.setCandidateGenes(clinObject.genes);
-
-        if (clinObject.genes && Array.isArray(clinObject.genes)) {
-
-          let deprecatedGenes = {};
-          for (var oldGene in candidateGenesOld) {
-            if (!self.geneModel.candidateGenes[oldGene]) {
-              deprecatedGenes[oldGene] = true;
-            }
-          }
-
-          self.geneModel.sortedGeneNames.forEach(function(gene) {
-            if (!deprecatedGenes[gene]) {
-              genesToProcess.push(gene);
-            }
-          })
-          clinObject.genes.forEach(function(gene) {
-            genesToProcess.push(gene);
-          })
-        }
-
-        if (genesToProcess) {
-          let genesString = genesToProcess ? genesToProcess.join(" ") : "";
-          let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
-
-          if (genesString.length > 0 ) {
-            let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
-            this.onApplyGenes(genesString, options, function() {
-              if (self.cohortModel && self.cohortModel.isLoaded) {
-                self.showLeftPanelForGenes();
-                self.cacheHelper.analyzeAll(self.cohortModel, false);
-              }
-            });
-          }
-
-        }
+        self.applyGenesClin(clinObject);
 
 
       } else if (clinObject.type == 'set-data') {
@@ -2631,14 +2589,11 @@ export default {
       if (this.launchedFromClin) {
 
         // If cache should not persist, bypass this functionality
-        if (self.isFullAnalysis && !self.clinPersistCache.genefull) {
-          return;
-        } else if (!self.isFullAnalysis && !self.clinPersistCache.gene) {
+        if (!self.clinPersistCache) {
           return;
         }
 
-        console.log(" **** getting cache from clin **** "
-          + self.isFullAnalysis ? " for full analysis " : " for candidate genes" );
+        console.log(" **** getting cache from clin **** ");
 
         self.cacheHelper.promiseGetClinCacheItems(geneName, ['vcfData', 'dangerSummary', 'geneCoverage'])
         .then(function(cacheItems) {
@@ -2663,20 +2618,17 @@ export default {
       let self = this;
 
       // If cache should not persist, bypass this functionality
-      if (self.isFullAnalysis && !self.clinPersistCache.genefull) {
-        return Promise.resolve();
-      } else if (!self.isFullAnalysis && !self.clinPersistCache.gene) {
+      if (!self.clinPersistCache) {
+        self.clinSetData.isCacheSet = true;
         return Promise.resolve();
       }
 
       return new Promise(function(resolve, reject) {
-        self.onShowSnackbar({message: 'Setting analysis cache...', timeout: 5000})
         let cachePromises = [];
         let summarizePromises = [];
         let genesToAdd = [];
 
         if (clinObject.cache && clinObject.cache.length > 0) {
-          console.log(" **** number of cache items from clin **** " + clinObject.cache.length);
           clinObject.cache.forEach(function(cacheItem) {
             let newCacheKey = cacheHelper.convertClinCacheKey(cacheItem.cache_key);
             let p = self.cacheHelper.promiseCacheData(newCacheKey, cacheItem.cache, {compress: false})
@@ -2690,6 +2642,7 @@ export default {
                   if (data && data.geneName) {
                     self.geneModel.setDangerSummary(data.geneName.toUpperCase(), data);
                     genesToAdd.push(data.geneName);
+
                   }
                 })
                 summarizePromises.push(dp);
@@ -2705,16 +2658,19 @@ export default {
         .then(function() {
           return Promise.all(summarizePromises)
         })
+        //.then(function() {
+        //  self.onShowSnackbar({message: 'Getting gene info...', timeout: 5000})
+        //  return self.geneModel.promiseCopyPasteGenes(genesToAdd.join(","), {replace: true, warnOnDup: false});
+        //})
         .then(function() {
-          self.onShowSnackbar({message: 'Getting gene info...', timeout: 5000})
-          return self.geneModel.promiseCopyPasteGenes(genesToAdd.join(","), {replace: true, warnOnDup: false});
-        })
-        .then(function() {
+          self.clinSetData.isCacheSet = true;
           resolve();
         })
         .catch(function(error) {
+          self.clinSetData.isCacheSet = true;
           let msg = "Problem in GeneHome.promiseSetCacheFromClin(): " + error;
-          reject();
+          console.log(msg);
+          reject(msg);
         })
 
       })
@@ -2762,6 +2718,12 @@ export default {
 
         })
         .then(function() {
+          return self.promiseShowClin();
+        })
+        .then(function() {
+          if (self.$refs.navRef) {
+            self.$refs.navRef.onShowFlaggedVariants();
+          }
           resolve();
         })
         .catch(function(error) {
@@ -2775,15 +2737,74 @@ export default {
     promiseShowClin: function() {
       let self = this;
       return new Promise(function(resolve, reject) {
-        self.promiseImportClin()
-        .then(function() {
-          resolve();
-          self.refreshFlaggedCounts();
-        })
-        .catch(function(error) {
-          reject(error);
-        })
+        if (self.clinSetData.isCacheSet || !self.persistCache) {
+          self.promiseImportClin()
+          .then(function() {
+            resolve();
+            self.refreshFlaggedCounts();
+          })
+          .catch(function(error) {
+            reject(error);
+          })
+
+        }
       })
+    },
+
+
+    applyGenesClin: function(clinObject) {
+      let self = this;
+
+      let genesToProcess = [];
+      let candidateGenesOld = $.extend({}, self.geneModel.candidateGenes);
+      self.geneModel.setCandidateGenes(clinObject.genes);
+
+      if (clinObject.genes && Array.isArray(clinObject.genes)) {
+        let deprecatedGenes = {};
+        for (var oldGene in candidateGenesOld) {
+          if (!self.geneModel.candidateGenes[oldGene]) {
+            deprecatedGenes[oldGene] = true;
+          }
+        }
+
+        self.geneModel.sortedGeneNames.forEach(function(gene) {
+          if (!deprecatedGenes[gene]) {
+            genesToProcess.push(gene);
+          }
+        })
+        clinObject.genes.forEach(function(gene) {
+          genesToProcess.push(gene);
+        })
+      }
+
+      if (genesToProcess) {
+        let genesString = genesToProcess ? genesToProcess.join(" ") : "";
+        let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
+
+        if (genesString.length > 0 ) {
+          let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
+          this.onApplyGenes(genesString, options, function() {
+            if (self.cohortModel && self.cohortModel.isLoaded) {
+              self.showLeftPanelForGenes();
+
+
+              self.cacheHelper.promiseGetGenesToAnalyze()
+              .then(function(genesToAnalyze) {
+                if (genesToAnalyze.length > 0) {
+                  self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
+                } else {
+                  self.$nextTick(function() {
+                    self.$refs.navRef.onShowFlaggedVariants();
+                  })
+                }
+              })
+            }
+          });
+        }
+
+      }
+
+
     },
 
 
@@ -2850,8 +2871,17 @@ export default {
           })
 
         } else {
-          self.cacheHelper.analyzeAll(self.cohortModel, false);
-          resolve();
+          self.cacheHelper.promiseGetGenesToAnalyze()
+          .then(function(genesToAnalyze) {
+            if (genesToAnalyze.length > 0) {
+              self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
+            } else {
+              self.$nextTick(function() {
+                self.$refs.navRef.onShowFlaggedVariants();
+              })
+            }
+            resolve();
+          })
         }
 
       })

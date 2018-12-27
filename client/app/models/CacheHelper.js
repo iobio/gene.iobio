@@ -34,7 +34,58 @@ CacheHelper.FB_DATA             = "fbData";
 CacheHelper.DANGER_SUMMARY_DATA = "dangerSummary";
 CacheHelper.GENE_COVERAGE_DATA  = "geneCoverage";
 
+CacheHelper.prototype.promiseGetGenesToAnalyze = function(analyzeCalledVariants=false, analyzeGeneCoverage=false) {
+  let self = this;
 
+  return new Promise(function(resolve, reject) {
+    let genesToAnalyze = [];
+    let promises = [];
+    self.cohort.geneModel.geneNames.forEach(function(geneName) {
+      var p = self._promiseIsCached(geneName, analyzeCalledVariants, analyzeGeneCoverage)
+      .then(function(data) {
+        if (!data.isCached) {
+          genesToAnalyze.push(data.geneObject.gene_name);
+        }
+      })
+      promises.push(p);
+    });
+
+    Promise.all(promises)
+    .then(function() {
+      resolve(genesToAnalyze)
+    })
+    .catch(function(error) {
+      reject("Error in CacheHelper.promiseGetGenesToAnalyze: " + error);
+    })
+
+  })
+}
+
+CacheHelper.prototype._promiseIsCached = function(geneName, analyzeCalledVariants=false, analyzeGeneCoverage=false) {
+  let self = this;
+  return new Promise(function(resolve, reject) {
+    self.cohort.geneModel.promiseGetCachedGeneObject(geneName)
+    .then( function(data) {
+      // Get the gene model
+      let geneObject = data;
+      let transcript = null;
+      if (self.geneToAltTranscript && self.geneToAltTranscript[geneObject.gene_name]) {
+        transcript = self.geneToAltTranscript[geneObject.gene_name];
+      } else {
+        transcript = self.cohort.geneModel.getCanonicalTranscript(geneObject);
+      }
+
+      return self.promiseIsCachedForProband(geneObject, transcript, analyzeCalledVariants, analyzeGeneCoverage)
+
+    })
+    .then(function(data) {
+        resolve(data);
+    })
+    .catch(function(error) {
+      reject("Error occurred in CacheHelper._promiseIsCached: " + error);
+    })
+  })
+}
 
 CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = false) {
   var me = this;
@@ -60,7 +111,9 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
 CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, geneToAltTranscript, analyzeCalledVariants=false, analyzeGeneCoverage=true) {
   var me = this;
   me.cohort = cohort;
-  me.geneToAltTranscript = geneToAltTranscript;
+  if (geneToAltTranscript) {
+    me.geneToAltTranscript = geneToAltTranscript;
+  }
   me.analyzeAllInProgress = true;
 
   return new Promise(function(resolve, reject) {

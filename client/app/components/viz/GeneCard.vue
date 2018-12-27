@@ -456,8 +456,10 @@ export default {
     geneRegionEnd: function() {
 
     },
-    selectedGene: function() {
-      this.initSummaryInfo();
+    selectedGene: function(newGene, oldGene) {
+      if (newGene.gene_name != oldGene.gene_name) {
+        this.initSummaryInfo();
+      }
     }
   },
 
