@@ -10,8 +10,10 @@ $landing-page-font:      Poppins
 
 
 
-$accent-color:       #787878
-$accent-color-light: #787878
+//$accent-color:       #787878
+//$accent-color-light: #787878
+$accent-color:            #33aa98
+$accent-color-light:      #33aa98
 $powered-by-accent-color: #84d8fc
 
 $accent-color-bright: #14c39a
@@ -43,7 +45,7 @@ $light-gray-color:   #f0f1f3
 
 
     &.main
-      background: linear-gradient(128deg, #74aadb 0%, #7eb1dd 8%, #617da9 20%, #4a679b 36%)
+      background: linear-gradient(128deg, #74aadb 0%, #7eb1dd 8%, #6d92bb 20%, #4e658d 36%);
       //background: white
       display: flex
       flex-direction: row
@@ -57,7 +59,8 @@ $light-gray-color:   #f0f1f3
         padding-top: 70px
         margin-left: 30px
         margin-right: 30px
-        width: 400px
+        width: 40%
+
 
     &.videos-and-blogs
       //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
@@ -68,6 +71,7 @@ $light-gray-color:   #f0f1f3
       padding-right: 30px
       width: 100%
     &.how-it-works
+      width: 60%
       flex-grow: 2
       //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
       //background: linear-gradient(304deg, rgba(43,70,101,1) 14%, rgba(61,99,142,1) 68%, rgba(94,141,184,1) 85%)
@@ -119,9 +123,9 @@ $light-gray-color:   #f0f1f3
       margin-left: 7px
       margin-right: 7px
       height: 40px
-      width: 230px
+      width: 270px
       margin-bottom: 10px
-      background-color: white
+      background-color: $accent-color
       color: $accent-color
       font-family: $landing-page-font
       margin-bottom: 30px
@@ -129,12 +133,11 @@ $light-gray-color:   #f0f1f3
       i.material-icons
         font-size: 26px
         width: 26px
-        color: $accent-color
+        color: white
         margin-right: 7px
 
       .btn__content
-        color: $accent-color
-        font-weight: bold
+        color: white
 
     button.welcome-button-outline
       font-size: 16px !important
@@ -223,7 +226,7 @@ $light-gray-color:   #f0f1f3
       display: inline
       margin-right: 8px
       color: $accent-color
-      font-size: 25px
+      font-size: 28px
 
   div.how-it-works-item, div.features-item
     display: flex
@@ -237,7 +240,7 @@ $light-gray-color:   #f0f1f3
         background-color: $accent-color-light !important
 
       span.headline
-        font-size: 18px !important
+        font-size: 15px !important
 
     .how-it-works-image, .features-image
       margin-right: 0px
@@ -415,12 +418,20 @@ $light-gray-color:   #f0f1f3
 }
 }
 
+@media only screen and (max-width: 768px) {
+.welcome-panel.how-it-works  {
+    padding-left: 20px;
+  }
+}
+
 @media only screen and (max-width: 600px) {
 
 
 #welcome-area .welcome-panel.main {
   flex-direction: column !important;
 }
+
+
 #welcome-area .welcome-panel.how-it-works {
   width: 100%;
 }
@@ -429,6 +440,7 @@ $light-gray-color:   #f0f1f3
 }
 #welcome-area .welcome-panel.main .main-headline {
   padding-top: 15px;
+  width: fit-content;
 }
 
 .welcome-panel.main img,
@@ -505,7 +517,7 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="32px" color="teal">
+              <v-avatar size="28px" color="teal">
                 <span class="white--text headline">2</span>
               </v-avatar>
               <span class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
@@ -517,7 +529,7 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="32px" color="teal">
+              <v-avatar size="28px" color="teal">
                 <span class="white--text headline">3</span>
               </v-avatar>
               <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  When alignments are provided, see coverage levels across the gene.</span>
@@ -529,7 +541,7 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="32px" color="teal">
+              <v-avatar size="28px" color="teal">
                 <span class="white--text headline">4</span>
               </v-avatar>
               <span class="how-it-works-title">As genes are being analyzed, filters are pinpointing out the most interesting variants for closer examination. Customize the filters and the filtered variants are instantly reassessed.</span>
@@ -541,7 +553,7 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="32px" color="teal">
+              <v-avatar size="28px" color="teal">
                 <span class="white--text headline">5</span>
               </v-avatar>
               <span class="how-it-works-title">When all genes have been analyzed, review each filtered variant to assess pathogenicity and association with known phenotypes.</span>
@@ -553,7 +565,7 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="32px" color="teal">
+              <v-avatar size="28px" color="teal">
                 <span class="white--text headline">6</span>
               </v-avatar>
               <span class="how-it-works-title">Click on a variant to view the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
