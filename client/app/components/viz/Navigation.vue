@@ -530,7 +530,7 @@ nav.toolbar
         >
           <v-tab v-if="!isBasicMode" >
             <v-badge>
-              <span class="badge-count" slot="badge">{{ geneModel.geneNames.length }}</span>
+              <span class="badge-count" slot="badge">{{ geneCount }}</span>
               <span class="badge-label">Genes</span>
             </v-badge>
 
@@ -538,7 +538,7 @@ nav.toolbar
           <v-tab>
 
             <v-badge>
-              <span class="badge-count" slot="badge">{{ cohortModel.flaggedVariants.length }}</span>
+              <span class="badge-count" slot="badge">{{ flaggedVariantCount }}</span>
               <span class="badge-label">Variants</span>
             </v-badge>
 
@@ -563,6 +563,7 @@ nav.toolbar
              :genesInProgress="cohortModel.genesInProgress"
              @gene-selected="onGeneSelected"
              @remove-gene="onRemoveGene"
+             @count-changed="onGeneCountChanged"
             >
             </genes-panel>
 
@@ -587,6 +588,8 @@ nav.toolbar
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
+             @count-changed="onFlaggedVariantCountChanged"
+
             >
             </flagged-variants-card>
 
@@ -800,7 +803,8 @@ export default {
     isFullAnalysis: null,
     isClinFrameVisible: null,
     bringAttention: null,
-    phenotypeLookupUrl: null
+    phenotypeLookupUrl: null,
+
   },
   data () {
     let self = this;
@@ -819,7 +823,10 @@ export default {
       showCitations: false,
       typeaheadLimit: parseInt(100),
 
-      activeTab: 0
+      activeTab: 0,
+
+      geneCount: 0,
+      flaggedVariantCount: 0
 
 
     }
@@ -845,8 +852,10 @@ export default {
     onClearAllGenes: function() {
       this.$emit("clear-all-genes");
     },
-    onApplyGenes: function(genesToApply) {
-      this.$emit("apply-genes", genesToApply, {replace: true, warnOnDup: true, isFromClin: false});
+    onApplyGenes: function(genesToApply, options) {
+      options.replace = true;
+      options.warnOnDup = false;
+      this.$emit("apply-genes", genesToApply, options);
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
@@ -946,7 +955,13 @@ export default {
     },
     onSupportIOBIO: function() {
       window.open("http://iobio.io/support.html", "_iobio");
-    }
+    },
+    onGeneCountChanged: function(count) {
+      this.geneCount = count;
+    },
+    onFlaggedVariantCountChanged: function(count) {
+      this.flaggedVariantCount = count;
+    },
   },
   created: function() {
   },

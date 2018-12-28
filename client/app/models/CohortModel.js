@@ -1767,20 +1767,20 @@ class CohortModel {
 
   addFlaggedVariant(theGene, theTranscript, variant) {
     var self = this;
-    var existingVariants = this.flaggedVariants.filter(function(v) {
-      var matches = (
-        self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(variant.chrom)
-        && v.start == variant.start
-        && v.ref == variant.ref
-        && v.alt == variant.alt);
-      return matches;
-    })
-    if (existingVariants.length == 0) {
-      this.flaggedVariants.push(variant);
-      this.promiseLoadBamDepth(theGene, theTranscript)
+    var existingVariant = self.getFlaggedVariant(variant);
+    if (existingVariant == null) {
+      self.flaggedVariants.push(variant);
+      self.promiseLoadBamDepth(theGene, theTranscript)
       .then(function() {
         self._recacheForFlaggedVariant(theGene, theTranscript, variant);
       })
+    } else {
+      if (existingVariant.filtersPassed == "notCategorized" || existingVariant.isProxy) {
+        variant.notes = existingVariant.notes;
+        variant.interpretation = existingVariant.interpretation;
+        self._removeFlaggedVariantImpl(existingVariant);
+        self.flaggedVariants.push(variant);
+      }
     }
   }
 
@@ -1798,6 +1798,7 @@ class CohortModel {
     var index = -1;
     var i = 0;
     this.removeFilterPassed(variant, "userFlagged");
+    this._removeFlaggedVariantImpl(variant);
     this.flaggedVariants.forEach(function(v) {
       var matches = (
         self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(variant.chrom)
@@ -1815,6 +1816,28 @@ class CohortModel {
       this.flaggedVariants.splice(index, 1);
     }
     this._recacheForFlaggedVariant(theGene, theTranscript, variant);
+  }
+
+  _removeFlaggedVariantImpl(variant) {
+    let self = this;
+    var index = -1;
+    var i = 0;
+    this.flaggedVariants.forEach(function(v) {
+      var matches = (
+        self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(variant.chrom)
+        && v.start == variant.start
+        && v.ref == variant.ref
+        && v.alt == variant.alt);
+      if (matches) {
+        index = i;
+        v.isUserFlagged = false;
+        self.removeFilterPassed(v, "userFlagged");
+      }
+      i++;
+    })
+    if (index >= 0) {
+      this.flaggedVariants.splice(index, 1);
+    }
   }
 
   _recacheForFlaggedVariant(theGene, theTranscript, variant) {
@@ -1941,6 +1964,16 @@ class CohortModel {
         callback();
       }
     }
+  }
+
+  mergeImportedVariants(importedVariants) {
+    let self = this;
+    importedVariants.forEach(function(importedVariant) {
+      var matchingVariant = self.getFlaggedVariant(importedVariant);
+      if (!matchingVariant) {
+        self.flaggedVariants.push(importedVariant);
+      }
+    })
   }
 
 
@@ -2177,13 +2210,13 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName) {
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis) {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
         let flagCriteria = self.filterModel.flagCriteria[filterName];
-        var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged);
+        var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis);
 
         if (sortedGenes.length > 0) {
           filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
@@ -2232,6 +2265,20 @@ class CohortModel {
       return null;
     }
 
+  }
+
+  getFlaggedVariantCount(isFullAnalysis) {
+    let self = this;
+    let theFlaggedVariants = self.flaggedVariants.filter(function(variant) {
+      if (isFullAnalysis) {
+        return !self.geneModel.isCandidateGene(variant.geneName);
+
+      } else {
+        return self.geneModel.isCandidateGene(variant.geneName);
+
+      }
+    })
+    return theFlaggedVariants.length;
   }
 
   getFlaggedVariantsByFilter(geneName) {
@@ -2303,7 +2350,7 @@ class CohortModel {
   }
 
 
-  _organizeVariantsForFilter(filterName, userFlagged) {
+  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis) {
     let self = this;
     let geneMap        = {};
     let flaggedGenes   = [];
@@ -2312,15 +2359,22 @@ class CohortModel {
         if ((userFlagged && variant.isUserFlagged) ||
             (filterName && variant.filtersPassed && variant.filtersPassed.indexOf(filterName) >= 0)) {
           let flaggedGene = geneMap[variant.gene.gene_name];
-          if (flaggedGene == null) {
-            flaggedGene = {};
-            flaggedGene.gene = variant.gene;
-            flaggedGene.transcript = variant.transcript;
-            flaggedGene.variants = [];
-            geneMap[variant.gene.gene_name] = flaggedGene;
-            flaggedGenes.push(flaggedGene);
+
+          let keepGene = isFullAnalysis ? !self.geneModel.isCandidateGene(variant.gene.gene_name) : self.geneModel.isCandidateGene(variant.gene.gene_name);
+
+          if (keepGene) {
+            if (flaggedGene == null) {
+              flaggedGene = {};
+              flaggedGene.gene = variant.gene;
+              flaggedGene.transcript = variant.transcript;
+              flaggedGene.variants = [];
+              geneMap[variant.gene.gene_name] = flaggedGene;
+              flaggedGenes.push(flaggedGene);
+            }
+
+            flaggedGene.variants.push(variant);
+
           }
-          flaggedGene.variants.push(variant);
         }
       })
 

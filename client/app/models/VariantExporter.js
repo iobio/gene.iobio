@@ -55,7 +55,8 @@ export default class VariantExporter {
       {field: 'depthFather',      exportVcf: true},
       {field: 'bamDepthFather',   exportVcf: true},
       {field: 'dbSnpUrl',         exportVcf: false},
-      {field: 'clinvarUrl',       exportVcf: false}
+      {field: 'clinvarUrl',       exportVcf: false},
+      {field: 'analysisMode',     exportVcf: false}
 
     ];
 
@@ -570,6 +571,8 @@ export default class VariantExporter {
 
     var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
 
+    rec.isProxy           = true;
+    rec.analysisMode      = variant.analysisMode;
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
     rec.filtersPassed     = variant.filtersPassed  && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
     rec.notes             = variant.notes && variant.notes.length > 0 ? variant.notes : "";

@@ -826,7 +826,7 @@ export default {
       let self = this;
       self.geneLists = [];
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName);
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis);
       self.geneLists = filters.map(function(filterObject, idx) {
         return {
           name:  filterObject.key,
@@ -837,6 +837,7 @@ export default {
           expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' || idx == 0 ?  true : false) : true
         }
       })
+      self.$emit("count-changed", self.cohortModel.getFlaggedVariantCount(self.isFullAnalysis));
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
