@@ -1991,15 +1991,22 @@ export default {
     },
     refreshFlaggedCounts: function() {
       let self = this;
+
       if (self.$refs.genesCardRef ) {
-        self.$refs.genesCardRef.updateGeneSummaries();
+        self.$refs.genesCardRef.determineFlaggedGenes();
+        self.$refs.genesCardRef.updateGeneBadgeCounts();
       }
+
+
       if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
         self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
       }
+
+
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
       }
+
     },
     onApplyVariantNotes: function(variant) {
       let self = this;
@@ -2742,7 +2749,6 @@ export default {
         if (self.clinSetData.isCacheSet) {
           self.promiseImportClin()
           .then(function() {
-            resolve();
             self.refreshFlaggedCounts();
           })
           .catch(function(error) {
