@@ -2573,7 +2573,7 @@ export default {
 
     onSendFiltersToClin: function() {
       let self = this;
-      if (this.launchedFromClin && !this.isFullAnalysis) {
+      if (this.launchedFromClin) {
         var msgObject = {
           success: true,
           type: 'save-filters',
@@ -2712,6 +2712,8 @@ export default {
         self.cohortModel.promiseInit(self.clinSetData.modelInfos)
         .then(function() {
 
+          self.onSendFiltersToClin();
+
           self.models = self.cohortModel.sampleModels;
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
           return self.promiseSetCacheFromClin(self.clinSetData)
@@ -2737,7 +2739,7 @@ export default {
     promiseShowClin: function() {
       let self = this;
       return new Promise(function(resolve, reject) {
-        if (self.clinSetData.isCacheSet || !self.persistCache) {
+        if (self.clinSetData.isCacheSet) {
           self.promiseImportClin()
           .then(function() {
             resolve();
@@ -2754,6 +2756,10 @@ export default {
 
     applyGenesClin: function(clinObject) {
       let self = this;
+
+      if (!self.clinSetData || !self.clinSetData.isImported || !self.clinSetData.isCacheSet) {
+        return;
+      }
 
       let genesToProcess = [];
       let candidateGenesOld = $.extend({}, self.geneModel.candidateGenes);
@@ -2916,7 +2922,7 @@ export default {
 
       },
       function() {
-        self.refreshFlaggedCount();
+        self.refreshFlaggedCounts();
       })
 
     }
