@@ -205,6 +205,7 @@ main.content
          :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
          :callAllInProgress="cacheHelper.callAllInProgress"
          :showCoverageCutoffs="showCoverageCutoffs"
+         :phenotypeLookupUrl="phenotypeLookupUrl"
          @gene-selected="onGeneClicked"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
@@ -1669,6 +1670,12 @@ export default {
     },
     onApplyGenes: function(genesString, options, callback) {
       let self = this;
+
+      if (options == null) {
+        options = {isFromClin: false};
+      } else if (!options.hasOwnProperty("isFromClin")) {
+        options.isFromClin = false;
+      }
 
       if (!options.isFromClin) {
         self.clearFilter();

@@ -40,6 +40,10 @@
 
     .progress-linear
         margin: 1px 0
+#genes-card.edu
+  #genes-panel
+    padding-bottom: 0px
+
 
 </style>
 

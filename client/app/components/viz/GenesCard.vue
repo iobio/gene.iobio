@@ -314,6 +314,7 @@ div.container.small
        id="app-tour-genes-menu"
        :geneModel="geneModel"
        :isEduMode="isEduMode"
+       :phenotypeLookupUrl="phenotypeLookupUrl"
        @apply-genes="onApplyGenes">
       </genes-menu>
 
@@ -376,7 +377,8 @@ export default {
     isLeftDrawerOpen: null,
     analyzeAllInProgress: null,
     callAllInProgress: null,
-    showCoverageCutoffs: null
+    showCoverageCutoffs: null,
+    phenotypeLookupUrl: null
   },
   data () {
     return {
@@ -569,8 +571,8 @@ export default {
       self.$emit("register-flagged-variants", self.flaggedGeneNames, self.flaggedVariants, badge);
 
     },
-    onApplyGenes: function(genesToApply, phenotypeTerm) {
-      this.$emit("apply-genes", genesToApply, phenotypeTerm);
+    onApplyGenes: function(genesToApply, options) {
+      this.$emit("apply-genes", genesToApply, options);
     },
     onStopAnalysis: function() {
       this.$emit("stop-analysis");

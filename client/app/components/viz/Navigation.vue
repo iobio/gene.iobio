@@ -852,8 +852,10 @@ export default {
     onClearAllGenes: function() {
       this.$emit("clear-all-genes");
     },
-    onApplyGenes: function(genesToApply) {
-      this.$emit("apply-genes", genesToApply, {replace: true, warnOnDup: true, isFromClin: false});
+    onApplyGenes: function(genesToApply, options) {
+      options.replace = true;
+      options.warnOnDup = false;
+      this.$emit("apply-genes", genesToApply, options);
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);

@@ -58,6 +58,7 @@ textarea#copy-paste-genes
               :defaultTopGenes="isEduMode ? '5' : '30'"
               :phenotypeLabel="isEduMode ? 'Disorder' : 'Phenotype'"
               :geneModel="geneModel"
+              :phenotypeLookupUrl="phenotypeLookupUrl"
               @on-search-genes="onSearchPhenolyzerGenes">
               </phenotype-search>
           </v-card>
@@ -108,7 +109,8 @@ export default {
     geneModel: null,
     isEduMode: null,
     isBasicMode: null,
-    buttonIcon: null
+    buttonIcon: null,
+    phenotypeLookupUrl: null
   },
   data () {
     return {
@@ -126,8 +128,9 @@ export default {
   },
   methods: {
     onApplyGenes: function() {
-      this.$emit("apply-genes", this.genesToApply, this.phenotypeTermEntered);
-      this.showGenesMenu = false;
+      let self = this;
+      self.$emit("apply-genes", self.genesToApply, {isFromClin: false, phenotypes: self.phenotypeTermEntered});
+      self.showGenesMenu = false;
     },
     onACMGGenes: function() {
       this.genesToApply = this.geneModel.ACMG_GENES.join(", ");
