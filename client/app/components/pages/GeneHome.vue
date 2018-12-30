@@ -2662,8 +2662,7 @@ export default {
     applyGenesClin: function(clinObject) {
       let self = this;
 
-      if (self.clinSetData == null || self.clinSetData.importInProgress
-          || !self.clinSetData.isImported || !self.clinSetData.isCacheSet) {
+      if (self.clinSetData == null || !self.clinSetData.isImported || !self.clinSetData.isCacheSet) {
         return;
       }
 
@@ -2771,6 +2770,7 @@ export default {
 
                 self.cohortModel.mergeImportedVariants(importedVariants);
                 self.clinSetData.isImported = true;
+                self.clinSetData.importInProgress = false;
 
                 self.cacheHelper.analyzeAll(self.cohortModel, false);
 
