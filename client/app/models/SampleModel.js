@@ -1622,7 +1622,11 @@ class SampleModel {
                       return;
                     }
 
+                    // Set the gene object on each variant
                     theVcfData.gene = theGeneObject;
+                    theVcfData.features.forEach(function(variant) {
+                      variant.gene = theGeneObject;
+                    })
                     resultMap[model.relationship] = theVcfData;
 
                     if (!isBackground) {

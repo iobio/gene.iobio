@@ -198,6 +198,9 @@ export default {
     filteredGeneNames: function(newGeneNames, oldGeneNames) {
       this.updateGeneSummaries();
     },
+    isFullAnalysis: function() {
+      this.updateGeneSummaries();
+    },
     genesInProgress: function() {
       this.updateGeneSummaries();
     }

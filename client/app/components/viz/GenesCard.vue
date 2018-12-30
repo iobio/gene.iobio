@@ -566,10 +566,6 @@ export default {
         });
       }
 
-      self.$emit("add-flagged-variants", self.flaggedVariants);
-
-      self.$emit("register-flagged-variants", self.flaggedGeneNames, self.flaggedVariants, badge);
-
     },
     onApplyGenes: function(genesToApply, options) {
       this.$emit("apply-genes", genesToApply, options);
@@ -604,7 +600,9 @@ export default {
       this.updateGeneSummaries();
       this.updateGeneBadgeCounts();
     },
-    badgeCounts: function(newBadgeCounts, oldBadgeCounts) {
+    isFullAnalysis: function() {
+      this.updateGeneSummaries();
+      this.updateGeneBadgeCounts();
     },
     sortBy: function() {
       this.$emit("sort-genes", this.sortBy);

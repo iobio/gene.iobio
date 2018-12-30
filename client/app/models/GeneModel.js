@@ -69,6 +69,10 @@ class GeneModel {
 
     this.pendingNCBIRequests = {};
 
+    this.dispatch = d3.dispatch("geneDangerSummarized");
+    d3.rebind(this, this.dispatch, "on");
+
+
   }
 
   setCandidateGenes(genes) {
@@ -258,6 +262,7 @@ class GeneModel {
   setDangerSummary(geneName, dangerSummary) {
     delete this.geneDangerSummaries[geneName];
     this.geneDangerSummaries[geneName] = dangerSummary;
+    this.dispatch.geneDangerSummarized(dangerSummary);
   }
 
   getDangerSummary(geneName) {

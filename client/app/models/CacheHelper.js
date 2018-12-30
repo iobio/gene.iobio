@@ -321,7 +321,7 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, analyzeGeneCo
 
   // Invoke method to cache each of the genes in the queue
   var count = 0;
-  for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue; i++) {
+  for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue && i < me.cacheQueue.length; i++) {
     me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants, analyzeGeneCoverage)
     .then(function(data) {
       me.cacheNextGeneSuccess(data.gene, data.transcript, analyzeCalledVariants, analyzeGeneCoverage, callback);

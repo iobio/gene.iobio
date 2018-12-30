@@ -580,10 +580,11 @@ nav.toolbar
              :isBasicMode="isBasicMode"
              :forMyGene2="forMyGene2"
              :cohortModel="cohortModel"
-             :flaggedVariants="flaggedVariants"
              :activeFilterName="activeFilterName"
              :launchedFromClin="launchedFromClin"
              :isFullAnalysis="isFullAnalysis"
+             :geneNames="geneNames"
+             :genesInProgress="genesInProgress"
              @flagged-variants-imported="onFlaggedVariantsImported"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
@@ -797,13 +798,14 @@ export default {
     geneModel: null,
     cohortModel: null,
     cacheHelper: null,
-    flaggedVariants: null,
     activeFilterName: null,
     launchedFromClin: null,
     isFullAnalysis: null,
     isClinFrameVisible: null,
     bringAttention: null,
     phenotypeLookupUrl: null,
+    geneNames: null,
+    genesInProgress: null
 
   },
   data () {
@@ -893,7 +895,7 @@ export default {
         }
       })
     },
-    onShowFlaggedVariants: function() {
+    onShowVariantsTab: function() {
       let self = this;
       this.activeTab = 1;
       this.$nextTick(function() {
@@ -902,7 +904,7 @@ export default {
         }
       })
     },
-    onShowGenes: function() {
+    onShowGenesTab: function() {
       let self = this;
       this.activeTab = 0;
       this.$nextTick(function() {
