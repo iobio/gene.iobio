@@ -2802,36 +2802,48 @@ export default {
       let theImportedGenes = [];
       let theImportedVariants = [];
 
+      if (self.clinSetData.variants.length > 0) {
+        if (callback) {
+          self.clinSetData.variants.forEach(function(v) {
+            if (theImportedGenes.indexOf(v.gene) == -1) {
+              theImportedGenes.push(v.gene);
+            }
+          })
+          callback([], theImportedGenes)
+        }
+      } else {
+        self.cohortModel.importFlaggedVariants('gemini', variantData,
+        function() {
+
+          // clone the imported variants array
+          theImportedVariants = self.cohortModel.flaggedVariants.slice();
+
+          theImportedVariants.forEach(function(v) {
+            if (theImportedGenes.indexOf(v.geneName) == -1) {
+              theImportedGenes.push(v.geneName);
+            }
+          })
+
+          // sequentially send each imported variant to clin to be saved
+          self.sendNextImportedVariantToClin(theImportedVariants, function() {
+
+          });
 
 
-      self.cohortModel.importFlaggedVariants('gemini', variantData,
-      function() {
-
-        // clone the imported variants array
-        theImportedVariants = self.cohortModel.flaggedVariants.slice();
-
-        theImportedVariants.forEach(function(v) {
-          if (theImportedGenes.indexOf(v.geneName) == -1) {
-            theImportedGenes.push(v.geneName);
+          if (callback) {
+            callback(theImportedVariants, theImportedGenes);
           }
+
+        },
+        function() {
+
+
+
         })
 
-        // sequentially send each imported variant to clin to be saved
-        self.sendNextImportedVariantToClin(theImportedVariants, function() {
-
-        });
+      }
 
 
-        if (callback) {
-          callback(theImportedVariants, theImportedGenes);
-        }
-
-      },
-      function() {
-
-
-
-      })
 
     }
   }
