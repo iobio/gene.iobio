@@ -17,6 +17,7 @@
       margin-right: 4px
       width: 55px
       font-size: 12px
+      display: inline-block
 
     .loaded-progress
       height: 5px
