@@ -1616,6 +1616,7 @@ export default {
       this.selectedGene = {};
       this.geneModel.clearAllGenes();
       this.cohortModel.flaggedVariants = [];
+
     },
     onStartSearchGenes: function() {
       this.bringAttention = null;
@@ -2645,17 +2646,15 @@ export default {
 
     promiseShowClin: function() {
       let self = this;
+
       return new Promise(function(resolve, reject) {
-        if (self.clinSetData.isCacheSet) {
-          self.promiseImportClin()
-          .then(function() {
-
-          })
-          .catch(function(error) {
-            reject(error);
-          })
-
-        }
+        self.promiseImportClin()
+        .then(function() {
+          resolve();
+        })
+        .catch(function(error) {
+          reject(error);
+        })
       })
     },
 
@@ -2663,7 +2662,8 @@ export default {
     applyGenesClin: function(clinObject) {
       let self = this;
 
-      if (!self.clinSetData || !self.clinSetData.isImported || !self.clinSetData.isCacheSet) {
+      if (self.clinSetData == null || self.clinSetData.importInProgress
+          || !self.clinSetData.isImported || !self.clinSetData.isCacheSet) {
         return;
       }
 
@@ -2727,13 +2727,16 @@ export default {
 
       return new Promise(function(resolve, reject) {
 
-        if (!self.clinSetData.isImported) {
+        if (!self.clinSetData.importInProgress && !self.clinSetData.isImported) {
+
+          self.clinSetData.importInProgress = true;
+          self.clinSetData.isImported = false;
+
           self.showLeftPanelForGenes();
 
 
           self.importVariantData(self.clinSetData.variantData,
           function(importedVariants, importedGenes) {
-            self.cohortModel.flaggedVariants = [];
 
             let theGenes = self.clinSetData.genes.slice();
             importedGenes.forEach(function(geneName) {
@@ -2752,6 +2755,7 @@ export default {
 
 
 
+
                   self.clinSetData.isImported = true;
 
                   resolve();
@@ -2759,6 +2763,7 @@ export default {
 
                 },
                 function() {
+                  self.clinSetData.importInProgress = false;
                   // When analyzeSubset and variants have been cached
                   self.cacheHelper.analyzeAll(self.cohortModel, false);
                 })
