@@ -11,6 +11,9 @@
 main.content
   margin-top: 52px
 
+main.content.clin
+  margin-top: 50px
+
 .app-card
   margin-bottom: 10px
 
@@ -145,7 +148,7 @@ main.content
     </navigation>
 
 
-    <v-content>
+    <v-content  :class="launchedFromClin ? 'clin' : '' ">
       <v-container fluid>
 
 

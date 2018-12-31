@@ -8,6 +8,8 @@ aside.navigation-drawer
   padding-bottom: 0px
 
 
+  &.clin
+    margin-top: 50px !important
 
 
   #side-panel-container
@@ -253,6 +255,8 @@ nav.toolbar
 
   &.clin
     background-color: $nav-color-clin !important
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.03), 0px 1px 3px 0px rgba(0, 0, 0, 0.01) !important
+    -webkit-box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.03), 0px 1px 3px 0px rgba(0, 0, 0, 0.01) !important
 
     .toolbar__title
       color: $nav-title-color-clin
@@ -507,7 +511,7 @@ nav.toolbar
         </v-list>
       </v-menu>
     </v-toolbar>
-    <v-navigation-drawer
+    <v-navigation-drawer  :class="launchedFromClin ? 'clin' : '' "
       mobile-break-point="800"
       clipped
       :permanent="launchedFromClin ? true : false"
