@@ -2815,34 +2815,39 @@ export default {
           callback([], theImportedGenes)
         }
       } else {
-        self.cohortModel.importFlaggedVariants('gemini', variantData,
-        function() {
+        if (variantData) {
+          self.cohortModel.importFlaggedVariants('gemini', variantData,
+          function() {
 
-          // clone the imported variants array
-          theImportedVariants = self.cohortModel.flaggedVariants.slice();
+            // clone the imported variants array
+            theImportedVariants = self.cohortModel.flaggedVariants.slice();
 
-          theImportedVariants.forEach(function(v) {
-            if (theImportedGenes.indexOf(v.geneName) == -1) {
-              theImportedGenes.push(v.geneName);
+            theImportedVariants.forEach(function(v) {
+              if (theImportedGenes.indexOf(v.geneName) == -1) {
+                theImportedGenes.push(v.geneName);
+              }
+            })
+
+            // sequentially send each imported variant to clin to be saved
+            self.sendNextImportedVariantToClin(theImportedVariants, function() {
+
+            });
+
+
+            if (callback) {
+              callback(theImportedVariants, theImportedGenes);
             }
+
+          },
+          function() {
+
+
+
           })
+        } else {
+          callback(theImportedGenes, theImportedVariants);
+        }
 
-          // sequentially send each imported variant to clin to be saved
-          self.sendNextImportedVariantToClin(theImportedVariants, function() {
-
-          });
-
-
-          if (callback) {
-            callback(theImportedVariants, theImportedGenes);
-          }
-
-        },
-        function() {
-
-
-
-        })
 
       }
 
