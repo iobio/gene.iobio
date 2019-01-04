@@ -8,6 +8,8 @@ aside.navigation-drawer
   padding-bottom: 0px
 
 
+  &.clin
+    margin-top: 50px !important
 
 
   #side-panel-container
@@ -253,6 +255,8 @@ nav.toolbar
 
   &.clin
     background-color: $nav-color-clin !important
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.03), 0px 1px 3px 0px rgba(0, 0, 0, 0.01) !important
+    -webkit-box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.03), 0px 1px 3px 0px rgba(0, 0, 0, 0.01) !important
 
     .toolbar__title
       color: $nav-title-color-clin
@@ -507,7 +511,7 @@ nav.toolbar
         </v-list>
       </v-menu>
     </v-toolbar>
-    <v-navigation-drawer
+    <v-navigation-drawer  :class="launchedFromClin ? 'clin' : '' "
       mobile-break-point="800"
       clipped
       :permanent="launchedFromClin ? true : false"
@@ -530,7 +534,7 @@ nav.toolbar
         >
           <v-tab v-if="!isBasicMode" >
             <v-badge>
-              <span class="badge-count" slot="badge">{{ geneModel.geneNames.length }}</span>
+              <span class="badge-count" slot="badge">{{ geneCount }}</span>
               <span class="badge-label">Genes</span>
             </v-badge>
 
@@ -538,7 +542,7 @@ nav.toolbar
           <v-tab>
 
             <v-badge>
-              <span class="badge-count" slot="badge">{{ cohortModel.flaggedVariants.length }}</span>
+              <span class="badge-count" slot="badge">{{ flaggedVariantCount }}</span>
               <span class="badge-label">Variants</span>
             </v-badge>
 
@@ -563,6 +567,7 @@ nav.toolbar
              :genesInProgress="cohortModel.genesInProgress"
              @gene-selected="onGeneSelected"
              @remove-gene="onRemoveGene"
+             @count-changed="onGeneCountChanged"
             >
             </genes-panel>
 
@@ -579,14 +584,17 @@ nav.toolbar
              :isBasicMode="isBasicMode"
              :forMyGene2="forMyGene2"
              :cohortModel="cohortModel"
-             :flaggedVariants="flaggedVariants"
              :activeFilterName="activeFilterName"
              :launchedFromClin="launchedFromClin"
              :isFullAnalysis="isFullAnalysis"
+             :geneNames="geneNames"
+             :genesInProgress="genesInProgress"
              @flagged-variants-imported="onFlaggedVariantsImported"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
+             @count-changed="onFlaggedVariantCountChanged"
+
             >
             </flagged-variants-card>
 
@@ -794,13 +802,15 @@ export default {
     geneModel: null,
     cohortModel: null,
     cacheHelper: null,
-    flaggedVariants: null,
     activeFilterName: null,
     launchedFromClin: null,
     isFullAnalysis: null,
     isClinFrameVisible: null,
     bringAttention: null,
-    phenotypeLookupUrl: null
+    phenotypeLookupUrl: null,
+    geneNames: null,
+    genesInProgress: null
+
   },
   data () {
     let self = this;
@@ -819,7 +829,10 @@ export default {
       showCitations: false,
       typeaheadLimit: parseInt(100),
 
-      activeTab: 0
+      activeTab: 0,
+
+      geneCount: 0,
+      flaggedVariantCount: 0
 
 
     }
@@ -845,8 +858,10 @@ export default {
     onClearAllGenes: function() {
       this.$emit("clear-all-genes");
     },
-    onApplyGenes: function(genesToApply) {
-      this.$emit("apply-genes", genesToApply, {replace: true, warnOnDup: true, isFromClin: false});
+    onApplyGenes: function(genesToApply, options) {
+      options.replace = true;
+      options.warnOnDup = false;
+      this.$emit("apply-genes", genesToApply, options);
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
@@ -884,7 +899,7 @@ export default {
         }
       })
     },
-    onShowFlaggedVariants: function() {
+    onShowVariantsTab: function() {
       let self = this;
       this.activeTab = 1;
       this.$nextTick(function() {
@@ -893,7 +908,7 @@ export default {
         }
       })
     },
-    onShowGenes: function() {
+    onShowGenesTab: function() {
       let self = this;
       this.activeTab = 0;
       this.$nextTick(function() {
@@ -946,7 +961,13 @@ export default {
     },
     onSupportIOBIO: function() {
       window.open("http://iobio.io/support.html", "_iobio");
-    }
+    },
+    onGeneCountChanged: function(count) {
+      this.geneCount = count;
+    },
+    onFlaggedVariantCountChanged: function(count) {
+      this.flaggedVariantCount = count;
+    },
   },
   created: function() {
   },

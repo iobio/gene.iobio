@@ -45,6 +45,7 @@ class GeneModel {
     this.geneNames = [];
     this.geneDangerSummaries = {};
     this.sortedGeneNames = [];
+    this.candidateGenes = null;
 
 
     this.geneNCBISummaries = {};
@@ -66,6 +67,29 @@ class GeneModel {
     this.NUMBER_PHENOLYZER_GENES = 300;
     this.phenolyzerGenes = [];
 
+    this.pendingNCBIRequests = {};
+
+    this.dispatch = d3.dispatch("geneDangerSummarized");
+    d3.rebind(this, this.dispatch, "on");
+
+
+  }
+
+  setCandidateGenes(genes) {
+    let self = this;
+    self.candidateGenes = {};
+    genes.forEach(function(gene) {
+      self.candidateGenes[gene] = true;
+    })
+  }
+
+  isCandidateGene(theGeneName) {
+    let self = this;
+    if (self.candidateGenes != null) {
+      return self.candidateGenes[theGeneName];
+    } else {
+      return true;
+    }
   }
 
   promiseAddGeneName(theGeneName) {
@@ -238,6 +262,7 @@ class GeneModel {
   setDangerSummary(geneName, dangerSummary) {
     delete this.geneDangerSummaries[geneName];
     this.geneDangerSummaries[geneName] = dangerSummary;
+    this.dispatch.geneDangerSummarized(dangerSummary);
   }
 
   getDangerSummary(geneName) {
@@ -552,6 +577,17 @@ class GeneModel {
 
   promiseGetNCBIGeneSummaries(geneNames) {
     let me = this;
+    let waitSeconds = 0;
+    if (Object.keys(me.geneNCBISummaries).length > 0) {
+      waitSeconds = 5000;
+    }
+    setTimeout(function() {
+      return me.promiseGetNCBIGeneSummariesImpl(geneNames);
+    }, waitSeconds);
+  }
+
+  promiseGetNCBIGeneSummariesImpl(geneNames) {
+    let me = this;
     return new Promise( function(resolve, reject) {
 
       let unknownGeneInfo = {description: '?', summary: '?'};
@@ -575,6 +611,7 @@ class GeneModel {
           }
         })
         var searchUrl = me.NCBI_GENE_SEARCH_URL + "&term=" + "(9606[Taxonomy ID] AND (" + searchGeneExpr + "))";
+        me.pendingNCBIRequests[theGeneNames] = true;
 
         $.ajax( searchUrl )
          .done(function(data) {
@@ -592,6 +629,7 @@ class GeneModel {
                       console.log(message);
                     });
                   }
+                  delete me.pendingNCBIRequests[theGeneNames];
                   reject();
 
                 } else {
@@ -601,23 +639,26 @@ class GeneModel {
                     me.geneNCBISummaries[geneInfo.name] = geneInfo;
 
                   })
+                  delete me.pendingNCBIRequests[theGeneNames];
                   resolve();
                 }
             })
            .fail(function() {
+              delete me.pendingNCBIRequests[theGeneNames];
               console.log("Error occurred when making http request to NCBI eutils esummary for genes " + geneNames.join(","));
               reject();
             })
 
           })
           .fail(function() {
+            delete me.pendingNCBIRequests[theGeneNames];
             console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneNames.join(","));
             reject();
           })
 
-
       }
-  })
+
+    })
 
 
   }
@@ -630,7 +671,7 @@ class GeneModel {
       var geneInfo = me.geneNCBISummaries[geneName];
       let unknownGeneInfo = {description: '?', summary: '?'};
 
-      if (geneInfo != null) {
+      if (geneInfo != null && geneInfo.summary != "?") {
         resolve(geneInfo);
       } else {
         // Search NCBI based on the gene name to obtain the gene ID

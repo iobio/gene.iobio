@@ -9,7 +9,10 @@
 
 
 main.content
-  margin-top: 55px
+  margin-top: 52px
+
+main.content.clin
+  margin-top: 50px
 
 .app-card
   margin-bottom: 10px
@@ -115,7 +118,6 @@ main.content
       :cohortModel="cohortModel"
       :cacheHelper="cacheHelper"
       :geneModel="geneModel"
-      :flaggedVariants="flaggedVariants"
       :filteredGeneNames="filteredGeneNames"
       :activeFilterName="activeFilterName"
       :launchedFromClin="launchedFromClin"
@@ -123,6 +125,8 @@ main.content
       :isFullAnalysis="isFullAnalysis"
       :bringAttention="bringAttention"
       :phenotypeLookupUrl="phenotypeLookupUrl"
+      :geneNames="geneModel.sortedGeneNames"
+      :genesInProgress="cohortModel.genesInProgress"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -144,7 +148,7 @@ main.content
     </navigation>
 
 
-    <v-content>
+    <v-content  :class="launchedFromClin ? 'clin' : '' ">
       <v-container fluid>
 
 
@@ -205,13 +209,12 @@ main.content
          :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
          :callAllInProgress="cacheHelper.callAllInProgress"
          :showCoverageCutoffs="showCoverageCutoffs"
+         :phenotypeLookupUrl="phenotypeLookupUrl"
          @gene-selected="onGeneClicked"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
          @call-variants="callVariants"
          @sort-genes="onSortGenes"
-         @add-flagged-variants="onAddFlaggedVariants"
-         @register-flagged-variants="onRegisterFlaggedVariants"
          @filter-selected="onFilterSelected"
          @filter-settings-applied="onFilterSettingsApplied"
          @filter-settings-closed="showCoverageCutoffs = false"
@@ -309,7 +312,7 @@ main.content
                   :info="selectedVariantInfo"
                   @transcript-id-selected="onTranscriptIdSelected"
                   @flag-variant="onFlagVariant"
-                  @remove-flagged-variant="onRemoveFlaggedVariant"
+                  @remove-flagged-variant="onRemoveUserFlaggedVariant"
                   @apply-variant-notes="onApplyVariantNotes"
                   @apply-variant-interpretation="onApplyVariantInterpretation"
                   @show-pileup-for-variant="onShowPileupForVariant"
@@ -534,12 +537,14 @@ export default {
       sampleId: null,
       projectId: null,
       launchedWithUrlParms: false,
+      clinSetData: null,
+      clinPersistCache: true,
 
       hubToIobioSources: {
-        "https://mosaic.chpc.utah.edu":         "hub-chpc.iobio.io",
-        "https://mosaic-dev.genetics.utah.edu": "hub-chpc.iobio.io",
-        "http://mosaic-dev.genetics.utah.edu":  "hub-chpc.iobio.io",
-        "https://staging.frameshift.io":        "nv-blue.iobio.io"
+        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 3},
+        "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu", batchSize: 3},
+        "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 3},
+        "https://staging.frameshift.io":         {iobio: "nv-blue.iobio.io",  batchSize: 10}
       },
 
 
@@ -553,7 +558,6 @@ export default {
 
       genesInProgress: {},
 
-      flaggedVariants: [],
       activeFilterName: null,
       filteredGeneNames: null,
 
@@ -652,9 +656,6 @@ export default {
     let self = this;
     if (self.paramLaunchedFromClin) {
       self.launchedFromClin = true;
-      if (self.paramMode && self.paramMode == 'full') {
-        self.isFullAnalysis = true;
-      }
     }
     window.addEventListener("message", self.receiveClinMessage, false);
   },
@@ -684,6 +685,7 @@ export default {
         return null;
       }
     }
+
 
 
   },
@@ -769,6 +771,9 @@ export default {
           self.cacheHelper,
           self.genomeBuildHelper,
           new FreebayesSettings());
+        self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
+          self.cohortModel.captureFlaggedVariants(dangerSummary)
+        })
 
         self.cacheHelper.cohort = self.cohortModel;
 
@@ -864,9 +869,7 @@ export default {
         self.cacheHelper = new CacheHelper(self.globalApp, self.forceLocalStorage);
         window.cacheHelper = self.cacheHelper;
         self.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
-          if (!self.isFullAnalysis) {
-            self.$refs.genesCardRef.determineFlaggedGenes();
-          }
+
 
           if (self.launchedFromClin) {
             let flaggedVariantsForGene = self.cohortModel.getFlaggedVariantsForGene(theGene.gene_name);
@@ -885,12 +888,10 @@ export default {
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
 
-          if (self.launchedFromClin && !self.isFullAnalysis) {
-            self.$refs.navRef.onShowFlaggedVariants();
-            self.onSendFiltersToClin();
-          } else if (!self.isEduMode) {
-            self.$refs.navRef.onShowFlaggedVariants();
+          if (!self.isEduMode) {
+            self.$refs.navRef.onShowVariantsTab();
           }
+
         });
 
         self.globalApp.cacheHelper = self.cacheHelper;
@@ -913,11 +914,7 @@ export default {
       let self = this;
 
       this.clearFilter();
-      this.flaggedVariants = [];
       self.cohortModel.clearFlaggedVariants();
-      if (self.$refs.genesCard) {
-        self.$refs.genesCardRef.determineFlaggedGenes();
-      }
 
       return new Promise(function(resolve, reject) {
         if (self.isEduMode) {
@@ -1010,9 +1007,6 @@ export default {
               self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
               .then(function(data) {
                 self.analyzedTranscript = data.transcript;
-                if (self.$refs.genesCard) {
-                  self.$refs.genesCardRef.determineFlaggedGenes();
-                }
                 resolve();
               })
           })
@@ -1040,9 +1034,7 @@ export default {
             self.cohortModel.getCurrentTrioVcfData(),
             {checkCache: false, isBackground: false})
         })
-        .then(function() {
-          self.$refs.genesCardRef.determineFlaggedGenes();
-        })
+
       }
     },
 
@@ -1171,9 +1163,6 @@ export default {
         self.showLeftPanelForGenes();
         self.onSendGenesToClin();
         self.setUrlGeneParameters();
-        if (self.$refs.genesCardRef) {
-          self.$refs.genesCardRef.determineFlaggedGenes();
-        }
 
       })
     },
@@ -1202,12 +1191,12 @@ export default {
 
     showLeftPanelWhenFlaggedVariantsForGene: function() {
       let self = this;
-      if (self.flaggedVariants && self.flaggedVariants.length > 0) {
+      if (self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
         let matchingVariants = self.cohortModel.getFlaggedVariantsForGene(self.selectedGene.gene_name);
         if (!self.isEduMode && matchingVariants.length > 0 && !self.isLeftDrawerOpen) {
           if (self.$refs.navRef) {
             self.$nextTick(function() {
-              self.$refs.navRef.onShowFlaggedVariants();
+              self.$refs.navRef.onShowVariantsTab();
             });
           }
         } else if (!self.isEduMode && matchingVariants.length > 0) {
@@ -1220,13 +1209,13 @@ export default {
 
     showLeftPanelWhenFlaggedVariants: function() {
       let self = this;
-      if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
+      if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
         if (self.$refs.navRef) {
           self.$nextTick(function() {
-            self.$refs.navRef.onShowFlaggedVariants();
+            self.$refs.navRef.onShowVariantsTab();
           });
         }
-      } else if (!self.isEduMode && self.flaggedVariants && self.flaggedVariants.length > 0) {
+      } else if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
         self.$nextTick(function() {
           self.$refs.navRef.activeTab = 1;
         })
@@ -1239,7 +1228,7 @@ export default {
         if (self.$refs.navRef) {
           if (!self.isLeftDrawerOpen) {
             self.$nextTick(function() {
-              self.$refs.navRef.onShowGenes();
+              self.$refs.navRef.onShowGenesTab();
             });
           } else if (self.$refs.navRef) {
             self.$nextTick(function() {
@@ -1629,8 +1618,8 @@ export default {
       this.clearFilter();
       this.selectedGene = {};
       this.geneModel.clearAllGenes();
-      this.flaggedVariants = [];
       this.cohortModel.flaggedVariants = [];
+
     },
     onStartSearchGenes: function() {
       this.bringAttention = null;
@@ -1654,7 +1643,6 @@ export default {
           let genesToReapply = $.extend([], self.geneModel.sortedGeneNames);
 
           self.geneModel.clearAllGenes();
-          self.flaggedVariants = [];
           self.cohortModel.flaggedVariants = [];
 
           self.applyGenesImpl(genesToReapply.join(","), {replace: true, warnOnDup: false, isFromClin: false},
@@ -1673,7 +1661,15 @@ export default {
     onApplyGenes: function(genesString, options, callback) {
       let self = this;
 
-      self.clearFilter();
+      if (options == null) {
+        options = {isFromClin: false};
+      } else if (!options.hasOwnProperty("isFromClin")) {
+        options.isFromClin = false;
+      }
+
+      if (!options.isFromClin) {
+        self.clearFilter();
+      }
 
       let existingGeneCount = self.geneModel.sortedGeneNames.length;
       let existingPhenotypeTerm = self.phenotypeTerm;
@@ -1704,9 +1700,6 @@ export default {
             callback();
           }
         })
-        if (self.phenotypeTerm && self.phenotypeTerm.length > 0) {
-          self.onShowSnackbar({message: "Adding genes associated with '" + self.phenotypeTerm + "'", timeout: 6000})
-        }
       }
 
       if (self.phenotypeTerm && !options.isFromClin && existingGeneCount > 0 && existingPhenotypeTerm != self.phenotypeTerm) {
@@ -1795,7 +1788,8 @@ export default {
         // Figure out which IOBIO backend we should be using.
         // TODO - This should be a URL parameter from hub
         if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {
-          self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource]
+          self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
+          self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
         }
         if (self.projectId) {
           self.isHubDeprecated = false;
@@ -1910,12 +1904,12 @@ export default {
     },
     onFlagVariant: function(variant) {
       let self = this;
-      variant.isFlagged = true;
-      variant.featureClass = "flagged";
+
       variant.gene = this.selectedGene;
       variant.transcript = this.selectedTranscript;
-      self.cohortModel.addFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
-      self.flaggedVariants = this.cohortModel.flaggedVariants;
+      self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
+
+
       // Refresh the loaded variants so that the ranked variants table
       // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
@@ -1926,15 +1920,18 @@ export default {
       if (self.launchedFromClin) {
         self.sendFlaggedVariantToClin(variant);
       }
+
     },
-    onRemoveFlaggedVariant: function(variant) {
+    onRemoveUserFlaggedVariant: function(variant) {
       let self = this;
+
       variant.isFlagged = false;
       variant.featureClass = "";
-      self.cohortModel.removeFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
-      self.flaggedVariants = this.cohortModel.flaggedVariants;
+      self.cohortModel.removeUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
+
+
       if (!self.isEduMode) {
-        self.$refs.navRef.onShowFlaggedVariants();
+        self.$refs.navRef.onShowVariantsTab();
       }
       // Refresh the loaded variants so that the ranked variants table
       // reflects the flagged variants
@@ -1947,41 +1944,9 @@ export default {
         self.sendFlaggedVariantToClin(variant, 'delete');
       }
 
-    },
-    onAddFlaggedVariants: function(flaggedVariants) {
-      let self = this;
-      flaggedVariants.forEach(function(variant) {
-        variant.gene = self.geneModel.geneObjects[variant.geneName];
-        let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
-
-        self.cohortModel.addFlaggedVariant(variant.gene, theTranscript, variant);
-      })
-    },
-    onRegisterFlaggedVariants: function(flaggedGeneNames, flaggedVariants, filterName) {
-      let self = this;
-      self.flaggedVariants = [];
-      self.flaggedVariants = flaggedVariants;
-      if (this.launchedFromClin && !this.isFullAnalysis) {
-        self.sendAllFlaggedVariantsToClin(self.flaggedVariants);
-      }
 
     },
     onFlaggedVariantsImported: function() {
-      let self = this;
-      self.flaggedVariants = [];
-      self.flaggedVariants = this.cohortModel.flaggedVariants;
-
-      let showFlaggedVariants = function() {
-        if (self.$refs.genesCardRef) {
-          self.$refs.genesCardRef.determineFlaggedGenes();
-          self.$refs.genesCardRef.updateGeneBadgeCounts();
-        }
-        if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-          self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
-        }
-      }
-
-      showFlaggedVariants();
 
 
     },
@@ -1989,13 +1954,6 @@ export default {
       let self = this;
 
       // Set the flagged variant notes and interpretation
-      let flaggedVariant = this.cohortModel.getFlaggedVariant(variant);
-      if (flaggedVariant) {
-        if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-          self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
-        }
-      }
-
       if (self.launchedFromClin) {
         self.sendFlaggedVariantToClin(variant);
       }
@@ -2005,6 +1963,7 @@ export default {
 
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
+
 
     },
     onApplyVariantInterpretation: function(variant) {
@@ -2020,7 +1979,6 @@ export default {
 
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
-
     },
     onFlaggedVariantSelected: function(flaggedVariant) {
       let self = this;
@@ -2135,13 +2093,8 @@ export default {
     onFilterSettingsApplied: function() {
       let self = this;
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
-        if (self.$refs.genesCardRef) {
-          self.$refs.genesCardRef.updateGeneBadgeCounts();
-          self.$refs.genesCardRef.determineFlaggedGenes();
-          self.cohortModel.flaggedVariants = self.flaggedVariants;
-        }
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
-          self.$refs.navRef.onShowFlaggedVariants();
+          self.$refs.navRef.onShowVariantsTab();
         }
         self.onGeneSelected(self.selectedGene.gene_name);
 
@@ -2406,73 +2359,31 @@ export default {
 
       if (!this.isClinFrameVisible) {
         this.isClinFrameVisible = clinObject.isFrameVisible;
-        console.log( 'GeneHome.receiveClinMessage clin frame is visible ' + this.isClinFrameVisible);
       }
 
       if (clinObject.type == 'apply-genes' && !self.isFullAnalysis) {
-        let genesToProcess = null;
 
-        if (clinObject.genes && Array.isArray(clinObject.genes)) {
-          let newGenes = clinObject.genes.filter(function(theGeneName) {
-            return self.geneModel.sortedGeneNames == null || self.geneModel.sortedGeneNames.indexOf(theGeneName) == -1;
-          })
-          let deprecatedGenes = [];
-          if (self.geneModel.sortedGeneNames) {
-            deprecatedGenes = self.geneModel.sortedGeneNames.filter(function(theGeneName) {
-              return clinObject.genes.indexOf(theGeneName) == -1;
-            })
-          }
-          if (deprecatedGenes.length > 0 || newGenes.length > 0) {
-            genesToProcess = clinObject.genes;
-          }
-        }
+        self.applyGenesClin(clinObject);
 
-        if (genesToProcess) {
-          let genesString = genesToProcess ? genesToProcess.join(" ") : "";
-          let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
 
-          if (genesString.length > 0 ) {
-            let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
-            this.onApplyGenes(genesString, options, function() {
-              if (self.cohortModel.isLoaded) {
-                self.showLeftPanelForGenes();
-                self.cacheHelper.analyzeAll(self.cohortModel, false);
-              }
-            });
-          }
-
-        }
-
-      } else if (clinObject.type == 'set-data' && !self.isFullAnalysis) {
-        if (self.cohortModel == null) {
+      } else if (clinObject.type == 'set-data') {
+        if (self.cohortModel == null || !self.cohortModel.isLoaded) {
           self.init(function() {
-            self.setDataFromClin(clinObject);
+            self.promiseInitClin(clinObject);
           })
         } else {
-          self.setDataFromClin(clinObject);
+          self.promiseInitClin(clinObject);
         }
-      } else if (clinObject.type == 'set-data' && self.isFullAnalysis) {
-
-        if (self.cohortModel == null) {
-          self.init(function() {
-            self.setDataFullAnalysisFromClin(clinObject);
-          })
-        } else {
-          self.setDataFullAnalysisFromClin(clinObject);
-        }
-
       } else if (clinObject.type == 'show') {
-        setTimeout(function() {
-          self.isClinFrameVisible = true;
-          console.log( 'GeneHome clin frame is visible ' + self.isClinFrameVisible);
-          if (self.cohortModel && self.cohortModel.flaggedVariants.length > 0) {
-            // When all variants have been imported
-            self.onFlaggedVariantsImported();
-            self.$refs.navRef.onShowFlaggedVariants();
-          } else if (self.geneModel && self.geneModel.sortedGeneNames.length > 0) {
-            self.showLeftPanelForGenes();
-          }
-        }, 1000)
+
+        if (self.cohortModel && self.cohortModel.isLoaded) {
+
+          self.$set(self, "isFullAnalysis", clinObject.receiver == 'genefull' ? true : false);
+          self.filterModel.isFullAnalysis = self.isFullAnalysis;
+
+          self.promiseShowClin();
+        }
+
       } else if (clinObject.type == 'show-tooltip') {
         if (clinObject.task.key == 'genes-menu') {
           if (self.$refs.navRef && self.$refs.navRef.$refs.genesMenuRef) {
@@ -2514,34 +2425,11 @@ export default {
       }
     },
 
-    sendAllFlaggedVariantsToClin: function(variants, callback) {
-      let self = this;
-      if (this.launchedFromClin) {
-        self.cohortModel.promiseExportFlaggedVariants('json', variants)
-        .then(function(data) {
-          var msgObject = {
-              success:  true,
-              type:     'save-variants',
-              sender:   'gene.iobio.io',
-              action:   'replace',
-              app:      'gene',
-              variants: data};
-          window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
-
-          if (callback) {
-            callback();
-          }
-        })
-        .catch(function(error) {
-          alertify.alert("Error", error);
-        })
-      }
-
-    },
 
 
     sendFlaggedVariantToClin: function(variant, action="update", callback) {
       let self = this;
+
       if (this.launchedFromClin) {
         self.cohortModel.promiseExportFlaggedVariant('json', variant)
         .then(function(data) {
@@ -2550,7 +2438,7 @@ export default {
               type:     'save-variants',
               sender:   'gene.iobio.io',
               action:   action,
-              app:      self.isFullAnalysis ? 'genefull' : 'gene',
+              app:      'self.isFullAnalysis' ? 'genefull' : 'gene',
               variants: data};
           window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
 
@@ -2562,9 +2450,11 @@ export default {
           alertify.alert("Error", error);
         })
       }
+
     },
 
     sendNextImportedVariantToClin: function(importedVariants, callback) {
+
       let self = this;
       if (importedVariants.length > 0) {
         var importedVariant = importedVariants.splice(0,1);
@@ -2577,7 +2467,7 @@ export default {
                 action:   'update',
                 app:      self.isFullAnalysis ? 'genefull' : 'gene',
                 variants: data};
-            window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+            //window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
             self.sendNextImportedVariantToClin(importedVariants, callback);
           })
           .catch(function() {
@@ -2594,7 +2484,7 @@ export default {
 
     onSendFiltersToClin: function() {
       let self = this;
-      if (this.launchedFromClin && !this.isFullAnalysis) {
+      if (this.launchedFromClin) {
         var msgObject = {
           success: true,
           type: 'save-filters',
@@ -2608,6 +2498,13 @@ export default {
     sendCacheToClin: function(geneName) {
       let self = this;
       if (this.launchedFromClin) {
+
+        // If cache should not persist, bypass this functionality
+        if (!self.clinPersistCache) {
+          return;
+        }
+
+        console.log(" **** getting cache from clin **** ");
 
         self.cacheHelper.promiseGetClinCacheItems(geneName, ['vcfData', 'dangerSummary', 'geneCoverage'])
         .then(function(cacheItems) {
@@ -2631,14 +2528,18 @@ export default {
     promiseSetCacheFromClin: function(clinObject) {
       let self = this;
 
+      // If cache should not persist, bypass this functionality
+      if (!self.clinPersistCache) {
+        self.clinSetData.isCacheSet = true;
+        return Promise.resolve();
+      }
+
       return new Promise(function(resolve, reject) {
-        self.onShowSnackbar({message: 'Setting analysis cache...', timeout: 5000})
         let cachePromises = [];
         let summarizePromises = [];
         let genesToAdd = [];
 
         if (clinObject.cache && clinObject.cache.length > 0) {
-          console.log(" **** number of cache items from clin **** " + clinObject.cache.length);
           clinObject.cache.forEach(function(cacheItem) {
             let newCacheKey = cacheHelper.convertClinCacheKey(cacheItem.cache_key);
             let p = self.cacheHelper.promiseCacheData(newCacheKey, cacheItem.cache, {compress: false})
@@ -2652,6 +2553,7 @@ export default {
                   if (data && data.geneName) {
                     self.geneModel.setDangerSummary(data.geneName.toUpperCase(), data);
                     genesToAdd.push(data.geneName);
+
                   }
                 })
                 summarizePromises.push(dp);
@@ -2667,17 +2569,19 @@ export default {
         .then(function() {
           return Promise.all(summarizePromises)
         })
+        //.then(function() {
+        //  self.onShowSnackbar({message: 'Getting gene info...', timeout: 5000})
+        //  return self.geneModel.promiseCopyPasteGenes(genesToAdd.join(","), {replace: true, warnOnDup: false});
+        //})
         .then(function() {
-          self.onShowSnackbar({message: 'Getting gene info...', timeout: 5000})
-          return self.geneModel.promiseCopyPasteGenes(genesToAdd.join(","), {replace: true, warnOnDup: false});
-        })
-        .then(function() {
-          console.log("gene summaries " + Object.keys(self.geneModel.geneDangerSummaries).length );
+          self.clinSetData.isCacheSet = true;
           resolve();
         })
         .catch(function(error) {
+          self.clinSetData.isCacheSet = true;
           let msg = "Problem in GeneHome.promiseSetCacheFromClin(): " + error;
-          reject();
+          console.log(msg);
+          reject(msg);
         })
 
       })
@@ -2686,6 +2590,8 @@ export default {
 
     setIobioConfigFromClin: function(clinObject) {
       let self = this;
+
+      self.clinPersistCache = clinObject.persistCache;
 
       if (clinObject.batchSize) {
         self.globalApp.DEFAULT_BATCH_SIZE = clinObject.batchSize;
@@ -2707,99 +2613,247 @@ export default {
 
     },
 
-    setDataFromClin: function(clinObject) {
+    promiseInitClin: function(clinObject) {
       let self = this;
-      self.setIobioConfigFromClin(clinObject);
-      self.cohortModel.promiseInit(clinObject.modelInfos)
-      .then(function() {
-        self.models = self.cohortModel.sampleModels;
+      return new Promise(function(resolve, reject) {
+        self.isClinFrameVisible = true;
+        self.clinSetData = clinObject;
 
-        return self.promiseSetCacheFromClin(clinObject)
+        self.setIobioConfigFromClin(self.clinSetData);
+        self.cohortModel.promiseInit(self.clinSetData.modelInfos)
+        .then(function() {
+
+          self.onSendFiltersToClin();
+
+          self.models = self.cohortModel.sampleModels;
+          self.geneModel.setCandidateGenes(self.clinSetData.genes);
+          return self.promiseSetCacheFromClin(self.clinSetData)
+
+        })
+        .then(function() {
+          return self.promiseShowClin();
+        })
+        .then(function() {
+          if (self.$refs.navRef) {
+            self.$refs.navRef.onShowVariantsTab();
+          }
+          resolve();
+        })
+        .catch(function(error) {
+          reject(error);
+        })
 
       })
-      .then(function() {
+    },
 
-        self.showLeftPanelForGenes();
-        self.onApplyGenes(
-            clinObject.genes.join(" "),
-            {isFromClin: true, replace: true, warnOnDup: false, phenotypes: clinObject.phenotypes.join(",")},
-        function() {
-          self.cohortModel.importFlaggedVariants('json', clinObject.variants,
-          function() {
-            self.onFlaggedVariantsImported();
-            self.$refs.navRef.onShowFlaggedVariants();
-          },
-          function() {
-            // When analyzeSubset and variants have been cached
-            self.$refs.navRef.onShowFlaggedVariants();
-            self.cacheHelper.analyzeAll(self.cohortModel, false);
-          })
-        });
 
+    promiseShowClin: function() {
+      let self = this;
+
+      return new Promise(function(resolve, reject) {
+        self.promiseImportClin()
+        .then(function() {
+          resolve();
+        })
+        .catch(function(error) {
+          reject(error);
+        })
       })
-      .catch(function(error) {
-        console.log(error);
-      })
+    },
+
+
+    applyGenesClin: function(clinObject) {
+      let self = this;
+
+      if (self.clinSetData == null || !self.clinSetData.isImported || !self.clinSetData.isCacheSet) {
+        return;
+      }
+
+      let genesToProcess = [];
+      let candidateGenesOld = $.extend({}, self.geneModel.candidateGenes);
+      self.geneModel.setCandidateGenes(clinObject.genes);
+
+      if (clinObject.genes && Array.isArray(clinObject.genes)) {
+        let deprecatedGenes = {};
+        for (var oldGene in candidateGenesOld) {
+          if (!self.geneModel.candidateGenes[oldGene]) {
+            deprecatedGenes[oldGene] = true;
+          }
+        }
+
+        self.geneModel.sortedGeneNames.forEach(function(gene) {
+          if (!deprecatedGenes[gene]) {
+            genesToProcess.push(gene);
+          }
+        })
+        clinObject.genes.forEach(function(gene) {
+          genesToProcess.push(gene);
+        })
+      }
+
+      if (genesToProcess) {
+        let genesString = genesToProcess ? genesToProcess.join(" ") : "";
+        let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
+
+        if (genesString.length > 0 ) {
+          let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
+          this.onApplyGenes(genesString, options, function() {
+            if (self.cohortModel && self.cohortModel.isLoaded) {
+              self.showLeftPanelForGenes();
+
+
+              self.cacheHelper.promiseGetGenesToAnalyze()
+              .then(function(genesToAnalyze) {
+                if (genesToAnalyze.length > 0) {
+                  self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
+                } else {
+                  self.$nextTick(function() {
+                    self.$refs.navRef.onShowVariantsTab();
+                  })
+                }
+              })
+            }
+          });
+        }
+
+      }
+
 
     },
 
-    setDataFullAnalysisFromClin: function(clinObject) {
+
+
+
+    promiseImportClin: function() {
       let self = this;
-      self.setIobioConfigFromClin(clinObject);
-      self.cohortModel.promiseInit(clinObject.modelInfos)
-      .then(function() {
-        self.models = self.cohortModel.sampleModels;
-        return self.promiseSetCacheFromClin(clinObject);
-      })
-      .then(function() {
-        let variantData = null;
-        let fileType = null;
-        if (clinObject.variants && clinObject.variants.length > 0) {
-          fileType = 'json';
-          variantData = clinObject.variants;
-          self.onShowSnackbar({message: 'Importing variants from full analysis..', timeout: 7000})
+
+      return new Promise(function(resolve, reject) {
+
+        if (!self.clinSetData.importInProgress && !self.clinSetData.isImported) {
+
+          self.clinSetData.importInProgress = true;
+          self.clinSetData.isImported = false;
+
+          self.showLeftPanelForGenes();
+
+
+          self.importVariantData(self.clinSetData.variantData,
+          function(importedVariants, importedGenes) {
+
+            let theGenes = self.clinSetData.genes.slice();
+            importedGenes.forEach(function(geneName) {
+              if (theGenes.indexOf(geneName) == -1) {
+                theGenes.push(geneName);
+              }
+            })
+
+            self.onApplyGenes( theGenes.join(" "),
+            {isFromClin: true, replace: true, warnOnDup: false, phenotypes: self.clinSetData.phenotypes.join(",")},
+            function() {
+
+              if (self.clinSetData.variants.length > 0) {
+                self.cohortModel.importFlaggedVariants('json', self.clinSetData.variants,
+                function() {
+
+
+
+
+                  self.clinSetData.isImported = true;
+
+                  resolve();
+
+
+                },
+                function() {
+                  self.clinSetData.importInProgress = false;
+                  // When analyzeSubset and variants have been cached
+                  self.cacheHelper.analyzeAll(self.cohortModel, false);
+                })
+              } else {
+
+                self.cohortModel.mergeImportedVariants(importedVariants);
+                self.clinSetData.isImported = true;
+                self.clinSetData.importInProgress = false;
+
+                self.cacheHelper.analyzeAll(self.cohortModel, false);
+
+                resolve();
+
+              }
+            })
+          })
+
         } else {
-          fileType = 'gemini';
-          variantData = clinObject.variantData;
-          self.onShowSnackbar({message: 'Importing records from full analysis..', timeout: 7000})
+          self.cacheHelper.promiseGetGenesToAnalyze()
+          .then(function(genesToAnalyze) {
+            if (genesToAnalyze.length > 0) {
+              self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
+            } else {
+              self.$nextTick(function() {
+                self.$refs.navRef.onShowVariantsTab();
+              })
+            }
+            resolve();
+          })
         }
 
-        self.cohortModel.importFlaggedVariants(fileType, variantData,
-        function() {
-          if (fileType == 'gemini') {
-            self.showLeftPanelForGenes();
+      })
+    },
+
+    importVariantData: function(variantData, callback) {
+      let self = this;
+      let theImportedGenes = [];
+      let theImportedVariants = [];
+
+      if (self.clinSetData.variants.length > 0) {
+        if (callback) {
+          self.clinSetData.variants.forEach(function(v) {
+            if (theImportedGenes.indexOf(v.gene) == -1) {
+              theImportedGenes.push(v.gene);
+            }
+          })
+          callback([], theImportedGenes)
+        }
+      } else {
+        if (variantData) {
+          self.cohortModel.importFlaggedVariants('gemini', variantData,
+          function() {
 
             // clone the imported variants array
-            let theImportedVariants = self.cohortModel.flaggedVariants.slice();
+            theImportedVariants = self.cohortModel.flaggedVariants.slice();
+
+            theImportedVariants.forEach(function(v) {
+              if (theImportedGenes.indexOf(v.geneName) == -1) {
+                theImportedGenes.push(v.geneName);
+              }
+            })
 
             // sequentially send each imported variant to clin to be saved
             self.sendNextImportedVariantToClin(theImportedVariants, function() {
-              self.onShowSnackbar({message: 'Saving imported variants to clin..', timeout: 7000})
+
             });
 
-          } else if (fileType == 'json') {
-            self.onFlaggedVariantsImported();
-            if (self.$refs.navRef) {
-              self.$refs.navRef.onShowFlaggedVariants();
+
+            if (callback) {
+              callback(theImportedVariants, theImportedGenes);
             }
-          }
-        },
-        function() {
-          self.onShowSnackbar({message:  self.cohortModel.flaggedVariants.length + ' variants imported.', timeout: 3000})
-          self.onFlaggedVariantsImported();
-          if (fileType != 'json') {
-            self.$refs.navRef.onShowFlaggedVariants();
-          }
-        })
-      })
-      .catch(function(error) {
-        console.log(error);
-      })
+
+          },
+          function() {
+
+
+
+          })
+        } else {
+          callback(theImportedGenes, theImportedVariants);
+        }
+
+
+      }
+
+
 
     }
-
-
-
   }
 }
 </script>

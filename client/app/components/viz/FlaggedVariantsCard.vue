@@ -417,7 +417,7 @@
     <div class="variant-toolbar" >
 
 
-      <span  v-show="isBasicMode && !launchedFromClin && flaggedVariants" id="mygene2-basic-title">
+      <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
       </span>
       <v-btn  v-if="!isBasicMode && !launchedFromClin" flat
@@ -427,7 +427,7 @@
         Open
       </v-btn>
 
-      <v-btn v-if="!isBasicMode && !launchedFromClin && flaggedVariants && flaggedVariants.length > 0" flat
+      <v-btn v-if="!isBasicMode && !launchedFromClin && variantCount > 0" flat
         class="toolbar-button"
         @click="onClickSave">
         <v-icon>save</v-icon>
@@ -436,7 +436,7 @@
     </div>
 
 
-    <span id="mygene2-basic-none" v-show="isBasicMode && flaggedVariants && flaggedVariants.length == 0">
+    <span id="mygene2-basic-none" v-show="isBasicMode && variantCount == 0">
       (none)
     </span>
 
@@ -507,14 +507,14 @@
 
                           <app-icon
                            icon="impact"
-                           v-if="variant.type"
+                           v-if="false && variant.type"
                            :type="variant.type.toLowerCase()"
                            :clazz="highestImpactClass(variant)"
                            class="impact-badge" height="15" width="11">
                           </app-icon>
 
                           <app-icon
-                           icon="zygosity" v-if="!isBasicMode"
+                           icon="zygosity" v-if="!isBasicMode && zygosity(variant).toLowerCase() == 'hom'"
                            :type="zygosity(variant).toLowerCase()"
                            height="14" width="24">
                           </app-icon>
@@ -547,10 +547,10 @@
                           </span>
 
                         </span>
-                        <span :class="getAfClass(variant)">{{ afDisplay(variant) }}</span>
+                        <span v-if="false" :class="getAfClass(variant)">{{ afDisplay(variant) }}</span>
                       </div>
                     </div>
-                    <div  v-if="!isBasicMode && !variant.notFound && isFullAnalysis">
+                    <div  v-if="false && !isBasicMode && !variant.notFound && isFullAnalysis">
                       <span class="revel">{{ revel(variant) }}</span>
                     </div>
                   </div>
@@ -762,11 +762,12 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     forMyGene2: null,
-    flaggedVariants: null,
     activeFilterName: null,
     cohortModel: null,
     launchedFromClin: null,
-    isFullAnalysis: null
+    isFullAnalysis: null,
+    geneNames: null,
+    genesInProgress: null
   },
   data() {
     return {
@@ -778,7 +779,8 @@ export default {
       importInProgress: false,
       exportInProgress: false,
       geneLists: null,
-      clickedVariant: null
+      clickedVariant: null,
+      variantCount: 0
     }
   },
   methods: {
@@ -825,9 +827,11 @@ export default {
     populateGeneLists: function() {
       let self = this;
       self.geneLists = [];
+      self.variantCount = 0;
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName);
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis);
       self.geneLists = filters.map(function(filterObject, idx) {
+        self.variantCount += filterObject.variantCount;
         return {
           name:  filterObject.key,
           label: filterObject.filter.title,
@@ -837,6 +841,7 @@ export default {
           expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' || idx == 0 ?  true : false) : true
         }
       })
+      self.$emit("count-changed", self.variantCount);
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
@@ -977,9 +982,14 @@ export default {
 
   },
   watch: {
-    flaggedVariants: function() {
-      let self = this;
-      self.populateGeneLists();
+    geneNames: function(newGeneNames, oldGeneNames) {
+      this.populateGeneLists();
+    },
+    genesInProgress: function() {
+      this.populateGeneLists();
+    },
+    isFullAnalysis: function() {
+      this.populateGeneLists();
     }
   }
 }

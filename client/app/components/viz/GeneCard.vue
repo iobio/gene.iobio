@@ -362,18 +362,27 @@ export default {
       this.$emit('gene-region-zoom-reset');
     },
     initSummaryInfo: function() {
-      if (this.selectedGene && this.selectedGene.gene_name) {
-        this.ncbiSummary = this.geneModel.geneNCBISummaries[this.selectedGene.gene_name];
-        this.phenotypes  = this.geneModel.genePhenotypes[this.selectedGene.gene_name]
-        if (this.phenotypes) {
-          this.phenotypeTerms =  this.phenotypes.map(function(d) {
+      let self = this;
+      if (self.selectedGene && self.selectedGene.gene_name) {
+        self.ncbiSummary = self.geneModel.geneNCBISummaries[self.selectedGene.gene_name];
+
+        if (self.ncbiSummary == null || self.ncbiSummary.summary == '?') {
+          self.geneModel.promiseGetNCBIGeneSummary(self.selectedGene.gene_name)
+          .then(function(data) {
+            self.ncbiSummary = data;
+          })
+        }
+
+        self.phenotypes  = self.geneModel.genePhenotypes[self.selectedGene.gene_name]
+        if (self.phenotypes) {
+          self.phenotypeTerms =  self.phenotypes.map(function(d) {
             return d.hpo_term_name;
           }).join(", ");
         }
 
       } else {
-        this.ncbiSummary = null;
-        this.phenotypes = null;
+        self.ncbiSummary = null;
+        self.phenotypes = null;
       }
     }
 
@@ -447,8 +456,10 @@ export default {
     geneRegionEnd: function() {
 
     },
-    selectedGene: function() {
-      this.initSummaryInfo();
+    selectedGene: function(newGene, oldGene) {
+      if (newGene.gene_name != oldGene.gene_name) {
+        this.initSummaryInfo();
+      }
     }
   },
 

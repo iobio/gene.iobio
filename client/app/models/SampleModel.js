@@ -896,7 +896,7 @@ class SampleModel {
 
             // Get the sample names from the vcf header
               me.vcf.getSampleNames( function(sampleNames) {
-                me.sampleNames = sampleName;
+                me.sampleNames = sampleNames;
                 me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
                 resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
               });
@@ -1382,6 +1382,8 @@ class SampleModel {
                             sourceVariant[vepAnnot]     = v[vepAnnot];
                           })
 
+
+
                           // re-cache the data
                           me._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
                            .then(function() {
@@ -1620,7 +1622,11 @@ class SampleModel {
                       return;
                     }
 
+                    // Set the gene object on each variant
                     theVcfData.gene = theGeneObject;
+                    theVcfData.features.forEach(function(variant) {
+                      variant.gene = theGeneObject;
+                    })
                     resultMap[model.relationship] = theVcfData;
 
                     if (!isBackground) {
