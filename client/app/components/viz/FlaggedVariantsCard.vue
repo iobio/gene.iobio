@@ -507,14 +507,14 @@
 
                           <app-icon
                            icon="impact"
-                           v-if="variant.type"
+                           v-if="false && variant.type"
                            :type="variant.type.toLowerCase()"
                            :clazz="highestImpactClass(variant)"
                            class="impact-badge" height="15" width="11">
                           </app-icon>
 
                           <app-icon
-                           icon="zygosity" v-if="!isBasicMode"
+                           icon="zygosity" v-if="!isBasicMode && zygosity(variant).toLowerCase() == 'hom'"
                            :type="zygosity(variant).toLowerCase()"
                            height="14" width="24">
                           </app-icon>
@@ -547,10 +547,10 @@
                           </span>
 
                         </span>
-                        <span :class="getAfClass(variant)">{{ afDisplay(variant) }}</span>
+                        <span v-if="false" :class="getAfClass(variant)">{{ afDisplay(variant) }}</span>
                       </div>
                     </div>
-                    <div  v-if="!isBasicMode && !variant.notFound && isFullAnalysis">
+                    <div  v-if="false && !isBasicMode && !variant.notFound && isFullAnalysis">
                       <span class="revel">{{ revel(variant) }}</span>
                     </div>
                   </div>

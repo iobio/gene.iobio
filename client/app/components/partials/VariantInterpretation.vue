@@ -4,14 +4,20 @@
 
 i.material-icons.interpretation.not-reviewed
   color: $not-reviewed-color !important
-  font-size: 20px
+  font-size: 22px
   padding-top: 2px
 i.material-icons.interpretation.sig
   color: $significant-color !important
+  font-size: 22px
+  padding-top: 2px
 i.material-icons.interpretation.unknown-sig
-  color: $significant-color !important
+  color: $unknown-significance-color !important
+  font-size: 22px
+  padding-top: 2px
 i.material-icons.interpretation.not-sig
   color: $not-significant-color !important
+  font-size: 22px
+  padding-top: 2px
 
 .interpretation-label
   padding-left: 5px
@@ -26,7 +32,7 @@ i.material-icons.interpretation.not-sig
   font-family: 'Open sans'
   margin: 0px
   padding: 0px
-  width: 41px
+  width: 22px
   height: auto
   font-size: 12px
   margin-top: 0px
@@ -36,6 +42,7 @@ i.material-icons.interpretation.not-sig
 
     .interpretation-label
       color: $text-color !important
+      font-size: 14px
 
   .input-group__input
     min-height: 21px
@@ -82,18 +89,18 @@ i.material-icons.interpretation.not-sig
 
 
     <template slot="selection" slot-scope="data">
-      <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">star</v-icon>
-      <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">star_half</v-icon>
-      <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">star_border</v-icon>
-      <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">help_outline</v-icon>
+      <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">verified_user</v-icon>
+      <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">help</v-icon>
+      <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">thumb_down</v-icon>
+      <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">visibility_off</v-icon>
       <span v-if="showInterpretationLabel" class="interpretation-label"> {{ data.item.text }} </span>
     </template>
 
     <template slot="item" slot-scope="data">
-      <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">star</v-icon>
-      <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">star_half</v-icon>
-      <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">star_border</v-icon>
-      <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">help_outline</v-icon>
+      <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">verified_user</v-icon>
+      <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">help</v-icon>
+      <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">thumb_down</v-icon>
+      <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">visibility_off</v-icon>
       <span class="interpretation-label"> {{ data.item.text }} </span>
 
     </template>

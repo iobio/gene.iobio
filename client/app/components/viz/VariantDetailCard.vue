@@ -47,6 +47,13 @@
     margin-bottom: 7px
     margin-left: -10px
 
+
+  #show-notes-button
+    .btn__content
+      .interpretation-label
+        font-size: 13px !important
+        padding-top: 6px !important
+
   #variant-notes
     display: inline-block
     vertical-align: top
@@ -342,6 +349,27 @@
 
     <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-left">
 
+      <span style="float:left;margin-top:-4px" v-if="!isBasicMode && !forMyGene2 && interpretation" class="pr-2 pl-1">
+                  <variant-interpretation
+                    style="float:left;"
+                     v-if="!isBasicMode && !forMyGene2"
+                     wrap="true"
+                     :variant="selectedVariant"
+                     :variantInterpretation="interpretation"
+                     @apply-variant-interpretation="onApplyVariantInterpretation">
+                  </variant-interpretation>
+
+                  <variant-notes-menu
+                    v-if="!isBasicMode && !forMyGene2"
+                    style="float:left;padding-top: 4px"
+                    :showNotesIcon="true"
+                    :variant="selectedVariant"
+                    :variantInterpretation="interpretation"
+                    :variantNotes="notes"
+                    @apply-variant-notes="onApplyVariantNotes">
+                  </variant-notes-menu>
+        </span>
+
 
       <span class="pr-1 pl-1" v-if="!isBasicMode && (selectedVariantRelationship == 'known-variants')">
         <app-icon v-show="selectedVariantRelationship == 'known-variants'"
@@ -388,16 +416,12 @@
 
     </div>
 
-    <div class="variant-notes" v-if="notes" id="notes">
-      <hr class="top">
-      <div>
-        <v-icon>
-          comments
-        </v-icon>
-        {{ notes }}
-      </div>
-      <hr class="bottom">
-    </div>
+
+
+
+
+
+
 
 
 
@@ -462,20 +486,7 @@
         <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
 
 
-          <v-flex v-if="!isBasicMode">
-            <v-layout row class="">
-               <v-flex xs3 class="field-label">Interpretation</v-flex>
-               <v-flex  xs9 class="field-value">
-                <variant-notes-menu id="variant-notes"
-                  v-if="!isBasicMode && !forMyGene2"
-                  :variant="selectedVariant"
-                  :variantInterpretation="interpretation"
-                  :variantNotes="notes"
-                  @apply-variant-notes="onApplyVariantNotes">
-                </variant-notes-menu>
-               </v-flex>
-            </v-layout>
-          </v-flex>
+
 
 
 
@@ -687,6 +698,7 @@
 
 import Vue              from 'vue'
 import AppIcon          from "../partials/AppIcon.vue"
+import variantInterpretation from "../partials/VariantInterpretation.vue"
 import VariantNotesMenu from "../partials/VariantNotesMenu.vue"
 import VariantLinksMenu from "../partials/VariantLinksMenu.vue"
 import InfoPopup        from "../partials/InfoPopup.vue"
@@ -696,6 +708,7 @@ export default {
   components: {
     AppIcon,
     VariantNotesMenu,
+    variantInterpretation,
     InfoPopup,
     VariantLinksMenu
   },
@@ -1109,6 +1122,9 @@ export default {
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
+    },
+    onApplyVariantInterpretation: function(variant) {
+      this.$emit("apply-variant-interpretation", variant);
     },
     getRevelClass: function(info) {
       let self = this;

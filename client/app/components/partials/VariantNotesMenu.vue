@@ -4,7 +4,6 @@
 
 #notes-input
   font-size: 12px
-  background-color:  $notes-background-color
 
 #enter-notes-input
   .input-group--text-field.input-group--prepend-icon
@@ -26,6 +25,7 @@
   height: auto
   font-size: 12px
   margin-top: 0px
+  margin-left: 2px
 
 
   .btn__content
@@ -46,15 +46,17 @@
       padding-bottom: 0px
 
     .material-icons
-      font-size: 18px
+      font-size: 22px
       color: $text-color
       vertical-align: top
+      color: $not-reviewed-color
 
       &.has-notes
         color: $app-color
+
     .interpretation-label
       color: $text-color
-      font-size: 13px
+      font-size: 14px
       padding-top: 3px
 
 #show-notes-button
@@ -72,7 +74,6 @@
   background-color: transparent !important
 
   .material-icons
-    color: $light-badge-color
     background-color: transparent !important
 
     &.has-notes
@@ -90,8 +91,8 @@
     >
 
       <v-btn id="show-notes-button"
-       flat
        small
+       :flat="showNotesIcon"
        :class="[{'no-wrap' : !wrap, 'show-notes-icon': showNotesIcon}, showNotesIcon ? '' : interpretation]"
        slot="activator"
        @mouseover="onMouseOver()"
@@ -100,10 +101,10 @@
       >
 
         <span v-if="!showNotesIcon">
-          <v-icon class="interpretation sig" v-if="interpretation == 'sig'">star</v-icon>
-          <v-icon class="interpretation unknown-sig" v-if="interpretation == 'unknown-sig'">star_half</v-icon>
-          <v-icon class="interpretation not-sig" v-if="interpretation == 'not-sig'">star_border</v-icon>
-          <v-icon class="interpretation not-reviewed" style="font-size:19px;margin-top: -3px;" v-if="interpretation == 'not-reviewed'">help_outline</v-icon>
+          <v-icon class="interpretation sig" v-if="interpretation == 'sig'">verified_user</v-icon>
+          <v-icon class="interpretation unknown-sig" v-if="interpretation == 'unknown-sig'">help</v-icon>
+          <v-icon class="interpretation not-sig" v-if="interpretation == 'not-sig'">thumb_down</v-icon>
+          <v-icon class="interpretation not-reviewed"  v-if="interpretation == 'not-reviewed'">visibility_off</v-icon>
           <span class="interpretation-label">{{ interpretationDisplay }} </span>
         </span>
         <v-icon class="has-notes" v-if="showNotesIcon && notes != null && notes.length > 0">
@@ -134,7 +135,6 @@
               rows="5"
               label="Notes"
               v-model="notes"
-              prepend-icon="comment"
             >
             </v-text-field>
           </div>
