@@ -6,227 +6,371 @@
 
 @import ../../../assets/sass/variables
 
+$landing-page-font:      Poppins
+
+
+
+$accent-color:       #4ec0a1
+$accent-color-light: #4ec0a1
+
+$accent-color-bright: #14c39a
+
+$header-color:       #818181
+
+$brown-gray:         #393c40
+$mid-blue-color:     #416b9a
+$light-gray-color:   #f0f1f3
+
+.image-shadow
+  -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
+  box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
+
+
 
 .buttons-group
     margin-top: 0px !important
     padding-left: 40px
 
 #welcome-area
-  // text-align: center
-  margin-top: 25px
+  margin-top: -5px
   display: flex
   justify-content: space-around
   flex-direction: column
   align-items: center
+  margin-left: -5px
+  margin-right: -5px
 
   .welcome-panel
-    background-color: white
-    padding-bottom: 15px
-    padding-top: 15px
-    padding-left: 10px
-    padding-right: 10px
-    margin-top: 130px
-    width:  1475px
+    padding-bottom: 0px
+
+
+
+    &.main
+      //background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
+      background: white
+      display: flex
+      flex-direction: row
+      align-items: flex-start
+      justify-content: space-between
+      width: 100%
+
+      .main-headline
+        display: flex
+        flex-direction: row
+        padding-top: 70px
+        margin-left: auto
+        margin-right: auto
+
+    &.videos-and-blogs
+      //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
+      background: white
+      padding-top: 20px
+      padding-bottom: 20px
+      padding-left: 30px
+      padding-right: 30px
+      width: 100%
+    &.how-it-works
+      //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
+      //background: linear-gradient(304deg, rgba(43,70,101,1) 14%, rgba(61,99,142,1) 68%, rgba(94,141,184,1) 85%)
+      background-color: $light-gray-color
+    &.features
+      background-color: white
+
+    &.resources
+      background-color: $brown-gray
+      padding-top: 20px
+      padding-bottom: 20px
+
+    &.collaborations
+      background-color: $mid-blue-color
 
 
     #welcome-label
-      color: $text-color
-      font-size: 42px
-      font-family: quicksand
-      padding: 40px
+      color:          $header-color
+      font-size:      32px
+      line-height:    36px
+      font-family:    $landing-page-font
+      font-weight:    normal
+      padding-bottom: 10px
 
     #welcome-label-small
-      color: $text-color
-      font-size: 16px
+      color:          white
+      font-size:      28px
+      font-family:    $landing-page-font
+      font-weight:    normal
+      padding-bottom: 30px
+      font-weight:    normal
+      padding-left:   30px
 
-    #what-is-new-link
-      font-size: 18px
+      &.accent-label
+        color:        $app-color
 
-    #helpful-articles-link
-      font-size: 18px
 
-    button
+    .buttons-group
+      margin-top: 0px !important
+      padding-top: 30px
+      display: flex
+      flex-direction: column
+      align-items: center
+
+
+    button.welcome-button
       font-size: 16px !important
       margin-left: 7px
       margin-right: 7px
       height: 40px
+      width: 230px
       margin-bottom: 10px
+      background-color: $accent-color
+      color: white
+      font-family: $landing-page-font
+      margin-bottom: 30px
+
+      i.material-icons
+        font-size: 26px
+        width: 26px
+        color: white
+        margin-right: 7px
+
+      .btn__content
+        color: white
+
+    button.welcome-button-outline
+      font-size: 16px !important
+      margin-left: 7px
+      margin-right: 7px
+      height: 40px
+      width: 230px
+      margin-bottom: 10px
+      background-color: white
+      color: $accent-color
+      font-family: $landing-page-font
+      border: thin solid $accent-color
+
+      i.material-icons
+        font-size: 26px
+        width: 26px
+        color: $accent-color
+        margin-right: 7px
+
+      .btn__content
+        color: $accent-color
+
+
 
     #welcome-panel-content
       display: flex
       justify-content: center
       margin-top: 0px
 
-      .feature-container
-        display: flex
-        justify-content: flex-start
-        flex: 1 1 0
-        min-height: 131px
+.resources-panel
+  flex-wrap: wrap
+  justify-content: center !important
+  .avatar
+    min-height: 120px
+    min-width: 120px
+    margin-bottom: 30px
+    margin-left: 30px
+    margin-right: 30px
+    background-color: transparent !important
+    border: 2px solid white
+    border-color: $accent-color !important
 
+    span
+      font-size: 18px
 
-        .feature-item
-          margin-left: 0px
-          margin-right: 0px
-          text-align: center
+.resources-panel, .collaborators-panel
+  padding-top: 20px
+  display: flex
+  justify-content: space-around
+  flex-direction: row
 
-          .feature-icon
-            width: 140px
-            text-align: center
-
-          .bullet-item
-            display: inline-block
-            word-wrap: break-word
-            width: 140px
-            white-space: normal
-            margin-left: 5px
-            margin-bottom: 15px
-            line-height: 22px
-            font-size: 16px
-            padding-top: 10px
-            text-align: center
-
-
-
-      .description-paragraph
-        width: 100%
-        margin-left: 40px
-        margin-right: 40px
-        margin-top: 60px
-
-        li
-          padding-bottom: 10px
-
-          li
-            padding-bottom: 4px
-
-
-      #video-thumbprint-heading
-        font-size: 18px
-        color: $text-color
-        margin-top: 0px
-        margin-bottom: 3px
-
-      #video-thumbprint-panel
-        margin-top: 0px
-        margin-bottom: 10px
-
-
-      #video-thumbprint-content
-        display: flex
-        flex-wrap: wrap
-
-
-      .video-thumbprint-well
-        position: relative
-        width: 110px
-        text-align: center
-        margin-left: 0px
-
-        .video-title
-          margin-top: 10px
-          margin-left: 10px
-          margin-right: 10px
-          color: $welcome-header-color
-          font-size: 14px
-          line-height: 17px
-          height: 65px
-          border: $welcome-border-color solid thin
-          padding: 5px
-          width: 100px
-          padding-top: 15px
-          background-color: white
-
-          &.three-line
-            padding-top: 5px
-
-          #play-button
-            cursor: pointer
-            opacity: 0.4
-            color: $play-button-color
-            font-size: 50px
-            position: absolute
-            top: 18px
-            left: 30px
-
-
-        .video-thumbprint
-          width: 90px
-          height: 50px
-          margin-top: 5px
-          margin-left: 10px
-          background-color: grey
-          background-size: cover
-          display: none
-
-          #play-button
-            cursor: pointer
-            opacity: 0.5
-            color: rgba(70, 70, 70, 0.9)
-            font-size: 60px
-            position: absolute
-            top: 0px
-            left: 25px
-
-
-      #video-thumbprint-heading-large
-        font-size: 20px
-        color: $text-color
-        position: relative
-        top: 55px
-        cursor: default
+  div
+    color: white
+    font-family: $landing-page-font
+    font-size: 18px
+    margin-left: 25px
+    margin-right: 25px
+    text-align: center
+    line-height: 22px
 
 
 
-      .video-thumbprint-well-large
-        position: relative
-        width: 250px
-        height: 160px !important
-        text-align: center
-        margin-left: 0px
-
-        .video-title
-          margin-top: 10px
-          margin-left: 10px
-          margin-right: 10px
-          color: white
-          font-size: 16px
-          line-height: 17px
 
 
-        .video-thumbprint-large
-          background-color: grey
-          background-size: cover
+.how-it-works-panel, .features-panel
+  clear: both
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  flex-wrap: wrap
+  padding: 30px
+  padding-top: 5px
 
-          #play-button
-            cursor: pointer
-            opacity: .4
-            color: $play-button-color
-            font-size: 90px
-            position: absolute
-            top: 40px
-            left: 80px
-            cursor: pointer
+  .divider
+    background-color: transparent
+    max-width: 90%
+    margin-top: 20px
+    margin-bottom: 15px
+
+  div.features-item
+    margin-bottom: 40px
+
+    i.material-icons
+      display: inline
+      margin-right: 8px
+      color: $accent-color
+      font-size: 42px
+
+  div.how-it-works-item, div.features-item
+    display: flex
+
+    .avatar
+      margin-right: 10px
+      min-width: 32px !important
+      min-height: 32px !important
+
+      &.teal
+        background-color: $accent-color-light !important
+
+    .how-it-works-image, .features-image
+      margin-right: 0px
+
+      img
+        max-width: 400px
+        min-width: 200px
+        -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
+        box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
 
 
-        #welcome-screencast-panel-intro
-          background-color: white
+
+    .how-it-works-title, .features-title
+      font-family:  $landing-page-font
+      font-size:    18px
+      display:      inline-block
+      line-height:  24px
+      margin-right: 30px
+      width: 270px
+
+    .how-it-works-title, .features-title
+      margin-right: 10px
+      min-width: 250px
+      max-width: 250px
+
+    .features-title
+      color: $header-color
+      font-weight: 500
+
+    .how-it-works-title
+      color: $header-color
+      font-weight: 500
+
+
+
+#blog-post-content, .video-content
+  display: flex
+  flex-wrap: wrap
+  flex-direction: row
+  justify-content: space-between
+  align-items: center
+  padding-bottom: 40px
+  padding-top: 20px
+  padding-left: 40px
+  padding-right: 20px
+
+
+  .blog-post
+    height: 100px
+    width:  200px
+    margin-bottom: 50px
+
+    .blog-post-title
+      font-family: $landing-page-font
+      color: $app-color
+      font-size: 20px
+      padding-top: 15px
+      text-align: center
+      padding-bottom: 5px
+      font-weight: 500
+
+    .blog-post-well
+      position: relative
+      cursor: pointer
+      position: relative
+      text-align: center
+      margin-left: 0px
+      outline: thin solid lightgray
+
+
+
+  .video-item
+    margin-right: 30px
+    margin-bottom: 20px
+  .video-thumbnail-placeholder
+
+    height: 132px
+    width:  252px
+    cursor: pointer
+    outline: 1px solid lightgray
+    position: relative
+
+    img
+      width: 250px
+      height: 130px
+
+    #play-button
+      cursor: pointer
+      color: $app-color
+      font-size: 80px
+      top: 30px
+      left: 90px
+      opacity: .7
+      position: absolute
+
+  .video-text-title
+    font-size: 20px
+    font-family: $landing-page-font
+    cursor: pointer
+    color: $app-color
+    padding-bottom: 5px
+    text-align: center
+    font-weight: 500
+
+
+
+
+
+
+
+
 
 #screencast-panel
-  text-align: center
-  margin-top: 50px
-  overflow: visible
+  margin-top: -5px
+  display: flex
+  height: -webkit-fill-available
+  justify-content: space-around
+  flex-direction: column
+  align-items: center
+  margin-left: -5px
+  margin-right: -5px
+  background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
 
   .video-container
-    height: 430px
-    width: 680px
-    background-color: white
+    height: 500px
+    width: 780px
     margin-left: auto
     margin-right: auto
+    text-align: center
 
     h4
-      font-size: 21px
+      font-size: 24px
       padding-top: 10px
-      margin-right: 50px
+      margin-right: 90px
+      font-family:  $landing-page-font
+      color: white
+
+    i.material-icons
+      color: white !important
 
     .video-stop-button
       float: left
@@ -237,6 +381,7 @@
 
       i.material-icons
         text-align: left
+        color: white !important
 
     .iframe-placeholder
       position: relative
@@ -249,19 +394,441 @@
   min-height: 500px
   margin-top: -35px
 
+</style>
 
+<style>
+
+@media only screen and (max-width: 1130px) {
+.how-it-works .how-it-works-panel .how-it-works-image img {
+    max-width: 300px !important;
+}
+}
+
+@media only screen and (max-width: 1000px) {
+.welcome-panel.main img ,
+.welcome-panel.main .image-shadow {
+    display: none
+}
+.how-it-works-panel {
+  padding: 0px;
+}
+}
+
+@media only screen and (max-width: 600px) {
+
+
+#welcome-area .welcome-panel.main {
+  flex-direction: column !important;
+}
+#welcome-area .welcome-panel.how-it-works {
+  width: 100%;
+}
+.how-it-works-panel {
+  align-items: center;
+}
+#welcome-area .welcome-panel.main .main-headline {
+  padding-top: 15px;
+}
+
+.welcome-panel.main img,
+.welcome-panel.main .image-shadow,
+.welcome-panel.how-it-works img,
+.welcome-panel.features img,
+.how-it-works-image,
+.features-image {
+  display: none
+}
+.how-it-works-panel {
+  padding: 30px;
+}
+
+}
 
 </style>
 
 <template>
-  <div class="one">
+  <div style="background-color:white">
+    <div id="welcome-area" style="background-color:white">
+
+      <div class="welcome-panel main">
+        <div class="main-headline">
+
+          <div style="padding-top:10px;padding-left:20px;padding-right:20px">
+            <transition-group  name="fadeDown" >
+              <div v-if="showWelcomeLabel" style="animation-duration: 1s; " key="welcome-label" id="welcome-label">
+                <div>
+                  <center>
+                    Analyze Genomic Variants <br> in Real-time
+                  </center>
+
+
+                </div>
+              </div>
+            </transition-group>
+
+            <transition-group  name="fadeDown" tag="div" >
+              <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group"
+                   style="text-align:center;animation-duration: 1s;">
+                <v-btn class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
+                  <i class="material-icons">explore</i>
+                  RUN WITH DEMO DATA
+                </v-btn>
+                <v-btn  class="welcome-button"  @click="playVideo('screencast-intro')">
+                  <i class="material-icons">play_circle_filled_white</i>
+                  WATCH THE VIDEO
+                </v-btn>
+              </div>
+            </transition-group>
+          </div>
+
+        </div>
+
+        <div class="welcome-panel how-it-works  " >
+          <div id="welcome-label-small"  class="accent-label" style="padding-top:10px;text-align:center">How it works</div>
+
+
+          <div class="how-it-works-panel">
+
+
+
+            <div class="how-it-works-item">
+              <v-avatar size="32px" color="teal">
+                <span class="white--text headline">1</span>
+              </v-avatar>
+              <span class="how-it-works-title">Enter on a gene or search on a phenotype</span>
+                <div class="how-it-works-image"  >
+                  <img  src="../../../assets/images/landing_page/search_gene_or_phenotype.png" style=""></img>
+                </div>
+            </div>
+
+            <v-divider></v-divider>
+
+            <div class="how-it-works-item">
+              <v-avatar size="32px" color="teal">
+                <span class="white--text headline">2</span>
+              </v-avatar>
+              <span class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
+              <div class="how-it-works-image">
+                <img  src="../../../assets/images/landing_page/analyzing_genes.gif" style="width:230px"></img>
+              </div>
+            </div>
+
+            <v-divider></v-divider>
+
+            <div class="how-it-works-item">
+              <v-avatar size="32px" color="teal">
+                <span class="white--text headline">3</span>
+              </v-avatar>
+              <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  When alignments are provided, see coverage levels across the gene.</span>
+              <div class="how-it-works-image">
+                <img  src="../../../assets/images/landing_page/trio_variant_cards.png" style="max-width:500px"></img>
+              </div>
+            </div>
+
+            <v-divider></v-divider>
+
+            <div class="how-it-works-item">
+              <v-avatar size="32px" color="teal">
+                <span class="white--text headline">4</span>
+              </v-avatar>
+              <span class="how-it-works-title">As genes are being analyzed, filters are pinpointing out the most interesting variants for closer examination. Customize the filters and the filtered variants are instantly reassessed.</span>
+              <div class="how-it-works-image">
+                <img src="../../../assets/images/landing_page/filters_during_analysis.gif"></img>
+              </div>
+            </div>
+
+            <v-divider></v-divider>
+
+            <div class="how-it-works-item">
+              <v-avatar size="32px" color="teal">
+                <span class="white--text headline">5</span>
+              </v-avatar>
+              <span class="how-it-works-title">When all genes have been analyzed, review each filtered variant to assess pathogenicity and association with known phenotypes.</span>
+              <div class="how-it-works-image">
+                <img src="../../../assets/images/landing_page/flagged_variants.png" style="width: 270px;"></img>
+              </div>
+            </div>
+
+            <v-divider></v-divider>
+
+            <div class="how-it-works-item">
+              <v-avatar size="32px" color="teal">
+                <span class="white--text headline">6</span>
+              </v-avatar>
+              <span class="how-it-works-title">Click on a variant to view the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
+              <div class="how-it-works-image">
+                <img  src="../../../assets/images/landing_page/variant_detail_card.png" style="max-width:500px;"></img>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+
+      <v-divider style="margin-top:0px"></v-divider>
+
+
+      <div class="welcome-panel features ">
+        <div id="welcome-label-small" class="accent-label">
+          Features
+        </div>
+
+
+        <div class="features-panel ">
+
+          <div class="features-item">
+            <v-icon>check_circle</v-icon>
+            <span class="features-title">Examine the alignments for a variant in the pileup view.</span>
+            <div class="features-image">
+              <img  src="../../../assets/images/landing_page/pileup.png" style="width:100%"></img>
+            </div>
+          </div>
+
+
+          <div class="features-item">
+            <v-icon>check_circle</v-icon>
+            <span class="features-title">Examine the gene in detail.  Change the transcript and annotations across the variants are reassessed.</span>
+            <div class="features-image">
+              <img  src="../../../assets/images/landing_page/gene_card.png" style="width:100%%"></img>
+            </div>
+          </div>
+
+
+
+          <div class="features-item">
+            <v-icon>check_circle</v-icon>
+            <span class="features-title">Change the transcript and annotations across the variants are reassessed.</span>
+            <div class="features-image">
+              <img  src="../../../assets/images/landing_page/transcript_selection.png" style="width:100%"></img>
+            </div>
+          </div>
+
+
+          <div class="features-item">
+            <v-icon>check_circle</v-icon>
+            <span class="features-title">Examine all variants across the gene.  This is especially useful for compound hets and pinpointing data quality issues</span>
+            <div class="features-image">
+              <img src="../../../assets/images/landing_page/ranked_variants.png" style="width: 280px;"></img>
+            </div>
+          </div>
+
+          <div class="features-item">
+            <v-icon>check_circle</v-icon>
+            <span class="features-title">Display the ClinVar track to examine your variant in the context of nearby pathogenic variants</span>
+            <div class="features-image">
+              <img  src="../../../assets/images/landing_page/clinvar_track.png" style="width:100%"></img>
+            </div>
+          </div>
+
+
+          <div class="features-item">
+            <v-icon>check_circle</v-icon>
+            <span class="features-title">Customize the filters and the filtered variants are instantly reassessed.</span>
+            <div class="features-image">
+              <img src="../../../assets/images/landing_page/filters_customize.png" style="width:300px"></img>
+            </div>
+          </div>
+
+          <div class="features-item">
+            <v-icon>check_circle</v-icon>
+            <span class="features-title">Click on the 'Insufficient Coverage' filter, set the coverage thresholds.  Now examine the pinpointed genes in detail.</span>
+            <div class="features-image">
+              <img  src="../../../assets/images/landing_page/insufficient_coverage_tooltip.png" style="width:300px"></img>
+            </div>
+          </div>
+
+
+          <div class="features-item">
+            <v-icon>check_circle</v-icon>
+            <span class="features-title">Look for missed variants by calling variants in real-time</span>
+            <div class="features-image">
+              <img src="../../../assets/images/landing_page/called_variants.png" style="width:300px"></img>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="welcome-panel resources">
+        <div id="welcome-label-small">
+          IOBIO.  Powered by state-of-the-art bioinformatics tools.
+        </div>
+        <div class="resources-panel">
+          <v-avatar color="teal" >
+              <span class="white--text">Variant Effect Predictor</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Samtools</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Tabix</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">vt</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">GNomAD</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">1000 Genomes</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Phenolyzer</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">RefSeq</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Gencode</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">Human Phenotype Ontology</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">igv.js</span>
+          </v-avatar>
+        </div>
+      </div>
+
+      <div class="welcome-panel videos-and-blogs" style="padding-bottom:40px">
+        <div id="welcome-label-small" class="accent-label">
+         Learn about gene.iobio
+        </div>
+
+        <div class="video-content">
+          <div class="video-item">
+              <div class="video-text-title" @click="playVideo('screencast-multi-gene-analysis')">Multi-gene analysis</div>
+              <div class="video-thumbnail-placeholder">
+                <img src="../../../assets/images/landing_page/thumbnail_genes.png" alt="">
+                <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
+                </i>
+              </div>
+          </div>
+
+          <div class="video-item">
+              <div class="video-text-title" @click="playVideo('screencast-coverage-analysis')">Coverage analysis</div>
+              <div class="video-thumbnail-placeholder">
+                <img src="../../../assets/images/landing_page/thumbnail_coverage.png" alt="">
+                <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
+                </i>
+              </div>
+          </div>
+
+          <div class="video-item">
+              <div class="video-text-title" @click="playVideo('screencast-saving-analysis')">Saving your analysis</div>
+              <div class="video-thumbnail-placeholder">
+                <img src="../../../assets/images/landing_page/thumbnail_saving.png" alt="">
+                <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
+                </i>
+              </div>
+          </div>
+        </div>
+
+
+        <div id="blog-post-content">
+
+
+
+          <div class="blog-post">
+            <div class="blog-post-title ">
+              New gene.iobio 3.0
+            </div>
+            <a href="http://iobio.io/2018/07/20/gene_3.0/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                    <img src="http://iobio.io/public/images/blog/gene_3.0/banner.png" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+
+          <div class="blog-post ">
+            <div class="blog-post-title">
+              Loading your data
+            </div>
+            <a href="http://iobio.io/2017/09/27/loading-data/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                  <img src="http://iobio.io/public/images/blog/loading_data/blog_image_data.jpg" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+
+          <div class="blog-post ">
+            <div class="blog-post-title ">
+              Saving results
+            </div>
+            <a href="http://iobio.io/2017/04/26/gene_2.3.0/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                  <img src="http://iobio.io/public/images/blog/gene_2.3.0/main.png" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+
+          <div class="blog-post ">
+            <div class="blog-post-title">
+              Coverage analysis
+            </div>
+            <a href="http://iobio.io/2017/07/11/coverage/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                  <img src="http://iobio.io/public/images/blog/coverage/main.png" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+          <div class="blog-post ">
+            <div class="blog-post-title">
+              ClinVar &amp; gnomAD
+            </div>
+            <a href="http://iobio.io/2017/09/29/gene_2.5.0/" target="_new">
+              <div class="blog-post-well ">
+                <div class="blog-post shadow-z-2" >
+                  <img src="http://iobio.io/public/images/blog/gene_2.5.0/banner.png" width="100%" height="100%">
+                </div>
+              </div>
+            </a>
+          </div>
+
+
+
+
+
+
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+
+
+
+
+
     <div id="screencast-panel" class="hide">
 
 
       <div id="screencast-intro" class="hide video-container">
-        <button  class="video-stop-button btn " @click="stopVideo('screencast-intro')">
+        <v-btn style="float:left"   flat @click="stopVideo('screencast-intro')">
           <i class="material-icons">arrow_back</i>
-        </button>
+        </v-btn>
         <h4>Introducing gene.iobio</h4>
         <div id="screencast-intro-iframe-placeholder"></div>
       </div>
@@ -293,230 +860,12 @@
       </div>
     </div>
 
-
-
-
-    <section id="background-img-container">
-        <img class="elevation-5" style="position:absolute; left: 58%; top:110px; height:375px; width:550px" src="./geneBg.png">
-    </section>
-    <div id="welcome-area" class="">
-
-      <div class="welcome-panel elevation-5" >
-
-        <transition-group  name="fadeDown" >
-          <div v-if="showWelcomeLabel" style="animation-duration: 1s; max-width:60%;" key="welcome-label" id="welcome-label">
-            <div>
-              <center>
-                A web tool for disease-causing variant interrogation
-              </center>
-            </div>
-          </div>
-        </transition-group>
-
-        <transition-group  name="fadeDown" tag="div" >
-          <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group" style="animation-duration: 1s;margin-top:30px">
-            <v-btn text-color="white" style="color:white" class="primary" id="load-demo-data"  @click="onLoadDemoData">
-              Try it with demo data
-            </v-btn>
-            <v-btn text-color="white" style="color:white" class="primary"  @click="onAppTour">
-              Take guided tour
-            </v-btn>
-            <v-btn outline color="indigo"  @click="playVideo('screencast-intro')">
-              <v-icon style="font-size:30px" color="primary">play_circle_filled_white</v-icon>
-              <span style="margin-left:-170px">WATCH THE VIDEO</span>
-            </v-btn>
-          </div>
-        </transition-group>
-        <div id="welcome-panel-content">
-
-
-          <div class="description-paragraph">
-            <div style="display:flex;justify-content:space-between">
-              <center>
-              <transition-group  name="fadeDown" tag="div" class="feature-container">
-                  <div v-show="showWelcomeFeature" style="animation-duration: 1s" class="feature-item" v-for="feature in appFeatures" :key="feature.key">
-                    <div  class="bullet-item" v-html="feature.display"></div>
-                  </div>
-              </transition-group>
-            </center>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="welcome-panel elevation-5" style="padding:20px;margin-top:30px">
-        <div id="welcome-label-small">
-          Videos
-        </div>
-        <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
-
-
-
-          <div id="video-thumbprint-panel">
-            <div id="video-thumbprint-content">
-
-
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-coverage-analysis" class="video-thumbprint shadow-z-2" >
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-intro')">play_arrow
-                  </i>
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-intro')">play_arrow
-                  </i>
-                  Introducing gene.iobio
-                </div>
-              </div>
-
-
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-multigene-analysis" class="video-thumbprint shadow-z-2">
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-multi-gene-analysis')">play_arrow
-                  </i>
-                 Multi-gene analysis
-                 </div>
-              </div>
-
-
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-coverage-analysis" class="video-thumbprint shadow-z-2" >
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
-                  </i>
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-coverage-analysis')">play_arrow
-                  </i>
-                  Coverage analysis
-                </div>
-              </div>
-
-
-
-              <div class="video-thumbprint-well ">
-                <div id="welcome-screencast-panel-saving-analysis" class="video-thumbprint shadow-z-2" >
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
-                  </i>
-                </div>
-                <div class="video-title">
-                  <i class="material-icons" id="play-button" @click="playVideo('screencast-saving-analysis')">play_arrow
-                  </i>
-                  Saving your analysis
-
-                </div>
-              </div>
-
-
-
-
-
-
-
-            </div>
-          </div>
-        </div>
-
-
-
-      </div>
-
-      <div class="welcome-panel elevation-5" style="margin-top:30px;padding-top:20px">
-        <div id="welcome-label-small">
-          Blog Posts
-        </div>
-        <div id="welcome-panel-content"  style="display:flex;justify-content:space-around">
-
-
-          <div id="video-thumbprint-panel">
-            <div id="video-thumbprint-content">
-
-
-
-              <a href="http://iobio.io/2018/07/20/gene_3.0/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-
-                  </div>
-                  <div class="video-title three-line">
-                    New gene.iobio 3.0
-                  </div>
-                </div>
-              </a>
-
-
-
-              <a href="http://iobio.io/2017/09/27/loading-data/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/loading_data/blog_image_data.jpg" width="100%" height="100%">
-                  </div>
-                  <div class="video-title">
-                    How to load your data
-                  </div>
-                </div>
-              </a>
-
-
-              <a href="http://iobio.io/2017/04/26/gene_2.3.0/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/gene_2.3.0/main.png" width="100%" height="100%">
-                  </div>
-                  <div class="video-title three-line">
-                    Saving and loading your analysis
-                  </div>
-                </div>
-              </a>
-
-
-
-              <a href="http://iobio.io/2017/07/11/coverage/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/coverage/main.png" width="100%" height="100%">
-                  </div>
-                  <div class="video-title">
-                    Coverage analysis
-                  </div>
-                </div>
-              </a>
-
-
-              <a href="http://iobio.io/2017/09/29/gene_2.5.0/" target="_new">
-                <div class="video-thumbprint-well ">
-                  <div class="video-thumbprint shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/gene_2.5.0/banner.png" width="100%" height="100%">
-                  </div>
-                  <div class="video-title">
-                    ClinVar and gnomAD
-                  </div>
-                </div>
-              </a>
-
-
-
-
-
-
-
-            </div>
-          </div>
-        </div>
-
-
-
-      </div>
-    </div>
   </div>
 </template>
 
 
 <script>
+
 
 
 export default {
@@ -546,32 +895,32 @@ export default {
         'screencast-intro': {
           src: "https://www.youtube.com/embed/1R3kuXh6seQ?autoplay=1&rel=0&ecver=2",
           videoId: '1R3kuXh6seQ',
-          width: 623,
-          height: 369,
+          width: 670,
+          height: 420,
           frameborder: "0",
           allowfullscreen: ""
         },
         'screencast-coverage-analysis': {
           src: "https://www.youtube.com/embed/dnq8HtthDgU?autoplay=1&rel=0&ecver=2",
           videoId: 'dnq8HtthDgU',
-          width: 623,
-          height: 369,
+          width: 670,
+          height: 420,
           frameborder: "0",
           allowfullscreen: ""
         },
         'screencast-saving-analysis': {
           src: "https://www.youtube.com/embed/6T8DkrJWd6w?autoplay=1&rel=0&ecver=2",
           videoId: '6T8DkrJWd6w',
-          width: 623,
-          height: 369,
+          width: 670,
+          height: 420,
           frameborder: "0",
           allowfullscreen: ""
         },
         'screencast-multi-gene-analysis': {
           src: "https://www.youtube.com/embed/EW2Sm4HEAPg?autoplay=1&rel=0&ecver=2",
           videoId: 'EW2Sm4HEAPg',
-          width: 623,
-          height: 369,
+          width: 670,
+          height: 420,
           frameborder: "0",
           allowfullscreen: ""
         }
@@ -606,6 +955,8 @@ export default {
       $('#screencast-panel').removeClass('hide');
       $('.video-container').addClass('hide');
       $('#background-img-container').addClass('hide');
+      $('#diagonal-background').addClass('hide');
+
 
       videoContainer.removeClass('hide');
 
@@ -658,7 +1009,7 @@ export default {
       $('#welcome-area').removeClass('hide');
       $('#screencast-panel').addClass('hide');
       $('#background-img-container').removeClass('hide');
-
+      $('#diagonal-background').removeClass('hide');
     },
 
     onLoadDemoData: function() {

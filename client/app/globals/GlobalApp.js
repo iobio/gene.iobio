@@ -14,7 +14,9 @@ class GlobalApp {
     this.DEV_IOBIO             = "nv-dev-new.iobio.io/";
     this.STAGE_IOBIO           = "nv-green.iobio.io/";
     this.PROD_IOBIO            = "nv-prod.iobio.io/";
-    this.CURRENT_IOBIO         = this.PROD_IOBIO;
+
+    this.IOBIO_SOURCE          = this.PROD_IOBIO;
+    this.HTTP_SOURCE           = this.PROD_IOBIO;
 
 
     this.isOffline             = false;          // is there any internet connect to outside services and resources?
@@ -32,13 +34,11 @@ class GlobalApp {
     this.useServerCache        = false;
 
 
+    this.IOBIO_SERVICES        = null;
+    this.HTTP_SERVICES         = null;
+    this.emailServer           = null;
+    this.hpoLookupUrl          = null;
 
-    this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.CURRENT_IOBIO;
-    this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.CURRENT_IOBIO);
-    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SERVICES + "email/";
-
-
-    this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
 
     // config files
     this.siteConfigUrl         =  { 'prod': "https://s3.amazonaws.com/gene.iobio.config/site-config.json",
@@ -76,7 +76,8 @@ class GlobalApp {
     this.autocall                    = null       // If only alignments provided, should variants be automatically called when gene is selected?
 
 
-    this.DEFAULT_BATCH_SIZE          = 10;              // how many genes can be analyzed simultaneously for 'Analyze all'
+    this.DEFAULT_BATCH_SIZE          = 10;         // how many genes can be analyzed simultaneously for 'Analyze all'
+    this.ignoreAlignments            = false;     // By pass any processing of aligments?
 
     this.keepLocalStorage            = false; // maintain cache between sessions?
     this.eduModeVariantSize          = 10;
@@ -84,6 +85,21 @@ class GlobalApp {
     // Fields
     this.impactFieldToFilter         = 'highestImpactVep';
     this.impactFieldToColor          = 'vepImpact';
+
+  }
+
+  initServices() {
+
+    this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.IOBIO_SOURCE;
+
+    // End with "/" for IOBIO services
+    if (this.IOBIO_SERVICES.indexOf("/", this.IOBIO_SERVICES.length - 1) == -1) {
+        this.IOBIO_SERVICES += "/";
+    }
+
+    this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
+    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
+    this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
 
   }
 

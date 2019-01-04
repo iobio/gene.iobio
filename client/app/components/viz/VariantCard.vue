@@ -216,7 +216,7 @@
       <v-btn id="variant-pileup-button"
        class="variant-action-button"
        v-if="sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship != 'known-variants' && !isEduMode && !isBasicMode"
-       :style="variantPosition"
+       :style="pileupStyle"
        @click="onShowPileupForVariant">
         <v-icon>line_style</v-icon>
         Pileup
@@ -305,6 +305,7 @@
           :variantPadding="variantSymbolPadding"
           :showBrush="false"
           :showXAxis="true"
+          :showWhenEmpty="false"
           :classifySymbolFunc="classifyVariantSymbolFunc"
           @variantClick="onVariantClick"
           @variantHover="onVariantHover"
@@ -312,7 +313,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.loadedVariants.features.length > 0 && sampleModel.relationship != 'known-variants'"
+        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship != 'known-variants'"
         >
           loaded variants
         </div>
@@ -331,6 +332,7 @@
           :variantPadding="variantSymbolPadding"
           :showBrush="false"
           :showXAxis="true"
+          :showWhenEmpty="true"
           :classifySymbolFunc="classifyVariantSymbolFunc"
           @variantClick="onVariantClick"
           @variantHover="onVariantHover"
@@ -492,7 +494,7 @@ export default {
       zoomMessage: "Drag to zoom",
 
 
-      variantPosition: {}
+      pileupStyle: {}
 
     }
   },
@@ -536,7 +538,7 @@ export default {
       if (variant) {
         let left = variant.screenX - this.$el.offsetLeft - 50;
         let top  = variant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
-        this.variantPosition =  {'left': left + 'px', 'top': top + 'px'};
+        this.pileupStyle =  {display: 'flex', 'left': left + 'px', 'top': top + 'px'};
       }
 
       this.$emit('cohort-variant-click', variant, this, this.sampleModel.relationship);
@@ -623,8 +625,11 @@ export default {
         if (lock && matchingVariant && matchingVariant.screenX && matchingVariant.screenY) {
           let left = matchingVariant.screenX - this.$el.offsetLeft - 50;
           let top  = matchingVariant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
-          this.variantPosition =  {'left': left + 'px', 'top': top + 'px'};
+          this.pileupStyle =  {display: 'flex', 'left': left + 'px', 'top': top + 'px'};
+        } else if (lock && !matchingVariant) {
+          this.pileupStyle =  {display: 'none'};
         }
+
       }
     },
     hideVariantCircle: function(lock) {

@@ -162,6 +162,10 @@ nav.toolbar
     margin-right: 16px
     color: $nav-text-color
 
+  #phenolyzer-search
+    margin-left: 5px
+    margin-right: 60px
+
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
     margin-top: 8px
     .input-group input
@@ -308,9 +312,9 @@ nav.toolbar
 
 .citation-title
   margin-bottom: 0px !important
-  margin-top: 5px !important
-  font-size: 12px
-  color: #717171
+  margin-top: 15px !important
+  font-size: 14px
+  color: $app-color
   font-weight: 600
   clear: both
 
@@ -324,6 +328,25 @@ nav.toolbar
     padding-top: 2px
     color: $nav-text-color
 
+
+
+</style>
+
+<style>
+
+@media only screen and (max-width: 600px) {
+#phenolyzer-search {
+  margin-right: 0px !important;
+}
+#search-or {
+  display: none !important;
+}
+.nav.toolbar.toolbar__title {
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+  min-width: 110px !important;
+}
+}
 </style>
 
 <template>
@@ -386,13 +409,14 @@ nav.toolbar
 
 
         <phenotype-search
+         id="phenolyzer-search"
          v-if="!isEduMode && !launchedFromClin"
-         style="margin-left:5px;margin-right:60px"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
          :defaultTopGenes="10"
          :geneModel="geneModel"
+         :phenotypeLookupUrl="phenotypeLookupUrl"
          @on-search-genes="onSearchPhenolyzerGenes"
          @on-start-search-genes="onStartSearchPhenolyzerGenes"
          @show-snackbar="onShowSnackbar"
@@ -638,45 +662,22 @@ nav.toolbar
     </v-dialog>
 
 
-   <v-dialog v-model="showCitations" max-width="700">
-        <v-card>
+   <v-dialog v-model="showCitations" max-width="700" max-height="">
+        <v-card style="overflow-y:scroll;height:500px">
           <v-card-title class="headline">Software and Resources</v-card-title>
           <v-card-text>
 
 
-            <div id="credits">
-
-
-
-              <div class="citation-title">Human Phenotype Ontology</div>
-              Sebastian Köhler, Sandra C Doelken, Christopher J. Mungall, Sebastian Bauer, Helen V. Firth, et al.The Human Phenotype Ontology project: linking molecular biology and disease through phenotype data
-              <a href="http://nar.oxfordjournals.org/content/42/D1/D966.full" target="_new">Nucliec Acids Res. (1 January 2014) 42 (D1): D966-D974 doi:10.1093/nar/gkt1026</a>
-
-
-              <div class="citation-title">Phenolyzer</div>
-              Yang, Hui, Peter N. Robinson, and Kai Wang. Phenolyzer: phenotype-based prioritization of candidate genes for human diseases.
-              <a href="http://www.nature.com/nmeth/journal/v12/n9/abs/nmeth.3484.html" target="_new">Nature Methods (2015).
-              </a>
-
-              <div class="citation-title">SnpEff</div>
-               "A program for annotating and predicting the effects of single nucleotide polymorphisms, SnpEff: SNPs in the genome of Drosophila melanogaster strain w1118; iso-2; iso-3.", Cingolani P, Platts A, Wang le L, Coon M, Nguyen T, Wang L, Land SJ, Lu X, Ruden DM. Fly (Austin). <a href="http://snpeff.sourceforge.net/SnpEff_paper.pdf" target="_new">2012 Apr-Jun;6(2):80-92.</a> PMID: 22728672 [PubMed - in process]
+            <div id="credits" >
 
               <div class="citation-title">Variant Effect Predictor</div>
               McLaren W, Pritchard B, Rios D, Chen Y, Flicek P, Cunningham F.Deriving the consequences of genomic variants with the Ensembl API and SNP Effect Predictor.
               <a href="http://dx.doi.org/10.1093/bioinformatics/btq330" target="_new">Bioinformatics 26(16):2069-70(2010)doi:10.1093/bioinformatics/btq330</a>
 
-              <div class="citation-title">PolyPhen</div>
-              Adzhubei IA, Schmidt S, Peshkin L, Ramensky VE, Gerasimova A, Bork P, Kondrashov AS, Sunyaev SR. Nat Methods <strong>7</strong>(4):248-249 (2010). <a href="http://www.ncbi.nlm.nih.gov/pubmed/20354512" class="urlextern" title="http://www.ncbi.nlm.nih.gov/pubmed/20354512" rel="nofollow">PubMed</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248.pdf" class="media mediafile mf_pdf" title="nmeth0410-248.pdf">PDF</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248-s1.pdf" class="media mediafile mf_pdf" title="nmeth0410-248-s1.pdf">Supplemental Information</a>
-
-              <div class="citation-title">SIFT</div>
-                       Kumar P, Henikoff S, Ng PC. Predicting the effects of coding non-synonymous variants on
-                       protein function using the SIFT algorithm.
-                       <i>Nat Protoc. 2009</i>;4(7):1073-81.
-               <a href="http://www.ncbi.nlm.nih.gov/pubmed/19561590">PubMed</a> <a href="/www/nprot.2009.86.pdf" target="_blank">PDF</a>
-
               <div class="citation-title">FreeBayes</div>
               Garrison E, Marth G. Haplotype-based variant detection from short-read sequencing
               <a href="/abs/1207.3907v2">arXiv:1207.3907v2</a> [q-bio.GN]
+
 
               <div class="citation-title">ClinVar</div>
               Landrum MJ, Lee JM, Riley GR, Jang W, Rubinstein WS, Church DM, Maglott DR. <u>ClinVar: public archive of relationships among sequence variation and human phenotype</u>. Nucleic Acids Res. 2014 Jan 1;42(1):D980-5. doi: 10.1093/nar/gkt1113. PubMed PMID: <a href="/pubmed/24234437">24234437</a>
@@ -695,9 +696,10 @@ nav.toolbar
               <div class="citation-title">vt</div>
               <a rel="nofollow" class="external text" href="http://bioinformatics.oxfordjournals.org/content/31/13/2202">Adrian Tan, Gonçalo R. Abecasis and Hyun Min Kang. Unified Representation of Genetic Variants. Bioinformatics (2015) 31(13): 2202-2204</a>
 
-              <div class="citation-title">ExAC</div>
-              Analysis of protein-coding genetic variation in 60,706 humans<a href="http://biorxiv.org/content/early/2015/10/30/030338">preprint on bioRxiv</a>
-
+              <div class="citation-title">GNomAD and ExAC</div>
+                Monkol Lek, Konrad J. Karczewski[…]Exome Aggregation Consortium  Analysis of protein-coding genetic variation in 60,706 humans
+                <a href="https://www.nature.com/articles/nature19057">Nature volume 536, pages 285–291 (18 August 2016)
+                </a>
               <br>
                       The authors would like to thank the Exome Aggregation Consortium and the groups that provided exome variant data for comparison. A full list of contributing groups can be found at
                       <a href="/about">http://exac.broadinstitute.org/about</a>.
@@ -718,6 +720,33 @@ nav.toolbar
                     <em>Nature 526, 75–81 (01 October 2015)</em>
 
 
+
+
+              <div class="citation-title">Human Phenotype Ontology</div>
+              Sebastian Köhler, Sandra C Doelken, Christopher J. Mungall, Sebastian Bauer, Helen V. Firth, et al.The Human Phenotype Ontology project: linking molecular biology and disease through phenotype data
+              <a href="http://nar.oxfordjournals.org/content/42/D1/D966.full" target="_new">Nucliec Acids Res. (1 January 2014) 42 (D1): D966-D974 doi:10.1093/nar/gkt1026</a>
+
+
+              <div class="citation-title">Phenolyzer</div>
+              Yang, Hui, Peter N. Robinson, and Kai Wang. Phenolyzer: phenotype-based prioritization of candidate genes for human diseases.
+              <a href="http://www.nature.com/nmeth/journal/v12/n9/abs/nmeth.3484.html" target="_new">Nature Methods (2015).
+              </a>
+
+              <div class="citation-title">igv.js</div>
+              <a href="https://github.com/igvteam/igv.js/wiki">Getting started guide</a>
+
+
+              <div class="citation-title">PolyPhen</div>
+              Adzhubei IA, Schmidt S, Peshkin L, Ramensky VE, Gerasimova A, Bork P, Kondrashov AS, Sunyaev SR. Nat Methods <strong>7</strong>(4):248-249 (2010). <a href="http://www.ncbi.nlm.nih.gov/pubmed/20354512" class="urlextern" title="http://www.ncbi.nlm.nih.gov/pubmed/20354512" rel="nofollow">PubMed</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248.pdf" class="media mediafile mf_pdf" title="nmeth0410-248.pdf">PDF</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248-s1.pdf" class="media mediafile mf_pdf" title="nmeth0410-248-s1.pdf">Supplemental Information</a>
+
+              <div class="citation-title">SIFT</div>
+                       Kumar P, Henikoff S, Ng PC. Predicting the effects of coding non-synonymous variants on
+                       protein function using the SIFT algorithm.
+                       <i>Nat Protoc. 2009</i>;4(7):1073-81.
+               <a href="http://www.ncbi.nlm.nih.gov/pubmed/19561590">PubMed</a> <a href="/www/nprot.2009.86.pdf" target="_blank">PDF</a>
+
+              <div class="citation-title">REVEL</div>
+              Ioannidis NM, Rothstein JH, Pejaver V, et al. REVEL: An Ensemble Method for Predicting the Pathogenicity of Rare Missense Variants.  <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(16)30370-6">Am J Hum Genet. 2016;99(4):877-885.</a>
 
 
             </div>
@@ -770,7 +799,8 @@ export default {
     launchedFromClin: null,
     isFullAnalysis: null,
     isClinFrameVisible: null,
-    bringAttention: null
+    bringAttention: null,
+    phenotypeLookupUrl: null
   },
   data () {
     let self = this;

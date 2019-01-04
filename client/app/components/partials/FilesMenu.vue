@@ -381,6 +381,9 @@ export default {
           })
         }
       }
+      if (samples && samples.length > 0 && this.getModel(relationship)) {
+        this.getModel(relationship).samples = samples;
+      }
     },
     getModel: function(relationship) {
       var theModel = null;

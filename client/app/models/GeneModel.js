@@ -30,7 +30,8 @@ class GeneModel {
         gnomad:    { display: 'gnomAD',       url: 'http://gnomad.broadinstitute.org/variant/VARIANTCOORD-GNOMAD'},
         varsome:   { display: 'VarSome',      url: 'https://varsome.com/variant/GENOMEBUILD-ALIAS-UCSC/VARIANTCOORD-VARSOME'},
         dbsnp:     { display: 'dbSNP',        url: 'http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=VARIANT-RSID'},
-        ucsc:      { display: 'UCSC Browser', url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=VARIANTCOORD-UCSC'}
+        ucsc:      { display: 'UCSC Browser', url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=VARIANTCOORD-UCSC'},
+        clinvar:   { display: 'ClinVar',      url: 'https://www.ncbi.nlm.nih.gov/clinvar/variation/VARIANT-CLINVAR-UID/'}
     }
 
     this.geneSource = null;
@@ -1016,6 +1017,9 @@ class GeneModel {
       if (info && info.rsId &&  info.rsId.length > 0) {
         theLink.url = theLink.url.replace(/VARIANT-RSID/g, info.rsId);
       }
+      if (variant.clinvarUid) {
+        theLink.url = theLink.url.replace(/VARIANT-CLINVAR-UID/g, variant.clinvarUid);
+      }
       var keep = false;
 
       if (linkName == 'gnomad') {
@@ -1024,6 +1028,10 @@ class GeneModel {
         }
       } else if (linkName == 'dbsnp') {
         if (info && info.rsId &&  info.rsId.length > 0) {
+          keep = true;
+        }
+      } else if (linkName == 'clinvar') {
+        if (variant.clinvarUid && variant.clinvarUid.length > 0) {
           keep = true;
         }
       } else {

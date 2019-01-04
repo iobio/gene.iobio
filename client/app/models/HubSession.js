@@ -7,7 +7,7 @@ export default class HubSession {
     this.apiVersion =  '/apiv1';
   }
 
-  promiseInit(projectId, sampleId, source, isPedigree) {
+  promiseInit(sampleId, source, isPedigree, projectId ) {
     let self = this;
     self.api = source + self.apiVersion;
 
@@ -50,15 +50,30 @@ export default class HubSession {
 
                   if (!bypass) {
 
+
+
                     var modelInfo = {
                       'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
                       'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
                       'name':           theSample.name,
                       'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
                       'vcf':            theSample.files.vcf,
-                      'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
-                      'bam':            theSample.files.bam,
-                      'bai':            theSample.files.bai == null || theSample.files.bai.indexOf(theSample.files.bam) == 0 ? null : theSample.files.bai };
+                      'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi
+                    }
+
+                    if (theSample.files.bam != null) {
+                      modelInfo.bam = theSample.files.bam;
+                      if (theSample.files.bai) {
+                        modelInfo.bai = theSample.files.bai;
+                      }
+
+                    } else if (theSample.files.cram != null) {
+                      modelInfo.bam = theSample.files.cram;
+                      if (theSample.files.crai) {
+                        modelInfo.bai = theSample.files.crai;
+                      }
+                    }
+
                     modelInfos.push(modelInfo);
                   }
 

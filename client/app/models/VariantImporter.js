@@ -93,11 +93,28 @@ VariantImporter.parseRecordsGemini = function(data) {
   var fieldNames = VariantImporter.geminiFields;
   var importRecords = [];
 
-  var recs = data.split(/[\r\n]+/g);
+  let recs = null;
+  let isCommaDelimited = false;
+  if (Array.isArray(data)) {
+    recs = data;
+    isCommaDelimited = true;
+  } else {
+    recs = data.split(/[\r\n]/g);
+  }
+
+
   recs.forEach( function(rec) {
-    var fields = rec.split(/\s+/);
-    if (fields.length == 0 || fields[0] == "chrom" || fields[0] == '') {
-      // Ignore the header line or a blank link
+    var fields = null;
+    if (isCommaDelimited) {
+      fields = rec.split(/,/);
+    } else {
+      fields = rec.split(/\s/);
+    }
+    if (fields.length == 0 || fields[0] == '') {
+      // bypass empty rec
+    } else if (fields[0] == "chrom" && importRecords.length == 0) {
+      // If the column headers were provided, use these instead of the defaults
+      fieldNames = fields;
     } else {
       // Parse the tab separate record into fields
       var importRec = {};

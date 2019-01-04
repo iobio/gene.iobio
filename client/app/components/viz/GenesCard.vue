@@ -17,13 +17,13 @@
     vertical-align: top
     text-align: left
     padding-top: 16px
-    margin-left: 10px
+    margin-left: 30px
 
     label
       padding-left: 7px
       line-height: 18px
-      font-size: 12px
-      font-weight: bold
+      font-size: 13px
+      font-weight: normal
       padding-top: 2px
       color: $text-color
 

@@ -32,7 +32,7 @@ class CohortModel {
     this.sampleMapSibs = { affected: [], unaffected: []}
 
     this.mode = 'single';
-    this.maxAlleleCount = null;
+    this.maxAlleleCount = 0;
     this.affectedInfo = null;
     this.maxDepth = 0;
 
@@ -246,6 +246,8 @@ class CohortModel {
       self.isLoaded = false;
       self.inProgress.loadingDataSources = true;
 
+
+      self.maxAlleleCount = 0;
 
 
       let affectedSibs = modelInfos.filter(function(modelInfo) {
@@ -602,6 +604,8 @@ class CohortModel {
 
 
   samplesInSingleVcf() {
+    let self = this;
+    let allSamplesInVcf = false;
     var theVcfs = {};
     var cards = this.sampleModels.forEach(function(model) {
       if (!model.isAlignmentsOnly() && model.getRelationship() != 'known-variants') {
@@ -613,7 +617,32 @@ class CohortModel {
 
       }
     });
-    return Object.keys(theVcfs).length == 1;
+    allSamplesInVcf =  Object.keys(theVcfs).length == 1 ? true : false;
+
+    if (!allSamplesInVcf) {
+      allSamplesInVcf = self.doesProbandContainTrioSamples('proband');
+    }
+    return allSamplesInVcf;
+
+  }
+
+  doesProbandContainTrioSamples() {
+    let self = this;
+    let hasAllSamples = false;
+
+    if (this.mode == 'trio'
+           && this.getModel('proband')
+           && this.getModel('proband').samples
+           && this.getModel('mother')
+           && this.getModel('mother').sampleName
+           && this.getModel('father')
+           && this.getModel('father').sampleName) {
+      hasAllSamples =
+        this.getModel('proband').doesContainOtherSample(this.getModel('mother')) &&
+        this.getModel('proband').doesContainOtherSample(this.getModel('father'));
+    }
+
+    return hasAllSamples;
   }
 
 
@@ -800,7 +829,7 @@ class CohortModel {
           isTarget = true;
         }
 
-        var bypassZyg = SampleModel.isZygosityToBypass(feature, self.relationship);
+        var bypassZyg = SampleModel.isZygosityToBypass(feature, model.relationship);
 
         var inRegion = true;
         if (self.filterModel.regionStart && self.filterModel.regionEnd) {
@@ -1111,7 +1140,6 @@ class CohortModel {
       } else {
         // Set the max allele count across all variants in the trio.  We use this to properly scale
         // the allele counts bars in the tooltip
-        self.maxAlleleCount = 0;
         for(var rel in resultMap) {
           self.maxAlleleCount = SampleModel.calcMaxAlleleCount(resultMap[rel], self.maxAlleleCount);
         }

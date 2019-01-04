@@ -122,6 +122,7 @@ main.content
       :isClinFrameVisible="isClinFrameVisible"
       :isFullAnalysis="isFullAnalysis"
       :bringAttention="bringAttention"
+      :phenotypeLookupUrl="phenotypeLookupUrl"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -146,13 +147,16 @@ main.content
     <v-content>
       <v-container fluid>
 
-        <!-- Note that the transition needs to be disabled because otherwise
-            the pileup doesn't render properly because it attempts to render in
-            the middle of the transition and gets the wrong window size. An
-            alternative to disabling the transition would be to detect when the
-            transition is finished and set :visible after that -->
-        <v-dialog v-model="pileupInfo.show" :transition='false' width="800">
-          <v-card>
+
+        <modal name="pileup-modal"
+            :resizable="true"
+            :adaptive="false"
+            :draggable="true"
+            width="80%"
+            height="500"
+            >
+
+          <v-card style="overflow-y:auto;height:-webkit-fill-available;height:-moz-available;height:100%">
             <span id="pileup-title">
               <span class="pl-2" v-for="titlePart in pileupInfo.title" key="titlePart">
                 {{ titlePart }}
@@ -160,13 +164,14 @@ main.content
             </span>
             <pileup id="pileup-container"
               :referenceURL="pileupInfo.referenceURL"
-              :alignmentURL="pileupInfo.alignmentURL"
-              :variantURL="pileupInfo.variantURL"
+              :tracks="pileupInfo.tracks"
               :locus="pileupInfo.coord"
               :visible="pileupInfo.show"
             />
           </v-card>
-        </v-dialog>
+
+        </modal>
+
 
         <intro-card v-if="forMyGene2"
         :closeIntro="closeIntro"
@@ -439,6 +444,7 @@ import VariantCard        from  '../viz/VariantCard.vue'
 import AppTour            from  '../viz/AppTour.vue'
 
 import HubSession         from  '../../models/HubSession.js'
+import HubSessionDeprecated from  '../../models/HubSessionDeprecated.js'
 import Bam                from  '../../models/Bam.iobio.js'
 import vcfiobio           from  '../../models/Vcf.iobio.js'
 import Translator         from  '../../models/Translator.js'
@@ -495,8 +501,10 @@ export default {
     paramTour:             null,
     paramProjectId:        null,
     paramSampleId:         null,
+    paramSampleUuid:       null,
     paramIsPedigree:       null,
     paramSource:           null,
+    paramIobioSource:      null,
 
     paramFileId:           null,
 
@@ -513,6 +521,7 @@ export default {
     paramAffectedStatuses: null
   },
   data() {
+    let self = this;
     return {
       greeting: 'gene.iobio',
 
@@ -521,7 +530,17 @@ export default {
       isClinFrameVisible: false,
 
       launchedFromHub: false,
+      isHubDeprecated: false,
+      sampleId: null,
+      projectId: null,
       launchedWithUrlParms: false,
+
+      hubToIobioSources: {
+        "https://mosaic.chpc.utah.edu":         "hub-chpc.iobio.io",
+        "https://mosaic-dev.genetics.utah.edu": "hub-chpc.iobio.io",
+        "http://mosaic-dev.genetics.utah.edu":  "hub-chpc.iobio.io",
+        "https://staging.frameshift.io":        "nv-blue.iobio.io"
+      },
 
 
       allGenes: allGenesData,
@@ -601,6 +620,7 @@ export default {
 
       forceLocalStorage: null,
 
+      phenotypeLookupUrl: null,
 
       pileupInfo: {
         // This controls how many base pairs are displayed on either side of
@@ -784,9 +804,9 @@ export default {
 
             if (self.launchedFromHub) {
               self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
-              self.hubSession = new HubSession();
+              self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
               let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
-              self.hubSession.promiseInit(self.paramProjectId, self.paramSampleId, self.paramSource, isPedigree )
+              self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
               .then(modelInfos => {
                 self.modelInfos = modelInfos;
 
@@ -894,6 +914,10 @@ export default {
 
       this.clearFilter();
       this.flaggedVariants = [];
+      self.cohortModel.clearFlaggedVariants();
+      if (self.$refs.genesCard) {
+        self.$refs.genesCardRef.determineFlaggedGenes();
+      }
 
       return new Promise(function(resolve, reject) {
         if (self.isEduMode) {
@@ -1754,13 +1778,38 @@ export default {
         self.isBasicMode  = self.paramMode == "basic" ? true : false;
         self.isEduMode    = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
       }
-      if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0 && self.paramSampleId && self.paramSource) {
+      if (self.paramSampleId && self.paramSampleId.length > 0) {
+        self.sampleId = self.paramSampleId;
+      } else if (self.paramSampleUuid && self.paramSampleUuid.length > 0) {
+        self.sampleId = self.paramSampleUuid;
+      }
+      if (self.paramProjectId && self.paramProjectId.length > 0) {
+        self.projectId = self.paramProjectId;
+      }
+      if (self.paramIobioSource && self.paramIobioSource.length > 0) {
+        self.globalApp.IOBIO_SOURCE = self.paramIobioSource;
+      }
+      if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
+        && self.sampleId && self.paramSource) {
         self.launchedFromHub = true;
+        // Figure out which IOBIO backend we should be using.
+        // TODO - This should be a URL parameter from hub
+        if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {
+          self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource]
+        }
+        if (self.projectId) {
+          self.isHubDeprecated = false;
+        } else {
+          self.isHubDeprecated = true;
+        }
       }
 
       if (self.paramTour) {
         self.tourNumber = self.paramTour;
       }
+
+      self.globalApp.initServices();
+      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
     promiseInitFromUrl: function() {
       let self = this;
@@ -2297,6 +2346,7 @@ export default {
     },
 
     onShowPileupForVariant: function(relationship="proband", variant) {
+      let self = this;
       let theVariant = variant ? variant : this.selectedVariant;
       if (theVariant) {
         let variantInfo = this.globalApp.utility.formatDisplay(variant, this.cohortModel.translator, this.isEduMode);
@@ -2307,8 +2357,19 @@ export default {
         const end   = theVariant.start + this.pileupInfo.SPAN;
         this.pileupInfo.coord =  'chr' + chrom + ':' + start + '-' + end;
 
+
+        this.pileupInfo.tracks = [];
+
         // Set the bam, vcf, and references
-        this.pileupInfo.alignmentURL = this.cohortModel.getModel(relationship).bam.bamUri;
+        this.cohortModel.getCanonicalModels().forEach(function(model) {
+          let track = {name: model.relationship};
+          track.variantURL =  model.vcf.getVcfURL();
+          track.alignmentURL = model.bam.bamUri;
+          self.pileupInfo.tracks.push(track);
+        })
+
+
+        // Set the reference
         this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
 
         // set the title
@@ -2321,6 +2382,8 @@ export default {
         this.pileupInfo.title.push((relationship == 'proband' ? '' : '(' + relationship + ")"));
 
         this.pileupInfo.show         = true;
+
+        this.$modal.show('pileup-modal');
       }
       else {
         return '';
@@ -2621,8 +2684,32 @@ export default {
 
     },
 
+    setIobioConfigFromClin: function(clinObject) {
+      let self = this;
+
+      if (clinObject.batchSize) {
+        self.globalApp.DEFAULT_BATCH_SIZE = clinObject.batchSize;
+      }
+
+
+      if (clinObject.iobioSource) {
+        self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
+        self.globalApp.initServices();
+      }
+
+
+      let endpoint = new EndpointCmd(self.globalApp,
+        self.cacheHelper.launchTimestamp,
+        self.genomeBuildHelper,
+        self.globalApp.utility.getHumanRefNames);
+
+      self.cohortModel.endpoint = endpoint;
+
+    },
+
     setDataFromClin: function(clinObject) {
       let self = this;
+      self.setIobioConfigFromClin(clinObject);
       self.cohortModel.promiseInit(clinObject.modelInfos)
       .then(function() {
         self.models = self.cohortModel.sampleModels;
@@ -2658,6 +2745,7 @@ export default {
 
     setDataFullAnalysisFromClin: function(clinObject) {
       let self = this;
+      self.setIobioConfigFromClin(clinObject);
       self.cohortModel.promiseInit(clinObject.modelInfos)
       .then(function() {
         self.models = self.cohortModel.sampleModels;

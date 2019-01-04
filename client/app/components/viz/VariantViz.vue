@@ -102,6 +102,10 @@ export default {
         default: 2,
         type: Number
       },
+      showWhenEmpty: {
+        type: Boolean,
+        default: true
+      },
       margin:{
         type: Object,
         default: function() {
@@ -158,6 +162,7 @@ export default {
             return self.classifySymbolFunc(variant, self.annotationScheme);
           })
           .margin(this.margin)
+          .showWhenEmpty(this.showWhenEmpty)
           .showXAxis(this.showXAxis)
           .xTickFormat(this.xTickFormat)
           .variantHeight(this.variantHeight)
@@ -195,7 +200,7 @@ export default {
           }
           self.variantChart.verticalLayers(self.data.maxLevel);
           self.variantChart.lowestWidth(self.data.featureWidth);
-          if (self.data.features == null || self.data.features.length == 0) {
+          if ((self.data.features == null || self.data.features.length == 0) && !self.showWhenEmpty) {
             self.variantChart.showXAxis(false);
           } else {
             self.variantChart.showXAxis(self.showXAxis);
