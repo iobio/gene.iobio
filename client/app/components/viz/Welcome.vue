@@ -12,8 +12,11 @@ $landing-page-font:      Poppins
 
 //$accent-color:       #787878
 //$accent-color-light: #787878
-$accent-color:            #33aa98
-$accent-color-light:      #33aa98
+//$accent-color:       #ee8274
+//$accent-color-light: #ee8274
+
+$accent-color:         #e07676
+$accent-color-light:   #e07676
 $powered-by-accent-color: #84d8fc
 
 $accent-color-bright: #14c39a
@@ -235,12 +238,19 @@ $light-gray-color:   #f0f1f3
       margin-right: 10px
       min-width: 28px !important
       min-height: 28px !important
+      border-color: $accent-color !important
+      background-color: white !important
+      border-style: solid
+      border-width: 2px
 
       &.teal
         background-color: $accent-color-light !important
+        border-color: $accent-color !important
+        background-color: white !important
 
       span.headline
         font-size: 15px !important
+        color: $accent-color !important
 
     .how-it-works-image, .features-image
       margin-right: 0px
