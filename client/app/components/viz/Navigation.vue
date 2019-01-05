@@ -68,6 +68,13 @@ aside.navigation-drawer
         font-size: 16px
         padding-right: 4px
 
+    #overall-progress
+      position: absolute
+      left: 84px
+      top: 7px
+      z-index: 1
+
+
     #close-button
       position: absolute
       padding-right: 0px
@@ -364,6 +371,7 @@ nav.toolbar
       <v-toolbar-title v-text="title">
       </v-toolbar-title>
 
+
       <v-spacer v-if="!isFullAnalysis"></v-spacer>
 
       <v-btn v-if="false" id="variants-button" flat @click.stop="leftDrawer = !leftDrawer">
@@ -527,6 +535,11 @@ nav.toolbar
         <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
+
+        <v-progress-circular id="overall-progress"  :size="25"  :width="4" color="teal accent-4"
+          v-if="analyzeAllInProgress || callAllInProgress"
+          :indeterminate="true">
+        </v-progress-circular>
 
         <v-tabs
           v-model="activeTab"
