@@ -356,7 +356,7 @@ export default {
     getImpactClass: function(variantTypes) {
       var self = this;
       var clazz = null;
-      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highe && this.gene.dangerSummary.badges.high.length > 0 ) {
+      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.high && this.gene.dangerSummary.badges.high.length > 0 ) {
         for (var variantType in variantTypes) {
 
 
@@ -364,6 +364,8 @@ export default {
             if (variant.type.toUpperCase() == variantType.toUpperCase()) {
               if (variant.highestImpactVep.HIGH) {
                 clazz = 'filter-symbol impact_HIGH';
+              } else {
+                clazz = 'filter-symbol impact_MODERATE';
               }
             }
           })
