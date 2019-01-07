@@ -541,10 +541,10 @@ export default {
       clinPersistCache: true,
 
       hubToIobioSources: {
-        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 3},
-        "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu", batchSize: 3},
-        "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 3},
-        "https://staging.frameshift.io":         {iobio: "nv-blue.iobio.io",  batchSize: 10}
+        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
+        "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
+        "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
+        "https://staging.frameshift.io":         {iobio: "nv-blue.iobio.io",     batchSize: 10}
       },
 
 
