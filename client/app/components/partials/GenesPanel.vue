@@ -53,7 +53,7 @@
 
     <div id="analyze-genes-progress">
       <div>
-        <div>
+        <div v-if="totalCount > 0">
           <span class="progress-bar-label">Analyzed</span>
           <v-progress-linear  class="loaded-progress"   v-model="loadedPercentage">
           </v-progress-linear>
@@ -61,7 +61,7 @@
             {{ loadedCount }} of {{ totalCount }}
           </span>
         </div>
-        <div style="clear:both">
+        <div v-if="totalCount > 0" style="clear:both">
           <span v-show="callAllInProgress || calledPercentage > 0" class="progress-bar-label">Called</span>
           <v-progress-linear v-show="callAllInProgress || calledPercentage > 0" class="called-progress"  v-model="calledPercentage">
           </v-progress-linear>
