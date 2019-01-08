@@ -153,11 +153,8 @@ main.content.clin
 
 
         <modal name="pileup-modal"
-            :resizable="true"
-            :adaptive="false"
-            :draggable="true"
-            width="80%"
-            height="500"
+            width="50%"
+            height="600"
             >
 
           <v-card style="overflow-y:auto;height:-webkit-fill-available;height:-moz-available;height:100%">
@@ -171,6 +168,7 @@ main.content.clin
               :tracks="pileupInfo.tracks"
               :locus="pileupInfo.coord"
               :visible="pileupInfo.show"
+              :showLabels=true
             />
           </v-card>
 
@@ -2355,7 +2353,6 @@ export default {
         this.pileupInfo.title.push((variant.type ? variant.type.toUpperCase() + " " : "")
           + theVariant.chrom + ":" + theVariant.start + " " + theVariant.ref + "->" + theVariant.alt);
         this.pileupInfo.title.push(variantInfo.HGVSpAbbrev);
-        this.pileupInfo.title.push((relationship == 'proband' ? '' : '(' + relationship + ")"));
 
         this.pileupInfo.show         = true;
 
