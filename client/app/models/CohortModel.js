@@ -2223,16 +2223,22 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis) {
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, options={includeNotCategorized: false}) {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
         let flagCriteria = self.filterModel.flagCriteria[filterName];
-        var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis);
+        let include = true;
+        if (isFullAnalysis && !options.includeNotCategorized && filterName == 'notCategorized') {
+          include = false;
+        }
+        if (include) {
+          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis);
 
-        if (sortedGenes.length > 0) {
-          filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
+          if (sortedGenes.length > 0) {
+            filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
+          }
         }
       }
     }
@@ -2280,11 +2286,15 @@ class CohortModel {
 
   }
 
-  getFlaggedVariantCount(isFullAnalysis) {
+  getFlaggedVariantCount(isFullAnalysis, options={includeNotCategorized: false}) {
     let self = this;
     let theFlaggedVariants = self.flaggedVariants.filter(function(variant) {
       if (isFullAnalysis) {
-        return !self.geneModel.isCandidateGene(variant.geneName);
+        let include = true;
+        if (!options.includeNotCategorized && variant.filtersPassed.length() == 1 && variant.filtersPassed.indexOf("notCategorized") == 0) {
+          include = false;
+        }
+        return include && !self.geneModel.isCandidateGene(variant.geneName);
 
       } else {
         return self.geneModel.isCandidateGene(variant.geneName);
