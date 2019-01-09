@@ -356,29 +356,23 @@ export default {
     getImpactClass: function(variantTypes) {
       var self = this;
       var clazz = null;
-      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highe && this.gene.dangerSummary.badges.high.length > 0 ) {
+      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.high && this.gene.dangerSummary.badges.high.length > 0 ) {
         for (var variantType in variantTypes) {
 
 
           this.gene.dangerSummary.badges.high.forEach(function(variant) {
             if (variant.type.toUpperCase() == variantType.toUpperCase()) {
-              if (variant.highestImpactVep.HIGH) {
-                clazz = 'filter-symbol impact_HIGH';
+              if (clazz == null) {
+                if (variant.highestImpactVep.HIGH) {
+                  clazz = 'filter-symbol impact_HIGH';
+                } else {
+                  clazz = 'filter-symbol impact_MODERATE';
+                }
               }
             }
           })
 
 
-
-          /*
-          if (self.gene.dangerSummary.IMPACT.HIGH
-            && (self.gene.dangerSummary.IMPACT.HIGH[theVariantType] || self.gene.dangerSummary.IMPACT.HIGH[variantType])) {
-            clazz = 'filter-symbol impact_HIGH';
-          } else if (self.gene.dangerSummary.IMPACT.MODERATE
-            && (self.gene.dangerSummary.IMPACT.MODERATE[theVariantType] || self.gene.dangerSummary.IMPACT.MODERATE[variantType])) {
-            clazz = 'filter-symbol impact_MODERATE';
-          }
-          */
         }
       }
       return clazz;

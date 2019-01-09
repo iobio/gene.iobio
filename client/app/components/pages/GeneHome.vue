@@ -541,10 +541,10 @@ export default {
       clinPersistCache: true,
 
       hubToIobioSources: {
-        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 3},
-        "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu", batchSize: 3},
-        "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 3},
-        "https://staging.frameshift.io":         {iobio: "nv-blue.iobio.io",  batchSize: 10}
+        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
+        "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
+        "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
+        "https://staging.frameshift.io":         {iobio: "nv-blue.iobio.io",     batchSize: 10}
       },
 
 
@@ -885,6 +885,7 @@ export default {
               && theGene.gene_name == self.selectedGene.gene_name) {
             self.promiseLoadData();
           }
+
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
 
@@ -1733,12 +1734,34 @@ export default {
         if (!self.launchedFromClin) {
           self.setUrlGeneParameters();
         }
-        if (!self.launchedFromClin && self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
-          let geneName = self.geneModel.sortedGeneNames[0];
-          return self.promiseLoadGene(geneName);
+        let geneNameToSelect = null;
+
+        if (self.launchedFromClin) {
+          if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
+            let applicableGenes = self.geneModel.geneNames.filter(function(geneName) {
+              if (self.isFullAnalysis) {
+                return !self.geneModel.isCandidateGene(geneName);
+              } else {
+                return self.geneModel.isCandidateGene(geneName);
+              }
+            })
+            if (applicableGenes.length > 0) {
+              geneNameToSelect = applicableGenes[0];
+            }
+          }
+
+        } else {
+          if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+            geneNameToSelect = self.geneModel.sortedGeneNames[0];
+          }
+        }
+
+        if (geneNameToSelect) {
+          return self.promiseLoadGene(geneNameToSelect);
         } else {
           return Promise.resolve();
         }
+
       })
       .then(function() {
         if (!self.launchedFromClin) {
@@ -2634,9 +2657,9 @@ export default {
           return self.promiseShowClin();
         })
         .then(function() {
-          if (self.$refs.navRef) {
-            self.$refs.navRef.onShowVariantsTab();
-          }
+          //if (self.$refs.navRef) {
+          //  self.$refs.navRef.onShowVariantsTab();
+          //}
           resolve();
         })
         .catch(function(error) {
@@ -2707,9 +2730,9 @@ export default {
                 if (genesToAnalyze.length > 0) {
                   self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
                 } else {
-                  self.$nextTick(function() {
+                  if (self.$refs.navRef) {
                     self.$refs.navRef.onShowVariantsTab();
-                  })
+                  }
                 }
               })
             }
@@ -2719,6 +2742,46 @@ export default {
       }
 
 
+    },
+
+
+    promiseSelectApplicableGeneClin: function() {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        let geneNameToSelect = null;
+        if (self.launchedFromClin) {
+          if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
+            let applicableGenes = self.geneModel.geneNames.filter(function(geneName) {
+              if (self.isFullAnalysis) {
+                return !self.geneModel.isCandidateGene(geneName);
+              } else {
+                return self.geneModel.isCandidateGene(geneName);
+              }
+            })
+            if (applicableGenes.length > 0) {
+              geneNameToSelect = applicableGenes[0];
+            }
+          }
+
+        } else {
+          if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+            geneNameToSelect = self.geneModel.sortedGeneNames[0];
+          }
+        }
+
+        if (geneNameToSelect) {
+          self.promiseLoadGene(geneNameToSelect)
+          .then(function() {
+            resolve();
+          })
+          .catch(function(error) {
+            resolve();
+          })
+        } else {
+          resolve();
+        }
+
+      })
     },
 
 
@@ -2787,10 +2850,16 @@ export default {
           self.cacheHelper.promiseGetGenesToAnalyze()
           .then(function(genesToAnalyze) {
             if (genesToAnalyze.length > 0) {
-              self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
+              self.promiseSelectApplicableGeneClin()
+              .then(function() {
+                self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
+              })
             } else {
-              self.$nextTick(function() {
-                self.$refs.navRef.onShowVariantsTab();
+              self.promiseSelectApplicableGeneClin()
+              .then(function() {
+                if (self.$refs.navRef) {
+                  self.$refs.navRef.onShowVariantsTab();
+                }
               })
             }
             resolve();

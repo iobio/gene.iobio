@@ -214,13 +214,6 @@ div.container.small
 <template>
   <v-card tile id="genes-card" :class="{'app-card': true, 'edu' : isEduMode, 'basic' : isBasicMode}" style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px;padding-top:0px;margin-bottom:0px">
 
-    <v-progress-linear
-    v-if="analyzeAllInProgress || callAllInProgress"
-    id="analyzing-indeterminate-bar"
-    :indeterminate="true"
-    height="2"
-    >
-    </v-progress-linear>
 
     <div :style="isEduMode ? 'padding-top:5px;margin-bottom:-5px;margin-left:10px;margin-right:10px' : 'margin-left:10px;margin-right:10px'">
 
