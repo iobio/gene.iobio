@@ -88,11 +88,11 @@
 
 <template>
     <div id="known-variants-toolbar">
-      <div style="width:285px;float:left;padding-top:10px;margin-top:0px;margin-right:10px">
+      <div style="width:295px;float:left;padding-top:10px;margin-top:0px;margin-right:10px">
         <v-radio-group v-model="viz" row>
             <v-radio label="Variants" value="variants"></v-radio>
             <v-radio label="Counts" value="histo"></v-radio>
-            <v-radio style="min-width: 120px" label="Counts in Exons" value="histoExon"></v-radio>
+            <v-radio style="min-width: 125px" label="Counts in Exons" value="histoExon"></v-radio>
         </v-radio-group>
       </div>
 
