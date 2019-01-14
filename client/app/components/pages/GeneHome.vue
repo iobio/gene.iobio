@@ -158,12 +158,8 @@ main.content.clin
             >
 
           <v-card style="overflow-y:auto;height:-webkit-fill-available;height:-moz-available;height:100%">
-            <span id="pileup-title">
-              <span class="pl-2" v-for="titlePart in pileupInfo.title" key="titlePart">
-                {{ titlePart }}
-              </span>
-            </span>
             <pileup id="pileup-container"
+              :heading="pileupInfo.title"
               :referenceURL="pileupInfo.referenceURL"
               :tracks="pileupInfo.tracks"
               :locus="pileupInfo.coord"
@@ -2347,12 +2343,13 @@ export default {
         this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
 
         // set the title
-        this.pileupInfo.title = [];
-        this.pileupInfo.title.push("Read pileup");
-        this.pileupInfo.title.push(this.selectedGene.gene_name);
-        this.pileupInfo.title.push((variant.type ? variant.type.toUpperCase() + " " : "")
+        const titleParts = []
+        titleParts.push("Read pileup");
+        titleParts.push(this.selectedGene.gene_name);
+        titleParts.push((variant.type ? variant.type.toUpperCase() + " " : "")
           + theVariant.chrom + ":" + theVariant.start + " " + theVariant.ref + "->" + theVariant.alt);
-        this.pileupInfo.title.push(variantInfo.HGVSpAbbrev);
+        titleParts.push(variantInfo.HGVSpAbbrev);
+        this.pileupInfo.title = titleParts.join(' ')
 
         this.pileupInfo.show         = true;
 
