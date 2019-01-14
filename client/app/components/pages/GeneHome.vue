@@ -74,11 +74,6 @@ main.content.clin
   &.accent--text
     color:  $app-color !important
 
-
-#pileup-title
-  color: $app-color
-  font-size: 15px
-
 #pileup-container
   margin: 0px
   padding: 0px
@@ -154,7 +149,7 @@ main.content.clin
 
         <modal name="pileup-modal"
             width="50%"
-            height="600"
+            height="540"
             >
 
           <v-card style="overflow-y:auto;height:-webkit-fill-available;height:-moz-available;height:100%">
