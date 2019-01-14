@@ -570,7 +570,7 @@ export default {
     showVariantTooltip: function(variant, lock) {
       let self = this;
 
-      if (this.isBasicMode || this.isEduMode) {
+      if (this.isBasicMode || this.isEduMode || this.sampleModel.relationship == 'known-variants') {
         let tooltip = d3.select("#main-tooltip");
 
         if (lock) {
