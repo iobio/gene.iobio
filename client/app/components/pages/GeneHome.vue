@@ -74,11 +74,6 @@ main.content.clin
   &.accent--text
     color:  $app-color !important
 
-
-#pileup-title
-  color: $app-color
-  font-size: 15px
-
 #pileup-container
   margin: 0px
   padding: 0px
@@ -153,24 +148,18 @@ main.content.clin
 
 
         <modal name="pileup-modal"
-            :resizable="true"
-            :adaptive="false"
-            :draggable="true"
-            width="80%"
-            height="500"
+            width="50%"
+            height="540"
             >
 
           <v-card style="overflow-y:auto;height:-webkit-fill-available;height:-moz-available;height:100%">
-            <span id="pileup-title">
-              <span class="pl-2" v-for="titlePart in pileupInfo.title" key="titlePart">
-                {{ titlePart }}
-              </span>
-            </span>
             <pileup id="pileup-container"
+              :heading="pileupInfo.title"
               :referenceURL="pileupInfo.referenceURL"
               :tracks="pileupInfo.tracks"
               :locus="pileupInfo.coord"
               :visible="pileupInfo.show"
+              :showLabels=true
             />
           </v-card>
 
@@ -2349,13 +2338,13 @@ export default {
         this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
 
         // set the title
-        this.pileupInfo.title = [];
-        this.pileupInfo.title.push("Read pileup");
-        this.pileupInfo.title.push(this.selectedGene.gene_name);
-        this.pileupInfo.title.push((variant.type ? variant.type.toUpperCase() + " " : "")
+        const titleParts = []
+        titleParts.push("Read pileup");
+        titleParts.push(this.selectedGene.gene_name);
+        titleParts.push((variant.type ? variant.type.toUpperCase() + " " : "")
           + theVariant.chrom + ":" + theVariant.start + " " + theVariant.ref + "->" + theVariant.alt);
-        this.pileupInfo.title.push(variantInfo.HGVSpAbbrev);
-        this.pileupInfo.title.push((relationship == 'proband' ? '' : '(' + relationship + ")"));
+        titleParts.push(variantInfo.HGVSpAbbrev);
+        this.pileupInfo.title = titleParts.join(' ')
 
         this.pileupInfo.show         = true;
 
