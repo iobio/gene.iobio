@@ -15,9 +15,9 @@ $landing-page-font:      Poppins
 //$accent-color:       #ee8274
 //$accent-color-light: #ee8274
 
-$accent-color:         #e07676
-$accent-color-light:   #e07676
-$powered-by-accent-color: #84d8fc
+$accent-color:          #688e45
+$accent-color-light:    #688e45
+$powered-by-accent-color: #698eb6
 
 $accent-color-bright: #14c39a
 
@@ -48,8 +48,8 @@ $light-gray-color:   #f0f1f3
 
 
     &.main
-      background: linear-gradient(128deg, #74aadb 0%, #7eb1dd 8%, #6d92bb 20%, #4e658d 36%);
-      //background: white
+      //background: linear-gradient(128deg, #74aadb 0%, #7eb1dd 8%, #6d92bb 20%, #4e658d 36%);
+      background: white
       display: flex
       flex-direction: row
       align-items: flex-start
@@ -92,8 +92,8 @@ $light-gray-color:   #f0f1f3
 
 
     #welcome-label
-      color: white
-      //color:          $header-color
+      //color: white
+      color:          $header-color
       font-size:      32px
       line-height:    36px
       font-family:    $landing-page-font
