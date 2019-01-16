@@ -77,7 +77,8 @@ main.content.clin
 #pileup-container
   margin: 0px
   padding: 0px
-
+  padding-left: 20px
+  padding-right: 40px
 
   .card
     margin: 0px
@@ -2375,25 +2376,33 @@ export default {
 
       if (clinObject.type == 'apply-genes' && !self.isFullAnalysis) {
 
+        console.log("** apply-genes **");
         self.applyGenesClin(clinObject);
 
 
       } else if (clinObject.type == 'set-data') {
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
+          console.log("** set-data:init **");
           self.init(function() {
+            console.log("** set-data:initClin (after init) **");
             self.promiseInitClin(clinObject);
           })
         } else {
+          console.log("** set-data:initClin **");
           self.promiseInitClin(clinObject);
         }
       } else if (clinObject.type == 'show') {
 
         if (self.cohortModel && self.cohortModel.isLoaded) {
 
+          console.log("** showData **");
           self.$set(self, "isFullAnalysis", clinObject.receiver == 'genefull' ? true : false);
           self.filterModel.isFullAnalysis = self.isFullAnalysis;
 
           self.promiseShowClin();
+        } else {
+                    console.log("** bypassing showData cohort NOT loaded **");
+
         }
 
       } else if (clinObject.type == 'show-tooltip') {
@@ -2537,6 +2546,19 @@ export default {
       }
     },
 
+    sendConfirmSetDataToClin: function() {
+      let self = this;
+      if (this.launchedFromClin) {
+        var msgObject = {
+          success: true,
+          type:   'confirm-set-data',
+          sender: 'gene.iobio.io',
+          app:    self.isFullAnalysis ? 'genefull' : 'gene'
+        };
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+      }
+    },
+
     promiseSetCacheFromClin: function(clinObject) {
       let self = this;
 
@@ -2635,6 +2657,8 @@ export default {
         self.cohortModel.promiseInit(self.clinSetData.modelInfos)
         .then(function() {
 
+          self.sendConfirmSetDataToClin();
+
           self.onSendFiltersToClin();
 
           self.models = self.cohortModel.sampleModels;
@@ -2646,9 +2670,6 @@ export default {
           return self.promiseShowClin();
         })
         .then(function() {
-          //if (self.$refs.navRef) {
-          //  self.$refs.navRef.onShowVariantsTab();
-          //}
           resolve();
         })
         .catch(function(error) {
