@@ -13,6 +13,7 @@ class CohortModel {
     this.defaultingToDemoData = false;
 
     this.endpoint = endpoint;
+    this.hubSession = null;   // Passed in after init
     this.genericAnnotation = genericAnnotation;
     this.translator = translator;
     this.geneModel = geneModel;
@@ -305,8 +306,12 @@ class CohortModel {
       let promises = [];
       modelInfos.forEach(function(modelInfo) {
         promises.push(self.promiseAddSample(modelInfo));
-      })
+      });
       promises.push(self.promiseAddClinvarSample());
+      if (self.hubSession != null) {
+        // TODO: do I need to add this to promises? Don't want this to block - maybe set some other flag that toggle depends on
+        self.promiseAddSfariSample();
+      }
 
 
       Promise.all(promises)
@@ -517,9 +522,179 @@ class CohortModel {
         });
       })
     }
-
   }
 
+  promiseAddSfariSamples() {
+      let self = this;
+      if (self.sampleMap['sfari-variants']) {
+          return Promise.resolve();
+      } else {
+          return new Promise(function(resolve,reject) {
+              let vm = new SampleModel(self.globalApp);
+              vm.init(self);
+              vm.setRelationship('sfari-variants');
+              vm.setName('Sfari');
+              //var clinvarUrl = self.genomeBuildHelper.getBuildResource(self.genomeBuildHelper.RESOURCE_CLINVAR_VCF_FTP);
+              //var clinvarUrl  = self.globalApp.getClinvarUrl(self.genomeBuildHelper.getCurrentBuildName());
+
+              // Stable sorted url lists
+              let nameList = [],
+                  vcfUrlList = [],
+                  tbiUrlList = [];
+
+              // Files coming back from Hub
+              let vcfFiles = null,
+                  tbiCsiFiles = null;
+
+              self.hubSession.promiseGetFilesForProject()
+                  .then((data) => {
+                      // Stable sort by file type
+                      vcfFiles = data.data.filter(f => f.type === 'vcf');
+                      tbiCsiFiles = data.data.filter(f => f.type === 'tbi' || f.type === 'csi');
+
+                      // Pull out combined vcfs from individual chromosome ones
+                      let sortedVcfFiles = [];
+                      vcfFiles.forEach((file) => {
+                          let phaseFile = false;
+                          let name = file.name;
+                          let namePieces = name.split('.');
+                          namePieces.forEach((piece) => {
+                              if (piece === 'all' || piece.includes('all')) {
+                                  phaseFile = true;
+                              }
+                          });
+                          if (phaseFile) {
+                              sortedVcfFiles.push(file);
+                          }
+                      });
+                      let sortedTbiCsiFiles = [];
+                      tbiCsiFiles.forEach((file) => {
+                          let phaseFile = false;
+                          let name = file.name;
+                          let namePieces = name.split('.');
+                          namePieces.forEach((piece) => {
+                              if (piece === 'all' || piece.includes('all')) {
+                                  phaseFile = true;
+                              }
+                          });
+                          if (phaseFile) {
+                              sortedTbiCsiFiles.push(file);
+                          }
+                      });
+
+                      // Check that we have matching data for all files
+                      if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
+                          console.log('Did not obtain matching vcf and tbi/csi files from Hub. Data may not be complete.');
+                      }
+
+                      // Get urls for both vcf and tbi
+                      let urlPromises = [];
+                      for (let i = 0; i < sortedVcfFiles.length; i++) {
+                          let currVcf = sortedVcfFiles[i];
+                          let currTbi = sortedTbiCsiFiles[i];
+                          let urlP = self.promiseGetSignedUrls(currVcf, currTbi, projectId)
+                              .then((urlObj) => {
+                                  nameList.push(urlObj.name);
+                                  vcfUrlList.push(urlObj.vcf);
+                                  tbiUrlList.push(urlObj.tbi);
+                              });
+                          urlPromises.push(urlP);
+                      }
+                      // Sort data by chromosome once we have all urls
+                      Promise.all(urlPromises)
+                          .then(() => {
+                              for (let i = 0; i < nameList.length; i++) {
+                                vm.onVcfUrlEntered(vcfUrlList[i], tbiUrlList[i], function() {
+                                  // TODO: want to accumulate this some how
+
+                                    // Do we want one sample per file? Probably: then 1 vcf obj per file
+                                    // Could just have relationship the same for all sample models
+
+
+                                    // Or do we want one sample model and have some sort of object for all files
+                                });
+
+                                //
+                                self.sampleModels.push(vm);
+
+                                var sample = {'relationship': 'known-variants', 'model': vm};
+                                self.sampleMap['known-variants'] = sample;
+
+                                resolve(sample);
+                              }
+
+                              //resolve({'names': nameList, 'vcfs': vcfUrlList, 'tbis': tbiUrlList});
+                          })
+                          .catch((error) => {
+                              reject('There was a problem retrieving file urls from Hub: ' + error);
+                          });
+                  })
+                  .catch((error) => {
+                    console.log('There was a problem unpacking file data from Hub for Sfari variants: ' + error);
+                  });
+
+              // vm.onVcfUrlEntered(clinvarUrl, null, function() {
+              //         self.sampleModels.push(vm);
+              //
+              //         var sample = {'relationship': 'known-variants', 'model': vm};
+              //         self.sampleMap['known-variants'] = sample;
+              //
+              //         resolve(sample);
+              //     },
+              //     function(error) {
+              //         reject(error);
+              //     });
+          })
+      }
+  }
+
+    /* Returns an object with a vcf url corresponding to the given vcf, and a tbi url corresponding to the given tbi.
+       * It is assumed that the provided vcf and tbi file correspond to the same data. */
+    promiseGetSignedUrls(vcf, tbi, projectId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+
+            let vcfUrl = '',
+                tbiUrl = '';
+
+            let urlPromises = [];
+
+            // Get vcf url
+            let vcfP = self.hubSession.promiseGetSignedUrlForFile(projectId, 0, vcf.id)
+                .then((url) => {
+                    if (url == null || url.length === 0) {
+                        reject('Empty vcf url returned from hub for ' + vcf.name);
+                    }
+                    else {
+                        vcfUrl = url;
+                    }
+                });
+            urlPromises.push(vcfP);
+
+            // Get tbi url
+            let tbiP = self.hubSession.promiseGetSignedUrlForFile(projectId, 0, tbi.id)
+                .then((url) => {
+                    if (url == null || url.length === 0) {
+                        reject('Empty tbi url returned from hub for ' + tbi.name);
+                    }
+                    else {
+                        tbiUrl = url;
+                    }
+                });
+            urlPromises.push(tbiP);
+
+            // Return after we have both to preserve relative ordering
+            Promise.all(urlPromises)
+                .then(() => {
+                    resolve({'name': vcf.name, 'vcf': vcfUrl, 'tbi': tbiUrl});
+                })
+                .catch((error) => {
+                    reject('There was a problem obtaining signed urls from Hub: ' + error);
+                })
+        });
+    }
+
+    // SJG TODO: may have multiple sample models here - how to add to order?
   sortSampleModels() {
     var MODEL_ORDER = {
       'proband': 2,
@@ -814,7 +989,10 @@ class CohortModel {
     })
   }
 
-
+  setHubSession(hubSession) {
+    let self = this;
+    self.hubSession = hubSession;
+  }
 
   setLoadedVariants(gene, relationship=null) {
     let self = this;

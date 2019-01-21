@@ -801,6 +801,7 @@ export default {
               self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
               self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
               let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
+              self.cohortModel.setHubSession(self.hubSession);
               self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
               .then(modelInfos => {
                 self.modelInfos = modelInfos;
