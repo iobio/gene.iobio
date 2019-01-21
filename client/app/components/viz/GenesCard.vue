@@ -9,7 +9,7 @@
   #gene-count-badges
     text-align: center
 
-  .clinvar-switch
+  .optional-track-switch
     padding: 0px
     width: 130px
     display: inline-block
@@ -263,12 +263,19 @@ div.container.small
                 <v-icon>stop</v-icon>
               </v-btn>
 
-              <v-switch class="clinvar-switch"
+              <v-switch class="optional-track-switch"
                 v-if=" isLoaded && !isEduMode && !isBasicMode"
                 label="ClinVar track"
                 v-model="showKnownVariantsCard"
                 >
               </v-switch>
+
+            <v-switch class="optional-track-switch"
+                      v-if=" isLoaded && !isEduMode && !isBasicMode"
+                      label="Sfari track"
+                      v-model="showSfariVariantsCard"
+            >
+            </v-switch>
 
 
             <filter-badges
@@ -394,6 +401,7 @@ export default {
       filteredGeneNames: [],
 
       showKnownVariantsCard: false,
+        showSfariVariantsCard: false,
 
       loadedCount: 0,
       calledCount: 0,
@@ -602,7 +610,10 @@ export default {
     },
     showKnownVariantsCard: function() {
       this.$emit("show-known-variants", this.showKnownVariantsCard);
-    }
+    },
+      showSfariVariantsCard: function() {
+          this.$emit("show-sfari-variants", this.showSfariVariantsCard);
+      }
   }
 }
 

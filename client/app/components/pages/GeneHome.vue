@@ -211,7 +211,7 @@ main.content.clin
          @apply-genes="onApplyGenes"
          @stop-analysis="onStopAnalysis"
          @show-known-variants="onShowKnownVariantsCard"
-        >
+          @show-sfari-variants="onShowSfariVariantsCard">
         </genes-card>
 
         <v-card style="margin-top:10px;margin-bottom:10px;padding-bottom:10px"
@@ -381,11 +381,12 @@ main.content.clin
         @cohort-variant-hover-end="onCohortVariantHoverEnd"
         @known-variants-viz-change="onKnownVariantsVizChange"
         @known-variants-filter-change="onKnownVariantsFilterChange"
+        @sfari-variants-viz-change="onSfariVariantsVizChange"
+        @sfari-variants-filter-change="onSfariVariantsFilterChange"
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
         @show-coverage-cutoffs="showCoverageCutoffs = true"
         @show-pileup-for-variant="onShowPileupForVariant"
-
         >
         </variant-card>
 
@@ -568,6 +569,7 @@ export default {
       selectedVariantRelationship: null,
 
       showKnownVariantsCard: false,
+        showSfariVariantsCard: false,
 
       inProgress: {},
 
@@ -985,6 +987,7 @@ export default {
         if (self.models && self.models.length > 0) {
 
           self.cardWidth = $('#genes-card').innerWidth();
+          // SJG TODO: add sfari option here
           var options = {'getKnownVariants': self.showKnownVariantsCard};
 
           self.cohortModel.promiseLoadData(self.selectedGene,
@@ -1524,11 +1527,24 @@ export default {
         self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
       }
     },
+    onSfariVariantsVizChange: function(viz) {
+        let self = this;
+        if (viz) {
+            self.cohortModel.sfariVariantsViz = viz;
+        }
+        if (self.showSfariVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
+            self.cohortModel.promiseLoadSfariVariants(self.selectedGene, self.selectedTranscript);
+        }
+    },
     onKnownVariantsFilterChange: function(selectedCategories) {
       let self = this;
       self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
-
       self.cohortModel.setLoadedVariants(self.selectedGene, 'known-variants');
+    },
+    onSfariVariantsFilterChange: function(selectedCategories) {
+        let self = this;
+        self.filterModel.setModelFilter('sfari-variants', 'impact', selectedCategories);
+        self.cohortModel.setLoadedVariants(self.selectedGene, 'sfari-variants');
     },
     onRemoveGene: function(geneName) {
       let self = this;
@@ -2096,6 +2112,13 @@ export default {
         self.onKnownVariantsVizChange();
       }
     },
+      onShowSfariVariantsCard: function(showIt) {
+          let self = this;
+          self.showSfariVariantsCard = showIt;
+          if (self.showSfariVariantsCard) {
+              self.onSfariVariantsVizChange();
+          }
+      },
     onFilterSelected: function(filterName, filteredGeneNames) {
       this.activeFilterName = filterName;
       this.filteredGeneNames = filteredGeneNames;

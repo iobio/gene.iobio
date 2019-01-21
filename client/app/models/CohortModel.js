@@ -45,6 +45,7 @@ class CohortModel {
     this.flaggedVariants = [];
 
     this.knownVariantsViz = 'variants'; // variants, histo, histoExon
+      this.sfariVariantsViz = 'variants';
 
 
     this.demoVcf = {
@@ -925,6 +926,47 @@ class CohortModel {
       })
     })
   }
+
+  promiseLoadSfariVariants(theGene, theTranscript) {
+      let self = this;
+      if (self.sfariVariantsViz === 'variants') {
+          return self._promiseLoadSfariVariants(theGene, theTranscript);
+      } else  {
+          return self._promiseLoadSfariVariantCounts(theGene, theTranscript);
+      }
+  }
+
+    _promiseLoadSfariVariants(theGene, theTranscript) {
+        let self = this;
+        return new Promise(function(resolve, reject) {
+            self.getModel('sfari-variants').inProgress.loadingVariants = true;
+            self.sampleMap['sfari-variants'].model.promiseAnnotateVariants(theGene,
+                theTranscript, [self.sampleMap['sfari-variants'].model], {'isMultiSample': false, 'isBackground': false})
+                .then(function(resultMap) {
+                    self.getModel('sfari-variants').inProgress.loadingVariants = false;
+                    self.setLoadedVariants(theGene, 'sfari-variants');
+                    resolve(resultMap);
+                })
+
+        })
+    }
+
+    _promiseLoadSfariVariantCounts(theGene, theTranscript) {
+        let self = this;
+        return new Promise(function(resolve, reject) {
+            self.getModel('sfari-variants').inProgress.loadingVariants = true;
+            var binLength = null;
+            if (self.knownVariantsViz === 'histo') {
+                binLength = Math.floor( ((+theGene.end - +theGene.start) / $('#gene-viz').innerWidth()) * 8);
+            }
+            self.sampleMap['sfari-variants'].model.promiseGetKnownVariantHistoData(theGene, theTranscript, binLength)
+                .then(function(data) {
+                    self.getModel('sfari-variants').inProgress.loadingVariants = false;
+                    self.setVariantHistoData('sfari-variants', data);
+                    resolve(data);
+                })
+        })
+    }
 
   promiseLoadVariants(theGene, theTranscript, options) {
     let self = this;
