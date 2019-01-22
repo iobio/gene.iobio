@@ -1605,6 +1605,15 @@ class SampleModel {
   }
 
 
+  promiseAnnotateSfariVariants(theGene, theTranscript, variantModels, options) {
+    // SJG TODO: implement this to work w/ multiple vcf endpoints
+      // Call promiseGetData for each variantModel passed in
+      // Then promiseGetVariants for each vcf endpt
+      // Then combine features from all vcfs to avoid overlaps as separate fxn
+      // Assign vcfData in this
+      // Update properties as below
+      // Return result map for 'sfari-variants'
+  }
 
 
   promiseAnnotateVariants(theGene, theTranscript, variantModels, options, onVcfData) {
@@ -1637,7 +1646,7 @@ class SampleModel {
 
       Promise.all(promises)
       .then(function() {
-        if (Object.keys(resultMap).length == variantModels.length) {
+        if (Object.keys(resultMap).length === variantModels.length) {
           resolve(resultMap);
         } else {
 
@@ -1653,9 +1662,9 @@ class SampleModel {
                null,   // regions
                isMultiSample, // is multi-sample
                me._getSamplesToRetrieve(),
-               me.getRelationship() == 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
+               me.getRelationship() === 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
                me.getTranslator().clinvarMap,
-               me.getGeneModel().geneSource == 'refseq' ? true : false,
+               me.getGeneModel().geneSource === 'refseq' ? true : false,
                me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
                me.globalApp.getVariantIdsForGene,  // rsid
                me.globalApp.vepAF    // vep af

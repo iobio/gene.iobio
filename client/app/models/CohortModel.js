@@ -732,7 +732,7 @@ class CohortModel {
 
   getCanonicalModels() {
     return this.sampleModels.filter(function(model) {
-      return model.relationship != 'known-variants';
+      return model.relationship !== 'known-variants' && model.relationship !== 'sfari-variants';
     })
   }
 
@@ -758,7 +758,8 @@ class CohortModel {
     let allSamplesInVcf = false;
     var theVcfs = {};
     var cards = this.sampleModels.forEach(function(model) {
-      if (!model.isAlignmentsOnly() && model.getRelationship() != 'known-variants') {
+      if (!model.isAlignmentsOnly() && model.getRelationship() != 'known-variants'
+          && mode.getRelationship() !== 'sfari-variants') {
         if (model.vcfUrlEntered) {
           theVcfs[model.vcf.getVcfURL()] = true;
         } else {
@@ -912,7 +913,7 @@ class CohortModel {
         let self = this;
         return new Promise(function(resolve, reject) {
             self.getModel('sfari-variants').inProgress.loadingVariants = true;
-            self.sampleMap['sfari-variants'].model.promiseAnnotateVariants(theGene,
+            self.sampleMap['sfari-variants'].model.promiseAnnotateSfariVariants(theGene,
                 theTranscript, [self.sampleMap['sfari-variants'].model], {'isMultiSample': false, 'isBackground': false})
                 .then(function(resultMap) {
                     self.getModel('sfari-variants').inProgress.loadingVariants = false;
