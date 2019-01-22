@@ -271,7 +271,7 @@ div.container.small
               </v-switch>
 
             <v-switch class="optional-track-switch"
-                      v-if=" isLoaded && !isEduMode && !isBasicMode"
+                      v-if=" isLoaded && !isEduMode && !isBasicMode && launchedFromHub"
                       label="Sfari track"
                       v-model="showSfariVariantsCard"
             >
@@ -365,6 +365,7 @@ export default {
     isBasicMode: null,
     isFullAnalysis: null,
     launchedFromClin: null,
+    launchedFromHub: null,
     tourNumber: null,
     geneNames: null,
     genesInProgress: null,

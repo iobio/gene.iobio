@@ -7,6 +7,7 @@ class SampleModel {
   constructor(globalApp) {
     this.globalApp = globalApp;
     this.vcf = null;
+    this.sfariVcfs = []; // Used for sfari variant track: 1x sample model w/ multiple vcf endpoints
     this.bam = null;
 
     this.vcfData = null;
@@ -783,6 +784,20 @@ class SampleModel {
     this.vcf.setIsEduMode(this.cohort.isEduMode);
   };
 
+  initSfariSample(numVcfEndpts, cohort) {
+      // init vcf.iobio
+      this.sfariVcfs = [];
+      this.cohort = cohort;
+      for (let i = 0; i < numVcfEndpts; i++) {
+        let currVcf = vcfiobio(this.globalApp);
+        this.sfariVcfs.push(currVcf);
+        currVcf.setEndpoint(this.cohort.endpoint);
+        currVcf.setGenericAnnotation(this.cohort.genericAnnotation);
+        currVcf.setGenomeBuildHelper(this.cohort.genomeBuildHelper);
+        currVcf.setIsEduMode(this.cohort.isEduMode);
+      }
+  }
+
   promiseBamFilesSelected(fileSelection) {
     var me = this;
     return new Promise(function(resolve, reject) {
@@ -983,7 +998,67 @@ class SampleModel {
         });
 
     }
+  }
 
+  /* Takes in two stably sorted lists of vcfs and tbis. Performs similar functions as onVcfUrlEntered above,
+   * but accommodates multiple vcf files that will be apart of a single sample model. Used for Sfari track. */
+  onHubVcfUrlsEntered(vcfUrls, tbiUrls, callback) {
+    var self = this;
+    self.vcfData = null;
+    let success = true;
+    self.sampleName = null;
+
+    // For each vcf url, clear vcf object or openVcfUrl then get sample names from header
+    for (let i = 0; i < vcfUrls.length; i++) {
+      let currVcf = vcfUrls[i];
+      let currTbi = tbiUrls[i];
+
+      if (currVcf == null || currVcf === '') {
+        // If we don't have a url, clear vcf endpt
+        self.vcfEndpts[i].clearVcfUrl();
+
+        // Set flags
+        self.vcfUrlEntered = false;
+        self.vcfFileOpened = false;
+        self.getVcfRefName = null;
+        self.isMultiSample = false;
+
+        // Return negative success status
+        success = false;
+        if (callback) {
+            callback(success)
+        }
+      } else {
+        // Try to open
+        self.vcfEndpts[i].openVcfUrl(currVcf, currTbi, function(success, errorMsg) {
+            if (self.lastVcfAlertify) {
+                self.lastVcfAlertify.dismiss();
+            }
+            if (success) {
+                // Get the sample names from the vcf header
+                self.vcfEndpts[i].getSampleNames(function(sampleNames) {
+                    sampleNames.forEach((sampleName) => {
+                      self.samples.push(sampleName);
+                    });
+                    self.isMultiSample = true;
+                });
+            } else {
+                // If we have a hiccup on one, return false for all
+                self.vcfUrlEntered = false;
+                let msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + vcfUrl + "</span>";
+                alertify.set('notifier','position', 'top-right');
+                self.lastVcfAlertify = alertify.error(msg, 15);
+                callback(success);
+            }
+        });
+        // Set flags
+        self.vcfUrlEntered = true;
+        self.vcfFileOpened = false;
+        self.getVcfRefName = null;
+        success = true;
+        callback(success, self.sampleNames);
+      }
+    }
   }
 
 

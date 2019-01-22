@@ -310,8 +310,6 @@ export default class HubSession {
     });
   }
 
-  // TODO: add mapping type of fxn here akin to above?
-
   promiseGetFilesForProject(project_id) {
       let self = this;
       return new Promise((resolve,reject) => {

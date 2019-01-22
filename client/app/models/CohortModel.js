@@ -288,7 +288,7 @@ class CohortModel {
       .filter(function(modelInfo) {
         // We exclude siblings here; use a separate method to set siblings
         return modelInfo.relationship != 'sibling';
-      })
+      });
 
 
 
@@ -310,8 +310,7 @@ class CohortModel {
       });
       promises.push(self.promiseAddClinvarSample());
       if (self.hubSession != null) {
-        // TODO: do I need to add this to promises? Don't want this to block - maybe set some other flag that toggle depends on
-        self.promiseAddSfariSample();
+        promises.push(self.promiseAddSfariSample());
       }
 
 
@@ -525,18 +524,15 @@ class CohortModel {
     }
   }
 
-  promiseAddSfariSamples() {
+  promiseAddSfariSample() {
       let self = this;
       if (self.sampleMap['sfari-variants']) {
           return Promise.resolve();
       } else {
           return new Promise(function(resolve,reject) {
               let vm = new SampleModel(self.globalApp);
-              vm.init(self);
               vm.setRelationship('sfari-variants');
               vm.setName('Sfari');
-              //var clinvarUrl = self.genomeBuildHelper.getBuildResource(self.genomeBuildHelper.RESOURCE_CLINVAR_VCF_FTP);
-              //var clinvarUrl  = self.globalApp.getClinvarUrl(self.genomeBuildHelper.getCurrentBuildName());
 
               // Stable sorted url lists
               let nameList = [],
@@ -552,6 +548,9 @@ class CohortModel {
                       // Stable sort by file type
                       vcfFiles = data.data.filter(f => f.type === 'vcf');
                       tbiCsiFiles = data.data.filter(f => f.type === 'tbi' || f.type === 'csi');
+
+                      // Initialize sample model vcfs once we know how many we need
+                      vm.initSfariSample(vcfFiles.length, this);
 
                       // Pull out combined vcfs from individual chromosome ones
                       let sortedVcfFiles = [];
@@ -604,47 +603,20 @@ class CohortModel {
                       // Sort data by chromosome once we have all urls
                       Promise.all(urlPromises)
                           .then(() => {
-                              for (let i = 0; i < nameList.length; i++) {
-                                vm.onVcfUrlEntered(vcfUrlList[i], tbiUrlList[i], function() {
-                                  // TODO: want to accumulate this some how
-
-                                    // Do we want one sample per file? Probably: then 1 vcf obj per file
-                                    // Could just have relationship the same for all sample models
-
-
-                                    // Or do we want one sample model and have some sort of object for all files
-                                });
-
-                                //
+                              vm.onHubVcfUrlsEntered(vcfUrlList, tbiUrlList, function() {
                                 self.sampleModels.push(vm);
-
-                                var sample = {'relationship': 'known-variants', 'model': vm};
-                                self.sampleMap['known-variants'] = sample;
-
+                                let sample = {'relationship': 'sfari-variants', 'model': vm};
+                                self.sampleMap['sfari-variants'] = sample;
                                 resolve(sample);
-                              }
-
-                              //resolve({'names': nameList, 'vcfs': vcfUrlList, 'tbis': tbiUrlList});
+                              });
                           })
                           .catch((error) => {
-                              reject('There was a problem retrieving file urls from Hub: ' + error);
+                              reject('There was a problem adding hub data to sample model: ' + error);
                           });
                   })
                   .catch((error) => {
                     console.log('There was a problem unpacking file data from Hub for Sfari variants: ' + error);
                   });
-
-              // vm.onVcfUrlEntered(clinvarUrl, null, function() {
-              //         self.sampleModels.push(vm);
-              //
-              //         var sample = {'relationship': 'known-variants', 'model': vm};
-              //         self.sampleMap['known-variants'] = sample;
-              //
-              //         resolve(sample);
-              //     },
-              //     function(error) {
-              //         reject(error);
-              //     });
           })
       }
   }
@@ -695,13 +667,13 @@ class CohortModel {
         });
     }
 
-    // SJG TODO: may have multiple sample models here - how to add to order?
   sortSampleModels() {
     var MODEL_ORDER = {
       'proband': 2,
       'mother': 3,
       'father': 4,
-      'known-variants': 1
+      'known-variants': 1,
+      'sfari-variants': 0
     };
     let sortedModels = this.sampleModels.sort(function(a,b) {
       return MODEL_ORDER[a.relationship] - MODEL_ORDER[b.relationship];

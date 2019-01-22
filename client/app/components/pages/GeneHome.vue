@@ -186,6 +186,7 @@ main.content.clin
          :isBasicMode="isBasicMode"
          :isFullAnalysis="isFullAnalysis"
          :launchedFromClin="launchedFromClin"
+         :launchedFromHub="launchedFromHub"
          :tourNumber="tourNumber"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
@@ -987,7 +988,7 @@ export default {
         if (self.models && self.models.length > 0) {
 
           self.cardWidth = $('#genes-card').innerWidth();
-          // SJG TODO: add sfari option here
+          // SJG TODO: add sfari option here?
           var options = {'getKnownVariants': self.showKnownVariantsCard};
 
           self.cohortModel.promiseLoadData(self.selectedGene,
