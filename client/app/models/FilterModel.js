@@ -380,6 +380,9 @@ class FilterModel {
     this.modelFilters = {
       'known-variants': {
         'clinvar': []
+      },
+      'sfari-variants': {
+      'impact': []
       }
     }
   }

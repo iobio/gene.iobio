@@ -758,8 +758,8 @@ class CohortModel {
     let allSamplesInVcf = false;
     var theVcfs = {};
     var cards = this.sampleModels.forEach(function(model) {
-      if (!model.isAlignmentsOnly() && model.getRelationship() != 'known-variants'
-          && mode.getRelationship() !== 'sfari-variants') {
+      if (!model.isAlignmentsOnly() && model.getRelationship() !== 'known-variants'
+          && model.getRelationship() !== 'sfari-variants') {
         if (model.vcfUrlEntered) {
           theVcfs[model.vcf.getVcfURL()] = true;
         } else {
