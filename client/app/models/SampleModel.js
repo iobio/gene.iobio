@@ -1007,6 +1007,7 @@ class SampleModel {
     self.vcfData = null;
     let success = true;
     self.sampleName = null;
+    self.samples = [];
 
     // For each vcf url, clear vcf object or openVcfUrl then get sample names from header
     for (let i = 0; i < vcfUrls.length; i++) {
