@@ -1015,7 +1015,7 @@ class SampleModel {
 
       if (currVcf == null || currVcf === '') {
         // If we don't have a url, clear vcf endpt
-        self.vcfEndpts[i].clearVcfUrl();
+        self.sfariVcfs[i].clearVcfURL();
 
         // Set flags
         self.vcfUrlEntered = false;
@@ -1030,13 +1030,13 @@ class SampleModel {
         }
       } else {
         // Try to open
-        self.vcfEndpts[i].openVcfUrl(currVcf, currTbi, function(success, errorMsg) {
+        self.sfariVcfs[i].openVcfUrl(currVcf.url, currTbi.url, function(success, errorMsg) {
             if (self.lastVcfAlertify) {
                 self.lastVcfAlertify.dismiss();
             }
             if (success) {
                 // Get the sample names from the vcf header
-                self.vcfEndpts[i].getSampleNames(function(sampleNames) {
+                self.sfariVcfs[i].getSampleNames(function(sampleNames) {
                     sampleNames.forEach((sampleName) => {
                       self.samples.push(sampleName);
                     });
@@ -1045,7 +1045,7 @@ class SampleModel {
             } else {
                 // If we have a hiccup on one, return false for all
                 self.vcfUrlEntered = false;
-                let msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + vcfUrl + "</span>";
+                let msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + currVcf.url + "</span>";
                 alertify.set('notifier','position', 'top-right');
                 self.lastVcfAlertify = alertify.error(msg, 15);
                 callback(success);

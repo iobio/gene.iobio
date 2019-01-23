@@ -354,7 +354,8 @@ main.content.clin
         v-for="model in models"
         :key="model.relationship"
         v-bind:class="[
-        { 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false),
+        { 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources
+          || (model.relationship == 'known-variants' && showKnownVariantsCard == false) || (model.relationship === 'sfari-variants' && showSfariVariantsCard === false),
           'edu' : isEduMode
         },
         model.relationship
@@ -809,7 +810,7 @@ export default {
               .then(modelInfos => {
                 self.modelInfos = modelInfos;
 
-                self.cohortModel.promiseInit(self.modelInfos)
+                self.cohortModel.promiseInit(self.modelInfos, self.projectId)
                 .then(function() {
                   self.models = self.cohortModel.sampleModels;
                   if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
@@ -1822,11 +1823,15 @@ export default {
           self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
           self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
         }
+
+        // SJG NOTE: hooked up locally to staging for testing
+          // SJG TODO: REMOVE THIS BEFORE PUSHING
         if (self.projectId) {
           self.isHubDeprecated = false;
         } else {
           self.isHubDeprecated = true;
         }
+        //self.isHubDeprecated = false;
       }
 
       if (self.paramTour) {
@@ -1909,7 +1914,7 @@ export default {
           })
         }
         if (modelInfos.length > 0) {
-          self.cohortModel.promiseInit(modelInfos)
+          self.cohortModel.promiseInit(modelInfos, self.projectId)
           .then(function() {
             self.showLeftPanelForGenes();
             resolve();

@@ -241,7 +241,7 @@ class CohortModel {
     })
   }
 
-  promiseInit(modelInfos) {
+  promiseInit(modelInfos, projectId = 0) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
@@ -310,7 +310,7 @@ class CohortModel {
       });
       promises.push(self.promiseAddClinvarSample());
       if (self.hubSession != null) {
-        promises.push(self.promiseAddSfariSample());
+        promises.push(self.promiseAddSfariSample(projectId));
       }
 
 
@@ -524,7 +524,7 @@ class CohortModel {
     }
   }
 
-  promiseAddSfariSample() {
+  promiseAddSfariSample(projectId) {
       let self = this;
       if (self.sampleMap['sfari-variants']) {
           return Promise.resolve();
@@ -543,14 +543,14 @@ class CohortModel {
               let vcfFiles = null,
                   tbiCsiFiles = null;
 
-              self.hubSession.promiseGetFilesForProject()
+              self.hubSession.promiseGetFilesForProject(projectId)
                   .then((data) => {
                       // Stable sort by file type
                       vcfFiles = data.data.filter(f => f.type === 'vcf');
                       tbiCsiFiles = data.data.filter(f => f.type === 'tbi' || f.type === 'csi');
 
                       // Initialize sample model vcfs once we know how many we need
-                      vm.initSfariSample(vcfFiles.length, this);
+                      vm.initSfariSample(vcfFiles.length, self);
 
                       // Pull out combined vcfs from individual chromosome ones
                       let sortedVcfFiles = [];
@@ -633,7 +633,7 @@ class CohortModel {
             let urlPromises = [];
 
             // Get vcf url
-            let vcfP = self.hubSession.promiseGetSignedUrlForFile(projectId, 0, vcf.id)
+            let vcfP = self.hubSession.promiseGetSignedUrlForFile(projectId, 0, vcf)
                 .then((url) => {
                     if (url == null || url.length === 0) {
                         reject('Empty vcf url returned from hub for ' + vcf.name);
@@ -645,7 +645,7 @@ class CohortModel {
             urlPromises.push(vcfP);
 
             // Get tbi url
-            let tbiP = self.hubSession.promiseGetSignedUrlForFile(projectId, 0, tbi.id)
+            let tbiP = self.hubSession.promiseGetSignedUrlForFile(projectId, 0, tbi)
                 .then((url) => {
                     if (url == null || url.length === 0) {
                         reject('Empty tbi url returned from hub for ' + tbi.name);

@@ -414,6 +414,7 @@ import VariantViz           from "../viz/VariantViz.vue"
 import DepthViz             from "../viz/DepthViz.vue"
 import StackedBarChartViz   from "../viz/StackedBarChartViz.vue"
 import KnownVariantsToolbar from "../partials/KnownVariantsToolbar.vue"
+import SfariVariantsToolbar from "../partials/SfariVariantsToolbar.vue"
 
 
 export default {
@@ -423,6 +424,7 @@ export default {
     GeneViz,
     DepthViz,
     KnownVariantsToolbar,
+    SfariVariantsToolbar,
     StackedBarChartViz
   },
   props: {
