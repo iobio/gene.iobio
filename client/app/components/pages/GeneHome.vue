@@ -1545,7 +1545,7 @@ export default {
     },
     onSfariVariantsFilterChange: function(selectedCategories) {
         let self = this;
-        self.filterModel.setModelFilter('sfari-variants', 'impact', selectedCategories);
+        self.filterModel.setModelFilter('sfari-variants', 'vepImpact', selectedCategories);
         self.cohortModel.setLoadedVariants(self.selectedGene, 'sfari-variants');
     },
     onRemoveGene: function(geneName) {
