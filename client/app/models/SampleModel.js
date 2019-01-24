@@ -2199,10 +2199,15 @@ class SampleModel {
       v.level = 0;
     });
 
+    let currVcf = me.vcf;
+    if (me.name === 'sfari-variants') {
+      currVcf = me.sfariVcfs[0];
+    }
+
     var featureWidth = me.isEduMode || me.isBasicMode ? me.globalApp.eduModeVariantSize : 4;
     var posToPixelFactor = Math.round((end - start) / width);
     var widthFactor = featureWidth + ( me.isEduMode || me.isBasicMode ? me.globalApp.eduModeVariantSize * 2 : 4);
-    var maxLevel = this.vcf.pileupVcfRecords(theFeatures, start, posToPixelFactor, widthFactor);
+    var maxLevel = currVcf.pileupVcfRecords(theFeatures, start, posToPixelFactor, widthFactor);
     if ( maxLevel > 30) {
       for(var i = 1; i < posToPixelFactor; i++) {
         // TODO:  Devise a more sensible approach to setting the min width.  We want the
@@ -2221,7 +2226,7 @@ class SampleModel {
             v.level = 0;
         });
         var factor = posToPixelFactor / (i * 2);
-        maxLevel = me.vcf.pileupVcfRecords(theFeatures, start, factor, featureWidth + 1);
+        maxLevel = currVcf.pileupVcfRecords(theFeatures, start, factor, featureWidth + 1);
         if (maxLevel <= 50) {
           i = posToPixelFactor;
           break;
