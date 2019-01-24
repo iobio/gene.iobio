@@ -1659,6 +1659,7 @@ class SampleModel {
                                     self.isBasicMode || self.globalApp.getVariantIdsForGene,  // hgvs notation
                                     self.globalApp.getVariantIdsForGene,  // rsid
                                     self.globalApp.vepAF,    // vep af
+                                    false,
                                     true) // sfariMode
                                       .then((results) => {
                                         let unwrappedResults = results[1];
