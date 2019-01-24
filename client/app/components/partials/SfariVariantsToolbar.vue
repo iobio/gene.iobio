@@ -128,10 +128,10 @@ export default {
       viz: null,
 
       categories: [
-        {'key': 'impact', 'selected': true,  value: 'impact_high',   text: 'High' },
-        {'key': 'impact', 'selected': true,  value: 'impact_moderate',  text: 'Moderate' },
-        {'key': 'impact', 'selected': false,  value: 'impact_modifier',     text: 'Modifier' },
-        {'key': 'impact', 'selected': false,  value: 'impact_low',     text: 'Low'}
+        {'key': 'impact', 'selected': true,  value: 'HIGH',   text: 'High' },
+        {'key': 'impact', 'selected': true,  value: 'MODERATE',  text: 'Moderate' },
+        {'key': 'impact', 'selected': false,  value: 'MODIFIER',     text: 'Modifier' },
+        {'key': 'impact', 'selected': false,  value: 'LOW',     text: 'Low'}
       ],
       selectedCategories: ['impact_high', 'impact_moderate']
 

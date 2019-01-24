@@ -1664,10 +1664,8 @@ class SampleModel {
                                     .then((results) => {
                                       let unwrappedResults = results[1];
                                       let doubUnwrapResults = unwrappedResults[0];
-                                      annoResults.push(doubUnwrapResults);
-
-                                      // Unwrap feature array
                                       doubUnwrapResults.gene = theGene;
+                                      annoResults.push(doubUnwrapResults);
                                     })
                                     .catch((error) => {
                                       reject('Problem getting sfari variants: ' + error);

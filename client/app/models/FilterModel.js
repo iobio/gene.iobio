@@ -382,7 +382,7 @@ class FilterModel {
         'clinvar': []
       },
       'sfari-variants': {
-      'impact': []
+      'vepImpact': []
       }
     }
   }
