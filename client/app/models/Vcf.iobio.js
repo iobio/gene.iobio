@@ -1577,7 +1577,7 @@ var effectCategories = [
                     'extraAnnot':               hasExtraAnnot,
 
                     // genotype fields
-                    'genotypes':                gtResult.genotypeMap,
+                    //'genotypes':                gtResult.genotypeMap,
                     'genotype':                 genotype,
                     'genotypeDepth' :           genotype.genotypeDepth,
                     'genotypeFilteredDepth' :   genotype.filteredDepth,
@@ -1641,6 +1641,11 @@ var effectCategories = [
                     'highestSIFT':             highestSIFT,
                     'highestPolyphen':         highestPolyphen,
                     'highestREVEL':            highestREVEL
+                  };
+
+                  // Too much data for sfari vars
+                  if (sfariMode === false) {
+                      variant['genotypes'] = gtResult.genotypeMap;
                   }
 
                   for (var key in clinvarResult) {
