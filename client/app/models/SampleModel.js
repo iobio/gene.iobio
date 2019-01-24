@@ -1641,7 +1641,7 @@ class SampleModel {
                     // We don't have the variants for the gene in cache,
                     // so call the iobio services to retrieve the variants for the gene region
                     // and annotate them.
-                    return self._promiseVcfRefName(theGene.chr, true)  // True for sfariMode
+                    self._promiseVcfRefName(theGene.chr, true)  // True for sfariMode
                         .then(() => {
                             let annoPromises = [];
                             let annoResults = [];
@@ -1661,23 +1661,22 @@ class SampleModel {
                                     self.globalApp.vepAF,    // vep af
                                     false,
                                     true) // sfariMode
-                                      .then((results) => {
-                                        let unwrappedResults = results[1];
-                                        let doubUnwrapResults = unwrappedResults[0];
-                                        annoResults.push(doubUnwrapResults);
+                                    .then((results) => {
+                                      let unwrappedResults = results[1];
+                                      let doubUnwrapResults = unwrappedResults[0];
+                                      annoResults.push(doubUnwrapResults);
 
-                                        // Unwrap feature array
-                                        doubUnwrapResults.gene = theGene;
-                                        resolve();
-                                      })
-                                      .catch((error) => {
-                                        reject('Problem getting sfari variants: ' + error);
-                                      });
+                                      // Unwrap feature array
+                                      doubUnwrapResults.gene = theGene;
+                                    })
+                                    .catch((error) => {
+                                      reject('Problem getting sfari variants: ' + error);
+                                    });
                                 annoPromises.push(p);
                             });
-                            return Promise.all(annoPromises)
+                            Promise.all(annoPromises)
                               .then(() => {
-                                  return self.promiseCombineVariants(annoResults)
+                                  self.promiseCombineVariants(annoResults)
                                       .then((combinedVcfData) => {
                                         self.vcfData = combinedVcfData;
                                         let resultMap = {};
