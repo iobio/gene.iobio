@@ -1163,7 +1163,6 @@ class CohortModel {
         }
       }
 
-
       if (options.getKnownVariants) {
         let p = self.promiseLoadKnownVariants(theGene, theTranscript)
         .then(function(result) {
@@ -1173,7 +1172,19 @@ class CohortModel {
             }
 
           }
-        })
+        });
+        annotatePromises.push(p);
+      }
+
+      if (options.getSfariVariants) {
+        let p = self.promiseLoadSfariVariants(theGene, theTranscript)
+          .then(function(result) {
+            if (self.sfariVariantsViz === 'variants') {
+              for (var rel in resultMap) {
+                  theResultMap[rel] = resultMap[rel];
+              }
+            }
+          });
         annotatePromises.push(p);
       }
 
