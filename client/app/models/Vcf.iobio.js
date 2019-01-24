@@ -633,7 +633,6 @@ var effectCategories = [
 
     return new Promise( function(resolve, reject) {
 
-
       // This comma separated string of samples to perform vcf subset on
       var vcfSampleNames = samplesToRetrieve.filter(function(sample) {
         return (sample.vcfSampleName !== "" && sample.vcfSampleName != null);
@@ -649,6 +648,10 @@ var effectCategories = [
       })
       .join(",");
 
+      if (sfariMode === true) {
+        vcfSampleNames = samplesToRetrieve.join(',');
+        sampleNamesToGenotype = samplesToRetrieve.join(',');
+      }
 
       if (sourceType == SOURCE_TYPE_URL) {
         me._getRemoteVariantsImpl(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache,
