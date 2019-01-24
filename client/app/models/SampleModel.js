@@ -1656,7 +1656,7 @@ class SampleModel {
                                     self.getRelationship() === 'known-variants' ? 'none' : self.getAnnotationScheme().toLowerCase(),
                                     self.getTranslator().clinvarMap,
                                     self.getGeneModel().geneSource === 'refseq',
-                                    self.isBasicMode || self.globalApp.getVariantIdsForGene,  // hgvs notation
+                                    false,  // hgvs notation
                                     false,  // rsid
                                     self.globalApp.vepAF,    // vep af
                                     false,
