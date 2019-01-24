@@ -1657,7 +1657,7 @@ class SampleModel {
                                     self.getTranslator().clinvarMap,
                                     self.getGeneModel().geneSource === 'refseq',
                                     self.isBasicMode || self.globalApp.getVariantIdsForGene,  // hgvs notation
-                                    self.globalApp.getVariantIdsForGene,  // rsid
+                                    false,  // rsid
                                     self.globalApp.vepAF,    // vep af
                                     false,
                                     true) // sfariMode
