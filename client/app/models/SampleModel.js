@@ -2200,7 +2200,7 @@ class SampleModel {
     });
 
     let currVcf = me.vcf;
-    if (me.name === 'sfari-variants') {
+    if (me.name === 'Sfari') {
       currVcf = me.sfariVcfs[0];
     }
 
