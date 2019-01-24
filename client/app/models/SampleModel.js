@@ -1641,7 +1641,7 @@ class SampleModel {
                     // We don't have the variants for the gene in cache,
                     // so call the iobio services to retrieve the variants for the gene region
                     // and annotate them.
-                    self._promiseVcfRefName(theGene.chr, true)  // True for sfariMode
+                    return self._promiseVcfRefName(theGene.chr, true)  // True for sfariMode
                         .then(() => {
                             let annoPromises = [];
                             let annoResults = [];
@@ -1667,7 +1667,7 @@ class SampleModel {
                                         annoResults.push(doubUnwrapResults);
 
                                         // Unwrap feature array
-                                          doubUnwrapResults.gene = theGene;
+                                        doubUnwrapResults.gene = theGene;
                                         resolve();
                                       })
                                       .catch((error) => {
@@ -1675,7 +1675,7 @@ class SampleModel {
                                       });
                                 annoPromises.push(p);
                             });
-                            Promise.all(annoPromises)
+                            return Promise.all(annoPromises)
                               .then(() => {
                                   return self.promiseCombineVariants(annoResults)
                                       .then((combinedVcfData) => {
