@@ -1677,7 +1677,7 @@ class SampleModel {
                             });
                             Promise.all(annoPromises)
                               .then(() => {
-                                  self.promiseCombineVariants(annoResults)
+                                  return self.promiseCombineVariants(annoResults)
                                       .then((combinedVcfData) => {
                                         self.vcfData = combinedVcfData;
                                         let resultMap = {};
