@@ -304,7 +304,7 @@
           ref="calledVariantVizRef"
           v-if="showVariantViz"
           v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
-          (sampleModel.relationship === 'sfari-variants' && knownVariantsViz !== 'variants')}"
+          (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.calledVariants"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
@@ -323,7 +323,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="showVariantViz && sampleModel.loadedVariants && (sampleModel.relationship !== 'known-variants' || sampleModel.relationship !== 'sfari-variants')"
+        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants'"
         >
           loaded variants
         </div>
@@ -332,7 +332,7 @@
           ref="variantVizRef"
           v-if="showVariantViz"
            v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
-            (sampleModel.relationship === 'sfari-variants' && knownVariantsViz !== 'variants')}"
+            (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
