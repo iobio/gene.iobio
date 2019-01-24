@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8abfd572-6d32-499e-b393-924ffd5e3191" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/client/app/models/SampleModel.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/SampleModel.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -85,8 +86,8 @@
       <file leaf-file-name="CohortModel.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="329">
-              <caret line="675" column="12" selection-start-line="675" selection-start-column="7" selection-end-line="675" selection-end-column="12" />
+            <state relative-caret-position="1066">
+              <caret line="595" column="49" lean-forward="true" selection-start-line="595" selection-start-column="49" selection-end-line="595" selection-end-column="49" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
                 <element signature="e#4#10#0" expanded="true" />
@@ -116,8 +117,8 @@
       <file leaf-file-name="SampleModel.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/models/SampleModel.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="492">
-              <caret line="1659" column="42" selection-start-line="1659" selection-start-column="42" selection-end-line="1659" selection-end-column="42" />
+            <state relative-caret-position="402">
+              <caret line="1654" column="90" selection-start-line="1654" selection-start-column="90" selection-end-line="1654" selection-end-column="90" />
               <folding>
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
@@ -132,11 +133,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EndpointCmd.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client/app/models/EndpointCmd.js">
+      <file leaf-file-name="Vcf.iobio.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1008">
-              <caret line="63" column="136" selection-start-line="63" selection-start-column="122" selection-end-line="63" selection-end-column="136" />
+            <state relative-caret-position="353">
+              <caret line="641" column="36" lean-forward="true" selection-start-line="641" selection-start-column="36" selection-end-line="641" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -145,12 +146,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>&quot;id&quot;</find>
-      <find>_parseVcfRecords</find>
-      <find>promise</find>
-      <find>promiseannotat</find>
-      <find>_getRemoteVariantsImpl</find>
-      <find>promiseGetVariants</find>
       <find>DEV_IOBIO</find>
       <find>IOBIO_SOURCE</find>
       <find>nv-dev-new</find>
@@ -174,7 +169,13 @@
       <find>showSfariVariantsCard</find>
       <find>show-sfari</find>
       <find>onShowPileupForVariant</find>
+      <find>promisegetva</find>
+      <find>_getSamplesToRetrieve</find>
+      <find>promisegetvariants</find>
+      <find>_getSample</find>
       <find>sfari</find>
+      <find>onHubVcfUrlsEntered</find>
+      <find>sfarivar</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -185,7 +186,6 @@
       <list>
         <option value="$PROJECT_DIR$/client/app/models/HubSession.js" />
         <option value="$PROJECT_DIR$/client/app/models/HubSessionDeprecated.js" />
-        <option value="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" />
         <option value="$PROJECT_DIR$/client/app/globals/GlobalApp.js" />
         <option value="$PROJECT_DIR$/client/app/models/FilterModel.js" />
         <option value="$PROJECT_DIR$/client/app/models/CohortModel.js" />
@@ -193,6 +193,7 @@
         <option value="$PROJECT_DIR$/client/app/components/pages/GeneHome.vue" />
         <option value="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" />
         <option value="$PROJECT_DIR$/client/app/components/partials/SfariVariantsToolbar.vue" />
+        <option value="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" />
         <option value="$PROJECT_DIR$/client/app/models/SampleModel.js" />
       </list>
     </option>
@@ -333,12 +334,12 @@
       <option name="presentableId" value="Default" />
       <updated>1548093935562</updated>
       <workItem from="1548093936772" duration="36018000" />
-      <workItem from="1548298515667" duration="8921000" />
+      <workItem from="1548298515667" duration="9867000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="44939000" />
+    <option name="totallyTimeSpent" value="45885000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1920" y="167" width="1920" height="1057" extended-state="6" />
@@ -502,13 +503,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9904">
-          <caret line="629" column="196" selection-start-line="629" selection-start-column="196" selection-end-line="629" selection-end-column="196" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/app/models/EndpointCmd.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1008">
@@ -577,10 +571,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="353">
+          <caret line="641" column="36" lean-forward="true" selection-start-line="641" selection-start-column="36" selection-end-line="641" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
-          <caret line="675" column="12" selection-start-line="675" selection-start-column="7" selection-end-line="675" selection-end-column="12" />
+        <state relative-caret-position="1066">
+          <caret line="595" column="49" lean-forward="true" selection-start-line="595" selection-start-column="49" selection-end-line="595" selection-end-column="49" />
           <folding>
             <element signature="e#0#47#0" expanded="true" />
             <element signature="e#4#10#0" expanded="true" />
@@ -599,8 +600,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/models/SampleModel.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="492">
-          <caret line="1659" column="42" selection-start-line="1659" selection-start-column="42" selection-end-line="1659" selection-end-column="42" />
+        <state relative-caret-position="402">
+          <caret line="1654" column="90" selection-start-line="1654" selection-start-column="90" selection-end-line="1654" selection-end-column="90" />
           <folding>
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />

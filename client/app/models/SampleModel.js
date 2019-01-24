@@ -1001,7 +1001,7 @@ class SampleModel {
   }
 
   /* Takes in two stably sorted lists of vcfs and tbis. Performs similar functions as onVcfUrlEntered above,
-   * but accommodates multiple vcf files that will be apart of a single sample model. Used for Sfari track. */
+   * but accommodates multiple vcf files that will be apart of a single sample model. Used specifically for Sfari track. */
   onHubVcfUrlsEntered(vcfUrls, tbiUrls, callback) {
     var self = this;
     self.vcfData = null;
@@ -1652,7 +1652,7 @@ class SampleModel {
                                     theTranscript,
                                     null,   // regions
                                     isMultiSample, // is multi-sample
-                                    self._getSamplesToRetrieve(),
+                                    self.samples,   // want variants for all sfari samples
                                     self.getRelationship() === 'known-variants' ? 'none' : self.getAnnotationScheme().toLowerCase(),
                                     self.getTranslator().clinvarMap,
                                     self.getGeneModel().geneSource === 'refseq',

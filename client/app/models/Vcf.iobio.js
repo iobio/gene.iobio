@@ -636,7 +636,7 @@ var effectCategories = [
 
       // This comma separated string of samples to perform vcf subset on
       var vcfSampleNames = samplesToRetrieve.filter(function(sample) {
-        return (sample.vcfSampleName != "" && sample.vcfSampleName != null);
+        return (sample.vcfSampleName !== "" && sample.vcfSampleName != null);
       })
       .map(function(sample) {
         return sample.vcfSampleName;
