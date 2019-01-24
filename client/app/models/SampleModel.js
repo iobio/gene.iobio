@@ -1677,15 +1677,17 @@ class SampleModel {
                             });
                             Promise.all(annoPromises)
                               .then(() => {
-                                  let combinedVcfData = self.promiseCombineVariants(annoResults);
-                                  self.vcfData = combinedVcfData;
-                                  let resultMap = {};
-                                  resultMap['sfari-variants'] = combinedVcfData;
-                                  resolve(resultMap);
-                              })
-                                .catch((error) => {
-                                  reject('Problem with combining sfari variants: ' + error);
-                                })
+                                  self.promiseCombineVariants(annoResults)
+                                      .then((combinedVcfData) => {
+                                        self.vcfData = combinedVcfData;
+                                        let resultMap = {};
+                                        resultMap['sfari-variants'] = combinedVcfData;
+                                        resolve(resultMap);
+                                      })
+                                      .catch((error) => {
+                                        reject('Problem in combining variants: ' + error);
+                                      })
+                              });
                         });
                 }
             })
