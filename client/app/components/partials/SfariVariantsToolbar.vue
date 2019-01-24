@@ -133,7 +133,7 @@ export default {
         {'key': 'impact', 'selected': false,  value: 'MODIFIER',     text: 'Modifier' },
         {'key': 'impact', 'selected': false,  value: 'LOW',     text: 'Low'}
       ],
-      selectedCategories: ['impact_high', 'impact_moderate']
+      selectedCategories: ['HIGH', 'MODERATE', 'LOW']
 
     }
   },
