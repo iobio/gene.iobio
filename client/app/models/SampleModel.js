@@ -1663,11 +1663,11 @@ class SampleModel {
                                     true) // sfariMode
                                       .then((results) => {
                                         let unwrappedResults = results[1];
-                                        annoResults.push(unwrappedResults);
+                                        let doubUnwrapResults = unwrappedResults[0];
+                                        annoResults.push(doubUnwrapResults);
 
                                         // Unwrap feature array
-                                          unwrappedResults.features = unwrappedResults.features[0];
-                                          unwrappedResults.gene = theGene;
+                                          doubUnwrapResults.gene = theGene;
                                         resolve();
                                       })
                                       .catch((error) => {
@@ -1723,7 +1723,7 @@ class SampleModel {
               }
             });
         }
-        annotationResults[0].features = combinedFeatures;
+        annotationResults[0][0].features = combinedFeatures;
         resolve(annotationResults[0]);
       }
     })
