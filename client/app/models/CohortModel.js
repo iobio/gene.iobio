@@ -913,14 +913,15 @@ class CohortModel {
         let self = this;
         return new Promise(function(resolve, reject) {
             self.getModel('sfari-variants').inProgress.loadingVariants = true;
-            self.sampleMap['sfari-variants'].model.promiseAnnotateSfariVariants(theGene,
-                theTranscript, [self.sampleMap['sfari-variants'].model], {'isMultiSample': false, 'isBackground': false})
+            self.sampleMap['sfari-variants'].model.promiseAnnotateSfariVariants(theGene, theTranscript, [self.sampleMap['sfari-variants'].model], {'isMultiSample': true, 'isBackground': false})
                 .then(function(resultMap) {
                     self.getModel('sfari-variants').inProgress.loadingVariants = false;
                     self.setLoadedVariants(theGene, 'sfari-variants');
                     resolve(resultMap);
                 })
-
+                .catch((error) => {
+                  reject('Problem loading sfari variants: ' + error);
+                })
         })
     }
 

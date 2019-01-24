@@ -626,7 +626,8 @@ var effectCategories = [
   }
 
 
-  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache) {
+  /* When sfariMode = true, variant id field is assigned. */
+  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false) {
     var me = this;
 
 
@@ -657,7 +658,7 @@ var effectCategories = [
             } else {
               reject();
             }
-          });
+          }, null, sfariMode);
       } else {
         //me._getLocalStats(refName, geneObject.start, geneObject.end, sampleName);
 
@@ -740,7 +741,7 @@ var effectCategories = [
 
   }
 
-  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback) {
+  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false) {
 
     var me = this;
 
@@ -799,7 +800,7 @@ var effectCategories = [
       });
 
       // Parse the vcf object into a variant object that is visualized by the client.
-      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF);
+      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode);
 
 
       callback(annotatedRecs, results);
@@ -1426,7 +1427,7 @@ var effectCategories = [
   }
 
 
-  exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF) {
+  exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF, sfariMode = false) {
 
       var me = this;
       var selectedTranscriptID = globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
@@ -1547,6 +1548,11 @@ var effectCategories = [
                 // Keep the variant if we are just parsing a single sample (parseMultiSample=false)
                 // or we are parsing multiple samples and this sample's genotype is het or hom
                 if (!parseMultiSample || genotype.keep) {
+                  let currId = rec.id;
+                  if (sfariMode === true) {
+                      currId = ('id_' + rec.pos + '_' + refName + '_' + geneObject.strand + '_' + rec.ref + '_' + rec.alt);  // key = start.chromosome.strand.ref.alt
+                  }
+
                   var variant = {
                     'start':                    +rec.pos,
                     'end':                      +end,
@@ -1555,7 +1561,7 @@ var effectCategories = [
                     'strand':                   geneObject.strand,
                     'chrom':                    refName,
                     'type':                     annot.typeAnnotated && annot.typeAnnotated != '' ? annot.typeAnnotated : type,
-                    'id':                       rec.id,
+                    'id':                       currId,
                     'ref':                      rec.ref,
                     'alt':                      alt,
                     'qual':                     rec.qual,

@@ -1063,7 +1063,7 @@ class SampleModel {
   }
 
 
-  _promiseVcfRefName(ref) {
+  _promiseVcfRefName(ref, sfariMode = false) {
     var me = this;
     var theRef = ref != null ? ref : window.gene.chr;
     return new Promise( function(resolve, reject) {
@@ -1077,7 +1077,11 @@ class SampleModel {
         }
       } else {
         me.vcfRefNamesMap = {};
-        me.vcf.getReferenceLengths(function(refData) {
+        let currVcf = me.vcf;
+        if (sfariMode) {
+          currVcf = me.sfariVcfs[0];
+        }
+        currVcf.getReferenceLengths(function(refData) {
           var foundRef = false;
           refData.forEach( function(refObject) {
             var refName = refObject.name;
@@ -1606,14 +1610,120 @@ class SampleModel {
   }
 
 
-  promiseAnnotateSfariVariants(theGene, theTranscript, variantModels, options) {
-    // SJG TODO: implement this to work w/ multiple vcf endpoints
-      // Call promiseGetData for each variantModel passed in
-      // Then promiseGetVariants for each vcf endpt
-      // Then combine features from all vcfs to avoid overlaps as separate fxn
-      // Assign vcfData in this
-      // Update properties as below
-      // Return result map for 'sfari-variants'
+  promiseAnnotateSfariVariants(theGene, theTranscript, sampleModels, options) {
+      let self = this;
+
+      return new Promise(function (resolve, reject) {
+          let isMultiSample = options.isMultiSample;
+          let isBackground = options.isBackground;
+
+          let resultMap = {};
+          let dataPromises = [];
+          sampleModels.forEach((model) => {
+              let p = model._promiseGetData(CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
+                  .then(function (vcfData) {
+                      if (vcfData != null && vcfData !== '') {
+                          resultMap[model.relationship] = vcfData;
+
+                          if (!isBackground) {
+                              model.vcfData = vcfData;
+                              model.fbData = self.reconstituteFbData(vcfData);
+                          }
+                      }
+                  });
+              dataPromises.push(p);
+          });
+          Promise.all(dataPromises)
+            .then(function () {
+                if (Object.keys(resultMap).length === sampleModels.length) {
+                    resolve(resultMap);
+                } else {
+                    // We don't have the variants for the gene in cache,
+                    // so call the iobio services to retrieve the variants for the gene region
+                    // and annotate them.
+                    self._promiseVcfRefName(theGene.chr, true)  // True for sfariMode
+                        .then(() => {
+                            let annoPromises = [];
+                            let annoResults = [];
+                            self.sfariVcfs.forEach((vcf) => {
+                                let p = vcf.promiseGetVariants(
+                                    self.getVcfRefName(theGene.chr),
+                                    theGene,
+                                    theTranscript,
+                                    null,   // regions
+                                    isMultiSample, // is multi-sample
+                                    self._getSamplesToRetrieve(),
+                                    self.getRelationship() === 'known-variants' ? 'none' : self.getAnnotationScheme().toLowerCase(),
+                                    self.getTranslator().clinvarMap,
+                                    self.getGeneModel().geneSource === 'refseq',
+                                    self.isBasicMode || self.globalApp.getVariantIdsForGene,  // hgvs notation
+                                    self.globalApp.getVariantIdsForGene,  // rsid
+                                    self.globalApp.vepAF,    // vep af
+                                    true) // sfariMode
+                                      .then((results) => {
+                                        let unwrappedResults = results[1];
+                                        annoResults.push(unwrappedResults);
+
+                                        // Unwrap feature array
+                                          unwrappedResults.features = unwrappedResults.features[0];
+                                          unwrappedResults.gene = theGene;
+                                        resolve();
+                                      })
+                                      .catch((error) => {
+                                        reject('Problem getting sfari variants: ' + error);
+                                      });
+                                annoPromises.push(p);
+                            });
+                            Promise.all(annoPromises)
+                              .then(() => {
+                                  let combinedVcfData = self.promiseCombineVariants(annoResults);
+                                  self.vcfData = combinedVcfData;
+                                  let resultMap = {};
+                                  resultMap['sfari-variants'] = combinedVcfData;
+                                  resolve(resultMap);
+                              })
+                                .catch((error) => {
+                                  reject('Problem with combining sfari variants: ' + error);
+                                })
+                        });
+                }
+            })
+      })
+  }
+
+  /* Given a list of annotationResults, combines the feature subobjects within. When variants are combined, we
+   * only take the FIRST instance of the variant with that matching information. We do NOT combine any information
+   * across multiple files. Returns an annotation object with the features subobject containing the combined, ordered variant list. */
+  promiseCombineVariants(annotationResults) {
+    return new Promise((resolve, reject) => {
+
+      // If we only have one vcf, just return the first object;
+      if (annotationResults.length === 1) {
+        resolve(annotationResults[0]);
+      } else {
+
+        // Iniitalize combined list
+        let combinedFeatures = annotationResults[0].features;
+
+        // Initialize hash to avoid dups
+        let combinedHash = {};
+        combinedFeatures.forEach((feature) => {
+            combinedHash[feature.id] = true;
+          });
+        // Add remaining unique vars
+        for (let i = 1; i < annotationResults.length; i++) {
+            let currFeatures = annotationResults[i].features;
+            currFeatures.forEach((currFeature) => {
+              if (!combinedHash[currFeature.id]) {
+                combinedHash[currFeature.id] = true;
+                combinedFeatures.push(currFeature);
+              }
+            });
+        }
+        annotationResults[0].features = combinedFeatures;
+        resolve(annotationResults[0]);
+      }
+    })
   }
 
 
@@ -1652,7 +1762,7 @@ class SampleModel {
         } else {
 
           // We don't have the variants for the gene in cache,
-          // so call the iobio services to retreive the variants for the gene region
+          // so call the iobio services to retrieve the variants for the gene region
           // and annotate them.
           me._promiseVcfRefName(theGene.chr)
           .then( function() {
