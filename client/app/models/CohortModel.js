@@ -1147,7 +1147,7 @@ class CohortModel {
             if (!options.isBackground) {
               model.inProgress.loadingVariants = true;
             }
-            if (rel != 'known-variants') {
+            if (rel !== 'known-variants' && rel !== 'sfari-variants') {
               var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], options)
               .then(function(resultMap) {
                 for (var theRelationship in resultMap) {

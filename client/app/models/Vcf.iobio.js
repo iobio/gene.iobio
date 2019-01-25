@@ -793,11 +793,12 @@ var effectCategories = [
           var genotypes = [];
 
           // Too much data, crashes app
-          if (sfariMode === false) {
-              for (var i = 9; i < fields.length; i++) {
-                  genotypes.push(fields[i]);
-              }
+          if (sfariMode !== true) {
+            for (var i = 9; i < fields.length; i++) {
+                genotypes.push(fields[i]);
+            }
           }
+
 
           // Turn vcf record into a JSON object and add it to an array
           var vcfObject = {'pos': pos, 'id': 'id', 'ref': ref, 'alt': alt,
