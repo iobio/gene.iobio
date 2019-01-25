@@ -1537,7 +1537,12 @@ var effectCategories = [
 
             var clinvarResult = me.parseClinvarInfo(rec, clinvarMap);
 
-            var gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames);
+            var gtResult = null;
+            if (sfariMode === true) {
+              gtResult = me._lightParseGenotypes(rec, alt, altIndex, gtSampleIndices, gtSampleNames);
+            } else {
+              gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames);
+            }
 
             var clinvarObject = me._formatClinvarCoordinates(rec, alt);
 
@@ -1577,7 +1582,6 @@ var effectCategories = [
                     'extraAnnot':               hasExtraAnnot,
 
                     // genotype fields
-                    //'genotypes':                gtResult.genotypeMap,
                     'genotype':                 genotype,
                     'genotypeDepth' :           genotype.genotypeDepth,
                     'genotypeFilteredDepth' :   genotype.filteredDepth,
@@ -2234,13 +2238,12 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
 }
 
 
-
 /*
  *
  * Parse the genotype field from in the vcf rec
  *
  */
- exports._parseGenotypes = function(rec, alt, altIdx, sampleIndices, sampleNames) {
+ exports._parseGenotypes = function(rec, alt, altIdx, sampleIndices, sampleNames, sfariMode) {
     var me = this;
 
     // The result returned will be an object representing all
@@ -2272,17 +2275,22 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
     // if we are parsing the genotypes for a trio, the first
     // genotype will be for the proband, followed by 2 more elements
     // for the mother and father's genotypes.
-    result.genotypes = sampleIndices.map( function(sampleIndex) {
-      return { sampleIndex: sampleIndex, zygosity: null, phased: null};
-    });
+     result.genotypes = sampleIndices.map( function(sampleIndex) {
+         return { sampleIndex: sampleIndex, zygosity: null, phased: null};
+     });
 
-    // The results will also contain a map to obtain
-    // the genotype by sample name.  If sample names were not provided,
-    // we will use the index as the key to the map.
-    result.genotypes.forEach(function(gt) {
-      var key = sampleNames ? sampleNames[gt.sampleIndex] : gt.sampleIndex.toString();
-      result.genotypeMap[key] = gt;
-    })
+      // The results will also contain a map to obtain
+      // the genotype by sample name.  If sample names were not provided,
+      // we will use the index as the key to the map.
+      // NOTE: cannot do this for sfari samples, crashes browser
+     if (sfariMode === true) {
+       result.genotypeMap = {};
+     } else {
+       result.genotypes.forEach(function(gt) {
+           let key = sampleNames ? sampleNames[gt.sampleIndex] : gt.sampleIndex.toString();
+           result.genotypeMap[key] = gt;
+       });
+     }
 
     // Determine the format of the genotype fields
     var gtTokens = {};
@@ -2535,7 +2543,6 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
 
         }
       }
-
     });
 
 
@@ -2544,7 +2551,7 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
       if (gt.keep) {
         result.keep = true;
       }
-    })
+    });
 
     // The 'target' genotype will be the first genotype in the array
     // For example, if the sampleIndex of '1' was sent in (sampleIndices = [1]),
