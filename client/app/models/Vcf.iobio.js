@@ -1537,12 +1537,7 @@ var effectCategories = [
 
             var clinvarResult = me.parseClinvarInfo(rec, clinvarMap);
 
-            var gtResult = null;
-            if (sfariMode === true) {
-              gtResult = me._lightParseGenotypes(rec, alt, altIndex, gtSampleIndices, gtSampleNames);
-            } else {
-              gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames);
-            }
+            var gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames);
 
             var clinvarObject = me._formatClinvarCoordinates(rec, alt);
 
