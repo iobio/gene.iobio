@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8abfd572-6d32-499e-b393-924ffd5e3191" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/client/app/models/CohortModel.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/CohortModel.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -73,11 +73,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CohortModel.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="CohortModel.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="286">
-              <caret line="1027" column="70" selection-start-line="1027" selection-start-column="70" selection-end-line="1027" selection-end-column="70" />
+            <state relative-caret-position="825">
+              <caret line="1031" column="107" selection-start-line="1031" selection-start-column="107" selection-end-line="1031" selection-end-column="107" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
                 <element signature="e#4#10#0" expanded="true" />
@@ -123,11 +123,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Vcf.iobio.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Vcf.iobio.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="819">
-              <caret line="1976" column="42" lean-forward="true" selection-start-line="1976" selection-start-column="42" selection-end-line="1976" selection-end-column="42" />
+            <state relative-caret-position="199">
+              <caret line="1496" column="25" lean-forward="true" selection-start-line="1496" selection-start-column="25" selection-end-line="1496" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -149,7 +149,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>annotateVariants</find>
       <find>promiseGetG</find>
       <find>pileup</find>
       <find>setloaded</find>
@@ -179,6 +178,7 @@
       <find>genotypeMap</find>
       <find>_parseGenotypes</find>
       <find>filterand</find>
+      <find>parsegenotypes</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -195,9 +195,9 @@
         <option value="$PROJECT_DIR$/client/app/components/pages/GeneHome.vue" />
         <option value="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" />
         <option value="$PROJECT_DIR$/client/app/components/partials/SfariVariantsToolbar.vue" />
-        <option value="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" />
         <option value="$PROJECT_DIR$/client/app/models/SampleModel.js" />
         <option value="$PROJECT_DIR$/client/app/models/CohortModel.js" />
+        <option value="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" />
       </list>
     </option>
   </component>
@@ -337,12 +337,12 @@
       <option name="presentableId" value="Default" />
       <updated>1548093935562</updated>
       <workItem from="1548093936772" duration="36018000" />
-      <workItem from="1548298515667" duration="14653000" />
+      <workItem from="1548298515667" duration="15266000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="50671000" />
+    <option name="totallyTimeSpent" value="51284000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1920" height="1057" extended-state="6" />
@@ -585,13 +585,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="819">
-          <caret line="1976" column="42" lean-forward="true" selection-start-line="1976" selection-start-column="42" selection-end-line="1976" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/app/models/SampleModel.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1149">
@@ -611,8 +604,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="286">
-          <caret line="1027" column="70" selection-start-line="1027" selection-start-column="70" selection-end-line="1027" selection-end-column="70" />
+        <state relative-caret-position="825">
+          <caret line="1031" column="107" selection-start-line="1031" selection-start-column="107" selection-end-line="1031" selection-end-column="107" />
           <folding>
             <element signature="e#0#47#0" expanded="true" />
             <element signature="e#4#10#0" expanded="true" />
@@ -626,6 +619,13 @@
             <element signature="e#4#10#0" expanded="true" />
             <element signature="e#10#16#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="199">
+          <caret line="1496" column="25" lean-forward="true" selection-start-line="1496" selection-start-column="25" selection-end-line="1496" selection-end-column="25" />
         </state>
       </provider>
     </entry>
