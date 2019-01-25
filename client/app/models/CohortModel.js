@@ -1025,7 +1025,7 @@ class CohortModel {
           isTarget = true;
         }
 
-        var bypassZyg = SampleModel.isZygosityToBypass(feature, model.relationship);
+        var bypassZyg = (relationship === 'sfari-variants') ? false : SampleModel.isZygosityToBypass(feature, model.relationship);
 
         var inRegion = true;
         if (self.filterModel.regionStart && self.filterModel.regionEnd) {
