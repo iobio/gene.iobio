@@ -1165,7 +1165,7 @@ class CohortModel {
 
       if (options.getKnownVariants) {
         let p = self.promiseLoadKnownVariants(theGene, theTranscript)
-        .then(function(result) {
+        .then(function(resultMap) {
           if (self.knownVariantViz == 'variants') {
             for (var rel in resultMap) {
               theResultMap[rel] = resultMap[rel];
@@ -1178,7 +1178,7 @@ class CohortModel {
 
       if (options.getSfariVariants) {
         let p = self.promiseLoadSfariVariants(theGene, theTranscript)
-          .then(function(result) {
+          .then(function(resultMap) {
             if (self.sfariVariantsViz === 'variants') {
               for (var rel in resultMap) {
                   theResultMap[rel] = resultMap[rel];

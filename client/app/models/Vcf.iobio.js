@@ -756,7 +756,7 @@ var effectCategories = [
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey);
+    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode);
 
 
     var annotatedData = "";

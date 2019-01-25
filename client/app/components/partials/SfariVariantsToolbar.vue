@@ -133,7 +133,7 @@ export default {
         {'key': 'vepImpact', 'selected': false,  value: 'MODIFIER',     text: 'Modifier' },
         {'key': 'vepImpact', 'selected': false,  value: 'LOW',     text: 'Low'}
       ],
-      selectedCategories: ['HIGH', 'MODERATE', 'LOW']
+      selectedCategories: ['HIGH', 'MODERATE']
 
     }
   },
