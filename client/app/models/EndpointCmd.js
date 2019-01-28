@@ -61,7 +61,7 @@ export default class EndpointCmd {
     return cmd;
   }
 
-  annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey) {
+  annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false) {
     var me = this;
 
     // Figure out the file location of the reference seq files
@@ -102,6 +102,10 @@ export default class EndpointCmd {
       return null;
     }
 
+    // TODO: if we're in sfari mode, CUT out all sample columns
+    if (sfariMode === true) {
+      cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL})
+    }
 
     if (vcfSampleNames && vcfSampleNames.length > 0) {
       var sampleNameFile = new Blob([vcfSampleNames.split(",").join("\n")])
