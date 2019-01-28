@@ -102,16 +102,16 @@ export default class EndpointCmd {
       return null;
     }
 
-    // TODO: if we're in sfari mode, get rid of INFO columns for each sample
-    let colsToKeep = 'CHROM,POS,ID,REF,ALT';
-    if (sfariMode === true) {
-      cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', colsToKeep, '-'], {ssl: me.globalApp.useSSL});
-    }
-
     if (vcfSampleNames && vcfSampleNames.length > 0) {
       var sampleNameFile = new Blob([vcfSampleNames.split(",").join("\n")])
       cmd = cmd.pipe(me.IOBIO.vt, ["subset", "-s", sampleNameFile, '-'], {ssl: me.globalApp.useSSL})
     }
+
+      // TODO: if we're in sfari mode, get rid of INFO columns for each sample
+      let colsToKeep = 'CHROM,POS,ID,REF,ALT';
+      if (sfariMode === true) {
+          cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', colsToKeep, '-'], {ssl: me.globalApp.useSSL});
+      }
 
     // normalize variants
 
