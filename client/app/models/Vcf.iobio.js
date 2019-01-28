@@ -1652,7 +1652,7 @@ var effectCategories = [
                     variant[key] = clinvarResult[key];
                   }
 
-                  if (me.getGenericAnnotation() !== undefined) {
+                  if (me.getGenericAnnotation() !== undefined && sfariMode === false) {
                     me.getGenericAnnotation().setSimpleFields(variant);
                   }
 

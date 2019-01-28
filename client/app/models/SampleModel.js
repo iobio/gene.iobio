@@ -2690,8 +2690,10 @@ class SampleModel {
       return;
     }
 
-    if (me.relationship == 'known-variants') {
+    if (me.relationship === 'known-variants') {
       return me.filterKnownVariants(data, start, end, bypassRangeFilter);
+    } else if (me.relationship === 'sfari-variants') {
+      return me.filterSfariVariants(data, start, end, bypassRangeFilter);
     }
 
 
@@ -2964,6 +2966,52 @@ class SampleModel {
     return vcfDataFiltered;
   }
 
+  filterSfariVariants(data, start, end, bypassRangeFilter, filterModel) {
+      var me = this;
+
+      var theFilters = filterModel.getModelSpecificFilters('sfari-variants').filter(function(theFilter) {
+          return theFilter.value === true;
+      })
+
+      var filteredVariants = data.features.filter(function (d) {
+
+          var meetsRegion = true;
+          if (!bypassRangeFilter) {
+              if (start != null && end != null ) {
+                  meetsRegion = (d.start >= start && d.start <= end);
+              }
+          }
+
+          var meetsFilter = true;
+          if (theFilters.length > 0) {
+              var meetsFilter = false;
+              theFilters.forEach( function(theFilter) {
+                  if (d[theFilter.key] == theFilter.clazz) {
+                      meetsFilter = true;
+                  }
+              });
+          }
+
+          return meetsRegion && meetsFilter;
+
+      });
+
+      var pileupObject = this._pileupVariants(filteredVariants, start, end);
+
+      var vcfDataFiltered = {
+          intronsExcludedCount: 0,
+          end: end,
+          features: filteredVariants,
+          maxLevel: pileupObject.maxLevel + 1,
+          featureWidth: pileupObject.featureWidth,
+          name: data.name,
+          start: start,
+          strand: data.strand,
+          variantRegionStart: start,
+          genericAnnotators: data.genericAnnotators
+      };
+      return vcfDataFiltered;
+  }
 
 
 

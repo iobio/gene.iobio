@@ -1459,14 +1459,14 @@ export default {
     showVariantExtraAnnots: function(relationship, variant) {
       let self = this;
       if (!self.isEduMode && !self.cohortModel.getModel(relationship).isAlignmentsOnly() )  {
-        if (relationship == 'known-variants') {
+        if (relationship === 'known-variants') {
           self.cohortModel
               .getModel(relationship)
               .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
               .then( function(refreshedVariant) {
                 self.refreshVariantExtraAnnots(variant, [refreshedVariant]);
               })
-        } else {
+        } else if (relationship !== 'sfari-variants'){
           self.cohortModel
             .getModel(relationship)
             .promiseGetImpactfulVariantIds(self.selectedGene, self.selectedTranscript)

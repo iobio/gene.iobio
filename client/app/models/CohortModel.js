@@ -689,7 +689,7 @@ class CohortModel {
     if (self.affectedInfo == null || forceRefresh) {
       self.affectedInfo = [];
       self.getCanonicalModels().forEach(function(model) {
-        if (model && model.getRelationship() != 'known-variants') {
+        if (model && model.getRelationship() !== 'known-variants' && model.getRelationship() !== 'sfari-variants') {
           var info = {};
           info.model = model;
           info.relationship = model.getRelationship();
@@ -1166,7 +1166,7 @@ class CohortModel {
       if (options.getKnownVariants) {
         let p = self.promiseLoadKnownVariants(theGene, theTranscript)
         .then(function(resultMap) {
-          if (self.knownVariantViz == 'variants') {
+          if (self.knownVariantViz === 'variants') {
             for (var rel in resultMap) {
               theResultMap[rel] = resultMap[rel];
             }
@@ -1257,7 +1257,7 @@ class CohortModel {
       for (var rel in resultMap) {
         var vcfData = resultMap[rel];
         if (vcfData) {
-          if (!vcfData.loadState['clinvar'] && rel != 'known-variants') {
+          if (!vcfData.loadState['clinvar'] && rel !== 'known-variants' && rel !== 'sfari-variants') {
            vcfData.features.forEach(function(feature) {
               uniqueVariants[formatClinvarKey(feature)] = formatClinvarCoord(feature);
            })
