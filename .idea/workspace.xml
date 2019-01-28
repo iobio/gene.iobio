@@ -20,7 +20,7 @@
         <entry file="file://$PROJECT_DIR$/client/app/components/pages/GeneHome.vue">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="184">
-              <caret line="1536" column="98" lean-forward="true" selection-start-line="1536" selection-start-column="98" selection-end-line="1536" selection-end-column="98" />
+              <caret line="1536" column="98" selection-start-line="1536" selection-start-column="98" selection-end-line="1536" selection-end-column="98" />
             </state>
           </provider>
         </entry>
@@ -41,7 +41,7 @@
         <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="392">
-              <caret line="708" column="71" lean-forward="true" selection-start-line="708" selection-start-column="71" selection-end-line="708" selection-end-column="71" />
+              <caret line="708" column="71" selection-start-line="708" selection-start-column="71" selection-end-line="708" selection-end-column="71" />
               <folding>
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
@@ -89,7 +89,7 @@
         <entry file="file://$PROJECT_DIR$/client/app/models/SampleModel.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1116">
-              <caret line="1669" column="55" lean-forward="true" selection-start-line="1669" selection-start-column="55" selection-end-line="1669" selection-end-column="55" />
+              <caret line="1669" column="55" selection-start-line="1669" selection-start-column="55" selection-end-line="1669" selection-end-column="55" />
               <folding>
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
@@ -116,20 +116,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EndpointCmd.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="EndpointCmd.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/models/EndpointCmd.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="679">
-              <caret line="76" lean-forward="true" selection-start-line="76" selection-end-line="76" />
+            <state relative-caret-position="542">
+              <caret line="105" column="48" selection-start-line="105" selection-start-column="48" selection-end-line="105" selection-end-column="48" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Vcf.iobio.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Vcf.iobio.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="481">
-              <caret line="762" column="45" lean-forward="true" selection-start-line="762" selection-start-column="45" selection-end-line="762" selection-end-column="45" />
+            <state relative-caret-position="322">
+              <caret line="758" column="39" selection-start-line="758" selection-start-column="39" selection-end-line="758" selection-end-column="39" />
             </state>
           </provider>
         </entry>
@@ -341,18 +341,18 @@
       <option name="presentableId" value="Default" />
       <updated>1548093935562</updated>
       <workItem from="1548093936772" duration="36018000" />
-      <workItem from="1548298515667" duration="23337000" />
+      <workItem from="1548298515667" duration="24628000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="59355000" />
+    <option name="totallyTimeSpent" value="60646000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1920" height="1057" extended-state="6" />
+    <frame x="0" y="23" width="1440" height="877" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.18177083" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.24236111" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
@@ -554,7 +554,7 @@
     <entry file="file://$PROJECT_DIR$/client/app/models/SampleModel.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1116">
-          <caret line="1669" column="55" lean-forward="true" selection-start-line="1669" selection-start-column="55" selection-end-line="1669" selection-end-column="55" />
+          <caret line="1669" column="55" selection-start-line="1669" selection-start-column="55" selection-end-line="1669" selection-end-column="55" />
           <folding>
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
@@ -588,14 +588,14 @@
     <entry file="file://$PROJECT_DIR$/client/app/components/pages/GeneHome.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="184">
-          <caret line="1536" column="98" lean-forward="true" selection-start-line="1536" selection-start-column="98" selection-end-line="1536" selection-end-column="98" />
+          <caret line="1536" column="98" selection-start-line="1536" selection-start-column="98" selection-end-line="1536" selection-end-column="98" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="392">
-          <caret line="708" column="71" lean-forward="true" selection-start-line="708" selection-start-column="71" selection-end-line="708" selection-end-column="71" />
+          <caret line="708" column="71" selection-start-line="708" selection-start-column="71" selection-end-line="708" selection-end-column="71" />
           <folding>
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
@@ -627,17 +627,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/app/models/EndpointCmd.js">
+    <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="679">
-          <caret line="76" lean-forward="true" selection-start-line="76" selection-end-line="76" />
+        <state relative-caret-position="322">
+          <caret line="758" column="39" selection-start-line="758" selection-start-column="39" selection-end-line="758" selection-end-column="39" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
+    <entry file="file://$PROJECT_DIR$/client/app/models/EndpointCmd.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="481">
-          <caret line="762" column="45" lean-forward="true" selection-start-line="762" selection-start-column="45" selection-end-line="762" selection-end-column="45" />
+        <state relative-caret-position="542">
+          <caret line="105" column="48" selection-start-line="105" selection-start-column="48" selection-end-line="105" selection-end-column="48" />
         </state>
       </provider>
     </entry>

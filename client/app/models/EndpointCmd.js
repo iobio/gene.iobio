@@ -102,9 +102,10 @@ export default class EndpointCmd {
       return null;
     }
 
-    // TODO: if we're in sfari mode, CUT out all sample columns
+    // TODO: if we're in sfari mode, get rid of INFO columns for each sample
+    let colsToKeep = 'CHROM,POS,ID,REF,ALT,QUAL,FILTER';
     if (sfariMode === true) {
-      cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL})
+      cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', colsToKeep, '-'], {ssl: me.globalApp.useSSL});
     }
 
     if (vcfSampleNames && vcfSampleNames.length > 0) {
