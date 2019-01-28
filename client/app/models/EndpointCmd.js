@@ -103,7 +103,7 @@ export default class EndpointCmd {
     }
 
     // TODO: if we're in sfari mode, get rid of INFO columns for each sample
-    let colsToKeep = 'CHROM,POS,ID,REF,ALT,QUAL,FILTER';
+    let colsToKeep = 'CHROM,POS,ID,REF,ALT';
     if (sfariMode === true) {
       cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', colsToKeep, '-'], {ssl: me.globalApp.useSSL});
     }
