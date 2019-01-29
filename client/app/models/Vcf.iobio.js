@@ -656,7 +656,7 @@ var effectCategories = [
       if (sourceType == SOURCE_TYPE_URL) {
         me._getRemoteVariantsImpl(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache,
           function(annotatedData, results) {
-            if (annotatedData && results) {
+            if (annotatedData != null && results) {
               resolve([annotatedData, results]);
             } else {
               reject();

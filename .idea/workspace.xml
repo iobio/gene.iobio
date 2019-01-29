@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8abfd572-6d32-499e-b393-924ffd5e3191" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/client/app/models/CohortModel.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/CohortModel.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/app/models/EndpointCmd.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/EndpointCmd.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -65,11 +63,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CohortModel.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="CohortModel.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="169">
-              <caret line="905" column="72" lean-forward="true" selection-start-line="905" selection-start-column="72" selection-end-line="905" selection-end-column="72" />
+            <state relative-caret-position="8280">
+              <caret line="919" column="39" lean-forward="true" selection-start-line="919" selection-start-column="39" selection-end-line="919" selection-end-column="39" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
                 <element signature="e#4#10#0" expanded="true" />
@@ -115,11 +113,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Vcf.iobio.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Vcf.iobio.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3391">
-              <caret line="1699" column="7" lean-forward="true" selection-start-line="1699" selection-start-column="7" selection-end-line="1699" selection-end-column="7" />
+            <state relative-caret-position="368">
+              <caret line="658" column="37" selection-start-line="658" selection-start-column="37" selection-end-line="658" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -141,7 +139,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>promisegetimpact</find>
       <find>clinvar</find>
       <find>promiseGetImpactfulVariantIds</find>
       <find>filterKnownVariants</find>
@@ -171,6 +168,7 @@
       <find>dev-new</find>
       <find>_parseGenotypes</find>
       <find>promiseannotat</find>
+      <find>promiseget</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -190,8 +188,8 @@
         <option value="$PROJECT_DIR$/client/app/models/CacheHelper.js" />
         <option value="$PROJECT_DIR$/client/app/components/pages/GeneHome.vue" />
         <option value="$PROJECT_DIR$/client/app/models/EndpointCmd.js" />
-        <option value="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" />
         <option value="$PROJECT_DIR$/client/app/models/CohortModel.js" />
+        <option value="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" />
       </list>
     </option>
   </component>
@@ -331,12 +329,12 @@
       <option name="presentableId" value="Default" />
       <updated>1548093935562</updated>
       <workItem from="1548093936772" duration="36018000" />
-      <workItem from="1548298515667" duration="33356000" />
+      <workItem from="1548298515667" duration="34049000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="69374000" />
+    <option name="totallyTimeSpent" value="70067000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1920" height="1057" extended-state="6" />
@@ -587,13 +585,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3391">
-          <caret line="1699" column="7" lean-forward="true" selection-start-line="1699" selection-start-column="7" selection-end-line="1699" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/app/models/SampleModel.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="181">
@@ -613,8 +604,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="905" column="72" lean-forward="true" selection-start-line="905" selection-start-column="72" selection-end-line="905" selection-end-column="72" />
+        <state relative-caret-position="8280">
+          <caret line="919" column="39" lean-forward="true" selection-start-line="919" selection-start-column="39" selection-end-line="919" selection-end-column="39" />
           <folding>
             <element signature="e#0#47#0" expanded="true" />
             <element signature="e#4#10#0" expanded="true" />
@@ -628,6 +619,13 @@
             <element signature="e#4#10#0" expanded="true" />
             <element signature="e#10#16#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="368">
+          <caret line="658" column="37" selection-start-line="658" selection-start-column="37" selection-end-line="658" selection-end-column="37" />
         </state>
       </provider>
     </entry>
