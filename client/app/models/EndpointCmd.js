@@ -91,14 +91,9 @@ export default class EndpointCmd {
       if (vcfSource.tbiUrl) {
         args.push('"'+vcfSource.tbiUrl+'"');
       }
-      if (sfariMode === true) {
-          cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
-              .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
-              .pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL})
-      } else {
-          cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
-              .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
-      }
+
+      cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
+          .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
 
     } else if (vcfSource.hasOwnProperty('writeStream')) {
       // If we have a local vcf file, use the writeStream function to stream in the vcf records
@@ -120,20 +115,6 @@ export default class EndpointCmd {
 
     // if af not retreived from vep, get allele frequencies from 1000G and ExAC in af service
     cmd = cmd.pipe(me.IOBIO.af, ["-b", me.genomeBuildHelper.getCurrentBuildName()], {ssl: me.globalApp.useSSL});
-
-    // // TODO: if we're in sfari mode, get rid of INFO columns for each sample
-    // if (sfariMode === true) {
-    //     //cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-'], {ssl: me.globalApp.useSSL});
-    //     cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL})
-    //
-    //
-    //
-    //     //cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', 'CHROM,POS,REF,ALT', '-'], {ssl: me.globalApp.useSSL});
-    //     // let cutUrl = 'nv-dev-new.iobio.io/usr/bin/' + 'cut/';
-    //     // let grepUrl = 'nv-dev-new.iobio.io/usr/bin/' + 'grep/';
-    //     // cmd = cmd.pipe(cutUrl, ['--complement', '-f', '1-4', '-'], {ssl: me.globalApp.useSSL});
-    //     // cmd = cmd.pipe(grepUrl, ['-v', '"^##"', '-'], {ssl: me.globalApp.useSSL});
-    // }
 
     // Skip snpEff if RefSeq transcript set or we are just annotating with the vep engine
     if (annotationEngine == 'none') {
@@ -188,6 +169,23 @@ export default class EndpointCmd {
     } else if (annotationEngine == 'snpeff') {
         cmd = cmd.pipe(me.IOBIO.snpEff, [], {ssl: me.globalApp.useSSL});
     }
+
+    if (sfariMode === true) {
+        cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL});
+    }
+      // // TODO: if we're in sfari mode, get rid of INFO columns for each sample
+      // if (sfariMode === true) {
+      //     //cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-'], {ssl: me.globalApp.useSSL});
+      //cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL})
+      //
+      //
+      //
+      //     //cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', 'CHROM,POS,REF,ALT', '-'], {ssl: me.globalApp.useSSL});
+      //     // let cutUrl = 'nv-dev-new.iobio.io/usr/bin/' + 'cut/';
+      //     // let grepUrl = 'nv-dev-new.iobio.io/usr/bin/' + 'grep/';
+      //     // cmd = cmd.pipe(cutUrl, ['--complement', '-f', '1-4', '-'], {ssl: me.globalApp.useSSL});
+      //     // cmd = cmd.pipe(grepUrl, ['-v', '"^##"', '-'], {ssl: me.globalApp.useSSL});
+      // }
 
     return cmd;
 

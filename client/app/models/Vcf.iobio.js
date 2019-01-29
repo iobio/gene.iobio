@@ -1699,7 +1699,6 @@ var effectCategories = [
         results.push(data);
       }
 
-
       return  parseMultiSample ? results :  results[0];
       //return  results;
   };
