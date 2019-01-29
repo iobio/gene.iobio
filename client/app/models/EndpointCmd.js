@@ -110,15 +110,28 @@ export default class EndpointCmd {
     // normalize variants
 
     var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
-    cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL})
+    cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL});
 
     // if af not retreived from vep, get allele frequencies from 1000G and ExAC in af service
     cmd = cmd.pipe(me.IOBIO.af, ["-b", me.genomeBuildHelper.getCurrentBuildName()], {ssl: me.globalApp.useSSL});
 
+    // TODO: if we're in sfari mode, get rid of INFO columns for each sample
+    if (sfariMode === true) {
+        //cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-'], {ssl: me.globalApp.useSSL});
+        cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL});
+
+
+
+        //cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', 'CHROM,POS,REF,ALT', '-'], {ssl: me.globalApp.useSSL});
+        // let cutUrl = 'nv-dev-new.iobio.io/usr/bin/' + 'cut/';
+        // let grepUrl = 'nv-dev-new.iobio.io/usr/bin/' + 'grep/';
+        // cmd = cmd.pipe(cutUrl, ['--complement', '-f', '1-4', '-'], {ssl: me.globalApp.useSSL});
+        // cmd = cmd.pipe(grepUrl, ['-v', '"^##"', '-'], {ssl: me.globalApp.useSSL});
+    }
+
     // Skip snpEff if RefSeq transcript set or we are just annotating with the vep engine
     if (annotationEngine == 'none') {
       // skip annotation if annotationEngine set to  'none'
-
 
     } else if (isRefSeq || annotationEngine == 'vep') {
       // VEP
@@ -170,16 +183,6 @@ export default class EndpointCmd {
         cmd = cmd.pipe(me.IOBIO.snpEff, [], {ssl: me.globalApp.useSSL});
     }
 
-    // TODO: if we're in sfari mode, get rid of INFO columns for each sample
-    if (sfariMode === true) {
-        cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-'], {ssl: me.globalApp.useSSL});
-        cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL});
-        //cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', 'CHROM,POS,REF,ALT', '-'], {ssl: me.globalApp.useSSL});
-        // let cutUrl = 'nv-dev-new.iobio.io/usr/bin/' + 'cut/';
-        // let grepUrl = 'nv-dev-new.iobio.io/usr/bin/' + 'grep/';
-        // cmd = cmd.pipe(cutUrl, ['--complement', '-f', '1-4', '-'], {ssl: me.globalApp.useSSL});
-        // cmd = cmd.pipe(grepUrl, ['-v', '"^##"', '-'], {ssl: me.globalApp.useSSL});
-    }
     return cmd;
 
   }

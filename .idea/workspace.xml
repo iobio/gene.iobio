@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8abfd572-6d32-499e-b393-924ffd5e3191" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/app/models/EndpointCmd.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/EndpointCmd.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -107,8 +108,8 @@
       <file leaf-file-name="EndpointCmd.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/models/EndpointCmd.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="409">
-              <caret line="175" column="60" selection-start-line="175" selection-start-column="60" selection-end-line="175" selection-end-column="60" />
+            <state relative-caret-position="308">
+              <caret line="123" lean-forward="true" selection-start-line="123" selection-end-line="123" />
             </state>
           </provider>
         </entry>
@@ -117,7 +118,7 @@
         <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-16">
-              <caret line="1558" column="53" lean-forward="true" selection-start-line="1558" selection-start-column="53" selection-end-line="1558" selection-end-column="53" />
+              <caret line="1558" column="53" selection-start-line="1558" selection-start-column="53" selection-end-line="1558" selection-end-column="53" />
             </state>
           </provider>
         </entry>
@@ -329,18 +330,18 @@
       <option name="presentableId" value="Default" />
       <updated>1548093935562</updated>
       <workItem from="1548093936772" duration="36018000" />
-      <workItem from="1548298515667" duration="29812000" />
+      <workItem from="1548298515667" duration="31262000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="65830000" />
+    <option name="totallyTimeSpent" value="67280000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="877" extended-state="6" />
+    <frame x="0" y="23" width="1920" height="1057" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.24236111" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.18177083" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
@@ -618,14 +619,14 @@
     <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-16">
-          <caret line="1558" column="53" lean-forward="true" selection-start-line="1558" selection-start-column="53" selection-end-line="1558" selection-end-column="53" />
+          <caret line="1558" column="53" selection-start-line="1558" selection-start-column="53" selection-end-line="1558" selection-end-column="53" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/models/EndpointCmd.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="409">
-          <caret line="175" column="60" selection-start-line="175" selection-start-column="60" selection-end-line="175" selection-end-column="60" />
+        <state relative-caret-position="308">
+          <caret line="123" lean-forward="true" selection-start-line="123" selection-end-line="123" />
         </state>
       </provider>
     </entry>
