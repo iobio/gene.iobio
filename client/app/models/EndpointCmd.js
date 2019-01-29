@@ -107,12 +107,6 @@ export default class EndpointCmd {
       cmd = cmd.pipe(me.IOBIO.vt, ["subset", "-s", sampleNameFile, '-'], {ssl: me.globalApp.useSSL})
     }
 
-      // TODO: if we're in sfari mode, get rid of INFO columns for each sample
-      let colsToKeep = 'CHROM,POS,ID,REF,ALT';
-      if (sfariMode === true) {
-          cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', colsToKeep, '-'], {ssl: me.globalApp.useSSL});
-      }
-
     // normalize variants
 
     var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
@@ -174,6 +168,13 @@ export default class EndpointCmd {
 
     } else if (annotationEngine == 'snpeff') {
         cmd = cmd.pipe(me.IOBIO.snpEff, [], {ssl: me.globalApp.useSSL});
+    }
+
+    // TODO: if we're in sfari mode, get rid of INFO columns for each sample
+    if (sfariMode === true) {
+        //cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', 'CHROM,POS,REF,ALT', '-'], {ssl: me.globalApp.useSSL});
+        cmd = cmd.pipe('cut', ['--complement', '-f', '1-4'], {ssl: me.globalApp.useSSL});
+        cmd = cmd.pipe('grep', ['-v', '"^##"'], {ssl: me.globalApp.useSSL});
     }
     return cmd;
 
