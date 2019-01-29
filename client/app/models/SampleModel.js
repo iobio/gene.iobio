@@ -1663,9 +1663,9 @@ class SampleModel {
                                     true) // sfariMode
                                     .then((results) => {
                                       let unwrappedResults = results[1];
-                                      let doubUnwrapResults = unwrappedResults[0];
-                                      doubUnwrapResults.gene = theGene;
-                                      annoResults.push(doubUnwrapResults);
+                                      // let doubUnwrapResults = unwrappedResults[0];
+                                      unwrappedResults.gene = theGene;
+                                      annoResults.push(unwrappedResults);
                                     })
                                     .catch((error) => {
                                       reject('Problem getting sfari variants: ' + error);
