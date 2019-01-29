@@ -807,6 +807,11 @@ var effectCategories = [
         }
       });
 
+      if (sfariMode === true) {
+        annotatedData = '';
+        annotatedRecs = '';
+      }
+
       // Parse the vcf object into a variant object that is visualized by the client.
       var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode);
 
