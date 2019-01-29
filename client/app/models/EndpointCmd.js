@@ -173,8 +173,10 @@ export default class EndpointCmd {
     // TODO: if we're in sfari mode, get rid of INFO columns for each sample
     if (sfariMode === true) {
         //cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-c', 'CHROM,POS,REF,ALT', '-'], {ssl: me.globalApp.useSSL});
-        cmd = cmd.pipe('cut', ['--complement', '-f', '1-4', '-'], {ssl: me.globalApp.useSSL});
-        cmd = cmd.pipe('grep', ['-v', '"^##"', '-'], {ssl: me.globalApp.useSSL});
+        let cutUrl = this.globalApp.IOBIO_SERVICES + '/cut';
+        let grepUrl = this.globalApp.IOBIO_SERVICES + '/grep';
+        cmd = cmd.pipe(cutUrl, ['--complement', '-f', '1-4', '-'], {ssl: me.globalApp.useSSL});
+        cmd = cmd.pipe(grepUrl, ['-v', '"^##"', '-'], {ssl: me.globalApp.useSSL});
     }
     return cmd;
 
