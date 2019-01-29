@@ -107,8 +107,8 @@
       <file leaf-file-name="EndpointCmd.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/models/EndpointCmd.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="428">
-              <caret line="181" lean-forward="true" selection-start-line="181" selection-end-line="181" />
+            <state relative-caret-position="489">
+              <caret line="180" column="37" selection-start-line="180" selection-start-column="37" selection-end-line="180" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -209,11 +209,11 @@
       <path value="$PROJECT_DIR$/package.json" />
     </packageJsonPaths>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="1941" />
-    <option name="y" value="167" />
-    <option name="width" value="1869" />
-    <option name="height" value="1042" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-3" />
+    <option name="y" value="23" />
+    <option name="width" value="1920" />
+    <option name="height" value="1057" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -329,18 +329,18 @@
       <option name="presentableId" value="Default" />
       <updated>1548093935562</updated>
       <workItem from="1548093936772" duration="36018000" />
-      <workItem from="1548298515667" duration="28205000" />
+      <workItem from="1548298515667" duration="29103000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="64223000" />
+    <option name="totallyTimeSpent" value="65121000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1941" y="167" width="1869" height="1042" extended-state="0" />
+    <frame x="0" y="23" width="1440" height="877" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.18673088" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.24236111" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
@@ -624,8 +624,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/models/EndpointCmd.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="428">
-          <caret line="181" lean-forward="true" selection-start-line="181" selection-end-line="181" />
+        <state relative-caret-position="489">
+          <caret line="180" column="37" selection-start-line="180" selection-start-column="37" selection-end-line="180" selection-end-column="37" />
         </state>
       </provider>
     </entry>
