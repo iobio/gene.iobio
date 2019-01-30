@@ -91,9 +91,6 @@
       <div style="width:295px;float:left;padding-top:10px;margin-top:0px;margin-right:10px">
         <v-radio-group v-model="viz" row>
             <v-radio label="Variants" value="variants"></v-radio>
-            <v-radio label="Counts" value="histo"></v-radio>
-            <!--SJG TODO: do we need this for sfari?-->
-            <v-radio style="min-width: 125px" label="Counts in Exons" value="histoExon"></v-radio>
         </v-radio-group>
       </div>
 
