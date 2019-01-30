@@ -246,19 +246,19 @@
 
 
     <!--SJG TODO: do we need a stacked bar chart viz for sfari variants-->
-    <stacked-bar-chart-viz
-        id="known-variants-chart"
-        style="width:100%"
-        v-if="sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants'"
-        :data="sampleModel.variantHistoData"
-        :width="width"
-        :xStart="selectedGene.start"
-        :xEnd="selectedGene.end"
-        :regionStart="regionStart"
-        :regionEnd="regionEnd"
-        :categories="['unknown', 'other', 'benign', 'path']"
-      >
-      </stacked-bar-chart-viz>
+    <!--<stacked-bar-chart-viz-->
+        <!--id="known-variants-chart"-->
+        <!--style="width:100%"-->
+        <!--v-if="sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants'"-->
+        <!--:data="sampleModel.variantHistoData"-->
+        <!--:width="width"-->
+        <!--:xStart="selectedGene.start"-->
+        <!--:xEnd="selectedGene.end"-->
+        <!--:regionStart="regionStart"-->
+        <!--:regionEnd="regionEnd"-->
+        <!--:categories="['unknown', 'other', 'benign', 'path']"-->
+      <!--&gt;-->
+      <!--</stacked-bar-chart-viz>-->
 
     <stacked-bar-chart-viz
             id="sfari-variants-chart"

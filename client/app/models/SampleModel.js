@@ -1046,7 +1046,6 @@ class SampleModel {
                 let msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + currVcf.url + "</span>";
                 alertify.set('notifier','position', 'top-right');
                 self.lastVcfAlertify = alertify.error(msg, 15);
-                break;
             }
         });
       }
