@@ -809,7 +809,6 @@ export default {
               self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
               .then(modelInfos => {
                 self.modelInfos = modelInfos;
-
                 self.cohortModel.promiseInit(self.modelInfos, self.projectId)
                 .then(function() {
                   self.models = self.cohortModel.sampleModels;

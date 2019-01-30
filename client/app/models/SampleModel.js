@@ -1026,9 +1026,7 @@ class SampleModel {
 
         // Return negative success status
         success = false;
-        if (callback) {
-            callback(success)
-        }
+        break;
       } else {
         // Try to open
         self.sfariVcfs[i].openVcfUrl(currVcf.url, currTbi.url, function(success, errorMsg) {
@@ -1041,7 +1039,6 @@ class SampleModel {
                     sampleNames.forEach((sampleName) => {
                       self.samples.push(sampleName);
                     });
-                    self.isMultiSample = true;
                 });
             } else {
                 // If we have a hiccup on one, return false for all
@@ -1049,17 +1046,21 @@ class SampleModel {
                 let msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + currVcf.url + "</span>";
                 alertify.set('notifier','position', 'top-right');
                 self.lastVcfAlertify = alertify.error(msg, 15);
-                callback(success);
+                break;
             }
         });
-        // Set flags
-        self.vcfUrlEntered = true;
-        self.vcfFileOpened = false;
-        self.getVcfRefName = null;
-        success = true;
-        callback(success, self.sampleNames);
       }
     }
+      // Set flags & return
+      if (success === true && callback) {
+          self.vcfUrlEntered = true;
+          self.vcfFileOpened = false;
+          self.getVcfRefName = null;
+          self.isMultiSample = true;
+          callback(success, self.sampleNames);
+      } else if (callback) {
+          callback(success);
+      }
   }
 
 
