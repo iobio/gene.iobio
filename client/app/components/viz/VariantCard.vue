@@ -140,6 +140,11 @@
     margin-top: 0px
     margin-bottom: 0px
 
+  #sfari-variants-chart
+    padding: 0px
+    margin-top: 0px
+    margin-bottom: 0px
+
 
     svg
       vertical-align: bottom
@@ -254,6 +259,20 @@
         :categories="['unknown', 'other', 'benign', 'path']"
       >
       </stacked-bar-chart-viz>
+
+    <stacked-bar-chart-viz
+            id="sfari-variants-chart"
+            style="width:100%"
+            v-if="sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants'"
+            :data="sampleModel.variantHistoData"
+            :width="width"
+            :xStart="selectedGene.start"
+            :xEnd="selectedGene.end"
+            :regionStart="regionStart"
+            :regionEnd="regionEnd"
+            :categories="['unknown', 'other', 'benign', 'path']"
+    >
+    </stacked-bar-chart-viz>
 
 
       <div style="width:100%">
