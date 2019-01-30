@@ -549,9 +549,6 @@ class CohortModel {
                       vcfFiles = data.data.filter(f => f.type === 'vcf');
                       tbiCsiFiles = data.data.filter(f => f.type === 'tbi' || f.type === 'csi');
 
-                      // Initialize sample model vcfs once we know how many we need
-                      vm.initSfariSample(vcfFiles.length, self);
-
                       // Pull out combined vcfs from individual chromosome ones
                       let sortedVcfFiles = [];
                       vcfFiles.forEach((file) => {
@@ -567,6 +564,7 @@ class CohortModel {
                               sortedVcfFiles.push(file);
                           }
                       });
+
                       let sortedTbiCsiFiles = [];
                       tbiCsiFiles.forEach((file) => {
                           let phaseFile = false;
@@ -586,6 +584,9 @@ class CohortModel {
                       if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
                           console.log('Did not obtain matching vcf and tbi/csi files from Hub. Data may not be complete.');
                       }
+
+                      // Initialize sample model vcfs once we know how many we need
+                      vm.initSfariSample(sortedVcfFiles.length, self);
 
                       // Get urls for both vcf and tbi
                       let urlPromises = [];

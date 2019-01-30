@@ -1663,7 +1663,6 @@ class SampleModel {
                                     true) // sfariMode
                                     .then((results) => {
                                       let unwrappedResults = results[1];
-                                      // let doubUnwrapResults = unwrappedResults[0];
                                       unwrappedResults.gene = theGene;
                                       annoResults.push(unwrappedResults);
                                     })
