@@ -532,7 +532,7 @@ class CohortModel {
           return new Promise(function(resolve,reject) {
               let vm = new SampleModel(self.globalApp);
               vm.setRelationship('sfari-variants');
-              vm.setName('Sfari');
+              vm.setName('SFARI');
 
               // Stable sorted url lists
               let nameList = [],

@@ -1822,14 +1822,11 @@ export default {
           self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
         }
 
-        // SJG NOTE: hooked up locally to staging for testing
-          // SJG TODO: REMOVE THIS BEFORE PUSHING
         if (self.projectId) {
           self.isHubDeprecated = false;
         } else {
           self.isHubDeprecated = true;
         }
-        //self.isHubDeprecated = false;
       }
 
       if (self.paramTour) {
