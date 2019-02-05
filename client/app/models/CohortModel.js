@@ -1053,7 +1053,9 @@ class CohortModel {
 
 
     self.sampleModels.forEach(function(model) {
-      if (relationship == null || relationship == model.relationship) {
+      /* Sfari model stores data in vcfData akin to non-clinvar models,
+       * have to add additional check here instead of at next-below check for clinvar */
+      if ((relationship == null && model.relationship !== 'sfari-variants') || relationship === model.relationship) {
         if (model.vcfData && model.vcfData.features) {
 
           var start = self.filterModel.regionStart ? self.filterModel.regionStart : gene.start;
