@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8abfd572-6d32-499e-b393-924ffd5e3191" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/app/globals/GlobalApp.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/globals/GlobalApp.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/components/partials/SfariVariantsToolbar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/components/partials/SfariVariantsToolbar.vue" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -30,14 +28,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SfariVariantsToolbar.vue" pinned="false" current-in-tab="false">
+      <file leaf-file-name="SfariVariantsToolbar.vue" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/components/partials/SfariVariantsToolbar.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="218">
-              <caret line="86" column="8" lean-forward="true" selection-start-line="86" selection-start-column="8" selection-end-line="86" selection-end-column="8" />
-              <folding>
-                <element signature="n#style#0;n#div#0;n#div#0;n#template#0;n#!!top" expanded="true" />
-              </folding>
+            <state relative-caret-position="297">
+              <caret line="89" column="37" selection-start-line="89" selection-start-column="37" selection-end-line="89" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -46,7 +41,7 @@
         <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="29">
-              <caret line="292" column="51" lean-forward="true" selection-start-line="292" selection-start-column="51" selection-end-line="292" selection-end-column="51" />
+              <caret line="292" column="51" selection-start-line="292" selection-start-column="51" selection-end-line="292" selection-end-column="51" />
               <folding>
                 <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
@@ -64,29 +59,7 @@
         <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantViz.vue">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="3456">
-              <caret line="216" column="9" lean-forward="true" selection-start-line="216" selection-start-column="9" selection-end-line="216" selection-end-column="9" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CohortModel.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="392">
-              <caret line="941" column="18" selection-start-line="941" selection-start-column="18" selection-end-line="941" selection-end-column="18" />
-              <folding>
-                <element signature="e#0#47#0" expanded="true" />
-                <element signature="e#4#10#0" expanded="true" />
-                <element signature="e#10#16#0" expanded="true" />
-                <element signature="e#4#10#0" expanded="true" />
-                <element signature="e#10#16#0" expanded="true" />
-                <element signature="e#4#10#0" expanded="true" />
-                <element signature="e#10#16#0" expanded="true" />
-                <element signature="e#4#10#0" expanded="true" />
-                <element signature="e#10#16#0" expanded="true" />
-                <element signature="e#4#10#0" expanded="true" />
-                <element signature="e#10#16#0" expanded="true" />
-              </folding>
+              <caret line="216" column="9" selection-start-line="216" selection-start-column="9" selection-end-line="216" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -110,11 +83,29 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GlobalApp.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="GlobalApp.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/app/globals/GlobalApp.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
-              <caret line="17" column="49" selection-start-line="17" selection-start-column="49" selection-end-line="17" selection-end-column="49" />
+            <state relative-caret-position="80">
+              <caret line="8" column="36" lean-forward="true" selection-start-line="8" selection-start-column="36" selection-end-line="8" selection-end-column="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="GeneCard.vue" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client/app/components/viz/GeneCard.vue">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="384">
+              <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Navigation.vue" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client/app/components/viz/Navigation.vue">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="200">
+              <caret line="540" column="32" lean-forward="true" selection-start-line="540" selection-start-column="32" selection-end-line="540" selection-end-column="32" />
             </state>
           </provider>
         </entry>
@@ -124,15 +115,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="491">
               <caret line="176" column="15" selection-start-line="176" selection-start-column="15" selection-end-line="176" selection-end-column="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Vcf.iobio.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client/app/models/Vcf.iobio.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="312">
-              <caret line="871" column="2" selection-start-line="871" selection-start-column="2" selection-end-line="871" selection-end-column="2" />
             </state>
           </provider>
         </entry>
@@ -154,13 +136,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>CacheHelper</find>
-      <find>CacheHelper(</find>
-      <find>promise</find>
-      <find>promiseaddsfar</find>
-      <find>setsimplefields</find>
-      <find>setSimpleFields</find>
-      <find>sfarivariantsfil</find>
       <find>sfari</find>
       <find>showSfariVariantsCard</find>
       <find>sfari-vari</find>
@@ -184,6 +159,13 @@
       <find>loaded-variant-viz</find>
       <find>counts</find>
       <find>PROD_IOBIO</find>
+      <find>ncbi summar</find>
+      <find>ncbi-</find>
+      <find>ncbi-text</find>
+      <find>ncbi-heading</find>
+      <find>gene-su mmar</find>
+      <find>gene-summary-box</find>
+      <find>v-radio</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -202,9 +184,9 @@
         <option value="$PROJECT_DIR$/client/app/components/pages/GeneHome.vue" />
         <option value="$PROJECT_DIR$/client/app/models/EndpointCmd.js" />
         <option value="$PROJECT_DIR$/client/app/models/SampleModel.js" />
-        <option value="$PROJECT_DIR$/client/app/components/partials/SfariVariantsToolbar.vue" />
         <option value="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" />
         <option value="$PROJECT_DIR$/client/app/globals/GlobalApp.js" />
+        <option value="$PROJECT_DIR$/client/app/components/partials/SfariVariantsToolbar.vue" />
       </list>
     </option>
   </component>
@@ -224,10 +206,10 @@
       <path value="$PROJECT_DIR$/package.json" />
     </packageJsonPaths>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
-    <option name="width" value="1440" />
-    <option name="height" value="877" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="y" value="24" />
+    <option name="width" value="1920" />
+    <option name="height" value="1057" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -251,6 +233,21 @@
               <item name="gene.iobio.vue" type="462c0819:PsiDirectoryNode" />
               <item name="client" type="462c0819:PsiDirectoryNode" />
               <item name="app" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gene.iobio.vue" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gene.iobio.vue" type="462c0819:PsiDirectoryNode" />
+              <item name="client" type="462c0819:PsiDirectoryNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+              <item name="components" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="gene.iobio.vue" type="b2602c69:ProjectViewProjectNode" />
+              <item name="gene.iobio.vue" type="462c0819:PsiDirectoryNode" />
+              <item name="client" type="462c0819:PsiDirectoryNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+              <item name="components" type="462c0819:PsiDirectoryNode" />
+              <item name="viz" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="gene.iobio.vue" type="b2602c69:ProjectViewProjectNode" />
@@ -308,18 +305,18 @@
       <option name="presentableId" value="Default" />
       <updated>1548093935562</updated>
       <workItem from="1548093936772" duration="36018000" />
-      <workItem from="1548298515667" duration="39410000" />
+      <workItem from="1548298515667" duration="42652000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="75428000" />
+    <option name="totallyTimeSpent" value="78670000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="877" extended-state="0" />
+    <frame x="0" y="23" width="1920" height="1057" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.24236111" />
+      <window_info active="true" content_ui="combo" id="Project" order="3" visible="true" weight="0.18177083" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
@@ -372,9 +369,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="64">
           <caret line="4" column="23" selection-start-line="4" selection-start-column="23" selection-end-line="4" selection-end-column="23" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#div#0;n#template#0;n#!!top" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -576,27 +570,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/app/components/partials/SfariVariantsToolbar.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
-          <caret line="86" column="8" lean-forward="true" selection-start-line="86" selection-start-column="8" selection-end-line="86" selection-end-column="8" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#div#0;n#template#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantViz.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3456">
-          <caret line="216" column="9" lean-forward="true" selection-start-line="216" selection-start-column="9" selection-end-line="216" selection-end-column="9" />
+          <caret line="216" column="9" selection-start-line="216" selection-start-column="9" selection-end-line="216" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="29">
-          <caret line="292" column="51" lean-forward="true" selection-start-line="292" selection-start-column="51" selection-end-line="292" selection-end-column="51" />
+          <caret line="292" column="51" selection-start-line="292" selection-start-column="51" selection-end-line="292" selection-end-column="51" />
           <folding>
             <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
@@ -611,8 +595,29 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/globals/GlobalApp.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="17" column="49" selection-start-line="17" selection-start-column="49" selection-end-line="17" selection-end-column="49" />
+        <state relative-caret-position="80">
+          <caret line="8" column="36" lean-forward="true" selection-start-line="8" selection-start-column="36" selection-end-line="8" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/app/components/viz/GeneCard.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="24" lean-forward="true" selection-start-line="24" selection-end-line="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/app/components/viz/Navigation.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="540" column="32" lean-forward="true" selection-start-line="540" selection-start-column="32" selection-end-line="540" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/app/components/partials/SfariVariantsToolbar.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="297">
+          <caret line="89" column="37" selection-start-line="89" selection-start-column="37" selection-end-line="89" selection-end-column="37" />
         </state>
       </provider>
     </entry>
