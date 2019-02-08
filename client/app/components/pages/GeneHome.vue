@@ -76,9 +76,10 @@ main.content.clin
 
 #pileup-container
   margin: 0px
-  padding: 0px
-  padding-left: 20px
-  padding-right: 40px
+  padding-top: 0px
+  padding-bottom: 0px
+  width: calc(100% - 30px)
+  padding-left: 15px
 
   .card
     margin: 0px
@@ -534,7 +535,7 @@ export default {
         "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
         "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
         "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
-        "https://staging.frameshift.io":         {iobio: "nv-blue.iobio.io",     batchSize: 10}
+        "https://staging.frameshift.io":         {iobio: "nv-prod.iobio.io",     batchSize: 10}
       },
 
 
@@ -632,9 +633,11 @@ export default {
         title: 'Pileup View',
         // The bam file
         alignmentURL: null,
+        alignmentIndexURL: null,
         // The vcf file
         // TODO: update this dynamically
-        variantURL: "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz",
+        variantURL: null,
+        variantIndexURL: null,
         // The reference URL (for the current genome build)
         referenceURL: 'https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg19/hg19.fasta'
 
@@ -2328,9 +2331,11 @@ export default {
 
         // Set the bam, vcf, and references
         this.cohortModel.getCanonicalModels().forEach(function(model) {
-          let track = {name: model.relationship};
-          track.variantURL =  model.vcf.getVcfURL();
-          track.alignmentURL = model.bam.bamUri;
+          let track               = {name: model.relationship};
+          track.variantURL        = model.vcf.getVcfURL();
+          track.variantIndexURL   = model.vcf.getTbiURL();
+          track.alignmentURL      = model.bam.bamUri;
+          track.alignmentIndexURL = model.bam.baiUri;
           self.pileupInfo.tracks.push(track);
         })
 
