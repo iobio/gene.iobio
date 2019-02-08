@@ -1034,7 +1034,7 @@ export default {
       var svg = container
                   .append("svg")
                   .attr("width", MAX_BAR_WIDTH + PADDING)
-                  .attr("height", separateLineForLabel ? "21" : "12");
+                  .attr("height", separateLineForLabel ? "31" : "21");
 
       if (altWidth > 0) {
         svg.append("rect")
@@ -1108,7 +1108,7 @@ export default {
 
         var gNextLine = g.append("g")
                          .attr("transform", "translate(-15,9)");
-        svg.attr("height", 31);
+        svg.attr("height", 45);
         gNextLine.append("text")
                  .attr("x", otherX < 20 ? 20 : otherX)
              .attr("y", "9")
