@@ -270,11 +270,11 @@
     .allele-count-bar
       overflow-wrap: break-word
       float: left
-      width: 220px
+      width: 300px
       min-height: 25px
 
     .ped-info
-      width: 370px
+      width: 440px
       clear: both
       line-height: 13px !important
 
@@ -650,7 +650,7 @@
       </div>
 
 
-      <div id="coverage-svg" v-if="selectedVariant" style="float:left;min-width:430px" v-bind:class="{hide: isEduMode || isBasicMode }">
+      <div id="coverage-svg" v-if="selectedVariant" style="float:left;min-width:440px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
 
 
