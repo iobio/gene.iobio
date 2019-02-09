@@ -48,7 +48,7 @@ elif [[ $1 == "stage" ]]; then
   echo "** Uploaded to stage s3 bucket **"
   aws s3 cp ./deploy/  s3://static.iobio.io/stage/gene.iobio.io/ --recursive
   echo "** Renew cloudfrount cache **"
-  #aws cloudfront create-invalidation --distribution-id E331YTF25OIVP7 --paths /\*
+  aws cloudfront create-invalidation --distribution-id E1XZ0L3S5I92GN --paths /\*
 
 
 
