@@ -217,6 +217,8 @@ nav.toolbar
   .toolbar__side-icon.btn.btn--icon
     max-width: 40px
     min-width: 40px
+    top: 4px
+    margin-bottom: 0px !important
 
   .toolbar__items
     width: 60%
