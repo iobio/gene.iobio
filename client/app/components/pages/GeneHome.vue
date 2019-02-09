@@ -78,14 +78,25 @@ main.content.clin
   margin: 0px
   padding-top: 0px
   padding-bottom: 0px
-  width: calc(100% - 30px)
-  padding-left: 15px
+  width: calc(100% - 10px)
+  margin-left: -10px
 
   .card
     margin: 0px
     padding: 0px
     -webkit-box-shadow: none !important
     box-shadow: none !important
+
+    .layout.row
+      margin-left: 20px
+      margin-right: 20px
+
+    .igv-root-div
+      margin-left: -10px
+
+    .igv-right-hand-gutter
+      right: -10px
+      left: initial
 
 </style>
 
