@@ -15,7 +15,7 @@ class GlobalApp {
     this.STAGE_IOBIO           = "nv-green.iobio.io/";
     this.PROD_IOBIO            = "nv-prod.iobio.io/";
 
-    this.IOBIO_SOURCE          = this.STAGE_IOBIO;
+    this.IOBIO_SOURCE          = this.PROD_IOBIO;
     this.HTTP_SOURCE           = this.PROD_IOBIO;
 
 
