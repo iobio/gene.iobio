@@ -274,7 +274,7 @@
       min-height: 25px
 
     .ped-info
-      width: 440px
+      width: 445px
       clear: both
       line-height: 13px !important
 
@@ -650,7 +650,7 @@
       </div>
 
 
-      <div id="coverage-svg" v-if="selectedVariant" style="float:left;min-width:440px" v-bind:class="{hide: isEduMode || isBasicMode }">
+      <div id="coverage-svg" v-if="selectedVariant" style="float:left;min-width:445px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
 
 
