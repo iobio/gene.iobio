@@ -140,6 +140,7 @@ aside.navigation-drawer
 
 
 nav.toolbar
+  padding-top: 5px
 
   .toolbar__content
     margin-top: 2px
@@ -217,7 +218,6 @@ nav.toolbar
   .toolbar__side-icon.btn.btn--icon
     max-width: 40px
     min-width: 40px
-    top: 4px
     margin-bottom: 0px !important
 
   .toolbar__items
@@ -239,7 +239,7 @@ nav.toolbar
     font-size: 18px
     margin-right: 5px
     margin-left: 5px
-    padding-bottom: 7px
+    padding-bottom: 13px
     min-width: 130px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
