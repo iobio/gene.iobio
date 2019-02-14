@@ -1576,7 +1576,7 @@ class SampleModel {
             let refName = me.getVcfRefName(theGene.chr);
 
             var regions = null;
-            if (options.codingRegionsOnly) {
+            if (options.analyzeCodingVariantsOnly) {
               // Capture only of the exon regions from the transcript
               regions = [];
               theTranscript.features.forEach(function(feature) {

@@ -342,6 +342,18 @@ nav.toolbar
     color: $nav-text-color
 
 
+.coding-variants-only-switch
+  min-width: 180px !important
+
+
+  label
+    padding-left: 8px !important
+    line-height: 18px !important
+    color: $text-color !important
+    font-weight: normal !important
+    font-size: 13px !important
+    padding-left: 8px !important
+    padding-top: 6px !important
 
 </style>
 
@@ -442,6 +454,24 @@ nav.toolbar
 
       </v-toolbar-items>
 
+
+      <v-menu
+       v-if="!isEduMode && !isBasicMode"
+       offset-y
+      :close-on-content-click="false"
+      >
+        <v-btn  flat slot="activator">
+          Options
+        </v-btn>
+
+        <v-card style="min-width:150px">
+          <v-switch class="coding-variants-only-switch"
+            label="Coding variants only"
+            v-model="analyzeCodingVariantsOnly"
+            >
+          </v-switch>
+        </v-card>
+      </v-menu>
 
       <files-menu
        v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
@@ -847,7 +877,10 @@ export default {
       activeTab: 0,
 
       geneCount: 0,
-      flaggedVariantCount: 0
+      flaggedVariantCount: 0,
+
+
+      analyzeCodingVariantsOnly: false
 
 
     }
@@ -861,6 +894,9 @@ export default {
     },
     leftDrawer: function() {
       this.$emit("on-left-drawer", this.leftDrawer);
+    },
+    analyzeCodingVariantsOnly: function() {
+      this.$emit("analyze-coding-variants-only", this.analyzeCodingVariantsOnly)
     }
   },
   methods: {

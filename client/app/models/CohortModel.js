@@ -25,6 +25,8 @@ class CohortModel {
 
     this.annotationScheme = 'vep';
 
+    this.analyzeCodingVariantsOnly = false;
+
     this.isLoaded = false;
 
     this.sampleModels  = [];
@@ -936,6 +938,7 @@ class CohortModel {
             model.inProgress.loadingVariants = true;
           }
         })
+        options.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
         p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.getCanonicalModels(), options)
         .then(function(resultMap) {
           if (!options.isBackground) {
@@ -954,6 +957,7 @@ class CohortModel {
               model.inProgress.loadingVariants = true;
             }
             if (rel != 'known-variants') {
+              options.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
               var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], options)
               .then(function(resultMap) {
                 for (var theRelationship in resultMap) {

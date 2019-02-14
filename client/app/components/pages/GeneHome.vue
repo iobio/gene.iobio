@@ -156,6 +156,7 @@ main.content.clin
       @hide-snackbar="onHideSnackbar"
       @gene-selected="onGeneClicked"
       @remove-gene="onRemoveGene"
+      @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
     >
     </navigation>
 
@@ -605,7 +606,6 @@ export default {
 
       clearZoom: false,
 
-      includeNonCodingVariants: true,
 
       /*
       * This variable controls special behavior for running gene.iobio education edition, with
@@ -1008,9 +1008,6 @@ export default {
 
           self.cardWidth = $('#genes-card').innerWidth();
           var options = {'getKnownVariants': self.showKnownVariantsCard};
-
-          // TEMP CODE
-          options.codingRegionsOnly = !self.includeNonCodingVariants;
 
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,
@@ -2122,6 +2119,9 @@ export default {
       if (self.showKnownVariantsCard) {
         self.onKnownVariantsVizChange();
       }
+    },
+    onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
+      this.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
     },
     onFilterSelected: function(filterName, filteredGeneNames) {
       this.activeFilterName = filterName;
