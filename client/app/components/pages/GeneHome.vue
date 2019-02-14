@@ -605,6 +605,8 @@ export default {
 
       clearZoom: false,
 
+      includeNonCodingVariants: true,
+
       /*
       * This variable controls special behavior for running gene.iobio education edition, with
       * a simplified interface and logic.
@@ -1006,6 +1008,9 @@ export default {
 
           self.cardWidth = $('#genes-card').innerWidth();
           var options = {'getKnownVariants': self.showKnownVariantsCard};
+
+          // TEMP CODE
+          options.codingRegionsOnly = !self.includeNonCodingVariants;
 
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,

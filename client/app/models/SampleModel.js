@@ -1560,6 +1560,8 @@ class SampleModel {
          promises.push(p);
       })
 
+
+
       Promise.all(promises)
       .then(function() {
         if (Object.keys(resultMap).length == variantModels.length) {
@@ -1571,11 +1573,24 @@ class SampleModel {
           // and annotate them.
           me._promiseVcfRefName(theGene.chr)
           .then( function() {
+            let refName = me.getVcfRefName(theGene.chr);
+
+            var regions = null;
+            if (options.codingRegionsOnly) {
+              // Capture only of the exon regions from the transcript
+              regions = [];
+              theTranscript.features.forEach(function(feature) {
+                if (feature.feature_type.toUpperCase() == 'CDS') {
+                  regions.push({name: refName, start: feature.start, end: feature.end});
+                }
+              });
+            }
+
             return me.vcf.promiseGetVariants(
-               me.getVcfRefName(theGene.chr),
+               refName,
                theGene,
                theTranscript,
-               null,   // regions
+               regions,   // regions
                isMultiSample, // is multi-sample
                me._getSamplesToRetrieve(),
                me.getRelationship() == 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
