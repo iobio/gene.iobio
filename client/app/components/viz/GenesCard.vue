@@ -50,7 +50,7 @@
     padding: 0 4px
 
   #genes-toolbar
-    margin-top: 6px
+    margin-top: 10px
     margin-bottom: 0px
     display: inline-block
     width: 100%

@@ -340,6 +340,7 @@ main.content.clin
 
 
         <welcome
+         class="full-width"
          v-if="showWelcome"
          :launchedFromClin="launchedFromClin"
          :isBasicMode="isBasicMode"

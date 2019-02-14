@@ -577,7 +577,7 @@ $light-gray-color:   #f0f1f3
 
             <div class="how-it-works-item">
               <v-avatar class="color2" >
-                <v-icon>list</v-icon>
+                <v-icon>gavel</v-icon>
               </v-avatar>
               <span class="how-it-works-title">Review each filtered variant to assess pathogenicity and association with known phenotypes.</span>
               <div class="how-it-works-image">
