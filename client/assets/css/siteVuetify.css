@@ -2,6 +2,11 @@ html {
   -webkit-font-smoothing: auto;
 }
 
+.container.fluid {
+  max-width: calc(100% - 10px);
+}
+
+
 .btn {
   text-transform: none;
 }

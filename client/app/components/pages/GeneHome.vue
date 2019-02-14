@@ -17,6 +17,10 @@ main.content.clin
 .app-card
   margin-bottom: 10px
 
+.full-width
+  max-width: -moz-available !important
+  max-width: -webkit-fill-available !important
+
 #data-sources-loader, #session-data-loader
   margin-top: 30px
   margin-left: auto
@@ -165,7 +169,7 @@ main.content.clin
             height="540"
             >
 
-          <v-card style="overflow-y:auto;height:-webkit-fill-available;height:-moz-available;height:100%">
+          <v-card class='full-width' style="overflow-y:auto;height:height:-moz-available;height:100%">
             <pileup id="pileup-container"
               :heading="pileupInfo.title"
               :referenceURL="pileupInfo.referenceURL"
@@ -180,6 +184,7 @@ main.content.clin
 
 
         <intro-card v-if="forMyGene2"
+        class="full-width"
         :closeIntro="closeIntro"
         :isBasicMode="isBasicMode"
         :siteConfig="siteConfig"
@@ -192,7 +197,7 @@ main.content.clin
 
         <genes-card
          v-if="geneModel"
-         v-bind:class="{hide : showWelcome && !isEduMode}"
+         v-bind:class="{hide : showWelcome && !isEduMode, 'full-width': true}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
          :isBasicMode="isBasicMode"
@@ -226,7 +231,7 @@ main.content.clin
         >
         </genes-card>
 
-        <v-card style="margin-top:10px;margin-bottom:10px;padding-bottom:10px"
+        <v-card class="full-width" style="margin-top:10px;margin-bottom:10px;padding-bottom:10px;"
             v-if="geneModel && Object.keys(selectedGene).length > 0"
           v-bind:class="{hide : showWelcome }">
           <gene-card
@@ -250,13 +255,14 @@ main.content.clin
 
         <div
           v-if="geneModel && Object.keys(selectedGene).length > 0 && (!isBasicMode || selectedVariant != null)"
-          style="height:auto;margin-bottom:10px"
-          v-bind:class="{hide : showWelcome }"
+          style="height:auto;margin-bottom:10px;"
+          v-bind:class="{hide : showWelcome, 'full-width': true }"
           >
 
             <v-card v-if="geneModel && cohortModel.isLoaded && Object.keys(selectedGene).length > 0"
             id="gene-and-variant-tabs" slot="right"
-            style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;">
+            class="full-width"
+            style=";min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;">
 
 
               <v-tabs
@@ -345,7 +351,7 @@ main.content.clin
 
         <v-card
         id="data-sources-loader"
-        class="loader"
+        class="loader full-width"
         v-bind:class="{ hide: !cohortModel ||  !cohortModel.inProgress.loadingDataSources }">
           <span class="loader-label">Loading files</span>
           <img src="../../../assets/images/wheel.gif">
@@ -365,7 +371,7 @@ main.content.clin
         v-for="model in models"
         :key="model.relationship"
         v-bind:class="[
-        { 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false),
+        { 'full-width': true, 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false),
           'edu' : isEduMode
         },
         model.relationship
