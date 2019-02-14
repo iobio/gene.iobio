@@ -1051,6 +1051,8 @@ export default {
 
     onFilesLoaded: function(analyzeAll, callback) {
       let self = this;
+
+      self.showWelcome = false;
       self.setUrlParameters();
       self.showLeftPanelForGenes();
 
