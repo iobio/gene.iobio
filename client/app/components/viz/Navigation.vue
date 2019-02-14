@@ -2,6 +2,12 @@
 
 @import ../../../assets/sass/variables
 
+
+.dialog.dialog--active
+  button
+    padding: 0px
+    height: 30px !important
+
 aside.navigation-drawer
   margin-top: 55px !important
   z-index: 0
@@ -662,7 +668,7 @@ nav.toolbar
     </v-navigation-drawer>
 
     <v-dialog v-model="showDisclaimer" max-width="400">
-        <v-card>
+        <v-card class="full-width">
           <v-card-title class="headline">Disclaimer</v-card-title>
           <v-card-text>
 
@@ -679,7 +685,7 @@ nav.toolbar
 
 
     <v-dialog v-model="showVersion" max-width="580">
-        <v-card>
+        <v-card class="full-width">
           <v-card-title class="headline">gene.iobio {{ globalApp.version }}</v-card-title>
           <v-card-text>
 
@@ -716,7 +722,7 @@ nav.toolbar
 
 
    <v-dialog v-model="showCitations" max-width="700" max-height="">
-        <v-card style="overflow-y:scroll;height:500px">
+        <v-card class="full-width" style="overflow-y:scroll;height:500px">
           <v-card-title class="headline">Software and Resources</v-card-title>
           <v-card-text>
 

@@ -686,9 +686,9 @@ export default {
     getContainerStyle: function() {
       let self = this;
       return {
-        display: 'inline-block',
-        width: self.width,
-        height: self.height
+        'display': 'inline-block',
+        'min-width': self.width,
+        'min-height': self.height
       }
 
     },
