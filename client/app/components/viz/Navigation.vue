@@ -886,7 +886,7 @@ export default {
       flaggedVariantCount: 0,
 
 
-      analyzeCodingVariantsOnly: false
+      analyzeCodingVariantsOnly: true
 
 
     }

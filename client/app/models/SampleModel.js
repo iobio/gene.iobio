@@ -1581,9 +1581,17 @@ class SampleModel {
                 return (feature.feature_type.toUpperCase() == 'CDS');
               });
 
-              // Capture only of the exon regions with a (10 bp range before and after exon) from the transcript
-              regions =  exons.map(function(feature) {
-                return {name: refName, start: feature.start - 10, end: feature.end + 10};
+              // Capture only of the exon regions with a (5 bp range before and after exon) from the transcript
+              regions =  exons.map(function(feature, i) {
+                var bufferStart = +5;
+                var bufferEnd   = +5;
+                if (i > 0) {
+                  var prevFeature = exons[i-1];
+                  if (prevFeature.end > feature.start - bufferStart) {
+                    bufferStart = +prevFeature.end - +feature.start;
+                  }
+                }
+                return {name: refName, start: +feature.start - bufferStart, end: +feature.end + bufferEnd};
               });
             }
 
