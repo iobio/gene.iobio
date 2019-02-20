@@ -40,7 +40,10 @@ CacheHelper.prototype.promiseGetGenesToAnalyze = function(analyzeCalledVariants=
   return new Promise(function(resolve, reject) {
     let genesToAnalyze = [];
     let promises = [];
-    self.cohort.geneModel.geneNames.forEach(function(geneName) {
+    self.cohort.geneModel.geneNames.filter(function(geneName) {
+      return self.cohort.geneModel.isCandidateGene(geneName)
+    })
+    .forEach(function(geneName) {
       var p = self._promiseIsCached(geneName, analyzeCalledVariants, analyzeGeneCoverage)
       .then(function(data) {
         if (!data.isCached) {
@@ -95,17 +98,18 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
     analyzeCalledVariants = true;
   }
 
-  // Show the freebayes runtime args dialog first if dialog has not
-  // yet been visited.   Note:  showFreebayesSettingsDialog() is a
-  // pass-through if global settings allowFreebayesSettings is set
-  // to false.
-  if (analyzeCalledVariants && !me.cohort.freebayesSettings.visited) {
-    me.cohort.freebayesSettings.showDialog(function() {
-      me._analyzeAllImpl(analyzeCalledVariants)
-    })
-  } else {
-    me._analyzeAllImpl(analyzeCalledVariants)
-  }
+  me.promiseGetGenesToAnalyze()
+  .then(function(geneNames) {
+    if (analyzeCalledVariants && !me.cohort.freebayesSettings.visited) {
+      me.cohort.freebayesSettings.showDialog(function() {
+        me._analyzeAllImpl(geneNames, analyzeCalledVariants)
+      })
+    } else {
+      me._analyzeAllImpl(geneNames, analyzeCalledVariants)
+    }
+
+  })
+
 }
 
 CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, geneToAltTranscript, analyzeCalledVariants=false, analyzeGeneCoverage=true) {
@@ -120,7 +124,10 @@ CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, gene
 
     var cachePromises = [];
 
-    theGeneNames.forEach(function(geneName) {
+    theGeneNames.filter(function(geneName) {
+      return me.cohort.geneModel.isCandidateGene(geneName)
+    })
+    .forEach(function(geneName) {
       var p = me.promiseIsCached(geneName)
       .then(function(data) {
         if (!data.isCached) {
@@ -241,7 +248,7 @@ CacheHelper.prototype.dequeueGene = function(geneName) {
 }
 
 
-CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false, analyzeGeneCoverage=true) {
+CacheHelper.prototype._analyzeAllImpl = function(geneNames, analyzeCalledVariants=false, analyzeGeneCoverage=true) {
   var me = this;
 
   this.analyzeAllInProgress = !analyzeCalledVariants
@@ -255,12 +262,9 @@ CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false, an
 
   // Start over with a new queue of genes to be analyzed
   // is all of the genes that need to be analyzed (and cached.)
-  me.genesToCache = [];
+  me.genesToCache = geneNames;
   me.cacheQueue = [];
 
-  me.cohort.geneModel.geneNames.forEach(function(geneName) {
-    me.genesToCache.push(geneName);
-  });
   me.cacheGenes(analyzeCalledVariants, analyzeGeneCoverage, function() {
 
     me.analyzeAllInProgress = false;
