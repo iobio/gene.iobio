@@ -25,7 +25,7 @@ class CohortModel {
 
     this.annotationScheme = 'vep';
 
-    this.analyzeCodingVariantsOnly = false;
+    this.analyzeCodingVariantsOnly = true;
 
     this.isLoaded = false;
 

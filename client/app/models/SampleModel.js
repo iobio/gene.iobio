@@ -1577,12 +1577,13 @@ class SampleModel {
 
             var regions = null;
             if (options.analyzeCodingVariantsOnly) {
-              // Capture only of the exon regions from the transcript
-              regions = [];
-              theTranscript.features.forEach(function(feature) {
-                if (feature.feature_type.toUpperCase() == 'CDS') {
-                  regions.push({name: refName, start: feature.start, end: feature.end});
-                }
+              var exons = theTranscript.features.filter(function(feature) {
+                return (feature.feature_type.toUpperCase() == 'CDS');
+              });
+
+              // Capture only of the exon regions with a (10 bp range before and after exon) from the transcript
+              regions =  exons.map(function(feature) {
+                return {name: refName, start: feature.start - 10, end: feature.end + 10};
               });
             }
 
