@@ -985,9 +985,6 @@ export default {
     geneNames: function(newGeneNames, oldGeneNames) {
       this.populateGeneLists();
     },
-    genesInProgress: function() {
-      this.populateGeneLists();
-    },
     isFullAnalysis: function() {
       this.populateGeneLists();
     }

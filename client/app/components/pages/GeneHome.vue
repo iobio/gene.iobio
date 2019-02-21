@@ -2763,17 +2763,14 @@ export default {
           let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
           this.onApplyGenes(genesString, options, function() {
             if (self.cohortModel && self.cohortModel.isLoaded) {
-              self.showLeftPanelForGenes();
+
 
 
               self.cacheHelper.promiseGetGenesToAnalyze()
               .then(function(genesToAnalyze) {
                 if (genesToAnalyze.length > 0) {
+                  self.showLeftPanelForGenes();
                   self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
-                } else {
-                  if (self.$refs.navRef) {
-                    self.$refs.navRef.onShowVariantsTab();
-                  }
                 }
               })
             }
