@@ -635,7 +635,7 @@ export default function variantD3() {
     var ypos = mousey-2;
     if (matchingVariant.type.toUpperCase() == "DEL" || matchingVariant.type.toUpperCase() == "COMPLEX") {
       xpos =  mousex;
-    } else if (variant.type.toUpperCase() == "INS") {
+    } else if (matchingVariant.type.toUpperCase() == "INS") {
       xpos =  mousex-.5;
     }else {
       xpos =  mousex+.5;
