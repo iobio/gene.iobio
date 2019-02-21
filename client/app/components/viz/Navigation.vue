@@ -220,6 +220,28 @@ nav.toolbar
       color:  $nav-text-color-clin !important
 
 
+      color: $text-color
+
+
+  .clinvar-switch
+    padding: 0px
+    width: 130px
+    display: inline-block
+    vertical-align: top
+    text-align: left
+    padding-top: 6px
+    margin-left: 30px
+
+    label
+      padding-left: 7px
+      line-height: 18px
+      font-size: 13px
+      font-weight: normal
+      padding-top: 6px
+      color: $text-color !important
+
+    .input-group--selection-controls__toggle
+      color: rgba(0,0,0,0.38) !important
 
   .toolbar__side-icon.btn.btn--icon
     max-width: 40px
@@ -455,6 +477,13 @@ nav.toolbar
          @hide-snackbar="onHideSnackbar">
         </phenotype-search>
 
+
+        <v-switch class="clinvar-switch"
+          v-if="launchedFromClin"
+          label="ClinVar track"
+          v-model="showKnownVariantsCard"
+          >
+        </v-switch>
 
 
 
@@ -862,6 +891,7 @@ export default {
     geneNames: null,
     genesInProgress: null
 
+
   },
   data () {
     let self = this;
@@ -886,7 +916,9 @@ export default {
       flaggedVariantCount: 0,
 
 
-      analyzeCodingVariantsOnly: true
+      analyzeCodingVariantsOnly: true,
+
+      showKnownVariantsCard: false
 
 
     }
@@ -903,6 +935,9 @@ export default {
     },
     analyzeCodingVariantsOnly: function() {
       this.$emit("analyze-coding-variants-only", this.analyzeCodingVariantsOnly)
+    },
+    showKnownVariantsCard: function() {
+      this.$emit("show-known-variants", this.showKnownVariantsCard);
     }
   },
   methods: {
@@ -1024,7 +1059,7 @@ export default {
     },
     onFlaggedVariantCountChanged: function(count) {
       this.flaggedVariantCount = count;
-    },
+    }
   },
   created: function() {
   },
