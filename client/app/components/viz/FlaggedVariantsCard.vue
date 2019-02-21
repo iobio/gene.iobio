@@ -865,7 +865,7 @@ export default {
           return "";
         }
       } else {
-        return variant.clinvar;
+        return variant.clinvar ? variant.clinvar : "";
       }
     },
     rsId: function(variant) {
@@ -912,11 +912,13 @@ export default {
       if (variant.isProxy) {
         clazz += " impact_" + (variant.impact && variant.impact.length > 0 ? variant.impact.toUpperCase() : 'none');
       } else {
-        for (var impact in variant.highestImpactVep) {
-          if (clazz.length > 0) {
-            clazz += " ";
+        if (variant.highestImpactVep) {
+          for (var impact in variant.highestImpactVep) {
+            if (clazz.length > 0) {
+              clazz += " ";
+            }
+            clazz += "impact_" + impact.toUpperCase();
           }
-          clazz += "impact_" + impact.toUpperCase();
         }
       }
       return clazz;
@@ -955,7 +957,7 @@ export default {
       if (variant.isProxy) {
         return variant.zygosityProband ? variant.zygosityProband.toUpperCase() : (variant.zygosity ? variant.zygosity.toUpperCase() : "");
       } else {
-        return variant.zygosity.toUpperCase();
+        return variant.zygosity ? variant.zygosity.toUpperCase() : "";
       }
     },
     getAfClass: function(variant) {
