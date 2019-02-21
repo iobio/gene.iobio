@@ -1583,15 +1583,15 @@ class SampleModel {
 
               // Capture only of the exon regions with a (5 bp range before and after exon) from the transcript
               regions =  exons.map(function(feature, i) {
-                var bufferStart = +5;
-                var bufferEnd   = +5;
+                var start = +feature.start - 5;
+                var end   = +feature.end + 5;
                 if (i > 0) {
                   var prevFeature = exons[i-1];
-                  if (prevFeature.end > feature.start - bufferStart) {
-                    bufferStart = +prevFeature.end - +feature.start;
+                  if (+prevFeature.end >= start) {
+                    start = +prevFeature.end - (+prevFeature.end - start);
                   }
                 }
-                return {name: refName, start: +feature.start - bufferStart, end: +feature.end + bufferEnd};
+                return {name: refName, start: start, end: end};
               });
             }
 
