@@ -198,6 +198,7 @@ main.content.clin
 
         <genes-card
          v-if="geneModel"
+         v-show="filterModel && !filterModel.isFullAnalysis"
          v-bind:class="{hide : showWelcome && !isEduMode, 'full-width': true}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
@@ -2425,7 +2426,7 @@ export default {
 
         if (self.cohortModel && self.cohortModel.isLoaded) {
 
-          console.log("** showData **");
+
           self.$set(self, "isFullAnalysis", clinObject.receiver == 'genefull' ? true : false);
           self.filterModel.isFullAnalysis = self.isFullAnalysis;
 

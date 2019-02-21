@@ -1230,84 +1230,90 @@ class CohortModel {
   promiseSummarizeDanger(geneObject, theTranscript, probandVcfData, options) {
     let self = this;
 
-    return new Promise(function(resolve, reject) {
-      var analyzeGeneCoverage = null;
-      if (options && options.hasOwnProperty('GENECOVERAGE')) {
-        analyzeGeneCoverage = options.GENECOVERAGE;
-      } else {
-        analyzeGeneCoverage = true;
-      }
+    if (!self.geneModel.isCandidateGene(geneObject.gene_name)) {
+      return Promise.resolve();
+    } else {
 
-      var coveragePromise = null;
-      if (analyzeGeneCoverage) {
-        coveragePromise = self.promiseGetCachedGeneCoverage(geneObject, theTranscript, false);
-      } else {
-        coveragePromise = Promise.resolve();
-      }
-
-      coveragePromise.then(function(data) {
-
-        var geneCoverageAll = null;
-        if (analyzeGeneCoverage) {
-          geneCoverageAll =  data.geneCoverage;
+      return new Promise(function(resolve, reject) {
+        var analyzeGeneCoverage = null;
+        if (options && options.hasOwnProperty('GENECOVERAGE')) {
+          analyzeGeneCoverage = options.GENECOVERAGE;
+        } else {
+          analyzeGeneCoverage = true;
         }
-        var theOptions = null;
 
-        self.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
-        .then(function(dangerSummary) {
+        var coveragePromise = null;
+        if (analyzeGeneCoverage) {
+          coveragePromise = self.promiseGetCachedGeneCoverage(geneObject, theTranscript, false);
+        } else {
+          coveragePromise = Promise.resolve();
+        }
 
-            // Summarize the danger for the gene based on the filtered annotated variants and gene coverage
-            var filteredVcfData = null;
-            var filteredFbData = null;
-            if (probandVcfData) {
-              if (probandVcfData.features && probandVcfData.features.length > 0) {
-                filteredVcfData = self.getProbandModel().filterVariants(probandVcfData, self.filterModel.getFilterObject(), geneObject.start, geneObject.end, true);
-                filteredFbData  = self.getProbandModel().reconstituteFbData(filteredVcfData);
-              } else if (probandVcfData.features) {
-                filteredVcfData = probandVcfData;
+        coveragePromise.then(function(data) {
+
+          var geneCoverageAll = null;
+          if (analyzeGeneCoverage) {
+            geneCoverageAll =  data.geneCoverage;
+          }
+          var theOptions = null;
+
+          self.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
+          .then(function(dangerSummary) {
+
+              // Summarize the danger for the gene based on the filtered annotated variants and gene coverage
+              var filteredVcfData = null;
+              var filteredFbData = null;
+              if (probandVcfData) {
+                if (probandVcfData.features && probandVcfData.features.length > 0) {
+                  filteredVcfData = self.getProbandModel().filterVariants(probandVcfData, self.filterModel.getFilterObject(), geneObject.start, geneObject.end, true);
+                  filteredFbData  = self.getProbandModel().reconstituteFbData(filteredVcfData);
+                } else if (probandVcfData.features) {
+                  filteredVcfData = probandVcfData;
+                }
+
+
+                theOptions = $.extend({}, options);
+
+                theOptions.GENECOVERAGE = analyzeGeneCoverage;
+
+                if ((dangerSummary && dangerSummary.CALLED) || (filteredFbData && filteredFbData.features.length > 0)) {
+                    theOptions.CALLED = true;
+                }
+
+              }
+
+              if (filteredVcfData && filteredVcfData.features) {
+                return self.getProbandModel().promiseDetermineCompoundHets(filteredVcfData, geneObject, theTranscript);
+              } else {
+                return Promise.resolve();
               }
 
 
-              theOptions = $.extend({}, options);
-
-              theOptions.GENECOVERAGE = analyzeGeneCoverage;
-
-              if ((dangerSummary && dangerSummary.CALLED) || (filteredFbData && filteredFbData.features.length > 0)) {
-                  theOptions.CALLED = true;
-              }
-
-            }
-
-            if (filteredVcfData && filteredVcfData.features) {
-              return self.getProbandModel().promiseDetermineCompoundHets(filteredVcfData, geneObject, theTranscript);
-            } else {
-              return Promise.resolve();
-            }
+          })
+          .then(function(theVcfData) {
+              return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel);
+          })
+          .then(function(theDangerSummary) {
+            self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
+            resolve();
+          })
+          .catch(function(error) {
+            var msg = "An error occurred in promiseSummarizeDanger() when calling SampleModel.promiseGetDangerSummary(): " + error;
+            console.log(msg);
+            reject(msg);
+          })
 
 
-        })
-        .then(function(theVcfData) {
-            return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel);
-        })
-        .then(function(theDangerSummary) {
-          self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
-          resolve();
         })
         .catch(function(error) {
-          var msg = "An error occurred in promiseSummarizeDanger() when calling SampleModel.promiseGetDangerSummary(): " + error;
+          var msg = "An error occurred in CohortModel.promiseSummarizeDanger() when calling promiseGetCachedGeneCoverage(): " + error;
           console.log(msg);
           reject(msg);
-        })
+        });
 
-
-      })
-      .catch(function(error) {
-        var msg = "An error occurred in CohortModel.promiseSummarizeDanger() when calling promiseGetCachedGeneCoverage(): " + error;
-        console.log(msg);
-        reject(msg);
       });
+    }
 
-    });
 
 
   }
@@ -2102,103 +2108,107 @@ class CohortModel {
 
           // Get all of the cached vcf data
           let dataPromises = [];
+
           for (let geneName in intersectedGenes) {
 
+            if (me.geneModel.isCandidateGene(geneName)) {
             var uniqueTranscripts = {};
-            intersectedGenes[geneName].forEach(function(importedVariant) {
-              if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
-                console.log("No transcript for importedVariant");
-                console.log(importedVariant);
-              } else {
-                uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
-              }
-            })
-
-            for (var transcriptId in uniqueTranscripts) {
-              let dataPromise =  new Promise(function(resolve, reject) {
-
-                var geneObject = me.geneModel.geneObjects[geneName];
-                var transcript = uniqueTranscripts[transcriptId];
-                var importedVariants = intersectedGenes[geneName];
-
-                me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
-                .then(function(data) {
-
-                  if (data == null || data.vcfData == null || data.vcfData.features == null) {
-                    var msg = "Unable to get variant vcf data for " + geneObject.gene_name + " " + transcript.transcript_id;
-                    console.log(msg);
-                    resolve();
-                  } else if (importedVariants.length > 0) {
-
-                    // Refresh imported variant records with real variants
-                    importedVariants.forEach(function(importedVariant) {
-                      var matchingVariants = data.vcfData.features.filter(function(v) {
-                         return me.globalApp.utility.stripRefName(v.chrom) == me.globalApp.utility.stripRefName(importedVariant.chrom)
-                         && v.start == importedVariant.start
-                         && v.ref      == importedVariant.ref
-                         && v.alt      == importedVariant.alt;
-                      })
-                      if (matchingVariants.length > 0) {
-                        let matchingVariant = matchingVariants[0];
-
-                        var origImportedVariant = $.extend({}, importedVariant);
-                        importedVariant         = $.extend(importedVariant, matchingVariant);
-
-                        importedVariant.isFlagged      = true;
-                        importedVariant.isImported     = true;
-                        importedVariant.isProxy        = false;
-
-                        importedVariant.gene           = origImportedVariant.gene;
-                        importedVariant.transcript     = origImportedVariant.transcript;
-                        importedVariant.isUserFlagged  = origImportedVariant.isUserFlagged;
-                        importedVariant.featureClass   = origImportedVariant.isUserFlagged ? "flagged" : "";
-                        importedVariant.interpretation = origImportedVariant.interpretation;
-                        importedVariant.notes          = origImportedVariant.notes;
-
-                        matchingVariant.isImported     = true;
-                        matchingVariant.isUserFlagged  = origImportedVariant.isUserFlagged;
-                        matchingVariant.featureClass   = origImportedVariant.isUserFlagged ? "flagged" : "";
-                        matchingVariant.interpretation = origImportedVariant.interpretation;
-                        matchingVariant.notes          = origImportedVariant.notes;
-
-                      } else {
-                        importedVariant.isProxy = true;
-                        importedVariant.notFound = true;
-                        console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
-                      }
-                    })
-
-                    // Make sure that the imported variants are re-assessed to determine the filters they
-                    // pass.  We need this so that the imported variants show up in the left flagged variants
-                    // side panel
-                    me.filterModel.flagImportedVariants(importedVariants);
-
-                    // We need to recache the variants since the isUserFlag has been established
-                    me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
-                    .then(function() {
-
-                      // Now recalc the badge counts on danger summary to reflect imported variants
-                      me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
-                      .then(function(dangerSummary) {
-                        dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
-                        me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
-
-                        me.promiseLoadCoverage(geneObject, transcript)
-                        .then(function() {
-                          resolve();
-                        })
-
-                      });
-                    })
-                  }
-                })
-                .catch(function(error) {
-                  resolve();
-                })
-
+              intersectedGenes[geneName].forEach(function(importedVariant) {
+                if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
+                  console.log("No transcript for importedVariant");
+                  console.log(importedVariant);
+                } else {
+                  uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
+                }
               })
-              dataPromises.push(dataPromise);
+
+              for (var transcriptId in uniqueTranscripts) {
+                let dataPromise =  new Promise(function(resolve, reject) {
+
+                  var geneObject = me.geneModel.geneObjects[geneName];
+                  var transcript = uniqueTranscripts[transcriptId];
+                  var importedVariants = intersectedGenes[geneName];
+
+                  me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
+                  .then(function(data) {
+
+                    if (data == null || data.vcfData == null || data.vcfData.features == null) {
+                      var msg = "Unable to get variant vcf data for " + geneObject.gene_name + " " + transcript.transcript_id;
+                      console.log(msg);
+                      resolve();
+                    } else if (importedVariants.length > 0) {
+
+                      // Refresh imported variant records with real variants
+                      importedVariants.forEach(function(importedVariant) {
+                        var matchingVariants = data.vcfData.features.filter(function(v) {
+                           return me.globalApp.utility.stripRefName(v.chrom) == me.globalApp.utility.stripRefName(importedVariant.chrom)
+                           && v.start == importedVariant.start
+                           && v.ref      == importedVariant.ref
+                           && v.alt      == importedVariant.alt;
+                        })
+                        if (matchingVariants.length > 0) {
+                          let matchingVariant = matchingVariants[0];
+
+                          var origImportedVariant = $.extend({}, importedVariant);
+                          importedVariant         = $.extend(importedVariant, matchingVariant);
+
+                          importedVariant.isFlagged      = true;
+                          importedVariant.isImported     = true;
+                          importedVariant.isProxy        = false;
+
+                          importedVariant.gene           = origImportedVariant.gene;
+                          importedVariant.transcript     = origImportedVariant.transcript;
+                          importedVariant.isUserFlagged  = origImportedVariant.isUserFlagged;
+                          importedVariant.featureClass   = origImportedVariant.isUserFlagged ? "flagged" : "";
+                          importedVariant.interpretation = origImportedVariant.interpretation;
+                          importedVariant.notes          = origImportedVariant.notes;
+
+                          matchingVariant.isImported     = true;
+                          matchingVariant.isUserFlagged  = origImportedVariant.isUserFlagged;
+                          matchingVariant.featureClass   = origImportedVariant.isUserFlagged ? "flagged" : "";
+                          matchingVariant.interpretation = origImportedVariant.interpretation;
+                          matchingVariant.notes          = origImportedVariant.notes;
+
+                        } else {
+                          importedVariant.isProxy = true;
+                          importedVariant.notFound = true;
+                          console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
+                        }
+                      })
+
+                      // Make sure that the imported variants are re-assessed to determine the filters they
+                      // pass.  We need this so that the imported variants show up in the left flagged variants
+                      // side panel
+                      me.filterModel.flagImportedVariants(importedVariants);
+
+                      // We need to recache the variants since the isUserFlag has been established
+                      me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
+                      .then(function() {
+
+                        // Now recalc the badge counts on danger summary to reflect imported variants
+                        me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
+                        .then(function(dangerSummary) {
+                          dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
+                          me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
+
+                          me.promiseLoadCoverage(geneObject, transcript)
+                          .then(function() {
+                            resolve();
+                          })
+
+                        });
+                      })
+                    }
+                  })
+                  .catch(function(error) {
+                    resolve();
+                  })
+
+                })
+                dataPromises.push(dataPromise);
+              }
             }
+
           }
 
           // Finished with syncing imported variants for all imported genes.

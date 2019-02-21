@@ -98,17 +98,19 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
     analyzeCalledVariants = true;
   }
 
-  me.promiseGetGenesToAnalyze()
-  .then(function(geneNames) {
-    if (analyzeCalledVariants && !me.cohort.freebayesSettings.visited) {
-      me.cohort.freebayesSettings.showDialog(function() {
-        me._analyzeAllImpl(geneNames, analyzeCalledVariants)
-      })
-    } else {
-      me._analyzeAllImpl(geneNames, analyzeCalledVariants)
-    }
 
+  var geneNames = me.cohort.geneModel.geneNames.filter(function(geneName) {
+    return me.cohort.geneModel.isCandidateGene(geneName)
   })
+
+  if (analyzeCalledVariants && !me.cohort.freebayesSettings.visited) {
+    me.cohort.freebayesSettings.showDialog(function() {
+      me._analyzeAllImpl(geneNames, analyzeCalledVariants)
+    })
+  } else {
+    me._analyzeAllImpl(geneNames, analyzeCalledVariants)
+  }
+
 
 }
 
