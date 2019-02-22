@@ -2199,7 +2199,7 @@ class SampleModel {
     });
 
     let currVcf = me.vcf;
-    if (me.name === 'Sfari') {
+    if (me.name === 'SFARI') {
       currVcf = me.sfariVcfs[0];
     }
 
