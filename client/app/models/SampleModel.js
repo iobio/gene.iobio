@@ -1719,7 +1719,8 @@ class SampleModel {
               }
             });
         }
-        annotationResults[0][0].features = combinedFeatures;
+        // Reassign features for first vcf object & return
+        annotationResults[0].features = combinedFeatures;
         resolve(annotationResults[0]);
       }
     })
