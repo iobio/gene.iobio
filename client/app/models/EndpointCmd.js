@@ -15,7 +15,7 @@ export default class EndpointCmd {
     this.IOBIO.snpEff                  = this.globalApp.IOBIO_SERVICES  + "snpeff/";
     this.IOBIO.vt                      = this.globalApp.IOBIO_SERVICES  + "vt/";
     this.IOBIO.af                      = this.globalApp.IOBIO_SERVICES  + "af/";
-    this.IOBIO.vep                     = this.globalApp.IOBIO_SERVICES  + "vep/";
+    this.IOBIO.vep                     = this.globalApp.STAGE_IOBIO     + "vep/";   // Changing to beefy nv-green for SFARI testing
     this.IOBIO.contigAppender          = this.globalApp.IOBIO_SERVICES  + "ctgapndr/";
     this.IOBIO.bcftools                = this.globalApp.IOBIO_SERVICES  + "bcftools/";
     this.IOBIO.coverage                = this.globalApp.IOBIO_SERVICES  + "coverage/";
