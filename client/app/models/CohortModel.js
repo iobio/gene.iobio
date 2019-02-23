@@ -674,7 +674,7 @@ class CohortModel {
       'mother': 3,
       'father': 4,
       'known-variants': 1,
-      'sfari-variants': 0
+      'sfari-variants': 5
     };
     let sortedModels = this.sampleModels.sort(function(a,b) {
       return MODEL_ORDER[a.relationship] - MODEL_ORDER[b.relationship];
