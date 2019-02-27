@@ -1067,10 +1067,8 @@ class SampleModel {
         if (theVcfData && theVcfData.features) {
           theVcfData.features.forEach(function(v) {
             if (v.start == variant.start
-                && v.end == variant.end
                 && v.ref == variant.ref
-                && v.alt == variant.alt
-                && v.type.toLowerCase() == variant.type.toLowerCase()) {
+                && v.alt == variant.alt) {
               matchingVariant = v;
             }
           });
