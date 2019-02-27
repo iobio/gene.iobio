@@ -157,6 +157,7 @@ main.content.clin
       @gene-selected="onGeneClicked"
       @remove-gene="onRemoveGene"
       @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
+      @show-known-variants="onShowKnownVariantsCard"
     >
     </navigation>
 
@@ -2085,6 +2086,7 @@ export default {
                 flaggedVariant.isProxy = false;
               }
 
+              self.$set(self, "selectedVariant", null);
               self.$set(self, "selectedVariant", flaggedVariant);
               self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
               self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
