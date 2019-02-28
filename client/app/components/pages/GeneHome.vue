@@ -2418,9 +2418,7 @@ export default {
 
       } else if (clinObject.type == 'set-data') {
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
-          console.log("** set-data:init **");
           self.init(function() {
-            console.log("** set-data:initClin (after init) **");
             self.promiseInitClin(clinObject);
           })
         } else {
