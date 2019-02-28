@@ -2432,6 +2432,12 @@ export default {
           self.$set(self, "isFullAnalysis", clinObject.receiver == 'genefull' ? true : false);
           self.filterModel.isFullAnalysis = self.isFullAnalysis;
 
+          if (!self.isFullAnalysis) {
+            self.showLeftPanelForGenes();
+          } else {
+            self.showLeftPanelWhenFlaggedVariants();
+          }
+
           self.promiseShowClin();
         } else {
           console.log("** bypassing showData cohort NOT loaded **");
