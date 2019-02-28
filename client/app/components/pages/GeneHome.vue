@@ -2413,7 +2413,6 @@ export default {
 
       if (clinObject.type == 'apply-genes' && !self.isFullAnalysis) {
 
-        console.log("** apply-genes **");
         self.applyGenesClin(clinObject);
 
 
@@ -2425,7 +2424,6 @@ export default {
             self.promiseInitClin(clinObject);
           })
         } else {
-          console.log("** set-data:initClin **");
           self.promiseInitClin(clinObject);
         }
       } else if (clinObject.type == 'show') {
@@ -2438,8 +2436,7 @@ export default {
 
           self.promiseShowClin();
         } else {
-                    console.log("** bypassing showData cohort NOT loaded **");
-
+          console.log("** bypassing showData cohort NOT loaded **");
         }
 
       } else if (clinObject.type == 'show-tooltip') {
