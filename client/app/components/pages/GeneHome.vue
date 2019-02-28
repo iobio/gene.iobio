@@ -2084,6 +2084,10 @@ export default {
                 flaggedVariant.notes = notes;
                 flaggedVariant.interpretation = interpretation;
                 flaggedVariant.isProxy = false;
+                if (self.launchedFromClin) {
+                  self.sendFlaggedVariantToClin(flaggedVariant);
+                }
+
               }
 
               self.$set(self, "selectedVariant", null);
