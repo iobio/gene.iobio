@@ -3,6 +3,7 @@
 
 #flagged-variants-card
   padding-left: 5px
+  padding-bottom: 20px
 
   #clinvar-symbol
     display: inline-block
@@ -433,6 +434,10 @@
         <v-icon>save</v-icon>
         Save
       </v-btn>
+
+
+
+
     </div>
 
 
@@ -440,11 +445,20 @@
       (none)
     </span>
 
+    <div v-if="!isBasicMode" style="margin-top:-20px;margin-bottom:20px;margin-left:20px">
+        <interpretation-select  style="width:250px"
+        @apply-interpretation="onApplyInterpretationFilter">
+        </interpretation-select>
+    </div>
+
+
+
   <v-expansion-panel expand >
     <v-expansion-panel-content v-for="geneList in geneLists"  :key="geneList.label"
       :value="geneList.expand"
       v-if="geneList.show">
       <div slot="header" v-show="!isBasicMode">
+
         <span v-show="geneList.genes.length > 0" class="filter-subheader">
           <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
 
@@ -456,6 +470,7 @@
 
 
         </span>
+
 
       </div>
       <v-list three-line>
@@ -747,6 +762,7 @@ import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
 import VariantNotesMenu from '../partials/VariantNotesMenu.vue'
 import VariantInterpretation from '../partials/VariantInterpretation.vue'
+import InterpretationSelect from '../partials/InterpretationSelect.vue'
 
 
 export default {
@@ -756,7 +772,8 @@ export default {
     AppIcon,
     FilterIcon,
     VariantNotesMenu,
-    VariantInterpretation
+    VariantInterpretation,
+    InterpretationSelect
   },
   props: {
     isEduMode: null,
@@ -780,10 +797,15 @@ export default {
       exportInProgress: false,
       geneLists: null,
       clickedVariant: null,
-      variantCount: 0
+      variantCount: 0,
+      interpretationFilters: null
     }
   },
   methods: {
+    onApplyInterpretationFilter: function(interpretation) {
+      this.interpretationFilters = interpretation
+      this.populateGeneLists();
+    },
     onVariantSelected: function(variant) {
       this.clickedVariant = variant;
       this.$emit("flagged-variant-selected", variant);
@@ -829,7 +851,7 @@ export default {
       self.geneLists = [];
       self.variantCount = 0;
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis);
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters);
       self.geneLists = filters.map(function(filterObject, idx) {
         self.variantCount += filterObject.variantCount;
         return {

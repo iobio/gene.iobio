@@ -2237,7 +2237,7 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, options={includeNotCategorized: false}) {
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false}) {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
@@ -2248,7 +2248,7 @@ class CohortModel {
           include = false;
         }
         if (include) {
-          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis);
+          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters);
 
           if (sortedGenes.length > 0) {
             filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
@@ -2387,7 +2387,7 @@ class CohortModel {
   }
 
 
-  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis) {
+  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters) {
     let self = this;
     let geneMap        = {};
     let flaggedGenes   = [];
@@ -2395,11 +2395,15 @@ class CohortModel {
       this.flaggedVariants.forEach(function(variant) {
         if ((userFlagged && variant.isUserFlagged) ||
             (filterName && variant.filtersPassed && variant.filtersPassed.indexOf(filterName) >= 0)) {
+
+          let keepVariant = interpretationFilters && interpretationFilters.length > 0 ? interpretationFilters.indexOf(variant.interpretation ? variant.interpretation : 'not-reviewed') >= 0 : true;
+
           let flaggedGene = geneMap[variant.gene.gene_name];
 
           let keepGene = isFullAnalysis ? !self.geneModel.isCandidateGene(variant.gene.gene_name) : self.geneModel.isCandidateGene(variant.gene.gene_name);
 
-          if (keepGene) {
+
+          if (keepGene && keepVariant) {
             if (flaggedGene == null) {
               flaggedGene = {};
               flaggedGene.gene = variant.gene;
