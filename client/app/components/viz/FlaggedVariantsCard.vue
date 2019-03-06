@@ -445,7 +445,7 @@
       (none)
     </span>
 
-    <div v-if="!isBasicMode" style="margin-top:-20px;margin-bottom:20px;margin-left:20px">
+    <div v-if="launchedFromClin && !isBasicMode" style="margin-top:-20px;margin-bottom:20px;margin-left:20px">
         <interpretation-select  style="width:250px"
         @apply-interpretation="onApplyInterpretationFilter">
         </interpretation-select>
