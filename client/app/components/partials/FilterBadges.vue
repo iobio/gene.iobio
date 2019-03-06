@@ -2,6 +2,10 @@
 @import ../../../assets/sass/variables
 
 
+.filter-action-button
+
+  padding: 0px
+  height: 30px !important
 
 #gene-count-badges
   display: inline-block
@@ -188,10 +192,10 @@
     <v-layout row justify-center v-if="currentFilter && currentFilter.showEdit" class="text-xs-center">
       <v-dialog persistent id="filter-settings-dialog"
         v-model="currentFilter.showEdit"
-        width="500"
+        width="605"
       >
 
-        <v-card>
+        <v-card class="full-width">
         <v-card-text>
 
           <filter-settings
@@ -208,10 +212,10 @@
         </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn @click="onApplyFilter">
+            <v-btn class="filter-action-button" @click="onApplyFilter">
               Apply
             </v-btn>
-            <v-btn @click="onCancelFilter">
+            <v-btn class="filter-action-button" @click="onCancelFilter">
               Cancel
             </v-btn>
           </v-card-actions>

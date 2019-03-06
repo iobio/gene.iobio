@@ -17,6 +17,10 @@ main.content.clin
 .app-card
   margin-bottom: 10px
 
+.full-width
+  max-width: -moz-available !important
+  max-width: -webkit-fill-available !important
+
 #data-sources-loader, #session-data-loader
   margin-top: 30px
   margin-left: auto
@@ -74,21 +78,29 @@ main.content.clin
   &.accent--text
     color:  $app-color !important
 
-
-#pileup-title
-  color: $app-color
-  font-size: 15px
-
 #pileup-container
   margin: 0px
-  padding: 0px
-
+  padding-top: 0px
+  padding-bottom: 0px
+  width: calc(100% - 10px)
+  margin-left: -10px
 
   .card
     margin: 0px
     padding: 0px
     -webkit-box-shadow: none !important
     box-shadow: none !important
+
+    .layout.row
+      margin-left: 20px
+      margin-right: 20px
+
+    .igv-root-div
+      margin-left: -10px
+
+    .igv-right-hand-gutter
+      right: -10px
+      left: initial
 
 </style>
 
@@ -144,6 +156,8 @@ main.content.clin
       @hide-snackbar="onHideSnackbar"
       @gene-selected="onGeneClicked"
       @remove-gene="onRemoveGene"
+      @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
+      @show-known-variants="onShowKnownVariantsCard"
     >
     </navigation>
 
@@ -153,24 +167,18 @@ main.content.clin
 
 
         <modal name="pileup-modal"
-            :resizable="true"
-            :adaptive="false"
-            :draggable="true"
-            width="80%"
-            height="500"
+            width="50%"
+            height="540"
             >
 
-          <v-card style="overflow-y:auto;height:-webkit-fill-available;height:-moz-available;height:100%">
-            <span id="pileup-title">
-              <span class="pl-2" v-for="titlePart in pileupInfo.title" key="titlePart">
-                {{ titlePart }}
-              </span>
-            </span>
+          <v-card class='full-width' style="overflow-y:auto;height:height:-moz-available;height:100%">
             <pileup id="pileup-container"
+              :heading="pileupInfo.title"
               :referenceURL="pileupInfo.referenceURL"
               :tracks="pileupInfo.tracks"
               :locus="pileupInfo.coord"
               :visible="pileupInfo.show"
+              :showLabels=true
             />
           </v-card>
 
@@ -178,6 +186,7 @@ main.content.clin
 
 
         <intro-card v-if="forMyGene2"
+        class="full-width"
         :closeIntro="closeIntro"
         :isBasicMode="isBasicMode"
         :siteConfig="siteConfig"
@@ -190,7 +199,8 @@ main.content.clin
 
         <genes-card
          v-if="geneModel"
-         v-bind:class="{hide : showWelcome && !isEduMode}"
+         v-show="filterModel && !filterModel.isFullAnalysis"
+         v-bind:class="{hide : showWelcome && !isEduMode, 'full-width': true}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
          :isBasicMode="isBasicMode"
@@ -224,7 +234,7 @@ main.content.clin
         >
         </genes-card>
 
-        <v-card style="margin-top:10px;margin-bottom:10px;padding-bottom:10px"
+        <v-card class="full-width" style="margin-top:10px;margin-bottom:10px;padding-bottom:10px;"
             v-if="geneModel && Object.keys(selectedGene).length > 0"
           v-bind:class="{hide : showWelcome }">
           <gene-card
@@ -248,13 +258,14 @@ main.content.clin
 
         <div
           v-if="geneModel && Object.keys(selectedGene).length > 0 && (!isBasicMode || selectedVariant != null)"
-          style="height:auto;margin-bottom:10px"
-          v-bind:class="{hide : showWelcome }"
+          style="height:auto;margin-bottom:10px;"
+          v-bind:class="{hide : showWelcome, 'full-width': true }"
           >
 
             <v-card v-if="geneModel && cohortModel.isLoaded && Object.keys(selectedGene).length > 0"
             id="gene-and-variant-tabs" slot="right"
-            style="min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;">
+            class="full-width"
+            style=";min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;">
 
 
               <v-tabs
@@ -332,6 +343,7 @@ main.content.clin
 
 
         <welcome
+         class="full-width"
          v-if="showWelcome"
          :launchedFromClin="launchedFromClin"
          :isBasicMode="isBasicMode"
@@ -343,7 +355,7 @@ main.content.clin
 
         <v-card
         id="data-sources-loader"
-        class="loader"
+        class="loader full-width"
         v-bind:class="{ hide: !cohortModel ||  !cohortModel.inProgress.loadingDataSources }">
           <span class="loader-label">Loading files</span>
           <img src="../../../assets/images/wheel.gif">
@@ -363,7 +375,7 @@ main.content.clin
         v-for="model in models"
         :key="model.relationship"
         v-bind:class="[
-        { 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false),
+        { 'full-width': true, 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false),
           'edu' : isEduMode
         },
         model.relationship
@@ -544,7 +556,7 @@ export default {
         "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
         "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
         "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
-        "https://staging.frameshift.io":         {iobio: "nv-blue.iobio.io",     batchSize: 10}
+        "https://staging.frameshift.io":         {iobio: "nv-prod.iobio.io",     batchSize: 10}
       },
 
 
@@ -596,6 +608,7 @@ export default {
 
       clearZoom: false,
 
+
       /*
       * This variable controls special behavior for running gene.iobio education edition, with
       * a simplified interface and logic.
@@ -619,7 +632,7 @@ export default {
 
       showCoverageCutoffs: false,
 
-      clinIobioUrls: ["http://localhost:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io", "http://dev.clin.iobio.io"],
+      clinIobioUrls: ["http://localhost:4030", "http://tony.iobio.io:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io", "http://dev.clin.iobio.io"],
       clinIobioUrl: null,
 
       forceLocalStorage: null,
@@ -642,9 +655,11 @@ export default {
         title: 'Pileup View',
         // The bam file
         alignmentURL: null,
+        alignmentIndexURL: null,
         // The vcf file
         // TODO: update this dynamically
-        variantURL: "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz",
+        variantURL: null,
+        variantIndexURL: null,
         // The reference URL (for the current genome build)
         referenceURL: 'https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg19/hg19.fasta'
 
@@ -1041,6 +1056,8 @@ export default {
 
     onFilesLoaded: function(analyzeAll, callback) {
       let self = this;
+
+      self.showWelcome = false;
       self.setUrlParameters();
       self.showLeftPanelForGenes();
 
@@ -2067,8 +2084,13 @@ export default {
                 flaggedVariant.notes = notes;
                 flaggedVariant.interpretation = interpretation;
                 flaggedVariant.isProxy = false;
+                if (self.launchedFromClin) {
+                  self.sendFlaggedVariantToClin(flaggedVariant);
+                }
+
               }
 
+              self.$set(self, "selectedVariant", null);
               self.$set(self, "selectedVariant", flaggedVariant);
               self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
               self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
@@ -2104,6 +2126,9 @@ export default {
       if (self.showKnownVariantsCard) {
         self.onKnownVariantsVizChange();
       }
+    },
+    onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
+      this.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
     },
     onFilterSelected: function(filterName, filteredGeneNames) {
       this.activeFilterName = filterName;
@@ -2338,9 +2363,11 @@ export default {
 
         // Set the bam, vcf, and references
         this.cohortModel.getCanonicalModels().forEach(function(model) {
-          let track = {name: model.relationship};
-          track.variantURL =  model.vcf.getVcfURL();
-          track.alignmentURL = model.bam.bamUri;
+          let track               = {name: model.relationship};
+          track.variantURL        = model.vcf.getVcfURL();
+          track.variantIndexURL   = model.vcf.getTbiURL();
+          track.alignmentURL      = model.bam.bamUri;
+          track.alignmentIndexURL = model.bam.baiUri;
           self.pileupInfo.tracks.push(track);
         })
 
@@ -2349,13 +2376,13 @@ export default {
         this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
 
         // set the title
-        this.pileupInfo.title = [];
-        this.pileupInfo.title.push("Read pileup");
-        this.pileupInfo.title.push(this.selectedGene.gene_name);
-        this.pileupInfo.title.push((variant.type ? variant.type.toUpperCase() + " " : "")
+        const titleParts = []
+        titleParts.push("Read pileup");
+        titleParts.push(this.selectedGene.gene_name);
+        titleParts.push((variant.type ? variant.type.toUpperCase() + " " : "")
           + theVariant.chrom + ":" + theVariant.start + " " + theVariant.ref + "->" + theVariant.alt);
-        this.pileupInfo.title.push(variantInfo.HGVSpAbbrev);
-        this.pileupInfo.title.push((relationship == 'proband' ? '' : '(' + relationship + ")"));
+        titleParts.push(variantInfo.HGVSpAbbrev);
+        this.pileupInfo.title = titleParts.join(' ')
 
         this.pileupInfo.show         = true;
 
@@ -2401,10 +2428,19 @@ export default {
 
         if (self.cohortModel && self.cohortModel.isLoaded) {
 
+
           self.$set(self, "isFullAnalysis", clinObject.receiver == 'genefull' ? true : false);
           self.filterModel.isFullAnalysis = self.isFullAnalysis;
 
+          if (!self.isFullAnalysis) {
+            self.showLeftPanelForGenes();
+          } else {
+            self.showLeftPanelWhenFlaggedVariants();
+          }
+
           self.promiseShowClin();
+        } else {
+          console.log("** bypassing showData cohort NOT loaded **");
         }
 
       } else if (clinObject.type == 'show-tooltip') {
@@ -2548,6 +2584,19 @@ export default {
       }
     },
 
+    sendConfirmSetDataToClin: function() {
+      let self = this;
+      if (this.launchedFromClin) {
+        var msgObject = {
+          success: true,
+          type:   'confirm-set-data',
+          sender: 'gene.iobio.io',
+          app:    self.isFullAnalysis ? 'genefull' : 'gene'
+        };
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+      }
+    },
+
     promiseSetCacheFromClin: function(clinObject) {
       let self = this;
 
@@ -2646,6 +2695,8 @@ export default {
         self.cohortModel.promiseInit(self.clinSetData.modelInfos)
         .then(function() {
 
+          self.sendConfirmSetDataToClin();
+
           self.onSendFiltersToClin();
 
           self.models = self.cohortModel.sampleModels;
@@ -2657,9 +2708,6 @@ export default {
           return self.promiseShowClin();
         })
         .then(function() {
-          //if (self.$refs.navRef) {
-          //  self.$refs.navRef.onShowVariantsTab();
-          //}
           resolve();
         })
         .catch(function(error) {
@@ -2722,17 +2770,14 @@ export default {
           let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
           this.onApplyGenes(genesString, options, function() {
             if (self.cohortModel && self.cohortModel.isLoaded) {
-              self.showLeftPanelForGenes();
+
 
 
               self.cacheHelper.promiseGetGenesToAnalyze()
               .then(function(genesToAnalyze) {
                 if (genesToAnalyze.length > 0) {
+                  self.showLeftPanelForGenes();
                   self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
-                } else {
-                  if (self.$refs.navRef) {
-                    self.$refs.navRef.onShowVariantsTab();
-                  }
                 }
               })
             }

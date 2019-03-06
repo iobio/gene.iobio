@@ -58,10 +58,8 @@ export default function variantD3() {
     var matchingVariant = null;
     svgContainer.selectAll(".variant").each( function (variant,i) {
        if (d.start == variant.start
-          && d.end == variant.end
           && d.ref == variant.ref
-          && d.alt == variant.alt
-          && d.type.toLowerCase() == variant.type.toLowerCase()) {
+          && d.alt == variant.alt) {
 
           if (variant.zygosity != null && variant.zygosity.toLowerCase() == 'homref') {
             // we want to show an "x" for homozygous reference variants
@@ -618,10 +616,8 @@ export default function variantD3() {
     var matchingVariant = null;
     svg.selectAll(".variant").each( function (d,i) {
        if (d.start == variant.start
-          && d.end == variant.end
           && d.ref == variant.ref
-          && d.alt == variant.alt
-          && d.type.toLowerCase() == variant.type.toLowerCase()) {
+          && d.alt == variant.alt) {
           matchingVariant = d;
        }
     });
@@ -637,9 +633,9 @@ export default function variantD3() {
 
     var xpos = 0;
     var ypos = mousey-2;
-    if (variant.type.toUpperCase() == "DEL" || variant.type.toUpperCase() == "COMPLEX") {
+    if (matchingVariant.type.toUpperCase() == "DEL" || matchingVariant.type.toUpperCase() == "COMPLEX") {
       xpos =  mousex;
-    } else if (variant.type.toUpperCase() == "INS") {
+    } else if (matchingVariant.type.toUpperCase() == "INS") {
       xpos =  mousex-.5;
     }else {
       xpos =  mousex+.5;

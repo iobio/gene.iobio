@@ -19,6 +19,11 @@ textarea#copy-paste-genes
     padding: 0px
     margin: 0px
 
+#acmg-genes-button, #aclear-all-genes-button,  #apply-button
+
+  padding: 0px
+  height: 30px !important
+
 </style>
 
 <template>
@@ -65,7 +70,7 @@ textarea#copy-paste-genes
         </v-expansion-panel-content>
       </v-expansion-panel>
 
-      <v-card>
+      <v-card class="full-width">
 
           <div id="enter-genes-input">
             <v-text-field
@@ -84,7 +89,7 @@ textarea#copy-paste-genes
               <v-btn id="acmg-genes-button" @click="onACMGGenes">
               ACMG Genes
               </v-btn>
-              <v-btn style="float:right" @click="onApplyGenes">
+              <v-btn id="apply-button" style="float:right" @click="onApplyGenes">
                Apply
              </v-btn>
           </div>

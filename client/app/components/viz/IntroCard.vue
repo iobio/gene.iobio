@@ -33,7 +33,7 @@
 
 <template>
 
-<v-card id="intro-card" class="app-card">
+<v-card id="intro-card" class="app-card full-width">
   <div style="text-align:center">
     <div>
       <div class="left-info">

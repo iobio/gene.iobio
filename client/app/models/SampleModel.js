@@ -1067,10 +1067,8 @@ class SampleModel {
         if (theVcfData && theVcfData.features) {
           theVcfData.features.forEach(function(v) {
             if (v.start == variant.start
-                && v.end == variant.end
                 && v.ref == variant.ref
-                && v.alt == variant.alt
-                && v.type.toLowerCase() == variant.type.toLowerCase()) {
+                && v.alt == variant.alt) {
               matchingVariant = v;
             }
           });
@@ -1560,6 +1558,8 @@ class SampleModel {
          promises.push(p);
       })
 
+
+
       Promise.all(promises)
       .then(function() {
         if (Object.keys(resultMap).length == variantModels.length) {
@@ -1571,11 +1571,33 @@ class SampleModel {
           // and annotate them.
           me._promiseVcfRefName(theGene.chr)
           .then( function() {
+            let refName = me.getVcfRefName(theGene.chr);
+
+            var regions = null;
+            if (options.analyzeCodingVariantsOnly) {
+              var exons = theTranscript.features.filter(function(feature) {
+                return (feature.feature_type.toUpperCase() == 'CDS');
+              });
+
+              // Capture only of the exon regions with a (5 bp range before and after exon) from the transcript
+              regions =  exons.map(function(feature, i) {
+                var start = +feature.start - 5;
+                var end   = +feature.end + 5;
+                if (i > 0) {
+                  var prevFeature = exons[i-1];
+                  if (+prevFeature.end >= start) {
+                    start = +prevFeature.end - (+prevFeature.end - start);
+                  }
+                }
+                return {name: refName, start: start, end: end};
+              });
+            }
+
             return me.vcf.promiseGetVariants(
-               me.getVcfRefName(theGene.chr),
+               refName,
                theGene,
                theTranscript,
-               null,   // regions
+               regions,   // regions
                isMultiSample, // is multi-sample
                me._getSamplesToRetrieve(),
                me.getRelationship() == 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),

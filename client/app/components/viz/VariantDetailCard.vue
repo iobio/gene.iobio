@@ -270,11 +270,11 @@
     .allele-count-bar
       overflow-wrap: break-word
       float: left
-      width: 220px
+      width: 300px
       min-height: 25px
 
     .ped-info
-      width: 370px
+      width: 445px
       clear: both
       line-height: 13px !important
 
@@ -579,7 +579,7 @@
 
 
 
-      <div v-if="selectedVariant" style="float:left;width:31%">
+      <div v-if="selectedVariant" style="float:left;width:25%">
           <v-flex  v-if="!isBasicMode">
             <v-layout  row>
                <v-flex xs3 class="field-label">gnomAD</v-flex>
@@ -650,7 +650,7 @@
       </div>
 
 
-      <div id="coverage-svg" v-if="selectedVariant" style="float:left;width:31%;min-width:300px" v-bind:class="{hide: isEduMode || isBasicMode }">
+      <div id="coverage-svg" v-if="selectedVariant" style="float:left;min-width:445px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
 
 
@@ -730,8 +730,8 @@ export default {
   },
   data() {
     return {
-      WIDTH_ALLELE_COUNT_BAR: 220,
-      WIDTH_ALLELE_COUNT_ROW: 370,
+      WIDTH_ALLELE_COUNT_BAR: 300,
+      WIDTH_ALLELE_COUNT_ROW: 430,
       AFFECTED_GLYPH: "<i class='material-icons affected-symbol'>spellcheck</i>"
 
     }
@@ -820,6 +820,25 @@ export default {
       var me = this;
 
       var firstTime = true;
+
+      // Workaround to adjust max allele count for siblings
+      let adjustedMaxAlleleCount = maxAlleleCount;
+      affectedInfo.forEach(function(info) {
+        var sampleName     = info.model.getSampleName();
+        var genotype       = variant.genotypes ? variant.genotypes[sampleName] : null;
+
+        if (genotype == null || genotype.absent && cohortMode == 'single') {
+        } else {
+          if ((+genotype.altCount + +genotype.refCount) > adjustedMaxAlleleCount) {
+            adjustedMaxAlleleCount = +genotype.altCount + +genotype.refCount;
+          }
+          if (+genotype.genotypeDepth > adjustedMaxAlleleCount) {
+            adjustedMaxAlleleCount = +genotype.genotypeDepth;
+          }
+        }
+      })
+
+
       affectedInfo.forEach(function(info) {
 
         var affectedStatus = info.status;
@@ -865,7 +884,7 @@ export default {
               genotype.genotypeDepth,
               null,
               barWidth,
-              maxAlleleCount);
+              adjustedMaxAlleleCount);
           }
         }
 
@@ -947,6 +966,7 @@ export default {
 
       var MAX_BAR_WIDTH = barWidth ? barWidth : me.ALLELE_COUNT_BAR_WIDTH;
       var PADDING = 20;
+      MAX_BAR_WIDTH = MAX_BAR_WIDTH - PADDING;
       var BAR_WIDTH = 0;
       if ((genotypeDepth == null || genotypeDepth == '') && (genotypeAltCount == null || genotypeAltCount.indexOf(",") >= 0)) {
         container.text("");
@@ -1014,7 +1034,7 @@ export default {
       var svg = container
                   .append("svg")
                   .attr("width", MAX_BAR_WIDTH + PADDING)
-                  .attr("height", separateLineForLabel ? "21" : "12");
+                  .attr("height", separateLineForLabel ? "31" : "21");
 
       if (altWidth > 0) {
         svg.append("rect")
@@ -1088,7 +1108,7 @@ export default {
 
         var gNextLine = g.append("g")
                          .attr("transform", "translate(-15,9)");
-        svg.attr("height", 31);
+        svg.attr("height", 45);
         gNextLine.append("text")
                  .attr("x", otherX < 20 ? 20 : otherX)
              .attr("y", "9")
@@ -1198,7 +1218,7 @@ export default {
       return refAlt;
     },
     afGnomAD: function(af) {
-      if (this.selectedVariant.vepAf.gnomAD.AF == null) {
+      if (this.selectedVariant.vepAF == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
         return "unknown";
       } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
         return "<span class='"

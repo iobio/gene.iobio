@@ -2,6 +2,12 @@
 
 @import ../../../assets/sass/variables
 
+
+.dialog.dialog--active
+  button
+    padding: 0px
+    height: 30px !important
+
 aside.navigation-drawer
   margin-top: 55px !important
   z-index: 0
@@ -140,6 +146,7 @@ aside.navigation-drawer
 
 
 nav.toolbar
+  padding-top: 5px
 
   .toolbar__content
     margin-top: 2px
@@ -213,10 +220,33 @@ nav.toolbar
       color:  $nav-text-color-clin !important
 
 
+      color: $text-color
+
+
+  .clinvar-switch
+    padding: 0px
+    width: 130px
+    display: inline-block
+    vertical-align: top
+    text-align: left
+    padding-top: 6px
+    margin-left: 30px
+
+    label
+      padding-left: 7px
+      line-height: 18px
+      font-size: 13px
+      font-weight: normal
+      padding-top: 6px
+      color: $text-color !important
+
+    .input-group--selection-controls__toggle
+      color: rgba(0,0,0,0.38) !important
 
   .toolbar__side-icon.btn.btn--icon
     max-width: 40px
     min-width: 40px
+    margin-bottom: 0px !important
 
   .toolbar__items
     width: 60%
@@ -237,7 +267,7 @@ nav.toolbar
     font-size: 18px
     margin-right: 5px
     margin-left: 5px
-    padding-bottom: 7px
+    padding-bottom: 13px
     min-width: 130px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
@@ -340,6 +370,18 @@ nav.toolbar
     color: $nav-text-color
 
 
+.coding-variants-only-switch
+  min-width: 180px !important
+
+
+  label
+    padding-left: 8px !important
+    line-height: 18px !important
+    color: $text-color !important
+    font-weight: normal !important
+    font-size: 13px !important
+    padding-left: 8px !important
+    padding-top: 6px !important
 
 </style>
 
@@ -436,10 +478,35 @@ nav.toolbar
         </phenotype-search>
 
 
+        <v-switch class="clinvar-switch"
+          v-if="launchedFromClin"
+          label="ClinVar track"
+          v-model="showKnownVariantsCard"
+          >
+        </v-switch>
+
 
 
       </v-toolbar-items>
 
+
+      <v-menu
+       v-if="!isEduMode && !isBasicMode"
+       offset-y
+      :close-on-content-click="false"
+      >
+        <v-btn  flat slot="activator">
+          Options
+        </v-btn>
+
+        <v-card style="min-width:150px">
+          <v-switch class="coding-variants-only-switch"
+            label="Coding variants only"
+            v-model="analyzeCodingVariantsOnly"
+            >
+          </v-switch>
+        </v-card>
+      </v-menu>
 
       <files-menu
        v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
@@ -630,7 +697,7 @@ nav.toolbar
     </v-navigation-drawer>
 
     <v-dialog v-model="showDisclaimer" max-width="400">
-        <v-card>
+        <v-card class="full-width">
           <v-card-title class="headline">Disclaimer</v-card-title>
           <v-card-text>
 
@@ -647,7 +714,7 @@ nav.toolbar
 
 
     <v-dialog v-model="showVersion" max-width="580">
-        <v-card>
+        <v-card class="full-width">
           <v-card-title class="headline">gene.iobio {{ globalApp.version }}</v-card-title>
           <v-card-text>
 
@@ -684,7 +751,7 @@ nav.toolbar
 
 
    <v-dialog v-model="showCitations" max-width="700" max-height="">
-        <v-card style="overflow-y:scroll;height:500px">
+        <v-card class="full-width" style="overflow-y:scroll;height:500px">
           <v-card-title class="headline">Software and Resources</v-card-title>
           <v-card-text>
 
@@ -824,6 +891,7 @@ export default {
     geneNames: null,
     genesInProgress: null
 
+
   },
   data () {
     let self = this;
@@ -845,7 +913,12 @@ export default {
       activeTab: 0,
 
       geneCount: 0,
-      flaggedVariantCount: 0
+      flaggedVariantCount: 0,
+
+
+      analyzeCodingVariantsOnly: true,
+
+      showKnownVariantsCard: false
 
 
     }
@@ -859,6 +932,12 @@ export default {
     },
     leftDrawer: function() {
       this.$emit("on-left-drawer", this.leftDrawer);
+    },
+    analyzeCodingVariantsOnly: function() {
+      this.$emit("analyze-coding-variants-only", this.analyzeCodingVariantsOnly)
+    },
+    showKnownVariantsCard: function() {
+      this.$emit("show-known-variants", this.showKnownVariantsCard);
     }
   },
   methods: {
@@ -980,7 +1059,7 @@ export default {
     },
     onFlaggedVariantCountChanged: function(count) {
       this.flaggedVariantCount = count;
-    },
+    }
   },
   created: function() {
   },
