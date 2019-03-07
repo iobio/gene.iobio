@@ -445,7 +445,7 @@
       (none)
     </span>
 
-    <div v-if="!isBasicMode" style="margin-top:-40px;margin-bottom:20px;margin-left:20px">
+    <div v-if="!isBasicMode" style="margin-top:-25px;margin-bottom:20px;margin-left:20px">
         <interpretation-select  style="width:250px"
         :interpretationMap="interpretationMap"
         @apply-interpretation="onApplyInterpretationFilter">
