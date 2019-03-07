@@ -139,6 +139,7 @@ main.content.clin
       :phenotypeLookupUrl="phenotypeLookupUrl"
       :geneNames="geneModel.sortedGeneNames"
       :genesInProgress="cohortModel.genesInProgress"
+      :interpretationMap="interpretationMap"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -560,6 +561,15 @@ export default {
       },
 
 
+      interpretationMap: {
+        'sig': 'Significant',
+        'unknown-sig': 'Unknown significance',
+        'not-sig': 'Not significant',
+        'poor-qual': 'Poor quality',
+        'not-reviewed': 'Not reviewed'
+      },
+
+
       allGenes: allGenesData,
 
       selectedGene: {},
@@ -661,7 +671,8 @@ export default {
         variantURL: null,
         variantIndexURL: null,
         // The reference URL (for the current genome build)
-        referenceURL: 'https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg19/hg19.fasta'
+        referenceURL: 'https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg19/hg19.fasta',
+
 
       }
     }

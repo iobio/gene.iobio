@@ -445,8 +445,9 @@
       (none)
     </span>
 
-    <div v-if="launchedFromClin && !isBasicMode" style="margin-top:-20px;margin-bottom:20px;margin-left:20px">
+    <div v-if="!isBasicMode" style="margin-top:-40px;margin-bottom:20px;margin-left:20px">
         <interpretation-select  style="width:250px"
+        :interpretationMap="interpretationMap"
         @apply-interpretation="onApplyInterpretationFilter">
         </interpretation-select>
     </div>
@@ -578,6 +579,7 @@
                      v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
                      class="variant-notes"
                      wrap="true"
+                     :interpretationMap="interpretationMap"
                      :variant="variant"
                      :variantInterpretation="variant.interpretation"
                      @apply-variant-interpretation="onApplyVariantInterpretation">
@@ -589,6 +591,7 @@
                     class="variant-notes"
                     :showNotesIcon="true"
                     :variant="variant"
+                    :interpretationMap="interpretationMap"
                     :variantInterpretation="variant.interpretation"
                     :variantNotes="variant.notes"
                     @apply-variant-notes="onApplyVariantNotes">
@@ -650,7 +653,7 @@
 
 
 
-      <v-card>
+      <v-card class="full-width">
         <v-card-title class="headline">Open variants file</v-card-title>
         <v-card-text class="variant-file-body">
           <div id="open-variant-file" >
@@ -712,7 +715,7 @@
     v-model="showSaveDialog"
     >
 
-      <v-card>
+      <v-card class="full-width">
         <v-card-title class="headline">
          Save variants file
         </v-card-title>
@@ -784,7 +787,8 @@ export default {
     launchedFromClin: null,
     isFullAnalysis: null,
     geneNames: null,
-    genesInProgress: null
+    genesInProgress: null,
+    interpretationMap: null
   },
   data() {
     return {

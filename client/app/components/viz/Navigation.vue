@@ -669,6 +669,7 @@ nav.toolbar
              :isFullAnalysis="isFullAnalysis"
              :geneNames="geneNames"
              :genesInProgress="genesInProgress"
+             :interpretationMap="interpretationMap"
              @flagged-variants-imported="onFlaggedVariantsImported"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
@@ -889,9 +890,8 @@ export default {
     bringAttention: null,
     phenotypeLookupUrl: null,
     geneNames: null,
-    genesInProgress: null
-
-
+    genesInProgress: null,
+    interpretationMap: null
   },
   data () {
     let self = this;

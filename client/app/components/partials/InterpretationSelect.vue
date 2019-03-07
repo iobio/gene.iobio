@@ -11,6 +11,9 @@
     white-space: normal
     display: inline-block
 
+  label
+    font-size: 12px
+
 </style>
 
 <template>
@@ -50,6 +53,7 @@ export default {
         'sig': 'Significant',
         'unknown-sig': 'Unknown significance',
         'not-sig': 'Not significant',
+        'poor-qual': 'Poor quality',
         'not-reviewed': 'Not reviewed'
       }
 
