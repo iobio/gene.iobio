@@ -2,7 +2,7 @@
   "name": "gene-iobio-vue",
   "version": "0.0.0",
   "scripts": {
-    "start": "./node_modules/webpack/bin/webpack.js && DEBUG=http ./node_modules/nodemon/bin/nodemon.js --inspect --ignore client/ www.js",
+    "start": "DEBUG=http ./node_modules/nodemon/bin/nodemon.js --inspect --ignore client/ www.js",
     "build": "./node_modules/webpack/bin/webpack.js",
     "webpack": "./node_modules/webpack/bin/webpack.js --watch",
     "test": "cross-env NODE_ENV=test karma start",

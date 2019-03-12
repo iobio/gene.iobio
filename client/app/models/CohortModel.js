@@ -13,6 +13,7 @@ class CohortModel {
     this.defaultingToDemoData = false;
 
     this.endpoint = endpoint;
+    this.hubSession = null;   // Passed in after init
     this.genericAnnotation = genericAnnotation;
     this.translator = translator;
     this.geneModel = geneModel;
@@ -46,6 +47,7 @@ class CohortModel {
     this.flaggedVariants = [];
 
     this.knownVariantsViz = 'variants'; // variants, histo, histoExon
+      this.sfariVariantsViz = 'variants';
 
 
     this.demoVcf = {
@@ -241,7 +243,7 @@ class CohortModel {
     })
   }
 
-  promiseInit(modelInfos) {
+  promiseInit(modelInfos, projectId = 0) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
@@ -288,7 +290,7 @@ class CohortModel {
       .filter(function(modelInfo) {
         // We exclude siblings here; use a separate method to set siblings
         return modelInfo.relationship != 'sibling';
-      })
+      });
 
 
 
@@ -307,8 +309,11 @@ class CohortModel {
       let promises = [];
       modelInfos.forEach(function(modelInfo) {
         promises.push(self.promiseAddSample(modelInfo));
-      })
+      });
       promises.push(self.promiseAddClinvarSample());
+      if (self.hubSession != null) {
+        promises.push(self.promiseAddSfariSample(projectId));
+      }
 
 
       Promise.all(promises)
@@ -519,15 +524,159 @@ class CohortModel {
         });
       })
     }
-
   }
+
+  promiseAddSfariSample(projectId) {
+      let self = this;
+      if (self.sampleMap['sfari-variants']) {
+          return Promise.resolve();
+      } else {
+          return new Promise(function(resolve,reject) {
+              let vm = new SampleModel(self.globalApp);
+              vm.setRelationship('sfari-variants');
+              vm.setName('SFARI');
+
+              // Stable sorted url lists
+              let nameList = [],
+                  vcfUrlList = [],
+                  tbiUrlList = [];
+
+              // Files coming back from Hub
+              let vcfFiles = null,
+                  tbiCsiFiles = null;
+
+              self.hubSession.promiseGetFilesForProject(projectId)
+                  .then((data) => {
+                      // Stable sort by file type
+                      vcfFiles = data.data.filter(f => f.type === 'vcf');
+                      tbiCsiFiles = data.data.filter(f => f.type === 'tbi' || f.type === 'csi');
+
+                      // Pull out combined vcfs from individual chromosome ones
+                      let sortedVcfFiles = [];
+                      vcfFiles.forEach((file) => {
+                          let phaseFile = false;
+                          let name = file.name;
+                          let namePieces = name.split('.');
+                          namePieces.forEach((piece) => {
+                              if (piece === 'all' || piece.includes('all')) {
+                                  phaseFile = true;
+                              }
+                          });
+                          if (phaseFile) {
+                              sortedVcfFiles.push(file);
+                          }
+                      });
+
+                      let sortedTbiCsiFiles = [];
+                      tbiCsiFiles.forEach((file) => {
+                          let phaseFile = false;
+                          let name = file.name;
+                          let namePieces = name.split('.');
+                          namePieces.forEach((piece) => {
+                              if (piece === 'all' || piece.includes('all')) {
+                                  phaseFile = true;
+                              }
+                          });
+                          if (phaseFile) {
+                              sortedTbiCsiFiles.push(file);
+                          }
+                      });
+
+                      // Check that we have matching data for all files
+                      if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
+                          console.log('Did not obtain matching vcf and tbi/csi files from Hub. Data may not be complete.');
+                      }
+
+                      // Initialize sample model vcfs once we know how many we need
+                      vm.initSfariSample(sortedVcfFiles.length, self);
+
+                      // Get urls for both vcf and tbi
+                      let urlPromises = [];
+                      for (let i = 0; i < sortedVcfFiles.length; i++) {
+                          let currVcf = sortedVcfFiles[i];
+                          let currTbi = sortedTbiCsiFiles[i];
+                          let urlP = self.promiseGetSignedUrls(currVcf, currTbi, projectId)
+                              .then((urlObj) => {
+                                  nameList.push(urlObj.name);
+                                  vcfUrlList.push(urlObj.vcf);
+                                  tbiUrlList.push(urlObj.tbi);
+                              });
+                          urlPromises.push(urlP);
+                      }
+                      // Sort data by chromosome once we have all urls
+                      Promise.all(urlPromises)
+                          .then(() => {
+                              vm.onHubVcfUrlsEntered(vcfUrlList, tbiUrlList, function() {
+                                self.sampleModels.push(vm);
+                                let sample = {'relationship': 'sfari-variants', 'model': vm};
+                                self.sampleMap['sfari-variants'] = sample;
+                                resolve(sample);
+                              });
+                          })
+                          .catch((error) => {
+                              reject('There was a problem adding hub data to sample model: ' + error);
+                          });
+                  })
+                  .catch((error) => {
+                    console.log('There was a problem unpacking file data from Hub for Sfari variants: ' + error);
+                  });
+          })
+      }
+  }
+
+    /* Returns an object with a vcf url corresponding to the given vcf, and a tbi url corresponding to the given tbi.
+       * It is assumed that the provided vcf and tbi file correspond to the same data. */
+    promiseGetSignedUrls(vcf, tbi, projectId) {
+        let self = this;
+        return new Promise((resolve, reject) => {
+
+            let vcfUrl = '',
+                tbiUrl = '';
+
+            let urlPromises = [];
+
+            // Get vcf url
+            let vcfP = self.hubSession.promiseGetSignedUrlForFile(projectId, 0, vcf)
+                .then((url) => {
+                    if (url == null || url.length === 0) {
+                        reject('Empty vcf url returned from hub for ' + vcf.name);
+                    }
+                    else {
+                        vcfUrl = url;
+                    }
+                });
+            urlPromises.push(vcfP);
+
+            // Get tbi url
+            let tbiP = self.hubSession.promiseGetSignedUrlForFile(projectId, 0, tbi)
+                .then((url) => {
+                    if (url == null || url.length === 0) {
+                        reject('Empty tbi url returned from hub for ' + tbi.name);
+                    }
+                    else {
+                        tbiUrl = url;
+                    }
+                });
+            urlPromises.push(tbiP);
+
+            // Return after we have both to preserve relative ordering
+            Promise.all(urlPromises)
+                .then(() => {
+                    resolve({'name': vcf.name, 'vcf': vcfUrl, 'tbi': tbiUrl});
+                })
+                .catch((error) => {
+                    reject('There was a problem obtaining signed urls from Hub: ' + error);
+                })
+        });
+    }
 
   sortSampleModels() {
     var MODEL_ORDER = {
       'proband': 2,
       'mother': 3,
       'father': 4,
-      'known-variants': 1
+      'known-variants': 1,
+      'sfari-variants': 0
     };
     let sortedModels = this.sampleModels.sort(function(a,b) {
       return MODEL_ORDER[a.relationship] - MODEL_ORDER[b.relationship];
@@ -543,7 +692,7 @@ class CohortModel {
     if (self.affectedInfo == null || forceRefresh) {
       self.affectedInfo = [];
       self.getCanonicalModels().forEach(function(model) {
-        if (model && model.getRelationship() != 'known-variants') {
+        if (model && model.getRelationship() !== 'known-variants' && model.getRelationship() !== 'sfari-variants') {
           var info = {};
           info.model = model;
           info.relationship = model.getRelationship();
@@ -586,7 +735,7 @@ class CohortModel {
 
   getCanonicalModels() {
     return this.sampleModels.filter(function(model) {
-      return model.relationship != 'known-variants';
+      return model.relationship !== 'known-variants' && model.relationship !== 'sfari-variants';
     })
   }
 
@@ -612,7 +761,8 @@ class CohortModel {
     let allSamplesInVcf = false;
     var theVcfs = {};
     var cards = this.sampleModels.forEach(function(model) {
-      if (!model.isAlignmentsOnly() && model.getRelationship() != 'known-variants') {
+      if (!model.isAlignmentsOnly() && model.getRelationship() !== 'known-variants'
+          && model.getRelationship() !== 'sfari-variants') {
         if (model.vcfUrlEntered) {
           theVcfs[model.vcf.getVcfURL()] = true;
         } else {
@@ -753,6 +903,48 @@ class CohortModel {
     })
   }
 
+  promiseLoadSfariVariants(theGene, theTranscript) {
+      let self = this;
+      if (self.sfariVariantsViz === 'variants') {
+          return self._promiseLoadSfariVariants(theGene, theTranscript);
+      } else  {
+          return self._promiseLoadSfariVariantCounts(theGene, theTranscript);
+      }
+  }
+
+    _promiseLoadSfariVariants(theGene, theTranscript) {
+        let self = this;
+        return new Promise(function(resolve, reject) {
+            self.getModel('sfari-variants').inProgress.loadingVariants = true;
+            self.sampleMap['sfari-variants'].model.promiseAnnotateSfariVariants(theGene, theTranscript, [self.sampleMap['sfari-variants'].model], {'isMultiSample': false, 'isBackground': false})
+                .then(function(resultMap) {
+                    self.getModel('sfari-variants').inProgress.loadingVariants = false;
+                    self.setLoadedVariants(theGene, 'sfari-variants');
+                    resolve(resultMap);
+                })
+                .catch((error) => {
+                  reject('Problem loading sfari variants: ' + error);
+                })
+        })
+    }
+
+    _promiseLoadSfariVariantCounts(theGene, theTranscript) {
+        let self = this;
+        return new Promise(function(resolve, reject) {
+            self.getModel('sfari-variants').inProgress.loadingVariants = true;
+            var binLength = null;
+            if (self.knownVariantsViz === 'histo') {
+                binLength = Math.floor( ((+theGene.end - +theGene.start) / $('#gene-viz').innerWidth()) * 8);
+            }
+            self.sampleMap['sfari-variants'].model.promiseGetKnownVariantHistoData(theGene, theTranscript, binLength)
+                .then(function(data) {
+                    self.getModel('sfari-variants').inProgress.loadingVariants = false;
+                    self.setVariantHistoData('sfari-variants', data);
+                    resolve(data);
+                })
+        })
+    }
+
   promiseLoadVariants(theGene, theTranscript, options) {
     let self = this;
 
@@ -816,7 +1008,10 @@ class CohortModel {
     })
   }
 
-
+  setHubSession(hubSession) {
+    let self = this;
+    self.hubSession = hubSession;
+  }
 
   setLoadedVariants(gene, relationship=null) {
     let self = this;
@@ -833,7 +1028,7 @@ class CohortModel {
           isTarget = true;
         }
 
-        var bypassZyg = SampleModel.isZygosityToBypass(feature, model.relationship);
+        var bypassZyg = (relationship === 'sfari-variants') ? false : SampleModel.isZygosityToBypass(feature, model.relationship);
 
         var inRegion = true;
         if (self.filterModel.regionStart && self.filterModel.regionEnd) {
@@ -860,7 +1055,9 @@ class CohortModel {
 
 
     self.sampleModels.forEach(function(model) {
-      if (relationship == null || relationship == model.relationship) {
+      /* Sfari model stores data in vcfData akin to non-clinvar models,
+       * have to add additional check here instead of at next-below check for clinvar */
+      if ((relationship == null && model.relationship !== 'sfari-variants') || relationship === model.relationship) {
         if (model.vcfData && model.vcfData.features) {
 
           var start = self.filterModel.regionStart ? self.filterModel.regionStart : gene.start;
@@ -956,7 +1153,7 @@ class CohortModel {
             if (!options.isBackground) {
               model.inProgress.loadingVariants = true;
             }
-            if (rel != 'known-variants') {
+            if (rel !== 'known-variants' && rel !== 'sfari-variants') {
               options.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
               var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], options)
               .then(function(resultMap) {
@@ -973,17 +1170,28 @@ class CohortModel {
         }
       }
 
-
       if (options.getKnownVariants) {
         let p = self.promiseLoadKnownVariants(theGene, theTranscript)
-        .then(function(result) {
-          if (self.knownVariantViz == 'variants') {
+        .then(function(resultMap) {
+          if (self.knownVariantViz === 'variants') {
             for (var rel in resultMap) {
               theResultMap[rel] = resultMap[rel];
             }
 
           }
-        })
+        });
+        annotatePromises.push(p);
+      }
+
+      if (options.getSfariVariants) {
+        let p = self.promiseLoadSfariVariants(theGene, theTranscript)
+          .then(function(resultMap) {
+            if (self.sfariVariantsViz === 'variants') {
+              for (var rel in resultMap) {
+                  theResultMap[rel] = resultMap[rel];
+              }
+            }
+          });
         annotatePromises.push(p);
       }
 
@@ -1056,7 +1264,7 @@ class CohortModel {
       for (var rel in resultMap) {
         var vcfData = resultMap[rel];
         if (vcfData) {
-          if (!vcfData.loadState['clinvar'] && rel != 'known-variants') {
+          if (!vcfData.loadState['clinvar'] && rel !== 'known-variants' && rel !== 'sfari-variants') {
            vcfData.features.forEach(function(feature) {
               uniqueVariants[formatClinvarKey(feature)] = formatClinvarCoord(feature);
            })

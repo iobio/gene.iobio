@@ -140,6 +140,11 @@
     margin-top: 0px
     margin-bottom: 0px
 
+  #sfari-variants-chart
+    padding: 0px
+    margin-top: 0px
+    margin-bottom: 0px
+
 
     svg
       vertical-align: bottom
@@ -215,7 +220,8 @@
 
       <v-btn id="variant-pileup-button"
        class="variant-action-button"
-       v-if="sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship != 'known-variants' && !isEduMode && !isBasicMode"
+       v-if="sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship !== 'known-variants'
+        && this.sampleModel.relationship !== 'sfari-variants' && !isEduMode && !isBasicMode"
        :style="pileupStyle"
        @click="onShowPileupForVariant">
         <v-icon>line_style</v-icon>
@@ -224,18 +230,25 @@
 
 
       <known-variants-toolbar
-        v-if="sampleModel.relationship == 'known-variants'"
+        v-if="sampleModel.relationship === 'known-variants'"
         @knownVariantsVizChange="onKnownVariantsVizChange"
         @knownVariantsFilterChange="onKnownVariantsFilterChange"
       >
       </known-variants-toolbar>
+
+      <sfari-variants-toolbar
+        v-if="sampleModel.relationship === 'sfari-variants'"
+        @sfariVariantsVizChange="onSfariVariantsVizChange"
+        @sfariVariantsFilterChange="onSfariVariantsFilterChange">
+      </sfari-variants-toolbar>
+
     </div>
 
 
-      <stacked-bar-chart-viz
+    <stacked-bar-chart-viz
         id="known-variants-chart"
         style="width:100%"
-        v-if="sampleModel.relationship == 'known-variants' && knownVariantsViz != 'variants'"
+        v-if="sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants'"
         :data="sampleModel.variantHistoData"
         :width="width"
         :xStart="selectedGene.start"
@@ -294,7 +307,8 @@
         <variant-viz id="called-variant-viz"
           ref="calledVariantVizRef"
           v-if="showVariantViz"
-          v-bind:class="{hide: sampleModel.relationship == 'known-variants' && knownVariantsViz != 'variants'}"
+          v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
+          (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.calledVariants"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
@@ -313,7 +327,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship != 'known-variants'"
+        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants'"
         >
           loaded variants
         </div>
@@ -321,7 +335,8 @@
         <variant-viz id="loaded-variant-viz"
           ref="variantVizRef"
           v-if="showVariantViz"
-          v-bind:class="{hide: sampleModel.relationship == 'known-variants' && knownVariantsViz != 'variants'}"
+           v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
+            (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
@@ -403,6 +418,7 @@ import VariantViz           from "../viz/VariantViz.vue"
 import DepthViz             from "../viz/DepthViz.vue"
 import StackedBarChartViz   from "../viz/StackedBarChartViz.vue"
 import KnownVariantsToolbar from "../partials/KnownVariantsToolbar.vue"
+import SfariVariantsToolbar from "../partials/SfariVariantsToolbar.vue"
 
 
 export default {
@@ -412,6 +428,7 @@ export default {
     GeneViz,
     DepthViz,
     KnownVariantsToolbar,
+    SfariVariantsToolbar,
     StackedBarChartViz
   },
   props: {
@@ -489,6 +506,7 @@ export default {
       selectedExon: null,
 
       knownVariantsViz: null,
+      sfariVariantsViz: null,
 
       showZoom: false,
       zoomMessage: "Drag to zoom",
@@ -570,7 +588,7 @@ export default {
     showVariantTooltip: function(variant, lock) {
       let self = this;
 
-      if (this.isBasicMode || this.isEduMode || this.sampleModel.relationship == 'known-variants') {
+      if (this.isBasicMode || this.isEduMode || this.sampleModel.relationship === 'known-variants' || this.sampleModel.relationship === 'sfari-variants') {
         let tooltip = d3.select("#main-tooltip");
 
         if (lock) {
@@ -686,6 +704,13 @@ export default {
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
       this.$emit("known-variants-filter-change", selectedCategories);
+    },
+    onSfariVariantsVizChange: function(viz) {
+      this.sfariVariantsViz = viz;
+      this.$emit("sfari-variants-viz-change", viz);
+    },
+    onSfariVariantsFilterChange: function(selectedCategories) {
+        this.$emit("sfari-variants-filter-change", selectedCategories);
     },
     showFlaggedVariant: function(variant) {
       if (this.showVariantViz) {
@@ -809,8 +834,8 @@ export default {
       if (this.sampleModel.isAlignmentsOnly()) {
         label += this.sampleModel.relationship ;
       } else {
-        if (this.sampleModel.cohort.mode == 'trio' && this.sampleModel.relationship != 'known-variants'
-          && this.sampleModel.relationship != this.sampleModel.name) {
+        if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
+            && this.sampleModel.relationship !== 'sfari-variants' && this.sampleModel.relationship !== this.sampleModel.name) {
           label += this.sampleModel.relationship + " ";
         }
         label += this.sampleModel.name;
