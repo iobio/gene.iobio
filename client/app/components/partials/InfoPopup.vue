@@ -54,7 +54,7 @@
 </style>
 <template>
 
-    <v-dialog  width="500" v-model="showPopup" lazy >
+    <v-dialog  width="500"  v-model="showPopup" lazy >
       <v-btn class="info-button" flat  slot="activator">
         <v-icon>help</v-icon>
       </v-btn>

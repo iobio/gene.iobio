@@ -14,6 +14,10 @@ i.material-icons.interpretation.unknown-sig
   color: $unknown-significance-color !important
   font-size: 22px
   padding-top: 2px
+i.material-icons.interpretation.poor-qual
+  color: $poor-qual-color !important
+  font-size: 22px
+  padding-top: 2px
 i.material-icons.interpretation.not-sig
   color: $not-significant-color !important
   font-size: 22px
@@ -92,6 +96,7 @@ i.material-icons.interpretation.not-sig
       <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">verified_user</v-icon>
       <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">help</v-icon>
       <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">thumb_down</v-icon>
+      <v-icon class="interpretation poor-qual" v-if="data.item.value == 'poor-qual'">trending_down</v-icon>
       <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">visibility_off</v-icon>
       <span v-if="showInterpretationLabel" class="interpretation-label"> {{ data.item.text }} </span>
     </template>
@@ -100,6 +105,7 @@ i.material-icons.interpretation.not-sig
       <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">verified_user</v-icon>
       <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">help</v-icon>
       <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">thumb_down</v-icon>
+      <v-icon class="interpretation poor-qual" v-if="data.item.value == 'poor-qual'">trending_down</v-icon>
       <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">visibility_off</v-icon>
       <span class="interpretation-label"> {{ data.item.text }} </span>
 
@@ -119,6 +125,7 @@ export default {
 
   },
   props: {
+    interpretationMap: null,
     variant: null,
     variantInterpretation: null,
     showInterpretationLabel: null,
@@ -126,13 +133,7 @@ export default {
   },
   data () {
     return {
-      interpretation: null,
-      interpretationMap: {
-        'sig': 'Significant',
-        'unknown-sig': 'Unknown significance',
-        'not-sig': 'Not significant',
-        'not-reviewed': 'Not reviewed'
-      }
+      interpretation: null
 
     }
   },

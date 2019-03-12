@@ -104,6 +104,7 @@
           <v-icon class="interpretation sig" v-if="interpretation == 'sig'">verified_user</v-icon>
           <v-icon class="interpretation unknown-sig" v-if="interpretation == 'unknown-sig'">help</v-icon>
           <v-icon class="interpretation not-sig" v-if="interpretation == 'not-sig'">thumb_down</v-icon>
+          <v-icon class="interpretation poor-qual" v-if="interpretation == 'poor-qual'">trending_down</v-icon>
           <v-icon class="interpretation not-reviewed"  v-if="interpretation == 'not-reviewed'">visibility_off</v-icon>
           <span class="interpretation-label">{{ interpretationDisplay }} </span>
         </span>
@@ -162,6 +163,7 @@ export default {
     VariantInterpretation
   },
   props: {
+    interpretationMap: null,
     variant: null,
     variantNotes: null,
     variantInterpretation: null,
@@ -178,14 +180,9 @@ export default {
       showTooltipFlag: false,
       tooltipContent: null,
 
-      variantInterpretationOrig: null,
+      variantInterpretationOrig: null
 
-      interpretationMap: {
-        'sig': 'Significant',
-        'unknown-sig': 'Unknown significance',
-        'not-sig': 'Not significant',
-        'not-reviewed': 'Not reviewed'
-      }
+
     }
   },
   watch: {

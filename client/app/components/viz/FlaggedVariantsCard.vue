@@ -3,6 +3,7 @@
 
 #flagged-variants-card
   padding-left: 5px
+  padding-bottom: 20px
 
   #clinvar-symbol
     display: inline-block
@@ -433,6 +434,10 @@
         <v-icon>save</v-icon>
         Save
       </v-btn>
+
+
+
+
     </div>
 
 
@@ -440,11 +445,21 @@
       (none)
     </span>
 
+    <div v-if="!isBasicMode" style="margin-top:-25px;margin-bottom:20px;margin-left:20px">
+        <interpretation-select  style="width:250px"
+        :interpretationMap="interpretationMap"
+        @apply-interpretation="onApplyInterpretationFilter">
+        </interpretation-select>
+    </div>
+
+
+
   <v-expansion-panel expand >
     <v-expansion-panel-content v-for="geneList in geneLists"  :key="geneList.label"
       :value="geneList.expand"
       v-if="geneList.show">
       <div slot="header" v-show="!isBasicMode">
+
         <span v-show="geneList.genes.length > 0" class="filter-subheader">
           <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
 
@@ -456,6 +471,7 @@
 
 
         </span>
+
 
       </div>
       <v-list three-line>
@@ -563,6 +579,7 @@
                      v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
                      class="variant-notes"
                      wrap="true"
+                     :interpretationMap="interpretationMap"
                      :variant="variant"
                      :variantInterpretation="variant.interpretation"
                      @apply-variant-interpretation="onApplyVariantInterpretation">
@@ -574,6 +591,7 @@
                     class="variant-notes"
                     :showNotesIcon="true"
                     :variant="variant"
+                    :interpretationMap="interpretationMap"
                     :variantInterpretation="variant.interpretation"
                     :variantNotes="variant.notes"
                     @apply-variant-notes="onApplyVariantNotes">
@@ -635,7 +653,7 @@
 
 
 
-      <v-card>
+      <v-card class="full-width">
         <v-card-title class="headline">Open variants file</v-card-title>
         <v-card-text class="variant-file-body">
           <div id="open-variant-file" >
@@ -697,7 +715,7 @@
     v-model="showSaveDialog"
     >
 
-      <v-card>
+      <v-card class="full-width">
         <v-card-title class="headline">
          Save variants file
         </v-card-title>
@@ -747,6 +765,7 @@ import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
 import VariantNotesMenu from '../partials/VariantNotesMenu.vue'
 import VariantInterpretation from '../partials/VariantInterpretation.vue'
+import InterpretationSelect from '../partials/InterpretationSelect.vue'
 
 
 export default {
@@ -756,7 +775,8 @@ export default {
     AppIcon,
     FilterIcon,
     VariantNotesMenu,
-    VariantInterpretation
+    VariantInterpretation,
+    InterpretationSelect
   },
   props: {
     isEduMode: null,
@@ -767,7 +787,8 @@ export default {
     launchedFromClin: null,
     isFullAnalysis: null,
     geneNames: null,
-    genesInProgress: null
+    genesInProgress: null,
+    interpretationMap: null
   },
   data() {
     return {
@@ -780,10 +801,15 @@ export default {
       exportInProgress: false,
       geneLists: null,
       clickedVariant: null,
-      variantCount: 0
+      variantCount: 0,
+      interpretationFilters: null
     }
   },
   methods: {
+    onApplyInterpretationFilter: function(interpretation) {
+      this.interpretationFilters = interpretation
+      this.populateGeneLists();
+    },
     onVariantSelected: function(variant) {
       this.clickedVariant = variant;
       this.$emit("flagged-variant-selected", variant);
@@ -829,7 +855,7 @@ export default {
       self.geneLists = [];
       self.variantCount = 0;
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis);
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters);
       self.geneLists = filters.map(function(filterObject, idx) {
         self.variantCount += filterObject.variantCount;
         return {
@@ -865,7 +891,7 @@ export default {
           return "";
         }
       } else {
-        return variant.clinvar;
+        return variant.clinvar ? variant.clinvar : "";
       }
     },
     rsId: function(variant) {
@@ -912,11 +938,13 @@ export default {
       if (variant.isProxy) {
         clazz += " impact_" + (variant.impact && variant.impact.length > 0 ? variant.impact.toUpperCase() : 'none');
       } else {
-        for (var impact in variant.highestImpactVep) {
-          if (clazz.length > 0) {
-            clazz += " ";
+        if (variant.highestImpactVep) {
+          for (var impact in variant.highestImpactVep) {
+            if (clazz.length > 0) {
+              clazz += " ";
+            }
+            clazz += "impact_" + impact.toUpperCase();
           }
-          clazz += "impact_" + impact.toUpperCase();
         }
       }
       return clazz;
@@ -955,7 +983,7 @@ export default {
       if (variant.isProxy) {
         return variant.zygosityProband ? variant.zygosityProband.toUpperCase() : (variant.zygosity ? variant.zygosity.toUpperCase() : "");
       } else {
-        return variant.zygosity.toUpperCase();
+        return variant.zygosity ? variant.zygosity.toUpperCase() : "";
       }
     },
     getAfClass: function(variant) {
@@ -983,9 +1011,6 @@ export default {
   },
   watch: {
     geneNames: function(newGeneNames, oldGeneNames) {
-      this.populateGeneLists();
-    },
-    genesInProgress: function() {
       this.populateGeneLists();
     },
     isFullAnalysis: function() {

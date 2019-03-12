@@ -8,6 +8,12 @@
     label
       font-size: 13px
 
+
+.filter-title
+  font-size: 16px
+  color: $app-color
+  margin-bottom: 15px
+
 .revel-progress-bar
     display: inline-block
     margin-bottom: 0px
@@ -33,17 +39,19 @@
 
 <template>
 
-  <v-layout row wrap class="filter-form mx-2 px-2" style="max-width:520px;">
+  <v-layout row wrap class=" filter-form ml-2 mr-4 px-3" style="max-width:620px;">
+     <div class="filter-title">Customize Filter</div>
      <v-flex id="name" xs12 class="mb-3" >
       <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
       </v-text-field>
     </v-flex>
 
-    <v-flex id="max-af" xs3 class="mb-3 mr-4" >
+
+
+    <v-flex id="max-af" xs4  class="mb-2 mr-4" >
       <v-text-field label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
       </v-text-field>
     </v-flex>
-
 
     <v-flex xs12 class="mb-3" >
       <v-select style="z-index:10"
@@ -56,7 +64,8 @@
       </v-select>
     </v-flex>
 
-    <v-flex xs6 class="mb-3">
+
+    <v-flex xs5 class="mb-3">
       <v-select
             label="Inheritance"
             v-bind:items="inheritanceModes"
@@ -67,7 +76,7 @@
       </v-select>
     </v-flex>
 
-    <v-flex xs6 class="pl-2 mb-3">
+    <v-flex xs4 class="pl-2 mb-3">
       <v-select
             label="Zygosity"
             v-bind:items="zygosities"
@@ -83,7 +92,7 @@
 
 
 
-    <v-flex xs6 class="mb-3" >
+    <v-flex xs12 class="mb-2" >
       <v-select
             label="Impact"
             v-bind:items="impacts"
@@ -94,7 +103,7 @@
       </v-select>
     </v-flex>
 
-    <v-flex xs6 class="pl-2 mb-3" >
+    <v-flex xs12 class="mb-3" >
       <v-select
             label="Consequence"
             v-bind:items="consequences"

@@ -6,18 +6,14 @@
 
 @import ../../../assets/sass/variables
 
-$landing-page-font:      Poppins
+
+$button-font:                    Montserrat
+$landing-page-font:              Raleway
 
 
-
-//$accent-color:       #787878
-//$accent-color-light: #787878
-//$accent-color:       #ee8274
-//$accent-color-light: #ee8274
-
-$accent-color:          #688e45
-$accent-color-light:    #688e45
-$powered-by-accent-color: #698eb6
+$accent-color:          $color-1
+$accent-color-light:    $color-1
+$powered-by-accent-color: $color-1
 
 $accent-color-bright: #14c39a
 
@@ -32,6 +28,10 @@ $light-gray-color:   #f0f1f3
   box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
 
 
+
+.buttons-group
+    margin-top: 0px !important
+    padding-left: 40px
 
 #welcome-area
   margin-top: -5px
@@ -60,9 +60,16 @@ $light-gray-color:   #f0f1f3
         display: flex
         flex-direction: row
         padding-top: 70px
-        margin-left: 30px
+        margin-left: 80px
         margin-right: 30px
         width: 40%
+
+        .main-headline-card
+          //padding-top: 20px
+          //padding-left: 30px
+          //padding-right: 30px
+          //box-shadow: 3px 3px 20px 0px rgba(0, 0, 0, 0.36)
+          //border-radius: 20px
 
 
     &.videos-and-blogs
@@ -94,8 +101,8 @@ $light-gray-color:   #f0f1f3
     #welcome-label
       //color: white
       color:          $header-color
-      font-size:      32px
-      line-height:    36px
+      font-size:      40px
+      line-height:    45px
       font-family:    $landing-page-font
       font-weight:    normal
       padding-bottom: 10px
@@ -132,6 +139,7 @@ $light-gray-color:   #f0f1f3
       color: $accent-color
       font-family: $landing-page-font
       margin-bottom: 30px
+      font-family:  $button-font
 
       i.material-icons
         font-size: 26px
@@ -143,6 +151,7 @@ $light-gray-color:   #f0f1f3
         color: white
 
     button.welcome-button-outline
+      font-family:  $button-font
       font-size: 16px !important
       margin-left: 7px
       margin-right: 7px
@@ -228,29 +237,37 @@ $light-gray-color:   #f0f1f3
     i.material-icons
       display: inline
       margin-right: 8px
-      color: $accent-color
-      font-size: 28px
+      color: $color-2
+      font-size: 42px
+
+
 
   div.how-it-works-item, div.features-item
     display: flex
 
     .avatar
       margin-right: 10px
-      min-width: 28px !important
-      min-height: 28px !important
-      border-color: $accent-color !important
-      background-color: white !important
-      border-style: solid
-      border-width: 2px
+      background-color: $color-1 !important
+      width: 58px !important
+      height: 58px !important
 
-      &.teal
-        background-color: $accent-color-light !important
-        border-color: $accent-color !important
-        background-color: white !important
+      &.color1
+        background-color: $color-1 !important
+      &.color2
+        background-color: $color-3 !important
+      &.color3
+        background-color: $color-2 !important
+      &.color4
+        background-color: $color-4 !important
+
+      i.material-icons
+        color: white !important
+        font-size: 30px
+
 
       span.headline
         font-size: 15px !important
-        color: $accent-color !important
+        color: white !important
 
     .how-it-works-image, .features-image
       margin-right: 0px
@@ -407,6 +424,11 @@ $light-gray-color:   #f0f1f3
       height: 0
       padding-bottom: 75.0%
 
+.one
+  background-color: #FAFAFA
+  background-image: -webkit-linear-gradient(55deg, #FAFAFA 50%, #258AD5 50%)
+  min-height: 500px
+  margin-top: -35px
 
 </style>
 
@@ -476,7 +498,7 @@ $light-gray-color:   #f0f1f3
       <div class="welcome-panel main">
         <div class="main-headline">
 
-          <div style="padding-top:10px;padding-left:20px;padding-right:20px">
+          <div class="main-headline-card">
             <transition-group  name="fadeDown" >
               <div v-if="showWelcomeLabel" style="animation-duration: 1s; " key="welcome-label" id="welcome-label">
                 <div>
@@ -515,10 +537,10 @@ $light-gray-color:   #f0f1f3
 
 
             <div class="how-it-works-item">
-              <v-avatar size="28px" color="teal">
-                <span class="white--text headline">1</span>
+              <v-avatar class="color1" >
+                <v-icon>search</v-icon>
               </v-avatar>
-              <span class="how-it-works-title">Enter on a gene or search on a phenotype</span>
+              <span class="how-it-works-title">Search on a gene or a phenotype</span>
                 <div class="how-it-works-image"  >
                   <img  src="../../../assets/images/landing_page/search_gene_or_phenotype.png" style=""></img>
                 </div>
@@ -527,8 +549,8 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="28px" color="teal">
-                <span class="white--text headline">2</span>
+              <v-avatar class="color2" >
+                <v-icon>track_changes</v-icon>
               </v-avatar>
               <span class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
               <div class="how-it-works-image">
@@ -539,10 +561,10 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="28px" color="teal">
-                <span class="white--text headline">3</span>
+              <v-avatar class="color3">
+                <v-icon>filter</v-icon>
               </v-avatar>
-              <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  When alignments are provided, see coverage levels across the gene.</span>
+              <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  See coverage levels across the gene.</span>
               <div class="how-it-works-image">
                 <img  src="../../../assets/images/landing_page/trio_variant_cards.png" style="max-width:500px"></img>
               </div>
@@ -551,10 +573,10 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="28px" color="teal">
-                <span class="white--text headline">4</span>
+              <v-avatar class="color1" >
+                <v-icon>filter_list</v-icon>
               </v-avatar>
-              <span class="how-it-works-title">As genes are being analyzed, filters are pinpointing out the most interesting variants for closer examination. Customize the filters and the filtered variants are instantly reassessed.</span>
+              <span class="how-it-works-title">As genes are analyzed, filters are pinpointing variants for closer examination. Customize the filters and the variants are instantly reassessed.</span>
               <div class="how-it-works-image">
                 <img src="../../../assets/images/landing_page/filters_during_analysis.gif"></img>
               </div>
@@ -563,10 +585,10 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="28px" color="teal">
-                <span class="white--text headline">5</span>
+              <v-avatar class="color2" >
+                <v-icon>gavel</v-icon>
               </v-avatar>
-              <span class="how-it-works-title">When all genes have been analyzed, review each filtered variant to assess pathogenicity and association with known phenotypes.</span>
+              <span class="how-it-works-title">Review each filtered variant to assess pathogenicity and association with known phenotypes.</span>
               <div class="how-it-works-image">
                 <img src="../../../assets/images/landing_page/flagged_variants.png" style="width: 270px;"></img>
               </div>
@@ -575,10 +597,10 @@ $light-gray-color:   #f0f1f3
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar size="28px" color="teal">
-                <span class="white--text headline">6</span>
+              <v-avatar class="color3" >
+                <v-icon>highlight</v-icon>
               </v-avatar>
-              <span class="how-it-works-title">Click on a variant to view the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
+              <span class="how-it-works-title">Inspect the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
               <div class="how-it-works-image">
                 <img  src="../../../assets/images/landing_page/variant_detail_card.png" style="max-width:500px;"></img>
               </div>
@@ -602,7 +624,7 @@ $light-gray-color:   #f0f1f3
         <div class="features-panel ">
 
           <div class="features-item">
-            <v-icon>check_circle</v-icon>
+            <v-icon class="color2">check_circle</v-icon>
             <span class="features-title">Examine the alignments for a variant in the pileup view.</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/pileup.png" style="width:100%"></img>
@@ -611,7 +633,7 @@ $light-gray-color:   #f0f1f3
 
 
           <div class="features-item">
-            <v-icon>check_circle</v-icon>
+            <v-icon class="color2">check_circle</v-icon>
             <span class="features-title">Examine the gene in detail.  Change the transcript and annotations across the variants are reassessed.</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/gene_card.png" style="width:100%%"></img>
@@ -621,7 +643,7 @@ $light-gray-color:   #f0f1f3
 
 
           <div class="features-item">
-            <v-icon>check_circle</v-icon>
+            <v-icon class="color2">check_circle</v-icon>
             <span class="features-title">Change the transcript and annotations across the variants are reassessed.</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/transcript_selection.png" style="width:100%"></img>
@@ -630,7 +652,7 @@ $light-gray-color:   #f0f1f3
 
 
           <div class="features-item">
-            <v-icon>check_circle</v-icon>
+            <v-icon class="color2">check_circle</v-icon>
             <span class="features-title">Examine all variants across the gene.  This is especially useful for compound hets and pinpointing data quality issues</span>
             <div class="features-image">
               <img src="../../../assets/images/landing_page/ranked_variants.png" style="width: 280px;"></img>
@@ -638,7 +660,7 @@ $light-gray-color:   #f0f1f3
           </div>
 
           <div class="features-item">
-            <v-icon>check_circle</v-icon>
+            <v-icon class="color2">check_circle</v-icon>
             <span class="features-title">Display the ClinVar track to examine your variant in the context of nearby pathogenic variants</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/clinvar_track.png" style="width:100%"></img>
@@ -647,7 +669,7 @@ $light-gray-color:   #f0f1f3
 
 
           <div class="features-item">
-            <v-icon>check_circle</v-icon>
+            <v-icon class="color2"> check_circle</v-icon>
             <span class="features-title">Customize the filters and the filtered variants are instantly reassessed.</span>
             <div class="features-image">
               <img src="../../../assets/images/landing_page/filters_customize.png" style="width:300px"></img>
@@ -655,7 +677,7 @@ $light-gray-color:   #f0f1f3
           </div>
 
           <div class="features-item">
-            <v-icon>check_circle</v-icon>
+            <v-icon  class="color2">check_circle</v-icon>
             <span class="features-title">Click on the 'Insufficient Coverage' filter, set the coverage thresholds.  Now examine the pinpointed genes in detail.</span>
             <div class="features-image">
               <img  src="../../../assets/images/landing_page/insufficient_coverage_tooltip.png" style="width:300px"></img>
@@ -664,7 +686,7 @@ $light-gray-color:   #f0f1f3
 
 
           <div class="features-item">
-            <v-icon>check_circle</v-icon>
+            <v-icon class="color2">check_circle</v-icon>
             <span class="features-title">Look for missed variants by calling variants in real-time</span>
             <div class="features-image">
               <img src="../../../assets/images/landing_page/called_variants.png" style="width:300px"></img>
@@ -690,6 +712,9 @@ $light-gray-color:   #f0f1f3
           </v-avatar>
           <v-avatar color="teal" >
               <span class="white--text">vt</span>
+          </v-avatar>
+          <v-avatar color="teal" >
+              <span class="white--text">ClinVar</span>
           </v-avatar>
           <v-avatar color="teal" >
               <span class="white--text">GNomAD</span>

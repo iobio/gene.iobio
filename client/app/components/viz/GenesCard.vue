@@ -50,11 +50,11 @@
     padding: 0 4px
 
   #genes-toolbar
-    margin-top: 6px
+    margin-top: 10px
     margin-bottom: 0px
     display: inline-block
     width: 100%
-    text-align: left
+    text-align: center
 
     .stop-analysis-button
       float: left
@@ -264,7 +264,7 @@ div.container.small
               </v-btn>
 
               <v-switch class="optional-track-switch"
-                v-if=" isLoaded && !isEduMode && !isBasicMode"
+                v-if=" isLoaded && !isEduMode && !isBasicMode && !launchedFromClin"
                 label="ClinVar track"
                 v-model="showKnownVariantsCard"
                 >
@@ -280,7 +280,8 @@ div.container.small
 
             <filter-badges
              ref="filterBadgesRef"
-             :style="isLoaded ? 'margin-left:40px' : ''"
+             v-if="!filterModel.isFullAnalysis"
+             :style="isLoaded ? 'margin-right: 200px' : ''"
              :isFullAnalysis="isFullAnalysis"
              :badgeCounts="badgeCounts"
              :filterModel="filterModel"

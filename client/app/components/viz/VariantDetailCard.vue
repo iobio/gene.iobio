@@ -270,11 +270,11 @@
     .allele-count-bar
       overflow-wrap: break-word
       float: left
-      width: 220px
+      width: 300px
       min-height: 25px
 
     .ped-info
-      width: 370px
+      width: 445px
       clear: both
       line-height: 13px !important
 
@@ -650,7 +650,7 @@
       </div>
 
 
-      <div id="coverage-svg" v-if="selectedVariant" style="float:left;min-width:430px" v-bind:class="{hide: isEduMode || isBasicMode }">
+      <div id="coverage-svg" v-if="selectedVariant" style="float:left;min-width:445px" v-bind:class="{hide: isEduMode || isBasicMode }">
 
 
 
@@ -1034,7 +1034,7 @@ export default {
       var svg = container
                   .append("svg")
                   .attr("width", MAX_BAR_WIDTH + PADDING)
-                  .attr("height", separateLineForLabel ? "21" : "12");
+                  .attr("height", separateLineForLabel ? "31" : "21");
 
       if (altWidth > 0) {
         svg.append("rect")
@@ -1108,7 +1108,7 @@ export default {
 
         var gNextLine = g.append("g")
                          .attr("transform", "translate(-15,9)");
-        svg.attr("height", 31);
+        svg.attr("height", 45);
         gNextLine.append("text")
                  .attr("x", otherX < 20 ? 20 : otherX)
              .attr("y", "9")
@@ -1218,7 +1218,7 @@ export default {
       return refAlt;
     },
     afGnomAD: function(af) {
-      if (this.selectedVariant.vepAf.gnomAD.AF == null) {
+      if (this.selectedVariant.vepAF == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
         return "unknown";
       } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
         return "<span class='"
