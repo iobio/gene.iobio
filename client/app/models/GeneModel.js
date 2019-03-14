@@ -69,6 +69,8 @@ class GeneModel {
 
     this.pendingNCBIRequests = {};
 
+    this.rankedGenes = {};
+
     this.dispatch = d3.dispatch("geneDangerSummarized");
     d3.rebind(this, this.dispatch, "on");
 
@@ -90,6 +92,38 @@ class GeneModel {
     } else {
       return true;
     }
+  }
+
+  setRankedGenes(rankedGenes) {
+    let self = this;
+    self.rankedGenes = {};
+    if (rankedGenes.gtr) {
+      rankedGenes.gtr.forEach(function(gtrGene) {
+        let theRankedGene = self.rankedGenes[gtrGene.name];
+        if (theRankedGene == null) {
+          theRankedGene = { 'name': gtrGene.name, 'gtrRank': gtrGene.gtrRank, 'gtrAssociated': gtrGene.gtrAssociated};
+          self.rankedGenes[gtrGene.name] = theRankedGene;
+        } else {
+          theRankedGene.gtrRank = gtrGene.gtrRank;
+          theRankedGene.gtrAssociated = gtrGene.gtrAssociated;
+        }
+      })
+    }
+    if (rankedGenes.phenolyzer) {
+      rankedGenes.phenolyzer.forEach(function(phGene) {
+        let theRankedGene = self.rankedGenes[phGene.name];
+        if (theRankedGene == null) {
+          theRankedGene = { 'name': phGene.name, 'phenolyzerRank': phGene.phenolyzerRank};
+          self.rankedGenes[phGene.name] = theRankedGene;
+        } else {
+          theRankedGene.phenolyzerRank = phGene.phenolyzerRank;
+        }
+      })
+    }
+  }
+
+  getGeneRank(geneName) {
+    return this.rankedGenes[geneName];
   }
 
   promiseAddGeneName(theGeneName) {

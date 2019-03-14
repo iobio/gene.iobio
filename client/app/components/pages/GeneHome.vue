@@ -2754,6 +2754,7 @@ export default {
       let genesToProcess = [];
       let candidateGenesOld = $.extend({}, self.geneModel.candidateGenes);
       self.geneModel.setCandidateGenes(clinObject.genes);
+      self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenlolyzerFullList })
 
       if (clinObject.genes && Array.isArray(clinObject.genes)) {
         let deprecatedGenes = {};

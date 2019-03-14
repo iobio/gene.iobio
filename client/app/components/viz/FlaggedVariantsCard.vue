@@ -5,6 +5,15 @@
   padding-left: 5px
   padding-bottom: 20px
 
+  .gene-ranks
+    .chip
+      margin-top: 0px
+      margin-bottom: 0px
+    .chip__content
+      font-size:  11px
+      background-color:  $app-color-light
+      height: 16px
+
   #clinvar-symbol
     display: inline-block
     vertical-align: top
@@ -501,6 +510,20 @@
                 <v-list-tile-title>
 
                   <div style="float:left">
+                    <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
+
+                      <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} GTR
+                        </v-chip>
+                      </span>
+                      <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }} Phenolyzer
+                        </v-chip>
+                      </span>
+                    </div>
+
                     <div class="variant-symbols">
 
                       <span class="variant-moniker">
@@ -566,7 +589,7 @@
                         <span v-if="false" :class="getAfClass(variant)">{{ afDisplay(variant) }}</span>
                       </div>
                     </div>
-                    <div  v-if="false && !isBasicMode && !variant.notFound && isFullAnalysis">
+                    <div  v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span class="revel">{{ revel(variant) }}</span>
                     </div>
                   </div>
@@ -1002,6 +1025,27 @@ export default {
         return '';
       }
     },
+    geneRankGTR: function(geneName) {
+      let rankInfo = this.cohortModel.geneModel.getGeneRank(geneName);
+      let buf = "";
+      if (rankInfo) {
+        if (rankInfo.gtrRank) {
+          buf += "#" + rankInfo.gtrRank;
+        }
+      }
+      return buf;
+    },
+    geneRankPhenolyzer: function(geneName) {
+      let rankInfo = this.cohortModel.geneModel.getGeneRank(geneName);
+      let buf = "";
+      if (rankInfo) {
+        if (rankInfo.phenolyzerRank) {
+          buf += "#" + rankInfo.phenolyzerRank;
+        }
+      }
+      return buf;
+    },
+
   },
   mounted: function() {
 
