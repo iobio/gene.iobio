@@ -2455,9 +2455,12 @@ export default {
       } else if (clinObject.type == 'set-data') {
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
           self.init(function() {
+            self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
+
             self.promiseInitClin(clinObject);
           })
         } else {
+          self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
           self.promiseInitClin(clinObject);
         }
       } else if (clinObject.type == 'show') {
