@@ -2162,6 +2162,7 @@ export default {
         if (self.showSfariVariantsCard) {
             self.onSfariVariantsVizChange();
         }
+    },
     onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
       this.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
     },
