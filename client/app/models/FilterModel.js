@@ -399,6 +399,9 @@ class FilterModel {
     this.modelFilters = {
       'known-variants': {
         'clinvar': []
+      },
+      'sfari-variants': {
+      'vepImpact': []
       }
     }
   }
@@ -611,7 +614,11 @@ class FilterModel {
       for (var key in theFilters) {
         let filterEntries = theFilters[key];
         if (filterEntries && filterEntries.length > 0) {
-          if (filterEntries.indexOf(variant[key]) >= 0) {
+          let varKey = variant[key];
+          if (relationship === 'sfari-variants' && Object.keys(varKey)) {
+            varKey = Object.values(varKey)[0];
+          }
+          if (filterEntries.indexOf(varKey) >= 0) {
             passCount++;
           }
         } else {

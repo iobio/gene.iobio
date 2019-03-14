@@ -7,6 +7,7 @@ class SampleModel {
   constructor(globalApp) {
     this.globalApp = globalApp;
     this.vcf = null;
+    this.sfariVcfs = []; // Used for sfari variant track: 1x sample model w/ multiple vcf endpoints
     this.bam = null;
 
     this.vcfData = null;
@@ -783,6 +784,20 @@ class SampleModel {
     this.vcf.setIsEduMode(this.cohort.isEduMode);
   };
 
+  initSfariSample(numVcfEndpts, cohort) {
+      // init vcf.iobio
+      this.sfariVcfs = [];
+      this.cohort = cohort;
+      for (let i = 0; i < numVcfEndpts; i++) {
+        let currVcf = vcfiobio(this.globalApp);
+        this.sfariVcfs.push(currVcf);
+        currVcf.setEndpoint(this.cohort.endpoint);
+        currVcf.setGenericAnnotation(this.cohort.genericAnnotation);
+        currVcf.setGenomeBuildHelper(this.cohort.genomeBuildHelper);
+        currVcf.setIsEduMode(this.cohort.isEduMode);
+      }
+  }
+
   promiseBamFilesSelected(fileSelection) {
     var me = this;
     return new Promise(function(resolve, reject) {
@@ -983,11 +998,72 @@ class SampleModel {
         });
 
     }
+  }
 
+  /* Takes in two stably sorted lists of vcfs and tbis. Performs similar functions as onVcfUrlEntered above,
+   * but accommodates multiple vcf files that will be apart of a single sample model. Used specifically for Sfari track. */
+  onHubVcfUrlsEntered(vcfUrls, tbiUrls, callback) {
+    var self = this;
+    self.vcfData = null;
+    let success = true;
+    self.sampleName = null;
+    self.samples = [];
+
+    // For each vcf url, clear vcf object or openVcfUrl then get sample names from header
+    for (let i = 0; i < vcfUrls.length; i++) {
+      let currVcf = vcfUrls[i];
+      let currTbi = tbiUrls[i];
+
+      if (currVcf == null || currVcf === '') {
+        // If we don't have a url, clear vcf endpt
+        self.sfariVcfs[i].clearVcfURL();
+
+        // Set flags
+        self.vcfUrlEntered = false;
+        self.vcfFileOpened = false;
+        self.getVcfRefName = null;
+        self.isMultiSample = false;
+
+        // Return negative success status
+        success = false;
+        break;
+      } else {
+        // Try to open
+        self.sfariVcfs[i].openVcfUrl(currVcf.url, currTbi.url, function(success, errorMsg) {
+            if (self.lastVcfAlertify) {
+                self.lastVcfAlertify.dismiss();
+            }
+            if (success) {
+                // Get the sample names from the vcf header
+                self.sfariVcfs[i].getSampleNames(function(sampleNames) {
+                    sampleNames.forEach((sampleName) => {
+                      self.samples.push(sampleName);
+                    });
+                });
+            } else {
+                // If we have a hiccup on one, return false for all
+                self.vcfUrlEntered = false;
+                let msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + currVcf.url + "</span>";
+                alertify.set('notifier','position', 'top-right');
+                self.lastVcfAlertify = alertify.error(msg, 15);
+            }
+        });
+      }
+    }
+      // Set flags & return
+      if (success === true && callback) {
+          self.vcfUrlEntered = true;
+          self.vcfFileOpened = false;
+          self.getVcfRefName = null;
+          self.isMultiSample = true;
+          callback(success, self.sampleNames);
+      } else if (callback) {
+          callback(success);
+      }
   }
 
 
-  _promiseVcfRefName(ref) {
+  _promiseVcfRefName(ref, sfariMode = false) {
     var me = this;
     var theRef = ref != null ? ref : window.gene.chr;
     return new Promise( function(resolve, reject) {
@@ -1001,7 +1077,11 @@ class SampleModel {
         }
       } else {
         me.vcfRefNamesMap = {};
-        me.vcf.getReferenceLengths(function(refData) {
+        let currVcf = me.vcf;
+        if (sfariMode) {
+          currVcf = me.sfariVcfs[0];
+        }
+        currVcf.getReferenceLengths(function(refData) {
           var foundRef = false;
           refData.forEach( function(refObject) {
             var refName = refObject.name;
@@ -1528,6 +1608,121 @@ class SampleModel {
   }
 
 
+  promiseAnnotateSfariVariants(theGene, theTranscript, sampleModels, options) {
+      let self = this;
+
+      return new Promise(function (resolve, reject) {
+          let isMultiSample = options.isMultiSample;
+          let isBackground = options.isBackground;
+
+          let resultMap = {};
+          let dataPromises = [];
+          sampleModels.forEach((model) => {
+              let p = model._promiseGetData(CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
+                  .then(function (vcfData) {
+                      if (vcfData != null && vcfData !== '') {
+                          resultMap[model.relationship] = vcfData;
+
+                          if (!isBackground) {
+                              model.vcfData = vcfData;
+                              model.fbData = self.reconstituteFbData(vcfData);
+                          }
+                      }
+                  });
+              dataPromises.push(p);
+          });
+          Promise.all(dataPromises)
+            .then(function () {
+                if (Object.keys(resultMap).length === sampleModels.length) {
+                    resolve(resultMap);
+                } else {
+                    // We don't have the variants for the gene in cache,
+                    // so call the iobio services to retrieve the variants for the gene region
+                    // and annotate them.
+                    self._promiseVcfRefName(theGene.chr, true)  // True for sfariMode
+                        .then(() => {
+                            let annoPromises = [];
+                            let annoResults = [];
+                            self.sfariVcfs.forEach((vcf) => {
+                                let p = vcf.promiseGetVariants(
+                                    self.getVcfRefName(theGene.chr),
+                                    theGene,
+                                    theTranscript,
+                                    null,   // regions
+                                    isMultiSample, // is multi-sample
+                                    self.samples,   // want variants for all sfari samples
+                                    self.getRelationship() === 'known-variants' ? 'none' : self.getAnnotationScheme().toLowerCase(),
+                                    self.getTranslator().clinvarMap,
+                                    self.getGeneModel().geneSource === 'refseq',
+                                    false,  // hgvs notation
+                                    false,  // rsid
+                                    self.globalApp.vepAF,    // vep af
+                                    false,
+                                    true) // sfariMode
+                                    .then((results) => {
+                                      let unwrappedResults = results[1];
+                                      unwrappedResults.gene = theGene;
+                                      annoResults.push(unwrappedResults);
+                                    })
+                                    .catch((error) => {
+                                      reject('Problem getting sfari variants: ' + error);
+                                    });
+                                annoPromises.push(p);
+                            });
+                            Promise.all(annoPromises)
+                              .then(() => {
+                                  self.promiseCombineVariants(annoResults)
+                                      .then((combinedVcfData) => {
+                                        self.vcfData = combinedVcfData;
+                                        let resultMap = {};
+                                        resultMap['sfari-variants'] = combinedVcfData;
+                                        resolve(resultMap);
+                                      })
+                                      .catch((error) => {
+                                        reject('Problem in combining variants: ' + error);
+                                      })
+                              });
+                        });
+                }
+            })
+      })
+  }
+
+  /* Given a list of annotationResults, combines the feature subobjects within. When variants are combined, we
+   * only take the FIRST instance of the variant with that matching information. We do NOT combine any information
+   * across multiple files. Returns an annotation object with the features subobject containing the combined, ordered variant list. */
+  promiseCombineVariants(annotationResults) {
+    return new Promise((resolve, reject) => {
+
+      // If we only have one vcf, just return the first object;
+      if (annotationResults.length === 1) {
+        resolve(annotationResults[0]);
+      } else {
+
+        // Iniitalize combined list
+        let combinedFeatures = annotationResults[0].features;
+
+        // Initialize hash to avoid dups
+        let combinedHash = {};
+        combinedFeatures.forEach((feature) => {
+            combinedHash[feature.id] = true;
+          });
+        // Add remaining unique vars
+        for (let i = 1; i < annotationResults.length; i++) {
+            let currFeatures = annotationResults[i].features;
+            currFeatures.forEach((currFeature) => {
+              if (!combinedHash[currFeature.id]) {
+                combinedHash[currFeature.id] = true;
+                combinedFeatures.push(currFeature);
+              }
+            });
+        }
+        // Reassign features for first vcf object & return
+        annotationResults[0].features = combinedFeatures;
+        resolve(annotationResults[0]);
+      }
+    })
+  }
 
 
   promiseAnnotateVariants(theGene, theTranscript, variantModels, options, onVcfData) {
@@ -1562,12 +1757,12 @@ class SampleModel {
 
       Promise.all(promises)
       .then(function() {
-        if (Object.keys(resultMap).length == variantModels.length) {
+        if (Object.keys(resultMap).length === variantModels.length) {
           resolve(resultMap);
         } else {
 
           // We don't have the variants for the gene in cache,
-          // so call the iobio services to retreive the variants for the gene region
+          // so call the iobio services to retrieve the variants for the gene region
           // and annotate them.
           me._promiseVcfRefName(theGene.chr)
           .then( function() {
@@ -1600,9 +1795,9 @@ class SampleModel {
                regions,   // regions
                isMultiSample, // is multi-sample
                me._getSamplesToRetrieve(),
-               me.getRelationship() == 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
+               me.getRelationship() === 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
                me.getTranslator().clinvarMap,
-               me.getGeneModel().geneSource == 'refseq' ? true : false,
+               me.getGeneModel().geneSource === 'refseq' ? true : false,
                me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
                me.globalApp.getVariantIdsForGene,  // rsid
                me.globalApp.vepAF    // vep af
@@ -2026,10 +2221,15 @@ class SampleModel {
       v.level = 0;
     });
 
+    let currVcf = me.vcf;
+    if (me.name === 'SFARI') {
+      currVcf = me.sfariVcfs[0];
+    }
+
     var featureWidth = me.isEduMode || me.isBasicMode ? me.globalApp.eduModeVariantSize : 4;
     var posToPixelFactor = Math.round((end - start) / width);
     var widthFactor = featureWidth + ( me.isEduMode || me.isBasicMode ? me.globalApp.eduModeVariantSize * 2 : 4);
-    var maxLevel = this.vcf.pileupVcfRecords(theFeatures, start, posToPixelFactor, widthFactor);
+    var maxLevel = currVcf.pileupVcfRecords(theFeatures, start, posToPixelFactor, widthFactor);
     if ( maxLevel > 30) {
       for(var i = 1; i < posToPixelFactor; i++) {
         // TODO:  Devise a more sensible approach to setting the min width.  We want the
@@ -2048,7 +2248,7 @@ class SampleModel {
             v.level = 0;
         });
         var factor = posToPixelFactor / (i * 2);
-        maxLevel = me.vcf.pileupVcfRecords(theFeatures, start, factor, featureWidth + 1);
+        maxLevel = currVcf.pileupVcfRecords(theFeatures, start, factor, featureWidth + 1);
         if (maxLevel <= 50) {
           i = posToPixelFactor;
           break;
@@ -2512,8 +2712,10 @@ class SampleModel {
       return;
     }
 
-    if (me.relationship == 'known-variants') {
+    if (me.relationship === 'known-variants') {
       return me.filterKnownVariants(data, start, end, bypassRangeFilter);
+    } else if (me.relationship === 'sfari-variants') {
+      return me.filterSfariVariants(data, start, end, bypassRangeFilter);
     }
 
 
@@ -2786,6 +2988,52 @@ class SampleModel {
     return vcfDataFiltered;
   }
 
+  filterSfariVariants(data, start, end, bypassRangeFilter, filterModel) {
+      var me = this;
+
+      var theFilters = filterModel.getModelSpecificFilters('sfari-variants').filter(function(theFilter) {
+          return theFilter.value === true;
+      })
+
+      var filteredVariants = data.features.filter(function (d) {
+
+          var meetsRegion = true;
+          if (!bypassRangeFilter) {
+              if (start != null && end != null ) {
+                  meetsRegion = (d.start >= start && d.start <= end);
+              }
+          }
+
+          var meetsFilter = true;
+          if (theFilters.length > 0) {
+              var meetsFilter = false;
+              theFilters.forEach( function(theFilter) {
+                  if (d[theFilter.key] == theFilter.clazz) {
+                      meetsFilter = true;
+                  }
+              });
+          }
+
+          return meetsRegion && meetsFilter;
+
+      });
+
+      var pileupObject = this._pileupVariants(filteredVariants, start, end);
+
+      var vcfDataFiltered = {
+          intronsExcludedCount: 0,
+          end: end,
+          features: filteredVariants,
+          maxLevel: pileupObject.maxLevel + 1,
+          featureWidth: pileupObject.featureWidth,
+          name: data.name,
+          start: start,
+          strand: data.strand,
+          variantRegionStart: start,
+          genericAnnotators: data.genericAnnotators
+      };
+      return vcfDataFiltered;
+  }
 
 
 

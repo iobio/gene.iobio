@@ -207,6 +207,7 @@ main.content.clin
          :isBasicMode="isBasicMode"
          :isFullAnalysis="isFullAnalysis"
          :launchedFromClin="launchedFromClin"
+         :launchedFromHub="launchedFromHub"
          :tourNumber="tourNumber"
          :geneModel="geneModel"
          :selectedGene="selectedGene"
@@ -232,7 +233,7 @@ main.content.clin
          @apply-genes="onApplyGenes"
          @stop-analysis="onStopAnalysis"
          @show-known-variants="onShowKnownVariantsCard"
-        >
+         @show-sfari-variants="onShowSfariVariantsCard">
         </genes-card>
 
         <v-card class="full-width" style="margin-top:10px;margin-bottom:10px;padding-bottom:10px;"
@@ -376,7 +377,8 @@ main.content.clin
         v-for="model in models"
         :key="model.relationship"
         v-bind:class="[
-        { 'full-width': true, 'hide': showWelcome || Object.keys(selectedGene).length == 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources || (model.relationship == 'known-variants' && showKnownVariantsCard == false),
+        { 'full-width': true, 'hide': showWelcome || Object.keys(selectedGene).length === 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources
+          || (model.relationship === 'known-variants' && showKnownVariantsCard === false) || (model.relationship === 'sfari-variants' && showSfariVariantsCard === false),
           'edu' : isEduMode
         },
         model.relationship
@@ -387,7 +389,7 @@ main.content.clin
         :clearZoom="clearZoom"
         :sampleModel="model"
         :coverageDangerRegions="model.coverageDangerRegions"
-        :classifyVariantSymbolFunc="model.relationship == 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
+        :classifyVariantSymbolFunc="model.relationship === 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
         :variantTooltip="variantTooltip"
         :selectedGene="selectedGene"
         :selectedTranscript="analyzedTranscript"
@@ -396,19 +398,20 @@ main.content.clin
         :regionEnd="geneRegionEnd"
         :width="cardWidth"
         :showGeneViz="true"
-        :showDepthViz="model.relationship != 'known-variants'"
-        :showVariantViz="model.relationship != 'known-variants' || showKnownVariantsCard"
-        :geneVizShowXAxis="model.relationship == 'proband' || model.relationship == 'known-variants'"
+        :showDepthViz="model.relationship !== 'known-variants' && model.relationship !== 'sfari-variants'"
+        :showVariantViz="(model.relationship !== 'known-variants' || showKnownVariantsCard) || (model.relationship !== 'sfari-variants' || showSfariVariantsCard)"
+        :geneVizShowXAxis="model.relationship === 'proband' || model.relationship === 'known-variants' || model.relationship === 'sfari-variants'"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-hover="onCohortVariantHover"
         @cohort-variant-hover-end="onCohortVariantHoverEnd"
         @known-variants-viz-change="onKnownVariantsVizChange"
         @known-variants-filter-change="onKnownVariantsFilterChange"
+        @sfari-variants-viz-change="onSfariVariantsVizChange"
+        @sfari-variants-filter-change="onSfariVariantsFilterChange"
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
         @show-coverage-cutoffs="showCoverageCutoffs = true"
         @show-pileup-for-variant="onShowPileupForVariant"
-
         >
         </variant-card>
 
@@ -600,6 +603,7 @@ export default {
       selectedVariantRelationship: null,
 
       showKnownVariantsCard: false,
+      showSfariVariantsCard: false,
 
       inProgress: {},
 
@@ -837,11 +841,11 @@ export default {
               self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
               self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
               let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
+              self.cohortModel.setHubSession(self.hubSession);
               self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
               .then(modelInfos => {
                 self.modelInfos = modelInfos;
-
-                self.cohortModel.promiseInit(self.modelInfos)
+                self.cohortModel.promiseInit(self.modelInfos, self.projectId)
                 .then(function() {
                   self.models = self.cohortModel.sampleModels;
                   if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
@@ -1020,7 +1024,7 @@ export default {
         if (self.models && self.models.length > 0) {
 
           self.cardWidth = $('#genes-card').innerWidth();
-          var options = {'getKnownVariants': self.showKnownVariantsCard};
+          var options = {'getKnownVariants': self.showKnownVariantsCard, 'getSfariVariants': self.showSfariVariantsCard};
 
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,
@@ -1492,14 +1496,14 @@ export default {
     showVariantExtraAnnots: function(relationship, variant) {
       let self = this;
       if (!self.isEduMode && !self.cohortModel.getModel(relationship).isAlignmentsOnly() )  {
-        if (relationship == 'known-variants') {
+        if (relationship === 'known-variants') {
           self.cohortModel
               .getModel(relationship)
               .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
               .then( function(refreshedVariant) {
                 self.refreshVariantExtraAnnots(variant, [refreshedVariant]);
               })
-        } else {
+        } else if (relationship !== 'sfari-variants'){
           self.cohortModel
             .getModel(relationship)
             .promiseGetImpactfulVariantIds(self.selectedGene, self.selectedTranscript)
@@ -1561,11 +1565,24 @@ export default {
         self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
       }
     },
+    onSfariVariantsVizChange: function(viz) {
+        let self = this;
+        if (viz) {
+            self.cohortModel.sfariVariantsViz = viz;
+        }
+        if (self.showSfariVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
+            self.cohortModel.promiseLoadSfariVariants(self.selectedGene, self.selectedTranscript);
+        }
+    },
     onKnownVariantsFilterChange: function(selectedCategories) {
       let self = this;
       self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
-
       self.cohortModel.setLoadedVariants(self.selectedGene, 'known-variants');
+    },
+    onSfariVariantsFilterChange: function(selectedCategories) {
+        let self = this;
+        self.filterModel.setModelFilter('sfari-variants', 'vepImpact', selectedCategories);
+        self.cohortModel.setLoadedVariants(self.selectedGene, 'sfari-variants');
     },
     onRemoveGene: function(geneName) {
       let self = this;
@@ -1842,6 +1859,7 @@ export default {
           self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
           self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
         }
+
         if (self.projectId) {
           self.isHubDeprecated = false;
         } else {
@@ -1929,7 +1947,7 @@ export default {
           })
         }
         if (modelInfos.length > 0) {
-          self.cohortModel.promiseInit(modelInfos)
+          self.cohortModel.promiseInit(modelInfos, self.projectId)
           .then(function() {
             self.showLeftPanelForGenes();
             resolve();
@@ -2138,6 +2156,12 @@ export default {
         self.onKnownVariantsVizChange();
       }
     },
+    onShowSfariVariantsCard: function(showIt) {
+        let self = this;
+        self.showSfariVariantsCard = showIt;
+        if (self.showSfariVariantsCard) {
+            self.onSfariVariantsVizChange();
+        }
     onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
       this.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
     },

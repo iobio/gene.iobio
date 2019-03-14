@@ -626,16 +626,16 @@ var effectCategories = [
   }
 
 
-  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache) {
+  /* When sfariMode = true, variant id field is assigned. */
+  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false) {
     var me = this;
 
 
     return new Promise( function(resolve, reject) {
 
-
       // This comma separated string of samples to perform vcf subset on
       var vcfSampleNames = samplesToRetrieve.filter(function(sample) {
-        return (sample.vcfSampleName != "" && sample.vcfSampleName != null);
+        return (sample.vcfSampleName !== "" && sample.vcfSampleName != null);
       })
       .map(function(sample) {
         return sample.vcfSampleName;
@@ -648,16 +648,20 @@ var effectCategories = [
       })
       .join(",");
 
+      if (sfariMode === true) {
+        vcfSampleNames = samplesToRetrieve.join(',');
+        sampleNamesToGenotype = samplesToRetrieve.join(',');
+      }
 
       if (sourceType == SOURCE_TYPE_URL) {
         me._getRemoteVariantsImpl(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache,
           function(annotatedData, results) {
-            if (annotatedData && results) {
+            if (annotatedData != null && results) {
               resolve([annotatedData, results]);
             } else {
               reject();
             }
-          });
+          }, null, sfariMode);
       } else {
         //me._getLocalStats(refName, geneObject.start, geneObject.end, sampleName);
 
@@ -740,7 +744,7 @@ var effectCategories = [
 
   }
 
-  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback) {
+  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false) {
 
     var me = this;
 
@@ -752,7 +756,7 @@ var effectCategories = [
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey);
+    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode);
 
 
     var annotatedData = "";
@@ -787,9 +791,14 @@ var effectCategories = [
           var info   = fields[7];
           var format = fields[8];
           var genotypes = [];
-          for (var i = 9; i < fields.length; i++) {
-            genotypes.push(fields[i]);
+
+          // Too much data, crashes app
+          if (sfariMode !== true) {
+            for (var i = 9; i < fields.length; i++) {
+                genotypes.push(fields[i]);
+            }
           }
+
 
           // Turn vcf record into a JSON object and add it to an array
           var vcfObject = {'pos': pos, 'id': id, 'ref': ref, 'alt': alt,
@@ -798,8 +807,13 @@ var effectCategories = [
         }
       });
 
+      if (sfariMode === true) {
+        annotatedData = '';
+        annotatedRecs = '';
+      }
+
       // Parse the vcf object into a variant object that is visualized by the client.
-      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF);
+      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode);
 
 
       callback(annotatedRecs, results);
@@ -1426,7 +1440,7 @@ var effectCategories = [
   }
 
 
-  exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF) {
+  exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF, sfariMode = false) {
 
       var me = this;
       var selectedTranscriptID = globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
@@ -1529,7 +1543,7 @@ var effectCategories = [
 
             var clinvarResult = me.parseClinvarInfo(rec, clinvarMap);
 
-            var gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames);
+            var gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames, sfariMode);
 
             var clinvarObject = me._formatClinvarCoordinates(rec, alt);
 
@@ -1547,6 +1561,11 @@ var effectCategories = [
                 // Keep the variant if we are just parsing a single sample (parseMultiSample=false)
                 // or we are parsing multiple samples and this sample's genotype is het or hom
                 if (!parseMultiSample || genotype.keep) {
+                  let currId = rec.id;
+                  if (sfariMode === true) {
+                      currId = ('id_' + rec.pos + '_' + refName + '_' + geneObject.strand + '_' + rec.ref + '_' + rec.alt);  // key = start.chromosome.strand.ref.alt
+                  }
+
                   var variant = {
                     'start':                    +rec.pos,
                     'end':                      +end,
@@ -1555,7 +1574,7 @@ var effectCategories = [
                     'strand':                   geneObject.strand,
                     'chrom':                    refName,
                     'type':                     annot.typeAnnotated && annot.typeAnnotated != '' ? annot.typeAnnotated : type,
-                    'id':                       rec.id,
+                    'id':                       currId,
                     'ref':                      rec.ref,
                     'alt':                      alt,
                     'qual':                     rec.qual,
@@ -1564,7 +1583,6 @@ var effectCategories = [
                     'extraAnnot':               hasExtraAnnot,
 
                     // genotype fields
-                    'genotypes':                gtResult.genotypeMap,
                     'genotype':                 genotype,
                     'genotypeDepth' :           genotype.genotypeDepth,
                     'genotypeFilteredDepth' :   genotype.filteredDepth,
@@ -1628,13 +1646,18 @@ var effectCategories = [
                     'highestSIFT':             highestSIFT,
                     'highestPolyphen':         highestPolyphen,
                     'highestREVEL':            highestREVEL
+                  };
+
+                  // Too much data for sfari vars
+                  if (sfariMode === false) {
+                      variant['genotypes'] = gtResult.genotypeMap;
                   }
 
                   for (var key in clinvarResult) {
                     variant[key] = clinvarResult[key];
                   }
 
-                  if (me.getGenericAnnotation() !== undefined) {
+                  if (me.getGenericAnnotation() !== undefined && sfariMode === false) {
                     me.getGenericAnnotation().setSimpleFields(variant);
                   }
 
@@ -1675,7 +1698,6 @@ var effectCategories = [
         };
         results.push(data);
       }
-
 
       return  parseMultiSample ? results :  results[0];
       //return  results;
@@ -2216,13 +2238,12 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
 }
 
 
-
 /*
  *
  * Parse the genotype field from in the vcf rec
  *
  */
- exports._parseGenotypes = function(rec, alt, altIdx, sampleIndices, sampleNames) {
+ exports._parseGenotypes = function(rec, alt, altIdx, sampleIndices, sampleNames, sfariMode) {
     var me = this;
 
     // The result returned will be an object representing all
@@ -2254,17 +2275,22 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
     // if we are parsing the genotypes for a trio, the first
     // genotype will be for the proband, followed by 2 more elements
     // for the mother and father's genotypes.
-    result.genotypes = sampleIndices.map( function(sampleIndex) {
-      return { sampleIndex: sampleIndex, zygosity: null, phased: null};
-    });
+     result.genotypes = sampleIndices.map( function(sampleIndex) {
+         return { sampleIndex: sampleIndex, zygosity: null, phased: null};
+     });
 
-    // The results will also contain a map to obtain
-    // the genotype by sample name.  If sample names were not provided,
-    // we will use the index as the key to the map.
-    result.genotypes.forEach(function(gt) {
-      var key = sampleNames ? sampleNames[gt.sampleIndex] : gt.sampleIndex.toString();
-      result.genotypeMap[key] = gt;
-    })
+      // The results will also contain a map to obtain
+      // the genotype by sample name.  If sample names were not provided,
+      // we will use the index as the key to the map.
+      // NOTE: cannot do this for sfari samples, crashes browser
+     if (sfariMode === true) {
+       result.genotypeMap = {};
+     } else {
+       result.genotypes.forEach(function(gt) {
+           let key = sampleNames ? sampleNames[gt.sampleIndex] : gt.sampleIndex.toString();
+           result.genotypeMap[key] = gt;
+       });
+     }
 
     // Determine the format of the genotype fields
     var gtTokens = {};
@@ -2517,7 +2543,6 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
 
         }
       }
-
     });
 
 
@@ -2526,7 +2551,7 @@ exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
       if (gt.keep) {
         result.keep = true;
       }
-    })
+    });
 
     // The 'target' genotype will be the first genotype in the array
     // For example, if the sampleIndex of '1' was sent in (sampleIndices = [1]),
