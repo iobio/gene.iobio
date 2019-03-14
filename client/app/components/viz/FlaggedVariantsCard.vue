@@ -8,11 +8,16 @@
   .gene-ranks
     .chip
       margin-top: 0px
-      margin-bottom: 0px
+      margin-bottom: 2px
+      margin-left: 0px
     .chip__content
       font-size:  11px
-      background-color:  $app-color-light
+      background-color:  #c7f4ff
       height: 16px
+      padding-left: 4px
+      padding-right: 4px
+      color:  $text-color
+
 
   #clinvar-symbol
     display: inline-block
@@ -510,19 +515,7 @@
                 <v-list-tile-title>
 
                   <div style="float:left">
-                    <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
 
-                      <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} GTR
-                        </v-chip>
-                      </span>
-                      <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }} Phenolyzer
-                        </v-chip>
-                      </span>
-                    </div>
 
                     <div class="variant-symbols">
 
@@ -568,6 +561,19 @@
 
 
 
+                    </div>
+                    <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
+
+                      <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} GTR
+                        </v-chip>
+                      </span>
+                      <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }} Phenolyzer
+                        </v-chip>
+                      </span>
                     </div>
                     <div style="line-height:12px">
                       <div  v-if="!isBasicMode && !variant.notFound"
