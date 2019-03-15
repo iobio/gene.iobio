@@ -2718,7 +2718,8 @@ export default {
       let endpoint = new EndpointCmd(self.globalApp,
         self.cacheHelper.launchTimestamp,
         self.genomeBuildHelper,
-        self.globalApp.utility.getHumanRefNames);
+        self.globalApp.utility.getHumanRefNames
+      );
 
       self.cohortModel.endpoint = endpoint;
 

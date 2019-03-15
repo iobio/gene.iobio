@@ -13,6 +13,7 @@ class GlobalApp {
 
     this.DEV_IOBIO             = "nv-dev-new.iobio.io/";
     this.STAGE_IOBIO           = "nv-green.iobio.io/";
+    this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
     this.PROD_IOBIO            = "nv-prod.iobio.io/";
 
     this.IOBIO_SOURCE          = this.PROD_IOBIO;
