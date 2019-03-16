@@ -2071,6 +2071,9 @@ export default {
         self.selectedGene = flaggedVariant.gene;
         genePromise = Promise.resolve();
       } else {
+        self.geneModel.adjustGeneRegion(flaggedVariant.gene);
+        self.geneRegionStart = flaggedVariant.gene.start;
+        self.geneRegionEnd   = flaggedVariant.gene.end;
         self.selectedGene = flaggedVariant.gene;
         if (flaggedVariant.transcript) {
           self.selectedTranscript = flaggedVariant.transcript;
@@ -2099,50 +2102,59 @@ export default {
             }
 
 
-            matchingVariantPromise.then(function(matchingVariant) {
+            matchingVariantPromise
+            .then(function(matchingVariant) {
 
-              self.showVariantExtraAnnots('proband', matchingVariant);
+              if (matchingVariant && !matchingVariant.isProxy) {
+                self.showVariantExtraAnnots('proband', matchingVariant);
 
-              if (flaggedVariant.isProxy) {
-                var isUserFlagged = flaggedVariant.isUserFlagged;
-                var notes = flaggedVariant.notes;
-                var interpretation = flaggedVariant.interpretation;
-                flaggedVariant = $.extend(flaggedVariant, matchingVariant);
-                flaggedVariant.isFlagged = true;
-                flaggedVariant.isUserFlagged = isUserFlagged;
-                flaggedVariant.notes = notes;
-                flaggedVariant.interpretation = interpretation;
-                flaggedVariant.isProxy = false;
-                if (self.launchedFromClin) {
-                  self.sendFlaggedVariantToClin(flaggedVariant);
+                if (flaggedVariant.isProxy) {
+                  var isUserFlagged = flaggedVariant.isUserFlagged;
+                  var notes = flaggedVariant.notes;
+                  var interpretation = flaggedVariant.interpretation;
+                  flaggedVariant = $.extend(flaggedVariant, matchingVariant);
+                  flaggedVariant.isFlagged = true;
+                  flaggedVariant.isUserFlagged = isUserFlagged;
+                  flaggedVariant.notes = notes;
+                  flaggedVariant.interpretation = interpretation;
+                  flaggedVariant.isProxy = false;
+                  if (self.launchedFromClin) {
+                    self.sendFlaggedVariantToClin(flaggedVariant);
+                  }
+
                 }
+
+
+                self.$set(self, "selectedVariant", null);
+                self.$set(self, "selectedVariant", flaggedVariant);
+                self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
+                self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
+                self.$refs.variantCardRef.forEach(function(variantCard) {
+                  if (variantCard.relationship == 'proband') {
+                    variantCard.showFlaggedVariant(flaggedVariant);
+                  }
+                })
+
+                if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
+                  self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
+                }
+
+
+                self.$refs.variantCardRef.forEach(function(variantCard) {
+                    variantCard.showVariantCircle(flaggedVariant, true);
+                    variantCard.showCoverageCircle(flaggedVariant);
+                })
+
+
+                self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
+                self.$refs.variantDetailCardRef.refreshGlyphs();
 
               }
 
-              self.$set(self, "selectedVariant", null);
-              self.$set(self, "selectedVariant", flaggedVariant);
-              self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
-              self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
-              self.$refs.variantCardRef.forEach(function(variantCard) {
-                if (variantCard.relationship == 'proband') {
-                  variantCard.showFlaggedVariant(flaggedVariant);
-                }
-              })
 
-              if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
-                self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
-              }
-
-
-              self.$refs.variantCardRef.forEach(function(variantCard) {
-                  variantCard.showVariantCircle(flaggedVariant, true);
-                  variantCard.showCoverageCircle(flaggedVariant);
-              })
-
-
-              self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
-              self.$refs.variantDetailCardRef.refreshGlyphs();
-
+            })
+            .catch(function(error) {
+              console.log("GeneHome.onFlaggedVariantSelected. Unable to get matching variant");
             })
           },
           500);

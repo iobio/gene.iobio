@@ -200,6 +200,7 @@ class SampleModel {
 
       var theVcfData = null;
 
+
       if (me[dataKind] != null && me[dataKind].features && me[dataKind].features.length > 0) {
         if (theGetRefNameFunction(geneObject.chr) == me[dataKind].ref &&
           geneObject.start == me[dataKind].start &&
@@ -209,6 +210,7 @@ class SampleModel {
           resolve({model: me, vcfData: theVcfData});
         }
       }
+
 
       if (theVcfData == null) {
         // Find vcf data in cache
@@ -1142,18 +1144,28 @@ class SampleModel {
     return new Promise(function(resolve, reject) {
       var theVcfData = me.promiseGetVcfData(geneObject, transcript)
        .then(function(data) {
-        var theVcfData = data.vcfData;
-        var matchingVariant = null;
-        if (theVcfData && theVcfData.features) {
-          theVcfData.features.forEach(function(v) {
-            if (v.start == variant.start
-                && v.ref == variant.ref
-                && v.alt == variant.alt) {
-              matchingVariant = v;
-            }
-          });
+        if (data != null && data.vcfData != null) {
+          var theVcfData = data.vcfData;
+          var matchingVariant = null;
+          if (theVcfData && theVcfData.features) {
+            theVcfData.features.forEach(function(v) {
+              if (v.start == variant.start
+                  && v.ref == variant.ref
+                  && v.alt == variant.alt) {
+                matchingVariant = v;
+              }
+            });
+          }
+          resolve(matchingVariant);
+        } else {
+          var msg = "Unable to get vcf data in SampleModel.promiseGetMatchingVariant() for gene " + geneObject.gene_name;
+          console.log(msg);
+          if (variant.isProxy && variant.notFound) {
+            resolve(variant);
+          } else {
+            reject(msg);
+          }
         }
-        resolve(matchingVariant);
        },
        function(error) {
         var msg = "A problem occurred in SampleModel.promiseGetMatchingVariant(): " + error;
@@ -1472,6 +1484,7 @@ class SampleModel {
                             console.log(msg);
                             reject(msg);
                            });
+                           resolve(theVariant);
 
                         } else {
                           var msg = "Cannot find corresponding variant to update HGVS notation for variant " + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt;
