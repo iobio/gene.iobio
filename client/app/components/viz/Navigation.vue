@@ -15,7 +15,7 @@ aside.navigation-drawer
 
 
   &.clin
-    margin-top: 50px !important
+    margin-top: 0px !important
 
 
   #side-panel-container
@@ -44,7 +44,7 @@ aside.navigation-drawer
           span.badge-label
             color: $app-color
             border-color: none
-            font-size: 15px
+            font-size: 14px
             font-weight: normal
 
         .badge__badge.primary
@@ -75,9 +75,9 @@ aside.navigation-drawer
         padding-right: 4px
 
     #overall-progress
-      position: absolute
-      left: 84px
-      top: 7px
+      position: fixed
+      left: 4px
+      top: 10px
       z-index: 1
 
 
@@ -291,6 +291,7 @@ nav.toolbar
       padding: 0px
 
   &.clin
+    display: none !important
     background-color: $nav-color-clin !important
     box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.03), 0px 1px 3px 0px rgba(0, 0, 0, 0.01) !important
     -webkit-box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.03), 0px 1px 3px 0px rgba(0, 0, 0, 0.01) !important
@@ -595,7 +596,7 @@ nav.toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      width="293"
+      :width="launchedFromClin ? 315 : 293"
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
@@ -603,7 +604,7 @@ nav.toolbar
           <v-icon >close</v-icon>
         </v-btn>
 
-        <v-progress-circular id="overall-progress"  :size="25"  :width="4" color="teal accent-4"
+        <v-progress-circular id="overall-progress"  :size="19"  :width="5" color="grey darken-1"
           v-if="analyzeAllInProgress || callAllInProgress"
           :indeterminate="true">
         </v-progress-circular>
@@ -615,7 +616,9 @@ nav.toolbar
           <v-tab v-if="!isBasicMode" >
             <v-badge>
               <span class="badge-count" slot="badge">{{ geneCount }}</span>
-              <span class="badge-label">Genes</span>
+              <span v-if="launchedFromClin && !isFullAnalysis" class="badge-label">Candidate Genes</span>
+              <span v-if="launchedFromClin && isFullAnalysis" class="badge-label">All Genes</span>
+              <span v-if="!launchedFromClin" class="badge-label">Genes</span>
             </v-badge>
 
           </v-tab>

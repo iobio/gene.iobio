@@ -3,8 +3,8 @@
 
 
 #genes-card
-  margin-bottom: 0px
-  padding-bottom: 0px
+  margin: 0px
+  padding: 0px
 
   #gene-count-badges
     text-align: center
@@ -26,6 +26,23 @@
       font-weight: normal
       padding-top: 2px
       color: $text-color
+
+    &.clin
+      margin-left: 0px
+      margin-top: 5px
+
+    &.full-analysis
+      margin-top: 0px
+      padding-top: 0px
+      margin-left: 0px
+      margin-bottom: 5px
+
+
+  #analyze-all-buttons
+    float: left
+
+    &.clin
+      float: right
 
   #analyze-all-button
     display: inline-block
@@ -212,7 +229,7 @@ div.container.small
 </style>
 
 <template>
-  <v-card tile id="genes-card" :class="{'app-card': true, 'edu' : isEduMode, 'basic' : isBasicMode}" style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px;padding-top:0px;margin-bottom:0px">
+  <v-card tile id="genes-card" :class="{'app-card': true, 'edu' : isEduMode, 'basic' : isBasicMode}">
 
 
     <div :style="isEduMode ? 'padding-top:5px;margin-bottom:-5px;margin-left:10px;margin-right:10px' : 'margin-left:10px;margin-right:10px'">
@@ -221,9 +238,10 @@ div.container.small
 
         <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
 
+            <span id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
 
               <v-btn  id="analyze-all-button"
-              v-if="isLoaded"
+              v-if="isLoaded && !isFullAnalysis"
               class="level-edu"
               raised
               @click="onAnalyzeAll"
@@ -233,7 +251,7 @@ div.container.small
 
 
               <v-btn
-              v-if="analyzeAllInProgress"
+              v-if="analyzeAllInProgress && !isFullAnalysis"
               class="stop-analysis-button"
               @click="onStopAnalysis" small raised
               v-tooltip.top-center="`Stop analysis`" >
@@ -242,7 +260,7 @@ div.container.small
 
 
               <div id="call-variants-dropdown"
-                v-if="isLoaded && hasAlignments"
+                v-if="isLoaded && hasAlignments && !isFullAnalysis"
               >
                 <v-menu offset-y>
                   <v-btn raised slot="activator"
@@ -256,19 +274,21 @@ div.container.small
               </div>
 
               <v-btn
-              v-if="callAllInProgress"
+              v-if="callAllInProgress && !isFullAnalysis"
               class="stop-analysis-button"
               @click="onStopAnalysis" small raised
               v-tooltip.top-center="`Stop calling variants`" >
                 <v-icon>stop</v-icon>
               </v-btn>
+            </span>
 
-              <v-switch class="optional-track-switch"
-                v-if=" isLoaded && !isEduMode && !isBasicMode && !launchedFromClin"
-                label="ClinVar track"
-                v-model="showKnownVariantsCard"
-                >
-              </v-switch>
+            <v-switch
+              :class="{'optional-track-switch': true, 'full-analysis': isFullAnalysis, 'clin': launchedFromClin}"
+              v-if=" isLoaded && !isEduMode && !isBasicMode "
+              label="ClinVar track"
+              v-model="showKnownVariantsCard"
+              >
+            </v-switch>
 
             <v-switch class="optional-track-switch"
                       v-if=" isLoaded && !isEduMode && !isBasicMode && launchedFromHub"
@@ -280,8 +300,8 @@ div.container.small
 
             <filter-badges
              ref="filterBadgesRef"
-             v-if="!filterModel.isFullAnalysis"
-             :style="isLoaded ? 'margin-right: 200px' : ''"
+             v-if="!isFullAnalysis"
+             :style="isLoaded && !launchedFromClin ? 'margin-right: 200px' : ''"
              :isFullAnalysis="isFullAnalysis"
              :badgeCounts="badgeCounts"
              :filterModel="filterModel"

@@ -11,8 +11,14 @@
 main.content
   margin-top: 52px
 
+  #gene-card-container
+    margin-top: 10px
+    margin-bottom: 10px
+    padding-bottom: 10px
+
 main.content.clin
-  margin-top: 50px
+  margin-top: 0px
+
 
 .app-card
   margin-bottom: 10px
@@ -200,7 +206,7 @@ main.content.clin
 
         <genes-card
          v-if="geneModel"
-         v-show="filterModel && !filterModel.isFullAnalysis"
+         v-show="filterModel"
          v-bind:class="{hide : showWelcome && !isEduMode, 'full-width': true}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
@@ -236,8 +242,8 @@ main.content.clin
          @show-sfari-variants="onShowSfariVariantsCard">
         </genes-card>
 
-        <v-card class="full-width" style="margin-top:10px;margin-bottom:10px;padding-bottom:10px;"
-            v-if="geneModel && Object.keys(selectedGene).length > 0"
+        <v-card id="gene-card-container" class="full-width"
+          v-if="geneModel && Object.keys(selectedGene).length > 0"
           v-bind:class="{hide : showWelcome }">
           <gene-card
             :showTitle="false"
