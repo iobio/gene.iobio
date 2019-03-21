@@ -510,6 +510,7 @@ export default {
           self.badgeCounts[key] = 0;
         }
       }
+      let prevCoverageCount = self.badgeCounts.coverage ? self.badgeCounts.coverage : 0;
       self.badgeCounts.coverage = 0;
       self.badgeCounts.flagged = 0;
 
@@ -530,6 +531,9 @@ export default {
             }
           }
         })
+      }
+      if (self.badgeCounts.coverage && prevCoverageCount != self.badgeCounts.coverage) {
+        self.$emit("on-insufficient-coverage", self.badgeCounts.coverage);
       }
     },
     onGeneSelected: function(geneName) {

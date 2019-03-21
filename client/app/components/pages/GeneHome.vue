@@ -239,7 +239,8 @@ main.content.clin
          @apply-genes="onApplyGenes"
          @stop-analysis="onStopAnalysis"
          @show-known-variants="onShowKnownVariantsCard"
-         @show-sfari-variants="onShowSfariVariantsCard">
+         @show-sfari-variants="onShowSfariVariantsCard"
+         @on-insufficient-coverage="onInsufficientCoverage">
         </genes-card>
 
         <v-card id="gene-card-container" class="full-width"
@@ -2533,6 +2534,21 @@ export default {
 
       var responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), this.clinIobioUrl);
+    },
+
+
+    onInsufficientCoverage: function(theGeneCount) {
+      let self = this;
+      if (this.launchedFromClin) {
+        var msgObject = {
+            success: true,
+            type:   'insufficient-coverage',
+            app:    'gene',
+            sender: 'gene.iobio.io',
+            geneCount:  theGeneCount};
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+      }
+
     },
 
 
