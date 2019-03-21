@@ -459,7 +459,7 @@
       (none)
     </span>
 
-    <div v-if="!isBasicMode && isFullAnalysis && geneList.genes.length > 0"
+    <div v-if="!isBasicMode && isFullAnalysis && variantCount != 0"
       style="margin-top:-25px;margin-bottom:20px;margin-left:20px">
         <interpretation-select  style="width:250px"
         :interpretationMap="interpretationMap"
