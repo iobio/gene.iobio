@@ -76,7 +76,7 @@ aside.navigation-drawer
 
     #overall-progress
       position: fixed
-      left: 4px
+      left: 7px
       top: 10px
       z-index: 1
 
