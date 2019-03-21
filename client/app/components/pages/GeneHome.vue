@@ -2500,6 +2500,14 @@ export default {
           console.log("** bypassing showData cohort NOT loaded **");
         }
 
+      } else if (clinObject.type == 'show-coverage') {
+        if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
+          self.$refs.genesCardRef.$refs.filterBadgesRef.onBadgeClick({name: 'coverage'});
+        }
+      } else if (clinObject.type == 'show-review' || clinObject.type == 'show-review-full') {
+        if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
+          self.$refs.genesCardRef.$refs.filterBadgesRef.onClearFilter();
+        }
       } else if (clinObject.type == 'show-tooltip') {
         if (clinObject.task.key == 'genes-menu') {
           if (self.$refs.navRef && self.$refs.navRef.$refs.genesMenuRef) {
