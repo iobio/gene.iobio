@@ -12,7 +12,7 @@
       margin-left: 0px
     .chip__content
       font-size:  11px
-      background-color:  #c7f4ff
+      background-color:  $info-chip-color
       height: 16px
       padding-left: 4px
       padding-right: 4px
