@@ -97,16 +97,20 @@
     padding: 0px
     background-color: $info-color !important
     color: $text-color !important
+    border-width: .5px
+    width: 250px
+    background-color: $info-chip-color !important
+    border-color: #d9d9d9 !important
 
     span
-      padding-top: 4px
+      padding-top: 8px
       display: inline-block
       margin-right: -40px
 
     button
      float: right
      margin: 0px
-     margin-right: 15px
+     margin-right: 0px
 
     .btn__content
       color: $text-color !important
@@ -186,7 +190,7 @@
       transition="scale-transition"
     >
       <span>{{ showFilterInfo ? activeFilter.display : "" }}</span>
-      <v-btn flat @click="onClearFilter">CLEAR FILTER</v-btn>
+      <v-btn flat @click="onClearFilter"><v-icon>close</v-icon></v-btn>
     </v-alert>
 
     <v-layout row justify-center v-if="currentFilter && currentFilter.showEdit" class="text-xs-center">

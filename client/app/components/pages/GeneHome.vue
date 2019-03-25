@@ -927,7 +927,16 @@ export default {
         self.cacheHelper.on("analyzeAllCompleted", function() {
 
           if (!self.isEduMode) {
-            self.$refs.navRef.onShowVariantsTab();
+            if (self.activeFilterName && self.activeFilterName == 'coverage' && self.launchedFromClin) {
+              if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
+                  self.$refs.genesCardRef.$refs.filterBadgesRef.onBadgeClick({name: 'coverage', display: 'Insufficient coverage'});
+              }
+              self.showLeftPanelForGenes();
+            } else if (self.cacheHelper.analyzeAllInProgress) {
+              self.showLeftPanelForGenes();
+            } else {
+              self.$refs.navRef.onShowVariantsTab();
+            }
           }
 
         });
@@ -2503,7 +2512,8 @@ export default {
 
       } else if (clinObject.type == 'show-coverage') {
         if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
-          self.$refs.genesCardRef.$refs.filterBadgesRef.onBadgeClick({name: 'coverage'});
+          self.activeFilterName = 'coverage';
+          self.onAnalyzeAll();
         }
       } else if (clinObject.type == 'show-review' || clinObject.type == 'show-review-full') {
         if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
