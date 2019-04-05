@@ -2499,7 +2499,7 @@ export default {
           self.$set(self, "isFullAnalysis", clinObject.receiver == 'genefull' ? true : false);
           self.filterModel.isFullAnalysis = self.isFullAnalysis;
 
-          if (!self.isFullAnalysis) {
+          if (self.cacheHelper.analyzeAllInProgress) {
             self.showLeftPanelForGenes();
           } else {
             self.showLeftPanelWhenFlaggedVariants();
@@ -2518,6 +2518,12 @@ export default {
       } else if (clinObject.type == 'show-review' || clinObject.type == 'show-review-full') {
         if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
           self.$refs.genesCardRef.$refs.filterBadgesRef.onClearFilter();
+
+          if (self.cacheHelper.analyzeAllInProgress) {
+            self.showLeftPanelForGenes();
+          } else {
+            self.showLeftPanelWhenFlaggedVariants();
+          }
         }
       } else if (clinObject.type == 'show-tooltip') {
         if (clinObject.task.key == 'genes-menu') {
@@ -2883,9 +2889,28 @@ export default {
     },
 
 
-    promiseSelectApplicableGeneClin: function() {
+    promiseSelectApplicableVariantClin: function() {
       let self = this;
       return new Promise(function(resolve, reject) {
+
+        // Find first flagged variant in list
+        let firstFlaggedVariant = null;
+        let sortedFilters = self.cohortModel.organizeVariantsByFilterAndGene(null, self.isFullAnalysis);
+        sortedFilters.forEach(function(filterObject) {
+          filterObject.genes.forEach(function(geneList) {
+            if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
+              firstFlaggedVariant = geneList.variants[0];
+            }
+          })
+        })
+
+        if (firstFlaggedVariant) {
+          self.showLeftPanelWhenFlaggedVariants();
+          self.onFlaggedVariantSelected(firstFlaggedVariant);
+        }
+
+
+        /*
         let geneNameToSelect = null;
         if (self.launchedFromClin) {
           if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
@@ -2918,6 +2943,7 @@ export default {
         } else {
           resolve();
         }
+        */
 
       })
     },
@@ -2988,12 +3014,12 @@ export default {
           self.cacheHelper.promiseGetGenesToAnalyze()
           .then(function(genesToAnalyze) {
             if (genesToAnalyze.length > 0) {
-              self.promiseSelectApplicableGeneClin()
+              self.promiseSelectApplicableVariantClin()
               .then(function() {
                 self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
               })
             } else {
-              self.promiseSelectApplicableGeneClin()
+              self.promiseSelectApplicableVariantClin()
               .then(function() {
                 if (self.$refs.navRef) {
                   self.$refs.navRef.onShowVariantsTab();
