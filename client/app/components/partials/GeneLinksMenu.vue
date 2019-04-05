@@ -31,7 +31,7 @@
   margin-left: 8px
   margin-right: 0px
   margin-top: -2px
-  margin-bottom: 0px
+  margin-bottom: 4px
 
   .btn__content
     color: $app-color !important
