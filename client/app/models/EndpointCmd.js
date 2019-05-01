@@ -7,7 +7,7 @@ export default class EndpointCmd {
     this.launchTimestamp   = launchTimestamp;
     this.genomeBuildHelper = genomeBuildHelper;
     this.getHumanRefNames  = getHumanRefNamesFunc;
-    this.launchedFromUtah =  this.globalApp.IOBIO_SERVICES === 'mosaic.chpc.utah.edu';
+    this.launchedFromUtah =  this.globalApp.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0;
 
     // iobio services
     this.IOBIO = {};
@@ -27,7 +27,6 @@ export default class EndpointCmd {
     this.IOBIO.geneCoverage            = this.globalApp.IOBIO_SERVICES  + "genecoverage/";
     this.IOBIO.knownvariants           = this.globalApp.IOBIO_SERVICES  + "knownvariants/";
   }
-
 
 
 
