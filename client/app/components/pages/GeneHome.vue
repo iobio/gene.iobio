@@ -489,6 +489,7 @@ import Glyph              from '../../partials/Glyph.js'
 import VariantTooltip     from '../../partials/VariantTooltip.js'
 
 import allGenesData       from '../../../data/genes.json'
+import acmgBlacklist from '../../../data/ACMG_blacklist.json'
 import SplitPane          from '../partials/SplitPane.vue'
 import ScrollButton       from '../partials/ScrollButton.vue'
 
@@ -581,6 +582,7 @@ export default {
 
 
       allGenes: allGenesData,
+      acmgBlacklist: acmgBlacklist,
 
       selectedGene: {},
       selectedTranscript: {},
@@ -1231,6 +1233,14 @@ export default {
 
     onGeneSelected: function(geneName) {
       var self = this;
+
+      // Check to make sure selected gene is not blacklisted if we've launched SFARI project from Mosaic
+      // TODO SJG: put in SFARI project criteria
+      if (self.launchedFromHub && self.acmgBlacklist[geneName.toUpperCase()] != null) {
+          alertify.set('notifier', 'position', 'top-left');
+          alertify.warning("The SFARI program does not authorize this gene to be viewed or analyzed. Please select another gene.");
+          return;
+      }
 
       self.deselectVariant();
       self.promiseLoadGene(geneName);
