@@ -4,7 +4,7 @@
   padding-left: 0px
   max-height: 222px
   min-height: 222px
-  padding-top: 0px
+  padding-top: 0px∂g
   overflow-x: scroll
   min-width: 700px
   margin-bottom: 0px
@@ -413,6 +413,11 @@
       :geneModel="cohortModel.geneModel">
       </variant-links-menu>
 
+      <gene-menu
+      :selectedGene="selectedGene"
+      :selectedTranscript="selectedTranscript"
+      :geneModel="cohortModel.geneModel">
+      </gene-menu>
 
     </div>
 
@@ -702,6 +707,7 @@ import variantInterpretation from "../partials/VariantInterpretation.vue"
 import VariantNotesMenu from "../partials/VariantNotesMenu.vue"
 import VariantLinksMenu from "../partials/VariantLinksMenu.vue"
 import InfoPopup        from "../partials/InfoPopup.vue"
+import GeneMenu         from "../partials/GeneMenu.vue"
 
 export default {
   name: 'variant-detail-card',
@@ -710,7 +716,8 @@ export default {
     VariantNotesMenu,
     variantInterpretation,
     InfoPopup,
-    VariantLinksMenu
+    VariantLinksMenu,
+    GeneMenu
   },
   props: {
     isEduMode: null,
