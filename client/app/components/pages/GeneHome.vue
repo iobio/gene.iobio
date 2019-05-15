@@ -408,6 +408,7 @@ main.content.clin
         :showDepthViz="model.relationship !== 'known-variants' && model.relationship !== 'sfari-variants'"
         :showVariantViz="(model.relationship !== 'known-variants' || showKnownVariantsCard) || (model.relationship !== 'sfari-variants' || showSfariVariantsCard)"
         :geneVizShowXAxis="model.relationship === 'proband' || model.relationship === 'known-variants' || model.relationship === 'sfari-variants'"
+        :blacklistedGeneSelected="cohortModel.blacklistedGeneSelected"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-hover="onCohortVariantHover"
         @cohort-variant-hover-end="onCohortVariantHoverEnd"
@@ -809,7 +810,8 @@ export default {
           self.variantExporter,
           self.cacheHelper,
           self.genomeBuildHelper,
-          new FreebayesSettings());
+          new FreebayesSettings(),
+          self.acmgBlacklist);
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
           self.cohortModel.captureFlaggedVariants(dangerSummary)
         })
@@ -1233,15 +1235,6 @@ export default {
 
     onGeneSelected: function(geneName) {
       var self = this;
-
-      // Check to make sure selected gene is not blacklisted if we've launched SFARI project from Mosaic
-      // TODO SJG: put in SFARI project criteria
-      if (self.launchedFromHub && self.acmgBlacklist[geneName.toUpperCase()] != null) {
-          alertify.set('notifier', 'position', 'top-left');
-          alertify.warning("The SFARI program does not authorize this gene to be viewed or analyzed. Please select another gene.");
-          return;
-      }
-
       self.deselectVariant();
       self.promiseLoadGene(geneName);
       self.activeGeneVariantTab = "0";

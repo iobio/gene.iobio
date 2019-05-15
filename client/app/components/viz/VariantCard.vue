@@ -332,9 +332,15 @@
           loaded variants
         </div>
 
+        <div v-if="sampleModel.relationship === 'sfari-variants' && blacklistedGeneSelected"
+             style="text-align: center; padding-bottom: 20px; padding-top: 20px">
+          <v-chip color="red" small outline style="font-size: 12px">
+            SFARI Blacklisted Gene
+          </v-chip>
+        </div>
         <variant-viz id="loaded-variant-viz"
           ref="variantVizRef"
-          v-if="showVariantViz"
+          v-else-if="showVariantViz"
            v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
             (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"
@@ -454,7 +460,9 @@ export default {
     showVariantViz: true,
     showGeneViz: true,
     showDepthViz: true,
-    geneVizShowXAxis: null
+    geneVizShowXAxis: null,
+
+    blacklistedGeneSelected: false  // True if selected gene falls in SFARI ACMG blacklist
   },
 
 
