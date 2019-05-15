@@ -29,6 +29,19 @@
 
 @import ../../../assets/sass/variables
 
+#show-gene-menu-button
+  margin: 0px 0px 0px 0px
+  padding: 0px
+
+  .btn__content
+    color:  $app-color
+
+    i.material-icons
+      color: $app-color
+      font-size: 17px
+      padding-right: 3px
+
+
 .gene-info
   padding-top: 20px
   padding-left: 20px
@@ -94,7 +107,7 @@
     v-model="showGeneMenu"
     >
 
-      <v-btn id="show-gene-button"
+      <v-btn id="show-gene-menu-button"
        flat
        slot="activator">
         <span>

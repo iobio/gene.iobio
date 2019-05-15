@@ -406,11 +406,10 @@
       </div>
 
       <variant-links-menu
-      v-if="!isBasicMode && !isEduMode"
-      :expanded="true"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
-      :geneModel="cohortModel.geneModel">
+      :geneModel="cohortModel.geneModel"
+      :info="info">
       </variant-links-menu>
 
       <gene-menu
