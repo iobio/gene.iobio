@@ -334,8 +334,8 @@
 
         <div v-if="sampleModel.relationship === 'sfari-variants' && blacklistedGeneSelected"
              style="text-align: center; padding-bottom: 20px; padding-top: 20px">
-          <v-chip color="red" small outline style="font-size: 12px">
-            SFARI Blacklisted Gene
+          <v-chip class="red red--text" small outline style="font-size: 12px">
+            Unauthorized SFARI Gene
           </v-chip>
         </div>
         <variant-viz id="loaded-variant-viz"
@@ -660,10 +660,17 @@ export default {
     },
     hideVariantCircle: function(lock) {
       if (this.showVariantViz) {
-        var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-        this.$refs.variantVizRef.hideVariantCircle(container, lock);
+        let container = d3.select(this.$el).select('#loaded-variant-viz > svg');
+        // Have to check that container exists for when we hide SFARI track variants for blacklisted genes
+        // Else errors out circling in other
+        if (container && container[0] && container[0][0] != null) {
+            this.$refs.variantVizRef.hideVariantCircle(container, lock);
+        }
+
         container = d3.select(this.$el).select('#called-variant-viz > svg');
-        this.$refs.variantVizRef.hideVariantCircle(container, lock);
+        if (container && container[0] && container[0][0] != null) {
+            this.$refs.variantVizRef.hideVariantCircle(container, lock);
+        }
       }
     },
     getVariantViz: function(variant) {
