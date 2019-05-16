@@ -1238,9 +1238,6 @@ export default {
       self.deselectVariant();
       self.promiseLoadGene(geneName);
       self.activeGeneVariantTab = "0";
-      if (self.acmgBlacklist[geneName] != null) {
-          self.blacklistedGeneSelected = true;
-      }
     },
 
     showLeftPanelWhenFlaggedVariantsForGene: function() {
@@ -1299,6 +1296,9 @@ export default {
 
       this.showWelcome = false;
 
+      if (self.acmgBlacklist[geneName] != null) {
+        self.blacklistedGeneSelected = true;
+      }
 
       return new Promise(function(resolve, reject) {
 
