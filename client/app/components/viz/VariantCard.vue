@@ -150,6 +150,9 @@
       font-size:  12px !important
       background-color:  white !important
       color:  red !important
+    .btn
+      padding: 0
+      margin: 0
 
 
     svg
@@ -343,7 +346,7 @@
           <v-chip id="sfari-chip" class="red red--text" small outline style="font-size: 12px">
             Unauthorized SFARI Gene
               <v-menu open-on-hover offset-x transition="slide-x-transition" max-width="400px">
-                  <v-btn flat icon small color="appColor" slot="activator" class="info-button">
+                  <v-btn flat icon small color="red" slot="activator" class="info-button">
                       <v-icon small>info_outline</v-icon>
                   </v-btn>
                   <v-card>

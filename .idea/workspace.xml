@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8abfd572-6d32-499e-b393-924ffd5e3191" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/app/components/pages/GeneHome.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/components/pages/GeneHome.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -22,7 +20,7 @@
         <entry file="file://$PROJECT_DIR$/client/app/components/pages/GeneHome.vue">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="453">
-              <caret line="1311" column="11" lean-forward="true" selection-start-line="1311" selection-start-column="11" selection-end-line="1311" selection-end-column="11" />
+              <caret line="1311" column="11" selection-start-line="1311" selection-start-column="11" selection-end-line="1311" selection-end-column="11" />
               <folding>
                 <element signature="n#style#0;n#v-card#0;n#modal#0;n#v-container#0;n#v-content#0;n#div#0;n#template#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#0;n#v-container#0;n#v-content#0;n#div#0;n#template#0;n#!!top" expanded="true" />
@@ -66,8 +64,8 @@
       <file leaf-file-name="VariantCard.vue" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="433">
-              <caret line="357" column="23" lean-forward="true" selection-start-line="357" selection-start-column="23" selection-end-line="357" selection-end-column="23" />
+            <state relative-caret-position="325">
+              <caret line="349" column="57" lean-forward="true" selection-start-line="349" selection-start-column="57" selection-end-line="349" selection-end-column="57" />
               <folding>
                 <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
@@ -138,7 +136,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>loaded-variant-viz &gt; svg</find>
       <find>hidevariant</find>
       <find>calledvariants</find>
       <find>sfarivariants</find>
@@ -168,6 +165,7 @@
       <find>blackl</find>
       <find>blacklistedgene</find>
       <find>sfari</find>
+      <find>sfari-chip</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -328,12 +326,12 @@
       <workItem from="1549400436284" duration="1824000" />
       <workItem from="1550005583416" duration="6234000" />
       <workItem from="1552352180975" duration="1294000" />
-      <workItem from="1557780002244" duration="9863000" />
+      <workItem from="1557780002244" duration="10085000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="102589000" />
+    <option name="totallyTimeSpent" value="102811000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="877" extended-state="6" />
@@ -806,7 +804,7 @@
     <entry file="file://$PROJECT_DIR$/client/app/components/pages/GeneHome.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="453">
-          <caret line="1311" column="11" lean-forward="true" selection-start-line="1311" selection-start-column="11" selection-end-line="1311" selection-end-column="11" />
+          <caret line="1311" column="11" selection-start-line="1311" selection-start-column="11" selection-end-line="1311" selection-end-column="11" />
           <folding>
             <element signature="n#style#0;n#v-card#0;n#modal#0;n#v-container#0;n#v-content#0;n#div#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#v-container#0;n#v-content#0;n#div#0;n#template#0;n#!!top" expanded="true" />
@@ -821,8 +819,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="433">
-          <caret line="357" column="23" lean-forward="true" selection-start-line="357" selection-start-column="23" selection-end-line="357" selection-end-column="23" />
+        <state relative-caret-position="325">
+          <caret line="349" column="57" lean-forward="true" selection-start-line="349" selection-start-column="57" selection-end-line="349" selection-end-column="57" />
           <folding>
             <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
