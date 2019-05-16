@@ -145,11 +145,11 @@
     margin-top: 0px
     margin-bottom: 0px
 
-    #sfari-chip
-      .chip__content
-        font-size:  12px
-        background-color:  white
-        color:  red
+  #sfari-chip
+    .chip__content
+      font-size:  12px !important
+      background-color:  white !important
+      color:  red !important
 
 
     svg

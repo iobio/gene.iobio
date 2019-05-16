@@ -1044,7 +1044,7 @@ export default {
         if (self.models && self.models.length > 0) {
 
           self.cardWidth = $('#genes-card').innerWidth();
-          var options = {'getKnownVariants': self.showKnownVariantsCard, 'getSfariVariants': (self.showSfariVariantsCard && self.blacklistedGeneSelected)};
+          var options = {'getKnownVariants': self.showKnownVariantsCard, 'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected)};
 
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,
