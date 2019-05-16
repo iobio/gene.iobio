@@ -154,6 +154,9 @@
       padding: 0
       margin: 0
 
+  #sfari-menu
+    .card__text
+      padding: 5px
 
     svg
       vertical-align: bottom
@@ -345,19 +348,15 @@
              style="text-align: center; padding-bottom: 20px; padding-top: 20px">
           <v-chip id="sfari-chip" class="red red--text" small outline style="font-size: 12px">
             Unauthorized SFARI Gene
-              <v-menu open-on-hover offset-x transition="slide-x-transition" max-width="400px">
-                  <v-btn flat icon small color="red" slot="activator" class="info-button">
-                      <v-icon small>info_outline</v-icon>
+              <v-menu id="sfari-menu" open-on-hover transition="slide-x-transition" max-width="400px">
+                  <v-btn flat icon small slot="activator">
+                      <v-icon small color="red">info_outline</v-icon>
                   </v-btn>
-                  <v-card>
-                      <v-card-title style="font-family: Poppins; font-size: 16px; font-weight: 500; padding-top: 2px">
-                          Unauthorized SFARI Gene
-                      </v-card-title>
-                      <v-divider></v-divider>
-                      <v-card-text style="padding-top: 0">
+                  <div>
+                      <!--<v-card-text class="text-xs-center">-->
                           The SFARI program does not authorize this gene to be viewed or analyzed. Please select another gene.
-                      </v-card-text>
-                  </v-card>
+                      <!--</v-card-text>-->
+                  </div>
               </v-menu>
           </v-chip>
         </div>
