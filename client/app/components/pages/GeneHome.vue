@@ -1298,6 +1298,8 @@ export default {
 
       if (self.acmgBlacklist[geneName] != null) {
         self.blacklistedGeneSelected = true;
+      } else {
+          self.blacklistedGeneSelected = false;
       }
 
       return new Promise(function(resolve, reject) {
