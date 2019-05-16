@@ -155,8 +155,9 @@
       margin: 0
 
   #sfari-menu
-    .card__text
+    .menu__content
       padding: 5px
+      overflow-x: auto
 
     svg
       vertical-align: bottom
@@ -345,24 +346,21 @@
         </div>
 
         <div v-if="sampleModel.relationship === 'sfari-variants' && blacklistedGeneSelected"
-             style="text-align: center; padding-bottom: 20px; padding-top: 20px">
+            style="text-align: center; padding-bottom: 20px; padding-top: 20px">
           <v-chip id="sfari-chip" class="red red--text" small outline style="font-size: 12px">
             Unauthorized SFARI Gene
-              <v-menu id="sfari-menu" open-on-hover transition="slide-x-transition" max-width="400px">
-                  <v-btn flat icon small slot="activator">
-                      <v-icon small color="red">info_outline</v-icon>
-                  </v-btn>
-                  <div>
-                      <!--<v-card-text class="text-xs-center">-->
-                          The SFARI program does not authorize this gene to be viewed or analyzed. Please select another gene.
-                      <!--</v-card-text>-->
-                  </div>
-              </v-menu>
+            <v-menu id="sfari-menu" open-on-hover transition="slide-x-transition" max-width="400px">
+              <v-btn flat icon small slot="activator">
+                <v-icon small color="red">info_outline</v-icon>
+              </v-btn>
+              <div class="text-xs-center" style="padding: 5px">
+                The SFARI program does not authorize this gene to be viewed or analyzed. Please select another gene.
+              </div>
+            </v-menu>
           </v-chip>
         </div>
-        <variant-viz id="loaded-variant-viz"
+        <variant-viz v-else-if="showVariantViz" id="loaded-variant-viz"
           ref="variantVizRef"
-          v-else-if="showVariantViz"
            v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
             (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"

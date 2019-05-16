@@ -64,12 +64,13 @@
       <file leaf-file-name="VariantCard.vue" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="325">
-              <caret line="354" column="23" lean-forward="true" selection-start-line="354" selection-start-column="23" selection-end-line="354" selection-end-column="23" />
+            <state relative-caret-position="279">
+              <caret line="357" column="20" lean-forward="true" selection-start-line="357" selection-start-column="20" selection-end-line="357" selection-end-column="20" />
               <folding>
                 <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#v-chip#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#0;n#v-menu#0;n#v-chip#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
@@ -171,9 +172,9 @@
       <find>blacklistedgene</find>
       <find>sfari</find>
       <find>sfari-chip</find>
-      <find>sfari-menu</find>
       <find>v-card</find>
       <find>v-menu</find>
+      <find>sfari-menu</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -334,12 +335,12 @@
       <workItem from="1549400436284" duration="1824000" />
       <workItem from="1550005583416" duration="6234000" />
       <workItem from="1552352180975" duration="1294000" />
-      <workItem from="1557780002244" duration="11276000" />
+      <workItem from="1557780002244" duration="11983000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="104002000" />
+    <option name="totallyTimeSpent" value="104709000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="877" extended-state="6" />
@@ -433,6 +434,7 @@
             <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#v-chip#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#v-menu#0;n#v-chip#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
@@ -534,6 +536,7 @@
             <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#v-chip#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#v-menu#0;n#v-chip#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
@@ -825,12 +828,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="325">
-          <caret line="354" column="23" lean-forward="true" selection-start-line="354" selection-start-column="23" selection-end-line="354" selection-end-column="23" />
+        <state relative-caret-position="279">
+          <caret line="357" column="20" lean-forward="true" selection-start-line="357" selection-start-column="20" selection-end-line="357" selection-end-column="20" />
           <folding>
             <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#v-chip#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#v-menu#0;n#v-chip#0;n#div#2;n#div#2;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#span#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
