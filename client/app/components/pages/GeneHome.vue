@@ -408,7 +408,7 @@ main.content.clin
         :showDepthViz="model.relationship !== 'known-variants' && model.relationship !== 'sfari-variants'"
         :showVariantViz="(model.relationship !== 'known-variants' || showKnownVariantsCard) || (model.relationship !== 'sfari-variants' || showSfariVariantsCard)"
         :geneVizShowXAxis="model.relationship === 'proband' || model.relationship === 'known-variants' || model.relationship === 'sfari-variants'"
-        :blacklistedGeneSelected="cohortModel.blacklistedGeneSelected"
+        :blacklistedGeneSelected="blacklistedGeneSelected"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-hover="onCohortVariantHover"
         @cohort-variant-hover-end="onCohortVariantHoverEnd"
@@ -584,6 +584,7 @@ export default {
 
       allGenes: allGenesData,
       acmgBlacklist: acmgBlacklist,
+      blacklistedGeneSelected: false,
 
       selectedGene: {},
       selectedTranscript: {},
@@ -810,8 +811,7 @@ export default {
           self.variantExporter,
           self.cacheHelper,
           self.genomeBuildHelper,
-          new FreebayesSettings(),
-          self.acmgBlacklist);
+          new FreebayesSettings());
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
           self.cohortModel.captureFlaggedVariants(dangerSummary)
         })
@@ -1238,7 +1238,9 @@ export default {
       self.deselectVariant();
       self.promiseLoadGene(geneName);
       self.activeGeneVariantTab = "0";
-
+      if (self.acmgBlacklist[geneName] != null) {
+          self.blacklistedGeneSelected = true;
+      }
     },
 
     showLeftPanelWhenFlaggedVariantsForGene: function() {
@@ -1589,7 +1591,8 @@ export default {
         if (viz) {
             self.cohortModel.sfariVariantsViz = viz;
         }
-        if (self.showSfariVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
+        if (self.showSfariVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0
+            && self.acmgBlacklist[self.selectedGene.gene_name] != null) {
             self.cohortModel.promiseLoadSfariVariants(self.selectedGene, self.selectedTranscript);
         }
     },

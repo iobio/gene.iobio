@@ -145,6 +145,12 @@
     margin-top: 0px
     margin-bottom: 0px
 
+    #sfari-chip
+      .chip__content
+        font-size:  12px
+        background-color:  white
+        color:  red
+
 
     svg
       vertical-align: bottom
@@ -334,7 +340,7 @@
 
         <div v-if="sampleModel.relationship === 'sfari-variants' && blacklistedGeneSelected"
              style="text-align: center; padding-bottom: 20px; padding-top: 20px">
-          <v-chip class="red red--text" small outline style="font-size: 12px">
+          <v-chip id="sfari-chip" class="red red--text" small outline style="font-size: 12px">
             Unauthorized SFARI Gene
           </v-chip>
         </div>

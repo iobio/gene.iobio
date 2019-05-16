@@ -5,7 +5,7 @@ import SampleModel      from './SampleModel.js'
 class CohortModel {
 
   constructor(globalApp, isEduMode, isBasicMode, endpoint, genericAnnotation, translator, geneModel,
-    variantExporter, cacheHelper, genomeBuildHelper, freebayesSettings, geneBlacklist) {
+    variantExporter, cacheHelper, genomeBuildHelper, freebayesSettings) {
 
     this.globalApp = globalApp;
     this.isEduMode = isEduMode;
@@ -33,8 +33,6 @@ class CohortModel {
     this.sampleModels  = [];
     this.sampleMap = {};
     this.sampleMapSibs = { affected: [], unaffected: []};
-    this.geneBlacklist = geneBlacklist;
-    this.blacklistedGeneSelected = false;
 
     this.mode = 'single';
     this.maxAlleleCount = 0;
@@ -908,10 +906,11 @@ class CohortModel {
   promiseLoadSfariVariants(theGene, theTranscript) {
       let self = this;
 
-      // Check for blacklisted genes
-      if (self.geneBlacklist[theGene.gene_name] != null) {
-          self.blacklistedGeneSelected = true;
-      }
+      // // TODO: take out
+      // // Check for blacklisted genes
+      // if (self.geneBlacklist[theGene.gene_name] != null) {
+      //     self.blacklistedGeneSelected = true;
+      // }
 
       if (self.sfariVariantsViz === 'variants') {
           return self._promiseLoadSfariVariants(theGene, theTranscript);
