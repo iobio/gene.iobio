@@ -1592,7 +1592,7 @@ export default {
             self.cohortModel.sfariVariantsViz = viz;
         }
         if (self.showSfariVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0
-            && self.acmgBlacklist[self.selectedGene.gene_name] != null) {
+            && self.acmgBlacklist[self.selectedGene.gene_name] == null) {
             self.cohortModel.promiseLoadSfariVariants(self.selectedGene, self.selectedTranscript);
         }
     },
