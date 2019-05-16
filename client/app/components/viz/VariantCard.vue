@@ -667,15 +667,17 @@ export default {
     },
     showVariantCircle: function(variant, lock) {
       if (this.showVariantViz) {
-        let matchingVariant = this.getVariantViz(variant).showVariantCircle(variant,this.getVariantSVG(variant),lock);
-        if (lock && matchingVariant && matchingVariant.screenX && matchingVariant.screenY) {
-          let left = matchingVariant.screenX - this.$el.offsetLeft - 50;
-          let top  = matchingVariant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
-          this.pileupStyle =  {display: 'flex', 'left': left + 'px', 'top': top + 'px'};
-        } else if (lock && !matchingVariant) {
-          this.pileupStyle =  {display: 'none'};
+        let vizRef = this.getVariantViz(variant);
+        if (vizRef != null) {
+          let matchingVariant = vizRef.showVariantCircle(variant,this.getVariantSVG(variant),lock);
+          if (lock && matchingVariant && matchingVariant.screenX && matchingVariant.screenY) {
+              let left = matchingVariant.screenX - this.$el.offsetLeft - 50;
+              let top  = matchingVariant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
+              this.pileupStyle =  {display: 'flex', 'left': left + 'px', 'top': top + 'px'};
+          } else if (lock && !matchingVariant) {
+              this.pileupStyle =  {display: 'none'};
+          }
         }
-
       }
     },
     hideVariantCircle: function(lock) {
