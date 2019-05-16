@@ -818,13 +818,13 @@ class CohortModel {
         let p1 = self.promiseLoadVariants(theGene, theTranscript, options)
         .then(function(data) {
           cohortResultMap = data.resultMap;
-        })
+        });
         promises.push(p1);
 
         let p2 = self.promiseLoadCoverage(theGene, theTranscript)
         .then(function() {
           self.setCoverage();
-        })
+        });
         promises.push(p2);
 
         Promise.all(promises)
