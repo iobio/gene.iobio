@@ -32,9 +32,12 @@
 #show-gene-menu-button
   margin: 0px 0px 0px 0px
   padding: 0px
+  font-size: 15px
+  margin-top: -4px
 
   .btn__content
     color:  $app-color
+
 
     i.material-icons
       color: $app-color
@@ -103,7 +106,7 @@
     offset-x
     :close-on-content-click="false"
     :nudge-width="200"
-    left
+    right
     v-model="showGeneMenu"
     >
 
@@ -202,27 +205,18 @@ export default {
       showGeneMenu: null,
       links: null,
 
-      geneRegionBuffer: null,
       geneSource: null,
       geneSources: ['gencode', 'refseq'],
 
       noTranscriptsWarning: null,
-      showNoTranscriptsWarning: false
+      showNoTranscriptsWarning: false,
+
+      regionBuffer: null
     }
   },
   watch: {
   },
   computed: {
-    regionBuffer: {
-      get() {
-        return this.value == undefined ? 1000 : this.value
-      },
-      set(val) {
-        Vue.nextTick(() => {
-          this.$emit('input', val)
-        })
-      }
-    }
   },
   methods: {
     onClickLink: function(link) {
@@ -284,13 +278,13 @@ export default {
   },
   watch: {
     showGeneMenu: function() {
+      this.regionBuffer = this.geneModel.geneRegionBuffer;
       this.initLinks();
     },
     selectedGene: function() {
       this.initLinks();
     },
     geneModel: function() {
-      this.geneRegionBuffer = this.geneModel ? this.geneModel.geneRegionBuffer : 0;
     },
   }
 }

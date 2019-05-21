@@ -1376,7 +1376,9 @@ class SampleModel {
                true,  // hgvs notation
                true,  // rsid
                true, // vep af
-               me.globalApp.useServerCache // serverside cache
+               me.globalApp.useServerCache, // serverside cache
+               false, // sfari mode
+               true // gnomADExtra
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
@@ -1450,7 +1452,7 @@ class SampleModel {
                           // set the hgvs and rsid on the existing variant
                           theVariant.extraAnnot      = true;
                           sourceVariant.extraAnnot   = true;
-                          var vepAnnots = [
+                          var extraAnnotFields = [
                             'vepConsequence',
                             'vepImpact',
                             'vepExon',
@@ -1465,11 +1467,12 @@ class SampleModel {
                             'vepAf',
                             'highestImpactVep',
                             'highestSIFT',
-                            'highestPolyphen'
+                            'highestPolyphen',
+                            'gnomAD'
                             ];
-                          vepAnnots.forEach(function(vepAnnot) {
-                            theVariant[vepAnnot]        = v[vepAnnot];
-                            sourceVariant[vepAnnot]     = v[vepAnnot];
+                          extraAnnotFields.forEach(function(field) {
+                            theVariant[field]        = v[field];
+                            sourceVariant[field]     = v[field];
                           })
 
 
@@ -1900,11 +1903,13 @@ class SampleModel {
 
           },
           function(error) {
-            reject("missing reference")
+            console.log(error);
+            reject(error)
           });
         }
       },
       function(error) {
+        console.log(error);
         reject(error);
       });
 
@@ -2364,10 +2369,11 @@ class SampleModel {
             var variant = recs[vcfIter];
 
             // set the hgvs and rsid on the existing variant
-              variant.extraAnnot      = true;
-              variant.vepHGVSc        = annotatedRec.vepHGVSc;
-              variant.vepHGVSp        = annotatedRec.vepHGVSp;
-              variant.vepVariationIds = annotatedRec.vepVariationIds;
+            variant.extraAnnot      = true;
+            variant.vepHGVSc        = annotatedRec.vepHGVSc;
+            variant.vepHGVSp        = annotatedRec.vepHGVSp;
+            variant.vepVariationIds = annotatedRec.vepVariationIds;
+            variant.gnomAD          = annotatedRec.gnomAD;
 
             vcfIter++;
             annotIter++;

@@ -69,47 +69,87 @@ export default function vcfiobio(theGlobalApp) {
     '255': 'other'
   }
 
+  var GNOMAD_TAGS = {
+    'AF':          'af',
+    'AC':          'altCount',
+    'AN':          'totalCount',
+    'nhomalt_raw': 'homCount',
+    'AF_popmax':   'afPopMax',
 
-var effectCategories = [
-['coding_sequence_variant', 'coding'],
-['chromosome' ,'chromosome'],
-['inframe_insertion'  ,'indel'],
-['disruptive_inframe_insertion' ,'indel'],
-['inframe_deletion' ,'indel'],
-['disruptive_inframe_deletion'  ,'indel'],
-['downstream_gene_variant'  ,'other'],
-['exon_variant' ,'other'],
-['exon_loss_variant'  ,'exon_loss'],
-['frameshift_variant' ,'frameshift'],
-['gene_variant' ,'other'],
-['intergenic_region'  ,'other'],
-['conserved_intergenic_variant' ,'other'],
-['intragenic_variant' ,'other'],
-['intron_variant' ,'other'],
-['conserved_intron_variant' ,'other'],
-['miRNA','other'],
-['missense_variant' ,'missense'],
-['initiator_codon_variant'  ,'missense'],
-['stop_retained_variant'  ,'missense'],
-['rare_amino_acid_variant'  ,'rare_amino_acid'],
-['splice_acceptor_variant'  ,'splice_acceptor'],
-['splice_donor_variant' ,'splice_donor'],
-['splice_region_variant'  ,'splice_region'],
-['stop_lost'  ,'stop_lost'],
-['5_prime_UTR_premature start_codon_gain_variant' ,'utr'],
-['start_lost' ,'start_lost'],
-['stop_gained'  ,'stop_gained'],
-['synonymous_variant' ,'synonymous'],
-['start_retained' ,'synonymous'],
-['stop_retained_variant'  ,'synonymous'],
-['transcript_variant' ,'other'],
-['regulatory_region_variant'  ,'regulatory'],
-['upstream_gene_variant'  ,'other'],
-['3_prime_UTR_variant'  ,'utr'],
-['3_prime_UTR_truncation +','utr'],
-['5_prime_UTR_variant'  ,'utr'],
-['5_prime_UTR_truncation +','utr']
-];
+    'AF_fin': ['pop', 'fin', 'af'],
+    'AC_fin': ['pop', 'fin', 'altCount'],
+    'AN_fin': ['pop', 'fin', 'totalCount'],
+
+    'AF_nfe': ['pop', 'nfe', 'af'],
+    'AC_nfe': ['pop', 'nfe', 'altCount'],
+    'AN_nfe': ['pop', 'nfe', 'totalCount'],
+
+    'AF_oth': ['pop', 'oth', 'af'],
+    'AC_oth': ['pop', 'oth', 'altCount'],
+    'AN_oth': ['pop', 'oth', 'totalCount'],
+
+    'AF_amr': ['pop', 'amr', 'af'],
+    'AC_amr': ['pop', 'amr', 'altCount'],
+    'AN_amr': ['pop', 'amr', 'totalCount'],
+
+    'AF_afr': ['pop', 'afr', 'af'],
+    'AC_afr': ['pop', 'afr', 'altCount'],
+    'AN_afr': ['pop', 'afr', 'totalCount'],
+
+    'AF_asj': ['pop', 'asj', 'af'],
+    'AC_asj': ['pop', 'asj', 'altCount'],
+    'AN_asj': ['pop', 'asj', 'totalCount'],
+
+    'AF_eas': ['pop', 'eas', 'af'],
+    'AC_eas': ['pop', 'eas', 'altCount'],
+    'AN_eas': ['pop', 'eas', 'totalCount'],
+
+    'AF_sas': ['pop', 'sas', 'af'],
+    'AC_sas': ['pop', 'sas', 'altCount'],
+    'AN_sas': ['pop', 'sas', 'totalCount'],
+  }
+
+
+  var effectCategories = [
+    ['coding_sequence_variant', 'coding'],
+    ['chromosome' ,'chromosome'],
+    ['inframe_insertion'  ,'indel'],
+    ['disruptive_inframe_insertion' ,'indel'],
+    ['inframe_deletion' ,'indel'],
+    ['disruptive_inframe_deletion'  ,'indel'],
+    ['downstream_gene_variant'  ,'other'],
+    ['exon_variant' ,'other'],
+    ['exon_loss_variant'  ,'exon_loss'],
+    ['frameshift_variant' ,'frameshift'],
+    ['gene_variant' ,'other'],
+    ['intergenic_region'  ,'other'],
+    ['conserved_intergenic_variant' ,'other'],
+    ['intragenic_variant' ,'other'],
+    ['intron_variant' ,'other'],
+    ['conserved_intron_variant' ,'other'],
+    ['miRNA','other'],
+    ['missense_variant' ,'missense'],
+    ['initiator_codon_variant'  ,'missense'],
+    ['stop_retained_variant'  ,'missense'],
+    ['rare_amino_acid_variant'  ,'rare_amino_acid'],
+    ['splice_acceptor_variant'  ,'splice_acceptor'],
+    ['splice_donor_variant' ,'splice_donor'],
+    ['splice_region_variant'  ,'splice_region'],
+    ['stop_lost'  ,'stop_lost'],
+    ['5_prime_UTR_premature start_codon_gain_variant' ,'utr'],
+    ['start_lost' ,'start_lost'],
+    ['stop_gained'  ,'stop_gained'],
+    ['synonymous_variant' ,'synonymous'],
+    ['start_retained' ,'synonymous'],
+    ['stop_retained_variant'  ,'synonymous'],
+    ['transcript_variant' ,'other'],
+    ['regulatory_region_variant'  ,'regulatory'],
+    ['upstream_gene_variant'  ,'other'],
+    ['3_prime_UTR_variant'  ,'utr'],
+    ['3_prime_UTR_truncation +','utr'],
+    ['5_prime_UTR_variant'  ,'utr'],
+    ['5_prime_UTR_truncation +','utr']
+  ];
 
   exports.isFile = function() {
     return sourceType != null && sourceType == SOURCE_TYPE_FILE;
@@ -627,7 +667,7 @@ var effectCategories = [
 
 
   /* When sfariMode = true, variant id field is assigned. */
-  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false) {
+  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, gnomADExtra=false) {
     var me = this;
 
 
@@ -661,7 +701,7 @@ var effectCategories = [
             } else {
               reject();
             }
-          }, null, sfariMode);
+          }, null, sfariMode, gnomADExtra);
       } else {
         //me._getLocalStats(refName, geneObject.start, geneObject.end, sampleName);
 
@@ -672,7 +712,7 @@ var effectCategories = [
             } else {
               reject();
             }
-          });
+          }, gnomADExtra);
 
       }
 
@@ -680,7 +720,7 @@ var effectCategories = [
   }
 
 
-  exports._getLocalVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, callback, errorCallback) {
+  exports._getLocalVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, callback, errorCallback, gnomADExtra=false) {
     var me = this;
 
     // The variant region may span more than the specified region.
@@ -726,7 +766,7 @@ var effectCategories = [
 
         var allRecs = headerRecords.concat(recordsForRegions);
 
-        me._promiseAnnotateVcfRecords(allRecs, refName, geneObject, selectedTranscript, clinvarMap, isRefSeq && hgvsNotation, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, cache)
+        me._promiseAnnotateVcfRecords(allRecs, refName, geneObject, selectedTranscript, clinvarMap, isRefSeq && hgvsNotation, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, cache, gnomADExtra)
         .then( function(data) {
             callback(data[0], data[1]);
         }, function(error) {
@@ -744,7 +784,7 @@ var effectCategories = [
 
   }
 
-  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false) {
+  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false) {
 
     var me = this;
 
@@ -756,7 +796,7 @@ var effectCategories = [
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode);
+    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra);
 
 
     var annotatedData = "";
@@ -813,7 +853,7 @@ var effectCategories = [
       }
 
       // Parse the vcf object into a variant object that is visualized by the client.
-      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode);
+      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode, gnomADExtra);
 
 
       callback(annotatedRecs, results);
@@ -1075,12 +1115,12 @@ var effectCategories = [
 
 
       // Parse the vcf object into a variant object that is visualized by the client.
-      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, false, sampleNamesToGenotype, sampleIndex, vepAF);
+      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, false, sampleNamesToGenotype, sampleIndex, vepAF, false);
       return {'annotatedRecs': annotatedRecs, 'results': results};
 
   }
 
-  exports._promiseAnnotateVcfRecords = function(records, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache) {
+  exports._promiseAnnotateVcfRecords = function(records, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, gnomADExtra) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
@@ -1121,7 +1161,7 @@ var effectCategories = [
         });
 
         // Parse the vcf object into a variant object that is visualized by the client.
-        var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, isMultiSample, sampleNamesToGenotype, null, vepAF);
+        var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, isMultiSample, sampleNamesToGenotype, null, vepAF, gnomADExtra);
         resolve([annotatedRecs, results]);
       });
     });
@@ -1440,7 +1480,7 @@ var effectCategories = [
   }
 
 
-  exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF, sfariMode = false) {
+  exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF, sfariMode = false, gnomADExtra = false) {
 
       var me = this;
       var selectedTranscriptID = globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
@@ -1539,7 +1579,7 @@ var effectCategories = [
             }
 
 
-            var annot = me._parseAnnot(rec, altIdx, isMultiAllelic, geneObject, selectedTranscript, selectedTranscriptID, vepAF);
+            var annot = me._parseAnnot(rec, altIdx, isMultiAllelic, geneObject, selectedTranscript, selectedTranscriptID, vepAF, gnomADExtra);
 
             var clinvarResult = me.parseClinvarInfo(rec, clinvarMap);
 
@@ -1638,7 +1678,10 @@ var effectCategories = [
                     'vepAf':                   annot.vep.af,
 
                     // generic annots
-                    'genericAnnots':          annot.genericAnnots,
+                    'genericAnnots':           annot.genericAnnots,
+
+                    // gnomAD
+                    'gnomAD':                  gnomADExtra ? annot.gnomAD : null,
 
                     //  when multiple impacts, pick the highest one (by variant type and transcript)
                     'highestImpactSnpeff':     highestImpactSnpeff,
@@ -1703,7 +1746,7 @@ var effectCategories = [
       //return  results;
   };
 
-exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selectedTranscript, selectedTranscriptID, vepAF) {
+exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selectedTranscript, selectedTranscriptID, vepAF, gnomADExtra=false) {
   var me = this;
 
   var annot = {
@@ -1718,6 +1761,57 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
       impacts: {},
       allSnpeff: {}
     },
+    gnomAD: gnomADExtra ? {
+      af: '.',
+      afPopMax: '.',
+      altCount: 0,
+      totalCount: 0,
+      homCount: 0,
+      pop: {
+        fin: {
+          af: '.',
+          altCount: 0,
+          totalCount: 0,
+        },
+        nfe: {
+          af: '.',
+          altCount: 0,
+          totalCount: 0,
+        },
+        oth: {
+          af: '.',
+          altCount: 0,
+          totalCount: 0,
+        },
+        amr: {
+          af: '.',
+          altCount: 0,
+          totalCount: 0,
+        },
+        afr: {
+          af: '.',
+          altCount: 0,
+          totalCount: 0,
+        },
+        asj: {
+          af: '.',
+          altCount: 0,
+          totalCount: 0,
+        },
+        eas: {
+          af: '.',
+          altCount: 0,
+          totalCount: 0,
+        },
+        sas: {
+          af: '.',
+          altCount: 0,
+          totalCount: 0,
+        }
+
+      }
+    } : null,
+
     vep: {
       allVep: {},
       allSIFT: {},
@@ -1745,6 +1839,10 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
   };
 
   var annotTokens = rec.info.split(";");
+
+  if (gnomADExtra) {
+    me._parseGnomADAnnot(annotTokens, annot);
+  }
 
   annotTokens.forEach(function(annotToken) {
     if (annotToken.indexOf("BGAF_1KG=") == 0) {
@@ -1988,6 +2086,39 @@ exports._parseVepAfAnnot = function(fieldNames, vepFields, vepTokens, afSource, 
       annot.vep.af[afSource][targetFieldName] = ".";
     }
   })
+}
+
+exports._parseGnomADAnnot = function(annotTokens, annot) {
+
+  var me = this;
+
+  var setNestedValue = function(annotObject, gnomADTags, idx, theValue) {
+    var field = gnomADTags[idx];
+    if (idx == gnomADTags.length - 1) {
+      annotObject[field] = theValue;
+      return;
+    } else {
+      idx++;
+      setNestedValue(annotObject[field], gnomADTags, idx, theValue)
+    }
+  }
+
+  annotTokens.forEach(function(annotToken) {
+    var tagValue = annotToken.split("\=");
+    var annotTag   = tagValue[0];
+    var annotValue = tagValue[1];
+
+    var gnomADTag         = GNOMAD_TAGS[annotTag];
+    if (gnomADTag && annotValue) {
+      if (Array.isArray(gnomADTag)) {
+        var idx = 0
+        setNestedValue(annot.gnomAD, gnomADTag, idx, annotValue);
+      } else {
+        annot.gnomAD[gnomADTag] = annotValue;
+      }
+    }
+  })
+
 }
 
 exports._parseGenericAnnot = function(annotator, annotToken, annot) {

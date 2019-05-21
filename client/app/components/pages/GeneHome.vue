@@ -205,6 +205,7 @@ main.content.clin
 
 
         <genes-card
+         style="margin-bottom:10px"
          v-if="geneModel"
          v-show="filterModel"
          v-bind:class="{hide : showWelcome && !isEduMode, 'full-width': true}"
@@ -243,55 +244,9 @@ main.content.clin
          @on-insufficient-coverage="onInsufficientCoverage">
         </genes-card>
 
-        <v-card id="gene-card-container" class="full-width"
-          v-if="geneModel && Object.keys(selectedGene).length > 0"
-          v-bind:class="{hide : showWelcome }">
-          <gene-card
-            :showTitle="false"
-            :isEduMode="isEduMode"
-            :isBasicMode="isBasicMode"
-            :geneModel="geneModel"
-            :selectedGene="selectedGene"
-            :selectedTranscript="selectedTranscript"
-            :geneRegionStart="geneRegionStart"
-            :geneRegionEnd="geneRegionEnd"
-            :showGeneViz="!isEduMode && !isBasicMode && (cohortModel == null || !cohortModel.isLoaded)"
-            @transcript-selected="onTranscriptSelected"
-            @gene-source-selected="onGeneSourceSelected"
-            @gene-region-buffer-change="onGeneRegionBufferChange"
-            @gene-region-zoom="onGeneRegionZoom"
-            @gene-region-zoom-reset="onGeneRegionZoomReset"
-            >
-          </gene-card>
-        </v-card>
-
-        <div
-          v-if="geneModel && Object.keys(selectedGene).length > 0 && (!isBasicMode || selectedVariant != null)"
-          style="height:auto;margin-bottom:10px;"
-          v-bind:class="{hide : showWelcome, 'full-width': true }"
-          >
-
-            <v-card v-if="geneModel && cohortModel.isLoaded && Object.keys(selectedGene).length > 0"
-            id="gene-and-variant-tabs" slot="right"
-            class="full-width"
-            style=";min-height:auto;max-height:auto;margin-bottom:0px;padding-top:0px;margin-top:0px;">
 
 
-              <v-tabs
-
-                v-model="activeGeneVariantTab"
-                light
-                :class="{'basic': isBasicMode}"
-              >
-                <v-tab v-if="!isBasicMode">
-                  Ranked Variants in Gene
-                </v-tab>
-                <v-tab v-if="!isEduMode" >
-                  Variant
-                </v-tab>
-
-                <v-tab-item v-if="!isBasicMode" style="margin-top:5px;margin-bottom:0px;overflow-y:auto">
-
+<!--
                  <feature-matrix-card   style="min-width:300px;min-height:auto;max-height:auto;"
                   ref="featureMatrixCardRef"
                   v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
@@ -310,45 +265,26 @@ main.content.clin
                   @variant-rank-change="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
                   >
                   </feature-matrix-card>
+-->
+
+        <variant-inspect-card
+        ref="variantInspectRef"
+        :selectedGene="selectedGene"
+        :selectedTranscript="analyzedTranscript"
+        :selectedVariant="selectedVariant"
+        :selectedVariantRelationship="selectedVariantRelationship"
+        :genomeBuildHelper="genomeBuildHelper"
+        :cohortModel="cohortModel"
+        :info="selectedVariantInfo"
+        @transcript-id-selected="onTranscriptIdSelected"
+        @show-pileup-for-variant="onShowPileupForVariant"
+        @transcript-selected="onTranscriptSelected"
+        @gene-source-selected="onGeneSourceSelected"
+        @gene-region-buffer-change="onGeneRegionBufferChange"
+        >
+        </variant-inspect-card>
 
 
-                </v-tab-item>
-                <v-tab-item  style="margin-top:0px;margin-bottom:0px;overflow-y:auto">
-                  <variant-detail-card
-                  ref="variantDetailCardRef"
-                  :isEduMode="isEduMode"
-                  :isBasicMode="isBasicMode"
-                  :forMyGene2="forMyGene2"
-                  :showTitle="false"
-                  :selectedGene="selectedGene"
-                  :selectedTranscript="analyzedTranscript"
-                  :selectedVariant="selectedVariant"
-                  :selectedVariantNotes="selectedVariantNotes"
-                  :selectedVariantInterpretation="selectedVariantInterpretation"
-                  :selectedVariantRelationship="selectedVariantRelationship"
-                  :genomeBuildHelper="genomeBuildHelper"
-                  :variantTooltip="variantTooltip"
-                  :cohortModel="cohortModel"
-                  :info="selectedVariantInfo"
-                  @transcript-id-selected="onTranscriptIdSelected"
-                  @flag-variant="onFlagVariant"
-                  @remove-flagged-variant="onRemoveUserFlaggedVariant"
-                  @apply-variant-notes="onApplyVariantNotes"
-                  @apply-variant-interpretation="onApplyVariantInterpretation"
-                  @show-pileup-for-variant="onShowPileupForVariant"
-                  >
-                  </variant-detail-card>
-
-                  <scroll-button ref="scrollButtonRefVariant" :parentId="`variant-detail`">
-                  </scroll-button>
-
-
-                </v-tab-item>
-              </v-tabs>
-            </v-card>
-
-
-        </div>
 
 
         <welcome
@@ -463,7 +399,7 @@ import EduTourBanner      from  '../viz/EduTourBanner.vue'
 import Welcome            from  '../viz/Welcome.vue'
 import IntroCard          from  '../viz/IntroCard.vue'
 import GeneCard           from  '../viz/GeneCard.vue'
-import VariantDetailCard  from  '../viz/VariantDetailCard.vue'
+import VariantInspectCard  from  '../viz/VariantInspectCard.vue'
 import GenesCard          from  '../viz/GenesCard.vue'
 import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
@@ -506,7 +442,7 @@ export default {
       GenesCard,
       GeneCard,
       ScrollButton,
-      VariantDetailCard,
+      VariantInspectCard,
       FeatureMatrixCard,
       VariantCard,
       SplitPane,
@@ -1522,7 +1458,7 @@ export default {
         } else if (relationship !== 'sfari-variants'){
           self.cohortModel
             .getModel(relationship)
-            .promiseGetImpactfulVariantIds(self.selectedGene, self.selectedTranscript)
+            .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
             .then( function(annotatedVariants) {
               // If the clicked variant is in the list of annotated variants, show the
               // tooltip; otherwise, the callback will get the extra annots for this
@@ -2163,7 +2099,7 @@ export default {
 
 
                 self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
-                self.$refs.variantDetailCardRef.refreshGlyphs();
+                self.$refs.variantInspectRef.refresh();
 
               }
 

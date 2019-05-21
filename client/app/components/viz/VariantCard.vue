@@ -220,7 +220,7 @@
 
       <v-btn id="variant-pileup-button"
        class="variant-action-button"
-       v-if="sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship !== 'known-variants'
+       v-if="false && sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship !== 'known-variants'
         && this.sampleModel.relationship !== 'sfari-variants' && !isEduMode && !isBasicMode"
        :style="pileupStyle"
        @click="onShowPileupForVariant">

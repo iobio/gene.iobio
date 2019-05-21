@@ -17,6 +17,8 @@
 #show-variant-links-button
   margin: 0px 0px 0px 0px
   padding: 0px
+  font-size: 15px
+  margin-top: -4px
 
   .btn__content
     color:  $app-color
@@ -40,7 +42,7 @@
     <v-menu
     offset-x
     :close-on-content-click="false"
-    left
+    right
     v-model="showMenu"
     >
 
@@ -49,8 +51,12 @@
        slot="activator"
        v-tooltip.top-center="`External links to variant info (e.g. VarSome, UCSC Browser, etc.`"
       >
-          Variant
-          <v-icon>more_vert</v-icon>
+
+        <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
+        <span class="pl-1">{{ info.coord }}</span>
+        <span class="pl-1 refalt">{{ refAlt  }}</span>
+        <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
+        <v-icon>more_vert</v-icon>
       </v-btn>
 
       <div class="variant-info" >
@@ -129,6 +135,24 @@ export default {
     this.initLinks();
   },
   updated: function() {
+  },
+  computed: {
+    refAlt: function() {
+      let self = this;
+      var refAlt = "";
+      if (self.selectedGene && self.selectedGene.strand && self.selectedVariant) {
+        if (self.isEduMode) {
+          if (self.selectedGene.strand == "-") {
+            refAlt = self.globalApp.utility.switchGenotype(self.selectedVariant.eduGenotype)
+          } else {
+            refAlt = self.selectedVariant.eduGenotype;
+          }
+        } else {
+          refAlt =   self.info.refalt;
+        }
+      }
+      return refAlt;
+    }
   },
   watch: {
     showMenu: function() {

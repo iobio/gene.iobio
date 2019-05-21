@@ -1224,7 +1224,7 @@ export default {
       return refAlt;
     },
     afGnomAD: function(af) {
-      if (this.selectedVariant.vepAF == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
+      if (this.selectedVariant.vepAf == null && this.selectedVariant.vepAf.gnomAD.AF == null) {
         return "unknown";
       } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
         return "<span class='"
