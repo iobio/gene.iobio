@@ -344,6 +344,7 @@ main.content.clin
         :showDepthViz="model.relationship !== 'known-variants' && model.relationship !== 'sfari-variants'"
         :showVariantViz="(model.relationship !== 'known-variants' || showKnownVariantsCard) || (model.relationship !== 'sfari-variants' || showSfariVariantsCard)"
         :geneVizShowXAxis="model.relationship === 'proband' || model.relationship === 'known-variants' || model.relationship === 'sfari-variants'"
+        :blacklistedGeneSelected="blacklistedGeneSelected"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-hover="onCohortVariantHover"
         @cohort-variant-hover-end="onCohortVariantHoverEnd"
@@ -425,6 +426,7 @@ import Glyph              from '../../partials/Glyph.js'
 import VariantTooltip     from '../../partials/VariantTooltip.js'
 
 import allGenesData       from '../../../data/genes.json'
+import acmgBlacklist from '../../../data/ACMG_blacklist.json'
 import SplitPane          from '../partials/SplitPane.vue'
 import ScrollButton       from '../partials/ScrollButton.vue'
 
@@ -517,6 +519,8 @@ export default {
 
 
       allGenes: allGenesData,
+      acmgBlacklist: acmgBlacklist,
+      blacklistedGeneSelected: false,
 
       selectedGene: {},
       selectedTranscript: {},
@@ -976,7 +980,7 @@ export default {
         if (self.models && self.models.length > 0) {
 
           self.cardWidth = $('#genes-card').innerWidth();
-          var options = {'getKnownVariants': self.showKnownVariantsCard, 'getSfariVariants': self.showSfariVariantsCard};
+          var options = {'getKnownVariants': self.showKnownVariantsCard, 'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected)};
 
           self.cohortModel.promiseLoadData(self.selectedGene,
             self.selectedTranscript,
@@ -1167,11 +1171,9 @@ export default {
 
     onGeneSelected: function(geneName) {
       var self = this;
-
       self.deselectVariant();
       self.promiseLoadGene(geneName);
       self.activeGeneVariantTab = "0";
-
     },
 
     showLeftPanelWhenFlaggedVariantsForGene: function() {
@@ -1230,6 +1232,11 @@ export default {
 
       this.showWelcome = false;
 
+      if (self.acmgBlacklist[geneName] != null) {
+        self.blacklistedGeneSelected = true;
+      } else {
+          self.blacklistedGeneSelected = false;
+      }
 
       return new Promise(function(resolve, reject) {
 
@@ -1522,7 +1529,8 @@ export default {
         if (viz) {
             self.cohortModel.sfariVariantsViz = viz;
         }
-        if (self.showSfariVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
+        if (self.showSfariVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0
+            && self.acmgBlacklist[self.selectedGene.gene_name] == null) {
             self.cohortModel.promiseLoadSfariVariants(self.selectedGene, self.selectedTranscript);
         }
     },

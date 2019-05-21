@@ -32,7 +32,7 @@ class CohortModel {
 
     this.sampleModels  = [];
     this.sampleMap = {};
-    this.sampleMapSibs = { affected: [], unaffected: []}
+    this.sampleMapSibs = { affected: [], unaffected: []};
 
     this.mode = 'single';
     this.maxAlleleCount = 0;
@@ -818,13 +818,13 @@ class CohortModel {
         let p1 = self.promiseLoadVariants(theGene, theTranscript, options)
         .then(function(data) {
           cohortResultMap = data.resultMap;
-        })
+        });
         promises.push(p1);
 
         let p2 = self.promiseLoadCoverage(theGene, theTranscript)
         .then(function() {
           self.setCoverage();
-        })
+        });
         promises.push(p2);
 
         Promise.all(promises)
@@ -905,6 +905,13 @@ class CohortModel {
 
   promiseLoadSfariVariants(theGene, theTranscript) {
       let self = this;
+
+      // // TODO: take out
+      // // Check for blacklisted genes
+      // if (self.geneBlacklist[theGene.gene_name] != null) {
+      //     self.blacklistedGeneSelected = true;
+      // }
+
       if (self.sfariVariantsViz === 'variants') {
           return self._promiseLoadSfariVariants(theGene, theTranscript);
       } else  {

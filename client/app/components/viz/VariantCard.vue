@@ -145,6 +145,19 @@
     margin-top: 0px
     margin-bottom: 0px
 
+  #sfari-chip
+    .chip__content
+      font-size:  12px !important
+      background-color:  white !important
+      color:  red !important
+    .btn
+      padding: 0
+      margin: 0
+
+  #sfari-menu
+    .menu__content
+      padding: 5px
+      overflow-x: auto
 
     svg
       vertical-align: bottom
@@ -332,9 +345,22 @@
           loaded variants
         </div>
 
-        <variant-viz id="loaded-variant-viz"
+        <div v-if="sampleModel.relationship === 'sfari-variants' && blacklistedGeneSelected"
+            style="text-align: center; padding-bottom: 20px; padding-top: 20px">
+          <v-chip id="sfari-chip" class="red red--text" small outline style="font-size: 12px">
+            Unauthorized SFARI Gene
+            <v-menu id="sfari-menu" open-on-hover transition="slide-x-transition" max-width="400px">
+              <v-btn flat icon small slot="activator">
+                <v-icon small color="red">info_outline</v-icon>
+              </v-btn>
+              <div class="text-xs-center" style="padding: 5px">
+                The SFARI program does not authorize this gene to be viewed or analyzed. Please select another gene.
+              </div>
+            </v-menu>
+          </v-chip>
+        </div>
+        <variant-viz v-else-if="showVariantViz" id="loaded-variant-viz"
           ref="variantVizRef"
-          v-if="showVariantViz"
            v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
             (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"
@@ -454,7 +480,9 @@ export default {
     showVariantViz: true,
     showGeneViz: true,
     showDepthViz: true,
-    geneVizShowXAxis: null
+    geneVizShowXAxis: null,
+
+    blacklistedGeneSelected: false  // True if selected gene falls in SFARI ACMG blacklist
   },
 
 
@@ -639,23 +667,32 @@ export default {
     },
     showVariantCircle: function(variant, lock) {
       if (this.showVariantViz) {
-        let matchingVariant = this.getVariantViz(variant).showVariantCircle(variant,this.getVariantSVG(variant),lock);
-        if (lock && matchingVariant && matchingVariant.screenX && matchingVariant.screenY) {
-          let left = matchingVariant.screenX - this.$el.offsetLeft - 50;
-          let top  = matchingVariant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
-          this.pileupStyle =  {display: 'flex', 'left': left + 'px', 'top': top + 'px'};
-        } else if (lock && !matchingVariant) {
-          this.pileupStyle =  {display: 'none'};
+        let vizRef = this.getVariantViz(variant);
+        if (vizRef != null) {
+          let matchingVariant = vizRef.showVariantCircle(variant,this.getVariantSVG(variant),lock);
+          if (lock && matchingVariant && matchingVariant.screenX && matchingVariant.screenY) {
+              let left = matchingVariant.screenX - this.$el.offsetLeft - 50;
+              let top  = matchingVariant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
+              this.pileupStyle =  {display: 'flex', 'left': left + 'px', 'top': top + 'px'};
+          } else if (lock && !matchingVariant) {
+              this.pileupStyle =  {display: 'none'};
+          }
         }
-
       }
     },
     hideVariantCircle: function(lock) {
       if (this.showVariantViz) {
-        var container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-        this.$refs.variantVizRef.hideVariantCircle(container, lock);
+        let container = d3.select(this.$el).select('#loaded-variant-viz > svg');
+        // Have to check that container exists for when we hide SFARI track variants for blacklisted genes
+        // Else errors out circling in other
+        if (container && container[0] && container[0][0] != null) {
+            this.$refs.variantVizRef.hideVariantCircle(container, lock);
+        }
+
         container = d3.select(this.$el).select('#called-variant-viz > svg');
-        this.$refs.variantVizRef.hideVariantCircle(container, lock);
+        if (container && container[0] && container[0][0] != null) {
+            this.$refs.variantVizRef.hideVariantCircle(container, lock);
+        }
       }
     },
     getVariantViz: function(variant) {
