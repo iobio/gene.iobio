@@ -38,6 +38,10 @@
         span
           padding-left: 0px !important
 
+        .tooltip-clinvar-link
+          color:  $text-color !important
+          cursor: normal !important
+
 
 
 #ranked-variants-menu
@@ -262,7 +266,7 @@ export default {
       return refAlt;
     },
     afGnomAD: function(af) {
-      if (this.currentVariant.vepAf == null && this.currentVariant.vepAf.gnomAD.AF == null) {
+      if (this.currentVariant.vepAf == null || this.currentVariant.vepAf.gnomAD.AF == null) {
         return "unknown";
       } else if (this.currentVariant.vepAf.gnomAD.AF == ".") {
         return "<span>"
@@ -280,6 +284,12 @@ export default {
   },
 
   watch: {
+    showRankedVariantsMenu: function() {
+      this.setCurrentVariant(this.selectedVariant);
+      if (this.currentVariant && this.$refs.featureMatrixCardRef) {
+        this.$refs.featureMatrixCardRef.selectVariant(this.currentVariant);
+      }
+    }
 
   },
 
