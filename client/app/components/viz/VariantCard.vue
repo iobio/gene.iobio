@@ -388,7 +388,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants'"
+        v-show="!sampleModel.inProgress.loadingVariants && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants'"
         >
           loaded variants
         </div>
@@ -458,6 +458,7 @@
         </div>
 
         <gene-viz id="gene-viz"
+         v-show="!sampleModel.inProgress.loadingVariants && showVariantViz"
           v-bind:class="{ hide: !showGeneViz }"
           :data="[selectedTranscript]"
           :margin="geneVizMargin"
@@ -911,7 +912,7 @@ export default {
     },
     onRankedVariantClick: function(variant, sourceComponent, sourceRelationship) {
       this.showVariantCircle(variant, true);
-      this.$emit("cohort-variant-click", variant, sourceComponent, sourceRelationship);
+      this.$emit('cohort-variant-click', variant, this, this.sampleModel.relationship);
       this.showRankedVariantsMenu = false;
     },
     onRankedVariantHover: function(variant, sourceComponent) {
