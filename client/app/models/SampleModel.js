@@ -1581,7 +1581,9 @@ class SampleModel {
                true,  // hgvs notation
                true,  // rsid
                false, // vep af
-               me.globalApp.useServerCache // serverside cache
+               me.globalApp.useServerCache, // serverside cache
+               false, // sfari mode
+               true // gnomADExtra
             ).then( function(data) {
 
               var annotVcfData = data[1];
@@ -2370,10 +2372,29 @@ class SampleModel {
 
             // set the hgvs and rsid on the existing variant
             variant.extraAnnot      = true;
-            variant.vepHGVSc        = annotatedRec.vepHGVSc;
-            variant.vepHGVSp        = annotatedRec.vepHGVSp;
-            variant.vepVariationIds = annotatedRec.vepVariationIds;
-            variant.gnomAD          = annotatedRec.gnomAD;
+
+            // set the hgvs and rsid on the existing variant
+            var extraAnnotFields = [
+              'vepConsequence',
+              'vepImpact',
+              'vepExon',
+              'vepHGVSc',
+              'vepHGVSp',
+              'vepAminoAcids',
+              'vepVariationIds',
+              'vepSIFT',
+              'vepPolyPhen',
+              'vepRegs',
+              'regulatory',
+              'vepAf',
+              'highestImpactVep',
+              'highestSIFT',
+              'highestPolyphen',
+              'gnomAD'
+              ];
+            extraAnnotFields.forEach(function(field) {
+              variant[field]        = annotatedRec[field];
+            })
 
             vcfIter++;
             annotIter++;

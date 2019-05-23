@@ -184,9 +184,11 @@ export default class EndpointCmd {
       })
       var regionFile = new Blob([regionString])
 
+      var gnomADRemoveArgs = ['annotate', '-a', gnomADUrl, '-h', gnomADHeaderFile, '-x', 'INFO/AF,INFO/AN,INFO/AC', '-R', regionFile];
       var gnomADAnnotArgs = ['annotate', '-a', gnomADUrl, '-h', gnomADHeaderFile, '-c', gnomADAnnots, '-R', regionFile];
 
-      cmd = cmd.pipe(me.IOBIO.bcftoolsHelper, gnomADAnnotArgs, {ssl: false})
+      cmd = cmd.pipe(me.IOBIO.bcftoolsHelper, gnomADRemoveArgs, {ssl: false})
+               .pipe(me.IOBIO.bcftoolsHelper, gnomADAnnotArgs, {ssl: false})
 
     }
 
@@ -458,6 +460,7 @@ export default class EndpointCmd {
     vepArgs.push("--fasta");
     vepArgs.push(refFastaFile);
     cmd = cmd.pipe(me.IOBIO.vep, vepArgs, {ssl: me.globalApp.useSSL});
+
 
     return cmd;
   }
