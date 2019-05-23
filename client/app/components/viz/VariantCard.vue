@@ -57,7 +57,33 @@
     fill: $coverage-problem-glyph-color
 
 
+  #ranked-variants-menu
+    vertical-align: top
+    margin-top: -2px
+
+    #ranked-variants-menu-button
+      margin-top: 0px
+      margin-bottom: 0px
+      padding-top: 0px
+      padding-left: 0px
+      padding-right: 0px
+      margin-left: 30px
+
+      .btn__content
+        font-size: 12px
+        padding-left: 5px
+        padding-right: 5px
+
+        .material-icons
+          font-size: 22px
+          padding-right: 3px
+
+
+
   #gene-viz, #gene-viz-zoom
+    .transcript.current
+      outline: none !important
+      font-weight: normal !important
     .axis
       padding-left: 0px
       padding-right: 0px
@@ -82,6 +108,7 @@
           transform: translateY(-20px)
           display: none
 
+
   .chart-label
     font-size: 11px
 
@@ -98,13 +125,14 @@
   .zoom-switch
     margin-left: 20px
     display: inline-block
+    margin-top: 0px !important
 
     label
       padding-left: 7px
       line-height: 18px
       font-size: 12px
       font-weight: bold
-      padding-top: 2px
+      padding-top: 5px
       color: $text-color
 
   .badge
@@ -208,6 +236,8 @@
         {{ sampleLabel }}
       </span>
 
+
+
       <v-badge  id="loaded-count"
       v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
         <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
@@ -224,9 +254,27 @@
         Exons with insufficient coverage
       </v-badge>
 
+
+      <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]"
+        :isEduMode="isEduMode"
+        :isBasicMode="isBasicMode"
+        :featureMatrixModel="featureMatrixModel"
+        :selectedGene="selectedGene"
+        :selectedTranscript="selectedTranscript"
+        :selectedVariant="selectedVariant"
+        :variantTooltip="variantTooltip"
+        @ranked-variant-click="onRankedVariantClick"
+        @ranked-variant-hover="onRankedVariantHover"
+        @ranked-variant-hover-end="onRankedVariantHoverEnd"
+      >
+      </ranked-variants-menu>
+
+      </v-menu>
+
       <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode" class="zoom-switch mt-1" style="max-width:80px"
       label="Zoom"
       v-model="showZoom"
+      :hide-details="true"
       >
       </v-switch>
 
@@ -442,6 +490,7 @@
 import GeneViz              from "../viz/GeneViz.vue"
 import VariantViz           from "../viz/VariantViz.vue"
 import DepthViz             from "../viz/DepthViz.vue"
+import RankedVariantsMenu   from "../viz/RankedVariantsMenu.vue"
 import StackedBarChartViz   from "../viz/StackedBarChartViz.vue"
 import KnownVariantsToolbar from "../partials/KnownVariantsToolbar.vue"
 import SfariVariantsToolbar from "../partials/SfariVariantsToolbar.vue"
@@ -453,6 +502,7 @@ export default {
     VariantViz,
     GeneViz,
     DepthViz,
+    RankedVariantsMenu,
     KnownVariantsToolbar,
     SfariVariantsToolbar,
     StackedBarChartViz
@@ -481,6 +531,8 @@ export default {
     showGeneViz: true,
     showDepthViz: true,
     geneVizShowXAxis: null,
+
+    featureMatrixModel: null,
 
     blacklistedGeneSelected: false  // True if selected gene falls in SFARI ACMG blacklist
   },
@@ -539,6 +591,7 @@ export default {
       showZoom: false,
       zoomMessage: "Drag to zoom",
 
+      showRankedVariantsMenu: false,
 
       pileupStyle: {}
 
@@ -855,6 +908,17 @@ export default {
     onRegionZoomReset: function() {
       this.zoomMessage = "Drag to zoom";
       this.$emit('gene-region-zoom-reset');
+    },
+    onRankedVariantClick: function(variant, sourceComponent, sourceRelationship) {
+      this.showVariantCircle(variant, true);
+      this.$emit("cohort-variant-click", variant, sourceComponent, sourceRelationship);
+      this.showRankedVariantsMenu = false;
+    },
+    onRankedVariantHover: function(variant, sourceComponent) {
+      this.$emit("cohort-variant-hover", variant, sourceComponent);
+    },
+    onRankedVariantHoverEnd: function(sourceVariantCard) {
+      this.$emit("cohort-variant-hover-end", sourceVariantCard);
     }
   },
 
@@ -865,16 +929,15 @@ export default {
   computed: {
     sampleLabel: function() {
       var label = "";
-      if (this.isBasicMode || this.isEduMode ) {
-        label += "Variants for ";
-      }
       if (this.sampleModel.isAlignmentsOnly()) {
-        label += this.sampleModel.relationship ;
+        label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);
+        label += " Variants in " + this.selectedGene.gene_name;
       } else {
         if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
             && this.sampleModel.relationship !== 'sfari-variants' && this.sampleModel.relationship !== this.sampleModel.name) {
-          label += this.sampleModel.relationship + " ";
+          label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship) + " ";
         }
+        label += " Variants ";
         label += this.sampleModel.name;
       }
       return label;

@@ -22,6 +22,7 @@
 
   .btn__content
     color:  $app-color
+    padding-left: 0px
 
     i.material-icons
       color: $app-color
@@ -51,11 +52,7 @@
        slot="activator"
        v-tooltip.top-center="`External links to variant info (e.g. VarSome, UCSC Browser, etc.`"
       >
-
-        <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-        <span class="pl-1">{{ info.coord }}</span>
-        <span class="pl-1 refalt">{{ refAlt  }}</span>
-        <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
+        Variant
         <v-icon>more_vert</v-icon>
       </v-btn>
 

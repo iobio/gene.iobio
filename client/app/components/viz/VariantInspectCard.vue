@@ -68,7 +68,12 @@
 
     <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
 
-      <span>Variant</span>
+      <variant-links-menu
+      :selectedGene="selectedGene"
+      :selectedVariant="selectedVariant"
+      :geneModel="cohortModel.geneModel"
+      :info="info">
+      </variant-links-menu>
 
       <span class="pr-1 pl-1" v-if="selectedVariantRelationship == 'known-variants'">
         <app-icon
@@ -77,23 +82,13 @@
         <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
       </span>
 
+      <span>
+        <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
+        <span class="pl-1">{{ info.coord }}</span>
+        <span class="pl-1 refalt">{{ refAlt  }}</span>
+        <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
+      </span>
 
-
-      <variant-links-menu
-      :selectedGene="selectedGene"
-      :selectedVariant="selectedVariant"
-      :geneModel="cohortModel.geneModel"
-      :info="info">
-      </variant-links-menu>
-
-      <gene-menu
-      :selectedGene="selectedGene"
-      :selectedTranscript="selectedTranscript"
-      :geneModel="cohortModel.geneModel"
-      @transcript-selected="onTranscriptSelected"
-      @gene-source-selected="onGeneSourceSelected"
-      @gene-region-buffer-change="onGeneRegionBufferChange">
-      </gene-menu>
 
     </div>
 
@@ -196,7 +191,7 @@ import AppIcon           from "../partials/AppIcon.vue"
 import VariantInspectRow from "../partials/VariantInspectRow.vue"
 import VariantLinksMenu  from "../partials/VariantLinksMenu.vue"
 import InfoPopup         from "../partials/InfoPopup.vue"
-import GeneMenu          from "../partials/GeneMenu.vue"
+import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
 
 export default {
   name: 'variant-inspect-card',
@@ -204,8 +199,7 @@ export default {
     AppIcon,
     InfoPopup,
     VariantLinksMenu,
-    VariantInspectRow,
-    GeneMenu
+    VariantInspectRow
   },
   props: {
     selectedGene: null,
@@ -316,20 +310,6 @@ export default {
       }
     },
 
-    onTranscriptSelected: function(transcript) {
-      var self = this;
-      self.$emit('transcript-selected', transcript);
-    },
-
-
-    onGeneSourceSelected: function(geneSource) {
-      let self = this;
-      self.$emit('gene-source-selected', geneSource);
-    },
-
-    onGeneRegionBufferChange: function(theGeneRegionBuffer) {
-      this.$emit("gene-region-buffer-change", theGeneRegionBuffer);
-    }
   },
 
 
@@ -341,34 +321,67 @@ export default {
        +  this.info.vepConsequence
        + "</span>"
     },
+    refAlt: function() {
+      let self = this;
+      var refAlt = "";
+      if (self.selectedGene && self.selectedGene.strand && self.selectedVariant) {
+        if (self.isEduMode) {
+          if (self.selectedGene.strand == "-") {
+            refAlt = self.globalApp.utility.switchGenotype(self.selectedVariant.eduGenotype)
+          } else {
+            refAlt = self.selectedVariant.eduGenotype;
+          }
+        } else {
+          refAlt =   self.info.refalt;
+        }
+      }
+      return refAlt;
+    },
     afGnomAD: function() {
-      if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
-        return {percent: "?", link: null, class: ""};
-      } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
-        return {percent: "0%", link: null, class: "level-high"};
-      } else  {
-        var gnomAD = {};
-        gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
-          + this.selectedVariant.chrom + "-"
-          + this.selectedVariant.start + "-"
-          + this.selectedVariant.ref + "-"
-          + this.selectedVariant.alt;
-        if (this.selectedVariant.gnomAD != null) {
+      if (this.selectedVariant.extraAnnot) {
+        if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
+          return {percent: "?", link: null, class: ""};
+        } else if (this.selectedVariant.gnomAD.af  == '.') {
+          return {percent: "0%", link: null, class: "level-high"};
+        } else  {
+          var gnomAD = {};
+          gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+            + this.selectedVariant.chrom + "-"
+            + this.selectedVariant.start + "-"
+            + this.selectedVariant.ref + "-"
+            + this.selectedVariant.alt;
+
           gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
           gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
           gnomAD.percentPopMax = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax);
           gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
           gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
           gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
-        } else {
-          gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAF.gnomAD.AF);
-          gnomAD.class         = this.getAfClass(this.selectedVariant.vepAF.gnomAD.AF);
+          return gnomAD;
+        }
+
+      } else {
+        if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
+          return {percent: "?", link: null, class: ""};
+        } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
+          return {percent: "0%", link: null, class: "level-high"};
+        } else  {
+          var gnomAD = {};
+          gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+            + this.selectedVariant.chrom + "-"
+            + this.selectedVariant.start + "-"
+            + this.selectedVariant.ref + "-"
+            + this.selectedVariant.alt;
+
+          gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
+          gnomAD.class         = this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF);
           gnomAD.percentPopMax = 0;
           gnomAD.altCount      = 0;
           gnomAD.totalCount    = 0;
           gnomAD.homCount      = 0;
+          return gnomAD;
         }
-        return gnomAD;
+
       }
     },
     af1000G: function(af) {

@@ -96,6 +96,7 @@
 
           <feature-matrix-viz id="feature-matrix-viz"
             ref="featureMatrixVizRef"
+            v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
             v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0, 'basic' : isBasicMode}"
             :data="featureMatrixModel.rankedVariants"
             :matrixRows="featureMatrixModel.filteredMatrixRows"
@@ -122,7 +123,8 @@
 
 
 
-        <div id="feature-matrix-note" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" >
+        <div id="feature-matrix-note" v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
+          v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" >
 
           <div style="display:inline-block;margin-left:110px">
             <svg height="10" width="108" style="height: 10px;width:108px">
@@ -151,6 +153,7 @@
 
       <div style="text-align: center;clear: both;">
         <div class="loader featureMatrixLoader"
+        v-if="featureMatrixModel && featureMatrixModel.rankedVariants"
         v-bind:class="{hide: featureMatrixModel.inProgress
           && !featureMatrixModel.inProgress.loadingVariants
           && !featureMatrixModel.inProgress.rankingVariants}" style="display: inline-block;">
@@ -160,7 +163,8 @@
           <img src="../../../assets/images/wheel.gif">
         </div>
       </div>
-      <div  class="label label-warning level-edu" v-bind:class="{ hide: featureMatrixModel.warning.length == 0 }">
+      <div v-if="featureMatrixModel && featureMatrixModel.warning"
+      class="label label-warning level-edu" v-bind:class="{ hide: featureMatrixModel.warning.length == 0 }">
         {{ featureMatrixModel.warning }}
       </div>
 
@@ -362,50 +366,59 @@ export default {
     showVariantTooltip: function(variant, lock) {
       let self = this;
 
-      let tooltip = d3.select("#main-tooltip");
+      if (this.variantTooltip) {
+        let tooltip = d3.select("#main-tooltip");
 
-      if (lock) {
-        tooltip.style("pointer-events", "all");
-      } else {
-        tooltip.style("pointer-events", "none");
+        if (lock) {
+          tooltip.style("pointer-events", "all");
+        } else {
+          tooltip.style("pointer-events", "none");
+        }
+        var x = variant.screenXMatrix;
+        var y = variant.screenYMatrix;
+        var coord = {'x':                  x,
+                     'y':                  y,
+                     'height':             self.$el.offsetHeight,
+                      // tooltip can span across width of main window
+                     'parentWidth':        self.$el.parentNode.parentNode.offsetWidth,
+                     'preferredPositions': [ {top:    ['center', 'right', 'left' ]},
+                                             {right:  ['middle', 'top',   'bottom']},
+                                             {left:   ['middle', 'top',   'bottom']},
+                                             {bottom: ['right',  'left',  'center']} ]
+                    };
+
+        self.variantTooltip.fillAndPositionTooltip(tooltip,
+          variant,
+          self.selectedGene,
+          self.selectedTranscript,
+          lock,
+          coord,
+          'proband',
+          self.featureMatrixModel.cohort.affectedInfo,
+          self.featureMatrixModel.cohort.mode,
+          self.featureMatrixModel.cohort.maxAlleleCount);
+
       }
-      var x = variant.screenXMatrix;
-      var y = variant.screenYMatrix;
-      var coord = {'x':                  x,
-                   'y':                  y,
-                   'height':             self.$el.offsetHeight,
-                    // tooltip can span across width of main window
-                   'parentWidth':        self.$el.parentNode.parentNode.offsetWidth,
-                   'preferredPositions': [ {top:    ['center', 'right', 'left' ]},
-                                           {right:  ['middle', 'top',   'bottom']},
-                                           {left:   ['middle', 'top',   'bottom']},
-                                           {bottom: ['right',  'left',  'center']} ]
-                  };
 
-      self.variantTooltip.fillAndPositionTooltip(tooltip,
-        variant,
-        self.selectedGene,
-        self.selectedTranscript,
-        lock,
-        coord,
-        'proband',
-        self.featureMatrixModel.cohort.affectedInfo,
-        self.featureMatrixModel.cohort.mode,
-        self.featureMatrixModel.cohort.maxAlleleCount);
     },
 
     tooltipScroll(direction) {
-      this.variantTooltip.scroll(direction, "#main-tooltip");
+      if (this.variantTooltip) {
+        this.variantTooltip.scroll(direction, "#main-tooltip");
+      }
     },
 
 
     hideVariantTooltip() {
-      let tooltip = d3.select("#main-tooltip");
-      tooltip.transition()
-           .duration(500)
-           .style("opacity", 0)
-           .style("z-index", 0)
-           .style("pointer-events", "none");
+      if (this.variantTooltip) {
+        let tooltip = d3.select("#main-tooltip");
+        tooltip.transition()
+             .duration(500)
+             .style("opacity", 0)
+             .style("z-index", 0)
+             .style("pointer-events", "none");
+
+      }
     },
 
   },

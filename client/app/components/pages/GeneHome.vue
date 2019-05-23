@@ -204,6 +204,8 @@ main.content.clin
 
 
 
+
+
         <genes-card
          style="margin-bottom:10px"
          v-if="geneModel"
@@ -245,27 +247,18 @@ main.content.clin
         </genes-card>
 
 
+        <gene-variants-card
+          v-bind:class="{hide : showWelcome, 'full-width': true}"
+          v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0"
+          :selectedGene="selectedGene"
+          :selectedTranscript="analyzedTranscript"
+          :genomeBuildHelper="genomeBuildHelper"
+          :cohortModel="cohortModel"
+          @transcript-selected="onTranscriptSelected"
+          @gene-source-selected="onGeneSourceSelected"
+          @gene-region-buffer-change="onGeneRegionBufferChange">
+        </gene-variants-card>
 
-<!--
-                 <feature-matrix-card   style="min-width:300px;min-height:auto;max-height:auto;"
-                  ref="featureMatrixCardRef"
-                  v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
-                  :isEduMode="isEduMode"
-                  :isBasicMode="isBasicMode"
-                  :featureMatrixModel="featureMatrixModel"
-                  :selectedGene="selectedGene"
-                  :selectedTranscript="analyzedTranscript"
-                  :selectedVariant="selectedVariant"
-                  :relationship="PROBAND"
-                  :variantTooltip="variantTooltip"
-                  :width="cardWidth"
-                  @cohort-variant-click="onCohortVariantClick"
-                  @cohort-variant-hover="onCohortVariantHover"
-                  @cohort-variant-hover-end="onCohortVariantHoverEnd"
-                  @variant-rank-change="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
-                  >
-                  </feature-matrix-card>
--->
 
         <variant-inspect-card
         ref="variantInspectRef"
@@ -276,11 +269,7 @@ main.content.clin
         :genomeBuildHelper="genomeBuildHelper"
         :cohortModel="cohortModel"
         :info="selectedVariantInfo"
-        @transcript-id-selected="onTranscriptIdSelected"
         @show-pileup-for-variant="onShowPileupForVariant"
-        @transcript-selected="onTranscriptSelected"
-        @gene-source-selected="onGeneSourceSelected"
-        @gene-region-buffer-change="onGeneRegionBufferChange"
         >
         </variant-inspect-card>
 
@@ -315,6 +304,30 @@ main.content.clin
         </v-card>
 
 
+
+
+<!--
+
+         <feature-matrix-card   style="min-width:300px;min-height:auto;max-height:auto;margin-bottom: 10px !important"
+          ref="featureMatrixCardRef"
+          v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
+          :isEduMode="isEduMode"
+          :isBasicMode="isBasicMode"
+          :featureMatrixModel="featureMatrixModel"
+          :selectedGene="selectedGene"
+          :selectedTranscript="analyzedTranscript"
+          :selectedVariant="selectedVariant"
+          :relationship="PROBAND"
+          :variantTooltip="variantTooltip"
+          :width="cardWidth"
+          @cohort-variant-click="onCohortVariantClick"
+          @cohort-variant-hover="onCohortVariantHover"
+          @cohort-variant-hover-end="onCohortVariantHoverEnd"
+          @variant-rank-change="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
+          >
+          </feature-matrix-card>
+-->
+
         <variant-card
         ref="variantCardRef"
         v-for="model in models"
@@ -339,6 +352,7 @@ main.content.clin
         :selectedVariant="selectedVariant"
         :regionStart="geneRegionStart"
         :regionEnd="geneRegionEnd"
+        :featureMatrixModel="featureMatrixModel"
         :width="cardWidth"
         :showGeneViz="true"
         :showDepthViz="model.relationship !== 'known-variants' && model.relationship !== 'sfari-variants'"
@@ -402,6 +416,7 @@ import IntroCard          from  '../viz/IntroCard.vue'
 import GeneCard           from  '../viz/GeneCard.vue'
 import VariantInspectCard  from  '../viz/VariantInspectCard.vue'
 import GenesCard          from  '../viz/GenesCard.vue'
+import GeneVariantsCard   from  '../viz/GeneVariantsCard.vue'
 import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
 import AppTour            from  '../viz/AppTour.vue'
@@ -443,6 +458,7 @@ export default {
       Welcome,
       GenesCard,
       GeneCard,
+      GeneVariantsCard,
       ScrollButton,
       VariantInspectCard,
       FeatureMatrixCard,
@@ -1452,6 +1468,7 @@ export default {
         self.$refs.featureMatrixCardRef.selectVariant(null);
       }
     },
+
     showVariantExtraAnnots: function(relationship, variant) {
       let self = this;
       if (!self.isEduMode && !self.cohortModel.getModel(relationship).isAlignmentsOnly() )  {
@@ -1465,7 +1482,7 @@ export default {
         } else if (relationship !== 'sfari-variants'){
           self.cohortModel
             .getModel(relationship)
-            .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
+            .promiseGetImpactfulVariantIds(self.selectedGene, self.selectedTranscript)
             .then( function(annotatedVariants) {
               // If the clicked variant is in the list of annotated variants, show the
               // tooltip; otherwise, the callback will get the extra annots for this
@@ -1481,13 +1498,11 @@ export default {
                   })
               })
             });
-
-
         }
       }
     },
 
-    refreshVariantExtraAnnots: function(variant, annotatedVariants, callbackNotFound) {
+    refreshVariantExtraAnnots: function(variant, annotatedVariants, callbackNotFoundOrAnnotated) {
       let self = this;
       var targetVariants = annotatedVariants.filter(function(v) {
         return variant &&
@@ -1502,15 +1517,39 @@ export default {
         annotatedVariant.screenXMatrix = variant.screenXMatrix;
         annotatedVariant.screenYMatrix = variant.screenYMatrix;
 
-        variant.extraAnnot      = true;
-        variant.vepHGVSc        = annotatedVariant.vepHGVSc;
-        variant.vepHGVSp        = annotatedVariant.vepHGVSp;
-        variant.vepVariationIds = annotatedVariant.vepVariationIds;
+        if (annotatedVariant.extraAnnot) {
+          variant.extraAnnot      = true;
+          var extraAnnotFields = [
+            'vepConsequence',
+            'vepImpact',
+            'vepExon',
+            'vepHGVSc',
+            'vepHGVSp',
+            'vepAminoAcids',
+            'vepVariationIds',
+            'vepSIFT',
+            'vepPolyPhen',
+            'vepRegs',
+            'regulatory',
+            'vepAf',
+            'highestImpactVep',
+            'highestSIFT',
+            'highestPolyphen',
+            'gnomAD'
+            ];
+          extraAnnotFields.forEach(function(field) {
+            variant[field]        = annotatedVariant[field];
+          })
+        } else {
+          if (callbackNotFoundOrAnnotated) {
+            callbackNotFoundOrAnnotated();
+          }
+        }
 
 
       } else {
-        if (callbackNotFound) {
-          callbackNotFound();
+        if (callbackNotFoundOrAnnotated) {
+          callbackNotFoundOrAnnotated();
         }
       }
 
