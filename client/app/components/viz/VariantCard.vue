@@ -62,7 +62,7 @@
     margin-top: -2px
 
     #ranked-variants-menu-button
-      margin-top: 0px
+      margin-top: -2px
       margin-bottom: 0px
       padding-top: 0px
       padding-left: 0px
@@ -70,7 +70,7 @@
       margin-left: 30px
 
       .btn__content
-        font-size: 12px
+        font-size: 15px
         padding-left: 5px
         padding-right: 5px
 
@@ -238,7 +238,22 @@
 
 
 
-      <v-badge  id="loaded-count"
+      <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]"
+        :isEduMode="isEduMode"
+        :isBasicMode="isBasicMode"
+        :featureMatrixModel="featureMatrixModel"
+        :selectedGene="selectedGene"
+        :selectedTranscript="selectedTranscript"
+        :selectedVariant="selectedVariant"
+        :variantTooltip="variantTooltip"
+        @ranked-variant-click="onRankedVariantClick"
+        @ranked-variant-hover="onRankedVariantHover"
+        @ranked-variant-hover-end="onRankedVariantHoverEnd"
+      >
+      </ranked-variants-menu>
+
+
+      <v-badge  id="loaded-count" :style="sampleModel.relationship != 'proband' ? 'margin-left:180px !important;' : ''"
       v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
         <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
         {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Loaded' }}
@@ -255,21 +270,7 @@
       </v-badge>
 
 
-      <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]"
-        :isEduMode="isEduMode"
-        :isBasicMode="isBasicMode"
-        :featureMatrixModel="featureMatrixModel"
-        :selectedGene="selectedGene"
-        :selectedTranscript="selectedTranscript"
-        :selectedVariant="selectedVariant"
-        :variantTooltip="variantTooltip"
-        @ranked-variant-click="onRankedVariantClick"
-        @ranked-variant-hover="onRankedVariantHover"
-        @ranked-variant-hover-end="onRankedVariantHoverEnd"
-      >
-      </ranked-variants-menu>
 
-      </v-menu>
 
       <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode" class="zoom-switch mt-1" style="max-width:80px"
       label="Zoom"

@@ -61,10 +61,12 @@
       font-size: 12px
       padding-left: 5px
       padding-right: 5px
+      color:  $app-color
 
       .material-icons
         font-size: 22px
         padding-right: 3px
+        color: $app-color
 
 </style>
 

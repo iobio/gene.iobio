@@ -82,7 +82,7 @@
         <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
       </span>
 
-      <span>
+      <span style="margin-left: 40px">
         <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1">{{ info.coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
