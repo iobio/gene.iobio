@@ -6,6 +6,18 @@
 
 @import ../../../assets/sass/variables
 
+
+#ranked-variants-menu-close-button
+  right: 1px
+  top: 1px
+  position: absolute
+  margin: 0px
+  padding: 0px
+  min-width: 20px
+
+  .btn__content
+    padding: 4px
+
 #ranked-variants-body
   display: flex
 
@@ -89,85 +101,94 @@
           <span> Ranked list</span>
         </v-btn>
 
-        <div id="ranked-variants-body">
+        <div>
+          <v-btn id="ranked-variants-menu-close-button" @click="showRankedVariantsMenu = false" flat>
+             <v-icon>close</v-icon>
+          </v-btn>
 
-          <feature-matrix-card
-            id="ranked-variants-matrix"
-            ref="featureMatrixCardRef"
-            :isEduMode="isEduMode"
-            :isBasicMode="isBasicMode"
-            :featureMatrixModel="featureMatrixModel"
-            :selectedGene="selectedGene"
-            :selectedTranscript="selectedTranscript"
-            :selectedVariant="selectedVariant"
-            relationship="PROBAND"
-            :width="300"
-            @cohort-variant-click="onRankedVariantClick"
-            @cohort-variant-hover="onRankedVariantHover"
-            @cohort-variant-hover-end="onRankedVariantHoverEnd"
-            @variant-rank-change="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
-            >
-           </feature-matrix-card>
 
-          <div id="ranked-variant-info" v-if="currentVariant && currentVariantInfo">
-            <div id="ranked-variant-header" >
-              <span class="pl-1">{{ currentVariant.type ? currentVariant.type.toUpperCase() : "" }}</span>
-              <span class="pl-1">{{ currentVariantInfo.coord }}</span>
-              <span class="pl-1 refalt">{{ refAlt  }}</span>
-            </div>
+          <div id="ranked-variants-body">
 
-            <v-flex v-if="!isBasicMode && currentVariant.inheritance != '' && currentVariant.inheritance != 'none' ">
-              <v-layout row class="">
-                 <v-flex xs4 class="field-label">Inheritance</v-flex>
-                 <v-flex id="inheritance" xs8 class="field-value">
-                   <app-icon :icon="currentVariant.inheritance" height="16" width="16">
-                   </app-icon>
-                   {{ currentVariant.inheritance == 'denovo' ? 'de novo' : currentVariant.inheritance }}
-                 </v-flex>
-              </v-layout>
-            </v-flex>
-            <v-flex>
-              <v-layout row>
-                 <v-flex xs4  class="field-label">Impact</v-flex>
-                 <v-flex xs8  class="field-value" v-html="impactAndConsequence"></v-flex>
-              </v-layout>
-            </v-flex>
 
-            <v-flex >
-              <v-layout row  v-if="currentVariantInfo.clinvarLinks.length > 0">
-                 <v-flex xs4 class="field-label">Clinvar</v-flex>
-                 <v-flex xs8   class="field-value">
-                  <span class="clinvar-submission" v-for="clinvarLink in currentVariantInfo.clinvarLinks"
-                   :key="clinvarLink.key">
-                     <app-icon width="14" height="14" icon="clinvar" :significance="clinvarLink.significance">
+
+            <feature-matrix-card
+              id="ranked-variants-matrix"
+              ref="featureMatrixCardRef"
+              :isEduMode="isEduMode"
+              :isBasicMode="isBasicMode"
+              :featureMatrixModel="featureMatrixModel"
+              :selectedGene="selectedGene"
+              :selectedTranscript="selectedTranscript"
+              :selectedVariant="selectedVariant"
+              relationship="PROBAND"
+              :width="300"
+              @cohort-variant-click="onRankedVariantClick"
+              @cohort-variant-hover="onRankedVariantHover"
+              @cohort-variant-hover-end="onRankedVariantHoverEnd"
+              @variant-rank-change="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
+              >
+             </feature-matrix-card>
+
+            <div id="ranked-variant-info" v-if="currentVariant && currentVariantInfo">
+              <div id="ranked-variant-header" >
+                <span class="pl-1">{{ currentVariant.type ? currentVariant.type.toUpperCase() : "" }}</span>
+                <span class="pl-1">{{ currentVariantInfo.coord }}</span>
+                <span class="pl-1 refalt">{{ refAlt  }}</span>
+              </div>
+
+              <v-flex v-if="!isBasicMode && currentVariant.inheritance != '' && currentVariant.inheritance != 'none' ">
+                <v-layout row class="">
+                   <v-flex xs4 class="field-label">Inheritance</v-flex>
+                   <v-flex id="inheritance" xs8 class="field-value">
+                     <app-icon :icon="currentVariant.inheritance" height="16" width="16">
                      </app-icon>
+                     {{ currentVariant.inheritance == 'denovo' ? 'de novo' : currentVariant.inheritance }}
+                   </v-flex>
+                </v-layout>
+              </v-flex>
+              <v-flex>
+                <v-layout row>
+                   <v-flex xs4  class="field-label">Impact</v-flex>
+                   <v-flex xs8  class="field-value" v-html="impactAndConsequence"></v-flex>
+                </v-layout>
+              </v-flex>
 
-                     <span style="padding-left: 5px" v-html="clinvarLink.link">
-                     </span>
+              <v-flex >
+                <v-layout row  v-if="currentVariantInfo.clinvarLinks.length > 0">
+                   <v-flex xs4 class="field-label">Clinvar</v-flex>
+                   <v-flex xs8   class="field-value">
+                    <span class="clinvar-submission" v-for="clinvarLink in currentVariantInfo.clinvarLinks"
+                     :key="clinvarLink.key">
+                       <app-icon width="14" height="14" icon="clinvar" :significance="clinvarLink.significance">
+                       </app-icon>
 
-                  </span>
-                 </v-flex>
-              </v-layout>
+                       <span style="padding-left: 5px" v-html="clinvarLink.link">
+                       </span>
+
+                    </span>
+                   </v-flex>
+                </v-layout>
 
 
+              </v-flex>
+
+              <v-flex  v-if="currentVariantInfo.revel != '' && currentVariantInfo.revel != null && !isBasicMode" >
+                <v-layout row class="">
+                   <v-flex xs4 class="field-label revel">REVEL</v-flex>
+                   <v-flex xs8>
+                      {{ currentVariantInfo.revel }}
+                   </v-flex>
+                </v-layout>
+              </v-flex>
+
+              <v-flex>
+                <v-layout  row>
+                   <v-flex xs4 class="field-label">gnomAD</v-flex>
+                   <v-flex xs8 class="field-value" v-html="afGnomAD"></v-flex>
+                </v-layout>
             </v-flex>
 
-            <v-flex  v-if="currentVariantInfo.revel != '' && currentVariantInfo.revel != null && !isBasicMode" >
-              <v-layout row class="">
-                 <v-flex xs4 class="field-label revel">REVEL</v-flex>
-                 <v-flex xs8>
-                    {{ currentVariantInfo.revel }}
-                 </v-flex>
-              </v-layout>
-            </v-flex>
-
-            <v-flex>
-              <v-layout  row>
-                 <v-flex xs4 class="field-label">gnomAD</v-flex>
-                 <v-flex xs8 class="field-value" v-html="afGnomAD"></v-flex>
-              </v-layout>
-          </v-flex>
-
+            </div>
           </div>
         </div>
 
@@ -296,9 +317,11 @@ export default {
 
   watch: {
     showRankedVariantsMenu: function() {
-      this.setCurrentVariant(this.selectedVariant);
-      if (this.currentVariant && this.$refs.featureMatrixCardRef) {
-        this.$refs.featureMatrixCardRef.selectVariant(this.currentVariant);
+      if (this.showRankedVariantsMenu) {
+        this.setCurrentVariant(this.selectedVariant);
+        if (this.currentVariant && this.$refs.featureMatrixCardRef) {
+          this.$refs.featureMatrixCardRef.selectVariant(this.currentVariant);
+        }
       }
     }
 

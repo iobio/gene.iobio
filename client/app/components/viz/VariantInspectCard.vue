@@ -138,11 +138,11 @@
             <span>{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
           </div>
       </div>
-      <div class="variant-inspect-column" >
+      <div class="variant-inspect-column"  >
           <div class="variant-column-header">
             Gene Phenotypes
           </div>
-          <div v-if="geneHits" v-for="geneHit in geneHits" :key="geneHit.searchTerm" class="variant-row" style="flex-flow:column">
+          <div v-if="geneHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
             <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
               <div>
                 <v-chip class="high">#{{ geneRank.rank }}</v-chip>
@@ -201,6 +201,7 @@ export default {
   },
   data() {
     return {
+      genePhenotypeHits: null
 
 
     }
@@ -322,6 +323,18 @@ export default {
       } else {
         return '';
       }
+    },
+    initGenePhenotypeHits: function() {
+      let self = this;
+      self.genePhenotypeHits = [];
+      let searchTermRecs = self.cohortModel.geneModel.getGenePhenotypeHits(self.selectedGene.gene_name);
+      if (searchTermRecs) {
+        for (var searchTerm in searchTermRecs) {
+          let searchTermLabel = searchTerm.split("_").join(" ");
+          var rankRecs        = searchTermRecs[searchTerm];
+          self.genePhenotypeHits.push( {key: searchTerm, searchTerm: searchTermLabel, geneRanks: rankRecs } );
+        }
+      }
     }
 
   },
@@ -410,6 +423,9 @@ export default {
   },
 
   watch: {
+    selectedVariant: function() {
+      this.initGenePhenotypeHits();
+    }
 
   },
 
