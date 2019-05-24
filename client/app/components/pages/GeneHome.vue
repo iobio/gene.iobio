@@ -1392,6 +1392,10 @@ export default {
     onCohortVariantClick: function(variant, sourceComponent, sourceRelationship) {
       let self = this;
       if (variant) {
+        self.geneModel.adjustGeneRegion(variant.gene);
+        self.geneRegionStart = variant.gene.start;
+        self.geneRegionEnd   = variant.gene.end;
+
         self.calcFeatureMatrixWidthPercent();
         self.selectedVariant = variant;
         self.selectedVariantRelationship = sourceRelationship;

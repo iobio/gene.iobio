@@ -157,9 +157,12 @@
             Quality
           </div>
           <div class="variant-row">
-            <v-icon class="sufficient">check_circle</v-icon>
-            <span>Allele counts</span>
-            <v-icon>more_vert</v-icon>
+            <variant-allele-counts-menu
+              :selectedVariant="selectedVariant"
+              :affectedInfo="cohortModel.affectedInfo"
+              :cohortModel="cohortModel.mode"
+              :relationship="selectedVariantRelationship">
+            </variant-allele-counts-menu>
           </div>
           <div class="variant-row">
             <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
@@ -175,12 +178,13 @@
 
 <script>
 
-import Vue               from 'vue'
-import AppIcon           from "../partials/AppIcon.vue"
-import VariantInspectRow from "../partials/VariantInspectRow.vue"
-import VariantLinksMenu  from "../partials/VariantLinksMenu.vue"
-import InfoPopup         from "../partials/InfoPopup.vue"
-import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
+import Vue                      from 'vue'
+import AppIcon                  from "../partials/AppIcon.vue"
+import VariantInspectRow        from "../partials/VariantInspectRow.vue"
+import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
+import VariantAlleleCountsMenu  from "../partials/VariantAlleleCountsMenu.vue"
+import InfoPopup                from "../partials/InfoPopup.vue"
+import TranscriptsMenu          from '../partials/TranscriptsMenu.vue'
 
 export default {
   name: 'variant-inspect-card',
@@ -188,7 +192,8 @@ export default {
     AppIcon,
     InfoPopup,
     VariantLinksMenu,
-    VariantInspectRow
+    VariantInspectRow,
+    VariantAlleleCountsMenu
   },
   props: {
     selectedGene: null,
