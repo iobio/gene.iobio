@@ -269,6 +269,7 @@ main.content.clin
         :genomeBuildHelper="genomeBuildHelper"
         :cohortModel="cohortModel"
         :info="selectedVariantInfo"
+        :showGenePhenotypes="launchedFromClin || phenotypeTerm"
         @show-pileup-for-variant="onShowPileupForVariant"
         >
         </variant-inspect-card>
@@ -303,30 +304,6 @@ main.content.clin
           <img src="../../../assets/images/wheel.gif">
         </v-card>
 
-
-
-
-<!--
-
-         <feature-matrix-card   style="min-width:300px;min-height:auto;max-height:auto;margin-bottom: 10px !important"
-          ref="featureMatrixCardRef"
-          v-bind:class="{ hide: !cohortModel || !cohortModel.isLoaded || !featureMatrixModel || !featureMatrixModel.rankedVariants }"
-          :isEduMode="isEduMode"
-          :isBasicMode="isBasicMode"
-          :featureMatrixModel="featureMatrixModel"
-          :selectedGene="selectedGene"
-          :selectedTranscript="analyzedTranscript"
-          :selectedVariant="selectedVariant"
-          :relationship="PROBAND"
-          :variantTooltip="variantTooltip"
-          :width="cardWidth"
-          @cohort-variant-click="onCohortVariantClick"
-          @cohort-variant-hover="onCohortVariantHover"
-          @cohort-variant-hover-end="onCohortVariantHoverEnd"
-          @variant-rank-change="featureMatrixModel.promiseRankVariants(cohortModel.getModel('proband').loadedVariants);"
-          >
-          </feature-matrix-card>
--->
 
         <variant-card
         ref="variantCardRef"
@@ -1392,9 +1369,11 @@ export default {
     onCohortVariantClick: function(variant, sourceComponent, sourceRelationship) {
       let self = this;
       if (variant) {
-        self.geneModel.adjustGeneRegion(variant.gene);
-        self.geneRegionStart = variant.gene.start;
-        self.geneRegionEnd   = variant.gene.end;
+        if (variant.gene) {
+          self.geneModel.adjustGeneRegion(variant.gene);
+          self.geneRegionStart = variant.gene.start;
+          self.geneRegionEnd   = variant.gene.end;
+        }
 
         self.calcFeatureMatrixWidthPercent();
         self.selectedVariant = variant;

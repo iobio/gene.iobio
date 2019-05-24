@@ -138,7 +138,7 @@
             <span>{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
           </div>
       </div>
-      <div class="variant-inspect-column"  >
+      <div class="variant-inspect-column" v-if="showGenePhenotypes" >
           <div class="variant-column-header">
             Gene Phenotypes
           </div>
@@ -202,6 +202,7 @@ export default {
     selectedVariantRelationship: null,
     genomeBuildHelper: null,
     cohortModel: null,
+    showGenePhenotypes: null,
     info: null
   },
   data() {
