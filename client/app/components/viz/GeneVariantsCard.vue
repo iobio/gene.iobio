@@ -95,15 +95,19 @@
 
 
 
-      <gene-menu
-      :selectedGene="selectedGene"
-      :selectedTranscript="selectedTranscript"
-      :geneModel="cohortModel.geneModel">
-      </gene-menu>
+      <div style="display:inline-block;width:223px">
+
+
+        <gene-menu
+        :selectedGene="selectedGene"
+        :selectedTranscript="selectedTranscript"
+        :geneModel="cohortModel.geneModel">
+        </gene-menu>
+      </div>
 
 
 
-      <div style="margin-left:30px">
+      <div>
         <span id="gene-chr" class="gene-card-label keep-case" >{{ selectedGene.chr }}</span>
         <span id="gene-region"   class="gene-card-label keep-case">
         {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}

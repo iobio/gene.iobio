@@ -30,6 +30,7 @@
         flex-direction: row
         font-size: 13px
         margin-bottom: 10px
+        max-width: 260px
 
 
   .rel-header
@@ -68,12 +69,14 @@
 
     <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
 
-      <variant-links-menu
-      :selectedGene="selectedGene"
-      :selectedVariant="selectedVariant"
-      :geneModel="cohortModel.geneModel"
-      :info="info">
-      </variant-links-menu>
+      <div style="display:inline-block;width:220px">
+        <variant-links-menu
+        :selectedGene="selectedGene"
+        :selectedVariant="selectedVariant"
+        :geneModel="cohortModel.geneModel"
+        :info="info">
+        </variant-links-menu>
+      </div>
 
       <span class="pr-1 pl-1" v-if="selectedVariantRelationship == 'known-variants'">
         <app-icon
@@ -82,8 +85,8 @@
         <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
       </span>
 
-      <span style="margin-left: 40px">
-        <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
+      <span  >
+        <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1">{{ info.coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
         <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
@@ -97,22 +100,21 @@
           <div class="variant-column-header">
             Pathogenicity
           </div>
-          <div class="variant-row">
-            <v-icon class="high">check_circle</v-icon>
-            <span>ClinVar Likely Pathogenic</span>
-          </div>
-          <div class="variant-row">
-            <v-icon class="moderate">check_circle</v-icon>
-            <span>High impact</span>
-          </div>
-          <div class="variant-row">
-            <v-icon >check_circle</v-icon>
-            <span>Stop gain</span>
-          </div>
-          <div class="variant-row">
-            <v-icon class="high">check_circle</v-icon>
-            <span>.83 REVEL</span>
-          </div>
+          <variant-inspect-row  v-for="clinvar in info.clinvarLinks"
+            :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
+          </variant-inspect-row>
+
+          <variant-inspect-row
+            :clazz="getImpactClass(info.vepImpact)" :value="info.vepImpact" :label="`Impact VEP`"  >
+          </variant-inspect-row>
+
+          <variant-inspect-row
+            :clazz="getImpactClass(info.vepImpact)" :value="info.vepConsequence"   >
+          </variant-inspect-row>
+
+          <variant-inspect-row v-if="info.revel != '' && info.revel"
+            :clazz="getRevelClass(info)" :value="info.revel"   :label="`REVEL`" >
+          </variant-inspect-row>
       </div>
       <div class="variant-inspect-column">
           <div class="variant-column-header">
@@ -136,29 +138,16 @@
             <span>{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
           </div>
       </div>
-      <div class="variant-inspect-column">
+      <div class="variant-inspect-column" >
           <div class="variant-column-header">
             Gene Phenotypes
           </div>
-          <div class="variant-row ">
-            <div>
+          <div v-if="geneHits" v-for="geneHit in geneHits" :key="geneHit.searchTerm" class="variant-row" style="flex-flow:column">
+            <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
               <div>
-                <v-chip class="high">#14</v-chip>
-                <span class="pheno-source">GTR</span>
-                <span class="pheno-search-term">Smith Magenis Syndrome</span>
-              </div>
-              <div>
-                <v-chip class="high">#28</v-chip>
-                <span class="pheno-source">Phen.</span>
-              </div>
-            </div>
-          </div>
-          <div class="variant-row">
-            <div>
-              <div>
-                <v-chip class="high">#114</v-chip>
-                <span class="pheno-source">Phen.</span>
-                <span class="pheno-search-term">Scoliosis</span>
+                <v-chip class="high">#{{ geneRank.rank }}</v-chip>
+                <span v-if="geneRank.source" class="pheno-source">{{ geneRank.source }}</span>
+                <span v-if="geneHit.searchTerm" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
               </div>
             </div>
           </div>
@@ -222,6 +211,8 @@ export default {
     refresh: function() {
 
     },
+
+
     formatPopAF: function(afObject) {
       let self = this;
       var popAF = "";
@@ -283,13 +274,25 @@ export default {
 
     getRevelClass: function(info) {
       let self = this;
-      let clazz = "field-value revel-field";
+      let clazz = null;
       self.cohortModel.translator.revelMap.forEach(function(revelRange) {
       if (info.revel >= revelRange.min && info.revel < revelRange.max) {
-          clazz += " " + revelRange.clazz;
+          clazz = revelRange.clazz;
         }
       })
-      return clazz;
+
+      if (clazz) {
+        if (clazz == 'revel_high') {
+          return 'level-high';
+        } else if (clazz == 'revel_moderate') {
+          return 'level-medium';
+        } else {
+          return 'level-unremarkable';
+        }
+      } else {
+        return 'level-unremarkable';
+      }
+
     },
     getAfClass: function(af) {
       if (af <= .01) {
@@ -306,21 +309,25 @@ export default {
       } else if (impact == 'moderate') {
         return 'level-medium'
       } else {
-        return '';
+        return 'level-unremarkable';
       }
     },
+    getClinvarClass: function(significance) {
+      if (significance == 'clinvar_path' || significance == 'clinvar_lpath') {
+        return 'level-high';
+      } else if(significance == 'clinvar_cd') {
+        return 'level-medium';
+      } else if (significance == 'clinvar_benign' || significance == 'clinvar_lbenign') {
+        return 'level-unremarkable';
+      } else {
+        return '';
+      }
+    }
 
   },
 
 
   computed: {
-    impactAndConsequence: function() {
-      return "<span class='" + this.getImpactClass(this.info.vepImpact) + "'>"
-       + this.info.vepImpact
-       + " - "
-       +  this.info.vepConsequence
-       + "</span>"
-    },
     refAlt: function() {
       let self = this;
       var refAlt = "";
@@ -384,23 +391,21 @@ export default {
 
       }
     },
-    af1000G: function(af) {
-      if (this.selectedVariant.af1000G == null) {
-        return "0%";
-      } else  {
-        var af = this.globalApp.utility.percentage(this.selectedVariant.af1000G);
-        var popAF = this.formatPopAF(this.selectedVariant.vepAf['1000G']);
-        return "<span class='"
-        + this.getAfClass(this.selectedVariant.af1000G) + "'>"
-        + af
-        + "</span>"
-        +"<span style='margin-left:2px''>"
-        + popAF
-        + "</span>";
-      }
-    },
-    afExAC: function() {
-      return this.selectedVariant.afExAC ? this.globalApp.utility.percentage(this.selectedVariant.afExAC) : "";
+    geneHits: function() {
+      return [
+        { searchTerm: 'Smith Magenis',
+          geneRanks: [
+           {rank: 41, source: 'GTR'},
+           {rank: 78, source: 'Phen.'},
+          ]
+        },
+        { searchTerm: 'Scoliosis',
+          geneRanks: [
+           {rank: 115, source: 'Phen.'}
+          ]
+        },
+
+      ]
     }
   },
 
@@ -409,6 +414,7 @@ export default {
   },
 
   filters: {
+
     showRelationship: function(buf) {
       if (buf == null) {
         return "";
@@ -418,7 +424,8 @@ export default {
         // Capitalize first letter
         return buf.charAt(0).toUpperCase() + buf.slice(1);
       }
-    }
+    },
+
 
 
   },

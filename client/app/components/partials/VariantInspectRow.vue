@@ -8,6 +8,10 @@
       font-size: 13px
       margin-bottom: 10px
 
+
+      .variant-text
+        line-height: 15px
+
       a
         color:  $link-color !important
         cursor: pointer
@@ -20,6 +24,7 @@
         font-size: 18px
         margin-right: 4px
         color: $unremarkable-color
+        margin-top: -2px
 
         &.level-high
           color: $level-high-color
@@ -64,13 +69,12 @@
   <div class="variant-row">
     <v-icon :class="clazz">{{ clazz == 'level-unremarkable' ? 'remove_circle_outline' : 'check_circle' }} </v-icon>
 
-    <span>{{ value }} </span>
-    <span  v-if="link == null" style="padding-left:4px">{{ label }}</span>
-
-    <a style="padding-left:4px" v-if="link" :href="link" :target="target">
-      <span>{{ label }}</span>
-      <v-icon class="link-icon">open_in_new</v-icon>
-    </a>
+    <span class="variant-text">
+      {{ capitalize(value) }} {{ label }}
+      <a style="padding-left:4px" v-if="link" :href="link" :target="target">
+        <v-icon class="link-icon">open_in_new</v-icon>
+      </a>
+    </span>
   </div>
 </template>
 
@@ -95,6 +99,15 @@ export default {
 
   methods: {
 
+    capitalize: function(buf) {
+      if (buf) {
+        return this.globalApp.utility.capitalizeFirstLetter(buf);
+      } else {
+        return "";
+      }
+    },
+
+
   },
 
 
@@ -114,6 +127,9 @@ export default {
   },
 
   filters: {
+
+
+
 
   },
 

@@ -15,8 +15,8 @@
   #sample-label
     vertical-align: top
     display: inline-block
-    min-width: 200px
-    max-width: 200px
+    min-width: 210px
+    max-width: 210px
     padding-top: 2px
     color: $app-color
     font-size: 15px
@@ -67,7 +67,7 @@
       padding-top: 0px
       padding-left: 0px
       padding-right: 0px
-      margin-left: 30px
+      margin-left: 0px
 
       .btn__content
         font-size: 15px
@@ -123,7 +123,7 @@
 
 
   .zoom-switch
-    margin-left: 20px
+    margin-left: 40px
     display: inline-block
     margin-top: 0px !important
 
@@ -252,8 +252,11 @@
       >
       </ranked-variants-menu>
 
+      <div style="display:inline-block;width:125px"  v-if="sampleModel && sampleModel.relationship != 'proband'">
+      </div>
 
-      <v-badge  id="loaded-count" :style="sampleModel.relationship != 'proband' ? 'margin-left:180px !important;' : ''"
+
+      <v-badge  id="loaded-count"
       v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
         <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
         {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Loaded' }}

@@ -915,12 +915,17 @@ class Util {
           var phenotype       = phenotypes.length > i ? phenotypes[i].split("_").join(" ").split("\\x2c") : null;
 
           info.clinvarUrl   = 'http://www.ncbi.nlm.nih.gov/clinvar/' + accessionSingle;
+          var clinvarLabel =  me.globalApp.utility.capitalizeFirstLetter(clinsigSingle.split("_").join(" "))
+                              + ( phenotype  ? ': ' + me.globalApp.utility.capitalizeFirstLetter(phenotype) : '')
 
           let clinvarLink =  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>'
-            + clinsigSingle.split("_").join(" ")
-            + ( phenotype  ? ': ' + phenotype : '') + '</a>';
+            clinvarLabel + '</a>';
 
-          info.clinvarLinks.push({'key': accessionSingle, 'link': clinvarLink, 'icon': 'clinvar', 'significance': translator.clinvarMap[clinsigSingle].clazz});
+          info.clinvarLinks.push({'key': accessionSingle, 'link': clinvarLink, 'url': info.clinvarUrl,
+            'icon': 'clinvar',
+            'clinsig': me.globalApp.utility.capitalizeFirstLetter(clinsigSingle.split("_").join(" ")),
+            'phenotype': ( phenotype  ? ': ' + me.globalApp.utility.capitalizeFirstLetter(phenotype) : ''),
+            'significance': translator.clinvarMap[clinsigSingle].clazz});
 
           info.clinvarUniqueClinSigs[clinsigSingle.split("_").join(" ")] = null;
           info.clinvarUniqueTraits[phenotype] = null;
@@ -968,10 +973,13 @@ class Util {
       if (variant.clinvarUid != null && variant.clinvarUid != '') {
         info.clinvarUid = variant.clinvarUid;
         info.clinvarUrl = 'http://www.ncbi.nlm.nih.gov/clinvar/variation/' + variant.clinvarUid;
+        let clinvarLabel = me.globalApp.utility.capitalizeFirstLetter(info.clinvarClinSig) + ( info.clinvarTrait ? ' ' + me.globalApp.utility.capitalizeFirstLetter(info.clinvarTrait) : '')
         let clinvarLink =  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>'
-            + info.clinvarClinSig
-            + ( info.clinvarTrait ? ' ' + info.clinvarTrait : '') + '</a>';
-        info.clinvarLinks.push({'key': info.clinvarUid, 'link': clinvarLink, 'icon': 'clinvar', 'significance': variant.clinvar});
+            clinvarLabel + '</a>';
+        info.clinvarLinks.push({'key': info.clinvarUid, 'link': clinvarLink, 'url': info.clinvarUrl,
+         'clinsig': me.globalApp.utility.capitalizeFirstLetter(info.clinvarClinSig),
+         'phenotype': ( info.clinvarTrait ? ' ' + me.globalApp.utility.capitalizeFirstLetter(info.clinvarTrait) : ''),
+         'icon': 'clinvar', 'significance': variant.clinvar});
       }
 
     }

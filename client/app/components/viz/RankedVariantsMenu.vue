@@ -128,8 +128,8 @@
             </v-flex>
             <v-flex>
               <v-layout row>
-                 <v-flex xs4  class="field-label">Predicted Impact</v-flex>
-                 <v-flex xs8  class="field-value">{{ currentVariantInfo.vepImpact }}</v-flex>
+                 <v-flex xs4  class="field-label">Impact</v-flex>
+                 <v-flex xs8  class="field-value" v-html="impactAndConsequence"></v-flex>
               </v-layout>
             </v-flex>
 
@@ -184,12 +184,14 @@
 
 
 import FeatureMatrixCard    from "../viz/FeatureMatrixCard.vue"
+import AppIcon              from "../partials/AppIcon.vue"
 
 
 export default {
   name: 'ranked-variants-menu',
   components: {
     FeatureMatrixCard,
+    AppIcon
   },
   props: {
     isEduMode: null,
@@ -282,6 +284,13 @@ export default {
         + afPercent
         + "</span>";
       }
+    },
+    impactAndConsequence: function() {
+      return "<span class=>"
+       + this.currentVariantInfo.vepImpact
+       + " - "
+       +  this.currentVariantInfo.vepConsequence
+       + "</span>"
     },
   },
 

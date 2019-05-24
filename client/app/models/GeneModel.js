@@ -71,6 +71,8 @@ class GeneModel {
 
     this.rankedGenes = {};
 
+    this.genePhenotypeHits = {};
+
     this.dispatch = d3.dispatch("geneDangerSummarized");
     d3.rebind(this, this.dispatch, "on");
 
@@ -92,6 +94,34 @@ class GeneModel {
     } else {
       return true;
     }
+  }
+
+
+
+  setGetPhenotypeHits(genesReport) {
+    this.genePhenotypeHits = {};
+    genesReport.forEach(function() {
+      var hits = genePhenotypeHits[genesReport.name];
+      if (hits == null) {
+        hits = [];
+        genePhenotypeHits[genesReport.name] = hits;
+      }
+      if (searchTermsGtr && searchTerms.Gtr.length > 0) {
+        searchTermsGtr.forEach(function(searchTermGtr) {
+          hits.push({source: 'GTR', 'searchTerm': searchTermGtr, rank: geneRankGtr});
+        })
+      }
+      if (searchTermsPhenolyzer && searchTerms.searchTermsPhenolyzer.length > 0) {
+        searchTermsPhenolyzer.map(function(searchTermPhenolyzer) {
+          hist.push({source: 'Phen.', 'searchTerm': searchTermPhenolyzer, rank: geneRankPhenolyzer});
+        })
+      }
+
+    })
+  }
+
+  getPhenotypeHits(geneName) {
+    return this.genePhenotypeHits[geneName];
   }
 
   setRankedGenes(rankedGenes) {
@@ -123,7 +153,12 @@ class GeneModel {
   }
 
   getGeneRank(geneName) {
-    return this.rankedGenes[geneName];
+    if (this.rankedGenes) {
+      return this.rankedGenes[geneName];
+    } else {
+      var rank = this.geneNames.indexOf(geneName) + 1;
+      return { 'name': geneName, 'genericRank': rank};
+    }
   }
 
   promiseAddGeneName(theGeneName) {
