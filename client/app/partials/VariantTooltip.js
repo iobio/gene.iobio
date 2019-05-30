@@ -12,7 +12,7 @@ export default class VariantTooltip {
     this.annotationScheme = annotationScheme;
     this.genomeBuildHelper = genomeBuildHelper;
 
-    this.WIDTH_HOVER            = 360;
+    this.WIDTH_HOVER            = 420;
     this.WIDTH_SIMPLE           = 280;
     this.ARROW_OFFSET           = 10;
     this.ARROW_WIDTH            = 10;
@@ -308,7 +308,7 @@ export default class VariantTooltip {
 
     var inheritanceModeRow =  variant.inheritance == null || variant.inheritance == '' || variant.inheritance == 'none'
                               ? ''
-                    : me._tooltipHeaderRow('<span class="tooltip-inheritance-mode-label">' + me.translator.getInheritanceLabel(variant.inheritance) + ' inheritance</span>', '', '', '', null, 'padding-top:0px;');
+                    : me._tooltipHeaderRow('<span class="tooltip-inheritance-mode-label">' + me.translator.getInheritanceLabel(variant.inheritance) + ' inheritance</span>', '', '', '', null, "style='text-align:center;padding-top:0px;'");
 
 
     var siftLabel = info.sift != ''  && info.sift  != 'unknown'
@@ -328,7 +328,7 @@ export default class VariantTooltip {
 
     var genotypeRow = me.isEduMode && me.tourNumber == 2 ? me._tooltipHeaderRow('Genotype', me.globalApp.utility.switchGenotype(variant.eduGenotype), '','')  : "";
 
-    var afRow = me._tooltipMainHeaderRow('Allele Freq', (variant.afHighest == "." ? "0%" : me.globalApp.utility.percentage(variant.afHighest)),'','');
+    var afRow = me._tooltipHeaderRow('Allele Freq', (variant.afHighest == "." ? "0%" : me.globalApp.utility.percentage(variant.afHighest)),'','', null, "style='text-align:center;padding-bottom:7px;'");
 
     if (me.isEduMode) {
       return (
@@ -433,21 +433,21 @@ export default class VariantTooltip {
   _tooltipWideHeadingRow(value1, value2, paddingTop) {
     var thePaddingTop = paddingTop ? "padding-top:" + paddingTop + ";" : "";
     return '<div class="row" style="padding-bottom:5px;' + thePaddingTop + '">'
-          + '<div class="col-sm-4 tooltip-title"  style="text-align:right;word-break:normal">' + value1  +'</div>'
-          + '<div class="col-sm-8 tooltip-title" style="text-align:left;word-break:normal">' + value2 + '</div>'
+          + '<div class="col-sm-3 tooltip-title"  style="text-align:right;word-break:normal">' + value1  +'</div>'
+          + '<div class="col-sm-7 tooltip-title" style="text-align:left;word-break:normal">' + value2 + '</div>'
           + '</div>';
   }
   _tooltipWideHeadingSecondRow(value1, value2, paddingTop, valueClazz) {
     var thePaddingTop = paddingTop ? "padding-top:" + paddingTop + ";" : "";
     return '<div class="row" style="padding-bottom:5px;' + thePaddingTop + '">'
-          + '<div class="col-sm-4 tooltip-title" style="text-align:right;word-break:normal">' + value1  +'</div>'
-          + '<div class="col-sm-8 tooltip-title' + (valueClazz ? ' ' + valueClazz : '') + '" style="text-align:left;word-break:normal">' + value2 + '</div>'
+          + '<div class="col-sm-3 tooltip-title" style="text-align:right;word-break:normal">' + value1  +'</div>'
+          + '<div class="col-sm-7 tooltip-title' + (valueClazz ? ' ' + valueClazz : '') + '" style="text-align:left;word-break:normal">' + value2 + '</div>'
           + '</div>';
   }
   _tooltipSimpleClinvarSigRow(value1, value2) {
     return '<div class="row" style="padding-bottom:0px;padding-top: 5px">'
-          + '<div class="col-sm-4 tooltip-title" style="text-align:right;word-break:normal">' + value1  +'</div>'
-          + '<div class="col-sm-8 tooltip-title style="text-align:left;word-break:normal">' + value2 + '</div>'
+          + '<div class="col-sm-3 tooltip-title" style="text-align:right;word-break:normal">' + value1  +'</div>'
+          + '<div class="col-sm-7 tooltip-title style="text-align:left;word-break:normal">' + value2 + '</div>'
           + '</div>';
   }
 

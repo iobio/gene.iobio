@@ -111,7 +111,7 @@
 
 
 
-      <v-card id="select-transcripts-box">
+      <v-card id="select-transcripts-box" class="full-width">
         <div id="gene-source-box" >
           <v-select
             v-bind:items="geneSources"

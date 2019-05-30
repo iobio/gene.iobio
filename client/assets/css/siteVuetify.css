@@ -2,6 +2,19 @@ html {
   -webkit-font-smoothing: auto;
 }
 
+.hide {
+  display: none !important;
+}
+
+.card {
+  border: none !important;
+}
+
+.full-width {
+  max-width: -moz-available !important;
+  max-width: -webkit-fill-available !important;
+}
+
 .container.fluid {
   max-width: calc(100% - 10px);
 }
