@@ -69,8 +69,8 @@
     padding-right: 0px
     margin-left: 30px
 
-    .btn__content
-      font-size: 12px
+    .btn__content, .v-btn__content
+      font-size: 13px
       padding-left: 5px
       padding-right: 5px
       color:  $app-color

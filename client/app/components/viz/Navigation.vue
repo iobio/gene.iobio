@@ -8,7 +8,7 @@
     padding: 0px
     height: 30px !important
 
-aside.navigation-drawer
+aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
   z-index: 0
   padding-bottom: 0px
@@ -16,6 +16,7 @@ aside.navigation-drawer
 
   &.clin
     margin-top: 0px !important
+
 
 
   #side-panel-container
@@ -29,16 +30,21 @@ aside.navigation-drawer
     height: calc(100% - 15px)
     overflow-y: scroll
 
-    .tabs__bar
+    .v-tabs
+      .v-window__container.v-window__container--is-active
+        height: -webkit-fill-available !important
+
+
+    .tabs__bar, .v-tabs__bar
       padding-left: 10px
 
-    .tabs__container
+    .tabs__container, .v-tabs__container
       height: 40px !important
 
-      .tabs__item
+      .tabs__item, .v-tabs__item
         margin-right: 20px !important
 
-        .badge
+        .badge, .v-badge
           background-color: transparent
 
           span.badge-label
@@ -46,8 +52,9 @@ aside.navigation-drawer
             border-color: none
             font-size: 14px
             font-weight: normal
+            text-transform: none
 
-        .badge__badge.primary
+        .badge__badge.primary, .v-badge__badge.primary
           background-color: $app-color !important
           font-size: 11px
           color: white
@@ -145,7 +152,7 @@ aside.navigation-drawer
       margin-left: -18px
 
 
-nav.toolbar
+nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
   .toolbar__content

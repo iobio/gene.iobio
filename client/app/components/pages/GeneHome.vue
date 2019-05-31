@@ -8,7 +8,7 @@
 
 
 
-main.content
+main.content, main.v-content
   margin-top: 52px
 
   #gene-card-container
@@ -16,7 +16,7 @@ main.content
     margin-bottom: 10px
     padding-bottom: 10px
 
-main.content.clin
+main.content.clin, main.v-content.clin
   margin-top: 0px
 
 

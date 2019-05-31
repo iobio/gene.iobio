@@ -135,12 +135,13 @@
       padding-top: 5px
       color: $text-color
 
-  .badge
+  .badge, .v-badge
     padding: 0px 5px 0px 0px
     padding: 3px 7px
     background-color: white !important
     color: $text-color !important
     font-weight: normal
+    font-size: 13px
 
     &.called
       vertical-align: top
@@ -157,11 +158,12 @@
       .badge__badge
         background-color: $coverage-problem-color !important
 
-    .badge__badge
+    .badge__badge, .v-badge__badge
       font-size: 11px
       font-weight: normal
       width: 24px
       top: -3px;
+      background-color: $light-badge-color !important
 
   #known-variants-chart
     padding: 0px

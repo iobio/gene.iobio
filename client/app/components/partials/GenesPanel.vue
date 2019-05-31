@@ -22,24 +22,26 @@
     .loaded-progress
       height: 5px
       width: 150px
+      margin: 1px 0
       display: inline-block
-      .progress-linear__bar__determinate
+      .progress-linear__bar__determinate, .v-progress-linear__bar__determinate
         background-color: $loaded-variant-color !important
-      .progress-linear__background
+      .progress-linear__background, .v-progress-linear__background
         background-color: $loaded-variant-color !important
         height: 20px !important
 
     .called-progress
       height: 5px
       width: 150px
+      margin: 1px 0
       display: inline-block
-      .progress-linear__bar__determinate
+      .progress-linear__bar__determinate, .v-progress-linear__bar__determinate
         background-color: $called-variant-color !important
-      .progress-linear__background
+      .progress-linear__background,  .v-progress-linear__background
         background-color: $called-variant-color !important
         height: 20px !important
 
-    .progress-linear
+    .progress-linear, .v-progress-linear
         margin: 1px 0
 #genes-card.edu
   #genes-panel

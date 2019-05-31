@@ -27,12 +27,20 @@
 
 @import ../../../assets/sass/variables
 
+
 #gene-variants-card
   padding-left: 10px
   padding-top: 0px
   padding-right: 10px
   margin-bottom: 10px
 
+  .v-input
+    margin-top: -8px
+    padding-top: 0px
+    .v-input__slot
+      margin-bottom: 0px
+      input
+        padding-bottom: 0px
 
   #gene-variants-heading
     color: $app-color
@@ -73,7 +81,7 @@
 
   #region-buffer-box
     vertical-align: middle
-    .input-group--text-field
+    .input-group--text-field, .v-text-field__slot
       input
         font-size: 14px
         color: $app-color

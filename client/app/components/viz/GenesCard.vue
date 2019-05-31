@@ -24,7 +24,8 @@
       line-height: 18px
       font-size: 13px
       font-weight: normal
-      padding-top: 2px
+      padding-top: 5px
+      padding-left: 0px
       color: $text-color
 
     &.clin

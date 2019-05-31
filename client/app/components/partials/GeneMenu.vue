@@ -8,7 +8,7 @@
   font-size: 15px
   margin-top: -5px
 
-  .btn__content
+  .btn__content, .v-btn__content
     color:  $app-color
     padding-left: 0px
 
