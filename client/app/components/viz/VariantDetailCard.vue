@@ -299,7 +299,7 @@
       padding-top: 1px !important
       padding-bottom: 0px !important
       padding-right: 0px !important
-      padding-left: 0px !important
+      padding-left: 1px !important
       background-color: #D3D5D8 !important
       margin-right: 2px
       margin-top: 0px !important
