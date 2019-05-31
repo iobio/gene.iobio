@@ -100,7 +100,7 @@
           <div class="variant-column-header">
             Pathogenicity
           </div>
-          <variant-inspect-row  v-for="clinvar in info.clinvarLinks"
+          <variant-inspect-row  v-for="clinvar,clinvarIdx in info.clinvarLinks" :key="clinvarIdx"
             :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
           </variant-inspect-row>
 
