@@ -649,7 +649,6 @@ export default {
           self.sampleModel.getAffectedInfo(),
           self.sampleModel.cohort.mode,
           self.sampleModel.cohort.maxAlleleCount);
-
       }
 
 

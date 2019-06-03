@@ -15,7 +15,7 @@ export default class HubSession {
       let modelInfos = [];
 
 
-      self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then( pedigree => {
+      self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then(pedigree => {
 
         let promises = [];
 
@@ -87,7 +87,8 @@ export default class HubSession {
 
           }
           Promise.all(promises).then(response => {
-            console.log(pedigree);
+            // Don't want to expose db info here?
+            //console.log(pedigree);
 
             resolve(modelInfos);
           })

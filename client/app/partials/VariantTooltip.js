@@ -356,6 +356,13 @@ export default class VariantTooltip {
         + uniqueClinvarTraitsRow
         + me._linksRow(variant, pinMessage)
       );
+    } else if (relationship === 'sfari-variants') {
+      return (
+        me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, info.dbSnpLink, 'ref-alt')
+        + me._tooltipMainHeaderRow(info.vepImpact, info.vepConsequence, '', '', 'impact-badge')
+        + vepHighestImpactRowSimple
+        + me._linksRow(variant, pinMessage)
+      );
     } else {
       return (
         me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, info.dbSnpLink, 'ref-alt')
@@ -368,7 +375,6 @@ export default class VariantTooltip {
         + clinvarSimpleRow2
         + me._linksRow(variant, pinMessage)
       );
-
     }
 
 
