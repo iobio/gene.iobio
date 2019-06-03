@@ -814,6 +814,9 @@ export default {
           new FreebayesSettings());
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
           self.cohortModel.captureFlaggedVariants(dangerSummary)
+          if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+            self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+          }
         })
 
         self.cacheHelper.cohort = self.cohortModel;
