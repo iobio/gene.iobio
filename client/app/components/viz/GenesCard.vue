@@ -25,7 +25,6 @@
       font-size: 13px
       font-weight: normal
       padding-top: 5px
-      padding-left: 0px
       color: $text-color
 
     &.clin
