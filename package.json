@@ -9,7 +9,6 @@
     "test:watch": "npm test -- --auto-watch --no-single-run"
   },
   "dependencies": {
-    "bootstrap": "^4.3.1",
     "d3": "^3.5.17",
     "debug": "^2.6.8",
     "express": "^4.15.3",
@@ -35,6 +34,7 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-latest": "^6.24.1",
     "bluebird": "^3.5.0",
+    "bootstrap": "^3.4.1",
     "chai": "^4.1.2",
     "chai-almost": "^1.0.1",
     "clean-webpack-plugin": "^0.1.16",
