@@ -15,7 +15,11 @@ export default class HubSession {
       let modelInfos = [];
 
 
-      self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then( pedigree => {
+      self.promiseGetSampleInfo(projectId, sampleId, isPedigree)
+      .then( data => {
+
+        let pedigree = data.pedigree;
+        let rawPedigree = data.rawPedigree;
 
         let promises = [];
 
@@ -89,7 +93,7 @@ export default class HubSession {
           Promise.all(promises).then(response => {
             console.log(pedigree);
 
-            resolve(modelInfos);
+            resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree});
           })
           .catch(error => {
             reject(error);
@@ -156,9 +160,10 @@ export default class HubSession {
     return new Promise(function(resolve, reject) {
       // Get pedigree for sample
       self.getPedigreeForSample(project_id, sample_id)
-      .done(data => {
-        let pedigree = self.parsePedigree(data, sample_id)
-        resolve(pedigree);
+      .done(rawPedigree => {
+        const rawPedigreeOrig = $.extend({}, rawPedigree);
+        let pedigree = self.parsePedigree(rawPedigree, sample_id)
+        resolve({pedigree: pedigree, rawPedigree: rawPedigreeOrig});
       })
       .fail(error => {
         reject("Error getting pedigree for sample " + sample_id + ": " + error);

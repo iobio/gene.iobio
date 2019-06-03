@@ -526,6 +526,9 @@ export default {
       activeFilterName: null,
       filteredGeneNames: null,
 
+      modelInfos: null,
+      rawPedigree: null,
+
       cohortModel: null,
       models: [],
       featureMatrixModel: null,
@@ -783,8 +786,10 @@ export default {
               let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
               self.cohortModel.setHubSession(self.hubSession);
               self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
-              .then(modelInfos => {
-                self.modelInfos = modelInfos;
+              .then(data => {
+                self.modelInfos = data.modelInfos;
+                self.rawPedigree = data.rawPedigree;
+
                 self.cohortModel.promiseInit(self.modelInfos, self.projectId)
                 .then(function() {
                   self.models = self.cohortModel.sampleModels;
