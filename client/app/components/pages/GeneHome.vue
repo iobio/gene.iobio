@@ -410,6 +410,7 @@ main.content.clin
         :geneVizShowXAxis="model.relationship === 'proband' || model.relationship === 'known-variants' || model.relationship === 'sfari-variants'"
         :blacklistedGeneSelected="blacklistedGeneSelected"
         @cohort-variant-click="onCohortVariantClick"
+        @cohort-variant-outside-click="onCohortVariantOutsideClick"
         @cohort-variant-hover="onCohortVariantHover"
         @cohort-variant-hover-end="onCohortVariantHoverEnd"
         @known-variants-viz-change="onKnownVariantsVizChange"
@@ -1443,6 +1444,13 @@ export default {
     onCohortVariantClick: function(variant, sourceComponent, sourceRelationship) {
       let self = this;
       if (variant) {
+
+        if (self.selectedGene) {
+          self.geneModel.adjustGeneRegion(self.selectedGene);
+          self.geneRegionStart = self.selectedGene.start;
+          self.geneRegionEnd   = self.selectedGene.end;
+        }
+
         self.calcFeatureMatrixWidthPercent();
         self.selectedVariant = variant;
         self.selectedVariantRelationship = sourceRelationship;
@@ -1472,6 +1480,11 @@ export default {
 
       } else {
         self.deselectVariant();
+      }
+    },
+    onCohortVariantOutsideClick(sourceComponent, sourceRelationship) {
+      if (sourceRelationship == 'proband') {
+        self.deselectedVariant();
       }
     },
     onCohortVariantHover: function(variant, sourceComponent) {
