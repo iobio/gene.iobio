@@ -175,7 +175,7 @@ export default {
           .on("d3rendered", function() {
           })
           .on('d3outsideclick', function() {
-            self.onVariantClick(null);
+            self.onVariantOutsideClick();
           })
           .on('d3click', function(variant) {
             self.onVariantClick(variant);
@@ -215,6 +215,10 @@ export default {
           var selection = d3.select(self.$el).datum( [self.data] );
           self.variantChart(selection);
         }
+      },
+      onVariantOutsideClick: function() {
+        let self = this;
+        self.$emit("variantOutsideClick")
       },
       onVariantClick: function(variant) {
         let self = this;

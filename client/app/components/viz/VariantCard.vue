@@ -389,6 +389,7 @@
           :showWhenEmpty="false"
           :classifySymbolFunc="classifyVariantSymbolFunc"
           @variantClick="onVariantClick"
+          @variantOutsideClick="onVariantOutsideClick"
           @variantHover="onVariantHover"
           @variantHoverEnd="onVariantHoverEnd">
         </variant-viz>
@@ -649,6 +650,17 @@ export default {
 
       this.$emit('cohort-variant-click', variant, this, this.sampleModel.relationship);
     },
+    onVariantOutsideClick: function() {
+      if (this.showDepthViz) {
+        this.hideCoverageCircle();
+      }
+      if (this.showVariantViz) {
+        this.hideVariantCircle(false);
+        this.hideVariantTooltip(this);
+      }
+
+      this.$emit('cohort-variant-outside-click', this, this.sampleModel.relationship);
+    },
     onVariantHover: function(variant, showTooltip=true) {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
@@ -709,7 +721,6 @@ export default {
           self.sampleModel.getAffectedInfo(),
           self.sampleModel.cohort.mode,
           self.sampleModel.cohort.maxAlleleCount);
-
       }
 
 

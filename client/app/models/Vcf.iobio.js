@@ -1596,7 +1596,11 @@ export default function vcfiobio(theGlobalApp) {
               var highestREVEL        = me._getHighestScore( annot.vep.allREVEL,     me._cullTranscripts, selectedTranscriptID);
 
               for (var i = 0; i < allVariants.length; i++) {
-                var genotype = gtResult.genotypes[i];
+                // When vcf data is cached, any circular references are ommitted during JSON.stringify.
+                // To avoid culling out this genotype element from the 'genotypes' field, we
+                // must make the genotype unique.  Here we are copying the element and adding a dummy
+                // attribute
+                var genotype = $.extend({'extraAttr': 1}, gtResult.genotypes[i]);
 
                 // Keep the variant if we are just parsing a single sample (parseMultiSample=false)
                 // or we are parsing multiple samples and this sample's genotype is het or hom

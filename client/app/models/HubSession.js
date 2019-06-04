@@ -91,7 +91,8 @@ export default class HubSession {
 
           }
           Promise.all(promises).then(response => {
-            console.log(pedigree);
+            // Don't want to expose db info here?
+            //console.log(pedigree);
 
             resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree});
           })
