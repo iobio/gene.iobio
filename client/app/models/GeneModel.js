@@ -116,25 +116,25 @@ class GeneModel {
         self.genePhenotypeHits[geneEntry.name] = searchTerms;
       }
       if (geneEntry.searchTermsGtr && geneEntry.searchTermsGtr.length > 0) {
-        geneEntry.searchTermsGtr.forEach(function(term) {
-          var searchTerm = term.split(" ").join("_");
+        geneEntry.searchTermsGtr.forEach(function(searchTermObject) {
+          var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
           var ranks = searchTerms[searchTerm];
           if (ranks == null) {
             ranks = [];
             searchTerms[searchTerm] = ranks;
           }
-          ranks.push( {'rank': geneEntry.geneRankGtr, 'source': 'GTR'});
+          ranks.push( {'rank': searchTermObject.rank, 'source': 'GTR'});
         })
       }
       if (geneEntry.searchTermsPhenolyzer && geneEntry.searchTermsPhenolyzer.length > 0) {
-        geneEntry.searchTermsPhenolyzer.forEach(function(term) {
-          var searchTerm = term.split(" ").join("_");
+        geneEntry.searchTermsPhenolyzer.forEach(function(searchTermObject) {
+          var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
           var ranks = searchTerms[searchTerm];
           if (ranks == null) {
             ranks = [];
             searchTerms[searchTerm] = ranks;
           }
-          ranks.push( {'rank': geneEntry.geneRankPhenolyzer, 'source': 'Phen.'});
+          ranks.push( {'rank': searchTermObject.rank, 'source': 'Phen.'});
         })
       }
 

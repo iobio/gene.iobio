@@ -2463,14 +2463,24 @@ export default {
 
       } else if (clinObject.type == 'set-data') {
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
+          console.log("gene.iobio set-data cohort model not yet loaded")
           self.init(function() {
             self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
+            self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
 
-            self.promiseInitClin(clinObject);
+            console.log("gene.iobio set-data promiseInitClin")
+            self.promiseInitClin(clinObject)
+            .then(function() {
+              console.log("gene.iobio set-data finished promiseInitClin")
+            })
           })
         } else {
+          console.log("gene.iobio set-data cohort model already loaded")
           self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
-          self.promiseInitClin(clinObject);
+          self.promiseInitClin(clinObject).
+          then(function() {
+              console.log("gene.iobio set-data finished promiseInitClin")
+          })
         }
       } else if (clinObject.type == 'show') {
 
@@ -2497,6 +2507,7 @@ export default {
           self.onAnalyzeAll();
         }
       } else if (clinObject.type == 'show-review' || clinObject.type == 'show-review-full') {
+        console.log("gene.iobio show-review")
         if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
           self.$refs.genesCardRef.$refs.filterBadgesRef.onClearFilter();
 
@@ -2822,6 +2833,8 @@ export default {
       let genesToProcess = [];
       let candidateGenesOld = $.extend({}, self.geneModel.candidateGenes);
       self.geneModel.setCandidateGenes(clinObject.genes);
+
+      self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
       self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
 
       if (clinObject.genes && Array.isArray(clinObject.genes)) {
