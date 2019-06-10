@@ -694,8 +694,7 @@ export default {
     hideVariantCircle: function(lock) {
       if (this.showVariantViz) {
         let container = d3.select(this.$el).select('#loaded-variant-viz > svg');
-        // Have to check that container exists for when we hide SFARI track variants for blacklisted genes
-        // Else errors out circling in other
+        // Have to check that container exists for when we hide SFARI track variants for blacklisted genes to prevent circling errors
         if (container && container[0] && container[0][0] != null) {
             this.$refs.variantVizRef.hideVariantCircle(container, lock);
         }
