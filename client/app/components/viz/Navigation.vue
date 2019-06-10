@@ -916,7 +916,7 @@ export default {
       flaggedVariantCount: 0,
 
 
-      analyzeCodingVariantsOnly: true,
+      analyzeCodingVariantsOnly: false,
 
       showKnownVariantsCard: false
 
