@@ -16,7 +16,7 @@ class SampleModel {
 
     this.isBasicMode = null;
     this.isEduMode = null;
-
+    this.isSfariSample = false;  // True if sample sourced from Mosaic SSC projects (WGS 37/38 or WES 37)
 
     this.vcfUrlEntered = false;
     this.vcfFileOpened = false;
@@ -54,7 +54,6 @@ class SampleModel {
       'callingVariants': false,
       'loadingCoverage': false
     };
-
   }
 
 

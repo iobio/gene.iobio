@@ -346,7 +346,7 @@
           loaded variants
         </div>
 
-        <div v-if="sampleModel.relationship === 'sfari-variants' && blacklistedGeneSelected"
+        <div v-if="(sampleModel.relationship === 'sfari-variants' || sampleModel.isSfariSample) && blacklistedGeneSelected"
             style="text-align: center; padding-bottom: 20px; padding-top: 20px">
           <v-chip id="sfari-chip" class="red red--text" small outline style="font-size: 12px">
             Unauthorized SFARI Gene
