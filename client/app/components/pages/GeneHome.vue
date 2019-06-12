@@ -228,6 +228,7 @@ main.content.clin
          :callAllInProgress="cacheHelper.callAllInProgress"
          :showCoverageCutoffs="showCoverageCutoffs"
          :phenotypeLookupUrl="phenotypeLookupUrl"
+         :showSfariTrackToggle="sfariProjectFileUnavailable"
          @gene-selected="onGeneClicked"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
@@ -616,6 +617,7 @@ export default {
 
       showKnownVariantsCard: false,
       showSfariVariantsCard: false,
+      sfariProjectFileUnavailable: false, // TODO: once SSC WES 37 file is available, can get rid of this var & logic
 
       inProgress: {},
 
@@ -865,10 +867,13 @@ export default {
                       .then((projObj) => {
                           let isSfariProject = false;
                           // Note: going off of names per CM for now until we can get a Sfari project db flag
-                          if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS' || projObj.name === 'SSC GRCh37 WES') {
+                          if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
                             isSfariProject = true;
+                          } else if (projObj.name === 'SSC GRCh37 WES') {
+                              isSfariProject = true;
+                              self.sfariProjectFileUnavailable = true;
                           }
-                          self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject)
+                          self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
                               .then(function() {
                                   self.models = self.cohortModel.sampleModels;
                                   if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {

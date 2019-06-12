@@ -243,16 +243,13 @@ class CohortModel {
     })
   }
 
-  promiseInit(modelInfos, projectId = 0, isSfariProject) {
+  promiseInit(modelInfos, projectId = 0, isSfariProject, sfariProjectFileUnavailable) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
       self.isLoaded = false;
       self.inProgress.loadingDataSources = true;
-
-
       self.maxAlleleCount = 0;
-
 
       let affectedSibs = modelInfos.filter(function(modelInfo) {
         return modelInfo.relationship == 'sibling' && modelInfo.affectedStatus == 'affected';
@@ -293,9 +290,6 @@ class CohortModel {
       });
 
 
-
-
-
       self.sampleModels = [];
       self.flaggedVariants = [];
       self.genesInProgress = [];
@@ -311,7 +305,9 @@ class CohortModel {
         promises.push(self.promiseAddSample(modelInfo, isSfariProject));
       });
       promises.push(self.promiseAddClinvarSample());
-      if (self.hubSession != null) {
+
+      // NOTE: we can't load this track for some SSC files as of June 2019
+      if (self.hubSession != null && !sfariProjectFileUnavailable) {
         promises.push(self.promiseAddSfariSample(projectId));
       }
 
@@ -906,12 +902,6 @@ class CohortModel {
 
   promiseLoadSfariVariants(theGene, theTranscript) {
       let self = this;
-
-      // // TODO: take out
-      // // Check for blacklisted genes
-      // if (self.geneBlacklist[theGene.gene_name] != null) {
-      //     self.blacklistedGeneSelected = true;
-      // }
 
       if (self.sfariVariantsViz === 'variants') {
           return self._promiseLoadSfariVariants(theGene, theTranscript);
