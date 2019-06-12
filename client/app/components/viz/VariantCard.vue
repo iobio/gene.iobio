@@ -20,9 +20,6 @@
     padding-top: 2px
     color: $app-color
     font-size: 15px
-    &.known-variants
-      min-width: 100px
-      max-width: 100px
 
   #variant-pileup-button
     position: absolute
@@ -254,7 +251,7 @@
       >
       </ranked-variants-menu>
 
-      <div style="display:inline-block;width:125px"  v-if="sampleModel && sampleModel.relationship != 'proband'">
+      <div style="display:inline-block;width:125px"  v-if="sampleModel && sampleModel.relationship != 'proband' && sampleModel.relationship != 'known-variants'">
       </div>
 
 
@@ -950,12 +947,19 @@ export default {
         label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);
         label += " Variants in " + this.selectedGene.gene_name;
       } else {
-        if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
-            && this.sampleModel.relationship !== 'sfari-variants' && this.sampleModel.relationship !== this.sampleModel.name) {
-          label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship) + " ";
+        if (this.sampleModel.relationship == 'known-variants') {
+          label = "ClinVar Variants in " + this.selectedGene.gene_name
+        } else if (this.sampleModel.relationship == 'sfari-variants') {
+          label = "SFARI Variants in " + this.selectedGene.gene_name
+        } else {
+          if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
+              && this.sampleModel.relationship !== 'sfari-variants' && this.sampleModel.relationship !== this.sampleModel.name) {
+            label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship) + " ";
+          }
+          label += " Variants ";
+          label += this.sampleModel.name;
+
         }
-        label += " Variants ";
-        label += this.sampleModel.name;
       }
       return label;
     },

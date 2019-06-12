@@ -7,6 +7,12 @@
   margin-left: 20px
   margin-top: -6px
 
+  #clinvar-filter-box
+    margin-top: 3px
+    margin-left: 10px
+    width: 400px
+    float: left
+
   .input-group.radio
     margin-top: 0px
     margin-bottom: 0px
@@ -15,6 +21,7 @@
     line-height: 20px
     left: 24px
     font-size: 12px
+    padding-top: 5px
 
 
   .input-group.radio-group
@@ -25,7 +32,7 @@
 
   .input-group--select
     .input-group__input
-      margin-top: 10px
+      margin-top: -5px
 
   .input-group--text-field
     label
@@ -88,7 +95,7 @@
 
 <template>
     <div id="known-variants-toolbar">
-      <div style="width:295px;float:left;padding-top:10px;margin-top:0px;margin-right:10px">
+      <div style="width:295px;float:left;padding-top:5px;margin-top:0px;margin-right:10px">
         <v-radio-group v-model="viz" row>
             <v-radio label="Variants" value="variants"></v-radio>
             <v-radio label="Counts" value="histo"></v-radio>
@@ -97,7 +104,7 @@
       </div>
 
 
-      <div id="clinvar-filter-box" style="margin-left:10px;width:400px;float:left"
+      <div id="clinvar-filter-box"
        v-if="viz == 'variants'">
         <v-select
                 label="Filter by clinical significance..."

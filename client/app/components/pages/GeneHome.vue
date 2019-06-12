@@ -255,9 +255,18 @@ main.content.clin, main.v-content.clin
           :selectedTranscript="analyzedTranscript"
           :genomeBuildHelper="genomeBuildHelper"
           :cohortModel="cohortModel"
+          :isEduMode="isEduMode"
+          :isBasicMode="isBasicMode"
+          :isFullAnalysis="isFullAnalysis"
+          :launchedFromClin="launchedFromClin"
+          :launchedFromHub="launchedFromHub"
+          :showSfariTrackToggle="sfariProjectFileUnavailable"
+          :isLoaded="cohortModel && cohortModel.isLoaded"
           @transcript-selected="onTranscriptSelected"
           @gene-source-selected="onGeneSourceSelected"
-          @gene-region-buffer-change="onGeneRegionBufferChange">
+          @gene-region-buffer-change="onGeneRegionBufferChange"
+          @show-known-variants="onShowKnownVariantsCard"
+          @show-sfari-variants="onShowSfariVariantsCard">
         </gene-variants-card>
 
 

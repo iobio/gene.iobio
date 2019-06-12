@@ -92,6 +92,27 @@
     margin-right: 30px
     vertical-align: middle !important
 
+
+  .optional-track-switch
+    padding: 0px
+    width: 130px
+    display: inline-block
+    float: left
+    vertical-align: top
+    text-align: left
+    padding-top: 2px
+    margin-left: 30px
+
+    label
+      padding-left: 7px
+      line-height: 18px
+      font-size: 13px
+      font-weight: normal
+      padding-top: 2px
+      color: $text-color
+
+
+
 </style>
 
 
@@ -145,6 +166,22 @@
         </transcripts-menu>
       </div>
 
+
+      <v-switch
+        :class="{'optional-track-switch': true, 'full-analysis': isFullAnalysis, 'clin': launchedFromClin}"
+        v-if=" isLoaded && !isEduMode && !isBasicMode "
+        label="ClinVar track"
+        v-model="showKnownVariantsCard"
+        >
+      </v-switch>
+
+      <v-switch class="optional-track-switch"
+                v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && !showSfariTrackToggle"
+                label="SFARI track"
+                v-model="showSfariVariantsCard"
+      >
+      </v-switch>
+
     </div>
 
 
@@ -170,6 +207,13 @@ export default {
     selectedTranscript: null,
     genomeBuildHelper: null,
     cohortModel: null,
+    showSfariTrackToggle: false,
+    isEduMode: null,
+    isBasicMode: null,
+    isFullAnalysis: null,
+    isLoaded: null,
+    launchedFromClin: null,
+    launchedFromHub: null
   },
   data() {
     return {
@@ -179,7 +223,11 @@ export default {
       noTranscriptsWarning: null,
       showNoTranscriptsWarning: false,
 
-      regionBuffer: null
+      regionBuffer: null,
+
+      showKnownVariantsCard: false,
+      showSfariVariantsCard: false,
+
 
     }
   },
@@ -230,7 +278,12 @@ export default {
   },
 
   watch: {
-
+    showKnownVariantsCard: function() {
+      this.$emit("show-known-variants", this.showKnownVariantsCard);
+    },
+    showSfariVariantsCard: function() {
+      this.$emit("show-sfari-variants", this.showSfariVariantsCard);
+    }
   },
 
   filters: {
