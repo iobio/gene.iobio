@@ -243,7 +243,7 @@ class CohortModel {
     })
   }
 
-  promiseInit(modelInfos, projectId = 0) {
+  promiseInit(modelInfos, projectId = 0, isSfariProject) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
@@ -308,7 +308,7 @@ class CohortModel {
 
       let promises = [];
       modelInfos.forEach(function(modelInfo) {
-        promises.push(self.promiseAddSample(modelInfo));
+        promises.push(self.promiseAddSample(modelInfo, isSfariProject));
       });
       promises.push(self.promiseAddClinvarSample());
       if (self.hubSession != null) {
@@ -337,7 +337,7 @@ class CohortModel {
   }
 
 
-  promiseAddSample(modelInfo) {
+  promiseAddSample(modelInfo, fromSfariProject) {
     let self = this;
     return new Promise(function(resolve,reject) {
       var vm = new SampleModel(self.globalApp);
@@ -346,6 +346,7 @@ class CohortModel {
       vm.affectedStatus = modelInfo.affectedStatus;
       vm.isBasicMode = self.isBasicMode;
       vm.isEduMode = self.isEduMode;
+      vm.isSfariSample = fromSfariProject;
 
       var vcfPromise = null;
       if (modelInfo.vcf) {

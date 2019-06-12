@@ -111,7 +111,7 @@ export default class HubSession {
   promiseGetProject(project_id) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      self.getProject(idProject)
+      self.getProject(project_id)
       .done(data => {
           resolve(data);
       })
