@@ -109,6 +109,11 @@
           </variant-inspect-row>
 
           <variant-inspect-row
+             v-if="info.vepHighestImpactValue.length > 0 && info.vepImpact.toUpperCase() != info.vepHighestImpactValue.toUpperCase()"
+            :clazz="getImpactClass(info.vepHighestImpactValue)" :value="getNonCanonicalImpact(info.vepHighestImpactValue)" :label=" `Impact VEP (non-canonical transcript)`"  >
+          </variant-inspect-row>
+
+          <variant-inspect-row
             :clazz="getImpactClass(info.vepImpact)" :value="info.vepConsequence"   >
           </variant-inspect-row>
 
@@ -277,7 +282,9 @@ export default {
 
 
 
-
+    getNonCanonicalImpact: function(vepHighestImpact) {
+      return this.globalApp.utility.capitalizeFirstLetter(vepHighestImpact.toLowerCase());
+    },
 
     getRevelClass: function(info) {
       let self = this;
