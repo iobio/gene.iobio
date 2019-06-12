@@ -115,7 +115,7 @@ export default class HubSession {
   promiseGetProject(project_id) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      self.getProject(idProject)
+      self.getProject(project_id)
       .done(data => {
           resolve(data);
       })
@@ -164,7 +164,11 @@ export default class HubSession {
       .done(rawPedigree => {
         const rawPedigreeOrig = $.extend({}, rawPedigree);
         let pedigree = self.parsePedigree(rawPedigree, sample_id)
-        resolve({pedigree: pedigree, rawPedigree: rawPedigreeOrig});
+        if (pedigree) {
+          resolve({pedigree: pedigree, rawPedigree: rawPedigreeOrig});
+        } else {
+          reject("Error parsing pedigree");
+        }
       })
       .fail(error => {
         reject("Error getting pedigree for sample " + sample_id + ": " + error);
@@ -187,12 +191,12 @@ export default class HubSession {
     // If the sample selected doesn't have a mother and father (isn't a proband), find
     // the proband by looking for a child with mother and father filled in and affected status
     if (probandIndex == -1) {
-      probandIndex = raw_pedigree.findIndex(d => ( d.affection_status == 2 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 2 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
     }
     // If the sample selected doesn't have a mother and father (isn't a proband), find
     // the proband by looking for a child with mother and father filled in and unknown affected status
     if (probandIndex == -1) {
-      probandIndex = raw_pedigree.findIndex(d => ( d.affection_status == 0 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 0 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
     }
 
 
@@ -216,6 +220,8 @@ export default class HubSession {
       console.log("Cannot find proband for pedigree of sample " + sample_id);
       console.log("raw pedigree");
       console.log(raw_pedigree);
+      alertify.alert("Error", "Could not load the trio.  Unable to identify a proband (offspring) from this pedigree.")
+      return null;
     }
 
     raw_pedigree.forEach(sample => {

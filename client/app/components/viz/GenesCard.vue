@@ -291,7 +291,7 @@ div.container.small
             </v-switch>
 
             <v-switch class="optional-track-switch"
-                      v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub"
+                      v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && !showSfariTrackToggle"
                       label="SFARI track"
                       v-model="showSfariVariantsCard"
             >
@@ -400,7 +400,8 @@ export default {
     analyzeAllInProgress: null,
     callAllInProgress: null,
     showCoverageCutoffs: null,
-    phenotypeLookupUrl: null
+    phenotypeLookupUrl: null,
+    showSfariTrackToggle: false
   },
   data () {
     return {

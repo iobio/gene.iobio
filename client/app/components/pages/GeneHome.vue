@@ -231,6 +231,7 @@ main.content.clin, main.v-content.clin
          :callAllInProgress="cacheHelper.callAllInProgress"
          :showCoverageCutoffs="showCoverageCutoffs"
          :phenotypeLookupUrl="phenotypeLookupUrl"
+         :showSfariTrackToggle="sfariProjectFileUnavailable"
          @gene-selected="onGeneClicked"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
@@ -548,6 +549,7 @@ export default {
 
       showKnownVariantsCard: false,
       showSfariVariantsCard: false,
+      sfariProjectFileUnavailable: false, // TODO: once SSC WES 37 file is available, can get rid of this var & logic
 
       inProgress: {},
 
@@ -793,20 +795,31 @@ export default {
               .then(data => {
                 self.modelInfos = data.modelInfos;
                 self.rawPedigree = data.rawPedigree;
-
-                self.cohortModel.promiseInit(self.modelInfos, self.projectId)
-                .then(function() {
-                  self.models = self.cohortModel.sampleModels;
-                  if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-                    self.promiseLoadData()
-                    .then(function() {
-                      self.showLeftPanelWhenFlaggedVariants();
-                    })
-                  } else {
-                    self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
-                    self.bringAttention = 'gene';
-                  }
-                })
+                // SJG TODO: make call to hub session to get project, see what name is, pass in if Sfari project
+                  self.hubSession.promiseGetProject(self.projectId)
+                      .then((projObj) => {
+                          let isSfariProject = false;
+                          // Note: going off of names per CM for now until we can get a Sfari project db flag
+                          if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
+                            isSfariProject = true;
+                          } else if (projObj.name === 'SSC GRCh37 WES') {
+                              isSfariProject = true;
+                              self.sfariProjectFileUnavailable = true;
+                          }
+                          self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
+                              .then(function() {
+                                  self.models = self.cohortModel.sampleModels;
+                                  if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+                                      self.promiseLoadData()
+                                          .then(function() {
+                                              self.showLeftPanelWhenFlaggedVariants();
+                                          })
+                                  } else {
+                                      self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
+                                      self.bringAttention = 'gene';
+                                  }
+                              })
+                      })
               })
             } else {
               self.models = self.cohortModel.sampleModels;

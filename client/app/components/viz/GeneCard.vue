@@ -368,12 +368,15 @@ export default {
       let self = this;
       if (self.selectedGene && self.selectedGene.gene_name) {
         self.ncbiSummary = self.geneModel.geneNCBISummaries[self.selectedGene.gene_name];
-
         if (self.ncbiSummary == null || self.ncbiSummary.summary == '?') {
-          self.geneModel.promiseGetNCBIGeneSummary(self.selectedGene.gene_name)
-          .then(function(data) {
-            self.ncbiSummary = data;
-          })
+
+          setTimeout(function() {
+            self.geneModel.promiseGetNCBIGeneSummary(self.selectedGene.gene_name)
+            .then(function(data) {
+              self.ncbiSummary = data;
+            })
+
+          }, 500)
         }
 
         self.phenotypes  = self.geneModel.genePhenotypes[self.selectedGene.gene_name]
