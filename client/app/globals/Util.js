@@ -46,6 +46,18 @@ class Util {
 
 
 
+  getCurrentDateTime() {
+    var dateObj = new Date();
+    return dateObj.getTime();
+  }
+
+  formatCurrentDateTime(time) {
+    var dateObject = new Date(time);
+    return dateObject.toString();
+  }
+
+
+
   visibleHeight($el) {
       var elH = $el.outerHeight(),
           H = $(window).height(),

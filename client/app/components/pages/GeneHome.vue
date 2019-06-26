@@ -535,6 +535,7 @@ export default {
     paramIsPedigree:       null,
     paramSource:           null,
     paramIobioSource:      null,
+    paramAnalysisId:       null,
 
     paramFileId:           null,
 
@@ -566,6 +567,7 @@ export default {
       launchedWithUrlParms: false,
       clinSetData: null,
       clinPersistCache: true,
+      analysis: null,
 
       hubToIobioSources: {
         "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
@@ -862,6 +864,11 @@ export default {
               self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
               .then(modelInfos => {
                 self.modelInfos = modelInfos;
+                return self.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
+              })
+              .then(analysis => {
+                self.analysis = analysis;
+
                 // SJG TODO: make call to hub session to get project, see what name is, pass in if Sfari project
                   self.hubSession.promiseGetProject(self.projectId)
                       .then((projObj) => {
@@ -3124,7 +3131,105 @@ export default {
 
 
 
-    }
+    },
+
+
+    promiseGetAnalysis: function(idProject, idAnalysis, options={}) {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+
+        if (idAnalysis && idAnalysis.length > 0) {
+
+          self.hubSession.promiseGetAnalysis(idProject, idAnalysis)
+          .then(function(analysis) {
+            if (analysis) {
+
+              resolve(analysis);
+
+            } else {
+              reject("Unable to find/create an analysis " + idAnalysis);
+            }
+          })
+          .catch(function(err) {
+            reject(err);
+          })
+
+        } else {
+          var newAnalysis = {};
+          newAnalysis.title = "gene.iobio analysis";
+          newAnalysis.description = "a description goes here";
+          newAnalysis.project_id = idProject;
+          newAnalysis.sample_id  = self.paramSampleId;
+          newAnalysis.payload = {};
+          newAnalysis.payload.project_id = idProject;
+          newAnalysis.payload.sample_id = self.paramSampleId;
+          newAnalysis.payload.datetime_created = self.globalApp.utility.getCurrentDateTime();
+          newAnalysis.payload.genes = [];
+          newAnalysis.payload.variants = [];
+
+
+          self.hubSession.promiseAddAnalysis(idProject, newAnalysis)
+          .then(function(analysis) {
+            console.log("**********  adding mosaic analysis " + analysis.id + " **************")
+
+            resolve(analysis);
+
+          })
+          .catch(function(err) {
+            reject(err);
+          })
+
+        }
+
+      });
+    },
+
+
+
+    promiseUpdateGenesData: function() {
+      let self = this;
+      self.analysis.payload.genes              = this.geneModel.geneNames;
+
+      self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
+      self.analysis.title = self.analysis.title + self.globalApp.utility.getCurrentDateTime();
+      return self.hubSession.promiseUpdateAnalysis(self.analysis);
+    },
+
+
+
+    promiseUpdateVariants: function(variantsToReplace) {
+      let self = this;
+      variantsToReplace.forEach(function(variant) {
+        let matchingIdx = self.findAnalysisVariantIndex(variant);
+        if (matchingIdx != -1) {
+          self.analysis.payload.variants[matchingIdx] = variant;
+        } else {
+          self.analysis.payload.variants.push(variant);
+        }
+      })
+      self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
+      return self.hubSession.promiseUpdateAnalysis(self.analysis);
+    },
+
+    findAnalysisVariantIndex(variant) {
+      let matchingIdx = -1;
+      let idx = 0;
+      let self = this;
+      if (self.analysis && self.analysis.payload.variants) {
+        self.analysis.payload.variants.forEach(function(v) {
+          if (matchingIdx == -1
+              && v.gene == variant.gene
+              && v.start == variant.start
+              && v.ref == variant.ref
+              && v.alt == variant.alt ) {
+            matchingIdx = idx;
+          }
+          idx++;
+        })
+      }
+      return matchingIdx;
+    },
+
   }
 }
 </script>

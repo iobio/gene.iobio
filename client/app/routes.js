@@ -112,7 +112,8 @@ const routes = [
         paramSampleUuid:       route.query.sample_uuid,
         paramIsPedigree:       route.query.is_pedigree,
         paramSource:           route.query.source,
-        paramIobioSource:      route.query.iobio_source
+        paramIobioSource:      route.query.iobio_source,
+        paramAnalysisId:       route.query.analysis_id
 
 
 
