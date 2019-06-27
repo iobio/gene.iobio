@@ -860,6 +860,12 @@ export default {
               self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
               self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
               let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
+
+              // Workaround until launch from Mosaic analysis can pass in is_pedigree
+              if (self.paramAnalysisId && self.paramAnalysisId.length > 0 && !isPedigree) {
+                isPedigree = true;
+              }
+
               self.cohortModel.setHubSession(self.hubSession);
               self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
               .then(modelInfos => {
@@ -870,30 +876,49 @@ export default {
                 self.analysis = analysis;
 
                 // SJG TODO: make call to hub session to get project, see what name is, pass in if Sfari project
-                  self.hubSession.promiseGetProject(self.projectId)
-                      .then((projObj) => {
-                          let isSfariProject = false;
-                          // Note: going off of names per CM for now until we can get a Sfari project db flag
-                          if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
-                            isSfariProject = true;
-                          } else if (projObj.name === 'SSC GRCh37 WES') {
-                              isSfariProject = true;
-                              self.sfariProjectFileUnavailable = true;
-                          }
-                          self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
-                              .then(function() {
-                                  self.models = self.cohortModel.sampleModels;
-                                  if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-                                      self.promiseLoadData()
-                                          .then(function() {
-                                              self.showLeftPanelWhenFlaggedVariants();
-                                          })
-                                  } else {
-                                      self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
-                                      self.bringAttention = 'gene';
-                                  }
-                              })
+                return self.hubSession.promiseGetProject(self.projectId)
+              .then((projObj) => {
+                  let isSfariProject = false;
+                  // Note: going off of names per CM for now until we can get a Sfari project db flag
+                  if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
+                    isSfariProject = true;
+                  } else if (projObj.name === 'SSC GRCh37 WES') {
+                      isSfariProject = true;
+                      self.sfariProjectFileUnavailable = true;
+                  }
+                  return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
+               })
+               .then(function() {
+                  self.models = self.cohortModel.sampleModels;
+                  var genePromises = []
+                  if (analysis.payload.genes && analysis.payload.genes.length > 0) {
+                    analysis.payload.genes.forEach(function(geneName) {
+                      genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+                    })
+                    return Promise.all(genePromises);
+                  } else {
+                    return Promise.resolve()
+                  }
+                })
+                .then(function() {
+                  if (self.selectedGene == null || Object.keys(self.selectedGene).length == 0
+                    && self.geneModel.geneNames.length > 0) {
+                     return self.promiseLoadGene(self.geneModel.geneNames[0]);
+                  } else {
+                    return Promise.resolve()
+                  }
+                })
+                .then(function() {
+                  if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+                      self.promiseLoadData()
+                      .then(function() {
+                          self.showLeftPanelWhenFlaggedVariants();
                       })
+                  } else {
+                    self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
+                    self.bringAttention = 'gene';
+                  }
+                })
               })
             } else {
               self.models = self.cohortModel.sampleModels;
@@ -1351,6 +1376,9 @@ export default {
           return self.geneModel.promiseGetGeneObject(geneName)
         })
         .then(function(theGeneObject) {
+          if (self.launchedFromHub) {
+            self.promiseUpdateGenesData();
+          }
           if (self.bringAttention == 'gene') {
             self.bringAttention = null;
           }
@@ -3163,6 +3191,7 @@ export default {
           newAnalysis.payload = {};
           newAnalysis.payload.project_id = idProject;
           newAnalysis.payload.sample_id = self.paramSampleId;
+          newAnalysis.payload.is_pedigree = self.paramIsPedigree;
           newAnalysis.payload.datetime_created = self.globalApp.utility.getCurrentDateTime();
           newAnalysis.payload.genes = [];
           newAnalysis.payload.variants = [];

@@ -54,15 +54,14 @@ export default class HubSession {
 
                     if (!bypass) {
 
-
-
                       var modelInfo = {
                         'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
                         'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
                         'name':           theSample.name,
                         'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
                         'vcf':            theSample.files.vcf,
-                        'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi
+                        'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
+                        'txt':            theSample.files.txt
                       }
 
                       if (theSample.files.bam != null) {
@@ -311,9 +310,19 @@ export default class HubSession {
         files.forEach(file => {
           var p = self.promiseGetSignedUrlForFile(project_id, currentSample.id, file)
           .then(signed => {
-            fileMap[file.type] = signed.url;
-            if (file.type == 'vcf') {
-              sample.vcf_sample_name = file.vcf_sample_name;
+            if (file.type == 'txt') {
+              var files = fileMap[file.type];
+              if (files == null) {
+                files = [];
+                fileMap[file.type] = files;
+              }
+              files.push({'url': signed.url, 'name': file.nickname});
+
+            } else {
+              fileMap[file.type] = signed.url
+              if (file.type == 'vcf') {
+                sample.vcf_sample_name = file.vcf_sample_name;
+              }
             }
           })
           promises.push(p);
