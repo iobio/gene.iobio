@@ -472,6 +472,7 @@ nav.toolbar
          :defaultTopGenes="10"
          :geneModel="geneModel"
          :phenotypeLookupUrl="phenotypeLookupUrl"
+         :lastPhenotypeTermEntered="lastPhenotypeTermEntered"
          @on-search-genes="onSearchPhenolyzerGenes"
          @on-start-search-genes="onStartSearchPhenolyzerGenes"
          @show-snackbar="onShowSnackbar"
@@ -673,6 +674,7 @@ nav.toolbar
              :geneNames="geneNames"
              :genesInProgress="genesInProgress"
              :interpretationMap="interpretationMap"
+             :toClickVariant="toClickVariant"
              @flagged-variants-imported="onFlaggedVariantsImported"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
@@ -894,7 +896,9 @@ export default {
     phenotypeLookupUrl: null,
     geneNames: null,
     genesInProgress: null,
-    interpretationMap: null
+    interpretationMap: null,
+    lastPhenotypeTermEntered: null,
+    toClickVariant: null
   },
   data () {
     let self = this;
@@ -941,6 +945,11 @@ export default {
     },
     showKnownVariantsCard: function() {
       this.$emit("show-known-variants", this.showKnownVariantsCard);
+    },
+    lastPhenotypeTermEntered: function() {
+      if (this.lastPhenotypeTermEntered != null) {
+        this.phenotypeTermEntered = this.lastPhenotypeTermEntered;
+      }
     }
   },
   methods: {

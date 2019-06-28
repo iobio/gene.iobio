@@ -140,10 +140,13 @@ class GeneModel {
           return me.promiseGetNCBIGeneSummary(geneName);
         })
         .then(function() {
-          resolve();
+          me.promiseGetNCBIGeneSummary(geneName)
+          .then(function() {
+            resolve(true);
+          })
         })
       } else {
-        resolve();
+        resolve(false);
       }
 
     })

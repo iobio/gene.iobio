@@ -69,7 +69,8 @@ export default {
     defaultTopGenes: null,
     phenotypeLabel: null,
     classAttention: null,
-    phenotypeLookupUrl: null
+    phenotypeLookupUrl: null,
+    lastPhenotypeTermEntered: null
   },
   data () {
     return {
@@ -100,6 +101,11 @@ export default {
       let self = this;
       if (self.phenotypeTerm && self.phenotypeTerm.value) {
         self.onSearch();
+      }
+    },
+    lastPhenotypeTermEntered: function() {
+      if (this.lastPhenotypeTermEntered != null) {
+        this.phenotypeTermEntered = this.lastPhenotypeTermEntered;
       }
     }
   },

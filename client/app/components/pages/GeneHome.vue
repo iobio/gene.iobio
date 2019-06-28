@@ -143,9 +143,11 @@ main.content.clin
       :isFullAnalysis="isFullAnalysis"
       :bringAttention="bringAttention"
       :phenotypeLookupUrl="phenotypeLookupUrl"
+      :lastPhenotypeTermEntered="phenotypeTerm"
       :geneNames="geneModel.sortedGeneNames"
       :genesInProgress="cohortModel.genesInProgress"
       :interpretationMap="interpretationMap"
+      :toClickVariant="toClickVariant"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -616,6 +618,7 @@ export default {
       selectedVariantNotes: null,
       selectedVariantInterpretation: null,
       selectedVariantRelationship: null,
+      toClickVariant: null,
 
       showKnownVariantsCard: false,
       showSfariVariantsCard: false,
@@ -857,7 +860,6 @@ export default {
             }
 
             if (self.launchedFromHub) {
-              self.onShowSnackbar( {message: 'Loading data...', timeout: 5000});
               self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
               let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
 
@@ -874,6 +876,10 @@ export default {
               })
               .then(analysis => {
                 self.analysis = analysis;
+                if (self.analysis.payload.phenotypeTerm) {
+
+                }
+                self.phenotypeTerm = self.analysis.payload.phenotypeTerm
 
                 // SJG TODO: make call to hub session to get project, see what name is, pass in if Sfari project
                 return self.hubSession.promiseGetProject(self.projectId)
@@ -901,19 +907,8 @@ export default {
                   }
                 })
                 .then(function() {
-                  if (self.selectedGene == null || Object.keys(self.selectedGene).length == 0
-                    && self.geneModel.geneNames.length > 0) {
-                     return self.promiseLoadGene(self.geneModel.geneNames[0]);
-                  } else {
-                    return Promise.resolve()
-                  }
-                })
-                .then(function() {
-                  if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
-                      self.promiseLoadData()
-                      .then(function() {
-                          self.showLeftPanelWhenFlaggedVariants();
-                      })
+                  if (self.geneModel.geneNames.length > 0) {
+                     self.onAnalyzeAll();
                   } else {
                     self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
                     self.bringAttention = 'gene';
@@ -962,14 +957,20 @@ export default {
         self.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
 
 
-          if (self.launchedFromClin) {
+          if (self.launchedFromClin || self.launchedFromHub) {
             let flaggedVariantsForGene = self.cohortModel.getFlaggedVariantsForGene(theGene.gene_name);
             if (flaggedVariantsForGene.length > 0) {
               flaggedVariantsForGene.forEach(function(flaggedVariant) {
-                self.sendFlaggedVariantToClin(flaggedVariant);
+                if (self.launchedFromClin) {
+                  self.sendFlaggedVariantToClin(flaggedVariant);
+                } else if (self.launchedFromHub) {
+                  self.promiseUpdateAnalysisVariant(flaggedVariant);
+                }
               })
             }
-            self.sendCacheToClin(theGene.gene_name);
+            if (self.launchedFromClin) {
+              self.sendCacheToClin(theGene.gene_name);
+            }
           }
 
           if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
@@ -989,7 +990,11 @@ export default {
             } else if (self.cacheHelper.analyzeAllInProgress) {
               self.showLeftPanelForGenes();
             } else {
-              self.$refs.navRef.onShowVariantsTab();
+              self.promiseSelectApplicableVariantClin()
+              .then(function() {
+                self.$refs.navRef.onShowVariantsTab();
+              })
+
             }
           }
 
@@ -1372,13 +1377,17 @@ export default {
         }
 
         self.geneModel.promiseAddGeneName(geneName)
+        .then(function(justAdded) {
+          if (justAdded && self.launchedFromHub) {
+            return self.promiseUpdateAnalysisGenesData();
+          } else {
+            return Promise.resolve();
+          }
+        })
         .then(function() {
           return self.geneModel.promiseGetGeneObject(geneName)
-        })
-        .then(function(theGeneObject) {
-          if (self.launchedFromHub) {
-            self.promiseUpdateGenesData();
-          }
+        }).then(function(theGeneObject) {
+
           if (self.bringAttention == 'gene') {
             self.bringAttention = null;
           }
@@ -1714,6 +1723,8 @@ export default {
         flaggedVariantsToDelete.forEach(function(v) {
           self.sendFlaggedVariantToClin(v, 'delete');
         })
+      } else if (self.launchedFromHub && flaggedVariantsToDelete.length > 0) {
+        self.promiseDeleteAnalysisVariants( flaggedVariantsToDelete)
       }
       var newGeneToSelect = null;
       if (geneName == this.selectedGene.gene_name && this.geneModel.sortedGeneNames.length > 0) {
@@ -1819,6 +1830,8 @@ export default {
         options);
 
 
+
+
       let genesToApplyCount = self.geneModel.getCopyPasteGeneCount(genesString);
 
       let doIt = function() {
@@ -1830,6 +1843,9 @@ export default {
           }
           if (!options.isFromClin) {
             self.onSendGenesToClin();
+          }
+          if (self.launchedFromHub) {
+            self.promiseUpdateAnalysisGenesData(self.phenotypeTerm)
           }
           if (callback) {
             callback();
@@ -2077,6 +2093,8 @@ export default {
 
       if (self.launchedFromClin) {
         self.sendFlaggedVariantToClin(variant);
+      } else if (self.launchedFromHub) {
+        self.promiseUpdateAnalysisVariant(variant);
       }
 
     },
@@ -2100,6 +2118,8 @@ export default {
 
       if (self.launchedFromClin) {
         self.sendFlaggedVariantToClin(variant, 'delete');
+      } else if (self.launchedFromHub) {
+        self.promiseDeleteAnalysisVariants([variant]);
       }
 
 
@@ -2114,6 +2134,8 @@ export default {
       // Set the flagged variant notes and interpretation
       if (self.launchedFromClin) {
         self.sendFlaggedVariantToClin(variant);
+      } else if (self.launchedFromHub) {
+        self.promiseUpdateAnalysisVariant(variant);
       }
       if (variant == self.selectedVariant) {
         self.$set(self, "selectedVariantNotes", variant.notes);
@@ -2129,6 +2151,8 @@ export default {
 
       if (self.launchedFromClin) {
         self.sendFlaggedVariantToClin(variant);
+      } else if (self.launchedFromHub) {
+        self.promiseUpdateAnalysisVariant(variant);
       }
 
       if (variant == self.selectedVariant) {
@@ -2209,6 +2233,8 @@ export default {
                   flaggedVariant.isProxy = false;
                   if (self.launchedFromClin) {
                     self.sendFlaggedVariantToClin(flaggedVariant);
+                  } else if (self.launchedFromHub) {
+                    self.promiseUpdateAnalysisVariant(flaggedVariant);
                   }
 
                 }
@@ -2979,6 +3005,7 @@ export default {
 
         if (firstFlaggedVariant) {
           self.showLeftPanelWhenFlaggedVariants();
+          self.toClickVariant = firstFlaggedVariant;
           self.onFlaggedVariantSelected(firstFlaggedVariant);
         }
 
@@ -3215,29 +3242,52 @@ export default {
 
 
 
-    promiseUpdateGenesData: function() {
+    promiseUpdateAnalysisGenesData: function(phenolyzerSearchTerm) {
       let self = this;
       self.analysis.payload.genes              = this.geneModel.geneNames;
+      self.analysis.payload.phenotypeTerm      = phenolyzerSearchTerm;
 
       self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
       self.analysis.title = self.analysis.title + self.globalApp.utility.getCurrentDateTime();
       return self.hubSession.promiseUpdateAnalysis(self.analysis);
     },
 
-
-
-    promiseUpdateVariants: function(variantsToReplace) {
+    promiseDeleteAnalysisVariants(variantsToRemove) {
       let self = this;
-      variantsToReplace.forEach(function(variant) {
-        let matchingIdx = self.findAnalysisVariantIndex(variant);
-        if (matchingIdx != -1) {
-          self.analysis.payload.variants[matchingIdx] = variant;
-        } else {
-          self.analysis.payload.variants.push(variant);
-        }
+      let toRemove = [];
+      if (variantsToRemove && self.analysis.payload.variants) {
+        variantsToRemove.forEach(function(variantToRemove) {
+          let matchingIdx = self.findMatchingVariantIndex(variantToRemove);
+          if (matchingIdx != -1) {
+            toRemove.push($.extend({}, variantToRemove));
+          }
+        })
+      }
+      toRemove.forEach(function(v) {
+        let idx = self.findMatchingVariantIndex(v, self.analysis.payload.variants);
+        self.analysis.payload.variants.remove(idx);
       })
+      self.analysis.payload.datetime_last_modified = self.getCurrentDateTime();
+      return self.mosaicSession.promiseUpdateAnalysis(self.analysis);
+    },
+
+
+    promiseUpdateAnalysisVariant: function(variantToReplace) {
+      let self = this;
+
       self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
-      return self.hubSession.promiseUpdateAnalysis(self.analysis);
+      self.cohortModel.promiseExportFlaggedVariant('json', variantToReplace)
+      .then(function(exportedVariants) {
+
+        let matchingIdx = self.findAnalysisVariantIndex(exportedVariants[0]);
+        if (matchingIdx != -1) {
+          self.analysis.payload.variants[matchingIdx] = exportedVariants[0];
+        } else {
+          self.analysis.payload.variants.push(exportedVariants[0]);
+        }
+        return self.hubSession.promiseUpdateAnalysis(self.analysis);
+
+      })
     },
 
     findAnalysisVariantIndex(variant) {
