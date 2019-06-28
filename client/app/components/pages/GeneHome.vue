@@ -990,7 +990,7 @@ export default {
             } else if (self.cacheHelper.analyzeAllInProgress) {
               self.showLeftPanelForGenes();
             } else {
-              self.promiseSelectApplicableVariantClin()
+              self.promiseSelectFirstFlaggedVariant()
               .then(function() {
                 self.$refs.navRef.onShowVariantsTab();
               })
@@ -2988,7 +2988,7 @@ export default {
     },
 
 
-    promiseSelectApplicableVariantClin: function() {
+    promiseSelectFirstFlaggedVariant: function() {
       let self = this;
       return new Promise(function(resolve, reject) {
 
@@ -3008,42 +3008,6 @@ export default {
           self.toClickVariant = firstFlaggedVariant;
           self.onFlaggedVariantSelected(firstFlaggedVariant);
         }
-
-
-        /*
-        let geneNameToSelect = null;
-        if (self.launchedFromClin) {
-          if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
-            let applicableGenes = self.geneModel.geneNames.filter(function(geneName) {
-              if (self.isFullAnalysis) {
-                return !self.geneModel.isCandidateGene(geneName);
-              } else {
-                return self.geneModel.isCandidateGene(geneName);
-              }
-            })
-            if (applicableGenes.length > 0) {
-              geneNameToSelect = applicableGenes[0];
-            }
-          }
-
-        } else {
-          if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
-            geneNameToSelect = self.geneModel.sortedGeneNames[0];
-          }
-        }
-
-        if (geneNameToSelect) {
-          self.promiseLoadGene(geneNameToSelect)
-          .then(function() {
-            resolve();
-          })
-          .catch(function(error) {
-            resolve();
-          })
-        } else {
-          resolve();
-        }
-        */
 
       })
     },
@@ -3114,12 +3078,12 @@ export default {
           self.cacheHelper.promiseGetGenesToAnalyze()
           .then(function(genesToAnalyze) {
             if (genesToAnalyze.length > 0) {
-              self.promiseSelectApplicableVariantClin()
+              self.promiseSelectFirstFlaggedVariant()
               .then(function() {
                 self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
               })
             } else {
-              self.promiseSelectApplicableVariantClin()
+              self.promiseSelectFirstFlaggedVariant()
               .then(function() {
                 if (self.$refs.navRef) {
                   self.$refs.navRef.onShowVariantsTab();
