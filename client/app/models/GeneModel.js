@@ -135,15 +135,15 @@ class GeneModel {
       if (me.geneNames.indexOf(geneName) < 0) {
         me.geneNames.push(geneName);
         me.sortedGeneNames.push(geneName);
-        me.promiseGetGenePhenotypes(geneName)
+        me.promiseGetGeneObject(geneName)
         .then(function() {
-          return me.promiseGetNCBIGeneSummary(geneName);
+          return me.promiseGetGenePhenotypes(geneName)
         })
+        //.then(function() {
+        //  return me.promiseGetNCBIGeneSummary(geneName);
+        //})
         .then(function() {
-          me.promiseGetNCBIGeneSummary(geneName)
-          .then(function() {
-            resolve(true);
-          })
+          resolve(true);
         })
       } else {
         resolve(false);

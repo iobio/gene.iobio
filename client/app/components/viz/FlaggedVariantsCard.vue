@@ -1069,6 +1069,7 @@ export default {
       this.populateGeneLists();
     },
     toClickVariant: function() {
+      this.populateGeneLists();
       this.clickedVariant = this.toClickVariant;
     }
   }

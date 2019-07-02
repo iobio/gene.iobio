@@ -466,7 +466,21 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        reject("Error updating analysis " + analysisId + " for project " + projectId + ": " + error);
+        reject("Error updating analysis " + analysis.id  + ": " + error);
+      })
+    })
+
+  }
+
+  promiseUpdateAnalysisTitle(analysis) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.updateAnalysisTitle(analysis.project_id, analysis.id, analysis)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        reject("Error updating analysis title " + analysis.id + ": " + error);
       })
     })
 
@@ -492,6 +506,19 @@ export default class HubSession {
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/analyses/?client_application_id=' + this.client_application_id,
       type: 'POST',
+      data: JSON.stringify(newAnalysisData),
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+  updateAnalysisTitle(projectId, analysisId, newAnalysisData) {
+    let self = this;
+    return $.ajax({
+      url: self.api + '/projects/' + projectId + '/analyses/' + analysisId,
+      type: 'PUT',
       data: JSON.stringify(newAnalysisData),
       contentType: 'application/json',
       headers: {

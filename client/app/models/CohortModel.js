@@ -2185,14 +2185,53 @@ class CohortModel {
     importedVariants.forEach(function(importedVariant) {
       var matchingVariant = self.getFlaggedVariant(importedVariant);
       if (!matchingVariant) {
-        self.flaggedVariants.push(importedVariant);
+        let variant = self.setImportedVariantGeneAndTranscript(importedVariant, {copy: true});
+        self.flaggedVariants.push(variant);
       } else {
         matchingVariant.interpretation = importedVariant.interpretation;
-        matchingVariant.notes = importedVariant.notes;
-        matchingVariant.isUserFlagged = importedVariant.isUserFlagged;
-        matchingVariant.featureClass = importedVariant.isUserFlagged ? "flagged" : "";
+        matchingVariant.notes          = importedVariant.notes;
+        matchingVariant.isUserFlagged  = importedVariant.isUserFlagged;
+        matchingVariant.featureClass   = importedVariant.isUserFlagged ? "flagged" : "";
       }
     })
+  }
+
+  setImportedVariantGeneAndTranscript(importedVariant, options) {
+    let self = this;
+
+    let variant = null;
+    if (options && options.copy) {
+      variant = $.extend({}, importedVariant)
+    } else {
+      variant = importedVariant;
+    }
+
+    var geneObject = self.geneModel.geneObjects[variant.gene];
+
+    variant.geneName = variant.gene;
+    variant.gene = geneObject;
+    variant.isProxy = true;
+    variant.isFlagged = true;
+    variant.notCategorized = false;
+    variant.isImported = true;
+
+    variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : ['notCategorized']);
+    if (variant.isUserFlagged == 'Y') {
+      variant.isUserFlagged = true;
+    } else {
+      variant.isUserFlagged = null;
+    }
+    if (variant.transcript && typeof variant.transcript === 'object') {
+
+    } else if (variant.transcript && variant.transcript.length > 0) {
+      variant.transcript = self.geneModel.getTranscript(geneObject, variant.transcript);
+    } else {
+      var tx = geneObject ? self.geneModel.getCanonicalTranscript(geneObject) : null;
+      if (tx) {
+        variant.transcript = tx;
+      }
+    }
+    return variant;
   }
 
 
@@ -2244,29 +2283,9 @@ class CohortModel {
       importRecords.forEach( function(variant) {
         var geneObject = me.geneModel.geneObjects[variant.gene];
 
-        variant.geneName = variant.gene;
-        variant.gene = geneObject;
-        variant.isProxy = true;
-        variant.isFlagged = true;
-        variant.notCategorized = false;
-        variant.isImported = true;
-        variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : ['notCategorized']);
-        if (variant.isUserFlagged == 'Y') {
-          variant.isUserFlagged = true;
-        } else {
-          variant.isUserFlagged = null;
-        }
-        if (variant.transcript && typeof variant.transcript === 'object') {
-
-        } else if (variant.transcript && variant.transcript.length > 0) {
-          variant.transcript = me.geneModel.getTranscript(geneObject, variant.transcript);
-        } else {
-          var tx = geneObject ? me.geneModel.getCanonicalTranscript(geneObject) : null;
-          if (tx) {
-            variant.transcript = tx;
-          }
-        }
+        me.setImportedVariantGeneAndTranscript(variant);
         geneToAltTranscripts[geneObject.gene_name] = variant.transcript;
+
         me.flaggedVariants.push(variant);
 
         var analyzeKind = variant.freebayesCalled == 'Y' ? 'call' : 'load';

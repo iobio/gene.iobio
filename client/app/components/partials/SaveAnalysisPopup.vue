@@ -1,0 +1,125 @@
+<style lang="sass" >
+@import ../../../assets/sass/variables
+
+.close-button
+  margin: 0px !important
+  padding: 0px !important
+  min-width: 25px !important
+  height: 25px !important
+  margin-bottom: 15px !important
+
+  .btn__content
+    padding: 0px
+    max-width: 25px
+    max-height: 25px
+
+    i.material-icons
+      font-size: 25px
+      color: $text-color
+
+
+
+.save-analysis-dialog
+  padding: 15px 15px 20px 15px
+
+  .layout
+    padding-left: 15px
+    padding-right: 15px
+
+  .info-title
+    font-size: 20px
+    color: $app-color
+    margin-bottom: 15px
+  .info-description
+    font-size: 13px
+
+
+</style>
+<template>
+
+    <v-dialog  width="500" persistent v-model="showPopup" >
+
+      <v-card class="save-analysis-dialog full-width">
+        <v-card-title style="justify-content:space-between">
+          <span class="info-title">Analysis</span>
+          <v-btn  @click="onClose" flat class="close-button">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-card-title>
+          <v-layout row wrap>
+
+
+              <v-flex xs12>
+                <v-text-field v-model="analysisName" label="Name" type="text">
+                </v-text-field>
+              </v-flex>
+
+              <v-flex xs12>
+                <v-text-field
+                  multi-line
+                  rows="3"
+                  label="Description"
+                  v-model="analysisDescription"
+                >
+                </v-text-field>
+              </v-flex>
+
+
+              <v-flex xs12>
+                <v-btn @click="onSave">Save</v-btn>
+                <v-btn @click="onClose">Cancel</v-btn>
+              </v-flex>
+
+          </v-layout>
+        <v-card-text>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+</template>
+
+<script>
+
+export default {
+    name: 'save-analysis-popup',
+    props: {
+      analysis: null,
+      showIt: false
+    },
+    data() {
+      return {
+        showPopup: false,
+        analysisName: null,
+        analysisDescription: null
+      }
+    },
+    watch: {
+      showIt: function() {
+        if (this.showIt) {
+          this.analysisName = this.analysis.title;
+          this.analysisDescription = this.analysis.description;
+          this.showPopup = true;
+        }
+      },
+      showPopup: function() {
+        if (this.showPopup) {
+          this.analysisName = this.analysis.title;
+          this.analysisDescription = this.analysis.description;
+        }
+      }
+    },
+    methods: {
+      onSave: function() {
+        this.analysis.title = this.analysisName;
+        this.analysis.description = this.analysisDescription;
+        this.$emit("on-save-analysis", this.analysis)
+        this.showPopup = false;
+      },
+      onClose: function() {
+        this.$emit("on-cancel-analysis")
+        this.showPopup = false;
+      }
+    }
+}
+
+</script>

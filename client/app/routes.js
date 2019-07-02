@@ -52,6 +52,7 @@ const routes = [
     path: '/',
     component: GeneHome,
     beforeEnter: (to, from, next) => {
+      console.log(to);
       var idx = to.hash.indexOf("#access_token");
       if (idx == 0) {
         let queryParams = Qs.parse(to.hash.substring(1));

@@ -56,7 +56,13 @@ class Util {
     return dateObject.toString();
   }
 
-
+  isObject(val) {
+    if (val === null) {
+      return false;
+    } else {
+      return ( (typeof val === 'function') || (typeof val === 'object') );
+    }
+  }
 
   visibleHeight($el) {
       var elH = $el.outerHeight(),
