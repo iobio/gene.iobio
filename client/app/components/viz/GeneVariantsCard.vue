@@ -166,21 +166,23 @@
         </transcripts-menu>
       </div>
 
+      <div style="display:inline-block;width:180px">
 
-      <v-switch
-        :class="{'optional-track-switch': true, 'full-analysis': isFullAnalysis, 'clin': launchedFromClin}"
-        v-if=" isLoaded && !isEduMode && !isBasicMode "
-        label="ClinVar track"
-        v-model="showKnownVariantsCard"
+        <v-switch
+          :class="{'optional-track-switch': true, 'full-analysis': isFullAnalysis, 'clin': launchedFromClin}"
+          v-if=" isLoaded && !isEduMode && !isBasicMode "
+          label="ClinVar track"
+          v-model="showKnownVariantsCard"
+          >
+        </v-switch>
+
+        <v-switch class="optional-track-switch"
+                  v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && !showSfariTrackToggle"
+                  label="SFARI track"
+                  v-model="showSfariVariantsCard"
         >
-      </v-switch>
-
-      <v-switch class="optional-track-switch"
-                v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && !showSfariTrackToggle"
-                label="SFARI track"
-                v-model="showSfariVariantsCard"
-      >
-      </v-switch>
+        </v-switch>
+      </div>
 
     </div>
 
