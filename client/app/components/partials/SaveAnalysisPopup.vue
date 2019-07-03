@@ -51,7 +51,7 @@
 
     <v-dialog  content-class="save-analysis-dialog" width="400" persistent v-model="showPopup" >
 
-      <v-card class="save-analysis-content full-width">
+      <v-card v-if="analysis" class="save-analysis-content full-width">
         <v-card-title style="justify-content:space-between">
           <span class="info-title"> {{ analysis.id ? 'Name and description of this analysis' : 'Add this analysis to Mosaic' }}</span>
           <v-btn  @click="onClose" flat class="close-button">
@@ -62,7 +62,7 @@
 
 
               <v-flex xs12>
-                <v-text-field hide-details="true" v-model="analysisName" label="Name" type="text">
+                <v-text-field :hide-details="true" v-model="analysisName" label="Name" type="text">
                 </v-text-field>
               </v-flex>
 
@@ -70,7 +70,7 @@
                 <v-text-field
                   multi-line
                   rows="3"
-                  hide-details="true"
+                  :hide-details="true"
                   label="Description"
                   v-model="analysisDescription"
                 >

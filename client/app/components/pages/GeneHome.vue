@@ -921,9 +921,7 @@ export default {
                   })
                   return Promise.all(genePromises);
                 } else {
-                  self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
-                  self.bringAttention = 'gene';
-                  return Promise.resolve()
+                  return Promise.resolve();
                 }
               })
               .then(function() {
@@ -935,6 +933,15 @@ export default {
                     self.$refs.navRef.onShowVariantsTab();
                     self.cacheHelper.analyzeAll(self.cohortModel);
                   })
+                } else {
+                  if (self.geneModel.geneNames.length > 0) {
+                    self.onGeneSelected(self.geneModel.geneNames[0]);
+                    self.showLeftPanelForGenes();
+                    self.cacheHelper.analyzeAll(self.cohortModel);
+                  } else {
+                    self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
+                    self.bringAttention = 'gene';
+                  }
                 }
               })
             } else {
