@@ -878,72 +878,7 @@ export default {
             }
 
             if (self.launchedFromHub) {
-              self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
-              let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
-
-              // Workaround until launch from Mosaic analysis can pass in is_pedigree
-              if (self.paramAnalysisId && self.paramAnalysisId.length > 0 && !isPedigree) {
-                isPedigree = true;
-              }
-
-              self.cohortModel.setHubSession(self.hubSession);
-              self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
-              .then(modelInfos => {
-                self.modelInfos = modelInfos;
-                return self.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
-              })
-              .then(analysis => {
-
-                if (self.analysis.payload.phenotypeTerm) {
-                  self.phenotypeTerm = self.analysis.payload.phenotypeTerm
-                }
-
-                // SJG TODO: make call to hub session to get project, see what name is, pass in if Sfari project
-                return self.hubSession.promiseGetProject(self.projectId)
-              })
-              .then(projObj => {
-                  let isSfariProject = false;
-                  // Note: going off of names per CM for now until we can get a Sfari project db flag
-                  if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
-                    isSfariProject = true;
-                  } else if (projObj.name === 'SSC GRCh37 WES') {
-                      isSfariProject = true;
-                      self.sfariProjectFileUnavailable = true;
-                  }
-                  return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
-              })
-              .then(function() {
-                self.models = self.cohortModel.sampleModels;
-                var genePromises = []
-                if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
-                  self.analysis.payload.genes.forEach(function(geneName) {
-                    genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
-                  })
-                  return Promise.all(genePromises);
-                } else {
-                  return Promise.resolve();
-                }
-              })
-              .then(function() {
-
-                if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
-                  self.cohortModel.mergeImportedVariants( self.analysis.payload.variants);
-                  self.promiseSelectFirstFlaggedVariant()
-                  .then(function() {
-                    self.$refs.navRef.onShowVariantsTab();
-                    self.cacheHelper.analyzeAll(self.cohortModel);
-                  })
-                } else {
-                  if (self.geneModel.geneNames.length > 0) {
-                    self.onGeneSelected(self.geneModel.geneNames[0]);
-                    self.showLeftPanelForGenes();
-                    self.cacheHelper.analyzeAll(self.cohortModel);
-                  } else {
-                    self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
-                    self.bringAttention = 'gene';
-                  }
-                }
-              })
+              self.promiseInitFromMosaic()
             } else {
               self.models = self.cohortModel.sampleModels;
               if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
@@ -976,6 +911,89 @@ export default {
 
       })
 
+    },
+
+    promiseInitFromMosaic: function() {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
+        let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
+
+        // Workaround until launch from Mosaic analysis can pass in is_pedigree
+        if (self.paramAnalysisId && self.paramAnalysisId.length > 0 && !isPedigree) {
+          isPedigree = true;
+        }
+
+        self.cohortModel.setHubSession(self.hubSession);
+        self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
+        .then(modelInfos => {
+          self.modelInfos = modelInfos;
+          return self.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
+        })
+        .then(analysis => {
+
+          if (self.analysis.payload.phenotypeTerm) {
+            self.phenotypeTerm = self.analysis.payload.phenotypeTerm
+          }
+
+          // SJG TODO: make call to hub session to get project, see what name is, pass in if Sfari project
+          return self.hubSession.promiseGetProject(self.projectId)
+        })
+        .then(projObj => {
+            let isSfariProject = false;
+            // Note: going off of names per CM for now until we can get a Sfari project db flag
+            if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
+              isSfariProject = true;
+            } else if (projObj.name === 'SSC GRCh37 WES') {
+                isSfariProject = true;
+                self.sfariProjectFileUnavailable = true;
+            }
+            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
+        })
+        .then(function() {
+          self.models = self.cohortModel.sampleModels;
+          var genePromises = []
+          if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
+            self.analysis.payload.genes.forEach(function(geneName) {
+              genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+            })
+            return Promise.all(genePromises);
+          } else {
+            return Promise.resolve();
+          }
+        })
+        .then(function() {
+
+          if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
+            self.cohortModel.mergeImportedVariants( self.analysis.payload.variants);
+            self.promiseSelectFirstFlaggedVariant()
+            .then(function() {
+              self.$refs.navRef.onShowVariantsTab();
+              self.cacheHelper.analyzeAll(self.cohortModel);
+              resolve();
+            })
+          } else {
+
+            if (self.geneModel.geneNames.length > 0) {
+              let transcript = self.geneModel.getCanonicalTranscript(self.geneModel.geneNames[0]);
+              self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
+              .then(function() {
+                self.showLeftPanelForGenes();
+                self.cacheHelper.analyzeAll(self.cohortModel);
+                resolve();
+              })
+            } else {
+              self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
+              self.bringAttention = 'gene';
+              resolve();
+            }
+          }
+        })
+        .catch(function(error) {
+          reject(error);
+        })
+
+      })
     },
 
     promiseInitCache: function() {
@@ -3030,6 +3048,16 @@ export default {
       let self = this;
       return new Promise(function(resolve, reject) {
 
+        let getGeneName = function(variant) {
+          if (variant.geneName && variant.geneName.length > 0) {
+            return variant.geneName;
+          } else if (self.globalApp.utility.isObject(variant.gene)) {
+            return variant.gene.gene_name;
+          } else {
+            return variant.gene;
+          }
+        }
+
         // Find first flagged variant in list
         let firstFlaggedVariant = null;
         let sortedFilters = self.cohortModel.organizeVariantsByFilterAndGene(null, self.isFullAnalysis);
@@ -3042,7 +3070,7 @@ export default {
         })
 
         if (firstFlaggedVariant) {
-          self.promiseLoadGene(firstFlaggedVariant.geneName)
+          self.promiseLoadGene(getGeneName(firstFlaggedVariant))
           .then(function() {
             self.showLeftPanelWhenFlaggedVariants();
             self.toClickVariant = firstFlaggedVariant;
@@ -3051,6 +3079,9 @@ export default {
             });
           })
         } else {
+          setTimeout(function() {
+            self.showLeftPanelForGenes();
+          },1000)
           resolve();
         }
 
