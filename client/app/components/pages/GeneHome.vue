@@ -456,6 +456,7 @@ main.content.clin
     ></app-tour>
 
     <save-button
+      v-if="launchedFromHub"
       :showing-save-modal="showSaveModal"
       @save-modal:set-visibility="toggleSaveModal"
     />
