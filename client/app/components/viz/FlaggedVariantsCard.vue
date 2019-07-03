@@ -822,7 +822,8 @@ export default {
     isFullAnalysis: null,
     geneNames: null,
     genesInProgress: null,
-    interpretationMap: null
+    interpretationMap: null,
+    toClickVariant: null
   },
   data() {
     return {
@@ -1070,6 +1071,10 @@ export default {
     },
     isFullAnalysis: function() {
       this.populateGeneLists();
+    },
+    toClickVariant: function() {
+      this.populateGeneLists();
+      this.clickedVariant = this.toClickVariant;
     }
   }
 }

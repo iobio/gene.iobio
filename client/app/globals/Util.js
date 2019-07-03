@@ -46,6 +46,24 @@ class Util {
 
 
 
+  getCurrentDateTime() {
+    var dateObj = new Date();
+    return dateObj.getTime();
+  }
+
+  formatCurrentDateTime(time) {
+    var dateObject = new Date(time);
+    return dateObject.toString();
+  }
+
+  isObject(val) {
+    if (val === null) {
+      return false;
+    } else {
+      return ( (typeof val === 'function') || (typeof val === 'object') );
+    }
+  }
+
   visibleHeight($el) {
       var elH = $el.outerHeight(),
           H = $(window).height(),

@@ -2180,19 +2180,74 @@ class CohortModel {
     }
   }
 
-  mergeImportedVariants(importedVariants) {
+  promiseMergeImportedVariants(importedVariants) {
     let self = this;
-    importedVariants.forEach(function(importedVariant) {
-      var matchingVariant = self.getFlaggedVariant(importedVariant);
-      if (!matchingVariant) {
-        self.flaggedVariants.push(importedVariant);
-      } else {
-        matchingVariant.interpretation = importedVariant.interpretation;
-        matchingVariant.notes = importedVariant.notes;
-        matchingVariant.isUserFlagged = importedVariant.isUserFlagged;
-        matchingVariant.featureClass = importedVariant.isUserFlagged ? "flagged" : "";
-      }
+    let promises = [];
+
+    return new Promise(function(resolve, reject) {
+      importedVariants.forEach(function(importedVariant) {
+        var matchingVariant = self.getFlaggedVariant(importedVariant);
+        if (!matchingVariant) {
+          let p = self.geneModel.promiseGetCachedGeneObject(importedVariant.gene)
+          .then(function(geneObject) {
+             let variant = self.setImportedVariantGeneAndTranscript(importedVariant, geneObject, {copy: true})
+             self.flaggedVariants.push(variant);
+          })
+          promises.push(p)
+        } else {
+          matchingVariant.interpretation = importedVariant.interpretation;
+          matchingVariant.notes          = importedVariant.notes;
+          matchingVariant.isUserFlagged  = importedVariant.isUserFlagged;
+          matchingVariant.featureClass   = importedVariant.isUserFlagged ? "flagged" : "";
+          p.push(Promise.resolve())
+        }
+      })
+      Promise.all(promises)
+      .then(function() {
+        resolve()
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+
     })
+  }
+
+  setImportedVariantGeneAndTranscript(importedVariant, geneObject, options) {
+    let self = this;
+
+    let variant = null;
+    if (options && options.copy) {
+      variant = $.extend({}, importedVariant)
+    } else {
+      variant = importedVariant;
+    }
+
+    variant.geneName = variant.gene;
+    variant.gene = geneObject;
+    variant.isProxy = true;
+    variant.isFlagged = true;
+    variant.notCategorized = false;
+    variant.isImported = true;
+
+    variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : ['notCategorized']);
+    if (variant.isUserFlagged == 'Y') {
+      variant.isUserFlagged = true;
+    } else {
+      variant.isUserFlagged = null;
+    }
+    if (variant.transcript && typeof variant.transcript === 'object') {
+
+    } else if (variant.transcript && variant.transcript.length > 0) {
+      variant.transcript = self.geneModel.getTranscript(geneObject, variant.transcript);
+    } else {
+      var tx = geneObject ? self.geneModel.getCanonicalTranscript(geneObject) : null;
+      if (tx) {
+        variant.transcript = tx;
+      }
+    }
+    return variant;
+
   }
 
 
@@ -2244,29 +2299,9 @@ class CohortModel {
       importRecords.forEach( function(variant) {
         var geneObject = me.geneModel.geneObjects[variant.gene];
 
-        variant.geneName = variant.gene;
-        variant.gene = geneObject;
-        variant.isProxy = true;
-        variant.isFlagged = true;
-        variant.notCategorized = false;
-        variant.isImported = true;
-        variant.filtersPassed = variant.filtersPassed && variant.filtersPassed.indexOf(",") > 0 ? variant.filtersPassed.split(",").join() : (variant.filtersPassed ? [variant.filtersPassed] : ['notCategorized']);
-        if (variant.isUserFlagged == 'Y') {
-          variant.isUserFlagged = true;
-        } else {
-          variant.isUserFlagged = null;
-        }
-        if (variant.transcript && typeof variant.transcript === 'object') {
-
-        } else if (variant.transcript && variant.transcript.length > 0) {
-          variant.transcript = me.geneModel.getTranscript(geneObject, variant.transcript);
-        } else {
-          var tx = geneObject ? me.geneModel.getCanonicalTranscript(geneObject) : null;
-          if (tx) {
-            variant.transcript = tx;
-          }
-        }
+        me.setImportedVariantGeneAndTranscript(variant, geneObject);
         geneToAltTranscripts[geneObject.gene_name] = variant.transcript;
+
         me.flaggedVariants.push(variant);
 
         var analyzeKind = variant.freebayesCalled == 'Y' ? 'call' : 'load';

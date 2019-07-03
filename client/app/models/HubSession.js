@@ -5,6 +5,7 @@ export default class HubSession {
     this.samples = null;
     this.url = null;
     this.apiVersion =  '/apiv1';
+    this.client_application_id = null;
   }
 
   promiseInit(sampleId, source, isPedigree, projectId ) {
@@ -14,103 +15,137 @@ export default class HubSession {
     return new Promise((resolve, reject) => {
       let modelInfos = [];
 
-
-      self.promiseGetSampleInfo(projectId, sampleId, isPedigree)
-      .then( data => {
-
-        let pedigree = data.pedigree;
-        let rawPedigree = data.rawPedigree;
-
-        let promises = [];
-
-        // Let's get the proband info first
-        let probandSample = pedigree.proband;
-        self.promiseGetFileMapForSample(projectId, probandSample, 'proband').then(data => {
-          probandSample.files = data.fileMap;
-        })
-        .then( () => {
-          for (var rel in pedigree) {
-            if (rel != 'unparsed') {
-              let samples = [];
-              if (Array.isArray(pedigree[rel])) {
-                samples = pedigree[rel];
-              } else {
-                samples = [pedigree[rel]];
-              }
-              samples.forEach(s => {
-                let p =  self.promiseGetFileMapForSample(projectId, s, rel).then(data => {
-                  let theSample = data.sample;
-                  theSample.files = data.fileMap;
+      self.promiseGetClientApplication()
+      .then(function() {
+        self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then(data => {
 
 
+          let promises = [];
 
-                  // gene.iobio only supports siblings in same multi-sample vcf as proband.
-                  // bypass siblings in their own vcf.
-                  let bypass = false;
-                  // TODO:  Need to check if samples exist in proband vcf rather than checking file names
-                  // since mosaic generates different vcf url for sample physical file.
-                  //if (data.relationship == 'siblings' && theSample.files.vcf != probandSample.files.vcf) {
-                  //  bypass = true;
-                  //  console.log("Bypassing sibling " + theSample.id + ".  This sample must reside in the same vcf as the proband in order to be processed.")
-                  //}
+          let pedigree    = data.pedigree;
+          let rawPedigree = data.rawPedigree;
 
-                  if (!bypass) {
+          // Let's get the proband info first
+          let probandSample = pedigree.proband;
+          self.promiseGetFileMapForSample(projectId, probandSample, 'proband').then(data => {
+            probandSample.files = data.fileMap;
+          })
+          .then( () => {
+            for (var rel in pedigree) {
+              if (rel != 'unparsed') {
+                let samples = [];
+                if (Array.isArray(pedigree[rel])) {
+                  samples = pedigree[rel];
+                } else {
+                  samples = [pedigree[rel]];
+                }
+                samples.forEach(s => {
+                  let p =  self.promiseGetFileMapForSample(projectId, s, rel).then(data => {
+                    let theSample = data.sample;
+                    theSample.files = data.fileMap;
 
 
 
-                    var modelInfo = {
-                      'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
-                      'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
-                      'name':           theSample.name,
-                      'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
-                      'vcf':            theSample.files.vcf,
-                      'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi
-                    }
+                    // gene.iobio only supports siblings in same multi-sample vcf as proband.
+                    // bypass siblings in their own vcf.
+                    let bypass = false;
+                    // TODO:  Need to check if samples exist in proband vcf rather than checking file names
+                    // since mosaic generates different vcf url for sample physical file.
+                    //if (data.relationship == 'siblings' && theSample.files.vcf != probandSample.files.vcf) {
+                    //  bypass = true;
+                    //  console.log("Bypassing sibling " + theSample.id + ".  This sample must reside in the same vcf as the proband in order to be processed.")
+                    //}
 
-                    if (theSample.files.bam != null) {
-                      modelInfo.bam = theSample.files.bam;
-                      if (theSample.files.bai) {
-                        modelInfo.bai = theSample.files.bai;
+                    if (!bypass) {
+
+                      var modelInfo = {
+                        'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
+                        'affectedStatus': theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected',
+                        'name':           theSample.name,
+                        'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
+                        'vcf':            theSample.files.vcf,
+                        'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
+                        'txt':            theSample.files.txt
                       }
 
-                    } else if (theSample.files.cram != null) {
-                      modelInfo.bam = theSample.files.cram;
-                      if (theSample.files.crai) {
-                        modelInfo.bai = theSample.files.crai;
+                      if (theSample.files.bam != null) {
+                        modelInfo.bam = theSample.files.bam;
+                        if (theSample.files.bai) {
+                          modelInfo.bai = theSample.files.bai;
+                        }
+
+                      } else if (theSample.files.cram != null) {
+                        modelInfo.bam = theSample.files.cram;
+                        if (theSample.files.crai) {
+                          modelInfo.bai = theSample.files.crai;
+                        }
                       }
+
+                      modelInfos.push(modelInfo);
                     }
 
-                    modelInfos.push(modelInfo);
-                  }
-
+                  })
+                  promises.push(p);
                 })
-                promises.push(p);
-              })
+              }
+
+
             }
+            Promise.all(promises).then(response => {
+              // Don't want to expose db info here?
+              //console.log(pedigree);
 
-
-          }
-          Promise.all(promises).then(response => {
-            // Don't want to expose db info here?
-            //console.log(pedigree);
-
-            resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree});
+              resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree});
+            })
+            .catch(error => {
+              reject(error);
+            })
           })
-          .catch(error => {
-            reject(error);
-          })
+
+
+
+
         })
-
-
-
-
       })
+
     })
 
-
-
-
   }
+
+  promiseGetClientApplication() {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      $.ajax({
+        url: self.api + '/client-applications',
+        type: 'GET',
+        contentType: 'application/json',
+        headers: {
+          Authorization: localStorage.getItem('hub-iobio-tkn'),
+        },
+      })
+      .done(clientApps => {
+        console.log(clientApps)
+        let matchingApp = clientApps.filter(function(clientApp) {
+          return clientApp.uid == 'gene';
+        })
+        if (matchingApp.length > 0) {
+          console.log("client_appplication_id = " + matchingApp[0].id)
+          self.client_application_id = matchingApp[0].id;
+          resolve();
+        } else {
+          reject("Cannot find Mosaic client_application for gene")
+        }
+
+      })
+      .fail(error => {
+        console.log("Error getting applications ");
+        console.log(error);
+        reject(error);
+      })
+
+    })
+  }
+
 
   promiseGetProject(project_id) {
     let self = this;
@@ -275,9 +310,19 @@ export default class HubSession {
         files.forEach(file => {
           var p = self.promiseGetSignedUrlForFile(project_id, currentSample.id, file)
           .then(signed => {
-            fileMap[file.type] = signed.url;
-            if (file.type == 'vcf') {
-              sample.vcf_sample_name = file.vcf_sample_name;
+            if (file.type == 'txt') {
+              var files = fileMap[file.type];
+              if (files == null) {
+                files = [];
+                fileMap[file.type] = files;
+              }
+              files.push({'url': signed.url, 'name': file.nickname});
+
+            } else {
+              fileMap[file.type] = signed.url
+              if (file.type == 'vcf') {
+                sample.vcf_sample_name = file.vcf_sample_name;
+              }
             }
           })
           promises.push(p);
@@ -386,5 +431,115 @@ export default class HubSession {
     });
   }
 
+  promiseGetAnalysis(projectId, analysisId) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getAnalysis(projectId, analysisId)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        reject("Error getting analysis " + analysisId + ": " + error);
+      })
+    })
+
+  }
+  promiseAddAnalysis(projectId, analysis) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.addAnalysis(projectId, analysis)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        reject("Error adding analysis for project " + projectId + ": " + error);
+      })
+    })
+
+  }
+
+  promiseUpdateAnalysis(analysis) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.updateAnalysis(analysis.project_id, analysis.id, analysis)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        reject("Error updating analysis " + analysis.id  + ": " + error);
+      })
+    })
+
+  }
+
+  promiseUpdateAnalysisTitle(analysis) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.updateAnalysisTitle(analysis.project_id, analysis.id, analysis)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        reject("Error updating analysis title " + analysis.id + ": " + error);
+      })
+    })
+
+  }
+
+  getAnalysis(projectId, analysisId) {
+    let self = this;
+    return $.ajax({
+      url: self.api + '/projects/' + projectId  + '/analyses/' + analysisId,
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    })
+  }
+
+
+
+
+  addAnalysis(projectId, newAnalysisData) {
+    let self = this;
+    return $.ajax({
+      url: self.api + '/projects/' + projectId + '/analyses/?client_application_id=' + this.client_application_id,
+      type: 'POST',
+      data: JSON.stringify(newAnalysisData),
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+  updateAnalysisTitle(projectId, analysisId, newAnalysisData) {
+    let self = this;
+    return $.ajax({
+      url: self.api + '/projects/' + projectId + '/analyses/' + analysisId,
+      type: 'PUT',
+      data: JSON.stringify(newAnalysisData),
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+
+  updateAnalysis(projectId, analysisId, newAnalysisData) {
+    let self = this;
+    return $.ajax({
+      url: self.api + '/projects/' + projectId + '/analyses/' + analysisId
+            + '?client_application_id=' + this.client_application_id,
+      type: 'PUT',
+      data: JSON.stringify(newAnalysisData),
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
 
 }
