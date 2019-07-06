@@ -6,6 +6,8 @@ export default function VariantImporter() {
 
 VariantImporter.geminiFields = ['chrom', 'start', 'end', 'ref', 'alt', 'gene', 'filter'];
 
+VariantImporter.slivarFields = ['chrom', 'start', 'end', 'ref', 'alt', 'gene', 'filter', 'consequence', 'impact', 'gnomAD'];
+
 VariantImporter.fields = {
   'chrom':      {required: true},
   'start':      {required: true},
