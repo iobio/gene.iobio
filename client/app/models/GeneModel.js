@@ -108,37 +108,40 @@ class GeneModel {
 
   setGenePhenotypeHitsFromClin(genesReport) {
     let self = this;
-    this.genePhenotypeHits = {};
-    genesReport.forEach(function(geneEntry) {
-      var searchTerms = self.genePhenotypeHits[geneEntry.name];
-      if (searchTerms == null) {
-        searchTerms = {};
-        self.genePhenotypeHits[geneEntry.name] = searchTerms;
-      }
-      if (geneEntry.searchTermsGtr && geneEntry.searchTermsGtr.length > 0) {
-        geneEntry.searchTermsGtr.forEach(function(searchTermObject) {
-          var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
-          var ranks = searchTerms[searchTerm];
-          if (ranks == null) {
-            ranks = [];
-            searchTerms[searchTerm] = ranks;
-          }
-          ranks.push( {'rank': searchTermObject.rank, 'source': 'GTR'});
-        })
-      }
-      if (geneEntry.searchTermsPhenolyzer && geneEntry.searchTermsPhenolyzer.length > 0) {
-        geneEntry.searchTermsPhenolyzer.forEach(function(searchTermObject) {
-          var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
-          var ranks = searchTerms[searchTerm];
-          if (ranks == null) {
-            ranks = [];
-            searchTerms[searchTerm] = ranks;
-          }
-          ranks.push( {'rank': searchTermObject.rank, 'source': 'Phen.'});
-        })
-      }
+    if (genesReport) {
+      this.genePhenotypeHits = {};
+      genesReport.forEach(function(geneEntry) {
+        var searchTerms = self.genePhenotypeHits[geneEntry.name];
+        if (searchTerms == null) {
+          searchTerms = {};
+          self.genePhenotypeHits[geneEntry.name] = searchTerms;
+        }
+        if (geneEntry.searchTermsGtr && geneEntry.searchTermsGtr.length > 0) {
+          geneEntry.searchTermsGtr.forEach(function(searchTermObject) {
+            var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
+            var ranks = searchTerms[searchTerm];
+            if (ranks == null) {
+              ranks = [];
+              searchTerms[searchTerm] = ranks;
+            }
+            ranks.push( {'rank': searchTermObject.rank, 'source': 'GTR'});
+          })
+        }
+        if (geneEntry.searchTermsPhenolyzer && geneEntry.searchTermsPhenolyzer.length > 0) {
+          geneEntry.searchTermsPhenolyzer.forEach(function(searchTermObject) {
+            var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
+            var ranks = searchTerms[searchTerm];
+            if (ranks == null) {
+              ranks = [];
+              searchTerms[searchTerm] = ranks;
+            }
+            ranks.push( {'rank': searchTermObject.rank, 'source': 'Phen.'});
+          })
+        }
 
-    })
+      })
+
+    }
   }
 
   setGenePhenotypeHitsFromPhenolyzer(phenotypeTerm, phenotypeGenes) {
