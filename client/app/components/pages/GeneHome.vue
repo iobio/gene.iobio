@@ -456,7 +456,7 @@ main.content.clin
     ></app-tour>
 
     <save-button
-      v-if="launchedFromHub"
+      v-if="launchedFromHub && !launchedFromSFARI"
       :showing-save-modal="showSaveModal"
       @save-modal:set-visibility="toggleSaveModal"
     />
@@ -580,6 +580,7 @@ export default {
       isClinFrameVisible: false,
 
       launchedFromHub: false,
+      launchedFromSFARI: false,
       isHubDeprecated: false,
       sampleId: null,
       projectId: null,
@@ -595,6 +596,8 @@ export default {
         "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
         "https://staging.frameshift.io":         {iobio: "nv-prod.iobio.io",     batchSize: 10}
       },
+
+      sfariSource:  "https://viewer.sfari.org",
 
 
       interpretationMap: {
@@ -2007,6 +2010,11 @@ export default {
       if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
         && self.sampleId && self.paramSource) {
         self.launchedFromHub = true;
+
+        if (self.paramSource == self.sfariSource) {
+          self.launchedFromSFARI = true;
+        }
+
         // Figure out which IOBIO backend we should be using.
         // TODO - This should be a URL parameter from hub
         if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {
