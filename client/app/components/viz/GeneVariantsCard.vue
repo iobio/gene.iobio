@@ -166,7 +166,7 @@
         </transcripts-menu>
       </div>
 
-      <div style="display:inline-block;width:180px">
+      <div style="display:inline-block;">
 
         <v-switch
           :class="{'optional-track-switch': true, 'full-analysis': isFullAnalysis, 'clin': launchedFromClin}"
@@ -177,7 +177,7 @@
         </v-switch>
 
         <v-switch class="optional-track-switch"
-                  v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && !showSfariTrackToggle"
+                  v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && showSfariTrackToggle"
                   label="SFARI track"
                   v-model="showSfariVariantsCard"
         >

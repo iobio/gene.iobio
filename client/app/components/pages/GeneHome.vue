@@ -233,7 +233,7 @@ main.content.clin, main.v-content.clin
          :callAllInProgress="cacheHelper.callAllInProgress"
          :showCoverageCutoffs="showCoverageCutoffs"
          :phenotypeLookupUrl="phenotypeLookupUrl"
-         :showSfariTrackToggle="sfariProjectFileUnavailable"
+         :showSfariTrackToggle="isSfariProject && !sfariProjectFileUnavailable"
          @gene-selected="onGeneClicked"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
@@ -262,7 +262,7 @@ main.content.clin, main.v-content.clin
           :isFullAnalysis="isFullAnalysis"
           :launchedFromClin="launchedFromClin"
           :launchedFromHub="launchedFromHub"
-          :showSfariTrackToggle="sfariProjectFileUnavailable"
+          :showSfariTrackToggle="isSfariProject && !sfariProjectFileUnavailable"
           :isLoaded="cohortModel && cohortModel.isLoaded"
           @transcript-selected="onTranscriptSelected"
           @gene-source-selected="onGeneSourceSelected"
@@ -582,6 +582,7 @@ export default {
       showKnownVariantsCard: false,
       showSfariVariantsCard: false,
       sfariProjectFileUnavailable: false, // TODO: once SSC WES 37 file is available, can get rid of this var & logic
+      isSfariProject: false,
 
       inProgress: {},
 
@@ -883,15 +884,15 @@ export default {
           return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
-            let isSfariProject = false;
+            self.isSfariProject = false;
             // Note: going off of names per CM for now until we can get a Sfari project db flag
             if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
-              isSfariProject = true;
+              self.isSfariProject = true;
             } else if (projObj.name === 'SSC GRCh37 WES') {
-                isSfariProject = true;
+                self.isSfariProject = true;
                 self.sfariProjectFileUnavailable = true;
             }
-            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
+            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject, self.sfariProjectFileUnavailable)
         })
         .then(function() {
           self.models = self.cohortModel.sampleModels;
