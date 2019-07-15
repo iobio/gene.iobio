@@ -20,19 +20,23 @@
 
 #ranked-variants-body
   display: flex
+  flex-direction: column
+
 
   #ranked-variants-matrix
-    max-width: 250px
-    overflow-x:  scroll
+    max-width: 370px
+    overflow-x:  auto
     box-shadow: none !important
     -webkit-box-shadow: none !important
 
     #feature-matrix-note
-      display:  none !important
+
 
   #ranked-variant-info
     margin-left: 10px
     width: 400px
+    min-height: 130px
+    margin-bottom: 10px
 
     #ranked-variant-header
       margin-top: 10px
@@ -55,6 +59,15 @@
           cursor: normal !important
 
 
+  .matrix-note-text
+    margin-top: -7px
+    color: $text-color
+    font-style: italic
+
+  #feature-matrix-note
+    padding-left: 50px
+    font-size: 12px
+    margin-top: -15px
 
 #ranked-variants-menu
   vertical-align: top
@@ -101,7 +114,7 @@
           <span> Ranked list</span>
         </v-btn>
 
-        <div>
+        <div style="width:420px">
           <v-btn id="ranked-variants-menu-close-button" @click="showRankedVariantsMenu = false" flat>
              <v-icon>close</v-icon>
           </v-btn>
