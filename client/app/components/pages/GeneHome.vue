@@ -211,8 +211,8 @@ main.content.clin, main.v-content.clin
         <genes-card
          style="margin-bottom:10px"
          v-if="geneModel"
-         v-show="filterModel"
-         v-bind:class="{hide : showWelcome && !isEduMode, 'full-width': true}"
+         v-show="filterModel && (!launchedFromClin && !isFullAnalysis)"
+         v-bind:class="{hide : (showWelcome && !isEduMode), 'full-width': true}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
          :isBasicMode="isBasicMode"
@@ -1608,7 +1608,7 @@ export default {
                 // extra annots for this specific variant.
                 self.cohortModel
                   .getModel(relationship)
-                  .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, self.selectedVariant)
+                  .promiseGetVariantExtraAnnotations(self.selectedGene, self.selectedTranscript, variant)
                   .then( function(refreshedVariant) {
                     self.refreshVariantExtraAnnots(variant, [refreshedVariant]);
                   })
@@ -2717,9 +2717,32 @@ export default {
       }
     },
 
+    sendFlaggedVariantToClin: function(varianToReplace, action="update", callback) {
+      let self = this;
+      if (callback) {
+        callback();
+      }
+      /*
+      self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
+      self.cohortModel.promiseExportFlaggedVariant('json', variantToReplace)
+      .then(function(exportedVariants) {
+
+        let matchingIdx = self.findAnalysisVariantIndex(exportedVariants[0]);
+        if (matchingIdx != -1) {
+          self.analysis.payload.variants[matchingIdx] = exportedVariants[0];
+        } else {
+          self.analysis.payload.variants.push(exportedVariants[0]);
+        }
+        if (callback) {
+          callback()
+        }
+      })
+      */
+    },
 
 
-    sendFlaggedVariantToClin: function(variant, action="update", callback) {
+
+    sendFlaggedVariantToClinOld: function(variant, action="update", callback) {
       let self = this;
 
       if (this.launchedFromClin) {

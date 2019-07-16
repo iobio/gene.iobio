@@ -15,8 +15,8 @@
   #sample-label
     vertical-align: top
     display: inline-block
-    min-width: 210px
-    max-width: 210px
+    min-width: 250px
+    max-width: 250px
     padding-top: 2px
     color: $app-color
     font-size: 15px
@@ -237,7 +237,7 @@
 
 
 
-      <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]"
+      <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband' && sampleModel.loadedVariants"
         :isEduMode="isEduMode"
         :isBasicMode="isBasicMode"
         :featureMatrixModel="featureMatrixModel"

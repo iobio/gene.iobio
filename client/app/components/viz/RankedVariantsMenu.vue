@@ -35,18 +35,18 @@
   #ranked-variant-info
     margin-left: 10px
     width: 400px
-    min-height: 130px
+
     margin-bottom: 10px
 
     #ranked-variant-header
-      margin-top: 10px
+      margin-top: 0px
       margin-bottom: 5px
 
     .row
       padding-left: 20px !important
       padding-right: 20px !important
       font-size:  12px !important
-      padding-bottom: 5px !important
+      padding-bottom: 0px !important
 
       .clinvar-submission
         app-icon
@@ -71,27 +71,28 @@
 
 #ranked-variants-menu
   vertical-align: top
-  margin-top: -2px
+  margin-top: 2px
 
 
   #ranked-variants-menu-button
-    margin-top: 0px
+    margin-top: 2px !important
     margin-bottom: 0px
     padding-top: 0px
     padding-left: 0px
     padding-right: 0px
-    margin-left: 30px
+    margin-left: 30px !important
+    height: 22px !important
 
     .btn__content, .v-btn__content
-      font-size: 13px
+      font-size: 13px !important
       padding-left: 5px
       padding-right: 5px
-      color:  $app-color
+      color:  $text-color
 
       .material-icons
-        font-size: 22px
+        font-size: 18px
         padding-right: 3px
-        color: $app-color
+        color: $text-color
 
 </style>
 
@@ -101,17 +102,17 @@
 <template>
 
     <v-menu id="ranked-variants-menu"
-      offset-x
+      offset-y
       :close-on-content-click="false"
-      :nudge-width="200"
+      :nudge-height="500"
       top
       v-model="showRankedVariantsMenu">
 
         <v-btn id="ranked-variants-menu-button"
          flat
          slot="activator">
-          <v-icon >view_list</v-icon>
-          <span> Ranked list</span>
+          <v-icon >list</v-icon>
+          <span>Ranked variants</span>
         </v-btn>
 
         <div style="width:420px">
