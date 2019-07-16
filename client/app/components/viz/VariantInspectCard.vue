@@ -6,7 +6,6 @@
   padding-right: 10px
   padding-bottom: 10px
   margin-bottom: 10px
-  min-height: 200px
 
 
   .variant-inspect-body
@@ -18,10 +17,14 @@
     .variant-inspect-column
       display: flex
       flex-direction: column
-
+      padding: 5px
+      border: thin solid lightgray
+      min-width: 190px
+      margin-bottom: 5px
+      margin-right: 5px
 
       .variant-column-header
-        font-size: 14px
+        font-size: 15px
         color:  $text-color
         margin-bottom: 10px
 
