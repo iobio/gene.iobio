@@ -574,7 +574,7 @@ class CohortModel {
                           let phaseFile = false;
                           let name = file.name;
                           // SPECIAL CASE for SSC WES 37
-                          if (name === "ssc_wes.vcf.gz") {
+                          if (name === "ssc_wes.vcf.gz.tbi") {
                               phaseFile = true;
                           } else {
                               let namePieces = name.split('.');
@@ -593,7 +593,7 @@ class CohortModel {
                       if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
                           console.log('Did not obtain matching vcf and tbi/csi files from Hub. Data may not be complete.');
                       } else if (sortedVcfFiles.length === 0 || sortedTbiCsiFiles.length === 0) {
-                          reject('Did not obtain any vcf or tbi files from Hub.');
+                          console.log('Did not obtain any vcf or tbi files from Hub for Sfari data.');
                       }
 
                       // Initialize sample model vcfs once we know how many we need
