@@ -382,7 +382,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1"
+        v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
           coverage
         </div>
@@ -390,7 +390,7 @@
         <div id="bam-track">
 
           <depth-viz
-            v-if="showDepthViz"
+            v-if="showDepthViz && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
             ref="depthVizRef"
             :data="sampleModel.coverage"
             :coverageMedian="sampleModel.cohort.filterModel.geneCoverageMedian"
