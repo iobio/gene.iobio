@@ -1538,9 +1538,12 @@ class CohortModel {
   }
 
 
-  promiseGetCachedGeneCoverage(geneObject, transcript, showProgress = false, options = {}) {
+  promiseGetCachedGeneCoverage(geneObject, transcript, showProgress = false, options) {
     let self = this;
 
+    if (options == null) {
+        options = {};
+    }
     return new Promise(function(resolve, reject) {
       var geneCoverageAll = {gene: geneObject, transcript: transcript, geneCoverage: {}};
 

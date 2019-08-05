@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8abfd572-6d32-499e-b393-924ffd5e3191" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/models/CohortModel.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/CohortModel.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -43,11 +43,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="VariantCard.vue" pinned="false" current-in-tab="true">
+      <file leaf-file-name="VariantCard.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="351">
-              <caret line="359" column="21" lean-forward="true" selection-start-line="359" selection-start-column="21" selection-end-line="359" selection-end-column="21" />
+              <caret line="359" column="21" selection-start-line="359" selection-start-column="21" selection-end-line="359" selection-end-column="21" />
               <folding>
                 <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#1;n#v-card#0;n#template#0;n#!!top" expanded="true" />
@@ -99,11 +99,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CohortModel.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="CohortModel.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="139">
-              <caret line="1269" lean-forward="true" selection-start-line="1269" selection-end-line="1269" />
+            <state relative-caret-position="384">
+              <caret line="1545" column="5" selection-start-line="1545" selection-start-column="5" selection-end-line="1545" selection-end-column="5" />
               <folding>
                 <element signature="e#0#47#0" expanded="true" />
                 <element signature="e#4#10#0" expanded="true" />
@@ -132,9 +132,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>promiseaddsample</find>
-      <find>ssc</find>
-      <find>promisege</find>
       <find>hub</find>
       <find>getprojec</find>
       <find>getproject</find>
@@ -162,6 +159,9 @@
       <find>promiseGetCachedGeneCoverage</find>
       <find>resultMap</find>
       <find>blacklist</find>
+      <find>cachecoverage</find>
+      <find>cachedco</find>
+      <find>promisesummariz</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -183,8 +183,8 @@
         <option value="$PROJECT_DIR$/client/app/models/SampleModel.js" />
         <option value="$PROJECT_DIR$/client/app/components/viz/GenesCard.vue" />
         <option value="$PROJECT_DIR$/client/app/components/pages/GeneHome.vue" />
-        <option value="$PROJECT_DIR$/client/app/models/CohortModel.js" />
         <option value="$PROJECT_DIR$/client/app/components/viz/VariantCard.vue" />
+        <option value="$PROJECT_DIR$/client/app/models/CohortModel.js" />
       </list>
     </option>
   </component>
@@ -354,7 +354,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="113310000" />
+    <option name="totallyTimeSpent" value="113777000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1440" y="-277" width="1920" height="1057" extended-state="6" />
@@ -811,26 +811,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="139">
-          <caret line="1269" lean-forward="true" selection-start-line="1269" selection-end-line="1269" />
-          <folding>
-            <element signature="e#0#47#0" expanded="true" />
-            <element signature="e#4#10#0" expanded="true" />
-            <element signature="e#10#16#0" expanded="true" />
-            <element signature="e#4#10#0" expanded="true" />
-            <element signature="e#10#16#0" expanded="true" />
-            <element signature="e#4#10#0" expanded="true" />
-            <element signature="e#10#16#0" expanded="true" />
-            <element signature="e#4#10#0" expanded="true" />
-            <element signature="e#10#16#0" expanded="true" />
-            <element signature="e#4#10#0" expanded="true" />
-            <element signature="e#10#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/app/components/viz/GeneViz.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-3030">
@@ -846,7 +826,7 @@
     <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="351">
-          <caret line="359" column="21" lean-forward="true" selection-start-line="359" selection-start-column="21" selection-end-line="359" selection-end-column="21" />
+          <caret line="359" column="21" selection-start-line="359" selection-start-column="21" selection-end-line="359" selection-end-column="21" />
           <folding>
             <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#1;n#v-card#0;n#template#0;n#!!top" expanded="true" />
@@ -857,6 +837,26 @@
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#a#0;n#div#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/app/models/CohortModel.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="1545" column="5" selection-start-line="1545" selection-start-column="5" selection-end-line="1545" selection-end-column="5" />
+          <folding>
+            <element signature="e#0#47#0" expanded="true" />
+            <element signature="e#4#10#0" expanded="true" />
+            <element signature="e#10#16#0" expanded="true" />
+            <element signature="e#4#10#0" expanded="true" />
+            <element signature="e#10#16#0" expanded="true" />
+            <element signature="e#4#10#0" expanded="true" />
+            <element signature="e#10#16#0" expanded="true" />
+            <element signature="e#4#10#0" expanded="true" />
+            <element signature="e#10#16#0" expanded="true" />
+            <element signature="e#4#10#0" expanded="true" />
+            <element signature="e#10#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
