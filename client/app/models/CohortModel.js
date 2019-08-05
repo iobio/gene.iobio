@@ -830,7 +830,7 @@ class CohortModel {
         });
         promises.push(p1);
 
-        let p2 = self.promiseLoadCoverage(theGene, theTranscript)
+        let p2 = self.promiseLoadCoverage(theGene, theTranscript, options)
         .then(function() {
           self.setCoverage();
         });
@@ -977,14 +977,14 @@ class CohortModel {
     })
 
   }
-  promiseLoadCoverage(theGene, theTranscript) {
+  promiseLoadCoverage(theGene, theTranscript, options) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
 
-      self.promiseGetCachedGeneCoverage(theGene, theTranscript, true)
+      self.promiseGetCachedGeneCoverage(theGene, theTranscript, true, options)
       .then(function(data) {
-        return self.promiseLoadBamDepth(theGene, theTranscript);
+        return self.promiseLoadBamDepth(theGene, theTranscript, options);
       })
       .then(function(data) {
         resolve(data);
@@ -1159,27 +1159,28 @@ class CohortModel {
       } else {
         for (var rel in self.sampleMap) {
           var model = self.sampleMap[rel].model;
-          if (model.isVcfReadyToLoad() || model.isLoaded()) {
-            if (!options.isBackground) {
-              model.inProgress.loadingVariants = true;
-            }
-            if (rel !== 'known-variants' && rel !== 'sfari-variants') {
-              options.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
-              var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], options)
-              .then(function(resultMap) {
-                for (var theRelationship in resultMap) {
-                  if (!options.isBackground) {
-                    self.getModel(theRelationship).inProgress.loadingVariants = false;
-                  }
-                  theResultMap[theRelationship] = resultMap[theRelationship];
-                }
-              })
-              annotatePromises.push(p);
+          if (!(model.isSfariSample && options.blacklistedGeneSelected)) {
+            if (model.isVcfReadyToLoad() || model.isLoaded()) {
+              if (!options.isBackground) {
+                model.inProgress.loadingVariants = true;
+              }
+              if (rel !== 'known-variants' && rel !== 'sfari-variants') {
+                options.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
+                var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], options)
+                  .then(function(resultMap) {
+                      for (var theRelationship in resultMap) {
+                          if (!options.isBackground) {
+                              self.getModel(theRelationship).inProgress.loadingVariants = false;
+                          }
+                          theResultMap[theRelationship] = resultMap[theRelationship];
+                      }
+                  });
+                annotatePromises.push(p);
+              }
             }
           }
         }
       }
-
       if (options.getKnownVariants) {
         let p = self.promiseLoadKnownVariants(theGene, theTranscript)
         .then(function(resultMap) {
@@ -1462,7 +1463,7 @@ class CohortModel {
 
         var coveragePromise = null;
         if (analyzeGeneCoverage) {
-          coveragePromise = self.promiseGetCachedGeneCoverage(geneObject, theTranscript, false);
+          coveragePromise = self.promiseGetCachedGeneCoverage(geneObject, theTranscript, false, options);
         } else {
           coveragePromise = Promise.resolve();
         }
@@ -1537,14 +1538,15 @@ class CohortModel {
   }
 
 
-  promiseGetCachedGeneCoverage(geneObject, transcript, showProgress = false) {
+  promiseGetCachedGeneCoverage(geneObject, transcript, showProgress = false, options = {}) {
     let self = this;
+
     return new Promise(function(resolve, reject) {
       var geneCoverageAll = {gene: geneObject, transcript: transcript, geneCoverage: {}};
 
       var promises = [];
       self.sampleModels.forEach(function(model) {
-        if (model.isBamLoaded()) {
+        if (model.isBamLoaded() && !(model.isSfariSample && options.blacklistedGeneSelected)) {
           if (showProgress) {
             //vc.showBamProgress("Analyzing coverage in coding regions");
           }
@@ -1570,27 +1572,26 @@ class CohortModel {
 
   }
 
-  promiseLoadBamDepth(theGene, theTranscript) {
+  promiseLoadBamDepth(theGene, theTranscript, options) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
       let promises = [];
       let theResultMap = {};
       self.getCanonicalModels().forEach(function(model) {
-        if (model.isBamLoaded()) {
+        if (model.isBamLoaded() && !(model.isSfariSample && options.blacklistedGeneSelected)) {
           model.inProgress.loadingCoverage = true;
-          var p =  new Promise(function(innerResolve, innerReject) {
+          var p = new Promise(function(innerResolve, innerReject) {
             var theModel = model;
             theModel.getBamDepth(theGene, theTranscript, function(coverageData) {
               theModel.inProgress.loadingCoverage = false;
               theResultMap[theModel.relationship] = coverageData;
               innerResolve();
             });
-          })
+          });
           promises.push(p);
-
         }
-      })
+      });
 
       Promise.all(promises)
       .then(function() {
