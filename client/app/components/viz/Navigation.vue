@@ -104,7 +104,7 @@ aside.navigation-drawer
       margin-bottom: 38px
       padding: 0px
       padding-top: 5px
-      border-top: $text-color solid 1px
+      border-top: #d8d6d6 solid 1px !important
 
 #side-panel-container
 
