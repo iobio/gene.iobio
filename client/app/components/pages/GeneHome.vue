@@ -938,9 +938,7 @@ export default {
           if (self.analysis.payload.phenotypeTerm) {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
-
-          // SJG TODO: make call to hub session to get project, see what name is, pass in if Sfari project
-          return self.hubSession.promiseGetProject(self.projectId)
+            return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
             let isSfariProject = false;
@@ -949,7 +947,6 @@ export default {
               isSfariProject = true;
             } else if (projObj.name === 'SSC GRCh37 WES') {
                 isSfariProject = true;
-                self.sfariProjectFileUnavailable = true;
             }
             return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
         })
