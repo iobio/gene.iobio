@@ -553,12 +553,17 @@ class CohortModel {
                       vcfFiles.forEach((file) => {
                           let phaseFile = false;
                           let name = file.name;
-                          let namePieces = name.split('.');
-                          namePieces.forEach((piece) => {
-                              if (piece === 'all' || piece.includes('all')) {
-                                  phaseFile = true;
-                              }
-                          });
+                          // SPECIAL CASE for SSC WES 37
+                          if (name === "ssc_wes.vcf.gz") {
+                            phaseFile = true;
+                          } else {
+                              let namePieces = name.split('.');
+                              namePieces.forEach((piece) => {
+                                  if (piece === 'all' || piece.includes('all')) {
+                                      phaseFile = true;
+                                  }
+                              });
+                          }
                           if (phaseFile) {
                               sortedVcfFiles.push(file);
                           }
@@ -568,12 +573,17 @@ class CohortModel {
                       tbiCsiFiles.forEach((file) => {
                           let phaseFile = false;
                           let name = file.name;
-                          let namePieces = name.split('.');
-                          namePieces.forEach((piece) => {
-                              if (piece === 'all' || piece.includes('all')) {
-                                  phaseFile = true;
-                              }
-                          });
+                          // SPECIAL CASE for SSC WES 37
+                          if (name === "ssc_wes.vcf.gz") {
+                              phaseFile = true;
+                          } else {
+                              let namePieces = name.split('.');
+                              namePieces.forEach((piece) => {
+                                  if (piece === 'all' || piece.includes('all')) {
+                                      phaseFile = true;
+                                  }
+                              });
+                          }
                           if (phaseFile) {
                               sortedTbiCsiFiles.push(file);
                           }
@@ -582,6 +592,8 @@ class CohortModel {
                       // Check that we have matching data for all files
                       if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
                           console.log('Did not obtain matching vcf and tbi/csi files from Hub. Data may not be complete.');
+                      } else if (sortedVcfFiles.length === 0 || sortedTbiCsiFiles.length === 0) {
+                          reject('Did not obtain any vcf or tbi files from Hub.');
                       }
 
                       // Initialize sample model vcfs once we know how many we need
