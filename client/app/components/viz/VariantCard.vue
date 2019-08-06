@@ -411,7 +411,7 @@
         </div>
 
         <gene-viz id="gene-viz"
-          v-bind:class="{ hide: !showGeneViz }"
+          v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
           :data="[selectedTranscript]"
           :margin="geneVizMargin"
           :width="width"
