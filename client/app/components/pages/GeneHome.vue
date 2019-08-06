@@ -1143,7 +1143,7 @@ export default {
 
       return new Promise(function(resolve, reject) {
 
-        if (self.models && self.models.length > 0 && !(self.cohortModel.isSfariProject && blacklistedGeneSelected)) {
+        if (self.models && self.models.length > 0 && !(self.cohortModel.isSfariProject && self.blacklistedGeneSelected)) {
           self.cardWidth = $('#genes-card').innerWidth();
           var options = {'getKnownVariants': self.showKnownVariantsCard, 'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected),
             'blacklistedGeneSelected': self.blacklistedGeneSelected };
