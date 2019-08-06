@@ -16,11 +16,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="GeneHome.vue" pinned="false" current-in-tab="false">
+      <file leaf-file-name="GeneHome.vue" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/client/app/components/pages/GeneHome.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="464">
-              <caret line="1150" column="35" selection-start-line="1150" selection-start-column="35" selection-end-line="1150" selection-end-column="35" />
+            <state relative-caret-position="305">
+              <caret line="1631" column="46" lean-forward="true" selection-start-line="1631" selection-start-column="46" selection-end-line="1631" selection-end-column="46" />
             </state>
           </provider>
         </entry>
@@ -43,11 +43,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="VariantCard.vue" pinned="false" current-in-tab="true">
+      <file leaf-file-name="VariantCard.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="598">
-              <caret line="343" column="109" selection-start-line="343" selection-start-column="109" selection-end-line="343" selection-end-column="109" />
+            <state relative-caret-position="248">
+              <caret line="590" column="87" lean-forward="true" selection-start-line="590" selection-start-column="87" selection-end-line="590" selection-end-column="87" />
               <folding>
                 <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
                 <element signature="n#style#0;n#div#1;n#v-card#0;n#template#0;n#!!top" expanded="true" />
@@ -125,8 +125,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>getprojec</find>
-      <find>getproject</find>
       <find>promiseinitfrom</find>
       <find>new hub</find>
       <find>isSfariSa</find>
@@ -155,6 +153,8 @@
       <find>cachedco</find>
       <find>promisesummariz</find>
       <find>exons wi</find>
+      <find>hidecoverage</find>
+      <find>hideCoverageCircle</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -347,7 +347,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="114397000" />
+    <option name="totallyTimeSpent" value="114553000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1440" y="-277" width="1920" height="1057" extended-state="6" />
@@ -797,13 +797,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/app/components/pages/GeneHome.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
-          <caret line="1150" column="35" selection-start-line="1150" selection-start-column="35" selection-end-line="1150" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/client/app/components/viz/GeneViz.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-3030">
@@ -836,8 +829,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/client/app/components/viz/VariantCard.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="598">
-          <caret line="343" column="109" selection-start-line="343" selection-start-column="109" selection-end-line="343" selection-end-column="109" />
+        <state relative-caret-position="248">
+          <caret line="590" column="87" lean-forward="true" selection-start-line="590" selection-start-column="87" selection-end-line="590" selection-end-column="87" />
           <folding>
             <element signature="n#style#0;n#stacked-bar-chart-viz#0;n#v-card#0;n#template#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#1;n#v-card#0;n#template#0;n#!!top" expanded="true" />
@@ -849,6 +842,13 @@
             <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#a#0;n#div#0;n#!!top" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/app/components/pages/GeneHome.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="305">
+          <caret line="1631" column="46" lean-forward="true" selection-start-line="1631" selection-start-column="46" selection-end-line="1631" selection-end-column="46" />
         </state>
       </provider>
     </entry>

@@ -716,7 +716,7 @@ export default {
           : d3.select(this.$el).select('#loaded-variant-viz > svg');
     },
     hideCoverageCircle: function() {
-      if (this.showDepthViz) {
+      if (this.showDepthViz && this.$refs.depthVizRef) {
         this.$refs.depthVizRef.hideCurrentPoint();
       }
     },
