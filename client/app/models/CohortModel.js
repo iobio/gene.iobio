@@ -826,31 +826,29 @@ class CohortModel {
 
         let cohortResultMap = null;
 
-        if (!self.isSfariProject) {
-            let p1 = self.promiseLoadVariants(theGene, theTranscript, options)
-                .then(function(data) {
-                    cohortResultMap = data.resultMap;
-                });
-            promises.push(p1);
+        let p1 = self.promiseLoadVariants(theGene, theTranscript, options)
+            .then(function(data) {
+                cohortResultMap = data.resultMap;
+            });
+        promises.push(p1);
 
-            let p2 = self.promiseLoadCoverage(theGene, theTranscript, options)
-                .then(function() {
-                    self.setCoverage();
-                });
-            promises.push(p2);
-        }
+        let p2 = self.promiseLoadCoverage(theGene, theTranscript, options)
+            .then(function() {
+                self.setCoverage();
+            });
+        promises.push(p2);
 
         Promise.all(promises)
         .then(function() {
-
             // Now summarize the danger for the selected gene
             self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
-            .then(function() {
-              self.setLoadedVariants(theGene);
+                .then(function () {
+                    self.setLoadedVariants(theGene);
 
-              self.endGeneProgress(theGene.gene_name);
-              resolve(cohortResultMap);
-            })
+                    self.endGeneProgress(theGene.gene_name);
+                    resolve(cohortResultMap);
+                })
+
         })
         .catch(function(error) {
           self.endGeneProgress(theGene.gene_name);
