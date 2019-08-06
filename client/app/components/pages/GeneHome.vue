@@ -1144,28 +1144,27 @@ export default {
       return new Promise(function(resolve, reject) {
 
         if (self.models && self.models.length > 0 && !(self.cohortModel.isSfariProject && self.blacklistedGeneSelected)) {
-          self.cardWidth = $('#genes-card').innerWidth();
-          var options = {'getKnownVariants': self.showKnownVariantsCard, 'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected),
-            'blacklistedGeneSelected': self.blacklistedGeneSelected };
+            self.cardWidth = $('#genes-card').innerWidth();
+            var options = {'getKnownVariants': self.showKnownVariantsCard,
+                'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected),
+                'blacklistedGeneSelected': self.blacklistedGeneSelected };
 
-          self.cohortModel.promiseLoadData(self.selectedGene,
-            self.selectedTranscript,
-            options)
-          .then(function(resultMap) {
-              self.calcFeatureMatrixWidthPercent();
+            self.cohortModel.promiseLoadData(self.selectedGene, self.selectedTranscript, options)
+                .then(function(resultMap) {
+                    self.calcFeatureMatrixWidthPercent();
 
-              self.filterModel.populateEffectFilters(resultMap);
-              self.filterModel.populateRecFilters(resultMap);
+                    self.filterModel.populateEffectFilters(resultMap);
+                    self.filterModel.populateRecFilters(resultMap);
 
-              self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
-              .then(function(data) {
-                self.analyzedTranscript = data.transcript;
-                resolve();
-              })
-          })
-          .catch(function(error) {
-            reject(error);
-          })
+                    self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
+                        .then(function(data) {
+                            self.analyzedTranscript = data.transcript;
+                            resolve();
+                        })
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
         } else {
           Promise.resolve();
         }

@@ -854,9 +854,7 @@ class CohortModel {
           self.endGeneProgress(theGene.gene_name);
           reject(error);
         })
-
       }
-
     })
   }
 
