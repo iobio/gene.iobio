@@ -1586,6 +1586,8 @@ var effectCategories = [
 
                     'extraAnnot':               hasExtraAnnot,
 
+                    'gene':                     geneObject,
+
                     // genotype fields
                     'genotype':                 genotype,
                     'genotypeDepth' :           genotype.genotypeDepth,
