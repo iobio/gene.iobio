@@ -365,7 +365,7 @@ export default {
       let self = this;
       if (self.selectedGene && self.selectedGene.gene_name) {
         self.ncbiSummary = self.geneModel.geneNCBISummaries[self.selectedGene.gene_name];
-        if (self.ncbiSummary == null || self.ncbiSummary.summary == '?') {
+        if (self.ncbiSummary == null || self.ncbiSummary.summary == ' ') {
 
           setTimeout(function() {
             self.geneModel.promiseGetNCBIGeneSummary(self.selectedGene.gene_name)
