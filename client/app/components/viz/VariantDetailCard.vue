@@ -480,7 +480,7 @@
       </div>
 
 
-      <div style="float:left;width:31%;min-width:350px">
+      <div style="float:left;width:310px;">
 
 
         <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
@@ -579,7 +579,7 @@
 
 
 
-      <div v-if="selectedVariant" style="float:left;width:25%">
+      <div v-if="selectedVariant" style="float:left;width:calc(100% - 755px);min-width:288px">
           <v-flex  v-if="!isBasicMode">
             <v-layout  row>
                <v-flex xs3 class="field-label">gnomAD</v-flex>
