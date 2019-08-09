@@ -291,7 +291,7 @@ div.container.small
             </v-switch>
 
             <v-switch class="optional-track-switch"
-                      v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && !showSfariTrackToggle"
+                      v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && showSfariTrackToggle"
                       label="SFARI track"
                       v-model="showSfariVariantsCard"
             >
