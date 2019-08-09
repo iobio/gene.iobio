@@ -627,7 +627,7 @@ class GeneModel {
     let me = this;
     return new Promise( function(resolve, reject) {
 
-      let unknownGeneInfo = {description: '?', summary: '?'};
+      let unknownGeneInfo = {description: ' ', summary: ' '};
 
       let theGeneNames = geneNames.filter(function(geneName) {
         return me.geneNCBISummaries[geneName] == null;
@@ -706,9 +706,9 @@ class GeneModel {
     return new Promise( function(resolve, reject) {
 
       var geneInfo = me.geneNCBISummaries[geneName];
-      let unknownGeneInfo = {description: '?', summary: '?'};
+      let unknownGeneInfo = {description: ' ', summary: ' '};
 
-      if (geneInfo != null && geneInfo.summary != "?") {
+      if (geneInfo != null && geneInfo.summary != " ") {
         resolve(geneInfo);
       } else {
         // Search NCBI based on the gene name to obtain the gene ID
