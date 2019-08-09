@@ -938,9 +938,7 @@ export default {
           if (self.analysis.payload.phenotypeTerm) {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
-
-          // SJG TODO: make call to hub session to get project, see what name is, pass in if Sfari project
-          return self.hubSession.promiseGetProject(self.projectId)
+            return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
             let isSfariProject = false;
@@ -949,7 +947,6 @@ export default {
               isSfariProject = true;
             } else if (projObj.name === 'SSC GRCh37 WES') {
                 isSfariProject = true;
-                self.sfariProjectFileUnavailable = true;
             }
             return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
         })
@@ -1146,29 +1143,28 @@ export default {
 
       return new Promise(function(resolve, reject) {
 
-        if (self.models && self.models.length > 0) {
+        if (self.models && self.models.length > 0 && !(self.cohortModel.isSfariProject && self.blacklistedGeneSelected)) {
+            self.cardWidth = $('#genes-card').innerWidth();
+            var options = {'getKnownVariants': self.showKnownVariantsCard,
+                'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected),
+                'blacklistedGeneSelected': self.blacklistedGeneSelected };
 
-          self.cardWidth = $('#genes-card').innerWidth();
-          var options = {'getKnownVariants': self.showKnownVariantsCard, 'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected)};
+            self.cohortModel.promiseLoadData(self.selectedGene, self.selectedTranscript, options)
+                .then(function(resultMap) {
+                    self.calcFeatureMatrixWidthPercent();
 
-          self.cohortModel.promiseLoadData(self.selectedGene,
-            self.selectedTranscript,
-            options)
-          .then(function(resultMap) {
-              self.calcFeatureMatrixWidthPercent();
+                    self.filterModel.populateEffectFilters(resultMap);
+                    self.filterModel.populateRecFilters(resultMap);
 
-              self.filterModel.populateEffectFilters(resultMap);
-              self.filterModel.populateRecFilters(resultMap);
-
-              self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
-              .then(function(data) {
-                self.analyzedTranscript = data.transcript;
-                resolve();
-              })
-          })
-          .catch(function(error) {
-            reject(error);
-          })
+                    self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
+                        .then(function(data) {
+                            self.analyzedTranscript = data.transcript;
+                            resolve();
+                        })
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
         } else {
           Promise.resolve();
         }
