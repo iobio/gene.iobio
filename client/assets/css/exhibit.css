@@ -26,6 +26,7 @@
 #edu-tour-welcome {
     background-color: #1D287B;
     font-family: 'DIN' !important;
+    margin-top: 0px !important;
 }
 #banner {
     background-image: url("../images/exhibit-pattern.png");

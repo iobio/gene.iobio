@@ -480,7 +480,7 @@
       </div>
 
 
-      <div style="float:left;width:310px;">
+      <div style="float:left;width:340px;">
 
 
         <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>

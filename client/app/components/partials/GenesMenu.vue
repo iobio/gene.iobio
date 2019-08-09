@@ -60,7 +60,7 @@ textarea#copy-paste-genes
           <v-card style="margin-bottom:15px;margin-left:16px;">
               <phenotype-search
               :isNav="false"
-              :defaultTopGenes="isEduMode ? '5' : '30'"
+              :defaultTopGenes="isEduMode ? '6' : '30'"
               :phenotypeLabel="isEduMode ? 'Disorder' : 'Phenotype'"
               :geneModel="geneModel"
               :phenotypeLookupUrl="phenotypeLookupUrl"

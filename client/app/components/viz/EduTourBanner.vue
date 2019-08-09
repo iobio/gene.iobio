@@ -36,6 +36,7 @@ $tour-hilite-color:      #a5b941
     padding-left: 10px !important
     padding-right: 5px !important
     margin-top: 5px !important
+    height: 28px !important
 
   .card-label
     color: white !important
