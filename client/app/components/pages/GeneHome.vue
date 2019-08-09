@@ -230,7 +230,7 @@ main.content.clin
          :callAllInProgress="cacheHelper.callAllInProgress"
          :showCoverageCutoffs="showCoverageCutoffs"
          :phenotypeLookupUrl="phenotypeLookupUrl"
-         :showSfariTrackToggle="sfariProjectFileUnavailable"
+         :showSfariTrackToggle="cohortModel && cohortModel.isSfariProject"
          @gene-selected="onGeneClicked"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
@@ -643,7 +643,6 @@ export default {
 
       showKnownVariantsCard: false,
       showSfariVariantsCard: false,
-      sfariProjectFileUnavailable: false, // TODO: once SSC WES 37 file is available, can get rid of this var & logic
 
       inProgress: {},
 
@@ -948,7 +947,7 @@ export default {
             } else if (projObj.name === 'SSC GRCh37 WES') {
                 isSfariProject = true;
             }
-            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject, self.sfariProjectFileUnavailable)
+            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject)
         })
         .then(function() {
           self.models = self.cohortModel.sampleModels;

@@ -244,7 +244,7 @@ class CohortModel {
     })
   }
 
-  promiseInit(modelInfos, projectId = 0, isSfariProject, sfariProjectFileUnavailable) {
+  promiseInit(modelInfos, projectId = 0, isSfariProject) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
@@ -308,8 +308,7 @@ class CohortModel {
       });
       promises.push(self.promiseAddClinvarSample());
 
-      // NOTE: we can't load this track for some SSC files as of June 2019
-      if (self.hubSession != null && !sfariProjectFileUnavailable) {
+      if (self.hubSession != null) {
         promises.push(self.promiseAddSfariSample(projectId));
       }
 
