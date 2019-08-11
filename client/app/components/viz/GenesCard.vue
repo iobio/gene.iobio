@@ -105,7 +105,13 @@
         margin: 1px 0
 
   #genes-panel
-    margin-top: 5px
+    text-align: center
+    margin-left: 40px
+
+    &.edu1
+      margin-top: -40px
+    &.basic
+      padding-top: 10px
 
   #genes-sort-dropdown
     display: inline-block
@@ -158,6 +164,10 @@ div.container.small
     #analyzed-progress-bar
       width: 150px
       margin: auto
+
+
+#genes-card.edu
+  min-height: 55px
 
 #genes-card.edu, #genes-card.basic
   #gene-badge-container
@@ -254,7 +264,6 @@ div.container.small
               </v-btn>
             </span>
 
-
             <filter-badges
              ref="filterBadgesRef"
              v-if="!isFullAnalysis"
@@ -296,7 +305,8 @@ div.container.small
        @apply-genes="onApplyGenes">
       </genes-menu>
 
-      <div id="genes-panel" v-if="isEduMode || isBasicMode" class="nav-center">
+      <div id="genes-panel" v-if="isEduMode || isBasicMode"
+        :class="{'nav-center': true, 'basic': isBasicMode, 'edu1': isEduMode && tourNumber == '1'}">
 
 
         <div id="gene-badge-container" class="level-basic" style="clear:both;">

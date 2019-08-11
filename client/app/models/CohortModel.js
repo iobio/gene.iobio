@@ -29,6 +29,7 @@ class CohortModel {
     this.analyzeCodingVariantsOnly = false;
 
     this.isLoaded = false;
+    this.isSfariProject = false;  // True if launched from Mosaic w/ SSC project
 
     this.sampleModels  = [];
     this.sampleMap = {};
@@ -243,11 +244,12 @@ class CohortModel {
     })
   }
 
-  promiseInit(modelInfos, projectId = 0, isSfariProject, sfariProjectFileUnavailable) {
+  promiseInit(modelInfos, projectId = 0, isSfariProject) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
       self.isLoaded = false;
+      self.isSfariProject = isSfariProject;
       self.inProgress.loadingDataSources = true;
       self.maxAlleleCount = 0;
 
@@ -306,8 +308,7 @@ class CohortModel {
       });
       promises.push(self.promiseAddClinvarSample());
 
-      // NOTE: we can't load this track for some SSC files as of June 2019
-      if (self.hubSession != null && !sfariProjectFileUnavailable) {
+      if (self.hubSession != null) {
         promises.push(self.promiseAddSfariSample(projectId));
       }
 
@@ -553,12 +554,17 @@ class CohortModel {
                       vcfFiles.forEach((file) => {
                           let phaseFile = false;
                           let name = file.name;
-                          let namePieces = name.split('.');
-                          namePieces.forEach((piece) => {
-                              if (piece === 'all' || piece.includes('all')) {
-                                  phaseFile = true;
-                              }
-                          });
+                          // SPECIAL CASE for SSC WES 37
+                          if (name === "ssc_wes.vcf.gz") {
+                            phaseFile = true;
+                          } else {
+                              let namePieces = name.split('.');
+                              namePieces.forEach((piece) => {
+                                  if (piece === 'all' || piece.includes('all')) {
+                                      phaseFile = true;
+                                  }
+                              });
+                          }
                           if (phaseFile) {
                               sortedVcfFiles.push(file);
                           }
@@ -568,12 +574,17 @@ class CohortModel {
                       tbiCsiFiles.forEach((file) => {
                           let phaseFile = false;
                           let name = file.name;
-                          let namePieces = name.split('.');
-                          namePieces.forEach((piece) => {
-                              if (piece === 'all' || piece.includes('all')) {
-                                  phaseFile = true;
-                              }
-                          });
+                          // SPECIAL CASE for SSC WES 37
+                          if (name === "ssc_wes.vcf.gz.tbi") {
+                              phaseFile = true;
+                          } else {
+                              let namePieces = name.split('.');
+                              namePieces.forEach((piece) => {
+                                  if (piece === 'all' || piece.includes('all')) {
+                                      phaseFile = true;
+                                  }
+                              });
+                          }
                           if (phaseFile) {
                               sortedTbiCsiFiles.push(file);
                           }
@@ -582,6 +593,8 @@ class CohortModel {
                       // Check that we have matching data for all files
                       if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
                           console.log('Did not obtain matching vcf and tbi/csi files from Hub. Data may not be complete.');
+                      } else if (sortedVcfFiles.length === 0 || sortedTbiCsiFiles.length === 0) {
+                          console.log('Did not obtain any vcf or tbi files from Hub for Sfari data.');
                       }
 
                       // Initialize sample model vcfs once we know how many we need
@@ -813,36 +826,34 @@ class CohortModel {
         let cohortResultMap = null;
 
         let p1 = self.promiseLoadVariants(theGene, theTranscript, options)
-        .then(function(data) {
-          cohortResultMap = data.resultMap;
-        });
+            .then(function(data) {
+                cohortResultMap = data.resultMap;
+            });
         promises.push(p1);
 
-        let p2 = self.promiseLoadCoverage(theGene, theTranscript)
-        .then(function() {
-          self.setCoverage();
-        });
+        let p2 = self.promiseLoadCoverage(theGene, theTranscript, options)
+            .then(function() {
+                self.setCoverage();
+            });
         promises.push(p2);
 
         Promise.all(promises)
         .then(function() {
-
             // Now summarize the danger for the selected gene
             self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
-            .then(function() {
-              self.setLoadedVariants(theGene);
+                .then(function () {
+                    self.setLoadedVariants(theGene);
 
-              self.endGeneProgress(theGene.gene_name);
-              resolve(cohortResultMap);
-            })
+                    self.endGeneProgress(theGene.gene_name);
+                    resolve(cohortResultMap);
+                })
+
         })
         .catch(function(error) {
           self.endGeneProgress(theGene.gene_name);
           reject(error);
         })
-
       }
-
     })
   }
 
@@ -965,14 +976,14 @@ class CohortModel {
     })
 
   }
-  promiseLoadCoverage(theGene, theTranscript) {
+  promiseLoadCoverage(theGene, theTranscript, options) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
 
-      self.promiseGetCachedGeneCoverage(theGene, theTranscript, true)
+      self.promiseGetCachedGeneCoverage(theGene, theTranscript, true, options)
       .then(function(data) {
-        return self.promiseLoadBamDepth(theGene, theTranscript);
+        return self.promiseLoadBamDepth(theGene, theTranscript, options);
       })
       .then(function(data) {
         resolve(data);
@@ -1154,20 +1165,19 @@ class CohortModel {
             if (rel !== 'known-variants' && rel !== 'sfari-variants') {
               options.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
               var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], options)
-              .then(function(resultMap) {
-                for (var theRelationship in resultMap) {
-                  if (!options.isBackground) {
-                    self.getModel(theRelationship).inProgress.loadingVariants = false;
-                  }
-                  theResultMap[theRelationship] = resultMap[theRelationship];
-                }
-              })
+                .then(function(resultMap) {
+                    for (var theRelationship in resultMap) {
+                        if (!options.isBackground) {
+                            self.getModel(theRelationship).inProgress.loadingVariants = false;
+                        }
+                        theResultMap[theRelationship] = resultMap[theRelationship];
+                    }
+                });
               annotatePromises.push(p);
             }
           }
         }
       }
-
       if (options.getKnownVariants) {
         let p = self.promiseLoadKnownVariants(theGene, theTranscript)
         .then(function(resultMap) {
@@ -1450,7 +1460,7 @@ class CohortModel {
 
         var coveragePromise = null;
         if (analyzeGeneCoverage) {
-          coveragePromise = self.promiseGetCachedGeneCoverage(geneObject, theTranscript, false);
+          coveragePromise = self.promiseGetCachedGeneCoverage(geneObject, theTranscript, false, options);
         } else {
           coveragePromise = Promise.resolve();
         }
@@ -1527,6 +1537,7 @@ class CohortModel {
 
   promiseGetCachedGeneCoverage(geneObject, transcript, showProgress = false) {
     let self = this;
+
     return new Promise(function(resolve, reject) {
       var geneCoverageAll = {gene: geneObject, transcript: transcript, geneCoverage: {}};
 
@@ -1558,7 +1569,7 @@ class CohortModel {
 
   }
 
-  promiseLoadBamDepth(theGene, theTranscript) {
+  promiseLoadBamDepth(theGene, theTranscript, options) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
@@ -1567,18 +1578,17 @@ class CohortModel {
       self.getCanonicalModels().forEach(function(model) {
         if (model.isBamLoaded()) {
           model.inProgress.loadingCoverage = true;
-          var p =  new Promise(function(innerResolve, innerReject) {
+          var p = new Promise(function(innerResolve, innerReject) {
             var theModel = model;
             theModel.getBamDepth(theGene, theTranscript, function(coverageData) {
               theModel.inProgress.loadingCoverage = false;
               theResultMap[theModel.relationship] = coverageData;
               innerResolve();
             });
-          })
+          });
           promises.push(p);
-
         }
-      })
+      });
 
       Promise.all(promises)
       .then(function() {

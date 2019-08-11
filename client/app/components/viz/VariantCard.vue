@@ -256,7 +256,7 @@
 
 
       <v-badge  id="loaded-count"
-      v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]" class="ml-4 mr-4 mt-1 loaded" >
+      v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-4 mr-4 mt-1 loaded" >
         <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
         {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Loaded' }}
       </v-badge>
@@ -266,15 +266,12 @@
         <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
         Called
       </v-badge>
-      <v-badge  v-if="sampleModel.loadedVariants && coverageDangerRegions.length > 0" class="ml-4 mr-4 mt-1 coverage-problem" >
+      <v-badge  v-if="sampleModel.loadedVariants && coverageDangerRegions.length > 0 && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-4 mr-4 mt-1 coverage-problem" >
         <span slot="badge"> {{ coverageDangerRegions.length }} </span>
         Exons with insufficient coverage
       </v-badge>
 
-
-
-
-      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode" class="zoom-switch mt-1" style="max-width:80px"
+      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="zoom-switch mt-1" style="max-width:80px"
       label="Zoom"
       v-model="showZoom"
       :hide-details="true"
@@ -284,8 +281,8 @@
 
       <v-btn id="variant-pileup-button"
        class="variant-action-button"
-       v-if="false && sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship !== 'known-variants'
-        && this.sampleModel.relationship !== 'sfari-variants' && !isEduMode && !isBasicMode"
+       v-if="sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship !== 'known-variants'
+        && sampleModel.relationship !== 'sfari-variants' && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
        :style="pileupStyle"
        @click="onShowPileupForVariant">
         <v-icon>line_style</v-icon>
@@ -392,7 +389,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="!sampleModel.inProgress.loadingVariants && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants'"
+        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
           loaded variants
         </div>
@@ -433,7 +430,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1"
+        v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
           coverage
         </div>
@@ -441,7 +438,7 @@
         <div id="bam-track">
 
           <depth-viz
-            v-if="showDepthViz"
+            v-if="showDepthViz && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
             ref="depthVizRef"
             :data="sampleModel.coverage"
             :coverageMedian="sampleModel.cohort.filterModel.geneCoverageMedian"
@@ -462,8 +459,7 @@
         </div>
 
         <gene-viz id="gene-viz"
-         v-show="!sampleModel.inProgress.loadingVariants && showVariantViz"
-          v-bind:class="{ hide: !showGeneViz }"
+          v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
           :data="[selectedTranscript]"
           :margin="geneVizMargin"
           :width="width"
@@ -773,7 +769,7 @@ export default {
           : d3.select(this.$el).select('#loaded-variant-viz > svg');
     },
     hideCoverageCircle: function() {
-      if (this.showDepthViz) {
+      if (this.showDepthViz && this.$refs.depthVizRef) {
         this.$refs.depthVizRef.hideCurrentPoint();
       }
     },

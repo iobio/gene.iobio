@@ -201,7 +201,7 @@
     </gene-links-menu>
 
     <!-- Non protein-coding gene badges -->
-    <div id="non-protein-coding" class="level-edu level-basic">
+    <div id="non-protein-coding"  v-if="!isBasicMode && !isEduMode" class="level-edu level-basic">
         <div id="no-gene-selected-badge" class="hide label label-warning" style="display:block;margin-bottom:2px;">
           Enter a gene name
         </div>
@@ -313,7 +313,7 @@ export default {
       geneSource: null,
       geneSources: ['gencode', 'refseq'],
 
-      noTranscriptsWarning: null,
+      noTranscriptsWarning: '',
       showNoTranscriptsWarning: false,
 
       geneRegionBuffer: null,
@@ -368,7 +368,7 @@ export default {
       let self = this;
       if (self.selectedGene && self.selectedGene.gene_name) {
         self.ncbiSummary = self.geneModel.geneNCBISummaries[self.selectedGene.gene_name];
-        if (self.ncbiSummary == null || self.ncbiSummary.summary == '?') {
+        if (self.ncbiSummary == null || self.ncbiSummary.summary == ' ') {
 
           setTimeout(function() {
             self.geneModel.promiseGetNCBIGeneSummary(self.selectedGene.gene_name)
@@ -418,10 +418,16 @@ export default {
     },
 
     showGeneTypeWarning: function() {
-      return  this.selectedGene != null
+      if (this.selectedGene != null
         && Object.keys(this.selectedGene).length > 0
-        && this.selectedGene.gene_type != 'protein_coding'
-        && this.selectedGene.gene_type != 'gene';
+        && this.selectedGene.gene_type
+        && this.selectedGene.gene_type != "null") {
+        if ( this.selectedGene.gene_type != 'protein_coding'
+             && this.selectedGene.gene_type != 'gene')
+          return true;
+      } else {
+        return false;
+      }
     },
 
     showTranscriptTypeWarning: function() {

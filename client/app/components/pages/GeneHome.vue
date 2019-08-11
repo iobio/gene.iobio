@@ -233,7 +233,7 @@ main.content.clin, main.v-content.clin
          :callAllInProgress="cacheHelper.callAllInProgress"
          :showCoverageCutoffs="showCoverageCutoffs"
          :phenotypeLookupUrl="phenotypeLookupUrl"
-         :showSfariTrackToggle="isSfariProject && !sfariProjectFileUnavailable"
+         :showSfariTrackToggle="cohortModel && cohortModel.isSfariProject"
          @gene-selected="onGeneClicked"
          @remove-gene="onRemoveGene"
          @analyze-all="onAnalyzeAll"
@@ -262,7 +262,7 @@ main.content.clin, main.v-content.clin
           :isFullAnalysis="isFullAnalysis"
           :launchedFromClin="launchedFromClin"
           :launchedFromHub="launchedFromHub"
-          :showSfariTrackToggle="isSfariProject && !sfariProjectFileUnavailable"
+          :showSfariTrackToggle="cohortModel && cohortModel.isSfariProject"
           :isLoaded="cohortModel && cohortModel.isLoaded"
           @transcript-selected="onTranscriptSelected"
           @gene-source-selected="onGeneSourceSelected"
@@ -392,7 +392,7 @@ main.content.clin, main.v-content.clin
     ></app-tour>
 
     <save-button
-      v-if="launchedFromHub"
+      v-if="launchedFromHub && !launchedFromSFARI"
       :showing-save-modal="showSaveModal"
       @save-modal:set-visibility="toggleSaveModal"
     />
@@ -518,6 +518,7 @@ export default {
       isClinFrameVisible: false,
 
       launchedFromHub: false,
+      launchedFromSFARI: false,
       isHubDeprecated: false,
       sampleId: null,
       projectId: null,
@@ -533,6 +534,8 @@ export default {
         "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
         "https://staging.frameshift.io":         {iobio: "nv-prod.iobio.io",     batchSize: 10}
       },
+
+      sfariSource:  "https://viewer.sfari.org",
 
 
       interpretationMap: {
@@ -581,8 +584,6 @@ export default {
 
       showKnownVariantsCard: false,
       showSfariVariantsCard: false,
-      sfariProjectFileUnavailable: false, // TODO: once SSC WES 37 file is available, can get rid of this var & logic
-      isSfariProject: false,
 
       inProgress: {},
 
@@ -879,9 +880,7 @@ export default {
           if (self.analysis.payload.phenotypeTerm) {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
-
-          // SJG TODO: make call to hub session to get project, see what name is, pass in if Sfari project
-          return self.hubSession.promiseGetProject(self.projectId)
+            return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
             self.isSfariProject = false;
@@ -889,10 +888,10 @@ export default {
             if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
               self.isSfariProject = true;
             } else if (projObj.name === 'SSC GRCh37 WES') {
-                self.isSfariProject = true;
-                self.sfariProjectFileUnavailable = true;
+
+                isSfariProject = true;
             }
-            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject, self.sfariProjectFileUnavailable)
+            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject)
         })
         .then(function() {
           self.models = self.cohortModel.sampleModels;
@@ -1090,29 +1089,28 @@ export default {
 
       return new Promise(function(resolve, reject) {
 
-        if (self.models && self.models.length > 0) {
+        if (self.models && self.models.length > 0 && !(self.cohortModel.isSfariProject && self.blacklistedGeneSelected)) {
+            self.cardWidth = $('#genes-card').innerWidth();
+            var options = {'getKnownVariants': self.showKnownVariantsCard,
+                'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected),
+                'blacklistedGeneSelected': self.blacklistedGeneSelected };
 
-          self.cardWidth = $('#genes-card').innerWidth();
-          var options = {'getKnownVariants': self.showKnownVariantsCard, 'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected)};
+            self.cohortModel.promiseLoadData(self.selectedGene, self.selectedTranscript, options)
+                .then(function(resultMap) {
+                    self.calcFeatureMatrixWidthPercent();
 
-          self.cohortModel.promiseLoadData(self.selectedGene,
-            self.selectedTranscript,
-            options)
-          .then(function(resultMap) {
-              self.calcFeatureMatrixWidthPercent();
+                    self.filterModel.populateEffectFilters(resultMap);
+                    self.filterModel.populateRecFilters(resultMap);
 
-              self.filterModel.populateEffectFilters(resultMap);
-              self.filterModel.populateRecFilters(resultMap);
-
-              self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
-              .then(function(data) {
-                self.analyzedTranscript = data.transcript;
-                resolve();
-              })
-          })
-          .catch(function(error) {
-            reject(error);
-          })
+                    self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
+                        .then(function(data) {
+                            self.analyzedTranscript = data.transcript;
+                            resolve();
+                        })
+                })
+                .catch(function(error) {
+                    reject(error);
+                })
         } else {
           Promise.resolve();
         }
@@ -1977,6 +1975,11 @@ export default {
       if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
         && self.sampleId && self.paramSource) {
         self.launchedFromHub = true;
+
+        if (self.paramSource == self.sfariSource) {
+          self.launchedFromSFARI = true;
+        }
+
         // Figure out which IOBIO backend we should be using.
         // TODO - This should be a URL parameter from hub
         if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {

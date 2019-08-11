@@ -1626,6 +1626,8 @@ export default function vcfiobio(theGlobalApp) {
 
                     'extraAnnot':               hasExtraAnnot,
 
+                    'gene':                     geneObject,
+
                     // genotype fields
                     'genotype':                 genotype,
                     'genotypeDepth' :           genotype.genotypeDepth,
