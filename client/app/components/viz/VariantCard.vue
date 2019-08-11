@@ -25,6 +25,7 @@
     position: absolute
     top: 0px
     left: 0px
+    display: none !important
 
   .variant-action-button
     background-color: white

@@ -10,7 +10,10 @@
 #gene-count-badges
   display: inline-block
   vertical-align: top
-  margin-top: -5px
+
+
+  .layout.row
+    flex-wrap: wrap !important
 
   button
     padding-left: 0px
@@ -121,34 +124,24 @@
 <template>
   <div  id="gene-count-badges" >
 
-    <v-layout row>
-     <v-flex xs12class="text-xs-center" >
-      Filters
-     </v-flex>
-    </v-layout>
 
-
-    <v-layout row style="margin-top:-5px">
+    <v-layout row >
 
 
     <template v-for="filter in filters">
 
-       <v-menu
-         :key="filter.name"
-         open-on-hover bottom offset-y>
+       <div
+         :key="filter.name">
         <span
-         slot="activator"
          :id="filter.name"
          class="badge-wrapper"
-         @mouseover="onMouseOver(filter)"
-         @mouseleave="onMouseLeave(filter)"
          v-tooltip.top-center="{content: filter.tooltip, show: filter.showTooltip, trigger: 'manual'}"
          >
           <v-btn  flat
           v-bind:ref="filter.name"
           v-bind:id="filter.name"
-          v-bind:class="{'disabled' : badgeCounts[filter.name] == 0, 'custom-filter' : filter.custom}"
-           slot="activator" flat
+          v-bind:class="{ 'custom-filter' : filter.custom}"
+          @click="onBadgeClick(filter)" flat
           >
             <v-badge right  >
               <span v-if="badgeCounts[filter.name] && badgeCounts[filter.name] > 0"
@@ -161,16 +154,8 @@
           </v-btn>
 
         </span>
-        <v-list>
-          <v-list-tile v-if="filter.name != 'userFlagged'" @click="onEditFilter(filter)">
-            <v-list-tile-title>Customize filter</v-list-tile-title>
-          </v-list-tile>
-          <v-list-tile @click="onBadgeClick(filter)">
-            <v-list-tile-title>Show '{{ filter.display.toLowerCase() }}' {{ filter.name == 'coverage' ? ' genes' : ' variants' }}</v-list-tile-title>
-          </v-list-tile>
-        </v-list>
 
-      </v-menu>
+      </div>
 
     </template>
 
@@ -280,6 +265,7 @@ export default {
     },
     onBadgeClick: function(filter) {
       let self = this;
+      /*
       $(self.$el).find("#" + filter.name).toggleClass("selected");
       for (var key in  (self.filterModel.flagCriteria)) {
         if (key != filter.name) {
@@ -291,7 +277,8 @@ export default {
       }
       self.activeFilter = $(self.$el).find("#" + filter.name).hasClass("selected") ? filter : null;
       self.showFilterInfo = self.activeFilter != null ? true : false;
-      self.$emit("badge-click", $(self.$el).find("#" + filter.name).hasClass("selected") ? filter.name : null);
+      */
+      self.$emit("badge-click", filter);
     },
     onClearFilter: function() {
       let self = this;
@@ -311,7 +298,10 @@ export default {
         f.showEdit = false;
       })
       this.currentFilter = filter;
-      this.currentFilter.showEdit = true;
+
+      //this.currentFilter.showEdit = true;
+      this.$emit("badge-click", filter);
+
     },
     onApplyFilter: function() {
       let self = this;

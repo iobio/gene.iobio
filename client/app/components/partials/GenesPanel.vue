@@ -1,12 +1,59 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 #genes-panel
-  margin-top: 5px
+  margin-top: 10px !important
   padding-bottom: 30px
+
+  #analyze-all-buttons
+    margin-bottom: 10px
+
+    #analyze-all-button
+      display: inline-block
+      vertical-align: top
+      margin-top: 10px
+      margin-left: 0px
+      margin-right: 10px
+      color: $text-color
+      padding-top: 2px
+      padding-bottom: 2px
+      height: 30px
+
+    #call-variants-dropdown
+      display: inline-block
+      vertical-align: top
+      margin-right: 0px
+      text-align: left
+
+      button
+        margin-top: 10px
+        margin-left: 0px
+        color: $text-color
+        padding-top: 2px
+        padding-bottom: 2px
+        height: 30px
+        width: 50px
+
+    .btn__content
+      padding: 0 4px
+
+
+    .stop-analysis-button
+      display: inline-block
+      position: relative
+      min-width: 0px
+      height: 20px
+      padding: 0px
+      margin-top: 15px
+      margin-right: 10px
+      margin-left: 0px
+      color: $text-color
+
+      i.material-icons
+        font-size: 18px
 
   #analyze-genes-progress
     margin-top: 10px
-    margin-bottom: 15px
+    margin-bottom: 20px
 
     .progress-counts
       padding-left: 4px
@@ -53,6 +100,49 @@
 <template>
   <div id="genes-panel"  class="nav-center">
 
+    <div id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
+
+        <v-btn  id="analyze-all-button"
+        v-if="isLoaded && !isFullAnalysis"
+        class="level-edu"
+        raised
+        @click="onAnalyzeAll"
+        v-tooltip.top-center="`Analyze variants in all genes`" >
+          Analyze all
+        </v-btn>
+
+
+        <v-btn
+        v-if="analyzeAllInProgress && !isFullAnalysis"
+        class="stop-analysis-button"
+        @click="onStopAnalysis" small raised
+        v-tooltip.top-center="`Stop analysis`" >
+          <v-icon>stop</v-icon>
+        </v-btn>
+
+
+        <div id="call-variants-dropdown"
+          v-if="isLoaded && hasAlignments && !isFullAnalysis"
+        >
+          <v-menu offset-y>
+            <v-btn raised slot="activator"
+            v-tooltip.top-center="`Call variants from alignments`">Call variants</v-btn>
+            <v-list>
+                <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
+                <v-list-tile-title>{{ action }}</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-menu>
+        </div>
+
+        <v-btn
+        v-if="callAllInProgress && !isFullAnalysis"
+        class="stop-analysis-button"
+        @click="onStopAnalysis" small raised
+        v-tooltip.top-center="`Stop calling variants`" >
+          <v-icon>stop</v-icon>
+        </v-btn>
+    </div>
     <div id="analyze-genes-progress">
       <div>
         <div v-if="totalCount > 0">
@@ -112,6 +202,8 @@ export default {
     launchedFromClin: null,
     analyzeAllInProgress: null,
     callAllInProgress: null,
+    isLoaded: null,
+    hasAlignments: null,
     geneNames: null,
     filteredGeneNames: null,
     genesInProgress: null,
@@ -121,6 +213,7 @@ export default {
   },
   data () {
     return {
+      callVariantsActions: ['All genes', 'Selected gene'],
       geneSummaries: [],
       loadedPercentage: 0,
       calledPercentage: 0,
@@ -130,6 +223,16 @@ export default {
     }
   },
   methods: {
+    onAnalyzeAll: function() {
+      this.$emit("analyze-all");
+    },
+    onCallVariants: function(action) {
+      this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
+    },
+    onStopAnalysis: function() {
+      this.$emit("stop-analysis");
+    },
+
     updateGeneSummaries: function() {
       let self = this;
 

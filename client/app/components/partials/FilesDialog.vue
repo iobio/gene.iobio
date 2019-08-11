@@ -2,13 +2,12 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
-.menuable__content__active
-  >form
-    margin-left: 30px
-    margin-right: 30px
-    max-width: 780px
-    min-width: 780px
-    font-size: 12px !important
+
+
+
+#files-form
+  padding-left: 20px
+  padding-right: 20px
 
   .input-group.radio
     margin-top: 0px
@@ -16,6 +15,7 @@
 
   .radio label
     line-height: 25px
+    padding-top: 3px
 
   .input-group.radio-group
     padding-top: 0px
@@ -29,9 +29,8 @@
       font-size: 12px
       padding-left: 5px
 
-#files-form
-
   .radio-group
+    padding-top: 0px
     .input-group__input
       min-height: 25px
 
@@ -67,157 +66,154 @@
 
       height: 30px !important
       min-width: 77px
+      color: $app-color
+
+      &.cancer-button
+        color: $text-color
 
 </style>
 </style>
 
 <template>
-  <v-menu
-  id="files-menu"
-  offset-y
-  :close-on-content-click="false"
-  :nudge-width="500"
-  v-model="showFilesMenu"
-  >
-
-    <v-btn id="files-menu-button" flat slot="activator">
-     Files
-    </v-btn>
-
-
-    <v-form id="files-form">
-
-      <v-layout row nowrap class="mt-2">
-
-        <v-flex  >
-            <v-radio-group v-model="mode" @change="onModeChanged"  hide-details column>
-                  <v-radio label="Single"  value="single"></v-radio>
-                  <v-radio label="Trio"    value="trio"></v-radio>
-            </v-radio-group>
-        </v-flex>
-
-        <v-flex xs3 class="mt-2" >
-            <v-switch  label="Separate URL for index" hide-details v-model="separateUrlForIndex">
-            </v-switch>
-        </v-flex>
-
-
-        <v-flex  >
-          <v-select
-            label="Species"
-            hide-details
-            v-model="speciesName"
-            :items="speciesList"
-          ></v-select>
-        </v-flex>
-
-        <v-flex  class="ml-2">
-          <v-select
-            label="Genome Build"
-            hide-details
-            v-model="buildName"
-            :items="buildList"
-          ></v-select>
-         </v-flex>
-
-        <v-flex class="ml-2">
-            <v-select
-              :items="demoActions"
-              item-value="value"
-              item-text="display"
-              @input="onLoadDemoData"
-              v-model="demoAction"
-              overflow
-              hide-details
-              label="Demo data"></v-select>
-        </v-flex>
-
-      </v-layout>
-
-
-      <v-layout row wrap class="mt-3">
+   <v-dialog v-model="showFilesDialog" max-width="890" >
+      <v-card class="full-width" style="min-height:0px;max-height:670px;overflow-y:scroll">
 
 
 
-         <v-flex xs12
-           v-for="rel in rels[mode]"
-              :key="rel"
-              :id="rel"
-              v-if="modelInfoMap && modelInfoMap[rel] && Object.keys(modelInfoMap[rel]).length > 0">
+          <v-form id="files-form">
 
-            <sample-data
-             ref="sampleDataRef"
-             v-if="modelInfoMap && modelInfoMap[rel] && Object.keys(modelInfoMap[rel]).length > 0"
-             :modelInfo="modelInfoMap[rel]"
-             :separateUrlForIndex="separateUrlForIndex"
-             @sample-data-changed="validate"
-             @samples-available="onSamplesAvailable"
-            >
-          </sample-data>
-         </v-flex>
+            <v-layout row nowrap class="mt-0">
+             <v-card-title class="headline">Files</v-card-title>
 
-      </v-layout >
+              <v-flex xs12 class="mt-2 text-xs-right">
+                <div class="loader" v-show="inProgress">
+                  <img src="../../../assets/images/wheel.gif">
+                </div>
+                <v-btn class="action-button"
+                  @click="onLoad"
+                  :disabled="!isValid">
+                  Load
+                </v-btn>
 
-      <v-layout row nowrap class="mt-2">
-
-         <v-flex  class="sample-label mt-3 pl-2 pr-3" >
-          <span v-if="probandSamples && probandSamples.length > 0"
-           dark small >
-            siblings
-          </span>
-         </v-flex>
-
-         <v-flex  class=" pl-2 pr-3" >
-           <v-select
-            v-if="probandSamples && probandSamples.length > 0"
-            v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
-            label="Affected Siblings"
-            multiple
-            autocomplete
-            v-model="affectedSibs"
-            :items="probandSamples"
-            hide-details
-            >
-          </v-select>
-         </v-flex>
-
-         <v-flex   class="pr-2">
-           <v-select
-            v-if="probandSamples && probandSamples.length > 0"
-            v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
-            label="Unaffected Siblings"
-            multiple
-            autocomplete
-            v-model="unaffectedSibs"
-            :items="probandSamples"
-            hide-details
-            >
-          </v-select>
-         </v-flex>
-      </v-layout>
-
-      <v-layout row nowrap class="mt-2">
+                <v-btn class="cancer-button action-button" @click="onCancel">
+                 Cancel
+               </v-btn>
+              </v-flex>
+            </v-layout>
 
 
-        <v-flex xs12 class="mt-2 text-xs-right">
-          <div class="loader" v-show="inProgress">
-            <img src="../../../assets/images/wheel.gif">
-          </div>
-          <v-btn class="action-button"
-            @click="onLoad"
-            :disabled="!isValid">
-            Load
-          </v-btn>
+            <v-layout row nowrap class="mt-3">
 
-          <v-btn class="action-button" @click="onCancel">
-           Cancel
-         </v-btn>
-        </v-flex>
-      </v-layout>
+              <v-flex class="mt-0" style="max-width: 90px;margin-right: 10px;" >
+                  <v-radio-group v-model="mode" @change="onModeChanged"  hide-details column>
+                        <v-radio label="Single"  value="single"></v-radio>
+                        <v-radio label="Trio"    value="trio"></v-radio>
+                  </v-radio-group>
+              </v-flex>
 
-    </v-form>
+              <v-flex style="width:90px;margin-right:10px" class="mt-2" >
+                  <v-switch  label="Separate URL for index" hide-details v-model="separateUrlForIndex">
+                  </v-switch>
+              </v-flex>
 
-  </v-menu>
+
+              <v-flex  >
+                <v-select
+                  label="Species"
+                  hide-details
+                  v-model="speciesName"
+                  :items="speciesList"
+                ></v-select>
+              </v-flex>
+
+              <v-flex  class="ml-2">
+                <v-select
+                  label="Genome Build"
+                  hide-details
+                  v-model="buildName"
+                  :items="buildList"
+                ></v-select>
+               </v-flex>
+
+              <v-flex class="ml-2">
+                  <v-select
+                    :items="demoActions"
+                    item-value="value"
+                    item-text="display"
+                    @input="onLoadDemoData"
+                    v-model="demoAction"
+                    overflow
+                    hide-details
+                    label="Demo data"></v-select>
+              </v-flex>
+
+            </v-layout>
+
+
+            <v-layout row wrap class="mt-3">
+
+
+
+               <v-flex xs12
+                 v-for="rel in rels[mode]"
+                    :key="rel"
+                    :id="rel"
+                    v-if="modelInfoMap && modelInfoMap[rel] && Object.keys(modelInfoMap[rel]).length > 0">
+
+                  <sample-data
+                   ref="sampleDataRef"
+                   v-if="modelInfoMap && modelInfoMap[rel] && Object.keys(modelInfoMap[rel]).length > 0"
+                   :modelInfo="modelInfoMap[rel]"
+                   :separateUrlForIndex="separateUrlForIndex"
+                   @sample-data-changed="validate"
+                   @samples-available="onSamplesAvailable"
+                  >
+                </sample-data>
+               </v-flex>
+
+            </v-layout >
+
+            <v-layout row nowrap class="mt-2">
+
+               <v-flex  class="sample-label mt-3 pl-2 pr-3" >
+                <span v-if="probandSamples && probandSamples.length > 0"
+                 dark small >
+                  siblings
+                </span>
+               </v-flex>
+
+               <v-flex  class=" pl-2 pr-3" >
+                 <v-select
+                  v-if="probandSamples && probandSamples.length > 0"
+                  v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
+                  label="Affected Siblings"
+                  multiple
+                  autocomplete
+                  v-model="affectedSibs"
+                  :items="probandSamples"
+                  hide-details
+                  >
+                </v-select>
+               </v-flex>
+
+               <v-flex   class="pr-2">
+                 <v-select
+                  v-if="probandSamples && probandSamples.length > 0"
+                  v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
+                  label="Unaffected Siblings"
+                  multiple
+                  autocomplete
+                  v-model="unaffectedSibs"
+                  :items="probandSamples"
+                  hide-details
+                  >
+                </v-select>
+               </v-flex>
+            </v-layout>
+
+          </v-form>
+      </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -226,16 +222,17 @@ import SampleData          from '../partials/SampleData.vue'
 
 
 export default {
-  name: 'files-menu',
+  name: 'files-dialog',
   components: {
     SampleData
   },
   props: {
-    cohortModel: null
+    cohortModel: null,
+    showDialog: null
   },
   data () {
     return {
-      showFilesMenu: false,
+      showFilesDialog: false,
       isValid: false,
       mode: 'single',
       speciesList: [],
@@ -264,8 +261,9 @@ export default {
     }
   },
   watch: {
-    showFilesMenu: function() {
-      if (this.cohortModel && this.showFilesMenu) {
+    showDialog: function() {
+      if (this.cohortModel && this.showDialog) {
+        this.showFilesDialog = true
         this.mode = this.cohortModel.mode;
         this.init();
       }
@@ -300,11 +298,11 @@ export default {
         self.inProgress = false;
 
         self.$emit("on-files-loaded", performAnalyzeAll);
-        self.showFilesMenu = false;
+        self.showFilesDialog = false;
       })
     },
     onCancel:  function() {
-      this.showFilesMenu = false;
+      this.showFilesDialog = false;
     },
     onModeChanged: function() {
       if (this.mode == 'trio' && this.cohortModel.getCanonicalModels().length < 3 ) {

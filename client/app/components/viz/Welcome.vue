@@ -271,6 +271,7 @@ $light-gray-color:   #f0f1f3
 
     .how-it-works-image, .features-image
       margin-right: 0px
+      display: none
 
       img
         max-width: 400px

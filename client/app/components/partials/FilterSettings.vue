@@ -39,9 +39,8 @@
 
 <template>
 
-  <v-layout row wrap class=" filter-form ml-2 mr-4 px-3" style="max-width:620px;">
-     <div class="filter-title">Customize Filter</div>
-     <v-flex id="name" xs12 class="mb-3" >
+  <v-layout row wrap class=" filter-form " >
+    <v-flex id="name" xs12 class="mb-3" >
       <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
       </v-text-field>
     </v-flex>
@@ -173,8 +172,6 @@ export default {
   },
   data () {
     return {
-      theFilter: null,
-
       name: null,
       maxAf: null,
       minRevel: null,
@@ -249,12 +246,12 @@ export default {
   methods: {
     init: function() {
 
-      let flagCriteria = this.filterModel.flagCriteria[this.theFilter.name];
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
       if (flagCriteria == null) {
         flagCriteria = {};
         flagCriteria.custom = true;
         flagCriteria.active = false;
-        flagCriteria.name = this.theFilter.display;
+        flagCriteria.name = this.filter.display;
         flagCriteria.maxAf = null;
         flagCriteria.minRevel = null;
         flagCriteria.clinvar = null;
@@ -263,7 +260,7 @@ export default {
         flagCriteria.inheritance = null;
         flagCriteria.zygosity = null;
         flagCriteria.genotypeDepth = null;
-        this.filterModel.flagCriteria[this.theFilter.name] = flagCriteria;
+        this.filterModel.flagCriteria[this.filter.name] = flagCriteria;
       }
       this.name                      = flagCriteria.name;
       this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
@@ -279,7 +276,7 @@ export default {
 
     },
     apply: function() {
-      let flagCriteria = this.filterModel.flagCriteria[this.theFilter.name];
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
 
       flagCriteria.name             = this.name;
       if (flagCriteria.custom) {
@@ -298,7 +295,7 @@ export default {
 
     },
     onChangeName: function() {
-      this.theFilter.display = this.name;
+      this.filter.display = this.name;
     },
     onChangeRevelScore: function() {
       this.minRevelSlider = this.minRevel * 100;
@@ -309,13 +306,14 @@ export default {
   watch: {
     minRevelSlider: function() {
       this.minRevel = this.minRevelSlider > 0 ? this.minRevelSlider / 100 : "";
+    },
+    filter: function() {
+      this.init()
     }
   },
   created: function() {
   },
   mounted: function() {
-    this.theFilter = this.filter;
-    this.init();
   }
 }
 </script>

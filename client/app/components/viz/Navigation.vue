@@ -391,6 +391,11 @@ nav.toolbar, nav.v-toolbar
     padding-left: 8px !important
     padding-top: 6px !important
 
+#options
+  .clear-cache-button
+    color: $text-color
+    margin-left: 0px
+
 </style>
 
 <style>
@@ -430,6 +435,11 @@ nav.toolbar, nav.v-toolbar
 
 
 
+      <v-spacer></v-spacer>
+      <v-btn  @click="onShowFilters" flat>
+         <v-icon>filter_list</v-icon>
+         Filters
+      </v-btn>
       <v-spacer></v-spacer>
 
 
@@ -487,64 +497,31 @@ nav.toolbar, nav.v-toolbar
         </phenotype-search>
 
 
-        <v-switch class="clinvar-switch"
-          v-if="launchedFromClin"
-          label="ClinVar track"
-          v-model="showKnownVariantsCard"
-          >
-        </v-switch>
-
 
 
       </v-toolbar-items>
 
 
-      <v-menu
-       v-if="!isEduMode && !isBasicMode"
-       offset-y
-      :close-on-content-click="false"
-      >
-        <v-btn  flat slot="activator">
-          Options
-        </v-btn>
-
-        <v-card style="min-width:150px">
-          <v-switch class="coding-variants-only-switch"
-            label="Coding variants only"
-            v-model="analyzeCodingVariantsOnly"
-            >
-          </v-switch>
-        </v-card>
-      </v-menu>
-
-      <files-menu
-       v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
-       :cohortModel="cohortModel"
-       @on-files-loaded="onFilesLoaded"
-       @load-demo-data="onLoadDemoData"
-      >
-      </files-menu>
-
-      <v-menu
-      offset-y
-      :close-on-content-click="false"
-      :nudge-width="isBasicMode ? 300 : 350"
-      v-model="showLegendMenu"
-      >
-        <v-btn  flat slot="activator">
-          Legend
-        </v-btn>
-
-        <legend-panel
-        :isBasicMode="isBasicMode"
-        style="max-width:410px">
-        </legend-panel>
-      </v-menu>
 
 
       <v-menu offset-y>
-        <v-btn id="help-menu-button" flat slot="activator">Help</v-btn>
+        <v-btn id="more-menu-button" flat slot="activator">
+          <v-icon>more_vert</v-icon>
+        </v-btn>
         <v-list>
+          <v-list-tile  @click="onShowFiles">
+            <v-list-tile-title>Files</v-list-tile-title>
+          </v-list-tile>
+
+          <v-list-tile  @click="onShowLegend">
+            <v-list-tile-title>Legend</v-list-tile-title>
+          </v-list-tile>
+
+          <v-list-tile  @click="onShowOptions">
+            <v-list-tile-title>Options</v-list-tile-title>
+          </v-list-tile>
+
+          <v-divider></v-divider>
 
           <v-list-tile  @click="onShowDisclaimer">
             <v-list-tile-title>Disclaimer</v-list-tile-title>
@@ -556,17 +533,7 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Software and resources</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider></v-divider>
 
-          <v-list-tile id="load-demo-data-menu-item"  @click="onLoadDemoData">
-            <v-list-tile-title>Load demo data</v-list-tile-title>
-          </v-list-tile>
-
-          <v-divider></v-divider>
-
-          <v-list-tile  @click="onClearCache">
-            <v-list-tile-title>Clear session data</v-list-tile-title>
-          </v-list-tile>
 
           <v-divider></v-divider>
 
@@ -604,7 +571,7 @@ nav.toolbar, nav.v-toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      :width="launchedFromClin ? 315 : 293"
+      :width="315"
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
@@ -648,6 +615,8 @@ nav.toolbar, nav.v-toolbar
              :isBasicMode="isBasicMode"
              :isFullAnalysis="isFullAnalysis"
              :launchedFromClin="launchedFromClin"
+             :isLoaded="cohortModel && cohortModel.isLoaded"
+             :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
              :geneModel="geneModel"
              :selectedGene="selectedGene"
              :filteredGeneNames="filteredGeneNames"
@@ -698,7 +667,7 @@ nav.toolbar, nav.v-toolbar
 
 
         <v-card id="legend-card" v-if="isBasicMode" >
-          <legend-panel :isBasicMode="isBasicMode">
+          <legend-panel :isBasicMode="isBasicMode" :showLegendTitle=true>
           </legend-panel>
         </v-card>
 
@@ -708,6 +677,35 @@ nav.toolbar, nav.v-toolbar
       </div>
 
     </v-navigation-drawer>
+
+
+    <files-dialog
+     v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
+     :cohortModel="cohortModel"
+     :showDialog="showFiles"
+     @on-files-loaded="onFilesLoaded"
+     @load-demo-data="onLoadDemoData"
+    >
+    </files-dialog>
+
+    <v-dialog v-model="showLegend" max-width="470">
+      <v-card class="full-width">
+      <v-card-title class="headline">Legend</v-card-title>
+        <v-card-text>
+
+           <legend-panel
+           :showLegendTitle=false
+           :isBasicMode="isBasicMode"
+          style="max-width:410px">
+          </legend-panel>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn raised  @click.native="showLegend = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-dialog v-model="showDisclaimer" max-width="400">
         <v-card class="full-width">
@@ -723,6 +721,32 @@ nav.toolbar, nav.v-toolbar
             <v-btn raised  @click.native="showDisclaimer = false">Close</v-btn>
           </v-card-actions>
         </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="showOptions" max-width="400">
+      <v-card id="options" class="full-width">
+        <v-card-title class="headline">Options</v-card-title>
+
+        <v-card-text>
+          <div style="margin-bottom:20px">
+            <v-btn class="clear-cache-button" @click="onClearCache">
+              Clear session cache
+            </v-btn>
+          </div>
+
+          <div>
+          <v-switch class="coding-variants-only-switch"
+            label="Coding variants only"
+            v-model="analyzeCodingVariantsOnly"
+            >
+          </v-switch>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn raised  @click.native="showOptions = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
 
 
@@ -866,7 +890,7 @@ nav.toolbar, nav.v-toolbar
 
 import { Typeahead }       from 'uiv'
 import GenesMenu           from '../partials/GenesMenu.vue'
-import FilesMenu           from '../partials/FilesMenu.vue'
+import FilesDialog           from '../partials/FilesDialog.vue'
 import LegendPanel         from '../partials/LegendPanel.vue'
 import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
 import GenesPanel          from '../partials/GenesPanel.vue'
@@ -877,7 +901,7 @@ export default {
   components: {
     Typeahead,
     GenesMenu,
-    FilesMenu,
+    FilesDialog,
     FlaggedVariantsCard,
     GenesPanel,
     LegendPanel,
@@ -897,6 +921,8 @@ export default {
     cacheHelper: null,
     activeFilterName: null,
     launchedFromClin: null,
+    isFullAnalysis: null,
+    isLoaded: null,
     isFullAnalysis: null,
     isClinFrameVisible: null,
     bringAttention: null,
@@ -918,8 +944,10 @@ export default {
       leftDrawer: self.forMyGene2  ? true : false,
       rightDrawer: false,
 
-      showLegendMenu: false,
+      showFiles: false,
+      showLegend: false,
       showDisclaimer: false,
+      showOptions: false,
       showVersion: false,
       showCitations: false,
       typeaheadLimit: parseInt(100),
@@ -932,7 +960,8 @@ export default {
 
       analyzeCodingVariantsOnly: false,
 
-      showKnownVariantsCard: false
+      showKnownVariantsCard: false,
+
 
 
     }
@@ -1046,6 +1075,18 @@ export default {
     onWelcome: function() {
       this.$emit("on-show-welcome");
     },
+    onShowFiles: function() {
+      this.showFiles = true;
+    },
+    onShowLegend: function() {
+      this.showLegend = true;
+    },
+    onShowFilters: function() {
+      this.$emit('show-filters', true)
+    },
+    onShowOptions: function() {
+      this.showOptions = true;
+    },
     onShowDisclaimer: function() {
       this.showDisclaimer = true;
     },
@@ -1078,7 +1119,16 @@ export default {
     },
     onFlaggedVariantCountChanged: function(count) {
       this.flaggedVariantCount = count;
+    },
+
+    onFilterSettingsApplied: function() {
+      this.$emit("filter-settings-applied");
+    },
+    onFilterSettingsClosed: function() {
+      this.$emit('filter-settings-closed');
     }
+
+
   },
   created: function() {
   },

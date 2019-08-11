@@ -141,6 +141,8 @@ main.content.clin, main.v-content.clin
       :launchedFromClin="launchedFromClin"
       :isClinFrameVisible="isClinFrameVisible"
       :isFullAnalysis="isFullAnalysis"
+      :isLoaded="cohortModel && cohortModel.isLoaded"
+      :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
       :bringAttention="bringAttention"
       :phenotypeLookupUrl="phenotypeLookupUrl"
       :lastPhenotypeTermEntered="phenotypeTerm"
@@ -167,6 +169,7 @@ main.content.clin, main.v-content.clin
       @remove-gene="onRemoveGene"
       @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
       @show-known-variants="onShowKnownVariantsCard"
+      @show-filters="onShowFilters"
     >
     </navigation>
 
@@ -211,7 +214,7 @@ main.content.clin, main.v-content.clin
         <genes-card
          style="margin-bottom:10px"
          v-if="geneModel"
-         v-show="filterModel && (!launchedFromClin && !isFullAnalysis)"
+         v-show="false && filterModel && (!launchedFromClin && !isFullAnalysis)"
          v-bind:class="{hide : (showWelcome && !isEduMode), 'full-width': true}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
@@ -403,6 +406,28 @@ main.content.clin, main.v-content.clin
      @on-cancel-analysis="onCancelAnalysis">
     </save-analysis-popup>
 
+
+    <v-dialog v-model="showFilters"  max-width="650">
+
+      <filter-card
+       ref="filterCardRef"
+       v-if="geneModel"
+       :geneModel="geneModel"
+       :isFullAnalysis="isFullAnalysis"
+       :launchedFromClin="launchedFromClin"
+       :geneNames="geneModel.sortedGeneNames"
+       :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
+       :isLoaded="cohortModel && cohortModel.isLoaded"
+       :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
+       :filterModel="cohortModel.filterModel"
+       :showCoverageCutoffs="showCoverageCutoffs"
+       @filter-settings-applied="onFilterSettingsApplied"
+       @filter-settings-closed="showCoverageCutoffs = false">
+     </filter-card>
+
+
+    </v-dialog>
+
   </div>
 
 </template>
@@ -418,6 +443,7 @@ import IntroCard          from  '../viz/IntroCard.vue'
 import GeneCard           from  '../viz/GeneCard.vue'
 import VariantInspectCard  from  '../viz/VariantInspectCard.vue'
 import GenesCard          from  '../viz/GenesCard.vue'
+import FilterCard          from '../viz/FilterCard.vue'
 import GeneVariantsCard   from  '../viz/GeneVariantsCard.vue'
 import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
@@ -472,7 +498,8 @@ export default {
       AppTour,
       SaveButton,
       SaveAnalysisPopup,
-      pileup: VuePileup
+      pileup: VuePileup,
+      FilterCard
   },
   props: {
     paramGene:             null,
@@ -527,6 +554,7 @@ export default {
       clinPersistCache: true,
       analysis: null,
       showSaveModal: false,
+      showFilters: false,
 
       hubToIobioSources: {
         "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
@@ -2304,6 +2332,13 @@ export default {
           500);
 
       });
+    },
+    onShowFilters: function(showIt) {
+      let self = this;
+      self.showFilters = showIt;
+      if (self.$refs.filterCardRef) {
+        self.$refs.filterCardRef.refresh()
+      }
     },
     onShowKnownVariantsCard: function(showIt) {
       let self = this;

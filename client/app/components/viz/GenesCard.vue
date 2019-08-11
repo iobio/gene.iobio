@@ -220,7 +220,7 @@ div.container.small
 
         <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
 
-            <span id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
+            <span id="analyze-all-buttons" v-if="false" :class="{'clin': launchedFromClin}">
 
               <v-btn  id="analyze-all-button"
               v-if="isLoaded && !isFullAnalysis"
@@ -292,7 +292,7 @@ div.container.small
               </div>
             </div>
 
-          </div>
+        </div>
 
       </v-card-title>
 
