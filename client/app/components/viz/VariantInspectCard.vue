@@ -18,14 +18,18 @@
       display: flex
       flex-direction: column
       padding: 5px
-      border: thin solid lightgray
+      border-right: thin solid #dad8d8
       min-width: 190px
       margin-bottom: 5px
       margin-right: 5px
+      padding-top: 0px
+
+      &.last
+        border-right: none
 
       .variant-column-header
         font-size: 15px
-        color:  $text-color
+        color:  $app-color
         margin-bottom: 10px
 
       .variant-row
@@ -42,7 +46,7 @@
 
   #variant-heading
     color: $app-color
-    padding-bottom: 10px
+    padding-bottom: 5px
     font-size: 15px
     padding-top: 5px
 
@@ -160,7 +164,7 @@
             </div>
           </div>
       </div>
-      <div class="variant-inspect-column">
+      <div class="variant-inspect-column last">
           <div class="variant-column-header">
             Quality
           </div>
