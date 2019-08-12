@@ -128,110 +128,53 @@
     <v-layout row >
 
 
-    <template v-for="filter in filters">
+      <template v-for="filter in filters">
 
-       <div
-         :key="filter.name">
-        <span
-         :id="filter.name"
-         class="badge-wrapper"
-         v-tooltip.top-center="{content: filter.tooltip, show: filter.showTooltip, trigger: 'manual'}"
-         >
-          <v-btn  flat
-          v-bind:ref="filter.name"
-          v-bind:id="filter.name"
-          v-bind:class="{ 'custom-filter' : filter.custom}"
-          @click="onBadgeClick(filter)" flat
-          >
-            <v-badge right  >
-              <span v-if="badgeCounts[filter.name] && badgeCounts[filter.name] > 0"
-                slot="badge">{{ badgeCounts[filter.name] }}</span>
-              <filter-icon v-if="!filter.custom" v-bind:icon="filter.name">
-              </filter-icon>
-              <filter-icon v-if="filter.custom" icon="filter" :iconClass="filter.name">
-              </filter-icon>
-            </v-badge>
-          </v-btn>
+        <div :key="filter.name"  :class="{'current': currentFilter != null && currentFilter.name == filter.name ? true : false}">
+          <span
+           :id="filter.name"
+           class="badge-wrapper"
+           v-tooltip.top-center="{content: filter.tooltip, show: filter.showTooltip, trigger: 'manual'}"
+           >
+            <v-btn  flat
+            v-bind:ref="filter.name"
+            v-bind:id="filter.name"
+            v-bind:class="{ 'custom-filter' : filter.custom}"
+            @click="onBadgeClick(filter)" flat
+            >
+              <v-badge right  >
+                <span v-if="badgeCounts[filter.name] && badgeCounts[filter.name] > 0"
+                  slot="badge">{{ badgeCounts[filter.name] }}</span>
+                <filter-icon v-if="!filter.custom" v-bind:icon="filter.name">
+                </filter-icon>
+                <filter-icon v-if="filter.custom" icon="filter" :iconClass="filter.name">
+                </filter-icon>
+              </v-badge>
+            </v-btn>
 
-        </span>
+          </span>
 
-      </div>
+        </div>
 
-    </template>
+      </template>
 
-
-
-    <v-btn flat @click="onNewFilter">
-      <v-icon>add</v-icon>
-    </v-btn>
-
-
-
-
+      <v-btn flat @click="onNewFilter">
+        <v-icon>add</v-icon>
+      </v-btn>
 
     </v-layout>
-    <v-alert   id="active-filter-info"
-      :value="showFilterInfo"
-      transition="scale-transition"
-    >
-      <span>{{ showFilterInfo ? activeFilter.display : "" }}</span>
-      <v-btn flat @click="onClearFilter"><v-icon>close</v-icon></v-btn>
-    </v-alert>
-
-    <v-layout row justify-center v-if="currentFilter && currentFilter.showEdit" class="text-xs-center">
-      <v-dialog persistent id="filter-settings-dialog"
-        v-model="currentFilter.showEdit"
-        width="605"
-      >
-
-        <v-card class="full-width">
-        <v-card-text>
-
-          <filter-settings
-            v-if="currentFilter.name != 'coverage'"
-            v-bind:ref="currentFilter.name + 'SettingsRef'"
-            :filterModel="filterModel"
-            :filter="currentFilter">
-          </filter-settings>
-          <filter-settings-coverage
-            v-if="currentFilter.name == 'coverage'"
-            v-bind:ref="currentFilter.name + 'SettingsRef'"
-            :filterModel="filterModel">
-          </filter-settings-coverage>
-        </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn class="filter-action-button" @click="onApplyFilter">
-              Apply
-            </v-btn>
-            <v-btn class="filter-action-button" @click="onCancelFilter">
-              Cancel
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-layout>
-
   </div>
-
-
-
 </template>
 
 <script>
 import FilterIcon         from '../partials/FilterIcon.vue'
-
-import FilterSettings         from '../partials/FilterSettings.vue'
-import FilterSettingsCoverage from '../partials/FilterSettingsCoverage.vue'
 
 
 
 export default {
   name: 'filter-badges',
   components: {
-    FilterIcon,
-    FilterSettings,
-    FilterSettingsCoverage
+    FilterIcon
   },
   props: {
     badgeCounts: null,
@@ -244,7 +187,6 @@ export default {
     return {
       customFilters: null,
       filters:  self.initFilters(),
-      activeFilter: null,
       currentFilter: null,
       showFilterInfo: false
     }
@@ -261,57 +203,18 @@ export default {
       sortedFilters.push(
         {name: 'coverage', display: 'Insufficient coverage',   showTooltip: false, showEdit: false, custom: false, tooltip: ''}
       );
+      setTimeout(function() {
+        if (self.currentFilter == null) {
+          self.currentFilter = sortedFilters[0];
+          self.$emit('badge-click', self.currentFilter);
+        }
+      }, 1000)
       return sortedFilters;
     },
     onBadgeClick: function(filter) {
       let self = this;
-      /*
-      $(self.$el).find("#" + filter.name).toggleClass("selected");
-      for (var key in  (self.filterModel.flagCriteria)) {
-        if (key != filter.name) {
-         $(self.$el).find("#" + key).removeClass("selected");
-        }
-      }
-      if (filter.name != 'coverage') {
-         $(self.$el).find("#coverage").removeClass("selected");
-      }
-      self.activeFilter = $(self.$el).find("#" + filter.name).hasClass("selected") ? filter : null;
-      self.showFilterInfo = self.activeFilter != null ? true : false;
-      */
-      self.$emit("badge-click", filter);
-    },
-    onClearFilter: function() {
-      let self = this;
-      self.clearFilter();
-      self.$emit("badge-click", null);
-    },
-    clearFilter: function() {
-      let self = this;
-      if (self.activeFilter) {
-        $(self.$el).find("#" + self.activeFilter.name).toggleClass("selected");
-        self.showFilterInfo = false;
-        self.activeFilter = null;
-      }
-    },
-    onEditFilter: function(filter) {
-      this.filters.forEach(function(f) {
-        f.showEdit = false;
-      })
-      this.currentFilter = filter;
-
-      //this.currentFilter.showEdit = true;
-      this.$emit("badge-click", filter);
-
-    },
-    onApplyFilter: function() {
-      let self = this;
-      if (self.currentFilter) {
-        let refName = this.currentFilter.name + 'SettingsRef';
-        self.$refs[refName].apply();
-        self.currentFilter.showEdit = false
-        self.$emit('filter-settings-applied');
-        self.$emit('filter-settings-closed');
-      }
+      self.currentFilter = filter;
+      self.$emit('badge-click', filter)
     },
     onNewFilter: function() {
       let self = this;
@@ -333,24 +236,6 @@ export default {
       self.filters.push(newFilter);
       self.$emit('filter-settings-applied');
       self.$emit('filter-settings-closed');
-    },
-    onCancelFilter: function() {
-      if (this.currentFilter) {
-        this.currentFilter.showEdit = false;
-        this.currentFilter = null;
-      }
-    },
-    onFilterSettingsApplied: function() {
-      let self = this;
-
-      self.customFilters = [];
-      for (var filterName in self.filterModel.flagCriteria) {
-        if (self.filterModel.flagCriteria[filterName].active && self.filterModel.flagCriteria[filterName].custom) {
-          self.customFilters.push({name: filterName, display: self.filterModel.flagCriteria[filterName].name});
-        }
-      }
-
-      this.$emit('filter-settings-applied');
     },
     onMouseOver: function(filter) {
       let self = this;
@@ -380,6 +265,9 @@ export default {
         return f.name == filterName;
       })[0];
       filter.showTooltip = false;
+    },
+    clearFilter: function() {
+      this.currentFilter = null;
     }
 
   }

@@ -11,10 +11,8 @@
 <template>
 
 
-      <v-layout row wrap class="filter-coverage-form mx-2 px-2" style="max-width:500px;">
-        <v-flex  xs12 class="mb-3" >
-            Coverage Thresholds
-        </v-flex>
+      <v-layout row wrap class="filter-coverage-form" >
+
 
         <v-flex  xs3 class="coverage-threshold mb-3 pr-4" >
             <v-text-field label="Min"  suffix="X" v-model="minCoverage" hide-details>

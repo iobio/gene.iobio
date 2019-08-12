@@ -879,7 +879,7 @@ class FilterModel {
         passes.revel = true
       } else {
         for (var revel in variant.vepREVEL) {
-          if (revel == "" || +revel >= badgeCriteria.minRevel) {
+          if (revel != "" || +revel >= badgeCriteria.minRevel) {
             passes.revel = true;
           }
         }

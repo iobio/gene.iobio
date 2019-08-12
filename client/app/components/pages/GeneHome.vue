@@ -244,7 +244,7 @@ main.content.clin, main.v-content.clin
          @sort-genes="onSortGenes"
          @filter-selected="onFilterSelected"
          @filter-settings-applied="onFilterSettingsApplied"
-         @filter-settings-closed="showCoverageCutoffs = false"
+         @filter-settings-closed="onFilterSettingsClose"
          @apply-genes="onApplyGenes"
          @stop-analysis="onStopAnalysis"
          @show-known-variants="onShowKnownVariantsCard"
@@ -408,7 +408,6 @@ main.content.clin, main.v-content.clin
 
 
     <v-dialog v-model="showFilters"  max-width="650">
-
       <filter-card
        ref="filterCardRef"
        v-if="geneModel"
@@ -422,7 +421,7 @@ main.content.clin, main.v-content.clin
        :filterModel="cohortModel.filterModel"
        :showCoverageCutoffs="showCoverageCutoffs"
        @filter-settings-applied="onFilterSettingsApplied"
-       @filter-settings-closed="showCoverageCutoffs = false">
+       @filter-settings-closed="onFilterSettingsClose">
      </filter-card>
 
 
@@ -2373,10 +2372,16 @@ export default {
         }
         self.onGeneSelected(self.selectedGene.gene_name);
 
+        if (self.$refs.filterCardRef) {
+          self.$refs.filterCardRef.refresh()
+        }
         if (self.launchedFromClin) {
           self.onSendFiltersToClin();
         }
       })
+    },
+    onFilterSettingsClose: function() {
+      this.showFilters = false;
     },
     onLeftDrawer: function(isOpen) {
       if (!this.isEduMode) {

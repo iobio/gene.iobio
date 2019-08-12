@@ -560,10 +560,13 @@ CacheHelper.prototype.promiseClearCache = function(launchTimestampToClear) {
 CacheHelper.prototype.refreshGeneBadges = function(callback) {
   var me = this;
 
+  me.cohort.clearFlaggedVariants();
+
   var theGeneNames = {};
   me.cohort.geneModel.sortedGeneNames.forEach(function(geneName) {
     theGeneNames[geneName] = true;
   });
+
 
   var dataKind = CacheHelper.VCF_DATA;
 

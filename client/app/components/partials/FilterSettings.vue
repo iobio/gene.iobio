@@ -6,8 +6,20 @@
 .filter-form
   .input-group
     label
-      font-size: 13px
+      font-style: italic !important
+      color: $text-color !important
+      font-weight: normal !important
 
+  .input-group--text-field
+    input
+      font-size: 14px !important
+      color: $app-color !important
+      font-weight: bold
+
+  .input-group__selections__comma
+    font-size: 14px !important
+    color: $app-color !important
+    font-weight: bold
 
 .filter-title
   font-size: 16px
@@ -117,23 +129,12 @@
     <v-flex id="min-revel" xs12 class="mb-2 mt-2 mr-4" >
 
           <div style="display: inline-block;margin-right:15px">
-            Min REVEL score
+            Min REVEL score (for missense variants)
             <info-popup name="revel"></info-popup>
           </div>
 
-          <div style="display:inline-block">
-            <v-slider step="5" snap :hide-details="true" style="padding:0px;width:200px;"  snap v-model="minRevelSlider">
-            </v-slider>
-            <v-progress-linear class="revel-progress-bar" style="float:left;margin:0px;padding:0px;width:100px;display:inline-block" v-model="revelProgress">
-            </v-progress-linear>
-            <v-progress-linear class="revel-progress-bar revel_moderate" style="float:left;margin:0px;padding:0px;width:50px;display:inline-block" v-model="revelProgress">
-            </v-progress-linear>
-            <v-progress-linear class="revel-progress-bar revel_high" style="float:left;margin:0px;padding:0px;width:50px;display:inline-block" v-model="revelProgress">
-            </v-progress-linear>
-          </div>
 
-          <v-text-field :hide-details="true"  style="margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel"
-          @change="onChangeRevelScore" >
+          <v-text-field :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
           </v-text-field>
 
     </v-flex>
@@ -175,7 +176,6 @@ export default {
       name: null,
       maxAf: null,
       minRevel: null,
-      minRevelSlider: null,
       selectedClinvarCategories: null,
       selectedImpacts: null,
       selectedZygosity: null,
@@ -201,7 +201,8 @@ export default {
         {text: 'recessive', value:'recessive'},
         {text: 'de novo',   value: 'denovo'},
         {text: 'compound het',   value: 'compound het'},
-        {text: 'x-linked',   value: 'x-linked'}
+        {text: 'x-linked',   value: 'x-linked'},
+        {text: 'n/a', value: 'none'}
       ],
       zygosities: ['HOM', 'HET'],
       consequences: [
@@ -264,8 +265,7 @@ export default {
       }
       this.name                      = flagCriteria.name;
       this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
-      this.minRevel                  = flagCriteria.minRevel ? flagCriteria.minRevel : null;
-      this.minRevelSlider            = flagCriteria.minRevel ? flagCriteria.minRevel * 100 : null;
+      this.minRevel                  = flagCriteria.minRevel;
       this.selectedClinvarCategories = flagCriteria.clinvar;
       this.selectedImpacts           = flagCriteria.impact;
       this.selectedConsequences      = flagCriteria.consequence;
@@ -296,19 +296,16 @@ export default {
     },
     onChangeName: function() {
       this.filter.display = this.name;
-    },
-    onChangeRevelScore: function() {
-      this.minRevelSlider = this.minRevel * 100;
     }
   },
   computed: {
   },
   watch: {
-    minRevelSlider: function() {
-      this.minRevel = this.minRevelSlider > 0 ? this.minRevelSlider / 100 : "";
-    },
+
     filter: function() {
-      this.init()
+      if (this.filter) {
+        this.init()
+      }
     }
   },
   created: function() {

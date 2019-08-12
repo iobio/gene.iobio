@@ -2703,12 +2703,20 @@ class CohortModel {
       for (var filterName in self.filterModel.flagCriteria) {
         if (dangerSummary.badges[filterName]) {
           let theFlaggedVariants = dangerSummary.badges[filterName];
+
+          // Add variants in danger summary (if not already present)
+          // to flagged variants
           theFlaggedVariants.forEach(function(variant) {
             let matchingVariant = self.getFlaggedVariant(variant);
             if (!matchingVariant) {
-              self.flaggedVariants.push(variant);
+              self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
+              .then(function(theGeneObject) {
+                variant.gene = theGeneObject
+                self.flaggedVariants.push(variant);
+              })
             }
           })
+
         }
       }
     }

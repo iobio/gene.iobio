@@ -7,14 +7,18 @@
   padding-bottom: 0px
   padding-left: 30px
   padding-right: 30px
-  min-height: 200px
   width: -webkit-fill-available
 
+  .close-button
+    right: 10px !important
+    top: 3px !important
+    position: absolute !important
+    min-width: 40px !important
 
   #gene-count-badges
     text-align: center
 
-  .filter-form
+  .filter-form, .filter-coverage-form
     padding-left: 10px;
     padding-right: 10px;
 
@@ -27,10 +31,15 @@
 
 <template>
   <v-card tile id="filter-card" >
+    <v-btn  class="close-button" @click="onClose" flat>
+      <v-icon>close</v-icon>
+    </v-btn>
+
     <v-card-title class="headline" style="padding-top: 5px;margin-left:-5px">Filters</v-card-title>
     <div style="margin-top:5px">
 
         <filter-badges
+         style="margin-bottom:10px"
          ref="filterBadgesRef"
          :isFullAnalysis="isFullAnalysis"
          :badgeCounts="badgeCounts"
@@ -42,10 +51,10 @@
         </filter-badges>
 
         <filter-settings
-            v-show="currentFilter && currentFilter.name != 'coverage'"
-            ref="filterSettingsRef"
-            :filterModel="filterModel"
-            :filter="currentFilter">
+          v-show="currentFilter && currentFilter.name != 'coverage'"
+          ref="filterSettingsRef"
+          :filterModel="filterModel"
+          :filter="currentFilter">
         </filter-settings>
 
         <filter-settings-coverage
@@ -61,9 +70,6 @@
       <v-spacer></v-spacer>
       <v-btn v-if="currentFilter" class="filter-action-button" @click="onApplyFilter">
         Apply
-      </v-btn>
-      <v-btn v-if="currentFilter" class="filter-action-button" @click="onCancelFilter">
-        Cancel
       </v-btn>
     </v-card-actions>
 
@@ -158,6 +164,7 @@ export default {
       self.currentFilter = filter;
     },
     onFilterSettingsApplied: function() {
+      this.refresh()
       this.$emit("filter-settings-applied");
     },
     clearFilter: function() {
@@ -170,18 +177,15 @@ export default {
     onApplyFilter: function() {
       let self = this;
       if (self.currentFilter) {
-        let refName = this.currentFilter.name == 'coverage' ? + 'coverageFilterSettingsRef' : 'filterSettingsRef';
+        let refName = this.currentFilter.name == 'coverage' ?  'coverageFilterSettingsRef' : 'filterSettingsRef';
         self.$refs[refName].apply();
         self.$emit('filter-settings-applied');
         self.$emit('filter-settings-closed');
       }
     },
-    onCancelFilter: function() {
-      if (this.currentFilter) {
-        this.currentFilter = null;
-      }
+    onClose: function() {
+      this.$emit('filter-settings-closed');
     }
-
   },
   mounted: function() {
   }
