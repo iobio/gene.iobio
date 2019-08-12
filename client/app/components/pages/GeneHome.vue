@@ -407,7 +407,7 @@ main.content.clin, main.v-content.clin
     </save-analysis-popup>
 
 
-    <v-dialog v-model="showFilters"  max-width="650">
+    <v-dialog v-model="showFilters" persistent max-width="650">
       <filter-card
        ref="filterCardRef"
        v-if="geneModel"

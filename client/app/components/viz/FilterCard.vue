@@ -22,10 +22,6 @@
     padding-left: 10px;
     padding-right: 10px;
 
-  .filter-action-button
-    padding: 0px
-    height: 30px !important
-    color: $text-color
 
 </style>
 
@@ -45,41 +41,44 @@
          :badgeCounts="badgeCounts"
          :filterModel="filterModel"
          :showCoverageCutoffs="showCoverageCutoffs"
-         @filter-settings-applied="onFilterSettingsApplied"
          @badge-click="onBadgeClick"
-         @filter-settings-closed="onFilterSettingsClosed">
+         @apply-filter="onApplyFilter">
         </filter-badges>
 
-        <filter-settings
-          v-show="currentFilter && currentFilter.name != 'coverage'"
-          ref="filterSettingsRef"
-          :filterModel="filterModel"
-          :filter="currentFilter">
-        </filter-settings>
 
-        <filter-settings-coverage
-          v-show="currentFilter && currentFilter.name == 'coverage'"
-          ref="coverageFilterSettingsRef"
-          :filterModel="filterModel"
-          :filter="currentFilter">
-        </filter-settings-coverage>
+        <div :key="filter.name"  v-for="filter in filters">
+          <filter-settings
+            v-if="filter.name != 'coverage'"
+            v-show="currentFilter && currentFilter.name == filter.name"
+            :ref="filter.name + 'FilterSettingsRef'"
+            :filterModel="filterModel"
+            :filter="filter"
+            @apply-filter="onApplyFilter">
+          </filter-settings>
+
+          <filter-settings-coverage
+            v-if="filter.name == 'coverage'"
+            v-show="currentFilter && currentFilter.name == filter.name"
+            ref="coverageFilterSettingsRef"
+            :filterModel="filterModel"
+            :filter="filter"
+             @apply-filter="onApplyFilter">
+          </filter-settings-coverage>
+
+        </div>
+
+
 
     </div>
 
-    <v-card-actions style="padding:10px 0px">
-      <v-spacer></v-spacer>
-      <v-btn v-if="currentFilter" class="filter-action-button" @click="onApplyFilter">
-        Apply
-      </v-btn>
-    </v-card-actions>
 
   </v-card>
 </template>
 
 <script>
 
-import FilterBadges from '../partials/FilterBadges.vue'
-import FilterSettings from '../partials/FilterSettings.vue'
+import FilterBadges           from '../partials/FilterBadges.vue'
+import FilterSettings         from '../partials/FilterSettings.vue'
 import FilterSettingsCoverage from '../partials/FilterSettingsCoverage.vue'
 
 export default {
@@ -103,6 +102,7 @@ export default {
   },
   data () {
     return {
+      filters: null,
       badgeCounts: {},
       currentFilter: null
     }
@@ -161,11 +161,11 @@ export default {
     },
     onBadgeClick: function(filter) {
       let self = this;
+      let filterSettingsRef = filter.name + "FilterSettingsRef";
+      if (self.$refs[filterSettingsRef]) {
+        self.$refs[filterSettingsRef][0].init();
+      }
       self.currentFilter = filter;
-    },
-    onFilterSettingsApplied: function() {
-      this.refresh()
-      this.$emit("filter-settings-applied");
     },
     clearFilter: function() {
       let self = this;
@@ -176,18 +176,21 @@ export default {
     },
     onApplyFilter: function() {
       let self = this;
-      if (self.currentFilter) {
-        let refName = this.currentFilter.name == 'coverage' ?  'coverageFilterSettingsRef' : 'filterSettingsRef';
-        self.$refs[refName].apply();
-        self.$emit('filter-settings-applied');
-        self.$emit('filter-settings-closed');
-      }
+      this.$emit("filter-settings-applied");
     },
     onClose: function() {
       this.$emit('filter-settings-closed');
     }
   },
   mounted: function() {
+    let self = this;
+    let sortedFilters = self.filterModel.getSortedActiveFilters().map(function(filter) {
+      return {'name': filter.key, 'display': filter.title, 'custom': filter.custom, showTooltip: false, showEdit: false, tooltip: '' };
+    })
+    sortedFilters.push(
+      {name: 'coverage', display: 'Insufficient coverage',   showTooltip: false, showEdit: false, custom: false, tooltip: ''}
+    );
+    self.filters = sortedFilters;
   }
 }
 

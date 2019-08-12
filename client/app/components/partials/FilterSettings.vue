@@ -4,6 +4,14 @@
 @import ../../../assets/sass/variables
 
 .filter-form
+
+  .filter-action-button
+    padding: 0px
+    height: 30px !important
+    color: $app-color
+    min-width: 150px !important
+    margin: 0px
+
   .input-group
     label
       font-style: italic !important
@@ -52,6 +60,14 @@
 <template>
 
   <v-layout row wrap class=" filter-form " >
+
+    <v-flex  xs12 class="mb-3" >
+      <v-spacer></v-spacer>
+      <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
+        Apply
+      </v-btn>
+    </v-flex>
+
     <v-flex id="name" xs12 class="mb-3" >
       <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
       </v-text-field>
@@ -173,6 +189,7 @@ export default {
   },
   data () {
     return {
+      isDirty: false,
       name: null,
       maxAf: null,
       minRevel: null,
@@ -246,6 +263,7 @@ export default {
   },
   methods: {
     init: function() {
+      let self = this;
 
       let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
       if (flagCriteria == null) {
@@ -274,6 +292,11 @@ export default {
       this.minGenotypeDepth          = flagCriteria.minGenotypeDepth;
       this.minGenotypeAltCount       = flagCriteria.minGenotypeAltCount;
 
+      this.$nextTick(function() {
+        self.isDirty = false;
+      })
+
+
     },
     apply: function() {
       let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
@@ -293,8 +316,12 @@ export default {
       flagCriteria.minGenotypeAltCount = this.minGenotypeAltCount;
       flagCriteria.active           = true;
 
+      this.isDirty = false;
+      this.$emit("apply-filter")
+
     },
     onChangeName: function() {
+      this.isDirty = true;
       this.filter.display = this.name;
     }
   },
@@ -302,10 +329,32 @@ export default {
   },
   watch: {
 
-    filter: function() {
-      if (this.filter) {
-        this.init()
-      }
+    maxAf: function() {
+      this.isDirty = true;
+    },
+    selectedClinvarCategories: function() {
+      this.isDirty = true;
+    },
+    selectedInheritanceModes: function() {
+      this.isDirty = true;
+    },
+    selectedZygosity: function() {
+      this.isDirty = true;
+    },
+    selectedImpacts: function() {
+      this.isDirty = true;
+    },
+    selectedConsequences: function() {
+      this.isDirty = true;
+    },
+    minRevel: function() {
+      this.isDirty = true;
+    },
+    minGenotypeDepth: function() {
+      this.isDirty = true;
+    },
+    minGenotypeAltCount: function() {
+      this.isDirty = true;
     }
   },
   created: function() {

@@ -11,6 +11,12 @@
   display: inline-block
   vertical-align: top
 
+  .instructions
+    text-align: left
+    font-style: italic
+    font-size: 12px
+    margin-left: -5px
+    margin-bottom: 5px
 
   .layout.row
     flex-wrap: wrap !important
@@ -124,7 +130,7 @@
 <template>
   <div  id="gene-count-badges" >
 
-
+    <div class="instructions">Click to edit</div>
     <v-layout row >
 
 
@@ -134,7 +140,7 @@
           <span
            :id="filter.name"
            class="badge-wrapper"
-           v-tooltip.top-center="{content: filter.tooltip, show: filter.showTooltip, trigger: 'manual'}"
+           v-tooltip.top-center="{content: filter.tooltip, show: filter.showTooltip}"
            >
             <v-btn  flat
             v-bind:ref="filter.name"
@@ -203,12 +209,6 @@ export default {
       sortedFilters.push(
         {name: 'coverage', display: 'Insufficient coverage',   showTooltip: false, showEdit: false, custom: false, tooltip: ''}
       );
-      setTimeout(function() {
-        if (self.currentFilter == null) {
-          self.currentFilter = sortedFilters[0];
-          self.$emit('badge-click', self.currentFilter);
-        }
-      }, 1000)
       return sortedFilters;
     },
     onBadgeClick: function(filter) {
@@ -235,13 +235,11 @@ export default {
       self.currentFilter = newFilter;
       self.filters.push(newFilter);
       self.$emit('filter-settings-applied');
-      self.$emit('filter-settings-closed');
     },
     onMouseOver: function(filter) {
       let self = this;
 
       filter.showTooltip = true;
-      filter.showMenu = true;
       filter.tooltip = filter.display;
 
     },
@@ -249,7 +247,6 @@ export default {
       let self = this;
 
       filter.showTooltip = false;
-      filter.showMenu = false;
     },
     showTooltip: function(filterName, tooltip) {
       let self = this;
@@ -257,7 +254,6 @@ export default {
         return f.name == filterName;
       })[0];
       filter.showTooltip = true;
-      filter.tooltip = tooltip;
     },
     hideTooltip: function(filterName) {
       let self = this;
