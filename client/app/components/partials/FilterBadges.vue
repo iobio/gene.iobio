@@ -10,6 +10,11 @@
 #gene-count-badges
   display: inline-block
   vertical-align: top
+  width: 100%
+
+  .add-filter-button
+    .material-icons
+      color: $text-color
 
   .instructions
     text-align: left
@@ -27,12 +32,15 @@
     min-width: 45px
     margin-left: 0px
     margin-right: 0px
+    margin-top: 0px
+    margin-bottom: 0px
 
     &.custom-filter
       margin-top: 0px
 
       .badge__badge
         right: -12px
+        top: -11px
 
     .btn__content
       padding: 0px
@@ -95,7 +103,7 @@
 
   .badge-wrapper
     display: flex
-    height: 45px
+    height: 30px
     flex-flow: column
 
   .custom-badge
@@ -131,7 +139,7 @@
   <div  id="gene-count-badges" >
 
     <div class="instructions">Click to edit</div>
-    <v-layout row >
+    <v-layout row style="justify-content:space-between">
 
 
       <template v-for="filter in filters">
@@ -140,7 +148,7 @@
           <span
            :id="filter.name"
            class="badge-wrapper"
-           v-tooltip.top-center="{content: filter.tooltip, show: filter.showTooltip}"
+           v-tooltip.top-center="filter.display"
            >
             <v-btn  flat
             v-bind:ref="filter.name"
@@ -164,7 +172,7 @@
 
       </template>
 
-      <v-btn flat @click="onNewFilter">
+      <v-btn class="add-filter-button" flat @click="onNewFilter" v-tooltip.top-center="`Add custom filter`">
         <v-icon>add</v-icon>
       </v-btn>
 
@@ -192,10 +200,13 @@ export default {
     let self = this;
     return {
       customFilters: null,
-      filters:  self.initFilters(),
+      filters:  null,
       currentFilter: null,
       showFilterInfo: false
     }
+  },
+  mounted: function() {
+    this.initFilters()
   },
   computed: {
 
@@ -205,11 +216,13 @@ export default {
       let self = this;
       let sortedFilters = self.filterModel.getSortedActiveFilters().map(function(filter) {
         return {'name': filter.key, 'display': filter.title, 'custom': filter.custom, showTooltip: false, showEdit: false, tooltip: '' };
+      }).filter(function(filter) {
+        return filter.name != 'userFlagged';
       })
       sortedFilters.push(
         {name: 'coverage', display: 'Insufficient coverage',   showTooltip: false, showEdit: false, custom: false, tooltip: ''}
       );
-      return sortedFilters;
+      self.filters = sortedFilters;
     },
     onBadgeClick: function(filter) {
       let self = this;
@@ -234,33 +247,22 @@ export default {
         };
       self.currentFilter = newFilter;
       self.filters.push(newFilter);
-      self.$emit('filter-settings-applied');
-    },
-    onMouseOver: function(filter) {
-      let self = this;
 
-      filter.showTooltip = true;
-      filter.tooltip = filter.display;
+      let flagCriteria = {};
+      flagCriteria.custom = true;
+      flagCriteria.active = false;
+      flagCriteria.name = newFilter.name;
+      flagCriteria.maxAf = null;
+      flagCriteria.minRevel = null;
+      flagCriteria.clinvar = null;
+      flagCriteria.impact = null;
+      flagCriteria.consequence = null;
+      flagCriteria.inheritance = null;
+      flagCriteria.zygosity = null;
+      flagCriteria.genotypeDepth = null;
+      self.filterModel.flagCriteria[newFilter.name] = flagCriteria;
 
-    },
-    onMouseLeave: function(filter) {
-      let self = this;
-
-      filter.showTooltip = false;
-    },
-    showTooltip: function(filterName, tooltip) {
-      let self = this;
-      let filter = self.filters.filter(function(f) {
-        return f.name == filterName;
-      })[0];
-      filter.showTooltip = true;
-    },
-    hideTooltip: function(filterName) {
-      let self = this;
-      let filter = self.filters.filter(function(f) {
-        return f.name == filterName;
-      })[0];
-      filter.showTooltip = false;
+      self.$emit('new-filter', newFilter);
     },
     clearFilter: function() {
       this.currentFilter = null;

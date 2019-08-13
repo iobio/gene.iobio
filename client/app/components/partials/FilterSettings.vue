@@ -8,9 +8,13 @@
   .filter-action-button
     padding: 0px
     height: 30px !important
-    color: $app-color
+    background-color: $app-color !important
+    color: white !important
     min-width: 150px !important
     margin: 0px
+
+    &.disabled
+      opacity: 0.30 !important
 
   .input-group
     label

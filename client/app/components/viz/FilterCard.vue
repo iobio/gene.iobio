@@ -42,7 +42,8 @@
          :filterModel="filterModel"
          :showCoverageCutoffs="showCoverageCutoffs"
          @badge-click="onBadgeClick"
-         @apply-filter="onApplyFilter">
+         @apply-filter="onApplyFilter"
+         @new-filter="onNewFilter">
         </filter-badges>
 
 
@@ -177,6 +178,12 @@ export default {
     onApplyFilter: function() {
       let self = this;
       this.$emit("filter-settings-applied");
+    },
+    onNewFilter: function(newFilter) {
+      let self = this;
+      self.filters.push(newFilter);
+      self.onBadgeClick(newFilter);
+      this.$emit("filter-settings-applied")
     },
     onClose: function() {
       this.$emit('filter-settings-closed');

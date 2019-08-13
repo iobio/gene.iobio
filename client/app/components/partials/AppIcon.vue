@@ -41,23 +41,24 @@
 
   &.custom-filter-0
     color: #0091ea
-    margin: 0px 2px 14px 0px
+    margin: -4px 0px 0px -4px
+
 
   &.custom-filter-1
     color: #fb8c00
-    margin: 0px 2px 14px 0px
+    margin: -4px 0px 0px -4px
 
   &.custom-filter-2
     color: #00b8d4
-    margin: 0px 2px 14px 0px
+    margin: -4px 0px 0px -4px
 
   &.custom-filter-3
     color: #9e9d24
-    margin: 0px 2px 14px 0px
+    margin: -4px 0px 0px -4px
 
   &.custom-filter-4
     color: #43a047
-    margin: 0px 2px 14px 0px
+    margin: -4px 0px 0px -4px
 
 
 
@@ -162,7 +163,7 @@
 
 
       <v-icon v-if="icon == 'filter'" :class="iconClass" id="filter-symbol">
-        find_in_page
+        filter_list
       </v-icon>
 
       <svg v-if="icon == 'circle-checkmark'"  id="circle-checkmark-symbol" width="16" height="25" viewBox="0 0 24 24" :style="iconStyle" >
