@@ -140,6 +140,36 @@
     margin-top: 0px
     margin-bottom: 0px
 
+    svg
+      vertical-align: bottom
+      .axis
+        text
+          font-size: 12px !important
+        &.axis--x
+          .tick
+            visibility: hidden
+      .layer.benign
+        .stacked-element
+          fill: rgba(156, 194, 49, 1)
+          stroke: $text-color
+          stroke-width: .5px
+      .layer.path
+        .stacked-element
+          fill: #ad494A
+          stroke: $text-color
+          stroke-width: .5px
+      .layer.other
+        .stacked-element
+          fill: rgba(231, 186, 82, 1)
+          stroke: $text-color
+          stroke-width: .5px
+      .layer.unknown
+        .stacked-element
+          fill: rgb(189, 189, 189)
+          stroke: $text-color
+          stroke-width: .5px
+
+
   #sfari-variants-chart
     padding: 0px
     margin-top: 0px
