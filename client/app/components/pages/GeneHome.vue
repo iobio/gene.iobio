@@ -937,7 +937,7 @@ export default {
           if (self.analysis.payload.phenotypeTerm) {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
-            return self.hubSession.promiseGetProject(self.projectId)
+          return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
             let isSfariProject = false;
@@ -3261,6 +3261,9 @@ export default {
           newAnalysis.payload.is_pedigree = self.paramIsPedigree;
           newAnalysis.payload.datetime_created = self.globalApp.utility.getCurrentDateTime();
           newAnalysis.payload.genes = [];
+          if (self.paramGeneName && self.paramGeneName != '') {
+            newAnalysis.payload.genes.push(self.paramGeneName)
+          }
           newAnalysis.payload.variants = [];
           self.analysis = newAnalysis;
 
