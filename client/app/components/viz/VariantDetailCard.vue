@@ -491,8 +491,8 @@
 
           <v-flex v-if="!isBasicMode && selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
             <v-layout row class="">
-               <v-flex xs3 class="field-label">Inheritance</v-flex>
-               <v-flex id="inheritance" xs9 class="field-value">
+               <v-flex xs4 class="field-label">Inheritance</v-flex>
+               <v-flex id="inheritance" xs8 class="field-value">
                  <app-icon :icon="selectedVariant.inheritance" height="16" width="16">
                  </app-icon>
                  {{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}
@@ -501,8 +501,8 @@
           </v-flex>
           <v-flex>
             <v-layout row>
-               <v-flex xs3 v-if="!isBasicMode" class="field-label">Impact</v-flex>
-               <v-flex xs9 v-if="!isBasicMode"  class="field-value" v-html="impactAndConsequence"></v-flex>
+               <v-flex xs4 v-if="!isBasicMode" class="field-label">Impact</v-flex>
+               <v-flex xs8 v-if="!isBasicMode"  class="field-value" v-html="impactAndConsequence"></v-flex>
 
                <v-flex xs4 v-if="isBasicMode" class="field-label">Predicted Impact</v-flex>
                <v-flex xs8 v-if="isBasicMode" class="field-value">{{ info.vepImpact }}</v-flex>
@@ -510,8 +510,8 @@
           </v-flex>
           <v-flex v-if="info.vepHighestImpact != '' && !isBasicMode">
             <v-layout row >
-               <v-flex xs3 class="field-label">Most severe impact</v-flex>
-               <v-flex xs9 class="field-value">
+               <v-flex xs4 class="field-label">Most severe impact</v-flex>
+               <v-flex xs8 class="field-value">
                   <span v-for="(impactRec, idx) in info.vepHighestImpactRecs" :key="impactRec.impact">
                     <span :class="getImpactClass(impactRec.impact.toLowerCase())">
                       {{ getNonCanonicalImpactDisplay(idx, impactRec) }}
@@ -532,8 +532,8 @@
           </v-flex>
           <v-flex >
             <v-layout row  v-if="info.clinvarLinks.length > 0">
-               <v-flex :xs3="!isBasicMode" :xs4="isBasicMode"  class="field-label">Clinvar</v-flex>
-               <v-flex :xs9="!isBasicMode" :xs8="isBasicMode"   class="field-value">
+               <v-flex xs4 xs4  class="field-label">Clinvar</v-flex>
+               <v-flex xs8  class="field-value">
                 <span class="clinvar-submission" v-for="clinvarLink in info.clinvarLinks"
                  :key="clinvarLink.key">
                    <app-icon width="14" height="14" icon="clinvar" :significance="clinvarLink.significance">
@@ -551,8 +551,8 @@
 
           <v-flex  v-if="info.revel != '' && info.revel != null && !isBasicMode" >
             <v-layout row class="">
-               <v-flex xs3 class="field-label revel">REVEL</v-flex>
-               <v-flex xs9 :class="getRevelClass(info)">
+               <v-flex xs4 class="field-label revel">REVEL</v-flex>
+               <v-flex xs8 :class="getRevelClass(info)">
                   {{ info.revel }}
                   <info-popup name="revel"></info-popup>
                </v-flex>
@@ -560,14 +560,14 @@
           </v-flex>
           <v-flex   v-if="info.polyphen != '' && !isBasicMode">
             <v-layout row class="" >
-               <v-flex xs3 class="field-label">Polyphen</v-flex>
-               <v-flex xs9 :class="getPolyphenClass(selectedVariant)">{{ info.polyphen }}</v-flex>
+               <v-flex xs4 class="field-label">Polyphen</v-flex>
+               <v-flex xs8 :class="getPolyphenClass(selectedVariant)">{{ info.polyphen }}</v-flex>
             </v-layout>
           </v-flex>
           <v-flex  v-if="info.sift != '' && !isBasicMode" >
             <v-layout row class="">
-               <v-flex xs3 class="field-label">SIFT</v-flex>
-               <v-flex xs9 :class="getSiftClass(selectedVariant)">{{ info.sift }}</v-flex>
+               <v-flex xs4 class="field-label">SIFT</v-flex>
+               <v-flex xs8 :class="getSiftClass(selectedVariant)">{{ info.sift }}</v-flex>
             </v-layout>
           </v-flex>
 
