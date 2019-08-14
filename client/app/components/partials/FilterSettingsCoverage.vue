@@ -9,7 +9,8 @@
   .filter-action-button
     padding: 0px
     height: 30px !important
-    color: $app-color
+    background-color: $app-color
+    color: white
     min-width: 150px !important
     margin: 0px
 
