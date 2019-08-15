@@ -192,15 +192,13 @@ export default {
   },
   props: {
     badgeCounts: null,
-    filterModel: null,
+    filters: null,
     showCoverageCutoffs: null,
     isFullAnalysis: null
   },
   data () {
     let self = this;
     return {
-      customFilters: null,
-      filters:  null,
       currentFilter: null,
       showFilterInfo: false
     }
@@ -213,16 +211,6 @@ export default {
   },
   methods: {
     initFilters: function() {
-      let self = this;
-      let sortedFilters = self.filterModel.getSortedActiveFilters().map(function(filter) {
-        return {'name': filter.key, 'display': filter.title, 'custom': filter.custom, showTooltip: false, showEdit: false, tooltip: '' };
-      }).filter(function(filter) {
-        return filter.name != 'userFlagged';
-      })
-      sortedFilters.push(
-        {name: 'coverage', display: 'Insufficient coverage',   showTooltip: false, showEdit: false, custom: false, tooltip: ''}
-      );
-      self.filters = sortedFilters;
     },
     onBadgeClick: function(filter) {
       let self = this;
@@ -231,38 +219,7 @@ export default {
     },
     onNewFilter: function() {
       let self = this;
-      let nonCustomCount = self.filters.filter(function(f) {
-        return !f.custom;
-      }).length;
-
-      let newFilter = {
-          name: 'custom-filter-' + (self.filters.length - nonCustomCount),
-          display: 'custom',
-          active: true,
-          custom: true,
-          showTooltip: false,
-          tooltip: '',
-          showEdit: true,
-          tooltip: ''
-        };
-      self.currentFilter = newFilter;
-      self.filters.push(newFilter);
-
-      let flagCriteria = {};
-      flagCriteria.custom = true;
-      flagCriteria.active = false;
-      flagCriteria.name = newFilter.name;
-      flagCriteria.maxAf = null;
-      flagCriteria.minRevel = null;
-      flagCriteria.clinvar = null;
-      flagCriteria.impact = null;
-      flagCriteria.consequence = null;
-      flagCriteria.inheritance = null;
-      flagCriteria.zygosity = null;
-      flagCriteria.genotypeDepth = null;
-      self.filterModel.flagCriteria[newFilter.name] = flagCriteria;
-
-      self.$emit('new-filter', newFilter);
+      self.$emit('new-filter');
     },
     clearFilter: function() {
       this.currentFilter = null;

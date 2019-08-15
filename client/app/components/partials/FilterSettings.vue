@@ -16,6 +16,13 @@
     &.disabled
       opacity: 0.30 !important
 
+    &.remove-button
+      background-color: white !important
+      color: $app-color !important
+      min-width: 100px !important
+      margin-left: 10px
+
+
   .input-group
     label
       font-style: italic !important
@@ -69,6 +76,11 @@
       <v-spacer></v-spacer>
       <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
         Apply
+      </v-btn>
+      <v-btn v-if="filter.custom"
+      :class="{'filter-action-button': true, 'remove-button': true}"
+      @click="remove">
+        Remove
       </v-btn>
     </v-flex>
 
@@ -323,6 +335,10 @@ export default {
       this.isDirty = false;
       this.$emit("apply-filter")
 
+    },
+    remove: function() {
+      delete this.filterModel.flagCriteria[this.filter.name]
+      this.$emit("remove-filter", this.filter.name)
     },
     onChangeName: function() {
       this.isDirty = true;

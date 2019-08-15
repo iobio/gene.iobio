@@ -39,7 +39,7 @@
          ref="filterBadgesRef"
          :isFullAnalysis="isFullAnalysis"
          :badgeCounts="badgeCounts"
-         :filterModel="filterModel"
+         :filters="filters"
          :showCoverageCutoffs="showCoverageCutoffs"
          @badge-click="onBadgeClick"
          @apply-filter="onApplyFilter"
@@ -54,7 +54,8 @@
             :ref="filter.name + 'FilterSettingsRef'"
             :filterModel="filterModel"
             :filter="filter"
-            @apply-filter="onApplyFilter">
+            @apply-filter="onApplyFilter"
+            @remove-filter="onRemoveFilter">
           </filter-settings>
 
           <filter-settings-coverage
@@ -179,8 +180,45 @@ export default {
       let self = this;
       this.$emit("filter-settings-applied");
     },
-    onNewFilter: function(newFilter) {
+    onRemoveFilter: function(filterName) {
+      this.filters = this.filters.filter(function(filter) {
+        return filter.name != filterName
+      })
+      this.$emit("filter-settings-applied");
+    },
+    onNewFilter: function() {
       let self = this;
+      let nonCustomCount = self.filters.filter(function(f) {
+        return !f.custom;
+      }).length;
+
+      let newFilter = {
+          name: 'custom-filter-' + (self.filters.length - nonCustomCount),
+          display: 'custom',
+          active: true,
+          custom: true,
+          showTooltip: false,
+          tooltip: '',
+          showEdit: true,
+          tooltip: ''
+      };
+      self.currentFilter = newFilter;
+
+      let flagCriteria = {};
+      flagCriteria.custom = true;
+      flagCriteria.active = false;
+      flagCriteria.name = newFilter.name;
+      flagCriteria.maxAf = null;
+      flagCriteria.minRevel = null;
+      flagCriteria.clinvar = null;
+      flagCriteria.impact = null;
+      flagCriteria.consequence = null;
+      flagCriteria.inheritance = null;
+      flagCriteria.zygosity = null;
+      flagCriteria.genotypeDepth = null;
+      self.filterModel.flagCriteria[newFilter.name] = flagCriteria;
+
+
       self.filters.push(newFilter);
       self.onBadgeClick(newFilter);
       this.$emit("filter-settings-applied")
