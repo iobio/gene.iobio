@@ -71,6 +71,18 @@
       &.cancer-button
         color: $text-color
 
+    &.load-button
+      padding: 0px
+      height: 30px !important
+      background-color: $app-color !important
+      color: white !important
+      min-width: 100px !important
+      margin: 0px
+
+      &.disabled
+        opacity: 0.20 !important
+
+
 </style>
 </style>
 
@@ -89,7 +101,7 @@
                 <div class="loader" v-show="inProgress">
                   <img src="../../../assets/images/wheel.gif">
                 </div>
-                <v-btn class="action-button"
+                <v-btn class="load-button action-button"
                   @click="onLoad"
                   :disabled="!isValid">
                   Load
