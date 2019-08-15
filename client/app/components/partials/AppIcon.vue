@@ -41,24 +41,24 @@
 
   &.custom-filter-0
     color: #0091ea
-    margin: -4px 0px 0px -4px
+    margin: -7px 0px 0px -7px
 
 
   &.custom-filter-1
     color: #fb8c00
-    margin: -4px 0px 0px -4px
+    margin: -7px 0px 0px -7px
 
   &.custom-filter-2
     color: #00b8d4
-    margin: -4px 0px 0px -4px
+    margin: -7px 0px 0px -7px
 
   &.custom-filter-3
     color: #9e9d24
-    margin: -4px 0px 0px -4px
+    margin: -7px 0px 0px -7px
 
   &.custom-filter-4
     color: #43a047
-    margin: -4px 0px 0px -4px
+    margin: -7px 0px 0px -7px
 
 
 

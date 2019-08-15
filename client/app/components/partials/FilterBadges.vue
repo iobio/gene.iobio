@@ -2,15 +2,18 @@
 @import ../../../assets/sass/variables
 
 
-.filter-action-button
-
-  padding: 0px
-  height: 30px !important
-
 #gene-count-badges
   display: inline-block
   vertical-align: top
   width: 100%
+
+  .badge-container
+    margin-right: 20px
+
+  .badge-button
+
+    &.current
+      outline-width: 3px
 
   .add-filter-button
     .material-icons
@@ -61,7 +64,7 @@
         display: none
 
     .badge
-      padding: 0px 5px 0px 0px
+      padding: 3px 0px 0px 3px
       background-color: transparent
 
       &.custom
@@ -139,22 +142,22 @@
   <div  id="gene-count-badges" >
 
     <div class="instructions">Click to edit</div>
-    <v-layout row style="justify-content:space-between">
+    <v-layout row style="justify-content:flex-start">
 
 
       <template v-for="filter in filters">
 
-        <div :key="filter.name"  :class="{'current': currentFilter != null && currentFilter.name == filter.name ? true : false}">
+        <div :key="filter.name" class="badge-container" >
           <span
            :id="filter.name"
            class="badge-wrapper"
            v-tooltip.top-center="filter.display"
            >
-            <v-btn  flat
+            <v-btn flat
             v-bind:ref="filter.name"
             v-bind:id="filter.name"
-            v-bind:class="{ 'custom-filter' : filter.custom}"
-            @click="onBadgeClick(filter)" flat
+            v-bind:class="{'badge-button': true, 'custom-filter' : filter.custom, 'current': currentFilter != null && currentFilter.name == filter.name ? true : false}"
+            @click="onBadgeClick(filter)"
             >
               <v-badge right  >
                 <span v-if="badgeCounts[filter.name] && badgeCounts[filter.name] > 0"

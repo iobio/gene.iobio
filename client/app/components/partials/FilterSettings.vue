@@ -72,7 +72,7 @@
 
   <v-layout row wrap class=" filter-form " >
 
-    <v-flex  xs12 class="mb-3" >
+    <v-flex  xs12 class="mt-1 mb-1" >
       <v-spacer></v-spacer>
       <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
         Apply
