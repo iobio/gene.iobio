@@ -231,6 +231,8 @@ export default {
     let self = this;
     let sortedFilters = self.filterModel.getSortedActiveFilters().map(function(filter) {
       return {'name': filter.key, 'display': filter.title, 'custom': filter.custom, showTooltip: false, showEdit: false, tooltip: '' };
+    }).filter(function(filter) {
+      return filter.name != 'userFlagged';
     })
     sortedFilters.push(
       {name: 'coverage', display: 'Insufficient coverage',   showTooltip: false, showEdit: false, custom: false, tooltip: ''}
