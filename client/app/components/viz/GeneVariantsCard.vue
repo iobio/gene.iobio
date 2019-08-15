@@ -49,7 +49,7 @@
     display: flex
     padding-left: 0px
     margin-left: 0px
-    padding-top: 7px
+    padding-top: 10px
 
 
   .card-title

@@ -271,7 +271,6 @@ $light-gray-color:   #f0f1f3
 
     .how-it-works-image, .features-image
       margin-right: 0px
-      display: none
 
       img
         max-width: 400px
@@ -542,7 +541,7 @@ $light-gray-color:   #f0f1f3
                 <v-icon>search</v-icon>
               </v-avatar>
               <span class="how-it-works-title">Search on a gene or a phenotype</span>
-                <div class="how-it-works-image"  >
+                <div class="how-it-works-image" style="display:none"  >
                   <img  src="../../../assets/images/landing_page/search_gene_or_phenotype.png" style=""></img>
                 </div>
             </div>
@@ -554,8 +553,8 @@ $light-gray-color:   #f0f1f3
                 <v-icon>track_changes</v-icon>
               </v-avatar>
               <span class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
-              <div class="how-it-works-image">
-                <img  src="../../../assets/images/landing_page/analyzing_genes.gif" style="width:230px"></img>
+              <div class="how-it-works-image" >
+                <img  src="../../../assets/images/landing_page/analyzing_genes.gif" style="width:30%"></img>
               </div>
             </div>
 
@@ -566,43 +565,25 @@ $light-gray-color:   #f0f1f3
                 <v-icon>filter</v-icon>
               </v-avatar>
               <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  See coverage levels across the gene.</span>
-              <div class="how-it-works-image">
-                <img  src="../../../assets/images/landing_page/trio_variant_cards.png" style="max-width:500px"></img>
+              <div class="how-it-works-image" >
+                <img  src="../../../assets/images/landing_page/variant_card_cropped.png" style="width:100%"></img>
               </div>
             </div>
 
             <v-divider></v-divider>
 
-            <div class="how-it-works-item">
-              <v-avatar class="color1" >
-                <v-icon>filter_list</v-icon>
-              </v-avatar>
-              <span class="how-it-works-title">As genes are analyzed, filters are pinpointing variants for closer examination. Customize the filters and the variants are instantly reassessed.</span>
-              <div class="how-it-works-image">
-                <img src="../../../assets/images/landing_page/filters_during_analysis.gif"></img>
-              </div>
-            </div>
+
+
+            <v-divider></v-divider>
 
             <v-divider></v-divider>
 
             <div class="how-it-works-item">
-              <v-avatar class="color2" >
-                <v-icon>gavel</v-icon>
-              </v-avatar>
-              <span class="how-it-works-title">Review each filtered variant to assess pathogenicity and association with known phenotypes.</span>
-              <div class="how-it-works-image">
-                <img src="../../../assets/images/landing_page/flagged_variants.png" style="width: 270px;"></img>
-              </div>
-            </div>
-
-            <v-divider></v-divider>
-
-            <div class="how-it-works-item">
-              <v-avatar class="color3" >
+              <v-avatar class="color4" >
                 <v-icon>highlight</v-icon>
               </v-avatar>
               <span class="how-it-works-title">Inspect the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
-              <div class="how-it-works-image">
+              <div class="how-it-works-image" style="display: none">
                 <img  src="../../../assets/images/landing_page/variant_detail_card.png" style="max-width:500px;"></img>
               </div>
             </div>
