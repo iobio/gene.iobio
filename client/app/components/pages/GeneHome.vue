@@ -808,11 +808,15 @@ export default {
           self.cacheHelper,
           self.genomeBuildHelper,
           new FreebayesSettings());
+
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
-          self.cohortModel.captureFlaggedVariants(dangerSummary)
-          if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-            self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
-          }
+          self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
+          .then(function(theGeneObject) {
+            self.cohortModel.captureFlaggedVariants(dangerSummary, theGeneObject)
+            if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+              self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+            }
+          })
         })
 
         self.cacheHelper.cohort = self.cohortModel;
@@ -2370,7 +2374,9 @@ export default {
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
           self.$refs.navRef.onShowVariantsTab();
         }
-        self.onGeneSelected(self.selectedGene.gene_name);
+        if (self.selectedGene && self.selectedGene.gene_name) {
+          self.onGeneSelected(self.selectedGene.gene_name);
+        }
 
         if (self.$refs.filterCardRef) {
           self.$refs.filterCardRef.refresh()

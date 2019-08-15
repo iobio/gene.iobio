@@ -2693,7 +2693,7 @@ class CohortModel {
 
   }
 
-  captureFlaggedVariants(dangerSummary) {
+  captureFlaggedVariants(dangerSummary, geneObject) {
     let self = this;
     if (self.flaggedVariants == null) {
       self.flaggedVariants = [];
@@ -2709,11 +2709,8 @@ class CohortModel {
           theFlaggedVariants.forEach(function(variant) {
             let matchingVariant = self.getFlaggedVariant(variant);
             if (!matchingVariant) {
-              self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
-              .then(function(theGeneObject) {
-                variant.gene = theGeneObject
-                self.flaggedVariants.push(variant);
-              })
+              variant.gene = geneObject
+              self.flaggedVariants.push(variant);
             }
           })
 
