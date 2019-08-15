@@ -513,6 +513,16 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Files</v-list-tile-title>
           </v-list-tile>
 
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin"  @click="onShowImportVariants">
+            <v-list-tile-title>Import Variants</v-list-tile-title>
+          </v-list-tile>
+
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin" @click="onShowExportVariants">
+            <v-list-tile-title>Export Variants</v-list-tile-title>
+          </v-list-tile>
+
+          <v-divider></v-divider>
+
           <v-list-tile  @click="onShowLegend">
             <v-list-tile-title>Legend</v-list-tile-title>
           </v-list-tile>
@@ -651,7 +661,6 @@ nav.toolbar, nav.v-toolbar
              :genesInProgress="genesInProgress"
              :interpretationMap="interpretationMap"
              :toClickVariant="toClickVariant"
-             @flagged-variants-imported="onFlaggedVariantsImported"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
@@ -687,6 +696,17 @@ nav.toolbar, nav.v-toolbar
      @load-demo-data="onLoadDemoData"
     >
     </files-dialog>
+
+    <import-variants
+     :cohortModel="cohortModel"
+     :showDialog="showImportVariants"
+     @flagged-variants-imported="onFlaggedVariantsImported">
+    </import-variants>
+
+    <export-variants
+     :cohortModel="cohortModel"
+     :showDialog="showExportVariants">
+    </export-variants>
 
     <v-dialog v-model="showLegend" max-width="470">
       <v-card class="full-width">
@@ -890,11 +910,13 @@ nav.toolbar, nav.v-toolbar
 
 import { Typeahead }       from 'uiv'
 import GenesMenu           from '../partials/GenesMenu.vue'
-import FilesDialog           from '../partials/FilesDialog.vue'
+import FilesDialog         from '../partials/FilesDialog.vue'
 import LegendPanel         from '../partials/LegendPanel.vue'
 import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
 import GenesPanel          from '../partials/GenesPanel.vue'
 import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
+import ImportVariants      from '../partials/ImportVariants.vue'
+import ExportVariants      from '../partials/ExportVariants.vue'
 
 export default {
   name: 'navigation',
@@ -905,7 +927,9 @@ export default {
     FlaggedVariantsCard,
     GenesPanel,
     LegendPanel,
-    PhenotypeSearch
+    PhenotypeSearch,
+    ImportVariants,
+    ExportVariants
   },
   props: {
     isEduMode: null,
@@ -945,6 +969,8 @@ export default {
       rightDrawer: false,
 
       showFiles: false,
+      showImportVariants: false,
+      showExportVariants: false,
       showLegend: false,
       showDisclaimer: false,
       showOptions: false,
@@ -1095,6 +1121,12 @@ export default {
     },
     onShowCitations: function() {
       this.showCitations = true;
+    },
+    onShowImportVariants: function() {
+      this.showImportVariants = true;
+    },
+    onShowExportVariants: function() {
+      this.showExportVariants = true
     },
     onShowSnackbar: function(snackbar) {
       this.$emit('show-snackbar', snackbar)

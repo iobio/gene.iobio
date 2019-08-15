@@ -2178,8 +2178,9 @@ export default {
 
     },
     onFlaggedVariantsImported: function() {
-
-
+      this.bringAttention = null;
+      this.showLeftPanelWhenFlaggedVariants()
+      this.promiseSelectFirstFlaggedVariant()
     },
     onApplyVariantNotes: function(variant) {
       let self = this;
