@@ -23,12 +23,12 @@
 @import "../../../assets/sass/_variables.sass";
 
 #edit-transcript-button
-  color:  $app-color
+  color:  $text-color
   margin: 0px 8px 0px 0px
   padding: 0px
 
   .btn__content
-    color: $app-color
+    color: $text-color
     padding: 0px
 
 #select-transcript-viz

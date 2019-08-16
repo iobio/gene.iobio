@@ -15,8 +15,8 @@
   #sample-label
     vertical-align: top
     display: inline-block
-    min-width: 250px
-    max-width: 250px
+    min-width: 155px
+    max-width: 155px
     padding-top: 2px
     color: $app-color
     font-size: 15px
@@ -57,7 +57,7 @@
 
   #ranked-variants-menu
     vertical-align: top
-    margin-top: -2px
+    margin-top: 0px
 
     #ranked-variants-menu-button
       margin-top: -2px
@@ -263,6 +263,11 @@
   <v-card tile id="variant-card" class="app-card">
     <div>
       <span id="sample-label" v-bind:class="sampleModel.relationship">
+        {{ sampleRelLabel }}
+      </span>
+
+      <span v-if="sampleModel && sampleModel.relationship != '' && sampleModel.relationship != 'known-variants'"
+       style="width:130px;display: inline-block;vertical-align: top;padding-top: 3px;">
         {{ sampleLabel }}
       </span>
 
@@ -282,12 +287,15 @@
       >
       </ranked-variants-menu>
 
-      <div style="display:inline-block;width:125px"  v-if="sampleModel && sampleModel.relationship != 'proband' && sampleModel.relationship != 'known-variants'">
-      </div>
+
+      <div style="display:inline-block;width:180px"
+       v-if="sampleModel && sampleModel.relationship != 'proband' && sampleModel.relationship != '' &&
+       sampleModel.relationship != 'known-variants'">
+        </div>
 
 
       <v-badge  id="loaded-count"
-      v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-4 mr-4 mt-1 loaded" >
+      v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="mr-4 mt-1 loaded" >
         <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
         {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Loaded' }}
       </v-badge>
@@ -968,24 +976,36 @@ export default {
   },
 
   computed: {
-    sampleLabel: function() {
+    sampleRelLabel: function() {
       var label = "";
       if (this.sampleModel.isAlignmentsOnly()) {
         label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);
         label += " Variants in " + this.selectedGene.gene_name;
       } else {
         if (this.sampleModel.relationship == 'known-variants') {
-          label = "ClinVar Variants in " + this.selectedGene.gene_name
+          label = "ClinVar Variants"
         } else if (this.sampleModel.relationship == 'sfari-variants') {
-          label = "SFARI Variants in " + this.selectedGene.gene_name
+          label = "SFARI Variants"
+        } else {
+
+          label += "Variants";
+
+        }
+      }
+      return label;
+    },
+    sampleLabel: function() {
+      var label = "";
+      if (this.sampleModel.isAlignmentsOnly()) {
+      } else {
+        if (this.sampleModel.relationship == 'known-variants') {
+        } else if (this.sampleModel.relationship == 'sfari-variants') {
         } else {
           if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
               && this.sampleModel.relationship !== 'sfari-variants' && this.sampleModel.relationship !== this.sampleModel.name) {
             label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship) + " ";
           }
-          label += " Variants ";
           label += this.sampleModel.name;
-
         }
       }
       return label;

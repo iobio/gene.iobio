@@ -2,7 +2,7 @@
 @import ../../../assets/sass/variables
 #variant-inspect
   padding-left: 10px
-  padding-top: 0px
+  padding-top: 5px
   padding-right: 10px
   padding-bottom: 10px
   margin-bottom: 10px
@@ -13,11 +13,13 @@
     flex-direction: row
     flex-wrap: wrap
     justify-content: space-between
+    padding-top: 10px
 
     .variant-inspect-column
       display: flex
       flex-direction: column
       padding: 5px
+      padding-left: 0px
       border-right: thin solid #dad8d8
       min-width: 190px
       margin-bottom: 5px
@@ -28,8 +30,8 @@
         border-right: none
 
       .variant-column-header
-        font-size: 15px
-        color:  $app-color
+        font-size: 14px
+        color:  $text-color
         margin-bottom: 10px
 
       .variant-row
@@ -49,6 +51,9 @@
     padding-bottom: 5px
     font-size: 15px
     padding-top: 5px
+    width: 150px
+    display: flex
+    justify-content: space-between
 
 
   .variant-action-button
@@ -74,33 +79,47 @@
 
   <v-card v-if="selectedVariant && info" tile id="variant-inspect" class="app-card full-width">
 
-    <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
+    <div style="display:flex;align-items:baseline;justify-content:flex-start">
+      <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
+        Variant Detail
 
-      <div style="display:inline-block;width:220px">
         <variant-links-menu
         :selectedGene="selectedGene"
         :selectedVariant="selectedVariant"
         :geneModel="cohortModel.geneModel"
         :info="info">
         </variant-links-menu>
+
+
       </div>
 
-      <span class="pr-1 pl-1" v-if="selectedVariantRelationship == 'known-variants'">
+
+      <span class="pr-1" v-if="selectedVariantRelationship == 'known-variants'">
         <app-icon
           icon="clinvar" width="16" height="16">
         </app-icon>
         <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
       </span>
 
-      <span  >
+      <span class="" style="margin-left:10px" >
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1">{{ info.coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
         <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
       </span>
 
+      <variant-aliases-menu
+      style="margin-left:10px"
+      :selectedGene="selectedGene"
+      :selectedVariant="selectedVariant"
+      :geneModel="cohortModel.geneModel"
+      :info="info">
+      </variant-aliases-menu>
+
 
     </div>
+
+
 
     <div class="variant-inspect-body">
       <div class="variant-inspect-column">
@@ -194,6 +213,7 @@ import Vue                      from 'vue'
 import AppIcon                  from "../partials/AppIcon.vue"
 import VariantInspectRow        from "../partials/VariantInspectRow.vue"
 import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
+import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
 import VariantAlleleCountsMenu  from "../partials/VariantAlleleCountsMenu.vue"
 import InfoPopup                from "../partials/InfoPopup.vue"
 import TranscriptsMenu          from '../partials/TranscriptsMenu.vue'
@@ -204,6 +224,7 @@ export default {
     AppIcon,
     InfoPopup,
     VariantLinksMenu,
+    VariantAliasesMenu,
     VariantInspectRow,
     VariantAlleleCountsMenu
   },

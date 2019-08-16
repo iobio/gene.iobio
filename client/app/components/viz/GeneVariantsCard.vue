@@ -30,9 +30,13 @@
 
 #gene-variants-card
   padding-left: 10px
-  padding-top: 0px
+  padding-top: 5px
   padding-right: 10px
   margin-bottom: 10px
+
+  .gene-info
+    display: flex
+    align-items: baseline
 
   .v-input
     margin-top: -8px
@@ -44,12 +48,15 @@
 
   #gene-variants-heading
     color: $app-color
-    padding-bottom: 0px
     font-size: 15px
     display: flex
     padding-left: 0px
     margin-left: 0px
-    padding-top: 10px
+    width: 150px
+    justify-content: space-between
+    padding-top: 5px
+    padding-bottom: 5px
+    align-items: baseline
 
 
   .card-title
@@ -61,7 +68,7 @@
 
   #gene-name
     margin-left: 0px
-    color:  $app-color
+    color:  $text-color
     margin-top: 0px
     font-size: 15px
     display:inline-block
@@ -72,20 +79,20 @@
   #gene-chr
     margin-left: 0px
     vertical-align: middle
-    color:  $app-color
+    color:  $text-color
 
   #gene-region
     margin-left: 3px
     vertical-align: middle
-    color:  $app-color
+    color:  $text-color
 
   #region-buffer-box
     vertical-align: middle
     .input-group--text-field, .v-text-field__slot
       input
         font-size: 14px
-        color: $app-color
-        fill:  $app-color
+        color: $text-color
+        fill:  $text-color
 
 
   #select-transcripts-box
@@ -97,7 +104,6 @@
     padding: 0px
     width: 130px
     display: inline-block
-    float: left
     vertical-align: top
     text-align: left
     padding-top: 2px
@@ -120,25 +126,25 @@
 
   <v-card v-if="selectedGene" tile id="gene-variants-card" class="app-card full-width">
 
-    <div  id="gene-variants-heading" v-if="selectedGene" class="gene-info text-xs-left">
+    <div  v-if="selectedGene" class="gene-info text-xs-left">
+
+     <div id="gene-variants-heading">
+      Gene {{ selectedGene.gene_name}}
+
+      <gene-links-menu
+      :selectedGene="selectedGene"
+      :geneModel="cohortModel.geneModel">
+      </gene-links-menu>
+
+     </div>
 
 
 
-      <div style="display:inline-block;width:223px">
 
 
-        <gene-menu
-        :selectedGene="selectedGene"
-        :selectedTranscript="selectedTranscript"
-        :geneModel="cohortModel.geneModel">
-        </gene-menu>
-      </div>
-
-
-
-      <div>
-        <span id="gene-chr" class="gene-card-label keep-case" >{{ selectedGene.chr }}</span>
-        <span id="gene-region"   class="gene-card-label keep-case">
+      <div style="display:inline-block;margin-left:10px">
+        <span id="gene-chr" class=" keep-case" >{{ selectedGene.chr }}</span>
+        <span id="gene-region"   class="keep-case">
         {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
         </span>
         <span id="minus-strand"  v-if="selectedGene.strand == '-'"  style="font-size:12px;padding-left: 5px;font-style: italic;">reverse strand</span>
@@ -153,7 +159,9 @@
         </div>
       </div>
 
-      <div style="margin-top: -4px;margin-left:30px">
+
+
+      <div style="display:inline-block;margin-left: 20px">
         <transcripts-menu
           v-if="selectedTranscript && selectedTranscript.transcript_id"
           :selectedGene="selectedGene"
@@ -166,7 +174,11 @@
         </transcripts-menu>
       </div>
 
-      <div style="display:inline-block;">
+
+
+
+
+      <div style="display:inline-block;vertical-align:middle">
 
         <v-switch
           :class="{'optional-track-switch': true, 'full-analysis': isFullAnalysis, 'clin': launchedFromClin}"
@@ -184,6 +196,10 @@
         </v-switch>
       </div>
 
+
+
+
+
     </div>
 
 
@@ -194,14 +210,14 @@
 
 <script>
 
-import GeneMenu          from "../partials/GeneMenu.vue"
+import GeneLinksMenu          from "../partials/GeneLinksMenu.vue"
 import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
 
 
 export default {
   name: 'gene-variants-card',
   components: {
-    GeneMenu,
+    GeneLinksMenu,
     TranscriptsMenu
   },
   props: {

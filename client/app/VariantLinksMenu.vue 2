@@ -2,29 +2,36 @@
 
 @import ../../../assets/sass/variables
 
+.variant-info
+  padding-left: 20px
+  padding-right: 20px
+  padding-bottom: 5px
+  padding-top: 20px
+
+  .card-label
+    color: $app-color
+    font-size: 14px
+    margin-bottom: 2px
 
 
 #show-variant-links-button
   margin: 0px 0px 0px 0px
   padding: 0px
-  font-size: 14px
-  min-width: 30px
-  height: 20px
-  margin-top: -5px
+  font-size: 15px
+  margin-top: -4px
 
   .btn__content, .v-btn__content
-    color:  $text-color
+    color:  $app-color
     padding-left: 0px
-    padding-right: 0px
 
     i.material-icons
-      color: $text-color
+      color: $app-color
       font-size: 17px
-
+      padding-right: 3px
 
 .variant-link
   .rsid
-    color: $text-color
+    color: $app-color
 
 
 
@@ -34,9 +41,9 @@
 <template>
   <span>
     <v-menu
-    offset-y
+    offset-x
     :close-on-content-click="false"
-    bottom
+    right
     v-model="showMenu"
     >
 
@@ -45,8 +52,18 @@
        slot="activator"
        v-tooltip.top-center="`External links to variant info (e.g. VarSome, UCSC Browser, etc.`"
       >
-        <v-icon>open_in_new</v-icon>
+        Variant
+        <v-icon>more_vert</v-icon>
       </v-btn>
+
+      <div class="variant-info" >
+        <div class="card-label">
+             HGVSc: {{ info.HGVSc }}
+        </div>
+        <div class="card-label">
+             HGVSp: {{ info.HGVSp }}
+        </div>
+      </div>
 
       <hr style="margin-top:0px;margin-bottom:0px">
 

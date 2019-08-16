@@ -3,16 +3,20 @@
 @import ../../../assets/sass/variables
 
 #show-gene-links-button
-  margin: 0px 8px 0px 8px
+  margin: 0px 0px 0px 0px
   padding: 0px
+  min-width: 30px
+  height: 20px
 
   .btn__content
-    color:  $app-color
+    color:  $text-color
+    padding-left: 0px
+    padding-right: 0px
 
     i.material-icons
-      color: $app-color
+      color: $text-color
       font-size: 17px
-      padding-right: 3px
+
 
 #gene-links
   display: inline-block
@@ -34,13 +38,13 @@
   margin-bottom: 4px
 
   .btn__content
-    color: $app-color !important
+    color: $text-color !important
     padding-left: 4px
     padding-right: 4px
     font-size: 12px
 
     i.material-icons
-      color: $app-color
+      color: $text-color
       font-size: 12px
       padding-right: 2px
       padding-top: 0px
@@ -48,7 +52,6 @@
 </style>
 
 <template>
-  <div :style="expanded ? 'margin-left:-10px;margin-bottom:5px;margin-top:3px' : 'display: inline-block'">
     <v-menu
     v-if="!expanded"
     offset-y
@@ -63,7 +66,7 @@
        v-tooltip.top-center="`External links to ` + selectedGene.gene_name + ` (e.g. OMIM, UCSC brower, GeneCards, etc.`"
       >
           <v-icon>open_in_new</v-icon>
-          External links
+
       </v-btn>
 
       <v-list>
@@ -88,17 +91,8 @@
 
     </v-menu>
 
-    <v-btn v-if="expanded"
-    flat
-    class="gene-link-button"
-    v-for="link in links"
-    @click="onClickLink(link)"
-    :key="link.name">
-      <v-icon>open_in_new</v-icon>
-      {{ link.display }}
-    </v-btn>
 
-  </div>
+
 </template>
 
 <script>
