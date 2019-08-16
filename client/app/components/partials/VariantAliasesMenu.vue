@@ -24,9 +24,9 @@
 <template>
   <span>
     <v-menu
-    offset-x
+    offset-y
     :close-on-content-click="false"
-    right
+    bottom
     v-model="showMenu"
     >
 
@@ -39,7 +39,7 @@
         HGVS
       </v-btn>
 
-      <div class="variant-info" >
+      <div class="variant-info" style="padding: 20px;" >
         <div class="card-label">
              HGVSc: {{ info.HGVSc }}
         </div>
