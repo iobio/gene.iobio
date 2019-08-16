@@ -81,7 +81,7 @@
 
     <div style="display:flex;align-items:baseline;justify-content:flex-start">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
-        Variant Detail
+        Variant
 
         <variant-links-menu
         :selectedGene="selectedGene"
