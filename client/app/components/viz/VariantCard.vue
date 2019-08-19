@@ -15,11 +15,11 @@
   #sample-label
     vertical-align: top
     display: inline-block
-    min-width: 155px
-    max-width: 155px
+    min-width: 160px
+    max-width: 160px
     padding-top: 2px
     color: $app-color
-    font-size: 15px
+    font-size: 16px
 
   #variant-pileup-button
     position: absolute
@@ -988,7 +988,11 @@ export default {
           label = "SFARI Variants"
         } else {
 
-          label += "Variants";
+          label += "Variants ";
+          if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
+              && this.sampleModel.relationship !== 'sfari-variants' && this.sampleModel.relationship !== this.sampleModel.name) {
+            label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship) + " ";
+          }
 
         }
       }
@@ -1001,10 +1005,6 @@ export default {
         if (this.sampleModel.relationship == 'known-variants') {
         } else if (this.sampleModel.relationship == 'sfari-variants') {
         } else {
-          if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
-              && this.sampleModel.relationship !== 'sfari-variants' && this.sampleModel.relationship !== this.sampleModel.name) {
-            label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship) + " ";
-          }
           label += this.sampleModel.name;
         }
       }

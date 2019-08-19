@@ -102,7 +102,7 @@
           <i class="material-icons" style="padding-right:0px;font-size:20px">file_download</i>
           <span style="padding-right:8px">Download file</span>
         </a>
-        <v-btn class="variant-file-button" raised @click="showSaveDialog = false;readyToDownload = false;">Close</v-btn>
+        <v-btn class="variant-file-button" raised @click="onClose">Close</v-btn>
       </v-card-actions>
     </v-card>
 
@@ -140,6 +140,7 @@ export default {
     onClickSave: function() {
       let self = this;
       self.showSaveDialog = true;
+      this.$emit("close-export-variants");
     },
     onSaveFile: function() {
       let self = this;
@@ -152,6 +153,11 @@ export default {
           "gene-iobio-flagged-variants." + self.exportFormat );
         self.readyToDownload = true;
       })
+    },
+    onClose: function() {
+      this.showSaveDialog = false;
+      this.readyToDownload = false;
+      this.$emit("close-export-variants");
     }
 
   },

@@ -50,7 +50,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
           span.badge-label
             color: $app-color
             border-color: none
-            font-size: 14px
+            font-size: 16px
             font-weight: normal
             text-transform: none
 
@@ -700,11 +700,13 @@ nav.toolbar, nav.v-toolbar
     <import-variants
      :cohortModel="cohortModel"
      :showDialog="showImportVariants"
+     @close-import-variants="onCloseImportVariants"
      @flagged-variants-imported="onFlaggedVariantsImported">
     </import-variants>
 
     <export-variants
      :cohortModel="cohortModel"
+     @close-export-variants="onCloseExportVariants"
      :showDialog="showExportVariants">
     </export-variants>
 
@@ -1125,8 +1127,14 @@ export default {
     onShowImportVariants: function() {
       this.showImportVariants = true;
     },
+    onCloseImportVariants: function() {
+      this.showImportVariants = false;
+    },
     onShowExportVariants: function() {
-      this.showExportVariants = true
+      this.showExportVariants = true;
+    },
+    onCloseExportVariants: function() {
+      this.showExportVariants = false;
     },
     onShowSnackbar: function(snackbar) {
       this.$emit('show-snackbar', snackbar)

@@ -2,10 +2,36 @@
 @import ../../../assets/sass/variables
 #variant-inspect
   padding-left: 10px
-  padding-top: 5px
+  padding-top: 10px
   padding-right: 10px
   padding-bottom: 10px
   margin-bottom: 10px
+
+  #notes-input
+    margin-top: 8px
+    .input-group input
+      color: $text-color
+    .input-group
+      padding: 10px 0 0
+    .input-group
+      label
+        font-size: 13px
+        line-height: 14px
+        height: 18px
+        top: 8px
+        font-weight: normal
+    .input-group__input
+      min-height: 0px
+      margin-top: 8px
+    .input-group--text-field input
+      font-size: 13px
+      height: 14px
+    .input-group
+      padding-top: 0px
+    .input-group__details:before
+      background-color: $text-color
+    .input-group__details:after
+      background-color: $text-color
 
 
   .variant-inspect-body
@@ -13,14 +39,13 @@
     flex-direction: row
     flex-wrap: wrap
     justify-content: space-between
-    padding-top: 10px
+    padding-top: 5px
 
     .variant-inspect-column
       display: flex
       flex-direction: column
       padding: 5px
       padding-left: 0px
-      border-right: thin solid #dad8d8
       min-width: 190px
       margin-bottom: 5px
       margin-right: 5px
@@ -31,7 +56,7 @@
 
       .variant-column-header
         font-size: 14px
-        color:  $text-color
+        color:  $app-color
         margin-bottom: 10px
 
       .variant-row
@@ -49,11 +74,11 @@
   #variant-heading
     color: $app-color
     padding-bottom: 5px
-    font-size: 15px
+    font-size: 16px
     padding-top: 5px
-    width: 150px
+    width: 154px
     display: flex
-    justify-content: space-between
+    justify-content: flex-start
 
 
   .variant-action-button
@@ -101,7 +126,8 @@
         <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
       </span>
 
-      <span class="" style="margin-left:10px" >
+      <span class="variant-heading" style="margin-left:10px" >
+
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1">{{ info.coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
@@ -202,7 +228,17 @@
             </v-btn>
           </div>
       </div>
+
     </div>
+
+    <variant-assessment
+      style="margin-top: 10px"
+      :variant="selectedVariant"
+      :variantInterpretation="interpretation"
+      :interpretationMap="interpretationMap"
+      :variantNotes="notes"
+      @apply-variant-notes="onApplyVariantNotes">
+    </variant-assessment>
 
   </v-card>
 </template>
@@ -211,6 +247,7 @@
 
 import Vue                      from 'vue'
 import AppIcon                  from "../partials/AppIcon.vue"
+import VariantAssessment        from "../partials/VariantAssessment.vue"
 import VariantInspectRow        from "../partials/VariantInspectRow.vue"
 import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
 import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
@@ -226,13 +263,17 @@ export default {
     VariantLinksMenu,
     VariantAliasesMenu,
     VariantInspectRow,
-    VariantAlleleCountsMenu
+    VariantAlleleCountsMenu,
+    VariantAssessment
   },
   props: {
     selectedGene: null,
     selectedTranscript: null,
     selectedVariant: null,
+    selectedVariantNotes: null,
+    selectedVariantInterpretation: null,
     selectedVariantRelationship: null,
+    interpretationMap: null,
     genomeBuildHelper: null,
     cohortModel: null,
     showGenePhenotypes: null,
@@ -376,7 +417,14 @@ export default {
           self.genePhenotypeHits.push( {key: searchTerm, searchTerm: searchTermLabel, geneRanks: rankRecs } );
         }
       }
-    }
+    },
+    onApplyVariantNotes: function(variant) {
+      this.$emit("apply-variant-notes", variant);
+    },
+    onApplyVariantInterpretation: function(variant) {
+      this.$emit("apply-variant-interpretation", variant);
+    },
+
 
   },
 
@@ -460,6 +508,12 @@ export default {
         },
 
       ]
+    },
+    notes: function() {
+      return this.selectedVariantNotes && this.selectedVariantNotes.length > 0 ? this.selectedVariantNotes : null;
+    },
+    interpretation: function() {
+      return this.selectedVariantInterpretation && this.selectedVariantInterpretation.length > 0 ? this.selectedVariantInterpretation : 'not-reviewed';
     }
   },
 

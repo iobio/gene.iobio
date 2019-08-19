@@ -4,24 +4,24 @@
 
 i.material-icons.interpretation.not-reviewed
   color: $not-reviewed-color !important
-  font-size: 22px
-  padding-top: 2px
+  font-size: 18px
+  padding-top: 0px
 i.material-icons.interpretation.sig
   color: $significant-color !important
-  font-size: 22px
-  padding-top: 2px
+  font-size: 18px
+  padding-top: 0px
 i.material-icons.interpretation.unknown-sig
   color: $unknown-significance-color !important
-  font-size: 22px
-  padding-top: 2px
+  font-size: 18px
+  padding-top: 0px
 i.material-icons.interpretation.poor-qual
   color: $poor-qual-color !important
-  font-size: 22px
-  padding-top: 2px
+  font-size: 18px
+  padding-top: 0px
 i.material-icons.interpretation.not-sig
   color: $not-significant-color !important
-  font-size: 22px
-  padding-top: 2px
+  font-size: 18px
+  padding-top: 0px
 
 .interpretation-label
   padding-left: 5px
@@ -33,10 +33,10 @@ i.material-icons.interpretation.not-sig
 
 
 #select-interpretation
-  font-family: 'Open sans'
+  font-family: $app-font
   margin: 0px
   padding: 0px
-  width: 22px
+  width: 18px
   height: auto
   font-size: 12px
   margin-top: 0px
@@ -46,10 +46,12 @@ i.material-icons.interpretation.not-sig
 
     .interpretation-label
       color: $text-color !important
-      font-size: 14px
+      font-size: 13px
 
   .input-group__input
     min-height: 21px
+    border: solid 1px #e6e6e6
+    padding: 2px
 
   &.input-group--hide-details
     .input-group__details
@@ -71,9 +73,8 @@ i.material-icons.interpretation.not-sig
   .input-group__append-icon
     line-height: 20px
     color: #818181
-    display: none
     width: 20px
-    padding-left: 0px
+    padding-left: 10px
     padding-right: 1px
     color: $text-color !important
 

@@ -8,14 +8,16 @@
   min-width: 30px
   height: 20px
 
+
   .btn__content
     color:  $text-color
     padding-left: 0px
     padding-right: 0px
 
     i.material-icons
-      color: $text-color
-      font-size: 17px
+      font-size: 16px
+      padding-bottom: 2px
+      color: $link-color
 
 
 #gene-links

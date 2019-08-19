@@ -113,7 +113,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn raised class="variant-file-button" @click.native="showOpenDialog = false">Close</v-btn>
+        <v-btn raised class="variant-file-button" @click="onClose">Close</v-btn>
       </v-card-actions>
     </v-card>
 
@@ -163,6 +163,10 @@ export default {
       try {
         ctrl.value = null;
       } catch(ex) { }
+    },
+    onClose: function() {
+      this.showOpenDialog = false;
+      this.$emit("close-import-variants");
     }
 
   },

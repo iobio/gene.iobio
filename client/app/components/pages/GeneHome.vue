@@ -280,12 +280,17 @@ main.content.clin, main.v-content.clin
         :selectedGene="selectedGene"
         :selectedTranscript="analyzedTranscript"
         :selectedVariant="selectedVariant"
+        :selectedVariantNotes="selectedVariantNotes"
+        :selectedVariantInterpretation="selectedVariantInterpretation"
         :selectedVariantRelationship="selectedVariantRelationship"
+        :interpretationMap="interpretationMap"
         :genomeBuildHelper="genomeBuildHelper"
         :cohortModel="cohortModel"
         :info="selectedVariantInfo"
         :showGenePhenotypes="launchedFromClin || phenotypeTerm"
         @show-pileup-for-variant="onShowPileupForVariant"
+        @apply-variant-interpretation="onApplyVariantInterpretation"
+        @apply-variant-notes="onApplyVariantNotes"
         >
         </variant-inspect-card>
 

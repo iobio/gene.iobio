@@ -48,12 +48,12 @@
 
   #gene-variants-heading
     color: $app-color
-    font-size: 15px
+    font-size: 16px
     display: flex
     padding-left: 0px
     margin-left: 0px
-    width: 150px
-    justify-content: space-between
+    width: 154px
+    justify-content: flex-start
     padding-top: 5px
     padding-bottom: 5px
     align-items: baseline
@@ -67,10 +67,10 @@
 
 
   #gene-name
-    margin-left: 0px
-    color:  $text-color
+    font-size: 16px
+    color: $app-color
+    margin-left: 5px
     margin-top: 0px
-    font-size: 15px
     display:inline-block
     vertical-align: middle
 
@@ -129,12 +129,15 @@
     <div  v-if="selectedGene" class="gene-info text-xs-left">
 
      <div id="gene-variants-heading">
-      Gene {{ selectedGene.gene_name}}
+        Gene
 
-      <gene-links-menu
-      :selectedGene="selectedGene"
-      :geneModel="cohortModel.geneModel">
-      </gene-links-menu>
+        <span id="gene-name"> {{ selectedGene.gene_name}} </span>
+
+        <gene-links-menu
+        :selectedGene="selectedGene"
+        :geneModel="cohortModel.geneModel">
+        </gene-links-menu>
+
 
      </div>
 
@@ -143,6 +146,8 @@
 
 
       <div style="display:inline-block;margin-left:10px">
+
+
         <span id="gene-chr" class=" keep-case" >{{ selectedGene.chr }}</span>
         <span id="gene-region"   class="keep-case">
         {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}

@@ -7,7 +7,6 @@
 #show-variant-links-button
   margin: 0px 0px 0px 0px
   padding: 0px
-  font-size: 14px
   min-width: 30px
   height: 20px
   margin-top: -5px
@@ -18,8 +17,8 @@
     padding-right: 0px
 
     i.material-icons
-      color: $text-color
-      font-size: 17px
+      font-size: 16px
+      color: $link-color
 
 
 .variant-link
