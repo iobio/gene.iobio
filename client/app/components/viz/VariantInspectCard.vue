@@ -66,6 +66,11 @@
         margin-bottom: 10px
         max-width: 260px
 
+      .pheno-search-term
+        max-width: 160px
+        display: inline-block
+        vertical-align: top
+
 
   .rel-header
     font-style: italic
