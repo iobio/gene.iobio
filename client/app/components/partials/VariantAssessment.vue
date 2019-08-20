@@ -17,7 +17,7 @@
     display: inline-block
     vertical-align: top
     margin-left: 20px
-    width: calc(100% - 240px)
+    width: calc(100% - 250px)
     margin-top: -25px
 
     label
@@ -48,7 +48,7 @@
     </div>
     <div>
       <variant-interpretation
-      style="width: 210px;display: inline-block"
+      style="width: 220px;display: inline-block"
        wrap="true"
        :variant="variant"
        :variantInterpretation="interpretation"
