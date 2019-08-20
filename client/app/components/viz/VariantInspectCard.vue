@@ -80,7 +80,7 @@
     color: $app-color
     padding-bottom: 5px
     font-size: 16px
-    padding-top: 5px
+    padding-top: 0px
     width: 154px
     display: flex
     justify-content: flex-start
