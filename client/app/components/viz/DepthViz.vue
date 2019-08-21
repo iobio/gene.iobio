@@ -41,6 +41,16 @@
     fill: $current-color
     pointer-events: none
 
+  .coverage-bar
+    stroke: black
+    fill: white
+    pointer-events: none
+
+  .alt-bar
+    stroke: black
+    fill:   $current-color
+    pointer-events: none
+
   .region
     stroke-width: 1px
     stroke: $coverage-problem-region-color
@@ -222,7 +232,7 @@ export default {
         this.$emit('updateDepthChart', this.depthChart);
       },
       showCurrentPoint: function(point) {
-        this.depthChart.showCircle()(point.pos, point.depth);
+        this.depthChart.showCircle()(point.pos, point.depth, point.altCount);
       },
       hideCurrentPoint: function(point) {
         this.depthChart.hideCircle()();

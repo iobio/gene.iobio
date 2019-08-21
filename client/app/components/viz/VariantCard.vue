@@ -817,6 +817,7 @@ export default {
 
       if (self.showDepthViz && self.sampleModel.coverage != null) {
         let theDepth = null;
+        let theAltCount = null;
         var matchingVariants = self.sampleModel.loadedVariants.features.filter(function(v) {
           return v.start == variant.start && v.alt == variant.alt && v.ref == variant.ref;
         })
@@ -828,11 +829,14 @@ export default {
           if (theDepth == null || theDepth == '') {
             theDepth = matchingVariants[0].genotypeDepth;
           }
+          if (matchingVariants[0].genotype && matchingVariants[0].genotype.altCount) {
+            theAltCount = matchingVariants[0].genotype.altCount;
+          }
         }
 
         // If we have the exact depth for this variant, show it.  Otherwise, we will show
         // the calculated (binned, averaged) depth at this position.
-        self.$refs.depthVizRef.showCurrentPoint({pos: variant.start, depth: theDepth});
+        self.$refs.depthVizRef.showCurrentPoint({pos: variant.start, depth: theDepth, altCount: theAltCount});
       }
 
 
