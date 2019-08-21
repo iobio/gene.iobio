@@ -4,9 +4,10 @@
 
 i.material-icons.interpretation
   color: white !important
-  font-size: 18px
+  font-size: 13px
   padding-top: 0px
   padding-bottom: 3px
+  padding-right: 4px
 
 .interpretation-label
   color: white  !important
@@ -74,8 +75,6 @@ i.material-icons.interpretation
 
   .input-group__input
     min-height: 21px
-    border: solid 1px #e6e6e6
-    padding: 2px
 
   &.input-group--hide-details
     .input-group__details
