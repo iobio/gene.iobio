@@ -3,7 +3,7 @@ class GeneModel {
 
     this.globalApp                 = globalApp;
     this.limitGenes                = limitGenes;
-    this.geneInfoServer            = "https://nvdevelb.iobio.io/" + "geneinfo/";
+    this.geneInfoServer            = this.globalApp.HTTP_SERVICES + "geneinfo/";
     this.geneToPhenoServer         = this.globalApp.HTTP_SERVICES + "gene2pheno/";
     this.phenolyzerServer          = "https://7z68tjgpw4.execute-api.us-east-1.amazonaws.com/dev/phenolyzer/";
     this.phenolyzerOnlyServer      = this.globalApp.HTTP_SERVICES + "phenolyzer/";
