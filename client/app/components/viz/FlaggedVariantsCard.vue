@@ -389,13 +389,6 @@
       (none)
     </span>
 
-    <div v-if="false && !isBasicMode && isFullAnalysis && variantCount != 0"
-      style="margin-top:-25px;margin-bottom:20px;margin-left:20px">
-        <interpretation-select  style="width:250px"
-        :interpretationMap="interpretationMap"
-        @apply-interpretation="onApplyInterpretationFilter">
-        </interpretation-select>
-    </div>
 
 
 
@@ -534,29 +527,6 @@
 
                   <div style="float-left;">
 
-                    <variant-interpretation
-                      style="float:left;"
-                       v-if="false && !isBasicMode && !forMyGene2 && !variant.notFound"
-                       class="variant-notes"
-                       wrap="true"
-                       :interpretationMap="interpretationMap"
-                       :variant="variant"
-                       :variantInterpretation="variant.interpretation"
-                       @apply-variant-interpretation="onApplyVariantInterpretation">
-                    </variant-interpretation>
-
-                    <variant-notes-menu
-                      v-if="false && !isBasicMode && !forMyGene2 && !variant.notFound"
-                      style="float:left;padding-top: 4px"
-                      class="variant-notes"
-                      :showNotesIcon="true"
-                      :variant="variant"
-                      :interpretationMap="interpretationMap"
-                      :variantInterpretation="variant.interpretation"
-                      :variantNotes="variant.notes"
-                      @apply-variant-notes="onApplyVariantNotes">
-                    </variant-notes-menu>
-
                     <span v-if="variant.notFound && isFullAnalysis"
                       class="coord"> {{ coord(flaggedGene, variant) }} </span>
                     </span>
@@ -613,19 +583,13 @@
 
 import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
-import VariantNotesMenu from '../partials/VariantNotesMenu.vue'
-import VariantInterpretation from '../partials/VariantInterpretation.vue'
-import InterpretationSelect from '../partials/InterpretationSelect.vue'
 
 
 export default {
   name: 'flagged-variants-card',
   components: {
     AppIcon,
-    FilterIcon,
-    VariantNotesMenu,
-    VariantInterpretation,
-    InterpretationSelect
+    FilterIcon
   },
   props: {
     isEduMode: null,

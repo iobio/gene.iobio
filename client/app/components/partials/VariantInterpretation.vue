@@ -6,19 +6,20 @@ i.material-icons.interpretation
   color: white !important
   font-size: 18px
   padding-top: 0px
+  padding-bottom: 3px
 
 .interpretation-label
   color: white  !important
-  padding-left: 5px
+  padding-left: 0px
 
 #select-interpretation
   &.no-wrap
     .input-group__selections__comma
       width: initial
 
-.interpretation-slot
+.interpretation-choices
   width: 100%
-  padding: 2px
+  padding: 10px
 
   &.not-reviewed
     background-color: $not-reviewed-color
@@ -121,7 +122,7 @@ i.material-icons.interpretation
 
 
     <template slot="selection" slot-scope="data">
-      <div :class="{'interpretation-slot': true,
+      <div :class="{'interpretation-selection': true,
           'not-reviewed': data.item.value == 'not-reviewed',
           'not-sig'     : data.item.value == 'not-sig',
           'sig'         : data.item.value == 'sig',
@@ -137,7 +138,7 @@ i.material-icons.interpretation
     </template>
 
     <template slot="item" slot-scope="data">
-      <div :class="{'interpretation-slot': true,
+      <div :class="{'interpretation-choices': true,
           'not-reviewed': data.item.value == 'not-reviewed',
           'not-sig'     : data.item.value == 'not-sig',
           'sig'         : data.item.value == 'sig',
