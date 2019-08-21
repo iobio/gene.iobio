@@ -228,6 +228,20 @@ export default {
       this.currentFilter = null;
     }
 
+  },
+  watch: {
+    showCoverageCutoffs: function() {
+      if (this.showCoverageCutoffs) {
+        let coverageFilter = this.filters.filter(function(theFilter) {
+          return theFilter.name == 'coverage'
+        })
+        if (coverageFilter.length > 0) {
+          this.onBadgeClick(coverageFilter[0])
+        }
+      } else {
+        this.clearFilter();
+      }
+    }
   }
 }
 </script>
