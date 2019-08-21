@@ -7,6 +7,7 @@ class SampleModel {
   constructor(globalApp) {
     this.globalApp = globalApp;
     this.vcf = null;
+    this.sfariVcfs = []; // Used for sfari variant track: 1x sample model w/ multiple vcf endpoints
     this.bam = null;
 
     this.vcfData = null;
@@ -15,7 +16,7 @@ class SampleModel {
 
     this.isBasicMode = null;
     this.isEduMode = null;
-
+    this.isSfariSample = false;  // True if sample sourced from Mosaic SSC projects (WGS 37/38 or WES 37)
 
     this.vcfUrlEntered = false;
     this.vcfFileOpened = false;
@@ -25,6 +26,8 @@ class SampleModel {
     this.bamUrlEntered = false;
     this.bamFileOpened = false;
     this.getBamRefName = null;
+
+    this.samples = null;
 
     this.name = "";
     this.vcfRefNamesMap = {};
@@ -44,13 +47,13 @@ class SampleModel {
     this.loadedVariants = null;
     this.variantHistoData = null;
     this.coverage = [[]];
+    this.coverageDangerRegions = [];
 
     this.inProgress = {
       'loadingVariants': false,
       'callingVariants': false,
       'loadingCoverage': false
     };
-
   }
 
 
@@ -196,6 +199,7 @@ class SampleModel {
 
       var theVcfData = null;
 
+
       if (me[dataKind] != null && me[dataKind].features && me[dataKind].features.length > 0) {
         if (theGetRefNameFunction(geneObject.chr) == me[dataKind].ref &&
           geneObject.start == me[dataKind].start &&
@@ -205,6 +209,7 @@ class SampleModel {
           resolve({model: me, vcfData: theVcfData});
         }
       }
+
 
       if (theVcfData == null) {
         // Find vcf data in cache
@@ -415,6 +420,7 @@ class SampleModel {
     });
   }
 
+
   _setGeneCoverageExonNumbers(transcript, geneCoverageObjects) {
     var me = this;
     transcript.features.forEach(function(feature) {
@@ -477,6 +483,20 @@ class SampleModel {
     geneObject = geneObject ? geneObject : window.gene;
     transcript = transcript ? transcript : window.selectedTranscript;
     this._promiseCacheData(geneCoverage, CacheHelper.GENE_COVERAGE_DATA, geneObject.gene_name, transcript);
+  }
+
+  determineCoverageDangerRegions(transcript) {
+    let self = this;
+    self.coverageDangerRegions = [];
+    transcript.features
+    .filter( function(feature) {
+        return feature.feature_type == 'CDS' || feature.feature_type == 'UTR';
+    })
+    .forEach(function(feature) {
+      if (feature.danger[self.getRelationship()]) {
+        self.coverageDangerRegions.push(feature);
+      }
+    })
   }
 
 
@@ -623,11 +643,7 @@ class SampleModel {
         if (theFbData && theFbData.features ) {
           var count = theFbData.features
            .filter(function(d) {
-            // Filter homozygous reference for proband only
-            if (d.zygosity && d.zygosity.toLowerCase() == 'homref') {
-              return false;
-            }
-            return true;
+              return !SampleModel.bypassZyg(d, me.relationship);
            }).length;
            resolve(count);
         } else {
@@ -653,7 +669,14 @@ class SampleModel {
       } else {
         me.promiseGetFbData(window.gene, window.selectedTranscript, true)
          .then(function(data) {
-          resolve(data.fbData != null && data.fbData.features != null && data.fbData.features.length > 0);
+          if (data.fbData && data.fbData.features) {
+            var calledVariants = data.fbData.features.filter(function(variant) {
+              return !SampleModel.bypassZyg(variant, me.relationship);
+            })
+            resolve(calledVariants.length > 0);
+          } else {
+            resolve(false);
+          }
          },
          function(error) {
           var msg = "Problem in SampleModel.promiseHasCalledVariants(): " + error;
@@ -762,6 +785,20 @@ class SampleModel {
     this.vcf.setIsEduMode(this.cohort.isEduMode);
   };
 
+  initSfariSample(numVcfEndpts, cohort) {
+      // init vcf.iobio
+      this.sfariVcfs = [];
+      this.cohort = cohort;
+      for (let i = 0; i < numVcfEndpts; i++) {
+        let currVcf = vcfiobio(this.globalApp);
+        this.sfariVcfs.push(currVcf);
+        currVcf.setEndpoint(this.cohort.endpoint);
+        currVcf.setGenericAnnotation(this.cohort.genericAnnotation);
+        currVcf.setGenomeBuildHelper(this.cohort.genomeBuildHelper);
+        currVcf.setIsEduMode(this.cohort.isEduMode);
+      }
+  }
+
   promiseBamFilesSelected(fileSelection) {
     var me = this;
     return new Promise(function(resolve, reject) {
@@ -788,7 +825,7 @@ class SampleModel {
             if (me.lastBamAlertify) {
               me.lastBamAlertify.dismiss();
             }
-            var msg = "<span style='font-size:18px'>" + message + "</span>";
+            var msg = "<span style='font-size:12px'>" + message + "</span>";
                 alertify.set('notifier','position', 'top-right');
             me.lastBamAlertify = alertify.error(msg, 15);
 
@@ -829,7 +866,7 @@ class SampleModel {
         if (!success) {
           me.bamUrlEntered = false;
           me.bam = null;
-          var msg = "<span style='font-size:18px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + bamUrl + "</span>";
+          var msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + bamUrl + "</span>";
               alertify.set('notifier','position', 'top-right');
           me.lastBamAlertify = alertify.error(msg, 15);
         }
@@ -875,12 +912,13 @@ class SampleModel {
 
             // Get the sample names from the vcf header
               me.vcf.getSampleNames( function(sampleNames) {
+                me.sampleNames = sampleNames;
                 me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
                 resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
               });
           } else {
 
-            var msg = "<span style='font-size:18px'>" + message + "</span>";
+            var msg = "<span style='font-size:12px'>" + message + "</span>";
               alertify.set('notifier','position', 'top-right');
               me.lastVcfAlertify = alertify.error(msg, 15);
 
@@ -947,12 +985,13 @@ class SampleModel {
             me.getVcfRefName = null;
             // Get the sample names from the vcf header
             me.vcf.getSampleNames( function(sampleNames) {
+              me.samples = sampleNames;
               me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
               callback(success, sampleNames);
             });
           } else {
             me.vcfUrlEntered = false;
-            var msg = "<span style='font-size:18px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + vcfUrl + "</span>";
+            var msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + vcfUrl + "</span>";
             alertify.set('notifier','position', 'top-right');
             me.lastVcfAlertify = alertify.error(msg, 15);
             callback(success);
@@ -960,11 +999,72 @@ class SampleModel {
         });
 
     }
+  }
 
+  /* Takes in two stably sorted lists of vcfs and tbis. Performs similar functions as onVcfUrlEntered above,
+   * but accommodates multiple vcf files that will be apart of a single sample model. Used specifically for Sfari track. */
+  onHubVcfUrlsEntered(vcfUrls, tbiUrls, callback) {
+    var self = this;
+    self.vcfData = null;
+    let success = true;
+    self.sampleName = null;
+    self.samples = [];
+
+    // For each vcf url, clear vcf object or openVcfUrl then get sample names from header
+    for (let i = 0; i < vcfUrls.length; i++) {
+      let currVcf = vcfUrls[i];
+      let currTbi = tbiUrls[i];
+
+      if (currVcf == null || currVcf === '') {
+        // If we don't have a url, clear vcf endpt
+        self.sfariVcfs[i].clearVcfURL();
+
+        // Set flags
+        self.vcfUrlEntered = false;
+        self.vcfFileOpened = false;
+        self.getVcfRefName = null;
+        self.isMultiSample = false;
+
+        // Return negative success status
+        success = false;
+        break;
+      } else {
+        // Try to open
+        self.sfariVcfs[i].openVcfUrl(currVcf.url, currTbi.url, function(success, errorMsg) {
+            if (self.lastVcfAlertify) {
+                self.lastVcfAlertify.dismiss();
+            }
+            if (success) {
+                // Get the sample names from the vcf header
+                self.sfariVcfs[i].getSampleNames(function(sampleNames) {
+                    sampleNames.forEach((sampleName) => {
+                      self.samples.push(sampleName);
+                    });
+                });
+            } else {
+                // If we have a hiccup on one, return false for all
+                self.vcfUrlEntered = false;
+                let msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + currVcf.url + "</span>";
+                alertify.set('notifier','position', 'top-right');
+                self.lastVcfAlertify = alertify.error(msg, 15);
+            }
+        });
+      }
+    }
+      // Set flags & return
+      if (success === true && callback) {
+          self.vcfUrlEntered = true;
+          self.vcfFileOpened = false;
+          self.getVcfRefName = null;
+          self.isMultiSample = true;
+          callback(success, self.sampleNames);
+      } else if (callback) {
+          callback(success);
+      }
   }
 
 
-  _promiseVcfRefName(ref) {
+  _promiseVcfRefName(ref, sfariMode = false) {
     var me = this;
     var theRef = ref != null ? ref : window.gene.chr;
     return new Promise( function(resolve, reject) {
@@ -978,7 +1078,11 @@ class SampleModel {
         }
       } else {
         me.vcfRefNamesMap = {};
-        me.vcf.getReferenceLengths(function(refData) {
+        let currVcf = me.vcf;
+        if (sfariMode) {
+          currVcf = me.sfariVcfs[0];
+        }
+        currVcf.getReferenceLengths(function(refData) {
           var foundRef = false;
           refData.forEach( function(refObject) {
             var refName = refObject.name;
@@ -1034,30 +1138,42 @@ class SampleModel {
   }
 
 
-  promiseGetMatchingVariant(variant) {
+  promiseGetMatchingVariant(variant, geneObject, transcript) {
     var me = this;
     return new Promise(function(resolve, reject) {
-      var theVcfData = me.promiseGetVcfData(window.gene, window.selectedTranscript)
+      var theVcfData = me.promiseGetVcfData(geneObject, transcript)
        .then(function(data) {
-        var theVcfData = data.vcfData;
-        var matchingVariant = null;
-        if (theVcfData && theVcfData.features) {
-          theVcfData.features.forEach(function(v) {
-            if (v.start == variant.start
-                && v.end == variant.end
-                && v.ref == variant.ref
-                && v.alt == variant.alt
-                && v.type.toLowerCase() == variant.type.toLowerCase()) {
-              matchingVariant = v;
-            }
-          });
+        if (data != null && data.vcfData != null) {
+          var theVcfData = data.vcfData;
+          var matchingVariant = null;
+          if (theVcfData && theVcfData.features) {
+            theVcfData.features.forEach(function(v) {
+              if (v.start == variant.start
+                  && v.ref == variant.ref
+                  && v.alt == variant.alt) {
+                matchingVariant = v;
+              }
+            });
+          }
+          resolve(matchingVariant);
+        } else {
+          var msg = "Unable to get vcf data in SampleModel.promiseGetMatchingVariant() for gene " + geneObject.gene_name;
+          console.log(msg);
+          if (variant.isProxy && variant.notFound) {
+            resolve(variant);
+          } else {
+            reject(msg);
+          }
         }
-        resolve(matchingVariant);
        },
        function(error) {
         var msg = "A problem occurred in SampleModel.promiseGetMatchingVariant(): " + error;
         console.log(msg);
-        reject(msg);
+        if (variant.isProxy && variant.notFound) {
+          resolve(variant);
+        } else {
+          reject(msg);
+        }
        })
 
     });
@@ -1244,6 +1360,7 @@ class SampleModel {
           resolve(variant);
         }
       } else {
+        var sourceVariant = variant;
         me._promiseVcfRefName(theGene.chr).then( function() {
           me.vcf.promiseGetVariants(
              me.getVcfRefName(theGene.chr),
@@ -1297,7 +1414,7 @@ class SampleModel {
                 // Now update the hgvs notation on the variant
                 var matchingVariants = theVcfData.features.filter(function(aVariant) {
                   var matches =
-                       ( variant.start == aVariant.start &&
+                       ( +variant.start == aVariant.start &&
                          variant.alt   == aVariant.alt &&
                          variant.ref   == aVariant.ref );
                   return matches;
@@ -1331,6 +1448,7 @@ class SampleModel {
 
                           // set the hgvs and rsid on the existing variant
                           theVariant.extraAnnot      = true;
+                          sourceVariant.extraAnnot   = true;
                           var vepAnnots = [
                             'vepConsequence',
                             'vepImpact',
@@ -1350,7 +1468,10 @@ class SampleModel {
                             ];
                           vepAnnots.forEach(function(vepAnnot) {
                             theVariant[vepAnnot]        = v[vepAnnot];
+                            sourceVariant[vepAnnot]     = v[vepAnnot];
                           })
+
+
 
                           // re-cache the data
                           me._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
@@ -1362,6 +1483,7 @@ class SampleModel {
                             console.log(msg);
                             reject(msg);
                            });
+                           resolve(theVariant);
 
                         } else {
                           var msg = "Cannot find corresponding variant to update HGVS notation for variant " + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt;
@@ -1379,14 +1501,25 @@ class SampleModel {
 
                   }
                 } else {
-                  reject('Cannot find vcf record for variant ' + theGene.gene_name + " " + variant.start + " " + variant.ref + "->" + variant.alt);
+                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
+                  console.log(msg);
+                  if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
+                    variant.notFound = true;
+                    variant.isUserFlagged = false;
+                    resolve([variant, variant, []]);
+                  } else {
+                   reject(msg);
+                  }
+
                 }
 
 
               } else {
                 var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
                 console.log(msg);
-                if (format == 'csv' || format == 'json' || format == 'vcf') {
+                if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
+                  variant.notFound = true;
+                  variant.isUserFlagged = false;
                   resolve([variant, variant, []]);
                 }
                 reject(msg);
@@ -1487,12 +1620,130 @@ class SampleModel {
   }
 
 
+  promiseAnnotateSfariVariants(theGene, theTranscript, sampleModels, options) {
+      let self = this;
+
+      return new Promise(function (resolve, reject) {
+          let isMultiSample = options.isMultiSample;
+          let isBackground = options.isBackground;
+
+          let resultMap = {};
+          let dataPromises = [];
+          sampleModels.forEach((model) => {
+              let p = model._promiseGetData(CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
+                  .then(function (vcfData) {
+                      if (vcfData != null && vcfData !== '') {
+                          resultMap[model.relationship] = vcfData;
+
+                          if (!isBackground) {
+                              model.vcfData = vcfData;
+                              model.fbData = self.reconstituteFbData(vcfData);
+                          }
+                      }
+                  });
+              dataPromises.push(p);
+          });
+          Promise.all(dataPromises)
+            .then(function () {
+                if (Object.keys(resultMap).length === sampleModels.length) {
+                    resolve(resultMap);
+                } else {
+                    // We don't have the variants for the gene in cache,
+                    // so call the iobio services to retrieve the variants for the gene region
+                    // and annotate them.
+                    self._promiseVcfRefName(theGene.chr, true)  // True for sfariMode
+                        .then(() => {
+                            let annoPromises = [];
+                            let annoResults = [];
+                            self.sfariVcfs.forEach((vcf) => {
+                                let p = vcf.promiseGetVariants(
+                                    self.getVcfRefName(theGene.chr),
+                                    theGene,
+                                    theTranscript,
+                                    null,   // regions
+                                    isMultiSample, // is multi-sample
+                                    self.samples,   // want variants for all sfari samples
+                                    self.getRelationship() === 'known-variants' ? 'none' : self.getAnnotationScheme().toLowerCase(),
+                                    self.getTranslator().clinvarMap,
+                                    self.getGeneModel().geneSource === 'refseq',
+                                    false,  // hgvs notation
+                                    false,  // rsid
+                                    self.globalApp.vepAF,    // vep af
+                                    false,
+                                    true) // sfariMode
+                                    .then((results) => {
+                                      let unwrappedResults = results[1];
+                                      unwrappedResults.gene = theGene;
+                                      annoResults.push(unwrappedResults);
+                                    })
+                                    .catch((error) => {
+                                      reject('Problem getting sfari variants: ' + error);
+                                    });
+                                annoPromises.push(p);
+                            });
+                            Promise.all(annoPromises)
+                              .then(() => {
+                                  self.promiseCombineVariants(annoResults)
+                                      .then((combinedVcfData) => {
+                                        self.vcfData = combinedVcfData;
+                                        let resultMap = {};
+                                        resultMap['sfari-variants'] = combinedVcfData;
+                                        resolve(resultMap);
+                                      })
+                                      .catch((error) => {
+                                        reject('Problem in combining variants: ' + error);
+                                      })
+                              });
+                        });
+                }
+            })
+      })
+  }
+
+  /* Given a list of annotationResults, combines the feature subobjects within. When variants are combined, we
+   * only take the FIRST instance of the variant with that matching information. We do NOT combine any information
+   * across multiple files. Returns an annotation object with the features subobject containing the combined, ordered variant list. */
+  promiseCombineVariants(annotationResults) {
+    return new Promise((resolve, reject) => {
+
+      // If we only have one vcf, just return the first object;
+      if (annotationResults.length === 1) {
+        resolve(annotationResults[0]);
+      } else {
+
+        // Iniitalize combined list
+        let combinedFeatures = annotationResults[0].features;
+
+        // Initialize hash to avoid dups
+        let combinedHash = {};
+        combinedFeatures.forEach((feature) => {
+            combinedHash[feature.id] = true;
+          });
+        // Add remaining unique vars
+        for (let i = 1; i < annotationResults.length; i++) {
+            let currFeatures = annotationResults[i].features;
+            currFeatures.forEach((currFeature) => {
+              if (!combinedHash[currFeature.id]) {
+                combinedHash[currFeature.id] = true;
+                combinedFeatures.push(currFeature);
+              }
+            });
+        }
+        // Reassign features for first vcf object & return
+        annotationResults[0].features = combinedFeatures;
+        resolve(annotationResults[0]);
+      }
+    })
+  }
 
 
-  promiseAnnotateVariants(theGene, theTranscript, variantModels, isMultiSample, isBackground, onVcfData) {
+  promiseAnnotateVariants(theGene, theTranscript, variantModels, options, onVcfData) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
+
+      let isMultiSample = options.isMultiSample;
+      let isBackground = options.isBackground;
 
       // First the gene vcf data has been cached, just return
       // it.  (No need to retrieve the variants from the iobio service.)
@@ -1514,27 +1765,51 @@ class SampleModel {
          promises.push(p);
       })
 
+
+
       Promise.all(promises)
       .then(function() {
-        if (Object.keys(resultMap).length == variantModels.length) {
+        if (Object.keys(resultMap).length === variantModels.length) {
           resolve(resultMap);
         } else {
 
           // We don't have the variants for the gene in cache,
-          // so call the iobio services to retreive the variants for the gene region
+          // so call the iobio services to retrieve the variants for the gene region
           // and annotate them.
           me._promiseVcfRefName(theGene.chr)
           .then( function() {
+            let refName = me.getVcfRefName(theGene.chr);
+
+            var regions = null;
+            if (options.analyzeCodingVariantsOnly) {
+              var exons = theTranscript.features.filter(function(feature) {
+                return (feature.feature_type.toUpperCase() == 'CDS');
+              });
+
+              // Capture only of the exon regions with a (5 bp range before and after exon) from the transcript
+              regions =  exons.map(function(feature, i) {
+                var start = +feature.start - 5;
+                var end   = +feature.end + 5;
+                if (i > 0) {
+                  var prevFeature = exons[i-1];
+                  if (+prevFeature.end >= start) {
+                    start = +prevFeature.end - (+prevFeature.end - start);
+                  }
+                }
+                return {name: refName, start: start, end: end};
+              });
+            }
+
             return me.vcf.promiseGetVariants(
-               me.getVcfRefName(theGene.chr),
+               refName,
                theGene,
                theTranscript,
-               null,   // regions
+               regions,   // regions
                isMultiSample, // is multi-sample
                me._getSamplesToRetrieve(),
-               me.getRelationship() == 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
+               me.getRelationship() === 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
                me.getTranslator().clinvarMap,
-               me.getGeneModel().geneSource == 'refseq' ? true : false,
+               me.getGeneModel().geneSource === 'refseq' ? true : false,
                me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
                me.globalApp.getVariantIdsForGene,  // rsid
                me.globalApp.vepAF    // vep af
@@ -1576,7 +1851,11 @@ class SampleModel {
                       return;
                     }
 
+                    // Set the gene object on each variant
                     theVcfData.gene = theGeneObject;
+                    theVcfData.features.forEach(function(variant) {
+                      variant.gene = theGeneObject;
+                    })
                     resultMap[model.relationship] = theVcfData;
 
                     if (!isBackground) {
@@ -1914,7 +2193,7 @@ class SampleModel {
           // ignore the affected info for this sample.  We already added it
           // to the list of samples to retrieve
 
-        } else if (info.model.getVcfSampleName() && me._otherSampleInThisVcf(info.model) ) {
+        } else if (info.model.getVcfSampleName() && me.doesContainOtherSample(info.model) ) {
           // If the 'other' sample exists in the sample multi-sample vcf as this sample,
           // add it to the list of samples to retrieve.  For example, an affected sib could be in the
           // mother's vcf file.   In this case, we will retreive both the mother and affected sib at
@@ -1934,27 +2213,16 @@ class SampleModel {
 
   }
 
-  _otherSampleInThisVcf(otherModel) {
-    var me = this;
-    var theVcfs = {};
+  doesContainOtherSample(otherModel) {
+    let self = this;
+    let hasSample = false;
 
-    var pushVcfFile = function(model) {
-      if (model.vcfUrlEntered) {
-        theVcfs[model.vcf.getVcfURL()] = true;
-      } else {
-        theVcfs[model.vcf.getVcfFile().name] = true;
-      }
+    if (self.samples && otherModel.sampleName) {
+      hasSample = self.samples.indexOf(otherModel.sampleName) >= 0;
     }
 
-    pushVcfFile(me);
-    pushVcfFile(otherModel);
-
-    return Object.keys(theVcfs).length == 1;
+    return hasSample;
   }
-
-
-
-
 
 
   _pileupVariants(features, start, end) {
@@ -1965,10 +2233,15 @@ class SampleModel {
       v.level = 0;
     });
 
+    let currVcf = me.vcf;
+    if (me.name === 'SFARI') {
+      currVcf = me.sfariVcfs[0];
+    }
+
     var featureWidth = me.isEduMode || me.isBasicMode ? me.globalApp.eduModeVariantSize : 4;
     var posToPixelFactor = Math.round((end - start) / width);
     var widthFactor = featureWidth + ( me.isEduMode || me.isBasicMode ? me.globalApp.eduModeVariantSize * 2 : 4);
-    var maxLevel = this.vcf.pileupVcfRecords(theFeatures, start, posToPixelFactor, widthFactor);
+    var maxLevel = currVcf.pileupVcfRecords(theFeatures, start, posToPixelFactor, widthFactor);
     if ( maxLevel > 30) {
       for(var i = 1; i < posToPixelFactor; i++) {
         // TODO:  Devise a more sensible approach to setting the min width.  We want the
@@ -1987,7 +2260,7 @@ class SampleModel {
             v.level = 0;
         });
         var factor = posToPixelFactor / (i * 2);
-        maxLevel = me.vcf.pileupVcfRecords(theFeatures, start, factor, featureWidth + 1);
+        maxLevel = currVcf.pileupVcfRecords(theFeatures, start, factor, featureWidth + 1);
         if (maxLevel <= 50) {
           i = posToPixelFactor;
           break;
@@ -2143,7 +2416,7 @@ class SampleModel {
           // add clinVar info to variant if it matches
           if (recs[vcfIter].clinvarAlt == clinVarAlt &&
             recs[vcfIter].clinvarRef == clinVarRef) {
-            me._addClinVarInfoToVariant(recs[vcfIter], clinVars[uid]);
+            me._addClinvarEutilInfoToVariant(recs[vcfIter], clinVars[uid]);
             vcfIter++;
             clinvarIter++;
           } else {
@@ -2193,7 +2466,7 @@ class SampleModel {
             recs[vcfIter].ref == clinvarRec.ref) {
             var variant = recs[vcfIter];
 
-            var result = me.vcf.parseClinvarInfo(clinvarRec.info, me.getTranslator().clinvarMap);
+            var result = me.vcf.parseClinvarInfo(clinvarRec, me.getTranslator().clinvarMap);
             for (var key in result) {
               variant[key] = result[key];
             }
@@ -2228,17 +2501,17 @@ class SampleModel {
   }
 
 
-  _addClinVarInfoToVariant(variant, clinvar) {
+  _addClinvarEutilInfoToVariant(variant, clinvar) {
     var me = this;
-    variant.clinVarUid = clinvar.uid;
+    variant.clinvarUid = clinvar.uid;
 
-    if (!variant.clinVarAccession) {
-      variant.clinVarAccession = clinvar.accession;
+    if (!variant.clinvarAccession) {
+      variant.clinvarAccession = clinvar.accession;
     }
 
-    var clinSigObject = variant.clinVarClinicalSignificance;
+    var clinSigObject = variant.clinvarClinSig;
     if (clinSigObject == null) {
-      variant.clinVarClinicalSignificance = {"none": "0"};
+      variant.clinvarClinSig = {"none": "0"};
     }
 
     var clinSigString = clinvar.clinical_significance.description;
@@ -2248,7 +2521,7 @@ class SampleModel {
       if (clinSigToken != "") {
         // Replace space with underlink
         clinSigToken = clinSigToken.split(" ").join("_").toLowerCase();
-        variant.clinVarClinicalSignificance[clinSigToken] = idx.toString();
+        variant.clinvarClinSig[clinSigToken] = idx.toString();
         idx++;
 
         // Get the clinvar "classification" for the highest ranked clinvar
@@ -2267,9 +2540,9 @@ class SampleModel {
 
 
 
-    var phenotype = variant.clinVarPhenotype;
-    if (phenotype == null) {
-      variant.clinVarPhenotype = {};
+
+    if (variant.clinvarTrait == null) {
+      variant.clinvarTrait = {};
     }
 
     var phTokens = clinvar.trait_set.map(function(d) { return d.trait_name; }).join ('; ')
@@ -2279,7 +2552,7 @@ class SampleModel {
       tokens.forEach(function(phToken) {
         // Replace space with underlink
         phToken = phToken.split(" ").join("_");
-        variant.clinVarPhenotype[phToken.toLowerCase()] = idx.toString();
+        variant.clinvarTrait[phToken.toLowerCase()] = idx.toString();
         idx++;
       });
     }
@@ -2451,8 +2724,10 @@ class SampleModel {
       return;
     }
 
-    if (me.relationship == 'known-variants') {
+    if (me.relationship === 'known-variants') {
       return me.filterKnownVariants(data, start, end, bypassRangeFilter);
+    } else if (me.relationship === 'sfari-variants') {
+      return me.filterSfariVariants(data, start, end, bypassRangeFilter);
     }
 
 
@@ -2725,6 +3000,52 @@ class SampleModel {
     return vcfDataFiltered;
   }
 
+  filterSfariVariants(data, start, end, bypassRangeFilter, filterModel) {
+      var me = this;
+
+      var theFilters = filterModel.getModelSpecificFilters('sfari-variants').filter(function(theFilter) {
+          return theFilter.value === true;
+      })
+
+      var filteredVariants = data.features.filter(function (d) {
+
+          var meetsRegion = true;
+          if (!bypassRangeFilter) {
+              if (start != null && end != null ) {
+                  meetsRegion = (d.start >= start && d.start <= end);
+              }
+          }
+
+          var meetsFilter = true;
+          if (theFilters.length > 0) {
+              var meetsFilter = false;
+              theFilters.forEach( function(theFilter) {
+                  if (d[theFilter.key] == theFilter.clazz) {
+                      meetsFilter = true;
+                  }
+              });
+          }
+
+          return meetsRegion && meetsFilter;
+
+      });
+
+      var pileupObject = this._pileupVariants(filteredVariants, start, end);
+
+      var vcfDataFiltered = {
+          intronsExcludedCount: 0,
+          end: end,
+          features: filteredVariants,
+          maxLevel: pileupObject.maxLevel + 1,
+          featureWidth: pileupObject.featureWidth,
+          name: data.name,
+          start: start,
+          strand: data.strand,
+          variantRegionStart: start,
+          genericAnnotators: data.genericAnnotators
+      };
+      return vcfDataFiltered;
+  }
 
 
 
@@ -3064,18 +3385,12 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
 
   dangerCounts.featureCount = theVcfData.features.length;
   dangerCounts.loadedCount  = theVcfData.features.filter(function(d) {
-    if (d.hasOwnProperty('zygosity') && d.zygosity != null) {
-      return d.zygosity.toUpperCase() != 'HOMREF' && !d.hasOwnProperty("fbCalled") || d.fbCalled != 'Y';
-    } else {
-      return !d.hasOwnProperty("fbCalled") || d.fbCalled != 'Y';
-    }
+    var bypassZyg = SampleModel.isZygosityToBypass(d, 'proband');
+    return (!d.hasOwnProperty("fbCalled") || d.fbCalled != 'Y') && !bypassZyg;
   }).length;
   dangerCounts.calledCount  = theVcfData.features.filter(function(d) {
-    if (d.hasOwnProperty('zygosity') && d.zygosity != null) {
-      return d.zygosity.toUpperCase() != 'HOMREF' && d.hasOwnProperty("fbCalled") && d.fbCalled == 'Y';
-    } else {
-      return d.hasOwnProperty("fbCalled") && d.fbCalled == 'Y';
-    }
+    var bypassZyg = SampleModel.isZygosityToBypass(d, 'proband');
+    return d.hasOwnProperty("fbCalled") && d.fbCalled == 'Y' && !bypassZyg;
   }).length;
 
   // Indicate if the gene pass the filter (if applicable)
@@ -3083,6 +3398,15 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
 
   return dangerCounts;
 }
+
+SampleModel.isZygosityToBypass = function(variant, relationship) {
+  return variant.zygosity == null
+         || variant.zygosity.toUpperCase() == "HOMREF"
+         || variant.zygosity.toUpperCase() == "NONE"
+         || (variant.zygosity.toUpperCase() == "GT_UNKNOWN" && relationship != 'known-variants')
+         || variant.zygosity == "";
+}
+
 
 
 SampleModel._determineAffectedStatusForVariant = function(variant, affectedStatus, affectedInfo) {

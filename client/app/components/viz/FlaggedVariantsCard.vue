@@ -2,6 +2,22 @@
 @import ../../../assets/sass/variables
 
 #flagged-variants-card
+  padding-left: 5px
+  padding-bottom: 20px
+
+  .gene-ranks
+    .chip
+      margin-top: 0px
+      margin-bottom: 2px
+      margin-left: 0px
+    .chip__content
+      font-size:  11px
+      background-color:  $info-chip-color
+      height: 16px
+      padding-left: 4px
+      padding-right: 4px
+      color:  $text-color
+
 
   #clinvar-symbol
     display: inline-block
@@ -14,34 +30,40 @@
     padding-right: 20px
     background-color: white
     margin-bottom: 20px
+    margin-top: 20px
 
     #mygene2-basic-title
       word-break: break-word
       display: inline-block
       white-space: normal
       line-height: 18px
+      margin-left: 10px
+      margin-right: 10px
+      color: $text-color
+      margin-bottom: 10px
 
-    #close-button
-      padding-right: 0px
-      position: absolute
-      right: 0px
-      display: inline-block
-      margin-left: 0px
-      min-width: 22px
-      margin-top: 0px
-      top: 5px
 
-      i.material-icons
-        font-size: 22px
 
     .toolbar__title
       font-family: inherit
       font-size: 15px
       min-width: initial
-      padding-right: 30px
       padding-top: 10px
       display: inline-block
       color:  $text-color
+      margin-top: 5px
+      margin-left: 0px
+      padding-right: 0px
+
+      span
+        padding-right: 30px
+        margin-left: 8px
+        white-space: normal
+        font-size: 14px
+        line-height: 15px
+        display: inline-block
+        color: $app-color
+
 
     .toolbar-button
       min-width: 70px
@@ -78,22 +100,86 @@
 
   .gene-list
 
+
+  .expansion-panel
+    -webkit-box-shadow : none
+    box-shadow: none
+
+  .expansion-panel__body
+    padding-left: 3px
+    padding-right: 4px
+
+
+
+  li.selected
+    border-color: $current-color
+    border-width: 2px
+    border-style: solid
+    border-radius: 4px
+
   .subheader
     color: $text-color
     height: initial
+    padding: 0 6px 0 6px
 
     span
       width: 100%
-      text-align: left;
-      margin-left: -2px;
+      text-align: center
+      background-color: #f2f1f1
+
+  .expansion-panel__header
+    border-top: #e1e1e1
+    border-top-style: solid
+    border-top-width: 1px
+    padding:  12px 10px 10px 2px
+    background-color: #e9eaeb
+
+    .header__icon
+      i.material-icons
+        color: $app-color
+
+  .expansion-panel__container
+    border-top: none
+
+
+    .badge
+      background-color: transparent
+
+      span.filter-label
+        color: $app-color
+        border-color: none
+        font-size: 15px
+        font-weight: normal
+        display: inline-block
+        text-align: left
+
+
+    .badge__badge.primary
+      background-color: $light-badge-color !important
+      font-size: 10px
+      color: white
+      top: 2px
+      width: 17px
+      height: 17px
+
+
+  .filter-variant-count
+    float: right
+    padding-right: 8px
+    font-size: 12px
+    color: $text-color
 
   .list--three-line
-    margin-bottom: 30px
+    margin-bottom: 10px
     padding-top: 5px
+
+    .filter-subheader
+      margin-left: -20px
+
     .subheader
       height: initial
       font-size: 13px
-      margin-left: -3px
+      margin-left: 0px
       text-color: $text-color
       margin-top: 5px
       padding: 0 12px 0 5px
@@ -103,7 +189,7 @@
       height: 32px !important
 
     li
-      margin-left: 10px
+      margin-left: 0px
 
     .list__tile__avatar
       margin-left: 0px
@@ -122,7 +208,7 @@
     .list__tile
       padding: 0px
       height: initial
-      padding-left: 3px
+      padding-left: 0px
       padding-top: 10px
 
     .list__tile__avatar
@@ -133,11 +219,12 @@
       line-height: 18px
 
     .list__tile__title
-      height: 22px
-      line-height: 22px
+      height: auto
+      line-height: 18px
+      padding-bottom: 5px
 
     .variant-number
-      margin-right: 4px
+      margin-right: 0px
       margin-left: 0px
       display: inline-block
       vertical-align: top
@@ -152,7 +239,39 @@
         justify-content: space-around
         padding: 0px
         font-size: 11px
-        background-color: $light-badge-color
+        background-color: transparent
+        color: $text-color
+        border: #d5d5d5 solid thin
+
+    #select-interpretation
+      width: 22px
+
+    .af-small
+      display: inline-block
+      width: 50px
+      font-size: 12px
+      margin-left: 4px
+      vertical-align: top
+      padding-top: 0px
+      line-height: 12px
+
+      &.level-high
+        color: $high-impact-color  !important
+      &.level-medium
+        color: $moderate-impact-color !important
+
+    .revel
+      display: inline-block
+      vertical-align: top
+      font-size: 12px
+
+    .vep-consequence
+      display: inline-block
+      width: 133px
+      line-height: 12px
+      vertical-align: top
+      font-size: 12px
+      white-space: normal
 
     .variant-label
       font-size: 12px
@@ -171,11 +290,7 @@
         vertical-align: top
 
 
-      .vep-consequence
-        display: inline-block
-        width: 103px
-        line-height: 12px
-        vertical-align: top
+
       .rsid
         display: inline-block
         width: 103px
@@ -197,18 +312,32 @@
 
 
     .variant-symbols
-      .gene-name
+      .variant-moniker
+        width: 170px
         display: inline-block
-        vertical-align: top
-        width: 125px
-        font-weight: bold
-        font-size: 13px
 
-      .has-called-variants
-        font-size: 15px
-        color: $called-variant-color
-        margin-top: -3px
-        margin-left: 2px
+        .gene-name
+          display: inline-block
+          vertical-align: top
+          font-weight: bold
+          font-size: 13px
+          margin-right: 4px
+          padding-top: 2px
+
+        .variant-glyphs
+          display: inline-block
+          padding-top: 0px
+
+        .has-called-variants
+          font-size: 15px
+          color: $called-variant-color
+          margin-top: 0px
+          margin-left: 0px
+
+
+      .variant-notes
+        margin-top: -6px
+
 
 
 
@@ -272,6 +401,21 @@
     padding-right: 4px
 
 #flagged-variants-card.basic
+
+  .toolbar__title
+    margin-top: 0px
+    padding-top: 0px
+    padding-left: 3px
+
+  .expansion-panel
+    -webkit-box-shadow : none
+    box-shadow: none
+    margin-top: 0px
+
+
+  .expansion-panel__header
+    display: none
+
   .list--three-line
     li
       margin-left: 0px
@@ -285,51 +429,66 @@
   <v-card  style="padding: 0px" id="flagged-variants-card" :class="{basic: isBasicMode}">
 
 
-    <div class="variant-toolbar">
-      <v-btn id="close-button" class="toolbar-button" flat @click="$emit('close-left-drawer')">
-        <v-icon >close</v-icon>
-      </v-btn>
-      <v-toolbar-title >
-        <span v-show="!isBasicMode">
-          Variants
-        </span>
-        <span id="mygene2-basic-title" v-show="isBasicMode && flaggedVariants">
-          Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
-        </span>
-      </v-toolbar-title>
-      <v-btn  v-if="!isBasicMode" flat
+    <div class="variant-toolbar" >
+
+
+      <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
+        Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
+      </span>
+      <v-btn  v-if="!isBasicMode && !launchedFromClin" flat
         class="toolbar-button"
         @click="importInProgress = false;clearFileInputs();showOpenDialog = true">
         <v-icon>open_in_browser</v-icon>
         Open
       </v-btn>
 
-      <v-btn v-if="!isBasicMode && flaggedVariants && flaggedVariants.length > 0" flat
+      <v-btn v-if="!isBasicMode && !launchedFromClin && variantCount > 0" flat
         class="toolbar-button"
         @click="onClickSave">
         <v-icon>save</v-icon>
         Save
       </v-btn>
+
+
+
+
     </div>
 
 
-    <span id="mygene2-basic-none" v-show="isBasicMode && flaggedVariants && flaggedVariants.length == 0">
+    <span id="mygene2-basic-none" v-show="isBasicMode && variantCount == 0">
       (none)
     </span>
 
+    <div v-if="!isBasicMode && isFullAnalysis && variantCount != 0"
+      style="margin-top:-25px;margin-bottom:20px;margin-left:20px">
+        <interpretation-select  style="width:250px"
+        :interpretationMap="interpretationMap"
+        @apply-interpretation="onApplyInterpretationFilter">
+        </interpretation-select>
+    </div>
 
-    <template v-for="geneList in geneLists">
-      <v-subheader
-      :key="geneList.label"
-      v-if="geneList.show"
-      v-show="!isBasicMode"
-      class="gene-list"
-      >
-        <span v-show="geneList.genes.length > 0">
-          <filter-icon :icon="geneList.name"></filter-icon>
-          {{ geneList.label }}
+
+
+  <v-expansion-panel expand >
+    <v-expansion-panel-content v-for="geneList in geneLists"  :key="geneList.label"
+      :value="geneList.expand"
+      v-if="geneList.show">
+      <div slot="header" v-show="!isBasicMode">
+
+        <span v-show="geneList.genes.length > 0" class="filter-subheader">
+          <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
+
+
+          <v-badge>
+            <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
+            <span class="filter-label">{{ geneList.label }}</span>
+          </v-badge>
+
+
         </span>
-      </v-subheader>
+
+
+      </div>
       <v-list three-line>
         <template
          v-for="flaggedGene in geneList.genes">
@@ -337,17 +496,18 @@
           <!-- <v-subheader :key="flaggedGene.gene.gene_name">{{ flaggedGene.gene.gene_name }}</v-subheader>
         -->
 
-          <template v-for="(variant, index) in flaggedGene.variants">
+          <template v-for="variant in flaggedGene.variants">
 
             <v-list-tile
             :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
             ripple
+            :class="{selected: clickedVariant == variant ? true : false}"
             @click="onVariantSelected(variant)">
 
 
               <v-list-tile-avatar >
                <v-chip class="variant-number" >
-                {{ variant.index + 1 }}
+                {{ variant.ordinalFilter  }}
                </v-chip>
               </v-list-tile-avatar>
 
@@ -355,64 +515,149 @@
 
                 <v-list-tile-title>
 
-                  <div class="variant-symbols">
+                  <div style="float:left">
 
-                    <span class="gene-name"> {{ flaggedGene.gene.gene_name }}</span>
-                    <app-icon
-                     icon="clinvar"
-                     v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
-                     :level="clinvar(variant) == 'clinvar_path' ? 'high' : 'likely-high'"
-                     class="clinvar-badge" height="13" width="13">
-                    </app-icon>
 
-                    <app-icon
-                     :icon="variant.inheritance"
-                     v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
-                     class="inheritance-badge" height="15" width="15">
-                    </app-icon>
+                    <div class="variant-symbols">
 
-                    <app-icon
-                     icon="impact"
-                     :type="variant.type.toLowerCase()"
-                     :clazz="highestImpactClass(variant)"
-                     class="impact-badge" height="15" width="15">
-                    </app-icon>
+                      <span class="variant-moniker">
+                        <span class="gene-name"> {{ flaggedGene.gene.gene_name }}</span>
 
-                   <app-icon
-                     icon="zygosity" v-if="!isBasicMode"
-                     :type="zygosity(variant).toLowerCase()"
-                     height="14" width="24">
-                    </app-icon>
+                        <span class="variant-glyphs">
+                          <app-icon
+                           icon="clinvar"
+                           v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
+                           :level="clinvar(variant) == 'clinvar_path' ? 'high' : 'likely-high'"
+                           class="clinvar-badge" height="13" width="13">
+                          </app-icon>
 
-                    <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
-                      check_circle
-                    </v-icon>
+                          <app-icon
+                          style="width: 15px;height: 15px;display: inline-block;margin-top: 2px;"
+                           :icon="variant.inheritance"
+                           v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
+                           class="inheritance-badge" height="15" width="15">
+                          </app-icon>
+
+                          <app-icon
+                           icon="impact"
+                           v-if="false && variant.type"
+                           :type="variant.type.toLowerCase()"
+                           :clazz="highestImpactClass(variant)"
+                           class="impact-badge" height="15" width="11">
+                          </app-icon>
+
+                          <app-icon
+                           icon="zygosity" v-if="!isBasicMode && zygosity(variant).toLowerCase() == 'hom'"
+                           :type="zygosity(variant).toLowerCase()"
+                           height="14" width="24">
+                          </app-icon>
+                        </span>
+
+                        <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
+                          check_circle
+                        </v-icon>
+
+
+                      </span>
+
+
+
+                    </div>
+                    <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
+
+                      <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} GTR
+                        </v-chip>
+                      </span>
+                      <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }} Phenolyzer
+                        </v-chip>
+                      </span>
+                    </div>
+                    <div style="line-height:12px">
+                      <div  v-if="!isBasicMode && !variant.notFound"
+                      style="display:inline-block">
+                        <span class="vep-consequence">
+                          <span v-if="highestImpactRecs(variant).length == 0">
+                            {{ vepConsequence(variant) }}
+                          </span>
+
+                          <span
+                           v-for="(impactRec, idx) in highestImpactRecs(variant)" :key="impactRec.impact">
+                            <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
+                              {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
+                            </span>
+
+                          </span>
+
+                        </span>
+                        <span v-if="false" :class="getAfClass(variant)">{{ afDisplay(variant) }}</span>
+                      </div>
+                    </div>
+                    <div  v-if="!isBasicMode && !variant.notFound && launchedFromClin">
+                      <span class="revel">{{ revel(variant) }}</span>
+                    </div>
+                  </div>
+
+
+                  <div style="float-left;">
+
+                  <variant-interpretation
+                    style="float:left;"
+                     v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
+                     class="variant-notes"
+                     wrap="true"
+                     :interpretationMap="interpretationMap"
+                     :variant="variant"
+                     :variantInterpretation="variant.interpretation"
+                     @apply-variant-interpretation="onApplyVariantInterpretation">
+                  </variant-interpretation>
+
+                  <variant-notes-menu
+                    v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
+                    style="float:left;padding-top: 4px"
+                    class="variant-notes"
+                    :showNotesIcon="true"
+                    :variant="variant"
+                    :interpretationMap="interpretationMap"
+                    :variantInterpretation="variant.interpretation"
+                    :variantNotes="variant.notes"
+                    @apply-variant-notes="onApplyVariantNotes">
+                  </variant-notes-menu>
+
+                  <span v-if="variant.notFound && isFullAnalysis"
+                    class="coord"> {{ coord(flaggedGene, variant) }} </span>
+                  </span>
+
 
                   </div>
+
+
+
                 </v-list-tile-title>
 
-                <v-list-tile-sub-title >
+                <v-list-tile-sub-title v-if="isBasicMode" >
                   <div class="variant-label">
-                    <div style="display:inline-block;" >
+                    <div v-if="isBasicMode" style="display:inline-block;" >
                       <span class="coord"> {{ coord(flaggedGene, variant) }} </span>
                     </div>
                     <div style="display:inline-block;vertical-align:top">
                       <span class="vep-consequence">{{ vepConsequence(variant) }}</span>
                     </div>
-                    <span class="af">{{ afDisplay(variant) }}</span>
+                    <span v-if="isBasicMode" class="af">{{ afDisplay(variant) }}</span>
                   </div>
                   <div class="variant-label" v-if="isBasicMode">
                     <div style="display:inline-block;" >
                       <span class="hgvsc">  {{ hgvsC(variant) }} </span>
                     </div>
                   </div>
-                  <div class="variant-label">
-                    <div style="display:inline-block;" >
+                  <div class="variant-label" >
+                    <div style="display:inline-block;" v-if="isBasicMode" >
                       <span class="hgvsp">  {{ hgvsP(variant) }} </span>
                     </div>
-                    <div style="display:inline-block;vertical-align:top">
-                      <span v-if="!isBasicMode" class="rsid">{{ rsId(variant) }}</span>
-                    </div>
+
                   </div>
                 </v-list-tile-sub-title>
 
@@ -425,7 +670,8 @@
 
         </template>
       </v-list>
-    </template>
+    </v-expansion-panel-content>
+  </v-expansion-panel>
 
     <v-menu
     offset-y
@@ -437,7 +683,7 @@
 
 
 
-      <v-card>
+      <v-card class="full-width">
         <v-card-title class="headline">Open variants file</v-card-title>
         <v-card-text class="variant-file-body">
           <div id="open-variant-file" >
@@ -499,7 +745,7 @@
     v-model="showSaveDialog"
     >
 
-      <v-card>
+      <v-card class="full-width">
         <v-card-title class="headline">
          Save variants file
         </v-card-title>
@@ -547,6 +793,9 @@
 import FileChooser from '../partials/FileChooser.vue'
 import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
+import VariantNotesMenu from '../partials/VariantNotesMenu.vue'
+import VariantInterpretation from '../partials/VariantInterpretation.vue'
+import InterpretationSelect from '../partials/InterpretationSelect.vue'
 
 
 export default {
@@ -554,14 +803,23 @@ export default {
   components: {
     FileChooser,
     AppIcon,
-    FilterIcon
+    FilterIcon,
+    VariantNotesMenu,
+    VariantInterpretation,
+    InterpretationSelect
   },
   props: {
     isEduMode: null,
     isBasicMode: null,
-    flaggedVariants: null,
+    forMyGene2: null,
+    activeFilterName: null,
     cohortModel: null,
-    launchedFromClin: null
+    launchedFromClin: null,
+    isFullAnalysis: null,
+    geneNames: null,
+    genesInProgress: null,
+    interpretationMap: null,
+    toClickVariant: null
   },
   data() {
     return {
@@ -572,11 +830,19 @@ export default {
       readyToDownload: false,
       importInProgress: false,
       exportInProgress: false,
-      geneLists: null
+      geneLists: null,
+      clickedVariant: null,
+      variantCount: 0,
+      interpretationFilters: null
     }
   },
   methods: {
+    onApplyInterpretationFilter: function(interpretation) {
+      this.interpretationFilters = interpretation
+      this.populateGeneLists();
+    },
     onVariantSelected: function(variant) {
+      this.clickedVariant = variant;
       this.$emit("flagged-variant-selected", variant);
     },
     onFileSelected: function(fileSelection) {
@@ -591,15 +857,7 @@ export default {
     },
     onClickSave: function() {
       let self = this;
-      if (self.launchedFromClin) {
-        self.sendVariantsToClin();
-      } else {
-        self.showSaveDialog = true;
-      }
-    },
-    sendVariantsToClin: function() {
-      let self = this;
-      self.$emit('send-flagged-variants-to-clin');
+      self.showSaveDialog = true;
     },
     onSaveFile: function() {
       let self = this;
@@ -626,18 +884,28 @@ export default {
     populateGeneLists: function() {
       let self = this;
       self.geneLists = [];
+      self.variantCount = 0;
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene();
-      self.geneLists = filters.map(function(filterObject) {
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters);
+      self.geneLists = filters.map(function(filterObject, idx) {
+        self.variantCount += filterObject.variantCount;
         return {
           name:  filterObject.key,
           label: filterObject.filter.title,
           show:  filterObject.genes.length > 0,
-          genes: filterObject.genes
+          genes: filterObject.genes,
+          variantCount: filterObject.variantCount,
+          expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' || idx == 0 ?  true : false) : true
         }
       })
+      self.$emit("count-changed", self.variantCount);
     },
-
+    onApplyVariantNotes: function(variant) {
+      this.$emit("apply-variant-notes", variant);
+    },
+    onApplyVariantInterpretation: function(variant) {
+      this.$emit("apply-variant-interpretation", variant);
+    },
 
 
     coord: function(flaggedGene, variant) {
@@ -654,7 +922,7 @@ export default {
           return "";
         }
       } else {
-        return variant.clinvar;
+        return variant.clinvar ? variant.clinvar : "";
       }
     },
     rsId: function(variant) {
@@ -662,6 +930,17 @@ export default {
         return variant.rsId;
       } else {
         return this.globalApp.utility.getRsId(variant);
+      }
+    },
+    revel: function(variant) {
+      if (variant.isProxy) {
+        return variant.REVEL && variant.REVEL.length > 0 ?  "REVEL " + variant.REVEL : "";
+      } else {
+        if (variant.vepREVEL && Object.keys(variant.vepREVEL).join(",").length > 0) {
+          return "REVEL " + Object.keys(variant.vepREVEL).join(",");
+        } else {
+          return "";
+        }
       }
     },
     hgvsP: function(variant) {
@@ -690,14 +969,38 @@ export default {
       if (variant.isProxy) {
         clazz += " impact_" + (variant.impact && variant.impact.length > 0 ? variant.impact.toUpperCase() : 'none');
       } else {
-        for (var impact in variant.highestImpactVep) {
-          if (clazz.length > 0) {
-            clazz += " ";
+        if (variant.highestImpactVep) {
+          for (var impact in variant.highestImpactVep) {
+            if (clazz.length > 0) {
+              clazz += " ";
+            }
+            clazz += "impact_" + impact.toUpperCase();
           }
-          clazz += "impact_" + impact.toUpperCase();
         }
       }
       return clazz;
+    },
+    highestImpactRecs: function(variant) {
+      let self = this;
+      let info = {};
+      this.globalApp.utility.formatHighestImpactInfo(variant, info, self.cohortModel.translator);
+      return info.vepHighestImpactRecs;
+    },
+    getNonCanonicalImpactDisplay: function(idx, impactRec) {
+      let buf = "";
+      if (idx > 0) {
+        buf += " | ";
+      }
+      buf += impactRec.impact.toLowerCase() + ' impact - ';
+      return buf;
+    },
+    getNonCanonicalEffectDisplay: function(idx, effectRec) {
+      let buf = "";
+      if (idx > 0) {
+        buf += " ,";
+      }
+      buf += effectRec.display + " in non-canonical transcripts ";
+      return buf;
     },
     afDisplay: function(variant) {
       var label = this.isBasicMode ? "freq " : "af ";
@@ -709,11 +1012,48 @@ export default {
     },
     zygosity: function(variant) {
       if (variant.isProxy) {
-        return variant.zygosityProband.toUpperCase();
+        return variant.zygosityProband ? variant.zygosityProband.toUpperCase() : (variant.zygosity ? variant.zygosity.toUpperCase() : "");
       } else {
-        return variant.zygosity.toUpperCase();
+        return variant.zygosity ? variant.zygosity.toUpperCase() : "";
       }
-    }
+    },
+    getAfClass: function(variant) {
+      let af = null;
+      if (variant.isProxy) {
+        af = variant.afgnomAD ? variant.afgnomAD : 0;
+      } else {
+        af = variant.afHighest ? variant.afHighest : 0;
+      }
+
+      if (af <= .01) {
+        return 'af-small level-high';
+      } else if (af <= .05) {
+        return 'af-small level-medium';
+      } else {
+        return '';
+      }
+    },
+    geneRankGTR: function(geneName) {
+      let rankInfo = this.cohortModel.geneModel.getGeneRank(geneName);
+      let buf = "";
+      if (rankInfo) {
+        if (rankInfo.gtrRank) {
+          buf += "#" + rankInfo.gtrRank;
+        }
+      }
+      return buf;
+    },
+    geneRankPhenolyzer: function(geneName) {
+      let rankInfo = this.cohortModel.geneModel.getGeneRank(geneName);
+      let buf = "";
+      if (rankInfo) {
+        if (rankInfo.phenolyzerRank) {
+          buf += "#" + rankInfo.phenolyzerRank;
+        }
+      }
+      return buf;
+    },
+
   },
   mounted: function() {
 
@@ -722,9 +1062,15 @@ export default {
 
   },
   watch: {
-    flaggedVariants: function() {
-      let self = this;
-      self.populateGeneLists();
+    geneNames: function(newGeneNames, oldGeneNames) {
+      this.populateGeneLists();
+    },
+    isFullAnalysis: function() {
+      this.populateGeneLists();
+    },
+    toClickVariant: function() {
+      this.populateGeneLists();
+      this.clickedVariant = this.toClickVariant;
     }
   }
 }

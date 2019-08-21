@@ -101,6 +101,9 @@
     padding-top: 2px
     display: inline-block
 
+.legend-title
+  color:  $app-color
+
 </style>
 
 <template>
@@ -108,14 +111,14 @@
 
 
 
-    <div :style="isBasicMode ? 'margin-bottom:5px;' : 'margin-bottom:20px'">
+    <div class="legend-title" :style="isBasicMode ? 'margin-bottom:10px;' : 'margin-bottom:20px'">
     Legend
     </div>
     <div style="display:flex;flex-wrap:wrap;justify-content:flex-start">
 
 
       <div v-if="isBasicMode" style="text-align:left;margin-right:10px">
-        <div class="legend-label" style="width:130px">Exon (coding region)</div>
+        <div class="legend-label" style="width:150px">Exon (coding region)</div>
         <svg id="exon" class="exon-symbol legend-element pl-4" width="130" height="30">
           <rect class="legend-symbol exon" rx="1" ry="1" x="25" width="9" y="4" height="24">
           </rect>
@@ -199,7 +202,7 @@
 
 
 
-      <div class="clinvar-legend" style="width:140px;margin-right:10px;margin-bottom:15px">
+      <div class="clinvar-legend" style="width:150px;margin-right:10px;margin-bottom:15px">
           <div class="legend-label">Clinvar</div>
 
           <legend-icon

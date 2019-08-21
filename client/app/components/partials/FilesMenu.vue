@@ -6,7 +6,8 @@
   >form
     margin-left: 30px
     margin-right: 30px
-    max-width: 720px
+    max-width: 780px
+    min-width: 780px
     font-size: 12px !important
 
   .input-group.radio
@@ -56,6 +57,17 @@
       display: inline-block
       width: 100px
 
+  button
+
+    padding: 0px
+    height: 20px !important
+    min-width: 77px
+
+    &.action-button
+
+      height: 30px !important
+      min-width: 77px
+
 </style>
 </style>
 
@@ -75,9 +87,9 @@
 
     <v-form id="files-form">
 
-      <v-layout row wrap class="mt-2">
+      <v-layout row nowrap class="mt-2">
 
-        <v-flex xs2  >
+        <v-flex  >
             <v-radio-group v-model="mode" @change="onModeChanged"  hide-details column>
                   <v-radio label="Single"  value="single"></v-radio>
                   <v-radio label="Trio"    value="trio"></v-radio>
@@ -90,7 +102,7 @@
         </v-flex>
 
 
-        <v-flex xs2 class="px-2">
+        <v-flex  >
           <v-select
             label="Species"
             hide-details
@@ -99,7 +111,7 @@
           ></v-select>
         </v-flex>
 
-        <v-flex xs2 class="px-2">
+        <v-flex  class="ml-2">
           <v-select
             label="Genome Build"
             hide-details
@@ -108,7 +120,7 @@
           ></v-select>
          </v-flex>
 
-        <v-flex xs3>
+        <v-flex class="ml-2">
             <v-select
               :items="demoActions"
               item-value="value"
@@ -120,8 +132,10 @@
               label="Demo data"></v-select>
         </v-flex>
 
+      </v-layout>
 
 
+      <v-layout row wrap class="mt-3">
 
 
 
@@ -142,15 +156,18 @@
           </sample-data>
          </v-flex>
 
+      </v-layout >
 
-         <v-flex xs2 class="sample-label mt-3 pl-2 pr-3" >
+      <v-layout row nowrap class="mt-2">
+
+         <v-flex  class="sample-label mt-3 pl-2 pr-3" >
           <span v-if="probandSamples && probandSamples.length > 0"
            dark small >
             siblings
           </span>
          </v-flex>
 
-         <v-flex xs5 class=" pl-2 pr-3" >
+         <v-flex  class=" pl-2 pr-3" >
            <v-select
             v-if="probandSamples && probandSamples.length > 0"
             v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
@@ -164,7 +181,7 @@
           </v-select>
          </v-flex>
 
-         <v-flex xs5  class="pr-2">
+         <v-flex   class="pr-2">
            <v-select
             v-if="probandSamples && probandSamples.length > 0"
             v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
@@ -177,20 +194,22 @@
             >
           </v-select>
          </v-flex>
+      </v-layout>
 
+      <v-layout row nowrap class="mt-2">
 
 
         <v-flex xs12 class="mt-2 text-xs-right">
           <div class="loader" v-show="inProgress">
             <img src="../../../assets/images/wheel.gif">
           </div>
-          <v-btn
+          <v-btn class="action-button"
             @click="onLoad"
             :disabled="!isValid">
             Load
           </v-btn>
 
-          <v-btn @click="onCancel">
+          <v-btn class="action-button" @click="onCancel">
            Cancel
          </v-btn>
         </v-flex>
@@ -380,6 +399,9 @@ export default {
             return sampleModel.sampleName;
           })
         }
+      }
+      if (samples && samples.length > 0 && this.getModel(relationship)) {
+        this.getModel(relationship).samples = samples;
       }
     },
     getModel: function(relationship) {

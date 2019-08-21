@@ -33,7 +33,7 @@
       :forceSelect="true"
       :preselect="false"/>
     </v-flex>
-    <v-flex id="phenolyzer-top-input" style="display:inline-block;max-width:60px;width:60px;margin-left:5px;padding-top:4px">
+    <v-flex id="phenolyzer-top-input" style="display:inline-block;max-width:60px;width:60px;margin-left:5px;">
       <v-select
       v-model="phenolyzerTop"
       label="Genes"
@@ -69,6 +69,8 @@ export default {
     defaultTopGenes: null,
     phenotypeLabel: null,
     classAttention: null,
+    phenotypeLookupUrl: null,
+    lastPhenotypeTermEntered: null
   },
   data () {
     return {
@@ -99,6 +101,11 @@ export default {
       let self = this;
       if (self.phenotypeTerm && self.phenotypeTerm.value) {
         self.onSearch();
+      }
+    },
+    lastPhenotypeTermEntered: function() {
+      if (this.lastPhenotypeTermEntered != null) {
+        this.phenotypeTermEntered = this.lastPhenotypeTermEntered;
       }
     }
   },
@@ -193,7 +200,7 @@ export default {
       let self = this;
 
       $.ajax({
-          url: self.globalApp.hpoLookupUrl + encodeURIComponent(term),
+          url: self.phenotypeLookupUrl + encodeURIComponent(term),
           type: 'GET',
           error: function() {
               done([])

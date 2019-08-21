@@ -151,13 +151,15 @@ export default {
     },
     data() {
       return {
-        depthChart: {}
+        depthChart: {},
+        regionSpan: null
       }
     },
     created: function() {
     },
     mounted: function() {
       this.draw();
+      this.regionSpan = this.regionStart + "-" + this.regionEnd;
     },
     methods: {
       draw: function() {
@@ -208,6 +210,8 @@ export default {
           self.depthChart.height(self.height);
           var selection = d3.select(self.$el).datum( self.data );
           self.depthChart(selection);
+
+
         } else {
           $(self.$el).addClass("hide");
           var selection = d3.select(self.$el).datum( [[0,0]] );
@@ -222,19 +226,32 @@ export default {
       },
       hideCurrentPoint: function(point) {
         this.depthChart.hideCircle()();
-      }
-    },
-    watch: {
-      data: function() {
-        this.update();
       },
-      coverageDangerRegions: function() {
+      refreshDangerRegions: function() {
         let self = this;
         self.depthChart.highlightRegions(self.coverageDangerRegions,
           {},
           self.regionStart,
           self.regionEnd,
           self.coverageMedian);
+      }
+    },
+    watch: {
+      data: function() {
+        this.update();
+      },
+
+      regionStart: function() {
+        this.regionSpan = this.regionStart + "-" + this.regionEnd;
+      },
+      regionEnd: function() {
+        this.regionSpan = this.regionStart + "-" + this.regionEnd;
+      },
+      regionSpan: function() {
+        this.refreshDangerRegions();
+      },
+      coverageDangerRegions: function() {
+        this.refreshDangerRegions();
       }
     }
 }

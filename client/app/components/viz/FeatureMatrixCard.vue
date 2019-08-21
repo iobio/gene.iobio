@@ -8,6 +8,9 @@
 #matrix-card
   margin-bottom: 0px !important
 
+  .label-warning
+      max-width: 120px
+
   #show-legend
       margin-left: 40px
       i
@@ -60,8 +63,8 @@
 <template>
 
   <v-card tile id="matrix-card" class="app-card">
-    <div style="width:100%">
-        <span style="float:left">
+    <div v-if="false" style="width:100%">
+        <span  style="float:left">
           Ranked Variants for {{ selectedGene.gene_name }}
         </span>
         <div id="rank-variants-title" class="hide card-label" style="">Evaluate Variants</div>
@@ -82,7 +85,7 @@
 
     </div>
 
-    <div style="clear:both;width:100%;margin-top:-10px">
+    <div style="clear:both;width:100%;margin-top:-5px">
 
 
       <div id="matrix-panel"  style="clear:both;min-height:30px"
@@ -122,7 +125,7 @@
         <div id="feature-matrix-note" v-bind:class="{ hide: featureMatrixModel.rankedVariants.length == 0 }" >
 
           <div style="display:inline-block;margin-left:110px">
-            <svg style="height: 10px;width:108px">
+            <svg height="10" width="108" style="height: 10px;width:108px">
               <g transform="translate(8,6)">
                 <line x1="0" y1="0" x2="100" y2="0" style="stroke: lightgrey;stroke-width: 4;"></line>
               </g>

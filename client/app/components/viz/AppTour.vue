@@ -86,7 +86,6 @@ $tour-hilite-color:      #a5b941
       margin-left: -15px
       margin-right: 40% !important
       font-size: 28px
-      padding-top: 2px
       padding-bottom: 3px
       border-radius: 3px 3px 3px 3px
 
@@ -123,10 +122,11 @@ $tour-hilite-color:      #a5b941
       margin-left: 40% !important
       margin-right: 10px
       font-size: 28px
-      padding-top: 2px
       padding-bottom: 3px
       border-radius: 3px 3px 3px 3px
       visibility: visible
+      position: relative
+      top: 18px
 
       &:focus
         text-decoration: none !important

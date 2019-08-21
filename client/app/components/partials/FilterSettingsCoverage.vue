@@ -16,15 +16,15 @@
             Coverage Thresholds
         </v-flex>
 
-        <v-flex  xs4 class="coverage-threshold mb-3 pr-4" >
+        <v-flex  xs3 class="coverage-threshold mb-3 pr-4" >
             <v-text-field label="Min"  suffix="X" v-model="minCoverage" hide-details>
             </v-text-field>
         </v-flex>
-        <v-flex  xs4 class="coverage-threshold mb-3 pr-4" >
-            <v-text-field label="Mean"  suffix="X" v-model="medianCoverage" hide-details>
+        <v-flex  xs3 class="coverage-threshold mb-3 pr-4" >
+            <v-text-field label="Mean"  suffix="X" v-model="meanCoverage" hide-details>
             </v-text-field>
         </v-flex>
-        <v-flex  xs4 class="coverage-threshold mb-3" >
+        <v-flex  xs3 class="coverage-threshold mb-3" >
             <v-text-field label="Median"  suffix="X" v-model="medianCoverage" hide-details>
             </v-text-field>
         </v-flex>
@@ -62,9 +62,9 @@ export default {
       this.medianCoverage            = this.filterModel.geneCoverageMedian;
     },
     apply: function() {
-      this.filterModel.geneCoverageMin         = this.minCoverage;
-      this.filterModel.geneCoverageMean        = this.meanCoverage;
-      this.filterModel.geneCoverageMedian      = this.medianCoverage;
+      this.filterModel.geneCoverageMin         = +this.minCoverage;
+      this.filterModel.geneCoverageMean        = +this.meanCoverage;
+      this.filterModel.geneCoverageMedian      = +this.medianCoverage;
     }
   },
   computed: {

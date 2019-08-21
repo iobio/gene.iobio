@@ -3,6 +3,46 @@
 
 
 #genes-card
+  margin: 0px
+  padding: 0px
+
+  #gene-count-badges
+    text-align: center
+
+  .optional-track-switch
+    padding: 0px
+    width: 130px
+    display: inline-block
+    float: left
+    vertical-align: top
+    text-align: left
+    padding-top: 16px
+    margin-left: 30px
+
+    label
+      padding-left: 7px
+      line-height: 18px
+      font-size: 13px
+      font-weight: normal
+      padding-top: 2px
+      color: $text-color
+
+    &.clin
+      margin-left: 0px
+      margin-top: 5px
+
+    &.full-analysis
+      margin-top: 0px
+      padding-top: 0px
+      margin-left: 0px
+      margin-bottom: 5px
+
+
+  #analyze-all-buttons
+    float: left
+
+    &.clin
+      float: right
 
   #analyze-all-button
     display: inline-block
@@ -27,8 +67,8 @@
     padding: 0 4px
 
   #genes-toolbar
-    margin-top: 6px
-    margin-bottom: 10px
+    margin-top: 10px
+    margin-bottom: 0px
     display: inline-block
     width: 100%
     text-align: center
@@ -93,7 +133,13 @@
         margin: 1px 0
 
   #genes-panel
-    margin-top: 5px
+    text-align: center
+    margin-left: 40px
+
+    &.edu1
+      margin-top: -40px
+    &.basic
+      padding-top: 10px
 
   #genes-sort-dropdown
     display: inline-block
@@ -117,6 +163,7 @@
   #gene-badge-container
     max-height: 120px
     overflow-y: scroll
+
 
 
 
@@ -146,33 +193,54 @@ div.container.small
       width: 150px
       margin: auto
 
+
 #genes-card.edu
+  min-height: 55px
+
+#genes-card.edu, #genes-card.basic
   #gene-badge-container
     text-align: center
+
   #gene-badge
+    border: thin solid #e8e6e6
+    height: 28px
+
+    #gene-status
+      padding-left: 4px
+      width: initial
+
     #gene-badge-button
       height: 28px !important
       font-size: 18px !important
-      padding: 4px 6px 2px 6px !important
+      padding: 5px 6px 2px 6px !important
+      border: none
 
       #gene-badge-symbols
         display: none
+
     &.selected
-      border-left: $app-color solid 12px
+      border: 1.5px solid $current-color
       height: 28px
+
+#genes-card.basic
+  #gene-badge
+    height: 24px
+
+    #gene-badge-button
+      height: 24px !important
+      font-size: 14px !important
+      padding: 4px 6px 2px 6px !important
+
+
+    &.selected
+      border: 1.5px solid $app-color
+      height: 24px
 
 </style>
 
 <template>
-  <v-card tile id="genes-card" :class="{'app-card': true, 'edu' : isEduMode}" style="margin-left:0px;margin-right:0px;padding-left:0px;padding-right:0px;padding-top:0px;margin-bottom:0px">
+  <v-card tile id="genes-card" :class="{'app-card': true, 'edu' : isEduMode, 'basic' : isBasicMode}">
 
-    <v-progress-linear
-    v-if="analyzeAllInProgress || callAllInProgress"
-    id="analyzing-indeterminate-bar"
-    :indeterminate="true"
-    height="4"
-    >
-    </v-progress-linear>
 
     <div :style="isEduMode ? 'padding-top:5px;margin-bottom:-5px;margin-left:10px;margin-right:10px' : 'margin-left:10px;margin-right:10px'">
 
@@ -180,9 +248,10 @@ div.container.small
 
         <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
 
+            <span id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
 
               <v-btn  id="analyze-all-button"
-              v-if="isLoaded"
+              v-if="isLoaded && !isFullAnalysis"
               class="level-edu"
               raised
               @click="onAnalyzeAll"
@@ -192,7 +261,7 @@ div.container.small
 
 
               <v-btn
-              v-if="analyzeAllInProgress"
+              v-if="analyzeAllInProgress && !isFullAnalysis"
               class="stop-analysis-button"
               @click="onStopAnalysis" small raised
               v-tooltip.top-center="`Stop analysis`" >
@@ -201,7 +270,7 @@ div.container.small
 
 
               <div id="call-variants-dropdown"
-                v-if="isLoaded && hasAlignments"
+                v-if="isLoaded && hasAlignments && !isFullAnalysis"
               >
                 <v-menu offset-y>
                   <v-btn raised slot="activator"
@@ -215,16 +284,35 @@ div.container.small
               </div>
 
               <v-btn
-              v-if="callAllInProgress"
+              v-if="callAllInProgress && !isFullAnalysis"
               class="stop-analysis-button"
               @click="onStopAnalysis" small raised
               v-tooltip.top-center="`Stop calling variants`" >
                 <v-icon>stop</v-icon>
               </v-btn>
+            </span>
+
+            <v-switch
+              :class="{'optional-track-switch': true, 'full-analysis': isFullAnalysis, 'clin': launchedFromClin}"
+              v-if=" isLoaded && !isEduMode && !isBasicMode "
+              label="ClinVar track"
+              v-model="showKnownVariantsCard"
+              >
+            </v-switch>
+
+            <v-switch class="optional-track-switch"
+                      v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && showSfariTrackToggle"
+                      label="SFARI track"
+                      v-model="showSfariVariantsCard"
+            >
+            </v-switch>
 
 
-            <filter-badges v-if="isLoaded"
+            <filter-badges
              ref="filterBadgesRef"
+             v-if="!isFullAnalysis"
+             :style="isLoaded && !launchedFromClin ? 'margin-right: 200px' : ''"
+             :isFullAnalysis="isFullAnalysis"
              :badgeCounts="badgeCounts"
              :filterModel="filterModel"
              :showCoverageCutoffs="showCoverageCutoffs"
@@ -233,7 +321,7 @@ div.container.small
              @filter-settings-closed="onFilterSettingsClosed">
             </filter-badges>
 
-            <div id="analyze-genes-progress"
+            <div v-if="false" id="analyze-genes-progress"
             class="level-edu level-basic">
               <span v-if="geneNames.length > 0" id="total-genes-label">{{ geneNames.length }} genes</span>
               <div v-show="isLoaded &&  (analyzeAllInProgress || callAllInProgress)" id="analyzed-progress-bar" >
@@ -257,10 +345,12 @@ div.container.small
        id="app-tour-genes-menu"
        :geneModel="geneModel"
        :isEduMode="isEduMode"
+       :phenotypeLookupUrl="phenotypeLookupUrl"
        @apply-genes="onApplyGenes">
       </genes-menu>
 
-      <div id="genes-panel"  class="nav-center">
+      <div id="genes-panel" v-if="isEduMode || isBasicMode"
+        :class="{'nav-center': true, 'basic': isBasicMode, 'edu1': isEduMode && tourNumber == '1'}">
 
 
         <div id="gene-badge-container" class="level-basic" style="clear:both;">
@@ -273,6 +363,9 @@ div.container.small
            :gene="gene"
            :phenotypes="geneModel.genePhenotypes[gene.name]"
            :selectedGene="selectedGene"
+           :isEduMode="isEduMode"
+           :isBasicMode="isBasicMode"
+           :launchedFromClin="launchedFromClin"
            @gene-selected="onGeneSelected"
            @remove-gene="onRemoveGene"
           >
@@ -302,6 +395,9 @@ export default {
   props: {
     isEduMode: null,
     isBasicMode: null,
+    isFullAnalysis: null,
+    launchedFromClin: null,
+    launchedFromHub: null,
     tourNumber: null,
     geneNames: null,
     genesInProgress: null,
@@ -314,7 +410,9 @@ export default {
     isLeftDrawerOpen: null,
     analyzeAllInProgress: null,
     callAllInProgress: null,
-    showCoverageCutoffs: null
+    showCoverageCutoffs: null,
+    phenotypeLookupUrl: null,
+    showSfariTrackToggle: false
   },
   data () {
     return {
@@ -334,7 +432,14 @@ export default {
       flaggedGeneNames: [],
       flaggedVariants: [],
 
-      filteredGeneNames: []
+      filteredGeneNames: [],
+
+      showKnownVariantsCard: false,
+      showSfariVariantsCard: false,
+
+      loadedCount: 0,
+      calledCount: 0,
+      totalCount: 0
 
     }
   },
@@ -346,9 +451,20 @@ export default {
       let self = this;
 
       // Create an array of gene summaries for the genes to show in the genes card
-      var theGeneNames = self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
+      let theGeneNames = self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
+      let geneNamesToDisplay = null;
       if (theGeneNames) {
-        self.geneSummaries = theGeneNames.map(function(geneName) {
+        geneNamesToDisplay = theGeneNames.filter(function(geneName) {
+          if (self.isFullAnalysis) {
+            return !self.geneModel.isCandidateGene(geneName);
+          } else {
+            return self.geneModel.isCandidateGene(geneName);
+          }
+        })
+      }
+      if (geneNamesToDisplay) {
+
+        self.geneSummaries = geneNamesToDisplay.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
 
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
@@ -365,21 +481,22 @@ export default {
       }
 
       // Determine loaded gene and called gene progress
-      if (self.geneNames && self.geneNames.length > 0) {
-        let calledCount = 0;
-        let loadedCount = 0;
-        self.geneNames.forEach(function(geneName) {
+      if (geneNamesToDisplay && geneNamesToDisplay.length > 0) {
+        self.calledCount = 0;
+        self.loadedCount = 0;
+        self.totalCount = geneNamesToDisplay.length;
+        geneNamesToDisplay.forEach(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
           if (dangerSummary) {
-            loadedCount++;
+            self.loadedCount++;
           }
           if (dangerSummary && dangerSummary.CALLED) {
-            calledCount++;
+            self.calledCount++;
           }
         })
 
-        self.loadedPercentage = loadedCount >  0 ? (loadedCount / self.geneNames.length) * 100 : 0;
-        self.calledPercentage = calledCount >  0 ? (calledCount / self.geneNames.length) * 100 : 0;
+        self.loadedPercentage = self.loadedCount >  0 ? (self.loadedCount / self.totalCount) * 100 : 0;
+        self.calledPercentage = self.calledCount >  0 ? (self.calledCount / self.totalCount) * 100 : 0;
       } else {
         self.loadedPercentage = 0;
       }
@@ -389,29 +506,46 @@ export default {
       let self = this;
       self.badgeCounts = {};
 
+      let filteredGeneNames = null;
+      if (self.geneNames) {
+        filteredGeneNames = self.geneNames.filter(function(geneName) {
+          if (self.isFullAnalysis) {
+            return true;
+          } else {
+            return self.geneModel.isCandidateGene(geneName);
+          }
+        })
+      }
+
       for (var key in self.filterModel.flagCriteria) {
         if (self.filterModel.flagCriteria[key].active) {
           self.badgeCounts[key] = 0;
         }
       }
+      let prevCoverageCount = self.badgeCounts.coverage ? self.badgeCounts.coverage : 0;
       self.badgeCounts.coverage = 0;
       self.badgeCounts.flagged = 0;
 
-      if (self.geneNames) {
-        self.geneNames.forEach(function(geneName) {
+      if (filteredGeneNames) {
+        filteredGeneNames.forEach(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
 
           if (dangerSummary) {
             for (var badge in self.badgeCounts) {
+              // Tally up variants that pass the filter
               if (dangerSummary.badges[badge] && dangerSummary.badges[badge].length > 0) {
-                self.badgeCounts[badge] ++;
+                self.badgeCounts[badge] += dangerSummary.badges[badge].length;
               }
             }
+            // Tally up genes that have insufficient coverage
             if (dangerSummary.geneCoverageProblem) {
               self.badgeCounts.coverage++;
             }
           }
         })
+      }
+      if (self.badgeCounts.coverage && prevCoverageCount != self.badgeCounts.coverage) {
+        self.$emit("on-insufficient-coverage", self.badgeCounts.coverage);
       }
     },
     onGeneSelected: function(geneName) {
@@ -423,7 +557,7 @@ export default {
     onCallVariants: function(action) {
       this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
     },
-    onBadgeClick: function(badge) {
+    refresh: function(badge) {
       let self = this;
       self.determineFlaggedGenes(badge);
       if (badge) {
@@ -432,6 +566,13 @@ export default {
         self.filteredGeneNames = [];
       }
       self.updateGeneSummaries();
+      self.updateGeneBadgeCounts();
+
+    },
+    onBadgeClick: function(badge) {
+      let self = this;
+      self.refresh(badge);
+      self.$emit('filter-selected', badge, self.filteredGeneNames);
     },
     onFilterSettingsApplied: function() {
       this.$emit("filter-settings-applied");
@@ -454,21 +595,19 @@ export default {
           if (dangerSummary && dangerSummary.badges
             && dangerSummary.badges[theBadge] && dangerSummary.badges[theBadge].length > 0) {
             dangerSummary.badges[theBadge].forEach(function(variant) {
-              variant.geneName = geneName;
-              self.flaggedVariants.push(variant);
+              if (variant) {
+                variant.geneName = dangerSummary.geneName;
+                self.flaggedVariants.push(variant);
+              }
             })
             return true;
           }
         });
       }
 
-      self.$emit("add-flagged-variants", self.flaggedVariants);
-
-      self.$emit("register-flagged-variants", self.flaggedGeneNames, self.flaggedVariants);
-
     },
-    onApplyGenes: function(genesToApply, phenotypeTerm) {
-      this.$emit("apply-genes", genesToApply, phenotypeTerm);
+    onApplyGenes: function(genesToApply, options) {
+      this.$emit("apply-genes", genesToApply, options);
     },
     onStopAnalysis: function() {
       this.$emit("stop-analysis");
@@ -500,11 +639,19 @@ export default {
       this.updateGeneSummaries();
       this.updateGeneBadgeCounts();
     },
-    badgeCounts: function(newBadgeCounts, oldBadgeCounts) {
+    isFullAnalysis: function() {
+      this.updateGeneSummaries();
+      this.updateGeneBadgeCounts();
     },
     sortBy: function() {
       this.$emit("sort-genes", this.sortBy);
-    }
+    },
+    showKnownVariantsCard: function() {
+      this.$emit("show-known-variants", this.showKnownVariantsCard);
+    },
+      showSfariVariantsCard: function() {
+          this.$emit("show-sfari-variants", this.showSfariVariantsCard);
+      }
   }
 }
 

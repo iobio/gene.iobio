@@ -626,16 +626,16 @@ var effectCategories = [
   }
 
 
-  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache) {
+  /* When sfariMode = true, variant id field is assigned. */
+  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false) {
     var me = this;
 
 
     return new Promise( function(resolve, reject) {
 
-
       // This comma separated string of samples to perform vcf subset on
       var vcfSampleNames = samplesToRetrieve.filter(function(sample) {
-        return (sample.vcfSampleName != "" && sample.vcfSampleName != null);
+        return (sample.vcfSampleName !== "" && sample.vcfSampleName != null);
       })
       .map(function(sample) {
         return sample.vcfSampleName;
@@ -648,16 +648,20 @@ var effectCategories = [
       })
       .join(",");
 
+      if (sfariMode === true) {
+        vcfSampleNames = samplesToRetrieve.join(',');
+        sampleNamesToGenotype = samplesToRetrieve.join(',');
+      }
 
       if (sourceType == SOURCE_TYPE_URL) {
         me._getRemoteVariantsImpl(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache,
           function(annotatedData, results) {
-            if (annotatedData && results) {
+            if (annotatedData != null && results) {
               resolve([annotatedData, results]);
             } else {
               reject();
             }
-          });
+          }, null, sfariMode);
       } else {
         //me._getLocalStats(refName, geneObject.start, geneObject.end, sampleName);
 
@@ -740,7 +744,7 @@ var effectCategories = [
 
   }
 
-  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback) {
+  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false) {
 
     var me = this;
 
@@ -752,7 +756,7 @@ var effectCategories = [
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey);
+    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode);
 
 
     var annotatedData = "";
@@ -787,19 +791,29 @@ var effectCategories = [
           var info   = fields[7];
           var format = fields[8];
           var genotypes = [];
-          for (var i = 9; i < fields.length; i++) {
-            genotypes.push(fields[i]);
+
+          // Too much data, crashes app
+          if (sfariMode !== true) {
+            for (var i = 9; i < fields.length; i++) {
+                genotypes.push(fields[i]);
+            }
           }
 
+
           // Turn vcf record into a JSON object and add it to an array
-          var vcfObject = {'pos': pos, 'id': 'id', 'ref': ref, 'alt': alt,
+          var vcfObject = {'pos': pos, 'id': id, 'ref': ref, 'alt': alt,
                            'qual': qual, 'filter': filter, 'info': info, 'format':format, 'genotypes': genotypes};
           vcfObjects.push(vcfObject);
         }
       });
 
+      if (sfariMode === true) {
+        annotatedData = '';
+        annotatedRecs = '';
+      }
+
       // Parse the vcf object into a variant object that is visualized by the client.
-      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF);
+      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode);
 
 
       callback(annotatedRecs, results);
@@ -923,7 +937,7 @@ var effectCategories = [
     if (me.infoFields == null) {
       me.infoFields = {};
     }
-    if (record.indexOf("INFO=<ID=CSQ") > 0 && !me.infoFields.VEP) {
+    if (record.indexOf("INFO=<ID=CSQ") > 0) {
       var fieldMap = me._parseInfoHeaderRecord(record);
       me.infoFields.VEP = fieldMap;
     } else if (record.indexOf("INFO=<ID=AVIA3") > 0 && !me.infoFields.AVIA3) {
@@ -1200,8 +1214,10 @@ var effectCategories = [
       if (globalApp.isOffline) {
         clinvarUrl = OFFLINE_CLINVAR_VCF_BASE_URL + me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_OFFLINE)
       } else {
-        clinvarUrl = me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_S3);
+        //var clinvarUrl = self.genomeBuildHelper.getBuildResource(self.genomeBuildHelper.RESOURCE_CLINVAR_VCF_FTP);
+        clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
       }
+
 
       var regions = me._getClinvarVariantRegions(refName, geneObject, variants, clinvarGenes);
 
@@ -1243,7 +1259,7 @@ var effectCategories = [
 
             altBuf.split(",").forEach(function(alt) {
               // Turn vcf record into a JSON object and add it to an array
-              var vcfObject = {'pos': pos, 'start':  +pos,  'id': 'id', 'ref': ref, 'alt': alt, 'chrom': refName,
+              var vcfObject = { 'clinvarUid': id, 'pos': pos, 'start':  +pos,  'id': id, 'ref': ref, 'alt': alt, 'chrom': refName,
                                'qual': qual, 'filter': filter, 'info': info, 'format':format, 'genotypes': genotypes};
               vcfObjects.push(vcfObject);
             })
@@ -1424,7 +1440,7 @@ var effectCategories = [
   }
 
 
-  exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF) {
+  exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF, sfariMode = false) {
 
       var me = this;
       var selectedTranscriptID = globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
@@ -1525,9 +1541,9 @@ var effectCategories = [
 
             var annot = me._parseAnnot(rec, altIdx, isMultiAllelic, geneObject, selectedTranscript, selectedTranscriptID, vepAF);
 
-            var clinvarResult = me.parseClinvarInfo(rec.info, clinvarMap);
+            var clinvarResult = me.parseClinvarInfo(rec, clinvarMap);
 
-            var gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames);
+            var gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames, sfariMode);
 
             var clinvarObject = me._formatClinvarCoordinates(rec, alt);
 
@@ -1540,11 +1556,20 @@ var effectCategories = [
               var highestREVEL        = me._getHighestScore( annot.vep.allREVEL,     me._cullTranscripts, selectedTranscriptID);
 
               for (var i = 0; i < allVariants.length; i++) {
-                var genotype = gtResult.genotypes[i];
+                // When vcf data is cached, any circular references are ommitted during JSON.stringify.
+                // To avoid culling out this genotype element from the 'genotypes' field, we
+                // must make the genotype unique.  Here we are copying the element and adding a dummy
+                // attribute
+                var genotype = $.extend({'extraAttr': 1}, gtResult.genotypes[i]);
 
                 // Keep the variant if we are just parsing a single sample (parseMultiSample=false)
                 // or we are parsing multiple samples and this sample's genotype is het or hom
                 if (!parseMultiSample || genotype.keep) {
+                  let currId = rec.id;
+                  if (sfariMode === true) {
+                      currId = ('id_' + rec.pos + '_' + refName + '_' + geneObject.strand + '_' + rec.ref + '_' + rec.alt);  // key = start.chromosome.strand.ref.alt
+                  }
+
                   var variant = {
                     'start':                    +rec.pos,
                     'end':                      +end,
@@ -1553,7 +1578,7 @@ var effectCategories = [
                     'strand':                   geneObject.strand,
                     'chrom':                    refName,
                     'type':                     annot.typeAnnotated && annot.typeAnnotated != '' ? annot.typeAnnotated : type,
-                    'id':                       rec.id,
+                    'id':                       currId,
                     'ref':                      rec.ref,
                     'alt':                      alt,
                     'qual':                     rec.qual,
@@ -1561,8 +1586,9 @@ var effectCategories = [
 
                     'extraAnnot':               hasExtraAnnot,
 
+                    'gene':                     geneObject,
+
                     // genotype fields
-                    'genotypes':                gtResult.genotypeMap,
                     'genotype':                 genotype,
                     'genotypeDepth' :           genotype.genotypeDepth,
                     'genotypeFilteredDepth' :   genotype.filteredDepth,
@@ -1626,13 +1652,18 @@ var effectCategories = [
                     'highestSIFT':             highestSIFT,
                     'highestPolyphen':         highestPolyphen,
                     'highestREVEL':            highestREVEL
+                  };
+
+                  // Too much data for sfari vars
+                  if (sfariMode === false) {
+                      variant['genotypes'] = gtResult.genotypeMap;
                   }
 
                   for (var key in clinvarResult) {
                     variant[key] = clinvarResult[key];
                   }
 
-                  if (me.getGenericAnnotation() !== undefined) {
+                  if (me.getGenericAnnotation() !== undefined && sfariMode === false) {
                     me.getGenericAnnotation().setSimpleFields(variant);
                   }
 
@@ -1673,7 +1704,6 @@ var effectCategories = [
         };
         results.push(data);
       }
-
 
       return  parseMultiSample ? results :  results[0];
       //return  results;
@@ -2068,20 +2098,82 @@ exports._parseSnpEffAnnot = function(annotToken, annot, geneObject, selectedTran
 
 exports.getClinvarAnnots = function() {
   return   {
+    clinvarUid: null,
+    clinvarAlleleId: null,
     clinvarSubmissions: [],
-    clinVarClinicalSignificance: {},
-    clinVarPhenotype:  {},
-    clinVarAccession: {},
+    clinvarClinSig: {},
+    clinvarTrait:  {},
+    clinvarAccession: {},
     clinvarRank: null,
     clinvar: null
   };
 }
 
-exports.parseClinvarInfo = function(info, clinvarMap) {
+exports.parseClinvarInfo = function(rec, clinvarMap) {
+  var me = this;
+
+
+
+  var matchesNewFormat = rec.info.split(";").filter(function(annotToken) {
+    return annotToken.indexOf("ALLELEID") == 0;
+  });
+
+  if (matchesNewFormat.length > 0) {
+    return me._parseClinvarInfo(rec, clinvarMap)
+  } else {
+    return me._parseClinInfoDeprecated(rec, clinvarMap);
+  }
+
+}
+
+exports._parseClinvarInfo = function(rec, clinvarMap) {
   var me = this;
 
   var result = me.getClinvarAnnots();
+  result.clinvarUid = rec.id;
 
+  // This is the newest vcf fromat from clinvar
+  rec.info.split(";").forEach( function (annotToken) {
+
+    if (annotToken.indexOf("ALLELEID=") == 0) {
+      // allele id
+      result.clinvarAlleleId = annotToken.substring("ALLELEID=".length, annotToken.length);
+    } else if (annotToken.indexOf("CLNSIG=") == 0) {
+      // clinical sig
+      var clinsigString = annotToken.substring("CLNSIG=".length, annotToken.length);
+      clinsigString.split("|").forEach(function(clinsig) {
+        result.clinvarClinSig[clinsig.toLowerCase()] = clinsig.toLowerCase();
+
+        var mapEntry = clinvarMap[clinsig.toLowerCase()];
+        if (mapEntry != null) {
+          if (result.clinvarRank == null || mapEntry.value < result.clinvarRank) {
+
+            result.clinvarRank = mapEntry.value;
+            result.clinvar = mapEntry.clazz;
+
+          }
+        }
+
+      })
+    } else if (annotToken.indexOf("CLNDN=") == 0) {
+      // traits
+      var traitsString = annotToken.substring("CLNDN=".length, annotToken.length);
+      traitsString.split("|").forEach(function(trait) {
+        result.clinvarTrait[trait] = trait;
+      })
+    } else if (annotToken.indexOf("CLNREVSTAT=") == 0) {
+      // review status (stars)
+      result.clinvarRevStat = annotToken.substring("CLNREVSTAT=".length, annotToken.length);
+    }
+
+  })
+  return result;
+}
+
+exports._parseClinInfoDeprecated = function(rec, clinvarMap) {
+  var me = this;
+
+  var result = me.getClinvarAnnots();
 
   var initClinvarSubmissions = function(clinvarSubmissions, length) {
     for (var i = 0; i < length; i++) {
@@ -2090,8 +2182,8 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
     }
   }
 
-
-  info.split(";").forEach( function (annotToken) {
+  // This is the older format (summer 2018 and earlier)
+  rec.info.split(";").forEach( function (annotToken) {
 
     if (annotToken.indexOf("CLNSIG=") == 0) {
       var clinvarCode = annotToken.substring(7, annotToken.length);
@@ -2115,7 +2207,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
               }
               submission.clinsig += submission.clinsig.length > 0 ? "," : "";
               submission.clinsig += clinvarToken;
-              result.clinVarClinicalSignificance[clinvarToken] = idx.toString();
+              result.clinvarClinSig[clinvarToken] = idx.toString();
             }
 
         })
@@ -2130,7 +2222,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
         var submission = result.clinvarSubmissions[idx];
         submission.phenotype = pheno;
 
-        result.clinVarPhenotype[pheno] = idx.toString();
+        result.clinvarTrait[pheno] = idx.toString();
         idx++;
       })
     } else if (annotToken.indexOf("CLNACC=") == 0) {
@@ -2141,15 +2233,15 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
         var submission = result.clinvarSubmissions[idx];
         submission.accession = accessionId;
 
-          result.clinVarAccession[accessionId] = idx.toString();
+          result.clinvarAccession[accessionId] = idx.toString();
           idx++;
       })
     }
 
   })
+
   return result;
 }
-
 
 
 /*
@@ -2157,7 +2249,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
  * Parse the genotype field from in the vcf rec
  *
  */
- exports._parseGenotypes = function(rec, alt, altIdx, sampleIndices, sampleNames) {
+ exports._parseGenotypes = function(rec, alt, altIdx, sampleIndices, sampleNames, sfariMode) {
     var me = this;
 
     // The result returned will be an object representing all
@@ -2189,17 +2281,22 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
     // if we are parsing the genotypes for a trio, the first
     // genotype will be for the proband, followed by 2 more elements
     // for the mother and father's genotypes.
-    result.genotypes = sampleIndices.map( function(sampleIndex) {
-      return { sampleIndex: sampleIndex, zygosity: null, phased: null};
-    });
+     result.genotypes = sampleIndices.map( function(sampleIndex) {
+         return { sampleIndex: sampleIndex, zygosity: null, phased: null};
+     });
 
-    // The results will also contain a map to obtain
-    // the genotype by sample name.  If sample names were not provided,
-    // we will use the index as the key to the map.
-    result.genotypes.forEach(function(gt) {
-      var key = sampleNames ? sampleNames[gt.sampleIndex] : gt.sampleIndex.toString();
-      result.genotypeMap[key] = gt;
-    })
+      // The results will also contain a map to obtain
+      // the genotype by sample name.  If sample names were not provided,
+      // we will use the index as the key to the map.
+      // NOTE: cannot do this for sfari samples, crashes browser
+     if (sfariMode === true) {
+       result.genotypeMap = {};
+     } else {
+       result.genotypes.forEach(function(gt) {
+           let key = sampleNames ? sampleNames[gt.sampleIndex] : gt.sampleIndex.toString();
+           result.genotypeMap[key] = gt;
+       });
+     }
 
     // Determine the format of the genotype fields
     var gtTokens = {};
@@ -2364,6 +2461,9 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
         } else if (gt.gt.indexOf("/") > 0){
           delim = "/";
           gt.phased = false;
+        } else if (gt.gt == ".") {
+          gt.keep = false;
+          gt.zygosity = "HOMREF";
         } else {
           gt.keep = false;
           gt.zygosity = "gt_unknown";
@@ -2393,16 +2493,40 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
                 }
               }
 
-            } else if (tokens[0] == result.gtNumber || tokens[1] == result.gtNumber) {
+            }  else if (tokens[0] == result.gtNumber || tokens[1] == result.gtNumber) {
+              //  result.gtNumber will be a number > 1 if this is a multi-allelic
+              //  in this case, we have a genotype that is not 0 and matches
+              //  the "alt"
+              //    simple het example:
+              //      ref    alt   gt
+              //      A      T     0/1
+              //    simple hom example:
+              //      ref    alt   gt
+              //      A      T     1/1
+              //    multi-allelic het example:
+              //      ref    alt   gt
+              //      A      T,G   1/2  if gt.number is "2", that means we will is het for A->G
+              //    multi-allelic hom example:
+              //      ref    alt   gt
+              //      A      T,G   2/2  if gt.number is "2", that means we will is hom for A->G
               gt.keep = true;
               if (tokens[0] == tokens[1]) {
                 gt.zygosity = "HOM";
               } else {
                 gt.zygosity = "HET";
               }
-            } else if (tokens[0] == "0" && tokens[1] == "0" ) {
+            }
+            else if (tokens[0] == "0" && tokens[1] == "0" ) {
+              // Homozygous ref 0/0
               gt.keep = false;
               gt.zygosity = "HOMREF"
+            } else if (tokens[0] != result.gtNumber && tokens[1] != result.gtNumber ) {
+              // Multi-allelic, but this genotype doesn't have the alternate
+              //    multi-allelic  example:
+              //      ref    alt   gt
+              //      A      T,G   0/1  if gt.number is "2", that means this allele is not present
+              gt.keep = false;
+              gt.zygosity = "gt_unknown"
             }
           }
 
@@ -2425,7 +2549,6 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
 
         }
       }
-
     });
 
 
@@ -2434,7 +2557,7 @@ exports.parseClinvarInfo = function(info, clinvarMap) {
       if (gt.keep) {
         result.keep = true;
       }
-    })
+    });
 
     // The 'target' genotype will be the first genotype in the array
     // For example, if the sampleIndex of '1' was sent in (sampleIndices = [1]),
@@ -2844,5 +2967,3 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
   // will be made on this scope.
   return exports;
 };
-
-

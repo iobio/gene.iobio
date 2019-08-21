@@ -4,7 +4,7 @@ export default function VariantImporter() {
 
 }
 
-VariantImporter.geminiFields = ['chrom', 'start', 'end', 'ref', 'alt', 'gene', 'transcript'];
+VariantImporter.geminiFields = ['chrom', 'start', 'end', 'ref', 'alt', 'gene', 'filter'];
 
 VariantImporter.fields = {
   'chrom':      {required: true},
@@ -93,17 +93,38 @@ VariantImporter.parseRecordsGemini = function(data) {
   var fieldNames = VariantImporter.geminiFields;
   var importRecords = [];
 
-  var recs = data.split(/[\r\n]+/g);
+  let recs = null;
+  let isCommaDelimited = false;
+  if (Array.isArray(data)) {
+    recs = data;
+    isCommaDelimited = true;
+  } else {
+    recs = data.split(/[\r\n]/g);
+  }
+
+
   recs.forEach( function(rec) {
-    var fields = rec.split(/\s+/);
-    if (fields.length == 0 || fields[0] == "chrom" || fields[0] == '') {
-      // Ignore the header line or a blank link
+    var fields = null;
+    if (isCommaDelimited) {
+      fields = rec.split(/,/);
+    } else {
+      fields = rec.split(/\s/);
+    }
+    if (fields.length == 0 || fields[0] == '') {
+      // bypass empty rec
+    } else if (fields[0] == "chrom" && importRecords.length == 0) {
+      // If the column headers were provided, use these instead of the defaults
+      fieldNames = fields;
     } else {
       // Parse the tab separate record into fields
       var importRec = {};
       for (var i = 0; i < fields.length; i++) {
         importRec[fieldNames[i]] = fields[i];
       }
+
+      // We need to revise the coordinate for gemini as it is 1 based (bed)
+      importRec.start++;
+
       importRec.importSource = "gemini"
       importRec.importFormat = "tsv";
       importRecords.push(importRec);

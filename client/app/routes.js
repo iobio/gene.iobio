@@ -21,7 +21,7 @@ import ExhibitCasesComplete from './components/pages/ExhibitCaseComplete.vue'
 
 import VueAnalytics from 'vue-analytics'
 
-
+import vue2animate          from 'vue2-animate/dist/vue2-animate.min.css'
 
 import bootstrap            from 'bootstrap/dist/css/bootstrap.css'
 import { Typeahead }        from 'uiv'
@@ -37,6 +37,9 @@ import VTooltip from 'v-tooltip'
 import                           '../assets/css/v-tooltip.css'
 Vue.use(VTooltip)
 
+import vmodal from 'vue-js-modal'
+Vue.use(vmodal)
+
 
 import Util                 from './globals/Util.js'
 import GlobalApp            from './globals/GlobalApp.js'
@@ -49,6 +52,7 @@ const routes = [
     path: '/',
     component: GeneHome,
     beforeEnter: (to, from, next) => {
+      console.log(to);
       var idx = to.hash.indexOf("#access_token");
       if (idx == 0) {
         let queryParams = Qs.parse(to.hash.substring(1));
@@ -104,11 +108,16 @@ const routes = [
         paramTbis:             [route.query.tbi0, route.query.tbi1, route.query.tbi2],
         paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2],
         paramGeneName:         route.query.geneName,
+        paramProjectId:        route.query.project_id,
         paramSampleId:         route.query.sample_id,
         paramSampleUuid:       route.query.sample_uuid,
-        paramProjectId:        route.query.project_id,
         paramIsPedigree:       route.query.is_pedigree,
-        paramSource:           route.query.source
+        paramSource:           route.query.source,
+        paramIobioSource:      route.query.iobio_source,
+        paramAnalysisId:       route.query.analysis_id
+
+
+
     })
   },
   {

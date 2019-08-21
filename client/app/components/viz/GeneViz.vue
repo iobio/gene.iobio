@@ -209,12 +209,15 @@ export default {
     },
     data() {
       return {
-        geneChart: {}
+        geneChart: {},
+        regionSpan: null
       }
     },
     created: function() {
     },
     mounted: function() {
+      this.regionSpan = this.regionStart + "-" + this.regionEnd;
+
       this.draw();
       this.update();
     },
@@ -289,6 +292,12 @@ export default {
         }
       },
       regionStart: function() {
+        this.regionSpan = this.regionStart + "-" + this.regionEnd;
+      },
+      regionEnd: function() {
+        this.regionSpan = this.regionStart + "-" + this.regionEnd;
+      },
+      regionSpan: function() {
         this.update();
       }
     }

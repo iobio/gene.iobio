@@ -1,3 +1,4 @@
+
 export default class HubSessionDeprecated {
   constructor() {
     this.vcf = null;
@@ -278,6 +279,33 @@ export default class HubSessionDeprecated {
     });
   }
 
+  promiseGetFilesForProject(project_id) {
+      let self = this;
+      return new Promise((resolve,reject) => {
+          self.getFilesForProject(project_id)
+              .done(response => {
+                  resolve(response);
+              })
+              .fail(error => {
+                  console.log("Unable to get files for project " + project_id);
+                  reject(error);
+              })
+      })
+  }
+
+
+  getFilesForProject(project_id) {
+      let self = this;
+      return $.ajax({
+          url: self.api +  '/projects/' + project_id + '/files',
+          type: 'GET',
+          contentType: 'application/json',
+          headers: {
+              'Authorization': localStorage.getItem('hub-iobio-tkn')
+          }
+      });
+  }
+
   promiseGetSignedUrlForFile(file) {
     let self = this;
     return new Promise((resolve, reject) => {
@@ -302,5 +330,15 @@ export default class HubSessionDeprecated {
       }
     });
   }
+
+
+
+
+
+
+
+
+
+
 
 }

@@ -10,12 +10,11 @@
   <span>
 
     <app-icon
-     v-if="icon == 'pathogenic'"
+     v-if="icon == 'pathogenic'"  style="margin-top:-3px"
      icon="clinvar"
      level="high"
-     style="margin-top:-2px"
-     width="18"
-     height="18">
+     width="17"
+     height="17">
     </app-icon>
 
 
@@ -60,13 +59,10 @@
 
 
 
-    <span v-if="icon == 'highOrModerate'" >
+    <span v-if="icon == 'high'" >
       <svg width="20" height="20" style="margin-top:2px">
-        <g transform="translate(0,8)">
-          <rect width="9" height="9" class="filter-symbol impact_HIGH snp" style="pointer-events: none;"></rect>
-        </g>
-        <g transform="translate(10,8)">
-          <rect width="9" height="9" class="filter-symbol impact_MODERATE snp" style="pointer-events: none;"></rect>
+        <g transform="translate(4,4)">
+          <rect width="10" height="10" class="filter-symbol impact_HIGH snp" style="pointer-events: none;"></rect>
         </g>
       </svg>
     </span>
@@ -74,9 +70,9 @@
     <app-icon
      v-if="icon == 'coverage'"
      icon="coverage"
-     style="margin-top:-1px"
-     width="17"
-     height="17">
+     style="margin-top:1px"
+     width="16"
+     height="16">
     </app-icon>
 
     <app-icon
@@ -84,6 +80,15 @@
      icon="user-flagged"
      width="20"
      height="20">
+    </app-icon>
+
+
+    <app-icon
+     v-if="icon == 'filter'"
+     :iconClass="iconClass"
+     icon="filter"
+     width="10"
+     height="10">
     </app-icon>
 
 
@@ -100,7 +105,8 @@ export default {
     AppIcon
   },
   props: {
-    icon: null
+    icon: null,
+    iconClass: null
   },
   data () {
     return {

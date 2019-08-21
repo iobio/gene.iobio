@@ -2,10 +2,21 @@
 
 @import ../../../assets/sass/variables
 
+
+.dialog.dialog--active
+  button
+    padding: 0px
+    height: 30px !important
+
 aside.navigation-drawer
-  margin-top: 45px !important
+  margin-top: 55px !important
   z-index: 0
   padding-bottom: 0px
+
+
+  &.clin
+    margin-top: 0px !important
+
 
   #side-panel-container
     display: flex
@@ -13,9 +24,77 @@ aside.navigation-drawer
     flex: 1 1 auto
     justify-content: space-between
     margin-bottom: 0px
-    padding-bottom: 0px
-    height: calc(100% - 10px)
+    overflow-y: hidden
+    padding-bottom: 10px
+    height: calc(100% - 15px)
     overflow-y: scroll
+
+    .tabs__bar
+      padding-left: 10px
+
+    .tabs__container
+      height: 40px !important
+
+      .tabs__item
+        margin-right: 20px !important
+
+        .badge
+          background-color: transparent
+
+          span.badge-label
+            color: $app-color
+            border-color: none
+            font-size: 14px
+            font-weight: normal
+
+        .badge__badge.primary
+          background-color: $app-color !important
+          font-size: 11px
+          color: white
+          top: 0px
+          width: 19px
+          height: 19px
+
+
+
+
+    .toolbar-button
+      min-width: 70px
+      color: $text-color
+      margin-right: 5px
+      margin-left: 0px
+      font-size: 13px
+      height: 30px
+      margin-top: -7px
+
+      .btn__content
+        padding: 0px
+
+      i.material-icons
+        font-size: 16px
+        padding-right: 4px
+
+    #overall-progress
+      position: fixed
+      left: 7px
+      top: 10px
+      z-index: 1
+
+
+    #close-button
+      position: absolute
+      padding-right: 0px
+      position: absolute
+      right: 0px
+      display: inline-block
+      margin-left: 0px
+      min-width: 22px
+      margin-top: 0px
+      top: 0px
+      z-index: 1
+
+      i.material-icons
+        font-size: 22px
 
     #flagged-variants-card
       flex-grow: 1
@@ -24,19 +103,68 @@ aside.navigation-drawer
       margin-top: 5px
       margin-bottom: 38px
       padding: 0px
+      padding-top: 5px
+      border-top: #d8d6d6 solid 1px !important
+
+#side-panel-container
+
+  #genes-panel
+    #gene-badge-container
+      clear: both
+      display: flex
+      flex-flow: column
+      #gene-badge
+        margin-bottom: 5px
+
+        #gene-badge-button
+          min-width: 150px
+          border-radius: 4px
+          #gene-badge-symbols
+            width: 80px
+
+          #gene-badge-name
+            width: 100px
+        &.selected
+
+          #gene-badge-button
+            border-color: $current-color
+            border-width: 2px
+
+
+#side-panel-container.basic
+  .variant-toolbar
+    margin-top: 0px
+    margin-bottom: 0px
+
+  .tabs__container
+    .tabs__slider
+      background-color: transparent !important
+      border-color: transparent !important
+
+    .tabs__item
+      margin-left: -18px
+
 
 nav.toolbar
-  -webkit-box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.13), 0px 4px 5px 0px rgba(0, 0, 0, 0.06), 0px 1px 10px 0px rgba(0,0,0,0.12)
-  box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.13), 0px 4px 5px 0px rgba(0, 0, 0, 0.06), 0px 1px 10px 0px rgba(0,0,0,0.12)
+  padding-top: 5px
+
+  .toolbar__content
+    margin-top: 2px
+    align-items: flex-end
+    margin-bottom: 2px
 
   background-color: $nav-color !important
   font-weight: 300 !important
 
   .toolbar__title
     color: $nav-title-color
-    font-weight:  600
+    font-family: $iobio-font
   .btn
     color: $nav-text-color
+
+  #variants-button
+    margin-left: 20px
+    margin-right: 30px
 
   #gene-name-input
     .input-group--text-field.input-group--prepend-icon
@@ -48,8 +176,14 @@ nav.toolbar
     padding-top: 16px
     margin-left: 10px
     margin-right: 16px
+    color: $nav-text-color
+
+  #phenolyzer-search
+    margin-left: 5px
+    margin-right: 60px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
+    margin-top: 8px
     .input-group input
       color: $nav-text-color
     .input-group
@@ -57,15 +191,16 @@ nav.toolbar
     .input-group
       label
         font-size: 13px
-        line-height: 25px
-        height: 25px
-        top: 14px
+        line-height: 14px
+        height: 18px
+        top: 8px
+        font-weight: normal
     .input-group__input
       min-height: 0px
-      margin-top: 13px
+      margin-top: 8px
     .input-group--text-field input
       font-size: 13px
-      height: 24px
+      height: 14px
     .input-group
       padding-top: 0px
     .input-group__selections__comma
@@ -77,19 +212,41 @@ nav.toolbar
 
   #phenolyzer-top-input
     .input-group__input
-      height: 20px
+      height: 14px
   .primary--text input, .primary--text textarea
     caret-color: $nav-text-color !important
 
     i.material-icons
       color:  $nav-text-color-clin !important
 
-    .toolbar__title
-      color:  $nav-text-color-clin
+
+      color: $text-color
+
+
+  .clinvar-switch
+    padding: 0px
+    width: 130px
+    display: inline-block
+    vertical-align: top
+    text-align: left
+    padding-top: 6px
+    margin-left: 30px
+
+    label
+      padding-left: 7px
+      line-height: 18px
+      font-size: 13px
+      font-weight: normal
+      padding-top: 6px
+      color: $text-color !important
+
+    .input-group--selection-controls__toggle
+      color: rgba(0,0,0,0.38) !important
 
   .toolbar__side-icon.btn.btn--icon
     max-width: 40px
     min-width: 40px
+    margin-bottom: 0px !important
 
   .toolbar__items
     width: 60%
@@ -107,11 +264,10 @@ nav.toolbar
     color:  $nav-text-color !important
 
   .toolbar__title
-    font-family: Quicksand
-    font-size: 24px
+    font-size: 18px
     margin-right: 5px
     margin-left: 5px
-    padding-bottom: 5px
+    padding-bottom: 13px
     min-width: 130px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
@@ -121,10 +277,11 @@ nav.toolbar
       color: $nav-text-color !important
     .input-group__selections__comma
       color: $nav-text-color !important
+      margin-top: -4px
 
   #gene-name-input
     width: 130px
-    margin-left: 20px
+    margin-left: 5px
 
   #search-phenotype-button
     background-color: #ffffff1f
@@ -134,7 +291,13 @@ nav.toolbar
       padding: 0px
 
   &.clin
+    display: none !important
     background-color: $nav-color-clin !important
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.03), 0px 1px 3px 0px rgba(0, 0, 0, 0.01) !important
+    -webkit-box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.05), 0px 1px 1px 0px rgba(0, 0, 0, 0.03), 0px 1px 3px 0px rgba(0, 0, 0, 0.01) !important
+
+    .toolbar__title
+      color: $nav-title-color-clin
 
     .btn
       color: $nav-text-color-clin
@@ -155,8 +318,6 @@ nav.toolbar
       .input-group__details:after
         background-color: $nav-text-color-clin !important
 
-    .toolbar__title
-      color: $nav-text-color-clin !important
 
     i.material-icons
       color:  $nav-text-color-clin !important
@@ -193,9 +354,9 @@ nav.toolbar
 
 .citation-title
   margin-bottom: 0px !important
-  margin-top: 5px !important
-  font-size: 12px
-  color: #717171
+  margin-top: 15px !important
+  font-size: 14px
+  color: $app-color
   font-weight: 600
   clear: both
 
@@ -209,13 +370,44 @@ nav.toolbar
     padding-top: 2px
     color: $nav-text-color
 
+
+.coding-variants-only-switch
+  min-width: 180px !important
+
+
+  label
+    padding-left: 8px !important
+    line-height: 18px !important
+    color: $text-color !important
+    font-weight: normal !important
+    font-size: 13px !important
+    padding-left: 8px !important
+    padding-top: 6px !important
+
+</style>
+
+<style>
+
+@media only screen and (max-width: 600px) {
+#phenolyzer-search {
+  margin-right: 0px !important;
+}
+#search-or {
+  display: none !important;
+}
+.nav.toolbar.toolbar__title {
+  margin-right: 0px !important;
+  margin-left: 0px !important;
+  min-width: 110px !important;
+}
+}
 </style>
 
 <template>
   <div>
-    <v-toolbar fixed height="50"   dark  :class="launchedFromClin ? 'clin' : '' " >
+    <v-toolbar fixed  height="45"   dark  :class="launchedFromClin ? 'clin' : '' " >
 
-      <v-toolbar-side-icon @click.stop="leftDrawer = !leftDrawer">
+      <v-toolbar-side-icon   style="margin-bottom:2px" @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
 
@@ -223,21 +415,32 @@ nav.toolbar
       </v-toolbar-title>
 
 
+      <v-spacer v-if="!isFullAnalysis"></v-spacer>
+
+      <v-btn v-if="false" id="variants-button" flat @click.stop="leftDrawer = !leftDrawer">
+        Variants
+      </v-btn>
+
+
+
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items  class="hidden-sm-and-down" style="padding-top:3px">
+      <v-toolbar-items  lass="hidden-sm-and-down" style="padding-top:3px">
 
+        <v-icon>
+          search
+        </v-icon>
 
         <span id="gene-name-input"  style="display:inline-block">
           <v-text-field id="search-gene-name"
           :class="clazzAttention"
           :hide-details="true"
-          v-model="geneEntered" label="Gene" prepend-icon="search">
+          v-model="geneEntered" label="Gene" >
           </v-text-field>
-          <typeahead v-model="selectedGene"
+          <typeahead v-model="lookupGene"
           force-select v-bind:limit="typeaheadLimit" match-start
-          target="#search-gene-name" :data="geneModel.allKnownGenes"
+          target="#search-gene-name" :data="knownGenes"
           item-key="gene_name"/>
         </span>
 
@@ -246,7 +449,7 @@ nav.toolbar
 
         <genes-menu
          ref="genesMenuRef"
-         v-if="!isEduMode && !isBasicMode"
+         v-if="!launchedFromClin && !isEduMode && !isBasicMode"
          :buttonIcon="`edit`"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
@@ -261,13 +464,15 @@ nav.toolbar
 
 
         <phenotype-search
+         id="phenolyzer-search"
          v-if="!isEduMode && !launchedFromClin"
-         style="margin-left:5px;margin-right:60px"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
          :defaultTopGenes="10"
          :geneModel="geneModel"
+         :phenotypeLookupUrl="phenotypeLookupUrl"
+         :lastPhenotypeTermEntered="lastPhenotypeTermEntered"
          @on-search-genes="onSearchPhenolyzerGenes"
          @on-start-search-genes="onStartSearchPhenolyzerGenes"
          @show-snackbar="onShowSnackbar"
@@ -275,22 +480,38 @@ nav.toolbar
         </phenotype-search>
 
 
-
-
-<!--
-        <v-btn v-if="!isEduMode && !isBasicMode" id="show-variants-button" flat  @click="onVariants">
-         <v-icon>bookmark</v-icon>
-         Variants
-        </v-btn>
--->
+        <v-switch class="clinvar-switch"
+          v-if="launchedFromClin"
+          label="ClinVar track"
+          v-model="showKnownVariantsCard"
+          >
+        </v-switch>
 
 
 
       </v-toolbar-items>
 
 
-      <files-menu
+      <v-menu
        v-if="!isEduMode && !isBasicMode"
+       offset-y
+      :close-on-content-click="false"
+      >
+        <v-btn  flat slot="activator">
+          Options
+        </v-btn>
+
+        <v-card style="min-width:150px">
+          <v-switch class="coding-variants-only-switch"
+            label="Coding variants only"
+            v-model="analyzeCodingVariantsOnly"
+            >
+          </v-switch>
+        </v-card>
+      </v-menu>
+
+      <files-menu
+       v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
        :cohortModel="cohortModel"
        @on-files-loaded="onFilesLoaded"
        @load-demo-data="onLoadDemoData"
@@ -303,13 +524,13 @@ nav.toolbar
       :nudge-width="isBasicMode ? 300 : 350"
       v-model="showLegendMenu"
       >
-        <v-btn flat slot="activator">
+        <v-btn  flat slot="activator">
           Legend
         </v-btn>
 
         <legend-panel
         :isBasicMode="isBasicMode"
-        style="max-width:400px">
+        style="max-width:410px">
         </legend-panel>
       </v-menu>
 
@@ -367,32 +588,105 @@ nav.toolbar
         </v-list>
       </v-menu>
     </v-toolbar>
-    <v-navigation-drawer
+    <v-navigation-drawer  :class="launchedFromClin ? 'clin' : '' "
       mobile-break-point="800"
       clipped
+      :permanent="launchedFromClin ? true : false"
       fixed
       app
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      width=330
+      :width="launchedFromClin ? 315 : 293"
     >
-      <div id="side-panel-container">
+      <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
-        <flagged-variants-card
-         v-if="leftDrawerContents == 'flagged-variants'"
-         ref="flaggedVariantsRef"
-         :isEduMode="isEduMode"
-         :isBasicMode="isBasicMode"
-         :cohortModel="cohortModel"
-         :flaggedVariants="flaggedVariants"
-         :launchedFromClin="launchedFromClin"
-         @flagged-variants-imported="onFlaggedVariantsImported"
-         @flagged-variant-selected="onFlaggedVariantSelected"
-         @close-left-drawer="leftDrawer = false"
-         @send-flagged-variants-to-clin="onSendFlaggedVariantsToClin"
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
+          <v-icon >close</v-icon>
+        </v-btn>
+
+        <v-progress-circular id="overall-progress"  :size="19"  :width="5" color="grey darken-1"
+          v-if="analyzeAllInProgress || callAllInProgress"
+          :indeterminate="true">
+        </v-progress-circular>
+
+        <v-tabs
+          v-model="activeTab"
+          light
         >
-        </flagged-variants-card>
+          <v-tab v-if="!isBasicMode" >
+            <v-badge>
+              <span class="badge-count" slot="badge">{{ geneCount }}</span>
+              <span v-if="launchedFromClin && !isFullAnalysis" class="badge-label">Candidate Genes</span>
+              <span v-if="launchedFromClin && isFullAnalysis" class="badge-label">All Genes</span>
+              <span v-if="!launchedFromClin" class="badge-label">Genes</span>
+            </v-badge>
+
+          </v-tab>
+          <v-tab>
+
+            <v-badge>
+              <span class="badge-count" slot="badge">{{ flaggedVariantCount }}</span>
+              <span class="badge-label">Variants</span>
+            </v-badge>
+
+          </v-tab>
+
+          <v-tab-item v-if="!isBasicMode">
+
+            <genes-panel
+             style="margin: 15px 10px 10px 10px"
+             ref="genesPanelRef"
+             :isEduMode="isEduMode"
+             :isBasicMode="isBasicMode"
+             :isFullAnalysis="isFullAnalysis"
+             :launchedFromClin="launchedFromClin"
+             :geneModel="geneModel"
+             :selectedGene="selectedGene"
+             :filteredGeneNames="filteredGeneNames"
+             :geneNames="geneModel.sortedGeneNames"
+             :analyzeAllInProgress="analyzeAllInProgress"
+             :callAllInProgress="callAllInProgress"
+             :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
+             :genesInProgress="cohortModel.genesInProgress"
+             @gene-selected="onGeneSelected"
+             @remove-gene="onRemoveGene"
+             @count-changed="onGeneCountChanged"
+            >
+            </genes-panel>
+
+
+
+          </v-tab-item>
+
+
+          <v-tab-item>
+
+            <flagged-variants-card
+             ref="flaggedVariantsRef"
+             :isEduMode="isEduMode"
+             :isBasicMode="isBasicMode"
+             :forMyGene2="forMyGene2"
+             :cohortModel="cohortModel"
+             :activeFilterName="activeFilterName"
+             :launchedFromClin="launchedFromClin"
+             :isFullAnalysis="isFullAnalysis"
+             :geneNames="geneNames"
+             :genesInProgress="genesInProgress"
+             :interpretationMap="interpretationMap"
+             :toClickVariant="toClickVariant"
+             @flagged-variants-imported="onFlaggedVariantsImported"
+             @flagged-variant-selected="onFlaggedVariantSelected"
+             @apply-variant-notes="onApplyVariantNotes"
+             @apply-variant-interpretation="onApplyVariantInterpretation"
+             @count-changed="onFlaggedVariantCountChanged"
+
+            >
+            </flagged-variants-card>
+
+          </v-tab-item>
+
+        </v-tabs>
 
 
 
@@ -409,7 +703,7 @@ nav.toolbar
     </v-navigation-drawer>
 
     <v-dialog v-model="showDisclaimer" max-width="400">
-        <v-card>
+        <v-card class="full-width">
           <v-card-title class="headline">Disclaimer</v-card-title>
           <v-card-text>
 
@@ -426,7 +720,7 @@ nav.toolbar
 
 
     <v-dialog v-model="showVersion" max-width="580">
-        <v-card>
+        <v-card class="full-width">
           <v-card-title class="headline">gene.iobio {{ globalApp.version }}</v-card-title>
           <v-card-text>
 
@@ -462,45 +756,22 @@ nav.toolbar
     </v-dialog>
 
 
-   <v-dialog v-model="showCitations" max-width="700">
-        <v-card>
+   <v-dialog v-model="showCitations" max-width="700" max-height="">
+        <v-card class="full-width" style="overflow-y:scroll;height:500px">
           <v-card-title class="headline">Software and Resources</v-card-title>
           <v-card-text>
 
 
-            <div id="credits">
-
-
-
-              <div class="citation-title">Human Phenotype Ontology</div>
-              Sebastian Köhler, Sandra C Doelken, Christopher J. Mungall, Sebastian Bauer, Helen V. Firth, et al.The Human Phenotype Ontology project: linking molecular biology and disease through phenotype data
-              <a href="http://nar.oxfordjournals.org/content/42/D1/D966.full" target="_new">Nucliec Acids Res. (1 January 2014) 42 (D1): D966-D974 doi:10.1093/nar/gkt1026</a>
-
-
-              <div class="citation-title">Phenolyzer</div>
-              Yang, Hui, Peter N. Robinson, and Kai Wang. Phenolyzer: phenotype-based prioritization of candidate genes for human diseases.
-              <a href="http://www.nature.com/nmeth/journal/v12/n9/abs/nmeth.3484.html" target="_new">Nature Methods (2015).
-              </a>
-
-              <div class="citation-title">SnpEff</div>
-               "A program for annotating and predicting the effects of single nucleotide polymorphisms, SnpEff: SNPs in the genome of Drosophila melanogaster strain w1118; iso-2; iso-3.", Cingolani P, Platts A, Wang le L, Coon M, Nguyen T, Wang L, Land SJ, Lu X, Ruden DM. Fly (Austin). <a href="http://snpeff.sourceforge.net/SnpEff_paper.pdf" target="_new">2012 Apr-Jun;6(2):80-92.</a> PMID: 22728672 [PubMed - in process]
+            <div id="credits" >
 
               <div class="citation-title">Variant Effect Predictor</div>
               McLaren W, Pritchard B, Rios D, Chen Y, Flicek P, Cunningham F.Deriving the consequences of genomic variants with the Ensembl API and SNP Effect Predictor.
               <a href="http://dx.doi.org/10.1093/bioinformatics/btq330" target="_new">Bioinformatics 26(16):2069-70(2010)doi:10.1093/bioinformatics/btq330</a>
 
-              <div class="citation-title">PolyPhen</div>
-              Adzhubei IA, Schmidt S, Peshkin L, Ramensky VE, Gerasimova A, Bork P, Kondrashov AS, Sunyaev SR. Nat Methods <strong>7</strong>(4):248-249 (2010). <a href="http://www.ncbi.nlm.nih.gov/pubmed/20354512" class="urlextern" title="http://www.ncbi.nlm.nih.gov/pubmed/20354512" rel="nofollow">PubMed</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248.pdf" class="media mediafile mf_pdf" title="nmeth0410-248.pdf">PDF</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248-s1.pdf" class="media mediafile mf_pdf" title="nmeth0410-248-s1.pdf">Supplemental Information</a>
-
-              <div class="citation-title">SIFT</div>
-                       Kumar P, Henikoff S, Ng PC. Predicting the effects of coding non-synonymous variants on
-                       protein function using the SIFT algorithm.
-                       <i>Nat Protoc. 2009</i>;4(7):1073-81.
-               <a href="http://www.ncbi.nlm.nih.gov/pubmed/19561590">PubMed</a> <a href="/www/nprot.2009.86.pdf" target="_blank">PDF</a>
-
               <div class="citation-title">FreeBayes</div>
               Garrison E, Marth G. Haplotype-based variant detection from short-read sequencing
               <a href="/abs/1207.3907v2">arXiv:1207.3907v2</a> [q-bio.GN]
+
 
               <div class="citation-title">ClinVar</div>
               Landrum MJ, Lee JM, Riley GR, Jang W, Rubinstein WS, Church DM, Maglott DR. <u>ClinVar: public archive of relationships among sequence variation and human phenotype</u>. Nucleic Acids Res. 2014 Jan 1;42(1):D980-5. doi: 10.1093/nar/gkt1113. PubMed PMID: <a href="/pubmed/24234437">24234437</a>
@@ -519,9 +790,10 @@ nav.toolbar
               <div class="citation-title">vt</div>
               <a rel="nofollow" class="external text" href="http://bioinformatics.oxfordjournals.org/content/31/13/2202">Adrian Tan, Gonçalo R. Abecasis and Hyun Min Kang. Unified Representation of Genetic Variants. Bioinformatics (2015) 31(13): 2202-2204</a>
 
-              <div class="citation-title">ExAC</div>
-              Analysis of protein-coding genetic variation in 60,706 humans<a href="http://biorxiv.org/content/early/2015/10/30/030338">preprint on bioRxiv</a>
-
+              <div class="citation-title">GNomAD and ExAC</div>
+                Monkol Lek, Konrad J. Karczewski[…]Exome Aggregation Consortium  Analysis of protein-coding genetic variation in 60,706 humans
+                <a href="https://www.nature.com/articles/nature19057">Nature volume 536, pages 285–291 (18 August 2016)
+                </a>
               <br>
                       The authors would like to thank the Exome Aggregation Consortium and the groups that provided exome variant data for comparison. A full list of contributing groups can be found at
                       <a href="/about">http://exac.broadinstitute.org/about</a>.
@@ -544,6 +816,33 @@ nav.toolbar
 
 
 
+              <div class="citation-title">Human Phenotype Ontology</div>
+              Sebastian Köhler, Sandra C Doelken, Christopher J. Mungall, Sebastian Bauer, Helen V. Firth, et al.The Human Phenotype Ontology project: linking molecular biology and disease through phenotype data
+              <a href="http://nar.oxfordjournals.org/content/42/D1/D966.full" target="_new">Nucliec Acids Res. (1 January 2014) 42 (D1): D966-D974 doi:10.1093/nar/gkt1026</a>
+
+
+              <div class="citation-title">Phenolyzer</div>
+              Yang, Hui, Peter N. Robinson, and Kai Wang. Phenolyzer: phenotype-based prioritization of candidate genes for human diseases.
+              <a href="http://www.nature.com/nmeth/journal/v12/n9/abs/nmeth.3484.html" target="_new">Nature Methods (2015).
+              </a>
+
+              <div class="citation-title">igv.js</div>
+              <a href="https://github.com/igvteam/igv.js/wiki">Getting started guide</a>
+
+
+              <div class="citation-title">PolyPhen</div>
+              Adzhubei IA, Schmidt S, Peshkin L, Ramensky VE, Gerasimova A, Bork P, Kondrashov AS, Sunyaev SR. Nat Methods <strong>7</strong>(4):248-249 (2010). <a href="http://www.ncbi.nlm.nih.gov/pubmed/20354512" class="urlextern" title="http://www.ncbi.nlm.nih.gov/pubmed/20354512" rel="nofollow">PubMed</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248.pdf" class="media mediafile mf_pdf" title="nmeth0410-248.pdf">PDF</a> <a href="/pph2/dokuwiki/_media/nmeth0410-248-s1.pdf" class="media mediafile mf_pdf" title="nmeth0410-248-s1.pdf">Supplemental Information</a>
+
+              <div class="citation-title">SIFT</div>
+                       Kumar P, Henikoff S, Ng PC. Predicting the effects of coding non-synonymous variants on
+                       protein function using the SIFT algorithm.
+                       <i>Nat Protoc. 2009</i>;4(7):1073-81.
+               <a href="http://www.ncbi.nlm.nih.gov/pubmed/19561590">PubMed</a> <a href="/www/nprot.2009.86.pdf" target="_blank">PDF</a>
+
+              <div class="citation-title">REVEL</div>
+              Ioannidis NM, Rothstein JH, Pejaver V, et al. REVEL: An Ensemble Method for Predicting the Pathogenicity of Rare Missense Variants.  <a href="https://www.cell.com/ajhg/fulltext/S0002-9297(16)30370-6">Am J Hum Genet. 2016;99(4):877-885.</a>
+
+
             </div>
           </v-card-text>
           <v-card-actions>
@@ -563,6 +862,7 @@ import GenesMenu           from '../partials/GenesMenu.vue'
 import FilesMenu           from '../partials/FilesMenu.vue'
 import LegendPanel         from '../partials/LegendPanel.vue'
 import FlaggedVariantsCard from '../viz/FlaggedVariantsCard.vue'
+import GenesPanel          from '../partials/GenesPanel.vue'
 import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
 
 export default {
@@ -572,6 +872,7 @@ export default {
     GenesMenu,
     FilesMenu,
     FlaggedVariantsCard,
+    GenesPanel,
     LegendPanel,
     PhenotypeSearch
   },
@@ -579,41 +880,76 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     forMyGene2: null,
+    analyzeAllInProgress: null,
+    callAllInProgress: null,
+    selectedGene: null,
+    selectedVariant: null,
+    filteredGeneNames: null,
     geneModel: null,
     cohortModel: null,
-    flaggedVariants: null,
+    cacheHelper: null,
+    activeFilterName: null,
     launchedFromClin: null,
-    bringAttention: null
+    isFullAnalysis: null,
+    isClinFrameVisible: null,
+    bringAttention: null,
+    phenotypeLookupUrl: null,
+    geneNames: null,
+    genesInProgress: null,
+    interpretationMap: null,
+    lastPhenotypeTermEntered: null,
+    toClickVariant: null
   },
   data () {
     let self = this;
     return {
       title: 'gene.iobio',
 
-      selectedGene: {},
+      lookupGene: {},
       geneEntered: null,
       clipped: false,
-      leftDrawer: self.forMyGene2 ? true : false,
+      leftDrawer: self.forMyGene2  ? true : false,
       rightDrawer: false,
 
-      leftDrawerContents: "flagged-variants",
       showLegendMenu: false,
       showDisclaimer: false,
       showVersion: false,
       showCitations: false,
-      typeaheadLimit: parseInt(100)
+      typeaheadLimit: parseInt(100),
+
+      activeTab: 0,
+
+      geneCount: 0,
+      flaggedVariantCount: 0,
+
+
+      analyzeCodingVariantsOnly: false,
+
+      showKnownVariantsCard: false
+
 
     }
   },
   watch: {
-    selectedGene: function(a, b) {
-      if (this.selectedGene) {
-        this.geneEntered = this.selectedGene.gene_name;
-        this.$emit("input", this.selectedGene.gene_name);
+    lookupGene: function(a, b) {
+      if (this.selectedGene && this.lookupGene && this.lookupGene.gene_name) {
+        this.geneEntered = this.lookupGene.gene_name;
+        this.$emit("input", this.lookupGene.gene_name);
       }
     },
     leftDrawer: function() {
       this.$emit("on-left-drawer", this.leftDrawer);
+    },
+    analyzeCodingVariantsOnly: function() {
+      this.$emit("analyze-coding-variants-only", this.analyzeCodingVariantsOnly)
+    },
+    showKnownVariantsCard: function() {
+      this.$emit("show-known-variants", this.showKnownVariantsCard);
+    },
+    lastPhenotypeTermEntered: function() {
+      if (this.lastPhenotypeTermEntered != null) {
+        this.phenotypeTermEntered = this.lastPhenotypeTermEntered;
+      }
     }
   },
   methods: {
@@ -626,8 +962,16 @@ export default {
     onClearAllGenes: function() {
       this.$emit("clear-all-genes");
     },
-    onApplyGenes: function(genesToApply) {
-      this.$emit("apply-genes", genesToApply, {replace: true, warnOnDup: true, isFromClin: false});
+    onApplyGenes: function(genesToApply, options) {
+      options.replace = true;
+      options.warnOnDup = false;
+      this.$emit("apply-genes", genesToApply, options);
+    },
+    onApplyVariantNotes: function(variant) {
+      this.$emit("apply-variant-notes", variant);
+    },
+    onApplyVariantInterpretation: function(variant) {
+      this.$emit("apply-variant-interpretation", variant);
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
@@ -651,12 +995,31 @@ export default {
       this.$emit("on-start-search-genes");
     },
     onVariants: function() {
-      this.leftDrawerContents = "flagged-variants";
-      this.leftDrawer = true;
+      let self = this;
+      this.activeTab = 1;
+      self.$nextTick(function() {
+        if (!self.launchedFromClin || self.isClinFrameVisible) {
+          self.leftDrawer = true;
+        }
+      })
     },
-    onShowFlaggedVariants: function() {
-      this.leftDrawerContents = "flagged-variants";
-      this.leftDrawer = true;
+    onShowVariantsTab: function() {
+      let self = this;
+      this.activeTab = 1;
+      this.$nextTick(function() {
+        if (!self.launchedFromClin || self.isClinFrameVisible) {
+          self.leftDrawer = true;
+        }
+      })
+    },
+    onShowGenesTab: function() {
+      let self = this;
+      this.activeTab = 0;
+      this.$nextTick(function() {
+        if (!self.launchedFromClin || self.isClinFrameVisible) {
+          self.leftDrawer = true;
+        }
+      })
     },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)
@@ -666,6 +1029,12 @@ export default {
     },
     onFilesLoaded: function(analyzeAll) {
       this.$emit("on-files-loaded", analyzeAll);
+    },
+    onGeneSelected: function(geneName) {
+      this.$emit('gene-selected', geneName);
+    },
+    onRemoveGene: function(geneName) {
+      this.$emit('remove-gene', geneName);
     },
     onWelcome: function() {
       this.$emit("on-show-welcome");
@@ -678,9 +1047,6 @@ export default {
     },
     onShowCitations: function() {
       this.showCitations = true;
-    },
-    onSendFlaggedVariantsToClin: function(flaggedVariants) {
-      this.$emit('send-flagged-variants-to-clin', flaggedVariants)
     },
     onShowSnackbar: function(snackbar) {
       this.$emit('show-snackbar', snackbar)
@@ -699,6 +1065,12 @@ export default {
     },
     onSupportIOBIO: function() {
       window.open("http://iobio.io/support.html", "_iobio");
+    },
+    onGeneCountChanged: function(count) {
+      this.geneCount = count;
+    },
+    onFlaggedVariantCountChanged: function(count) {
+      this.flaggedVariantCount = count;
     }
   },
   created: function() {
@@ -708,8 +1080,18 @@ export default {
 
   },
   computed:  {
+    knownGenes: function() {
+      let self = this;
+      if (self.launchedFromClin) {
+        return self.geneModel.sortedGeneNames.map(function(geneName) {
+          return {gene_name: geneName};
+        });
+      } else {
+        return self.geneModel.allKnownGenes;
+      }
+    },
     clazzAttention: function() {
-      if (this.bringAttention && this.bringAttention == 'gene' && this.selectedGene && Object.keys(this.selectedGene).length == 0) {
+      if (this.bringAttention && this.bringAttention == 'gene' && this.lookupGene && Object.keys(this.lookupGene).length == 0) {
         return 'attention';
       } else {
         return '';

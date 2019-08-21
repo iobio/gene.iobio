@@ -1,10 +1,11 @@
 class FilterModel {
 
-  constructor(globalApp, affectedInfo, isBasicMode) {
+  constructor(globalApp, affectedInfo, isBasicMode, isFullAnalysis) {
     this.globalApp = globalApp;
     this.affectedInfo = affectedInfo;
 
     this.isBasicMode = isBasicMode;
+    this.isFullAnalysis = isFullAnalysis;
 
     this.annotsToInclude = new Object();
 
@@ -25,155 +26,403 @@ class FilterModel {
     this.FUNCTIONAL_IMPACT         = "functional_impact";
     this.LOW_COVERAGE              = "low_coverage";
 
+
     this.snpEffEffects = {};
     this.vepConsequences = {};
     this.exonicOnlyFilter = false;
     this.recFilters = {};
 
     this.geneCoverageMin           = 10;
-    this.geneCoverageMean          = 30;
-    this.geneCoverageMedian        = 30;
+    this.geneCoverageMean          = 15;
+    this.geneCoverageMedian        = 15;
 
-    this.flagCriteria = {
-      'pathogenic': {
-        active: true,
-        custom: false,
-        title: "Pathogenic / Likely Pathogenic",
-        name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
-        order: 0,
-        userFlagged: false,
-        maxAf: .05,
-        clinvar: ['clinvar_path', 'clinvar_lpath'],
-        impact: null,
-        consequence: null,
-        inheritance: null,
-        zyosity: null,
-        minGenotypeDepth: null,
-        exclusiveOf: null
+
+    this.flagCriterion = {
+      gene: {
+        'pathogenic': {
+          active: true,
+          custom: false,
+          title: "Pathogenic in ClinVar",
+          name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
+          order: 0,
+          userFlagged: false,
+          maxAf: .05,
+          clinvar: ['clinvar_path', 'clinvar_lpath'],
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        },
+        'autosomalDominant': {
+          active: true,
+          custom: false,
+          title: "Autosomal dominant",
+          name: "Autosomal dominant inhertance, low allele freq",
+          order: 1,
+          userFlagged: false,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['autosomal dominant'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: ['pathogenic']
+        },
+        'recessive': {
+          active: true,
+          custom: false,
+          title:"Recessive",
+          name: "Recessive inheritance, low allele freq",
+          order: 2,
+          userFlagged: false,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['recessive'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: 5,
+          minRevel: null,
+          isUserFlagged: false,
+          exclusiveOf: ['pathogenic']
+        },
+        'denovo': {
+          active: true,
+          custom: false,
+          title: "De novo",
+          name: "De novo inheritance, low allele freq",
+          order: 3,
+          userFlagged: false,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['denovo'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: 5,
+          minRevel: null,
+          exclusiveOf: ['pathogenic']
+        },
+        'compoundHet': {
+          active: true,
+          custom: false,
+          title: "Compound hets",
+          name: "Compound het inheritance, low allele freq",
+          order: 4,
+          userFlagged: false,
+          maxAf: .05,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['compound het'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: ['pathogenic']
+        },
+        'xlinked': {
+          active: true,
+          custom: false,
+          title: "X-linked recessive",
+          name: "X-linked recessive inheritance, low allele freq",
+          userFlagged: false,
+          order: 5,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['x-linked'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: ['pathogenic']
+        },
+        'high': {
+          active: true,
+          custom: false,
+          title: "High impact",
+          name: "High impact, low allele freq",
+          order: 6,
+          userFlagged: false,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', ],
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          isUserFlagged: false,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: .75,
+          exclusiveOf: ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked']
+        },
+        'userFlagged': {
+          active: true,
+          custom: false,
+          title: "Flagged by user",
+          name: "Variants flagged by user",
+          order: 7,
+          userFlagged: true,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf:  null
+        },
+        'notCategorized': {
+          // TODO - figure out how to show when variants no longer match filters
+          active: false,
+          custom: false,
+          title: "Not categorized",
+          name: "Variants found during full analysis, but not passing any app filters",
+          order: 8,
+          userFlagged: false,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        },
+        'notFound': {
+          // TODO - figure out how to notify user when bookmarked variants are not found in vcf
+          active: false,
+          custom: false,
+          title: "Not found",
+          name: "Variants not found",
+          order: 9,
+          userFlagged: false,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        }
       },
-      'autosomalDominant': {
-        active: true,
-        custom: false,
-        title: "Autosomal dominant",
-        name: "Autosomal dominant inhertance, low allele freq",
-        order: 1,
-        userFlagged: false,
-        maxAf: .05,
-        clinvar: null,
-        impact: ['HIGH', 'MODERATE'],
-        consequence: null,
-        inheritance: ['autosomal dominant'],
-        zyosity: null,
-        minGenotypeDepth: null,
-        exclusiveOf: ['pathogenic']
-      },
-      'recessive': {
-        active: true,
-        custom: false,
-        title: "Recessive",
-        name: "Recessive inheritance, low allele freq",
-        order: 2,
-        userFlagged: false,
-        maxAf: .05,
-        clinvar: null,
-        impact: ['HIGH', 'MODERATE'],
-        consequence: null,
-        inheritance: ['recessive'],
-        zyosity: null,
-        minGenotypeDepth: null,
-        isUserFlagged: false,
-        exclusiveOf: ['pathogenic']
-      },
-      'denovo': {
-        active: true,
-        custom: false,
-        title: "De novo",
-        name: "De novo inheritance, low allele freq",
-        order: 3,
-        userFlagged: false,
-        maxAf: .05,
-        clinvar: null,
-        impact: ['HIGH', 'MODERATE'],
-        consequence: null,
-        inheritance: ['denovo'],
-        zyosity: null,
-        minGenotypeDepth: null,
-        exclusiveOf: ['pathogenic']
-      },
-      'compoundHet': {
-        active: true,
-        custom: false,
-        title: "Compound Hets",
-        name: "Compound het inheritance, low allele freq",
-        order: 4,
-        userFlagged: false,
-        maxAf: .15,
-        clinvar: null,
-        impact: ['HIGH', 'MODERATE'],
-        consequence: null,
-        inheritance: ['compound het'],
-        zyosity: null,
-        minGenotypeDepth: null,
-        exclusiveOf: ['pathogenic']
-      },
-      'xlinked': {
-        active: true,
-        custom: false,
-        title: "X-linked recessive",
-        name: "X-linked recessive inheritance, low allele freq",
-        userFlagged: false,
-        order: 5,
-        maxAf: .05,
-        clinvar: null,
-        impact: ['HIGH', 'MODERATE'],
-        consequence: null,
-        inheritance: ['x-linked'],
-        zyosity: null,
-        minGenotypeDepth: null,
-        exclusiveOf: ['pathogenic']
-      },
-      'highOrModerate': {
-        active: true,
-        custom: false,
-        title: "Other variants, moderate/high impact",
-        name: "High or moderate impact, low allele freq",
-        order: 6,
-        userFlagged: false,
-        maxAf: .05,
-        clinvar: null,
-        impact: ['HIGH', 'MODERATE'],
-        consequence: null,
-        inheritance: null,
-        zyosity: null,
-        isUserFlagged: false,
-        minGenotypeDepth: null,
-        exclusiveOf: ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked']
-      },
-      'userFlagged': {
-        active: true,
-        custom: false,
-        title: "Variants flagged by user",
-        name: "Variants flagged by user",
-        order: 7,
-        userFlagged: true,
-        maxAf: null,
-        clinvar: null,
-        impact: null,
-        consequence: null,
-        inheritance: null,
-        zyosity: null,
-        minGenotypeDepth: null,
-        exclusiveOf:  null
+      genefull: {
+        'pathogenic': {
+          active: true,
+          custom: false,
+          title: "Pathogenic in ClinVar",
+          name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
+          order: 0,
+          userFlagged: false,
+          maxAf: .01,
+          clinvar: ['clinvar_path', 'clinvar_lpath'],
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        },
+        'autosomalDominant': {
+          active: true,
+          custom: false,
+          title: "Autosomal dominant",
+          name: "Autosomal dominant inhertance, low allele freq",
+          order: 1,
+          userFlagged: false,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['autosomal dominant'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: ['pathogenic']
+        },
+        'recessive': {
+          active: true,
+          custom: false,
+          title:"Recessive",
+          name: "Recessive inheritance, low allele freq",
+          order: 2,
+          userFlagged: false,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['recessive'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: 5,
+          minRevel: null,
+          isUserFlagged: false,
+          exclusiveOf: ['pathogenic']
+        },
+        'denovo': {
+          active: true,
+          custom: false,
+          title: "De novo",
+          name: "De novo inheritance, low allele freq",
+          order: 3,
+          userFlagged: false,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['denovo'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: 5,
+          minRevel: null,
+          exclusiveOf: ['pathogenic']
+        },
+        'compoundHet': {
+          active: true,
+          custom: false,
+          title: "Compound hets",
+          name: "Compound het inheritance, low allele freq",
+          order: 4,
+          userFlagged: false,
+          maxAf: .05,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['compound het'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: ['pathogenic']
+        },
+        'xlinked': {
+          active: true,
+          custom: false,
+          title: "X-linked recessive",
+          name: "X-linked recessive inheritance, low allele freq",
+          userFlagged: false,
+          order: 5,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', 'MODERATE'],
+          consequence: null,
+          inheritance: ['x-linked'],
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: ['pathogenic']
+        },
+        'high': {
+          active: false,
+          custom: false,
+          title: "High impact",
+          name: "High impact, low allele freq",
+          order: 6,
+          userFlagged: false,
+          maxAf: .01,
+          clinvar: null,
+          impact: ['HIGH', ],
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          isUserFlagged: false,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: .75,
+          exclusiveOf: ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked']
+        },
+        'notCategorized': {
+          // TODO - figure out how to show when variants no longer match filters
+          active: false,
+          custom: false,
+          title: "Not categorized",
+          name: "Variants found during full analysis, but not passing any app filters",
+          order: 6,
+          userFlagged: false,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        },
+        'notFound': {
+          // TODO - figure out how to show when variants no longer match filters
+          active: false,
+          custom: false,
+          title: "Not found",
+          name: "Variants not found",
+          order: 7,
+          userFlagged: false,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        }
       }
     }
 
+    this.flagCriteria = this.isFullAnalysis ? this.flagCriterion.genefull : this.flagCriterion.gene;
 
     this.modelFilters = {
       'known-variants': {
         'clinvar': []
+      },
+      'sfari-variants': {
+      'vepImpact': []
       }
     }
   }
+
+  getSortedActiveFilters() {
+    let self = this;
+    let filters = [];
+    for (var filterName in self.flagCriteria) {
+      let flagCriteria = self.flagCriteria[filterName];
+      if (flagCriteria.active) {
+        filters.push($.extend({'key': filterName}, flagCriteria));
+      }
+    }
+
+    let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
+      return filterObject1.order > filterObject2.order;
+    })
+
+    return sortedFilters;
+  }
+
 
   getFilterObject() {
     let self = this;
@@ -365,7 +614,11 @@ class FilterModel {
       for (var key in theFilters) {
         let filterEntries = theFilters[key];
         if (filterEntries && filterEntries.length > 0) {
-          if (filterEntries.indexOf(variant[key]) >= 0) {
+          let varKey = variant[key];
+          if (relationship === 'sfari-variants' && Object.keys(varKey)) {
+            varKey = Object.values(varKey)[0];
+          }
+          if (filterEntries.indexOf(varKey) >= 0) {
             passCount++;
           }
         } else {
@@ -471,75 +724,114 @@ class FilterModel {
         return variant.zygosity == null || variant.zygosity.toUpperCase() != 'HOMREF';
       })
       .forEach(function(variant) {
-        var badgePassState = {};
-        for (var key in self.flagCriteria) {
-          if (self.flagCriteria[key].active) {
-            badgePassState[key] = false;
-          }
-        }
-        badgePassState.flagged = false;
-
-        if (variant.isUserFlagged) {
-          badgePassState['userFlagged'] = true;
-        } else {
-          variant.isFlagged = false;
-          variant.featureClass = "";
-          for (var badge in self.flagCriteria) {
-            if (self.flagCriteria[badge].active) {
-
-              var passes = self.determinePassCriteria(badge, variant);
-
-              if (passes.all) {
-                badgePassState[badge] = true;
-              }
-            }
-          }
-
-          // If a badge is exclusive of passing other criteria, fail the badge
-          // if the other badges passed the criteria for the filter
-          // Example:  highOrModerate is exclusive of the clinvar badge.
-          //           So if the variant passes the clinvar criteria, it does
-          //           not pass the highOrModerate criteria.
-          for (var badge in self.flagCriteria) {
-            var badgeCriteria = self.flagCriteria[badge];
-            if (badgeCriteria.exclusiveOf) {
-              var matchesOther = false;
-              badgeCriteria.exclusiveOf.forEach(function(exclusiveBadge) {
-                if (badgePassState[exclusiveBadge]) {
-                  matchesOther = true;
-                }
-              })
-              if (matchesOther) {
-                badgePassState[badge] = false;
-              }
-            }
-          }
-
-
-        }
-        // Now add the variant to any badges that passes the critera
-        var filtersPassed = [];
-        for (var filterName in self.flagCriteria) {
-          if (badgePassState[filterName]) {
-            filtersPassed.push(filterName);
-            badges[filterName].push(variant);
-          }
-        }
-        if (filtersPassed.length > 0) {
-          variant.isFlagged = true;
-          variant.featureClass = 'flagged';
-          variant.filtersPassed = filtersPassed;
-        }
-
-        if (variant.isFlagged) {
-          badges.flagged.push(variant);
-        }
-
-
+        self._flagVariant(variant, badges);
       })
 
     }
     return badges;
+
+  }
+
+  flagImportedVariants(importedVariants) {
+    let self = this;
+    var badges = {};
+    for (var key in this.flagCriteria) {
+      if (this.flagCriteria[key].active) {
+        badges[key] = [];
+      }
+    }
+    badges.flagged = [];
+
+    importedVariants.forEach(function(variant) {
+      self._flagVariant(variant, badges);
+    })
+
+    return badges;
+  }
+
+  _flagVariant(variant, badges) {
+    let self = this;
+    var badgePassState = {};
+
+    for (var key in self.flagCriteria) {
+      if (self.flagCriteria[key].active) {
+        badgePassState[key] = false;
+      }
+    }
+    badgePassState.flagged = false;
+
+    if (variant.notFound) {
+      badgePassState['notFound'] = true;
+    } else if (variant.isUserFlagged) {
+      badgePassState['userFlagged'] = true;
+    } else {
+      variant.isFlagged = false;
+      variant.featureClass = "";
+      for (var badge in self.flagCriteria) {
+        if (self.flagCriteria[badge].active) {
+
+          var passes = self.determinePassCriteria(badge, variant);
+
+          if (passes.all) {
+            badgePassState[badge] = true;
+          }
+        }
+      }
+
+      // If a badge is exclusive of passing other criteria, fail the badge
+      // if the other badges passed the criteria for the filter
+      // Example:  high is exclusive of the clinvar badge.
+      //           So if the variant passes the clinvar criteria, it does
+      //           not pass the high criteria.
+      for (var badge in self.flagCriteria) {
+        var badgeCriteria = self.flagCriteria[badge];
+        if (badgeCriteria.exclusiveOf) {
+          var matchesOther = false;
+          badgeCriteria.exclusiveOf.forEach(function(exclusiveBadge) {
+            if (badgePassState[exclusiveBadge]) {
+              matchesOther = true;
+            }
+          })
+          if (matchesOther) {
+            badgePassState[badge] = false;
+          }
+        }
+      }
+
+
+    }
+    // Now add the variant to any badges that passes the critera
+    var filtersPassed = [];
+    for (var filterName in self.flagCriteria) {
+      if (badgePassState[filterName]) {
+        filtersPassed.push(filterName);
+        badges[filterName].push(variant);
+      }
+    }
+    if (filtersPassed.length > 0) {
+      variant.isFlagged = true;
+      variant.featureClass = 'flagged';
+      variant.filtersPassed = filtersPassed;
+    } else if (variant.isImported) {
+      variant.isFlagged = true;
+      variant.isUserFlagged = false;
+      variant.notCategorized = true;
+      variant.featureClass = 'flagged';
+      variant.filtersPassed = 'notCategorized';
+    }
+
+    if (variant.isFlagged) {
+      if (!variant.analysisMode) {
+        variant.analysisMode = {gene: false, genefull: false};
+      }
+      if (self.isFullAnalysis) {
+        variant.analysisMode.genefull = true;
+      } else {
+        variant.analysisMode.gene = true;
+      }
+
+      badges.flagged.push(variant);
+    }
 
   }
 
@@ -555,10 +847,24 @@ class FilterModel {
       inheritance: false,
       zygosity: false,
       depth: false,
-      userFlagged: false
+      altCount: false,
+      revel: false,
+      userFlagged: false,
+      notCategorized: false,
+      notFound: false
     };
 
-    if (badgeCriteria.userFlagged == true) {
+    if (badge == 'notCategorized') {
+      if (variant.notCategorized) {
+        passes.notCategorized = true;
+        passes.all = true;
+      }
+    } else if (badge == 'notFound') {
+      if (variant.notFound) {
+        passes.notFound = true;
+        passes.all = true;
+      }
+    } else if (badgeCriteria.userFlagged == true) {
       if (variant.isUserFlagged) {
         passes.userFlagged = true;
         passes.all = true;
@@ -567,14 +873,30 @@ class FilterModel {
       if (badgeCriteria.maxAf == null || (variant.afHighest <= badgeCriteria.maxAf)) {
         passes.af = true;
       }
-      if (badgeCriteria.minGenotypeDepth == null || (variant.genotypeDepth >= badgeCriteria.minGenotypeDepth)) {
+      if (badgeCriteria.minRevel == null || badgeCriteria.minRevel == "") {
+        passes.revel = true;
+      } else if (Object.keys(variant.vepREVEL).length == 0) {
+        passes.revel = true
+      } else {
+        for (var revel in variant.vepREVEL) {
+          if (revel == "" || +revel >= badgeCriteria.minRevel) {
+            passes.revel = true;
+          }
+        }
+      }
+      if (badgeCriteria.minGenotypeDepth == null || badgeCriteria.minGenotypeDepth == ""  || (+variant.genotypeDepth >= +badgeCriteria.minGenotypeDepth)) {
         passes.depth = true;
+      }
+      if (badgeCriteria.minGenotypeAltCount == null || badgeCriteria.minGenotypeAltCount == "" ||( +variant.genotypeAltCount >= +badgeCriteria.minGenotypeAltCount)) {
+        passes.altCount = true;
       }
       if (badgeCriteria.impact && badgeCriteria.impact.length > 0) {
         badgeCriteria.impact.forEach(function(key) {
-          if (Object.keys(variant.highestImpactVep).indexOf(key) >= 0) {
-            passes.impact = true;
-          }
+          Object.keys(variant.highestImpactVep).forEach(function(highestImpactKey) {
+            if (highestImpactKey == key) {
+              passes.impact = true;
+            }
+          })
         })
       } else {
         passes.impact = true;
@@ -602,7 +924,7 @@ class FilterModel {
           passes[criterion] = true;
         })
       }
-      if (passes.af && passes.depth && passes.impact && passes.consequence && passes.clinvar && passes.inheritance && passes.zygosity) {
+      if (passes.af && passes.revel && passes.depth && passes.altCount && passes.impact && passes.consequence && passes.clinvar && passes.inheritance && passes.zygosity) {
         passes.all = true;
       }
     }

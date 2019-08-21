@@ -7,6 +7,7 @@ export default class EndpointCmd {
     this.launchTimestamp   = launchTimestamp;
     this.genomeBuildHelper = genomeBuildHelper;
     this.getHumanRefNames  = getHumanRefNamesFunc;
+    this.launchedFromUtah =  this.globalApp.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0;
 
     // iobio services
     this.IOBIO = {};
@@ -15,7 +16,7 @@ export default class EndpointCmd {
     this.IOBIO.snpEff                  = this.globalApp.IOBIO_SERVICES  + "snpeff/";
     this.IOBIO.vt                      = this.globalApp.IOBIO_SERVICES  + "vt/";
     this.IOBIO.af                      = this.globalApp.IOBIO_SERVICES  + "af/";
-    this.IOBIO.vep                     = this.globalApp.IOBIO_SERVICES  + "vep/";
+    this.IOBIO.vep                     = (this.launchedFromUtah === true ? this.globalApp.IOBIO_SERVICES : this.globalApp.GREEN_IOBIO) + "vep/";   // Inside utah mosaic, normal services, else beefy nv-green to accommodate sfari
     this.IOBIO.contigAppender          = this.globalApp.IOBIO_SERVICES  + "ctgapndr/";
     this.IOBIO.bcftools                = this.globalApp.IOBIO_SERVICES  + "bcftools/";
     this.IOBIO.coverage                = this.globalApp.IOBIO_SERVICES  + "coverage/";
@@ -26,7 +27,6 @@ export default class EndpointCmd {
     this.IOBIO.geneCoverage            = this.globalApp.IOBIO_SERVICES  + "genecoverage/";
     this.IOBIO.knownvariants           = this.globalApp.IOBIO_SERVICES  + "knownvariants/";
   }
-
 
 
 
@@ -61,7 +61,7 @@ export default class EndpointCmd {
     return cmd;
   }
 
-  annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey) {
+  annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false) {
     var me = this;
 
     // Figure out the file location of the reference seq files
@@ -91,8 +91,9 @@ export default class EndpointCmd {
       if (vcfSource.tbiUrl) {
         args.push('"'+vcfSource.tbiUrl+'"');
       }
+
       cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
-                     .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
+          .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
 
     } else if (vcfSource.hasOwnProperty('writeStream')) {
       // If we have a local vcf file, use the writeStream function to stream in the vcf records
@@ -102,7 +103,6 @@ export default class EndpointCmd {
       return null;
     }
 
-
     if (vcfSampleNames && vcfSampleNames.length > 0) {
       var sampleNameFile = new Blob([vcfSampleNames.split(",").join("\n")])
       cmd = cmd.pipe(me.IOBIO.vt, ["subset", "-s", sampleNameFile, '-'], {ssl: me.globalApp.useSSL})
@@ -111,7 +111,7 @@ export default class EndpointCmd {
     // normalize variants
 
     var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
-    cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL})
+    cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL});
 
     // if af not retreived from vep, get allele frequencies from 1000G and ExAC in af service
     cmd = cmd.pipe(me.IOBIO.af, ["-b", me.genomeBuildHelper.getCurrentBuildName()], {ssl: me.globalApp.useSSL});
@@ -119,7 +119,6 @@ export default class EndpointCmd {
     // Skip snpEff if RefSeq transcript set or we are just annotating with the vep engine
     if (annotationEngine == 'none') {
       // skip annotation if annotationEngine set to  'none'
-
 
     } else if (isRefSeq || annotationEngine == 'vep') {
       // VEP
@@ -170,6 +169,11 @@ export default class EndpointCmd {
     } else if (annotationEngine == 'snpeff') {
         cmd = cmd.pipe(me.IOBIO.snpEff, [], {ssl: me.globalApp.useSSL});
     }
+
+    if (sfariMode === true) {
+        cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL});
+    }
+
     return cmd;
 
   }
@@ -239,7 +243,7 @@ export default class EndpointCmd {
     var tabixArgs = ['-h', clinvarUrl, regionParm];
 
     var cmd = new iobio.cmd (me.IOBIO.tabix,         tabixArgs,         {ssl: me.globalApp.useSSL})
-                       .pipe(me.IOBIO.knownvariants, knownVariantsArgs, {ssl: false});
+                       .pipe(me.IOBIO.knownvariants, knownVariantsArgs, {ssl: me.globalApp.useSSL});
 
     return cmd;
   }
@@ -500,7 +504,8 @@ export default class EndpointCmd {
     // Create an iobio command get get the variants from clinvar for the region of the gene
     var regionParm = refName + ":" + regionStart + "-" + regionEnd;
 
-    var clinvarUrl = me.genomeBuildHelper.getBuildResource(me.genomeBuildHelper.RESOURCE_CLINVAR_VCF_S3);
+    //var clinvarUrl = me.genomeBuildHelper.getBuildResource(me.genomeBuildHelper.RESOURCE_CLINVAR_VCF_FTP);
+    var clinvarUrl  = me.globalApp.getClinvarUrl(me.genomeBuildHelper.getCurrentBuildName());
 
     var tabixArgs = ['-h', clinvarUrl, regionParm];
     var cmd = new iobio.cmd (me.IOBIO.tabix, tabixArgs, {ssl: me.globalApp.useSSL});

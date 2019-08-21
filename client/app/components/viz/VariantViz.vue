@@ -102,6 +102,10 @@ export default {
         default: 2,
         type: Number
       },
+      showWhenEmpty: {
+        type: Boolean,
+        default: true
+      },
       margin:{
         type: Object,
         default: function() {
@@ -158,6 +162,7 @@ export default {
             return self.classifySymbolFunc(variant, self.annotationScheme);
           })
           .margin(this.margin)
+          .showWhenEmpty(this.showWhenEmpty)
           .showXAxis(this.showXAxis)
           .xTickFormat(this.xTickFormat)
           .variantHeight(this.variantHeight)
@@ -170,7 +175,7 @@ export default {
           .on("d3rendered", function() {
           })
           .on('d3outsideclick', function() {
-            self.onVariantClick(null);
+            self.onVariantOutsideClick();
           })
           .on('d3click', function(variant) {
             self.onVariantClick(variant);
@@ -195,7 +200,7 @@ export default {
           }
           self.variantChart.verticalLayers(self.data.maxLevel);
           self.variantChart.lowestWidth(self.data.featureWidth);
-          if (self.data.features == null || self.data.features.length == 0) {
+          if ((self.data.features == null || self.data.features.length == 0) && !self.showWhenEmpty) {
             self.variantChart.showXAxis(false);
           } else {
             self.variantChart.showXAxis(self.showXAxis);
@@ -210,6 +215,10 @@ export default {
           var selection = d3.select(self.$el).datum( [self.data] );
           self.variantChart(selection);
         }
+      },
+      onVariantOutsideClick: function() {
+        let self = this;
+        self.$emit("variantOutsideClick")
       },
       onVariantClick: function(variant) {
         let self = this;
@@ -226,14 +235,16 @@ export default {
       showVariantCircle: function(variant, container, pinned) {
         if (variant == null) {
           this.hideVariantCircle(container, pinned);
+          return null;
         } else {
           if (pinned) {
             this.variantChart.hideCircle()(container, pinned);
           }
-          this.variantChart.showCircle()(variant,
+          let matchingVariant = this.variantChart.showCircle()(variant,
             container,
             variant.fbCalled && variant.fbCalled == 'Y' ? false : true,
             pinned);
+          return matchingVariant;
         }
       },
       hideVariantCircle: function(container, pinned) {

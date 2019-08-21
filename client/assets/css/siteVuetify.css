@@ -2,13 +2,28 @@ html {
   -webkit-font-smoothing: auto;
 }
 
+.hide {
+  display: none !important;
+}
+
+.card {
+  border: none !important;
+}
+
+.full-width {
+  max-width: -moz-available !important;
+  max-width: -webkit-fill-available !important;
+}
+
+.container.fluid {
+  max-width: calc(100% - 10px);
+}
+
+
 .btn {
   text-transform: none;
 }
 
-.application, body {
-  font-family: 'Open Sans', 'Quattrocento Sans', 'sans serif';
-}
 
 .application.theme--light {
   background: #fafafa;
@@ -127,7 +142,7 @@ html {
 }
 
 .menu__content--select.menuable__content__active {
-  z-index: 200 !important;
+  z-index: 204 !important;
 }
 
 .dropdown.open .dropdown-menu {
@@ -182,6 +197,9 @@ html {
 .alertify .ajs-footer .ajs-buttons .ajs-button {
   text-transform: none;
   color: #7f7f7f;
+}
+.dialog__content.dialog__content__active {
+  height: initial !important;
 }
 
 

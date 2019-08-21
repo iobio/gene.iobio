@@ -2,6 +2,13 @@
 @import ../../../assets/sass/variables
 
 #feature-matrix
+  width: max-content
+  width: -moz-max-content
+
+#feature-matrix-viz
+  width: max-content
+  width: -moz-max-content
+
   rect.cellbox
     fill: white
     stroke: $cell-border-color

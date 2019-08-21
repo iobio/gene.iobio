@@ -33,12 +33,12 @@
 
 <template>
 
-<v-card id="intro-card" class="app-card">
+<v-card id="intro-card" class="app-card full-width">
   <div style="text-align:center">
     <div>
       <div class="left-info">
         <span class="label-warning" v-show="defaultingToDemoData">
-            Warning:  Using Demo Data
+            Using Demo Data
         </span>
         <span  v-show="!defaultingToDemoData">
             &nbsp;

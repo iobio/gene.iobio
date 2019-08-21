@@ -10,8 +10,6 @@
   line-height: 15px
   border: thin solid #e8e6e6
 
-  &.flagged
-    border: 2px solid rgba(149, 149, 149, 0.65)
 
   #gene-badge-symbols
     height: 14px
@@ -21,13 +19,6 @@
     padding-right: 2px
 
 
-  .gene-badge-loader
-    width: 14px
-    height: 14px
-    float: left
-    padding-top: 1px
-    display: none
-
 
 
 #gene-badge
@@ -36,6 +27,19 @@
   margin-right: 10px
   height: 21px
   display: inline-block
+
+  #gene-status
+    display: inline-block
+    width: 45px
+    vertical-align: top
+    padding-top: 5px
+
+  .gene-badge-loader
+    width: 14px
+    height: 14px
+    float: right
+    padding-top: 1px
+    display: none
 
 
   &.loaded
@@ -50,9 +54,6 @@
     #gene-badge-has-called-variants
       display: inline
 
-  &.is-flagged
-    #gene-badge-bookmark
-      display: none
 
   &.in-progress
     .gene-badge-loader
@@ -82,7 +83,8 @@
 
 
 #gene-badge.selected
-  border-left:  $app-color solid 12px
+  border-thickenss:  2px
+  border-color: $current-color
   //height: 22px
   #gene-badge-button
     //box-shadow: 0 6px 10px rgba(0, 0, 0, 0.23), 0 10px 10px rgba(0, 0, 0, 0.19)
@@ -137,7 +139,6 @@
   font-size: 15px
   margin-top: -1px
   margin-left: 0px
-  float: left
   color: $coverage-problem-color
   fill: $coverage-problem-color
   display: none
@@ -147,8 +148,6 @@
     margin-right: 3px
     margin-top: 1px
 
-.coverage-problem-glyph
-  fill: $coverage-problem-color
 
 
 
@@ -169,13 +168,7 @@
 
 <div id="gene-badge" v-bind:class="classObject" >
 
-  <a id="gene-badge-button"
-    href="javascript:void(0)"
-    v-bind:class="gene.isFlagged ? 'flagged' : ''"
-    style="display:inline-block" @click="selectGene"
-    rel="tooltip"   data-html="true"
-    data-placement="bottom">
-
+  <span id="gene-status">
 
         <img class="gene-badge-loader  glyph" src="../../../assets/images/wheel.gif">
 
@@ -188,6 +181,17 @@
         <i id="gene-badge-error" class="material-icons glyph">report_problem</i>
 
 
+  </span>
+
+  <a id="gene-badge-button"
+    href="javascript:void(0)"
+    v-bind:class="gene.isFlagged ? 'flagged' : ''"
+    style="display:inline-block" @click="selectGene"
+    rel="tooltip"   data-html="true"
+    data-placement="bottom">
+
+
+
         <span id="gene-badge-name" style="float:left;margin-left:2px;margin-right:2px">
           {{ gene.name }}
         </span>
@@ -197,6 +201,13 @@
 
 
       <span id="gene-badge-symbols" class="glyph">
+
+          <app-icon
+           v-if="hasFilteredVariants('userFlagged')"
+           icon="user-flagged"
+           class=" level-edu glyph"
+           width="15" height="15">
+          </app-icon>
 
           <app-icon
            v-if="gene && gene.dangerSummary && gene.dangerSummary.badges.pathogenic.length > 0"
@@ -281,12 +292,14 @@
             width="15" height="15">
           </app-icon>
 
-          <app-icon style="vertical-align:top"
+          <app-icon style="float:right;vertical-align:top"
            v-if="hasCoverageProblem()"
            icon="coverage"
            class=" level-edu glyph"
-           width="12" height="12">
+           width="12" height="11">
           </app-icon>
+
+
 
       </span>
 
@@ -296,7 +309,7 @@
 
   </a>
 
-  <div id="gene-badge-remove" href="javascript:void(0)"
+  <div id="gene-badge-remove" v-if="!isEduMode && !launchedFromClin" href="javascript:void(0)"
     @click="removeGene"
     style="display: inline-block;cursor: pointer;float:right">
       <i style="vertical-align:middle" class="material-icons">close</i>
@@ -320,6 +333,9 @@ export default {
     gene: null,
     phenotypes: null,
     selectedGene: null,
+    isEduMode: null,
+    isBasicMode: null,
+    launchedFromClin: null
   },
   data () {
     return {
@@ -340,36 +356,33 @@ export default {
     getImpactClass: function(variantTypes) {
       var self = this;
       var clazz = null;
-      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.highOrModerate.length > 0 ) {
+      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.high && this.gene.dangerSummary.badges.high.length > 0 ) {
         for (var variantType in variantTypes) {
 
 
-          this.gene.dangerSummary.badges.highOrModerate.forEach(function(variant) {
+          this.gene.dangerSummary.badges.high.forEach(function(variant) {
             if (variant.type.toUpperCase() == variantType.toUpperCase()) {
-              if (variant.highestImpactVep.HIGH) {
-                clazz = 'filter-symbol impact_HIGH';
-              } else if (variant.highestImpactVep.MODERATE) {
-                clazz = 'filter-symbol impact_MODERATE';
+              if (clazz == null) {
+                if (variant.highestImpactVep.HIGH) {
+                  clazz = 'filter-symbol impact_HIGH';
+                } else {
+                  clazz = 'filter-symbol impact_MODERATE';
+                }
               }
             }
           })
 
 
-          /*
-          if (self.gene.dangerSummary.IMPACT.HIGH
-            && (self.gene.dangerSummary.IMPACT.HIGH[theVariantType] || self.gene.dangerSummary.IMPACT.HIGH[variantType])) {
-            clazz = 'filter-symbol impact_HIGH';
-          } else if (self.gene.dangerSummary.IMPACT.MODERATE
-            && (self.gene.dangerSummary.IMPACT.MODERATE[theVariantType] || self.gene.dangerSummary.IMPACT.MODERATE[variantType])) {
-            clazz = 'filter-symbol impact_MODERATE';
-          }
-          */
         }
       }
       return clazz;
     },
     hasFilteredVariants: function(filterName) {
-      return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.badges[filterName].length > 0;
+      return this.gene
+        && this.gene.dangerSummary
+        && this.gene.dangerSummary.badges
+        && this.gene.dangerSummary.badges[filterName]
+        && this.gene.dangerSummary.badges[filterName].length > 0;
     },
     hasCoverageProblem: function() {
       return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem;
@@ -384,16 +397,7 @@ export default {
         'loaded':                this.gene.dangerSummary != null,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
-        'has-phenotypes':        false, //this.phenotypes && this.phenotypes.length > 0,
-        'is-flagged':            this.gene.dangerSummary && this.gene.dangerSummary.badges && this.gene.dangerSummary.badges.flagged.length > 0,
-        'is-pathogenic':         this.gene.dangerSummary && this.gene.dangerSummary.badges.pathogenic.length > 0,
-        'inheritance-autosomal-dominant': this.gene.dangerSummary && this.gene.dangerSummary.badges.autosomalDominant.length > 0,
-        'inheritance-recessive': this.gene.dangerSummary && this.gene.dangerSummary.badges.recessive.length > 0,
-        'inheritance-denovo':    this.gene.dangerSummary && this.gene.dangerSummary.badges.denovo.length > 0,
-        'inheritance-x-linked':  this.gene.dangerSummary && this.gene.dangerSummary.badges.xlinked.length > 0,
-        'inheritance-compound-het':
-                                 this.gene.dangerSummary && this.gene.dangerSummary.badges.compoundHet.length > 0,
-        'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem
+        'has-phenotypes':        false  //this.phenotypes && this.phenotypes.length > 0,
       }
     }
 

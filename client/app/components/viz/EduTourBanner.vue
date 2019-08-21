@@ -20,7 +20,7 @@ $tour-hilite-color:      #a5b941
     float: left !important
     margin-left: 10px !important
     margin-right: -190px !important
-    font-size: 23px !important
+    font-size: 18px !important
     padding: 4px !important
     margin-top: 5px !important
     color: white !important
@@ -31,11 +31,12 @@ $tour-hilite-color:      #a5b941
     color: white !important
     background-color: $tour-data-button-color !important
     margin-left: 15px !important
-    font-size: 24px !important
+    font-size: 18px !important
     padding: 4px !important
     padding-left: 10px !important
     padding-right: 5px !important
     margin-top: 5px !important
+    height: 28px !important
 
   .card-label
     color: white !important
@@ -83,10 +84,11 @@ body#tlypageguide-open
     min-height: 50px !important
 
     .tlypageguide_text
-      margin-left: 10px !important
-      margin-right: 50px !important
+      margin-left: 100px !important
+      margin-right: 180px !important
       margin-bottom: 0px !important
       margin-top: 0px !important
+      text-align: left !important
 
     .pageguide-nav
       bottom:  initial !important

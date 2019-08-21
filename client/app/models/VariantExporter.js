@@ -17,6 +17,8 @@ export default class VariantExporter {
       {field: 'isUserFlagged',    exportVcf: true},
       {field: 'filtersPassed',    exportVcf: true},
       {field: 'freebayesCalled',  exportVcf: true},
+      {field: 'notes',            exportVcf: false},
+      {field: 'interpretation',   exportVcf: false},
       {field: 'type',             exportVcf: true},
       {field: 'impact',           exportVcf: true},
       {field: 'highestImpact',    exportVcf: true},
@@ -28,9 +30,10 @@ export default class VariantExporter {
       {field: 'inheritance',      exportVcf: true},
       {field: 'polyphen',         exportVcf: true},
       {field: 'SIFT',             exportVcf: true},
+      {field: 'REVEL',            exportVcf: true},
       {field: 'rsId',             exportVcf: true},
       {field: 'clinvarClinSig',   exportVcf: true},
-      {field: 'clinvarPhenotype', exportVcf: true},
+      {field: 'clinvarTrait',     exportVcf: true},
       {field: 'HGVSc',            exportVcf: true},
       {field: 'HGVSp',            exportVcf: true},
       {field: 'regulatory',       exportVcf: true},
@@ -52,7 +55,8 @@ export default class VariantExporter {
       {field: 'depthFather',      exportVcf: true},
       {field: 'bamDepthFather',   exportVcf: true},
       {field: 'dbSnpUrl',         exportVcf: false},
-      {field: 'clinvarUrl',       exportVcf: false}
+      {field: 'clinvarUrl',       exportVcf: false},
+      {field: 'analysisMode',     exportVcf: false}
 
     ];
 
@@ -163,6 +167,9 @@ export default class VariantExporter {
           resolve(output);
         }
 
+      })
+      .catch(function(error) {
+        reject("Error occurred when exporting variants. " + error);
       });
 
     });
@@ -446,10 +453,32 @@ export default class VariantExporter {
       // Merge the properties of the bookmark entry with the variant with the full annotations
       // Always use the inheritance from the bookmarkEntry
       var revisedVariant = $().extend({}, sourceVariant, theVariant);
+
+      // If the source variant has clinvar annotations that are not initialized
+      // on the cached variant, make sure the cached variant is initialized with
+      // these fields
+      var clinvarAnnots = [
+        "clinvar",
+        "clinvarAccession",
+        "clinvarAlleleId",
+        "clinvarAlt",
+        "clinvarClinSig",
+        "clinvarRank",
+        "clinvarRef",
+        "clinvarStart",
+        "clinvarSubmissions",
+        "clinvarTrait",
+        "clinvarUid"
+      ];
+      if (revisedVariant.clinvar == null && sourceVariant.clinvar != null) {
+        clinvarAnnots.forEach(function(clinvarAnnot) {
+          revisedVariant[clinvarAnnot]  = sourceVariant[clinvarAnnot];
+        })
+      }
       revisedVariant.extraAnnot = true;
 
       // If this is a trio, get the genotypes for mother and father
-      if (Object.keys(revisedVariant.genotypes).length == 3) {
+      if (revisedVariant.genotypes && Object.keys(revisedVariant.genotypes).length == 3) {
         var motherGenotype = null;
         var fatherGenotype = null;
         for (var key in revisedVariant.genotypes) {
@@ -497,29 +526,41 @@ export default class VariantExporter {
         }
       });
 
-      // Set the clinvar start, alt, ref for clinvar web access
-      me.cohort.getProbandModel().vcf._formatClinvarCoordinates(theVariant, theVariant.alt);
+      if (theVariant.isProxy) {
+        // Set the clinvar start, alt, ref for clinvar web access
+        me.cohort.getProbandModel().vcf._formatClinvarCoordinates(theVariant, theVariant.alt);
 
-      // Get the clinvar data and load into the variant record
-      var dummyVcfData  = {features: [revisedVariant]};
-      var clinvarLoader = me.globalApp.isClinvarOffline || me.globalApp.clinvarSource == "vcf" ? me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData) : me.cohort.getProbandModel()._refreshVariantsWithClinvarEutils.bind(me.cohort.getProbandModel(), dummyVcfData);
-      me.cohort.getProbandModel()
-      .vcf
-      .promiseGetClinvarRecords(dummyVcfData,
-        me.cohort.getProbandModel()._stripRefName(revisedVariant.chrom),
-        theGeneObject,
-        me.cohort.geneModel.clinvarGenes,
-        clinvarLoader)
-      .then(function() {
+        // Get the clinvar data and load into the variant record
+        var dummyVcfData  = {features: [revisedVariant]};
+        var clinvarLoader = me.globalApp.isClinvarOffline || me.globalApp.clinvarSource == "vcf" ? me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData) : me.cohort.getProbandModel()._refreshVariantsWithClinvarEutils.bind(me.cohort.getProbandModel(), dummyVcfData);
+        me.cohort.getProbandModel()
+        .vcf
+        .promiseGetClinvarRecords(dummyVcfData,
+          me.cohort.getProbandModel()._stripRefName(revisedVariant.chrom),
+          theGeneObject,
+          me.cohort.geneModel.clinvarGenes,
+          clinvarLoader)
+        .then(function() {
 
+          me.formatDisplay(revisedVariant, rec);
+
+          if (format == 'csv' || format == 'json') {
+            resolve([rec]);
+          } else {
+            resolve([rec, theRawVcfRecords]);
+          }
+        })
+      } else {
         me.formatDisplay(revisedVariant, rec);
 
         if (format == 'csv' || format == 'json') {
-          resolve([rec]);
+            resolve([rec]);
         } else {
           resolve([rec, theRawVcfRecords]);
         }
-      })
+
+      }
+
     });
   }
 
@@ -530,8 +571,12 @@ export default class VariantExporter {
 
     var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
 
+    rec.isProxy           = true;
+    rec.analysisMode      = variant.analysisMode;
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
-    rec.filtersPassed     = variant.filtersPassed ? variant.filtersPassed.join(",") : "";
+    rec.filtersPassed     = variant.filtersPassed  && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
+    rec.notes             = variant.notes && variant.notes.length > 0 ? variant.notes : "";
+    rec.interpretation    = variant.interpretation && variant.interpretation.length > 0 ? variant.interpretation : "not-reviewed";
     rec.inheritance       = info.inheritance ? this.cohort.translator.getInheritanceLabel(info.inheritance) : "";
     rec.impact            = info.vepImpact;
     rec.highestImpact     = info.vepHighestImpactValue;
@@ -541,11 +586,12 @@ export default class VariantExporter {
     rec.type              = variant.type;
     rec.SIFT              = info.sift;
     rec.regulatory        = info.regulatory;
+    rec.REVEL             = info.revel;
     rec.rsId              = info.rsId;
     rec.dbSnpUrl          = info.dbSnpUrl;
     rec.clinvarUrl        = info.clinvarUrl;
-    rec.clinvarClinSig    = info.clinvarSig;
-    rec.clinvarPhenotype  = info.phenotype;
+    rec.clinvarClinSig    = info.clinvarClinSig;
+    rec.clinvarTrait      = info.clinvarTrait;
     rec.HGVSc             = info.HGVSc;
     rec.HGVSp             = info.HGVSp;
     rec.afExAC            = (variant.afExAC == -100 ? "n/a" : variant.afExAC);

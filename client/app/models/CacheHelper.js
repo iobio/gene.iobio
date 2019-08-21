@@ -34,7 +34,61 @@ CacheHelper.FB_DATA             = "fbData";
 CacheHelper.DANGER_SUMMARY_DATA = "dangerSummary";
 CacheHelper.GENE_COVERAGE_DATA  = "geneCoverage";
 
+CacheHelper.prototype.promiseGetGenesToAnalyze = function(analyzeCalledVariants=false, analyzeGeneCoverage=false) {
+  let self = this;
 
+  return new Promise(function(resolve, reject) {
+    let genesToAnalyze = [];
+    let promises = [];
+    self.cohort.geneModel.geneNames.filter(function(geneName) {
+      return self.cohort.geneModel.isCandidateGene(geneName)
+    })
+    .forEach(function(geneName) {
+      var p = self._promiseIsCached(geneName, analyzeCalledVariants, analyzeGeneCoverage)
+      .then(function(data) {
+        if (!data.isCached) {
+          genesToAnalyze.push(data.geneObject.gene_name);
+        }
+      })
+      promises.push(p);
+    });
+
+    Promise.all(promises)
+    .then(function() {
+      resolve(genesToAnalyze)
+    })
+    .catch(function(error) {
+      reject("Error in CacheHelper.promiseGetGenesToAnalyze: " + error);
+    })
+
+  })
+}
+
+CacheHelper.prototype._promiseIsCached = function(geneName, analyzeCalledVariants=false, analyzeGeneCoverage=false) {
+  let self = this;
+  return new Promise(function(resolve, reject) {
+    self.cohort.geneModel.promiseGetCachedGeneObject(geneName)
+    .then( function(data) {
+      // Get the gene model
+      let geneObject = data;
+      let transcript = null;
+      if (self.geneToAltTranscript && self.geneToAltTranscript[geneObject.gene_name]) {
+        transcript = self.geneToAltTranscript[geneObject.gene_name];
+      } else {
+        transcript = self.cohort.geneModel.getCanonicalTranscript(geneObject);
+      }
+
+      return self.promiseIsCachedForProband(geneObject, transcript, analyzeCalledVariants, analyzeGeneCoverage)
+
+    })
+    .then(function(data) {
+        resolve(data);
+    })
+    .catch(function(error) {
+      reject("Error occurred in CacheHelper._promiseIsCached: " + error);
+    })
+  })
+}
 
 CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = false) {
   var me = this;
@@ -44,32 +98,56 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
     analyzeCalledVariants = true;
   }
 
-  // Show the freebayes runtime args dialog first if dialog has not
-  // yet been visited.   Note:  showFreebayesSettingsDialog() is a
-  // pass-through if global settings allowFreebayesSettings is set
-  // to false.
+
+  var geneNames = me.cohort.geneModel.geneNames.filter(function(geneName) {
+    return me.cohort.geneModel.isCandidateGene(geneName)
+  })
+
   if (analyzeCalledVariants && !me.cohort.freebayesSettings.visited) {
     me.cohort.freebayesSettings.showDialog(function() {
-      me._analyzeAllImpl(analyzeCalledVariants)
+      me._analyzeAllImpl(geneNames, analyzeCalledVariants)
     })
   } else {
-    me._analyzeAllImpl(analyzeCalledVariants)
+    me._analyzeAllImpl(geneNames, analyzeCalledVariants)
   }
+
+
 }
 
-CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, geneToAltTranscript, analyzeCalledVariants=false) {
+CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, geneToAltTranscript, analyzeCalledVariants=false, analyzeGeneCoverage=true) {
   var me = this;
   me.cohort = cohort;
-  me.geneToAltTranscript = geneToAltTranscript;
+  if (geneToAltTranscript) {
+    me.geneToAltTranscript = geneToAltTranscript;
+  }
+  me.analyzeAllInProgress = true;
 
   return new Promise(function(resolve, reject) {
-    theGeneNames.forEach(function(geneName) {
-      me.genesToCache.push(geneName);
+
+    var cachePromises = [];
+
+    theGeneNames.filter(function(geneName) {
+      return me.cohort.geneModel.isCandidateGene(geneName)
+    })
+    .forEach(function(geneName) {
+      var p = me.promiseIsCached(geneName)
+      .then(function(data) {
+        if (!data.isCached) {
+          me.genesToCache.push(geneName);
+        }
+      })
+      cachePromises.push(p);
     });
-    me.cacheGenes(analyzeCalledVariants, function() {
-      me.cohort.geneModel.sortGenes("harmful variants");
-      resolve();
-    });
+
+    Promise.all(cachePromises)
+    .then(function() {
+      me.cacheGenes(analyzeCalledVariants, analyzeGeneCoverage, function() {
+        me.analyzeAllInProgress = false;
+        me.cohort.geneModel.sortGenes("harmful variants");
+        resolve();
+      });
+
+    })
 
   })
 
@@ -172,7 +250,7 @@ CacheHelper.prototype.dequeueGene = function(geneName) {
 }
 
 
-CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
+CacheHelper.prototype._analyzeAllImpl = function(geneNames, analyzeCalledVariants=false, analyzeGeneCoverage=true) {
   var me = this;
 
   this.analyzeAllInProgress = !analyzeCalledVariants
@@ -186,13 +264,10 @@ CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
 
   // Start over with a new queue of genes to be analyzed
   // is all of the genes that need to be analyzed (and cached.)
-  me.genesToCache = [];
+  me.genesToCache = geneNames;
   me.cacheQueue = [];
 
-  me.cohort.geneModel.geneNames.forEach(function(geneName) {
-    me.genesToCache.push(geneName);
-  });
-  me.cacheGenes(analyzeCalledVariants, function() {
+  me.cacheGenes(analyzeCalledVariants, analyzeGeneCoverage, function() {
 
     me.analyzeAllInProgress = false;
     me.callAllInProgress    = false;
@@ -213,7 +288,7 @@ CacheHelper.prototype._analyzeAllImpl = function(analyzeCalledVariants=false) {
 
 
 
-CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
+CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, analyzeGeneCoverage, callback) {
   var me = this;
 
   // If there are no more genes to cache,
@@ -252,10 +327,10 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
 
   // Invoke method to cache each of the genes in the queue
   var count = 0;
-  for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue; i++) {
-    me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants)
-    .then(function(theGeneObject) {
-      me.cacheNextGene(theGeneObject.gene_name, analyzeCalledVariants, callback);
+  for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue && i < me.cacheQueue.length; i++) {
+    me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants, analyzeGeneCoverage)
+    .then(function(data) {
+      me.cacheNextGeneSuccess(data.gene, data.transcript, analyzeCalledVariants, analyzeGeneCoverage, callback);
     },
     function(error) {
       // An error occurred.  Set the gene badge with an error glyph
@@ -268,12 +343,12 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
       .then(function(dangerObject) {
         // take this gene off of the queue and see
         // if next batch of genes should be analyzed
-        me.cacheNextGene(error.geneName, analyzeCalledVariants, callback);
+        me.cacheNextGene(error.geneName, analyzeCalledVariants, analyzeGeneCoverage, callback);
       },
       function(error) {
         var msg = "A problem ocurred while summarizing error in CacheHelper.prototype.cacheGene(): " + error;
         console.log(msg);
-        me.cacheNextGene(error.geneName, analyzeCalledVariants, callback);
+        me.cacheNextGene(error.geneName, analyzeCalledVariants, analyzeGeneCoverage, callback);
       })
     })
     count++;
@@ -284,7 +359,7 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, callback) {
 
 
 
-CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariants, callback) {
+CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariants, analyzeGeneCoverage, callback) {
   var me = this;
 
   return new Promise(function(cacheResolve, cacheReject) {
@@ -297,7 +372,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     var trioFbData = null;
     var shouldCallVariants = analyzeCalledVariants;
 
-    me.cohort.geneModel.promiseGetGeneObject(geneName)
+    me.cohort.geneModel.promiseGetCachedGeneObject(geneName)
     .then( function(data) {
       // Get the gene model
       geneObject = data;
@@ -312,21 +387,33 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     })
     .then(function() {
       // Find out if this gene has already been analyzed
-      return me.promiseIsCachedForProband(geneObject, transcript, analyzeCalledVariants)
+      return me.promiseIsCachedForProband(geneObject, transcript, analyzeCalledVariants, analyzeGeneCoverage)
     })
     .then(function(data) {
       isCached = data.isCached;
       if (isCached) {
         // if the gene has already been analyzed, move on to next gene
-        cacheResolve(geneObject);
+        cacheResolve({'gene': geneObject, 'transcript': transcript});
       } else {
-        // Get the gene coverage stats
-        return me.cohort.promiseGetCachedGeneCoverage(geneObject, transcript, false);
+        // At this point, we know that the variants are not cached.  So
+        // get the gene coverage (if needed), otherwise, continue on to next
+        // step to annotate the variants
+        if (analyzeGeneCoverage) {
+          return me.cohort.promiseGetCachedGeneCoverage(geneObject, transcript, false);
+        } else {
+          return Promise.resolve();
+        }
       }
     })
     .then(function(data) {
       // Load and annotate the variants
-      geneCoverageAll = data.geneCoverage;
+      if (analyzeGeneCoverage) {
+        if (data && data.geneCoverage) {
+          geneCoverageAll = data.geneCoverage;
+        } else {
+          console.log("promiseGetCachedGeneCoverage returning null for " + geneObject.gene_name);
+        }
+      }
 
       // Show that we are working on this gene
       //genesCard._geneBadgeLoading(geneObject.gene_name, true);
@@ -335,7 +422,9 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       if (me.cohort.isAlignmentsOnly()) {
         return Promise.resolve(trioVcfData);
       } else {
-        return me.cohort.promiseAnnotateVariants(geneObject, transcript, me.cohort.mode == 'trio' && me.cohort.samplesInSingleVcf(), true)
+        let annotationOptions = {'isMultiSample': me.cohort.mode == 'trio' && me.cohort.samplesInSingleVcf(),
+                                 'isBackground': true};
+        return me.cohort.promiseAnnotateVariants(geneObject, transcript, annotationOptions)
       }
     })
     .then(function(data) {
@@ -360,7 +449,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
     .then(function(data) {
 
       // Now summarize the danger for the  gene
-      return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants})
+      return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants, 'GENECOVERAGE': analyzeGeneCoverage})
     })
     .then(function() {
       // Now clear out mother and father from cache (localStorage browser cache only)
@@ -381,7 +470,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       //}
 
       // We are done analyzing this gene.  Move on to the next one.
-      cacheResolve(geneObject);
+      cacheResolve({'gene': geneObject, 'transcript': transcript});
 
     },
     function(error) {
@@ -397,28 +486,55 @@ CacheHelper.prototype.isGeneInProgress = function(geneName) {
   return this.cacheQueue.indexOf(geneName) >= 0;
 }
 
-CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants, callback) {
+CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants=false, analyzeGeneCoverage=true, callback) {
 
-  this.dispatch.geneAnalyzed(geneName);
 
   this.dequeueGene(geneName);
   // Invoke cacheGenes, which will kick off the next batch
   // of genes to analyze once all of the genes in
   // the current batch have been analyzed.
-  this.cacheGenes(analyzeCalledVariants, callback);
+  this.cacheGenes(analyzeCalledVariants, analyzeGeneCoverage, callback);
 }
 
-CacheHelper.prototype.promiseIsCachedForProband = function(geneObject, transcript, checkForCalledVariants) {
+
+CacheHelper.prototype.cacheNextGeneSuccess = function(theGene, transcript, analyzeCalledVariants=false, analyzeGeneCoverage=true, callback) {
+
+  this.dispatch.geneAnalyzed(theGene, transcript);
+
+  this.dequeueGene(theGene.gene_name);
+  // Invoke cacheGenes, which will kick off the next batch
+  // of genes to analyze once all of the genes in
+  // the current batch have been analyzed.
+  this.cacheGenes(analyzeCalledVariants, analyzeGeneCoverage, callback);
+}
+
+
+CacheHelper.prototype.promiseIsCachedForProband = function(geneObject, transcript, checkForCalledVariants, checkForGeneCoverage) {
   var me = this;
   return new Promise(function(resolve, reject) {
     me.cohort.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
     .then(function(dangerSummary) {
-      var isCached = dangerSummary == null ? false : (checkForCalledVariants ? dangerSummary.CALLED : true);
-      resolve({geneObject: geneObject, transcript: transcript, shouldCallVariants: checkForCalledVariants, 'isCached': isCached})
+      let isCached = false;
+      if (dangerSummary
+          && (!checkForCalledVariants || dangerSummary.CALLED)
+          && (!checkForGeneCoverage || dangerSummary.GENECOVERAGE)) {
+        isCached = true;
+      }
+      resolve({'geneObject': geneObject, 'transcript': transcript, 'isCached':   isCached});
     })
   })
 }
 
+CacheHelper.prototype.promiseIsCached = function(geneName) {
+  var me = this;
+  return new Promise(function(resolve, reject) {
+    me.cohort.getProbandModel().promiseGetDangerSummary(geneName)
+    .then(function(dangerSummary) {
+      var isCached = dangerSummary ? true : false;
+      resolve({'gene': geneName, 'isCached': isCached});
+    })
+  })
+}
 
 
 CacheHelper.prototype.promiseClearCache = function(launchTimestampToClear) {
@@ -522,6 +638,12 @@ CacheHelper.prototype.getCacheKey = function(cacheObject) {
       key += CacheHelper.KEY_DELIM + cacheObject.annotationScheme;
   }
   return key;
+}
+
+CacheHelper.prototype.convertClinCacheKey = function(cacheKey) {
+  var me = this;
+  let cacheObject = CacheHelper._parseClinCacheKey(cacheKey);
+  return me.getCacheKey(cacheObject);
 }
 
 
@@ -718,6 +840,7 @@ CacheHelper._sizeMB = function(size, decimalPlaces=1) {
 
 
 
+
 CacheHelper._parseCacheKey = function(cacheKey) {
   if (cacheKey.indexOf(CacheHelper.KEY_DELIM) > 0) {
     var tokens = cacheKey.split(CacheHelper.KEY_DELIM);
@@ -745,6 +868,47 @@ CacheHelper._parseCacheKey = function(cacheKey) {
   }
 
 }
+
+CacheHelper._parseClinCacheKey = function(cacheKey) {
+  if (cacheKey.indexOf(CacheHelper.KEY_DELIM) > 0) {
+    var tokens = cacheKey.split(CacheHelper.KEY_DELIM);
+    if (tokens.length >= 5) {
+      var keyObject = {
+           relationship: tokens[0],
+           sample:       tokens[1],
+           gene:         tokens[2],
+           transcript:   tokens[3],
+           dataKind:     tokens[4]
+      };
+      if (tokens.length == 6) {
+        keyObject.annotationScheme = tokens[5];
+      }
+      return keyObject;
+
+    } else {
+      return null;
+    }
+
+  } else {
+    return null;
+  }
+
+}
+
+
+CacheHelper._getClinCacheKey = function(cacheObject) {
+  var key =
+      cacheObject.relationship
+    + CacheHelper.KEY_DELIM + cacheObject.sample
+    + CacheHelper.KEY_DELIM + cacheObject.gene
+    + CacheHelper.KEY_DELIM + cacheObject.transcript
+    + CacheHelper.KEY_DELIM + cacheObject.dataKind;
+  if (cacheObject.dataKind != CacheHelper.GENE_COVERAGE_DATA) {
+      key += CacheHelper.KEY_DELIM + cacheObject.annotationScheme;
+  }
+  return key;
+}
+
 
 CacheHelper.showError = function(key, cacheError) {
   var cacheObject = CacheHelper._parseCacheKey(key);
@@ -836,39 +1000,45 @@ CacheHelper.promiseDecompressData = function(dataCompressed, decompressIt) {
   });
 }
 
-CacheHelper.prototype.promiseCacheData = function(key, data) {
+CacheHelper.prototype.promiseCacheData = function(key, data, options) {
   var me = this;
 
   return new Promise(function(resolve, reject) {
+    var compressIt =  options == null || (options.hasOwnProperty("compress") && options.compress);
+    var compressPromise = null;
+    if (compressIt) {
+      compressPromise = CacheHelper.promiseCompressData(data);
+    } else {
+      compressPromise = Promise.resolve(data);
+    }
 
     if (me.useLocalStorage()) {
       if (localStorage) {
-
-          CacheHelper.promiseCompressData(data)
-           .then(function(dataStringCompressed) {
+        compressPromise
+        .then(function(dataStringCompressed) {
           localStorage.setItem(key, dataStringCompressed);
-          resolve();
-           },
-           function(error) {
-            reject(error);
-           });
+          resolve(key);
+        })
+        .catch(function(error) {
+          reject(error);
+        });
       } else {
         reject("no local storage found")
       }
     } else if (me.useIndexedDB()) {
-      CacheHelper.promiseCompressData(data)
-         .then(function(dataStringCompressed) {
+      compressPromise
+      .then(function(dataStringCompressed) {
         var keyObject = CacheHelper._parseCacheKey(key);
         return me.cacheIndexStore.promiseSetData(keyObject.dataKind, keyObject.gene, key, dataStringCompressed)
-         })
-         .then(function() {
-          resolve();
-         },
-         function(error) {
-          var msg = "A problem occurred in CacheHelper.promiseCacheData() when calling cacheIndexStore.promiseSetData(): " + error;
+      })
+      .then(function() {
+        resolve(key);
+      })
+      .catch(function(error) {
+        var msg = "A problem occurred in CacheHelper.promiseCacheData() when calling cacheIndexStore.promiseSetData(): " + error;
         console.log(msg);
         reject(msg);
-         });
+      });
     } else {
       reject("Unable to determine browser cache method")
     }
@@ -877,7 +1047,7 @@ CacheHelper.prototype.promiseCacheData = function(key, data) {
 
 }
 
-CacheHelper.prototype.promiseGetData = function(key, decompressIt=true) {
+CacheHelper.prototype.promiseGetData = function(key, decompressIt=true, resolveWithKey=false) {
   var me = this;
   return new Promise(function(resolve, reject) {
 
@@ -885,7 +1055,11 @@ CacheHelper.prototype.promiseGetData = function(key, decompressIt=true) {
       if (localStorage) {
             var dataCompressed = localStorage.getItem(key);
             CacheHelper.promiseDecompressData(dataCompressed, decompressIt).then(function(data) {
-              resolve(data);
+              if (resolveWithKey) {
+                resolve({'key': key, 'cache': data});
+              } else {
+                resolve(data);
+              }
             },
             function(error) {
               var errorMsg = "an error occurred when uncompressing data for key " + key;
@@ -896,17 +1070,21 @@ CacheHelper.prototype.promiseGetData = function(key, decompressIt=true) {
     } else if (me.useIndexedDB()) {
       var keyObject = CacheHelper._parseCacheKey(key);
       me.cacheIndexStore.promiseGetData(keyObject.dataKind, key, decompressIt)
-       .then(function(dataCompressed) {
-            CacheHelper.promiseDecompressData(dataCompressed, decompressIt)
-             .then(function(data) {
-              resolve(data);
-             },
-             function(error) {
+      .then(function(dataCompressed) {
+        CacheHelper.promiseDecompressData(dataCompressed, decompressIt)
+        .then(function(data) {
+          if (resolveWithKey) {
+            resolve({'key': key, 'cache': data});
+          } else {
+            resolve(data);
+          }
+        },
+        function(error) {
           var errorMsg = "an error occurred when uncompressing data for key " + key;
           console.log(errorMsg);
           reject(errorMsg);
-             });
-       })
+        });
+      })
     } else {
       reject("Unable to determine browser cache method")
     }
@@ -999,6 +1177,27 @@ CacheHelper.prototype.promiseGetKeys = function() {
 
 }
 
+CacheHelper.prototype.promiseGetKeysForGene = function(geneName) {
+  var me = this;
+  return new Promise(function(resolve, reject) {
+
+    me.promiseGetAllKeys()
+     .then(function(allKeys) {
+
+      var filteredKeys = allKeys.filter(function(key) {
+        var keyObject = CacheHelper._parseCacheKey(key);
+        return keyObject && (keyObject.launchTimestamp == me.launchTimestamp) && keyObject.gene == geneName;
+      })
+      resolve(filteredKeys);
+     },
+     function(error) {
+      reject(error);
+     })
+
+  });
+
+}
+
 
 CacheHelper.prototype.promiseGetAllKeys = function() {
   var me = this;
@@ -1026,6 +1225,58 @@ CacheHelper.prototype.promiseGetAllKeys = function() {
        });
     }
   });
+
+}
+
+CacheHelper.prototype.promiseGetClinCacheItems = function(geneName, includeDataKinds=[]) {
+  let me = this;
+  return new Promise(function(resolve, reject) {
+
+    let cacheItems       = [];
+    let compressIt       = false;
+    let resolveWithKey   = true;
+
+    let getKeysPromise = null;
+    if (geneName) {
+      getKeysPromise = me.promiseGetKeysForGene(geneName);
+    } else {
+      getKeysPromise = me.promiseGetKeys();
+    }
+
+    getKeysPromise
+    .then(function(keys) {
+
+      let promises = [];
+      keys.forEach(function(key) {
+
+        var keyObject    = CacheHelper._parseCacheKey(key);
+
+        if (includeDataKinds.length == 0 || includeDataKinds.indexOf(keyObject.dataKind) >= 0) {
+          let p = me.promiseGetData(key, compressIt, resolveWithKey)
+          .then(function(data) {
+            // This is a special version of the cache key that doesn't contain the launch timestamp
+            var theKeyObject    = CacheHelper._parseCacheKey(data.key);
+            let clinCacheKey    = CacheHelper._getClinCacheKey(theKeyObject);
+
+            cacheItems.push({'cache_key': clinCacheKey, 'cache': data.cache});
+          });
+
+          promises.push(p);
+        }
+
+
+      })
+      Promise.all(promises)
+      .then(function() {
+        resolve(cacheItems);
+      })
+      .catch(function(error) {
+        let msg = "Error in promiseGetCacheItems: " + error;
+        console.log(msg);
+        reject(msg);
+      })
+    })
+  })
 
 }
 

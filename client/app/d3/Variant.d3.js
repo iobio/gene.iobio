@@ -19,6 +19,7 @@ export default function variantD3() {
       regionStart = undefined,
       regionEnd = undefined,
       showXAxis = false,
+      showWhenEmpty = true,
       xTickFormat = null,
       heightPercent = "100%",
       widthPercent = "100%",
@@ -57,10 +58,8 @@ export default function variantD3() {
     var matchingVariant = null;
     svgContainer.selectAll(".variant").each( function (variant,i) {
        if (d.start == variant.start
-          && d.end == variant.end
           && d.ref == variant.ref
-          && d.alt == variant.alt
-          && d.type.toLowerCase() == variant.type.toLowerCase()) {
+          && d.alt == variant.alt) {
 
           if (variant.zygosity != null && variant.zygosity.toLowerCase() == 'homref') {
             // we want to show an "x" for homozygous reference variants
@@ -183,7 +182,8 @@ export default function variantD3() {
 
       container.selectAll("svg").remove();
 
-      if (data && data.length > 0 && data[0] && data[0].features && data[0].features.length > 0) {
+      if (data && data.length > 0 && data[0]
+        && (showWhenEmpty || (data[0].features && data[0].features.length > 0))) {
 
         // Update the x-scale.
         if (regionStart && regionEnd) {
@@ -616,10 +616,8 @@ export default function variantD3() {
     var matchingVariant = null;
     svg.selectAll(".variant").each( function (d,i) {
        if (d.start == variant.start
-          && d.end == variant.end
           && d.ref == variant.ref
-          && d.alt == variant.alt
-          && d.type.toLowerCase() == variant.type.toLowerCase()) {
+          && d.alt == variant.alt) {
           matchingVariant = d;
        }
     });
@@ -635,9 +633,9 @@ export default function variantD3() {
 
     var xpos = 0;
     var ypos = mousey-2;
-    if (variant.type.toUpperCase() == "DEL" || variant.type.toUpperCase() == "COMPLEX") {
+    if (matchingVariant.type.toUpperCase() == "DEL" || matchingVariant.type.toUpperCase() == "COMPLEX") {
       xpos =  mousex;
-    } else if (variant.type.toUpperCase() == "INS") {
+    } else if (matchingVariant.type.toUpperCase() == "INS") {
       xpos =  mousex-.5;
     }else {
       xpos =  mousex+.5;
@@ -758,6 +756,12 @@ export default function variantD3() {
   chart.regionEnd = function(_) {
     if (!arguments.length) return regionEnd;
     regionEnd = _;
+    return chart;
+  };
+
+  chart.showWhenEmpty = function(_) {
+    if (!arguments.length) return showWhenEmpty;
+    showWhenEmpty = _;
     return chart;
   };
 

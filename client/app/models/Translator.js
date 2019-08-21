@@ -75,8 +75,10 @@ export default class Translator {
                       'xlinked':           {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
                       'autosomalDominant': {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
                       'compoundHet':       {value: 1, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
-                      'highOrModerate':    {value: 2, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
+                      'high':              {value: 2, badge: false, clazz: 'system-flagged',  symbolFunction: this.glyph.showFlaggedSymbol},
                       'userFlagged':       {value: 3, badge: false, clazz: 'user-flagged',    symbolFunction: this.glyph.showFlaggedSymbol},
+                      'notCategorized':    {value: 3, badge: false, clazz: 'user-flagged',    symbolFunction: this.glyph.showFlaggedSymbol},
+                      'notFound':          {value: 3, badge: false, clazz: 'user-flagged',    symbolFunction: this.glyph.showFlaggedSymbol},
                       '':                  {value: 3, badge: false, clazz: '',                symbolFunction: ''}
                        };
     this.unaffectedMap = {
@@ -98,7 +100,7 @@ export default class Translator {
                           none: {value: 101, badge: false, clazz: '',                  symbolFunction: ''}
                    };
     // For af range, value must be > min and <= max
-    this.afHighestMap = [ {min: -100.1, max: -100,   value: +99, badge: false, clazz: '',    symbolFunction: ''},
+    this.afHighestMap = [ {min: -100.1,max: -100,      value: +99, badge: false,clazz: '',    symbolFunction: ''},
                          {min: -1.1,   max: +0,        value: +2,  badge: true, clazz: 'afhighest_rare',    symbolFunction: this.glyph.showAfRareSymbol},
                          {min: -1.1,   max: +.0001,    value: +3,  badge: true, clazz: 'afhighest_rare',    symbolFunction: this.glyph.showAfRareSymbol},
                          {min: -1.1,   max: +.001,     value: +4,  badge: true, clazz: 'afhighest_rare',    symbolFunction: this.glyph.showAfRareSymbol},
@@ -106,6 +108,12 @@ export default class Translator {
                          {min: -1.1,   max: +.05,      value: +6,  badge: true, clazz: 'afhighest_rare',    symbolFunction: this.glyph.showAfRareSymbol},
                          {min: +.05,   max: +1,        value: +7,  badge: false,clazz: '',    symbolFunction: ''},
                         ];
+
+    // For REVEL range, value must be >= min and < max
+    this.revelMap = [ {min: 0,   max: .5,   value: +1, badge: false, clazz: '',              symbolFunction: ''},
+                      {min: .5,  max: .75,  value: +2, badge: false, clazz: 'revel_moderate', symbolFunction: ''},
+                      {min: .75, max: 1,    value: +3, badge: false, clazz: 'revel_high',     symbolFunction: ''}
+                    ];
 
   }
 

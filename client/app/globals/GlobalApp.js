@@ -9,12 +9,15 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
-    this.version               = "3.0.5";
+    this.version               = "3.2.1";
 
     this.DEV_IOBIO             = "nv-dev-new.iobio.io/";
     this.STAGE_IOBIO           = "nv-green.iobio.io/";
+    this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
     this.PROD_IOBIO            = "nv-prod.iobio.io/";
-    this.CURRENT_IOBIO         = this.PROD_IOBIO;
+
+    this.IOBIO_SOURCE          = this.PROD_IOBIO;
+    this.HTTP_SOURCE           = this.PROD_IOBIO;
 
 
     this.isOffline             = false;          // is there any internet connect to outside services and resources?
@@ -32,17 +35,15 @@ class GlobalApp {
     this.useServerCache        = false;
 
 
+    this.IOBIO_SERVICES        = null;
+    this.HTTP_SERVICES         = null;
+    this.emailServer           = null;
+    this.hpoLookupUrl          = null;
 
-    this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.CURRENT_IOBIO;
-    this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.CURRENT_IOBIO);
-    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SERVICES + "email/";
-
-
-    this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
 
     // config files
-    this.siteConfigUrl         =  "https://s3.amazonaws.com/gene.iobio.config/site-config.json";
-//    this.siteConfigUrl         =  "https://s3.amazonaws.com/gene.iobio.config/site-config-dev.json";
+    this.siteConfigUrl         =  { 'prod': "https://s3.amazonaws.com/gene.iobio.config/site-config.json",
+                                    'dev': "https://s3.amazonaws.com/gene.iobio.config/site-config-dev.json" };
     this.clinvarGenesUrl       =  "https://s3.amazonaws.com/gene.iobio.config/clinvar-counts.txt";
 
     // Get clinvar annotations from 'eutils' or 'vcf'
@@ -53,7 +54,7 @@ class GlobalApp {
     this.getVariantIdsForGene = false;
 
     // How many genes can be analyzed in one session.  Set to null if no limitation.
-    this.maxGeneCount         = 100;
+    this.maxGeneCount         = null;
 
     // Should vep retrieve allele frequencies (for gnomad, 1000G, ESP)
     this.vepAF                = true ;
@@ -76,7 +77,8 @@ class GlobalApp {
     this.autocall                    = null       // If only alignments provided, should variants be automatically called when gene is selected?
 
 
-    this.DEFAULT_BATCH_SIZE          = 10;              // how many genes can be analyzed simultaneously for 'Analyze all'
+    this.DEFAULT_BATCH_SIZE          = 10;         // how many genes can be analyzed simultaneously for 'Analyze all'
+    this.ignoreAlignments            = false;     // By pass any processing of aligments?
 
     this.keepLocalStorage            = false; // maintain cache between sessions?
     this.eduModeVariantSize          = 10;
@@ -84,6 +86,31 @@ class GlobalApp {
     // Fields
     this.impactFieldToFilter         = 'highestImpactVep';
     this.impactFieldToColor          = 'vepImpact';
+
+  }
+
+  initServices() {
+
+    this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.IOBIO_SOURCE;
+
+    // End with "/" for IOBIO services
+    if (this.IOBIO_SERVICES.indexOf("/", this.IOBIO_SERVICES.length - 1) == -1) {
+        this.IOBIO_SERVICES += "/";
+    }
+
+    this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
+    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
+    this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
+
+  }
+
+  getClinvarUrl(build) {
+
+      var clinvarUrls = {
+        'GRCh37': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/archive_2.0/2018/clinvar_20181202.vcf.gz",
+        'GRCh38': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2018/clinvar_20181202.vcf.gz",
+      };
+      return clinvarUrls[build];
 
   }
 
