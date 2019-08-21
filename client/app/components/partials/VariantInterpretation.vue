@@ -8,6 +8,7 @@ i.material-icons.interpretation
   padding-top: 0px
   padding-bottom: 3px
   padding-right: 4px
+  padding-left: 4px
 
 .interpretation-label
   color: white  !important
