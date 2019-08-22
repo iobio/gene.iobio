@@ -203,36 +203,51 @@ export default class EndpointCmd {
   }
 
   normalizeVariants(vcfUrl, tbiUrl, refName, regions) {
-    var me = this;
 
-    var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
+    if (this.gruBackend) {
 
-    var regionParm = "";
-    regions.forEach(function(region) {
-      if (regionParm.length > 0) {
-        regionParm += " ";
-      }
-      regionParm += region.refName + ":" + region.start + "-" + region.end;
-    })
+      var me = this;
+      var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
+      var contigStr = "";
+      me.getHumanRefNames(refName).split(" ").forEach(function(ref) {
+          contigStr += "##contig=<ID=" + ref + ">\n";
+      })
 
-    var args = ['-h', vcfUrl, regionParm];
-    if (tbiUrl) {
-      args.push(tbiUrl);
+      const cmd = this.api.streamNormalizeVariants(vcfUrl, tbiUrl, refName, regions, contigStr, refFastaFile);
+      return cmd;
     }
+    else {
+      var me = this;
 
-    var contigStr = "";
-    me.getHumanRefNames(refName).split(" ").forEach(function(ref) {
-        contigStr += "##contig=<ID=" + ref + ">\n";
-    })
-    var contigNameFile = new Blob([contigStr])
+      var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
 
-    var cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
-                       .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
+      var regionParm = "";
+      regions.forEach(function(region) {
+        if (regionParm.length > 0) {
+          regionParm += " ";
+        }
+        regionParm += region.refName + ":" + region.start + "-" + region.end;
+      })
 
-    // normalize variants
-    cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL})
+      var args = ['-h', vcfUrl, regionParm];
+      if (tbiUrl) {
+        args.push(tbiUrl);
+      }
 
-    return cmd;
+      var contigStr = "";
+      me.getHumanRefNames(refName).split(" ").forEach(function(ref) {
+          contigStr += "##contig=<ID=" + ref + ">\n";
+      })
+      var contigNameFile = new Blob([contigStr])
+
+      var cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
+                         .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
+
+      // normalize variants
+      cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL})
+
+      return cmd;
+    }
   }
 
   getClinvarCountsForGene(clinvarUrl, refName, geneObject, binLength, regions) {
