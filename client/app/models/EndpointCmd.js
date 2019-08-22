@@ -11,10 +11,10 @@ export default class EndpointCmd {
     this.launchedFromUtah =  this.globalApp.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0;
 
     if (this.launchedFromUtah) {
-      this.apiClient = new Client('mosaic.chpc.utah.edu/gru/api/v1', { secure: true });
+      this.api = new Client('mosaic.chpc.utah.edu/gru/api/v1', { secure: true });
     }
     else {
-      this.apiClient = new Client('backend.iobio.io', { secure: true });
+      this.api = new Client('backend.iobio.io', { secure: true });
     }
 
     // iobio services
@@ -42,7 +42,7 @@ export default class EndpointCmd {
   getVcfHeader(vcfUrl, tbiUrl) {
 
     if (this.gruBackend) {
-      return this.apiClient.streamVariantHeader(vcfUrl, tbiUrl);
+      return this.api.streamVariantHeader(vcfUrl, tbiUrl);
     }
     else {
       var me = this;
@@ -459,30 +459,36 @@ export default class EndpointCmd {
 
 
   getGeneCoverage(bamSources, refName, geneName, regionStart, regionEnd, regions) {
-    var me = this;
-    var bamCmds = me._getBamRegions(bamSources, refName, regionStart, regionEnd);
 
-    var args = [];
+    if (this.gruBackend) {
+      const url = bamSources[0].bamUrl;
+      const indexUrl = bamSources[0].baiUrl;
+      return this.api.streamGeneCoverage(url, indexUrl, refName, geneName, regionStart, regionEnd, regions);
+    }
+    else {
+      var me = this;
+      var bamCmds = me._getBamRegions(bamSources, refName, regionStart, regionEnd);
 
-    bamCmds.forEach( function(bamCmd) {
-      args.push("-b");
-      args.push(bamCmd);
-    });
+      var args = [];
 
-    var regionStr = "#" + geneName + "\n";
-    regions.forEach(function(region) {
-      regionStr += refName + ":" + region.start + "-" + region.end + "\n";
-    })
-    var regionFile = new Blob([regionStr])
+      bamCmds.forEach( function(bamCmd) {
+        args.push("-b");
+        args.push(bamCmd);
+      });
 
-    args.push("-r");
-    args.push(regionFile);
+      var regionStr = "#" + geneName + "\n";
+      regions.forEach(function(region) {
+        regionStr += refName + ":" + region.start + "-" + region.end + "\n";
+      })
+      var regionFile = new Blob([regionStr])
 
-
-    var cmd = new iobio.cmd(me.IOBIO.geneCoverage, args, {ssl: me.globalApp.useSSL});
-    return cmd;
+      args.push("-r");
+      args.push(regionFile);
 
 
+      var cmd = new iobio.cmd(me.IOBIO.geneCoverage, args, {ssl: me.globalApp.useSSL});
+      return cmd;
+    }
   }
 
   _getBamRegions(bamSources, refName, regionStart, regionEnd) {
