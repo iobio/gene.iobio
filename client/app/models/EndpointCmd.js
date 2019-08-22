@@ -1,4 +1,5 @@
 import iobiocmd from '../third-party/iobio.js'
+import { Client } from 'iobio-api-client';
 
 export default class EndpointCmd {
 
@@ -8,6 +9,13 @@ export default class EndpointCmd {
     this.genomeBuildHelper = genomeBuildHelper;
     this.getHumanRefNames  = getHumanRefNamesFunc;
     this.launchedFromUtah =  this.globalApp.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0;
+
+    if (this.launchedFromUtah) {
+      this.apiClient = new Client('mosaic.chpc.utah.edu', { secure: true });
+    }
+    else {
+      this.apiClient = new Client('backend.iobio.io', { secure: true });
+    }
 
     // iobio services
     this.IOBIO = {};
@@ -26,22 +34,29 @@ export default class EndpointCmd {
     this.IOBIO.vcflib                  = this.globalApp.IOBIO_SERVICES  + "vcflib/";
     this.IOBIO.geneCoverage            = this.globalApp.IOBIO_SERVICES  + "genecoverage/";
     this.IOBIO.knownvariants           = this.globalApp.IOBIO_SERVICES  + "knownvariants/";
+    this.gruBackend = true;
   }
 
 
 
   getVcfHeader(vcfUrl, tbiUrl) {
-    var me = this;
-    var args = ['-H', '"'+vcfUrl+'"'];
-    if (tbiUrl) {
-      args.push('"'+tbiUrl+'"');
+
+    if (this.gruBackend) {
+      return this.apiClient.streamVariantHeader(vcfUrl);
     }
-    var cmd = new iobio.cmd(
-          me.IOBIO.tabix,
-          args,
-          {ssl: me.globalApp.useSSL}
-    );
-    return cmd;
+    else {
+      var me = this;
+      var args = ['-H', '"'+vcfUrl+'"'];
+      if (tbiUrl) {
+        args.push('"'+tbiUrl+'"');
+      }
+      var cmd = new iobio.cmd(
+            me.IOBIO.tabix,
+            args,
+            {ssl: me.globalApp.useSSL}
+      );
+      return cmd;
+    }
   }
 
   getVcfDepth(vcfUrl, tbiUrl) {
