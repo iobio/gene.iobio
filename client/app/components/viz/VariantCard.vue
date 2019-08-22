@@ -492,6 +492,7 @@
             :showTooltip="false"
             :showXAxis="false"
             :regionGlyph="depthVizRegionGlyph"
+            :showAlleleBar="false"
             @region-selected="showExonTooltip"
           >
           </depth-viz>

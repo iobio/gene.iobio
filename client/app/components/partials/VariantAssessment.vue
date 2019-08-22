@@ -49,7 +49,6 @@
     flex-flow: row
     flex-wrap: wrap
     justify-content: flex-start
-    min-height: 100px
 
     .individual-note
       border-right: solid 1px #e6e3e3

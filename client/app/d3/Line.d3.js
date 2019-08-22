@@ -41,12 +41,12 @@ export default function lineD3() {
   var yTicks = null;
   var yTickFormat = null;
   var yAxisLine = false;
+  var showAlleleBar = false;
   var showTransition = true;
   var showGradient = true;
   var brushHeight = null;
   var xStart = null;
   var xEnd = null;
-  var showCoverageBar = false;
 
 
 
@@ -133,7 +133,7 @@ export default function lineD3() {
             .attr("cy", posY + margin.top )
             .attr("r", 3)
 
-      if (showCoverageBar) {
+      if (showAlleleBar) {
         var coverageBar = container.select(".coverage-bar");
         coverageBar.transition()
               .duration(200)
@@ -171,7 +171,7 @@ export default function lineD3() {
                  .style("opacity", 0);
 
 
-    if (showCoverageBar) {
+    if (showAlleleBar) {
       container.select(".circle-label").transition()
                    .duration(500)
                    .style("opacity", 0);
@@ -630,6 +630,12 @@ export default function lineD3() {
   exports.maxDepth = function(_) {
     if (!arguments.length) return maxDepth;
     maxDepth = _;
+    return exports;
+  }
+
+  exports.showAlleleBar = function(_) {
+    if (!arguments.length) return showAlleleBar;
+    showAlleleBar = _;
     return exports;
   }
 

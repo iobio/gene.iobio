@@ -144,6 +144,10 @@ export default {
         type: Number,
         default: 3
       },
+      showAlleleBar: {
+        type: Boolean,
+        default: false
+      },
       regionStart: {
         type: Number,
         default: 0
@@ -189,6 +193,7 @@ export default {
           .pos( function(d) { return d[0] })
           .depth( function(d) { return d[1] })
           .maxDepth(this.maxDepth)
+          .showAlleleBar(this.showAlleleBar)
           .yTickFormat(function(val) {
             if (val == 0) {
               return "";

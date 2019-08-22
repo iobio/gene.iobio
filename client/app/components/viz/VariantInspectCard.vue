@@ -47,9 +47,11 @@
       padding: 5px
       padding-left: 0px
       min-width: 190px
-      margin-bottom: 5px
+      margin-bottom: 0px
       margin-right: 5px
       padding-top: 0px
+      padding-bottom: 0px
+
 
       &.last
         border-right: none
@@ -71,6 +73,15 @@
         display: inline-block
         vertical-align: top
 
+      #qual-track
+        #depth-viz
+          .circle-label
+            font-size: 12px !important
+
+          .y.axis
+            .tick
+              text
+                font-size: 10px !important
 
   .rel-header
     font-style: italic
@@ -90,8 +101,8 @@
       padding: 0px
       height: 22px !important
       margin: 0px
-      min-width: 100px !important
-      max-width: 100px
+      min-width: 110px !important
+      max-width: 110px
 
       .btn__content
         color: $text-color !important
@@ -218,6 +229,45 @@
           <div class="variant-column-header">
             Quality
           </div>
+
+
+          <div id="qual-track" style="width:130px;height:80px;margin-bottom:15px !important">
+            <depth-viz
+              v-if="cohortModel"
+              ref="depthVizRef"
+              :data="coverage"
+              :coverageMedian="cohortModel.filterModel.geneCoverageMedian"
+              :coverageDangerRegions="coverageDangerRegions"
+              :currentPoint="coveragePoint"
+              :maxDepth="cohortModel.maxDepth"
+              :regionStart="coverageRegionStart"
+              :regionEnd="coverageRegionEnd"
+              :width="130"
+              :margin="depthVizMargin"
+              :height="60"
+              :showTooltip="false"
+              :showXAxis="false"
+              :regionGlyph="depthVizRegionGlyph"
+              :showAlleleBar="true"
+            >
+            </depth-viz>
+            <gene-viz id="gene-viz"
+              v-if="cohortModel"
+              :data="[selectedTranscript]"
+              :margin="geneVizMargin"
+              :width="130"
+              :height="16"
+              :trackHeight="geneVizTrackHeight"
+              :cdsHeight="geneVizCdsHeight"
+              :regionStart="coverageRegionStart"
+              :regionEnd="coverageRegionEnd"
+              :showXAxis="false"
+              :showBrush="false"
+              :featureClass="getExonClass"
+              >
+            </gene-viz>
+          </div>
+
           <div class="variant-row">
             <variant-allele-counts-menu
               :selectedVariant="selectedVariant"
@@ -229,7 +279,8 @@
           <div class="variant-row">
             <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
             class="variant-action-button"  @click="onShowPileup">
-             Read Pileup...
+             <v-icon>format_align_center</v-icon>
+             Read Pileup
             </v-btn>
           </div>
       </div>
@@ -237,7 +288,6 @@
     </div>
 
     <variant-assessment
-      style="margin-top: 10px"
       :variant="selectedVariant"
       :variantInterpretation="interpretation"
       :interpretationMap="interpretationMap"
@@ -259,6 +309,9 @@ import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
 import VariantAlleleCountsMenu  from "../partials/VariantAlleleCountsMenu.vue"
 import InfoPopup                from "../partials/InfoPopup.vue"
 import TranscriptsMenu          from '../partials/TranscriptsMenu.vue'
+import DepthViz                 from "../viz/DepthViz.vue"
+import GeneViz                  from "../viz/GeneViz.vue"
+
 
 export default {
   name: 'variant-inspect-card',
@@ -269,12 +322,15 @@ export default {
     VariantAliasesMenu,
     VariantInspectRow,
     VariantAlleleCountsMenu,
-    VariantAssessment
+    VariantAssessment,
+    DepthViz,
+    GeneViz
   },
   props: {
     selectedGene: null,
     selectedTranscript: null,
     selectedVariant: null,
+    selectedVariantKey: null,
     selectedVariantNotes: null,
     selectedVariantInterpretation: null,
     selectedVariantRelationship: null,
@@ -282,11 +338,33 @@ export default {
     genomeBuildHelper: null,
     cohortModel: null,
     showGenePhenotypes: null,
-    info: null
+    info: null,
+    coverageDangerRegions: null,
   },
   data() {
     return {
-      genePhenotypeHits: null
+      genePhenotypeHits: null,
+
+      coverageRegionStart: null,
+      coverageRegionEnd: null,
+      exon: null,
+      coverage: null,
+      coveragePoint: null,
+
+      depthVizMargin: {
+        top: 5,
+        right: 2,
+        bottom: 0,
+        left: 4
+      },
+      geneVizMargin: {
+        top: 0,
+        right: 2,
+        bottom: 0,
+        left: 4
+      },
+      geneVizTrackHeight: 16,
+      geneVizCdsHeight: 12
 
 
     }
@@ -414,14 +492,59 @@ export default {
     initGenePhenotypeHits: function() {
       let self = this;
       self.genePhenotypeHits = [];
-      let searchTermRecs = self.cohortModel.geneModel.getGenePhenotypeHits(self.selectedGene.gene_name);
-      if (searchTermRecs) {
-        for (var searchTerm in searchTermRecs) {
-          let searchTermLabel = searchTerm.split("_").join(" ");
-          var rankRecs        = searchTermRecs[searchTerm];
-          self.genePhenotypeHits.push( {key: searchTerm, searchTerm: searchTermLabel, geneRanks: rankRecs } );
+      if (self.selectedGene) {
+        let searchTermRecs = self.cohortModel.geneModel.getGenePhenotypeHits(self.selectedGene.gene_name);
+        if (searchTermRecs) {
+          for (var searchTerm in searchTermRecs) {
+            let searchTermLabel = searchTerm.split("_").join(" ");
+            var rankRecs        = searchTermRecs[searchTerm];
+            self.genePhenotypeHits.push( {key: searchTerm, searchTerm: searchTermLabel, geneRanks: rankRecs } );
+          }
         }
       }
+    },
+    initCoverage: function() {
+      let self = this;
+      if (self.selectedVariant) {
+        self.exon                = this.getExon();
+        self.coverageRegionStart = this.getCoverageRegionStart();
+        self.coverageRegionEnd   = this.getCoverageRegionEnd();
+
+        let theCoverage = self.cohortModel.getProbandModel().coverage.filter(function(coveragePoint) {
+          return coveragePoint[0] >= self.coverageRegionStart && coveragePoint[0] <= self.coverageRegionEnd;
+        })
+        let clonedCoverage = [];
+        theCoverage.forEach(function(covPoint) {
+          let newPoint = []
+          newPoint.push(covPoint[0])
+          newPoint.push(covPoint[1])
+          clonedCoverage.push(newPoint)
+        })
+        self.coverage = clonedCoverage
+        setTimeout(function() {
+          self.showCoverageAlleleBar();
+        }, 1000)
+      } else {
+        self.exon = null;
+        self.converageRegionStart = null;
+        self.coverageRegionEnd = null;
+        self.coverage = [];
+      }
+    },
+    showCoverageAlleleBar: function() {
+      let self = this;
+      let theDepth = self.selectedVariant.bamDepth;
+      let theAltCount = null;
+      // If samtools mpileup didn't return coverage for this position, use the variant's depth
+      // field.
+      if (theDepth == null || theDepth == '') {
+        theDepth = self.selectedVariant.genotypeDepth;
+      }
+      if (self.selectedVariant.genotype && self.selectedVariant.genotype.altCount) {
+        theAltCount = self.selectedVariant.genotype.altCount;
+      }
+
+      self.$refs.depthVizRef.showCurrentPoint({pos: self.selectedVariant.start, depth: theDepth, altCount: theAltCount});
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
@@ -431,10 +554,103 @@ export default {
     },
 
 
+
+    depthVizRegionGlyph: function(exon, regionGroup, regionX) {
+      var exonId = 'exon' + exon.exon_number.replace("/", "-");
+      if (regionGroup.select("g#" + exonId).empty()) {
+        regionGroup.append('g')
+              .attr("id", exonId)
+              .attr('class',      'region-glyph coverage-problem-glyph')
+              .attr('transform',  'translate(' + (regionX - 12) + ',-16)')
+              .data([exon])
+              .append('use')
+              .attr('height',     '22')
+              .attr('width',      '22')
+              .attr('href', '#long-arrow-down-symbol')
+              .attr('xlink','http://www.w3.org/1999/xlink')
+              .data([exon]);
+      }
+    },
+    getExonClass: function(exon, i) {
+      if (exon && exon.danger) {
+        return exon.feature_type.toLowerCase() + (exon.danger.proband ? " danger" : "");
+      } else {
+        return exon.feature_type.toLowerCase();
+      }
+    },
+    getExonNumber: function() {
+      if (this.selectedVariant.hasOwnProperty("vepExon") && !$.isEmptyObject(this.selectedVariant.vepExon)) {
+        return Object.keys(this.selectedVariant.vepExon)[0];
+      } else {
+        return null;
+      }
+    },
+
+    getExon: function() {
+      let self = this;
+      let exonNumber = self.getExonNumber();
+      if (exonNumber != null) {
+        if (self.selectedTranscript) {
+          var exons = self.selectedTranscript.features.filter(function(feature) {
+            if ( feature.transcript_type == 'protein_coding'
+                || feature.transcript_type == 'mRNA'
+                || feature.transcript_type == 'transcript'
+                || feature.transcript_type == 'primary_transcript') {
+              return feature.feature_type.toLowerCase() == 'utr' || feature.feature_type.toLowerCase() == 'cds';
+            } else {
+              return feature.feature_type.toLowerCase() == 'exon';
+            }
+          })
+
+          let theExon = exons.filter(function(feature) {
+            return +feature.start <= +self.selectedVariant.start && +feature.end >= +self.selectedVariant.start;
+          })
+          if (theExon && theExon.length > 0) {
+            return theExon[0];
+          } else {
+            return null;
+          }
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    },
+    getCoverageRegionStart: function() {
+      let self = this;
+
+      if (self.exon) {
+        let exonWidth = +self.exon.end  -  +self.exon.start;
+        return +self.exon.start - (exonWidth);
+      } else  {
+        return +self.selectedVariant.start - 1000;
+      }
+    },
+    getCoverageRegionEnd: function() {
+      let self = this;
+      if (self.exon) {
+        let exonWidth = +self.exon.end  -  +self.exon.start;
+        return +self.exon.end + (exonWidth);
+      } else  {
+        return +self.selectedVariant.start + 1000;
+      }
+    },
+
   },
 
 
   computed: {
+    sampleModel: function() {
+      return this.cohortModel.getProbandModel();
+    },
+    hasAlignments: function() {
+      return this.cohortModel.getProbandModel().isBamLoaded();
+    },
+
+
+
+
     refAlt: function() {
       let self = this;
       var refAlt = "";
@@ -524,7 +740,10 @@ export default {
 
   watch: {
     selectedVariant: function() {
-      this.initGenePhenotypeHits();
+      this.$nextTick(function() {
+        this.initGenePhenotypeHits();
+        this.initCoverage();
+      })
     }
 
   },

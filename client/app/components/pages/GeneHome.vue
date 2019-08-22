@@ -277,6 +277,8 @@ main.content.clin, main.v-content.clin
 
         <variant-inspect-card
         ref="variantInspectRef"
+        v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0"
+        v-show="selectedVariant"
         :selectedGene="selectedGene"
         :selectedTranscript="analyzedTranscript"
         :selectedVariant="selectedVariant"
@@ -287,7 +289,9 @@ main.content.clin, main.v-content.clin
         :genomeBuildHelper="genomeBuildHelper"
         :cohortModel="cohortModel"
         :info="selectedVariantInfo"
+        :selectedVariantKey="selectedVariantKey"
         :showGenePhenotypes="launchedFromClin || phenotypeTerm"
+        :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
         @show-pileup-for-variant="onShowPileupForVariant"
         @apply-variant-interpretation="onApplyVariantInterpretation"
         @apply-variant-notes="onApplyVariantNotes"
@@ -366,7 +370,7 @@ main.content.clin, main.v-content.clin
         @sfari-variants-filter-change="onSfariVariantsFilterChange"
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
-        @show-coverage-cutoffs="showCoverageCutoffs = true"
+        @show-coverage-cutoffs="showCoverageCutoffs = true;showFilters = true"
         @show-pileup-for-variant="onShowPileupForVariant"
         >
         </variant-card>
@@ -609,6 +613,7 @@ export default {
       appTour: null,
 
       selectedVariant: null,
+      selectedVariantKey: null,
       selectedVariantNotes: null,
       selectedVariantInterpretation: null,
       selectedVariantRelationship: null,
@@ -1538,7 +1543,8 @@ export default {
         }
 
         self.calcFeatureMatrixWidthPercent();
-        self.selectedVariant = variant;
+        self.$set(self, selectedVariant, variant);
+        self.$set(self, selectedVariantKey, self.getVariantKey(self.selectedVariant));
         self.selectedVariantRelationship = sourceRelationship;
         self.selectedVariantNotes = variant.notes;
         self.selectedVariantInterpretation = variant.interpretation;
@@ -1566,6 +1572,13 @@ export default {
 
       } else {
         self.deselectVariant();
+      }
+    },
+    getVariantKey(variant) {
+      if (variant) {
+        return  {'chrom': variant.chrom, 'start': variant.start, 'ref': variant.ref, 'alt': variant.alt};
+      } else {
+        return null;
       }
     },
     onCohortVariantOutsideClick(sourceComponent, sourceRelationship) {
@@ -1603,6 +1616,7 @@ export default {
     deselectVariant: function() {
       let self = this;
       self.selectedVariant = null;
+      self.selectedVariantKey = null;
       self.selectedVariantNotes = null;
       self.selectedVariantInterpretation = null;
       self.selectedVariantRelationship = null;
@@ -1834,6 +1848,7 @@ export default {
           self.selectedGene = {};
           self.selectedTranscript = null;
           self.selectedVariant = null;
+          self.selectedVariantKey = null;
           self.selectedVariantRelationship = null;
           self.selectedVariantNotes = null;
           self.selectedVariantInterpretation = null;
@@ -2253,6 +2268,7 @@ export default {
           self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
         }
         self.selectedVariant = null;
+        self.selectedVariantKey = null;
         self.selectedVariantNotes = null;
         self.selectedVariantInterpretation = null;
         self.selectedVariantRelationship = null;
@@ -2301,6 +2317,8 @@ export default {
 
                 self.$set(self, "selectedVariant", null);
                 self.$set(self, "selectedVariant", flaggedVariant);
+                self.$set(self, "selectedVariantKey", null);
+                self.$set(self, "selectedVariantKey", flaggedVariant);
                 self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
                 self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
                 self.$refs.variantCardRef.forEach(function(variantCard) {
