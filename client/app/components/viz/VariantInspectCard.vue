@@ -68,6 +68,9 @@
         margin-bottom: 10px
         max-width: 260px
 
+        &.last
+          margin-bottom: 0px
+
       .pheno-search-term
         max-width: 160px
         display: inline-block
@@ -292,7 +295,7 @@
               :relationship="selectedVariantRelationship">
             </variant-allele-counts-menu>
           </div>
-          <div class="variant-row">
+          <div class="variant-row last">
             <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
             class="variant-action-button"  @click="onShowPileup">
              <v-icon>format_align_center</v-icon>
