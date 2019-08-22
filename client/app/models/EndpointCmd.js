@@ -278,80 +278,91 @@ export default class EndpointCmd {
   }
 
   getBamCoverage(bamSource, refName, regionStart, regionEnd, regions, maxPoints, useServerCache, serverCacheKey) {
-    var me = this;
 
-    var samtools = bamSource.bamUrl != null ?  me.IOBIO.samtoolsOnDemand : me.IOBIO.samtools;
+    if (this.gruBackend) {
+      const url = bamSource.bamUrl;
+      const samtoolsRegion = { refName, start: regionStart, end: regionEnd };
+      const indexUrl = bamSource.baiUrl;
+      maxPoints = maxPoints ? maxPoints : 0;
+      const coverageRegions = regions;
 
-    var regionsArg = "";
-    regions.forEach( function(region) {
-      region.name = refName;
-      if (region.name && region.start && region.end) {
-        if (regionsArg.length == 0) {
-          regionsArg += " -p ";
-        } else {
-          regionsArg += ",";
+      return this.api.streamAlignmentCoverage(url, indexUrl, samtoolsRegion, maxPoints, coverageRegions);
+    }
+    else {
+      var me = this;
+
+      var samtools = bamSource.bamUrl != null ?  me.IOBIO.samtoolsOnDemand : me.IOBIO.samtools;
+
+      var regionsArg = "";
+      regions.forEach( function(region) {
+        region.name = refName;
+        if (region.name && region.start && region.end) {
+          if (regionsArg.length == 0) {
+            regionsArg += " -p ";
+          } else {
+            regionsArg += ",";
+          }
+          regionsArg += region.name + ":" + region.start +  ":" + region.end;
         }
-        regionsArg += region.name + ":" + region.start +  ":" + region.end;
+      });
+      var maxPointsArg = "";
+      if (maxPoints) {
+        maxPointsArg = "-m " + maxPoints;
+      } else {
+        maxPointsArg = "-m 0"
       }
-    });
-    var maxPointsArg = "";
-    if (maxPoints) {
-      maxPointsArg = "-m " + maxPoints;
-    } else {
-      maxPointsArg = "-m 0"
-    }
-    var spanningRegionArg = " -r " + refName + ":" + regionStart + ":" + regionEnd;
-    var regionArg =  refName + ":" + regionStart + "-" + regionEnd;
+      var spanningRegionArg = " -r " + refName + ":" + regionStart + ":" + regionEnd;
+      var regionArg =  refName + ":" + regionStart + "-" + regionEnd;
 
 
 
 
-    var cmd = null;
+      var cmd = null;
 
-    // When file served remotely, first run samtools view, then run samtools mpileup.
-    // When bam file is read as a local file, just stream sam records for region to
-    // samtools mpileup.
-    if (bamSource.bamUrl) {
-      var args = ['view', '-b', '"'+bamSource.bamUrl+'"', regionArg];
-      if (bamSource.baiUrl) {
-        args.push('"'+bamSource.baiUrl+'"');
+      // When file served remotely, first run samtools view, then run samtools mpileup.
+      // When bam file is read as a local file, just stream sam records for region to
+      // samtools mpileup.
+      if (bamSource.bamUrl) {
+        var args = ['view', '-b', '"'+bamSource.bamUrl+'"', regionArg];
+        if (bamSource.baiUrl) {
+          args.push('"'+bamSource.baiUrl+'"');
+        }
+        cmd = new iobio.cmd(samtools, args,
+          {
+            'urlparams': { 'encoding':'binary'},
+            ssl: me.globalApp.useSSL
+          });
+        cmd = cmd.pipe(samtools, ["mpileup", "-"], {ssl: me.globalApp.useSSL});
+      } else {
+
+
+
+        cmd = new iobio.cmd(samtools, ['mpileup',  bamSource.writeStream ],
+          {
+            'urlparams': {'encoding':'utf8'},
+            ssl: me.globalApp.useSSL
+          });
+
       }
-      cmd = new iobio.cmd(samtools, args,
-        {
-          'urlparams': { 'encoding':'binary'},
-          ssl: me.globalApp.useSSL
-        });
-      cmd = cmd.pipe(samtools, ["mpileup", "-"], {ssl: me.globalApp.useSSL});
-    } else {
 
+      //
+      //  SERVER SIDE CACHING for coverage service
+      //
+      var cacheKey = null;
+      var urlParameters = {};
+      if (useServerCache) {
+          urlParameters.cache = serverCacheKey;
+          urlParameters.partialCache = true;
+          cmd = cmd.pipe("nv-dev-new.iobio.io/coverage/", [maxPointsArg, spanningRegionArg, regionsArg], {ssl: me.globalApp.useSSL, urlparams: urlParameters});
+      } else {
+        // After running samtools mpileup, run coverage service to summarize point data.
+        // NOTE:  Had to change to protocol http(); otherwise signed URLs don't work (with websockets)
+        cmd = cmd.pipe(me.IOBIO.coverage, [maxPointsArg, spanningRegionArg, regionsArg], {ssl: me.globalApp.useSSL});
 
+      }
 
-      cmd = new iobio.cmd(samtools, ['mpileup',  bamSource.writeStream ],
-        {
-          'urlparams': {'encoding':'utf8'},
-          ssl: me.globalApp.useSSL
-        });
-
+      return cmd;
     }
-
-    //
-    //  SERVER SIDE CACHING for coverage service
-    //
-    var cacheKey = null;
-    var urlParameters = {};
-    if (useServerCache) {
-        urlParameters.cache = serverCacheKey;
-        urlParameters.partialCache = true;
-        cmd = cmd.pipe("nv-dev-new.iobio.io/coverage/", [maxPointsArg, spanningRegionArg, regionsArg], {ssl: me.globalApp.useSSL, urlparams: urlParameters});
-    } else {
-      // After running samtools mpileup, run coverage service to summarize point data.
-      // NOTE:  Had to change to protocol http(); otherwise signed URLs don't work (with websockets)
-      cmd = cmd.pipe(me.IOBIO.coverage, [maxPointsArg, spanningRegionArg, regionsArg], {ssl: me.globalApp.useSSL});
-
-    }
-
-    return cmd;
-
   }
 
   freebayesJointCall(bamSources, refName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF) {
