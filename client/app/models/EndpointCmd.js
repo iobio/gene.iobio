@@ -60,20 +60,29 @@ export default class EndpointCmd {
   }
 
   getVcfDepth(vcfUrl, tbiUrl) {
-    var me = this;
-    var args = ['-i'];
-    if (tbiUrl) {
-      args.push('"'+tbiUrl+'"');
-    } else {
-      args.push('"'+vcfUrl + '.tbi'+'"');
-    }
 
-    var cmd = new iobio.cmd(
-        me.IOBIO.vcfReadDepther,
-        args,
-        {ssl: me.globalApp.useSSL}
-    );
-    return cmd;
+    if (this.gruBackend) {
+      if (!tbiUrl) {
+        tbiUrl = vcfUrl + '.tbi';
+      }
+      return this.api.streamVcfReadDepth(tbiUrl);
+    }
+    else {
+      var me = this;
+      var args = ['-i'];
+      if (tbiUrl) {
+        args.push('"'+tbiUrl+'"');
+      } else {
+        args.push('"'+vcfUrl + '.tbi'+'"');
+      }
+
+      var cmd = new iobio.cmd(
+          me.IOBIO.vcfReadDepther,
+          args,
+          {ssl: me.globalApp.useSSL}
+      );
+      return cmd;
+    }
   }
 
   annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false) {
