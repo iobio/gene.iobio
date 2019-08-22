@@ -86,119 +86,148 @@ export default class EndpointCmd {
   }
 
   annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false) {
-    var me = this;
 
-    // Figure out the file location of the reference seq files
-    var regionParm = "";
-    if (regions && regions.length > 0) {
-      regions.forEach(function(region) {
-        if (regionParm.length > 0) {
-          regionParm += " ";
-        }
-        regionParm += region.name + ":" + region.start + "-" + region.end;
+    if (this.gruBackend) {
+      const refNames = this.getHumanRefNames(refName).split(" ");
+      const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
+      const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+
+      const ncmd = this.api.streamAnnotateVariants({
+        vcfUrl: vcfSource.vcfUrl,
+        tbiUrl: vcfSource.tbiUrl,
+        refNames,
+        regions,
+        vcfSampleNames: vcfSampleNames.split(','),
+        refFastaFile,
+        genomeBuildName,
+
+        isRefSeq,
+        hgvsNotation,
+        getRsId,
+        vepAF,
+        sfariMode,
+
+        vepREVELFile: this.globalApp.vepREVELFile,
+        //globalGetRsId: me.globalApp.utility.getRsId,
+      });
+
+      return ncmd;
+    }
+    else {
+      var me = this;
+
+      // Figure out the file location of the reference seq files
+      var regionParm = "";
+      if (regions && regions.length > 0) {
+        regions.forEach(function(region) {
+          if (regionParm.length > 0) {
+            regionParm += " ";
+          }
+          regionParm += region.name + ":" + region.start + "-" + region.end;
+        })
+      }
+
+      var contigStr = "";
+      me.getHumanRefNames(refName).split(" ").forEach(function(ref) {
+          contigStr += "##contig=<ID=" + ref + ">\n";
       })
-    }
-
-    var contigStr = "";
-    me.getHumanRefNames(refName).split(" ").forEach(function(ref) {
-        contigStr += "##contig=<ID=" + ref + ">\n";
-    })
-    var contigNameFile = new Blob([contigStr])
+      var contigNameFile = new Blob([contigStr])
 
 
-    // Create an iobio command get get the variants and add any header recs.
-    var args = [];
-    var cmd = null;
-    if (vcfSource.hasOwnProperty('vcfUrl')) {
-      //  If we have a vcf URL, use tabix to get the variants for the region
-      var args = ['-h', '"'+vcfSource.vcfUrl+'"', regionParm];
-      if (vcfSource.tbiUrl) {
-        args.push('"'+vcfSource.tbiUrl+'"');
-      }
+      // Create an iobio command get get the variants and add any header recs.
+      var args = [];
+      var cmd = null;
+      if (vcfSource.hasOwnProperty('vcfUrl')) {
+        //  If we have a vcf URL, use tabix to get the variants for the region
+        var args = ['-h', '"'+vcfSource.vcfUrl+'"', regionParm];
+        if (vcfSource.tbiUrl) {
+          args.push('"'+vcfSource.tbiUrl+'"');
+        }
 
-      cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
-          .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
+        cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
+            .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
 
-    } else if (vcfSource.hasOwnProperty('writeStream')) {
-      // If we have a local vcf file, use the writeStream function to stream in the vcf records
-      cmd = new iobio.cmd(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, vcfSource.writeStream], {ssl: me.globalApp.useSSL})
-    } else {
-      console.log("EndpointCmd.annotateVariants() vcfSource arg is not invalid.");
-      return null;
-    }
-
-    if (vcfSampleNames && vcfSampleNames.length > 0) {
-      var sampleNameFile = new Blob([vcfSampleNames.split(",").join("\n")])
-      cmd = cmd.pipe(me.IOBIO.vt, ["subset", "-s", sampleNameFile, '-'], {ssl: me.globalApp.useSSL})
-    }
-
-    // normalize variants
-
-    var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
-    cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL});
-
-    // if af not retreived from vep, get allele frequencies from 1000G and ExAC in af service
-    cmd = cmd.pipe(me.IOBIO.af, ["-b", me.genomeBuildHelper.getCurrentBuildName()], {ssl: me.globalApp.useSSL});
-
-    // Skip snpEff if RefSeq transcript set or we are just annotating with the vep engine
-    if (annotationEngine == 'none') {
-      // skip annotation if annotationEngine set to  'none'
-
-    } else if (isRefSeq || annotationEngine == 'vep') {
-      // VEP
-      var vepArgs = [];
-      vepArgs.push(" --assembly");
-      vepArgs.push(me.genomeBuildHelper.getCurrentBuildName());
-      vepArgs.push(" --format vcf");
-      vepArgs.push(" --allele_number");
-      if (me.globalApp.vepREVELFile) {
-        vepArgs.push(" --plugin REVEL," + me.globalApp.vepREVELFile);
-      }
-      if (vepAF) {
-        vepArgs.push("--af");
-        vepArgs.push("--af_gnomad");
-        vepArgs.push("--af_esp");
-        vepArgs.push("--af_1kg");
-        vepArgs.push("--max_af");
-      }
-      if (isRefSeq) {
-        vepArgs.push("--refseq");
-      }
-      // Get the hgvs notation and the rsid since we won't be able to easily get it one demand
-      // since we won't have the original vcf records as input
-      if (hgvsNotation) {
-        vepArgs.push("--hgvs");
-      }
-      if (getRsId) {
-        vepArgs.push("--check_existing");
-      }
-      if (hgvsNotation || me.globalApp.utility.getRsId || isRefSeq) {
-        vepArgs.push("--fasta");
-        vepArgs.push(refFastaFile);
-      }
-
-      //
-      //  SERVER SIDE CACHING
-      //
-      var cacheKey = null;
-      var urlParameters = {};
-      if (useServerCache && serverCacheKey.length > 0) {
-          urlParameters.cache = serverCacheKey;
-          urlParameters.partialCache = true;
-          cmd = cmd.pipe("nv-dev-new.iobio.io/vep/", vepArgs, {ssl: me.globalApp.useSSL, urlparams: urlParameters});
+      } else if (vcfSource.hasOwnProperty('writeStream')) {
+        // If we have a local vcf file, use the writeStream function to stream in the vcf records
+        cmd = new iobio.cmd(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, vcfSource.writeStream], {ssl: me.globalApp.useSSL})
       } else {
-          cmd = cmd.pipe(me.IOBIO.vep, vepArgs, {ssl: me.globalApp.useSSL, urlparams: urlParameters});
+        console.log("EndpointCmd.annotateVariants() vcfSource arg is not invalid.");
+        return null;
       }
 
-    } else if (annotationEngine == 'snpeff') {
-        cmd = cmd.pipe(me.IOBIO.snpEff, [], {ssl: me.globalApp.useSSL});
-    }
+      if (vcfSampleNames && vcfSampleNames.length > 0) {
+        var sampleNameFile = new Blob([vcfSampleNames.split(",").join("\n")])
+        cmd = cmd.pipe(me.IOBIO.vt, ["subset", "-s", sampleNameFile, '-'], {ssl: me.globalApp.useSSL})
+      }
 
-    if (sfariMode === true) {
-        cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL});
-    }
+      // normalize variants
 
-    return cmd;
+      var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
+      cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL});
+
+      // if af not retreived from vep, get allele frequencies from 1000G and ExAC in af service
+      cmd = cmd.pipe(me.IOBIO.af, ["-b", me.genomeBuildHelper.getCurrentBuildName()], {ssl: me.globalApp.useSSL});
+
+      // Skip snpEff if RefSeq transcript set or we are just annotating with the vep engine
+      if (annotationEngine == 'none') {
+        // skip annotation if annotationEngine set to  'none'
+
+      } else if (isRefSeq || annotationEngine == 'vep') {
+        // VEP
+        var vepArgs = [];
+        vepArgs.push(" --assembly");
+        vepArgs.push(me.genomeBuildHelper.getCurrentBuildName());
+        vepArgs.push(" --format vcf");
+        vepArgs.push(" --allele_number");
+        if (me.globalApp.vepREVELFile) {
+          vepArgs.push(" --plugin REVEL," + me.globalApp.vepREVELFile);
+        }
+        if (vepAF) {
+          vepArgs.push("--af");
+          vepArgs.push("--af_gnomad");
+          vepArgs.push("--af_esp");
+          vepArgs.push("--af_1kg");
+          vepArgs.push("--max_af");
+        }
+        if (isRefSeq) {
+          vepArgs.push("--refseq");
+        }
+        // Get the hgvs notation and the rsid since we won't be able to easily get it one demand
+        // since we won't have the original vcf records as input
+        if (hgvsNotation) {
+          vepArgs.push("--hgvs");
+        }
+        if (getRsId) {
+          vepArgs.push("--check_existing");
+        }
+        if (hgvsNotation || me.globalApp.utility.getRsId || isRefSeq) {
+          vepArgs.push("--fasta");
+          vepArgs.push(refFastaFile);
+        }
+
+        //
+        //  SERVER SIDE CACHING
+        //
+        var cacheKey = null;
+        var urlParameters = {};
+        if (useServerCache && serverCacheKey.length > 0) {
+            urlParameters.cache = serverCacheKey;
+            urlParameters.partialCache = true;
+            cmd = cmd.pipe("nv-dev-new.iobio.io/vep/", vepArgs, {ssl: me.globalApp.useSSL, urlparams: urlParameters});
+        } else {
+            cmd = cmd.pipe(me.IOBIO.vep, vepArgs, {ssl: me.globalApp.useSSL, urlparams: urlParameters});
+        }
+
+      } else if (annotationEngine == 'snpeff') {
+          cmd = cmd.pipe(me.IOBIO.snpEff, [], {ssl: me.globalApp.useSSL});
+      }
+
+      if (sfariMode === true) {
+          cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL});
+      }
+
+      return cmd;
+    }
 
   }
 
