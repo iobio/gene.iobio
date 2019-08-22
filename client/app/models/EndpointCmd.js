@@ -288,17 +288,22 @@ export default class EndpointCmd {
   }
 
   getBamHeader(bamUrl, baiUrl) {
-    var me = this;
-    var args = ['view', '-H', '"'+bamUrl+'"'];
-    if (baiUrl) {
-      args.push('"'+baiUrl+'"');
+    if (this.gruBackend) {
+      return this.api.streamAlignmentHeader(bamUrl);
     }
-    var cmd = new iobio.cmd(
-        me.IOBIO.samtoolsOnDemand,
-        args,
-        {ssl: me.globalApp.useSSL}
-    );
-    return cmd;
+    else {
+      var me = this;
+      var args = ['view', '-H', '"'+bamUrl+'"'];
+      if (baiUrl) {
+        args.push('"'+baiUrl+'"');
+      }
+      var cmd = new iobio.cmd(
+          me.IOBIO.samtoolsOnDemand,
+          args,
+          {ssl: me.globalApp.useSSL}
+      );
+      return cmd;
+    }
   }
 
   getBamCoverage(bamSource, refName, regionStart, regionEnd, regions, maxPoints, useServerCache, serverCacheKey) {
