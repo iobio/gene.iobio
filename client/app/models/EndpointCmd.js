@@ -11,7 +11,7 @@ export default class EndpointCmd {
     this.launchedFromUtah =  this.globalApp.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0;
 
     if (this.launchedFromUtah) {
-      this.apiClient = new Client('mosaic.chpc.utah.edu', { secure: true });
+      this.apiClient = new Client('mosaic.chpc.utah.edu/gru/api/v1', { secure: true });
     }
     else {
       this.apiClient = new Client('backend.iobio.io', { secure: true });
@@ -42,7 +42,7 @@ export default class EndpointCmd {
   getVcfHeader(vcfUrl, tbiUrl) {
 
     if (this.gruBackend) {
-      return this.apiClient.streamVariantHeader(vcfUrl);
+      return this.apiClient.streamVariantHeader(vcfUrl, tbiUrl);
     }
     else {
       var me = this;
