@@ -151,6 +151,38 @@
         </g>
       </svg>
 
+
+      <svg
+       v-if="icon == 'zygosity' && type == 'hom-large' "
+       :style="iconStyle"
+       :icon="icon"
+       :type="type"
+       class="impact-badge">
+        <g transform="translate(0,0)">
+          <rect width="35" height="14" class="zyg_hom" style="pointer-events: none;">
+          </rect>
+          <text x="4" y="11" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 11px !important;">
+          Hom
+          </text>
+        </g>
+      </svg>
+
+      <svg
+       v-if="icon == 'zygosity' && type == 'het-large' "
+       :style="iconStyle"
+       :icon="icon"
+       :type="type"
+       class="impact-badge">
+        <g transform="translate(0,0)">
+          <rect width="35" height="14" class="zyg_het" style="pointer-events: none;">
+          </rect>
+          <text x="4" y="11" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 11px !important;">
+          Het
+          </text>
+        </g>
+      </svg>
+
+
       <svg v-if="icon == 'system-flagged'" id="system-flagged-symbol"  width="16" height="16" viewBox="0 0 24 24" :style="iconStyle">
           <path d="M0 0h24v24H0z" fill="none"/>
           <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>

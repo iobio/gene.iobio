@@ -91,7 +91,7 @@
     offset-x
     :close-on-content-click="false"
     :nudge-width="300"
-    top
+    bottom
     v-model="showMenu">
 
       <v-btn id="variant-allele-counts-menu-button" class="variant-action-button"

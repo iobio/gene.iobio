@@ -8,6 +8,7 @@
   padding: 0px
   font-size: 14px
   margin-top: -4px
+  height: 22px
 
   .btn__content, .v-btn__content
     color:  $text-color
@@ -15,7 +16,7 @@
 
     i.material-icons
       color: $text-color
-      font-size: 15px
+      font-size: 20px
       padding-right: 3px
 
 
@@ -35,8 +36,8 @@
        slot="activator"
        v-tooltip.top-center="`HGVSc and HGVSp for variant`"
       >
-        <v-icon>location_on</v-icon>
-        HGVS
+        {{ label }}
+        <v-icon>arrow_drop_down</v-icon>
       </v-btn>
 
       <div class="variant-info" style="padding: 20px;" >
@@ -62,6 +63,7 @@ export default {
   components: {
   },
   props: {
+    label: null,
     geneModel: null,
     selectedGene: null,
     selectedVariant: null,

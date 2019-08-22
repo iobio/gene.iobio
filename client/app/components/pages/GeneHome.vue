@@ -1543,8 +1543,8 @@ export default {
         }
 
         self.calcFeatureMatrixWidthPercent();
-        self.$set(self, selectedVariant, variant);
-        self.$set(self, selectedVariantKey, self.getVariantKey(self.selectedVariant));
+        self.$set(self, "selectedVariant", variant);
+        self.$set(self, "selectedVariantKey", self.getVariantKey(self.selectedVariant));
         self.selectedVariantRelationship = sourceRelationship;
         self.selectedVariantNotes = variant.notes;
         self.selectedVariantInterpretation = variant.interpretation;

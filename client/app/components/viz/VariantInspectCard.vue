@@ -147,11 +147,27 @@
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1">{{ info.coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
-        <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
+
+        <app-icon
+         style="padding-right:4px;padding-left:4px"
+         icon="zygosity" v-if="selectedVariant.zygosity"
+         :type="selectedVariant.zygosity.toLowerCase() + '-large'"
+         height="14" width="35">
+        </app-icon>
+
+        <span v-if="info.rsId && info.rsId != ''" class="pl-4">{{ info.rsId }}</span>
+
+      </span>
+
+      <span v-if="!selectedVariant.extraAnnot" class="pl-4 loader vcfloader" >
+        <img src="../../../assets/images/wheel.gif">
+        HGVS...
       </span>
 
       <variant-aliases-menu
-      style="margin-left:10px"
+      v-show="selectedVariant.extraAnnot"
+      class="pl-4"
+      :label="hgvsLabel"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
       :geneModel="cohortModel.geneModel"
@@ -523,7 +539,7 @@ export default {
         self.coverage = clonedCoverage
         setTimeout(function() {
           self.showCoverageAlleleBar();
-        }, 1000)
+        }, 100)
       } else {
         self.exon = null;
         self.converageRegionStart = null;
@@ -646,6 +662,13 @@ export default {
     },
     hasAlignments: function() {
       return this.cohortModel.getProbandModel().isBamLoaded();
+    },
+    hgvsLabel: function() {
+      if (this.selectedVariant.extraAnnot && this.info.HGVSpAbbrev && this.info.HGVSpAbbrev.length > 0) {
+        return this.info.HGVSpAbbrev;
+      } else {
+        return 'HGVS';
+      }
     },
 
 
