@@ -102,7 +102,7 @@ export default function lineD3() {
            .duration(200)
           .style("opacity", 1);
       label.attr("x", 0)
-           .attr("y", margin.top + 5)
+           .attr("y", margin.top )
            .attr("class", "circle-label")
            .text(circleText);
 
@@ -217,28 +217,7 @@ export default function lineD3() {
          })
         .attr('viewBox', "0 0 " + (parseInt(width) + margin.left + margin.right) + " " + parseInt(height));
 
-      // add a circle and label
-      var circle = svg.selectAll(".circle").data([0])
-        .enter().append('circle')
-          .attr("class", "circle")
-          .attr("r", 3)
-          .style("opacity", 0);
-      var circleLabel = svg.selectAll(".circle-label").data([0])
-        .enter().append('text')
-          .attr("class", "circle-label")
-          .attr("x", 0)
-          .attr("y", 0)
-          .style("opacity", 0);
-       var coverageBar = svg.selectAll(".coverage-bar").data([0])
-        .enter().append('rect')
-          .attr("class", "coverage-bar")
-          .attr("width", 5)
-          .style("opacity", 0);
-      var altBar = svg.selectAll(".alt-bar").data([0])
-        .enter().append('rect')
-          .attr("class", "alt-bar")
-          .attr("width", 5)
-          .style("opacity", 0);
+
 
 
       if (kind == KIND_AREA && showGradient) {
@@ -454,6 +433,29 @@ export default function lineD3() {
             .attr("y", brushY)
             .attr("height", brushHeight);
       }
+
+      // add a circle and label
+      var circle = svg.selectAll(".circle").data([0])
+        .enter().append('circle')
+          .attr("class", "circle")
+          .attr("r", 3)
+          .style("opacity", 0);
+       var coverageBar = svg.selectAll(".coverage-bar").data([0])
+        .enter().append('rect')
+          .attr("class", "coverage-bar")
+          .attr("width", 5)
+          .style("opacity", 0);
+      var altBar = svg.selectAll(".alt-bar").data([0])
+        .enter().append('rect')
+          .attr("class", "alt-bar")
+          .attr("width", 5)
+          .style("opacity", 0);
+      var circleLabel = svg.selectAll(".circle-label").data([0])
+        .enter().append('text')
+          .attr("class", "circle-label")
+          .attr("x", 0)
+          .attr("y", 0)
+          .style("opacity", 0);
 
       if (!showTransition) {
         dispatch.d3rendered();

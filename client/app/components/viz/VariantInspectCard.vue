@@ -77,6 +77,7 @@
         vertical-align: top
 
       #qual-track
+        margin-top: -20px
         #depth-viz
           .circle-label
             font-size: 12px !important
@@ -85,6 +86,9 @@
             .tick
               text
                 font-size: 10px !important
+
+          .coverage-problem-glyph
+            fill: $coverage-problem-glyph-color
 
   .rel-header
     font-style: italic
@@ -250,7 +254,7 @@
           </div>
 
 
-          <div id="qual-track" style="width:130px;height:80px;margin-bottom:15px !important">
+          <div id="qual-track" style="width:130px;margin-bottom:15px !important">
             <depth-viz
               v-if="cohortModel"
               ref="depthVizRef"
@@ -263,7 +267,7 @@
               :regionEnd="coverageRegionEnd"
               :width="130"
               :margin="depthVizMargin"
-              :height="60"
+              :height="80"
               :showTooltip="false"
               :showXAxis="false"
               :regionGlyph="depthVizRegionGlyph"
@@ -371,7 +375,7 @@ export default {
       coveragePoint: null,
 
       depthVizMargin: {
-        top: 5,
+        top: 30,
         right: 2,
         bottom: 0,
         left: 4
@@ -580,12 +584,12 @@ export default {
         regionGroup.append('g')
               .attr("id", exonId)
               .attr('class',      'region-glyph coverage-problem-glyph')
-              .attr('transform',  'translate(' + (regionX - 12) + ',-16)')
+              .attr('transform',  'translate(' + (regionX - 6) + ',-25)')
               .data([exon])
               .append('use')
-              .attr('height',     '22')
-              .attr('width',      '22')
-              .attr('href', '#long-arrow-down-symbol')
+              .attr('height',     '12')
+              .attr('width',      '12')
+              .attr('href', '#coverage-problem-symbol')
               .attr('xlink','http://www.w3.org/1999/xlink')
               .data([exon]);
       }
@@ -641,7 +645,7 @@ export default {
 
       if (self.exon) {
         let exonWidth = +self.exon.end  -  +self.exon.start;
-        return +self.exon.start - (exonWidth);
+        return +self.exon.start - (exonWidth * .75);
       } else  {
         return +self.selectedVariant.start - 1000;
       }
@@ -650,7 +654,7 @@ export default {
       let self = this;
       if (self.exon) {
         let exonWidth = +self.exon.end  -  +self.exon.start;
-        return +self.exon.end + (exonWidth);
+        return +self.exon.end + (exonWidth * .75);
       } else  {
         return +self.selectedVariant.start + 1000;
       }

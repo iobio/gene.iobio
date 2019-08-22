@@ -7,7 +7,7 @@
 @import ../../../assets/sass/variables
 
 #bam-track
-  margin-top: -5px
+  margin-top: -15px
 
 
 
@@ -616,7 +616,7 @@ export default {
       },
 
       depthVizMargin: {
-        top: 22,
+        top: 32,
         right: self.isBasicMode || self.isEduMode ? 7 : 2,
         bottom: 0,
         left: self.isBasicMode || self.isEduMode ? 9 : 4
@@ -654,12 +654,12 @@ export default {
         regionGroup.append('g')
               .attr("id", exonId)
               .attr('class',      'region-glyph coverage-problem-glyph')
-              .attr('transform',  'translate(' + (regionX - 12) + ',-16)')
+              .attr('transform',  'translate(' + (regionX - 12) + ',-32)')
               .data([exon])
               .append('use')
-              .attr('height',     '22')
-              .attr('width',      '22')
-              .attr('href', '#long-arrow-down-symbol')
+              .attr('height',     '16')
+              .attr('width',      '16')
+              .attr('href', '#coverage-problem-symbol')
               .attr('xlink','http://www.w3.org/1999/xlink')
               .data([exon]);
       }
