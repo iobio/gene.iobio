@@ -1558,6 +1558,10 @@ export default {
             variantCard.showCoverageCircle(variant);
           }
         })
+
+        if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+          self.$refs.navRef.$refs.flaggedVariantsRef.deselectVariant();
+        }
         if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
           if (sourceComponent == null || self.$refs.featureMatrixCardRef != sourceComponent) {
             self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
@@ -2317,6 +2321,7 @@ export default {
 
                 self.$set(self, "selectedVariant", null);
                 self.$set(self, "selectedVariant", flaggedVariant);
+                self.$set(self, "selectedVariantRelationship", "proband");
                 self.$set(self, "selectedVariantKey", null);
                 self.$set(self, "selectedVariantKey", flaggedVariant);
                 self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
