@@ -170,6 +170,8 @@ main.content.clin, main.v-content.clin
       @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
       @show-known-variants="onShowKnownVariantsCard"
       @show-filters="onShowFilters"
+      @analyze-all="onAnalyzeAll"
+      @call-variants="callVariants"
     >
     </navigation>
 

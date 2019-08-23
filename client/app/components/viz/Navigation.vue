@@ -638,6 +638,8 @@ nav.toolbar, nav.v-toolbar
              @gene-selected="onGeneSelected"
              @remove-gene="onRemoveGene"
              @count-changed="onGeneCountChanged"
+             @analyze-all="onAnalyzeAll"
+             @call-variants="onCallVariants"
             >
             </genes-panel>
 
@@ -1166,8 +1168,13 @@ export default {
     },
     onFilterSettingsClosed: function() {
       this.$emit('filter-settings-closed');
-    }
-
+    },
+    onAnalyzeAll: function() {
+      this.$emit("analyze-all");
+    },
+    onCallVariants: function(action) {
+      this.$emit("call-variants", action)
+    },
 
   },
   created: function() {

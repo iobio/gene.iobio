@@ -16,7 +16,7 @@
       color: $text-color
       padding-top: 2px
       padding-bottom: 2px
-      height: 30px
+      height: 22px
 
     #call-variants-dropdown
       display: inline-block
@@ -30,7 +30,7 @@
         color: $text-color
         padding-top: 2px
         padding-bottom: 2px
-        height: 30px
+        height: 22px
         width: 50px
 
     .btn__content
