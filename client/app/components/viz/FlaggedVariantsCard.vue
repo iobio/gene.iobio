@@ -622,6 +622,9 @@ export default {
       this.clickedVariant = variant;
       this.$emit("flagged-variant-selected", variant);
     },
+    deselectVariant: function() {
+      this.clickedVariant = null;
+    },
     populateGeneLists: function() {
       let self = this;
       self.geneLists = [];
