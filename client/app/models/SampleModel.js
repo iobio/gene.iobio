@@ -1377,7 +1377,7 @@ class SampleModel {
                true, // vep af
                me.globalApp.useServerCache, // serverside cache
                false, // sfari mode
-               true // gnomADExtra
+               me.relationship != 'known-variants' // get extra gnomad
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
