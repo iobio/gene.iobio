@@ -94,7 +94,7 @@ export default {
     minCoverage: function() {
       this.isDirty = true;
     },
-    maxCoverage: function() {
+    medianCoverage: function() {
       this.isDirty = true;
     },
     meanCoverage: function() {
