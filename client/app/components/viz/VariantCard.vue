@@ -273,7 +273,7 @@
 
 
 
-      <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband' && sampleModel.loadedVariants"
+      <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
         :isEduMode="isEduMode"
         :isBasicMode="isBasicMode"
         :featureMatrixModel="featureMatrixModel"
@@ -899,27 +899,12 @@ export default {
         return row;
       }
 
-      var html = '<div>'
-               + '<span id="exon-tooltip-title"' + (lock ? 'style="margin-top:8px">' : '>') + (feature.hasOwnProperty("exon_number") ? "Exon " + feature.exon_number : "") + '</span>'
-               + (lock ? '<a href="javascript:void(0)" id="exon-tooltip-close">X</a>' : '')
-               + '</div>';
-      html     += '<div style="clear:both">' + feature.feature_type + ' ' + self.globalAppProp.utility.addCommas(feature.start) + ' - '       + self.globalAppProp.utility.addCommas(feature.end) + '</div>';
+      let html = self.globalAppProp.utility.formatExonTooltip(self.sampleModel.cohort.filterModel,
+                                                              self.sampleModel.getRelationship(),
+                                                              coverageRow,
+                                                              feature,
+                                                              lock)
 
-      if (feature.geneCoverage && feature.geneCoverage[self.sampleModel.getRelationship()]) {
-          var covFields = self.sampleModel.cohort.filterModel.whichLowCoverage(feature.geneCoverage[self.sampleModel.getRelationship()]);
-          html += "<div style='margin-top:4px'>" + "Coverage:"
-               +  coverageRow('min',    feature.geneCoverage[self.sampleModel.getRelationship()].min, covFields)
-               +  coverageRow('median', feature.geneCoverage[self.sampleModel.getRelationship()].median, covFields)
-               +  coverageRow('mean',   feature.geneCoverage[self.sampleModel.getRelationship()].mean, covFields)
-               +  coverageRow('max',    feature.geneCoverage[self.sampleModel.getRelationship()].max, covFields)
-               +  coverageRow('sd',     feature.geneCoverage[self.sampleModel.getRelationship()].sd, covFields)
-
-      }
-      if (lock) {
-        html += '<div style="text-align:right;margin-top:8px">'
-        + '<a href="javascript:void(0)" id="exon-tooltip-thresholds" class="danger" style="float:left"  >Set cutoffs</a>'
-        + '</div>'
-      }
       tooltip.html(html);
       if (lock) {
         tooltip.select("#exon-tooltip-thresholds").on("click", function() {

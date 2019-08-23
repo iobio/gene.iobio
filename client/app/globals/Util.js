@@ -22,6 +22,32 @@ class Util {
       return url;
   }
 
+  formatExonTooltip(filterModel, relationship, coverageRow, feature,  lock) {
+    let self = this;
+
+      let html = '<div>'
+               + '<span id="exon-tooltip-title"' + (lock ? 'style="margin-top:8px">' : '>') + (feature.hasOwnProperty("exon_number") ? "Exon " + feature.exon_number : "") + '</span>'
+               + (lock ? '<a href="javascript:void(0)" id="exon-tooltip-close">X</a>' : '')
+               + '</div>';
+      html     += '<div style="clear:both">' + feature.feature_type + ' ' + self.addCommas(feature.start) + ' - '       + self.addCommas(feature.end) + '</div>';
+
+      if (feature.geneCoverage && feature.geneCoverage[relationship]) {
+          var covFields = filterModel.whichLowCoverage(feature.geneCoverage[relationship]);
+          html += "<div style='margin-top:4px'>" + "Coverage:"
+               +  coverageRow('min',    feature.geneCoverage[relationship].min, covFields)
+               +  coverageRow('median', feature.geneCoverage[relationship].median, covFields)
+               +  coverageRow('mean',   feature.geneCoverage[relationship].mean, covFields)
+               +  coverageRow('max',    feature.geneCoverage[relationship].max, covFields)
+               +  coverageRow('sd',     feature.geneCoverage[relationship].sd, covFields)
+
+      }
+      if (lock) {
+        html += '<div style="text-align:right;margin-top:8px">'
+        + '<a href="javascript:void(0)" id="exon-tooltip-thresholds" class="danger" style="float:left"  >Set cutoffs</a>'
+        + '</div>'
+      }
+      return html;
+  }
 
   formatDate(d) {
     var padMinutes = function(n) {

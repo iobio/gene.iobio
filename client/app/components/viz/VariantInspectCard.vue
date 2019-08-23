@@ -90,6 +90,11 @@
           .coverage-problem-glyph
             fill: $coverage-problem-glyph-color
 
+        #gene-viz
+          svg
+            .transcript.current
+              outline: none !important
+
   .rel-header
     font-style: italic
 
@@ -129,6 +134,10 @@
 
     <div style="display:flex;align-items:baseline;justify-content:flex-start">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
+        <span class="pr-1" v-if="selectedVariantRelationship != 'proband'">
+          <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
+        </span>
+
         Variant
 
         <variant-links-menu
@@ -142,12 +151,6 @@
       </div>
 
 
-      <span class="pr-1" v-if="selectedVariantRelationship == 'known-variants'">
-        <app-icon
-          icon="clinvar" width="16" height="16">
-        </app-icon>
-        <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
-      </span>
 
       <span class="variant-heading" style="margin-left:10px" >
 
@@ -195,6 +198,10 @@
             :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
           </variant-inspect-row>
 
+          <div v-if="info.clinvarTrait.length > 0" class="variant-row no-icon no-top-margin">
+            <span>{{ info.clinvarTrait }} </span>
+          </div>
+
           <variant-inspect-row
             :clazz="getImpactClass(info.vepImpact)" :value="info.vepImpact" :label="`Impact VEP`"  >
           </variant-inspect-row>
@@ -225,7 +232,7 @@
             <span>{{ afGnomAD.homCount }} hom</span>
           </div>
       </div>
-      <div class="variant-inspect-column">
+      <div class="variant-inspect-column" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Inheritance
           </div>
@@ -248,7 +255,7 @@
             </div>
           </div>
       </div>
-      <div class="variant-inspect-column last">
+      <div class="variant-inspect-column last" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Quality
           </div>
@@ -256,7 +263,7 @@
 
           <div id="qual-track" style="width:130px;margin-bottom:15px !important">
             <depth-viz
-              v-if="cohortModel"
+              v-if="cohortModel && hasAlignments"
               ref="depthVizRef"
               :data="coverage"
               :coverageMedian="cohortModel.filterModel.geneCoverageMedian"
@@ -272,10 +279,12 @@
               :showXAxis="false"
               :regionGlyph="depthVizRegionGlyph"
               :showAlleleBar="true"
+              @region-selected="showExonTooltip"
+
             >
             </depth-viz>
             <gene-viz id="gene-viz"
-              v-if="cohortModel"
+              v-if="cohortModel && hasAlignments"
               :data="[selectedTranscript]"
               :margin="geneVizMargin"
               :width="130"
@@ -287,12 +296,14 @@
               :showXAxis="false"
               :showBrush="false"
               :featureClass="getExonClass"
+              @feature-selected="showExonTooltip"
               >
             </gene-viz>
           </div>
 
           <div class="variant-row">
             <variant-allele-counts-menu
+              v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
               :selectedVariant="selectedVariant"
               :affectedInfo="cohortModel.affectedInfo"
               :cohortModel="cohortModel.mode"
@@ -310,7 +321,7 @@
 
     </div>
 
-    <variant-assessment
+    <variant-assessment  v-if="selectedVariantRelationship == 'proband'"
       :variant="selectedVariant"
       :variantInterpretation="interpretation"
       :interpretationMap="interpretationMap"
@@ -373,6 +384,7 @@ export default {
       exon: null,
       coverage: null,
       coveragePoint: null,
+      selectedExon: null,
 
       depthVizMargin: {
         top: 30,
@@ -533,7 +545,7 @@ export default {
         self.coverageRegionStart = this.getCoverageRegionStart();
         self.coverageRegionEnd   = this.getCoverageRegionEnd();
 
-        let theCoverage = self.cohortModel.getProbandModel().coverage.filter(function(coveragePoint) {
+        let theCoverage = self.cohortModel.getModel(this.selectedVariantRelationship).coverage.filter(function(coveragePoint) {
           return coveragePoint[0] >= self.coverageRegionStart && coveragePoint[0] <= self.coverageRegionEnd;
         })
         let clonedCoverage = [];
@@ -547,6 +559,8 @@ export default {
         setTimeout(function() {
           self.showCoverageAlleleBar();
         }, 100)
+
+
       } else {
         self.exon = null;
         self.converageRegionStart = null;
@@ -567,7 +581,10 @@ export default {
         theAltCount = self.selectedVariant.genotype.altCount;
       }
 
-      self.$refs.depthVizRef.showCurrentPoint({pos: self.selectedVariant.start, depth: theDepth, altCount: theAltCount});
+      if (self.$refs.depthVizRef) {
+        self.$refs.depthVizRef.showCurrentPoint({pos: self.selectedVariant.start, depth: theDepth, altCount: theAltCount});
+      }
+
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
@@ -645,7 +662,7 @@ export default {
 
       if (self.exon) {
         let exonWidth = +self.exon.end  -  +self.exon.start;
-        return +self.exon.start - (exonWidth * .75);
+        return +self.exon.start - (exonWidth * .60);
       } else  {
         return +self.selectedVariant.start - 1000;
       }
@@ -654,21 +671,92 @@ export default {
       let self = this;
       if (self.exon) {
         let exonWidth = +self.exon.end  -  +self.exon.start;
-        return +self.exon.end + (exonWidth * .75);
+        return +self.exon.end + (exonWidth * .60);
       } else  {
         return +self.selectedVariant.start + 1000;
       }
     },
+    showExonTooltip: function(featureObject, feature, lock) {
+      let self = this;
+      let tooltip = d3.select("#exon-tooltip");
 
+      if (featureObject == null) {
+        self.hideExonTooltip();
+        return;
+      }
+
+      if (self.selectedExon) {
+        return;
+      }
+
+      if (lock) {
+        self.selectedExon = feature;
+        tooltip.style("pointer-events", "all");
+        tooltip.classed("locked", true);
+      } else {
+        tooltip.style("pointer-events", "none");
+        tooltip.classed("locked", false);
+      }
+
+      var coverageRow = function(fieldName, coverageVal, covFields) {
+        var row = '<div>';
+        row += '<span style="padding-left:10px;width:60px;display:inline-block">' + fieldName   + '</span>';
+        row += '<span style="width:40px;display:inline-block">' + d3.round(coverageVal) + '</span>';
+        row += '<span class="' + (covFields[fieldName] ? 'danger' : '') + '">' + (covFields[fieldName] ? covFields[fieldName]: '') + '</span>';
+        row += "</div>";
+        return row;
+      }
+
+      let html = self.globalApp.utility.formatExonTooltip(self.cohortModel.filterModel,
+                                                          self.selectedVariantRelationship,
+                                                          coverageRow,
+                                                          feature,
+                                                          lock)
+
+      tooltip.html(html);
+      if (lock) {
+        tooltip.select("#exon-tooltip-thresholds").on("click", function() {
+          self.$emit("show-coverage-cutoffs");
+        })
+        tooltip.select("#exon-tooltip-close").on("click", function() {
+          self.selectedExon = null;
+          self.hideExonTooltip(true);
+        })
+      }
+
+      var coord = self.globalApp.utility.getTooltipCoordinates(featureObject.node(),
+        tooltip, self.$el.offsetWidth, $('nav.toolbar').outerHeight());
+      tooltip.style("left", coord.x + "px")
+             .style("text-align", 'left')
+             .style("top", (coord.y-60) + "px");
+
+      tooltip.style("z-index", 1032);
+      tooltip.transition()
+             .duration(200)
+             .style("opacity", .9);
+    },
+    hideExonTooltip: function(force) {
+      let self = this;
+      let tooltip = d3.select("#exon-tooltip");
+      if (force || !self.selectedExon) {
+        tooltip.classed("locked", false);
+        tooltip.classed("black-arrow-left", false);
+        tooltip.classed("black-arrow-right", false);
+        tooltip.style("pointer-events", "none");
+        tooltip.transition()
+           .duration(500)
+           .style("opacity", 0);
+      }
+    },
   },
 
 
   computed: {
     sampleModel: function() {
-      return this.cohortModel.getProbandModel();
+      return this.cohortModel.getModel(this.selectedVariantRelationship);
     },
     hasAlignments: function() {
-      return this.cohortModel.getProbandModel().isBamLoaded();
+      return this.cohortModel.getModel(this.selectedVariantRelationship).isBamLoaded();
     },
     hgvsLabel: function() {
       if (this.selectedVariant.extraAnnot && this.info.HGVSpAbbrev && this.info.HGVSpAbbrev.length > 0) {

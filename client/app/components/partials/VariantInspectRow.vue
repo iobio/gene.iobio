@@ -18,7 +18,10 @@
         font-size: 13px !important
 
       &.no-icon
-        padding-left: 20px
+        padding-left: 22px
+
+      &.no-top-margin
+        margin-top: -10px
 
       .material-icons
         font-size: 18px
