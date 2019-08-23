@@ -125,13 +125,16 @@ export default function lineD3() {
                   return x;
                });
 
-      var circle = container.select(".circle");
-      circle.transition()
-            .duration(200)
-            .style("opacity", .7);
-      circle.attr("cx", posX + margin.left + 2 )
-            .attr("cy", posY + margin.top )
-            .attr("r", 3)
+      if (!showAlleleBar) {
+        var circle = container.select(".circle");
+        circle.transition()
+              .duration(200)
+              .style("opacity", .7);
+        circle.attr("cx", posX + margin.left + 2 )
+              .attr("cy", posY + margin.top )
+              .attr("r", 4)
+
+      }
 
       if (showAlleleBar) {
         var coverageBar = container.select(".coverage-bar");

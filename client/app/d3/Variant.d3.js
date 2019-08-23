@@ -82,7 +82,7 @@ export default function variantD3() {
       var circle = svgContainer.select(circleClazz);
       circle.transition()
             .duration(200)
-            .style("opacity", 1);
+            .style("opacity", .7);
       circle.attr("cx", mousex + margin.left + 2)
             .attr("cy", mousey + margin.top + 4);
 
@@ -114,7 +114,7 @@ export default function variantD3() {
       garrow.attr("transform", "translate(" + (mousex + margin.left - variantHeight/2) + "," + (mousey + margin.top - 6) + ")");
       garrow.selectAll('.arrow').transition()
             .duration(200)
-            .style("opacity", 1);
+            .style("opacity", .7);
 
 
     }

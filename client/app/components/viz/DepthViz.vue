@@ -5,7 +5,7 @@
 
 #depth-viz .circle-label
   fill: $arrow-color
-  font-size: 15px
+  font-size: 16px
   font-weight: bold
   stroke: none
   pointer-events: none
@@ -38,7 +38,7 @@
 
   .circle
     stroke: none
-    fill: $current-color
+    fill: $arrow-color
     pointer-events: none
 
   .coverage-bar
