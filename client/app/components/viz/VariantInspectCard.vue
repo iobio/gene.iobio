@@ -80,7 +80,7 @@
         margin-top: -20px
         #depth-viz
           .circle-label
-            font-size: 12px !important
+            font-size: 13px !important
 
           .y.axis
             .tick
