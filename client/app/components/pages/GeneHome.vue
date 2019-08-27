@@ -294,6 +294,7 @@ main.content.clin, main.v-content.clin
         :selectedVariantKey="selectedVariantKey"
         :showGenePhenotypes="launchedFromClin || phenotypeTerm"
         :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
+        :user="user"
         @show-pileup-for-variant="onShowPileupForVariant"
         @apply-variant-interpretation="onApplyVariantInterpretation"
         @apply-variant-notes="onApplyVariantNotes"
@@ -553,6 +554,7 @@ export default {
       launchedFromClin:   false,
       isFullAnalysis:     false,
       isClinFrameVisible: false,
+      user:               null,
 
       launchedFromHub: false,
       launchedFromSFARI: false,
@@ -931,10 +933,9 @@ export default {
             if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
               self.isSfariProject = true;
             } else if (projObj.name === 'SSC GRCh37 WES') {
-
-                isSfariProject = true;
+                self.isSfariProject = true;
             }
-            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, isSfariProject)
+            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject)
         })
         .then(function() {
           self.models = self.cohortModel.sampleModels;
@@ -2680,7 +2681,7 @@ export default {
         this.isClinFrameVisible = clinObject.isFrameVisible;
       }
 
-      if (clinObject.type == 'apply-genes' && !self.isFullAnalysis) {
+      if (clinObject.type == 'apply-genes') {
 
         self.applyGenesClin(clinObject);
 
@@ -2689,6 +2690,8 @@ export default {
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
           console.log("gene.iobio set-data cohort model not yet loaded")
           self.init(function() {
+            self.analysis = clinObject.analysis;
+            self.user     = clinObject.user;
             self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
             self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
 
@@ -2700,6 +2703,7 @@ export default {
           })
         } else {
           console.log("gene.iobio set-data cohort model already loaded")
+          self.analysis = clinObject.analysis;
           self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
           self.promiseInitClin(clinObject).
           then(function() {
@@ -2726,14 +2730,14 @@ export default {
         }
 
       } else if (clinObject.type == 'show-coverage') {
-        if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
+        if (self.$refs.filterCardRef && self.$refs.filterCardRef.$refs.filterBadgesRef) {
           self.activeFilterName = 'coverage';
           self.onAnalyzeAll();
         }
       } else if (clinObject.type == 'show-review' || clinObject.type == 'show-review-full') {
         console.log("gene.iobio show-review")
-        if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
-          self.$refs.genesCardRef.$refs.filterBadgesRef.onClearFilter();
+        if (self.$refs.filterCardRef) {
+          self.$refs.filterCardRef.clearFilter()
 
           if (self.cacheHelper.analyzeAllInProgress) {
             self.showLeftPanelForGenes();
@@ -2797,27 +2801,35 @@ export default {
       }
     },
 
-    sendFlaggedVariantToClin: function(varianToReplace, action="update", callback) {
+    sendFlaggedVariantToClin: function(variantToReplace, action="update", callback) {
       let self = this;
-      if (callback) {
-        callback();
-      }
-      /*
+
       self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
       self.cohortModel.promiseExportFlaggedVariant('json', variantToReplace)
       .then(function(exportedVariants) {
 
-        let matchingIdx = self.findAnalysisVariantIndex(exportedVariants[0]);
-        if (matchingIdx != -1) {
-          self.analysis.payload.variants[matchingIdx] = exportedVariants[0];
-        } else {
-          self.analysis.payload.variants.push(exportedVariants[0]);
+        if (exportedVariants && exportedVariants.length > 0) {
+          let matchingIdx = self.findAnalysisVariantIndex(exportedVariants[0]);
+          if (matchingIdx != -1) {
+            self.analysis.payload.variants[matchingIdx] = exportedVariants[0];
+          } else {
+            self.analysis.payload.variants.push(exportedVariants[0]);
+          }
+          var msgObject = {
+                success:  true,
+                type:     'save-variants',
+                sender:   'gene.iobio.io',
+                action:   action,
+                app:      'self.isFullAnalysis' ? 'genefull' : 'gene',
+                variants: exportedVariants};
+          window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+
         }
+
         if (callback) {
           callback()
         }
       })
-      */
     },
 
 
@@ -3077,13 +3089,16 @@ export default {
         return;
       }
 
+      /*
       let genesToProcess = [];
       let candidateGenesOld = $.extend({}, self.geneModel.candidateGenes);
       self.geneModel.setCandidateGenes(clinObject.genes);
+      */
 
       self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
       self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
 
+      /*
       if (clinObject.genes && Array.isArray(clinObject.genes)) {
         let deprecatedGenes = {};
         for (var oldGene in candidateGenesOld) {
@@ -3123,9 +3138,8 @@ export default {
             }
           });
         }
-
       }
-
+      */
 
     },
 

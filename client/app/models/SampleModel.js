@@ -1374,10 +1374,10 @@ class SampleModel {
                me.getGeneModel().geneSource == 'refseq' ? true : false,
                true,  // hgvs notation
                true,  // rsid
-               true, // vep af
+               me.globalApp.vepAF, // vepAF
                me.globalApp.useServerCache, // serverside cache
                false, // sfari mode
-               me.relationship != 'known-variants' // get extra gnomad
+               me.globalApp.gnomADExtra && me.relationship != 'known-variants' // get extra gnomad
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
@@ -1579,10 +1579,10 @@ class SampleModel {
                me.getGeneModel().geneSource == 'refseq' ? true : false,
                true,  // hgvs notation
                true,  // rsid
-               false, // vep af
+               me.globalApp.vepAF, // vep af
                me.globalApp.useServerCache, // serverside cache
                false, // sfari mode
-               true // gnomADExtra
+               me.globalApp.gnomADExtra // gnomADExtra
             ).then( function(data) {
 
               var annotVcfData = data[1];
@@ -1674,8 +1674,9 @@ class SampleModel {
                                     false,  // hgvs notation
                                     false,  // rsid
                                     self.globalApp.vepAF,    // vep af
-                                    false,
-                                    true) // sfariMode
+                                    false,  // server-side cache
+                                    true, // sfariMode
+                                    false) // gnomadExtra
                                     .then((results) => {
                                       let unwrappedResults = results[1];
                                       unwrappedResults.gene = theGene;

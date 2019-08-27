@@ -46,9 +46,10 @@
       flex-direction: column
       padding: 5px
       padding-left: 0px
-      min-width: 190px
+      min-width: 150px
+      max-width: 250px
       margin-bottom: 0px
-      margin-right: 5px
+      margin-right: 10px
       padding-top: 0px
       padding-bottom: 0px
 
@@ -326,6 +327,8 @@
       :variantInterpretation="interpretation"
       :interpretationMap="interpretationMap"
       :variantNotes="notes"
+      :user="user"
+      @apply-variant-interpretation="onApplyVariantInterpretation"
       @apply-variant-notes="onApplyVariantNotes">
     </variant-assessment>
 
@@ -374,6 +377,7 @@ export default {
     showGenePhenotypes: null,
     info: null,
     coverageDangerRegions: null,
+    user: null
   },
   data() {
     return {
@@ -786,7 +790,7 @@ export default {
       return refAlt;
     },
     afGnomAD: function() {
-      if (this.selectedVariant.extraAnnot) {
+      if (this.selectedVariant.extraAnnot && this.globalApp.gnomADExtra) {
         if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
           return {percent: "?", link: null, class: ""};
         } else if (this.selectedVariant.gnomAD.af  == '.') {
@@ -806,8 +810,8 @@ export default {
           gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
           gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
           return gnomAD;
-        }
 
+        }
       } else {
         if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
           return {percent: "?", link: null, class: ""};

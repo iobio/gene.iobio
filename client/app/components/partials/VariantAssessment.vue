@@ -205,6 +205,7 @@ export default {
     variant: null,
     variantInterpretation: null,
     wrap: null,
+    user: null
   },
   data () {
     return {
@@ -233,16 +234,14 @@ export default {
   methods: {
     onApplyVariantInterpretation: function() {
       this.interpretation = this.variant.interpretation;
-      // We don't want to propogate this event because
-      // the update of interpretation doesn't take effect
-      // until user presses 'Apply' button
+      this.$emit("apply-variant-interpretation", this.variant)
     },
     onAddVariantNote: function(aNote) {
       let self = this;
       if (this.notes == null || this.notes == "") {
         this.notes = []
       }
-      this.notes.push({'author': '',
+      this.notes.push({'author': this.user ? this.user.first_name + " " + this.user.last_name : '',
         'datetime': self.getCurrentDateAndTime(),
         'note': aNote,
         'showDialog': false,

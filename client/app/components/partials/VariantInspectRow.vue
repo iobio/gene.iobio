@@ -22,6 +22,7 @@
 
       &.no-top-margin
         margin-top: -10px
+        font-size: 12px
 
       .material-icons
         font-size: 18px

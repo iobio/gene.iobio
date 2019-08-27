@@ -12,11 +12,11 @@
       margin-left: 0px
     .chip__content
       font-size:  11px
-      background-color:  $info-chip-color
+      background-color:  $high-impact-color
       height: 16px
       padding-left: 4px
       padding-right: 4px
-      color:  $text-color
+      color:  white
 
 
   #clinvar-symbol

@@ -171,7 +171,7 @@ export default {
     },
     clearFilter: function() {
       let self = this;
-      this.$emit("filter-applied", null);
+      self.currentFilter = null;
     },
     onFilterSettingsClosed: function() {
       this.$emit('filter-settings-closed');

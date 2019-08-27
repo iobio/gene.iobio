@@ -52,6 +52,9 @@ class GlobalApp {
     // get hgvs, rsid annotation for all variants
     this.getVariantIdsForGene = false;
 
+    // get gnomad extra info
+    this.gnomADExtra          = false;
+
     // How many genes can be analyzed in one session.  Set to null if no limitation.
     this.maxGeneCount         = null;
 
