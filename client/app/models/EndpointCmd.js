@@ -15,6 +15,7 @@ export default class EndpointCmd {
     }
     else {
       this.api = new Client('backend.iobio.io', { secure: true });
+      //this.api = new Client('localhost:9001', { secure: false });
     }
 
     // iobio services
