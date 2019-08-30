@@ -544,7 +544,8 @@ export default {
     paramBais:             null,
     paramVcfs:             null,
     paramTbis:             null,
-    paramAffectedStatuses: null
+    paramAffectedStatuses: null,
+    paramFrameSource:      null
   },
   data() {
     let self = this;
@@ -668,7 +669,7 @@ export default {
       showCoverageCutoffs: false,
 
       clinIobioUrls: ["http://localhost:4030", "http://tony.iobio.io:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io", "http://dev.clin.iobio.io"],
-      clinIobioUrl: null,
+      clinIobioUrl: "https://clin.iobio.io",
 
       forceLocalStorage: null,
 
@@ -714,6 +715,13 @@ export default {
 
   mounted: function() {
     let self = this;
+
+    if (self.launchedFromClin) {
+      var responseObject = {app: 'genefull', success: true, type: 'mounted', sender: 'gene.iobio.io'};
+      window.parent.postMessage(JSON.stringify(responseObject), self.paramFrameSource);
+    }
+
+
     self.init();
   },
 
@@ -2688,8 +2696,10 @@ export default {
 
       } else if (clinObject.type == 'set-data') {
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
+          self.$set(self, "isFullAnalysis", true);
           console.log("gene.iobio set-data cohort model not yet loaded")
           self.init(function() {
+
             self.analysis = clinObject.analysis;
             self.user     = clinObject.user;
             self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
@@ -2715,7 +2725,8 @@ export default {
         if (self.cohortModel && self.cohortModel.isLoaded) {
 
 
-          self.$set(self, "isFullAnalysis", clinObject.receiver == 'genefull' ? true : false);
+
+          self.$set(self, "isFullAnalysis", true);
           self.filterModel.isFullAnalysis = self.isFullAnalysis;
 
           if (self.cacheHelper.analyzeAllInProgress) {
@@ -2820,7 +2831,7 @@ export default {
                 type:     'save-variants',
                 sender:   'gene.iobio.io',
                 action:   action,
-                app:      'self.isFullAnalysis' ? 'genefull' : 'gene',
+                app:      'genefull',
                 variants: exportedVariants};
           window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
 
@@ -2845,7 +2856,7 @@ export default {
               type:     'save-variants',
               sender:   'gene.iobio.io',
               action:   action,
-              app:      'self.isFullAnalysis' ? 'genefull' : 'gene',
+              app:      'genefull',
               variants: data};
           window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
 
@@ -2872,7 +2883,7 @@ export default {
                 type:     'save-variants',
                 sender:   'gene.iobio.io',
                 action:   'update',
-                app:      self.isFullAnalysis ? 'genefull' : 'gene',
+                app:      'genefull',
                 variants: data};
             //window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
             self.sendNextImportedVariantToClin(importedVariants, callback);
@@ -2919,7 +2930,7 @@ export default {
             'success':       true,
             'type':          'save-cache',
             'sender':        'gene.iobio.io',
-            'app':           self.isFullAnalysis ? 'genefull' : 'gene',
+            'app':           'genefull',
             'cache':         cacheItems
           };
           window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
@@ -2939,11 +2950,12 @@ export default {
           success: true,
           type:   'confirm-set-data',
           sender: 'gene.iobio.io',
-          app:    self.isFullAnalysis ? 'genefull' : 'gene'
+          app:    'genefull'
         };
         window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
       }
     },
+
 
     promiseSetCacheFromClin: function(clinObject) {
       let self = this;
@@ -3044,12 +3056,11 @@ export default {
         self.cohortModel.promiseInit(self.clinSetData.modelInfos)
         .then(function() {
 
-          self.sendConfirmSetDataToClin();
 
           self.onSendFiltersToClin();
 
           self.models = self.cohortModel.sampleModels;
-          self.geneModel.setCandidateGenes(self.clinSetData.genes);
+          //self.geneModel.setCandidateGenes(self.clinSetData.genes);
           return self.promiseSetCacheFromClin(self.clinSetData)
 
         })
@@ -3057,6 +3068,7 @@ export default {
           return self.promiseShowClin();
         })
         .then(function() {
+
           resolve();
         })
         .catch(function(error) {
@@ -3198,7 +3210,6 @@ export default {
           self.clinSetData.importInProgress = true;
           self.clinSetData.isImported = false;
 
-          self.showLeftPanelForGenes();
 
 
           self.importVariantData(self.clinSetData.variantData,
@@ -3215,6 +3226,11 @@ export default {
             {isFromClin: true, replace: true, warnOnDup: false, phenotypes: self.clinSetData.phenotypes.join(",")},
             function() {
 
+              if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
+                self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
+              }
+              self.showLeftPanelForGenes();
+
               if (self.clinSetData.variants.length > 0) {
                 self.cohortModel.importFlaggedVariants('json', self.clinSetData.variants,
                 function() {
@@ -3224,6 +3240,8 @@ export default {
 
                   self.clinSetData.isImported = true;
 
+
+
                   resolve();
 
 
@@ -3232,6 +3250,8 @@ export default {
                   self.clinSetData.importInProgress = false;
                   // When analyzeSubset and variants have been cached
                   self.cacheHelper.analyzeAll(self.cohortModel, false);
+                  self.sendConfirmSetDataToClin();
+
                 })
               } else {
 
@@ -3240,7 +3260,11 @@ export default {
                   self.clinSetData.isImported = true;
                   self.clinSetData.importInProgress = false;
 
+
+
                   self.cacheHelper.analyzeAll(self.cohortModel, false);
+
+                  self.sendConfirmSetDataToClin();
 
                   resolve();
 

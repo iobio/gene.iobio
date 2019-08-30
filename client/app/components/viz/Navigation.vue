@@ -595,15 +595,14 @@ nav.toolbar, nav.v-toolbar
         </v-progress-circular>
 
         <v-tabs
+          v-if="cohortModel && cohortModel.isLoaded"
           v-model="activeTab"
           light
         >
           <v-tab v-if="!isBasicMode" >
             <v-badge>
               <span class="badge-count" slot="badge">{{ geneCount }}</span>
-              <span v-if="launchedFromClin && !isFullAnalysis" class="badge-label">Candidate Genes</span>
-              <span v-if="launchedFromClin && isFullAnalysis" class="badge-label">All Genes</span>
-              <span v-if="!launchedFromClin" class="badge-label">Genes</span>
+              <span class="badge-label">Genes</span>
             </v-badge>
 
           </v-tab>
