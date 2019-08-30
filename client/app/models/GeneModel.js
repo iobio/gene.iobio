@@ -73,6 +73,8 @@ class GeneModel {
 
     this.genePhenotypeHits = {};
 
+    this.isFullAnalysis = false;
+
     this.dispatch = d3.dispatch("geneDangerSummarized");
     d3.rebind(this, this.dispatch, "on");
 
@@ -89,10 +91,14 @@ class GeneModel {
 
   isCandidateGene(theGeneName) {
     let self = this;
-    if (self.candidateGenes != null) {
-      return self.candidateGenes[theGeneName];
+    if (self.isFullAnalysis) {
+      return false;
     } else {
-      return true;
+      if (self.candidateGenes != null) {
+        return self.candidateGenes[theGeneName];
+      } else {
+        return true;
+      }
     }
   }
 

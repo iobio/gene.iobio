@@ -2682,6 +2682,8 @@ export default {
       }
       this.clinIobioUrl = event.origin;
       this.launchedFromClin = true;
+      self.filterModel.isFullAnalysis = true;
+      self.geneModel.isFullAnalysis = true;
 
       var clinObject = JSON.parse(event.data);
 
@@ -2697,6 +2699,9 @@ export default {
       } else if (clinObject.type == 'set-data') {
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
           self.$set(self, "isFullAnalysis", true);
+          self.filterModel.isFullAnalysis = true;
+          self.geneModel.isFullAnalysis = true;
+
           console.log("gene.iobio set-data cohort model not yet loaded")
           self.init(function() {
 
@@ -2728,6 +2733,7 @@ export default {
 
           self.$set(self, "isFullAnalysis", true);
           self.filterModel.isFullAnalysis = self.isFullAnalysis;
+          self.geneModel.isFullAnalysis = self.isFullAnalysis;
 
           if (self.cacheHelper.analyzeAllInProgress) {
             self.showLeftPanelForGenes();
@@ -3060,7 +3066,7 @@ export default {
           self.onSendFiltersToClin();
 
           self.models = self.cohortModel.sampleModels;
-          //self.geneModel.setCandidateGenes(self.clinSetData.genes);
+          self.geneModel.setCandidateGenes(self.clinSetData.genes);
           return self.promiseSetCacheFromClin(self.clinSetData)
 
         })
