@@ -53,7 +53,7 @@ class GlobalApp {
     this.getVariantIdsForGene = false;
 
     // get gnomad extra info
-    this.gnomADExtra          = true;
+    this.gnomADExtra          = false;
 
     // How many genes can be analyzed in one session.  Set to null if no limitation.
     this.maxGeneCount         = null;
