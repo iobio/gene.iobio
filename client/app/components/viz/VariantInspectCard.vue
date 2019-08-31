@@ -170,13 +170,13 @@
 
       </span>
 
-      <span v-if="!selectedVariant.extraAnnot" class="pl-4 loader vcfloader" >
+      <span v-if="info.HGVSpLoading && info.HGVScLoading" class="pl-4 loader vcfloader" >
         <img src="../../../assets/images/wheel.gif">
         HGVS...
       </span>
 
       <variant-aliases-menu
-      v-show="selectedVariant.extraAnnot"
+      v-show="!info.HGVSpLoading || !info.HGVScLoading"
       class="pl-4"
       :label="hgvsLabel"
       :selectedGene="selectedGene"
