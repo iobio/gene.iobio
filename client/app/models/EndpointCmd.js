@@ -19,7 +19,7 @@ export default class EndpointCmd {
     this.IOBIO.vep                     = (this.launchedFromUtah === true ? this.globalApp.IOBIO_SERVICES : this.globalApp.GREEN_IOBIO) + "vep/";   // Inside utah mosaic, normal services, else beefy nv-green to accommodate sfari
     this.IOBIO.contigAppender          = this.globalApp.IOBIO_SERVICES  + "ctgapndr/";
     this.IOBIO.bcftools                = this.globalApp.IOBIO_SERVICES  + "bcftools/";
-    this.IOBIO.bcftoolsHelper          = this.globalApp.DEV_IOBIO       + "bcftools_helper/";
+    this.IOBIO.gnomadAnnot             = this.globalApp.DEV_IOBIO       + "gnomad_annot/";
     this.IOBIO.coverage                = this.globalApp.IOBIO_SERVICES  + "coverage/";
     this.IOBIO.samtools                = this.globalApp.IOBIO_SERVICES  +  "samtools/";
     this.IOBIO.samtoolsOnDemand        = this.globalApp.IOBIO_SERVICES  + (this.globalApp.useOnDemand ? "od_samtools/" : "samtools/");
@@ -173,22 +173,17 @@ export default class EndpointCmd {
 
     if (gnomADExtra) {
 
+      // Get the gnomad vcf based on the genome build
+      let gnomadURL = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
+
       // Prepare args to annotate with gnomAD
-      var gnomADAnnots = 'CHROM,POS,REF,ALT,INFO/AF,INFO/AN,INFO/AC,INFO/nhomalt_raw,INFO/AF_popmax,INFO/AF_fin,INFO/AF_nfe,INFO/AF_oth,INFO/AF_amr,INFO/AF_afr,INFO/AF_asj,INFO/AF_eas,INFO/AF_sas';
-      var gnomADUrl    =  me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
-      var headerString = me.globalApp.getGnomADHeader();
-      var gnomADHeaderFile = new Blob([headerString]);
       var regionString = "";
       regions.forEach(function(region) {
         regionString += refName + "\t" + region.start + "\t" + region.end + "\n";
       })
       var regionFile = new Blob([regionString])
 
-      var gnomADRemoveArgs = ['annotate', '-a', gnomADUrl, '-h', gnomADHeaderFile, '-x', 'INFO/AF,INFO/AN,INFO/AC', '-R', regionFile];
-      var gnomADAnnotArgs = ['annotate', '-a', gnomADUrl, '-h', gnomADHeaderFile, '-c', gnomADAnnots, '-R', regionFile];
-
-      cmd = cmd.pipe(me.IOBIO.bcftoolsHelper, gnomADRemoveArgs, {ssl: false})
-               .pipe(me.IOBIO.bcftoolsHelper, gnomADAnnotArgs, {ssl: false})
+      cmd = cmd.pipe(me.IOBIO.gnomadAnnot, [gnomadURL, regionFile], {ssl: false});
 
     }
 
