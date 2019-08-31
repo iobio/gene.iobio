@@ -716,13 +716,34 @@ export default {
   mounted: function() {
     let self = this;
 
+
     if (self.launchedFromClin) {
       var responseObject = {app: 'genefull', success: true, type: 'mounted', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), self.paramFrameSource);
     }
 
 
-    self.init();
+    // We are seeing problems with Blobs using the Safari browser.
+    // Warn user that Gene.iobio is supported on Chrome and Firefox
+    // browsers
+    if (self.utility.detectSafari()) {
+
+      alertify.confirm("Unsupported Browser",
+        "Gene.iobio is supported on Chrome and Firefox.  Please run on one of these browsers.",
+        function (e) {
+          // ok
+
+        },
+        function() {
+          // cancel
+          self.init()
+        }
+
+      ).set('labels', {ok:'OK', cancel:'Cancel'})
+    } else {
+      self.init();
+    }
+
   },
 
 
@@ -933,7 +954,7 @@ export default {
           if (self.analysis.payload.phenotypeTerm) {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
-            return self.hubSession.promiseGetProject(self.projectId)
+          return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
             self.isSfariProject = false;
@@ -3391,6 +3412,9 @@ export default {
           newAnalysis.payload.is_pedigree = self.paramIsPedigree;
           newAnalysis.payload.datetime_created = self.globalApp.utility.getCurrentDateTime();
           newAnalysis.payload.genes = [];
+          if (self.paramGeneName && self.paramGeneName != '') {
+            newAnalysis.payload.genes.push(self.paramGeneName)
+          }
           newAnalysis.payload.variants = [];
           self.analysis = newAnalysis;
 

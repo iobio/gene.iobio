@@ -9,7 +9,8 @@ mkdir deploy/dist
 # build vue app
 if [[ $1 == "prod" ]]; then
   echo "** Building prod **"
-  NODE_ENV=production npm run build
+#  NODE_ENV=production npm run build
+  npm run build
 elif [[ $1 == "stage" ]]; then
   echo "** Building stage **"
   npm run build

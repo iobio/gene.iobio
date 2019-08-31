@@ -198,6 +198,7 @@
           stroke: $text-color
           stroke-width: .5px
 
+
   #sfari-variants-chart
     padding: 0px
     margin-top: 0px
