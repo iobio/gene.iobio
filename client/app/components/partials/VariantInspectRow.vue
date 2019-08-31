@@ -36,6 +36,8 @@
           color: $moderate-impact-color
         &.sufficient
           color: $success-color
+        &.level-unremarkable
+          color: $not-significant-color
 
       .material-icons.link-icon
         font-size: 14px
@@ -71,7 +73,7 @@
 
 <template>
   <div class="variant-row">
-    <v-icon :class="clazz">{{ clazz == 'level-unremarkable' ? 'remove_circle_outline' : 'check_circle' }} </v-icon>
+    <v-icon :class="clazz">{{ clazz == 'level-unremarkable' ? 'cancel' : 'check_circle' }} </v-icon>
 
     <span class="variant-text">
       {{ capitalize(value) }} {{ label }}
