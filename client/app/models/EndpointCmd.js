@@ -425,106 +425,134 @@ export default class EndpointCmd {
   }
 
   freebayesJointCall(bamSources, refName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF) {
-    var me = this;
 
-    var regionArg =  refName + ":" + regionStart + "-" + regionEnd;
+    if (this.gruBackend) {
 
-    var bamCmds = me._getBamRegions(bamSources, refName, regionStart, regionEnd);
+      const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
 
-    var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
+      const refNames = this.getHumanRefNames(refName).split(" ");
+      const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
+      const clinvarUrl  = this.globalApp.getClinvarUrl(genomeBuildName);
 
-    var freebayesArgs = [];
-    bamCmds.forEach( function(bamCmd) {
-      freebayesArgs.push("-b");
-      freebayesArgs.push(bamCmd);
-    });
-
-    freebayesArgs.push("-f");
-    freebayesArgs.push(refFastaFile);
-
-    if (fbArgs && fbArgs.useSuggestedVariants.value == true) {
-      freebayesArgs.push("-@");
-      freebayesArgs.push(me._getSuggestedVariants(refName, regionStart, regionEnd));
+      return this.api.streamFreebayesJointCall({
+        alignmentSources: bamSources,
+        refFastaFile,
+        region: {
+          refName,
+          start: regionStart,
+          end: regionEnd,
+        },
+        fbArgs,
+        refNames,
+        genomeBuildName,
+        vepREVELFile: this.globalApp.vepREVELFile,
+        vepAF,
+        isRefSeq,
+        clinvarUrl,
+      });
     }
-    if (fbArgs) {
-      for (var key in fbArgs) {
-        var theArg = fbArgs[key];
-        if (theArg.hasOwnProperty('argName')) {
-          if (theArg.hasOwnProperty('isFlag') && theArg.isFlag == true) {
-            if (theArg.value && theArg.value == true) {
-                freebayesArgs.push(theArg.argName);
-            }
-          } else {
-            if (theArg.value && theArg.value != '') {
-              freebayesArgs.push(theArg.argName);
-              freebayesArgs.push(theArg.value);
-            }
-          }
+    else {
+      var me = this;
 
+      var regionArg =  refName + ":" + regionStart + "-" + regionEnd;
+
+      var bamCmds = me._getBamRegions(bamSources, refName, regionStart, regionEnd);
+
+      var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
+
+      var freebayesArgs = [];
+      bamCmds.forEach( function(bamCmd) {
+        freebayesArgs.push("-b");
+        freebayesArgs.push(bamCmd);
+      });
+
+      freebayesArgs.push("-f");
+      freebayesArgs.push(refFastaFile);
+
+      if (fbArgs && fbArgs.useSuggestedVariants.value == true) {
+        freebayesArgs.push("-@");
+        freebayesArgs.push(me._getSuggestedVariants(refName, regionStart, regionEnd));
+      }
+      if (fbArgs) {
+        for (var key in fbArgs) {
+          var theArg = fbArgs[key];
+          if (theArg.hasOwnProperty('argName')) {
+            if (theArg.hasOwnProperty('isFlag') && theArg.isFlag == true) {
+              if (theArg.value && theArg.value == true) {
+                  freebayesArgs.push(theArg.argName);
+              }
+            } else {
+              if (theArg.value && theArg.value != '') {
+                freebayesArgs.push(theArg.argName);
+                freebayesArgs.push(theArg.value);
+              }
+            }
+
+          }
         }
+
       }
 
+
+      var cmd = new iobio.cmd(me.IOBIO.freebayes, freebayesArgs, {ssl: me.globalApp.useSSL});
+
+
+      // Normalize variants
+      cmd = cmd.pipe(me.IOBIO.vt, ['normalize', '-r', refFastaFile, '-'], {ssl: me.globalApp.useSSL});
+
+      // Subset on all samples (this will get rid of low quality cases where no sample
+      // is actually called as having the alt)
+      //cmd = cmd.pipe(IOBIO.vt, ['subset', '-s', '-']);
+
+      // Filter out anything with qual <= 0
+      cmd = cmd.pipe(me.IOBIO.vt, ['filter', '-f', "\'QUAL>1\'", '-t', '\"PASS\"', '-d', '\"Variants called by iobio\"', '-'], {ssl: me.globalApp.useSSL});
+
+
+      //
+      // Annotate variants that were just called from freebayes
+      //
+
+      // bcftools to append header rec for contig
+      var contigStr = "";
+      me.getHumanRefNames(refName).split(" ").forEach(function(ref) {
+          contigStr += "##contig=<ID=" + ref + ">\n";
+      })
+      var contigNameFile = new Blob([contigStr])
+      cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile], {ssl: me.globalApp.useSSL})
+
+      // Get Allele Frequencies from 1000G and ExAC
+      cmd = cmd.pipe(me.IOBIO.af, [], {ssl: me.globalApp.useSSL})
+
+      // VEP to annotate
+      var vepArgs = [];
+      vepArgs.push(" --assembly");
+      vepArgs.push(me.genomeBuildHelper.getCurrentBuildName());
+      vepArgs.push(" --format vcf");
+      vepArgs.push(" --allele_number");
+      if (me.globalApp.vepREVELFile) {
+        vepArgs.push(" --plugin REVEL," + me.globalApp.vepREVELFile);
+      }
+      if (vepAF) {
+        vepArgs.push("--af");
+        vepArgs.push("--af_gnomad");
+        vepArgs.push("--af_esp");
+        vepArgs.push("--af_1kg");
+        vepArgs.push("--max_af");
+      }
+
+      if (isRefSeq) {
+        vepArgs.push("--refseq");
+      }
+      // Get the hgvs notation and the rsid since we won't be able to easily get it one demand
+      // since we won't have the original vcf records as input
+      vepArgs.push("--hgvs");
+      vepArgs.push("--check_existing");
+      vepArgs.push("--fasta");
+      vepArgs.push(refFastaFile);
+      cmd = cmd.pipe(me.IOBIO.vep, vepArgs, {ssl: me.globalApp.useSSL});
+
+      return cmd;
     }
-
-
-    var cmd = new iobio.cmd(me.IOBIO.freebayes, freebayesArgs, {ssl: me.globalApp.useSSL});
-
-
-    // Normalize variants
-    cmd = cmd.pipe(me.IOBIO.vt, ['normalize', '-r', refFastaFile, '-'], {ssl: me.globalApp.useSSL});
-
-    // Subset on all samples (this will get rid of low quality cases where no sample
-    // is actually called as having the alt)
-    //cmd = cmd.pipe(IOBIO.vt, ['subset', '-s', '-']);
-
-    // Filter out anything with qual <= 0
-    cmd = cmd.pipe(me.IOBIO.vt, ['filter', '-f', "\'QUAL>1\'", '-t', '\"PASS\"', '-d', '\"Variants called by iobio\"', '-'], {ssl: me.globalApp.useSSL});
-
-
-    //
-    // Annotate variants that were just called from freebayes
-    //
-
-    // bcftools to append header rec for contig
-    var contigStr = "";
-    me.getHumanRefNames(refName).split(" ").forEach(function(ref) {
-        contigStr += "##contig=<ID=" + ref + ">\n";
-    })
-    var contigNameFile = new Blob([contigStr])
-    cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile], {ssl: me.globalApp.useSSL})
-
-    // Get Allele Frequencies from 1000G and ExAC
-    cmd = cmd.pipe(me.IOBIO.af, [], {ssl: me.globalApp.useSSL})
-
-    // VEP to annotate
-    var vepArgs = [];
-    vepArgs.push(" --assembly");
-    vepArgs.push(me.genomeBuildHelper.getCurrentBuildName());
-    vepArgs.push(" --format vcf");
-    vepArgs.push(" --allele_number");
-    if (me.globalApp.vepREVELFile) {
-      vepArgs.push(" --plugin REVEL," + me.globalApp.vepREVELFile);
-    }
-    if (vepAF) {
-      vepArgs.push("--af");
-      vepArgs.push("--af_gnomad");
-      vepArgs.push("--af_esp");
-      vepArgs.push("--af_1kg");
-      vepArgs.push("--max_af");
-    }
-
-    if (isRefSeq) {
-      vepArgs.push("--refseq");
-    }
-    // Get the hgvs notation and the rsid since we won't be able to easily get it one demand
-    // since we won't have the original vcf records as input
-    vepArgs.push("--hgvs");
-    vepArgs.push("--check_existing");
-    vepArgs.push("--fasta");
-    vepArgs.push(refFastaFile);
-    cmd = cmd.pipe(me.IOBIO.vep, vepArgs, {ssl: me.globalApp.useSSL});
-
-    return cmd;
   }
 
 
