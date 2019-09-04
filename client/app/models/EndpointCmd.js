@@ -238,6 +238,8 @@ export default class EndpointCmd {
 
       var me = this;
       var refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
+      // TODO: send the array rather than building the file string, like we
+      // do with annotateVariants
       var contigStr = "";
       me.getHumanRefNames(refName).split(" ").forEach(function(ref) {
           contigStr += "##contig=<ID=" + ref + ">\n";
