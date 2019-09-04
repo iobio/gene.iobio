@@ -283,40 +283,54 @@ export default class EndpointCmd {
   }
 
   getClinvarCountsForGene(clinvarUrl, refName, geneObject, binLength, regions) {
-    var me = this;
-    var regionParm = refName + ":" + geneObject.start + "-" + geneObject.end;
-
-    // For the knownVariants service, pass in an argument for the gene region, then pass in eith
-    // the length of the bin region or a comma separate string of region parts (e.g. the exons)
-    var knownVariantsArgs = [];
-    knownVariantsArgs.push("-r");
-    knownVariantsArgs.push(regionParm);
-    if (binLength) {
-      knownVariantsArgs.push("-b");
-      knownVariantsArgs.push(binLength);
-    } else if (regions) {
-      var regionParts = "";
-      regions.forEach( function(region) {
-        if (regionParts.length > 0) {
-          regionParts += ",";
-        }
-        regionParts += region.start + "-" + region.end;
-      })
-      if (regionParts.length > 0) {
-        knownVariantsArgs.push("-p");
-        knownVariantsArgs.push(regionParts);
-      }
+    if (this.gruBackend) {
+      return this.api.streamClinvarCountsForGene({
+        clinvarUrl,
+        region: {
+          refName,
+          start: geneObject.start,
+          end: geneObject.end,
+        },
+        binLength,
+        regions,
+      });
     }
-    knownVariantsArgs.push("-");
+    else {
+      var me = this;
+      var regionParm = refName + ":" + geneObject.start + "-" + geneObject.end;
+
+      // For the knownVariants service, pass in an argument for the gene region, then pass in eith
+      // the length of the bin region or a comma separate string of region parts (e.g. the exons)
+      var knownVariantsArgs = [];
+      knownVariantsArgs.push("-r");
+      knownVariantsArgs.push(regionParm);
+      if (binLength) {
+        knownVariantsArgs.push("-b");
+        knownVariantsArgs.push(binLength);
+      } else if (regions) {
+        var regionParts = "";
+        regions.forEach( function(region) {
+          if (regionParts.length > 0) {
+            regionParts += ",";
+          }
+          regionParts += region.start + "-" + region.end;
+        })
+        if (regionParts.length > 0) {
+          knownVariantsArgs.push("-p");
+          knownVariantsArgs.push(regionParts);
+        }
+      }
+      knownVariantsArgs.push("-");
 
 
-    // Create an iobio command get get the variants and add any header recs.
-    var tabixArgs = ['-h', clinvarUrl, regionParm];
+      // Create an iobio command get get the variants and add any header recs.
+      var tabixArgs = ['-h', clinvarUrl, regionParm];
 
-    var cmd = new iobio.cmd (me.IOBIO.tabix,         tabixArgs,         {ssl: me.globalApp.useSSL})
-                       .pipe(me.IOBIO.knownvariants, knownVariantsArgs, {ssl: me.globalApp.useSSL});
+      var cmd = new iobio.cmd (me.IOBIO.tabix,         tabixArgs,         {ssl: me.globalApp.useSSL})
+                         .pipe(me.IOBIO.knownvariants, knownVariantsArgs, {ssl: me.globalApp.useSSL});
 
-    return cmd;
+      return cmd;
+    }
   }
 
   getBamHeader(bamUrl, baiUrl) {
