@@ -446,7 +446,7 @@ export default class EndpointCmd {
     }
   }
 
-  freebayesJointCall(bamSources, refName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF) {
+  freebayesJointCall(bamSources, refName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF, sampleNames) {
 
     if (this.gruBackend) {
 
@@ -471,6 +471,7 @@ export default class EndpointCmd {
         vepAF,
         isRefSeq,
         clinvarUrl,
+        sampleNames,
       });
     }
     else {

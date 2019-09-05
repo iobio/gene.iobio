@@ -1821,6 +1821,7 @@ class CohortModel {
             me.geneModel.geneSource == 'refseq' ? true : false,
             me.freebayesSettings.arguments,
             me.globalApp.vepAF, // vep af
+            me.getTrioSampleNames(),
             function(theData, trRefName) {
 
               var jointVcfRecs =  theData.split("\n");
@@ -2698,6 +2699,29 @@ class CohortModel {
     }
   }
 
+  getTrioSampleNames() {
+
+    let self = this;
+
+    let sampleNames = [];
+
+    sampleNames.push(self.sampleMap.proband.model.getSampleName());
+
+    if (self.sampleMap.mother && self.sampleMap.mother.model) {
+
+      sampleNames.push(self.sampleMap.mother.model.getSampleName());
+
+    }
+
+    if (self.sampleMap.father && self.sampleMap.father.model) {
+
+      sampleNames.push(self.sampleMap.father.model.getSampleName());
+
+    }
+
+    return sampleNames;
+
+  }
 }
 
 export default CohortModel;
