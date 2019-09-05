@@ -207,7 +207,7 @@ export default class EndpointCmd {
         if (getRsId) {
           vepArgs.push("--check_existing");
         }
-        if (hgvsNotation || me.globalApp.utility.getRsId || isRefSeq) {
+        if (hgvsNotation || getRsId || isRefSeq) {
           vepArgs.push("--fasta");
           vepArgs.push(refFastaFile);
         }
