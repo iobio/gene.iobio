@@ -86,7 +86,10 @@ export default class EndpointCmd {
     }
   }
 
-  annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false) {
+  annotateVariants(
+      vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq,
+      hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey,
+      sfariMode = false, gnomadUrl, gnomadRegionStr) {
 
     if (this.gruBackend) {
       const refNames = this.getHumanRefNames(refName).split(" ");
@@ -110,6 +113,9 @@ export default class EndpointCmd {
 
         vepREVELFile: this.globalApp.vepREVELFile,
         //globalGetRsId: me.globalApp.utility.getRsId,
+
+        gnomadUrl: gnomadUrl ? gnomadUrl : '',
+        gnomadRegionStr: gnomadRegionStr ? gnomadRegionStr : '',
       });
 
       return ncmd;
