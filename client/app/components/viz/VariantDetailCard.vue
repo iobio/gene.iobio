@@ -582,11 +582,11 @@
           <v-flex  v-if="!isBasicMode">
             <v-layout  row>
                <v-flex xs4 class="field-label">gnomAD</v-flex>
-               <v-flex xs8 class="field-value" v-html="afGnomAD"></v-flex>
+               <v-flex xs8 class="field-value"  v-html="afGnomAD"> </v-flex>
             </v-layout>
           </v-flex>
 
-          <v-flex   v-if="genomeBuildHelper.getCurrentBuildName() != 'GRCh37' && !isBasicMode" xs6>
+          <v-flex   v-if="genomeBuildHelper.getCurrentBuildName() != 'GRCh37' && !isBasicMode" >
             <v-layout row>
                <v-flex xs4 class="field-label">ExAC</v-flex>
                <v-flex xs8 class="field-value" v-html="afExAC"></v-flex>
@@ -1218,41 +1218,37 @@ export default {
       return refAlt;
     },
     afGnomAD: function(af) {
-      if (this.selectedVariant.vepAF == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
-        return "unknown";
-      } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
+    if (this.selectedVariant.vepAf['gnomAD'] && this.selectedVariant.vepAf['gnomAD'].AF != ".") {
+        var af = this.globalApp.utility.percentage(this.selectedVariant.vepAf['gnomAD'].AF);
+        var popAF = this.formatPopAF(this.selectedVariant.vepAf['gnomAD']);
         return "<span class='"
-        + this.getAfClass(0)
-        + "'>"
-        + "0%"
-        + "</span>";
-      } else if (this.isBasicMode) {
-        return this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
-      } else  {
-        var af = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
-        var link = "<a target='_gnomad' "
-          + " class='" + this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF) + "' "
-          + " href='http://gnomad.broadinstitute.org/variant/" + this.selectedVariant.chrom + "-"
-          + this.selectedVariant.start + "-" + this.selectedVariant.ref + "-" + this.selectedVariant.alt + "'>"
-          + af + "</a>";
-        link += "&nbsp;&nbsp;" + this.formatPopAF(this.selectedVariant.vepAf.gnomAD);
-        return link;
-      }
-    },
-    af1000G: function(af) {
-      if (this.selectedVariant.af1000G == null) {
-        return "0%";
-      } else  {
-        var af = this.globalApp.utility.percentage(this.selectedVariant.af1000G);
-        var popAF = this.formatPopAF(this.selectedVariant.vepAf['1000G']);
-        return "<span class='"
-        + this.getAfClass(this.selectedVariant.af1000G) + "'>"
+        + this.getAfClass(this.selectedVariant.vepAf['gnomAD'].AF) + "'>"
         + af
         + "</span>"
         +"<span style='margin-left:2px''>"
         + popAF
         + "</span>";
-      }
+     } else {
+      return "0%";
+     }
+
+    },
+    af1000G: function(af) {
+
+     if (this.selectedVariant.vepAf['1000G'] && this.selectedVariant.vepAf['1000G'].AF != ".") {
+        var af = this.globalApp.utility.percentage(this.selectedVariant.vepAf['1000G'].AF);
+        var popAF = this.formatPopAF(this.selectedVariant.vepAf['1000G']);
+        return "<span class='"
+        + this.getAfClass(this.selectedVariant.vepAf['1000G'].AF) + "'>"
+        + af
+        + "</span>"
+        +"<span style='margin-left:2px''>"
+        + popAF
+        + "</span>";
+     } else {
+      return "0%";
+     }
+
     },
     afExAC: function() {
       return this.selectedVariant.afExAC ? this.globalApp.utility.percentage(this.selectedVariant.afExAC) : "";
