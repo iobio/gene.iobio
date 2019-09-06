@@ -91,7 +91,13 @@
           .coverage-problem-glyph
             fill: $coverage-problem-glyph-color
 
-        #gene-viz
+        .gene-viz
+          svg
+            .transcript.current
+              outline: none !important
+
+      #conservation-track
+        .gene-viz
           svg
             .transcript.current
               outline: none !important
@@ -123,7 +129,75 @@
         padding-right: 8px
         font-size: 12px
 
+  .conservation-scores-barchart
+    .marker
+      rect
+        stroke: $current-color
+        stroke-width: 2px
+        fill: none
 
+  .multi-align-chart
+    .marker
+      rect
+        stroke: $current-color
+        stroke-width: 2px
+        stroke-opacity: 1
+        fill: none
+
+</style>
+
+<style lang="css">
+
+.conservation-scores-barchart .axis text {
+  font-family: 'Raleway';
+  font-size: 11px;
+  fill: #717171;
+}
+.multi-align-chart .axis text {
+  font-family: 'Raleway';
+  font-size: 11px;
+  fill: #717171;
+}
+
+.conservation-scores-barchart  .bar {
+    fill: rgba(60, 85, 151, 0.67);
+    opacity: .8;
+}
+
+.conservation-scores-barchart .bar.negative {
+    fill: rgba(125, 0, 0, 0.58);
+}
+
+
+.multi-align-chart .sequence text {
+  font-family: 'Raleway';
+  font-size: 11px;
+  font-weight: 500;
+  fill: #3939ff;
+  cursor: pointer;
+}
+
+.multi-align-chart .sequence g.diff text {
+  fill: darkred !important;
+}
+
+.multi-align-chart .sequence rect {
+  fill: white;
+  stroke: none;
+  cursor: pointer;
+}
+
+.multi-align-chart .sequence g.diff rect {
+  fill: rgba(170, 90, 92, 0.6);
+}
+
+
+.multi-align-chart text.sequence-name {
+  font-family: 'Raleway';
+  font-size: 11px;
+  font-weight: normal !important;
+  fill: rgb(186, 186, 186);
+}
 
 
 </style>
@@ -191,6 +265,69 @@
 
 
     <div class="variant-inspect-body">
+      <div class="variant-inspect-column" v-if="selectedVariantRelationship != 'known-variants'">
+          <div class="variant-column-header">
+            Quality
+          </div>
+
+
+          <div id="qual-track" style="width:130px;margin-bottom:15px !important">
+            <depth-viz
+              v-if="cohortModel && hasAlignments"
+              ref="depthVizRef"
+              :data="coverage"
+              :coverageMedian="cohortModel.filterModel.geneCoverageMedian"
+              :coverageDangerRegions="coverageDangerRegions"
+              :currentPoint="coveragePoint"
+              :maxDepth="cohortModel.maxDepth"
+              :regionStart="coverageRegionStart"
+              :regionEnd="coverageRegionEnd"
+              :width="130"
+              :margin="depthVizMargin"
+              :height="80"
+              :showTooltip="false"
+              :showXAxis="false"
+              :regionGlyph="depthVizRegionGlyph"
+              :showAlleleBar="true"
+              @region-selected="showExonTooltip"
+
+            >
+            </depth-viz>
+            <gene-viz id="qual-gene-viz" class="gene-viz"
+              v-if="cohortModel && hasAlignments"
+              :data="[filteredTranscript]"
+              :margin="geneVizMargin"
+              :width="130"
+              :height="16"
+              :trackHeight="geneVizTrackHeight"
+              :cdsHeight="geneVizCdsHeight"
+              :regionStart="coverageRegionStart"
+              :regionEnd="coverageRegionEnd"
+              :showXAxis="false"
+              :showBrush="false"
+              :featureClass="getExonClass"
+              @feature-selected="showExonTooltip"
+              >
+            </gene-viz>
+          </div>
+
+          <div class="variant-row">
+            <variant-allele-counts-menu
+              v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
+              :selectedVariant="selectedVariant"
+              :affectedInfo="cohortModel.affectedInfo"
+              :cohortModel="cohortModel.mode"
+              :relationship="selectedVariantRelationship">
+            </variant-allele-counts-menu>
+          </div>
+          <div class="variant-row last">
+            <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
+            class="variant-action-button"  @click="onShowPileup">
+             <v-icon>format_align_center</v-icon>
+             Read Pileup
+            </v-btn>
+          </div>
+      </div>
       <div class="variant-inspect-column">
           <div class="variant-column-header">
             Pathogenicity
@@ -233,6 +370,7 @@
             <span>{{ afGnomAD.homCount }} hom</span>
           </div>
       </div>
+
       <div class="variant-inspect-column" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Inheritance
@@ -258,67 +396,36 @@
       </div>
       <div class="variant-inspect-column last" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
-            Quality
+            Conservation
           </div>
 
+          <div id="conservation-track">
+            <div style="display:flex;flex-direction: column;width:130px">
+              <div class="conservation-scores-barchart exon">
+              </div>
+              <gene-viz id="conservation-gene-viz" class="gene-viz"
+                v-if="cohortModel && hasAlignments"
+                :data="[filteredTranscript]"
+                :margin="conservationGeneVizMargin"
+                :width="130"
+                :height="16"
+                :trackHeight="geneVizTrackHeight"
+                :cdsHeight="geneVizCdsHeight"
+                :regionStart="coverageRegionStart"
+                :regionEnd="coverageRegionEnd"
+                :showXAxis="false"
+                :showBrush="false"
+                :featureClass="getExonClass"
+                @feature-selected="showExonTooltip"
+                >
+              </gene-viz>
 
-          <div id="qual-track" style="width:130px;margin-bottom:15px !important">
-            <depth-viz
-              v-if="cohortModel && hasAlignments"
-              ref="depthVizRef"
-              :data="coverage"
-              :coverageMedian="cohortModel.filterModel.geneCoverageMedian"
-              :coverageDangerRegions="coverageDangerRegions"
-              :currentPoint="coveragePoint"
-              :maxDepth="cohortModel.maxDepth"
-              :regionStart="coverageRegionStart"
-              :regionEnd="coverageRegionEnd"
-              :width="130"
-              :margin="depthVizMargin"
-              :height="80"
-              :showTooltip="false"
-              :showXAxis="false"
-              :regionGlyph="depthVizRegionGlyph"
-              :showAlleleBar="true"
-              @region-selected="showExonTooltip"
-
-            >
-            </depth-viz>
-            <gene-viz id="gene-viz"
-              v-if="cohortModel && hasAlignments"
-              :data="[selectedTranscript]"
-              :margin="geneVizMargin"
-              :width="130"
-              :height="16"
-              :trackHeight="geneVizTrackHeight"
-              :cdsHeight="geneVizCdsHeight"
-              :regionStart="coverageRegionStart"
-              :regionEnd="coverageRegionEnd"
-              :showXAxis="false"
-              :showBrush="false"
-              :featureClass="getExonClass"
-              @feature-selected="showExonTooltip"
-              >
-            </gene-viz>
-          </div>
-
-          <div class="variant-row">
-            <variant-allele-counts-menu
-              v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
-              :selectedVariant="selectedVariant"
-              :affectedInfo="cohortModel.affectedInfo"
-              :cohortModel="cohortModel.mode"
-              :relationship="selectedVariantRelationship">
-            </variant-allele-counts-menu>
-          </div>
-          <div class="variant-row last">
-            <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
-            class="variant-action-button"  @click="onShowPileup">
-             <v-icon>format_align_center</v-icon>
-             Read Pileup
-            </v-btn>
+              <div class="multi-align-chart variant" style="margin-top:10px;">
+              </div>
+            </div>
           </div>
       </div>
+
 
     </div>
 
@@ -348,6 +455,11 @@ import InfoPopup                from "../partials/InfoPopup.vue"
 import TranscriptsMenu          from '../partials/TranscriptsMenu.vue'
 import DepthViz                 from "../viz/DepthViz.vue"
 import GeneViz                  from "../viz/GeneViz.vue"
+
+
+import BarChartD3               from '../../d3/BarChart.d3.js'
+import MultiAlignD3             from '../../d3/MultiAlign.d3.js'
+import MultiAlignModel          from "../../models/MultiAlignModel.js"
 
 
 export default {
@@ -390,6 +502,8 @@ export default {
       coveragePoint: null,
       selectedExon: null,
 
+      filteredTranscript: null,
+
       depthVizMargin: {
         top: 30,
         right: 2,
@@ -402,8 +516,16 @@ export default {
         bottom: 0,
         left: 4
       },
+      conservationGeneVizMargin: {
+        top: 0,
+        right: 2,
+        bottom: 0,
+        left: 4
+      },
       geneVizTrackHeight: 16,
-      geneVizCdsHeight: 12
+      geneVizCdsHeight: 12,
+
+      multiAlignModel: new MultiAlignModel()
 
 
     }
@@ -528,6 +650,15 @@ export default {
         return '';
       }
     },
+    loadData: function() {
+      let self = this;
+      self.initGenePhenotypeHits();
+      self.promiseInitCoverage()
+      .then(function() {
+        self.showMultiAlignments();
+      })
+    },
+
     initGenePhenotypeHits: function() {
       let self = this;
       self.genePhenotypeHits = [];
@@ -542,35 +673,40 @@ export default {
         }
       }
     },
-    initCoverage: function() {
+    promiseInitCoverage: function() {
       let self = this;
-      if (self.selectedVariant) {
-        self.exon                = this.getExon();
-        self.coverageRegionStart = this.getCoverageRegionStart();
-        self.coverageRegionEnd   = this.getCoverageRegionEnd();
+      return new Promise(function(resolve, reject) {
 
-        let theCoverage = self.cohortModel.getModel(this.selectedVariantRelationship).coverage.filter(function(coveragePoint) {
-          return coveragePoint[0] >= self.coverageRegionStart && coveragePoint[0] <= self.coverageRegionEnd;
-        })
-        let clonedCoverage = [];
-        theCoverage.forEach(function(covPoint) {
-          let newPoint = []
-          newPoint.push(covPoint[0])
-          newPoint.push(covPoint[1])
-          clonedCoverage.push(newPoint)
-        })
-        self.coverage = clonedCoverage
-        setTimeout(function() {
-          self.showCoverageAlleleBar();
-        }, 100)
+        if (self.selectedVariant) {
+          self.exon                = self.getExon();
+          self.coverageRegionStart = self.getCoverageRegionStart();
+          self.coverageRegionEnd   = self.getCoverageRegionEnd();
+
+          let theCoverage = self.cohortModel.getModel(self.selectedVariantRelationship).coverage.filter(function(coveragePoint) {
+            return coveragePoint[0] >= self.coverageRegionStart && coveragePoint[0] <= self.coverageRegionEnd;
+          })
+          let clonedCoverage = [];
+          theCoverage.forEach(function(covPoint) {
+            let newPoint = []
+            newPoint.push(covPoint[0])
+            newPoint.push(covPoint[1])
+            clonedCoverage.push(newPoint)
+          })
+          self.coverage = clonedCoverage
+          setTimeout(function() {
+            self.showCoverageAlleleBar();
+            resolve();
+          }, 100)
 
 
-      } else {
-        self.exon = null;
-        self.converageRegionStart = null;
-        self.coverageRegionEnd = null;
-        self.coverage = [];
-      }
+        } else {
+          self.exon = null;
+          self.converageRegionStart = null;
+          self.coverageRegionEnd = null;
+          self.coverage = [];
+          resolve();
+        }
+      })
     },
     showCoverageAlleleBar: function() {
       let self = this;
@@ -649,6 +785,10 @@ export default {
           let theExon = exons.filter(function(feature) {
             return +feature.start <= +self.selectedVariant.start && +feature.end >= +self.selectedVariant.start;
           })
+
+          self.filteredTranscript = $.extend({}, self.selectedTranscript);
+          self.filteredTranscript.features = theExon;
+
           if (theExon && theExon.length > 0) {
             return theExon[0];
           } else {
@@ -752,6 +892,13 @@ export default {
            .style("opacity", 0);
       }
     },
+
+    showMultiAlignments: function() {
+      let self = this;
+      self.multiAlignModel.showConservationScores(self.coverageRegionStart, self.coverageRegionEnd);
+      self.multiAlignModel.showMultiAlignments();
+
+    }
   },
 
 
@@ -863,8 +1010,7 @@ export default {
   watch: {
     selectedVariant: function() {
       this.$nextTick(function() {
-        this.initGenePhenotypeHits();
-        this.initCoverage();
+        this.loadData();
       })
     }
 

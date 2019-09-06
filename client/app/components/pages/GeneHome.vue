@@ -480,11 +480,11 @@ import Glyph              from '../../partials/Glyph.js'
 import VariantTooltip     from '../../partials/VariantTooltip.js'
 
 import allGenesData       from '../../../data/genes.json'
-import acmgBlacklist from '../../../data/ACMG_blacklist.json'
+import acmgBlacklist      from '../../../data/ACMG_blacklist.json'
 import SplitPane          from '../partials/SplitPane.vue'
 import ScrollButton       from '../partials/ScrollButton.vue'
 
-import SaveButton  from '../partials/SaveButton.vue'
+import SaveButton         from '../partials/SaveButton.vue'
 import SaveAnalysisPopup  from '../partials/SaveAnalysisPopup.vue'
 
 import VuePileup          from 'vue-pileup'
