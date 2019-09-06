@@ -19,7 +19,7 @@ class MultiAlignModel {
                       return Number(d.y)
                     })
                     .width(130)
-                    .height(50)
+                    .height(80)
                     .margin({top: 5, right: 2, bottom: 5, left: 4})
 
 
