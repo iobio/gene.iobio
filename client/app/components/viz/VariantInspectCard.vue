@@ -429,7 +429,7 @@
 
     </div>
 
-    <variant-assessment  v-if="selectedVariantRelationship == 'proband'"
+    <variant-assessment  style="margin-top:20px;" v-if="selectedVariantRelationship == 'proband'"
       :variant="selectedVariant"
       :variantInterpretation="interpretation"
       :interpretationMap="interpretationMap"
