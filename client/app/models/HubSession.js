@@ -61,6 +61,7 @@ export default class HubSession {
                       var modelInfo = {
                         'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
                         'affectedStatus': isPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
+                        'sex':            isPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
                         'name':           theSample.name,
                         'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
                         'vcf':            theSample.files.vcf,

@@ -29,6 +29,8 @@ export default function BarchartD3() {
 
   var defaults = {showYAxis: true, xScale: 'ordinal', showXAxis: true, tickCount: null}
 
+  var markerOffset = 15;
+
   function tickFormatter (d,i) {
     if ((d / 1000000) >= 1)
       d = d / 1000000 + "M";
@@ -38,14 +40,24 @@ export default function BarchartD3() {
   }
 
 
-  var setMarker = function(d) {
+  var setMarker = function(d, label) {
     var mousex = x(xValue(d));
+    var mousey = y(yValue(d))
 
     container.select("g.marker")
-             .attr("transform", "translate(" + (+mousex) + "," + "0" + ")");
-
-    container.select("g.marker rect")
+             .attr("transform", "translate(" + (+mousex) + "," + (mousey) + ")");
+    container.select("g.marker circle")
              .style("opacity", 1)
+
+    if (label) {
+      container.select("g.marker text")
+               .text(label)
+      container.select("g.marker text")
+               .style("opacity", 1)
+
+    }
+
+
   }
 
   function chart(theContainer, data, options) {
@@ -55,13 +67,19 @@ export default function BarchartD3() {
 
     container = theContainer;
 
+    container.selectAll("svg").remove();
+
+    if (data.length == 0) {
+      return;
+    }
+
 
     // Calc width and height
     let outerWidth  = width ? width : +container.node().offsetWidth;
     let outerHeight = height ? height : +container.node().offsetHeight;
 
     let innerWidth  = outerWidth - margin.left - margin.right;
-    let innerHeight = outerHeight - margin.top - margin.bottom;
+    let innerHeight = outerHeight - margin.top - margin.bottom - markerOffset;
 
 
     x = null;
@@ -94,6 +112,8 @@ export default function BarchartD3() {
           .rangeRound([innerHeight, 0])
           .domain([yMin, yMax]);
 
+
+
     // Select the svg element, if it exists.
     var svg = container.selectAll("svg").data([0]);
 
@@ -102,7 +122,7 @@ export default function BarchartD3() {
        .attr("width", outerWidth)
        .attr("height", outerHeight)
        .append("g")
-       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+       .attr("transform", "translate(" + margin.left + "," + (margin.top + markerOffset) + ")");
 
 
 
@@ -178,16 +198,21 @@ export default function BarchartD3() {
          .style("display", "none")
       })
 
-    g.selectAll(".marker")
+    let marker = g.selectAll(".marker")
      .data([0])
      .enter()
      .append("g")
-     .attr("class", "marker")
-     .append("rect")
-     .attr("x", 0)
-     .attr("y", 0)
-     .attr("width", barWidth)
-     .attr("height", innerHeight)
+     .attr("class", "marker");
+
+    marker.append("circle")
+     .attr("cx", 0)
+     .attr("cy", 0)
+     .attr("r", "2")
+     .style("opacity", 0)
+
+    marker.append("text")
+     .attr("x", -12)
+     .attr("y", -6)
      .style("opacity", 0)
 
   }

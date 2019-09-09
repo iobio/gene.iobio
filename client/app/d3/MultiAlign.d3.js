@@ -68,6 +68,13 @@ export default function MultiAlignD3() {
 
     options = $.extend(defaults, options)
 
+    container.selectAll("svg").remove();
+
+    if (data.length == 0) {
+      return;
+    }
+
+
     let sequenceLength = d3.max(data, function(d) {
       return d.sequence.length;
     })
@@ -94,6 +101,7 @@ export default function MultiAlignD3() {
             return xValue(d);
           }))
           .range([0, width]);
+
 
 
     // Select the svg element, if it exists.

@@ -73,7 +73,7 @@
 
 <template>
   <div class="variant-row">
-    <v-icon :class="clazz">{{ clazz == 'level-unremarkable' ? 'cancel' : 'check_circle' }} </v-icon>
+    <v-icon :class="clazz">{{ clazz == 'level-unremarkable' ? 'lens' : 'check_circle' }} </v-icon>
 
     <span class="variant-text">
       {{ capitalize(value) }} {{ label }}

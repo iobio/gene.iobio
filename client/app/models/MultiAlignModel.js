@@ -3,11 +3,12 @@ import MultiAlignD3        from '../d3/MultiAlign.d3.js';
 class MultiAlignModel {
 
     constructor() {
-      this.alignments = null;
-      this.scores = null;
+      this.alignments = {};
+      this.scores = [];
+      this.selectedScore = null;
 
-      this.conservationFileName      = "../../data/rai1.pholop.100way.txt";
-      this.baseMultiAlignFileName    = "../../data/multialign.RAI1.";
+      this.baseConservationFileName      = "../../data/phylop100way";
+      this.baseMultiAlignFileName        = "../../data/multialign";
 
 
 
@@ -19,7 +20,7 @@ class MultiAlignModel {
                       return Number(d.y)
                     })
                     .width(130)
-                    .height(80)
+                    .height(65)
                     .margin({top: 5, right: 2, bottom: 5, left: 4})
 
 
@@ -45,32 +46,43 @@ class MultiAlignModel {
 
     }
 
-    showConservationScores(regionStart, regionEnd, position) {
+    clear() {
+      this.selectedScore = null;
+    }
+
+    showConservationScores(regionStart, regionEnd, selectedGene, selectedVariant) {
       let self = this;
 
-      if (self.scores == null) {
-        $.get(self.conservationFileName, function(data) {
-          self.scores = []
+      self.selectedScore = null;
+      let geneName = selectedGene.gene_name;
+      let conservationFileName = self.baseConservationFileName + "." + geneName + ".txt";
+
+      if (self.scores[geneName] == null) {
+        self.scores[geneName] = [];
+        $.get(conservationFileName, function(data) {
           data.split("\n").forEach(function(rec) {
             if (rec.length > 0) {
               let fields = rec.split("\t")
-              self.scores.push({  'x': +fields[1], 'y': +fields[3]});
+              self.scores[geneName].push({  'x': +fields[1], 'y': +fields[3]});
             }
           })
-          self.showConservationScoresAsBarchart(self.scores,
+          self.setSelectedScore(selectedGene.gene_name, selectedVariant.start)
+          self.showConservationScoresAsBarchart(self.scores[geneName],
                                d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
                                'mean',
                                200,
-                               regionStart, regionEnd, 17698535);
+                               regionStart, regionEnd, selectedVariant.start);
 
-        }, 'text');
+        }, 'text')
+
 
       } else {
-        self.showConservationScoresAsBarchart(self.scores,
+        self.setSelectedScore(selectedGene.gene_name, selectedVariant.start)
+        self.showConservationScoresAsBarchart(self.scores[geneName],
                      d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
                      'mean',
                      200,
-                     17696263, 17701827, 17698535);
+                     regionStart, regionEnd, selectedVariant.start);
 
       }
 
@@ -78,25 +90,38 @@ class MultiAlignModel {
 
     }
 
-    showMultiAlignments() {
+    setSelectedScore(geneName, position) {
+      let self = this;
+      let theScores = self.scores[geneName].filter(function(score) {
+          return position >= score.x  && position <= score.x;
+      })
+      if (theScores.length > 0) {
+        self.selectedScore = theScores[0];
+      } else {
+        self.selectedScore = null;
+      }
+    }
+
+    showMultiAlignments(selectedGene, selectedVariant) {
       let self = this;
 
 
       let promises = [];
 
+      let geneName = selectedGene.gene_name;
 
 
-      if (self.alignments == null) {
-        self.alignments = [];
-        self.promiseGetMultiAlignments(self.baseMultiAlignFileName + self.primarySpeciesName + ".txt")
+      if (self.alignments[geneName] == null) {
+        self.alignments[geneName] = [];
+        self.promiseGetMultiAlignments(self.baseMultiAlignFileName + "." + geneName + "." + self.primarySpeciesName + ".txt")
         .then(function(data) {
-          self.alignments.push(data);
+          self.alignments[geneName].push(data);
 
           for (var species in self.speciesMap) {
             if (species != self.primarySpeciesName) {
-              let p = self.promiseGetMultiAlignments(self.baseMultiAlignFileName + species + ".txt")
+              let p = self.promiseGetMultiAlignments(self.baseMultiAlignFileName + "." + geneName + "." + species + ".txt")
               .then(function(data) {
-                self.alignments.push(data);
+                self.alignments[geneName].push(data);
               })
               promises.push(p);
             }
@@ -104,9 +129,9 @@ class MultiAlignModel {
 
           Promise.all(promises)
           .then(function() {
-            self.setMultiAlignSimilarity(self.alignments);
+            self.setMultiAlignSimilarity(self.alignments[geneName]);
 
-            let data = self.getMultiAlignSequencesForVariant(self.alignments, 17698535, self.sequenceWindow);
+            let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
             self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
                                 data.sequences,
                                 {scrollable: false, showXAxis: false});
@@ -115,11 +140,17 @@ class MultiAlignModel {
           })
         })
       } else {
-          let data = self.getMultiAlignSequencesForVariant(self.alignments, 17698535, self.sequenceWindow);
-          self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
-                                data.sequences,
-                                {scrollable: false, showXAxis: false});
-          self.multiAlignChart.setMarker()(data.selectedBase)
+          if (self.alignments[geneName] && self.alignments[geneName].length > 0) {
+            let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
+
+            self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
+                                  data.sequences,
+                                  {scrollable: false, showXAxis: false});
+            self.multiAlignChart.setMarker()(data.selectedBase)
+
+          } else {
+            d3.select("#variant-inspect").select(".multi-align-chart.variant svg").remove();
+          }
 
       }
 
@@ -175,6 +206,7 @@ class MultiAlignModel {
 
     promiseGetMultiAlignments(fileName) {
       let self = this;
+
       return new Promise(function(resolve, reject) {
         $.get(fileName, function(data) {
 
@@ -220,6 +252,7 @@ class MultiAlignModel {
               buf += rec;
             }
           })
+
           let sequence = Array.from(buf, function(character, i) {
             return {offset: i, base: character }
           })
@@ -273,25 +306,29 @@ class MultiAlignModel {
       let scores = self.reducePoints(theScores, pixels/4, null, reducePointsType)
 
 
-      let selectedScore = null;
+      let targetScore = null;
       if (position != null) {
-        let selectedScores = scores.filter(function(score) {
+        let targetScores = scores.filter(function(score) {
           if (position >= score.x && position <= score.xEnd) {
             return true;
           } else {
             return false;
           }
         })
-        if (selectedScores.length > 0) {
-          selectedScore = selectedScores[0]
+        if (targetScores.length > 0) {
+          targetScore = targetScores[0]
         }
       }
 
-
-      self.conservationBarChart(container, scores, options);
-      if (selectedScore) {
-        self.conservationBarChart.setMarker()(selectedScore);
+      if (scores.length > 0) {
+        self.conservationBarChart(container, scores, options);
+        if (targetScore) {
+          self.conservationBarChart.setMarker()(targetScore);
+        }
+      } else {
+        d3.select("#variant-inspect").select(".conservation-scores-barchart.exon svg").remove()
       }
+
 
     }
 

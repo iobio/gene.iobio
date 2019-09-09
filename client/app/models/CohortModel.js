@@ -60,7 +60,7 @@ class CohortModel {
         'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
         'mother':  'https://s3.amazonaws.com/iobio/samples/bam/NA12892.exome.bam',
         'father':  'https://s3.amazonaws.com/iobio/samples/bam/NA12891.exome.bam',
-        'sibling': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam'
+        'sibling': 'https://s3.amazonaws.com/iobio/samples/bam/NA12877.exome.bam'
       },
       'genome': {
         'proband': 'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam',
@@ -73,27 +73,28 @@ class CohortModel {
 
     this.demoModelInfos = {
       'exome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['proband'], 'bai': null },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['mother'], 'bai': null  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['father'], 'bai': null  },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['proband'], 'bai': null },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['mother'], 'bai': null  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['father'], 'bai': null  },
+        {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['sibling'], 'bai': null  },
       ],
       'genome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['proband'], 'bai': null  },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['mother'],  'bai': null  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['father'],  'bai': null  },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['proband'], 'bai': null  },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['mother'],  'bai': null  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',   'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['father'],  'bai': null  },
       ]
     }
     this.eduTourModelInfos = {
       "1": [
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Father', 'sample': 'sample2', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Jimmy',  'sample': 'sample3', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Bobby',  'sample': 'sample4', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Sarah',  'sample': 'sample5', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Father', 'sample': 'sample2',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Jimmy',  'sample': 'sample3',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Bobby',  'sample': 'sample4',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Sarah',  'sample': 'sample5',  sex: 'female', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
       ],
       "2": [
-        {relationship: 'proband', affectedStatus: 'affected', name: 'John',   'sample': 'sample1', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Diego',  'sample': 'sample3', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Anna',   'sample': 'sample2', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
+        {relationship: 'proband', affectedStatus: 'affected', name: 'John',   'sample': 'sample1',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Diego',  'sample': 'sample3',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Anna',   'sample': 'sample2',  sex: 'female', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
       ]
 
     };
@@ -256,17 +257,13 @@ class CohortModel {
       let affectedSibs = modelInfos.filter(function(modelInfo) {
         return modelInfo.relationship == 'sibling' && modelInfo.affectedStatus == 'affected';
       })
-      .map(function(modelInfo) {
-        return modelInfo.sample;
-      })
+
 
 
       let unaffectedSibs = modelInfos.filter(function(modelInfo) {
         return modelInfo.relationship == 'sibling' && modelInfo.affectedStatus != 'affected';
       })
-      .map(function(modelInfo) {
-        return modelInfo.sample;
-      })
+
 
       // sort models by proband, mother, father, sibling
       modelInfos = modelInfos.sort(function(a,b) {
@@ -341,6 +338,7 @@ class CohortModel {
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
       vm.affectedStatus = modelInfo.affectedStatus;
+      vm.sex = modelInfo.sex;
       vm.isBasicMode = self.isBasicMode;
       vm.isEduMode = self.isEduMode;
       vm.isSfariSample = fromSfariProject;
@@ -427,12 +425,13 @@ class CohortModel {
 
     var promises = [];
     if (affectedSamples) {
-      affectedSamples.forEach(function(sampleName) {
+      affectedSamples.forEach(function(mi) {
         var modelInfo =  {
           'relationship': 'sibling',
           'affectedStatus': 'affected',
-          'name': sampleName,
-          'sample': sampleName,
+          'sex': mi.sex,
+          'name':   mi.sample,
+          'sample': mi.sample,
           'vcf': self.getProbandModel().vcf.getVcfURL(),
           'tbi': self.getProbandModel().vcf.getTbiURL(),
           'bam': null,
@@ -442,12 +441,13 @@ class CohortModel {
       });
     }
     if (unaffectedSamples) {
-      unaffectedSamples.forEach(function(sampleName) {
+      unaffectedSamples.forEach(function(mi) {
         var modelInfo =  {
           'relationship': 'sibling',
           'affectedStatus': 'unaffected',
-          'name': sampleName,
-          'sample': sampleName,
+          'sex': mi.sex,
+          'name':   mi.sample,
+          'sample': mi.sample,
           'vcf': self.getProbandModel().vcf.getVcfURL(),
           'tbi': self.getProbandModel().vcf.getTbiURL(),
           'bam': null, 'bai': null };
@@ -466,6 +466,7 @@ class CohortModel {
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
       vm.affectedStatus = modelInfo.affectedStatus;
+      vm.sex = modelInfo.sex;
 
       var vcfPromise = null;
       if (modelInfo.vcf) {
@@ -708,6 +709,7 @@ class CohortModel {
           info.relationship = model.getRelationship();
           info.status = model.isAffected() ? 'affected' : 'unaffected';
           info.label  = model.getRelationship();
+          info.sex    = model.sex;
 
           info.id = info.status + "-_-" + model.getRelationship() + "-_-" + model.getSampleName();
 
@@ -722,6 +724,7 @@ class CohortModel {
           var info = {};
           info.relationship = model.getRelationship();
           info.status = status;
+          info.sex = model.sex;
           info.model = model;
           info.label = model.getRelationship() + " " + model.getSampleName();
           info.id = info.status + "-_-" + model.getRelationship() + "-_-" + model.getSampleName();

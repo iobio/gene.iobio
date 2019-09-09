@@ -73,9 +73,10 @@
           margin-bottom: 0px
 
       .pheno-search-term
-        max-width: 160px
+        max-width: 80px
         display: inline-block
         vertical-align: top
+        line-height: 13px
 
       #qual-track
         margin-top: -20px
@@ -131,10 +132,14 @@
 
   .conservation-scores-barchart
     .marker
-      rect
-        stroke: $current-color
+      circle
+        stroke: $arrow-color
         stroke-width: 2px
-        fill: none
+        fill: $current-color
+      text
+        fill: $arrow-color
+        font-size: 12px
+        font-weight: bold
 
   .multi-align-chart
     .marker
@@ -143,6 +148,12 @@
         stroke-width: 2px
         stroke-opacity: 1
         fill: none
+
+  .pedigree-chart
+    .proband
+      stroke: $current-color
+      stroke-width: 5px
+
 
 </style>
 
@@ -160,12 +171,14 @@
 }
 
 .conservation-scores-barchart  .bar {
-    fill: rgba(60, 85, 151, 0.67);
+    fill: #bcbcbc;
     opacity: .8;
+    stroke: #797979;
 }
 
 .conservation-scores-barchart .bar.negative {
-    fill: rgba(125, 0, 0, 0.58);
+  fill: rgba(20, 20, 20, 0.58);
+  stroke: rgba(36, 36, 36, 0.3);
 }
 
 
@@ -173,12 +186,13 @@
   font-family: 'Raleway';
   font-size: 11px;
   font-weight: 500;
-  fill: #3939ff;
+  fill: #34c1fe;
   cursor: pointer;
 }
 
 .multi-align-chart .sequence g.diff text {
-  fill: darkred !important;
+  fill: black !important;
+  font-weight: bold;
 }
 
 .multi-align-chart .sequence rect {
@@ -188,7 +202,7 @@
 }
 
 .multi-align-chart .sequence g.diff rect {
-  fill: rgba(170, 90, 92, 0.6);
+  fill: rgb(191, 191, 191);
 }
 
 
@@ -199,7 +213,39 @@
   fill: rgb(186, 186, 186);
 }
 
+.pedigree-chart circle {
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
+}
 
+.pedigree-chart path {
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
+
+}
+
+.pedigree-chart .het, .pedigree-chart .hom {
+  fill: #c5c5c5;
+  stroke: black;
+  stroke-width: 1px;
+}
+
+.pedigree-chart .het.critical, .pedigree-chart .hom.critical {
+  fill: #ad151985;
+}
+
+.pedigree-chart rect {
+  stroke: black;
+  stroke-width: 1px;
+  fill: none;
+}
+
+
+.pedigree-chart line {
+  stroke: black !important;
+}
 </style>
 
 
@@ -371,13 +417,20 @@
           </div>
       </div>
 
-      <div class="variant-inspect-column" v-if="selectedVariantRelationship != 'known-variants'">
+      <div class="variant-inspect-column" style="min-width:90px" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Inheritance
           </div>
-          <div class="variant-row ">
+          <div class="variant-row "  v-if="selectedVariant.inheritance != 'none'">
             <app-icon :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
             <span>{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
+          </div>
+          <div class="pedigree-chart">
+            <pedigree-genotype-viz
+             style="width:65px"
+             :margin="{left: 4, right: 4, top: 4, bottom: 4}"
+             :data="pedigreeGenotypeData">
+            </pedigree-genotype-viz>
           </div>
       </div>
       <div class="variant-inspect-column" v-if="showGenePhenotypes" >
@@ -398,9 +451,14 @@
           <div class="variant-column-header">
             Conservation
           </div>
-
+          <variant-inspect-row
+            v-show="multiAlignModel && multiAlignModel.selectedScore"
+            :clazz="getConservationClass(multiAlignModel.selectedScore)"
+            :value="getConservationScore(multiAlignModel.selectedScore)"   >
+          </variant-inspect-row>
           <div id="conservation-track">
             <div style="display:flex;flex-direction: column;width:130px">
+
               <div class="conservation-scores-barchart exon">
               </div>
               <gene-viz id="conservation-gene-viz" class="gene-viz"
@@ -455,6 +513,7 @@ import InfoPopup                from "../partials/InfoPopup.vue"
 import TranscriptsMenu          from '../partials/TranscriptsMenu.vue'
 import DepthViz                 from "../viz/DepthViz.vue"
 import GeneViz                  from "../viz/GeneViz.vue"
+import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
 
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
@@ -473,7 +532,8 @@ export default {
     VariantAlleleCountsMenu,
     VariantAssessment,
     DepthViz,
-    GeneViz
+    GeneViz,
+    PedigreeGenotypeViz
   },
   props: {
     selectedGene: null,
@@ -525,7 +585,9 @@ export default {
       geneVizTrackHeight: 16,
       geneVizCdsHeight: 12,
 
-      multiAlignModel: new MultiAlignModel()
+      multiAlignModel: new MultiAlignModel(),
+
+      pedigreeGenotypeData: null
 
 
     }
@@ -650,12 +712,84 @@ export default {
         return '';
       }
     },
+    getConservationScore: function(score) {
+      if (score == null) {
+        return "";
+      } else {
+        if (score.y > 2) {
+          return 'Highly conserved'
+        } else if (score.y > 0) {
+          return 'Moderately conserved'
+        } else {
+          return 'Not conserved';
+        }
+      }
+    },
+    getConservationClass: function(score) {
+      if (score == null) {
+        return "";
+      } else {
+        if (score.y > 2) {
+          return 'level-high'
+        } else if (score.y > 0) {
+          return 'level-medium'
+        } else {
+          return 'level-unremarkable';
+        }
+      }
+    },
     loadData: function() {
       let self = this;
-      self.initGenePhenotypeHits();
-      self.promiseInitCoverage()
-      .then(function() {
-        self.showMultiAlignments();
+      if (self.selectedVariant) {
+        self.initPedigreeGenotypes();
+        self.initGenePhenotypeHits();
+        self.promiseInitCoverage()
+        .then(function() {
+          self.showMultiAlignments();
+        })
+      }
+    },
+
+    initPedigreeGenotypes() {
+      let self = this;
+      self.pedigreeGenotypeData = {};
+      self.cohortModel.sampleModels.forEach(function(model) {
+        if (model.relationship != 'known-variants') {
+          let gtObject = {};
+          gtObject.rel = model.relationship;
+          gtObject.sex = model.sex
+          gtObject.affectedStatus = model.affectedStatus;
+          if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.sampleName]) {
+            gtObject.zygosity = self.selectedVariant.genotypes[model.sampleName].zygosity.toLowerCase();
+          } else {
+            gtObject.zygosity = "unknown"
+          }
+          gtObject.inheritance = self.selectedVariant.inheritance;
+
+          self.pedigreeGenotypeData[gtObject.rel] = gtObject;
+        }
+      })
+      let affectedStatusList = ['affected', 'unaffected'];
+      affectedStatusList.forEach(function(affectedStatus) {
+        if (self.cohortModel.sampleMapSibs[affectedStatus]) {
+          self.cohortModel.sampleMapSibs[affectedStatus].forEach(function(model) {
+            let gtObject = {};
+            gtObject.rel = model.relationship;
+            gtObject.sex = model.sex
+            gtObject.affectedStatus = model.affectedStatus;
+            if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.sampleName]) {
+              gtObject.zygosity = self.selectedVariant.genotypes[model.sampleName].zygosity.toLowerCase();
+            } else {
+              gtObject.zygosity = "unknown"
+            }
+            gtObject.inheritance = self.selectedVariant.inheritance;
+
+            self.pedigreeGenotypeData['sibling-' + model.name] = gtObject;
+
+          })
+
+        }
+
       })
     },
 
@@ -895,8 +1029,12 @@ export default {
 
     showMultiAlignments: function() {
       let self = this;
-      self.multiAlignModel.showConservationScores(self.coverageRegionStart, self.coverageRegionEnd);
-      self.multiAlignModel.showMultiAlignments();
+      self.multiAlignModel.showConservationScores(self.coverageRegionStart,
+                                                  self.coverageRegionEnd,
+                                                  self.selectedGene,
+                                                  self.selectedVariant);
+
+      self.multiAlignModel.showMultiAlignments(self.selectedGene, self.selectedVariant);
 
     }
   },
