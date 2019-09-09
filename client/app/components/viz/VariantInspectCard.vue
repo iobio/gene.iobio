@@ -1032,7 +1032,7 @@ export default {
 
     showMultiAlignments: function() {
       let self = this;
-      let self.showConservation = false;
+      self.showConservation = false;
 
       let promises = [];
       let p1 = self.multiAlignModel.promiseShowConservationScores(self.coverageRegionStart,
