@@ -50,45 +50,127 @@ class MultiAlignModel {
       this.selectedScore = null;
     }
 
-    showConservationScores(regionStart, regionEnd, selectedGene, selectedVariant) {
+    hasConservationScores(regionStart, regionEnd, selectedGene) {
       let self = this;
+      if (self.scores[selectedGene.gene_name]) {
+        let theScores = self.scores[selectedGene.gene_name].filter(function(score) {
+          return score.x >= regionStart && score.x <= regionEnd;
+        })
+        return theScores.length > 0;
+      } else {
+        return false;
+      }
+    }
 
+    hasMultiAlignments(selectedGene, selectedVariant) {
+      let self = this;
+      if (self.alignments[selectedGene.gene_name] && self.alignments[selectedGene.gene_name].length > 0) {
+        let seqs = self.getMultiAlignSequencesForVariant(self.alignments[selectedGene.gene_name], selectedVariant.start, self.sequenceWindow);
+        return seqs.length > 0;
+      } else {
+        return false;
+      }
+    }
+
+    promiseShowConservationScores(regionStart, regionEnd, selectedGene, selectedVariant) {
+      let self = this;
       self.selectedScore = null;
-      let geneName = selectedGene.gene_name;
-      let conservationFileName = self.baseConservationFileName + "." + geneName + ".txt";
 
-      if (self.scores[geneName] == null) {
-        self.scores[geneName] = [];
-        $.get(conservationFileName, function(data) {
-          data.split("\n").forEach(function(rec) {
-            if (rec.length > 0) {
-              let fields = rec.split("\t")
-              self.scores[geneName].push({  'x': +fields[1], 'y': +fields[3]});
-            }
-          })
+      return new Promise(function(resolve, reject) {
+        let geneName = selectedGene.gene_name;
+        let conservationFileName = self.baseConservationFileName + "." + geneName + ".txt";
+
+        if (self.scores[geneName] == null) {
+          self.scores[geneName] = [];
+          $.get(conservationFileName, function(data) {
+            data.split("\n").forEach(function(rec) {
+              if (rec.length > 0) {
+                let fields = rec.split("\t")
+                self.scores[geneName].push({  'x': +fields[1], 'y': +fields[3]});
+              }
+            })
+            self.setSelectedScore(selectedGene.gene_name, selectedVariant.start)
+            self.showConservationScoresAsBarchart(self.scores[geneName],
+                                 d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
+                                 'mean',
+                                 200,
+                                 regionStart, regionEnd, selectedVariant.start);
+            resolve();
+
+          }, 'text')
+
+
+        } else {
           self.setSelectedScore(selectedGene.gene_name, selectedVariant.start)
           self.showConservationScoresAsBarchart(self.scores[geneName],
-                               d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
-                               'mean',
-                               200,
-                               regionStart, regionEnd, selectedVariant.start);
+                       d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
+                       'mean',
+                       200,
+                       regionStart, regionEnd, selectedVariant.start);
+          resolve();
 
-        }, 'text')
-
-
-      } else {
-        self.setSelectedScore(selectedGene.gene_name, selectedVariant.start)
-        self.showConservationScoresAsBarchart(self.scores[geneName],
-                     d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
-                     'mean',
-                     200,
-                     regionStart, regionEnd, selectedVariant.start);
-
-      }
-
-
+        }
+      })
 
     }
+
+
+    promiseShowMultiAlignments(selectedGene, selectedVariant) {
+      let self = this;
+
+      return new Promise(function(resolve, reject) {
+        let promises = [];
+
+        let geneName = selectedGene.gene_name;
+
+
+        if (self.alignments[geneName] == null) {
+          self.alignments[geneName] = [];
+          self.promiseGetMultiAlignments(self.baseMultiAlignFileName + "." + geneName + "." + self.primarySpeciesName + ".txt")
+          .then(function(data) {
+            self.alignments[geneName].push(data);
+
+            for (var species in self.speciesMap) {
+              if (species != self.primarySpeciesName) {
+                let p = self.promiseGetMultiAlignments(self.baseMultiAlignFileName + "." + geneName + "." + species + ".txt")
+                .then(function(data) {
+                  self.alignments[geneName].push(data);
+                })
+                promises.push(p);
+              }
+            }
+
+            Promise.all(promises)
+            .then(function() {
+              self.setMultiAlignSimilarity(self.alignments[geneName]);
+
+              let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
+              self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
+                                  data.sequences,
+                                  {scrollable: false, showXAxis: false});
+              self.multiAlignChart.setMarker()(data.selectedBase)
+              resolve();
+            })
+          })
+        } else {
+            if (self.alignments[geneName] && self.alignments[geneName].length > 0) {
+              let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
+
+              self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
+                                    data.sequences,
+                                    {scrollable: false, showXAxis: false});
+              self.multiAlignChart.setMarker()(data.selectedBase)
+
+            } else {
+              d3.select("#variant-inspect").select(".multi-align-chart.variant svg").remove();
+            }
+            resolve();
+
+        }
+
+      })
+    }
+
 
     setSelectedScore(geneName, position) {
       let self = this;
@@ -100,62 +182,6 @@ class MultiAlignModel {
       } else {
         self.selectedScore = null;
       }
-    }
-
-    showMultiAlignments(selectedGene, selectedVariant) {
-      let self = this;
-
-
-      let promises = [];
-
-      let geneName = selectedGene.gene_name;
-
-
-      if (self.alignments[geneName] == null) {
-        self.alignments[geneName] = [];
-        self.promiseGetMultiAlignments(self.baseMultiAlignFileName + "." + geneName + "." + self.primarySpeciesName + ".txt")
-        .then(function(data) {
-          self.alignments[geneName].push(data);
-
-          for (var species in self.speciesMap) {
-            if (species != self.primarySpeciesName) {
-              let p = self.promiseGetMultiAlignments(self.baseMultiAlignFileName + "." + geneName + "." + species + ".txt")
-              .then(function(data) {
-                self.alignments[geneName].push(data);
-              })
-              promises.push(p);
-            }
-          }
-
-          Promise.all(promises)
-          .then(function() {
-            self.setMultiAlignSimilarity(self.alignments[geneName]);
-
-            let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
-            self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
-                                data.sequences,
-                                {scrollable: false, showXAxis: false});
-            self.multiAlignChart.setMarker()(data.selectedBase)
-
-          })
-        })
-      } else {
-          if (self.alignments[geneName] && self.alignments[geneName].length > 0) {
-            let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
-
-            self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
-                                  data.sequences,
-                                  {scrollable: false, showXAxis: false});
-            self.multiAlignChart.setMarker()(data.selectedBase)
-
-          } else {
-            d3.select("#variant-inspect").select(".multi-align-chart.variant svg").remove();
-          }
-
-      }
-
-
-
     }
 
     getMultiAlignSequencesForExon(alignments, index) {
@@ -176,6 +202,10 @@ class MultiAlignModel {
       let selectedBase = null;
       let windowStart = start - regionLength;
       let windowEnd   = start + regionLength;
+
+      if (alignments.length == 0) {
+        return  {sequences: [], selectedBase: null};
+      }
 
 
       let regionIndex = -1;
@@ -236,15 +266,31 @@ class MultiAlignModel {
               geneName         = tokens[0].substr(1, tokens.length+1)
 
               let region       = tokens[1].substr(0, tokens[1].length-1);
+
               let regionTokens = region.split(":");
-              chrom            = regionTokens[0];
-              let posTokens    = regionTokens[1].split("-");
-              start            = Number(posTokens[0]);
-              end              = Number(posTokens[1]);
+              let keep = true;
+              if (regionTokens.length > 1) {
+                chrom            = regionTokens[0];
+                let posTokens    = regionTokens[1].split("-");
+                start            = Number(posTokens[0]);
+                end              = Number(posTokens[1]);
+              } else {
+                chrom = "";
+                start = 0;
+                end = 0;
+                keep = false;
+              }
 
-              species          = tokens[2];
+              if (tokens.length > 2) {
+                species          = tokens[2];
+              } else {
+                species = "";
+                keep = false;
+              }
 
-              regions.push({chrom: chrom, start: start, end: end, species: self.speciesMap[species], geneName: geneName })
+              if (keep) {
+                regions.push({chrom: chrom, start: start, end: end, species: self.speciesMap[species], geneName: geneName })
+              }
 
             } else if (rec.indexOf(">") == 0) {
 

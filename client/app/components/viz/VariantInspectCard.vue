@@ -447,8 +447,9 @@
             </div>
           </div>
       </div>
-      <div class="variant-inspect-column last" v-if="selectedVariantRelationship != 'known-variants'">
-          <div class="variant-column-header">
+      <div class="variant-inspect-column last"
+        v-if="selectedVariantRelationship != 'known-variants'">
+          <div class="variant-column-header" v-if="showConservation">
             Conservation
           </div>
           <variant-inspect-row
@@ -462,7 +463,7 @@
               <div class="conservation-scores-barchart exon">
               </div>
               <gene-viz id="conservation-gene-viz" class="gene-viz"
-                v-if="cohortModel && hasAlignments"
+                v-if="cohortModel && hasAlignments && showConservation"
                 :data="[filteredTranscript]"
                 :margin="conservationGeneVizMargin"
                 :width="130"
@@ -587,7 +588,9 @@ export default {
 
       multiAlignModel: new MultiAlignModel(),
 
-      pedigreeGenotypeData: null
+      pedigreeGenotypeData: null,
+
+      showConservation: false
 
 
     }
@@ -1029,12 +1032,26 @@ export default {
 
     showMultiAlignments: function() {
       let self = this;
-      self.multiAlignModel.showConservationScores(self.coverageRegionStart,
+      let self.showConservation = false;
+
+      let promises = [];
+      let p1 = self.multiAlignModel.promiseShowConservationScores(self.coverageRegionStart,
                                                   self.coverageRegionEnd,
                                                   self.selectedGene,
-                                                  self.selectedVariant);
+                                                  self.selectedVariant)
+      promises.push(p1)
 
-      self.multiAlignModel.showMultiAlignments(self.selectedGene, self.selectedVariant);
+      let p2 = self.multiAlignModel.promiseShowMultiAlignments(self.selectedGene, self.selectedVariant);
+      promises.push(p2)
+
+      Promise.all(promises)
+      .then(function() {
+        let hasScores = self.multiAlignModel.hasConservationScores(self.coverageRegionStart,
+                                                                    self.coverageRegionEnd,
+                                                                    self.selectedGene);
+        let hasAligns = self.multiAlignModel.hasMultiAlignments(self.selectedGene, self.selectedVariant);
+        self.showConservation = hasScores || hasAligns;
+      })
 
     }
   },
