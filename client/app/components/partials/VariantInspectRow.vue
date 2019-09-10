@@ -47,6 +47,7 @@
         margin-bottom: 2px
 
       .chip
+        vertical-align: top
         margin-top: 0px
         margin-bottom: 0px
         margin-right: 0px
@@ -65,6 +66,7 @@
         display: inline-block
         font-size: 12px
         font-style: italic
+        vertical-align: top
 
       .pheno-search-term
 

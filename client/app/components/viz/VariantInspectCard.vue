@@ -60,7 +60,8 @@
       .variant-column-header
         font-size: 14px
         color:  $app-color
-        margin-bottom: 10px
+        margin-top: 5px
+        margin-bottom: 15px
 
       .variant-row
         display: flex
@@ -73,10 +74,10 @@
           margin-bottom: 0px
 
       .pheno-search-term
-        max-width: 80px
+        max-width: 90px
         display: inline-block
         vertical-align: top
-        line-height: 13px
+        line-height: 14px
 
       #qual-track
         margin-top: -20px
@@ -219,7 +220,7 @@
   stroke-width: 1px;
 }
 
-.pedigree-chart path {
+.pedigree-chart .half-circle  path {
   fill: none;
   stroke: black;
   stroke-width: 1px;
@@ -246,6 +247,7 @@
 .pedigree-chart line {
   stroke: black !important;
 }
+
 </style>
 
 
@@ -314,7 +316,11 @@
       <div class="variant-inspect-column" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Quality
+
           </div>
+          <variant-inspect-quality-row
+            :info="getQualityInfo()"  >
+          </variant-inspect-quality-row>
 
 
           <div id="qual-track" style="width:130px;margin-bottom:15px !important">
@@ -387,7 +393,7 @@
           </div>
 
           <variant-inspect-row
-            :clazz="getImpactClass(info.vepImpact)" :value="info.vepImpact" :label="`Impact VEP`"  >
+            :clazz="getImpactClass(info.vepImpact)" :value="info.vepConsequence"  :label="`VEP`"  >
           </variant-inspect-row>
 
           <variant-inspect-row
@@ -395,9 +401,6 @@
             :clazz="getImpactClass(info.vepHighestImpactValue)" :value="getNonCanonicalImpact(info.vepHighestImpactValue)" :label=" `Impact VEP (non-canonical transcript)`"  >
           </variant-inspect-row>
 
-          <variant-inspect-row
-            :clazz="getImpactClass(info.vepImpact)" :value="info.vepConsequence"   >
-          </variant-inspect-row>
 
           <variant-inspect-row v-if="info.revel != '' && info.revel"
             :clazz="getRevelClass(info)" :value="info.revel"   :label="`REVEL`" >
@@ -421,14 +424,15 @@
           <div class="variant-column-header">
             Inheritance
           </div>
-          <div class="variant-row "  v-if="selectedVariant.inheritance != 'none'">
+          <div class="variant-row " style="margin-top:-2px"  v-if="selectedVariant.inheritance != 'none'">
             <app-icon :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
             <span>{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
           </div>
           <div class="pedigree-chart">
+            <app-icon class="hide" icon="affected"></app-icon>
             <pedigree-genotype-viz
              style="width:65px"
-             :margin="{left: 4, right: 4, top: 4, bottom: 4}"
+             :margin="{left: 30, right: 4, top: 30, bottom: 4}"
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz>
           </div>
@@ -507,6 +511,7 @@ import Vue                      from 'vue'
 import AppIcon                  from "../partials/AppIcon.vue"
 import VariantAssessment        from "../partials/VariantAssessment.vue"
 import VariantInspectRow        from "../partials/VariantInspectRow.vue"
+import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
 import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
 import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
 import VariantAlleleCountsMenu  from "../partials/VariantAlleleCountsMenu.vue"
@@ -530,6 +535,7 @@ export default {
     VariantLinksMenu,
     VariantAliasesMenu,
     VariantInspectRow,
+    VariantInspectQualityRow,
     VariantAlleleCountsMenu,
     VariantAssessment,
     DepthViz,
@@ -663,6 +669,64 @@ export default {
     getNonCanonicalImpact: function(vepHighestImpact) {
       return this.globalApp.utility.capitalizeFirstLetter(vepHighestImpact.toLowerCase());
     },
+
+    getQualityInfo: function() {
+      let self  = this;
+      let genotype = self.selectedVariant.genotype;
+
+      var zyg       =  genotype.zygosity.toLowerCase();
+      var altAndRef = +genotype.refCount + +genotype.altCount;
+      var altRatio  = (+genotype.altCount / +genotype.genotypeDepth);
+
+      var info = {clazz: '', depthClazz: '', altRatioClazz: '', reason: ''}
+
+      var depthThreshold = {'good':     self.cohortModel.filterModel.geneCoverageMin,
+                            'moderate': self.cohortModel.filterModel.geneCoverageMin - 5};
+
+      var altRatioThreshold = { 'good':     {'het': .1,   'hom': .6, 'homref': 0},
+                                'moderate': {'het': .05,  'hom': .4, 'homref': 0} };
+
+      var depthClazz = '';
+      var altRatioClazz = '';
+
+      if (+genotype.genotypeDepth >= depthThreshold.good) {
+        info.depthClazz = 'good';
+      } else if (+genotype.genotypeDepth >= depthThreshold.moderate) {
+        info.depthClazz = 'moderate';
+        info.reason += "Questionable sequence depth";
+      } else {
+        info.depthClazz = 'poor';
+        info.reason += "Poor sequence depth";
+      }
+
+      if (altRatio >= altRatioThreshold.good[zyg]) {
+        info.altRatioClazz = 'good';
+      } else if (+genotype.genotypeDepth >= depthThreshold.moderate[zyg]) {
+        info.altRatioClazz = 'moderate';
+        if (info.reason.length > 0) {
+          info.reason += ", ";
+        }
+        info.reason += "Questionable evidence of alternate allele";
+      } else {
+        info.altRatioClazz = 'poor';
+        if (info.reason.length > 0) {
+          info.reason += ", ";
+        }
+        info.reason += "Poor evidence of alternate allele";
+      }
+
+      if (info.depthClazz == 'good' && info.altRatioClazz == 'good') {
+        info.clazz = 'good';
+        info.reason = 'Sufficient depth and allele counts'
+      } else if (info.depthClazz == 'poor' || info.altRatioClazz == 'poor') {
+        info.clazz = 'poor';
+      } else {
+        info.clazz = 'moderate';
+      }
+
+      return info;
+    },
+
 
     getRevelClass: function(info) {
       let self = this;

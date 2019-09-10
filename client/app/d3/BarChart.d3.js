@@ -29,7 +29,7 @@ export default function BarchartD3() {
 
   var defaults = {showYAxis: true, xScale: 'ordinal', showXAxis: true, tickCount: null}
 
-  var markerOffset = 15;
+  var markerOffset = 3;
 
   function tickFormatter (d,i) {
     if ((d / 1000000) >= 1)

@@ -20,8 +20,8 @@ class MultiAlignModel {
                       return Number(d.y)
                     })
                     .width(130)
-                    .height(65)
-                    .margin({top: 5, right: 2, bottom: 5, left: 4})
+                    .height(70)
+                    .margin({top: 2, right: 2, bottom: 5, left: 4})
 
 
       this.multiAlignChart = MultiAlignD3()

@@ -22,10 +22,21 @@ export default function PedigreeGenotypeChartD3() {
   let createNode = function(parent) {
     let nodeData = parent.data()[0]
     if (nodeData.sex == 'male') {
-      return createRect(parent);
+      createRect(parent);
     } else {
-      return createCircle(parent)
+      createCircle(parent)
     }
+    if (nodeData.affectedStatus == 'affected') {
+      parent.append("g")
+            .attr("transform", "translate(-30, -35)")
+            .append("use")
+            .attr("xlink:href", "#affected-symbol")
+            .attr("class", "level-high")
+            .attr("width", 50)
+            .attr("height", 50)
+            .style("pointer-events", "none");
+    }
+
   }
 
 
