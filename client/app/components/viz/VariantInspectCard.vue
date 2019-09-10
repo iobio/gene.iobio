@@ -431,7 +431,7 @@
           <div class="pedigree-chart">
             <app-icon class="hide" icon="affected"></app-icon>
             <pedigree-genotype-viz
-             style="width:65px"
+             style="width:85px"
              :margin="{left: 30, right: 4, top: 30, bottom: 4}"
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz>
@@ -453,7 +453,7 @@
       </div>
       <div class="variant-inspect-column last"
         v-if="selectedVariantRelationship != 'known-variants'">
-          <div class="variant-column-header" v-if="showConservation">
+          <div class="variant-column-header" >
             Conservation
           </div>
           <variant-inspect-row
@@ -467,7 +467,7 @@
               <div class="conservation-scores-barchart exon">
               </div>
               <gene-viz id="conservation-gene-viz" class="gene-viz"
-                v-if="cohortModel && hasAlignments && showConservation"
+                v-if="cohortModel && hasAlignments "
                 :data="[filteredTranscript]"
                 :margin="conservationGeneVizMargin"
                 :width="130"

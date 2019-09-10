@@ -26,7 +26,7 @@
         font-size: 12px
 
       .material-icons
-        font-size: 18px
+        font-size: 22px
         margin-right: 4px
         color: $unremarkable-color
         margin-top: -2px
@@ -34,6 +34,7 @@
 
         &.poor
           color: $level-high-color
+          font-size: 28px
         &.moderate
           color: $moderate-impact-color
         &.good
@@ -56,7 +57,7 @@
 <template>
   <div class="variant-quality-row">
     <v-icon :class="info.clazz">
-      {{ info.clazz == 'good' ? 'thumb_up_alt' : ( info.clazz == 'poor' ? 'thumb_down_alt' : 'help') }}
+      {{ info.clazz == 'good' ? 'thumb_up_alt' : ( info.clazz == 'poor' ? 'warning' : 'help') }}
     </v-icon>
 
     <span class="variant-text">
