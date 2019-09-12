@@ -18,6 +18,11 @@
     color:  $app-color
     margin-bottom: 10px
 
+    hr
+      margin-top: 2px
+      margin-bottom: 5px
+      background-color: #cbcbcb
+
   #notes-input
     font-size: 13px
     color: $text-color
@@ -102,6 +107,7 @@
   <div id="variant-assessment">
     <div class="variant-column-header">
       Assessed
+      <v-divider></v-divider>
     </div>
     <div>
       <variant-interpretation

@@ -47,7 +47,7 @@
       padding: 5px
       padding-left: 0px
       min-width: 150px
-      max-width: 250px
+      max-width: 220px
       margin-bottom: 0px
       margin-right: 10px
       padding-top: 0px
@@ -62,6 +62,11 @@
         color:  $app-color
         margin-top: 5px
         margin-bottom: 15px
+
+        hr
+          margin-top: 2px
+          margin-bottom: 5px
+          background-color: #cbcbcb
 
       .variant-row
         display: flex
@@ -233,7 +238,7 @@
   stroke-width: 1px;
 }
 
-.pedigree-chart .het.critical, .pedigree-chart .hom.critical {
+.pedigree-chart .het.critical.proband, .pedigree-chart .hom.critical.proband {
   fill: #ad151985;
 }
 
@@ -316,7 +321,7 @@
       <div class="variant-inspect-column" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Quality
-
+            <v-divider></v-divider>
           </div>
           <variant-inspect-quality-row
             :info="getQualityInfo()"  >
@@ -347,6 +352,7 @@
             </depth-viz>
             <gene-viz id="qual-gene-viz" class="gene-viz"
               v-if="cohortModel && hasAlignments"
+              v-show="filteredTranscript && filteredTranscript.features && filteredTranscript.features.length > 0"
               :data="[filteredTranscript]"
               :margin="geneVizMargin"
               :width="130"
@@ -383,6 +389,7 @@
       <div class="variant-inspect-column">
           <div class="variant-column-header">
             Pathogenicity
+            <v-divider></v-divider>
           </div>
           <variant-inspect-row  v-for="clinvar,clinvarIdx in info.clinvarLinks" :key="clinvarIdx"
             :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
@@ -409,6 +416,7 @@
       <div class="variant-inspect-column">
           <div class="variant-column-header">
             Frequency
+            <v-divider></v-divider>
           </div>
           <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`gnomAD`" :link="afGnomAD.link" >
           </variant-inspect-row>
@@ -422,7 +430,8 @@
 
       <div class="variant-inspect-column" style="min-width:90px" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
-            Inheritance
+            Inheritance Mode
+            <v-divider></v-divider>
           </div>
           <div class="variant-row " style="margin-top:-2px"  v-if="selectedVariant.inheritance != 'none'">
             <app-icon :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
@@ -439,7 +448,8 @@
       </div>
       <div class="variant-inspect-column" v-if="showGenePhenotypes" >
           <div class="variant-column-header">
-            Gene Phenotypes
+            Gene to Phenotype
+            <v-divider></v-divider>
           </div>
           <div v-if="geneHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
             <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
@@ -452,12 +462,14 @@
           </div>
       </div>
       <div class="variant-inspect-column last"
-        v-if="selectedVariantRelationship != 'known-variants'">
-          <div class="variant-column-header" >
+        v-if="selectedVariantRelationship != 'known-variants'"
+        >
+          <div class="variant-column-header" v-show="showConservation">
             Conservation
+            <v-divider></v-divider>
           </div>
           <variant-inspect-row
-            v-show="multiAlignModel && multiAlignModel.selectedScore"
+            v-show="multiAlignModel && multiAlignModel.selectedScore && showConservation"
             :clazz="getConservationClass(multiAlignModel.selectedScore)"
             :value="getConservationScore(multiAlignModel.selectedScore)"   >
           </variant-inspect-row>
@@ -467,7 +479,8 @@
               <div class="conservation-scores-barchart exon">
               </div>
               <gene-viz id="conservation-gene-viz" class="gene-viz"
-                v-if="cohortModel && hasAlignments "
+                v-if="cohortModel && hasAlignments && showConservation"
+                v-show="filteredTranscript && filteredTranscript.features && filteredTranscript.features.length > 0"
                 :data="[filteredTranscript]"
                 :margin="conservationGeneVizMargin"
                 :width="130"
@@ -999,6 +1012,10 @@ export default {
           return null;
         }
       } else {
+        if (self.selectedTranscript) {
+          self.filteredTranscript = $.extend({}, self.selectedTranscript);
+          self.filteredTranscript.features = [];
+        }
         return null;
       }
     },
