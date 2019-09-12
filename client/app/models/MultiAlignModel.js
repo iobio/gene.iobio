@@ -65,8 +65,8 @@ class MultiAlignModel {
     hasMultiAlignments(selectedGene, selectedVariant) {
       let self = this;
       if (self.alignments[selectedGene.gene_name] && self.alignments[selectedGene.gene_name].length > 0) {
-        let seqs = self.getMultiAlignSequencesForVariant(self.alignments[selectedGene.gene_name], selectedVariant.start, self.sequenceWindow);
-        return seqs.length > 0;
+        let data = self.getMultiAlignSequencesForVariant(self.alignments[selectedGene.gene_name], selectedVariant.start, self.sequenceWindow);
+        return data.sequences.length > 0;
       } else {
         return false;
       }
