@@ -11,6 +11,7 @@
 
       .variant-text
         line-height: 15px
+        max-width: 170px
 
       a
         color:  $link-color !important
@@ -19,6 +20,10 @@
 
       &.no-icon
         padding-left: 22px
+
+        span
+          line-height: 14px
+          padding-top: 4px
 
       &.no-top-margin
         margin-top: -10px
@@ -75,7 +80,11 @@
 
 <template>
   <div class="variant-row">
-    <v-icon :class="clazz">{{ clazz == 'level-unremarkable' ? 'lens' : 'check_circle' }} </v-icon>
+    <v-icon v-if="clazz != 'level-unremarkable'" :class="clazz">
+      check_circle
+    </v-icon>
+    <app-icon v-if="clazz == 'level-unremarkable'" :class="clazz" width="18" height="18" style="padding-right: 4px" icon="not-significant">
+    </app-icon>
 
     <span class="variant-text">
       {{ capitalize(value) }} {{ label }}
@@ -89,9 +98,12 @@
 
 <script>
 
+import AppIcon                  from "../partials/AppIcon.vue"
+
 export default {
   name: 'variant-inspect-row',
   components: {
+    AppIcon
   },
   props: {
     value: null,

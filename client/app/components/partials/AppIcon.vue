@@ -28,6 +28,12 @@
 .level-other
   fill: $level-other-color
 
+#not-significant-symbol
+  circle
+    fill: $not-significant-color
+  path
+    fill: white
+
 #user-flagged-symbol
   fill: $link-color !important
 
@@ -672,6 +678,15 @@
        viewBox="0 0 24 24">
       <path d="M0 0h24v24H0z" fill="none"/>
       <path d="M12.45 16h2.09L9.43 3H7.57L2.46 16h2.09l1.12-3h5.64l1.14 3zm-6.02-5L8.5 5.48 10.57 11H6.43zm15.16.59l-8.09 8.09L9.83 16l-1.41 1.41 5.09 5.09L23 13l-1.41-1.41z"/>
+    </svg>
+
+    <svg v-if="icon == 'not-significant'" id="not-significant-symbol"
+       width="24"
+       height="24"
+       :style="iconStyle"
+       viewBox="0 0 24 24">
+      <circle r="11" cx="12" cy="12"></circle>
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z" />
     </svg>
 
 
