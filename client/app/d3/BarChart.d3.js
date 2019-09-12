@@ -45,7 +45,7 @@ export default function BarchartD3() {
     var mousey = y(yValue(d))
 
     container.select("g.marker")
-             .attr("transform", "translate(" + (+mousex) + "," + (mousey) + ")");
+             .attr("transform", "translate(" + (+mousex) + "," + (mousey-2) + ")");
     container.select("g.marker circle")
              .style("opacity", 1)
 
@@ -207,7 +207,7 @@ export default function BarchartD3() {
     marker.append("circle")
      .attr("cx", 0)
      .attr("cy", 0)
-     .attr("r", "2")
+     .attr("r", "3")
      .style("opacity", 0)
 
     marker.append("text")
