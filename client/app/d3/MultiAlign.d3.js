@@ -31,13 +31,16 @@ export default function MultiAlignD3() {
   var defaults = {scrollable: false, showXAxis: true}
 
   var setMarker = function(d) {
-    var mousex = x(xValue(d));
+    if (d) {
+      var mousex = x(xValue(d));
 
-    container.select("g.marker")
-             .attr("transform", "translate(" + (+mousex-1) + "," + "2" + ")");
+      container.select("g.marker")
+               .attr("transform", "translate(" + (+mousex-1) + "," + "2" + ")");
 
-    container.select("g.marker rect")
-             .style("opacity", 1)
+      container.select("g.marker rect")
+               .style("opacity", 1)
+
+    }
   }
 
   var showMarker = function(x) {
