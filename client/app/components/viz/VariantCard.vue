@@ -15,11 +15,18 @@
   #sample-label
     vertical-align: top
     display: inline-block
-    min-width: 160px
-    max-width: 160px
+    min-width: 180px
+    max-width: 180px
     padding-top: 2px
     color: $app-color
     font-size: 16px
+
+  #sample-identifier
+    width: 80px
+    display: inline-block
+    vertical-align: middle
+    padding-top: 5px
+    line-height: 14px
 
   #variant-pileup-button
     position: absolute
@@ -58,14 +65,17 @@
   #ranked-variants-menu
     vertical-align: top
     margin-top: 0px
+    margin-left: -3px
 
     #ranked-variants-menu-button
-      margin-top: -2px
+      margin-top: -2px !important
       margin-bottom: 0px
       padding-top: 0px
       padding-left: 0px
       padding-right: 0px
       margin-left: 0px
+      min-width: 22px
+      margin-right: 0px !important
 
       .btn__content
         font-size: 15px
@@ -121,9 +131,12 @@
 
 
   .zoom-switch
-    margin-left: 40px
+    margin-left: 5px
     display: inline-block
     margin-top: 0px !important
+    max-width: 80px
+    float: right
+    margin-right: 20px
 
     label
       padding-left: 7px
@@ -140,17 +153,23 @@
     color: $text-color !important
     font-weight: normal
     font-size: 13px
+    padding-top: 2px
 
     &.called
       vertical-align: top
       padding-top: 4px
       .badge__badge
-        background-color: $light-badge-color !important
+        background-color: #efeeee !important
+        border: thin solid #6d6c6c !important
+        color: $text-color !important
     &.loaded
       vertical-align: top
       padding-top: 4px
+      padding-left: 0px
       .badge__badge
-        background-color: $light-badge-color !important
+        background-color: #efeeee !important
+        border: thin solid #6d6c6c !important
+        color: $text-color !important
     &.coverage-problem
       vertical-align: top
       .badge__badge
@@ -265,34 +284,25 @@
     <div>
       <span id="sample-label" v-bind:class="sampleModel.relationship">
         {{ sampleRelLabel }}
+        <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
+          :isEduMode="isEduMode"
+          :isBasicMode="isBasicMode"
+          :featureMatrixModel="featureMatrixModel"
+          :selectedGene="selectedGene"
+          :selectedTranscript="selectedTranscript"
+          :selectedVariant="selectedVariant"
+          :variantTooltip="variantTooltip"
+          @ranked-variant-click="onRankedVariantClick"
+          @ranked-variant-hover="onRankedVariantHover"
+          @ranked-variant-hover-end="onRankedVariantHoverEnd"
+        >
+        </ranked-variants-menu>
       </span>
 
-      <span v-if="sampleModel && sampleModel.relationship != '' && sampleModel.relationship != 'known-variants'"
-       style="width:130px;display: inline-block;vertical-align: top;padding-top: 3px;">
+      <span id="sample-identifier" v-if="sampleModel && sampleModel.relationship != '' && sampleModel.relationship != 'known-variants'"
+       >
         {{ sampleLabel }}
       </span>
-
-
-
-      <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
-        :isEduMode="isEduMode"
-        :isBasicMode="isBasicMode"
-        :featureMatrixModel="featureMatrixModel"
-        :selectedGene="selectedGene"
-        :selectedTranscript="selectedTranscript"
-        :selectedVariant="selectedVariant"
-        :variantTooltip="variantTooltip"
-        @ranked-variant-click="onRankedVariantClick"
-        @ranked-variant-hover="onRankedVariantHover"
-        @ranked-variant-hover-end="onRankedVariantHoverEnd"
-      >
-      </ranked-variants-menu>
-
-
-      <div style="display:inline-block;width:180px"
-       v-if="sampleModel && sampleModel.relationship != 'proband' && sampleModel.relationship != '' &&
-       sampleModel.relationship != 'known-variants'">
-        </div>
 
 
       <v-badge  id="loaded-count"

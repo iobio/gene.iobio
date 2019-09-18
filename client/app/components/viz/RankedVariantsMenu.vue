@@ -80,7 +80,7 @@
     padding-top: 0px
     padding-left: 0px
     padding-right: 0px
-    margin-left: 30px !important
+    margin-left: 0px !important
     height: 22px !important
 
     .btn__content, .v-btn__content
@@ -111,8 +111,7 @@
         <v-btn id="ranked-variants-menu-button"
          flat
          slot="activator">
-          <v-icon >list</v-icon>
-          <span>Ranked variants</span>
+          <v-icon >arrow_drop_down</v-icon>
         </v-btn>
 
         <div style="width:420px">

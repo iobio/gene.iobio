@@ -276,6 +276,51 @@ main.content.clin, main.v-content.clin
           @show-sfari-variants="onShowSfariVariantsCard">
         </gene-variants-card>
 
+        <variant-card
+        ref="variantCardProbandRef"
+        v-if="probandModel"
+        v-bind:class="[
+        { 'full-width': true,
+           'hide': showWelcome || Object.keys(selectedGene).length === 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources,
+          'edu' : isEduMode
+        },
+        'proband'
+        ]"
+        :globalAppProp="globalApp"
+        :isEduMode="isEduMode"
+        :isBasicMode="isBasicMode"
+        :clearZoom="clearZoom"
+        :sampleModel="probandModel"
+        :coverageDangerRegions="probandModel.coverageDangerRegions"
+        :classifyVariantSymbolFunc="probandModel.classifyByImpact"
+        :variantTooltip="variantTooltip"
+        :selectedGene="selectedGene"
+        :selectedTranscript="analyzedTranscript"
+        :selectedVariant="selectedVariant"
+        :regionStart="geneRegionStart"
+        :regionEnd="geneRegionEnd"
+        :featureMatrixModel="featureMatrixModel"
+        :width="cardWidth"
+        :showGeneViz="true"
+        :showDepthViz="true"
+        :showVariantViz="true"
+        :geneVizShowXAxis="true"
+        :blacklistedGeneSelected="blacklistedGeneSelected"
+        @cohort-variant-click="onCohortVariantClick"
+        @cohort-variant-outside-click="onCohortVariantOutsideClick"
+        @cohort-variant-hover="onCohortVariantHover"
+        @cohort-variant-hover-end="onCohortVariantHoverEnd"
+        @known-variants-viz-change="onKnownVariantsVizChange"
+        @known-variants-filter-change="onKnownVariantsFilterChange"
+        @sfari-variants-viz-change="onSfariVariantsVizChange"
+        @sfari-variants-filter-change="onSfariVariantsFilterChange"
+        @gene-region-zoom="onGeneRegionZoom"
+        @gene-region-zoom-reset="onGeneRegionZoomReset"
+        @show-coverage-cutoffs="showCoverageCutoffs = true;showFilters = true"
+        @show-pileup-for-variant="onShowPileupForVariant"
+        >
+        </variant-card>
+
 
         <variant-inspect-card
         ref="variantInspectRef"
@@ -334,7 +379,8 @@ main.content.clin, main.v-content.clin
 
         <variant-card
         ref="variantCardRef"
-        v-for="model in models"
+        v-if="nonProbandModels && nonProbandModels.length > 0"
+        v-for="model in nonProbandModels"
         :key="model.relationship"
         v-bind:class="[
         { 'full-width': true, 'hide': showWelcome || Object.keys(selectedGene).length === 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources
@@ -744,6 +790,8 @@ export default {
       self.init();
     }
 
+
+
   },
 
 
@@ -764,7 +812,32 @@ export default {
       } else {
         return null;
       }
+    },
+    nonProbandModels: function() {
+      let self = this;
+      let theModels = [];
+      if (this.models && this.models.length > 0) {
+        theModels = self.models.filter(function(model) {
+          return model.relationship != 'proband';
+        })
+      }
+      return theModels;
+    },
+    probandModel: function() {
+      let self = this;
+      let theModels = [];
+      if (this.models && this.models.length > 0) {
+        theModels = self.models.filter(function(model) {
+          return model.relationship == 'proband';
+        })
+      }
+      if (theModels.length > 0) {
+        return theModels[0];
+      } else {
+        return null;
+      }
     }
+
 
 
 
@@ -898,6 +971,7 @@ export default {
               self.promiseInitFromMosaic()
             } else {
               self.models = self.cohortModel.sampleModels;
+
               if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
                 self.promiseLoadData()
                 .then(function() {
@@ -1360,6 +1434,19 @@ export default {
       self.activeGeneVariantTab = "0";
     },
 
+    getVariantCardRefs: function() {
+      let refs = [];
+      if (this.$refs.variantCardProbandRef) {
+        refs.push(this.$refs.variantCardProbandRef);
+      }
+      if (this.$refs.variantCardRef) {
+        this.$refs.variantCardRef.forEach(function(ref) {
+          refs.push(ref);
+        })
+      }
+      return refs;
+    },
+
     showLeftPanelWhenFlaggedVariantsForGene: function() {
       let self = this;
       if (self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
@@ -1583,7 +1670,7 @@ export default {
         self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
         self.showVariantExtraAnnots(sourceComponent.relationship, variant);
 
-        self.$refs.variantCardRef.forEach(function(variantCard) {
+        self.getVariantCardRefs().forEach(function(variantCard) {
           if (sourceComponent == null || variantCard != sourceComponent) {
             variantCard.hideVariantCircle(true);
             variantCard.showVariantCircle(variant, true);
@@ -1624,7 +1711,7 @@ export default {
     },
     onCohortVariantHover: function(variant, sourceComponent) {
       let self = this;
-      self.$refs.variantCardRef.forEach(function(variantCard) {
+      self.getVariantCardRefs().forEach(function(variantCard) {
         if (variantCard != sourceComponent) {
           variantCard.showVariantCircle(variant, false);
           variantCard.showCoverageCircle(variant);
@@ -1638,15 +1725,12 @@ export default {
     },
     onCohortVariantHoverEnd: function(sourceVariantCard) {
       let self = this;
-      if (self.$refs.variantCardRef) {
-        self.$refs.variantCardRef.forEach(function(variantCard) {
-          variantCard.hideVariantCircle(false);
-          variantCard.hideCoverageCircle();
-        })
-        if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
-          self.$refs.featureMatrixCardRef.selectVariant(null, 'highlight');
-        }
-
+      self.getVariantCardRefs().forEach(function(variantCard) {
+        variantCard.hideVariantCircle(false);
+        variantCard.hideCoverageCircle();
+      })
+      if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
+        self.$refs.featureMatrixCardRef.selectVariant(null, 'highlight');
       }
     },
     deselectVariant: function() {
@@ -1657,13 +1741,11 @@ export default {
       self.selectedVariantInterpretation = null;
       self.selectedVariantRelationship = null;
       self.activeGeneVariantTab = "0";
-      if (self.$refs.variantCardRef) {
-        self.$refs.variantCardRef.forEach(function(variantCard) {
-          variantCard.hideVariantTooltip();
-          variantCard.hideVariantCircle(true);
-          variantCard.hideCoverageCircle();
-        })
-      }
+      self.getVariantCardRefs().forEach(function(variantCard) {
+        variantCard.hideVariantTooltip();
+        variantCard.hideVariantCircle(true);
+        variantCard.hideCoverageCircle();
+      })
       if (self.$refs.featureMatrixCardRef) {
         self.$refs.featureMatrixCardRef.selectVariant(null);
       }
@@ -2197,7 +2279,7 @@ export default {
       // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
       .then(function() {
-        self.onCohortVariantClick(variant, self.$refs.variantCardRef[0], 'proband');
+        self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
       })
 
       if (self.launchedFromClin) {
@@ -2222,7 +2304,7 @@ export default {
       // reflects the flagged variants
       self.promiseLoadGene(self.selectedGene.gene_name)
       .then(function() {
-        self.onCohortVariantClick(variant, self.$refs.variantCardRef[0], 'proband');
+        self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
       })
 
       if (self.launchedFromClin) {
@@ -2358,18 +2440,14 @@ export default {
                 self.$set(self, "selectedVariantKey", flaggedVariant);
                 self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
                 self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
-                self.$refs.variantCardRef.forEach(function(variantCard) {
-                  if (variantCard.relationship == 'proband') {
-                    variantCard.showFlaggedVariant(flaggedVariant);
-                  }
-                })
+                self.$refs.variantCardProbandRef.showFlaggedVariant(flaggedVariant);
 
                 if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
                   self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
                 }
 
 
-                self.$refs.variantCardRef.forEach(function(variantCard) {
+                self.getVariantCardRefs().forEach(function(variantCard) {
                     variantCard.showVariantCircle(flaggedVariant, true);
                     variantCard.showCoverageCircle(flaggedVariant);
                 })
