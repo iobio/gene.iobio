@@ -14,6 +14,17 @@
       align-self: start
       font-size: 18px
 
+.variant-notes
+
+  button
+    padding: 0px
+    height: 20px !important
+    min-width: 77px
+
+    &.action-button
+
+      height: 30px !important
+      min-width: 77px
 
 
 
@@ -117,7 +128,7 @@
       </v-btn>
 
 
-      <v-card>
+      <v-card class="variant-notes full-width">
 
 
           <variant-interpretation
@@ -140,10 +151,10 @@
             </v-text-field>
           </div>
           <div>
-              <v-btn style="float:right" @click="onCancel">
+              <v-btn class="action-button" style="float:right" @click="onCancel">
                Cancel
              </v-btn>
-              <v-btn style="float:right" @click="onApply">
+              <v-btn class="action-button" style="float:right" @click="onApply">
                Apply
              </v-btn>
           </div>
