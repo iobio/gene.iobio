@@ -160,7 +160,7 @@
       padding-top: 4px
       .badge__badge
         background-color: #efeeee !important
-        border: thin solid #6d6c6c !important
+        border: thin solid #bfbdbd !important
         color: $text-color !important
     &.loaded
       vertical-align: top
@@ -168,7 +168,7 @@
       padding-left: 0px
       .badge__badge
         background-color: #efeeee !important
-        border: thin solid #6d6c6c !important
+        border: thin solid #bfbdbd !important
         color: $text-color !important
     &.coverage-problem
       vertical-align: top

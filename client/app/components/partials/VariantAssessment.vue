@@ -13,15 +13,18 @@
 
 #variant-assessment
 
+
+
   .variant-column-header
     font-size: 14px
     color:  $app-color
-    margin-bottom: 10px
+    margin-bottom: 0px
 
     hr
       margin-top: 2px
-      margin-bottom: 5px
+      margin-bottom: 10px
       background-color: #cbcbcb
+      width: 150px
 
   #notes-input
     font-size: 13px
@@ -106,7 +109,7 @@
 
   <div id="variant-assessment">
     <div class="variant-column-header">
-      Assessed
+      Comments
       <v-divider></v-divider>
     </div>
     <div>

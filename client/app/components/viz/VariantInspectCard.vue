@@ -7,6 +7,14 @@
   padding-bottom: 10px
   margin-bottom: 10px
 
+  #show-assessment-button
+    padding: 0px
+    height: 26px !important
+    background-color: $app-color !important
+    color: white !important
+    min-width: 150px !important
+    margin: 0px
+
   #notes-input
     margin-top: 8px
     .input-group input
@@ -515,7 +523,14 @@
 
     </div>
 
-    <variant-assessment  style="margin-top:20px;" v-if="selectedVariantRelationship == 'proband'"
+    <div v-if="!showAssessment" style="display:flex;margin-top: 20px">
+      <v-btn raised id="show-assessment-button" @click="showAssessment = true">
+        Enter comments
+      </v-btn>
+    </div>
+
+    <variant-assessment  style="margin-top:20px;"
+      v-if="showAssessment"
       :variant="selectedVariant"
       :variantInterpretation="interpretation"
       :interpretationMap="interpretationMap"
@@ -619,7 +634,9 @@ export default {
 
       pedigreeGenotypeData: null,
 
-      showConservation: false
+      showConservation: false,
+
+      showAssessment: true
 
 
     }
@@ -831,6 +848,8 @@ export default {
     loadData: function() {
       let self = this;
       if (self.selectedVariant) {
+        self.showAssessment = self.interpretation != 'not-reviewed'
+                              || (self.notes != null && self.notes.length > 0) ? true : false;
         self.initPedigreeGenotypes();
         self.initGenePhenotypeHits();
         self.promiseInitCoverage()
