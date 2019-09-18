@@ -225,6 +225,12 @@
   stroke-width: 1px;
 }
 
+.pedigree-chart rect {
+  stroke: black;
+  stroke-width: 1px;
+  fill: none;
+}
+
 .pedigree-chart .half-circle  path {
   fill: none;
   stroke: black;
@@ -232,21 +238,25 @@
 
 }
 
-.pedigree-chart .het, .pedigree-chart .hom {
-  fill: #c5c5c5;
-  stroke: black;
-  stroke-width: 1px;
+.pedigree-chart rect.het {
+  stroke: none !important;
 }
 
-.pedigree-chart .het.critical.proband, .pedigree-chart .hom.critical.proband {
-  fill: #ad151985;
+.pedigree-chart .het,
+.pedigree-chart .hom,
+.pedigree-chart .half-circle  .het.path
+ {
+  fill: #c5c5c5 !important;
+  stroke: black;
 }
 
-.pedigree-chart rect {
-  stroke: black;
-  stroke-width: 1px;
-  fill: none;
+.pedigree-chart .het.critical.proband,
+.pedigree-chart .hom.critical.proband,
+.pedigree-chart .half-circle  .het.path.proband {
+  fill: #ad151985 !important;
 }
+
+
 
 
 .pedigree-chart line {

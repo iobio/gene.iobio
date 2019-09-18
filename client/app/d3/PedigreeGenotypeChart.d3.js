@@ -56,7 +56,9 @@ export default function PedigreeGenotypeChartD3() {
            .attr("d", "M0,0 a" + nodeWidth/2 + "," + nodeWidth/2 + " 0 0,0 " + + (nodeWidth + 3) + ",0")
 
       let right = parent.append("g")
-                         .attr("class", "half-circle right")
+                         .attr("class", function(d,i) {
+                           return "half-circle right";
+                         })
                          .attr("transform", function(d,i) {
                             if (nodeData.rel == 'proband') {
                               return "translate(" + (nodeWidth/2 + 2) + "," +  (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")"
@@ -101,8 +103,10 @@ export default function PedigreeGenotypeChartD3() {
             .attr("class", function(d,i) {
               return "left " + " " + nodeData.zygosity  + (nodeData.inheritance != 'none' ? ' critical' : '');
             })
-            .attr("width", nodeWidth / 2)
-            .attr("height", nodeWidth)
+            .attr("x", 1.5)
+            .attr("y", 1)
+            .attr("width", nodeWidth / 2 - 1)
+            .attr("height", nodeWidth - 2)
     } else {
        parent.append("rect")
             .attr("class", function(d,i) {
