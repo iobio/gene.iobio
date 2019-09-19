@@ -111,7 +111,7 @@
         <v-btn id="ranked-variants-menu-button"
          flat
          slot="activator">
-          <v-icon >arrow_drop_down</v-icon>
+          <v-icon >list</v-icon>
         </v-btn>
 
         <div style="width:420px">

@@ -282,7 +282,9 @@
 
   <v-card tile id="variant-card" class="app-card">
     <div>
-      <span id="sample-label" v-bind:class="sampleModel.relationship">
+      <span
+         id="sample-label"
+         v-bind:class="sampleModel.relationship">
         {{ sampleRelLabel }}
         <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
           :isEduMode="isEduMode"
@@ -979,7 +981,9 @@ export default {
   computed: {
     sampleRelLabel: function() {
       var label = "";
-      if (this.sampleModel.isAlignmentsOnly()) {
+      if (this.sampleModel.relationship == 'proband') {
+        label = ""
+      } else if (this.sampleModel.isAlignmentsOnly()) {
         label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);
         label += " Variants in " + this.selectedGene.gene_name;
       } else {

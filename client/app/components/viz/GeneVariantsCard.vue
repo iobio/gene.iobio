@@ -32,7 +32,8 @@
   padding-left: 10px
   padding-top: 5px
   padding-right: 10px
-  margin-bottom: 10px
+  margin-bottom: 0px
+  padding-bottom: 0px
 
   .gene-info
     display: flex
@@ -129,7 +130,7 @@
     <div  v-if="selectedGene" class="gene-info text-xs-left">
 
      <div id="gene-variants-heading">
-        Gene
+        Variants in
 
         <span id="gene-name"> {{ selectedGene.gene_name}} </span>
 
