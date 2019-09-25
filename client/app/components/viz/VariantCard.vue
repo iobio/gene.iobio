@@ -9,7 +9,9 @@
 #bam-track
   margin-top: -15px
 
-
+#variant-card.proband
+  padding-top: 0px
+  margin-top: -3px
 
 #variant-card
   #sample-label

@@ -1053,7 +1053,7 @@ export default {
 
       if (self.exon) {
         let exonWidth = +self.exon.end  -  +self.exon.start;
-        return +self.exon.start - (exonWidth * .60);
+        return +self.exon.start - Math.round(exonWidth * .60);
       } else  {
         return +self.selectedVariant.start - 1000;
       }
@@ -1062,7 +1062,7 @@ export default {
       let self = this;
       if (self.exon) {
         let exonWidth = +self.exon.end  -  +self.exon.start;
-        return +self.exon.end + (exonWidth * .60);
+        return +self.exon.end + Math.round(exonWidth * .60);
       } else  {
         return +self.selectedVariant.start + 1000;
       }
@@ -1148,10 +1148,13 @@ export default {
       let p1 = self.multiAlignModel.promiseShowConservationScores(self.coverageRegionStart,
                                                   self.coverageRegionEnd,
                                                   self.selectedGene,
-                                                  self.selectedVariant)
+                                                  self.selectedVariant,
+                                                  self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC))
       promises.push(p1)
 
-      let p2 = self.multiAlignModel.promiseShowMultiAlignments(self.selectedGene, self.selectedVariant);
+      let p2 = self.multiAlignModel.promiseShowMultiAlignments(self.selectedGene,
+                                                  self.selectedVariant,
+                                                  self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC));
       promises.push(p2)
 
       Promise.all(promises)

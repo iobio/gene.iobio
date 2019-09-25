@@ -7,6 +7,9 @@ class MultiAlignModel {
       this.scores = [];
       this.selectedScore = null;
 
+      this.multialign_service = "http://multialign.iobio.io:8081";
+      this.default_species_list = "Human,Rhesus,Rattus,Mouse,Zebrafish";
+
       this.baseConservationFileName      = "../../data/phylop100way";
       this.baseMultiAlignFileName        = "../../data/multialign";
 
@@ -35,12 +38,7 @@ class MultiAlignModel {
       this.primarySpeciesName = "hg19";
 
       this.speciesMap = {
-        hg19:    'Human',
-        panTro2: 'Chimp',
-        gorGor1: 'Gorilla',
-        ponAbe2: 'Orangutan',
-        rheMac2: 'Rhesus',
-        papHam1: 'Baboon'
+        hg19:    'Human'
       }
 
 
@@ -72,37 +70,49 @@ class MultiAlignModel {
       }
     }
 
-    promiseShowConservationScores(regionStart, regionEnd, selectedGene, selectedVariant) {
+    promiseShowConservationScores(regionStart, regionEnd, selectedGene, selectedVariant, build) {
       let self = this;
-      self.selectedScore = null;
 
       return new Promise(function(resolve, reject) {
         let geneName = selectedGene.gene_name;
-        let conservationFileName = self.baseConservationFileName + "." + geneName + ".txt";
+        let region = selectedGene.chr + ":" + regionStart + "-" + regionEnd;
+        let key = geneName + "-" + region;
 
-        if (self.scores[geneName] == null) {
-          self.scores[geneName] = [];
-          $.get(conservationFileName, function(data) {
+        if (self.scores[key] == null || self.scores[key].length == 0) {
+          self.scores[key] = [];
+
+          let get_scores_url = self.multialign_service + "/phylop?build=" + build + "&region=" + region;
+          $.ajax({
+            url: get_scores_url ,
+            type: 'GET',
+            contentType: 'text'
+          })
+          .done(data => {
+
             data.split("\n").forEach(function(rec) {
               if (rec.length > 0) {
                 let fields = rec.split("\t")
-                self.scores[geneName].push({  'x': +fields[1], 'y': +fields[3]});
+                self.scores[key].push({  'x': +fields[1], 'y': +fields[3]});
               }
             })
-            self.setSelectedScore(selectedGene.gene_name, selectedVariant.start)
-            self.showConservationScoresAsBarchart(self.scores[geneName],
+            self.setSelectedScore(key, selectedVariant.start)
+            self.showConservationScoresAsBarchart(self.scores[key],
                                  d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
                                  'mean',
                                  200,
                                  regionStart, regionEnd, selectedVariant.start);
             resolve();
 
-          }, 'text')
-
+          })
+          .fail(error => {
+            console.log("Error getting phylop scores ");
+            console.log(error);
+            reject(error);
+          })
 
         } else {
-          self.setSelectedScore(selectedGene.gene_name, selectedVariant.start)
-          self.showConservationScoresAsBarchart(self.scores[geneName],
+          self.setSelectedScore(key, selectedVariant.start)
+          self.showConservationScoresAsBarchart(self.scores[key],
                        d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
                        'mean',
                        200,
@@ -110,12 +120,14 @@ class MultiAlignModel {
           resolve();
 
         }
+
       })
+
 
     }
 
 
-    promiseShowMultiAlignments(selectedGene, selectedVariant) {
+    promiseShowMultiAlignments(selectedGene, selectedVariant, build) {
       let self = this;
 
       return new Promise(function(resolve, reject) {
@@ -126,31 +138,17 @@ class MultiAlignModel {
 
         if (self.alignments[geneName] == null) {
           self.alignments[geneName] = [];
-          self.promiseGetMultiAlignments(self.baseMultiAlignFileName + "." + geneName + "." + self.primarySpeciesName + ".txt")
-          .then(function(data) {
-            self.alignments[geneName].push(data);
+          self.promiseGetMultiAlignments(geneName, build)
+          .then(function(alignments) {
+            self.alignments[geneName] = alignments;
+            self.setMultiAlignSimilarity(self.alignments[geneName]);
 
-            for (var species in self.speciesMap) {
-              if (species != self.primarySpeciesName) {
-                let p = self.promiseGetMultiAlignments(self.baseMultiAlignFileName + "." + geneName + "." + species + ".txt")
-                .then(function(data) {
-                  self.alignments[geneName].push(data);
-                })
-                promises.push(p);
-              }
-            }
-
-            Promise.all(promises)
-            .then(function() {
-              self.setMultiAlignSimilarity(self.alignments[geneName]);
-
-              let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
-              self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
-                                  data.sequences,
-                                  {scrollable: false, showXAxis: false});
-              self.multiAlignChart.setMarker()(data.selectedBase)
-              resolve();
-            })
+            let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
+            self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
+                                data.sequences,
+                                {scrollable: false, showXAxis: false});
+            self.multiAlignChart.setMarker()(data.selectedBase)
+            resolve();
           })
         } else {
             if (self.alignments[geneName] && self.alignments[geneName].length > 0) {
@@ -172,9 +170,9 @@ class MultiAlignModel {
     }
 
 
-    setSelectedScore(geneName, position) {
+    setSelectedScore(key, position) {
       let self = this;
-      let theScores = self.scores[geneName].filter(function(score) {
+      let theScores = self.scores[key].filter(function(score) {
           return position >= score.x  && position <= score.x;
       })
       if (theScores.length > 0) {
@@ -233,8 +231,112 @@ class MultiAlignModel {
       return {sequences: filteredSequences, selectedBase: selectedBase};
     }
 
+    promiseGetMultiAlignments(geneName, build) {
+      let self = this;
 
-    promiseGetMultiAlignments(fileName) {
+      return new Promise(function(resolve, reject) {
+
+        let get_multialign_url = self.multialign_service + "/alignments?build=" + build + "&gene="
+              + geneName + "&species=" + self.default_species_list;
+        $.ajax({
+          url: get_multialign_url ,
+          type: 'GET',
+          contentType: 'text'
+        })
+        .done(data => {
+          let alignments = []
+
+          let geneName = null;
+          let species = null;
+          let speciesAbbrev = null;
+          let chrom = null;
+          let start= null;
+          let end = null;
+
+          let buf = "";
+          let regions = [];
+          let sequences = [];
+
+          data.split("\n").forEach(function(rec) {
+            if (rec.indexOf("##") == 0) {
+              if (species != null) {
+                alignments.push({species: species, geneName: geneName, sequences: sequences, regions: regions})
+              }
+              let speciesRec = rec.substring(2, rec.length);
+              let tokens = speciesRec.split(",");
+              species = tokens[0];
+              speciesAbbrev = tokens[1];
+              self.speciesMap[speciesAbbrev] = species;
+              sequences = [];
+              regions = [];
+
+            } else if (rec.indexOf("#") == 0) {
+
+              if (geneName != null) {
+                let sequence = Array.from(buf, function(character, i) {
+                  return {start: i + start, offset: i, base: character }
+                })
+                sequences.push(sequence)
+              }
+
+              let tokens       = rec.split(" ");
+
+              geneName         = tokens[0].substr(1, tokens.length+1)
+
+              let region       = tokens[1].substr(0, tokens[1].length-1);
+
+              let regionTokens = region.split(":");
+              let keep = true;
+              if (regionTokens.length > 1) {
+                chrom            = regionTokens[0];
+                let posTokens    = regionTokens[1].split("-");
+                start            = Number(posTokens[0]);
+                end              = Number(posTokens[1]);
+              } else {
+                chrom = "";
+                start = 0;
+                end = 0;
+                keep = false;
+              }
+
+              if (tokens.length > 2) {
+                species          = tokens[2];
+              } else {
+                species = "";
+                keep = false;
+              }
+
+              if (keep) {
+                regions.push({chrom: chrom, start: start, end: end, species: self.speciesMap[species], geneName: geneName })
+              }
+
+            } else if (rec.indexOf(">") == 0) {
+
+            } else {
+              buf += rec;
+            }
+          })
+
+          let sequence = Array.from(buf, function(character, i) {
+            return {offset: i, base: character }
+          })
+          sequences.push(sequence)
+          alignments.push({species: species, geneName: geneName, sequences: sequences, regions: regions});
+
+          resolve(alignments)
+
+        })
+        .fail(error => {
+          console.log("Error getting multialign sequence");
+          console.log(error);
+          reject(error);
+        })
+      })
+
+    }
+
+
+    promiseGetMultiAlignmentsOld(fileName) {
       let self = this;
 
       return new Promise(function(resolve, reject) {
