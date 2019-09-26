@@ -7,12 +7,8 @@ class MultiAlignModel {
       this.scores = [];
       this.selectedScore = null;
 
-      this.multialign_service = "http://multialign.iobio.io:8081";
+      this.multialign_service   = "http://multialign.iobio.io:8081";
       this.default_species_list = "Human,Rhesus,Rattus,Mouse,Zebrafish";
-
-      this.baseConservationFileName      = "../../data/phylop100way";
-      this.baseMultiAlignFileName        = "../../data/multialign";
-
 
 
       this.conservationBarChart = BarChartD3()
@@ -33,7 +29,10 @@ class MultiAlignModel {
                           })
                           .margin({top: 0, right: 0, bottom: 0, left: 70})
 
-      this.sequenceWindow = 3;
+      this.sequenceWindow = {
+        'nuc': 4,
+        'aa': 15
+      }
 
       this.primarySpeciesName = "hg19";
 
@@ -50,8 +49,11 @@ class MultiAlignModel {
 
     hasConservationScores(regionStart, regionEnd, selectedGene) {
       let self = this;
-      if (self.scores[selectedGene.gene_name]) {
-        let theScores = self.scores[selectedGene.gene_name].filter(function(score) {
+      let region = selectedGene.chr + ":" + regionStart + "-" + regionEnd;
+      let key = selectedGene.gene_name + "-" + region;
+
+      if (self.scores[key]) {
+        let theScores = self.scores[key].filter(function(score) {
           return score.x >= regionStart && score.x <= regionEnd;
         })
         return theScores.length > 0;
@@ -60,10 +62,11 @@ class MultiAlignModel {
       }
     }
 
-    hasMultiAlignments(selectedGene, selectedVariant) {
+    hasMultiAlignments(selectedGene, selectedVariant, seqType) {
       let self = this;
-      if (self.alignments[selectedGene.gene_name] && self.alignments[selectedGene.gene_name].length > 0) {
-        let data = self.getMultiAlignSequencesForVariant(self.alignments[selectedGene.gene_name], selectedVariant.start, self.sequenceWindow);
+      let key = selectedGene.gene_name + "-" + seqType;
+      if (self.alignments[key] && self.alignments[key].length > 0) {
+        let data = self.getMultiAlignSequencesForVariant(self.alignments[key], selectedVariant.start, self.sequenceWindow[seqType]);
         return data.sequences.length > 0;
       } else {
         return false;
@@ -127,23 +130,23 @@ class MultiAlignModel {
     }
 
 
-    promiseShowMultiAlignments(selectedGene, selectedVariant, build) {
+    promiseShowMultiAlignments(selectedGene, selectedVariant, build, seqType) {
       let self = this;
 
       return new Promise(function(resolve, reject) {
         let promises = [];
 
-        let geneName = selectedGene.gene_name;
+        let key = selectedGene.gene_name + "-" + seqType;
 
 
-        if (self.alignments[geneName] == null) {
-          self.alignments[geneName] = [];
-          self.promiseGetMultiAlignments(geneName, build)
+        if (self.alignments[key] == null) {
+          self.alignments[key] = [];
+          self.promiseGetMultiAlignments(selectedGene.gene_name, build, seqType)
           .then(function(alignments) {
-            self.alignments[geneName] = alignments;
-            self.setMultiAlignSimilarity(self.alignments[geneName]);
+            self.alignments[key] = alignments;
+            self.setMultiAlignSimilarity(self.alignments[key]);
 
-            let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
+            let data = self.getMultiAlignSequencesForVariant(self.alignments[key], selectedVariant.start, self.sequenceWindow[seqType]);
             self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
                                 data.sequences,
                                 {scrollable: false, showXAxis: false});
@@ -151,8 +154,8 @@ class MultiAlignModel {
             resolve();
           })
         } else {
-            if (self.alignments[geneName] && self.alignments[geneName].length > 0) {
-              let data = self.getMultiAlignSequencesForVariant(self.alignments[geneName], selectedVariant.start, self.sequenceWindow);
+            if (self.alignments[key] && self.alignments[key].length > 0) {
+              let data = self.getMultiAlignSequencesForVariant(self.alignments[key], selectedVariant.start, self.sequenceWindow[seqType]);
 
               self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
                                     data.sequences,
@@ -231,13 +234,15 @@ class MultiAlignModel {
       return {sequences: filteredSequences, selectedBase: selectedBase};
     }
 
-    promiseGetMultiAlignments(geneName, build) {
+    promiseGetMultiAlignments(geneName, build, seqType="nuc") {
       let self = this;
 
       return new Promise(function(resolve, reject) {
 
-        let get_multialign_url = self.multialign_service + "/alignments?build=" + build + "&gene="
-              + geneName + "&species=" + self.default_species_list;
+        let get_multialign_url = self.multialign_service + "/sequence?build=" + build
+              + "&gene=" + geneName
+              + "&type=" + seqType
+              + "&species=" + self.default_species_list;
         $.ajax({
           url: get_multialign_url ,
           type: 'GET',
@@ -274,7 +279,11 @@ class MultiAlignModel {
 
               if (geneName != null) {
                 let sequence = Array.from(buf, function(character, i) {
-                  return {start: i + start, offset: i, base: character }
+                  let offset = i;
+                  if (seqType == "aa") {
+                    offset = i*3;
+                  }
+                  return {start: offset + start, offset: offset, base: character }
                 })
                 sequences.push(sequence)
               }
@@ -317,8 +326,13 @@ class MultiAlignModel {
             }
           })
 
+
           let sequence = Array.from(buf, function(character, i) {
-            return {offset: i, base: character }
+            let offset = i;
+            if (seqType == "aa") {
+              offset = i*3;
+            }
+            return {start: offset + start, offset: offset, base: character }
           })
           sequences.push(sequence)
           alignments.push({species: species, geneName: geneName, sequences: sequences, regions: regions});

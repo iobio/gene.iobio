@@ -23,9 +23,9 @@ export default function MultiAlignD3() {
 
   var yAxisLabel = "";
 
-  var trackHeight = 12;
+  var trackHeight = 14;
   var trackOffset = 5;
-  var baseWidth   = 11;
+  var baseWidth   = 12;
   var fontSize    = 11;
 
   var defaults = {scrollable: false, showXAxis: true}
@@ -181,13 +181,14 @@ export default function MultiAlignD3() {
        .append("g")
        .attr("class", function(d) {
           return "base " + (d.clazz ? d.clazz : "");
-       });
+       })
+       .attr("transform", function(d,i) {
+          return "translate(" + x(xValue(d)) + "," + (trackHeight - fontSize) + ")";
+       })
 
     base.append("rect")
-        .attr("x", function(d,i) {
-         return x(xValue(d)) - 1
-        })
-        .attr("y", trackHeight - (fontSize))
+        .attr("x", 0)
+        .attr("y", 0)
         .attr("width", baseWidth)
         .attr("height", trackHeight)
         .on("mouseover", function(d,i) {
@@ -196,10 +197,8 @@ export default function MultiAlignD3() {
         })
 
     base.append("text")
-        .attr("x", function(d,i) {
-         return x(xValue(d))
-        })
-        .attr("y", trackHeight)
+        .attr("x", 0)
+        .attr("y", fontSize)
         .text(function(d,i) {
           return baseValue(d);
         })

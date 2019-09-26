@@ -492,12 +492,12 @@
             :value="getConservationScore(multiAlignModel.selectedScore)"   >
           </variant-inspect-row>
           <div id="conservation-track">
-            <div style="display:flex;flex-direction: column;width:130px">
+            <div style="display:flex;flex-direction: column;width:170px">
 
               <div class="conservation-scores-barchart exon">
               </div>
               <gene-viz id="conservation-gene-viz" class="gene-viz"
-                v-if="cohortModel && hasAlignments && showConservation"
+                v-if="cohortModel && showConservation"
                 v-show="filteredTranscript && filteredTranscript.features && filteredTranscript.features.length > 0"
                 :data="[filteredTranscript]"
                 :margin="conservationGeneVizMargin"
@@ -514,7 +514,18 @@
                 >
               </gene-viz>
 
-              <div class="multi-align-chart variant" style="margin-top:10px;">
+              <div >
+                <toggle-button style="padding-top:10px"
+                  v-if="hasConservationAligns"
+                  name1="Nuc"
+                  name2="AA"
+                  label="Sequence"
+                  buttonWidth="90"
+                 @click="onToggleConservationNucAA">
+                </toggle-button>
+
+                <div class="multi-align-chart variant" style="margin-top:10px;">
+                </div>
               </div>
             </div>
           </div>
@@ -555,6 +566,7 @@ import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
 import VariantAlleleCountsMenu  from "../partials/VariantAlleleCountsMenu.vue"
 import InfoPopup                from "../partials/InfoPopup.vue"
 import TranscriptsMenu          from '../partials/TranscriptsMenu.vue'
+import ToggleButton             from '../partials/ToggleButton.vue'
 import DepthViz                 from "../viz/DepthViz.vue"
 import GeneViz                  from "../viz/GeneViz.vue"
 import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
@@ -578,7 +590,8 @@ export default {
     VariantAssessment,
     DepthViz,
     GeneViz,
-    PedigreeGenotypeViz
+    PedigreeGenotypeViz,
+    ToggleButton
   },
   props: {
     selectedGene: null,
@@ -635,10 +648,12 @@ export default {
       pedigreeGenotypeData: null,
 
       showConservation: false,
+      hasConservationScores: false,
+      hasConservationAligns: false,
 
-      showAssessment: true
+      showAssessment: true,
 
-
+      conservationSeqType: 'nuc'
     }
   },
 
@@ -1143,6 +1158,8 @@ export default {
     showMultiAlignments: function() {
       let self = this;
       self.showConservation = false;
+      self.hasConservationScores = false;
+      self.hasConservationAligns = false;
 
       let promises = [];
       let p1 = self.multiAlignModel.promiseShowConservationScores(self.coverageRegionStart,
@@ -1154,18 +1171,29 @@ export default {
 
       let p2 = self.multiAlignModel.promiseShowMultiAlignments(self.selectedGene,
                                                   self.selectedVariant,
-                                                  self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC));
+                                                  self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC),
+                                                  self.conservationSeqType);
       promises.push(p2)
 
       Promise.all(promises)
       .then(function() {
-        let hasScores = self.multiAlignModel.hasConservationScores(self.coverageRegionStart,
-                                                                    self.coverageRegionEnd,
-                                                                    self.selectedGene);
-        let hasAligns = self.multiAlignModel.hasMultiAlignments(self.selectedGene, self.selectedVariant);
-        self.showConservation = hasScores || hasAligns;
+        self.hasConservationScores = self.multiAlignModel.hasConservationScores(self.coverageRegionStart,
+                                                                   self.coverageRegionEnd,
+                                                                  self.selectedGene);
+        self.hasConservationAligns = self.multiAlignModel.hasMultiAlignments(self.selectedGene,
+                                                                self.selectedVariant,
+                                                                self.conservationSeqType);
+        self.showConservation =  self.hasConservationScores || self.hasConservationAligns;
       })
 
+    },
+    onToggleConservationNucAA: function(seqType) {
+      let self = this;
+      self.conservationSeqType = seqType.toLowerCase();
+      self.multiAlignModel.promiseShowMultiAlignments(self.selectedGene,
+                                                  self.selectedVariant,
+                                                  self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC),
+                                                  self.conservationSeqType);
     }
   },
 
