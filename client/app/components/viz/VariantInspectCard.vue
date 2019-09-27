@@ -144,16 +144,6 @@
         padding-right: 8px
         font-size: 12px
 
-  .conservation-scores-barchart
-    .marker
-      circle
-        stroke: $arrow-color
-        stroke-width: 2px
-        fill: $current-color
-      text
-        fill: $arrow-color
-        font-size: 12px
-        font-weight: bold
 
   .multi-align-chart
     .marker
@@ -173,26 +163,10 @@
 
 <style lang="css">
 
-.conservation-scores-barchart .axis text {
-  font-family: 'Raleway';
-  font-size: 11px;
-  fill: #717171;
-}
 .multi-align-chart .axis text {
   font-family: 'Raleway';
   font-size: 11px;
   fill: #717171;
-}
-
-.conservation-scores-barchart  .bar {
-    fill: #d56369;
-    opacity: .8;
-    stroke: #797979;
-}
-
-.conservation-scores-barchart .bar.negative {
-  fill: rgba(20, 20, 20, 0.38);
-  stroke: rgba(36, 36, 36, 0.3);
 }
 
 
@@ -494,8 +468,12 @@
           <div id="conservation-track">
             <div style="display:flex;flex-direction: column;width:170px">
 
-              <div class="conservation-scores-barchart exon">
-              </div>
+              <conservation-scores-viz class="conservation-scores-barchart exon"
+               :data=conservationScores
+               :options=conservationOptions
+               :targetScore=conservationTargetScore>
+              </conservation-scores-viz>
+
               <gene-viz id="conservation-gene-viz" class="gene-viz"
                 v-if="cohortModel && showConservation"
                 v-show="filteredTranscript && filteredTranscript.features && filteredTranscript.features.length > 0"
@@ -534,13 +512,15 @@
 
     </div>
 
-    <div v-if="!showAssessment" style="display:flex;">
+
+
+    <div v-if="!showAssessment" style="display:flex;margin-top:5px">
       <v-btn raised id="show-assessment-button" @click="showAssessment = true">
         Enter comments
       </v-btn>
     </div>
 
-    <variant-assessment  style="margin-top:20px;"
+    <variant-assessment style="margin-top:5px"
       v-if="showAssessment"
       :variant="selectedVariant"
       :variantInterpretation="interpretation"
@@ -570,6 +550,7 @@ import ToggleButton             from '../partials/ToggleButton.vue'
 import DepthViz                 from "../viz/DepthViz.vue"
 import GeneViz                  from "../viz/GeneViz.vue"
 import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
+import ConservationScoresViz    from "../viz/ConservationScoresViz.vue"
 
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
@@ -591,7 +572,8 @@ export default {
     DepthViz,
     GeneViz,
     PedigreeGenotypeViz,
-    ToggleButton
+    ToggleButton,
+    ConservationScoresViz
   },
   props: {
     selectedGene: null,
@@ -653,7 +635,11 @@ export default {
 
       showAssessment: true,
 
-      conservationSeqType: 'nuc'
+      conservationSeqType: 'nuc',
+
+      conservationScores: null,
+      conservationOptions: null,
+      conservationTargetScore: null
     }
   },
 
@@ -1161,14 +1147,27 @@ export default {
       self.showConservation = false;
       self.hasConservationScores = false;
       self.hasConservationAligns = false;
+      self.conservationScores = null;
+      self.conservationOptions = null;
+      self.conservationTargetScore = null;
 
       let promises = [];
-      let p1 = self.multiAlignModel.promiseShowConservationScores(self.coverageRegionStart,
+      let p1 = self.multiAlignModel.promiseGetConservationScores(self.coverageRegionStart,
                                                   self.coverageRegionEnd,
                                                   self.selectedGene,
                                                   self.selectedVariant,
                                                   self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC))
-      promises.push(p1)
+      .then(function(data) {
+        self.conservationScores      = data.scores;
+        self.conservationOptions     = data.options;
+        self.conservationTargetScore = data.targetScore;
+        self.hasConservationScores   = self.multiAlignModel.hasConservationScores(self.coverageRegionStart,
+                                                                                  self.coverageRegionEnd,
+                                                                                  self.selectedGene);
+        self.showConservation =  self.hasConservationScores || self.hasConservationAligns;
+      });
+      promises.push(p1);
+
 
       let p2 = self.multiAlignModel.promiseShowMultiAlignments(self.selectedGene,
                                                   self.selectedVariant,
@@ -1178,9 +1177,6 @@ export default {
 
       Promise.all(promises)
       .then(function() {
-        self.hasConservationScores = self.multiAlignModel.hasConservationScores(self.coverageRegionStart,
-                                                                   self.coverageRegionEnd,
-                                                                  self.selectedGene);
         self.hasConservationAligns = self.multiAlignModel.hasMultiAlignments(self.selectedGene,
                                                                 self.selectedVariant,
                                                                 self.conservationSeqType);

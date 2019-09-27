@@ -11,16 +11,16 @@ class MultiAlignModel {
       this.default_species_list = "Human,Rhesus,Rattus,Mouse,Zebrafish";
 
 
-      this.conservationBarChart = BarChartD3()
-      this.conservationBarChart.xValue(function(d) {
-                      return Number(d.x)
-                    })
-                    .yValue(function(d) {
-                      return Number(d.y)
-                    })
-                    .width(130)
-                    .height(70)
-                    .margin({top: 2, right: 2, bottom: 5, left: 4})
+      //this.conservationBarChart = BarChartD3()
+      //this.conservationBarChart.xValue(function(d) {
+      //                return Number(d.x)
+      //              })
+      //              .yValue(function(d) {
+      //                return Number(d.y)
+      //              })
+      //              .width(130)
+      //              .height(70)
+      //              .margin({top: 2, right: 2, bottom: 5, left: 4})
 
 
       this.multiAlignChart = MultiAlignD3()
@@ -73,7 +73,7 @@ class MultiAlignModel {
       }
     }
 
-    promiseShowConservationScores(regionStart, regionEnd, selectedGene, selectedVariant, build) {
+    promiseGetConservationScores(regionStart, regionEnd, selectedGene, selectedVariant, build) {
       let self = this;
 
       return new Promise(function(resolve, reject) {
@@ -98,13 +98,13 @@ class MultiAlignModel {
                 self.scores[key].push({  'x': +fields[1], 'y': +fields[3]});
               }
             })
+            let scoreData = self.getConservationScores(self.scores[key],
+                                                          'mean',
+                                                          200,
+                                                          regionStart, regionEnd, selectedVariant.start);
             self.setSelectedScore(key, selectedVariant.start)
-            self.showConservationScoresAsBarchart(self.scores[key],
-                                 d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
-                                 'mean',
-                                 200,
-                                 regionStart, regionEnd, selectedVariant.start);
-            resolve();
+
+            resolve(scoreData);
 
           })
           .fail(error => {
@@ -114,13 +114,12 @@ class MultiAlignModel {
           })
 
         } else {
+          let scoreData = self.getConservationScores(self.scores[key],
+                                                        'mean',
+                                                        200,
+                                                        regionStart, regionEnd, selectedVariant.start);
           self.setSelectedScore(key, selectedVariant.start)
-          self.showConservationScoresAsBarchart(self.scores[key],
-                       d3.select("#variant-inspect").select(".conservation-scores-barchart.exon"),
-                       'mean',
-                       200,
-                       regionStart, regionEnd, selectedVariant.start);
-          resolve();
+          resolve(scoreData);
 
         }
 
@@ -455,7 +454,7 @@ class MultiAlignModel {
     }
 
 
-    showConservationScoresAsBarchart(scoresAll, container, reducePointsType, pixels, start, end, position) {
+    getConservationScores(scoresAll, reducePointsType, pixels, start, end, position) {
       let self = this;
 
       let options = {showYAxis: true, xScale: 'linear', showXAxis: false}
@@ -486,16 +485,7 @@ class MultiAlignModel {
         }
       }
 
-      if (scores.length > 0) {
-        self.conservationBarChart(container, scores, options);
-        if (targetScore) {
-          self.conservationBarChart.setMarker()(targetScore);
-        }
-      } else {
-        d3.select("#variant-inspect").select(".conservation-scores-barchart.exon svg").remove()
-      }
-
-
+      return {'scores': scores, 'targetScore': targetScore, 'options': options};
     }
 
     reducePoints(data, pixels=500, reduceByFactor=0, type="mean") {
