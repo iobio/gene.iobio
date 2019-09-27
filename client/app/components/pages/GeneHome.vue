@@ -11,6 +11,8 @@
 main.content, main.v-content
   margin-top: 52px
 
+
+
   #gene-card-container
     margin-top: 10px
     margin-bottom: 10px
@@ -107,6 +109,9 @@ main.content.clin, main.v-content.clin
     .igv-right-hand-gutter
       right: -10px
       left: initial
+
+
+
 
 </style>
 
@@ -271,9 +276,7 @@ main.content.clin, main.v-content.clin
           :isLoaded="cohortModel && cohortModel.isLoaded"
           @transcript-selected="onTranscriptSelected"
           @gene-source-selected="onGeneSourceSelected"
-          @gene-region-buffer-change="onGeneRegionBufferChange"
-          @show-known-variants="onShowKnownVariantsCard"
-          @show-sfari-variants="onShowSfariVariantsCard">
+          @gene-region-buffer-change="onGeneRegionBufferChange">
         </gene-variants-card>
 
         <variant-card
@@ -376,6 +379,19 @@ main.content.clin, main.v-content.clin
           <img src="../../../assets/images/wheel.gif">
         </v-card>
 
+        <optional-tracks-card
+          v-if="cohortModel && cohortModel.isLoaded"
+          :cohortModel="cohortModel"
+          :isEduMode="isEduMode"
+          :isBasicMode="isBasicMode"
+          :isFullAnalysis="isFullAnalysis"
+          :launchedFromHub="launchedFromHub"
+          :launchedFromClin="launchedFromClin"
+          @show-known-variants-card="onShowKnownVariantsCard"
+          @show-sfari-variants-card="onShowSfariVariantsCard"
+          @show-mother-card="onShowMotherCard"
+          @show-father-card="onShowFatherCard">
+        </optional-tracks-card>
 
         <variant-card
         ref="variantCardRef"
@@ -529,6 +545,7 @@ import allGenesData       from '../../../data/genes.json'
 import acmgBlacklist      from '../../../data/ACMG_blacklist.json'
 import SplitPane          from '../partials/SplitPane.vue'
 import ScrollButton       from '../partials/ScrollButton.vue'
+import OptionalTracksCard from '../partials/OptionalTracksCard.vue'
 
 import SaveButton         from '../partials/SaveButton.vue'
 import SaveAnalysisPopup  from '../partials/SaveAnalysisPopup.vue'
@@ -556,7 +573,8 @@ export default {
       SaveButton,
       SaveAnalysisPopup,
       pileup: VuePileup,
-      FilterCard
+      FilterCard,
+      OptionalTracksCard
   },
   props: {
     paramGene:             null,
@@ -672,6 +690,8 @@ export default {
 
       showKnownVariantsCard: false,
       showSfariVariantsCard: false,
+      showMotherCard: true,
+      showFatherCard: true,
 
       inProgress: {},
 
@@ -818,7 +838,16 @@ export default {
       let theModels = [];
       if (this.models && this.models.length > 0) {
         theModels = self.models.filter(function(model) {
-          return model.relationship != 'proband';
+          let keepIt =  model.relationship != 'proband';
+          let showIt = false;
+          if (model.relationship == 'father' && self.showFatherCard) {
+            showIt = true;
+          } else if (model.relationship == 'mother' && self.showMotherCard) {
+            showIt = true;
+          } else if (model.relationship == 'known-variants' && self.showKnownVariantsCard) {
+            showIt = true;
+          }
+          return keepIt && showIt;
         })
       }
       return theModels;
@@ -2495,6 +2524,20 @@ export default {
         if (self.showSfariVariantsCard) {
             self.onSfariVariantsVizChange();
         }
+    },
+    onShowMotherCard: function(showIt) {
+      let self = this;
+      self.showMotherCard = showIt;
+      if (self.showMotherCard) {
+        self.promiseLoadGene(self.selectedGene.gene_name);
+      }
+    },
+    onShowFatherCard: function(showIt) {
+      let self = this;
+      self.showFatherCard = showIt;
+      if (self.showFatherCard) {
+        self.promiseLoadGene(self.selectedGene.gene_name);
+      }
     },
     onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
       this.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
