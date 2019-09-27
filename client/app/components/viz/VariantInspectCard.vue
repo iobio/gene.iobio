@@ -185,13 +185,13 @@
 }
 
 .conservation-scores-barchart  .bar {
-    fill: #bcbcbc;
+    fill: #d56369;
     opacity: .8;
     stroke: #797979;
 }
 
 .conservation-scores-barchart .bar.negative {
-  fill: rgba(20, 20, 20, 0.58);
+  fill: rgba(20, 20, 20, 0.38);
   stroke: rgba(36, 36, 36, 0.3);
 }
 
@@ -482,7 +482,7 @@
       <div class="variant-inspect-column last"
         v-if="selectedVariantRelationship != 'known-variants'"
         >
-          <div class="variant-column-header" v-show="showConservation">
+          <div class="variant-column-header" >
             Conservation
             <v-divider></v-divider>
           </div>
@@ -939,6 +939,7 @@ export default {
           self.exon                = self.getExon();
           self.coverageRegionStart = self.getCoverageRegionStart();
           self.coverageRegionEnd   = self.getCoverageRegionEnd();
+          self.conservationSeqType = "nuc";
 
           let theCoverage = self.cohortModel.getModel(self.selectedVariantRelationship).coverage.filter(function(coveragePoint) {
             return coveragePoint[0] >= self.coverageRegionStart && coveragePoint[0] <= self.coverageRegionEnd;

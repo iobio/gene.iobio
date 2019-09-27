@@ -66,7 +66,7 @@ class MultiAlignModel {
       let self = this;
       let key = selectedGene.gene_name + "-" + seqType;
       if (self.alignments[key] && self.alignments[key].length > 0) {
-        let data = self.getMultiAlignSequencesForVariant(self.alignments[key], selectedVariant.start, self.sequenceWindow[seqType]);
+        let data = self.getMultiAlignSequencesForVariant(self.alignments[key], selectedVariant.start, self.sequenceWindow[seqType], seqType);
         return data.sequences.length > 0;
       } else {
         return false;
@@ -146,7 +146,7 @@ class MultiAlignModel {
             self.alignments[key] = alignments;
             self.setMultiAlignSimilarity(self.alignments[key]);
 
-            let data = self.getMultiAlignSequencesForVariant(self.alignments[key], selectedVariant.start, self.sequenceWindow[seqType]);
+            let data = self.getMultiAlignSequencesForVariant(self.alignments[key], selectedVariant.start, self.sequenceWindow[seqType], seqType);
             self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
                                 data.sequences,
                                 {scrollable: false, showXAxis: false});
@@ -155,7 +155,7 @@ class MultiAlignModel {
           })
         } else {
             if (self.alignments[key] && self.alignments[key].length > 0) {
-              let data = self.getMultiAlignSequencesForVariant(self.alignments[key], selectedVariant.start, self.sequenceWindow[seqType]);
+              let data = self.getMultiAlignSequencesForVariant(self.alignments[key], selectedVariant.start, self.sequenceWindow[seqType], seqType);
 
               self.multiAlignChart(d3.select("#variant-inspect").select(".multi-align-chart.variant"),
                                     data.sequences,
@@ -196,7 +196,7 @@ class MultiAlignModel {
     }
 
 
-    getMultiAlignSequencesForVariant(alignments, start, regionLength) {
+    getMultiAlignSequencesForVariant(alignments, start, regionLength, seqType) {
       let self = this;
 
       let filteredSequences = [];
@@ -217,7 +217,11 @@ class MultiAlignModel {
       })
       if (regionIndex >= 0) {
         let selectedBases = alignments[0].sequences[regionIndex].filter(function(seq) {
-          return seq.start == start;
+          if (seqType == 'nuc') {
+            return seq.start == start;
+          } else if (seqType == 'aa') {
+            return seq.start >= start - 1 && seq.start <= start + 1;
+          }
         })
         if (selectedBases.length > 0) {
           selectedBase = selectedBases[0]
