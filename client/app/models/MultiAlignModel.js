@@ -30,8 +30,8 @@ class MultiAlignModel {
                           .margin({top: 0, right: 0, bottom: 0, left: 70})
 
       this.sequenceWindow = {
-        'nuc': 4,
-        'aa': 15
+        'nuc': 5,
+        'aa': 18
       }
 
       this.primarySpeciesName = "hg19";
