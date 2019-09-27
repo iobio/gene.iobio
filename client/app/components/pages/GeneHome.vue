@@ -23,7 +23,7 @@ main.content.clin, main.v-content.clin
 
 
 .app-card
-  margin-bottom: 10px
+  margin-bottom: 6px
 
 .full-width
   max-width: -moz-available !important
@@ -845,6 +845,8 @@ export default {
           } else if (model.relationship == 'mother' && self.showMotherCard) {
             showIt = true;
           } else if (model.relationship == 'known-variants' && self.showKnownVariantsCard) {
+            showIt = true;
+          } else if (model.relationship == 'sfari-variants' && self.showSfariVariantsCard) {
             showIt = true;
           }
           return keepIt && showIt;

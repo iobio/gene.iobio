@@ -24,12 +24,15 @@
       line-height: 18px
       font-size: 13px
       font-weight: normal
-      padding-top: 7px
+      padding-top: 5px
       color: $text-color
+
+    .input-group__input
+      min-height: 26px
 </style>
 
 <template>
-    <v-card id="optional-tracks-card" style="margin-bottom:10px" >
+    <v-card class="app-card" id="optional-tracks-card"  >
 
       <div style="display:flex">
         <span class="card-label">Other Tracks</span>

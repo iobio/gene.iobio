@@ -5,7 +5,7 @@
   padding-top: 10px
   padding-right: 10px
   padding-bottom: 10px
-  margin-bottom: 10px
+  margin-bottom: 7px
 
   #show-assessment-button
     padding: 0px
@@ -396,7 +396,7 @@
               :relationship="selectedVariantRelationship">
             </variant-allele-counts-menu>
           </div>
-          <div class="variant-row last">
+          <div class="variant-row ">
             <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
             class="variant-action-button"  @click="onShowPileup">
              <v-icon>format_align_center</v-icon>
@@ -534,7 +534,7 @@
 
     </div>
 
-    <div v-if="!showAssessment" style="display:flex;margin-top: 20px">
+    <div v-if="!showAssessment" style="display:flex;">
       <v-btn raised id="show-assessment-button" @click="showAssessment = true">
         Enter comments
       </v-btn>

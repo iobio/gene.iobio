@@ -987,19 +987,18 @@ export default {
         label = ""
       } else if (this.sampleModel.isAlignmentsOnly()) {
         label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);
-        label += " Variants in " + this.selectedGene.gene_name;
+        label += " Proband Variants in " + this.selectedGene.gene_name;
       } else {
         if (this.sampleModel.relationship == 'known-variants') {
           label = "ClinVar Variants"
         } else if (this.sampleModel.relationship == 'sfari-variants') {
           label = "SFARI Variants"
         } else {
-
-          label += "Variants ";
           if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
               && this.sampleModel.relationship !== 'sfari-variants' && this.sampleModel.relationship !== this.sampleModel.name) {
-            label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship) + " ";
+            label = this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship) + " ";
           }
+          label += "Variants ";
 
         }
       }
