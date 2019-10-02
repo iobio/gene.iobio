@@ -7,6 +7,9 @@
   padding-bottom: 10px
   margin-bottom: 7px
 
+  .multialign-loader
+    font-size: 12px
+
   #show-assessment-button
     padding: 0px
     height: 26px !important
@@ -145,13 +148,6 @@
         font-size: 12px
 
 
-  .multi-align-chart
-    .marker
-      rect
-        stroke: $current-color
-        stroke-width: 2px
-        stroke-opacity: 1
-        fill: none
 
   .pedigree-chart
     .proband
@@ -163,43 +159,6 @@
 
 <style lang="css">
 
-.multi-align-chart .axis text {
-  font-family: 'Raleway';
-  font-size: 11px;
-  fill: #717171;
-}
-
-
-.multi-align-chart .sequence text {
-  font-family: 'Raleway';
-  font-size: 11px;
-  font-weight: 500;
-  fill: #34c1fe;
-  cursor: pointer;
-}
-
-.multi-align-chart .sequence g.diff text {
-  fill: black !important;
-  font-weight: bold;
-}
-
-.multi-align-chart .sequence rect {
-  fill: white;
-  stroke: none;
-  cursor: pointer;
-}
-
-.multi-align-chart .sequence g.diff rect {
-  fill: rgb(191, 191, 191);
-}
-
-
-.multi-align-chart text.sequence-name {
-  font-family: 'Raleway';
-  font-size: 11px;
-  font-weight: normal !important;
-  fill: rgb(186, 186, 186);
-}
 
 .pedigree-chart circle {
   fill: none;
@@ -466,12 +425,14 @@
             :value="getConservationScore(multiAlignModel.selectedScore)"   >
           </variant-inspect-row>
           <div id="conservation-track">
-            <div style="display:flex;flex-direction: column;width:170px">
+            <div style="display:flex;flex-direction: column;width:190px">
 
               <conservation-scores-viz class="conservation-scores-barchart exon"
                :data=conservationScores
                :options=conservationOptions
-               :targetScore=conservationTargetScore>
+               :targetScore=conservationTargetScore
+               width="190"
+               height="70">
               </conservation-scores-viz>
 
               <gene-viz id="conservation-gene-viz" class="gene-viz"
@@ -479,7 +440,7 @@
                 v-show="filteredTranscript && filteredTranscript.features && filteredTranscript.features.length > 0"
                 :data="[filteredTranscript]"
                 :margin="conservationGeneVizMargin"
-                :width="130"
+                :width="190"
                 :height="16"
                 :trackHeight="geneVizTrackHeight"
                 :cdsHeight="geneVizCdsHeight"
@@ -502,8 +463,17 @@
                  @click="onToggleConservationNucAA">
                 </toggle-button>
 
-                <div class="multi-align-chart variant" style="margin-top:10px;">
-                </div>
+                <span v-if="multialignInProgress" class="pt-4 loader multialign-loader" >
+                    <img src="../../../assets/images/wheel.gif">
+                    Loading sequence
+                </span>
+
+                <multialign-seq-viz style="margin-top:10px;"
+                :data=multialignSequences
+                :selectedBase=multialignSelectedBase>
+                >
+                </multialign-seq-viz>
+
               </div>
             </div>
           </div>
@@ -551,6 +521,7 @@ import DepthViz                 from "../viz/DepthViz.vue"
 import GeneViz                  from "../viz/GeneViz.vue"
 import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
 import ConservationScoresViz    from "../viz/ConservationScoresViz.vue"
+import MultialignSeqViz         from "../viz/MultialignSeqViz.vue"
 
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
@@ -573,7 +544,8 @@ export default {
     GeneViz,
     PedigreeGenotypeViz,
     ToggleButton,
-    ConservationScoresViz
+    ConservationScoresViz,
+    MultialignSeqViz
   },
   props: {
     selectedGene: null,
@@ -639,7 +611,11 @@ export default {
 
       conservationScores: null,
       conservationOptions: null,
-      conservationTargetScore: null
+      conservationTargetScore: null,
+
+      multialignSequences: null,
+      multialignSelectedBase: null,
+      multialignInProgress: false
     }
   },
 
@@ -825,11 +801,11 @@ export default {
         return "";
       } else {
         if (score.y > 2) {
-          return 'Highly conserved'
+          return 'Highly conserved ' + score.y
         } else if (score.y > 0) {
-          return 'Moderately conserved'
+          return 'Moderately conserved ' + score.y
         } else {
-          return 'Not conserved';
+          return 'Not conserved ' + score.y ;
         }
       }
     },
@@ -1150,6 +1126,9 @@ export default {
       self.conservationScores = null;
       self.conservationOptions = null;
       self.conservationTargetScore = null;
+      self.multialignSequences = null;
+      self.multialignSelectedBase = null;
+      self.multialignInProgress = true;
 
       let promises = [];
       let p1 = self.multiAlignModel.promiseGetConservationScores(self.coverageRegionStart,
@@ -1158,39 +1137,60 @@ export default {
                                                   self.selectedVariant,
                                                   self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC))
       .then(function(data) {
-        self.conservationScores      = data.scores;
-        self.conservationOptions     = data.options;
-        self.conservationTargetScore = data.targetScore;
-        self.hasConservationScores   = self.multiAlignModel.hasConservationScores(self.coverageRegionStart,
-                                                                                  self.coverageRegionEnd,
-                                                                                  self.selectedGene);
-        self.showConservation =  self.hasConservationScores || self.hasConservationAligns;
+        if (data) {
+          self.conservationScores      = data.scores;
+          self.conservationOptions     = data.options;
+          self.conservationTargetScore = data.targetScore;
+          self.hasConservationScores   = self.multiAlignModel.hasConservationScores(self.coverageRegionStart,
+                                                                                    self.coverageRegionEnd,
+                                                                                    self.selectedGene);
+          self.showConservation =  self.hasConservationScores || self.hasConservationAligns;
+        }
       });
       promises.push(p1);
 
 
-      let p2 = self.multiAlignModel.promiseShowMultiAlignments(self.selectedGene,
+      let p2 = self.multiAlignModel.promiseGetMultiAlignments(self.selectedGene,
                                                   self.selectedVariant,
                                                   self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC),
-                                                  self.conservationSeqType);
+                                                  self.conservationSeqType)
+      .then(function(data) {
+        if (data) {
+          self.multialignSequences    = data.sequences;
+          self.multialignSelectedBase = data.selectedBase;
+          self.hasConservationAligns  = data.sequences.length > 0;
+          self.multialignInProgress = false;
+        }
+      })
+      .catch(function(error) {
+        self.multialignInProgress = false;
+      })
       promises.push(p2)
 
       Promise.all(promises)
       .then(function() {
-        self.hasConservationAligns = self.multiAlignModel.hasMultiAlignments(self.selectedGene,
-                                                                self.selectedVariant,
-                                                                self.conservationSeqType);
         self.showConservation =  self.hasConservationScores || self.hasConservationAligns;
       })
 
     },
     onToggleConservationNucAA: function(seqType) {
       let self = this;
+      self.multialignInProgress = true;
       self.conservationSeqType = seqType.toLowerCase();
-      self.multiAlignModel.promiseShowMultiAlignments(self.selectedGene,
+      self.multiAlignModel.promiseGetMultiAlignments(self.selectedGene,
                                                   self.selectedVariant,
                                                   self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC),
-                                                  self.conservationSeqType);
+                                                  self.conservationSeqType)
+      .then(function(data) {
+        if (data) {
+          self.multialignInProgress   = false;
+          self.multialignSequences    = data.sequences;
+          self.multialignSelectedBase = data.selectedBase;
+        }
+      })
+      .catch(function(data) {
+        self.multialignInProgress = false;
+      })
     }
   },
 

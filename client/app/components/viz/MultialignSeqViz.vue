@@ -1,35 +1,52 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
-.conservation-scores-viz
-  .marker
-    circle
-      stroke: $arrow-color
-      stroke-width: 2px
-      fill: $current-color
-    text
-      fill: $arrow-color
-      font-size: 12px
-      font-weight: bold
 
-.conservation-scores-viz
+
+.multialign-seq-viz
+  .marker
+    rect
+      stroke: $current-color
+      stroke-width: 2px
+      stroke-opacity: 1
+      fill: none
+
   .axis
     text
+      font-family: 'Raleway'
+      font-size: 11px
+      fill: $text-color
+
+
+
+  .sequence
+    text
+      font-family: 'Raleway'
+      font-size: 11px
+      font-weight: 500
+      fill: $text-color
+      cursor: pointer
+
+    g.diff
+      text
+        fill: black !important
+        font-weight: bold
+
+      rect
+        fill: rgb(191, 191, 191)
+
+    rect
+      fill: white
+      stroke: none
+      cursor: pointer
+
+
+  text.sequence-name
     font-family: 'Raleway'
     font-size: 11px
+    font-weight: normal !important
     fill: $text-color
 
-.conservation-scores-viz
-  .bar
-    fill: #d56369
-    opacity: .8
-    stroke: #797979
-
-
-.conservation-scores-viz
-  .bar.negative
-    fill: rgba(20, 20, 20, 0.38)
-    stroke: rgba(36, 36, 36, 0.3)
 
 
 
@@ -37,34 +54,34 @@
 
 
 <template>
-    <div class="conservation-scores-viz exon">
+    <div class="multialign-seq-viz ">
 
     </div>
 </template>
 
 <script>
 
-import BarchartD3 from '../../d3/BarChart.d3.js'
+import MultiAlignD3 from '../../d3/MultiAlign.d3.js'
 
 export default {
-    name: 'conservation-scores-viz',
+    name: 'multialign-seq-viz',
     props: {
       data: {
         type: Array,
         default: function() {
-          return [[]];
+          return [];
+        }
+      },
+      selectedBase: {
+        type: Object,
+        default: function() {
+          return {}
         }
       },
       options: {
         type: Object,
         default: function() {
-          return {}
-        }
-      },
-      targetScore: {
-        type: Object,
-        default: function() {
-          return {}
+          return {scrollable: false, showXAxis: false};
         }
       },
       width: {
@@ -78,13 +95,13 @@ export default {
       margin: {
         type: Object,
         default: function() {
-          return {top: 2, right: 2, bottom: 5, left: 4}
+          return {top: 0, right: 0, bottom: 0, left: 70};
         }
       },
       xValue: {
         type: Function,
         default: function(d) {
-          return d.x;
+          return d.start;
         }
       },
       yValue: {
@@ -108,15 +125,9 @@ export default {
       draw: function() {
         var self = this;
 
-        this.chart =  BarchartD3()
+        this.chart =  MultiAlignD3()
         this.chart.xValue(this.xValue)
-                  .yValue(this.yValue)
-                  .width(this.width)
-                  .height(this.height)
                   .margin(this.margin);
-
-
-
 
         this.setChart();
       },
@@ -129,8 +140,8 @@ export default {
         this.$emit('update-chart', this.chart);
       },
       setMarker: function() {
-        if (this.targetScore) {
-          this.chart.setMarker()(this.targetScore);
+        if (this.selectedBase) {
+          this.chart.setMarker()(this.selectedBase);
         }
       }
     },
@@ -138,7 +149,7 @@ export default {
       data: function() {
         this.update();
       },
-      targetScore: function() {
+      selectedBase: function() {
         this.setMarker()
       }
     }

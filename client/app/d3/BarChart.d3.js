@@ -69,7 +69,7 @@ export default function BarchartD3() {
 
     container.selectAll("svg").remove();
 
-    if (data.length == 0) {
+    if (data == null ||  data.length == 0) {
       return;
     }
 

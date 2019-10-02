@@ -73,7 +73,7 @@ export default function MultiAlignD3() {
 
     container.selectAll("svg").remove();
 
-    if (data.length == 0) {
+    if (data == null || data.length == 0) {
       return;
     }
 
@@ -236,12 +236,6 @@ export default function MultiAlignD3() {
     return chart;
   };
 
-
-  chart.yValue = function(_) {
-    if (!arguments.length) return yValue;
-    yValue = _;
-    return chart;
-  };
 
   chart.yAxisLabel = function(_) {
     if (!arguments.length) return yAxisLabel;
