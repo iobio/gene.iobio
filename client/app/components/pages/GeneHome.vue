@@ -11,6 +11,14 @@
 main.content, main.v-content
   margin-top: 52px
 
+  .variant-assessment-heading
+    color: $app-color
+    padding-bottom: 20px
+    font-size: 16px
+    padding-top: 5px
+    width: 174px
+    display: flex
+    justify-content: flex-start
 
 
   #gene-card-container
@@ -325,29 +333,52 @@ main.content.clin, main.v-content.clin
         </variant-card>
 
 
-        <variant-inspect-card
-        ref="variantInspectRef"
-        v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0"
-        v-show="selectedVariant"
-        :selectedGene="selectedGene"
-        :selectedTranscript="analyzedTranscript"
-        :selectedVariant="selectedVariant"
-        :selectedVariantNotes="selectedVariantNotes"
-        :selectedVariantInterpretation="selectedVariantInterpretation"
-        :selectedVariantRelationship="selectedVariantRelationship"
-        :interpretationMap="interpretationMap"
-        :genomeBuildHelper="genomeBuildHelper"
-        :cohortModel="cohortModel"
-        :info="selectedVariantInfo"
-        :selectedVariantKey="selectedVariantKey"
-        :showGenePhenotypes="launchedFromClin || phenotypeTerm"
-        :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
-        :user="user"
-        @show-pileup-for-variant="onShowPileupForVariant"
-        @apply-variant-interpretation="onApplyVariantInterpretation"
-        @apply-variant-notes="onApplyVariantNotes"
-        >
-        </variant-inspect-card>
+        <div style="display:flex">
+
+          <variant-inspect-card
+          ref="variantInspectRef"
+          v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0"
+          v-show="selectedVariant"
+          :selectedGene="selectedGene"
+          :selectedTranscript="analyzedTranscript"
+          :selectedVariant="selectedVariant"
+          :selectedVariantNotes="selectedVariantNotes"
+          :selectedVariantInterpretation="selectedVariantInterpretation"
+          :selectedVariantRelationship="selectedVariantRelationship"
+          :interpretationMap="interpretationMap"
+          :genomeBuildHelper="genomeBuildHelper"
+          :cohortModel="cohortModel"
+          :info="selectedVariantInfo"
+          :selectedVariantKey="selectedVariantKey"
+          :showGenePhenotypes="launchedFromClin || phenotypeTerm"
+          :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
+          :user="user"
+          :showAssessment="hasVariantAssessment"
+          @show-pileup-for-variant="onShowPileupForVariant"
+          @apply-variant-interpretation="onApplyVariantInterpretation"
+          @apply-variant-notes="onApplyVariantNotes"
+          @show-variant-assessment="onShowVariantAssessment"
+
+          >
+          </variant-inspect-card>
+
+          <v-card class="app-card"
+            v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && selectedVariant && (hasVariantAssessment || showVariantAssessment)"
+            style="max-height:481px;overflow-y:scroll;max-width:280px;margin-left:5px">
+            <div class="variant-assessment-heading">Variant Comments</div>
+            <variant-assessment
+              :variant="selectedVariant"
+              :variantInterpretation="interpretation"
+              :interpretationMap="interpretationMap"
+              :variantNotes="notes"
+              :user="user"
+              @apply-variant-interpretation="onApplyVariantInterpretation"
+              @apply-variant-notes="onApplyVariantNotes">
+            </variant-assessment>
+          </v-card>
+
+
+        </div>
 
 
 
@@ -514,7 +545,9 @@ import EduTourBanner      from  '../viz/EduTourBanner.vue'
 import Welcome            from  '../viz/Welcome.vue'
 import IntroCard          from  '../viz/IntroCard.vue'
 import GeneCard           from  '../viz/GeneCard.vue'
-import VariantInspectCard  from  '../viz/VariantInspectCard.vue'
+import VariantInspectCard from  '../viz/VariantInspectCard.vue'
+import VariantAssessment  from  "../partials/VariantAssessment.vue"
+
 import GenesCard          from  '../viz/GenesCard.vue'
 import FilterCard          from '../viz/FilterCard.vue'
 import GeneVariantsCard   from  '../viz/GeneVariantsCard.vue'
@@ -574,7 +607,8 @@ export default {
       SaveAnalysisPopup,
       pileup: VuePileup,
       FilterCard,
-      OptionalTracksCard
+      OptionalTracksCard,
+      VariantAssessment
   },
   props: {
     paramGene:             null,
@@ -741,6 +775,8 @@ export default {
 
       phenotypeLookupUrl: null,
 
+      showVariantAssessment: false,
+
       pileupInfo: {
         // This controls how many base pairs are displayed on either side of
         // the center of the locus.
@@ -867,8 +903,27 @@ export default {
       } else {
         return null;
       }
-    }
+    },
+    hasVariantAssessment: function() {
+      let self = this;
+      if (self.selectedVariant) {
+        if ((self.selectedVariant.interpretation && self.selectedVariant.interpretation != 'not-reviewed')
+            || (self.selectedVariant.notes && self.selectedVariant.notes != null && self.selectedVariants.notes.length > 0)) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
 
+    },
+    notes: function() {
+      return this.selectedVariant.notes && this.selectedVariant.notes.length > 0 ? this.selectedVariant.notes : null;
+    },
+    interpretation: function() {
+      return this.selectedVariant.interpretation && this.selectedVariant.interpretation.length > 0 ? this.selectedVariant.interpretation : 'not-reviewed';
+    }
 
 
 
@@ -1478,6 +1533,10 @@ export default {
       return refs;
     },
 
+    onShowVariantAssessment: function(showAssessment) {
+      this.showVariantAssessment = showAssessment;
+    },
+
     showLeftPanelWhenFlaggedVariantsForGene: function() {
       let self = this;
       if (self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
@@ -1698,6 +1757,7 @@ export default {
         self.selectedVariantRelationship = sourceRelationship;
         self.selectedVariantNotes = variant.notes;
         self.selectedVariantInterpretation = variant.interpretation;
+        self.showVariantAssessment = false;
         self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
         self.showVariantExtraAnnots(sourceComponent.relationship, variant);
 
@@ -1771,6 +1831,7 @@ export default {
       self.selectedVariantNotes = null;
       self.selectedVariantInterpretation = null;
       self.selectedVariantRelationship = null;
+      self.showVariantAssessment = false;
       self.activeGeneVariantTab = "0";
       self.getVariantCardRefs().forEach(function(variantCard) {
         variantCard.hideVariantTooltip();
@@ -1999,6 +2060,7 @@ export default {
           self.selectedVariant = null;
           self.selectedVariantKey = null;
           self.selectedVariantRelationship = null;
+          self.showVariantAssessment = false;
           self.selectedVariantNotes = null;
           self.selectedVariantInterpretation = null;
           self.activeGeneVariantTab = "0";
@@ -2419,6 +2481,7 @@ export default {
         self.selectedVariant = null;
         self.selectedVariantKey = null;
         self.selectedVariantNotes = null;
+        self.showVariantAssessment = false;
         self.selectedVariantInterpretation = null;
         self.selectedVariantRelationship = null;
         genePromise = self.promiseLoadGene(self.selectedGene.gene_name, self.selectedTranscript);
@@ -2466,6 +2529,7 @@ export default {
 
                 self.$set(self, "selectedVariant", null);
                 self.$set(self, "selectedVariant", flaggedVariant);
+                self.showVariantAssessment = false;
                 self.$set(self, "selectedVariantRelationship", "proband");
                 self.$set(self, "selectedVariantKey", null);
                 self.$set(self, "selectedVariantKey", flaggedVariant);

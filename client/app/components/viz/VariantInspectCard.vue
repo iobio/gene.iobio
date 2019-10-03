@@ -12,11 +12,12 @@
 
   #show-assessment-button
     padding: 0px
-    height: 26px !important
+    height: 22px !important
     background-color: $app-color !important
     color: white !important
-    min-width: 150px !important
     margin: 0px
+
+
 
   #notes-input
     margin-top: 8px
@@ -60,7 +61,7 @@
       min-width: 150px
       max-width: 200px
       margin-bottom: 0px
-      margin-right: 30px
+      margin-right: 15px
       padding-top: 0px
       padding-bottom: 0px
 
@@ -263,6 +264,13 @@
       :info="info">
       </variant-aliases-menu>
 
+      <v-spacer></v-spacer>
+
+      <div v-if="!showAssessment" style="margin-left:10px;margin-right:10px">
+        <v-btn raised id="show-assessment-button" @click="onEnterComments">
+          Comment
+        </v-btn>
+      </div>
 
     </div>
 
@@ -416,27 +424,28 @@
           </div>
       </div>
 
-      <div class="variant-inspect-column last"
+      <div class="variant-inspect-column last" style="min-width:190px;max-width:400px"
         v-if="selectedVariantRelationship != 'known-variants'"
         >
           <div class="variant-column-header" >
             Conservation
             <v-divider></v-divider>
           </div>
-          <variant-inspect-row
-            v-show="multiAlignModel && multiAlignModel.selectedScore && showConservation"
-            :clazz="getConservationClass(multiAlignModel.selectedScore)"
-            :value="getConservationScore(multiAlignModel.selectedScore)"   >
-          </variant-inspect-row>
-          <div id="conservation-track">
-            <div style="display:flex;flex-direction: column;width:190px">
+          <div id="conservation-track" style="display:flex;">
+            <div style="display:flex;flex-direction: column;min-width:190px;margin-right: 10px">
+
+              <variant-inspect-row
+                v-show="multiAlignModel && multiAlignModel.selectedScore && showConservation"
+                :clazz="getConservationClass(multiAlignModel.selectedScore)"
+                :value="getConservationScore(multiAlignModel.selectedScore)"   >
+              </variant-inspect-row>
 
               <conservation-scores-viz class="conservation-scores-barchart exon"
                :data=conservationScores
                :options=conservationOptions
                :targetScore=conservationTargetScore
-               width="190"
-               height="70">
+               :width="190"
+               :height="70">
               </conservation-scores-viz>
 
               <gene-viz id="conservation-gene-viz" class="gene-viz"
@@ -457,54 +466,34 @@
                 >
               </gene-viz>
 
-              <div >
-                <toggle-button style="padding-top:10px"
-                  v-if="hasConservationAligns"
-                  name1="Nuc"
-                  name2="AA"
-                  label="Sequence"
-                  buttonWidth="90"
-                 @click="onToggleConservationNucAA">
-                </toggle-button>
 
-                <span v-if="multialignInProgress" class="pt-4 loader multialign-loader" >
-                    <img src="../../../assets/images/wheel.gif">
-                    Loading sequence
-                </span>
+            </div>
+            <div style="min-width:190px" >
+              <toggle-button
+                v-if="hasConservationAligns"
+                name1="Nuc"
+                name2="AA"
+                label="Sequence"
+                buttonWidth="90"
+               @click="onToggleConservationNucAA">
+              </toggle-button>
 
-                <multialign-seq-viz style="margin-top:10px;"
-                :data=multialignSequences
-                :selectedBase=multialignSelectedBase>
-                >
-                </multialign-seq-viz>
+              <span v-if="multialignInProgress" class="pt-4 loader multialign-loader" >
+                  <img src="../../../assets/images/wheel.gif">
+                  Loading sequence
+              </span>
 
-              </div>
+              <multialign-seq-viz style="margin-top:10px;"
+              :data=multialignSequences
+              :selectedBase=multialignSelectedBase>
+              >
+              </multialign-seq-viz>
+
             </div>
           </div>
       </div>
 
-
-
     </div>
-
-
-
-    <div v-if="!showAssessment" style="display:flex;margin-top:5px">
-      <v-btn raised id="show-assessment-button" @click="showAssessment = true">
-        Enter comments
-      </v-btn>
-    </div>
-
-    <variant-assessment style="margin-top:5px"
-      v-if="showAssessment"
-      :variant="selectedVariant"
-      :variantInterpretation="interpretation"
-      :interpretationMap="interpretationMap"
-      :variantNotes="notes"
-      :user="user"
-      @apply-variant-interpretation="onApplyVariantInterpretation"
-      @apply-variant-notes="onApplyVariantNotes">
-    </variant-assessment>
 
   </v-card>
 </template>
@@ -513,7 +502,6 @@
 
 import Vue                      from 'vue'
 import AppIcon                  from "../partials/AppIcon.vue"
-import VariantAssessment        from "../partials/VariantAssessment.vue"
 import VariantInspectRow        from "../partials/VariantInspectRow.vue"
 import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
 import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
@@ -544,7 +532,6 @@ export default {
     VariantInspectRow,
     VariantInspectQualityRow,
     VariantAlleleCountsMenu,
-    VariantAssessment,
     DepthViz,
     GeneViz,
     PedigreeGenotypeViz,
@@ -566,7 +553,8 @@ export default {
     showGenePhenotypes: null,
     info: null,
     coverageDangerRegions: null,
-    user: null
+    user: null,
+    showAssessment: null
   },
   data() {
     return {
@@ -609,8 +597,6 @@ export default {
       showConservation: false,
       hasConservationScores: false,
       hasConservationAligns: false,
-
-      showAssessment: true,
 
       conservationSeqType: 'nuc',
 
@@ -830,8 +816,6 @@ export default {
     loadData: function() {
       let self = this;
       if (self.selectedVariant) {
-        self.showAssessment = self.interpretation != 'not-reviewed'
-                              || (self.notes != null && self.notes.length > 0) ? true : false;
         self.initPedigreeGenotypes();
         self.initGenePhenotypeHits();
         self.promiseInitCoverage()
@@ -1196,6 +1180,9 @@ export default {
       .catch(function(data) {
         self.multialignInProgress = false;
       })
+    },
+    onEnterComments: function() {
+      this.$emit("show-variant-assessment", true)
     }
   },
 
@@ -1296,12 +1283,6 @@ export default {
         },
 
       ]
-    },
-    notes: function() {
-      return this.selectedVariantNotes && this.selectedVariantNotes.length > 0 ? this.selectedVariantNotes : null;
-    },
-    interpretation: function() {
-      return this.selectedVariantInterpretation && this.selectedVariantInterpretation.length > 0 ? this.selectedVariantInterpretation : 'not-reviewed';
     }
   },
 
@@ -1310,7 +1291,8 @@ export default {
       this.$nextTick(function() {
         this.loadData();
       })
-    }
+    },
+
 
   },
 

@@ -15,17 +15,6 @@
 
 
 
-  .variant-column-header
-    font-size: 14px
-    color:  $app-color
-    margin-bottom: 0px
-
-    hr
-      margin-top: 2px
-      margin-bottom: 10px
-      background-color: #cbcbcb
-      width: 150px
-
   #notes-input
     font-size: 13px
     color: $text-color
@@ -54,20 +43,18 @@
 
   .individual-notes-container
     display: flex
-    flex-flow: row
-    flex-wrap: wrap
+    flex-flow: column
     justify-content: flex-start
 
     .individual-note
-      border-right: solid 1px #e6e3e3
-      padding-left: 15px
-      padding-right: 15px
+      border-bottom: solid 1px #e6e3e3
+      padding-left: 0px
+      padding-bottom: 20px
       font-size: 12px
-      max-height: 108px
       overflow-y: scroll
       margin-top: 10px
-      min-width: 45%
-      max-width: 45%
+      min-width: 100%
+      max-width: 100%
 
       .note-header
         display: flex
@@ -75,11 +62,11 @@
         font-style: italic
 
         .note-author
-          margin-left:  20px
+          margin-right:  20px
           padding-top: 6px
 
         .note-datetime
-          margin-left:  20px
+          margin-right:  20px
           padding-top: 6px
 
         .button-actions
@@ -107,11 +94,7 @@
 
 <template>
 
-  <div id="variant-assessment">
-    <div class="variant-column-header">
-      Comments
-      <v-divider></v-divider>
-    </div>
+  <div id="variant-assessment" class="app-card">
     <div>
       <variant-interpretation
       style="width: 210px;display: inline-block"
@@ -124,7 +107,7 @@
       </variant-interpretation>
 
       <variant-notes-dialog
-        style="display:inline-block;margin-left:20px; padding-top: 4px"
+        style="display:inline-block;; padding-top: 10px"
         class="variant-notes"
         :sourceNotes="``"
         :sourceIndex="``"
@@ -147,6 +130,18 @@
         </variant-notes-dialog>
 
         <div class="note-header">
+
+
+          <div v-if="note.datetime" class="note-datetime">
+            {{ note.datetime }}
+          </div>
+
+
+          <div v-if="note.author" class="note-author">
+            {{ note.author }}
+          </div>
+
+          <v-spacer></v-spacer>
 
 
           <v-menu
@@ -173,14 +168,6 @@
               </v-list>
           </v-menu>
 
-
-          <div v-if="note.author" class="note-author">
-            {{ note.author }}
-          </div>
-
-          <div v-if="note.datetime" class="note-datetime">
-            {{ note.datetime }}
-          </div>
         </div>
         <div class="note-body">
           {{ note.note }}
