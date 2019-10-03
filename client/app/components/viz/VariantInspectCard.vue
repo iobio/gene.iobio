@@ -49,7 +49,7 @@
     display: flex
     flex-direction: row
     flex-wrap: wrap
-    justify-content: space-between
+    justify-content: flex-start
     padding-top: 5px
 
     .variant-inspect-column
@@ -58,9 +58,9 @@
       padding: 5px
       padding-left: 0px
       min-width: 150px
-      max-width: 220px
+      max-width: 200px
       margin-bottom: 0px
-      margin-right: 10px
+      margin-right: 30px
       padding-top: 0px
       padding-bottom: 0px
 
@@ -318,24 +318,26 @@
               @feature-selected="showExonTooltip"
               >
             </gene-viz>
+
+            <div class="variant-row" style="padding-top:5px;">
+              <variant-allele-counts-menu
+                v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
+                :selectedVariant="selectedVariant"
+                :affectedInfo="cohortModel.affectedInfo"
+                :cohortModel="cohortModel.mode"
+                :relationship="selectedVariantRelationship">
+              </variant-allele-counts-menu>
+            </div>
+            <div class="variant-row ">
+              <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
+              class="variant-action-button"  @click="onShowPileup">
+               <v-icon>format_align_center</v-icon>
+               Read Pileup
+              </v-btn>
+            </div>
+
           </div>
 
-          <div class="variant-row">
-            <variant-allele-counts-menu
-              v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
-              :selectedVariant="selectedVariant"
-              :affectedInfo="cohortModel.affectedInfo"
-              :cohortModel="cohortModel.mode"
-              :relationship="selectedVariantRelationship">
-            </variant-allele-counts-menu>
-          </div>
-          <div class="variant-row ">
-            <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
-            class="variant-action-button"  @click="onShowPileup">
-             <v-icon>format_align_center</v-icon>
-             Read Pileup
-            </v-btn>
-          </div>
       </div>
       <div class="variant-inspect-column">
           <div class="variant-column-header">
@@ -364,6 +366,22 @@
             :clazz="getRevelClass(info)" :value="info.revel"   :label="`REVEL`" >
           </variant-inspect-row>
       </div>
+
+      <div class="variant-inspect-column " v-if="showGenePhenotypes" >
+          <div class="variant-column-header">
+            Gene to Phenotype
+            <v-divider></v-divider>
+          </div>
+          <div v-if="geneHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
+            <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
+              <div>
+                <v-chip class="high">#{{ geneRank.rank }}</v-chip>
+                <span v-if="geneRank.source" class="pheno-source">{{ geneRank.source }}</span>
+                <span v-if="geneHit.searchTerm" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
+              </div>
+            </div>
+          </div>
+      </div>
       <div class="variant-inspect-column">
           <div class="variant-column-header">
             Frequency
@@ -381,7 +399,7 @@
 
       <div class="variant-inspect-column" style="min-width:90px" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
-            Inheritance Mode
+            Inheritance
             <v-divider></v-divider>
           </div>
           <div class="variant-row " style="margin-top:-2px"  v-if="selectedVariant.inheritance != 'none'">
@@ -397,21 +415,7 @@
             </pedigree-genotype-viz>
           </div>
       </div>
-      <div class="variant-inspect-column" v-if="showGenePhenotypes" >
-          <div class="variant-column-header">
-            Gene to Phenotype
-            <v-divider></v-divider>
-          </div>
-          <div v-if="geneHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
-            <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
-              <div>
-                <v-chip class="high">#{{ geneRank.rank }}</v-chip>
-                <span v-if="geneRank.source" class="pheno-source">{{ geneRank.source }}</span>
-                <span v-if="geneHit.searchTerm" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
-              </div>
-            </div>
-          </div>
-      </div>
+
       <div class="variant-inspect-column last"
         v-if="selectedVariantRelationship != 'known-variants'"
         >
@@ -478,6 +482,7 @@
             </div>
           </div>
       </div>
+
 
 
     </div>
