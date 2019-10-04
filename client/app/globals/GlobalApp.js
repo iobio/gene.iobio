@@ -9,7 +9,7 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
-    this.version               = "3.3";
+    this.version               = "3.3 gru";
 
     this.DEV_IOBIO             = "nv-dev-new.iobio.io/";
     this.STAGE_IOBIO           = "nv-green.iobio.io/";

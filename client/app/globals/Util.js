@@ -728,6 +728,8 @@ class Util {
       dbSnpUrl: "",
       dbSnpLink: "",
       filtersPassed: "",
+
+      notesFlattened: ""
     };
 
 
@@ -879,6 +881,16 @@ class Util {
     }
 
     info.filtersPassed = variant.filtersPassed && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
+
+    if (variant.notes && variant.notes.length > 0) {
+      variant.notes.forEach(function(note) {
+        if (info.notesFlattened.length > 0) {
+          info.notesFlattend += "\n";
+        }
+        info.notesFlattened  +=  note.author + "\t"+ note.datetime + "\t" + note.note ;
+      })
+    }
+
 
     return info;
   }
