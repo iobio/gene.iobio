@@ -296,6 +296,9 @@ export default {
     },
     variantInterpretation: function() {
       this.init();
+    },
+    variant: function() {
+      this.init();
     }
   }
 }

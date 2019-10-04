@@ -368,9 +368,9 @@ main.content.clin, main.v-content.clin
             <div class="variant-assessment-heading">Variant Comments</div>
             <variant-assessment
               :variant="selectedVariant"
-              :variantInterpretation="interpretation"
+              :variantInterpretation="selectedVariant.interpretation"
               :interpretationMap="interpretationMap"
-              :variantNotes="notes"
+              :variantNotes="selectedVariant.notes"
               :user="user"
               @apply-variant-interpretation="onApplyVariantInterpretation"
               @apply-variant-notes="onApplyVariantNotes">
@@ -917,12 +917,6 @@ export default {
         return false;
       }
 
-    },
-    notes: function() {
-      return this.selectedVariant.notes && this.selectedVariant.notes.length > 0 ? this.selectedVariant.notes : null;
-    },
-    interpretation: function() {
-      return this.selectedVariant.interpretation && this.selectedVariant.interpretation.length > 0 ? this.selectedVariant.interpretation : 'not-reviewed';
     }
 
 
@@ -1534,7 +1528,8 @@ export default {
     },
 
     onShowVariantAssessment: function(showAssessment) {
-      this.showVariantAssessment = showAssessment;
+      let self = this;
+      self.$set(self, "showVariantAssessment", showAssessment);
     },
 
     showLeftPanelWhenFlaggedVariantsForGene: function() {

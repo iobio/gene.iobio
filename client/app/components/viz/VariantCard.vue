@@ -24,11 +24,12 @@
     font-size: 16px
 
   #sample-identifier
-    width: 80px
+    width: 130px
     display: inline-block
     vertical-align: middle
     padding-top: 5px
-    line-height: 14px
+    line-height: 13px
+    white-space: normal
 
   #variant-pileup-button
     position: absolute

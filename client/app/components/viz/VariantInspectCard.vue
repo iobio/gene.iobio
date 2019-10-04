@@ -266,7 +266,7 @@
 
       <v-spacer></v-spacer>
 
-      <div v-if="!showAssessment" style="margin-left:10px;margin-right:10px">
+      <div v-if="!showAssessment && !enterCommentsClicked " style="margin-left:10px;margin-right:10px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
           Comment
         </v-btn>
@@ -606,7 +606,9 @@ export default {
 
       multialignSequences: null,
       multialignSelectedBase: null,
-      multialignInProgress: false
+      multialignInProgress: false,
+
+      enterCommentsClicked: false
     }
   },
 
@@ -816,6 +818,7 @@ export default {
     loadData: function() {
       let self = this;
       if (self.selectedVariant) {
+        self.enterCommentsClicked = false;
         self.initPedigreeGenotypes();
         self.initGenePhenotypeHits();
         self.promiseInitCoverage()
@@ -1183,6 +1186,7 @@ export default {
     },
     onEnterComments: function() {
       this.$emit("show-variant-assessment", true)
+      this.enterCommentsClicked = true;
     }
   },
 
