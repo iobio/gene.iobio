@@ -6,7 +6,7 @@ class MultiAlignModel {
       this.scores = [];
       this.selectedScore = null;
 
-      this.multialign_service   = "http://multialign.iobio.io:8081";
+      this.multialign_service   = "https://multialign.iobio.io";
       this.default_species_list = "Human,Rhesus,Rattus,Mouse,Zebrafish";
 
       this.sequenceWindow = {
