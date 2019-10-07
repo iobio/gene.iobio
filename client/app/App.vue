@@ -46,15 +46,18 @@ button
       .progress-linear__bar__indeterminate
         background-color: $amber-darken-1 !important
 
-.snack
-  top: 0px
+
+.snack--top
+  top: 60px
 
 .snack__wrapper
   background-color: rgba(50,50,50,.75) !important
 
 .snack__content
-  padding-right: 2px
-
+  min-height: 36px
+  padding: 4px 14px
+  max-height: 100px
+  height: initial
 
 .attention
   display: inline-block

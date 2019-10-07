@@ -11,6 +11,10 @@
 main.content, main.v-content
   margin-top: 52px
 
+.analysis-save-button
+  right: 30px !important
+  bottom: 30px !important
+
   .variant-assessment-heading
     color: $app-color
     padding-bottom: 20px
@@ -411,7 +415,7 @@ main.content.clin, main.v-content.clin
         </v-card>
 
         <optional-tracks-card
-          v-if="cohortModel && cohortModel.isLoaded"
+          v-if="cohortModel && cohortModel.isLoaded && probandModel"
           :cohortModel="cohortModel"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
@@ -475,15 +479,21 @@ main.content.clin, main.v-content.clin
 
         <v-snackbar
           :timeout="snackbar.timeout"
-          bottom
-          auto-height
+          :top="snackbar.top"
+          :bottom="snackbar.bottom"
+          :center="snackbar.center"
+          :left="snackbar.left"
+          :right="snackbar.right"
+          autoheight
           v-model="showSnackbar"
-
          >
           <span v-html="snackbar.message"></span>
-          <v-btn flat color="white"  @click.native="showSnackbar = false">
+          <v-btn
+            v-if="snackbar.close" flat color="white"
+            @click.native="showSnackbar = false">
             <v-icon>close</v-icon>
           </v-btn>
+
         </v-snackbar>
 
       </v-container>
@@ -739,7 +749,7 @@ export default {
       featureMatrixWidthPercent: 0,
 
       showSnackbar: false,
-      snackbar: {message: '', timeout: 0},
+      snackbar: {message: '', timeout: 0, left: false, right: false, center: true, top: true, bottom: false},
       bringAttention: null,
 
       clearZoom: false,
@@ -2747,6 +2757,19 @@ export default {
       if (snackbar && snackbar.message) {
         this.showSnackbar = true;
 
+        snackbar.left     = snackbar.left ? snackbar.left : false;
+        snackbar.right    = snackbar.right ? snackbar.right : false;
+        snackbar.center   = snackbar.center ? snackbar.center : false;
+        snackbar.top      = snackbar.top ? snackbar.top : false;
+        snackbar.bottom   = snackbar.bottom ? snackbar.bottom : false;
+
+        if (!snackbar.left && !snackbar.right && !snackbar.center) {
+          snackbar.center = true;
+        }
+        if (!snackbar.top && !snackbar.bottom) {
+          snackbar.top = true;
+        }
+
         this.snackbar = snackbar;
 
         if (this.snackbar.timeout == null) {
@@ -3624,7 +3647,7 @@ export default {
             return self.hubSession.promiseUpdateAnalysis(self.analysis)
           })
           .then(function(analysis) {
-            self.onShowSnackbar( {message: 'Analysis  \'' + self.analysis.title + '\'  saved.', timeout: 3000});
+            self.onShowSnackbar( {message: 'Analysis  \'' + self.analysis.title + '\'  saved.', timeout: 2000, bottom: true, left: true});
             self.analysis = analysis;
             resolve();
           })

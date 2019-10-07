@@ -128,8 +128,10 @@ export default {
           searchTerm = self.phenotypeTermEntered;
         }
         if (searchTerm) {
-          let runningMsg = "Running Phenolyzer to get genes associated with <br>'" + searchTerm + "'.<br><br>" + self.phenolyzerLink;
-          self.$emit('show-snackbar', { message: runningMsg, timeout: 10000 });
+          let runningMsg = "Running Phenolyzer to get genes associated with '" + searchTerm + "'.  " + self.phenolyzerLink;
+          self.$emit('show-snackbar', { message: runningMsg,
+                                        timeout: 10000,
+                                        close:true });
           self.$emit("on-start-search-genes");
 
           self.geneModel.searchPhenolyzerGenes(searchTerm, self.phenolyzerTop,
@@ -141,7 +143,9 @@ export default {
                 self.genesToApply = "";
                 if (self.isNav) {
                   self.$emit('show-snackbar',
-                    { message: "No genes found for <br><br>'" + data.phenotypeTerm + "'", timeout: 4000 });
+                    { message: "No genes found for '" + data.phenotypeTerm + "'",
+                      timeout: 4000,
+                      close: true });
                 }
               } else {
                 var geneCount = data.genes.filter(function(gene) {
