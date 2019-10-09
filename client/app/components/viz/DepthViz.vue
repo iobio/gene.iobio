@@ -53,7 +53,7 @@
 
   .region
     stroke-width: 1px
-    stroke: $coverage-problem-region-color
+    stroke: $coverage-problem-region-border-color
     fill: $coverage-problem-region-color
 
   .threshold
@@ -86,6 +86,12 @@ export default {
         type: Array,
         default: function() {
           return [[]];
+        }
+      },
+      model: {
+        type: Object,
+        default: function() {
+          return null;
         }
       },
       coverageDangerRegions: {

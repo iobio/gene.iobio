@@ -291,7 +291,7 @@ main.content.clin, main.v-content.clin
           @gene-region-buffer-change="onGeneRegionBufferChange">
         </gene-variants-card>
 
-        <variant-card
+        <variant-all-card
         ref="variantCardProbandRef"
         v-if="probandModel"
         v-bind:class="[
@@ -321,6 +321,7 @@ main.content.clin, main.v-content.clin
         :showVariantViz="true"
         :geneVizShowXAxis="true"
         :blacklistedGeneSelected="blacklistedGeneSelected"
+        :otherModels="nonProbandModels"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-outside-click="onCohortVariantOutsideClick"
         @cohort-variant-hover="onCohortVariantHover"
@@ -334,7 +335,7 @@ main.content.clin, main.v-content.clin
         @show-coverage-cutoffs="showCoverageCutoffs = true;showFilters = true"
         @show-pileup-for-variant="onShowPileupForVariant"
         >
-        </variant-card>
+        </variant-all-card>
 
 
         <div style="display:flex">
@@ -559,10 +560,11 @@ import VariantInspectCard from  '../viz/VariantInspectCard.vue'
 import VariantAssessment  from  "../partials/VariantAssessment.vue"
 
 import GenesCard          from  '../viz/GenesCard.vue'
-import FilterCard          from '../viz/FilterCard.vue'
+import FilterCard         from '../viz/FilterCard.vue'
 import GeneVariantsCard   from  '../viz/GeneVariantsCard.vue'
 import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
 import VariantCard        from  '../viz/VariantCard.vue'
+import VariantAllCard     from  '../viz/VariantAllCard.vue'
 import AppTour            from  '../viz/AppTour.vue'
 
 import HubSession         from  '../../models/HubSession.js'
@@ -618,7 +620,8 @@ export default {
       pileup: VuePileup,
       FilterCard,
       OptionalTracksCard,
-      VariantAssessment
+      VariantAssessment,
+      VariantAllCard
   },
   props: {
     paramGene:             null,

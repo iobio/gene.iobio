@@ -86,6 +86,12 @@ export default {
         default: 'vep',
         type: String
       },
+      model: {
+        type: Object,
+        default: function() {
+          return null;
+        }
+      },
       regionStart: {
         default: 0,
         type: Number
