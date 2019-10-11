@@ -155,11 +155,11 @@ html {
 
 .menuable__content__active {
   background-color: white;
-  z-index: 204 !important;
+  z-index: 206 !important;
 }
 
 .menu__content--select.menuable__content__active {
-  z-index: 204 !important;
+  z-index: 208 !important;
 }
 
 .dropdown.open .dropdown-menu {

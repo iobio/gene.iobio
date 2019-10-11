@@ -30,6 +30,8 @@
   .btn__content
     color: $text-color
     padding: 0px
+    text-align: left
+    line-height: 15px
 
 #select-transcript-viz
 

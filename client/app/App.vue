@@ -31,6 +31,14 @@ button
     font-size: 12px
     height: 20px
 
+.chip--select-multi
+  background-color:  #efeeee
+  .chip__content
+    color: $text-color
+    background-color:  #efeeee
+    font-size: 12px
+    height: 20px
+
 .progress-linear__background.primary
   background-color: $app-gray !important
 .progress-linear__bar__indeterminate--active

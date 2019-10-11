@@ -130,7 +130,7 @@
     padding-bottom: 5px
     font-size: 16px
     padding-top: 0px
-    width: 174px
+    width: 160px
     display: flex
     justify-content: flex-start
 

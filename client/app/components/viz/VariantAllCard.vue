@@ -10,15 +10,15 @@
   margin-top: -15px
 
 #variant-card.proband
-  padding-top: 0px
-  margin-top: -3px
+  padding-top: 6px
+
 
 #variant-card
   #sample-label
     vertical-align: top
     display: inline-block
-    min-width: 180px
-    max-width: 180px
+    min-width: 160px
+    max-width: 160px
     padding-top: 2px
     color: $app-color
     font-size: 16px
@@ -30,6 +30,8 @@
     padding-top: 5px
     line-height: 13px
     white-space: normal
+    font-size: 13px !important
+    color: $text-color !important
 
   #variant-pileup-button
     position: absolute
@@ -65,32 +67,6 @@
     fill: $coverage-problem-glyph-color
 
 
-  #ranked-variants-menu
-    vertical-align: top
-    margin-top: 0px
-    margin-left: -3px
-
-    #ranked-variants-menu-button
-      margin-top: -2px !important
-      margin-bottom: 0px
-      padding-top: 0px
-      padding-left: 0px
-      padding-right: 0px
-      margin-left: 0px
-      min-width: 22px
-      margin-right: 0px !important
-
-      .btn__content
-        font-size: 15px
-        padding-left: 5px
-        padding-right: 5px
-
-        .material-icons
-          font-size: 22px
-          padding-right: 3px
-
-
-
   #gene-viz, #gene-viz-zoom
     .transcript.current
       outline: none !important
@@ -121,7 +97,8 @@
 
 
   .chart-label
-    font-size: 11px
+    font-size: 12px
+    color: $app-color
 
 
   #gene-viz-zoom
@@ -287,6 +264,13 @@
       .axis.x
         path.domain
           opacity: .5
+
+    #loaded-variant-viz-known-variants
+      .axis.x
+        path.domain
+          opacity: 1 !important
+          stroke: #a9a9a9 !important
+
     #depth-viz
       min-height: 0px !important
       .circle
@@ -308,7 +292,8 @@
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
-        {{ sampleRelLabel }}
+        <span style="display:inline-block"> {{ sampleRelLabel }} </span>
+
         <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
@@ -322,29 +307,46 @@
           @ranked-variant-hover-end="onRankedVariantHoverEnd"
         >
         </ranked-variants-menu>
-      </span>
 
-      <span id="sample-identifier" v-if="sampleModel && sampleModel.relationship != '' && sampleModel.relationship != 'known-variants'"
-       >
-        {{ sampleLabel }}
+
       </span>
 
 
-      <v-badge  id="loaded-count"
-      v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="mr-4 mt-1 loaded" >
-        <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
-        {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Variants' }}
-      </v-badge>
-      <v-badge id="called-count"
-        v-if="sampleModel.relationship != 'known-variants' && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
-        class="mr-4 mt-1 called">
-        <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
-        Called
-      </v-badge>
-      <v-badge  v-if="sampleModel.loadedVariants && coverageDangerRegions.length > 0 && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-4 mr-4 mt-1 coverage-problem" >
-        <span slot="badge"> {{ coverageDangerRegions.length }} </span>
-        Exons with insufficient coverage
-      </v-badge>
+        <optional-tracks-menu
+            @show-known-variants-card="onShowKnownVariantsCard"
+            @show-sfari-variants-card="onShowSfariVariantsCard"
+            @show-mother-card="onShowMotherCard"
+            @show-father-card="onShowFatherCard"
+            @optional-track-close="onOptionalTrackClose"
+            @known-variants-viz-change="onKnownVariantsVizChange"
+            @known-variants-filter-change="onKnownVariantsFilterChange"
+            @sfari-variants-viz-change="onSfariVariantsVizChange"
+            @sfari-variants-filter-change="onSfariVariantsFilterChange"
+        ></optional-tracks-menu>
+
+
+
+
+
+        <v-badge  id="loaded-count"
+        v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="mr-4 mt-1 loaded" >
+          <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
+          {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Variants' }}
+        </v-badge>
+        <v-badge id="called-count"
+          v-if="sampleModel.relationship != 'known-variants' && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
+          class="mr-4 mt-1 called">
+          <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
+          Called
+        </v-badge>
+        <v-badge  v-if="sampleModel.loadedVariants && coverageDangerRegions.length > 0 && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-4 mr-4 mt-1 coverage-problem" >
+          <span slot="badge"> {{ coverageDangerRegions.length }} </span>
+          Exons with insufficient coverage
+        </v-badge>
+
+
+
+
 
       <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="zoom-switch mt-1" style="max-width:80px"
       label="Zoom"
@@ -365,12 +367,6 @@
       </v-btn>
 
 
-      <known-variants-toolbar
-        v-if="sampleModel.relationship === 'known-variants'"
-        @knownVariantsVizChange="onKnownVariantsVizChange"
-        @knownVariantsFilterChange="onKnownVariantsFilterChange"
-      >
-      </known-variants-toolbar>
 
       <sfari-variants-toolbar
         v-if="sampleModel.relationship === 'sfari-variants'"
@@ -381,19 +377,7 @@
     </div>
 
 
-    <stacked-bar-chart-viz
-        id="known-variants-chart"
-        style="width:100%"
-        v-if="sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants'"
-        :data="sampleModel.variantHistoData"
-        :width="width"
-        :xStart="selectedGene.start"
-        :xEnd="selectedGene.end"
-        :regionStart="regionStart"
-        :regionEnd="regionEnd"
-        :categories="['unknown', 'other', 'benign', 'path']"
-      >
-      </stacked-bar-chart-viz>
+
 
 
       <div style="width:100%">
@@ -466,7 +450,7 @@
         <div class="chart-label"
         v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
-          Proband variants
+          Proband variants ({{ sampleLabel }})
         </div>
 
         <div v-if="(sampleModel.relationship === 'sfari-variants' || sampleModel.isSfariSample) && blacklistedGeneSelected"
@@ -507,7 +491,7 @@
         <div class="chart-label"
         v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
-          coverage
+          Proband coverage
         </div>
 
         <div id="bam-track">
@@ -552,12 +536,16 @@
           >
         </gene-viz>
 
-        <div class="other-samples" style="margin-top:-10px" v-for="model in otherModels" :key="model.relationship">
+
+
+        <div class="other-samples" style="margin-top:0px" v-for="model in otherModels" :key="model.relationship">
           <div>
             <span class="chart-label"> {{ getSampleRelLabelOther(model) }}</span>
           </div>
           <variant-viz
             :id="`loaded-variant-viz-` + model.relationship"
+            v-bind:class="{hide: (model.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
+          (model.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
             style="margin-top:-5px"
             ref="otherVariantVizRef"
             :model="model"
@@ -577,6 +565,20 @@
             @variantHover="onVariantHoverOther"
             @variantHoverEnd="onVariantHoverEnd">
           </variant-viz>
+
+          <stacked-bar-chart-viz
+            id="known-variants-chart"
+            style="width:100%"
+            v-if="model.relationship === 'known-variants' && knownVariantsViz !== 'variants'"
+            :data="model.variantHistoData"
+            :width="width"
+            :xStart="selectedGene.start"
+            :xEnd="selectedGene.end"
+            :regionStart="regionStart"
+            :regionEnd="regionEnd"
+            :categories="['unknown', 'other', 'benign', 'path']"
+          >
+          </stacked-bar-chart-viz>
           <depth-viz
             v-if="showDepthViz && !(model.isSfariSample && blacklistedGeneSelected)"
             ref="otherDepthVizRef"
@@ -621,7 +623,7 @@ import RankedVariantsMenu   from "../viz/RankedVariantsMenu.vue"
 import StackedBarChartViz   from "../viz/StackedBarChartViz.vue"
 import KnownVariantsToolbar from "../partials/KnownVariantsToolbar.vue"
 import SfariVariantsToolbar from "../partials/SfariVariantsToolbar.vue"
-
+import OptionalTracksMenu   from "../partials/OptionalTracksMenu.vue"
 
 export default {
   name: 'variant-all-card',
@@ -632,7 +634,8 @@ export default {
     RankedVariantsMenu,
     KnownVariantsToolbar,
     SfariVariantsToolbar,
-    StackedBarChartViz
+    StackedBarChartViz,
+    OptionalTracksMenu
   },
   props: {
     globalAppProp: null,  //For some reason, global mixin not working on variant card.  possible cause for-item?
@@ -662,7 +665,8 @@ export default {
 
     featureMatrixModel: null,
 
-    blacklistedGeneSelected: false  // True if selected gene falls in SFARI ACMG blacklist
+    blacklistedGeneSelected: false,  // True if selected gene falls in SFARI ACMG blacklist
+
   },
 
 
@@ -729,6 +733,7 @@ export default {
       showRankedVariantsMenu: false,
 
       pileupStyle: {}
+
 
     }
   },
@@ -863,6 +868,10 @@ export default {
     },
     showVariantTooltipOther: function(variant, lock) {
       let self = this;
+      if (self.$refs.otherVariantVizRef == null) {
+        return;
+      }
+
       self.$refs.otherVariantVizRef.forEach(function(vizRef) {
         if (vizRef.model.relationship === 'known-variants'
           || vizRef.model.relationship === 'sfari-variants') {
@@ -931,6 +940,10 @@ export default {
     },
     showVariantCircleOther: function(variant, lock) {
       let self = this;
+      if (self.$refs.otherVariantVizRef == null) {
+        return;
+      }
+
       self.$refs.otherVariantVizRef.forEach(function(vizRef) {
         let matchingVariant = vizRef.showVariantCircle(
                                       variant,
@@ -961,6 +974,10 @@ export default {
     },
     hideVariantCircleOther: function(variant, lock) {
       let self = this;
+
+      if (self.$refs.otherVariantVizRef == null) {
+        return;
+      }
 
       self.$refs.otherVariantVizRef.forEach(function(vizRef) {
         let container = d3.select(self.$el).select('#loaded-variant-viz-'
@@ -1000,6 +1017,9 @@ export default {
     },
     hideCoverageCircleOther: function() {
       let self = this;
+      if (self.$refs.otherDepthVizRef == null) {
+        return;
+      }
       self.$refs.otherDepthVizRef.forEach(function(depthVizRef) {
         depthVizRef.hideCurrentPoint();
       })
@@ -1038,6 +1058,9 @@ export default {
     },
     showCoverageCircleOther(variant) {
       let self = this;
+      if (self.$refs.otherDepthVizRef == null) {
+        return;
+      }
       self.$refs.otherDepthVizRef.forEach(function(depthVizRef) {
 
         if (depthVizRef.model.coverage != null && depthVizRef.model.coverage.length > 0) {
@@ -1082,6 +1105,26 @@ export default {
     onSfariVariantsFilterChange: function(selectedCategories) {
         this.$emit("sfari-variants-filter-change", selectedCategories);
     },
+    onOptionalTrackClose: function() {
+      this.$emit("optional-track-close");
+    },
+    onShowMotherCard: function(showIt) {
+      let self = this;
+      self.$emit("show-mother-card", showIt);
+    },
+    onShowFatherCard: function(showIt) {
+      let self = this;
+      self.$emit("show-father-card", showIt);
+    },
+    onShowKnownVariantsCard: function(showIt) {
+      let self = this;
+      self.$emit("show-known-variants-card", showIt);
+    },
+    onShowSfariVariantsCard: function(showIt) {
+      let self = this;
+      self.$emit("show-sfari-variants-card", showIt);
+    },
+
     showFlaggedVariant: function(variant) {
       if (this.showVariantViz) {
         this.getVariantViz(variant).showFlaggedVariant(variant, this.getVariantSVG(variant));
@@ -1196,6 +1239,7 @@ export default {
         if (model.cohort.mode === 'trio' &&  model.relationship !== 'known-variants'
             && model.relationship !== 'sfari-variants' && model.relationship !== model.name) {
           label = self.globalApp.utility.capitalizeFirstLetter(model.relationship) + " ";
+          label += "(" + model.name + ")";
         }
       }
       return label;
@@ -1211,7 +1255,7 @@ export default {
     sampleRelLabel: function() {
       var label = "";
       if (this.sampleModel.relationship == 'proband') {
-        label = ""
+        label = "Variants"
       } else if (this.sampleModel.isAlignmentsOnly()) {
         label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);
         label += " Proband Variants in " + this.selectedGene.gene_name;

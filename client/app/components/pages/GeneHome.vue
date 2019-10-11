@@ -326,6 +326,11 @@ main.content.clin, main.v-content.clin
         @cohort-variant-outside-click="onCohortVariantOutsideClick"
         @cohort-variant-hover="onCohortVariantHover"
         @cohort-variant-hover-end="onCohortVariantHoverEnd"
+        @show-known-variants-card="onShowKnownVariantsCard"
+        @show-sfari-variants-card="onShowSfariVariantsCard"
+        @optional-track-close="onOptionalTrackClose"
+        @show-mother-card="onShowMotherCard"
+        @show-father-card="onShowFatherCard"
         @known-variants-viz-change="onKnownVariantsVizChange"
         @known-variants-filter-change="onKnownVariantsFilterChange"
         @sfari-variants-viz-change="onSfariVariantsVizChange"
@@ -415,6 +420,7 @@ main.content.clin, main.v-content.clin
           <img src="../../../assets/images/wheel.gif">
         </v-card>
 
+<!--
         <optional-tracks-card
           v-if="cohortModel && cohortModel.isLoaded && probandModel"
           :cohortModel="cohortModel"
@@ -476,7 +482,7 @@ main.content.clin, main.v-content.clin
         >
         </variant-card>
 
-
+-->
 
         <v-snackbar
           :timeout="snackbar.timeout"
@@ -737,8 +743,8 @@ export default {
 
       showKnownVariantsCard: false,
       showSfariVariantsCard: false,
-      showMotherCard: true,
-      showFatherCard: true,
+      showMotherCard: false,
+      showFatherCard: false,
 
       inProgress: {},
 
@@ -789,6 +795,8 @@ export default {
       phenotypeLookupUrl: null,
 
       showVariantAssessment: false,
+
+      nonProbandModels: [],
 
       pileupInfo: {
         // This controls how many base pairs are displayed on either side of
@@ -881,27 +889,6 @@ export default {
       } else {
         return null;
       }
-    },
-    nonProbandModels: function() {
-      let self = this;
-      let theModels = [];
-      if (this.models && this.models.length > 0) {
-        theModels = self.models.filter(function(model) {
-          let keepIt =  model.relationship != 'proband';
-          let showIt = false;
-          if (model.relationship == 'father' && self.showFatherCard) {
-            showIt = true;
-          } else if (model.relationship == 'mother' && self.showMotherCard) {
-            showIt = true;
-          } else if (model.relationship == 'known-variants' && self.showKnownVariantsCard) {
-            showIt = true;
-          } else if (model.relationship == 'sfari-variants' && self.showSfariVariantsCard) {
-            showIt = true;
-          }
-          return keepIt && showIt;
-        })
-      }
-      return theModels;
     },
     probandModel: function() {
       let self = this;
@@ -2588,6 +2575,7 @@ export default {
     onShowKnownVariantsCard: function(showIt) {
       let self = this;
       self.showKnownVariantsCard = showIt;
+      self.setNonProbandModels();
       if (self.showKnownVariantsCard) {
         self.onKnownVariantsVizChange();
       }
@@ -2595,23 +2583,24 @@ export default {
     onShowSfariVariantsCard: function(showIt) {
         let self = this;
         self.showSfariVariantsCard = showIt;
+        self.setNonProbandModels();
         if (self.showSfariVariantsCard) {
             self.onSfariVariantsVizChange();
         }
     },
+    onOptionalTrackClose: function(showIt) {
+      this.promiseLoadGene(this.selectedGene.gene_name);
+    },
     onShowMotherCard: function(showIt) {
       let self = this;
       self.showMotherCard = showIt;
-      if (self.showMotherCard) {
-        self.promiseLoadGene(self.selectedGene.gene_name);
-      }
+      self.setNonProbandModels();
+
     },
     onShowFatherCard: function(showIt) {
       let self = this;
       self.showFatherCard = showIt;
-      if (self.showFatherCard) {
-        self.promiseLoadGene(self.selectedGene.gene_name);
-      }
+      self.setNonProbandModels();
     },
     onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
       this.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
@@ -3312,6 +3301,29 @@ export default {
 
       })
     },
+
+    setNonProbandModels: function() {
+      let self = this;
+      self.nonProbandModels = [];
+      if (this.models && this.models.length > 0) {
+        self.nonProbandModels = self.models.filter(function(model) {
+          let keepIt =  model.relationship != 'proband';
+          let showIt = false;
+          if (model.relationship == 'father' && self.showFatherCard) {
+            showIt = true;
+          } else if (model.relationship == 'mother' && self.showMotherCard) {
+            showIt = true;
+          } else if (model.relationship == 'known-variants' && self.showKnownVariantsCard) {
+            showIt = true;
+          } else if (model.relationship == 'sfari-variants' && self.showSfariVariantsCard) {
+            showIt = true;
+          }
+          return keepIt && showIt;
+        })
+      }
+
+    },
+
 
 
     promiseShowClin: function() {

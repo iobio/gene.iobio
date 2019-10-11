@@ -96,10 +96,10 @@
 <template>
     <div id="known-variants-toolbar">
       <div style="width:295px;float:left;padding-top:5px;margin-top:0px;margin-right:10px">
-        <v-radio-group v-model="viz" row>
-            <v-radio label="Variants" value="variants"></v-radio>
-            <v-radio label="Counts" value="histo"></v-radio>
-            <v-radio style="min-width: 125px" label="Counts in Exons" value="histoExon"></v-radio>
+        <v-radio-group v-model="viz" row style="height:30px">
+            <v-radio label="Variants" :hide-details="true" value="variants"></v-radio>
+            <v-radio label="Counts" :hide-details="true" value="histo"></v-radio>
+            <v-radio style="min-width: 125px" :hide-details="true" label="Counts in Exons" value="histoExon"></v-radio>
         </v-radio-group>
       </div>
 

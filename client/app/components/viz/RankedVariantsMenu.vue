@@ -71,28 +71,27 @@
 
 #ranked-variants-menu
   vertical-align: top
-  margin-top: 2px
 
 
   #ranked-variants-menu-button
-    margin-top: 2px !important
+    margin: 0px 0px 5px 0px
+    font-size: 13px
+    height: 20px
+    max-width: 24px
+    min-width: 24px
     margin-bottom: 0px
-    padding-top: 0px
-    padding-left: 0px
-    padding-right: 0px
-    margin-left: 0px !important
-    height: 22px !important
+    margin-top: -6px
 
     .btn__content, .v-btn__content
-      font-size: 13px !important
+      color:  $app-color
       padding-left: 5px
       padding-right: 5px
-      color:  $text-color
 
-      .material-icons
-        font-size: 18px
+
+      i.material-icons
+        color: $app-color
+        font-size: 20px
         padding-right: 3px
-        color: $text-color
 
 </style>
 
@@ -111,7 +110,8 @@
         <v-btn id="ranked-variants-menu-button"
          flat
          slot="activator">
-          <v-icon >list</v-icon>
+          <v-icon >format_list_numbered</v-icon>
+
         </v-btn>
 
         <div style="width:420px">

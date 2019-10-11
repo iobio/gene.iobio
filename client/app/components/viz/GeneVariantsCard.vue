@@ -32,8 +32,8 @@
   padding-left: 10px
   padding-top: 5px
   padding-right: 10px
-  margin-bottom: 0px
-  padding-bottom: 0px
+  margin-bottom: 7px
+
 
   .gene-info
     display: flex
@@ -53,7 +53,7 @@
     display: flex
     padding-left: 0px
     margin-left: 0px
-    width: 174px
+    width: 143px
     justify-content: flex-start
     padding-top: 5px
     padding-bottom: 5px
@@ -111,7 +111,7 @@
     <div  v-if="selectedGene" class="gene-info text-xs-left">
 
      <div id="gene-variants-heading">
-        Variants in
+        Gene
 
         <span id="gene-name"> {{ selectedGene.gene_name}} </span>
 
@@ -121,8 +121,21 @@
         </gene-links-menu>
 
 
+
      </div>
 
+        <div style="display:inline-block;margin-left: 20px">
+          <transcripts-menu
+            v-if="selectedTranscript && selectedTranscript.transcript_id"
+            :selectedGene="selectedGene"
+            :selectedTranscript="selectedTranscript"
+            :geneSources="geneSources"
+            :geneModel="cohortModel.geneModel"
+            @transcriptMenuOpened="onClickTranscript"
+            @transcriptSelected="onTranscriptSelected"
+            @gene-source-selected="onGeneSourceSelected">
+          </transcripts-menu>
+        </div>
 
 
 
@@ -148,18 +161,6 @@
 
 
 
-      <div style="display:inline-block;margin-left: 20px">
-        <transcripts-menu
-          v-if="selectedTranscript && selectedTranscript.transcript_id"
-          :selectedGene="selectedGene"
-          :selectedTranscript="selectedTranscript"
-          :geneSources="geneSources"
-          :geneModel="cohortModel.geneModel"
-          @transcriptMenuOpened="onClickTranscript"
-          @transcriptSelected="onTranscriptSelected"
-          @gene-source-selected="onGeneSourceSelected">
-        </transcripts-menu>
-      </div>
 
 
 
