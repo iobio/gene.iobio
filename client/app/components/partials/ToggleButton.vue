@@ -4,6 +4,9 @@
 #toggle-button-container
   display: flex
 
+  #toggle-button
+    padding: 1px
+
   #toggle-button-label
     padding-right: 4px
     font-size: 12px

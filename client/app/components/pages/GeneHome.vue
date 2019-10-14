@@ -8,22 +8,28 @@
 
 
 
-main.content, main.v-content
-  margin-top: 52px
-
 .analysis-save-button
   right: 30px !important
   bottom: 30px !important
 
+main.content, main.v-content
+  margin-top: 52px
+
+
   .variant-assessment-heading
     color: $app-color
-    padding-bottom: 20px
+    margin-bottom: 20px
     font-size: 16px
     padding-top: 5px
-    width: 174px
     display: flex
-    justify-content: flex-start
+    justify-content: space-between
 
+
+  #variant-assessment-close-button
+    max-width: 20px
+    min-width: 20px
+    max-height: 20px
+    margin: 0px
 
   #gene-card-container
     margin-top: 10px
@@ -363,7 +369,7 @@ main.content.clin, main.v-content.clin
           :showGenePhenotypes="launchedFromClin || phenotypeTerm"
           :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
           :user="user"
-          :showAssessment="hasVariantAssessment"
+          :showAssessment="hasVariantAssessment || showVariantAssessment"
           @show-pileup-for-variant="onShowPileupForVariant"
           @apply-variant-interpretation="onApplyVariantInterpretation"
           @apply-variant-notes="onApplyVariantNotes"
@@ -374,8 +380,13 @@ main.content.clin, main.v-content.clin
 
           <v-card class="app-card"
             v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && selectedVariant && (hasVariantAssessment || showVariantAssessment)"
-            style="max-height:481px;overflow-y:scroll;max-width:280px;margin-left:5px">
-            <div class="variant-assessment-heading">Variant Comments</div>
+            style="max-height:481px;overflow-y:scroll;max-width:240px;margin-left:5px">
+            <div class="variant-assessment-heading">
+              Variant Comments
+              <v-btn  id="variant-assessment-close-button" class="toolbar-button" flat @click="showVariantAssessment = false">
+                <v-icon >close</v-icon>
+              </v-btn>
+            </div>
             <variant-assessment
               :variant="selectedVariant"
               :variantInterpretation="selectedVariant.interpretation"

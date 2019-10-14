@@ -83,13 +83,13 @@
     margin-top: -6px
 
     .btn__content, .v-btn__content
-      color:  $app-color
+      color: $link-color
       padding-left: 5px
       padding-right: 5px
 
 
       i.material-icons
-        color: $app-color
+        color: $link-color
         font-size: 20px
         padding-right: 3px
 

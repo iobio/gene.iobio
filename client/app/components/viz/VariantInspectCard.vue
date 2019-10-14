@@ -116,6 +116,8 @@
               outline: none !important
 
       #conservation-track
+        .conservation-score-label
+          font-size: 12px
         .gene-viz
           svg
             .transcript.current
@@ -266,7 +268,7 @@
 
       <v-spacer></v-spacer>
 
-      <div v-if="!showAssessment && !enterCommentsClicked " style="margin-left:10px;margin-right:10px">
+      <div v-if="!showAssessment" style="margin-left:10px;margin-right:10px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
           Comment
         </v-btn>
@@ -424,7 +426,7 @@
           </div>
       </div>
 
-      <div class="variant-inspect-column last" style="min-width:190px;max-width:400px"
+      <div class="variant-inspect-column last" style="min-width:130px;max-width:320px"
         v-if="selectedVariantRelationship != 'known-variants'"
         >
           <div class="variant-column-header" >
@@ -432,20 +434,27 @@
             <v-divider></v-divider>
           </div>
           <div id="conservation-track" style="display:flex;">
-            <div style="display:flex;flex-direction: column;min-width:190px;margin-right: 10px">
+            <div style="display:flex;flex-direction: column;max-width:130px;min-width:130px;margin-right: 10px">
 
               <variant-inspect-row
                 v-show="multiAlignModel && multiAlignModel.selectedScore && showConservation"
-                :clazz="getConservationClass(multiAlignModel.selectedScore)"
-                :value="getConservationScore(multiAlignModel.selectedScore)"   >
+                :clazz="getConservationClass(conservationExactScore)"
+                :value="getConservationScore(conservationExactScore)"   >
               </variant-inspect-row>
+
+              <div class="conservation-score-label"
+                v-if="conservationScores && conservationScores.length > 0">
+                phyloP scores
+              </div>
 
               <conservation-scores-viz class="conservation-scores-barchart exon"
                :data=conservationScores
                :options=conservationOptions
+               :exactScore=conservationExactScore
                :targetScore=conservationTargetScore
-               :width="190"
-               :height="70">
+               :margin="{top: 8, right: 2, bottom: 5, left: 4}"
+               :width="130"
+               :height="60">
               </conservation-scores-viz>
 
               <gene-viz id="conservation-gene-viz" class="gene-viz"
@@ -453,7 +462,6 @@
                 v-show="filteredTranscript && filteredTranscript.features && filteredTranscript.features.length > 0"
                 :data="[filteredTranscript]"
                 :margin="conservationGeneVizMargin"
-                :width="190"
                 :height="16"
                 :trackHeight="geneVizTrackHeight"
                 :cdsHeight="geneVizCdsHeight"
@@ -603,6 +611,7 @@ export default {
       conservationScores: null,
       conservationOptions: null,
       conservationTargetScore: null,
+      conservationExactScore: null,
 
       multialignSequences: null,
       multialignSelectedBase: null,
@@ -794,11 +803,11 @@ export default {
         return "";
       } else {
         if (score.y > 2) {
-          return 'Highly conserved ' + score.y
+          return 'Highly conserved ' + score.y;
         } else if (score.y > 0) {
-          return 'Moderately conserved ' + score.y
+          return 'Moderately conserved ' + score.y;
         } else {
-          return 'Not conserved ' + score.y ;
+          return 'Not conserved ' + score.y;
         }
       }
     },
@@ -1115,9 +1124,10 @@ export default {
       self.showConservation = false;
       self.hasConservationScores = false;
       self.hasConservationAligns = false;
+      self.conservationTargetScore = null;
+      self.conservationExactScore = null;
       self.conservationScores = null;
       self.conservationOptions = null;
-      self.conservationTargetScore = null;
       self.multialignSequences = null;
       self.multialignSelectedBase = null;
       self.multialignInProgress = true;
@@ -1130,9 +1140,10 @@ export default {
                                                   self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC))
       .then(function(data) {
         if (data) {
+          self.conservationExactScore  = data.selectedScore;
+          self.conservationTargetScore = data.targetScore;
           self.conservationScores      = data.scores;
           self.conservationOptions     = data.options;
-          self.conservationTargetScore = data.targetScore;
           self.hasConservationScores   = self.multiAlignModel.hasConservationScores(self.coverageRegionStart,
                                                                                     self.coverageRegionEnd,
                                                                                     self.selectedGene);
@@ -1148,8 +1159,8 @@ export default {
                                                   self.conservationSeqType)
       .then(function(data) {
         if (data) {
-          self.multialignSequences    = data.sequences;
           self.multialignSelectedBase = data.selectedBase;
+          self.multialignSequences    = data.sequences;
           self.hasConservationAligns  = data.sequences.length > 0;
           self.multialignInProgress = false;
         }

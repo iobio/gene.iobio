@@ -252,6 +252,11 @@
           stroke-width: .5px
 
   .other-samples
+    background-color: #dcdcdc42
+
+    .other-samples-header
+      background-color: white
+
     .ibo-variant
       .circle.pinned
         stroke: #868686 !important
@@ -268,7 +273,7 @@
     #loaded-variant-viz-known-variants
       .axis.x
         path.domain
-          opacity: 1 !important
+          opacity: .3 !important
           stroke: #a9a9a9 !important
 
     #depth-viz
@@ -450,7 +455,7 @@
         <div class="chart-label"
         v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
-          Proband variants ({{ sampleLabel }})
+          Proband variants  {{ sampleLabel }}
         </div>
 
         <div v-if="(sampleModel.relationship === 'sfari-variants' || sampleModel.isSfariSample) && blacklistedGeneSelected"
@@ -539,7 +544,7 @@
 
 
         <div class="other-samples" style="margin-top:0px" v-for="model in otherModels" :key="model.relationship">
-          <div>
+          <div class="other-samples-header">
             <span class="chart-label"> {{ getSampleRelLabelOther(model) }}</span>
           </div>
           <variant-viz
@@ -846,7 +851,7 @@ export default {
                      'y':                  y,
                      'height':             33,
                      'parentWidth':        self.$el.offsetWidth,
-                     'preferredPositions': [ {top:    ['center', 'right','left'  ]},
+                     'preferredPositions': [ {top:    ['right', 'left','center'  ]},
                                              {right:  ['middle', 'top',  'bottom']},
                                              {left:   ['middle', 'top',  'bottom']},
                                              {bottom: ['center', 'right','left'  ]} ] };
@@ -885,14 +890,14 @@ export default {
           }
 
 
-          var x = variant.screenX - 42;
+          var x = variant.screenX - 12;
           var y = variant.screenY - 2;
 
           var coord = {'x':                  x,
                        'y':                  y,
                        'height':             33,
                        'parentWidth':        self.$el.offsetWidth,
-                       'preferredPositions': [ {top:    ['center', 'right','left'  ]},
+                       'preferredPositions': [ {top:    ['right', 'left','center'  ]},
                                                {right:  ['middle', 'top',  'bottom']},
                                                {left:   ['middle', 'top',  'bottom']},
                                                {bottom: ['center', 'right','left'  ]} ] };
@@ -1239,7 +1244,7 @@ export default {
         if (model.cohort.mode === 'trio' &&  model.relationship !== 'known-variants'
             && model.relationship !== 'sfari-variants' && model.relationship !== model.name) {
           label = self.globalApp.utility.capitalizeFirstLetter(model.relationship) + " ";
-          label += "(" + model.name + ")";
+          label += "  " + model.name;
         }
       }
       return label;

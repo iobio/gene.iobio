@@ -23,7 +23,7 @@
   padding: 0px
   height: auto
   font-size: 13px
-  margin-top: 0px
+  margin-top: 15px
   margin-left: 2px
 
 
@@ -31,6 +31,8 @@
     padding: 0px
     margin: 0px
     color: $text-color !important
+    padding-left: 8px
+    padding-right: 10px
 
     .material-icons
       font-size: 22px
@@ -51,14 +53,14 @@
       <v-btn id="show-notes-button"
        v-if="sourceNotes == ''"
        small
-       flat
+       raised
        slot="activator"
       >
 
         <v-icon >
           add
         </v-icon>
-        New note...
+        Add note
       </v-btn>
 
 

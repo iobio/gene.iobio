@@ -67,6 +67,12 @@ export default {
           return {}
         }
       },
+      exactScore: {
+        type: Object,
+        default: function() {
+          return {}
+        }
+      },
       width: {
         type: Number,
         default: 130
@@ -123,23 +129,27 @@ export default {
       update: function() {
         var self = this;
         var container = d3.select(self.$el);
-        self.chart(container, self.data, self.options);
+
+        self.chart(container, self.data, self.exactScore, self.options);
+
+        setTimeout(function() {
+          self.setMarker();
+        },1000)
       },
       setChart: function() {
         this.$emit('update-chart', this.chart);
       },
       setMarker: function() {
-        if (this.targetScore) {
-          this.chart.setMarker()(this.targetScore);
+        if (this.targetScore && this.exactScore) {
+          this.chart.setMarker()(this.targetScore, this.exactScore);
+        } else {
+          this.chart.clearMarker()();
         }
       }
     },
     watch: {
       data: function() {
         this.update();
-      },
-      targetScore: function() {
-        this.setMarker()
       }
     }
 }

@@ -28,7 +28,7 @@
   padding: 0px
 
   .btn__content
-    color: $text-color
+    color: $link-color
     padding: 0px
     text-align: left
     line-height: 15px

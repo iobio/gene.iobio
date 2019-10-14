@@ -70,8 +70,9 @@ class MultiAlignModel {
             let scoreData = self.getConservationScores(self.scores[key],
                                                           'mean',
                                                           200,
-                                                          regionStart, regionEnd, selectedVariant.start);
+                                                          regionStart, regionEnd, selectedVariant);
             self.setSelectedScore(key, selectedVariant.start)
+            scoreData.selectedScore = self.selectedScore;
 
             resolve(scoreData);
 
@@ -86,8 +87,10 @@ class MultiAlignModel {
           let scoreData = self.getConservationScores(self.scores[key],
                                                         'mean',
                                                         200,
-                                                        regionStart, regionEnd, selectedVariant.start);
+                                                        regionStart, regionEnd, selectedVariant);
           self.setSelectedScore(key, selectedVariant.start)
+          scoreData.selectedScore = self.selectedScore;
+
           resolve(scoreData);
 
         }
@@ -331,11 +334,10 @@ class MultiAlignModel {
     }
 
 
-    getConservationScores(scoresAll, reducePointsType, pixels, start, end, position) {
+    getConservationScores(scoresAll, reducePointsType, pixels, start, end, selectedVariant) {
       let self = this;
 
       let options = {showYAxis: true, xScale: 'linear', showXAxis: false}
-
 
       let theScores = scoresAll;
       if (start && end) {
@@ -349,9 +351,9 @@ class MultiAlignModel {
 
 
       let targetScore = null;
-      if (position != null) {
+      if (selectedVariant.start != null) {
         let targetScores = scores.filter(function(score) {
-          if (position >= score.x && position <= score.xEnd) {
+          if (selectedVariant.start >= score.x && selectedVariant.start <= score.xEnd) {
             return true;
           } else {
             return false;

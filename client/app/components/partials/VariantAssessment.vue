@@ -47,7 +47,6 @@
     justify-content: flex-start
 
     .individual-note
-      border-bottom: solid 1px #e6e3e3
       padding-left: 0px
       padding-bottom: 20px
       font-size: 12px
@@ -107,7 +106,7 @@
       </variant-interpretation>
 
       <variant-notes-dialog
-        style="display:inline-block;; padding-top: 10px"
+        style="display:inline-block;margin-top: 15px"
         class="variant-notes"
         :sourceNotes="``"
         :sourceIndex="``"

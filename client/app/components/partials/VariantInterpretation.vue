@@ -15,6 +15,10 @@ i.material-icons.interpretation
   padding-left: 0px
 
 #select-interpretation
+  height: 26px
+  -webkit-box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
+  box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
+
   &.no-wrap
     .input-group__selections__comma
       width: initial
@@ -75,7 +79,7 @@ i.material-icons.interpretation
       background-color: $unknown-significance-color
 
   .input-group__input
-    min-height: 21px
+    min-height: 26px
 
   &.input-group--hide-details
     .input-group__details

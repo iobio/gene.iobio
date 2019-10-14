@@ -40,12 +40,12 @@ export default function BarchartD3() {
   }
 
 
-  var setMarker = function(d, label) {
-    var mousex = x(xValue(d));
-    var mousey = y(yValue(d))
+  var setMarker = function(targetElement, exactElement, label) {
+    var xPos = x(xValue(targetElement));
+    var yPos = y(yValue(exactElement ? exactElement : targetElement))
 
     container.select("g.marker")
-             .attr("transform", "translate(" + (+mousex) + "," + (mousey-2) + ")");
+             .attr("transform", "translate(" + (+xPos) + "," + (yPos) + ")");
     container.select("g.marker circle")
              .style("opacity", 1)
 
@@ -60,7 +60,14 @@ export default function BarchartD3() {
 
   }
 
-  function chart(theContainer, data, options) {
+  var clearMarker = function() {
+    container.select("g.marker circle")
+             .style("opacity", 0)
+    container.select("g.marker text")
+               .style("opacity", 0)
+  }
+
+  function chart(theContainer, data, elementToHighlight, options) {
     var me = this;
 
     options = $.extend(defaults, options)
@@ -86,7 +93,9 @@ export default function BarchartD3() {
     var barWidth = null;
     if (options.xScale == 'linear') {
       x = d3.scale.linear()
-            .domain(d3.extent(data, xValue))
+            .domain(d3.extent(data, function(d) {
+              return xValue(d);
+            }))
             .range([0, innerWidth]);
       barWidth = width / data.length;
     } else {
@@ -99,13 +108,14 @@ export default function BarchartD3() {
 
 
     var yMax = d3.max(data, function(d) {
-      return Math.abs(yValue(d));
+      return yValue(d);
     });
     var yMin = d3.min(data, yValue);
     if (yMin > 0) {
       yMin = 0;
-    } else {
-      yMax = Math.max(Math.abs(yMin), Math.abs(yMax))
+    }
+    if (elementToHighlight) {
+      yMax = Math.max(yMax, yValue(elementToHighlight))
     }
 
     y = d3.scale.linear()
@@ -115,6 +125,7 @@ export default function BarchartD3() {
 
 
     // Select the svg element, if it exists.
+    container.selectAll("svg").remove();
     var svg = container.selectAll("svg").data([0]);
 
     let g = svg.enter()
@@ -148,6 +159,8 @@ export default function BarchartD3() {
                     .scale(y)
                     .tickValues([yMin, 0, yMax])
                     .orient("right");
+
+      g.select(".y.axis").remove()
 
       g.append("g")
         .attr("class", "y axis")
@@ -261,6 +274,14 @@ export default function BarchartD3() {
   chart.setMarker = function(_) {
     if (!arguments.length) return setMarker;
     setMarker = _;
+    return chart;
+
+  }
+
+
+  chart.clearMarker = function(_) {
+    if (!arguments.length) return clearMarker;
+    clearMarker = _;
     return chart;
 
   }
