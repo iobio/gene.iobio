@@ -119,10 +119,16 @@ class GlobalApp {
   getGnomADUrl(build, chrom) {
 
     var gnomADSource = {
-      'GRCh37': 'http://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/exomes/gnomad.exomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
-      'GRCh38': 'ftp://ftp.ensembl.org/pub/data_files/homo_sapiens/GRCh38/variation_genotype/gnomad/r2.1/exomes/gnomad.exomes.r2.1.sites.grch38.chrCHROM-ALIAS_noVEP.vcf.gz'
+      genomes: {
+        'GRCh37': 'https://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/genomes/gnomad.genomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
+        'GRCh38': 'https://storage.googleapis.com/gnomad-public/release/3.0/vcf/genomes/gnomad.genomes.r3.0.sites.chrCHROM-ALIAS.vcf.bgz'
+      },
+      exomes: {
+        'GRCh37': 'http://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/exomes/gnomad.exomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
+        'GRCh38': 'ftp://ftp.ensembl.org/pub/data_files/homo_sapiens/GRCh38/variation_genotype/gnomad/r2.1/exomes/gnomad.exomes.r2.1.sites.grch38.chrCHROM-ALIAS_noVEP.vcf.gz'
+      }
     }
-    var theUrl = gnomADSource[build];
+    var theUrl = gnomADSource.genomes[build];
     theUrl = theUrl.replace(/CHROM-ALIAS/g, chrom);
     return theUrl;
   }
