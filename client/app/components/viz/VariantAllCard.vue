@@ -435,6 +435,7 @@
           v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
           (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.calledVariants"
+          :model="sampleModel"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
           :annotationScheme="annotationScheme"
@@ -477,6 +478,7 @@
            v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
             (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"
+          :model="sampleModel"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
           :annotationScheme="annotationScheme"
@@ -768,7 +770,7 @@ export default {
               .data([exon]);
       }
     },
-    onVariantClick: function(variant) {
+    onVariantClick: function(variant, model) {
       if (this.showDepthViz) {
         if (variant) {
           this.showCoverageCircle(variant);
@@ -785,9 +787,9 @@ export default {
         this.pileupStyle =  {display: 'flex', 'left': left + 'px', 'top': top + 'px'};
       }
 
-      this.$emit('cohort-variant-click', variant, this, this.sampleModel.relationship);
+      this.$emit('cohort-variant-click', variant, this, model.relationship);
     },
-    onVariantOutsideClick: function() {
+    onVariantOutsideClick: function(model) {
       if (this.showDepthViz) {
         this.hideCoverageCircle();
       }
@@ -796,7 +798,7 @@ export default {
         this.hideVariantTooltip(this);
       }
 
-      this.$emit('cohort-variant-outside-click', this, this.sampleModel.relationship);
+      this.$emit('cohort-variant-outside-click', this, model.relationship);
     },
     onVariantHover: function(variant, showTooltip=true) {
       if (this.showDepthViz) {
@@ -890,7 +892,7 @@ export default {
           }
 
 
-          var x = variant.screenX - 12;
+          var x = variant.screenX - 40;
           var y = variant.screenY - 2;
 
           var coord = {'x':                  x,

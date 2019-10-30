@@ -251,13 +251,15 @@
 
       </span>
 
-      <span v-if="info.HGVSpLoading && info.HGVScLoading" class="pl-4 loader vcfloader" >
+      <span v-if="info.HGVSpLoading && info.HGVScLoading"
+        v-show="selectedVariantRelationship != 'known-variants'" class="pl-4 loader vcfloader" >
         <img src="../../../assets/images/wheel.gif">
         HGVS...
       </span>
 
       <variant-aliases-menu
       v-show="!info.HGVSpLoading || !info.HGVScLoading"
+      v-if="selectedVariantInterpretation != 'known-variants'"
       class="pl-4"
       :label="hgvsLabel"
       :selectedGene="selectedGene"
@@ -268,7 +270,7 @@
 
       <v-spacer></v-spacer>
 
-      <div v-if="!showAssessment" style="margin-left:10px;margin-right:10px">
+      <div v-if="!showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:10px;margin-right:10px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
           Comment
         </v-btn>
@@ -392,7 +394,7 @@
             </div>
           </div>
       </div>
-      <div class="variant-inspect-column">
+      <div class="variant-inspect-column" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Frequency
             <v-divider></v-divider>
@@ -426,9 +428,7 @@
           </div>
       </div>
 
-      <div class="variant-inspect-column last" style="min-width:130px;max-width:320px"
-        v-if="selectedVariantRelationship != 'known-variants'"
-        >
+      <div class="variant-inspect-column last" style="min-width:130px;max-width:320px">
           <div class="variant-column-header" >
             Conservation
             <v-divider></v-divider>

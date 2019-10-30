@@ -181,16 +181,16 @@ export default {
           .on("d3rendered", function() {
           })
           .on('d3outsideclick', function() {
-            self.onVariantOutsideClick();
+            self.onVariantOutsideClick(self.model);
           })
           .on('d3click', function(variant) {
-            self.onVariantClick(variant);
+            self.onVariantClick(variant, self.model);
           })
           .on('d3mouseover', function(variant) {
-            self.onVariantHover(variant);
+            self.onVariantHover(variant, self.model);
           })
           .on('d3mouseout', function() {
-            self.onVariantHoverEnd();
+            self.onVariantHoverEnd(self.model);
           })
 
 
@@ -228,15 +228,15 @@ export default {
       },
       onVariantClick: function(variant) {
         let self = this;
-        self.$emit("variantClick", variant);
+        self.$emit("variantClick", variant, self.model);
       },
       onVariantHover: function(variant) {
         let self = this;
-        self.$emit("variantHover", variant);
+        self.$emit("variantHover", variant, self.model);
       },
       onVariantHoverEnd: function(variant) {
         let self = this;
-        self.$emit("variantHoverEnd", variant);
+        self.$emit("variantHoverEnd", variant, self.model);
       },
       showVariantCircle: function(variant, container, pinned) {
         if (variant == null) {
