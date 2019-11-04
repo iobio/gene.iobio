@@ -380,7 +380,7 @@ main.content.clin, main.v-content.clin
 
           <v-card class="app-card"
             v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && selectedVariant && (hasVariantAssessment || showVariantAssessment)"
-            style="max-height:481px;overflow-y:scroll;max-width:240px;margin-left:5px">
+            style="max-height:500px;overflow-y:scroll;max-width:240px;margin-left:5px">
             <div class="variant-assessment-heading">
               Variant Review
               <v-btn  id="variant-assessment-close-button" class="toolbar-button" flat @click="showVariantAssessment = false">
