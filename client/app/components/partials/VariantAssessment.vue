@@ -117,7 +117,7 @@
 
     </div>
     <div class="individual-notes-container">
-      <div class="individual-note" v-for="(note, noteIndex) in notes">
+      <div class="individual-note" v-for="(note, noteIndex) in notesReverseOrder">
 
         <variant-notes-dialog
           :v-if="note.showEditDialog"
@@ -224,6 +224,9 @@ export default {
       } else {
         return this.interpretationMap['not-reviewed'];
       }
+    },
+    notesReverseOrder: function() {
+      return this.notes ? this.notes.reverse() : [];
     }
   },
   methods: {
