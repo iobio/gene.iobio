@@ -50,7 +50,7 @@
     display: flex
     flex-direction: row
     flex-wrap: wrap
-    justify-content: flex-start
+    justify-content: space-around
     padding-top: 5px
 
     .variant-inspect-column
