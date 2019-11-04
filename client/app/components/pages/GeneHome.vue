@@ -382,7 +382,7 @@ main.content.clin, main.v-content.clin
             v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && selectedVariant && (hasVariantAssessment || showVariantAssessment)"
             style="max-height:481px;overflow-y:scroll;max-width:240px;margin-left:5px">
             <div class="variant-assessment-heading">
-              Variant Comments
+              Variant Review
               <v-btn  id="variant-assessment-close-button" class="toolbar-button" flat @click="showVariantAssessment = false">
                 <v-icon >close</v-icon>
               </v-btn>
@@ -919,7 +919,7 @@ export default {
       let self = this;
       if (self.selectedVariant) {
         if ((self.selectedVariant.interpretation && self.selectedVariant.interpretation != 'not-reviewed')
-            || (self.selectedVariant.notes && self.selectedVariant.notes != null && self.selectedVariants.notes.length > 0)) {
+            || (self.selectedVariant.notes && self.selectedVariant.notes != null && self.selectedVariant.notes.length > 0)) {
           return true;
         } else {
           return false;
@@ -2435,6 +2435,9 @@ export default {
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
 
+      if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+      }
 
     },
     onApplyVariantInterpretation: function(variant) {
@@ -2452,6 +2455,10 @@ export default {
 
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
+
+      if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+      }
     },
     onFlaggedVariantSelected: function(flaggedVariant, callback) {
       let self = this;

@@ -227,6 +227,12 @@
       line-height: 18px
       padding-bottom: 5px
 
+    .reviewed-variant-filter
+      font-size: 13px
+      margin-left: 10px
+      display: inline-block
+      vertical-align: bottom
+
     .variant-number
       margin-right: 0px
       margin-left: 0px
@@ -437,8 +443,14 @@
               <v-list-tile-content>
 
                 <v-list-tile-title>
+                  <variant-interpretation-badge
+                   v-if="geneList.label == 'Reviewed'"
+                   :interpretation="variant.interpretation"
+                   :interpretationMap="interpretationMap">
+                  </variant-interpretation-badge>
 
-                  <div style="float:left">
+
+                  <div style="">
 
 
                     <div class="variant-symbols">
@@ -479,6 +491,11 @@
                         <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
                           check_circle
                         </v-icon>
+
+                        <div class="reviewed-variant-filter"
+                          v-if="geneList.label == 'Reviewed'">
+                          {{ filterPassedByVariant(variant) }}
+                        </div>
 
 
                       </span>
@@ -583,13 +600,15 @@
 
 import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
+import VariantInterpretationBadge from '../partials/VariantInterpretationBadge.vue'
 
 
 export default {
   name: 'flagged-variants-card',
   components: {
     AppIcon,
-    FilterIcon
+    FilterIcon,
+    VariantInterpretationBadge
   },
   props: {
     isEduMode: null,
@@ -797,12 +816,17 @@ export default {
       }
       return buf;
     },
+    filterPassedByVariant: function(variant) {
+      return this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" "))
+    }
+
 
   },
   mounted: function() {
 
   },
   computed: {
+
 
   },
   watch: {

@@ -272,7 +272,7 @@
 
       <div v-if="!showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:10px;margin-right:10px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
-          Comment
+          Review
         </v-btn>
       </div>
 

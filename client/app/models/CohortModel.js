@@ -2505,18 +2505,22 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false}) {
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false, includeReviewed: true}) {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
         let flagCriteria = self.filterModel.flagCriteria[filterName];
         let include = true;
+
+        if (!options.includeReviewed && filterName == 'reviewed') {
+          include = false;
+        }
         if (isFullAnalysis && !options.includeNotCategorized && filterName == 'notCategorized') {
           include = false;
         }
         if (include) {
-          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters);
+          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options);
 
           if (sortedGenes.length > 0) {
             filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
@@ -2655,15 +2659,30 @@ class CohortModel {
   }
 
 
-  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters) {
+  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters, options) {
     let self = this;
     let geneMap        = {};
     let flaggedGenes   = [];
     if (this.flaggedVariants) {
       this.flaggedVariants.forEach(function(variant) {
-        if ((userFlagged && variant.isUserFlagged) ||
-            (filterName && variant.filtersPassed && variant.filtersPassed.indexOf(filterName) >= 0)) {
+        let isReviewed = (variant.notes && variant.notes.length > 0) ||
+            (variant.interpretation != null && (variant.interpretation == "sig" || variant.interpretation == "unknown-sig"));
+       
 
+        let matches = false;
+        if (filterName == 'reviewed' && isReviewed) {
+          matches = true;
+        } else if ((userFlagged && variant.isUserFlagged) ||
+          (filterName && variant.filtersPassed && variant.filtersPassed.indexOf(filterName) >= 0)) {
+          if (!isReviewed) {
+            matches = true;
+          }
+        }
+
+
+
+        if (matches) {
+        
           let keepVariant = interpretationFilters && interpretationFilters.length > 0 ? interpretationFilters.indexOf(variant.interpretation ? variant.interpretation : 'not-reviewed') >= 0 : true;
 
           let flaggedGene = geneMap[variant.gene.gene_name];
