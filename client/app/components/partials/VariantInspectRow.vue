@@ -11,7 +11,7 @@
 
       .variant-text
         line-height: 15px
-        max-width: 180px
+        max-width: 190px
 
       a
         color:  $link-color !important

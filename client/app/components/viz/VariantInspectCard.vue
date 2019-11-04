@@ -59,7 +59,7 @@
       padding: 5px
       padding-left: 0px
       min-width: 150px
-      max-width: 200px
+      max-width: 210px
       margin-bottom: 0px
       margin-right: 15px
       padding-top: 0px
@@ -399,7 +399,7 @@
             Frequency
             <v-divider></v-divider>
           </div>
-          <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`gnomAD`" :link="afGnomAD.link" >
+          <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`gnomAD (genomes)`" :link="afGnomAD.link" >
           </variant-inspect-row>
           <div v-if="afGnomAD.totalCount > 0" class="variant-row no-icon">
             <span>{{ afGnomAD.altCount }} out of {{ afGnomAD.totalCount }}</span>
