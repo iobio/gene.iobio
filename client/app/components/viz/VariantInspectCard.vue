@@ -175,7 +175,8 @@
   fill: none;
 }
 
-.pedigree-chart .half-circle  path {
+.pedigree-chart .half-circle  path,
+.pedigree-chart .half-diamond path {
   fill: none;
   stroke: black;
   stroke-width: 1px;
@@ -188,15 +189,16 @@
 
 .pedigree-chart .het,
 .pedigree-chart .hom,
-.pedigree-chart .half-circle  .het.path
- {
+.pedigree-chart .half-circle  path.het,
+.pedigree-chart .half-diamond path.het {
   fill: #c5c5c5 !important;
   stroke: black;
 }
 
 .pedigree-chart .het.critical.proband,
 .pedigree-chart .hom.critical.proband,
-.pedigree-chart .half-circle  .het.path.proband {
+.pedigree-chart .half-circle  path.het.proband,
+.pedigree-chart .half-diamond path.het.proband {
   fill: #ad151985 !important;
 }
 

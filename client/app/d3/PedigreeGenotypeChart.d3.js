@@ -21,10 +21,12 @@ export default function PedigreeGenotypeChartD3() {
 
   let createNode = function(parent) {
     let nodeData = parent.data()[0]
-    if (nodeData.sex == 'male') {
+    if (nodeData.sex == 'male' || nodeData.rel == 'father') {
       createRect(parent);
-    } else {
+    } else if (nodeData.sex == 'female' || nodeData.rel == "mother") {
       createCircle(parent)
+    } else {
+      createDiamond(parent)
     }
     if (nodeData.affectedStatus == 'affected') {
       parent.append("g")
@@ -119,6 +121,61 @@ export default function PedigreeGenotypeChartD3() {
     }
     return parent;
   }
+
+  let createDiamond = function(parent) {
+
+
+
+    let nodeData = parent.data()[0]
+    if (nodeData.zygosity == 'het') {
+
+      let halfWidth = (nodeWidth/3);
+      let diamondHeight = (nodeWidth/2) + (nodeWidth/4)
+      let grouping = parent.append("g")
+                           .attr("transform", "translate(" + ((halfWidth/2)+2) + "," + (halfWidth/2+2) + ")");
+      let left = grouping.append("g")
+                         .attr("class", "half-diamond left")
+                         .attr("transform", function(d,i) {
+                           return "translate(0," + (nodeWidth/2) + "),rotate(-90)"
+                         })
+      left.append("path")
+           .attr("d", "M0,-" + halfWidth + "L" + diamondHeight + "," + halfWidth + " -" + diamondHeight + "," + halfWidth + "Z");
+      left.append("path")
+           .attr("class",function(d,i) {
+              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance != 'none' ? ' critical' : '');
+            })
+           .attr("d", "M0,-" + halfWidth + "L" + diamondHeight + "," + halfWidth + " -" + diamondHeight + "," + halfWidth + "Z");
+
+      let right = grouping.append("g")
+           .attr("class", function(d,i) {
+             return "half-diamond right";
+           })
+           .attr("transform", function(d,i) {
+              return "translate(" + (halfWidth*2) + "," + (nodeWidth/2) + "), rotate(90)";
+           })
+        
+      right.append("path")
+            .attr("class",function(d,i) {
+              return nodeData.rel  + (nodeData.inheritance != 'none' ? ' critical' : '');
+            })
+            .attr("d", "M0,-" + halfWidth + "L" + diamondHeight + "," + halfWidth + " -" + diamondHeight + "," + halfWidth + "Z");
+
+    } else {
+       parent.append("rect")
+            .attr("class", function(d,i) {
+              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance != 'none' ? ' critical' : '');;
+            })
+            .attr("transform", "translate(" + (nodeWidth/2 + 2)  + "),rotate(45)")
+            .attr("width", nodeWidth)
+            .attr("height", nodeWidth)
+            .attr("x", 0)
+            .attr("y", 0)
+    }
+
+    return parent;
+
+  }
+
 
   function chart(theContainer, pedigreeData, options) {
     var me = this;

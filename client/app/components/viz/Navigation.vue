@@ -695,6 +695,7 @@ nav.toolbar, nav.v-toolbar
      :showDialog="showFiles"
      @on-files-loaded="onFilesLoaded"
      @load-demo-data="onLoadDemoData"
+     @on-cancel="showFiles = false"
     >
     </files-dialog>
 
@@ -1093,6 +1094,7 @@ export default {
       this.$emit("flagged-variants-imported")
     },
     onFilesLoaded: function(analyzeAll) {
+      this.showFiles = false;
       this.$emit("on-files-loaded", analyzeAll);
     },
     onGeneSelected: function(geneName) {

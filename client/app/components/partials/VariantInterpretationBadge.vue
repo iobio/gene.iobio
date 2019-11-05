@@ -21,7 +21,7 @@ i.material-icons.interpretation
   font-size: 13px
   color: white
   width: 175px
-  margin-bottom: 3px;
+  margin-bottom: 3px
 
   &.not-reviewed
     background-color: $not-reviewed-color

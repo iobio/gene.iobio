@@ -314,7 +314,9 @@ export default {
       })
     },
     onCancel:  function() {
-      this.showFilesDialog = false;
+      let self = this;
+      self.$emit("on-cancel");
+      self.showFilesDialog = false;
     },
     onModeChanged: function() {
       if (this.mode == 'trio' && this.cohortModel.getCanonicalModels().length < 3 ) {
@@ -449,6 +451,7 @@ export default {
         if (modelInfo == null) {
           modelInfo = {};
           modelInfo.relationship = model.relationship;
+          modelInfo.sex          = model.sex ? model.sex : null;
           modelInfo.vcf          = model.vcf ? model.vcf.getVcfURL() : null;
           modelInfo.tbi          = model.vcf ? model.vcf.getTbiURL() : null;
           modelInfo.bam          = model.bam ? model.bam.bamUri : null;
@@ -471,6 +474,7 @@ export default {
       return new Promise(function(resolve, reject) {
         var modelInfoMother = {};
         modelInfoMother.relationship = 'mother';
+        modelInfoMother.sex = "female";
         modelInfoMother.vcf = null;
         modelInfoMother.bam = null;
         modelInfoMother.affectedStatus = 'unaffected'
@@ -478,6 +482,7 @@ export default {
         .then(function() {
           var modelInfoFather = {};
           modelInfoFather.relationship = 'father';
+          modelInfoFather.sex = "male"
           modelInfoFather.vcf = null;
           modelInfoFather.bam = null;
           modelInfoFather.affectedStatus = 'unaffected'
