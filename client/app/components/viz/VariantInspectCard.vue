@@ -291,7 +291,7 @@
           </variant-inspect-quality-row>
 
 
-          <div id="qual-track" style="width:130px;margin-bottom:15px !important">
+          <div id="qual-track" style="width:130px;">
             <depth-viz
               v-if="cohortModel && hasAlignments"
               ref="depthVizRef"
@@ -342,6 +342,21 @@
           </div>
 
       </div>
+      <div class="variant-inspect-column " v-if="showGenePhenotypes" >
+          <div class="variant-column-header">
+            Gene Associations
+            <v-divider></v-divider>
+          </div>
+          <div v-if="geneHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
+            <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
+              <div>
+                <v-chip class="high">#{{ geneRank.rank }}</v-chip>
+                <span v-if="geneRank.source" class="pheno-source">{{ geneRank.source }}</span>
+                <span v-if="geneHit.searchTerm" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
+              </div>
+            </div>
+          </div>
+      </div>      
       <div class="variant-inspect-column">
           <div class="variant-column-header">
             Pathogenicity
@@ -370,21 +385,7 @@
           </variant-inspect-row>
       </div>
 
-      <div class="variant-inspect-column " v-if="showGenePhenotypes" >
-          <div class="variant-column-header">
-            Gene to Phenotype
-            <v-divider></v-divider>
-          </div>
-          <div v-if="geneHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
-            <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
-              <div>
-                <v-chip class="high">#{{ geneRank.rank }}</v-chip>
-                <span v-if="geneRank.source" class="pheno-source">{{ geneRank.source }}</span>
-                <span v-if="geneHit.searchTerm" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
-              </div>
-            </div>
-          </div>
-      </div>
+     
       <div class="variant-inspect-column" v-if="selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Frequency
@@ -427,7 +428,7 @@
               :relationship="selectedVariantRelationship">
             </variant-allele-counts-menu>
           </div>
-          
+
       </div>
 
       <div class="variant-inspect-column last" style="min-width:130px;max-width:320px">
