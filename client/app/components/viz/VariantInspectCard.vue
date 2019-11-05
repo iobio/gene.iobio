@@ -331,15 +331,6 @@
               >
             </gene-viz>
 
-            <div class="variant-row" style="padding-top:5px;">
-              <variant-allele-counts-menu
-                v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
-                :selectedVariant="selectedVariant"
-                :affectedInfo="cohortModel.affectedInfo"
-                :cohortModel="cohortModel.mode"
-                :relationship="selectedVariantRelationship">
-              </variant-allele-counts-menu>
-            </div>
             <div class="variant-row ">
               <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
               class="variant-action-button"  @click="onShowPileup">
@@ -426,6 +417,17 @@
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz>
           </div>
+
+          <div class="variant-row" style="padding-top:5px;">
+            <variant-allele-counts-menu
+              v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
+              :selectedVariant="selectedVariant"
+              :affectedInfo="cohortModel.affectedInfo"
+              :cohortModel="cohortModel.mode"
+              :relationship="selectedVariantRelationship">
+            </variant-allele-counts-menu>
+          </div>
+          
       </div>
 
       <div class="variant-inspect-column last" style="min-width:130px;max-width:320px">
