@@ -17,7 +17,7 @@ export default class VariantExporter {
       {field: 'isUserFlagged',    exportVcf: true},
       {field: 'filtersPassed',    exportVcf: true},
       {field: 'freebayesCalled',  exportVcf: true},
-      {field: 'notes',            exportVcf: false},
+      {field: 'notesFlattened',   exportVcf: false},
       {field: 'interpretation',   exportVcf: false},
       {field: 'type',             exportVcf: true},
       {field: 'impact',           exportVcf: true},
@@ -576,6 +576,7 @@ export default class VariantExporter {
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
     rec.filtersPassed     = variant.filtersPassed  && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
     rec.notes             = variant.notes && variant.notes.length > 0 ? variant.notes : "";
+    rec.notesFlattened    = info.notesFlattened;
     rec.interpretation    = variant.interpretation && variant.interpretation.length > 0 ? variant.interpretation : "not-reviewed";
     rec.inheritance       = info.inheritance ? this.cohort.translator.getInheritanceLabel(info.inheritance) : "";
     rec.impact            = info.vepImpact;

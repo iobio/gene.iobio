@@ -2422,6 +2422,15 @@ export default {
     onApplyVariantNotes: function(variant) {
       let self = this;
 
+      // If the variant isn't in the filtered variants list,
+      // mark it as 'user flagged'
+      if (self.cohortModel.getFlaggedVariant(variant) == null) {
+        self.cohortModel.addUserFlaggedVariant
+        variant.gene = this.selectedGene;
+        variant.transcript = this.selectedTranscript;
+        self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
+      }
+
       // Set the flagged variant notes and interpretation
       if (self.launchedFromClin) {
         self.sendFlaggedVariantToClin(variant);

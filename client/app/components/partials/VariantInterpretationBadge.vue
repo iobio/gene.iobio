@@ -20,7 +20,7 @@ i.material-icons.interpretation
   padding-right: 3px
   font-size: 13px
   color: white
-  width: 165px
+  width: 175px
   margin-bottom: 3px;
 
   &.not-reviewed

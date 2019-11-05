@@ -817,7 +817,12 @@ export default {
       return buf;
     },
     filterPassedByVariant: function(variant) {
-      return this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" "))
+      let filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" "))
+      if (filterDisplay == "UserFlagged") {
+        return "";
+      } else {
+        return filterDisplay;
+      }
     }
 
 
