@@ -106,13 +106,25 @@ class GlobalApp {
 
   }
 
-  getClinvarUrl(build) {
+  getClinvarUrl(build, launchedFromUtahMosaic) {
 
-      var clinvarUrls = {
-        'GRCh37': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/archive_2.0/2018/clinvar_20181202.vcf.gz",
-        'GRCh38': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2018/clinvar_20181202.vcf.gz",
-      };
-      return clinvarUrls[build];
+      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0) {
+        var clinvarUrls = {
+          'GRCh37': "https://mosaic.chpc.utah.edu/static/GRCh37/2019/clinvar_20191021.vcf.gz",
+          'GRCh38': "https://mosaic.chpc.utah.edu/static/GRCh38/2019/clinvar_20191021.vcf.gz"
+        }
+        return clinvarUrls[build];
+
+      } else {
+
+
+        var clinvarUrls = {
+          'GRCh37': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/archive_2.0/2018/clinvar_20181202.vcf.gz",
+          'GRCh38': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2018/clinvar_20181202.vcf.gz",
+        };
+        return clinvarUrls[build];
+      
+      }
 
   }
 
