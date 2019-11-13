@@ -222,13 +222,32 @@ class FilterModel {
           minRevel: null,
           exclusiveOf: null
         },
+        'notCategorized': {
+          // TODO - figure out how to show when variants no longer match filters
+          active: false,
+          custom: false,
+          title: "Not categorized",
+          name: "Variants found during full analysis, but not passing any app filters",
+          order: 8,
+          userFlagged: false,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        },
         'notFound': {
-          // TODO - figure out how to notify user when bookmarked variants are not found in vcf
+          // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
           title: "Not found",
           name: "Variants not found",
-          order: 10,
+          order: 9,
           userFlagged: false,
           maxAf: null,
           clinvar: null,

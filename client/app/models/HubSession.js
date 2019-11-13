@@ -6,6 +6,17 @@ export default class HubSession {
     this.url = null;
     this.apiVersion =  '/apiv1';
     this.client_application_id = null;
+    this.variantSetTxtCols = [
+      "chrom",
+      "start",
+      "end",
+      "ref",
+      "alt",
+      "allelicBalance",
+      "slivarFilter",
+      "gene",
+      "afgnomAD"
+    ]
   }
 
   promiseInit(sampleId, source, isPedigree, projectId ) {
@@ -112,6 +123,99 @@ export default class HubSession {
     })
 
   }
+
+  hasVariantSets(modelInfos, rel='proband') {
+    let proband = modelInfos.filter(function(mi) {
+      return mi.relationship == rel;
+    })
+    if (proband && proband.length > 0) {
+      let fileInfos = proband[0].txt;
+      return fileInfos && fileInfos.length > 0
+    } else {
+      return false;
+    }
+  }
+
+  promiseParseVariantSets(modelInfos, rel='proband') {
+    let self = this;
+    return new Promise(function(resolve,reject) {
+      let proband = modelInfos.filter(function(mi) {
+        return mi.relationship == rel;
+      })
+      let variantSets = {};
+      if (proband && proband.length > 0) {
+        var promises = [];
+        let fileInfos = proband[0].txt;
+        fileInfos.forEach(function(fileInfo) {
+          let p = self.promiseParseVariantSetFile(fileInfo)
+          .then(function(data) {
+            variantSets[data.nickname] = data.records;
+          })
+          promises.push(p);
+        })
+        Promise.all(promises)
+        .then(function() {
+          resolve(variantSets)
+        })
+      } else {
+        resolve(variantSets);
+      }
+
+    })
+  }
+
+  promiseParseVariantSetFile(fileInfo) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      $.ajax({
+        url: fileInfo.url
+      })
+      .done(data => {
+        let variants = [];
+        if (data && data.length > 0) {
+          let records = data.split("\n");
+          records.map(function(record) {
+            let fields = record.split("\t");
+            if (fields.length >= self.variantSetTxtCols.length) {
+              let variant = {};
+              self.variantSetTxtCols.forEach(function(col, i) {
+                variant[col] = fields[i];
+              })
+              if (variant.gene == "" || variant.gene == null || variant.gene.trim().length == 0) {
+                console.log("promiseParseVariantSets: missing gene field.  bypassing record " + record);
+              } else {
+                variant.isProxy = true;
+                variant.variant_id = variant.gene + "^" + variant.start + "^" + variant.ref + "^" + variant.alt;
+                if (variant.slivarFilter.indexOf("comphet") >= 0) {
+                  variant.inheritance = "compound het"
+                  variant.filtersPassed = "compoundHet"
+                } else {
+                  variant.inheritance = variant.slivarFilter;
+                  variant.filtersPassed = variant.inheritance;
+                }
+                
+                let matched = variants.filter(function(v) {
+                  return v.variant_id == variant.variant_id;
+                })
+                if (matched.length == 0) {
+                  variants.push(variant)                                              
+                }
+              }
+            } else {
+              console.log("promiseParseVariantSets: insufficient record fields.  bypassinging record " + record);
+            }
+          })
+        }
+        resolve({nickname: fileInfo.name, records: variants});
+      })
+      .fail(error => {
+        console.log("Unable to get file " + file.url)
+        reject(error);
+      })
+
+    })
+  }
+
 
   promiseGetClientApplication() {
     let self = this;
@@ -308,7 +412,11 @@ export default class HubSession {
       var currentSample = sample;
       self.promiseGetFilesForSample(project_id, currentSample.id)
       .then(files => {
-        files.forEach(file => {
+        files.filter(file => {
+          return file.type 
+        })
+        .forEach(file => {
+
           var p = self.promiseGetSignedUrlForFile(project_id, currentSample.id, file)
           .then(signed => {
             if (file.type == 'txt') {
