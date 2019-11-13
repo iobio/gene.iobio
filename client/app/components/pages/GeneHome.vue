@@ -750,6 +750,7 @@ export default {
       selectedVariantNotes: null,
       selectedVariantInterpretation: null,
       selectedVariantRelationship: null,
+      selectedVariantInfo: null,
       toClickVariant: null,
 
       showKnownVariantsCard: false,
@@ -892,13 +893,6 @@ export default {
         return this.cohortModel.maxDepth;
       } else {
         return 0;
-      }
-    },
-    selectedVariantInfo: function() {
-      if (this.selectedVariant) {
-        return this.globalApp.utility.formatDisplay(this.selectedVariant, this.cohortModel.translator, this.isEduMode)
-      } else {
-        return null;
       }
     },
     probandModel: function() {
@@ -1113,6 +1107,7 @@ export default {
           self.rawPedigree = data.rawPedigree;
 
           return self.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
+
         })
         .then(analysis => {
 
@@ -1132,6 +1127,25 @@ export default {
             return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject)
         })
         .then(function() {
+          if ((self.analysis.payload.variants == null || self.analysis.payload.variants.length == 0) && self.hubSession.hasVariantSets(self.modelInfos)) {
+            return self.hubSession.promiseParseVariantSets(self.modelInfos)
+          } else {
+            return Promise.resolve({});
+          }
+        })
+        .then(function(variantSets) {
+          if (variantSets && Object.keys(variantSets).length > 0) {
+            for (var key in variantSets) {
+              variantSets[key].forEach(function(importedVariant) {
+                self.analysis.payload.variants.push(importedVariant);
+                if (self.analysis.payload.genes.indexOf(importedVariant.gene) < 0) {
+                  self.analysis.payload.genes.push(importedVariant.gene);
+                }
+              })
+            }
+          }
+        })
+        .then(function() {
           self.models = self.cohortModel.sampleModels;
           var genePromises = []
           if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
@@ -1143,6 +1157,7 @@ export default {
             return Promise.resolve();
           }
         })
+        
         .then(function() {
 
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
@@ -1833,6 +1848,7 @@ export default {
     deselectVariant: function() {
       let self = this;
       self.selectedVariant = null;
+      self.refreshSelectedVariantInfo();
       self.selectedVariantKey = null;
       self.selectedVariantNotes = null;
       self.selectedVariantInterpretation = null;
@@ -1846,6 +1862,14 @@ export default {
       })
       if (self.$refs.featureMatrixCardRef) {
         self.$refs.featureMatrixCardRef.selectVariant(null);
+      }
+    },
+
+    refreshSelectedVariantInfo: function() {
+      if (this.selectedVariant) {
+        this.selectedVariantInfo =  this.globalApp.utility.formatDisplay(this.selectedVariant, this.cohortModel.translator, this.isEduMode)
+      } else {
+        this.selectedVariantInfo = null;
       }
     },
 
@@ -1920,6 +1944,7 @@ export default {
           extraAnnotFields.forEach(function(field) {
             variant[field]        = annotatedVariant[field];
           })
+          self.refreshSelectedVariantInfo();
         } else {
           if (callbackNotFoundOrAnnotated) {
             callbackNotFoundOrAnnotated();
@@ -2064,6 +2089,7 @@ export default {
           self.selectedGene = {};
           self.selectedTranscript = null;
           self.selectedVariant = null;
+          self.refreshSelectedVariantInfo();
           self.selectedVariantKey = null;
           self.selectedVariantRelationship = null;
           self.showVariantAssessment = false;
@@ -2501,6 +2527,7 @@ export default {
           self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
         }
         self.selectedVariant = null;
+        self.refreshSelectedVariantInfo();
         self.selectedVariantKey = null;
         self.selectedVariantNotes = null;
         self.showVariantAssessment = false;
@@ -2528,7 +2555,6 @@ export default {
             .then(function(matchingVariant) {
 
               if (matchingVariant && !matchingVariant.isProxy) {
-                self.showVariantExtraAnnots('proband', matchingVariant);
 
                 if (flaggedVariant.isProxy) {
                   var isUserFlagged = flaggedVariant.isUserFlagged;
@@ -2557,6 +2583,9 @@ export default {
                 self.$set(self, "selectedVariantKey", flaggedVariant);
                 self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
                 self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
+
+                self.showVariantExtraAnnots('proband', self.selectedVariant);
+
                 self.$refs.variantCardProbandRef.showFlaggedVariant(flaggedVariant);
 
                 if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
