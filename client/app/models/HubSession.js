@@ -54,6 +54,7 @@ export default class HubSession {
                   let p =  self.promiseGetFileMapForSample(projectId, s, rel).then(data => {
                     let theSample = data.sample;
                     theSample.files = data.fileMap;
+                    console.log(theSample)
 
 
 
@@ -79,6 +80,7 @@ export default class HubSession {
                         'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
                         'txt':            theSample.files.txt
                       }
+
 
                       if (theSample.files.bam != null) {
                         modelInfo.bam = theSample.files.bam;
@@ -106,6 +108,16 @@ export default class HubSession {
             Promise.all(promises).then(response => {
               // Don't want to expose db info here?
               //console.log(pedigree);
+
+              let buf = "";
+              modelInfos.forEach(function(modelInfo) {
+                if (modelInfo.sample == null || modelInfo.sample == "") {
+                  buf += "The sample " + modelInfo.name + "  (" + modelInfo.relationship + ")   is has an empty vcf_sample_name. Unable to properly filter variants for this sample.<br><br>";
+                }
+              })
+              if (buf.length > 0) {
+                alertify.alert("Error", buf)
+              }
 
               resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree});
             })
@@ -430,7 +442,11 @@ export default class HubSession {
             } else {
               fileMap[file.type] = signed.url
               if (file.type == 'vcf') {
-                sample.vcf_sample_name = file.vcf_sample_name;
+                if (file.vcf_sample_name == null || file.vcf_sample_name == "") {
+                  alertify.error("Missing vcf_sample_name for file " + file.name, 20)
+                } else {
+                  sample.vcf_sample_name = file.vcf_sample_name;
+                }
               }
             }
           })
