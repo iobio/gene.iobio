@@ -278,6 +278,11 @@ export default {
         this.showFilesDialog = true
         this.mode = this.cohortModel.mode;
         this.init();
+      } 
+    },
+    showFilesDialog: function() {
+      if (!this.showFilesDialog) {
+        this.$emit("on-cancel");
       }
     }
   },
