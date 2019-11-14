@@ -33,11 +33,12 @@ export default class HubSession {
 
           let promises = [];
 
-          let pedigree    = data.pedigree;
+
+          let pedigree    = isPedigree ? data.pedigree : {'proband': data.proband};
           let rawPedigree = data.rawPedigree;
 
           // Let's get the proband info first
-          let probandSample = pedigree.proband;
+          let probandSample = isPedigree ? pedigree.proband : data.proband;
           self.promiseGetFileMapForSample(projectId, probandSample, 'proband').then(data => {
             probandSample.files = data.fileMap;
           })
