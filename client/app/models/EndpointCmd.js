@@ -8,15 +8,15 @@ export default class EndpointCmd {
     this.launchTimestamp   = launchTimestamp;
     this.genomeBuildHelper = genomeBuildHelper;
     this.getHumanRefNames  = getHumanRefNamesFunc;
-    this.launchedFromUtah =  this.globalApp.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0;
+    this.launchedFromUtah =  this.globalApp.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') === 0;
 
     if (this.launchedFromUtah) {
       this.api = new Client('mosaic.chpc.utah.edu/gru/api/v1', { secure: true });
     }
     else {
-      //this.api = new Client('backend.iobio.io', { secure: true });
+      // this.api = new Client('backend.iobio.io', { secure: true });
       //this.api = new Client('localhost:9001', { secure: false });
-        this.api = new Client('dev.backend.iobio.io:9002', {secure: false});
+      this.api = new Client('dev.backend.iobio.io:9002', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
     }
 
     // iobio services
@@ -403,7 +403,6 @@ export default class EndpointCmd {
 
     getBamCoverage(bamSource, refName, regionStart, regionEnd, regions, maxPoints, useServerCache, serverCacheKey) {
         if (this.gruBackend) {
-            // TODO: gru version of this is broken with multiple regions...
             const url = bamSource.bamUrl;
             const samtoolsRegion = {refName, start: regionStart, end: regionEnd};
             const indexUrl = bamSource.baiUrl;
@@ -647,8 +646,8 @@ export default class EndpointCmd {
         }
     }
 
-    // NOTE: this function has not been testing with the monolith backend as of Nov2019
-    // Unaware if GRU has an endpoint for this - SJG
+    // NOTE: these are encapsulated in other new GRU endpoints
+    // Can get rid of these after GRU has been tested - SJG Nov2019
     _getBamRegions(bamSources, refName, regionStart, regionEnd) {
         const me = this;
 
@@ -681,8 +680,8 @@ export default class EndpointCmd {
         return bamCmds;
     }
 
-    // NOTE: this function has not been testing with the monolith backend as of Nov2019
-    // Unaware if GRU has an endpoint for this - SJG
+    // NOTE: these are encapsulated in other new GRU endpoints
+    // Can get rid of these after GRU has been tested - SJG Nov2019
     _getSuggestedVariants(refName, regionStart, regionEnd) {
         const me = this;
 
