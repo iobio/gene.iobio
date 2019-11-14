@@ -475,7 +475,7 @@ export default class Bam {
       var bamSources = [];
       me._initializeBamSource(bams, trRefName, regionStart, regionEnd, bamSources, index, function() {
 
-        var cmd = me.endpoint.freebayesJointCall(bamSources, trRefName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF, sampleNames);
+        var cmd = me.endpoint.freebayesJointCall(bamSources, trRefName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF, sampleNames, callback);
 
         var variantData = "";
         cmd.on('data', function(data) {
