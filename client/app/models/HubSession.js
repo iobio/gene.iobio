@@ -241,10 +241,11 @@ export default class HubSession {
           Authorization: localStorage.getItem('hub-iobio-tkn'),
         },
       })
-      .done(clientApps => {
-        console.log(clientApps)
+      .done(data => {
+        console.log(data)
+        let clientApps = data.data;
         let matchingApp = clientApps.filter(function(clientApp) {
-          return clientApp.uid == 'gene';
+          return clientApp.display_name == 'Gene.iobio';
         })
         if (matchingApp.length > 0) {
           console.log("client_appplication_id = " + matchingApp[0].id)
