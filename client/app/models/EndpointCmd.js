@@ -14,9 +14,9 @@ export default class EndpointCmd {
       this.api = new Client('mosaic.chpc.utah.edu/gru/api/v1', { secure: true });
     }
     else {
-      // this.api = new Client('backend.iobio.io', { secure: true });
+       this.api = new Client('backend.iobio.io', { secure: true });
       //this.api = new Client('localhost:9001', { secure: false });
-      this.api = new Client('dev.backend.iobio.io:9002', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
+      //this.api = new Client('dev.backend.iobio.io:9002', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
     }
 
     // iobio services
@@ -124,11 +124,30 @@ export default class EndpointCmd {
         return cmd;
     }
 
-    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadUrl, gnomadRegionStr) {
+    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra) {
+        let me = this;
         if (this.gruBackend) {
             const refNames = this.getHumanRefNames(refName).split(" ");
             const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
             const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+
+
+            let gnomadUrl = null;
+            let gnomadRegionStr = null;
+
+            if (gnomadExtra) {
+
+              // Get the gnomad vcf based on the genome build
+              gnomadUrl = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
+
+              // Prepare args to annotate with gnomAD
+              gnomadRegionStr = "";
+              regions.forEach(function(region) {
+                gnomadRegionStr += refName + "\t" + region.start + "\t" + region.end + "\n";
+              })
+
+
+            }
 
             const ncmd = this.api.streamCommand('annotateVariants', {
                 vcfUrl: vcfSource.vcfUrl,
