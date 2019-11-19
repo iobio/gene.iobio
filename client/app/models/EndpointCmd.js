@@ -276,10 +276,30 @@ export default class EndpointCmd {
                 cmd = cmd.pipe(me.IOBIO.snpEff, [], {ssl: me.globalApp.useSSL});
             }
 
-            // NOTE: this should never be true for oncogene...ß
+
+
+            // NOTE: this should never be true for oncogene...
             if (sfariMode === true) {
                 cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL});
             }
+
+            if (gnomADExtra) {
+
+              // Get the gnomad vcf based on the genome build
+              let gnomadURL = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
+
+              // Prepare args to annotate with gnomAD
+              var regionString = "";
+              regions.forEach(function(region) {
+                regionString += refName + "\t" + region.start + "\t" + region.end + "\n";
+              })
+              var regionFile = new Blob([regionString])
+
+              cmd = cmd.pipe(me.IOBIO.gnomadAnnot, [gnomadURL, regionFile], {ssl: false});
+
+            }
+            
+
             return cmd;
         }
     }
