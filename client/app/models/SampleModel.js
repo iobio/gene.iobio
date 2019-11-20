@@ -1377,7 +1377,8 @@ class SampleModel {
                me.globalApp.vepAF, // vepAF
                me.globalApp.useServerCache, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtra && me.relationship != 'known-variants' // get extra gnomad
+               me.globalApp.gnomADExtra && me.relationship != 'known-variants', // get extra gnomad,
+               me.relationship != 'known-variants' // decompose
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
@@ -1582,7 +1583,8 @@ class SampleModel {
                me.globalApp.vepAF, // vep af
                me.globalApp.useServerCache, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtra // gnomADExtra
+               me.globalApp.gnomADExtra, // gnomADExtra,
+               true // decompose
             ).then( function(data) {
 
               var annotVcfData = data[1];
@@ -1676,8 +1678,9 @@ class SampleModel {
                                     self.globalApp.vepAF,    // vep af
                                     false,  // server-side cache
                                     true, // sfariMode
-                                    false) // gnomadExtra
-                                    .then((results) => {
+                                    false, // gnomadExtra
+                                    false // decompose
+                                    ).then((results) => {
                                       let unwrappedResults = results[1];
                                       unwrappedResults.gene = theGene;
                                       annoResults.push(unwrappedResults);
@@ -1818,7 +1821,11 @@ class SampleModel {
                me.getGeneModel().geneSource === 'refseq' ? true : false,
                me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
                me.globalApp.getVariantIdsForGene,  // rsid
-               me.globalApp.vepAF    // vep af
+               me.globalApp.vepAF,    // vep af
+               false, // serverside cache
+               false, // sfari mode
+               false, // get extra gnomad,
+               me.getRelationship() != 'known-variants' // decompose
               );
           })
           .then( function(data) {
@@ -3094,7 +3101,15 @@ class SampleModel {
              me._getSamplesToRetrieve(),
              me.getAnnotationScheme().toLowerCase(),
              me.getTranslator().clinvarMap,
-             me.getGeneModel().geneSource == 'refseq' ? true : false)
+             me.getGeneModel().geneSource == 'refseq' ? true : false,
+             false,  // hgvs notation
+             false,  // rsid
+             false, // vepAF
+             false, // serverside cache
+             false, // sfari mode
+             false, // get extra gnomad,
+             true // decompose 
+          )
           .then( function(data) {
 
             if (data != null && data.features != null) {

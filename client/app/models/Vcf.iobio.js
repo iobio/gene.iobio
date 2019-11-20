@@ -667,7 +667,7 @@ export default function vcfiobio(theGlobalApp) {
 
 
   /* When sfariMode = true, variant id field is assigned. */
-  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, gnomADExtra=false) {
+  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, gnomADExtra=false, decompose=false) {
     var me = this;
 
 
@@ -701,7 +701,7 @@ export default function vcfiobio(theGlobalApp) {
             } else {
               reject();
             }
-          }, null, sfariMode, gnomADExtra);
+          }, null, sfariMode, gnomADExtra, decompose);
       } else {
         //me._getLocalStats(refName, geneObject.start, geneObject.end, sampleName);
 
@@ -712,7 +712,7 @@ export default function vcfiobio(theGlobalApp) {
             } else {
               reject();
             }
-          }, gnomADExtra);
+          }, gnomADExtra, decompose);
 
       }
 
@@ -720,7 +720,7 @@ export default function vcfiobio(theGlobalApp) {
   }
 
 
-  exports._getLocalVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, callback, errorCallback, gnomADExtra=false) {
+  exports._getLocalVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, callback, errorCallback, gnomADExtra=false, decompose=false) {
     var me = this;
 
     // The variant region may span more than the specified region.
@@ -766,7 +766,7 @@ export default function vcfiobio(theGlobalApp) {
 
         var allRecs = headerRecords.concat(recordsForRegions);
 
-        me._promiseAnnotateVcfRecords(allRecs, refName, geneObject, selectedTranscript, clinvarMap, isRefSeq && hgvsNotation, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, cache, gnomADExtra)
+        me._promiseAnnotateVcfRecords(allRecs, refName, geneObject, selectedTranscript, clinvarMap, isRefSeq && hgvsNotation, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, cache, gnomADExtra, decompose)
         .then( function(data) {
             callback(data[0], data[1]);
         }, function(error) {
@@ -784,7 +784,7 @@ export default function vcfiobio(theGlobalApp) {
 
   }
 
-  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false) {
+  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false) {
 
     var me = this;
 
@@ -796,7 +796,7 @@ export default function vcfiobio(theGlobalApp) {
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra);
+    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose);
 
 
     var annotatedData = "";
@@ -1120,14 +1120,14 @@ export default function vcfiobio(theGlobalApp) {
 
   }
 
-  exports._promiseAnnotateVcfRecords = function(records, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, gnomADExtra) {
+  exports._promiseAnnotateVcfRecords = function(records, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, gnomADExtra, decompose) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
       // For each vcf records, call snpEff to get the annotations.
       // Each vcf record returned will have an EFF field in the
       // info field.
-      me._annotateVcfRegion(records, refName, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, gnomADExtra, function(annotatedData) {
+      me._annotateVcfRegion(records, refName, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, gnomADExtra, decompose, function(annotatedData) {
 
         var annotatedRecs = annotatedData.split("\n");
         var vcfObjects = [];
@@ -1438,7 +1438,7 @@ export default function vcfiobio(theGlobalApp) {
 
 
 
-  exports._annotateVcfRegion = function(records, refName, sampleName, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, callbackClinvar, gnomADExtra) {
+  exports._annotateVcfRegion = function(records, refName, sampleName, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, gnomADExtra, decompose, callback, callbackClinvar ) {
     var me = this;
 
     //  Figure out the reference sequence file path
@@ -1462,7 +1462,7 @@ export default function vcfiobio(theGlobalApp) {
 
     }
 
-    var cmd = me.getEndpoint().annotateVariants({'writeStream': writeStream}, refName, regions, null, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache);
+    var cmd = me.getEndpoint().annotateVariants({'writeStream': writeStream}, refName, regions, null, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, null, false, gnomADExtra, decompose);
 
 
     var buffer = "";

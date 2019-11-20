@@ -14,9 +14,9 @@ export default class EndpointCmd {
       this.api = new Client('mosaic.chpc.utah.edu/gru/api/v1', { secure: true });
     }
     else {
-       this.api = new Client('backend.iobio.io', { secure: true });
+      // this.api = new Client('backend.iobio.io', { secure: true });
       //this.api = new Client('localhost:9001', { secure: false });
-      //this.api = new Client('dev.backend.iobio.io:9002', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
+      this.api = new Client('dev.backend.iobio.io:9005', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
     }
 
     // iobio services
@@ -124,7 +124,7 @@ export default class EndpointCmd {
         return cmd;
     }
 
-    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra) {
+    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose) {
         let me = this;
         if (this.gruBackend) {
             const refNames = this.getHumanRefNames(refName).split(" ");
@@ -165,6 +165,7 @@ export default class EndpointCmd {
                 vepREVELFile: this.globalApp.vepREVELFile,
                 gnomadUrl: gnomadUrl ? gnomadUrl : '',
                 gnomadRegionStr: gnomadRegionStr ? gnomadRegionStr : '',
+                decompose
             });
 
             return ncmd;
@@ -211,6 +212,10 @@ export default class EndpointCmd {
             if (vcfSampleNames && vcfSampleNames.length > 0) {
                 let sampleNameFile = new Blob([vcfSampleNames.split(",").join("\n")]);
                 cmd = cmd.pipe(me.IOBIO.vt, ["subset", "-s", sampleNameFile, '-'], {ssl: me.globalApp.useSSL});
+            }
+
+            if (decompose) {
+              cmd = cmd.pipe(me.IOBIO.vt, ["decompose", "-s", '-'], {ssl: me.globalApp.useSSL});
             }
 
             // normalize variants
@@ -298,7 +303,7 @@ export default class EndpointCmd {
               cmd = cmd.pipe(me.IOBIO.gnomadAnnot, [gnomadURL, regionFile], {ssl: false});
 
             }
-            
+
 
             return cmd;
         }
