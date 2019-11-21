@@ -88,7 +88,25 @@ VariantImporter.parseRecordsCSV = function(data) {
     }
     recCount++;
   });
+  importRecords.forEach(function(importRec) {
+    if (importRec.notes && importRec.notes.length > 0) {
+      importRec.notes = VariantImporter.unflattenNotes(importRec.notes)
+    }
+  })
   return importRecords;
+}
+
+
+
+VariantImporter.unflattenNotes = function(notesFlattened) {
+  if (notesFlattened && notesFlattened.length > 0) {
+    return notesFlattened.split(" | ").map(function(noteRec) {
+      let fields = noteRec.split("\t");
+      return {author: fields[0], datetime: fields[1], note: fields[2] };
+    })
+  } else {
+    return [];
+  }
 }
 
 VariantImporter.parseRecordsGemini = function(data) {

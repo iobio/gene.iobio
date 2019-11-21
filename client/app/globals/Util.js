@@ -885,15 +885,16 @@ class Util {
     if (variant.notes && variant.notes.length > 0) {
       variant.notes.forEach(function(note) {
         if (info.notesFlattened.length > 0) {
-          info.notesFlattend += "\n";
+          info.notesFlattened += " | ";
         }
-        info.notesFlattened  +=  note.author + "\t"+ note.datetime + "\t" + note.note ;
+        info.notesFlattened  +=  (note.author ? note.author : " ") + "\t"+ note.datetime + "\t" + note.note ;
       })
     }
 
 
     return info;
   }
+
 
   formatHighestImpactInfo(variant, info, translator) {
     let me = this;
