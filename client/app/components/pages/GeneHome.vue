@@ -1161,8 +1161,11 @@ export default {
         .then(function() {
 
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
-            self.cohortModel.promiseMergeImportedVariants(self.analysis.payload.variants)
-            .then(function() {
+            self.cohortModel.importFlaggedVariants('json', self.analysis.payload.variants,
+            function() {
+
+            },
+            function() {
               self.promiseSelectFirstFlaggedVariant()
               .then(function() {
                 self.$refs.navRef.onShowVariantsTab();
@@ -3666,6 +3669,9 @@ export default {
           .then(function(analysis) {
             if (analysis) {
               self.analysis = analysis;
+
+             
+
               resolve(self.analysis);
 
             } else {
