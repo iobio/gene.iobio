@@ -630,10 +630,11 @@ export default class HubSession {
 
   addAnalysis(projectId, newAnalysisData) {
     let self = this;
+
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/analyses/?client_application_id=' + this.client_application_id,
       type: 'POST',
-      data: JSON.stringify(newAnalysisData),
+      data: self.stringifyAnalysis(newAnalysisData),
       contentType: 'application/json',
       headers: {
         Authorization: localStorage.getItem('hub-iobio-tkn'),
@@ -643,10 +644,11 @@ export default class HubSession {
 
   updateAnalysisTitle(projectId, analysisId, newAnalysisData) {
     let self = this;
+
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/analyses/' + analysisId,
       type: 'PUT',
-      data: JSON.stringify(newAnalysisData),
+      data: self.stringifyAnalysis(newAnalysisData),
       contentType: 'application/json',
       headers: {
         Authorization: localStorage.getItem('hub-iobio-tkn'),
@@ -657,16 +659,35 @@ export default class HubSession {
 
   updateAnalysis(projectId, analysisId, newAnalysisData) {
     let self = this;
+    
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/analyses/' + analysisId
             + '?client_application_id=' + this.client_application_id,
       type: 'PUT',
-      data: JSON.stringify(newAnalysisData),
+      data: self.stringifyAnalysis(newAnalysisData),
       contentType: 'application/json',
       headers: {
         Authorization: localStorage.getItem('hub-iobio-tkn'),
       },
     });
   }
+  
+  stringifyAnalysis(analysisData) {
+    var cache = [];
+    let analysisString = JSON.stringify(analysisData, function(key, value) {
+      if (typeof value === 'object' && value !== null) {
+          if (cache.indexOf(value) !== -1) {
+              // Circular reference found, discard key
+              return;
+          }
+          // Store value in our collection
+          cache.push(value);
+      }
+      return value;
+    });    
+    cache = [];
+    return analysisString;
+  }
+
 
 }
