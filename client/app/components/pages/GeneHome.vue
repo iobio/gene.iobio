@@ -1161,6 +1161,12 @@ export default {
         .then(function() {
 
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
+            if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
+              self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
+            }
+            self.showLeftPanelForGenes();
+
+
             self.cohortModel.importFlaggedVariants('json', self.analysis.payload.variants,
             function() {
 
