@@ -1605,7 +1605,7 @@ class SampleModel {
               } else {
                 var msg = "Empty results returned from SampleModel.promiseGetImpactfulVariantIds() for gene " + theGeneObject.gene_name;
                 console.log(msg);
-                reject(msg);
+                resolve(theVcfData.features);
               }
 
           });

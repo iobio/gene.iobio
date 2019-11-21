@@ -2330,13 +2330,15 @@ class CohortModel {
 
         me.flaggedVariants.push(variant);
 
-        var analyzeKind = variant.freebayesCalled == 'Y' ? 'call' : 'load';
-        var theVariants = genesToAnalyze[analyzeKind][variant.gene.gene_name];
-        if (theVariants == null) {
-          theVariants = [];
-          genesToAnalyze[analyzeKind][variant.gene.gene_name] = theVariants;
-        }
-        theVariants.push(variant);
+        var analyzeKinds = variant.freebayesCalled == 'Y' ? ['load','call'] : ['load'];
+        analyzeKinds.forEach(function(analyzeKind) {
+          var theVariants = genesToAnalyze[analyzeKind][variant.gene.gene_name];
+          if (theVariants == null) {
+            theVariants = [];
+            genesToAnalyze[analyzeKind][variant.gene.gene_name] = theVariants;
+          }
+          theVariants.push(variant);          
+        })
 
       });
 
