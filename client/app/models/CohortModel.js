@@ -1882,6 +1882,8 @@ class CohortModel {
                           variant.alt == options.sourceVariant.alt) {
 
                           refreshedSourceVariant = variant;
+                          refreshedSourceVariant.notes = options.sourceVariant.notes;
+                          refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
                         }
                       })
                     }
@@ -2330,7 +2332,7 @@ class CohortModel {
 
         me.flaggedVariants.push(variant);
 
-        var analyzeKinds = variant.freebayesCalled == 'Y' ? ['load','call'] : ['load'];
+        var analyzeKinds = variant.freebayesCalled == 'Y' ? ['call'] : ['load'];
         analyzeKinds.forEach(function(analyzeKind) {
           var theVariants = genesToAnalyze[analyzeKind][variant.gene.gene_name];
           if (theVariants == null) {
