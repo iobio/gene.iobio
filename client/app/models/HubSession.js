@@ -113,7 +113,7 @@ export default class HubSession {
               let buf = "";
               modelInfos.forEach(function(modelInfo) {
                 if (modelInfo.sample == null || modelInfo.sample == "") {
-                  buf += "The sample " + modelInfo.name + "  (" + modelInfo.relationship + ")   is has an empty vcf_sample_name. Unable to properly filter variants for this sample.<br><br>";
+                  buf += "The sample " + modelInfo.name + "  (" + modelInfo.relationship + ")   has an empty vcf_sample_name. Unable to properly filter variants for this sample.<br><br>";
                 }
               })
               if (buf.length > 0) {
@@ -671,7 +671,7 @@ export default class HubSession {
       },
     });
   }
-  
+
   stringifyAnalysis(analysisData) {
     var cache = [];
     let analysisString = JSON.stringify(analysisData, function(key, value) {
