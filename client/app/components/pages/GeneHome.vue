@@ -2493,6 +2493,15 @@ export default {
         self.promiseUpdateAnalysisVariant(variant);
       }
 
+      // If this is a variant that did not pass filters, but flagged (interpreted) by the
+      // user, we will need to initialize variant.gene
+      if (variant.gene == null) {
+        variant.gene == self.selectedGene;
+        if (variant.transcript == null || variant.transcript.length == 0) {
+          variant.transcript = self.selectedTranscript;
+        }
+      }
+
       if (variant == self.selectedVariant) {
         self.$set(self, "selectedVariantInterpretation", variant.interpretation);
       }
