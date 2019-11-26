@@ -433,11 +433,11 @@ export default class HubSession {
 
           var p = self.promiseGetSignedUrlForFile(project_id, currentSample.id, file)
           .then(signed => {
-            if (file.type == 'txt') {
-              var files = fileMap[file.type];
+            if (file.type == 'txt' || file.type == 'tsv') {
+              var files = fileMap.txt;
               if (files == null) {
                 files = [];
-                fileMap[file.type] = files;
+                fileMap.txt = files;
               }
               files.push({'url': signed.url, 'name': file.nickname});
 
