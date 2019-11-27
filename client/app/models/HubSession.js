@@ -162,7 +162,9 @@ export default class HubSession {
         fileInfos.forEach(function(fileInfo) {
           let p = self.promiseParseVariantSetFile(fileInfo)
           .then(function(data) {
-            variantSets[data.nickname] = data.records;
+            if (data) {
+              variantSets[data.nickname] = data.records;
+            }
           })
           promises.push(p);
         })
@@ -180,6 +182,7 @@ export default class HubSession {
   promiseParseVariantSetFile(fileInfo) {
     let self = this;
     return new Promise(function(resolve, reject) {
+      let theFileInfo = fileInfo
       $.ajax({
         url: fileInfo.url
       })
@@ -222,8 +225,10 @@ export default class HubSession {
         resolve({nickname: fileInfo.name, records: variants});
       })
       .fail(error => {
-        console.log("Unable to get file " + file.url)
-        reject(error);
+        console.log("Unable to get file " + fileInfo.url)
+        alertify.error("Missing file for URL " + fileInfo.url, 20)
+
+        resolve();
       })
 
     })
