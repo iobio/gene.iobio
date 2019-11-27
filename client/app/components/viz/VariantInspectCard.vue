@@ -261,7 +261,7 @@
 
       <variant-aliases-menu
       v-show="selectedVariant && info && (!info.HGVSpLoading || !info.HGVScLoading)"
-      v-if="selectedVariantInterpretation != 'known-variants'"
+      v-if="selectedVariant && info && selectedVariantInterpretation != 'known-variants'"
       class="pl-4"
       :label="hgvsLabel"
       :selectedGene="selectedGene"

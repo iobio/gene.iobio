@@ -15,7 +15,8 @@ export default class HubSession {
       "allelicBalance",
       "slivarFilter",
       "gene",
-      "afgnomAD"
+      "afgnomAD",
+      "sampleId"
     ]
   }
 
@@ -160,7 +161,7 @@ export default class HubSession {
         var promises = [];
         let fileInfos = proband[0].txt;
         fileInfos.forEach(function(fileInfo) {
-          let p = self.promiseParseVariantSetFile(fileInfo)
+          let p = self.promiseParseVariantSetFile(fileInfo, proband[0])
           .then(function(data) {
             if (data) {
               variantSets[data.nickname] = data.records;
@@ -179,7 +180,7 @@ export default class HubSession {
     })
   }
 
-  promiseParseVariantSetFile(fileInfo) {
+  promiseParseVariantSetFile(fileInfo, modelInfo) {
     let self = this;
     return new Promise(function(resolve, reject) {
       let theFileInfo = fileInfo
@@ -192,30 +193,41 @@ export default class HubSession {
           let records = data.split("\n");
           records.map(function(record) {
             let fields = record.split("\t");
-            if (fields.length >= self.variantSetTxtCols.length) {
+            if (fields.length >= self.variantSetTxtCols.length-1) {
               let variant = {};
               self.variantSetTxtCols.forEach(function(col, i) {
                 variant[col] = fields[i];
               })
-              if (variant.gene == "" || variant.gene == null || variant.gene.trim().length == 0) {
-                console.log("promiseParseVariantSets: missing gene field.  bypassing record " + record);
-              } else {
-                variant.isProxy = true;
-                variant.variant_id = variant.gene + "^" + variant.start + "^" + variant.ref + "^" + variant.alt;
-                if (variant.slivarFilter.indexOf("comphet") >= 0) {
-                  variant.inheritance = "compound het"
-                  variant.filtersPassed = "compoundHet"
+              let keep = true
+              // If sampleId was included, us it to filter variants
+              if (fields.length == self.variantSetTxtCols.length) {
+                if (variant.sampleId  &&  modelInfo.sample && variant.sampleId != modelInfo.sample) {
+                  keep = false;
+                } 
+              }
+              if (keep) {
+                if (variant.gene == "" || variant.gene == null || variant.gene.trim().length == 0) {
+                  console.log("promiseParseVariantSets: missing gene field.  bypassing record " + record);
                 } else {
-                  variant.inheritance = variant.slivarFilter;
-                  variant.filtersPassed = variant.inheritance;
-                }
-                
-                let matched = variants.filter(function(v) {
-                  return v.variant_id == variant.variant_id;
-                })
-                if (matched.length == 0) {
-                  variants.push(variant)                                              
-                }
+                  variant.isProxy = true;
+                  variant.variant_id = variant.gene + "^" + variant.start + "^" + variant.ref + "^" + variant.alt;
+                  if (variant.slivarFilter.indexOf("comphet") >= 0) {
+                    variant.inheritance = "compound het"
+                    variant.filtersPassed = "compoundHet"
+                  } else {
+                    variant.inheritance = variant.slivarFilter;
+                    variant.filtersPassed = variant.inheritance;
+                  }
+                  
+                  let matched = variants.filter(function(v) {
+                    return v.variant_id == variant.variant_id;
+                  })
+                  if (matched.length == 0) {
+                    variants.push(variant)                                              
+                  }
+                }                
+              } else {
+                console.log("bypassing variant rec for sample " + variant.sampleId)
               }
             } else {
               console.log("promiseParseVariantSets: insufficient record fields.  bypassinging record " + record);
