@@ -214,7 +214,7 @@
 
 <template>
 
-  <v-card v-if="selectedVariant && info" tile id="variant-inspect" class="app-card full-width">
+  <v-card v-show="selectedVariant && info" id="variant-inspect" class="app-card full-width">
 
     <div style="display:flex;align-items:baseline;justify-content:flex-start">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
@@ -236,7 +236,7 @@
 
 
 
-      <span class="variant-heading" style="margin-left:10px" >
+      <span v-if="selectedVariant && info" class="variant-heading" style="margin-left:10px" >
 
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1">{{ info.coord }}</span>
@@ -253,14 +253,14 @@
 
       </span>
 
-      <span v-if="info.HGVSpLoading && info.HGVScLoading"
+      <span v-if="info && info.HGVSpLoading && info.HGVScLoading"
         v-show="selectedVariantRelationship != 'known-variants'" class="pl-4 loader vcfloader" >
         <img src="../../../assets/images/wheel.gif">
         HGVS...
       </span>
 
       <variant-aliases-menu
-      v-show="!info.HGVSpLoading || !info.HGVScLoading"
+      v-show="selectedVariant && info && (!info.HGVSpLoading || !info.HGVScLoading)"
       v-if="selectedVariantInterpretation != 'known-variants'"
       class="pl-4"
       :label="hgvsLabel"
@@ -272,7 +272,7 @@
 
       <v-spacer></v-spacer>
 
-      <div v-if="!showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:10px;margin-right:10px">
+      <div v-if="selectedVariant && !showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:10px;margin-right:10px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
           Review
         </v-btn>
@@ -344,7 +344,7 @@
           </div>
 
       </div>
-      <div class="variant-inspect-column " v-if="showGenePhenotypes" >
+      <div class="variant-inspect-column " v-if="selectedVariant && showGenePhenotypes" >
           <div class="variant-column-header">
             Gene Associations
             <v-divider></v-divider>
@@ -359,7 +359,7 @@
             </div>
           </div>
       </div>      
-      <div class="variant-inspect-column">
+      <div class="variant-inspect-column" v-if="selectedVariant">
           <div class="variant-column-header">
             Pathogenicity
             <v-divider></v-divider>
@@ -388,7 +388,7 @@
       </div>
 
      
-      <div class="variant-inspect-column" v-if="selectedVariantRelationship != 'known-variants'">
+      <div class="variant-inspect-column" v-if="selectedVariant && selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Frequency
             <v-divider></v-divider>
@@ -403,7 +403,7 @@
           </div>
       </div>
 
-      <div class="variant-inspect-column" style="min-width:90px" v-if="selectedVariantRelationship != 'known-variants'">
+      <div class="variant-inspect-column" style="min-width:90px" v-if="selectedVariant && selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
             Inheritance
             <v-divider></v-divider>
@@ -415,6 +415,7 @@
           <div class="pedigree-chart">
             <app-icon class="hide" icon="affected"></app-icon>
             <pedigree-genotype-viz
+             ref="pedigreeGenotypeViz"
              style="width:85px"
              :margin="{left: 30, right: 4, top: 30, bottom: 4}"
              :data="pedigreeGenotypeData">
@@ -433,7 +434,7 @@
 
       </div>
 
-      <div class="variant-inspect-column last" style="min-width:130px;max-width:320px">
+      <div class="variant-inspect-column last" v-if="selectedVariant" style="min-width:130px;max-width:320px">
           <div class="variant-column-header" >
             Conservation
             <v-divider></v-divider>
@@ -497,9 +498,8 @@
               </span>
 
               <multialign-seq-viz style="margin-top:10px;"
-              :data=multialignSequences
-              :selectedBase=multialignSelectedBase>
-              >
+              :data="multialignSequences"
+              :selectedBase="multialignSelectedBase">
               </multialign-seq-viz>
 
             </div>
@@ -509,11 +509,12 @@
     </div>
 
   </v-card>
+
 </template>
 
 <script>
 
-import Vue                      from 'vue'
+import Vue                      from "vue"
 import AppIcon                  from "../partials/AppIcon.vue"
 import VariantInspectRow        from "../partials/VariantInspectRow.vue"
 import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
@@ -696,6 +697,9 @@ export default {
 
     getQualityInfo: function() {
       let self  = this;
+      if (self.selectedVariant == null) {
+        return {clazz: '', depthClazz: '', altRatioClazz: '', reason: ''};
+      }
       let genotype = self.selectedVariant.genotype;
 
       var zyg       =  genotype.zygosity.toLowerCase();
@@ -844,9 +848,10 @@ export default {
 
     initPedigreeGenotypes() {
       let self = this;
-      self.pedigreeGenotypeData = {};
+      self.$set(self, "pedigreeGenotypeData", {});
+      let thePedigreeGenotypeData = {}
       self.cohortModel.sampleModels.forEach(function(model) {
-        if (model.relationship != 'known-variants') {
+        if (model.relationship != 'known-variants' && model.relationship != 'sfari-variants') {
           let gtObject = {};
           gtObject.rel = model.relationship;
           gtObject.sex = model.sex
@@ -858,7 +863,7 @@ export default {
           }
           gtObject.inheritance = self.selectedVariant.inheritance;
 
-          self.pedigreeGenotypeData[gtObject.rel] = gtObject;
+          thePedigreeGenotypeData[gtObject.rel] = gtObject;
         }
       })
       let affectedStatusList = ['affected', 'unaffected'];
@@ -876,13 +881,25 @@ export default {
             }
             gtObject.inheritance = self.selectedVariant.inheritance;
 
-            self.pedigreeGenotypeData['sibling-' + model.name] = gtObject;
+            thePedigreeGenotypeData['sibling-' + model.name] = gtObject;
 
           })
 
         }
 
       })
+      console.log(thePedigreeGenotypeData)
+      self.$set(self, "pedigreeGenotypeData", thePedigreeGenotypeData);
+      if (self.$refs.pedigreeGenotypeViz) {
+        self.$refs.pedigreeGenotypeViz.update();
+      } else {
+        setTimeout(function() {
+          if (self.$refs.pedigreeGenotypeViz) {
+            self.$refs.pedigreeGenotypeViz.update();
+          }   
+        },2000)
+      }
+
     },
 
     initGenePhenotypeHits: function() {
@@ -1183,22 +1200,24 @@ export default {
     },
     onToggleConservationNucAA: function(seqType) {
       let self = this;
-      self.multialignInProgress = true;
-      self.conservationSeqType = seqType.toLowerCase();
-      self.multiAlignModel.promiseGetMultiAlignments(self.selectedGene,
-                                                  self.selectedVariant,
-                                                  self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC),
-                                                  self.conservationSeqType)
-      .then(function(data) {
-        if (data) {
-          self.multialignInProgress   = false;
-          self.multialignSequences    = data.sequences;
-          self.multialignSelectedBase = data.selectedBase;
-        }
-      })
-      .catch(function(data) {
-        self.multialignInProgress = false;
-      })
+      if (self.selectedVariant) {
+        self.multialignInProgress = true;
+        self.conservationSeqType = seqType.toLowerCase();
+        self.multiAlignModel.promiseGetMultiAlignments(self.selectedGene,
+                                                    self.selectedVariant,
+                                                    self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC),
+                                                    self.conservationSeqType)
+        .then(function(data) {
+          if (data) {
+            self.multialignInProgress   = false;
+            self.multialignSequences    = data.sequences;
+            self.multialignSelectedBase = data.selectedBase;
+          }
+        })
+        .catch(function(data) {
+          self.multialignInProgress = false;
+        })        
+      }
     },
     onEnterComments: function() {
       this.$emit("show-variant-assessment", true)
@@ -1209,13 +1228,21 @@ export default {
 
   computed: {
     sampleModel: function() {
-      return this.cohortModel.getModel(this.selectedVariantRelationship);
+      if (this.selectedVariantRelationship) {
+        return this.cohortModel.getModel(this.selectedVariantRelationship);
+      } else {
+        return false;
+      }
     },
     hasAlignments: function() {
-      return this.cohortModel.getModel(this.selectedVariantRelationship).isBamLoaded();
+      if (this.selectedVariantRelationship) {
+        return this.cohortModel.getModel(this.selectedVariantRelationship).isBamLoaded();
+      } else {
+        return false;
+      }
     },
     hgvsLabel: function() {
-      if (this.selectedVariant.extraAnnot && this.info.HGVSpAbbrev && this.info.HGVSpAbbrev.length > 0) {
+      if (this.selectedVariant && this.selectedVariant.extraAnnot && this.info.HGVSpAbbrev && this.info.HGVSpAbbrev.length > 0) {
         return this.info.HGVSpAbbrev;
       } else {
         return 'HGVS';
@@ -1242,50 +1269,52 @@ export default {
       return refAlt;
     },
     afGnomAD: function() {
-      if (this.selectedVariant.extraAnnot && this.globalApp.gnomADExtra) {
-        if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
-          return {percent: "?", link: null, class: ""};
-        } else if (this.selectedVariant.gnomAD.af  == '.') {
-          return {percent: "0%", link: null, class: "level-high"};
-        } else  {
-          var gnomAD = {};
-          gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
-            + this.selectedVariant.chrom + "-"
-            + this.selectedVariant.start + "-"
-            + this.selectedVariant.ref + "-"
-            + this.selectedVariant.alt;
+      if (this.selectedVariant) {
+        if (this.selectedVariant.extraAnnot && this.globalApp.gnomADExtra) {
+          if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
+            return {percent: "?", link: null, class: ""};
+          } else if (this.selectedVariant.gnomAD.af  == '.') {
+            return {percent: "0%", link: null, class: "level-high"};
+          } else  {
+            var gnomAD = {};
+            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+              + this.selectedVariant.chrom + "-"
+              + this.selectedVariant.start + "-"
+              + this.selectedVariant.ref + "-"
+              + this.selectedVariant.alt;
 
-          gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
-          gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
-          gnomAD.percentPopMax = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax);
-          gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
-          gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
-          gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
-          return gnomAD;
+            gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
+            gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
+            gnomAD.percentPopMax = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax);
+            gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
+            gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
+            gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
+            return gnomAD;
+
+          }
+        } else {
+          if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
+            return {percent: "?", link: null, class: ""};
+          } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
+            return {percent: "0%", link: null, class: "level-high"};
+          } else  {
+            var gnomAD = {};
+            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+              + this.selectedVariant.chrom + "-"
+              + this.selectedVariant.start + "-"
+              + this.selectedVariant.ref + "-"
+              + this.selectedVariant.alt;
+
+            gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
+            gnomAD.class         = this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF);
+            gnomAD.percentPopMax = 0;
+            gnomAD.altCount      = 0;
+            gnomAD.totalCount    = 0;
+            gnomAD.homCount      = 0;
+            return gnomAD;
+          }
 
         }
-      } else {
-        if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
-          return {percent: "?", link: null, class: ""};
-        } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
-          return {percent: "0%", link: null, class: "level-high"};
-        } else  {
-          var gnomAD = {};
-          gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
-            + this.selectedVariant.chrom + "-"
-            + this.selectedVariant.start + "-"
-            + this.selectedVariant.ref + "-"
-            + this.selectedVariant.alt;
-
-          gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
-          gnomAD.class         = this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF);
-          gnomAD.percentPopMax = 0;
-          gnomAD.altCount      = 0;
-          gnomAD.totalCount    = 0;
-          gnomAD.homCount      = 0;
-          return gnomAD;
-        }
-
       }
     },
     geneHits: function() {

@@ -353,8 +353,7 @@ main.content.clin, main.v-content.clin
 
           <variant-inspect-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0"
-          v-show="selectedVariant"
+          v-if="cohortModel && cohortModel.isLoaded"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :selectedVariant="selectedVariant"
@@ -524,7 +523,7 @@ main.content.clin, main.v-content.clin
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
       :phenotypeTerm="phenotypeTerm"
-      @circle-variant="onCircleVariant"
+      @circle-variant="onCircleVariantForTour"
     ></app-tour>
 
     <save-button
@@ -1172,12 +1171,14 @@ export default {
 
             },
             function() {
+              
               self.promiseSelectFirstFlaggedVariant()
               .then(function() {
                 self.$refs.navRef.onShowVariantsTab();
-                self.cacheHelper.analyzeAll(self.cohortModel);
+                //self.cacheHelper.analyzeAll(self.cohortModel);
                 resolve();
               })
+              
 
             })
           } else {
@@ -1766,7 +1767,7 @@ export default {
 
       this.cohortModel.setCoverage();
     },
-    onCircleVariant: function(idx) {
+    onCircleVariantForTour: function(idx) {
       let self = this;
       var variant = self.cohortModel.getProbandModel().loadedVariants.features[2];
       self.onCohortVariantClick(variant, null, 'proband');
@@ -1789,7 +1790,7 @@ export default {
         self.selectedVariantInterpretation = variant.interpretation;
         self.showVariantAssessment = false;
         self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
-        self.showVariantExtraAnnots(sourceComponent.relationship, variant);
+        self.showVariantExtraAnnots(sourceComponent ? sourceComponent.relationship : 'proband', variant);
 
         self.getVariantCardRefs().forEach(function(variantCard) {
           if (sourceComponent == null || variantCard != sourceComponent) {
@@ -1822,7 +1823,7 @@ export default {
       if (variant) {
         return  {'chrom': variant.chrom, 'start': variant.start, 'ref': variant.ref, 'alt': variant.alt};
       } else {
-        return null;
+        return {};
       }
     },
     onCohortVariantOutsideClick(sourceComponent, sourceRelationship) {
@@ -2593,14 +2594,14 @@ export default {
                 }
 
 
-                self.$set(self, "selectedVariant", null);
+
                 self.$set(self, "selectedVariant", flaggedVariant);
-                self.showVariantAssessment = false;
+                self.refreshSelectedVariantInfo();
                 self.$set(self, "selectedVariantRelationship", "proband");
-                self.$set(self, "selectedVariantKey", null);
-                self.$set(self, "selectedVariantKey", flaggedVariant);
+                self.$set(self, "selectedVariantKey", self.getVariantKey(flaggedVariant));
                 self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
                 self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
+                self.showVariantAssessment = false;
 
                 self.showVariantExtraAnnots('proband', self.selectedVariant);
 
@@ -3479,6 +3480,10 @@ export default {
 
     promiseSelectFirstFlaggedVariant: function() {
       let self = this;
+      if (self.selectedVariant) {
+        self.onCohortVariantClick(self.selectedVariant, null, 'proband');
+        return Promise.resolve();
+      }
       return new Promise(function(resolve, reject) {
 
         let getGeneName = function(variant) {
