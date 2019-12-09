@@ -211,6 +211,10 @@ export default function PedigreeGenotypeChartD3() {
 
     container.selectAll("svg").remove();
 
+    if (pedigreeData.father == null && pedigreeData.mother == null) {
+      return;
+    }
+
     let svg =  container.selectAll("svg")
                          .data([pedigreeData]);
 
