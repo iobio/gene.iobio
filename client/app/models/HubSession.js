@@ -18,6 +18,7 @@ export default class HubSession {
       "afgnomAD",
       "sampleId"
     ]
+    this.user = null;
   }
 
   promiseInit(sampleId, source, isPedigree, projectId ) {
@@ -26,6 +27,15 @@ export default class HubSession {
 
     return new Promise((resolve, reject) => {
       let modelInfos = [];
+
+      self.promiseGetCurrentUser()
+      .then(function(data) {
+        self.user = data;
+        console.log(self.user)
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
 
       self.promiseGetClientApplication()
       .then(function() {
@@ -238,7 +248,7 @@ export default class HubSession {
       })
       .fail(error => {
         console.log("Unable to get file " + fileInfo.url)
-        alertify.error("Missing file for URL " + fileInfo.url, 20)
+        //alertify.error("Missing file for URL " + fileInfo.url, 20)
 
         resolve();
       })
@@ -368,6 +378,13 @@ export default class HubSession {
     // the proband by looking for a child with mother and father filled in and unknown affected status
     if (probandIndex == -1) {
       probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 0 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+    }
+
+    if (probandIndex == -1) {
+      // Assume proband if there is only one sample in the pedigree
+      if (raw_pedigree.length == 1) {
+        probandIndex = 0;
+      }
     }
 
 
@@ -687,6 +704,33 @@ export default class HubSession {
         Authorization: localStorage.getItem('hub-iobio-tkn'),
       },
     });
+  }
+
+  promiseGetCurrentUser() {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getCurrentUser()
+        .done(response => {
+          resolve(response)
+        })
+        .fail(error => {
+          reject("Error getting currentUser :" + error);
+        })      
+    })
+  }
+
+  getCurrentUser() {
+    let self = this;
+
+    return $.ajax({
+      url: self.api + '/user',
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+
   }
 
   stringifyAnalysis(analysisData) {

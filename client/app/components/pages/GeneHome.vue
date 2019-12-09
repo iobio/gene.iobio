@@ -1105,6 +1105,10 @@ export default {
           self.modelInfos = data.modelInfos;
           self.rawPedigree = data.rawPedigree;
 
+          if (self.hubSession.user) {
+            self.user = self.hubSession.user;
+          }
+
           return self.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
 
         })
