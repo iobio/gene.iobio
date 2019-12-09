@@ -818,8 +818,16 @@ export default {
       return buf;
     },
     filterPassedByVariant: function(variant) {
-      let filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" "))
+      let filterDisplay = "";
+      if (Array.isArray(variant.filtersPassed)) {
+        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" ")); 
+      } else {
+        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed);
+      }
+
       if (filterDisplay == "UserFlagged") {
+        return "";
+      } else if (filterDisplay == "NotCategorized") {
         return "";
       } else {
         return filterDisplay;
