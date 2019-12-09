@@ -76,9 +76,10 @@
         margin-bottom: 15px
 
         hr
-          margin-top: 2px
+          margin-top: 1px
           margin-bottom: 5px
           background-color: #cbcbcb
+          height: 1px
 
       .variant-row
         display: flex
