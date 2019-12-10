@@ -1179,7 +1179,14 @@ export default {
               self.promiseSelectFirstFlaggedVariant()
               .then(function() {
                 self.$refs.navRef.onShowVariantsTab();
-                //self.cacheHelper.analyzeAll(self.cohortModel);
+                
+                setTimeout(function() {
+                  if (self.geneModel.sortedGeneNames &&
+                    self.geneModel.sortedGeneNames.length < 30) {
+                    self.cacheHelper.analyzeAll(self.cohortModel);
+                  }
+                }, 1000)
+
                 resolve();
               })
               
