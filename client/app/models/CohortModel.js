@@ -2277,11 +2277,19 @@ class CohortModel {
     return variant;
 
   }
-
-
+  
   importFlaggedVariants(fileType, data, callbackPostImport, callbackPostAnalyze) {
     var me = this;
     me.flaggedVariants = [];
+
+    var isObject = function(val) {
+      if (val === null) { 
+        return false;
+      } else {
+        return ( (typeof val === 'function') || (typeof val === 'object') );
+      }
+    }
+
 
     var importRecords = null;
     if (fileType == 'json') {
@@ -2305,12 +2313,31 @@ class CohortModel {
     var promises = []
 
     importRecords.forEach( function(ir) {
-      let geneObject = me.geneModel.geneObjects[ir.gene];
+      let geneName = null;
+
+      // Workaround.  variant.gene sometimes an
+      // object, sometimes a gene name.  Other times
+      // variant.geneName is filled in instead
+      // of variant.gene.
+      if (ir.gene == null && ir.geneName) {
+        if (isObject(ir.geneName)) {
+          ir.gene = ir.geneName.gene_name
+        } 
+      } 
+
+      if (isObject(ir.gene)) {
+        geneName = ir.gene.gene_name;
+        ir.gene = ir.gene.gene_name;
+      } else {
+        geneName = ir.gene;
+      }
+
+      let geneObject = me.geneModel.geneObjects[geneName];
       if (geneObject == null || !ir.transcript || ir.transcript == '') {
-        var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true)
+        var promise = me.geneModel.promiseGetCachedGeneObject(geneName, true)
         .then(function() {
           if (geneObject == null) {
-            me.geneModel.promiseAddGeneName(ir.gene);
+            me.geneModel.promiseAddGeneName(geneName);
           }
         })
         promises.push(promise);
