@@ -198,7 +198,7 @@ export default function PedigreeGenotypeChartD3() {
     let parentWidth = (2 * nodeWidth) + nodePadding;
     let width = Math.max(childWidth, parentWidth)
     width += 10;
-    let height = (nodeWidth * 2) + nodeVerticalPadding;
+    let height = (nodeWidth * 2) + (nodeVerticalPadding*2);
     height += 10;
 
     let outerWidth = width + margin.left + margin.right;
