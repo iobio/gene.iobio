@@ -1837,6 +1837,8 @@ class CohortModel {
             me.freebayesSettings.arguments,
             me.globalApp.vepAF, // vep af
             me.getTrioSampleNames(),
+            options.gnomADExtra,
+            options.decompose,
             function(theData, trRefName) {
 
               var jointVcfRecs =  theData.split("\n");
@@ -1926,7 +1928,7 @@ class CohortModel {
       }
 
       theVcfData.loadState['called'] = true;
-      var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, me.globalApp.vepAF);
+      var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, me.globalApp.vepAF, options.gnomADExtra);
 
       var theFbData = data.results;
       theFbData.loadState['called'] = true;

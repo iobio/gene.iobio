@@ -355,7 +355,7 @@ export default class VariantExporter {
               let trioVcfData = data;
 
               // Now perform joint calling on the alignments
-              me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, trioVcfData, {sourceVariant: variant, checkCache: true, isBackground: true})
+              me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, trioVcfData, {sourceVariant: variant, checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
               .then(function(data) {
                   var theGeneObject1    = data.gene;
                   var theTranscript1    = data.transcript;
@@ -370,7 +370,7 @@ export default class VariantExporter {
                   }
 
                   var sampleNamesToGenotype = me.cohort.getProbandModel().getSampleNamesToGenotype();
-                  var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, me.globalApp.vepAF)
+                  var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, me.globalApp.vepAF, me.globalApp.gnomADExtra)
                   var theFbData = data.results;
 
                   theFbData.features.forEach(function(v) {

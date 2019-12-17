@@ -1404,7 +1404,7 @@ export default {
           return self.cohortModel.promiseJointCallVariants(self.selectedGene,
             self.selectedTranscript,
             self.cohortModel.getCurrentTrioVcfData(),
-            {checkCache: false, isBackground: false})
+            {checkCache: false, isBackground: false, gnomADExtra: self.globalApp.gnomADExtra, decompose: true})
         })
 
       }

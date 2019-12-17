@@ -1,3 +1,4 @@
+import { createHoster } from 'fibridge-host';
 //
 //  vcfiobio
 //  Tony Di Sera
@@ -405,6 +406,7 @@ export default function vcfiobio(theGlobalApp) {
       return;
     }
 
+    this.processVcfFile(vcfFile, tabixFile)
     callback(true);
     return;
 
@@ -1075,7 +1077,7 @@ export default function vcfiobio(theGlobalApp) {
 
   }
 
-  exports.parseVcfRecordsForASample = function(annotatedRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, sampleNamesToGenotype, sampleIndex, vepAF) {
+  exports.parseVcfRecordsForASample = function(annotatedRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, sampleNamesToGenotype, sampleIndex, vepAF, gnomADExtra) {
     var me = this;
 
       // For each vcf records, call snpEff to get the annotations.
@@ -1115,7 +1117,7 @@ export default function vcfiobio(theGlobalApp) {
 
 
       // Parse the vcf object into a variant object that is visualized by the client.
-      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, false, sampleNamesToGenotype, sampleIndex, vepAF, false);
+      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, false, sampleNamesToGenotype, sampleIndex, vepAF, false, gnomADExtra);
       return {'annotatedRecs': annotatedRecs, 'results': results};
 
   }
@@ -3083,6 +3085,31 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
 
 
   };
+
+  exports.processVcfFile = function(vcfFile, tbiFile){
+    let self = this;
+    const proxyAddress = 'lf-proxy.iobio.io';
+    const port = 80;
+    const secure = false;
+    const protocol = secure ? 'https:' : 'http:';
+    // TODO: shouldn't this be going out of scope and eventually garbage
+    // collected, which could lead to race conditions?
+    createHoster({ proxyAddress, port, secure }).then((hoster) => {
+      const vcfPath = '/' + vcf.name;
+      hoster.hostFile({ path: vcfPath, file: vcfFile });
+      const tbiPath = '/' + tbiFile.name;
+      hoster.hostFile({ path: tbiPath, file: tbiFile });
+      const portStr = hoster.getPortStr();
+      const baseUrl = `${protocol}//${proxyAddress}${portStr}`;
+      vcfURL = `${baseUrl}${hoster.getHostedPath(vcfPath)}`;
+      tbiUrl = `${baseUrl}${hoster.getHostedPath(tbiPath)}`;
+      sourceType = SOURCE_TYPE_URL;
+    });
+
+  };
+
+
+
 
 
 

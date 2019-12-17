@@ -432,7 +432,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
 
       // Joint call variants if we are calling variants for all genes in 'Analyze All'
       if (analyzeCalledVariants) {
-        return me.cohort.promiseJointCallVariants(geneObject, transcript, trioVcfData, {checkCache: true, isBackground: true})
+        return me.cohort.promiseJointCallVariants(geneObject, transcript, trioVcfData, {checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
       } else {
         return Promise.resolve({'trioFbData': trioFbData, 'trioVcfData': trioVcfData});
       }

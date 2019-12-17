@@ -14,8 +14,8 @@ export default class EndpointCmd {
       this.api = new Client('mosaic.chpc.utah.edu/gru/api/v1', { secure: true });
     }
     else {
-      this.api = new Client('backend.iobio.io', { secure: true });
-      //this.api = new Client('dev.backend.iobio.io:9005', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
+      //this.api = new Client('backend.iobio.io', { secure: true });
+      this.api = new Client('dev.backend.iobio.io:9005', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
     }
 
     // iobio services
@@ -532,7 +532,8 @@ export default class EndpointCmd {
         }
     }
 
-    freebayesJointCall(bamSources, refName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF, sampleNames) {
+    freebayesJointCall(bamSources, refName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF, sampleNames, gnomadExtra, decompose) {
+        let me = this;
         if (this.gruBackend) {
 
             const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
@@ -540,6 +541,18 @@ export default class EndpointCmd {
             const refNames = this.getHumanRefNames(refName).split(" ");
             const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
             const clinvarUrl = this.globalApp.getClinvarUrl(genomeBuildName);
+
+            let gnomadUrl = null;
+            let gnomadRegionStr = null;
+
+            if (gnomadExtra) {
+              // Get the gnomad vcf based on the genome build
+              gnomadUrl = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
+              // Prepare args to annotate with gnomAD
+              gnomadRegionStr = refName + "\t" + regionStart + "\t" + regionEnd;
+
+            }
+
 
             return this.api.streamCommand('freebayesJointCall', {
                 alignmentSources: bamSources,
@@ -557,6 +570,9 @@ export default class EndpointCmd {
                 isRefSeq,
                 clinvarUrl,
                 sampleNames,
+                gnomadUrl: gnomadUrl ? gnomadUrl : '',
+                gnomadRegionStr: gnomadRegionStr ? gnomadRegionStr : '',
+                decompose
             });
         }
         else {
