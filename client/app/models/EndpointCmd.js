@@ -14,8 +14,8 @@ export default class EndpointCmd {
       this.api = new Client('mosaic.chpc.utah.edu/gru/api/v1', { secure: true });
     }
     else {
-      //this.api = new Client('backend.iobio.io', { secure: true });
-      this.api = new Client('dev.backend.iobio.io:9005', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
+      this.api = new Client('backend.iobio.io', { secure: true });
+      //this.api = new Client('dev.backend.iobio.io:9005', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
     }
 
     // iobio services
