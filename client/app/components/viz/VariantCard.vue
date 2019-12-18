@@ -48,7 +48,7 @@
     vertical-align: top
     margin-top: 4px
 
-    .btn__content
+    .btn__content, .v-btn__content
       color: $app-color !important
       padding-left: 8px
       padding-right: 8px
@@ -80,7 +80,7 @@
       min-width: 22px
       margin-right: 0px !important
 
-      .btn__content
+      .btn__content, .v-btn__content
         font-size: 15px
         padding-left: 5px
         padding-right: 5px

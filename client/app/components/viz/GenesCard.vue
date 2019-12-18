@@ -35,7 +35,7 @@
       margin-top: 10px
       margin-left: 0px
 
-  .btn__content
+  .btn__content, .v-btn__content
     padding: 0 4px
 
   #genes-toolbar

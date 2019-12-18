@@ -27,7 +27,7 @@
   margin: 0px 8px 0px 0px
   padding: 0px
 
-  .btn__content
+  .btn__content, .v-btn__content
     color: $link-color
     padding: 0px
     text-align: left
@@ -55,10 +55,11 @@
     margin: 0px;
     margin-left: 4px;
 
-  .btn--floating.btn--small .btn__content
+  .btn--floating.btn--small .btn__content,
+  .btn--floating.btn--small .v-btn__content
     padding: 0px
 
-  .btn__content
+  .btn__content, .v-btn__content
     color: $text-color
 
 

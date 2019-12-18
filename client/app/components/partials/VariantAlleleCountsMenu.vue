@@ -8,7 +8,7 @@
   min-width: 100px
   margin: 0px
 
-  .btn__content
+  .btn__content, .v-btn__content
     color:  $text-color
     padding-left: 0px
 

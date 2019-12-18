@@ -74,7 +74,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
       height: 30px
       margin-top: -7px
 
-      .btn__content
+      .btn__content, .v-btn__content
         padding: 0px
 
       i.material-icons
@@ -155,6 +155,18 @@ aside.navigation-drawer, aside.v-navigation-drawer
 nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
+  .v-toolbar__content 
+    padding-right: 0px
+
+  #more-menu-button
+    padding: 0px
+
+  #show-filters-button
+    font-size: 16px
+
+    .v-btn__content
+      padding-top: 2px
+
   .toolbar__content
     margin-top: 2px
     align-items: flex-end
@@ -230,6 +242,35 @@ nav.toolbar, nav.v-toolbar
       color: $text-color
 
 
+  #phenotype-input, #gene-name-input, #phenolyzer-top-input
+    margin-top: 4px
+    .v-text-field__slot
+      margin-top: 4px !important
+
+      input
+        padding-bottom: 0px
+        padding-top: 4px
+    .v-input input
+      color: $nav-text-color
+    .v-input
+      padding: 0px 0 0
+    .v-text-field__slot
+      min-height: 0px
+      margin-top: 8px
+    .v-text-field__slot
+      min-height: 0px
+      margin-top: 8px
+    .v-select__slot input
+      padding-bottom: 0px
+    .v-select__slot label
+      top: 9px
+    .v-text-field__slot
+      label
+        font-size: 14px
+      input
+        font-size: 14px
+
+
   .clinvar-switch
     padding: 0px
     width: 130px
@@ -262,7 +303,7 @@ nav.toolbar, nav.v-toolbar
     margin: 0px
     min-width: 78px
 
-    .btn__content
+    .btn__content, .v-btn__content
       padding: 0 0px
 
 
@@ -294,7 +335,7 @@ nav.toolbar, nav.v-toolbar
     background-color: #ffffff1f
     min-width: 70px
 
-    .btn__content
+    .btn__content, .v-btn__content
       padding: 0px
 
   &.clin
@@ -417,9 +458,9 @@ nav.toolbar, nav.v-toolbar
 
 <template>
   <div>
-    <v-toolbar fixed  height="45"   dark  :class="launchedFromClin ? 'clin' : '' " >
+    <v-toolbar fixed  height="50"   dark  :class="launchedFromClin ? 'clin' : '' " >
 
-      <v-toolbar-side-icon   style="margin-bottom:2px" @click.stop="leftDrawer = !leftDrawer">
+      <v-toolbar-side-icon   @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
 
@@ -435,15 +476,14 @@ nav.toolbar, nav.v-toolbar
 
 
 
-      <v-spacer></v-spacer>
-      <v-btn  @click="onShowFilters" flat>
+      <v-btn id="show-filters-button"  @click="onShowFilters" flat>
          <v-icon>filter_list</v-icon>
          Filters
       </v-btn>
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items  lass="hidden-sm-and-down" style="padding-top:3px">
+      <v-toolbar-items style="flex-grow: 3;padding-top:3px">
 
         <v-icon>
           search
@@ -589,7 +629,7 @@ nav.toolbar, nav.v-toolbar
           <v-icon >close</v-icon>
         </v-btn>
 
-        <v-progress-circular id="overall-progress"  :size="19"  :width="5" color="grey darken-1"
+        <v-progress-circular id="overall-progress"  style="padding-top:6px" :size="12"  :width="2" color="blue darken-1"
           v-if="analyzeAllInProgress || callAllInProgress"
           :indeterminate="true">
         </v-progress-circular>

@@ -34,7 +34,7 @@
       :preselect="false"/>
     </v-flex>
     <v-flex id="phenolyzer-top-input" style="display:inline-block;max-width:60px;width:60px;margin-left:5px;">
-      <v-select
+      <v-combobox
       v-model="phenolyzerTop"
       label="Genes"
       :hide-details="true"
@@ -42,7 +42,7 @@
       combobox
       :items="phenolyzerTopCounts"
       >
-      </v-select>
+      </v-combobox>
     </v-flex>
     <v-flex v-if="!isNav" >
       <img style="width:22px;height:22px"

@@ -13,20 +13,32 @@
     margin-top: 0px
     margin-bottom: 0px
 
-  .radio label
+  .v-radio
+    padding-right: 0px
+    margin-bottom: 0px
+
+  .radio label,
+  .v-radio label
     line-height: 25px
     padding-top: 3px
+    font-size: 13px
+    margin: 0px
 
   .input-group.radio-group
     padding-top: 0px
 
-  .input-group__selections__comma
+  .v-input--radio-group 
+    padding-top: 0px
+    margin-top: 0px
+
+  .input-group__selections__comma, .v-select__selection--comma
     font-size: 13px
 
-  .input-group.input-group--selection-controls.switch
+  .input-group.input-group--selection-controls.switch,
+  .v-input--selection-controls.v-input--switch,
     label
       font-weight: normal
-      font-size: 12px
+      font-size: 13px
       padding-left: 5px
 
   .radio-group
@@ -58,9 +70,8 @@
 
   button
 
-    padding: 0px
-    height: 20px !important
-    min-width: 77px
+    height: 24px !important;
+    min-width: 100px;
 
     &.action-button
 
@@ -82,6 +93,20 @@
       &.disabled
         opacity: 0.20 !important
 
+      &.v-btn--disabled
+        opacity: 0.20 !important
+
+
+  .v-text-field__slot,
+  .v-select__slot
+    input
+      font-size: 12px
+      color: $text-color
+
+  .sample-label
+    .v-input--switch
+      margin-bottom: 10px
+      margin-top: 0px
 
 </style>
 </style>
@@ -114,7 +139,7 @@
             </v-layout>
 
 
-            <v-layout row nowrap class="mt-3">
+            <v-layout row nowrap class="mt-0">
 
               <v-flex class="mt-0" style="max-width: 90px;margin-right: 10px;" >
                   <v-radio-group v-model="mode" @change="onModeChanged"  hide-details column>
@@ -129,7 +154,7 @@
               </v-flex>
 
 
-              <v-flex  >
+              <v-flex style="max-width:160px" >
                 <v-select
                   label="Species"
                   hide-details
@@ -138,7 +163,7 @@
                 ></v-select>
               </v-flex>
 
-              <v-flex  class="ml-2">
+              <v-flex style="max-width:160px" class="ml-2">
                 <v-select
                   label="Genome Build"
                   hide-details
@@ -147,14 +172,13 @@
                 ></v-select>
                </v-flex>
 
-              <v-flex class="ml-2">
+              <v-flex style="max-width:160px" class="ml-2">
                   <v-select
                     :items="demoActions"
                     item-value="value"
                     item-text="display"
                     @input="onLoadDemoData"
                     v-model="demoAction"
-                    overflow
                     hide-details
                     label="Demo data"></v-select>
               </v-flex>
@@ -195,17 +219,16 @@
                </v-flex>
 
                <v-flex  class=" pl-2 pr-3" >
-                 <v-select
+                 <v-autocomplete
                   v-if="probandSamples && probandSamples.length > 0"
                   v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
                   label="Affected Siblings"
                   multiple
-                  autocomplete
                   v-model="affectedSibs"
                   :items="probandSamples"
                   hide-details
                   >
-                </v-select>
+                </v-autocomplete>
                </v-flex>
 
                <v-flex   class="pr-2">

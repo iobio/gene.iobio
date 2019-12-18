@@ -1,9 +1,16 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+
+
 #flagged-variants-card
   padding-left: 5px
   padding-bottom: 20px
+  background-color: white
+
+  &.v-card
+    box-shadow: none
+    -webkit-box-shadow: none
 
   .gene-ranks
     .chip
@@ -399,26 +406,27 @@
 
 
 
-  <v-expansion-panel expand >
+  <v-expansion-panel expand v-model="expansionControl" >
     <v-expansion-panel-content v-for="geneList in geneLists"  :key="geneList.label"
-      :value="geneList.expand"
       v-if="geneList.show">
-      <div slot="header" v-show="!isBasicMode">
+      <template v-slot:header>
+        <div  v-show="!isBasicMode">
 
-        <span v-show="geneList.genes.length > 0" class="filter-subheader">
-          <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
-
-
-          <v-badge>
-            <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
-            <span class="filter-label">{{ geneList.label }}</span>
-          </v-badge>
+          <span v-show="geneList.genes.length > 0" class="filter-subheader">
+            <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
 
 
-        </span>
+            <v-badge>
+              <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
+              <span class="filter-label">{{ geneList.label }}</span>
+            </v-badge>
 
 
-      </div>
+          </span>
+
+
+        </div>
+      </template>
       <v-list three-line>
         <template
          v-for="flaggedGene in geneList.genes">
@@ -840,6 +848,16 @@ export default {
 
   },
   computed: {
+    expansionControl: function() {
+      let self = this;
+      if (self.geneLists) {
+        return self.geneLists.map(function(geneList) {
+          return geneList.expand;
+        })        
+      } else {
+        return []
+      }
+    }
 
 
   },

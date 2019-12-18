@@ -75,7 +75,7 @@
           height: 22px
           margin-left: -5px
 
-          .btn__content
+          .btn__content, .v-btn__content
             padding: 0px
 
             i.material-icons

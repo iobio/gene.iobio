@@ -9,7 +9,7 @@
   height: 20px
 
 
-  .btn__content
+  .btn__content, .v-btn__content
     color:  $text-color
     padding-left: 0px
     padding-right: 0px
@@ -39,7 +39,7 @@
   margin-top: -2px
   margin-bottom: 4px
 
-  .btn__content
+  .btn__content, .v-btn__content
     color: $text-color !important
     padding-left: 4px
     padding-right: 4px

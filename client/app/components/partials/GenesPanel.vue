@@ -17,6 +17,9 @@
       padding-top: 2px
       padding-bottom: 2px
       height: 22px
+      width: 80px
+      padding-left: 10px
+      padding-right: 10px    
 
     #call-variants-dropdown
       display: inline-block
@@ -31,9 +34,11 @@
         padding-top: 2px
         padding-bottom: 2px
         height: 22px
-        width: 50px
+        width: 80px
+        padding-left: 10px
+        padding-right: 10px
 
-    .btn__content
+    .btn__content, .v-btn__content
       padding: 0 4px
 
 

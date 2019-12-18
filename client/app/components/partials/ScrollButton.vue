@@ -10,7 +10,7 @@
   margin-left: 10px
 
 
-  .btn__content
+  .btn__content, .v-btn__content
     color: $link-color !important
     padding: 0px
     width: 98px

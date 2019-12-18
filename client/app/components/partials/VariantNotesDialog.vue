@@ -27,7 +27,7 @@
   margin-left: 2px
 
 
-  .btn__content
+  .btn__content, .v-btn__content
     padding: 0px
     margin: 0px
     color: $text-color !important

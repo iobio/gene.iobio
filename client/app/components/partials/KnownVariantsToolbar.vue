@@ -7,6 +7,25 @@
   margin-left: 20px
   margin-top: -6px
 
+  .v-input--radio-group
+    height: 30px
+    margin-top: 0px
+    padding-top: 0px
+
+    .v-input--radio-group__input
+      label
+        margin-bottom: 0px
+        font-size: 14px
+
+      .v-select__selection--comma 
+        color: $text-color
+        font-size: 13px
+
+  .v-select__selection.v-select__selection--comma
+    color: $text-color
+    font-size: 13px
+
+
   #clinvar-filter-box
     margin-top: 3px
     margin-left: 10px
@@ -95,7 +114,7 @@
 
 <template>
     <div id="known-variants-toolbar">
-      <div style="width:295px;float:left;padding-top:5px;margin-top:0px;margin-right:10px">
+      <div style="width:450px;float:left;padding-top:5px;margin-top:0px;margin-right:10px">
         <v-radio-group v-model="viz" row style="height:30px">
             <v-radio label="Variants" :hide-details="true" value="variants"></v-radio>
             <v-radio label="Counts" :hide-details="true" value="histo"></v-radio>

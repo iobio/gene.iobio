@@ -1,6 +1,7 @@
 <style lang="css" >
 
-  .gene-info .btn__content {
+  .gene-info .btn__content,
+  .gene-info .v-btn__content {
     color:  rgb(113,113,113);
   }
   .gene-info .input-group {
@@ -37,7 +38,7 @@
 
   .gene-info
     display: flex
-    align-items: baseline
+    align-items: center
 
   .v-input
     margin-top: -8px
@@ -57,7 +58,7 @@
     justify-content: flex-start
     padding-top: 5px
     padding-bottom: 5px
-    align-items: baseline
+    align-items: center
 
 
   .card-title

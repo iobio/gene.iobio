@@ -6,8 +6,8 @@
 #show-optional-tracks-button
   margin: 0px 15px 5px 0px
   font-size: 13px
-  height: 20px
-
+  height: 24px
+  margin-bottom: 0px
   .btn__content, .v-btn__content
     color:  $text-color
     padding-left: 5px
@@ -24,6 +24,15 @@
     label
       padding-top: 4px
       font-size: 13px
+
+  .v-input__slot
+    margin-bottom: 0px
+
+  .v-input__slot
+    label
+      font-size: 14px
+      margin-bottom: 0px
+
 
 #known-variants-toolbar
   display: flex !important

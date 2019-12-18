@@ -51,20 +51,22 @@
         color: $link-color
         margin-bottom: 2px
 
-      .chip
+      .chip, .v-chip
         vertical-align: top
         margin-top: 0px
         margin-bottom: 0px
         margin-right: 0px
-        .chip__content
+        .chip__content, .v-chip__content
           padding: 0 0px
           height: 15px
           width: 34px
           font-size: 12px
           justify-content: center
+          color: $text-color
         &.high
-          .chip__content
+          .chip__content, .v-chip__content
             background-color:  $danger-color
+            color: white
 
       .pheno-source
         width: 40px

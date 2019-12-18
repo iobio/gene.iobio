@@ -13,7 +13,7 @@
   bottom: 30px !important
 
 main.content, main.v-content
-  margin-top: 52px
+  margin-top: 57px
 
 
   .variant-assessment-heading
@@ -52,8 +52,8 @@ main.content.clin, main.v-content.clin
   margin-left: auto
   margin-right: auto
   text-align: center
-  width: 400px
-  height: 95px
+  width: 300px
+  height: auto
   padding-top: 15px
   padding-bottom: 15px
 
@@ -111,7 +111,7 @@ main.content.clin, main.v-content.clin
   width: calc(100% - 10px)
   margin-left: -10px
 
-  .card
+  .card, .v-card
     margin: 0px
     padding: 0px
     -webkit-box-shadow: none !important

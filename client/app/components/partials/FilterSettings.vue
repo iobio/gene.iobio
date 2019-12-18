@@ -147,7 +147,7 @@
     </v-flex>
 
     <v-flex xs12 class="mb-3" >
-      <v-select
+      <v-autocomplete
             label="Consequence"
             v-bind:items="consequences"
             v-model="selectedConsequences"
@@ -155,7 +155,7 @@
             autocomplete
             hide-details
       >
-      </v-select>
+      </v-autocomplete>
     </v-flex>
 
     <v-flex id="min-revel" xs12 class="mb-2 mt-2 mr-4" >

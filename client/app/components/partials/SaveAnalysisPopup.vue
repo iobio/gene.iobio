@@ -23,7 +23,7 @@
     height: 20px !important
     margin-bottom: 15px !important
 
-    .btn__content
+    .btn__content, .v-btn__content
       padding: 0px
       max-width: 20px
       max-height: 20px

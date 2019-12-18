@@ -145,7 +145,7 @@
       min-width: 110px !important
       max-width: 110px
 
-      .btn__content
+      .btn__content, .v-btn__content
         color: $text-color !important
         padding-left: 8px
         padding-right: 8px

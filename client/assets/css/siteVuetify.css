@@ -24,8 +24,12 @@ html {
   text-transform: none;
 }
 
-
-
+.theme--light.v-sheet,
+.theme--light.v-card {
+  background: white;
+  color:  rgb(113,113,113);
+  fill:  rgb(113,113,113);
+}    
 
 .application.theme--light {
   background: #fafafa;
@@ -33,6 +37,15 @@ html {
   fill:  rgb(113,113,113);
 }
 
+
+.theme--light .v-list {
+  color:  rgb(113,113,113);
+  fill:  rgb(113,113,113);
+}    
+
+.theme--light.v-btn:not(.v-btn--icon):not(.v-btn--flat) {
+    background-color: white;
+}
 
 .application.theme--light a {
   cursor: pointer;
@@ -98,7 +111,8 @@ html {
     font-size: 14px;
  }
 .input-group label,
-.v-input-group label
+.v-input-group label,
+.v-text-field__slot label,
  {
   font-size: 14px;
 }
@@ -112,14 +126,19 @@ html {
 
 .input-group.input-group--slider label,
 .v-input-group.v-input-group--slider label,
+.v-text-field__slot label,
  {
   font-size: 14px;
   font-weight: normal;
   color: rgb(113,113,113);
 }
 
-
-
+.v-select__selection--comma {
+  color: rgb(113,113,113);
+}
+.v-select__slot label {
+  font-size: 13px;
+}
 .tooltip {
   position: absolute;
   z-index: initial;
@@ -155,16 +174,16 @@ html {
 
 .menuable__content__active {
   background-color: white;
-  z-index: 206 !important;
+  z-index: 206;
 }
 
 .menu__content--select.menuable__content__active {
-  z-index: 208 !important;
+  z-index: 208;
 }
 
 .dropdown.open .dropdown-menu {
   max-height: 400px !important;
-  overflow-y: scroll !important
+  overflow-y: scroll !important;
 }
 
 

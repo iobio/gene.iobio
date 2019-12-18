@@ -31,7 +31,7 @@ $light-gray-color:   #f0f1f3
 
 .buttons-group
     margin-top: 0px !important
-    padding-left: 40px
+    padding-left: 44px
 
 #welcome-area
   margin-top: -5px
@@ -132,7 +132,7 @@ $light-gray-color:   #f0f1f3
       font-size: 16px !important
       margin-left: 7px
       margin-right: 7px
-      height: 40px
+      height: 44px
       width: 270px
       margin-bottom: 10px
       background-color: $accent-color
@@ -147,7 +147,7 @@ $light-gray-color:   #f0f1f3
         color: white
         margin-right: 7px
 
-      .btn__content
+      .btn__content, .v-btn__content
         color: white
 
     button.welcome-button-outline
@@ -155,7 +155,7 @@ $light-gray-color:   #f0f1f3
       font-size: 16px !important
       margin-left: 7px
       margin-right: 7px
-      height: 40px
+      height: 4px
       width: 230px
       margin-bottom: 10px
       background-color: white
@@ -169,7 +169,7 @@ $light-gray-color:   #f0f1f3
         color: $accent-color
         margin-right: 7px
 
-      .btn__content
+      .btn__content, .v-btn__content
         color: $accent-color
 
 
@@ -182,7 +182,7 @@ $light-gray-color:   #f0f1f3
 .resources-panel
   flex-wrap: wrap
   justify-content: center !important
-  .avatar
+  .avatar, .v-avatar
     min-height: 120px
     min-width: 120px
     margin-bottom: 30px
@@ -247,7 +247,7 @@ $light-gray-color:   #f0f1f3
   div.how-it-works-item, div.features-item
     display: flex
 
-    .avatar
+    .avatar, .v-avatar
       margin-right: 10px
       background-color: $color-1 !important
       width: 48px !important

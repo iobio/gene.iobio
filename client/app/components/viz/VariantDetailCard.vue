@@ -23,7 +23,7 @@
     margin-top: -2px
     margin-bottom: 0px
 
-    .btn__content
+    .btn__content, .v-btn__content
       color: $app-color !important
       padding-left: 8px
       padding-right: 8px
@@ -49,7 +49,7 @@
 
 
   #show-notes-button
-    .btn__content
+    .btn__content, .v-btn__content
       .interpretation-label
         font-size: 13px !important
         padding-top: 6px !important
@@ -82,7 +82,7 @@
         color: $app-color
 
     #show-notes-button
-      .btn__content
+      .btn__content, .v-btn__content
         .material-icons
           padding-top: 0px !important
 
@@ -145,7 +145,7 @@
     padding: 0px
     width: 100px
 
-    .btn__content
+    .btn__content, .v-btn__content
       color: $link-color !important
       padding: 0px
 

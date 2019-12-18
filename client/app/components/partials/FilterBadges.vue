@@ -45,7 +45,7 @@
         right: -12px
         top: -11px
 
-    .btn__content
+    .btn__content, .v-btn__content
       padding: 0px
 
     &.selected
@@ -53,7 +53,7 @@
       height: 50px
       margin-top: -10px
 
-      .btn__content
+      .btn__content, .v-btn__content
         padding-top: 5px;
 
     &.disabled
@@ -132,7 +132,7 @@
      margin: 0px
      margin-right: 0px
 
-    .btn__content
+    .btn__content, .v-btn__content
       color: $text-color !important
 
 

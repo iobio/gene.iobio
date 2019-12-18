@@ -15,7 +15,7 @@
   padding: 0px
   min-width: 20px
 
-  .btn__content
+  .btn__content, .v-btn__content
     padding: 4px
 
 #ranked-variants-body
@@ -70,7 +70,8 @@
     margin-top: -15px
 
 #ranked-variants-menu
-  vertical-align: top
+  vertical-align: bottom
+  padding-bottom: 4px
 
 
   #ranked-variants-menu-button

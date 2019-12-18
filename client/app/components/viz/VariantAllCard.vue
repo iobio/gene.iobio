@@ -50,7 +50,7 @@
     vertical-align: top
     margin-top: 4px
 
-    .btn__content
+    .btn__content, .v-btn__content
       color: $app-color !important
       padding-left: 8px
       padding-right: 8px
@@ -117,6 +117,7 @@
     max-width: 80px
     float: right
     margin-right: 20px
+    margin-left: 30px
 
     label
       padding-left: 7px
@@ -138,7 +139,7 @@
     &.called
       vertical-align: top
       padding-top: 4px
-      .badge__badge
+      .badge__badge, .v-badge__badge
         background-color: #efeeee !important
         border: thin solid #bfbdbd !important
         color: $text-color !important
@@ -146,20 +147,21 @@
       vertical-align: top
       padding-top: 4px
       padding-left: 0px
-      .badge__badge
+      margin-left: 70px
+      .badge__badge, .v-badge__badge
         background-color: #efeeee !important
         border: thin solid #bfbdbd !important
         color: $text-color !important
     &.coverage-problem
       vertical-align: top
-      .badge__badge
+      .badge__badge, .v-badge__badge
         background-color: $coverage-problem-color !important
 
     .badge__badge, .v-badge__badge
       font-size: 11px
       font-weight: normal
       width: 24px
-      top: -3px;
+      top: 0px
       background-color: $light-badge-color !important
 
   #known-variants-chart
@@ -293,7 +295,7 @@
 <template>
 
   <v-card tile id="variant-card" class="app-card">
-    <div>
+    <div style="display: flex;align-items: center;">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
