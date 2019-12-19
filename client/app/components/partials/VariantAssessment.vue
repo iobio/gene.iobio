@@ -96,7 +96,7 @@
   <div id="variant-assessment" class="app-card">
     <div>
       <variant-interpretation
-      style="width: 210px;display: inline-block"
+      style="width: 300px;display: inline-block"
        wrap="true"
        :variant="variant"
        :variantInterpretation="interpretation"

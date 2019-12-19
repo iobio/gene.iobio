@@ -77,10 +77,10 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn style="height:22px" @click="onApply">
+          <v-btn  @click="onApply">
             Apply
           </v-btn>
-          <v-btn style="height:22px" @click="onCancel">
+          <v-btn  @click="onCancel">
             Cancel
           </v-btn>
         </v-card-actions>

@@ -98,7 +98,7 @@
         line-height: 14px
 
       #qual-track
-        margin-top: -20px
+        margin-top: 0px
         #depth-viz
           .circle-label
             font-size: 13px !important
@@ -133,7 +133,7 @@
     padding-bottom: 5px
     font-size: 16px
     padding-top: 0px
-    width: 160px
+    width: 200px
     display: flex
     justify-content: flex-start
 
@@ -223,7 +223,7 @@
           <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
         </span>
 
-        Variant
+        Variant  
 
         <variant-links-menu
         :selectedGene="selectedGene"
@@ -237,8 +237,9 @@
 
 
 
-      <span v-if="selectedVariant && info" class="variant-heading" style="margin-left:10px" >
+      <span v-if="selectedVariant && info" class="variant-heading" style="margin-left:15px" >
 
+        <span style="margin-right:10px">{{ selectedGene.gene_name}}</span>
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1">{{ info.coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>

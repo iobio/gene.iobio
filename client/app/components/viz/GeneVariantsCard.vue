@@ -54,7 +54,7 @@
     display: flex
     padding-left: 0px
     margin-left: 0px
-    width: 143px
+    width: 193px
     justify-content: flex-start
     padding-top: 5px
     padding-bottom: 5px
