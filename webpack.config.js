@@ -85,12 +85,14 @@ if (inProduction) {
         NODE_ENV: '"production"'
       }
     }),
+    /* Had to remove due to problems with production build
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true,
       compress: {
         warnings: false
       }
     }),
+    */
     new webpack.LoaderOptionsPlugin({
       minimize: true
     })
