@@ -485,6 +485,8 @@
 
             </div>
             <div style="min-width:190px" >
+
+              <!--
               <toggle-button
                 v-if="hasConservationAligns"
                 name1="Nuc"
@@ -493,6 +495,7 @@
                 buttonWidth="90"
                @click="onToggleConservationNucAA">
               </toggle-button>
+              -->
 
               <span v-if="multialignInProgress" class="pt-4 loader multialign-loader" >
                   <img src="../../../assets/images/wheel.gif">
