@@ -450,7 +450,11 @@ class Util {
       isIEedge = winNav.userAgent.indexOf("Edge") > -1,
       isIOSChrome = winNav.userAgent.match("CriOS");
 
-    if (isIOSChrome) {
+    var isChrome = /Chrome/.test(window.navigator.userAgent) && /Google Inc/.test(window.navigator.vendor);  
+
+    if(isChrome) {
+      return true;
+    } else if (isIOSChrome) {
       return true;
     } else if (
       isChromium !== null &&
@@ -498,7 +502,7 @@ class Util {
   }
 
   detectSafari() {
-    return (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1);
+    return (navigator.userAgent.indexOf('Safari') != -1 && !this.isChrome());
   }
 
 
