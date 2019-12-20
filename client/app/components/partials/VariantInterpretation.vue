@@ -1,58 +1,104 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+input#select-interpretation
+  padding-top: 0px
+  padding-bottom: 0px
 
-i.material-icons.interpretation.not-reviewed
-  color: $not-reviewed-color !important
-  font-size: 22px
-  padding-top: 2px
-i.material-icons.interpretation.sig
-  color: $significant-color !important
-  font-size: 22px
-  padding-top: 2px
-i.material-icons.interpretation.unknown-sig
-  color: $unknown-significance-color !important
-  font-size: 22px
-  padding-top: 2px
-i.material-icons.interpretation.poor-qual
-  color: $poor-qual-color !important
-  font-size: 22px
-  padding-top: 2px
-i.material-icons.interpretation.not-sig
-  color: $not-significant-color !important
-  font-size: 22px
-  padding-top: 2px
+i.material-icons.interpretation
+  color: white !important
+  font-size: 13px
+  padding-top: 0px
+  padding-bottom: 3px
+  padding-right: 4px
+  padding-left: 4px
 
 .interpretation-label
-  padding-left: 5px
+  color: white  !important
+  padding-left: 0px
 
-#select-interpretation
+.select-interpretation
+  height: 26px
+  -webkit-box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
+  box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
+
   &.no-wrap
-    .input-group__selections__comma
+    .input-group__selections__comma, .v-input__control
       width: initial
 
+.interpretation-choices
+  width: 100%
+  padding: 10px
 
-#select-interpretation
-  font-family: 'Open sans'
+  &.not-reviewed
+    background-color: $not-reviewed-color
+
+  &.sig
+    background-color: $significant-color
+
+  &.not-sig
+    background-color: $not-significant-color
+
+  &.poor-qual
+    background-color: $poor-qual-color
+
+  &.unknown-sig
+    background-color: $unknown-significance-color
+
+.select-interpretation
+  font-family: $app-font
   margin: 0px
   padding: 0px
-  width: 22px
+  width: 18px
   height: auto
   font-size: 12px
   margin-top: 0px
+
+
+  .v-input__control
+    max-height: 22px
+    min-height: 22px
+
+  .v-input__slot
+    max-height: 22px
+
+
+  .v-input__icon
+    i.material-icons
+      color: white
 
   &.show-interpretation-label
     width: initial
 
     .interpretation-label
-      color: $text-color !important
-      font-size: 14px
+      color: white !important
+      font-size: 13px
 
-  .input-group__input
-    min-height: 21px
+  &.not-reviewed
+    .input-group__input, .v-input__control
+      background-color: $not-reviewed-color
+
+  &.sig
+    .input-group__input, .v-input__control
+      background-color: $significant-color
+
+  &.not-sig
+    .input-group__input, .v-input__control
+      background-color: $not-significant-color
+
+  &.poor-qual
+    .input-group__input, .v-input__control
+      background-color: $poor-qual-color
+
+  &.unknown-sig
+    .input-group__input, .v-input__control
+      background-color: $unknown-significance-color
+
+  .input-group__input, .v-input__control
+    min-height: 26px
 
   &.input-group--hide-details
-    .input-group__details
+    .input-group__details, .v-input__control
       display: none
 
 
@@ -70,12 +116,10 @@ i.material-icons.interpretation.not-sig
 
   .input-group__append-icon
     line-height: 20px
-    color: #818181
-    display: none
+    color: white !important
     width: 20px
-    padding-left: 0px
+    padding-left: 10px
     padding-right: 1px
-    color: $text-color !important
 
 
 </style>
@@ -85,30 +129,47 @@ i.material-icons.interpretation.not-sig
   <v-select
   id="select-interpretation"
   :items="interpretations"
-  :class="interpretation + ' ' + (showInterpretationLabel ? 'show-interpretation-label' : '')"
+  :class="{'interpretation': true, 'select-interpretation': true, 'show-interpretation-label' : showInterpretationLabel,
+          'not-reviewed': interpretation == 'not-reviewed',
+          'not-sig'     : interpretation == 'not-sig',
+          'sig'         : interpretation == 'sig',
+          'unknown-sig' : interpretation == 'unknown-sig',
+          'poor-qual'   : interpretation == 'poor-qual'}"
   v-model="interpretation"
   :hide-details="true"
   single-line
   >
 
-
-    <template slot="selection" slot-scope="data">
-      <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">verified_user</v-icon>
-      <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">help</v-icon>
-      <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">thumb_down</v-icon>
-      <v-icon class="interpretation poor-qual" v-if="data.item.value == 'poor-qual'">trending_down</v-icon>
-      <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">visibility_off</v-icon>
-      <span v-if="showInterpretationLabel" class="interpretation-label"> {{ data.item.text }} </span>
+    <template v-slot:selection="{ item, index }">
+      <div :class="{'interpretation-selection': true,
+          'not-reviewed': item.value == 'not-reviewed',
+          'not-sig'     : item.value == 'not-sig',
+          'sig'         : item.value == 'sig',
+          'unknown-sig' : item.value == 'unknown-sig',
+          'poor-qual'   : item.value == 'poor-qual'}">
+        <v-icon class="interpretation sig" v-if="item.value == 'sig'">verified_user</v-icon>
+        <v-icon class="interpretation unknown-sig" v-if="item.value == 'unknown-sig'">help</v-icon>
+        <v-icon class="interpretation not-sig" v-if="item.value == 'not-sig'">thumb_down</v-icon>
+        <v-icon class="interpretation poor-qual" v-if="item.value == 'poor-qual'">trending_down</v-icon>
+        <v-icon class="interpretation not-reviewed" v-if="item.value == 'not-reviewed'">visibility_off</v-icon>
+        <span v-if="showInterpretationLabel" class="interpretation-label"> {{ item.text }} </span>
+      </div>
     </template>
 
     <template slot="item" slot-scope="data">
-      <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">verified_user</v-icon>
-      <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">help</v-icon>
-      <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">thumb_down</v-icon>
-      <v-icon class="interpretation poor-qual" v-if="data.item.value == 'poor-qual'">trending_down</v-icon>
-      <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">visibility_off</v-icon>
-      <span class="interpretation-label"> {{ data.item.text }} </span>
-
+      <div :class="{'interpretation-choices': true,
+          'not-reviewed': data.item.value == 'not-reviewed',
+          'not-sig'     : data.item.value == 'not-sig',
+          'sig'         : data.item.value == 'sig',
+          'unknown-sig' : data.item.value == 'unknown-sig',
+          'poor-qual'   : data.item.value == 'poor-qual'}">
+        <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">verified_user</v-icon>
+        <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">help</v-icon>
+        <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">thumb_down</v-icon>
+        <v-icon class="interpretation poor-qual" v-if="data.item.value == 'poor-qual'">trending_down</v-icon>
+        <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">visibility_off</v-icon>
+        <span class="interpretation-label"> {{ data.item.text }} </span>
+      </div>
     </template>
 
   </v-select>

@@ -9,11 +9,12 @@ mkdir deploy/dist
 # build vue app
 if [[ $1 == "prod" ]]; then
   echo "** Building prod **"
-#  NODE_ENV=production npm run build
-  npm run build
+  NODE_ENV=production npm run build
+  #npm run build
 elif [[ $1 == "stage" ]]; then
+  NODE_ENV=production npm run build
   echo "** Building stage **"
-  npm run build
+  #npm run build
 else
   echo "** Building dev **"
   npm run build
@@ -23,6 +24,7 @@ working_dir=$PWD
 
 # link to files needed for static page
 ln -s $working_dir/server/views/index.html $working_dir/deploy/index.html
+ln -s $working_dir/client/data $working_dir/deploy/data
 ln -s $working_dir/client/assets $working_dir/deploy/assets
 ln -s $working_dir/client/js/thirdparty $working_dir/deploy/js/thirdparty
 ln -s $working_dir/client/app/third-party $working_dir/deploy/app/third-party

@@ -1,9 +1,16 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+
+
 #flagged-variants-card
   padding-left: 5px
   padding-bottom: 20px
+  background-color: white
+
+  &.v-card
+    box-shadow: none
+    -webkit-box-shadow: none
 
   .gene-ranks
     .chip
@@ -12,11 +19,11 @@
       margin-left: 0px
     .chip__content
       font-size:  11px
-      background-color:  $info-chip-color
+      background-color:  $high-impact-color
       height: 16px
       padding-left: 4px
       padding-right: 4px
-      color:  $text-color
+      color:  white
 
 
   #clinvar-symbol
@@ -44,7 +51,7 @@
 
 
 
-    .toolbar__title
+    .toolbar__title, .v-toolbar__title
       font-family: inherit
       font-size: 15px
       min-width: initial
@@ -74,7 +81,7 @@
       height: 30px
       margin-top: -7px
 
-      .btn__content
+      .btn__content, .v-btn__content
         padding: 0px
 
       i.material-icons
@@ -101,11 +108,12 @@
   .gene-list
 
 
-  .expansion-panel
+  .expansion-panel, .v-expansion-panel
     -webkit-box-shadow : none
     box-shadow: none
+    padding-bottom: 50px
 
-  .expansion-panel__body
+  .expansion-panel__body, .v-expansion-panel-content
     padding-left: 3px
     padding-right: 4px
 
@@ -127,22 +135,26 @@
       text-align: center
       background-color: #f2f1f1
 
-  .expansion-panel__header
+  .expansion-panel__header, .v-expansion-panel__header
     border-top: #e1e1e1
     border-top-style: solid
     border-top-width: 1px
     padding:  12px 10px 10px 2px
     background-color: #e9eaeb
 
+  .v-expansion-panel__header
+    min-height: 28px
+    padding-left: 10px
+
     .header__icon
       i.material-icons
         color: $app-color
 
-  .expansion-panel__container
+  .expansion-panel__container, .v-expansion-panel__container
     border-top: none
 
 
-    .badge
+    .badge, .v-badge
       background-color: transparent
 
       span.filter-label
@@ -154,7 +166,7 @@
         text-align: left
 
 
-    .badge__badge.primary
+    .badge__badge.primary, .v-badge__badge.primary
       background-color: $light-badge-color !important
       font-size: 10px
       color: white
@@ -169,7 +181,7 @@
     font-size: 12px
     color: $text-color
 
-  .list--three-line
+  .list--three-line, .v-list--three-line
     margin-bottom: 10px
     padding-top: 5px
 
@@ -191,10 +203,10 @@
     li
       margin-left: 0px
 
-    .list__tile__avatar
+    .list__tile__avatar, .v-list__tile__avatar
       margin-left: 0px
 
-    .list__tile__content
+    .list__tile__content, .v-list__tile__content
       margin-left: 0px
 
     hr
@@ -205,23 +217,29 @@
       margin-left: 22px
       width: calc(100% - 42px)
 
-    .list__tile
+    .list__tile, .v-list__tile
       padding: 0px
       height: initial
       padding-left: 0px
       padding-top: 10px
 
-    .list__tile__avatar
+    .list__tile__avatar, .v-list__tile__avatar
       min-width: initial
 
-    .list__tile__sub-title
+    .list__tile__sub-title, .v-list__tile__sub-title
       height: initial
       line-height: 18px
 
-    .list__tile__title
+    .list__tile__title, .v-list__tile__title
       height: auto
       line-height: 18px
       padding-bottom: 5px
+
+    .reviewed-variant-filter
+      font-size: 13px
+      margin-left: 10px
+      display: inline-block
+      vertical-align: bottom
 
     .variant-number
       margin-right: 0px
@@ -233,7 +251,7 @@
       width: 18px !important
       height: 18px !important
 
-      .chip__content
+      .chip__content, .v-chip__content
         width: 18px !important
         height: 18px !important
         justify-content: space-around
@@ -340,83 +358,23 @@
 
 
 
-
-.variant-file-body
-  padding-top: 0px
-  padding-bottom: 18px
-  margin-bottom: 20px
-  margin-top: 20px
-
-  .radio-group.radio-group--column
-    margin-top: 0px
-    padding-top: 0px
-    padding-bottom: 0px
-
-    >.input-group__input
-      margin-top: 0px
-
-  .input-group--select
-    .input-group__selections__comma
-      font-size: 14px
-      padding: 0px 0px 0px 0px
-
-  .input-group
-    label
-      font-size: 14px
-      line-height: 20px
-      height: 20px
-
-  .input-group__input
-    min-height: 0px
-    margin-top: 10px
-
-  .input-group__input
-    .input-group__selections__comma
-      font-size: 14px
-
-  .input-group--text-field
-    label
-      top: 6px
-
-  .input-group.input-group--selection-controls
-    height: 24px
-    .input-group__input
-      .icon--selection-control
-        height: 0px
-
-.variant-file-button
-  color: $text-color !important
-  height: 28px
-  margin-top: 10px
-  margin-bottom: 10px
-  margin-left: 0px
-  padding-left: 0px
-  padding-right: 0px
-  padding-top: 0px
-  padding-bottom: 0px
-
-
-  i.material-icons
-    font-size: 16px
-    padding-right: 4px
-
 #flagged-variants-card.basic
 
-  .toolbar__title
+  .toolbar__title, .v-toolbar__title
     margin-top: 0px
     padding-top: 0px
     padding-left: 3px
 
-  .expansion-panel
+  .expansion-panel, .v-expansion-panel
     -webkit-box-shadow : none
     box-shadow: none
     margin-top: 0px
 
 
-  .expansion-panel__header
+  .expansion-panel__header, .v-expansion-panel__header
     display: none
 
-  .list--three-line
+  .list--three-line, .v-list--three-line
     li
       margin-left: 0px
 
@@ -435,20 +393,6 @@
       <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
       </span>
-      <v-btn  v-if="!isBasicMode && !launchedFromClin" flat
-        class="toolbar-button"
-        @click="importInProgress = false;clearFileInputs();showOpenDialog = true">
-        <v-icon>open_in_browser</v-icon>
-        Open
-      </v-btn>
-
-      <v-btn v-if="!isBasicMode && !launchedFromClin && variantCount > 0" flat
-        class="toolbar-button"
-        @click="onClickSave">
-        <v-icon>save</v-icon>
-        Save
-      </v-btn>
-
 
 
 
@@ -459,36 +403,30 @@
       (none)
     </span>
 
-    <div v-if="!isBasicMode && isFullAnalysis && variantCount != 0"
-      style="margin-top:-25px;margin-bottom:20px;margin-left:20px">
-        <interpretation-select  style="width:250px"
-        :interpretationMap="interpretationMap"
-        @apply-interpretation="onApplyInterpretationFilter">
-        </interpretation-select>
-    </div>
 
 
 
-  <v-expansion-panel expand >
+  <v-expansion-panel expand v-model="expansionControl" >
     <v-expansion-panel-content v-for="geneList in geneLists"  :key="geneList.label"
-      :value="geneList.expand"
       v-if="geneList.show">
-      <div slot="header" v-show="!isBasicMode">
+      <template v-slot:header>
+        <div  v-show="!isBasicMode">
 
-        <span v-show="geneList.genes.length > 0" class="filter-subheader">
-          <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
-
-
-          <v-badge>
-            <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
-            <span class="filter-label">{{ geneList.label }}</span>
-          </v-badge>
+          <span v-show="geneList.genes.length > 0" class="filter-subheader">
+            <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
 
 
-        </span>
+            <v-badge>
+              <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
+              <span class="filter-label">{{ geneList.label }}</span>
+            </v-badge>
 
 
-      </div>
+          </span>
+
+
+        </div>
+      </template>
       <v-list three-line>
         <template
          v-for="flaggedGene in geneList.genes">
@@ -514,8 +452,14 @@
               <v-list-tile-content>
 
                 <v-list-tile-title>
+                  <variant-interpretation-badge
+                   v-if="geneList.label == 'Reviewed'"
+                   :interpretation="variant.interpretation"
+                   :interpretationMap="interpretationMap">
+                  </variant-interpretation-badge>
 
-                  <div style="float:left">
+
+                  <div style="">
 
 
                     <div class="variant-symbols">
@@ -556,6 +500,11 @@
                         <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
                           check_circle
                         </v-icon>
+
+                        <div class="reviewed-variant-filter"
+                          v-if="geneList.label == 'Reviewed'">
+                          {{ filterPassedByVariant(variant) }}
+                        </div>
 
 
                       </span>
@@ -604,32 +553,9 @@
 
                   <div style="float-left;">
 
-                  <variant-interpretation
-                    style="float:left;"
-                     v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
-                     class="variant-notes"
-                     wrap="true"
-                     :interpretationMap="interpretationMap"
-                     :variant="variant"
-                     :variantInterpretation="variant.interpretation"
-                     @apply-variant-interpretation="onApplyVariantInterpretation">
-                  </variant-interpretation>
-
-                  <variant-notes-menu
-                    v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
-                    style="float:left;padding-top: 4px"
-                    class="variant-notes"
-                    :showNotesIcon="true"
-                    :variant="variant"
-                    :interpretationMap="interpretationMap"
-                    :variantInterpretation="variant.interpretation"
-                    :variantNotes="variant.notes"
-                    @apply-variant-notes="onApplyVariantNotes">
-                  </variant-notes-menu>
-
-                  <span v-if="variant.notFound && isFullAnalysis"
-                    class="coord"> {{ coord(flaggedGene, variant) }} </span>
-                  </span>
+                    <span v-if="variant.notFound && isFullAnalysis"
+                      class="coord"> {{ coord(flaggedGene, variant) }} </span>
+                    </span>
 
 
                   </div>
@@ -673,115 +599,6 @@
     </v-expansion-panel-content>
   </v-expansion-panel>
 
-    <v-menu
-    offset-y
-    :close-on-content-click="false"
-    :nudge-width="400"
-    bottom
-    v-model="showOpenDialog"
-    >
-
-
-
-      <v-card class="full-width">
-        <v-card-title class="headline">Open variants file</v-card-title>
-        <v-card-text class="variant-file-body">
-          <div id="open-variant-file" >
-            <v-radio-group hide-details v-model="fileType" >
-                  <v-radio label="gene.iobio (comma separated)" value="gene"></v-radio>
-                  <v-radio label="gemini (tab delimited)" value="gemini"></v-radio>
-                  <v-radio label="Tab delimited" value="tsv"></v-radio>
-            </v-radio-group>
-
-
-
-
-
-            <div style="margin-top:10px;margin-bottom:20px">
-
-
-              <file-chooser
-                v-if="fileType == 'gene'"
-                title="Choose .csv file"
-                :isMultiple="false" :accept="`.csv`"
-                showLabel="true"
-                @file-selected="onFileSelected">
-              </file-chooser>
-
-              <file-chooser
-                v-if="fileType != 'gene'"
-                title="Choose .txt file"
-                :isMultiple="false"
-                :accept="`.txt, .tsv`"
-                showLabel="true"
-                @file-selected="onFileSelected">
-              </file-chooser>
-
-              <div style="text-align:center;margin-top:10px"
-              v-if="importInProgress" >
-                <img style="width:22px;height:22px"
-                     class="loader  glyph" src="../../../assets/images/wheel.gif"/>
-                Loading variants...
-              </div>
-            </div>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn raised class="variant-file-button" @click.native="showOpenDialog = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-menu>
-
-
-
-
-
-    <v-menu
-    offset-y
-    :close-on-content-click="false"
-    :nudge-width="400"
-    bottom
-    v-model="showSaveDialog"
-    >
-
-      <v-card class="full-width">
-        <v-card-title class="headline">
-         Save variants file
-        </v-card-title>
-        <v-card-text class="variant-file-body">
-          <div id="save-format" >
-            <v-radio-group hide-details v-model="exportFormat" >
-                  <v-radio label="Comma separated" value="csv"></v-radio>
-                  <v-radio label="VCF" value="vcf"></v-radio>
-            </v-radio-group>
-
-          </div>
-          <div style="text-align:center;margin-top:10px"
-            v-if="exportInProgress" >
-              <img style="width:22px;height:22px"
-                   class="loader  glyph" src="../../../assets/images/wheel.gif"/>
-              Saving variants to file...
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            v-if="!readyToDownload"
-            class="variant-file-button" raised @click="onSaveFile">
-            <v-icon>save</v-icon>
-            Save
-          </v-btn>
-          <a id="download-file"
-          v-bind:class="(!readyToDownload ? 'hide' : '') + ' btn variant-file-button'"
-          download="gene-iobio-variants.csv" href="#">
-            <i class="material-icons" style="padding-right:0px;font-size:20px">file_download</i>
-            <span style="padding-right:8px">Download file</span>
-          </a>
-          <v-btn class="variant-file-button" raised @click="showSaveDialog = false;readyToDownload = false;">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-menu>
 
   </v-card>
 </template>
@@ -790,23 +607,17 @@
 <script>
 
 
-import FileChooser from '../partials/FileChooser.vue'
 import AppIcon from '../partials/AppIcon.vue'
 import FilterIcon from '../partials/FilterIcon.vue'
-import VariantNotesMenu from '../partials/VariantNotesMenu.vue'
-import VariantInterpretation from '../partials/VariantInterpretation.vue'
-import InterpretationSelect from '../partials/InterpretationSelect.vue'
+import VariantInterpretationBadge from '../partials/VariantInterpretationBadge.vue'
 
 
 export default {
   name: 'flagged-variants-card',
   components: {
-    FileChooser,
     AppIcon,
     FilterIcon,
-    VariantNotesMenu,
-    VariantInterpretation,
-    InterpretationSelect
+    VariantInterpretationBadge
   },
   props: {
     isEduMode: null,
@@ -823,13 +634,7 @@ export default {
   },
   data() {
     return {
-      showOpenDialog: false,
-      showSaveDialog: false,
-      exportFormat: 'csv',
-      fileType: 'gene',
       readyToDownload: false,
-      importInProgress: false,
-      exportInProgress: false,
       geneLists: null,
       clickedVariant: null,
       variantCount: 0,
@@ -845,41 +650,8 @@ export default {
       this.clickedVariant = variant;
       this.$emit("flagged-variant-selected", variant);
     },
-    onFileSelected: function(fileSelection) {
-      let self = this;
-      self.importInProgress = true;
-      self.cohortModel.onFlaggedVariantsFileSelected(fileSelection, self.fileType,
-      function() {
-        self.importInProgress = false;
-        self.$emit("flagged-variants-imported");
-        self.showOpenDialog = false;
-      });
-    },
-    onClickSave: function() {
-      let self = this;
-      self.showSaveDialog = true;
-    },
-    onSaveFile: function() {
-      let self = this;
-      self.exportInProgress = true;
-      this.cohortModel.promiseExportFlaggedVariants(self.exportFormat)
-      .then(function(output) {
-        self.exportInProgress = false;
-        self.globalApp.utility.createDownloadLink("#download-file",
-          output,
-          "gene-iobio-flagged-variants." + self.exportFormat );
-        self.readyToDownload = true;
-      })
-    },
-    clearFileInputs: function() {
-
-      this.clearFileInput($("#input-csv-file")[0]);
-      this.clearFileInput($("input-txt-file")[0]);
-    },
-    clearFileInput: function(ctrl) {
-      try {
-        ctrl.value = null;
-      } catch(ex) { }
+    deselectVariant: function() {
+      this.clickedVariant = null;
     },
     populateGeneLists: function() {
       let self = this;
@@ -1053,12 +825,40 @@ export default {
       }
       return buf;
     },
+    filterPassedByVariant: function(variant) {
+      let filterDisplay = "";
+      if (Array.isArray(variant.filtersPassed)) {
+        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" ")); 
+      } else {
+        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed);
+      }
+
+      if (filterDisplay == "UserFlagged") {
+        return "";
+      } else if (filterDisplay == "NotCategorized") {
+        return "";
+      } else {
+        return filterDisplay;
+      }
+    }
+
 
   },
   mounted: function() {
 
   },
   computed: {
+    expansionControl: function() {
+      let self = this;
+      if (self.geneLists) {
+        return self.geneLists.map(function(geneList) {
+          return geneList.expand;
+        })        
+      } else {
+        return []
+      }
+    }
+
 
   },
   watch: {

@@ -9,34 +9,6 @@
   #gene-count-badges
     text-align: center
 
-  .optional-track-switch
-    padding: 0px
-    width: 130px
-    display: inline-block
-    float: left
-    vertical-align: top
-    text-align: left
-    padding-top: 16px
-    margin-left: 30px
-
-    label
-      padding-left: 7px
-      line-height: 18px
-      font-size: 13px
-      font-weight: normal
-      padding-top: 2px
-      color: $text-color
-
-    &.clin
-      margin-left: 0px
-      margin-top: 5px
-
-    &.full-analysis
-      margin-top: 0px
-      padding-top: 0px
-      margin-left: 0px
-      margin-bottom: 5px
-
 
   #analyze-all-buttons
     float: left
@@ -63,7 +35,7 @@
       margin-top: 10px
       margin-left: 0px
 
-  .btn__content
+  .btn__content, .v-btn__content
     padding: 0 4px
 
   #genes-toolbar
@@ -248,7 +220,7 @@ div.container.small
 
         <div id="genes-toolbar" v-bind:class="isEduMode || isBasicMode ? 'hide' : ''">
 
-            <span id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
+            <span id="analyze-all-buttons" v-if="false" :class="{'clin': launchedFromClin}">
 
               <v-btn  id="analyze-all-button"
               v-if="isLoaded && !isFullAnalysis"
@@ -292,22 +264,6 @@ div.container.small
               </v-btn>
             </span>
 
-            <v-switch
-              :class="{'optional-track-switch': true, 'full-analysis': isFullAnalysis, 'clin': launchedFromClin}"
-              v-if=" isLoaded && !isEduMode && !isBasicMode "
-              label="ClinVar track"
-              v-model="showKnownVariantsCard"
-              >
-            </v-switch>
-
-            <v-switch class="optional-track-switch"
-                      v-if="isLoaded && !isEduMode && !isBasicMode && launchedFromHub && showSfariTrackToggle"
-                      label="SFARI track"
-                      v-model="showSfariVariantsCard"
-            >
-            </v-switch>
-
-
             <filter-badges
              ref="filterBadgesRef"
              v-if="!isFullAnalysis"
@@ -336,7 +292,7 @@ div.container.small
               </div>
             </div>
 
-          </div>
+        </div>
 
       </v-card-title>
 
@@ -433,9 +389,6 @@ export default {
       flaggedVariants: [],
 
       filteredGeneNames: [],
-
-      showKnownVariantsCard: false,
-      showSfariVariantsCard: false,
 
       loadedCount: 0,
       calledCount: 0,
@@ -645,13 +598,7 @@ export default {
     },
     sortBy: function() {
       this.$emit("sort-genes", this.sortBy);
-    },
-    showKnownVariantsCard: function() {
-      this.$emit("show-known-variants", this.showKnownVariantsCard);
-    },
-      showSfariVariantsCard: function() {
-          this.$emit("show-sfari-variants", this.showSfariVariantsCard);
-      }
+    }
   }
 }
 

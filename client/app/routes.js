@@ -114,7 +114,8 @@ const routes = [
         paramIsPedigree:       route.query.is_pedigree,
         paramSource:           route.query.source,
         paramIobioSource:      route.query.iobio_source,
-        paramAnalysisId:       route.query.analysis_id
+        paramAnalysisId:       route.query.analysis_id,
+        paramFrameSource:      route.query.frame_source
 
 
 

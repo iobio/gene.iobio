@@ -4,22 +4,25 @@
       outline: none;
   }
 
-  .content .btn__content {
+  .content .btn__content. .v-content .v-btn__content {
     color:  rgb(113,113,113);
   }
-  .content .input-group {
+  .content .input-group, .v-content .v-input-group {
     padding: 0px;
   }
-  .content .input-group__messages {
+  .content .input-group__messages, .v-content .v-input-group__messages {
     display: none;
   }
-  .content  .input-group--text-field input {
+  .content  .input-group--text-field input,
+  .v-content  .v-input-group--text-field input  {
     height: 20px;
   }
-  .content .input-group__input {
+  .content .input-group__input,
+  .v-content .v-input-group__input  {
     min-height: 20px;
   }
-  .content .input-group__details {
+  .content .input-group__details,
+  .v-content .v-input-group__details {
     min-height: 0px;
   }
 
@@ -77,7 +80,7 @@
 
   #region-buffer-box
     vertical-align: middle
-    .input-group--text-field
+    .input-group--text-field, .v-text-field__slot
       input
         font-size: 14px
         color: $text-color

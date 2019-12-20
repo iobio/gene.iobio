@@ -34,7 +34,7 @@
       :preselect="false"/>
     </v-flex>
     <v-flex id="phenolyzer-top-input" style="display:inline-block;max-width:60px;width:60px;margin-left:5px;">
-      <v-select
+      <v-combobox
       v-model="phenolyzerTop"
       label="Genes"
       :hide-details="true"
@@ -42,7 +42,7 @@
       combobox
       :items="phenolyzerTopCounts"
       >
-      </v-select>
+      </v-combobox>
     </v-flex>
     <v-flex v-if="!isNav" >
       <img style="width:22px;height:22px"
@@ -128,8 +128,10 @@ export default {
           searchTerm = self.phenotypeTermEntered;
         }
         if (searchTerm) {
-          let runningMsg = "Running Phenolyzer to get genes associated with <br>'" + searchTerm + "'.<br><br>" + self.phenolyzerLink;
-          self.$emit('show-snackbar', { message: runningMsg, timeout: 10000 });
+          let runningMsg = "Running Phenolyzer to get genes associated with '" + searchTerm + "'.  " + self.phenolyzerLink;
+          self.$emit('show-snackbar', { message: runningMsg,
+                                        timeout: 10000,
+                                        close:true });
           self.$emit("on-start-search-genes");
 
           self.geneModel.searchPhenolyzerGenes(searchTerm, self.phenolyzerTop,
@@ -141,7 +143,9 @@ export default {
                 self.genesToApply = "";
                 if (self.isNav) {
                   self.$emit('show-snackbar',
-                    { message: "No genes found for <br><br>'" + data.phenotypeTerm + "'", timeout: 4000 });
+                    { message: "No genes found for '" + data.phenotypeTerm + "'",
+                      timeout: 4000,
+                      close: true });
                 }
               } else {
                 var geneCount = data.genes.filter(function(gene) {

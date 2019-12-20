@@ -23,13 +23,15 @@
 @import "../../../assets/sass/_variables.sass";
 
 #edit-transcript-button
-  color:  $app-color
+  color:  $text-color
   margin: 0px 8px 0px 0px
   padding: 0px
 
-  .btn__content
-    color: $app-color
+  .btn__content, .v-btn__content
+    color: $link-color
     padding: 0px
+    text-align: left
+    line-height: 15px
 
 #select-transcript-viz
 
@@ -53,10 +55,11 @@
     margin: 0px;
     margin-left: 4px;
 
-  .btn--floating.btn--small .btn__content
+  .btn--floating.btn--small .btn__content,
+  .btn--floating.btn--small .v-btn__content
     padding: 0px
 
-  .btn__content
+  .btn__content, .v-btn__content
     color: $text-color
 
 
@@ -204,6 +207,13 @@ export default {
     },
 
   },
+  watch:  {
+    showTranscriptsMenu: function() {
+      if (this.showTranscriptsMenu) {
+        this.$emit("transcriptMenuOpened");
+      }
+    }
+  }
 
 
 

@@ -8,7 +8,7 @@
   height: 17px !important
   margin-top: -6px !important
 
-  .btn__content
+  .btn__content, .v-btn__content
     padding: 0px
     max-width: 17px
     max-height: 17px
@@ -24,7 +24,7 @@
   height: 25px !important
   margin-bottom: 15px !important
 
-  .btn__content
+  .btn__content, .v-btn__content
     padding: 0px
     max-width: 25px
     max-height: 25px
@@ -58,7 +58,7 @@
       <v-btn class="info-button" flat  slot="activator">
         <v-icon>help</v-icon>
       </v-btn>
-      <v-card class="info-card">
+      <v-card class="info-card full-width">
         <v-card-title style="justify-content:space-between">
           <span class="info-title">{{ info[name].title }}</span>
           <v-btn  @click="onClose" flat class="close-button">

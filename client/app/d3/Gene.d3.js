@@ -191,34 +191,37 @@ export default function geneD3() {
       transcript.exit().remove();
 
       transcript.selectAll(".selection-box").remove();
-      transcript.selectAll(".selection-box")
-        .data(function(d) {
-          if (geneD3_regionStart && geneD3_regionEnd) {
-            return [[geneD3_regionStart,geneD3_regionEnd]];
-          } else {
-            return [[d.start, d.end]]
+      if (geneD3_showLabel) {
+        transcript.selectAll(".selection-box")
+          .data(function(d) {
+            if (geneD3_regionStart && geneD3_regionEnd) {
+              return [[geneD3_regionStart,geneD3_regionEnd]];
+            } else {
+              return [[d.start, d.end]]
 
-          }
-        })
-        .enter().append('rect')
-          .attr('class', 'selection-box')
-          .attr('x', (margin.left * -1) + 2)
-          .attr('y', 0)
-          .attr('width', margin.left + geneD3_width)
-          .attr('height', geneD3_trackHeight)
-          .on("mouseover", function(d) {
-            svg.selectAll('.transcript.selected').classed("selected", false);
-            d3.select(this.parentNode).classed("selected", true);
+            }
           })
-          .on("mouseout", function(d) {
-            d3.select(this.parentNode).classed("selected", false);
-          })
-          .on("click", function(d) {
-            selectedTranscript = d3.select(this.parentNode)[0][0].__data__;
-            svg.selectAll('.transcript.current').classed("current", false);
-            d3.select(this.parentNode).classed("current", true);
-            dispatch.d3selected(selectedTranscript);
-          })
+          .enter().append('rect')
+            .attr('class', 'selection-box')
+            .attr('x', (margin.left * -1) + 2)
+            .attr('y', 0)
+            .attr('width', margin.left + geneD3_width)
+            .attr('height', geneD3_trackHeight)
+            .on("mouseover", function(d) {
+              svg.selectAll('.transcript.selected').classed("selected", false);
+              d3.select(this.parentNode).classed("selected", true);
+            })
+            .on("mouseout", function(d) {
+              d3.select(this.parentNode).classed("selected", false);
+            })
+            .on("click", function(d) {
+              selectedTranscript = d3.select(this.parentNode)[0][0].__data__;
+              svg.selectAll('.transcript.current').classed("current", false);
+              d3.select(this.parentNode).classed("current", true);
+              dispatch.d3selected(selectedTranscript);
+            })
+
+      }
 
       transcript.selectAll(".reference").remove();
       transcript.selectAll('.reference')

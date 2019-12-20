@@ -15,7 +15,7 @@ textarea#copy-paste-genes
   margin: 0px
   padding: 0px
 
-  .btn__content
+  .btn__content, .v-btn__content
     padding: 0px
     margin: 0px
 
@@ -73,14 +73,14 @@ textarea#copy-paste-genes
       <v-card class="full-width">
 
           <div id="enter-genes-input">
-            <v-text-field
+            <v-textarea
               id="copy-paste-genes"
               multi-line
               rows="12"
               label="Enter gene names"
               v-model="genesToApply"
             >
-            </v-text-field>
+            </v-textarea>
           </div>
           <div v-if="!isEduMode">
               <v-btn id="aclear-all-genes-button" @click="onClearAllGenes">

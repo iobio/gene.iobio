@@ -22,6 +22,32 @@ class Util {
       return url;
   }
 
+  formatExonTooltip(filterModel, relationship, coverageRow, feature,  lock) {
+    let self = this;
+
+      let html = '<div>'
+               + '<span id="exon-tooltip-title"' + (lock ? 'style="margin-top:8px">' : '>') + (feature.hasOwnProperty("exon_number") ? "Exon " + feature.exon_number : "") + '</span>'
+               + (lock ? '<a href="javascript:void(0)" id="exon-tooltip-close">X</a>' : '')
+               + '</div>';
+      html     += '<div style="clear:both">' + feature.feature_type + ' ' + self.addCommas(feature.start) + ' - '       + self.addCommas(feature.end) + '</div>';
+
+      if (feature.geneCoverage && feature.geneCoverage[relationship]) {
+          var covFields = filterModel.whichLowCoverage(feature.geneCoverage[relationship]);
+          html += "<div style='margin-top:4px'>" + "Coverage:"
+               +  coverageRow('min',    feature.geneCoverage[relationship].min, covFields)
+               +  coverageRow('median', feature.geneCoverage[relationship].median, covFields)
+               +  coverageRow('mean',   feature.geneCoverage[relationship].mean, covFields)
+               +  coverageRow('max',    feature.geneCoverage[relationship].max, covFields)
+               +  coverageRow('sd',     feature.geneCoverage[relationship].sd, covFields)
+
+      }
+      if (lock) {
+        html += '<div style="text-align:right;margin-top:8px">'
+        + '<a href="javascript:void(0)" id="exon-tooltip-thresholds" class="danger" style="float:left"  >Set cutoffs</a>'
+        + '</div>'
+      }
+      return html;
+  }
 
   formatDate(d) {
     var padMinutes = function(n) {
@@ -424,7 +450,11 @@ class Util {
       isIEedge = winNav.userAgent.indexOf("Edge") > -1,
       isIOSChrome = winNav.userAgent.match("CriOS");
 
-    if (isIOSChrome) {
+    var isChrome = /Chrome/.test(window.navigator.userAgent) && /Google Inc/.test(window.navigator.vendor);  
+
+    if(isChrome) {
+      return true;
+    } else if (isIOSChrome) {
       return true;
     } else if (
       isChromium !== null &&
@@ -472,7 +502,7 @@ class Util {
   }
 
   detectSafari() {
-    return (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1);
+    return (navigator.userAgent.indexOf('Safari') != -1 && !this.isChrome());
   }
 
 
@@ -702,6 +732,8 @@ class Util {
       dbSnpUrl: "",
       dbSnpLink: "",
       filtersPassed: "",
+
+      notesFlattened: ""
     };
 
 
@@ -854,8 +886,19 @@ class Util {
 
     info.filtersPassed = variant.filtersPassed && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
 
+    if (variant.notes && variant.notes.length > 0) {
+      variant.notes.forEach(function(note) {
+        if (info.notesFlattened.length > 0) {
+          info.notesFlattened += " | ";
+        }
+        info.notesFlattened  +=  (note.author ? note.author : " ") + "\t"+ note.datetime + "\t" + note.note ;
+      })
+    }
+
+
     return info;
   }
+
 
   formatHighestImpactInfo(variant, info, translator) {
     let me = this;
@@ -933,12 +976,17 @@ class Util {
           var phenotype       = phenotypes.length > i ? phenotypes[i].split("_").join(" ").split("\\x2c") : null;
 
           info.clinvarUrl   = 'http://www.ncbi.nlm.nih.gov/clinvar/' + accessionSingle;
+          var clinvarLabel =  me.globalApp.utility.capitalizeFirstLetter(clinsigSingle.split("_").join(" "))
+                              + ( phenotype  ? ': ' + me.globalApp.utility.capitalizeFirstLetter(phenotype) : '')
 
           let clinvarLink =  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>'
-            + clinsigSingle.split("_").join(" ")
-            + ( phenotype  ? ': ' + phenotype : '') + '</a>';
+            clinvarLabel + '</a>';
 
-          info.clinvarLinks.push({'key': accessionSingle, 'link': clinvarLink, 'icon': 'clinvar', 'significance': translator.clinvarMap[clinsigSingle].clazz});
+          info.clinvarLinks.push({'key': accessionSingle, 'link': clinvarLink, 'url': info.clinvarUrl,
+            'icon': 'clinvar',
+            'clinsig': me.globalApp.utility.capitalizeFirstLetter(clinsigSingle.split("_").join(" ")),
+            'phenotype': ( phenotype  ? ': ' + me.globalApp.utility.capitalizeFirstLetter(phenotype) : ''),
+            'significance': translator.clinvarMap[clinsigSingle].clazz});
 
           info.clinvarUniqueClinSigs[clinsigSingle.split("_").join(" ")] = null;
           info.clinvarUniqueTraits[phenotype] = null;
@@ -986,10 +1034,13 @@ class Util {
       if (variant.clinvarUid != null && variant.clinvarUid != '') {
         info.clinvarUid = variant.clinvarUid;
         info.clinvarUrl = 'http://www.ncbi.nlm.nih.gov/clinvar/variation/' + variant.clinvarUid;
+        let clinvarLabel = me.globalApp.utility.capitalizeFirstLetter(info.clinvarClinSig) + ( info.clinvarTrait ? ' ' + me.globalApp.utility.capitalizeFirstLetter(info.clinvarTrait) : '')
         let clinvarLink =  '<a class="tooltip-clinvar-link"' + '" href="' + info.clinvarUrl + '" style="float:left;padding-right:4px" target="_new"' + '>'
-            + info.clinvarClinSig
-            + ( info.clinvarTrait ? ' ' + info.clinvarTrait : '') + '</a>';
-        info.clinvarLinks.push({'key': info.clinvarUid, 'link': clinvarLink, 'icon': 'clinvar', 'significance': variant.clinvar});
+            clinvarLabel + '</a>';
+        info.clinvarLinks.push({'key': info.clinvarUid, 'link': clinvarLink, 'url': info.clinvarUrl,
+         'clinsig': me.globalApp.utility.capitalizeFirstLetter(info.clinvarClinSig),
+         'phenotype': ( info.clinvarTrait ? ' ' + me.globalApp.utility.capitalizeFirstLetter(info.clinvarTrait) : ''),
+         'icon': 'clinvar', 'significance': variant.clinvar});
       }
 
     }

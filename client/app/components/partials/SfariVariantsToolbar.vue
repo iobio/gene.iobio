@@ -16,6 +16,23 @@
     left: 24px
     font-size: 12px
 
+  .v-input--radio-group
+    height: 30px
+    margin-top: 0px
+    padding-top: 0px
+
+    .v-input--radio-group__input
+      label
+        margin-bottom: 0px
+        font-size: 14px
+
+      .v-select__selection--comma 
+        color: $text-color
+        font-size: 13px
+
+  .v-select__selection.v-select__selection--comma
+    color: $text-color
+    font-size: 13px
 
   .input-group.radio-group
     padding-top: 0px

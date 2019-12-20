@@ -6,7 +6,7 @@ html {
   display: none !important;
 }
 
-.card {
+.card, .v-card {
   border: none !important;
 }
 
@@ -20,10 +20,16 @@ html {
 }
 
 
-.btn {
+.btn, .v-btn {
   text-transform: none;
 }
 
+.theme--light.v-sheet,
+.theme--light.v-card {
+  background: white;
+  color:  rgb(113,113,113);
+  fill:  rgb(113,113,113);
+}    
 
 .application.theme--light {
   background: #fafafa;
@@ -31,6 +37,15 @@ html {
   fill:  rgb(113,113,113);
 }
 
+
+.theme--light .v-list {
+  color:  rgb(113,113,113);
+  fill:  rgb(113,113,113);
+}    
+
+.theme--light.v-btn:not(.v-btn--icon):not(.v-btn--flat) {
+    background-color: white;
+}
 
 .application.theme--light a {
   cursor: pointer;
@@ -43,12 +58,21 @@ html {
   fill:  rgb(113,113,113);
 }
 
-.theme--light .input-group.input-group--dirty .input-group__selections__comma:not(.input-group__selections__comma--active), .application .theme--light.input-group.input-group--dirty .input-group__selections__comma:not(.input-group__selections__comma--active) {
+.theme--light .input-group.input-group--dirty .input-group__selections__comma:not(.input-group__selections__comma--active),
+.application .theme--light.input-group.input-group--dirty .input-group__selections__comma:not(.input-group__selections__comma--active) {
   color:  rgb(113,113,113);
   fill:  rgb(113,113,113);
 }
 
-.input-group--text-field.input-group--prepend-icon .input-group__prepend-icon {
+.theme--light .v-input-group.v-input-group--dirty .v-input-group__selections__comma:not(.v-input-group__selections__comma--active),
+.application .theme--light.v-input-group.v-input-group--dirty .v-input-group__selections__comma:not(.v-input-group__selections__comma--active) {
+  color:  rgb(113,113,113);
+  fill:  rgb(113,113,113);
+}
+
+
+.input-group--text-field.input-group--prepend-icon .input-group__prepend-icon,
+.v-input-group--text-field.v-input-group--prepend-icon .v-input-group__prepend-icon  {
   padding-right: 3px;
   justify-content: flex-end;
 }
@@ -65,7 +89,7 @@ html {
   background-color: white;
 }
 
-.card {
+.card, .v-card {
   width: 100%;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -73,20 +97,23 @@ html {
   padding-right: 10px;
 }
 
-.card__title--primary {
+.card__title--primary, .v-card__title--primary {
     padding-top: 4px;
 }
-.card__title {
+.card__title, .v-card__title {
     padding-top: 0px;
     padding-right: 0px;
     padding-bottom: 0px;
     padding-left: 0px;
 }
 
-.list__tile {
+.list__tile, .v-list__tile {
     font-size: 14px;
  }
-.input-group label {
+.input-group label,
+.v-input-group label,
+.v-text-field__slot label,
+ {
   font-size: 14px;
 }
 .radio + .radio, .checkbox + .checkbox {
@@ -97,12 +124,21 @@ html {
   line-height: 20px;
 }
 
-.input-group.input-group--slider label {
+.input-group.input-group--slider label,
+.v-input-group.v-input-group--slider label,
+.v-text-field__slot label,
+ {
   font-size: 14px;
   font-weight: normal;
   color: rgb(113,113,113);
 }
 
+.v-select__selection--comma {
+  color: rgb(113,113,113);
+}
+.v-select__slot label {
+  font-size: 13px;
+}
 .tooltip {
   position: absolute;
   z-index: initial;
@@ -128,26 +164,26 @@ html {
   line-break: auto;
 }
 
-.btn {
+.btn, .v-btn {
   line-height: 1;
 }
 
-.btn__content {
+.btn__content, .v-btn__content {
   height: initial;
 }
 
 .menuable__content__active {
   background-color: white;
-  z-index: 100 !important;
+  z-index: 206;
 }
 
 .menu__content--select.menuable__content__active {
-  z-index: 204 !important;
+  z-index: 208;
 }
 
 .dropdown.open .dropdown-menu {
   max-height: 400px !important;
-  overflow-y: scroll !important
+  overflow-y: scroll !important;
 }
 
 

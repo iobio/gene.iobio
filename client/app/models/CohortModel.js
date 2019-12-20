@@ -60,7 +60,7 @@ class CohortModel {
         'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
         'mother':  'https://s3.amazonaws.com/iobio/samples/bam/NA12892.exome.bam',
         'father':  'https://s3.amazonaws.com/iobio/samples/bam/NA12891.exome.bam',
-        'sibling': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam'
+        'sibling': 'https://s3.amazonaws.com/iobio/samples/bam/NA12877.exome.bam'
       },
       'genome': {
         'proband': 'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12878.bam',
@@ -73,27 +73,28 @@ class CohortModel {
 
     this.demoModelInfos = {
       'exome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['proband'], 'bai': null },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['mother'], 'bai': null  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['father'], 'bai': null  },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['proband'], 'bai': null },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['mother'], 'bai': null  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['father'], 'bai': null  },
+        {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['sibling'], 'bai': null  },
       ],
       'genome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['proband'], 'bai': null  },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['mother'],  'bai': null  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['father'],  'bai': null  },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['proband'], 'bai': null  },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['mother'],  'bai': null  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',   'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['father'],  'bai': null  },
       ]
     }
     this.eduTourModelInfos = {
       "1": [
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Father', 'sample': 'sample2', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Jimmy',  'sample': 'sample3', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Bobby',  'sample': 'sample4', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Sarah',  'sample': 'sample5', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Father', 'sample': 'sample2',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Jimmy',  'sample': 'sample3',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Bobby',  'sample': 'sample4',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Sarah',  'sample': 'sample5',  sex: 'female', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
       ],
       "2": [
-        {relationship: 'proband', affectedStatus: 'affected', name: 'John',   'sample': 'sample1', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Diego',  'sample': 'sample3', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
-        {relationship: 'proband', affectedStatus: 'affected', name: 'Anna',   'sample': 'sample2', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
+        {relationship: 'proband', affectedStatus: 'affected', name: 'John',   'sample': 'sample1',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Diego',  'sample': 'sample3',  sex: 'male',   vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null},
+        {relationship: 'proband', affectedStatus: 'affected', name: 'Anna',   'sample': 'sample2',  sex: 'female', vcf: 'https://s3.amazonaws.com/iobio/NHMU/nhmu.vcf.gz', 'tbi': null, 'bam': null, 'bai': null}
       ]
 
     };
@@ -256,17 +257,13 @@ class CohortModel {
       let affectedSibs = modelInfos.filter(function(modelInfo) {
         return modelInfo.relationship == 'sibling' && modelInfo.affectedStatus == 'affected';
       })
-      .map(function(modelInfo) {
-        return modelInfo.sample;
-      })
+
 
 
       let unaffectedSibs = modelInfos.filter(function(modelInfo) {
         return modelInfo.relationship == 'sibling' && modelInfo.affectedStatus != 'affected';
       })
-      .map(function(modelInfo) {
-        return modelInfo.sample;
-      })
+
 
       // sort models by proband, mother, father, sibling
       modelInfos = modelInfos.sort(function(a,b) {
@@ -341,6 +338,7 @@ class CohortModel {
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
       vm.affectedStatus = modelInfo.affectedStatus;
+      vm.sex = modelInfo.sex;
       vm.isBasicMode = self.isBasicMode;
       vm.isEduMode = self.isEduMode;
       vm.isSfariSample = fromSfariProject;
@@ -427,12 +425,13 @@ class CohortModel {
 
     var promises = [];
     if (affectedSamples) {
-      affectedSamples.forEach(function(sampleName) {
+      affectedSamples.forEach(function(mi) {
         var modelInfo =  {
           'relationship': 'sibling',
           'affectedStatus': 'affected',
-          'name': sampleName,
-          'sample': sampleName,
+          'sex': mi.sex,
+          'name':   mi.sample,
+          'sample': mi.sample,
           'vcf': self.getProbandModel().vcf.getVcfURL(),
           'tbi': self.getProbandModel().vcf.getTbiURL(),
           'bam': null,
@@ -442,12 +441,13 @@ class CohortModel {
       });
     }
     if (unaffectedSamples) {
-      unaffectedSamples.forEach(function(sampleName) {
+      unaffectedSamples.forEach(function(mi) {
         var modelInfo =  {
           'relationship': 'sibling',
           'affectedStatus': 'unaffected',
-          'name': sampleName,
-          'sample': sampleName,
+          'sex': mi.sex,
+          'name':   mi.sample,
+          'sample': mi.sample,
           'vcf': self.getProbandModel().vcf.getVcfURL(),
           'tbi': self.getProbandModel().vcf.getTbiURL(),
           'bam': null, 'bai': null };
@@ -466,6 +466,7 @@ class CohortModel {
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
       vm.affectedStatus = modelInfo.affectedStatus;
+      vm.sex = modelInfo.sex;
 
       var vcfPromise = null;
       if (modelInfo.vcf) {
@@ -506,7 +507,6 @@ class CohortModel {
         vm.init(self);
         vm.setRelationship('known-variants');
         vm.setName('Clinvar')
-        //var clinvarUrl = self.genomeBuildHelper.getBuildResource(self.genomeBuildHelper.RESOURCE_CLINVAR_VCF_FTP);
         var clinvarUrl  = self.globalApp.getClinvarUrl(self.genomeBuildHelper.getCurrentBuildName());
 
         vm.onVcfUrlEntered(clinvarUrl, null, function() {
@@ -708,6 +708,7 @@ class CohortModel {
           info.relationship = model.getRelationship();
           info.status = model.isAffected() ? 'affected' : 'unaffected';
           info.label  = model.getRelationship();
+          info.sex    = model.sex;
 
           info.id = info.status + "-_-" + model.getRelationship() + "-_-" + model.getSampleName();
 
@@ -722,6 +723,7 @@ class CohortModel {
           var info = {};
           info.relationship = model.getRelationship();
           info.status = status;
+          info.sex = model.sex;
           info.model = model;
           info.label = model.getRelationship() + " " + model.getSampleName();
           info.id = info.status + "-_-" + model.getRelationship() + "-_-" + model.getSampleName();
@@ -1020,6 +1022,19 @@ class CohortModel {
   setHubSession(hubSession) {
     let self = this;
     self.hubSession = hubSession;
+  }
+
+  getTrioSampleNames() {
+    let self = this;
+    let sampleNames = [];
+    sampleNames.push(self.sampleMap.proband.model.getSampleName());
+    if (self.sampleMap.mother && self.sampleMap.mother.model) {
+      sampleNames.push(self.sampleMap.mother.model.getSampleName());
+    }
+    if (self.sampleMap.father && self.sampleMap.father.model) {
+      sampleNames.push(self.sampleMap.father.model.getSampleName());
+    }
+    return sampleNames;
   }
 
   setLoadedVariants(gene, relationship=null) {
@@ -1822,6 +1837,8 @@ class CohortModel {
             me.freebayesSettings.arguments,
             me.globalApp.vepAF, // vep af
             me.getTrioSampleNames(),
+            options.gnomADExtra,
+            options.decompose,
             function(theData, trRefName) {
 
               var jointVcfRecs =  theData.split("\n");
@@ -1867,6 +1884,8 @@ class CohortModel {
                           variant.alt == options.sourceVariant.alt) {
 
                           refreshedSourceVariant = variant;
+                          refreshedSourceVariant.notes = options.sourceVariant.notes;
+                          refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
                         }
                       })
                     }
@@ -1909,7 +1928,7 @@ class CohortModel {
       }
 
       theVcfData.loadState['called'] = true;
-      var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, me.globalApp.vepAF);
+      var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, me.globalApp.vepAF, options.gnomADExtra);
 
       var theFbData = data.results;
       theFbData.loadState['called'] = true;
@@ -2191,23 +2210,40 @@ class CohortModel {
     }
   }
 
-  mergeImportedVariants(importedVariants) {
+  promiseMergeImportedVariants(importedVariants) {
     let self = this;
-    importedVariants.forEach(function(importedVariant) {
-      var matchingVariant = self.getFlaggedVariant(importedVariant);
-      if (!matchingVariant) {
-        let variant = self.setImportedVariantGeneAndTranscript(importedVariant, {copy: true});
-        self.flaggedVariants.push(variant);
-      } else {
-        matchingVariant.interpretation = importedVariant.interpretation;
-        matchingVariant.notes          = importedVariant.notes;
-        matchingVariant.isUserFlagged  = importedVariant.isUserFlagged;
-        matchingVariant.featureClass   = importedVariant.isUserFlagged ? "flagged" : "";
-      }
+    let promises = [];
+
+    return new Promise(function(resolve, reject) {
+      importedVariants.forEach(function(importedVariant) {
+        var matchingVariant = self.getFlaggedVariant(importedVariant);
+        if (!matchingVariant) {
+          let p = self.geneModel.promiseGetCachedGeneObject(importedVariant.gene)
+          .then(function(geneObject) {
+             let variant = self.setImportedVariantGeneAndTranscript(importedVariant, geneObject, {copy: true})
+             self.flaggedVariants.push(variant);
+          })
+          promises.push(p)
+        } else {
+          matchingVariant.interpretation = importedVariant.interpretation;
+          matchingVariant.notes          = importedVariant.notes;
+          matchingVariant.isUserFlagged  = importedVariant.isUserFlagged;
+          matchingVariant.featureClass   = importedVariant.isUserFlagged ? "flagged" : "";
+          p.push(Promise.resolve())
+        }
+      })
+      Promise.all(promises)
+      .then(function() {
+        resolve()
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+
     })
   }
 
-  setImportedVariantGeneAndTranscript(importedVariant, options) {
+  setImportedVariantGeneAndTranscript(importedVariant, geneObject, options) {
     let self = this;
 
     let variant = null;
@@ -2216,8 +2252,6 @@ class CohortModel {
     } else {
       variant = importedVariant;
     }
-
-    var geneObject = self.geneModel.geneObjects[variant.gene];
 
     variant.geneName = variant.gene;
     variant.gene = geneObject;
@@ -2243,12 +2277,21 @@ class CohortModel {
       }
     }
     return variant;
+
   }
-
-
+  
   importFlaggedVariants(fileType, data, callbackPostImport, callbackPostAnalyze) {
     var me = this;
     me.flaggedVariants = [];
+
+    var isObject = function(val) {
+      if (val === null) { 
+        return false;
+      } else {
+        return ( (typeof val === 'function') || (typeof val === 'object') );
+      }
+    }
+
 
     var importRecords = null;
     if (fileType == 'json') {
@@ -2272,12 +2315,31 @@ class CohortModel {
     var promises = []
 
     importRecords.forEach( function(ir) {
-      let geneObject = me.geneModel.geneObjects[ir.gene];
+      let geneName = null;
+
+      // Workaround.  variant.gene sometimes an
+      // object, sometimes a gene name.  Other times
+      // variant.geneName is filled in instead
+      // of variant.gene.
+      if (ir.gene == null && ir.geneName) {
+        if (isObject(ir.geneName)) {
+          ir.gene = ir.geneName.gene_name
+        } 
+      } 
+
+      if (isObject(ir.gene)) {
+        geneName = ir.gene.gene_name;
+        ir.gene = ir.gene.gene_name;
+      } else {
+        geneName = ir.gene;
+      }
+
+      let geneObject = me.geneModel.geneObjects[geneName];
       if (geneObject == null || !ir.transcript || ir.transcript == '') {
-        var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true)
+        var promise = me.geneModel.promiseGetCachedGeneObject(geneName, true)
         .then(function() {
           if (geneObject == null) {
-            me.geneModel.promiseAddGeneName(ir.gene);
+            me.geneModel.promiseAddGeneName(geneName);
           }
         })
         promises.push(promise);
@@ -2294,18 +2356,20 @@ class CohortModel {
       importRecords.forEach( function(variant) {
         var geneObject = me.geneModel.geneObjects[variant.gene];
 
-        me.setImportedVariantGeneAndTranscript(variant);
+        me.setImportedVariantGeneAndTranscript(variant, geneObject);
         geneToAltTranscripts[geneObject.gene_name] = variant.transcript;
 
         me.flaggedVariants.push(variant);
 
-        var analyzeKind = variant.freebayesCalled == 'Y' ? 'call' : 'load';
-        var theVariants = genesToAnalyze[analyzeKind][variant.gene.gene_name];
-        if (theVariants == null) {
-          theVariants = [];
-          genesToAnalyze[analyzeKind][variant.gene.gene_name] = theVariants;
-        }
-        theVariants.push(variant);
+        var analyzeKinds = variant.freebayesCalled == 'Y' ? ['call'] : ['load'];
+        analyzeKinds.forEach(function(analyzeKind) {
+          var theVariants = genesToAnalyze[analyzeKind][variant.gene.gene_name];
+          if (theVariants == null) {
+            theVariants = [];
+            genesToAnalyze[analyzeKind][variant.gene.gene_name] = theVariants;
+          }
+          theVariants.push(variant);          
+        })
 
       });
 
@@ -2473,18 +2537,22 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false}) {
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false, includeReviewed: true}) {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
         let flagCriteria = self.filterModel.flagCriteria[filterName];
         let include = true;
+
+        if (!options.includeReviewed && filterName == 'reviewed') {
+          include = false;
+        }
         if (isFullAnalysis && !options.includeNotCategorized && filterName == 'notCategorized') {
           include = false;
         }
         if (include) {
-          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters);
+          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options);
 
           if (sortedGenes.length > 0) {
             filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
@@ -2623,15 +2691,30 @@ class CohortModel {
   }
 
 
-  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters) {
+  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters, options) {
     let self = this;
     let geneMap        = {};
     let flaggedGenes   = [];
     if (this.flaggedVariants) {
       this.flaggedVariants.forEach(function(variant) {
-        if ((userFlagged && variant.isUserFlagged) ||
-            (filterName && variant.filtersPassed && variant.filtersPassed.indexOf(filterName) >= 0)) {
+        let isReviewed = (variant.notes && variant.notes.length > 0) ||
+            (variant.interpretation != null && (variant.interpretation == "sig" || variant.interpretation == "unknown-sig"));
+       
 
+        let matches = false;
+        if (filterName == 'reviewed' && isReviewed) {
+          matches = true;
+        } else if ((userFlagged && variant.isUserFlagged) ||
+          (filterName && variant.filtersPassed && variant.filtersPassed.indexOf(filterName) >= 0)) {
+          if (!isReviewed) {
+            matches = true;
+          }
+        }
+
+
+
+        if (matches) {
+        
           let keepVariant = interpretationFilters && interpretationFilters.length > 0 ? interpretationFilters.indexOf(variant.interpretation ? variant.interpretation : 'not-reviewed') >= 0 : true;
 
           let flaggedGene = geneMap[variant.gene.gene_name];
@@ -2678,7 +2761,7 @@ class CohortModel {
 
   }
 
-  captureFlaggedVariants(dangerSummary) {
+  captureFlaggedVariants(dangerSummary, geneObject) {
     let self = this;
     if (self.flaggedVariants == null) {
       self.flaggedVariants = [];
@@ -2688,12 +2771,17 @@ class CohortModel {
       for (var filterName in self.filterModel.flagCriteria) {
         if (dangerSummary.badges[filterName]) {
           let theFlaggedVariants = dangerSummary.badges[filterName];
+
+          // Add variants in danger summary (if not already present)
+          // to flagged variants
           theFlaggedVariants.forEach(function(variant) {
             let matchingVariant = self.getFlaggedVariant(variant);
             if (!matchingVariant) {
+              variant.gene = geneObject
               self.flaggedVariants.push(variant);
             }
           })
+
         }
       }
     }

@@ -7,6 +7,31 @@
   margin-left: 20px
   margin-top: -6px
 
+  .v-input--radio-group
+    height: 30px
+    margin-top: 0px
+    padding-top: 0px
+
+    .v-input--radio-group__input
+      label
+        margin-bottom: 0px
+        font-size: 14px
+
+      .v-select__selection--comma 
+        color: $text-color
+        font-size: 13px
+
+  .v-select__selection.v-select__selection--comma
+    color: $text-color
+    font-size: 13px
+
+
+  #clinvar-filter-box
+    margin-top: 3px
+    margin-left: 10px
+    width: 400px
+    float: left
+
   .input-group.radio
     margin-top: 0px
     margin-bottom: 0px
@@ -15,6 +40,7 @@
     line-height: 20px
     left: 24px
     font-size: 12px
+    padding-top: 5px
 
 
   .input-group.radio-group
@@ -25,7 +51,7 @@
 
   .input-group--select
     .input-group__input
-      margin-top: 10px
+      margin-top: -5px
 
   .input-group--text-field
     label
@@ -88,16 +114,16 @@
 
 <template>
     <div id="known-variants-toolbar">
-      <div style="width:295px;float:left;padding-top:10px;margin-top:0px;margin-right:10px">
-        <v-radio-group v-model="viz" row>
-            <v-radio label="Variants" value="variants"></v-radio>
-            <v-radio label="Counts" value="histo"></v-radio>
-            <v-radio style="min-width: 125px" label="Counts in Exons" value="histoExon"></v-radio>
+      <div style="width:450px;float:left;padding-top:5px;margin-top:0px;margin-right:10px">
+        <v-radio-group v-model="viz" row style="height:30px">
+            <v-radio label="Variants" :hide-details="true" value="variants"></v-radio>
+            <v-radio label="Counts" :hide-details="true" value="histo"></v-radio>
+            <v-radio style="min-width: 125px" :hide-details="true" label="Counts in Exons" value="histoExon"></v-radio>
         </v-radio-group>
       </div>
 
 
-      <div id="clinvar-filter-box" style="margin-left:10px;width:400px;float:left"
+      <div id="clinvar-filter-box"
        v-if="viz == 'variants'">
         <v-select
                 label="Filter by clinical significance..."

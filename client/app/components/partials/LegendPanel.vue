@@ -111,7 +111,7 @@
 
 
 
-    <div class="legend-title" :style="isBasicMode ? 'margin-bottom:10px;' : 'margin-bottom:20px'">
+    <div class="legend-title" v-if="showLegendTitle" :style="isBasicMode ? 'margin-bottom:10px;' : 'margin-bottom:20px'">
     Legend
     </div>
     <div style="display:flex;flex-wrap:wrap;justify-content:flex-start">
@@ -524,7 +524,8 @@ export default {
     LegendIcon
   },
   props: {
-    isBasicMode: null
+    isBasicMode: null,
+    showLegendTitle: true
   },
   data () {
       return {

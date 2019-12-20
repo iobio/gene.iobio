@@ -11,7 +11,8 @@
     text-transform: none !important;
     margin-left: 0px;
   }
-  .file-chooser-button .btn__content {
+  .file-chooser-button .btn__content,
+  .file-chooser-button .v-btn__content {
     font-size: 12px !important;
     font-weight: 600 !important;
     text-transform: none !important;

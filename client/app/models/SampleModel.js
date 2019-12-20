@@ -1374,8 +1374,11 @@ class SampleModel {
                me.getGeneModel().geneSource == 'refseq' ? true : false,
                true,  // hgvs notation
                true,  // rsid
-               true, // vep af
-               me.globalApp.useServerCache // serverside cache
+               me.globalApp.vepAF, // vepAF
+               me.globalApp.useServerCache, // serverside cache
+               false, // sfari mode
+               me.globalApp.gnomADExtra && me.relationship != 'known-variants', // get extra gnomad,
+               me.relationship != 'known-variants' // decompose
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
@@ -1449,7 +1452,7 @@ class SampleModel {
                           // set the hgvs and rsid on the existing variant
                           theVariant.extraAnnot      = true;
                           sourceVariant.extraAnnot   = true;
-                          var vepAnnots = [
+                          var extraAnnotFields = [
                             'vepConsequence',
                             'vepImpact',
                             'vepExon',
@@ -1464,11 +1467,12 @@ class SampleModel {
                             'vepAf',
                             'highestImpactVep',
                             'highestSIFT',
-                            'highestPolyphen'
+                            'highestPolyphen',
+                            'gnomAD'
                             ];
-                          vepAnnots.forEach(function(vepAnnot) {
-                            theVariant[vepAnnot]        = v[vepAnnot];
-                            sourceVariant[vepAnnot]     = v[vepAnnot];
+                          extraAnnotFields.forEach(function(field) {
+                            theVariant[field]        = v[field];
+                            sourceVariant[field]     = v[field];
                           })
 
 
@@ -1576,8 +1580,11 @@ class SampleModel {
                me.getGeneModel().geneSource == 'refseq' ? true : false,
                true,  // hgvs notation
                true,  // rsid
-               false, // vep af
-               me.globalApp.useServerCache // serverside cache
+               me.globalApp.vepAF, // vep af
+               me.globalApp.useServerCache, // serverside cache
+               false, // sfari mode
+               me.globalApp.gnomADExtra, // gnomADExtra,
+               true // decompose
             ).then( function(data) {
 
               var annotVcfData = data[1];
@@ -1598,7 +1605,7 @@ class SampleModel {
               } else {
                 var msg = "Empty results returned from SampleModel.promiseGetImpactfulVariantIds() for gene " + theGeneObject.gene_name;
                 console.log(msg);
-                reject(msg);
+                resolve(theVcfData.features);
               }
 
           });
@@ -1669,9 +1676,11 @@ class SampleModel {
                                     false,  // hgvs notation
                                     false,  // rsid
                                     self.globalApp.vepAF,    // vep af
-                                    false,
-                                    true) // sfariMode
-                                    .then((results) => {
+                                    false,  // server-side cache
+                                    true, // sfariMode
+                                    false, // gnomadExtra
+                                    false // decompose
+                                    ).then((results) => {
                                       let unwrappedResults = results[1];
                                       unwrappedResults.gene = theGene;
                                       annoResults.push(unwrappedResults);
@@ -1812,7 +1821,11 @@ class SampleModel {
                me.getGeneModel().geneSource === 'refseq' ? true : false,
                me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
                me.globalApp.getVariantIdsForGene,  // rsid
-               me.globalApp.vepAF    // vep af
+               me.globalApp.vepAF,    // vep af
+               false, // serverside cache
+               false, // sfari mode
+               false, // get extra gnomad,
+               me.getRelationship() != 'known-variants' // decompose
               );
           })
           .then( function(data) {
@@ -1899,11 +1912,13 @@ class SampleModel {
 
           },
           function(error) {
-            reject("missing reference")
+            console.log(error);
+            reject(error)
           });
         }
       },
       function(error) {
+        console.log(error);
         reject(error);
       });
 
@@ -2363,10 +2378,30 @@ class SampleModel {
             var variant = recs[vcfIter];
 
             // set the hgvs and rsid on the existing variant
-              variant.extraAnnot      = true;
-              variant.vepHGVSc        = annotatedRec.vepHGVSc;
-              variant.vepHGVSp        = annotatedRec.vepHGVSp;
-              variant.vepVariationIds = annotatedRec.vepVariationIds;
+            variant.extraAnnot      = true;
+
+            // set the hgvs and rsid on the existing variant
+            var extraAnnotFields = [
+              'vepConsequence',
+              'vepImpact',
+              'vepExon',
+              'vepHGVSc',
+              'vepHGVSp',
+              'vepAminoAcids',
+              'vepVariationIds',
+              'vepSIFT',
+              'vepPolyPhen',
+              'vepRegs',
+              'regulatory',
+              'vepAf',
+              'highestImpactVep',
+              'highestSIFT',
+              'highestPolyphen',
+              'gnomAD'
+              ];
+            extraAnnotFields.forEach(function(field) {
+              variant[field]        = annotatedRec[field];
+            })
 
             vcfIter++;
             annotIter++;
@@ -3066,7 +3101,15 @@ class SampleModel {
              me._getSamplesToRetrieve(),
              me.getAnnotationScheme().toLowerCase(),
              me.getTranslator().clinvarMap,
-             me.getGeneModel().geneSource == 'refseq' ? true : false)
+             me.getGeneModel().geneSource == 'refseq' ? true : false,
+             false,  // hgvs notation
+             false,  // rsid
+             false, // vepAF
+             false, // serverside cache
+             false, // sfari mode
+             false, // get extra gnomad,
+             true // decompose 
+          )
           .then( function(data) {
 
             if (data != null && data.features != null) {

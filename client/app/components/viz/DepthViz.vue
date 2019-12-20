@@ -5,7 +5,7 @@
 
 #depth-viz .circle-label
   fill: $arrow-color
-  font-size: 15px
+  font-size: 16px
   font-weight: bold
   stroke: none
   pointer-events: none
@@ -38,12 +38,22 @@
 
   .circle
     stroke: none
-    fill: $current-color
+    fill: $arrow-color
+    pointer-events: none
+
+  .coverage-bar
+    stroke: black
+    fill: white
+    pointer-events: none
+
+  .alt-bar
+    stroke: black
+    fill:   $current-color
     pointer-events: none
 
   .region
     stroke-width: 1px
-    stroke: $coverage-problem-region-color
+    stroke: $coverage-problem-region-border-color
     fill: $coverage-problem-region-color
 
   .threshold
@@ -76,6 +86,12 @@ export default {
         type: Array,
         default: function() {
           return [[]];
+        }
+      },
+      model: {
+        type: Object,
+        default: function() {
+          return null;
         }
       },
       coverageDangerRegions: {
@@ -134,6 +150,10 @@ export default {
         type: Number,
         default: 3
       },
+      showAlleleBar: {
+        type: Boolean,
+        default: false
+      },
       regionStart: {
         type: Number,
         default: 0
@@ -179,6 +199,7 @@ export default {
           .pos( function(d) { return d[0] })
           .depth( function(d) { return d[1] })
           .maxDepth(this.maxDepth)
+          .showAlleleBar(this.showAlleleBar)
           .yTickFormat(function(val) {
             if (val == 0) {
               return "";
@@ -222,7 +243,7 @@ export default {
         this.$emit('updateDepthChart', this.depthChart);
       },
       showCurrentPoint: function(point) {
-        this.depthChart.showCircle()(point.pos, point.depth);
+        this.depthChart.showCircle()(point.pos, point.depth, point.altCount);
       },
       hideCurrentPoint: function(point) {
         this.depthChart.hideCircle()();

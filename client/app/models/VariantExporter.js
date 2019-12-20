@@ -343,42 +343,53 @@ export default class VariantExporter {
 
           if ((variant.hasOwnProperty('fbCalled')        && variant.fbCalled == 'Y') ||
             (variant.hasOwnProperty('freebayesCalled') && variant.freebayesCalled == 'Y')) {
+
             // If the variant was called on-demand, issue the service calls to
-            // generate the vcf records.∂
+            // generate the vcf records.
+            //
 
-
-            me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, me.cohort.getCurrentTrioVcfData(), {sourceVariant: variant, checkCache: true, isBackground: true})
+            // Make sure we have loaded the variants before calling variants
+            me.cohort.promiseAnnotateVariants(theGeneObject, theTranscript, 
+                {'isMultiSample': me.mode == 'trio' && me.samplesInSingleVcf(),'isBackground': true})
             .then(function(data) {
-                var theGeneObject1    = data.gene;
-                var theTranscript1    = data.transcript;
-                var jointVcfRecs      = data.jointVcfRecs;
-                var translatedRefName = data.refName;
-                var sourceVariant     = data.sourceVariant;
-                var theVariant = null;
-                var theVcfRecs = null;
+              let trioVcfData = data;
 
-                if (format == 'vcf') {
-                  theVcfRecs = me._formatJointVcfRecs(jointVcfRecs, sourceVariant);
-                }
+              // Now perform joint calling on the alignments
+              me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, trioVcfData, {sourceVariant: variant, checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
+              .then(function(data) {
+                  var theGeneObject1    = data.gene;
+                  var theTranscript1    = data.transcript;
+                  var jointVcfRecs      = data.jointVcfRecs;
+                  var translatedRefName = data.refName;
+                  var sourceVariant     = data.sourceVariant;
+                  var theVariant = null;
+                  var theVcfRecs = null;
 
-                var sampleNamesToGenotype = me.cohort.getProbandModel().getSampleNamesToGenotype();
-                var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, me.globalApp.vepAF)
-                var theFbData = data.results;
-
-                theFbData.features.forEach(function(v) {
-                  if (theVariant == null
-                    && me.cohort.getProbandModel()._stripRefName(v.chrom) == me.cohort.getProbandModel()._stripRefName(sourceVariant.chrom)
-                    && v.start  == sourceVariant.start
-                    && v.ref    == sourceVariant.ref
-                    && v.alt    == sourceVariant.alt) {
-                    theVariant = v;
+                  if (format == 'vcf') {
+                    theVcfRecs = me._formatJointVcfRecs(jointVcfRecs, sourceVariant);
                   }
-                })
-                me._promiseFormatRecord(theVariant, sourceVariant, theVcfRecs, theGeneObject, theTranscript, format, exportRec)
-                .then(function(data) {
-                  resolve(data);
-                })
-            });
+
+                  var sampleNamesToGenotype = me.cohort.getProbandModel().getSampleNamesToGenotype();
+                  var data = me.cohort.getProbandModel().vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, theGeneObject1, theTranscript1, me.cohort.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), 0, me.globalApp.vepAF, me.globalApp.gnomADExtra)
+                  var theFbData = data.results;
+
+                  theFbData.features.forEach(function(v) {
+                    if (theVariant == null
+                      && me.cohort.getProbandModel()._stripRefName(v.chrom) == me.cohort.getProbandModel()._stripRefName(sourceVariant.chrom)
+                      && v.start  == sourceVariant.start
+                      && v.ref    == sourceVariant.ref
+                      && v.alt    == sourceVariant.alt) {
+                      theVariant = v;
+                    }
+                  })
+                  me._promiseFormatRecord(theVariant, sourceVariant, theVcfRecs, theGeneObject, theTranscript, format, exportRec)
+                  .then(function(data) {
+                    resolve(data);
+                  })
+              });
+
+            })
+
 
           } else {
 
@@ -542,7 +553,7 @@ export default class VariantExporter {
           clinvarLoader)
         .then(function() {
 
-          me.formatDisplay(revisedVariant, rec);
+          me.formatDisplay(revisedVariant, rec, format);
 
           if (format == 'csv' || format == 'json') {
             resolve([rec]);
@@ -551,7 +562,7 @@ export default class VariantExporter {
           }
         })
       } else {
-        me.formatDisplay(revisedVariant, rec);
+        me.formatDisplay(revisedVariant, rec, format);
 
         if (format == 'csv' || format == 'json') {
             resolve([rec]);
@@ -565,7 +576,7 @@ export default class VariantExporter {
   }
 
 
-  formatDisplay(variant, rec) {
+  formatDisplay(variant, rec, format) {
     var me = this;
 
 
@@ -575,7 +586,11 @@ export default class VariantExporter {
     rec.analysisMode      = variant.analysisMode;
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
     rec.filtersPassed     = variant.filtersPassed  && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
-    rec.notes             = variant.notes && variant.notes.length > 0 ? variant.notes : "";
+    if (format == 'json') {
+      rec.notes           = variant.notes && variant.notes.length > 0 ? variant.notes : "";    
+    } else {
+      rec.notes           = info.notesFlattened;
+    }
     rec.interpretation    = variant.interpretation && variant.interpretation.length > 0 ? variant.interpretation : "not-reviewed";
     rec.inheritance       = info.inheritance ? this.cohort.translator.getInheritanceLabel(info.inheritance) : "";
     rec.impact            = info.vepImpact;

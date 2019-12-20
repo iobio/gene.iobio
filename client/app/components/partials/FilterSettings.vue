@@ -4,10 +4,41 @@
 @import ../../../assets/sass/variables
 
 .filter-form
+
+  .filter-action-button
+    padding: 0px
+    height: 30px !important
+    background-color: $app-color !important
+    color: white !important
+    min-width: 150px !important
+    margin: 0px
+
+    &.disabled
+      opacity: 0.30 !important
+
+    &.remove-button
+      background-color: white !important
+      color: $app-color !important
+      min-width: 100px !important
+      margin-left: 10px
+
+
   .input-group
     label
-      font-size: 13px
+      font-style: italic !important
+      color: $text-color !important
+      font-weight: normal !important
 
+  .input-group--text-field
+    input
+      font-size: 14px !important
+      color: $app-color !important
+      font-weight: bold
+
+  .input-group__selections__comma
+    font-size: 14px !important
+    color: $app-color !important
+    font-weight: bold
 
 .filter-title
   font-size: 16px
@@ -39,9 +70,21 @@
 
 <template>
 
-  <v-layout row wrap class=" filter-form ml-2 mr-4 px-3" style="max-width:620px;">
-     <div class="filter-title">Customize Filter</div>
-     <v-flex id="name" xs12 class="mb-3" >
+  <v-layout row wrap class=" filter-form " >
+
+    <v-flex  xs12 class="mt-1 mb-1" >
+      <v-spacer></v-spacer>
+      <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
+        Apply
+      </v-btn>
+      <v-btn v-if="filter.custom"
+      :class="{'filter-action-button': true, 'remove-button': true}"
+      @click="remove">
+        Remove
+      </v-btn>
+    </v-flex>
+
+    <v-flex id="name" xs12 class="mb-3" >
       <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
       </v-text-field>
     </v-flex>
@@ -104,7 +147,7 @@
     </v-flex>
 
     <v-flex xs12 class="mb-3" >
-      <v-select
+      <v-autocomplete
             label="Consequence"
             v-bind:items="consequences"
             v-model="selectedConsequences"
@@ -112,29 +155,18 @@
             autocomplete
             hide-details
       >
-      </v-select>
+      </v-autocomplete>
     </v-flex>
 
     <v-flex id="min-revel" xs12 class="mb-2 mt-2 mr-4" >
 
           <div style="display: inline-block;margin-right:15px">
-            Min REVEL score
+            Min REVEL score (for missense variants)
             <info-popup name="revel"></info-popup>
           </div>
 
-          <div style="display:inline-block">
-            <v-slider step="5" snap :hide-details="true" style="padding:0px;width:200px;"  snap v-model="minRevelSlider">
-            </v-slider>
-            <v-progress-linear class="revel-progress-bar" style="float:left;margin:0px;padding:0px;width:100px;display:inline-block" v-model="revelProgress">
-            </v-progress-linear>
-            <v-progress-linear class="revel-progress-bar revel_moderate" style="float:left;margin:0px;padding:0px;width:50px;display:inline-block" v-model="revelProgress">
-            </v-progress-linear>
-            <v-progress-linear class="revel-progress-bar revel_high" style="float:left;margin:0px;padding:0px;width:50px;display:inline-block" v-model="revelProgress">
-            </v-progress-linear>
-          </div>
 
-          <v-text-field :hide-details="true"  style="margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel"
-          @change="onChangeRevelScore" >
+          <v-text-field :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
           </v-text-field>
 
     </v-flex>
@@ -173,12 +205,10 @@ export default {
   },
   data () {
     return {
-      theFilter: null,
-
+      isDirty: false,
       name: null,
       maxAf: null,
       minRevel: null,
-      minRevelSlider: null,
       selectedClinvarCategories: null,
       selectedImpacts: null,
       selectedZygosity: null,
@@ -248,13 +278,14 @@ export default {
   },
   methods: {
     init: function() {
+      let self = this;
 
-      let flagCriteria = this.filterModel.flagCriteria[this.theFilter.name];
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
       if (flagCriteria == null) {
         flagCriteria = {};
         flagCriteria.custom = true;
         flagCriteria.active = false;
-        flagCriteria.name = this.theFilter.display;
+        flagCriteria.name = this.filter.display;
         flagCriteria.maxAf = null;
         flagCriteria.minRevel = null;
         flagCriteria.clinvar = null;
@@ -263,12 +294,11 @@ export default {
         flagCriteria.inheritance = null;
         flagCriteria.zygosity = null;
         flagCriteria.genotypeDepth = null;
-        this.filterModel.flagCriteria[this.theFilter.name] = flagCriteria;
+        this.filterModel.flagCriteria[this.filter.name] = flagCriteria;
       }
       this.name                      = flagCriteria.name;
       this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
-      this.minRevel                  = flagCriteria.minRevel ? flagCriteria.minRevel : null;
-      this.minRevelSlider            = flagCriteria.minRevel ? flagCriteria.minRevel * 100 : null;
+      this.minRevel                  = flagCriteria.minRevel;
       this.selectedClinvarCategories = flagCriteria.clinvar;
       this.selectedImpacts           = flagCriteria.impact;
       this.selectedConsequences      = flagCriteria.consequence;
@@ -277,9 +307,14 @@ export default {
       this.minGenotypeDepth          = flagCriteria.minGenotypeDepth;
       this.minGenotypeAltCount       = flagCriteria.minGenotypeAltCount;
 
+      this.$nextTick(function() {
+        self.isDirty = false;
+      })
+
+
     },
     apply: function() {
-      let flagCriteria = this.filterModel.flagCriteria[this.theFilter.name];
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
 
       flagCriteria.name             = this.name;
       if (flagCriteria.custom) {
@@ -296,26 +331,54 @@ export default {
       flagCriteria.minGenotypeAltCount = this.minGenotypeAltCount;
       flagCriteria.active           = true;
 
+      this.isDirty = false;
+      this.$emit("apply-filter")
+
+    },
+    remove: function() {
+      delete this.filterModel.flagCriteria[this.filter.name]
+      this.$emit("remove-filter", this.filter.name)
     },
     onChangeName: function() {
-      this.theFilter.display = this.name;
-    },
-    onChangeRevelScore: function() {
-      this.minRevelSlider = this.minRevel * 100;
+      this.isDirty = true;
+      this.filter.display = this.name;
     }
   },
   computed: {
   },
   watch: {
-    minRevelSlider: function() {
-      this.minRevel = this.minRevelSlider > 0 ? this.minRevelSlider / 100 : "";
+
+    maxAf: function() {
+      this.isDirty = true;
+    },
+    selectedClinvarCategories: function() {
+      this.isDirty = true;
+    },
+    selectedInheritanceModes: function() {
+      this.isDirty = true;
+    },
+    selectedZygosity: function() {
+      this.isDirty = true;
+    },
+    selectedImpacts: function() {
+      this.isDirty = true;
+    },
+    selectedConsequences: function() {
+      this.isDirty = true;
+    },
+    minRevel: function() {
+      this.isDirty = true;
+    },
+    minGenotypeDepth: function() {
+      this.isDirty = true;
+    },
+    minGenotypeAltCount: function() {
+      this.isDirty = true;
     }
   },
   created: function() {
   },
   mounted: function() {
-    this.theFilter = this.filter;
-    this.init();
   }
 }
 </script>
