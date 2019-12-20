@@ -63,10 +63,12 @@
         .note-author
           margin-right:  20px
           padding-top: 6px
+          line-height: 13px
 
         .note-datetime
           margin-right:  20px
           padding-top: 6px
+          line-height: 13px
 
         .button-actions
           min-width: 30px
