@@ -1105,7 +1105,9 @@ export default {
       this.activeTab = 1;
       self.$nextTick(function() {
         if (!self.launchedFromClin || self.isClinFrameVisible) {
-          self.leftDrawer = true;
+          if (!self.isEduMode) {
+            self.leftDrawer = true;          
+          }
         }
       })
     },
@@ -1114,7 +1116,9 @@ export default {
       this.activeTab = 1;
       this.$nextTick(function() {
         if (!self.launchedFromClin || self.isClinFrameVisible) {
-          self.leftDrawer = true;
+          if (!self.isEduMode) {
+            self.leftDrawer = true;          
+          }
         }
       })
     },
@@ -1123,7 +1127,9 @@ export default {
       this.activeTab = 0;
       this.$nextTick(function() {
         if (!self.launchedFromClin || self.isClinFrameVisible) {
-          self.leftDrawer = true;
+          if (!self.isEduMode) {
+            self.leftDrawer = true;          
+          }
         }
       })
     },

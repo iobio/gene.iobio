@@ -28,19 +28,21 @@
     font-family: 'DIN' !important;
     margin-top: 0px !important;
 }
-#banner {
+#edu-tour-welcome #banner {
     background-image: url("../images/exhibit-pattern.png");
     height: 70px;
     text-align: left;
+    padding-top: 15px;
 }
 h1 {
     color: white;
     font-family: 'DIN' !important;
     font-size: 47px;
-    margin-top: 5px;
+    margin-top: 45px;
     margin-bottom: 5px;
     font-weight: 400;
     text-align: center;
+
 }
 h2 {
     color: #F3E6B2;

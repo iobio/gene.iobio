@@ -84,7 +84,7 @@ class GlobalApp {
     this.ignoreAlignments            = false;     // By pass any processing of aligments?
 
     this.keepLocalStorage            = false; // maintain cache between sessions?
-    this.eduModeVariantSize          = 10;
+    this.eduModeVariantSize          = 15;
 
     // Fields
     this.impactFieldToFilter         = 'highestImpactVep';

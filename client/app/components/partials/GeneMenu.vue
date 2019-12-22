@@ -11,6 +11,7 @@
   .btn__content, .v-btn__content
     color:  $app-color
     padding-left: 0px
+    font-size: 15px
 
 
     i.material-icons

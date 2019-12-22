@@ -302,6 +302,7 @@
         <span style="display:inline-block"> {{ sampleRelLabel }} </span>
 
         <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
+          v-show="!isEduMode"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
           :featureMatrixModel="featureMatrixModel"
@@ -320,6 +321,7 @@
 
 
         <optional-tracks-menu
+            v-show="!isEduMode"
             @show-known-variants-card="onShowKnownVariantsCard"
             @show-sfari-variants-card="onShowSfariVariantsCard"
             @show-mother-card="onShowMotherCard"
@@ -336,7 +338,7 @@
 
 
         <v-badge  id="loaded-count"
-        v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="mr-4 mt-1 loaded" >
+        v-if="!isEduMode && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="mr-4 mt-1 loaded" >
           <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
           {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Variants' }}
         </v-badge>
@@ -456,7 +458,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+        v-show="!isEduMode && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
           Proband variants  {{ sampleLabel }}
         </div>
@@ -528,7 +530,7 @@
         </div>
 
         <gene-viz id="gene-viz"
-          style="margin-top:-5px"
+          :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
           v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
           :data="[selectedTranscript]"
           :margin="geneVizMargin"
@@ -1262,8 +1264,11 @@ export default {
 
   computed: {
     sampleRelLabel: function() {
+      let self = this;
       var label = "";
-      if (this.sampleModel.relationship == 'proband') {
+      if (self.isEduMode) {
+        label = self.globalApp.utility.capitalizeFirstLetter(this.sampleModel.name) + "'s Variants";
+      } else if (this.sampleModel.relationship == 'proband') {
         label = "Variants"
       } else if (this.sampleModel.isAlignmentsOnly()) {
         label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);

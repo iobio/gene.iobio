@@ -226,6 +226,7 @@
         Variant  
 
         <variant-links-menu
+        v-if="selectedVariant && info"
         :selectedGene="selectedGene"
         :selectedVariant="selectedVariant"
         :geneModel="cohortModel.geneModel"
@@ -361,7 +362,7 @@
             </div>
           </div>
       </div>      
-      <div class="variant-inspect-column" v-if="selectedVariant">
+      <div class="variant-inspect-column" v-if="selectedVariant && info">
           <div class="variant-column-header">
             Pathogenicity
             <v-divider></v-divider>

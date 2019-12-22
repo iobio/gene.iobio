@@ -273,7 +273,7 @@ export default class VariantTooltip {
     var clinvarSimpleRow1 = '';
     var clinvarSimpleRow2 = '';
     if (me.isEduMode) {
-      if (info.clinvarSig != "") {
+      if (info.clinvarSig != "" && info.clinvarSig != null) {
         clinvarSimpleRow1 = me._tooltipWideHeadingRow('Known from research', info.clinvarSig, '2px');
         if (info.clinvarTrait) {
           clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('', info.clinvarTrait, null, 'tooltip-clinvar-pheno');
@@ -335,9 +335,7 @@ export default class VariantTooltip {
         genotypeRow
         + me._tooltipMainHeaderRow('Severity - ' + info.vepImpact , '', '', '')
         + inheritanceModeRow
-        + polyphenRowSimple
-        + clinvarSimpleRow1
-        + clinvarSimpleRow2 );
+        + polyphenRowSimple);
     } if (me.isBasicMode) {
       return (
         me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, '', 'ref-alt')

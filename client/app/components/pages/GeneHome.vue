@@ -239,7 +239,7 @@ main.content.clin, main.v-content.clin
         <genes-card
          style="margin-bottom:10px"
          v-if="geneModel"
-         v-show="false && filterModel && (!launchedFromClin && !isFullAnalysis)"
+         v-show="isEduMode && filterModel && (!launchedFromClin && !isFullAnalysis)"
          v-bind:class="{hide : (showWelcome && !isEduMode), 'full-width': true}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
@@ -280,7 +280,7 @@ main.content.clin, main.v-content.clin
 
         <gene-variants-card
           v-bind:class="{hide : showWelcome, 'full-width': true}"
-          v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0"
+          v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && !isEduMode"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :genomeBuildHelper="genomeBuildHelper"

@@ -311,7 +311,7 @@
 
 
       <v-badge  id="loaded-count"
-      v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="mr-4 mt-1 loaded" >
+      v-if="sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected && !isEduMode)" class="mr-4 mt-1 loaded" >
         <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
         {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Loaded' }}
       </v-badge>
@@ -444,7 +444,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+        v-show="showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && !isEduModel && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
           loaded variants
         </div>
@@ -984,7 +984,9 @@ export default {
   computed: {
     sampleRelLabel: function() {
       var label = "";
-      if (this.sampleModel.relationship == 'proband') {
+      if (this.isEduMode) {
+        return ""
+      } else if (this.sampleModel.relationship == 'proband') {
         label = ""
       } else if (this.sampleModel.isAlignmentsOnly()) {
         label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);
@@ -1009,7 +1011,9 @@ export default {
       var label = "";
       if (this.sampleModel.isAlignmentsOnly()) {
       } else {
-        if (this.sampleModel.relationship == 'known-variants') {
+        if (this.isEduMode) {
+          return this.sampleModel.name + "'s Variants"
+        } else if (this.sampleModel.relationship == 'known-variants') {
         } else if (this.sampleModel.relationship == 'sfari-variants') {
         } else {
           label += this.sampleModel.name;

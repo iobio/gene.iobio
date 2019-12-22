@@ -1825,7 +1825,7 @@ class SampleModel {
                false, // serverside cache
                false, // sfari mode
                false, // get extra gnomad,
-               me.getRelationship() != 'known-variants' // decompose
+               !me.isEduMode && me.getRelationship() != 'known-variants' // decompose
               );
           })
           .then( function(data) {

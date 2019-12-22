@@ -1,4 +1,4 @@
-html {
+∂ahtml {
   -webkit-font-smoothing: auto;
 }
 
@@ -177,9 +177,6 @@ html {
   z-index: 206;
 }
 
-.menu__content--select.menuable__content__active {
-  z-index: 208;
-}
 
 .dropdown.open .dropdown-menu {
   max-height: 400px !important;

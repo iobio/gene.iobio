@@ -1,6 +1,7 @@
 
 <style lang="sass">
 
+@import ../../../assets/sass/variables
 
 textarea#copy-paste-genes
   font-size: 14px
@@ -10,6 +11,17 @@ textarea#copy-paste-genes
   .expansion-panel__header
     padding-left: 10px
 
+#show-genes-button
+  min-width: 120px
+  margin: 0px
+  padding: 0px
+
+  .btn__content, .v-btn__content
+    padding: 0px
+    margin: 0px
+    color: $text-color
+    font-size: 16px
+
 #show-genes-button.icon
   min-width: 20px
   margin: 0px
@@ -18,11 +30,17 @@ textarea#copy-paste-genes
   .btn__content, .v-btn__content
     padding: 0px
     margin: 0px
+    color: $text-color
+    font-size: 16px
 
 #acmg-genes-button, #aclear-all-genes-button,  #apply-button
 
   padding: 0px
   height: 30px !important
+
+#enter-genes-input, #phenotype-input
+  label
+    font-weight: normal
 
 </style>
 
@@ -31,7 +49,8 @@ textarea#copy-paste-genes
     offset-y
     :close-on-content-click="false"
     :nudge-width="isEduMode ? 450 : 400"
-    top
+    bottom
+    :nudge-bottom="isEduMode ? 20 : 0"
     v-model="showGenesMenu"
     >
 
@@ -54,10 +73,9 @@ textarea#copy-paste-genes
       </v-btn>
 
 
-      <v-expansion-panel v-if="isEduMode" expand>
-        <v-expansion-panel-content :value="openPhenolyzerPanel">
+        <div class="full-width" style="padding:20px">
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
-          <v-card style="margin-bottom:15px;margin-left:16px;">
+          <div style="margin-bottom:15px;margin-left:16px;">
               <phenotype-search
               :isNav="false"
               :defaultTopGenes="isEduMode ? '6' : '30'"
@@ -66,11 +84,10 @@ textarea#copy-paste-genes
               :phenotypeLookupUrl="phenotypeLookupUrl"
               @on-search-genes="onSearchPhenolyzerGenes">
               </phenotype-search>
-          </v-card>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
+          </div>
+        </div>
 
-      <v-card class="full-width">
+      <div class="full-width" style="padding: 20px">
 
           <div id="enter-genes-input">
             <v-textarea
@@ -95,7 +112,7 @@ textarea#copy-paste-genes
           </div>
 
 
-      </v-card>
+      </div>
     </v-menu>
 </template>
 
@@ -132,9 +149,12 @@ export default {
   watch: {
   },
   methods: {
-    onApplyGenes: function() {
+    onApplyGenes: function(options) {
       let self = this;
-      self.$emit("apply-genes", self.genesToApply, {isFromClin: false, phenotypes: self.phenotypeTermEntered});
+      if (options == null) {
+        options = {isFromClin: false, phenotypes: self.phenotypeTermEntered};
+      }
+      self.$emit("apply-genes", self.genesToApply, options );
       self.showGenesMenu = false;
     },
     onACMGGenes: function() {
@@ -156,7 +176,7 @@ export default {
         .join(", ");
         if (self.isEduMode) {
           setTimeout(function() {
-            self.onApplyGenes();
+            self.onApplyGenes({isFromClin: false, phenotypes: searchTerm});
           }, 1000);
         }
       }
