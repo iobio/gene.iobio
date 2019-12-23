@@ -450,6 +450,7 @@
           :showBrush="false"
           :showXAxis="true"
           :showWhenEmpty="false"
+          :showTransition="true"
           :classifySymbolFunc="classifyVariantSymbolFunc"
           @variantClick="onVariantClick"
           @variantOutsideClick="onVariantOutsideClick"
@@ -493,6 +494,7 @@
           :showBrush="false"
           :showXAxis="true"
           :showWhenEmpty="true"
+          :showTransition="true"
           :classifySymbolFunc="classifyVariantSymbolFunc"
           @variantClick="onVariantClick"
           @variantHover="onVariantHover"
@@ -699,7 +701,7 @@ export default {
         left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
       variantSymbolHeight: self.isEduMode  || self.isBasicMode ? self.globalAppProp.eduModeVariantSize : 12,
-      variantSymbolHeightOther: self.isEduMode  || self.isBasicMode ? self.globalAppProp.eduModeVariantSize : 8,
+      variantSymbolHeightOther: self.isEduMode  || self.isBasicMode ? self.globalAppProp.eduModeVariantSize : 12,
       variantSymbolPadding: 2,
 
       geneVizMargin: {

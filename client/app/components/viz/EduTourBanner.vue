@@ -7,10 +7,10 @@ $tour-hilite-color:      #a5b941
 #edu-tour-banner
   background-color:  $tour-background-color
   display: block !important
-  height: 50px
+  height: 55px
   width: 100%
   text-align: center
-  padding-top: 2px
+  padding-top: 5px
   position: fixed
   top: 0px
   z-index: 50

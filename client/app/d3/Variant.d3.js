@@ -265,13 +265,13 @@ export default function variantD3() {
         minWidth = variantHeight;
 
         var symbolScaleCircle = d3.scale.ordinal()
-                      .domain([3,4,5,6,7,8,10,12,14,16])
-                      .range([9,15,25,38,54,58,70,100,130,260]);
+                      .domain([3,4,5,6,7,8,10,12,14,15,16])
+                      .range([9,15,25,38,54,58,70,100,130,220,260]);
         var symbolSizeCircle = symbolScaleCircle(minWidth);
 
         var symbolScale = d3.scale.ordinal()
-                      .domain([3,4,5,6,7,8,10,12,14,16])
-                      .range([9,15,20,25,32,58,70,100,130,160]);
+                      .domain([3,4,5,6,7,8,10,12,14,15,16])
+                      .range([9,15,20,25,32,58,70,100,130,140,160]);
 
         var symbolSize = symbolScale(minWidth);
 
@@ -420,10 +420,19 @@ export default function variantD3() {
           return indels;
         }).enter().append('path')
             .attr("d", function(d,i) {
-              return d3.svg
-                       .symbol()
-                       .type( getSymbol(d,i) )
-                       .size(symbolSize)();
+              if (d.type.toUpperCase() == 'INS') {
+                return d3.svg
+                         .symbol()
+                         .type( getSymbol(d,i) )
+                         .size(symbolSizeCircle)();
+
+              } else {
+                return d3.svg
+                         .symbol()
+                         .type( getSymbol(d,i) )
+                         .size(symbolSize)();
+
+              }
             })
             .attr('class', function(d) { return chart.clazz()(d); })
             .attr("transform", function(d) {
@@ -513,7 +522,9 @@ export default function variantD3() {
                   return d3.svg
                        .symbol()
                        .type(getSymbol(d,i))
-                       .size(symbolSizeCircle)();
+                       .size( function() {
+                        return symbolSizeCircle();
+                       })
                 })
                 .attr("transform", function(d) {
                     var xCoord = x(d.start) + 2;

@@ -15,6 +15,8 @@ textarea#copy-paste-genes
   min-width: 120px
   margin: 0px
   padding: 0px
+  margin-top: 10px
+
 
   .btn__content, .v-btn__content
     padding: 0px
