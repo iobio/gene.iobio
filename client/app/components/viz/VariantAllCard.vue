@@ -302,7 +302,7 @@
         <span style="display:inline-block"> {{ sampleRelLabel }} </span>
 
         <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
-          v-show="!isEduMode"
+          v-show="!isEduMode && !isBasicMode"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
           :featureMatrixModel="featureMatrixModel"
@@ -321,7 +321,7 @@
 
 
         <optional-tracks-menu
-            v-show="!isEduMode"
+            v-show="!isEduMode && !isBasicMode"
             @show-known-variants-card="onShowKnownVariantsCard"
             @show-sfari-variants-card="onShowSfariVariantsCard"
             @show-mother-card="onShowMotherCard"
@@ -338,7 +338,7 @@
 
 
         <v-badge  id="loaded-count"
-        v-if="!isEduMode && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="mr-4 mt-1 loaded" >
+        v-if="!isEduMode && !isBasicMode && sampleModel.loadedVariants && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="mr-4 mt-1 loaded" >
           <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
           {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Variants' }}
         </v-badge>
@@ -459,7 +459,7 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-show="!isEduMode && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+        v-show="!isEduMode && !isBasicMode && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
           Proband variants  {{ sampleLabel }}
         </div>

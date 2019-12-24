@@ -758,7 +758,11 @@ export default {
       return 'width:' + this.width + 'px;height:' + this.height + 'px';
     },
     containerStyle: function() {
-      return 'display: inline-block;vertical-align: top; width:' + this.width + 'px;height:' + this.height + 'px';
+      return 'display: inline-block;vertical-align: top; '
+      + 'width:'  + this.width + 'px;'
+      + 'height:' + this.height + 'px;';
+      + 'min-width:'  + this.width + 'px;'
+      + 'max-height:' + this.height + 'px;';
     }
 
   }

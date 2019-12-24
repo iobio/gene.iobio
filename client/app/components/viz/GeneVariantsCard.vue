@@ -116,7 +116,7 @@
 
         <span id="gene-name"> {{ selectedGene.gene_name}} </span>
 
-        <gene-links-menu
+        <gene-links-menu v-if="!isBasicMode"
         :selectedGene="selectedGene"
         :geneModel="cohortModel.geneModel">
         </gene-links-menu>
@@ -127,7 +127,7 @@
 
         <div style="display:inline-block;margin-left: 20px">
           <transcripts-menu
-            v-if="selectedTranscript && selectedTranscript.transcript_id"
+            v-if="selectedTranscript && selectedTranscript.transcript_id && !isBasicMode"
             :selectedGene="selectedGene"
             :selectedTranscript="selectedTranscript"
             :geneSources="geneSources"
@@ -149,8 +149,8 @@
         {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
         </span>
         <span id="minus-strand"  v-if="selectedGene.strand == '-'"  style="font-size:12px;padding-left: 5px;font-style: italic;">reverse strand</span>
-        <span  id="gene-plus-minus-label"  style="padding-left: 15px">+  -</span>
-        <div id="region-buffer-box" style="display:inline-block;width:40px;height:21px;"  >
+        <span  id="gene-plus-minus-label"  v-if="!isBasicMode"  style="padding-left: 15px">+  -</span>
+        <div id="region-buffer-box" v-if="!isBasicMode" style="display:inline-block;width:40px;height:21px;"  >
             <v-text-field
                 id="gene-region-buffer-input"
                 class="sm fullview"

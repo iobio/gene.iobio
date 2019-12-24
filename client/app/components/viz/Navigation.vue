@@ -140,7 +140,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
 
 #side-panel-container.basic
   .variant-toolbar
-    margin-top: 0px
+    margin-top: 15px
     margin-bottom: 0px
 
   .tabs__container

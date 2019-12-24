@@ -233,7 +233,7 @@
     .list__tile__title, .v-list__tile__title
       height: auto
       line-height: 18px
-      padding-bottom: 5px
+      padding-top: 5px
 
     .reviewed-variant-filter
       font-size: 13px
@@ -286,14 +286,15 @@
     .vep-consequence
       display: inline-block
       width: 133px
-      line-height: 12px
+      line-height: 14px
       vertical-align: top
-      font-size: 12px
+      font-size: 13px
       white-space: normal
 
     .variant-label
-      font-size: 12px
+      font-size: 13px
       color: $text-color !important
+      line-height: 14px
 
 
       .coord
@@ -317,10 +318,9 @@
 
       .af
         display: inline-block
-        width: 60px
+        width: 90px
         vertical-align: top
-        line-height: 12px
-
+        line-height: 13px
 
       .hgvsc
         display: inline-block

@@ -237,9 +237,9 @@ main.content.clin, main.v-content.clin
 
 
         <genes-card
-         style="margin-bottom:10px"
+         style="margin-bottom:7px"
          v-if="geneModel"
-         v-show="isEduMode && filterModel && (!launchedFromClin && !isFullAnalysis)"
+         v-show="(isEduMode || isBasicMode) && filterModel && (!launchedFromClin && !isFullAnalysis)"
          v-bind:class="{hide : (showWelcome && !isEduMode), 'full-width': true}"
          ref="genesCardRef"
          :isEduMode="isEduMode"
@@ -280,7 +280,7 @@ main.content.clin, main.v-content.clin
 
         <gene-variants-card
           v-bind:class="{hide : showWelcome, 'full-width': true}"
-          v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && !isEduMode"
+          v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && !isEduMode "
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :genomeBuildHelper="genomeBuildHelper"
@@ -348,12 +348,41 @@ main.content.clin, main.v-content.clin
         >
         </variant-all-card>
 
+        <variant-detail-card
+          ref="variantInspectRef"
+          v-if="cohortModel && cohortModel.isLoaded && isBasicMode"
+          :isBasicMode="isBasicMode"
+          :isEduMode="isEduMode"
+          :selectedGene="selectedGene"
+          :selectedTranscript="analyzedTranscript"
+          :selectedVariant="selectedVariant"
+          :selectedVariantNotes="selectedVariantNotes"
+          :selectedVariantInterpretation="selectedVariantInterpretation"
+          :selectedVariantRelationship="selectedVariantRelationship"
+          :interpretationMap="interpretationMap"
+          :genomeBuildHelper="genomeBuildHelper"
+          :cohortModel="cohortModel"
+          :info="selectedVariantInfo"
+          :selectedVariantKey="selectedVariantKey"
+          :showGenePhenotypes="launchedFromClin || phenotypeTerm"
+          :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
+          :user="user"
+          :showAssessment="hasVariantAssessment || showVariantAssessment"
+          @show-pileup-for-variant="onShowPileupForVariant"
+          @apply-variant-interpretation="onApplyVariantInterpretation"
+          @apply-variant-notes="onApplyVariantNotes"
+          @show-variant-assessment="onShowVariantAssessment"
+
+          >
+          </variant-detail-card>
+
+
 
         <div style="display:flex">
 
           <variant-inspect-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded"
+          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :selectedVariant="selectedVariant"
@@ -378,7 +407,7 @@ main.content.clin, main.v-content.clin
           </variant-inspect-card>
 
           <v-card class="app-card"
-            v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && selectedVariant && (hasVariantAssessment || showVariantAssessment)"
+            v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && selectedVariant && !isBasicMode && (hasVariantAssessment || showVariantAssessment)"
             style="max-height:500px;overflow-y:scroll;max-width:240px;margin-left:5px">
             <div class="variant-assessment-heading">
               Variant Review
@@ -572,6 +601,7 @@ import EduTourBanner      from  '../viz/EduTourBanner.vue'
 import Welcome            from  '../viz/Welcome.vue'
 import IntroCard          from  '../viz/IntroCard.vue'
 import GeneCard           from  '../viz/GeneCard.vue'
+import VariantDetailCard  from  '../viz/VariantDetailCard.vue'
 import VariantInspectCard from  '../viz/VariantInspectCard.vue'
 import VariantAssessment  from  "../partials/VariantAssessment.vue"
 
@@ -627,6 +657,7 @@ export default {
       GeneVariantsCard,
       ScrollButton,
       VariantInspectCard,
+      VariantDetailCard,
       FeatureMatrixCard,
       VariantCard,
       SplitPane,
