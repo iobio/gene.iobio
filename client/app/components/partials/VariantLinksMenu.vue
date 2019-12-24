@@ -7,18 +7,21 @@
 #show-variant-links-button
   margin: 0px 0px 0px 0px
   padding: 0px
-  min-width: 30px
-  height: 20px
+  min-width: 25px
   margin-top: -5px
+  max-height: 25px
+  padding-left: 8px
 
   .btn__content, .v-btn__content
     color:  $text-color
     padding-left: 0px
     padding-right: 0px
+    background-color: #ebebeb
 
     i.material-icons
-      font-size: 16px
+      font-size: 20px
       color: $link-color
+      vertical-align: top
 
 
 .variant-link

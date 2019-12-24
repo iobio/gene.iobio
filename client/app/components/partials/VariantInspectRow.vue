@@ -45,11 +45,11 @@
           color: $not-significant-color
 
       .material-icons.link-icon
-        font-size: 14px
+        font-size: 18px
         margin-left: -1px
         margin-right: 0px
         color: $link-color
-        margin-bottom: 2px
+        background-color: #ebebeb
 
       .chip, .v-chip
         vertical-align: top

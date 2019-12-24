@@ -267,9 +267,10 @@ nav.toolbar, nav.v-toolbar
     .v-text-field__slot
       label
         font-size: 14px
+        font-weight: 500
       input
         font-size: 14px
-
+        font-weight: 500
 
   .clinvar-switch
     padding: 0px
@@ -460,11 +461,11 @@ nav.toolbar, nav.v-toolbar
   <div>
     <v-toolbar fixed  height="50"   dark  :class="launchedFromClin ? 'clin' : '' " >
 
-      <v-toolbar-side-icon   @click.stop="leftDrawer = !leftDrawer">
+      <v-toolbar-side-icon  style="margin-top:7px"  @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
 
-      <v-toolbar-title v-text="title">
+      <v-toolbar-title style="font-weight:400" v-text="title">
       </v-toolbar-title>
 
 

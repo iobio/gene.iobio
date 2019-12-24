@@ -120,10 +120,10 @@
     margin-left: 30px
 
     label
-      padding-left: 7px
+      padding-left: 0px
       line-height: 18px
-      font-size: 12px
-      font-weight: bold
+      font-size: 13px
+      font-weight: 400
       padding-top: 5px
       color: $text-color
 
@@ -295,7 +295,7 @@
 <template>
 
   <v-card tile id="variant-card" class="app-card">
-    <div style="display: flex;align-items: center;">
+    <div style="display: flex;align-items: center;margin-bottom: 5px;">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">

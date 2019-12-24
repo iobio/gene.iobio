@@ -26,12 +26,15 @@
   color:  $text-color
   margin: 0px 8px 0px 0px
   padding: 0px
+  padding-left: 8px
+  padding-right: 8px
+  height: 28px
 
   .btn__content, .v-btn__content
-    color: $link-color
     padding: 0px
     text-align: left
     line-height: 15px
+    font-weight: 400
 
 #select-transcript-viz
 
@@ -105,7 +108,7 @@
 
       <v-btn id="edit-transcript-button"
        slot="activator"
-       flat
+       raised
        v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
       >
          {{ `Transcript ` + selectedTranscript.transcript_id }}

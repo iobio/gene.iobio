@@ -234,6 +234,7 @@
       height: auto
       line-height: 18px
       padding-top: 5px
+      padding-bottom: 5px
 
     .reviewed-variant-filter
       font-size: 13px
@@ -285,7 +286,7 @@
 
     .vep-consequence
       display: inline-block
-      width: 133px
+      width: 260px
       line-height: 14px
       vertical-align: top
       font-size: 13px
@@ -337,8 +338,9 @@
         .gene-name
           display: inline-block
           vertical-align: top
-          font-weight: bold
-          font-size: 13px
+          font-weight: 500
+          font-size: 15px
+          line-height: 16px
           margin-right: 4px
           padding-top: 2px
 

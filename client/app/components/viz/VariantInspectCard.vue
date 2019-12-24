@@ -127,6 +127,10 @@
   .rel-header
     font-style: italic
 
+  #variant-header
+    color: $app-color
+    margin-left: 15px
+    font-size: 15px
 
   #variant-heading
     color: $app-color
@@ -238,15 +242,15 @@
 
 
 
-      <span v-if="selectedVariant && info" class="variant-heading" style="margin-left:15px" >
+      <span v-if="selectedVariant && info" id="variant-header"  >
 
-        <span style="margin-right:10px">{{ selectedGene.gene_name}}</span>
+        <span style="margin-right: 10px;margin-left: 10px;font-weight: 500;">{{ selectedGene.gene_name}}</span>
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span class="pl-1">{{ info.coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
 
         <app-icon
-         style="padding-right:4px;padding-left:4px"
+         style="padding-right:4px;padding-left:4px;margin-top:2px"
          icon="zygosity" v-if="selectedVariant.zygosity"
          :type="selectedVariant.zygosity.toLowerCase() + '-large'"
          height="14" width="35">
