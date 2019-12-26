@@ -171,6 +171,11 @@
     padding: 0px
     margin: 0px
     color: $link-color
+    line-height: 14px
+    vertical-align: top
+
+    .v-btn__content
+      font-size: 12px
 
 </style>
 
@@ -400,14 +405,14 @@
           <div v-if="info.vepHighestImpactValue.length > 0 && info.vepImpact.toUpperCase() != info.vepHighestImpactValue.toUpperCase()" class="variant-row no-icon no-top-margin">
 
                     <span v-for="(impactRec, idx) in info.vepHighestImpactRecs" :key="impactRec.impact">
-                      <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
+                      <div style="padding-top:5px" v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
                         {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
                         <v-btn class="change-transcript-button" flat v-for="transcriptId in effectRec.transcripts"
                          :key="transcriptId"
                          @click="selectTranscript(transcriptId)">
                           {{ transcriptId }}
                         </v-btn>
-                      </span>
+                      </div>
                     </span>
             
           </div>
@@ -699,9 +704,6 @@ export default {
     },
     getNonCanonicalEffectDisplay: function(idx, effectRec) {
       let buf = "";
-      if (idx > 0) {
-        buf += " ,";
-      } 
       buf += this.globalApp.utility.capitalizeFirstLetter(effectRec.display) + " in ";
       return buf;
     },
