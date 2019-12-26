@@ -215,6 +215,12 @@ export default {
       if (this.showTranscriptsMenu) {
         this.$emit("transcriptMenuOpened");
       }
+    },
+    selectedTranscript: function() {
+      if (this.selectedTranscript) {
+        let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
+        this.isCanonical = canonical.transcript_id == this.selectedTranscript.transcript_id;        
+      }
     }
   }
 

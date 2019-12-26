@@ -166,6 +166,11 @@
       stroke: $current-color
       stroke-width: 5px
 
+  .change-transcript-button
+    max-height: 14px
+    padding: 0px
+    margin: 0px
+    color: $link-color
 
 </style>
 
@@ -379,19 +384,33 @@
             :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
           </variant-inspect-row>
 
-          <div v-if="info.clinvarTrait.length > 0" class="variant-row no-icon no-top-margin">
+          <div v-if="info.clinvarTrait.length > 0" class="variant-row no-icon no-top-margin small-font">
             <span>{{ info.clinvarTrait }} </span>
           </div>
 
           <variant-inspect-row
-            :clazz="getImpactClass(info.vepImpact)" :value="info.vepConsequence"  :label="`VEP`"  >
+            :clazz="getImpactClass(info.vepImpact)" :value="info.vepConsequence"  :label="``"  >
           </variant-inspect-row>
 
           <variant-inspect-row
              v-if="info.vepHighestImpactValue.length > 0 && info.vepImpact.toUpperCase() != info.vepHighestImpactValue.toUpperCase()"
-            :clazz="getImpactClass(info.vepHighestImpactValue)" :value="getNonCanonicalImpact(info.vepHighestImpactValue)" :label=" `Impact VEP (non-canonical transcript)`"  >
+            :clazz="getImpactClass(info.vepHighestImpactValue)" :label=" `Most severe impact in non-canonical transcript`"  >
           </variant-inspect-row>
 
+          <div v-if="info.vepHighestImpactValue.length > 0 && info.vepImpact.toUpperCase() != info.vepHighestImpactValue.toUpperCase()" class="variant-row no-icon no-top-margin">
+
+                    <span v-for="(impactRec, idx) in info.vepHighestImpactRecs" :key="impactRec.impact">
+                      <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
+                        {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
+                        <v-btn class="change-transcript-button" flat v-for="transcriptId in effectRec.transcripts"
+                         :key="transcriptId"
+                         @click="selectTranscript(transcriptId)">
+                          {{ transcriptId }}
+                        </v-btn>
+                      </span>
+                    </span>
+            
+          </div>
 
           <variant-inspect-row v-if="info.revel != '' && info.revel"
             :clazz="getRevelClass(info)" :value="info.revel"   :label="`REVEL`" >
@@ -682,10 +701,8 @@ export default {
       let buf = "";
       if (idx > 0) {
         buf += " ,";
-      } else {
-        buf += " - ";
-      }
-      buf += effectRec.display + " in non-canonical transcripts ";
+      } 
+      buf += this.globalApp.utility.capitalizeFirstLetter(effectRec.display) + " in ";
       return buf;
     },
     onShowPileup: function() {
@@ -805,9 +822,9 @@ export default {
       }
     },
     getImpactClass: function(impact) {
-      if (impact == 'high') {
+      if (impact && impact.toLowerCase() == 'high') {
         return 'level-high'
-      } else if (impact == 'moderate') {
+      } else if (impact && impact.toLowerCase() == 'moderate') {
         return 'level-medium'
       } else {
         return 'level-unremarkable';

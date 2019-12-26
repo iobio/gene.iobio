@@ -27,6 +27,8 @@
 
       &.no-top-margin
         margin-top: -10px
+
+      &.small-font
         font-size: 12px
 
       .material-icons

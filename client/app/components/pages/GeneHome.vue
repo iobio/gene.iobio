@@ -402,7 +402,7 @@ main.content.clin, main.v-content.clin
           @apply-variant-interpretation="onApplyVariantInterpretation"
           @apply-variant-notes="onApplyVariantNotes"
           @show-variant-assessment="onShowVariantAssessment"
-
+          @transcript-id-selected="onTranscriptIdSelected"
           >
           </variant-inspect-card>
 
