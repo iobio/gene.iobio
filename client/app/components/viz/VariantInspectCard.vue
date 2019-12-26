@@ -219,7 +219,7 @@
 
 <template>
 
-  <v-card v-show="selectedVariant && info" id="variant-inspect" class="app-card full-width">
+  <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
     <div style="display:flex;align-items:baseline;justify-content:flex-start">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
@@ -491,16 +491,16 @@
             </div>
             <div style="min-width:190px" >
 
-              <!--
+          
               <toggle-button
-                v-if="hasConservationAligns"
+                v-if="false && hasConservationAligns"
                 name1="Nuc"
                 name2="AA"
                 label="Sequence"
                 buttonWidth="90"
                @click="onToggleConservationNucAA">
               </toggle-button>
-              -->
+            
 
               <span v-if="multialignInProgress" class="pt-4 loader multialign-loader" >
                   <img src="../../../assets/images/wheel.gif">
