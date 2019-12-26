@@ -17,7 +17,11 @@
     color: white !important
     margin: 0px
 
-
+  .subheader
+    padding-bottom: 10px
+    font-size: 13px
+    color: $app-color
+    margin-top: -5px
 
   #notes-input
     margin-top: 8px
@@ -242,12 +246,12 @@
 
 
 
-      <span v-if="selectedVariant && info" id="variant-header"  >
+      <span v-if="selectedVariant" id="variant-header"  >
 
         <span style="margin-right: 10px;margin-left: 10px;font-weight: 500;">{{ selectedGene.gene_name}}</span>
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-        <span class="pl-1">{{ info.coord }}</span>
-        <span class="pl-1 refalt">{{ refAlt  }}</span>
+        <span v-if="info" class="pl-1">{{ info.coord }}</span>
+        <span v-if="info" class="pl-1 refalt">{{ refAlt  }}</span>
 
         <app-icon
          style="padding-right:4px;padding-left:4px;margin-top:2px"
@@ -256,7 +260,7 @@
          height="14" width="35">
         </app-icon>
 
-        <span v-if="info.rsId && info.rsId != ''" class="pl-4">{{ info.rsId }}</span>
+        <span v-if="info && info.rsId && info.rsId != ''" class="pl-4">{{ info.rsId }}</span>
 
       </span>
 
@@ -400,13 +404,16 @@
             Frequency
             <v-divider></v-divider>
           </div>
-          <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`gnomAD (genomes)`" :link="afGnomAD.link" >
+          <div class="subheader">gnomAD (genomes)</div>
+          <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele freq`" :link="afGnomAD.link" >
+          </variant-inspect-row>
+          <variant-inspect-row v-if="afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Pop max allele freq`" >
           </variant-inspect-row>
           <div v-if="afGnomAD.totalCount > 0" class="variant-row no-icon">
-            <span>{{ afGnomAD.altCount }} out of {{ afGnomAD.totalCount }}</span>
+            <span>{{ afGnomAD.altCount }} alt of {{ afGnomAD.totalCount }} total</span>
           </div>
-          <div v-if="afGnomAD.totalCount > 0"  class="variant-row no-icon">
-            <span>{{ afGnomAD.homCount }} hom</span>
+          <div v-if="afGnomAD.homCount > 0"  class="variant-row no-icon">
+            <span>{{ afGnomAD.homCount }} homozygotes</span>
           </div>
       </div>
 
