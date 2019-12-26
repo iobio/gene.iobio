@@ -13,6 +13,8 @@
 
 #variant-assessment
 
+  .theme--light.v-text-field > .v-input__control > .v-input__slot:before
+    border: none !important
 
 
   #notes-input
