@@ -1293,6 +1293,10 @@ export default {
               + this.selectedVariant.ref + "-"
               + this.selectedVariant.alt;
 
+            if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
+              gnomAD.link += "?dataset=gnomad_r3"
+            };
+
             gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
             gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
             gnomAD.percentPopMax = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax);
@@ -1314,6 +1318,10 @@ export default {
               + this.selectedVariant.start + "-"
               + this.selectedVariant.ref + "-"
               + this.selectedVariant.alt;
+
+            if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
+              gnomAD.link += "?dataset=gnomad_r3"
+            };              
 
             gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
             gnomAD.class         = this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF);
