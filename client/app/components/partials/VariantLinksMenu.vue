@@ -8,20 +8,26 @@
   margin: 0px 0px 0px 0px
   padding: 0px
   min-width: 25px
-  margin-top: -5px
   max-height: 25px
+  padding-right: 5px
   padding-left: 8px
+  margin-left: 14px
+  margin-right: 10px
+  padding-bottom: 2px
 
   .btn__content, .v-btn__content
     color:  $text-color
     padding-left: 0px
     padding-right: 0px
-    background-color: #ebebeb
+    color: $link-color
+    font-size: 13px
+    font-weight: 500
 
     i.material-icons
-      font-size: 20px
+      font-size: 15px
       color: $link-color
       vertical-align: top
+      padding-right: 3px
 
 
 .variant-link
@@ -47,7 +53,7 @@
        slot="activator"
        v-tooltip.top-center="`External links to variant info (e.g. VarSome, UCSC Browser, etc.`"
       >
-        <v-icon>open_in_new</v-icon>
+        <v-icon>open_in_new</v-icon> External links
       </v-btn>
 
       <hr style="margin-top:0px;margin-bottom:0px">
@@ -65,7 +71,7 @@
                 :target="`_` + link.name"
                 class="variant-link"
                 >
-                  {{ link.display }}
+                  {{ link.display }} 
                   <span class="rsid" v-if="link.display == 'dbSNP'">{{ info.rsId }}</span>
               </a>
             </v-list-tile-title>

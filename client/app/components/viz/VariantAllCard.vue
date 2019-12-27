@@ -299,22 +299,9 @@
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
-        <span style="display:inline-block"> {{ sampleRelLabel }} </span>
+        <span style="display:inline-block"> {{ sampleRelLabel }} in {{ selectedGene.gene_name }}</span>
 
-        <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
-          v-show="!isEduMode && !isBasicMode"
-          :isEduMode="isEduMode"
-          :isBasicMode="isBasicMode"
-          :featureMatrixModel="featureMatrixModel"
-          :selectedGene="selectedGene"
-          :selectedTranscript="selectedTranscript"
-          :selectedVariant="selectedVariant"
-          :variantTooltip="variantTooltip"
-          @ranked-variant-click="onRankedVariantClick"
-          @ranked-variant-hover="onRankedVariantHover"
-          @ranked-variant-hover-end="onRankedVariantHoverEnd"
-        >
-        </ranked-variants-menu>
+
 
 
       </span>
@@ -334,7 +321,20 @@
         ></optional-tracks-menu>
 
 
-
+        <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
+          v-show="!isEduMode && !isBasicMode"
+          :isEduMode="isEduMode"
+          :isBasicMode="isBasicMode"
+          :featureMatrixModel="featureMatrixModel"
+          :selectedGene="selectedGene"
+          :selectedTranscript="selectedTranscript"
+          :selectedVariant="selectedVariant"
+          :variantTooltip="variantTooltip"
+          @ranked-variant-click="onRankedVariantClick"
+          @ranked-variant-hover="onRankedVariantHover"
+          @ranked-variant-hover-end="onRankedVariantHoverEnd"
+        >
+        </ranked-variants-menu>
 
 
         <v-badge  id="loaded-count"

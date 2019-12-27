@@ -15,6 +15,7 @@
   padding: 0px
   min-width: 20px
 
+
   .btn__content, .v-btn__content
     padding: 4px
 
@@ -72,7 +73,7 @@
 #ranked-variants-menu
   vertical-align: bottom
   padding-bottom: 4px
-  margin-left: 20px
+  padding-top: 2px
 
 
   #ranked-variants-menu-button
@@ -88,12 +89,12 @@
     .btn__content, .v-btn__content
       padding-left: 5px
       padding-right: 5px
-      font-weight: normal
-      color: $text-color
+      font-weight: 500
+      color: $link-color
 
 
       i.material-icons
-        color: $text-color
+        color: $link-color
         font-size: 20px
         padding-right: 3px
 
@@ -111,7 +112,7 @@
       top
       v-model="showRankedVariantsMenu">
 
-        <v-btn id="ranked-variants-menu-button"
+        <v-btn id="ranked-variants-menu-button" flat
          slot="activator">
           <v-icon >menu</v-icon>
           List

@@ -55,7 +55,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
             text-transform: none
 
         .badge__badge.primary, .v-badge__badge.primary
-          background-color: $app-color !important
+          background-color: $default-badge-color !important
           font-size: 11px
           color: white
           top: 0px

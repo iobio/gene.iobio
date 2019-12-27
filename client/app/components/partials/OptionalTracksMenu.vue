@@ -4,18 +4,21 @@
 
 
 #show-optional-tracks-button
-  margin: 0px 15px 5px 0px
+  margin: 0px 0px 0px 0px
   font-size: 13px
   height: 26px
   margin-bottom: 0px
+  padding-left: 0px
+  padding-right: 4px
+
   .btn__content, .v-btn__content
-    color:  $text-color
+    color:  $link-color
     padding-left: 5px
     padding-right: 5px
-    font-weight: 400
+    font-weight: 500
 
     i.material-icons
-      color: $text-color
+      color: $link-color
       font-size: 20px
       padding-right: 3px
 
@@ -50,7 +53,7 @@
     >
 
       <v-btn id="show-optional-tracks-button"
-       raised
+       flat
        slot="activator"
        v-tooltip.top-center="`Show other tracks`"
       >

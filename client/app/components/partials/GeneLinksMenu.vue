@@ -8,19 +8,22 @@
   min-width: 25px
   max-height: 25px
   padding-left: 8px
+  margin-left: 20px
 
 
   .btn__content, .v-btn__content
-    color:  $text-color
+    color:  $link-color
     padding-left: 0px
     padding-right: 0px
-    background-color: #ebebeb
+    font-size: 13px
+    font-weight: 500
 
     i.material-icons
-      font-size: 20px
+      color: $link-color
+      font-size: 15px
       color: $link-color
       vertical-align: top
-      margin-top: -2px
+      padding-right: 3px
 
 
 #gene-links
@@ -31,6 +34,7 @@
     margin-right: 10px
     color: $link-color !important
     font-size: 13px
+    font-weight: 500
 
 .gene-link-button
   background-color: $link-button-color !important
@@ -70,7 +74,7 @@
        slot="activator"
        v-tooltip.top-center="`External links to ` + selectedGene.gene_name + ` (e.g. OMIM, UCSC brower, GeneCards, etc.`"
       >
-          <v-icon>open_in_new</v-icon>
+          <v-icon>open_in_new</v-icon> External links
 
       </v-btn>
 

@@ -23,7 +23,7 @@
 @import "../../../assets/sass/_variables.sass";
 
 #edit-transcript-button
-  color:  $text-color
+  color:  $link-color
   margin: 0px 8px 0px 0px
   padding: 0px
   padding-left: 8px
@@ -34,7 +34,10 @@
     padding: 0px
     text-align: left
     line-height: 15px
-    font-weight: 400
+    font-weight: 500
+    color: $link-color
+    font-size: 13px
+
 
 #select-transcript-viz
 
@@ -108,11 +111,12 @@
 
       <v-btn id="edit-transcript-button"
        slot="activator"
-       raised
+       flat
        v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
       >
+         <v-icon>linear_scale</v-icon>
          {{ `Transcript ` + selectedTranscript.transcript_id }}
-         {{ !isCanonical ? ` (non canonical) ` : `` }}
+         <v-badge v-if="!isCanonical">{{ !isCanonical ? ` (non canonical) ` : `` }}</v-badge>
       </v-btn>
 
 

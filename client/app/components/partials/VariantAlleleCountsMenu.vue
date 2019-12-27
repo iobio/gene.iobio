@@ -95,7 +95,7 @@
     v-model="showMenu">
 
       <v-btn id="variant-allele-counts-menu-button" class="variant-action-button"
-       raised
+       flat
        slot="activator">
         <v-icon>bar_chart</v-icon>
         <span>Allele counts</span>

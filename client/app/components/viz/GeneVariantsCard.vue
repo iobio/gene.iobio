@@ -116,14 +116,15 @@
 
         <span id="gene-name"> {{ selectedGene.gene_name}} </span>
 
-        <gene-links-menu v-if="!isBasicMode"
-        :selectedGene="selectedGene"
-        :geneModel="cohortModel.geneModel">
-        </gene-links-menu>
+
 
 
 
      </div>
+        <gene-links-menu v-if="!isBasicMode"
+        :selectedGene="selectedGene"
+        :geneModel="cohortModel.geneModel">
+        </gene-links-menu>
 
         <div style="display:inline-block;margin-left: 20px">
           <transcripts-menu
@@ -161,8 +162,7 @@
       </div>
 
 
-
-
+       
 
 
     </div>

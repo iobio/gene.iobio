@@ -12,10 +12,16 @@
 
   #show-assessment-button
     padding: 0px
-    height: 22px !important
-    background-color: $app-color !important
+    height: 26px !important
+    background-color: $app-button-color !important
     color: white !important
     margin: 0px
+    padding-left: 10px
+    padding-right: 10px
+
+    i.material-icons
+      font-size: 15px
+      padding-right: 3px
 
   .subheader
     padding-bottom: 10px
@@ -82,7 +88,6 @@
         hr
           margin-top: 1px
           margin-bottom: 5px
-          background-color: #cbcbcb
           height: 1px
 
       .variant-row
@@ -152,12 +157,17 @@
       margin: 0px
       min-width: 110px !important
       max-width: 110px
+      font-weight: 500
+      color: $link-color
 
       .btn__content, .v-btn__content
-        color: $text-color !important
+        color: $link-color !important
         padding-left: 8px
         padding-right: 8px
         font-size: 12px
+
+        i.material-icons
+          color: $link-color !important
 
 
 
@@ -241,27 +251,25 @@
           <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
         </span>
 
-        Variant  
+        Variant in {{ selectedGene.gene_name }}
 
-        <variant-links-menu
-        v-if="selectedVariant && info"
-        :selectedGene="selectedGene"
-        :selectedVariant="selectedVariant"
-        :geneModel="cohortModel.geneModel"
-        :info="info">
-        </variant-links-menu>
 
 
       </div>
 
-
+      <variant-links-menu
+      v-if="selectedVariant && info"
+      :selectedGene="selectedGene"
+      :selectedVariant="selectedVariant"
+      :geneModel="cohortModel.geneModel"
+      :info="info">
+      </variant-links-menu>
 
       <span v-if="selectedVariant" id="variant-header"  >
 
-        <span style="margin-right: 10px;margin-left: 10px;font-weight: 500;">{{ selectedGene.gene_name}}</span>
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-        <span v-if="info" class="pl-1">{{ info.coord }}</span>
-        <span v-if="info" class="pl-1 refalt">{{ refAlt  }}</span>
+        <span  class="pl-1">{{ coord }}</span>
+        <span class="pl-1 refalt">{{ refAlt  }}</span>
 
         <app-icon
          style="padding-right:4px;padding-left:4px;margin-top:2px"
@@ -291,10 +299,13 @@
       :info="info">
       </variant-aliases-menu>
 
+
+
       <v-spacer></v-spacer>
 
       <div v-if="selectedVariant && !showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:10px;margin-right:10px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
+          <v-icon>gavel</v-icon>
           Review
         </v-btn>
       </div>
@@ -354,13 +365,25 @@
               >
             </gene-viz>
 
-            <div class="variant-row ">
-              <v-btn v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
+            <div class="variant-row " style="padding-top:5px">
+              <v-btn flat v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
               class="variant-action-button"  @click="onShowPileup">
                <v-icon>format_align_center</v-icon>
                Read Pileup
               </v-btn>
             </div>
+
+
+          <div class="variant-row" v-if="selectedVariant && selectedVariant.genotypes">
+            <variant-allele-counts-menu
+              v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
+              :selectedVariant="selectedVariant"
+              :affectedInfo="cohortModel.affectedInfo"
+              :cohortModel="cohortModel.mode"
+              :relationship="selectedVariantRelationship">
+            </variant-allele-counts-menu>
+          </div>
+
 
           </div>
 
@@ -460,15 +483,6 @@
             </pedigree-genotype-viz>
           </div>
 
-          <div class="variant-row" style="padding-top:5px;">
-            <variant-allele-counts-menu
-              v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
-              :selectedVariant="selectedVariant"
-              :affectedInfo="cohortModel.affectedInfo"
-              :cohortModel="cohortModel.mode"
-              :relationship="selectedVariantRelationship">
-            </variant-allele-counts-menu>
-          </div>
 
       </div>
 
@@ -1286,7 +1300,14 @@ export default {
     },
 
 
-
+    coord: function() {
+      let self = this;
+      if (self.selectedVariant) {
+        return self.selectedVariant.chrom + ":" + self.selectedVariant.start;
+      } else {
+        return "";
+      }
+    },
 
     refAlt: function() {
       let self = this;
@@ -1299,7 +1320,11 @@ export default {
             refAlt = self.selectedVariant.eduGenotype;
           }
         } else {
-          refAlt =   self.info.refalt;
+          refAlt =   self.selectedVariant.ref + "->" + self.selectedVariant.alt;
+          if (self.selectedVariant.ref == '' && self.selectedVariant.alt == '') {
+            refAlt = '(' + variant.len + ' bp)';
+          }
+
         }
       }
       return refAlt;
