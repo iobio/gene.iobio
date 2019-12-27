@@ -36,6 +36,7 @@
     label
       font-size: 14px
       margin-bottom: 0px
+      font-weight: 500
 
 
 #known-variants-toolbar
