@@ -92,6 +92,17 @@ nav.toolbar
 .v-tabs__slider.accent 
   background-color: $current-color !important
   border-color: $current-color !important
+
+.v-badge.info
+  color: $app-color !important
+  font-size: 12px !important
+  font-weight: 500 !important
+  padding: 0px 4px 0px 4px !important
+  border-radius: 2px !important
+  background-color: #faf4cc !important
+  border-color: $app-color !important
+  border: thin solid !important
+
   
 </style>
 

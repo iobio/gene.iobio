@@ -116,7 +116,7 @@
       >
          <v-icon>linear_scale</v-icon>
          {{ `Transcript ` + selectedTranscript.transcript_id }}
-         <v-badge v-if="!isCanonical">{{ !isCanonical ? ` (non canonical) ` : `` }}</v-badge>
+         <v-badge class="info" style="margin-left:5px;" v-if="!isCanonical">non canonical</v-badge>
       </v-btn>
 
 

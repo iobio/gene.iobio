@@ -130,8 +130,8 @@
   .badge, .v-badge
     padding: 0px 5px 0px 0px
     padding: 3px 7px
-    background-color: white !important
-    color: $text-color !important
+    background-color: white 
+    color: $text-color 
     font-weight: normal
     font-size: 13px
     padding-top: 2px
@@ -404,10 +404,10 @@
             <span class="loader-label">Analyzing gene coverage</span>
             <img src="../../../assets/images/wheel.gif">
           </div>
+          <v-badge v-if="showZoom" class="info" style="margin-bottom:5px">{{ zoomMessage }}</v-badge>
         </div>
 
 
-        <span v-if="showZoom" class=" label label-warning text-xs-center">{{ zoomMessage }}</span>
       </div>
 
       <div style="width:100%">
