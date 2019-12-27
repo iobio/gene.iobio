@@ -136,7 +136,7 @@
   .rel-header
     font-style: italic
 
-  #variant-header
+  .variant-header
     color: $app-color
     margin-left: 15px
     font-size: 15px
@@ -265,20 +265,13 @@
       :info="info">
       </variant-links-menu>
 
-      <span v-if="selectedVariant" id="variant-header"  >
+      <span v-if="selectedVariant" class="variant-header"  >
 
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span  class="pl-1">{{ coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
 
-        <app-icon
-         style="padding-right:4px;padding-left:4px;margin-top:2px"
-         icon="zygosity" v-if="selectedVariant.zygosity"
-         :type="selectedVariant.zygosity.toLowerCase() + '-large'"
-         height="14" width="35">
-        </app-icon>
-
-        <span v-if="info && info.rsId && info.rsId != ''" class="pl-4">{{ info.rsId }}</span>
+        <span v-if="info && info.rsId && info.rsId != ''" class="pl-2">{{ info.rsId }}</span>
 
       </span>
 
@@ -291,13 +284,15 @@
       <variant-aliases-menu
       v-show="selectedVariant && info && (!info.HGVSpLoading || !info.HGVScLoading)"
       v-if="selectedVariant && info && selectedVariantInterpretation != 'known-variants'"
-      class="pl-4"
+      class="pl-5"
       :label="hgvsLabel"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
       :geneModel="cohortModel.geneModel"
       :info="info">
       </variant-aliases-menu>
+
+      <span class="pl-3 variant-header">{{ aminoAcidChange }}</span>
 
 
 
@@ -469,9 +464,18 @@
             Inheritance
             <v-divider></v-divider>
           </div>
-          <div class="variant-row " style="margin-top:-2px"  v-if="selectedVariant.inheritance != 'none'">
-            <app-icon :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
-            <span>{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
+
+          <div class="variant-row " style="margin-top:-2px"  >
+            <app-icon v-if="selectedVariant.inheritance != 'none'" :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
+            <span v-if="selectedVariant.inheritance != 'none'">{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
+
+            <app-icon
+             style="margin-left:5px"
+             icon="zygosity" v-if="selectedVariant.zygosity"
+             :type="selectedVariant.zygosity.toLowerCase() + '-large'"
+             height="14" width="35">
+            </app-icon>
+
           </div>
           <div class="pedigree-chart">
             <app-icon class="hide" icon="affected"></app-icon>
@@ -1328,6 +1332,23 @@ export default {
         }
       }
       return refAlt;
+    },
+    aminoAcidChange: function() {
+      let aaChange = "";
+      let self = this;
+      if (self.selectedVariant && Object.keys(self.selectedVariant.vepAminoAcids).join("").length > 0) {
+        for (let aa in self.selectedVariant.vepAminoAcids) {
+          aaChange += self.globalApp.utility.formatAminoAcidChange(aa)
+        }
+        if (Object.keys(self.selectedVariant.vepProteinPosition).join("").length > 0) {
+          aaChange += " at " + Object.keys(self.selectedVariant.vepProteinPosition).join(" ");
+        }
+      }
+      if (aaChange.length > 0) {
+        return aaChange;
+      } else {
+        return "";
+      }
     },
     afGnomAD: function() {
       if (this.selectedVariant) {

@@ -7,7 +7,31 @@ class Util {
       LOW:       'Benign'
     }
     this.globalApp = null;
-
+    this.aminoAcidMap= {A: 'Ala',
+                        R: 'Arg',
+                        N: 'Asn',
+                        D: 'Asp',
+                        C: 'Cys',
+                        E: 'Glu',
+                        Q: 'Gln',
+                        G: 'Gly',
+                        H: 'His',
+                        I: 'Ile',
+                        L: 'Leu',
+                        K: 'Lys',
+                        M: 'Met',
+                        F: 'Phe',
+                        P: 'Pro',
+                        S: 'Ser',
+                        T: 'Thr',
+                        W: 'Trp',
+                        Y: 'Tyr',
+                        V: 'Val',
+                        '*': '*',
+                        B: 'Asx',
+                        Z: 'Glx',
+                        X: 'Xaa',
+                        J: 'Xle'};
 
   }
 
@@ -946,6 +970,21 @@ class Util {
 
     }
 
+  }
+
+  formatAminoAcidChange(aaChange) {
+    let buf = ""
+    let self = this;
+    let tokens = aaChange.split("/");
+    tokens.forEach(function(token) {
+      if (buf.length > 0) {
+        buf += "->"
+      }
+      Array.from(token).forEach(function(aa) {
+        buf += self.aminoAcidMap[aa];
+      })
+    })
+    return buf;
   }
 
   formatClinvarDisplay(variant, info, translator, isEduMode) {

@@ -697,7 +697,7 @@ export default {
       variantVizMargin: {
         top: 0,
         right: self.isBasicMode || self.isEduMode ? 7 : 2,
-        bottom: 5,
+        bottom: 10,
         left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
       variantSymbolHeight: self.isEduMode  || self.isBasicMode ? self.globalAppProp.eduModeVariantSize : 12,
