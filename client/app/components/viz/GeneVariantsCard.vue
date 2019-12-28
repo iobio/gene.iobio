@@ -81,12 +81,14 @@
   #gene-chr
     margin-left: 0px
     vertical-align: middle
-    color:  $text-color
+    color:  $app-color
+    font-size: 16px
 
   #gene-region
     margin-left: 3px
     vertical-align: middle
-    color:  $text-color
+    color:  $app-color
+    font-size:  16px
 
   #region-buffer-box
     vertical-align: middle
@@ -149,7 +151,9 @@
         <span id="gene-region"   class="keep-case">
         {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
         </span>
-        <span id="minus-strand"  v-if="selectedGene.strand == '-'"  style="font-size:12px;padding-left: 5px;font-style: italic;">reverse strand</span>
+
+        <v-badge id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
+
         <span  id="gene-plus-minus-label"  v-if="!isBasicMode"  style="padding-left: 15px">+  -</span>
         <div id="region-buffer-box" v-if="!isBasicMode" style="display:inline-block;width:40px;height:21px;"  >
             <v-text-field
