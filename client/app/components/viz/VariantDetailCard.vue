@@ -477,7 +477,7 @@
 
 
 
-            <v-flex v-if="!isBasicMode && selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
+            <v-flex v-if="!isBasicMode && selectedVariant.inheritance != '' && selectedVariant.inheritance.indexOf('n/a') == -1 ">
               <v-layout row class="">
                  <v-flex xs4 class="field-label">Inheritance</v-flex>
                  <v-flex id="inheritance" xs8 class="field-value">

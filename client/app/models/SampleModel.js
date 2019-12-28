@@ -1996,7 +1996,7 @@ class SampleModel {
 
         theVcfData.features.forEach(function(variant) {
           let passes = me.cohort.filterModel.determinePassCriteria('compoundHet', variant, {'ignore': ['inheritance']});
-          if (passes.all && variant.inheritance == 'none' && variant.zygosity && variant.zygosity.toUpperCase() != 'HOMREF') {
+          if (passes.all && variant.inheritance.indexOf('n/a') >= 0 && variant.zygosity && variant.zygosity.toUpperCase() != 'HOMREF') {
             // Create a bag of candidate variants inherited from mother and another one for variants
             // inherited by father
             var fromMother = false;
@@ -2031,7 +2031,7 @@ class SampleModel {
                     if (theVariant.compoundHets == null) {
                       theVariant.compoundHets = [];
                     }
-                    if (theVariant.inheritance == null || theVariant.inheritance == 'none') {
+                    if (theVariant.inheritance == null || theVariant.inheritance.indexOf('n/a') >= 0) {
                       theVariant.inheritance = 'compound het';
                     }
                     let proxyVariant = {
@@ -3373,7 +3373,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
         }
       }
 
-      if (variant.inheritance && variant.inheritance != 'none') {
+      if (variant.inheritance && variant.inheritance.indexOf('n/a') == -1) {
         var clazz = translator.inheritanceMap[variant.inheritance].clazz;
         inheritanceClasses[clazz] = variant.inheritance;
       }

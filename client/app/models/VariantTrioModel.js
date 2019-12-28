@@ -44,7 +44,7 @@ export default class VariantTrioModel {
       variant.compareMother = null;
       variant.compareFather = null;
       variant.compareMotherFather = null;
-      variant.inheritance = 'none';
+      variant.inheritance = 'n/a';
       variant.fatherZygosity = null;
       variant.motherZygosity = null;
       variant.genotypeAltCountFather = null;
@@ -458,7 +458,38 @@ VariantTrioModel.determineInheritance = function(variant, fieldCompareMother, fi
     ){
     variant.inheritance = 'x-linked';
   } else {
-    variant.inheritance = 'none';
+    if (variant.zygosity != null && (variant.zygosity.toLowerCase() == 'het' || variant.zygosity.toLowerCase() == 'hom')) {
+      if (
+        (variant.motherZygosity != null && (variant.motherZygosity.toLowerCase() == 'het' || variant.motherZygosity.toLowerCase() == 'hom')) && 
+        (variant.fatherZygosity != null && (variant.fatherZygosity.toLowerCase() == 'het' || variant.fatherZygosity.toLowerCase() == 'hom')) 
+      ) {
+        variant.inheritance = "n/a paternal or maternal"
+      } else if (variant.motherZygosity != null && (variant.motherZygosity.toLowerCase() == 'het' || variant.motherZygosity.toLowerCase() == 'hom'))  {
+        variant.inheritance = "n/a maternal"
+      } else if (variant.fatherZygosity != null && (variant.fatherZygosity.toLowerCase() == 'het' || variant.fatherZygosity.toLowerCase() == 'hom'))  {
+        variant.inheritance = "n/a paternal"
+      } else {
+        variant.inheritance = "n/a"
+      }
+
+    } else if (variant.zygosity != null && variant.zygosity.toLowerCase() == 'homref') {
+      if (
+        (variant.motherZygosity != null && variant.motherZygosity.toLowerCase() == 'homref' ) && 
+        (variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'homref') 
+      ) {
+        variant.inheritance = "n/a paternal or maternal"
+      } else if (variant.motherZygosity != null && variant.motherZygosity.toLowerCase() == 'homref')  {
+        variant.inheritance = "n/a maternal"
+      } else if (variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'homref')  {
+        variant.inheritance = "n/a paternal"
+      } else {
+        variant.inheritance = "n/a"
+      }
+
+    } else {
+      variant.inheritance = "n/a"
+    }
+
   }
 }
 

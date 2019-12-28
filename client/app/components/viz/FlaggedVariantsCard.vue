@@ -483,7 +483,7 @@
                           <app-icon
                           style="width: 15px;height: 15px;display: inline-block;margin-top: 2px;"
                            :icon="variant.inheritance"
-                           v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
+                           v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance.indexOf('n/a') == -1"
                            class="inheritance-badge" height="15" width="15">
                           </app-icon>
 
@@ -515,7 +515,7 @@
                       </span>
 
 
-                      <v-badge v-if="variant.variantSet" style="margin-right:10px" class="info">{{ variant.variantSet }}</v-badge>
+                      <v-badge v-if="variant.variantSet" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
 
 
                     </div>

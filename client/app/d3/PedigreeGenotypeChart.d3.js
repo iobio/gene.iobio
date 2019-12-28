@@ -53,7 +53,7 @@ export default function PedigreeGenotypeChartD3() {
            .attr("d", "M0,0 a" + nodeWidth/2 + "," + nodeWidth/2 + " 0 0,0 " + (nodeWidth + 3) + ",0")
       left.append("path")
            .attr("class",function(d,i) {
-              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance != 'none' ? ' critical' : '');
+              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
             })
            .attr("d", "M0,0 a" + nodeWidth/2 + "," + nodeWidth/2 + " 0 0,0 " + + (nodeWidth + 3) + ",0")
 
@@ -70,7 +70,7 @@ export default function PedigreeGenotypeChartD3() {
                          })
       right.append("path")
             .attr("class",function(d,i) {
-              return nodeData.rel  + (nodeData.inheritance != 'none' ? ' critical' : '');
+              return nodeData.rel  + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
             })
            .attr("d", function(d,i) {
               return "M0,0 a" + (nodeWidth/2) + "," + (nodeWidth/2) + " 0 0,0 " + (nodeWidth + 3) + ",0";
@@ -78,7 +78,7 @@ export default function PedigreeGenotypeChartD3() {
     } else {
       parent.append("circle")
             .attr("class", function(d,i) {
-              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance != 'none' ? ' critical' : '');;
+              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');;
             })
             .attr("r", nodeWidth/2)
             .attr("cx", nodeWidth/2)
@@ -95,7 +95,7 @@ export default function PedigreeGenotypeChartD3() {
 
      parent.append("rect")
           .attr("class", function(d,i) {
-            return nodeData.rel  + (nodeData.inheritance != 'none' ? ' critical' : '');
+            return nodeData.rel  + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
           })
           .attr("width", nodeWidth)
           .attr("height", nodeWidth)
@@ -103,7 +103,7 @@ export default function PedigreeGenotypeChartD3() {
           .attr("y", 0)
       parent.append("rect")
             .attr("class", function(d,i) {
-              return "left " + " " + nodeData.zygosity  + (nodeData.inheritance != 'none' ? ' critical' : '');
+              return "left " + " " + nodeData.zygosity  + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
             })
             .attr("x", 1.5)
             .attr("y", 1)
@@ -112,7 +112,7 @@ export default function PedigreeGenotypeChartD3() {
     } else {
        parent.append("rect")
             .attr("class", function(d,i) {
-              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance != 'none' ? ' critical' : '');;
+              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');;
             })
             .attr("width", nodeWidth)
             .attr("height", nodeWidth)
@@ -142,7 +142,7 @@ export default function PedigreeGenotypeChartD3() {
            .attr("d", "M0,-" + halfWidth + "L" + diamondHeight + "," + halfWidth + " -" + diamondHeight + "," + halfWidth + "Z");
       left.append("path")
            .attr("class",function(d,i) {
-              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance != 'none' ? ' critical' : '');
+              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
             })
            .attr("d", "M0,-" + halfWidth + "L" + diamondHeight + "," + halfWidth + " -" + diamondHeight + "," + halfWidth + "Z");
 
@@ -156,14 +156,14 @@ export default function PedigreeGenotypeChartD3() {
         
       right.append("path")
             .attr("class",function(d,i) {
-              return nodeData.rel  + (nodeData.inheritance != 'none' ? ' critical' : '');
+              return nodeData.rel  + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
             })
             .attr("d", "M0,-" + halfWidth + "L" + diamondHeight + "," + halfWidth + " -" + diamondHeight + "," + halfWidth + "Z");
 
     } else {
        parent.append("rect")
             .attr("class", function(d,i) {
-              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance != 'none' ? ' critical' : '');;
+              return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');;
             })
             .attr("transform", "translate(" + (nodeWidth/2 + 2)  + "),rotate(45)")
             .attr("width", nodeWidth)

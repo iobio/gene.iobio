@@ -267,6 +267,14 @@
 
       <span v-if="selectedVariant" class="variant-header"  >
 
+
+        <app-icon
+         style="margin-right:5px;padding-top: 2px"
+         icon="zygosity" v-if="selectedVariant.zygosity"
+         :type="selectedVariant.zygosity.toLowerCase() + '-large'"
+         height="14" width="35">
+        </app-icon>
+
         <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span  class="pl-1">{{ coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
@@ -465,18 +473,9 @@
             <v-divider></v-divider>
           </div>
 
-          <div class="variant-row " style="margin-top:-2px"  >
-            <app-icon v-if="selectedVariant.inheritance != 'none'" :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
-            <span v-if="selectedVariant.inheritance != 'none'">{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
+          <variant-inspect-inheritance-row :selectedVariant="selectedVariant" >
+          </variant-inspect-inheritance-row>
 
-            <app-icon
-             style="margin-left:5px"
-             icon="zygosity" v-if="selectedVariant.zygosity"
-             :type="selectedVariant.zygosity.toLowerCase() + '-large'"
-             height="14" width="35">
-            </app-icon>
-
-          </div>
           <div class="pedigree-chart">
             <app-icon class="hide" icon="affected"></app-icon>
             <pedigree-genotype-viz
@@ -577,6 +576,7 @@ import Vue                      from "vue"
 import AppIcon                  from "../partials/AppIcon.vue"
 import VariantInspectRow        from "../partials/VariantInspectRow.vue"
 import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
+import VariantInspectInheritanceRow from "../partials/VariantInspectInheritanceRow.vue"
 import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
 import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
 import VariantAlleleCountsMenu  from "../partials/VariantAlleleCountsMenu.vue"
@@ -604,6 +604,7 @@ export default {
     VariantAliasesMenu,
     VariantInspectRow,
     VariantInspectQualityRow,
+    VariantInspectInheritanceRow,
     VariantAlleleCountsMenu,
     DepthViz,
     GeneViz,

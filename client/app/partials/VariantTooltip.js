@@ -306,7 +306,7 @@ export default class VariantTooltip {
       vepHighestImpactRowSimple = me._tooltipHeaderRow(info.vepHighestImpactSimple, '', '', '', 'highest-impact-badge');
     }
 
-    var inheritanceModeRow =  variant.inheritance == null || variant.inheritance == '' || variant.inheritance == 'none'
+    var inheritanceModeRow =  variant.inheritance == null || variant.inheritance == '' || variant.inheritance.indexOf('n/a') >= 0
                               ? ''
                     : me._tooltipHeaderRow('<span class="tooltip-inheritance-mode-label">' + me.translator.getInheritanceLabel(variant.inheritance) + ' inheritance</span>', '', '', '', null, "style='text-align:center;padding-top:0px;'");
 

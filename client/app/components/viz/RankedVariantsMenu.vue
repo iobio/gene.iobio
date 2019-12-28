@@ -153,7 +153,7 @@
                 <span class="pl-1 refalt">{{ refAlt  }}</span>
               </div>
 
-              <v-flex v-if="!isBasicMode && currentVariant.inheritance != '' && currentVariant.inheritance != 'none' ">
+              <v-flex v-if="!isBasicMode && currentVariant.inheritance != '' && currentVariant.inheritance.indexOf('n/a') == -1 ">
                 <v-layout row class="">
                    <v-flex xs4 class="field-label">Inheritance</v-flex>
                    <v-flex id="inheritance" xs8 class="field-value">
