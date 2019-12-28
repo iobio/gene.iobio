@@ -32,10 +32,10 @@
         font-size: 12px
 
       .material-icons
-        font-size: 18px
+        font-size: 22px
         margin-right: 4px
         color: $unremarkable-color
-        margin-top: -2px
+        margin-top: -3px
 
         &.level-high
           color: $level-high-color

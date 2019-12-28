@@ -37,6 +37,7 @@
           font-size: 28px
         &.moderate
           color: $moderate-impact-color
+          font-size: 28px
         &.good
           color: $success-color
 
@@ -57,7 +58,7 @@
 <template>
   <div class="variant-quality-row">
     <v-icon :class="info.clazz">
-      {{ info.clazz == 'good' ? 'thumb_up_alt' : ( info.clazz == 'poor' ? 'warning' : 'help') }}
+      {{ info.clazz == 'good' ? 'check_circle' : ( info.clazz == 'poor' ? 'warning' : 'warning') }}
     </v-icon>
 
     <span class="variant-text">

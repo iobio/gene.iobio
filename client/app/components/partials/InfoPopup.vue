@@ -4,18 +4,19 @@
 .info-button
   margin: 0px !important
   padding: 0px !important
-  min-width: 17px !important
-  height: 17px !important
+  min-width: 19px !important
+  height: 19px !important
   margin-top: -6px !important
 
   .btn__content, .v-btn__content
     padding: 0px
-    max-width: 17px
-    max-height: 17px
+    max-width: 19px
+    max-height: 19px
 
     i.material-icons
-      font-size: 17px
-      color: $light-badge-color
+      font-size: 19px
+      color: $link-color
+      opacity: .7
 
 .close-button
   margin: 0px !important
@@ -68,10 +69,7 @@
         <v-card-text class="info-description" v-html="info[name].description">
         </v-card-text>
         <div class="info-publication"  v-if="info[name].publication">
-          <span style="display:inline-block;margin-right:2px">
-            Publication
-          </span>
-          <a :href="info[name].publication" target="_info">{{ info[name].publication }}</a>
+          <a :href="info[name].publicationUrl" target="_info">{{ info[name].publication }}</a>
         </div>
       </v-card>
     </v-dialog>
@@ -94,6 +92,13 @@ export default {
                 description: 'Revel scores only apply to missense variants.<br><br>The score is a predicted pathogenicity score from 0 to 1 where 0 is benign and 1 is pathogenic.<br><br>Revel scores are open to interpretation, but as a starting point, we have categorized a score > .5 as ‘moderate’ and a score > .75 as ‘high’.',
                 publication: 'REVEL: An Ensemble Method for Predicting the Pathogenicity of Rare Missense Variants',
                 publicationUrl: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5065685/'
+
+            },
+            'gnomAD': {
+                title: 'Allele Frequency from gnomAD',
+                description: 'The variant allele frequency is obtained from gnomAD genomes only. (In an upcoming release, gene.iobio will obtain allele frequencies from gnomAD Exomes as well.)',
+                publication: 'gnomAD site',
+                publicationUrl: 'https://gnomad.broadinstitute.org/'
 
             }
         }

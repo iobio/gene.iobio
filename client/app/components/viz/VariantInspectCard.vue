@@ -451,10 +451,10 @@
      
       <div class="variant-inspect-column" v-if="selectedVariant && selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
-            Frequency
+            Frequency                     
+            <info-popup name="gnomAD"></info-popup>
             <v-divider></v-divider>
           </div>
-          <div class="subheader">gnomAD (genomes)</div>
           <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele freq`" :link="afGnomAD.link" >
           </variant-inspect-row>
           <variant-inspect-row v-if="afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Pop max allele freq`" >
@@ -588,6 +588,7 @@ import GeneViz                  from "../viz/GeneViz.vue"
 import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
 import ConservationScoresViz    from "../viz/ConservationScoresViz.vue"
 import MultialignSeqViz         from "../viz/MultialignSeqViz.vue"
+
 
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
