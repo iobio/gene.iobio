@@ -2085,7 +2085,7 @@ class SampleModel {
     }
     afHighest = me.getHighestAf(variant);
 
-    if (me.globalApp.gnomADExtraAll || (me.globalApp.gnomADExtra && variant.gnomAD)) {
+    if ((me.globalApp.gnomADExtraAll && variant.gnomAD) || (me.globalApp.gnomADExtra && variant.gnomAD)) {
       if ($.isNumeric(variant.gnomAD.af) && afHighest) {
         if (variant.gnomAD.af >= afHighest) {
           variant.afFieldHighest = 'gnomAD.af';
