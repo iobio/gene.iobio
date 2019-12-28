@@ -77,7 +77,7 @@
 
       height: 30px !important
       min-width: 77px
-      color: $app-color
+      color: $app-button-color
 
       &.cancer-button
         color: $text-color
@@ -85,7 +85,7 @@
     &.load-button
       padding: 0px
       height: 30px !important
-      background-color: $app-color !important
+      background-color: $app-button-color !important
       color: white !important
       min-width: 100px !important
       margin: 0px

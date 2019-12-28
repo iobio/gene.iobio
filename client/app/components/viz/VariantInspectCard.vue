@@ -1352,7 +1352,7 @@ export default {
     },
     afGnomAD: function() {
       if (this.selectedVariant) {
-        if (this.selectedVariant.extraAnnot && this.globalApp.gnomADExtra) {
+        if (this.globalApp.gnomADExtraAll || (this.globalApp.gnomADExtra && this.selectedVariant.extraAnnot)) {
           if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
             return {percent: "?", link: null, class: ""};
           } else if (this.selectedVariant.gnomAD.af  == '.') {
@@ -1371,7 +1371,7 @@ export default {
 
             gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
             gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
-            gnomAD.percentPopMax = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax);
+            gnomAD.percentPopMax = this.selectedVariant.gnomAD.afPopMax != '.' ? this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax) : '0%';
             gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
             gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
             gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
