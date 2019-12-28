@@ -283,6 +283,10 @@
 
       </span>
 
+
+
+      <span class="pl-3 variant-header">{{ aminoAcidChange }}</span>
+
       <span v-if="info && info.HGVSpLoading && info.HGVScLoading"
         v-show="selectedVariantRelationship != 'known-variants'" class="pl-4 loader vcfloader" >
         <img src="../../../assets/images/wheel.gif">
@@ -292,16 +296,13 @@
       <variant-aliases-menu
       v-show="selectedVariant && info && (!info.HGVSpLoading || !info.HGVScLoading)"
       v-if="selectedVariant && info && selectedVariantInterpretation != 'known-variants'"
-      class="pl-5"
+      class="pl-5 variant-header"
       :label="hgvsLabel"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
       :geneModel="cohortModel.geneModel"
       :info="info">
       </variant-aliases-menu>
-
-      <span class="pl-3 variant-header">{{ aminoAcidChange }}</span>
-
 
 
       <v-spacer></v-spacer>

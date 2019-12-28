@@ -24,7 +24,7 @@
     font-weight: 500
 
     i.material-icons
-      font-size: 15px
+      font-size: 20px
       color: $link-color
       vertical-align: top
       padding-right: 3px

@@ -4,19 +4,19 @@
 .info-button
   margin: 0px !important
   padding: 0px !important
-  min-width: 19px !important
-  height: 19px !important
+  min-width: 18px !important
+  height: 18px !important
   margin-top: -6px !important
 
   .btn__content, .v-btn__content
     padding: 0px
-    max-width: 19px
-    max-height: 19px
+    max-width: 18px
+    max-height: 18px
 
     i.material-icons
-      font-size: 19px
+      font-size: 18px
       color: $link-color
-      opacity: .7
+      opacity: .6
 
 .close-button
   margin: 0px !important

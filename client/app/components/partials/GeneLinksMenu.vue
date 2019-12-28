@@ -20,7 +20,7 @@
 
     i.material-icons
       color: $link-color
-      font-size: 15px
+      font-size: 20px
       color: $link-color
       vertical-align: top
       padding-right: 3px
