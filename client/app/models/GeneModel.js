@@ -385,13 +385,19 @@ class GeneModel {
 
 
   setDangerSummary(geneName, dangerSummary) {
+    if (geneName == null) {
+      return;
+    }
     delete this.geneDangerSummaries[geneName];
-    this.geneDangerSummaries[geneName] = dangerSummary;
+    this.geneDangerSummaries[geneName.toUpperCase()] = dangerSummary;
     this.dispatch.geneDangerSummarized(dangerSummary);
   }
 
   getDangerSummary(geneName) {
-    return this.geneDangerSummaries[geneName];
+    if (geneName == null) {
+      return
+    }
+    return this.geneDangerSummaries[geneName.toUpperCase()];
   }
 
   clearDangerSummaries() {

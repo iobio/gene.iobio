@@ -860,14 +860,14 @@ class CohortModel {
   }
 
   startGeneProgress(geneName) {
-    var idx = this.genesInProgress.indexOf(geneName);
+    var idx = this.genesInProgress.indexOf(geneName.toUpperCase());
     if (idx < 0) {
-      this.genesInProgress.push(geneName);
+      this.genesInProgress.push(geneName.toUpperCase());
     }
   }
 
   endGeneProgress(geneName) {
-    var idx = this.genesInProgress.indexOf(geneName);
+    var idx = this.genesInProgress.indexOf(geneName.toUpperCase());
     if (idx >= 0) {
       this.genesInProgress.splice(idx,1);
     }
