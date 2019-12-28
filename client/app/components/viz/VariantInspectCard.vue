@@ -226,9 +226,9 @@
 
 .pedigree-chart .het.critical.proband,
 .pedigree-chart .hom.critical.proband,
-.pedigree-chart .half-circle  path.het.proband,
-.pedigree-chart .half-diamond path.het.proband {
-  fill: #ad151985 !important;
+.pedigree-chart .half-circle  path.het.critical.proband,
+.pedigree-chart .half-diamond path.het.critical.proband {
+  fill: #c5c5c5 !important;
 }
 
 
