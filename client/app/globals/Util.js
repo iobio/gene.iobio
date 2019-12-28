@@ -27,7 +27,7 @@ class Util {
                         W: 'Trp',
                         Y: 'Tyr',
                         V: 'Val',
-                        '*': '*',
+                        '*': 'Ter',
                         B: 'Asx',
                         Z: 'Glx',
                         X: 'Xaa',
