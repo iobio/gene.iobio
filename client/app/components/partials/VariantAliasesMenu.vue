@@ -6,7 +6,7 @@
 #show-hgvs-button
   margin: 0px 0px 0px 0px
   padding: 0px
-  font-size: 14px
+  font-size: 15px
   margin-top: -4px
   height: 22px
 
