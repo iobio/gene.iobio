@@ -406,6 +406,9 @@
     </span>
 
 
+    <div style="display:flex;justify-content:center;margin-bottom:10px">
+      <v-badge v-if="variantSetCounts.total && variantSetCounts.total > 0" class="info">Variants passed genome-wide filters</v-badge>
+    </div>
 
 
   <v-expansion-panel expand v-model="expansionControl" >
@@ -511,6 +514,8 @@
 
                       </span>
 
+
+                      <v-badge v-if="variant.variantSet" style="margin-right:10px" class="info">{{ variant.variantSet }}</v-badge>
 
 
                     </div>
@@ -632,7 +637,8 @@ export default {
     geneNames: null,
     genesInProgress: null,
     interpretationMap: null,
-    toClickVariant: null
+    toClickVariant: null,
+    variantSetCounts: null
   },
   data() {
     return {

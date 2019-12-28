@@ -173,6 +173,7 @@ main.content.clin, main.v-content.clin
       :genesInProgress="cohortModel.genesInProgress"
       :interpretationMap="interpretationMap"
       :toClickVariant="toClickVariant"
+      :variantSetCounts="variantSetCounts"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -840,6 +841,8 @@ export default {
 
       nonProbandModels: [],
 
+      variantSetCounts: {},
+
       pileupInfo: {
         // This controls how many base pairs are displayed on either side of
         // the center of the locus.
@@ -1169,8 +1172,12 @@ export default {
         })
         .then(function(variantSets) {
           if (variantSets && Object.keys(variantSets).length > 0) {
+            self.variantSetCounts = { total: 0 }
             for (var key in variantSets) {
+              self.variantSetCounts[key]   = variantSets[key] ? variantSets[key].length : 0;
+              self.variantSetCounts.total += variantSets[key] ? variantSets[key].length : 0;
               variantSets[key].forEach(function(importedVariant) {
+                importedVariant.variantSet = key;
                 self.analysis.payload.variants.push(importedVariant);
                 if (self.analysis.payload.genes.indexOf(importedVariant.gene) < 0) {
                   self.analysis.payload.genes.push(importedVariant.gene);

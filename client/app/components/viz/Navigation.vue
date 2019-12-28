@@ -703,6 +703,7 @@ nav.toolbar, nav.v-toolbar
              :genesInProgress="genesInProgress"
              :interpretationMap="interpretationMap"
              :toClickVariant="toClickVariant"
+             :variantSetCounts="variantSetCounts"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
@@ -1000,7 +1001,8 @@ export default {
     genesInProgress: null,
     interpretationMap: null,
     lastPhenotypeTermEntered: null,
-    toClickVariant: null
+    toClickVariant: null,
+    variantSetCounts: null
   },
   data () {
     let self = this;
