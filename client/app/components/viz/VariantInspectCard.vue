@@ -171,10 +171,6 @@
 
 
 
-  .pedigree-chart
-    .proband
-      stroke: $current-color
-      stroke-width: 5px
 
   .change-transcript-button
     max-height: 14px
@@ -187,56 +183,75 @@
     .v-btn__content
       font-size: 12px
 
+
+
+  .pedigree-chart 
+    circle 
+      fill: none
+      stroke: black
+      stroke-width: 1px
+
+    rect 
+      stroke: black
+      stroke-width: 1px
+      fill: none
+
+    .half-circle  
+      path
+        fill: none
+        stroke: black
+        stroke-width: 1px
+
+    .half-diamond 
+      path 
+        fill: none
+        stroke: black
+        stroke-width: 1px
+
+    rect.het 
+      stroke: none !important
+
+    .het, .hom
+      fill: #c5c5c5 !important
+      stroke: black
+
+    .half-circle  
+      path.het 
+        fill: #c5c5c5 !important
+        stroke: black
+    .half-diamond 
+      path.het 
+        fill: #c5c5c5 !important
+        stroke: black
+
+
+    .het.critical.proband, .hom.critical.proband
+      fill: #c5c5c5 !important
+
+    .half-diamond 
+      path.het.critical.proband 
+        fill: #c5c5c5 !important
+
+    line 
+      stroke: black !important
+
+
+    .proband
+      stroke: $current-color
+      stroke-width: 3px
+
+    .allele-count-bar 
+      rect.alt-count 
+        fill: $current-color
+        opacity: .65
+
+      text
+        font-size: 11px
+        text-anchor: middle
 </style>
 
 <style lang="css">
 
-
-.pedigree-chart circle {
-  fill: none;
-  stroke: black;
-  stroke-width: 1px;
-}
-
-.pedigree-chart rect {
-  stroke: black;
-  stroke-width: 1px;
-  fill: none;
-}
-
-.pedigree-chart .half-circle  path,
-.pedigree-chart .half-diamond path {
-  fill: none;
-  stroke: black;
-  stroke-width: 1px;
-
-}
-
-.pedigree-chart rect.het {
-  stroke: none !important;
-}
-
-.pedigree-chart .het,
-.pedigree-chart .hom,
-.pedigree-chart .half-circle  path.het,
-.pedigree-chart .half-diamond path.het {
-  fill: #c5c5c5 !important;
-  stroke: black;
-}
-
-.pedigree-chart .het.critical.proband,
-.pedigree-chart .hom.critical.proband,
-.pedigree-chart .half-circle  path.het.critical.proband,
-.pedigree-chart .half-diamond path.het.critical.proband {
-  fill: #c5c5c5 !important;
-}
-
-
-
-
-.pedigree-chart line {
-  stroke: black !important;
-}
 
 </style>
 
@@ -481,8 +496,11 @@
             <app-icon class="hide" icon="affected"></app-icon>
             <pedigree-genotype-viz
              ref="pedigreeGenotypeViz"
-             style="width:85px"
-             :margin="{left: 30, right: 4, top: 30, bottom: 4}"
+             style="width:134px"
+             :margin="{left: 10, right: 14, top: 30, bottom: 4}"
+             :nodeWidth="30"
+             :nodePadding="40"
+             :nodeVerticalPadding="30"
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz>
           </div>
@@ -914,7 +932,25 @@ export default {
           gtObject.sex = model.sex
           gtObject.affectedStatus = model.affectedStatus;
           if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.sampleName]) {
-            gtObject.zygosity = self.selectedVariant.genotypes[model.sampleName].zygosity.toLowerCase();
+            let gt = self.selectedVariant.genotypes[model.sampleName];
+            gtObject.zygosity = gt.zygosity.toLowerCase();
+
+            var altAndRef = +gt.refCount + +gt.altCount;
+            var altRatio  = (+gt.altCount / +gt.genotypeDepth);
+            var otherCount = 0;
+            var otherRatio = 0;
+            if (altAndRef < +gt.genotypeDepth) {
+              otherCount  = +gt.genotypeDepth - altAndRef;
+              otherRatio  = (otherCount / +gt.genotypeDepth);
+            }
+            gtObject.altRatio   = altRatio;
+            gtObject.altCount   = gt.altCount;
+            gtObject.otherCount = otherCount;
+            gtObject.otherRatio = otherRatio;
+            gtObject.refCount   = gt.refCount;
+            gtObject.totalCount = gt.genotypeDepth;
+
+
           } else {
             gtObject.zygosity = "unknown"
           }
@@ -932,7 +968,23 @@ export default {
             gtObject.sex = model.sex
             gtObject.affectedStatus = model.affectedStatus;
             if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.sampleName]) {
-              gtObject.zygosity = self.selectedVariant.genotypes[model.sampleName].zygosity.toLowerCase();
+              let gt = self.selectedVariant.genotypes[model.sampleName];
+              gtObject.zygosity = gt.zygosity.toLowerCase();
+
+              var altAndRef = +gt.refCount + +gt.altCount;
+              var altRatio  = (+gt.altCount / +gt.genotypeDepth);
+              var otherCount = 0;
+              var otherRatio = 0;
+              if (altAndRef < +gt.genotypeDepth) {
+                otherCount  = +gt.genotypeDepth - altAndRef;
+                otherRatio  = (otherCount / +gt.genotypeDepth);
+              }
+              gtObject.altRatio   = altRatio;
+              gtObject.altCount   = gt.altCount;
+              gtObject.otherCount = otherCount;
+              gtObject.otherRatio = otherRatio;
+              gtObject.refCount   = gt.refCount;
+              gtObject.totalCount = gt.genotypeDepth;
             } else {
               gtObject.zygosity = "unknown"
             }

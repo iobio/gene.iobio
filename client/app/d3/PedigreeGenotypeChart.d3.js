@@ -30,12 +30,12 @@ export default function PedigreeGenotypeChartD3() {
     }
     if (nodeData.affectedStatus == 'affected') {
       parent.append("g")
-            .attr("transform", "translate(-30, -35)")
+            .attr("transform", "translate(-" + (nodeWidth/2) + ", -" + (nodeWidth/2) + ")")
             .append("use")
             .attr("xlink:href", "#affected-symbol")
             .attr("class", "level-high")
-            .attr("width", 50)
-            .attr("height", 50)
+            .attr("width", 20)
+            .attr("height", 20)
             .style("pointer-events", "none");
     }
 
@@ -105,10 +105,10 @@ export default function PedigreeGenotypeChartD3() {
             .attr("class", function(d,i) {
               return "left " + " " + nodeData.zygosity  + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
             })
-            .attr("x", 1.5)
-            .attr("y", 1)
+            .attr("x", .5)
+            .attr("y", .5)
             .attr("width", nodeWidth / 2 - 1)
-            .attr("height", nodeWidth - 2)
+            .attr("height", nodeWidth - 1)
     } else {
        parent.append("rect")
             .attr("class", function(d,i) {
@@ -175,6 +175,47 @@ export default function PedigreeGenotypeChartD3() {
     return parent;
 
   }
+
+  let createAlleleCountBar = function(parent, position) {
+    let nodeData = parent.data()[0]
+
+    if (nodeData.totalCount != null && nodeData.altCount != null) {
+      let group = parent.append("g")
+            .attr("class", "allele-count-bar")
+            .attr("transform", function(d,i) {
+              if (position == "top") {
+                return "translate(-10,-12)";
+              } else {
+                return "translate(-10," + (nodeWidth+8) + ")";
+              }
+            })
+
+      group.append("rect")
+           .attr("width", (nodeWidth+20))      
+           .attr("height", 5)
+
+      group.append("rect")
+           .attr("class", "alt-count")
+           .attr("width", (nodeWidth+20) * nodeData.altRatio)      
+           .attr("height", 5)
+
+      group.append("text")
+           .attr("x", (nodeWidth+20)/2)
+           .attr("y", function(d,i) {
+              if (position == "top") {
+                return -5;
+              } else {
+                return 16;
+              }
+           })
+           .text(function(d,i) {
+              return nodeData.altCount + " of " + nodeData.totalCount
+           })
+    }
+
+
+  }
+
 
 
   function chart(theContainer, pedigreeData, options) {
@@ -245,6 +286,7 @@ export default function PedigreeGenotypeChartD3() {
           .append("g")
           .each( function(d,i) {
             createNode(d3.select(this))
+            createAlleleCountBar(d3.select(this), "top")
           })
 
 
@@ -256,6 +298,7 @@ export default function PedigreeGenotypeChartD3() {
           .attr("transform", "translate(" + ((nodeWidth + nodePadding)) + ",0" + ")")
           .each( function(d,i) {
             createNode(d3.select(this))
+            createAlleleCountBar(d3.select(this), "top")
           })
 
 
@@ -348,6 +391,7 @@ export default function PedigreeGenotypeChartD3() {
                        })
     childNodes.each(function(d,i) {
       createNode(d3.select(this))
+      createAlleleCountBar(d3.select(this), "bottom")
     })
 
   }
