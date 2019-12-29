@@ -6,17 +6,26 @@
 #show-hgvs-button
   margin: 0px 0px 0px 0px
   padding: 0px
-  font-size: 15px
-  margin-top: -4px
-  height: 22px
+  min-width: 25px
+  max-height: 25px
+  padding-right: 5px
+  padding-left: 8px
+  margin-right: 20px
+  padding-bottom: 2px
+  margin-left: 2px
 
   .btn__content, .v-btn__content
-    color:  $app-color
+    color:  $text-color
     padding-left: 0px
+    padding-right: 0px
+    color: $link-color
+    font-size: 13px
+    font-weight: 500
 
     i.material-icons
-      color: $text-color
       font-size: 20px
+      color: $link-color
+      vertical-align: top
       padding-right: 3px
 
 
@@ -36,8 +45,8 @@
        slot="activator"
        v-tooltip.top-center="`HGVSc and HGVSp for variant`"
       >
+        <v-icon>label</v-icon>
         {{ label }}
-        <v-icon>arrow_drop_down</v-icon>
       </v-btn>
 
       <div class="variant-info" style="padding: 20px;" >

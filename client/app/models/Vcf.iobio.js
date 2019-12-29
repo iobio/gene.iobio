@@ -1672,6 +1672,9 @@ export default function vcfiobio(theGlobalApp) {
                     'effect':                   annot.snpEff.effects,
                     'impact':                   annot.snpEff.impacts,
 
+                    // multi-allelic (from vt decompose)
+                    'multiallelic':             annot.multiallelic,
+
                     // vep
                     'vepConsequence':          annot.vep.vepConsequence,
                     'vepImpact':               annot.vep.vepImpact,
@@ -1769,6 +1772,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
     af1000G: '.',
     afExAC: '.',
     rs: '',
+    multiallelic: '',
     snpEff: {
       effects: {},
       impacts: {},
@@ -1896,6 +1900,8 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
     } else if (annotToken.indexOf("AVIA3") == 0) {
       me._parseGenericAnnot("AVIA3", annotToken, annot);
 
+    } else if (annotToken.indexOf("OLD_MULTIALLELIC=") == 0) {
+      annot.multiallelic = annotToken.substring(17, annotToken.length);
     }
 
   });

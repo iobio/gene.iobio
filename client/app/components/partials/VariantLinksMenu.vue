@@ -72,7 +72,7 @@
                 class="variant-link"
                 >
                   {{ link.display }} 
-                  <span class="rsid" v-if="link.display == 'dbSNP'">{{ info.rsId }}</span>
+                  <span class="rsid" v-if="info.rsId && link.display == 'dbSNP'">{{ info.rsId }}</span>
               </a>
             </v-list-tile-title>
 
@@ -125,22 +125,6 @@ export default {
   updated: function() {
   },
   computed: {
-    refAlt: function() {
-      let self = this;
-      var refAlt = "";
-      if (self.selectedGene && self.selectedGene.strand && self.selectedVariant) {
-        if (self.isEduMode) {
-          if (self.selectedGene.strand == "-") {
-            refAlt = self.globalApp.utility.switchGenotype(self.selectedVariant.eduGenotype)
-          } else {
-            refAlt = self.selectedVariant.eduGenotype;
-          }
-        } else {
-          refAlt =   self.info.refalt;
-        }
-      }
-      return refAlt;
-    }
   },
   watch: {
     showMenu: function() {

@@ -139,7 +139,6 @@
 
   .variant-header
     color: $app-color
-    margin-left: 15px
     font-size: 15px
 
   #variant-heading
@@ -261,7 +260,7 @@
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
-    <div style="display:flex;align-items:baseline;justify-content:flex-start">
+    <div style="display:flex;align-items:baseline;justify-content:flex-start;margin-bottom:10px">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
         <span class="pr-1" v-if="selectedVariantRelationship != 'proband'">
           <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
@@ -281,8 +280,26 @@
       :info="info">
       </variant-links-menu>
 
-      <span v-if="selectedVariant" class="variant-header"  >
+      <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading)"
+        style="margin-left:5px;margin-right:20px"
+        v-show="selectedVariantRelationship != 'known-variants'" class=" loader vcfloader" >
+        <img src="../../../assets/images/wheel.gif">
+        HGVS...
+      </span>
 
+      <variant-aliases-menu
+      v-show="selectedVariant && (!info.HGVSpLoading || !info.HGVScLoading)"
+      v-if="selectedVariant && selectedVariantRelationship != 'known-variants'"
+      :label="`HGVS`"
+      :selectedGene="selectedGene"
+      :selectedVariant="selectedVariant"
+      :geneModel="cohortModel.geneModel"
+      :info="info">
+      </variant-aliases-menu>
+
+      <span v-if="selectedVariant" class="variant-header">
+
+        <v-badge class="info" style="margin-right:10px" v-if="selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
 
         <app-icon
          style="margin-right:5px;padding-top: 2px"
@@ -295,7 +312,7 @@
         <span  class="pl-1">{{ coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
 
-        <span v-if="info && info.rsId && info.rsId != ''" class="pl-2">{{ info.rsId }}</span>
+        <span v-if="info && info.rsId && info.rsId != ''" class="pl-1">{{ info.rsId }}</span>
 
       </span>
 
@@ -303,22 +320,8 @@
 
       <span class="pl-3 variant-header">{{ aminoAcidChange }}</span>
 
-      <span v-if="info && info.HGVSpLoading && info.HGVScLoading"
-        v-show="selectedVariantRelationship != 'known-variants'" class="pl-4 loader vcfloader" >
-        <img src="../../../assets/images/wheel.gif">
-        HGVS...
-      </span>
 
-      <variant-aliases-menu
-      v-show="selectedVariant && info && (!info.HGVSpLoading || !info.HGVScLoading)"
-      v-if="selectedVariant && info && selectedVariantInterpretation != 'known-variants'"
-      class="pl-5 variant-header"
-      :label="hgvsLabel"
-      :selectedGene="selectedGene"
-      :selectedVariant="selectedVariant"
-      :geneModel="cohortModel.geneModel"
-      :info="info">
-      </variant-aliases-menu>
+
 
 
       <v-spacer></v-spacer>
