@@ -96,6 +96,7 @@
         font-size: 13px
         margin-bottom: 10px
         max-width: 260px
+        align-items: flex-start
 
         &.last
           margin-bottom: 0px
