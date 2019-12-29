@@ -19,7 +19,7 @@ class GlobalApp {
 
     this.IOBIO_SOURCE          = this.PROD_IOBIO;
     //this.HTTP_SOURCE           = "backend.iobio.io/"
-    this.HTTP_SOURCE           = this.GREEN_IOBIO;
+    this.HTTP_SOURCE           = this.PROD_IOBIO;
 
     this.isOffline             = false;          // is there any internet connect to outside services and resources?
     this.isClinvarOffline      = false;          // is clinvar offline?  (Pull from clinvar hosted from URL?)
