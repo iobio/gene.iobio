@@ -383,7 +383,7 @@ main.content.clin, main.v-content.clin
 
           <variant-inspect-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode"
+          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :selectedVariant="selectedVariant"
