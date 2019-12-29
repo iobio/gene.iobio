@@ -66,14 +66,13 @@
 
       <v-card class="full-width">
         <v-card-text id="enter-notes-input">
-            <v-text-field
+            <v-textarea
               id="notes-input"
-              multi-line
               rows="5"
               label="Notes"
               v-model="notes"
             >
-            </v-text-field>
+            </v-textarea>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>

@@ -93,14 +93,6 @@ export default function PedigreeGenotypeChartD3() {
     let nodeData = parent.data()[0]
     if (nodeData.zygosity == 'het') {
 
-     parent.append("rect")
-          .attr("class", function(d,i) {
-            return nodeData.rel  + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
-          })
-          .attr("width", nodeWidth)
-          .attr("height", nodeWidth)
-          .attr("x", 0)
-          .attr("y", 0)
       parent.append("rect")
             .attr("class", function(d,i) {
               return "left " + " " + nodeData.zygosity  + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
@@ -109,6 +101,16 @@ export default function PedigreeGenotypeChartD3() {
             .attr("y", .5)
             .attr("width", nodeWidth / 2 - 1)
             .attr("height", nodeWidth - 1)
+
+      parent.append("rect")
+          .attr("class", function(d,i) {
+            return nodeData.rel  + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
+          })
+          .attr("width", nodeWidth)
+          .attr("height", nodeWidth)
+          .attr("x", 0)
+          .attr("y", 0)
+      
     } else {
        parent.append("rect")
             .attr("class", function(d,i) {

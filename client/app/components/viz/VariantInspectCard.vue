@@ -237,8 +237,8 @@
 
 
     .proband
-      stroke: $current-color
-      stroke-width: 3px
+      stroke: $current-color !important
+      stroke-width: 3px !important
 
     .allele-count-bar 
       rect.alt-count 
@@ -496,8 +496,8 @@
             <app-icon class="hide" icon="affected"></app-icon>
             <pedigree-genotype-viz
              ref="pedigreeGenotypeViz"
-             style="width:134px"
-             :margin="{left: 10, right: 14, top: 30, bottom: 4}"
+             style="width:139px"
+             :margin="{left: 15, right: 14, top: 30, bottom: 4}"
              :nodeWidth="30"
              :nodePadding="40"
              :nodeVerticalPadding="30"
