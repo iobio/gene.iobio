@@ -79,6 +79,7 @@ textarea#copy-paste-genes
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
           <div style="margin-bottom:15px;margin-left:16px;">
               <phenotype-search
+              v-if="isEduMode"
               :isNav="false"
               :defaultTopGenes="isEduMode ? '6' : '30'"
               :phenotypeLabel="isEduMode ? 'Disorder' : 'Phenotype'"
