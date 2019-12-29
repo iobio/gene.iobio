@@ -2537,12 +2537,7 @@ export default {
     onApplyVariantInterpretation: function(variant) {
       let self = this;
 
-      if (self.launchedFromClin) {
-        self.sendFlaggedVariantToClin(variant);
-      } else if (self.launchedFromHub) {
-        self.promiseUpdateAnalysisVariant(variant);
-      }
-
+      
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
       if (variant.gene == null) {
@@ -2558,6 +2553,12 @@ export default {
 
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
+
+      if (self.launchedFromClin) {
+        self.sendFlaggedVariantToClin(variant);
+      }  
+      
+      self.promiseUpdateAnalysisVariant(variant);
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
