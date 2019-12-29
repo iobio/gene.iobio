@@ -1835,10 +1835,12 @@ export default {
         self.$set(self, "selectedVariant", variant);
         self.$set(self, "selectedVariantKey", self.getVariantKey(self.selectedVariant));
         self.selectedVariantRelationship = sourceRelationship;
-        self.selectedVariantNotes = variant.notes;
-        self.selectedVariantInterpretation = variant.interpretation;
+        self.refreshSelectedVariantInfo();
+        self.$set(self, "selectedVariantNotes", self.selectedVariant);
+        self.$set(self, "selectedVariantInterpretation", self.selectedVariant);
         self.showVariantAssessment = false;
         self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
+                
         self.showVariantExtraAnnots(sourceComponent ? sourceComponent.relationship : 'proband', variant);
 
         self.getVariantCardRefs().forEach(function(variantCard) {
