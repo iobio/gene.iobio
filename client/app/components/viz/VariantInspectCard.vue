@@ -10,6 +10,19 @@
   .multialign-loader
     font-size: 12px
 
+
+  .refalt 
+    max-width: 200px
+    white-space: normal
+    display: inline-block
+    word-break: break-all
+    
+  .aa-change
+    max-width: 200px
+    white-space: normal
+    display: inline-block
+    word-break: break-all    
+
   #show-assessment-button
     padding: 0px
     height: 26px !important
@@ -56,6 +69,8 @@
       background-color: $text-color
 
 
+
+
   .variant-inspect-body
     display: flex
     flex-direction: row
@@ -63,9 +78,12 @@
     justify-content: space-around
     padding-top: 5px
 
+
+
     #conservation-track
       .variant-text
         max-width: 120px
+
 
 
     .variant-inspect-column
@@ -265,7 +283,7 @@
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
-    <div style="display:flex;align-items:baseline;justify-content:flex-start;margin-bottom:10px">
+    <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:10px">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
         <span class="pr-1" v-if="selectedVariantRelationship != 'proband'">
           <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
@@ -313,8 +331,8 @@
          height="14" width="35">
         </app-icon>
 
-        <span>{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-        <span  class="pl-1">{{ coord }}</span>
+        <span style="vertical-align:top">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
+        <span style="vertical-align:top" class="pl-1">{{ coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
 
         <span v-if="info && info.rsId && info.rsId != ''" class="pl-1">{{ info.rsId }}</span>
@@ -323,7 +341,7 @@
 
 
 
-      <span class="pl-3 variant-header">{{ aminoAcidChange }}</span>
+      <span class="pl-3 variant-header aa-change">{{ aminoAcidChange }}</span>
 
 
 
