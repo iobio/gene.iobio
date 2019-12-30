@@ -144,7 +144,7 @@
 
   .variant-header
     color: $app-color
-    font-size: 15px
+    font-size: 14px
 
   #variant-heading
     color: $app-color

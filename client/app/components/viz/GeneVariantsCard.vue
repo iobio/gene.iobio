@@ -82,13 +82,13 @@
     margin-left: 0px
     vertical-align: middle
     color:  $app-color
-    font-size: 16px
+    font-size: 14px
 
   #gene-region
     margin-left: 3px
     vertical-align: middle
     color:  $app-color
-    font-size:  16px
+    font-size:  14px
 
   #region-buffer-box
     vertical-align: middle
