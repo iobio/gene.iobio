@@ -1090,7 +1090,9 @@ export default {
             } else {
               self.models = self.cohortModel.sampleModels;
 
-              if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+              if (self.analysis && self.analysis.payload && self.analyis.payload.variants && self.analysis.payload.variants.length > 0) {
+                // do nothing -- variants already loaded
+              } else if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
                 self.promiseLoadData()
                 .then(function() {
                   self.showLeftPanelWhenFlaggedVariants();
@@ -1211,22 +1213,26 @@ export default {
             self.cohortModel.importFlaggedVariants('json', self.analysis.payload.variants,
             function() {
 
+
+              
+                
+
             },
             function() {
               
-              self.promiseSelectFirstFlaggedVariant()
-              .then(function() {
-                self.$refs.navRef.onShowVariantsTab();
-                
-                setTimeout(function() {
-                  if (self.geneModel.sortedGeneNames &&
-                    self.geneModel.sortedGeneNames.length < 30) {
-                    self.cacheHelper.analyzeAll(self.cohortModel);
-                  }
-                }, 1000)
+              setTimeout(function() {
+                self.promiseSelectFirstFlaggedVariant()
+              }, 1000)
 
-                resolve();
-              })
+              setTimeout(function() {
+                if (self.analysis.id && self.geneModel.sortedGeneNames &&
+                  self.geneModel.sortedGeneNames.length < 30) {
+                  self.cacheHelper.analyzeAll(self.cohortModel);
+                }
+              }, 1000)
+
+              resolve();
+
               
 
             })
@@ -1293,12 +1299,16 @@ export default {
               }
               self.showLeftPanelForGenes();
             } else if (self.cacheHelper.analyzeAllInProgress) {
-              self.showLeftPanelForGenes();
+              if (self.selectedVariant == null) {
+                self.showLeftPanelForGenes();
+              }
             } else {
-              self.promiseSelectFirstFlaggedVariant()
-              .then(function() {
-                self.$refs.navRef.onShowVariantsTab();
-              })
+              if (self.selectedVariant == null) {
+                self.promiseSelectFirstFlaggedVariant()
+                .then(function() {
+                  self.$refs.navRef.onShowVariantsTab();
+                })                
+              }
 
             }
           }
@@ -2373,7 +2383,9 @@ export default {
           self.onGeneSelected(self.paramGene);
         } else if (self.paramGeneName) {
           self.geneModel.promiseAddGeneName(self.paramGeneName);
-          self.onGeneSelected(self.paramGeneName);
+          if (!self.launchedFromHub) {
+            self.onGeneSelected(self.paramGeneName);
+          }
         }
 
         if (self.paramSpecies) {
@@ -3562,12 +3574,14 @@ export default {
         if (firstFlaggedVariant) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
           .then(function() {
-            self.showLeftPanelWhenFlaggedVariants();
+            
             self.toClickVariant = firstFlaggedVariant;
+            self.showLeftPanelWhenFlaggedVariants();
             self.onFlaggedVariantSelected(firstFlaggedVariant, function() {
-              resolve()
-            });
+              resolve()                
+            })
           })
+
         } else {
           setTimeout(function() {
             self.showLeftPanelForGenes();

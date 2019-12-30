@@ -119,7 +119,7 @@
 
 
 
-  li.selected
+  li.selected, .list-item.selected
     border-color: $current-color
     border-width: 2px
     border-style: solid
@@ -444,7 +444,7 @@
             <v-list-tile
             :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
             ripple
-            :class="{selected: clickedVariant == variant ? true : false}"
+            :class="{'list-item': true, selected: clickedVariant == variant ? true : false}"
             @click="onVariantSelected(variant)">
 
 

@@ -2389,10 +2389,7 @@ class CohortModel {
         }
       }
 
-      // First callback when flagged variants are now populated by imported records
-      if (callbackPostImport) {
-        callbackPostImport();
-      }
+     
 
 
       if (me.isLoaded) {
@@ -2405,6 +2402,10 @@ class CohortModel {
           }
         })
         .then(function() {
+          // First callback when flagged variants are now populated by imported records
+          if (callbackPostImport) {
+            callbackPostImport();
+          }
 
           // Get all of the cached vcf data
           let dataPromises = [];
@@ -2491,10 +2492,15 @@ class CohortModel {
                           dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
                           me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
 
-                          me.promiseLoadCoverage(geneObject, transcript)
-                          .then(function() {
-                            resolve();
-                          })
+                          resolve();
+
+                          // For every gene, we will analyze the coverage across the exons
+                          // NOTE:  This is an expensive operation!
+                          
+                          //me.promiseLoadCoverage(geneObject, transcript)
+                          //.then(function() {
+                          //  resolve();
+                          //})
 
                         });
                       })
