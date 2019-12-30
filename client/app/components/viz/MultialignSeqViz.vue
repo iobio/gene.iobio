@@ -11,6 +11,12 @@
       stroke-opacity: 1
       fill: none
 
+    text
+      font-family: 'Raleway'
+      font-size: 11px
+      font-weight: bold
+      fill: $current-color
+
   .axis
     text
       font-family: 'Raleway'

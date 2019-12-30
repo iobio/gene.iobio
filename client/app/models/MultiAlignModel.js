@@ -110,7 +110,7 @@ class MultiAlignModel {
         .then(function(alignments) {
           self.setMultiAlignSimilarity(alignments);
 
-          let data = self.getMultiAlignSequencesForVariant(alignments, selectedVariant.start, self.sequenceWindow[seqType], seqType);
+          let data = self.getMultiAlignSequencesForVariant(alignments, selectedVariant, self.sequenceWindow[seqType], seqType);
           resolve(data);
         })
       })
@@ -140,13 +140,13 @@ class MultiAlignModel {
     }
 
 
-    getMultiAlignSequencesForVariant(alignments, start, regionLength, seqType) {
+    getMultiAlignSequencesForVariant(alignments, variant, regionLength, seqType) {
       let self = this;
 
       let filteredSequences = [];
       let selectedBase = null;
-      let windowStart = start - regionLength;
-      let windowEnd   = start + regionLength;
+      let windowStart = variant.start - regionLength;
+      let windowEnd   = variant.start + regionLength;
 
       if (alignments.length == 0) {
         return  {sequences: [], selectedBase: null};
@@ -155,20 +155,21 @@ class MultiAlignModel {
 
       let regionIndex = -1;
       alignments[0].regions.forEach(function(region, i) {
-        if (start >= region.start  && start <= region.end) {
+        if (variant.start >= region.start  && variant.start <= region.end) {
           regionIndex = i;
         }
       })
       if (regionIndex >= 0) {
         let selectedBases = alignments[0].sequences[regionIndex].filter(function(seq) {
           if (seqType == 'nuc') {
-            return seq.start == start;
+            return seq.start == variant.start;
           } else if (seqType == 'aa') {
-            return seq.start >= start - 1 && seq.start <= start + 1;
+            return seq.start >= variant.start - 1 && seq.start <= variant.start + 1;
           }
         })
         if (selectedBases.length > 0) {
           selectedBase = selectedBases[0]
+          selectedBase.variant = variant;
         }
         let sequences = self.getMultiAlignSequencesForExon(alignments, regionIndex)
         sequences.forEach(function(sequence) {

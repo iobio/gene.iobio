@@ -585,6 +585,7 @@
 
               <multialign-seq-viz style="margin-top:10px;"
               :data="multialignSequences"
+              :margin="{top: 15, right: 0, bottom: 0, left: 70}"
               :selectedBase="multialignSelectedBase">
               </multialign-seq-viz>
 

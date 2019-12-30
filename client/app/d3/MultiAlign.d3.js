@@ -40,6 +40,13 @@ export default function MultiAlignD3() {
       container.select("g.marker rect")
                .style("opacity", 1)
 
+      container.select("g.marker text")
+               .attr("text-anchor", "middle")
+               .text(d.variant.ref + "->" + d.variant.alt)
+
+      container.select("g.marker text")
+               .style("opacity", 1)
+
     }
   }
 
@@ -49,6 +56,14 @@ export default function MultiAlignD3() {
              .attr("transform", "translate(" + (+x-2) + "," + "3" + ")");
 
     container.select("g.marker rect")
+             .style("opacity", 1)
+
+    container.select("g.marker text")
+             .attr("text-anchor", "middle")
+             .text(d.variant.ref + "->" + d.variant.alt)
+
+
+    container.select("g.marker text")
              .style("opacity", 1)
   }
 
@@ -208,16 +223,22 @@ export default function MultiAlignD3() {
         })
 
 
-    g.selectAll(".marker")
+    let marker = g.selectAll(".marker")
        .data([0])
        .enter()
        .append("g")
-       .attr("class", "marker")
-       .append("rect")
+       .attr("class", "marker");
+
+    marker.append("rect")
        .attr("x", 0)
        .attr("y", 0)
        .attr("width", baseWidth)
        .attr("height", trackHeight * data.length)
+       .style("opacity", 0)
+
+    marker.append("text")
+       .attr("x", 5)
+       .attr("y", -7)
        .style("opacity", 0)
 
 
