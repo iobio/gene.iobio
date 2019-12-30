@@ -510,7 +510,7 @@
           </div>
       </div>
 
-      <div class="variant-inspect-column" style="min-width:90px" v-if="selectedVariant && selectedVariantRelationship != 'known-variants'">
+      <div class="variant-inspect-column" style="min-width:90px" v-if="selectedVariant && selectedVariantRelationship != 'known-variants' && selectedVariant.inheritance.length > 0">
           <div class="variant-column-header">
             Inheritance
             <v-divider></v-divider>
