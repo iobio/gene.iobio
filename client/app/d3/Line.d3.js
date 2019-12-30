@@ -173,12 +173,12 @@ export default function lineD3() {
                  .duration(500)
                  .style("opacity", 0);
 
+    container.select(".circle-label").transition()
+                 .duration(500)
+                 .style("opacity", 0);
+
 
     if (showAlleleBar) {
-      container.select(".circle-label").transition()
-                   .duration(500)
-                   .style("opacity", 0);
-
       container.select(".coverage-bar").transition()
                    .duration(500)
                    .style("opacity", 0);
