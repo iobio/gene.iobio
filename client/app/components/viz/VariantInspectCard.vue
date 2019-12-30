@@ -63,6 +63,11 @@
     justify-content: space-around
     padding-top: 5px
 
+    #conservation-track
+      .variant-text
+        max-width: 120px
+
+
     .variant-inspect-column
       display: flex
       flex-direction: column
@@ -536,7 +541,7 @@
                :options=conservationOptions
                :exactScore=conservationExactScore
                :targetScore=conservationTargetScore
-               :margin="{top: 8, right: 2, bottom: 5, left: 4}"
+               :margin="{top: 10, right: 2, bottom: 15, left: 4}"
                :width="130"
                :height="60">
               </conservation-scores-viz>
@@ -890,10 +895,12 @@ export default {
       if (score == null) {
         return "";
       } else {
-        if (score.y > 2) {
+        if (score.y > 1.5) {
           return 'Highly conserved ' + score.y;
-        } else if (score.y > 0) {
+        } else if (score.y > 1) {
           return 'Moderately conserved ' + score.y;
+        } else if (score.y > 0) {
+          return 'Marginally conserved ' + score.y;
         } else {
           return 'Not conserved ' + score.y;
         }
@@ -903,10 +910,12 @@ export default {
       if (score == null) {
         return "";
       } else {
-        if (score.y > 2) {
+        if (score.y > 1.5) {
           return 'level-high'
-        } else if (score.y > 0) {
+        } else if (score.y > 1) {
           return 'level-medium'
+        } else if (score.y > 0) {
+          return 'level-low'
         } else {
           return 'level-unremarkable';
         }
