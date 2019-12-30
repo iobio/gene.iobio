@@ -118,6 +118,7 @@
     float: right
     margin-right: 20px
     margin-left: 30px
+    padding-top: 0px
 
     label
       padding-left: 0px
