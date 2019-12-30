@@ -20,6 +20,8 @@ export default function MultiAlignD3() {
 
   var x = null;
 
+  var width = null;
+  var height = null;
 
   var yAxisLabel = "";
 
@@ -42,7 +44,14 @@ export default function MultiAlignD3() {
 
       container.select("g.marker text")
                .attr("text-anchor", "middle")
-               .text(d.variant.ref + "->" + d.variant.alt)
+               .text(function() {
+                  if (d.variant.ref.length + d.variant.alt.length < 20) {
+                    return d.variant.ref + "->" + d.variant.alt;
+                  } else {
+                    return "";
+                  }
+               })
+
 
       container.select("g.marker text")
                .style("opacity", 1)
@@ -60,7 +69,13 @@ export default function MultiAlignD3() {
 
     container.select("g.marker text")
              .attr("text-anchor", "middle")
-             .text(d.variant.ref + "->" + d.variant.alt)
+             .text(function() {
+                if (d.variant.ref.length + d.variant.alt.length < 20) {
+                  return d.variant.ref + "->" + d.variant.alt;
+                } else {
+                  return "";
+                }
+              })
 
 
     container.select("g.marker text")
@@ -111,8 +126,8 @@ export default function MultiAlignD3() {
       outerWidth  = +container.node().offsetWidth;
       outerHeight = +container.node().offsetHeight;
     }
-    let width  = outerWidth  - margin.left - margin.right;
-    let height = outerHeight - margin.top  - margin.bottom;
+    width  = outerWidth  - margin.left - margin.right;
+    height = outerHeight - margin.top  - margin.bottom;
 
     x = d3.scale.linear()
           .domain(d3.extent(data[0].sequence, function(d) {
@@ -239,10 +254,14 @@ export default function MultiAlignD3() {
     marker.append("text")
        .attr("x", 5)
        .attr("y", -7)
+       .attr("dx", 0)
+       .attr("dy", 0)
        .style("opacity", 0)
 
 
   }
+
+
 
   chart.margin = function(_) {
     if (!arguments.length) return margin;

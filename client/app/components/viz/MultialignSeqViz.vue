@@ -13,7 +13,7 @@
 
     text
       font-family: 'Raleway'
-      font-size: 11px
+      font-size: 12px
       font-weight: bold
       fill: $current-color
 
