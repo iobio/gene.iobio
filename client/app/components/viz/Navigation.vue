@@ -708,7 +708,8 @@ nav.toolbar, nav.v-toolbar
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
              @count-changed="onFlaggedVariantCountChanged"
-
+             @filter-settings-applied="onFilterSettingsApplied"
+             @filter-settings-closed="onFilterSettingsClose"
             >
             </flagged-variants-card>
 
@@ -1216,7 +1217,7 @@ export default {
     onFilterSettingsApplied: function() {
       this.$emit("filter-settings-applied");
     },
-    onFilterSettingsClosed: function() {
+    onFilterSettingsClose: function() {
       this.$emit('filter-settings-closed');
     },
     onAnalyzeAll: function() {
@@ -1225,6 +1226,8 @@ export default {
     onCallVariants: function(action) {
       this.$emit("call-variants", action)
     },
+
+
 
   },
   created: function() {

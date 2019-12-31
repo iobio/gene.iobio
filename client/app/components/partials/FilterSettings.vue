@@ -4,6 +4,20 @@
 @import ../../../assets/sass/variables
 
 .filter-form
+  padding: 10px 40px 5px 40px
+
+  .v-text-field__slot
+    .v-label
+      font-size: 13px
+    label
+      font-size: 13px
+    input
+      font-size: 13px
+      color: $text-color
+
+  .v-select__selection
+    font-size: 13px
+
 
   .filter-action-button
     padding: 0px
@@ -72,17 +86,7 @@
 
   <v-layout row wrap class=" filter-form " >
 
-    <v-flex  xs12 class="mt-1 mb-1" >
-      <v-spacer></v-spacer>
-      <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
-        Apply
-      </v-btn>
-      <v-btn v-if="filter.custom"
-      :class="{'filter-action-button': true, 'remove-button': true}"
-      @click="remove">
-        Remove
-      </v-btn>
-    </v-flex>
+
 
     <v-flex id="name" xs12 class="mb-3" >
       <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
@@ -97,7 +101,7 @@
     </v-flex>
 
     <v-flex xs12 class="mb-3" >
-      <v-select style="z-index:10"
+      <v-select 
             label="ClinVar clinical significance"
             v-bind:items="clinvarCategories"
             v-model="selectedClinvarCategories"
@@ -181,7 +185,17 @@
       </v-text-field>
     </v-flex>
 
-
+    <v-flex style="display:flex" xs12 class="mt-1 mb-1" >
+      <v-spacer></v-spacer>
+      <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
+        Apply
+      </v-btn>
+      <v-btn v-if="filter.custom"
+      :class="{'filter-action-button': true, 'remove-button': true}"
+      @click="remove">
+        Remove
+      </v-btn>
+    </v-flex>
 
 
 

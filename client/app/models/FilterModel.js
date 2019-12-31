@@ -60,7 +60,7 @@ class FilterModel {
         'pathogenic': {
           active: true,
           custom: false,
-          title: "Filtered Pathogenic in ClinVar",
+          title: "Pathogenic in ClinVar",
           name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
           order: 1,
           userFlagged: false,
@@ -78,7 +78,7 @@ class FilterModel {
         'autosomalDominant': {
           active: true,
           custom: false,
-          title: "Filtered Autosomal dominant",
+          title: "Autosomal dominant",
           name: "Autosomal dominant inhertance, low allele freq",
           order: 2,
           userFlagged: false,
@@ -96,7 +96,7 @@ class FilterModel {
         'recessive': {
           active: true,
           custom: false,
-          title:"Filtered Recessive",
+          title:"Recessive",
           name: "Recessive inheritance, low allele freq",
           order: 3,
           userFlagged: false,
@@ -115,7 +115,7 @@ class FilterModel {
         'denovo': {
           active: true,
           custom: false,
-          title: "Filtered De novo",
+          title: "De novo",
           name: "De novo inheritance, low allele freq",
           order: 4,
           userFlagged: false,
@@ -133,7 +133,7 @@ class FilterModel {
         'compoundHet': {
           active: true,
           custom: false,
-          title: "Filtered Compound hets",
+          title: "Compound hets",
           name: "Compound het inheritance, low allele freq",
           order: 5,
           userFlagged: false,
@@ -151,7 +151,7 @@ class FilterModel {
         'xlinked': {
           active: true,
           custom: false,
-          title: "Filtered X-linked recessive",
+          title: "X-linked recessive",
           name: "X-linked recessive inheritance, low allele freq",
           userFlagged: false,
           order: 6,
@@ -169,7 +169,7 @@ class FilterModel {
         'high': {
           active: true,
           custom: false,
-          title: "Filtered High impact",
+          title: "High impact",
           name: "High impact, low allele freq",
           order: 7,
           userFlagged: false,

@@ -2543,7 +2543,7 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false, includeReviewed: true}) {
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
     let self = this;
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
@@ -2560,7 +2560,7 @@ class CohortModel {
         if (include) {
           var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options);
 
-          if (sortedGenes.length > 0) {
+          if (sortedGenes.length > 0 || options.includeAll) {
             filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
           }
         }
@@ -2568,7 +2568,15 @@ class CohortModel {
     }
 
     let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
-      return filterObject1.filter.order > filterObject2.filter.order;
+      if (filterObject1.genes.length > 0 && filterObject2.genes.length > 0) {
+        return filterObject1.filter.order > filterObject2.filter.order;
+      } else if (filterObject1.genes.length > 0) {
+        return -1;
+      } else if (filterObject2.genes.length > 0) {
+        return 1;
+      } else {
+        return filterObject1.filter.order > filterObject2.filter.order;
+      }
     })
 
     sortedFilters.forEach(function(filterObject) {

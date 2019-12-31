@@ -196,6 +196,8 @@ main.content.clin, main.v-content.clin
       @show-filters="onShowFilters"
       @analyze-all="onAnalyzeAll"
       @call-variants="callVariants"
+      @filter-settings-applied="onFilterSettingsApplied"
+      @filter-settings-closed="onFilterSettingsClose"
     >
     </navigation>
 
@@ -531,7 +533,6 @@ main.content.clin, main.v-content.clin
           :center="snackbar.center"
           :left="snackbar.left"
           :right="snackbar.right"
-          autoheight
           v-model="showSnackbar"
          >
           <span v-html="snackbar.message"></span>

@@ -139,8 +139,8 @@
     border-top: #e1e1e1
     border-top-style: solid
     border-top-width: 1px
-    padding:  12px 10px 10px 2px
-    background-color: #e9eaeb
+    padding:  4px 10px 4px 2px
+    background-color: #f3f3f3
 
   .v-expansion-panel__header
     min-height: 28px
@@ -153,27 +153,52 @@
   .expansion-panel__container, .v-expansion-panel__container
     border-top: none
 
+    .edit-filter-button
+      margin: 0px 0px 0px 0px
+      padding: 0px 8px 0px 8px
+      min-width: 25px
+      max-width: 25px
+      margin-left: 30px
+
+      i.material-icons
+        font-size: 20px
+        color: $app-button-color
 
     .badge, .v-badge
       background-color: transparent
 
       span.filter-label
-        color: $app-color
+        color: $app-button-color
         border-color: none
         font-size: 15px
-        font-weight: normal
+        font-weight: 500
         display: inline-block
         text-align: left
-
+        width: 180px
 
     .badge__badge.primary, .v-badge__badge.primary
-      background-color: $light-badge-color !important
-      font-size: 10px
+      background-color: $app-button-color !important
+      font-size: 12px
       color: white
       top: 2px
-      width: 17px
-      height: 17px
+      width: 20px
+      height: 20px
 
+    &.empty    
+
+      span.filter-label
+       color: $text-color !important
+       font-weight: normal
+
+      .badge__badge.primary, .v-badge__badge.primary
+        background-color: $light-badge-color !important
+
+      .edit-filter-button
+        i.material-icons
+          color: $light-badge-color !important
+
+      .v-expansion-panel__header__icon
+        display: none
 
   .filter-variant-count
     float: right
@@ -184,6 +209,7 @@
   .list--three-line, .v-list--three-line
     margin-bottom: 10px
     padding-top: 5px
+
 
     .filter-subheader
       margin-left: -20px
@@ -386,6 +412,7 @@
 </style>
 
 <template>
+<div>
   <v-card  style="padding: 0px" id="flagged-variants-card" :class="{basic: isBasicMode}">
 
 
@@ -413,11 +440,11 @@
 
   <v-expansion-panel expand v-model="expansionControl" >
     <v-expansion-panel-content v-for="geneList in geneLists"  :key="geneList.label"
-      v-if="geneList.show">
+      v-if="geneList.show" :class="{'empty': geneList.variantCount == 0}">
       <template v-slot:header>
-        <div  v-show="!isBasicMode">
+        <div  v-show="!isBasicMode" >
 
-          <span v-show="geneList.genes.length > 0" class="filter-subheader">
+          <span  class="filter-subheader">
             <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
 
 
@@ -426,6 +453,9 @@
               <span class="filter-label">{{ geneList.label }}</span>
             </v-badge>
 
+            <v-btn flat @click="onEditFilter(geneList)" class="edit-filter-button">
+              <v-icon>create</v-icon>
+            </v-btn>
 
           </span>
 
@@ -436,8 +466,6 @@
         <template
          v-for="flaggedGene in geneList.genes">
 
-          <!-- <v-subheader :key="flaggedGene.gene.gene_name">{{ flaggedGene.gene.gene_name }}</v-subheader>
-        -->
 
           <template v-for="variant in flaggedGene.variants">
 
@@ -606,25 +634,62 @@
     </v-expansion-panel-content>
   </v-expansion-panel>
 
-
   </v-card>
+
+
+  <v-dialog v-model="showEditFilter" max-width="650">
+   
+
+      <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
+        <v-card-title style="margin-left:20px" class="headline">Edit Filter</v-card-title>
+        <filter-settings
+          ref="currentFilterSettingRef"
+          v-if="currentFilter && currentFilter.name != 'coverage'"
+          :filterModel="cohortModel.filterModel"
+          :filter="currentFilter"
+          @apply-filter="onApplyFilter"
+          @remove-filter="onRemoveFilter">
+        </filter-settings>
+
+<!--
+        <filter-settings-coverage
+          v-if="geneList.filter.name == 'coverage'"
+          v-show="currentFilter && currentFilter.name == geneList.filter.name"
+          ref="coverageFilterSettingsRef"
+          :filterModel="cohortModel.filterModel"
+          :filter="geneList.filter"
+           @apply-filter="onApplyFilter">
+        </filter-settings-coverage>
+      -->
+      </v-card>
+
+
+
+
+  </v-dialog>
+</div>
+
+
 </template>
 
 
 <script>
 
 
-import AppIcon from '../partials/AppIcon.vue'
-import FilterIcon from '../partials/FilterIcon.vue'
+import AppIcon                    from '../partials/AppIcon.vue'
+import FilterIcon                 from '../partials/FilterIcon.vue'
 import VariantInterpretationBadge from '../partials/VariantInterpretationBadge.vue'
-
+import FilterSettings             from '../partials/FilterSettings.vue'
+import FilterSettingsCoverage     from '../partials/FilterSettingsCoverage.vue'
 
 export default {
   name: 'flagged-variants-card',
   components: {
     AppIcon,
     FilterIcon,
-    VariantInterpretationBadge
+    VariantInterpretationBadge,
+    FilterSettings,
+    FilterSettingsCoverage
   },
   props: {
     isEduMode: null,
@@ -646,7 +711,10 @@ export default {
       geneLists: null,
       clickedVariant: null,
       variantCount: 0,
-      interpretationFilters: null
+      interpretationFilters: null,
+      showEditFilter: false,
+      currentFilter: null,
+      expansionControl: null,
     }
   },
   methods: {
@@ -669,22 +737,58 @@ export default {
       var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters);
       self.geneLists = filters.map(function(filterObject, idx) {
         self.variantCount += filterObject.variantCount;
+        let theFilter = $.extend({}, filterObject.filter);
+        theFilter.name = filterObject.key;
         return {
           name:  filterObject.key,
           label: filterObject.filter.title,
-          show:  filterObject.genes.length > 0,
+          filter: theFilter,
+          show:  (filterObject.filter.active
+                  && filterObject.filter.title != 'Reviewed' 
+                  && filterObject.filter.title != 'Not found' 
+                  && filterObject.filter.title != 'Not categorized' 
+                  && filterObject.filter.title != 'Flagged by user')
+                 || filterObject.genes.length > 0,
           genes: filterObject.genes,
           variantCount: filterObject.variantCount,
           expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' || idx == 0 ?  true : false) : true
         }
       })
       self.$emit("count-changed", self.variantCount);
+
+      self.expansionControl =  self.geneLists.map(function(geneList) {
+        return geneList.expand;
+      })        
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
     },
     onApplyVariantInterpretation: function(variant) {
       this.$emit("apply-variant-interpretation", variant);
+    },
+
+
+    onEditFilter: function(geneList) {
+      let self = this;
+      self.showEditFilter = true;
+      self.currentFilter = geneList.filter;
+      setTimeout(function() {
+        if (self.$refs.currentFilterSettingRef) {
+          self.$refs.currentFilterSettingRef.init();
+        }        
+      }, 20);
+    },
+    onApplyFilter: function() {
+      let self = this;
+      self.showEditFilter = false;
+      self.currentFilter = null;
+      self.$emit("filter-settings-applied");
+    },
+    onRemoveFilter: function(filterName) {
+      let self = this;
+      self.showEditFilter = false;
+      self.currentFilter = null;
+      self.$emit("filter-settings-applied");
     },
 
 
@@ -853,19 +957,10 @@ export default {
 
   },
   mounted: function() {
-
+    this.populateGeneLists();
   },
   computed: {
-    expansionControl: function() {
-      let self = this;
-      if (self.geneLists) {
-        return self.geneLists.map(function(geneList) {
-          return geneList.expand;
-        })        
-      } else {
-        return []
-      }
-    }
+    
 
 
   },
