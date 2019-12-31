@@ -1170,7 +1170,13 @@ export default {
               self.variantSetCounts[key]   = variantSets[key] ? variantSets[key].length : 0;
               self.variantSetCounts.total += variantSets[key] ? variantSets[key].length : 0;
               variantSets[key].forEach(function(importedVariant) {
-                importedVariant.variantSet = key;
+                let theFilterName = null;
+                if (self.hubSession.variantSetToFilterName[key]) {
+                  theFilterName = self.hubSession.variantSetToFilterName[key];
+                } else {
+                  theFilterName = key;
+                }
+                importedVariant.variantSet = theFilterName;
                 self.analysis.payload.variants.push(importedVariant);
                 if (self.analysis.payload.genes.indexOf(importedVariant.gene) < 0) {
                   self.analysis.payload.genes.push(importedVariant.gene);

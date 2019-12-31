@@ -19,6 +19,10 @@ export default class HubSession {
       "sampleId"
     ]
     this.user = null;
+
+    this.variantSetToFilterName = {
+      'compoundhet': 'compoundHet'
+    };
   }
 
   promiseInit(sampleId, source, isPedigree, projectId ) {

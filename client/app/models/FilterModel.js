@@ -37,6 +37,7 @@ class FilterModel {
     this.geneCoverageMedian        = 15;
 
 
+
     this.flagCriterion = {
       gene: {
         'reviewed': {
@@ -874,7 +875,7 @@ class FilterModel {
       variant.isUserFlagged = false;
       variant.notCategorized = true;
       variant.featureClass = 'flagged';
-      variant.filtersPassed = 'notCategorized';
+      self.mapGenomeWideFilter(variant);
     }
 
     if (variant.isFlagged) {
@@ -890,6 +891,18 @@ class FilterModel {
       badges.flagged.push(variant);
     }
 
+  }
+
+  mapGenomeWideFilter(variant) {
+    let self = this;
+    if (variant.variantSet && variant.variantSet.length > 0) {    
+      let filter = self.flagCriteria[variant.variantSet];
+      if (filter) {
+        variant.filtersPassed = variant.variantSet;
+      } else {
+        filterName = 'notCategorized';
+      }
+    }
   }
 
   determinePassCriteria(badge, variant, options) {

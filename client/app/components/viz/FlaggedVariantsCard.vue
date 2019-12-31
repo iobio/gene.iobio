@@ -440,7 +440,6 @@
 <div>
   <v-card  style="padding: 0px" id="flagged-variants-card" :class="{basic: isBasicMode}">
 
-
     <div class="variant-toolbar" >
 
       <v-btn id="add-filter-button" @click="onNewFilter" flat>
@@ -452,8 +451,11 @@
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
       </span>
 
+    </div>
 
-
+    <div style="display:flex;justify-content:center;margin-top:15px;margin-bottom:15px">
+      <v-badge v-if="variantSetCounts.total && variantSetCounts.total > 0" class="info">
+       {{ variantSetCounts.total }} variants imported from genome-wide filters</v-badge>
     </div>
 
 
@@ -462,9 +464,7 @@
     </span>
 
 
-    <div style="display:flex;justify-content:center;margin-bottom:10px">
-      <v-badge v-if="variantSetCounts.total && variantSetCounts.total > 0" class="info">Variants passed genome-wide filters</v-badge>
-    </div>
+
 
 
   <v-expansion-panel expand v-model="expansionControl" >
@@ -575,7 +575,7 @@
                       </span>
 
 
-                      <v-badge v-if="variant.variantSet" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
+                      <v-badge v-if="variant.variantSet && variant.filtersPassed != variant.variantSet" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
 
 
                     </div>
