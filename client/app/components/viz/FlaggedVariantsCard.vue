@@ -160,12 +160,13 @@
     border-top: #e1e1e1
     border-top-style: solid
     border-top-width: 1px
-    padding:  4px 10px 4px 2px
+    padding:  6px 10px 6px 2px
     background-color: #f3f3f3
 
   .v-expansion-panel__header
     min-height: 28px
     padding-left: 10px
+    padding-right: 8px
 
     .header__icon
       i.material-icons
@@ -179,7 +180,7 @@
       padding: 0px 0px 0px 0px
       min-width: 25px
       max-width: 25px
-      margin-left: 30px
+      margin-left: 40px
 
       i.material-icons
         font-size: 20px
@@ -198,7 +199,7 @@
         font-weight: 500
         display: inline-block
         text-align: left
-        width: 180px
+        width: 175px
 
     .badge__badge.primary, .v-badge__badge.primary
       background-color: $app-button-color !important
