@@ -668,18 +668,18 @@
   </v-card>
 
 
-  <v-dialog v-model="showEditFilter" max-width="650">
+  <v-dialog v-model="showEditFilter" persistent max-width="650">
    
 
       <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
-        <v-card-title style="margin-left:20px" class="headline">Edit Filter</v-card-title>
+        <v-card-title style="margin-left:20px" class="headline">Edit {{ currentFilter.title }}  Filter</v-card-title>
         <filter-settings
           ref="currentFilterSettingRef"
           v-if="currentFilter && currentFilter.name != 'coverage'"
           :filterModel="cohortModel.filterModel"
           :filter="currentFilter"
           @apply-filter="onApplyFilter"
-          @remove-filter="onRemoveFilter">
+          @cancel-filter="onCancelFilter">
         </filter-settings>
 
       </v-card>
@@ -803,6 +803,11 @@ export default {
       self.showEditFilter = false;
       self.currentFilter = null;
       self.$emit("filter-settings-applied");
+    },
+    onCancelFilter: function() {
+      let self = this;
+      self.showEditFilter = false;
+      self.currentFilter = null;
     },
     onRemoveFilter: function(geneList) {
       let self = this;
