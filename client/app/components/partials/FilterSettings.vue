@@ -294,9 +294,10 @@ export default {
     init: function() {
       let self = this;
 
-      let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.key];
       if (flagCriteria == null) {
         flagCriteria = {};
+        flagCriteria.key = this.filter.key;
         flagCriteria.custom = true;
         flagCriteria.active = false;
         flagCriteria.name = this.filter.display;
@@ -308,9 +309,10 @@ export default {
         flagCriteria.inheritance = null;
         flagCriteria.zygosity = null;
         flagCriteria.genotypeDepth = null;
-        this.filterModel.flagCriteria[this.filter.name] = flagCriteria;
+        this.filterModel.flagCriteria[this.filter.key] = flagCriteria;
       }
       this.name                      = flagCriteria.name;
+      this.key                       = flagCriteria.key;
       this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
       this.minRevel                  = flagCriteria.minRevel;
       this.selectedClinvarCategories = flagCriteria.clinvar;
@@ -328,7 +330,7 @@ export default {
 
     },
     apply: function() {
-      let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.key];
 
       flagCriteria.name             = this.name;
       if (flagCriteria.custom) {
@@ -350,8 +352,8 @@ export default {
 
     },
     remove: function() {
-      delete this.filterModel.flagCriteria[this.filter.name]
-      this.$emit("remove-filter", this.filter.name)
+      delete this.filterModel.flagCriteria[this.filter.key]
+      this.$emit("remove-filter", this.filter.key)
     },
     onChangeName: function() {
       this.isDirty = true;

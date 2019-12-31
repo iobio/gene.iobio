@@ -2573,7 +2573,9 @@ export default {
         self.sendFlaggedVariantToClin(variant);
       }  
       
-      self.promiseUpdateAnalysisVariant(variant);
+      if (self.launchedFromHub) {
+        self.promiseUpdateAnalysisVariant(variant);
+      }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()

@@ -18,27 +18,27 @@
 
 
 #show-notes-button
-  min-width: 20px
-  margin: 0px
+  margin: 0px 0px 0px 0px
   padding: 0px
-  height: auto
-  font-size: 13px
+  min-width: 25px
+  max-height: 25px
+  padding-right: 5px
+  padding-left: 5px
   margin-top: 15px
   margin-left: 2px
 
-
   .btn__content, .v-btn__content
-    padding: 0px
-    margin: 0px
-    color: $text-color !important
-    padding-left: 8px
-    padding-right: 10px
+    padding-left: 0px
+    padding-right: 0px
+    color: $link-color
+    font-size: 13px
+    font-weight: 500
 
-    .material-icons
+    i.material-icons
       font-size: 22px
-      color: $text-color
+      color: $link-color
       vertical-align: top
-      color: $text-color
+      padding-right: 1px
 
 
 </style>
@@ -52,15 +52,14 @@
 
       <v-btn id="show-notes-button"
        v-if="sourceNotes == ''"
-       small
-       raised
+       flat
        slot="activator"
       >
 
         <v-icon >
           add
         </v-icon>
-        Add note
+        New note
       </v-btn>
 
 

@@ -8,6 +8,27 @@
   padding-bottom: 20px
   background-color: white
 
+  #add-filter-button
+    margin: 0px 0px 0px 0px
+    padding: 0px
+    min-width: 25px
+    max-height: 25px
+    padding-right: 5px
+    padding-left: 5px
+
+    .btn__content, .v-btn__content
+      padding-left: 0px
+      padding-right: 0px
+      color: $link-color
+      font-size: 13px
+      font-weight: 500
+
+      i.material-icons
+        font-size: 20px
+        color: $link-color
+        vertical-align: top
+        padding-right: 3px
+
   &.v-card
     box-shadow: none
     -webkit-box-shadow: none
@@ -153,9 +174,9 @@
   .expansion-panel__container, .v-expansion-panel__container
     border-top: none
 
-    .edit-filter-button
+    .edit-filter-button, .remove-filter-button
       margin: 0px 0px 0px 0px
-      padding: 0px 8px 0px 8px
+      padding: 0px 0px 0px 0px
       min-width: 25px
       max-width: 25px
       margin-left: 30px
@@ -163,6 +184,9 @@
       i.material-icons
         font-size: 20px
         color: $app-button-color
+
+    .remove-filter-button
+      margin-left: 0px
 
     .badge, .v-badge
       background-color: transparent
@@ -418,6 +442,10 @@
 
     <div class="variant-toolbar" >
 
+      <v-btn id="add-filter-button" @click="onNewFilter" flat>
+        <v-icon>add</v-icon>
+        New filter
+      </v-btn>
 
       <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
@@ -453,10 +481,13 @@
               <span class="filter-label">{{ geneList.label }}</span>
             </v-badge>
 
-            <v-btn flat @click="onEditFilter(geneList)" class="edit-filter-button">
+            <v-btn v-if="geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
               <v-icon>create</v-icon>
             </v-btn>
 
+            <v-btn v-if="geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
+              <v-icon>delete</v-icon>
+            </v-btn>
           </span>
 
 
@@ -651,16 +682,6 @@
           @remove-filter="onRemoveFilter">
         </filter-settings>
 
-<!--
-        <filter-settings-coverage
-          v-if="geneList.filter.name == 'coverage'"
-          v-show="currentFilter && currentFilter.name == geneList.filter.name"
-          ref="coverageFilterSettingsRef"
-          :filterModel="cohortModel.filterModel"
-          :filter="geneList.filter"
-           @apply-filter="onApplyFilter">
-        </filter-settings-coverage>
-      -->
       </v-card>
 
 
@@ -737,12 +758,11 @@ export default {
       var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters);
       self.geneLists = filters.map(function(filterObject, idx) {
         self.variantCount += filterObject.variantCount;
-        let theFilter = $.extend({}, filterObject.filter);
-        theFilter.name = filterObject.key;
+        filterObject.filter.key = filterObject.key;
         return {
           name:  filterObject.key,
           label: filterObject.filter.title,
-          filter: theFilter,
+          filter: filterObject.filter,
           show:  (filterObject.filter.active
                   && filterObject.filter.title != 'Reviewed' 
                   && filterObject.filter.title != 'Not found' 
@@ -784,13 +804,62 @@ export default {
       self.currentFilter = null;
       self.$emit("filter-settings-applied");
     },
-    onRemoveFilter: function(filterName) {
+    onRemoveFilter: function(geneList) {
       let self = this;
+
+      delete self.cohortModel.filterModel.flagCriteria[geneList.filter.key]
+      self.$emit("filter-settings-applied");
+
       self.showEditFilter = false;
       self.currentFilter = null;
-      self.$emit("filter-settings-applied");
     },
+    onNewFilter: function() {
+      let self = this;
+      let nonCustomCount = self.geneLists.filter(function(geneList) {
+        return !geneList.filter.custom;
+      }).length;
 
+      let newFilter = {
+          name: 'custom-filter-' + (self.geneLists.length - nonCustomCount),
+          display: 'custom',
+          active: true,
+          custom: true,
+          showTooltip: false,
+          tooltip: '',
+          showEdit: true,
+          tooltip: ''
+      };
+      let newGeneList =  {
+          name:  newFilter.name,
+          label: newFilter.name,
+          filter: newFilter,
+          show: true,
+          genes: [],
+          variantCount: 0,
+          expand: true
+      }
+
+      self.currentFilter = newFilter;
+
+      let flagCriteria = {};
+      flagCriteria.custom = true;
+      flagCriteria.active = false;
+      flagCriteria.name = newFilter.name;
+      flagCriteria.maxAf = null;
+      flagCriteria.minRevel = null;
+      flagCriteria.clinvar = null;
+      flagCriteria.impact = null;
+      flagCriteria.consequence = null;
+      flagCriteria.inheritance = null;
+      flagCriteria.zygosity = null;
+      flagCriteria.genotypeDepth = null;
+      self.cohortModel.filterModel.flagCriteria[newFilter.name] = flagCriteria;
+
+
+      self.geneLists.push(newGeneList);
+      self.onEditFilter(newGeneList);
+      self.$emit("filter-settings-applied")
+    },
 
     coord: function(flaggedGene, variant) {
       return this.globalApp.utility.stripRefName(flaggedGene.gene.chr) + ":" + variant.start + " " + variant.ref + ">" + variant.alt;
