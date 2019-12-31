@@ -21,12 +21,7 @@
 
       <v-layout row wrap class="filter-coverage-form" >
 
-        <v-flex  xs12 class="mb-3" >
-          <v-spacer></v-spacer>
-          <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
-            Apply
-          </v-btn>
-        </v-flex>
+
 
         <v-flex  xs3 class="coverage-threshold mb-3 pr-4" >
             <v-text-field label="Min"  suffix="X" v-model="minCoverage" hide-details>
@@ -39,6 +34,13 @@
         <v-flex  xs3 class="coverage-threshold mb-3" >
             <v-text-field label="Median"  suffix="X" v-model="medianCoverage" hide-details>
             </v-text-field>
+        </v-flex>
+
+        <v-flex  style="display:flex" xs12 class="mt-3 mb-3" >
+          <v-spacer></v-spacer>
+          <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
+            Apply
+          </v-btn>
         </v-flex>
 
       </v-layout>

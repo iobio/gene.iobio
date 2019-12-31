@@ -161,11 +161,20 @@ nav.toolbar, nav.v-toolbar
   #more-menu-button
     padding: 0px
 
-  #show-filters-button
+  #coverage-settings-button
     font-size: 16px
 
     .v-btn__content
       padding-top: 2px
+
+    .v-badge__badge
+      color: white !important
+      background-color: $coverage-problem-color !important
+      right: -14px
+      height: 20px
+      width: 20px
+      font-size: 13px
+      font-weight: 500
 
   .toolbar__content
     margin-top: 2px
@@ -309,8 +318,8 @@ nav.toolbar, nav.v-toolbar
 
 
   i.material-icons
-    margin-right: 2px
     color:  $nav-text-color !important
+    margin-bottom: 3px
 
   .toolbar__title
     font-size: 18px
@@ -477,9 +486,17 @@ nav.toolbar, nav.v-toolbar
 
 
 
-      <v-btn id="show-filters-button"  @click="onShowFilters" flat>
-         <v-icon>filter_list</v-icon>
-         Filters
+
+      <v-btn v-if="cohortModel.hasAlignments()" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
+        <v-badge right  >
+          <v-icon>bar_chart</v-icon>
+          <span style="font-size:15px">
+            Assess coverage
+          </span>
+          <v-icon class="gene-coverage-problem" style="margin-left:7px" v-if="badgeCounts && badgeCounts.coverage > 0">trending_down</v-icon>
+          <span v-if="badgeCounts && badgeCounts.coverage"
+            slot="badge">{{ badgeCounts.coverage }}</span>
+        </v-badge>
       </v-btn>
       <v-spacer></v-spacer>
 
@@ -508,7 +525,7 @@ nav.toolbar, nav.v-toolbar
         <genes-menu
          ref="genesMenuRef"
          v-if="!launchedFromClin && !isEduMode && !isBasicMode"
-         :buttonIcon="`edit`"
+         :buttonIcon="`arrow_drop_down_circle`"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
@@ -964,6 +981,7 @@ import GenesPanel          from '../partials/GenesPanel.vue'
 import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
 import ImportVariants      from '../partials/ImportVariants.vue'
 import ExportVariants      from '../partials/ExportVariants.vue'
+import FilterIcon          from '../partials/FilterIcon.vue'
 
 export default {
   name: 'navigation',
@@ -976,7 +994,8 @@ export default {
     LegendPanel,
     PhenotypeSearch,
     ImportVariants,
-    ExportVariants
+    ExportVariants,
+    FilterIcon
   },
   props: {
     isEduMode: null,
@@ -1003,7 +1022,8 @@ export default {
     interpretationMap: null,
     lastPhenotypeTermEntered: null,
     toClickVariant: null,
-    variantSetCounts: null
+    variantSetCounts: null,
+    badgeCounts: null
   },
   data () {
     let self = this;
@@ -1162,8 +1182,8 @@ export default {
     onShowLegend: function() {
       this.showLegend = true;
     },
-    onShowFilters: function() {
-      this.$emit('show-filters', true)
+    onShowCoverageThreshold: function() {
+      this.$emit('show-coverage-threshold', true)
     },
     onShowOptions: function() {
       this.showOptions = true;

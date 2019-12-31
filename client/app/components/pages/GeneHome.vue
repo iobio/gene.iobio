@@ -174,6 +174,7 @@ main.content.clin, main.v-content.clin
       :interpretationMap="interpretationMap"
       :toClickVariant="toClickVariant"
       :variantSetCounts="variantSetCounts"
+      :badgeCounts="badgeCounts"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -193,11 +194,10 @@ main.content.clin, main.v-content.clin
       @remove-gene="onRemoveGene"
       @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
       @show-known-variants="onShowKnownVariantsCard"
-      @show-filters="onShowFilters"
+      @show-coverage-threshold="onShowCoverageThreshold"
       @analyze-all="onAnalyzeAll"
       @call-variants="callVariants"
       @filter-settings-applied="onFilterSettingsApplied"
-      @filter-settings-closed="onFilterSettingsClose"
     >
     </navigation>
 
@@ -270,9 +270,6 @@ main.content.clin, main.v-content.clin
          @analyze-all="onAnalyzeAll"
          @call-variants="callVariants"
          @sort-genes="onSortGenes"
-         @filter-selected="onFilterSelected"
-         @filter-settings-applied="onFilterSettingsApplied"
-         @filter-settings-closed="onFilterSettingsClose"
          @apply-genes="onApplyGenes"
          @stop-analysis="onStopAnalysis"
          @show-known-variants="onShowKnownVariantsCard"
@@ -346,7 +343,7 @@ main.content.clin, main.v-content.clin
         @sfari-variants-filter-change="onSfariVariantsFilterChange"
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
-        @show-coverage-cutoffs="showCoverageCutoffs = true;showFilters = true"
+        @show-coverage-cutoffs="showCoverageCutoffs = true;showCoverageThreshold = true"
         @show-pileup-for-variant="onShowPileupForVariant"
         >
         </variant-all-card>
@@ -519,7 +516,7 @@ main.content.clin, main.v-content.clin
         @sfari-variants-filter-change="onSfariVariantsFilterChange"
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
-        @show-coverage-cutoffs="showCoverageCutoffs = true;showFilters = true"
+        @show-coverage-cutoffs="showCoverageCutoffs = true;showCoverageThreshold = true"
         @show-pileup-for-variant="onShowPileupForVariant"
         >
         </variant-card>
@@ -570,22 +567,13 @@ main.content.clin, main.v-content.clin
     </save-analysis-popup>
 
 
-    <v-dialog v-model="showFilters" persistent max-width="650">
-      <filter-card
-       ref="filterCardRef"
+    <v-dialog v-model="showCoverageThreshold" persistent max-width="650">
+      <coverage-threshold-card
        v-if="geneModel"
-       :geneModel="geneModel"
-       :isFullAnalysis="isFullAnalysis"
-       :launchedFromClin="launchedFromClin"
-       :geneNames="geneModel.sortedGeneNames"
-       :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
-       :isLoaded="cohortModel && cohortModel.isLoaded"
-       :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
        :filterModel="cohortModel.filterModel"
-       :showCoverageCutoffs="showCoverageCutoffs"
-       @filter-settings-applied="onFilterSettingsApplied"
-       @filter-settings-closed="onFilterSettingsClose">
-     </filter-card>
+       @coverage-threshold-applied="onCoverageThresholdApplied"
+       @coverage-threshold-closed="onCoverageThresholdClose">
+     </coverage-threshold-card>
 
 
     </v-dialog>
@@ -607,13 +595,13 @@ import VariantDetailCard  from  '../viz/VariantDetailCard.vue'
 import VariantInspectCard from  '../viz/VariantInspectCard.vue'
 import VariantAssessment  from  "../partials/VariantAssessment.vue"
 
-import GenesCard          from  '../viz/GenesCard.vue'
-import FilterCard         from '../viz/FilterCard.vue'
-import GeneVariantsCard   from  '../viz/GeneVariantsCard.vue'
-import FeatureMatrixCard  from  '../viz/FeatureMatrixCard.vue'
-import VariantCard        from  '../viz/VariantCard.vue'
-import VariantAllCard     from  '../viz/VariantAllCard.vue'
-import AppTour            from  '../viz/AppTour.vue'
+import GenesCard             from '../viz/GenesCard.vue'
+import CoverageThresholdCard from '../viz/CoverageThresholdCard.vue'
+import GeneVariantsCard      from '../viz/GeneVariantsCard.vue'
+import FeatureMatrixCard     from '../viz/FeatureMatrixCard.vue'
+import VariantCard           from '../viz/VariantCard.vue'
+import VariantAllCard        from '../viz/VariantAllCard.vue'
+import AppTour               from '../viz/AppTour.vue'
 
 import HubSession         from  '../../models/HubSession.js'
 import HubSessionDeprecated from  '../../models/HubSessionDeprecated.js'
@@ -667,7 +655,7 @@ export default {
       SaveButton,
       SaveAnalysisPopup,
       pileup: VuePileup,
-      FilterCard,
+      CoverageThresholdCard,
       OptionalTracksCard,
       VariantAssessment,
       VariantAllCard
@@ -727,7 +715,7 @@ export default {
       clinPersistCache: true,
       analysis: null,
       showSaveModal: false,
-      showFilters: false,
+      showCoverageThreshold: false,
 
       hubToIobioSources: {
         "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
@@ -791,6 +779,8 @@ export default {
       showFatherCard: false,
 
       inProgress: {},
+
+      badgeCounts: {coverage: 0},
 
       PROBAND: 'proband',
       activeGeneVariantTab: null,
@@ -1285,6 +1275,8 @@ export default {
             }
           }
 
+          self.refreshCoverageCounts()
+
           if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
               && theGene.gene_name == self.selectedGene.gene_name) {
             self.promiseLoadData();
@@ -1343,6 +1335,7 @@ export default {
           resolve();
         } else {
           self.geneModel.clearDangerSummaries();
+          self.refreshCoverageCounts();
           self.cacheHelper.promiseClearCache(self.cacheHelper.launchTimestampToClear)
           .then(function() {
             self.cohortModel.cacheHelper.refreshGeneBadges(function() {
@@ -2707,12 +2700,10 @@ export default {
 
       });
     },
-    onShowFilters: function(showIt) {
+    onShowCoverageThreshold: function(showIt) {
       let self = this;
-      self.showFilters = showIt;
-      if (self.$refs.filterCardRef) {
-        self.$refs.filterCardRef.refresh()
-      }
+      self.showCoverageThreshold = showIt;
+      
     },
     onShowKnownVariantsCard: function(showIt) {
       let self = this;
@@ -2761,20 +2752,52 @@ export default {
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
           self.$refs.navRef.onShowVariantsTab();
         }
+
+        self.refreshCoverageCounts();
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.onGeneSelected(self.selectedGene.gene_name);
         }
 
-        if (self.$refs.filterCardRef) {
-          self.$refs.filterCardRef.refresh()
-        }
         if (self.launchedFromClin) {
           self.onSendFiltersToClin();
         }
       })
     },
-    onFilterSettingsClose: function() {
-      this.showFilters = false;
+    refreshCoverageCounts: function() {
+      let self = this;
+      self.badgeCounts = {coverage: 0};
+
+
+      // Tally up genes that have insufficient coverage
+      if (self.geneModel.geneNames) {
+        self.geneModel.geneNames.forEach(function(geneName) {
+          var dangerSummary = self.geneModel.getDangerSummary(geneName);
+
+          if (dangerSummary) {
+            if (dangerSummary.geneCoverageProblem) {
+              self.badgeCounts.coverage++;
+            }
+          }
+        })
+      }
+    },
+    onCoverageThresholdClose: function() {
+      this.showCoverageThreshold = false;
+    },
+    onCoverageThresholdApplied: function() {
+      let self = this;
+      self.cohortModel.cacheHelper.refreshGeneBadges(function() {
+        self.showLeftPanelForGenes();      
+
+        self.refreshCoverageCounts();
+        if (self.selectedGene && self.selectedGene.gene_name) {
+          self.onGeneSelected(self.selectedGene.gene_name);
+        }
+
+        if (self.launchedFromClin) {
+          self.onSendFiltersToClin();
+        }
+      })
     },
     onLeftDrawer: function(isOpen) {
       if (!this.isEduMode) {
@@ -3107,20 +3130,14 @@ export default {
         }
 
       } else if (clinObject.type == 'show-coverage') {
-        if (self.$refs.filterCardRef && self.$refs.filterCardRef.$refs.filterBadgesRef) {
-          self.activeFilterName = 'coverage';
-          self.onAnalyzeAll();
-        }
+        self.activeFilterName = 'coverage';
+        self.onAnalyzeAll();
       } else if (clinObject.type == 'show-review' || clinObject.type == 'show-review-full') {
-        console.log("gene.iobio show-review")
-        if (self.$refs.filterCardRef) {
-          self.$refs.filterCardRef.clearFilter()
 
-          if (self.cacheHelper.analyzeAllInProgress) {
-            self.showLeftPanelForGenes();
-          } else {
-            self.showLeftPanelWhenFlaggedVariants();
-          }
+        if (self.cacheHelper.analyzeAllInProgress) {
+          self.showLeftPanelForGenes();
+        } else {
+          self.showLeftPanelWhenFlaggedVariants();
         }
       } else if (clinObject.type == 'show-tooltip') {
         if (clinObject.task.key == 'genes-menu') {
