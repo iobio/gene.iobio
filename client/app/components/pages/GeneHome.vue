@@ -1423,6 +1423,8 @@ export default {
                             self.analyzedTranscript = data.transcript;
                             resolve();
                         })
+
+                    self.refreshCoverageCounts()
                 })
                 .catch(function(error) {
                     reject(error);
