@@ -57,7 +57,7 @@
     width: calc(100% - 1px)
     padding-right: 20px
     background-color: white
-    margin-bottom: 20px
+    margin-bottom: 10px
     margin-top: 20px
 
     #mygene2-basic-title
