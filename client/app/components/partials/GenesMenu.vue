@@ -14,7 +14,6 @@ textarea#copy-paste-genes
 #show-genes-button
   min-width: 120px
   margin: 0px
-  padding: 0px
   margin-top: 10px
 
 
@@ -36,8 +35,6 @@ textarea#copy-paste-genes
     font-size: 16px
 
 #acmg-genes-button, #aclear-all-genes-button,  #apply-button
-
-  padding: 0px
   height: 30px !important
 
 #enter-genes-input, #phenotype-input
@@ -75,7 +72,7 @@ textarea#copy-paste-genes
       </v-btn>
 
 
-        <div class="full-width" style="padding:20px">
+        <div  v-if="isEduMode" class="full-width" style="padding:20px">
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
           <div style="margin-bottom:15px;margin-left:16px;">
               <phenotype-search

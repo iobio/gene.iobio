@@ -112,7 +112,7 @@
 </style>
 
 <template>
-   <v-dialog v-model="showFilesDialog" max-width="890" >
+   <v-dialog v-model="showFilesDialog" persistent max-width="890" >
       <v-card class="full-width" style="min-height:0px;max-height:670px;overflow-y:scroll">
 
 
