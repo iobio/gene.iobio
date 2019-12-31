@@ -525,7 +525,7 @@ nav.toolbar, nav.v-toolbar
         <genes-menu
          ref="genesMenuRef"
          v-if="!launchedFromClin && !isEduMode && !isBasicMode"
-         :buttonIcon="`arrow_drop_down_circle`"
+         :buttonIcon="`more_vert`"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
@@ -564,7 +564,7 @@ nav.toolbar, nav.v-toolbar
 
       <v-menu offset-y>
         <v-btn id="more-menu-button" flat slot="activator">
-          <v-icon>more_vert</v-icon>
+          <v-icon style="font-size:32px;">more_vert</v-icon>
         </v-btn>
         <v-list>
           <v-list-tile  @click="onShowFiles">

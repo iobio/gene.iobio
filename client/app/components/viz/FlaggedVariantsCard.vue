@@ -202,7 +202,7 @@
         width: 175px
 
     .badge__badge.primary, .v-badge__badge.primary
-      background-color: $app-button-color !important
+      background-color: $light-badge-color !important
       font-size: 12px
       color: white
       top: 2px
@@ -216,7 +216,7 @@
        font-weight: normal
 
       .badge__badge.primary, .v-badge__badge.primary
-        background-color: $light-badge-color !important
+        background-color: #d6d6d6 !important
 
       .edit-filter-button
         i.material-icons
