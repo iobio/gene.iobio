@@ -17,8 +17,8 @@
   #sample-label
     vertical-align: top
     display: inline-block
-    min-width: 217px
-    max-width: 217px
+    min-width: 193px
+    max-width: 193px
     padding-top: 2px
     color: $app-color
     font-size: 16px

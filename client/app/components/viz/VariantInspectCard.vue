@@ -169,7 +169,7 @@
     padding-bottom: 5px
     font-size: 16px
     padding-top: 0px
-    width: 200px
+    min-width: 180px
     display: flex
     justify-content: flex-start
 
@@ -304,10 +304,10 @@
       </variant-links-menu>
 
       <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading)"
-        style="margin-left:5px;margin-right:20px"
+        style="font-size:13px;margin-top:2px;min-width:80px;margin-left:0px;margin-right:0px"
         v-show="selectedVariantRelationship != 'known-variants'" class=" loader vcfloader" >
         <img src="../../../assets/images/wheel.gif">
-        HGVS...
+        HGVS
       </span>
 
       <variant-aliases-menu
@@ -320,28 +320,29 @@
       :info="info">
       </variant-aliases-menu>
 
-      <span v-if="selectedVariant" class="variant-header">
+      <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
 
-        <v-badge class="info" style="margin-right:10px" v-if="selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
+      <span v-if="info && info.rsId && info.rsId != ''" style="margin-top:2px" class="pr-1 mr-1">{{ info.rsId }}</span>
 
-        <app-icon
-         style="margin-right:5px;padding-top: 2px"
-         icon="zygosity" v-if="selectedVariant.zygosity"
-         :type="selectedVariant.zygosity.toLowerCase() + '-large'"
-         height="14" width="35">
-        </app-icon>
+      <app-icon
+       style="min-width:35px;margin-top:1px;margin-right:5px;padding-top: 2px;margin-right:10px"
+       icon="zygosity" v-if="selectedVariant.zygosity"
+       :type="selectedVariant.zygosity.toLowerCase() + '-large'"
+       height="14" width="35">
+      </app-icon>
+
+      <span v-if="selectedVariant" class="variant-header" style="margin-top:2px">
 
         <span style="vertical-align:top">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span style="vertical-align:top" class="pl-1">{{ coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
 
-        <span v-if="info && info.rsId && info.rsId != ''" class="pl-1">{{ info.rsId }}</span>
 
       </span>
 
 
 
-      <span class="pl-3 variant-header aa-change">{{ aminoAcidChange }}</span>
+      <span class="pl-3 variant-header aa-change" style="margin-top:2px">{{ aminoAcidChange }}</span>
 
 
 
@@ -349,7 +350,7 @@
 
       <v-spacer></v-spacer>
 
-      <div v-if="selectedVariant && !showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:10px;margin-right:10px">
+      <div v-if="selectedVariant && !showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:20px;margin-right:0px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
           <v-icon>gavel</v-icon>
           Review
