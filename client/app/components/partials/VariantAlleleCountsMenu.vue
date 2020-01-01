@@ -64,9 +64,9 @@
       margin-bottom: 10px
       margin-left: 0px
       margin-right: 0px
-      .progress-linear__bar__determinate
+      .progress-linear__bar__determinate, .v-progress-linear__bar__determinate
         background-color: $current-color !important
-      .progress-linear__background
+      .progress-linear__background, .v-progress-linear__background
         background-color: $current-color !important
         height: 20px !important
     .other-progress
@@ -76,9 +76,9 @@
       margin-bottom: 10px
       margin-left: 0px
       margin-right: 0px
-      .progress-linear__bar__determinate
+      .progress-linear__bar__determinate, .v-progress-linear__bar__determinate
         background-color: $multi-allelic-color !important
-      .progress-linear__background
+      .progress-linear__background, .v-progress-linear__background
         background-color: $multi-allelic-color !important
         height: 20px !important
 
