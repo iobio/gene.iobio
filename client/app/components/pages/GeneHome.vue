@@ -834,6 +834,10 @@ export default {
 
       variantSetCounts: {},
 
+      lastSave: null,
+      delaySave: 8000,
+ 
+
       pileupInfo: {
         // This controls how many base pairs are displayed on either side of
         // the center of the locus.
@@ -993,7 +997,7 @@ export default {
       self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp);
       self.genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
       .then(function() {
-        return self.promiseInitCache();
+        return self.promiseAddCacheHelperListeners();
       })
       .then(function() {
           return self.cacheHelper.promiseClearOlderCache();
@@ -1224,9 +1228,13 @@ export default {
               setTimeout(function() {
                 if (self.analysis.id && self.geneModel.sortedGeneNames &&
                   self.geneModel.sortedGeneNames.length < 30) {
-                  self.cacheHelper.analyzeAll(self.cohortModel);
+                  self.cacheHelper.analyzeAll(self.cohortModel, false, false);
                 }
-              }, 1000)
+              }, 5000)
+
+              setTimeout(function() {
+                self.delaySave = 500;
+              }, 2000)
 
               resolve();
 
@@ -1257,7 +1265,7 @@ export default {
       })
     },
 
-    promiseInitCache: function() {
+    promiseAddCacheHelperListeners: function() {
       let self = this;
       return new Promise(function(resolve, reject) {
         self.cacheHelper = new CacheHelper(self.globalApp, self.forceLocalStorage);
@@ -3872,14 +3880,31 @@ export default {
       self.showSaveModal = false
     },
 
-    promiseAutosaveAnalysis() {
+    promiseAutosaveAnalysis(options) {
       let self = this;
       if (self.analysis.id ) {
-        return self.promiseSaveAnalysis({notify: false});
+        if (options && options.delay) {
+          setTimeout(function() {
+            self.doDelayedAnalysisSave()
+          },2000)          
+        } else {
+          return self.promiseSaveAnalysis({notify: false});
+        }
       } else {
 
       }
 
+    },
+
+    doDelayedAnalysisSave: function() {
+      let self = this;
+      if (self.lastSave >= (Date.now() - self.delaySave)) {
+        return;
+      }
+
+      self.lastSave = Date.now();
+
+      return self.promiseSaveAnalysis({notify: false});
     },
 
 
@@ -3932,7 +3957,7 @@ export default {
         } else {
           self.analysis.payload.variants.push(exportedVariants[0]);
         }
-        return self.promiseAutosaveAnalysis();
+        return self.promiseAutosaveAnalysis({delay: true});
 
       })
     },
@@ -3941,10 +3966,16 @@ export default {
       let self = this;
 
       let getGeneName = function(variant) {
-        if (self.globalApp.utility.isObject(variant.gene)) {
+        if (variant.gene == null && variant.geneName) {
+          return variant.geneName;
+        } else if (variant.gene && self.globalApp.utility.isObject(variant.gene)) {
           return variant.gene.gene_name;
-        } else {
+        } else if (variant.gene) {
           return variant.gene;
+        } else {
+          console.log("Unable to find variant gene name ")
+          console.log(variant);
+          return "";
         }
       }
 
