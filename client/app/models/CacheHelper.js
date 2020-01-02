@@ -90,7 +90,7 @@ CacheHelper.prototype._promiseIsCached = function(geneName, analyzeCalledVariant
   })
 }
 
-CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = false) {
+CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = false, analyzeGeneCoverage = true) {
   var me = this;
   this.cohort = cohort;
 
@@ -105,10 +105,10 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
 
   if (analyzeCalledVariants && !me.cohort.freebayesSettings.visited) {
     me.cohort.freebayesSettings.showDialog(function() {
-      me._analyzeAllImpl(geneNames, analyzeCalledVariants)
+      me._analyzeAllImpl(geneNames, analyzeCalledVariants, analyzeGeneCoverage)
     })
   } else {
-    me._analyzeAllImpl(geneNames, analyzeCalledVariants)
+    me._analyzeAllImpl(geneNames, analyzeCalledVariants, analyzeGeneCoverage)
   }
 
 
