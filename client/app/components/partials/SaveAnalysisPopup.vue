@@ -67,14 +67,13 @@
               </v-flex>
 
               <v-flex class="mt-2" xs12>
-                <v-text-field
-                  multi-line
+                <v-textarea
                   rows="3"
                   :hide-details="true"
                   label="Description"
                   v-model="analysisDescription"
                 >
-                </v-text-field>
+                </v-textarea>
               </v-flex>
 
 
