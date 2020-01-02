@@ -34,11 +34,11 @@
     -webkit-box-shadow: none
 
   .gene-ranks
-    .chip
+    .chip, .v-chip
       margin-top: 0px
       margin-bottom: 2px
       margin-left: 0px
-    .chip__content
+    .chip__content, .v-chip__content
       font-size:  11px
       background-color:  $high-impact-color
       height: 16px
@@ -54,7 +54,6 @@
 
 
   .variant-toolbar
-    width: calc(100% - 1px)
     padding-right: 20px
     background-color: white
     margin-bottom: 10px
@@ -527,6 +526,20 @@
                   <div style="">
 
 
+                    <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
+
+                      <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} GTR
+                        </v-chip>
+                      </span>
+                      <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }} Phenolyzer
+                        </v-chip>
+                      </span>
+                    </div>
+
                     <div class="variant-symbols">
 
                       <span class="variant-moniker">
@@ -578,19 +591,6 @@
                       <v-badge v-if="variant.variantSet && variant.filtersPassed != variant.variantSet" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
 
 
-                    </div>
-                    <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
-
-                      <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} GTR
-                        </v-chip>
-                      </span>
-                      <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }} Phenolyzer
-                        </v-chip>
-                      </span>
                     </div>
                     <div style="line-height:12px">
                       <div  v-if="!isBasicMode && !variant.notFound"
@@ -772,7 +772,7 @@ export default {
                  || filterObject.genes.length > 0,
           genes: filterObject.genes,
           variantCount: filterObject.variantCount,
-          expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' || idx == 0 ?  true : false) : true
+          expand: true
         }
       })
       self.$emit("count-changed", self.variantCount);
