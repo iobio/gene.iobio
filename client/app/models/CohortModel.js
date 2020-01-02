@@ -2315,7 +2315,7 @@ class CohortModel {
     var promises = []
 
     importRecords.forEach( function(ir) {
-      let geneName = null;
+    
 
       // Workaround.  variant.gene sometimes an
       // object, sometimes a gene name.  Other times
@@ -2323,27 +2323,33 @@ class CohortModel {
       // of variant.gene.
       if (ir.gene == null && ir.geneName) {
         if (isObject(ir.geneName)) {
-          ir.gene = ir.geneName.gene_name
-        } 
-      } 
-
-      if (isObject(ir.gene)) {
-        geneName = ir.gene.gene_name;
-        ir.gene = ir.gene.gene_name;
+          ir.gene  = ir.geneName.gene_name
+        } else {
+          ir.gene  = ir.geneName;
+        }
       } else {
-        geneName = ir.gene;
+        if (ir.gene && isObject(ir.gene)) {
+          ir.gene  = ir.gene.gene_name;
+        } 
       }
 
-      let geneObject = me.geneModel.geneObjects[geneName];
-      if (geneObject == null || !ir.transcript || ir.transcript == '') {
-        var promise = me.geneModel.promiseGetCachedGeneObject(geneName, true)
-        .then(function() {
-          if (geneObject == null) {
-            me.geneModel.promiseAddGeneName(geneName);
-          }
-        })
-        promises.push(promise);
+      if (ir.gene == null) {
+        console.log("Bypassing import record. Unable to find gene on imported variant ")
+        console.log(ir)
+      } else {
+        let geneObject = me.geneModel.geneObjects[ir.gene];
+        if (geneObject == null || !ir.transcript || ir.transcript == '') {
+          var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true)
+          .then(function(theGeneObject) {
+            if (theGeneObject.notFound) {
+              me.geneModel.promiseAddGeneName(theGeneObject.geneName);
+            }
+          })
+          promises.push(promise);
+        }        
       }
+
+
     })
 
 

@@ -947,16 +947,17 @@ class GeneModel {
   promiseGetCachedGeneObject(geneName, resolveOnError=false) {
     var me = this;
     return new Promise( function(resolve, reject) {
-      var theGeneObject = me.geneObjects[geneName];
+      let theGeneName = geneName;
+      var theGeneObject = me.geneObjects[theGeneName];
       if (theGeneObject) {
         resolve(theGeneObject);
       } else {
-        me.promiseGetGeneObject(geneName).then(function(geneObject) {
+        me.promiseGetGeneObject(theGeneName).then(function(geneObject) {
           resolve(geneObject);
         })
         .catch(function(error) {
           if (resolveOnError) {
-            resolve(null);
+            resolve({notFound: theGeneName});
           } else {
             reject(error);
           }

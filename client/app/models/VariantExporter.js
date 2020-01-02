@@ -102,7 +102,7 @@ export default class VariantExporter {
         exportRec.chrom        = variant.chrom.indexOf("chr") == 0 ? variant.chrom : 'chr' + variant.chrom;
         exportRec.ref          = variant.ref;
         exportRec.alt          = variant.alt;
-        exportRec.gene         = variant.gene.gene_name;
+        exportRec.geneName     = variant.gene.gene_name;
         exportRec.starred      = variant.isFavorite == true ? "Y" : "";
 
         var promise = null;
@@ -323,12 +323,15 @@ export default class VariantExporter {
     var me = this;
 
     return new Promise( function(resolve, reject) {
-      me.cohort.geneModel.promiseGetCachedGeneObject(exportRec.gene).then(function(theGeneObject) {
+      me.cohort.geneModel.promiseGetCachedGeneObject(exportRec.geneName).then(function(theGeneObject) {
         var theTranscript = null;
         if (theGeneObject == null || theGeneObject.transcripts == null) {
           var msg = "Unable to export variant.  Invalid gene. " + exportRec.gene;
           console.log(msg);
           reject(msg);
+        }
+        if (format == 'json') {
+          exportRec.gene = theGeneObject;
         }
         if (variant.transcript && typeof variant == 'object') {
           theTranscript = variant.transcript;
