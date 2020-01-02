@@ -3081,8 +3081,12 @@ export default {
       }
       this.clinIobioUrl = event.origin;
       this.launchedFromClin = true;
-      self.filterModel.isFullAnalysis = true;
-      self.geneModel.isFullAnalysis = true;
+      if (self.filterModel) {
+        self.filterModel.isFullAnalysis = true;
+      } 
+      if (self.geneModel) {
+        self.geneModel.isFullAnalysis = true;
+      }
 
       var clinObject = JSON.parse(event.data);
 
