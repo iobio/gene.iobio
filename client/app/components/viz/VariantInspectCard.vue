@@ -320,13 +320,13 @@
       :info="info">
       </variant-aliases-menu>
 
-      <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
+      <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
 
       <span v-if="info && info.rsId && info.rsId != ''" style="margin-top:2px" class="pr-1 mr-1">{{ info.rsId }}</span>
 
       <app-icon
        style="min-width:35px;margin-top:1px;margin-right:5px;padding-top: 2px;margin-right:10px"
-       icon="zygosity" v-if="selectedVariant.zygosity"
+       icon="zygosity" v-if="selectedVariant && selectedVariant.zygosity"
        :type="selectedVariant.zygosity.toLowerCase() + '-large'"
        height="14" width="35">
       </app-icon>
