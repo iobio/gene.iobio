@@ -279,7 +279,7 @@ export default class HubSession {
           return clientApp.display_name == 'Gene.iobio';
         })
         if (matchingApp.length > 0) {
-          console.log("client_appplication_id = " + matchingApp[0].id)
+          console.log("client_application_id = " + matchingApp[0].id)
           self.client_application_id = matchingApp[0].id;
           resolve();
         } else {
