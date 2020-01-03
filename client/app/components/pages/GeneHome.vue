@@ -1273,19 +1273,12 @@ export default {
         self.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
 
 
-          if (self.launchedFromClin || self.launchedFromHub) {
+          if (self.persistAnalysis()) {
             let flaggedVariantsForGene = self.cohortModel.getFlaggedVariantsForGene(theGene.gene_name);
             if (flaggedVariantsForGene.length > 0) {
               flaggedVariantsForGene.forEach(function(flaggedVariant) {
-                if (self.launchedFromClin) {
-                  self.sendFlaggedVariantToClin(flaggedVariant);
-                } else if (self.launchedFromHub) {
-                  self.promiseUpdateAnalysisVariant(flaggedVariant);
-                }
+                self.promiseUpdateAnalysisVariant(flaggedVariant);
               })
-            }
-            if (self.launchedFromClin) {
-              self.sendCacheToClin(theGene.gene_name);
             }
           }
 
@@ -2097,6 +2090,10 @@ export default {
 
     },
 
+    persistAnalysis: function() {
+      return this.launchedFromClin || this.launchedFromHub;
+    },
+
     removeGeneImpl: function(geneName) {
       let self = this;
       let flaggedVariantsToDelete = self.cohortModel.getFlaggedVariantsForGene(geneName);
@@ -2106,13 +2103,9 @@ export default {
       self.clearFilter();
       self.cacheHelper.clearCacheForGene(geneName);
       self.onSendGenesToClin();
-      if (self.launchedFromClin && flaggedVariantsToDelete.length > 0) {
-        flaggedVariantsToDelete.forEach(function(v) {
-          self.sendFlaggedVariantToClin(v, 'delete');
-        })
-      } else if (self.launchedFromHub && flaggedVariantsToDelete.length > 0) {
+      if (self.persistAnalysis() && flaggedVariantsToDelete.length > 0) {
         self.promiseDeleteAnalysisVariants( flaggedVariantsToDelete)
-      } else if (self.launchedFromHub) {
+      } else if (self.persistAnalysis()) {
         self.promiseUpdateAnalysisGenesData();
       }
       var newGeneToSelect = null;
@@ -2490,9 +2483,7 @@ export default {
         self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
       })
 
-      if (self.launchedFromClin) {
-        self.sendFlaggedVariantToClin(variant);
-      } else if (self.launchedFromHub) {
+      if (self.persistAnalysis()) {
         self.promiseUpdateAnalysisVariant(variant);
       }
 
@@ -2515,9 +2506,7 @@ export default {
         self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
       })
 
-      if (self.launchedFromClin) {
-        self.sendFlaggedVariantToClin(variant, 'delete');
-      } else if (self.launchedFromHub) {
+      if (self.persistAnalysis()) {
         self.promiseDeleteAnalysisVariants([variant]);
       }
 
@@ -2541,9 +2530,7 @@ export default {
       }
 
       // Set the flagged variant notes and interpretation
-      if (self.launchedFromClin) {
-        self.sendFlaggedVariantToClin(variant);
-      } else if (self.launchedFromHub) {
+      if (self.persistAnalysis()) {
         self.promiseUpdateAnalysisVariant(variant);
       }
       if (variant == self.selectedVariant) {
@@ -2578,11 +2565,7 @@ export default {
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
 
-      if (self.launchedFromClin) {
-        self.sendFlaggedVariantToClin(variant);
-      }  
-      
-      if (self.launchedFromHub) {
+      if (self.persistAnalysis()) {
         self.promiseUpdateAnalysisVariant(variant);
       }
 
@@ -2661,9 +2644,7 @@ export default {
                   flaggedVariant.notes = notes;
                   flaggedVariant.interpretation = interpretation;
                   flaggedVariant.isProxy = false;
-                  if (self.launchedFromClin) {
-                    self.sendFlaggedVariantToClin(flaggedVariant);
-                  } else if (self.launchedFromHub) {
+                  if (self.persistAnalysis()) {
                     self.promiseUpdateAnalysisVariant(flaggedVariant);
                   }
 
@@ -3102,12 +3083,15 @@ export default {
       } else if (clinObject.type == 'set-data') {
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
           self.$set(self, "isFullAnalysis", true);
-          self.filterModel.isFullAnalysis = true;
-          self.geneModel.isFullAnalysis = true;
+          if (self.filterModel) {
+            self.filterModel.isFullAnalysis = true;
+          }
+          if (self.geneModel) {
+            self.geneModel.isFullAnalysis = true;
+          }
 
           console.log("gene.iobio set-data cohort model not yet loaded")
           self.init(function() {
-
             self.analysis = clinObject.analysis;
             self.user     = clinObject.user;
             self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
@@ -3215,93 +3199,20 @@ export default {
       }
     },
 
-    sendFlaggedVariantToClin: function(variantToReplace, action="update", callback) {
+    sendAnalysisToClin: function() {
       let self = this;
-
-      self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
-      self.cohortModel.promiseExportFlaggedVariant('json', variantToReplace)
-      .then(function(exportedVariants) {
-
-        if (exportedVariants && exportedVariants.length > 0) {
-          let matchingIdx = self.findAnalysisVariantIndex(exportedVariants[0]);
-          if (matchingIdx != -1) {
-            self.analysis.payload.variants[matchingIdx] = exportedVariants[0];
-          } else {
-            self.analysis.payload.variants.push(exportedVariants[0]);
-          }
-          var msgObject = {
-                success:  true,
-                type:     'save-variants',
-                sender:   'gene.iobio.io',
-                action:   action,
-                app:      'genefull',
-                variants: exportedVariants};
-          window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
-
-        }
-
-        if (callback) {
-          callback()
-        }
-      })
-    },
-
-
-
-    sendFlaggedVariantToClinOld: function(variant, action="update", callback) {
-      let self = this;
-
       if (this.launchedFromClin) {
-        self.cohortModel.promiseExportFlaggedVariant('json', variant)
-        .then(function(data) {
-          var msgObject = {
-              success:  true,
-              type:     'save-variants',
-              sender:   'gene.iobio.io',
-              action:   action,
-              app:      'genefull',
-              variants: data};
-          window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
-
-          if (callback) {
-            callback();
-          }
-        })
-        .catch(function(error) {
-          alertify.alert("Error", error);
-        })
+        var msgObject = {
+          success: true,
+          type: 'save-analysis',
+          sender: 'gene.iobio.io',
+          analysis: self.analysis
+        };
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
       }
 
     },
 
-    sendNextImportedVariantToClin: function(importedVariants, callback) {
-
-      let self = this;
-      if (importedVariants.length > 0) {
-        var importedVariant = importedVariants.splice(0,1);
-        self.cohortModel.promiseExportFlaggedVariant('json', importedVariant[0])
-          .then(function(data) {
-            var msgObject = {
-                success:  true,
-                type:     'save-variants',
-                sender:   'gene.iobio.io',
-                action:   'update',
-                app:      'genefull',
-                variants: data};
-            //window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
-            self.sendNextImportedVariantToClin(importedVariants, callback);
-          })
-          .catch(function() {
-            console.log("Unable to send imported variant to clin ");
-            console.log(importedVariant);
-            self.sendNextImportedVariantToClin(importedVariants, callback);
-          })
-      } else {
-        if (callback) {
-          callback();
-        }
-      }
-    },
 
     onSendFiltersToClin: function() {
       let self = this;
@@ -3313,36 +3224,6 @@ export default {
           filters: self.filterModel.flagCriteria
         };
         window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
-      }
-    },
-
-    sendCacheToClin: function(geneName) {
-      let self = this;
-      if (this.launchedFromClin) {
-
-        // If cache should not persist, bypass this functionality
-        if (!self.clinPersistCache) {
-          return;
-        }
-
-        console.log(" **** getting cache from clin **** ");
-
-        self.cacheHelper.promiseGetClinCacheItems(geneName, ['vcfData', 'dangerSummary', 'geneCoverage'])
-        .then(function(cacheItems) {
-          var msgObject = {
-            'success':       true,
-            'type':          'save-cache',
-            'sender':        'gene.iobio.io',
-            'app':           'genefull',
-            'cache':         cacheItems
-          };
-          window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
-        })
-        .catch(function(error) {
-          var msg = "An error occurred in sendCacheToClin: " + error;
-          console.log(msg);
-        });
-
       }
     },
 
@@ -3643,25 +3524,9 @@ export default {
           self.clinSetData.isImported = false;
 
 
-
-          self.importVariantData(self.clinSetData.variantData,
-          function(importedVariants, importedGenes) {
-
-            let theGenes = self.clinSetData.genes.slice();
-            importedGenes.forEach(function(geneName) {
-              if (theGenes.indexOf(geneName) == -1) {
-                theGenes.push(geneName);
-              }
-            })
-
-            self.onApplyGenes( theGenes.join(" "),
+          self.onApplyGenes( self.clinSetData.analysis.payload.genes.join(" "),
             {isFromClin: true, replace: true, warnOnDup: false, phenotypes: self.clinSetData.phenotypes.join(",")},
-            function() {
-
-              if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
-                self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
-              }
-              self.showLeftPanelForGenes();
+          function() {
 
               if (self.clinSetData.variants.length > 0) {
                 self.cohortModel.importFlaggedVariants('json', self.clinSetData.variants,
@@ -3703,8 +3568,8 @@ export default {
                 })
 
               }
-            })
           })
+          
 
         } else {
           self.cacheHelper.promiseGetGenesToAnalyze()
@@ -3728,62 +3593,6 @@ export default {
 
       })
     },
-
-    importVariantData: function(variantData, callback) {
-      let self = this;
-      let theImportedGenes = [];
-      let theImportedVariants = [];
-
-      if (self.clinSetData.variants.length > 0) {
-        if (callback) {
-          self.clinSetData.variants.forEach(function(v) {
-            if (theImportedGenes.indexOf(v.gene) == -1) {
-              theImportedGenes.push(v.gene);
-            }
-          })
-          callback([], theImportedGenes)
-        }
-      } else {
-        if (variantData) {
-          self.cohortModel.importFlaggedVariants('gemini', variantData,
-          function() {
-
-            // clone the imported variants array
-            theImportedVariants = self.cohortModel.flaggedVariants.slice();
-
-            theImportedVariants.forEach(function(v) {
-              if (theImportedGenes.indexOf(v.geneName) == -1) {
-                theImportedGenes.push(v.geneName);
-              }
-            })
-
-            // sequentially send each imported variant to clin to be saved
-            self.sendNextImportedVariantToClin(theImportedVariants, function() {
-
-            });
-
-
-            if (callback) {
-              callback(theImportedVariants, theImportedGenes);
-            }
-
-          },
-          function() {
-
-
-
-          })
-        } else {
-          callback(theImportedGenes, theImportedVariants);
-        }
-
-
-      }
-
-
-
-    },
-
 
     promiseGetAnalysis: function(idProject, idAnalysis, options={}) {
       let self = this;
@@ -3844,21 +3653,26 @@ export default {
       return new Promise(function(resolve, reject) {
         if (self.analysis.id ) {
 
-          self.hubSession.promiseUpdateAnalysisTitle(self.analysis)
-          .then(function(analysis) {
-            self.showSaveModal = false;
-            return self.hubSession.promiseUpdateAnalysis(self.analysis)
-          })
-          .then(function(analysis) {
-            self.onShowSnackbar( {message: 'Analysis  \'' + self.analysis.title + '\'  saved.', timeout: 2000, bottom: true, left: true});
-            self.analysis = analysis;
-            resolve();
-          })
-          .catch(function(error) {
-            self.onShowSnackbar( {message: 'Unable to update analysis.', timeout: 6000});
-            reject(error);
-          })
+          if (self.launchedFromClin) {
+            self.sendAnalysisToClin();
+          } else {
+            self.hubSession.promiseUpdateAnalysisTitle(self.analysis)
+            .then(function(analysis) {
+              self.showSaveModal = false;
+              return self.hubSession.promiseUpdateAnalysis(self.analysis)
+            })
+            .then(function(analysis) {
 
+              self.onShowSnackbar( {message: 'Analysis  \'' + self.analysis.title + '\'  saved.', timeout: 2000, bottom: true, left: true});
+              self.analysis = analysis;
+              resolve();
+            })
+            .catch(function(error) {
+              self.onShowSnackbar( {message: 'Unable to update analysis.', timeout: 6000});
+              reject(error);
+            })
+
+          }
         } else {
 
           self.hubSession.promiseAddAnalysis(self.analysis.project_id, self.analysis)
