@@ -77,14 +77,13 @@
               </v-flex>
 
 
-              <v-flex class="text-xs-right mt-4" xs12>
-                <v-btn class="primary" @click="onSave">{{ analysis.id ? 'Apply' : 'Save' }}</v-btn>
+              <v-flex class="mt-4" style="display:flex;justify-content:flex-end" xs12>
+                <v-btn class="primary mr-2" @click="onSave">{{ analysis.id ? 'Apply' : 'Save' }}</v-btn>
                 <v-btn @click="onClose">Cancel</v-btn>
               </v-flex>
 
           </v-layout>
-        <v-card-text>
-        </v-card-text>
+
       </v-card>
     </v-dialog>
 
