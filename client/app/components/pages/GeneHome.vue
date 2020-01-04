@@ -1188,8 +1188,7 @@ export default {
               })
             }
           }
-        })
-        .then(function() {
+
           self.models = self.cohortModel.sampleModels;
           var genePromises = []
           if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
@@ -1213,11 +1212,6 @@ export default {
 
             self.cohortModel.importFlaggedVariants('json', self.analysis.payload.variants,
             function() {
-
-
-              
-                
-
             },
             function() {
               
@@ -3101,6 +3095,10 @@ export default {
             self.promiseInitClin(clinObject)
             .then(function() {
               console.log("gene.iobio set-data finished promiseInitClin")
+              self.promiseImportClin()
+              .then(function() {
+
+              })
             })
           })
         } else {
@@ -3110,6 +3108,10 @@ export default {
           self.promiseInitClin(clinObject).
           then(function() {
               console.log("gene.iobio set-data finished promiseInitClin")
+              self.promiseImportClin()
+              .then(function() {
+                
+              })
           })
         }
       } else if (clinObject.type == 'show') {
@@ -3128,7 +3130,7 @@ export default {
             self.showLeftPanelWhenFlaggedVariants();
           }
 
-          self.promiseShowClin();
+          //self.promiseShowClin();
         } else {
           console.log("** bypassing showData cohort NOT loaded **");
         }
@@ -3349,7 +3351,7 @@ export default {
 
         })
         .then(function() {
-          return self.promiseShowClin();
+          //return self.promiseShowClin();
         })
         .then(function() {
 
@@ -3385,20 +3387,6 @@ export default {
     },
 
 
-
-    promiseShowClin: function() {
-      let self = this;
-
-      return new Promise(function(resolve, reject) {
-        self.promiseImportClin()
-        .then(function() {
-          resolve();
-        })
-        .catch(function(error) {
-          reject(error);
-        })
-      })
-    },
 
 
     applyGenesClin: function(clinObject) {
@@ -3524,50 +3512,69 @@ export default {
           self.clinSetData.isImported = false;
 
 
-          self.onApplyGenes( self.clinSetData.analysis.payload.genes.join(" "),
-            {isFromClin: true, replace: true, warnOnDup: false, phenotypes: self.clinSetData.phenotypes.join(",")},
-          function() {
 
-              if (self.clinSetData.variants.length > 0) {
-                self.cohortModel.importFlaggedVariants('json', self.clinSetData.variants,
-                function() {
+          var genePromises = []
+          if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
+            self.analysis.payload.genes.forEach(function(geneName) {
+              genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+            })
+          } else {
+            genePromises.push(Promise.resolve())
+          }
 
+          Promise.all(genePromises)
+          .then(function() {
 
-
-
-                  self.clinSetData.isImported = true;
-
-
-
-                  resolve();
-
-
-                },
-                function() {
-                  self.clinSetData.importInProgress = false;
-                  // When analyzeSubset and variants have been cached
-                  self.cacheHelper.analyzeAll(self.cohortModel, false);
-                  self.sendConfirmSetDataToClin();
-
-                })
-              } else {
-
-                self.cohortModel.promiseMergeImportedVariants(importedVariants)
-                .then(function() {
-                  self.clinSetData.isImported = true;
-                  self.clinSetData.importInProgress = false;
-
-
-
-                  self.cacheHelper.analyzeAll(self.cohortModel, false);
-
-                  self.sendConfirmSetDataToClin();
-
-                  resolve();
-
-                })
-
+            if (self.clinSetData.analysis.payload.variants && self.clinSetData.analysis.payload.variants.length > 0 ) {
+              if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
+                self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
               }
+              self.showLeftPanelForGenes();
+
+
+              self.cohortModel.importFlaggedVariants('json', self.clinSetData.analysis.payload.variants,
+              function() {
+
+                self.clinSetData.isImported = true;
+
+
+              },
+              function() {
+
+               // self.cohortModel.promiseMergeImportedVariants(self.clinSetData.analysis.payload.variants)
+               // .then(function() {
+                  self.clinSetData.importInProgress = false;
+
+                  self.sendConfirmSetDataToClin();
+
+                  setTimeout(function() {
+                    self.promiseSelectFirstFlaggedVariant()
+                  }, 1000)
+
+                  setTimeout(function() {
+                    if (self.analysis.id && self.geneModel.sortedGeneNames &&
+                      self.geneModel.sortedGeneNames.length < 30) {
+                      self.cacheHelper.analyzeAll(self.cohortModel, false, false);
+                    }
+                  }, 5000)
+
+                  setTimeout(function() {
+                    self.delaySave = 500;
+                  }, 2000)
+
+                  resolve();
+
+
+
+               // })
+
+
+                
+
+              })
+            } 
+
+              
           })
           
 

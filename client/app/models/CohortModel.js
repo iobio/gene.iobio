@@ -2229,7 +2229,7 @@ class CohortModel {
           matchingVariant.notes          = importedVariant.notes;
           matchingVariant.isUserFlagged  = importedVariant.isUserFlagged;
           matchingVariant.featureClass   = importedVariant.isUserFlagged ? "flagged" : "";
-          p.push(Promise.resolve())
+          promises.push(Promise.resolve())
         }
       })
       Promise.all(promises)
@@ -2739,7 +2739,7 @@ class CohortModel {
 
           let flaggedGene = geneMap[variant.gene.gene_name];
 
-          let keepGene = isFullAnalysis ? !self.geneModel.isCandidateGene(variant.gene.gene_name) : self.geneModel.isCandidateGene(variant.gene.gene_name);
+          let keepGene = self.geneModel.isCandidateGene(variant.gene.gene_name);
 
 
           if (keepGene && keepVariant) {

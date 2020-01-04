@@ -12,8 +12,8 @@ if [[ $1 == "prod" ]]; then
   NODE_ENV=production npm run build
   #npm run build
 elif [[ $1 == "stage" ]]; then
-  NODE_ENV=production npm run build
   echo "** Building stage **"
+  NODE_ENV=production npm run build
   #npm run build
 else
   echo "** Building dev **"

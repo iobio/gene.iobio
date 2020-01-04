@@ -246,11 +246,7 @@ export default {
       let geneNamesToDisplay = null;
       if (theGeneNames) {
         geneNamesToDisplay = theGeneNames.filter(function(geneName) {
-          if (self.isFullAnalysis) {
-            return !self.geneModel.isCandidateGene(geneName);;
-          } else {
-            return self.geneModel.isCandidateGene(geneName);
-          }
+          return self.geneModel.isCandidateGene(geneName);
         })
         self.geneSummaries = geneNamesToDisplay.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;

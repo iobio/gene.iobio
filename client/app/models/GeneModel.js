@@ -91,14 +91,10 @@ class GeneModel {
 
   isCandidateGene(theGeneName) {
     let self = this;
-    if (self.isFullAnalysis) {
-      return false;
+    if (self.candidateGenes != null) {
+      return self.candidateGenes[theGeneName];
     } else {
-      if (self.candidateGenes != null) {
-        return self.candidateGenes[theGeneName];
-      } else {
-        return true;
-      }
+      return true;
     }
   }
 
