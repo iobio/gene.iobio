@@ -8,6 +8,20 @@
 
 
 
+.v-snack--right
+  margin-right: 120px !important
+
+.v-snack
+  top: 0px !important
+  
+  .v-snack__wrapper
+    min-width: 200px !important
+
+    .v-snack__content
+      min-height: 30px !important
+      font-size: 12px !important
+
+
 .analysis-save-button
   right: 30px !important
   bottom: 30px !important
@@ -835,7 +849,7 @@ export default {
       variantSetCounts: {},
 
       lastSave: null,
-      delaySave: 8000,
+      delaySave: 10000,
  
 
       pileupInfo: {
@@ -1214,10 +1228,20 @@ export default {
             function() {
             },
             function() {
-              
+
               setTimeout(function() {
                 self.promiseSelectFirstFlaggedVariant()
+
+                setTimeout(function() {
+                  self.promiseSaveAnalysis()
+                  .then(function() {
+                    self.delaySave = 1000;
+                  })
+
+                },1000)
               }, 1000)
+              
+
 
               setTimeout(function() {
                 if (self.analysis.id && self.geneModel.sortedGeneNames &&
@@ -1226,9 +1250,6 @@ export default {
                 }
               }, 5000)
 
-              setTimeout(function() {
-                self.delaySave = 500;
-              }, 2000)
 
               resolve();
 
@@ -2523,16 +2544,17 @@ export default {
         self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
       }
 
-      // Set the flagged variant notes and interpretation
-      if (self.persistAnalysis()) {
-        self.promiseUpdateAnalysisVariant(variant);
-      }
       if (variant == self.selectedVariant) {
         self.$set(self, "selectedVariantNotes", variant.notes);
       }
 
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
+
+      // Set the flagged variant notes and interpretation
+      if (self.persistAnalysis()) {
+        self.promiseUpdateAnalysisVariant(variant);
+      }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
@@ -3204,13 +3226,25 @@ export default {
     sendAnalysisToClin: function() {
       let self = this;
       if (this.launchedFromClin) {
+        
         var msgObject = {
           success: true,
           type: 'save-analysis',
           sender: 'gene.iobio.io',
           analysis: self.analysis
         };
-        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+
+        let msgObjectString = ""
+        try {
+          msgObjectString = JSON.stringify(msgObject);
+        } catch(error) {
+          console.log("unable to stringify analysis ")
+          console.log(msgObject);
+          alertify.error("Unable to save analysis")
+        }
+        if (msgObjectString && msgObjectString.length > 0) {        
+           window.parent.postMessage(msgObjectString, self.clinIobioUrl);
+        }
       }
 
     },
@@ -3547,20 +3581,29 @@ export default {
 
                   self.sendConfirmSetDataToClin();
 
+
+
+
+                  //setTimeout(function() {
+                  //  if (self.analysis.id && self.geneModel.sortedGeneNames &&
+                  //    self.geneModel.sortedGeneNames.length < 30) {
+                  //    self.cacheHelper.analyzeAll(self.cohortModel, false, false);
+                  //  }
+                  //}, 5000)
+
                   setTimeout(function() {
                     self.promiseSelectFirstFlaggedVariant()
+
+                    setTimeout(function() {
+                      self.promiseSaveAnalysis()
+                      .then(function() {
+                        self.delaySave = 1000;
+                      })
+
+                    },1000)
                   }, 1000)
+              
 
-                  setTimeout(function() {
-                    if (self.analysis.id && self.geneModel.sortedGeneNames &&
-                      self.geneModel.sortedGeneNames.length < 30) {
-                      self.cacheHelper.analyzeAll(self.cohortModel, false, false);
-                    }
-                  }, 5000)
-
-                  setTimeout(function() {
-                    self.delaySave = 500;
-                  }, 2000)
 
                   resolve();
 
@@ -3662,6 +3705,8 @@ export default {
 
           if (self.launchedFromClin) {
             self.sendAnalysisToClin();
+            
+            
           } else {
             self.hubSession.promiseUpdateAnalysisTitle(self.analysis)
             .then(function(analysis) {
