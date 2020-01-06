@@ -7,19 +7,26 @@
 @import ../../../assets/sass/variables
 
 
+.v-snack--top
+  top: 60px !important
 
 .v-snack--right
-  margin-right: 120px !important
-
-.v-snack
-  top: 0px !important
+  margin-right: 55px !important
+  top: 2px !important
+  transform: initial !important
   
   .v-snack__wrapper
-    min-width: 200px !important
+    min-width: 150px !important
+    background-color: transparent !important
 
     .v-snack__content
       min-height: 30px !important
       font-size: 12px !important
+      padding-top: 0px !important
+      padding-bottom: 0px !important
+      font-weight: 600 !important
+      color: #03e9ff !important
+
 
 
 .analysis-save-button
@@ -1233,7 +1240,7 @@ export default {
                 self.promiseSelectFirstFlaggedVariant()
 
                 setTimeout(function() {
-                  self.promiseSaveAnalysis()
+                  self.promiseSaveAnalysis({notify:true})
                   .then(function() {
                     self.delaySave = 1000;
                   })
@@ -3595,7 +3602,7 @@ export default {
                     self.promiseSelectFirstFlaggedVariant()
 
                     setTimeout(function() {
-                      self.promiseSaveAnalysis()
+                      self.promiseSaveAnalysis({notify:true})
                       .then(function() {
                         self.delaySave = 1000;
                       })
@@ -3697,7 +3704,7 @@ export default {
       this.showSaveModal = bool;
     },
 
-    promiseSaveAnalysis: function() {
+    promiseSaveAnalysis: function(options) {
       let self = this;
 
       return new Promise(function(resolve, reject) {
@@ -3708,15 +3715,26 @@ export default {
             
             
           } else {
-            self.hubSession.promiseUpdateAnalysisTitle(self.analysis)
-            .then(function(analysis) {
-              self.showSaveModal = false;
-              return self.hubSession.promiseUpdateAnalysis(self.analysis)
-            })
-            .then(function(analysis) {
 
-              self.onShowSnackbar( {message: 'Analysis  \'' + self.analysis.title + '\'  saved.', timeout: 2000, bottom: true, left: true});
+            let promiseSave = null;
+            if (options && !options.autoupdate) {
+              promiseSave = self.hubSession.promiseUpdateAnalysisTitle(self.analysis)
+            } else {
+              promiseSave = self.hubSession.promiseUpdateAnalysis(self.analysis)
+            }
+
+            if (options && options.notify) {
+                self.onShowSnackbar( {message: 'saving analysis...', 
+                  timeout: 30000, top: true, right: true });            
+            }
+
+
+            promiseSave
+            .then(function(analysis) {
               self.analysis = analysis;
+              if (options && options.notify) {
+                self.onShowSnackbar( {message: 'analysis saved.', timeout: 2000, top: true, right: true});                
+              }
               resolve();
             })
             .catch(function(error) {
@@ -3729,9 +3747,9 @@ export default {
 
           self.hubSession.promiseAddAnalysis(self.analysis.project_id, self.analysis)
           .then(function(analysis) {
-            console.log("**********  adding mosaic analysis " + self.analysis.id + " " + " **************")
-            self.onShowSnackbar( {message: 'New analysis  \'' + self.analysis.title + '\'  saved.', timeout: 3000});
             self.analysis = analysis;
+            console.log("**********  adding mosaic analysis " + self.analysis.id + " " + " **************")
+            self.onShowSnackbar( {message: 'new analysis saved.', timeout: 30000, top: true, right: true});
             resolve();
           })
           .catch(function(error) {
@@ -3755,10 +3773,10 @@ export default {
       if (self.analysis.id ) {
         if (options && options.delay) {
           setTimeout(function() {
-            self.doDelayedAnalysisSave()
+            self.doDelayedAnalysisSave(options)
           },2000)          
         } else {
-          return self.promiseSaveAnalysis({notify: false});
+          return self.promiseSaveAnalysis(options);
         }
       } else {
 
@@ -3766,7 +3784,7 @@ export default {
 
     },
 
-    doDelayedAnalysisSave: function() {
+    doDelayedAnalysisSave: function(options) {
       let self = this;
       if (self.lastSave >= (Date.now() - self.delaySave)) {
         return;
@@ -3774,7 +3792,7 @@ export default {
 
       self.lastSave = Date.now();
 
-      return self.promiseSaveAnalysis({notify: false});
+      return self.promiseSaveAnalysis(options);
     },
 
 
@@ -3827,7 +3845,7 @@ export default {
         } else {
           self.analysis.payload.variants.push(exportedVariants[0]);
         }
-        return self.promiseAutosaveAnalysis({delay: true});
+        return self.promiseAutosaveAnalysis({notify: true, delay: true});
 
       })
     },

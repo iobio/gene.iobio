@@ -501,7 +501,7 @@ nav.toolbar, nav.v-toolbar
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items style="flex-grow: 3;padding-top:3px">
+      <v-toolbar-items style="flex-grow: 3;padding-top:3px;margin-right:60px">
 
         <v-icon>
           search
