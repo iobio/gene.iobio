@@ -1156,7 +1156,7 @@ export default {
       let self = this;
       let exonNumber = self.getExonNumber();
       if (exonNumber != null) {
-        if (self.selectedTranscript) {
+        if (self.selectedTranscript && self.selectedTranscript.features) {
           var exons = self.selectedTranscript.features.filter(function(feature) {
             if ( feature.transcript_type == 'protein_coding'
                 || feature.transcript_type == 'mRNA'
