@@ -3392,9 +3392,6 @@ export default {
 
         })
         .then(function() {
-          //return self.promiseShowClin();
-        })
-        .then(function() {
 
           resolve();
         })
