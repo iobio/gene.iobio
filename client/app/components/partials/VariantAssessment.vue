@@ -230,7 +230,7 @@ export default {
       }
     },
     notesReverseOrder: function() {
-      return this.notes ? this.notes.reverse() : [];
+      return this.notes ? this.notes.sort().reverse() : [];
     }
   },
   methods: {
@@ -284,8 +284,14 @@ export default {
     },
     getCurrentDateAndTime: function() {
       var today = new Date();
-      var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-      var time = today.getHours() + ":" + today.getMinutes();
+      var date = today.getFullYear()
+                 + '-'
+                 + String(today.getMonth()+1).padStart(2, "0") 
+                 + '-'
+                 + String(today.getDate()).padStart(2, "0");
+      var time = String(today.getHours()).padStart(2, "0") 
+                 + ":" 
+                 + String(today.getMinutes()).padStart(2, "0");
       return date + ' ' + time;
     }
   },
