@@ -588,7 +588,7 @@
                       </span>
 
 
-                      <v-badge v-if="variant.variantSet && variant.filtersPassed != variant.variantSet" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
+                      <v-badge v-if="variant.variantSet && variant.filtersPassed != variant.variantSet && variant.filtersPassed != 'pathogenic'" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
 
 
                     </div>
