@@ -211,6 +211,7 @@ export default {
     return {
       interpretation: null,
       notes: null,
+      notesReverseOrder: null,
 
       showTooltipFlag: false,
       tooltipContent: null,
@@ -230,9 +231,6 @@ export default {
         return this.interpretationMap['not-reviewed'];
       }
     },
-    notesReverseOrder: function() {
-      return this.notes ? this.notes.sort().reverse() : [];
-    }
   },
   methods: {
     onApplyVariantInterpretation: function() {
@@ -250,7 +248,20 @@ export default {
         'showDialog': false,
         'showEditDialog': false})
       this.variant.notes = this.notes
+      this.sortNotes();
+
       this.$emit("apply-variant-notes", this.variant)
+    },
+    sortNotes: function() {
+      let self = this;
+      if (this.notes) {
+        this.notesReverseOrder =  this.notes.sort(function(noteA, noteB) {
+          return noteA.datetime.localeCompare(noteB.datetime);
+        }).reverse();
+      } else {
+        this.notesReverseOrder = [];
+      }
+
     },
     onShowEditVariantNote: function(note) {
       let self = this;
@@ -262,6 +273,7 @@ export default {
         this.notes.splice(index, 1)
       }
       this.variant.notes = this.notes;
+
       this.$emit("apply-variant-notes", this.variant)
     },
     onEditVariantNote: function(index, aNote) {
@@ -278,9 +290,17 @@ export default {
       let self = this;
       if (self.variant) {
         self.interpretation = self.variant.interpretation  && self.variant.interpretation.length > 0 ? self.variant.interpretation : "not-reviewed";
+        self.$set(self, "notesReverseOrder",  []);
         self.notes = self.variant.notes;
+
+        self.$nextTick(function() {
+          self.sortNotes();
+        })
+
       } else {
         self.interpretation = 'not-reviewed';
+        self.notes = [];
+        self.notesReverseOrder = [];
       }
     },
     getCurrentDateAndTime: function() {
