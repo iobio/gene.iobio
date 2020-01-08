@@ -31,7 +31,8 @@ class Util {
                         B: 'Asx',
                         Z: 'Glx',
                         X: 'Xaa',
-                        J: 'Xle'};
+                        J: 'Xle',
+                        '-': '-'};
 
   }
 
@@ -978,7 +979,7 @@ class Util {
     let tokens = aaChange.split("/");
     tokens.forEach(function(token) {
       if (buf.length > 0) {
-        buf += "->"
+        buf += " to "
       }
       Array.from(token).forEach(function(aa) {
         buf += self.aminoAcidMap[aa];
