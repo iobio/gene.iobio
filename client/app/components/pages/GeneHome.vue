@@ -1234,9 +1234,9 @@ export default {
             }
             self.showLeftPanelForGenes();
 
-
             self.cohortModel.importFlaggedVariants('json', self.analysis.payload.variants,
             function() {
+
             },
             function() {
 
@@ -3568,6 +3568,20 @@ export default {
           .then(function() {
 
             if (self.clinSetData.analysis.payload.variants && self.clinSetData.analysis.payload.variants.length > 0 ) {
+
+              self.variantSetCounts = {total: 0}
+              self.analysis.payload.variants.forEach(function(importedVariant) {
+                let key = importedVariant.filtersPassed;
+                let count = self.variantSetCounts[key];
+                if (count == null) {
+                  self.variantSetCounts[key] = 0;
+                }
+                self.variantSetCounts[key]++;
+                self.variantSetCounts.total ++;
+              })
+
+
+
               if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
                 self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
               }
