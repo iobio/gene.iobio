@@ -3679,7 +3679,7 @@ export default {
 
         } else {
           var newAnalysis = {};
-          newAnalysis.title = "variant analysis";
+          newAnalysis.title = "";
           newAnalysis.description = "";
           newAnalysis.project_id = idProject;
           newAnalysis.sample_id  = self.paramSampleId;
