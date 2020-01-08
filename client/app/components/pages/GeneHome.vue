@@ -1250,7 +1250,7 @@ export default {
                   })
 
                 },1000)
-              }, 1000)
+              }, 2000)
               
 
 
@@ -3587,7 +3587,6 @@ export default {
                // .then(function() {
                   self.clinSetData.importInProgress = false;
 
-                  self.sendConfirmSetDataToClin();
 
 
 
@@ -3601,6 +3600,8 @@ export default {
 
                   setTimeout(function() {
                     self.promiseSelectFirstFlaggedVariant()
+                  
+                    self.sendConfirmSetDataToClin();
 
                     setTimeout(function() {
                       self.promiseSaveAnalysis({notify:true})
@@ -3609,7 +3610,7 @@ export default {
                       })
 
                     },1000)
-                  }, 1000)
+                  }, 2500)
               
 
 
@@ -3630,23 +3631,7 @@ export default {
           
 
         } else {
-          self.cacheHelper.promiseGetGenesToAnalyze()
-          .then(function(genesToAnalyze) {
-            if (genesToAnalyze.length > 0) {
-              self.promiseSelectFirstFlaggedVariant()
-              .then(function() {
-                self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
-              })
-            } else {
-              self.promiseSelectFirstFlaggedVariant()
-              .then(function() {
-                if (self.$refs.navRef) {
-                  self.$refs.navRef.onShowVariantsTab();
-                }
-              })
-            }
-            resolve();
-          })
+          resolve();
         }
 
       })
