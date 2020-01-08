@@ -47,6 +47,7 @@
     display: flex
     flex-flow: column
     justify-content: flex-start
+    margin-top: 10px
 
     .individual-note
       padding-left: 0px
@@ -110,7 +111,7 @@
       </variant-interpretation>
 
       <variant-notes-dialog
-        style="display:inline-block;margin-top: 15px"
+        style="display:inline-block;margin-left: 20px"
         class="variant-notes"
         :sourceNotes="``"
         :sourceIndex="``"

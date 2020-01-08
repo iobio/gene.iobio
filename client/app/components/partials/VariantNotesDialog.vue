@@ -24,7 +24,7 @@
   max-height: 25px
   padding-right: 5px
   padding-left: 5px
-  margin-top: 15px
+  margin-top: 0px
   margin-left: 2px
 
   .btn__content, .v-btn__content
