@@ -38,13 +38,24 @@
       margin-top: 0px
       margin-bottom: 2px
       margin-left: 0px
+      margin-right: 0px
+
     .chip__content, .v-chip__content
+      padding: 0 0px
+      height: 15px
+      width: 34px
+      justify-content: center
       font-size:  11px
       background-color:  $high-impact-color
-      height: 16px
-      padding-left: 4px
-      padding-right: 4px
       color:  white
+
+    .pheno-source
+      width: 40px
+      display: inline-block
+      font-size: 12px
+      font-style: italic
+      vertical-align: top
+
 
 
   #clinvar-symbol
@@ -530,13 +541,15 @@
 
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
                         <v-chip class="white--text" >
-                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} GTR
+                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} 
                         </v-chip>
+                        <span class="pheno-source">GTR</span>
                       </span>
                       <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
                         <v-chip class="white--text" >
-                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }} Phenolyzer
+                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}
                         </v-chip>
+                        <span class="pheno-source">Phenolyzer</span>
                       </span>
                     </div>
 
