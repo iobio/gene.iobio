@@ -411,10 +411,8 @@ main.content.clin, main.v-content.clin
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :selectedVariant="selectedVariant"
-          :selectedVariantNotes="selectedVariantNotes"
           :selectedVariantInterpretation="selectedVariantInterpretation"
           :selectedVariantRelationship="selectedVariantRelationship"
-          :interpretationMap="interpretationMap"
           :genomeBuildHelper="genomeBuildHelper"
           :cohortModel="cohortModel"
           :info="selectedVariantInfo"
@@ -2117,7 +2115,7 @@ export default {
     },
 
     persistAnalysis: function() {
-      return this.launchedFromClin || this.launchedFromHub;
+      return (this.launchedFromClin || this.launchedFromHub);
     },
 
     removeGeneImpl: function(geneName) {
@@ -3250,6 +3248,7 @@ export default {
           msgObjectString = JSON.stringify(msgObject);
         } catch(error) {
           console.log("unable to stringify analysis ")
+          console.log(error)
           console.log(msgObject);
           alertify.error("Unable to save analysis")
         }
@@ -3564,6 +3563,8 @@ export default {
             genePromises.push(Promise.resolve())
           }
 
+          self.analysis.payload.filters = self.filterModel.flagCriteria;
+
           Promise.all(genePromises)
           .then(function() {
 
@@ -3620,13 +3621,15 @@ export default {
                   
                     self.sendConfirmSetDataToClin();
 
+            
                     setTimeout(function() {
-                      self.promiseSaveAnalysis({notify:true})
-                      .then(function() {
-                        self.delaySave = 1000;
-                      })
+                      self.promiseAutosaveAnalysis({notify:true})
 
+                      setTimeout(function() {
+                        self.delaySave = 1000;
+                      }, 1000)
                     },1000)
+            
                   }, 2500)
               
 
@@ -3693,6 +3696,7 @@ export default {
             newAnalysis.payload.genes.push(self.paramGeneName)
           }
           newAnalysis.payload.variants = [];
+          newAnalysis.payload.filters = self.filterModel.flagCriteria;
           self.analysis = newAnalysis;
 
           resolve(self.analysis)
@@ -3782,7 +3786,9 @@ export default {
           return self.promiseSaveAnalysis(options);
         }
       } else {
-
+        if (self.launchedFromClin) {
+          self.sendAnalysisToClin();
+        }
       }
 
     },
