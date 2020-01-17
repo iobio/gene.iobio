@@ -343,6 +343,20 @@ export default class VariantExporter {
         if (theTranscript) {
           exportRec.transcript = theTranscript.transcript_id;
 
+          if (format == 'json') {
+            exportRec.variantInspect = {};
+            exportRec.variantInspect.geneObject = theGeneObject;
+            exportRec.variantInspect.transcriptObject = theTranscript;
+            exportRec.variantInspect.infoObject = me.globalApp.utility.formatDisplay(variant, me.cohort.translator, false);
+            exportRec.variantInspect.genePhenotypeHits = me.cohort.geneModel.getGenePhenotypeHits(theGeneObject.gene_name);
+            exportRec.variantInspect.genotypes = variant.genotypes;
+            exportRec.variantInspect.vepAminoAcids = variant.vepAminoAcids;
+            exportRec.variantInspect.vepProteinPosition = variant.vepProteinPosition;
+            exportRec.variantInspect.gnomAD = variant.gnomAD;
+            exportRec.variantInspect.vepAF = variant.vepAF;
+            exportRec.variantInspect.extraAnnot = variant.extraAnnot;
+          }
+
 
           if ((variant.hasOwnProperty('fbCalled')        && variant.fbCalled == 'Y') ||
             (variant.hasOwnProperty('freebayesCalled') && variant.freebayesCalled == 'Y')) {
