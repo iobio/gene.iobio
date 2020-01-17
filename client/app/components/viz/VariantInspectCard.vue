@@ -440,7 +440,7 @@
             Gene Associations
             <v-divider></v-divider>
           </div>
-          <div v-if="geneHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
+          <div v-if="genePhenotypeHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
             <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
               <div>
                 <v-chip class="high">#{{ geneRank.rank }}</v-chip>
@@ -629,7 +629,6 @@ import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
 import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
 import VariantAlleleCountsMenu  from "../partials/VariantAlleleCountsMenu.vue"
 import InfoPopup                from "../partials/InfoPopup.vue"
-import TranscriptsMenu          from '../partials/TranscriptsMenu.vue'
 import ToggleButton             from '../partials/ToggleButton.vue'
 import DepthViz                 from "../viz/DepthViz.vue"
 import GeneViz                  from "../viz/GeneViz.vue"
@@ -667,10 +666,8 @@ export default {
     selectedTranscript: null,
     selectedVariant: null,
     selectedVariantKey: null,
-    selectedVariantNotes: null,
     selectedVariantInterpretation: null,
     selectedVariantRelationship: null,
-    interpretationMap: null,
     genomeBuildHelper: null,
     cohortModel: null,
     showGenePhenotypes: null,
@@ -1087,7 +1084,7 @@ export default {
 
         } else {
           self.exon = null;
-          self.converageRegionStart = null;
+          self.coverageRegionStart = null;
           self.coverageRegionEnd = null;
           self.coverage = [];
           resolve();
@@ -1369,13 +1366,6 @@ export default {
 
 
   computed: {
-    sampleModel: function() {
-      if (this.selectedVariantRelationship) {
-        return this.cohortModel.getModel(this.selectedVariantRelationship);
-      } else {
-        return false;
-      }
-    },
     hasAlignments: function() {
       if (this.selectedVariantRelationship) {
         return this.cohortModel.getModel(this.selectedVariantRelationship).isBamLoaded();
@@ -1494,22 +1484,6 @@ export default {
 
         }
       }
-    },
-    geneHits: function() {
-      return [
-        { searchTerm: 'Smith Magenis',
-          geneRanks: [
-           {rank: 41, source: 'GTR'},
-           {rank: 78, source: 'Phen.'},
-          ]
-        },
-        { searchTerm: 'Scoliosis',
-          geneRanks: [
-           {rank: 115, source: 'Phen.'}
-          ]
-        },
-
-      ]
     }
   },
 
