@@ -522,9 +522,7 @@ export default function variantD3() {
                   return d3.svg
                        .symbol()
                        .type(getSymbol(d,i))
-                       .size( function() {
-                        return symbolSizeCircle();
-                       })
+                       .size( symbolSizeCircle)()
                 })
                 .attr("transform", function(d) {
                     var xCoord = x(d.start) + 2;
