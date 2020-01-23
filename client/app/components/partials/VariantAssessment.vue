@@ -47,7 +47,7 @@
     display: flex
     flex-flow: column
     justify-content: flex-start
-    margin-top: 10px
+
 
     .individual-note
       padding-left: 0px
@@ -101,7 +101,7 @@
   <div id="variant-assessment" class="app-card">
     <div>
       <variant-interpretation
-      style="width: 200px;display: inline-block"
+      style="margin-bottom:15px;margin-right:15px;width: 200px;display: inline-block"
        wrap="true"
        :variant="variant"
        :variantInterpretation="interpretation"
@@ -111,7 +111,7 @@
       </variant-interpretation>
 
       <variant-notes-dialog
-        style="display:inline-block;margin-left: 20px"
+        style="display:inline-block;"
         class="variant-notes"
         :sourceNotes="``"
         :sourceIndex="``"
