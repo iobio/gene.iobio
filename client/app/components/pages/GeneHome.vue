@@ -886,7 +886,9 @@ export default {
         referenceURL: 'https://s3.amazonaws.com/igv.broadinstitute.org/genomes/seq/hg19/hg19.fasta',
 
 
-      }
+      },
+
+      clinShowGeneApp: false
     }
   },
 
@@ -3145,7 +3147,7 @@ export default {
               })
           })
         }
-      } else if (clinObject.type == 'show') {
+      } else if (clinObject.type == 'show' || clinObject.type == 'show-review-full') {
 
         if (self.cohortModel && self.cohortModel.isLoaded) {
 
@@ -3154,11 +3156,16 @@ export default {
           self.$set(self, "isFullAnalysis", true);
           self.filterModel.isFullAnalysis = self.isFullAnalysis;
           self.geneModel.isFullAnalysis = self.isFullAnalysis;
+          self.clinShowGeneApp = true;
 
           if (self.cacheHelper.analyzeAllInProgress) {
             self.showLeftPanelForGenes();
           } else {
-            self.showLeftPanelWhenFlaggedVariants();
+            if (self.selectedVariant == null) {
+              self.promiseSelectFirstFlaggedVariant()
+            } else {
+              self.showLeftPanelWhenFlaggedVariants();
+            }
           }
 
           //self.promiseShowClin();
@@ -3617,7 +3624,9 @@ export default {
                   //}, 5000)
 
                   setTimeout(function() {
-                    self.promiseSelectFirstFlaggedVariant()
+                    if (self.clinShowGeneApp) {
+                      self.promiseSelectFirstFlaggedVariant()
+                    }
                   
                     self.sendConfirmSetDataToClin();
 
