@@ -235,6 +235,10 @@
   height: initial !important;
 }
 
+.in-iframe .v-dialog__content--active {
+  top: -200px !important;
+}
+
 
 
 

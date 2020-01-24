@@ -998,6 +998,11 @@ export default {
       self.cardWidth = self.$el.offsetWidth;
       self.cardWidth = window.innerWidth;
 
+      // Detect if we are in an iframe
+      if (window.self != window.top) {
+        $(document.body).addClass("in-iframe");
+      }
+
       self.mainContentWidth = $('main.content .container').outerWidth();
       $(window).resize(function() {
         self.onResize();
