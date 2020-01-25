@@ -3246,26 +3246,45 @@ export default {
     sendAnalysisToClin: function() {
       let self = this;
       if (this.launchedFromClin) {
-        
-        var msgObject = {
-          success: true,
-          type: 'save-analysis',
-          sender: 'gene.iobio.io',
-          analysis: self.analysis
-        };
 
-        let msgObjectString = ""
-        try {
-          msgObjectString = JSON.stringify(msgObject);
-        } catch(error) {
-          console.log("unable to stringify analysis ")
-          console.log(error)
-          console.log(msgObject);
-          alertify.error("Unable to save analysis")
-        }
-        if (msgObjectString && msgObjectString.length > 0) {        
-           window.parent.postMessage(msgObjectString, self.clinIobioUrl);
-        }
+        let exportPromises = [];
+        let exportedVariants = [];
+        self.analysis.payload.variants.forEach(function(variant) {
+          let p = self.promiseExportAnalysisVariant(variant)
+          .then(function(exportedVariant) {
+            exportedVariants.push(exportedVariant)
+          })
+          exportPromises.push(p)
+        })
+
+        Promise.all(exportPromises)
+        .then(function() {
+          let simpleAnalysis = $.extend({}, self.analysis);
+          simpleAnalysis.payload.variants = exportedVariants;
+          simpleAnalysis.payload.filters = self.filterModel.flagCriteria;
+          
+          var msgObject = {
+            success: true,
+            type: 'save-analysis',
+            sender: 'gene.iobio.io',
+            analysis: simpleAnalysis
+          };
+
+          let msgObjectString = ""
+          try {
+            msgObjectString = JSON.stringify(msgObject);
+          } catch(error) {
+            console.log("unable to stringify analysis ")
+            console.log(error)
+            console.log(msgObject);
+            alertify.error("Unable to save analysis")
+          }
+          if (msgObjectString && msgObjectString.length > 0) {        
+             window.parent.postMessage(msgObjectString, self.clinIobioUrl);
+          }
+
+        })
+
       }
 
     },
@@ -3853,20 +3872,40 @@ export default {
 
     },
 
+    promiseExportAnalysisVariant: function(variantToReplace) {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        if (variantToReplace.variantInspect) {
+          resolve(variantToReplace)
+        } else {
+          self.cohortModel.promiseExportFlaggedVariant('json', variantToReplace)
+          .then(function(exportedVariants) {
+
+            let matchingIdx = self.findAnalysisVariantIndex(exportedVariants[0]);
+            if (matchingIdx != -1) {
+              self.analysis.payload.variants[matchingIdx] = exportedVariants[0];
+            } else {
+              self.analysis.payload.variants.push(exportedVariants[0]);
+            }
+            resolve(exportedVariants[0])
+          })
+          .catch(function(err) {
+            console.log("promiseExportAnalysisVariant() failed for variant");
+            console.log(err);
+            reject(err)
+          })
+        }
+      })
+    },
+
 
     promiseUpdateAnalysisVariant: function(variantToReplace) {
       let self = this;
 
       self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
-      self.cohortModel.promiseExportFlaggedVariant('json', variantToReplace)
-      .then(function(exportedVariants) {
+      self.promiseExportAnalysisVariant(variantToReplace)
+      .then(function(exportedVariant) {
 
-        let matchingIdx = self.findAnalysisVariantIndex(exportedVariants[0]);
-        if (matchingIdx != -1) {
-          self.analysis.payload.variants[matchingIdx] = exportedVariants[0];
-        } else {
-          self.analysis.payload.variants.push(exportedVariants[0]);
-        }
         return self.promiseAutosaveAnalysis({notify: true, delay: true});
 
       })
