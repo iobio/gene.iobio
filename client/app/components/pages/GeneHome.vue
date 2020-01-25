@@ -2124,7 +2124,7 @@ export default {
     },
 
     persistAnalysis: function() {
-      return (this.launchedFromClin || this.launchedFromHub);
+      return (this.launchedFromClin || (this.launchedFromHub && this.analysis.hasOwnProperty("id") && this.analysis.id && this.analysis.id.length > 0));
     },
 
     removeGeneImpl: function(geneName) {
