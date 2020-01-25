@@ -1249,10 +1249,12 @@ export default {
                 self.promiseSelectFirstFlaggedVariant()
 
                 setTimeout(function() {
-                  self.promiseSaveAnalysis({notify:true})
-                  .then(function() {
-                    self.delaySave = 1000;
-                  })
+                  if (self.persistAnalysis()) {
+                    self.promiseSaveAnalysis({notify:true})
+                    .then(function() {
+                      self.delaySave = 1000;
+                    })                    
+                  }
 
                 },1000)
               }, 2000)
