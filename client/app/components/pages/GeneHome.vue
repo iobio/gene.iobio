@@ -2668,23 +2668,20 @@ export default {
 
               if (matchingVariant && !matchingVariant.isProxy) {
 
-                if (flaggedVariant.isProxy) {
-                  var isUserFlagged = flaggedVariant.isUserFlagged;
-                  var notes = flaggedVariant.notes;
-                  var interpretation = flaggedVariant.interpretation;
-                  flaggedVariant = $.extend(flaggedVariant, matchingVariant);
-                  flaggedVariant.isFlagged = true;
-                  flaggedVariant.isUserFlagged = isUserFlagged;
-                  flaggedVariant.notes = notes;
-                  flaggedVariant.interpretation = interpretation;
-                  flaggedVariant.isProxy = false;
-                  if (self.persistAnalysis()) {
-                    self.promiseUpdateAnalysisVariant(flaggedVariant);
-                  }
 
+                var isUserFlagged = flaggedVariant.isUserFlagged;
+                var notes = flaggedVariant.notes;
+                var interpretation = flaggedVariant.interpretation;
+                flaggedVariant = $.extend(flaggedVariant, matchingVariant);
+                flaggedVariant.isFlagged = true;
+                flaggedVariant.isUserFlagged = isUserFlagged;
+                flaggedVariant.notes = notes;
+                flaggedVariant.interpretation = interpretation;
+                flaggedVariant.isProxy = false;
+                if (self.persistAnalysis()) {
+                  self.promiseUpdateAnalysisVariant(flaggedVariant);
                 }
-
-
+  
 
                 self.$set(self, "selectedVariant", flaggedVariant);
                 self.refreshSelectedVariantInfo();
