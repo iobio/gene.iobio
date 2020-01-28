@@ -410,19 +410,24 @@ export default class VariantExporter {
 
           } else {
 
-            me.cohort.getProbandModel()
-             .promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variant, format, getHeader, sampleNames)
-             .then(function(data) {
-              var theVariant = data[0];
-              var sourceVariant = data[1];
-              var theRawVcfRecords = data[2];
+            if (!variant.hasOwnProperty('extraAnnot') || !variant.extraAnnot) {
+              me.cohort.getProbandModel()
+               .promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variant, format, getHeader, sampleNames)
+               .then(function(data) {
+                var theVariant = data[0];
+                var sourceVariant = data[1];
+                var theRawVcfRecords = data[2];
 
-              me._promiseFormatRecord(theVariant, sourceVariant, theRawVcfRecords, theGeneObject, theTranscript, format, exportRec)
-                .then(function(data) {
-                  resolve(data);
-                })
+                me._promiseFormatRecord(theVariant, sourceVariant, theRawVcfRecords, theGeneObject, theTranscript, format, exportRec)
+                  .then(function(data) {
+                    resolve(data);
+                  })
 
-            });
+              });
+             } else {
+                me.formatDisplay(variant, exportRec, format);
+                resolve([exportRec]);
+             }
           }
 
 

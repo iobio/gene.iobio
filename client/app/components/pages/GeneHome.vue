@@ -1310,7 +1310,8 @@ export default {
             let flaggedVariantsForGene = self.cohortModel.getFlaggedVariantsForGene(theGene.gene_name);
             if (flaggedVariantsForGene.length > 0) {
               flaggedVariantsForGene.forEach(function(flaggedVariant) {
-                self.promiseUpdateAnalysisVariant(flaggedVariant);
+                // TEMP 1/27
+                //self.promiseUpdateAnalysisVariant(flaggedVariant);
               })
             }
           }
@@ -2678,9 +2679,11 @@ export default {
                 flaggedVariant.notes = notes;
                 flaggedVariant.interpretation = interpretation;
                 flaggedVariant.isProxy = false;
-                if (self.persistAnalysis()) {
-                  self.promiseUpdateAnalysisVariant(flaggedVariant);
-                }
+                
+                // TEMP 1/27
+                //if (self.persistAnalysis()) {
+                //  self.promiseUpdateAnalysisVariant(flaggedVariant);
+                //}
   
 
                 self.$set(self, "selectedVariant", flaggedVariant);
