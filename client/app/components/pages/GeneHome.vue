@@ -3596,6 +3596,7 @@ export default {
             genePromises.push(Promise.resolve())
           }
 
+          self.promiseUpdateAnalysisGenesData()
           self.analysis.payload.filters = self.filterModel.flagCriteria;
 
           Promise.all(genePromises)
