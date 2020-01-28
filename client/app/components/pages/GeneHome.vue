@@ -403,7 +403,7 @@ main.content.clin, main.v-content.clin
 
 
 
-        <div style="display:flex;max-height:550px">
+        <div style="display:flex;align-items:stretch">
 
           <variant-inspect-card
           ref="variantInspectRef"
@@ -3879,7 +3879,7 @@ export default {
     promiseExportAnalysisVariant: function(variantToReplace) {
       let self = this;
       return new Promise(function(resolve, reject) {
-        if (variantToReplace.variantInspect) {
+        if (!variantToReplace.hasOwnProperty('features')) {
           resolve(variantToReplace)
         } else {
           self.cohortModel.promiseExportFlaggedVariant('json', variantToReplace)
