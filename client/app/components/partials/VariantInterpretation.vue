@@ -16,11 +16,13 @@ i.material-icons.interpretation
 .interpretation-label
   color: white  !important
   padding-left: 0px
+  font-size: 13px
 
 .select-interpretation
   height: 26px
   -webkit-box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
   box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
+  background-color: $app-button-color
 
   .v-input__control
     border-radius: 4px
@@ -28,26 +30,49 @@ i.material-icons.interpretation
   &.no-wrap
     .input-group__selections__comma, .v-input__control
       width: initial
+
+  .v-input__append-inner
+    .v-input__icon--append
+      i.material-icons
+        color: white !important
     
 
 .interpretation-choices
   width: 100%
-  padding: 10px
+  background-color:  $app-button-color
+  padding-top: 2px
+  padding-bottom: 2px
+  padding-left: 4px
+  padding-right: 0px
+  border-radius: 5px
+  
+  i.material-icons
+    padding-right: 2px
+    font-size: 16px !important
+
 
   &.not-reviewed
-    background-color: $not-reviewed-color
+    i.material-icons
+      color: $not-reviewed-color !important
 
   &.sig
-    background-color: $significant-color
+    i.material-icons
+      color: $significant-color !important
 
   &.not-sig
-    background-color: $not-significant-color
+    i.material-icons
+      color: $not-significant-color !important
 
   &.poor-qual
-    background-color: $poor-qual-color
+    i.material-icons
+      color: $poor-qual-color !important
 
   &.unknown-sig
-    background-color: $unknown-significance-color
+    i.material-icons
+      color: $unknown-significance-color !important
+
+  
+    
 
 .select-interpretation
   font-family: $app-font
@@ -67,9 +92,7 @@ i.material-icons.interpretation
     max-height: 22px
 
 
-  .v-input__icon
-    i.material-icons
-      color: white
+
 
   &.show-interpretation-label
     width: initial
@@ -77,26 +100,52 @@ i.material-icons.interpretation
     .interpretation-label
       color: white !important
       font-size: 13px
+      font-weight: 500
+
+  .v-input__icon--append
+    i.material-icons
+      color: white !important
+
+  .interpretation-selection
+    i.material-icons
+      padding-right: 2px
+      font-size: 16px !important
 
   &.not-reviewed
     .input-group__input, .v-input__control
-      background-color: $not-reviewed-color
+      i.material-icons
+        color: $not-reviewed-color
 
   &.sig
     .input-group__input, .v-input__control
-      background-color: $significant-color
+      i.material-icons
+        color: $significant-color !important
 
   &.not-sig
     .input-group__input, .v-input__control
-      background-color: $not-significant-color
+      i.material-icons
+        color: $not-significant-color !important
 
   &.poor-qual
     .input-group__input, .v-input__control
-      background-color: $poor-qual-color
+      i.material-icons
+        color: $poor-qual-color !important
 
   &.unknown-sig
     .input-group__input, .v-input__control
-      background-color: $unknown-significance-color
+      i.material-icons
+        color: $unknown-significance-color !important
+
+  &.unknown-sig, &.not-reviewed, &.sig,  &.not-sig, &.poor-qual
+    .v-input__append-inner
+      .v-input__icon--append
+        i.material-icons
+          color: white !important   
+          margin-top: -4px     
+
+  .v-input__icon
+    i.material-icons
+      color: white !important
 
   .input-group__input, .v-input__control
     min-height: 26px
