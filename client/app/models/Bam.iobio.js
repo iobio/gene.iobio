@@ -17,8 +17,6 @@ export default class Bam {
       this.baiUri = baiUri;
       this.options = options; // *** add options mapper ***
 
-       console.log("this.bamUri", bamUri, this.bamUri);
-       console.log("this.baiUri", baiUri);
       // test if file or url
       if (typeof(this.bamUri) == "object") {
          this.sourceType = "url";
@@ -78,8 +76,6 @@ export default class Bam {
 
    makeBamBlob(callback) {
      var me = this;
-     console.log("this.bamFile inside bamBlob", this.bamFile);
-
        const proxyAddress = 'lf-proxy.iobio.io';
        const port = 443;
        const secure = true;
@@ -95,10 +91,6 @@ export default class Bam {
            const baseUrl = `${protocol}//${proxyAddress}${portStr}`;
            me.bamUri = `${baseUrl}${hoster.getHostedPath(bamPath)}`;
            me.baiUri = `${baseUrl}${hoster.getHostedPath(baiPath)}`;
-
-
-           console.log("self.bamUri", me.bamUri);
-           console.log("baiUri", me.baiUri);
            me.sourceType = "url";
            me.bamFile = null;
            me.baiFile = null;
@@ -243,9 +235,6 @@ export default class Bam {
     me.bamFile   = bamFile;
     me.baiFile   = baiFile;
 
-    console.log("me.BamFile", me.bamFile);
-    console.log("me.baiFile", me.baiFile);
-
     me.sourceType = "file";
     me.makeBamBlob( function() {
       callback(true);
@@ -343,9 +332,6 @@ export default class Bam {
     else {
 
       var cmd = me.endpoint.getBamHeader(me.bamUri, me.baiUri);
-
-      console.log("cmd using bamUri", cmd);
-
       var success = null;
       var rawHeader = "";
       cmd.on('data', function(data) {
@@ -589,8 +575,6 @@ export default class Bam {
     var refName     = geneObject.chr;
     var regionStart = geneObject.start;
     var regionEnd   = geneObject.end;
-
-    console.log("bams inside getGeneCoverage", bams);
 
     // Capture all of the exon regions from the transcript
     var regions = [];

@@ -704,8 +704,6 @@ export default function vcfiobio(theGlobalApp) {
         me._getRemoteVariantsImpl(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache,
           function(annotatedData, results) {
             if (annotatedData != null && results) {
-              console.log("annotatedData", annotatedData)
-              console.log("results", results);
               resolve([annotatedData, results]);
             } else {
               reject();
@@ -717,8 +715,6 @@ export default function vcfiobio(theGlobalApp) {
         me._getLocalVariantsImpl(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache,
             function(annotatedData, results) {
               if (annotatedData != null && results) {
-                console.log("annotatedData", annotatedData)
-                console.log("results", results);
                 resolve([annotatedData, results]);
               } else {
                 reject();
@@ -734,9 +730,6 @@ export default function vcfiobio(theGlobalApp) {
   exports._getLocalVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false) {
 
     var me = this;
-
-    console.log(me.vcfURL);
-
 
     if (regions == null || regions.length == 0) {
       regions = [];
@@ -3137,9 +3130,6 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
 
     let self = this;
 
-    console.log("inside processVcfFile");
-    console.log("vcfFile, tbiFIle inside processVcfFile", vcfFile, tbiFile);
-
     const proxyAddress = 'lf-proxy.iobio.io';
     const port = 443;
     const secure = true;
@@ -3155,9 +3145,6 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
       self.vcfURL = `${baseUrl}${hoster.getHostedPath(vcfPath)}`;
       self.tbiUrl = `${baseUrl}${hoster.getHostedPath(tbiPath)}`;
       self.sourceType = SOURCE_TYPE_URL;
-
-      console.log("self.vcfUrl", self.vcfURL);
-      console.log("sourceType", sourceType);
     });
 
   };
