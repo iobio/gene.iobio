@@ -21,9 +21,11 @@ export default class Bam {
        console.log("this.baiUri", baiUri);
       // test if file or url
       if (typeof(this.bamUri) == "object") {
-         this.sourceType = "file";
-         this.bamFile = this.bamUri;
-         this.baiFile = this.options.bai;
+         this.sourceType = "url";
+          this.bamFile = null;
+          this.baiFile = null;
+         // this.bamFile = this.bamUri;
+         // this.baiFile = this.options.bai;
          this.makeBamBlob();
       } else  {
          this.sourceType = "url";
@@ -97,20 +99,27 @@ export default class Bam {
 
            console.log("self.bamUri", me.bamUri);
            console.log("baiUri", me.baiUri);
+           me.sourceType = "url";
+           me.bamFile = null;
+           me.baiFile = null;
 
        });
 
+          if (callback) {
+            callback();
+          }
+
 
      //
-     this.bamBlob = new BlobFetchable(this.bamFile);
-     this.baiBlob = new BlobFetchable(this.baiFile); // *** add if statement if here ***
-     makeBam(this.bamBlob, this.baiBlob, function(bam) {
-        me.setHeader(bam.header);
-        me.provide(bam);
-        if (callback) {
-          callback();
-        }
-     });
+     // this.bamBlob = new BlobFetchable(this.bamFile);
+     // this.baiBlob = new BlobFetchable(this.baiFile); // *** add if statement if here ***
+     // makeBam(this.bamBlob, this.baiBlob, function(bam) {
+     //    me.setHeader(bam.header);
+     //    me.provide(bam);
+     //    if (callback) {
+     //      callback();
+     //    }
+     // });
    }
 
   checkBamUrl(url, baiUrl, callback) {
@@ -597,9 +606,6 @@ export default class Bam {
       var bamSources = [];
       me._initializeBamSource(bams, trRefName, regionStart, regionEnd, bamSources, index, function() {
         var cmd = me.endpoint.getGeneCoverage(bamSources, trRefName, geneObject.gene_name, regionStart, regionEnd, regions);
-        debugger;
-        console.log("cmd", cmd);
-
         var geneCoverageData = "";
         cmd.on('data', function(data) {
             if (data == undefined) {
