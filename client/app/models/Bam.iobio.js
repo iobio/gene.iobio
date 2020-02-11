@@ -6,6 +6,9 @@
 
 // extending Thomas Down's original BAM js work
 
+import { createHoster } from 'fibridge-host';
+
+
 export default class Bam {
    constructor(globalApp, endpoint, bamUri, baiUri, options) {
       this.globalApp = globalApp;
@@ -13,11 +16,14 @@ export default class Bam {
       this.bamUri = bamUri;
       this.baiUri = baiUri;
       this.options = options; // *** add options mapper ***
+
       // test if file or url
       if (typeof(this.bamUri) == "object") {
-         this.sourceType = "file";
-         this.bamFile = this.bamUri;
-         this.baiFile = this.options.bai;
+         this.sourceType = "url";
+          this.bamFile = null;
+          this.baiFile = null;
+         // this.bamFile = this.bamUri;
+         // this.baiFile = this.options.bai;
          this.makeBamBlob();
       } else  {
          this.sourceType = "url";
@@ -70,15 +76,42 @@ export default class Bam {
 
    makeBamBlob(callback) {
      var me = this;
-     this.bamBlob = new BlobFetchable(this.bamFile);
-     this.baiBlob = new BlobFetchable(this.baiFile); // *** add if statement if here ***
-     makeBam(this.bamBlob, this.baiBlob, function(bam) {
-        me.setHeader(bam.header);
-        me.provide(bam);
-        if (callback) {
-          callback();
-        }
-     });
+       const proxyAddress = 'lf-proxy.iobio.io';
+       const port = 443;
+       const secure = true;
+       const protocol = secure ? 'https:' : 'http:';
+       // TODO: shouldn't this be going out of scope and eventually garbage
+       // collected, which could lead to race conditions?
+       createHoster({ proxyAddress, port, secure }).then((hoster) => {
+           const bamPath = '/' + me.bamFile.name;
+           hoster.hostFile({ path: bamPath, file: me.bamFile });
+           const baiPath = '/' + me.baiFile.name;
+           hoster.hostFile({ path: baiPath, file: me.baiFile });
+           const portStr = hoster.getPortStr();
+           const baseUrl = `${protocol}//${proxyAddress}${portStr}`;
+           me.bamUri = `${baseUrl}${hoster.getHostedPath(bamPath)}`;
+           me.baiUri = `${baseUrl}${hoster.getHostedPath(baiPath)}`;
+           me.sourceType = "url";
+           me.bamFile = null;
+           me.baiFile = null;
+
+       });
+
+          if (callback) {
+            callback();
+          }
+
+
+     //
+     // this.bamBlob = new BlobFetchable(this.bamFile);
+     // this.baiBlob = new BlobFetchable(this.baiFile); // *** add if statement if here ***
+     // makeBam(this.bamBlob, this.baiBlob, function(bam) {
+     //    me.setHeader(bam.header);
+     //    me.provide(bam);
+     //    if (callback) {
+     //      callback();
+     //    }
+     // });
    }
 
   checkBamUrl(url, baiUrl, callback) {
@@ -201,6 +234,7 @@ export default class Bam {
     }
     me.bamFile   = bamFile;
     me.baiFile   = baiFile;
+
     me.sourceType = "file";
     me.makeBamBlob( function() {
       callback(true);
@@ -291,13 +325,13 @@ export default class Bam {
     if (me.header) {
        callback(me.header);
     }
-    else if (me.sourceType == 'file') {
-      console.log('Error: header not set for local bam file');
-      callback(null);
-    } else {
+    // else if (me.sourceType == 'file') {
+    //   console.log('Error: header not set for local bam file');
+    //   callback(null);
+    // }
+    else {
 
       var cmd = me.endpoint.getBamHeader(me.bamUri, me.baiUri);
-
       var success = null;
       var rawHeader = "";
       cmd.on('data', function(data) {
@@ -514,7 +548,7 @@ export default class Bam {
       callback();
     } else {
       var bam = bams[idx];
-      if (bam.sourceType == "url") {
+      if (bam.bamUri) {
         bamSources.push({'bamUrl': bam.bamUri, 'baiUrl': bam.baiUri});
         idx++;
         me._initializeBamSource(bams, refName, regionStart, regionEnd, bamSources, idx, callback);
@@ -556,7 +590,6 @@ export default class Bam {
       var bamSources = [];
       me._initializeBamSource(bams, trRefName, regionStart, regionEnd, bamSources, index, function() {
         var cmd = me.endpoint.getGeneCoverage(bamSources, trRefName, geneObject.gene_name, regionStart, regionEnd, regions);
-
         var geneCoverageData = "";
         cmd.on('data', function(data) {
             if (data == undefined) {
