@@ -740,9 +740,6 @@ export default function vcfiobio(theGlobalApp) {
 
     var cmd = me.getEndpoint().annotateVariants({'vcfUrl': me.vcfURL, 'tbiUrl': me.tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose);
 
-
-    debugger;
-
     var annotatedData = "";
     // Get the results from the iobio command
     cmd.on('data', function(data) {
@@ -828,9 +825,6 @@ export default function vcfiobio(theGlobalApp) {
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
     var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose);
-
-
-    debugger;
 
     var annotatedData = "";
     // Get the results from the iobio command
