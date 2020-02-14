@@ -495,7 +495,7 @@
 
       <div class="variant-inspect-column" v-if="selectedVariant && selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
-            Frequency
+              Pop Freq in gnomAD
             <info-popup name="gnomAD"></info-popup>
             <v-divider></v-divider>
           </div>
