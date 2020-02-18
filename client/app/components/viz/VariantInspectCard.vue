@@ -422,19 +422,6 @@
                Read Pileup
               </v-btn>
             </div>
-
-
-          <!--<div class="variant-row" v-if="selectedVariant && selectedVariant.genotypes">-->
-            <!--<variant-allele-counts-menu-->
-              <!--v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"-->
-              <!--:selectedVariant="selectedVariant"-->
-              <!--:affectedInfo="cohortModel.affectedInfo"-->
-              <!--:cohortModel="cohortModel.mode"-->
-              <!--:relationship="selectedVariantRelationship">-->
-            <!--</variant-allele-counts-menu>-->
-          <!--</div>-->
-
-
           </div>
 
       </div>
