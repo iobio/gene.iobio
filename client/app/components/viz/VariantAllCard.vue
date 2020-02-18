@@ -131,8 +131,8 @@
   .badge, .v-badge
     padding: 0px 5px 0px 0px
     padding: 3px 7px
-    background-color: white 
-    color: $text-color 
+    background-color: white
+    color: $text-color
     font-weight: normal
     font-size: 13px
     padding-top: 2px
@@ -1155,6 +1155,9 @@ export default {
       let self = this;
       let tooltip = d3.select("#exon-tooltip");
 
+
+      console.log("showExonTooltip 4 inside VariantAllCard");
+
       if (featureObject == null) {
         self.hideExonTooltip();
         return;
@@ -1200,10 +1203,17 @@ export default {
       }
 
       var coord = self.globalAppProp.utility.getTooltipCoordinates(featureObject.node(),
-        tooltip, self.$el.offsetWidth, $('nav.toolbar').outerHeight());
-      tooltip.style("left", coord.x + "px")
+        tooltip, self.$el.offsetWidth, 15);
+
+      console.log("coord", coord);
+
+
+      tooltip.style("left", (coord.x - 25) + "px")
              .style("text-align", 'left')
-             .style("top", (coord.y-60) + "px");
+             .style("top", coord.y + "px");
+
+      console.log("VariantAllCard 4, x and y");
+      console.log("coord.x, coord.y", coord.x, coord.y);
 
       tooltip.style("z-index", 1032);
       tooltip.transition()

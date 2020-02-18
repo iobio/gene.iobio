@@ -1212,7 +1212,9 @@ export default {
       let self = this;
       let tooltip = d3.select("#exon-tooltip");
 
-      if (featureObject == null) {
+      console.log("showExonToolTip VariantInspectCard");
+
+        if (featureObject == null) {
         self.hideExonTooltip();
         return;
       }
@@ -1257,10 +1259,12 @@ export default {
       }
 
       var coord = self.globalApp.utility.getTooltipCoordinates(featureObject.node(),
-        tooltip, self.$el.offsetWidth, $('nav.toolbar').outerHeight());
+        tooltip, self.$el.offsetWidth, 15);
       tooltip.style("left", coord.x + "px")
              .style("text-align", 'left')
              .style("top", (coord.y-60) + "px");
+
+      console.log("coord inside VariantInspectCard", coord);
 
       tooltip.style("z-index", 1032);
       tooltip.transition()
