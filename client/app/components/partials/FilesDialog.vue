@@ -27,7 +27,7 @@
   .input-group.radio-group
     padding-top: 0px
 
-  .v-input--radio-group 
+  .v-input--radio-group
     padding-top: 0px
     margin-top: 0px
 
@@ -108,7 +108,6 @@
       margin-bottom: 10px
       margin-top: 0px
 
-</style>
 </style>
 
 <template>
@@ -232,17 +231,16 @@
                </v-flex>
 
                <v-flex   class="pr-2">
-                 <v-select
+                 <v-autocomplete
                   v-if="probandSamples && probandSamples.length > 0"
                   v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
                   label="Unaffected Siblings"
                   multiple
-                  autocomplete
                   v-model="unaffectedSibs"
                   :items="probandSamples"
                   hide-details
                   >
-                </v-select>
+                </v-autocomplete>
                </v-flex>
             </v-layout>
 
@@ -301,7 +299,7 @@ export default {
         this.showFilesDialog = true
         this.mode = this.cohortModel.mode;
         this.init();
-      } 
+      }
     },
     showFilesDialog: function() {
       if (!this.showFilesDialog) {

@@ -11,17 +11,17 @@
     font-size: 12px
 
 
-  .refalt 
+  .refalt
     max-width: 200px
     white-space: normal
     display: inline-block
     word-break: break-all
-    
+
   .aa-change
     max-width: 200px
     white-space: normal
     display: inline-block
-    word-break: break-all    
+    word-break: break-all
 
   #show-assessment-button
     padding: 0px
@@ -208,42 +208,42 @@
 
 
 
-  .pedigree-chart 
-    circle 
+  .pedigree-chart
+    circle
       fill: none
       stroke: black
       stroke-width: 1px
 
-    rect 
+    rect
       stroke: black
       stroke-width: 1px
       fill: none
 
-    .half-circle  
+    .half-circle
       path
         fill: none
         stroke: black
         stroke-width: 1px
 
-    .half-diamond 
-      path 
+    .half-diamond
+      path
         fill: none
         stroke: black
         stroke-width: 1px
 
-    rect.het 
+    rect.het
       stroke: none !important
 
     .het, .hom
       fill: #c5c5c5 !important
       stroke: black
 
-    .half-circle  
-      path.het 
+    .half-circle
+      path.het
         fill: #c5c5c5 !important
         stroke: black
-    .half-diamond 
-      path.het 
+    .half-diamond
+      path.het
         fill: #c5c5c5 !important
         stroke: black
 
@@ -251,11 +251,11 @@
     .het.critical.proband, .hom.critical.proband
       fill: #c5c5c5 !important
 
-    .half-diamond 
-      path.het.critical.proband 
+    .half-diamond
+      path.het.critical.proband
         fill: #c5c5c5 !important
 
-    line 
+    line
       stroke: black !important
 
 
@@ -263,8 +263,8 @@
       stroke: $current-color !important
       stroke-width: 3px !important
 
-    .allele-count-bar 
-      rect.alt-count 
+    .allele-count-bar
+      rect.alt-count
         fill: $current-color
         opacity: .65
 
@@ -322,7 +322,10 @@
 
       <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
 
-      <span v-if="info && info.rsId && info.rsId != ''" style="margin-top:2px" class="pr-1 mr-1">{{ info.rsId }}</span>
+
+        <span>
+=      <a :href="info.dbSnpUrl" target="_blank" v-if="info && info.rsId && info.rsId != ''" style="margin-top:2px" class="pr-1 mr-1">{{ info.rsId }}</a>
+        </span>
 
       <app-icon
        style="min-width:35px;margin-top:1px;margin-right:5px;padding-top: 2px;margin-right:10px"
@@ -383,9 +386,9 @@
               :maxDepth="cohortModel.maxDepth"
               :regionStart="coverageRegionStart"
               :regionEnd="coverageRegionEnd"
-              :width="130"
+              :width="150"
               :margin="depthVizMargin"
-              :height="80"
+              :height="120"
               :showTooltip="false"
               :showXAxis="false"
               :regionGlyph="depthVizRegionGlyph"
@@ -419,19 +422,6 @@
                Read Pileup
               </v-btn>
             </div>
-
-
-          <div class="variant-row" v-if="selectedVariant && selectedVariant.genotypes">
-            <variant-allele-counts-menu
-              v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()"
-              :selectedVariant="selectedVariant"
-              :affectedInfo="cohortModel.affectedInfo"
-              :cohortModel="cohortModel.mode"
-              :relationship="selectedVariantRelationship">
-            </variant-allele-counts-menu>
-          </div>
-
-
           </div>
 
       </div>
@@ -449,7 +439,7 @@
               </div>
             </div>
           </div>
-      </div>      
+      </div>
       <div class="variant-inspect-column" v-if="selectedVariant && info">
           <div class="variant-column-header">
             Pathogenicity
@@ -484,7 +474,7 @@
                         </v-btn>
                       </div>
                     </span>
-            
+
           </div>
 
           <variant-inspect-row v-if="info.revel != '' && info.revel"
@@ -492,10 +482,10 @@
           </variant-inspect-row>
       </div>
 
-     
+
       <div class="variant-inspect-column" v-if="selectedVariant && selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
-            Frequency                     
+              Pop Freq in gnomAD
             <info-popup name="gnomAD"></info-popup>
             <v-divider></v-divider>
           </div>
@@ -586,7 +576,7 @@
             </div>
             <div style="min-width:190px" >
 
-          
+
               <toggle-button
                 v-if="false && hasConservationAligns"
                 name1="Nuc"
@@ -595,7 +585,7 @@
                 buttonWidth="90"
                @click="onToggleConservationNucAA">
               </toggle-button>
-            
+
 
               <span v-if="multialignInProgress" class="pt-4 loader multialign-loader" >
                   <img src="../../../assets/images/wheel.gif">
@@ -627,7 +617,6 @@ import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
 import VariantInspectInheritanceRow from "../partials/VariantInspectInheritanceRow.vue"
 import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
 import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
-import VariantAlleleCountsMenu  from "../partials/VariantAlleleCountsMenu.vue"
 import InfoPopup                from "../partials/InfoPopup.vue"
 import ToggleButton             from '../partials/ToggleButton.vue'
 import DepthViz                 from "../viz/DepthViz.vue"
@@ -653,7 +642,6 @@ export default {
     VariantInspectRow,
     VariantInspectQualityRow,
     VariantInspectInheritanceRow,
-    VariantAlleleCountsMenu,
     DepthViz,
     GeneViz,
     PedigreeGenotypeViz,
@@ -1035,7 +1023,7 @@ export default {
         setTimeout(function() {
           if (self.$refs.pedigreeGenotypeViz) {
             self.$refs.pedigreeGenotypeViz.update();
-          }   
+          }
         },2000)
       }
 
@@ -1211,7 +1199,9 @@ export default {
       let self = this;
       let tooltip = d3.select("#exon-tooltip");
 
-      if (featureObject == null) {
+      console.log("showExonToolTip VariantInspectCard");
+
+        if (featureObject == null) {
         self.hideExonTooltip();
         return;
       }
@@ -1256,10 +1246,12 @@ export default {
       }
 
       var coord = self.globalApp.utility.getTooltipCoordinates(featureObject.node(),
-        tooltip, self.$el.offsetWidth, $('nav.toolbar').outerHeight());
+        tooltip, self.$el.offsetWidth, 15);
       tooltip.style("left", coord.x + "px")
              .style("text-align", 'left')
              .style("top", (coord.y-60) + "px");
+
+      console.log("coord inside VariantInspectCard", coord);
 
       tooltip.style("z-index", 1032);
       tooltip.transition()
@@ -1355,7 +1347,7 @@ export default {
         })
         .catch(function(data) {
           self.multialignInProgress = false;
-        })        
+        })
       }
     },
     onEnterComments: function() {
@@ -1471,7 +1463,7 @@ export default {
 
             if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
               gnomAD.link += "?dataset=gnomad_r3"
-            };              
+            };
 
             gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
             gnomAD.class         = this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF);

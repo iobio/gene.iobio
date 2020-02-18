@@ -29,14 +29,28 @@ export default function PedigreeGenotypeChartD3() {
       createDiamond(parent)
     }
     if (nodeData.affectedStatus == 'affected') {
-      parent.append("g")
-            .attr("transform", "translate(-" + (nodeWidth/2) + ", -" + (nodeWidth/2) + ")")
-            .append("use")
-            .attr("xlink:href", "#affected-symbol")
-            .attr("class", "level-high")
-            .attr("width", 20)
-            .attr("height", 20)
-            .style("pointer-events", "none");
+
+
+        if(nodeData.sex === "female") {
+            parent.append("g")
+                .attr("transform", "translate(-" + (nodeWidth / 3) + ", -" + (nodeWidth / 1.9) + ")")
+                .append("use")
+                .attr("xlink:href", "#affected-symbol")
+                .attr("class", "level-high")
+                .attr("width", 20)
+                .attr("height", 20)
+                .style("pointer-events", "none");
+        }
+        else{
+            parent.append("g")
+                .attr("transform", "translate(-" + (nodeWidth / 1.75) + ", -" + (nodeWidth / 2) + ")")
+                .append("use")
+                .attr("xlink:href", "#affected-symbol")
+                .attr("class", "level-high")
+                .attr("width", 20)
+                .attr("height", 20)
+                .style("pointer-events", "none");
+        }
     }
 
   }
@@ -110,7 +124,7 @@ export default function PedigreeGenotypeChartD3() {
           .attr("height", nodeWidth)
           .attr("x", 0)
           .attr("y", 0)
-      
+
     } else {
        parent.append("rect")
             .attr("class", function(d,i) {
@@ -155,7 +169,7 @@ export default function PedigreeGenotypeChartD3() {
            .attr("transform", function(d,i) {
               return "translate(" + (halfWidth*2) + "," + (nodeWidth/2) + "), rotate(90)";
            })
-        
+
       right.append("path")
             .attr("class",function(d,i) {
               return nodeData.rel  + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');
@@ -193,12 +207,12 @@ export default function PedigreeGenotypeChartD3() {
             })
 
       group.append("rect")
-           .attr("width", (nodeWidth+20))      
+           .attr("width", (nodeWidth+20))
            .attr("height", 5)
 
       group.append("rect")
            .attr("class", "alt-count")
-           .attr("width", (nodeWidth+20) * nodeData.altRatio)      
+           .attr("width", (nodeWidth+20) * nodeData.altRatio)
            .attr("height", 5)
 
       group.append("text")
