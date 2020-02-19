@@ -305,7 +305,7 @@ main.content.clin, main.v-content.clin
 
         <gene-variants-card
           v-bind:class="{hide : showWelcome, 'full-width': true}"
-          v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && !isEduMode "
+          v-if="selectedGene && Object.keys(selectedGene).length > 0 && !isEduMode "
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :genomeBuildHelper="genomeBuildHelper"
