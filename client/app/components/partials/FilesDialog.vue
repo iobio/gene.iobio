@@ -6,7 +6,7 @@
 
 
 #files-form
-  padding-left: 20px
+  padding-left: 40px
   padding-right: 20px
 
   .input-group.radio
