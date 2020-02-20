@@ -3,6 +3,7 @@
   #select-transcripts-box .theme--light .btn,
   #select-transcripts-box.application .theme--light.btn {
     color:  rgb(113,113,113);
+    padding: 20px;
   }
 
 
