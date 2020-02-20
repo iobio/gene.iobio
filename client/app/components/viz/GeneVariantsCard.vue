@@ -238,10 +238,10 @@ export default {
       let self = this;
 
       var switchMsg = null;
-      if (self.geneModel.refseqOnly[self.selectedGene.gene_name] && geneSource != 'refseq') {
+      if (self.cohortModel.geneModel.refseqOnly[self.selectedGene.gene_name] && geneSource != 'refseq') {
         switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in RefSeq. Switching to this transcript set.';
         self.geneSource = 'refseq';
-      } else if (self.geneModel.gencodeOnly[self.selectedGene.gene_name] && geneSource != 'gencode') {
+      } else if (self.cohortModel.geneModel.gencodeOnly[self.selectedGene.gene_name] && geneSource != 'gencode') {
         switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in Gencode. Switching to this transcript set.';
         self.geneSource = 'gencode';
       } else {
