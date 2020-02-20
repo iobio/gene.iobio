@@ -1155,9 +1155,6 @@ export default {
       let self = this;
       let tooltip = d3.select("#exon-tooltip");
 
-
-      console.log("showExonTooltip 4 inside VariantAllCard");
-
       if (featureObject == null) {
         self.hideExonTooltip();
         return;
