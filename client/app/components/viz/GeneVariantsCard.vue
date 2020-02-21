@@ -108,6 +108,7 @@
 
 
 <template>
+<div>
 
   <v-card v-if="selectedGene" tile id="gene-variants-card" class="app-card full-width">
 
@@ -130,7 +131,7 @@
 
         <div style="display:inline-block;margin-left: 20px">
           <transcripts-menu
-            v-if="selectedTranscript && selectedTranscript.transcript_id && !isBasicMode"
+            v-if="!isBasicMode"
             :selectedGene="selectedGene"
             :selectedTranscript="selectedTranscript"
             :geneSources="geneSources"
@@ -140,8 +141,6 @@
             @gene-source-selected="onGeneSourceSelected">
           </transcripts-menu>
         </div>
-
-
 
 
       <div style="display:inline-block;margin-left:10px">
@@ -164,22 +163,32 @@
             </v-text-field>
         </div>
       </div>
-
-
-       
-
-
     </div>
-
-
-
-
   </v-card>
+    <div>
+
+        <div style="display:inline-block;margin-left: 20px">
+
+            <gene-viz id="gene-viz-zoom"
+                      :data="[selectedTranscript]"
+                      :width="2000"
+                      :margin="margin"
+                      :showXAxis="true"
+                      :regionStart="parseInt(selectedGene.start)"
+                      :regionEnd="parseInt(selectedGene.end)"
+                      :showBrush="true"
+            >
+            </gene-viz>
+
+        </div>
+    </div>
+</div>
 </template>
 
 <script>
 
 import GeneLinksMenu          from "../partials/GeneLinksMenu.vue"
+import GeneViz from '../viz/GeneViz.vue'
 import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
 
 
@@ -187,7 +196,8 @@ export default {
   name: 'gene-variants-card',
   components: {
     GeneLinksMenu,
-    TranscriptsMenu
+    TranscriptsMenu,
+      GeneViz
   },
   props: {
     selectedGene: null,
@@ -204,6 +214,7 @@ export default {
   },
   data() {
     return {
+        margin: {"top": 15, "bottom": 15, "left": 15, "right": 15},
       geneSource: null,
       geneSources: ['gencode', 'refseq'],
 
@@ -262,6 +273,10 @@ export default {
 
   watch: {
 
+      selectedTranscript(){
+          console.log("change in selectedTranscript", self.selectedTranscript);
+      }
+
   },
 
   filters: {
@@ -269,6 +284,7 @@ export default {
       return !value ? '' : d3.format(",")(value);
     },
     formatTranscriptType: function(transcript) {
+        debugger;
       if (transcript && transcript.transcript_type.indexOf("transcript") < 0) {
         return transcript.transcript_type + " transcript";
       } else if (transcript) {
@@ -285,6 +301,8 @@ export default {
 
   mounted: function() {
     this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
+    console.log("selectedTranscript on mounted", this.selectedTranscript);
+
   },
 
   created: function() {
