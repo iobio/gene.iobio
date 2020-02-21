@@ -25,12 +25,13 @@ export default class HubSession {
     };
   }
 
-  promiseInit(sampleId, source, isPedigree, projectId ) {
+  promiseInit(sampleId, source, isPedigree, projectId, geneSetId ) {
     let self = this;
     self.api = source + self.apiVersion;
 
     return new Promise((resolve, reject) => {
       let modelInfos = [];
+      let geneSet = null;
 
       self.promiseGetCurrentUser()
       .then(function(data) {
@@ -43,6 +44,15 @@ export default class HubSession {
 
       self.promiseGetClientApplication()
       .then(function() {
+        if (geneSetId) {
+          return self.promiseGetGeneSet(projectId, geneSetId)
+        } else {
+          return Promise.resolve(null);
+        }
+      })
+      .then(function(data) {
+        geneSet = data;
+
         self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then(data => {
 
 
@@ -135,7 +145,7 @@ export default class HubSession {
                 alertify.alert("Error", buf)
               }
 
-              resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree});
+              resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree, 'geneSet': geneSet});
             })
             .catch(error => {
               reject(error);
@@ -596,6 +606,20 @@ export default class HubSession {
     });
   }
 
+  promiseGetGeneSet(projectId, geneSetId) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getGeneSet(projectId, geneSetId)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        reject("Error getting gene set " + geneSetId + ": " + error);
+      })
+    })
+
+  }
+
   promiseGetAnalysis(projectId, analysisId) {
     let self = this;
     return new Promise(function(resolve, reject) {
@@ -735,6 +759,19 @@ export default class HubSession {
       },
     });
 
+  }
+
+  getGeneSet(projectId, geneSetId) {
+    let self = this;
+
+    return $.ajax({
+      url: self.api + '/projects/' + projectId + '/genes/sets/' + geneSetId,
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
   }
 
   stringifyAnalysis(analysisData) {
