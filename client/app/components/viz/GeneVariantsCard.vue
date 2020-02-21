@@ -165,23 +165,6 @@
       </div>
     </div>
   </v-card>
-    <div>
-
-        <div style="display:inline-block;margin-left: 20px">
-
-            <gene-viz id="gene-viz-zoom"
-                      :data="[selectedTranscript]"
-                      :width="2000"
-                      :margin="margin"
-                      :showXAxis="true"
-                      :regionStart="parseInt(selectedGene.start)"
-                      :regionEnd="parseInt(selectedGene.end)"
-                      :showBrush="true"
-            >
-            </gene-viz>
-
-        </div>
-    </div>
 </div>
 </template>
 
@@ -272,11 +255,6 @@ export default {
   },
 
   watch: {
-
-      selectedTranscript(){
-          console.log("change in selectedTranscript", self.selectedTranscript);
-      }
-
   },
 
   filters: {
@@ -301,8 +279,6 @@ export default {
 
   mounted: function() {
     this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
-    console.log("selectedTranscript on mounted", this.selectedTranscript);
-
   },
 
   created: function() {

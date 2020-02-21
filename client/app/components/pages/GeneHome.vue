@@ -1616,10 +1616,10 @@ export default {
       self.clearFilter();
       self.deselectVariant();
       self.activeGeneVariantTab = "0";
-      self.showLeftPanelForGenes();
+      // self.showLeftPanelForGenes();
       self.promiseLoadGene(geneName)
       .then(function() {
-        self.showLeftPanelForGenes();
+        // self.showLeftPanelForGenes();
         self.onSendGenesToClin();
         self.setUrlGeneParameters();
 
