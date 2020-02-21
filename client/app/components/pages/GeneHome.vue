@@ -1040,13 +1040,6 @@ export default {
         let translator = new Translator(self.globalApp, glyph);
         let genericAnnotation = new GenericAnnotation(glyph);
 
-
-        //todo
-        console.log("launchedFromHub", self.launchedFromHub);
-        console.log("launchedFromClin", self.launchedFromClin);
-        console.log("launchedFromSafari", self.launchedFromSFARI);
-        console.log("launchedWithURLParams", self.launchedWithUrlParms);
-
         self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage, self.launchedFromHub);
         self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
         self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
