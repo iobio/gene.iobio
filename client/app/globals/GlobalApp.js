@@ -19,6 +19,8 @@ class GlobalApp {
 
     this.IOBIO_SOURCE          = this.PROD_IOBIO;
     //this.HTTP_SOURCE           = "backend.iobio.io/"
+    this.IOBIO_BACKEND = "https://backend.iobio.io/";
+    this.MOSAIC_BACKEND = "https://mosaic.chpc.utah.edu/gru/api/v1/"
     this.HTTP_SOURCE           = this.PROD_IOBIO;
 
     this.isOffline             = false;          // is there any internet connect to outside services and resources?
@@ -97,7 +99,6 @@ class GlobalApp {
   initServices() {
 
     this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.IOBIO_SOURCE;
-
     // End with "/" for IOBIO services
     if (this.IOBIO_SERVICES.indexOf("/", this.IOBIO_SERVICES.length - 1) == -1) {
         this.IOBIO_SERVICES += "/";
@@ -126,7 +127,7 @@ class GlobalApp {
           'GRCh38': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2018/clinvar_20181202.vcf.gz",
         };
         return clinvarUrls[build];
-      
+
       }
 
   }
