@@ -305,7 +305,7 @@ main.content.clin, main.v-content.clin
 
         <gene-variants-card
           v-bind:class="{hide : showWelcome, 'full-width': true}"
-          v-if="selectedGene && Object.keys(selectedGene).length > 0 && !isEduMode "
+          v-if="showGeneVariantsCard"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :genomeBuildHelper="genomeBuildHelper"
@@ -722,7 +722,6 @@ export default {
     let self = this;
     return {
       greeting: 'gene.iobio',
-
       launchedFromClin:   false,
       isFullAnalysis:     false,
       isClinFrameVisible: false,
@@ -948,6 +947,11 @@ export default {
         return 0;
       }
     },
+
+    showGeneVariantsCard: function(){
+     return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
+    },
+
     probandModel: function() {
       let self = this;
       let theModels = [];
