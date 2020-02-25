@@ -949,7 +949,7 @@ export default {
     },
 
     showGeneVariantsCard: function(){
-     return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
+     return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.paramSamples && this.paramSamples.length > 0))
     },
 
     probandModel: function() {
