@@ -262,7 +262,6 @@ export default {
       return !value ? '' : d3.format(",")(value);
     },
     formatTranscriptType: function(transcript) {
-        debugger;
       if (transcript && transcript.transcript_type.indexOf("transcript") < 0) {
         return transcript.transcript_type + " transcript";
       } else if (transcript) {
