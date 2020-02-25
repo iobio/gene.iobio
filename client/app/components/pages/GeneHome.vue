@@ -702,6 +702,7 @@ export default {
     paramSource:           null,
     paramIobioSource:      null,
     paramAnalysisId:       null,
+    paramGeneSetId:        null,
 
     paramFileId:           null,
 
@@ -732,6 +733,7 @@ export default {
       isHubDeprecated: false,
       sampleId: null,
       projectId: null,
+      geneSet: null,
       launchedWithUrlParms: false,
       clinSetData: null,
       clinPersistCache: true,
@@ -1165,10 +1167,11 @@ export default {
         }
 
         self.cohortModel.setHubSession(self.hubSession);
-        self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId)
+        self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId, self.paramGeneSetId)
         .then(data => {
           self.modelInfos = data.modelInfos;
           self.rawPedigree = data.rawPedigree;
+          self.geneSet = data.geneSet;
 
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
@@ -1193,6 +1196,17 @@ export default {
                 self.isSfariProject = true;
             }
             return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject)
+        })
+        .then(function() {
+          if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
+            let genePromises = [];
+            self.geneSet.genes.forEach(function(geneName) {
+              genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+            })
+            return Promise.all(genePromises)
+          } else {
+            return Promise.resolve();
+          }
         })
         .then(function() {
           if ((self.analysis.payload.variants == null || self.analysis.payload.variants.length == 0) && self.hubSession.hasVariantSets(self.modelInfos)) {
