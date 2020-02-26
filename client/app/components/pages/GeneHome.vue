@@ -212,7 +212,6 @@ main.content.clin, main.v-content.clin
       @apply-variant-interpretation="onApplyVariantInterpretation"
       @on-files-loaded="onFilesLoaded"
       @on-left-drawer="onLeftDrawer"
-      @on-show-welcome="onShowWelcome"
       @show-snackbar="onShowSnackbar"
       @hide-snackbar="onHideSnackbar"
       @gene-selected="onGeneClicked"
@@ -951,7 +950,7 @@ export default {
     },
 
     showGeneVariantsCard: function(){
-     return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.paramSamples && this.paramSamples.length > 0))
+      return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
     },
 
     probandModel: function() {
@@ -2852,9 +2851,6 @@ export default {
       if (!this.isEduMode) {
         this.isLeftDrawerOpen = isOpen;
       }
-    },
-    onShowWelcome: function() {
-      this.showWelcome = true;
     },
     promiseInitMyGene2: function() {
       let self = this;

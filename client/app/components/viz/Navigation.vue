@@ -155,7 +155,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
 nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
-  .v-toolbar__content 
+  .v-toolbar__content
     padding-right: 0px
 
   #more-menu-button
@@ -604,10 +604,6 @@ nav.toolbar, nav.v-toolbar
 
 
           <v-divider></v-divider>
-
-          <v-list-tile  @click="onWelcome">
-            <v-list-tile-title>Show welcome page</v-list-tile-title>
-          </v-list-tile>
 
           <v-list-tile @click="onShowBlog">
             <v-list-tile-title>Blog</v-list-tile-title>
@@ -1130,7 +1126,7 @@ export default {
       self.$nextTick(function() {
         if (!self.launchedFromClin || self.isClinFrameVisible) {
           if (!self.isEduMode) {
-            self.leftDrawer = true;          
+            self.leftDrawer = true;
           }
         }
       })
@@ -1141,7 +1137,7 @@ export default {
       this.$nextTick(function() {
         if (!self.launchedFromClin || self.isClinFrameVisible) {
           if (!self.isEduMode) {
-            self.leftDrawer = true;          
+            self.leftDrawer = true;
           }
         }
       })
@@ -1152,7 +1148,7 @@ export default {
       this.$nextTick(function() {
         if (!self.launchedFromClin || self.isClinFrameVisible) {
           if (!self.isEduMode) {
-            self.leftDrawer = true;          
+            self.leftDrawer = true;
           }
         }
       })
