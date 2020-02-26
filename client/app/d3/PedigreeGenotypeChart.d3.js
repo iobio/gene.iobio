@@ -225,7 +225,7 @@ export default function PedigreeGenotypeChartD3() {
               }
            })
            .text(function(d,i) {
-              return nodeData.altCount + " of " + nodeData.totalCount
+              return nodeData.altCount + " alt, " + (nodeData.totalCount-nodeData.altCount) + ' ref';
            })
     }
 
