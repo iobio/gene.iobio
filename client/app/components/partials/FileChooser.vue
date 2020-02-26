@@ -9,7 +9,7 @@
     font-size: 12px;
     font-weight: 500 !important;
     text-transform: none !important;
-    margin-left: 0px;
+    margin-left: 0px;    display: inline-block;
   }
   .file-chooser-button .btn__content,
   .file-chooser-button .v-btn__content {
@@ -32,10 +32,6 @@
     display: block;
   }
 
-  #file-chooser-button {
-    display: inline-block;
-  }
-
   #file-label-area {
     display: inline-block;
   }
@@ -56,7 +52,7 @@
 
 <template>
   <span style="display:inline-block">
-    <v-btn id="file-chooser-button" dark class="btn--dark-flat-focused file-chooser-button">
+    <v-btn dark class="btn--dark-flat-focused file-chooser-button">
       {{ title }}
       <input v-if="isMultiple"  class="select-file" multiple type="file" @change="onFileSelected">
       <input v-if="!isMultiple" class="select-file" v-bind:accept="accept" type="file" @change="onFileSelected" >
