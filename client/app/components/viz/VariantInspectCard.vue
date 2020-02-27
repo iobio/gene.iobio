@@ -324,7 +324,11 @@
 
 
         <span>
-=      <a :href="info.dbSnpUrl" target="_blank" v-if="info && info.rsId && info.rsId != ''" style="margin-top:2px" class="pr-1 mr-1">{{ info.rsId }}</a>
+            <v-btn flat v-if="info && info.rsId && info.rsId != ''"
+                                 class="variant-action-button"  @click="launchDbSnp">
+               <v-icon>open_in_new</v-icon>
+               {{info.rsId}}
+              </v-btn>
         </span>
 
       <app-icon
@@ -727,6 +731,11 @@ export default {
 
     },
 
+
+      launchDbSnp(){
+          let url = this.info.dbSnpUrl;
+          window.open(url, '_blank');
+      },
 
     formatPopAF: function(afObject) {
       let self = this;

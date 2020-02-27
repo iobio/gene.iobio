@@ -1200,17 +1200,11 @@ export default {
       }
 
       var coord = self.globalAppProp.utility.getTooltipCoordinates(featureObject.node(),
-        tooltip, self.$el.offsetWidth, 15);
+        tooltip, self.$el.offsetWidth, 0);
 
-      console.log("coord", coord);
-
-
-      tooltip.style("left", (coord.x - 25) + "px")
+      tooltip.style("left", (coord.x) + "px")
              .style("text-align", 'left')
              .style("top", coord.y + "px");
-
-      console.log("VariantAllCard 4, x and y");
-      console.log("coord.x, coord.y", coord.x, coord.y);
 
       tooltip.style("z-index", 1032);
       tooltip.transition()

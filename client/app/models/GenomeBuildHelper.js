@@ -1,7 +1,8 @@
 export class GenomeBuildHelper {
 
-  constructor(globalApp) {
+  constructor(globalApp, launchedFromHub) {
     this.globalApp = globalApp;
+    this.launchedFromHub = launchedFromHub;
     this.currentSpecies = null;
     this.currentBuild = null;
     this.speciesList = [];
@@ -19,7 +20,13 @@ export class GenomeBuildHelper {
     this.RESOURCE_CLINVAR_POSITION    = "CLINVAR EUTILS BASE POSITION";
     this.RESOURCE_ENSEMBL_URL         = "ENSEMBL URL";
 
-    this.genomeBuildServer            = this.globalApp.HTTP_SERVICES + "genomebuild/";
+    if(this.launchedFromHub) {
+      this.genomeBuildServer = this.globalApp.MOSAIC_BACKEND + "genomebuild/";
+    }
+    else{
+      this.genomeBuildServer = this.globalApp.IOBIO_BACKEND + "genomebuild/";
+
+    }
 
   }
 

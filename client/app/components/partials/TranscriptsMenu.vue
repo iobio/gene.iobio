@@ -6,8 +6,6 @@
     padding: 20px;
   }
 
-
-
   .dialog__content hr {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -16,7 +14,6 @@
   .dialog__content .card__text {
     padding: 0px
   }
-
 
 </style>
 
@@ -39,7 +36,6 @@
     color: $link-color
     font-size: 13px
 
-
 #select-transcript-viz
 
   .selected
@@ -59,8 +55,8 @@
     height: 20px !important
     width: 22px !important
     padding: 0px !important
-    margin: 0px;
-    margin-left: 4px;
+    margin: 0px
+    margin-left: 4px
 
   .btn--floating.btn--small .btn__content,
   .btn--floating.btn--small .v-btn__content
@@ -69,19 +65,16 @@
   .btn__content, .v-btn__content
     color: $text-color
 
-
   #gene-source-box
     display: block
     margin-top: 0px
     margin-bottom: 10px
     width: 200px
 
-
     .input-group--select
       .input-group__selections__comma
         font-size: 14px
         padding: 0px 0px 0px 0px
-
 
     .input-group
       label
@@ -92,9 +85,6 @@
     .input-group__input
       min-height: 0px
       margin-top: 10px
-
-
-
 
 </style>
 
@@ -109,18 +99,15 @@
     v-model="showTranscriptsMenu"
     >
 
-
       <v-btn id="edit-transcript-button"
        slot="activator"
        flat
        v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
       >
          <v-icon>linear_scale</v-icon>
-         {{ `Transcript ` + selectedTranscript.transcript_id }}
+         {{ `Transcript ` + transcriptId }}
          <v-badge class="info" style="margin-left:5px;" v-if="!isCanonical">non canonical</v-badge>
       </v-btn>
-
-
 
       <v-card id="select-transcripts-box" class="full-width">
         <div id="gene-source-box" >
@@ -133,33 +120,11 @@
           </v-select>
         </div>
 
-        <div style="min-height:100px;max-height: 300px;overflow-y:scroll">
-            <gene-viz id="select-transcript-viz"
-              :data="selectedGene.transcripts"
-              :margin=margin
-              :trackHeight=trackHeight
-              :cdsHeight=cdsHeight
-              :showLabel=true
-              :fixedWidth=600
-              :regionStart="selectedGene.start"
-              :regionEnd="selectedGene.end"
-              :showBrush=false
-              :showXAxis=false
-              @transcript-selected="onTranscriptSelected">
-            </gene-viz>
-
-        </div>
         <div class="text-xs-right">
             <v-btn small class="mb-0" raised @click.native="onTranscriptVizClose">Close</v-btn>
         </div>
       </v-card>
-
-
-
   </v-menu>
-
-
-
 </template>
 
 <script>
@@ -180,6 +145,7 @@ export default {
   },
   data() {
     return {
+      transcriptId: 0,
       margin: {top: 5, right: 5, bottom: 5, left: 200},
       trackHeight: 20,
       cdsHeight: 15,
@@ -192,6 +158,14 @@ export default {
 
   mounted: function() {
     this.geneSource = this.geneModel.geneSource;
+
+    if (JSON.stringify(this.selectedTranscript) === '{}') {
+        let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
+        this.transcriptId = canonical.transcript_id;
+    }
+    else{
+        this.transcriptId = this.selectedTranscript.transcript_id;
+    }
   },
 
   methods: {
@@ -213,8 +187,8 @@ export default {
       let self = this;
       self.$emit('gene-source-selected', self.geneSource);
     },
-
   },
+
   watch:  {
     showTranscriptsMenu: function() {
       if (this.showTranscriptsMenu) {
@@ -224,13 +198,10 @@ export default {
     selectedTranscript: function() {
       if (this.selectedTranscript) {
         let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
-        this.isCanonical = canonical.transcript_id == this.selectedTranscript.transcript_id;        
+        this.isCanonical = canonical.transcript_id == this.selectedTranscript.transcript_id;
       }
     }
   }
-
-
-
 }
 </script>
 

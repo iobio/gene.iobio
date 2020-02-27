@@ -1,12 +1,12 @@
 class GeneModel {
-  constructor(globalApp, limitGenes) {
+  constructor(globalApp, limitGenes, launchedFromHub) {
 
     this.globalApp                 = globalApp;
     this.limitGenes                = limitGenes;
-    this.geneInfoServer            = this.globalApp.HTTP_SERVICES + "geneinfo/";
-    this.geneToPhenoServer         = this.globalApp.HTTP_SERVICES + "gene2pheno/";
+    this.launchedFromHub = launchedFromHub;
+    this.populateServers();
+
     this.phenolyzerServer          = "https://7z68tjgpw4.execute-api.us-east-1.amazonaws.com/dev/phenolyzer/";
-    this.phenolyzerOnlyServer      = this.globalApp.HTTP_SERVICES + "phenolyzer/";
 
     this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
     this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
@@ -79,6 +79,19 @@ class GeneModel {
     d3.rebind(this, this.dispatch, "on");
 
 
+  }
+
+  populateServers(){
+    if(this.launchedFromHub){
+      this.geneInfoServer            = this.globalApp.MOSAIC_BACKEND + "geneinfo/";
+      this.geneToPhenoServer         = this.globalApp.MOSAIC_BACKEND + "gene2pheno/";
+      this.phenolyzerOnlyServer      = this.globalApp.MOSAIC_BACKEND + "phenolyzer/";
+    }
+    else{
+      this.geneInfoServer            = this.globalApp.IOBIO_BACKEND + "geneinfo/";
+      this.geneToPhenoServer         = this.globalApp.IOBIO_BACKEND + "gene2pheno/";
+      this.phenolyzerOnlyServer      = this.globalApp.IOBIO_BACKEND + "phenolyzer/";
+    }
   }
 
   setCandidateGenes(genes) {

@@ -14,7 +14,7 @@
   margin-right: 55px !important
   top: 2px !important
   transform: initial !important
-  
+
   .v-snack__wrapper
     min-width: 150px !important
     background-color: transparent !important
@@ -305,7 +305,7 @@ main.content.clin, main.v-content.clin
 
         <gene-variants-card
           v-bind:class="{hide : showWelcome, 'full-width': true}"
-          v-if="selectedGene && Object.keys(selectedGene).length > 0 && !isEduMode "
+          v-if="showGeneVariantsCard"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :genomeBuildHelper="genomeBuildHelper"
@@ -723,7 +723,6 @@ export default {
     let self = this;
     return {
       greeting: 'gene.iobio',
-
       launchedFromClin:   false,
       isFullAnalysis:     false,
       isClinFrameVisible: false,
@@ -861,7 +860,7 @@ export default {
 
       lastSave: null,
       delaySave: 10000,
- 
+
 
       pileupInfo: {
         // This controls how many base pairs are displayed on either side of
@@ -950,6 +949,11 @@ export default {
         return 0;
       }
     },
+
+    showGeneVariantsCard: function(){
+     return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.paramSamples && this.paramSamples.length > 0))
+    },
+
     probandModel: function() {
       let self = this;
       let theModels = [];
@@ -1026,7 +1030,7 @@ export default {
 
       self.setAppMode();
 
-      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp);
+      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub);
       self.genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
       .then(function() {
         return self.promiseAddCacheHelperListeners();
@@ -1042,7 +1046,7 @@ export default {
         let translator = new Translator(self.globalApp, glyph);
         let genericAnnotation = new GenericAnnotation(glyph);
 
-        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage);
+        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage, self.launchedFromHub);
         self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
         self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
         self.geneModel.setAllKnownGenes(self.allGenes);
@@ -1244,7 +1248,7 @@ export default {
             return Promise.resolve();
           }
         })
-        
+
         .then(function() {
 
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
@@ -1267,12 +1271,12 @@ export default {
                     self.promiseSaveAnalysis({notify:true})
                     .then(function() {
                       self.delaySave = 1000;
-                    })                    
+                    })
                   }
 
                 },1000)
               }, 2000)
-              
+
 
 
               setTimeout(function() {
@@ -1285,7 +1289,7 @@ export default {
 
               resolve();
 
-              
+
 
             })
           } else {
@@ -1355,7 +1359,7 @@ export default {
                 self.promiseSelectFirstFlaggedVariant()
                 .then(function() {
                   self.$refs.navRef.onShowVariantsTab();
-                })                
+                })
               }
 
             }
@@ -1630,10 +1634,10 @@ export default {
       self.clearFilter();
       self.deselectVariant();
       self.activeGeneVariantTab = "0";
-      self.showLeftPanelForGenes();
+      // self.showLeftPanelForGenes();
       self.promiseLoadGene(geneName)
       .then(function() {
-        self.showLeftPanelForGenes();
+        // self.showLeftPanelForGenes();
         self.onSendGenesToClin();
         self.setUrlGeneParameters();
 
@@ -1901,7 +1905,7 @@ export default {
         self.$set(self, "selectedVariantInterpretation", self.selectedVariant);
         self.showVariantAssessment = false;
         self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
-                
+
         self.showVariantExtraAnnots(sourceComponent ? sourceComponent.relationship : 'proband', variant);
 
         self.getVariantCardRefs().forEach(function(variantCard) {
@@ -2597,7 +2601,7 @@ export default {
     onApplyVariantInterpretation: function(variant) {
       let self = this;
 
-      
+
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
       if (variant.gene == null) {
@@ -2693,12 +2697,12 @@ export default {
                 flaggedVariant.notes = notes;
                 flaggedVariant.interpretation = interpretation;
                 flaggedVariant.isProxy = false;
-                
+
                 // TEMP 1/27
                 //if (self.persistAnalysis()) {
                 //  self.promiseUpdateAnalysisVariant(flaggedVariant);
                 //}
-  
+
 
                 self.$set(self, "selectedVariant", flaggedVariant);
                 self.refreshSelectedVariantInfo();
@@ -2748,7 +2752,7 @@ export default {
     onShowCoverageThreshold: function(showIt) {
       let self = this;
       self.showCoverageThreshold = showIt;
-      
+
     },
     onShowKnownVariantsCard: function(showIt) {
       let self = this;
@@ -2832,7 +2836,7 @@ export default {
     onCoverageThresholdApplied: function() {
       let self = this;
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
-        self.showLeftPanelForGenes();      
+        self.showLeftPanelForGenes();
 
         self.refreshCoverageCounts();
         if (self.selectedGene && self.selectedGene.gene_name) {
@@ -3112,7 +3116,7 @@ export default {
       this.launchedFromClin = true;
       if (self.filterModel) {
         self.filterModel.isFullAnalysis = true;
-      } 
+      }
       if (self.geneModel) {
         self.geneModel.isFullAnalysis = true;
       }
@@ -3164,7 +3168,7 @@ export default {
               console.log("gene.iobio set-data finished promiseInitClin")
               self.promiseImportClin()
               .then(function() {
-                
+
               })
           })
         }
@@ -3279,7 +3283,7 @@ export default {
           let simpleAnalysis = $.extend({}, self.analysis);
           simpleAnalysis.payload.variants = exportedVariants;
           simpleAnalysis.payload.filters = self.filterModel.flagCriteria;
-          
+
           var msgObject = {
             success: true,
             type: 'save-analysis',
@@ -3296,7 +3300,7 @@ export default {
             console.log(msgObject);
             alertify.error("Unable to save analysis")
           }
-          if (msgObjectString && msgObjectString.length > 0) {        
+          if (msgObjectString && msgObjectString.length > 0) {
              window.parent.postMessage(msgObjectString, self.clinIobioUrl);
           }
 
@@ -3571,11 +3575,11 @@ export default {
         if (firstFlaggedVariant) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
           .then(function() {
-            
+
             self.toClickVariant = firstFlaggedVariant;
             self.showLeftPanelWhenFlaggedVariants();
             self.onFlaggedVariantSelected(firstFlaggedVariant, function() {
-              resolve()                
+              resolve()
             })
           })
 
@@ -3668,10 +3672,10 @@ export default {
                     if (self.clinShowGeneApp) {
                       self.promiseSelectFirstFlaggedVariant()
                     }
-                  
+
                     self.sendConfirmSetDataToClin();
 
-            
+
                     setTimeout(function() {
                       self.promiseAutosaveAnalysis({notify:true})
 
@@ -3679,9 +3683,9 @@ export default {
                         self.delaySave = 1000;
                       }, 1000)
                     },1000)
-            
+
                   }, 2500)
-              
+
 
 
                   resolve();
@@ -3691,14 +3695,14 @@ export default {
                // })
 
 
-                
+
 
               })
-            } 
+            }
 
-              
+
           })
-          
+
 
         } else {
           resolve();
@@ -3718,7 +3722,7 @@ export default {
             if (analysis) {
               self.analysis = analysis;
 
-             
+
 
               resolve(self.analysis);
 
@@ -3769,8 +3773,8 @@ export default {
 
           if (self.launchedFromClin) {
             self.sendAnalysisToClin();
-            
-            
+
+
           } else {
 
             let promiseSave = null;
@@ -3781,8 +3785,8 @@ export default {
             }
 
             if (options && options.notify) {
-                self.onShowSnackbar( {message: 'saving analysis...', 
-                  timeout: 30000, top: true, right: true });            
+                self.onShowSnackbar( {message: 'saving analysis...',
+                  timeout: 30000, top: true, right: true });
             }
 
 
@@ -3790,7 +3794,7 @@ export default {
             .then(function(analysis) {
               self.analysis = analysis;
               if (options && options.notify) {
-                self.onShowSnackbar( {message: 'analysis saved.', timeout: 2000, top: true, right: true});                
+                self.onShowSnackbar( {message: 'analysis saved.', timeout: 2000, top: true, right: true});
               }
               resolve();
             })
@@ -3831,7 +3835,7 @@ export default {
         if (options && options.delay) {
           setTimeout(function() {
             self.doDelayedAnalysisSave(options)
-          },2000)          
+          },2000)
         } else {
           return self.promiseSaveAnalysis(options);
         }
