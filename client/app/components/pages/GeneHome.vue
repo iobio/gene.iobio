@@ -374,7 +374,7 @@ main.content.clin, main.v-content.clin
 
         <variant-detail-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && isBasicMode"
+          v-if="cohortModel && cohortModel.isLoaded && isBasicMode && user"
           :isBasicMode="isBasicMode"
           :isEduMode="isEduMode"
           :selectedGene="selectedGene"
@@ -950,7 +950,7 @@ export default {
     },
 
     showGeneVariantsCard: function(){
-      return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
+      return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1))
     },
 
     probandModel: function() {
@@ -1156,6 +1156,10 @@ export default {
 
     promiseInitFromMosaic: function() {
       let self = this;
+
+      console.log("promiseInitFromMosaic");
+      debugger;
+
       return new Promise(function(resolve, reject) {
         self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
         let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
@@ -1171,6 +1175,9 @@ export default {
           self.modelInfos = data.modelInfos;
           self.rawPedigree = data.rawPedigree;
           self.geneSet = data.geneSet;
+
+          console.log("self.hubSession", self.hubSession);
+          debugger;
 
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
@@ -3119,6 +3126,7 @@ export default {
 
       var clinObject = JSON.parse(event.data);
 
+
       if (!this.isClinFrameVisible) {
         this.isClinFrameVisible = clinObject.isFrameVisible;
       }
@@ -3138,10 +3146,13 @@ export default {
             self.geneModel.isFullAnalysis = true;
           }
 
+          console.log("clinObject.user before init", clinObject.user);
+
           console.log("gene.iobio set-data cohort model not yet loaded")
           self.init(function() {
             self.analysis = clinObject.analysis;
             self.user     = clinObject.user;
+
             self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
             self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
 
@@ -3456,6 +3467,11 @@ export default {
       let self = this;
       self.nonProbandModels = [];
       if (this.models && this.models.length > 0) {
+
+
+        this.showGeneVariantsCard = this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
+
+
         self.nonProbandModels = self.models.filter(function(model) {
           let keepIt =  model.relationship != 'proband';
           let showIt = false;
