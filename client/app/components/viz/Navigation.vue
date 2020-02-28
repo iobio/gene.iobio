@@ -591,6 +591,9 @@ nav.toolbar, nav.v-toolbar
 
           <v-divider></v-divider>
 
+          <v-list-tile  @click="onShowTermsOfService">
+            <v-list-tile-title>Terms of Service</v-list-tile-title>
+          </v-list-tile>
           <v-list-tile  @click="onShowDisclaimer">
             <v-list-tile-title>Disclaimer</v-list-tile-title>
           </v-list-tile>
@@ -801,6 +804,24 @@ nav.toolbar, nav.v-toolbar
             <v-btn raised  @click.native="showDisclaimer = false">Close</v-btn>
           </v-card-actions>
         </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="showTermsOfService" max-width="400">
+      <v-card class="full-width">
+        <v-card-title class="headline">Terms of service</v-card-title>
+        <v-card-text>
+          <strong>Academic Use - </strong>
+          <br> Gene.iobio is freely available for all Academic use.
+          <br><br>
+          <strong>Commercial Use - </strong>
+          <br>
+          Users from commercial organisations may register a commercial accounts with Frameshift.  To create a commercial account, contact Frameshift at  <a href="mailto:admin@frameshift.io" target="_top">admin@frameshift.io</a> for a consultation.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn raised  @click.native="showTermsOfService= false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
 
     <v-dialog v-model="showOptions" max-width="400">
@@ -1036,6 +1057,7 @@ export default {
       showImportVariants: false,
       showExportVariants: false,
       showLegend: false,
+      showTermsOfService: false,
       showDisclaimer: false,
       showOptions: false,
       showVersion: false,
@@ -1183,6 +1205,9 @@ export default {
     },
     onShowOptions: function() {
       this.showOptions = true;
+    },
+    onShowTermsOfService: function(){
+      this.showTermsOfService = true;
     },
     onShowDisclaimer: function() {
       this.showDisclaimer = true;
