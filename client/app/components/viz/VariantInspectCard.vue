@@ -11,7 +11,9 @@
     font-size: 12px
 
 
-  .refalt
+
+
+    .refalt
     max-width: 200px
     white-space: normal
     display: inline-block
@@ -192,19 +194,23 @@
         i.material-icons
           color: $link-color !important
 
+  .variant-action-button-dbSnp
+      color: rgb(113,113,113)
+      font-size: 13px
+      padding-left: 0
+      padding-right: 15px
+      height: 22px !important
+      margin: 0px
+      min-width: 110px !important
+      max-width: 110px
+      font-weight: 500
 
+      .btn__content, .v-btn__content
+          padding-right: 8px
+          font-size: 12px
 
-
-  .change-transcript-button
-    max-height: 14px
-    padding: 0px
-    margin: 0px
-    color: $link-color
-    line-height: 14px
-    vertical-align: top
-
-    .v-btn__content
-      font-size: 12px
+          i.material-icons
+              color: $link-color !important
 
 
 
@@ -324,10 +330,10 @@
 
 
         <span>
-            <v-btn flat v-if="info && info.rsId && info.rsId != ''"
-                                 class="variant-action-button"  @click="launchDbSnp">
+            <v-btn flat dense small v-if="info && info.rsId && info.rsId != ''"
+                                 class="variant-action-button-dbSnp"  @click="launchDbSnp">
+                               {{info.rsId}}
                <v-icon>open_in_new</v-icon>
-               {{info.rsId}}
               </v-btn>
         </span>
 
