@@ -612,9 +612,10 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Blog</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile @click="onShowTutorial" >
-            <v-list-tile-title>Tutorials</v-list-tile-title>
-          </v-list-tile>
+          <!--commented out until I can figure out how to get the tutorial router working-->
+          <!--<v-list-tile @click="onShowTutorial" >-->
+            <!--<v-list-tile-title>Tutorials</v-list-tile-title>-->
+          <!--</v-list-tile>-->
 
           <v-list-tile @click="onShowIOBIO" >
             <v-list-tile-title>iobio</v-list-tile-title>
@@ -810,10 +811,10 @@ nav.toolbar, nav.v-toolbar
       <v-card class="full-width">
         <v-card-title class="headline">Terms of service</v-card-title>
         <v-card-text>
-          <strong>Academic Use - </strong>
+          <strong>Academic Use </strong>
           <br> Gene.iobio is freely available for all Academic use.
           <br><br>
-          <strong>Commercial Use - </strong>
+          <strong>Commercial Use </strong>
           <br>
           Users from commercial organisations may register a commercial accounts with Frameshift.  To create a commercial account, contact Frameshift at  <a href="mailto:admin@frameshift.io" target="_top">admin@frameshift.io</a> for a consultation.
         </v-card-text>
