@@ -562,17 +562,17 @@ nav.toolbar, nav.v-toolbar
 
 
 
-      <v-menu offset-y>
+      <v-menu>
         <v-btn id="more-menu-button" flat slot="activator">
           <v-icon style="font-size:32px;">more_vert</v-icon>
         </v-btn>
-        <v-list>
+        <v-list dense style="overflow-y: scroll">
           <v-list-tile  @click="onShowFiles">
             <v-list-tile-title>Files</v-list-tile-title>
           </v-list-tile>
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin"  @click="onShowImportVariants">
-            <v-list-tile-title>Import Variants</v-list-tile-title>
+            <v-list-tile-title dense>Import Variants</v-list-tile-title>
           </v-list-tile>
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin" @click="onShowExportVariants">
@@ -589,7 +589,7 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Options</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider></v-divider>
+          <v-divider dense></v-divider>
 
           <v-list-tile  @click="onShowTermsOfService">
             <v-list-tile-title>Terms of Service</v-list-tile-title>
@@ -604,18 +604,15 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Software and resources</v-list-tile-title>
           </v-list-tile>
 
-
-
           <v-divider></v-divider>
 
           <v-list-tile @click="onShowBlog">
             <v-list-tile-title>Blog</v-list-tile-title>
           </v-list-tile>
 
-          <!--commented out until I can figure out how to get the tutorial router working-->
-          <!--<v-list-tile @click="onShowTutorial" >-->
-            <!--<v-list-tile-title>Tutorials</v-list-tile-title>-->
-          <!--</v-list-tile>-->
+          <v-list-tile @click="onShowTutorial" >
+            <v-list-tile-title>Tutorials</v-list-tile-title>
+          </v-list-tile>
 
           <v-list-tile @click="onShowIOBIO" >
             <v-list-tile-title>iobio</v-list-tile-title>
@@ -624,8 +621,6 @@ nav.toolbar, nav.v-toolbar
           <v-list-tile @click="onSupportIOBIO" >
             <v-list-tile-title>Support the iobio project</v-list-tile-title>
           </v-list-tile>
-
-
 
         </v-list>
       </v-menu>
@@ -1241,7 +1236,7 @@ export default {
       window.open("http://iobio.io/tags/gene.iobio/", "_iobio");
     },
     onShowTutorial: function() {
-      window.open("#/tutorial", "_tutorial");
+      window.open("/tutorial", "tutorial");
     },
     onShowIOBIO: function() {
       window.open("http://iobio.io", "_iobio");
