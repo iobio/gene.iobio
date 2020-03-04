@@ -950,6 +950,10 @@ export default {
     },
 
     showGeneVariantsCard: function(){
+
+
+      console.log("this.cohortModel", this.cohortModel);
+
       return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1))
     },
 
@@ -1157,9 +1161,6 @@ export default {
     promiseInitFromMosaic: function() {
       let self = this;
 
-      console.log("promiseInitFromMosaic");
-      debugger;
-
       return new Promise(function(resolve, reject) {
         self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
         let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
@@ -1175,9 +1176,7 @@ export default {
           self.modelInfos = data.modelInfos;
           self.rawPedigree = data.rawPedigree;
           self.geneSet = data.geneSet;
-
-          console.log("self.hubSession", self.hubSession);
-          debugger;
+          
 
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
@@ -2473,7 +2472,7 @@ export default {
             modelInfo.affectedStatus = self.paramAffectedStatuses[i];
             modelInfos.push(modelInfo);
             self.launchedWithUrlParms = true;
-
+            console.log("self.paramBams", self.paramBams);
           }
         }
 
