@@ -904,7 +904,6 @@ export default {
   mounted: function() {
     let self = this;
 
-
     if (self.launchedFromClin) {
       var responseObject = {app: 'genefull', success: true, type: 'mounted', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), self.paramFrameSource);
@@ -949,11 +948,7 @@ export default {
       }
     },
 
-    showGeneVariantsCard: function(){
-
-
-      console.log("this.cohortModel", this.cohortModel);
-
+    showGeneVariantsCard: function() {
       return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1))
     },
 
@@ -1176,7 +1171,8 @@ export default {
           self.modelInfos = data.modelInfos;
           self.rawPedigree = data.rawPedigree;
           self.geneSet = data.geneSet;
-          
+
+
 
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
@@ -2472,7 +2468,6 @@ export default {
             modelInfo.affectedStatus = self.paramAffectedStatuses[i];
             modelInfos.push(modelInfo);
             self.launchedWithUrlParms = true;
-            console.log("self.paramBams", self.paramBams);
           }
         }
 
@@ -3081,8 +3076,8 @@ export default {
           track.alignmentURL      = model.bam.bamUri;
           track.alignmentIndexURL = model.bam.baiUri;
           self.pileupInfo.tracks.push(track);
-        })
 
+        })
 
         // Set the reference
         this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
@@ -3144,8 +3139,6 @@ export default {
           if (self.geneModel) {
             self.geneModel.isFullAnalysis = true;
           }
-
-          console.log("clinObject.user before init", clinObject.user);
 
           console.log("gene.iobio set-data cohort model not yet loaded")
           self.init(function() {
