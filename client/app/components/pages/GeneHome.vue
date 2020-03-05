@@ -1202,15 +1202,28 @@ export default {
           if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
             let genePromises = [];
             self.geneSet.genes.forEach(function(geneName) {
+              self.analysis.payload.genes.push(geneName);
               genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
             })
             return Promise.all(genePromises)
           } else {
             return Promise.resolve();
-          }
+          }          
         })
         .then(function() {
-          if ((self.analysis.payload.variants == null || self.analysis.payload.variants.length == 0) && self.hubSession.hasVariantSets(self.modelInfos)) {
+          if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
+            let genePromises = [];
+            self.analysis.payload.genes.forEach(function(geneName) {
+              genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+            })
+            return Promise.all(genePromises);
+          } else {
+            return Promise.resolve();
+          }
+        })
+        /*
+        .then(function() {
+          if ((!self.geneSet && !self.geneSet.genes && self.globalApp.useVariantSetFiles && self.analysis.payload.variants == null || self.analysis.payload.variants.length == 0) && self.hubSession.hasVariantSets(self.modelInfos)) {
             return self.hubSession.promiseParseVariantSets(self.modelInfos)
           } else {
             return Promise.resolve({});
@@ -1249,9 +1262,10 @@ export default {
             return Promise.resolve();
           }
         })
-
+        */
+        
         .then(function() {
-
+          self.models = self.cohortModel.sampleModels;
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
             if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
               self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
@@ -1296,12 +1310,16 @@ export default {
           } else {
 
             if (self.geneModel.geneNames.length > 0) {
-              let transcript = self.geneModel.getCanonicalTranscript(self.geneModel.geneNames[0]);
-              self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
-              .then(function() {
-                self.showLeftPanelForGenes();
-                self.cacheHelper.analyzeAll(self.cohortModel);
-                resolve();
+              self.geneModel.promiseGetCachedGeneObject(self.geneModel.geneNames[0])
+              .then(function(theGeneObject) {
+                let transcript = self.geneModel.getCanonicalTranscript(theGeneObject);
+                self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
+                .then(function() {
+                  self.showLeftPanelForGenes();
+                  self.cacheHelper.analyzeAll(self.cohortModel);
+                  resolve();
+                })
+
               })
             } else {
               self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
@@ -2144,7 +2162,7 @@ export default {
     },
 
     persistAnalysis: function() {
-      return (this.launchedFromClin || (this.launchedFromHub && this.analysis.hasOwnProperty("id") && this.analysis.id && this.analysis.id.length > 0));
+      return (this.launchedFromClin || (this.launchedFromHub && this.analysis.hasOwnProperty("id") && this.analysis.id && this.analysis.id != ""));
     },
 
     removeGeneImpl: function(geneName) {
