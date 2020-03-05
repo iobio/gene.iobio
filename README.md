@@ -1,3 +1,13 @@
+## Create .env file
+
+```bash
+# replace iobio-url with the url of the gru backend service.
+
+echo "IOBIO_URL=iobio-url" > .env
+```
+
+[Sample env file](./.env.template)
+
 ## Starting App
 
 Using node version 8.5.x
