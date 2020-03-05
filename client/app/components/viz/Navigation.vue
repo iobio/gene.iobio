@@ -155,7 +155,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
 nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
-  .v-toolbar__content 
+  .v-toolbar__content
     padding-right: 0px
 
   #more-menu-button
@@ -562,17 +562,17 @@ nav.toolbar, nav.v-toolbar
 
 
 
-      <v-menu offset-y>
+      <v-menu>
         <v-btn id="more-menu-button" flat slot="activator">
           <v-icon style="font-size:32px;">more_vert</v-icon>
         </v-btn>
-        <v-list>
+        <v-list dense style="overflow-y: scroll">
           <v-list-tile  @click="onShowFiles">
             <v-list-tile-title>Files</v-list-tile-title>
           </v-list-tile>
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin"  @click="onShowImportVariants">
-            <v-list-tile-title>Import Variants</v-list-tile-title>
+            <v-list-tile-title dense>Import Variants</v-list-tile-title>
           </v-list-tile>
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin" @click="onShowExportVariants">
@@ -589,8 +589,11 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Options</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider></v-divider>
+          <v-divider dense></v-divider>
 
+          <v-list-tile  @click="onShowTermsOfService">
+            <v-list-tile-title>Terms of Service</v-list-tile-title>
+          </v-list-tile>
           <v-list-tile  @click="onShowDisclaimer">
             <v-list-tile-title>Disclaimer</v-list-tile-title>
           </v-list-tile>
@@ -601,13 +604,7 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Software and resources</v-list-tile-title>
           </v-list-tile>
 
-
-
           <v-divider></v-divider>
-
-          <v-list-tile  @click="onWelcome">
-            <v-list-tile-title>Show welcome page</v-list-tile-title>
-          </v-list-tile>
 
           <v-list-tile @click="onShowBlog">
             <v-list-tile-title>Blog</v-list-tile-title>
@@ -624,8 +621,6 @@ nav.toolbar, nav.v-toolbar
           <v-list-tile @click="onSupportIOBIO" >
             <v-list-tile-title>Support the iobio project</v-list-tile-title>
           </v-list-tile>
-
-
 
         </v-list>
       </v-menu>
@@ -805,6 +800,24 @@ nav.toolbar, nav.v-toolbar
             <v-btn raised  @click.native="showDisclaimer = false">Close</v-btn>
           </v-card-actions>
         </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="showTermsOfService" max-width="400">
+      <v-card class="full-width">
+        <v-card-title class="headline">Terms of service</v-card-title>
+        <v-card-text>
+          <strong>Academic Use </strong>
+          <br> Gene.iobio is freely available for all Academic use.
+          <br><br>
+          <strong>Commercial Use </strong>
+          <br>
+          Users from commercial organisations may register a commercial accounts with Frameshift.  To create a commercial account, contact Frameshift at  <a href="mailto:admin@frameshift.io" target="_top">admin@frameshift.io</a> for a consultation.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn raised  @click.native="showTermsOfService= false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
 
     <v-dialog v-model="showOptions" max-width="400">
@@ -1040,6 +1053,7 @@ export default {
       showImportVariants: false,
       showExportVariants: false,
       showLegend: false,
+      showTermsOfService: false,
       showDisclaimer: false,
       showOptions: false,
       showVersion: false,
@@ -1130,7 +1144,7 @@ export default {
       self.$nextTick(function() {
         if (!self.launchedFromClin || self.isClinFrameVisible) {
           if (!self.isEduMode) {
-            self.leftDrawer = true;          
+            self.leftDrawer = true;
           }
         }
       })
@@ -1141,7 +1155,7 @@ export default {
       this.$nextTick(function() {
         if (!self.launchedFromClin || self.isClinFrameVisible) {
           if (!self.isEduMode) {
-            self.leftDrawer = true;          
+            self.leftDrawer = true;
           }
         }
       })
@@ -1152,7 +1166,7 @@ export default {
       this.$nextTick(function() {
         if (!self.launchedFromClin || self.isClinFrameVisible) {
           if (!self.isEduMode) {
-            self.leftDrawer = true;          
+            self.leftDrawer = true;
           }
         }
       })
@@ -1188,6 +1202,9 @@ export default {
     onShowOptions: function() {
       this.showOptions = true;
     },
+    onShowTermsOfService: function(){
+      this.showTermsOfService = true;
+    },
     onShowDisclaimer: function() {
       this.showDisclaimer = true;
     },
@@ -1219,7 +1236,7 @@ export default {
       window.open("http://iobio.io/tags/gene.iobio/", "_iobio");
     },
     onShowTutorial: function() {
-      window.open("#/tutorial", "_tutorial");
+      window.open("/tutorial", "tutorial");
     },
     onShowIOBIO: function() {
       window.open("http://iobio.io", "_iobio");

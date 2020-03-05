@@ -767,7 +767,7 @@ export default {
         regionGroup.append('g')
               .attr("id", exonId)
               .attr('class',      'region-glyph coverage-problem-glyph')
-              .attr('transform',  'translate(' + (regionX - 6) + ',-32)')
+              .attr('transform',  'translate(' + (regionX - 6) + ',-6)')
               .data([exon])
               .append('use')
               .attr('height',     '16')

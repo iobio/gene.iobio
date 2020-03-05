@@ -212,7 +212,6 @@ main.content.clin, main.v-content.clin
       @apply-variant-interpretation="onApplyVariantInterpretation"
       @on-files-loaded="onFilesLoaded"
       @on-left-drawer="onLeftDrawer"
-      @on-show-welcome="onShowWelcome"
       @show-snackbar="onShowSnackbar"
       @hide-snackbar="onHideSnackbar"
       @gene-selected="onGeneClicked"
@@ -375,7 +374,7 @@ main.content.clin, main.v-content.clin
 
         <variant-detail-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && isBasicMode"
+          v-if="cohortModel && cohortModel.isLoaded && isBasicMode && user"
           :isBasicMode="isBasicMode"
           :isEduMode="isEduMode"
           :selectedGene="selectedGene"
@@ -905,7 +904,6 @@ export default {
   mounted: function() {
     let self = this;
 
-
     if (self.launchedFromClin) {
       var responseObject = {app: 'genefull', success: true, type: 'mounted', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), self.paramFrameSource);
@@ -950,8 +948,8 @@ export default {
       }
     },
 
-    showGeneVariantsCard: function(){
-     return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.paramSamples && this.paramSamples.length > 0))
+    showGeneVariantsCard: function() {
+      return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1))
     },
 
     probandModel: function() {
@@ -1157,6 +1155,7 @@ export default {
 
     promiseInitFromMosaic: function() {
       let self = this;
+
       return new Promise(function(resolve, reject) {
         self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
         let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
@@ -1172,6 +1171,8 @@ export default {
           self.modelInfos = data.modelInfos;
           self.rawPedigree = data.rawPedigree;
           self.geneSet = data.geneSet;
+
+
 
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
@@ -2467,7 +2468,6 @@ export default {
             modelInfo.affectedStatus = self.paramAffectedStatuses[i];
             modelInfos.push(modelInfo);
             self.launchedWithUrlParms = true;
-
           }
         }
 
@@ -2853,9 +2853,6 @@ export default {
         this.isLeftDrawerOpen = isOpen;
       }
     },
-    onShowWelcome: function() {
-      this.showWelcome = true;
-    },
     promiseInitMyGene2: function() {
       let self = this;
       return new Promise(function(resolve, reject) {
@@ -3079,8 +3076,8 @@ export default {
           track.alignmentURL      = model.bam.bamUri;
           track.alignmentIndexURL = model.bam.baiUri;
           self.pileupInfo.tracks.push(track);
-        })
 
+        })
 
         // Set the reference
         this.pileupInfo.referenceURL = this.pileupInfo.referenceURLs[this.genomeBuildHelper.getCurrentBuildName()];
@@ -3123,6 +3120,7 @@ export default {
 
       var clinObject = JSON.parse(event.data);
 
+
       if (!this.isClinFrameVisible) {
         this.isClinFrameVisible = clinObject.isFrameVisible;
       }
@@ -3146,6 +3144,7 @@ export default {
           self.init(function() {
             self.analysis = clinObject.analysis;
             self.user     = clinObject.user;
+
             self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
             self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
 
@@ -3460,6 +3459,11 @@ export default {
       let self = this;
       self.nonProbandModels = [];
       if (this.models && this.models.length > 0) {
+
+
+        this.showGeneVariantsCard = this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
+
+
         self.nonProbandModels = self.models.filter(function(model) {
           let keepIt =  model.relationship != 'proband';
           let showIt = false;

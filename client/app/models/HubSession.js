@@ -36,7 +36,6 @@ export default class HubSession {
       self.promiseGetCurrentUser()
       .then(function(data) {
         self.user = data;
-        console.log(self.user)
       })
       .catch(function(error) {
         console.log(error)
@@ -80,9 +79,6 @@ export default class HubSession {
                   let p =  self.promiseGetFileMapForSample(projectId, s, rel).then(data => {
                     let theSample = data.sample;
                     theSample.files = data.fileMap;
-                    console.log(theSample)
-
-
 
                     // gene.iobio only supports siblings in same multi-sample vcf as proband.
                     // bypass siblings in their own vcf.
@@ -227,7 +223,7 @@ export default class HubSession {
               if (fields.length == self.variantSetTxtCols.length) {
                 if (variant.sampleId  &&  modelInfo.sample && variant.sampleId != modelInfo.sample) {
                   keep = false;
-                } 
+                }
               }
               if (keep) {
                 if (variant.gene == "" || variant.gene == null || variant.gene.trim().length == 0) {
@@ -242,14 +238,14 @@ export default class HubSession {
                     variant.inheritance = variant.slivarFilter;
                     variant.filtersPassed = variant.inheritance;
                   }
-                  
+
                   let matched = variants.filter(function(v) {
                     return v.variant_id == variant.variant_id;
                   })
                   if (matched.length == 0) {
-                    variants.push(variant)                                              
+                    variants.push(variant)
                   }
-                }                
+                }
               } else {
                 console.log("bypassing variant rec for sample " + variant.sampleId)
               }
@@ -283,7 +279,6 @@ export default class HubSession {
         },
       })
       .done(data => {
-        console.log(data)
         let clientApps = data.data;
         let matchingApp = clientApps.filter(function(clientApp) {
           return clientApp.display_name == 'Gene.iobio';
@@ -419,9 +414,6 @@ export default class HubSession {
         pedigree['father'] = raw_pedigree.splice(fatherIndex, 1)[0]
       }
     } else {
-      console.log("Cannot find proband for pedigree of sample " + sample_id);
-      console.log("raw pedigree");
-      console.log(raw_pedigree);
       alertify.alert("Error", "Could not load the trio.  Unable to identify a proband (offspring) from this pedigree.")
       return null;
     }
@@ -475,7 +467,7 @@ export default class HubSession {
       self.promiseGetFilesForSample(project_id, currentSample.id)
       .then(files => {
         files.filter(file => {
-          return file.type 
+          return file.type
         })
         .forEach(file => {
 
@@ -721,7 +713,7 @@ export default class HubSession {
 
   updateAnalysis(projectId, analysisId, newAnalysisData) {
     let self = this;
-    
+
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/analyses/' + analysisId
             + '?client_application_id=' + this.client_application_id,
@@ -743,7 +735,7 @@ export default class HubSession {
         })
         .fail(error => {
           reject("Error getting currentUser :" + error);
-        })      
+        })
     })
   }
 
@@ -786,7 +778,7 @@ export default class HubSession {
           cache.push(value);
       }
       return value;
-    });    
+    });
     cache = [];
     return analysisString;
   }
