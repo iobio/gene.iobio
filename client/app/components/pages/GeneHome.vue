@@ -1221,6 +1221,7 @@ export default {
             return Promise.resolve();
           }
         })
+        // WORKAROUND Remove variant sets
         /*
         .then(function() {
           if ((!self.geneSet && !self.geneSet.genes && self.globalApp.useVariantSetFiles && self.analysis.payload.variants == null || self.analysis.payload.variants.length == 0) && self.hubSession.hasVariantSets(self.modelInfos)) {
@@ -1282,11 +1283,13 @@ export default {
                 self.promiseSelectFirstFlaggedVariant()
 
                 setTimeout(function() {
-                  if (self.persistAnalysis()) {
-                    self.promiseSaveAnalysis({notify:true})
-                    .then(function() {
-                      self.delaySave = 1000;
-                    })
+                  if (self.persistAnalysis() && !self.isNewAnalysis()) {
+                    self.delaySave = 1000;
+                    // WORKAROUND Remove variant sets
+                    //self.promiseSaveAnalysis({notify:true})
+                    //.then(function() {
+                    //  self.delaySave = 1000;
+                    //})
                   }
 
                 },1000)
@@ -1342,16 +1345,18 @@ export default {
         window.cacheHelper = self.cacheHelper;
         self.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
 
+          if (self.analysis.id == null ) {
+           } 
 
-          if (self.persistAnalysis()) {
+          // WORKAROUND Remove variant sets
+          if (self.persistAnalysis() && self.isNewAnalysis()) {
             let flaggedVariantsForGene = self.cohortModel.getFlaggedVariantsForGene(theGene.gene_name);
             if (flaggedVariantsForGene.length > 0) {
               flaggedVariantsForGene.forEach(function(flaggedVariant) {
-                // TEMP 1/27
-                //self.promiseUpdateAnalysisVariant(flaggedVariant);
+                self.promiseUpdateAnalysisVariant(flaggedVariant);
               })
             }
-          }
+          } 
 
           self.refreshCoverageCounts()
 
@@ -2161,8 +2166,15 @@ export default {
 
     },
 
+
     persistAnalysis: function() {
-      return (this.launchedFromClin || (this.launchedFromHub && this.analysis.hasOwnProperty("id") && this.analysis.id && this.analysis.id != ""));
+      return (this.launchedFromClin || this.launchedFromHub);
+    },
+
+    isNewAnalysis: function() {
+      return (!this.analysis.hasOwnProperty("id") 
+          || !this.analysis.id 
+          || this.analysis.id == "");
     },
 
     removeGeneImpl: function(geneName) {
@@ -2607,7 +2619,7 @@ export default {
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
 
       // Set the flagged variant notes and interpretation
-      if (self.persistAnalysis()) {
+      if (self.persistAnalysis() || self.isNewAnalysis()) {
         self.promiseUpdateAnalysisVariant(variant);
       }
 
@@ -2636,7 +2648,7 @@ export default {
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
 
-      if (self.persistAnalysis()) {
+      if (self.persistAnalysis() || self.isNewAnalysis()) {
         self.promiseUpdateAnalysisVariant(variant);
       }
 
@@ -2716,7 +2728,7 @@ export default {
                 flaggedVariant.interpretation = interpretation;
                 flaggedVariant.isProxy = false;
 
-                // TEMP 1/27
+                // WORKAROUND Remove variant sets
                 //if (self.persistAnalysis()) {
                 //  self.promiseUpdateAnalysisVariant(flaggedVariant);
                 //}
@@ -3853,7 +3865,8 @@ export default {
 
     promiseAutosaveAnalysis(options) {
       let self = this;
-      if (self.analysis.id ) {
+      if (!self.isNewAnalysis()) {
+        options.autoupdate = true;
         if (options && options.delay) {
           setTimeout(function() {
             self.doDelayedAnalysisSave(options)
@@ -3950,7 +3963,9 @@ export default {
       self.promiseExportAnalysisVariant(variantToReplace)
       .then(function(exportedVariant) {
 
-        return self.promiseAutosaveAnalysis({notify: true, delay: true});
+        if (!self.isNewAnalysis()) {
+          return self.promiseAutosaveAnalysis({notify: true, delay: true});
+        }
 
       })
     },
