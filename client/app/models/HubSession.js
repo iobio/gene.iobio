@@ -25,6 +25,7 @@ export default class HubSession {
     this.variantSetToFilterName = {
       'compoundhet': 'compoundHet'
     };
+    this.globalApp = null;
   }
 
   promiseInit(sampleId, source, isPedigree, projectId, geneSetId ) {
@@ -774,8 +775,31 @@ export default class HubSession {
   }
 
   stringifyAnalysis(analysisData) {
+    let self = this;
     var cache = [];
-    let analysisString = JSON.stringify(analysisData, function(key, value) {
+
+    let analysisDataCopy = $.extend({}, analysisData)
+
+    // First get rid of full gene and transcript objects from variants
+    // These are too big to stringify and store
+    analysisDataCopy.payload.variants.forEach(function(variant) {
+      if (variant.gene && self.globalApp.utility.isObject(variant.gene)) {
+        variant.gene = variant.gene.gene_name;
+      }
+      if (variant.transcript && self.globalApp.utility.isObject(variant.transcript)) {
+        variant.transcriptId = variant.transcript.transcript_id;
+      }
+      if (variant.variantInspect && variant.variantInspect.geneObject) {
+        variant.variantInspect.geneName = variant.variantInspect.geneObject.gene_name
+        variant.variantInspect.geneObject = null;
+      }
+      if (variant.variantInspect && variant.variantInspect.transcriptObject) {
+        variant.variantInspect.transcriptId = variant.variantInspect.transcriptObject.transcript_id
+        variant.variantInspect.transcriptObject = null;
+      }
+    })
+
+    let analysisString = JSON.stringify(analysisDataCopy, function(key, value) {
       if (typeof value === 'object' && value !== null) {
           if (cache.indexOf(value) !== -1) {
               // Circular reference found, discard key

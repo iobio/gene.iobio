@@ -1177,6 +1177,7 @@ export default {
 
       return new Promise(function(resolve, reject) {
         self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
+        self.hubSession.globalApp = self.globalApp;
         let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
 
         // Workaround until launch from Mosaic analysis can pass in is_pedigree
@@ -1222,15 +1223,30 @@ export default {
           if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
             let genePromises = [];
             self.geneSet.genes.forEach(function(geneName) {
+              self.analysis.payload.genes.push(geneName);
               genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+              self.delaySave = 1000;
             })
             return Promise.all(genePromises)
           } else {
             return Promise.resolve();
-          }
+          }          
         })
         .then(function() {
-          if ((self.analysis.payload.variants == null || self.analysis.payload.variants.length == 0) && self.hubSession.hasVariantSets(self.modelInfos)) {
+          if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
+            let genePromises = [];
+            self.analysis.payload.genes.forEach(function(geneName) {
+              genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+            })
+            return Promise.all(genePromises);
+          } else {
+            return Promise.resolve();
+          }
+        })
+        // WORKAROUND Remove variant sets
+        /*
+        .then(function() {
+          if ((!self.geneSet && !self.geneSet.genes && self.globalApp.useVariantSetFiles && self.analysis.payload.variants == null || self.analysis.payload.variants.length == 0) && self.hubSession.hasVariantSets(self.modelInfos)) {
             return self.hubSession.promiseParseVariantSets(self.modelInfos)
           } else {
             return Promise.resolve({});
@@ -1269,9 +1285,10 @@ export default {
             return Promise.resolve();
           }
         })
-
+        */
+        
         .then(function() {
-
+          self.models = self.cohortModel.sampleModels;
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
             if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
               self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
@@ -1288,12 +1305,14 @@ export default {
                 self.promiseSelectFirstFlaggedVariant()
 
                 setTimeout(function() {
-                  if (self.persistAnalysis()) {
-                    self.promiseSaveAnalysis({notify:true})
-                    .then(function() {
-                      self.delaySave = 1000;
-                    })
+                  if (self.persistAnalysis() && !self.isNewAnalysis()) {
+                    // WORKAROUND Remove variant sets
+                    //self.promiseSaveAnalysis({notify:true})
+                    //.then(function() {
+                    //  self.delaySave = 1000;
+                    //})
                   }
+                  self.delaySave = 1000;
 
                 },1000)
               }, 2000)
@@ -1316,12 +1335,16 @@ export default {
           } else {
 
             if (self.geneModel.geneNames.length > 0) {
-              let transcript = self.geneModel.getCanonicalTranscript(self.geneModel.geneNames[0]);
-              self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
-              .then(function() {
-                self.showLeftPanelForGenes();
-                self.cacheHelper.analyzeAll(self.cohortModel);
-                resolve();
+              self.geneModel.promiseGetCachedGeneObject(self.geneModel.geneNames[0])
+              .then(function(theGeneObject) {
+                let transcript = self.geneModel.getCanonicalTranscript(theGeneObject);
+                self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
+                .then(function() {
+                  self.showLeftPanelForGenes();
+                  self.cacheHelper.analyzeAll(self.cohortModel);
+                  resolve();
+                })
+
               })
             } else {
               self.onShowSnackbar( {message: 'Enter a gene name or enter a phenotype term.', timeout: 5000});
@@ -1345,15 +1368,15 @@ export default {
         self.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
 
 
-          if (self.persistAnalysis()) {
+          // WORKAROUND Remove variant sets
+          if (self.persistAnalysis() && self.isNewAnalysis()) {
             let flaggedVariantsForGene = self.cohortModel.getFlaggedVariantsForGene(theGene.gene_name);
             if (flaggedVariantsForGene.length > 0) {
               flaggedVariantsForGene.forEach(function(flaggedVariant) {
-                // TEMP 1/27
-                //self.promiseUpdateAnalysisVariant(flaggedVariant);
+                self.promiseUpdateAnalysisVariant(flaggedVariant);
               })
             }
-          }
+          } 
 
           self.refreshCoverageCounts()
 
@@ -1364,6 +1387,8 @@ export default {
 
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
+
+          self.delaySave = 1000;
 
           if (!self.isEduMode) {
             if (self.activeFilterName && self.activeFilterName == 'coverage' && self.launchedFromClin) {
@@ -2164,8 +2189,15 @@ export default {
 
     },
 
+
     persistAnalysis: function() {
-      return (this.launchedFromClin || (this.launchedFromHub && this.analysis.hasOwnProperty("id") && this.analysis.id && this.analysis.id.length > 0));
+      return (this.launchedFromClin || this.launchedFromHub);
+    },
+
+    isNewAnalysis: function() {
+      return (!this.analysis.hasOwnProperty("id") 
+          || !this.analysis.id 
+          || this.analysis.id == "");
     },
 
     removeGeneImpl: function(geneName) {
@@ -2610,8 +2642,8 @@ export default {
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
 
       // Set the flagged variant notes and interpretation
-      if (self.persistAnalysis()) {
-        self.promiseUpdateAnalysisVariant(variant);
+      if (self.persistAnalysis() || self.isNewAnalysis()) {
+        self.promiseUpdateAnalysisVariant(variant, {delay: false});
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
@@ -2639,8 +2671,8 @@ export default {
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
 
-      if (self.persistAnalysis()) {
-        self.promiseUpdateAnalysisVariant(variant);
+      if (self.persistAnalysis() || self.isNewAnalysis()) {
+        self.promiseUpdateAnalysisVariant(variant, {delay: false});
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
@@ -2719,7 +2751,7 @@ export default {
                 flaggedVariant.interpretation = interpretation;
                 flaggedVariant.isProxy = false;
 
-                // TEMP 1/27
+                // WORKAROUND Remove variant sets
                 //if (self.persistAnalysis()) {
                 //  self.promiseUpdateAnalysisVariant(flaggedVariant);
                 //}
@@ -3856,7 +3888,8 @@ export default {
 
     promiseAutosaveAnalysis(options) {
       let self = this;
-      if (self.analysis.id ) {
+      if (!self.isNewAnalysis()) {
+        options.autoupdate = true;
         if (options && options.delay) {
           setTimeout(function() {
             self.doDelayedAnalysisSave(options)
@@ -3946,14 +3979,16 @@ export default {
     },
 
 
-    promiseUpdateAnalysisVariant: function(variantToReplace) {
+    promiseUpdateAnalysisVariant: function(variantToReplace, options) {
       let self = this;
 
       self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
       self.promiseExportAnalysisVariant(variantToReplace)
       .then(function(exportedVariant) {
 
-        return self.promiseAutosaveAnalysis({notify: true, delay: true});
+        if (!self.isNewAnalysis()) {
+          return self.promiseAutosaveAnalysis({notify: true, delay: options.delay ? options.delay : true});
+        }
 
       })
     },

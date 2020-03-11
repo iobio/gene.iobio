@@ -331,7 +331,7 @@ export default class VariantExporter {
           reject(msg);
         }
         if (format == 'json') {
-          exportRec.gene = theGeneObject;
+          exportRec.gene = theGeneObject.gene_name;
         }
         if (variant.transcript && typeof variant == 'object') {
           theTranscript = variant.transcript;
