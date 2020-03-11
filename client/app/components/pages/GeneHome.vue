@@ -1158,6 +1158,7 @@ export default {
 
       return new Promise(function(resolve, reject) {
         self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
+        self.hubSession.globalApp = self.globalApp;
         let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
 
         // Workaround until launch from Mosaic analysis can pass in is_pedigree
@@ -1204,6 +1205,7 @@ export default {
             self.geneSet.genes.forEach(function(geneName) {
               self.analysis.payload.genes.push(geneName);
               genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+              self.delaySave = 1000;
             })
             return Promise.all(genePromises)
           } else {
@@ -1284,13 +1286,13 @@ export default {
 
                 setTimeout(function() {
                   if (self.persistAnalysis() && !self.isNewAnalysis()) {
-                    self.delaySave = 1000;
                     // WORKAROUND Remove variant sets
                     //self.promiseSaveAnalysis({notify:true})
                     //.then(function() {
                     //  self.delaySave = 1000;
                     //})
                   }
+                  self.delaySave = 1000;
 
                 },1000)
               }, 2000)
@@ -1345,8 +1347,6 @@ export default {
         window.cacheHelper = self.cacheHelper;
         self.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
 
-          if (self.analysis.id == null ) {
-           } 
 
           // WORKAROUND Remove variant sets
           if (self.persistAnalysis() && self.isNewAnalysis()) {
@@ -1367,6 +1367,8 @@ export default {
 
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
+
+          self.delaySave = 1000;
 
           if (!self.isEduMode) {
             if (self.activeFilterName && self.activeFilterName == 'coverage' && self.launchedFromClin) {
@@ -2620,7 +2622,7 @@ export default {
 
       // Set the flagged variant notes and interpretation
       if (self.persistAnalysis() || self.isNewAnalysis()) {
-        self.promiseUpdateAnalysisVariant(variant);
+        self.promiseUpdateAnalysisVariant(variant, {delay: false});
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
@@ -2649,7 +2651,7 @@ export default {
       self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
 
       if (self.persistAnalysis() || self.isNewAnalysis()) {
-        self.promiseUpdateAnalysisVariant(variant);
+        self.promiseUpdateAnalysisVariant(variant, {delay: false});
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
@@ -3956,7 +3958,7 @@ export default {
     },
 
 
-    promiseUpdateAnalysisVariant: function(variantToReplace) {
+    promiseUpdateAnalysisVariant: function(variantToReplace, options) {
       let self = this;
 
       self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
@@ -3964,7 +3966,7 @@ export default {
       .then(function(exportedVariant) {
 
         if (!self.isNewAnalysis()) {
-          return self.promiseAutosaveAnalysis({notify: true, delay: true});
+          return self.promiseAutosaveAnalysis({notify: true, delay: options.delay ? options.delay : true});
         }
 
       })

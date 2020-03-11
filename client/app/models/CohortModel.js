@@ -2337,8 +2337,8 @@ class CohortModel {
         console.log("Bypassing import record. Unable to find gene on imported variant ")
         console.log(ir)
       } else {
-        let geneObject = me.geneModel.geneObjects[ir.gene];
-        if (geneObject == null || !ir.transcript || ir.transcript == '') {
+        var theGeneObject = me.geneModel.geneObjects[ir.gene];
+        if (theGeneObject == null || !ir.transcript || ir.transcript == '') {
           var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true)
           .then(function(theGeneObject) {
             if (theGeneObject.notFound) {
