@@ -225,7 +225,7 @@ export default function PedigreeGenotypeChartD3() {
               }
            })
            .text(function(d,i) {
-              return nodeData.altCount + " alt, " + (nodeData.totalCount-nodeData.altCount) + ' ref';
+              return nodeData.altCount + " alt " + (nodeData.totalCount-nodeData.altCount) + ' ref';
            })
     }
 
@@ -295,28 +295,32 @@ export default function PedigreeGenotypeChartD3() {
 
 
 
-    let father = parents.selectAll("g.father")
-                        .data([pedigreeData.father]);
+      if(pedigreeData.hasOwnProperty("father")){
+          let father = parents.selectAll("g.father")
+              .data([pedigreeData.father]);
 
-    father.enter()
-          .append("g")
-          .each( function(d,i) {
-            createNode(d3.select(this))
-            createAlleleCountBar(d3.select(this), "top")
-          })
+          father.enter()
+              .append("g")
+              .each( function(d,i) {
+                  createNode(d3.select(this))
+                  createAlleleCountBar(d3.select(this), "top")
+              })
+      }
 
 
-    let mother = parents.selectAll("g.mother")
-                        .data([pedigreeData.mother]);
 
-    mother.enter()
-          .append("g")
-          .attr("transform", "translate(" + ((nodeWidth + nodePadding)) + ",0" + ")")
-          .each( function(d,i) {
-            createNode(d3.select(this))
-            createAlleleCountBar(d3.select(this), "top")
-          })
+    if(pedigreeData.hasOwnProperty("mother")){
+        let mother = parents.selectAll("g.mother")
+            .data([pedigreeData.mother]);
 
+        mother.enter()
+            .append("g")
+            .attr("transform", "translate(" + ((nodeWidth + nodePadding)) + ",0" + ")")
+            .each( function(d,i) {
+                createNode(d3.select(this))
+                createAlleleCountBar(d3.select(this), "top")
+            })
+    }
 
 
     let parentLines = parents.selectAll("g.parent-lines")
