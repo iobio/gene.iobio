@@ -125,10 +125,6 @@ export default {
     }
   },
   watch: {
-    isMother: function(){
-      console.log("isMother in tracks", this.isMother);
-      console.log("isFather in tracks", this.isFather);
-    }
   },
   methods: {
     onKnownVariantsVizChange: function(viz) {
@@ -150,9 +146,6 @@ export default {
   created: function() {
   },
   mounted: function() {
-
-    console.log("isMother in tracks", this.isMother);
-    console.log("isFather in tracks", this.isFather);
   },
   updated: function() {
   },

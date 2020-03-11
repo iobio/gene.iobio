@@ -1191,12 +1191,8 @@ export default {
           self.rawPedigree = data.rawPedigree;
           self.geneSet = data.geneSet;
 
-          console.log("isMother in GeneHome", data.isMother);
-          console.log("isFather in GeneHome", data.isFather);
-
           self.isMother = data.isMother;
           self.isFather = data.isFather;
-
 
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
@@ -1464,7 +1460,6 @@ export default {
 
     onLoadDemoData: function() {
       this.launchedFromDemo = true;
-      console.log("launchedFromDemo", this.launchedFromDemo);
       let self = this;
       self.promiseClearCache()
       .then(function() {
@@ -2422,7 +2417,6 @@ export default {
       if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
         && self.sampleId && self.paramSource) {
         self.launchedFromHub = true;
-        console.log("self.launchedFromhub", self.launchedFromHub);
 
         if (self.paramSource == self.sfariSource) {
           self.launchedFromSFARI = true;
@@ -2803,7 +2797,6 @@ export default {
     onShowMotherCard: function(showIt) {
       let self = this;
       self.showMotherCard = showIt;
-      console.log("self.sampleSibs", self.sampleMapSibs);
       self.setNonProbandModels();
 
     },
