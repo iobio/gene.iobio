@@ -1340,7 +1340,7 @@ export default {
 
 
                 resolve();
-                
+
               })
 
 
@@ -2828,7 +2828,6 @@ export default {
       let self = this;
       self.showKnownVariantsCard = showIt;
       self.setNonProbandModels();
-      console.log("nonProbandModels", this.nonProbandModels);
       if (self.showKnownVariantsCard) {
         self.onKnownVariantsVizChange();
       }
@@ -3533,9 +3532,6 @@ export default {
 
 
         this.showGeneVariantsCard = this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
-
-        console.log("hitSetNonProbandModels");
-
         self.nonProbandModels = self.models.filter(function(model) {
           let keepIt =  model.relationship != 'proband';
           let showIt = false;
@@ -3548,7 +3544,6 @@ export default {
           } else if (model.relationship == 'sfari-variants' && self.showSfariVariantsCard) {
             showIt = true;
           }
-          console.log("self.nonProbandModels", self.nonProbandModels);
           return keepIt && showIt;
         })
       }
