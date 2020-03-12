@@ -352,6 +352,7 @@ main.content.clin, main.v-content.clin
         :geneVizShowXAxis="true"
         :blacklistedGeneSelected="blacklistedGeneSelected"
         :otherModels="nonProbandModels"
+        :cohortModel="cohortModel"
         :isMother="isMother"
         :isFather="isFather"
         @cohort-variant-click="onCohortVariantClick"
@@ -1230,7 +1231,7 @@ export default {
             return Promise.all(genePromises)
           } else {
             return Promise.resolve();
-          }          
+          }
         })
         .then(function() {
           if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
@@ -1286,7 +1287,7 @@ export default {
           }
         })
         */
-        
+
         .then(function() {
           self.models = self.cohortModel.sampleModels;
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
@@ -1376,7 +1377,7 @@ export default {
                 self.promiseUpdateAnalysisVariant(flaggedVariant);
               })
             }
-          } 
+          }
 
           self.refreshCoverageCounts()
 
@@ -2195,8 +2196,8 @@ export default {
     },
 
     isNewAnalysis: function() {
-      return (!this.analysis.hasOwnProperty("id") 
-          || !this.analysis.id 
+      return (!this.analysis.hasOwnProperty("id")
+          || !this.analysis.id
           || this.analysis.id == "");
     },
 
@@ -2472,7 +2473,7 @@ export default {
         self.tourNumber = self.paramTour;
       }
 
-      self.globalApp.initServices();
+      self.globalApp.initServices(self.launchedFromHub);
       self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
     promiseInitFromUrl: function() {
@@ -2536,6 +2537,7 @@ export default {
             modelInfos.push(sibModelInfo);
           })
         }
+
         if (self.paramAffectedSibs && self.paramAffectedSibs.length > 0 && modelInfos.length > 0) {
           self.paramAffectedSibs.split(",").forEach(function(sibId) {
             var sibModelInfo = $.extend({}, modelInfos[0]);
@@ -2548,6 +2550,7 @@ export default {
             modelInfos.push(sibModelInfo);
           })
         }
+
         if (modelInfos.length > 0) {
           self.cohortModel.promiseInit(modelInfos, self.projectId)
           .then(function() {
@@ -2811,6 +2814,7 @@ export default {
       let self = this;
       self.showKnownVariantsCard = showIt;
       self.setNonProbandModels();
+      console.log("nonProbandModels", this.nonProbandModels);
       if (self.showKnownVariantsCard) {
         self.onKnownVariantsVizChange();
       }
@@ -3516,6 +3520,7 @@ export default {
 
         this.showGeneVariantsCard = this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
 
+        console.log("hitSetNonProbandModels");
 
         self.nonProbandModels = self.models.filter(function(model) {
           let keepIt =  model.relationship != 'proband';
@@ -3529,6 +3534,7 @@ export default {
           } else if (model.relationship == 'sfari-variants' && self.showSfariVariantsCard) {
             showIt = true;
           }
+          console.log("self.nonProbandModels", self.nonProbandModels);
           return keepIt && showIt;
         })
       }
