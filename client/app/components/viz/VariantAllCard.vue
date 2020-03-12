@@ -319,6 +319,8 @@
             @known-variants-filter-change="onKnownVariantsFilterChange"
             @sfari-variants-viz-change="onSfariVariantsVizChange"
             @sfari-variants-filter-change="onSfariVariantsFilterChange"
+            :isMother="isMother"
+            :isFather="isFather"
         ></optional-tracks-menu>
 
 
@@ -661,6 +663,8 @@ export default {
     classifyVariantSymbolFunc: null,
     coverageDangerRegions: null,
     otherModels: null,
+    isMother: null,
+    isFather: null,
 
     variantTooltip: null,
     selectedGene: {},

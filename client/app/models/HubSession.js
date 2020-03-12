@@ -4,6 +4,8 @@ export default class HubSession {
     this.vcf = null;
     this.samples = null;
     this.url = null;
+    this.isMother = false;
+    this.isFather = false;
     this.apiVersion =  '/apiv1';
     this.client_application_id = null;
     this.variantSetTxtCols = [
@@ -142,7 +144,7 @@ export default class HubSession {
                 alertify.alert("Error", buf)
               }
 
-              resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree, 'geneSet': geneSet});
+              resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree, 'geneSet': geneSet, 'isMother': self.isMother, 'isFather': self.isFather});
             })
             .catch(error => {
               reject(error);
@@ -371,6 +373,9 @@ export default class HubSession {
 
     let self = this;
 
+
+    console.log("rawPedigree in HubSession", raw_pedigree)
+
     // This assumes only 1 proband. If there are multiple affected samples then
     // the proband will be overwritten
     // This also assume no grandparents/grandchildren
@@ -382,12 +387,12 @@ export default class HubSession {
     // If the sample selected doesn't have a mother and father (isn't a proband), find
     // the proband by looking for a child with mother and father filled in and affected status
     if (probandIndex == -1) {
-      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 2 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 2 && (d.pedigree.maternal_id || d.pedigree.paternal_id )) );
     }
     // If the sample selected doesn't have a mother and father (isn't a proband), find
     // the proband by looking for a child with mother and father filled in and unknown affected status
     if (probandIndex == -1) {
-      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 0 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 0 && (d.pedigree.maternal_id || d.pedigree.paternal_id ) ));
     }
 
     if (probandIndex == -1) {
@@ -407,12 +412,14 @@ export default class HubSession {
       const motherIndex = raw_pedigree.findIndex(d => d.id == proband.pedigree.maternal_id)
       if (motherIndex != -1) {
         pedigree['mother'] = raw_pedigree.splice(motherIndex, 1)[0]
+        this.isMother = true;
       }
 
       // Get mother
       const fatherIndex = raw_pedigree.findIndex(d => d.id == proband.pedigree.paternal_id)
       if (fatherIndex != -1) {
         pedigree['father'] = raw_pedigree.splice(fatherIndex, 1)[0]
+        this.isFather = true;
       }
     } else {
       alertify.alert("Error", "Could not load the trio.  Unable to identify a proband (offspring) from this pedigree.")

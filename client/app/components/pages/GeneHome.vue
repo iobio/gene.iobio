@@ -352,6 +352,8 @@ main.content.clin, main.v-content.clin
         :geneVizShowXAxis="true"
         :blacklistedGeneSelected="blacklistedGeneSelected"
         :otherModels="nonProbandModels"
+        :isMother="isMother"
+        :isFather="isFather"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-outside-click="onCohortVariantOutsideClick"
         @cohort-variant-hover="onCohortVariantHover"
@@ -403,7 +405,6 @@ main.content.clin, main.v-content.clin
 
 
         <div style="display:flex;align-items:stretch">
-
           <variant-inspect-card
           ref="variantInspectRef"
           v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode"
@@ -723,9 +724,12 @@ export default {
     return {
       greeting: 'gene.iobio',
       launchedFromClin:   false,
+      launchedFromDemo: false,
       isFullAnalysis:     false,
       isClinFrameVisible: false,
       user:               null,
+      isMother: false,
+      isFather: false,
 
       launchedFromHub: false,
       launchedFromSFARI: false,
@@ -949,7 +953,22 @@ export default {
     },
 
     showGeneVariantsCard: function() {
-      return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1))
+      // if(this.launchedFromDemo && this.cohortModel.isLoaded && this.selectedGene){
+      //   console.log("launchedFromDemo")
+      //   return true;
+      // }
+      // else if(this.launchedFromClin && this.cohortModel.isLoaded && this.selectedGene){
+      //   console.log("launchedFromClin");
+      //   return true;
+      // }
+      // else if((!this.launchedFromClin) && (!this.launchedFromDemo) && this.selectedGene){
+      //   console.log("only selected gene, this.launcedFromClin", this.launchedFromClin);
+      //   return true;
+      // }
+      // else {
+      //   console.log("made it to final else");
+        return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1))
+
     },
 
     probandModel: function() {
@@ -1173,7 +1192,8 @@ export default {
           self.rawPedigree = data.rawPedigree;
           self.geneSet = data.geneSet;
 
-
+          self.isMother = data.isMother;
+          self.isFather = data.isFather;
 
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
@@ -1478,6 +1498,7 @@ export default {
     },
 
     onLoadDemoData: function() {
+      this.launchedFromDemo = true;
       let self = this;
       self.promiseClearCache()
       .then(function() {

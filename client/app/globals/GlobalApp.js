@@ -19,8 +19,6 @@ class GlobalApp {
 
     this.IOBIO_SOURCE          = this.PROD_IOBIO;
     //this.HTTP_SOURCE           = "backend.iobio.io/"
-    this.IOBIO_BACKEND = "https://backend.iobio.io/";
-    this.MOSAIC_BACKEND = "https://mosaic.chpc.utah.edu/gru/api/v1/"
     this.HTTP_SOURCE           = this.PROD_IOBIO;
 
     this.isOffline             = false;          // is there any internet connect to outside services and resources?
@@ -42,6 +40,11 @@ class GlobalApp {
     this.HTTP_SERVICES         = null;
     this.emailServer           = null;
     this.hpoLookupUrl          = null;
+
+    this.geneInfoServer        = null;
+    this.geneToPhenoServer     = null;
+    this.genomeBuildServer = null;
+    this.phenolyzerOnlyServer  = null;
 
 
     // config files
@@ -105,6 +108,10 @@ class GlobalApp {
     }
 
     this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
+    this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
+    this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
+    this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
+    this.genomeBuildServer = this.HTTP_SERVICES + "genomebuild/"
     this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
     this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
 

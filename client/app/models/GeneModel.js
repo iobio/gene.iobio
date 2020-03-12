@@ -4,8 +4,6 @@ class GeneModel {
     this.globalApp                 = globalApp;
     this.limitGenes                = limitGenes;
     this.launchedFromHub = launchedFromHub;
-    this.populateServers();
-
     this.phenolyzerServer          = "https://7z68tjgpw4.execute-api.us-east-1.amazonaws.com/dev/phenolyzer/";
 
     this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
@@ -79,19 +77,6 @@ class GeneModel {
     d3.rebind(this, this.dispatch, "on");
 
 
-  }
-
-  populateServers(){
-    if(this.launchedFromHub){
-      this.geneInfoServer            = this.globalApp.MOSAIC_BACKEND + "geneinfo/";
-      this.geneToPhenoServer         = this.globalApp.MOSAIC_BACKEND + "gene2pheno/";
-      this.phenolyzerOnlyServer      = this.globalApp.MOSAIC_BACKEND + "phenolyzer/";
-    }
-    else{
-      this.geneInfoServer            = this.globalApp.IOBIO_BACKEND + "geneinfo/";
-      this.geneToPhenoServer         = this.globalApp.IOBIO_BACKEND + "gene2pheno/";
-      this.phenolyzerOnlyServer      = this.globalApp.IOBIO_BACKEND + "phenolyzer/";
-    }
   }
 
   setCandidateGenes(genes) {
@@ -921,7 +906,7 @@ class GeneModel {
       if (phenotypes != null) {
         resolve([phenotypes, geneName]);
       } else {
-        var url = me.geneToPhenoServer + "api/gene/" + geneName;
+        var url = me.globalApp.geneToPhenoServer + "api/gene/" + geneName;
         $.ajax({
         url: url,
         jsonp: "callback",
@@ -981,7 +966,7 @@ class GeneModel {
     var me = this;
     return new Promise(function(resolve, reject) {
 
-      var url = me.geneInfoServer + 'api/gene/' + geneName;
+      var url = me.globalApp.geneInfoServer + 'api/gene/' + geneName;
 
       // If current build not specified, default to GRCh37
       var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";

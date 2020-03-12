@@ -65,10 +65,10 @@
       <div class="optional-tracks" style="padding: 20px;" >
 
         <div style="display:flex;flex-flow:column">
-          <v-checkbox label="Mother"  v-model="showMotherCard"></v-checkbox>
+          <v-checkbox label="Mother" v-if="isMother"  v-model="showMotherCard"></v-checkbox>
         </div>
         <div style="display:flex;flex-flow:column">
-          <v-checkbox label="Father"  v-model="showFatherCard"></v-checkbox>
+          <v-checkbox label="Father" v-if="isFather"  v-model="showFatherCard"></v-checkbox>
         </div>
 
         <div style="display:flex;flex-flow:column">
@@ -111,7 +111,9 @@ export default {
     KnownVariantsToolbar,
     SfariVariantsToolbar
   },
-  properties: {
+  props: {
+    isMother: null,
+    isFather: null,
   },
   data () {
     return {

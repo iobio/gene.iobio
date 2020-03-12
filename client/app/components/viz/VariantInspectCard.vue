@@ -329,13 +329,19 @@
       <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
 
 
-        <span>
-            <v-btn flat dense small v-if="info && info.rsId && info.rsId != ''"
-                                 class="variant-action-button-dbSnp"  @click="launchDbSnp">
-                               {{info.rsId}}
-               <v-icon>open_in_new</v-icon>
-              </v-btn>
-        </span>
+        <!--<span>-->
+            <!--<v-btn flat dense small v-if="info && info.rsId && info.rsId != ''"-->
+                                 <!--class="variant-action-button-dbSnp"  @click="launchDbSnp">-->
+                               <!--{{info.rsId}}-->
+               <!--<v-icon>open_in_new</v-icon>-->
+              <!--</v-btn>-->
+        <!--</span>-->
+
+        <div style="display: inline-flex; padding-right:20px; font-size:13px; line-height:15px; padding-top: 5px; font-weight: 100"> {{info.rsId}}
+        <a  v-bind:href="info.dbSnpUrl" target="ClinVar" style="padding-left: 4px;">
+            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e;">open_in_new</i>
+        </a>
+        </div>
 
       <app-icon
        style="min-width:35px;margin-top:1px;margin-right:5px;padding-top: 2px;margin-right:10px"
@@ -738,10 +744,6 @@ export default {
     },
 
 
-      launchDbSnp(){
-          let url = this.info.dbSnpUrl;
-          window.open(url, '_blank');
-      },
 
     formatPopAF: function(afObject) {
       let self = this;

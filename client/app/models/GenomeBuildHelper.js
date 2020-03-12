@@ -19,15 +19,6 @@ export class GenomeBuildHelper {
     this.RESOURCE_CLINVAR_VCF_OFFLINE = "CLINVAR VCF OFFLINE";
     this.RESOURCE_CLINVAR_POSITION    = "CLINVAR EUTILS BASE POSITION";
     this.RESOURCE_ENSEMBL_URL         = "ENSEMBL URL";
-
-    if(this.launchedFromHub) {
-      this.genomeBuildServer = this.globalApp.MOSAIC_BACKEND + "genomebuild/";
-    }
-    else{
-      this.genomeBuildServer = this.globalApp.IOBIO_BACKEND + "genomebuild/";
-
-    }
-
   }
 
   promiseInit(options) {
@@ -41,7 +32,7 @@ export class GenomeBuildHelper {
     return new Promise(function(resolve, reject) {
 
       $.ajax({
-            url: me.genomeBuildServer,
+            url: me.globalApp.genomeBuildServer,
             jsonp: "callback",
             type: "GET",
             dataType: "jsonp",
