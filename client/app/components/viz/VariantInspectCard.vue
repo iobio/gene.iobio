@@ -337,7 +337,7 @@
               <!--</v-btn>-->
         <!--</span>-->
 
-        <div style="display: inline-flex; padding-right:20px; font-size:13px; line-height:15px; padding-top: 5px; font-weight: 100"> {{info.rsId}}
+        <div v-if="info && info.rsId" style="display: inline-flex; padding-right:20px; font-size:14px; line-height:15px; padding-top: 5px; font-weight: 100"> {{info.rsId}}
         <a  v-bind:href="info.dbSnpUrl" target="ClinVar" style="padding-left: 4px;">
             <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e;">open_in_new</i>
         </a>
@@ -1497,6 +1497,11 @@ export default {
   },
 
   watch: {
+
+      info: function(){
+        console.log("info.rsId", this.info.rsId + '--')
+      },
+
     selectedVariant: function() {
       this.$nextTick(function() {
         this.loadData();
