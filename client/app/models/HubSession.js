@@ -781,7 +781,9 @@ export default class HubSession {
       }
       if (variant.transcript && self.globalApp.utility.isObject(variant.transcript)) {
         variant.transcriptId = variant.transcript.transcript_id;
+        variant.transcript = null;
       }
+//      variant.variantInspect = null;
       if (variant.variantInspect && variant.variantInspect.geneObject) {
         variant.variantInspect.geneName = variant.variantInspect.geneObject.gene_name
         variant.variantInspect.geneObject = null;
@@ -791,6 +793,8 @@ export default class HubSession {
         variant.variantInspect.transcriptObject = null;
       }
     })
+    analysisDataCopy.payload.filters = null;
+
 
     let analysisString = JSON.stringify(analysisDataCopy, function(key, value) {
       if (typeof value === 'object' && value !== null) {
