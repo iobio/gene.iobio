@@ -35,6 +35,8 @@ class GlobalApp {
     this.useSSL                = true;
     this.useServerCache        = false;
 
+    this.IOBIO_BACKEND = "https://backend.iobio.io/";
+    this.MOSAIC_BACKEND = "https://mosaic.chpc.utah.edu/gru/api/v1/"
 
     this.IOBIO_SERVICES        = null;
     this.HTTP_SERVICES         = null;
@@ -99,7 +101,7 @@ class GlobalApp {
 
   }
 
-  initServices() {
+  initServices(launchedFromHub) {
 
     this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.IOBIO_SOURCE;
     // End with "/" for IOBIO services
@@ -108,12 +110,22 @@ class GlobalApp {
     }
 
     this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
-    this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
-    this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
-    this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
-    this.genomeBuildServer = this.HTTP_SERVICES + "genomebuild/"
+
+    if(launchedFromHub){
+      this.geneInfoServer            = this.MOSAIC_BACKEND + "geneinfo/";
+      this.geneToPhenoServer         = this.MOSAIC_BACKEND + "gene2pheno/";
+      this.phenolyzerOnlyServer      = this.MOSAIC_BACKEND + "phenolyzer/";
+      this.genomeBuildServer = this.MOSAIC_BACKEND + "genomebuild/"
+      this.hpoLookupUrl          = this.MOSAIC_BACKEND + "hpo/hot/lookup/?term=";
+    }
+    else{
+      this.geneInfoServer            = this.IOBIO_BACKEND + "geneinfo/";
+      this.geneToPhenoServer         = this.IOBIO_BACKEND + "gene2pheno/";
+      this.phenolyzerOnlyServer      = this.IOBIO_BACKEND + "phenolyzer/";
+      this.genomeBuildServer = this.IOBIO_BACKEND + "genomebuild/"
+      this.hpoLookupUrl          = this.IOBIO_BACKEND + "hpo/hot/lookup/?term=";
+    }
     this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
-    this.hpoLookupUrl          = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
 
   }
 

@@ -1230,7 +1230,7 @@ export default {
             return Promise.all(genePromises)
           } else {
             return Promise.resolve();
-          }          
+          }
         })
         .then(function() {
           if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
@@ -1286,7 +1286,7 @@ export default {
           }
         })
         */
-        
+
         .then(function() {
           self.models = self.cohortModel.sampleModels;
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
@@ -1376,7 +1376,7 @@ export default {
                 self.promiseUpdateAnalysisVariant(flaggedVariant);
               })
             }
-          } 
+          }
 
           self.refreshCoverageCounts()
 
@@ -2195,8 +2195,8 @@ export default {
     },
 
     isNewAnalysis: function() {
-      return (!this.analysis.hasOwnProperty("id") 
-          || !this.analysis.id 
+      return (!this.analysis.hasOwnProperty("id")
+          || !this.analysis.id
           || this.analysis.id == "");
     },
 
@@ -2472,7 +2472,7 @@ export default {
         self.tourNumber = self.paramTour;
       }
 
-      self.globalApp.initServices();
+      self.globalApp.initServices(self.launchedFromHub);
       self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
     promiseInitFromUrl: function() {
@@ -3465,7 +3465,7 @@ export default {
 
       if (clinObject.iobioSource) {
         self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
-        self.globalApp.initServices();
+        self.globalApp.initServices(self.launchedFromHub);
       }
 
 
