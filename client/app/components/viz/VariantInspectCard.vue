@@ -1032,7 +1032,6 @@ export default {
         }
 
       })
-      console.log(thePedigreeGenotypeData)
       self.$set(self, "pedigreeGenotypeData", thePedigreeGenotypeData);
       if (self.$refs.pedigreeGenotypeViz) {
         self.$refs.pedigreeGenotypeViz.update();
@@ -1216,8 +1215,6 @@ export default {
       let self = this;
       let tooltip = d3.select("#exon-tooltip");
 
-      console.log("showExonToolTip VariantInspectCard");
-
         if (featureObject == null) {
         self.hideExonTooltip();
         return;
@@ -1267,8 +1264,6 @@ export default {
       tooltip.style("left", coord.x + "px")
              .style("text-align", 'left')
              .style("top", (coord.y-60) + "px");
-
-      console.log("coord inside VariantInspectCard", coord);
 
       tooltip.style("z-index", 1032);
       tooltip.transition()
@@ -1498,17 +1493,11 @@ export default {
 
   watch: {
 
-      info: function(){
-        console.log("info.rsId", this.info.rsId + '--')
-      },
-
     selectedVariant: function() {
       this.$nextTick(function() {
         this.loadData();
       })
     },
-
-
   },
 
   filters: {

@@ -105,6 +105,7 @@ export default function PedigreeGenotypeChartD3() {
 
   let createRect = function(parent, d) {
     let nodeData = parent.data()[0]
+
     if (nodeData.zygosity == 'het') {
 
       parent.append("rect")
@@ -194,6 +195,9 @@ export default function PedigreeGenotypeChartD3() {
 
   let createAlleleCountBar = function(parent, position) {
     let nodeData = parent.data()[0]
+    if(isNaN(nodeData.altRatio)){
+        nodeData.altRatio = 1;
+    }
 
     if (nodeData.totalCount != null && nodeData.altCount != null) {
       let group = parent.append("g")
