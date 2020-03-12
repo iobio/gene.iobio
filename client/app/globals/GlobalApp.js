@@ -37,6 +37,8 @@ class GlobalApp {
     this.useSSL                = true;
     this.useServerCache        = false;
 
+    this.IOBIO_BACKEND = "https://backend.iobio.io/";
+    this.MOSAIC_BACKEND = "https://mosaic.chpc.utah.edu/gru/api/v1/"
 
     this.IOBIO_SERVICES        = null;
     this.HTTP_SERVICES         = null;

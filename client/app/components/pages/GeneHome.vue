@@ -1302,33 +1302,47 @@ export default {
             },
             function() {
 
-              setTimeout(function() {
-                self.promiseSelectFirstFlaggedVariant()
+              let exportPromises = [];
+              self.analysis.payload.variants.forEach(function(payloadVariant) {
+                let p = self.promiseExportAnalysisVariant(payloadVariant)
+                .then(function() {
+
+                })
+                exportPromises.push(p)
+              })
+
+              Promise.all(exportPromises)
+              .then(function() {
+                setTimeout(function() {
+                  self.promiseSelectFirstFlaggedVariant()
+
+                  setTimeout(function() {
+                    if (self.persistAnalysis() && !self.isNewAnalysis()) {
+                      // WORKAROUND Remove variant sets
+                      //self.promiseSaveAnalysis({notify:true})
+                      //.then(function() {
+                      //  self.delaySave = 1000;
+                      //})
+                    }
+                    self.delaySave = 1000;
+
+                  },1000)
+                }, 2000)
+
+
 
                 setTimeout(function() {
-                  if (self.persistAnalysis() && !self.isNewAnalysis()) {
-                    // WORKAROUND Remove variant sets
-                    //self.promiseSaveAnalysis({notify:true})
-                    //.then(function() {
-                    //  self.delaySave = 1000;
-                    //})
+                  if (self.analysis.id && self.geneModel.sortedGeneNames &&
+                    self.geneModel.sortedGeneNames.length < 30) {
+                    self.cacheHelper.analyzeAll(self.cohortModel, false, false);
                   }
-                  self.delaySave = 1000;
-
-                },1000)
-              }, 2000)
+                }, 5000)
 
 
+                resolve();
+                
+              })
 
-              setTimeout(function() {
-                if (self.analysis.id && self.geneModel.sortedGeneNames &&
-                  self.geneModel.sortedGeneNames.length < 30) {
-                  self.cacheHelper.analyzeAll(self.cohortModel, false, false);
-                }
-              }, 5000)
-
-
-              resolve();
 
 
 
@@ -3469,7 +3483,7 @@ export default {
 
       if (clinObject.iobioSource) {
         self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
-        self.globalApp.initServices();
+        self.globalApp.initServices(self.launchedFromHub);
       }
 
 

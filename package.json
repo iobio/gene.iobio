@@ -42,6 +42,7 @@
     "clean-webpack-plugin": "^0.1.16",
     "cross-env": "^5.0.1",
     "css-loader": "^1.0.1",
+    "dotenv-webpack": "^1.7.0",
     "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^0.11.2",
     "flush-promises": "^1.0.0",
