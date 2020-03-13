@@ -41,9 +41,19 @@ export default function PedigreeGenotypeChartD3() {
                 .attr("height", 20)
                 .style("pointer-events", "none");
         }
-        else{
+        else if(nodeData.sex === "male"){
             parent.append("g")
                 .attr("transform", "translate(-" + (nodeWidth / 1.75) + ", -" + (nodeWidth / 2) + ")")
+                .append("use")
+                .attr("xlink:href", "#affected-symbol")
+                .attr("class", "level-high")
+                .attr("width", 20)
+                .attr("height", 20)
+                .style("pointer-events", "none");
+        }
+        else{
+            parent.append("g")
+                .attr("transform", "translate(-" + (nodeWidth / 3) + ", -" + (nodeWidth / 3) + ")")
                 .append("use")
                 .attr("xlink:href", "#affected-symbol")
                 .attr("class", "level-high")
