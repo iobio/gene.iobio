@@ -328,18 +328,9 @@
 
       <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
 
-
-        <!--<span>-->
-            <!--<v-btn flat dense small v-if="info && info.rsId && info.rsId != ''"-->
-                                 <!--class="variant-action-button-dbSnp"  @click="launchDbSnp">-->
-                               <!--{{info.rsId}}-->
-               <!--<v-icon>open_in_new</v-icon>-->
-              <!--</v-btn>-->
-        <!--</span>-->
-
-        <div v-if="info && info.rsId" style="display: inline-flex; padding-right:20px; font-size:14px; line-height:15px; padding-top: 5px; font-weight: 100"> {{info.rsId}}
+        <div v-if="info && info.rsId" style="display: inline-flex; padding-right:20px; font-size:14px; line-height:18px; padding-top: 3px; font-weight: 100"> {{info.rsId}}
         <a  v-bind:href="info.dbSnpUrl" target="ClinVar" style="padding-left: 4px;">
-            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e;">open_in_new</i>
+            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 2px">open_in_new</i>
         </a>
         </div>
 
