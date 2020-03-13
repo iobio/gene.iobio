@@ -49,8 +49,6 @@ export default function vcfiobio(theGlobalApp) {
   var genericAnnotation = null;
   var genomeBuildHelper = null;
 
-  // Url for offline Clinvar URL
-  var OFFLINE_CLINVAR_VCF_BASE_URL  = globalApp.isOffline ?  ("http://" + globalApp.serverInstance + globalApp.serverCacheDir) : "";
 
 
 
@@ -1270,20 +1268,12 @@ export default function vcfiobio(theGlobalApp) {
   }
 
   // This method will obtain clinvar annotations from a clinvar vcf.
-  // When there is no internet (isOffline == true), read the clinvar vcf from a locally served
-  // file; otherwise, serve clinvar vcf from standard ftp site.
   exports.promiseGetClinvarVCFImpl= function(variants, refName, geneObject, clinvarGenes, clinvarLoadVariantsFunction) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
 
-      var clinvarUrl = null;
-      if (globalApp.isOffline) {
-        clinvarUrl = OFFLINE_CLINVAR_VCF_BASE_URL + me.getGenomeBuildHelper().getBuildResource(me.getGenomeBuildHelper().RESOURCE_CLINVAR_VCF_OFFLINE)
-      } else {
-        clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
-      }
-
+      var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
 
       var regions = me._getClinvarVariantRegions(refName, geneObject, variants, clinvarGenes);
 
