@@ -371,11 +371,6 @@ export default class HubSession {
 
   parsePedigree(raw_pedigree, sample_id) {
 
-    let self = this;
-
-
-    console.log("rawPedigree in HubSession", raw_pedigree)
-
     // This assumes only 1 proband. If there are multiple affected samples then
     // the proband will be overwritten
     // This also assume no grandparents/grandchildren

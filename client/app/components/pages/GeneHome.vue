@@ -352,6 +352,7 @@ main.content.clin, main.v-content.clin
         :geneVizShowXAxis="true"
         :blacklistedGeneSelected="blacklistedGeneSelected"
         :otherModels="nonProbandModels"
+        :cohortModel="cohortModel"
         :isMother="isMother"
         :isFather="isFather"
         @cohort-variant-click="onCohortVariantClick"
@@ -1339,7 +1340,7 @@ export default {
 
 
                 resolve();
-                
+
               })
 
 
@@ -2550,6 +2551,7 @@ export default {
             modelInfos.push(sibModelInfo);
           })
         }
+
         if (self.paramAffectedSibs && self.paramAffectedSibs.length > 0 && modelInfos.length > 0) {
           self.paramAffectedSibs.split(",").forEach(function(sibId) {
             var sibModelInfo = $.extend({}, modelInfos[0]);
@@ -2562,6 +2564,7 @@ export default {
             modelInfos.push(sibModelInfo);
           })
         }
+
         if (modelInfos.length > 0) {
           self.cohortModel.promiseInit(modelInfos, self.projectId)
           .then(function() {
@@ -3529,8 +3532,6 @@ export default {
 
 
         this.showGeneVariantsCard = this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
-
-
         self.nonProbandModels = self.models.filter(function(model) {
           let keepIt =  model.relationship != 'proband';
           let showIt = false;

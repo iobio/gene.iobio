@@ -71,8 +71,8 @@
                 :target="`_` + link.name"
                 class="variant-link"
                 >
-                  {{ link.display }} 
-                  <span class="rsid" v-if="info.rsId && link.display == 'dbSNP'">{{ info.rsId }}</span>
+                  {{ link.display }}
+                  <span class="rsid" v-if="info && info.rsId && link.display == 'dbSNP'">{{ info.rsId }}</span>
               </a>
             </v-list-tile-title>
 

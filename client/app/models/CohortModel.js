@@ -1039,7 +1039,6 @@ class CohortModel {
     if (self.sampleMap.father && self.sampleMap.father.model) {
       sampleNames.push(self.sampleMap.father.model.getSampleName());
     }
-    console.log("trioSampleNames", sampleNames);
     return sampleNames;
   }
 
@@ -1685,8 +1684,6 @@ class CohortModel {
       }
       trioVcfData[model.getRelationship()] = theVcfData;
     })
-
-    console.log("trioVcfData", trioVcfData);
     return trioVcfData;
   }
 

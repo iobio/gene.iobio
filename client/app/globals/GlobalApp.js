@@ -19,6 +19,8 @@ class GlobalApp {
 
     this.IOBIO_SOURCE          = this.PROD_IOBIO;
     //this.HTTP_SOURCE           = "backend.iobio.io/"
+    this.IOBIO_BACKEND = "https://backend.iobio.io/";
+    this.MOSAIC_BACKEND = "https://mosaic.chpc.utah.edu/gru/api/v1/"
     this.HTTP_SOURCE           = this.PROD_IOBIO;
 
     this.isOffline             = false;          // is there any internet connect to outside services and resources?
@@ -34,9 +36,6 @@ class GlobalApp {
 
     this.useSSL                = true;
     this.useServerCache        = false;
-
-    this.IOBIO_BACKEND = "https://backend.iobio.io/";
-    this.MOSAIC_BACKEND = "https://mosaic.chpc.utah.edu/gru/api/v1/"
 
     this.IOBIO_SERVICES        = null;
     this.HTTP_SERVICES         = null;
@@ -108,7 +107,6 @@ class GlobalApp {
     if (this.IOBIO_SERVICES.indexOf("/", this.IOBIO_SERVICES.length - 1) == -1) {
         this.IOBIO_SERVICES += "/";
     }
-
     this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
 
     if(launchedFromHub){
@@ -125,8 +123,8 @@ class GlobalApp {
       this.genomeBuildServer = this.IOBIO_BACKEND + "genomebuild/"
       this.hpoLookupUrl          = this.IOBIO_BACKEND + "hpo/hot/lookup/?term=";
     }
-    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
 
+    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
   }
 
   getClinvarUrl(build, launchedFromUtahMosaic) {

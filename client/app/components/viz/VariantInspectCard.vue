@@ -337,7 +337,7 @@
               <!--</v-btn>-->
         <!--</span>-->
 
-        <div style="display: inline-flex; padding-right:20px; font-size:13px; line-height:15px; padding-top: 5px; font-weight: 100"> {{info.rsId}}
+        <div v-if="info && info.rsId" style="display: inline-flex; padding-right:20px; font-size:14px; line-height:15px; padding-top: 5px; font-weight: 100"> {{info.rsId}}
         <a  v-bind:href="info.dbSnpUrl" target="ClinVar" style="padding-left: 4px;">
             <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e;">open_in_new</i>
         </a>
@@ -1032,7 +1032,6 @@ export default {
         }
 
       })
-      console.log(thePedigreeGenotypeData)
       self.$set(self, "pedigreeGenotypeData", thePedigreeGenotypeData);
       if (self.$refs.pedigreeGenotypeViz) {
         self.$refs.pedigreeGenotypeViz.update();
@@ -1216,8 +1215,6 @@ export default {
       let self = this;
       let tooltip = d3.select("#exon-tooltip");
 
-      console.log("showExonToolTip VariantInspectCard");
-
         if (featureObject == null) {
         self.hideExonTooltip();
         return;
@@ -1267,8 +1264,6 @@ export default {
       tooltip.style("left", coord.x + "px")
              .style("text-align", 'left')
              .style("top", (coord.y-60) + "px");
-
-      console.log("coord inside VariantInspectCard", coord);
 
       tooltip.style("z-index", 1032);
       tooltip.transition()
@@ -1497,13 +1492,12 @@ export default {
   },
 
   watch: {
+
     selectedVariant: function() {
       this.$nextTick(function() {
         this.loadData();
       })
     },
-
-
   },
 
   filters: {
