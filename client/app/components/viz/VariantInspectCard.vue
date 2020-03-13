@@ -330,12 +330,12 @@
 
         <div v-if="info && info.rsId" style="display: inline-flex; padding-right:20px; font-size:14px; line-height:18px; padding-top: 3px; font-weight: 100"> {{info.rsId}}
         <a  v-bind:href="info.dbSnpUrl" target="ClinVar" style="padding-left: 4px;">
-            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 2px">open_in_new</i>
+            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 3px">open_in_new</i>
         </a>
         </div>
 
       <app-icon
-       style="min-width:35px;margin-top:1px;margin-right:5px;padding-top: 2px;margin-right:10px"
+       style="min-width:35px;margin-top:1px;margin-right:5px;padding-top: 1px;margin-right:10px"
        icon="zygosity" v-if="selectedVariant && selectedVariant.zygosity"
        :type="selectedVariant.zygosity.toLowerCase() + '-large'"
        height="14" width="35">
