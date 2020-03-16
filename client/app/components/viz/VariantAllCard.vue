@@ -67,7 +67,7 @@
     fill: $coverage-problem-glyph-color
 
 
-  #gene-viz, #gene-viz-zoom
+  .gene-viz, .gene-viz-zoom
     .transcript.current
       outline: none !important
       font-weight: normal !important
@@ -101,7 +101,7 @@
     color: $app-color
 
 
-  #gene-viz-zoom
+  .gene-viz-zoom
     .current
       outline: none
 
@@ -414,7 +414,7 @@
       </div>
 
       <div style="width:100%">
-        <gene-viz id="gene-viz-zoom"
+        <gene-viz class="gene-viz-zoom"
         v-if="showZoom"
         :data="[selectedTranscript]"
         :margin="geneZoomVizMargin"
@@ -534,7 +534,7 @@
           </depth-viz>
         </div>
 
-        <gene-viz id="gene-viz"
+        <gene-viz class="gene-viz"
           :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
           v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
           :data="[selectedTranscript]"
@@ -617,7 +617,26 @@
           >
           </depth-viz>
 
+          <gene-viz class="gene-viz"
+                    :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
+                    v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
+                    :data="[selectedTranscript]"
+                    :margin="geneVizMargin"
+                    :width="width"
+                    :height="40"
+                    :trackHeight="geneVizTrackHeight"
+                    :cdsHeight="geneVizCdsHeight"
+                    :regionStart="regionStart"
+                    :regionEnd="regionEnd"
+                    :showXAxis="geneVizShowXAxis"
+                    :showBrush="false"
+                    :featureClass="getExonClass"
+                    @feature-selected="showExonTooltip"
+          >
+          </gene-viz>
+
         </div>
+
 
 
 
@@ -651,7 +670,7 @@ export default {
     KnownVariantsToolbar,
     SfariVariantsToolbar,
     StackedBarChartViz,
-    OptionalTracksMenu
+    OptionalTracksMenu,
   },
   props: {
     globalAppProp: null,  //For some reason, global mixin not working on variant card.  possible cause for-item?
@@ -1325,7 +1344,7 @@ export default {
     clearZoom: function() {
       this.showZoom = false;
       this.zoomMessage = "Drag to zoom";
-    }
+    },
   },
 
 
