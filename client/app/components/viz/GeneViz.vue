@@ -216,10 +216,6 @@ export default {
     created: function() {
     },
     mounted: function() {
-      this.regionSpan = this.regionStart + "-" + this.regionEnd;
-
-      this.draw();
-      this.update();
     },
     methods: {
       draw: function() {
@@ -288,9 +284,12 @@ export default {
       data: function(newData, oldData) {
         let self = this;
         if ( $(self.$el).find("svg").length == 0 ||  self.concatKeys(newData) != self.concatKeys(oldData) ) {
-          this.update();
+            this.draw();
+            this.update();
         }
       },
+
+
       regionStart: function() {
         this.regionSpan = this.regionStart + "-" + this.regionEnd;
       },
