@@ -212,9 +212,13 @@ export default function PedigreeGenotypeChartD3() {
     //todo: refactor redundant code in if statement
 
     if (nodeData.totalCount != null && nodeData.altCount != null) {
+        let group = parent.append("g")
+            .attr("class", "allele-count-bar")
+
+
+
         if(nodeData.sex !== "male" && nodeData.sex !== "female") {
-            let group = parent.append("g")
-                .attr("class", "allele-count-bar")
+            group
                 .attr("transform", function (d, i) {
                     if (position == "top") {
                         return "translate(-10,-12)";
@@ -222,39 +226,18 @@ export default function PedigreeGenotypeChartD3() {
                         return "translate(-10," + (nodeWidth + 20) + ")";
                     }
                 })
-
-            group.append("rect")
-                .attr("width", (nodeWidth + 20))
-                .attr("height", 5)
-
-            group.append("rect")
-                .attr("class", "alt-count")
-                .attr("width", (nodeWidth + 20) * nodeData.altRatio)
-                .attr("height", 5)
-
-            group.append("text")
-                .attr("x", (nodeWidth + 20) / 2)
-                .attr("y", function (d, i) {
-                    if (position == "top") {
-                        return -5;
-                    } else {
-                        return 16;
-                    }
-                })
-                .text(function (d, i) {
-                    return nodeData.altCount + " alt " + (nodeData.totalCount - nodeData.altCount) + ' ref';
-                })
         }
+
         else{
-            let group = parent.append("g")
-                .attr("class", "allele-count-bar")
+            group
                 .attr("transform", function (d, i) {
                     if (position == "top") {
                         return "translate(-10,-12)";
                     } else {
-                        return "translate(-10," + (nodeWidth + 10) + ")";
+                        return "translate(-10," + (nodeWidth + 20) + ")";
                     }
                 })
+        }
 
             group.append("rect")
                 .attr("width", (nodeWidth + 20))
@@ -275,12 +258,9 @@ export default function PedigreeGenotypeChartD3() {
                     }
                 })
                 .text(function (d, i) {
-                    return nodeData.altCount + " alt " + (nodeData.totalCount - nodeData.altCount) + ' ref';
+                    return nodeData.altCount + " alt, " + (nodeData.totalCount - nodeData.altCount) + ' ref';
                 })
         }
-    }
-
-
   }
 
 
