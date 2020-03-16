@@ -24,7 +24,7 @@ class GlobalApp {
 
     this.useOnDemand           = true;           // use on demand tabix and samtools
 
-    this.useSSL                = true;
+    this.useSSL                = process.env.USE_SSL ? process.env.USE_SSL : true;
     this.useServerCache        = false;
 
     this.emailServer           = null;
