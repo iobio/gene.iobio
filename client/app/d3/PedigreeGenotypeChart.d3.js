@@ -234,7 +234,7 @@ export default function PedigreeGenotypeChartD3() {
                     if (position == "top") {
                         return "translate(-10,-12)";
                     } else {
-                        return "translate(-10," + (nodeWidth + 20) + ")";
+                        return "translate(-10," + (nodeWidth + 10) + ")";
                     }
                 })
         }
