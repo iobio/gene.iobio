@@ -33,7 +33,7 @@ export default function PedigreeGenotypeChartD3() {
 
         if(nodeData.sex === "female") {
             parent.append("g")
-                .attr("transform", "translate(-" + (nodeWidth / 3) + ", -" + (nodeWidth / 1.9) + ")")
+                .attr("transform", "translate(-" + (nodeWidth / 3 -2) + ", -" + (nodeWidth / 1.9 -2) + ")")
                 .append("use")
                 .attr("xlink:href", "#affected-symbol")
                 .attr("class", "level-high")
