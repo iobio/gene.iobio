@@ -72,7 +72,7 @@ export default function PedigreeGenotypeChartD3() {
     if (nodeData.zygosity == 'het') {
       let left = parent.append("g")
                          .attr("class", "half-circle left")
-                         .attr("transform", "translate(0,0), rotate(90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")")
+                         .attr("transform", "translate(-1,0), rotate(90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")")
       left.append("path")
            .attr("d", "M0,0 a" + nodeWidth/2 + "," + nodeWidth/2 + " 0 0,0 " + (nodeWidth + 3) + ",0")
       left.append("path")
@@ -89,7 +89,7 @@ export default function PedigreeGenotypeChartD3() {
                             if (nodeData.rel == 'proband') {
                               return "translate(" + (nodeWidth/2 + 2) + "," +  (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")"
                             } else {
-                              return  "translate(" + (nodeWidth/2 + 1) + "," + (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")";
+                              return  "translate(" + (nodeWidth/2 + 0) + "," + (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")";
                             }
                          })
       right.append("path")
@@ -371,7 +371,7 @@ export default function PedigreeGenotypeChartD3() {
 
     parentLinesEnter.append("line")
                     .attr("x1", 0)
-                    .attr("x2", nodePadding + 3)
+                    .attr("x2", nodePadding + 0.5)
                     .attr("y1", 0)
                     .attr("y2", 0)
 
