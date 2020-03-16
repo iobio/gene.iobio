@@ -3901,7 +3901,7 @@ export default {
       self.showSaveModal = false
     },
 
-    promiseAutosaveAnalysis(options) {
+    promiseAutosaveAnalysis(options={}) {
       let self = this;
       if (!self.isNewAnalysis()) {
         options.autoupdate = true;
