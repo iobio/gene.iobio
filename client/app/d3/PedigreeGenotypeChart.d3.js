@@ -89,7 +89,7 @@ export default function PedigreeGenotypeChartD3() {
                             if (nodeData.rel == 'proband') {
                               return "translate(" + (nodeWidth/2 + 2) + "," +  (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")"
                             } else {
-                              return  "translate(" + (nodeWidth/2 + 0) + "," + (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")";
+                              return  "translate(" + (nodeWidth/2 + 2) + "," + (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")";
                             }
                          })
       right.append("path")
