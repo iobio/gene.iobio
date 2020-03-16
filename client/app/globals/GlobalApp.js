@@ -10,41 +10,29 @@ class GlobalApp {
     this.completedTour         = "";
 
 
-    this.version               = "3.3 gru";
+    this.version               = "4.0";
 
-    this.DEV_IOBIO             = "nv-dev-new.iobio.io/";
-    this.STAGE_IOBIO           = "nv-green.iobio.io/";
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
-    this.PROD_IOBIO            = "nv-prod.iobio.io/";
 
-    this.IOBIO_SOURCE          = this.PROD_IOBIO;
-    //this.HTTP_SOURCE           = "backend.iobio.io/"
-    this.IOBIO_BACKEND = "https://backend.iobio.io/";
-    this.MOSAIC_BACKEND = "https://mosaic.chpc.utah.edu/gru/api/v1/"
-    this.HTTP_SOURCE           = this.PROD_IOBIO;
+    this.launchedFromMosaic     = false;
+    this.launchedFromUtahMosaic = false;
+    this.IOBIO_SERVICES         = null;
+    this.HTTP_SERVICES          = null;
 
-    this.isOffline             = false;          // is there any internet connect to outside services and resources?
     this.isClinvarOffline      = false;          // is clinvar offline?  (Pull from clinvar hosted from URL?)
     this.accessNCBIGeneSummary = true;           // is it okay to access NCBI web resources to obtain the refseq gene summary?  In cases where the server and client are COMPLETELY offline, set this to false.
 
     this.useOnDemand           = true;           // use on demand tabix and samtools
 
-    this.serverInstance        = "@hostname@/";  // this will be replace with the name of the server used for this deployement
-    this.serverCacheDir        = "local_cache/"; // this is the directory from the server instance where resource files (like clinvar vcf) will be served
-    this.serverDataDir         = "local_cache/"; // this is the directory from the server instance where data files will be served
-    this.offlineUrlTag         = "site:"         // this is the first part if the vcf/bam URL that indicates that a special URL should be constructed to get to files served from the local isntance
-
     this.useSSL                = true;
     this.useServerCache        = false;
 
-    this.IOBIO_SERVICES        = null;
-    this.HTTP_SERVICES         = null;
     this.emailServer           = null;
     this.hpoLookupUrl          = null;
 
     this.geneInfoServer        = null;
     this.geneToPhenoServer     = null;
-    this.genomeBuildServer = null;
+    this.genomeBuildServer     = null;
     this.phenolyzerOnlyServer  = null;
 
 
@@ -100,31 +88,29 @@ class GlobalApp {
 
   }
 
-  initServices(launchedFromHub) {
+  initServices(launchedFromMosaic) {
+    this.launchedFromMosaic = launchedFromMosaic;
 
-    this.IOBIO_SERVICES        = this.isOffline              ? this.serverInstance : this.IOBIO_SOURCE;
-    // End with "/" for IOBIO services
-    if (this.IOBIO_SERVICES.indexOf("/", this.IOBIO_SERVICES.length - 1) == -1) {
-        this.IOBIO_SERVICES += "/";
-    }
-    this.HTTP_SERVICES         = (this.useSSL ? "https://" : "http://") + (this.isOffline ? this.serverInstance : this.HTTP_SOURCE);
-
-    if(launchedFromHub){
-      this.geneInfoServer            = this.MOSAIC_BACKEND + "geneinfo/";
-      this.geneToPhenoServer         = this.MOSAIC_BACKEND + "gene2pheno/";
-      this.phenolyzerOnlyServer      = this.MOSAIC_BACKEND + "phenolyzer/";
-      this.genomeBuildServer = this.MOSAIC_BACKEND + "genomebuild/"
-      this.hpoLookupUrl          = this.MOSAIC_BACKEND + "hpo/hot/lookup/?term=";
-    }
-    else{
-      this.geneInfoServer            = this.IOBIO_BACKEND + "geneinfo/";
-      this.geneToPhenoServer         = this.IOBIO_BACKEND + "gene2pheno/";
-      this.phenolyzerOnlyServer      = this.IOBIO_BACKEND + "phenolyzer/";
-      this.genomeBuildServer = this.IOBIO_BACKEND + "genomebuild/"
-      this.hpoLookupUrl          = this.IOBIO_BACKEND + "hpo/hot/lookup/?term=";
+    // These are the public services. 
+    if (launchedFromMosaic) {
+      this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND_MOSAIC + "/";
+      this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND_MOSAIC + "/";;
+      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
+        this.launchedFromUtahMosaic = true;
+      }
+    } else {
+      this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND + "/";
+      this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND+ "/";
     }
 
-    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   this.IOBIO_SOURCE + "email/";
+    this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
+    this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
+    this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
+    this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
+    this.hpoLookupUrl              = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
+
+
+    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   process.env.IOBIO_BACKEND + "email/";
   }
 
   getClinvarUrl(build, launchedFromUtahMosaic) {

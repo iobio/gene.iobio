@@ -128,9 +128,8 @@ export default {
     return {
     }
   },
-  // remove this example!
   mounted() {
-    console.log(process.env.IOBIO_URL);
+    
   }
 }
 </script>

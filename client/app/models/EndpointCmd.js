@@ -8,14 +8,15 @@ export default class EndpointCmd {
     this.launchTimestamp   = launchTimestamp;
     this.genomeBuildHelper = genomeBuildHelper;
     this.getHumanRefNames  = getHumanRefNamesFunc;
-    this.launchedFromUtah =  this.globalApp.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') === 0;
 
-    if (this.launchedFromUtah) {
-      this.api = new Client('mosaic.chpc.utah.edu/gru/api/v1', { secure: true });
+    if (this.globalApp.launchedFromUtahMosaic) {
+      this.api = new Client(process.env.IOBIO_BACKEND_MOSAIC, { secure: true });
     }
     else {
-      this.api = new Client('backend.iobio.io', { secure: true });
-      //this.api = new Client('dev.backend.iobio.io:9005', {secure: false});  // TODO: as soon as backend is updated w/ SJG changes can change to backend.iobio.io - SJG Nov2019
+      // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
+      // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to 
+      // the dev server.
+      this.api = new Client(process.env.IOBIO_BACKEND, { secure: true });
     }
 
     // iobio services
@@ -25,7 +26,7 @@ export default class EndpointCmd {
     this.IOBIO.snpEff                  = this.globalApp.IOBIO_SERVICES  + "snpeff/";
     this.IOBIO.vt                      = this.globalApp.IOBIO_SERVICES  + "vt/";
     this.IOBIO.af                      = this.globalApp.IOBIO_SERVICES  + "af/";
-    this.IOBIO.vep                     = (this.launchedFromUtah === true ? this.globalApp.IOBIO_SERVICES : this.globalApp.GREEN_IOBIO) + "vep/";   // Inside utah mosaic, normal services, else beefy nv-green to accommodate sfari
+    this.IOBIO.vep                     = (this.globalApp.launchedFromUtahMosaic === true ? this.globalApp.IOBIO_SERVICES : this.globalApp.GREEN_IOBIO) + "vep/";   // Inside utah mosaic, normal services, else beefy nv-green to accommodate sfari
     this.IOBIO.contigAppender          = this.globalApp.IOBIO_SERVICES  + "ctgapndr/";
     this.IOBIO.bcftools                = this.globalApp.IOBIO_SERVICES  + "bcftools/";
     this.IOBIO.gnomadAnnot             = this.globalApp.DEV_IOBIO       + "gnomad_annot/";
