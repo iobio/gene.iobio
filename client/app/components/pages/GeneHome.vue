@@ -3530,8 +3530,6 @@ export default {
       self.nonProbandModels = [];
       if (this.models && this.models.length > 0) {
 
-
-        this.showGeneVariantsCard = this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
         self.nonProbandModels = self.models.filter(function(model) {
           let keepIt =  model.relationship != 'proband';
           let showIt = false;
