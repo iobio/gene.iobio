@@ -24,7 +24,7 @@ class GlobalApp {
 
     this.useOnDemand           = true;           // use on demand tabix and samtools
 
-    this.useSSL                = process.env.USE_SSL ? process.env.USE_SSL : true;
+    this.useSSL                = true;
     this.useServerCache        = false;
 
     this.emailServer           = null;
@@ -90,6 +90,10 @@ class GlobalApp {
 
   initServices(launchedFromMosaic) {
     this.launchedFromMosaic = launchedFromMosaic;
+
+    if (process.env.USE_SSL) {
+      this.useSSL = process.env.USE_SSL === 'true' ? true : false;
+    } 
 
     // These are the public services. 
     if (launchedFromMosaic) {
