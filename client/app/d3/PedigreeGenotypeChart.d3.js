@@ -33,7 +33,17 @@ export default function PedigreeGenotypeChartD3() {
 
         if(nodeData.sex === "female") {
             parent.append("g")
-                .attr("transform", "translate(-" + (nodeWidth / 3) + ", -" + (nodeWidth / 1.9) + ")")
+                .attr("transform", "translate(-" + (nodeWidth / 3 -2) + ", -" + (nodeWidth / 1.9 -2) + ")")
+                .append("use")
+                .attr("xlink:href", "#affected-symbol")
+                .attr("class", "level-high")
+                .attr("width", 20)
+                .attr("height", 20)
+                .style("pointer-events", "none");
+        }
+        else if(nodeData.sex === "male"){
+            parent.append("g")
+                .attr("transform", "translate(-" + (nodeWidth / 1.75) + ", -" + (nodeWidth / 2) + ")")
                 .append("use")
                 .attr("xlink:href", "#affected-symbol")
                 .attr("class", "level-high")
@@ -43,7 +53,7 @@ export default function PedigreeGenotypeChartD3() {
         }
         else{
             parent.append("g")
-                .attr("transform", "translate(-" + (nodeWidth / 1.75) + ", -" + (nodeWidth / 2) + ")")
+                .attr("transform", "translate(-" + (nodeWidth / 3) + ", -" + (nodeWidth / 3) + ")")
                 .append("use")
                 .attr("xlink:href", "#affected-symbol")
                 .attr("class", "level-high")
@@ -62,7 +72,7 @@ export default function PedigreeGenotypeChartD3() {
     if (nodeData.zygosity == 'het') {
       let left = parent.append("g")
                          .attr("class", "half-circle left")
-                         .attr("transform", "translate(0,0), rotate(90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")")
+                         .attr("transform", "translate(-1,0), rotate(90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")")
       left.append("path")
            .attr("d", "M0,0 a" + nodeWidth/2 + "," + nodeWidth/2 + " 0 0,0 " + (nodeWidth + 3) + ",0")
       left.append("path")
@@ -79,7 +89,7 @@ export default function PedigreeGenotypeChartD3() {
                             if (nodeData.rel == 'proband') {
                               return "translate(" + (nodeWidth/2 + 2) + "," +  (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")"
                             } else {
-                              return  "translate(" + (nodeWidth/2 + 1) + "," + (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")";
+                              return  "translate(" + (nodeWidth/2 + 2) + "," + (nodeWidth/2 - 1) + "), rotate(-90," + (nodeWidth/4+2) + "," + (nodeWidth/4+2) + ")";
                             }
                          })
       right.append("path")
@@ -149,7 +159,7 @@ export default function PedigreeGenotypeChartD3() {
       let halfWidth = (nodeWidth/3);
       let diamondHeight = (nodeWidth/2) + (nodeWidth/4)
       let grouping = parent.append("g")
-                           .attr("transform", "translate(" + ((halfWidth/2)+2) + "," + (halfWidth/2+2) + ")");
+                           .attr("transform", "translate(" + ((halfWidth/2)) + "," + (halfWidth/2+2) + ")");
       let left = grouping.append("g")
                          .attr("class", "half-diamond left")
                          .attr("transform", function(d,i) {
@@ -182,7 +192,7 @@ export default function PedigreeGenotypeChartD3() {
             .attr("class", function(d,i) {
               return nodeData.rel + " " + nodeData.zygosity + (nodeData.inheritance.indexOf('n/a') == -1 ? ' critical' : '');;
             })
-            .attr("transform", "translate(" + (nodeWidth/2 + 2)  + "),rotate(45)")
+            .attr("transform", "translate(" + (nodeWidth/2)  + "),rotate(45)")
             .attr("width", nodeWidth)
             .attr("height", nodeWidth)
             .attr("x", 0)
@@ -199,41 +209,58 @@ export default function PedigreeGenotypeChartD3() {
         nodeData.altRatio = 1;
     }
 
+    //todo: refactor redundant code in if statement
+
     if (nodeData.totalCount != null && nodeData.altCount != null) {
-      let group = parent.append("g")
+        let group = parent.append("g")
             .attr("class", "allele-count-bar")
-            .attr("transform", function(d,i) {
-              if (position == "top") {
-                return "translate(-10,-12)";
-              } else {
-                return "translate(-10," + (nodeWidth+8) + ")";
-              }
-            })
-
-      group.append("rect")
-           .attr("width", (nodeWidth+20))
-           .attr("height", 5)
-
-      group.append("rect")
-           .attr("class", "alt-count")
-           .attr("width", (nodeWidth+20) * nodeData.altRatio)
-           .attr("height", 5)
-
-      group.append("text")
-           .attr("x", (nodeWidth+20)/2)
-           .attr("y", function(d,i) {
-              if (position == "top") {
-                return -5;
-              } else {
-                return 16;
-              }
-           })
-           .text(function(d,i) {
-              return nodeData.altCount + " alt " + (nodeData.totalCount-nodeData.altCount) + ' ref';
-           })
-    }
 
 
+
+        if(nodeData.sex !== "male" && nodeData.sex !== "female") {
+            group
+                .attr("transform", function (d, i) {
+                    if (position == "top") {
+                        return "translate(-10,-12)";
+                    } else {
+                        return "translate(-10," + (nodeWidth + 20) + ")";
+                    }
+                })
+        }
+
+        else{
+            group
+                .attr("transform", function (d, i) {
+                    if (position == "top") {
+                        return "translate(-10,-12)";
+                    } else {
+                        return "translate(-10," + (nodeWidth + 10) + ")";
+                    }
+                })
+        }
+
+            group.append("rect")
+                .attr("width", (nodeWidth + 20))
+                .attr("height", 5)
+
+            group.append("rect")
+                .attr("class", "alt-count")
+                .attr("width", (nodeWidth + 20) * nodeData.altRatio)
+                .attr("height", 5)
+
+            group.append("text")
+                .attr("x", (nodeWidth + 20) / 2)
+                .attr("y", function (d, i) {
+                    if (position == "top") {
+                        return -5;
+                    } else {
+                        return 16;
+                    }
+                })
+                .text(function (d, i) {
+                    return nodeData.altCount + " alt, " + (nodeData.totalCount - nodeData.altCount) + ' ref';
+                })
+        }
   }
 
 
@@ -245,12 +272,16 @@ export default function PedigreeGenotypeChartD3() {
 
     container = theContainer;
 
+    let unknownSex = false;
 
     let childData = []
     for( var key in pedigreeData) {
       let element = pedigreeData[key];
       if (element.rel == 'proband' || element.rel == 'sibling') {
         childData.push(element)
+      }
+      if(element.sex !== "male" && element.sex !== "female"){
+          unknownSex = true;
       }
     }
 
@@ -264,9 +295,13 @@ export default function PedigreeGenotypeChartD3() {
 
     let outerWidth = width + margin.left + margin.right;
     let outerHeight = height + margin.top + margin.bottom;
-
+    if(unknownSex){
+        outerHeight = height + margin.top + margin.bottom + 10;
+    }
 
     let childLineWidth = (childData.length * nodeWidth) + ((childData.length-1) * nodePadding) - (nodeWidth);
+
+
     let center = width / 2;
     let parentX = center - (nodeWidth + (nodePadding/2));
 
@@ -336,13 +371,13 @@ export default function PedigreeGenotypeChartD3() {
 
     parentLinesEnter.append("line")
                     .attr("x1", 0)
-                    .attr("x2", nodePadding)
+                    .attr("x2", nodePadding + 0.5)
                     .attr("y1", 0)
                     .attr("y2", 0)
 
     parentLinesEnter.append("line")
-                    .attr("x1", nodePadding/2)
-                    .attr("x2", nodePadding/2)
+                    .attr("x1", (nodePadding/2) + 1.5)
+                    .attr("x2", (nodePadding/2) + 1.5)
                     .attr("y1", 0)
                     .attr("y2", nodeVerticalPadding)
 
