@@ -151,6 +151,9 @@ export default {
         default: 0,
         type: Number
       },
+        isStandalone: {
+          type: Boolean
+        },
       regionEnd: {
         default: 0,
         type: Number
@@ -171,16 +174,6 @@ export default {
         type: Object,
         default: function() {
           return {top: 10, bottom: 10, left: 10, right: 10}
-        }
-      },
-      transcriptClass: {
-        type: Function,
-        default: function(d,i) {
-          if (d.isCanonical) {
-            return 'transcript current';
-          } else {
-            return 'transcript';
-          }
         }
       },
       featureClass: {
@@ -218,8 +211,19 @@ export default {
     mounted: function() {
     },
     methods: {
+
+        transcriptClass: function(d, standalone) {
+            if (d.isCanonical && !this.isStandalone) {
+                return 'transcript current';
+            } else {
+                return 'transcript';
+            }
+        },
+
       draw: function() {
-        var self = this;
+        let self = this;
+
+        console.log("self.standalone inside draw", self.isStandalone);
 
         this.geneChart = geneD3()
               .width(self.fixedWidth > 0 ? self.fixedWidth : this.width)
@@ -231,7 +235,7 @@ export default {
               .trackHeight(this.trackHeight)
               .cdsHeight(this.cdsHeight)
               .showLabel(this.showLabel)
-              .transcriptClass(this.transcriptClass)
+              .transcriptClass(this.transcriptClass, self.isStandalone)
               .featureClass( function(feature, i) {
                 return self.featureClass(feature, i);
               })

@@ -364,14 +364,21 @@ main.content.clin, main.v-content.clin
                 <!--style="overflow-y:scroll;margin-left:5px"-->
         <!--&gt;-->
 
+
+        <!--geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,-->
+        <!--geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,-->
+
+
         <gene-viz class="gene-viz-zoom"
                   v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
                   :data="[selectedTranscript]"
-                  :margin="geneZoomVizMargin"
+                  :margin="geneVizMargin"
+                  :height="40"
                   :width="cardWidth"
+                  :isStandalone="true"
                   :showXAxis="true"
-                  :trackHeight="36"
-                  :cdsHeight="32"
+                  :trackHeight="geneVizTrackHeight"
+                  :cdsHeight="geneVizCdsHeight"
                   :regionStart="parseInt(selectedGene.start)"
                   :regionEnd="parseInt(selectedGene.end)"
                   :showBrush="false"
@@ -787,12 +794,15 @@ export default {
     let self = this;
     return {
 
-      geneZoomVizMargin: {
-        top: 10,
-        right: 2,
-        bottom: 10,
-        left: 4
+      geneVizMargin: {
+        top: 0,
+        right: self.isBasicMode || self.isEduMode ? 7 : 2,
+        bottom: 18,
+        left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
+
+      geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,
+      geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,
 
       greeting: 'gene.iobio',
       launchedFromClin:   false,
