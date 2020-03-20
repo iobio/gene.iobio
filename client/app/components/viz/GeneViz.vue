@@ -212,7 +212,7 @@ export default {
     },
     methods: {
 
-        transcriptClass: function(d, standalone) {
+        transcriptClass: function(d) {
             if (d.isCanonical && !this.isStandalone) {
                 return 'transcript current';
             } else {
@@ -222,8 +222,6 @@ export default {
 
       draw: function() {
         let self = this;
-
-        console.log("self.standalone inside draw", self.isStandalone);
 
         this.geneChart = geneD3()
               .width(self.fixedWidth > 0 ? self.fixedWidth : this.width)
@@ -235,7 +233,7 @@ export default {
               .trackHeight(this.trackHeight)
               .cdsHeight(this.cdsHeight)
               .showLabel(this.showLabel)
-              .transcriptClass(this.transcriptClass, self.isStandalone)
+              .transcriptClass(this.transcriptClass)
               .featureClass( function(feature, i) {
                 return self.featureClass(feature, i);
               })
