@@ -188,6 +188,7 @@ export default {
   props: {
     isBasicMode: null,
     isEduMode: null,
+    isSimpleMode: null,
     name: "",
     featureMatrixModel: {},
     selectedGene: null,

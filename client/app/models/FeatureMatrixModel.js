@@ -1,10 +1,11 @@
 class FeatureMatrixModel {
-  constructor(globalApp, cohort, isEduMode, isBasicMode, tourNumber) {
+  constructor(globalApp, cohort, isEduMode, isBasicMode, isSimpleMode, tourNumber) {
       this.globalApp = globalApp;
       this.cohort = cohort;
 
       this.isEduMode = isEduMode;
       this.isBasicMode = isBasicMode;
+      this.isSimpleMode = isSimpleMode;
       this.tourNumber = tourNumber;
 
       this.currentGene = null;
@@ -46,6 +47,14 @@ class FeatureMatrixModel {
         {name:'Mutation Freq 1000G'    ,id:'af-1000g',        order:9,  index:9,  match:  'field', height: 18, attribute: 'af1000G',                     formatFunction: this.formatAlleleFrequencyPercentage },
         {name:'Mutation Freq gnomAD'   ,id:'af-gnomAD',       order:10, index:10,  match: 'field', height: 18, attribute: 'afgnomAD',                    formatFunction: this.formatAlleleFrequencyPercentage }
       ];
+
+      this.matrixRowsSimple = [
+        {name:'Pathogenicity - ClinVar'      , id:'clinvar',        order:0, index:0, match: 'exact', attribute: 'clinvarClinSig',      map: this.getTranslator().clinvarMap },
+        {name:'Impact (VEP)'                 , id:'impact',         order:1, index:1, match: 'exact', attribute: this.globalApp.impactFieldToColor,  map: this.getTranslator().impactMap},
+        {name:'Allele Frequency <5%'         , id:'af-highest',     order:2, index:2, match: 'range', attribute: 'afHighest',                        map: this.getTranslator().afHighestMap},
+        {name:'Zygosity'                     , id:'zygosity',       order:3, index:3, match: 'exact', attribute: 'zygosity',                         map: this.getTranslator().zygosityMap},
+      ];
+
       this.filteredMatrixRows = null;
       this.featureUnknown = 199;
       this.matrixRowsEvaluated = false;
@@ -59,7 +68,8 @@ class FeatureMatrixModel {
 
     if (self.isBasicMode) {
       this.filteredMatrixRows = $.extend([], this.matrixRowsBasic);
-
+    } else if (self.isSimpleMode) {
+      this.filteredMatrixRows = $.extend([], this.matrixRowsSimple);
     } else if (self.isEduMode) {
       this.filteredMatrixRows = $.extend([], this.matrixRows);
       this.removeRow('Pathogenicity - SIFT', self.filteredMatrixRows);

@@ -338,6 +338,7 @@ main.content.clin, main.v-content.clin
         :globalAppProp="globalApp"
         :isEduMode="isEduMode"
         :isBasicMode="isBasicMode"
+        :isSimpleMode="isSimpleMode"
         :clearZoom="clearZoom"
         :sampleModel="probandModel"
         :coverageDangerRegions="probandModel.coverageDangerRegions"
@@ -413,6 +414,7 @@ main.content.clin, main.v-content.clin
           <variant-inspect-card
           ref="variantInspectRef"
           v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode"
+          :isSimpleMode="isSimpleMode"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :selectedVariant="selectedVariant"
@@ -1121,7 +1123,7 @@ export default {
         self.inProgress = self.cohortModel.inProgress;
 
 
-        self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.tourNumber);
+        self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.isSimpleMode, self.tourNumber);
         self.featureMatrixModel.init();
         self.cohortModel.featureMatrixModel = self.featureMatrixModel;
 

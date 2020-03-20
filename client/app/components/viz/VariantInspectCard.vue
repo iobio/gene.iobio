@@ -309,7 +309,7 @@
       :info="info">
       </variant-links-menu>
 
-      <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading)"
+      <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading) && !isSimpleMode"
         style="font-size:13px;margin-top:2px;min-width:80px;margin-left:0px;margin-right:0px"
         v-show="selectedVariantRelationship != 'known-variants'" class=" loader vcfloader" >
         <img src="../../../assets/images/wheel.gif">
@@ -318,7 +318,7 @@
 
       <variant-aliases-menu
       v-show="selectedVariant && (!info.HGVSpLoading || !info.HGVScLoading)"
-      v-if="selectedVariant && selectedVariantRelationship != 'known-variants'"
+      v-if="selectedVariant && selectedVariantRelationship != 'known-variants' && !isSimpleMode"
       :label="`HGVS`"
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
@@ -326,7 +326,7 @@
       :info="info">
       </variant-aliases-menu>
 
-      <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
+      <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="!isSimpleMode && selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
 
         <div v-if="info && info.rsId" style="display: inline-flex; padding-right:20px; font-size:14px; line-height:18px; padding-top: 3px; font-weight: 100"> {{info.rsId}}
         <a  v-bind:href="info.dbSnpUrl" target="ClinVar" style="padding-left: 4px;">
@@ -360,7 +360,7 @@
 
       <v-spacer></v-spacer>
 
-      <div v-if="selectedVariant && !showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:20px;margin-right:0px">
+      <div v-if="!isSimpleMode && selectedVariant && !showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:20px;margin-right:0px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
           <v-icon>gavel</v-icon>
           Review
@@ -492,23 +492,23 @@
 
       <div class="variant-inspect-column" v-if="selectedVariant && selectedVariantRelationship != 'known-variants'">
           <div class="variant-column-header">
-              Pop Freq in gnomAD
-            <info-popup name="gnomAD"></info-popup>
+              {{ isSimpleMode ? 'Population Frequency' : 'Pop Freq in gnomAD' }}
+            <info-popup v-if="!isSimpleMode" name="gnomAD"></info-popup>
             <v-divider></v-divider>
           </div>
           <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele freq`" :link="afGnomAD.link" >
           </variant-inspect-row>
-          <variant-inspect-row v-if="afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Pop max allele freq`" >
+          <variant-inspect-row v-if="!isSimpleMode && afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Pop max allele freq`" >
           </variant-inspect-row>
-          <div v-if="afGnomAD.totalCount > 0" class="variant-row no-icon">
+          <div v-if="!isSimpleMode && afGnomAD.totalCount > 0" class="variant-row no-icon">
             <span>{{ afGnomAD.altCount }} alt of {{ afGnomAD.totalCount }} total</span>
           </div>
-          <div v-if="afGnomAD.homCount > 0"  class="variant-row no-icon">
+          <div v-if="!isSimpleMode && afGnomAD.homCount > 0"  class="variant-row no-icon">
             <span>{{ afGnomAD.homCount }} homozygotes</span>
           </div>
       </div>
 
-      <div class="variant-inspect-column" style="min-width:90px" v-if="selectedVariant && selectedVariantRelationship != 'known-variants' && selectedVariant.inheritance.length > 0">
+      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant && selectedVariantRelationship != 'known-variants' && selectedVariant.inheritance.length > 0">
           <div class="variant-column-header">
             Inheritance
             <v-divider></v-divider>
@@ -548,11 +548,11 @@
               </variant-inspect-row>
 
               <div class="conservation-score-label"
-                v-if="conservationScores && conservationScores.length > 0">
+                v-if="!isSimpleMode && conservationScores && conservationScores.length > 0">
                 phyloP scores
               </div>
 
-              <conservation-scores-viz class="conservation-scores-barchart exon"
+              <conservation-scores-viz v-if="!isSimpleMode" class="conservation-scores-barchart exon"
                :data=conservationScores
                :options=conservationOptions
                :exactScore=conservationExactScore
@@ -563,7 +563,7 @@
               </conservation-scores-viz>
 
               <gene-viz id="conservation-gene-viz" class="gene-viz"
-                v-if="cohortModel && showConservation"
+                v-if="!isSimpleMode && cohortModel && showConservation"
                 v-show="filteredTranscript && filteredTranscript.features && filteredTranscript.features.length > 0"
                 :data="[filteredTranscript]"
                 :margin="conservationGeneVizMargin"
@@ -663,6 +663,7 @@ export default {
     selectedVariantKey: null,
     selectedVariantInterpretation: null,
     selectedVariantRelationship: null,
+    isSimpleMode: null,
     genomeBuildHelper: null,
     cohortModel: null,
     showGenePhenotypes: null,
@@ -909,13 +910,13 @@ export default {
         return "";
       } else {
         if (score.y > 1.5) {
-          return 'Highly conserved ' + score.y;
+          return 'Highly conserved ' + (!this.isSimpleMode ? score.y : '');
         } else if (score.y > 1) {
-          return 'Moderately conserved ' + score.y;
+          return 'Moderately conserved ' + (!this.isSimpleMode ? score.y : '');
         } else if (score.y > 0) {
-          return 'Marginally conserved ' + score.y;
+          return 'Marginally conserved ' + (!this.isSimpleMode ? score.y : '');
         } else {
-          return 'Not conserved ' + score.y;
+          return 'Not conserved ' + (!this.isSimpleMode ? score.y : '');
         }
       }
     },

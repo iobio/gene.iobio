@@ -309,7 +309,7 @@
 
 
         <optional-tracks-menu
-            v-show="!isEduMode && !isBasicMode"
+            v-show="!isEduMode && !isBasicMode && !isSimpleMode"
             @show-known-variants-card="onShowKnownVariantsCard"
             @show-sfari-variants-card="onShowSfariVariantsCard"
             @show-mother-card="onShowMotherCard"
@@ -328,6 +328,7 @@
           v-show="!isEduMode && !isBasicMode"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
+          :isSimpleMode="isSimpleMode"
           :featureMatrixModel="featureMatrixModel"
           :selectedGene="selectedGene"
           :selectedTranscript="selectedTranscript"
@@ -431,7 +432,7 @@
         </gene-viz>
 
         <div class="chart-label"
-        v-if="showVariantViz && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0"
+        v-if="showVariantViz && !isSimpleMode && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0"
         >
           called variants
         </div>
@@ -464,7 +465,7 @@
         <div class="chart-label"
         v-show="!isEduMode && !isBasicMode && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
-          Proband variants  {{ sampleLabel }}
+          {{ isSimpleMode ? '' : 'Proband variants  ' }}  {{ isSimpleMode ? '' : sampleLabel }}
         </div>
 
         <div v-if="(sampleModel.relationship === 'sfari-variants' || sampleModel.isSfariSample) && blacklistedGeneSelected"
@@ -507,7 +508,7 @@
         <div class="chart-label"
         v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
-          Proband coverage
+          {{ isSimpleMode ? '' : 'Proband' }} coverage
         </div>
 
         <div id="bam-track">
@@ -657,6 +658,7 @@ export default {
     globalAppProp: null,  //For some reason, global mixin not working on variant card.  possible cause for-item?
     isEduMode: null,
     isBasicMode: null,
+    isSimpleMode: null,
     clearZoom: null,
     sampleModel: null,
     annotationScheme: null,

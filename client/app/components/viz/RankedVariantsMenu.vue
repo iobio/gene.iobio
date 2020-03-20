@@ -133,6 +133,7 @@
               ref="featureMatrixCardRef"
               :isEduMode="isEduMode"
               :isBasicMode="isBasicMode"
+              :isSimpleMode="isSimpleMode"
               :featureMatrixModel="featureMatrixModel"
               :selectedGene="selectedGene"
               :selectedTranscript="selectedTranscript"
@@ -234,6 +235,7 @@ export default {
   props: {
     isEduMode: null,
     isBasicMode: null,
+    isSimpleMode: null,
     variantTooltip: null,
     selectedGene: {},
     selectedTranscript: {},

@@ -253,10 +253,10 @@ export default {
         var self = this;
         if (self.data) {
           var selection = d3.select(self.$el).data( [self.data] );
-          self.featureMatrixChart(selection, {showColumnLabels: true, simpleColumnLabels: true});
+          self.featureMatrixChart(selection, {showColumnLabels: true, basicColumnLabels: true});
         } else {
           var selection = d3.select(self.$el).data( []);
-          self.featureMatrixChart(selection, {showColumnLabels: true, simpleColumnLabels: true});
+          self.featureMatrixChart(selection, {showColumnLabels: true, basicColumnLabels: true});
         }
       },
       setFeatureMatrixChart: function() {
