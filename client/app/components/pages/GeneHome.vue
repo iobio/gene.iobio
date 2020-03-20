@@ -356,21 +356,29 @@ main.content.clin, main.v-content.clin
           @gene-region-buffer-change="onGeneRegionBufferChange">
         </gene-variants-card>
 
+
+        <!--selectedGene && selectedGene.length > 0-->
+
+        <!--<v-card class="app-card"-->
+                <!--v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"-->
+                <!--style="overflow-y:scroll;margin-left:5px"-->
+        <!--&gt;-->
+
         <gene-viz class="gene-viz-zoom"
                   v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
                   :data="[selectedTranscript]"
                   :margin="geneZoomVizMargin"
                   :width="cardWidth"
-                  :showXAxis="false"
+                  :showXAxis="true"
                   :trackHeight="36"
                   :cdsHeight="32"
                   :regionStart="parseInt(selectedGene.start)"
                   :regionEnd="parseInt(selectedGene.end)"
-                  :showBrush="true"
-                  @region-zoom="onRegionZoom"
-                  @region-zoom-reset="onRegionZoomReset"
+                  :showBrush="false"
         >
         </gene-viz>
+
+      <!--</v-card>-->
 
 
         <variant-all-card
