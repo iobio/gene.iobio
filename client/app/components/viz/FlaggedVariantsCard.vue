@@ -452,7 +452,7 @@
 
     <div class="variant-toolbar" >
 
-      <v-btn id="add-filter-button" @click="onNewFilter" flat>
+      <v-btn v-if="!isSimpleMode" id="add-filter-button" @click="onNewFilter" flat>
         <v-icon>add</v-icon>
         New filter
       </v-btn>
@@ -492,11 +492,11 @@
               <span class="filter-label">{{ geneList.label }}</span>
             </v-badge>
 
-            <v-btn v-if="geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
+            <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
               <v-icon>create</v-icon>
             </v-btn>
 
-            <v-btn v-if="geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
+            <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
               <v-icon>delete</v-icon>
             </v-btn>
           </span>
@@ -729,6 +729,7 @@ export default {
   props: {
     isEduMode: null,
     isBasicMode: null,
+    isSimpleMode: null,
     forMyGene2: null,
     activeFilterName: null,
     cohortModel: null,
