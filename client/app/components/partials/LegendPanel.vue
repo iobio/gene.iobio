@@ -117,7 +117,7 @@
     <div style="display:flex;flex-wrap:wrap;justify-content:flex-start">
 
 
-      <div v-if="isBasicMode" style="text-align:left;margin-right:10px">
+      <div v-if="isBasicMode && !isSimpleMode" style="text-align:left;margin-right:10px">
         <div class="legend-label" style="width:150px">Exon (coding region)</div>
         <svg id="exon" class="exon-symbol legend-element pl-4" width="130" height="30">
           <rect class="legend-symbol exon" rx="1" ry="1" x="25" width="9" y="4" height="24">
@@ -165,7 +165,7 @@
         </legend-icon>
 
       </div>
-      <div v-if="!isBasicMode" style="text-align:left;width:150px;margin-right:10px;margin-bottom:15px">
+      <div v-if="!isBasicMode && !isSimpleMode" style="text-align:left;width:150px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label" style="width:130px">Inheritance</div>
 
         <legend-icon
@@ -303,7 +303,7 @@
 
       </div>
 
-      <div v-if="!isBasicMode" style="width:70px;margin-right:10px;margin-bottom:15px">
+      <div v-if="!isBasicMode && !isSimpleMode" style="width:70px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Allele Frequency</div>
         <legend-icon
           icon="af"
@@ -314,7 +314,7 @@
         </legend-icon>
       </div>
 
-      <div v-if="!isBasicMode" style="width:120px;margin-right:10px;">
+      <div v-if="!isBasicMode && !isSimpleMode" style="width:120px;margin-right:10px;">
         <div class="legend-label">Called variant</div>
         <legend-icon
           icon="called-variant"
@@ -323,7 +323,7 @@
         </legend-icon>
       </div>
 
-      <div v-if="!isBasicMode" style="width:80px;margin-right:0px;">
+      <div v-if="!isBasicMode && !isSimpleMode" style="width:80px;margin-right:0px;">
           <div class="legend-label">Coverage</div>
 
           <legend-icon
@@ -340,7 +340,7 @@
 
 
 
-     <div v-if="!isBasicMode" style="width:170px;margin-right:10px;margin-bottom:15px">
+     <div v-if="!isBasicMode && !isSimpleMode" style="width:170px;margin-right:10px;margin-bottom:15px">
        <div class="legend-label">Flagged</div>
         <legend-icon
          icon="system-flagged"
@@ -359,7 +359,7 @@
 
 
 
-      <div v-if="!isBasicMode" style="width:170px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode && !isSimpleMode" style="width:170px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">Zygosity</div>
 
         <legend-icon
@@ -380,7 +380,7 @@
         </legend-icon>
       </div>
 
-     <div v-if="!isBasicMode" style="width:150px;margin-right:10px;margin-bottom:15px">
+     <div v-if="!isBasicMode && !isSimpleMode" style="width:150px;margin-right:10px;margin-bottom:15px">
        <div class="legend-label">Affected Siblings</div>
         <legend-icon id="thumbs-green-symbol"
          icon="thumbs-up"
@@ -409,7 +409,7 @@
       </div>
 
 
-     <div v-if="!isBasicMode" style="width:150px;margin-right:10px;margin-bottom:15px">
+     <div v-if="!isBasicMode && !isSimpleMode" style="width:150px;margin-right:10px;margin-bottom:15px">
        <div class="legend-label">Unaffected Siblings</div>
         <legend-icon id="thumbs-green-symbol"
          icon="thumbs-up"
@@ -466,7 +466,7 @@
           </legend-icon>
       </div>
 
-      <div v-if="!isBasicMode" v-show="false" style="width:180px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode && !isSimpleMode" v-show="false" style="width:180px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">SIFT</div>
 
 
@@ -525,6 +525,7 @@ export default {
   },
   props: {
     isBasicMode: null,
+    isSimpleMode: null,
     showLegendTitle: true
   },
   data () {

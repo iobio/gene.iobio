@@ -14,7 +14,7 @@
   .welcome-title
     display: inline-block
     font-size: 16px
-    margin-bottom: 0px
+    margin-bottom: 5px
     margin-right: 15px
     color: $app-color
 
@@ -44,14 +44,15 @@
             &nbsp;
         </span>
       </div>
-      <span class="welcome-title">
 
-        Welcome to Gene.iobio on MyGene2
+      <span class="welcome-title" >
+
+        Welcome to Gene.iobio {{ siteName }}
 
       </span>
       <a id="intro-link" v-if="!showIntro" href="javascript:void(0)" @click="showIntro = true">tell me more...</a>
 
-      <div class="right-info" >
+      <div class="right-info" v-if="forMyGene2" >
         <a class="switch-mode" v-show="siteConfig != null && isBasicMode" @click="onAdvancedMode">
            Go to advanced
         </a>
@@ -60,11 +61,20 @@
            Go to basic
         </a>
       </div>
+      <div class="right-info" v-if="!forMyGene2">
+        <a class="switch-mode" v-show="isSimpleMode" @click="onAdvancedMode">
+           Go to advanced
+        </a>
+
+        <a class="switch-mode" raised v-if="!isSimpleMode"  @click="onSimpleMode">
+           Go to simplified
+        </a>
+      </div>
     </div>
 
 
   </div>
-  <div id="intro-text" v-if="showIntro" >
+  <div id="intro-text" v-if="showIntro && forMyGene2" >
     <p>
       You can view your raw sequence data (VCF file) in multiple ways. From the navigation bar, you can search by name of gene (example: KDM1A) or by name of condition (examples: cystic fibrosis, breast cancer). When you search for the name of a condition, you may find a list of one or more genes reported to underlie that condition.
     </p>
@@ -76,6 +86,23 @@
     </p>
     <p>
       In the left side panel, you will see variants that predicted to underlie a condition according to a database called <a href="https://www.ncbi.nlm.nih.gov/clinvar/intro/">ClinVar</a>. A person who has a variant does not necessarily have the condition. In Basic mode, only variants that have a classification in ClinVar and have a frequency of &lt;1% in the general population are shown. If there are no matching variants, the side panel will be empty. You may have other variants in this gene that are not yet classified in ClinVar. These variants are shown in the 'Variants' panel and can also be seen in Advanced mode.
+    </p>
+    <div style="text-align:center">
+      <a id="intro-less-link" v-if="showIntro" href="javascript:void(0)" @click="showIntro = false">Close</a>
+    </div>
+  </div>
+
+  <div id="intro-text" v-if="showIntro && !forMyGene2" >
+    <p>
+      {{ introParagraph1 }}
+    </p>
+    <p>
+      {{ introParagraph2 }}
+    </p>
+      {{ introParagraph3 }}
+    </p>
+    <p>
+      {{ introParagraph4 }}
     </p>
     <div style="text-align:center">
       <a id="intro-less-link" v-if="showIntro" href="javascript:void(0)" @click="showIntro = false">Close</a>
@@ -96,6 +123,8 @@ export default {
   props: {
     closeIntro: false,
     isBasicMode: null,
+    forMyGene2: null,
+    isSimpleMode: null,
     siteConfig: null,
     defaultingToDemoData: null
   },
@@ -117,10 +146,34 @@ export default {
     },
     onBasicMode: function() {
       this.$emit("on-basic-mode");
+    },
+    onSimpleMode: function() {
+      this.$emit("on-simple-mode");
     }
   },
   mounted: function() {
 
+  },
+  computed: {
+    siteName: function() {
+      if (this.forMyGene2) {
+        return " on MyGene2"
+      } else {
+        return " for " + process.env.SITE_NAME
+      }
+    },
+    introParagraph1: function() {
+      return process.env.INTRO_PARAGRAPH_1 ? process.env.INTRO_PARAGRAPH_1 : ""
+    },
+    introParagraph2: function() {
+      return process.env.INTRO_PARAGRAPH_2 ? process.env.INTRO_PARAGRAPH_2 : ""
+    },
+    introParagraph3: function() {
+      return process.env.INTRO_PARAGRAPH_3 ? process.env.INTRO_PARAGRAPH_3 : ""
+    },
+    introParagraph4: function() {
+      return process.env.INTRO_PARAGRAPH_4 ? process.env.INTRO_PARAGRAPH_4 : ""
+    },
   }
 }
 

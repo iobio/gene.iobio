@@ -103,6 +103,26 @@
     margin-right: 30px
     vertical-align: middle !important
 
+  #ncbi-summary
+    min-width: 60%
+    flex: 1 1 0
+    margin-top: 0px
+    margin-right: 20px
+
+    #ncbi-heading
+      text-align: left
+      margin-left: auto
+      margin-right: auto
+      width: 100%
+      display: inline-block
+      margin-top: 0px
+      font-size: 13px
+      vertical-align: top
+      color: $app-color
+
+    #ncbi-text
+      font-size: 12px
+      line-height: 18px
 
 </style>
 
@@ -129,7 +149,7 @@
         :geneModel="cohortModel.geneModel">
         </gene-links-menu>
 
-        <div style="display:inline-block;margin-left: 20px">
+        <div  v-if="!isSimpleMode" style="display:inline-block;margin-left: 20px">
           <transcripts-menu
             v-if="!isBasicMode"
             :selectedGene="selectedGene"
@@ -151,16 +171,25 @@
         {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
         </span>
 
-        <v-badge id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
+        <v-badge   id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
 
-        <span  id="gene-plus-minus-label"  v-if="!isBasicMode"  style="padding-left: 15px">+  -</span>
-        <div id="region-buffer-box" v-if="!isBasicMode" style="display:inline-block;width:40px;height:21px;"  >
+        <span  id="gene-plus-minus-label"  v-if="!isBasicMode && !isSimpleMode"  style="padding-left: 15px">+  -</span>
+        <div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:40px;height:21px;"  >
             <v-text-field
                 id="gene-region-buffer-input"
                 class="sm fullview"
                 v-model="regionBuffer"
                 v-on:change="onGeneRegionBufferChange">
             </v-text-field>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="isSimpleMode">
+      <div  v-if="ncbiSummary" id="ncbi-summary">
+        <div id="ncbi-heading">NCBI summary</div>
+        <div id="ncbi-text">
+        {{ ncbiSummary.summary }}
         </div>
       </div>
     </div>
@@ -190,6 +219,7 @@ export default {
     showSfariTrackToggle: false,
     isEduMode: null,
     isBasicMode: null,
+    isSimpleMode: null,
     isFullAnalysis: null,
     isLoaded: null,
     launchedFromClin: null,
@@ -197,7 +227,7 @@ export default {
   },
   data() {
     return {
-        margin: {"top": 15, "bottom": 15, "left": 15, "right": 15},
+      margin: {"top": 15, "bottom": 15, "left": 15, "right": 15},
       geneSource: null,
       geneSources: ['gencode', 'refseq'],
 
@@ -205,6 +235,8 @@ export default {
       showNoTranscriptsWarning: false,
 
       regionBuffer: null,
+
+      ncbiSummary: null
 
     }
   },
@@ -247,6 +279,18 @@ export default {
       }
       self.$emit('gene-source-selected', self.geneSource);
     },
+    initNcbiSummary: function(){
+      let self = this;
+      if (self.cohortModel && self.cohortModel.geneModel) {
+        self.ncbiSummary = self.cohortModel.geneModel.geneNCBISummaries[self.selectedGene.gene_name]
+        if (self.ncbiSummary == null || self.ncbiSummary == " ") {
+          self.cohortModel.geneModel.promiseGetNCBIGeneSummary(self.selectedGene.gene_name)
+          .then(function(data) {
+            self.ncbiSummary = data;
+          })
+        }        
+      } 
+    }
   },
 
 
@@ -255,6 +299,9 @@ export default {
   },
 
   watch: {
+    selectedGene: function() {
+      this.initNcbiSummary();
+    }
   },
 
   filters: {
@@ -278,6 +325,7 @@ export default {
 
   mounted: function() {
     this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
+    this.initNcbiSummary();
   },
 
   created: function() {
