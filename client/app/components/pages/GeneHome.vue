@@ -2610,6 +2610,19 @@ export default {
           .then(function() {
             resolve();
           })
+        } else if (self.isSimpleMode) {
+          alertify.confirm("", "No data files specified",
+               function(){
+                  self.cohortModel.promiseInitDemo()
+                  .then(function() {
+                    self.cohortModel.defaultingToDemoData = true;
+                    self.onAnalyzeAll();
+                    resolve();
+                  })
+               },
+               function(){
+                  resolve();
+               }).set('labels', {ok:'Continue, but just use demo data', cancel:'Cancel'});
         } else {
           resolve();
         }

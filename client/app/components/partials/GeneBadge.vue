@@ -293,7 +293,7 @@
           </app-icon>
 
           <app-icon style="float:right;vertical-align:top"
-           v-if="hasCoverageProblem()"
+           v-if="hasCoverageProblem() && !isSimpleMode"
            icon="coverage"
            class=" level-edu glyph"
            width="12" height="11">
@@ -335,7 +335,8 @@ export default {
     selectedGene: null,
     isEduMode: null,
     isBasicMode: null,
-    launchedFromClin: null
+    launchedFromClin: null,
+    isSimpleMode: null
   },
   data () {
     return {

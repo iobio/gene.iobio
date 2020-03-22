@@ -177,6 +177,7 @@
        v-for="gene in geneSummaries"
        :key="gene.name"
        :gene="gene"
+       :isSimpleMode="isSimpleMode"
        :phenotypes="geneModel.genePhenotypes[gene.name]"
        :selectedGene="selectedGene"
        :isBasicMode="isBasicMode"
