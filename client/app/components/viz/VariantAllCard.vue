@@ -307,7 +307,6 @@
 
       </span>
 
-
         <optional-tracks-menu
             v-show="!isEduMode && !isBasicMode && !isSimpleMode"
             @show-known-variants-card="onShowKnownVariantsCard"

@@ -99,13 +99,15 @@
     <p>
       {{ introParagraph2 }}
     </p>
-      {{ introParagraph3 }}
-    </p>
-    <p>
-      {{ introParagraph4 }}
+      {{ introParagraph3 }}       
+      <span style="padding-left: 3px"> 
+        Learn more about <a href="https://www.ncbi.nlm.nih.gov/clinvar/intro/">ClinVar</a>.
+      </span>
     </p>
     <div style="text-align:center">
-      <a id="intro-less-link" v-if="showIntro" href="javascript:void(0)" @click="showIntro = false">Close</a>
+      <span>
+        <a id="intro-less-link" v-if="showIntro" href="javascript:void(0)" @click="showIntro = false">Close</a>
+      </span>
     </div>
   </div>
 

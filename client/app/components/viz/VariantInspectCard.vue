@@ -301,6 +301,9 @@
 
       </div>
 
+      <div v-if="isSimpleMode" style="min-width:10px">
+      </div>
+        
       <variant-links-menu
       v-if="selectedVariant && info"
       :selectedGene="selectedGene"

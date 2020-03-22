@@ -259,7 +259,8 @@ main.content.clin, main.v-content.clin
         :siteConfig="siteConfig"
         :defaultingToDemoData="cohortModel ? cohortModel.defaultingToDemoData : false"
         @on-advanced-mode="onAdvancedMode"
-        @on-basic-mode="onBasicMode">
+        @on-basic-mode="onBasicMode"
+        @on-simple-mode="onSimpleMode">
         </intro-card>
 
 
@@ -2464,6 +2465,14 @@ export default {
         self.isBasicMode  = self.paramMode == "basic" ? true : false;
         self.isEduMode    = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
       }
+
+      if (self.paramMode && self.paramMode == 'advanced') {
+        if (self.isSimpleMode) {
+          self.isSimpleMode = false;
+        }
+      } else if (self.paramMode && self.paramMode == 'simple') {
+        self.isSimpleMode = true;
+      }
       
       self.showIntro = self.forMyGene2 || process.env.SHOW_INTRO;
 
@@ -3022,7 +3031,9 @@ export default {
     onAdvancedMode: function() {
       let self = this;
       this.isBasicMode = false;
+      this.isSimpleMode = false;
       this.featureMatrixModel.isBasicMode = false;
+      this.featureMatrixModel.isSimpleMode = false;
       this.filterModel.isBasicMode = false;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
@@ -3034,6 +3045,17 @@ export default {
       this.isBasicMode = true;
       this.featureMatrixModel.isBasicMode = true;
       this.filterModel.isBasicMode = true;
+      this.calcFeatureMatrixWidthPercent();
+      this.onFilesLoaded(true, function() {
+        self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 ? true : false } })
+      });
+    },
+    onSimpleMode: function() {
+      let self = this;
+      this.isSimpleMode = true;
+      this.featureMatrixModel.isBasicMode = false;
+      this.featureMatrixModel.isSimpleMode = true;
+      this.filterModel.isBasicMode = false;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
         self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 ? true : false } })

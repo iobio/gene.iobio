@@ -144,14 +144,20 @@
 
 
      </div>
+
+        <div v-if="isSimpleMode" style="min-width:10px">
+        </div>
+
         <gene-links-menu v-if="!isBasicMode"
         :selectedGene="selectedGene"
         :geneModel="cohortModel.geneModel">
         </gene-links-menu>
 
-        <div  v-if="!isSimpleMode" style="display:inline-block;margin-left: 20px">
+
+
+        <div style="display:inline-block;margin-left: 20px">
           <transcripts-menu
-            v-if="!isBasicMode"
+            v-if="!isBasicMode && !isSimpleMode"
             :selectedGene="selectedGene"
             :selectedTranscript="selectedTranscript"
             :geneSources="geneSources"
@@ -161,6 +167,7 @@
             @gene-source-selected="onGeneSourceSelected">
           </transcripts-menu>
         </div>
+
 
 
       <div style="display:inline-block;margin-left:10px">
