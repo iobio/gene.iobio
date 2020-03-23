@@ -131,7 +131,7 @@
 
         <div style="display:inline-block;margin-left: 20px">
           <transcripts-menu
-            v-if="!isBasicMode"
+             v-if="selectedTranscript && selectedTranscript.transcript_id && !isBasicMode"
             :selectedGene="selectedGene"
             :selectedTranscript="selectedTranscript"
             :geneSources="geneSources"
