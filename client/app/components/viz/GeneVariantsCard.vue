@@ -131,9 +131,9 @@
 
         <div style="display:inline-block;margin-left: 20px">
           <transcripts-menu
-             v-if="selectedTranscript && selectedTranscript.transcript_id && !isBasicMode"
+             v-if="newTranscript && newTranscript.transcript_id"
             :selectedGene="selectedGene"
-            :selectedTranscript="selectedTranscript"
+            :selectedTranscript="newTranscript"
             :geneSources="geneSources"
             :geneModel="cohortModel.geneModel"
             @transcriptMenuOpened="onClickTranscript"
@@ -202,6 +202,7 @@ export default {
       geneSources: ['gencode', 'refseq'],
 
       noTranscriptsWarning: null,
+        newTranscript: null,
       showNoTranscriptsWarning: false,
 
       regionBuffer: null,
@@ -278,6 +279,16 @@ export default {
 
   mounted: function() {
     this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
+
+    console.log("selectedGene", this.selectedGene);
+    console.log(this.selectedTranscript);
+
+    if(Object.keys(this.selectedTranscript).length === 0) {
+        this.newTranscript = this.selectedGene.transcripts[0];
+    }
+    else{
+        this.newTranscript = this.selectedTranscript;
+    }
   },
 
   created: function() {
