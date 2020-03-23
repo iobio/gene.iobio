@@ -193,12 +193,12 @@
             },
 
             selectedGene: function(){
-              this.newTranscript = this.selectedGene.transcripts[0];
+              // this.newTranscript = this.selectedGene.transcripts[0];
             },
 
             selectedTranscript: function(){
               this.newTranscript = this.selectedTranscript;
-              this.$emit('transcriptSelected', self.newTranscript);
+                //this.$emit('transcriptSelected', self.newTranscript);
 
             },
 

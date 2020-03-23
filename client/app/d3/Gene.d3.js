@@ -177,6 +177,8 @@ export default function geneD3() {
         axisEnter.attr("class", "x axis")
                  .attr("transform",   "translate(" + margin.left + "," + "0" + ")");
         svg.selectAll("g.x.axis").attr("transform",   "translate(" + margin.left + "," + parseInt(geneD3_height+margin.top+margin.bottom+featureGlyphHeight) + ")");
+        // svg.selectAll("g.x.axis").attr("transform",   "translate(" + margin.left + "," + parseInt(geneD3_height+margin.top+margin.bottom+featureGlyphHeight + 10) + ")");
+
       }
 
 

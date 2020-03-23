@@ -617,15 +617,16 @@
           >
           </depth-viz>
 
-          <gene-viz class="gene-viz"
+          <gene-viz
+                  class="gene-viz"
+                    :id="model.name"
                     :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
                     v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
                     :data="[selectedTranscript]"
                     :margin="geneVizMargin"
                     :width="width"
                     :height="40"
-                    :trackHeight="geneVizTrackHeight"
-                    :cdsHeight="geneVizCdsHeight"
+
                     :regionStart="regionStart"
                     :regionEnd="regionEnd"
                     :showXAxis="geneVizShowXAxis"
@@ -1174,6 +1175,11 @@ export default {
         return exon.feature_type.toLowerCase();
       }
     },
+
+    getSampleFromHover: function(e){
+      console.log("e in sample hover", e);
+    },
+
     showExonTooltip: function(featureObject, feature, lock) {
       let self = this;
       let tooltip = d3.select("#exon-tooltip");
@@ -1204,6 +1210,16 @@ export default {
         row += "</div>";
         return row;
       }
+
+
+      //todo: write function to get the sample corresponding to the hovered over exon
+
+      console.log("feature", feature);
+      console.log("featureObject", featureObject);
+      console.log("lock", lock);
+
+
+      let sample = self.getSampleFromHover(featureObject);
 
       let html = self.globalAppProp.utility.formatExonTooltip(self.sampleModel.cohort.filterModel,
                                                               self.sampleModel.getRelationship(),

@@ -183,8 +183,9 @@ export default {
     },
     methods: {
       draw: function() {
-        var self = this;
+        let self = this;
 
+        console.log("model inside depth-viz draw", self.model);
         this.depthChart =  lineD3()
           .width(this.width)
           .height(this.height)
@@ -215,7 +216,7 @@ export default {
             return self.regionGlyph(d, parent, regionX);
           })
           .on("d3region", function(featureObject, feature, lock) {
-            self.$emit("region-selected", featureObject, feature, lock );
+            self.$emit("region-selected", featureObject, feature, lock);
           })
 
           this.setDepthChart();

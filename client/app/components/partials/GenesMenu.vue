@@ -122,10 +122,11 @@ import PhenotypeSearch from '../partials/PhenotypeSearch.vue'
 
 
 
+
 export default {
   name: 'genes-menu',
   components: {
-    PhenotypeSearch
+    PhenotypeSearch,
   },
   props: {
     geneModel: null,

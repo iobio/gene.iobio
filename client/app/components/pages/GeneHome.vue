@@ -1035,20 +1035,7 @@ export default {
     },
 
     showGeneVariantsCard: function() {
-      // if(this.launchedFromDemo && this.cohortModel.isLoaded && this.selectedGene){
-      //   console.log("launchedFromDemo")
-      //   return true;
-      // }
-      // else if(this.launchedFromClin && this.cohortModel.isLoaded && this.selectedGene){
-      //   console.log("launchedFromClin");
-      //   return true;
-      // }
-      // else if((!this.launchedFromClin) && (!this.launchedFromDemo) && this.selectedGene){
-      //   console.log("only selected gene, this.launcedFromClin", this.launchedFromClin);
-      //   return true;
-      // }
-      // else {
-      //   console.log("made it to final else");
+
         return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1))
 
     },

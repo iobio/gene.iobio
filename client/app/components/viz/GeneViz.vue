@@ -223,6 +223,8 @@ export default {
       draw: function() {
         let self = this;
 
+
+        console.log("inside draw in Gene-viz");
         this.geneChart = geneD3()
               .width(self.fixedWidth > 0 ? self.fixedWidth : this.width)
               .widthPercent("100%")

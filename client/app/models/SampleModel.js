@@ -1566,6 +1566,8 @@ class SampleModel {
           return {name: trRefName, start: variant.start, end: variant.end};
         })
 
+
+
         if (regions.length > 0) {
 
           me.vcf.promiseGetVariants(
@@ -2089,7 +2091,7 @@ class SampleModel {
       if ($.isNumeric(variant.gnomAD.af) && afHighest) {
         if (variant.gnomAD.af >= afHighest) {
           variant.afFieldHighest = 'gnomAD.af';
-        } 
+        }
       } else if ($.isNumeric(variant.gnomAD.af)) {
         variant.afFieldHighest = 'gnomAD.af';
       }
@@ -2097,7 +2099,7 @@ class SampleModel {
       if ($.isNumeric(variant.gnomAD.afPopMax) && afHighest) {
         if (variant.gnomAD.afPopMax >= afHighest) {
           variant.afFieldHighest = 'gnomAD.afPopMax';
-        } 
+        }
       } else if ($.isNumeric(variant.gnomAD.af)) {
         variant.afFieldHighest = 'gnomAD.afPopMax';
       }
@@ -3126,7 +3128,7 @@ class SampleModel {
              false, // serverside cache
              false, // sfari mode
              false, // get extra gnomad,
-             true // decompose 
+             true // decompose
           )
           .then( function(data) {
 
