@@ -369,6 +369,9 @@ main.content.clin, main.v-content.clin
         <!--geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,-->
 
 
+        <v-card
+                class="app-card"
+        v-show="selectedGene.start && (!launchedFromDemo && !launchedFromHub)">
         <gene-viz class="gene-viz-zoom"
                   v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
                   :data="[selectedTranscript]"
@@ -385,6 +388,7 @@ main.content.clin, main.v-content.clin
         >
         </gene-viz>
 
+        </v-card>
       <!--</v-card>-->
 
 
