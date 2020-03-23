@@ -81,12 +81,13 @@
 
 
         <v-btn id="edit-transcript-button"
+               v-if="newTranscript"
                slot="activator"
                flat
                v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
         >
             <v-icon>linear_scale</v-icon>
-            {{ `Transcript ` + selectedTranscript.transcript_id }}
+            {{ `Transcript ` + newTranscript.transcript_id }}
             <v-badge class="info" style="margin-left:5px;" v-if="!isCanonical">non canonical</v-badge>
         </v-btn>
 
@@ -156,6 +157,9 @@
                 isCanonical: true
             }
         },
+        beforeMount: function(){
+            this.newTranscript = this.selectedTranscript;
+        },
         mounted: function() {
             this.geneSource = this.geneModel.geneSource;
             this.onGeneSourceSelected();
@@ -187,13 +191,21 @@
                     this.$emit("transcriptMenuOpened");
                 }
             },
-            selectedTranscript: function() {
 
-                console.log("selectedTranscript in watcher", this.selectedTranscript)
+            selectedGene: function(){
+              this.newTranscript = this.selectedGene.transcripts[0];
+            },
 
-                if (this.selectedTranscript) {
+            selectedTranscript: function(){
+              this.newTranscript = this.selectedTranscript;
+              this.$emit('transcriptSelected', self.newTranscript);
+
+            },
+
+            newTranscript: function() {
+                if (this.newTranscript) {
                     let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
-                    this.isCanonical = canonical.transcript_id == this.selectedTranscript.transcript_id;
+                    this.isCanonical = canonical.transcript_id == this.newTranscript.transcript_id;
                 }
             }
         }
