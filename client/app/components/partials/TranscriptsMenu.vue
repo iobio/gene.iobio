@@ -174,9 +174,6 @@
             },
             onTranscriptVizClose: function() {
                 var self = this;
-                if (self.newTranscript == null) {
-                    self.newTranscript = self.selectedTranscript;
-                }
                 self.$emit('transcriptSelected', self.newTranscript);
                 self.showTranscriptsMenu = false;
             },
@@ -192,14 +189,14 @@
                 }
             },
 
-            selectedGene: function(){
-              // this.newTranscript = this.selectedGene.transcripts[0];
+            selectedTranscript: function(){
+                this.newTranscript = this.selectedTranscript;
             },
 
-            selectedTranscript: function(){
-              this.newTranscript = this.selectedTranscript;
-                //this.$emit('transcriptSelected', self.newTranscript);
-
+            selectedGene: function(){
+                if(this.selectedGene.gene_name !== this.newTranscript.gene_name) {
+                    this.newTranscript = this.geneModel.getCanonicalTranscript(this.selectedGene);
+                }
             },
 
             newTranscript: function() {

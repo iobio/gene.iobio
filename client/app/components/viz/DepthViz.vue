@@ -184,9 +184,7 @@ export default {
     methods: {
       draw: function() {
         let self = this;
-
-        console.log("model inside depth-viz draw", self.model);
-        this.depthChart =  lineD3()
+          this.depthChart =  lineD3()
           .width(this.width)
           .height(this.height)
           .widthPercent("100%")

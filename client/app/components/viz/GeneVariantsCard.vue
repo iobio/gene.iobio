@@ -131,7 +131,7 @@
 
         <div style="display:inline-block;margin-left: 20px">
           <transcripts-menu
-             v-if="newTranscript && newTranscript.transcript_id"
+             v-if="newTranscript"
             :selectedGene="selectedGene"
             :selectedTranscript="newTranscript"
             :geneSources="geneSources"
@@ -279,9 +279,6 @@ export default {
 
   mounted: function() {
     this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
-
-    console.log("selectedGene", this.selectedGene);
-    console.log(this.selectedTranscript);
 
     if(Object.keys(this.selectedTranscript).length === 0) {
         this.newTranscript = this.selectedGene.transcripts[0];

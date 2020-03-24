@@ -213,6 +213,8 @@ export default {
     created: function() {
     },
     mounted: function() {
+        this.draw();
+        this.update();
     },
     methods: {
 
@@ -226,8 +228,6 @@ export default {
 
       draw: function() {
         let self = this;
-
-        console.log("modelName in draw", this.modelName);
 
           this.geneChart = geneD3()
               .width(self.fixedWidth > 0 ? self.fixedWidth : this.width)
@@ -293,7 +293,6 @@ export default {
       data: function(newData, oldData) {
         let self = this;
         if ( $(self.$el).find("svg").length == 0 ||  self.concatKeys(newData) != self.concatKeys(oldData) ) {
-            this.draw();
             this.update();
         }
       },

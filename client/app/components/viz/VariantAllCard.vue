@@ -417,18 +417,23 @@
         <gene-viz class="gene-viz-zoom"
         v-if="showZoom"
         :data="[selectedTranscript]"
-        :model-name="sampleModel.name"
+        :modelName="sampleModel.name"
         :margin="geneZoomVizMargin"
         :width="width"
+        :height="40"
         :showXAxis="false"
         :trackHeight="geneVizTrackHeight + 20"
         :cdsHeight="geneVizCdsHeight + 20"
         :regionStart="parseInt(selectedGene.start)"
         :regionEnd="parseInt(selectedGene.end)"
         :showBrush="true"
+        :featureClass="getExonClass"
         @region-zoom="onRegionZoom"
         @region-zoom-reset="onRegionZoomReset"
         >
+
+
+
         </gene-viz>
 
         <div class="chart-label"
@@ -573,7 +578,7 @@
             :regionEnd="regionEnd"
             :annotationScheme="annotationScheme"
             :width="width"
-            :margin="variantVizMargin"
+            :margin="geneVizMargin"
             :variantHeight="variantSymbolHeightOther"
             :variantPadding="variantSymbolPadding"
             :showBrush="false"
@@ -629,7 +634,8 @@
                     :margin="geneVizMargin"
                     :width="width"
                     :height="40"
-
+                    :trackHeight="geneVizTrackHeight"
+                    :cdsHeight="geneVizCdsHeight"
                     :regionStart="regionStart"
                     :regionEnd="regionEnd"
                     :showXAxis="geneVizShowXAxis"
@@ -1104,7 +1110,7 @@ export default {
       }
       self.$refs.otherDepthVizRef.forEach(function(depthVizRef) {
 
-        if (depthVizRef.model.coverage != null && depthVizRef.model.coverage.length > 0) {
+        if (depthVizRef && depthVizRef.model && depthVizRef.model.coverage  && depthVizRef.model.coverage.length > 0) {
           let theDepth = null;
           let theAltCount = null;
           var matchingVariants = depthVizRef.model.loadedVariants.features.filter(function(v) {
@@ -1183,10 +1189,6 @@ export default {
 
       let modelName = e[0][0].attributes.modelName.value;
 
-
-      console.log("modelName", modelName);
-      console.log("otherModels", this.otherModels);
-
       for(let i = 0; i < this.otherModels.length; i++){
         if(modelName == this.otherModels[i].name){
           return this.otherModels[i];
@@ -1233,15 +1235,7 @@ export default {
       }
 
 
-      //todo: write function to get the sample corresponding to the hovered over exon
-
-
       let sample = self.getSampleFromHover(featureObject);
-
-      console.log("sample from Hover", sample);
-
-      let relationship = sample.relationship;
-      console.log("getRelationShip", relationship);
 
       let html = self.globalAppProp.utility.formatExonTooltip(sample.cohort.filterModel,
                                                               sample.relationship,

@@ -73,10 +73,6 @@ export default function geneD3() {
     geneD3_utrHeight = geneD3_utrHeight || geneD3_cdsHeight / 2;
     geneD3_arrowHeight = geneD3_arrowHeight || geneD3_trackHeight / 2;
 
-    console.log("options", options);
-
-
-
     selection.each(function(data) {
 
        // calculate height
@@ -175,9 +171,6 @@ export default function geneD3() {
              .style("visibility", "visible");
         })
 
-
-      console.log(geneD3_showXAxis);
-
       var axisEnter = svg.selectAll("g.x.axis").data([0]).enter().append('g');
       if (geneD3_showXAxis) {
         axisEnter.attr("class", "x axis")
@@ -186,8 +179,6 @@ export default function geneD3() {
         // svg.selectAll("g.x.axis").attr("transform",   "translate(" + margin.left + "," + parseInt(geneD3_height+margin.top+margin.bottom+featureGlyphHeight + 10) + ")");
 
       }
-
-      console.log("geneD3_modelName", geneD3_modelName);
 
       // Start gene model
       // add elements
@@ -329,8 +320,6 @@ export default function geneD3() {
               // show the tooltip
               var featureObject = d3.select(this);
               dispatch.d3featuretooltip(featureObject, d, false);
-
-              console.log("swag");
 
               // select the transcript
               svg.selectAll('.transcript.selected').classed("selected", false);
