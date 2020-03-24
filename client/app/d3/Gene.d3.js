@@ -19,6 +19,8 @@ export default function geneD3() {
   var geneD3_showBrush = false;
   var geneD3_showLabel = false;
   var geneD3_showXAxis = true;
+  var geneD3_modelName = null;
+
 
 
 
@@ -26,7 +28,6 @@ export default function geneD3() {
   var margin = {top: 30, right: 0, bottom: 20, left: 110};
   var geneD3_width = 800,
       geneD3_height = 400;
-
 
   // scales
   var x = d3.scale.linear(),
@@ -71,6 +72,9 @@ export default function geneD3() {
     geneD3_cdsHeight = geneD3_cdsHeight || geneD3_trackHeight;
     geneD3_utrHeight = geneD3_utrHeight || geneD3_cdsHeight / 2;
     geneD3_arrowHeight = geneD3_arrowHeight || geneD3_trackHeight / 2;
+
+    console.log("options", options);
+
 
 
     selection.each(function(data) {
@@ -172,6 +176,8 @@ export default function geneD3() {
         })
 
 
+      console.log(geneD3_showXAxis);
+
       var axisEnter = svg.selectAll("g.x.axis").data([0]).enter().append('g');
       if (geneD3_showXAxis) {
         axisEnter.attr("class", "x axis")
@@ -181,6 +187,7 @@ export default function geneD3() {
 
       }
 
+      console.log("geneD3_modelName", geneD3_modelName);
 
       // Start gene model
       // add elements
@@ -303,6 +310,8 @@ export default function geneD3() {
           .attr('class', function(d,i) {
             return featureClass(d,i);
           })
+          .attr("modelName", geneD3_modelName)
+          .attr("id", geneD3_modelName)
           .attr('rx', borderRadius)
           .attr('ry', borderRadius)
           .attr('x', function(d) { return d3.round(x(d.start))})
@@ -320,6 +329,8 @@ export default function geneD3() {
               // show the tooltip
               var featureObject = d3.select(this);
               dispatch.d3featuretooltip(featureObject, d, false);
+
+              console.log("swag");
 
               // select the transcript
               svg.selectAll('.transcript.selected').classed("selected", false);
@@ -445,7 +456,7 @@ export default function geneD3() {
             .call(brush)
             .selectAll("rect")
             .attr("y", 0)
-            .attr("height", brushHeight);
+            .attr("height", brushHeight)
 
         theBrush.selectAll(".resize")
           .append("line")
@@ -637,6 +648,11 @@ export default function geneD3() {
     return chart;
   }
 
+  chart.modelName = function(_) {
+    if (!arguments.length) return modelName;
+    geneD3_modelName = _;
+    return chart;
+  }
   chart.selectedTranscript = function(_) {
     if (!arguments.length) return selectedTranscript;
     selectedTranscript = _;

@@ -1581,6 +1581,8 @@ export default {
 
     onLoadDemoData: function() {
       this.launchedFromDemo = true;
+      this.isMother = true;
+      this.isFather = true;
       let self = this;
       self.promiseClearCache()
       .then(function() {

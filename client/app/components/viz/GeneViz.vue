@@ -158,6 +158,10 @@ export default {
         default: 0,
         type: Number
       },
+        modelName: {
+          default: null,
+            type: String
+        },
       height: {
         default: 100,
         type: Number
@@ -223,13 +227,14 @@ export default {
       draw: function() {
         let self = this;
 
+        console.log("modelName in draw", this.modelName);
 
-        console.log("inside draw in Gene-viz");
-        this.geneChart = geneD3()
+          this.geneChart = geneD3()
               .width(self.fixedWidth > 0 ? self.fixedWidth : this.width)
               .widthPercent("100%")
               .heightPercent("100%")
               .margin(this.margin)
+              .modelName(self.modelName)
               .showXAxis(this.showXAxis)
               .showBrush(this.showBrush)
               .trackHeight(this.trackHeight)

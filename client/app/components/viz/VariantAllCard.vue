@@ -417,6 +417,7 @@
         <gene-viz class="gene-viz-zoom"
         v-if="showZoom"
         :data="[selectedTranscript]"
+        :model-name="sampleModel.name"
         :margin="geneZoomVizMargin"
         :width="width"
         :showXAxis="false"
@@ -516,6 +517,7 @@
             v-if="showDepthViz && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
             ref="depthVizRef"
             :data="sampleModel.coverage"
+            :modelName="sampleModel.name"
             :coverageMedian="sampleModel.cohort.filterModel.geneCoverageMedian"
             :coverageDangerRegions="coverageDangerRegions"
             :currentPoint="coveragePoint"
@@ -538,6 +540,7 @@
           :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
           v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
           :data="[selectedTranscript]"
+          :modelName="sampleModel.name"
           :margin="geneVizMargin"
           :width="width"
           :height="40"
@@ -599,7 +602,7 @@
             v-if="showDepthViz && !(model.isSfariSample && blacklistedGeneSelected)"
             ref="otherDepthVizRef"
             :data="model.coverage"
-            :model="model"
+            :modelName="model.name"
             :coverageMedian="model.cohort.filterModel.geneCoverageMedian"
             :coverageDangerRegions="model.coverageDangerRegions"
             :currentPoint="coveragePoint"
@@ -619,7 +622,7 @@
 
           <gene-viz
                   class="gene-viz"
-                    :id="model.name"
+                    :modelName="model.name"
                     :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
                     v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
                     :data="[selectedTranscript]"
@@ -1177,7 +1180,25 @@ export default {
     },
 
     getSampleFromHover: function(e){
-      console.log("e in sample hover", e);
+
+      let modelName = e[0][0].attributes.modelName.value;
+
+
+      console.log("modelName", modelName);
+      console.log("otherModels", this.otherModels);
+
+      for(let i = 0; i < this.otherModels.length; i++){
+        if(modelName == this.otherModels[i].name){
+          return this.otherModels[i];
+        }
+      }
+
+      if(modelName === this.sampleModel.name){
+        return this.sampleModel;
+      }
+
+      return null;
+
     },
 
     showExonTooltip: function(featureObject, feature, lock) {
@@ -1214,15 +1235,16 @@ export default {
 
       //todo: write function to get the sample corresponding to the hovered over exon
 
-      console.log("feature", feature);
-      console.log("featureObject", featureObject);
-      console.log("lock", lock);
-
 
       let sample = self.getSampleFromHover(featureObject);
 
-      let html = self.globalAppProp.utility.formatExonTooltip(self.sampleModel.cohort.filterModel,
-                                                              self.sampleModel.getRelationship(),
+      console.log("sample from Hover", sample);
+
+      let relationship = sample.relationship;
+      console.log("getRelationShip", relationship);
+
+      let html = self.globalAppProp.utility.formatExonTooltip(sample.cohort.filterModel,
+                                                              sample.relationship,
                                                               coverageRow,
                                                               feature,
                                                               lock)
