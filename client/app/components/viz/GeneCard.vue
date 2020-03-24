@@ -284,6 +284,13 @@
         var self = this;
         self.$emit('transcript-selected', transcript);
       },
+      getExonClass: function(exon, i) {
+        if (this.showDepthViz && exon.danger) {
+          return exon.feature_type.toLowerCase() + (exon.danger[this.sampleModel.relationship] ? " danger" : "");
+        } else {
+          return exon.feature_type.toLowerCase();
+        }
+      },
       onGeneSourceSelected: function(geneSource) {
         let self = this;
         var switchMsg = null;

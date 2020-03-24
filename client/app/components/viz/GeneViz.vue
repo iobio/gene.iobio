@@ -124,12 +124,7 @@
 @import ../../../assets/sass/variables
 
 #gene-viz.ibo-gene
-  .cds.danger
-    fill:   $danger-exon-color
-    stroke: $danger-exon-border-color
-  .utr.danger
-    fill:   $danger-exon-color
-    stroke: $danger-exon-border-color
+
 </style>
 
 <template>
