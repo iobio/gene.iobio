@@ -337,6 +337,8 @@ main.content.clin, main.v-content.clin
         </genes-card>
 
 
+
+          <v-card v-show="showGeneVariantsCard" tile id="gene-variants-card" class="app-card full-width">
         <gene-variants-card
           v-bind:class="{hide : showWelcome, 'full-width': true}"
           v-if="showGeneVariantsCard"
@@ -356,6 +358,25 @@ main.content.clin, main.v-content.clin
           @gene-region-buffer-change="onGeneRegionBufferChange">
         </gene-variants-card>
 
+              <div style="height: 15px"></div>
+
+          <gene-viz class="gene-viz-zoom"
+                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                    :data="[selectedTranscript]"
+                    :margin="geneVizMargin"
+                    :height="40"
+                    :width="cardWidth"
+                    :isStandalone="true"
+                    :showXAxis="true"
+                    :trackHeight="geneVizTrackHeight"
+                    :cdsHeight="geneVizCdsHeight"
+                    :regionStart="parseInt(selectedGene.start)"
+                    :regionEnd="parseInt(selectedGene.end)"
+                    :showBrush="false"
+          >
+          </gene-viz>
+
+          </v-card>
 
         <!--selectedGene && selectedGene.length > 0-->
 
@@ -369,26 +390,6 @@ main.content.clin, main.v-content.clin
         <!--geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,-->
 
 
-        <v-card
-                class="app-card"
-        v-show="selectedGene.start && (!launchedFromDemo && !launchedFromHub)">
-        <gene-viz class="gene-viz-zoom"
-                  v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
-                  :data="[selectedTranscript]"
-                  :margin="geneVizMargin"
-                  :height="40"
-                  :width="cardWidth"
-                  :isStandalone="true"
-                  :showXAxis="true"
-                  :trackHeight="geneVizTrackHeight"
-                  :cdsHeight="geneVizCdsHeight"
-                  :regionStart="parseInt(selectedGene.start)"
-                  :regionEnd="parseInt(selectedGene.end)"
-                  :showBrush="false"
-        >
-        </gene-viz>
-
-        </v-card>
       <!--</v-card>-->
 
 

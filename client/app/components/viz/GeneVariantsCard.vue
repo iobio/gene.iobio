@@ -110,8 +110,6 @@
 <template>
 <div>
 
-  <v-card v-if="selectedGene" tile id="gene-variants-card" class="app-card full-width">
-
     <div  v-if="selectedGene" class="gene-info text-xs-left">
 
      <div id="gene-variants-heading">
@@ -164,7 +162,6 @@
         </div>
       </div>
     </div>
-  </v-card>
 </div>
 </template>
 
