@@ -264,18 +264,18 @@ div.container.small
               </v-btn>
             </span>
 
-            <filter-badges
-             ref="filterBadgesRef"
-             v-if="!isFullAnalysis"
-             :style="isLoaded && !launchedFromClin ? 'margin-right: 200px' : ''"
-             :isFullAnalysis="isFullAnalysis"
-             :badgeCounts="badgeCounts"
-             :filterModel="filterModel"
-             :showCoverageCutoffs="showCoverageCutoffs"
-             @filter-settings-applied="onFilterSettingsApplied"
-             @badge-click="onBadgeClick"
-             @filter-settings-closed="onFilterSettingsClosed">
-            </filter-badges>
+            <!--<filter-badges-->
+             <!--ref="filterBadgesRef"-->
+             <!--v-if="!isFullAnalysis"-->
+             <!--:style="isLoaded && !launchedFromClin ? 'margin-right: 200px' : ''"-->
+             <!--:isFullAnalysis="isFullAnalysis"-->
+             <!--:badgeCounts="badgeCounts"-->
+             <!--:filterModel="filterModel"-->
+             <!--:showCoverageCutoffs="showCoverageCutoffs"-->
+             <!--@filter-settings-applied="onFilterSettingsApplied"-->
+             <!--@badge-click="onBadgeClick"-->
+             <!--@filter-settings-closed="onFilterSettingsClosed">-->
+            <!--</filter-badges>-->
 
             <div v-if="false" id="analyze-genes-progress"
             class="level-edu level-basic">

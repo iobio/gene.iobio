@@ -358,7 +358,9 @@ main.content.clin, main.v-content.clin
           @gene-region-buffer-change="onGeneRegionBufferChange">
         </gene-variants-card>
 
-              <div style="height: 15px"></div>
+              <div
+                      v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                      style="height: 15px"></div>
 
           <gene-viz class="gene-viz-zoom"
                     v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"

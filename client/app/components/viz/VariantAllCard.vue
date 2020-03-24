@@ -1187,7 +1187,12 @@ export default {
 
     getSampleFromHover: function(e){
 
-      let modelName = e[0][0].attributes.modelName.value;
+
+      let modelName = "";
+
+      if(e[0][0].attributes.modelName) {
+        modelName = e[0][0].attributes.modelName.value;
+      }
 
       for(let i = 0; i < this.otherModels.length; i++){
         if(modelName == this.otherModels[i].name){
@@ -1199,7 +1204,7 @@ export default {
         return this.sampleModel;
       }
 
-      return null;
+      return this.sampleModel;
 
     },
 
