@@ -198,6 +198,8 @@
                 :showBrush=false
                 @region-zoom="onRegionZoom"
                 @region-zoom-reset="onRegionZoomReset"
+                :featureClass="getExonClass"
+
       >
       </gene-viz>
 
