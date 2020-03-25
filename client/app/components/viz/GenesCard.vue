@@ -264,19 +264,6 @@ div.container.small
               </v-btn>
             </span>
 
-            <!--<filter-badges-->
-             <!--ref="filterBadgesRef"-->
-             <!--v-if="!isFullAnalysis"-->
-             <!--:style="isLoaded && !launchedFromClin ? 'margin-right: 200px' : ''"-->
-             <!--:isFullAnalysis="isFullAnalysis"-->
-             <!--:badgeCounts="badgeCounts"-->
-             <!--:filterModel="filterModel"-->
-             <!--:showCoverageCutoffs="showCoverageCutoffs"-->
-             <!--@filter-settings-applied="onFilterSettingsApplied"-->
-             <!--@badge-click="onBadgeClick"-->
-             <!--@filter-settings-closed="onFilterSettingsClosed">-->
-            <!--</filter-badges>-->
-
             <div v-if="false" id="analyze-genes-progress"
             class="level-edu level-basic">
               <span v-if="geneNames.length > 0" id="total-genes-label">{{ geneNames.length }} genes</span>
@@ -338,14 +325,12 @@ div.container.small
 <script>
 
 import GeneBadge from '../partials/GeneBadge.vue'
-import FilterBadges from '../partials/FilterBadges.vue'
 import GenesMenu from '../partials/GenesMenu.vue'
 
 export default {
   name: 'genes-card',
   components: {
     GeneBadge,
-    FilterBadges,
     GenesMenu
   },
   props: {
