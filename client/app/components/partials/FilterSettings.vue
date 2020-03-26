@@ -98,129 +98,134 @@
         background-color:  $moderate-impact-color !important
         border-color:  $moderate-impact-color !important
 
+.clin_dialog_Scroll
+  height: 475px
 </style>
 
 <template>
 
-  <v-layout row wrap class=" filter-form " >
+  <v-card-text :class="{ clin_dialog_scroll: launchedFromClin }" >
+
+    <v-layout row wrap class=" filter-form " >
 
 
-    <v-flex id="name" xs12 class="mb-4" >
-      <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
-      </v-text-field>
-    </v-flex>
-
-
-
-    <v-flex xs12 >
-      <v-select
-            label="Inheritance"
-            v-bind:items="inheritanceModes"
-            v-model="selectedInheritanceModes"
-            multiple
-            hide-details
-      >
-      </v-select>
-    </v-flex>
-
-    <v-flex xs12 >
-      <v-select
-            label="Zygosity"
-            v-bind:items="zygosities"
-            v-model="selectedZygosity"
-            single
-            clearable
-            hide-details
-      >
-      </v-select>
-    </v-flex>
+      <v-flex id="name" xs12 class="mb-4" >
+        <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
+        </v-text-field>
+      </v-flex>
 
 
 
-    <v-flex id="max-af" xs4  class="mt-5 mb-5 mr-4" >
-      <v-text-field label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
-      </v-text-field>
-    </v-flex>
+      <v-flex xs12 >
+        <v-select
+              label="Inheritance"
+              v-bind:items="inheritanceModes"
+              v-model="selectedInheritanceModes"
+              multiple
+              hide-details
+        >
+        </v-select>
+      </v-flex>
+
+      <v-flex xs12 >
+        <v-select
+              label="Zygosity"
+              v-bind:items="zygosities"
+              v-model="selectedZygosity"
+              single
+              clearable
+              hide-details
+        >
+        </v-select>
+      </v-flex>
 
 
-    <v-flex xs12  >
-      <v-select 
-            label="ClinVar clinical significance"
-            v-bind:items="clinvarCategories"
-            v-model="selectedClinvarCategories"
-            multiple
-            hide-details
-      >
-      </v-select>
-    </v-flex>
+
+      <v-flex id="max-af" xs4  class="mt-5 mb-5 mr-4" >
+        <v-text-field label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
+        </v-text-field>
+      </v-flex>
 
 
-
-
-    <v-flex xs12 >
-      <v-select
-            label="Impact"
-            v-bind:items="impacts"
-            v-model="selectedImpacts"
-            multiple
-            hide-details
-      >
-      </v-select>
-    </v-flex>
-
-    <v-flex xs12  >
-      <v-autocomplete
-            label="Consequence"
-            v-bind:items="consequences"
-            v-model="selectedConsequences"
-            multiple
-            autocomplete
-            hide-details
-      >
-      </v-autocomplete>
-    </v-flex>
-
-    <v-flex id="min-revel" xs12 class="mb-2 mt-4 mr-4" >
-
-          <div style="display: inline-block;margin-right:15px;font-weight:500">
-            Min REVEL score (for missense variants)
-            <info-popup name="revel"></info-popup>
-          </div>
-
-
-          <v-text-field :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
-          </v-text-field>
-
-    </v-flex>
+      <v-flex xs12  >
+        <v-select 
+              label="ClinVar clinical significance"
+              v-bind:items="clinvarCategories"
+              v-model="selectedClinvarCategories"
+              multiple
+              hide-details
+        >
+        </v-select>
+      </v-flex>
 
 
 
 
-    <v-flex  id="min-genotype-depth" xs3 class="mt-3 mb-4 mr-4" >
-      <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
-      </v-text-field>
-    </v-flex>
+      <v-flex xs12 >
+        <v-select
+              label="Impact"
+              v-bind:items="impacts"
+              v-model="selectedImpacts"
+              multiple
+              hide-details
+        >
+        </v-select>
+      </v-flex>
 
-    <v-flex  id="min-genotype-alt-count" xs4 class="mt-3 mb-4 mr-4" >
-      <v-text-field label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
-      </v-text-field>
-    </v-flex>
+      <v-flex xs12  >
+        <v-autocomplete
+              label="Consequence"
+              v-bind:items="consequences"
+              v-model="selectedConsequences"
+              multiple
+              autocomplete
+              hide-details
+        >
+        </v-autocomplete>
+      </v-flex>
+
+      <v-flex id="min-revel" xs12 class="mb-2 mt-4 mr-4" >
+
+            <div style="display: inline-block;margin-right:15px;font-weight:500">
+              Min REVEL score (for missense variants)
+              <info-popup name="revel"></info-popup>
+            </div>
 
 
-    <v-flex style="display:flex" xs12 class="mt-1 mb-1" >
-      <v-spacer></v-spacer>
-      <v-btn :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
-        Apply
-      </v-btn>
-     
-      <v-btn class="filter-action-button cancel-button" @click="onCancel">
-        Cancel
-      </v-btn>
-    </v-flex>
+            <v-text-field :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
+            </v-text-field>
+
+      </v-flex>
 
 
 
-  </v-layout>
+
+      <v-flex  id="min-genotype-depth" xs3 class="mt-3 mb-4 mr-4" >
+        <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
+        </v-text-field>
+      </v-flex>
+
+      <v-flex  id="min-genotype-alt-count" xs4 class="mt-3 mb-4 mr-4" >
+        <v-text-field label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
+        </v-text-field>
+      </v-flex>
+
+
+      <v-flex style="display:flex" xs12 class="mt-1 mb-1" >
+        <v-spacer></v-spacer>
+        <v-btn :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
+          Apply
+        </v-btn>
+       
+        <v-btn class="filter-action-button cancel-button" @click="onCancel">
+          Cancel
+        </v-btn>
+      </v-flex>
+
+
+    </v-layout>
+    
+  </v-card-text>
 
 </template>
 
@@ -236,7 +241,8 @@ export default {
   props: {
     filter: null,
     filterModel: null,
-    idx: null
+    idx: null,
+    launchedFromClin: null
   },
   data () {
     return {

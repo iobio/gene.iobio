@@ -682,7 +682,7 @@
   </v-card>
 
 
-  <v-dialog v-model="showEditFilter" persistent max-width="650">
+  <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
    
 
       <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
