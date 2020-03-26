@@ -98,7 +98,7 @@
         background-color:  $moderate-impact-color !important
         border-color:  $moderate-impact-color !important
 
-.clin_dialog_Scroll
+.clin_dialog_scroll
   height: 475px
 </style>
 
