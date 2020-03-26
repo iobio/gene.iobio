@@ -183,9 +183,8 @@ export default {
     },
     methods: {
       draw: function() {
-        var self = this;
-
-        this.depthChart =  lineD3()
+        let self = this;
+          this.depthChart =  lineD3()
           .width(this.width)
           .height(this.height)
           .widthPercent("100%")
@@ -215,7 +214,7 @@ export default {
             return self.regionGlyph(d, parent, regionX);
           })
           .on("d3region", function(featureObject, feature, lock) {
-            self.$emit("region-selected", featureObject, feature, lock );
+            self.$emit("region-selected", featureObject, feature, lock);
           })
 
           this.setDepthChart();

@@ -1,208 +1,210 @@
 <style lang="css">
-
-  #select-transcripts-box .theme--light .btn,
-  #select-transcripts-box.application .theme--light.btn {
-    color:  rgb(113,113,113);
-    padding: 20px;
-  }
-
-  .dialog__content hr {
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-
-  .dialog__content .card__text {
-    padding: 0px
-  }
-
+    #select-transcripts-box .theme--light .btn,
+    #select-transcripts-box.application .theme--light.btn {
+        color:  rgb(113,113,113);
+    }
+    .dialog__content hr {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+    .dialog__content .card__text {
+        padding: 0px
+    }
 </style>
 
 <style lang="sass">
-@import "../../../assets/sass/_variables.sass";
-
-#edit-transcript-button
-  color:  $link-color
-  margin: 0px 8px 0px 0px
-  padding: 0px
-  padding-left: 8px
-  padding-right: 8px
-  height: 28px
-
-  .btn__content, .v-btn__content
-    padding: 0px
-    text-align: left
-    line-height: 15px
-    font-weight: 500
-    color: $link-color
-    font-size: 13px
-
-#select-transcript-viz
-
-  .selected
-    outline: solid 1px $current-color
-
-    .selection-box
-      cursor: pointer
-
-  .current
-    font-weight: bold
-    outline: solid 2px $current-color
-
-    .selection-box
-
-#select-transcripts-box
-  .btn--floating.btn--small
-    height: 20px !important
-    width: 22px !important
-    padding: 0px !important
-    margin: 0px
-    margin-left: 4px
-
-  .btn--floating.btn--small .btn__content,
-  .btn--floating.btn--small .v-btn__content
-    padding: 0px
-
-  .btn__content, .v-btn__content
-    color: $text-color
-
-  #gene-source-box
-    display: block
-    margin-top: 0px
-    margin-bottom: 10px
-    width: 200px
-
-    .input-group--select
-      .input-group__selections__comma
-        font-size: 14px
-        padding: 0px 0px 0px 0px
-
-    .input-group
-      label
-        font-size: 14px
-        line-height: 25px
-        height: 25px
-
-    .input-group__input
-      min-height: 0px
-      margin-top: 10px
-
+    @import "../../../assets/sass/_variables.sass";
+    #edit-transcript-button
+        color:  $link-color
+        margin: 0px 8px 0px 0px
+        padding: 0px
+        padding-left: 8px
+        padding-right: 8px
+        height: 28px
+        .btn__content, .v-btn__content
+            padding: 0px
+            text-align: left
+            line-height: 15px
+            font-weight: 500
+            color: $link-color
+            font-size: 13px
+    #select-transcript-viz
+        .selected
+            outline: solid 1px $current-color
+            .selection-box
+                cursor: pointer
+        .current
+            font-weight: bold
+            outline: solid 2px $current-color
+            .selection-box
+    #select-transcripts-box
+        .btn--floating.btn--small
+            height: 20px !important
+            width: 22px !important
+            padding: 0px !important
+            margin: 0px;
+            margin-left: 4px;
+        .btn--floating.btn--small .btn__content,
+        .btn--floating.btn--small .v-btn__content
+            padding: 0px
+        .btn__content, .v-btn__content
+            color: $text-color
+        #gene-source-box
+            display: block
+            margin-top: 0px
+            margin-bottom: 10px
+            width: 200px
+            .input-group--select
+                .input-group__selections__comma
+                    font-size: 14px
+                    padding: 0px 0px 0px 0px
+            .input-group
+                label
+                    font-size: 14px
+                    line-height: 25px
+                    height: 25px
+            .input-group__input
+                min-height: 0px
+                margin-top: 10px
 </style>
 
 <template>
 
- <v-menu
-    offset-y
-    :close-on-content-click="false"
-    :nudge-width="500"
-    bottom
-    left
-    v-model="showTranscriptsMenu"
+    <v-menu
+            offset-y
+            :close-on-content-click="false"
+            :nudge-width="500"
+            bottom
+            left
+            v-model="showTranscriptsMenu"
     >
 
-      <v-btn id="edit-transcript-button"
-       slot="activator"
-       flat
-       v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
-      >
-         <v-icon>linear_scale</v-icon>
-         {{ `Transcript ` + transcriptId }}
-         <v-badge class="info" style="margin-left:5px;" v-if="!isCanonical">non canonical</v-badge>
-      </v-btn>
 
-      <v-card id="select-transcripts-box" class="full-width">
-        <div id="gene-source-box" >
-          <v-select
-            v-bind:items="geneSources"
-            v-model="geneSource"
-            label="Gene source"
-            item-value="text"
-            @input="onGeneSourceSelected">
-          </v-select>
-        </div>
+        <v-btn id="edit-transcript-button"
+               v-if="newTranscript"
+               slot="activator"
+               flat
+               v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
+        >
+            <v-icon>linear_scale</v-icon>
+            {{ `Transcript ` + newTranscript.transcript_id }}
+            <v-badge class="info" style="margin-left:5px;" v-if="!isCanonical">non canonical</v-badge>
+        </v-btn>
 
-        <div class="text-xs-right">
-            <v-btn small class="mb-0" raised @click.native="onTranscriptVizClose">Close</v-btn>
-        </div>
-      </v-card>
-  </v-menu>
+
+
+        <v-card id="select-transcripts-box" class="full-width">
+            <div id="gene-source-box" >
+                <v-select
+                        v-bind:items="geneSources"
+                        v-model="geneSource"
+                        label="Gene source"
+                        item-value="text"
+                        @input="onGeneSourceSelected">
+                </v-select>
+            </div>
+
+            <div style="min-height:100px;max-height: 300px;overflow-y:scroll">
+                <gene-viz id="select-transcript-viz"
+                          :data="selectedGene.transcripts"
+                          :margin=margin
+                          :trackHeight=trackHeight
+                          :cdsHeight=cdsHeight
+                          :showLabel=true
+                          :fixedWidth=600
+                          :regionStart="selectedGene.start"
+                          :regionEnd="selectedGene.end"
+                          :showBrush=false
+                          :showXAxis=false
+                          @transcript-selected="onTranscriptSelected">
+                </gene-viz>
+
+            </div>
+            <div class="text-xs-right">
+                <v-btn small class="mb-0" raised @click.native="onTranscriptVizClose">Close</v-btn>
+            </div>
+        </v-card>
+
+
+
+    </v-menu>
+
+
+
 </template>
 
 <script>
+    import GeneViz from '../viz/GeneViz.vue'
+    export default {
+        name: 'transcripts-viz',
+        components: {
+            GeneViz
+        },
+        props: {
+            selectedGene: {},
+            selectedTranscript: {},
+            geneSources: null,
+            geneModel: null
+        },
+        data() {
+            return {
+                margin: {top: 5, right: 5, bottom: 5, left: 200},
+                trackHeight: 20,
+                cdsHeight: 15,
+                showTranscriptsMenu: false,
+                newTranscript: null,
+                geneSource: null,
+                isCanonical: true
+            }
+        },
+        beforeMount: function(){
+            this.newTranscript = this.selectedTranscript;
+        },
+        mounted: function() {
+            this.geneSource = this.geneModel.geneSource;
+            this.onGeneSourceSelected();
 
-import GeneViz from '../viz/GeneViz.vue'
+        },
+        methods: {
+            onTranscriptSelected: function(theTranscript) {
+                this.newTranscript = theTranscript;
+                let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
+                this.isCanonical = canonical.transcript_id == this.newTranscript.transcript_id;
+                this.onTranscriptVizClose();
+            },
+            onTranscriptVizClose: function() {
+                var self = this;
+                self.$emit('transcriptSelected', self.newTranscript);
+                self.showTranscriptsMenu = false;
+            },
+            onGeneSourceSelected: function() {
+                let self = this;
+                self.$emit('gene-source-selected', self.geneSource);
+            },
+        },
+        watch:  {
+            showTranscriptsMenu: function() {
+                if (this.showTranscriptsMenu) {
+                    this.$emit("transcriptMenuOpened");
+                }
+            },
 
+            selectedTranscript: function(){
+                this.newTranscript = this.selectedTranscript;
+            },
 
-export default {
-  name: 'transcripts-viz',
-  components: {
-    GeneViz
-  },
-  props: {
-    selectedGene: {},
-    selectedTranscript: {},
-    geneSources: null,
-    geneModel: null
-  },
-  data() {
-    return {
-      transcriptId: 0,
-      margin: {top: 5, right: 5, bottom: 5, left: 200},
-      trackHeight: 20,
-      cdsHeight: 15,
-      showTranscriptsMenu: false,
-      newTranscript: null,
-      geneSource: null,
-      isCanonical: true
+            selectedGene: function(){
+                if(this.selectedGene.gene_name !== this.newTranscript.gene_name) {
+                    this.newTranscript = this.geneModel.getCanonicalTranscript(this.selectedGene);
+                }
+            },
+
+            newTranscript: function() {
+                if (this.newTranscript) {
+                    let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
+                    this.isCanonical = canonical.transcript_id == this.newTranscript.transcript_id;
+                }
+            }
+        }
     }
-  },
-
-  mounted: function() {
-    this.geneSource = this.geneModel.geneSource;
-
-    if (JSON.stringify(this.selectedTranscript) === '{}') {
-        let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
-        this.transcriptId = canonical.transcript_id;
-    }
-    else{
-        this.transcriptId = this.selectedTranscript.transcript_id;
-    }
-  },
-
-  methods: {
-    onTranscriptSelected: function(theTranscript) {
-      this.newTranscript = theTranscript;
-      let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
-      this.isCanonical = canonical.transcript_id == this.newTranscript.transcript_id;
-      this.onTranscriptVizClose();
-    },
-    onTranscriptVizClose: function() {
-      var self = this;
-      if (self.newTranscript == null) {
-        self.newTranscript = self.selectedTranscript;
-      }
-      self.$emit('transcriptSelected', self.newTranscript);
-      self.showTranscriptsMenu = false;
-    },
-    onGeneSourceSelected: function() {
-      let self = this;
-      self.$emit('gene-source-selected', self.geneSource);
-    },
-  },
-
-  watch:  {
-    showTranscriptsMenu: function() {
-      if (this.showTranscriptsMenu) {
-        this.$emit("transcriptMenuOpened");
-      }
-    },
-    selectedTranscript: function() {
-      if (this.selectedTranscript) {
-        let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
-        this.isCanonical = canonical.transcript_id == this.selectedTranscript.transcript_id;
-      }
-    }
-  }
-}
 </script>
-
-

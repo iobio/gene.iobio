@@ -124,12 +124,7 @@
 @import ../../../assets/sass/variables
 
 #gene-viz.ibo-gene
-  .cds.danger
-    fill:   $danger-exon-color
-    stroke: $danger-exon-border-color
-  .utr.danger
-    fill:   $danger-exon-color
-    stroke: $danger-exon-border-color
+
 </style>
 
 <template>
@@ -151,10 +146,17 @@ export default {
         default: 0,
         type: Number
       },
+        isStandalone: {
+          type: Boolean
+        },
       regionEnd: {
         default: 0,
         type: Number
       },
+        modelName: {
+          default: null,
+            type: String
+        },
       height: {
         default: 100,
         type: Number
@@ -171,16 +173,6 @@ export default {
         type: Object,
         default: function() {
           return {top: 10, bottom: 10, left: 10, right: 10}
-        }
-      },
-      transcriptClass: {
-        type: Function,
-        default: function(d,i) {
-          if (d.isCanonical) {
-            return 'transcript current';
-          } else {
-            return 'transcript';
-          }
         }
       },
       featureClass: {
@@ -216,20 +208,28 @@ export default {
     created: function() {
     },
     mounted: function() {
-      this.regionSpan = this.regionStart + "-" + this.regionEnd;
-
-      this.draw();
-      this.update();
+        this.draw();
+        this.update();
     },
     methods: {
-      draw: function() {
-        var self = this;
 
-        this.geneChart = geneD3()
+        transcriptClass: function(d) {
+            if (d.isCanonical && !this.isStandalone) {
+                return 'transcript current';
+            } else {
+                return 'transcript';
+            }
+        },
+
+      draw: function() {
+        let self = this;
+
+          this.geneChart = geneD3()
               .width(self.fixedWidth > 0 ? self.fixedWidth : this.width)
               .widthPercent("100%")
               .heightPercent("100%")
               .margin(this.margin)
+              .modelName(self.modelName)
               .showXAxis(this.showXAxis)
               .showBrush(this.showBrush)
               .trackHeight(this.trackHeight)
@@ -288,9 +288,11 @@ export default {
       data: function(newData, oldData) {
         let self = this;
         if ( $(self.$el).find("svg").length == 0 ||  self.concatKeys(newData) != self.concatKeys(oldData) ) {
-          this.update();
+            this.update();
         }
       },
+
+
       regionStart: function() {
         this.regionSpan = this.regionStart + "-" + this.regionEnd;
       },

@@ -28,6 +28,41 @@
       color: #03e9ff !important
 
 
+  #gene-viz, #gene-viz-zoom
+    .transcript.current
+      outline: none !important
+      font-weight: normal !important
+    .axis
+      padding-left: 0px
+      padding-right: 0px
+      margin-top: -10px
+      margin-bottom: 0px
+      padding-bottom: 0px
+      text
+        font-size: 11px
+        fill: rgb(120, 120, 120)
+      line, path
+        fill: none
+        stroke: lightgrey
+        shape-rendering: crispEdges
+        stroke-width: 1px
+      &.x
+        .tick
+          line
+            transform: translateY(-14px)
+          text
+            transform: translateY(6px)
+        path
+          transform: translateY(-20px)
+          display: none
+
+    .gene-viz-zoom
+      .current
+      outline: none
+
+      .cds, .exon, .utr
+        fill: rgba(159, 159, 159, 0.63)
+        stroke: rgb(159, 159, 159)
 
 .analysis-save-button
   right: 30px !important
@@ -302,6 +337,8 @@ main.content.clin, main.v-content.clin
         </genes-card>
 
 
+
+          <v-card v-show="showGeneVariantsCard" tile id="gene-variants-card" class="app-card full-width">
         <gene-variants-card
           v-bind:class="{hide : showWelcome, 'full-width': true}"
           v-if="showGeneVariantsCard"
@@ -320,6 +357,43 @@ main.content.clin, main.v-content.clin
           @gene-source-selected="onGeneSourceSelected"
           @gene-region-buffer-change="onGeneRegionBufferChange">
         </gene-variants-card>
+
+              <div
+                      v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                      style="height: 15px"></div>
+
+          <gene-viz class="gene-viz-zoom"
+                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                    :data="[selectedTranscript]"
+                    :margin="geneVizMargin"
+                    :height="40"
+                    :width="cardWidth"
+                    :isStandalone="true"
+                    :showXAxis="true"
+                    :trackHeight="geneVizTrackHeight"
+                    :cdsHeight="geneVizCdsHeight"
+                    :regionStart="parseInt(selectedGene.start)"
+                    :regionEnd="parseInt(selectedGene.end)"
+                    :showBrush="false"
+          >
+          </gene-viz>
+
+          </v-card>
+
+        <!--selectedGene && selectedGene.length > 0-->
+
+        <!--<v-card class="app-card"-->
+                <!--v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"-->
+                <!--style="overflow-y:scroll;margin-left:5px"-->
+        <!--&gt;-->
+
+
+        <!--geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,-->
+        <!--geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,-->
+
+
+      <!--</v-card>-->
+
 
         <variant-all-card
         ref="variantCardProbandRef"
@@ -656,6 +730,8 @@ import SaveButton         from '../partials/SaveButton.vue'
 import SaveAnalysisPopup  from '../partials/SaveAnalysisPopup.vue'
 
 import VuePileup          from 'vue-pileup'
+import GeneViz              from "../viz/GeneViz.vue"
+
 
 
 
@@ -668,6 +744,7 @@ export default {
       Welcome,
       GenesCard,
       GeneCard,
+      GeneViz,
       GeneVariantsCard,
       ScrollButton,
       VariantInspectCard,
@@ -723,6 +800,17 @@ export default {
   data() {
     let self = this;
     return {
+
+      geneVizMargin: {
+        top: 0,
+        right: self.isBasicMode || self.isEduMode ? 7 : 2,
+        bottom: 18,
+        left: self.isBasicMode || self.isEduMode ? 9 : 4
+      },
+
+      geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,
+      geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,
+
       greeting: 'gene.iobio',
       launchedFromClin:   false,
       launchedFromDemo: false,
@@ -954,20 +1042,7 @@ export default {
     },
 
     showGeneVariantsCard: function() {
-      // if(this.launchedFromDemo && this.cohortModel.isLoaded && this.selectedGene){
-      //   console.log("launchedFromDemo")
-      //   return true;
-      // }
-      // else if(this.launchedFromClin && this.cohortModel.isLoaded && this.selectedGene){
-      //   console.log("launchedFromClin");
-      //   return true;
-      // }
-      // else if((!this.launchedFromClin) && (!this.launchedFromDemo) && this.selectedGene){
-      //   console.log("only selected gene, this.launcedFromClin", this.launchedFromClin);
-      //   return true;
-      // }
-      // else {
-      //   console.log("made it to final else");
+
         return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1))
 
     },
@@ -1171,6 +1246,15 @@ export default {
 
       })
 
+    },
+
+    onRegionZoom: function(regionStart, regionEnd) {
+      this.zoomMessage = "Click to zoom out";
+      this.$emit('gene-region-zoom', regionStart, regionEnd);
+    },
+    onRegionZoomReset: function() {
+      this.zoomMessage = "Drag to zoom";
+      this.$emit('gene-region-zoom-reset');
     },
 
     promiseInitFromMosaic: function() {
@@ -1500,6 +1584,8 @@ export default {
 
     onLoadDemoData: function() {
       this.launchedFromDemo = true;
+      this.isMother = true;
+      this.isFather = true;
       let self = this;
       self.promiseClearCache()
       .then(function() {
@@ -3530,8 +3616,6 @@ export default {
       self.nonProbandModels = [];
       if (this.models && this.models.length > 0) {
 
-
-        this.showGeneVariantsCard = this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(this.models && this.models.length > 0))
         self.nonProbandModels = self.models.filter(function(model) {
           let keepIt =  model.relationship != 'proband';
           let showIt = false;
@@ -3549,7 +3633,6 @@ export default {
       }
 
     },
-
 
 
 
