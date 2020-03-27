@@ -359,11 +359,11 @@ main.content.clin, main.v-content.clin
         </gene-variants-card>
 
               <div
-                      v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                      v-if="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromClin)"
                       style="height: 15px"></div>
 
           <gene-viz class="gene-viz-zoom"
-                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromClin)"
                     :data="[selectedTranscript]"
                     :margin="geneVizMargin"
                     :height="40"
@@ -2574,7 +2574,7 @@ export default {
       }
 
       self.globalApp.initServices(self.launchedFromHub);
-      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;        
+      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
     promiseInitFromUrl: function() {
       let self = this;
@@ -3307,7 +3307,7 @@ export default {
 
             if (self.geneModel) {
               self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
-              self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);              
+              self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
             }
 
             console.log("gene.iobio set-data promiseInitClin")
