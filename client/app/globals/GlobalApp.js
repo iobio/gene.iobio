@@ -14,7 +14,6 @@ class GlobalApp {
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
-    this.launchedFromMosaic     = false;
     this.launchedFromUtahMosaic = false;
     this.IOBIO_SERVICES         = null;
     this.HTTP_SERVICES          = null;
@@ -68,7 +67,6 @@ class GlobalApp {
     this.BROWSER_CACHE_EXPIRATION    = 3 * 60 * 60 * 1000;  // 3 HOURS
 
 
-
     this.feedbackEmails              = "gene.iobio.feedback@gmail.com";  // what emails should feedback be sent to?   if no emails are provided, the feedback link will be hidden
     this.feedbackAttachScreenCapture = false;          // should the feedback include a screen capture?
     this.feedbackShowURL             = false;         // show the feedback email show the URL that launched gene.iobio?
@@ -88,15 +86,14 @@ class GlobalApp {
 
   }
 
-  initServices(launchedFromMosaic) {
-    this.launchedFromMosaic = launchedFromMosaic;
+  initServices(useMosaicBackend) {
 
     if (process.env.USE_SSL) {
       this.useSSL = process.env.USE_SSL === 'true' ? true : false;
     } 
 
     // These are the public services. 
-    if (launchedFromMosaic) {
+    if (useMosaicBackend) {
       this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND_MOSAIC + "/";
       this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND_MOSAIC + "/";;
       if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
@@ -117,7 +114,7 @@ class GlobalApp {
     this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   process.env.IOBIO_BACKEND + "email/";
   }
 
-  getClinvarUrl(build, launchedFromUtahMosaic) {
+  getClinvarUrl(build) {
 
       if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0) {
         var clinvarUrls = {

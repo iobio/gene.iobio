@@ -2573,7 +2573,7 @@ export default {
         self.tourNumber = self.paramTour;
       }
 
-      self.globalApp.initServices(self.launchedFromHub);
+      self.globalApp.initServices(self.launchedFromHub || self.launchedFromClin);
       self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
     promiseInitFromUrl: function() {
