@@ -682,18 +682,23 @@
   </v-card>
 
 
-  <v-dialog v-model="showEditFilter" persistent max-width="650">
+  <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
    
 
       <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
-        <v-card-title style="margin-left:20px" class="headline">Edit {{ currentFilter.title }}  Filter</v-card-title>
+        <v-card-title style="margin-left:20px" class="headline">
+          Edit {{ currentFilter.title }}  Filter
+          <v-spacer></v-spacer>
+          <v-btn text icon @click="onCancelFilter"><v-icon>close</v-icon></v-btn>
+        </v-card-title>
         <filter-settings
           ref="currentFilterSettingRef"
           v-if="currentFilter && currentFilter.name != 'coverage'"
           :filterModel="cohortModel.filterModel"
           :filter="currentFilter"
           @apply-filter="onApplyFilter"
-          @cancel-filter="onCancelFilter">
+          @cancel-filter="onCancelFilter"
+          :launchedFromClin="launchedFromClin">
         </filter-settings>
 
       </v-card>

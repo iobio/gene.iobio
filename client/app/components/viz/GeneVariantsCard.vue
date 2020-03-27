@@ -130,8 +130,6 @@
 <template>
 <div>
 
-  <v-card v-if="selectedGene" tile id="gene-variants-card" class="app-card full-width">
-
     <div  v-if="selectedGene" class="gene-info text-xs-left">
 
      <div id="gene-variants-heading">
@@ -155,11 +153,11 @@
 
 
 
-        <div style="display:inline-block;margin-left: 20px">
+        <div style="display:inline-block;margin-left: 20px" v-if="!isSimpleMode">
           <transcripts-menu
-            v-if="!isBasicMode && !isSimpleMode"
+             v-if="newTranscript"
             :selectedGene="selectedGene"
-            :selectedTranscript="selectedTranscript"
+            :selectedTranscript="newTranscript"
             :geneSources="geneSources"
             :geneModel="cohortModel.geneModel"
             @transcriptMenuOpened="onClickTranscript"
@@ -239,6 +237,7 @@ export default {
       geneSources: ['gencode', 'refseq'],
 
       noTranscriptsWarning: null,
+      newTranscript: null,
       showNoTranscriptsWarning: false,
 
       regionBuffer: null,
@@ -333,6 +332,13 @@ export default {
   mounted: function() {
     this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
     this.initNcbiSummary();
+
+    if(Object.keys(this.selectedTranscript).length === 0) {
+        this.newTranscript = this.selectedGene.transcripts[0];
+    }
+    else{
+        this.newTranscript = this.selectedTranscript;
+    }
   },
 
   created: function() {

@@ -1,0 +1,4 @@
+{
+  "build_script": "quarantest_build.sh",
+  "docker_image": "anderspitman/iobio-nodejs-12"
+}
