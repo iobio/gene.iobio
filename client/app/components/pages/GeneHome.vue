@@ -2573,8 +2573,8 @@ export default {
         self.tourNumber = self.paramTour;
       }
 
-      self.globalApp.initServices(self.launchedFromHub || self.launchedFromClin);
-      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
+      self.globalApp.initServices(self.launchedFromHub);
+      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;        
     },
     promiseInitFromUrl: function() {
       let self = this;
@@ -3287,6 +3287,10 @@ export default {
 
 
       } else if (clinObject.type == 'set-data') {
+
+        if (clinObject.iobioSource == 'mosaic.chpc.utah.edu') {
+          self.globalApp.initServices(true)
+        }
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
           self.$set(self, "isFullAnalysis", true);
           if (self.filterModel) {
@@ -3301,8 +3305,10 @@ export default {
             self.analysis = clinObject.analysis;
             self.user     = clinObject.user;
 
-            self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
-            self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
+            if (self.geneModel) {
+              self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
+              self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);              
+            }
 
             console.log("gene.iobio set-data promiseInitClin")
             self.promiseInitClin(clinObject)
@@ -3563,12 +3569,6 @@ export default {
 
       if (clinObject.batchSize) {
         self.globalApp.DEFAULT_BATCH_SIZE = clinObject.batchSize;
-      }
-
-
-      if (clinObject.iobioSource) {
-        self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
-        self.globalApp.initServices(self.launchedFromHub);
       }
 
 

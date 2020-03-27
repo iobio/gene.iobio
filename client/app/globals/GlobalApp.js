@@ -14,6 +14,7 @@ class GlobalApp {
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
+    this.DEFAULT_IOBIO_BACKEND  = "backend.iobio.io"
     this.launchedFromUtahMosaic = false;
     this.IOBIO_SERVICES         = null;
     this.HTTP_SERVICES          = null;
@@ -86,6 +87,22 @@ class GlobalApp {
 
   }
 
+  initBackendSource(iobioSource) {
+      this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + iobioSource + "/";
+      this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + iobioSource + "/";;
+      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
+        this.launchedFromUtahMosaic = true;
+      }
+      this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
+      this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
+      this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
+      this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
+      this.hpoLookupUrl              = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
+
+
+      this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   iobioSource + "email/";
+  }
+
   initServices(useMosaicBackend) {
 
     if (process.env.USE_SSL) {
@@ -93,25 +110,14 @@ class GlobalApp {
     } 
 
     // These are the public services. 
-    if (useMosaicBackend) {
-      this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND_MOSAIC + "/";
-      this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND_MOSAIC + "/";;
-      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
-        this.launchedFromUtahMosaic = true;
-      }
+    if (useMosaicBackend && process.env.IOBIO_BACKEND_MOSAIC ) {
+      this.initBackendSource(process.env.IOBIO_BACKEND_MOSAIC)
+    } else if (process.env.IOBIO_BACKEND) {
+      this.initBackendSource(process.env.IOBIO_BACKEND)
     } else {
-      this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND + "/";
-      this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND+ "/";
+      console.log("No backend specified")
     }
 
-    this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
-    this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
-    this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
-    this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
-    this.hpoLookupUrl              = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
-
-
-    this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   process.env.IOBIO_BACKEND + "email/";
   }
 
   getClinvarUrl(build) {
