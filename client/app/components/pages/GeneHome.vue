@@ -257,6 +257,7 @@ main.content.clin, main.v-content.clin
       @analyze-all="onAnalyzeAll"
       @call-variants="callVariants"
       @filter-settings-applied="onFilterSettingsApplied"
+      @isDemo="onIsDemo"
     >
     </navigation>
 
@@ -359,11 +360,14 @@ main.content.clin, main.v-content.clin
         </gene-variants-card>
 
               <div
-                      v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                      v-if="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
+                      v-show="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
+
                       style="height: 15px"></div>
 
           <gene-viz class="gene-viz-zoom"
-                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin)"
+                    v-show="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin)"
                     :data="[selectedTranscript]"
                     :margin="geneVizMargin"
                     :height="40"
@@ -822,6 +826,7 @@ export default {
 
       launchedFromHub: false,
       launchedFromSFARI: false,
+      launchedFromFiles: false,
       isHubDeprecated: false,
       sampleId: null,
       projectId: null,
@@ -1663,6 +1668,8 @@ export default {
 
     onFilesLoaded: function(analyzeAll, callback) {
       let self = this;
+
+      this.launchedFromFiles = true;
 
       self.showWelcome = false;
       self.setUrlParameters();
@@ -2574,7 +2581,7 @@ export default {
       }
 
       self.globalApp.initServices(self.launchedFromHub);
-      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;        
+      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
     promiseInitFromUrl: function() {
       let self = this;
@@ -3112,6 +3119,11 @@ export default {
       this.cohortModel.stopAnalysis();
       this.cacheHelper.stopAnalysis();
     },
+    onIsDemo: function(bool){
+      this.isMother = bool;
+      this.isFather = bool;
+      this.launchedFromDemo = bool;
+    },
     onShowSnackbar: function(snackbar) {
       if (snackbar && snackbar.message) {
         this.showSnackbar = true;
@@ -3307,7 +3319,7 @@ export default {
 
             if (self.geneModel) {
               self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
-              self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);              
+              self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
             }
 
             console.log("gene.iobio set-data promiseInitClin")

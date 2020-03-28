@@ -750,6 +750,7 @@ nav.toolbar, nav.v-toolbar
      @on-files-loaded="onFilesLoaded"
      @load-demo-data="onLoadDemoData"
      @on-cancel="showFiles = false"
+     @isDemo="onIsDemo"
     >
     </files-dialog>
 
@@ -1116,6 +1117,9 @@ export default {
     onApplyVariantInterpretation: function(variant) {
       this.$emit("apply-variant-interpretation", variant);
     },
+    onIsDemo: function(bool){
+      this.$emit("isDemo", bool);
+    },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
       let genesToApply = null;
@@ -1198,6 +1202,7 @@ export default {
     onShowCoverageThreshold: function() {
       this.$emit('show-coverage-threshold', true)
     },
+
     onShowOptions: function() {
       this.showOptions = true;
     },
