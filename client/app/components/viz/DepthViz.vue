@@ -88,11 +88,9 @@ export default {
           return [[]];
         }
       },
-      model: {
-        type: Object,
-        default: function() {
-          return null;
-        }
+      modelName: {
+        type: String,
+        default: ""
       },
       coverageDangerRegions: {
         type: Array,
@@ -164,7 +162,7 @@ export default {
       },
       regionGlyph: {
         type: Function,
-        default: function(d,i,regionX, model) {
+        default: function(d,i,regionX, modelName) {
         }
       }
 
@@ -183,6 +181,9 @@ export default {
     },
     methods: {
       draw: function() {
+
+          console.log("modelName in draw", this.modelName);
+
         let self = this;
           this.depthChart =  lineD3()
           .width(this.width)
@@ -194,6 +195,7 @@ export default {
           .showXAxis(this.showXAxis)
           .showYAxis(this.showYAxis)
           .yAxisLine(this.yAxisLine)
+          .modelName(this.modelName)
           .yTicks(this.yTicks)
           .pos( function(d) { return d[0] })
           .depth( function(d) { return d[1] })
@@ -209,10 +211,10 @@ export default {
           .formatCircleText( function(pos, depth) {
             return depth + 'x' ;
           })
-          .regionGlyph(function(d, i, regionX, model) {
+          .regionGlyph(function(d, i, regionX, modelName) {
             var parent = d3.select(this.parentNode);
             console.log("regionX", regionX);
-            return self.regionGlyph(d, parent, regionX, model);
+            return self.regionGlyph(d, parent, regionX, modelName);
           })
           .on("d3region", function(featureObject, feature, lock) {
             self.$emit("region-selected", featureObject, feature, lock);
@@ -261,6 +263,10 @@ export default {
       data: function() {
         this.update();
       },
+
+    modelName: function(){
+      console.log("model in watcher", this.modelName);
+    },
 
       regionStart: function() {
         this.regionSpan = this.regionStart + "-" + this.regionEnd;

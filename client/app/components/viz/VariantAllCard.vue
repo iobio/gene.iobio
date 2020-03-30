@@ -794,18 +794,17 @@ export default {
         return val + "x";
       }
     },
-    depthVizRegionGlyph: function(exon, regionGroup, regionX, model) {
+    depthVizRegionGlyph: function(exon, regionGroup, regionX, modelName) {
 
 
-      console.log("model", model);
-      console.log("this.sampleModel inside coverageProbleGlpyh appendage", this.sampleModel);
+      console.log("modelName inside depthVizGlyph", modelName);;
 
       var exonId = 'exon' + exon.exon_number.replace("/", "-");
       if (regionGroup.select("g#" + exonId).empty()) {
         regionGroup.append('g')
               .attr("id", exonId)
               .attr('class',      'region-glyph coverage-problem-glyph')
-              .attr("modelName", this.sampleModel.name)
+              .attr("modelName", modelName)
               .attr('transform',  'translate(' + (regionX - 6) + ',-6)')
               .data([exon])
               .append('use')

@@ -12,6 +12,7 @@ export default function lineD3() {
   var x = null;
   var y = null;
   var maxDepth = null;
+  var modelName = null;
   var container = null;
 
   var formatter = d3.format(',');
@@ -537,7 +538,7 @@ export default function lineD3() {
         var regionWidth =  Math.max(minRegionWidth, d3.round(x(d.end) - x(d.start)));
         if (regionGlyph) {
           //todo: pass in model name from here;
-          regionGlyph.call(me, d, i, regionX + regionWidth/2);
+          regionGlyph.call(me, d, i, regionX + regionWidth/2, modelName);
         }
     });
 
@@ -636,6 +637,12 @@ export default function lineD3() {
   exports.maxDepth = function(_) {
     if (!arguments.length) return maxDepth;
     maxDepth = _;
+    return exports;
+  }
+
+  exports.modelName = function(_) {
+    if (!arguments.length) return modelName;
+    modelName = _;
     return exports;
   }
 
