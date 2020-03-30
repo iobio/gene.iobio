@@ -795,10 +795,6 @@ export default {
       }
     },
     depthVizRegionGlyph: function(exon, regionGroup, regionX, modelName) {
-
-
-      console.log("modelName inside depthVizGlyph", modelName);;
-
       var exonId = 'exon' + exon.exon_number.replace("/", "-");
       if (regionGroup.select("g#" + exonId).empty()) {
         regionGroup.append('g')
@@ -1194,28 +1190,19 @@ export default {
     },
 
     getSampleFromHover: function(e){
-
-
-      console.log("e attributes inside sample hover", e[0][0].attributes);
-
       let modelName = "";
-
       if(e[0][0].attributes.modelName) {
         modelName = e[0][0].attributes.modelName.value;
       }
-
       for(let i = 0; i < this.otherModels.length; i++){
         if(modelName == this.otherModels[i].name){
           return this.otherModels[i];
         }
       }
-
       if(modelName === this.sampleModel.name){
         return this.sampleModel;
       }
-
       return this.sampleModel;
-
     },
 
     showExonTooltip: function(featureObject, feature, lock) {
@@ -1248,9 +1235,6 @@ export default {
         row += "</div>";
         return row;
       }
-
-
-      console.log("featureObject in showExonToolTip", featureObject);
 
       let sample = self.getSampleFromHover(featureObject);
 
