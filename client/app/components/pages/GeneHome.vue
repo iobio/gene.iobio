@@ -3603,11 +3603,18 @@ export default {
         self.setIobioConfigFromClin(self.clinSetData);
         self.cohortModel.promiseInit(self.clinSetData.modelInfos)
         .then(function() {
-
-
           self.onSendFiltersToClin();
-
           self.models = self.cohortModel.sampleModels;
+
+          for(let i = 0; i < self.models.length; i++){
+            if(self.models[i].relationship === "mother"){
+              self.isMother = true;
+            }
+            else if(self.models[i].relationship === "father"){
+              self.isFather = true;
+            }
+          }
+
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
           return self.promiseSetCacheFromClin(self.clinSetData)
 
