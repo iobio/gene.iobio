@@ -536,6 +536,7 @@ export default function lineD3() {
         var regionX     = d3.round(x(d.start));
         var regionWidth =  Math.max(minRegionWidth, d3.round(x(d.end) - x(d.start)));
         if (regionGlyph) {
+          //todo: pass in model name from here;
           regionGlyph.call(me, d, i, regionX + regionWidth/2);
         }
     });

@@ -164,7 +164,7 @@ export default {
       },
       regionGlyph: {
         type: Function,
-        default: function(d,i,regionX) {
+        default: function(d,i,regionX, model) {
         }
       }
 
@@ -209,9 +209,10 @@ export default {
           .formatCircleText( function(pos, depth) {
             return depth + 'x' ;
           })
-          .regionGlyph(function(d, i, regionX) {
+          .regionGlyph(function(d, i, regionX, model) {
             var parent = d3.select(this.parentNode);
-            return self.regionGlyph(d, parent, regionX);
+            console.log("regionX", regionX);
+            return self.regionGlyph(d, parent, regionX, model);
           })
           .on("d3region", function(featureObject, feature, lock) {
             self.$emit("region-selected", featureObject, feature, lock);
