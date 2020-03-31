@@ -30,8 +30,8 @@
         padding-right: 3px
 
   &.v-card
-    box-shadow: none
-    -webkit-box-shadow: none
+    box-shadow: none !important
+    -webkit-box-shadow: none !important
 
   .gene-ranks
     .chip, .v-chip
