@@ -487,7 +487,7 @@ nav.toolbar, nav.v-toolbar
 
 
 
-      <v-btn v-if="cohortModel.hasAlignments() && !isSimpleMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
+      <v-btn v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
         <v-badge right  >
           <v-icon>bar_chart</v-icon>
           <span style="font-size:15px">
@@ -533,7 +533,7 @@ nav.toolbar, nav.v-toolbar
          @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
-        <div v-if="!isEduMode && !isBasicMode && !isSimpleMode && !launchedFromClin" id="search-or" style="display:inline-block">
+        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin" id="search-or" style="display:inline-block">
           or
         </div>
 
@@ -568,7 +568,7 @@ nav.toolbar, nav.v-toolbar
           <v-icon style="font-size:32px;">more_vert</v-icon>
         </v-btn>
         <v-list dense style="overflow-y: scroll">
-          <v-list-tile  @click="onShowFiles">
+          <v-list-tile  v-if="!isBasicMode" @click="onShowFiles">
             <v-list-tile-title>Files</v-list-tile-title>
           </v-list-tile>
 
@@ -581,17 +581,17 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Export Variants</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider></v-divider>
+          <v-divider v-if="!isBasicMode"></v-divider>
 
-          <v-list-tile  @click="onShowLegend">
+          <v-list-tile  v-if="!isBasicMode" @click="onShowLegend">
             <v-list-tile-title>Legend</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode" @click="onShowOptions">
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowOptions">
             <v-list-tile-title>Options</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider dense></v-divider>
+          <v-divider v-if="!isBasicMode" dense></v-divider>
 
           <v-list-tile  @click="onShowTermsOfService">
             <v-list-tile-title>Terms of Service</v-list-tile-title>
@@ -608,19 +608,19 @@ nav.toolbar, nav.v-toolbar
 
           <v-divider v-if="!isSimpleMode"></v-divider>
 
-          <v-list-tile v-if="!isSimpleMode" @click="onShowBlog">
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowBlog">
             <v-list-tile-title>Blog</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode" @click="onShowTutorial" >
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowTutorial" >
             <v-list-tile-title>Tutorials</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode" @click="onShowIOBIO" >
+          <v-list-tile v-if="!isSimpleMode " @click="onShowIOBIO" >
             <v-list-tile-title>iobio</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode" @click="onSupportIOBIO" >
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onSupportIOBIO" >
             <v-list-tile-title>Support the iobio project</v-list-tile-title>
           </v-list-tile>
 
