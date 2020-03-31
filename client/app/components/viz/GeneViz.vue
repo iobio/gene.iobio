@@ -292,7 +292,6 @@ export default {
         }
       },
 
-
       regionStart: function() {
         this.regionSpan = this.regionStart + "-" + this.regionEnd;
       },
