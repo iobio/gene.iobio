@@ -212,6 +212,7 @@ main.content.clin, main.v-content.clin
       :isEduMode="isEduMode"
       :isBasicMode="isBasicMode"
       :forMyGene2="forMyGene2"
+      :isSimpleMode="isSimpleMode"
       :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
       :callAllInProgress="cacheHelper.callAllInProgress"
       :selectedGene="selectedGene"
@@ -285,14 +286,17 @@ main.content.clin, main.v-content.clin
         </modal>
 
 
-        <intro-card v-if="forMyGene2"
+        <intro-card v-if="showIntro"
         class="full-width"
         :closeIntro="closeIntro"
         :isBasicMode="isBasicMode"
+        :forMyGene2="forMyGene2"
+        :isSimpleMode="isSimpleMode"
         :siteConfig="siteConfig"
         :defaultingToDemoData="cohortModel ? cohortModel.defaultingToDemoData : false"
         @on-advanced-mode="onAdvancedMode"
-        @on-basic-mode="onBasicMode">
+        @on-basic-mode="onBasicMode"
+        @on-simple-mode="onSimpleMode">
         </intro-card>
 
 
@@ -349,6 +353,7 @@ main.content.clin, main.v-content.clin
           :cohortModel="cohortModel"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
+          :isSimpleMode="isSimpleMode"
           :isFullAnalysis="isFullAnalysis"
           :launchedFromClin="launchedFromClin"
           :launchedFromHub="launchedFromHub"
@@ -366,8 +371,8 @@ main.content.clin, main.v-content.clin
                       style="height: 15px"></div>
 
           <gene-viz class="gene-viz-zoom"
-                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin)"
-                    v-show="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin)"
+                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin) && !isBasicMode && !isSimpleMode"
+                    v-show="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin) && !isBasicMode && !isSimpleMode"
                     :data="[selectedTranscript]"
                     :margin="geneVizMargin"
                     :height="40"
@@ -412,6 +417,7 @@ main.content.clin, main.v-content.clin
         :globalAppProp="globalApp"
         :isEduMode="isEduMode"
         :isBasicMode="isBasicMode"
+        :isSimpleMode="isSimpleMode"
         :clearZoom="clearZoom"
         :sampleModel="probandModel"
         :coverageDangerRegions="probandModel.coverageDangerRegions"
@@ -455,7 +461,7 @@ main.content.clin, main.v-content.clin
 
         <variant-detail-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && isBasicMode && user"
+          v-if="cohortModel && cohortModel.isLoaded && isBasicMode"
           :isBasicMode="isBasicMode"
           :isEduMode="isEduMode"
           :selectedGene="selectedGene"
@@ -487,6 +493,7 @@ main.content.clin, main.v-content.clin
           <variant-inspect-card
           ref="variantInspectRef"
           v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode"
+          :isSimpleMode="isSimpleMode"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
           :selectedVariant="selectedVariant"
@@ -934,6 +941,14 @@ export default {
       forMyGene2: false,
 
 
+      /*
+      * This variable controls if gene should show a "simplified" view
+      */
+      isSimpleMode: process.env.DEFAULT_MODE == 'simple' ? true : false,
+
+      showIntro: false,
+
+
       closeIntro: false,
 
       phenotypeTerm: null,
@@ -1189,7 +1204,7 @@ export default {
         self.inProgress = self.cohortModel.inProgress;
 
 
-        self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.tourNumber);
+        self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.isSimpleMode, self.tourNumber);
         self.featureMatrixModel.init();
         self.cohortModel.featureMatrixModel = self.featureMatrixModel;
 
@@ -1232,7 +1247,7 @@ export default {
                   self.bringAttention = 'gene';
                 }
 
-                if (!self.isEduMode && !self.isBasicMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length == 0 ) {
+                if (!self.isEduMode && !self.isBasicMode && !self.isSimpleMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length == 0 ) {
                   self.showWelcome = true;
                 }
               }
@@ -2542,6 +2557,17 @@ export default {
         self.isBasicMode  = self.paramMode == "basic" ? true : false;
         self.isEduMode    = (self.paramMode == "edu" || self.paramMode == "edutour") ? true : false;
       }
+
+      if (self.paramMode && self.paramMode == 'advanced') {
+        if (self.isSimpleMode) {
+          self.isSimpleMode = false;
+        }
+      } else if (self.paramMode && self.paramMode == 'simple') {
+        self.isSimpleMode = true;
+      }
+      
+      self.showIntro = self.forMyGene2 || process.env.SHOW_INTRO;
+
       if (self.paramSampleId && self.paramSampleId.length > 0) {
         self.sampleId = self.paramSampleId;
       } else if (self.paramSampleUuid && self.paramSampleUuid.length > 0) {
@@ -2676,6 +2702,19 @@ export default {
           .then(function() {
             resolve();
           })
+        } else if (self.isSimpleMode) {
+          alertify.confirm("", "No data files specified",
+               function(){
+                  self.cohortModel.promiseInitDemo()
+                  .then(function() {
+                    self.cohortModel.defaultingToDemoData = true;
+                    self.onAnalyzeAll();
+                    resolve();
+                  })
+               },
+               function(){
+                  resolve();
+               }).set('labels', {ok:'Continue, but just use demo data', cancel:'Cancel'});
         } else {
           resolve();
         }
@@ -3097,7 +3136,9 @@ export default {
     onAdvancedMode: function() {
       let self = this;
       this.isBasicMode = false;
+      this.isSimpleMode = false;
       this.featureMatrixModel.isBasicMode = false;
+      this.featureMatrixModel.isSimpleMode = false;
       this.filterModel.isBasicMode = false;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
@@ -3109,6 +3150,17 @@ export default {
       this.isBasicMode = true;
       this.featureMatrixModel.isBasicMode = true;
       this.filterModel.isBasicMode = true;
+      this.calcFeatureMatrixWidthPercent();
+      this.onFilesLoaded(true, function() {
+        self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 ? true : false } })
+      });
+    },
+    onSimpleMode: function() {
+      let self = this;
+      this.isSimpleMode = true;
+      this.featureMatrixModel.isBasicMode = false;
+      this.featureMatrixModel.isSimpleMode = true;
+      this.filterModel.isBasicMode = false;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
         self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 ? true : false } })
@@ -3583,6 +3635,12 @@ export default {
       }
 
 
+
+      if (clinObject.iobioSource) {
+        self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
+        self.globalApp.initServices(self.launchedFromHub );
+      }
+
       let endpoint = new EndpointCmd(self.globalApp,
         self.cacheHelper.launchTimestamp,
         self.genomeBuildHelper,
@@ -3602,11 +3660,18 @@ export default {
         self.setIobioConfigFromClin(self.clinSetData);
         self.cohortModel.promiseInit(self.clinSetData.modelInfos)
         .then(function() {
-
-
           self.onSendFiltersToClin();
-
           self.models = self.cohortModel.sampleModels;
+
+          for(let i = 0; i < self.models.length; i++){
+            if(self.models[i].relationship === "mother"){
+              self.isMother = true;
+            }
+            else if(self.models[i].relationship === "father"){
+              self.isFather = true;
+            }
+          }
+
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
           return self.promiseSetCacheFromClin(self.clinSetData)
 

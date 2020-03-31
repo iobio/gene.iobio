@@ -307,9 +307,8 @@
 
       </span>
 
-
         <optional-tracks-menu
-            v-show="!isEduMode && !isBasicMode"
+            v-show="!isEduMode && !isBasicMode && !isSimpleMode"
             @show-known-variants-card="onShowKnownVariantsCard"
             @show-sfari-variants-card="onShowSfariVariantsCard"
             @show-mother-card="onShowMotherCard"
@@ -328,6 +327,7 @@
           v-show="!isEduMode && !isBasicMode"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
+          :isSimpleMode="isSimpleMode"
           :featureMatrixModel="featureMatrixModel"
           :selectedGene="selectedGene"
           :selectedTranscript="selectedTranscript"
@@ -351,7 +351,7 @@
           <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
           Called
         </v-badge>
-        <v-badge  v-if="sampleModel.loadedVariants && coverageDangerRegions.length > 0 && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-4 mr-4 coverage-problem" >
+        <v-badge  v-if="!isSimpleMode && !isBasicMode && sampleModel.loadedVariants && coverageDangerRegions.length > 0 && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-4 mr-4 coverage-problem" >
           <span slot="badge"> {{ coverageDangerRegions.length }} </span>
           Exons with insufficient coverage
         </v-badge>
@@ -437,7 +437,7 @@
         </gene-viz>
 
         <div class="chart-label"
-        v-if="showVariantViz && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0"
+        v-if="showVariantViz && !isSimpleMode && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0"
         >
           called variants
         </div>
@@ -470,7 +470,7 @@
         <div class="chart-label"
         v-show="!isEduMode && !isBasicMode && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
-          Proband variants  {{ sampleLabel }}
+          {{ isSimpleMode ? '' : 'Proband variants  ' }}  {{ isSimpleMode ? '' : sampleLabel }}
         </div>
 
         <div v-if="(sampleModel.relationship === 'sfari-variants' || sampleModel.isSfariSample) && blacklistedGeneSelected"
@@ -513,7 +513,7 @@
         <div class="chart-label"
         v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
-          Proband coverage
+          {{ isSimpleMode ? '' : 'Proband' }} coverage
         </div>
 
         <div id="bam-track">
@@ -524,7 +524,7 @@
             :data="sampleModel.coverage"
             :modelName="sampleModel.name"
             :coverageMedian="sampleModel.cohort.filterModel.geneCoverageMedian"
-            :coverageDangerRegions="coverageDangerRegions"
+            :coverageDangerRegions="!isSimpleMode && !isBasicMode ? coverageDangerRegions : []"
             :currentPoint="coveragePoint"
             :maxDepth="sampleModel.cohort.maxDepth"
             :regionStart="regionStart"
@@ -609,7 +609,7 @@
             :data="model.coverage"
             :modelName="model.name"
             :coverageMedian="model.cohort.filterModel.geneCoverageMedian"
-            :coverageDangerRegions="model.coverageDangerRegions"
+            :coverageDangerRegions="!isSimpleMode ? model.coverageDangerRegions : []"
             :currentPoint="coveragePoint"
             :maxDepth="model.cohort.maxDepth"
             :regionStart="regionStart"
@@ -686,6 +686,7 @@ export default {
     globalAppProp: null,  //For some reason, global mixin not working on variant card.  possible cause for-item?
     isEduMode: null,
     isBasicMode: null,
+    isSimpleMode: null,
     clearZoom: null,
     sampleModel: null,
     annotationScheme: null,
@@ -794,12 +795,13 @@ export default {
         return val + "x";
       }
     },
-    depthVizRegionGlyph: function(exon, regionGroup, regionX) {
+    depthVizRegionGlyph: function(exon, regionGroup, regionX, modelName) {
       var exonId = 'exon' + exon.exon_number.replace("/", "-");
       if (regionGroup.select("g#" + exonId).empty()) {
         regionGroup.append('g')
               .attr("id", exonId)
               .attr('class',      'region-glyph coverage-problem-glyph')
+              .attr("modelName", modelName)
               .attr('transform',  'translate(' + (regionX - 6) + ',-6)')
               .data([exon])
               .append('use')
@@ -807,7 +809,10 @@ export default {
               .attr('width',      '16')
               .attr('href', '#coverage-problem-symbol')
               .attr('xlink','http://www.w3.org/1999/xlink')
-              .data([exon]);
+              .data([exon])
+                .attr("modelName", this.sampleModel.name)
+
+        ;
       }
     },
     onVariantClick: function(variant, model) {
@@ -1186,26 +1191,19 @@ export default {
     },
 
     getSampleFromHover: function(e){
-
-
       let modelName = "";
-
       if(e[0][0].attributes.modelName) {
         modelName = e[0][0].attributes.modelName.value;
       }
-
       for(let i = 0; i < this.otherModels.length; i++){
         if(modelName == this.otherModels[i].name){
           return this.otherModels[i];
         }
       }
-
       if(modelName === this.sampleModel.name){
         return this.sampleModel;
       }
-
       return this.sampleModel;
-
     },
 
     showExonTooltip: function(featureObject, feature, lock) {
@@ -1238,7 +1236,6 @@ export default {
         row += "</div>";
         return row;
       }
-
 
       let sample = self.getSampleFromHover(featureObject);
 

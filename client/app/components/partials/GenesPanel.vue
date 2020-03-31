@@ -108,7 +108,7 @@
     <div id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
 
         <v-btn  id="analyze-all-button"
-        v-if="isLoaded && !isFullAnalysis"
+        v-if="isLoaded && !isFullAnalysis && !isSimpleMode"
         class="level-edu"
         raised
         @click="onAnalyzeAll"
@@ -118,7 +118,7 @@
 
 
         <v-btn
-        v-if="analyzeAllInProgress && !isFullAnalysis"
+        v-if="analyzeAllInProgress && !isFullAnalysis && !isSimpleMode"
         class="stop-analysis-button"
         @click="onStopAnalysis" small raised
         v-tooltip.top-center="`Stop analysis`" >
@@ -127,7 +127,7 @@
 
 
         <div id="call-variants-dropdown"
-          v-if="isLoaded && hasAlignments && !isFullAnalysis"
+          v-if="isLoaded && hasAlignments && !isFullAnalysis && !isSimpleMode"
         >
           <v-menu offset-y>
             <v-btn raised slot="activator"
@@ -177,6 +177,7 @@
        v-for="gene in geneSummaries"
        :key="gene.name"
        :gene="gene"
+       :isSimpleMode="isSimpleMode"
        :phenotypes="geneModel.genePhenotypes[gene.name]"
        :selectedGene="selectedGene"
        :isBasicMode="isBasicMode"
@@ -203,6 +204,7 @@ export default {
   props: {
     isEduMode: null,
     isBasicMode: null,
+    isSimpleMode: null,
     isFullAnalysis: null,
     launchedFromClin: null,
     analyzeAllInProgress: null,
