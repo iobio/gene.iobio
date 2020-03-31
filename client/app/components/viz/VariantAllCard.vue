@@ -351,7 +351,7 @@
           <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
           Called
         </v-badge>
-        <v-badge  v-if="!isSimpleMode && sampleModel.loadedVariants && coverageDangerRegions.length > 0 && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-4 mr-4 coverage-problem" >
+        <v-badge  v-if="!isSimpleMode && !isBasicMode && sampleModel.loadedVariants && coverageDangerRegions.length > 0 && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-4 mr-4 coverage-problem" >
           <span slot="badge"> {{ coverageDangerRegions.length }} </span>
           Exons with insufficient coverage
         </v-badge>
@@ -524,7 +524,7 @@
             :data="sampleModel.coverage"
             :modelName="sampleModel.name"
             :coverageMedian="sampleModel.cohort.filterModel.geneCoverageMedian"
-            :coverageDangerRegions="!isSimpleMode ? coverageDangerRegions : []"
+            :coverageDangerRegions="!isSimpleMode && !isBasicMode ? coverageDangerRegions : []"
             :currentPoint="coveragePoint"
             :maxDepth="sampleModel.cohort.maxDepth"
             :regionStart="regionStart"
