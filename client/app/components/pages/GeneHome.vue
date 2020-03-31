@@ -461,7 +461,7 @@ main.content.clin, main.v-content.clin
 
         <variant-detail-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && isBasicMode && user"
+          v-if="cohortModel && cohortModel.isLoaded && isBasicMode"
           :isBasicMode="isBasicMode"
           :isEduMode="isEduMode"
           :selectedGene="selectedGene"
