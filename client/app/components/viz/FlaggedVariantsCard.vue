@@ -383,6 +383,7 @@
         width: 90px
         vertical-align: top
         line-height: 13px
+        padding-bottom: 10px
 
       .hgvsc
         display: inline-block
