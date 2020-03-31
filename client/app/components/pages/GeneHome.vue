@@ -371,8 +371,8 @@ main.content.clin, main.v-content.clin
                       style="height: 15px"></div>
 
           <gene-viz class="gene-viz-zoom"
-                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin)"
-                    v-show="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin)"
+                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin) && !isBasicMode && !isSimpleMode"
+                    v-show="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin) && !isBasicMode && !isSimpleMode"
                     :data="[selectedTranscript]"
                     :margin="geneVizMargin"
                     :height="40"
