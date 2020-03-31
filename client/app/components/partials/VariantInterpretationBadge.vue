@@ -60,8 +60,10 @@ i.material-icons.interpretation
 
   <div
   id="badge-interpretation"
+  v-if="interpretation && interpretation !== 'not-reviewed'"
+  v-show="interpretation && interpretation !== 'not-reviewed'"
+
   :class="{
-          'not-reviewed': interpretation == 'not-reviewed',
           'not-sig'     : interpretation == 'not-sig',
           'sig'         : interpretation == 'sig',
           'unknown-sig' : interpretation == 'unknown-sig',
@@ -71,7 +73,6 @@ i.material-icons.interpretation
     <v-icon class="interpretation unknown-sig" v-if="interpretation == 'unknown-sig'">help</v-icon>
     <v-icon class="interpretation not-sig" v-if="interpretation == 'not-sig'">thumb_down</v-icon>
     <v-icon class="interpretation poor-qual" v-if="interpretation == 'poor-qual'">trending_down</v-icon>
-    <v-icon class="interpretation not-reviewed" v-if="interpretation == 'not-reviewed'">visibility_off</v-icon>
     <span  class="interpretation-label"> {{ intepretationDisplay }} </span>
 
   </div>
@@ -113,6 +114,8 @@ export default {
   updated: function() {
   },
   watch: {
+    interpretation: function(){
+    }
   }
 }
 </script>
