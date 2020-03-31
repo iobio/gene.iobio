@@ -452,7 +452,7 @@
 
     <div class="variant-toolbar" >
 
-      <v-btn v-if="!isSimpleMode" id="add-filter-button" @click="onNewFilter" flat>
+      <v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>
         <v-icon>add</v-icon>
         New filter
       </v-btn>
