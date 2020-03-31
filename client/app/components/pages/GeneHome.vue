@@ -1577,7 +1577,7 @@ export default {
 
     promiseLoadSiteConfig: function() {
       let self = this;
-      var target = window.document.URL.indexOf("dev.gene.iobio") > 0 || window.document.URL.indexOf("localhost") > 0 ? 'dev' : 'prod';
+      var target = window.document.URL.indexOf("dev.gene.iobio") > 0 || window.document.URL.indexOf("stage.mygene2.iobio") > 0  || window.document.URL.indexOf("localhost") > 0 ? 'dev' : 'prod';
 
       return new Promise(function(resolve, reject) {
 
