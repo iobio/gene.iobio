@@ -153,7 +153,7 @@
 
 
 
-        <div style="display:inline-block;margin-left: 20px" v-if="!isSimpleMode">
+        <div style="display:inline-block;margin-left: 20px" v-if="!isSimpleMode && !isBasicMode">
           <transcripts-menu
              v-if="newTranscript"
             :selectedGene="selectedGene"
