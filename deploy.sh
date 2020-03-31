@@ -22,6 +22,14 @@ elif [[ $1 == "stage" ]]; then
   echo "** Renew cloudfrount cache **"
   aws cloudfront create-invalidation --distribution-id E1XZ0L3S5I92GN --paths /\*
 
+# upload to cloudfront
+elif [[ $1 == "stage.mygene2" ]]; then
+
+  echo "** Uploaded to stage.mygene2 s3 bucket **"
+  aws s3 cp ./deploy/  s3://static.iobio.io/stage/mygene2.iobio.io/ --recursive
+  echo "** Renew cloudfrount cache **"
+  aws cloudfront create-invalidation --distribution-id E2XR0DTGGE2U2U --paths /\*
+
 
 
 else
