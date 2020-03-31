@@ -106,11 +106,11 @@
 
   <v-card-text :class="{ clin_dialog_scroll: launchedFromClin }" >
 
-    <v-layout row wrap class=" filter-form " >
+    <v-layout row wrap class=" filter-form">
 
 
       <v-flex id="name" xs12 class="mb-4" >
-        <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
+        <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details :disabled="true">
         </v-text-field>
       </v-flex>
 
@@ -118,6 +118,7 @@
 
       <v-flex xs12 >
         <v-select
+              :disabled="true"
               label="Inheritance"
               v-bind:items="inheritanceModes"
               v-model="selectedInheritanceModes"
@@ -129,6 +130,7 @@
 
       <v-flex xs12 >
         <v-select
+              :disabled="true"
               label="Zygosity"
               v-bind:items="zygosities"
               v-model="selectedZygosity"
@@ -142,13 +144,14 @@
 
 
       <v-flex id="max-af" xs4  class="mt-5 mb-5 mr-4" >
-        <v-text-field label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
+        <v-text-field :disabled="true" label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
         </v-text-field>
       </v-flex>
 
 
       <v-flex xs12  >
-        <v-select 
+        <v-select
+              :disabled="true"
               label="ClinVar clinical significance"
               v-bind:items="clinvarCategories"
               v-model="selectedClinvarCategories"
@@ -163,6 +166,7 @@
 
       <v-flex xs12 >
         <v-select
+              :disabled="true"
               label="Impact"
               v-bind:items="impacts"
               v-model="selectedImpacts"
@@ -174,6 +178,7 @@
 
       <v-flex xs12  >
         <v-autocomplete
+              :disabled="true"
               label="Consequence"
               v-bind:items="consequences"
               v-model="selectedConsequences"
@@ -192,7 +197,7 @@
             </div>
 
 
-            <v-text-field :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
+            <v-text-field :disabled="true" :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
             </v-text-field>
 
       </v-flex>
@@ -201,12 +206,12 @@
 
 
       <v-flex  id="min-genotype-depth" xs3 class="mt-3 mb-4 mr-4" >
-        <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
+        <v-text-field :disabled="true" label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
         </v-text-field>
       </v-flex>
 
       <v-flex  id="min-genotype-alt-count" xs4 class="mt-3 mb-4 mr-4" >
-        <v-text-field label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
+        <v-text-field :disabled="true" label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
         </v-text-field>
       </v-flex>
 
@@ -216,7 +221,7 @@
         <v-btn :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
           Apply
         </v-btn>
-       
+
         <v-btn class="filter-action-button cancel-button" @click="onCancel">
           Cancel
         </v-btn>
@@ -224,7 +229,7 @@
 
 
     </v-layout>
-    
+
   </v-card-text>
 
 </template>
