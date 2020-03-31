@@ -258,6 +258,7 @@ main.content.clin, main.v-content.clin
       @analyze-all="onAnalyzeAll"
       @call-variants="callVariants"
       @filter-settings-applied="onFilterSettingsApplied"
+      @isDemo="onIsDemo"
     >
     </navigation>
 
@@ -364,11 +365,14 @@ main.content.clin, main.v-content.clin
         </gene-variants-card>
 
               <div
-                      v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                      v-if="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
+                      v-show="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
+
                       style="height: 15px"></div>
 
           <gene-viz class="gene-viz-zoom"
-                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"
+                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin)"
+                    v-show="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin)"
                     :data="[selectedTranscript]"
                     :margin="geneVizMargin"
                     :height="40"
@@ -829,6 +833,7 @@ export default {
 
       launchedFromHub: false,
       launchedFromSFARI: false,
+      launchedFromFiles: false,
       isHubDeprecated: false,
       sampleId: null,
       projectId: null,
@@ -1678,6 +1683,8 @@ export default {
 
     onFilesLoaded: function(analyzeAll, callback) {
       let self = this;
+
+      this.launchedFromFiles = true;
 
       self.showWelcome = false;
       self.setUrlParameters();
@@ -2599,7 +2606,7 @@ export default {
         self.tourNumber = self.paramTour;
       }
 
-      self.globalApp.initServices(self.launchedFromHub || self.launchedFromClin);
+      self.globalApp.initServices(self.launchedFromHub);
       self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
     promiseInitFromUrl: function() {
@@ -3164,6 +3171,11 @@ export default {
       this.cohortModel.stopAnalysis();
       this.cacheHelper.stopAnalysis();
     },
+    onIsDemo: function(bool){
+      this.isMother = bool;
+      this.isFather = bool;
+      this.launchedFromDemo = bool;
+    },
     onShowSnackbar: function(snackbar) {
       if (snackbar && snackbar.message) {
         this.showSnackbar = true;
@@ -3339,6 +3351,10 @@ export default {
 
 
       } else if (clinObject.type == 'set-data') {
+
+        if (clinObject.iobioSource == 'mosaic.chpc.utah.edu') {
+          self.globalApp.initServices(true)
+        }
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
           self.$set(self, "isFullAnalysis", true);
           if (self.filterModel) {
@@ -3355,7 +3371,7 @@ export default {
 
             if (self.geneModel) {
               self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
-              self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);              
+              self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
             }
 
             console.log("gene.iobio set-data promiseInitClin")
@@ -3620,11 +3636,11 @@ export default {
       }
 
 
+
       if (clinObject.iobioSource) {
         self.globalApp.IOBIO_SOURCE = clinObject.iobioSource;
         self.globalApp.initServices(self.launchedFromHub );
       }
-
 
       let endpoint = new EndpointCmd(self.globalApp,
         self.cacheHelper.launchTimestamp,
@@ -3645,11 +3661,18 @@ export default {
         self.setIobioConfigFromClin(self.clinSetData);
         self.cohortModel.promiseInit(self.clinSetData.modelInfos)
         .then(function() {
-
-
           self.onSendFiltersToClin();
-
           self.models = self.cohortModel.sampleModels;
+
+          for(let i = 0; i < self.models.length; i++){
+            if(self.models[i].relationship === "mother"){
+              self.isMother = true;
+            }
+            else if(self.models[i].relationship === "father"){
+              self.isFather = true;
+            }
+          }
+
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
           return self.promiseSetCacheFromClin(self.clinSetData)
 

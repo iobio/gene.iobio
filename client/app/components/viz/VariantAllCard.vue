@@ -795,12 +795,13 @@ export default {
         return val + "x";
       }
     },
-    depthVizRegionGlyph: function(exon, regionGroup, regionX) {
+    depthVizRegionGlyph: function(exon, regionGroup, regionX, modelName) {
       var exonId = 'exon' + exon.exon_number.replace("/", "-");
       if (regionGroup.select("g#" + exonId).empty()) {
         regionGroup.append('g')
               .attr("id", exonId)
               .attr('class',      'region-glyph coverage-problem-glyph')
+              .attr("modelName", modelName)
               .attr('transform',  'translate(' + (regionX - 6) + ',-6)')
               .data([exon])
               .append('use')
@@ -808,7 +809,10 @@ export default {
               .attr('width',      '16')
               .attr('href', '#coverage-problem-symbol')
               .attr('xlink','http://www.w3.org/1999/xlink')
-              .data([exon]);
+              .data([exon])
+                .attr("modelName", this.sampleModel.name)
+
+        ;
       }
     },
     onVariantClick: function(variant, model) {
@@ -1187,26 +1191,19 @@ export default {
     },
 
     getSampleFromHover: function(e){
-
-
       let modelName = "";
-
       if(e[0][0].attributes.modelName) {
         modelName = e[0][0].attributes.modelName.value;
       }
-
       for(let i = 0; i < this.otherModels.length; i++){
         if(modelName == this.otherModels[i].name){
           return this.otherModels[i];
         }
       }
-
       if(modelName === this.sampleModel.name){
         return this.sampleModel;
       }
-
       return this.sampleModel;
-
     },
 
     showExonTooltip: function(featureObject, feature, lock) {
@@ -1239,7 +1236,6 @@ export default {
         row += "</div>";
         return row;
       }
-
 
       let sample = self.getSampleFromHover(featureObject);
 

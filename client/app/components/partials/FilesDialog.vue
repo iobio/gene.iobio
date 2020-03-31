@@ -355,6 +355,7 @@ export default {
     },
     onLoadDemoData: function() {
       let self = this;
+      this.$emit('isDemo', true);
 
       if (self.mode == 'single') {
         self.mode = 'trio';
