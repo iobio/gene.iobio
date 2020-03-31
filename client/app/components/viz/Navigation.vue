@@ -554,9 +554,11 @@ nav.toolbar, nav.v-toolbar
          @hide-snackbar="onHideSnackbar">
         </phenotype-search>
 
-          <v-btn icon @click="onShowTermsOfService" title="Terms of Service">
-            <v-icon>description</v-icon>
-          </v-btn>
+        <v-spacer></v-spacer>
+
+        <v-btn icon @click="onShowTermsOfService" title="Terms of Service">
+          <v-icon>description</v-icon>
+        </v-btn>
 
       </v-toolbar-items>
 
