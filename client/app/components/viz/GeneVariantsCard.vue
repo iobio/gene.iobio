@@ -190,7 +190,7 @@
       </div>
     </div>
 
-    <div v-if="isSimpleMode">
+    <div v-if="isSimpleMode || isBasicMode">
       <div  v-if="ncbiSummary" id="ncbi-summary">
         <div id="ncbi-heading">NCBI summary</div>
         <div id="ncbi-text">
