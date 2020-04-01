@@ -216,16 +216,16 @@
       </v-flex>
 
 
-      <v-flex style="display:flex" xs12 class="mt-1 mb-1" >
-        <v-spacer></v-spacer>
-        <v-btn :disabled="true" :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
-          Apply
-        </v-btn>
+      <!--<v-flex style="display:flex" xs12 class="mt-1 mb-1" >-->
+        <!--<v-spacer></v-spacer>-->
+        <!--<v-btn :disabled="true" :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">-->
+          <!--Apply-->
+        <!--</v-btn>-->
 
-        <v-btn class="filter-action-button cancel-button" @click="onCancel">
-          Cancel
-        </v-btn>
-      </v-flex>
+        <!--<v-btn class="filter-action-button cancel-button" @click="onCancel">-->
+          <!--Cancel-->
+        <!--</v-btn>-->
+      <!--</v-flex>-->
 
 
     </v-layout>

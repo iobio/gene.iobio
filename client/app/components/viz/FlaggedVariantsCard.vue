@@ -494,7 +494,7 @@
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
-              <v-icon>create</v-icon>
+              <v-icon>info_outline</v-icon>
             </v-btn>
 
             <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
@@ -688,7 +688,7 @@
 
       <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
         <v-card-title style="margin-left:20px" class="headline">
-          Edit {{ currentFilter.title }}  Filter
+          {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>
           <v-btn text icon @click="onCancelFilter"><v-icon>close</v-icon></v-btn>
         </v-card-title>
