@@ -221,13 +221,7 @@
         <v-btn :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
           Apply
         </v-btn>
-
-        <!--<v-btn class="filter-action-button cancel-button" @click="onCancel">-->
-          <!--Cancel-->
-        <!--</v-btn>-->
       </v-flex>
-
-
     </v-layout>
 
   </v-card-text>
