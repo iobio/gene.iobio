@@ -503,7 +503,7 @@
           :showBrush="false"
           :showXAxis="true"
           :showWhenEmpty="true"
-          :showTransition="true"
+          :showTransition="false"
           :classifySymbolFunc="classifyVariantSymbolFunc"
           @variantClick="onVariantClick"
           @variantHover="onVariantHover"
