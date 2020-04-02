@@ -1604,7 +1604,6 @@ export default {
 
     onLoadDemoData: function() {
       this.launchedFromDemo = true;
-      console.log("this.launchedFromDemo");
       this.isMother = true;
       this.isFather = true;
       let self = this;
