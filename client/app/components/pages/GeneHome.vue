@@ -1604,6 +1604,7 @@ export default {
 
     onLoadDemoData: function() {
       this.launchedFromDemo = true;
+      console.log("this.launchedFromDemo");
       this.isMother = true;
       this.isFather = true;
       let self = this;
@@ -2318,8 +2319,9 @@ export default {
     },
 
     isNewAnalysis: function() {
-      return (this.analysis && !this.analysis.hasOwnProperty("id")
-          || ( this.analysis &&this.analysis.id == ""));
+      return ( (this.analysis && !this.analysis.hasOwnProperty("id"))
+              || !this.analysis.id
+              || this.analysis.id == "");
     },
 
     removeGeneImpl: function(geneName) {
@@ -2565,7 +2567,7 @@ export default {
       } else if (self.paramMode && self.paramMode == 'simple') {
         self.isSimpleMode = true;
       }
-      
+
       self.showIntro = self.forMyGene2 || process.env.SHOW_INTRO;
 
       if (self.paramSampleId && self.paramSampleId.length > 0) {
@@ -4158,10 +4160,10 @@ export default {
 
       self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
       self.promiseExportAnalysisVariant(variantToReplace)
-      .then(function(exportedVariant) {
+      .then(function() {
 
-        if (!self.isNewAnalysis()) {
-          return self.promiseAutosaveAnalysis({notify: true, delay: options.delay ? options.delay : true});
+        if(self.isNewAnalysis() || (self.launchedFromClin && !self.launchedWithUrlParms)) {
+          return self.promiseAutosaveAnalysis({notify: true, delay: true});
         }
 
       })
