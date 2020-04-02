@@ -93,11 +93,19 @@ class GlobalApp {
       if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
         this.launchedFromUtahMosaic = true;
       }
+
+      // !!!!!
+      // TEMPORARY WORKAROUND - POINT HTTP SERVICES TO backend.iobio.io
+      //
+      this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + "backend.iobio.io" + "/";;
+
+
       this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
       this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
       this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
       this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
       this.hpoLookupUrl              = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
+
 
 
       this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   iobioSource + "email/";
