@@ -152,6 +152,7 @@
                 trackHeight: 20,
                 cdsHeight: 15,
                 showTranscriptsMenu: false,
+                newTranscript: null,
                 geneSource: null,
                 isCanonical: true
             }
@@ -165,18 +166,17 @@
         },
         methods: {
             onTranscriptSelected: function(theTranscript) {
-                this.selected = theTranscript;
+                this.newTranscript = theTranscript;
                 let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
-                this.isCanonical = canonical.transcript_id == this.selected.transcript_id;
-
+                this.isCanonical = canonical.transcript_id == this.newTranscript.transcript_id;
                 this.onTranscriptVizClose();
             },
             onTranscriptVizClose: function() {
                 var self = this;
-                if (self.selectedTranscript == null) {
-                    self.selectedTranscript = self.selectedTranscript;
+                if (self.newTranscript == null) {
+                    self.newTranscript = self.selectedTranscript;
                 }
-                self.$emit('transcriptSelected', self.selectedTranscript);
+                self.$emit('transcriptSelected', self.newTranscript);
                 self.showTranscriptsMenu = false;
             },
             onGeneSourceSelected: function() {
@@ -195,7 +195,14 @@
                     let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
                     this.isCanonical = canonical.transcript_id == this.selectedTranscript.transcript_id;
                 }
+            },
+            selectedGene: function(){
+                if (this.newTranscript) {
+                    let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
+                    this.isCanonical = canonical.transcript_id == this.newTranscript.transcript_id;
+                }
             }
+
         }
     }
 </script>

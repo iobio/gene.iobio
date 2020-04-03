@@ -185,7 +185,7 @@
             onClickTranscript: function(link) {
             },
             onTranscriptSelected: function(transcript) {
-                var self = this;
+                let self = this;
                 self.$emit('transcript-selected', transcript);
             },
             onGeneSourceSelected: function(geneSource) {
