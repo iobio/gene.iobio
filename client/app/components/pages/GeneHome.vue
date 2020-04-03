@@ -846,10 +846,11 @@ export default {
       showCoverageThreshold: false,
 
       hubToIobioSources: {
-        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
-        "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
-        "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu", batchSize: 10},
-        "https://staging.frameshift.io":         {iobio: "nv-prod.iobio.io",     batchSize: 10}
+        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
+        "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
+        "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
+        "https://staging.frameshift.io":         {iobio: "backend.iobio.io",     batchSize: 10},
+        "https://mosaic.frameshift.io":          {iobio: "backend.iobio.io",     batchSize: 10}
       },
 
       sfariSource:  "https://viewer.sfari.org",
@@ -2592,6 +2593,7 @@ export default {
         if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {
           self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
           self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
+          self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE)
         }
 
         if (self.projectId) {
@@ -2599,13 +2601,14 @@ export default {
         } else {
           self.isHubDeprecated = true;
         }
+      } else {
+        self.globalApp.initServices(self.launchedFromHub);
       }
 
       if (self.paramTour) {
         self.tourNumber = self.paramTour;
       }
 
-      self.globalApp.initServices(self.launchedFromHub);
       self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
     },
     promiseInitFromUrl: function() {
