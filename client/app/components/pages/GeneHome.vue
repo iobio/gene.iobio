@@ -849,6 +849,11 @@ export default {
         "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
+
+        // backward compatible with old clin.iobio
+        "mosaic.chpc.utah.edu":                  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
+        "nv-prod.iobio.io":                      {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
+        
         "https://staging.frameshift.io":         {iobio: "backend.iobio.io",     batchSize: 10},
         "https://mosaic.frameshift.io":          {iobio: "backend.iobio.io",     batchSize: 10}
       },
@@ -3354,9 +3359,19 @@ export default {
 
       } else if (clinObject.type == 'set-data') {
 
-        if (clinObject.iobioSource == 'mosaic.chpc.utah.edu') {
-          self.globalApp.initServices(true)
+        // Set the iobio backend
+        if (clinObject.iobioSource && clinObject.iobioSource.length > 0) {
+          if (self.hubToIobioSources[clinObject.iobioSource]) {
+            self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[clinObject.iobioSource].iobio;
+            self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[clinObject.iobioSource].batchSize;
+            self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE)
+          } else {
+            alertify.warn("Launch Error", "Unable to set IOBIO_SOURCE")
+          }
+        } else {
+          self.globalApp.initServices(false);
         }
+
         if (self.cohortModel == null || !self.cohortModel.isLoaded) {
           self.$set(self, "isFullAnalysis", true);
           if (self.filterModel) {
