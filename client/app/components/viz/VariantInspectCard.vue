@@ -212,6 +212,12 @@
           i.material-icons
               color: $link-color !important
 
+  .change-transcript-button
+    font-size: 13px
+    color: $link-color
+    margin: 0px
+    padding: 0px
+    height: 22px
 
 
   .pedigree-chart
