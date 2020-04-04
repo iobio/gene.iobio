@@ -25,7 +25,7 @@ jobs:
     - name: Dev Build
       run: |
         NODE_ENV=production npm run build
-    - name: Deploy to S3 dev bucket - index.html
+    - name: Deploy to S3 stage bucket - index.html
       uses: jakejarvis/s3-sync-action@master
       with:
         args: --acl public-read --delete
@@ -36,7 +36,7 @@ jobs:
         AWS_REGION: 'us-east-1'
         SOURCE_DIR: "server/views"
         DEST_DIR: "stage/gene.iobio.io"
-    - name: Deploy to S3 dev bucket - data
+    - name: Deploy to S3 stage bucket - data
       uses: jakejarvis/s3-sync-action@master
       with:
         args: --acl public-read --delete
@@ -47,7 +47,7 @@ jobs:
         AWS_REGION: 'us-east-1'
         SOURCE_DIR: "client/data"
         DEST_DIR: "stage/gene.iobio.io/data"
-    - name: Deploy to S3 dev bucket - assets
+    - name: Deploy to S3 stage bucket - assets
       uses: jakejarvis/s3-sync-action@master
       with:
         args: --acl public-read --delete
@@ -58,7 +58,7 @@ jobs:
         AWS_REGION: 'us-east-1'
         SOURCE_DIR: "client/assets"
         DEST_DIR: "stage/gene.iobio.io/assets"
-    - name: Deploy to S3 dev bucket -app 
+    - name: Deploy to S3 stage bucket -app 
       uses: jakejarvis/s3-sync-action@master
       with:
         args: --acl public-read --delete
@@ -69,7 +69,7 @@ jobs:
         AWS_REGION: 'us-east-1'
         SOURCE_DIR: "client/app/third-party"
         DEST_DIR: "stage/gene.iobio.io/app/third-party"
-    - name: Deploy to S3 dev bucket -js/thirdparty 
+    - name: Deploy to S3 stage bucket -js/thirdparty 
       uses: jakejarvis/s3-sync-action@master
       with:
         args: --acl public-read --delete
@@ -80,7 +80,7 @@ jobs:
         AWS_REGION: 'us-east-1'
         SOURCE_DIR: "client/js/thirdparty"
         DEST_DIR: "stage/gene.iobio.io/js/thirdparty"    
-    - name: Deploy to S3 dev bucket - build.js
+    - name: Deploy to S3 stage bucket - build.js
       uses: jakejarvis/s3-sync-action@master
       with:
         args: --acl public-read --delete
