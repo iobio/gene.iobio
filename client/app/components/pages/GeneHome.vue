@@ -3741,10 +3741,6 @@ export default {
     applyGenesClin: function(clinObject) {
       let self = this;
 
-      if (self.clinSetData == null || !self.clinSetData.isImported || !self.clinSetData.isCacheSet) {
-        return;
-      }
-
       /*
       let genesToProcess = [];
       let candidateGenesOld = $.extend({}, self.geneModel.candidateGenes);

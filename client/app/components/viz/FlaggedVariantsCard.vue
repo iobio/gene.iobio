@@ -219,7 +219,7 @@
       width: 20px
       height: 20px
 
-    &.empty    
+    &.empty
 
       span.filter-label
        color: $text-color !important
@@ -453,10 +453,10 @@
 
     <div class="variant-toolbar" >
 
-      <v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>
-        <v-icon>add</v-icon>
-        New filter
-      </v-btn>
+      <!--<v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>-->
+        <!--<v-icon>add</v-icon>-->
+        <!--New filter-->
+      <!--</v-btn>-->
 
       <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
@@ -494,7 +494,7 @@
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
-              <v-icon>create</v-icon>
+              <v-icon>info_outline</v-icon>
             </v-btn>
 
             <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
@@ -542,7 +542,7 @@
 
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
                         <v-chip class="white--text" >
-                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} 
+                          {{ geneRankGTR(flaggedGene.gene.gene_name) }}
                         </v-chip>
                         <span class="pheno-source">GTR</span>
                       </span>
@@ -684,11 +684,11 @@
 
 
   <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
-   
+
 
       <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
         <v-card-title style="margin-left:20px" class="headline">
-          Edit {{ currentFilter.title }}  Filter
+          {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>
           <v-btn text icon @click="onCancelFilter"><v-icon>close</v-icon></v-btn>
         </v-card-title>
@@ -785,9 +785,9 @@ export default {
           label: filterObject.filter.title,
           filter: filterObject.filter,
           show:  (filterObject.filter.active
-                  && filterObject.filter.title != 'Reviewed' 
-                  && filterObject.filter.title != 'Not found' 
-                  && filterObject.filter.title != 'Not categorized' 
+                  && filterObject.filter.title != 'Reviewed'
+                  && filterObject.filter.title != 'Not found'
+                  && filterObject.filter.title != 'Not categorized'
                   && filterObject.filter.title != 'Flagged by user')
                  || filterObject.genes.length > 0,
           genes: filterObject.genes,
@@ -799,7 +799,7 @@ export default {
 
       self.expansionControl =  self.geneLists.map(function(geneList) {
         return geneList.expand;
-      })        
+      })
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
@@ -816,7 +816,7 @@ export default {
       setTimeout(function() {
         if (self.$refs.currentFilterSettingRef) {
           self.$refs.currentFilterSettingRef.init();
-        }        
+        }
       }, 20);
     },
     onApplyFilter: function() {
@@ -1035,7 +1035,7 @@ export default {
     filterPassedByVariant: function(variant) {
       let filterDisplay = "";
       if (Array.isArray(variant.filtersPassed)) {
-        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" ")); 
+        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" "));
       } else {
         filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed);
       }
@@ -1055,7 +1055,7 @@ export default {
     this.populateGeneLists();
   },
   computed: {
-    
+
 
 
   },
