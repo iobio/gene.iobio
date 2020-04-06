@@ -164,6 +164,12 @@ main.content.clin, main.v-content.clin
   &.accent--text
     color:  $app-color !important
 
+
+.in-iframe .v--modal-box
+  top: 50px !important
+
+
+
 #pileup-container
   margin: 0px
   padding-top: 0px
@@ -853,7 +859,7 @@ export default {
         // backward compatible with old clin.iobio
         "mosaic.chpc.utah.edu":                  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "nv-prod.iobio.io":                      {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
-        
+
         "https://staging.frameshift.io":         {iobio: "backend.iobio.io",     batchSize: 10},
         "https://mosaic.frameshift.io":          {iobio: "backend.iobio.io",     batchSize: 10}
       },
