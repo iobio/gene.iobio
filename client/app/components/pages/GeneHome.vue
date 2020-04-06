@@ -164,11 +164,8 @@ main.content.clin, main.v-content.clin
   &.accent--text
     color:  $app-color !important
 
-
 .in-iframe .v--modal-box
   top: 50px !important
-
-
 
 #pileup-container
   margin: 0px
