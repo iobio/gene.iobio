@@ -2,6 +2,7 @@
     #select-transcripts-box .theme--light .btn,
     #select-transcripts-box.application .theme--light.btn {
         color:  rgb(113,113,113);
+        padding: 20px;
     }
     .dialog__content hr {
         margin-top: 10px;
@@ -81,13 +82,12 @@
 
 
         <v-btn id="edit-transcript-button"
-               v-if="newTranscript"
                slot="activator"
                flat
                v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
         >
             <v-icon>linear_scale</v-icon>
-            {{ `Transcript ` + newTranscript.transcript_id }}
+            {{ `Transcript ` + selectedTranscript.transcript_id }}
             <v-badge class="info" style="margin-left:5px;" v-if="!isCanonical">non canonical</v-badge>
         </v-btn>
 
@@ -157,13 +157,12 @@
                 isCanonical: true
             }
         },
-        beforeMount: function(){
-            this.newTranscript = this.selectedTranscript;
-        },
         mounted: function() {
             this.geneSource = this.geneModel.geneSource;
-            this.onGeneSourceSelected();
-
+            if (this.selectedTranscript) {
+                let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
+                this.isCanonical = canonical.transcript_id == this.selectedTranscript.transcript_id;
+            }
         },
         methods: {
             onTranscriptSelected: function(theTranscript) {
@@ -174,6 +173,9 @@
             },
             onTranscriptVizClose: function() {
                 var self = this;
+                if (self.newTranscript == null) {
+                    self.newTranscript = self.selectedTranscript;
+                }
                 self.$emit('transcriptSelected', self.newTranscript);
                 self.showTranscriptsMenu = false;
             },
@@ -188,23 +190,19 @@
                     this.$emit("transcriptMenuOpened");
                 }
             },
-
-            selectedTranscript: function(){
-                this.newTranscript = this.selectedTranscript;
-            },
-
-            selectedGene: function(){
-                if(this.selectedGene.gene_name !== this.newTranscript.gene_name) {
-                    this.newTranscript = this.geneModel.getCanonicalTranscript(this.selectedGene);
+            selectedTranscript: function() {
+                if (this.selectedTranscript) {
+                    let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
+                    this.isCanonical = canonical.transcript_id == this.selectedTranscript.transcript_id;
                 }
             },
-
-            newTranscript: function() {
+            selectedGene: function(){
                 if (this.newTranscript) {
                     let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
                     this.isCanonical = canonical.transcript_id == this.newTranscript.transcript_id;
                 }
             }
+
         }
     }
 </script>
