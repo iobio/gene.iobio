@@ -10,6 +10,10 @@
 .v-snack--top
   top: 60px !important
 
+.fluidMax
+  max-width: calc(100%) !important
+
+
 .v-snack--right
   margin-right: 55px !important
   top: 2px !important
@@ -264,7 +268,7 @@ main.content.clin, main.v-content.clin
 
 
     <v-content  :class="launchedFromClin ? 'clin' : '' ">
-      <v-container fluid>
+      <v-container class="fluidMax">
 
 
         <modal name="pileup-modal"
@@ -853,7 +857,7 @@ export default {
         // backward compatible with old clin.iobio
         "mosaic.chpc.utah.edu":                  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "nv-prod.iobio.io":                      {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
-        
+
         "https://staging.frameshift.io":         {iobio: "backend.iobio.io",     batchSize: 10},
         "https://mosaic.frameshift.io":          {iobio: "backend.iobio.io",     batchSize: 10}
       },
