@@ -68,20 +68,22 @@ class CohortModel {
         'father':  'https://s3.amazonaws.com/iobio/gene/wgs_platinum/NA12891.bam'
       }
     }
+
+
     this.demoGenes = ['RAI1', 'MYLK2', 'PDHA1', 'PDGFB', 'AIRE'];
 
 
     this.demoModelInfos = {
       'exome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['proband'], 'bai': null },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['mother'], 'bai': null  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['father'], 'bai': null  },
-        {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['sibling'], 'bai': null  },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['proband'], 'bai': this.demoBams.exome['proband'] + '.bai' },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['mother'], 'bai': this.demoBams.exome['mother'] + '.bai'  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['father'], 'bai': this.demoBams.exome['father'] + '.bai' },
+        {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': null, 'bam': this.demoBams.exome['sibling'], 'bai': this.demoBams.exome['sibling'] + '.bai' },
       ],
       'genome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['proband'], 'bai': null  },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['mother'],  'bai': null  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',   'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['father'],  'bai': null  },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['proband'], 'bai': this.demoBams.genome['proband'] + '.bai'  },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['mother'],  'bai': this.demoBams.genome['mother'] + '.bai'  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',   'vcf': this.demoVcf.genome, 'tbi': null, 'bam': this.demoBams.genome['father'],  'bai': this.demoBams.genome['father'] + '.bai'  },
       ]
     }
     this.eduTourModelInfos = {
