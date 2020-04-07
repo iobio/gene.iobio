@@ -3692,6 +3692,14 @@ export default {
           }
 
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
+         
+          setTimeout(function() {
+            if (self.geneModel && self.geneModel.sortedGeneNames &&
+              self.geneModel.sortedGeneNames.length > 0) {
+              self.cacheHelper.analyzeAll(self.cohortModel, false, false);
+            }
+          }, 500)
+
           return self.promiseSetCacheFromClin(self.clinSetData)
 
         })
