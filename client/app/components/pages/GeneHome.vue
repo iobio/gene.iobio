@@ -351,6 +351,7 @@ main.content.clin, main.v-content.clin
           :selectedTranscript="analyzedTranscript"
           :genomeBuildHelper="genomeBuildHelper"
           :cohortModel="cohortModel"
+          :sampleModels="cohortModel.sampleModels"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
           :isSimpleMode="isSimpleMode"
@@ -853,7 +854,7 @@ export default {
         // backward compatible with old clin.iobio
         "mosaic.chpc.utah.edu":                  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "nv-prod.iobio.io":                      {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
-        
+
         "https://staging.frameshift.io":         {iobio: "backend.iobio.io",     batchSize: 10},
         "https://mosaic.frameshift.io":          {iobio: "backend.iobio.io",     batchSize: 10}
       },
