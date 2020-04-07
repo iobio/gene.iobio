@@ -165,7 +165,6 @@
         },
         data() {
             return {
-                transcriptId: null,
                 geneSource: null,
                 geneSources: ['gencode', 'refseq'],
                 noTranscriptsWarning: null,
@@ -203,6 +202,10 @@
             },
             onTranscriptSelected: function(transcript) {
                 let self = this;
+                if(this.sampleModels.length === 0){
+                    this.analyzedTranscript = transcript;
+                }
+
                 self.$emit('transcript-selected', transcript);
             },
             onGeneSourceSelected: function(geneSource) {
@@ -227,9 +230,6 @@
         computed: {
         },
         watch: {
-            analyzedTranscript: function(){
-                this.transcriptId = this.analyzedTranscript.transcript_id;
-            },
 
             selectedTranscript: function(){
               this.analyzedTranscript = this.selectedTranscript;
@@ -242,7 +242,9 @@
 
             selectedGene: function(){
                 if(this.sampleModels.length === 0) {
-                    this.populateTranscriptData();
+                    if(this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
+                        this.populateTranscriptData();
+                    }
                 }
             }
         },
