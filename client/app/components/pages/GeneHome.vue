@@ -10,14 +10,16 @@
 .v-snack--top
   top: 60px !important
 
-.v-snack--right
-  margin-right: 55px !important
-  top: 2px !important
+.v-snack--bottom
+  bottom: 35px !important
+  margin-right: 105px !important
   transform: initial !important
 
   .v-snack__wrapper
     min-width: 150px !important
-    background-color: transparent !important
+    background-color: #007dd4 !important
+    box-shadow: none !important
+    -webkit-box-shadow: none !important
 
     .v-snack__content
       min-height: 30px !important
@@ -25,7 +27,10 @@
       padding-top: 0px !important
       padding-bottom: 0px !important
       font-weight: 600 !important
-      color: #03e9ff !important
+      color: white !important
+
+      span
+        color: white !important
 
 
   #gene-viz, #gene-viz-zoom
@@ -4039,8 +4044,8 @@ export default {
             }
 
             if (options && options.notify) {
-                self.onShowSnackbar( {message: 'saving analysis...',
-                  timeout: 30000, top: true, right: true });
+                //self.onShowSnackbar( {message: 'saving analysis.',
+                //  timeout: 2000, bottom: true, right: true });
             }
 
 
@@ -4048,7 +4053,7 @@ export default {
             .then(function(analysis) {
               self.analysis = analysis;
               if (options && options.notify) {
-                self.onShowSnackbar( {message: 'analysis saved.', timeout: 2000, top: true, right: true});
+                self.onShowSnackbar( {message: 'analysis saved.', timeout: 2000, bottom: true, right: true});
               }
               resolve();
             })
@@ -4064,7 +4069,7 @@ export default {
           .then(function(analysis) {
             self.analysis = analysis;
             console.log("**********  adding mosaic analysis " + self.analysis.id + " " + " **************")
-            self.onShowSnackbar( {message: 'new analysis saved.', timeout: 30000, top: true, right: true});
+            self.onShowSnackbar( {message: 'new analysis saved.', timeout: 30000, bottom: true, right: true});
             resolve();
           })
           .catch(function(error) {
@@ -4183,7 +4188,7 @@ export default {
       self.promiseExportAnalysisVariant(variantToReplace)
       .then(function() {
 
-        if(self.isNewAnalysis() || (self.launchedFromClin && !self.launchedWithUrlParms)) {
+        if(!self.isNewAnalysis() || (self.launchedFromClin && !self.launchedWithUrlParms)) {
           return self.promiseAutosaveAnalysis({notify: true, delay: true});
         }
 
