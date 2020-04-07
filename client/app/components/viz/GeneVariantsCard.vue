@@ -171,9 +171,17 @@
                 showNoTranscriptsWarning: false,
                 regionBuffer: null,
                 analyzedTranscript: null,
+                noData: null
             }
         },
         methods: {
+
+            noDataAlert: function(){
+                console.log("noDataAlert");
+                if(this.noData){
+                    window.alert("No data has been loaded, please load data through the Files menu or click 'Run With Demo Data' on the landing page");
+                }
+            },
 
 
             //assume that no data is loaded, and analyze transcript inside of GeneVariantsCard
@@ -184,8 +192,9 @@
                 self.cohortModel.promiseMarkCodingRegions(self.selectedGene, transcript)
                     .then(function(data) {
                         self.analyzedTranscript = data.transcript;
+                        self.noData = true;
+                        setTimeout(self.noDataAlert, 3000)
                     })
-
             },
 
             formatCanonicalTranscript: function() {
@@ -235,12 +244,15 @@
               this.analyzedTranscript = this.selectedTranscript;
             },
 
+
             //If we find out that data is loaded, overwrite analyzed transcript with the transcript provided
             sampleModels: function(){
                 this.analyzedTranscript = this.selectedTranscript;
+                this.noData = false;
             },
 
             selectedGene: function(){
+                let self = this;
                 if(this.sampleModels.length === 0) {
                     if(this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
                         this.populateTranscriptData();
@@ -267,6 +279,7 @@
         mounted: function() {
             this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
             this.populateTranscriptData();
+
         },
         created: function() {
         }
