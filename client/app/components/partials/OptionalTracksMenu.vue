@@ -80,19 +80,6 @@
           >
           </known-variants-toolbar>
         </div>
-
-        <div style="display:flex;flex-flow:column">
-          <v-checkbox label="SFARI"   v-model="showSfariVariantsCard"></v-checkbox>
-          <sfari-variants-toolbar
-            v-if="showSfariVariantsCard"
-            @sfariVariantsVizChange="onSfariVariantsVizChange"
-            @sfariVariantsFilterChange="onSfariVariantsFilterChange">
-          </sfari-variants-toolbar>
-      </div>
-
-
-
-
       </div>
 
     </v-menu>
