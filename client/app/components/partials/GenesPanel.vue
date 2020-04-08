@@ -12,19 +12,16 @@
       vertical-align: top
       margin-top: 10px
       margin-left: 0px
-      margin-right: 10px
       color: $text-color
       padding-top: 2px
       padding-bottom: 2px
       height: 22px
-      width: 80px
       padding-left: 10px
-      padding-right: 10px    
+      padding-right: 10px
 
     #call-variants-dropdown
       display: inline-block
       vertical-align: top
-      margin-right: 0px
       text-align: left
 
       button
@@ -46,9 +43,8 @@
       display: inline-block
       position: relative
       min-width: 0px
-      height: 20px
-      padding: 0px
-      margin-top: 15px
+      margin-top: 10px
+      height: 22px
       margin-right: 10px
       margin-left: 0px
       color: $text-color
@@ -99,6 +95,8 @@
   #genes-panel
     padding-bottom: 0px
 
+.call-variants-button
+    width: 100px !important
 
 </style>
 
@@ -131,7 +129,8 @@
         >
           <v-menu offset-y>
             <v-btn raised slot="activator"
-            v-tooltip.top-center="`Call variants from alignments`">Call variants</v-btn>
+            v-tooltip.top-center="`Call variants from alignments`"
+            class="call-variants-button">Call variants</v-btn>
             <v-list>
                 <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
                 <v-list-tile-title>{{ action }}</v-list-tile-title>

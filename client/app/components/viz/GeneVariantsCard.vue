@@ -103,9 +103,9 @@
 
             <div style="display:inline-block;margin-left: 20px">
                 <transcripts-menu
-                        v-if="selectedTranscript && selectedTranscript.transcript_id && !isBasicMode"
+                        v-if="analyzedTranscript && analyzedTranscript.transcript_id && !isBasicMode"
                         :selectedGene="selectedGene"
-                        :selectedTranscript="selectedTranscript"
+                        :selectedTranscript="analyzedTranscript"
                         :geneSources="geneSources"
                         :geneModel="cohortModel.geneModel"
                         @transcriptMenuOpened="onClickTranscript"
@@ -154,6 +154,7 @@
             selectedTranscript: null,
             genomeBuildHelper: null,
             cohortModel: null,
+            sampleModels: null,
             showSfariTrackToggle: false,
             isEduMode: null,
             isBasicMode: null,
@@ -169,9 +170,24 @@
                 noTranscriptsWarning: null,
                 showNoTranscriptsWarning: false,
                 regionBuffer: null,
+                analyzedTranscript: null,
             }
         },
         methods: {
+
+
+            //assume that no data is loaded, and analyze transcript inside of GeneVariantsCard
+            //If we find out later that data is loaded, this will be overwritten
+            populateTranscriptData: function(){
+                let self = this;
+                let transcript = this.cohortModel.geneModel.getCanonicalTranscript(this.selectedGene);
+                self.cohortModel.promiseMarkCodingRegions(self.selectedGene, transcript)
+                    .then(function(data) {
+                        self.analyzedTranscript = data.transcript;
+                    })
+
+            },
+
             formatCanonicalTranscript: function() {
                 if (this.selectedTranscript) {
                     return this.globalApp.utility.stripTranscriptPrefix(this.selectedTranscript.transcript_id);
@@ -186,6 +202,10 @@
             },
             onTranscriptSelected: function(transcript) {
                 let self = this;
+                if(this.sampleModels.length === 0){
+                    this.analyzedTranscript = transcript;
+                }
+
                 self.$emit('transcript-selected', transcript);
             },
             onGeneSourceSelected: function(geneSource) {
@@ -210,6 +230,23 @@
         computed: {
         },
         watch: {
+
+            selectedTranscript: function(){
+              this.analyzedTranscript = this.selectedTranscript;
+            },
+
+            //If we find out that data is loaded, overwrite analyzed transcript with the transcript provided
+            sampleModels: function(){
+                this.analyzedTranscript = this.selectedTranscript;
+            },
+
+            selectedGene: function(){
+                if(this.sampleModels.length === 0) {
+                    if(this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
+                        this.populateTranscriptData();
+                    }
+                }
+            }
         },
         filters: {
             formatRegion: function (value) {
@@ -229,6 +266,7 @@
         },
         mounted: function() {
             this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
+            this.populateTranscriptData();
         },
         created: function() {
         }

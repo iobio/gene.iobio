@@ -10,9 +10,14 @@
 .v-snack--top
   top: 60px !important
 
-.v-snack--bottom
-  bottom: 35px !important
-  margin-right: 105px !important
+
+.fluidMax
+  max-width: calc(100%) !important
+
+
+.v-snack--right
+  margin-right: 55px !important
+  top: 2px !important
   transform: initial !important
 
   .v-snack__wrapper
@@ -169,6 +174,9 @@ main.content.clin, main.v-content.clin
   &.accent--text
     color:  $app-color !important
 
+.in-iframe .v--modal-box
+  top: 50px !important
+
 #pileup-container
   margin: 0px
   padding-top: 0px
@@ -269,7 +277,7 @@ main.content.clin, main.v-content.clin
 
 
     <v-content  :class="launchedFromClin ? 'clin' : '' ">
-      <v-container fluid>
+      <v-container class="fluidMax">
 
 
         <modal name="pileup-modal"
@@ -356,6 +364,7 @@ main.content.clin, main.v-content.clin
           :selectedTranscript="analyzedTranscript"
           :genomeBuildHelper="genomeBuildHelper"
           :cohortModel="cohortModel"
+          :sampleModels="cohortModel.sampleModels"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
           :isSimpleMode="isSimpleMode"
@@ -858,7 +867,7 @@ export default {
         // backward compatible with old clin.iobio
         "mosaic.chpc.utah.edu":                  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "nv-prod.iobio.io":                      {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
-        
+
         "https://staging.frameshift.io":         {iobio: "backend.iobio.io",     batchSize: 10},
         "https://mosaic.frameshift.io":          {iobio: "backend.iobio.io",     batchSize: 10}
       },
@@ -1659,6 +1668,11 @@ export default {
                     self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
                         .then(function(data) {
                             self.analyzedTranscript = data.transcript;
+
+                            if(self.analyzedTranscript.gene_name !== self.selectedGene.gene_name){
+                              self.geneModel.removeGene(self.selectedGene.gene_name);
+                              self.onShowSnackbar({message: 'Bypassing ' + self.selectedGene.gene_name + '. Unable to find transcripts.', timeout: 5000})
+                            }
                             resolve();
                         })
 
@@ -2002,7 +2016,7 @@ export default {
         .catch(function(error) {
           console.log(error);
           self.geneModel.removeGene(geneName);
-          self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 60000})
+          self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 5000})
         })
       })
     },
