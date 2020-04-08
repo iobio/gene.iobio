@@ -179,7 +179,7 @@
             noDataAlert: function(){
                 console.log("noDataAlert");
                 if(this.noData){
-                    window.alert("No data has been loaded, please load data through the Files menu or click 'Run With Demo Data' on the landing page");
+                    this.$emit("no-data-warning");
                 }
             },
 
@@ -193,7 +193,7 @@
                     .then(function(data) {
                         self.analyzedTranscript = data.transcript;
                         self.noData = true;
-                        setTimeout(self.noDataAlert, 3000)
+                        setTimeout(self.noDataAlert, 2000);
                     })
             },
 

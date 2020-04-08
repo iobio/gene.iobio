@@ -362,7 +362,8 @@ main.content.clin, main.v-content.clin
           :isLoaded="cohortModel && cohortModel.isLoaded"
           @transcript-selected="onTranscriptSelected"
           @gene-source-selected="onGeneSourceSelected"
-          @gene-region-buffer-change="onGeneRegionBufferChange">
+          @gene-region-buffer-change="onGeneRegionBufferChange"
+          @no-data-warning="onNoDataWarning">
         </gene-variants-card>
 
               <div
@@ -1998,7 +1999,7 @@ export default {
         .catch(function(error) {
           console.log(error);
           self.geneModel.removeGene(geneName);
-          self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 60000})
+          self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 6000})
         })
       })
     },
@@ -2025,6 +2026,17 @@ export default {
       self.geneModel.geneSource = theGeneSource;
       this.onGeneSelected(this.selectedGene.gene_name);
     },
+
+    onNoDataWarning: function(){
+      let warning = "No data has been loaded, please load data through the Files menu or click 'Run With Demo Data' on the landing page";
+
+      if(this.geneModel && (!this.launchedFromDemo && !this.launchedFromHub && !this.launchedFromFiles && !this.launchedFromClin) && !this.isBasicMode && !this.isSimpleMode) {
+        this.onShowSnackbar({message: warning, timeout: 7000});
+      }
+
+    },
+
+
     onGeneRegionBufferChange: function(theGeneRegionBuffer) {
       let self = this;
       self.geneModel.geneRegionBuffer = theGeneRegionBuffer;
