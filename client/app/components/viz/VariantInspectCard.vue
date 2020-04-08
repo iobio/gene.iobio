@@ -307,8 +307,6 @@
 
       </div>
 
-      <div v-if="isSimpleMode" style="min-width:10px">
-      </div>
         
       <variant-links-menu
       v-if="selectedVariant && info"
@@ -432,7 +430,7 @@
             </gene-viz>
 
             <div class="variant-row " style="padding-top:5px">
-              <v-btn flat v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
+              <v-btn flat v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()  && !isSimpleMode "
               class="variant-action-button"  @click="onShowPileup">
                <v-icon>format_align_center</v-icon>
                Read Pileup

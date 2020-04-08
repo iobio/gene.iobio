@@ -10,6 +10,11 @@
 .v-snack--top
   top: 60px !important
 
+
+.fluidMax
+  max-width: calc(100%) !important
+
+
 .v-snack--right
   margin-right: 55px !important
   top: 2px !important
@@ -17,7 +22,9 @@
 
   .v-snack__wrapper
     min-width: 150px !important
-    background-color: transparent !important
+    background-color: #007dd4 !important
+    box-shadow: none !important
+    -webkit-box-shadow: none !important
 
     .v-snack__content
       min-height: 30px !important
@@ -25,7 +32,10 @@
       padding-top: 0px !important
       padding-bottom: 0px !important
       font-weight: 600 !important
-      color: #03e9ff !important
+      color: white !important
+
+      span
+        color: white !important
 
 
   #gene-viz, #gene-viz-zoom
@@ -164,6 +174,9 @@ main.content.clin, main.v-content.clin
   &.accent--text
     color:  $app-color !important
 
+.in-iframe .v--modal-box
+  top: 50px !important
+
 #pileup-container
   margin: 0px
   padding-top: 0px
@@ -264,7 +277,7 @@ main.content.clin, main.v-content.clin
 
 
     <v-content  :class="launchedFromClin ? 'clin' : '' ">
-      <v-container fluid>
+      <v-container class="fluidMax">
 
 
         <modal name="pileup-modal"
@@ -1656,6 +1669,11 @@ export default {
                     self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
                         .then(function(data) {
                             self.analyzedTranscript = data.transcript;
+
+                            if(self.analyzedTranscript.gene_name !== self.selectedGene.gene_name){
+                              self.geneModel.removeGene(self.selectedGene.gene_name);
+                              self.onShowSnackbar({message: 'Bypassing ' + self.selectedGene.gene_name + '. Unable to find transcripts.', timeout: 5000})
+                            }
                             resolve();
                         })
 
@@ -2005,6 +2023,7 @@ export default {
           console.log(error);
           self.geneModel.removeGene(geneName);
           self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 6000})
+
         })
       })
     },
@@ -3710,6 +3729,14 @@ export default {
           }
 
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
+
+          setTimeout(function() {
+            if (self.geneModel && self.geneModel.sortedGeneNames &&
+              self.geneModel.sortedGeneNames.length > 0) {
+              self.cacheHelper.analyzeAll(self.cohortModel, false, false);
+            }
+          }, 500)
+
           return self.promiseSetCacheFromClin(self.clinSetData)
 
         })
@@ -4049,8 +4076,8 @@ export default {
             }
 
             if (options && options.notify) {
-                self.onShowSnackbar( {message: 'saving analysis...',
-                  timeout: 30000, top: true, right: true });
+                //self.onShowSnackbar( {message: 'saving analysis.',
+                //  timeout: 2000, bottom: true, right: true });
             }
 
 
@@ -4058,7 +4085,7 @@ export default {
             .then(function(analysis) {
               self.analysis = analysis;
               if (options && options.notify) {
-                self.onShowSnackbar( {message: 'analysis saved.', timeout: 2000, top: true, right: true});
+                self.onShowSnackbar( {message: 'analysis saved.', timeout: 2000, bottom: true, right: true});
               }
               resolve();
             })
@@ -4074,7 +4101,7 @@ export default {
           .then(function(analysis) {
             self.analysis = analysis;
             console.log("**********  adding mosaic analysis " + self.analysis.id + " " + " **************")
-            self.onShowSnackbar( {message: 'new analysis saved.', timeout: 30000, top: true, right: true});
+            self.onShowSnackbar( {message: 'new analysis saved.', timeout: 30000, bottom: true, right: true});
             resolve();
           })
           .catch(function(error) {
@@ -4193,7 +4220,7 @@ export default {
       self.promiseExportAnalysisVariant(variantToReplace)
       .then(function() {
 
-        if(self.isNewAnalysis() || (self.launchedFromClin && !self.launchedWithUrlParms)) {
+        if(!self.isNewAnalysis() || (self.launchedFromClin && !self.launchedWithUrlParms)) {
           return self.promiseAutosaveAnalysis({notify: true, delay: true});
         }
 

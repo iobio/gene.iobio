@@ -103,7 +103,7 @@
 
             <div style="display:inline-block;margin-left: 20px">
                 <transcripts-menu
-                        v-if="analyzedTranscript && analyzedTranscript.transcript_id && !isBasicMode"
+                        v-if="analyzedTranscript && analyzedTranscript.transcript_id && !isBasicMode&& !isSimpleMode"
                         :selectedGene="selectedGene"
                         :selectedTranscript="analyzedTranscript"
                         :geneSources="geneSources"
@@ -158,6 +158,7 @@
             showSfariTrackToggle: false,
             isEduMode: null,
             isBasicMode: null,
+            isSimpleMode: null,
             isFullAnalysis: null,
             isLoaded: null,
             launchedFromClin: null,
