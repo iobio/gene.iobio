@@ -2022,7 +2022,7 @@ export default {
         .catch(function(error) {
           console.log(error);
           self.geneModel.removeGene(geneName);
-          self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 6000})
+          self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 5000})
 
         })
       })

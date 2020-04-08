@@ -184,7 +184,6 @@
                 }
             },
 
-
             //assume that no data is loaded, and analyze transcript inside of GeneVariantsCard
             //If we find out later that data is loaded, this will be overwritten
             populateTranscriptData: function(){
@@ -245,7 +244,6 @@
               this.analyzedTranscript = this.selectedTranscript;
             },
 
-
             //If we find out that data is loaded, overwrite analyzed transcript with the transcript provided
             sampleModels: function(){
                 this.analyzedTranscript = this.selectedTranscript;
@@ -253,7 +251,6 @@
             },
 
             selectedGene: function(){
-                let self = this;
                 if(this.sampleModels.length === 0) {
                     if(this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
                         this.populateTranscriptData();
@@ -280,7 +277,6 @@
         mounted: function() {
             this.regionBuffer = this.cohortModel.geneModel.geneRegionBuffer;
             this.populateTranscriptData();
-
         },
         created: function() {
         }
