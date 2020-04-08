@@ -10,6 +10,10 @@
 .v-snack--top
   top: 60px !important
 
+.fluidMax
+  max-width: calc(100%) !important
+
+
 .v-snack--right
   margin-right: 55px !important
   top: 2px !important
@@ -267,7 +271,7 @@ main.content.clin, main.v-content.clin
 
 
     <v-content  :class="launchedFromClin ? 'clin' : '' ">
-      <v-container fluid>
+      <v-container class="fluidMax">
 
 
         <modal name="pileup-modal"
