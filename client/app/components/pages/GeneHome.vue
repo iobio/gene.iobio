@@ -1813,9 +1813,14 @@ export default {
       self.deselectVariant();
       self.activeGeneVariantTab = "0";
       // self.showLeftPanelForGenes();
+      if(self.launchedFromFiles) {
+        self.showLeftPanelForGenes();
+      }
       self.promiseLoadGene(geneName)
       .then(function() {
-        // self.showLeftPanelForGenes();
+        if(self.launchedFromFiles) {
+          self.showLeftPanelForGenes();
+        }
         self.onSendGenesToClin();
         self.setUrlGeneParameters();
 
