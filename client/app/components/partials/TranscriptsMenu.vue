@@ -142,7 +142,7 @@
         },
         props: {
             selectedGene: {},
-            selectedTranscript: {},
+            selectedTranscript: null,
             geneSources: null,
             geneModel: null
         },

@@ -304,6 +304,7 @@
                     this.update();
                 }
             },
+
             regionStart: function() {
                 this.regionSpan = this.regionStart + "-" + this.regionEnd;
             },

@@ -354,6 +354,7 @@ main.content.clin, main.v-content.clin
           :selectedTranscript="analyzedTranscript"
           :genomeBuildHelper="genomeBuildHelper"
           :cohortModel="cohortModel"
+          :sampleModels="cohortModel.sampleModels"
           :isEduMode="isEduMode"
           :isBasicMode="isBasicMode"
           :isSimpleMode="isSimpleMode"
