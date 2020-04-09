@@ -287,15 +287,6 @@
             setGeneChart: function() {
                 this.$emit('updateGeneChart', this.geneChart);
             },
-            concatKeys: function(transcripts) {
-                if (transcripts) {
-                    return transcripts.map(function(tx) {
-                        return tx && tx.transcript_id ? tx.transcript_id : '';
-                    }).join(" ");
-                } else {
-                    return "";
-                }
-            }
         },
         watch: {
             data: function() {
