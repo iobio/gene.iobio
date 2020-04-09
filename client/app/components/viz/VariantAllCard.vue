@@ -546,6 +546,7 @@
           v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
           :data="[selectedTranscript]"
           :modelName="sampleModel.name"
+          :relationship="sampleModel.relationship"
           :margin="geneVizMargin"
           :width="width"
           :height="40"
@@ -628,6 +629,7 @@
           <gene-viz
                   class="gene-viz"
                     :modelName="model.name"
+                    :relationship="model.relationship"
                     :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
                     v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
                     :data="[selectedTranscript]"
@@ -1182,9 +1184,9 @@ export default {
         this.getVariantViz(variant).showFlaggedVariant(variant, this.getVariantSVG(variant));
       }
     },
-    getExonClass: function(exon, i) {
+    getExonClass: function(exon, i, relationship) {
       if (this.showDepthViz && exon.danger) {
-        return exon.feature_type.toLowerCase() + (exon.danger[this.sampleModel.relationship] ? " danger" : "");
+        return exon.feature_type.toLowerCase() + (exon.danger[relationship] ? " danger" : "");
       } else {
         return exon.feature_type.toLowerCase();
       }

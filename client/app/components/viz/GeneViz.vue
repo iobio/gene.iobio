@@ -151,6 +151,8 @@
                 default: 0,
                 type: Number
             },
+            relationship: null,
+
             regionEnd: {
                 default: 0,
                 type: Number
@@ -232,12 +234,13 @@
                     .showXAxis(this.showXAxis)
                     .showBrush(this.showBrush)
                     .modelName(this.modelName)
+                    .relationship(this.relationship)
                     .trackHeight(this.trackHeight)
                     .cdsHeight(this.cdsHeight)
                     .showLabel(this.showLabel)
                     .transcriptClass(this.transcriptClass)
-                    .featureClass( function(feature, i) {
-                        return self.featureClass(feature, i);
+                    .featureClass( function(feature, i, relationship) {
+                        return self.featureClass(feature, i, relationship);
                     })
                     .regionStart(this.regionStart)
                     .regionEnd(this.regionEnd)
