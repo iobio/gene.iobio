@@ -178,7 +178,6 @@
         methods: {
 
             noDataAlert: function(){
-                console.log("noDataAlert");
                 if(this.noData){
                     this.$emit("no-data-warning");
                 }

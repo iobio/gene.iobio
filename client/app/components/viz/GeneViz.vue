@@ -298,11 +298,8 @@
             }
         },
         watch: {
-            data: function(newData, oldData) {
-                let self = this;
-                if ( $(self.$el).find("svg").length == 0 ||  self.concatKeys(newData) != self.concatKeys(oldData) ) {
-                    this.update();
-                }
+            data: function() {
+                this.update();
             },
 
             regionStart: function() {
