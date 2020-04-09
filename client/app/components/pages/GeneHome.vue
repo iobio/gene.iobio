@@ -2872,7 +2872,7 @@ export default {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
       }
     },
-    onFlaggedVariantSelected: function(flaggedVariant, callback) {
+    onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
 
 
@@ -2880,7 +2880,7 @@ export default {
 
       // Only select the gene if it hasn't previously been selected or the transcript is different
       let genePromise = null;
-      if (self.selectedGene.gene_name == flaggedVariant.gene.gene_name) {
+      if (!options.force && self.selectedGene.gene_name == flaggedVariant.gene.gene_name) {
         genePromise = Promise.resolve();
       } else if (flaggedVariant.transcript == null
         && self.selectedTranscript
@@ -2889,6 +2889,7 @@ export default {
         self.selectedGene = flaggedVariant.gene;
         genePromise = Promise.resolve();
       } else if (flaggedVariant.transcript
+        && self.selectedTranscript
         && self.selectedTranscript.transcript_id == flaggedVariant.transcript.transcript_id) {
         // No need to reselect the gene if the same transcript on the same gene is already selecte
         self.selectedGene = flaggedVariant.gene;
@@ -3784,8 +3785,13 @@ export default {
       self.geneModel.setCandidateGenes(clinObject.genes);
       */
 
+
       self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
       self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
+
+      self.selectedGene = null;
+      self.selectedTranscript = null;
+      self.onFlaggedVariantSelected(self.selectedVariant, {force: true})
 
       /*
       if (clinObject.genes && Array.isArray(clinObject.genes)) {
@@ -3868,7 +3874,7 @@ export default {
 
             self.toClickVariant = firstFlaggedVariant;
             self.showLeftPanelWhenFlaggedVariants();
-            self.onFlaggedVariantSelected(firstFlaggedVariant, function() {
+            self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
               resolve()
             })
           })
