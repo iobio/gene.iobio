@@ -1,5 +1,8 @@
 if( 'function' === typeof importScripts) {
 
+  let self = this;
+  console.log("hit CacheHelperWorker");
+
   self.addEventListener('message', function(e) {
     var data = e.data;
     importScripts('./lz-string.min.js');
