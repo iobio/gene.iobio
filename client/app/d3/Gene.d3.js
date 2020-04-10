@@ -20,6 +20,7 @@ export default function geneD3() {
   var geneD3_showLabel = false;
   var geneD3_showXAxis = true;
   var geneD3_modelName = null;
+  var geneD3_relationship = null;
 
 
 
@@ -300,7 +301,7 @@ export default function geneD3() {
         });
       }).enter().append('rect')
           .attr('class', function(d,i) {
-            return featureClass(d,i);
+            return featureClass(d,i, geneD3_relationship);
           })
           .attr("modelName", geneD3_modelName)
           .attr('rx', borderRadius)
@@ -387,7 +388,7 @@ export default function geneD3() {
         });
       })
       .attr('class', function(d,i) {
-            return featureClass(d,i);
+            return featureClass(d,i, geneD3_relationship);
       });
 
 
@@ -640,6 +641,11 @@ export default function geneD3() {
   chart.modelName = function(_) {
     if (!arguments.length) return modelName;
     geneD3_modelName = _;
+    return chart;
+  }
+  chart.relationship= function(_) {
+    if (!arguments.length) return relationship;
+    geneD3_relationship = _;
     return chart;
   }
   chart.selectedTranscript = function(_) {
