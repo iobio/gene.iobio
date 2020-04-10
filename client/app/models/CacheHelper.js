@@ -1105,7 +1105,9 @@ CacheHelper.prototype.promiseGetDataThreaded = function(key, keyObject) {
 
           if (dataCompressed != null) {
 
-        var worker = new Worker('./cacheHelperWorker.js');
+        // var worker = new Worker('./app/models/cacheHelperWorker.js');
+
+            var worker = CacheHelperWorker;
 
         worker.onmessage = function(e) {
           resolve(e.data);
