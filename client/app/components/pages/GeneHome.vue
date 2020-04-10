@@ -3063,6 +3063,13 @@ export default {
           self.onSendFiltersToClin();
         }
       })
+
+      self.refreshCoverageCounts();
+      if (self.selectedGene && self.selectedGene.gene_name) {
+        console.log()
+        self.onGeneSelected(self.selectedGene.gene_name);
+      }
+
     },
     refreshCoverageCounts: function() {
       let self = this;
