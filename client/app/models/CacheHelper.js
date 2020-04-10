@@ -1054,12 +1054,8 @@ CacheHelper.prototype.promiseGetData = function(key, decompressIt=true, resolveW
   var me = this;
   return new Promise(function(resolve, reject) {
 
-    console.log("me.useLocalStorage", me.useLocalStorage());
-    console.log("me.useIndexedDB", me.useIndexedDB());
-    console.log("promiseGetData");
-
     if (me.useLocalStorage()) {
-      if (localStorage) {
+      if (true) {
             var dataCompressed = localStorage.getItem(key);
             CacheHelper.promiseDecompressData(dataCompressed, decompressIt).then(function(data) {
               if (resolveWithKey) {
