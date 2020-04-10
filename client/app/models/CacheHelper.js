@@ -1107,7 +1107,7 @@ CacheHelper.prototype.promiseGetDataThreaded = function(key, keyObject) {
 
             console.log("documentURl", document.URL);
 
-        var worker = new Worker('./src/client/app/models/CacheHelperWorker.js');
+        var worker = new Worker('./client/app/components/viz/CacheHelperWorker.js');
 
         worker.onmessage = function(e) {
           resolve(e.data);
