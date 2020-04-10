@@ -3044,6 +3044,9 @@ export default {
     },
     onFilterSettingsApplied: function() {
       let self = this;
+
+      this.onGeneSelected(this.selectedGene.gene_name);
+
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
           self.$refs.navRef.onShowVariantsTab();
