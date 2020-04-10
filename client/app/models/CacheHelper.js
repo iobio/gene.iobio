@@ -1105,11 +1105,12 @@ CacheHelper.prototype.promiseGetDataThreaded = function(key, keyObject) {
 
           if (dataCompressed != null) {
 
-        // var worker = new Worker('./app/models/cacheHelperWorker.js');
+        var worker = new Worker('./app/models/cacheHelperWorker.js');
 
-            var worker = CacheHelperWorker;
+        console.log("worker", worker);
 
         worker.onmessage = function(e) {
+          console.log("e.data", e.data);
           resolve(e.data);
         };
 
@@ -1124,6 +1125,7 @@ CacheHelper.prototype.promiseGetDataThreaded = function(key, keyObject) {
         // Start the worker!
         worker.postMessage( { 'cmd': 'start', 'compressedData': dataCompressed, 'keyObject': keyObject });
       } else {
+            console.log("nullDataCompressed");
         resolve(null);
       }
 
