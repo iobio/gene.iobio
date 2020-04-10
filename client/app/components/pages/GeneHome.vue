@@ -3090,10 +3090,11 @@ export default {
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
         self.showLeftPanelForGenes();
 
-        self.refreshCoverageCounts();
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.onGeneSelected(self.selectedGene.gene_name);
         }
+
+        self.refreshCoverageCounts();
 
         if (self.launchedFromClin) {
           self.onSendFiltersToClin();
