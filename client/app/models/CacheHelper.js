@@ -1114,7 +1114,10 @@ CacheHelper.prototype.promiseGetDataThreaded = function(key, keyObject) {
           resolve(e.data);
         };
 
-        // We will also want to be notified if the worker runs into trouble
+            console.log("worker", worker);
+
+
+            // We will also want to be notified if the worker runs into trouble
         worker.onerror = function(e) {
           console.log("An error occurred when uncompressing data for key " + key);
           var msg = 'An error occurred while decompressing cached data:' + e;

@@ -4,6 +4,8 @@ if( 'function' === typeof importScripts) {
     var data = e.data;
     importScripts('./lz-string.min.js');
 
+    console.log("data");
+
     switch (data.cmd) {
       case 'start':
         var dataString = null;
@@ -12,7 +14,7 @@ if( 'function' === typeof importScripts) {
            var uncompressedData =  JSON.parse(dataString);
            postMessage({data: uncompressedData, keyObject: data.keyObject});
         } catch(e) {
-
+        console.log("catch e", e )
         }
         break;
       case 'stop':
