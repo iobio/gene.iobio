@@ -938,7 +938,7 @@ class GeneModel {
 
 
 
-  promiseGetCachedGeneObject(geneName, resolveOnError=false) {
+  promiseGetCachedGeneObject(geneName, resolveOnError=true) {
     var me = this;
     return new Promise( function(resolve, reject) {
       let theGeneName = geneName;
