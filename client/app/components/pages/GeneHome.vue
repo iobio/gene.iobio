@@ -3045,7 +3045,8 @@ export default {
     onFilterSettingsApplied: function() {
       let self = this;
 
-      this.onGeneSelected(this.selectedGene.gene_name);
+      console.log("did we make it to onFilterSettingsApplied?");
+
 
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
@@ -3054,6 +3055,7 @@ export default {
 
         self.refreshCoverageCounts();
         if (self.selectedGene && self.selectedGene.gene_name) {
+          console.log()
           self.onGeneSelected(self.selectedGene.gene_name);
         }
 
