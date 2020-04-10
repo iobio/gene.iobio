@@ -3045,28 +3045,29 @@ export default {
     onFilterSettingsApplied: function() {
       let self = this;
 
-      console.log("did we make it to onFilterSettingsApplied?");
 
 
-      self.cohortModel.cacheHelper.refreshGeneBadges(function() {
-        if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
-          self.$refs.navRef.onShowVariantsTab();
-        }
+      // self.cohortModel.cacheHelper.refreshGeneBadges(function() {
+      //   if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
+      //     self.$refs.navRef.onShowVariantsTab();
+      //   }
+      //
+      //   self.refreshCoverageCounts();
+      //   if (self.selectedGene && self.selectedGene.gene_name) {
+      //     console.log()
+      //     self.onGeneSelected(self.selectedGene.gene_name);
+      //   }
+      //
+      //   if (self.launchedFromClin) {
+      //     self.onSendFiltersToClin();
+      //   }
+      // })
 
-        self.refreshCoverageCounts();
-        if (self.selectedGene && self.selectedGene.gene_name) {
-          console.log()
-          self.onGeneSelected(self.selectedGene.gene_name);
-        }
-
-        if (self.launchedFromClin) {
-          self.onSendFiltersToClin();
-        }
-      })
-
+      console.log("onFIlterSettingsApplied");
       self.refreshCoverageCounts();
+      console.log("refreshed Cocerage Counts")
       if (self.selectedGene && self.selectedGene.gene_name) {
-        console.log()
+        console.log("onGeneSelected");
         self.onGeneSelected(self.selectedGene.gene_name);
       }
 
