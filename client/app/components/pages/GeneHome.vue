@@ -790,6 +790,7 @@ export default {
   props: {
     paramGene:             null,
     paramGeneName:         null,
+    paramGeneNames:        null,
     paramGenes:            null,
     paramSpecies:          null,
     paramBuild:            null,
@@ -1818,7 +1819,7 @@ export default {
         geneNames = self.geneModel.sortedGeneNames.join(",");
       }
       queryObject.gene = geneName;
-      queryObject.geneNames = geneNames;
+      queryObject.genes = geneNames;
 
       self.$router.replace({ query: queryObject });
 
@@ -2664,7 +2665,12 @@ export default {
           self.paramGenes.split(",").forEach( function(geneName) {
             self.geneModel.promiseAddGeneName(geneName);
           });
+        } else if (self.paramGeneNames) {
+          self.paramGeneNames.split(",").forEach( function(geneName) {
+            self.geneModel.promiseAddGeneName(geneName);
+          });
         }
+
         if (self.paramGene) {
           self.geneModel.promiseAddGeneName(self.paramGene);
           self.onGeneSelected(self.paramGene);
