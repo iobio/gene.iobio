@@ -1,6 +1,4 @@
-
-import CacheHelperWorker from './CacheHelperWorker.js'
-import CacheIndexStore from './CacheIndexStore.js'
+import CacheIndexStore   from './CacheIndexStore.js'
 
 function CacheHelper(globalApp, forceLocalStorage) {
 
@@ -1105,7 +1103,7 @@ CacheHelper.prototype.promiseGetDataThreaded = function(key, keyObject) {
 
           if (dataCompressed != null) {
 
-        var worker = new Worker('./app/models/cacheHelperWorker.js');
+        var worker = new Worker('/app/third-party/cacheHelperWorker.js');
 
         worker.onmessage = function(e) {
           resolve(e.data);

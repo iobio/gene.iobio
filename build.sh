@@ -13,8 +13,8 @@ if [[ $1 == "prod" ]]; then
   #npm run build
 elif [[ $1 == "stage" ]]; then
   echo "** Building stage **"
-  NODE_ENV=production npm run build
-  #npm run build
+  #NODE_ENV=production npm run build
+  npm run build
 else
   echo "** Building dev **"
   npm run build
@@ -29,6 +29,4 @@ ln -s $working_dir/client/assets $working_dir/deploy/assets
 ln -s $working_dir/client/js/thirdparty $working_dir/deploy/js/thirdparty
 ln -s $working_dir/client/app/third-party $working_dir/deploy/app/third-party
 ln -s $working_dir/client/dist/build.js $working_dir/deploy/dist/build.js
-if [[ $1 == "prod" ]]; then
-  ln -s $working_dir/client/dist/build.js.map $working_dir/deploy/dist/build.js.map
-fi
+ln -s $working_dir/client/dist/build.js.map $working_dir/deploy/dist/build.js.map
