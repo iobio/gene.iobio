@@ -746,8 +746,6 @@ import FreebayesSettings  from  '../../models/FreebayesSettings.js'
 import Glyph              from '../../partials/Glyph.js'
 import VariantTooltip     from '../../partials/VariantTooltip.js'
 
-import allGenesData       from '../../../data/genes.json'
-import acmgBlacklist      from '../../../data/ACMG_blacklist.json'
 import SplitPane          from '../partials/SplitPane.vue'
 import ScrollButton       from '../partials/ScrollButton.vue'
 import OptionalTracksCard from '../partials/OptionalTracksCard.vue'
@@ -886,8 +884,8 @@ export default {
       },
 
 
-      allGenes: allGenesData,
-      acmgBlacklist: acmgBlacklist,
+      allGenes: null,
+      acmgBlacklist: null,
       blacklistedGeneSelected: false,
 
       selectedGene: {},
@@ -1029,6 +1027,19 @@ export default {
 
   created: function() {
     let self = this;
+    
+    fetch('../../../data/genes.json')
+    .then( r => r.json())
+      .then(json => {
+        self.allGenes = json; 
+      })
+      
+    fetch('../../../data/ACMG_blacklist.json')
+    .then( r => r.json())
+      .then(json => {
+        self.acmgBlacklist = json; 
+      })  
+      
     if (self.paramLaunchedFromClin) {
       self.launchedFromClin = true;
     }
