@@ -556,12 +556,13 @@ nav.toolbar, nav.v-toolbar
 
         <v-spacer></v-spacer>
 
-        <v-btn icon @click="onShowTermsOfService" title="Terms of Service">
-          <v-icon>description</v-icon>
-        </v-btn>
-
       </v-toolbar-items>
 
+
+
+      <v-btn icon @click="onShowTermsOfService" title="Terms of Service">
+        <v-icon>description</v-icon>
+      </v-btn>
 
       <v-menu>
         <v-btn id="more-menu-button" flat slot="activator">
@@ -572,7 +573,7 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Files</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode"  
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode"
             @click="onShowImportVariants">
             <v-list-tile-title dense>Import Variants</v-list-tile-title>
           </v-list-tile>
@@ -736,8 +737,8 @@ nav.toolbar, nav.v-toolbar
 
 
         <v-card id="legend-card" v-if="isBasicMode && !isSimpleMode" >
-          <legend-panel 
-            :isBasicMode="isBasicMode" 
+          <legend-panel
+            :isBasicMode="isBasicMode"
             :isSimpleMode="isSimpleMode"
             :showLegendTitle=true>
           </legend-panel>
