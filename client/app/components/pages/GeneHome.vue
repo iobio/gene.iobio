@@ -2362,8 +2362,8 @@ export default {
 
     isNewAnalysis: function() {
       return ( (this.analysis && !this.analysis.hasOwnProperty("id"))
-              || !this.analysis.id
-              || this.analysis.id == "");
+              ||  (this.analysis && !this.analysis.id)
+              || (this.analysis && this.analysis.id == ""));
     },
 
     removeGeneImpl: function(geneName) {
