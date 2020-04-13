@@ -2362,8 +2362,8 @@ export default {
 
     isNewAnalysis: function() {
       return ( (this.analysis && !this.analysis.hasOwnProperty("id"))
-              || !this.analysis.id
-              || this.analysis.id == "");
+              ||  (this.analysis && !this.analysis.id)
+              || (this.analysis && this.analysis.id == ""));
     },
 
     removeGeneImpl: function(geneName) {
@@ -2823,7 +2823,6 @@ export default {
     },
     onApplyVariantNotes: function(variant) {
       let self = this;
-
       // If the variant isn't in the filtered variants list,
       // mark it as 'user flagged'
       if (self.cohortModel.getFlaggedVariant(variant) == null) {
@@ -2847,6 +2846,11 @@ export default {
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+      }
+
+      if(typeof variant.interpretation === 'undefined' || (variant.interpretation === "not-reviewed")){
+        variant.interpretation = 'unknown-sig';
+        self.onApplyVariantInterpretation(variant);
       }
 
     },
