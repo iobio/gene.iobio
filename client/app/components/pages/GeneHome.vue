@@ -1028,15 +1028,38 @@ export default {
   created: function() {
     let self = this;
     
-    fetch('../../../data/genes.json')
+    fetch('/data/genes.json')
     .then( r => r.json())
       .then(json => {
+        console.log("sucees", json)
         self.allGenes = json; 
+        
+        // We are seeing problems with Blobs using the Safari browser.
+        // Warn user that Gene.iobio is supported on Chrome and Firefox
+        // browsers
+        if (self.utility.detectSafari()) {
+
+          alertify.confirm("Unsupported Browser",
+            "Gene.iobio is supported on Chrome and Firefox.  Please run on one of these browsers.",
+            function (e) {
+              // ok
+
+            },
+            function() {
+              // cancel
+              self.init()
+            }
+
+          ).set('labels', {ok:'OK', cancel:'Cancel'})
+        } else {
+          self.init();
+        }
       })
       
-    fetch('../../../data/ACMG_blacklist.json')
+    fetch('/data/ACMG_blacklist.json')
     .then( r => r.json())
       .then(json => {
+        console.log("sucees acmgBlacklist", json)
         self.acmgBlacklist = json; 
       })  
       
@@ -1056,26 +1079,7 @@ export default {
     }
 
 
-    // We are seeing problems with Blobs using the Safari browser.
-    // Warn user that Gene.iobio is supported on Chrome and Firefox
-    // browsers
-    if (self.utility.detectSafari()) {
 
-      alertify.confirm("Unsupported Browser",
-        "Gene.iobio is supported on Chrome and Firefox.  Please run on one of these browsers.",
-        function (e) {
-          // ok
-
-        },
-        function() {
-          // cancel
-          self.init()
-        }
-
-      ).set('labels', {ok:'OK', cancel:'Cancel'})
-    } else {
-      self.init();
-    }
 
 
 
