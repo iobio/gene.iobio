@@ -1029,10 +1029,9 @@ export default {
     let self = this;
     
     fetch('/data/genes.json')
-    .then( r => r.json())
-      .then(json => {
-        console.log("sucees", json)
-        self.allGenes = json; 
+    .then( response => response.json())
+      .then(allGenes => {
+        self.allGenes = allGenes; 
         
         // We are seeing problems with Blobs using the Safari browser.
         // Warn user that Gene.iobio is supported on Chrome and Firefox
@@ -1057,10 +1056,9 @@ export default {
       })
       
     fetch('/data/ACMG_blacklist.json')
-    .then( r => r.json())
-      .then(json => {
-        console.log("sucees acmgBlacklist", json)
-        self.acmgBlacklist = json; 
+    .then( response => response.json())
+      .then(acmgBlacklistGenes => {
+        self.acmgBlacklist = acmgBlacklistGenes; 
       })  
       
     if (self.paramLaunchedFromClin) {
@@ -1077,11 +1075,6 @@ export default {
       var responseObject = {app: 'genefull', success: true, type: 'mounted', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), self.paramFrameSource);
     }
-
-
-
-
-
 
   },
 
