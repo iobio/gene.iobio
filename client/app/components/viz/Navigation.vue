@@ -817,11 +817,14 @@ nav.toolbar, nav.v-toolbar
         <v-card-title class="headline">Terms of service</v-card-title>
         <v-card-text>
           <strong>Academic Use </strong>
-          <br> Gene.iobio is freely available for all Academic use.
+          <br> Gene.iobio is free for all Academic use.
+
           <br><br>
           <strong>Commercial Use </strong>
           <br>
-          Users from commercial organisations may register a commercial accounts with Frameshift.  To create a commercial account, contact Frameshift at  <a href="mailto:admin@frameshift.io" target="_top">admin@frameshift.io</a> for a consultation.
+          Commercial use of gene.iobio is licensed through Frameshift Genomics. Please contact Frameshift at
+          <a href="mailto:admin@frameshift.io" target="_top">admin@frameshift.io</a>
+          to discuss any commercial use of this tool.
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
