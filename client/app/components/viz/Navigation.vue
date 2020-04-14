@@ -817,8 +817,7 @@ nav.toolbar, nav.v-toolbar
         <v-card-title class="headline">Terms of service</v-card-title>
         <v-card-text>
           <strong>Academic Use </strong>
-          <br> Gene.iobio is free for all Academic use.
-
+          <br> gene.iobio is free for academic use.
           <br><br>
           <strong>Commercial Use </strong>
           <br>
