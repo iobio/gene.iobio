@@ -31,6 +31,14 @@ button
     font-size: 12px
     height: 20px
 
+.chip--select-multi
+  background-color:  #efeeee
+  .chip__content
+    color: $text-color
+    background-color:  #efeeee
+    font-size: 12px
+    height: 20px
+
 .progress-linear__background.primary
   background-color: $app-gray !important
 .progress-linear__bar__indeterminate--active
@@ -46,15 +54,18 @@ button
       .progress-linear__bar__indeterminate
         background-color: $amber-darken-1 !important
 
-.snack
-  top: 0px
+
+.snack--top
+  top: 60px
 
 .snack__wrapper
   background-color: rgba(50,50,50,.75) !important
 
 .snack__content
-  padding-right: 2px
-
+  min-height: 36px
+  padding: 4px 14px
+  max-height: 100px
+  height: initial
 
 .attention
   display: inline-block
@@ -70,14 +81,29 @@ button
 .dropdown-menu > li > a:hover, .dropdown-menu > li >a:focus
   background-color:  $hover-menu-background-color !important
 
-.card
+.card, .v-card
   -webkit-box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.05), 0px 1px 1px 0px rgba(0,0,0,0.03), 0px 1px 3px 0px rgba(0,0,0,0.01) !important
   box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.05), 0px 1px 1px 0px rgba(0,0,0,0.03), 0px 1px 3px 0px rgba(0,0,0,0.01) !important
 
-nav.toolbar
+nav.toolbar, nav.v-toolbar
   -webkit-box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.13), 0px 4px 5px 0px rgba(0,0,0,0.08), 0px 1px 10px 0px rgba(0,0,0,0.04) !important
   box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.13), 0px 4px 5px 0px rgba(0,0,0,0.08), 0px 1px 10px 0px rgba(0,0,0,0.04) !important
 
+.v-tabs__slider.accent 
+  background-color: $current-color !important
+  border-color: $current-color !important
+
+.v-badge.info
+  color: $app-color !important
+  font-size: 12px !important
+  font-weight: 500 !important
+  padding: 0px 4px 0px 4px !important
+  border-radius: 2px !important
+  background-color: #faf4cc !important
+  border-color: $app-color !important
+  border: thin solid !important
+
+  
 </style>
 
 <template>
@@ -101,8 +127,9 @@ export default {
   data() {
     return {
     }
+  },
+  mounted() {
+    
   }
 }
 </script>
-
-

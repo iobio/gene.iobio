@@ -4,15 +4,78 @@
 @import ../../../assets/sass/variables
 
 .filter-form
-  .input-group
+  padding: 10px 35px 5px 35px
+
+  .v-text-field__slot
+    height: 24px
+    .v-label
+      font-size: 13px
     label
       font-size: 13px
+    input
+      font-size: 14px
+      color: $text-emphasize-color !important
+      font-weight: 500 !important
+      padding-top: 0px
+      padding-bottom: 0px
 
+
+  .v-select__selection
+    font-size: 13px
+    input
+      padding-top: 0px
+      padding-bottom: 0px
+  .v-select__selections
+    input
+      padding-top: 0px
+      padding-bottom: 0px
+  .v-select__selection.v-select__selection--comma
+    padding-bottom: 0px
+    color: $text-emphasize-color !important
+    font-weight: 500 !important
+    font-size: 14px
+
+
+  .filter-action-button
+    padding: 0px
+    height: 30px !important
+    background-color: $app-button-color !important
+    color: white !important
+    min-width: 150px !important
+    margin: 0px
+
+    &.disabled
+      opacity: 0.30 !important
+
+    &.cancel-button
+      background-color: white !important
+      color: $app-color !important
+      min-width: 100px !important
+      margin-left: 15px
+      min-width: 90px
+
+  .input-group
+    label
+      font-style: italic !important
+      color: $text-color !important
+      font-weight: normal !important
+
+  .input-group--text-field
+    input
+      font-size: 14px !important
+      color: $app-color !important
+      font-weight: bold
+
+  .input-group__selections__comma
+    font-size: 14px !important
+    color: $app-color !important
+    font-weight: bold
 
 .filter-title
   font-size: 16px
-  color: $app-color
+  color: $link-color
   margin-bottom: 15px
+  font-weight: 500
 
 .revel-progress-bar
     display: inline-block
@@ -35,125 +98,133 @@
         background-color:  $moderate-impact-color !important
         border-color:  $moderate-impact-color !important
 
+.clin_dialog_scroll
+  height: 475px
 </style>
 
 <template>
 
-  <v-layout row wrap class=" filter-form ml-2 mr-4 px-3" style="max-width:620px;">
-     <div class="filter-title">Customize Filter</div>
-     <v-flex id="name" xs12 class="mb-3" >
-      <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
-      </v-text-field>
-    </v-flex>
+  <v-card-text :class="{ clin_dialog_scroll: launchedFromClin }" >
+
+    <v-layout row wrap class=" filter-form">
+
+
+      <v-flex id="name" xs12 class="mb-4" >
+        <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details :disabled="true">
+        </v-text-field>
+      </v-flex>
 
 
 
-    <v-flex id="max-af" xs4  class="mb-2 mr-4" >
-      <v-text-field label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
-      </v-text-field>
-    </v-flex>
+      <v-flex xs12 >
+        <v-select
+              :disabled="true"
+              label="Inheritance"
+              v-bind:items="inheritanceModes"
+              v-model="selectedInheritanceModes"
+              multiple
+              hide-details
+        >
+        </v-select>
+      </v-flex>
 
-    <v-flex xs12 class="mb-3" >
-      <v-select style="z-index:10"
-            label="ClinVar clinical significance"
-            v-bind:items="clinvarCategories"
-            v-model="selectedClinvarCategories"
-            multiple
-            hide-details
-      >
-      </v-select>
-    </v-flex>
-
-
-    <v-flex xs5 class="mb-3">
-      <v-select
-            label="Inheritance"
-            v-bind:items="inheritanceModes"
-            v-model="selectedInheritanceModes"
-            multiple
-            hide-details
-      >
-      </v-select>
-    </v-flex>
-
-    <v-flex xs4 class="pl-2 mb-3">
-      <v-select
-            label="Zygosity"
-            v-bind:items="zygosities"
-            v-model="selectedZygosity"
-            single
-            clearable
-            hide-details
-      >
-      </v-select>
-    </v-flex>
+      <v-flex xs12 >
+        <v-select
+              :disabled="true"
+              label="Zygosity"
+              v-bind:items="zygosities"
+              v-model="selectedZygosity"
+              single
+              clearable
+              hide-details
+        >
+        </v-select>
+      </v-flex>
 
 
 
+      <v-flex id="max-af" xs4  class="mt-5 mb-5 mr-4" >
+        <v-text-field :disabled="true" label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
+        </v-text-field>
+      </v-flex>
 
 
-    <v-flex xs12 class="mb-2" >
-      <v-select
-            label="Impact"
-            v-bind:items="impacts"
-            v-model="selectedImpacts"
-            multiple
-            hide-details
-      >
-      </v-select>
-    </v-flex>
-
-    <v-flex xs12 class="mb-3" >
-      <v-select
-            label="Consequence"
-            v-bind:items="consequences"
-            v-model="selectedConsequences"
-            multiple
-            autocomplete
-            hide-details
-      >
-      </v-select>
-    </v-flex>
-
-    <v-flex id="min-revel" xs12 class="mb-2 mt-2 mr-4" >
-
-          <div style="display: inline-block;margin-right:15px">
-            Min REVEL score
-            <info-popup name="revel"></info-popup>
-          </div>
-
-          <div style="display:inline-block">
-            <v-slider step="5" snap :hide-details="true" style="padding:0px;width:200px;"  snap v-model="minRevelSlider">
-            </v-slider>
-            <v-progress-linear class="revel-progress-bar" style="float:left;margin:0px;padding:0px;width:100px;display:inline-block" v-model="revelProgress">
-            </v-progress-linear>
-            <v-progress-linear class="revel-progress-bar revel_moderate" style="float:left;margin:0px;padding:0px;width:50px;display:inline-block" v-model="revelProgress">
-            </v-progress-linear>
-            <v-progress-linear class="revel-progress-bar revel_high" style="float:left;margin:0px;padding:0px;width:50px;display:inline-block" v-model="revelProgress">
-            </v-progress-linear>
-          </div>
-
-          <v-text-field :hide-details="true"  style="margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel"
-          @change="onChangeRevelScore" >
-          </v-text-field>
-
-    </v-flex>
-
-    <v-flex  id="min-genotype-depth" xs3 class="mb-3 mr-4" >
-      <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
-      </v-text-field>
-    </v-flex>
-
-    <v-flex  id="min-genotype-alt-count" xs4 class="mb-3 mr-4" >
-      <v-text-field label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
-      </v-text-field>
-    </v-flex>
+      <v-flex xs12  >
+        <v-select
+              :disabled="true"
+              label="ClinVar clinical significance"
+              v-bind:items="clinvarCategories"
+              v-model="selectedClinvarCategories"
+              multiple
+              hide-details
+        >
+        </v-select>
+      </v-flex>
 
 
 
 
+      <v-flex xs12 >
+        <v-select
+              :disabled="true"
+              label="Impact"
+              v-bind:items="impacts"
+              v-model="selectedImpacts"
+              multiple
+              hide-details
+        >
+        </v-select>
+      </v-flex>
 
-  </v-layout>
+      <v-flex xs12  >
+        <v-autocomplete
+              :disabled="true"
+              label="Consequence"
+              v-bind:items="consequences"
+              v-model="selectedConsequences"
+              multiple
+              autocomplete
+              hide-details
+        >
+        </v-autocomplete>
+      </v-flex>
+
+      <v-flex id="min-revel" xs12 class="mb-2 mt-4 mr-4" >
+
+            <div style="display: inline-block;margin-right:15px;font-weight:500">
+              Min REVEL score (for missense variants)
+              <info-popup name="revel"></info-popup>
+            </div>
+
+
+            <v-text-field :disabled="true" :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
+            </v-text-field>
+
+      </v-flex>
+
+
+
+
+      <v-flex  id="min-genotype-depth" xs3 class="mt-3 mb-4 mr-4" >
+        <v-text-field :disabled="true" label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
+        </v-text-field>
+      </v-flex>
+
+      <v-flex  id="min-genotype-alt-count" xs4 class="mt-3 mb-4 mr-4" >
+        <v-text-field :disabled="true" label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
+        </v-text-field>
+      </v-flex>
+
+
+      <v-flex style="display:flex" xs12 class="mt-1 mb-1" v-show="false">
+        <v-spacer></v-spacer>
+        <v-btn :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
+          Apply
+        </v-btn>
+      </v-flex>
+    </v-layout>
+
+  </v-card-text>
 
 </template>
 
@@ -169,16 +240,15 @@ export default {
   props: {
     filter: null,
     filterModel: null,
-    idx: null
+    idx: null,
+    launchedFromClin: null
   },
   data () {
     return {
-      theFilter: null,
-
+      isDirty: false,
       name: null,
       maxAf: null,
       minRevel: null,
-      minRevelSlider: null,
       selectedClinvarCategories: null,
       selectedImpacts: null,
       selectedZygosity: null,
@@ -248,13 +318,15 @@ export default {
   },
   methods: {
     init: function() {
+      let self = this;
 
-      let flagCriteria = this.filterModel.flagCriteria[this.theFilter.name];
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.key];
       if (flagCriteria == null) {
         flagCriteria = {};
+        flagCriteria.key = this.filter.key;
         flagCriteria.custom = true;
         flagCriteria.active = false;
-        flagCriteria.name = this.theFilter.display;
+        flagCriteria.name = this.filter.display;
         flagCriteria.maxAf = null;
         flagCriteria.minRevel = null;
         flagCriteria.clinvar = null;
@@ -263,12 +335,12 @@ export default {
         flagCriteria.inheritance = null;
         flagCriteria.zygosity = null;
         flagCriteria.genotypeDepth = null;
-        this.filterModel.flagCriteria[this.theFilter.name] = flagCriteria;
+        this.filterModel.flagCriteria[this.filter.key] = flagCriteria;
       }
       this.name                      = flagCriteria.name;
+      this.key                       = flagCriteria.key;
       this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
-      this.minRevel                  = flagCriteria.minRevel ? flagCriteria.minRevel : null;
-      this.minRevelSlider            = flagCriteria.minRevel ? flagCriteria.minRevel * 100 : null;
+      this.minRevel                  = flagCriteria.minRevel;
       this.selectedClinvarCategories = flagCriteria.clinvar;
       this.selectedImpacts           = flagCriteria.impact;
       this.selectedConsequences      = flagCriteria.consequence;
@@ -277,9 +349,14 @@ export default {
       this.minGenotypeDepth          = flagCriteria.minGenotypeDepth;
       this.minGenotypeAltCount       = flagCriteria.minGenotypeAltCount;
 
+      this.$nextTick(function() {
+        self.isDirty = false;
+      })
+
+
     },
     apply: function() {
-      let flagCriteria = this.filterModel.flagCriteria[this.theFilter.name];
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.key];
 
       flagCriteria.name             = this.name;
       if (flagCriteria.custom) {
@@ -296,26 +373,65 @@ export default {
       flagCriteria.minGenotypeAltCount = this.minGenotypeAltCount;
       flagCriteria.active           = true;
 
+      this.isDirty = false;
+      this.$emit("apply-filter")
+
+    },
+    onCancel: function() {
+      this.$emit("cancel-filter")
     },
     onChangeName: function() {
-      this.theFilter.display = this.name;
-    },
-    onChangeRevelScore: function() {
-      this.minRevelSlider = this.minRevel * 100;
+      this.isDirty = true;
+      this.filter.display = this.name;
     }
   },
   computed: {
+    isValidFilter: function() {
+      return this.maxAf ||
+             this.minRevel ||
+             (this.selectedClinvarCategories && this.selectedClinvarCategories.length > 0) ||
+             (this.selectedImpacts && this.selectedImpacts.length > 0) ||
+             (this.selectedConsequences && this.selectedConsequences.length > 0) ||
+             (this.selectedInheritanceModes && this.selectedInheritanceModes.length > 0) ||
+             (this.selectedZygosity && this.selectedZygosity.length > 0) ||
+             this.minGenotypeDepth ||
+             this.minGenotypeAltCount;
+
+    },
   },
   watch: {
-    minRevelSlider: function() {
-      this.minRevel = this.minRevelSlider > 0 ? this.minRevelSlider / 100 : "";
+
+    maxAf: function() {
+      this.isDirty = true;
+    },
+    selectedClinvarCategories: function() {
+      this.isDirty = true;
+    },
+    selectedInheritanceModes: function() {
+      this.isDirty = true;
+    },
+    selectedZygosity: function() {
+      this.isDirty = true;
+    },
+    selectedImpacts: function() {
+      this.isDirty = true;
+    },
+    selectedConsequences: function() {
+      this.isDirty = true;
+    },
+    minRevel: function() {
+      this.isDirty = true;
+    },
+    minGenotypeDepth: function() {
+      this.isDirty = true;
+    },
+    minGenotypeAltCount: function() {
+      this.isDirty = true;
     }
   },
   created: function() {
   },
   mounted: function() {
-    this.theFilter = this.filter;
-    this.init();
   }
 }
 </script>

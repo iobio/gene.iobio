@@ -1,22 +1,61 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+
+
 #flagged-variants-card
   padding-left: 5px
   padding-bottom: 20px
+  background-color: white
+
+  #add-filter-button
+    margin: 0px 0px 0px 0px
+    padding: 0px
+    min-width: 25px
+    max-height: 25px
+    padding-right: 5px
+    padding-left: 5px
+
+    .btn__content, .v-btn__content
+      padding-left: 0px
+      padding-right: 0px
+      color: $link-color
+      font-size: 13px
+      font-weight: 500
+
+      i.material-icons
+        font-size: 20px
+        color: $link-color
+        vertical-align: top
+        padding-right: 3px
+
+  &.v-card
+    box-shadow: none !important
+    -webkit-box-shadow: none !important
 
   .gene-ranks
-    .chip
+    .chip, .v-chip
       margin-top: 0px
       margin-bottom: 2px
       margin-left: 0px
-    .chip__content
+      margin-right: 0px
+
+    .chip__content, .v-chip__content
+      padding: 0 0px
+      height: 15px
+      width: 34px
+      justify-content: center
       font-size:  11px
-      background-color:  $info-chip-color
-      height: 16px
-      padding-left: 4px
-      padding-right: 4px
-      color:  $text-color
+      background-color:  $high-impact-color
+      color:  white
+
+    .pheno-source
+      width: 40px
+      display: inline-block
+      font-size: 12px
+      font-style: italic
+      vertical-align: top
+
 
 
   #clinvar-symbol
@@ -26,10 +65,9 @@
 
 
   .variant-toolbar
-    width: calc(100% - 1px)
     padding-right: 20px
     background-color: white
-    margin-bottom: 20px
+    margin-bottom: 10px
     margin-top: 20px
 
     #mygene2-basic-title
@@ -44,7 +82,7 @@
 
 
 
-    .toolbar__title
+    .toolbar__title, .v-toolbar__title
       font-family: inherit
       font-size: 15px
       min-width: initial
@@ -74,7 +112,7 @@
       height: 30px
       margin-top: -7px
 
-      .btn__content
+      .btn__content, .v-btn__content
         padding: 0px
 
       i.material-icons
@@ -101,17 +139,18 @@
   .gene-list
 
 
-  .expansion-panel
+  .expansion-panel, .v-expansion-panel
     -webkit-box-shadow : none
     box-shadow: none
+    padding-bottom: 50px
 
-  .expansion-panel__body
+  .expansion-panel__body, .v-expansion-panel-content
     padding-left: 3px
     padding-right: 4px
 
 
 
-  li.selected
+  li.selected, .list-item.selected
     border-color: $current-color
     border-width: 2px
     border-style: solid
@@ -127,41 +166,74 @@
       text-align: center
       background-color: #f2f1f1
 
-  .expansion-panel__header
+  .expansion-panel__header, .v-expansion-panel__header
     border-top: #e1e1e1
     border-top-style: solid
     border-top-width: 1px
-    padding:  12px 10px 10px 2px
-    background-color: #e9eaeb
+    padding:  6px 10px 6px 2px
+    background-color: #f3f3f3
+
+  .v-expansion-panel__header
+    min-height: 28px
+    padding-left: 10px
+    padding-right: 8px
 
     .header__icon
       i.material-icons
         color: $app-color
 
-  .expansion-panel__container
+  .expansion-panel__container, .v-expansion-panel__container
     border-top: none
 
+    .edit-filter-button, .remove-filter-button
+      margin: 0px 0px 0px 0px
+      padding: 0px 0px 0px 0px
+      min-width: 25px
+      max-width: 25px
+      margin-left: 40px
 
-    .badge
+      i.material-icons
+        font-size: 20px
+        color: $app-button-color
+
+    .remove-filter-button
+      margin-left: 0px
+
+    .badge, .v-badge
       background-color: transparent
 
       span.filter-label
-        color: $app-color
+        color: $app-button-color
         border-color: none
         font-size: 15px
-        font-weight: normal
+        font-weight: 500
         display: inline-block
         text-align: left
+        width: 175px
 
-
-    .badge__badge.primary
+    .badge__badge.primary, .v-badge__badge.primary
       background-color: $light-badge-color !important
-      font-size: 10px
+      font-size: 12px
       color: white
       top: 2px
-      width: 17px
-      height: 17px
+      width: 20px
+      height: 20px
 
+    &.empty
+
+      span.filter-label
+       color: $text-color !important
+       font-weight: normal
+
+      .badge__badge.primary, .v-badge__badge.primary
+        background-color: #d6d6d6 !important
+
+      .edit-filter-button
+        i.material-icons
+          color: $light-badge-color !important
+
+      .v-expansion-panel__header__icon
+        display: none
 
   .filter-variant-count
     float: right
@@ -169,9 +241,10 @@
     font-size: 12px
     color: $text-color
 
-  .list--three-line
+  .list--three-line, .v-list--three-line
     margin-bottom: 10px
     padding-top: 5px
+
 
     .filter-subheader
       margin-left: -20px
@@ -191,10 +264,10 @@
     li
       margin-left: 0px
 
-    .list__tile__avatar
+    .list__tile__avatar, .v-list__tile__avatar
       margin-left: 0px
 
-    .list__tile__content
+    .list__tile__content, .v-list__tile__content
       margin-left: 0px
 
     hr
@@ -205,23 +278,30 @@
       margin-left: 22px
       width: calc(100% - 42px)
 
-    .list__tile
+    .list__tile, .v-list__tile
       padding: 0px
       height: initial
       padding-left: 0px
       padding-top: 10px
 
-    .list__tile__avatar
+    .list__tile__avatar, .v-list__tile__avatar
       min-width: initial
 
-    .list__tile__sub-title
+    .list__tile__sub-title, .v-list__tile__sub-title
       height: initial
       line-height: 18px
 
-    .list__tile__title
+    .list__tile__title, .v-list__tile__title
       height: auto
       line-height: 18px
+      padding-top: 5px
       padding-bottom: 5px
+
+    .reviewed-variant-filter
+      font-size: 13px
+      margin-left: 10px
+      display: inline-block
+      vertical-align: bottom
 
     .variant-number
       margin-right: 0px
@@ -233,7 +313,7 @@
       width: 18px !important
       height: 18px !important
 
-      .chip__content
+      .chip__content, .v-chip__content
         width: 18px !important
         height: 18px !important
         justify-content: space-around
@@ -267,15 +347,16 @@
 
     .vep-consequence
       display: inline-block
-      width: 133px
-      line-height: 12px
+      width: 260px
+      line-height: 14px
       vertical-align: top
-      font-size: 12px
+      font-size: 13px
       white-space: normal
 
     .variant-label
-      font-size: 12px
+      font-size: 13px
       color: $text-color !important
+      line-height: 14px
 
 
       .coord
@@ -299,10 +380,10 @@
 
       .af
         display: inline-block
-        width: 60px
+        width: 90px
         vertical-align: top
-        line-height: 12px
-
+        line-height: 13px
+        padding-bottom: 10px
 
       .hgvsc
         display: inline-block
@@ -319,8 +400,9 @@
         .gene-name
           display: inline-block
           vertical-align: top
-          font-weight: bold
-          font-size: 13px
+          font-weight: 500
+          font-size: 15px
+          line-height: 16px
           margin-right: 4px
           padding-top: 2px
 
@@ -340,83 +422,23 @@
 
 
 
-
-.variant-file-body
-  padding-top: 0px
-  padding-bottom: 18px
-  margin-bottom: 20px
-  margin-top: 20px
-
-  .radio-group.radio-group--column
-    margin-top: 0px
-    padding-top: 0px
-    padding-bottom: 0px
-
-    >.input-group__input
-      margin-top: 0px
-
-  .input-group--select
-    .input-group__selections__comma
-      font-size: 14px
-      padding: 0px 0px 0px 0px
-
-  .input-group
-    label
-      font-size: 14px
-      line-height: 20px
-      height: 20px
-
-  .input-group__input
-    min-height: 0px
-    margin-top: 10px
-
-  .input-group__input
-    .input-group__selections__comma
-      font-size: 14px
-
-  .input-group--text-field
-    label
-      top: 6px
-
-  .input-group.input-group--selection-controls
-    height: 24px
-    .input-group__input
-      .icon--selection-control
-        height: 0px
-
-.variant-file-button
-  color: $text-color !important
-  height: 28px
-  margin-top: 10px
-  margin-bottom: 10px
-  margin-left: 0px
-  padding-left: 0px
-  padding-right: 0px
-  padding-top: 0px
-  padding-bottom: 0px
-
-
-  i.material-icons
-    font-size: 16px
-    padding-right: 4px
-
 #flagged-variants-card.basic
 
-  .toolbar__title
+  .toolbar__title, .v-toolbar__title
     margin-top: 0px
     padding-top: 0px
     padding-left: 3px
 
-  .expansion-panel
+  .expansion-panel, .v-expansion-panel
     -webkit-box-shadow : none
     box-shadow: none
     margin-top: 0px
 
 
-  .expansion-panel__header
+  .expansion-panel__header, .v-expansion-panel__header
     display: none
 
-  .list--three-line
+  .list--three-line, .v-list--three-line
     li
       margin-left: 0px
 
@@ -426,32 +448,25 @@
 </style>
 
 <template>
+<div>
   <v-card  style="padding: 0px" id="flagged-variants-card" :class="{basic: isBasicMode}">
-
 
     <div class="variant-toolbar" >
 
+      <!--<v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>-->
+        <!--<v-icon>add</v-icon>-->
+        <!--New filter-->
+      <!--</v-btn>-->
 
       <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
       </span>
-      <v-btn  v-if="!isBasicMode && !launchedFromClin" flat
-        class="toolbar-button"
-        @click="importInProgress = false;clearFileInputs();showOpenDialog = true">
-        <v-icon>open_in_browser</v-icon>
-        Open
-      </v-btn>
 
-      <v-btn v-if="!isBasicMode && !launchedFromClin && variantCount > 0" flat
-        class="toolbar-button"
-        @click="onClickSave">
-        <v-icon>save</v-icon>
-        Save
-      </v-btn>
+    </div>
 
-
-
-
+    <div style="display:flex;justify-content:center;margin-top:15px;margin-bottom:15px">
+      <v-badge v-if="variantSetCounts.total && variantSetCounts.total > 0" class="info">
+       {{ variantSetCounts.total }} variants imported from genome-wide filters</v-badge>
     </div>
 
 
@@ -459,49 +474,48 @@
       (none)
     </span>
 
-    <div v-if="!isBasicMode && isFullAnalysis && variantCount != 0"
-      style="margin-top:-25px;margin-bottom:20px;margin-left:20px">
-        <interpretation-select  style="width:250px"
-        :interpretationMap="interpretationMap"
-        @apply-interpretation="onApplyInterpretationFilter">
-        </interpretation-select>
-    </div>
 
 
 
-  <v-expansion-panel expand >
+
+  <v-expansion-panel expand v-model="expansionControl" >
     <v-expansion-panel-content v-for="geneList in geneLists"  :key="geneList.label"
-      :value="geneList.expand"
-      v-if="geneList.show">
-      <div slot="header" v-show="!isBasicMode">
+      v-if="geneList.show" :class="{'empty': geneList.variantCount == 0}">
+      <template v-slot:header>
+        <div  v-show="!isBasicMode" >
 
-        <span v-show="geneList.genes.length > 0" class="filter-subheader">
-          <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
-
-
-          <v-badge>
-            <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
-            <span class="filter-label">{{ geneList.label }}</span>
-          </v-badge>
+          <span  class="filter-subheader">
+            <filter-icon v-if="false" :icon="geneList.name"></filter-icon>
 
 
-        </span>
+            <v-badge>
+              <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
+              <span class="filter-label">{{ geneList.label }}</span>
+            </v-badge>
+
+            <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
+              <v-icon>info_outline</v-icon>
+            </v-btn>
+
+            <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
+              <v-icon>delete</v-icon>
+            </v-btn>
+          </span>
 
 
-      </div>
+        </div>
+      </template>
       <v-list three-line>
         <template
          v-for="flaggedGene in geneList.genes">
 
-          <!-- <v-subheader :key="flaggedGene.gene.gene_name">{{ flaggedGene.gene.gene_name }}</v-subheader>
-        -->
 
           <template v-for="variant in flaggedGene.variants">
 
             <v-list-tile
             :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
             ripple
-            :class="{selected: clickedVariant == variant ? true : false}"
+            :class="{'list-item': true, selected: clickedVariant == variant ? true : false}"
             @click="onVariantSelected(variant)">
 
 
@@ -514,9 +528,31 @@
               <v-list-tile-content>
 
                 <v-list-tile-title>
+                  <variant-interpretation-badge
+                   v-if="geneList.label == 'Reviewed'"
+                   :interpretation="variant.interpretation"
+                   :interpretationMap="interpretationMap">
+                  </variant-interpretation-badge>
 
-                  <div style="float:left">
 
+                  <div style="">
+
+
+                    <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
+
+                      <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankGTR(flaggedGene.gene.gene_name) }}
+                        </v-chip>
+                        <span class="pheno-source">GTR</span>
+                      </span>
+                      <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text" >
+                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}
+                        </v-chip>
+                        <span class="pheno-source">Phenolyzer</span>
+                      </span>
+                    </div>
 
                     <div class="variant-symbols">
 
@@ -534,7 +570,7 @@
                           <app-icon
                           style="width: 15px;height: 15px;display: inline-block;margin-top: 2px;"
                            :icon="variant.inheritance"
-                           v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance != 'none'"
+                           v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance.indexOf('n/a') == -1"
                            class="inheritance-badge" height="15" width="15">
                           </app-icon>
 
@@ -557,24 +593,18 @@
                           check_circle
                         </v-icon>
 
+                        <div class="reviewed-variant-filter"
+                          v-if="geneList.label == 'Reviewed'">
+                          {{ filterPassedByVariant(variant) }}
+                        </div>
+
 
                       </span>
 
 
+                      <v-badge v-if="variant.variantSet && variant.filtersPassed != variant.variantSet && variant.filtersPassed != 'pathogenic'" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
 
-                    </div>
-                    <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
 
-                      <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankGTR(flaggedGene.gene.gene_name) }} GTR
-                        </v-chip>
-                      </span>
-                      <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }} Phenolyzer
-                        </v-chip>
-                      </span>
                     </div>
                     <div style="line-height:12px">
                       <div  v-if="!isBasicMode && !variant.notFound"
@@ -604,32 +634,9 @@
 
                   <div style="float-left;">
 
-                  <variant-interpretation
-                    style="float:left;"
-                     v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
-                     class="variant-notes"
-                     wrap="true"
-                     :interpretationMap="interpretationMap"
-                     :variant="variant"
-                     :variantInterpretation="variant.interpretation"
-                     @apply-variant-interpretation="onApplyVariantInterpretation">
-                  </variant-interpretation>
-
-                  <variant-notes-menu
-                    v-if="!isBasicMode && !forMyGene2 && !variant.notFound"
-                    style="float:left;padding-top: 4px"
-                    class="variant-notes"
-                    :showNotesIcon="true"
-                    :variant="variant"
-                    :interpretationMap="interpretationMap"
-                    :variantInterpretation="variant.interpretation"
-                    :variantNotes="variant.notes"
-                    @apply-variant-notes="onApplyVariantNotes">
-                  </variant-notes-menu>
-
-                  <span v-if="variant.notFound && isFullAnalysis"
-                    class="coord"> {{ coord(flaggedGene, variant) }} </span>
-                  </span>
+                    <span v-if="variant.notFound && isFullAnalysis"
+                      class="coord"> {{ coord(flaggedGene, variant) }} </span>
+                    </span>
 
 
                   </div>
@@ -673,144 +680,62 @@
     </v-expansion-panel-content>
   </v-expansion-panel>
 
-    <v-menu
-    offset-y
-    :close-on-content-click="false"
-    :nudge-width="400"
-    bottom
-    v-model="showOpenDialog"
-    >
-
-
-
-      <v-card class="full-width">
-        <v-card-title class="headline">Open variants file</v-card-title>
-        <v-card-text class="variant-file-body">
-          <div id="open-variant-file" >
-            <v-radio-group hide-details v-model="fileType" >
-                  <v-radio label="gene.iobio (comma separated)" value="gene"></v-radio>
-                  <v-radio label="gemini (tab delimited)" value="gemini"></v-radio>
-                  <v-radio label="Tab delimited" value="tsv"></v-radio>
-            </v-radio-group>
-
-
-
-
-
-            <div style="margin-top:10px;margin-bottom:20px">
-
-
-              <file-chooser
-                v-if="fileType == 'gene'"
-                title="Choose .csv file"
-                :isMultiple="false" :accept="`.csv`"
-                showLabel="true"
-                @file-selected="onFileSelected">
-              </file-chooser>
-
-              <file-chooser
-                v-if="fileType != 'gene'"
-                title="Choose .txt file"
-                :isMultiple="false"
-                :accept="`.txt, .tsv`"
-                showLabel="true"
-                @file-selected="onFileSelected">
-              </file-chooser>
-
-              <div style="text-align:center;margin-top:10px"
-              v-if="importInProgress" >
-                <img style="width:22px;height:22px"
-                     class="loader  glyph" src="../../../assets/images/wheel.gif"/>
-                Loading variants...
-              </div>
-            </div>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn raised class="variant-file-button" @click.native="showOpenDialog = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-menu>
-
-
-
-
-
-    <v-menu
-    offset-y
-    :close-on-content-click="false"
-    :nudge-width="400"
-    bottom
-    v-model="showSaveDialog"
-    >
-
-      <v-card class="full-width">
-        <v-card-title class="headline">
-         Save variants file
-        </v-card-title>
-        <v-card-text class="variant-file-body">
-          <div id="save-format" >
-            <v-radio-group hide-details v-model="exportFormat" >
-                  <v-radio label="Comma separated" value="csv"></v-radio>
-                  <v-radio label="VCF" value="vcf"></v-radio>
-            </v-radio-group>
-
-          </div>
-          <div style="text-align:center;margin-top:10px"
-            v-if="exportInProgress" >
-              <img style="width:22px;height:22px"
-                   class="loader  glyph" src="../../../assets/images/wheel.gif"/>
-              Saving variants to file...
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            v-if="!readyToDownload"
-            class="variant-file-button" raised @click="onSaveFile">
-            <v-icon>save</v-icon>
-            Save
-          </v-btn>
-          <a id="download-file"
-          v-bind:class="(!readyToDownload ? 'hide' : '') + ' btn variant-file-button'"
-          download="gene-iobio-variants.csv" href="#">
-            <i class="material-icons" style="padding-right:0px;font-size:20px">file_download</i>
-            <span style="padding-right:8px">Download file</span>
-          </a>
-          <v-btn class="variant-file-button" raised @click="showSaveDialog = false;readyToDownload = false;">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-menu>
-
   </v-card>
+
+
+  <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
+
+
+      <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
+        <v-card-title style="margin-left:20px" class="headline">
+          {{ currentFilter.title }}  Filter
+          <v-spacer></v-spacer>
+          <v-btn text icon @click="onCancelFilter"><v-icon>close</v-icon></v-btn>
+        </v-card-title>
+        <filter-settings
+          ref="currentFilterSettingRef"
+          v-if="currentFilter && currentFilter.name != 'coverage'"
+          :filterModel="cohortModel.filterModel"
+          :filter="currentFilter"
+          @apply-filter="onApplyFilter"
+          @cancel-filter="onCancelFilter"
+          :launchedFromClin="launchedFromClin">
+        </filter-settings>
+
+      </v-card>
+
+
+
+
+  </v-dialog>
+</div>
+
+
 </template>
 
 
 <script>
 
 
-import FileChooser from '../partials/FileChooser.vue'
-import AppIcon from '../partials/AppIcon.vue'
-import FilterIcon from '../partials/FilterIcon.vue'
-import VariantNotesMenu from '../partials/VariantNotesMenu.vue'
-import VariantInterpretation from '../partials/VariantInterpretation.vue'
-import InterpretationSelect from '../partials/InterpretationSelect.vue'
-
+import AppIcon                    from '../partials/AppIcon.vue'
+import FilterIcon                 from '../partials/FilterIcon.vue'
+import VariantInterpretationBadge from '../partials/VariantInterpretationBadge.vue'
+import FilterSettings             from '../partials/FilterSettings.vue'
+import FilterSettingsCoverage     from '../partials/FilterSettingsCoverage.vue'
 
 export default {
   name: 'flagged-variants-card',
   components: {
-    FileChooser,
     AppIcon,
     FilterIcon,
-    VariantNotesMenu,
-    VariantInterpretation,
-    InterpretationSelect
+    VariantInterpretationBadge,
+    FilterSettings,
+    FilterSettingsCoverage
   },
   props: {
     isEduMode: null,
     isBasicMode: null,
+    isSimpleMode: null,
     forMyGene2: null,
     activeFilterName: null,
     cohortModel: null,
@@ -819,21 +744,19 @@ export default {
     geneNames: null,
     genesInProgress: null,
     interpretationMap: null,
-    toClickVariant: null
+    toClickVariant: null,
+    variantSetCounts: null
   },
   data() {
     return {
-      showOpenDialog: false,
-      showSaveDialog: false,
-      exportFormat: 'csv',
-      fileType: 'gene',
       readyToDownload: false,
-      importInProgress: false,
-      exportInProgress: false,
       geneLists: null,
       clickedVariant: null,
       variantCount: 0,
-      interpretationFilters: null
+      interpretationFilters: null,
+      showEditFilter: false,
+      currentFilter: null,
+      expansionControl: null,
     }
   },
   methods: {
@@ -845,41 +768,8 @@ export default {
       this.clickedVariant = variant;
       this.$emit("flagged-variant-selected", variant);
     },
-    onFileSelected: function(fileSelection) {
-      let self = this;
-      self.importInProgress = true;
-      self.cohortModel.onFlaggedVariantsFileSelected(fileSelection, self.fileType,
-      function() {
-        self.importInProgress = false;
-        self.$emit("flagged-variants-imported");
-        self.showOpenDialog = false;
-      });
-    },
-    onClickSave: function() {
-      let self = this;
-      self.showSaveDialog = true;
-    },
-    onSaveFile: function() {
-      let self = this;
-      self.exportInProgress = true;
-      this.cohortModel.promiseExportFlaggedVariants(self.exportFormat)
-      .then(function(output) {
-        self.exportInProgress = false;
-        self.globalApp.utility.createDownloadLink("#download-file",
-          output,
-          "gene-iobio-flagged-variants." + self.exportFormat );
-        self.readyToDownload = true;
-      })
-    },
-    clearFileInputs: function() {
-
-      this.clearFileInput($("#input-csv-file")[0]);
-      this.clearFileInput($("input-txt-file")[0]);
-    },
-    clearFileInput: function(ctrl) {
-      try {
-        ctrl.value = null;
-      } catch(ex) { }
+    deselectVariant: function() {
+      this.clickedVariant = null;
     },
     populateGeneLists: function() {
       let self = this;
@@ -889,16 +779,27 @@ export default {
       var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters);
       self.geneLists = filters.map(function(filterObject, idx) {
         self.variantCount += filterObject.variantCount;
+        filterObject.filter.key = filterObject.key;
         return {
           name:  filterObject.key,
           label: filterObject.filter.title,
-          show:  filterObject.genes.length > 0,
+          filter: filterObject.filter,
+          show:  (filterObject.filter.active
+                  && filterObject.filter.title != 'Reviewed'
+                  && filterObject.filter.title != 'Not found'
+                  && filterObject.filter.title != 'Not categorized'
+                  && filterObject.filter.title != 'Flagged by user')
+                 || filterObject.genes.length > 0,
           genes: filterObject.genes,
           variantCount: filterObject.variantCount,
-          expand: self.isFullAnalysis ? (filterObject.key == 'pathogenic' || idx == 0 ?  true : false) : true
+          expand: true
         }
       })
       self.$emit("count-changed", self.variantCount);
+
+      self.expansionControl =  self.geneLists.map(function(geneList) {
+        return geneList.expand;
+      })
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
@@ -907,6 +808,84 @@ export default {
       this.$emit("apply-variant-interpretation", variant);
     },
 
+
+    onEditFilter: function(geneList) {
+      let self = this;
+      self.showEditFilter = true;
+      self.currentFilter = geneList.filter;
+      setTimeout(function() {
+        if (self.$refs.currentFilterSettingRef) {
+          self.$refs.currentFilterSettingRef.init();
+        }
+      }, 20);
+    },
+    onApplyFilter: function() {
+      let self = this;
+      self.showEditFilter = false;
+      self.currentFilter = null;
+      self.$emit("filter-settings-applied");
+    },
+    onCancelFilter: function() {
+      let self = this;
+      self.showEditFilter = false;
+      self.currentFilter = null;
+    },
+    onRemoveFilter: function(geneList) {
+      let self = this;
+
+      delete self.cohortModel.filterModel.flagCriteria[geneList.filter.key]
+      self.$emit("filter-settings-applied");
+
+      self.showEditFilter = false;
+      self.currentFilter = null;
+    },
+    onNewFilter: function() {
+      let self = this;
+      let nonCustomCount = self.geneLists.filter(function(geneList) {
+        return !geneList.filter.custom;
+      }).length;
+
+      let newFilter = {
+          name: 'custom-filter-' + (self.geneLists.length - nonCustomCount),
+          display: 'custom',
+          active: true,
+          custom: true,
+          showTooltip: false,
+          tooltip: '',
+          showEdit: true,
+          tooltip: ''
+      };
+      let newGeneList =  {
+          name:  newFilter.name,
+          label: newFilter.name,
+          filter: newFilter,
+          show: true,
+          genes: [],
+          variantCount: 0,
+          expand: true
+      }
+
+      self.currentFilter = newFilter;
+
+      let flagCriteria = {};
+      flagCriteria.custom = true;
+      flagCriteria.active = false;
+      flagCriteria.name = newFilter.name;
+      flagCriteria.maxAf = null;
+      flagCriteria.minRevel = null;
+      flagCriteria.clinvar = null;
+      flagCriteria.impact = null;
+      flagCriteria.consequence = null;
+      flagCriteria.inheritance = null;
+      flagCriteria.zygosity = null;
+      flagCriteria.genotypeDepth = null;
+      self.cohortModel.filterModel.flagCriteria[newFilter.name] = flagCriteria;
+
+
+      self.geneLists.push(newGeneList);
+      self.onEditFilter(newGeneList);
+      self.$emit("filter-settings-applied")
+    },
 
     coord: function(flaggedGene, variant) {
       return this.globalApp.utility.stripRefName(flaggedGene.gene.chr) + ":" + variant.start + " " + variant.ref + ">" + variant.alt;
@@ -1053,12 +1032,31 @@ export default {
       }
       return buf;
     },
+    filterPassedByVariant: function(variant) {
+      let filterDisplay = "";
+      if (Array.isArray(variant.filtersPassed)) {
+        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" "));
+      } else {
+        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed);
+      }
+
+      if (filterDisplay == "UserFlagged") {
+        return "";
+      } else if (filterDisplay == "NotCategorized") {
+        return "";
+      } else {
+        return filterDisplay;
+      }
+    }
+
 
   },
   mounted: function() {
-
+    this.populateGeneLists();
   },
   computed: {
+
+
 
   },
   watch: {

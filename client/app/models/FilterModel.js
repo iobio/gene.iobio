@@ -37,14 +37,33 @@ class FilterModel {
     this.geneCoverageMedian        = 15;
 
 
+
     this.flagCriterion = {
       gene: {
+        'reviewed': {
+          active: false,
+          custom: false,
+          title: "Reviewed",
+          name: "Variants with notes and/or interpretation",
+          order: 0,
+          userFlagged: false,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        },
         'pathogenic': {
           active: true,
           custom: false,
           title: "Pathogenic in ClinVar",
           name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
-          order: 0,
+          order: 1,
           userFlagged: false,
           maxAf: .05,
           clinvar: ['clinvar_path', 'clinvar_lpath'],
@@ -62,7 +81,7 @@ class FilterModel {
           custom: false,
           title: "Autosomal dominant",
           name: "Autosomal dominant inhertance, low allele freq",
-          order: 1,
+          order: 2,
           userFlagged: false,
           maxAf: .01,
           clinvar: null,
@@ -80,7 +99,7 @@ class FilterModel {
           custom: false,
           title:"Recessive",
           name: "Recessive inheritance, low allele freq",
-          order: 2,
+          order: 3,
           userFlagged: false,
           maxAf: .01,
           clinvar: null,
@@ -99,7 +118,7 @@ class FilterModel {
           custom: false,
           title: "De novo",
           name: "De novo inheritance, low allele freq",
-          order: 3,
+          order: 4,
           userFlagged: false,
           maxAf: .01,
           clinvar: null,
@@ -117,7 +136,7 @@ class FilterModel {
           custom: false,
           title: "Compound hets",
           name: "Compound het inheritance, low allele freq",
-          order: 4,
+          order: 5,
           userFlagged: false,
           maxAf: .05,
           clinvar: null,
@@ -136,7 +155,7 @@ class FilterModel {
           title: "X-linked recessive",
           name: "X-linked recessive inheritance, low allele freq",
           userFlagged: false,
-          order: 5,
+          order: 6,
           maxAf: .01,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
@@ -153,7 +172,7 @@ class FilterModel {
           custom: false,
           title: "High impact",
           name: "High impact, low allele freq",
-          order: 6,
+          order: 7,
           userFlagged: false,
           maxAf: .01,
           clinvar: null,
@@ -172,7 +191,7 @@ class FilterModel {
           custom: false,
           title: "Flagged by user",
           name: "Variants flagged by user",
-          order: 7,
+          order: 8,
           userFlagged: true,
           maxAf: null,
           clinvar: null,
@@ -184,6 +203,25 @@ class FilterModel {
           minGenotypeAltCount: null,
           minRevel: null,
           exclusiveOf:  null
+        },
+        'notCategorized': {
+          // TODO - figure out how to show when variants no longer match filters
+          active: false,
+          custom: false,
+          title: "Not categorized",
+          name: "Variants found during full analysis, but not passing any app filters",
+          order: 9,
+          userFlagged: false,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
         },
         'notCategorized': {
           // TODO - figure out how to show when variants no longer match filters
@@ -205,7 +243,7 @@ class FilterModel {
           exclusiveOf: null
         },
         'notFound': {
-          // TODO - figure out how to notify user when bookmarked variants are not found in vcf
+          // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
           title: "Not found",
@@ -223,14 +261,34 @@ class FilterModel {
           minRevel: null,
           exclusiveOf: null
         }
+        
+
       },
       genefull: {
+        'reviewed': {
+          active: false,
+          custom: false,
+          title: "Reviewed",
+          name: "Variants with notes and/or interpretation",
+          order: 0,
+          userFlagged: false,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        },
         'pathogenic': {
           active: true,
           custom: false,
           title: "Pathogenic in ClinVar",
           name: "Pathogenic, likely pathogenic ClinVar, low allele freq",
-          order: 0,
+          order: 1,
           userFlagged: false,
           maxAf: .01,
           clinvar: ['clinvar_path', 'clinvar_lpath'],
@@ -248,7 +306,7 @@ class FilterModel {
           custom: false,
           title: "Autosomal dominant",
           name: "Autosomal dominant inhertance, low allele freq",
-          order: 1,
+          order: 2,
           userFlagged: false,
           maxAf: .01,
           clinvar: null,
@@ -266,7 +324,7 @@ class FilterModel {
           custom: false,
           title:"Recessive",
           name: "Recessive inheritance, low allele freq",
-          order: 2,
+          order: 3,
           userFlagged: false,
           maxAf: .01,
           clinvar: null,
@@ -285,7 +343,7 @@ class FilterModel {
           custom: false,
           title: "De novo",
           name: "De novo inheritance, low allele freq",
-          order: 3,
+          order: 4,
           userFlagged: false,
           maxAf: .01,
           clinvar: null,
@@ -303,7 +361,7 @@ class FilterModel {
           custom: false,
           title: "Compound hets",
           name: "Compound het inheritance, low allele freq",
-          order: 4,
+          order: 5,
           userFlagged: false,
           maxAf: .05,
           clinvar: null,
@@ -322,7 +380,7 @@ class FilterModel {
           title: "X-linked recessive",
           name: "X-linked recessive inheritance, low allele freq",
           userFlagged: false,
-          order: 5,
+          order: 6,
           maxAf: .01,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
@@ -339,7 +397,7 @@ class FilterModel {
           custom: false,
           title: "High impact",
           name: "High impact, low allele freq",
-          order: 6,
+          order: 7,
           userFlagged: false,
           maxAf: .01,
           clinvar: null,
@@ -359,7 +417,7 @@ class FilterModel {
           custom: false,
           title: "Not categorized",
           name: "Variants found during full analysis, but not passing any app filters",
-          order: 6,
+          order: 8,
           userFlagged: false,
           maxAf: null,
           clinvar: null,
@@ -378,7 +436,7 @@ class FilterModel {
           custom: false,
           title: "Not found",
           name: "Variants not found",
-          order: 7,
+          order: 9,
           userFlagged: false,
           maxAf: null,
           clinvar: null,
@@ -817,7 +875,7 @@ class FilterModel {
       variant.isUserFlagged = false;
       variant.notCategorized = true;
       variant.featureClass = 'flagged';
-      variant.filtersPassed = 'notCategorized';
+      self.mapGenomeWideFilter(variant);
     }
 
     if (variant.isFlagged) {
@@ -833,6 +891,18 @@ class FilterModel {
       badges.flagged.push(variant);
     }
 
+  }
+
+  mapGenomeWideFilter(variant) {
+    let self = this;
+    if (variant.variantSet && variant.variantSet.length > 0) {    
+      let filter = self.flagCriteria[variant.variantSet];
+      if (filter) {
+        variant.filtersPassed = variant.variantSet;
+      } else {
+        filterName = 'notCategorized';
+      }
+    }
   }
 
   determinePassCriteria(badge, variant, options) {
@@ -879,7 +949,7 @@ class FilterModel {
         passes.revel = true
       } else {
         for (var revel in variant.vepREVEL) {
-          if (revel == "" || +revel >= badgeCriteria.minRevel) {
+          if (revel != "" || +revel >= badgeCriteria.minRevel) {
             passes.revel = true;
           }
         }

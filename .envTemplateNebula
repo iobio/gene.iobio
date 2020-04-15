@@ -1,0 +1,17 @@
+IOBIO_BACKEND=backend.iobio.io
+IOBIO_BACKEND_MOSAIC=mosaic.chpc.utah.edu/gru/api/v1
+USE_SSL=true
+SITE_NAME=Nebula Genomics
+SHOW_INTRO=true
+DEFAULT_MODE=simple
+INTRO_PARAGRAPH_1=This gene analysis tool enables you to examine any gene in your genome and identify variants that may have a clinical significance.
+INTRO_PARAGRAPH_2=To get started, enter a gene name (e.g. BRCA2) into the search field in the navigation bar. In the panel on the left, you will then see a list of all genes that you searched for during a session. Click on a gene to examine it.
+INTRO_PARAGRAPH_3=This will bring up a 'Gene' panel that contains a short summary of what is known about the gene. Below the 'Gene' panel is the 'Variants' panel. It shows the genetic variants that you have in the selected gene. Different types of variants are represented using icons of different shapes and colors. See legend in the navigation menu for more details. Click on a variant icon to open the 'Variant' panel with more information on the variant.
+
+
+
+
+
+
+
+

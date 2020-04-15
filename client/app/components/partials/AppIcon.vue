@@ -28,6 +28,12 @@
 .level-other
   fill: $level-other-color
 
+#not-significant-symbol
+  circle
+    fill: $not-significant-color
+  path
+    fill: white
+
 #user-flagged-symbol
   fill: $link-color !important
 
@@ -41,23 +47,24 @@
 
   &.custom-filter-0
     color: #0091ea
-    margin: 0px 2px 14px 0px
+    margin: -7px 0px 0px -7px
+
 
   &.custom-filter-1
     color: #fb8c00
-    margin: 0px 2px 14px 0px
+    margin: -7px 0px 0px -7px
 
   &.custom-filter-2
     color: #00b8d4
-    margin: 0px 2px 14px 0px
+    margin: -7px 0px 0px -7px
 
   &.custom-filter-3
     color: #9e9d24
-    margin: 0px 2px 14px 0px
+    margin: -7px 0px 0px -7px
 
   &.custom-filter-4
     color: #43a047
-    margin: 0px 2px 14px 0px
+    margin: -7px 0px 0px -7px
 
 
 
@@ -150,6 +157,38 @@
         </g>
       </svg>
 
+
+      <svg
+       v-if="icon == 'zygosity' && type == 'hom-large' "
+       :style="iconStyle"
+       :icon="icon"
+       :type="type"
+       class="impact-badge">
+        <g transform="translate(0,0)">
+          <rect width="35" height="14" class="zyg_hom" style="pointer-events: none;">
+          </rect>
+          <text x="4" y="11" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 11px !important;">
+          Hom
+          </text>
+        </g>
+      </svg>
+
+      <svg
+       v-if="icon == 'zygosity' && type == 'het-large' "
+       :style="iconStyle"
+       :icon="icon"
+       :type="type"
+       class="impact-badge">
+        <g transform="translate(0,0)">
+          <rect width="35" height="14" class="zyg_het" style="pointer-events: none;">
+          </rect>
+          <text x="4" y="11" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 11px !important;">
+          Het
+          </text>
+        </g>
+      </svg>
+
+
       <svg v-if="icon == 'system-flagged'" id="system-flagged-symbol"  width="16" height="16" viewBox="0 0 24 24" :style="iconStyle">
           <path d="M0 0h24v24H0z" fill="none"/>
           <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
@@ -162,7 +201,7 @@
 
 
       <v-icon v-if="icon == 'filter'" :class="iconClass" id="filter-symbol">
-        find_in_page
+        filter_list
       </v-icon>
 
       <svg v-if="icon == 'circle-checkmark'"  id="circle-checkmark-symbol" width="16" height="25" viewBox="0 0 24 24" :style="iconStyle" >
@@ -632,6 +671,25 @@
     </svg>
 
 
+    <svg v-if="icon == 'affected'" id="affected-symbol"
+       width="24"
+       height="24"
+       :style="iconStyle"
+       viewBox="0 0 24 24">
+      <path d="M0 0h24v24H0z" fill="none"/>
+      <path d="M12.45 16h2.09L9.43 3H7.57L2.46 16h2.09l1.12-3h5.64l1.14 3zm-6.02-5L8.5 5.48 10.57 11H6.43zm15.16.59l-8.09 8.09L9.83 16l-1.41 1.41 5.09 5.09L23 13l-1.41-1.41z"/>
+    </svg>
+
+    <svg v-if="icon == 'not-significant'" id="not-significant-symbol"
+       width="24"
+       height="24"
+       :style="iconStyle"
+       viewBox="0 0 24 24">
+      <circle r="11" cx="12" cy="12"></circle>
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z" />
+    </svg>
+
+
   </div>
 
 </template>
@@ -700,7 +758,11 @@ export default {
       return 'width:' + this.width + 'px;height:' + this.height + 'px';
     },
     containerStyle: function() {
-      return 'display: inline-block;vertical-align: top; width:' + this.width + 'px;height:' + this.height + 'px';
+      return 'display: inline-block;vertical-align: top; '
+      + 'width:'  + this.width + 'px;'
+      + 'height:' + this.height + 'px;';
+      + 'min-width:'  + this.width + 'px;'
+      + 'max-height:' + this.height + 'px;';
     }
 
   }

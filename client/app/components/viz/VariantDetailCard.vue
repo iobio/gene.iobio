@@ -4,11 +4,12 @@
   padding-left: 0px
   max-height: 222px
   min-height: 222px
-  padding-top: 0px
+  padding-top: 0px∂g
   overflow-x: scroll
   min-width: 700px
   margin-bottom: 0px
   padding-left: 10px
+
 
   .rel-header
     font-style: italic
@@ -23,7 +24,7 @@
     margin-top: -2px
     margin-bottom: 0px
 
-    .btn__content
+    .btn__content, .v-btn__content
       color: $app-color !important
       padding-left: 8px
       padding-right: 8px
@@ -49,7 +50,7 @@
 
 
   #show-notes-button
-    .btn__content
+    .btn__content, .v-btn__content
       .interpretation-label
         font-size: 13px !important
         padding-top: 6px !important
@@ -82,7 +83,7 @@
         color: $app-color
 
     #show-notes-button
-      .btn__content
+      .btn__content, .v-btn__content
         .material-icons
           padding-top: 0px !important
 
@@ -145,7 +146,7 @@
     padding: 0px
     width: 100px
 
-    .btn__content
+    .btn__content, .v-btn__content
       color: $link-color !important
       padding: 0px
 
@@ -339,359 +340,260 @@
 
 
 <template>
+  <v-card   v-if="selectedVariant && info" class="app-card full-width">
 
-  <div v-if="selectedVariant && info" tile id="variant-detail"
-    :class="{'app-card': true, 'has-notes': notes ? true : false}">
-    <div style="width:100%;">
-      <span style="display:inline-block" v-if="showTitle ">Variant</span>
-    </div>
+    <div v-if="selectedVariant && info" tile id="variant-detail"
+      :class="{'app-card': true, 'has-notes': notes ? true : false}">
+      <div style="width:100%;">
+        <span style="display:inline-block" v-if="showTitle ">Variant</span>
+      </div>
 
-    <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-left">
+      <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-left">
 
-      <span style="float:left;margin-top:-4px" v-if="!isBasicMode && !forMyGene2 && interpretation" class="pr-2 pl-1">
-                  <variant-interpretation
-                    style="float:left;"
-                     v-if="!isBasicMode && !forMyGene2"
-                     wrap="true"
-                     :variant="selectedVariant"
-                     :variantInterpretation="interpretation"
-                     @apply-variant-interpretation="onApplyVariantInterpretation">
-                  </variant-interpretation>
 
-                  <variant-notes-menu
-                    v-if="!isBasicMode && !forMyGene2"
-                    style="float:left;padding-top: 4px"
-                    :showNotesIcon="true"
-                    :variant="selectedVariant"
-                    :variantInterpretation="interpretation"
-                    :variantNotes="notes"
-                    @apply-variant-notes="onApplyVariantNotes">
-                  </variant-notes-menu>
+
+        <span class="pr-1 pl-1" v-if="!isBasicMode && (selectedVariantRelationship == 'known-variants')">
+          <app-icon v-show="selectedVariantRelationship == 'known-variants'"
+            icon="clinvar" width="16" height="16">
+          </app-icon>
+          <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
         </span>
+        <span class="pl-1">{{ selectedGene.gene_name }}</span>
+        <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
+        <span class="pl-1">{{ info.coord }}</span>
+        <span class="pl-1 refalt">{{ refAlt  }}</span>
+        <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
 
+       <v-btn v-if="!isBasicMode && !isEduMode && selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
+        class="variant-action-button"  @click="onShowPileup">
+        <v-icon>line_style</v-icon>
+        Pileup
+       </v-btn>
 
-      <span class="pr-1 pl-1" v-if="!isBasicMode && (selectedVariantRelationship == 'known-variants')">
-        <app-icon v-show="selectedVariantRelationship == 'known-variants'"
-          icon="clinvar" width="16" height="16">
-        </app-icon>
-        <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
-      </span>
-      <span class="pl-1">{{ selectedGene.gene_name }}</span>
-      <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-      <span class="pl-1">{{ info.coord }}</span>
-      <span class="pl-1 refalt">{{ refAlt  }}</span>
-      <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
+        <div id="user-flag-buttons" v-if="selectedVariant && !isEduMode && !isBasicMode && selectedVariantRelationship != 'known-variants'" >
+          <v-btn class="flag-button variant-action-button" small raised
+          v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"
+          @click="setUserFlag">
+            <app-icon icon="user-flagged" width="14" height="14" style="padding-top:1px;padding-right:3px"></app-icon>
+            Flag variant
+          </v-btn>
 
-     <v-btn v-if="!isBasicMode && !isEduMode && selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded() "
-      class="variant-action-button"  @click="onShowPileup">
-      <v-icon>line_style</v-icon>
-      Pileup
-     </v-btn>
+          <v-btn class="flag-button variant-action-button" small raised
+          v-if="selectedVariant.isUserFlagged"
+          @click="removeUserFlag">
+            <v-icon>outlined_flag</v-icon>
+            Remove flag
+          </v-btn>
+        </div>
 
-      <div id="user-flag-buttons" v-if="selectedVariant && !isEduMode && !isBasicMode && selectedVariantRelationship != 'known-variants'" >
-        <v-btn class="flag-button variant-action-button" small raised
-        v-if="!selectedVariant.isUserFlagged && !selectedVariant.isFlagged"
-        @click="setUserFlag">
-          <app-icon icon="user-flagged" width="14" height="14" style="padding-top:1px;padding-right:3px"></app-icon>
-          Flag variant
-        </v-btn>
+        <variant-links-menu
+        v-if="!isBasicMode"
+        :selectedGene="selectedGene"
+        :selectedVariant="selectedVariant"
+        :geneModel="cohortModel.geneModel"
+        :info="info">
+        </variant-links-menu>
 
-        <v-btn class="flag-button variant-action-button" small raised
-        v-if="selectedVariant.isUserFlagged"
-        @click="removeUserFlag">
-          <v-icon>outlined_flag</v-icon>
-          Remove flag
-        </v-btn>
-      </div>
+        <gene-menu
+        v-if="!isBasicMode"
+        :selectedGene="selectedGene"
+        :selectedTranscript="selectedTranscript"
+        :geneModel="cohortModel.geneModel">
+        </gene-menu>
 
-      <variant-links-menu
-      v-if="!isBasicMode && !isEduMode"
-      :expanded="true"
-      :selectedGene="selectedGene"
-      :selectedVariant="selectedVariant"
-      :geneModel="cohortModel.geneModel">
-      </variant-links-menu>
-
-
-    </div>
-
-
-
-
-    <div style="display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-start">
-
-
-
-
-
-
-
-      <div v-if="isBasicMode" style="margin-left: 10px;">
-
-          <v-flex v-if="isBasicMode">
-            <v-layout  row>
-               <v-flex xs5 class="field-label">Transcript</v-flex>
-               <v-flex xs7 class="field-value">{{ formatCanonicalTranscript() }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex v-if="isBasicMode">
-            <v-layout  row>
-               <v-flex xs5 class="field-label">cDNA</v-flex>
-               <v-flex xs7 class="field-value">{{ info.HGVScAbbrev }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex v-if="isBasicMode">
-            <v-layout  row>
-               <v-flex xs5 class="field-label">Protein</v-flex>
-               <v-flex xs7 class="field-value">{{ info.HGVSpAbbrev }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex v-if="isBasicMode">
-            <v-layout  row>
-               <v-flex xs5 class="field-label">Chr</v-flex>
-               <v-flex xs7 class="field-value">{{ selectedVariant.chrom }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex v-if="isBasicMode">
-            <v-layout  row>
-               <v-flex xs5 class="field-label">Position</v-flex>
-               <v-flex xs7 class="field-value">{{ selectedVariant.start }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex v-if="isBasicMode">
-            <v-layout  row>
-               <v-flex xs5 class="field-label">Reference</v-flex>
-               <v-flex xs7 class="field-value">{{ selectedVariant.ref }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex v-if="isBasicMode">
-            <v-layout  row>
-               <v-flex xs5 class="field-label">Alternate</v-flex>
-               <v-flex xs7 class="field-value">{{ selectedVariant.alt }}</v-flex>
-            </v-layout>
-          </v-flex>
       </div>
 
 
-      <div style="min-width:250px;max-width:300px;margin-right:10px">
 
 
-        <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
-
-
+      <div style="display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-start">
 
 
 
 
-          <v-flex v-if="!isBasicMode && selectedVariant.inheritance != '' && selectedVariant.inheritance != 'none' ">
-            <v-layout row class="">
-               <v-flex xs4 class="field-label">Inheritance</v-flex>
-               <v-flex id="inheritance" xs8 class="field-value">
-                 <app-icon :icon="selectedVariant.inheritance" height="16" width="16">
-                 </app-icon>
-                 {{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}
-               </v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex>
-            <v-layout row>
-               <v-flex xs4 v-if="!isBasicMode" class="field-label">Impact</v-flex>
-               <v-flex xs8 v-if="!isBasicMode"  class="field-value" v-html="impactAndConsequence"></v-flex>
 
-               <v-flex xs4 v-if="isBasicMode" class="field-label">Predicted Impact</v-flex>
-               <v-flex xs8 v-if="isBasicMode" class="field-value">{{ info.vepImpact }}</v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex v-if="info.vepHighestImpact != '' && !isBasicMode">
-            <v-layout row >
-               <v-flex xs4 class="field-label">Most severe impact</v-flex>
-               <v-flex xs8 class="field-value">
-                  <span v-for="(impactRec, idx) in info.vepHighestImpactRecs" :key="impactRec.impact">
-                    <span :class="getImpactClass(impactRec.impact.toLowerCase())">
-                      {{ getNonCanonicalImpactDisplay(idx, impactRec) }}
-                    </span>
-                    <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
-                      {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
-                      <a v-for="transcriptId in effectRec.transcripts"
-                       :key="transcriptId"
-                       href="javascript:void(0)"
-                       @click="selectTranscript(transcriptId)">
-                        {{ transcriptId }}
-                      </a>
-                    </span>
-                  </span>
 
-               </v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex >
-            <v-layout row  v-if="info.clinvarLinks.length > 0">
-               <v-flex xs4 xs4  class="field-label">Clinvar</v-flex>
-               <v-flex xs8  class="field-value">
-                <span class="clinvar-submission" v-for="clinvarLink in info.clinvarLinks"
-                 :key="clinvarLink.key">
-                   <app-icon width="14" height="14" icon="clinvar" :significance="clinvarLink.significance">
+
+        <div v-if="isBasicMode" style="min-width:300px;margin-left: 10px;">
+
+            <v-flex v-if="isBasicMode">
+              <v-layout  row>
+                 <v-flex xs5 class="field-label">Transcript</v-flex>
+                 <v-flex xs7 class="field-value">{{ formatCanonicalTranscript() }}</v-flex>
+              </v-layout>
+            </v-flex>
+
+            <v-flex v-if="isBasicMode">
+              <v-layout  row>
+                 <v-flex xs5 class="field-label">cDNA</v-flex>
+                 <v-flex xs7 class="field-value">{{ info.HGVScAbbrev }}</v-flex>
+              </v-layout>
+            </v-flex>
+
+            <v-flex v-if="isBasicMode">
+              <v-layout  row>
+                 <v-flex xs5 class="field-label">Protein</v-flex>
+                 <v-flex xs7 class="field-value">{{ info.HGVSpAbbrev }}</v-flex>
+              </v-layout>
+            </v-flex>
+
+            <v-flex v-if="isBasicMode">
+              <v-layout  row>
+                 <v-flex xs5 class="field-label">Chr</v-flex>
+                 <v-flex xs7 class="field-value">{{ selectedVariant.chrom }}</v-flex>
+              </v-layout>
+            </v-flex>
+
+            <v-flex v-if="isBasicMode">
+              <v-layout  row>
+                 <v-flex xs5 class="field-label">Position</v-flex>
+                 <v-flex xs7 class="field-value">{{ selectedVariant.start }}</v-flex>
+              </v-layout>
+            </v-flex>
+
+            <v-flex v-if="isBasicMode">
+              <v-layout  row>
+                 <v-flex xs5 class="field-label">Reference</v-flex>
+                 <v-flex xs7 class="field-value">{{ selectedVariant.ref }}</v-flex>
+              </v-layout>
+            </v-flex>
+
+            <v-flex v-if="isBasicMode">
+              <v-layout  row>
+                 <v-flex xs5 class="field-label">Alternate</v-flex>
+                 <v-flex xs7 class="field-value">{{ selectedVariant.alt }}</v-flex>
+              </v-layout>
+            </v-flex>
+        </div>
+
+
+        <div style="min-width:330px;max-width:330px;margin-right:10px">
+
+
+          <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
+
+
+
+
+
+
+            <v-flex v-if="!isBasicMode && selectedVariant.inheritance != '' && selectedVariant.inheritance.indexOf('n/a') == -1 ">
+              <v-layout row class="">
+                 <v-flex xs4 class="field-label">Inheritance</v-flex>
+                 <v-flex id="inheritance" xs8 class="field-value">
+                   <app-icon :icon="selectedVariant.inheritance" height="16" width="16">
                    </app-icon>
+                   {{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}
+                 </v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex>
+              <v-layout row>
+                 <v-flex xs4 v-if="!isBasicMode" class="field-label">Impact</v-flex>
+                 <v-flex xs8 v-if="!isBasicMode"  class="field-value" v-html="impactAndConsequence"></v-flex>
 
-                   <span style="padding-left: 5px" v-html="clinvarLink.link">
-                   </span>
+                 <v-flex xs5 v-if="isBasicMode" class="field-label">Predicted Impact</v-flex>
+                 <v-flex xs7 v-if="isBasicMode" class="field-value">{{ info.vepImpact }}</v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex v-if="info.vepHighestImpact != '' && !isBasicMode">
+              <v-layout row >
+                 <v-flex xs4 class="field-label">Most severe impact</v-flex>
+                 <v-flex xs8 class="field-value">
+                    <span v-for="(impactRec, idx) in info.vepHighestImpactRecs" :key="impactRec.impact">
+                      <span :class="getImpactClass(impactRec.impact.toLowerCase())">
+                        {{ getNonCanonicalImpactDisplay(idx, impactRec) }}
+                      </span>
+                      <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
+                        {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
+                        <a v-for="transcriptId in effectRec.transcripts"
+                         :key="transcriptId"
+                         href="javascript:void(0)"
+                         @click="selectTranscript(transcriptId)">
+                          {{ transcriptId }}
+                        </a>
+                      </span>
+                    </span>
 
-                </span>
-               </v-flex>
-            </v-layout>
+                 </v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex >
+              <v-layout row  v-if="info.clinvarLinks.length > 0">
+                 <v-flex xs5  class="field-label">Clinvar</v-flex>
+                 <v-flex xs7  class="field-value">
+                  <span class="clinvar-submission" v-for="clinvarLink in info.clinvarLinks"
+                   :key="clinvarLink.key">
+                    <div style="display:inline-block;min-width:14px;min-height:14px">
+                     <app-icon width="14" height="14" icon="clinvar" :significance="clinvarLink.significance">
+                     </app-icon>
+                    </div>
 
-
-          </v-flex>
-
-          <v-flex  v-if="info.revel != '' && info.revel != null && !isBasicMode" >
-            <v-layout row class="">
-               <v-flex xs4 class="field-label revel">REVEL</v-flex>
-               <v-flex xs8 :class="getRevelClass(info)">
-                  {{ info.revel }}
-                  <info-popup name="revel"></info-popup>
-               </v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex   v-if="info.polyphen != '' && !isBasicMode">
-            <v-layout row class="" >
-               <v-flex xs4 class="field-label">Polyphen</v-flex>
-               <v-flex xs8 :class="getPolyphenClass(selectedVariant)">{{ info.polyphen }}</v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex  v-if="info.sift != '' && !isBasicMode" >
-            <v-layout row class="">
-               <v-flex xs4 class="field-label">SIFT</v-flex>
-               <v-flex xs8 :class="getSiftClass(selectedVariant)">{{ info.sift }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-
-
-        </v-layout>
-      </div>
-
-
-
-      <div v-if="selectedVariant" style="max-width:300px;min-width:250px">
-          <v-flex  v-if="!isBasicMode">
-            <v-layout  row>
-               <v-flex xs4 class="field-label">gnomAD</v-flex>
-               <v-flex xs8 class="field-value" v-html="afGnomAD"></v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex   v-if="genomeBuildHelper.getCurrentBuildName() != 'GRCh37' && !isBasicMode" xs6>
-            <v-layout row>
-               <v-flex xs4 class="field-label">ExAC</v-flex>
-               <v-flex xs8 class="field-value" v-html="afExAC"></v-flex>
-            </v-layout>
-          </v-flex>
+                    <div style="padding-left:10px" v-if="info.clinvarTrait.length > 0">
+                      <span>{{ info.clinvarTrait }} </span>
+                    </div>
 
 
-          <v-flex v-if="!isBasicMode">
-            <v-layout  row>
-               <v-flex xs4 class="field-label">1000G</v-flex>
-               <v-flex xs8 class="field-value" v-html="af1000G"></v-flex>
-            </v-layout>
-          </v-flex>
+                  </span>
+                 </v-flex>
+              </v-layout>
 
 
-          <v-flex  v-if="info.regulatory != '' & !isBasicMode">
-            <v-layout row>
-               <v-flex xs4 class="field-label">Regulatory</v-flex>
-               <v-flex xs8  v-html="info.regulatory" class="field-value"></v-flex>
-            </v-layout>
-          </v-flex>
+            </v-flex>
+
+            <v-flex  v-if="info.revel != '' && info.revel != null && !isBasicMode" >
+              <v-layout row class="">
+                 <v-flex xs4 class="field-label revel">REVEL</v-flex>
+                 <v-flex xs8 :class="getRevelClass(info)">
+                    {{ info.revel }}
+                    <info-popup name="revel"></info-popup>
+                 </v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex   v-if="info.polyphen != '' && !isBasicMode">
+              <v-layout row class="" >
+                 <v-flex xs4 class="field-label">Polyphen</v-flex>
+                 <v-flex xs8 :class="getPolyphenClass(selectedVariant)">{{ info.polyphen }}</v-flex>
+              </v-layout>
+            </v-flex>
+            <v-flex  v-if="info.sift != '' && !isBasicMode" >
+              <v-layout row class="">
+                 <v-flex xs4 class="field-label">SIFT</v-flex>
+                 <v-flex xs8 :class="getSiftClass(selectedVariant)">{{ info.sift }}</v-flex>
+              </v-layout>
+            </v-flex>
 
 
-          <v-flex  v-if="!isBasicMode">
-            <v-layout row class="">
-               <v-flex xs4 class="field-label  " >Transcript</v-flex>
-               <v-flex xs8 class="field-value">{{ selectedVariant.transcript ? selectedVariant.transcript.transcript_id : selectedTranscript.transcript_id }}</v-flex>
-            </v-layout>
-          </v-flex>
 
-          <v-flex  v-if="!isBasicMode">
-            <v-layout row class="">
-               <v-flex xs4 class="field-label  "  >Exon </v-flex>
-               <v-flex xs8 class="field-value">{{ info.exon }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex  v-if="!isBasicMode">
-            <v-layout row class="">
-               <v-flex xs4 class="field-label  "  >dbSNP ID</v-flex>
-               <v-flex xs8 class="field-value" v-html="info.dbSnpLink"></v-flex>
-            </v-layout>
-          </v-flex>
-
-
-          <v-flex  v-if="!isBasicMode">
-            <v-layout row class="">
-               <v-flex xs4 class="field-label  "  >HGVSc </v-flex>
-               <v-flex xs8 class="field-value">{{ info.HGVSc }}</v-flex>
-            </v-layout>
-          </v-flex>
-          <v-flex   v-if="!isBasicMode">
-            <v-layout row>
-               <v-flex xs4 class="field-label  "  >HGVSp </v-flex>
-               <v-flex xs8 class="field-value">{{ info.HGVSp }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-
-      </div>
-
-
-      <div id="coverage-svg" v-if="selectedVariant" style="min-width:445px" v-bind:class="{hide: isEduMode || isBasicMode }">
+          </v-layout>
+        </div>
 
 
 
 
-      </div>
 
 
-      <div v-if="isBasicMode" style="">
 
-          <v-flex v-if="isBasicMode">
-            <v-layout  row>
-               <v-flex xs5 class="field-label  ">Frequency (1000G)</v-flex>
-               <v-flex xs7 class="field-value">{{ info.af1000G }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-          <v-flex v-if="isBasicMode">
-            <v-layout  row>
-               <v-flex xs5 class="field-label ">Frequency (gnomAD)</v-flex>
-               <v-flex xs7 class="field-value">{{ info.afgnomAD }}</v-flex>
-            </v-layout>
-          </v-flex>
-
-      </div>
+        <div v-if="isBasicMode" style="min-width:300px">
 
 
-      <div style=""
-        v-if="selectedVariant && selectedVariant.genericAnnots && selectedVariant.genericAnnots.AVIA3">
-        <span style="text-align:center;font-size:12px">AVIA3 Annotations</span>
-        <v-layout row nowrap
-         v-for="(annotValue, annotName) in selectedVariant.genericAnnots.AVIA3"
-         :key="annotName">
-             <v-flex xs5 class="field-label">{{ annotName }}</v-flex>
-             <v-flex xs7 class="field-value">{{ annotValue }}</v-flex>
-        </v-layout>
+            <v-flex v-if="isBasicMode">
+              <v-layout  row>
+                 <v-flex xs6 class="field-label ">Frequency (gnomAD)</v-flex>
+                 <v-flex xs6 class="field-value">{{ afGnomAD.percent }}</v-flex>
+              </v-layout>
+            </v-flex>
+
+        </div>
+
+
+
+
       </div>
 
 
     </div>
-
-
-  </div>
+  </v-card>
 </template>
 
 <script>
@@ -699,18 +601,18 @@
 import Vue              from 'vue'
 import AppIcon          from "../partials/AppIcon.vue"
 import variantInterpretation from "../partials/VariantInterpretation.vue"
-import VariantNotesMenu from "../partials/VariantNotesMenu.vue"
 import VariantLinksMenu from "../partials/VariantLinksMenu.vue"
 import InfoPopup        from "../partials/InfoPopup.vue"
+import GeneMenu         from "../partials/GeneMenu.vue"
 
 export default {
   name: 'variant-detail-card',
   components: {
     AppIcon,
-    VariantNotesMenu,
     variantInterpretation,
     InfoPopup,
-    VariantLinksMenu
+    VariantLinksMenu,
+    GeneMenu
   },
   props: {
     isEduMode: null,
@@ -1217,46 +1119,56 @@ export default {
       }
       return refAlt;
     },
-    afGnomAD: function(af) {
-      if (this.selectedVariant.vepAF == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
-        return "unknown";
-      } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
-        return "<span class='"
-        + this.getAfClass(0)
-        + "'>"
-        + "0%"
-        + "</span>";
-      } else if (this.isBasicMode) {
-        return this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
-      } else  {
-        var af = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
-        var link = "<a target='_gnomad' "
-          + " class='" + this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF) + "' "
-          + " href='http://gnomad.broadinstitute.org/variant/" + this.selectedVariant.chrom + "-"
-          + this.selectedVariant.start + "-" + this.selectedVariant.ref + "-" + this.selectedVariant.alt + "'>"
-          + af + "</a>";
-        link += "&nbsp;&nbsp;" + this.formatPopAF(this.selectedVariant.vepAf.gnomAD);
-        return link;
+    afGnomAD: function() {
+      if (this.selectedVariant) {
+        if (this.selectedVariant.extraAnnot && this.globalApp.gnomADExtra) {
+          if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
+            return {percent: "?", link: null, class: ""};
+          } else if (this.selectedVariant.gnomAD.af  == '.') {
+            return {percent: "0%", link: null, class: "level-high"};
+          } else  {
+            var gnomAD = {};
+            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+              + this.selectedVariant.chrom + "-"
+              + this.selectedVariant.start + "-"
+              + this.selectedVariant.ref + "-"
+              + this.selectedVariant.alt;
+
+            gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
+            gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
+            gnomAD.percentPopMax = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax);
+            gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
+            gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
+            gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
+            return gnomAD;
+
+          }
+        } else {
+          if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
+            return {percent: "?", link: null, class: ""};
+          } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
+            return {percent: "0%", link: null, class: "level-high"};
+          } else  {
+            var gnomAD = {};
+            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+              + this.selectedVariant.chrom + "-"
+              + this.selectedVariant.start + "-"
+              + this.selectedVariant.ref + "-"
+              + this.selectedVariant.alt;
+
+            gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
+            gnomAD.class         = this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF);
+            gnomAD.percentPopMax = 0;
+            gnomAD.altCount      = 0;
+            gnomAD.totalCount    = 0;
+            gnomAD.homCount      = 0;
+            return gnomAD;
+          }
+
+        }
       }
     },
-    af1000G: function(af) {
-      if (this.selectedVariant.af1000G == null) {
-        return "0%";
-      } else  {
-        var af = this.globalApp.utility.percentage(this.selectedVariant.af1000G);
-        var popAF = this.formatPopAF(this.selectedVariant.vepAf['1000G']);
-        return "<span class='"
-        + this.getAfClass(this.selectedVariant.af1000G) + "'>"
-        + af
-        + "</span>"
-        +"<span style='margin-left:2px''>"
-        + popAF
-        + "</span>";
-      }
-    },
-    afExAC: function() {
-      return this.selectedVariant.afExAC ? this.globalApp.utility.percentage(this.selectedVariant.afExAC) : "";
-    },
+
     notes: function() {
       return this.selectedVariantNotes && this.selectedVariantNotes.length > 0 ? this.selectedVariantNotes : null;
     },

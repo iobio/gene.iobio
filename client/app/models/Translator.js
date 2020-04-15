@@ -60,7 +60,10 @@ export default class Translator {
                       'x-linked':           {value: 3, badge: true,  clazz: 'x-linked',     display: 'x-linked',     symbolFunction: this.glyph.showXLinkedSymbol},
                       'compound het':       {value: 4, badge: true,  clazz: 'compound-het', display: 'compound het', symbolFunction: this.glyph.showCompoundHetSymbol},
                       'autosomal dominant': {value: 5, badge: true,  clazz: 'autosomal-dominant', display: 'autosomal dominant', symbolFunction: this.glyph.showAutosomalDominantSymbol},
-                      none:                 {value: 3, badge: false, clazz: 'noinherit',    display: '',             symbolFunction: this.glyph.showNoInheritSymbol}
+                      'n/a':                {value: 3, badge: false, clazz: 'noinherit',    display: '',             symbolFunction: this.glyph.showNoInheritSymbol},
+                      'n/a paternal or maternal': {value: 3, badge: false, clazz: 'noinherit',    display: '',       symbolFunction: this.glyph.showNoInheritSymbol},
+                      'n/a paternal':       {value: 3, badge: false, clazz: 'noinherit',    display: '',             symbolFunction: this.glyph.showNoInheritSymbol},
+                      'n/a maternal':       {value: 3, badge: false, clazz: 'noinherit',    display: '',             symbolFunction: this.glyph.showNoInheritSymbol}
                        };
     this.zygosityMap = {
                       HOM:        {value: 1, badge: true,  clazz: 'zyg_hom',        symbolFunction: this.glyph.showHomSymbol},

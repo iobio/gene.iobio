@@ -12,6 +12,7 @@ export default function lineD3() {
   var x = null;
   var y = null;
   var maxDepth = null;
+  var modelName = null;
   var container = null;
 
   var formatter = d3.format(',');
@@ -41,6 +42,7 @@ export default function lineD3() {
   var yTicks = null;
   var yTickFormat = null;
   var yAxisLine = false;
+  var showAlleleBar = false;
   var showTransition = true;
   var showGradient = true;
   var brushHeight = null;
@@ -58,7 +60,7 @@ export default function lineD3() {
   var formatCircleText = function(pos, depth) {
         return pos + ',' + depth;
   }
-  var showCircle = function(start, theDepth) {
+  var showCircle = function(start, theDepth, altCount) {
     if (container == null) {
       return;
     }
@@ -76,13 +78,17 @@ export default function lineD3() {
 
     // Get the x for this position
     if (d) {
-      var mousex = d3.round(x(pos(d)));
-      var mousey = d3.round(y(depth(d)));
+      var posX = d3.round(x(pos(d)));
+      var posY = d3.round(y(depth(d)));
+      var posYAlt = null
+      if (altCount) {
+        posYAlt = d3.round(y(altCount));
+      }
       var posx = d3.round(pos(d));
       var depthy = d3.round(depth(d));
 
-      var invertedx = x.invert(mousex);
-      var invertedy = y.invert(mousey);
+      var invertedx = x.invert(posX);
+      var invertedy = y.invert(posY);
 
       if (theDepth == null || theDepth == "") {
         theDepth = depthy.toString();
@@ -97,14 +103,14 @@ export default function lineD3() {
            .duration(200)
           .style("opacity", 1);
       label.attr("x", 0)
-           .attr("y", margin.top + 5)
+           .attr("y", margin.top )
            .attr("class", "circle-label")
            .text(circleText);
 
       container.select(".circle-label")
                .attr( "x", function (d,i) {
                   var w = this.getBBox().width;
-                  var x = mousex + margin.left - (w/2) + 3;
+                  var x = posX + margin.left - (w/2) + 3;
 
                   if (x + (w/2) > innerWidth) {
                     // If the circle label is too far to the right,
@@ -120,13 +126,42 @@ export default function lineD3() {
                   return x;
                });
 
-      var circle = container.select(".circle");
-      circle.transition()
-            .duration(200)
-            .style("opacity", .7);
-      circle.attr("cx", mousex + margin.left + 2 )
-            .attr("cy", mousey + margin.top )
-            .attr("r", 3)
+      if (!showAlleleBar) {
+        var circle = container.select(".circle");
+        circle.transition()
+              .duration(200)
+              .style("opacity", .7);
+        circle.attr("cx", posX + margin.left + 2 )
+              .attr("cy", posY + margin.top )
+              .attr("r", 4)
+
+      }
+
+      if (showAlleleBar) {
+        var coverageBar = container.select(".coverage-bar");
+        coverageBar.transition()
+              .duration(200)
+              .style("opacity", 1);
+        coverageBar.attr("x", posX + margin.left  )
+              .attr("y", posY + margin.top )
+              .attr("height", height - (margin.top + margin.bottom + posY))
+
+        var altBar = container.select(".alt-bar");
+        if (posYAlt) {
+          altBar.transition()
+                .duration(200)
+                .style("opacity", 1);
+          altBar.attr("x", posX + margin.left  )
+                .attr("y", posYAlt + margin.top )
+                .attr("height", height - (margin.top + margin.bottom + posYAlt))
+
+        } else {
+          altBar.transition()
+                .duration(200)
+                .style("opacity", 0);
+        }
+
+      }
 
     }
   };
@@ -142,6 +177,19 @@ export default function lineD3() {
     container.select(".circle-label").transition()
                  .duration(500)
                  .style("opacity", 0);
+
+
+    if (showAlleleBar) {
+      container.select(".coverage-bar").transition()
+                   .duration(500)
+                   .style("opacity", 0);
+
+      container.select(".alt-bar").transition()
+                   .duration(500)
+                   .style("opacity", 0);
+
+    }
+
 
   }
 
@@ -173,18 +221,8 @@ export default function lineD3() {
          })
         .attr('viewBox', "0 0 " + (parseInt(width) + margin.left + margin.right) + " " + parseInt(height));
 
-      // add a circle and label
-      var circle = svg.selectAll(".circle").data([0])
-        .enter().append('circle')
-          .attr("class", "circle")
-          .attr("r", 3)
-          .style("opacity", 0);
-      var circleLabel = svg.selectAll(".circle-label").data([0])
-        .enter().append('text')
-          .attr("class", "circle-label")
-          .attr("x", 0)
-          .attr("y", 0)
-          .style("opacity", 0);
+
+
 
       if (kind == KIND_AREA && showGradient) {
           var defs = svg.selectAll("defs").data([data]).enter()
@@ -400,6 +438,29 @@ export default function lineD3() {
             .attr("height", brushHeight);
       }
 
+      // add a circle and label
+      var circle = svg.selectAll(".circle").data([0])
+        .enter().append('circle')
+          .attr("class", "circle")
+          .attr("r", 3)
+          .style("opacity", 0);
+       var coverageBar = svg.selectAll(".coverage-bar").data([0])
+        .enter().append('rect')
+          .attr("class", "coverage-bar")
+          .attr("width", 5)
+          .style("opacity", 0);
+      var altBar = svg.selectAll(".alt-bar").data([0])
+        .enter().append('rect')
+          .attr("class", "alt-bar")
+          .attr("width", 5)
+          .style("opacity", 0);
+      var circleLabel = svg.selectAll(".circle-label").data([0])
+        .enter().append('text')
+          .attr("class", "circle-label")
+          .attr("x", 0)
+          .attr("y", 0)
+          .style("opacity", 0);
+
       if (!showTransition) {
         dispatch.d3rendered();
       }
@@ -476,7 +537,8 @@ export default function lineD3() {
         var regionX     = d3.round(x(d.start));
         var regionWidth =  Math.max(minRegionWidth, d3.round(x(d.end) - x(d.start)));
         if (regionGlyph) {
-          regionGlyph.call(me, d, i, regionX + regionWidth/2);
+          //todo: pass in model name from here;
+          regionGlyph.call(me, d, i, regionX + regionWidth/2, modelName);
         }
     });
 
@@ -575,6 +637,18 @@ export default function lineD3() {
   exports.maxDepth = function(_) {
     if (!arguments.length) return maxDepth;
     maxDepth = _;
+    return exports;
+  }
+
+  exports.modelName = function(_) {
+    if (!arguments.length) return modelName;
+    modelName = _;
+    return exports;
+  }
+
+  exports.showAlleleBar = function(_) {
+    if (!arguments.length) return showAlleleBar;
+    showAlleleBar = _;
     return exports;
   }
 

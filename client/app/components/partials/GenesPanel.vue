@@ -1,12 +1,60 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 #genes-panel
-  margin-top: 5px
+  margin-top: 10px !important
   padding-bottom: 30px
+
+  #analyze-all-buttons
+    margin-bottom: 10px
+
+    #analyze-all-button
+      display: inline-block
+      vertical-align: top
+      margin-top: 10px
+      margin-left: 0px
+      color: $text-color
+      padding-top: 2px
+      padding-bottom: 2px
+      height: 22px
+      padding-left: 10px
+      padding-right: 10px
+
+    #call-variants-dropdown
+      display: inline-block
+      vertical-align: top
+      text-align: left
+
+      button
+        margin-top: 10px
+        margin-left: 0px
+        color: $text-color
+        padding-top: 2px
+        padding-bottom: 2px
+        height: 22px
+        width: 80px
+        padding-left: 10px
+        padding-right: 10px
+
+    .btn__content, .v-btn__content
+      padding: 0 4px
+
+
+    .stop-analysis-button
+      display: inline-block
+      position: relative
+      min-width: 0px
+      margin-top: 10px
+      height: 22px
+      margin-right: 10px
+      margin-left: 0px
+      color: $text-color
+
+      i.material-icons
+        font-size: 18px
 
   #analyze-genes-progress
     margin-top: 10px
-    margin-bottom: 15px
+    margin-bottom: 20px
 
     .progress-counts
       padding-left: 4px
@@ -22,35 +70,83 @@
     .loaded-progress
       height: 5px
       width: 150px
+      margin: 1px 0
       display: inline-block
-      .progress-linear__bar__determinate
+      .progress-linear__bar__determinate, .v-progress-linear__bar__determinate
         background-color: $loaded-variant-color !important
-      .progress-linear__background
+      .progress-linear__background, .v-progress-linear__background
         background-color: $loaded-variant-color !important
         height: 20px !important
 
     .called-progress
       height: 5px
       width: 150px
+      margin: 1px 0
       display: inline-block
-      .progress-linear__bar__determinate
+      .progress-linear__bar__determinate, .v-progress-linear__bar__determinate
         background-color: $called-variant-color !important
-      .progress-linear__background
+      .progress-linear__background,  .v-progress-linear__background
         background-color: $called-variant-color !important
         height: 20px !important
 
-    .progress-linear
+    .progress-linear, .v-progress-linear
         margin: 1px 0
 #genes-card.edu
   #genes-panel
     padding-bottom: 0px
 
+.call-variants-button
+    width: 100px !important
 
 </style>
 
 <template>
   <div id="genes-panel"  class="nav-center">
 
+    <div id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
+
+        <v-btn  id="analyze-all-button"
+        v-if="isLoaded && !isFullAnalysis && !isSimpleMode"
+        class="level-edu"
+        raised
+        @click="onAnalyzeAll"
+        v-tooltip.top-center="`Analyze variants in all genes`" >
+          Analyze all
+        </v-btn>
+
+
+        <v-btn
+        v-if="analyzeAllInProgress && !isFullAnalysis && !isSimpleMode"
+        class="stop-analysis-button"
+        @click="onStopAnalysis" small raised
+        v-tooltip.top-center="`Stop analysis`" >
+          <v-icon>stop</v-icon>
+        </v-btn>
+
+
+        <div id="call-variants-dropdown"
+          v-if="isLoaded && hasAlignments && !isFullAnalysis && !isSimpleMode"
+        >
+          <v-menu offset-y>
+            <v-btn raised slot="activator"
+            v-tooltip.top-center="`Call variants from alignments`"
+            class="call-variants-button">Call variants</v-btn>
+            <v-list>
+                <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
+                <v-list-tile-title>{{ action }}</v-list-tile-title>
+              </v-list-tile>
+            </v-list>
+          </v-menu>
+        </div>
+
+        <v-btn
+        v-if="callAllInProgress && !isFullAnalysis"
+        class="stop-analysis-button"
+        @click="onStopAnalysis" small raised
+        v-tooltip.top-center="`Stop calling variants`" >
+          <v-icon>stop</v-icon>
+        </v-btn>
+    </div>
     <div id="analyze-genes-progress">
       <div>
         <div v-if="totalCount > 0">
@@ -80,6 +176,7 @@
        v-for="gene in geneSummaries"
        :key="gene.name"
        :gene="gene"
+       :isSimpleMode="isSimpleMode"
        :phenotypes="geneModel.genePhenotypes[gene.name]"
        :selectedGene="selectedGene"
        :isBasicMode="isBasicMode"
@@ -106,10 +203,13 @@ export default {
   props: {
     isEduMode: null,
     isBasicMode: null,
+    isSimpleMode: null,
     isFullAnalysis: null,
     launchedFromClin: null,
     analyzeAllInProgress: null,
     callAllInProgress: null,
+    isLoaded: null,
+    hasAlignments: null,
     geneNames: null,
     filteredGeneNames: null,
     genesInProgress: null,
@@ -119,6 +219,7 @@ export default {
   },
   data () {
     return {
+      callVariantsActions: ['All genes', 'Selected gene'],
       geneSummaries: [],
       loadedPercentage: 0,
       calledPercentage: 0,
@@ -128,6 +229,16 @@ export default {
     }
   },
   methods: {
+    onAnalyzeAll: function() {
+      this.$emit("analyze-all");
+    },
+    onCallVariants: function(action) {
+      this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
+    },
+    onStopAnalysis: function() {
+      this.$emit("stop-analysis");
+    },
+
     updateGeneSummaries: function() {
       let self = this;
 
@@ -136,11 +247,7 @@ export default {
       let geneNamesToDisplay = null;
       if (theGeneNames) {
         geneNamesToDisplay = theGeneNames.filter(function(geneName) {
-          if (self.isFullAnalysis) {
-            return !self.geneModel.isCandidateGene(geneName);;
-          } else {
-            return self.geneModel.isCandidateGene(geneName);
-          }
+          return self.geneModel.isCandidateGene(geneName);
         })
         self.geneSummaries = geneNamesToDisplay.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;

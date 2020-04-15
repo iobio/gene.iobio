@@ -14,7 +14,8 @@ export default class VariantTooltip {
 
     this.WIDTH_HOVER            = 420;
     this.WIDTH_SIMPLE           = 280;
-    this.ARROW_OFFSET           = 10;
+    this.ARROW_OFFSET_RIGHT     = this.isEduMode ? 0 : -25;
+    this.ARROW_OFFSET_LEFT      = this.isEduMode ? 0 : 25;
     this.ARROW_WIDTH            = 10;
     this.SIDE_TOOLTIP_HORZ_OFFSET = 35;
     this.SIDE_TOOLTIP_VERT_OFFSET = 30;
@@ -47,7 +48,7 @@ export default class VariantTooltip {
       html = me.formatContent(variant, pinMessage, 'tooltip', geneObject, theTranscript, relationship, lock);
     }
     tooltip.html(html);
-    me.injectVariantGlyphs(tooltip, variant, lock ? '.tooltip-wide' : '.tooltip');
+    //me.injectVariantGlyphs(tooltip, variant, lock ? '.tooltip-wide' : '.tooltip');
 
 
 
@@ -134,7 +135,7 @@ export default class VariantTooltip {
     if (x > 0 && (x+w) < coord.parentWidth) {
       availSpace.right.allowed = true;
       availSpace.right.tooltipLeft = x;
-      availSpace.right.tooltipLeftOffset = -1 * (me.ARROW_OFFSET + me.ARROW_WIDTH);
+      availSpace.right.tooltipLeftOffset = -1 * (me.ARROW_OFFSET_RIGHT + me.ARROW_WIDTH);
       availSpace.right.sideTooltipHorzOffset = me.SIDE_TOOLTIP_HORZ_OFFSET;
     }
     // If the tooltip sits to the left of the element, is the left
@@ -142,7 +143,7 @@ export default class VariantTooltip {
     if (x - w > 0 ) {
       availSpace.left.allowed = true;
       availSpace.left.tooltipLeft = (x - w);
-      availSpace.left.tooltipLeftOffset = me.ARROW_OFFSET + me.ARROW_WIDTH;
+      availSpace.left.tooltipLeftOffset = me.ARROW_OFFSET_LEFT + me.ARROW_WIDTH;
       availSpace.left.sideTooltipHorzOffset = -1 * me.SIDE_TOOLTIP_HORZ_OFFSET;
     }
     // If the tooltip sits in the center (either above or below) of the element,
@@ -273,7 +274,7 @@ export default class VariantTooltip {
     var clinvarSimpleRow1 = '';
     var clinvarSimpleRow2 = '';
     if (me.isEduMode) {
-      if (info.clinvarSig != "") {
+      if (info.clinvarSig != "" && info.clinvarSig != null) {
         clinvarSimpleRow1 = me._tooltipWideHeadingRow('Known from research', info.clinvarSig, '2px');
         if (info.clinvarTrait) {
           clinvarSimpleRow2 = me._tooltipWideHeadingSecondRow('', info.clinvarTrait, null, 'tooltip-clinvar-pheno');
@@ -306,7 +307,7 @@ export default class VariantTooltip {
       vepHighestImpactRowSimple = me._tooltipHeaderRow(info.vepHighestImpactSimple, '', '', '', 'highest-impact-badge');
     }
 
-    var inheritanceModeRow =  variant.inheritance == null || variant.inheritance == '' || variant.inheritance == 'none'
+    var inheritanceModeRow =  variant.inheritance == null || variant.inheritance == '' || variant.inheritance.indexOf('n/a') >= 0
                               ? ''
                     : me._tooltipHeaderRow('<span class="tooltip-inheritance-mode-label">' + me.translator.getInheritanceLabel(variant.inheritance) + ' inheritance</span>', '', '', '', null, "style='text-align:center;padding-top:0px;'");
 
@@ -335,9 +336,7 @@ export default class VariantTooltip {
         genotypeRow
         + me._tooltipMainHeaderRow('Severity - ' + info.vepImpact , '', '', '')
         + inheritanceModeRow
-        + polyphenRowSimple
-        + clinvarSimpleRow1
-        + clinvarSimpleRow2 );
+        + polyphenRowSimple);
     } if (me.isBasicMode) {
       return (
         me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, '', 'ref-alt')

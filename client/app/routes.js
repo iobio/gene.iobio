@@ -108,13 +108,16 @@ const routes = [
         paramTbis:             [route.query.tbi0, route.query.tbi1, route.query.tbi2],
         paramAffectedStatuses: [route.query.affectedStatus0, route.query.affectedStatus1, route.query.affectedStatus2],
         paramGeneName:         route.query.geneName,
+        paramGeneNames:        route.query.geneNames,
         paramProjectId:        route.query.project_id,
         paramSampleId:         route.query.sample_id,
         paramSampleUuid:       route.query.sample_uuid,
         paramIsPedigree:       route.query.is_pedigree,
         paramSource:           route.query.source,
         paramIobioSource:      route.query.iobio_source,
-        paramAnalysisId:       route.query.analysis_id
+        paramAnalysisId:       route.query.analysis_id,
+        paramFrameSource:      route.query.frame_source,
+        paramGeneSetId:        route.query.gene_set_id
 
 
 

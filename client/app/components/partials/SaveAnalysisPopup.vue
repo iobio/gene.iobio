@@ -23,7 +23,7 @@
     height: 20px !important
     margin-bottom: 15px !important
 
-    .btn__content
+    .btn__content, .v-btn__content
       padding: 0px
       max-width: 20px
       max-height: 20px
@@ -67,25 +67,23 @@
               </v-flex>
 
               <v-flex class="mt-2" xs12>
-                <v-text-field
-                  multi-line
+                <v-textarea
                   rows="3"
                   :hide-details="true"
                   label="Description"
                   v-model="analysisDescription"
                 >
-                </v-text-field>
+                </v-textarea>
               </v-flex>
 
 
-              <v-flex class="text-xs-right mt-4" xs12>
-                <v-btn class="primary" @click="onSave">{{ analysis.id ? 'Apply' : 'Save' }}</v-btn>
+              <v-flex class="mt-4" style="display:flex;justify-content:flex-end" xs12>
+                <v-btn class="primary mr-2" @click="onSave">{{ analysis.id ? 'Apply' : 'Save' }}</v-btn>
                 <v-btn @click="onClose">Cancel</v-btn>
               </v-flex>
 
           </v-layout>
-        <v-card-text>
-        </v-card-text>
+
       </v-card>
     </v-dialog>
 

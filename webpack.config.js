@@ -1,5 +1,5 @@
-var path = require('path')
 var webpack = require('webpack')
+const Dotenv = require('dotenv-webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var CleanWebpackPlugin = require('clean-webpack-plugin');
 var inProduction = process.env.NODE_ENV === 'production';
@@ -58,7 +58,8 @@ module.exports = {
     ]
   },
   plugins: [
-    new CleanWebpackPlugin(['client/dist'], {})
+    new CleanWebpackPlugin(['client/dist'], {}),
+    new Dotenv(),
   ],
   // resolve: {
   //   alias: {
@@ -85,12 +86,14 @@ if (inProduction) {
         NODE_ENV: '"production"'
       }
     }),
+    /* Had to remove due to problems with production build
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: true,
       compress: {
         warnings: false
       }
     }),
+    */
     new webpack.LoaderOptionsPlugin({
       minimize: true
     })

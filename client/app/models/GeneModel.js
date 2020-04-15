@@ -1,12 +1,10 @@
 class GeneModel {
-  constructor(globalApp, limitGenes) {
+  constructor(globalApp, limitGenes, launchedFromHub) {
 
     this.globalApp                 = globalApp;
     this.limitGenes                = limitGenes;
-    this.geneInfoServer            = this.globalApp.HTTP_SERVICES + "geneinfo/";
-    this.geneToPhenoServer         = this.globalApp.HTTP_SERVICES + "gene2pheno/";
+    this.launchedFromHub = launchedFromHub;
     this.phenolyzerServer          = "https://7z68tjgpw4.execute-api.us-east-1.amazonaws.com/dev/phenolyzer/";
-    this.phenolyzerOnlyServer      = this.globalApp.HTTP_SERVICES + "phenolyzer/";
 
     this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
     this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
@@ -71,6 +69,10 @@ class GeneModel {
 
     this.rankedGenes = {};
 
+    this.genePhenotypeHits = {};
+
+    this.isFullAnalysis = false;
+
     this.dispatch = d3.dispatch("geneDangerSummarized");
     d3.rebind(this, this.dispatch, "on");
 
@@ -92,6 +94,81 @@ class GeneModel {
     } else {
       return true;
     }
+  }
+
+
+  getGenePhenotypeHits(geneName) {
+    if (this.genePhenotypeHits) {
+      return this.genePhenotypeHits[geneName];
+    } else {
+      return null;
+    }
+  }
+
+
+  setGenePhenotypeHitsFromClin(genesReport) {
+    let self = this;
+    if (genesReport) {
+      this.genePhenotypeHits = {};
+      genesReport.forEach(function(geneEntry) {
+        var searchTerms = self.genePhenotypeHits[geneEntry.name];
+        if (searchTerms == null) {
+          searchTerms = {};
+          self.genePhenotypeHits[geneEntry.name] = searchTerms;
+        }
+        if (geneEntry.searchTermsGtr && geneEntry.searchTermsGtr.length > 0) {
+          geneEntry.searchTermsGtr.forEach(function(searchTermObject) {
+            var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
+            var ranks = searchTerms[searchTerm];
+            if (ranks == null) {
+              ranks = [];
+              searchTerms[searchTerm] = ranks;
+            }
+            ranks.push( {'rank': searchTermObject.rank, 'source': 'GTR'});
+          })
+        }
+        if (geneEntry.searchTermsPhenolyzer && geneEntry.searchTermsPhenolyzer.length > 0) {
+          geneEntry.searchTermsPhenolyzer.forEach(function(searchTermObject) {
+            var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
+            var ranks = searchTerms[searchTerm];
+            if (ranks == null) {
+              ranks = [];
+              searchTerms[searchTerm] = ranks;
+            }
+            ranks.push( {'rank': searchTermObject.rank, 'source': 'Phen.'});
+          })
+        }
+
+      })
+
+    }
+  }
+
+  setGenePhenotypeHitsFromPhenolyzer(phenotypeTerm, phenotypeGenes) {
+    let self = this;
+    this.genePhenotypeHits = {};
+    if (phenotypeGenes && phenotypeGenes.length > 0) {
+      var searchTerm = phenotypeTerm.split(" ").join("_");
+      phenotypeGenes.forEach(function(phenotypeGene) {
+        var searchTerms = self.genePhenotypeHits[phenotypeGene.geneName];
+        if (searchTerms == null) {
+          searchTerms = {};
+          self.genePhenotypeHits[phenotypeGene.geneName] = searchTerms;
+        }
+        var ranks = searchTerms[searchTerm];
+        if (ranks == null) {
+          ranks = [];
+          searchTerms[searchTerm] = ranks;
+        }
+        ranks.push( {'rank': phenotypeGene.rank, 'source': 'Phen.'});
+      })
+    }
+
+  }
+
+
+  getPhenotypeHits(geneName) {
+    return this.genePhenotypeHits[geneName];
   }
 
   setRankedGenes(rankedGenes) {
@@ -123,7 +200,12 @@ class GeneModel {
   }
 
   getGeneRank(geneName) {
-    return this.rankedGenes[geneName];
+    if (this.rankedGenes) {
+      return this.rankedGenes[geneName];
+    } else {
+      var rank = this.geneNames.indexOf(geneName) + 1;
+      return { 'name': geneName, 'genericRank': rank};
+    }
   }
 
   promiseAddGeneName(theGeneName) {
@@ -297,13 +379,19 @@ class GeneModel {
 
 
   setDangerSummary(geneName, dangerSummary) {
+    if (geneName == null) {
+      return;
+    }
     delete this.geneDangerSummaries[geneName];
-    this.geneDangerSummaries[geneName] = dangerSummary;
+    this.geneDangerSummaries[geneName.toUpperCase()] = dangerSummary;
     this.dispatch.geneDangerSummarized(dangerSummary);
   }
 
   getDangerSummary(geneName) {
-    return this.geneDangerSummaries[geneName];
+    if (geneName == null) {
+      return
+    }
+    return this.geneDangerSummaries[geneName.toUpperCase()];
   }
 
   clearDangerSummaries() {
@@ -818,7 +906,7 @@ class GeneModel {
       if (phenotypes != null) {
         resolve([phenotypes, geneName]);
       } else {
-        var url = me.geneToPhenoServer + "api/gene/" + geneName;
+        var url = me.globalApp.geneToPhenoServer + "api/gene/" + geneName;
         $.ajax({
         url: url,
         jsonp: "callback",
@@ -853,16 +941,17 @@ class GeneModel {
   promiseGetCachedGeneObject(geneName, resolveOnError=false) {
     var me = this;
     return new Promise( function(resolve, reject) {
-      var theGeneObject = me.geneObjects[geneName];
+      let theGeneName = geneName;
+      var theGeneObject = me.geneObjects[theGeneName];
       if (theGeneObject) {
         resolve(theGeneObject);
       } else {
-        me.promiseGetGeneObject(geneName).then(function(geneObject) {
+        me.promiseGetGeneObject(theGeneName).then(function(geneObject) {
           resolve(geneObject);
         })
         .catch(function(error) {
           if (resolveOnError) {
-            resolve(null);
+            resolve({notFound: theGeneName});
           } else {
             reject(error);
           }
@@ -877,7 +966,7 @@ class GeneModel {
     var me = this;
     return new Promise(function(resolve, reject) {
 
-      var url = me.geneInfoServer + 'api/gene/' + geneName;
+      var url = me.globalApp.geneInfoServer + 'api/gene/' + geneName;
 
       // If current build not specified, default to GRCh37
       var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
@@ -965,6 +1054,7 @@ class GeneModel {
       } else {
         me.parsePhenolyzerGenes(data.record, selectGeneCount, me.NUMBER_PHENOLYZER_GENES);
         if (statusCallback) {
+          me.setGenePhenotypeHitsFromPhenolyzer(phenotypeTerm, me.phenolyzerGenes);
           statusCallback({status:'done', 'phenotypeTerm': phenotypeTerm, 'genes': me.phenolyzerGenes});
         }
 
@@ -974,6 +1064,7 @@ class GeneModel {
       fail: function() {
         alert("An error occurred in Phenolyzer iobio services. " + thrownError);
         if (statusCallback) {
+          me.setGenePhenotypeHitsFromPhenolyzer(phenotypeTerm, null);
           statusCallback({status:'error', error: thrownError})
         }
       }
@@ -1001,6 +1092,7 @@ class GeneModel {
 
       }
     });
+
   }
 
   getLinks(geneName) {

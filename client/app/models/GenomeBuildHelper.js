@@ -1,7 +1,8 @@
 export class GenomeBuildHelper {
 
-  constructor(globalApp) {
+  constructor(globalApp, launchedFromHub) {
     this.globalApp = globalApp;
+    this.launchedFromHub = launchedFromHub;
     this.currentSpecies = null;
     this.currentBuild = null;
     this.speciesList = [];
@@ -15,14 +16,9 @@ export class GenomeBuildHelper {
     this.ALIAS_UCSC                            = "UCSC";
     this.ALIAS_REFSEQ_ASSEMBLY_ACCESSION_RANGE = "REFSEQ ASSEMBLY ACCESSION RANGE";
 
-    this.RESOURCE_CLINVAR_VCF_FTP     = "CLINVAR VCF FTP";
-    this.RESOURCE_CLINVAR_VCF_S3      = "CLINVAR VCF S3";
     this.RESOURCE_CLINVAR_VCF_OFFLINE = "CLINVAR VCF OFFLINE";
     this.RESOURCE_CLINVAR_POSITION    = "CLINVAR EUTILS BASE POSITION";
     this.RESOURCE_ENSEMBL_URL         = "ENSEMBL URL";
-
-    this.genomeBuildServer            = this.globalApp.HTTP_SERVICES + "genomebuild/";
-
   }
 
   promiseInit(options) {
@@ -36,7 +32,7 @@ export class GenomeBuildHelper {
     return new Promise(function(resolve, reject) {
 
       $.ajax({
-            url: me.genomeBuildServer,
+            url: me.globalApp.genomeBuildServer,
             jsonp: "callback",
             type: "GET",
             dataType: "jsonp",

@@ -1,6 +1,4 @@
-
-import CacheHelperWorker from './CacheHelperWorker.js'
-import CacheIndexStore from './CacheIndexStore.js'
+import CacheIndexStore   from './CacheIndexStore.js'
 
 function CacheHelper(globalApp, forceLocalStorage) {
 
@@ -90,7 +88,7 @@ CacheHelper.prototype._promiseIsCached = function(geneName, analyzeCalledVariant
   })
 }
 
-CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = false) {
+CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = false, analyzeGeneCoverage = true) {
   var me = this;
   this.cohort = cohort;
 
@@ -105,10 +103,10 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
 
   if (analyzeCalledVariants && !me.cohort.freebayesSettings.visited) {
     me.cohort.freebayesSettings.showDialog(function() {
-      me._analyzeAllImpl(geneNames, analyzeCalledVariants)
+      me._analyzeAllImpl(geneNames, analyzeCalledVariants, analyzeGeneCoverage)
     })
   } else {
-    me._analyzeAllImpl(geneNames, analyzeCalledVariants)
+    me._analyzeAllImpl(geneNames, analyzeCalledVariants, analyzeGeneCoverage)
   }
 
 
@@ -432,7 +430,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
 
       // Joint call variants if we are calling variants for all genes in 'Analyze All'
       if (analyzeCalledVariants) {
-        return me.cohort.promiseJointCallVariants(geneObject, transcript, trioVcfData, {checkCache: true, isBackground: true})
+        return me.cohort.promiseJointCallVariants(geneObject, transcript, trioVcfData, {checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
       } else {
         return Promise.resolve({'trioFbData': trioFbData, 'trioVcfData': trioVcfData});
       }
@@ -560,10 +558,13 @@ CacheHelper.prototype.promiseClearCache = function(launchTimestampToClear) {
 CacheHelper.prototype.refreshGeneBadges = function(callback) {
   var me = this;
 
+  me.cohort.clearFlaggedVariants();
+
   var theGeneNames = {};
   me.cohort.geneModel.sortedGeneNames.forEach(function(geneName) {
     theGeneNames[geneName] = true;
   });
+
 
   var dataKind = CacheHelper.VCF_DATA;
 
@@ -1102,7 +1103,7 @@ CacheHelper.prototype.promiseGetDataThreaded = function(key, keyObject) {
 
           if (dataCompressed != null) {
 
-        var worker = new Worker('./app/models/cacheHelperWorker.js');
+        var worker = new Worker('/app/third-party/cacheHelperWorker.js');
 
         worker.onmessage = function(e) {
           resolve(e.data);

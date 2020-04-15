@@ -3,16 +3,28 @@
 @import ../../../assets/sass/variables
 
 #show-gene-links-button
-  margin: 0px 8px 0px 8px
+  margin: 0px 0px 0px 0px
   padding: 0px
+  min-width: 25px
+  max-height: 25px
+  padding-left: 8px
+  margin-left: 20px
 
-  .btn__content
-    color:  $app-color
+
+  .btn__content, .v-btn__content
+    color:  $link-color
+    padding-left: 0px
+    padding-right: 0px
+    font-size: 13px
+    font-weight: 500
 
     i.material-icons
-      color: $app-color
-      font-size: 17px
+      color: $link-color
+      font-size: 20px
+      color: $link-color
+      vertical-align: top
       padding-right: 3px
+
 
 #gene-links
   display: inline-block
@@ -22,6 +34,7 @@
     margin-right: 10px
     color: $link-color !important
     font-size: 13px
+    font-weight: 500
 
 .gene-link-button
   background-color: $link-button-color !important
@@ -33,14 +46,14 @@
   margin-top: -2px
   margin-bottom: 4px
 
-  .btn__content
-    color: $app-color !important
+  .btn__content, .v-btn__content
+    color: $text-color !important
     padding-left: 4px
     padding-right: 4px
     font-size: 12px
 
     i.material-icons
-      color: $app-color
+      color: $text-color
       font-size: 12px
       padding-right: 2px
       padding-top: 0px
@@ -48,7 +61,6 @@
 </style>
 
 <template>
-  <div :style="expanded ? 'margin-left:-10px;margin-bottom:5px;margin-top:3px' : 'display: inline-block'">
     <v-menu
     v-if="!expanded"
     offset-y
@@ -62,8 +74,8 @@
        slot="activator"
        v-tooltip.top-center="`External links to ` + selectedGene.gene_name + ` (e.g. OMIM, UCSC brower, GeneCards, etc.`"
       >
-          <v-icon>open_in_new</v-icon>
-          External links
+          <v-icon>open_in_new</v-icon> External links
+
       </v-btn>
 
       <v-list>
@@ -88,17 +100,8 @@
 
     </v-menu>
 
-    <v-btn v-if="expanded"
-    flat
-    class="gene-link-button"
-    v-for="link in links"
-    @click="onClickLink(link)"
-    :key="link.name">
-      <v-icon>open_in_new</v-icon>
-      {{ link.display }}
-    </v-btn>
 
-  </div>
+
 </template>
 
 <script>

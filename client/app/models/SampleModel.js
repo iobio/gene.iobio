@@ -1374,8 +1374,11 @@ class SampleModel {
                me.getGeneModel().geneSource == 'refseq' ? true : false,
                true,  // hgvs notation
                true,  // rsid
-               true, // vep af
-               me.globalApp.useServerCache // serverside cache
+               me.globalApp.vepAF, // vepAF
+               me.globalApp.useServerCache, // serverside cache
+               false, // sfari mode
+               me.globalApp.gnomADExtra && me.relationship != 'known-variants', // get extra gnomad,
+               me.relationship != 'known-variants' // decompose
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
@@ -1449,7 +1452,7 @@ class SampleModel {
                           // set the hgvs and rsid on the existing variant
                           theVariant.extraAnnot      = true;
                           sourceVariant.extraAnnot   = true;
-                          var vepAnnots = [
+                          var extraAnnotFields = [
                             'vepConsequence',
                             'vepImpact',
                             'vepExon',
@@ -1464,11 +1467,12 @@ class SampleModel {
                             'vepAf',
                             'highestImpactVep',
                             'highestSIFT',
-                            'highestPolyphen'
+                            'highestPolyphen',
+                            'gnomAD'
                             ];
-                          vepAnnots.forEach(function(vepAnnot) {
-                            theVariant[vepAnnot]        = v[vepAnnot];
-                            sourceVariant[vepAnnot]     = v[vepAnnot];
+                          extraAnnotFields.forEach(function(field) {
+                            theVariant[field]        = v[field];
+                            sourceVariant[field]     = v[field];
                           })
 
 
@@ -1562,6 +1566,8 @@ class SampleModel {
           return {name: trRefName, start: variant.start, end: variant.end};
         })
 
+
+
         if (regions.length > 0) {
 
           me.vcf.promiseGetVariants(
@@ -1576,8 +1582,11 @@ class SampleModel {
                me.getGeneModel().geneSource == 'refseq' ? true : false,
                true,  // hgvs notation
                true,  // rsid
-               false, // vep af
-               me.globalApp.useServerCache // serverside cache
+               me.globalApp.vepAF, // vep af
+               me.globalApp.useServerCache, // serverside cache
+               false, // sfari mode
+               me.globalApp.gnomADExtra, // gnomADExtra,
+               true // decompose
             ).then( function(data) {
 
               var annotVcfData = data[1];
@@ -1598,7 +1607,7 @@ class SampleModel {
               } else {
                 var msg = "Empty results returned from SampleModel.promiseGetImpactfulVariantIds() for gene " + theGeneObject.gene_name;
                 console.log(msg);
-                reject(msg);
+                resolve(theVcfData.features);
               }
 
           });
@@ -1669,9 +1678,11 @@ class SampleModel {
                                     false,  // hgvs notation
                                     false,  // rsid
                                     self.globalApp.vepAF,    // vep af
-                                    false,
-                                    true) // sfariMode
-                                    .then((results) => {
+                                    false,  // server-side cache
+                                    true, // sfariMode
+                                    false, // gnomadExtra
+                                    false // decompose
+                                    ).then((results) => {
                                       let unwrappedResults = results[1];
                                       unwrappedResults.gene = theGene;
                                       annoResults.push(unwrappedResults);
@@ -1812,7 +1823,11 @@ class SampleModel {
                me.getGeneModel().geneSource === 'refseq' ? true : false,
                me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
                me.globalApp.getVariantIdsForGene,  // rsid
-               me.globalApp.vepAF    // vep af
+               me.globalApp.vepAF,    // vep af
+               false, // serverside cache
+               false, // sfari mode
+               me.globalApp.gnomADExtraAll && me.relationship != 'known-variants', // get extra gnomad,
+               !me.isEduMode && me.getRelationship() != 'known-variants' // decompose
               );
           })
           .then( function(data) {
@@ -1899,11 +1914,13 @@ class SampleModel {
 
           },
           function(error) {
-            reject("missing reference")
+            console.log(error);
+            reject(error)
           });
         }
       },
       function(error) {
+        console.log(error);
         reject(error);
       });
 
@@ -1981,7 +1998,7 @@ class SampleModel {
 
         theVcfData.features.forEach(function(variant) {
           let passes = me.cohort.filterModel.determinePassCriteria('compoundHet', variant, {'ignore': ['inheritance']});
-          if (passes.all && variant.inheritance == 'none' && variant.zygosity && variant.zygosity.toUpperCase() != 'HOMREF') {
+          if (passes.all && variant.inheritance.indexOf('n/a') >= 0 && variant.zygosity && variant.zygosity.toUpperCase() != 'HOMREF') {
             // Create a bag of candidate variants inherited from mother and another one for variants
             // inherited by father
             var fromMother = false;
@@ -2016,7 +2033,7 @@ class SampleModel {
                     if (theVariant.compoundHets == null) {
                       theVariant.compoundHets = [];
                     }
-                    if (theVariant.inheritance == null || theVariant.inheritance == 'none') {
+                    if (theVariant.inheritance == null || theVariant.inheritance.indexOf('n/a') >= 0) {
                       theVariant.inheritance = 'compound het';
                     }
                     let proxyVariant = {
@@ -2070,7 +2087,25 @@ class SampleModel {
     }
     afHighest = me.getHighestAf(variant);
 
-    if (me.globalApp.vepAF) {
+    if ((me.globalApp.gnomADExtraAll && variant.gnomAD) || (me.globalApp.gnomADExtra && variant.gnomAD)) {
+      if ($.isNumeric(variant.gnomAD.af) && afHighest) {
+        if (variant.gnomAD.af >= afHighest) {
+          variant.afFieldHighest = 'gnomAD.af';
+        }
+      } else if ($.isNumeric(variant.gnomAD.af)) {
+        variant.afFieldHighest = 'gnomAD.af';
+      }
+      afHighest = me.getHighestAf(variant);
+      if ($.isNumeric(variant.gnomAD.afPopMax) && afHighest) {
+        if (variant.gnomAD.afPopMax >= afHighest) {
+          variant.afFieldHighest = 'gnomAD.afPopMax';
+        }
+      } else if ($.isNumeric(variant.gnomAD.af)) {
+        variant.afFieldHighest = 'gnomAD.afPopMax';
+      }
+
+
+    } else if (me.globalApp.vepAF) {
       if ($.isNumeric(variant.vepAf.gnomAD.AF) && afHighest) {
         if (variant.vepAf.gnomAD.AF >= afHighest) {
           variant.afFieldHighest = 'afgnomAD';
@@ -2363,10 +2398,30 @@ class SampleModel {
             var variant = recs[vcfIter];
 
             // set the hgvs and rsid on the existing variant
-              variant.extraAnnot      = true;
-              variant.vepHGVSc        = annotatedRec.vepHGVSc;
-              variant.vepHGVSp        = annotatedRec.vepHGVSp;
-              variant.vepVariationIds = annotatedRec.vepVariationIds;
+            variant.extraAnnot      = true;
+
+            // set the hgvs and rsid on the existing variant
+            var extraAnnotFields = [
+              'vepConsequence',
+              'vepImpact',
+              'vepExon',
+              'vepHGVSc',
+              'vepHGVSp',
+              'vepAminoAcids',
+              'vepVariationIds',
+              'vepSIFT',
+              'vepPolyPhen',
+              'vepRegs',
+              'regulatory',
+              'vepAf',
+              'highestImpactVep',
+              'highestSIFT',
+              'highestPolyphen',
+              'gnomAD'
+              ];
+            extraAnnotFields.forEach(function(field) {
+              variant[field]        = annotatedRec[field];
+            })
 
             vcfIter++;
             annotIter++;
@@ -3066,7 +3121,15 @@ class SampleModel {
              me._getSamplesToRetrieve(),
              me.getAnnotationScheme().toLowerCase(),
              me.getTranslator().clinvarMap,
-             me.getGeneModel().geneSource == 'refseq' ? true : false)
+             me.getGeneModel().geneSource == 'refseq' ? true : false,
+             false,  // hgvs notation
+             false,  // rsid
+             false, // vepAF
+             false, // serverside cache
+             false, // sfari mode
+             false, // get extra gnomad,
+             true // decompose
+          )
           .then( function(data) {
 
             if (data != null && data.features != null) {
@@ -3312,7 +3375,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
         }
       }
 
-      if (variant.inheritance && variant.inheritance != 'none') {
+      if (variant.inheritance && variant.inheritance.indexOf('n/a') == -1) {
         var clazz = translator.inheritanceMap[variant.inheritance].clazz;
         inheritanceClasses[clazz] = variant.inheritance;
       }

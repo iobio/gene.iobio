@@ -3,18 +3,20 @@
     label
       font-size: 12px !important
 
-    .input-group--text-field
+    .input-group--text-field, .input-group__input
       margin-top: 0px !important
 
       input
         font-size: 11px !important
 
-    .input-group--text-field.input-group--dirty.input-group--select
+    .input-group--text-field.input-group--dirty.input-group--select,
+    .input-group__input
       label
         -webkit-transform: translate(0, -18px) scale(0.95)
         transform: translate(0, -18px) scale(0.95)
 
-    .input-group--text-field.input-group--dirty:not(.input-group--textarea)
+    .input-group--text-field.input-group--dirty:not(.input-group--textarea),
+    .input-group__input.input-group--dirty:not(.input-group--textarea)
       label
         -webkit-transform: translate(0, -18px) scale(0.95)
         transform: translate(0, -18px) scale(0.95)

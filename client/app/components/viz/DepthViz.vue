@@ -5,8 +5,8 @@
 
 #depth-viz .circle-label
   fill: $arrow-color
-  font-size: 15px
-  font-weight: bold
+  font-size: 16px
+  font-weight: 500
   stroke: none
   pointer-events: none
 
@@ -38,12 +38,22 @@
 
   .circle
     stroke: none
-    fill: $current-color
+    fill: $arrow-color
+    pointer-events: none
+
+  .coverage-bar
+    stroke: black
+    fill: white
+    pointer-events: none
+
+  .alt-bar
+    stroke: black
+    fill:   $current-color
     pointer-events: none
 
   .region
     stroke-width: 1px
-    stroke: $coverage-problem-region-color
+    stroke: $coverage-problem-region-border-color
     fill: $coverage-problem-region-color
 
   .threshold
@@ -77,6 +87,10 @@ export default {
         default: function() {
           return [[]];
         }
+      },
+      modelName: {
+        type: String,
+        default: ""
       },
       coverageDangerRegions: {
         type: Array,
@@ -134,6 +148,10 @@ export default {
         type: Number,
         default: 3
       },
+      showAlleleBar: {
+        type: Boolean,
+        default: false
+      },
       regionStart: {
         type: Number,
         default: 0
@@ -144,7 +162,7 @@ export default {
       },
       regionGlyph: {
         type: Function,
-        default: function(d,i,regionX) {
+        default: function(d,i,regionX, modelName) {
         }
       }
 
@@ -163,9 +181,8 @@ export default {
     },
     methods: {
       draw: function() {
-        var self = this;
-
-        this.depthChart =  lineD3()
+        let self = this;
+          this.depthChart =  lineD3()
           .width(this.width)
           .height(this.height)
           .widthPercent("100%")
@@ -175,10 +192,12 @@ export default {
           .showXAxis(this.showXAxis)
           .showYAxis(this.showYAxis)
           .yAxisLine(this.yAxisLine)
+          .modelName(this.modelName)
           .yTicks(this.yTicks)
           .pos( function(d) { return d[0] })
           .depth( function(d) { return d[1] })
           .maxDepth(this.maxDepth)
+          .showAlleleBar(this.showAlleleBar)
           .yTickFormat(function(val) {
             if (val == 0) {
               return "";
@@ -189,12 +208,12 @@ export default {
           .formatCircleText( function(pos, depth) {
             return depth + 'x' ;
           })
-          .regionGlyph(function(d, i, regionX) {
+          .regionGlyph(function(d, i, regionX, modelName) {
             var parent = d3.select(this.parentNode);
-            return self.regionGlyph(d, parent, regionX);
+            return self.regionGlyph(d, parent, regionX, modelName);
           })
           .on("d3region", function(featureObject, feature, lock) {
-            self.$emit("region-selected", featureObject, feature, lock );
+            self.$emit("region-selected", featureObject, feature, lock);
           })
 
           this.setDepthChart();
@@ -222,7 +241,7 @@ export default {
         this.$emit('updateDepthChart', this.depthChart);
       },
       showCurrentPoint: function(point) {
-        this.depthChart.showCircle()(point.pos, point.depth);
+        this.depthChart.showCircle()(point.pos, point.depth, point.altCount);
       },
       hideCurrentPoint: function(point) {
         this.depthChart.hideCircle()();
@@ -240,7 +259,6 @@ export default {
       data: function() {
         this.update();
       },
-
       regionStart: function() {
         this.regionSpan = this.regionStart + "-" + this.regionEnd;
       },

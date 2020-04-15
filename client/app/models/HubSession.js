@@ -4,25 +4,68 @@ export default class HubSession {
     this.vcf = null;
     this.samples = null;
     this.url = null;
+    this.isMother = false;
+    this.isFather = false;
     this.apiVersion =  '/apiv1';
     this.client_application_id = null;
+    this.variantSetTxtCols = [
+      "chrom",
+      "start",
+      "end",
+      "ref",
+      "alt",
+      "allelicBalance",
+      "slivarFilter",
+      "gene",
+      "afgnomAD",
+      "sampleId"
+    ]
+    this.user = null;
+
+    this.variantSetToFilterName = {
+      'compoundhet': 'compoundHet'
+    };
+    this.globalApp = null;
   }
 
-  promiseInit(sampleId, source, isPedigree, projectId ) {
+  promiseInit(sampleId, source, isPedigree, projectId, geneSetId ) {
     let self = this;
     self.api = source + self.apiVersion;
 
     return new Promise((resolve, reject) => {
       let modelInfos = [];
+      let geneSet = null;
+
+      self.promiseGetCurrentUser()
+      .then(function(data) {
+        self.user = data;
+      })
+      .catch(function(error) {
+        console.log(error)
+      })
 
       self.promiseGetClientApplication()
       .then(function() {
-        self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then(pedigree => {
+        if (geneSetId) {
+          return self.promiseGetGeneSet(projectId, geneSetId)
+        } else {
+          return Promise.resolve(null);
+        }
+      })
+      .then(function(data) {
+        geneSet = data;
+
+        self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then(data => {
+
 
           let promises = [];
 
+
+          let pedigree    = isPedigree ? data.pedigree : {'proband': data.proband};
+          let rawPedigree = data.rawPedigree;
+
           // Let's get the proband info first
-          let probandSample = pedigree.proband;
+          let probandSample = isPedigree ? pedigree.proband : data.proband;
           self.promiseGetFileMapForSample(projectId, probandSample, 'proband').then(data => {
             probandSample.files = data.fileMap;
           })
@@ -40,8 +83,6 @@ export default class HubSession {
                     let theSample = data.sample;
                     theSample.files = data.fileMap;
 
-
-
                     // gene.iobio only supports siblings in same multi-sample vcf as proband.
                     // bypass siblings in their own vcf.
                     let bypass = false;
@@ -57,12 +98,14 @@ export default class HubSession {
                       var modelInfo = {
                         'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
                         'affectedStatus': isPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
+                        'sex':            isPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
                         'name':           theSample.name,
                         'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
                         'vcf':            theSample.files.vcf,
                         'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
                         'txt':            theSample.files.txt
                       }
+
 
                       if (theSample.files.bam != null) {
                         modelInfo.bam = theSample.files.bam;
@@ -91,7 +134,17 @@ export default class HubSession {
               // Don't want to expose db info here?
               //console.log(pedigree);
 
-              resolve(modelInfos);
+              let buf = "";
+              modelInfos.forEach(function(modelInfo) {
+                if (modelInfo.sample == null || modelInfo.sample == "") {
+                  buf += "The sample " + modelInfo.name + "  (" + modelInfo.relationship + ")   has an empty vcf_sample_name. Unable to properly filter variants for this sample.<br><br>";
+                }
+              })
+              if (buf.length > 0) {
+                alertify.alert("Error", buf)
+              }
+
+              resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree, 'geneSet': geneSet, 'isMother': self.isMother, 'isFather': self.isFather});
             })
             .catch(error => {
               reject(error);
@@ -104,14 +157,118 @@ export default class HubSession {
         })
       })
 
-
-
     })
 
-
-
-
   }
+
+  hasVariantSets(modelInfos, rel='proband') {
+    let proband = modelInfos.filter(function(mi) {
+      return mi.relationship == rel;
+    })
+    if (proband && proband.length > 0) {
+      let fileInfos = proband[0].txt;
+      return fileInfos && fileInfos.length > 0
+    } else {
+      return false;
+    }
+  }
+
+  promiseParseVariantSets(modelInfos, rel='proband') {
+    let self = this;
+    return new Promise(function(resolve,reject) {
+      let proband = modelInfos.filter(function(mi) {
+        return mi.relationship == rel;
+      })
+      let variantSets = {};
+      if (proband && proband.length > 0) {
+        var promises = [];
+        let fileInfos = proband[0].txt;
+        fileInfos.forEach(function(fileInfo) {
+          let p = self.promiseParseVariantSetFile(fileInfo, proband[0])
+          .then(function(data) {
+            if (data) {
+              variantSets[data.nickname] = data.records;
+            }
+          })
+          promises.push(p);
+        })
+        Promise.all(promises)
+        .then(function() {
+          resolve(variantSets)
+        })
+      } else {
+        resolve(variantSets);
+      }
+
+    })
+  }
+
+  promiseParseVariantSetFile(fileInfo, modelInfo) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let theFileInfo = fileInfo
+      $.ajax({
+        url: fileInfo.url
+      })
+      .done(data => {
+        let variants = [];
+        if (data && data.length > 0) {
+          let records = data.split("\n");
+          records.map(function(record) {
+            let fields = record.split("\t");
+            if (fields.length >= self.variantSetTxtCols.length-1) {
+              let variant = {};
+              self.variantSetTxtCols.forEach(function(col, i) {
+                variant[col] = fields[i];
+              })
+              let keep = true
+              // If sampleId was included, us it to filter variants
+              if (fields.length == self.variantSetTxtCols.length) {
+                if (variant.sampleId  &&  modelInfo.sample && variant.sampleId != modelInfo.sample) {
+                  keep = false;
+                }
+              }
+              if (keep) {
+                if (variant.gene == "" || variant.gene == null || variant.gene.trim().length == 0) {
+                  console.log("promiseParseVariantSets: missing gene field.  bypassing record " + record);
+                } else {
+                  variant.isProxy = true;
+                  variant.variant_id = variant.gene + "^" + variant.start + "^" + variant.ref + "^" + variant.alt;
+                  if (variant.slivarFilter.indexOf("comphet") >= 0) {
+                    variant.inheritance = "compound het"
+                    variant.filtersPassed = "compoundHet"
+                  } else {
+                    variant.inheritance = variant.slivarFilter;
+                    variant.filtersPassed = variant.inheritance;
+                  }
+
+                  let matched = variants.filter(function(v) {
+                    return v.variant_id == variant.variant_id;
+                  })
+                  if (matched.length == 0) {
+                    variants.push(variant)
+                  }
+                }
+              } else {
+                console.log("bypassing variant rec for sample " + variant.sampleId)
+              }
+            } else {
+              console.log("promiseParseVariantSets: insufficient record fields.  bypassinging record " + record);
+            }
+          })
+        }
+        resolve({nickname: fileInfo.name, records: variants});
+      })
+      .fail(error => {
+        console.log("Unable to get file " + fileInfo.url)
+        //alertify.error("Missing file for URL " + fileInfo.url, 20)
+
+        resolve();
+      })
+
+    })
+  }
+
 
   promiseGetClientApplication() {
     let self = this;
@@ -124,13 +281,13 @@ export default class HubSession {
           Authorization: localStorage.getItem('hub-iobio-tkn'),
         },
       })
-      .done(clientApps => {
-        console.log(clientApps)
+      .done(data => {
+        let clientApps = data.data;
         let matchingApp = clientApps.filter(function(clientApp) {
-          return clientApp.uid == 'gene';
+          return clientApp.display_name == 'Gene.iobio';
         })
         if (matchingApp.length > 0) {
-          console.log("client_appplication_id = " + matchingApp[0].id)
+          console.log("client_application_id = " + matchingApp[0].id)
           self.client_application_id = matchingApp[0].id;
           resolve();
         } else {
@@ -197,10 +354,11 @@ export default class HubSession {
     return new Promise(function(resolve, reject) {
       // Get pedigree for sample
       self.getPedigreeForSample(project_id, sample_id)
-      .done(data => {
-        let pedigree = self.parsePedigree(data, sample_id)
+      .done(rawPedigree => {
+        const rawPedigreeOrig = $.extend({}, rawPedigree);
+        let pedigree = self.parsePedigree(rawPedigree, sample_id)
         if (pedigree) {
-          resolve(pedigree);
+          resolve({pedigree: pedigree, rawPedigree: rawPedigreeOrig});
         } else {
           reject("Error parsing pedigree");
         }
@@ -213,8 +371,6 @@ export default class HubSession {
 
   parsePedigree(raw_pedigree, sample_id) {
 
-    let self = this;
-
     // This assumes only 1 proband. If there are multiple affected samples then
     // the proband will be overwritten
     // This also assume no grandparents/grandchildren
@@ -226,12 +382,19 @@ export default class HubSession {
     // If the sample selected doesn't have a mother and father (isn't a proband), find
     // the proband by looking for a child with mother and father filled in and affected status
     if (probandIndex == -1) {
-      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 2 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 2 && (d.pedigree.maternal_id || d.pedigree.paternal_id )) );
     }
     // If the sample selected doesn't have a mother and father (isn't a proband), find
     // the proband by looking for a child with mother and father filled in and unknown affected status
     if (probandIndex == -1) {
-      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 0 && d.pedigree.maternal_id && d.pedigree.paternal_id ) );
+      probandIndex = raw_pedigree.findIndex(d => ( d.pedigree.affection_status == 0 && (d.pedigree.maternal_id || d.pedigree.paternal_id ) ));
+    }
+
+    if (probandIndex == -1) {
+      // Assume proband if there is only one sample in the pedigree
+      if (raw_pedigree.length == 1) {
+        probandIndex = 0;
+      }
     }
 
 
@@ -244,17 +407,16 @@ export default class HubSession {
       const motherIndex = raw_pedigree.findIndex(d => d.id == proband.pedigree.maternal_id)
       if (motherIndex != -1) {
         pedigree['mother'] = raw_pedigree.splice(motherIndex, 1)[0]
+        this.isMother = true;
       }
 
       // Get mother
       const fatherIndex = raw_pedigree.findIndex(d => d.id == proband.pedigree.paternal_id)
       if (fatherIndex != -1) {
         pedigree['father'] = raw_pedigree.splice(fatherIndex, 1)[0]
+        this.isFather = true;
       }
     } else {
-      console.log("Cannot find proband for pedigree of sample " + sample_id);
-      console.log("raw pedigree");
-      console.log(raw_pedigree);
       alertify.alert("Error", "Could not load the trio.  Unable to identify a proband (offspring) from this pedigree.")
       return null;
     }
@@ -307,21 +469,29 @@ export default class HubSession {
       var currentSample = sample;
       self.promiseGetFilesForSample(project_id, currentSample.id)
       .then(files => {
-        files.forEach(file => {
+        files.filter(file => {
+          return file.type
+        })
+        .forEach(file => {
+
           var p = self.promiseGetSignedUrlForFile(project_id, currentSample.id, file)
           .then(signed => {
-            if (file.type == 'txt') {
-              var files = fileMap[file.type];
+            if (file.type == 'txt' || file.type == 'tsv') {
+              var files = fileMap.txt;
               if (files == null) {
                 files = [];
-                fileMap[file.type] = files;
+                fileMap.txt = files;
               }
               files.push({'url': signed.url, 'name': file.nickname});
 
             } else {
               fileMap[file.type] = signed.url
               if (file.type == 'vcf') {
-                sample.vcf_sample_name = file.vcf_sample_name;
+                if (file.vcf_sample_name == null || file.vcf_sample_name == "") {
+                  alertify.error("Missing vcf_sample_name for file " + file.name, 20)
+                } else {
+                  sample.vcf_sample_name = file.vcf_sample_name;
+                }
               }
             }
           })
@@ -431,6 +601,20 @@ export default class HubSession {
     });
   }
 
+  promiseGetGeneSet(projectId, geneSetId) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getGeneSet(projectId, geneSetId)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        reject("Error getting gene set " + geneSetId + ": " + error);
+      })
+    })
+
+  }
+
   promiseGetAnalysis(projectId, analysisId) {
     let self = this;
     return new Promise(function(resolve, reject) {
@@ -503,10 +687,11 @@ export default class HubSession {
 
   addAnalysis(projectId, newAnalysisData) {
     let self = this;
+
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/analyses/?client_application_id=' + this.client_application_id,
       type: 'POST',
-      data: JSON.stringify(newAnalysisData),
+      data: self.stringifyAnalysis(newAnalysisData),
       contentType: 'application/json',
       headers: {
         Authorization: localStorage.getItem('hub-iobio-tkn'),
@@ -516,10 +701,11 @@ export default class HubSession {
 
   updateAnalysisTitle(projectId, analysisId, newAnalysisData) {
     let self = this;
+
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/analyses/' + analysisId,
       type: 'PUT',
-      data: JSON.stringify(newAnalysisData),
+      data: self.stringifyAnalysis(newAnalysisData),
       contentType: 'application/json',
       headers: {
         Authorization: localStorage.getItem('hub-iobio-tkn'),
@@ -530,16 +716,102 @@ export default class HubSession {
 
   updateAnalysis(projectId, analysisId, newAnalysisData) {
     let self = this;
+
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/analyses/' + analysisId
             + '?client_application_id=' + this.client_application_id,
       type: 'PUT',
-      data: JSON.stringify(newAnalysisData),
+      data: self.stringifyAnalysis(newAnalysisData),
       contentType: 'application/json',
       headers: {
         Authorization: localStorage.getItem('hub-iobio-tkn'),
       },
     });
   }
+
+  promiseGetCurrentUser() {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getCurrentUser()
+        .done(response => {
+          resolve(response)
+        })
+        .fail(error => {
+          reject("Error getting currentUser :" + error);
+        })
+    })
+  }
+
+  getCurrentUser() {
+    let self = this;
+
+    return $.ajax({
+      url: self.api + '/user',
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+
+  }
+
+  getGeneSet(projectId, geneSetId) {
+    let self = this;
+
+    return $.ajax({
+      url: self.api + '/projects/' + projectId + '/genes/sets/' + geneSetId,
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+  stringifyAnalysis(analysisData) {
+    let self = this;
+    var cache = [];
+
+    let analysisDataCopy = $.extend({}, analysisData)
+
+    // First get rid of full gene and transcript objects from variants
+    // These are too big to stringify and store
+    analysisDataCopy.payload.variants.forEach(function(variant) {
+      if (variant.gene && self.globalApp.utility.isObject(variant.gene)) {
+        variant.gene = variant.gene.gene_name;
+      }
+      if (variant.transcript && self.globalApp.utility.isObject(variant.transcript)) {
+        variant.transcriptId = variant.transcript.transcript_id;
+        variant.transcript = null;
+      }
+//      variant.variantInspect = null;
+      if (variant.variantInspect && variant.variantInspect.geneObject) {
+        variant.variantInspect.geneName = variant.variantInspect.geneObject.gene_name
+        variant.variantInspect.geneObject = null;
+      }
+      if (variant.variantInspect && variant.variantInspect.transcriptObject) {
+        variant.variantInspect.transcriptId = variant.variantInspect.transcriptObject.transcript_id
+        variant.variantInspect.transcriptObject = null;
+      }
+    })
+    analysisDataCopy.payload.filters = null;
+
+
+    let analysisString = JSON.stringify(analysisDataCopy, function(key, value) {
+      if (typeof value === 'object' && value !== null) {
+          if (cache.indexOf(value) !== -1) {
+              // Circular reference found, discard key
+              return;
+          }
+          // Store value in our collection
+          cache.push(value);
+      }
+      return value;
+    });
+    cache = [];
+    return analysisString;
+  }
+
 
 }

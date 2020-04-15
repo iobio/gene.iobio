@@ -1,20 +1,27 @@
 
 <style lang="sass" >
-
+@import ../../../assets/sass/variables
 .filter-coverage-form
   .input-group
     label
       font-size: 13px
+
+  .filter-action-button
+    padding: 0px
+    height: 30px !important
+    background-color: $app-button-color !important
+    color: white !important
+    min-width: 150px !important
+    margin: 0px
 
 </style>
 
 <template>
 
 
-      <v-layout row wrap class="filter-coverage-form mx-2 px-2" style="max-width:500px;">
-        <v-flex  xs12 class="mb-3" >
-            Coverage Thresholds
-        </v-flex>
+      <v-layout row wrap class="filter-coverage-form" >
+
+
 
         <v-flex  xs3 class="coverage-threshold mb-3 pr-4" >
             <v-text-field label="Min"  suffix="X" v-model="minCoverage" hide-details>
@@ -27,6 +34,13 @@
         <v-flex  xs3 class="coverage-threshold mb-3" >
             <v-text-field label="Median"  suffix="X" v-model="medianCoverage" hide-details>
             </v-text-field>
+        </v-flex>
+
+        <v-flex  style="display:flex" xs12 class="mt-3 mb-3" >
+          <v-spacer></v-spacer>
+          <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
+            Apply
+          </v-btn>
         </v-flex>
 
       </v-layout>
@@ -50,24 +64,44 @@ export default {
     return {
       minCoverage: null,
       meanCoverage: null,
-      medianCoverage: null
+      medianCoverage: null,
+      isDirty: false
     }
   },
   watch: {
   },
   methods: {
     init: function() {
+      let self = this;
       this.minCoverage               = this.filterModel.geneCoverageMin;
       this.meanCoverage              = this.filterModel.geneCoverageMean;
       this.medianCoverage            = this.filterModel.geneCoverageMedian;
+
+      this.$nextTick(function() {
+        self.isDirty = false;
+      })
     },
     apply: function() {
       this.filterModel.geneCoverageMin         = +this.minCoverage;
       this.filterModel.geneCoverageMean        = +this.meanCoverage;
       this.filterModel.geneCoverageMedian      = +this.medianCoverage;
+
+      this.isDirty = false;
+      this.$emit("apply-filter")
     }
   },
   computed: {
+  },
+  watch: {
+    minCoverage: function() {
+      this.isDirty = true;
+    },
+    medianCoverage: function() {
+      this.isDirty = true;
+    },
+    meanCoverage: function() {
+      this.isDirty = true;
+    },
   },
   created: function() {
   },

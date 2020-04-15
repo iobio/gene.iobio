@@ -62,15 +62,14 @@
     </v-flex>
 
     <v-flex xs4   id="sample-selection">
-      <v-select
+      <v-autocomplete
         v-bind:class="samples == null || samples.length == 0 ? 'hide' : ''"
         label="Sample"
         v-model="sample"
         :items="samples"
-        autocomplete
         @input="onSampleSelected"
         hide-details
-      ></v-select>
+      ></v-autocomplete>
     </v-flex>
 
     <v-flex xs12  class="ml-3 "  >
