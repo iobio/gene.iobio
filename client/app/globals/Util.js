@@ -916,7 +916,7 @@ class Util {
         if (info.notesFlattened.length > 0) {
           info.notesFlattened += " | ";
         }
-        info.notesFlattened  +=  (note.author ? note.author : " ") + "\t"+ note.datetime + "\t" + note.note ;
+        info.notesFlattened  +=  (note.author ? note.author : " ") + "\t"+ note.datetime + "\t" + note.note.split("\n").join(";  ") ;
       })
     }
 
