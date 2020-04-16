@@ -3797,7 +3797,9 @@ export default {
 
       self.selectedGene = null;
       self.selectedTranscript = null;
-      self.onFlaggedVariantSelected(self.selectedVariant, {force: true})
+      if (self.selectedVariant && self.selectedVariant.hasOwnProperty('gene')) {
+        self.onFlaggedVariantSelected(self.selectedVariant, {force: true})
+      }
 
       /*
       if (clinObject.genes && Array.isArray(clinObject.genes)) {
