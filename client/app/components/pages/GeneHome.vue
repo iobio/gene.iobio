@@ -1165,13 +1165,11 @@ export default {
 
       self.setAppMode();
 
-      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub);
-      self.genomeBuildHelper.promiseInit({DEFAULT_BUILD: 'GRCh37'})
+      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub, { DEFAULT_BUILD: 'GRCh37' });
+
+      self.promiseAddCacheHelperListeners()
       .then(function() {
-        return self.promiseAddCacheHelperListeners();
-      })
-      .then(function() {
-          return self.cacheHelper.promiseClearOlderCache();
+        return self.cacheHelper.promiseClearOlderCache();
       })
       .then(function() {
         return self.promiseLoadSiteConfig();
