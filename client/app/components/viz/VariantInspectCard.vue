@@ -219,6 +219,12 @@
     padding: 0px
     height: 22px
 
+  .rsid
+    padding-right: 20px
+    padding-top: 2px
+
+    .rsid-link
+      padding-left: 2px
 
   .pedigree-chart
     circle
@@ -335,11 +341,11 @@
 
       <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="!isSimpleMode && selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
 
-        <div v-if="info && info.rsId" style="display: inline-flex; padding-right:20px; font-size:14px; line-height:18px; padding-top: 3px; font-weight: 100"> {{info.rsId}}
-        <a  v-bind:href="info.dbSnpUrl" target="ClinVar" style="padding-left: 4px;">
-            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 3px">open_in_new</i>
-        </a>
-        </div>
+      <div v-if="info && info.rsId"  class="variant-header rsid"> {{info.rsId}}
+      <a  v-bind:href="info.dbSnpUrl" target="ClinVar" class="rsid-link">
+          <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 3px">open_in_new</i>
+      </a>
+      </div>
 
       <app-icon
        style="min-width:35px;margin-top:1px;margin-right:5px;padding-top: 1px;margin-right:10px"

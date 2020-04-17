@@ -15,7 +15,7 @@
       color: $text-color
       padding-top: 2px
       padding-bottom: 2px
-      height: 22px
+      height: 28px
       padding-left: 10px
       padding-right: 10px
 
@@ -30,7 +30,7 @@
         color: $text-color
         padding-top: 2px
         padding-bottom: 2px
-        height: 22px
+        height: 28px
         width: 80px
         padding-left: 10px
         padding-right: 10px

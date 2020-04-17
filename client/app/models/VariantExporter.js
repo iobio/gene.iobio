@@ -36,7 +36,6 @@ export default class VariantExporter {
       {field: 'clinvarTrait',     exportVcf: true},
       {field: 'HGVSc',            exportVcf: true},
       {field: 'HGVSp',            exportVcf: true},
-      {field: 'regulatory',       exportVcf: true},
       {field: 'qual',             exportVcf: false},
       {field: 'filter',           exportVcf: false},
       {field: 'zygosityProband',  exportVcf: true},
@@ -55,8 +54,7 @@ export default class VariantExporter {
       {field: 'depthFather',      exportVcf: true},
       {field: 'bamDepthFather',   exportVcf: true},
       {field: 'dbSnpUrl',         exportVcf: false},
-      {field: 'clinvarUrl',       exportVcf: false},
-      {field: 'analysisMode',     exportVcf: false}
+      {field: 'clinvarUrl',       exportVcf: false}
 
     ];
 
@@ -103,6 +101,9 @@ export default class VariantExporter {
         exportRec.ref          = variant.ref;
         exportRec.alt          = variant.alt;
         exportRec.geneName     = variant.gene.gene_name;
+        if (format == 'csv') {
+          exportRec.gene = exportRec.geneName;
+        }
         exportRec.starred      = variant.isFavorite == true ? "Y" : "";
 
         var promise = null;
@@ -111,6 +112,7 @@ export default class VariantExporter {
           var record = data[0];
 
           if (format == 'csv' || format == 'json') {
+
             records.push(record);
           } else if (format == 'vcf') {
             var annotatedVcfRecs = data[1];
