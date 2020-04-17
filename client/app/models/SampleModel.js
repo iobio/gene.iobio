@@ -1377,8 +1377,8 @@ class SampleModel {
                me.globalApp.vepAF, // vepAF
                me.globalApp.useServerCache, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtra && me.relationship != 'known-variantsss', // get extra gnomad,
-               me.relationship != 'known-variantsss' // decompose
+               me.globalApp.gnomADExtra, // get extra gnomad,
+               true // decompose
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
@@ -1818,7 +1818,7 @@ class SampleModel {
                regions,   // regions
                isMultiSample, // is multi-sample
                me._getSamplesToRetrieve(),
-               me.getRelationship() === 'known-variantsss' ? 'none' : me.getAnnotationScheme().toLowerCase(),
+               'none',
                me.getTranslator().clinvarMap,
                me.getGeneModel().geneSource === 'refseq' ? true : false,
                me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
@@ -1826,8 +1826,8 @@ class SampleModel {
                me.globalApp.vepAF,    // vep af
                false, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtraAll && me.relationship != 'known-variantsss', // get extra gnomad,
-               !me.isEduMode && me.getRelationship() != 'known-variantsss' // decompose
+               me.globalApp.gnomADExtraAll, // get extra gnomad,
+               !me.isEduMode// decompose
               );
           })
           .then( function(data) {
@@ -1888,7 +1888,6 @@ class SampleModel {
                   // Set the highest allele freq for all variants
                   for (var key in resultMap) {
                     var theVcfData = resultMap[key];
-                    console.log("key, vcfData", key, theVcfData)
                     if (theVcfData && theVcfData.features) {
                       theVcfData.features.forEach(function(variant) {
                         me._determineHighestAf(variant);
@@ -2073,9 +2072,6 @@ class SampleModel {
     // Find the highest value (the least rare AF) betweem exac and 1000g to evaluate
     // as 'lowest' af for all variants in gene
     var afHighest = null;
-
-    console.log("variant in sampleModel", variant);
-    console.log("me.relationship", me.relationship);
 
     if ($.isNumeric(variant.afExAC) && $.isNumeric(variant.af1000G)) {
       // Ignore exac n/a.  If exac is higher than 1000g, evaluate exac

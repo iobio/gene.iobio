@@ -367,7 +367,7 @@
 
       <v-spacer></v-spacer>
 
-      <div v-if="!isSimpleMode && selectedVariant && !showAssessment && selectedVariantInterpretation != 'known-variantsss'" style="margin-left:20px;margin-right:0px">
+      <div v-if="!isSimpleMode && selectedVariant && !showAssessment" style="margin-left:20px;margin-right:0px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
           <v-icon>gavel</v-icon>
           Review
@@ -515,7 +515,7 @@
           </div>
       </div>
 
-      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant && selectedVariantRelationship != 'known-variantsss' && selectedVariant.inheritance.length > 0">
+      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant && selectedVariant.inheritance.length > 0">
           <div class="variant-column-header">
             Inheritance
             <v-divider></v-divider>
