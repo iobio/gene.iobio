@@ -1,6 +1,10 @@
+// Note: Directly importing json files is webpack functionality.
+import genomeBuildObj from '../../data/genomebuild.json';
+
+
 export class GenomeBuildHelper {
 
-  constructor(globalApp, launchedFromHub) {
+  constructor(globalApp, launchedFromHub, buildOptions) {
     this.globalApp = globalApp;
     this.launchedFromHub = launchedFromHub;
     this.currentSpecies = null;
@@ -11,48 +15,23 @@ export class GenomeBuildHelper {
     this.buildNameToBuild = {};     //
 
     this.DEFAULT_SPECIES = "Human";
-    this.DEFAULT_BUILD   = "GRCh37";
+    if (buildOptions && buildOptions.hasOwnProperty('DEFAULT_SPECIES')) {
+      this.DEFAULT_SPECIES = buildOptions.DEFAULT_SPECIES;
+    }
 
+    this.DEFAULT_BUILD   = "GRCh37";
+    if (buildOptions && buildOptions.hasOwnProperty('DEFAULT_BUILD')) {
+      this.DEFAULT_BUILD = buildOptions.DEFAULT_BUILD;
+    }
+    
     this.ALIAS_UCSC                            = "UCSC";
     this.ALIAS_REFSEQ_ASSEMBLY_ACCESSION_RANGE = "REFSEQ ASSEMBLY ACCESSION RANGE";
 
     this.RESOURCE_CLINVAR_VCF_OFFLINE = "CLINVAR VCF OFFLINE";
     this.RESOURCE_CLINVAR_POSITION    = "CLINVAR EUTILS BASE POSITION";
     this.RESOURCE_ENSEMBL_URL         = "ENSEMBL URL";
-  }
 
-  promiseInit(options) {
-    var me = this;
-    if (options && options.hasOwnProperty('DEFAULT_SPECIES')) {
-      me.DEFAULT_SPECIES = options.DEFAULT_SPECIES;
-    }
-    if (options && options.hasOwnProperty('DEFAULT_BUILD')) {
-      me.DEFAULT_BUILD = options.DEFAULT_BUILD;
-    }
-    return new Promise(function(resolve, reject) {
-
-      $.ajax({
-            url: me.globalApp.genomeBuildServer,
-            jsonp: "callback",
-            type: "GET",
-            dataType: "jsonp",
-            error: function( xhr, status, errorThrown ) {
-
-                console.log( "Error: " + errorThrown );
-                console.log( "Status: " + status );
-                console.log( xhr );
-                reject("An error occurred when loading genomebuild data: " + errorThrown);
-        },
-            success: function(allSpecies) {
-
-              me.init(allSpecies);
-
-              resolve();
-            }
-        });
-
-    });
-
+    this.init(genomeBuildObj);
   }
 
   init(allSpecies) {

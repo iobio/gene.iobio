@@ -1,0 +1,778 @@
+[
+  {
+    "id": 14,
+    "name": "Human",
+    "binomialName": "Homo sapiens",
+    "latin_name": "homo_sapiens",
+    "genomeBuilds": [
+      {
+        "id": 24,
+        "idSpecies": 14,
+        "name": "GRCh37",
+        "references": [
+          {
+            "id": 508,
+            "idGenomeBuild": 24,
+            "name": "1",
+            "length": 249250621,
+            "alias": "chr1",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr1.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr1.fa"
+          },
+          {
+            "id": 509,
+            "idGenomeBuild": 24,
+            "name": "2",
+            "length": 243199373,
+            "alias": "chr2",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr2.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr2.fa"
+          },
+          {
+            "id": 510,
+            "idGenomeBuild": 24,
+            "name": "3",
+            "length": 198022430,
+            "alias": "chr3",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr3.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr3.fa"
+          },
+          {
+            "id": 511,
+            "idGenomeBuild": 24,
+            "name": "4",
+            "length": 191154276,
+            "alias": "chr4",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr4.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr4.fa"
+          },
+          {
+            "id": 512,
+            "idGenomeBuild": 24,
+            "name": "5",
+            "length": 180915260,
+            "alias": "chr5",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr5.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr5.fa"
+          },
+          {
+            "id": 513,
+            "idGenomeBuild": 24,
+            "name": "6",
+            "length": 171115067,
+            "alias": "chr6",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr6.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr6.fa"
+          },
+          {
+            "id": 514,
+            "idGenomeBuild": 24,
+            "name": "7",
+            "length": 159138663,
+            "alias": "chr7",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr7.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr7.fa"
+          },
+          {
+            "id": 515,
+            "idGenomeBuild": 24,
+            "name": "8",
+            "length": 146364022,
+            "alias": "chr8",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr8.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr8.fa"
+          },
+          {
+            "id": 516,
+            "idGenomeBuild": 24,
+            "name": "9",
+            "length": 141213431,
+            "alias": "chr9",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr9.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr9.fa"
+          },
+          {
+            "id": 517,
+            "idGenomeBuild": 24,
+            "name": "10",
+            "length": 135534747,
+            "alias": "chr10",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr10.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr10.fa"
+          },
+          {
+            "id": 518,
+            "idGenomeBuild": 24,
+            "name": "11",
+            "length": 135006516,
+            "alias": "chr11",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr11.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr11.fa"
+          },
+          {
+            "id": 519,
+            "idGenomeBuild": 24,
+            "name": "12",
+            "length": 133851895,
+            "alias": "chr12",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr12.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr12.fa"
+          },
+          {
+            "id": 520,
+            "idGenomeBuild": 24,
+            "name": "13",
+            "length": 115169878,
+            "alias": "chr13",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr13.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr13.fa"
+          },
+          {
+            "id": 521,
+            "idGenomeBuild": 24,
+            "name": "14",
+            "length": 107349540,
+            "alias": "chr14",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr14.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr14.fa"
+          },
+          {
+            "id": 522,
+            "idGenomeBuild": 24,
+            "name": "15",
+            "length": 102531392,
+            "alias": "chr15",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr15.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr15.fa"
+          },
+          {
+            "id": 523,
+            "idGenomeBuild": 24,
+            "name": "16",
+            "length": 90354753,
+            "alias": "chr16",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr16.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr16.fa"
+          },
+          {
+            "id": 524,
+            "idGenomeBuild": 24,
+            "name": "17",
+            "length": 81195210,
+            "alias": "chr17",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr17.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr17.fa"
+          },
+          {
+            "id": 525,
+            "idGenomeBuild": 24,
+            "name": "18",
+            "length": 78077248,
+            "alias": "chr18",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr18.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr18.fa"
+          },
+          {
+            "id": 526,
+            "idGenomeBuild": 24,
+            "name": "19",
+            "length": 59128983,
+            "alias": "chr19",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr19.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr19.fa"
+          },
+          {
+            "id": 527,
+            "idGenomeBuild": 24,
+            "name": "20",
+            "length": 63025520,
+            "alias": "chr20",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr20.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr20.fa"
+          },
+          {
+            "id": 528,
+            "idGenomeBuild": 24,
+            "name": "21",
+            "length": 48129895,
+            "alias": "chr21",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr21.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr21.fa"
+          },
+          {
+            "id": 529,
+            "idGenomeBuild": 24,
+            "name": "22",
+            "length": 51304566,
+            "alias": "chr22",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chr22.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chr22.fa"
+          },
+          {
+            "id": 530,
+            "idGenomeBuild": 24,
+            "name": "X",
+            "length": 155270560,
+            "alias": "chrX",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chrX.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chrX.fa"
+          },
+          {
+            "id": 531,
+            "idGenomeBuild": 24,
+            "name": "Y",
+            "length": 59373566,
+            "alias": "chrY",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh37/hs_ref_chrY.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg19/chrY.fa"
+          }
+        ],
+        "resources": [
+          {
+            "id": 58,
+            "idGenomeBuild": 24,
+            "type": "CLINVAR VCF S3",
+            "resource": "https://s3.amazonaws.com/iobio/gene/clinvar/clinvar.GRCh37.vcf.gz"
+          },
+          {
+            "id": 59,
+            "idGenomeBuild": 24,
+            "type": "CLINVAR VCF FTP",
+            "resource": "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/clinvar.vcf.gz"
+          },
+          {
+            "id": 60,
+            "idGenomeBuild": 24,
+            "type": "CLINVAR VCF OFFLINE",
+            "resource": "clinvar.GRCh37.vcf.gz"
+          },
+          {
+            "id": 61,
+            "idGenomeBuild": 24,
+            "type": "CLINVAR EUTILS BASE POSITION",
+            "resource": "Base+Position+for+Assembly+GRCh37"
+          },
+          {
+            "id": 62,
+            "idGenomeBuild": 24,
+            "type": "ENSEMBL URL",
+            "resource": "http://grch37.ensembl.org/Homo_sapiens/"
+          }
+        ],
+        "aliases": [
+          {
+            "id": 61,
+            "idGenomeBuild": 24,
+            "type": "",
+            "alias": "NCBI37"
+          },
+          {
+            "id": 62,
+            "idGenomeBuild": 24,
+            "type": "UCSC",
+            "alias": "hg19"
+          },
+          {
+            "id": 63,
+            "idGenomeBuild": 24,
+            "type": "REFSEQ ASSEMBLY ACCESSION RANGE",
+            "alias": "GCF_000001405.[13-25]"
+          }
+        ]
+      },
+      {
+        "id": 25,
+        "idSpecies": 14,
+        "name": "GRCh38",
+        "references": [
+          {
+            "id": 532,
+            "idGenomeBuild": 25,
+            "name": "1",
+            "length": 248956422,
+            "alias": "chr1",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.1.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr1.fa"
+          },
+          {
+            "id": 533,
+            "idGenomeBuild": 25,
+            "name": "2",
+            "length": 242193529,
+            "alias": "chr2",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.2.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr2.fa"
+          },
+          {
+            "id": 534,
+            "idGenomeBuild": 25,
+            "name": "3",
+            "length": 198295559,
+            "alias": "chr3",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.3.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr3.fa"
+          },
+          {
+            "id": 535,
+            "idGenomeBuild": 25,
+            "name": "4",
+            "length": 190214555,
+            "alias": "chr4",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.4.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr4.fa"
+          },
+          {
+            "id": 536,
+            "idGenomeBuild": 25,
+            "name": "5",
+            "length": 181538259,
+            "alias": "chr5",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.5.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr5.fa"
+          },
+          {
+            "id": 537,
+            "idGenomeBuild": 25,
+            "name": "6",
+            "length": 170805979,
+            "alias": "chr6",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.6.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr6.fa"
+          },
+          {
+            "id": 538,
+            "idGenomeBuild": 25,
+            "name": "7",
+            "length": 159345973,
+            "alias": "chr7",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.7.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr7.fa"
+          },
+          {
+            "id": 539,
+            "idGenomeBuild": 25,
+            "name": "8",
+            "length": 145138636,
+            "alias": "chr8",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.8.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr8.fa"
+          },
+          {
+            "id": 540,
+            "idGenomeBuild": 25,
+            "name": "9",
+            "length": 138394717,
+            "alias": "chr9",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.9.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr9.fa"
+          },
+          {
+            "id": 541,
+            "idGenomeBuild": 25,
+            "name": "10",
+            "length": 133797422,
+            "alias": "chr10",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.10.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr10.fa"
+          },
+          {
+            "id": 542,
+            "idGenomeBuild": 25,
+            "name": "11",
+            "length": 135086622,
+            "alias": "chr11",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.11.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr11.fa"
+          },
+          {
+            "id": 543,
+            "idGenomeBuild": 25,
+            "name": "12",
+            "length": 133275309,
+            "alias": "chr12",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.12.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr12.fa"
+          },
+          {
+            "id": 544,
+            "idGenomeBuild": 25,
+            "name": "13",
+            "length": 114364328,
+            "alias": "chr13",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.13.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr13.fa"
+          },
+          {
+            "id": 545,
+            "idGenomeBuild": 25,
+            "name": "14",
+            "length": 107043718,
+            "alias": "chr14",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.14.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr14.fa"
+          },
+          {
+            "id": 546,
+            "idGenomeBuild": 25,
+            "name": "15",
+            "length": 101991189,
+            "alias": "chr15",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.15.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr15.fa"
+          },
+          {
+            "id": 547,
+            "idGenomeBuild": 25,
+            "name": "16",
+            "length": 90338345,
+            "alias": "chr16",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.16.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr16.fa"
+          },
+          {
+            "id": 548,
+            "idGenomeBuild": 25,
+            "name": "17",
+            "length": 83257441,
+            "alias": "chr17",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.17.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr17.fa"
+          },
+          {
+            "id": 549,
+            "idGenomeBuild": 25,
+            "name": "18",
+            "length": 80373285,
+            "alias": "chr18",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.18.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr18.fa"
+          },
+          {
+            "id": 550,
+            "idGenomeBuild": 25,
+            "name": "19",
+            "length": 58617616,
+            "alias": "chr19",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.19.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr19.fa"
+          },
+          {
+            "id": 551,
+            "idGenomeBuild": 25,
+            "name": "20",
+            "length": 64444167,
+            "alias": "chr20",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.20.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr20.fa"
+          },
+          {
+            "id": 552,
+            "idGenomeBuild": 25,
+            "name": "21",
+            "length": 46709983,
+            "alias": "chr21",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.21.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr21.fa"
+          },
+          {
+            "id": 553,
+            "idGenomeBuild": 25,
+            "name": "22",
+            "length": 50818468,
+            "alias": "chr22",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.22.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chr22.fa"
+          },
+          {
+            "id": 554,
+            "idGenomeBuild": 25,
+            "name": "X",
+            "length": 156040895,
+            "alias": "chrX",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.X.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chrX.fa"
+          },
+          {
+            "id": 555,
+            "idGenomeBuild": 25,
+            "name": "Y",
+            "length": 57227415,
+            "alias": "chrY",
+            "fastaPathEnsembl": "./data/references/homo_sapiens/GRCh38/Homo_sapiens.GRCh38.dna.chromosome.Y.fa",
+            "fastaPathUCSC": "./data/references/homo_sapiens/hg38/chrY.fa"
+          }
+        ],
+        "resources": [
+          {
+            "id": 63,
+            "idGenomeBuild": 25,
+            "type": "CLINVAR VCF S3",
+            "resource": "https://s3.amazonaws.com/iobio/gene/clinvar/clinvar.GRCh38.vcf.gz"
+          },
+          {
+            "id": 64,
+            "idGenomeBuild": 25,
+            "type": "CLINVAR VCF FTP",
+            "resource": "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar.vcf.gz"
+          },
+          {
+            "id": 65,
+            "idGenomeBuild": 25,
+            "type": "CLINVAR VCF OFFLINE",
+            "resource": "clinvar.GRCh38.vcf.gz"
+          },
+          {
+            "id": 66,
+            "idGenomeBuild": 25,
+            "type": "CLINVAR EUTILS BASE POSITION",
+            "resource": "Base+Position"
+          },
+          {
+            "id": 67,
+            "idGenomeBuild": 25,
+            "type": "ENSEMBL URL",
+            "resource": "http://uswest.ensembl.org/Homo_sapiens/"
+          }
+        ],
+        "aliases": [
+          {
+            "id": 64,
+            "idGenomeBuild": 25,
+            "type": "",
+            "alias": "NCBI38"
+          },
+          {
+            "id": 65,
+            "idGenomeBuild": 25,
+            "type": "UCSC",
+            "alias": "hg38"
+          },
+          {
+            "id": 66,
+            "idGenomeBuild": 25,
+            "type": "CLINVAR",
+            "alias": "c38"
+          },
+          {
+            "id": 67,
+            "idGenomeBuild": 25,
+            "type": "REFSEQ ASSEMBLY ACCESSION RANGE",
+            "alias": "GCF_000001405.[26-35]"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "name": "Mouse",
+    "binomialName": "Mus musculus",
+    "latin_name": "mus_musculus",
+    "genomeBuilds": [
+      {
+        "id": 26,
+        "idSpecies": 15,
+        "name": "mm10/GRCm38",
+        "references": [
+          {
+            "id": 556,
+            "idGenomeBuild": 26,
+            "name": "1",
+            "length": 195471971,
+            "alias": "chr1",
+            "fastaPathEnsembl": "./data/references/mus_musculus/GRCm38/chr1.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr1.fa"
+          },
+          {
+            "id": 557,
+            "idGenomeBuild": 26,
+            "name": "2",
+            "length": 182113224,
+            "alias": "chr2",
+            "fastaPathEnsembl": "./data/references/mus_musculus/GRCm38/chr2.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr2.fa"
+          },
+          {
+            "id": 558,
+            "idGenomeBuild": 26,
+            "name": "3",
+            "length": 160039680,
+            "alias": "chr3",
+            "fastaPathEnsembl": "./data/references/mus_musculus/GRCm38/chr3.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr3.fa"
+          },
+          {
+            "id": 559,
+            "idGenomeBuild": 26,
+            "name": "4",
+            "length": 156508116,
+            "alias": "chr4",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr4.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr4.fa"
+          },
+          {
+            "id": 560,
+            "idGenomeBuild": 26,
+            "name": "5",
+            "length": 151834684,
+            "alias": "chr5",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr5.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr5.fa"
+          },
+          {
+            "id": 561,
+            "idGenomeBuild": 26,
+            "name": "6",
+            "length": 149736546,
+            "alias": "chr6",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr6.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr6.fa"
+          },
+          {
+            "id": 562,
+            "idGenomeBuild": 26,
+            "name": "7",
+            "length": 145441459,
+            "alias": "chr7",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr7.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr7.fa"
+          },
+          {
+            "id": 563,
+            "idGenomeBuild": 26,
+            "name": "8",
+            "length": 129401213,
+            "alias": "chr8",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr8.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr8.fa"
+          },
+          {
+            "id": 564,
+            "idGenomeBuild": 26,
+            "name": "9",
+            "length": 124595110,
+            "alias": "chr9",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr9.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr9.fa"
+          },
+          {
+            "id": 565,
+            "idGenomeBuild": 26,
+            "name": "10",
+            "length": 130694993,
+            "alias": "chr10",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr10.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr10.fa"
+          },
+          {
+            "id": 566,
+            "idGenomeBuild": 26,
+            "name": "11",
+            "length": 122082543,
+            "alias": "chr11",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr11.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr11.fa"
+          },
+          {
+            "id": 567,
+            "idGenomeBuild": 26,
+            "name": "12",
+            "length": 120129022,
+            "alias": "chr12",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr12.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr12.fa"
+          },
+          {
+            "id": 568,
+            "idGenomeBuild": 26,
+            "name": "13",
+            "length": 120421639,
+            "alias": "chr13",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr13.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr13.fa"
+          },
+          {
+            "id": 569,
+            "idGenomeBuild": 26,
+            "name": "14",
+            "length": 124902244,
+            "alias": "chr14",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr14.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr14.fa"
+          },
+          {
+            "id": 570,
+            "idGenomeBuild": 26,
+            "name": "15",
+            "length": 104043685,
+            "alias": "chr15",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr15.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr15.fa"
+          },
+          {
+            "id": 571,
+            "idGenomeBuild": 26,
+            "name": "16",
+            "length": 98207768,
+            "alias": "chr16",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr16.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr16.fa"
+          },
+          {
+            "id": 572,
+            "idGenomeBuild": 26,
+            "name": "17",
+            "length": 94987271,
+            "alias": "chr17",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr17.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr17.fa"
+          },
+          {
+            "id": 573,
+            "idGenomeBuild": 26,
+            "name": "18",
+            "length": 90702639,
+            "alias": "chr18",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr18.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr18.fa"
+          },
+          {
+            "id": 574,
+            "idGenomeBuild": 26,
+            "name": "19",
+            "length": 61431566,
+            "alias": "chr19",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chr19.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chr19.fa"
+          },
+          {
+            "id": 575,
+            "idGenomeBuild": 26,
+            "name": "X",
+            "length": 171031299,
+            "alias": "chrX",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chrX.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chrX.fa"
+          },
+          {
+            "id": 576,
+            "idGenomeBuild": 26,
+            "name": "Y",
+            "length": 91744698,
+            "alias": "chrY",
+            "fastaPathEnsembl": "./data/references/mus_musculus/mm10/GRCm38/chrY.fa",
+            "fastaPathUCSC": "./data/references/mus_musculu/mm10/chrY.fa"
+          }
+        ],
+        "aliases": [
+          {
+            "id": 68,
+            "idGenomeBuild": 26,
+            "type": "UCSC",
+            "alias": "mm10"
+          }
+        ]
+      }
+    ]
+  }
+]

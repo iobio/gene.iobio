@@ -9,6 +9,10 @@
   margin-bottom: 20px
   margin-top: 20px
 
+  .v-input--radio-group__input
+    label
+      margin-bottom: 0px
+
   .radio-group.radio-group--column
     margin-top: 0px
     padding-top: 0px
@@ -22,7 +26,7 @@
       font-size: 14px
       padding: 0px 0px 0px 0px
 
-  .input-group
+  .input-group, .v-input--radio-group 
     label
       font-size: 14px
       line-height: 20px
