@@ -539,13 +539,11 @@
 
                     <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
-                        <!-- <span class="pheno-source">{{ geneRankGTR(flaggedGene.gene.gene_name) }}</span> -->
                         <v-chip class="white--text mr-2" >
                           {{ geneRankGTR(flaggedGene.gene.gene_name) }}  GTR
                         </v-chip>
                       </span>
                       <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
-                        <!-- <span class="pheno-source">{{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}</span> -->
                         <v-chip class="white--text mr-2" >
                           {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}  Phen.
                         </v-chip>

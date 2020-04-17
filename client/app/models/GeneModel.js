@@ -130,7 +130,6 @@ class GeneModel {
         if (geneEntry.searchTermsPhenolyzer && geneEntry.searchTermsPhenolyzer.length > 0) {
           geneEntry.searchTermsPhenolyzer.forEach(function(searchTermObject) {
             var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
-            console.log("searchTerm", searchTerm)
             var ranks = searchTerms[searchTerm];
             if (ranks == null) {
               ranks = [];

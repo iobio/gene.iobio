@@ -3793,7 +3793,6 @@ export default {
       self.geneModel.setCandidateGenes(clinObject.genes);
       */
 
-      console.log("clinObject.genesReport", clinObject)
       self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
       self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList, 'hpo': clinObject.hpoFullList })
 

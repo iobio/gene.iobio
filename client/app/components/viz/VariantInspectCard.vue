@@ -454,11 +454,12 @@
             <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
               <div>
                 <v-chip v-if="geneRank.rank" class="high">
-                  <span class="mr-1">#{{ geneRank.rank  }} </span>
-                  <span v-if="geneRank.source">  {{  geneRank.source }}</span></v-chip>
-                <v-chip v-else class="high"><span v-if="geneRank.source"> {{ geneRank.source }} </span></v-chip>
-
-                <!-- <span v-if="geneRank.source" class="pheno-source">{{ geneRank.source }}</span> -->
+                  <span class="mr-1">#{{ geneRank.rank  }}</span>
+                  <span v-if="geneRank.source">{{  geneRank.source }}</span>
+                </v-chip>
+                <v-chip v-else class="high">
+                  <span v-if="geneRank.source"> {{ geneRank.source }}</span>
+                </v-chip>
                 <span v-if="geneHit.searchTerm" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
               </div>
             </div>

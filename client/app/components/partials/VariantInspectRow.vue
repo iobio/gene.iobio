@@ -69,11 +69,6 @@
           .chip__content, .v-chip__content
             background-color:  $danger-color
             color: white
-        &.high_hidden    
-          .chip__content, .v-chip__content
-            background-color:  white
-            color: white
-
 
       .pheno-source
         width: 40px
