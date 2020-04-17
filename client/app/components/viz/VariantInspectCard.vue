@@ -1509,10 +1509,7 @@ export default {
 
     selectedVariant: function() {
 
-        let self = this;
-        console.log("selected Variant in watcher", this.selectedVariant);
-        console.log("this.selectedVariantRelationship", this.selectedVariantRelationship);
-
+      let self = this;
       this.$nextTick(function() {
           this.loadData();
 
