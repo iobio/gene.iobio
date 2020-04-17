@@ -59,16 +59,21 @@
         margin-bottom: 0px
         margin-right: 0px
         .chip__content, .v-chip__content
-          padding: 0 0px
-          height: 15px
-          width: 34px
-          font-size: 12px
+          padding: 10px !important
+          height: 18px !important
+          width: 70px !important
+          font-size: 11px !important
           justify-content: center
           color: $text-color
         &.high
           .chip__content, .v-chip__content
             background-color:  $danger-color
             color: white
+        &.high_hidden    
+          .chip__content, .v-chip__content
+            background-color:  white
+            color: white
+
 
       .pheno-source
         width: 40px
