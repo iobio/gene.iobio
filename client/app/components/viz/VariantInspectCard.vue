@@ -749,10 +749,9 @@ export default {
     },
 
     annotateClinVarVariant(){
-      console.log("annotating clin var variant...");
       this.refreshSelectedVariantInfo();
-      console.log('this.selectedVariantInfo', this.selectedVariantInfo);
     },
+
 
 
 
