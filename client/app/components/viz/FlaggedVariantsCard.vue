@@ -751,6 +751,7 @@ export default {
     return {
       readyToDownload: false,
       geneLists: null,
+      flattenedGenesList: null,
       clickedVariant: null,
       variantCount: 0,
       interpretationFilters: null,
@@ -795,6 +796,10 @@ export default {
           expand: true
         }
       })
+
+
+      self.sortGenesBySig();
+
       self.$emit("count-changed", self.variantCount);
 
       self.expansionControl =  self.geneLists.map(function(geneList) {
@@ -808,6 +813,69 @@ export default {
       this.$emit("apply-variant-interpretation", variant);
     },
 
+    sortGenesBySig(){
+
+      this.flattenGenesList();
+    },
+
+    flattenGenesList(){
+
+      let self = this;
+
+      let geneLists = [];
+
+      let reviewed = Object.assign({}, self.geneLists[0]);
+
+      if(reviewed.name === "reviewed") {
+        let genes = reviewed.genes;
+        let flattenedGenes = [];
+
+        for (let i = 0; i < genes.length; i++) {
+
+          let geneCopy = Object.assign({}, genes[i]);
+
+          for(let i = 0; i < geneCopy.variants.length; i++){
+            let copiedGene = Object.assign({},geneCopy);
+            copiedGene.variants = [];
+            copiedGene.variants.push(geneCopy.variants[i]);
+            flattenedGenes.push(copiedGene);
+          }
+        }
+        console.log("flattenedGenes", flattenedGenes);
+
+        flattenedGenes = this.sortFlattenedGenes(flattenedGenes);
+
+        console.log("this.geneLists[0].genes before flatten", this.geneLists[0].genes);
+
+        this.geneLists[0].genes = flattenedGenes;
+        console.log("this.geneLists[0].genes after flatten", this.geneLists[0].genes);
+      }
+
+    },
+
+    sortFlattenedGenes: function(flattenedGenes){
+      let sig = [];
+      let unsig = [];
+      let sortedGenes = [];
+
+      for(let i = 0; i < flattenedGenes.length; i++){
+        let variant = flattenedGenes[i].variants[0];
+        if(variant.interpretation === "sig"){
+          sig.push(flattenedGenes[i]);
+        }
+        else if(variant.interpretation === "not-sig"){
+          unsig.push(flattenedGenes[i]);
+        }
+      }
+      for(let i = 0; i < sig.length; i++){
+        sortedGenes.push(sig[i]);
+      }
+      for(let i = 0; i < unsig.length; i++){
+        sortedGenes.push(unsig[i]);
+      }
+      console.log("sorted flattened genes", sortedGenes);
+      return sortedGenes;
+    },
 
     onEditFilter: function(geneList) {
       let self = this;
