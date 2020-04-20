@@ -798,7 +798,7 @@ export default {
       })
 
 
-      self.sortGenesBySig();
+      self.flattenGenesList();
 
       self.$emit("count-changed", self.variantCount);
 
@@ -813,17 +813,10 @@ export default {
       this.$emit("apply-variant-interpretation", variant);
     },
 
-    sortGenesBySig(){
-
-      this.flattenGenesList();
-    },
 
     flattenGenesList(){
-
       let self = this;
-
       let geneLists = [];
-
       let reviewed = Object.assign({}, self.geneLists[0]);
 
       if(reviewed.name === "reviewed") {
@@ -841,14 +834,8 @@ export default {
             flattenedGenes.push(copiedGene);
           }
         }
-        console.log("flattenedGenes", flattenedGenes);
-
         flattenedGenes = this.sortFlattenedGenes(flattenedGenes);
-
-        console.log("this.geneLists[0].genes before flatten", this.geneLists[0].genes);
-
         this.geneLists[0].genes = flattenedGenes;
-        console.log("this.geneLists[0].genes after flatten", this.geneLists[0].genes);
       }
 
     },
@@ -856,24 +843,47 @@ export default {
     sortFlattenedGenes: function(flattenedGenes){
       let sig = [];
       let unsig = [];
+      let unknownSig = [];
+      let poorQual = [];
       let sortedGenes = [];
 
+      let ordinalFilter = 1;
+
       for(let i = 0; i < flattenedGenes.length; i++){
-        let variant = flattenedGenes[i].variants[0];
+        let variant = Object.assign({}, flattenedGenes[i].variants[0]);
         if(variant.interpretation === "sig"){
           sig.push(flattenedGenes[i]);
+        }
+        else if(variant.interpretation === "unknown-sig"){
+          unknownSig.push(flattenedGenes[i]);
         }
         else if(variant.interpretation === "not-sig"){
           unsig.push(flattenedGenes[i]);
         }
+        else if(variant.interpretation === "poor-qual"){
+          poorQual.push(flattenedGenes[i]);
+        }
       }
       for(let i = 0; i < sig.length; i++){
+        sig[i].variants[0].ordinalFilter = ordinalFilter;
         sortedGenes.push(sig[i]);
+        ordinalFilter++;
+      }
+      for(let i = 0; i < unknownSig.length; i++){
+        unknownSig[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(unknownSig[i]);
+        ordinalFilter++;
       }
       for(let i = 0; i < unsig.length; i++){
+        unsig[i].variants[0].ordinalFilter = ordinalFilter;
         sortedGenes.push(unsig[i]);
+        ordinalFilter++;
       }
-      console.log("sorted flattened genes", sortedGenes);
+      for(let i = 0; i < poorQual.length; i++){
+        poorQual[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(poorQual[i]);
+        ordinalFilter++;
+      }
       return sortedGenes;
     },
 
