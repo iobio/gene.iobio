@@ -751,7 +751,6 @@ export default {
     return {
       readyToDownload: false,
       geneLists: null,
-      flattenedGenesList: null,
       clickedVariant: null,
       variantCount: 0,
       interpretationFilters: null,
@@ -796,8 +795,6 @@ export default {
           expand: true
         }
       })
-
-
       self.flattenGenesList();
 
       self.$emit("count-changed", self.variantCount);
