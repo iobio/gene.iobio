@@ -1,11 +1,26 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
+.chip, .v-chip
+  vertical-align: top
+  margin-top: 2px
+  margin-bottom: 0px
+  margin-right: 0px
+  &.high_gene_rank
+    .chip__content, .v-chip__content
+      background-color:  $danger-color !important
+      color: white
+      padding: 6px
+      height: 18px
+      width: 40px
+      font-size: 12px
+      justify-content: center
+
 
 </style>
 
 <template>
     <v-dialog
-    width="750" persistent
+    width="1000" persistent
     :close-on-content-click="false"
     v-model="showGeneAssociationDialog"
     >
@@ -21,7 +36,7 @@
                   </thead>
                   <tbody v-if="gtrHits.length">
                     <tr v-for="(term, i) in gtrHits" :key="i">
-                      <td><v-chip small>{{ term.geneRanks[0].rank}}</v-chip> {{ term.searchTerm }}</td>
+                      <td><v-chip class="high_gene_rank mr-1">#{{ term.geneRanks[0].rank}}</v-chip> {{ term.searchTerm }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -33,7 +48,7 @@
                   </thead>
                   <tbody v-if="phenolyzerHits.length">
                     <tr v-for="(term, i) in phenolyzerHits" :key="i">
-                      <td><v-chip small>{{ term.geneRanks[0].rank}}</v-chip> {{ term.searchTerm }}</td>
+                      <td><v-chip class="high_gene_rank mr-1">#{{ term.geneRanks[0].rank}}</v-chip> {{ term.searchTerm }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -45,7 +60,7 @@
                   </thead>
                   <tbody v-if="hpoHits.length">
                     <tr v-for="(term, i) in hpoHits" :key="i">
-                      <td>{{ term.searchTerm }}</td>
+                      <td>{{ term.geneRanks[0].hpoPhenotype }} <i> ({{ term.searchTerm }})</i></td>
                     </tr>
                   </tbody>
                 </table>

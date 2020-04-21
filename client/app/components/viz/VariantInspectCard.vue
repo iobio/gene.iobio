@@ -479,7 +479,8 @@
                 <v-chip v-else class="high">
                   <span v-if="geneRank.source"> {{ geneRank.source }}</span>
                 </v-chip>
-                <span v-if="geneHit.searchTerm" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
+                <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
+                <span v-else-if="geneRank.source==='HPO' && geneRank.hpoPhenotype" class="pheno-search-term">{{ geneRank.hpoPhenotype }}</span>
               </div>
             </div>
           </div>

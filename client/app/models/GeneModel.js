@@ -146,7 +146,7 @@ class GeneModel {
               ranks = [];
               searchTerms[searchTerm] = ranks;
             }
-            ranks.push( { 'source': 'HPO'});
+            ranks.push( { 'hpoPhenotype': searchTermObject.hpoPhenotype, 'source': 'HPO'});
           })
         }
 
