@@ -297,6 +297,8 @@
   margin-bottom: 0px
   padding-left: 0px
   padding-right: 4px
+  float: right
+  margin-right: 10px
 
   .btn__content, .v-btn__content
     color:  $link-color
@@ -306,8 +308,8 @@
 
     i.material-icons
       color: $link-color
-      font-size: 20px
-      padding-right: 3px        
+      font-size: 17px
+      padding-right: 5px        
 </style>
 
 <style lang="css">
@@ -469,7 +471,7 @@
             Gene Associations
             <v-divider></v-divider>
           </div>
-          <div v-if="genePhenotypeHits" v-for="(geneHit, index) in genePhenotypeHits.slice(0,2)" :key="geneHit.key" class="variant-row" style="flex-flow:column">
+          <div v-if="genePhenotypeHits" v-for="(geneHit, index) in genePhenotypeHits.slice(0,3)" :key="geneHit.key" class="variant-row" style="flex-flow:column">
             <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
               <div>
                 <v-chip v-if="geneRank.rank" class="high">
@@ -484,13 +486,13 @@
               </div>
             </div>
           </div>
-          <div v-if="genePhenotypeHits!==null && genePhenotypeHits.length>0">
+          <div v-if="genePhenotypeHits!==null && genePhenotypeHits.length>=4">
             <v-btn id="show-more-gene-association-button"
               flat small
               slot="activator"
               v-tooltip.bottom-center="`Show all associations for this variant`"
               @click="showMoreGeneAssociationsDialog=true">
-              Show more
+                <v-icon>zoom_out_map</v-icon>Show more
             </v-btn>
           </div>
           <div>
@@ -498,6 +500,7 @@
               v-if="showMoreGeneAssociationsDialog"
               :showDialog="showMoreGeneAssociationsDialog"
               :genePhenotypeHits="genePhenotypeHits"
+              :selectedGene="selectedGene.gene_name"
               @close-gene-association-dialog="onCloseGeneAssociationDialog($event)">
             </GeneAssociationsDialog>
           </div>

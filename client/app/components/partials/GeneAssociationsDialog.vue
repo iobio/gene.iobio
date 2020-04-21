@@ -15,7 +15,15 @@
       font-size: 12px
       justify-content: center
 
+.close-button
+  right: 10px !important
+  top: 15px !important
+  position: absolute !important
+  min-width: 40px !important
 
+#gene-associations-dialog-divider
+  margin-top: 10px !important
+  margin-bottom: 5px !important
 </style>
 
 <template>
@@ -26,7 +34,14 @@
     >
 
       <v-card class="full-width">
-        <v-card-text>
+        <div class="container">
+          <v-btn flat @click="onCancel" class="close-button">
+            <v-icon>close</v-icon>
+          </v-btn>
+          <v-card-title class="headline" style="padding-top: 10px;">Gene Associations in {{ selectedGene }}</v-card-title>
+        </div>
+        <v-divider id="gene-associations-dialog-divider"></v-divider>
+        <v-card-text style="padding-bottom: 0px">
           <div class="container">
             <div class="row">
               <div class="col-md-4">
@@ -40,6 +55,10 @@
                     </tr>
                   </tbody>
                 </table>
+                <div v-if="gtrHits.length<1">
+                  <span><i>Not associated with selected GTR conditions...</i></span>
+                </div>
+
               </div>
               <div class="col-md-4">
                 <table class="table">
@@ -52,6 +71,9 @@
                     </tr>
                   </tbody>
                 </table>
+                <div v-if="phenolyzerHits.length<1">
+                  <span><i>Not associated with selected phenotypes...</i></span>
+                </div>
               </div>
               <div class="col-md-4">
                 <table class="table">
@@ -64,6 +86,9 @@
                     </tr>
                   </tbody>
                 </table>
+                <div v-if="hpoHits.length<1">
+                  <span><i>Not associated with selected HPO terms...</i></span>
+                </div>
               </div>
             </div>
           </div>
@@ -90,7 +115,8 @@ export default {
     sourceNotes: null,
     sourceIndex: null,
     showDialog: null,
-    genePhenotypeHits: null
+    genePhenotypeHits: null,
+    selectedGene: null
   },
   data () {
     return {
@@ -120,7 +146,6 @@ export default {
     }, 
     arrangeData: function() {
       this.genePhenotypeHits.map(geneHit => {
-        console.log("geneHit", geneHit)
         if(geneHit.geneRanks[0].source === "GTR"){
           this.gtrHits.push(geneHit)
         }
@@ -131,8 +156,6 @@ export default {
           this.hpoHits.push(geneHit)
         }
       })
-      console.log("this.hpoHits", this.hpoHits); 
-      console.log("this.gtrHits", this.gtrHits); 
     }
   },
   created: function() {
