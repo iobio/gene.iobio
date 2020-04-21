@@ -101,10 +101,16 @@ class GlobalApp {
 
 
       this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
+
       this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
       this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
       this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
-      this.hpoLookupUrl              = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
+ 
+      // !!!!
+      // TEMPORARY WORKAROUND UNTIL hpo/hot/lookup ported to backend.iobio
+      //
+      //this.hpoLookupUrl            = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
+      this.hpoLookupUrl              = "https://nv-prod.iobio.io/" + "hpo/hot/lookup/?term=";
 
 
 
