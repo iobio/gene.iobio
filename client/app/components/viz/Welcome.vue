@@ -323,7 +323,7 @@ $light-gray-color:   #f0f1f3
   display: flex
   flex-wrap: wrap
   flex-direction: row
-  justify-content: space-between
+  justify-content: space-evenly
   align-items: center
   padding-bottom: 40px
   padding-top: 20px
@@ -331,10 +331,16 @@ $light-gray-color:   #f0f1f3
   padding-right: 20px
 
 
+
   .blog-post
     height: 100px
     width:  200px
     margin-bottom: 50px
+
+    &.large
+      height: 300px
+      width:  600px
+
 
     .blog-post-title
       font-family: $landing-page-font
@@ -729,6 +735,22 @@ $light-gray-color:   #f0f1f3
          Learn about gene.iobio
         </div>
 
+
+        <div id="blog-post-content">
+
+
+
+          <div class="blog-post large">
+            <div class="blog-post-title ">
+              New gene.iobio 4.0
+            </div>
+            <a href="http://iobio.io/2020/04/20/gene_4.0/" target="_new">
+            <img src="http://iobio.io/public/images/blog/genev4_banner.png" width="100%" height="100%">
+            </a>
+          </div>
+        </div>
+
+
         <div class="video-content">
           <div class="video-item">
               <div class="video-text-title" @click="playVideo('screencast-multi-gene-analysis')">Multi-gene analysis</div>
@@ -760,21 +782,6 @@ $light-gray-color:   #f0f1f3
 
 
         <div id="blog-post-content">
-
-
-
-          <div class="blog-post">
-            <div class="blog-post-title ">
-              New gene.iobio 3.0
-            </div>
-            <a href="http://iobio.io/2018/07/20/gene_3.0/" target="_new">
-              <div class="blog-post-well ">
-                <div class="blog-post shadow-z-2" >
-                    <img src="http://iobio.io/public/images/blog/gene_3.0/banner.png" width="100%" height="100%">
-                </div>
-              </div>
-            </a>
-          </div>
 
 
 
@@ -861,7 +868,7 @@ $light-gray-color:   #f0f1f3
         <v-btn style="float:left"   flat @click="stopVideo('screencast-intro')">
           <i class="material-icons">arrow_back</i>
         </v-btn>
-        <h4>Introducing gene.iobio</h4>
+        <h4>Introducing gene.iobio 4.0</h4>
         <div id="screencast-intro-iframe-placeholder"></div>
       </div>
 
