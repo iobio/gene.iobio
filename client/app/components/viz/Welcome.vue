@@ -24,14 +24,14 @@ $mid-blue-color:     #416b9a
 $light-gray-color:   #f0f1f3
 
 .image-shadow
-  -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
-  box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
+  -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.23)
+  box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.23)
 
 
 
 .buttons-group
     margin-top: 0px !important
-    padding-left: 44px
+
 
 #welcome-area
   margin-top: -5px
@@ -60,9 +60,10 @@ $light-gray-color:   #f0f1f3
         display: flex
         flex-direction: row
         padding-top: 70px
-        margin-left: 80px
-        margin-right: 30px
-        width: 40%
+        margin-left: auto
+        margin-right: auto
+        padding-bottom: 50px
+
 
         .main-headline-card
           //padding-top: 20px
@@ -81,7 +82,7 @@ $light-gray-color:   #f0f1f3
       padding-right: 30px
       width: 100%
     &.how-it-works
-      width: 60%
+  
       flex-grow: 2
       //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
       //background: linear-gradient(304deg, rgba(43,70,101,1) 14%, rgba(61,99,142,1) 68%, rgba(94,141,184,1) 85%)
@@ -112,9 +113,10 @@ $light-gray-color:   #f0f1f3
       font-size:      28px
       font-family:    $landing-page-font
       font-weight:    normal
-      padding-bottom: 30px
+      padding-bottom: 10px
       font-weight:    normal
-      padding-left:   30px
+      text-align:     center
+      color:          $header-color
 
       &.accent-label
         color:        $app-color
@@ -129,11 +131,11 @@ $light-gray-color:   #f0f1f3
 
 
     button.welcome-button
-      font-size: 16px !important
+      font-size: 18px !important
       margin-left: 7px
       margin-right: 7px
-      height: 44px
-      width: 270px
+      height: 48px
+      width: 310px
       margin-bottom: 10px
       background-color: $accent-color
       color: $accent-color
@@ -213,17 +215,20 @@ $light-gray-color:   #f0f1f3
     line-height: 22px
 
 
+.how-it-works-panel
+  justify-content: space-between
 
-
+.features-panel
+  justify-content: center
 
 .how-it-works-panel, .features-panel
   clear: both
   display: flex
-  flex-direction: column
-  justify-content: space-between
+  flex-direction: row
+  
   flex-wrap: wrap
   padding: 30px
-  padding-top: 25px
+  padding-top: 10px
 
   .divider
     background-color: transparent
@@ -232,7 +237,7 @@ $light-gray-color:   #f0f1f3
     margin-bottom: 15px
 
   div.features-item
-    margin-bottom: 40px
+    margin: 30px
 
     i.material-icons
       display: inline
@@ -243,6 +248,8 @@ $light-gray-color:   #f0f1f3
 
   div.how-it-works-item
     margin-bottom: 30px
+    width: 250px
+    margin: 20px
 
   div.how-it-works-item, div.features-item
     display: flex
@@ -277,8 +284,8 @@ $light-gray-color:   #f0f1f3
       img
         max-width: 400px
         min-width: 200px
-        -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
-        box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.49)
+        -webkit-box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.25)
+        box-shadow: 6px 11px 68px -7px rgba(0,0,0,0.25)
 
 
 
@@ -287,13 +294,14 @@ $light-gray-color:   #f0f1f3
       font-size:    18px
       display:      inline-block
       line-height:  24px
-      margin-right: 30px
       width: 270px
 
-    .how-it-works-title, .features-title
+    .features-title
       margin-right: 10px
-      min-width: 250px
-      max-width: 250px
+      min-width: 150px
+      max-width: 150px
+      margin-right: 30px
+
 
       &.long
         min-width: 100%
@@ -383,25 +391,18 @@ $light-gray-color:   #f0f1f3
 
 
 
-
-
-
-
-
 #screencast-panel
-  margin-top: -5px
+  min-height: 100vh
   display: flex
-  height: -webkit-fill-available
-  justify-content: space-around
+  margin: -5px
   flex-direction: column
-  align-items: center
-  margin-left: -5px
-  margin-right: -5px
   background: linear-gradient(180deg, rgba(49,82,120,1) 11%, rgba(61,99,142,1) 84%, rgba(22,129,167,1) 97%)
 
   .video-container
-    height: 500px
-    width: 780px
+    flex: 1
+    margin-top: 20px
+    height: 750px
+    width: 1170px
     margin-left: auto
     margin-right: auto
     text-align: center
@@ -536,52 +537,56 @@ $light-gray-color:   #f0f1f3
 
         </div>
 
-        <div class="welcome-panel how-it-works  " >
 
 
-          <div class="how-it-works-panel">
+      </div>
 
+      <v-divider style="margin-top:0px"></v-divider>
 
-
-            <div class="how-it-works-item">
-              <v-avatar class="color2" >
-                <v-icon>search</v-icon>
-              </v-avatar>
-              <span class="how-it-works-title long">Search on a gene or a phenotype</span>
-            </div>
-
-
-            <div class="how-it-works-item">
-              <v-avatar class="color4" >
-                <v-icon>track_changes</v-icon>
-              </v-avatar>
-              <span class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
-              <div class="how-it-works-image" >
-                <img  src="../../../assets/images/landing_page/analyzing_genes.gif" style="max-width:160px;min-width:160px"></img>
-              </div>
-            </div>
-
-            <div class="how-it-works-item">
-              <v-avatar class="color3">
-                <v-icon>filter</v-icon>
-              </v-avatar>
-              <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  See coverage levels across the gene.</span>
-              <div class="how-it-works-image" >
-                <img  src="../../../assets/images/landing_page/variant_card_cropped.png" style="width:100%"></img>
-              </div>
-            </div>
-
-
-            <div class="how-it-works-item">
-              <v-avatar class="color1" >
-                <v-icon>highlight</v-icon>
-              </v-avatar>
-              <span class="how-it-works-title long">Inspect the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
-            </div>
-
-          </div>
+      <div class="welcome-panel how-it-works  " >
+        <div id="welcome-label-small" class="">
+          How gene.iobio works
         </div>
 
+        <div class="how-it-works-panel">
+
+
+
+          <div class="how-it-works-item">
+            <v-avatar class="color2" >
+              <v-icon>search</v-icon>
+            </v-avatar>
+            <span class="how-it-works-title long">Search on a gene or a phenotype</span>
+          </div>
+
+
+          <div class="how-it-works-item">
+            <v-avatar class="color4" >
+              <v-icon>track_changes</v-icon>
+            </v-avatar>
+            <span  class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
+            <div class="how-it-works-image hide" >
+              <img  src="../../../assets/images/landing_page/analyzing_genes.gif" ></img>
+            </div>
+          </div>
+
+          <div class="how-it-works-item">
+            <v-avatar class="color3">
+              <v-icon>filter</v-icon>
+            </v-avatar>
+            <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  See coverage levels across the gene.</span>
+            
+          </div>
+
+
+          <div class="how-it-works-item">
+            <v-avatar class="color1" >
+              <v-icon>highlight</v-icon>
+            </v-avatar>
+            <span class="how-it-works-title long">Inspect the most up-to-date annotations including ClinVar, VEP, gnomAD.</span>
+          </div>
+
+        </div>
       </div>
 
 
@@ -589,7 +594,7 @@ $light-gray-color:   #f0f1f3
 
 
       <div class="welcome-panel features ">
-        <div id="welcome-label-small" class="accent-label">
+        <div id="welcome-label-small" class="">
           Features
         </div>
 
@@ -598,21 +603,27 @@ $light-gray-color:   #f0f1f3
 
           <div class="features-item">
             <v-icon class="color4">check_circle</v-icon>
-            <span class="features-title">Examine the alignments for a variant in the pileup view.</span>
+            <span class="features-title">Examine variants along with coverage.</span>
             <div class="features-image">
-              <img  src="../../../assets/images/landing_page/pileup.png" style="width:100%"></img>
+              <img  src="../../../assets/images/landing_page/variant_card_cropped.png" style="width:100%"></img>            
             </div>
           </div>
 
-
-          <div class="features-item">
+          <div class="features-item" style="min-width:900px">
             <v-icon class="color4">check_circle</v-icon>
-            <span class="features-title">Examine the gene in detail.  Change the transcript and annotations across the variants are reassessed.</span>
+            <span class="features-title">Inspect the variant of interest, guided by key indicators of quality, pathogenicity, inheritance, and conservation</span>
             <div class="features-image">
-              <img  src="../../../assets/images/landing_page/gene_card.png" style="width:100%%"></img>
+              <img  src="../../../assets/images/landing_page/genev4_variant_inspect.png" style="width:100%;min-width:700px"></img>            
             </div>
           </div>
 
+          <div class="features-item" style="min-width:860px">
+            <v-icon class="color4">check_circle</v-icon>
+            <span style="min-width:160px;max-width:160px;" class="features-title">Examine the alignments for a variant in the pileup view.</span>
+            <div class="features-image">
+              <img  src="../../../assets/images/landing_page/pileup.png" style="width:100%;min-width:600px"></img>
+            </div>
+          </div>
 
 
           <div class="features-item">
@@ -641,7 +652,7 @@ $light-gray-color:   #f0f1f3
           </div>
 
 
-          <div class="features-item">
+          <div class="features-item hide" >
             <v-icon class="color4"> check_circle</v-icon>
             <span class="features-title">Customize the filters and the filtered variants are instantly reassessed.</span>
             <div class="features-image">
@@ -670,7 +681,7 @@ $light-gray-color:   #f0f1f3
       </div>
 
       <div class="welcome-panel resources">
-        <div id="welcome-label-small">
+        <div id="welcome-label-small" style="color: white">
           IOBIO.  Powered by state-of-the-art bioinformatics tools.
         </div>
         <div class="resources-panel">
@@ -916,8 +927,8 @@ export default {
         'screencast-intro': {
           src: "https://www.youtube.com/embed/1R3kuXh6seQ?autoplay=1&rel=0&ecver=2",
           videoId: '1R3kuXh6seQ',
-          width: 670,
-          height: 420,
+          width: 670*1.25,
+          height: 420*1.25,
           frameborder: "0",
           allowfullscreen: ""
         },
