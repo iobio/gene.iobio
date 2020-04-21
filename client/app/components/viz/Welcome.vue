@@ -925,8 +925,8 @@ export default {
       videoStyle: "position:absolute;width:100%;height:100%;left:0",
       videoConfigs : {
         'screencast-intro': {
-          src: "https://www.youtube.com/embed/1R3kuXh6seQ?autoplay=1&rel=0&ecver=2",
-          videoId: '1R3kuXh6seQ',
+          src: "https://www.youtube.com/embed/K7JLbCv2LcA?autoplay=1&rel=0&ecver=2",
+          videoId: 'K7JLbCv2LcA',
           width: 670*1.25,
           height: 420*1.25,
           frameborder: "0",
