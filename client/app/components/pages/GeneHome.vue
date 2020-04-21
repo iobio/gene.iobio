@@ -424,7 +424,7 @@ main.content.clin, main.v-content.clin
         v-if="probandModel"
         v-bind:class="[
         { 'full-width': true,
-           'hide': showWelcome || Object.keys(selectedGene).length === 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources,
+          'hide': showWelcome || (selectedGene && Object.keys(selectedGene).length === 0) || !cohortModel  || cohortModel.inProgress.loadingDataSources,
           'edu' : isEduMode
         },
         'proband'
