@@ -2858,10 +2858,15 @@ export default {
 
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
+
       if (variant.gene == null) {
-        variant.gene == self.selectedGene;
         if (variant.transcript == null || variant.transcript.length == 0) {
-          variant.transcript = self.selectedTranscript;
+          if (self.cohortModel.getFlaggedVariant(variant) == null) {
+            self.cohortModel.addUserFlaggedVariant
+            variant.gene = this.selectedGene;
+            variant.transcript = this.selectedTranscript;
+            self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
+          }
         }
       }
 
