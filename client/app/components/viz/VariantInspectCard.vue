@@ -289,6 +289,25 @@
       text
         font-size: 11px
         text-anchor: middle
+        
+#show-more-gene-association-button
+  margin: 0px 0px 0px 0px
+  font-size: 13px
+  height: 26px
+  margin-bottom: 0px
+  padding-left: 0px
+  padding-right: 4px
+
+  .btn__content, .v-btn__content
+    color:  $link-color
+    padding-left: 5px
+    padding-right: 5px
+    font-weight: 500
+
+    i.material-icons
+      color: $link-color
+      font-size: 20px
+      padding-right: 3px        
 </style>
 
 <style lang="css">
@@ -465,10 +484,13 @@
             </div>
           </div>
           <div v-if="genePhenotypeHits!==null && genePhenotypeHits.length>0">
-            <v-btn flat @click="showMoreGeneAssociationsDialog=true" small color="primary">Show more</v-btn>
-          </div>
-          <div v-if="genePhenotypeHits.length">
-            {{ genePhenotypeHits }}
+            <v-btn id="show-more-gene-association-button"
+              flat small
+              slot="activator"
+              v-tooltip.bottom-center="`Show all associations for this variant`"
+              @click="showMoreGeneAssociationsDialog=true">
+              Show more
+            </v-btn>
           </div>
           <div>
             <GeneAssociationsDialog 
