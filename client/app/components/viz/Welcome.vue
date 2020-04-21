@@ -134,7 +134,7 @@ $light-gray-color:   #f0f1f3
       font-size: 18px !important
       margin-left: 7px
       margin-right: 7px
-      height: 54px
+      height: 48px
       width: 310px
       margin-bottom: 10px
       background-color: $accent-color
