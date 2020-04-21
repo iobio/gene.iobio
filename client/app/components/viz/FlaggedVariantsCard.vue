@@ -539,13 +539,15 @@
 
                     <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text mr-2" >
-                          {{ geneRankGTR(flaggedGene.gene.gene_name) }}  GTR
+                        <v-chip class="white--text mr-2" 
+                          v-tooltip.top-center="`Cumulative rank for all selected conditions`">
+                            {{ geneRankGTR(flaggedGene.gene.gene_name) }}  GTR
                         </v-chip>
                       </span>
                       <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text mr-2" >
-                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}  Phen.
+                        <v-chip class="white--text mr-2" 
+                          v-tooltip.top-center="`Cumulative rank for all selected phenotypes`">
+                            {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}  Phen.
                         </v-chip>
                       </span>
                       <span v-show="geneRankHPO(flaggedGene.gene.gene_name) != ''">
