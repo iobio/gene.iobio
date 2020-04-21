@@ -450,7 +450,7 @@
             Gene Associations
             <v-divider></v-divider>
           </div>
-          <div v-if="genePhenotypeHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
+          <div v-if="genePhenotypeHits" v-for="(geneHit, index) in genePhenotypeHits.slice(0,2)" :key="geneHit.key" class="variant-row" style="flex-flow:column">
             <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
               <div>
                 <v-chip v-if="geneRank.rank" class="high">
@@ -463,6 +463,20 @@
                 <span v-if="geneHit.searchTerm" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
               </div>
             </div>
+          </div>
+          <div v-if="genePhenotypeHits!==null && genePhenotypeHits.length>0">
+            <v-btn flat @click="showMoreGeneAssociationsDialog=true" small color="primary">Show more</v-btn>
+          </div>
+          <div v-if="genePhenotypeHits.length">
+            {{ genePhenotypeHits }}
+          </div>
+          <div>
+            <GeneAssociationsDialog 
+              v-if="showMoreGeneAssociationsDialog"
+              :showDialog="showMoreGeneAssociationsDialog"
+              :genePhenotypeHits="genePhenotypeHits"
+              @close-gene-association-dialog="onCloseGeneAssociationDialog($event)">
+            </GeneAssociationsDialog>
           </div>
       </div>
       <div class="variant-inspect-column" v-if="selectedVariant && info">
@@ -649,7 +663,7 @@ import GeneViz                  from "../viz/GeneViz.vue"
 import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
 import ConservationScoresViz    from "../viz/ConservationScoresViz.vue"
 import MultialignSeqViz         from "../viz/MultialignSeqViz.vue"
-
+import GeneAssociationsDialog   from "../partials/GeneAssociationsDialog.vue"
 
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
@@ -672,7 +686,8 @@ export default {
     PedigreeGenotypeViz,
     ToggleButton,
     ConservationScoresViz,
-    MultialignSeqViz
+    MultialignSeqViz,
+    GeneAssociationsDialog
   },
   props: {
     selectedGene: null,
@@ -743,7 +758,8 @@ export default {
       multialignSelectedBase: null,
       multialignInProgress: false,
 
-      enterCommentsClicked: false
+      enterCommentsClicked: false,
+      showMoreGeneAssociationsDialog: false,
     }
   },
 
@@ -1375,6 +1391,9 @@ export default {
     onEnterComments: function() {
       this.$emit("show-variant-assessment", true)
       this.enterCommentsClicked = true;
+    }, 
+    onCloseGeneAssociationDialog: function(data){
+      this.showMoreGeneAssociationsDialog = false;
     }
   },
 
