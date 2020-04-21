@@ -471,18 +471,24 @@
             Gene Associations
             <v-divider></v-divider>
           </div>
-          <div v-if="genePhenotypeHits" v-for="(geneHit, index) in genePhenotypeHits.slice(0,3)" :key="geneHit.key" class="variant-row" style="flex-flow:column">
-            <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
-              <div>
-                <v-chip v-if="geneRank.rank" class="high">
-                  <span class="mr-1">#{{ geneRank.rank  }}</span>
-                  <span v-if="geneRank.source">{{  geneRank.source }}</span>
-                </v-chip>
-                <v-chip v-else class="high">
-                  <span v-if="geneRank.source"> {{ geneRank.source }}</span>
-                </v-chip>
-                <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
-                <span v-else-if="geneRank.source==='HPO' && geneRank.hpoPhenotype" class="pheno-search-term">{{ geneRank.hpoPhenotype }}</span>
+          <div v-if="genePhenotypeHits && genePhenotypeHits!==null && genePhenotypeHits.length" >
+            <div v-for="(geneHit, index) in genePhenotypeHits.slice(0,3)" :key="geneHit.key" class="variant-row" style="flex-flow:column">
+              <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
+                <div>
+                  <v-chip v-if="geneRank.rank" class="high">
+                    <span class="mr-1">#{{ geneRank.rank  }}</span>
+                    <span v-if="geneRank.source">{{  geneRank.source }}</span>
+                  </v-chip>
+                  <v-chip v-else class="high">
+                    <span v-if="geneRank.source"> {{ geneRank.source }}</span>
+                  </v-chip>
+                  <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">
+                    {{ geneHit.searchTerm | to-firstCharacterUppercase }}
+                  </span>
+                  <span v-else-if="geneRank.source==='HPO' && geneRank.hpoPhenotype" class="pheno-search-term">
+                    {{ geneRank.hpoPhenotype | to-firstCharacterUppercase }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -496,13 +502,13 @@
             </v-btn>
           </div>
           <div>
-            <GeneAssociationsDialog 
+            <gene-associations-dialog 
               v-if="showMoreGeneAssociationsDialog"
               :showDialog="showMoreGeneAssociationsDialog"
               :genePhenotypeHits="genePhenotypeHits"
               :selectedGene="selectedGene.gene_name"
               @close-gene-association-dialog="onCloseGeneAssociationDialog($event)">
-            </GeneAssociationsDialog>
+            </gene-associations-dialog>
           </div>
       </div>
       <div class="variant-inspect-column" v-if="selectedVariant && info">

@@ -51,7 +51,12 @@
                   </thead>
                   <tbody v-if="gtrHits.length">
                     <tr v-for="(term, i) in gtrHits" :key="i">
-                      <td><v-chip class="high_gene_rank mr-1">#{{ term.geneRanks[0].rank}}</v-chip> {{ term.searchTerm }}</td>
+                      <td>
+                        <v-chip class="high_gene_rank mr-1">
+                          #{{ term.geneRanks[0].rank}}
+                        </v-chip> 
+                        {{ term.searchTerm | to-firstCharacterUppercase }}
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -67,7 +72,12 @@
                   </thead>
                   <tbody v-if="phenolyzerHits.length">
                     <tr v-for="(term, i) in phenolyzerHits" :key="i">
-                      <td><v-chip class="high_gene_rank mr-1">#{{ term.geneRanks[0].rank}}</v-chip> {{ term.searchTerm }}</td>
+                      <td>
+                        <v-chip class="high_gene_rank mr-1">
+                          #{{ term.geneRanks[0].rank}}
+                        </v-chip> 
+                        {{ term.searchTerm | to-firstCharacterUppercase }}
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -82,7 +92,7 @@
                   </thead>
                   <tbody v-if="hpoHits.length">
                     <tr v-for="(term, i) in hpoHits" :key="i">
-                      <td>{{ term.geneRanks[0].hpoPhenotype }} <i> ({{ term.searchTerm }})</i></td>
+                      <td>{{ term.geneRanks[0].hpoPhenotype }} <i> ({{ term.searchTerm | to-firstCharacterUppercase }})</i></td>
                     </tr>
                   </tbody>
                 </table>
