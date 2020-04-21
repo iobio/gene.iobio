@@ -799,6 +799,8 @@ export default {
           expand: true
         }
       })
+      self.flattenGenesList();
+
       self.$emit("count-changed", self.variantCount);
 
       self.expansionControl =  self.geneLists.map(function(geneList) {
@@ -812,6 +814,79 @@ export default {
       this.$emit("apply-variant-interpretation", variant);
     },
 
+
+    flattenGenesList(){
+      let self = this;
+      let geneLists = [];
+      let reviewed = Object.assign({}, self.geneLists[0]);
+
+      if(reviewed.name === "reviewed") {
+        let genes = reviewed.genes;
+        let flattenedGenes = [];
+
+        for (let i = 0; i < genes.length; i++) {
+
+          let geneCopy = Object.assign({}, genes[i]);
+
+          for(let i = 0; i < geneCopy.variants.length; i++){
+            let copiedGene = Object.assign({},geneCopy);
+            copiedGene.variants = [];
+            copiedGene.variants.push(geneCopy.variants[i]);
+            flattenedGenes.push(copiedGene);
+          }
+        }
+        flattenedGenes = this.sortFlattenedGenes(flattenedGenes);
+        this.geneLists[0].genes = flattenedGenes;
+      }
+
+    },
+
+    sortFlattenedGenes: function(flattenedGenes){
+      let sig = [];
+      let unsig = [];
+      let unknownSig = [];
+      let poorQual = [];
+      let sortedGenes = [];
+
+      let ordinalFilter = 1;
+
+      for(let i = 0; i < flattenedGenes.length; i++){
+        let variant = Object.assign({}, flattenedGenes[i].variants[0]);
+        if(variant.interpretation === "sig"){
+          sig.push(flattenedGenes[i]);
+        }
+        else if(variant.interpretation === "unknown-sig"){
+          unknownSig.push(flattenedGenes[i]);
+        }
+        else if(variant.interpretation === "not-sig"){
+          unsig.push(flattenedGenes[i]);
+        }
+        else if(variant.interpretation === "poor-qual"){
+          poorQual.push(flattenedGenes[i]);
+        }
+      }
+      for(let i = 0; i < sig.length; i++){
+        sig[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(sig[i]);
+        ordinalFilter++;
+      }
+      for(let i = 0; i < unknownSig.length; i++){
+        unknownSig[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(unknownSig[i]);
+        ordinalFilter++;
+      }
+      for(let i = 0; i < unsig.length; i++){
+        unsig[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(unsig[i]);
+        ordinalFilter++;
+      }
+      for(let i = 0; i < poorQual.length; i++){
+        poorQual[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(poorQual[i]);
+        ordinalFilter++;
+      }
+      return sortedGenes;
+    },
 
     onEditFilter: function(geneList) {
       let self = this;
