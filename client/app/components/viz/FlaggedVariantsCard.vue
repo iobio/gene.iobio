@@ -771,12 +771,13 @@ export default {
     deselectVariant: function() {
       this.clickedVariant = null;
     },
-    populateGeneLists: function() {
+    populateGeneLists: function(variant) {
       let self = this;
       self.geneLists = [];
       self.variantCount = 0;
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters);
+
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant);
       self.geneLists = filters.map(function(filterObject, idx) {
         self.variantCount += filterObject.variantCount;
         filterObject.filter.key = filterObject.key;
@@ -795,6 +796,7 @@ export default {
           expand: true
         }
       })
+
       self.flattenGenesList();
 
       self.$emit("count-changed", self.variantCount);

@@ -2824,7 +2824,6 @@ export default {
       // If the variant isn't in the filtered variants list,
       // mark it as 'user flagged'
       if (self.cohortModel.getFlaggedVariant(variant) == null) {
-        self.cohortModel.addUserFlaggedVariant
         variant.gene = this.selectedGene;
         variant.transcript = this.selectedTranscript;
         self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
@@ -2843,7 +2842,7 @@ export default {
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
       }
 
       if(typeof variant.interpretation === 'undefined' || (variant.interpretation === "not-reviewed")){
@@ -2862,10 +2861,11 @@ export default {
       if (variant.gene == null) {
         if (variant.transcript == null || variant.transcript.length == 0) {
           if (self.cohortModel.getFlaggedVariant(variant) == null) {
-            self.cohortModel.addUserFlaggedVariant
             variant.gene = this.selectedGene;
             variant.transcript = this.selectedTranscript;
+            console.log("adding user flagged variant");
             self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
+
           }
         }
       }
@@ -2882,12 +2882,13 @@ export default {
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant)
       }
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
 
+      console.log("onFlaggedVariantSelect");
 
       let canonicalTranscript = self.geneModel.getCanonicalTranscript(flaggedVariant.gene);
 

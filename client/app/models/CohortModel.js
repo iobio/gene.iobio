@@ -2078,8 +2078,10 @@ class CohortModel {
 
   _recacheForFlaggedVariant(theGene, theTranscript, variant, options) {
     let self = this;
+    console.log("variant in recacheForFlaggedVariant", variant);
     self.getProbandModel().promiseGetVcfData(theGene, theTranscript)
     .then(function(data) {
+      console.log("data in promiceGetVcfData", data);
       let cachedVcfData = data.vcfData;
       cachedVcfData.features.forEach(function(v) {
         var matches = (
@@ -2087,6 +2089,7 @@ class CohortModel {
                       && v.start == variant.start
                       && v.ref == variant.ref
                       && v.alt == variant.alt);
+
         if (matches) {
           v.isFlagged      = variant.isFlagged
           v.isUserFlagged  = variant.isUserFlagged;
@@ -2176,6 +2179,9 @@ class CohortModel {
   }
 
   onFlaggedVariantsFileSelected(fileSelection, fileType, callback) {
+
+      console.log("onFlaggedVariantsFileSelected");
+
     var files = fileSelection.currentTarget.files;
     var me = this;
     // Check for the various File API support.
@@ -2220,6 +2226,9 @@ class CohortModel {
   promiseMergeImportedVariants(importedVariants) {
     let self = this;
     let promises = [];
+
+
+    console.log("inside promiseMergeImportedVariant");
 
     return new Promise(function(resolve, reject) {
       importedVariants.forEach(function(importedVariant) {
@@ -2360,6 +2369,8 @@ class CohortModel {
     })
 
 
+
+    console.log("import flagged variants");
 
     // Now that all of the gene objects have been cached, we can fill in the
     // transcript if necessary and then find load the imported bookmarks
@@ -2556,8 +2567,14 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, variant, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
     let self = this;
+
+
+    if(variant) {
+      console.log("variant", variant);
+    }
+
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
@@ -2571,7 +2588,7 @@ class CohortModel {
           include = false;
         }
         if (include) {
-          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options);
+          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
 
           if (sortedGenes.length > 0 || options.includeAll) {
             filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
@@ -2718,11 +2735,30 @@ class CohortModel {
   }
 
 
-  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters, options) {
+  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters, options, variant) {
     let self = this;
     let geneMap        = {};
     let flaggedGenes   = [];
+
     if (this.flaggedVariants) {
+
+
+      if(variant) {
+        let isUnique = true;
+        console.log("this.flaggedVariants.length", this.flaggedVariants.length);
+        for(let i = 0; i < this.flaggedVariants.length; i++){
+          console.log("flaggedVariants[i].variant_id", this.flaggedVariants[i]);
+          if(!variant.variant_id && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
+            console.log("isUnique");
+            isUnique = false;
+          }
+        }
+        if(isUnique){
+          this.flaggedVariants.push(variant);
+        }
+      }
+
+
       this.flaggedVariants.forEach(function(variant) {
         let isReviewed = (variant.notes && variant.notes.length > 0) ||
             (variant.interpretation != null && (variant.interpretation == "sig" || variant.interpretation == "unknown-sig" || variant.interpretation == "not-sig" || variant.interpretation == "poor-qual"));
