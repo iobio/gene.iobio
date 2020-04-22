@@ -41,9 +41,8 @@
       margin-right: 0px
 
     .chip__content, .v-chip__content
-      padding: 0 0px
-      height: 15px
-      width: 34px
+      padding: 8px
+      height: 18px
       justify-content: center
       font-size:  11px
       background-color:  $high-impact-color
@@ -539,19 +538,24 @@
 
 
                     <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
-
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankGTR(flaggedGene.gene.gene_name) }}
+                        <v-chip class="white--text mr-2" 
+                          v-tooltip.top-center="`Cumulative rank for all selected conditions`">
+                            {{ geneRankGTR(flaggedGene.gene.gene_name) }}  GTR
                         </v-chip>
-                        <span class="pheno-source">GTR</span>
                       </span>
                       <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}
+                        <v-chip class="white--text mr-2" 
+                          v-tooltip.top-center="`Cumulative rank for all selected phenotypes`">
+                            {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}  Phen.
                         </v-chip>
-                        <span class="pheno-source">Phenolyzer</span>
                       </span>
+                      <span v-show="geneRankHPO(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text mr-2" >
+                          HPO
+                        </v-chip>
+                      </span>
+
                     </div>
 
                     <div class="variant-symbols">
@@ -1103,6 +1107,16 @@ export default {
       if (rankInfo) {
         if (rankInfo.phenolyzerRank) {
           buf += "#" + rankInfo.phenolyzerRank;
+        }
+      }
+      return buf;
+    },
+    geneRankHPO: function(geneName) {
+      let rankInfo = this.cohortModel.geneModel.getGeneRank(geneName);
+      let buf = "";
+      if (rankInfo) {
+        if (rankInfo.hpoRank) {
+          buf += "#" + rankInfo.hpoRank;
         }
       }
       return buf;

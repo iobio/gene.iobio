@@ -138,6 +138,17 @@ class GeneModel {
             ranks.push( {'rank': searchTermObject.rank, 'source': 'Phen.'});
           })
         }
+        if (geneEntry.searchTermHpo && geneEntry.searchTermHpo.length > 0) {
+          geneEntry.searchTermHpo.forEach(function(searchTermObject) {
+            var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
+            var ranks = searchTerms[searchTerm];
+            if (ranks == null) {
+              ranks = [];
+              searchTerms[searchTerm] = ranks;
+            }
+            ranks.push( { 'hpoPhenotype': searchTermObject.hpoPhenotype, 'source': 'HPO'});
+          })
+        }
 
       })
 
@@ -194,6 +205,17 @@ class GeneModel {
           self.rankedGenes[phGene.name] = theRankedGene;
         } else {
           theRankedGene.phenolyzerRank = phGene.phenolyzerRank;
+        }
+      })
+    }
+    if (rankedGenes.hpo) {
+      rankedGenes.hpo.forEach(function(hpoGene) {
+        let theRankedGene = self.rankedGenes[hpoGene.name];
+        if (theRankedGene == null) {
+          theRankedGene = { 'name': hpoGene.name, 'hpoRank': hpoGene.hpoRank};
+          self.rankedGenes[hpoGene.name] = theRankedGene;
+        } else {
+          theRankedGene.hpoRank = hpoGene.hpoRank;
         }
       })
     }

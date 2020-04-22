@@ -3793,9 +3793,8 @@ export default {
       self.geneModel.setCandidateGenes(clinObject.genes);
       */
 
-
       self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
-      self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
+      self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList, 'hpo': clinObject.hpoFullList })
 
       self.selectedGene = null;
       self.selectedTranscript = null;

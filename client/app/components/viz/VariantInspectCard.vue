@@ -289,6 +289,27 @@
       text
         font-size: 11px
         text-anchor: middle
+        
+#show-more-gene-association-button
+  margin: 0px 0px 0px 0px
+  font-size: 13px
+  height: 26px
+  margin-bottom: 0px
+  padding-left: 0px
+  padding-right: 4px
+  float: right
+  margin-right: 10px
+
+  .btn__content, .v-btn__content
+    color:  $link-color
+    padding-left: 5px
+    padding-right: 5px
+    font-weight: 500
+
+    i.material-icons
+      color: $link-color
+      font-size: 17px
+      padding-right: 5px        
 </style>
 
 <style lang="css">
@@ -450,14 +471,44 @@
             Gene Associations
             <v-divider></v-divider>
           </div>
-          <div v-if="genePhenotypeHits" v-for="geneHit in genePhenotypeHits" :key="geneHit.key" class="variant-row" style="flex-flow:column">
-            <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
-              <div>
-                <v-chip class="high">#{{ geneRank.rank }}</v-chip>
-                <span v-if="geneRank.source" class="pheno-source">{{ geneRank.source }}</span>
-                <span v-if="geneHit.searchTerm" class="pheno-search-term">{{ geneHit.searchTerm }}</span>
+          <div v-if="genePhenotypeHits && genePhenotypeHits!==null && genePhenotypeHits.length" >
+            <div v-for="(geneHit, index) in genePhenotypeHits.slice(0,3)" :key="geneHit.key" class="variant-row" style="flex-flow:column">
+              <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
+                <div>
+                  <v-chip v-if="geneRank.rank" class="high">
+                    <span class="mr-1">#{{ geneRank.rank  }}</span>
+                    <span v-if="geneRank.source">{{  geneRank.source }}</span>
+                  </v-chip>
+                  <v-chip v-else class="high">
+                    <span v-if="geneRank.source"> {{ geneRank.source }}</span>
+                  </v-chip>
+                  <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">
+                    {{ geneHit.searchTerm | to-firstCharacterUppercase }}
+                  </span>
+                  <span v-else-if="geneRank.source==='HPO' && geneRank.hpoPhenotype" class="pheno-search-term">
+                    {{ geneRank.hpoPhenotype | to-firstCharacterUppercase }}
+                  </span>
+                </div>
               </div>
             </div>
+          </div>
+          <div v-if="genePhenotypeHits!==null && genePhenotypeHits.length>=4">
+            <v-btn id="show-more-gene-association-button"
+              flat small
+              slot="activator"
+              v-tooltip.bottom-center="`Show all associations for this variant`"
+              @click="showMoreGeneAssociationsDialog=true">
+                <v-icon>zoom_out_map</v-icon>Show more
+            </v-btn>
+          </div>
+          <div>
+            <gene-associations-dialog 
+              v-if="showMoreGeneAssociationsDialog"
+              :showDialog="showMoreGeneAssociationsDialog"
+              :genePhenotypeHits="genePhenotypeHits"
+              :selectedGene="selectedGene.gene_name"
+              @close-gene-association-dialog="onCloseGeneAssociationDialog($event)">
+            </gene-associations-dialog>
           </div>
       </div>
       <div class="variant-inspect-column" v-if="selectedVariant && info">
@@ -644,7 +695,7 @@ import GeneViz                  from "../viz/GeneViz.vue"
 import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
 import ConservationScoresViz    from "../viz/ConservationScoresViz.vue"
 import MultialignSeqViz         from "../viz/MultialignSeqViz.vue"
-
+import GeneAssociationsDialog   from "../partials/GeneAssociationsDialog.vue"
 
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
@@ -667,7 +718,8 @@ export default {
     PedigreeGenotypeViz,
     ToggleButton,
     ConservationScoresViz,
-    MultialignSeqViz
+    MultialignSeqViz,
+    GeneAssociationsDialog
   },
   props: {
     selectedGene: null,
@@ -738,7 +790,8 @@ export default {
       multialignSelectedBase: null,
       multialignInProgress: false,
 
-      enterCommentsClicked: false
+      enterCommentsClicked: false,
+      showMoreGeneAssociationsDialog: false,
     }
   },
 
@@ -1370,6 +1423,9 @@ export default {
     onEnterComments: function() {
       this.$emit("show-variant-assessment", true)
       this.enterCommentsClicked = true;
+    }, 
+    onCloseGeneAssociationDialog: function(data){
+      this.showMoreGeneAssociationsDialog = false;
     }
   },
 
