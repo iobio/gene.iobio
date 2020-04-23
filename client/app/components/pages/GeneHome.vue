@@ -1273,12 +1273,10 @@ export default {
 
     },
 
-    hasVariantAssessmentCheck: function() {
-      let self = this;
-
-      if (self.selectedVariant) {
-        if ((self.selectedVariant.interpretation && self.selectedVariant.interpretation != 'not-reviewed')
-                || (self.selectedVariant.notes && self.selectedVariant.notes != null && self.selectedVariant.notes.length > 0)) {
+    hasVariantAssessmentCheck: function(selectedVariant) {
+      if (selectedVariant) {
+        if ((selectedVariant.interpretation && selectedVariant.interpretation != 'not-reviewed')
+                || (selectedVariant.notes && selectedVariant.notes != null && selectedVariant.notes.length > 0)) {
           return true;
         } else {
           return false;
@@ -2889,8 +2887,8 @@ export default {
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
 
-      this.hasVariantAssessment = this.hasVariantAssessmentCheck();
-
+      this.hasVariantAssessment = this.hasVariantAssessmentCheck(flaggedVariant);
+      this.showVariantAssessment = false;
 
       let canonicalTranscript = self.geneModel.getCanonicalTranscript(flaggedVariant.gene);
 
