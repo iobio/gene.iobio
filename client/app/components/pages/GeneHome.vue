@@ -535,7 +535,7 @@ main.content.clin, main.v-content.clin
             style="overflow-y:scroll;max-width:320px;margin-left:5px">
             <div class="variant-assessment-heading">
               Variant Review
-              <v-btn  id="variant-assessment-close-button" class="toolbar-button" flat @click="showVariantAssessment = false">
+              <v-btn  id="variant-assessment-close-button" class="toolbar-button" flat @click="showVariantAssessmentClose()">
                 <v-icon >close</v-icon>
               </v-btn>
             </div>
@@ -828,6 +828,7 @@ export default {
     let self = this;
     return {
 
+      hasVariantAssessment: false,
       geneVizMargin: {
         top: 0,
         right: self.isBasicMode || self.isEduMode ? 7 : 2,
@@ -1103,22 +1104,6 @@ export default {
         return null;
       }
     },
-    hasVariantAssessment: function() {
-      let self = this;
-      if (self.selectedVariant) {
-        if ((self.selectedVariant.interpretation && self.selectedVariant.interpretation != 'not-reviewed')
-            || (self.selectedVariant.notes && self.selectedVariant.notes != null && self.selectedVariant.notes.length > 0)) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-
-    }
-
-
 
   },
 
@@ -1286,6 +1271,27 @@ export default {
 
       })
 
+    },
+
+    hasVariantAssessmentCheck: function() {
+      let self = this;
+
+      if (self.selectedVariant) {
+        if ((self.selectedVariant.interpretation && self.selectedVariant.interpretation != 'not-reviewed')
+                || (self.selectedVariant.notes && self.selectedVariant.notes != null && self.selectedVariant.notes.length > 0)) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+
+    },
+
+    showVariantAssessmentClose(){
+      this.showVariantAssessment = false;
+      this.hasVariantAssessment = false;
     },
 
     onRegionZoom: function(regionStart, regionEnd) {
@@ -2882,6 +2888,8 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
+
+      this.hasVariantAssessment = this.hasVariantAssessmentCheck();
 
 
       let canonicalTranscript = self.geneModel.getCanonicalTranscript(flaggedVariant.gene);
