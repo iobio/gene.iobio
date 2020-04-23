@@ -334,7 +334,7 @@
 
       </div>
 
-        
+
       <variant-links-menu
       v-if="selectedVariant && info"
       :selectedGene="selectedGene"
@@ -394,7 +394,7 @@
 
       <v-spacer></v-spacer>
 
-      <div v-if="!isSimpleMode && selectedVariant && !showAssessment && selectedVariantInterpretation != 'known-variants'" style="margin-left:20px;margin-right:0px">
+      <div v-if="!isSimpleMode && selectedVariant && !showAssessment" style="margin-left:20px;margin-right:0px">
         <v-btn raised id="show-assessment-button" @click="onEnterComments">
           <v-icon>gavel</v-icon>
           Review
@@ -554,7 +554,7 @@
       </div>
 
 
-      <div class="variant-inspect-column" v-if="selectedVariant && selectedVariantRelationship != 'known-variants'">
+      <div class="variant-inspect-column" v-if="selectedVariant">
           <div class="variant-column-header">
               {{ isSimpleMode ? 'Population Frequency' : 'Pop Freq in gnomAD' }}
             <info-popup v-if="!isSimpleMode" name="gnomAD"></info-popup>
@@ -572,7 +572,7 @@
           </div>
       </div>
 
-      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant && selectedVariantRelationship != 'known-variants' && selectedVariant.inheritance.length > 0">
+      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant && selectedVariant.inheritance.length > 0">
           <div class="variant-column-header">
             Inheritance
             <v-divider></v-divider>
@@ -801,9 +801,22 @@ export default {
 
     },
 
+    annotateClinVarVariant(){
+      this.refreshSelectedVariantInfo();
+    },
 
 
-    formatPopAF: function(afObject) {
+
+
+      refreshSelectedVariantInfo: function() {
+          if (this.selectedVariant) {
+              this.selectedVariantInfo =  this.globalApp.utility.formatDisplay(this.selectedVariant, this.cohortModel.translator, this.isEduMode)
+          } else {
+              this.selectedVariantInfo = null;
+          }
+      },
+
+      formatPopAF: function(afObject) {
       let self = this;
       var popAF = "";
       if (afObject['AF'] != ".") {
@@ -1447,7 +1460,8 @@ export default {
     },
 
 
-    coord: function() {
+
+      coord: function() {
       let self = this;
       if (self.selectedVariant) {
         return self.selectedVariant.chrom + ":" + self.selectedVariant.start;
@@ -1555,8 +1569,14 @@ export default {
   watch: {
 
     selectedVariant: function() {
+
+      let self = this;
       this.$nextTick(function() {
-        this.loadData();
+          this.loadData();
+
+          if (self.selectedVariantRelationship === "known-variants") {
+              self.annotateClinVarVariant(self.selectedVariant);
+          }
       })
     },
   },
@@ -1583,6 +1603,7 @@ export default {
   },
 
   mounted: function() {
+
   },
 
   created: function() {
