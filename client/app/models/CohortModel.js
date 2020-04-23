@@ -2078,10 +2078,8 @@ class CohortModel {
 
   _recacheForFlaggedVariant(theGene, theTranscript, variant, options) {
     let self = this;
-    console.log("variant in recacheForFlaggedVariant", variant);
     self.getProbandModel().promiseGetVcfData(theGene, theTranscript)
     .then(function(data) {
-      console.log("data in promiceGetVcfData", data);
       let cachedVcfData = data.vcfData;
       cachedVcfData.features.forEach(function(v) {
         var matches = (
@@ -2179,9 +2177,6 @@ class CohortModel {
   }
 
   onFlaggedVariantsFileSelected(fileSelection, fileType, callback) {
-
-      console.log("onFlaggedVariantsFileSelected");
-
     var files = fileSelection.currentTarget.files;
     var me = this;
     // Check for the various File API support.
@@ -2226,9 +2221,6 @@ class CohortModel {
   promiseMergeImportedVariants(importedVariants) {
     let self = this;
     let promises = [];
-
-
-    console.log("inside promiseMergeImportedVariant");
 
     return new Promise(function(resolve, reject) {
       importedVariants.forEach(function(importedVariant) {
@@ -2367,10 +2359,6 @@ class CohortModel {
 
 
     })
-
-
-
-    console.log("import flagged variants");
 
     // Now that all of the gene objects have been cached, we can fill in the
     // transcript if necessary and then find load the imported bookmarks
@@ -2570,11 +2558,6 @@ class CohortModel {
   organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, variant, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
     let self = this;
 
-
-    if(variant) {
-      console.log("variant", variant);
-    }
-
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
@@ -2752,7 +2735,6 @@ class CohortModel {
           }
         }
         if(isUnique && variant.isUserFlagged){
-          console.log("unique variant", variant);
           this.flaggedVariants.push(variant);
         }
       }

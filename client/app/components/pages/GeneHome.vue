@@ -2863,7 +2863,6 @@ export default {
           if (self.cohortModel.getFlaggedVariant(variant) == null) {
             variant.gene = this.selectedGene;
             variant.transcript = this.selectedTranscript;
-            console.log("adding user flagged variant");
             self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
 
           }
@@ -2887,8 +2886,6 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
-
-      console.log("onFlaggedVariantSelect");
 
       let canonicalTranscript = self.geneModel.getCanonicalTranscript(flaggedVariant.gene);
 
