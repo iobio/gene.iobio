@@ -2745,15 +2745,14 @@ class CohortModel {
 
       if(variant) {
         let isUnique = true;
-        console.log("this.flaggedVariants.length", this.flaggedVariants.length);
         for(let i = 0; i < this.flaggedVariants.length; i++){
-          console.log("flaggedVariants[i].variant_id", this.flaggedVariants[i]);
           if(!variant.variant_id && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
-            console.log("isUnique");
+
             isUnique = false;
           }
         }
-        if(isUnique){
+        if(isUnique && variant.isUserFlagged){
+          console.log("unique variant", variant);
           this.flaggedVariants.push(variant);
         }
       }
