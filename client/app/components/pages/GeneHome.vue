@@ -3090,18 +3090,14 @@ export default {
     },
     onCoverageThresholdApplied: function() {
       let self = this;
-      self.cohortModel.cacheHelper.refreshGeneBadges(function() {
-        self.showLeftPanelForGenes();
 
         self.refreshCoverageCounts();
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.onGeneSelected(self.selectedGene.gene_name);
         }
-
         if (self.launchedFromClin) {
           self.onSendFiltersToClin();
         }
-      })
     },
     onLeftDrawer: function(isOpen) {
       if (!this.isEduMode) {
