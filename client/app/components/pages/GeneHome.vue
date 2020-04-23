@@ -3096,18 +3096,14 @@ export default {
     },
     onCoverageThresholdApplied: function() {
       let self = this;
-      self.cohortModel.cacheHelper.refreshGeneBadges(function() {
-        self.showLeftPanelForGenes();
 
         self.refreshCoverageCounts();
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.onGeneSelected(self.selectedGene.gene_name);
         }
-
         if (self.launchedFromClin) {
           self.onSendFiltersToClin();
         }
-      })
     },
     onLeftDrawer: function(isOpen) {
       if (!this.isEduMode) {
@@ -3799,9 +3795,8 @@ export default {
       self.geneModel.setCandidateGenes(clinObject.genes);
       */
 
-
       self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
-      self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
+      self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList, 'hpo': clinObject.hpoFullList })
 
       self.selectedGene = null;
       self.selectedTranscript = null;
