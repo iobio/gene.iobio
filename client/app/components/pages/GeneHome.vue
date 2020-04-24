@@ -424,7 +424,7 @@ main.content.clin, main.v-content.clin
         v-if="probandModel"
         v-bind:class="[
         { 'full-width': true,
-           'hide': showWelcome || Object.keys(selectedGene).length === 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources,
+          'hide': showWelcome || (selectedGene && Object.keys(selectedGene).length === 0) || !cohortModel  || cohortModel.inProgress.loadingDataSources,
           'edu' : isEduMode
         },
         'proband'
@@ -2824,7 +2824,6 @@ export default {
       // If the variant isn't in the filtered variants list,
       // mark it as 'user flagged'
       if (self.cohortModel.getFlaggedVariant(variant) == null) {
-        self.cohortModel.addUserFlaggedVariant
         variant.gene = this.selectedGene;
         variant.transcript = this.selectedTranscript;
         self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
@@ -2843,7 +2842,7 @@ export default {
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
       }
 
       if(typeof variant.interpretation === 'undefined' || (variant.interpretation === "not-reviewed")){
@@ -2858,10 +2857,15 @@ export default {
 
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
+
       if (variant.gene == null) {
-        variant.gene == self.selectedGene;
         if (variant.transcript == null || variant.transcript.length == 0) {
-          variant.transcript = self.selectedTranscript;
+          if (self.cohortModel.getFlaggedVariant(variant) == null) {
+            variant.gene = this.selectedGene;
+            variant.transcript = this.selectedTranscript;
+            self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
+
+          }
         }
       }
 
@@ -2877,12 +2881,11 @@ export default {
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant)
       }
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
-
 
       let canonicalTranscript = self.geneModel.getCanonicalTranscript(flaggedVariant.gene);
 

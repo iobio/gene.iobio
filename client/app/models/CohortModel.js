@@ -2087,6 +2087,7 @@ class CohortModel {
                       && v.start == variant.start
                       && v.ref == variant.ref
                       && v.alt == variant.alt);
+
         if (matches) {
           v.isFlagged      = variant.isFlagged
           v.isUserFlagged  = variant.isUserFlagged;
@@ -2359,8 +2360,6 @@ class CohortModel {
 
     })
 
-
-
     // Now that all of the gene objects have been cached, we can fill in the
     // transcript if necessary and then find load the imported bookmarks
     Promise.all(promises).then(function() {
@@ -2556,8 +2555,9 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, variant, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
     let self = this;
+
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
@@ -2571,7 +2571,7 @@ class CohortModel {
           include = false;
         }
         if (include) {
-          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options);
+          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
 
           if (sortedGenes.length > 0 || options.includeAll) {
             filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
@@ -2718,11 +2718,28 @@ class CohortModel {
   }
 
 
-  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters, options) {
+  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters, options, variant) {
     let self = this;
     let geneMap        = {};
     let flaggedGenes   = [];
+
     if (this.flaggedVariants) {
+
+
+      if(variant) {
+        let isUnique = true;
+        for(let i = 0; i < this.flaggedVariants.length; i++){
+          if(!variant.variant_id && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
+
+            isUnique = false;
+          }
+        }
+        if(isUnique && variant.isUserFlagged){
+          this.flaggedVariants.push(variant);
+        }
+      }
+
+
       this.flaggedVariants.forEach(function(variant) {
         let isReviewed = (variant.notes && variant.notes.length > 0) ||
             (variant.interpretation != null && (variant.interpretation == "sig" || variant.interpretation == "unknown-sig" || variant.interpretation == "not-sig" || variant.interpretation == "poor-qual"));
