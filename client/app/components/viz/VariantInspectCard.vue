@@ -1574,9 +1574,7 @@ export default {
       },
 
     selectedVariant: function() {
-
-        console.log("selectedVariantWatcher");
-
+        
       let self = this;
       this.$nextTick(function() {
           this.loadData();

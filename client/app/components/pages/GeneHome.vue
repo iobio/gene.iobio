@@ -2489,11 +2489,6 @@ export default {
         },
         options);
 
-
-      console.log("phenotypeTerm in GeneHome", self.phenotypeTerm);
-
-
-
       let genesToApplyCount = self.geneModel.getCopyPasteGeneCount(genesString);
 
       let doIt = function() {
