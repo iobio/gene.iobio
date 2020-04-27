@@ -15,6 +15,11 @@ elif [[ $1 == "stage" ]]; then
   echo "** Building stage **"
   #NODE_ENV=production npm run build
   npm run build
+elif [[ $1 == "learngene" ]]; then
+  echo "** Building learngene **"
+  cp .envTemplateExhibit .env
+  NODE_ENV=production npm run build
+  
 else
   echo "** Building dev **"
   npm run build

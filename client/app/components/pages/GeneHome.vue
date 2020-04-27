@@ -1040,6 +1040,12 @@ export default {
   mounted: function() {
     let self = this;
 
+
+
+    if (process.env.EXHIBIT === 'true' && (!self.paramMode || self.paramMode.length == 0 )) {
+      this.$router.push({ name: 'exhibit' });
+    }
+
     if (self.launchedFromClin) {
       var responseObject = {app: 'genefull', success: true, type: 'mounted', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), self.paramFrameSource);
