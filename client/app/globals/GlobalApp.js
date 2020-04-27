@@ -10,7 +10,7 @@ class GlobalApp {
     this.completedTour         = "";
 
 
-    this.version               = "4.0.1";
+    this.version               = "4.0.2";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
