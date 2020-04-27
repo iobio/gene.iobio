@@ -283,7 +283,7 @@ div.container.small
 
       </v-card-title>
 
-      <genes-menu style="padding-left:16px"
+      <genes-menu style="padding-left:10px;padding-right:10px;padding-bottom:8px"
        v-if="isEduMode && tourNumber == '1'"
        id="app-tour-genes-menu"
        :geneModel="geneModel"

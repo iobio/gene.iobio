@@ -10,7 +10,7 @@ $tour-hilite-color:      #a5b941
   height: 55px
   width: 100%
   text-align: center
-  padding-top: 5px
+  padding-top: 10px
   position: fixed
   top: 0px
   z-index: 50
@@ -158,12 +158,14 @@ body#tlypageguide-open
     display: inline-block
     width:  280px
 
+
     &.custom-checkbox
       padding:  10px
       margin-right: 15px
       min-height: initial
       max-height: initial
       width:  initial
+      padding-bottom: 0px
 
     &.selected
       border: solid 3px #a5b941
@@ -171,6 +173,7 @@ body#tlypageguide-open
       .answer-label
         color: #a5b941 !important
         font-weight: bold !important
+
 
 
 .tlypageguide_index
@@ -186,7 +189,7 @@ body#tlypageguide-open
 
 
 .edu-tour-answer.incorrect
-  color: $tour-hilite-color !important
+  color: #e35858 !important
   font-size: 20px !important
 
 
@@ -223,7 +226,7 @@ span.arrow
       </button>
 
 
-      <span id="edu-tour-label" class="card-label" style="padding:4px;">Hunt for a cancer gene in a family</span>
+      <span id="edu-tour-label" class="card-label" style="padding: 4px;margin-left: 130px;vertical-align: middle;">Hunt for a cancer gene in a family</span>
 
       <span style="inline-block">
 
@@ -237,7 +240,7 @@ span.arrow
             </span>
           </button>
 
-          <span id="children-buttons" class="edu-tour-1-child-buttons" style="display:inline-block;">
+          <span id="children-buttons" class="edu-tour-1-child-buttons" style="display: inline-block;padding-bottom: 3px;">
              <span id="jimmy-and-sarah-buttons" style="display:inline-block;">
             <button id="button-load-jimmy-data"
             v-bind:class="getButtonClass(1, 1)"
@@ -290,9 +293,9 @@ span.arrow
           Return to Start
       </button>
 
-      <span class="card-label" style="padding-right:10px;" id="edu-tour-2-label">Decide how much medicine to give a patient</span>
+      <span class="card-label" style="padding: 4px;margin-left: 130px;vertical-align: middle;" id="edu-tour-2-label">Decide how much medicine to give a patient</span>
 
-      <span id="child-buttons-tour2" style="display:inline-block">
+      <span id="child-buttons-tour2" style="display:inline-block;padding-bottom:3px">
 
           <button id="button-load-john-data"
            v-bind:class="getButtonClass(2, 0)"
