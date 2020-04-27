@@ -31,6 +31,14 @@ $tour-hilite-color:      #a5b941
 .tlypageguide_text
   padding-bottom: 10px !important
 
+
+  .answers
+    input[type="checkbox"]
+      vertical-align: top
+      height: 25px
+      margin-top: 0px
+
+
 .tlyPageGuideStepIndex
   opacity: .3
 
@@ -43,6 +51,7 @@ $tour-hilite-color:      #a5b941
   #tlyPageGuideMessages
     min-height: 130px
     z-index: 2000
+
 
     span
       top: 35px !important
@@ -289,7 +298,7 @@ $tour-hilite-color:      #a5b941
 
               <div id="john-answers"  class="answers selected" >
                 <div class="answer-label">John</div>
-                <div  style="text-align:left;margin-top:0px;margin-bottom:0px">
+                <div  style="text-align:left;margin-top:5px;margin-bottom:0px">
                   <div class="custom-checkbox" style="display:block;">
                       <input type="checkbox" class="john-checkbox" onclick="onTour2Check($(this))" id="john-normal">
                       <label for="john-normal" >Normal GG</label>
@@ -312,7 +321,7 @@ $tour-hilite-color:      #a5b941
               </div>
               <div  id="diego-answers" class="answers" >
                 <div class="answer-label">Diego</div>
-                <div  style="text-align:left;margin-top:0px;margin-bottom:0px">
+                <div  style="text-align:left;margin-top:5px;margin-bottom:0px">
                   <div class="custom-checkbox" style="display:block;">
                       <input type="checkbox" class="diego-checkbox" onclick="onTour2Check($(this))" id="diego-normal">
                       <label for="diego-normal" >Normal GG</label>
@@ -336,7 +345,7 @@ $tour-hilite-color:      #a5b941
 
               <div  id="anna-answers"  class="answers" >
                 <div class="answer-label">Anna</div>
-                <div style="text-align:left;margin-top:0px;margin-bottom:0px">
+                <div style="text-align:left;margin-top:5px;margin-bottom:0px">
                   <div class="custom-checkbox" style="display:block;">
                       <input type="checkbox" class="anna-checkbox" onclick="onTour2Check($(this))" id="anna-normal">
                       <label for="anna-normal" >Normal GG</label>
@@ -1043,6 +1052,7 @@ export default {
         } else if (self.tourNumber == "2") {
           self.pageGuideEduTour2.close();
         }
+        $('.tour-animation-container').addClass("hide");
         $('#animation-container-1 #Stage').html("");
         $('#animation-container-2 #Stage').html("");
         self.globalApp.completedTour = self.tourNumber;
