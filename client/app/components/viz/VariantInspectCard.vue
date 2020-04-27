@@ -1574,7 +1574,6 @@ export default {
       },
 
     selectedVariant: function() {
-        
       let self = this;
       this.$nextTick(function() {
           this.loadData();
