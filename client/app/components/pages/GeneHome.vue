@@ -518,6 +518,7 @@ main.content.clin, main.v-content.clin
           :cohortModel="cohortModel"
           :info="selectedVariantInfo"
           :selectedVariantKey="selectedVariantKey"
+          :selectedPhenotype="phenotypeTerm"
           :showGenePhenotypes="launchedFromClin || phenotypeTerm"
           :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
           :user="user"
@@ -2488,6 +2489,8 @@ export default {
         },
         options);
 
+
+      console.log("phenotypeTerm in GeneHome", self.phenotypeTerm);
 
 
 
