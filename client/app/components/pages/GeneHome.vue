@@ -2814,6 +2814,7 @@ export default {
 
       if (self.persistAnalysis()) {
         self.promiseDeleteAnalysisVariants([variant]);
+        self.promiseAutosaveAnalysis();
       }
 
 
