@@ -507,7 +507,7 @@ main.content.clin, main.v-content.clin
         <div style="display:flex;align-items:stretch">
           <variant-inspect-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode"
+          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode && selectedVariant"
           :isSimpleMode="isSimpleMode"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
@@ -1109,6 +1109,11 @@ export default {
   },
 
   watch: {
+
+    selectedVariant: function(){
+      console.log("selected variant in watcher", this.selectedVariant);
+    },
+
     isLeftDrawerOpen: function() {
       let self = this;
       setTimeout(function() {
@@ -2527,6 +2532,7 @@ export default {
 
         ).set('labels', {ok:'Replace gene list', cancel:'Combine genes with current list'});
 
+
       } else {
         doIt();
       }
@@ -2888,6 +2894,12 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
+
+
+      if(flaggedVariant === null){
+        this.selectedVariant = null;
+        return;
+      }
 
       this.hasVariantAssessment = this.hasVariantAssessmentCheck(flaggedVariant);
       this.showVariantAssessment = false;
@@ -3887,6 +3899,7 @@ export default {
 
             self.toClickVariant = firstFlaggedVariant;
             self.showLeftPanelWhenFlaggedVariants();
+            console.log("selecting first flagged variant");
             self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
               resolve()
             })

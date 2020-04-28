@@ -1266,6 +1266,11 @@ export default {
     },
     onFlaggedVariantCountChanged: function(count) {
       this.flaggedVariantCount = count;
+      if(this.flaggedVariantCount === 0){
+        console.log("flaggedVariantCount = 0");
+        this.$emit("flagged-variant-selected", null)
+
+      }
     },
 
     onFilterSettingsApplied: function() {
