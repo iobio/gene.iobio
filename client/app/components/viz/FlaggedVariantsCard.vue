@@ -2,6 +2,9 @@
 @import ../../../assets/sass/variables
 
 
+#edit-filter .in-iframe
+  top: 45px !important
+
 
 #flagged-variants-card
   padding-left: 5px
@@ -493,7 +496,7 @@
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
-              <v-icon>Create</v-icon>
+              <v-icon>create</v-icon>
             </v-btn>
 
             <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
@@ -684,10 +687,10 @@
   </v-card>
 
 
-  <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
+  <v-dialog id="edit-filter" v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
 
 
-      <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
+      <v-card v-if="currentFilter" class="full-width" style="padding:10px">
         <v-card-title style="margin-left:20px" class="headline">
           Edit {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>

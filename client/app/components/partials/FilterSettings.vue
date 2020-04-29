@@ -211,9 +211,9 @@
       </v-flex>
 
 
-      <v-flex style="display:flex" xs12 class="mt-1 mb-1">
+      <v-flex style="display:flex" xs12 class="mt-1 mb-1" >
         <v-spacer></v-spacer>
-        <v-btn :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
+        <v-btn :disabled="!isDirty || !isValidFilter" :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
           Apply
         </v-btn>
 
@@ -357,6 +357,7 @@ export default {
 
     },
     apply: function() {
+
       let flagCriteria = this.filterModel.flagCriteria[this.filter.key];
 
       flagCriteria.name             = this.name;
