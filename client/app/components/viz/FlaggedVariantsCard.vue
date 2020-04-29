@@ -2,8 +2,11 @@
 @import ../../../assets/sass/variables
 
 
-#edit-filter .in-iframe
-  top: 45px !important
+.in-iframe .v-dialog--persistent
+  position: sticky
+  top: 10px !important
+  max-height: 490px !important
+  z-index: 2
 
 
 #flagged-variants-card
@@ -687,7 +690,7 @@
   </v-card>
 
 
-  <v-dialog id="edit-filter" v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
+  <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
 
 
       <v-card v-if="currentFilter" class="full-width" style="padding:10px">
@@ -707,10 +710,6 @@
         </filter-settings>
 
       </v-card>
-
-
-
-
   </v-dialog>
 </div>
 
@@ -1144,6 +1143,7 @@ export default {
   },
   mounted: function() {
     this.populateGeneLists();
+    console.log("check caching2");
   },
   computed: {
 
