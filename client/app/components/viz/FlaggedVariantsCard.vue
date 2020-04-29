@@ -452,10 +452,10 @@
 
     <div class="variant-toolbar" >
 
-      <!--<v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>-->
-        <!--<v-icon>add</v-icon>-->
-        <!--New filter-->
-      <!--</v-btn>-->
+      <v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>
+        <v-icon>add</v-icon>
+        New filter
+      </v-btn>
 
       <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
@@ -493,7 +493,7 @@
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
-              <v-icon>info_outline</v-icon>
+              <v-icon>Create</v-icon>
             </v-btn>
 
             <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
@@ -539,13 +539,13 @@
 
                     <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text mr-2" 
+                        <v-chip class="white--text mr-2"
                           v-tooltip.top-center="`Cumulative rank for all selected conditions`">
                             {{ geneRankGTR(flaggedGene.gene.gene_name) }}  GTR
                         </v-chip>
                       </span>
                       <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text mr-2" 
+                        <v-chip class="white--text mr-2"
                           v-tooltip.top-center="`Cumulative rank for all selected phenotypes`">
                             {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}  Phen.
                         </v-chip>
@@ -640,9 +640,6 @@
 
                     <span v-if="variant.notFound && isFullAnalysis"
                       class="coord"> {{ coord(flaggedGene, variant) }} </span>
-                    </span>
-
-
                   </div>
 
 
@@ -692,7 +689,7 @@
 
       <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
         <v-card-title style="margin-left:20px" class="headline">
-          {{ currentFilter.title }}  Filter
+          Edit {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>
           <v-btn text icon @click="onCancelFilter"><v-icon>close</v-icon></v-btn>
         </v-card-title>
