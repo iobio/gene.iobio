@@ -6,8 +6,6 @@
   position: sticky
   top: 10px !important
   max-height: 490px !important
-  z-index: 2
-
 
 #flagged-variants-card
   padding-left: 5px
