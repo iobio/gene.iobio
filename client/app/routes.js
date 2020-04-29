@@ -50,7 +50,7 @@ const routes = [
   {
     name: 'home',
     path: '/',
-    component: GeneHome,
+    component:  GeneHome,
     beforeEnter: (to, from, next) => {
       console.log(to);
       var idx = to.hash.indexOf("#access_token");
