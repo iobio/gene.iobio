@@ -289,7 +289,7 @@
       text
         font-size: 11px
         text-anchor: middle
-        
+
 #show-more-gene-association-button
   margin: 0px 0px 0px 0px
   font-size: 13px
@@ -309,7 +309,7 @@
     i.material-icons
       color: $link-color
       font-size: 17px
-      padding-right: 5px        
+      padding-right: 5px
 </style>
 
 <style lang="css">
@@ -502,7 +502,7 @@
             </v-btn>
           </div>
           <div>
-            <gene-associations-dialog 
+            <gene-associations-dialog
               v-if="showMoreGeneAssociationsDialog"
               :showDialog="showMoreGeneAssociationsDialog"
               :genePhenotypeHits="genePhenotypeHits"
@@ -728,6 +728,7 @@ export default {
     selectedVariantKey: null,
     selectedVariantInterpretation: null,
     selectedVariantRelationship: null,
+    selectedPhenotype: null,
     isSimpleMode: null,
     genomeBuildHelper: null,
     cohortModel: null,
@@ -1436,7 +1437,7 @@ export default {
     onEnterComments: function() {
       this.$emit("show-variant-assessment", true)
       this.enterCommentsClicked = true;
-    }, 
+    },
     onCloseGeneAssociationDialog: function(data){
       this.showMoreGeneAssociationsDialog = false;
     }
@@ -1568,8 +1569,11 @@ export default {
 
   watch: {
 
-    selectedVariant: function() {
+      selectedPhenotype: function(){
+          this.initGenePhenotypeHits();
+      },
 
+    selectedVariant: function() {
       let self = this;
       this.$nextTick(function() {
           this.loadData();
