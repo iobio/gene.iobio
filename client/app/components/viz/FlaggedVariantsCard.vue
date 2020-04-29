@@ -903,6 +903,7 @@ export default {
       let self = this;
       self.showEditFilter = false;
       self.currentFilter = null;
+      console.log("onApply filter in FlaggedVariantsCard");
       self.$emit("filter-settings-applied");
     },
     onCancelFilter: function() {
@@ -959,6 +960,7 @@ export default {
       flagCriteria.inheritance = null;
       flagCriteria.zygosity = null;
       flagCriteria.genotypeDepth = null;
+      flagCriteria.exclusiveOf = ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked', 'high'];
       self.cohortModel.filterModel.flagCriteria[newFilter.name] = flagCriteria;
 
 
@@ -1143,7 +1145,6 @@ export default {
   },
   mounted: function() {
     this.populateGeneLists();
-    console.log("check caching2");
   },
   computed: {
 

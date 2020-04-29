@@ -261,7 +261,7 @@ class FilterModel {
           minRevel: null,
           exclusiveOf: null
         }
-        
+
 
       },
       genefull: {
@@ -895,7 +895,7 @@ class FilterModel {
 
   mapGenomeWideFilter(variant) {
     let self = this;
-    if (variant.variantSet && variant.variantSet.length > 0) {    
+    if (variant.variantSet && variant.variantSet.length > 0) {
       let filter = self.flagCriteria[variant.variantSet];
       if (filter) {
         variant.filtersPassed = variant.variantSet;

@@ -376,6 +376,7 @@ export default {
       flagCriteria.active           = true;
 
       this.isDirty = false;
+      console.log("apply in filter settings");
       this.$emit("apply-filter")
 
     },
