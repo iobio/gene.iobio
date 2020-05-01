@@ -518,6 +518,7 @@ main.content.clin, main.v-content.clin
           :cohortModel="cohortModel"
           :info="selectedVariantInfo"
           :selectedVariantKey="selectedVariantKey"
+          :selectedPhenotype="phenotypeTerm"
           :showGenePhenotypes="launchedFromClin || phenotypeTerm"
           :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
           :user="user"
@@ -2493,9 +2494,6 @@ export default {
           warnOnDup: false
         },
         options);
-
-
-
 
       let genesToApplyCount = self.geneModel.getCopyPasteGeneCount(genesString);
 
