@@ -2,10 +2,14 @@
 @import ../../../assets/sass/variables
 
 
+.v-select__selections
+  max-height: 100px
+  overflow-y: scroll
+
 .in-iframe .v-dialog--persistent
-  position: sticky
+  position: sticky !important
   top: 10px !important
-  max-height: 490px !important
+  max-height: 480px !important
 
 #flagged-variants-card
   padding-left: 5px
