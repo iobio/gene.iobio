@@ -361,8 +361,6 @@ export default {
     },
     apply: function() {
 
-      console.log("this.filter in apply", this.filter);
-
       let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
 
 
