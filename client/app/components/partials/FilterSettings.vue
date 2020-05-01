@@ -321,6 +321,7 @@ export default {
     init: function() {
       let self = this;
 
+
       let flagCriteria = this.filterModel.flagCriteria[this.filter.key];
       if (flagCriteria == null) {
         flagCriteria = {};
@@ -339,7 +340,7 @@ export default {
         this.filterModel.flagCriteria[this.filter.key] = flagCriteria;
       }
       this.name                      = flagCriteria.name;
-      this.key                       = flagCriteria.key;
+      this.key                       = flagCriteria.key + flagCriteria.name;
       this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
       this.minRevel                  = flagCriteria.minRevel;
       this.selectedClinvarCategories = flagCriteria.clinvar;
@@ -350,6 +351,8 @@ export default {
       this.minGenotypeDepth          = flagCriteria.minGenotypeDepth;
       this.minGenotypeAltCount       = flagCriteria.minGenotypeAltCount;
 
+
+
       this.$nextTick(function() {
         self.isDirty = false;
       })
@@ -358,15 +361,19 @@ export default {
     },
     apply: function() {
 
-      let flagCriteria = this.filterModel.flagCriteria[this.filter.key];
+      console.log("this.filter in apply", this.filter);
+
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
+
 
       flagCriteria.name             = this.name;
       if (flagCriteria.custom) {
         flagCriteria.title = this.name;
       }
+
+      flagCriteria.key = this.key + this.name;
       flagCriteria.maxAf            = this.maxAf ? this.maxAf / 100 : null;
       flagCriteria.minRevel         = this.minRevel;
-      flagCriteria.clinvar          = this.selectedClinvarCategories;
       flagCriteria.impact           = this.selectedImpacts;
       flagCriteria.consequence      = this.selectedConsequences;
       flagCriteria.inheritance      = this.selectedInheritanceModes;
@@ -376,7 +383,6 @@ export default {
       flagCriteria.active           = true;
 
       this.isDirty = false;
-      console.log("apply in filter settings");
       this.$emit("apply-filter")
 
     },
