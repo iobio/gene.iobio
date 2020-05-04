@@ -923,9 +923,15 @@ export default {
     },
     onNewFilter: function() {
       let self = this;
+
+      self.geneLists = self.geneLists.filter(function(geneList){
+        return geneList.filter.key !== "undefined"
+      });
+
       let nonCustomCount = self.geneLists.filter(function(geneList) {
         return !geneList.filter.custom;
       }).length;
+
 
       let newFilter = {
           name: 'Custom-Filter-' + (self.geneLists.length - nonCustomCount),
