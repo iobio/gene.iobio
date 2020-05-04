@@ -363,13 +363,16 @@ export default {
 
       let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
 
+      if(this.filter.key){
+        flagCriteria = this.filterModel.flagCriteria[this.filter.key];
+      }
 
       flagCriteria.name             = this.name;
       if (flagCriteria.custom) {
         flagCriteria.title = this.name;
       }
 
-      flagCriteria.key = this.key + this.name;
+      flagCriteria.key = this.key;
       flagCriteria.maxAf            = this.maxAf ? this.maxAf / 100 : null;
       flagCriteria.minRevel         = this.minRevel;
       flagCriteria.impact           = this.selectedImpacts;
