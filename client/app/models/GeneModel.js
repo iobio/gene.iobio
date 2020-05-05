@@ -1021,7 +1021,6 @@ class GeneModel {
         .catch((errorThrown) => {
           console.log("Gene model for " +  geneName + " not found.  Error occurred.");
           console.log( "Error: " + errorThrown );
-          //console.log( "Status: " + status );
           reject("Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName);
         });
 
