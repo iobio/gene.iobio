@@ -2,6 +2,14 @@
 @import ../../../assets/sass/variables
 
 
+.v-select__selections
+  max-height: 100px
+  overflow-y: scroll
+
+.in-iframe .v-dialog--persistent
+  position: sticky !important
+  top: 10px !important
+  max-height: 480px !important
 
 #flagged-variants-card
   padding-left: 5px
@@ -452,10 +460,10 @@
 
     <div class="variant-toolbar" >
 
-      <!--<v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>-->
-        <!--<v-icon>add</v-icon>-->
-        <!--New filter-->
-      <!--</v-btn>-->
+      <v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>
+        <v-icon>add</v-icon>
+        New filter
+      </v-btn>
 
       <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
@@ -493,7 +501,7 @@
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
-              <v-icon>info_outline</v-icon>
+              <v-icon>create</v-icon>
             </v-btn>
 
             <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
@@ -539,13 +547,13 @@
 
                     <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text mr-2" 
+                        <v-chip class="white--text mr-2"
                           v-tooltip.top-center="`Cumulative rank for all selected conditions`">
                             {{ geneRankGTR(flaggedGene.gene.gene_name) }}  GTR
                         </v-chip>
                       </span>
                       <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text mr-2" 
+                        <v-chip class="white--text mr-2"
                           v-tooltip.top-center="`Cumulative rank for all selected phenotypes`">
                             {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}  Phen.
                         </v-chip>
@@ -640,9 +648,6 @@
 
                     <span v-if="variant.notFound && isFullAnalysis"
                       class="coord"> {{ coord(flaggedGene, variant) }} </span>
-                    </span>
-
-
                   </div>
 
 
@@ -690,9 +695,9 @@
   <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
 
 
-      <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
+      <v-card v-if="currentFilter" class="full-width" style="padding:10px">
         <v-card-title style="margin-left:20px" class="headline">
-          {{ currentFilter.title }}  Filter
+          Edit {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>
           <v-btn text icon @click="onCancelFilter"><v-icon>close</v-icon></v-btn>
         </v-card-title>
@@ -707,10 +712,6 @@
         </filter-settings>
 
       </v-card>
-
-
-
-
   </v-dialog>
 </div>
 
@@ -922,12 +923,18 @@ export default {
     },
     onNewFilter: function() {
       let self = this;
+
+      self.geneLists = self.geneLists.filter(function(geneList){
+        return geneList.filter.key !== "undefined"
+      });
+
       let nonCustomCount = self.geneLists.filter(function(geneList) {
         return !geneList.filter.custom;
       }).length;
 
+
       let newFilter = {
-          name: 'custom-filter-' + (self.geneLists.length - nonCustomCount),
+          name: 'Custom-Filter-' + (self.geneLists.length - nonCustomCount),
           display: 'custom',
           active: true,
           custom: true,
@@ -960,8 +967,8 @@ export default {
       flagCriteria.inheritance = null;
       flagCriteria.zygosity = null;
       flagCriteria.genotypeDepth = null;
+      flagCriteria.exclusiveOf = ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked', 'high'];
       self.cohortModel.filterModel.flagCriteria[newFilter.name] = flagCriteria;
-
 
       self.geneLists.push(newGeneList);
       self.onEditFilter(newGeneList);
