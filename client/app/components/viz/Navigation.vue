@@ -725,6 +725,7 @@ nav.toolbar, nav.v-toolbar
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
              @count-changed="onFlaggedVariantCountChanged"
+             @gene-lists-changed="onGeneListsChanged"
              @filter-settings-applied="onFilterSettingsApplied"
              @filter-settings-closed="onFilterSettingsClose"
             >
@@ -1263,6 +1264,9 @@ export default {
     },
     onGeneCountChanged: function(count) {
       this.geneCount = count;
+    },
+    onGeneListsChanged: function(geneLists){
+      this.$emit("gene-lists-changed", geneLists);
     },
     onFlaggedVariantCountChanged: function(count) {
       this.flaggedVariantCount = count;

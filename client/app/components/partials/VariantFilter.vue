@@ -1,4 +1,7 @@
-<style>
+<style lang="sass">
+
+    #filterSelect
+        width: 200px
 
 </style>
 
@@ -6,16 +9,19 @@
     <div id="variant-filter">
         Select filters to show/hide variants
 
+
+        <div id="filterSelect">
     <v-select  outlined
                multiple
-               chips
+               deletable-chips
+               :width="200"
                :items="filters"
                item-text='title'
                item-value='name'
                v-model="title">
 
     </v-select>
-    <span>Selected: {{ value}}</span>
+        </div>
     </div>
 
 
@@ -28,6 +34,7 @@
         props: {
             variants: null,
             filterModel: null,
+            geneLists: null,
         },
         data() {
             return {
@@ -37,31 +44,22 @@
             }
         },
         watch: {
-            variants: function(){
-                console.log("change in this.variants in watcher", this.variants);
-            },
+            // geneLists: function(){
+            //     console.log("geneLists in variant filter watcher", this.geneLists);
+            // },
             filterModel: function(){
-                console.log("filterModel in watcher", this.filterModel);
                 this.flagCriteria = this.filterModel.flagCriteria;
-                console.log("this.flagCriteria in watcher", this.flagCriteria);
-
-
             }
         },
 
         mounted() {
-            console.log("filterModel in mounted", this.filterModel);
             this.flagCriteria = this.filterModel.flagCriteria;
 
             this.filters = [];
 
             for(let [k, v] of Object.entries(this.flagCriteria)){
-                console.log("k,v", k,v);
                 this.filters.push({"name": v.name, 'title': v.title})
             }
-
-
-            console.log("this.flagCriteria in mounted", this.filters);
         },
 
         methods: {

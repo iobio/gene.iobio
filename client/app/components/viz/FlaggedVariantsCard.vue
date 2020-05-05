@@ -805,6 +805,7 @@ export default {
       self.flattenGenesList();
 
       self.$emit("count-changed", self.variantCount);
+      self.$emit("gene-lists-changed", self.geneLists);
 
       self.expansionControl =  self.geneLists.map(function(geneList) {
         return geneList.expand;

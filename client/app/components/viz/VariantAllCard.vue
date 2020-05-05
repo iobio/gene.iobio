@@ -449,6 +449,7 @@
                 v-if="showVariantViz"
                 :variants="sampleModel.calledVariants"
                 :filterModel="sampleModel.cohort.filterModel"
+                :geneLists="geneLists"
         >
         </VariantFilter>
 
@@ -731,6 +732,7 @@ export default {
     featureMatrixModel: null,
 
     blacklistedGeneSelected: false,  // True if selected gene falls in SFARI ACMG blacklist
+    geneLists: null,
 
   },
 
