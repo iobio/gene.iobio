@@ -443,6 +443,17 @@
           called variants
         </div>
 
+
+        <!--TODO: implement variant filter here-->
+        <VariantFilter
+                v-if="showVariantViz"
+                :variants="sampleModel.calledVariants"
+                :filterModel="sampleModel.cohort.filterModel"
+        >
+        </VariantFilter>
+
+
+
         <variant-viz id="called-variant-viz"
           ref="calledVariantVizRef"
           v-if="showVariantViz"
@@ -672,10 +683,13 @@ import StackedBarChartViz   from "../viz/StackedBarChartViz.vue"
 import KnownVariantsToolbar from "../partials/KnownVariantsToolbar.vue"
 import SfariVariantsToolbar from "../partials/SfariVariantsToolbar.vue"
 import OptionalTracksMenu   from "../partials/OptionalTracksMenu.vue"
+import VariantFilter        from "../partials/VariantFilter.vue"
+
 
 export default {
   name: 'variant-all-card',
   components: {
+    VariantFilter,
     VariantViz,
     GeneViz,
     DepthViz,
