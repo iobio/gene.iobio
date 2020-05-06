@@ -450,6 +450,7 @@
                 :variants="sampleModel.calledVariants"
                 :filterModel="sampleModel.cohort.filterModel"
                 :geneLists="geneLists"
+                :selectedGene="selectedGene"
         >
         </VariantFilter>
 
