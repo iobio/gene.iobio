@@ -271,8 +271,10 @@ export default {
       },
 
       filteredVariants(){
-          // console.log("filteredVariants", this.filteredVariants);
-          // console.log("this.data", this.data);
+          console.log("filteredVariants", this.filteredVariants);
+          console.log("this.data", this.data);
+          this.data = this.filteredVariants;
+
       }
 
     }

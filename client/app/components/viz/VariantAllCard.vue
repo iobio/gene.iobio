@@ -451,7 +451,7 @@
                 :filterModel="sampleModel.cohort.filterModel"
                 :geneLists="geneLists"
                 :selectedGene="selectedGene"
-                @filtered-variants-change="onFilteredVariantsChange"
+                @filtered-variants-update="onFilteredVariantsUpdate"
 
         >
         </VariantFilter>
@@ -860,8 +860,9 @@ export default {
       this.$emit('cohort-variant-click', variant, this, model.relationship);
     },
 
-    onFilteredVariantsChange: function(filteredVariants){
+    onFilteredVariantsUpdate: function(filteredVariants){
       this.filteredVariants = filteredVariants;
+      console.log("this.filteredVariants", this.filteredVariants);
     },
 
     onVariantOutsideClick: function(model) {

@@ -129,12 +129,10 @@
                         }
                     }
                 }
-                console.log("features", features);
                 copyVariants.features = features;
-                if(features.length > 1){
-                    if(this.filteredVariants.length > 0) {
+                if(features.length > 0){
+                        console.log("copyVariants");
                         this.$emit("filtered-variants-update", copyVariants);
-                    }
                 }
             },
         }
