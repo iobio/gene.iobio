@@ -146,7 +146,8 @@ export default {
           return "";
         }
       },
-      classifySymbolFunc: null
+      classifySymbolFunc: null,
+        filteredVariants: null,
     },
     data() {
       return {
@@ -157,6 +158,7 @@ export default {
     },
     mounted: function() {
       this.draw();
+      this.update();
     },
     methods: {
       draw: function() {
@@ -266,6 +268,11 @@ export default {
     watch: {
       data: function() {
         this.update();
+      },
+
+      filteredVariants(){
+          // console.log("filteredVariants", this.filteredVariants);
+          // console.log("this.data", this.data);
       }
 
     }

@@ -447,10 +447,12 @@
         <!--TODO: implement variant filter here-->
         <VariantFilter
                 v-if="showVariantViz"
-                :variants="sampleModel.calledVariants"
+                :variants="sampleModel.loadedVariants"
                 :filterModel="sampleModel.cohort.filterModel"
                 :geneLists="geneLists"
                 :selectedGene="selectedGene"
+                @filtered-variants-change="onFilteredVariantsChange"
+
         >
         </VariantFilter>
 
@@ -462,6 +464,7 @@
           v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
           (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.calledVariants"
+         :filtered-variants="filteredVariants"
           :model="sampleModel"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
@@ -506,7 +509,8 @@
            v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
             (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"
-          :model="sampleModel"
+          :filtered-variants="filteredVariants"
+                     :model="sampleModel"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
           :annotationScheme="annotationScheme"
@@ -799,6 +803,7 @@ export default {
       zoomMessage: "Drag to zoom",
 
       showRankedVariantsMenu: false,
+      filteredVariants: null,
 
       pileupStyle: {}
 
@@ -854,6 +859,11 @@ export default {
 
       this.$emit('cohort-variant-click', variant, this, model.relationship);
     },
+
+    onFilteredVariantsChange: function(filteredVariants){
+      this.filteredVariants = filteredVariants;
+    },
+
     onVariantOutsideClick: function(model) {
       if (this.showDepthViz) {
         this.hideCoverageCircle();
