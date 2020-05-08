@@ -198,7 +198,8 @@ export default {
       },
       update: function() {
         var self = this;
-        if (self.data) {
+
+        if (self.data && self.data.features.length > 0) {
 
           // Set the vertical layer count so that the height of the chart can be recalculated
           if (self.data.maxLevel == null) {
