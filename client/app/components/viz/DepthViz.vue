@@ -221,7 +221,7 @@ export default {
       update: function() {
         var self = this;
 
-        if (self.data && self.data.length === 2000 && self.data[0].length > 0) {
+        if (self.data && self.data.length > 1 && self.data[0].length > 0) {
           $(self.$el).removeClass("hide");
           self.depthChart.maxDepth(self.maxDepth);
           self.depthChart.xStart(self.regionStart);
