@@ -219,7 +219,6 @@
             this.regionSpan = this.regionStart + "-" + this.regionEnd;
 
             this.draw();
-            this.update();
         },
 
         methods: {
@@ -277,6 +276,7 @@
 
             update: function() {
                 var self = this;
+
                 if (self.data && self.data.length > 0 && self.data[0] != null && Object.keys(self.data[0]).length > 0) {
                     this.geneChart.regionStart(this.regionStart);
                     this.geneChart.regionEnd(this.regionEnd);
@@ -292,8 +292,14 @@
             },
         },
         watch: {
-            data: function() {
-                this.update();
+            data: function(oldData, newData) {
+
+                let bool = JSON.stringify(oldData) === JSON.stringify(newData);
+
+                if(!bool && newData) {
+                    console.log("oldData === newData and newData not null", bool);
+                    this.update();
+                }
             },
 
             regionStart: function() {
@@ -302,8 +308,10 @@
             regionEnd: function() {
                 this.regionSpan = this.regionStart + "-" + this.regionEnd;
             },
-            regionSpan: function() {
-                this.update();
+            regionSpan: function(oldRegion, newRegion) {
+                if(oldRegion !== newRegion) {
+                    this.update();
+                }
             }
         }
     }

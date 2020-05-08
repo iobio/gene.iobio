@@ -221,8 +221,6 @@ export default {
       update: function() {
         var self = this;
 
-        console.log("self.data in Depth-viz update", self.data);
-
         if (self.data && self.data.length === 2000 && self.data[0].length > 0) {
           $(self.$el).removeClass("hide");
           self.depthChart.maxDepth(self.maxDepth);
@@ -232,12 +230,6 @@ export default {
           self.depthChart.height(self.height);
           var selection = d3.select(self.$el).datum( self.data );
           self.depthChart(selection);
-
-
-        } else {
-          // $(self.$el).addClass("hide");
-          // var selection = d3.select(self.$el).datum( [[0,0]] );
-          // self.depthChart(selection);
         }
       },
       setDepthChart: function() {
