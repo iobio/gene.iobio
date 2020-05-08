@@ -808,6 +808,7 @@ export default {
     paramIobioSource:      null,
     paramAnalysisId:       null,
     paramGeneSetId:        null,
+    paramVariantSetId:     null,
 
     paramFileId:           null,
 
@@ -854,6 +855,7 @@ export default {
       sampleId: null,
       projectId: null,
       geneSet: null,
+      variantSet: null,
       launchedWithUrlParms: false,
       clinSetData: null,
       clinPersistCache: true,
@@ -1319,11 +1321,12 @@ export default {
         }
 
         self.cohortModel.setHubSession(self.hubSession);
-        self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId, self.paramGeneSetId)
+        self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId, self.paramGeneSetId, self.paramVariantSetId)
         .then(data => {
           self.modelInfos = data.modelInfos;
           self.rawPedigree = data.rawPedigree;
           self.geneSet = data.geneSet;
+          self.variantSet = data.variantSet;
 
           self.isMother = data.isMother;
           self.isFather = data.isFather;
@@ -1331,16 +1334,69 @@ export default {
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
           }
-
           return self.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
 
         })
         .then(analysis => {
+          self.analysis = analysis;
 
           if (self.analysis.payload.phenotypeTerm) {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
-          return self.hubSession.promiseGetProject(self.projectId)
+         
+          // Temporary code until gene name provided
+          if (self.variantSet && self.variantSet.variants) {
+            let genePromises = [];
+            self.variantSet.variants.filter(function(variant) {
+              return variant.sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
+            })
+            .forEach(function(variant) {
+              let importedVariant = {};
+              importedVariant.chrom = variant.chr;
+              importedVariant.start = variant.pos;
+              importedVariant.end   = variant.pos;
+              importedVariant.ref   = variant.ref;
+              importedVariant.alt   = variant.alt;
+              importedVariant.filtersPassed = "notCategorized";
+              importedVariant.inheritance = null;
+              importedVariant.afgnomAD = variant.gnomad_allele_frequency;
+
+
+              let genePromise = self.geneModel.promiseGetGeneForVariant(importedVariant)
+              .then(function(data) {
+
+                if (data.gene) {
+
+                  let theGeneObject      = data.gene;
+                  let theImportedVariant = data.variant;
+
+                  theImportedVariant.gene = theGeneObject.gene_name;
+
+                  self.analysis.payload.variants.push(theImportedVariant);
+                  if (self.analysis.payload.genes.indexOf(theImportedVariant.gene) < 0) {
+                    self.analysis.payload.genes.push(theImportedVariant.gene);
+                  }
+
+                } else {
+                  console.log("Cannot find gene for variant " + data.variant.chrom + " " + data.variant.start + " ")
+                }
+              })
+              genePromises.push(genePromise);
+            })
+            Promise.all(genePromises)
+            .then(function() {
+              return Promise.resolve();
+            })
+            .catch(function() {
+              return Promise.resolve();
+            })
+          } else {
+            return Promise.resolve();
+          }
+
+        })
+        .then(function() {
+           return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
             self.isSfariProject = false;

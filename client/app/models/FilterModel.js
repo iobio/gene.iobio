@@ -208,8 +208,8 @@ class FilterModel {
           // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
-          title: "Not categorized",
-          name: "Variants found during full analysis, but not passing any app filters",
+          title: "Passes external filter",
+          name: "Variants filtered in pre-processing, but not passing any app filters",
           order: 9,
           userFlagged: false,
           maxAf: null,
@@ -227,7 +227,7 @@ class FilterModel {
           // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
-          title: "Not categorized",
+          title: "Filtered variants",
           name: "Variants found during full analysis, but not passing any app filters",
           order: 8,
           userFlagged: false,
@@ -415,7 +415,7 @@ class FilterModel {
           // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
-          title: "Not categorized",
+          title: "Filtered variants",
           name: "Variants found during full analysis, but not passing any app filters",
           order: 8,
           userFlagged: false,
@@ -900,8 +900,10 @@ class FilterModel {
       if (filter) {
         variant.filtersPassed = variant.variantSet;
       } else {
-        filterName = 'notCategorized';
+        variant.filtersPassed = 'notCategorized';
       }
+    } else {
+      variant.filtersPassed = "notCategorized";
     }
   }
 

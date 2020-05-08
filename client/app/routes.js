@@ -117,7 +117,8 @@ const routes = [
         paramIobioSource:      route.query.iobio_source,
         paramAnalysisId:       route.query.analysis_id,
         paramFrameSource:      route.query.frame_source,
-        paramGeneSetId:        route.query.gene_set_id
+        paramGeneSetId:        route.query.gene_set_id,
+        paramVariantSetId:     route.query.variant_set_id
 
 
 
