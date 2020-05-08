@@ -452,19 +452,20 @@
                 :geneLists="geneLists"
                 :selectedGene="selectedGene"
                 @filtered-variants-update="onFilteredVariantsUpdate"
+                @show-filter="onShowFilter"
 
         >
         </VariantFilter>
 
 
 
+          <!--Dont pass filtered variants to called variant viz-->
         <variant-viz id="called-variant-viz"
           ref="calledVariantVizRef"
           v-if="showVariantViz"
           v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
           (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.calledVariants"
-         :filtered-variants="filteredVariants"
           :model="sampleModel"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
@@ -510,7 +511,8 @@
             (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"
           :filtered-variants="filteredVariants"
-                     :model="sampleModel"
+          :model="sampleModel"
+          :showFilter="showFilter"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
           :annotationScheme="annotationScheme"
@@ -732,6 +734,7 @@ export default {
     showVariantViz: true,
     showGeneViz: true,
     showDepthViz: true,
+    showFilter: false,
     geneVizShowXAxis: null,
 
     featureMatrixModel: null,
@@ -864,6 +867,9 @@ export default {
       this.filteredVariants = filteredVariants;
       console.log("this.filteredVariants", this.filteredVariants);
     },
+      onShowFilter: function(showFilter){
+        this.showFilter = showFilter;
+      },
 
     onVariantOutsideClick: function(model) {
       if (this.showDepthViz) {

@@ -2,6 +2,7 @@
 
     #filterSelect
         width: 400px
+        display: inline-flex
 
 </style>
 
@@ -21,6 +22,13 @@
                v-model="selectedFilters">
 
     </v-select>
+
+            <v-switch
+                      label="filter variant-viz"
+                      v-model="showFilter"
+            >
+            </v-switch>
+
         </div>
     </div>
 
@@ -41,6 +49,7 @@
             return {
                flagCriteria: null,
                 selectedFilters: null,
+                showFilter: false,
                 filters: null,
                 filteredGeneList: null,
                 filteredVariants: null,
@@ -52,7 +61,11 @@
                 this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
+            },
 
+            showFilter: function(){
+                console.log("showFilter watcher", this.showFilter);
+                this.$emit("show-filter", this.showFilter);
             },
 
             variants: function(){

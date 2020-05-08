@@ -147,7 +147,9 @@ export default {
         }
       },
       classifySymbolFunc: null,
-        filteredVariants: null,
+      filteredVariants: null,
+      showFilter: false,
+
     },
     data() {
       return {
@@ -270,10 +272,22 @@ export default {
         this.update();
       },
 
+
+      showFilter: function(){
+          if(this.showFilter){
+              this.data = this.filteredVariants;
+          }
+          else{
+              this.data = this.data;
+          }
+
+      },
+
       filteredVariants(){
-          console.log("filteredVariants", this.filteredVariants);
-          console.log("this.data", this.data);
-          this.data = this.filteredVariants;
+          console.log("this.showFilter in filteredVariants watcher", this.showFilter);
+          if(this.showFilter){
+            this.data = this.filteredVariants;
+          }
 
       }
 
