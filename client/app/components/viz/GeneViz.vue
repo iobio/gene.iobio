@@ -293,11 +293,8 @@
         },
         watch: {
             data: function(oldData, newData) {
-
                 let bool = JSON.stringify(oldData) === JSON.stringify(newData);
-
                 if(!bool && newData) {
-                    console.log("oldData === newData and newData not null", bool);
                     this.update();
                 }
             },
