@@ -220,7 +220,10 @@ export default {
       },
       update: function() {
         var self = this;
-        if (self.data && self.data.length > 0 && self.data[0].length > 0) {
+
+        console.log("self.data in Depth-viz update", self.data);
+
+        if (self.data && self.data.length === 2000 && self.data[0].length > 0) {
           $(self.$el).removeClass("hide");
           self.depthChart.maxDepth(self.maxDepth);
           self.depthChart.xStart(self.regionStart);
@@ -232,9 +235,9 @@ export default {
 
 
         } else {
-          $(self.$el).addClass("hide");
-          var selection = d3.select(self.$el).datum( [[0,0]] );
-          self.depthChart(selection);
+          // $(self.$el).addClass("hide");
+          // var selection = d3.select(self.$el).datum( [[0,0]] );
+          // self.depthChart(selection);
         }
       },
       setDepthChart: function() {
