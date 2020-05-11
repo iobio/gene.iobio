@@ -90,7 +90,7 @@
     <app-icon v-if="clazz == 'level-unremarkable'" :class="clazz" width="18" height="18" icon="not-significant">
     </app-icon>
 
-    <div v-if="clazz === 'level-unremarkable'" style="padding-bottom: 2px; padding-left: 4px">
+    <div v-if="clazz === 'level-unremarkable'" style="padding-bottom: 0px; padding-left: 4px">
     <span class="variant-text">
       {{ capitalize(value) }} {{ label }}
       <a style="padding-left:4px" v-if="link" :href="link" :target="target">
