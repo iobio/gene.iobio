@@ -1663,7 +1663,6 @@ export default {
 
     onUploadFiles: function(){
       this.showFiles = true;
-      console.log("onUploadFiles");
     },
 
 
