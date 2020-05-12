@@ -43,7 +43,7 @@ i.material-icons.interpretation
   padding-top: 2px
   padding-bottom: 2px
   padding-left: 4px
-  padding-right: 0px
+  padding-right: 10px
   border-radius: 5px
   
   i.material-icons
