@@ -2533,7 +2533,6 @@ export default {
 
         ).set('labels', {ok:'Replace gene list', cancel:'Combine genes with current list'});
 
-
       } else {
         doIt();
       }
@@ -2896,8 +2895,7 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
-
-
+      
       if(flaggedVariant === null){
         this.selectedVariant = null;
         return;
