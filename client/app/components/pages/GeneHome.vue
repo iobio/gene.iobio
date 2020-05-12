@@ -507,7 +507,7 @@ main.content.clin, main.v-content.clin
         <div style="display:flex;align-items:stretch">
           <variant-inspect-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode"
+          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode && selectedVariant"
           :isSimpleMode="isSimpleMode"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
@@ -2895,6 +2895,11 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
+      
+      if(flaggedVariant === null){
+        this.selectedVariant = null;
+        return;
+      }
 
       this.hasVariantAssessment = this.hasVariantAssessmentCheck(flaggedVariant);
       this.showVariantAssessment = false;
