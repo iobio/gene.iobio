@@ -1115,11 +1115,6 @@ export default {
   },
 
   watch: {
-
-    selectedVariant: function(){
-      console.log("selected variant in watcher", this.selectedVariant);
-    },
-
     isLeftDrawerOpen: function() {
       let self = this;
       setTimeout(function() {
@@ -3905,7 +3900,6 @@ export default {
 
             self.toClickVariant = firstFlaggedVariant;
             self.showLeftPanelWhenFlaggedVariants();
-            console.log("selecting first flagged variant");
             self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
               resolve()
             })
