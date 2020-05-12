@@ -220,7 +220,8 @@ export default {
       },
       update: function() {
         var self = this;
-        if (self.data && self.data.length > 0 && self.data[0].length > 0) {
+
+        if (self.data && self.data.length > 1 && self.data[0].length > 0) {
           $(self.$el).removeClass("hide");
           self.depthChart.maxDepth(self.maxDepth);
           self.depthChart.xStart(self.regionStart);
@@ -228,12 +229,6 @@ export default {
           self.depthChart.width(self.width);
           self.depthChart.height(self.height);
           var selection = d3.select(self.$el).datum( self.data );
-          self.depthChart(selection);
-
-
-        } else {
-          $(self.$el).addClass("hide");
-          var selection = d3.select(self.$el).datum( [[0,0]] );
           self.depthChart(selection);
         }
       },

@@ -127,10 +127,11 @@
           margin-bottom: 0px
 
       .pheno-search-term
-        max-width: 90px
+        max-width: 100px
         display: inline-block
         vertical-align: top
         line-height: 14px
+        overflow-wrap: break-word
 
       #qual-track
         margin-top: 0px
