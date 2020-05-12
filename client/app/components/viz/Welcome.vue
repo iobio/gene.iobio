@@ -1060,7 +1060,6 @@ export default {
     },
     onUploadFiles: function(){
       this.$emit("upload-files");
-
   },
 
     onAppTour: function() {

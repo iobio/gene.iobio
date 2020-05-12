@@ -982,7 +982,6 @@ export default {
       siteConfig: null,
       showFiles: false,
 
-
       showCoverageCutoffs: false,
 
       clinIobioUrls: ["http://localhost:4030", "http://tony.iobio.io:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io", "http://dev.clin.iobio.io", "https://stage.clin.iobio.io"],
@@ -1664,7 +1663,6 @@ export default {
     onUploadFiles: function(){
       this.showFiles = true;
     },
-
 
     promiseLoadData: function() {
       let self = this;
