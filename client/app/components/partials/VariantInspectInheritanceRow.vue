@@ -87,12 +87,15 @@
     <v-icon v-if="selectedVariant.inheritance.indexOf('n/a') == -1" class="level-high">
       check_circle
     </v-icon>
-    <app-icon v-if="selectedVariant.inheritance.indexOf('n/a') >= 0" class="level-unremarkable" width="18" height="18" style="padding-right: 4px" icon="not-significant">
+
+    <app-icon v-if="selectedVariant.inheritance.indexOf('n/a') >= 0" class="level-unremarkable" width="18" height="18" icon="not-significant" style="padding-top: 1px">
     </app-icon>
 
     <app-icon v-if="selectedVariant.inheritance.indexOf('n/a') == -1" :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
-    
+
+    <div v-if="selectedVariant.inheritance.indexOf('n/a') >= 0"  style="padding-bottom: 1px; padding-left: 4px">
     <span style="width:100px;line-height:14px">{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
+    </div>
 
 
   </div>
@@ -132,7 +135,7 @@ export default {
 
 
   computed: {
-    
+
 
   },
 
