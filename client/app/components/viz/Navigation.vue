@@ -561,11 +561,7 @@ nav.toolbar, nav.v-toolbar
 
 
       <v-btn icon @click="onShowFiles" title="File Upload">
-        <v-icon>get_app</v-icon>
-      </v-btn>
-
-      <v-btn icon @click="onShowTermsOfService" title="Terms of Service">
-        <v-icon>policy</v-icon>
+        <v-icon>publish</v-icon>
       </v-btn>
 
       <v-menu>
