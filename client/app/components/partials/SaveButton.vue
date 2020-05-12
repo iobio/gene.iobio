@@ -5,6 +5,7 @@
     @click.prevent="toggleSaveModal"
   >
     <i class="material-icons analysis-save-button__icon">{{ iconName }}</i>
+    <span class="button-label">{{ buttonLabel }}</span>
   </a>
 </template>
 
@@ -16,11 +17,19 @@ export default {
     showingSaveModal: {
       type: Boolean,
       required: true,
-    }
+    },
+    analysis: null
   },
   computed: {
     iconName() {
-      return this.showingSaveModal ? 'keyboard_arrow_down' : 'launch';
+      return  (this.analysis && this.analysis.id) ? 'edit' : 'add';
+    },
+    buttonLabel() {
+      if (this.analysis && this.analysis.id) {
+        return "Mosaic Analysis";
+      } else{ 
+        return "Add to Mosaic";
+      }
     },
   },
   methods: {
@@ -34,13 +43,13 @@ export default {
 <style lang="scss" scoped>
 .analysis-save-button {
   position: fixed;
-    bottom: 50px;
-    right: 50px;
-  width: 70px;
-  height: 70px;
-  border-radius: 35px;
+    top: 13px;
+    right: 120px !important;
+  width: 150px;
+  height: 30px;
   z-index: 9;
-  background-image: linear-gradient(to right top, #0f56bb, #007dd4, #009cce, #00b7b2, #2bcd8f);
+  text-align: center;
+  background: #007dd4;
   box-shadow: 0 4px 5px 0 rgba(0, 0, 0, .14),
               0 1px 10px 0 rgba(0, 0, 0, .12),
               0 2px 4px -1px rgba(0, 0, 0, .2);
@@ -58,11 +67,16 @@ export default {
   }
 
   &__icon {
-    display: block;
-    width: 100%;
-    line-height: 70px;
-    text-align: center;
+    line-height: 30px;
     color: #fff;
+  }
+
+  i.material-icons {
+    font-size: 18px;
+  }
+
+  .button-label {
+    color: white;
   }
 }
 </style>
