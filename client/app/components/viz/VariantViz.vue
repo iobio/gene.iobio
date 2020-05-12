@@ -153,12 +153,14 @@ export default {
     },
     data() {
       return {
-        variantChart: {}
+        variantChart: {},
+        variants: null,
       }
     },
     created: function() {
     },
     mounted: function() {
+      this.variants = this.data;
       this.draw();
       this.update();
     },
@@ -203,15 +205,15 @@ export default {
       update: function() {
         var self = this;
 
-        if (self.data && self.data.features.length > 0) {
+        if (self.variants && self.data.features.length > 0) {
 
           // Set the vertical layer count so that the height of the chart can be recalculated
-          if (self.data.maxLevel == null) {
-            self.data.maxLevel = d3.max(self.data.features, function(d) { return d.level; });
+          if (self.variants.maxLevel == null) {
+            self.variants.maxLevel = d3.max(self.variants.features, function(d) { return d.level; });
           }
-          self.variantChart.verticalLayers(self.data.maxLevel);
-          self.variantChart.lowestWidth(self.data.featureWidth);
-          if ((self.data.features == null || self.data.features.length == 0) && !self.showWhenEmpty) {
+          self.variantChart.verticalLayers(self.variants.maxLevel);
+          self.variantChart.lowestWidth(self.variants.featureWidth);
+          if ((self.variants.features == null || self.variants.features.length == 0) && !self.showWhenEmpty) {
             self.variantChart.showXAxis(false);
           } else {
             self.variantChart.showXAxis(self.showXAxis);
@@ -223,7 +225,7 @@ export default {
           self.variantChart.width(self.width);
 
 
-          var selection = d3.select(self.$el).datum( [self.data] );
+          var selection = d3.select(self.$el).datum( [self.variants] );
           self.variantChart(selection);
         }
       },
@@ -269,17 +271,16 @@ export default {
       }
     },
     watch: {
-      data: function() {
-        this.update();
+      variants: function(){
+          this.update();
       },
-
 
       showFilter: function(){
           if(this.showFilter){
-              this.data = this.filteredVariants;
+              this.variants = this.filteredVariants;
           }
           else{
-              this.data = this.data;
+              this.variants = this.data;
           }
 
       },
@@ -287,7 +288,7 @@ export default {
       filteredVariants(){
           console.log("this.showFilter in filteredVariants watcher", this.showFilter);
           if(this.showFilter){
-            this.data = this.filteredVariants;
+            this.variants = this.filteredVariants;
           }
 
       }
