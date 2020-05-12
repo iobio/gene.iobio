@@ -87,16 +87,26 @@
     <v-icon v-if="clazz != 'level-unremarkable'" :class="clazz">
       check_circle
     </v-icon>
-    <app-icon v-if="clazz == 'level-unremarkable'" :class="clazz" width="18" height="18" style="padding-right: 4px" icon="not-significant">
+    <app-icon v-if="clazz == 'level-unremarkable'" :class="clazz" width="18" height="18" icon="not-significant">
     </app-icon>
 
+    <div v-if="clazz === 'level-unremarkable'" style="padding-bottom: 0px; padding-left: 4px">
     <span class="variant-text">
       {{ capitalize(value) }} {{ label }}
       <a style="padding-left:4px" v-if="link" :href="link" :target="target">
         <v-icon class="link-icon">open_in_new</v-icon>
       </a>
     </span>
-  </div>
+    </div>
+
+          <span class="variant-text" v-if="clazz !== 'level-unremarkable'">
+      {{ capitalize(value) }} {{ label }}
+      <a style="padding-left:4px" v-if="link" :href="link" :target="target">
+        <v-icon class="link-icon">open_in_new</v-icon>
+      </a>
+    </span>
+
+    </div>
 </template>
 
 

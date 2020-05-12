@@ -24,6 +24,15 @@
 #gene-associations-dialog-divider
   margin-top: 10px !important
   margin-bottom: 5px !important
+  
+.phenotype-search-term
+  max-width: 200px
+  display: inline-block
+  vertical-align: top
+  line-height: 14px
+  padding-top: 5px  
+  overflow-wrap: normal  
+  
 </style>
 
 <template>
@@ -55,7 +64,7 @@
                         <v-chip class="high_gene_rank mr-1">
                           #{{ term.geneRanks[0].rank}}
                         </v-chip> 
-                        {{ term.searchTerm | to-firstCharacterUppercase }}
+                        <span class="phenotype-search-term">{{ term.searchTerm | to-firstCharacterUppercase }}</span>
                       </td>
                     </tr>
                   </tbody>
@@ -76,7 +85,7 @@
                         <v-chip class="high_gene_rank mr-1">
                           #{{ term.geneRanks[0].rank}}
                         </v-chip> 
-                        {{ term.searchTerm | to-firstCharacterUppercase }}
+                        <span class="phenotype-search-term">{{ term.searchTerm | to-firstCharacterUppercase }}</span>
                       </td>
                     </tr>
                   </tbody>

@@ -16,15 +16,16 @@
 
 
 .v-snack--right
-  margin-right: 55px !important
   top: 2px !important
   transform: initial !important
 
+
   .v-snack__wrapper
     min-width: 150px !important
-    background-color: #007dd4 !important
+    background-color: #00000080 !important
     box-shadow: none !important
     -webkit-box-shadow: none !important
+    margin-right: auto
 
     .v-snack__content
       min-height: 30px !important
@@ -249,6 +250,7 @@ main.content.clin, main.v-content.clin
       :toClickVariant="toClickVariant"
       :variantSetCounts="variantSetCounts"
       :badgeCounts="badgeCounts"
+      :showFilesProp="showFiles"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -273,6 +275,7 @@ main.content.clin, main.v-content.clin
       @call-variants="callVariants"
       @filter-settings-applied="onFilterSettingsApplied"
       @isDemo="onIsDemo"
+      @show-save-analysis="toggleSaveModal(true)"
     >
     </navigation>
 
@@ -509,7 +512,7 @@ main.content.clin, main.v-content.clin
         <div style="display:flex;align-items:stretch">
           <variant-inspect-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode"
+          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode && selectedVariant"
           :isSimpleMode="isSimpleMode"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"
@@ -566,6 +569,7 @@ main.content.clin, main.v-content.clin
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
          @load-demo-data="onLoadDemoData"
+         @upload-files="onUploadFiles"
          @take-app-tour="onTakeAppTour"
          >
         </welcome>
@@ -682,8 +686,9 @@ main.content.clin, main.v-content.clin
     ></app-tour>
 
     <save-button
-      v-if="launchedFromHub && !launchedFromSFARI"
+      v-if="launchedFromHub && !launchedFromSFARI && cohortModel && cohortModel.isLoaded"
       :showing-save-modal="showSaveModal"
+      :analysis="analysis"
       @save-modal:set-visibility="toggleSaveModal"
     />
     <save-analysis-popup
@@ -981,6 +986,7 @@ export default {
       phenotypeTerm: null,
 
       siteConfig: null,
+      showFiles: false,
 
       showCoverageCutoffs: false,
 
@@ -1660,6 +1666,9 @@ export default {
       })
     },
 
+    onUploadFiles: function(){
+      this.showFiles = true;
+    },
 
     promiseLoadData: function() {
       let self = this;
@@ -2825,6 +2834,7 @@ export default {
 
       if (self.persistAnalysis()) {
         self.promiseDeleteAnalysisVariants([variant]);
+        self.promiseAutosaveAnalysis();
       }
 
 
@@ -2901,6 +2911,11 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
+      
+      if(flaggedVariant === null){
+        this.selectedVariant = null;
+        return;
+      }
 
       this.hasVariantAssessment = this.hasVariantAssessmentCheck(flaggedVariant);
       this.showVariantAssessment = false;
@@ -4132,7 +4147,7 @@ export default {
           .then(function(analysis) {
             self.analysis = analysis;
             console.log("**********  adding mosaic analysis " + self.analysis.id + " " + " **************")
-            self.onShowSnackbar( {message: 'new analysis saved.', timeout: 30000, bottom: true, right: true});
+            self.onShowSnackbar( {message: 'new analysis saved.', timeout: 3000, bottom: true, right: true});
             resolve();
           })
           .catch(function(error) {
