@@ -160,6 +160,8 @@ nav.toolbar, nav.v-toolbar
 
   #more-menu-button
     padding: 0px
+    min-width: 40px
+    margin-right: 10px
 
   #coverage-settings-button
     font-size: 16px
@@ -208,7 +210,6 @@ nav.toolbar, nav.v-toolbar
 
   #phenolyzer-search
     margin-left: 5px
-    margin-right: 60px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
     margin-top: 8px
@@ -554,7 +555,7 @@ nav.toolbar, nav.v-toolbar
          @hide-snackbar="onHideSnackbar">
         </phenotype-search>
 
-        <v-spacer></v-spacer>
+        <v-spacer style="min-width:80px"></v-spacer>
 
       </v-toolbar-items>
 
