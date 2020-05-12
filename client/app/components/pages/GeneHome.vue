@@ -249,6 +249,7 @@ main.content.clin, main.v-content.clin
       :toClickVariant="toClickVariant"
       :variantSetCounts="variantSetCounts"
       :badgeCounts="badgeCounts"
+      :showFilesProp="showFiles"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -564,6 +565,7 @@ main.content.clin, main.v-content.clin
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
          @load-demo-data="onLoadDemoData"
+         @upload-files="onUploadFiles"
          @take-app-tour="onTakeAppTour"
          >
         </welcome>
@@ -978,6 +980,7 @@ export default {
       phenotypeTerm: null,
 
       siteConfig: null,
+      showFiles: false,
 
       showCoverageCutoffs: false,
 
@@ -1657,6 +1660,9 @@ export default {
       })
     },
 
+    onUploadFiles: function(){
+      this.showFiles = true;
+    },
 
     promiseLoadData: function() {
       let self = this;
