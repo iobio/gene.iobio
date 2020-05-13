@@ -561,7 +561,7 @@ nav.toolbar, nav.v-toolbar
 
 
       <v-btn icon @click="onShowFiles" title="File Upload">
-        <v-icon>fas fa-upload</v-icon>
+        <v-icon>publish</v-icon>
       </v-btn>
 
       <v-menu>
