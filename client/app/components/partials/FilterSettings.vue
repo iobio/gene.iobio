@@ -351,8 +351,6 @@ export default {
       this.minGenotypeDepth          = flagCriteria.minGenotypeDepth;
       this.minGenotypeAltCount       = flagCriteria.minGenotypeAltCount;
 
-
-
       this.$nextTick(function() {
         self.isDirty = false;
       })
@@ -375,6 +373,7 @@ export default {
       flagCriteria.key = this.key;
       flagCriteria.maxAf            = this.maxAf ? this.maxAf / 100 : null;
       flagCriteria.minRevel         = this.minRevel;
+      flagCriteria.clinvar =          this.selectedClinvarCategories;
       flagCriteria.impact           = this.selectedImpacts;
       flagCriteria.consequence      = this.selectedConsequences;
       flagCriteria.inheritance      = this.selectedInheritanceModes;
