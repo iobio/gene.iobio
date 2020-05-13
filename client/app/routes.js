@@ -44,6 +44,8 @@ Vue.use(vmodal)
 import Util                 from './globals/Util.js'
 import GlobalApp            from './globals/GlobalApp.js'
 
+require('../../node_modules/@fortawesome/fontawesome-free/css/all.css')
+
 Vue.use(VueRouter);
 
 const routes = [
