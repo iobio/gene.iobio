@@ -535,7 +535,7 @@ $light-gray-color:   #f0f1f3
                 </v-btn>
                 <v-btn class="welcome-button"  id="uploadData"  @click="onUploadFiles">
                   <i class="material-icons">publish</i>
-                  UPLOAD DATA
+                  LOAD YOUR DATA
                 </v-btn>
                 <v-btn  class="welcome-button"  @click="playVideo('screencast-intro')">
                   <i class="material-icons">play_circle_filled_white</i>
