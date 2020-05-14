@@ -451,6 +451,7 @@
                 :filterModel="sampleModel.cohort.filterModel"
                 :geneLists="geneLists"
                 :selectedGene="selectedGene"
+                :selected-variant="selectedVariant"
                 @filtered-variants-update="onFilteredVariantsUpdate"
                 @show-filter="onShowFilter"
 
@@ -511,6 +512,7 @@
             (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"
           :filtered-variants="filteredVariants"
+          :selected-variant="selectedVariant"
           :model="sampleModel"
           :showFilter="showFilter"
           :regionStart="regionStart"
@@ -734,7 +736,6 @@ export default {
     showVariantViz: true,
     showGeneViz: true,
     showDepthViz: true,
-    showFilter: false,
     geneVizShowXAxis: null,
 
     featureMatrixModel: null,
@@ -808,7 +809,9 @@ export default {
       showRankedVariantsMenu: false,
       filteredVariants: null,
 
-      pileupStyle: {}
+      pileupStyle: {},
+      showFilter: false,
+
 
 
     }

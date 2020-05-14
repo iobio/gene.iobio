@@ -44,6 +44,8 @@
             filterModel: null,
             geneLists: null,
             selectedGene: null,
+            selectedVariant: null,
+
         },
         data() {
             return {
@@ -81,6 +83,11 @@
 
             },
             selectedGene: function(){
+                this.setFilteredGeneList();
+                this.setFilteredVariants();
+                this.setFilteredLoadedVariants();
+            },
+            selectedVariant: function(){
                 this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();

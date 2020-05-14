@@ -149,6 +149,7 @@ export default {
       classifySymbolFunc: null,
       filteredVariants: null,
       showFilter: false,
+        selectedVariant: null,
 
     },
     data() {
@@ -275,6 +276,15 @@ export default {
           this.update();
       },
 
+        selectedVariant: function(){
+            if(this.showFilter){
+                this.variants = this.filteredVariants;
+            }
+            else{
+                this.variants = this.data;
+            }
+        },
+
       showFilter: function(){
           if(this.showFilter){
               this.variants = this.filteredVariants;
@@ -286,9 +296,13 @@ export default {
       },
 
       filteredVariants(){
-          console.log("this.showFilter in filteredVariants watcher", this.showFilter);
+          console.log("change in filtered variants");
+          console.log("this.showFilter", this.showFilter);
           if(this.showFilter){
             this.variants = this.filteredVariants;
+          }
+          else{
+              this.variants = this.data;
           }
 
       }
