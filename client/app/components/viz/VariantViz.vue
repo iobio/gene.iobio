@@ -296,8 +296,8 @@ export default {
       },
 
       filteredVariants(){
-          console.log("change in filtered variants");
-          console.log("this.showFilter", this.showFilter);
+          console.log("change in filtered variants", this.filteredVariants);
+          // console.log("this.showFilter", this.showFilter);
           if(this.showFilter){
             this.variants = this.filteredVariants;
           }

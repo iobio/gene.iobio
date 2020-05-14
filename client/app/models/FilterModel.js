@@ -818,6 +818,13 @@ class FilterModel {
         }
       }
 
+      var filtersPassedAll = [];
+      for (var filterName in self.flagCriteria) {
+        if (badgePassState[filterName]) {
+          filtersPassedAll.push(filterName);
+        }
+      }
+
       // If a badge is exclusive of passing other criteria, fail the badge
       // if the other badges passed the criteria for the filter
       // Example:  high is exclusive of the clinvar badge.
@@ -845,25 +852,13 @@ class FilterModel {
       if (badgePassState[filterName]) {
           filtersPassed.push(filterName);
           badges[filterName].push(variant);
-        // if(filterName === "undefined"){
-        //   if(variant.filtersPassed && variant.filtersPassed.length !== 1){
-        //     filtersPassed.push(filterName);
-        //     badges[filterName].push(variant);
-        //   }
-        //   else{
-        //
-        //   }
-        // }
-        // else {
-        //   filtersPassed.push(filterName);
-        //   badges[filterName].push(variant);
-        // }
       }
     }
     if (filtersPassed.length > 0) {
       variant.isFlagged = true;
       variant.featureClass = 'flagged';
       variant.filtersPassed = filtersPassed;
+      variant.filtersPassedAll = filtersPassedAll;
     } else if (variant.isImported) {
       variant.isFlagged = true;
       variant.isUserFlagged = false;

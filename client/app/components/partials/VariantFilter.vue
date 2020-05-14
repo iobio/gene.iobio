@@ -1,8 +1,12 @@
 <style lang="sass">
 
     #filterSelect
-        width: 400px
+        width: 800px
         display: inline-flex
+
+    #dropdownWrapper
+        width: 250px
+
 
 </style>
 
@@ -12,20 +16,24 @@
 
 
         <div id="filterSelect">
+            <div id="dropdownWrapper">
     <v-select  outlined
                multiple
                chips
-               :width="200"
+               deletable-chips
+               dense
                :items="filters"
                item-text='title'
                item-value='name'
                v-model="selectedFilters">
 
     </v-select>
+            </div>
 
             <v-switch
                       label="filter variant-viz"
                       v-model="showFilter"
+                      dense
             >
             </v-switch>
 
@@ -77,6 +85,7 @@
                 this.flagCriteria = this.filterModel.flagCriteria;
             },
             selectedFilters: function(){
+                console.log("selectedFilters in watcher", this.selectedFilters);
                 this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
@@ -97,8 +106,6 @@
         mounted() {
             this.flagCriteria = this.filterModel.flagCriteria;
 
-            console.log("this.variants on mounted", this.variants);
-
             this.filters = [];
             this.selectedFilters = [];
 
@@ -118,24 +125,77 @@
                         }
                     }
                 }
+                // console.log("filtered geneLIst after filter", this.filteredGeneList);
             },
-            setFilteredVariants(){
-                this.filteredVariants = [];
-                for(let i = 0; i < this.filteredGeneList.length; i++){
-                    let filter = this.filteredGeneList[i];
-                    for(let j = 0; j < filter.genes.length; j++){
-                        let gene = filter.genes[j]
-                        if(gene.gene.name === this.selectedGene.name){
-                           for(let k = 0; k < gene.variants.length; k++){
-                               this.filteredVariants.push(gene.variants[k]);
-                           }
+
+            passesFilters: function(variant){
+                let filtersPassed = variant.filtersPassedAll;
+
+                let bool = true;
+
+                for(let i = 0; i < this.selectedFilters.length; i++){
+                    if(this.selectedFilters[i] === "reviewed"){
+                        bool = false;
+
+
+                        let reviewed = this.geneLists.filter(function(item){
+                            return item.name === "reviewed";
+                        })[0];
+
+                        console.log("reviewed", reviewed);
+
+                        for(let r = 0; r < reviewed.genes.length; r++){
+                            let gene = reviewed.genes[r];
+                            console.log("gene.variants.length", gene.variants.length);
+                            for(let j = 0; j < gene.variants.length; j++){
+                                let v = gene.variants[j];
+                                let fv = variant;
+                                console.log("found variant in reviewed geneList");
+
+                                if(fv.start === v.start && fv.end === v.end && fv.alt===v.alt && fv.ref === v.ref){
+                                    bool = true;
+                                    console.log("review passed");
+                                }
+                            }
+
+                        }
+                    }
+                    else {
+                        if (!filtersPassed.includes(this.selectedFilters[i])) {
+                            bool = false;
                         }
                     }
                 }
 
+                // console.log("filtersPassed", filtersPassed);
+                // console.log("selectedFilters", this.selectedFilters);
+              return bool;
+
+            },
+            setFilteredVariants(){
+                this.filteredVariants = [];
+
+
+                for(let i = 0; i < this.geneLists.length; i++){
+                    let filter = this.geneLists[i];
+
+                    for(let j = 0; j < filter.genes.length; j++){
+                        let gene = filter.genes[j]
+                        if(gene.gene.name === this.selectedGene.name){
+                           for(let k = 0; k < gene.variants.length; k++){
+                               let variant = gene.variants[k];
+                               if(this.passesFilters(variant)){
+                                   this.filteredVariants.push(variant);
+                               }
+                           }
+                        }
+                    }
+                }
             },
 
             setFilteredLoadedVariants: function(){
+
+                // console.log("this.filteredVariants", this.filteredVariants)
 
                 let copyVariants = Object.assign({}, this.variants);
                 let features = [];
@@ -144,14 +204,17 @@
                         let fv = this.filteredVariants[i];
                         let v = this.variants.features[j];
                         if(fv.start === v.start && fv.end === v.end && fv.alt===v.alt && fv.ref === v.ref){
-                            console.log("variants match");
+                            // console.log("variants match");
                             features.push(v);
                         }
                     }
                 }
+
+                console.log("features", features);
+
                 copyVariants.features = features;
-                if(features.length > 0){
-                        console.log("copyVariants");
+                if(this.selectedFilters.length > 0){
+                        // console.log("copyVariants to emit", copyVariants);
                         this.$emit("filtered-variants-update", copyVariants);
                 }
             },
