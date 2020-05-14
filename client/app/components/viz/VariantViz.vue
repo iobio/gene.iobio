@@ -292,12 +292,9 @@ export default {
           else{
               this.variants = this.data;
           }
-
       },
 
       filteredVariants(){
-          console.log("change in filtered variants", this.filteredVariants);
-          // console.log("this.showFilter", this.showFilter);
           if(this.showFilter){
             this.variants = this.filteredVariants;
           }

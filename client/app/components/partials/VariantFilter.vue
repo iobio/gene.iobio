@@ -137,12 +137,9 @@
                     if(this.selectedFilters[i] === "reviewed"){
                         bool = false;
 
-
                         let reviewed = this.geneLists.filter(function(item){
                             return item.name === "reviewed";
                         })[0];
-
-                        console.log("reviewed", reviewed);
 
                         for(let r = 0; r < reviewed.genes.length; r++){
                             let gene = reviewed.genes[r];
@@ -150,7 +147,6 @@
                             for(let j = 0; j < gene.variants.length; j++){
                                 let v = gene.variants[j];
                                 let fv = variant;
-                                console.log("found variant in reviewed geneList");
 
                                 if(fv.start === v.start && fv.end === v.end && fv.alt===v.alt && fv.ref === v.ref){
                                     bool = true;
@@ -166,9 +162,6 @@
                         }
                     }
                 }
-
-                // console.log("filtersPassed", filtersPassed);
-                // console.log("selectedFilters", this.selectedFilters);
               return bool;
 
             },
@@ -194,9 +187,6 @@
             },
 
             setFilteredLoadedVariants: function(){
-
-                // console.log("this.filteredVariants", this.filteredVariants)
-
                 let copyVariants = Object.assign({}, this.variants);
                 let features = [];
                 for(let i = 0; i < this.filteredVariants.length; i++){
@@ -204,17 +194,12 @@
                         let fv = this.filteredVariants[i];
                         let v = this.variants.features[j];
                         if(fv.start === v.start && fv.end === v.end && fv.alt===v.alt && fv.ref === v.ref){
-                            // console.log("variants match");
                             features.push(v);
                         }
                     }
                 }
-
-                console.log("features", features);
-
                 copyVariants.features = features;
                 if(this.selectedFilters.length > 0){
-                        // console.log("copyVariants to emit", copyVariants);
                         this.$emit("filtered-variants-update", copyVariants);
                 }
             },
