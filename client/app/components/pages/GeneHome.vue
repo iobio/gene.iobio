@@ -1121,7 +1121,6 @@ export default {
   },
 
   watch: {
-
     isLeftDrawerOpen: function() {
       let self = this;
       setTimeout(function() {
@@ -2995,7 +2994,7 @@ export default {
                 self.$set(self, "selectedVariantKey", self.getVariantKey(flaggedVariant));
                 self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
                 self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
-                self.showVariantAssessment = false
+                self.showVariantAssessment = false;
 
                 self.showVariantExtraAnnots('proband', self.selectedVariant);
 

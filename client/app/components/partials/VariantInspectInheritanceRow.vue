@@ -93,7 +93,6 @@
 
     <app-icon v-if="selectedVariant.inheritance.indexOf('n/a') == -1" :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
 
-    <!--v-if="selectedVariant.inheritance.indexOf('n/a') >= 0"-->
     <div  style="padding-bottom: 1px; padding-left: 4px">
     <span style="width:100px;line-height:14px">{{ selectedVariant.inheritance == 'denovo' ? 'de novo' : selectedVariant.inheritance }}</span>
     </div>
