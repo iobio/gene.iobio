@@ -1608,6 +1608,16 @@ export default {
   },
 
   mounted: function() {
+      let self = this;
+      if(this.selectedVariant){
+          this.$nextTick(function() {
+              this.loadData();
+
+              if (self.selectedVariantRelationship === "known-variants") {
+                  self.annotateClinVarVariant(self.selectedVariant);
+              }
+          })
+      }
 
   },
 
