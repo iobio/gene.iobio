@@ -2,6 +2,14 @@
 @import ../../../assets/sass/variables
 
 
+.v-select__selections
+  max-height: 100px
+  overflow-y: scroll
+
+.in-iframe .v-dialog--persistent
+  position: sticky !important
+  top: 10px !important
+  max-height: 480px !important
 
 #flagged-variants-card
   padding-left: 5px
@@ -41,9 +49,8 @@
       margin-right: 0px
 
     .chip__content, .v-chip__content
-      padding: 0 0px
-      height: 15px
-      width: 34px
+      padding: 8px
+      height: 18px
       justify-content: center
       font-size:  11px
       background-color:  $high-impact-color
@@ -453,10 +460,10 @@
 
     <div class="variant-toolbar" >
 
-      <!--<v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>-->
-        <!--<v-icon>add</v-icon>-->
-        <!--New filter-->
-      <!--</v-btn>-->
+      <v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>
+        <v-icon>add</v-icon>
+        New filter
+      </v-btn>
 
       <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
@@ -494,7 +501,7 @@
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
-              <v-icon>info_outline</v-icon>
+              <v-icon>create</v-icon>
             </v-btn>
 
             <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
@@ -539,19 +546,24 @@
 
 
                     <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
-
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankGTR(flaggedGene.gene.gene_name) }}
+                        <v-chip class="white--text mr-2"
+                          v-tooltip.top-center="`Cumulative rank for all selected conditions`">
+                            {{ geneRankGTR(flaggedGene.gene.gene_name) }}  GTR
                         </v-chip>
-                        <span class="pheno-source">GTR</span>
                       </span>
                       <span v-show="geneRankPhenolyzer(flaggedGene.gene.gene_name) != ''">
-                        <v-chip class="white--text" >
-                          {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}
+                        <v-chip class="white--text mr-2"
+                          v-tooltip.top-center="`Cumulative rank for all selected phenotypes`">
+                            {{ geneRankPhenolyzer(flaggedGene.gene.gene_name) }}  Phen.
                         </v-chip>
-                        <span class="pheno-source">Phenolyzer</span>
                       </span>
+                      <span v-show="geneRankHPO(flaggedGene.gene.gene_name) != ''">
+                        <v-chip class="white--text mr-2" >
+                          HPO
+                        </v-chip>
+                      </span>
+
                     </div>
 
                     <div class="variant-symbols">
@@ -636,9 +648,6 @@
 
                     <span v-if="variant.notFound && isFullAnalysis"
                       class="coord"> {{ coord(flaggedGene, variant) }} </span>
-                    </span>
-
-
                   </div>
 
 
@@ -686,9 +695,9 @@
   <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
 
 
-      <v-card v-if="currentFilter" class="full-width" style="padding:10px"  >
+      <v-card v-if="currentFilter" class="full-width" style="padding:10px">
         <v-card-title style="margin-left:20px" class="headline">
-          {{ currentFilter.title }}  Filter
+          Edit {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>
           <v-btn text icon @click="onCancelFilter"><v-icon>close</v-icon></v-btn>
         </v-card-title>
@@ -703,10 +712,6 @@
         </filter-settings>
 
       </v-card>
-
-
-
-
   </v-dialog>
 </div>
 
@@ -771,12 +776,13 @@ export default {
     deselectVariant: function() {
       this.clickedVariant = null;
     },
-    populateGeneLists: function() {
+    populateGeneLists: function(variant) {
       let self = this;
       self.geneLists = [];
       self.variantCount = 0;
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters);
+
+      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant);
       self.geneLists = filters.map(function(filterObject, idx) {
         self.variantCount += filterObject.variantCount;
         filterObject.filter.key = filterObject.key;
@@ -795,6 +801,9 @@ export default {
           expand: true
         }
       })
+
+      self.flattenGenesList();
+
       self.$emit("count-changed", self.variantCount);
 
       self.expansionControl =  self.geneLists.map(function(geneList) {
@@ -808,6 +817,79 @@ export default {
       this.$emit("apply-variant-interpretation", variant);
     },
 
+
+    flattenGenesList(){
+      let self = this;
+      let geneLists = [];
+      let reviewed = Object.assign({}, self.geneLists[0]);
+
+      if(reviewed.name === "reviewed") {
+        let genes = reviewed.genes;
+        let flattenedGenes = [];
+
+        for (let i = 0; i < genes.length; i++) {
+
+          let geneCopy = Object.assign({}, genes[i]);
+
+          for(let i = 0; i < geneCopy.variants.length; i++){
+            let copiedGene = Object.assign({},geneCopy);
+            copiedGene.variants = [];
+            copiedGene.variants.push(geneCopy.variants[i]);
+            flattenedGenes.push(copiedGene);
+          }
+        }
+        flattenedGenes = this.sortFlattenedGenes(flattenedGenes);
+        this.geneLists[0].genes = flattenedGenes;
+      }
+
+    },
+
+    sortFlattenedGenes: function(flattenedGenes){
+      let sig = [];
+      let unsig = [];
+      let unknownSig = [];
+      let poorQual = [];
+      let sortedGenes = [];
+
+      let ordinalFilter = 1;
+
+      for(let i = 0; i < flattenedGenes.length; i++){
+        let variant = Object.assign({}, flattenedGenes[i].variants[0]);
+        if(variant.interpretation === "sig"){
+          sig.push(flattenedGenes[i]);
+        }
+        else if(variant.interpretation === "unknown-sig"){
+          unknownSig.push(flattenedGenes[i]);
+        }
+        else if(variant.interpretation === "not-sig"){
+          unsig.push(flattenedGenes[i]);
+        }
+        else if(variant.interpretation === "poor-qual"){
+          poorQual.push(flattenedGenes[i]);
+        }
+      }
+      for(let i = 0; i < sig.length; i++){
+        sig[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(sig[i]);
+        ordinalFilter++;
+      }
+      for(let i = 0; i < unknownSig.length; i++){
+        unknownSig[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(unknownSig[i]);
+        ordinalFilter++;
+      }
+      for(let i = 0; i < unsig.length; i++){
+        unsig[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(unsig[i]);
+        ordinalFilter++;
+      }
+      for(let i = 0; i < poorQual.length; i++){
+        poorQual[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(poorQual[i]);
+        ordinalFilter++;
+      }
+      return sortedGenes;
+    },
 
     onEditFilter: function(geneList) {
       let self = this;
@@ -841,12 +923,18 @@ export default {
     },
     onNewFilter: function() {
       let self = this;
+
+      self.geneLists = self.geneLists.filter(function(geneList){
+        return geneList.filter.key !== "undefined"
+      });
+
       let nonCustomCount = self.geneLists.filter(function(geneList) {
         return !geneList.filter.custom;
       }).length;
 
+
       let newFilter = {
-          name: 'custom-filter-' + (self.geneLists.length - nonCustomCount),
+          name: 'Custom-Filter-' + (self.geneLists.length - nonCustomCount),
           display: 'custom',
           active: true,
           custom: true,
@@ -879,8 +967,8 @@ export default {
       flagCriteria.inheritance = null;
       flagCriteria.zygosity = null;
       flagCriteria.genotypeDepth = null;
+      flagCriteria.exclusiveOf = ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked', 'high'];
       self.cohortModel.filterModel.flagCriteria[newFilter.name] = flagCriteria;
-
 
       self.geneLists.push(newGeneList);
       self.onEditFilter(newGeneList);
@@ -1028,6 +1116,16 @@ export default {
       if (rankInfo) {
         if (rankInfo.phenolyzerRank) {
           buf += "#" + rankInfo.phenolyzerRank;
+        }
+      }
+      return buf;
+    },
+    geneRankHPO: function(geneName) {
+      let rankInfo = this.cohortModel.geneModel.getGeneRank(geneName);
+      let buf = "";
+      if (rankInfo) {
+        if (rankInfo.hpoRank) {
+          buf += "#" + rankInfo.hpoRank;
         }
       }
       return buf;

@@ -82,7 +82,7 @@ $light-gray-color:   #f0f1f3
       padding-right: 30px
       width: 100%
     &.how-it-works
-  
+
       flex-grow: 2
       //background: linear-gradient(262deg, rgba(43,70,101,1) 23%, rgba(61,99,142,1) 73%, rgba(73,132,170,1) 95%, rgba(52,80,96,1) 100%)
       //background: linear-gradient(304deg, rgba(43,70,101,1) 14%, rgba(61,99,142,1) 68%, rgba(94,141,184,1) 85%)
@@ -225,7 +225,7 @@ $light-gray-color:   #f0f1f3
   clear: both
   display: flex
   flex-direction: row
-  
+
   flex-wrap: wrap
   padding: 30px
   padding-top: 10px
@@ -533,6 +533,10 @@ $light-gray-color:   #f0f1f3
                   <i class="material-icons">explore</i>
                   RUN WITH DEMO DATA
                 </v-btn>
+                <v-btn class="welcome-button"  id="uploadData"  @click="onUploadFiles">
+                  <i class="material-icons">publish</i>
+                  LOAD YOUR DATA
+                </v-btn>
                 <v-btn  class="welcome-button"  @click="playVideo('screencast-intro')">
                   <i class="material-icons">play_circle_filled_white</i>
                   WATCH THE VIDEO
@@ -581,7 +585,7 @@ $light-gray-color:   #f0f1f3
               <v-icon>filter</v-icon>
             </v-avatar>
             <span class="how-it-works-title">Click on a gene and visualize the variants, colored by impact.  See coverage levels across the gene.</span>
-            
+
           </div>
 
 
@@ -611,7 +615,7 @@ $light-gray-color:   #f0f1f3
             <v-icon class="color4">check_circle</v-icon>
             <span class="features-title">Examine variants along with coverage.</span>
             <div class="features-image">
-              <img  src="../../../assets/images/landing_page/variant_card_cropped.png" style="width:100%"></img>            
+              <img  src="../../../assets/images/landing_page/variant_card_cropped.png" style="width:100%"></img>
             </div>
           </div>
 
@@ -619,7 +623,7 @@ $light-gray-color:   #f0f1f3
             <v-icon class="color4">check_circle</v-icon>
             <span class="features-title">Inspect the variant of interest, guided by key indicators of quality, pathogenicity, inheritance, and conservation</span>
             <div class="features-image">
-              <img  src="../../../assets/images/landing_page/genev4_variant_inspect.png" style="width:100%;min-width:700px"></img>            
+              <img  src="../../../assets/images/landing_page/genev4_variant_inspect.png" style="width:100%;min-width:700px"></img>
             </div>
           </div>
 
@@ -1054,6 +1058,9 @@ export default {
     onLoadDemoData: function() {
       this.$emit("load-demo-data");
     },
+    onUploadFiles: function(){
+      this.$emit("upload-files");
+  },
 
     onAppTour: function() {
       this.$emit("take-app-tour");

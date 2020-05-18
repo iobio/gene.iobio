@@ -21,7 +21,7 @@ i.material-icons.interpretation
   padding-right: 3px
   font-size: 13px
   color: white
-  width: 175px
+  width: 185px
   margin-bottom: 3px
   padding-top: 2px
   padding-bottom: 1px

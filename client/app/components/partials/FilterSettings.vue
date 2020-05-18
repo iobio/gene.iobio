@@ -110,7 +110,7 @@
 
 
       <v-flex id="name" xs12 class="mb-4" >
-        <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details :disabled="true">
+        <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
         </v-text-field>
       </v-flex>
 
@@ -118,7 +118,6 @@
 
       <v-flex xs12 >
         <v-select
-              :disabled="true"
               label="Inheritance"
               v-bind:items="inheritanceModes"
               v-model="selectedInheritanceModes"
@@ -130,7 +129,6 @@
 
       <v-flex xs12 >
         <v-select
-              :disabled="true"
               label="Zygosity"
               v-bind:items="zygosities"
               v-model="selectedZygosity"
@@ -144,14 +142,13 @@
 
 
       <v-flex id="max-af" xs4  class="mt-5 mb-5 mr-4" >
-        <v-text-field :disabled="true" label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
+        <v-text-field label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
         </v-text-field>
       </v-flex>
 
 
       <v-flex xs12  >
         <v-select
-              :disabled="true"
               label="ClinVar clinical significance"
               v-bind:items="clinvarCategories"
               v-model="selectedClinvarCategories"
@@ -166,7 +163,6 @@
 
       <v-flex xs12 >
         <v-select
-              :disabled="true"
               label="Impact"
               v-bind:items="impacts"
               v-model="selectedImpacts"
@@ -178,7 +174,6 @@
 
       <v-flex xs12  >
         <v-autocomplete
-              :disabled="true"
               label="Consequence"
               v-bind:items="consequences"
               v-model="selectedConsequences"
@@ -197,7 +192,7 @@
             </div>
 
 
-            <v-text-field :disabled="true" :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
+            <v-text-field :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
             </v-text-field>
 
       </v-flex>
@@ -206,21 +201,27 @@
 
 
       <v-flex  id="min-genotype-depth" xs3 class="mt-3 mb-4 mr-4" >
-        <v-text-field :disabled="true" label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
+        <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
         </v-text-field>
       </v-flex>
 
       <v-flex  id="min-genotype-alt-count" xs4 class="mt-3 mb-4 mr-4" >
-        <v-text-field :disabled="true" label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
+        <v-text-field label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
         </v-text-field>
       </v-flex>
 
 
-      <v-flex style="display:flex" xs12 class="mt-1 mb-1" v-show="false">
+      <v-flex style="display:flex" xs12 class="mt-1 mb-1" >
         <v-spacer></v-spacer>
-        <v-btn :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
+        <v-btn :disabled="!isDirty || !isValidFilter" :class="{'disabled': !isDirty || !isValidFilter, 'filter-action-button': true}" @click="apply">
           Apply
         </v-btn>
+
+        <v-btn class="filter-action-button cancel-button" @click="onCancel">
+        Cancel
+        </v-btn>
+
+
       </v-flex>
     </v-layout>
 
@@ -320,6 +321,7 @@ export default {
     init: function() {
       let self = this;
 
+
       let flagCriteria = this.filterModel.flagCriteria[this.filter.key];
       if (flagCriteria == null) {
         flagCriteria = {};
@@ -338,7 +340,7 @@ export default {
         this.filterModel.flagCriteria[this.filter.key] = flagCriteria;
       }
       this.name                      = flagCriteria.name;
-      this.key                       = flagCriteria.key;
+      this.key                       = flagCriteria.key + flagCriteria.name;
       this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
       this.minRevel                  = flagCriteria.minRevel;
       this.selectedClinvarCategories = flagCriteria.clinvar;
@@ -356,15 +358,22 @@ export default {
 
     },
     apply: function() {
-      let flagCriteria = this.filterModel.flagCriteria[this.filter.key];
+
+      let flagCriteria = this.filterModel.flagCriteria[this.filter.name];
+
+      if(this.filter.key){
+        flagCriteria = this.filterModel.flagCriteria[this.filter.key];
+      }
 
       flagCriteria.name             = this.name;
       if (flagCriteria.custom) {
         flagCriteria.title = this.name;
       }
+
+      flagCriteria.key = this.key;
       flagCriteria.maxAf            = this.maxAf ? this.maxAf / 100 : null;
       flagCriteria.minRevel         = this.minRevel;
-      flagCriteria.clinvar          = this.selectedClinvarCategories;
+      flagCriteria.clinvar =          this.selectedClinvarCategories;
       flagCriteria.impact           = this.selectedImpacts;
       flagCriteria.consequence      = this.selectedConsequences;
       flagCriteria.inheritance      = this.selectedInheritanceModes;

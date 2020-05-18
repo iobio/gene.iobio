@@ -160,6 +160,8 @@ nav.toolbar, nav.v-toolbar
 
   #more-menu-button
     padding: 0px
+    min-width: 40px
+    margin-right: 10px
 
   #coverage-settings-button
     font-size: 16px
@@ -208,7 +210,6 @@ nav.toolbar, nav.v-toolbar
 
   #phenolyzer-search
     margin-left: 5px
-    margin-right: 60px
 
   #phenotype-input, #gene-name-input, #phenolyzer-top-input
     margin-top: 8px
@@ -554,14 +555,13 @@ nav.toolbar, nav.v-toolbar
          @hide-snackbar="onHideSnackbar">
         </phenotype-search>
 
-        <v-spacer></v-spacer>
+        <v-spacer style="min-width:80px"></v-spacer>
 
       </v-toolbar-items>
 
 
-
-      <v-btn icon @click="onShowTermsOfService" title="Terms of Service">
-        <v-icon>description</v-icon>
+      <v-btn icon v-if="!isBasicMode" @click="onShowFiles" title="Load files">
+        <v-icon>publish</v-icon>
       </v-btn>
 
       <v-menu>
@@ -569,9 +569,12 @@ nav.toolbar, nav.v-toolbar
           <v-icon style="font-size:32px;">more_vert</v-icon>
         </v-btn>
         <v-list dense style="overflow-y: scroll">
-          <v-list-tile  v-if="!isBasicMode" @click="onShowFiles">
-            <v-list-tile-title>Files</v-list-tile-title>
+
+          <v-list-tile  @click="onShowVersion">
+            <v-list-tile-title>About</v-list-tile-title>
           </v-list-tile>
+
+          <v-divider ></v-divider>
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode"
             @click="onShowImportVariants">
@@ -600,9 +603,7 @@ nav.toolbar, nav.v-toolbar
           <v-list-tile  @click="onShowDisclaimer">
             <v-list-tile-title>Disclaimer</v-list-tile-title>
           </v-list-tile>
-          <v-list-tile  @click="onShowVersion">
-            <v-list-tile-title>About</v-list-tile-title>
-          </v-list-tile>
+
           <v-list-tile  @click="onShowCitations">
             <v-list-tile-title>Software and resources</v-list-tile-title>
           </v-list-tile>
@@ -1023,6 +1024,7 @@ export default {
     FilterIcon
   },
   props: {
+    showFilesProp: null,
     isEduMode: null,
     isBasicMode: null,
     isSimpleMode: null,
@@ -1055,6 +1057,7 @@ export default {
     let self = this;
     return {
       title: 'gene.iobio',
+      showFiles: false,
 
       lookupGene: {},
       geneEntered: null,
@@ -1062,7 +1065,6 @@ export default {
       leftDrawer: self.forMyGene2 | self.isSimpleMode ? true : false,
       rightDrawer: false,
 
-      showFiles: false,
       showImportVariants: false,
       showExportVariants: false,
       showLegend: false,
@@ -1093,6 +1095,9 @@ export default {
         this.geneEntered = this.lookupGene.gene_name;
         this.$emit("input", this.lookupGene.gene_name);
       }
+    },
+    showFilesProp: function(){
+      this.showFiles = this.showFilesProp;
     },
     leftDrawer: function() {
       this.$emit("on-left-drawer", this.leftDrawer);
@@ -1266,6 +1271,9 @@ export default {
     },
     onFlaggedVariantCountChanged: function(count) {
       this.flaggedVariantCount = count;
+      if(this.flaggedVariantCount === 0){
+        this.$emit("flagged-variant-selected", null)
+      }
     },
 
     onFilterSettingsApplied: function() {

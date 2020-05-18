@@ -138,6 +138,17 @@ class GeneModel {
             ranks.push( {'rank': searchTermObject.rank, 'source': 'Phen.'});
           })
         }
+        if (geneEntry.searchTermHpo && geneEntry.searchTermHpo.length > 0) {
+          geneEntry.searchTermHpo.forEach(function(searchTermObject) {
+            var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
+            var ranks = searchTerms[searchTerm];
+            if (ranks == null) {
+              ranks = [];
+              searchTerms[searchTerm] = ranks;
+            }
+            ranks.push( { 'hpoPhenotype': searchTermObject.hpoPhenotype, 'source': 'HPO'});
+          })
+        }
 
       })
 
@@ -194,6 +205,17 @@ class GeneModel {
           self.rankedGenes[phGene.name] = theRankedGene;
         } else {
           theRankedGene.phenolyzerRank = phGene.phenolyzerRank;
+        }
+      })
+    }
+    if (rankedGenes.hpo) {
+      rankedGenes.hpo.forEach(function(hpoGene) {
+        let theRankedGene = self.rankedGenes[hpoGene.name];
+        if (theRankedGene == null) {
+          theRankedGene = { 'name': hpoGene.name, 'hpoRank': hpoGene.hpoRank};
+          self.rankedGenes[hpoGene.name] = theRankedGene;
+        } else {
+          theRankedGene.hpoRank = hpoGene.hpoRank;
         }
       })
     }
@@ -906,14 +928,10 @@ class GeneModel {
       if (phenotypes != null) {
         resolve([phenotypes, geneName]);
       } else {
-        var url = me.globalApp.geneToPhenoServer + "api/gene/" + geneName;
-        $.ajax({
-        url: url,
-        jsonp: "callback",
-        type: "GET",
-        dataType: "jsonp",
-        success: function( response ) {
+        var url = me.globalApp.geneToPhenoServer + geneName;
 
+        fetch(url).then(r => r.json())
+        .then((response) => {
           var phenotypes = response.sort(function(a,b) {
             if (a.hpo_term_name < b.hpo_term_name) {
               return -1;
@@ -926,13 +944,12 @@ class GeneModel {
           me.genePhenotypes[geneName] = phenotypes;
 
           resolve([response, geneName]);
-        },
-        fail: function() {
+        })
+        .catch((e) => {
+          console.error(e);
           reject("unable to get phenotypes for gene " + geneName);
-        }
-       });
+        });
       }
-
     });
   }
 
@@ -966,7 +983,7 @@ class GeneModel {
     var me = this;
     return new Promise(function(resolve, reject) {
 
-      var url = me.globalApp.geneInfoServer + 'api/gene/' + geneName;
+      var url = me.globalApp.geneInfoServer + geneName;
 
       // If current build not specified, default to GRCh37
       var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
@@ -989,31 +1006,22 @@ class GeneModel {
         url += "&build="   + buildName;
 
 
-        $.ajax({
-          url: url,
-          jsonp: "callback",
-          type: "GET",
-          dataType: "jsonp",
-          success: function( response ) {
-            if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
-              var theGeneObject = response[0];
-              me.geneObjects[theGeneObject.gene_name] = theGeneObject;
-              resolve(theGeneObject);
-            } else {
-              let msg = "Gene model for " + geneName + " not found.  Empty results returned from " + url;
-              console.log(msg);
-              reject(msg);
-            }
-          },
-          error: function( xhr, status, errorThrown ) {
-
-            console.log("Gene model for " +  geneName + " not found.  Error occurred.");
-            console.log( "Error: " + errorThrown );
-            console.log( "Status: " + status );
-            console.log( xhr );
-            reject("Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName);
-
+        fetch(url).then(r => r.json())
+        .then((response) => {
+          if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
+            var theGeneObject = response[0];
+            me.geneObjects[theGeneObject.gene_name] = theGeneObject;
+            resolve(theGeneObject);
+          } else {
+            let msg = "Gene model for " + geneName + " not found.  Empty results returned from " + url;
+            console.log(msg);
+            reject(msg);
           }
+        })
+        .catch((errorThrown) => {
+          console.log("Gene model for " +  geneName + " not found.  Error occurred.");
+          console.log( "Error: " + errorThrown );
+          reject("Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName);
         });
 
       } else {

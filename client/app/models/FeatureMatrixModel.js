@@ -406,7 +406,7 @@ class FeatureMatrixModel {
                 bindTo = matrixRow.map[rawValue].bind ? matrixRow.map[rawValue].bind : null;
                 theValue = rawValue;
               } else {
-                console.log("No matrix value to map to " + rawValue + " for " + matrixRow.attribute);
+                // console.log("No matrix value to map to " + rawValue + " for " + matrixRow.attribute);
               }
 
             }
