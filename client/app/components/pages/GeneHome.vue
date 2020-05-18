@@ -1121,6 +1121,7 @@ export default {
   },
 
   watch: {
+
     isLeftDrawerOpen: function() {
       let self = this;
       setTimeout(function() {
@@ -2904,7 +2905,7 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
-      
+
       if(flaggedVariant === null){
         this.selectedVariant = null;
         return;
@@ -2994,7 +2995,7 @@ export default {
                 self.$set(self, "selectedVariantKey", self.getVariantKey(flaggedVariant));
                 self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
                 self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
-                self.showVariantAssessment = false;
+                self.showVariantAssessment = false
 
                 self.showVariantExtraAnnots('proband', self.selectedVariant);
 

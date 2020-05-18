@@ -950,7 +950,7 @@ export default {
         } else if (clazz == 'revel_moderate') {
           return 'level-medium';
         } else {
-          return 'level-unremarkable';
+          return 'wlevel-unremarkable';
         }
       } else {
         return 'level-unremarkable';
@@ -1608,6 +1608,16 @@ export default {
   },
 
   mounted: function() {
+      let self = this;
+      if(this.selectedVariant){
+          this.$nextTick(function() {
+              this.loadData();
+
+              if (self.selectedVariantRelationship === "known-variants") {
+                  self.annotateClinVarVariant(self.selectedVariant);
+              }
+          })
+      }
 
   },
 
