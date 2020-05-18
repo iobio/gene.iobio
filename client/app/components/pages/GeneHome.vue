@@ -2904,7 +2904,7 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
-      
+
       if(flaggedVariant === null){
         this.selectedVariant = null;
         return;
