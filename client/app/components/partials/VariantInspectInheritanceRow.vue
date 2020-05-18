@@ -146,9 +146,6 @@ export default {
 
   filters: {
 
-
-
-
   },
 
   updated: function() {

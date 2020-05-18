@@ -950,7 +950,7 @@ export default {
         } else if (clazz == 'revel_moderate') {
           return 'level-medium';
         } else {
-          return 'wlevel-unremarkable';
+          return 'level-unremarkable';
         }
       } else {
         return 'level-unremarkable';
