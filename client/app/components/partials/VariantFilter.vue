@@ -68,13 +68,15 @@
         },
         watch: {
             geneLists: function(){
+
+                this.populateFilters();
+                console.log("flagCriteria", this.flagCriteria);
                 this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
             },
 
             showFilter: function(){
-                console.log("showFilter watcher", this.showFilter);
                 this.$emit("show-filter", this.showFilter);
             },
 
@@ -104,17 +106,25 @@
         },
 
         mounted() {
-            this.flagCriteria = this.filterModel.flagCriteria;
-
-            this.filters = [];
             this.selectedFilters = [];
-
-            for(let [k, v] of Object.entries(this.flagCriteria)){
-                this.filters.push({"name": v.key, 'title': v.title})
-            }
+            this.flagCriteria = this.filterModel.flagCriteria;
+            this.populateFilters();
         },
 
         methods: {
+
+            populateFilters(){
+                this.filters = [];
+
+                console.log("this.flagCriteria in populateFilters", this.flagCriteria);
+
+                //todo: handle custom filters differnet structure
+                for(let [k, v] of Object.entries(this.flagCriteria)){
+                    if(v.key !== "undefined") {
+                        this.filters.push({"name": v.key, 'title': v.title})
+                    }
+                }
+            },
 
             setFilteredGeneList(){
                 this.filteredGeneList = [];
@@ -125,7 +135,6 @@
                         }
                     }
                 }
-                // console.log("filtered geneLIst after filter", this.filteredGeneList);
             },
 
             passesFilters: function(variant){
