@@ -2739,9 +2739,11 @@ class CohortModel {
         }
       }
 
+
       this.flaggedVariants.forEach(function(variant) {
         let isReviewed = (variant.notes && variant.notes.length > 0) ||
             (variant.interpretation != null && (variant.interpretation == "sig" || variant.interpretation == "unknown-sig" || variant.interpretation == "not-sig" || variant.interpretation == "poor-qual"));
+
 
         let matches = false;
         if (filterName == 'reviewed' && isReviewed) {
@@ -2756,8 +2758,11 @@ class CohortModel {
         if (matches) {
 
           let keepVariant = interpretationFilters && interpretationFilters.length > 0 ? interpretationFilters.indexOf(variant.interpretation ? variant.interpretation : 'not-reviewed') >= 0 : true;
+
           let flaggedGene = geneMap[variant.gene.gene_name];
+
           let keepGene = self.geneModel.isCandidateGene(variant.gene.gene_name);
+
 
           if (keepGene && keepVariant) {
             if (flaggedGene == null) {

@@ -790,12 +790,6 @@ class FilterModel {
   }
 
   _flagVariant(variant, badges) {
-
-
-    if(variant.isUserFlagged) {
-      console.log("variant in flagVariant", variant);
-    }
-
     let self = this;
     var badgePassState = {};
 
@@ -824,15 +818,12 @@ class FilterModel {
         }
       }
 
-
-
       var filtersPassedAll = [];
       for (var filterName in self.flagCriteria) {
         if (badgePassState[filterName]) {
           filtersPassedAll.push(filterName);
         }
       }
-
       // If a badge is exclusive of passing other criteria, fail the badge
       // if the other badges passed the criteria for the filter
       // Example:  high is exclusive of the clinvar badge.

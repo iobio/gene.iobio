@@ -444,7 +444,7 @@
         </div>
 
 
-        <!--TODO: implement variant filter here-->
+        <!--Pass filtered variants to loaded variant viz-->
         <VariantFilter
                 v-if="showVariantViz"
                 :variants="sampleModel.loadedVariants"
@@ -454,11 +454,8 @@
                 :selected-variant="selectedVariant"
                 @filtered-variants-update="onFilteredVariantsUpdate"
                 @show-filter="onShowFilter"
-
         >
         </VariantFilter>
-
-
 
           <!--Dont pass filtered variants to called variant viz-->
         <variant-viz id="called-variant-viz"
@@ -695,7 +692,6 @@ import SfariVariantsToolbar from "../partials/SfariVariantsToolbar.vue"
 import OptionalTracksMenu   from "../partials/OptionalTracksMenu.vue"
 import VariantFilter        from "../partials/VariantFilter.vue"
 
-
 export default {
   name: 'variant-all-card',
   components: {
@@ -808,7 +804,6 @@ export default {
 
       showRankedVariantsMenu: false,
       filteredVariants: null,
-
       pileupStyle: {},
       showFilter: false,
 

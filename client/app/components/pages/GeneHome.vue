@@ -2883,9 +2883,6 @@ export default {
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
 
-
-      console.log("variant in onApplyVariantInterpretation", variant);
-
       if (!variant.gene) {
         variant.gene = this.selectedGene;
         if (variant.transcript == null || variant.transcript.length == 0) {

@@ -149,8 +149,7 @@ export default {
       classifySymbolFunc: null,
       filteredVariants: null,
       showFilter: false,
-        selectedVariant: null,
-
+      selectedVariant: null,
     },
     data() {
       return {
