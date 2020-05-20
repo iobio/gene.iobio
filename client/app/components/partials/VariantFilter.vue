@@ -135,9 +135,6 @@
                 let bool = true;
                 let reviewPassed = true;
 
-                console.log("filtersPassed", filtersPassed);
-                console.log("this.selectedFilters", this.selectedFilters);
-
                 for(let i = 0; i < this.selectedFilters.length; i++){
                     if(this.selectedFilters[i] === "reviewed"){
                         reviewPassed = false;

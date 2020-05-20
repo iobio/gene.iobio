@@ -782,7 +782,14 @@ export default {
       self.variantCount = 0;
 
       if( variant && variant.interpretation && variant.interpretation !== "not-reviewed"){
-        variant.filtersPassedAll.push("reviewed");
+        if(variant.filtersPassedAll){
+          if(!variant.filtersPassedAll.includes("reviewed")){
+            variant.filtersPassedAll.push("reviewed");
+          }
+        }
+        else{
+          variant.filtersPassedAll = ["reviewed"];
+        }
         variant.isUserFlagged = true;
       }
 
