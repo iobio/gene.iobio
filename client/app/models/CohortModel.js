@@ -2571,8 +2571,6 @@ class CohortModel {
           include = false;
         }
         if (include) {
-          if(variant && variant.isUserFlagged){
-          }
           var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
 
           if (sortedGenes.length > 0 || options.includeAll) {

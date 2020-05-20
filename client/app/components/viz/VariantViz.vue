@@ -272,7 +272,7 @@ export default {
     },
     watch: {
       variants: function(){
-          this.update();
+        this.update();
       },
 
       selectedVariant: function(){
