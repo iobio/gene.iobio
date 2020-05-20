@@ -176,21 +176,23 @@
             setFilteredLoadedVariants: function(){
                 let copyVariants = Object.assign({}, this.variants);
                 let features = [];
-                for(let i = 0; i < this.filteredVariants.length; i++){
-                    for(let j = 0; j < this.variants.features.length; j++){
-                        let fv = this.filteredVariants[i];
-                        let v = this.variants.features[j];
-                        if(fv.start === v.start && fv.end === v.end && fv.alt===v.alt && fv.ref === v.ref){
-                            features.push(v);
+                if(this.variants && this.variants.features) {
+                    for (let i = 0; i < this.filteredVariants.length; i++) {
+                        for (let j = 0; j < this.variants.features.length; j++) {
+                            let fv = this.filteredVariants[i];
+                            let v = this.variants.features[j];
+                            if (fv.start === v.start && fv.end === v.end && fv.alt === v.alt && fv.ref === v.ref) {
+                                features.push(v);
+                            }
                         }
                     }
-                }
-                copyVariants.features = features;
-                if(this.selectedFilters.length > 0){
+
+                    copyVariants.features = features;
+                    if (this.selectedFilters.length > 0) {
                         this.$emit("filtered-variants-update", copyVariants);
-                }
-                else{
-                    this.$emit("filtered-variants-update", this.variants);
+                    } else {
+                        this.$emit("filtered-variants-update", this.variants);
+                    }
                 }
             },
         }
