@@ -61,7 +61,6 @@
                 selectedFilters: null,
                 showFilter: false,
                 filters: null,
-                filteredGeneList: null,
                 filteredVariants: null,
 
             }
@@ -70,7 +69,6 @@
             geneLists: function(){
 
                 this.populateFilters();
-                this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
             },
@@ -83,17 +81,14 @@
                 this.flagCriteria = this.filterModel.flagCriteria;
             },
             selectedFilters: function(){
-                this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
             },
             selectedGene: function(){
-                this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
             },
             selectedVariant: function(){
-                this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
             }
@@ -114,17 +109,6 @@
                 for(let [k, v] of Object.entries(this.flagCriteria)){
                     if(v.key !== "undefined") {
                         this.filters.push({"name": v.key, 'title': v.title})
-                    }
-                }
-            },
-
-            setFilteredGeneList(){
-                this.filteredGeneList = [];
-                for(let j = 0; j < this.selectedFilters.length; j++){
-                    for(let i = 0; i < this.variants.features.length; i++){
-                        if(this.selectedFilters[j]=== this.geneLists[i].name){
-                            this.filteredGeneList.push(this.geneLists[i]);
-                        }
                     }
                 }
             },
@@ -177,7 +161,7 @@
 
                     for(let j = 0; j < filter.genes.length; j++){
                         let gene = filter.genes[j]
-                        if(gene.gene.name === this.selectedGene.name){
+                        if(this.selectedGene && gene.gene.name === this.selectedGene.name){
                            for(let k = 0; k < gene.variants.length; k++){
                                let variant = gene.variants[k];
                                if(this.passesFilters(variant)){
@@ -204,6 +188,9 @@
                 copyVariants.features = features;
                 if(this.selectedFilters.length > 0){
                         this.$emit("filtered-variants-update", copyVariants);
+                }
+                else{
+                    this.$emit("filtered-variants-update", this.variants);
                 }
             },
         }
