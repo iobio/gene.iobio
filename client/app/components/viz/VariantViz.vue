@@ -275,34 +275,32 @@ export default {
           this.update();
       },
 
-        selectedVariant: function(){
-            if(this.showFilter){
-                this.variants = this.filteredVariants;
-            }
-            else{
-                this.variants = this.data;
-            }
-        },
+      selectedVariant: function(){
+        if(this.showFilter){
+          this.variants = this.filteredVariants;
+        }
+        else{
+          this.variants = this.data;
+        }
+      },
 
       showFilter: function(){
-          if(this.showFilter){
-              this.variants = this.filteredVariants;
-          }
-          else{
-              this.variants = this.data;
-          }
+        if(this.showFilter){
+          this.variants = this.filteredVariants;
+        }
+        else{
+          this.variants = this.data;
+        }
       },
 
       filteredVariants(){
-          if(this.showFilter){
-            this.variants = this.filteredVariants;
-          }
-          else{
-              this.variants = this.data;
-          }
-
+        if(this.showFilter){
+          this.variants = this.filteredVariants;
+        }
+        else{
+          this.variants = this.data;
+        }
       }
-
     }
 }
 </script>

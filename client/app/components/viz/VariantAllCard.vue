@@ -443,7 +443,6 @@
           called variants
         </div>
 
-
         <!--Pass filtered variants to loaded variant viz-->
         <VariantFilter
                 v-if="showVariantViz"
@@ -864,9 +863,10 @@ export default {
     onFilteredVariantsUpdate: function(filteredVariants){
       this.filteredVariants = filteredVariants;
     },
-      onShowFilter: function(showFilter){
-        this.showFilter = showFilter;
-      },
+
+    onShowFilter: function(showFilter){
+      this.showFilter = showFilter;
+    },
 
     onVariantOutsideClick: function(model) {
       if (this.showDepthViz) {

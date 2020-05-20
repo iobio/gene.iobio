@@ -2888,7 +2888,6 @@ export default {
         if (variant.transcript == null || variant.transcript.length == 0) {
           if (self.cohortModel.getFlaggedVariant(variant) == null) {
             variant.transcript = this.selectedTranscript;
-            console.log("addingVariantInterpretation");
             self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
 
           }
