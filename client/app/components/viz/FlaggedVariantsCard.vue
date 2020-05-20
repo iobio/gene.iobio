@@ -782,6 +782,14 @@ export default {
       self.variantCount = 0;
 
 
+      if( variant && variant.interpretation && variant.interpretation !== "not-reviewed"){
+        console.log("variant passed into populateGenesList before", variant);
+        variant.filtersPassedAll.push("reviewed");
+        variant.isUserFlagged = true;
+        console.log("variant passed into populateGenesList after", variant);
+
+      }
+
       var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant);
       self.geneLists = filters.map(function(filterObject, idx) {
         self.variantCount += filterObject.variantCount;
@@ -968,7 +976,7 @@ export default {
       flagCriteria.inheritance = null;
       flagCriteria.zygosity = null;
       flagCriteria.genotypeDepth = null;
-      flagCriteria.exclusiveOf = ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked', 'high'];
+      flagCriteria.exclusiveOf = ['reviewed', 'pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked', 'high'];
       self.cohortModel.filterModel.flagCriteria[newFilter.name] = flagCriteria;
 
       self.geneLists.push(newGeneList);

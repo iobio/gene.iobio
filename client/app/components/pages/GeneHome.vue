@@ -2883,11 +2883,15 @@ export default {
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
 
-      if (variant.gene == null) {
+
+      console.log("variant in onApplyVariantInterpretation", variant);
+
+      if (!variant.gene) {
+        variant.gene = this.selectedGene;
         if (variant.transcript == null || variant.transcript.length == 0) {
           if (self.cohortModel.getFlaggedVariant(variant) == null) {
-            variant.gene = this.selectedGene;
             variant.transcript = this.selectedTranscript;
+            console.log("addingVariantInterpretation");
             self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
 
           }
@@ -2895,6 +2899,7 @@ export default {
       }
 
       if (variant == self.selectedVariant) {
+        console.log("variant = selectedVariant");
         self.$set(self, "selectedVariantInterpretation", variant.interpretation);
       }
 
@@ -2911,7 +2916,7 @@ export default {
     },
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
-      
+
       if(flaggedVariant === null){
         this.selectedVariant = null;
         return;

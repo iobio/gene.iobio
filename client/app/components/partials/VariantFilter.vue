@@ -70,7 +70,6 @@
             geneLists: function(){
 
                 this.populateFilters();
-                console.log("flagCriteria", this.flagCriteria);
                 this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
@@ -80,18 +79,13 @@
                 this.$emit("show-filter", this.showFilter);
             },
 
-            variants: function(){
-                console.log("this.variants in watcher", this.variants);
-            },
             filterModel: function(){
                 this.flagCriteria = this.filterModel.flagCriteria;
             },
             selectedFilters: function(){
-                console.log("selectedFilters in watcher", this.selectedFilters);
                 this.setFilteredGeneList();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
-
             },
             selectedGene: function(){
                 this.setFilteredGeneList();
@@ -115,8 +109,6 @@
 
             populateFilters(){
                 this.filters = [];
-
-                console.log("this.flagCriteria in populateFilters", this.flagCriteria);
 
                 //todo: handle custom filters differnet structure
                 for(let [k, v] of Object.entries(this.flagCriteria)){
@@ -152,21 +144,22 @@
 
                         for(let r = 0; r < reviewed.genes.length; r++){
                             let gene = reviewed.genes[r];
-                            console.log("gene.variants.length", gene.variants.length);
                             for(let j = 0; j < gene.variants.length; j++){
                                 let v = gene.variants[j];
                                 let fv = variant;
 
                                 if(fv.start === v.start && fv.end === v.end && fv.alt===v.alt && fv.ref === v.ref){
                                     bool = true;
-                                    console.log("review passed");
                                 }
                             }
 
                         }
                     }
                     else {
-                        if (!filtersPassed.includes(this.selectedFilters[i])) {
+                        if(!filtersPassed){
+                            bool = false;
+                        }
+                        else if (!filtersPassed.includes(this.selectedFilters[i])) {
                             bool = false;
                         }
                     }

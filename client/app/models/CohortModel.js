@@ -2561,6 +2561,7 @@ class CohortModel {
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
+        console.log("activeFilterName null");
         let flagCriteria = self.filterModel.flagCriteria[filterName];
         let include = true;
 
@@ -2570,7 +2571,12 @@ class CohortModel {
         if (isFullAnalysis && !options.includeNotCategorized && filterName == 'notCategorized') {
           include = false;
         }
+        console.log("include", include)
         if (include) {
+          console.log("include passed");;
+          if(variant && variant.isUserFlagged){
+            console.log("userFlaggedVariants in organizeVariantsByFiltersAndGene", variant);
+          }
           var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
 
           if (sortedGenes.length > 0 || options.includeAll) {
@@ -2723,19 +2729,26 @@ class CohortModel {
     let geneMap        = {};
     let flaggedGenes   = [];
 
-    if (this.flaggedVariants) {
 
+    if(variant) {
+      console.log("variant", variant);
+      console.log("flaggedVariants in organizeVariants for filter", this.flaggedVariants);
+    }
+
+    if (this.flaggedVariants) {
 
       if(variant) {
         let isUnique = true;
         for(let i = 0; i < this.flaggedVariants.length; i++){
           if(!variant.variant_id && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
-
+            this.flaggedVariants[i] = variant;
+            console.log("isUnique false");
             isUnique = false;
           }
         }
         if(isUnique && variant.isUserFlagged){
           this.flaggedVariants.push(variant);
+          console.log("pushing userFlagged Variant", variant);
         }
       }
 
@@ -2743,7 +2756,6 @@ class CohortModel {
       this.flaggedVariants.forEach(function(variant) {
         let isReviewed = (variant.notes && variant.notes.length > 0) ||
             (variant.interpretation != null && (variant.interpretation == "sig" || variant.interpretation == "unknown-sig" || variant.interpretation == "not-sig" || variant.interpretation == "poor-qual"));
-
 
         let matches = false;
         if (filterName == 'reviewed' && isReviewed) {

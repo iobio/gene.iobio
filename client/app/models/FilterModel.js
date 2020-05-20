@@ -790,6 +790,12 @@ class FilterModel {
   }
 
   _flagVariant(variant, badges) {
+
+
+    if(variant.isUserFlagged) {
+      console.log("variant in flagVariant", variant);
+    }
+
     let self = this;
     var badgePassState = {};
 
@@ -817,6 +823,8 @@ class FilterModel {
           }
         }
       }
+
+
 
       var filtersPassedAll = [];
       for (var filterName in self.flagCriteria) {

@@ -515,10 +515,15 @@ class GeneModel {
     return theTranscripts.length > 0 ? theTranscripts[0] : null;
   }
 
-  getCanonicalTranscript(theGeneObject) {
+   getCanonicalTranscript(theGeneObject) {
     let me = this;
     var geneObject = theGeneObject != null ? theGeneObject : window.gene;
     var canonical;
+
+    if(!theGeneObject){
+      debugger;
+    }
+
 
     if (geneObject.transcripts == null || geneObject.transcripts.length == 0) {
       return null;
