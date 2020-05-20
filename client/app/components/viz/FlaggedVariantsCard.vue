@@ -781,13 +781,9 @@ export default {
       self.geneLists = [];
       self.variantCount = 0;
 
-
       if( variant && variant.interpretation && variant.interpretation !== "not-reviewed"){
-        console.log("variant passed into populateGenesList before", variant);
         variant.filtersPassedAll.push("reviewed");
         variant.isUserFlagged = true;
-        console.log("variant passed into populateGenesList after", variant);
-
       }
 
       var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant);

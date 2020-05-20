@@ -2561,7 +2561,6 @@ class CohortModel {
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
-        console.log("activeFilterName null");
         let flagCriteria = self.filterModel.flagCriteria[filterName];
         let include = true;
 
@@ -2571,11 +2570,8 @@ class CohortModel {
         if (isFullAnalysis && !options.includeNotCategorized && filterName == 'notCategorized') {
           include = false;
         }
-        console.log("include", include)
         if (include) {
-          console.log("include passed");;
           if(variant && variant.isUserFlagged){
-            console.log("userFlaggedVariants in organizeVariantsByFiltersAndGene", variant);
           }
           var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
 
@@ -2729,29 +2725,19 @@ class CohortModel {
     let geneMap        = {};
     let flaggedGenes   = [];
 
-
-    if(variant) {
-      console.log("variant", variant);
-      console.log("flaggedVariants in organizeVariants for filter", this.flaggedVariants);
-    }
-
     if (this.flaggedVariants) {
-
       if(variant) {
         let isUnique = true;
         for(let i = 0; i < this.flaggedVariants.length; i++){
           if(!variant.variant_id && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
             this.flaggedVariants[i] = variant;
-            console.log("isUnique false");
             isUnique = false;
           }
         }
         if(isUnique && variant.isUserFlagged){
           this.flaggedVariants.push(variant);
-          console.log("pushing userFlagged Variant", variant);
         }
       }
-
 
       this.flaggedVariants.forEach(function(variant) {
         let isReviewed = (variant.notes && variant.notes.length > 0) ||
@@ -2767,16 +2753,11 @@ class CohortModel {
           }
         }
 
-
-
         if (matches) {
 
           let keepVariant = interpretationFilters && interpretationFilters.length > 0 ? interpretationFilters.indexOf(variant.interpretation ? variant.interpretation : 'not-reviewed') >= 0 : true;
-
           let flaggedGene = geneMap[variant.gene.gene_name];
-
           let keepGene = self.geneModel.isCandidateGene(variant.gene.gene_name);
-
 
           if (keepGene && keepVariant) {
             if (flaggedGene == null) {

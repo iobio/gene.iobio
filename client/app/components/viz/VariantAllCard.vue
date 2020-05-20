@@ -868,7 +868,6 @@ export default {
 
     onFilteredVariantsUpdate: function(filteredVariants){
       this.filteredVariants = filteredVariants;
-      console.log("this.filteredVariants", this.filteredVariants);
     },
       onShowFilter: function(showFilter){
         this.showFilter = showFilter;

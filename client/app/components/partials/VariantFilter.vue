@@ -133,10 +133,14 @@
                 let filtersPassed = variant.filtersPassedAll;
 
                 let bool = true;
+                let reviewPassed = true;
+
+                console.log("filtersPassed", filtersPassed);
+                console.log("this.selectedFilters", this.selectedFilters);
 
                 for(let i = 0; i < this.selectedFilters.length; i++){
                     if(this.selectedFilters[i] === "reviewed"){
-                        bool = false;
+                        reviewPassed = false;
 
                         let reviewed = this.geneLists.filter(function(item){
                             return item.name === "reviewed";
@@ -149,7 +153,7 @@
                                 let fv = variant;
 
                                 if(fv.start === v.start && fv.end === v.end && fv.alt===v.alt && fv.ref === v.ref){
-                                    bool = true;
+                                    reviewPassed = true;
                                 }
                             }
 
@@ -164,7 +168,7 @@
                         }
                     }
                 }
-              return bool;
+              return bool && reviewPassed;
 
             },
             setFilteredVariants(){

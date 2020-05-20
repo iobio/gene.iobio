@@ -2899,7 +2899,6 @@ export default {
       }
 
       if (variant == self.selectedVariant) {
-        console.log("variant = selectedVariant");
         self.$set(self, "selectedVariantInterpretation", variant.interpretation);
       }
 
