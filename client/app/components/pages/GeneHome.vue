@@ -1049,7 +1049,7 @@ export default {
     let self = this;
 
 
-    
+
     if (process.env.EXHIBIT === 'true' && (!self.paramMode || self.paramMode.length == 0 )) {
       this.$router.push({ name: 'exhibit' });
     }
