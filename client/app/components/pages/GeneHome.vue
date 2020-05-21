@@ -1048,7 +1048,6 @@ export default {
   mounted: function() {
     let self = this;
 
-    console.log("clientApplicationId prop", self.paramClientApplicationId);
 
     if (process.env.EXHIBIT === 'true' && (!self.paramMode || self.paramMode.length == 0 )) {
       this.$router.push({ name: 'exhibit' });

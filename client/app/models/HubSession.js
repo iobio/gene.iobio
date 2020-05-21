@@ -280,36 +280,6 @@ export default class HubSession {
       else{
         reject("Cannot find Mosaic client_application for gene");
       }})
-    //   $.ajax({
-    //     url: self.api + '/client-applications',
-    //     type: 'GET',
-    //     contentType: 'application/json',
-    //     headers: {
-    //       Authorization: localStorage.getItem('hub-iobio-tkn'),
-    //     },
-    //   })
-    //   .done(data => {
-    //     console.log("data in promiseGetClientApplication", data);
-    //     let clientApps = data.data;
-    //     let matchingApp = clientApps.filter(function(clientApp) {
-    //       return clientApp.display_name == 'Gene.iobio';
-    //     })
-    //     if (matchingApp.length > 0) {
-    //       console.log("client_application_id = " + matchingApp[0].id)
-    //       self.client_application_id = matchingApp[0].id;
-    //       resolve();
-    //     } else {
-    //       reject("Cannot find Mosaic client_application for gene")
-    //     }
-    //
-    //   })
-    //   .fail(error => {
-    //     console.log("Error getting applications ");
-    //     console.log(error);
-    //     reject(error);
-    //   })
-    //
-    // })
   }
 
 
