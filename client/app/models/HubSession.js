@@ -1,13 +1,13 @@
 
 export default class HubSession {
-  constructor() {
+  constructor(clientApplicationId) {
     this.vcf = null;
     this.samples = null;
     this.url = null;
     this.isMother = false;
     this.isFather = false;
-    this.apiVersion =  '/apiv1';
-    this.client_application_id = null;
+    this.apiVersion =  '/api/v1';
+    this.client_application_id = clientApplicationId,
     this.variantSetTxtCols = [
       "chrom",
       "start",
@@ -272,36 +272,44 @@ export default class HubSession {
 
   promiseGetClientApplication() {
     let self = this;
+
     return new Promise(function(resolve, reject) {
-      $.ajax({
-        url: self.api + '/client-applications',
-        type: 'GET',
-        contentType: 'application/json',
-        headers: {
-          Authorization: localStorage.getItem('hub-iobio-tkn'),
-        },
-      })
-      .done(data => {
-        let clientApps = data.data;
-        let matchingApp = clientApps.filter(function(clientApp) {
-          return clientApp.display_name == 'Gene.iobio';
-        })
-        if (matchingApp.length > 0) {
-          console.log("client_application_id = " + matchingApp[0].id)
-          self.client_application_id = matchingApp[0].id;
-          resolve();
-        } else {
-          reject("Cannot find Mosaic client_application for gene")
-        }
-
-      })
-      .fail(error => {
-        console.log("Error getting applications ");
-        console.log(error);
-        reject(error);
-      })
-
-    })
+      if(self.client_application_id){
+      resolve();
+    }
+      else{
+        reject("Cannot find Mosaic client_application for gene");
+      }})
+    //   $.ajax({
+    //     url: self.api + '/client-applications',
+    //     type: 'GET',
+    //     contentType: 'application/json',
+    //     headers: {
+    //       Authorization: localStorage.getItem('hub-iobio-tkn'),
+    //     },
+    //   })
+    //   .done(data => {
+    //     console.log("data in promiseGetClientApplication", data);
+    //     let clientApps = data.data;
+    //     let matchingApp = clientApps.filter(function(clientApp) {
+    //       return clientApp.display_name == 'Gene.iobio';
+    //     })
+    //     if (matchingApp.length > 0) {
+    //       console.log("client_application_id = " + matchingApp[0].id)
+    //       self.client_application_id = matchingApp[0].id;
+    //       resolve();
+    //     } else {
+    //       reject("Cannot find Mosaic client_application for gene")
+    //     }
+    //
+    //   })
+    //   .fail(error => {
+    //     console.log("Error getting applications ");
+    //     console.log(error);
+    //     reject(error);
+    //   })
+    //
+    // })
   }
 
 

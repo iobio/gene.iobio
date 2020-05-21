@@ -814,6 +814,7 @@ export default {
     paramIobioSource:      null,
     paramAnalysisId:       null,
     paramGeneSetId:        null,
+    paramClientApplicationId: null,
 
     paramFileId:           null,
 
@@ -1047,7 +1048,7 @@ export default {
   mounted: function() {
     let self = this;
 
-
+    console.log("clientApplicationId prop", self.paramClientApplicationId);
 
     if (process.env.EXHIBIT === 'true' && (!self.paramMode || self.paramMode.length == 0 )) {
       this.$router.push({ name: 'exhibit' });
@@ -1318,7 +1319,7 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
-        self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
+        self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession(self.paramClientApplicationId);
         self.hubSession.globalApp = self.globalApp;
         let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
 
