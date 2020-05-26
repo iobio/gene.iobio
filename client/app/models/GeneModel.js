@@ -1033,6 +1033,63 @@ class GeneModel {
     });
   }
 
+
+  promiseGetGeneForVariant(variant) {
+    var me = this;
+    return new Promise(function(resolve, reject) {
+
+      var url = me.globalApp.geneInfoServer + 'api/region/' + variant.chrom + ":" + variant.start + "-" + variant.start;
+
+      // If current build not specified, default to GRCh37
+      var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
+
+
+      var defaultGeneSource = me.geneSource ? me.geneSource : 'gencode';
+      
+
+      if (defaultGeneSource) {
+        url += "?source="  + defaultGeneSource;
+        url += "&species=" + me.genomeBuildHelper.getCurrentSpeciesLatinName();
+        url += "&build="   + buildName;
+        url += "&bound=inner"
+
+
+        $.ajax({
+          url: url,
+          jsonp: "callback",
+          type: "GET",
+          dataType: "json",
+          success: function( response ) {
+            if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
+              var theGeneObject = response[0];
+              me.geneObjects[theGeneObject.gene_name] = theGeneObject;
+              resolve({'gene': theGeneObject, 'variant': variant});
+            } else {
+              let msg = "Gene model for region " + variant.chrom + ":" + variant.start + " not found.  Empty results returned from " + url;
+              console.log(msg);
+              reject(msg);
+            }
+          },
+          error: function( xhr, status, errorThrown ) {
+
+            console.log("Gene model for region " + variant.chrom + ":" + variant.start + " not found.  Error occurred.");
+            console.log( "Error: " + errorThrown );
+            console.log( "Status: " + status );
+            console.log( xhr );
+            reject("Error " + errorThrown + " occurred when attempting to get gene for region " +  variant.chrom + ":" + variant.start);
+
+          }
+        });
+
+      } else {
+        reject("No known gene source");
+      }
+
+
+
+    });
+  }
+
   searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback) {
     var me = this;
 

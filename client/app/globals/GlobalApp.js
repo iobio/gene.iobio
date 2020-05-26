@@ -10,7 +10,7 @@ class GlobalApp {
     this.completedTour         = "";
 
 
-    this.version               = "4.1.1";
+    this.version               = "4.1";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
@@ -116,9 +116,9 @@ class GlobalApp {
 
     if (process.env.USE_SSL) {
       this.useSSL = process.env.USE_SSL === 'true' ? true : false;
-    }
+    } 
 
-    // These are the public services.
+    // These are the public services. 
     if (useMosaicBackend && process.env.IOBIO_BACKEND_MOSAIC ) {
       this.initBackendSource(process.env.IOBIO_BACKEND_MOSAIC)
     } else if (process.env.IOBIO_BACKEND) {
