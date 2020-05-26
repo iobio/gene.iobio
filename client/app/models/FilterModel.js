@@ -888,6 +888,10 @@ class FilterModel {
       variant.notCategorized = true;
       variant.featureClass = 'flagged';
       self.mapGenomeWideFilter(variant);
+      if (badges["notCategorized"] == null) {
+        badges["notCategorized"] = [];
+      }
+      badges["notCategorized"].push(variant)
     }
 
     if (variant.isFlagged) {
