@@ -1355,57 +1355,48 @@ export default {
          
           // Temporary code until gene name provided
           if (self.variantSet && self.variantSet.variants) {
-            let genePromises = [];
+            let bypassedCount = 0;
             self.variantSet.variants.filter(function(variant) {
               return variant.sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
             })
             .forEach(function(variant) {
               let importedVariant = {};
-              importedVariant.chrom = variant.chr;
-              importedVariant.start = variant.pos;
-              importedVariant.end   = variant.pos;
-              importedVariant.ref   = variant.ref;
-              importedVariant.alt   = variant.alt;
-              importedVariant.filtersPassed = "notCategorized";
-              importedVariant.inheritance = null;
-              importedVariant.afgnomAD = variant.gnomad_allele_frequency;
+              if (variant.gene_symbol && variant.gene_symbol.length > 0) {
+                importedVariant.gene  = variant.gene_symbol;
+                importedVariant.chrom = variant.chr;
+                importedVariant.start = variant.pos;
+                importedVariant.end   = variant.pos;
+                importedVariant.ref   = variant.ref;
+                importedVariant.alt   = variant.alt;
+                importedVariant.filtersPassed    = "notCategorized";
+                importedVariant.inheritance      = null;
+                importedVariant.afgnomAD         = variant.gnomad_allele_frequency;
+                importedVariant.highestImpact    = variant.gene_impact;
+                importedVariant.consequence      = variant.gene_consequence;
+                importedVariant.isImported       = true;
+                importedVariant.variantSet       = "notCategorized";
 
-
-              let genePromise = self.geneModel.promiseGetGeneForVariant(importedVariant)
-              .then(function(data) {
-
-                if (data.gene) {
-
-                  let theGeneObject      = data.gene;
-                  let theImportedVariant = data.variant;
-
-                  theImportedVariant.gene = theGeneObject.gene_name;
-
-                  self.analysis.payload.variants.push(theImportedVariant);
-                  if (self.analysis.payload.genes.indexOf(theImportedVariant.gene) < 0) {
-                    self.analysis.payload.genes.push(theImportedVariant.gene);
-                  }
-
-                } else {
-                  console.log("Cannot find gene for variant " + data.variant.chrom + " " + data.variant.start + " ")
+                self.analysis.payload.variants.push(importedVariant);
+                if (self.analysis.payload.genes.indexOf(importedVariant.gene) < 0) {
+                  self.analysis.payload.genes.push(importedVariant.gene);
                 }
-              })
-              genePromises.push(genePromise);
+              } else {
+                console.log("Bypassing variant " + variant.chr + " " + variant.pos + " because gene not provided")
+                bypassedCount++;
+              }
             })
-            Promise.all(genePromises)
-            .then(function() {
-              return Promise.resolve();
-            })
-            .catch(function() {
-              return Promise.resolve();
-            })
-          } else {
-            return Promise.resolve();
+            if (bypassedCount > 0) {
+              if (bypassedCount == self.variantSet.variants.length) {
+                alertify.alert("Error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name.", )
+
+              } else {
+                alertify.alert("Warning", bypassedCount + " variants bypassed due to missing gene name")
+
+              }
+            }
           }
 
-        })
-        .then(function() {
-           return self.hubSession.promiseGetProject(self.projectId)
+          return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
             self.isSfariProject = false;
