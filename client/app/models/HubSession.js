@@ -7,6 +7,8 @@ export default class HubSession {
     this.isMother = false;
     this.isFather = false;
     this.apiVersion =  '/api/v1';
+    this.apiDepricated = null;
+    this.apiVersionDeprecated = '/apiv1'
     this.client_application_id = clientApplicationId,
     this.variantSetTxtCols = [
       "chrom",
@@ -31,6 +33,7 @@ export default class HubSession {
   promiseInit(sampleId, source, isPedigree, projectId, geneSetId, variantSetId ) {
     let self = this;
     self.api = source + self.apiVersion;
+    self.apiDepricated = source + self.apiVersionDeprecated
 
     return new Promise((resolve, reject) => {
       let modelInfos = [];
@@ -783,7 +786,8 @@ export default class HubSession {
     let self = this;
 
     return $.ajax({
-      url: self.api + '/projects/' + projectId + '/variants/sets/' + variantSetId + "?include_variant_data=true",
+      url: self.apiDepricated + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId + "&include_variant_data=true",
+
       type: 'GET',
       contentType: 'application/json',
       headers: {
