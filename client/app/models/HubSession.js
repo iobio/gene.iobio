@@ -57,7 +57,7 @@ export default class HubSession {
         geneSet = data;
 
         if (variantSetId) {
-          return self.promiseGetVariantSet(projectId, variantSetId)          
+          return self.promiseGetVariantSet(projectId, variantSetId)
         } else {
           return Promise.resolve(null);
         }
@@ -155,11 +155,11 @@ export default class HubSession {
                 alertify.alert("Error", buf)
               }
 
-              resolve({'modelInfos': modelInfos, 
-                'rawPedigree': rawPedigree, 
-                'geneSet': geneSet, 
+              resolve({'modelInfos': modelInfos,
+                'rawPedigree': rawPedigree,
+                'geneSet': geneSet,
                 'variantSet': variantSet,
-                'isMother': self.isMother, 
+                'isMother': self.isMother,
                 'isFather': self.isFather});
             })
             .catch(error => {
@@ -783,7 +783,7 @@ export default class HubSession {
     let self = this;
 
     return $.ajax({
-      url: self.api + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId + "&include_variant_data=true",
+      url: self.api + '/projects/' + projectId + '/variants/sets/' + variantSetId,
       type: 'GET',
       contentType: 'application/json',
       headers: {
