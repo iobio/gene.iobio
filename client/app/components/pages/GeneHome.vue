@@ -814,6 +814,7 @@ export default {
     paramIobioSource:      null,
     paramAnalysisId:       null,
     paramGeneSetId:        null,
+    paramClientApplicationId: null,
     paramVariantSetId:     null,
 
     paramFileId:           null,
@@ -1320,7 +1321,7 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
-        self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
+        self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession(self.paramClientApplicationId);
         self.hubSession.globalApp = self.globalApp;
         let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
 
@@ -1352,7 +1353,7 @@ export default {
           if (self.analysis.payload.phenotypeTerm) {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
-         
+
           // Temporary code until gene name provided
           if (self.variantSet && self.variantSet.variants) {
             let bypassedCount = 0;
