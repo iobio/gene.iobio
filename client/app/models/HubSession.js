@@ -783,7 +783,7 @@ export default class HubSession {
     let self = this;
 
     return $.ajax({
-      url: self.api + '/projects/' + projectId + '/variants/sets/' + variantSetId,
+      url: self.api + '/projects/' + projectId + '/variants/sets/' + variantSetId + "?include_variant_data=true",
       type: 'GET',
       contentType: 'application/json',
       headers: {
