@@ -534,14 +534,14 @@ nav.toolbar, nav.v-toolbar
          @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
-        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin" id="search-or" style="display:inline-block">
+        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin && !isCommercial" id="search-or" style="display:inline-block">
           or
         </div>
 
 
         <phenotype-search
          id="phenolyzer-search"
-         v-if="!isEduMode && !launchedFromClin && !isSimpleMode"
+         v-if="!isEduMode && !launchedFromClin && !isSimpleMode && !isCommercial"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
@@ -606,17 +606,17 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Software and resources</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider v-if="!isSimpleMode"></v-divider>
+          <v-divider v-if="!isSimpleMode && !isCommercial"></v-divider>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowBlog">
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowBlog">
             <v-list-tile-title>Blog</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowTutorial" >
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowTutorial" >
             <v-list-tile-title>Tutorials</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode " @click="onShowIOBIO" >
+          <v-list-tile v-if="!isSimpleMode && !isCommercial" @click="onShowIOBIO" >
             <v-list-tile-title>iobio</v-list-tile-title>
           </v-list-tile>
 
@@ -1023,6 +1023,7 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     isSimpleMode: null,
+    isCommercial: null,
     forMyGene2: null,
     analyzeAllInProgress: null,
     callAllInProgress: null,

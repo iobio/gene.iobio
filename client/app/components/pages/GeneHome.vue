@@ -227,6 +227,7 @@ main.content.clin, main.v-content.clin
       :isBasicMode="isBasicMode"
       :forMyGene2="forMyGene2"
       :isSimpleMode="isSimpleMode"
+      :isCommercial="isCommercial"
       :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
       :callAllInProgress="cacheHelper.callAllInProgress"
       :selectedGene="selectedGene"
@@ -976,6 +977,7 @@ export default {
       * This variable controls if gene should show a "simplified" view
       */
       isSimpleMode: process.env.DEFAULT_MODE == 'simple' ? true : false,
+      isCommercial: process.env.IS_COMMERCIAL && process.env.IS_COMMERCIAL === 'true' ? true : false,
 
       showIntro: false,
 
@@ -3271,7 +3273,11 @@ export default {
       this.filterModel.isBasicMode = false;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
-        self.$router.push( { name: 'home', query: { mode: 'advanced', mygene2: self.forMyGene2 ? true : false} })
+        let options = { name: 'home', query: { mode: 'advanced'}};
+        if (self.forMyGene2) {
+          options.query.mygene2 = true;
+        }
+        self.$router.push(options)
       });
     },
     onBasicMode: function() {
