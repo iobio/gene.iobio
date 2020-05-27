@@ -574,28 +574,26 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>About</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider ></v-divider>
+          <v-list-tile  v-if="!isBasicMode" @click="onShowLegend">
+            <v-list-tile-title>Legend</v-list-tile-title>
+          </v-list-tile>
 
-          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode"
+          <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
+
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode && cohortModel.isLoaded"
             @click="onShowImportVariants">
             <v-list-tile-title dense>Import Variants</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin" @click="onShowExportVariants">
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !isSimpleMode && cohortModel.flaggedVariants && cohortModel.flaggedVariants.length > 0" @click="onShowExportVariants">
             <v-list-tile-title>Export Variants</v-list-tile-title>
-          </v-list-tile>
-
-          <v-divider v-if="!isBasicMode"></v-divider>
-
-          <v-list-tile  v-if="!isBasicMode" @click="onShowLegend">
-            <v-list-tile-title>Legend</v-list-tile-title>
           </v-list-tile>
 
           <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowOptions">
             <v-list-tile-title>Options</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider v-if="!isBasicMode" dense></v-divider>
+          <v-divider ></v-divider>
 
           <v-list-tile  @click="onShowTermsOfService">
             <v-list-tile-title>Terms of Service</v-list-tile-title>
@@ -622,9 +620,6 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>iobio</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onSupportIOBIO" >
-            <v-list-tile-title>Support the iobio project</v-list-tile-title>
-          </v-list-tile>
 
         </v-list>
       </v-menu>
