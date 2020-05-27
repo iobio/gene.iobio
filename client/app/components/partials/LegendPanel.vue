@@ -97,6 +97,14 @@
   line-height: 12px !important
 
 .clinvar-legend
+  width: 150px 
+  margin-right:  10px
+  margin-bottom:  15px
+
+  &.narrow
+    width: 105px
+    margin-bottom: 0px
+
   .legend-text
     padding-top: 2px
     display: inline-block
@@ -111,7 +119,7 @@
 
 
 
-    <div class="legend-title" v-if="showLegendTitle" :style="isBasicMode ? 'margin-bottom:10px;' : 'margin-bottom:20px'">
+    <div class="legend-title" v-if="showLegendTitle" :style="isBasicMode || isSimpleMode? 'margin-bottom:10px;' : 'margin-bottom:20px'">
     Legend
     </div>
     <div style="display:flex;flex-wrap:wrap;justify-content:flex-start">
@@ -202,7 +210,7 @@
 
 
 
-      <div class="clinvar-legend" style="width:150px;margin-right:10px;margin-bottom:15px">
+      <div :class="{'clinvar-legend': true, 'narrow': isSimpleMode || isBasicMode}">
           <div class="legend-label">Clinvar</div>
 
           <legend-icon
@@ -218,10 +226,10 @@
           width="12"
           height="12"
           level="likely-high"
-          label="Likely pathogenic">
+          label="Likely path.">
           </legend-icon>
 
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -229,7 +237,7 @@
           label="Unknown significance">
           </legend-icon>
 
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -237,7 +245,7 @@
           label="Conflicting data">
           </legend-icon>
 
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -245,7 +253,7 @@
           label="Other">
           </legend-icon>
 
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -253,7 +261,7 @@
           label="Benign">
           </legend-icon>
 
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -314,7 +322,7 @@
         </legend-icon>
       </div>
 
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:120px;margin-right:10px;">
+      <div v-if="!isBasicMode && !isSimpleMode" style="width:120px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Called variant</div>
         <legend-icon
           icon="called-variant"
@@ -323,7 +331,7 @@
         </legend-icon>
       </div>
 
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:80px;margin-right:0px;">
+      <div v-if="!isBasicMode && !isSimpleMode" style="width:80px;margin-right:0px;margin-bottom:15px">
           <div class="legend-label">Coverage</div>
 
           <legend-icon
@@ -336,27 +344,6 @@
           </legend-icon>
 
       </div>
-
-
-
-
-     <div v-if="!isBasicMode && !isSimpleMode" style="width:170px;margin-right:10px;margin-bottom:15px">
-       <div class="legend-label">Flagged</div>
-        <legend-icon
-         icon="system-flagged"
-         width="16"
-         height="16"
-         label="Variant passes a filter">
-        </legend-icon>
-        <legend-icon
-         icon="user-flagged"
-         width="16"
-         height="16"
-         label="Flagged by User">
-        </legend-icon>
-      </div>
-
-
 
 
       <div v-if="!isBasicMode && !isSimpleMode" style="width:170px;margin-right:10px;margin-bottom:10px">
@@ -380,7 +367,7 @@
         </legend-icon>
       </div>
 
-     <div v-if="!isBasicMode && !isSimpleMode" style="width:150px;margin-right:10px;margin-bottom:15px">
+     <div v-if="!isBasicMode && !isSimpleMode && false" style="width:150px;margin-right:10px;margin-bottom:15px">
        <div class="legend-label">Affected Siblings</div>
         <legend-icon id="thumbs-green-symbol"
          icon="thumbs-up"
@@ -409,7 +396,7 @@
       </div>
 
 
-     <div v-if="!isBasicMode && !isSimpleMode" style="width:150px;margin-right:10px;margin-bottom:15px">
+     <div v-if="!isBasicMode && !isSimpleMode && false" style="width:150px;margin-right:10px;margin-bottom:15px">
        <div class="legend-label">Unaffected Siblings</div>
         <legend-icon id="thumbs-green-symbol"
          icon="thumbs-up"
@@ -533,6 +520,8 @@ export default {
       }
   },
   watch: {
+  },
+  computed: {
   },
   methods: {
   },

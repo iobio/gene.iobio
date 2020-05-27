@@ -2,6 +2,17 @@
 
 @import ../../../assets/sass/variables
 
+#legend-drawer-close-button
+    position: absolute
+    padding-right: 0px
+    position: absolute
+    right: 0px
+    display: inline-block
+    margin-left: 0px
+    min-width: 22px
+    margin-top: 0px
+    top: 0px
+    z-index: 1
 
 .dialog.dialog--active
   button
@@ -108,10 +119,12 @@ aside.navigation-drawer, aside.v-navigation-drawer
 
     #legend-card
       margin-top: 5px
-      margin-bottom: 38px
+      margin-bottom: 32px
       padding: 0px
       padding-top: 5px
-      border-top: #d8d6d6 solid 1px !important
+      border-top: #9b9b9b solid 2px !important
+      border-bottom: #9b9b9b solid 2px !important
+      background-color: #f5f5f5
 
 #side-panel-container
 
@@ -177,6 +190,16 @@ nav.toolbar, nav.v-toolbar
       width: 20px
       font-size: 13px
       font-weight: 500
+
+  #legend-button
+    font-size: 16px
+    height: 36px
+    margin-bottom: 6px
+
+    .v-btn__content
+      padding-top: 2px
+
+
 
   .toolbar__content
     margin-top: 2px
@@ -557,6 +580,8 @@ nav.toolbar, nav.v-toolbar
 
         <v-spacer style="min-width:80px"></v-spacer>
 
+        <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
+
       </v-toolbar-items>
 
 
@@ -572,10 +597,6 @@ nav.toolbar, nav.v-toolbar
 
           <v-list-tile  @click="onShowVersion">
             <v-list-tile-title>About</v-list-tile-title>
-          </v-list-tile>
-
-          <v-list-tile  v-if="!isBasicMode" @click="onShowLegend">
-            <v-list-tile-title>Legend</v-list-tile-title>
           </v-list-tile>
 
           <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
@@ -732,11 +753,11 @@ nav.toolbar, nav.v-toolbar
 
 
 
-        <v-card id="legend-card" v-if="isBasicMode && !isSimpleMode" >
+        <v-card id="legend-card" v-if="(isBasicMode || isSimpleMode) && cohortModel && cohortModel.isLoaded" >
           <legend-panel
             :isBasicMode="isBasicMode"
             :isSimpleMode="isSimpleMode"
-            :showLegendTitle=true>
+            :showLegendTitle="true">
           </legend-panel>
         </v-card>
 
@@ -744,6 +765,26 @@ nav.toolbar, nav.v-toolbar
 
 
       </div>
+
+    </v-navigation-drawer>
+
+    <v-navigation-drawer
+      v-model="showLegendDrawer"
+      absolute
+      right
+      width="200"    
+      style="z-index:6"
+    >
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="legend-drawer-close-button" class="toolbar-button" flat @click="showLegendDrawer = false">
+          <v-icon >close</v-icon>
+        </v-btn>
+
+        <legend-panel
+           :showLegendTitle="true"
+           :isBasicMode="isBasicMode"
+           :isSimpleMode="isSimpleMode">
+          </legend-panel>
+
 
     </v-navigation-drawer>
 
@@ -1063,13 +1104,13 @@ export default {
 
       showImportVariants: false,
       showExportVariants: false,
-      showLegend: false,
       showTermsOfService: false,
       showDisclaimer: false,
       showOptions: false,
       showVersion: false,
       showCitations: false,
       typeaheadLimit: parseInt(100),
+      showLegendDrawer: false,
 
       activeTab: 0,
 
@@ -1210,8 +1251,8 @@ export default {
     onShowFiles: function() {
       this.showFiles = true;
     },
-    onShowLegend: function() {
-      this.showLegend = true;
+    onShowLegendDrawer: function() {
+      this.showLegendDrawer = !this.showLegendDrawer;
     },
     onShowCoverageThreshold: function() {
       this.$emit('show-coverage-threshold', true)

@@ -149,7 +149,7 @@
   .expansion-panel, .v-expansion-panel
     -webkit-box-shadow : none
     box-shadow: none
-    padding-bottom: 50px
+    padding-bottom: 0px
 
   .expansion-panel__body, .v-expansion-panel-content
     padding-left: 3px
