@@ -816,6 +816,8 @@ export default {
     paramIobioSource:      null,
     paramAnalysisId:       null,
     paramGeneSetId:        null,
+    paramClientApplicationId: null,
+    paramVariantSetId:     null,
 
     paramFileId:           null,
 
@@ -863,6 +865,7 @@ export default {
       sampleId: null,
       projectId: null,
       geneSet: null,
+      variantSet: null,
       launchedWithUrlParms: false,
       clinSetData: null,
       clinPersistCache: true,
@@ -1321,7 +1324,7 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
-        self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession();
+        self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession(self.paramClientApplicationId);
         self.hubSession.globalApp = self.globalApp;
         let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
 
@@ -1331,11 +1334,12 @@ export default {
         }
 
         self.cohortModel.setHubSession(self.hubSession);
-        self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId, self.paramGeneSetId)
+        self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId, self.paramGeneSetId, self.paramVariantSetId)
         .then(data => {
           self.modelInfos = data.modelInfos;
           self.rawPedigree = data.rawPedigree;
           self.geneSet = data.geneSet;
+          self.variantSet = data.variantSet;
 
           self.isMother = data.isMother;
           self.isFather = data.isFather;
@@ -1343,15 +1347,59 @@ export default {
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
           }
-
           return self.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
 
         })
         .then(analysis => {
+          self.analysis = analysis;
 
           if (self.analysis.payload.phenotypeTerm) {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
+
+          // Temporary code until gene name provided
+          if (self.variantSet && self.variantSet.variants) {
+            let bypassedCount = 0;
+            self.variantSet.variants.filter(function(variant) {
+              return variant.sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
+            })
+            .forEach(function(variant) {
+              let importedVariant = {};
+              if (variant.gene_symbol && variant.gene_symbol.length > 0) {
+                importedVariant.gene  = variant.gene_symbol;
+                importedVariant.chrom = variant.chr;
+                importedVariant.start = variant.pos;
+                importedVariant.end   = variant.pos;
+                importedVariant.ref   = variant.ref;
+                importedVariant.alt   = variant.alt;
+                importedVariant.filtersPassed    = "notCategorized";
+                importedVariant.inheritance      = null;
+                importedVariant.afgnomAD         = variant.gnomad_allele_frequency;
+                importedVariant.highestImpact    = variant.gene_impact;
+                importedVariant.consequence      = variant.gene_consequence;
+                importedVariant.isImported       = true;
+                importedVariant.variantSet       = "notCategorized";
+
+                self.analysis.payload.variants.push(importedVariant);
+                if (self.analysis.payload.genes.indexOf(importedVariant.gene) < 0) {
+                  self.analysis.payload.genes.push(importedVariant.gene);
+                }
+              } else {
+                console.log("Bypassing variant " + variant.chr + " " + variant.pos + " because gene not provided")
+                bypassedCount++;
+              }
+            })
+            if (bypassedCount > 0) {
+              if (bypassedCount == self.variantSet.variants.length) {
+                alertify.alert("Error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name.", )
+
+              } else {
+                alertify.alert("Warning", bypassedCount + " variants bypassed due to missing gene name")
+
+              }
+            }
+          }
+
           return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {

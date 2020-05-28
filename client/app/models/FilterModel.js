@@ -208,8 +208,8 @@ class FilterModel {
           // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
-          title: "Not categorized",
-          name: "Variants found during full analysis, but not passing any app filters",
+          title: "Passes external filter",
+          name: "Variants filtered in pre-processing, but not passing any app filters",
           order: 9,
           userFlagged: false,
           maxAf: null,
@@ -223,7 +223,25 @@ class FilterModel {
           minRevel: null,
           exclusiveOf: null
         },
-
+        'notCategorized': {
+          // TODO - figure out how to show when variants no longer match filters
+          active: false,
+          custom: false,
+          title: "Filtered variants",
+          name: "Variants found during full analysis, but not passing any app filters",
+          order: 8,
+          userFlagged: false,
+          maxAf: null,
+          clinvar: null,
+          impact: null,
+          consequence: null,
+          inheritance: null,
+          zyosity: null,
+          minGenotypeDepth: null,
+          minGenotypeAltCount: null,
+          minRevel: null,
+          exclusiveOf: null
+        },
         'notFound': {
           // TODO - figure out how to show when variants no longer match filters
           active: false,
@@ -397,7 +415,7 @@ class FilterModel {
           // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
-          title: "Not categorized",
+          title: "Filtered variants",
           name: "Variants found during full analysis, but not passing any app filters",
           order: 8,
           userFlagged: false,
@@ -864,6 +882,10 @@ class FilterModel {
       variant.notCategorized = true;
       variant.featureClass = 'flagged';
       self.mapGenomeWideFilter(variant);
+      if (badges["notCategorized"] == null) {
+        badges["notCategorized"] = [];
+      }
+      badges["notCategorized"].push(variant)
     }
 
     if (variant.isFlagged) {
@@ -888,8 +910,10 @@ class FilterModel {
       if (filter) {
         variant.filtersPassed = variant.variantSet;
       } else {
-        filterName = 'notCategorized';
+        variant.filtersPassed = 'notCategorized';
       }
+    } else {
+      variant.filtersPassed = "notCategorized";
     }
   }
 

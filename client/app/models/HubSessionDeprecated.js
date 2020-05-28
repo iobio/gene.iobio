@@ -4,7 +4,7 @@ export default class HubSessionDeprecated {
     this.vcf = null;
     this.samples = null;
     this.url = null;
-    this.apiVersion =  '/apiv1';
+    this.apiVersion =  '/api/v1';
   }
 
   promiseInit(sampleId, source, isPedigree) {

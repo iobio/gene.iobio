@@ -1,13 +1,15 @@
 
 export default class HubSession {
-  constructor() {
+  constructor(clientApplicationId) {
     this.vcf = null;
     this.samples = null;
     this.url = null;
     this.isMother = false;
     this.isFather = false;
-    this.apiVersion =  '/apiv1';
-    this.client_application_id = null;
+    this.apiVersion =  '/api/v1';
+    this.apiDepricated = null;
+    this.apiVersionDeprecated = '/apiv1'
+    this.client_application_id = clientApplicationId,
     this.variantSetTxtCols = [
       "chrom",
       "start",
@@ -28,13 +30,15 @@ export default class HubSession {
     this.globalApp = null;
   }
 
-  promiseInit(sampleId, source, isPedigree, projectId, geneSetId ) {
+  promiseInit(sampleId, source, isPedigree, projectId, geneSetId, variantSetId ) {
     let self = this;
     self.api = source + self.apiVersion;
+    self.apiDepricated = source + self.apiVersionDeprecated
 
     return new Promise((resolve, reject) => {
       let modelInfos = [];
       let geneSet = null;
+      let variantSet = null;
 
       self.promiseGetCurrentUser()
       .then(function(data) {
@@ -54,6 +58,16 @@ export default class HubSession {
       })
       .then(function(data) {
         geneSet = data;
+
+        if (variantSetId) {
+          return self.promiseGetVariantSet(projectId, variantSetId)
+        } else {
+          return Promise.resolve(null);
+        }
+
+      })
+      .then(function(data) {
+        variantSet = data;
 
         self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then(data => {
 
@@ -144,7 +158,12 @@ export default class HubSession {
                 alertify.alert("Error", buf)
               }
 
-              resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree, 'geneSet': geneSet, 'isMother': self.isMother, 'isFather': self.isFather});
+              resolve({'modelInfos': modelInfos,
+                'rawPedigree': rawPedigree,
+                'geneSet': geneSet,
+                'variantSet': variantSet,
+                'isMother': self.isMother,
+                'isFather': self.isFather});
             })
             .catch(error => {
               reject(error);
@@ -272,36 +291,14 @@ export default class HubSession {
 
   promiseGetClientApplication() {
     let self = this;
+
     return new Promise(function(resolve, reject) {
-      $.ajax({
-        url: self.api + '/client-applications',
-        type: 'GET',
-        contentType: 'application/json',
-        headers: {
-          Authorization: localStorage.getItem('hub-iobio-tkn'),
-        },
-      })
-      .done(data => {
-        let clientApps = data.data;
-        let matchingApp = clientApps.filter(function(clientApp) {
-          return clientApp.display_name == 'Gene.iobio';
-        })
-        if (matchingApp.length > 0) {
-          console.log("client_application_id = " + matchingApp[0].id)
-          self.client_application_id = matchingApp[0].id;
-          resolve();
-        } else {
-          reject("Cannot find Mosaic client_application for gene")
-        }
-
-      })
-      .fail(error => {
-        console.log("Error getting applications ");
-        console.log(error);
-        reject(error);
-      })
-
-    })
+      if(self.client_application_id){
+      resolve();
+    }
+      else{
+        reject("Cannot find Mosaic client_application for gene");
+      }})
   }
 
 
@@ -615,6 +612,21 @@ export default class HubSession {
 
   }
 
+
+  promiseGetVariantSet(projectId, variantSetId) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getVariantSet(projectId, variantSetId)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        reject("Error getting variant set " + variantSetId + ": " + error);
+      })
+    })
+
+  }
+
   promiseGetAnalysis(projectId, analysisId) {
     let self = this;
     return new Promise(function(resolve, reject) {
@@ -761,6 +773,21 @@ export default class HubSession {
 
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/genes/sets/' + geneSetId,
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+
+  getVariantSet(projectId, variantSetId) {
+    let self = this;
+
+    return $.ajax({
+      url: self.apiDepricated + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId + "&include_variant_data=true",
+
       type: 'GET',
       contentType: 'application/json',
       headers: {
