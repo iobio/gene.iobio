@@ -4,8 +4,9 @@
 
     #filterSelect
         display: inline-flex
-        padding-left: 20px
-        padding-right: 20px
+        padding-left: 30px
+        padding-right: 0
+        height: 25px
 
     #dropdownWrapper
         width: 250px
@@ -13,18 +14,18 @@
 
     .filter-switch
         display: inline-block
-        margin-top: 0px !important
+        margin-top: 0 !important
         float: right
-        margin-right: 20px
-        margin-left: 10px
-        padding-top: 20px
+        padding-right: 34px
+        padding-top: 0
+        padding-bottom: 3px
 
         label
+            padding-top: 7px
             padding-left: 0px
             line-height: 18px
             font-size: 13px
             font-weight: 400
-            padding-top: 5px
             color: $text-color
 
 
@@ -36,22 +37,28 @@
 
         <div id="filterSelect">
             <div id="dropdownWrapper">
-    <v-select  outlined
+    <v-select  class="ma-0 pa-0"
+               outlined
                multiple
                chips
+               small
                deletable-chips
                dense
                label="Select filters"
                :items="filters"
                item-text='title'
                item-value='name'
+               height="25"
+
                v-model="selectedFilters">
 
     </v-select>
             </div>
             <v-switch
                       class="filter-switch"
-                      label="Filter variant tracks"
+                      label="Filter tracks"
+                      height="25"
+
                       v-model="showFilter"
                       dense
             >

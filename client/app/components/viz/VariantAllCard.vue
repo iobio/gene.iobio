@@ -111,21 +111,20 @@
 
 
   .zoom-switch
-    margin-left: 5px
     display: inline-block
     margin-top: 0px !important
     max-width: 80px
     float: right
-    margin-right: 20px
-    margin-left: 30px
-    padding-top: 0px
+    margin-right: 20px !important
+    margin-left: 35px !important
+    padding-bottom: 2px
 
     label
       padding-left: 0px
       line-height: 18px
       font-size: 13px
       font-weight: 400
-      padding-top: 5px
+      padding-top: 7px
       color: $text-color
 
   .badge, .v-badge
@@ -296,7 +295,7 @@
 <template>
 
   <v-card tile id="variant-card" class="app-card">
-    <div style="display: flex;align-items: center;margin-bottom: 5px;">
+    <div style="display: flex;align-items: center;margin-bottom: 10px;">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
@@ -352,10 +351,13 @@
         <!--&gt;-->
         <!--</ranked-variants-menu>-->
 
+      <div style="padding-top: 50px; height:30px"></div>
 
-        <v-badge  id="loaded-count"
+      <div>
+        <div style="height: 3px"></div>
+        <v-badge  id="loaded-count" style="padding-top: 0px; margin-left: 0 !important"
         v-if="!isEduMode && !isBasicMode && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="loaded mr-4 " >
-          <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
+          <span slot="badge" > {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
           {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Variants' }}
         </v-badge>
         <v-badge id="called-count"
@@ -368,12 +370,13 @@
           <span slot="badge"> {{ coverageDangerRegions.length }} </span>
           Exons with insufficient coverage
         </v-badge>
+      </div>
 
 
 
 
 
-      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="zoom-switch" style="max-width:80px"
+      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="zoom-switch" style="max-width:80px;"
       label="Zoom"
       v-model="showZoom"
       :hide-details="true"
