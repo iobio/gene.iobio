@@ -323,22 +323,34 @@
             :isFather="isFather"
         ></optional-tracks-menu>
 
+      <VariantFilter
+              v-if="showVariantViz"
+              :variants="sampleModel.loadedVariants"
+              :filterModel="sampleModel.cohort.filterModel"
+              :geneLists="geneLists"
+              :selectedGene="selectedGene"
+              :selected-variant="selectedVariant"
+              @filtered-variants-update="onFilteredVariantsUpdate"
+              @show-filter="onShowFilter"
+      >
+      </VariantFilter>
 
-        <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
-          v-show="!isEduMode && !isBasicMode"
-          :isEduMode="isEduMode"
-          :isBasicMode="isBasicMode"
-          :isSimpleMode="isSimpleMode"
-          :featureMatrixModel="featureMatrixModel"
-          :selectedGene="selectedGene"
-          :selectedTranscript="selectedTranscript"
-          :selectedVariant="selectedVariant"
-          :variantTooltip="variantTooltip"
-          @ranked-variant-click="onRankedVariantClick"
-          @ranked-variant-hover="onRankedVariantHover"
-          @ranked-variant-hover-end="onRankedVariantHoverEnd"
-        >
-        </ranked-variants-menu>
+
+        <!--<ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"-->
+          <!--v-show="!isEduMode && !isBasicMode"-->
+          <!--:isEduMode="isEduMode"-->
+          <!--:isBasicMode="isBasicMode"-->
+          <!--:isSimpleMode="isSimpleMode"-->
+          <!--:featureMatrixModel="featureMatrixModel"-->
+          <!--:selectedGene="selectedGene"-->
+          <!--:selectedTranscript="selectedTranscript"-->
+          <!--:selectedVariant="selectedVariant"-->
+          <!--:variantTooltip="variantTooltip"-->
+          <!--@ranked-variant-click="onRankedVariantClick"-->
+          <!--@ranked-variant-hover="onRankedVariantHover"-->
+          <!--@ranked-variant-hover-end="onRankedVariantHoverEnd"-->
+        <!--&gt;-->
+        <!--</ranked-variants-menu>-->
 
 
         <v-badge  id="loaded-count"
@@ -367,7 +379,6 @@
       :hide-details="true"
       >
       </v-switch>
-
 
       <v-btn id="variant-pileup-button"
        class="variant-action-button"
@@ -443,18 +454,7 @@
           called variants
         </div>
 
-        <!--Pass filtered variants to loaded variant viz-->
-        <VariantFilter
-                v-if="showVariantViz"
-                :variants="sampleModel.loadedVariants"
-                :filterModel="sampleModel.cohort.filterModel"
-                :geneLists="geneLists"
-                :selectedGene="selectedGene"
-                :selected-variant="selectedVariant"
-                @filtered-variants-update="onFilteredVariantsUpdate"
-                @show-filter="onShowFilter"
-        >
-        </VariantFilter>
+
 
           <!--Dont pass filtered variants to called variant viz-->
         <variant-viz id="called-variant-viz"

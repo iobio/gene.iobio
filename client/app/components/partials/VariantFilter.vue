@@ -1,18 +1,37 @@
 <style lang="sass">
+    @import ../../../assets/sass/variables
+
 
     #filterSelect
-        width: 800px
         display: inline-flex
+        padding-left: 20px
+        padding-right: 20px
 
     #dropdownWrapper
         width: 250px
+        padding-right: 20px
+
+    .filter-switch
+        display: inline-block
+        margin-top: 0px !important
+        float: right
+        margin-right: 20px
+        margin-left: 10px
+        padding-top: 20px
+
+        label
+            padding-left: 0px
+            line-height: 18px
+            font-size: 13px
+            font-weight: 400
+            padding-top: 5px
+            color: $text-color
 
 
 </style>
 
 <template>
     <div id="variant-filter">
-        Select filters to show/hide variants
 
 
         <div id="filterSelect">
@@ -22,6 +41,7 @@
                chips
                deletable-chips
                dense
+               label="Select filters"
                :items="filters"
                item-text='title'
                item-value='name'
@@ -29,14 +49,13 @@
 
     </v-select>
             </div>
-
             <v-switch
-                      label="filter variant-viz"
+                      class="filter-switch"
+                      label="Filter variant tracks"
                       v-model="showFilter"
                       dense
             >
             </v-switch>
-
         </div>
     </div>
 
