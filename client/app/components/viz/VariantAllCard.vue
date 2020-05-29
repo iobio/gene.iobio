@@ -12,7 +12,6 @@
 #variant-card.proband
   padding-top: 6px
 
-
 #variant-card
   #sample-label
     vertical-align: top
@@ -22,6 +21,9 @@
     padding-top: 2px
     color: $app-color
     font-size: 16px
+    
+  #loaded-count
+    color: $text-color
 
   #sample-identifier
     width: 130px
@@ -117,14 +119,16 @@
     display: inline-block
     padding-top: 0px !important
     margin-top: 0px !important
+
     /*margin-right: 20px !important*/
     /*margin-left: 35px !important*/
 
     label
       padding-left: 0px
       line-height: 18px
-      font-size: 13px
-      font-weight: 400
+      font-family: Poppins, sans-serif !important
+      font-size: 13px !important
+      font-weight: normal !important
       padding-top: 7px
       color: $text-color
 

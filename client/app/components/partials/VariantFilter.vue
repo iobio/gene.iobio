@@ -2,13 +2,12 @@
     @import ../../../assets/sass/variables
 
 
-    #variantFilter
 
     #filterSelect
         display: inline-flex
         justify-content: center
         justify-items: center
-        padding-left: 0px
+        padding-left: 0
         padding-right: 0
 
     #dropdownWrapper
@@ -30,6 +29,14 @@
 
     .v-input__slot
         margin-bottom: 0 !important
+
+    .v-select__slot
+        label
+            font-family: Poppins, sans-serif !important
+            font-size: 13px !important
+            color: $text-color
+
+    /*font-weight: normal !important*/
 
 
 </style>
