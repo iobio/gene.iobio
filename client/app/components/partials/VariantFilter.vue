@@ -2,23 +2,24 @@
     @import ../../../assets/sass/variables
 
 
+    #variantFilter
+
     #filterSelect
         display: inline-flex
-        padding-left: 30px
+        justify-content: center
+        justify-items: center
+        padding-left: 0px
         padding-right: 0
         height: 25px
 
     #dropdownWrapper
         width: 250px
-        padding-right: 20px
+        padding-right: 0px
 
     .filter-switch
         display: inline-block
         margin-top: 0 !important
         float: right
-        padding-right: 34px
-        padding-top: 0
-        padding-bottom: 3px
 
         label
             padding-top: 7px
@@ -54,15 +55,6 @@
 
     </v-select>
             </div>
-            <v-switch
-                      class="filter-switch"
-                      label="Filter tracks"
-                      height="25"
-
-                      v-model="showFilter"
-                      dense
-            >
-            </v-switch>
         </div>
     </div>
 
@@ -152,10 +144,10 @@
                 setTimeout( function() {
 
                     let baseWidth = 125;
-                    let totalWidth = 40;
+                    let totalWidth = 50;
 
 
-                    let padding = 20 * self.selectedFilters.length;
+                    let padding = 35 * self.selectedFilters.length;
 
                     let selection = d3.select("#dropdownWrapper").selectAll(".v-chip__content")
                         .attr("swag", function (d, i) {

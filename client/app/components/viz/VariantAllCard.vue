@@ -39,6 +39,9 @@
     left: 0px
     display: none !important
 
+  .header-spacer
+    width: 30px
+
   .variant-action-button
     background-color: white
     padding: 0px
@@ -112,12 +115,10 @@
 
   .zoom-switch
     display: inline-block
+    padding-top: 0px !important
     margin-top: 0px !important
-    max-width: 80px
-    float: right
-    margin-right: 20px !important
-    margin-left: 35px !important
-    padding-bottom: 2px
+    /*margin-right: 20px !important*/
+    /*margin-left: 35px !important*/
 
     label
       padding-left: 0px
@@ -144,7 +145,6 @@
         border: thin solid #bfbdbd !important
         color: $text-color !important
     &.loaded
-      vertical-align: top
       padding-top: 4px
       padding-left: 0px
       margin-left: 15px
@@ -307,6 +307,9 @@
 
       </span>
 
+      <div style=" display: inline-flex; flex-wrap: wrap; padding-top: 15px;
+  justify-content: flex-start;">
+
         <optional-tracks-menu
             v-show="!isEduMode && !isBasicMode && !isSimpleMode"
             @show-known-variants-card="onShowKnownVariantsCard"
@@ -322,6 +325,8 @@
             :isFather="isFather"
         ></optional-tracks-menu>
 
+        <div class="header-spacer"></div>
+
       <VariantFilter
               v-if="showVariantViz"
               :variants="sampleModel.loadedVariants"
@@ -333,6 +338,19 @@
               @show-filter="onShowFilter"
       >
       </VariantFilter>
+
+        <div style="width: 15px;"></div>
+
+
+        <v-switch class="zoom-switch"
+                label="Filter tracks"
+                  :hide-details="true"
+
+                  v-model="showFilter"
+        >
+        </v-switch>
+
+        <div class="header-spacer"></div>
 
 
         <!--<ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"-->
@@ -351,13 +369,14 @@
         <!--&gt;-->
         <!--</ranked-variants-menu>-->
 
-      <div style="padding-top: 50px; height:30px"></div>
+      <!--<div style="padding-top: 50px; height:30px"></div>-->
 
-      <div>
-        <div style="height: 3px"></div>
-        <v-badge  id="loaded-count" style="padding-top: 0px; margin-left: 0 !important"
+        <div>
+          <div style="height: 4px"></div>
+
+        <v-badge  id="loaded-count" style="padding-top: 2px; margin-left: 0 !important"
         v-if="!isEduMode && !isBasicMode && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="loaded mr-4 " >
-          <span slot="badge" > {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
+          <span slot="badge" style="padding-top: 0px" > {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
           {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Variants' }}
         </v-badge>
         <v-badge id="called-count"
@@ -370,18 +389,23 @@
           <span slot="badge"> {{ coverageDangerRegions.length }} </span>
           Exons with insufficient coverage
         </v-badge>
-      </div>
+
+        </div>
+
+        <div class="header-spacer"></div>
 
 
 
 
-
-      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="zoom-switch" style="max-width:80px;"
+      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+                class="zoom-switch" style="max-width:80px;"
       label="Zoom"
       v-model="showZoom"
       :hide-details="true"
       >
       </v-switch>
+
+      </div>
 
       <v-btn id="variant-pileup-button"
        class="variant-action-button"
@@ -868,10 +892,6 @@ export default {
 
     onFilteredVariantsUpdate: function(filteredVariants){
       this.filteredVariants = filteredVariants;
-    },
-
-    onShowFilter: function(showFilter){
-      this.showFilter = showFilter;
     },
 
     onVariantOutsideClick: function(model) {
