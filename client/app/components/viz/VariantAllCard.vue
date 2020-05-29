@@ -295,7 +295,7 @@
 <template>
 
   <v-card tile id="variant-card" class="app-card">
-    <div style="display: flex;align-items: center;margin-bottom: 10px;">
+    <div style="display: flex;align-items: center;margin-bottom: 10x;">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
@@ -325,7 +325,7 @@
 
       <div class="header-spacer"></div>
 
-      <div style=" display: inline-flex; flex-wrap: wrap; padding-top: 15px;
+      <div style=" display: inline-flex; flex-wrap: wrap; padding-top: 5px;
   justify-content: flex-start;">
 
 
@@ -353,26 +353,6 @@
         </div>
 
         <div class="header-spacer"></div>
-
-
-        <!--<ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"-->
-          <!--v-show="!isEduMode && !isBasicMode"-->
-          <!--:isEduMode="isEduMode"-->
-          <!--:isBasicMode="isBasicMode"-->
-          <!--:isSimpleMode="isSimpleMode"-->
-          <!--:featureMatrixModel="featureMatrixModel"-->
-          <!--:selectedGene="selectedGene"-->
-          <!--:selectedTranscript="selectedTranscript"-->
-          <!--:selectedVariant="selectedVariant"-->
-          <!--:variantTooltip="variantTooltip"-->
-          <!--@ranked-variant-click="onRankedVariantClick"-->
-          <!--@ranked-variant-hover="onRankedVariantHover"-->
-          <!--@ranked-variant-hover-end="onRankedVariantHoverEnd"-->
-        <!--&gt;-->
-        <!--</ranked-variants-menu>-->
-
-      <!--<div style="padding-top: 50px; height:30px"></div>-->
-
         <div>
           <div style="height: 4px"></div>
 

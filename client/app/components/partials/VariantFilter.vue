@@ -18,7 +18,7 @@
     .filter-switch
         display: inline-block
         margin-top: 0 !important
-        float: right
+        margin-bottom: 0 !important
 
         label
             padding-top: 7px
@@ -27,6 +27,9 @@
             font-size: 13px
             font-weight: 400
             color: $text-color
+
+    .v-input__slot
+        margin-bottom: 0 !important
 
 
 </style>
@@ -144,14 +147,8 @@
                     let baseWidth = 125;
                     let totalWidth = 50;
 
-
-                    let padding = 35 * self.selectedFilters.length;
-
-                    let selection = d3.select("#dropdownWrapper").selectAll(".v-chip__content")
-                        .attr("swag", function (d, i) {
-                            console.log("d", d);
-                            console.log("i", i);
-                            console.log("width", this.getBoundingClientRect().width);
+                    d3.select("#dropdownWrapper").selectAll(".v-chip__content")
+                        .attr("getWidth", function (d, i) {
                             totalWidth += this.getBoundingClientRect().width;
                         });
 
