@@ -307,25 +307,27 @@
 
       </span>
 
+
+      <optional-tracks-menu
+              v-show="!isEduMode && !isBasicMode && !isSimpleMode"
+              @show-known-variants-card="onShowKnownVariantsCard"
+              @show-sfari-variants-card="onShowSfariVariantsCard"
+              @show-mother-card="onShowMotherCard"
+              @show-father-card="onShowFatherCard"
+              @optional-track-close="onOptionalTrackClose"
+              @known-variants-viz-change="onKnownVariantsVizChange"
+              @known-variants-filter-change="onKnownVariantsFilterChange"
+              @sfari-variants-viz-change="onSfariVariantsVizChange"
+              @sfari-variants-filter-change="onSfariVariantsFilterChange"
+              :isMother="isMother"
+              :isFather="isFather"
+      ></optional-tracks-menu>
+
+      <div class="header-spacer"></div>
+
       <div style=" display: inline-flex; flex-wrap: wrap; padding-top: 15px;
   justify-content: flex-start;">
 
-        <optional-tracks-menu
-            v-show="!isEduMode && !isBasicMode && !isSimpleMode"
-            @show-known-variants-card="onShowKnownVariantsCard"
-            @show-sfari-variants-card="onShowSfariVariantsCard"
-            @show-mother-card="onShowMotherCard"
-            @show-father-card="onShowFatherCard"
-            @optional-track-close="onOptionalTrackClose"
-            @known-variants-viz-change="onKnownVariantsVizChange"
-            @known-variants-filter-change="onKnownVariantsFilterChange"
-            @sfari-variants-viz-change="onSfariVariantsVizChange"
-            @sfari-variants-filter-change="onSfariVariantsFilterChange"
-            :isMother="isMother"
-            :isFather="isFather"
-        ></optional-tracks-menu>
-
-        <div class="header-spacer"></div>
 
       <VariantFilter
               v-if="showVariantViz"
@@ -335,20 +337,20 @@
               :selectedGene="selectedGene"
               :selected-variant="selectedVariant"
               @filtered-variants-update="onFilteredVariantsUpdate"
-              @show-filter="onShowFilter"
       >
       </VariantFilter>
 
         <div style="width: 15px;"></div>
 
 
+        <div style="width: 120px">
         <v-switch class="zoom-switch"
                 label="Filter tracks"
                   :hide-details="true"
-
                   v-model="showFilter"
         >
         </v-switch>
+        </div>
 
         <div class="header-spacer"></div>
 

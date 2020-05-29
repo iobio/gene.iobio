@@ -10,7 +10,6 @@
         justify-items: center
         padding-left: 0px
         padding-right: 0
-        height: 25px
 
     #dropdownWrapper
         width: 250px
@@ -49,7 +48,6 @@
                :items="filters"
                item-text='title'
                item-value='name'
-               height="25"
 
                v-model="selectedFilters">
 
