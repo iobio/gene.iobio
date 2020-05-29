@@ -38,10 +38,10 @@
         <div id="filterSelect">
             <div id="dropdownWrapper">
     <v-select  class="ma-0 pa-0"
+               id="v-select-filter"
                outlined
                multiple
-               chips
-               small
+               small-chips
                deletable-chips
                dense
                label="Select filters"
@@ -109,6 +109,11 @@
             selectedFilters: function(){
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
+
+                this.setDropdownWidth();
+
+
+
             },
             selectedGene: function(){
                 this.setFilteredVariants();
@@ -137,6 +142,38 @@
                         this.filters.push({"name": v.key, 'title': v.title})
                     }
                 }
+            },
+
+            setDropdownWidth: function(){
+
+                let self = this;
+
+
+                setTimeout( function() {
+
+                    let baseWidth = 125;
+                    let totalWidth = 40;
+
+
+                    let padding = 20 * self.selectedFilters.length;
+
+                    let selection = d3.select("#dropdownWrapper").selectAll(".v-chip__content")
+                        .attr("swag", function (d, i) {
+                            console.log("d", d);
+                            console.log("i", i);
+                            console.log("width", this.getBoundingClientRect().width);
+                            totalWidth += this.getBoundingClientRect().width;
+                        });
+
+                    let width = Math.max(baseWidth, totalWidth);
+
+
+                    d3.select("#dropdownWrapper")
+                        .style("width", width.toString() + "px");
+                }, 100);
+
+
+
             },
 
             passesFilters: function(variant){
