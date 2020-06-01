@@ -697,7 +697,8 @@
 
       <v-card v-if="currentFilter" class="full-width" style="padding:10px">
         <v-card-title style="margin-left:20px" class="headline">
-          Edit {{ currentFilter.title }}  Filter
+          {{editAddText}}
+          {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>
           <v-btn text icon @click="onCancelFilter"><v-icon>close</v-icon></v-btn>
         </v-card-title>
@@ -752,6 +753,7 @@ export default {
     toClickVariant: null,
     variantSetCounts: null
   },
+
   data() {
     return {
       readyToDownload: false,
@@ -762,9 +764,13 @@ export default {
       showEditFilter: false,
       currentFilter: null,
       expansionControl: null,
+      editAddText: 'Edit'
     }
   },
   methods: {
+
+
+
     onApplyInterpretationFilter: function(interpretation) {
       this.interpretationFilters = interpretation
       this.populateGeneLists();
@@ -903,8 +909,14 @@ export default {
       return sortedGenes;
     },
 
-    onEditFilter: function(geneList) {
+    onEditFilter: function(geneList, text) {
       let self = this;
+      if(text === "Add"){
+        this.editAddText = 'Add ';
+      }
+      else{
+        this.editAddText = "Edit "
+      }
       self.showEditFilter = true;
       self.currentFilter = geneList.filter;
       setTimeout(function() {
@@ -953,7 +965,7 @@ export default {
           showTooltip: false,
           tooltip: '',
           showEdit: true,
-          tooltip: ''
+          tooltip: '',
       };
       let newGeneList =  {
           name:  newFilter.name,
@@ -964,8 +976,6 @@ export default {
           variantCount: 0,
           expand: true
       }
-
-      self.currentFilter = newFilter;
 
       let flagCriteria = {};
       flagCriteria.custom = true;
@@ -983,7 +993,7 @@ export default {
       self.cohortModel.filterModel.flagCriteria[newFilter.name] = flagCriteria;
 
       self.geneLists.push(newGeneList);
-      self.onEditFilter(newGeneList);
+      self.onEditFilter(newGeneList, "Add");
       self.$emit("filter-settings-applied")
     },
 

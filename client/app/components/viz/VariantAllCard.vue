@@ -21,7 +21,7 @@
     padding-top: 2px
     color: $app-color
     font-size: 16px
-    
+
   #loaded-count
     color: $text-color
 

@@ -122,6 +122,9 @@
               v-bind:items="inheritanceModes"
               v-model="selectedInheritanceModes"
               multiple
+              small-chips
+              deletable-chips
+              clearable
               hide-details
         >
         </v-select>
@@ -153,7 +156,11 @@
               v-bind:items="clinvarCategories"
               v-model="selectedClinvarCategories"
               multiple
+              small-chips
+              deletable-chips
               hide-details
+              clearable
+
         >
         </v-select>
       </v-flex>
@@ -168,6 +175,10 @@
               v-model="selectedImpacts"
               multiple
               hide-details
+              small-chips
+              deletable-chips
+              clearable
+
         >
         </v-select>
       </v-flex>
