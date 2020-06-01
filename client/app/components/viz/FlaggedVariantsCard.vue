@@ -939,11 +939,17 @@ export default {
     onRemoveFilter: function(geneList) {
       let self = this;
 
-      delete self.cohortModel.filterModel.flagCriteria[geneList.filter.key]
-      self.$emit("filter-settings-applied");
+      this.$dialog
+              .confirm('Deleting this filter will remove all variants associated with this filter')
+              .then(function(dialog) {
+                delete self.cohortModel.filterModel.flagCriteria[geneList.filter.key]
+                self.$emit("filter-settings-applied");
 
-      self.showEditFilter = false;
-      self.currentFilter = null;
+                self.showEditFilter = false;
+                self.currentFilter = null;              })
+              .catch(function() {
+              });
+
     },
     onNewFilter: function() {
       let self = this;
