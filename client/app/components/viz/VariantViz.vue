@@ -268,7 +268,27 @@ export default {
       },
       showFlaggedVariant: function(variant, container) {
         this.variantChart.showFlaggedVariant(container, variant);
-      }
+      },
+
+      intersectVariants(){
+          let copyVariants = Object.assign({}, this.filteredVariants);
+          let features = [];
+          if(this.filteredVariants && this.filteredVariants.features && this.data && this.data.features) {
+              for (let i = 0; i < this.data.features.length; i++) {
+                  for (let j = 0; j < this.filteredVariants.features.length; j++) {
+                      let fv = this.data.features[i];
+                      let v = this.filteredVariants.features[j];
+                      if (fv.start === v.start && fv.end === v.end && fv.alt === v.alt && fv.ref === v.ref) {
+                          console.log("fv", fv);
+                          console.log("v", v);
+                          features.push(v);
+                      }
+                  }
+              }
+          }
+          copyVariants.features = features;
+          this.variants = copyVariants;
+      },
     },
     watch: {
       variants: function(){
@@ -277,7 +297,8 @@ export default {
 
       selectedVariant: function(){
         if(this.showFilter){
-          this.variants = this.filteredVariants;
+          this.intersectVariants();
+          // this.variants = this.filteredVariants;
         }
         else{
           this.variants = this.data;
@@ -286,7 +307,7 @@ export default {
 
       showFilter: function(){
         if(this.showFilter){
-          this.variants = this.filteredVariants;
+            this.intersectVariants()
         }
         else{
           this.variants = this.data;
