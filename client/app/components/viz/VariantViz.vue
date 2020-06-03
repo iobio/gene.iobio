@@ -206,8 +206,7 @@ export default {
         var self = this;
 
         if (self.variants && self.data.features.length > 0) {
-
-          // Set the vertical layer count so that the height of the chart can be recalculated
+            // Set the vertical layer count so that the height of the chart can be recalculated
           if (self.variants.maxLevel == null) {
             self.variants.maxLevel = d3.max(self.variants.features, function(d) { return d.level; });
           }
@@ -279,8 +278,6 @@ export default {
                       let fv = this.data.features[i];
                       let v = this.filteredVariants.features[j];
                       if (fv.start === v.start && fv.end === v.end && fv.alt === v.alt && fv.ref === v.ref) {
-                          console.log("fv", fv);
-                          console.log("v", v);
                           features.push(v);
                       }
                   }
@@ -288,6 +285,8 @@ export default {
           }
           copyVariants.features = features;
           this.variants = copyVariants;
+
+
       },
     },
     watch: {
@@ -298,7 +297,6 @@ export default {
       selectedVariant: function(){
         if(this.showFilter){
           this.intersectVariants();
-          // this.variants = this.filteredVariants;
         }
         else{
           this.variants = this.data;
@@ -316,7 +314,7 @@ export default {
 
       filteredVariants(){
         if(this.showFilter){
-          this.variants = this.filteredVariants;
+            this.intersectVariants();
         }
         else{
           this.variants = this.data;
