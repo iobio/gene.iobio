@@ -289,17 +289,61 @@
       .circle-label
         fill: #868686 !important
 
+.info-button
+  margin: 0px !important
+  padding: 0px !important
+  min-width: 18px !important
+
+  .btn__content, .v-btn__content
+    padding: 0px
+    max-width: 18px
+
+    i.material-icons
+      font-size: 18px
+      color: $link-color
+      opacity: .6
+
+.close-button
+  margin: 0px !important
+  padding: 0px !important
+  min-width: 25px !important
+  height: 25px !important
+  margin-bottom: 15px !important
+
+  .btn__content, .v-btn__content
+    padding: 0px
+    max-width: 25px
+    max-height: 25px
+
+    i.material-icons
+      font-size: 25px
+      color: $text-color
+
+.info-title
+  font-size: 20px
+  color: $app-color
+  margin-bottom: 15px
+
+.info-card
+  padding: 15px 15px 20px 15px
+
+.info-description
+  font-size: 13px
+
+.info-publication
+  margin-top: 20px
+  font-size: 13px
+  a
+    font-style: italic
+    font-size: 13px
+    line-height: 16px
+
 </style>
-
-<style lang="css">
-
-</style>
-
 
 <template>
 
   <v-card tile id="variant-card" class="app-card">
-    <div style="display: flex;align-items: center;margin-bottom: 10x;">
+    <div style="display: flex;align-items: center;margin-bottom: 10px;">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
@@ -329,9 +373,23 @@
 
       <div class="header-spacer"></div>
 
-      <div style=" display: inline-flex; flex-wrap: wrap; padding-top: 5px;
-  justify-content: flex-start;">
+        <v-dialog  width="500"  v-model="showPopup" lazy >
+          <v-btn class="info-button" flat  slot="activator">
+            <v-icon>help</v-icon>
+          </v-btn>
+          <v-card class="info-card full-width">
+            <v-card-title style="justify-content:space-between">
+              <span class="info-title">{{ 'Filter variant track by inheritance' }}</span>
+              <v-btn  @click="onClose" flat class="close-button">
+                <v-icon>close</v-icon>
+              </v-btn>
+            </v-card-title>
+            <v-card-text class="info-description" v-html="'Only render variants on variant tracks that pass one of the selected inheritance filters'">
+            </v-card-text>
+          </v-card>
+        </v-dialog>
 
+        <div style="width: 10px"></div>
 
       <VariantFilter
               v-if="showVariantViz"
@@ -345,10 +403,18 @@
       >
       </VariantFilter>
 
-        <div style="width: 15px;"></div>
+      <div class="header-spacer"></div>
 
 
-        </div>
+
+
+      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+                class="zoom-switch" style="max-width:80px;"
+                label="Zoom"
+                v-model="showZoom"
+                :hide-details="true"
+      >
+      </v-switch>
 
         <div class="header-spacer"></div>
         <div>
@@ -372,19 +438,6 @@
 
         </div>
 
-        <div class="header-spacer"></div>
-
-
-
-
-      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
-                class="zoom-switch" style="max-width:80px;"
-      label="Zoom"
-      v-model="showZoom"
-      :hide-details="true"
-      >
-      </v-switch>
-
       </div>
 
       <v-btn id="variant-pileup-button"
@@ -405,7 +458,6 @@
         @sfariVariantsFilterChange="onSfariVariantsFilterChange">
       </sfari-variants-toolbar>
 
-    </div>
 
 
 
@@ -749,6 +801,7 @@ export default {
 
     blacklistedGeneSelected: false,  // True if selected gene falls in SFARI ACMG blacklist
     geneLists: null,
+    showPopup: false,
 
   },
 
@@ -873,6 +926,11 @@ export default {
 
     onFilteredVariantsUpdate: function(filteredVariants){
       this.filteredVariants = filteredVariants;
+    },
+
+
+    onClose: function() {
+      this.showPopup = false;
     },
 
     onVariantOutsideClick: function(model) {
