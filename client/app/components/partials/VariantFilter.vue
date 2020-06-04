@@ -138,7 +138,7 @@
 
                 //todo: handle custom filters differnet structure
                 for(let [k, v] of Object.entries(this.flagCriteria)){
-                    if(v.key !== "undefined") {
+                    if(v.key !== "undefined" && v.key !== "notFound" && v.key !== "notCategorized" && v.key !== "high" && v.key !== "userFlagged") {
                         this.filters.push({"name": v.key, 'title': v.title})
                     }
                 }
