@@ -81,6 +81,17 @@ button
 .dropdown-menu > li > a:hover, .dropdown-menu > li >a:focus
   background-color:  $hover-menu-background-color !important
 
+.v-overlay v-overlay--active
+  background-color: rgb(113,113,113) !important
+  color: rgb(113,113,113) !important
+  opacity: 0.46 !important
+
+.v-overlay--active
+  background-color: rgb(113,113,113) !important
+  color: rgb(113,113,113) !important
+  opacity: 0.05 !important
+
+
 .card, .v-card
   -webkit-box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.05), 0px 1px 1px 0px rgba(0,0,0,0.03), 0px 1px 3px 0px rgba(0,0,0,0.01) !important
   box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.05), 0px 1px 1px 0px rgba(0,0,0,0.03), 0px 1px 3px 0px rgba(0,0,0,0.01) !important
@@ -89,7 +100,7 @@ nav.toolbar, nav.v-toolbar
   -webkit-box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.13), 0px 4px 5px 0px rgba(0,0,0,0.08), 0px 1px 10px 0px rgba(0,0,0,0.04) !important
   box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.13), 0px 4px 5px 0px rgba(0,0,0,0.08), 0px 1px 10px 0px rgba(0,0,0,0.04) !important
 
-.v-tabs__slider.accent 
+.v-tabs__slider.accent
   background-color: $current-color !important
   border-color: $current-color !important
 
@@ -103,7 +114,7 @@ nav.toolbar, nav.v-toolbar
   border-color: $app-color !important
   border: thin solid !important
 
-  
+
 </style>
 
 <template>
@@ -129,7 +140,7 @@ export default {
     }
   },
   mounted() {
-    
+
   }
 }
 </script>

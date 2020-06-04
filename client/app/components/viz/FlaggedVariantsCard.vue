@@ -1,6 +1,57 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+.info-button
+  margin: 0px !important
+  padding: 0px !important
+  min-width: 18px !important
+  height: 18px !important
+  margin-top: -6px !important
+
+  .btn__content, .v-btn__content
+    padding: 0px
+    max-width: 18px
+    max-height: 18px
+
+    i.material-icons
+      font-size: 18px
+      color: $link-color
+      opacity: .6
+
+.close-button
+  margin: 0px !important
+  padding: 0px !important
+  min-width: 25px !important
+  height: 25px !important
+  margin-bottom: 15px !important
+
+  .btn__content, .v-btn__content
+    padding: 0px
+    max-width: 25px
+    max-height: 25px
+
+    i.material-icons
+      font-size: 25px
+      color: $text-color
+
+.info-title
+  font-size: 20px
+  color: $app-color
+  margin-bottom: 15px
+
+.info-card
+  padding: 15px 15px 20px 15px
+
+.info-description
+  font-size: 13px
+
+.info-publication
+  margin-top: 20px
+  font-size: 13px
+  a
+    font-style: italic
+    font-size: 13px
+    line-height: 16px
 
 .v-select__selections
   max-height: 100px
@@ -62,8 +113,6 @@
       font-size: 12px
       font-style: italic
       vertical-align: top
-
-
 
   #clinvar-symbol
     display: inline-block
@@ -143,8 +192,8 @@
     font-style: italic
     margin-left: 20px
 
-  .gene-list
-
+  .remove-filter-description
+    font-size: 16px
 
   .expansion-panel, .v-expansion-panel
     -webkit-box-shadow : none
@@ -504,9 +553,24 @@
               <v-icon>create</v-icon>
             </v-btn>
 
-            <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
+      <v-dialog  width="500"  v-model="showPopup" lazy >
+            <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" @click="setGenesList(geneList)" slot="activator" flat class="remove-filter-button">
               <v-icon>delete</v-icon>
             </v-btn>
+      <v-card class="info-card full-width">
+        <v-card-title style="justify-content:space-between">
+          <span class="info-title">{{ "Remove filter"}}</span>
+          <v-btn  @click="onClose" flat class="close-button">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </v-card-title>
+        <v-card-text class="remove-filter-description" v-html="' Are you sure you want to remove this filter?'">
+        </v-card-text>
+                    <v-btn @click="onClose" color="normal">Cancel</v-btn>
+            <v-btn @click="onRemoveFilter" color="error">Remove filter</v-btn>
+      </v-card>
+    </v-dialog>
+
           </span>
 
 
@@ -764,12 +828,20 @@ export default {
       showEditFilter: false,
       currentFilter: null,
       expansionControl: null,
-      editAddText: 'Edit'
+      editAddText: 'Edit',
+      showPopup: false,
+      selectedGeneList: null,
     }
   },
   methods: {
 
+    onClose(){
+      this.showPopup = false;
+    },
 
+    setGenesList(genesList){
+      this.selectedGenesList = genesList
+    },
 
     onApplyInterpretationFilter: function(interpretation) {
       this.interpretationFilters = interpretation
@@ -936,19 +1008,14 @@ export default {
       self.showEditFilter = false;
       self.currentFilter = null;
     },
-    onRemoveFilter: function(geneList) {
+    onRemoveFilter: function() {
       let self = this;
 
-      this.$dialog
-              .confirm('Deleting this filter will remove all variants associated with this filter')
-              .then(function(dialog) {
-                delete self.cohortModel.filterModel.flagCriteria[geneList.filter.key]
-                self.$emit("filter-settings-applied");
+      delete self.cohortModel.filterModel.flagCriteria[self.selectedGenesList.filter.key]
 
-                self.showEditFilter = false;
-                self.currentFilter = null;              })
-              .catch(function() {
-              });
+      self.$emit("filter-settings-applied");
+      self.showEditFilter = false;
+      self.currentFilter = null;
 
     },
     onNewFilter: function() {

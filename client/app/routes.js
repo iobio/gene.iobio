@@ -40,15 +40,6 @@ Vue.use(VTooltip)
 import vmodal from 'vue-js-modal'
 Vue.use(vmodal)
 
-import VuejsDialog from 'vuejs-dialog';
-
-// include the default style
-import 'vuejs-dialog/dist/vuejs-dialog.min.css';
-
-// Tell Vue to install the plugin.
-Vue.use(VuejsDialog);
-
-
 
 import Util                 from './globals/Util.js'
 import GlobalApp            from './globals/GlobalApp.js'

@@ -155,7 +155,7 @@
 
                 setTimeout( function() {
 
-                    let baseWidth = 125;
+                    let baseWidth = 90;
                     let totalWidth = 65;
                     let padding = self.selectedFilters.length * 5;
 
