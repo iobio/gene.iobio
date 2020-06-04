@@ -54,10 +54,11 @@
                small-chips
                deletable-chips
                dense
-               label="Select filters"
+               label="Only show"
                :items="filters"
                item-text='title'
                item-value='name'
+               clearable
 
                v-model="selectedFilters">
 
@@ -88,13 +89,12 @@
                 showFilter: false,
                 filters: null,
                 filteredVariants: null,
+                filteredGeneList: null,
 
             }
         },
         watch: {
             geneLists: function(){
-
-                this.populateFilters();
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
             },
@@ -107,17 +107,22 @@
                 this.flagCriteria = this.filterModel.flagCriteria;
             },
             selectedFilters: function(){
+                if(this.selectedFilters.length > 0){
+                    this.showFilter = true;
+                }
+                else{
+                    this.showFilter = false;
+                }
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
-
                 this.setDropdownWidth();
-
-
-
             },
             selectedGene: function(){
-                this.setFilteredVariants();
-                this.setFilteredLoadedVariants();
+
+                this.selectedFilters = [];
+                this.filteredVariants = this.data;
+                // this.setFilteredVariants();
+                // this.setFilteredLoadedVariants();
             },
             selectedVariant: function(){
                 this.setFilteredVariants();
@@ -128,18 +133,18 @@
         mounted() {
             this.selectedFilters = [];
             this.flagCriteria = this.filterModel.flagCriteria;
-            this.populateFilters();
+            this.filters = ["autosomalDominant", "recessive", "denovo", "compoundHet", "xlinked"];
         },
 
         methods: {
 
-            populateFilters(){
-                this.filters = [];
-
-                //todo: handle custom filters differnet structure
-                for(let [k, v] of Object.entries(this.flagCriteria)){
-                    if(v.key !== "undefined" && v.key !== "notFound" && v.key !== "notCategorized" && v.key !== "high" && v.key !== "userFlagged") {
-                        this.filters.push({"name": v.key, 'title': v.title})
+            setFilteredGeneList(){
+                this.filteredGeneList = [];
+                for(let j = 0; j < this.selectedFilters.length; j++){
+                    for(let i = 0; i < this.variants.features.length; i++){
+                        if(this.selectedFilters[j]=== this.geneLists[i].name){
+                            this.filteredGeneList.push(this.geneLists[i]);
+                        }
                     }
                 }
             },
@@ -148,16 +153,18 @@
 
                 let self = this;
 
-
                 setTimeout( function() {
 
                     let baseWidth = 125;
-                    let totalWidth = 50;
+                    let totalWidth = 65;
+                    let padding = self.selectedFilters.length * 5;
 
                     d3.select("#dropdownWrapper").selectAll(".v-chip__content")
                         .attr("getWidth", function (d, i) {
                             totalWidth += this.getBoundingClientRect().width;
                         });
+
+                    totalWidth += padding;
 
                     let width = Math.max(baseWidth, totalWidth);
 
@@ -170,60 +177,21 @@
 
             },
 
-            passesFilters: function(variant){
-                let filtersPassed = variant.filtersPassedAll;
-
-                let bool = true;
-                let reviewPassed = true;
-
-                for(let i = 0; i < this.selectedFilters.length; i++){
-                    if(this.selectedFilters[i] === "reviewed"){
-                        reviewPassed = false;
-
-                        let reviewed = this.geneLists.filter(function(item){
-                            return item.name === "reviewed";
-                        })[0];
-
-                        for(let r = 0; r < reviewed.genes.length; r++){
-                            let gene = reviewed.genes[r];
-                            for(let j = 0; j < gene.variants.length; j++){
-                                let v = gene.variants[j];
-                                let fv = variant;
-
-                                if(fv.start === v.start && fv.end === v.end && fv.alt===v.alt && fv.ref === v.ref){
-                                    reviewPassed = true;
-                                }
-                            }
-
-                        }
-                    }
-                    else {
-                        if(!filtersPassed){
-                            bool = false;
-                        }
-                        else if (!filtersPassed.includes(this.selectedFilters[i])) {
-                            bool = false;
-                        }
-                    }
-                }
-              return bool && reviewPassed;
-
-            },
             setFilteredVariants(){
+
+                this.setFilteredGeneList();
+
                 this.filteredVariants = [];
 
 
-                for(let i = 0; i < this.geneLists.length; i++){
-                    let filter = this.geneLists[i];
+                for(let i = 0; i < this.filteredGeneList.length; i++){
+                    let filter = this.filteredGeneList[i];
 
                     for(let j = 0; j < filter.genes.length; j++){
                         let gene = filter.genes[j]
                         if(this.selectedGene && gene.gene.name === this.selectedGene.name){
                            for(let k = 0; k < gene.variants.length; k++){
-                               let variant = gene.variants[k];
-                               if(this.passesFilters(variant)){
-                                   this.filteredVariants.push(variant);
-                               }
+                               this.filteredVariants.push(gene.variants[k]);
                            }
                         }
                     }

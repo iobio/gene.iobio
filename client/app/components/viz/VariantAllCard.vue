@@ -341,19 +341,13 @@
               :selectedGene="selectedGene"
               :selected-variant="selectedVariant"
               @filtered-variants-update="onFilteredVariantsUpdate"
+              @show-filter="onShowFilter"
       >
       </VariantFilter>
 
         <div style="width: 15px;"></div>
 
 
-        <div style="width: 120px">
-        <v-switch class="zoom-switch"
-                label="Filter tracks"
-                  :hide-details="true"
-                  v-model="showFilter"
-        >
-        </v-switch>
         </div>
 
         <div class="header-spacer"></div>
@@ -815,7 +809,6 @@ export default {
 
       knownVariantsViz: null,
       sfariVariantsViz: null,
-
       showZoom: false,
       zoomMessage: "Drag to zoom",
 
@@ -893,6 +886,11 @@ export default {
 
       this.$emit('cohort-variant-outside-click', this, model.relationship);
     },
+
+    onShowFilter(showFilter){
+      this.showFilter = showFilter;
+    },
+
     onVariantHover: function(variant, showTooltip=true) {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
@@ -1367,9 +1365,6 @@ export default {
 
   },
 
-
-  filters: {
-  },
 
   computed: {
     sampleRelLabel: function() {
