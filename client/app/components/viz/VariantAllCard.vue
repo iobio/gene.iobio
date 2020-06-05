@@ -120,9 +120,6 @@
     padding-top: 0px !important
     margin-top: 0px !important
 
-    /*margin-right: 20px !important*/
-    /*margin-left: 35px !important*/
-
     label
       padding-left: 0px
       line-height: 18px
@@ -349,12 +346,7 @@
          v-bind:class="sampleModel.relationship">
         <span style="display:inline-block"
         v-if="selectedGene"> {{ sampleRelLabel }} in {{ selectedGene.gene_name }}</span>
-
-
-
-
       </span>
-
 
       <optional-tracks-menu
               v-show="!isEduMode && !isBasicMode && !isSimpleMode"
@@ -408,9 +400,6 @@
 
       <div class="header-spacer"></div>
 
-
-
-
       <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
                 class="zoom-switch" style="max-width:80px;"
                 label="Zoom"
@@ -418,7 +407,6 @@
                 :hide-details="true"
       >
       </v-switch>
-
 
         <div class="header-spacer"></div>
         <div>
@@ -518,9 +506,6 @@
           called variants
         </div>
 
-
-
-          <!--Dont pass filtered variants to called variant viz-->
         <variant-viz id="called-variant-viz"
           ref="calledVariantVizRef"
           v-if="showVariantViz"
@@ -931,7 +916,6 @@ export default {
     onFilteredVariantsUpdate: function(filteredVariants){
       this.filteredVariants = filteredVariants;
     },
-
 
     onClose: function() {
       this.showPopup = false;

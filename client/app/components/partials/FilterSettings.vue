@@ -160,7 +160,6 @@
               deletable-chips
               hide-details
               clearable
-
         >
         </v-select>
       </v-flex>
@@ -178,7 +177,6 @@
               small-chips
               deletable-chips
               clearable
-
         >
         </v-select>
       </v-flex>

@@ -1,8 +1,6 @@
 <style lang="sass">
     @import ../../../assets/sass/variables
 
-
-
     #filterSelect
         display: inline-flex
         justify-content: center
@@ -35,39 +33,29 @@
             font-family: Poppins, sans-serif !important
             font-size: 13px !important
             color: $text-color
-
-    /*font-weight: normal !important*/
-
-
 </style>
 
 <template>
     <div id="variant-filter">
-
-
         <div id="filterSelect">
             <div id="dropdownWrapper">
-    <v-select  class="ma-0 pa-0"
-               id="v-select-filter"
-               outlined
-               multiple
-               small-chips
-               deletable-chips
-               dense
-               label="Only show"
-               :items="filters"
-               item-text='title'
-               item-value='name'
-               clearable
-
-               v-model="selectedFilters">
-
-    </v-select>
+                <v-select class="ma-0 pa-0"
+                          id="v-select-filter"
+                          outlined
+                          multiple
+                          small-chips
+                          deletable-chips
+                          dense
+                          label="Only show"
+                          :items="filters"
+                          item-text='title'
+                          item-value='name'
+                          clearable
+                          v-model="selectedFilters">
+                </v-select>
             </div>
         </div>
     </div>
-
-
 </template>
 
 <script>
@@ -84,47 +72,42 @@
         },
         data() {
             return {
-               flagCriteria: null,
+                flagCriteria: null,
                 selectedFilters: null,
                 showFilter: false,
                 filters: null,
                 filteredVariants: null,
                 filteredGeneList: null,
-
             }
         },
         watch: {
-            geneLists: function(){
+            geneLists: function () {
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
             },
 
-            showFilter: function(){
+            showFilter: function () {
                 this.$emit("show-filter", this.showFilter);
             },
 
-            filterModel: function(){
+            filterModel: function () {
                 this.flagCriteria = this.filterModel.flagCriteria;
             },
-            selectedFilters: function(){
-                if(this.selectedFilters.length > 0){
+            selectedFilters: function () {
+                if (this.selectedFilters.length > 0) {
                     this.showFilter = true;
-                }
-                else{
+                } else {
                     this.showFilter = false;
                 }
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
                 this.setDropdownWidth();
             },
-            selectedGene: function(){
-
+            selectedGene: function () {
                 this.selectedFilters = [];
                 this.filteredVariants = this.data;
-                // this.setFilteredVariants();
-                // this.setFilteredLoadedVariants();
             },
-            selectedVariant: function(){
+            selectedVariant: function () {
                 this.setFilteredVariants();
                 this.setFilteredLoadedVariants();
             }
@@ -138,23 +121,21 @@
 
         methods: {
 
-            setFilteredGeneList(){
+            setFilteredGeneList() {
                 this.filteredGeneList = [];
-                for(let j = 0; j < this.selectedFilters.length; j++){
-                    for(let i = 0; i < this.variants.features.length; i++){
-                        if(this.selectedFilters[j]=== this.geneLists[i].name){
+                for (let j = 0; j < this.selectedFilters.length; j++) {
+                    for (let i = 0; i < this.variants.features.length; i++) {
+                        if (this.selectedFilters[j] === this.geneLists[i].name) {
                             this.filteredGeneList.push(this.geneLists[i]);
                         }
                     }
                 }
             },
 
-            setDropdownWidth: function(){
-
+            setDropdownWidth: function () {
                 let self = this;
 
-                setTimeout( function() {
-
+                setTimeout(function () {
                     let baseWidth = 90;
                     let totalWidth = 65;
                     let padding = self.selectedFilters.length * 5;
@@ -163,45 +144,38 @@
                         .attr("getWidth", function (d, i) {
                             totalWidth += this.getBoundingClientRect().width;
                         });
-
                     totalWidth += padding;
 
                     let width = Math.max(baseWidth, totalWidth);
 
-
                     d3.select("#dropdownWrapper")
                         .style("width", width.toString() + "px");
                 }, 100);
-
-
-
             },
 
-            setFilteredVariants(){
-
+            setFilteredVariants() {
                 this.setFilteredGeneList();
 
                 this.filteredVariants = [];
 
-
-                for(let i = 0; i < this.filteredGeneList.length; i++){
+                for (let i = 0; i < this.filteredGeneList.length; i++) {
                     let filter = this.filteredGeneList[i];
 
-                    for(let j = 0; j < filter.genes.length; j++){
+                    for (let j = 0; j < filter.genes.length; j++) {
                         let gene = filter.genes[j]
-                        if(this.selectedGene && gene.gene.name === this.selectedGene.name){
-                           for(let k = 0; k < gene.variants.length; k++){
-                               this.filteredVariants.push(gene.variants[k]);
-                           }
+                        if (this.selectedGene && gene.gene.name === this.selectedGene.name) {
+                            for (let k = 0; k < gene.variants.length; k++) {
+                                this.filteredVariants.push(gene.variants[k]);
+                            }
                         }
                     }
                 }
             },
 
-            setFilteredLoadedVariants: function(){
+            setFilteredLoadedVariants: function () {
                 let copyVariants = Object.assign({}, this.variants);
                 let features = [];
-                if(this.variants && this.variants.features) {
+                if (this.variants && this.variants.features) {
                     for (let i = 0; i < this.filteredVariants.length; i++) {
                         for (let j = 0; j < this.variants.features.length; j++) {
                             let fv = this.filteredVariants[i];
@@ -211,7 +185,6 @@
                             }
                         }
                     }
-
                     copyVariants.features = features;
                     if (this.selectedFilters.length > 0) {
                         this.$emit("filtered-variants-update", copyVariants);
@@ -222,5 +195,4 @@
             },
         }
     }
-
 </script>

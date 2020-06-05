@@ -556,33 +556,30 @@
               <v-icon>create</v-icon>
             </v-btn>
 
-      <v-dialog  width="500"  v-model="showPopup" lazy >
-            <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" @click="setGenesList(geneList)" slot="activator" flat class="remove-filter-button">
-              <v-icon>delete</v-icon>
-            </v-btn>
-      <v-card class="info-card full-width" id="remove-filter-card">
-        <v-card-title style="justify-content:space-between">
-          <span class="info-title">{{ "Remove filter"}}</span>
-          <v-btn  @click="onClose" flat class="close-button">
-            <v-icon>close</v-icon>
-          </v-btn>
-        </v-card-title>
-        <v-card-text class="remove-filter-description" v-html="' Are you sure you want to remove this filter?'">
-        </v-card-text>
-                    <v-btn @click="onClose" color="normal">Cancel</v-btn>
-            <v-btn @click="onRemoveFilter" color="error">Remove filter</v-btn>
-      </v-card>
-    </v-dialog>
-
+            <v-dialog width="500" v-model="showPopup" lazy>
+              <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" @click="setGenesList(geneList)" slot="activator" flat
+                     class="remove-filter-button">
+                <v-icon>delete</v-icon>
+              </v-btn>
+              <v-card class="info-card full-width" id="remove-filter-card">
+                <v-card-title style="justify-content:space-between">
+                  <span class="info-title">{{ "Remove filter"}}</span>
+                  <v-btn @click="onClose" flat class="close-button">
+                    <v-icon>close</v-icon>
+                  </v-btn>
+                </v-card-title>
+                <v-card-text class="remove-filter-description" v-html="' Are you sure you want to remove this filter?'">
+                </v-card-text>
+                <v-btn @click="onClose" color="normal">Cancel</v-btn>
+                <v-btn @click="onRemoveFilter" color="error">Remove filter</v-btn>
+              </v-card>
+            </v-dialog>
           </span>
-
-
         </div>
       </template>
       <v-list three-line>
         <template
          v-for="flaggedGene in geneList.genes">
-
 
           <template v-for="variant in flaggedGene.variants">
 
@@ -591,7 +588,6 @@
             ripple
             :class="{'list-item': true, selected: clickedVariant == variant ? true : false}"
             @click="onVariantSelected(variant)">
-
 
               <v-list-tile-avatar >
                <v-chip class="variant-number" >
@@ -608,10 +604,7 @@
                    :interpretationMap="interpretationMap">
                   </variant-interpretation-badge>
 
-
-                  <div style="">
-
-
+                  <div>
                     <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
                         <v-chip class="white--text mr-2"
@@ -630,9 +623,7 @@
                           HPO
                         </v-chip>
                       </span>
-
                     </div>
-
                     <div class="variant-symbols">
 
                       <span class="variant-moniker">
@@ -676,13 +667,9 @@
                           v-if="geneList.label == 'Reviewed'">
                           {{ filterPassedByVariant(variant) }}
                         </div>
-
-
                       </span>
 
-
                       <v-badge v-if="variant.variantSet && variant.filtersPassed != variant.variantSet && variant.filtersPassed != 'pathogenic'" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
-
 
                     </div>
                     <div style="line-height:12px">
@@ -716,9 +703,6 @@
                     <span v-if="variant.notFound && isFullAnalysis"
                       class="coord"> {{ coord(flaggedGene, variant) }} </span>
                   </div>
-
-
-
                 </v-list-tile-title>
 
                 <v-list-tile-sub-title v-if="isBasicMode" >
@@ -740,28 +724,18 @@
                     <div style="display:inline-block;" v-if="isBasicMode" >
                       <span class="hgvsp">  {{ hgvsP(variant) }} </span>
                     </div>
-
                   </div>
                 </v-list-tile-sub-title>
-
               </v-list-tile-content>
-
             </v-list-tile>
-
-
           </template>
-
         </template>
       </v-list>
     </v-expansion-panel-content>
   </v-expansion-panel>
-
   </v-card>
 
-
   <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
-
-
       <v-card v-if="currentFilter" class="full-width" style="padding:10px">
         <v-card-title style="margin-left:20px" class="headline">
           {{editAddText}}
@@ -778,12 +752,9 @@
           @cancel-filter="onCancelFilter"
           :launchedFromClin="launchedFromClin">
         </filter-settings>
-
       </v-card>
   </v-dialog>
 </div>
-
-
 </template>
 
 
@@ -845,12 +816,9 @@ export default {
     setGenesList(genesList){
       this.selectedGenesList = genesList;
 
-
       setTimeout(function(){
         let overlaySelection = d3.selectAll(".v-overlay--active");
         let dialogSelection = d3.selectAll(".v-dialog__content--active");
-
-        console.log("dialogSelection", dialogSelection);
 
         for(let i = 0; i < overlaySelection[0].length-1; i++){
           d3.select(".v-overlay--active").remove();
@@ -858,10 +826,7 @@ export default {
         for(let j = 0; j < dialogSelection[0].length-1; j++){
           d3.select(".v-dialog__content--active").remove();
         }
-
       }, 100)
-
-
     },
 
     onApplyInterpretationFilter: function(interpretation) {

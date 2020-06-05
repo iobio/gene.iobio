@@ -285,8 +285,6 @@ export default {
           }
           copyVariants.features = features;
           this.variants = copyVariants;
-
-
       },
     },
     watch: {
