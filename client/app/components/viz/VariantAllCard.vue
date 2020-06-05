@@ -801,7 +801,6 @@ export default {
 
     blacklistedGeneSelected: false,  // True if selected gene falls in SFARI ACMG blacklist
     geneLists: null,
-    showPopup: false,
 
   },
 
@@ -869,7 +868,7 @@ export default {
       filteredVariants: null,
       pileupStyle: {},
       showFilter: false,
-
+      showPopup: false,
 
 
     }

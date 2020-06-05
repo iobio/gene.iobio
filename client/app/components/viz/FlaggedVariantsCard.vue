@@ -1,6 +1,9 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+#remove-filter-card
+  box-shadow: none !important
+
 .info-button
   margin: 0px !important
   padding: 0px !important
@@ -557,7 +560,7 @@
             <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" @click="setGenesList(geneList)" slot="activator" flat class="remove-filter-button">
               <v-icon>delete</v-icon>
             </v-btn>
-      <v-card class="info-card full-width">
+      <v-card class="info-card full-width" id="remove-filter-card">
         <v-card-title style="justify-content:space-between">
           <span class="info-title">{{ "Remove filter"}}</span>
           <v-btn  @click="onClose" flat class="close-button">
@@ -840,7 +843,25 @@ export default {
     },
 
     setGenesList(genesList){
-      this.selectedGenesList = genesList
+      this.selectedGenesList = genesList;
+
+
+      setTimeout(function(){
+        let overlaySelection = d3.selectAll(".v-overlay--active");
+        let dialogSelection = d3.selectAll(".v-dialog__content--active");
+
+        console.log("dialogSelection", dialogSelection);
+
+        for(let i = 0; i < overlaySelection[0].length-1; i++){
+          d3.select(".v-overlay--active").remove();
+        }
+        for(let j = 0; j < dialogSelection[0].length-1; j++){
+          d3.select(".v-dialog__content--active").remove();
+        }
+
+      }, 100)
+
+
     },
 
     onApplyInterpretationFilter: function(interpretation) {
