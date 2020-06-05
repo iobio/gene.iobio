@@ -391,6 +391,9 @@
 
         <div style="width: 10px"></div>
 
+      <div style=" display: inline-flex; flex-wrap: wrap; padding-top: 5px;
+  justify-content: flex-start;">
+
       <VariantFilter
               v-if="showVariantViz"
               :variants="sampleModel.loadedVariants"
@@ -416,6 +419,7 @@
       >
       </v-switch>
 
+
         <div class="header-spacer"></div>
         <div>
           <div style="height: 4px"></div>
@@ -437,6 +441,7 @@
         </v-badge>
 
         </div>
+      </div>
 
       </div>
 
