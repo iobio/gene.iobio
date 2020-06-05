@@ -121,17 +121,6 @@
 
         methods: {
 
-            setFilteredGeneList() {
-                this.filteredGeneList = [];
-                for (let j = 0; j < this.selectedFilters.length; j++) {
-                    for (let i = 0; i < this.variants.features.length; i++) {
-                        if (this.selectedFilters[j] === this.geneLists[i].name) {
-                            this.filteredGeneList.push(this.geneLists[i]);
-                        }
-                    }
-                }
-            },
-
             setDropdownWidth: function () {
                 let self = this;
 
@@ -154,22 +143,34 @@
             },
 
             setFilteredVariants() {
-                this.setFilteredGeneList();
-
                 this.filteredVariants = [];
 
-                for (let i = 0; i < this.filteredGeneList.length; i++) {
-                    let filter = this.filteredGeneList[i];
+                for (let i = 0; i < this.geneLists.length; i++) {
+                    let filter = this.geneLists[i];
 
                     for (let j = 0; j < filter.genes.length; j++) {
                         let gene = filter.genes[j]
                         if (this.selectedGene && gene.gene.name === this.selectedGene.name) {
                             for (let k = 0; k < gene.variants.length; k++) {
-                                this.filteredVariants.push(gene.variants[k]);
+                                let variant = gene.variants[k];
+                                if (this.passesFilters(variant)) {
+                                    this.filteredVariants.push(variant);
+                                }
                             }
                         }
                     }
                 }
+            },
+
+            passesFilters: function (variant) {
+                let filtersPassed = variant.filtersPassedAll;
+                let bool = false;
+                for (let i = 0; i < this.selectedFilters.length; i++) {
+                    if (filtersPassed.includes(this.selectedFilters[i])) {
+                        bool = true;
+                    }
+                }
+                return bool;
             },
 
             setFilteredLoadedVariants: function () {
