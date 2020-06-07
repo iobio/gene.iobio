@@ -1436,50 +1436,6 @@ export default {
             return Promise.resolve();
           }
         })
-        // WORKAROUND Remove variant sets
-        /*
-        .then(function() {
-          if ((!self.geneSet && !self.geneSet.genes && self.globalApp.useVariantSetFiles && self.analysis.payload.variants == null || self.analysis.payload.variants.length == 0) && self.hubSession.hasVariantSets(self.modelInfos)) {
-            return self.hubSession.promiseParseVariantSets(self.modelInfos)
-          } else {
-            return Promise.resolve({});
-          }
-        })
-        .then(function(variantSets) {
-          if (variantSets && Object.keys(variantSets).length > 0) {
-            self.variantSetCounts = { total: 0 }
-            for (var key in variantSets) {
-              self.variantSetCounts[key]   = variantSets[key] ? variantSets[key].length : 0;
-              self.variantSetCounts.total += variantSets[key] ? variantSets[key].length : 0;
-              variantSets[key].forEach(function(importedVariant) {
-                let theFilterName = null;
-                if (self.hubSession.variantSetToFilterName[key]) {
-                  theFilterName = self.hubSession.variantSetToFilterName[key];
-                } else {
-                  theFilterName = key;
-                }
-                importedVariant.variantSet = theFilterName;
-                self.analysis.payload.variants.push(importedVariant);
-                if (self.analysis.payload.genes.indexOf(importedVariant.gene) < 0) {
-                  self.analysis.payload.genes.push(importedVariant.gene);
-                }
-              })
-            }
-          }
-
-          self.models = self.cohortModel.sampleModels;
-          var genePromises = []
-          if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
-            self.analysis.payload.genes.forEach(function(geneName) {
-              genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
-            })
-            return Promise.all(genePromises);
-          } else {
-            return Promise.resolve();
-          }
-        })
-        */
-
         .then(function() {
           self.models = self.cohortModel.sampleModels;
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
@@ -3035,12 +2991,6 @@ export default {
                 flaggedVariant.interpretation = interpretation;
                 flaggedVariant.isProxy = false;
 
-                // WORKAROUND Remove variant sets
-                //if (self.persistAnalysis()) {
-                //  self.promiseUpdateAnalysisVariant(flaggedVariant);
-                //}
-
-
                 self.$set(self, "selectedVariant", flaggedVariant);
                 self.refreshSelectedVariantInfo();
                 self.$set(self, "selectedVariantRelationship", "proband");
@@ -3752,10 +3702,6 @@ export default {
         .then(function() {
           return Promise.all(summarizePromises)
         })
-        //.then(function() {
-        //  self.onShowSnackbar({message: 'Getting gene info...', timeout: 5000})
-        //  return self.geneModel.promiseCopyPasteGenes(genesToAdd.join(","), {replace: true, warnOnDup: false});
-        //})
         .then(function() {
           self.clinSetData.isCacheSet = true;
           resolve();
@@ -3869,12 +3815,6 @@ export default {
     applyGenesClin: function(clinObject) {
       let self = this;
 
-      /*
-      let genesToProcess = [];
-      let candidateGenesOld = $.extend({}, self.geneModel.candidateGenes);
-      self.geneModel.setCandidateGenes(clinObject.genes);
-      */
-
       self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
       self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList, 'hpo': clinObject.hpoFullList })
 
@@ -3883,49 +3823,6 @@ export default {
       if (self.selectedVariant && self.selectedVariant.hasOwnProperty('gene')) {
         self.onFlaggedVariantSelected(self.selectedVariant, {force: true})
       }
-
-      /*
-      if (clinObject.genes && Array.isArray(clinObject.genes)) {
-        let deprecatedGenes = {};
-        for (var oldGene in candidateGenesOld) {
-          if (!self.geneModel.candidateGenes[oldGene]) {
-            deprecatedGenes[oldGene] = true;
-          }
-        }
-
-        self.geneModel.sortedGeneNames.forEach(function(gene) {
-          if (!deprecatedGenes[gene]) {
-            genesToProcess.push(gene);
-          }
-        })
-        clinObject.genes.forEach(function(gene) {
-          genesToProcess.push(gene);
-        })
-      }
-
-      if (genesToProcess) {
-        let genesString = genesToProcess ? genesToProcess.join(" ") : "";
-        let phenotypeTerms = clinObject.searchTerms && Array.isArray(clinObject.searchTerms) ? clinObject.searchTerms.join(",") : (clinObject.searchTerms ? clinObject.searchTerms : "");
-
-        if (genesString.length > 0 ) {
-          let options = { isFromClin: true, replace: true, warnOnDup: false, phenotypes: phenotypeTerms }
-          this.onApplyGenes(genesString, options, function() {
-            if (self.cohortModel && self.cohortModel.isLoaded) {
-
-
-
-              self.cacheHelper.promiseGetGenesToAnalyze()
-              .then(function(genesToAnalyze) {
-                if (genesToAnalyze.length > 0) {
-                  self.showLeftPanelForGenes();
-                  self.cacheHelper.promiseAnalyzeSubset(self.cohortModel, genesToAnalyze, null, false, false);
-                }
-              })
-            }
-          });
-        }
-      }
-      */
 
     },
 
@@ -4033,63 +3930,28 @@ export default {
 
               self.cohortModel.importFlaggedVariants('json', self.clinSetData.analysis.payload.variants,
               function() {
-
                 self.clinSetData.isImported = true;
-
-
               },
               function() {
-
-               // self.cohortModel.promiseMergeImportedVariants(self.clinSetData.analysis.payload.variants)
-               // .then(function() {
-                  self.clinSetData.importInProgress = false;
-
-
-
-
-
-                  //setTimeout(function() {
-                  //  if (self.analysis.id && self.geneModel.sortedGeneNames &&
-                  //    self.geneModel.sortedGeneNames.length < 30) {
-                  //    self.cacheHelper.analyzeAll(self.cohortModel, false, false);
-                  //  }
-                  //}, 5000)
-
+                self.clinSetData.importInProgress = false;
+                setTimeout(function() {
+                  if (self.clinShowGeneApp) {
+                    self.promiseSelectFirstFlaggedVariant()
+                  }
+                  self.sendConfirmSetDataToClin();
                   setTimeout(function() {
-                    if (self.clinShowGeneApp) {
-                      self.promiseSelectFirstFlaggedVariant()
-                    }
-
-                    self.sendConfirmSetDataToClin();
-
+                    self.promiseAutosaveAnalysis({notify:true})
 
                     setTimeout(function() {
-                      self.promiseAutosaveAnalysis({notify:true})
+                      self.delaySave = 1000;
+                    }, 1000)
+                  },1000)
 
-                      setTimeout(function() {
-                        self.delaySave = 1000;
-                      }, 1000)
-                    },1000)
-
-                  }, 2500)
-
-
-
-                  resolve();
-
-
-
-               // })
-
-
-
-
+                }, 2500)
+                resolve();
               })
             }
-
-
           })
-
 
         } else {
           resolve();
@@ -4108,11 +3970,7 @@ export default {
           .then(function(analysis) {
             if (analysis) {
               self.analysis = analysis;
-
-
-
               resolve(self.analysis);
-
             } else {
               reject("Unable to find/create an analysis " + idAnalysis);
             }
@@ -4141,7 +3999,6 @@ export default {
           self.analysis = newAnalysis;
 
           resolve(self.analysis)
-
         }
 
       });
@@ -4160,8 +4017,6 @@ export default {
 
           if (self.launchedFromClin) {
             self.sendAnalysisToClin();
-
-
           } else {
 
             let promiseSave = null;
@@ -4170,13 +4025,6 @@ export default {
             } else {
               promiseSave = self.hubSession.promiseUpdateAnalysis(self.analysis)
             }
-
-            if (options && options.notify) {
-                //self.onShowSnackbar( {message: 'saving analysis.',
-                //  timeout: 2000, bottom: true, right: true });
-            }
-
-
             promiseSave
             .then(function(analysis) {
               self.analysis = analysis;
@@ -4240,9 +4088,7 @@ export default {
       if (self.lastSave >= (Date.now() - self.delaySave)) {
         return;
       }
-
       self.lastSave = Date.now();
-
       return self.promiseSaveAnalysis(options);
     },
 
@@ -4344,8 +4190,6 @@ export default {
       let idx = 0;
       if (self.analysis && self.analysis.payload.variants) {
         self.analysis.payload.variants.forEach(function(v) {
-
-
           if (matchingIdx == -1
               && getGeneName(v) == getGeneName(variant)
               && v.start == variant.start
