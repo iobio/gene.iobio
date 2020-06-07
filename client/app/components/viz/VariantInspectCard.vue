@@ -115,6 +115,14 @@
           margin-bottom: 5px
           height: 1px
 
+      .variant-column-hint
+        font-size: 13px
+        line-height: 14px
+        margin-bottom: 10px
+        margin-top: -10px
+        font-style: italic
+        height: 40px
+
       .variant-row
         display: flex
         flex-direction: row
@@ -370,10 +378,11 @@
       </div>
 
       <app-icon
-       style="min-width:35px;margin-top:1px;margin-right:5px;padding-top: 1px;margin-right:10px"
+       style="min-width:70px;margin-top:1px;margin-right:5px;padding-top: 1px;margin-right:10px"
        icon="zygosity" v-if="selectedVariant && selectedVariant.zygosity"
        :type="selectedVariant.zygosity.toLowerCase() + '-large'"
-       height="14" width="35">
+       :isSimpleMode="isSimpleMode"
+       height="14" :width="isSimpleMode ? 85 : 35">
       </app-icon>
 
       <span v-if="selectedVariant" class="variant-header" style="margin-top:2px">
@@ -411,6 +420,9 @@
           <div class="variant-column-header">
             Quality
             <v-divider></v-divider>
+          </div>
+          <div class='variant-column-hint' v-if="isSimpleMode || isBasicMode">
+            Sequencing quality at this position
           </div>
           <variant-inspect-quality-row
             :info="getQualityInfo()"  >
@@ -517,11 +529,15 @@
             Pathogenicity
             <v-divider></v-divider>
           </div>
+          <div class='variant-column-hint' v-if="isSimpleMode || isBasicMode">
+            Clinical significance based on variant type, location, and documentation in ClinVar.
+          </div>
           <variant-inspect-row  v-for="clinvar,clinvarIdx in info.clinvarLinks" :key="clinvarIdx"
             :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
           </variant-inspect-row>
 
-          <div v-if="info.clinvarTrait.length > 0" class="variant-row no-icon no-top-margin small-font">
+          <div v-if="showClinvarTrait(info)"
+            class="variant-row no-icon no-top-margin small-font">
             <span>{{ info.clinvarTrait }} </span>
           </div>
 
@@ -560,6 +576,9 @@
               {{ isSimpleMode ? 'Population Frequency' : 'Pop Freq in gnomAD' }}
             <info-popup v-if="!isSimpleMode" name="gnomAD"></info-popup>
             <v-divider></v-divider>
+          </div>
+          <div class="variant-column-hint" v-if="isSimpleMode || isBasicMode">
+            Common variants typically don’t cause diseases.
           </div>
           <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele freq`" :link="afGnomAD.link" >
           </variant-inspect-row>
@@ -602,6 +621,9 @@
           <div class="variant-column-header" >
             Conservation
             <v-divider></v-divider>
+          </div>
+          <div class="variant-column-hint" v-if="isSimpleMode || isBasicMode">
+            Changes genome locations that are conserved across species are more likely to be clinically significant.
           </div>
           <div id="conservation-track" style="display:flex;">
             <div style="display:flex;flex-direction: column;max-width:130px;min-width:130px;margin-right: 10px">
@@ -985,6 +1007,17 @@ export default {
       } else {
         return '';
       }
+    },
+    showClinvarTrait: function(info) {
+      let self = this;
+      let levelHigh = false;
+      info.clinvarLinks.forEach(function(clinvar) {
+        let clazz = self.getClinvarClass(clinvar.significance)
+        if (clazz == 'level-high' || clazz == 'level-medium') {
+          levelHigh = true;
+        }
+      })
+      return info.clinvarTrait.length > 0 && (levelHigh || !this.isSimpleMode);
     },
     getConservationScore: function(score) {
       if (score == null) {

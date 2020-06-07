@@ -597,7 +597,8 @@
                           <app-icon
                            icon="zygosity" v-if="!isBasicMode && zygosity(variant).toLowerCase() == 'hom'"
                            :type="zygosity(variant).toLowerCase()"
-                           height="14" width="24">
+                           :isSimpleMode="isSimpleMode"
+                           height="14" :width="isSimpleMode ? 70 : 24">
                           </app-icon>
                         </span>
 

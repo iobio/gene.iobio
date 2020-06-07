@@ -118,12 +118,11 @@ aside.navigation-drawer, aside.v-navigation-drawer
       flex-grow: 1
 
     #legend-card
-      margin-top: 5px
+      margin-top: 0px
       margin-bottom: 32px
       padding: 0px
       padding-top: 5px
-      border-top: #9b9b9b solid 2px !important
-      border-bottom: #9b9b9b solid 2px !important
+      border: #9b9b9b solid 2px !important
       background-color: #f5f5f5
 
 #side-panel-container
@@ -654,7 +653,7 @@ nav.toolbar, nav.v-toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      :width="315"
+      :width="isSimpleMode ? 355 : 315"
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
@@ -813,25 +812,6 @@ nav.toolbar, nav.v-toolbar
      :showDialog="showExportVariants">
     </export-variants>
 
-    <v-dialog v-model="showLegend" max-width="470">
-      <v-card class="full-width">
-      <v-card-title class="headline">Legend</v-card-title>
-        <v-card-text>
-
-           <legend-panel
-           :showLegendTitle=false
-           :isBasicMode="isBasicMode"
-           :isSimpleMode="isSimpleMode"
-          style="max-width:410px">
-          </legend-panel>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn raised  @click.native="showLegend = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
     <v-dialog v-model="showDisclaimer" max-width="400">
         <v-card class="full-width">
