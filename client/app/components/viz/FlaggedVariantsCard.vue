@@ -606,17 +606,7 @@
                           check_circle
                         </v-icon>
 
-                        <div class="reviewed-variant-filter"
-                          v-if="geneList.label == 'Reviewed'">
-                          {{ filterPassedByVariant(variant) }}
-                        </div>
-
-
                       </span>
-
-
-                      <v-badge v-if="variant.variantSet && variant.filtersPassed != variant.variantSet && variant.filtersPassed != 'pathogenic'" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
-
 
                     </div>
                     <div style="line-height:12px">
@@ -1130,24 +1120,7 @@ export default {
         }
       }
       return buf;
-    },
-    filterPassedByVariant: function(variant) {
-      let filterDisplay = "";
-      if (Array.isArray(variant.filtersPassed)) {
-        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" "));
-      } else {
-        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed);
-      }
-
-      if (filterDisplay == "UserFlagged") {
-        return "";
-      } else if (filterDisplay == "NotCategorized") {
-        return "";
-      } else {
-        return filterDisplay;
-      }
     }
-
 
   },
   mounted: function() {
