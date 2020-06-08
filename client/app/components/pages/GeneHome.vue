@@ -1357,7 +1357,8 @@ export default {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
 
-          // Temporary code until gene name provided
+          // Now import the variants from the variant set provided
+          // when launching gene.iobio from Mosaic
           if (self.variantSet && self.variantSet.variants) {
             let bypassedCount = 0;
             self.variantSet.variants.filter(function(variant) {
@@ -1465,13 +1466,6 @@ export default {
                   self.promiseSelectFirstFlaggedVariant()
 
                   setTimeout(function() {
-                    if (self.persistAnalysis() && !self.isNewAnalysis()) {
-                      // WORKAROUND Remove variant sets
-                      //self.promiseSaveAnalysis({notify:true})
-                      //.then(function() {
-                      //  self.delaySave = 1000;
-                      //})
-                    }
                     self.delaySave = 1000;
 
                   },1000)
