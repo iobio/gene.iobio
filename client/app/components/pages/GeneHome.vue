@@ -1447,42 +1447,30 @@ export default {
 
             self.cohortModel.importFlaggedVariants('json', self.analysis.payload.variants,
             function() {
+              if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+                self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+                self.showLeftPanelWhenFlaggedVariants();
+              }
 
             },
             function() {
-
-/*
-              let exportPromises = [];
-              self.analysis.payload.variants.forEach(function(payloadVariant) {
-                let p = self.promiseExportAnalysisVariant(payloadVariant)
-                .then(function() {
-
-                })
-                exportPromises.push(p)
-              })
-
-              Promise.all(exportPromises)
-              .then(function() {
-*/
-                setTimeout(function() {
-                  self.promiseSelectFirstFlaggedVariant()
-
-                  setTimeout(function() {
-                    self.delaySave = 1000;
-
-                  },1000)
-                }, 2000)
+              setTimeout(function() {
+                self.promiseSelectFirstFlaggedVariant()
 
                 setTimeout(function() {
-                  if (self.analysis.id && self.geneModel.sortedGeneNames &&
-                    self.geneModel.sortedGeneNames.length < 30) {
-                    self.cacheHelper.analyzeAll(self.cohortModel, false, false);
-                  }
-                }, 5000)
-                resolve();
-              })
+                  self.delaySave = 1000;
 
-            //})
+                },1000)
+              }, 2000)
+
+              setTimeout(function() {
+                if (self.analysis.id && self.geneModel.sortedGeneNames &&
+                  self.geneModel.sortedGeneNames.length < 30) {
+                  self.cacheHelper.analyzeAll(self.cohortModel, false, false);
+                }
+              }, 5000)
+              resolve();
+            })
           } else {
 
             if (self.geneModel.geneNames.length > 0) {
