@@ -421,7 +421,7 @@
             Quality
             <v-divider></v-divider>
           </div>
-          <div class='variant-column-hint' v-if="isSimpleMode || isBasicMode">
+          <div class='variant-column-hint' v-if="isSimpleMode">
             Sequencing quality at this position
           </div>
           <variant-inspect-quality-row
@@ -529,7 +529,7 @@
             Pathogenicity
             <v-divider></v-divider>
           </div>
-          <div class='variant-column-hint' v-if="isSimpleMode || isBasicMode">
+          <div class='variant-column-hint' v-if="isSimpleMode">
             Clinical significance based on variant type, location, and documentation in ClinVar.
           </div>
           <variant-inspect-row  v-for="clinvar,clinvarIdx in info.clinvarLinks" :key="clinvarIdx"
@@ -577,7 +577,7 @@
             <info-popup v-if="!isSimpleMode" name="gnomAD"></info-popup>
             <v-divider></v-divider>
           </div>
-          <div class="variant-column-hint" v-if="isSimpleMode || isBasicMode">
+          <div class="variant-column-hint" v-if="isSimpleMode">
             Common variants typically don’t cause diseases.
           </div>
           <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele freq`" :link="afGnomAD.link" >
@@ -622,7 +622,7 @@
             Conservation
             <v-divider></v-divider>
           </div>
-          <div class="variant-column-hint" v-if="isSimpleMode || isBasicMode">
+          <div class="variant-column-hint" v-if="isSimpleMode">
             Changes genome locations that are conserved across species are more likely to be clinically significant.
           </div>
           <div id="conservation-track" style="display:flex;">
