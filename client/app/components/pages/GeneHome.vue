@@ -1471,23 +1471,14 @@ export default {
                   },1000)
                 }, 2000)
 
-
-
                 setTimeout(function() {
                   if (self.analysis.id && self.geneModel.sortedGeneNames &&
                     self.geneModel.sortedGeneNames.length < 30) {
                     self.cacheHelper.analyzeAll(self.cohortModel, false, false);
                   }
                 }, 5000)
-
-
                 resolve();
-
               })
-
-
-
-
             })
           } else {
 
@@ -1501,7 +1492,6 @@ export default {
                   self.cacheHelper.analyzeAll(self.cohortModel);
                   resolve();
                 })
-
               })
             } else {
               let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
@@ -1525,8 +1515,6 @@ export default {
         window.cacheHelper = self.cacheHelper;
         self.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
 
-
-          // WORKAROUND Remove variant sets
           if (self.persistAnalysis() && self.isNewAnalysis()) {
             let flaggedVariantsForGene = self.cohortModel.getFlaggedVariantsForGene(theGene.gene_name);
             if (flaggedVariantsForGene.length > 0) {
@@ -1535,19 +1523,15 @@ export default {
               })
             }
           }
-
           self.refreshCoverageCounts()
-
           if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
               && theGene.gene_name == self.selectedGene.gene_name) {
             self.promiseLoadData();
           }
-
         });
         self.cacheHelper.on("analyzeAllCompleted", function() {
 
           self.delaySave = 1000;
-
           if (!self.isEduMode) {
             if (self.activeFilterName && self.activeFilterName == 'coverage' && self.launchedFromClin) {
               if (self.$refs.genesCardRef && self.$refs.genesCardRef.$refs.filterBadgesRef) {
@@ -1565,10 +1549,8 @@ export default {
                   self.$refs.navRef.onShowVariantsTab();
                 })
               }
-
             }
           }
-
         });
 
         self.globalApp.cacheHelper = self.cacheHelper;
@@ -1608,9 +1590,7 @@ export default {
           .catch(function(error) {
             resolve(error);
           })
-
         }
-
       })
     },
 
