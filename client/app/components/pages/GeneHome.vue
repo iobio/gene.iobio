@@ -1451,6 +1451,7 @@ export default {
             },
             function() {
 
+/*
               let exportPromises = [];
               self.analysis.payload.variants.forEach(function(payloadVariant) {
                 let p = self.promiseExportAnalysisVariant(payloadVariant)
@@ -1462,6 +1463,7 @@ export default {
 
               Promise.all(exportPromises)
               .then(function() {
+*/
                 setTimeout(function() {
                   self.promiseSelectFirstFlaggedVariant()
 
@@ -1479,7 +1481,8 @@ export default {
                 }, 5000)
                 resolve();
               })
-            })
+
+            //})
           } else {
 
             if (self.geneModel.geneNames.length > 0) {
