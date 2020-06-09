@@ -47,11 +47,11 @@
                           deletable-chips
                           dense
                           label="Only show"
-                          :items="filters"
+                          :items="filterText"
                           item-text='title'
                           item-value='name'
                           clearable
-                          v-model="selectedFilters">
+                          v-model="selectedFilterKeys">
                 </v-select>
             </div>
         </div>
@@ -74,8 +74,10 @@
             return {
                 flagCriteria: null,
                 selectedFilters: null,
+                selectedFilterKeys: null,
                 showFilter: false,
-                filters: null,
+                filterText: null,
+                filterKeys: null,
                 filteredVariants: null,
                 filteredGeneList: null,
             }
@@ -93,6 +95,15 @@
             filterModel: function () {
                 this.flagCriteria = this.filterModel.flagCriteria;
             },
+
+            selectedFilterKeys: function(){
+                this.selectedFilters = [];
+                for(let i = 0; i < this.selectedFilterKeys.length; i++){
+                    let key = this.selectedFilterKeys[i];
+                    this.selectedFilters.push(this.filterKeys[key]);
+                }
+            },
+
             selectedFilters: function () {
                 if (this.selectedFilters.length > 0) {
                     this.showFilter = true;
@@ -105,6 +116,7 @@
             },
             selectedGene: function () {
                 this.selectedFilters = [];
+                this.selectedFilterKeys = [];
                 this.filteredVariants = this.data;
             },
             selectedVariant: function () {
@@ -115,8 +127,10 @@
 
         mounted() {
             this.selectedFilters = [];
+            this.selectedFilterKeys = [];
             this.flagCriteria = this.filterModel.flagCriteria;
-            this.filters = ["autosomalDominant", "recessive", "denovo", "compoundHet", "xlinked"];
+            this.filterText = ["autosomal dominant", "recessive", "de novo", "compound het", "x-linked"];
+            this.filterKeys = {"autosomal dominant" :"autosomalDominant", "recessive" :"recessive", "de novo" : "denovo", "x-linked" : "xlinked"};
         },
 
         methods: {
