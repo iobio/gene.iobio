@@ -620,7 +620,7 @@
                           <span
                            v-for="(impactRec, idx) in highestImpactRecs(variant)" :key="impactRec.impact">
                             <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
-                              {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
+                              {{ capitalize(getNonCanonicalEffectDisplay(idx1, effectRec)) }}
                             </span>
 
                           </span>
@@ -630,7 +630,7 @@
                       </div>
                     </div>
                     <div  v-if="!isBasicMode && !variant.notFound && launchedFromClin">
-                      <span class="revel">{{ revel(variant) }}</span>
+                      <span class="revel">{{ capitalize(revel(variant)) }}</span>
                     </div>
                   </div>
 
