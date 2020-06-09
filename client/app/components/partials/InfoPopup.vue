@@ -100,6 +100,30 @@ export default {
                 publication: 'gnomAD site',
                 publicationUrl: 'https://gnomad.broadinstitute.org/'
 
+            },
+            'impact':  {
+              title: 'Impact',
+              description: 'Predicted effect of the variant on gene function'
+            },
+            'clinvar': {
+              title: 'ClinVar',
+              description: 'Clinical significance according to the ClinVar database.'
+            },
+            'variantType': {
+              title: 'Variant type',
+              description: 'How the variant changes the DNA sequence.'
+            },
+            'pathogenic': {
+              title: 'Pathogenic',
+              description: 'Causes disease'
+            },
+            'likelyPathogenic': {
+              title: 'Likely pathogenic',
+              description: 'Likely causes disease'
+            },
+            'snp': {
+              title: 'Variant type',
+              description: 'Single nucleotide polymorphism (change in a nucleotide).'
             }
         }
 

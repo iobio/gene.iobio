@@ -2,6 +2,17 @@
 
 @import ../../../assets/sass/variables
 
+#legend-drawer-close-button
+    position: absolute
+    padding-right: 0px
+    position: absolute
+    right: 0px
+    display: inline-block
+    margin-left: 0px
+    min-width: 22px
+    margin-top: 0px
+    top: 0px
+    z-index: 1
 
 .dialog.dialog--active
   button
@@ -107,11 +118,12 @@ aside.navigation-drawer, aside.v-navigation-drawer
       flex-grow: 1
 
     #legend-card
-      margin-top: 5px
-      margin-bottom: 38px
+      margin-top: 0px
+      margin-bottom: 32px
       padding: 0px
       padding-top: 5px
-      border-top: #d8d6d6 solid 1px !important
+      border: #9b9b9b solid 2px !important
+      background-color: #f5f5f5
 
 #side-panel-container
 
@@ -177,6 +189,16 @@ nav.toolbar, nav.v-toolbar
       width: 20px
       font-size: 13px
       font-weight: 500
+
+  #legend-button
+    font-size: 16px
+    height: 36px
+    margin-bottom: 6px
+
+    .v-btn__content
+      padding-top: 2px
+
+
 
   .toolbar__content
     margin-top: 2px
@@ -534,14 +556,14 @@ nav.toolbar, nav.v-toolbar
          @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
-        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin" id="search-or" style="display:inline-block">
+        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin && !isCommercial" id="search-or" style="display:inline-block">
           or
         </div>
 
 
         <phenotype-search
          id="phenolyzer-search"
-         v-if="!isEduMode && !launchedFromClin && !isSimpleMode"
+         v-if="!isEduMode && !launchedFromClin && !isSimpleMode && !isCommercial"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
@@ -556,6 +578,8 @@ nav.toolbar, nav.v-toolbar
         </phenotype-search>
 
         <v-spacer style="min-width:80px"></v-spacer>
+
+        <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
 
       </v-toolbar-items>
 
@@ -574,28 +598,22 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>About</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider ></v-divider>
+          <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
 
-          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode"
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode && cohortModel.isLoaded"
             @click="onShowImportVariants">
             <v-list-tile-title dense>Import Variants</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin" @click="onShowExportVariants">
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !isSimpleMode && cohortModel.flaggedVariants && cohortModel.flaggedVariants.length > 0" @click="onShowExportVariants">
             <v-list-tile-title>Export Variants</v-list-tile-title>
-          </v-list-tile>
-
-          <v-divider v-if="!isBasicMode"></v-divider>
-
-          <v-list-tile  v-if="!isBasicMode" @click="onShowLegend">
-            <v-list-tile-title>Legend</v-list-tile-title>
           </v-list-tile>
 
           <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowOptions">
             <v-list-tile-title>Options</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider v-if="!isBasicMode" dense></v-divider>
+          <v-divider ></v-divider>
 
           <v-list-tile  @click="onShowTermsOfService">
             <v-list-tile-title>Terms of Service</v-list-tile-title>
@@ -608,23 +626,20 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Software and resources</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider v-if="!isSimpleMode"></v-divider>
+          <v-divider v-if="!isSimpleMode && !isCommercial"></v-divider>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowBlog">
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowBlog">
             <v-list-tile-title>Blog</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowTutorial" >
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowTutorial" >
             <v-list-tile-title>Tutorials</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode " @click="onShowIOBIO" >
+          <v-list-tile v-if="!isSimpleMode && !isCommercial" @click="onShowIOBIO" >
             <v-list-tile-title>iobio</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onSupportIOBIO" >
-            <v-list-tile-title>Support the iobio project</v-list-tile-title>
-          </v-list-tile>
 
         </v-list>
       </v-menu>
@@ -638,7 +653,7 @@ nav.toolbar, nav.v-toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      :width="315"
+      :width="isSimpleMode ? 355 : 315"
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
@@ -738,11 +753,11 @@ nav.toolbar, nav.v-toolbar
 
 
 
-        <v-card id="legend-card" v-if="isBasicMode && !isSimpleMode" >
+        <v-card id="legend-card" v-if="(isBasicMode || isSimpleMode) && cohortModel && cohortModel.isLoaded" >
           <legend-panel
             :isBasicMode="isBasicMode"
             :isSimpleMode="isSimpleMode"
-            :showLegendTitle=true>
+            :showLegendTitle="true">
           </legend-panel>
         </v-card>
 
@@ -750,6 +765,26 @@ nav.toolbar, nav.v-toolbar
 
 
       </div>
+
+    </v-navigation-drawer>
+
+    <v-navigation-drawer
+      v-model="showLegendDrawer"
+      absolute
+      right
+      width="200"    
+      style="z-index:6"
+    >
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="legend-drawer-close-button" class="toolbar-button" flat @click="showLegendDrawer = false">
+          <v-icon >close</v-icon>
+        </v-btn>
+
+        <legend-panel
+           :showLegendTitle="true"
+           :isBasicMode="isBasicMode"
+           :isSimpleMode="isSimpleMode">
+          </legend-panel>
+
 
     </v-navigation-drawer>
 
@@ -778,25 +813,6 @@ nav.toolbar, nav.v-toolbar
      :showDialog="showExportVariants">
     </export-variants>
 
-    <v-dialog v-model="showLegend" max-width="470">
-      <v-card class="full-width">
-      <v-card-title class="headline">Legend</v-card-title>
-        <v-card-text>
-
-           <legend-panel
-           :showLegendTitle=false
-           :isBasicMode="isBasicMode"
-           :isSimpleMode="isSimpleMode"
-          style="max-width:410px">
-          </legend-panel>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn raised  @click.native="showLegend = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
     <v-dialog v-model="showDisclaimer" max-width="400">
         <v-card class="full-width">
@@ -1029,6 +1045,7 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     isSimpleMode: null,
+    isCommercial: null,
     forMyGene2: null,
     analyzeAllInProgress: null,
     callAllInProgress: null,
@@ -1068,13 +1085,13 @@ export default {
 
       showImportVariants: false,
       showExportVariants: false,
-      showLegend: false,
       showTermsOfService: false,
       showDisclaimer: false,
       showOptions: false,
       showVersion: false,
       showCitations: false,
       typeaheadLimit: parseInt(100),
+      showLegendDrawer: false,
 
       activeTab: 0,
 
@@ -1215,8 +1232,8 @@ export default {
     onShowFiles: function() {
       this.showFiles = true;
     },
-    onShowLegend: function() {
-      this.showLegend = true;
+    onShowLegendDrawer: function() {
+      this.showLegendDrawer = !this.showLegendDrawer;
     },
     onShowCoverageThreshold: function() {
       this.$emit('show-coverage-threshold', true)
