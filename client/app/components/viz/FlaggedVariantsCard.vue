@@ -614,7 +614,7 @@
                       style="display:inline-block">
                         <span class="vep-consequence">
                           <span v-if="highestImpactRecs(variant).length == 0">
-                            {{ vepConsequence(variant) }}
+                            {{ capitalize(vepConsequence(variant)) }}
                           </span>
 
                           <span
@@ -1120,7 +1120,15 @@ export default {
         }
       }
       return buf;
-    }
+    },
+
+    capitalize: function(buf) {
+      if (buf) {
+        return this.globalApp.utility.capitalizeFirstLetter(buf);
+      } else {
+        return "";
+      }
+    },
 
   },
   mounted: function() {
