@@ -130,7 +130,7 @@
             this.selectedFilterKeys = [];
             this.flagCriteria = this.filterModel.flagCriteria;
             this.filterText = ["autosomal dominant", "recessive", "de novo", "compound het", "x-linked"];
-            this.filterKeys = {"autosomal dominant" :"autosomalDominant", "recessive" :"recessive", "de novo" : "denovo", "x-linked" : "xlinked"};
+            this.filterKeys = {"Autosomal dominant" :"autosomalDominant", "Recessive" :"recessive", "De novo" : "denovo", "Compound het" : "compoundHet", "X-linked" : "xlinked"};
         },
 
         methods: {

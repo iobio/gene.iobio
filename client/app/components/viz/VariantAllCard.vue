@@ -376,7 +376,7 @@
                 <v-icon>close</v-icon>
               </v-btn>
             </v-card-title>
-            <v-card-text class="info-description" v-html="'Only render variants on variant tracks that pass one of the selected inheritance filters'">
+            <v-card-text class="info-description" v-html="'Only show variants on variant tracks that pass one of the selected inheritance filters'">
             </v-card-text>
           </v-card>
         </v-dialog>
