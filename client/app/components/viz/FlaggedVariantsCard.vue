@@ -671,13 +671,13 @@
                       style="display:inline-block">
                         <span class="vep-consequence">
                           <span v-if="highestImpactRecs(variant).length == 0">
-                            {{ vepConsequence(variant) }}
+                            {{ capitalize(vepConsequence(variant)) }}
                           </span>
 
                           <span
                            v-for="(impactRec, idx) in highestImpactRecs(variant)" :key="impactRec.impact">
                             <span v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
-                              {{ getNonCanonicalEffectDisplay(idx1, effectRec) }}
+                              {{ capitalize(getNonCanonicalEffectDisplay(idx1, effectRec)) }}
                             </span>
 
                           </span>
@@ -687,7 +687,7 @@
                       </div>
                     </div>
                     <div  v-if="!isBasicMode && !variant.notFound && launchedFromClin">
-                      <span class="revel">{{ revel(variant) }}</span>
+                      <span class="revel">{{ capitalize(revel(variant)) }}</span>
                     </div>
                   </div>
 
@@ -1204,7 +1204,15 @@ export default {
         }
       }
       return buf;
-    }
+    },
+
+    capitalize: function(buf) {
+      if (buf) {
+        return this.globalApp.utility.capitalizeFirstLetter(buf);
+      } else {
+        return "";
+      }
+    },
 
   },
   mounted: function() {

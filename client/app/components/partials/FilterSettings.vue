@@ -120,6 +120,7 @@
         <v-select
               label="Inheritance"
               v-bind:items="inheritanceModes"
+              :item-text="capitalize"
               v-model="selectedInheritanceModes"
               multiple
               small-chips
@@ -401,7 +402,14 @@ export default {
     onChangeName: function() {
       this.isDirty = true;
       this.filter.display = this.name;
-    }
+    },
+    capitalize: function(buf) {
+      if (buf) {
+        return this.globalApp.utility.capitalizeFirstLetter(buf.text);
+      } else {
+        return "";
+      }
+    },
   },
   computed: {
     isValidFilter: function() {
