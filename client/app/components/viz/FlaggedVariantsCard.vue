@@ -552,7 +552,7 @@
               <span class="filter-label">{{ geneList.label }}</span>
             </v-badge>
 
-            <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
+            <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed' && geneList.label !== 'Filtered variants'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
               <v-icon>create</v-icon>
             </v-btn>
 
@@ -698,7 +698,7 @@
                   </div>
 
 
-                  <div style="float-left;">
+                  <div>
 
                     <span v-if="variant.notFound && isFullAnalysis"
                       class="coord"> {{ coord(flaggedGene, variant) }} </span>

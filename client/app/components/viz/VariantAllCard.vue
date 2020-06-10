@@ -286,7 +286,7 @@
       .circle-label
         fill: #868686 !important
 
-.info-button
+.filter-info-button
   margin: 0px !important
   padding: 0px !important
   min-width: 18px !important
@@ -363,10 +363,10 @@
               :isFather="isFather"
       ></optional-tracks-menu>
 
-      <div class="header-spacer"></div>
+      <div style="width:23px"></div>
 
         <v-dialog  width="500"  v-model="showPopup" lazy >
-          <v-btn class="info-button" flat  slot="activator">
+          <v-btn class="filter-info-button" flat  slot="activator">
             <v-icon>help</v-icon>
           </v-btn>
           <v-card class="info-card full-width">
@@ -381,7 +381,7 @@
           </v-card>
         </v-dialog>
 
-        <div style="width: 10px"></div>
+        <div style="width: 5px"></div>
 
       <div style=" display: inline-flex; flex-wrap: wrap; padding-top: 5px;
   justify-content: flex-start;">

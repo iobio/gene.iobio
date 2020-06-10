@@ -29,10 +29,14 @@
         margin-bottom: 0 !important
 
     .v-select__slot
+        height: 25px !important
+
         label
             font-family: Poppins, sans-serif !important
             font-size: 13px !important
             color: $text-color
+            padding-bottom: 0 !important
+            margin-bottom: 0 !important
 </style>
 
 <template>
