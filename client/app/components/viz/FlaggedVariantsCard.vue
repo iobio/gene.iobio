@@ -663,7 +663,6 @@
                         <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
                           check_circle
                         </v-icon>
-
                       </span>
 
                     </div>
