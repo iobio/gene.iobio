@@ -6,7 +6,7 @@
         justify-content: center
         justify-items: center
         padding-left: 0
-        padding-right: 0
+        padding-right: 30px
 
     #dropdownWrapper
         width: 250px
@@ -21,19 +21,21 @@
             padding-top: 7px
             padding-left: 0px
             line-height: 18px
-            font-size: 13px
-            font-weight: 400
+            font-size: 13px !important
+            font-weight: 400 !important
             color: $text-color
 
     .v-input__slot
         margin-bottom: 0 !important
 
     .v-select__slot
-        /*height: 25px !important*/
+        height: 25px !important
 
         label
             font-family: Poppins, sans-serif !important
             font-size: 13px !important
+            font-weight: 400 !important
+
             color: $text-color
             padding-bottom: 0 !important
             margin-bottom: 0 !important
@@ -145,7 +147,7 @@
                 setTimeout(function () {
                     let baseWidth = 90;
                     let totalWidth = 65;
-                    let padding = self.selectedFilters.length * 5;
+                    let padding = self.selectedFilters.length * 3;
 
                     d3.select("#dropdownWrapper").selectAll(".v-chip__content")
                         .attr("getWidth", function (d, i) {

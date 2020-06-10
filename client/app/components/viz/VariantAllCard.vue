@@ -340,7 +340,7 @@
 <template>
 
   <v-card tile id="variant-card" class="app-card">
-    <div style="display: flex;align-items: center;margin-bottom: 10px;">
+    <div style="display: flex;align-items: center;margin-bottom: 10px; padding-top: 5px">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
@@ -381,9 +381,9 @@
           </v-card>
         </v-dialog>
 
-        <div style="width: 5px"></div>
+        <div style="width: 5px !important"></div>
 
-      <div style=" display: inline-flex; flex-wrap: wrap; padding-top: 5px;
+      <div style=" display: inline-flex; flex-wrap: wrap;
   justify-content: flex-start;">
 
       <VariantFilter
@@ -397,8 +397,6 @@
               @show-filter="onShowFilter"
       >
       </VariantFilter>
-
-      <div class="header-spacer"></div>
 
       <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
                 class="zoom-switch" style="max-width:80px;"
