@@ -146,17 +146,23 @@ export default {
           return "";
         }
       },
-      classifySymbolFunc: null
+      classifySymbolFunc: null,
+      filteredVariants: null,
+      showFilter: false,
+      selectedVariant: null,
     },
     data() {
       return {
-        variantChart: {}
+        variantChart: {},
+        variants: null,
       }
     },
     created: function() {
     },
     mounted: function() {
+      this.variants = this.data;
       this.draw();
+      this.update();
     },
     methods: {
       draw: function() {
@@ -199,15 +205,14 @@ export default {
       update: function() {
         var self = this;
 
-        if (self.data && self.data.features) {
-
-          // Set the vertical layer count so that the height of the chart can be recalculated
-          if (self.data.maxLevel == null) {
-            self.data.maxLevel = d3.max(self.data.features, function(d) { return d.level; });
+        if (self.variants && self.data.features.length > 0) {
+            // Set the vertical layer count so that the height of the chart can be recalculated
+          if (self.variants.maxLevel == null) {
+            self.variants.maxLevel = d3.max(self.variants.features, function(d) { return d.level; });
           }
-          self.variantChart.verticalLayers(self.data.maxLevel);
-          self.variantChart.lowestWidth(self.data.featureWidth);
-          if ((self.data.features == null || self.data.features.length == 0) && !self.showWhenEmpty) {
+          self.variantChart.verticalLayers(self.variants.maxLevel);
+          self.variantChart.lowestWidth(self.variants.featureWidth);
+          if ((self.variants.features == null || self.variants.features.length == 0) && !self.showWhenEmpty) {
             self.variantChart.showXAxis(false);
           } else {
             self.variantChart.showXAxis(self.showXAxis);
@@ -219,7 +224,7 @@ export default {
           self.variantChart.width(self.width);
 
 
-          var selection = d3.select(self.$el).datum( [self.data] );
+          var selection = d3.select(self.$el).datum( [self.variants] );
           self.variantChart(selection);
         }
       },
@@ -262,13 +267,57 @@ export default {
       },
       showFlaggedVariant: function(variant, container) {
         this.variantChart.showFlaggedVariant(container, variant);
-      }
+      },
+
+      intersectVariants(){
+          let copyVariants = Object.assign({}, this.filteredVariants);
+          let features = [];
+          if(this.filteredVariants && this.filteredVariants.features && this.data && this.data.features) {
+              for (let i = 0; i < this.data.features.length; i++) {
+                  for (let j = 0; j < this.filteredVariants.features.length; j++) {
+                      let fv = this.data.features[i];
+                      let v = this.filteredVariants.features[j];
+                      if (fv.start === v.start && fv.end === v.end && fv.alt === v.alt && fv.ref === v.ref) {
+                          features.push(v);
+                      }
+                  }
+              }
+          }
+          copyVariants.features = features;
+          this.variants = copyVariants;
+      },
     },
     watch: {
-      data: function() {
+      variants: function(){
         this.update();
-      }
+      },
 
+      selectedVariant: function(){
+        if(this.showFilter){
+          this.intersectVariants();
+        }
+        else{
+          this.variants = this.data;
+        }
+      },
+
+      showFilter: function(){
+        if(this.showFilter){
+            this.intersectVariants()
+        }
+        else{
+          this.variants = this.data;
+        }
+      },
+
+      filteredVariants(){
+        if(this.showFilter){
+            this.intersectVariants();
+        }
+        else{
+          this.variants = this.data;
+        }
+      }
     }
 }
 </script>

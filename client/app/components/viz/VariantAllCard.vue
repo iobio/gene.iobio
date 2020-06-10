@@ -12,7 +12,6 @@
 #variant-card.proband
   padding-top: 6px
 
-
 #variant-card
   #sample-label
     vertical-align: top
@@ -22,6 +21,9 @@
     padding-top: 2px
     color: $app-color
     font-size: 16px
+
+  #loaded-count
+    color: $text-color
 
   #sample-identifier
     width: 130px
@@ -38,6 +40,9 @@
     top: 0px
     left: 0px
     display: none !important
+
+  .header-spacer
+    width: 30px
 
   .variant-action-button
     background-color: white
@@ -111,21 +116,17 @@
 
 
   .zoom-switch
-    margin-left: 5px
     display: inline-block
+    padding-top: 0px !important
     margin-top: 0px !important
-    max-width: 80px
-    float: right
-    margin-right: 20px
-    margin-left: 30px
-    padding-top: 0px
 
     label
       padding-left: 0px
       line-height: 18px
-      font-size: 13px
-      font-weight: 400
-      padding-top: 5px
+      font-family: Poppins, sans-serif !important
+      font-size: 13px !important
+      font-weight: normal !important
+      padding-top: 7px
       color: $text-color
 
   .badge, .v-badge
@@ -145,7 +146,6 @@
         border: thin solid #bfbdbd !important
         color: $text-color !important
     &.loaded
-      vertical-align: top
       padding-top: 4px
       padding-left: 0px
       margin-left: 15px
@@ -286,64 +286,143 @@
       .circle-label
         fill: #868686 !important
 
+.filter-info-button
+  margin-bottom: 0 !important
+  margin-top: 0 !important
+  margin-right: 30px !important
+  margin-left: 0 !important
+  padding-top: 0 !important
+  padding-left: 5px !important
+  padding-right: 5px !important
+  padding-bottom: 0 !important
+  min-width: 18px !important
+
+  .btn__content, .v-btn__content
+    padding: 0px
+    max-width: 18px
+
+    i.material-icons
+      font-size: 18px
+      color: $link-color
+      opacity: .6
+
+.close-button
+  margin: 0px !important
+  padding: 0px !important
+  min-width: 25px !important
+  height: 25px !important
+  margin-bottom: 15px !important
+
+  .btn__content, .v-btn__content
+    padding: 0px
+    max-width: 25px
+    max-height: 25px
+
+    i.material-icons
+      font-size: 25px
+      color: $text-color
+
+.info-title
+  font-size: 20px
+  color: $app-color
+  margin-bottom: 15px
+
+.info-card
+  padding: 15px 15px 20px 15px
+
+.info-description
+  font-size: 13px
+
+.info-publication
+  margin-top: 20px
+  font-size: 13px
+  a
+    font-style: italic
+    font-size: 13px
+    line-height: 16px
+
 </style>
-
-<style lang="css">
-
-</style>
-
 
 <template>
 
   <v-card tile id="variant-card" class="app-card">
-    <div style="display: flex;align-items: center;margin-bottom: 5px;">
+    <div style="display: flex;align-items: center;margin-bottom: 10px; padding-top: 5px">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
         <span style="display:inline-block"
         v-if="selectedGene"> {{ sampleRelLabel }} in {{ selectedGene.gene_name }}</span>
-
-
-
-
       </span>
 
-        <optional-tracks-menu
-            v-show="!isEduMode && !isBasicMode && !isSimpleMode"
-            @show-known-variants-card="onShowKnownVariantsCard"
-            @show-sfari-variants-card="onShowSfariVariantsCard"
-            @show-mother-card="onShowMotherCard"
-            @show-father-card="onShowFatherCard"
-            @optional-track-close="onOptionalTrackClose"
-            @known-variants-viz-change="onKnownVariantsVizChange"
-            @known-variants-filter-change="onKnownVariantsFilterChange"
-            @sfari-variants-viz-change="onSfariVariantsVizChange"
-            @sfari-variants-filter-change="onSfariVariantsFilterChange"
-            :isMother="isMother"
-            :isFather="isFather"
-        ></optional-tracks-menu>
+      <optional-tracks-menu
+              v-show="!isEduMode && !isBasicMode && !isSimpleMode"
+              @show-known-variants-card="onShowKnownVariantsCard"
+              @show-sfari-variants-card="onShowSfariVariantsCard"
+              @show-mother-card="onShowMotherCard"
+              @show-father-card="onShowFatherCard"
+              @optional-track-close="onOptionalTrackClose"
+              @known-variants-viz-change="onKnownVariantsVizChange"
+              @known-variants-filter-change="onKnownVariantsFilterChange"
+              @sfari-variants-viz-change="onSfariVariantsVizChange"
+              @sfari-variants-filter-change="onSfariVariantsFilterChange"
+              :isMother="isMother"
+              :isFather="isFather"
+      ></optional-tracks-menu>
+
+      <div style="width:23px"></div>
+
+      <div style="display: inline-flex; flex-wrap: wrap;
+  justify-content: flex-start;">
+
+        <div style="display: inline-flex;">
+
+        <VariantFilter
+              v-if="showVariantViz"
+              :variants="sampleModel.loadedVariants"
+              :filterModel="sampleModel.cohort.filterModel"
+              :geneLists="geneLists"
+              :selectedGene="selectedGene"
+              :selected-variant="selectedVariant"
+              @filtered-variants-update="onFilteredVariantsUpdate"
+              @show-filter="onShowFilter"
+      >
+      </VariantFilter>
 
 
-        <ranked-variants-menu v-if="sampleModel && sampleModel.relationship == 'proband'"
-          v-show="!isEduMode && !isBasicMode"
-          :isEduMode="isEduMode"
-          :isBasicMode="isBasicMode"
-          :isSimpleMode="isSimpleMode"
-          :featureMatrixModel="featureMatrixModel"
-          :selectedGene="selectedGene"
-          :selectedTranscript="selectedTranscript"
-          :selectedVariant="selectedVariant"
-          :variantTooltip="variantTooltip"
-          @ranked-variant-click="onRankedVariantClick"
-          @ranked-variant-hover="onRankedVariantHover"
-          @ranked-variant-hover-end="onRankedVariantHoverEnd"
-        >
-        </ranked-variants-menu>
 
+      <v-dialog  width="500"  v-model="showPopup" lazy >
+        <v-btn class="filter-info-button" flat  slot="activator">
+          <v-icon>help</v-icon>
+        </v-btn>
+        <v-card class="info-card full-width">
+          <v-card-title style="justify-content:space-between">
+            <span class="info-title">{{ 'Filter variant track by inheritance' }}</span>
+            <v-btn  @click="onClose" flat class="close-button">
+              <v-icon>close</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-card-text class="info-description" v-html="'Only show variants on variant tracks that pass one of the selected inheritance filters'">
+          </v-card-text>
+        </v-card>
+      </v-dialog>
 
-        <v-badge  id="loaded-count"
+        </div>
+
+      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+                class="zoom-switch" style="max-width:80px;"
+                label="Zoom"
+                v-model="showZoom"
+                :hide-details="true"
+      >
+      </v-switch>
+
+        <div class="header-spacer"></div>
+        <div>
+          <div style="height: 4px"></div>
+
+        <v-badge  id="loaded-count" style="padding-top: 2px; margin-left: 0 !important"
         v-if="!isEduMode && !isBasicMode && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="loaded mr-4 " >
-          <span slot="badge"> {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
+          <span slot="badge" style="padding-top: 0px" > {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
           {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Variants' }}
         </v-badge>
         <v-badge id="called-count"
@@ -357,17 +436,10 @@
           Exons with insufficient coverage
         </v-badge>
 
+        </div>
+      </div>
 
-
-
-
-      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="zoom-switch" style="max-width:80px"
-      label="Zoom"
-      v-model="showZoom"
-      :hide-details="true"
-      >
-      </v-switch>
-
+      </div>
 
       <v-btn id="variant-pileup-button"
        class="variant-action-button"
@@ -387,7 +459,6 @@
         @sfariVariantsFilterChange="onSfariVariantsFilterChange">
       </sfari-variants-toolbar>
 
-    </div>
 
 
 
@@ -493,7 +564,11 @@
            v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
             (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
           :data="sampleModel.loadedVariants"
+          :filtered-variants="filteredVariants"
+          :selected-variant="selectedVariant"
+          :selected-gene="selectedGene"
           :model="sampleModel"
+          :showFilter="showFilter"
           :regionStart="regionStart"
           :regionEnd="regionEnd"
           :annotationScheme="annotationScheme"
@@ -576,6 +651,10 @@
             ref="otherVariantVizRef"
             :model="model"
             :data="model.loadedVariants"
+            :filtered-variants="filteredVariants"
+            :selected-variant="selectedVariant"
+            :selected-gene="selectedGene"
+            :showFilter="showFilter"
             :regionStart="regionStart"
             :regionEnd="regionEnd"
             :annotationScheme="annotationScheme"
@@ -672,10 +751,12 @@ import StackedBarChartViz   from "../viz/StackedBarChartViz.vue"
 import KnownVariantsToolbar from "../partials/KnownVariantsToolbar.vue"
 import SfariVariantsToolbar from "../partials/SfariVariantsToolbar.vue"
 import OptionalTracksMenu   from "../partials/OptionalTracksMenu.vue"
+import VariantFilter        from "../partials/VariantFilter.vue"
 
 export default {
   name: 'variant-all-card',
   components: {
+    VariantFilter,
     VariantViz,
     GeneViz,
     DepthViz,
@@ -717,6 +798,7 @@ export default {
     featureMatrixModel: null,
 
     blacklistedGeneSelected: false,  // True if selected gene falls in SFARI ACMG blacklist
+    geneLists: null,
 
   },
 
@@ -777,13 +859,14 @@ export default {
 
       knownVariantsViz: null,
       sfariVariantsViz: null,
-
       showZoom: false,
       zoomMessage: "Drag to zoom",
 
       showRankedVariantsMenu: false,
-
-      pileupStyle: {}
+      filteredVariants: null,
+      pileupStyle: {},
+      showFilter: false,
+      showPopup: false,
 
 
     }
@@ -837,6 +920,15 @@ export default {
 
       this.$emit('cohort-variant-click', variant, this, model.relationship);
     },
+
+    onFilteredVariantsUpdate: function(filteredVariants){
+      this.filteredVariants = filteredVariants;
+    },
+
+    onClose: function() {
+      this.showPopup = false;
+    },
+
     onVariantOutsideClick: function(model) {
       if (this.showDepthViz) {
         this.hideCoverageCircle();
@@ -848,6 +940,11 @@ export default {
 
       this.$emit('cohort-variant-outside-click', this, model.relationship);
     },
+
+    onShowFilter(showFilter){
+      this.showFilter = showFilter;
+    },
+
     onVariantHover: function(variant, showTooltip=true) {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
@@ -1322,9 +1419,6 @@ export default {
 
   },
 
-
-  filters: {
-  },
 
   computed: {
     sampleRelLabel: function() {

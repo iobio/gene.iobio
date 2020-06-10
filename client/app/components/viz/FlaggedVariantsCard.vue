@@ -1,6 +1,60 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+#remove-filter-card
+  box-shadow: none !important
+
+.info-button
+  margin: 0px !important
+  padding: 0px !important
+  min-width: 18px !important
+  height: 18px !important
+  margin-top: -6px !important
+
+  .btn__content, .v-btn__content
+    padding: 0px
+    max-width: 18px
+    max-height: 18px
+
+    i.material-icons
+      font-size: 18px
+      color: $link-color
+      opacity: .6
+
+.close-button
+  margin: 0px !important
+  padding: 0px !important
+  min-width: 25px !important
+  height: 25px !important
+  margin-bottom: 15px !important
+
+  .btn__content, .v-btn__content
+    padding: 0px
+    max-width: 25px
+    max-height: 25px
+
+    i.material-icons
+      font-size: 25px
+      color: $text-color
+
+.info-title
+  font-size: 20px
+  color: $app-color
+  margin-bottom: 15px
+
+.info-card
+  padding: 15px 15px 20px 15px
+
+.info-description
+  font-size: 13px
+
+.info-publication
+  margin-top: 20px
+  font-size: 13px
+  a
+    font-style: italic
+    font-size: 13px
+    line-height: 16px
 
 .v-select__selections
   max-height: 100px
@@ -62,8 +116,6 @@
       font-size: 12px
       font-style: italic
       vertical-align: top
-
-
 
   #clinvar-symbol
     display: inline-block
@@ -143,8 +195,8 @@
     font-style: italic
     margin-left: 20px
 
-  .gene-list
-
+  .remove-filter-description
+    font-size: 16px
 
   .expansion-panel, .v-expansion-panel
     -webkit-box-shadow : none
@@ -500,22 +552,34 @@
               <span class="filter-label">{{ geneList.label }}</span>
             </v-badge>
 
-            <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
+            <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed' && geneList.label !== 'Filtered variants'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
               <v-icon>create</v-icon>
             </v-btn>
 
-            <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" flat @click="onRemoveFilter(geneList)" class="remove-filter-button">
-              <v-icon>delete</v-icon>
-            </v-btn>
+            <v-dialog width="500" v-model="showPopup" lazy>
+              <v-btn v-if="!isSimpleMode &&  geneList.filter.custom" @click="setGenesList(geneList)" slot="activator" flat
+                     class="remove-filter-button">
+                <v-icon>delete</v-icon>
+              </v-btn>
+              <v-card class="info-card full-width" id="remove-filter-card">
+                <v-card-title style="justify-content:space-between">
+                  <span class="info-title">{{ "Remove filter"}}</span>
+                  <v-btn @click="onClose" flat class="close-button">
+                    <v-icon>close</v-icon>
+                  </v-btn>
+                </v-card-title>
+                <v-card-text class="remove-filter-description" v-html="' Are you sure you want to remove this filter?'">
+                </v-card-text>
+                <v-btn @click="onClose" color="normal">Cancel</v-btn>
+                <v-btn @click="onRemoveFilter" color="error">Remove filter</v-btn>
+              </v-card>
+            </v-dialog>
           </span>
-
-
         </div>
       </template>
       <v-list three-line>
         <template
          v-for="flaggedGene in geneList.genes">
-
 
           <template v-for="variant in flaggedGene.variants">
 
@@ -524,7 +588,6 @@
             ripple
             :class="{'list-item': true, selected: clickedVariant == variant ? true : false}"
             @click="onVariantSelected(variant)">
-
 
               <v-list-tile-avatar >
                <v-chip class="variant-number" >
@@ -541,10 +604,7 @@
                    :interpretationMap="interpretationMap">
                   </variant-interpretation-badge>
 
-
-                  <div style="">
-
-
+                  <div>
                     <div  class="gene-ranks" v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span v-show="geneRankGTR(flaggedGene.gene.gene_name) != ''">
                         <v-chip class="white--text mr-2"
@@ -563,9 +623,7 @@
                           HPO
                         </v-chip>
                       </span>
-
                     </div>
-
                     <div class="variant-symbols">
 
                       <span class="variant-moniker">
@@ -605,7 +663,6 @@
                         <v-icon v-if="variant.fbCalled == 'Y'" class="has-called-variants">
                           check_circle
                         </v-icon>
-
                       </span>
 
                     </div>
@@ -635,14 +692,11 @@
                   </div>
 
 
-                  <div style="float-left;">
+                  <div>
 
                     <span v-if="variant.notFound && isFullAnalysis"
                       class="coord"> {{ coord(flaggedGene, variant) }} </span>
                   </div>
-
-
-
                 </v-list-tile-title>
 
                 <v-list-tile-sub-title v-if="isBasicMode" >
@@ -664,31 +718,22 @@
                     <div style="display:inline-block;" v-if="isBasicMode" >
                       <span class="hgvsp">  {{ hgvsP(variant) }} </span>
                     </div>
-
                   </div>
                 </v-list-tile-sub-title>
-
               </v-list-tile-content>
-
             </v-list-tile>
-
-
           </template>
-
         </template>
       </v-list>
     </v-expansion-panel-content>
   </v-expansion-panel>
-
   </v-card>
 
-
   <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
-
-
       <v-card v-if="currentFilter" class="full-width" style="padding:10px">
         <v-card-title style="margin-left:20px" class="headline">
-          Edit {{ currentFilter.title }}  Filter
+          {{editAddText}}
+          {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>
           <v-btn text icon @click="onCancelFilter"><v-icon>close</v-icon></v-btn>
         </v-card-title>
@@ -701,12 +746,9 @@
           @cancel-filter="onCancelFilter"
           :launchedFromClin="launchedFromClin">
         </filter-settings>
-
       </v-card>
   </v-dialog>
 </div>
-
-
 </template>
 
 
@@ -743,6 +785,7 @@ export default {
     toClickVariant: null,
     variantSetCounts: null
   },
+
   data() {
     return {
       readyToDownload: false,
@@ -753,9 +796,33 @@ export default {
       showEditFilter: false,
       currentFilter: null,
       expansionControl: null,
+      editAddText: 'Edit',
+      showPopup: false,
+      selectedGeneList: null,
     }
   },
   methods: {
+
+    onClose(){
+      this.showPopup = false;
+    },
+
+    setGenesList(genesList){
+      this.selectedGenesList = genesList;
+
+      setTimeout(function(){
+        let overlaySelection = d3.selectAll(".v-overlay--active");
+        let dialogSelection = d3.selectAll(".v-dialog__content--active");
+
+        for(let i = 0; i < overlaySelection[0].length-1; i++){
+          d3.select(".v-overlay--active").remove();
+        }
+        for(let j = 0; j < dialogSelection[0].length-1; j++){
+          d3.select(".v-dialog__content--active").remove();
+        }
+      }, 100)
+    },
+
     onApplyInterpretationFilter: function(interpretation) {
       this.interpretationFilters = interpretation
       this.populateGeneLists();
@@ -772,6 +839,17 @@ export default {
       self.geneLists = [];
       self.variantCount = 0;
 
+      if( variant && variant.interpretation && variant.interpretation !== "not-reviewed"){
+        if(variant.filtersPassedAll){
+          if(!variant.filtersPassedAll.includes("reviewed")){
+            variant.filtersPassedAll.push("reviewed");
+          }
+        }
+        else{
+          variant.filtersPassedAll = ["reviewed"];
+        }
+        variant.isUserFlagged = true;
+      }
 
       var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant);
       self.geneLists = filters.map(function(filterObject, idx) {
@@ -796,6 +874,7 @@ export default {
       self.flattenGenesList();
 
       self.$emit("count-changed", self.variantCount);
+      self.$emit("gene-lists-changed", self.geneLists);
 
       self.expansionControl =  self.geneLists.map(function(geneList) {
         return geneList.expand;
@@ -882,8 +961,14 @@ export default {
       return sortedGenes;
     },
 
-    onEditFilter: function(geneList) {
+    onEditFilter: function(geneList, text) {
       let self = this;
+      if(text === "Add"){
+        this.editAddText = 'Add ';
+      }
+      else{
+        this.editAddText = "Edit "
+      }
       self.showEditFilter = true;
       self.currentFilter = geneList.filter;
       setTimeout(function() {
@@ -903,14 +988,15 @@ export default {
       self.showEditFilter = false;
       self.currentFilter = null;
     },
-    onRemoveFilter: function(geneList) {
+    onRemoveFilter: function() {
       let self = this;
 
-      delete self.cohortModel.filterModel.flagCriteria[geneList.filter.key]
-      self.$emit("filter-settings-applied");
+      delete self.cohortModel.filterModel.flagCriteria[self.selectedGenesList.filter.key]
 
+      self.$emit("filter-settings-applied");
       self.showEditFilter = false;
       self.currentFilter = null;
+
     },
     onNewFilter: function() {
       let self = this;
@@ -932,7 +1018,7 @@ export default {
           showTooltip: false,
           tooltip: '',
           showEdit: true,
-          tooltip: ''
+          tooltip: '',
       };
       let newGeneList =  {
           name:  newFilter.name,
@@ -943,8 +1029,6 @@ export default {
           variantCount: 0,
           expand: true
       }
-
-      self.currentFilter = newFilter;
 
       let flagCriteria = {};
       flagCriteria.custom = true;
@@ -958,11 +1042,11 @@ export default {
       flagCriteria.inheritance = null;
       flagCriteria.zygosity = null;
       flagCriteria.genotypeDepth = null;
-      flagCriteria.exclusiveOf = ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked', 'high'];
+      flagCriteria.exclusiveOf = ['reviewed', 'pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked', 'high'];
       self.cohortModel.filterModel.flagCriteria[newFilter.name] = flagCriteria;
 
       self.geneLists.push(newGeneList);
-      self.onEditFilter(newGeneList);
+      self.onEditFilter(newGeneList, "Add");
       self.$emit("filter-settings-applied")
     },
 

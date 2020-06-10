@@ -267,6 +267,7 @@ main.content.clin, main.v-content.clin
       @show-snackbar="onShowSnackbar"
       @hide-snackbar="onHideSnackbar"
       @gene-selected="onGeneClicked"
+      @gene-lists-changed="onGeneListsChanged"
       @remove-gene="onRemoveGene"
       @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
       @show-known-variants="onShowKnownVariantsCard"
@@ -458,6 +459,7 @@ main.content.clin, main.v-content.clin
         :cohortModel="cohortModel"
         :isMother="isMother"
         :isFather="isFather"
+        :geneLists="geneLists"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-outside-click="onCohortVariantOutsideClick"
         @cohort-variant-hover="onCohortVariantHover"
@@ -906,6 +908,7 @@ export default {
       analyzedTranscript: {},
       geneRegionStart: null,
       geneRegionEnd: null,
+      geneLists: null,
 
       genesInProgress: {},
 
@@ -1849,6 +1852,10 @@ export default {
       })
       self.activeGeneVariantTab = "0";
 
+    },
+
+    onGeneListsChanged: function(geneLists){
+      this.geneLists = geneLists;
     },
 
     onGeneSelected: function(geneName) {
@@ -2850,10 +2857,10 @@ export default {
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
 
-      if (variant.gene == null) {
+      if (!variant.gene) {
+        variant.gene = this.selectedGene;
         if (variant.transcript == null || variant.transcript.length == 0) {
           if (self.cohortModel.getFlaggedVariant(variant) == null) {
-            variant.gene = this.selectedGene;
             variant.transcript = this.selectedTranscript;
             self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
 

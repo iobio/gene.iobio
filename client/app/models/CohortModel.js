@@ -2725,13 +2725,11 @@ class CohortModel {
     let flaggedGenes   = [];
 
     if (this.flaggedVariants) {
-
-
       if(variant) {
         let isUnique = true;
         for(let i = 0; i < this.flaggedVariants.length; i++){
           if(!variant.variant_id && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
-
+            this.flaggedVariants[i] = variant;
             isUnique = false;
           }
         }
@@ -2755,8 +2753,6 @@ class CohortModel {
             matches = true;
           }
         }
-
-
 
         if (matches) {
 
