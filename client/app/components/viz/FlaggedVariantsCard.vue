@@ -201,7 +201,7 @@
   .expansion-panel, .v-expansion-panel
     -webkit-box-shadow : none
     box-shadow: none
-    padding-bottom: 50px
+    padding-bottom: 0px
 
   .expansion-panel__body, .v-expansion-panel-content
     padding-left: 3px
@@ -655,7 +655,8 @@
                           <app-icon
                            icon="zygosity" v-if="!isBasicMode && zygosity(variant).toLowerCase() == 'hom'"
                            :type="zygosity(variant).toLowerCase()"
-                           height="14" width="24">
+                           :isSimpleMode="isSimpleMode"
+                           height="14" :width="isSimpleMode ? 70 : 24">
                           </app-icon>
                         </span>
 
@@ -663,13 +664,7 @@
                           check_circle
                         </v-icon>
 
-                        <div class="reviewed-variant-filter"
-                          v-if="geneList.label == 'Reviewed'">
-                          {{ filterPassedByVariant(variant) }}
-                        </div>
                       </span>
-
-                      <v-badge v-if="variant.variantSet && variant.filtersPassed != variant.variantSet && variant.filtersPassed != 'pathogenic'" style="margin-right:20px" class="info">{{ variant.variantSet }}</v-badge>
 
                     </div>
                     <div style="line-height:12px">
@@ -1210,24 +1205,7 @@ export default {
         }
       }
       return buf;
-    },
-    filterPassedByVariant: function(variant) {
-      let filterDisplay = "";
-      if (Array.isArray(variant.filtersPassed)) {
-        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed.join(" "));
-      } else {
-        filterDisplay = this.globalApp.utility.capitalizeFirstLetter(variant.filtersPassed);
-      }
-
-      if (filterDisplay == "UserFlagged") {
-        return "";
-      } else if (filterDisplay == "NotCategorized") {
-        return "";
-      } else {
-        return filterDisplay;
-      }
     }
-
 
   },
   mounted: function() {

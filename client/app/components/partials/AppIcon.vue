@@ -134,10 +134,10 @@
        :type="type"
        class="impact-badge">
         <g transform="translate(0,4)">
-          <rect width="24" height="10" class="zyg_hom" style="pointer-events: none;">
+          <rect :width="isSimpleMode ? 63 : 24" height="10" class="zyg_hom" style="pointer-events: none;">
           </rect>
           <text x="1" y="8" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 9px !important;">
-          Hom
+           {{ isSimpleMode ? 'Homozygous' : 'Hom' }}
           </text>
         </g>
       </svg>
@@ -149,10 +149,10 @@
        :type="type"
        class="impact-badge">
         <g transform="translate(0,4)">
-          <rect width="24" height="10" class="zyg_het" style="pointer-events: none;">
+          <rect :width="isSimpleMode ? 67 : 24" height="10" class="zyg_het" style="pointer-events: none;">
           </rect>
           <text x="2" y="8" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 9px !important;">
-          Het
+           {{ isSimpleMode ? 'Heterozygous' : 'Het' }}
           </text>
         </g>
       </svg>
@@ -165,10 +165,10 @@
        :type="type"
        class="impact-badge">
         <g transform="translate(0,0)">
-          <rect width="35" height="14" class="zyg_hom" style="pointer-events: none;">
+          <rect :width="isSimpleMode? 80 : 35" height="14" class="zyg_hom" style="pointer-events: none;">
           </rect>
           <text x="4" y="11" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 11px !important;">
-          Hom
+          {{ isSimpleMode ? 'Homozygous' : 'Hom' }}
           </text>
         </g>
       </svg>
@@ -180,10 +180,10 @@
        :type="type"
        class="impact-badge">
         <g transform="translate(0,0)">
-          <rect width="35" height="14" class="zyg_het" style="pointer-events: none;">
+          <rect :width="isSimpleMode ? 85 : 35" height="14" class="zyg_het" style="pointer-events: none;">
           </rect>
           <text x="4" y="11" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 11px !important;">
-          Het
+          {{ isSimpleMode ? 'Heterozygous' : 'Hom' }}
           </text>
         </g>
       </svg>
@@ -708,7 +708,8 @@ export default {
     height: null,
     fill: null,
     level: null,
-    significance: null
+    significance: null,
+    isSimpleMode: null
   },
   data () {
     return {
