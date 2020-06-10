@@ -287,8 +287,14 @@
         fill: #868686 !important
 
 .filter-info-button
-  margin: 0px !important
-  padding: 0px !important
+  margin-bottom: 0 !important
+  margin-top: 0 !important
+  margin-right: 30px !important
+  margin-left: 0 !important
+  padding-top: 0 !important
+  padding-left: 5px !important
+  padding-right: 5px !important
+  padding-bottom: 0 !important
   min-width: 18px !important
 
   .btn__content, .v-btn__content
@@ -365,28 +371,12 @@
 
       <div style="width:23px"></div>
 
-        <v-dialog  width="500"  v-model="showPopup" lazy >
-          <v-btn class="filter-info-button" flat  slot="activator">
-            <v-icon>help</v-icon>
-          </v-btn>
-          <v-card class="info-card full-width">
-            <v-card-title style="justify-content:space-between">
-              <span class="info-title">{{ 'Filter variant track by inheritance' }}</span>
-              <v-btn  @click="onClose" flat class="close-button">
-                <v-icon>close</v-icon>
-              </v-btn>
-            </v-card-title>
-            <v-card-text class="info-description" v-html="'Only show variants on variant tracks that pass one of the selected inheritance filters'">
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-
-        <div style="width: 5px !important"></div>
-
-      <div style=" display: inline-flex; flex-wrap: wrap;
+      <div style="display: inline-flex; flex-wrap: wrap;
   justify-content: flex-start;">
 
-      <VariantFilter
+        <div style="display: inline-flex;">
+
+        <VariantFilter
               v-if="showVariantViz"
               :variants="sampleModel.loadedVariants"
               :filterModel="sampleModel.cohort.filterModel"
@@ -397,6 +387,26 @@
               @show-filter="onShowFilter"
       >
       </VariantFilter>
+
+
+
+      <v-dialog  width="500"  v-model="showPopup" lazy >
+        <v-btn class="filter-info-button" flat  slot="activator">
+          <v-icon>help</v-icon>
+        </v-btn>
+        <v-card class="info-card full-width">
+          <v-card-title style="justify-content:space-between">
+            <span class="info-title">{{ 'Filter variant track by inheritance' }}</span>
+            <v-btn  @click="onClose" flat class="close-button">
+              <v-icon>close</v-icon>
+            </v-btn>
+          </v-card-title>
+          <v-card-text class="info-description" v-html="'Only show variants on variant tracks that pass one of the selected inheritance filters'">
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+
+        </div>
 
       <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
                 class="zoom-switch" style="max-width:80px;"

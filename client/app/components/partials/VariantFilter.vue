@@ -6,10 +6,9 @@
         justify-content: center
         justify-items: center
         padding-left: 0
-        padding-right: 30px
 
     #dropdownWrapper
-        width: 250px
+        width: 225px
         padding-right: 0px
 
     .filter-switch
