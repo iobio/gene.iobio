@@ -29,7 +29,7 @@
         margin-bottom: 0 !important
 
     .v-select__slot
-        height: 25px !important
+        /*height: 25px !important*/
 
         label
             font-family: Poppins, sans-serif !important
@@ -182,6 +182,9 @@
 
             passesFilters: function (variant) {
                 let filtersPassed = variant.filtersPassedAll;
+                if(!filtersPassed){
+                    filtersPassed = variant.filtersPassed;
+                }
                 let bool = false;
                 for (let i = 0; i < this.selectedFilters.length; i++) {
                     if (filtersPassed.includes(this.selectedFilters[i])) {
