@@ -371,7 +371,7 @@
 
       <div style="width:23px"></div>
 
-      <div style="display: inline-flex; flex-wrap: wrap;
+      <div v-if="!isSimpleMode && !isBasicMode" style="display: inline-flex; flex-wrap: wrap;
   justify-content: flex-start;">
 
         <div style="display: inline-flex;">
@@ -390,7 +390,7 @@
 
 
 
-      <v-dialog  width="500"  v-model="showPopup" lazy >
+      <v-dialog  width="500" v-if="!isBasicMode && !isSimpleMode" v-model="showPopup" lazy >
         <v-btn class="filter-info-button" flat  slot="activator">
           <v-icon>help</v-icon>
         </v-btn>
