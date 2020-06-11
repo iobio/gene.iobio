@@ -41,7 +41,7 @@
 </style>
 
 <template>
-    <div id="variant-filter">
+    <div id="variant-toggle">
         <div id="filterSelect">
             <div id="dropdownWrapper">
                 <v-select class="ma-0 pa-0"
@@ -66,7 +66,7 @@
 <script>
 
     export default {
-        name: 'variant-filter',
+        name: 'variant-toggle',
         props: {
             variants: null,
             filterModel: null,

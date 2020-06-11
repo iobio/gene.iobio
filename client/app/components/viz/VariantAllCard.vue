@@ -286,20 +286,8 @@
       .circle-label
         fill: #868686 !important
 
-.filter-info-button
-  margin-bottom: 0 !important
-  margin-top: 0 !important
-  margin-right: 30px !important
-  margin-left: 0 !important
-  padding-top: 0 !important
-  padding-left: 5px !important
-  padding-right: 5px !important
-  padding-bottom: 0 !important
-  min-width: 18px !important
-
   .btn__content, .v-btn__content
     padding: 0px
-    max-width: 18px
 
     i.material-icons
       font-size: 18px
@@ -341,6 +329,7 @@
     font-size: 13px
     line-height: 16px
 
+
 </style>
 
 <template>
@@ -371,50 +360,36 @@
 
       <div style="width:23px"></div>
 
+      <!--When I refactor this to a class, there is some weird styling inheritance, so I'm leaving this as inline styling for now, but will get around to refactoring out all the inline styling-->
       <div v-if="!isSimpleMode && !isBasicMode" style="display: inline-flex; flex-wrap: wrap;
   justify-content: flex-start;">
 
         <div style="display: inline-flex;">
 
-        <VariantFilter
-              v-if="showVariantViz"
-              :variants="sampleModel.loadedVariants"
-              :filterModel="sampleModel.cohort.filterModel"
-              :geneLists="geneLists"
-              :selectedGene="selectedGene"
-              :selected-variant="selectedVariant"
-              @filtered-variants-update="onFilteredVariantsUpdate"
-              @show-filter="onShowFilter"
-      >
-      </VariantFilter>
+          <variant-toggle
+                  v-if="showVariantViz"
+                  :variants="sampleModel.loadedVariants"
+                  :filterModel="sampleModel.cohort.filterModel"
+                  :geneLists="geneLists"
+                  :selectedGene="selectedGene"
+                  :selected-variant="selectedVariant"
+                  @filtered-variants-update="onFilteredVariantsUpdate"
+                  @show-filter="onShowFilter"
+          >
+          </variant-toggle>
 
-
-
-      <v-dialog  width="500" v-if="!isBasicMode && !isSimpleMode" v-model="showPopup" lazy >
-        <v-btn class="filter-info-button" flat  slot="activator">
-          <v-icon>help</v-icon>
-        </v-btn>
-        <v-card class="info-card full-width">
-          <v-card-title style="justify-content:space-between">
-            <span class="info-title">{{ 'Filter variant track by inheritance' }}</span>
-            <v-btn  @click="onClose" flat class="close-button">
-              <v-icon>close</v-icon>
-            </v-btn>
-          </v-card-title>
-          <v-card-text class="info-description" v-html="'Only show variants on variant tracks that pass one of the selected inheritance filters'">
-          </v-card-text>
-        </v-card>
-      </v-dialog>
+          <info-popup name="variant-toggle"></info-popup>
 
         </div>
 
-      <v-switch v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+        <v-switch
+                v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
                 class="zoom-switch" style="max-width:80px;"
                 label="Zoom"
                 v-model="showZoom"
                 :hide-details="true"
-      >
-      </v-switch>
+        >
+        </v-switch>
 
         <div class="header-spacer"></div>
         <div>
@@ -751,12 +726,14 @@ import StackedBarChartViz   from "../viz/StackedBarChartViz.vue"
 import KnownVariantsToolbar from "../partials/KnownVariantsToolbar.vue"
 import SfariVariantsToolbar from "../partials/SfariVariantsToolbar.vue"
 import OptionalTracksMenu   from "../partials/OptionalTracksMenu.vue"
-import VariantFilter        from "../partials/VariantFilter.vue"
+import VariantToggle        from "../partials/VariantToggle.vue"
+import InfoPopup            from "../partials/InfoPopup.vue";
 
 export default {
   name: 'variant-all-card',
   components: {
-    VariantFilter,
+    InfoPopup,
+    VariantToggle,
     VariantViz,
     GeneViz,
     DepthViz,
