@@ -205,7 +205,7 @@ export default {
       update: function() {
         var self = this;
 
-        if (self.variants && self.data.features.length > 0) {
+        if (self.variants && self.data.features) {
             // Set the vertical layer count so that the height of the chart can be recalculated
           if (self.variants.maxLevel == null) {
             self.variants.maxLevel = d3.max(self.variants.features, function(d) { return d.level; });
