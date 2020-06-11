@@ -329,7 +329,6 @@
     font-size: 13px
     line-height: 16px
 
-
 </style>
 
 <template>
@@ -361,11 +360,9 @@
       <div style="width:23px"></div>
 
       <!--When I refactor this to a class, there is some weird styling inheritance, so I'm leaving this as inline styling for now, but will get around to refactoring out all the inline styling-->
-      <div v-if="!isSimpleMode && !isBasicMode" style="display: inline-flex; flex-wrap: wrap;
-  justify-content: flex-start;">
+      <div v-if="!isSimpleMode && !isBasicMode" style="display: inline-flex; flex-wrap: wrap; justify-content: flex-start;">
 
         <div style="display: inline-flex;">
-
           <variant-toggle
                   v-if="showVariantViz"
                   :variants="sampleModel.loadedVariants"
@@ -377,9 +374,7 @@
                   @show-filter="onShowFilter"
           >
           </variant-toggle>
-
           <info-popup name="variant-toggle"></info-popup>
-
         </div>
 
         <v-switch
