@@ -769,10 +769,11 @@ nav.toolbar, nav.v-toolbar
     </v-navigation-drawer>
 
     <v-navigation-drawer
+      v-if="!launchedFromClin"
       v-model="showLegendDrawer"
       absolute
       right
-      width="200"    
+      width="200"
       style="z-index:6"
     >
         <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="legend-drawer-close-button" class="toolbar-button" flat @click="showLegendDrawer = false">
