@@ -1856,6 +1856,7 @@ export default {
 
     onGeneListsChanged: function(geneLists){
       this.geneLists = geneLists;
+      this.sendAnalysisToClin();
     },
 
     onGeneSelected: function(geneName) {
@@ -2886,7 +2887,6 @@ export default {
           if(self.isVariantUnique(variant)){
             self.analysis.payload.variants.push(variant);
             self.sendAnalysisToClin();
-
           }
 
         }
