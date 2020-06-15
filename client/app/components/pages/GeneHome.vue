@@ -1134,6 +1134,23 @@ export default {
       setTimeout(function() {
         self.onResize();
       }, 1000)
+    },
+    geneLists: function(){
+      if(this.launchedFromClin) {
+        for (let i = 0; i < this.geneLists.length; i++) {
+          let genes = this.geneLists[i].genes;
+          for (let j = 0; j < genes.length; j++) {
+            let variants = genes[j].variants;
+            for (let k = 0; k < variants.length; k++) {
+              let variant = variants[k];
+              if (this.isVariantUnique(variant)) {
+                this.analysis.payload.variants.push(variant)
+              }
+            }
+          }
+        }
+        this.sendAnalysisToClin();
+      }
     }
   },
 
@@ -1856,7 +1873,6 @@ export default {
 
     onGeneListsChanged: function(geneLists){
       this.geneLists = geneLists;
-      this.sendAnalysisToClin();
     },
 
     onGeneSelected: function(geneName) {
@@ -2884,13 +2900,16 @@ export default {
         //swag
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant);
         if(variant) {
+          console.log("variant")
           if(self.isVariantUnique(variant)){
+            console.log("unique variant", variant);
             self.analysis.payload.variants.push(variant);
-            self.sendAnalysisToClin();
           }
 
         }
       }
+      self.sendAnalysisToClin();
+
     },
 
     isVariantUnique: function(variant){
@@ -3582,6 +3601,7 @@ export default {
 
         let exportPromises = [];
         let exportedVariants = [];
+        
         self.analysis.payload.variants.forEach(function(variant) {
           let p = self.promiseExportAnalysisVariant(variant)
           .then(function(exportedVariant) {
