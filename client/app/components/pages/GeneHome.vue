@@ -1211,7 +1211,6 @@ export default {
           self.variantExporter,
           self.cacheHelper,
           self.genomeBuildHelper,
-          self.launchedFromClin,
           new FreebayesSettings());
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
@@ -2881,9 +2880,29 @@ export default {
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant)
+        //swag
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant);
+        if(variant) {
+          if(self.isVariantUnique(variant)){
+            self.analysis.payload.variants.push(variant);
+            self.sendAnalysisToClin();
+
+          }
+
+        }
       }
     },
+
+    isVariantUnique: function(variant){
+      let unique = true;
+      for(let i = 0; i < this.analysis.payload.variants.length; i++) {
+        if(this.analysis.payload.variants[i].start === variant.start && this.analysis.payload.variants[i].end === variant.end && this.analysis.payload.variants[i].ref === variant.ref && this.analysis.payload.variants[i].alt === variant.alt){
+          unique = false;
+        }
+      }
+      return unique;
+    },
+
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
 
