@@ -51,7 +51,7 @@
                           small-chips
                           deletable-chips
                           dense
-                          label="Only show"
+                          label="Show variants by inheritance"
                           :items="filterText"
                           item-text='title'
                           item-value='name'
@@ -144,7 +144,7 @@
                 let self = this;
 
                 setTimeout(function () {
-                    let baseWidth = 90;
+                    let baseWidth = 215;
                     let totalWidth = 65;
                     let padding = self.selectedFilters.length * 3;
 
