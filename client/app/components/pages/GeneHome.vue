@@ -1228,6 +1228,7 @@ export default {
           self.variantExporter,
           self.cacheHelper,
           self.genomeBuildHelper,
+          self.launchedFromClin,
           new FreebayesSettings());
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
