@@ -2897,19 +2897,8 @@ export default {
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-        //swag
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant);
-        if(variant) {
-          console.log("variant")
-          if(self.isVariantUnique(variant)){
-            console.log("unique variant", variant);
-            self.analysis.payload.variants.push(variant);
-          }
-
-        }
       }
-      self.sendAnalysisToClin();
-
     },
 
     isVariantUnique: function(variant){
@@ -3601,7 +3590,7 @@ export default {
 
         let exportPromises = [];
         let exportedVariants = [];
-        
+
         self.analysis.payload.variants.forEach(function(variant) {
           let p = self.promiseExportAnalysisVariant(variant)
           .then(function(exportedVariant) {
