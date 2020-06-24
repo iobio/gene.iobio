@@ -5,7 +5,7 @@ import SampleModel      from './SampleModel.js'
 class CohortModel {
 
   constructor(globalApp, isEduMode, isBasicMode, endpoint, genericAnnotation, translator, geneModel,
-    variantExporter, cacheHelper, genomeBuildHelper, freebayesSettings) {
+    variantExporter, cacheHelper, genomeBuildHelper, launchedFromClin, freebayesSettings) {
 
     this.globalApp = globalApp;
     this.isEduMode = isEduMode;
@@ -21,6 +21,7 @@ class CohortModel {
     this.cacheHelper = cacheHelper;
     this.genomeBuildHelper = genomeBuildHelper;
     this.freebayesSettings = freebayesSettings;
+    this.launchedFromClin = launchedFromClin
     this.filterModel = null;
     this.featureMatrixModel = null;
 
@@ -2728,7 +2729,7 @@ class CohortModel {
       if(variant) {
         let isUnique = true;
         for(let i = 0; i < this.flaggedVariants.length; i++){
-          if(!variant.variant_id && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
+          if((this.launchedFromClin || (!this.launchedFromClin && !variant.variant_id)) && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
             this.flaggedVariants[i] = variant;
             isUnique = false;
           }
@@ -2834,11 +2835,11 @@ class CohortModel {
       var featuresB = "";
 
 
-      var clinvarA = self.featureMatrixModel.getClinvarRank(a, a.clinvarClinSig) 
-      var clinvarB = self.featureMatrixModel.getClinvarRank(b, b.clinvarClinSig) 
+      var clinvarA = self.featureMatrixModel.getClinvarRank(a, a.clinvarClinSig)
+      var clinvarB = self.featureMatrixModel.getClinvarRank(b, b.clinvarClinSig)
 
-      var impactA = self.featureMatrixModel.getImpactRank(a, a.vepImpact) 
-      var impactB = self.featureMatrixModel.getImpactRank(b, b.vepImpact) 
+      var impactA = self.featureMatrixModel.getImpactRank(a, a.vepImpact)
+      var impactB = self.featureMatrixModel.getImpactRank(b, b.vepImpact)
 
       var inheritanceA = a.inheritance ? (a.inheritance.indexOf('n/a') == -1 ? 1 : 0) : 0;
       var inheritanceB = b.inheritance ? (b.inheritance.indexOf('n/a') == -1 ? 1 : 0) : 0;
