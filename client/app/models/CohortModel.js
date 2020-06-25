@@ -2450,6 +2450,9 @@ class CohortModel {
     let dataPromises = [];
     if (me.geneModel.isCandidateGene(geneName)) {
       var uniqueTranscripts = {};
+      if(!intersectedGenes[geneName]){
+        intersectedGenes[geneName] = [{}];
+      }
       intersectedGenes[geneName].forEach(function(importedVariant) {
         if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
           console.log("No transcript for importedVariant");
