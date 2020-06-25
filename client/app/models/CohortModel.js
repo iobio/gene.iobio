@@ -2737,7 +2737,7 @@ class CohortModel {
             isUnique = false;
           }
         }
-        if(isUnique && variant.isUserFlagged){
+        if(isUnique && variant.isUserFlagged && variant.start && variant.end && variant.ref && variant.alt){
           this.flaggedVariants.push(variant);
         }
       }
