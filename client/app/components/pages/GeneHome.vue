@@ -3592,7 +3592,7 @@ export default {
         let exportPromises = [];
         let exportedVariants = [];
 
-        self.analysis.payload.variants = self.analysis.payload.variants.filter(v => v.alt && JSON.stringify(v) !== '{}');
+        self.analysis.payload.variants = self.analysis.payload.variants.filter(v => v.alt );
 
 
 
