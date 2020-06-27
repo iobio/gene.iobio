@@ -3473,7 +3473,12 @@ export default {
             console.log("gene.iobio set-data promiseInitClin")
             self.promiseInitClin(clinObject)
             .then(function() {
-              console.log("gene.iobio set-data finished promiseInitClin")
+              alert("clinObject.buildName" + clinObject.buildName)
+              alert("gene.iobio set-data finished promiseInitClin")
+              alert("getCurrentBuildNames", self.genomeBuildHelper.getCurrentBuildName());
+              self.genomeBuildHelper.setCurrentBuild(clinObject.buildName);
+              alert("receiving data from clin!!!" + self.genomeBuildHelper.getCurrentBuildName());
+
               self.promiseImportClin()
               .then(function() {
 
