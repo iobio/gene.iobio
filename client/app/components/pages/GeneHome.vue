@@ -3476,6 +3476,7 @@ export default {
             console.log("gene.iobio set-data promiseInitClin")
             self.promiseInitClin(clinObject)
             .then(function() {
+              console.log("gene.iobio set-data finished promiseInitClin")
 
               self.promiseImportClin()
               .then(function() {
