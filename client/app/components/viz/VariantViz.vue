@@ -317,6 +317,13 @@ export default {
         else{
           this.variants = this.data;
         }
+      },
+
+      regionStart(){
+        this.update();
+      },
+      regionEnd(){
+        this.update();
       }
     }
 }
