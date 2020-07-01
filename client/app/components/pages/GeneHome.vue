@@ -3469,15 +3469,13 @@ export default {
               self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
               self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
             }
+            
+            //Sets the current build from clinObject type set-data
+            self.genomeBuildHelper.setCurrentBuild(clinObject.buildName);
 
             console.log("gene.iobio set-data promiseInitClin")
             self.promiseInitClin(clinObject)
             .then(function() {
-              // alert("clinObject.buildName" + clinObject.buildName)
-              // alert("gene.iobio set-data finished promiseInitClin")
-              // alert("getCurrentBuildNames", self.genomeBuildHelper.getCurrentBuildName());
-              self.genomeBuildHelper.setCurrentBuild(clinObject.buildName);
-              // alert("receiving data from clin!!!" + self.genomeBuildHelper.getCurrentBuildName());
 
               self.promiseImportClin()
               .then(function() {
