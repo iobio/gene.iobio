@@ -1420,11 +1420,13 @@ export default {
           if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
             let genePromises = [];
             self.geneSet.genes.forEach(function(geneName) {
+              if (self.geneModel.isKnownGene(geneName)) {
+                genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+              }
               self.analysis.payload.genes.push(geneName);
-              genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
               self.delaySave = 1000;
             })
-            return Promise.all(genePromises)
+           return Promise.all(genePromises)
           } else {
             return Promise.resolve();
           }
@@ -1432,9 +1434,17 @@ export default {
         .then(function() {
           if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
             let genePromises = [];
+            let unknownGenes = [];
             self.analysis.payload.genes.forEach(function(geneName) {
-              genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+              if (self.geneModel.isKnownGene(geneName)) {
+                genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
+              } else {
+                unknownGenes.push(geneName);
+              }
             })
+            if (unknownGenes.length > 0) {
+              alertify.alert( "Warning", "Bypassing unknown genes " + unknownGenes.join(", "))
+            }
             return Promise.all(genePromises);
           } else {
             return Promise.resolve();
