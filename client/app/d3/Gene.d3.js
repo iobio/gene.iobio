@@ -482,12 +482,33 @@ export default function geneD3() {
       .filter(function(f) { var ft = f.feature_type.toLowerCase(); return ft == 'utr' || ft == 'cds'})
       .sort(function(a,b) { return parseInt(a.start) - parseInt(b.start)});
 
-    for (var i=0; i < sorted.length-1; i++) {
-      var currSpan = parseInt(sorted[i+1].start) - parseInt(sorted[i].end);
-      if (span < currSpan) {
-        span = currSpan;
-        center = parseInt(sorted[i].end) + span/2;
+    sorted = sorted.filter(function(f){
+      return f.start >= geneD3_regionStart && f.end <= geneD3_regionEnd;
+    })
+
+    if(sorted.length > 1) {
+      for (var i = 0; i < sorted.length - 1; i++) {
+        var currSpan = parseInt(sorted[i + 1].start) - parseInt(sorted[i].end);
+        if (span < currSpan) {
+          span = currSpan;
+          center = parseInt(sorted[i].end) + span / 2;
+        }
       }
+    }
+
+    else if(sorted.length === 1){
+      let s = parseInt(sorted[0].start);
+      let e = parseInt(sorted[0].end);
+
+      if(s - geneD3_regionStart > geneD3_regionEnd - e){
+        center = (s + geneD3_regionStart)/2;
+      }
+      else{
+        center = (geneD3_regionEnd + e)/2;
+      }
+    }
+    else if(sorted.length === 0){
+      center =  geneD3_regionEnd - ((geneD3_regionEnd - geneD3_regionStart)/2);
     }
     d.center = center;
     return [d];
