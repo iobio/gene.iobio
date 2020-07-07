@@ -485,18 +485,13 @@ export default function geneD3() {
     sorted = sorted.filter(function(f){
       return parseInt(f.start) >= geneD3_regionStart && parseInt(f.end) <= geneD3_regionEnd;
     })
-
-
     let positions = [];
 
     for(let i = 0; i < sorted.length; i++){
       positions.push(parseInt(sorted[i].start));
       positions.push(parseInt(sorted[i].end));
     }
-    //todo: figure out direction before calculating left most and right most;
-
     positions = positions.sort();
-    console.log("positions", positions);
 
     let lm = null;
     let rm = null;
