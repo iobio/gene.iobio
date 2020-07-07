@@ -483,16 +483,49 @@ export default function geneD3() {
       .sort(function(a,b) { return parseInt(a.start) - parseInt(b.start)});
 
     sorted = sorted.filter(function(f){
-      return f.start >= geneD3_regionStart && f.end <= geneD3_regionEnd;
+      return parseInt(f.start) >= geneD3_regionStart && parseInt(f.end) <= geneD3_regionEnd;
     })
+
+
+    let positions = [];
+
+    for(let i = 0; i < sorted.length; i++){
+      positions.push(parseInt(sorted[i].start));
+      positions.push(parseInt(sorted[i].end));
+    }
+    //todo: figure out direction before calculating left most and right most;
+
+    positions = positions.sort();
+    console.log("positions", positions);
+
+    let lm = null;
+    let rm = null;
+
+    if(positions.length > 0) {
+      lm = positions[0];
+      rm = positions.slice(-1)[0];
+    }
+
+    let edgeSpan = Math.max(lm - geneD3_regionStart, geneD3_regionEnd -rm);
+    let edgeCenter = null;
+
+    if(lm - geneD3_regionStart > geneD3_regionEnd -rm){
+      edgeCenter = (lm + geneD3_regionStart)/2
+    }
+    else{
+      edgeCenter = (rm + geneD3_regionEnd)/2;
+    }
 
     if(sorted.length > 1) {
       for (var i = 0; i < sorted.length - 1; i++) {
-        var currSpan = parseInt(sorted[i + 1].start) - parseInt(sorted[i].end);
+        let currSpan = parseInt(sorted[i + 1].start) - parseInt(sorted[i].end);
         if (span < currSpan) {
           span = currSpan;
           center = parseInt(sorted[i].end) + span / 2;
         }
+      }
+      if(edgeSpan > span){
+        center = edgeCenter;
       }
     }
 
