@@ -3928,16 +3928,6 @@ export default {
 
               self.variantSetCounts = {total: 0}
               self.analysis.payload.variants.forEach(function(importedVariant) {
-                if (importedVariant.variantSet && importedVariant.variantSet.length > 0) {
-                  let key = importedVariant.variantSet;
-                  let count = self.variantSetCounts[key];
-                  if (count == null) {
-                    self.variantSetCounts[key] = 0;
-                  }
-                  self.variantSetCounts[key]++;
-                  self.variantSetCounts.total ++;
-
-                }
               })
 
 
