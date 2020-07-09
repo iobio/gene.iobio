@@ -62,8 +62,7 @@
         Other tracks
       </v-btn>
 
-      <div class="optional-track
-      s" style="padding: 20px;" >
+      <div class="optional-tracks" style="padding: 20px;" >
 
         <div style="display:flex;flex-flow:column">
           <v-checkbox label="Mother" v-if="isMother"  v-model="showMotherCard"></v-checkbox>

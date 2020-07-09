@@ -2330,7 +2330,6 @@ export default {
       if (viz) {
         self.cohortModel.knownVariantsViz = viz;
       }
-
       if (self.showKnownVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
         self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
       }
@@ -2340,12 +2339,8 @@ export default {
         if (viz) {
             self.cohortModel.sfariVariantsViz = viz;
         }
-
-        console.log("onSfariVariantsVizChange", viz);
-
         if (self.showSfariVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0
             && self.acmgBlacklist[self.selectedGene.gene_name] == null) {
-
             self.cohortModel.promiseLoadSfariVariants(self.selectedGene, self.selectedTranscript);
         }
     },
