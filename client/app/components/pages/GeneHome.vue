@@ -2330,6 +2330,7 @@ export default {
       if (viz) {
         self.cohortModel.knownVariantsViz = viz;
       }
+
       if (self.showKnownVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
         self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
       }
@@ -2339,8 +2340,12 @@ export default {
         if (viz) {
             self.cohortModel.sfariVariantsViz = viz;
         }
+
+        console.log("onSfariVariantsVizChange", viz);
+
         if (self.showSfariVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0
             && self.acmgBlacklist[self.selectedGene.gene_name] == null) {
+
             self.cohortModel.promiseLoadSfariVariants(self.selectedGene, self.selectedTranscript);
         }
     },
@@ -3479,7 +3484,7 @@ export default {
               self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
               self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
             }
-            
+
             //Sets the current build from clinObject type set-data
             self.genomeBuildHelper.setCurrentBuild(clinObject.buildName);
 
@@ -3926,7 +3931,7 @@ export default {
 
             if (self.clinSetData.analysis.payload.variants && self.clinSetData.analysis.payload.variants.length > 0 ) {
 
-              
+
               self.analysis.payload.variants.forEach(function(importedVariant) {
                 importedVariant.isImported = true;
               })
