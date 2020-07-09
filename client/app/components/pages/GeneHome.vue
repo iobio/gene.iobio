@@ -277,6 +277,7 @@ main.content.clin, main.v-content.clin
       @filter-settings-applied="onFilterSettingsApplied"
       @isDemo="onIsDemo"
       @show-save-analysis="toggleSaveModal(true)"
+      @variant-count-changed="variantCountChanged"
     >
     </navigation>
 
@@ -1039,7 +1040,8 @@ export default {
 
       },
 
-      clinShowGeneApp: false
+      clinShowGeneApp: false,
+      variantCount: 0,
     }
   },
 
@@ -3623,6 +3625,7 @@ export default {
           let simpleAnalysis = $.extend({}, self.analysis);
           simpleAnalysis.payload.variants = exportedVariants;
           simpleAnalysis.payload.filters = self.filterModel.flagCriteria;
+          simpleAnalysis.payload.variantCount = self.variantCount;
 
           var msgObject = {
             success: true,
@@ -4212,6 +4215,10 @@ export default {
         })
       }
       return matchingIdx;
+    },
+    
+    variantCountChanged: function(count) {
+      this.variantCount = count;
     },
 
   }
