@@ -2572,9 +2572,7 @@ class CohortModel {
         if (!options.includeReviewed && filterName == 'reviewed') {
           include = false;
         }
-        if (isFullAnalysis && !options.includeNotCategorized && filterName == 'notCategorized') {
-          include = false;
-        }
+
         if (include) {
           var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
 

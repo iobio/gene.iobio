@@ -3926,7 +3926,9 @@ export default {
 
             if (self.clinSetData.analysis.payload.variants && self.clinSetData.analysis.payload.variants.length > 0 ) {
 
+              
               self.analysis.payload.variants.forEach(function(importedVariant) {
+                importedVariant.isImported = true;
               })
 
 
