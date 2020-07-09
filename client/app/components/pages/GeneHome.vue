@@ -3481,7 +3481,7 @@ export default {
               self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
               self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
             }
-
+            
             //Sets the current build from clinObject type set-data
             self.genomeBuildHelper.setCurrentBuild(clinObject.buildName);
 
@@ -3625,7 +3625,6 @@ export default {
           let simpleAnalysis = $.extend({}, self.analysis);
           simpleAnalysis.payload.variants = exportedVariants;
           simpleAnalysis.payload.filters = self.filterModel.flagCriteria;
-          simpleAnalysis.payload.variantCount = self.variantCount;
 
           var msgObject = {
             success: true,
@@ -3879,27 +3878,18 @@ export default {
           })
         })
 
-        if (firstFlaggedVariant &&  getGeneName(firstFlaggedVariant) !==  self.selectedGene.gene_name) {
+        if (firstFlaggedVariant) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
-                  .then(function() {
-                    self.toClickVariant = firstFlaggedVariant;
-                    self.showLeftPanelWhenFlaggedVariants();
-                    self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
-                      resolve()
-                    })
-                  })
+          .then(function() {
 
-        }
-
-        else if(firstFlaggedVariant){
-          self.toClickVariant = firstFlaggedVariant;
-          self.showLeftPanelWhenFlaggedVariants();
-          self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
-            resolve()
+            self.toClickVariant = firstFlaggedVariant;
+            self.showLeftPanelWhenFlaggedVariants();
+            self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
+              resolve()
+            })
           })
-        }
 
-        else {
+        } else {
           setTimeout(function() {
             self.showLeftPanelForGenes();
           },1000)
@@ -4064,8 +4054,6 @@ export default {
           }
         } else {
 
-          self.promiseUpdateAnalysisGenesData();
-          
           self.hubSession.promiseAddAnalysis(self.analysis.project_id, self.analysis)
           .then(function(analysis) {
             self.analysis = analysis;
@@ -4229,7 +4217,20 @@ export default {
     },
     
     variantCountChanged: function(count) {
-      this.variantCount = count;
+      let self = this;
+      self.variantCount = count;
+
+      if(self.launchedFromClin){
+
+        var msgObject = {
+          success: true,
+          type: 'update-variant-count',
+          sender: 'gene.iobio.io',
+          variantCount: self.variantCount,
+        };
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+
+      }
     },
 
   }
