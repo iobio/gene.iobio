@@ -923,9 +923,6 @@ class CohortModel {
 
   promiseLoadSfariVariants(theGene, theTranscript) {
       let self = this;
-3
-
-      console.log("promiseLoadSfariVariatns");
       if (self.sfariVariantsViz === 'variants') {
           return self._promiseLoadSfariVariants(theGene, theTranscript);
       } else  {
