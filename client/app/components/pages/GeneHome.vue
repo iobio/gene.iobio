@@ -3878,7 +3878,7 @@ export default {
           })
         })
 
-        if (firstFlaggedVariant) {
+        if (self.launchedFromClin || (firstFlaggedVariant &&  getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name)) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
           .then(function() {
 
@@ -3928,7 +3928,7 @@ export default {
 
             if (self.clinSetData.analysis.payload.variants && self.clinSetData.analysis.payload.variants.length > 0 ) {
 
-              
+
               self.analysis.payload.variants.forEach(function(importedVariant) {
                 importedVariant.isImported = true;
               })
@@ -4053,6 +4053,8 @@ export default {
 
           }
         } else {
+
+          self.promiseUpdateAnalysisGenesData();
 
           self.hubSession.promiseAddAnalysis(self.analysis.project_id, self.analysis)
           .then(function(analysis) {
