@@ -289,11 +289,10 @@ export default {
     },
     watch: {
       variants: function(oldVar, newVar) {
-          if(oldVar && oldVar.features && newVar && newVar.features && oldVar.features.length === 0 && newVar.features.length > 0){
-          }
-          else if(oldVar && oldVar.features && newVar && newVar.features){
-              this.update();
-          }
+        if(oldVar && oldVar.features && newVar && newVar.features && oldVar.features.length === 0 && newVar.features.length > 0){}
+        else if(oldVar && oldVar.features && newVar && newVar.features){
+          this.update();
+        }
       },
 
       selectedVariant: function(){
@@ -324,9 +323,7 @@ export default {
       },
 
       regionStart(){
-          console.log("change in region for relationship", this.model.relationship)
-
-          this.update();
+        this.update();
       },
       regionEnd(){
         this.update();
