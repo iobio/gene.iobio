@@ -319,6 +319,15 @@ export default {
         }
       },
 
+        data(){
+            if(this.showFilter){
+                this.intersectVariants();
+            }
+            else{
+                this.variants = this.data;
+            }
+        },
+
       regionStart(){
         this.update();
       },
