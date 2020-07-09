@@ -4061,6 +4061,8 @@ export default {
           }
         } else {
 
+          self.promiseUpdateAnalysisGenesData();
+          
           self.hubSession.promiseAddAnalysis(self.analysis.project_id, self.analysis)
           .then(function(analysis) {
             self.analysis = analysis;
