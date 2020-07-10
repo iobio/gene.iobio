@@ -1042,6 +1042,7 @@ export default {
 
       clinShowGeneApp: false,
       variantCount: 0,
+
     }
   },
 
@@ -3481,7 +3482,7 @@ export default {
               self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList })
               self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
             }
-            
+
             //Sets the current build from clinObject type set-data
             self.genomeBuildHelper.setCurrentBuild(clinObject.buildName);
 
@@ -3880,16 +3881,25 @@ export default {
 
         if (self.launchedFromClin || (firstFlaggedVariant &&  getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name)) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
-          .then(function() {
+                  .then(function() {
+                    self.toClickVariant = firstFlaggedVariant;
+                    self.showLeftPanelWhenFlaggedVariants();
+                    self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
+                      resolve()
+                    })
+                  })
 
-            self.toClickVariant = firstFlaggedVariant;
-            self.showLeftPanelWhenFlaggedVariants();
-            self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
-              resolve()
-            })
+        }
+
+        else if(firstFlaggedVariant){
+          self.toClickVariant = firstFlaggedVariant;
+          self.showLeftPanelWhenFlaggedVariants();
+          self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
+            resolve()
           })
+        }
 
-        } else {
+        else {
           setTimeout(function() {
             self.showLeftPanelForGenes();
           },1000)
@@ -4221,9 +4231,7 @@ export default {
     variantCountChanged: function(count) {
       let self = this;
       self.variantCount = count;
-
       if(self.launchedFromClin){
-
         var msgObject = {
           success: true,
           type: 'update-variant-count',
@@ -4231,9 +4239,8 @@ export default {
           variantCount: self.variantCount,
         };
         window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
-
       }
-    },
+    }
 
   }
 }
