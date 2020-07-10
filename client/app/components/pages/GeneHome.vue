@@ -277,6 +277,7 @@ main.content.clin, main.v-content.clin
       @filter-settings-applied="onFilterSettingsApplied"
       @isDemo="onIsDemo"
       @show-save-analysis="toggleSaveModal(true)"
+      @variant-count-changed="variantCountChanged"
     >
     </navigation>
 
@@ -1039,7 +1040,9 @@ export default {
 
       },
 
-      clinShowGeneApp: false
+      clinShowGeneApp: false,
+      variantCount: 0,
+
     }
   },
 
@@ -4224,6 +4227,20 @@ export default {
       }
       return matchingIdx;
     },
+    
+    variantCountChanged: function(count) {
+      let self = this;
+      self.variantCount = count;
+      if(self.launchedFromClin){
+        var msgObject = {
+          success: true,
+          type: 'update-variant-count',
+          sender: 'gene.iobio.io',
+          variantCount: self.variantCount,
+        };
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
+      }
+    }
 
   }
 }

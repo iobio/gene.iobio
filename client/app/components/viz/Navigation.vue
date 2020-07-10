@@ -1296,6 +1296,7 @@ export default {
       if(this.flaggedVariantCount === 0){
         this.$emit("flagged-variant-selected", null)
       }
+      this.$emit("variant-count-changed", count);
     },
 
     onFilterSettingsApplied: function() {
