@@ -10,7 +10,7 @@ class GlobalApp {
     this.completedTour         = "";
 
 
-    this.version               = "4.2.1";
+    this.version               = "4.2.2";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
@@ -131,7 +131,7 @@ class GlobalApp {
 
   getClinvarUrl(build) {
 
-      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0) {
+      if (this.IOBIO_SERVICES && this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
         var clinvarUrls = {
           'GRCh37': "https://mosaic.chpc.utah.edu/static/GRCh37/2019/clinvar_20191021.vcf.gz",
           'GRCh38': "https://mosaic.chpc.utah.edu/static/GRCh38/2019/clinvar_20191021.vcf.gz"
