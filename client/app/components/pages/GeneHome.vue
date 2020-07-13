@@ -2643,6 +2643,9 @@ export default {
           self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
           self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
           self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE)
+        } else {
+          self.globalApp.IOBIO_SOURCE = self.globalApp.DEFAULT_IOBIO_BACKEND;
+          self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE);
         }
 
         if (self.projectId) {
