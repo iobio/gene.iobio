@@ -3848,7 +3848,7 @@ export default {
               })
             })
         }
-
+      
         else if(firstFlaggedVariant){
           self.toClickVariant = firstFlaggedVariant;
           self.showLeftPanelWhenFlaggedVariants();
