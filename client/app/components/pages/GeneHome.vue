@@ -711,6 +711,20 @@ main.content.clin, main.v-content.clin
 
 
     </v-dialog>
+    
+    
+    <v-dialog v-model="interpretationProgressDialog" persistent max-width="375">
+      <v-card color="#30638e" dark>
+        <v-card-text>
+          Interpreting variant
+          <v-progress-linear 
+            :indeterminate="true"
+            height="7"
+            color="white">
+          </v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
   </div>
 
@@ -1042,7 +1056,7 @@ export default {
 
       clinShowGeneApp: false,
       variantCount: 0,
-
+      interpretationProgressDialog: false,
     }
   },
 
@@ -1152,7 +1166,6 @@ export default {
             }
           }
         }
-        this.sendAnalysisToClin();
       }
     }
   },
@@ -2887,6 +2900,9 @@ export default {
     onApplyVariantInterpretation: function(variant) {
       let self = this;
 
+      if(self.launchedFromClin) {
+        self.interpretationProgressDialog = true;
+      }
 
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
@@ -3647,6 +3663,7 @@ export default {
             alertify.error("Unable to save analysis")
           }
           if (msgObjectString && msgObjectString.length > 0) {
+             self.interpretationProgressDialog = false;
              window.parent.postMessage(msgObjectString, self.clinIobioUrl);
           }
 
