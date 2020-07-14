@@ -1134,7 +1134,7 @@ export default {
       setTimeout(function() {
         self.onResize();
       }, 1000)
-    },
+    }
   },
 
   methods: {
@@ -2893,8 +2893,6 @@ export default {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant)
       }
     },
-
-
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
 

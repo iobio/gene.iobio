@@ -769,7 +769,6 @@ nav.toolbar, nav.v-toolbar
     </v-navigation-drawer>
 
     <v-navigation-drawer
-      v-if="!launchedFromClin"
       v-model="showLegendDrawer"
       absolute
       right
