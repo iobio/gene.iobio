@@ -1135,23 +1135,6 @@ export default {
         self.onResize();
       }, 1000)
     },
-    geneLists: function(){
-      if(this.launchedFromClin) {
-        for (let i = 0; i < this.geneLists.length; i++) {
-          let genes = this.geneLists[i].genes;
-          for (let j = 0; j < genes.length; j++) {
-            let variants = genes[j].variants;
-            for (let k = 0; k < variants.length; k++) {
-              let variant = variants[k];
-              if (this.isVariantUnique(variant)) {
-                this.analysis.payload.variants.push(variant)
-              }
-            }
-          }
-        }
-        this.sendAnalysisToClin();
-      }
-    }
   },
 
   methods: {
@@ -1228,7 +1211,6 @@ export default {
           self.variantExporter,
           self.cacheHelper,
           self.genomeBuildHelper,
-          self.launchedFromClin,
           new FreebayesSettings());
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
@@ -2908,19 +2890,10 @@ export default {
       }
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant);
+        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant)
       }
     },
 
-    isVariantUnique: function(variant){
-      let unique = true;
-      for(let i = 0; i < this.analysis.payload.variants.length; i++) {
-        if(this.analysis.payload.variants[i].start === variant.start && this.analysis.payload.variants[i].end === variant.end && this.analysis.payload.variants[i].ref === variant.ref && this.analysis.payload.variants[i].alt === variant.alt){
-          unique = false;
-        }
-      }
-      return unique;
-    },
 
     onFlaggedVariantSelected: function(flaggedVariant, options={}, callback) {
       let self = this;
@@ -3480,14 +3453,10 @@ export default {
               self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
             }
 
-            //Sets the current build from clinObject type set-data
-            self.genomeBuildHelper.setCurrentBuild(clinObject.buildName);
-
             console.log("gene.iobio set-data promiseInitClin")
             self.promiseInitClin(clinObject)
             .then(function() {
               console.log("gene.iobio set-data finished promiseInitClin")
-
               self.promiseImportClin()
               .then(function() {
 
@@ -3605,11 +3574,6 @@ export default {
 
         let exportPromises = [];
         let exportedVariants = [];
-
-        self.analysis.payload.variants = self.analysis.payload.variants.filter(v => v.alt );
-
-
-
         self.analysis.payload.variants.forEach(function(variant) {
           let p = self.promiseExportAnalysisVariant(variant)
           .then(function(exportedVariant) {

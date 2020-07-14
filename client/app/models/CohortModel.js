@@ -5,7 +5,7 @@ import SampleModel      from './SampleModel.js'
 class CohortModel {
 
   constructor(globalApp, isEduMode, isBasicMode, endpoint, genericAnnotation, translator, geneModel,
-    variantExporter, cacheHelper, genomeBuildHelper, launchedFromClin, freebayesSettings) {
+    variantExporter, cacheHelper, genomeBuildHelper, freebayesSettings) {
 
     this.globalApp = globalApp;
     this.isEduMode = isEduMode;
@@ -21,7 +21,6 @@ class CohortModel {
     this.cacheHelper = cacheHelper;
     this.genomeBuildHelper = genomeBuildHelper;
     this.freebayesSettings = freebayesSettings;
-    this.launchedFromClin = launchedFromClin
     this.filterModel = null;
     this.featureMatrixModel = null;
 
@@ -2450,9 +2449,6 @@ class CohortModel {
     let dataPromises = [];
     if (me.geneModel.isCandidateGene(geneName)) {
       var uniqueTranscripts = {};
-      if(!intersectedGenes[geneName]){
-        intersectedGenes[geneName] = [{}];
-      }
       intersectedGenes[geneName].forEach(function(importedVariant) {
         if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
           console.log("No transcript for importedVariant");
@@ -2732,12 +2728,12 @@ class CohortModel {
       if(variant) {
         let isUnique = true;
         for(let i = 0; i < this.flaggedVariants.length; i++){
-          if((this.launchedFromClin || (!this.launchedFromClin && !variant.variant_id)) && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
+          if(!variant.variant_id && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
             this.flaggedVariants[i] = variant;
             isUnique = false;
           }
         }
-        if(isUnique && variant.isUserFlagged && variant.start && variant.end && variant.ref && variant.alt){
+        if(isUnique && variant.isUserFlagged){
           this.flaggedVariants.push(variant);
         }
       }
