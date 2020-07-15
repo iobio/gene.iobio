@@ -288,8 +288,11 @@ export default {
       },
     },
     watch: {
-      variants: function(){
-        this.update();
+      variants: function(oldVar, newVar) {
+        if(oldVar && oldVar.features && newVar && newVar.features && oldVar.features.length === 0 && newVar.features.length > 0){}
+        else if(oldVar && oldVar.features && newVar && newVar.features){
+          this.update();
+        }
       },
 
       selectedVariant: function(){

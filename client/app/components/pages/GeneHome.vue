@@ -3075,7 +3075,7 @@ export default {
         }
     },
     onOptionalTrackClose: function(showIt) {
-      this.promiseLoadGene(this.selectedGene.gene_name);
+      // this.promiseLoadGene(this.selectedGene.gene_name);
     },
     onShowMotherCard: function(showIt) {
       let self = this;
