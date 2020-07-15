@@ -41,7 +41,7 @@
 </style>
 
 <template>
-    <div id="variant-filter">
+    <div id="variant-toggle">
         <div id="filterSelect">
             <div id="dropdownWrapper">
                 <v-select class="ma-0 pa-0"
@@ -51,7 +51,7 @@
                           small-chips
                           deletable-chips
                           dense
-                          label="Only show"
+                          label="Show variants by inheritance"
                           :items="filterText"
                           item-text='title'
                           item-value='name'
@@ -66,7 +66,7 @@
 <script>
 
     export default {
-        name: 'variant-filter',
+        name: 'variant-toggle',
         props: {
             variants: null,
             filterModel: null,
@@ -144,7 +144,7 @@
                 let self = this;
 
                 setTimeout(function () {
-                    let baseWidth = 90;
+                    let baseWidth = 215;
                     let totalWidth = 65;
                     let padding = self.selectedFilters.length * 3;
 
