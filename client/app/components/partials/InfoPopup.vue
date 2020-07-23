@@ -14,9 +14,9 @@
     max-height: 18px
 
     i.material-icons
-      font-size: 18px
+      font-size: 14px !important
       color: $link-color
-      opacity: .6
+      opacity: .7
 
 .close-button
   margin: 0px !important
@@ -122,7 +122,7 @@ export default {
             },
             'impact':  {
               title: 'Impact',
-              description: 'Predicted effect of the variant on gene function'
+              description: 'Predicted effect of the variant on gene function.'
             },
             'clinvar': {
               title: 'ClinVar',
@@ -134,11 +134,11 @@ export default {
             },
             'pathogenic': {
               title: 'Pathogenic',
-              description: 'Causes disease'
+              description: 'Causes disease.'
             },
             'likelyPathogenic': {
               title: 'Likely pathogenic',
-              description: 'Likely causes disease'
+              description: 'Likely causes disease.'
             },
             'snp': {
               title: 'Variant type',
@@ -146,7 +146,7 @@ export default {
             },
             'variant-toggle': {
               title: 'Filter variant track by inheritance',
-              description: 'Only show variants on variant tracks that pass one of the selected inheritance filters'
+              description: 'Only show variants on variant tracks that pass one of the selected inheritance filters.'
             }
         }
 

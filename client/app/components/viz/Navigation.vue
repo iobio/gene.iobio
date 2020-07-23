@@ -118,10 +118,10 @@ aside.navigation-drawer, aside.v-navigation-drawer
       flex-grow: 1
 
     #legend-card
-      margin-top: 0px
+      margin-top: -10px
       margin-bottom: 32px
       padding: 0px
-      padding-top: 5px
+      padding-top: 0px
       border: #9b9b9b solid 2px !important
       background-color: #f5f5f5
 

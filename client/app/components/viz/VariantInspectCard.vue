@@ -422,7 +422,7 @@
             <v-divider></v-divider>
           </div>
           <div class='variant-column-hint' v-if="isSimpleMode">
-            Sequencing quality at this position
+            Sequencing data quality.
           </div>
           <variant-inspect-quality-row
             :info="getQualityInfo()"  >
@@ -546,11 +546,11 @@
           </variant-inspect-row>
 
           <variant-inspect-row
-             v-if="info.vepHighestImpactValue.length > 0 && info.vepImpact.toUpperCase() != info.vepHighestImpactValue.toUpperCase()"
+             v-if="info.vepHighestImpactValue.length > 0 && info.vepImpact.toUpperCase() != info.vepHighestImpactValue.toUpperCase() && !isSimpleMode"
             :clazz="getImpactClass(info.vepHighestImpactValue)" :label=" `Most severe impact in non-canonical transcript`"  >
           </variant-inspect-row>
 
-          <div v-if="info.vepHighestImpactValue.length > 0 && info.vepImpact.toUpperCase() != info.vepHighestImpactValue.toUpperCase()" class="variant-row no-icon no-top-margin">
+          <div v-if="info.vepHighestImpactValue.length > 0 && info.vepImpact.toUpperCase() != info.vepHighestImpactValue.toUpperCase() && !isSimpleMode" class="variant-row no-icon no-top-margin">
 
                     <span v-for="(impactRec, idx) in info.vepHighestImpactRecs" :key="impactRec.impact">
                       <div style="padding-top:5px" v-for="(effectRec, idx1) in impactRec.effects" :key="effectRec.key">
@@ -623,7 +623,7 @@
             <v-divider></v-divider>
           </div>
           <div class="variant-column-hint" v-if="isSimpleMode">
-            Changes genome locations that are conserved across species are more likely to be clinically significant.
+            Changes at genome locations that are conserved across species are more likely to be clinically significant.
           </div>
           <div id="conservation-track" style="display:flex;">
             <div style="display:flex;flex-direction: column;max-width:130px;min-width:130px;margin-right: 10px">

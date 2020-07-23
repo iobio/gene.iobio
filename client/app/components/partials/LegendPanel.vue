@@ -136,8 +136,8 @@
           <text  x="100" y="40">Exon</text>
         </svg>
         <div style="display:flex;width:200px">
-          <div class="legend-text" style="width:50%;line-height:12.5px">Part of gene that encodes how to produce a protein</div>
-          <div class="legend-text" style="width:50%;line-height:12.5px">Part of gene that does not encode any instructions.</div>
+          <div class="legend-text" style="width:50%;line-height:12.5px">Part of gene that does not encode a protein.</div>
+          <div class="legend-text" style="width:50%;line-height:12.5px">Part of gene that encodes how to produce a protein.</div>
         </div>
       </div>
 

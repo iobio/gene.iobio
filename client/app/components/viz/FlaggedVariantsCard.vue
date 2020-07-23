@@ -301,7 +301,7 @@
     color: $text-color
 
   .list--three-line, .v-list--three-line
-    margin-bottom: 10px
+    margin-bottom: 0px
     padding-top: 5px
 
 
@@ -523,7 +523,7 @@
 
     </div>
 
-    <div style="display:flex;justify-content:center;margin-top:15px;margin-bottom:15px">
+    <div v-if="!isSimpleMode" style="display:flex;justify-content:center;margin-top:15px;margin-bottom:15px">
       <v-badge v-if="variantSetCounts.total && variantSetCounts.total > 0" class="info">
        {{ variantSetCounts.total }} variants imported from genome-wide filters</v-badge>
     </div>
