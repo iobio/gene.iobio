@@ -329,12 +329,14 @@
     font-size: 13px
     line-height: 16px
 
+
+
 </style>
 
 <template>
 
   <v-card tile id="variant-card" class="app-card">
-    <div style="display: flex;align-items: center;margin-bottom: 10px; padding-top: 5px">
+    <div style="display: flex;margin-bottom: 10px; padding-top: 5px">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">

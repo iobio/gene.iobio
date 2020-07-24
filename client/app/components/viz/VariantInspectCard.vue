@@ -13,17 +13,19 @@
 
 
 
-    .refalt
+  .refalt
     max-width: 200px
     white-space: normal
     display: inline-block
     word-break: break-all
+    min-width: 100px 
 
   .aa-change
     max-width: 200px
     white-space: normal
     display: inline-block
     word-break: break-all
+    min-width: 100px
 
   #show-assessment-button
     padding: 0px
@@ -231,6 +233,7 @@
   .rsid
     padding-right: 20px
     padding-top: 2px
+    min-width: 130px
 
     .rsid-link
       padding-left: 2px

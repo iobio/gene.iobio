@@ -2049,8 +2049,32 @@ class CohortModel {
     variant.isFlagged = false;
     variant.isUserFlagged = false;
     this.removeFilterPassed(variant, "userFlagged");
+
     this._removeFlaggedVariantImpl(variant);
-    this._recacheForFlaggedVariant(theGene, theTranscript, variant, {summarizeDanger: true});
+
+    this.getProbandModel().promiseGetDangerSummary(theGene.gene_name)
+    .then(function(dangerSummary) {
+      let reviewedVariants = dangerSummary.badges['reviewed'];
+      var i = 0;
+        if (reviewedVariants) {
+        reviewedVariants.forEach(function(v) {
+          var matches = (
+            self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(variant.chrom)
+            && v.start == variant.start
+            && v.ref == variant.ref
+            && v.alt == variant.alt);
+          if (matches) {
+            index = i;
+          }
+          i++;
+        })
+        if (index >= 0) {
+          reviewedVariants.splice(index, 1);
+          me.geneModel.setDangerSummary(theGene.gene_name, dangerSummary);
+        }
+      }
+      //self._recacheForFlaggedVariant(theGene, theTranscript, variant, {summarizeDanger: true});
+    })
   }
 
   _removeFlaggedVariantImpl(variant) {
@@ -2452,19 +2476,20 @@ class CohortModel {
       if(!intersectedGenes[geneName]){
         intersectedGenes[geneName] = [{}];
       }
-      intersectedGenes[geneName].forEach(function(importedVariant) {
-        if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
-          console.log("No transcript for importedVariant");
-          console.log(importedVariant);
-        } else {
-          uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
-        }
-      })
-
+      if (intersectedGenes[geneName]) {
+        intersectedGenes[geneName].forEach(function(importedVariant) {
+          if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
+            console.log("No transcript for importedVariant");
+            console.log(importedVariant);
+          } else {
+            uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
+          }
+        })
+      }
+      
       if (theTranscript) {
         uniqueTranscripts[theTranscript.transcript_id] = theTranscript;
       }
-
       for (var transcriptId in uniqueTranscripts) {
         let dataPromise =  new Promise(function(resolve, reject) {
 
@@ -2479,7 +2504,7 @@ class CohortModel {
               var msg = "Unable to get variant vcf data for " + geneObject.gene_name + " " + transcript.transcript_id;
               console.log(msg);
               resolve();
-            } else if (importedVariants.length > 0) {
+            } else if (importedVariants && importedVariants.length > 0) {
 
               // Refresh imported variant records with real variants
               importedVariants.forEach(function(importedVariant) {
@@ -2554,7 +2579,10 @@ class CohortModel {
 
         })
         dataPromises.push(dataPromise);
-      }
+      }        
+
+
+
     }
     return dataPromises;
   }

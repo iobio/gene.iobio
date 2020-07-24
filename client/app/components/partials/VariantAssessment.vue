@@ -1,36 +1,26 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
-
 .individual_note_menu_items
   padding-bottom: 0px
-
   i.material-icons
     font-size: 15px
-
   a
     font-size: 13px
     height: 40px
-
 #variant-assessment
-
   .theme--light.v-text-field > .v-input__control > .v-input__slot:before
     border: none !important
-
-
   #notes-input
     font-size: 13px
     color: $text-color
-
   #enter-notes-input
     display: inline-block
     vertical-align: top
     margin-left: 20px
     width: calc(100% - 250px)
     margin-top: -35px
-
     label
       font-size:  12px
-
     .input-group--text-field.input-group--prepend-icon
       .input-group__prepend-icon
         padding-right: 0px
@@ -38,17 +28,12 @@
         display: inline-block
         align-self: start
         font-size: 18px
-
-
     .input-group__details:before
       background-color: #dbdbdb !important
-
   .individual-notes-container
     display: flex
     flex-flow: column
     justify-content: flex-start
-
-
     .individual-note
       padding-left: 0px
       padding-bottom: 20px
@@ -57,43 +42,30 @@
       margin-top: 10px
       min-width: 100%
       max-width: 100%
-
       .note-header
         display: flex
         justify-content: flex-start
         font-style: italic
-
         .note-author
           margin-right:  20px
           padding-top: 6px
           line-height: 13px
-
         .note-datetime
           margin-right:  20px
           padding-top: 6px
           line-height: 13px
-
         .button-actions
           min-width: 30px
           margin: 2px
           padding: 0px
           height: 22px
           margin-left: -5px
-
           .btn__content, .v-btn__content
             padding: 0px
-
             i.material-icons
               font-size: 17px
-
-
-
       .note-body
         padding-top: 5px
-
-
-
-
 </style>
 
 <template>
@@ -190,10 +162,8 @@
 </template>
 
 <script>
-
 import VariantInterpretation from '../partials/VariantInterpretation.vue'
 import VariantNotesDialog    from '../partials/VariantNotesDialog.vue'
-
 export default {
   name: 'variant-assessment',
   components: {
@@ -212,13 +182,9 @@ export default {
       interpretation: null,
       notes: null,
       notesReverseOrder: null,
-
       showTooltipFlag: false,
       tooltipContent: null,
-
       variantInterpretationOrig: null
-
-
     }
   },
   watch: {
@@ -249,7 +215,6 @@ export default {
         'showEditDialog': false})
       this.variant.notes = this.notes
       this.sortNotes();
-
       this.$emit("apply-variant-notes", this.variant)
     },
     sortNotes: function() {
@@ -261,7 +226,6 @@ export default {
       } else {
         this.notesReverseOrder = [];
       }
-
     },
     onShowEditVariantNote: function(note) {
       let self = this;
@@ -273,7 +237,6 @@ export default {
         this.notes.splice(index, 1)
       }
       this.variant.notes = this.notes;
-
       this.$emit("apply-variant-notes", this.variant)
     },
     onEditVariantNote: function(index, aNote) {
@@ -292,11 +255,9 @@ export default {
         self.interpretation = self.variant.interpretation  && self.variant.interpretation.length > 0 ? self.variant.interpretation : "not-reviewed";
         self.$set(self, "notesReverseOrder",  []);
         self.notes = self.variant.notes;
-
         self.$nextTick(function() {
           self.sortNotes();
         })
-
       } else {
         self.interpretation = 'not-reviewed';
         self.notes = [];
@@ -307,11 +268,11 @@ export default {
       var today = new Date();
       var date = today.getFullYear()
                  + '-'
-                 + String(today.getMonth()+1).padStart(2, "0")
+                 + String(today.getMonth()+1).padStart(2, "0") 
                  + '-'
                  + String(today.getDate()).padStart(2, "0");
-      var time = String(today.getHours()).padStart(2, "0")
-                 + ":"
+      var time = String(today.getHours()).padStart(2, "0") 
+                 + ":" 
                  + String(today.getMinutes()).padStart(2, "0");
       return date + ' ' + time;
     }

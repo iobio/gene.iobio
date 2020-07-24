@@ -35,6 +35,8 @@ class GlobalApp {
     this.genomeBuildServer     = null;
     this.phenolyzerOnlyServer  = null;
 
+    this.isDirty               = false;
+
 
     // config files
     this.siteConfigUrl         =  { 'prod': "https://s3.amazonaws.com/gene.iobio.config/site-config.json",
@@ -127,6 +129,14 @@ class GlobalApp {
       console.log("No backend specified")
     }
 
+  }
+
+  getCloseMessage() {
+    if (this.isDirty) {
+      return "Unsaved work. Do you really want to close?"; 
+    } else {
+      return null;
+    }
   }
 
   getClinvarUrl(build) {

@@ -1,10 +1,10 @@
 /* Copyright 2017-2018, Frameshift Labs, Inc., All rights reserved. */
 <template>
   <a
-    class="analysis-save-button"
+    :class="{'analysis-save-button': true, 'dirty': isDirty}"
     @click.prevent="toggleSaveModal"
   >
-    <i class="material-icons analysis-save-button__icon">{{ iconName }}</i>
+    <i v-if="iconName != ''" class="material-icons analysis-save-button__icon">{{ iconName }}</i>
     <span class="button-label">{{ buttonLabel }}</span>
   </a>
 </template>
@@ -18,17 +18,18 @@ export default {
       type: Boolean,
       required: true,
     },
-    analysis: null
+    analysis: null,
+    isDirty: null
   },
   computed: {
     iconName() {
-      return  (this.analysis && this.analysis.id) ? 'edit' : 'add';
+      return '';
     },
     buttonLabel() {
       if (this.analysis && this.analysis.id) {
-        return "Mosaic Analysis";
+        return "Save analysis";
       } else{ 
-        return "Add to Mosaic";
+        return "Add analysis";
       }
     },
   },
@@ -42,22 +43,28 @@ export default {
 
 <style lang="scss" scoped>
 .analysis-save-button {
-  position: fixed;
-    top: 13px;
-    right: 120px !important;
-  width: 150px;
-  height: 30px;
+ 
+  min-width: 140px;
+  width: 140px;
+  height: 32px;
   z-index: 9;
   text-align: center;
-  background: #007dd4;
-  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, .14),
-              0 1px 10px 0 rgba(0, 0, 0, .12),
-              0 2px 4px -1px rgba(0, 0, 0, .2);
+  background: transparent;
+  border: thin solid #bfbfbf;
   cursor: pointer;
   user-select: none;
+  padding-top: 4px;
 
   &:hover {
     text-decoration: none;
+  }
+
+
+  &.dirty {
+    background-color: #007dd4 !important;
+    box-shadow: 0 4px 5px 0 rgba(0, 0, 0, .14),
+                0 1px 10px 0 rgba(0, 0, 0, .12),
+                0 2px 4px -1px rgba(0, 0, 0, .2);
   }
 
   &:active {

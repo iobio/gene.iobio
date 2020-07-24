@@ -233,33 +233,6 @@ nav.toolbar, nav.v-toolbar
   #phenolyzer-search
     margin-left: 5px
 
-  #phenotype-input, #gene-name-input, #phenolyzer-top-input
-    margin-top: 8px
-    .input-group input
-      color: $nav-text-color
-    .input-group
-      padding: 10px 0 0
-    .input-group
-      label
-        font-size: 13px
-        line-height: 14px
-        height: 18px
-        top: 8px
-        font-weight: normal
-    .input-group__input
-      min-height: 0px
-      margin-top: 8px
-    .input-group--text-field input
-      font-size: 13px
-      height: 14px
-    .input-group
-      padding-top: 0px
-    .input-group__selections__comma
-      font-size: 13px
-    .input-group__details:before
-      background-color: $nav-text-color
-    .input-group__details:after
-      background-color: $nav-text-color
 
   #phenolyzer-top-input
     .input-group__input
@@ -294,6 +267,7 @@ nav.toolbar, nav.v-toolbar
       margin-top: 8px
     .v-select__slot input
       padding-bottom: 0px
+
     .v-select__slot label
       top: 9px
     .v-text-field__slot
@@ -577,12 +551,22 @@ nav.toolbar, nav.v-toolbar
          @hide-snackbar="onHideSnackbar">
         </phenotype-search>
 
-        <v-spacer style="min-width:80px"></v-spacer>
 
-        <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
 
       </v-toolbar-items>
 
+      <v-spacer></v-spacer>
+
+      <save-button
+        v-if="launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded"
+        :showing-save-modal="showSaveModal"
+        :analysis="analysis"
+        :isDirty="isDirty"
+        @save-modal:set-visibility="toggleSaveModal"
+      />
+
+
+      <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
 
       <v-btn icon v-if="!isBasicMode" @click="onShowFiles" title="Load files">
         <v-icon>publish</v-icon>
@@ -1026,6 +1010,7 @@ import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
 import ImportVariants      from '../partials/ImportVariants.vue'
 import ExportVariants      from '../partials/ExportVariants.vue'
 import FilterIcon          from '../partials/FilterIcon.vue'
+import SaveButton         from '../partials/SaveButton.vue'
 
 export default {
   name: 'navigation',
@@ -1039,7 +1024,8 @@ export default {
     PhenotypeSearch,
     ImportVariants,
     ExportVariants,
-    FilterIcon
+    FilterIcon,
+    SaveButton
   },
   props: {
     showFilesProp: null,
@@ -1048,6 +1034,10 @@ export default {
     isSimpleMode: null,
     isCommercial: null,
     forMyGene2: null,
+    launchedFromSFARI: null,
+    launchedFromHub: null,
+    analysis: null,
+    isDirty: null,
     analyzeAllInProgress: null,
     callAllInProgress: null,
     selectedGene: null,
@@ -1058,6 +1048,7 @@ export default {
     cacheHelper: null,
     activeFilterName: null,
     launchedFromClin: null,
+    showSaveModal: null,
     isFullAnalysis: null,
     isLoaded: null,
     isFullAnalysis: null,
@@ -1093,6 +1084,7 @@ export default {
       showCitations: false,
       typeaheadLimit: parseInt(100),
       showLegendDrawer: false,
+
 
       activeTab: 0,
 
@@ -1312,6 +1304,9 @@ export default {
       this.$emit("call-variants", action)
     },
 
+    toggleSaveModal(bool) {
+      this.$emit("toggle-save-modal", bool);
+    },
 
 
   },

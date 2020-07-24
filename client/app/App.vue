@@ -10,7 +10,7 @@
   margin-right: 0px
   margin-left: 0px
   width: 100%
-  padding: 0px 5px 0px 5px
+  padding: 0px 0px 0px 5px
 
 button
   color: $text-color

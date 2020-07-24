@@ -1,12 +1,15 @@
 <style lang="sass">
-    @import ../../../assets/sass/variables
+@import ../../../assets/sass/variables
 
-    #filterSelect
-        display: inline-flex
-        justify-content: center
-        justify-items: center
-        padding-left: 0
 
+
+#filterSelect
+    display: inline-flex
+    justify-content: center
+    justify-items: center
+    padding-left: 0
+    
+#filter-form, #filterSelect
     #dropdownWrapper
         width: 225px
         padding-right: 0px
