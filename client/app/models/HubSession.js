@@ -635,7 +635,9 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        reject("Error getting analysis " + analysisId + ": " + error);
+        let msg = error.responseJSON.message;
+        console.log("Error getting analysis  " + analysisId + ": " + msg);
+        reject("Error getting analysis: " + msg + "." )
       })
     })
 
@@ -648,7 +650,9 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        reject("Error adding analysis for project " + projectId + ": " + error);
+        let msg = error.responseJSON.message;
+        console.log("Error adding analysis for project " + projectId + ": " + msg);
+        reject("Error adding analysis: " + msg + "." )
       })
     })
 
@@ -662,7 +666,9 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        reject("Error updating analysis " + analysis.id  + ": " + error);
+        let msg = error.responseJSON.message;
+        console.log("Error updating analysis :" + msg);
+        reject("Error saving analysis: " + msg + "." )
       })
     })
 

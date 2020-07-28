@@ -4034,7 +4034,8 @@ export default {
               reject("Unable to find/create an analysis " + idAnalysis);
             }
           })
-          .catch(function(err) {
+          .catch(function(error) {
+            self.onShowSnackbar( {message: error, timeout: 15000});
             reject(err);
           })
 
@@ -4107,7 +4108,7 @@ export default {
                 resolve();
               })
               .catch(function(error) {
-                self.onShowSnackbar( {message: 'Unable to update analysis.', timeout: 6000});
+                self.onShowSnackbar( {message: error, timeout: 15000});
                 reject(error);
               })
             }
@@ -4128,7 +4129,7 @@ export default {
               resolve();
             })
             .catch(function(error) {
-              self.onShowSnackbar( {message: 'Unable to add analysis.', timeout: 6000});
+              self.onShowSnackbar( {message: error, timeout: 15000});
               reject(error);
             })
           }

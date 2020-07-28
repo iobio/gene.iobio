@@ -61,10 +61,12 @@ export default {
 
 
   &.dirty {
-    background-color: #007dd4 !important;
     box-shadow: 0 4px 5px 0 rgba(0, 0, 0, .14),
                 0 1px 10px 0 rgba(0, 0, 0, .12),
                 0 2px 4px -1px rgba(0, 0, 0, .2);
+    outline: #dcdc00 !important;
+    outline-width: 3px !important;
+    outline-style: solid !important;
   }
 
   &:active {
