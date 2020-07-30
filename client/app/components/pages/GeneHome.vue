@@ -2909,14 +2909,28 @@ export default {
       }
 
     },
+
+    promiseUpdateAnalysisVariant: function(variantToReplace, options) {
+      let self = this;
+      self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
+      self.promiseExportAnalysisVariant(variantToReplace)
+      .then(function() {
+        return self.sendInterpretedVariantsToClin({notify: true, delay: true});
+      })
+    },
+    
+    sendInterpretedVariantsToClin(options={}) {
+      let self = this;
+      if (self.launchedFromClin) {
+        self.sendAnalysisToClin();
+      }
+    },
+    
     onApplyVariantInterpretation: function(variant) {
       let self = this;
 
       self.setDirty(true);
 
-      if(self.launchedFromClin) {
-        self.interpretationProgressDialog = true;
-      }
       // If this variant is user flagged, but then changed back to unreviewed, we
       // need to unflag it and remove it from the variant list.
       /*
@@ -2926,8 +2940,6 @@ export default {
         return;
       }
       */
-      
-
 
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
@@ -2953,6 +2965,11 @@ export default {
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant);
       }
+    
+      if (self.launchedFromClin) {
+        self.promiseUpdateAnalysisVariant(variant, {delay: false});
+      }
+      
     },
 
     isVariantUnique: function(variant){
