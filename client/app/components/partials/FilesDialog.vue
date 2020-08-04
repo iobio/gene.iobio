@@ -113,10 +113,18 @@
 <template>
    <v-dialog v-model="showFilesDialog" persistent max-width="890" >
       <v-card class="full-width" style="min-height:0px;max-height:670px;overflow-y:scroll">
-
-
-
           <v-form id="files-form">
+
+            <v-dialog width="500" v-model="areAnyDuplicates" lazy>
+              <v-card class="info-card full-width" id="remove-filter-card">
+                <v-card-title style="justify-content:space-between">
+                  <span class="info-title">{{ "Duplicate IDs"}}</span>
+                </v-card-title>
+                <v-card-text class="remove-filter-description" v-html="'Duplicate IDS detected, are you sure you would like to continue'"></v-card-text>
+                <v-btn @click="loadReady = false; warningOpen = false;" color="normal">Cancel</v-btn>
+                <v-btn @click="loadReady = true" color="error">continue</v-btn>
+              </v-card>
+            </v-dialog>
 
             <v-layout row nowrap class="mt-0">
              <v-card-title class="headline">Files</v-card-title>
@@ -183,8 +191,6 @@
               </v-flex>
 
             </v-layout>
-
-
             <v-layout row wrap class="mt-3">
 
 
@@ -267,6 +273,9 @@ export default {
     return {
       showFilesDialog: false,
       isValid: false,
+      areAnyDuplicates: false,
+      loadReady: true,
+      warningOpen: false,
       mode: 'single',
       speciesList: [],
       speciesName: null,
@@ -294,6 +303,34 @@ export default {
     }
   },
   watch: {
+
+    loadReady: function(){
+      let self = this;
+      if(self.loadReady) {
+        self.cohortModel.promiseAddClinvarSample()
+          .then(function () {
+            return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+          })
+          .then(function () {
+                    self.cohortModel.setAffectedInfo(true);
+                    self.cohortModel.isLoaded = true;
+                    self.cohortModel.getCanonicalModels().forEach(function (model) {
+                        if (model.name == null || model.name.length == 0) {
+                            model.name = model.relationship;
+                        }
+                    })
+                    self.cohortModel.sortSampleModels();
+
+                })
+                .then(function () {
+                    let performAnalyzeAll = self.demoAction ? true : false;
+                    self.inProgress = false;
+
+                    self.$emit("on-files-loaded", performAnalyzeAll);
+                    self.showFilesDialog = false;
+                })
+        }
+    },
     showDialog: function() {
       if (this.cohortModel && this.showDialog) {
         this.showFilesDialog = true
@@ -317,7 +354,7 @@ export default {
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
 
       let sms = self.cohortModel.sampleModels;
-      let areAnyDuplicates = false;
+      self.areAnyDuplicates = false;
       let dupId = null;
       sms.map(function(obj) {
         return obj.name;
@@ -325,32 +362,37 @@ export default {
         if (arr.indexOf(element) !== index) {
           console.log("dup id found for element", element);
           dupId = element;
-          areAnyDuplicates = true;
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
         }
       });
 
-      self.cohortModel.promiseAddClinvarSample()
-      .then(function() {
-        return  self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
-      })
-      .then(function() {
-        self.cohortModel.setAffectedInfo(true);
-        self.cohortModel.isLoaded = true;
-        self.cohortModel.getCanonicalModels().forEach(function(model) {
-          if (model.name == null || model.name.length == 0) {
-            model.name = model.relationship;
-          }
-        })
-        self.cohortModel.sortSampleModels();
 
-      })
-      .then(function() {
-        let performAnalyzeAll = self.demoAction ? true : false;
-        self.inProgress = false;
+      if(self.loadReady) {
+          self.cohortModel.promiseAddClinvarSample()
+              .then(function () {
+                  return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+              })
+              .then(function () {
+                  self.cohortModel.setAffectedInfo(true);
+                  self.cohortModel.isLoaded = true;
+                  self.cohortModel.getCanonicalModels().forEach(function (model) {
+                      if (model.name == null || model.name.length == 0) {
+                          model.name = model.relationship;
+                      }
+                  })
+                  self.cohortModel.sortSampleModels();
 
-        self.$emit("on-files-loaded", performAnalyzeAll);
-        self.showFilesDialog = false;
-      })
+              })
+              .then(function () {
+                  let performAnalyzeAll = self.demoAction ? true : false;
+                  self.inProgress = false;
+
+                  self.$emit("on-files-loaded", performAnalyzeAll);
+                  self.showFilesDialog = false;
+              })
+      }
     },
     onCancel:  function() {
       let self = this;
