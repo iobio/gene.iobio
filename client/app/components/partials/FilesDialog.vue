@@ -316,6 +316,19 @@ export default {
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
 
+      let sms = self.cohortModel.sampleModels;
+      let areAnyDuplicates = false;
+      let dupId = null;
+      sms.map(function(obj) {
+        return obj.name;
+      }).forEach(function (element, index, arr) {
+        if (arr.indexOf(element) !== index) {
+          console.log("dup id found for element", element);
+          dupId = element;
+          areAnyDuplicates = true;
+        }
+      });
+
       self.cohortModel.promiseAddClinvarSample()
       .then(function() {
         return  self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
