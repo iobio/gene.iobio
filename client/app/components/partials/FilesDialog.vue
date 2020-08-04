@@ -118,9 +118,9 @@
             <v-dialog width="500" v-model="areAnyDuplicates" lazy>
               <v-card class="info-card full-width" id="remove-filter-card">
                 <v-card-title style="justify-content:space-between">
-                  <span class="info-title">{{ "Duplicate IDs"}}</span>
+                  <span class="info-title">{{errorTitle}}</span>
                 </v-card-title>
-                <v-card-text class="remove-filter-description" v-html="'Duplicate IDS detected, are you sure you would like to continue'"></v-card-text>
+                <v-card-text class="remove-filter-description" style="overflow-wrap: break-word" v-html="errorMsg"></v-card-text>
                 <v-btn @click="loadReady = false; warningOpen = false;" color="normal">Cancel</v-btn>
                 <v-btn @click="loadReady = true" color="error">continue</v-btn>
               </v-card>
@@ -276,6 +276,8 @@ export default {
       areAnyDuplicates: false,
       loadReady: true,
       warningOpen: false,
+      errorMsg: "",
+      errorTitle: "",
       mode: 'single',
       speciesList: [],
       speciesName: null,
@@ -345,6 +347,48 @@ export default {
     }
   },
   methods: {
+    checkIndexFilesMatch: function(sms){
+      let self = this;
+      self.areAnyDuplicates = false;
+
+      for(let i = 0; i < sms.length; i++){
+        if(sms[i].bam.baiUri && sms[i].bam.baiUri !== sms[i].bam.bamUri + ".bai"){
+          self.errorTitle = "Bam index warning";
+          self.errorMsg = "The bam index file path does not math the bam file path " + sms[i].bam.bamUri;
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      }
+    },
+    checkForDuplicates: function(sms){
+      let self = this;
+      self.areAnyDuplicates = false;
+      sms.map(function(obj) {
+        return obj.name;
+      }).forEach(function (element, index, arr) {
+        if (arr.indexOf(element) !== index) {
+          self.errorTitle = "Duplicate Ids";
+          self.errorMsg = "Duplicate ids detected for " + element;
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      });
+
+      sms.map(function(obj) {
+        return obj.bam.bamUri;
+      }).forEach(function (element, index, arr) {
+        if (arr.indexOf(element) !== index) {
+          self.errorTitle = "Duplicate Bam Files";
+          self.errorMsg = "Duplicate Bam detected for file: " + element;
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      });
+    },
+
     onLoad: function() {
       let self = this;
       self.inProgress = true;
@@ -353,45 +397,31 @@ export default {
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
 
-      let sms = self.cohortModel.sampleModels;
-      self.areAnyDuplicates = false;
-      let dupId = null;
-      sms.map(function(obj) {
-        return obj.name;
-      }).forEach(function (element, index, arr) {
-        if (arr.indexOf(element) !== index) {
-          console.log("dup id found for element", element);
-          dupId = element;
-          self.warningOpen = true;
-          self.areAnyDuplicates = true;
-          self.loadReady = false;
-        }
-      });
-
+      let sms = self.cohortModel.sampleModels
+      self.checkForDuplicates(sms);
+      self.checkIndexFilesMatch(sms);
 
       if(self.loadReady) {
-          self.cohortModel.promiseAddClinvarSample()
-              .then(function () {
-                  return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
-              })
-              .then(function () {
-                  self.cohortModel.setAffectedInfo(true);
-                  self.cohortModel.isLoaded = true;
-                  self.cohortModel.getCanonicalModels().forEach(function (model) {
-                      if (model.name == null || model.name.length == 0) {
-                          model.name = model.relationship;
-                      }
-                  })
-                  self.cohortModel.sortSampleModels();
-
-              })
-              .then(function () {
-                  let performAnalyzeAll = self.demoAction ? true : false;
-                  self.inProgress = false;
-
-                  self.$emit("on-files-loaded", performAnalyzeAll);
-                  self.showFilesDialog = false;
-              })
+        self.cohortModel.promiseAddClinvarSample()
+        .then(function () {
+          return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+        })
+        .then(function () {
+          self.cohortModel.setAffectedInfo(true);
+          self.cohortModel.isLoaded = true;
+          self.cohortModel.getCanonicalModels().forEach(function (model) {
+            if (model.name == null || model.name.length == 0) {
+              model.name = model.relationship;
+            }
+          })
+          self.cohortModel.sortSampleModels();
+        })
+        .then(function () {
+          let performAnalyzeAll = self.demoAction ? true : false;
+          self.inProgress = false;
+          self.$emit("on-files-loaded", performAnalyzeAll);
+          self.showFilesDialog = false;
+        })
       }
     },
     onCancel:  function() {
