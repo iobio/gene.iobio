@@ -368,7 +368,7 @@ export default {
       }
     },
     checkValidExtensions: function(sms){
-        for(let i = 0; i < sms.length; i++){
+      for(let i = 0; i < sms.length; i++){
         let bamUrl = sms[i].bam.bamUri;
         let baiUrl = sms[i].bam.baiUri;
         let vcfUrl = sms[i].vcf.getVcfURL();
