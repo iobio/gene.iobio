@@ -439,6 +439,7 @@ export default {
 
       let sms = self.cohortModel.sampleModels;
       self.areAnyDuplicates = false;
+      self.loadReady = true;
       self.checkForDuplicates(sms);
       self.checkIndexFilesMatch(sms);
       self.checkValidExtensions(sms);
