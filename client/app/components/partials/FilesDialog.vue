@@ -323,7 +323,7 @@ export default {
           self.cohortModel.sortSampleModels();
         })
         .then(function () {
-        let performAnalyzeAll = self.demoAction ? true : false;
+          let performAnalyzeAll = self.demoAction ? true : false;
           self.inProgress = false;
           self.$emit("on-files-loaded", performAnalyzeAll);
           self.showFilesDialog = false;
