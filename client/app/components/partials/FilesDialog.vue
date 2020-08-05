@@ -444,8 +444,8 @@ export default {
       self.checkValidExtensions(sms);
 
       if(self.loadReady) {
-          self.inProgress = true;
-          self.cohortModel.promiseAddClinvarSample()
+        self.inProgress = true;
+        self.cohortModel.promiseAddClinvarSample()
         .then(function () {
           return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
         })
