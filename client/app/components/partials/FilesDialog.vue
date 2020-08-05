@@ -350,11 +350,21 @@ export default {
     checkIndexFilesMatch: function(sms){
       let self = this;
       self.areAnyDuplicates = false;
-
       for(let i = 0; i < sms.length; i++){
         if(sms[i].bam.baiUri && sms[i].bam.baiUri !== sms[i].bam.bamUri + ".bai"){
           self.errorTitle = "Bam index warning";
           self.errorMsg = "The bam index file path does not math the bam file path " + sms[i].bam.bamUri;
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      }
+      for(let i = 0; i < sms.length; i++){
+        let vcfUrl = sms[i].vcf.getVcfURL();
+        let tbiUrl = sms[i].vcf.getTbiURL();
+        if(tbiUrl && tbiUrl !== vcfUrl + ".tbi"){
+          self.errorTitle = "Vcf index warning";
+          self.errorMsg = "The vcf index file path does not math the bam file path " + vcfUrl;
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
