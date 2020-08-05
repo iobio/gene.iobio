@@ -371,6 +371,35 @@ export default {
         }
       }
     },
+    checkValidExtensions: function(sms){
+      for(let i = 0; i < sms.length; i++){
+        let bamUrl = sms[i].bam.bamUri;
+        let baiUrl = sms[i].bai.bamUri;
+        let vcfUrl = sms[i].vcf.getVcfURL();
+        let tbiUrl = sms[i].vcf.getTbiURL();
+        if(bamUrl.split('.').pop() !== ".bam"){
+          self.errorTitle = "Bam file extension warning";
+          self.errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+        if(baiUrl.split('.').pop() !== ".bai"){
+          self.errorTitle = "Bam index file extension warning";
+          self.errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+        if(vcfUrl.split('.').pop() !== ".gz"){
+          self.errorTitle = "Vcf index file extension warning";
+          self.errorMsg = "The vcf index file path does not end with a .tbi.gz extension " + vcfUrl;
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      }
+    },
     checkForDuplicates: function(sms){
       let self = this;
       self.areAnyDuplicates = false;
@@ -407,9 +436,10 @@ export default {
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
 
-      let sms = self.cohortModel.sampleModels
+      let sms = self.cohortModel.sampleModels;
       self.checkForDuplicates(sms);
       self.checkIndexFilesMatch(sms);
+      self.checkValidExtensions(sms);
 
       if(self.loadReady) {
         self.cohortModel.promiseAddClinvarSample()
