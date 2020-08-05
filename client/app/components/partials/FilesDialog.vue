@@ -305,33 +305,30 @@ export default {
     }
   },
   watch: {
-
     loadReady: function(){
       let self = this;
       if(self.loadReady) {
         self.cohortModel.promiseAddClinvarSample()
-          .then(function () {
-            return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
-          })
-          .then(function () {
-                    self.cohortModel.setAffectedInfo(true);
-                    self.cohortModel.isLoaded = true;
-                    self.cohortModel.getCanonicalModels().forEach(function (model) {
-                        if (model.name == null || model.name.length == 0) {
-                            model.name = model.relationship;
-                        }
-                    })
-                    self.cohortModel.sortSampleModels();
-
-                })
-                .then(function () {
-                    let performAnalyzeAll = self.demoAction ? true : false;
-                    self.inProgress = false;
-
-                    self.$emit("on-files-loaded", performAnalyzeAll);
-                    self.showFilesDialog = false;
-                })
-        }
+        .then(function () {
+          return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+        })
+        .then(function () {
+          self.cohortModel.setAffectedInfo(true);
+          self.cohortModel.isLoaded = true;
+          self.cohortModel.getCanonicalModels().forEach(function (model) {
+            if (model.name == null || model.name.length == 0) {
+              model.name = model.relationship;
+            }
+          });
+          self.cohortModel.sortSampleModels();
+        })
+        .then(function () {
+        let performAnalyzeAll = self.demoAction ? true : false;
+            self.inProgress = false;
+            self.$emit("on-files-loaded", performAnalyzeAll);
+            self.showFilesDialog = false;
+        });
+      }
     },
     showDialog: function() {
       if (this.cohortModel && this.showDialog) {
@@ -459,7 +456,7 @@ export default {
             if (model.name == null || model.name.length == 0) {
               model.name = model.relationship;
             }
-          })
+          });
           self.cohortModel.sortSampleModels();
         })
         .then(function () {
