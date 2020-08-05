@@ -324,9 +324,9 @@ export default {
         })
         .then(function () {
         let performAnalyzeAll = self.demoAction ? true : false;
-            self.inProgress = false;
-            self.$emit("on-files-loaded", performAnalyzeAll);
-            self.showFilesDialog = false;
+          self.inProgress = false;
+          self.$emit("on-files-loaded", performAnalyzeAll);
+          self.showFilesDialog = false;
         });
       }
     },
