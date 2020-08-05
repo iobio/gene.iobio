@@ -397,9 +397,9 @@ export default {
           self.areAnyDuplicates = true;
           self.loadReady = false;
         }
-        if(tbiUrl && tbiUrl.split('.').pop() !== ".gz"){
+        if(tbiUrl && tbiUrl.split('.').pop() !== ".tbi"){
           self.errorTitle = "Vcf index file extension warning";
-          self.errorMsg = "The vcf index file path does not end with a tbi.gz extension " + tbiUrl;
+          self.errorMsg = "The vcf index file path does not end with a .tbi extension " + tbiUrl;
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
