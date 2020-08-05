@@ -115,7 +115,7 @@
       <v-card class="full-width" style="min-height:0px;max-height:670px;overflow-y:scroll">
           <v-form id="files-form">
 
-            <v-dialog width="500" v-model="areAnyDuplicates" lazy>
+            <v-dialog width="500" v-model="areAnyDuplicates" v-if="warningOpen">
               <v-card class="info-card full-width" id="remove-filter-card">
                 <v-card-title style="justify-content:space-between">
                   <span class="info-title">{{errorTitle}}</span>
@@ -349,11 +349,10 @@ export default {
   methods: {
     checkIndexFilesMatch: function(sms){
       let self = this;
-      self.areAnyDuplicates = false;
       for(let i = 0; i < sms.length; i++){
         if(sms[i].bam.baiUri && sms[i].bam.baiUri !== sms[i].bam.bamUri + ".bai"){
           self.errorTitle = "Bam index warning";
-          self.errorMsg = "The bam index file path does not math the bam file path " + sms[i].bam.bamUri;
+          self.errorMsg = "The bam index file path does not match the bam file path " + sms[i].bam.bamUri;
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
@@ -364,7 +363,7 @@ export default {
         let tbiUrl = sms[i].vcf.getTbiURL();
         if(tbiUrl && tbiUrl !== vcfUrl + ".tbi"){
           self.errorTitle = "Vcf index warning";
-          self.errorMsg = "The vcf index file path does not math the bam file path " + vcfUrl;
+          self.errorMsg = "The vcf index file path does not match the vcf file path " + vcfUrl;
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
@@ -372,9 +371,9 @@ export default {
       }
     },
     checkValidExtensions: function(sms){
-      for(let i = 0; i < sms.length; i++){
+        for(let i = 0; i < sms.length; i++){
         let bamUrl = sms[i].bam.bamUri;
-        let baiUrl = sms[i].bai.bamUri;
+        let baiUrl = sms[i].bam.baiUri;
         let vcfUrl = sms[i].vcf.getVcfURL();
         let tbiUrl = sms[i].vcf.getTbiURL();
         if(bamUrl.split('.').pop() !== ".bam"){
@@ -384,7 +383,7 @@ export default {
           self.areAnyDuplicates = true;
           self.loadReady = false;
         }
-        if(baiUrl.split('.').pop() !== ".bai"){
+        if(baiUrl && baiUrl.split('.').pop() !== ".bai"){
           self.errorTitle = "Bam index file extension warning";
           self.errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
           self.warningOpen = true;
@@ -392,8 +391,15 @@ export default {
           self.loadReady = false;
         }
         if(vcfUrl.split('.').pop() !== ".gz"){
+          self.errorTitle = "Vcf file extension warning";
+          self.errorMsg = "The vcf index file path does not end with a .vcf.gz extension " + vcfUrl;
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+        if(tbiUrl && tbiUrl.split('.').pop() !== ".gz"){
           self.errorTitle = "Vcf index file extension warning";
-          self.errorMsg = "The vcf index file path does not end with a .tbi.gz extension " + vcfUrl;
+          self.errorMsg = "The vcf index file path does not end with a tbi.gz extension " + tbiUrl;
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
@@ -402,7 +408,6 @@ export default {
     },
     checkForDuplicates: function(sms){
       let self = this;
-      self.areAnyDuplicates = false;
       sms.map(function(obj) {
         return obj.name;
       }).forEach(function (element, index, arr) {
@@ -430,19 +435,20 @@ export default {
 
     onLoad: function() {
       let self = this;
-      self.inProgress = true;
 
       self.cohortModel.mode = self.mode;
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
 
       let sms = self.cohortModel.sampleModels;
+      self.areAnyDuplicates = false;
       self.checkForDuplicates(sms);
       self.checkIndexFilesMatch(sms);
       self.checkValidExtensions(sms);
 
       if(self.loadReady) {
-        self.cohortModel.promiseAddClinvarSample()
+          self.inProgress = true;
+          self.cohortModel.promiseAddClinvarSample()
         .then(function () {
           return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
         })
