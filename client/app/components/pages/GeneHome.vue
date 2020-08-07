@@ -3941,14 +3941,13 @@ export default {
 
         if (self.launchedFromClin || (firstFlaggedVariant &&  getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name) || (firstFlaggedVariant && self.paramAnalysisId)) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
-                  .then(function() {
-                    self.toClickVariant = firstFlaggedVariant;
-                    self.showLeftPanelWhenFlaggedVariants();
-                    self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
-                      resolve()
-                    })
-                  })
-
+            .then(function() {
+              self.toClickVariant = firstFlaggedVariant;
+              self.showLeftPanelWhenFlaggedVariants();
+              self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
+              resolve()
+            })
+          })
         }
 
         else if(firstFlaggedVariant){
