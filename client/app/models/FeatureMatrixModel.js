@@ -575,9 +575,11 @@ class FeatureMatrixModel {
     var me = this;
     var lowestRank = 9999;
     for (var key in clinvarSig) {
-      var rank = me.getTranslator().clinvarMap[key].value;
-      if (rank < lowestRank) {
-        lowestRank = rank;
+      if(me.getTranslator().clinvarMap[key]) {
+        var rank = me.getTranslator().clinvarMap[key].value;
+        if (rank < lowestRank) {
+          lowestRank = rank;
+        }
       }
     }
     return lowestRank;
