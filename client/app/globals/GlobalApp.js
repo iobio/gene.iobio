@@ -10,7 +10,7 @@ class GlobalApp {
     this.completedTour         = "";
 
 
-    this.version               = "4.3.2";
+    this.version               = "4.3.3";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
@@ -108,7 +108,7 @@ class GlobalApp {
       this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
       this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
       this.hpoLookupUrl              = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
-      
+
 
 
       this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   iobioSource + "email/";
@@ -118,9 +118,9 @@ class GlobalApp {
 
     if (process.env.USE_SSL) {
       this.useSSL = process.env.USE_SSL === 'true' ? true : false;
-    } 
+    }
 
-    // These are the public services. 
+    // These are the public services.
     if (useMosaicBackend && process.env.IOBIO_BACKEND_MOSAIC ) {
       this.initBackendSource(process.env.IOBIO_BACKEND_MOSAIC)
     } else if (process.env.IOBIO_BACKEND) {
@@ -133,7 +133,7 @@ class GlobalApp {
 
   getCloseMessage() {
     if (this.isDirty) {
-      return "Unsaved work. Do you really want to close?"; 
+      return "Unsaved work. Do you really want to close?";
     } else {
       return null;
     }
@@ -143,8 +143,8 @@ class GlobalApp {
 
       if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
         var clinvarUrls = {
-          'GRCh37': "https://mosaic.chpc.utah.edu/static/GRCh37/2019/clinvar_20191021.vcf.gz",
-          'GRCh38': "https://mosaic.chpc.utah.edu/static/GRCh38/2019/clinvar_20191021.vcf.gz"
+          'GRCh37': "https://backend.iobio.io/static/clinvar/GRCh37/clinvar.vcf.gz",
+          'GRCh38': "https://backend.iobio.io/static/clinvar/GRCh38/clinvar.vcf.gz"
         }
         return clinvarUrls[build];
 
