@@ -120,7 +120,11 @@
                 <v-card-title style="justify-content:space-between">
                   <span class="info-title">{{errorTitle}}</span>
                 </v-card-title>
-                <v-card-text class="remove-filter-description" style="overflow-wrap: break-word" v-html="errorMsg"></v-card-text>
+                <v-card-text class="remove-filter-description" style="overflow-wrap: break-word">
+                  <div v-for="msg in errorMsgArray">
+                      {{msg}}
+                  </div>
+                </v-card-text>
                 <v-btn @click="loadReady = false; warningOpen = false;" color="normal">Cancel</v-btn>
                 <v-btn @click="loadReady = true" color="error">continue</v-btn>
               </v-card>
@@ -276,7 +280,7 @@ export default {
       areAnyDuplicates: false,
       loadReady: true,
       warningOpen: false,
-      errorMsg: "",
+      errorMsgArray: [],
       errorTitle: "",
       mode: 'single',
       speciesList: [],
@@ -349,7 +353,8 @@ export default {
       for(let i = 0; i < sms.length; i++){
         if(sms[i].bam.baiUri && sms[i].bam.baiUri !== sms[i].bam.bamUri + ".bai"){
           self.errorTitle = "Bam index warning";
-          self.errorMsg = "The bam index file path does not match the bam file path " + sms[i].bam.bamUri;
+          let errorMsg = "The bam index file path does not match the bam file path " + sms[i].bam.bamUri;
+          self.errorMsgArray.push(errorMsg);
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
@@ -360,7 +365,8 @@ export default {
         let tbiUrl = sms[i].vcf.getTbiURL();
         if(tbiUrl && tbiUrl !== vcfUrl + ".tbi"){
           self.errorTitle = "Vcf index warning";
-          self.errorMsg = "The vcf index file path does not match the vcf file path " + vcfUrl;
+          let errorMsg = "The vcf index file path does not match the vcf file path " + vcfUrl;
+          self.errorMsgArray.push(errorMsg);
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
@@ -368,6 +374,7 @@ export default {
       }
     },
     checkValidExtensions: function(sms){
+      let self = this;
       for(let i = 0; i < sms.length; i++){
         let bamUrl = sms[i].bam.bamUri;
         let baiUrl = sms[i].bam.baiUri;
@@ -375,28 +382,32 @@ export default {
         let tbiUrl = sms[i].vcf.getTbiURL();
         if(bamUrl.split('.').pop() !== ".bam"){
           self.errorTitle = "Bam file extension warning";
-          self.errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
+          let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
+          self.errorMsgArray.push(errorMsg);
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
         }
         if(baiUrl && baiUrl.split('.').pop() !== ".bai"){
           self.errorTitle = "Bam index file extension warning";
-          self.errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
+          let errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
+          self.errorMsgArray.push(errorMsg);
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
         }
         if(vcfUrl.split('.').pop() !== ".gz"){
           self.errorTitle = "Vcf file extension warning";
-          self.errorMsg = "The vcf index file path does not end with a .vcf.gz extension " + vcfUrl;
+          let errorMsg = "The vcf index file path does not end with a .vcf.gz extension " + vcfUrl;
+          self.errorMsgArray.push(errorMsg);
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
         }
         if(tbiUrl && tbiUrl.split('.').pop() !== ".tbi"){
           self.errorTitle = "Vcf index file extension warning";
-          self.errorMsg = "The vcf index file path does not end with a .tbi extension " + tbiUrl;
+          let errorMsg = "The vcf index file path does not end with a .tbi extension " + tbiUrl;
+          self.errorMsgArray.push(errorMsg);
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
@@ -410,7 +421,8 @@ export default {
       }).forEach(function (element, index, arr) {
         if (arr.indexOf(element) !== index) {
           self.errorTitle = "Duplicate Ids";
-          self.errorMsg = "Duplicate ids detected for " + element;
+          let errorMsg = "Duplicate ids detected for " + element;
+          self.errorMsgArray.push(errorMsg);
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
@@ -422,7 +434,8 @@ export default {
       }).forEach(function (element, index, arr) {
         if (arr.indexOf(element) !== index) {
           self.errorTitle = "Duplicate Bam Files";
-          self.errorMsg = "Duplicate Bam detected for file: " + element;
+          let errorMsg = "Duplicate Bam detected for file: " + element;
+          self.errorMsgArray.push(errorMsg);
           self.warningOpen = true;
           self.areAnyDuplicates = true;
           self.loadReady = false;
@@ -440,9 +453,16 @@ export default {
       let sms = self.cohortModel.sampleModels;
       self.areAnyDuplicates = false;
       self.loadReady = true;
+      self.errorMsgArray = [];
       self.checkForDuplicates(sms);
       self.checkIndexFilesMatch(sms);
       self.checkValidExtensions(sms);
+
+      console.log("self.errorMsgArray", self.errorMsgArray);
+
+      if(self.errorMsgArray.length > 1){
+          self.errorTitle = "Multiple warnings";
+      }
 
       if(self.loadReady) {
         self.inProgress = true;
