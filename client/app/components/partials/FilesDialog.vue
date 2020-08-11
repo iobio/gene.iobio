@@ -122,7 +122,7 @@
                 </v-card-title>
                 <v-card-text class="remove-filter-description" style="overflow-wrap: break-word">
                   <div v-for="msg in errorMsgArray">
-                      {{msg}}
+                    {{msg}}
                   </div>
                 </v-card-text>
                 <v-btn @click="loadReady = false; warningOpen = false;" color="normal">Cancel</v-btn>
@@ -381,7 +381,6 @@ export default {
         let vcfUrl = sms[i].vcf.getVcfURL();
         let tbiUrl = sms[i].vcf.getTbiURL();
 
-
         if(bamUrl.split('.').pop() !== "bam"){
           self.errorTitle = "Bam file extension warning";
           let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
@@ -461,7 +460,7 @@ export default {
       self.checkValidExtensions(sms);
 
       if(self.errorMsgArray.length > 1){
-          self.errorTitle = "Multiple warnings";
+        self.errorTitle = "Multiple warnings";
       }
 
       if(self.loadReady) {
