@@ -380,7 +380,9 @@ export default {
         let baiUrl = sms[i].bam.baiUri;
         let vcfUrl = sms[i].vcf.getVcfURL();
         let tbiUrl = sms[i].vcf.getTbiURL();
-        if(bamUrl.split('.').pop() !== ".bam"){
+
+
+        if(bamUrl.split('.').pop() !== "bam"){
           self.errorTitle = "Bam file extension warning";
           let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
           self.errorMsgArray.push(errorMsg);
@@ -388,7 +390,7 @@ export default {
           self.areAnyDuplicates = true;
           self.loadReady = false;
         }
-        if(baiUrl && baiUrl.split('.').pop() !== ".bai"){
+        if(baiUrl && baiUrl.split('.').pop() !== "bai"){
           self.errorTitle = "Bam index file extension warning";
           let errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
           self.errorMsgArray.push(errorMsg);
@@ -396,7 +398,7 @@ export default {
           self.areAnyDuplicates = true;
           self.loadReady = false;
         }
-        if(vcfUrl.split('.').pop() !== ".gz"){
+        if(vcfUrl.split('.').pop() !== "gz"){
           self.errorTitle = "Vcf file extension warning";
           let errorMsg = "The vcf index file path does not end with a .vcf.gz extension " + vcfUrl;
           self.errorMsgArray.push(errorMsg);
@@ -404,7 +406,7 @@ export default {
           self.areAnyDuplicates = true;
           self.loadReady = false;
         }
-        if(tbiUrl && tbiUrl.split('.').pop() !== ".tbi"){
+        if(tbiUrl && tbiUrl.split('.').pop() !== "tbi"){
           self.errorTitle = "Vcf index file extension warning";
           let errorMsg = "The vcf index file path does not end with a .tbi extension " + tbiUrl;
           self.errorMsgArray.push(errorMsg);
@@ -457,8 +459,6 @@ export default {
       self.checkForDuplicates(sms);
       self.checkIndexFilesMatch(sms);
       self.checkValidExtensions(sms);
-
-      console.log("self.errorMsgArray", self.errorMsgArray);
 
       if(self.errorMsgArray.length > 1){
           self.errorTitle = "Multiple warnings";
