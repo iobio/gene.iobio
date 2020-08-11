@@ -574,25 +574,35 @@ class FeatureMatrixModel {
   getClinvarRank(variant, clinvarSig) {
     var me = this;
     var lowestRank = 9999;
-    for (var key in clinvarSig) {
-      var rank = me.getTranslator().clinvarMap[key].value;
-      if (rank < lowestRank) {
-        lowestRank = rank;
+    if (me.globalApp.utility.isObject(clinvarSig)) {
+      for (var key in clinvarSig) {
+        var rank = me.getTranslator().clinvarMap[key].value;
+        if (rank < lowestRank) {
+          lowestRank = rank;
+        }
       }
+      return lowestRank;
+    } else {
+      let clinvarKey = clinvarSig ? clinvarSig.split(" ").join("_") : "";
+      return me.getTranslator().clinvarMap[clinvarKey] ? me.getTranslator().clinvarMap[clinvarKey].value : lowestRank;
+
     }
-    return lowestRank;
   }
 
   getImpactRank(variant, highestImpactVep) {
     var me = this;
     var lowestRank = 99;
-    for (var key in highestImpactVep) {
-      var rank = me.getTranslator().impactMap[key].value;
-      if (rank < lowestRank) {
-        lowestRank = rank;
+    if (me.globalApp.utility.isObject(highestImpactVep)) {
+      for (var key in highestImpactVep) {
+        var rank = me.getTranslator().impactMap[key].value;
+        if (rank < lowestRank) {
+          lowestRank = rank;
+        }
       }
+      return lowestRank;
+    } else {
+      return me.getTranslator().impactMap[highestImpactVep] ? me.getTranslator().impactMap[highestImpactVep].value : lowestRank;
     }
-    return lowestRank;
   }
 
 }

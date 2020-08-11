@@ -4029,6 +4029,11 @@ export default {
           .then(function(analysis) {
             if (analysis) {
               self.analysis = analysis;
+
+              // Workaround - remove null variants
+              self.analysis.payload.variants = self.analysis.payload.variants.filter(function(v) {
+                return v != null;
+              })
               resolve(self.analysis);
             } else {
               reject("Unable to find/create an analysis " + idAnalysis);
@@ -4086,8 +4091,8 @@ export default {
         
           let exportPromises = [];
           self.cohortModel.flaggedVariants.forEach(function(flaggedVariant) {
-            let p = self.promiseExportAnalysisVariant(flaggedVariant)
-            exportPromises.push(p);
+              let p = self.promiseExportAnalysisVariant(flaggedVariant)
+              exportPromises.push(p);
           })
 
           return Promise.all(exportPromises)
@@ -4190,6 +4195,8 @@ export default {
       let self = this;
 
       let getGeneName = function(variant) {
+
+
         if (variant.gene == null && variant.geneName) {
           return variant.geneName;
         } else if (variant.gene && self.globalApp.utility.isObject(variant.gene)) {
