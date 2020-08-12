@@ -143,8 +143,8 @@ class GlobalApp {
 
       if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
         var clinvarUrls = {
-          'GRCh37': "https://mosaic.chpc.utah.edu/gru/api/v1/static/clinvar/GRCh37/clinvar.vcf.gz",
-          'GRCh38': "https://mosaic.chpc.utah.edu/gru/api/v1/static/clinvar/GRCh38/clinvar.vcf.gz"
+          'GRCh37': "https://backend.iobio.io/static/clinvar/GRCh37/clinvar.vcf.gz",
+          'GRCh38': "https://backend.iobio.io/static/clinvar/GRCh38/clinvar.vcf.gz"
         }
         return clinvarUrls[build];
 
