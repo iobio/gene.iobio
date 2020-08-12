@@ -2346,9 +2346,18 @@ class CohortModel {
     // So first, cache all of the gene objects for the imported variants
     var promises = []
 
+    // Workaround - some older saved analysis had empty variant 
+    // records. Bypass these.
+    importRecords = importRecords.filter(function(ir) {
+      if (ir == null) {
+        console.log("WARNING: bypassing null variant record")
+        return false;
+      } else {
+        return true;
+      }
+    })
+
     importRecords.forEach( function(ir) {
-
-
       // Workaround.  variant.gene sometimes an
       // object, sometimes a gene name.  Other times
       // variant.geneName is filled in instead
@@ -2380,8 +2389,6 @@ class CohortModel {
           promises.push(promise);
         }
       }
-
-
     })
 
     // Now that all of the gene objects have been cached, we can fill in the
@@ -2872,8 +2879,8 @@ class CohortModel {
       var inheritanceA = a.inheritance ? (a.inheritance.indexOf('n/a') == -1 ? 1 : 0) : 0;
       var inheritanceB = b.inheritance ? (b.inheritance.indexOf('n/a') == -1 ? 1 : 0) : 0;
 
-      var afA = a.afHighest ? +a.afHighest : 99;
-      var afB = b.afHighest ? +b.afHighest : 99;
+      var afA = a.isImported ? +a.afgnomAD : (a.afHighest ? +a.afHighest : 99);
+      var afB = a.isImported ? +a.afgnomAD : (b.afHighest ? +b.afHighest : 99);
 
       if (clinvarA == clinvarB) {
         if (impactA == impactB) {

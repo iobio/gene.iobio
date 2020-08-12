@@ -113,10 +113,22 @@
 <template>
    <v-dialog v-model="showFilesDialog" persistent max-width="890" >
       <v-card class="full-width" style="min-height:0px;max-height:670px;overflow-y:scroll">
-
-
-
           <v-form id="files-form">
+
+            <v-dialog width="500" v-model="areAnyDuplicates" v-if="warningOpen">
+              <v-card class="info-card full-width" id="remove-filter-card">
+                <v-card-title style="justify-content:space-between">
+                  <span class="info-title">{{errorTitle}}</span>
+                </v-card-title>
+                <v-card-text class="remove-filter-description" style="overflow-wrap: break-word">
+                  <div v-for="msg in errorMsgArray">
+                    {{msg}}
+                  </div>
+                </v-card-text>
+                <v-btn @click="loadReady = false; warningOpen = false;" color="normal">Cancel</v-btn>
+                <v-btn @click="loadReady = true" color="error">continue</v-btn>
+              </v-card>
+            </v-dialog>
 
             <v-layout row nowrap class="mt-0">
              <v-card-title class="headline">Files</v-card-title>
@@ -183,8 +195,6 @@
               </v-flex>
 
             </v-layout>
-
-
             <v-layout row wrap class="mt-3">
 
 
@@ -267,6 +277,11 @@ export default {
     return {
       showFilesDialog: false,
       isValid: false,
+      areAnyDuplicates: false,
+      loadReady: true,
+      warningOpen: false,
+      errorMsgArray: [],
+      errorTitle: "",
       mode: 'single',
       speciesList: [],
       speciesName: null,
@@ -294,6 +309,31 @@ export default {
     }
   },
   watch: {
+    loadReady: function(){
+      let self = this;
+      if(self.loadReady) {
+        self.cohortModel.promiseAddClinvarSample()
+        .then(function () {
+          return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+        })
+        .then(function () {
+          self.cohortModel.setAffectedInfo(true);
+          self.cohortModel.isLoaded = true;
+          self.cohortModel.getCanonicalModels().forEach(function (model) {
+            if (model.name == null || model.name.length == 0) {
+              model.name = model.relationship;
+            }
+          });
+          self.cohortModel.sortSampleModels();
+        })
+        .then(function () {
+          let performAnalyzeAll = self.demoAction ? true : false;
+          self.inProgress = false;
+          self.$emit("on-files-loaded", performAnalyzeAll);
+          self.showFilesDialog = false;
+        });
+      }
+    },
     showDialog: function() {
       if (this.cohortModel && this.showDialog) {
         this.showFilesDialog = true
@@ -308,36 +348,144 @@ export default {
     }
   },
   methods: {
+    checkIndexFilesMatch: function(sms){
+      let self = this;
+      for(let i = 0; i < sms.length; i++){
+        if(sms[i].bam.baiUri && sms[i].bam.baiUri !== sms[i].bam.bamUri + ".bai"){
+          self.errorTitle = "Bam index warning";
+          let errorMsg = "The bam index file path does not match the bam file path " + sms[i].bam.bamUri;
+          self.errorMsgArray.push(errorMsg);
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      }
+      for(let i = 0; i < sms.length; i++){
+        let vcfUrl = sms[i].vcf.getVcfURL();
+        let tbiUrl = sms[i].vcf.getTbiURL();
+        if(tbiUrl && tbiUrl !== vcfUrl + ".tbi"){
+          self.errorTitle = "Vcf index warning";
+          let errorMsg = "The vcf index file path does not match the vcf file path " + vcfUrl;
+          self.errorMsgArray.push(errorMsg);
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      }
+    },
+    checkValidExtensions: function(sms){
+      let self = this;
+      for(let i = 0; i < sms.length; i++){
+        let bamUrl = sms[i].bam.bamUri;
+        let baiUrl = sms[i].bam.baiUri;
+        let vcfUrl = sms[i].vcf.getVcfURL();
+        let tbiUrl = sms[i].vcf.getTbiURL();
+
+        if(bamUrl.split('.').pop() !== "bam"){
+          self.errorTitle = "Bam file extension warning";
+          let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
+          self.errorMsgArray.push(errorMsg);
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+        if(baiUrl && baiUrl.split('.').pop() !== "bai"){
+          self.errorTitle = "Bam index file extension warning";
+          let errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
+          self.errorMsgArray.push(errorMsg);
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+        if(vcfUrl.split('.').pop() !== "gz"){
+          self.errorTitle = "Vcf file extension warning";
+          let errorMsg = "The vcf index file path does not end with a .vcf.gz extension " + vcfUrl;
+          self.errorMsgArray.push(errorMsg);
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+        if(tbiUrl && tbiUrl.split('.').pop() !== "tbi"){
+          self.errorTitle = "Vcf index file extension warning";
+          let errorMsg = "The vcf index file path does not end with a .tbi extension " + tbiUrl;
+          self.errorMsgArray.push(errorMsg);
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      }
+    },
+    checkForDuplicates: function(sms){
+      let self = this;
+      sms.map(function(obj) {
+        return obj.name;
+      }).forEach(function (element, index, arr) {
+        if (arr.indexOf(element) !== index) {
+          self.errorTitle = "Duplicate Ids";
+          let errorMsg = "Duplicate ids detected for " + element;
+          self.errorMsgArray.push(errorMsg);
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      });
+
+      sms.map(function(obj) {
+        return obj.bam.bamUri;
+      }).forEach(function (element, index, arr) {
+        if (arr.indexOf(element) !== index) {
+          self.errorTitle = "Duplicate Bam Files";
+          let errorMsg = "Duplicate Bam detected for file: " + element;
+          self.errorMsgArray.push(errorMsg);
+          self.warningOpen = true;
+          self.areAnyDuplicates = true;
+          self.loadReady = false;
+        }
+      });
+    },
+
     onLoad: function() {
       let self = this;
-      self.inProgress = true;
 
       self.cohortModel.mode = self.mode;
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
 
-      self.cohortModel.promiseAddClinvarSample()
-      .then(function() {
-        return  self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
-      })
-      .then(function() {
-        self.cohortModel.setAffectedInfo(true);
-        self.cohortModel.isLoaded = true;
-        self.cohortModel.getCanonicalModels().forEach(function(model) {
-          if (model.name == null || model.name.length == 0) {
-            model.name = model.relationship;
-          }
+      let sms = self.cohortModel.sampleModels;
+      self.areAnyDuplicates = false;
+      self.loadReady = true;
+      self.errorMsgArray = [];
+      self.checkForDuplicates(sms);
+      self.checkIndexFilesMatch(sms);
+      self.checkValidExtensions(sms);
+
+      if(self.errorMsgArray.length > 1){
+        self.errorTitle = "Multiple warnings";
+      }
+
+      if(self.loadReady) {
+        self.inProgress = true;
+        self.cohortModel.promiseAddClinvarSample()
+        .then(function () {
+          return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
         })
-        self.cohortModel.sortSampleModels();
-
-      })
-      .then(function() {
-        let performAnalyzeAll = self.demoAction ? true : false;
-        self.inProgress = false;
-
-        self.$emit("on-files-loaded", performAnalyzeAll);
-        self.showFilesDialog = false;
-      })
+        .then(function () {
+          self.cohortModel.setAffectedInfo(true);
+          self.cohortModel.isLoaded = true;
+          self.cohortModel.getCanonicalModels().forEach(function (model) {
+            if (model.name == null || model.name.length == 0) {
+              model.name = model.relationship;
+            }
+          });
+          self.cohortModel.sortSampleModels();
+        })
+        .then(function () {
+          let performAnalyzeAll = self.demoAction ? true : false;
+          self.inProgress = false;
+          self.$emit("on-files-loaded", performAnalyzeAll);
+          self.showFilesDialog = false;
+        })
+      }
     },
     onCancel:  function() {
       let self = this;
