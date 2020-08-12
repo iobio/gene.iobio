@@ -1172,6 +1172,8 @@ class GeneModel {
 
     var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
 
+    me.promiseGetNCBIGeneSummary(geneName);
+
     var geneUID = null;
     var ncbiInfo = me.geneNCBISummaries[geneName];
     if (ncbiInfo) {
