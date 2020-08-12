@@ -574,7 +574,6 @@ class FeatureMatrixModel {
   getClinvarRank(variant, clinvarSig) {
     var me = this;
     var lowestRank = 9999;
-
     if (me.globalApp.utility.isObject(clinvarSig)) {
       for (var key in clinvarSig) {
         var rank = me.getTranslator().clinvarMap[key].value;
