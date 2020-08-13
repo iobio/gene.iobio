@@ -128,7 +128,7 @@
                 <v-badge id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
 
                 <span  id="gene-plus-minus-label"  v-if="!isBasicMode && !isSimpleMode"  style="padding-left: 15px">+  -</span>
-                <div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:40px;height:21px;"  >
+                <div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:50px;height:21px;"  >
                     <v-text-field
                             id="gene-region-buffer-input"
                             class="sm fullview"
