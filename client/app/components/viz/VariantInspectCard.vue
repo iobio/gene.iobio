@@ -585,7 +585,7 @@
           </div>
           <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele frequency`" :link="afGnomAD.link" >
           </variant-inspect-row>
-          <variant-inspect-row v-if="!isSimpleMode && afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Pop max allele frequency`" >
+          <variant-inspect-row v-if="!isSimpleMode && afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Population max allele frequency`" >
           </variant-inspect-row>
           <div v-if="!isSimpleMode && afGnomAD.totalCount > 0" class="variant-row no-icon">
             <span>{{ afGnomAD.altCount }} alt of {{ afGnomAD.totalCount }} total</span>
