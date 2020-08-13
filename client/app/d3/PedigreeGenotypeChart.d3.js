@@ -209,7 +209,7 @@ export default function PedigreeGenotypeChartD3() {
         nodeData.altRatio = 1;
     }
 
-    //todo: refactor redundant code in if statement
+      //todo: refactor redundant code in if statement
 
     if (nodeData.totalCount != null && nodeData.altCount != null) {
         let group = parent.append("g")
@@ -257,9 +257,18 @@ export default function PedigreeGenotypeChartD3() {
                         return 16;
                     }
                 })
+                .style("font-size", d => {
+                    if(nodeData.altCount > 99 || nodeData.totalCount - nodeData.altCount > 99){
+                        return "8px";
+                    }
+                    else{
+                        return "11px";
+                    }
+                })
                 .text(function (d, i) {
                     return nodeData.altCount + " alt, " + (nodeData.totalCount - nodeData.altCount) + ' ref';
                 })
+
         }
   }
 
