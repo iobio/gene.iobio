@@ -2128,6 +2128,15 @@ export default {
       .then(function() {
         self.onGeneSelected(self.selectedGene.gene_name);
       })
+
+      setTimeout(function () {
+        let baseWidth = 40;
+        let totalWidth = theGeneRegionBuffer.toString().length * 10
+        let width = Math.max(baseWidth, totalWidth);
+        d3.select("#region-buffer-box")
+          .style("width", width.toString() + "px");
+      }, 200);
+
     },
     onGeneRegionZoom: function(theStart, theEnd) {
       this.geneRegionStart = theStart;
