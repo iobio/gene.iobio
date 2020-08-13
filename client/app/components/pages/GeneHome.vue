@@ -711,13 +711,13 @@ main.content.clin, main.v-content.clin
 
 
     </v-dialog>
-    
-    
+
+
     <v-dialog v-model="interpretationProgressDialog" persistent max-width="375">
       <v-card color="#30638e" dark>
         <v-card-text>
           Interpreting variant
-          <v-progress-linear 
+          <v-progress-linear
             :indeterminate="true"
             height="7"
             color="white">
@@ -1361,8 +1361,8 @@ export default {
 
     addCloseListener: function() {
       let self = this;
-      $(window).bind("beforeunload", function(e) {   
-        let msg = self.globalApp.getCloseMessage();    
+      $(window).bind("beforeunload", function(e) {
+        let msg = self.globalApp.getCloseMessage();
         if (msg) {
           return msg;
         } else {
@@ -2128,6 +2128,15 @@ export default {
       .then(function() {
         self.onGeneSelected(self.selectedGene.gene_name);
       })
+
+      setTimeout(function () {
+        let baseWidth = 40;
+        let totalWidth = theGeneRegionBuffer.toString().length * 10
+        let width = Math.max(baseWidth, totalWidth);
+        d3.select("#region-buffer-box")
+          .style("width", width.toString() + "px");
+      }, 200);
+
     },
     onGeneRegionZoom: function(theStart, theEnd) {
       this.geneRegionStart = theStart;
@@ -2918,14 +2927,14 @@ export default {
         return self.sendInterpretedVariantsToClin({notify: true, delay: true});
       })
     },
-    
+
     sendInterpretedVariantsToClin(options={}) {
       let self = this;
       if (self.launchedFromClin) {
         self.sendAnalysisToClin();
       }
     },
-    
+
     onApplyVariantInterpretation: function(variant) {
       let self = this;
 
@@ -2934,7 +2943,7 @@ export default {
       // If this variant is user flagged, but then changed back to unreviewed, we
       // need to unflag it and remove it from the variant list.
       /*
-      if (variant.isUserFlagged && variant.interpretation == "not-reviewed" && 
+      if (variant.isUserFlagged && variant.interpretation == "not-reviewed" &&
         (variant.notes == null || variant.notes.length == 0)) {
         self.onRemoveUserFlaggedVariant(variant);
         return;
@@ -2950,8 +2959,8 @@ export default {
       if (!variant.transcript) {
         variant.transcript = this.selectedTranscript;
       }
-      if (variant.interpretation != "not-reviewed" && 
-        self.cohortModel.getFlaggedVariant(variant) == null) {            
+      if (variant.interpretation != "not-reviewed" &&
+        self.cohortModel.getFlaggedVariant(variant) == null) {
         self.cohortModel.addUserFlaggedVariant(self.selectedGene, self.selectedTranscript, variant);
       }
 
@@ -2965,11 +2974,11 @@ export default {
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant);
       }
-    
+
       if (self.launchedFromClin) {
         self.promiseUpdateAnalysisVariant(variant, {delay: false});
       }
-      
+
     },
 
     isVariantUnique: function(variant){
@@ -4105,7 +4114,7 @@ export default {
 
         self.promiseUpdateAnalysisGenesData()
         .then(function() {
-        
+
           let exportPromises = [];
           self.cohortModel.flaggedVariants.forEach(function(flaggedVariant) {
               let p = self.promiseExportAnalysisVariant(flaggedVariant)
@@ -4203,7 +4212,7 @@ export default {
             console.log(err);
             reject(err)
           })
-        } 
+        }
       })
     },
 
@@ -4243,7 +4252,7 @@ export default {
       }
       return matchingIdx;
     },
-    
+
     variantCountChanged: function(count) {
       let self = this;
       self.variantCount = count;
