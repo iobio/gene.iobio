@@ -18,7 +18,7 @@
     white-space: normal
     display: inline-block
     word-break: break-all
-    min-width: 100px 
+    min-width: 100px
 
   .aa-change
     max-width: 200px
@@ -576,16 +576,16 @@
 
       <div class="variant-inspect-column" v-if="selectedVariant">
           <div class="variant-column-header">
-              {{ isSimpleMode ? 'Population Frequency' : 'Pop Freq in gnomAD' }}
+              {{ isSimpleMode ? 'Population Frequency' : 'gnomAD' }}
             <info-popup v-if="!isSimpleMode" name="gnomAD"></info-popup>
             <v-divider></v-divider>
           </div>
           <div class="variant-column-hint" v-if="isSimpleMode">
             Common variants typically don’t cause diseases.
           </div>
-          <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele freq`" :link="afGnomAD.link" >
+          <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele frequency`" :link="afGnomAD.link" >
           </variant-inspect-row>
-          <variant-inspect-row v-if="!isSimpleMode && afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Pop max allele freq`" >
+          <variant-inspect-row v-if="!isSimpleMode && afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Population max allele frequency`" >
           </variant-inspect-row>
           <div v-if="!isSimpleMode && afGnomAD.totalCount > 0" class="variant-row no-icon">
             <span>{{ afGnomAD.altCount }} alt of {{ afGnomAD.totalCount }} total</span>
