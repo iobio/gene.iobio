@@ -576,9 +576,21 @@ class FeatureMatrixModel {
     var lowestRank = 9999;
     if (me.globalApp.utility.isObject(clinvarSig)) {
       for (var key in clinvarSig) {
-        var rank = me.getTranslator().clinvarMap[key].value;
-        if (rank < lowestRank) {
-          lowestRank = rank;
+        if (me.getTranslator().clinvarMap[key]) {
+          var rank = me.getTranslator().clinvarMap[key].value;
+          if (rank < lowestRank) {
+            lowestRank = rank;
+          }          
+        } else {
+          if (key.indexOf(",") > 0) {
+            first_token = key.split(",")[0];
+            if (me.getTranslator().clinvarMap[key]) { 
+              var rank = me.getTranslator().clinvarMap[key].value;
+              if (rank < lowestRank) {
+                lowestRank = rank;
+              }   
+            } 
+          }
         }
       }
       return lowestRank;

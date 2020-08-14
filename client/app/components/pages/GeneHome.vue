@@ -1388,14 +1388,19 @@ export default {
         self.hubSession.globalApp = self.globalApp;
         let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
 
-        // Workaround until launch from Mosaic analysis can pass in is_pedigree
-        if (self.paramAnalysisId && self.paramAnalysisId.length > 0 && !isPedigree) {
-          isPedigree = true;
-        }
+
 
         self.cohortModel.setHubSession(self.hubSession);
-        self.hubSession.promiseInit(self.sampleId, self.paramSource, isPedigree, self.projectId, self.paramGeneSetId, self.paramVariantSetId)
+        self.hubSession.promiseInit(self.sampleId, 
+          self.paramSource, 
+          isPedigree || (self.paramAnalysisId && self.paramAnalysisId.length > 0), 
+          self.projectId, 
+          self.paramGeneSetId, 
+          self.paramVariantSetId)
         .then(data => {
+          if (isPedigree && !data.foundPedigree) {
+            self.onShowSnackbar({message: 'No pedigree for this sample. Loading proband only.', timeout: 5000})
+          }
           self.modelInfos = data.modelInfos;
           self.rawPedigree = data.rawPedigree;
           self.geneSet = data.geneSet;
