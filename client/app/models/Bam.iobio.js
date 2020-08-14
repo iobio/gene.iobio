@@ -136,10 +136,11 @@ export default class Bam {
     });
 
     cmd.on('error', function(error) {
-      if (me.ignoreErrorMessage(error)) {
+        if (me.ignoreErrorMessage(error)) {
         success = true;
         callback(success)
       } else {
+        alert("Could not interpret Bam file: " + url + "\n\n" + me.translateErrorMessage(error));
         if (success == null) {
           success = false;
           me.bamUri = url;
@@ -346,7 +347,8 @@ export default class Bam {
       });
 
       cmd.on('error', function(error) {
-        console.log(error);
+          alert("Could not interpret Bam file: " + url + "\n\n" + me.translateErrorMessage(error));
+          console.log(error);
       });
       cmd.run();
 
