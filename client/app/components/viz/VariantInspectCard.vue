@@ -18,7 +18,7 @@
     white-space: normal
     display: inline-block
     word-break: break-all
-    min-width: 100px 
+    min-width: 100px
 
   .aa-change
     max-width: 200px
@@ -299,7 +299,7 @@
         opacity: .65
 
       text
-        font-size: 11px
+        font-size: 9px
         text-anchor: middle
 
 #show-more-gene-association-button
