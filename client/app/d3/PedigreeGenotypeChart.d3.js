@@ -209,6 +209,9 @@ export default function PedigreeGenotypeChartD3() {
         nodeData.altRatio = 1;
     }
 
+    nodeData.altCount = 888;
+    nodeData.totalCount = 1776;
+
       //todo: refactor redundant code in if statement
 
     if (nodeData.totalCount != null && nodeData.altCount != null) {
@@ -249,20 +252,18 @@ export default function PedigreeGenotypeChartD3() {
                 .attr("height", 5)
 
             group.append("text")
-                .attr("x", (nodeWidth + 20) / 2)
+                .attr("x", function (d, i) {
+                    if (position == "top") {
+                        return (nodeWidth + 20) / 2
+                    } else {
+                        return (nodeWidth + 26) / 2
+                    }
+                })
                 .attr("y", function (d, i) {
                     if (position == "top") {
                         return -5;
                     } else {
                         return 16;
-                    }
-                })
-                .style("font-size", d => {
-                    if(nodeData.altCount > 99 || nodeData.totalCount - nodeData.altCount > 99){
-                        return "8px";
-                    }
-                    else{
-                        return "11px";
                     }
                 })
                 .text(function (d, i) {

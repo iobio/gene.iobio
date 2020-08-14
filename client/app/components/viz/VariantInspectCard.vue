@@ -299,7 +299,7 @@
         opacity: .65
 
       text
-        font-size: 11px
+        font-size: 9px
         text-anchor: middle
 
 #show-more-gene-association-button
