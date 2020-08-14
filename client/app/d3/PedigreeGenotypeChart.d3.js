@@ -249,7 +249,18 @@ export default function PedigreeGenotypeChartD3() {
                 .attr("height", 5)
 
             group.append("text")
-                .attr("x", (nodeWidth + 20) / 2)
+                .attr("x", function (d, i) {
+                    if (position == "top") {
+                        return (nodeWidth + 20) / 2
+                    } else {
+                        if(nodeData.altCount > 99 || nodeData.totalCount - nodeData.altCount > 99) {
+                            return (nodeWidth + 26) / 2
+                        }
+                        else{
+                            return (nodeWidth + 20) / 2
+                        }
+                    }
+                })
                 .attr("y", function (d, i) {
                     if (position == "top") {
                         return -5;

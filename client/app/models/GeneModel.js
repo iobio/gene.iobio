@@ -14,6 +14,7 @@ class GeneModel {
         omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
         humanmine: { display: 'HumanMine', url: 'http://www.humanmine.org/humanmine/keywordSearchResults.do?searchTerm=+GENESYMBOL&searchSubmit=GO'},
         ncbi:      { display: 'NCBI',      url: 'https://www.ncbi.nlm.nih.gov/gene/GENEUID'},
+        pubmed:    { display: 'PubMed',    url: 'https://pubmed.ncbi.nlm.nih.gov/?from_uid=GENEUID&linkname=gene_pubmed'},
         decipher:  { display: 'DECIPHER',  url: 'https://decipher.sanger.ac.uk/search?q=GENESYMBOL'},
         marrvel:   { display: 'MARRVEL',   url: 'http://marrvel.org/search/gene/GENESYMBOL'},
         genecards: { display: 'GeneCards', url: 'https://www.genecards.org/cgi-bin/carddisp.pl?gene=GENESYMBOL'},
@@ -1169,6 +1170,7 @@ class GeneModel {
     if (geneObject) {
       geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
     }
+    me.promiseGetNCBIGeneSummary(geneName);
 
     var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
 
