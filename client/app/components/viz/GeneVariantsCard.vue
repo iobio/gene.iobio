@@ -205,7 +205,8 @@
             },
             onGeneRegionBufferChange: _.debounce(function (newGeneRegionBuffer) {
                 this.regionBuffer = Math.min(parseInt(newGeneRegionBuffer), 99999);
-                this.$emit('gene-region-buffer-change', this.regionBuffer);            }, 100),
+                this.$emit('gene-region-buffer-change', this.regionBuffer);
+            }, 100),
             onClickTranscript: function(link) {
             },
             onTranscriptSelected: function(transcript) {
