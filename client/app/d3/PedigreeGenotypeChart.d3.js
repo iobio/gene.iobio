@@ -209,9 +209,6 @@ export default function PedigreeGenotypeChartD3() {
         nodeData.altRatio = 1;
     }
 
-    nodeData.altCount = 888;
-    nodeData.totalCount = 1776;
-
       //todo: refactor redundant code in if statement
 
     if (nodeData.totalCount != null && nodeData.altCount != null) {
