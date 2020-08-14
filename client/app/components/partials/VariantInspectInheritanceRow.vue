@@ -83,7 +83,7 @@
 </style>
 
 <template>
-  <div class="variant-row">
+  <div v-if="selectedVariant.inheritance.indexOf('n/a') == -1" class="variant-row">
     <v-icon v-if="selectedVariant.inheritance.indexOf('n/a') == -1" class="level-high">
       check_circle
     </v-icon>
