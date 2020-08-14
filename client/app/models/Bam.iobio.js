@@ -605,7 +605,9 @@ export default class Bam {
         });
 
         cmd.on('error', function(error) {
-          console.log(error);
+            alert("Could not get coverage from Bam File.  Bam index file may be invalid: " + bams[index].baiUri  + "\n\n" + me.translateErrorMessage(error));
+
+            console.log(error);
         });
 
         cmd.run();
