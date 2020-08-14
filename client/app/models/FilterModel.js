@@ -170,20 +170,20 @@ class FilterModel {
         'high': {
           active: true,
           custom: false,
-          title: "High impact",
+          title: "High or moderate impact",
           name: "High impact, low allele freq",
           order: 7,
           userFlagged: false,
-          maxAf: .01,
+          maxAf: .025,
           clinvar: null,
-          impact: ['HIGH', ],
+          impact: ['HIGH', 'MODERATE'],
           consequence: null,
           inheritance: null,
           zyosity: null,
           isUserFlagged: false,
           minGenotypeDepth: null,
           minGenotypeAltCount: null,
-          minRevel: .75,
+          minRevel: .4,
           exclusiveOf: ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked']
         },
         'userFlagged': {
@@ -958,10 +958,13 @@ class FilterModel {
       if (badgeCriteria.minRevel == null || badgeCriteria.minRevel == "") {
         passes.revel = true;
       } else if (Object.keys(variant.vepREVEL).length == 0) {
+        // This isn't a variant with a REVEL score, so don't try to filter
         passes.revel = true
       } else {
+        // This is a variant with a revel score, so make sure it passes
+        // the min revel score (if non-blank)
         for (var revel in variant.vepREVEL) {
-          if (revel != "" || +revel >= badgeCriteria.minRevel) {
+          if (revel == "" || +revel >= badgeCriteria.minRevel) {
             passes.revel = true;
           }
         }
