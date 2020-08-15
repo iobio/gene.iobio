@@ -2729,6 +2729,21 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
+
+        // Set the genome build before we access any gene 
+        // transcripts to ensure we are using the appropriate
+        // build!
+        if (self.paramSpecies) {
+          self.genomeBuildHelper.setCurrentSpecies(self.paramSpecies);
+        }
+        if (self.paramBuild) {
+          self.genomeBuildHelper.setCurrentBuild(self.paramBuild);
+        }
+        if (self.paramBatchSize) {
+          self.globalApp.DEFAULT_BATCH_SIZE = self.paramBatchSize;
+        }
+
+
         if (self.paramGeneSource) {
           self.geneModel.geneSource = self.paramGeneSource;
         }
@@ -2752,15 +2767,6 @@ export default {
           }
         }
 
-        if (self.paramSpecies) {
-          self.genomeBuildHelper.setCurrentSpecies(self.paramSpecies);
-        }
-        if (self.paramBuild) {
-          self.genomeBuildHelper.setCurrentBuild(self.paramBuild);
-        }
-        if (self.paramBatchSize) {
-          self.globalApp.DEFAULT_BATCH_SIZE = self.paramBatchSize;
-        }
 
         var modelInfos = [];
         for (var i = 0; i < self.paramRelationships.length; i++) {
