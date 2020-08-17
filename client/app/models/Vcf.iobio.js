@@ -313,6 +313,12 @@ export default function vcfiobio(theGlobalApp) {
     cmd.on('error', function(error) {
       if (me.ignoreErrorMessage(error)) {
       } else {
+        if(error.includes("Permission denied")){
+          alert("Vcf file " + url + "does not exist, or this app do not have permission to access it\n\n" + error);
+        }
+        else {
+          alert("Could not interpret vcf file " + url + "\n Check to make sure the path to your vcf file is properly formatted\n" + error)
+        }
         if (success == null) {
           success = false;
           console.log(error);
@@ -635,6 +641,13 @@ export default function vcfiobio(theGlobalApp) {
     // Catch error event when fired
     cmd.on('error', function(error) {
       console.log("Error occurred in loadRemoteIndex. " +  error);
+      if(error.includes("Expected compressed file")){
+        alert("Vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your index is properly compressed in gzip format\n\n" + error);
+      }
+      else{
+        alert("could not get vcf depth.  Check to make sure your vcf and tbi files are correct");
+      }
+
       if (callbackError) {
         callbackError("Error occurred in loadRemoteIndex. " +  error);
       }
@@ -2157,7 +2170,7 @@ exports._parseGnomADAnnot = function(annotTokens, annot) {
   })
   if (annot.gnomAD.afPopMax == '.') {
     annot.gnomAD.afPopMax = annot.gnomAD.af;
-    Object.keys(annot.gnomAD.pop).forEach(function(popKey) {      
+    Object.keys(annot.gnomAD.pop).forEach(function(popKey) {
       let pop_af = annot.gnomAD.pop[popKey].af;
       if (parseFloat(pop_af) > parseFloat(annot.gnomAD.afPopMax)) {
         annot.gnomAD.afPopMax = pop_af;
