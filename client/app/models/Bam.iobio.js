@@ -140,7 +140,8 @@ export default class Bam {
         success = true;
         callback(success)
       } else {
-        alert("Could not interpret Bam file: " + url + "\n\n" + me.translateErrorMessage(error));
+        alertify.alert("Could not interpret Bam file: " + url + "\n\n" + me.translateErrorMessage(error))
+            .setHeader("Invalid Bam file");
         if (success == null) {
           success = false;
           me.bamUri = url;
@@ -347,7 +348,8 @@ export default class Bam {
       });
 
       cmd.on('error', function(error) {
-          alert("Could not interpret Bam file: " + url + "\n\n" + me.translateErrorMessage(error));
+          alertify.alert("Could not interpret Bam file: " + url + "\n\n" + me.translateErrorMessage(error))
+              .setHeader("Could not interpret Bam");
           console.log(error);
       });
       cmd.run();
@@ -605,7 +607,8 @@ export default class Bam {
         });
 
         cmd.on('error', function(error) {
-            alert("Could not get coverage from Bam File.  Bam index file may be invalid: " + bams[index].baiUri  + "\n\n" + me.translateErrorMessage(error));
+            alertify.alert("Could not get coverage from Bam File.  Bam index file may be invalid: " + bams[index].baiUri  + "\n\n" + me.translateErrorMessage(error))
+                .setHeader("Invalid Bam index file");
 
             console.log(error);
         });

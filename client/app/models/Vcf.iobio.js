@@ -314,10 +314,12 @@ export default function vcfiobio(theGlobalApp) {
       if (me.ignoreErrorMessage(error)) {
       } else {
         if(error.includes("Permission denied")){
-          alert("Vcf file " + url + "does not exist, or this app do not have permission to access it\n\n" + error);
+          alertify.alert("Vcf file " + url + "does not exist, or this app do not have permission to access it\n\n" + error)
+              .setHeader("Could not access vcf file");
         }
         else {
-          alert("Could not interpret vcf file " + url + "\n Check to make sure the path to your vcf file is properly formatted\n" + error)
+          alertify.alert("Could not interpret vcf file " + url + "\n Check to make sure the path to your vcf file is properly formatted\n" + error)
+              .setHeader("Could not interpret vcf file")
         }
         if (success == null) {
           success = false;
@@ -642,10 +644,12 @@ export default function vcfiobio(theGlobalApp) {
     cmd.on('error', function(error) {
       console.log("Error occurred in loadRemoteIndex. " +  error);
       if(error.includes("Expected compressed file")){
-        alert("Vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your index is properly compressed in gzip format\n\n" + error);
+        alertify.alert("Vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your index is properly compressed in gzip format\n\n" + error)
+            .setHeader("Expected compressed .tbi index file");
       }
       else{
-        alert("could not get vcf depth.  Check to make sure your vcf and tbi files are correct");
+        alertify.alert("could not get vcf depth.  Check to make sure your vcf and tbi files are correct")
+            .setHeader("vcf depth failed");
       }
 
       if (callbackError) {
