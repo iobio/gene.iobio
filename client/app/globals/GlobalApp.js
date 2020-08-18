@@ -152,8 +152,8 @@ class GlobalApp {
 
 
         var clinvarUrls = {
-          'GRCh37': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/archive_2.0/2018/clinvar_20181202.vcf.gz",
-          'GRCh38': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2018/clinvar_20181202.vcf.gz",
+          'GRCh37': "https://backend.iobio.io/static/clinvar/GRCh37/clinvar.vcf.gz",
+          'GRCh38': "https://backend.iobio.io/static/clinvar/GRCh38/clinvar.vcf.gz"
         };
         return clinvarUrls[build];
 
