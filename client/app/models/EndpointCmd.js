@@ -14,7 +14,7 @@ export default class EndpointCmd {
     }
     else {
       // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
-      // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to 
+      // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
       this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
     }
@@ -45,7 +45,8 @@ export default class EndpointCmd {
 
     getVcfHeader(vcfUrl, tbiUrl) {
         if (this.gruBackend) {
-            return this.api.streamCommand('variantHeader', {url: vcfUrl, indexUrl: tbiUrl});
+            let header = this.api.streamCommand('variantHeader', {url: vcfUrl, indexUrl: tbiUrl});
+            return header;
         }
         else {
             const me = this;
@@ -350,7 +351,7 @@ export default class EndpointCmd {
                 .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
 
             // normalize variants
-            cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL})
+            cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL});
             return cmd;
         }
     }
