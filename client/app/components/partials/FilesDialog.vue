@@ -109,10 +109,9 @@
       margin-top: 0px
 
   .siblings-disabled
-      font-size: 13px
-      color: rgba(0,0,0,0.54)
-      padding-top: 2px
-
+      font-size: 13px !important
+      color: $text-color !important
+      padding-top: 2px !important
 </style>
 
 <template>
@@ -225,14 +224,14 @@
 
             <v-layout row no-wrap class="pr-2 pb-4 pt-3">
 
-               <v-flex  class="sample-label mt-3 pl-2 pr-3" >
+               <v-flex  class="sample-label mt-3 pl-2 pr-2" >
                 <span
                  dark small >
                   siblings
                 </span>
-                   <span class="siblings-disabled" v-if="!(probandSamples && probandSamples.length > 0)" >
-                       **Upload a vcf with more than 1 sample to enable sibling selection
-                   </span>
+                <span class="siblings-disabled" v-if="!(probandSamples && probandSamples.length > 0)" >
+                 **Upload a vcf with more than 1 sample to enable sibling selection
+               </span>
                </v-flex>
                 <v-flex  class=" pl-2 pr-3" >
                  <v-autocomplete
@@ -422,9 +421,11 @@ export default {
     },
     checkForDuplicates: function(sms){
       let self = this;
-      sms.map(function(obj) {
+      let names = sms.map(function(obj) {
         return obj.name;
-      }).forEach(function (element, index, arr) {
+      }).concat(self.affectedSibs, self.unaffectedSibs);
+
+      names.forEach(function (element, index, arr) {
         if (arr.indexOf(element) !== index) {
           self.errorTitle = "Duplicate Ids";
           let errorMsg = "Duplicate ids detected for " + element;
