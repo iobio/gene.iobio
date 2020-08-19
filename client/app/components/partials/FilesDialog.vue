@@ -234,9 +234,6 @@
                        **Upload a vcf with more than 1 sample to enable sibling selection
                    </span>
                </v-flex>
-
-                <!--v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"-->
-
                 <v-flex  class=" pl-2 pr-3" >
                  <v-autocomplete
                   v-bind:disabled="!(probandSamples && probandSamples.length > 0)"
@@ -273,49 +270,49 @@ import SampleData          from '../partials/SampleData.vue'
 
 
 export default {
-    name: 'files-dialog',
-    components: {
-        SampleData
-    },
-    props: {
-        cohortModel: null,
-        showDialog: null
-    },
-    data() {
-        return {
-            showFilesDialog: false,
-            isValid: false,
-            areAnyDuplicates: false,
-            loadReady: true,
-            warningOpen: false,
-            errorMsgArray: [],
-            errorTitle: "",
-            mode: 'single',
-            speciesList: [],
-            speciesName: null,
-            buildName: null,
-            activeTab: null,
-            modelInfoMap: {
-                proband: {},
-                mother: {},
-                father: {}
-            },
-            rels: {
-                single: ['proband'],
-                trio: ['proband', 'mother', 'father']
-            },
-            demoActions: [
-                {'display': 'Demo WES trio', 'value': 'exome'},
-                {'display': 'Demo WGS trio', 'value': 'genome'}
-            ],
-            demoAction: null,
-            separateUrlForIndex: false,
-            probandSamples: null,
-            affectedSibs: null,
-            unaffectedSibs: null,
-            inProgress: false
-        }
-    },
+  name: 'files-dialog',
+  components: {
+    SampleData
+  },
+  props: {
+    cohortModel: null,
+    showDialog: null
+  },
+  data() {
+    return {
+      showFilesDialog: false,
+      isValid: false,
+      areAnyDuplicates: false,
+      loadReady: true,
+      warningOpen: false,
+      errorMsgArray: [],
+      errorTitle: "",
+      mode: 'single',
+      speciesList: [],
+      speciesName: null,
+      buildName: null,
+      activeTab: null,
+      modelInfoMap: {
+        proband: {},
+        mother: {},
+        father: {}
+      },
+      rels: {
+        single: ['proband'],
+        trio: ['proband', 'mother', 'father']
+      },
+      demoActions: [
+        {'display': 'Demo WES trio', 'value': 'exome'},
+        {'display': 'Demo WGS trio', 'value': 'genome'}
+      ],
+      demoAction: null,
+      separateUrlForIndex: false,
+      probandSamples: null,
+      affectedSibs: null,
+      unaffectedSibs: null,
+      inProgress: false
+    }
+  },
   watch: {
     loadReady: function(){
       let self = this;
