@@ -230,7 +230,7 @@
                   siblings
                 </span>
                 <span class="siblings-disabled" v-if="!(probandSamples && probandSamples.length > 0)" >
-                 **Upload a vcf with more than 1 sample to enable sibling selection
+                 **Proband vcf must contain sibling data to enable sibling selection
                </span>
                </v-flex>
                 <v-flex  class=" pl-2 pr-3" >
