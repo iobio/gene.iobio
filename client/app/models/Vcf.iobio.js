@@ -313,14 +313,6 @@ export default function vcfiobio(theGlobalApp) {
     cmd.on('error', function(error) {
       if (me.ignoreErrorMessage(error)) {
       } else {
-        if(error.includes("Permission denied")){
-          alertify.alert("Vcf file " + url + "does not exist, or this app do not have permission to access it\n\n" + error)
-              .setHeader("Could not access vcf file");
-        }
-        else {
-          alertify.alert("Could not interpret vcf file " + url + "\n Check to make sure the path to your vcf file is properly formatted\n" + error)
-              .setHeader("Could not interpret vcf file")
-        }
         if (success == null) {
           success = false;
           console.log(error);

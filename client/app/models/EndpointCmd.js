@@ -86,16 +86,13 @@ export default class EndpointCmd {
         let cmd = null;
         if (me.gruBackend) {
             cmd = me.api.streamCommand('getIdColumns', {vcfUrl: vcfSource.vcfUrl, regions});
+
+            cmd.on('error', function (error) {
+                alertify.alert("Could not get sample Ids from vcf file: " + vcfSource.vcfUrl + "\n\nPlease make sure that your vcf file is correctly formatted\n\n" + error)
+                  .setHeader("Error getting sample Ids from vcf");
+            });
+            return cmd;
         }
-
-
-        cmd.on('error', function(error){
-            alertify.alert("Could not get sample IDs from vcf file: " + vcfSource.vcfUrl + "\n\nPlease make sure that your vcf file is correctly formatted\n\n" + error)
-              .setHeader("Expected compressed .tbi index file");
-        })
-
-        // Return command
-        return cmd;
     }
 
     annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose) {
@@ -104,7 +101,6 @@ export default class EndpointCmd {
             const refNames = this.getHumanRefNames(refName).split(" ");
             const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
             const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
-
 
             let gnomadUrl = null;
             let gnomadRegionStr = null;
@@ -119,11 +115,9 @@ export default class EndpointCmd {
               regions.forEach(function(region) {
                 gnomadRegionStr += refName + "\t" + region.start + "\t" + region.end + "\n";
               })
-
-
             }
 
-            const ncmd = this.api.streamCommand('annotateVariants', {
+            const cmd = this.api.streamCommand('annotateVariants', {
                 vcfUrl: vcfSource.vcfUrl,
                 tbiUrl: vcfSource.tbiUrl,
                 refNames,
@@ -146,8 +140,7 @@ export default class EndpointCmd {
                 alertify.alert("Could not annotate variants in " + vcfSource.vcfUrl + "\n\n" + error)
                   .setHeader("Error annotating variants");
             })
-
-            return ncmd;
+            return cmd;
         }
     }
 
@@ -161,7 +154,7 @@ export default class EndpointCmd {
             me.getHumanRefNames(refName).split(" ").forEach(function (ref) {
                 contigStr += "##contig=<ID=" + ref + ">\n";
             });
-            return this.api.streamCommand('normalizeVariants', {
+            let cmd = this.api.streamCommand('normalizeVariants', {
                 vcfUrl,
                 tbiUrl,
                 refName,
@@ -169,30 +162,10 @@ export default class EndpointCmd {
                 contigStr,
                 refFastaFile
             });
-        } else {
-            let refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
-            let regionParm = "";
-            regions.forEach(function (region) {
-                if (regionParm.length > 0) {
-                    regionParm += " ";
-                }
-                regionParm += region.refName + ":" + region.start + "-" + region.end;
+            cmd.on('error', function(error) {
+                alertify.alert("Could not normalize variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Please try again in 30 minutes." +"\n\n" +error)
+                  .setHeader("Error normalizing variants");
             });
-
-            let args = ['-h', vcfUrl, regionParm];
-            if (tbiUrl) {
-                args.push(tbiUrl);
-            }
-            let contigStr = "";
-            me.getHumanRefNames(refName).split(" ").forEach(function (ref) {
-                contigStr += "##contig=<ID=" + ref + ">\n";
-            });
-            let contigNameFile = new Blob([contigStr]);
-            let cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
-                .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
-
-            // normalize variants
-            cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL});
             return cmd;
         }
     }
@@ -206,7 +179,7 @@ export default class EndpointCmd {
                 vepArgs += " --allele_number";
             }
 
-            return this.api.streamCommand('clinvarCountsForGene', {
+            let cmd = this.api.streamCommand('clinvarCountsForGene', {
                 clinvarUrl: url,
                 region: {
                     refName,
@@ -219,70 +192,23 @@ export default class EndpointCmd {
                 requiresVepService: requiresVepService,
                 vepArgs: vepArgs
             });
-        } else {
-            const me = this;
-            let regionParm = refName + ":" + geneObject.start + "-" + geneObject.end;
 
-            // For the knownVariants service, pass in an argument for the gene region, then pass in with
-            // the length of the bin region or a comma separate string of region parts (e.g. the exons)
-            let knownVariantsArgs = [];
-            knownVariantsArgs.push("-r");
-            knownVariantsArgs.push(regionParm);
-            if (binLength) {
-                knownVariantsArgs.push("-b");
-                knownVariantsArgs.push(binLength);
-            } else if (regions) {
-                let regionParts = "";
-                regions.forEach(function (region) {
-                    if (regionParts.length > 0) {
-                        regionParts += ",";
-                    }
-                    regionParts += region.start + "-" + region.end;
-                });
-                if (regionParts.length > 0) {
-                    knownVariantsArgs.push("-p");
-                    knownVariantsArgs.push(regionParts);
-                }
-            }
-            if (annotationMode === 'vep') {
-                knownVariantsArgs.push("-m vep");
-            } else {
-                knownVariantsArgs.push("-m clinvar");
-            }
-            knownVariantsArgs.push("-");
-
-            // Create an iobio command get get the variants and add any header recs.
-            let tabixArgs = ['-h', url, regionParm];
-            let cmd = new iobio.cmd(me.IOBIO.tabix, tabixArgs, {ssl: me.globalApp.useSSL});
-
-            if (requiresVepService) {
-                let vepArgs = [];
-                vepArgs.push(" --assembly");
-                vepArgs.push(me.genomeBuildHelper.getCurrentBuildName());
-                vepArgs.push(" --format vcf");
-                vepArgs.push(" --allele_number");
-                cmd = cmd.pipe(me.IOBIO.vep, vepArgs, {ssl: me.globalApp.useSSL});
-            }
-            cmd = cmd.pipe(me.IOBIO.knownvariants, knownVariantsArgs, {ssl: false});
+            cmd.on('error', function(error) {
+                alertify.alert("Could not get clinVar counts for Gene: " + geneObject.name + "\n\n" +error)
+                  .setHeader("Error getting clinVar counts");
+            });
             return cmd;
         }
     }
 
     getBamHeader(bamUrl, baiUrl) {
         if (this.gruBackend) {
-            return this.api.streamCommand('alignmentHeader', {url: bamUrl});
-        }
-        else {
-            const me = this;
-            let args = ['view', '-H', '"' + bamUrl + '"'];
-            if (baiUrl) {
-                args.push('"' + baiUrl + '"');
-            }
-            let cmd = new iobio.cmd(
-                me.IOBIO.samtoolsOnDemand,
-                args,
-                {ssl: me.globalApp.useSSL}
-            );
+            let cmd = this.api.streamCommand('alignmentHeader', {url: bamUrl});
+            cmd.on('error', function(error) {
+                alertify.alert("Could not interpret Bam file: " + url + "\n\n" + me.translateErrorMessage(error))
+                  .setHeader("Could not interpret Bam");
+                console.log(error);
+            });
             return cmd;
         }
     }
@@ -294,83 +220,18 @@ export default class EndpointCmd {
             const indexUrl = bamSource.baiUrl;
             maxPoints = maxPoints ? maxPoints : 0;
 
-            return this.api.streamCommand('alignmentCoverage', {
+            let cmd = this.api.streamCommand('alignmentCoverage', {
                 url,
                 indexUrl,
                 samtoolsRegion,
                 maxPoints,
                 coverageRegions: regions
             });
-        } else {
-            const me = this;
-            let samtools = bamSource.bamUrl != null ? me.IOBIO.samtoolsOnDemand : me.IOBIO.samtools;
 
-            // Format all regions into string param
-            let regionsArg = "";
-            regions.forEach(function (region) {
-                region.name = refName;
-                if (region.name && region.start && region.end) {
-                    if (regionsArg.length === 0) {
-                        regionsArg += " -p ";
-                    } else {
-                        regionsArg += ",";
-                    }
-                    regionsArg += region.name + ":" + region.start + ":" + region.end;
-                }
+            cmd.on('error', function(error) {
+                alertify.alert("Could not get bam coverage for bam region: \n" + refName + ':' + regionStart + '-' + regionEnd + "\n\n" + error)
+                  .setHeader("Error getting Bam coverage");
             });
-            let maxPointsArg = "";
-            if (maxPoints) {
-                maxPointsArg = "-m " + maxPoints;
-            } else {
-                maxPointsArg = "-m 0"
-            }
-            let spanningRegionArg = " -r " + refName + ":" + regionStart + ":" + regionEnd;
-            let regionArg = refName + ":" + regionStart + "-" + regionEnd;
-
-
-            let cmd = null;
-
-            // When file served remotely, first run samtools view, then run samtools mpileup.
-            // When bam file is read as a local file, just stream sam records for region to
-            // samtools mpileup.
-            if (bamSource.bamUrl) {
-                let args = ['view', '-b', '"' + bamSource.bamUrl + '"', regionArg];
-                if (bamSource.baiUrl) {
-                    args.push('"' + bamSource.baiUrl + '"');
-                }
-                cmd = new iobio.cmd(samtools, args,
-                    {
-                        'urlparams': {'encoding': 'binary'},
-                        ssl: me.globalApp.useSSL
-                    });
-                cmd = cmd.pipe(samtools, ["mpileup", "-"], {ssl: me.globalApp.useSSL});
-            } else {
-                cmd = new iobio.cmd(samtools, ['mpileup', bamSource.writeStream],
-                    {
-                        'urlparams': {'encoding': 'utf8'},
-                        ssl: me.globalApp.useSSL
-                    });
-
-            }
-
-            //
-            //  SERVER SIDE CACHING for coverage service
-            //
-            let cacheKey = null;
-            let urlParameters = {};
-            if (useServerCache) {
-                urlParameters.cache = serverCacheKey;
-                urlParameters.partialCache = true;
-                cmd = cmd.pipe("nv-dev-new.iobio.io/coverage/", [maxPointsArg, spanningRegionArg, regionsArg], {
-                    ssl: me.globalApp.useSSL,
-                    urlparams: urlParameters
-                });
-            } else {
-                // After running samtools mpileup, run coverage service to summarize point data.
-                // NOTE:  Had to change to protocol http(); otherwise signed URLs don't work (with websockets)
-                cmd = cmd.pipe(me.IOBIO.coverage, [maxPointsArg, spanningRegionArg, regionsArg], {ssl: me.globalApp.useSSL});
-
-            }
             return cmd;
         }
     }
@@ -396,8 +257,7 @@ export default class EndpointCmd {
 
             }
 
-
-            return this.api.streamCommand('freebayesJointCall', {
+            let cmd = this.api.streamCommand('freebayesJointCall', {
                 alignmentSources: bamSources,
                 refFastaFile,
                 region: {
@@ -417,97 +277,11 @@ export default class EndpointCmd {
                 gnomadRegionStr: gnomadRegionStr ? gnomadRegionStr : '',
                 decompose
             });
-        }
-        else {
-            const me = this;
-            let bamCmds = me._getBamRegions(bamSources, refName, regionStart, regionEnd);
-            let refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
-            let freebayesArgs = [];
-            bamCmds.forEach(function (bamCmd) {
-                freebayesArgs.push("-b");
-                freebayesArgs.push(bamCmd);
+
+            cmd.on('error', function(error) {
+                alertify.alert("Could not perform freebayes joint calling for region: \n" + refName + ':' + regionStart + '-' + regionEnd + "\n\n" + error)
+                  .setHeader("Error performing joint calling");
             });
-
-            freebayesArgs.push("-f");
-            freebayesArgs.push(refFastaFile);
-
-            if (fbArgs && fbArgs.useSuggestedVariants.value === true) {
-                freebayesArgs.push("-@");
-                freebayesArgs.push(me._getSuggestedVariants(refName, regionStart, regionEnd));
-            }
-            if (fbArgs) {
-                for (var key in fbArgs) {
-                    let theArg = fbArgs[key];
-                    if (theArg.hasOwnProperty('argName')) {
-                        if (theArg.hasOwnProperty('isFlag') && theArg.isFlag === true) {
-                            if (theArg.value && theArg.value === true) {
-                                freebayesArgs.push(theArg.argName);
-                            }
-                        } else {
-                            if (theArg.value && theArg.value !== '') {
-                                freebayesArgs.push(theArg.argName);
-                                freebayesArgs.push(theArg.value);
-                            }
-                        }
-
-                    }
-                }
-
-            }
-            let cmd = new iobio.cmd(me.IOBIO.freebayes, freebayesArgs, {ssl: me.globalApp.useSSL});
-
-            // Normalize variants
-            cmd = cmd.pipe(me.IOBIO.vt, ['normalize', '-r', refFastaFile, '-'], {ssl: me.globalApp.useSSL});
-
-            // Subset on all samples (this will get rid of low quality cases where no sample
-            // is actually called as having the alt)
-            //cmd = cmd.pipe(IOBIO.vt, ['subset', '-s', '-']);
-
-            // Filter out anything with qual <= 0
-            cmd = cmd.pipe(me.IOBIO.vt, ['filter', '-f', "\'QUAL>1\'", '-t', '\"PASS\"', '-d', '\"Variants called by iobio\"', '-'], {ssl: me.globalApp.useSSL});
-
-            //
-            // Annotate variants that were just called from freebayes
-            //
-            // bcftools to append header rec for contig
-            let contigStr = "";
-            me.getHumanRefNames(refName).split(" ").forEach(function (ref) {
-                contigStr += "##contig=<ID=" + ref + ">\n";
-            });
-            let contigNameFile = new Blob([contigStr])
-            cmd = cmd.pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile], {ssl: me.globalApp.useSSL})
-
-            // Get Allele Frequencies from 1000G and ExAC
-            cmd = cmd.pipe(me.IOBIO.af, [], {ssl: me.globalApp.useSSL});
-
-            // VEP to annotate
-            let vepArgs = [];
-            vepArgs.push(" --assembly");
-            vepArgs.push(me.genomeBuildHelper.getCurrentBuildName());
-            vepArgs.push(" --format vcf");
-            vepArgs.push(" --allele_number");
-            if (me.globalApp.vepREVELFile) {
-                vepArgs.push(" --plugin REVEL," + me.globalApp.vepREVELFile);
-            }
-            if (vepAF) {
-                vepArgs.push("--af");
-                vepArgs.push("--af_gnomad");
-                vepArgs.push("--af_esp");
-                vepArgs.push("--af_1kg");
-                vepArgs.push("--max_af");
-            }
-
-            if (isRefSeq) {
-                vepArgs.push("--refseq");
-            }
-            // Get the hgvs notation and the rsid since we won't be able to easily get it one demand
-            // since we won't have the original vcf records as input
-            vepArgs.push("--hgvs");
-            vepArgs.push("--check_existing");
-            vepArgs.push("--fasta");
-            vepArgs.push(refFastaFile);
-            cmd = cmd.pipe(me.IOBIO.vep, vepArgs, {ssl: me.globalApp.useSSL});
-
             return cmd;
         }
     }
@@ -516,7 +290,8 @@ export default class EndpointCmd {
         if (this.gruBackend) {
             const url = bamSources[0].bamUrl;
             const indexUrl = bamSources[0].baiUrl;
-            return this.api.streamCommand('geneCoverage', {
+
+            let cmd = this.api.streamCommand('geneCoverage', {
                 url,
                 indexUrl,
                 refName,
@@ -525,81 +300,14 @@ export default class EndpointCmd {
                 regionEnd,
                 regions
             });
-        } else {
-            const me = this;
-            let bamCmds = me._getBamRegions(bamSources, refName, regionStart, regionEnd);
-            let args = [];
 
-            bamCmds.forEach(function (bamCmd) {
-                args.push("-b");
-                args.push(bamCmd);
+            cmd.on('error', function(error) {
+                alertify.alert("Could not get gene coverage from Bam File.  Bam index file may be invalid: " + indexUrl + "\n\n" + error)
+                  .setHeader("Error getting gene coverage");
             });
-
-            let regionStr = "#" + geneName + "\n";
-            regions.forEach(function (region) {
-                regionStr += refName + ":" + region.start + "-" + region.end + "\n";
-            });
-            let regionFile = new Blob([regionStr]);
-            args.push("-r");
-            args.push(regionFile);
-
-            let cmd = new iobio.cmd(me.IOBIO.geneCoverage, args, {ssl: me.globalApp.useSSL});
             return cmd;
         }
     }
-
-    // NOTE: these are encapsulated in other new GRU endpoints
-    // Can get rid of these after GRU has been tested - SJG Nov2019
-    _getBamRegions(bamSources, refName, regionStart, regionEnd) {
-        const me = this;
-
-        let regionArg = refName + ":" + regionStart + "-" + regionEnd;
-        let bamCmds = [];
-        bamSources.forEach(function (bamSource) {
-            let samtools = bamSource.bamUrl != null ? me.IOBIO.samtoolsOnDemand : me.IOBIO.samtools;
-
-            if (bamSource.bamUrl) {
-                let args = ['view', '-b', '"' + bamSource.bamUrl + '"', regionArg];
-                if (bamSource.baiUrl) {
-                    args.push('"' + bamSource.baiUrl + '"');
-                }
-                let bamCmd = new iobio.cmd(samtools, args, {
-                    'urlparams': {'encoding': 'binary'},
-                    ssl: me.globalApp.useSSL
-                });
-                bamCmds.push(bamCmd);
-
-            } else {
-                let args = ['view', '-b', bamSource.bamBlob];
-                let bamCmd = new iobio.cmd(samtools, args, {
-                    'urlparams': {'encoding': 'binary'},
-                    ssl: me.globalApp.useSSL
-                });
-                bamCmds.push(bamCmd);
-            }
-
-        });
-        return bamCmds;
-    }
-
-    // NOTE: these are encapsulated in other new GRU endpoints
-    // Can get rid of these after GRU has been tested - SJG Nov2019
-    _getSuggestedVariants(refName, regionStart, regionEnd) {
-        const me = this;
-
-        // Create an iobio command get get the variants from clinvar for the region of the gene
-        let regionParm = refName + ":" + regionStart + "-" + regionEnd;
-
-        //var clinvarUrl = me.genomeBuildHelper.getBuildResource(me.genomeBuildHelper.RESOURCE_CLINVAR_VCF_FTP);
-        let clinvarUrl = me.globalApp.getClinvarUrl(me.genomeBuildHelper.getCurrentBuildName());
-
-        let tabixArgs = ['-h', clinvarUrl, regionParm];
-        let cmd = new iobio.cmd(me.IOBIO.tabix, tabixArgs, {ssl: me.globalApp.useSSL});
-
-        cmd = cmd.pipe(me.IOBIO.vt, ['view', '-f', '\"INFO.CLNSIG=~\'5|4\'\"', '-'], {ssl: me.globalApp.useSSL});
-        return cmd;
-    }
-
 }
 
 
