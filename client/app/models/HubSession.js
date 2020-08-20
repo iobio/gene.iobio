@@ -74,12 +74,13 @@ export default class HubSession {
 
           let promises = [];
 
+          let foundPedigree = data.foundPedigree;
 
-          let pedigree    = isPedigree ? data.pedigree : {'proband': data.proband};
+          let pedigree    = foundPedigree ? data.pedigree : {'proband': data.proband};
           let rawPedigree = data.rawPedigree;
 
           // Let's get the proband info first
-          let probandSample = isPedigree ? pedigree.proband : data.proband;
+          let probandSample = foundPedigree ? pedigree.proband : data.proband;
           self.promiseGetFileMapForSample(projectId, probandSample, 'proband').then(data => {
             probandSample.files = data.fileMap;
           })
@@ -111,8 +112,8 @@ export default class HubSession {
 
                       var modelInfo = {
                         'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
-                        'affectedStatus': isPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
-                        'sex':            isPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
+                        'affectedStatus': foundPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
+                        'sex':            foundPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
                         'name':           theSample.name,
                         'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
                         'vcf':            theSample.files.vcf,
@@ -163,7 +164,8 @@ export default class HubSession {
                 'geneSet': geneSet,
                 'variantSet': variantSet,
                 'isMother': self.isMother,
-                'isFather': self.isFather});
+                'isFather': self.isFather,
+                'foundPedigree': foundPedigree});
             })
             .catch(error => {
               reject(error);
@@ -320,7 +322,14 @@ export default class HubSession {
     if (isPedigree) {
       return self.promiseGetPedigreeForSample(project_id, sample_id);
     } else {
-      return self.promiseGetSample(project_id, sample_id, 'proband');
+      return new Promise(function(resolve, reject) {
+        self.promiseGetSample(project_id, sample_id, 'proband')
+        .then(function(data) {
+          data.foundPedigree = false;
+          resolve(data)
+        })
+
+      })
     }
   }
 
@@ -355,9 +364,15 @@ export default class HubSession {
         const rawPedigreeOrig = $.extend({}, rawPedigree);
         let pedigree = self.parsePedigree(rawPedigree, sample_id)
         if (pedigree) {
-          resolve({pedigree: pedigree, rawPedigree: rawPedigreeOrig});
-        } else {
-          reject("Error parsing pedigree");
+          resolve({foundPedigree: true, pedigree: pedigree, rawPedigree: rawPedigreeOrig});
+        }
+        else {
+          //alertify.alert("Error", "Could not load the trio.  Unable to identify a proband (offspring) from this pedigree.")
+          self.promiseGetSample(project_id, sample_id, 'proband')
+          .then(function(data) {
+            data.foundPedigree = false;
+            resolve(data);
+          })
         }
       })
       .fail(error => {
@@ -367,6 +382,7 @@ export default class HubSession {
   }
 
   parsePedigree(raw_pedigree, sample_id) {
+    let self = this;
 
     // This assumes only 1 proband. If there are multiple affected samples then
     // the proband will be overwritten
@@ -413,23 +429,24 @@ export default class HubSession {
         pedigree['father'] = raw_pedigree.splice(fatherIndex, 1)[0]
         this.isFather = true;
       }
+
+      raw_pedigree.forEach(sample => {
+        if (sample.pedigree.maternal_id != null || sample.pedigree.paternal_id != null
+            && sample.pedigree.id != pedigree.proband.id) {
+          pedigree['siblings'] = (pedigree['siblings'] || [] )
+          pedigree['siblings'].push(sample);
+        } else {
+          pedigree['unparsed'] = (pedigree['siblings'] || []).push(sample)
+        }
+      })
+
+      return pedigree;
+
+
     } else {
-      alertify.alert("Error", "Could not load the trio.  Unable to identify a proband (offspring) from this pedigree.")
       return null;
     }
 
-    raw_pedigree.forEach(sample => {
-      if (sample.pedigree.maternal_id != null || sample.pedigree.paternal_id != null
-          && sample.pedigree.id != pedigree.proband.id) {
-        pedigree['siblings'] = (pedigree['siblings'] || [] )
-        pedigree['siblings'].push(sample);
-      } else {
-        pedigree['unparsed'] = (pedigree['siblings'] || []).push(sample)
-      }
-    })
-
-
-    return pedigree;
   }
 
   getPedigreeForSample(project_id, sample_id) {

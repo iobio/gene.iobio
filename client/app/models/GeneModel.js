@@ -1170,6 +1170,7 @@ class GeneModel {
     if (geneObject) {
       geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
     }
+    me.promiseGetNCBIGeneSummary(geneName);
 
     var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
 
