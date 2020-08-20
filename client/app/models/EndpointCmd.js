@@ -46,20 +46,12 @@ export default class EndpointCmd {
     getVcfHeader(vcfUrl, tbiUrl) {
         if (this.gruBackend) {
             let header = this.api.streamCommand('variantHeader', {url: vcfUrl, indexUrl: tbiUrl});
+            header.on('error', function(error){
+                alertify.alert("error getting vcf Header for vcf file: " + vcfUrl + "\n\n" + error).setHeader("vcf header error");
+                console.log("error in get vcf header", error)
+            })
+
             return header;
-        }
-        else {
-            const me = this;
-            let args = ['-H', '"' + vcfUrl + '"'];
-            if (tbiUrl) {
-                args.push('"' + tbiUrl + '"');
-            }
-            let cmd = new iobio.cmd(
-                me.IOBIO.tabix,
-                args,
-                {ssl: me.globalApp.useSSL}
-            );
-            return cmd;
         }
     }
 
@@ -68,22 +60,18 @@ export default class EndpointCmd {
             if (!tbiUrl) {
                 tbiUrl = vcfUrl + '.tbi';
             }
-            return this.api.streamCommand('vcfReadDepth', {url: tbiUrl});
-        }
-        else {
-            const me = this;
-            let args = ['-i'];
-            if (tbiUrl) {
-                args.push('"' + tbiUrl + '"');
-            } else {
-                args.push('"' + vcfUrl + '.tbi' + '"');
-            }
+            let cmd = this.api.streamCommand('vcfReadDepth', {url: tbiUrl});
 
-            let cmd = new iobio.cmd(
-                me.IOBIO.vcfReadDepther,
-                args,
-                {ssl: me.globalApp.useSSL}
-            );
+            cmd.on('error', function(error){
+                if(error.includes("Expected compressed file")){
+                    alertify.alert("Vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your index is properly compressed in gzip format\n\n" + error)
+                      .setHeader("Expected compressed .tbi index file");
+                }
+                else{
+                    alertify.alert("could not get vcf depth.  Check to make sure your vcf and tbi files are correct")
+                      .setHeader("vcf depth failed");
+                }
+            })
             return cmd;
         }
     }
@@ -98,29 +86,14 @@ export default class EndpointCmd {
         let cmd = null;
         if (me.gruBackend) {
             cmd = me.api.streamCommand('getIdColumns', {vcfUrl: vcfSource.vcfUrl, regions});
-        } else {
-            // Format region
-            let regionParam = "";
-            if (regions && regions.length > 0) {
-                regions.forEach(function (region) {
-                    if (regionParam.length > 0) {
-                        regionParam += " ";
-                    }
-                    regionParam += region.name + ":" + region.start + "-" + region.end;
-                })
-            }
-            // Form iobio command based on type of vcf input
-            if (vcfSource.hasOwnProperty('vcfUrl')) {
-                let view_args = ['view', '-r', regionParam, '"' + vcfSource.vcfUrl + '"'];
-                cmd = new iobio.cmd(me.IOBIO.bcftools, view_args, {ssl: me.globalApp.useSSL});
-            } else if (vcfSource.hasOwnProperty('writeStream')) {
-                // If we have a local vcf file, use the writeStream function to stream in the vcf records
-                cmd = new iobio.cmd(me.IOBIO.bcftools, ['view', '-r', regionParam, vcfSource.writeStream], {ssl: me.globalApp.useSSL})
-            } else {
-                console.log("EndpointCmd.annotateVariants() vcfSource arg is not invalid.");
-                return null;
-            }
         }
+
+
+        cmd.on('error', function(error){
+            alertify.alert("Could not get sample IDs from vcf file: " + vcfSource.vcfUrl + "\n\nPlease make sure that your vcf file is correctly formatted\n\n" + error)
+              .setHeader("Expected compressed .tbi index file");
+        })
+
         // Return command
         return cmd;
     }
@@ -169,144 +142,12 @@ export default class EndpointCmd {
                 decompose
             });
 
+            cmd.on('error', function(error){
+                alertify.alert("Could not annotate variants in " + vcfSource.vcfUrl + "\n\n" + error)
+                  .setHeader("Error annotating variants");
+            })
+
             return ncmd;
-        } else {
-            const me = this;
-            // Figure out the file location of the reference seq files
-            let regionParm = "";
-            if (regions && regions.length > 0) {
-                regions.forEach(function (region) {
-                    if (regionParm.length > 0) {
-                        regionParm += " ";
-                    }
-                    regionParm += region.name + ":" + region.start + "-" + region.end;
-                })
-            }
-
-            let contigStr = "";
-            me.getHumanRefNames(refName).split(" ").forEach(function (ref) {
-                contigStr += "##contig=<ID=" + ref + ">\n";
-            });
-
-            let contigNameFile = new Blob([contigStr]);
-
-            // Create an iobio command get get the variants and add any header recs.
-            let cmd = null;
-            if (vcfSource.hasOwnProperty('vcfUrl')) {
-                //  If we have a vcf URL, use tabix to get the variants for the region
-                let args = ['-h', '"' + vcfSource.vcfUrl + '"', regionParm];
-                if (vcfSource.tbiUrl) {
-                    args.push('"' + vcfSource.tbiUrl + '"');
-                }
-                cmd = new iobio.cmd(me.IOBIO.tabix, args, {ssl: me.globalApp.useSSL})
-                    .pipe(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, '-'], {ssl: me.globalApp.useSSL})
-
-            } else if (vcfSource.hasOwnProperty('writeStream')) {
-                // If we have a local vcf file, use the writeStream function to stream in the vcf records
-                cmd = new iobio.cmd(me.IOBIO.bcftools, ['annotate', '-h', contigNameFile, vcfSource.writeStream], {ssl: me.globalApp.useSSL})
-            } else {
-                console.log("EndpointCmd.annotateVariants() vcfSource arg is not invalid.");
-                return null;
-            }
-
-
-            if (vcfSampleNames && vcfSampleNames.length > 0) {
-                let sampleNameFile = new Blob([vcfSampleNames.split(",").join("\n")]);
-                cmd = cmd.pipe(me.IOBIO.vt, ["subset", "-s", sampleNameFile, '-'], {ssl: me.globalApp.useSSL});
-            }
-
-            if (decompose) {
-              cmd = cmd.pipe(me.IOBIO.vt, ["decompose", "-s", '-'], {ssl: me.globalApp.useSSL});
-            }
-
-            // normalize variants
-            let refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
-            cmd = cmd.pipe(me.IOBIO.vt, ["normalize", "-n", "-r", refFastaFile, '-'], {ssl: me.globalApp.useSSL});
-
-            // if af not retreived from vep, get allele frequencies from 1000G and ExAC in af service
-            cmd = cmd.pipe(me.IOBIO.af, ["-b", me.genomeBuildHelper.getCurrentBuildName()], {ssl: me.globalApp.useSSL});
-
-            // Skip snpEff if RefSeq transcript set or we are just annotating with the vep engine
-            if (annotationEngine === 'none') {
-                // skip annotation if annotationEngine set to  'none'
-            } else if (isRefSeq || annotationEngine === 'vep') {
-                // VEP
-                let vepArgs = [];
-                vepArgs.push(" --assembly");
-                vepArgs.push(me.genomeBuildHelper.getCurrentBuildName());
-                vepArgs.push(" --format vcf");
-                vepArgs.push(" --allele_number");
-                if (me.globalApp.vepREVELFile) {
-                    vepArgs.push(" --plugin REVEL," + me.globalApp.vepREVELFile);
-                }
-                if (vepAF) {
-                    vepArgs.push("--af");
-                    vepArgs.push("--af_gnomad");
-                    vepArgs.push("--af_esp");
-                    vepArgs.push("--af_1kg");
-                    vepArgs.push("--max_af");
-                }
-                if (isRefSeq) {
-                    vepArgs.push("--refseq");
-                }
-                // Get the hgvs notation and the rsid since we won't be able to easily get it one demand
-                // since we won't have the original vcf records as input
-                if (hgvsNotation) {
-                    vepArgs.push("--hgvs");
-                }
-                if (getRsId) {
-                    vepArgs.push("--check_existing");
-                }
-                if (hgvsNotation || me.globalApp.utility.getRsId || isRefSeq) {
-                    vepArgs.push("--fasta");
-                    vepArgs.push(refFastaFile);
-                }
-
-                //
-                //  SERVER SIDE CACHING
-                //
-                let cacheKey = null;
-                let urlParameters = {};
-                if (useServerCache && serverCacheKey.length > 0) {
-                    urlParameters.cache = serverCacheKey;
-                    urlParameters.partialCache = true;
-                    cmd = cmd.pipe("nv-dev-new.iobio.io/vep/", vepArgs, {
-                        ssl: me.globalApp.useSSL,
-                        urlparams: urlParameters
-                    });
-                } else {
-                    cmd = cmd.pipe(me.IOBIO.vep, vepArgs, {ssl: me.globalApp.useSSL, urlparams: urlParameters});
-                }
-
-            } else if (annotationEngine === 'snpeff') {
-                cmd = cmd.pipe(me.IOBIO.snpEff, [], {ssl: me.globalApp.useSSL});
-            }
-
-
-
-            // NOTE: this should never be true for oncogene...
-            if (sfariMode === true) {
-                cmd = cmd.pipe(me.IOBIO.bcftools, ['view', '-G', '-'], {ssl: me.globalApp.useSSL});
-            }
-
-            if (gnomADExtra) {
-
-              // Get the gnomad vcf based on the genome build
-              let gnomadURL = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
-
-              // Prepare args to annotate with gnomAD
-              var regionString = "";
-              regions.forEach(function(region) {
-                regionString += refName + "\t" + region.start + "\t" + region.end + "\n";
-              })
-              var regionFile = new Blob([regionString])
-
-              cmd = cmd.pipe(me.IOBIO.gnomadAnnot, [gnomadURL, regionFile], {ssl: false});
-
-            }
-
-
-            return cmd;
         }
     }
 

@@ -643,15 +643,6 @@ export default function vcfiobio(theGlobalApp) {
     // Catch error event when fired
     cmd.on('error', function(error) {
       console.log("Error occurred in loadRemoteIndex. " +  error);
-      if(error.includes("Expected compressed file")){
-        alertify.alert("Vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your index is properly compressed in gzip format\n\n" + error)
-            .setHeader("Expected compressed .tbi index file");
-      }
-      else{
-        alertify.alert("could not get vcf depth.  Check to make sure your vcf and tbi files are correct")
-            .setHeader("vcf depth failed");
-      }
-
       if (callbackError) {
         callbackError("Error occurred in loadRemoteIndex. " +  error);
       }
