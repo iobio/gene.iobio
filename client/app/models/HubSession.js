@@ -312,6 +312,8 @@ export default class HubSession {
           resolve(data);
       })
       .fail(error => {
+        alertify.alert("Unable to get project " + project_id + " from Mosaic" + error).setHeader("Fatal error");
+
         reject("Error getting project " + project_id + ": " + error);
       });
     });
@@ -349,6 +351,8 @@ export default class HubSession {
         }
       })
       .fail(error => {
+        alertify.alert("Error accessing Mosaic sample for sample_id " + sample_id + "\n\n" + error).setHeader("Fatal error");
+
         reject("Error getting sample " + sample_id + ": " + error);
       })
     })
@@ -376,6 +380,8 @@ export default class HubSession {
         }
       })
       .fail(error => {
+        alertify.alert("Error getting pedigree for sample_id " + sample_id + "\n\n" + error).setHeader("Non-Fatal error");
+
         reject("Error getting pedigree for sample " + sample_id + ": " + error);
       })
     })
@@ -532,6 +538,8 @@ export default class HubSession {
         resolve(response.data);
       })
       .fail(error => {
+        alertify.alert("Error getting sample files for sample_id " + sample_id + "\n\n" + error).setHeader("Fatal error");
+
         console.log("Unable to get files for sample " + sample_id)
         reject(error);
       })
@@ -559,8 +567,9 @@ export default class HubSession {
                   resolve(response);
               })
               .fail(error => {
-                  console.log("Unable to get files for project " + project_id);
-                  reject(error);
+                alertify.alert("Error getting project files for project_id " + project_id + "\n\n" + error).setHeader("Fatal error");
+                console.log("Unable to get files for project " + project_id);
+                reject(error);
               })
       })
   }
@@ -586,6 +595,8 @@ export default class HubSession {
         resolve(file);
       })
       .fail(error => {
+        alertify.alert("Could not get signed url for file_id  " + file.id + "\n\n" + error).setHeader("Fatal error");
+
         reject(error);
       })
     })
@@ -623,6 +634,8 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
+        alertify.alert("Error getting gene set from Mosaic with gene_set_id " + geneSetId + "\n\n" + error).setHeader("Fatal error");
+
         reject("Error getting gene set " + geneSetId + ": " + error);
       })
     })
@@ -638,6 +651,8 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
+        alertify.alert("Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.\n\n" + error).setHeader("Variant set error");
+
         reject("Error getting variant set " + variantSetId + ": " + error);
       })
     })
@@ -772,6 +787,8 @@ export default class HubSession {
           resolve(response)
         })
         .fail(error => {
+          alertify.alert("Error authenticating Mosaic User" + error).setHeader("Fatal error");
+
           reject("Error getting currentUser :" + error);
         })
     })
@@ -809,8 +826,11 @@ export default class HubSession {
     let self = this;
 
     return $.ajax({
-      url: self.apiDepricated + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId + "&include_variant_data=true",
-
+      url: self.apiDepricated + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId,
+      data: {
+        include_variant_data: true,
+        annotation_uids: ['gene_symbol'],
+      },
       type: 'GET',
       contentType: 'application/json',
       headers: {
