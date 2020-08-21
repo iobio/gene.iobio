@@ -809,8 +809,11 @@ export default class HubSession {
     let self = this;
 
     return $.ajax({
-      url: self.apiDepricated + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId + "&include_variant_data=true",
-
+      url: self.apiDepricated + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId,
+      data: {
+        include_variant_data: true,
+        annotation_uids: ['gene_symbol'],
+      },
       type: 'GET',
       contentType: 'application/json',
       headers: {
