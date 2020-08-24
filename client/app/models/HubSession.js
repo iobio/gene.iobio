@@ -669,6 +669,8 @@ export default class HubSession {
       .fail(error => {
         let msg = error.responseJSON.message;
         console.log("Error getting analysis  " + analysisId + ": " + msg);
+        alertify.alert("Error getting analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again.  If you still experience an issue, contact Mosaic at **email** for support\n\n" + error).setHeader("Fatal Error");
+
         reject("Error getting analysis: " + msg + "." )
       })
     })
@@ -684,6 +686,8 @@ export default class HubSession {
       .fail(error => {
         let msg = error.responseJSON.message;
         console.log("Error adding analysis for project " + projectId + ": " + msg);
+        alertify.alert("Could not save analysis to Mosaic. The Mosaic servers may be down.  Come back later and try again.  If you still experience an issue, contact Mosaic at **email** for support\n\n" + error).setHeader("Non-fatal Error");
+
         reject("Error adding analysis: " + msg + "." )
       })
     })
@@ -700,6 +704,8 @@ export default class HubSession {
       .fail(error => {
         let msg = error.responseJSON.message;
         console.log("Error updating analysis :" + msg);
+        alertify.alert("Could not update saved analysis. The Mosaic servers may be down.  Come back later and try again.  If you still experience an issue, contact Mosaic at **email** for support\n\n" + error).setHeader("Non-fatal Error");
+
         reject("Error saving analysis: " + msg + "." )
       })
     })
