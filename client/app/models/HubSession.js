@@ -634,7 +634,10 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        alertify.alert("Error getting gene set from Mosaic with gene_set_id " + geneSetId + "\n\n" + error).setHeader("Fatal error");
+
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error getting gene set from Mosaic with gene_set_id " + geneSetId + ".  The Mosaic servers may be down, or the gene set may not be up to date with the most recent version of Mosaic.";
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
 
         reject("Error getting gene set " + geneSetId + ": " + error);
       })
@@ -651,7 +654,10 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        alertify.alert("<div class='pb-2 dark-text-important'>Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div>" + "<code>" + error + "</code>").setHeader("Fatal Error");
+        let errorMsg = error.responseJSON.message;
+
+        let msg = "Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.";
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
 
         reject("Error getting variant set " + variantSetId + ": " + error);
       })
@@ -667,10 +673,11 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        let msg = error.responseJSON.message;
-        console.log("Error getting analysis  " + analysisId + ": " + msg);
-        alertify.alert("<div>Error getting analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again.  If you still experience an issue, contact Mosaic at <a>*info@frameshift.io*</a> for support</div>" + +"<code>" + error + "</code>").setHeader("Fatal Error");
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error getting analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
 
+        console.log("Error getting analysis  " + analysisId + ": " + errorMsg);
         reject("Error getting analysis: " + msg + "." )
       })
     })
@@ -684,10 +691,10 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        let msg = error.responseJSON.message;
-        console.log("Error adding analysis for project " + projectId + ": " + msg);
-        alertify.alert("Could not save analysis to Mosaic. The Mosaic servers may be down.  Come back later and try again.  If you still experience an issue, contact Mosaic at **email** for support\n\n" + error).setHeader("Non-fatal Error");
-
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error adding analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
+        console.log("Error adding analysis for project " + projectId + ": " + errorMsg);
         reject("Error adding analysis: " + msg + "." )
       })
     })
@@ -702,9 +709,11 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        let msg = error.responseJSON.message;
-        console.log("Error updating analysis :" + msg);
-        alertify.alert("Could not update saved analysis. The Mosaic servers may be down.  Come back later and try again.  If you still experience an issue, contact Mosaic at **email** for support\n\n" + error).setHeader("Non-fatal Error");
+        let errorMsg = error.responseJSON.message;
+        console.log("Error updating analysis :" + errorMsg);
+        let msg = "Error updating analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
+
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
 
         reject("Error saving analysis: " + msg + "." )
       })
@@ -793,7 +802,10 @@ export default class HubSession {
           resolve(response)
         })
         .fail(error => {
-          alertify.alert("Error authenticating Mosaic User" + error).setHeader("Fatal error");
+
+          let msg = "Error getting current Mosaic user.  Your authorization may have expired.  Make sure you are still logged into Mosaic, and relaunch the project."
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
+
 
           reject("Error getting currentUser :" + error);
         })
