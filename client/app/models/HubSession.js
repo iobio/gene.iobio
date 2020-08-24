@@ -651,7 +651,7 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        alertify.alert("Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.\n\n" + error).setHeader("Variant set error");
+        alertify.alert("<div class='pb-2 dark-text-important'>Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div>" + "<code>" + error + "</code>").setHeader("Fatal Error");
 
         reject("Error getting variant set " + variantSetId + ": " + error);
       })
@@ -669,7 +669,7 @@ export default class HubSession {
       .fail(error => {
         let msg = error.responseJSON.message;
         console.log("Error getting analysis  " + analysisId + ": " + msg);
-        alertify.alert("Error getting analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again.  If you still experience an issue, contact Mosaic at **email** for support\n\n" + error).setHeader("Fatal Error");
+        alertify.alert("<div>Error getting analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again.  If you still experience an issue, contact Mosaic at <a>*info@frameshift.io*</a> for support</div>" + +"<code>" + error + "</code>").setHeader("Fatal Error");
 
         reject("Error getting analysis: " + msg + "." )
       })

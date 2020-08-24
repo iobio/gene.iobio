@@ -205,6 +205,8 @@ main.content.clin, main.v-content.clin
 .ajs-content
   overflow-wrap: break-word
 
+.dark-text-important
+  color: #626262 !important
 
 
 
@@ -1394,11 +1396,11 @@ export default {
 
 
         self.cohortModel.setHubSession(self.hubSession);
-        self.hubSession.promiseInit(self.sampleId, 
-          self.paramSource, 
-          isPedigree || (self.paramAnalysisId && self.paramAnalysisId.length > 0), 
-          self.projectId, 
-          self.paramGeneSetId, 
+        self.hubSession.promiseInit(self.sampleId,
+          self.paramSource,
+          isPedigree || (self.paramAnalysisId && self.paramAnalysisId.length > 0),
+          self.projectId,
+          self.paramGeneSetId,
           self.paramVariantSetId)
         .then(data => {
           if (isPedigree && !data.foundPedigree) {
@@ -2742,7 +2744,7 @@ export default {
 
       return new Promise(function(resolve, reject) {
 
-        // Set the genome build before we access any gene 
+        // Set the genome build before we access any gene
         // transcripts to ensure we are using the appropriate
         // build!
         if (self.paramSpecies) {
