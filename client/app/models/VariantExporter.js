@@ -141,9 +141,9 @@ export default class VariantExporter {
         })
         .catch(function(error) {
           var msg = "Cannot produce export record for variant " + exportRec.gene + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt;
-          alert(msg);
-          console.log(msg);
-          console.log(error);
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+            .setHeader("Non-fatal Error");
+          console.log(msg, error);
         });
 
         promises.push(promise);
@@ -171,6 +171,9 @@ export default class VariantExporter {
 
       })
       .catch(function(error) {
+        let msg = "Could not export variants"
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+          .setHeader("Non-fatal Error");
         reject("Error occurred when exporting variants. " + error);
       });
 
@@ -368,7 +371,7 @@ export default class VariantExporter {
             //
 
             // Make sure we have loaded the variants before calling variants
-            me.cohort.promiseAnnotateVariants(theGeneObject, theTranscript, 
+            me.cohort.promiseAnnotateVariants(theGeneObject, theTranscript,
                 {'isMultiSample': me.mode == 'trio' && me.samplesInSingleVcf(),'isBackground': true})
             .then(function(data) {
               let trioVcfData = data;
@@ -611,7 +614,7 @@ export default class VariantExporter {
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
     rec.filtersPassed     = variant.filtersPassed  && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
     if (format == 'json') {
-      rec.notes           = variant.notes && variant.notes.length > 0 ? variant.notes : "";    
+      rec.notes           = variant.notes && variant.notes.length > 0 ? variant.notes : "";
     } else {
       rec.notes           = info.notesFlattened;
     }
