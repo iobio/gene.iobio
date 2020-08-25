@@ -108,6 +108,10 @@
       margin-bottom: 10px
       margin-top: 0px
 
+  .siblings-disabled
+      font-size: 13px !important
+      color: $text-color !important
+      padding-top: 2px !important
 </style>
 
 <template>
@@ -218,19 +222,20 @@
 
             </v-layout >
 
-            <v-layout row nowrap class="mt-2">
+            <v-layout row no-wrap class="pr-2 pb-4 pt-3">
 
-               <v-flex  class="sample-label mt-3 pl-2 pr-3" >
-                <span v-if="probandSamples && probandSamples.length > 0"
+               <v-flex  class="sample-label mt-3 pl-2 pr-2" >
+                <span
                  dark small >
                   siblings
                 </span>
+                <span class="siblings-disabled" v-if="!(probandSamples && probandSamples.length > 0)" >
+                 **Proband vcf must contain sibling data to enable sibling selection
+               </span>
                </v-flex>
-
-               <v-flex  class=" pl-2 pr-3" >
+                <v-flex  class=" pl-2 pr-3" >
                  <v-autocomplete
-                  v-if="probandSamples && probandSamples.length > 0"
-                  v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
+                  v-bind:disabled="!(probandSamples && probandSamples.length > 0)"
                   label="Affected Siblings"
                   multiple
                   v-model="affectedSibs"
@@ -242,8 +247,7 @@
 
                <v-flex   class="pr-2">
                  <v-autocomplete
-                  v-if="probandSamples && probandSamples.length > 0"
-                  v-bind:class="probandSamples == null || probandSamples.length == 0 ? 'hide' : ''"
+                  v-bind:disabled="!(probandSamples && probandSamples.length > 0)"
                   label="Unaffected Siblings"
                   multiple
                   v-model="unaffectedSibs"
@@ -273,7 +277,7 @@ export default {
     cohortModel: null,
     showDialog: null
   },
-  data () {
+  data() {
     return {
       showFilesDialog: false,
       isValid: false,
@@ -417,9 +421,11 @@ export default {
     },
     checkForDuplicates: function(sms){
       let self = this;
-      sms.map(function(obj) {
+      let names = sms.map(function(obj) {
         return obj.name;
-      }).forEach(function (element, index, arr) {
+      }).concat(self.affectedSibs, self.unaffectedSibs);
+
+      names.forEach(function (element, index, arr) {
         if (arr.indexOf(element) !== index) {
           self.errorTitle = "Duplicate Ids";
           let errorMsg = "Duplicate ids detected for " + element;
