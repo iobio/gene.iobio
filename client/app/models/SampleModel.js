@@ -87,9 +87,11 @@ class SampleModel {
           resolveIt(resolve, data.vcfData);
          },
          function(error) {
-          var msg = "A problem occurred in SampleModel.promiseSetLoadState(): " + error;
-          console.log(msg);
-          reject(msg);
+           var msg = "A problem occurred in SampleModel.promiseSetLoadState(): " + error;
+           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+             .setHeader("Fatal Error");
+           console.log(msg);
+           reject(msg);
          })
 
       }
@@ -246,9 +248,11 @@ class SampleModel {
 
                },
                function(error) {
-                var msg = "Problem occurred in SampleModel.promiseGetVcfData: " + error;
-                console.log(msg);
-                reject(error);
+                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(): " + error;
+                 alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+                   .setHeader("Fatal Error");
+                 console.log(msg);
+                 reject(error);
                });
             } else {
               resolve({model: me, vcfData: theVcfData});
@@ -1483,7 +1487,9 @@ class SampleModel {
                             // return the annotated variant
                           resolve(theVariant);
                            }, function(error) {
-                            var msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(): " + error;
+                             let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(): " + error;
+                             alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+                               .setHeader("Fatal Error");
                             console.log(msg);
                             reject(msg);
                            });
@@ -1491,7 +1497,8 @@ class SampleModel {
 
                         } else {
                           var msg = "Cannot find corresponding variant to update HGVS notation for variant " + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt;
-                          console.log(msg);
+                          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+                            .setHeader("Non-fatal Error");
                           reject(msg);
                         }
                       } else {
@@ -1512,6 +1519,8 @@ class SampleModel {
                     variant.isUserFlagged = false;
                     resolve([variant, variant, []]);
                   } else {
+                    alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + "</code>")
+                      .setHeader("Fatal Error");
                    reject(msg);
                   }
 
@@ -1618,7 +1627,9 @@ class SampleModel {
 
        },
        function(error) {
-        var msg = "A problem occurred in SampleModel.promiseGetImpactfulVariantIds(): " + error;
+         let msg = "A problem occurred in SampleModel.promiseGetImpactfulVariantIds(): " + error;
+         alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+           .setHeader("Non-fatal Error");
         console.log(msg);
         reject(msg);
        })
@@ -1688,7 +1699,11 @@ class SampleModel {
                                       annoResults.push(unwrappedResults);
                                     })
                                     .catch((error) => {
+                                      let msg = "Could not obtain sfari variants";
+                                      alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+                                        .setHeader("Non-fatal Error");
                                       reject('Problem getting sfari variants: ' + error);
+
                                     });
                                 annoPromises.push(p);
                             });
@@ -1702,6 +1717,9 @@ class SampleModel {
                                         resolve(resultMap);
                                       })
                                       .catch((error) => {
+                                        let msg = "there was a problem combining variants with sfari variants";
+                                        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+                                          .setHeader("Non-fatal Error");
                                         reject('Problem in combining variants: ' + error);
                                       })
                               });
@@ -1901,25 +1919,35 @@ class SampleModel {
                 });
 
               } else {
-                var error = "ERROR - cannot locate gene object to match with vcf data " + data.ref + " " + data.start + "-" + data.end;
-                console.log(error);
-                reject(error);
+                let msg = "Cannot locate gene object to match with vcf data " + data.ref + " " + data.start + "-" + data.end;
+                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+                  .setHeader("Fatal Error");
+                console.log(msg);
+                reject(msg);
               }
             } else {
-              var error = "ERROR - empty vcf results for " + theGene.gene_name;;
-              console.log(error);
-              reject(error);
+              let msg = "Empty vcf results for " + theGene.gene_name;
+              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+                .setHeader("Non-fatal Error");
+              console.log(msg);
+              reject(msg);
             }
 
 
           },
           function(error) {
+            let msg = "Error Annotating variants for gene " + theGene.gene_name;
+            alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+              .setHeader("Fatal Error");
             console.log(error);
             reject(error)
           });
         }
       },
       function(error) {
+        let msg = "Error Annotating variants for gene " + theGene.gene_name;
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+          .setHeader("Fatal Error");
         console.log(error);
         reject(error);
       });
@@ -2941,7 +2969,7 @@ class SampleModel {
             evalObject[evalKey] = {matchCount: 0, notMatchCount: 0};
           }
           if ($.isPlainObject(annotValue)) {
-            for (avKey in annotValue) {
+            for (let avKey in annotValue) {
               var doesMatch = avKey.toLowerCase() == annot.value.toLowerCase();
               incrementEqualityCount(doesMatch, evalObject[evalKey])
             }
@@ -3154,6 +3182,9 @@ class SampleModel {
             reject(message);
           });
         }, function(error) {
+          let msg = "Could not annotate variants due to missing reference file";
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+            .setHeader("Fatal Error");
           console.log("missing reference");
           reject("missing reference");
         });
@@ -3241,7 +3272,9 @@ class SampleModel {
           resolve(data);
          },
          function(error) {
-          var msg = "An error occurred in SampleModel._promiseGetData(): " + error;
+           let msg = "Could not get sample data for gene " +  geneName;
+           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+             .setHeader("Non-fatal Error");
           console.log(msg);
           reject(msg);
          })

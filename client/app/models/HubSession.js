@@ -380,7 +380,7 @@ export default class HubSession {
         }
       })
       .fail(error => {
-        alertify.alert("Error getting pedigree for sample_id " + sample_id + "\n\n" + error).setHeader("Non-Fatal error");
+        alertify.alert("Error getting pedigree for sample_id " + sample_id + "\n\n" + error).setHeader("Fatal error");
 
         reject("Error getting pedigree for sample " + sample_id + ": " + error);
       })
