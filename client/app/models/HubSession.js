@@ -547,8 +547,10 @@ export default class HubSession {
         resolve(response.data);
       })
       .fail(error => {
-        alertify.alert("Error getting sample files for sample_id " + sample_id + "\n\n" + error).setHeader("Fatal error");
-
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error getting sample files for sample_id " + sample_id;
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+          .setHeader("Fatal Error");
         console.log("Unable to get files for sample " + sample_id)
         reject(error);
       })
@@ -576,7 +578,11 @@ export default class HubSession {
                   resolve(response);
               })
               .fail(error => {
-                alertify.alert("Error getting project files for project_id " + project_id + "\n\n" + error).setHeader("Fatal error");
+                let msg = "Error getting project files for project_id " + project_id;
+                let errorMsg = error.responseJSON.message;
+                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+                  .setHeader("Fatal Error");
+
                 console.log("Unable to get files for project " + project_id);
                 reject(error);
               })
@@ -604,7 +610,11 @@ export default class HubSession {
         resolve(file);
       })
       .fail(error => {
-        alertify.alert("Could not get signed url for file_id  " + file.id + "\n\n" + error).setHeader("Fatal error");
+
+        let errorMsg = error.responseJSON.message;
+        let msg = "Could not get signed url for file_id  " + file.id;
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+          .setHeader("Fatal Error");
 
         reject(error);
       })
@@ -699,7 +709,7 @@ export default class HubSession {
       })
       .fail(error => {
         let errorMsg = error.responseJSON.message;
-        let msg = "Error adding analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
+        let msg = "Error adding analysis " + analysis.id + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
         alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
         console.log("Error adding analysis for project " + projectId + ": " + errorMsg);
         reject("Error adding analysis: " + msg + "." )
@@ -718,7 +728,7 @@ export default class HubSession {
       .fail(error => {
         let errorMsg = error.responseJSON.message;
         console.log("Error updating analysis :" + errorMsg);
-        let msg = "Error updating analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
+        let msg = "Error updating analysis " + analysis.id + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
 
         alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
 
@@ -907,6 +917,4 @@ export default class HubSession {
     cache = [];
     return analysisString;
   }
-
-
 }
