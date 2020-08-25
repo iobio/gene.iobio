@@ -2157,7 +2157,7 @@ exports._parseGnomADAnnot = function(annotTokens, annot) {
   })
   if (annot.gnomAD.afPopMax == '.') {
     annot.gnomAD.afPopMax = annot.gnomAD.af;
-    Object.keys(annot.gnomAD.pop).forEach(function(popKey) {      
+    Object.keys(annot.gnomAD.pop).forEach(function(popKey) {
       let pop_af = annot.gnomAD.pop[popKey].af;
       if (parseFloat(pop_af) > parseFloat(annot.gnomAD.afPopMax)) {
         annot.gnomAD.afPopMax = pop_af;

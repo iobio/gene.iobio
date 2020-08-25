@@ -426,7 +426,7 @@ export default {
       }).concat(self.affectedSibs, self.unaffectedSibs);
 
       names.forEach(function (element, index, arr) {
-        if (arr.indexOf(element) !== index) {
+        if (element && arr.indexOf(element) !== index) {
           self.errorTitle = "Duplicate Ids";
           let errorMsg = "Duplicate ids detected for " + element;
           self.errorMsgArray.push(errorMsg);
