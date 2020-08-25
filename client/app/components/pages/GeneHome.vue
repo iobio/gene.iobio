@@ -2832,7 +2832,6 @@ export default {
             resolve();
           }).
           catch(function(error) {
-            alert("could not initialize Application from mosaic project id" + self.projectId + "\n\n" + error);
             reject(error);
           })
         } else if (self.isEduMode && self.tourNumber != '') {
@@ -3818,7 +3817,6 @@ export default {
         .catch(function(error) {
           self.clinSetData.isCacheSet = true;
           let msg = "Problem in GeneHome.promiseSetCacheFromClin(): " + error;
-          alert(msg);
           console.log(msg);
           reject(msg);
         })
