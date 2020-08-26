@@ -8,7 +8,7 @@
     justify-content: center
     justify-items: center
     padding-left: 0
-    
+
 #filter-form, #filterSelect
     #dropdownWrapper
         width: 225px
@@ -185,17 +185,12 @@
             },
 
             passesFilters: function (variant) {
-                let filtersPassed = variant.filtersPassedAll;
-                if(!filtersPassed){
-                    filtersPassed = variant.filtersPassed;
-                }
+                let inheritance = variant.inheritance;
                 let bool = false;
-                for (let i = 0; i < this.selectedFilters.length; i++) {
-                    if (filtersPassed.includes(this.selectedFilters[i])) {
-                        bool = true;
-                    }
-                }
-                return bool;
+                console.log("this.selectedFilers", this.selectedFilters);
+                console.log("this.inheritance", inheritance);
+                return this.selectedFilters.includes(inheritance)
+
             },
 
             setFilteredLoadedVariants: function () {
