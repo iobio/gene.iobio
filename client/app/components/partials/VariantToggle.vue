@@ -135,7 +135,7 @@
             this.selectedFilterKeys = [];
             this.flagCriteria = this.filterModel.flagCriteria;
             this.filterText = ["Autosomal dominant", "Recessive", "De novo", "Compound het", "X-linked"];
-            this.filterKeys = {"Autosomal dominant" :"autosomalDominant", "Recessive" :"recessive", "De novo" : "denovo", "Compound het" : "compoundHet", "X-linked" : "xlinked"};
+            this.filterKeys = {"Autosomal dominant" :"autosomal dominant", "Recessive" :"recessive", "De novo" : "denovo", "Compound het" : "compound het", "X-linked" : "x-linked"};
         },
 
         methods: {
@@ -164,21 +164,25 @@
             setFilteredVariants() {
                 this.filteredVariants = [];
 
-                let variants = this.variants.features;
-                for(let i = 0; i < variants.length; i++){
-                  let variant = variants[i];
-                  if(this.selectedFilters.includes(variant.inheritance)){
-                    this.filteredVariants.push(variant);
+                console.log("this.selectedFilters", this.selectedFilters);
+                if(this.variants && this.variants.features) {
+                  let variants = this.variants.features;
+                  for (let i = 0; i < variants.length; i++) {
+                    let variant = variants[i];
+                    console.log("variant", variant.inheritance);
+                    if (this.selectedFilters.includes(variant.inheritance)) {
+                      this.filteredVariants.push(variant);
+                    }
+                  }
+                  let copyVariants = Object.assign({}, this.variants);
+                  copyVariants.features = this.filteredVariants;
+
+                  if (this.selectedFilters.length > 0) {
+                    this.$emit("filtered-variants-update", copyVariants);
+                  } else {
+                    this.$emit("filtered-variants-update", this.variants);
                   }
                 }
-                let copyVariants = Object.assign({}, this.variants);
-                copyVariants.features = this.filteredVariants;
-
-              if (this.selectedFilters.length > 0) {
-                this.$emit("filtered-variants-update", copyVariants);
-              } else {
-                this.$emit("filtered-variants-update", this.variants);
-              }
             },
         }
     }
