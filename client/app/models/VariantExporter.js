@@ -6,6 +6,7 @@ export default class VariantExporter {
   constructor(globalApp) {
     this.globalApp = globalApp;
     this.cohort = null;
+    this.helpMsg = "If this error persists, Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.";
     this.exportFields = [
       {field: 'chrom',            exportVcf: false},
       {field: 'start',            exportVcf: false},
@@ -140,8 +141,8 @@ export default class VariantExporter {
           }
         })
         .catch(function(error) {
-          var msg = "Cannot produce export record for variant " + exportRec.gene + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt;
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+          var msg = "Cannot produce export record for variant " + exportRec.gene + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + ". Try refreshing the page.";
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + this.helpMsg)
             .setHeader("Non-fatal Error");
           console.log(msg, error);
         });
@@ -171,8 +172,8 @@ export default class VariantExporter {
 
       })
       .catch(function(error) {
-        let msg = "Could not export variants"
-        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+        let msg = "Could not export variants. Try refreshing the page."
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + this.helpMsg)
           .setHeader("Non-fatal Error");
         reject("Error occurred when exporting variants. " + error);
       });
