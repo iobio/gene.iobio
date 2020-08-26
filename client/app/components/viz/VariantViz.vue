@@ -296,7 +296,7 @@ export default {
 
       selectedVariant: function(){
         if(this.showFilter){
-          this.variants = this.filteredVariants
+          this.intersectVariants();
         }
         else{
           this.variants = this.data;
@@ -305,7 +305,7 @@ export default {
 
       showFilter: function(){
         if(this.showFilter){
-          this.variants = this.filteredVariants
+          this.intersectVariants();
         }
         else{
           this.variants = this.data;
@@ -314,7 +314,7 @@ export default {
 
       filteredVariants(){
         if(this.showFilter){
-          this.variants = this.filteredVariants
+          this.intersectVariants();
         }
         else{
           this.variants = this.data;
@@ -323,7 +323,7 @@ export default {
 
         data(){
             if(this.showFilter){
-              this.variants = this.filteredVariants
+              this.intersectVariants();
             }
             else{
                 this.variants = this.data;
