@@ -897,6 +897,7 @@ export default {
 
     onFilteredVariantsUpdate: function(filteredVariants){
       this.filteredVariants = filteredVariants;
+      console.log("this.filteredVariants in variantAllCard", this.filteredVariants);
     },
 
     onClose: function() {
