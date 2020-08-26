@@ -162,27 +162,24 @@
             },
 
             setFilteredVariants() {
-                this.filteredVariants = [];
-
-                console.log("this.selectedFilters", this.selectedFilters);
-                if(this.variants && this.variants.features) {
-                  let variants = this.variants.features;
-                  for (let i = 0; i < variants.length; i++) {
-                    let variant = variants[i];
-                    console.log("variant", variant.inheritance);
-                    if (this.selectedFilters.includes(variant.inheritance)) {
-                      this.filteredVariants.push(variant);
-                    }
-                  }
-                  let copyVariants = Object.assign({}, this.variants);
-                  copyVariants.features = this.filteredVariants;
-
-                  if (this.selectedFilters.length > 0) {
-                    this.$emit("filtered-variants-update", copyVariants);
-                  } else {
-                    this.$emit("filtered-variants-update", this.variants);
+              this.filteredVariants = [];
+              if(this.variants && this.variants.features) {
+                let variants = this.variants.features;
+                for (let i = 0; i < variants.length; i++) {
+                  let variant = variants[i];
+                  if (this.selectedFilters.includes(variant.inheritance)) {
+                    this.filteredVariants.push(variant);
                   }
                 }
+                let copyVariants = Object.assign({}, this.variants);
+                copyVariants.features = this.filteredVariants;
+
+                if (this.selectedFilters.length > 0) {
+                  this.$emit("filtered-variants-update", copyVariants);
+                } else {
+                  this.$emit("filtered-variants-update", this.variants);
+                }
+              }
             },
         }
     }
