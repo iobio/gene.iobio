@@ -142,7 +142,7 @@ export default class VariantExporter {
         })
         .catch(function(error) {
           var msg = "Cannot produce export record for variant " + exportRec.gene + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + ". Try refreshing the page.";
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + this.helpMsg)
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
             .setHeader("Non-fatal Error");
           console.log(msg, error);
         });
@@ -173,7 +173,7 @@ export default class VariantExporter {
       })
       .catch(function(error) {
         let msg = "Could not export variants. Try refreshing the page."
-        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + this.helpMsg)
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
           .setHeader("Non-fatal Error");
         reject("Error occurred when exporting variants. " + error);
       });
