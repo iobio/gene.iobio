@@ -305,6 +305,7 @@ export default class EndpointCmd {
     }
 
     getGeneCoverage(bamSources, refName, geneName, regionStart, regionEnd, regions) {
+        const me = this;
         if (this.gruBackend) {
             const url = bamSources[0].bamUrl;
             const indexUrl = bamSources[0].baiUrl;
