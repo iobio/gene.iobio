@@ -289,8 +289,7 @@ export default {
     },
     watch: {
       variants: function(oldVar, newVar) {
-        if(oldVar && oldVar.features && newVar && newVar.features && oldVar.features.length === 0 && newVar.features.length > 0){}
-        else if(oldVar && oldVar.features && newVar && newVar.features){
+        if(oldVar && oldVar.features && newVar && newVar.features){
           this.update();
         }
       },
@@ -306,7 +305,7 @@ export default {
 
       showFilter: function(){
         if(this.showFilter){
-            this.intersectVariants()
+          this.intersectVariants();
         }
         else{
           this.variants = this.data;
@@ -315,7 +314,7 @@ export default {
 
       filteredVariants(){
         if(this.showFilter){
-            this.intersectVariants();
+          this.intersectVariants();
         }
         else{
           this.variants = this.data;
@@ -324,7 +323,7 @@ export default {
 
         data(){
             if(this.showFilter){
-                this.intersectVariants();
+              this.intersectVariants();
             }
             else{
                 this.variants = this.data;

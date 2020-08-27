@@ -8,7 +8,7 @@
     justify-content: center
     justify-items: center
     padding-left: 0
-    
+
 #filter-form, #filterSelect
     #dropdownWrapper
         width: 225px
@@ -93,7 +93,7 @@
         watch: {
             geneLists: function () {
                 this.setFilteredVariants();
-                this.setFilteredLoadedVariants();
+
             },
 
             showFilter: function () {
@@ -119,17 +119,14 @@
                     this.showFilter = false;
                 }
                 this.setFilteredVariants();
-                this.setFilteredLoadedVariants();
                 this.setDropdownWidth();
             },
             selectedGene: function () {
                 this.selectedFilters = [];
                 this.selectedFilterKeys = [];
-                this.filteredVariants = this.data;
             },
             selectedVariant: function () {
                 this.setFilteredVariants();
-                this.setFilteredLoadedVariants();
             }
         },
 
@@ -138,7 +135,7 @@
             this.selectedFilterKeys = [];
             this.flagCriteria = this.filterModel.flagCriteria;
             this.filterText = ["Autosomal dominant", "Recessive", "De novo", "Compound het", "X-linked"];
-            this.filterKeys = {"Autosomal dominant" :"autosomalDominant", "Recessive" :"recessive", "De novo" : "denovo", "Compound het" : "compoundHet", "X-linked" : "xlinked"};
+            this.filterKeys = {"Autosomal dominant" :"autosomal dominant", "Recessive" :"recessive", "De novo" : "denovo", "Compound het" : "compound het", "X-linked" : "x-linked"};
         },
 
         methods: {
@@ -165,59 +162,24 @@
             },
 
             setFilteredVariants() {
-                this.filteredVariants = [];
-
-                for (let i = 0; i < this.geneLists.length; i++) {
-                    let filter = this.geneLists[i];
-
-                    for (let j = 0; j < filter.genes.length; j++) {
-                        let gene = filter.genes[j]
-                        if (this.selectedGene && gene.gene.name === this.selectedGene.name) {
-                            for (let k = 0; k < gene.variants.length; k++) {
-                                let variant = gene.variants[k];
-                                if (this.passesFilters(variant)) {
-                                    this.filteredVariants.push(variant);
-                                }
-                            }
-                        }
-                    }
+              this.filteredVariants = [];
+              if(this.variants && this.variants.features) {
+                let variants = this.variants.features;
+                for (let i = 0; i < variants.length; i++) {
+                  let variant = variants[i];
+                  if (this.selectedFilters.includes(variant.inheritance)) {
+                    this.filteredVariants.push(variant);
+                  }
                 }
-            },
-
-            passesFilters: function (variant) {
-                let filtersPassed = variant.filtersPassedAll;
-                if(!filtersPassed){
-                    filtersPassed = variant.filtersPassed;
-                }
-                let bool = false;
-                for (let i = 0; i < this.selectedFilters.length; i++) {
-                    if (filtersPassed.includes(this.selectedFilters[i])) {
-                        bool = true;
-                    }
-                }
-                return bool;
-            },
-
-            setFilteredLoadedVariants: function () {
                 let copyVariants = Object.assign({}, this.variants);
-                let features = [];
-                if (this.variants && this.variants.features) {
-                    for (let i = 0; i < this.filteredVariants.length; i++) {
-                        for (let j = 0; j < this.variants.features.length; j++) {
-                            let fv = this.filteredVariants[i];
-                            let v = this.variants.features[j];
-                            if (fv.start === v.start && fv.end === v.end && fv.alt === v.alt && fv.ref === v.ref) {
-                                features.push(v);
-                            }
-                        }
-                    }
-                    copyVariants.features = features;
-                    if (this.selectedFilters.length > 0) {
-                        this.$emit("filtered-variants-update", copyVariants);
-                    } else {
-                        this.$emit("filtered-variants-update", this.variants);
-                    }
+                copyVariants.features = this.filteredVariants;
+
+                if (this.selectedFilters.length > 0) {
+                  this.$emit("filtered-variants-update", copyVariants);
+                } else {
+                  this.$emit("filtered-variants-update", this.variants);
                 }
+              }
             },
         }
     }

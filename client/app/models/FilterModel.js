@@ -208,25 +208,6 @@ class FilterModel {
           // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
-          title: "Passes external filter",
-          name: "Variants filtered in pre-processing, but not passing any app filters",
-          order: 9,
-          userFlagged: false,
-          maxAf: null,
-          clinvar: null,
-          impact: null,
-          consequence: null,
-          inheritance: null,
-          zyosity: null,
-          minGenotypeDepth: null,
-          minGenotypeAltCount: null,
-          minRevel: null,
-          exclusiveOf: null
-        },
-        'notCategorized': {
-          // TODO - figure out how to show when variants no longer match filters
-          active: false,
-          custom: false,
           title: "Filtered variants",
           name: "Variants found during full analysis, but not passing any app filters",
           order: 8,
