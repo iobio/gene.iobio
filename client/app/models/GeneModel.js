@@ -8,6 +8,8 @@ class GeneModel {
 
     this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
     this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
+    
+    this.OMIM_URL                  = "https://api.omim.org/api/";
 
 
     this.linkTemplates = {
@@ -867,6 +869,105 @@ class GeneModel {
       }
     });
 
+  }
+
+  promiseGetOMIMInfo(theGeneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let geneName = theGeneName;
+      self._promiseGetOMIMGene(geneName)
+      .then(function(data) {
+        if (data.phenotypes && data.phenotypes.length > 0) {
+          let promises = [];
+          let omimEntries = [];
+          data.phenotypes.forEach(function(phenotype) {
+            let p = self._promiseGetOMIMClinicalSynopsis(data.geneName, phenotype)
+            .then(function(data) {
+              omimEntries.push(data);
+            })      
+            promises.push(p)      
+          })
+          Promise.all(promises)
+          .then(function() {
+            resolve({geneName: geneName, omimEntries: omimEntries})
+          })
+        } else {
+          resolve({geneName: geneName, omimEntries: null})
+        }
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+    })
+
+  }
+
+  _promiseGetOMIMGene(geneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let apiKey = process.env.OMIM_API_KEY;
+
+      let url = self.OMIM_URL  + 'entry/search'
+        + '?apiKey=' + apiKey
+        + '&search=approved_gene_symbol:' + geneName
+        + '&format=json'
+        + '&retrieve=geneMap'
+        + '&start=0'
+        + '&limit=10';
+
+      $.ajax( url )
+        .done(function(data) {
+            let mimNumber = null;
+            let phenotypes = null;
+            if (data 
+              && data.omim.searchResponse 
+              && data.omim.searchResponse.geneMapList 
+              && data.omim.searchResponse.geneMapList.length > 0) {
+            let geneMap = data.omim.searchResponse.geneMapList[0].geneMap;
+            mimNumber = geneMap.mimNumber;
+            if (geneMap.phenotypeMapList) {
+              phenotypes = geneMap.phenotypeMapList.map(function(entry) {
+                return entry.phenotypeMap;
+              })
+            }
+            resolve({geneName: geneName, mimNumber: mimNumber, phenotypes: phenotypes});
+          }
+        })
+        .fail(function(error) {
+            let msg = "Unable to get phenotype mim number OMIM " + url;
+            console.log(msg);
+            console.log(error)
+            reject(msg + '. Error: ' + error);
+        })
+    })
+  }
+
+  _promiseGetOMIMClinicalSynopsis(geneName, phenotype) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let apiKey = process.env.OMIM_API_KEY;
+
+      let url = self.OMIM_URL  + 'clinicalSynopsis'
+        + '?apiKey=' + apiKey
+        + '&mimNumber=' + phenotype.phenotypeMimNumber
+        + '&include=clinicalSynopsis'
+        + '&format=json';
+
+      $.ajax( url )
+        .done(function(data) {
+          let clinicalSynopsis = null;
+          if (data && data.omim.clinicalSynopsisList && data.omim.clinicalSynopsisList.length > 0) {
+            clinicalSynopsis = data.omim.clinicalSynopsisList[0].clinicalSynopsis;
+          } 
+          resolve({geneName: geneName, phenotype: phenotype, clinicalSynopsis: clinicalSynopsis});
+        })
+        .fail(function(error) {
+            let msg = "Unable to get clinical synopsisi from OMIM " + url;
+            console.log(msg);
+            console.log(error)
+            reject(msg + '. Error: ' + error);
+        })
+    })
   }
 
 
