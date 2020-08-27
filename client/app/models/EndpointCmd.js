@@ -321,7 +321,8 @@ export default class EndpointCmd {
 
             cmd.on('error', function(error) {
               let msg = "Could not get gene coverage from region: \n" + refName + ':' + regionStart + '-' + regionEnd + "\n Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible" + indexUrl;
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+
                 .setHeader("Fatal Error");
             });
             return cmd;
