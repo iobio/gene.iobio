@@ -48,7 +48,7 @@ export default class EndpointCmd {
         if (this.gruBackend) {
             let header = this.api.streamCommand('variantHeader', {url: vcfUrl, indexUrl: tbiUrl});
             header.on('error', function(error){
-              let msg = "Error obtaining vcf header for file: " + vcfUrl + "\n Make sure your vcf file is properly formatted, and that the provided URL is accessible.";
+              let msg = "Error obtaining vcf header for file. Make sure your vcf file is properly formatted, and that the provided URL is accessible. <code>" + vcfUrl + "</code>";
               alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                 .setHeader("Fatal error")
                console.log("error in get vcf header", error)
@@ -69,12 +69,12 @@ export default class EndpointCmd {
             cmd.on('error', function(error){
                 if(error.includes("Expected compressed file")){
 
-                  let msg = "Vcf or vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your vcf files are properly compressed in gzip format " + vcfUrl;
+                  let msg = "Vcf or vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your vcf files are properly compressed in gzip format <code>" + vcfUrl + "</code>";
                   alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                     .setHeader("Fatal Error");
                 }
                 else{
-                  let msg = "Could not get vcf depth.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted" + vcfUrl;
+                  let msg = "Could not get vcf depth.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted <code>" + vcfUrl + "</code>";
                   alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                     .setHeader("Fatal Error");
                 }
@@ -95,7 +95,7 @@ export default class EndpointCmd {
             cmd = me.api.streamCommand('getIdColumns', {vcfUrl: vcfSource.vcfUrl, regions});
 
             cmd.on('error', function (error) {
-              let msg = "Error obtaining sample Ids from vcf file " + vcfUrl + "\n Make sure your vcf file is properly formatted, and that the provided URL is accessible.";
+              let msg = "Error obtaining sample Ids from vcf file. Make sure your vcf file is properly formatted, and that the provided URL is accessible. <code>" + vcfSource.vcfUrl + "</code>" ;
               alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                 .setHeader("Fatal Error");
               console.log("error in get vcf header", error)
@@ -219,7 +219,7 @@ export default class EndpointCmd {
             let cmd = this.api.streamCommand('alignmentHeader', {url: bamUrl});
             cmd.on('error', function(error) {
 
-              let msg = "Could not interpret Bam file.  Make sure that the bam file is properly formatted and accessible\n" + bamUrl;
+              let msg = "Could not interpret Bam file.  Make sure that the bam file is properly formatted and accessible <code>" + bamUrl + "</code>";
               alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                 .setHeader("Fatal Error");
                 console.log(error);
@@ -245,7 +245,7 @@ export default class EndpointCmd {
             });
 
             cmd.on('error', function(error) {
-              let msg = "Could not get get coverage from region: \n" + refName + ':' + regionStart + '-' + regionEnd + "\n Bam index file may be invalid. Make sure that the bam index file is properly formatted and accessible" + indexUrl;
+              let msg = "Could not get get coverage from region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Bam index file may be invalid. Make sure that the bam index file is properly formatted and accessible<code>" + indexUrl + "<\code>";
               alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                 .setHeader("Fatal Error");
             });
@@ -296,7 +296,7 @@ export default class EndpointCmd {
             });
 
             cmd.on('error', function(error) {
-              let msg = "Could not perform freebayes joint calling for region: " + refName + ':' + regionStart + '-' + regionEnd + "\n Try refreshing the page";
+              let msg = "Could not perform freebayes joint calling for region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Try refreshing the page";
               alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                 .setHeader("Non-fatal Error");
             });
@@ -321,7 +321,7 @@ export default class EndpointCmd {
             });
 
             cmd.on('error', function(error) {
-              let msg = "Could not get gene coverage from region: \n" + refName + ':' + regionStart + '-' + regionEnd + "\n Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible" + indexUrl;
+              let msg = "Could not get gene coverage from region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible<code>" + indexUrl + "</code>";
               alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
 
                 .setHeader("Fatal Error");

@@ -1498,13 +1498,13 @@ class SampleModel {
                            resolve(theVariant);
 
                         } else {
-                          var msg = "Cannot find corresponding variant to update HGVS notation for variant " + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt;
+                          var msg = "Cannot find corresponding variant to update HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt + "</code>";
                           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                             .setHeader("Non-fatal Error");
                           reject(msg);
                         }
                       } else {
-                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant " + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt;
+                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt + "</code>";
                         console.log(msg);
                         reject(msg);
 
@@ -1514,7 +1514,7 @@ class SampleModel {
 
                   }
                 } else {
-                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt +". Try refreshing the page.";
+                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt +"</code>. Try refreshing the page.";
                   console.log(msg);
                   if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
                     variant.notFound = true;
@@ -1530,7 +1530,7 @@ class SampleModel {
 
 
               } else {
-                var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
+                var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt + "</code>";
                 console.log(msg);
                 if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
                   variant.notFound = true;
@@ -1921,7 +1921,7 @@ class SampleModel {
                 });
 
               } else {
-                let msg = "Cannot locate gene object to match with vcf data " + data.ref + " " + data.start + "-" + data.end + ". Try refreshing the page.";
+                let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
                 alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                   .setHeader("Fatal Error");
                 console.log(msg);
