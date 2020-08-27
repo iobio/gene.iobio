@@ -48,6 +48,8 @@ class SampleModel {
     this.variantHistoData = null;
     this.coverage = [[]];
     this.coverageDangerRegions = [];
+    this.helpMsg = "If this error persists, Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.";
+
 
     this.inProgress = {
       'loadingVariants': false,
@@ -66,7 +68,7 @@ class SampleModel {
   }
 
   promiseSetLoadState(theVcfData, taskName) {
-    var me = this;
+    const me = this;
 
     var resolveIt = function(resolve, theVcfData) {
       if (theVcfData != null) {
@@ -87,8 +89,8 @@ class SampleModel {
           resolveIt(resolve, data.vcfData);
          },
          function(error) {
-           var msg = "A problem occurred in SampleModel.promiseSetLoadState(): " + error;
-           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+           var msg = "A problem occurred in SampleModel.promiseSetLoadState().  Please try refreshing the page";
+           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
              .setHeader("Fatal Error");
            console.log(msg);
            reject(msg);
@@ -180,7 +182,7 @@ class SampleModel {
 
 
   promiseGetVcfData(geneObject, selectedTranscript, whenEmptyUseFbData=true) {
-    var me = this;
+    const me = this;
     var dataKind = CacheHelper.VCF_DATA;
     return new Promise(function(resolve, reject) {
       if (geneObject == null) {
@@ -248,8 +250,8 @@ class SampleModel {
 
                },
                function(error) {
-                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(): " + error;
-                 alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations().  Try refreshing the page";
+                 alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                    .setHeader("Fatal Error");
                  console.log(msg);
                  reject(error);
@@ -1340,7 +1342,7 @@ class SampleModel {
   }
 
   promiseGetVariantExtraAnnotations(theGene, theTranscript, variant, format, getHeader = false, sampleNames) {
-    var me = this;
+    const me = this;
 
     return new Promise( function(resolve, reject) {
 
@@ -1487,8 +1489,8 @@ class SampleModel {
                             // return the annotated variant
                           resolve(theVariant);
                            }, function(error) {
-                             let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(): " + error;
-                             alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+                             let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(). Try refreshing the page.";
+                             alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                                .setHeader("Fatal Error");
                             console.log(msg);
                             reject(msg);
@@ -1496,13 +1498,13 @@ class SampleModel {
                            resolve(theVariant);
 
                         } else {
-                          var msg = "Cannot find corresponding variant to update HGVS notation for variant " + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt;
-                          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+                          var msg = "Cannot find corresponding variant to update HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt + "</code>";
+                          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                             .setHeader("Non-fatal Error");
                           reject(msg);
                         }
                       } else {
-                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant " + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt;
+                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt + "</code>";
                         console.log(msg);
                         reject(msg);
 
@@ -1512,14 +1514,14 @@ class SampleModel {
 
                   }
                 } else {
-                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
+                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt +"</code>. Try refreshing the page.";
                   console.log(msg);
                   if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
                     variant.notFound = true;
                     variant.isUserFlagged = false;
                     resolve([variant, variant, []]);
                   } else {
-                    alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + "</code>")
+                    alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                       .setHeader("Fatal Error");
                    reject(msg);
                   }
@@ -1528,7 +1530,7 @@ class SampleModel {
 
 
               } else {
-                var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
+                var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt + "</code>";
                 console.log(msg);
                 if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
                   variant.notFound = true;
@@ -1627,8 +1629,8 @@ class SampleModel {
 
        },
        function(error) {
-         let msg = "A problem occurred in SampleModel.promiseGetImpactfulVariantIds(): " + error;
-         alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+         let msg = "A problem occurred in SampleModel.promiseGetImpactfulVariantIds().  Try refreshing the page.";
+         alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
            .setHeader("Non-fatal Error");
         console.log(msg);
         reject(msg);
@@ -1699,8 +1701,8 @@ class SampleModel {
                                       annoResults.push(unwrappedResults);
                                     })
                                     .catch((error) => {
-                                      let msg = "Could not obtain sfari variants";
-                                      alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+                                      let msg = "Could not obtain sfari variants.  Try refreshing the page.";
+                                      alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                                         .setHeader("Non-fatal Error");
                                       reject('Problem getting sfari variants: ' + error);
 
@@ -1717,8 +1719,8 @@ class SampleModel {
                                         resolve(resultMap);
                                       })
                                       .catch((error) => {
-                                        let msg = "there was a problem combining variants with sfari variants";
-                                        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+                                        let msg = "There was a problem combining variants with sfari variants. Try refreshing the page";
+                                        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                                           .setHeader("Non-fatal Error");
                                         reject('Problem in combining variants: ' + error);
                                       })
@@ -1919,15 +1921,15 @@ class SampleModel {
                 });
 
               } else {
-                let msg = "Cannot locate gene object to match with vcf data " + data.ref + " " + data.start + "-" + data.end;
-                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+                let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
+                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                   .setHeader("Fatal Error");
                 console.log(msg);
                 reject(msg);
               }
             } else {
               let msg = "Empty vcf results for " + theGene.gene_name;
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                 .setHeader("Non-fatal Error");
               console.log(msg);
               reject(msg);
@@ -1936,8 +1938,8 @@ class SampleModel {
 
           },
           function(error) {
-            let msg = "Error Annotating variants for gene " + theGene.gene_name;
-            alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+            let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
+            alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
               .setHeader("Fatal Error");
             console.log(error);
             reject(error)
@@ -1945,8 +1947,8 @@ class SampleModel {
         }
       },
       function(error) {
-        let msg = "Error Annotating variants for gene " + theGene.gene_name;
-        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+        let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
           .setHeader("Fatal Error");
         console.log(error);
         reject(error);
@@ -3183,7 +3185,7 @@ class SampleModel {
           });
         }, function(error) {
           let msg = "Could not annotate variants due to missing reference file";
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
             .setHeader("Fatal Error");
           console.log("missing reference");
           reject("missing reference");
@@ -3272,8 +3274,8 @@ class SampleModel {
           resolve(data);
          },
          function(error) {
-           let msg = "Could not get sample data for gene " +  geneName;
-           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+           let msg = "Could not get sample data for gene " +  geneName + ". Try refreshing the page";
+           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
              .setHeader("Non-fatal Error");
           console.log(msg);
           reject(msg);

@@ -205,6 +205,9 @@ main.content.clin, main.v-content.clin
 .ajs-content
   overflow-wrap: break-word
 
+.ajs-dialog
+  max-width: 600px !important
+
 .dark-text-important
   color: #626262 !important
 
