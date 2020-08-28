@@ -16,7 +16,6 @@
     display: inline-block
     margin-left: 10px
     font-size: 12px
-    color: #1976d2 
 
   .pubmed-row
     font-size: 12px
@@ -92,7 +91,6 @@
         dense
         hide-details
         hide-no-data
-        clearable
         label="search"
         style="margin-left:20px;max-width:200px"
       ></v-autocomplete>
@@ -140,28 +138,30 @@ export default {
       loading: false,
       search: null,
       select: null,    
-      items: null,
+      items: [],
       matchMessage: "" 
     }
   },
   methods: {
     getPubMedEntries: function() {
       let self = this;
-      self.matchMessage = "";
       if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
         self.geneModel.promiseGetPubMedEntries(self.selectedGene.gene_name)
         .then(function(data) {
           self.pubMedEntries = data.entries;
           self.pubMedCount = data.count;
-
+          self.matchMessage = data.count > self.pubMedEntries.length ? "showing 5 most recent entries." : "";
         })
         .catch(function(error) {
           self.pubMedEntries = [];
           self.pubMedCount = 0;
+          self.matchMessage = "";
         })
       } else {
         self.pubMedEntries = [];
         self.pubMedCount = 0;
+        self.matchMessage = "";
+
       }
 
     },
@@ -170,6 +170,9 @@ export default {
     },
     querySelections (v) {
       let self = this;
+      if (this.loading) {
+        return;
+      }
       this.loading = true;
       this.items = [];
 
@@ -226,7 +229,7 @@ export default {
       let self = this;
       if (val && val !== this.select) {
         this.querySelections(val);
-      } else if (this.val == "") {
+      } else if (this.value == null || this.val == "") {
         self.matchMessage = "";
         self.getPubMedEntries();
       }
