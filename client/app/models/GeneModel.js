@@ -6,8 +6,12 @@ class GeneModel {
     this.launchedFromHub = launchedFromHub;
     this.phenolyzerServer          = "https://services.backend.iobio.io/phenolyzer/";
 
-    this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
-    this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
+    this.NCBI_GENE_SEARCH_URL      = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
+    this.NCBI_GENE_SUMMARY_URL     = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
+
+
+    this.NCBI_PUBMED_SEARCH_URL    = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&usehistory=y&retmode=json";
+    this.NCBI_PUBMED_SUMMARY_URL   = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
     
     this.OMIM_URL                  = "https://api.omim.org/api/";
 
@@ -50,6 +54,8 @@ class GeneModel {
 
 
     this.geneNCBISummaries = {};
+    this.geneOMIMEntries = {};
+    this.genePubMedEntries = {};
     this.genePhenotypes = {};
     this.geneObjects = {};
     this.geneToLatestTranscript = {};
@@ -871,33 +877,103 @@ class GeneModel {
 
   }
 
-  promiseGetOMIMInfo(theGeneName) {
+  promiseGetPubMedEntries(theGeneName, options={retmax: 5, useCached: true}) {
+    let me = this;
+    return new Promise( function(resolve, reject) {
+
+      let theEntry = me.genePubMedEntries[theGeneName];
+      if (theEntry && options.useCached) {
+        resolve(theEntry)
+      }
+      else {
+        let geneName = theGeneName;
+        var pubMedEntries = []
+        var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title]";
+
+        $.ajax( searchUrl )
+         .done(function(data) {
+
+            // Now that we have the gene ID, get the NCBI gene summary
+            var webenv = data["esearchresult"]["webenv"];
+            var queryKey = data["esearchresult"]["querykey"];
+            var count = data["esearchresult"]["count"]
+            var summaryUrl = me.NCBI_PUBMED_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv + "&retmax=" + options.retmax;
+            $.ajax( summaryUrl )
+            .done(function(sumData) {
+              if (sumData.result != null && sumData.result.uids && sumData.result.uids.length > 0) {
+                sumData.result.uids.forEach(function(uid) {
+                  var entry = sumData.result[uid];
+                  pubMedEntries.push({uid: uid, title: entry.title, firstAuthor: entry.sortfirstauthor, pubDate: entry.pubdate, source: entry.source})
+
+                })
+                let theEntry = {geneName: geneName, count: count, entries: pubMedEntries};
+                if (options.useCached) {
+                  me.genePubMedEntries[geneName] = theEntry;
+                }
+                resolve(theEntry);
+              } else {
+                let theEntry = {geneName: geneName, count: 0, entries: null}
+                if (options.useCached) {
+                  me.genePubMedEntries[geneName] = theEntry;
+                }
+                resolve(theEntry)
+              }
+            })
+           .fail(function() {
+              console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
+              reject();
+            })
+
+         })
+         .fail(function() {
+            console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
+            reject();
+         })
+
+      }
+    })
+  }
+
+
+  promiseGetOMIMEntries(theGeneName) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      let geneName = theGeneName;
-      self._promiseGetOMIMGene(geneName)
-      .then(function(data) {
-        if (data.phenotypes && data.phenotypes.length > 0) {
-          let promises = [];
-          let omimEntries = [];
-          data.phenotypes.forEach(function(phenotype) {
-            let p = self._promiseGetOMIMClinicalSynopsis(data.geneName, phenotype)
-            .then(function(data) {
-              omimEntries.push(data);
-            })      
-            promises.push(p)      
-          })
-          Promise.all(promises)
-          .then(function() {
-            resolve({geneName: geneName, omimEntries: omimEntries})
-          })
-        } else {
-          resolve({geneName: geneName, omimEntries: null})
-        }
-      })
-      .catch(function(error) {
-        reject(error)
-      })
+
+      let theEntry = self.geneOMIMEntries[theGeneName];
+      if (theEntry) {
+        resolve(theEntry)
+      } else {
+        let geneName = theGeneName;
+        self._promiseGetOMIMGene(geneName)
+        .then(function(data) {
+          if (data.phenotypes && data.phenotypes.length > 0) {
+            let promises = [];
+            let omimEntries = [];
+            data.phenotypes.forEach(function(phenotype) {
+              let p = self._promiseGetOMIMClinicalSynopsis(data.geneName, phenotype)
+              .then(function(data) {
+                omimEntries.push(data);
+              })      
+              promises.push(p)      
+            })
+            Promise.all(promises)
+            .then(function() {
+              let theEntry = {geneName: geneName, omimEntries: omimEntries};
+              self.geneOMIMEntries[geneName] = theEntry;
+              resolve(theEntry)
+            })
+          } else {
+            let theEntry = {geneName: geneName, omimEntries: null};
+            self.geneOMIMEntries[geneName] = theEntry;
+            resolve(theEntry)
+          }
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+
+      }
+
     })
 
   }
@@ -1015,7 +1091,12 @@ class GeneModel {
     if (self.geneNCBISummaries && self.geneNCBISummaries.hasOwnProperty(geneName)) {
       delete self.geneNCBISummaries[geneName];
     }
-
+    if (self.geneOMIMEntries && self.geneOMIMEntries.hasOwnProperty(geneName)) {
+      delete self.geneOMIMEntries[geneName];
+    }
+    if (self.genePubMedEntries && self.genePubMedEntries.hasOwnProperty(geneName)) {
+      delete self.genePubMedEntries[geneName];
+    }
     if (self.geneToLatestTranscript && self.geneToLatestTranscript.hasOwnProperty(geneName)) {
       delete self.geneToLatestTranscript[geneName];
     }

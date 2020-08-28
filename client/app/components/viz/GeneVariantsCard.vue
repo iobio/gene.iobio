@@ -84,70 +84,86 @@
 
 <template>
 
-        <div  v-if="selectedGene" class="gene-info text-xs-left">
 
-            <div id="gene-variants-heading">
-                Gene
+	<div v-if="selectedGene">
+		<div   class="gene-info text-xs-left">
+			<div id="gene-variants-heading">
+			Gene
+				<span id="gene-name"> {{ selectedGene.gene_name}} </span>
+			</div>
+			<gene-links-menu v-if="!isBasicMode"
+			             :selectedGene="selectedGene"
+			             :geneModel="cohortModel.geneModel">
+			</gene-links-menu>
 
-                <span id="gene-name"> {{ selectedGene.gene_name}} </span>
-
-
-
-
-
-            </div>
-            <gene-links-menu v-if="!isBasicMode"
-                             :selectedGene="selectedGene"
-                             :geneModel="cohortModel.geneModel">
-            </gene-links-menu>
-
-            <div style="display:inline-block;margin-left: 20px">
-                <transcripts-menu
-                        v-if="analyzedTranscript && analyzedTranscript.transcript_id && !isBasicMode&& !isSimpleMode"
-                        :selectedGene="selectedGene"
-                        :selectedTranscript="analyzedTranscript"
-                        :geneSources="geneSources"
-                        :geneModel="cohortModel.geneModel"
-                        @transcriptMenuOpened="onClickTranscript"
-                        @transcriptSelected="onTranscriptSelected"
-                        @gene-source-selected="onGeneSourceSelected">
-                </transcripts-menu>
-            </div>
+			<div style="display:inline-block;margin-left: 20px">
+				<transcripts-menu
+		        v-if="analyzedTranscript && analyzedTranscript.transcript_id && !isBasicMode&& !isSimpleMode"
+		        :selectedGene="selectedGene"
+		        :selectedTranscript="analyzedTranscript"
+		        :geneSources="geneSources"
+		        :geneModel="cohortModel.geneModel"
+		        @transcriptMenuOpened="onClickTranscript"
+		        @transcriptSelected="onTranscriptSelected"
+		        @gene-source-selected="onGeneSourceSelected">
+				</transcripts-menu>
+			</div>
 
 
 
 
-            <div style="display:inline-block;margin-left:10px">
+			<div style="display:inline-block;margin-left:10px">
 
 
-                <span id="gene-chr" class=" keep-case" >{{ selectedGene.chr }}</span>
-                <span id="gene-region"   class="keep-case">
-        {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
-        </span>
+				<span id="gene-chr" class=" keep-case" >{{ selectedGene.chr }}</span>
+				<span id="gene-region"   class="keep-case">
+				{{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
+				</span>
 
-                <v-badge id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
+				<v-badge id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
 
-                <span  id="gene-plus-minus-label"  v-if="!isBasicMode && !isSimpleMode"  style="padding-left: 15px">+  -</span>
-                <div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:50px;height:21px;"  >
-                    <v-text-field
-                            id="gene-region-buffer-input"
-                            class="sm fullview"
-                            v-model="regionBuffer"
-                            v-on:change="onGeneRegionBufferChange">
-                    </v-text-field>
-                </div>
-            </div>
-        </div>
+				<span  id="gene-plus-minus-label"  v-if="!isBasicMode && !isSimpleMode"  style="padding-left: 15px">+  -</span>
+				<div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:50px;height:21px;"  >
+		    		<v-text-field
+		            id="gene-region-buffer-input"
+		            class="sm fullview"
+		            v-model="regionBuffer"
+		            v-on:change="onGeneRegionBufferChange">
+		    		</v-text-field>
+				</div>
+			</div>
+
+		</div>
+
+    <div style="display:flex;justify-content:space-between;margin-top:5px">
+        <gene-omim-table 
+         v-if="selectedGene && cohortModel"
+         :selectedGene="selectedGene" 
+         :geneModel="cohortModel.geneModel">
+        </gene-omim-table>
+
+        <gene-pubmed-table
+         v-if="selectedGene && cohortModel"
+         :selectedGene="selectedGene" 
+         :geneModel="cohortModel.geneModel">
+        </gene-pubmed-table>
+    </div>
+
+	</div>
 </template>
 
 <script>
-    import GeneLinksMenu          from "../partials/GeneLinksMenu.vue"
+    import GeneOMIMTable        from '../partials/GeneOMIMTable.vue'
+    import GenePubMedTable      from '../partials/GenePubMedTable.vue'
+    import GeneLinksMenu        from "../partials/GeneLinksMenu.vue"
     import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
     export default {
         name: 'gene-variants-card',
         components: {
+            'gene-omim-table': GeneOMIMTable,
+            'gene-pubmed-table': GenePubMedTable,
             GeneLinksMenu,
-            TranscriptsMenu
+            TranscriptsMenu,
         },
         props: {
             selectedGene: null,
