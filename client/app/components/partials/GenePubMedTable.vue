@@ -5,6 +5,8 @@
 #pubmed-table
   .title-row
     display: flex
+    height: 25px
+    border-bottom: solid .5px #ededed
 
     .table-title
       color: $app-color
@@ -12,6 +14,7 @@
       display: inline-block
       font-size: 12px
       margin-left: 10px
+      padding-top: 1px
   .match-message
     display: inline-block
     margin-left: 10px
@@ -19,7 +22,7 @@
 
   .pubmed-row
     font-size: 12px
-    border-top: solid .5px #ededed
+    border-bottom: solid .5px #ededed
     >span
       display: inline-block
       vertical-align: top
@@ -34,8 +37,8 @@
 
     .pubmed-title
       display: inline-block
-      min-width: 500px
-      max-width: 500px
+      min-width: 450px
+      max-width: 450px
       vertical-align: top
     .pubmed-pub-author
       display: inline-block
@@ -67,7 +70,7 @@
     padding-bottom: 0px
 
   .v-select__slot label
-    top: 5px
+    top: 7px
     &.v-label--active
       top: 16px
   
@@ -92,12 +95,12 @@
         hide-details
         hide-no-data
         label="search"
-        style="margin-left:20px;max-width:200px"
+        style="margin-left:20px;max-width:230px"
       ></v-autocomplete>
       <span class="match-message"> {{ matchMessage }} </span>
 
     </div>
-    <div style="max-height:180px;overflow-y:scroll">
+    <div style="max-height:130px;min-height:130px;overflow-y:scroll">
       <div class="pubmed-row" v-for="entry in pubMedEntries" :key="entry.uid">
         <span  class="pubmed-launch" >
           <a v-if="entry.uid" :href="getEntryHref(entry.uid)" target="_pubmed">
@@ -150,7 +153,7 @@ export default {
         .then(function(data) {
           self.pubMedEntries = data.entries;
           self.pubMedCount = data.count;
-          self.matchMessage = data.count > self.pubMedEntries.length ? "showing 5 most recent entries." : "";
+          self.matchMessage = data.count > self.pubMedEntries.length ? "showing 5 most recent publications." : "";
         })
         .catch(function(error) {
           self.pubMedEntries = [];
@@ -241,6 +244,10 @@ export default {
   created: function() {
   },
   mounted: function() {
+    let self = this;
+    setTimeout(function() {
+      self.getPubMedEntries();
+    },2000)
   },
 }
 </script>

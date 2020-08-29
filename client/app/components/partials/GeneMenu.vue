@@ -90,8 +90,15 @@ export default {
     onClickLink: function(link) {
     },
     initLinks: function() {
+      let self = this;
       if (this.selectedGene && this.geneModel) {
-        this.links = this.geneModel.getLinks(this.selectedGene.gene_name);
+        this.geneModel.promiseGetLinks(this.selectedGene.gene_name)
+        .then(function(data) {
+          self.links = data;
+        })
+        .catch(function(error) {
+
+        })
       }
     },
   },

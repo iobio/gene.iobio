@@ -123,15 +123,20 @@ export default {
       links: null
     }
   },
-  watch: {
-  },
   methods: {
     onClickLink: function(link) {
       window.open(link.url, "_" + link.display);
     },
     initLinks: function() {
+      let self = this;
       if (this.selectedGene && this.geneModel) {
-        this.links = this.geneModel.getLinks(this.selectedGene.gene_name);
+        this.geneModel.promiseGetLinks(this.selectedGene.gene_name)
+        .then(function(data) {
+          self.links = data;
+        })
+        .catch(function(error) {
+
+        })
       }
     }
   },

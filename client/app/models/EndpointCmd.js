@@ -213,6 +213,31 @@ export default class EndpointCmd {
         }
     }
 
+
+    getClinvarPhenotypesForGene(url, refName, geneObject, regions) {
+        const me = this;
+        if (this.gruBackend) {
+
+            let cmd = this.api.streamCommand('clinvarCountsForGene', {
+                clinvarUrl: url,
+                region: {
+                    refName,
+                    start: geneObject.start,
+                    end: geneObject.end,
+                },
+                annotationMode: 'phenotype'
+            });
+
+            cmd.on('error', function(error) {
+              let msg = "Could not get phenotypes from clinVar."
+              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error + "</code>")
+                .setHeader("Non-fatal Error");
+            });
+            return cmd;
+        }
+    }
+
+
     getBamHeader(bamUrl, baiUrl) {
         if (this.gruBackend) {
             let cmd = this.api.streamCommand('alignmentHeader', {url: bamUrl});

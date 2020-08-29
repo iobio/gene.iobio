@@ -1238,6 +1238,20 @@ class CohortModel {
   }
 
 
+  promiseGetClinvarPhenotypes(geneObject, transcript) {
+    var self = this;
+    return new Promise( function(resolve, reject) {
+      var refName = self.getProbandModel()._stripRefName(geneObject.chr);
+      self.getProbandModel().vcf.promiseGetClinvarPhenotypes(refName, geneObject, transcript)
+      .then(function(results) {
+        resolve(results);
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+    })
+  }
+
 
 
   promiseAnnotateWithClinvar(resultMap, geneObject, transcript, isBackground) {

@@ -3,11 +3,22 @@
 @import ../../../assets/sass/variables
 
 #omim-table
-  .table-title
-    color: $app-color
+  .title-row
+    display: flex
+    height: 25px
+    border-bottom: solid .5px #ededed
+
+    .table-title
+      color: $app-color
+    .count
+      display: inline-block
+      font-size: 12px
+      margin-left: 10px
+      padding-top: 1px
+
   .omim-row
     font-size: 12px
-    border-top: solid .5px #ededed
+    border-bottom: solid .5px #ededed
     >span
       display: inline-block
       vertical-align: top
@@ -20,8 +31,8 @@
         font-size: 13px
         color: $link-color
     .omim-phenotype
-      min-width: 300px
-      max-width: 300px
+      min-width: 200px
+      max-width: 200px
     .omim-inheritance
       display: inline-block
       min-width: 100px
@@ -31,16 +42,20 @@
 <template>
 
   <div id="omim-table" v-if="omimEntries && omimEntries.length > 0">
-    <div class="table-title">OMIM Phenotypes</div>
-    <div class="omim-row" v-for="entry in omimEntries" :key="entry.phenotypeMimNumber">
-        <span class="omim-launch" >
-          <a :href="getEntryHref(entry.phenotypeMimNumber)" target="_omim">
-            <v-icon>launch</v-icon>
-          </a>
-        </span>
-        <span class="omim-phenotype" >{{ entry.phenotype }}
-        </span>
-        <span class="omim-inheritance">{{ entry.phenotypeInheritance }}</span>
+    <div class="title-row">
+      <div class="table-title">OMIM Phenotypes</div>
+    </div>
+    <div style="max-height:130px;min-height:130px;overflow-y:scroll">
+      <div class="omim-row" v-for="entry in omimEntries" :key="entry.phenotypeMimNumber">
+          <span class="omim-launch" >
+            <a :href="getEntryHref(entry.phenotypeMimNumber)" target="_omim">
+              <v-icon>launch</v-icon>
+            </a>
+          </span>
+          <span class="omim-phenotype" >{{ entry.phenotype }}
+          </span>
+          <span class="omim-inheritance">{{ entry.phenotypeInheritance }}</span>
+      </div>
     </div>
 
   </div>
@@ -93,6 +108,10 @@ export default {
   created: function() {
   },
   mounted: function() {
+    let self = this;
+    setTimeout(function() {
+      self.getOMIMEntries();
+    },2000)
   },
 }
 </script>

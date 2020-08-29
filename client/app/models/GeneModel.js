@@ -6,12 +6,12 @@ class GeneModel {
     this.launchedFromHub = launchedFromHub;
     this.phenolyzerServer          = "https://services.backend.iobio.io/phenolyzer/";
 
-    this.NCBI_GENE_SEARCH_URL      = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
-    this.NCBI_GENE_SUMMARY_URL     = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
+    this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
+    this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
 
 
-    this.NCBI_PUBMED_SEARCH_URL    = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&usehistory=y&retmode=json";
-    this.NCBI_PUBMED_SUMMARY_URL   = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
+    this.NCBI_PUBMED_SEARCH_URL    = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&usehistory=y&retmode=json";
+    this.NCBI_PUBMED_SUMMARY_URL   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
     
     this.OMIM_URL                  = "https://api.omim.org/api/";
 
@@ -886,49 +886,66 @@ class GeneModel {
         resolve(theEntry)
       }
       else {
-        let geneName = theGeneName;
-        var pubMedEntries = []
-        var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title]";
+        setTimeout(function() {
+          let geneName = theGeneName;
+          var pubMedEntries = []
+          var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title]";
 
-        $.ajax( searchUrl )
-         .done(function(data) {
+          $.ajax( searchUrl )
+           .done(function(data) {
 
-            // Now that we have the gene ID, get the NCBI gene summary
-            var webenv = data["esearchresult"]["webenv"];
-            var queryKey = data["esearchresult"]["querykey"];
-            var count = data["esearchresult"]["count"]
-            var summaryUrl = me.NCBI_PUBMED_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv + "&retmax=" + options.retmax;
-            $.ajax( summaryUrl )
-            .done(function(sumData) {
-              if (sumData.result != null && sumData.result.uids && sumData.result.uids.length > 0) {
-                sumData.result.uids.forEach(function(uid) {
-                  var entry = sumData.result[uid];
-                  pubMedEntries.push({uid: uid, title: entry.title, firstAuthor: entry.sortfirstauthor, pubDate: entry.pubdate, source: entry.source})
+              // Now that we have the gene ID, get the NCBI gene summary
+              var webenv = data["esearchresult"]["webenv"];
+              var queryKey = data["esearchresult"]["querykey"];
+              var count = data["esearchresult"]["count"]
+              var summaryUrl = me.NCBI_PUBMED_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv + "&retmax=" + options.retmax;
+              $.ajax( summaryUrl )
+              .done(function(sumData) {
+                if (sumData.result != null && sumData.result.uids && sumData.result.uids.length > 0) {
+                  sumData.result.uids.forEach(function(uid) {
+                    var entry = sumData.result[uid];
+                    pubMedEntries.push({uid: uid, title: entry.title, firstAuthor: entry.sortfirstauthor, pubDate: entry.pubdate, source: entry.source})
 
-                })
-                let theEntry = {geneName: geneName, count: count, entries: pubMedEntries};
-                if (options.useCached) {
-                  me.genePubMedEntries[geneName] = theEntry;
+                  })
+                  let theEntry = {geneName: geneName, count: count, entries: pubMedEntries};
+                  if (options.useCached) {
+                    me.genePubMedEntries[geneName] = theEntry;
+                  }
+                  resolve(theEntry);
+                } else {
+                  let theEntry = {geneName: geneName, count: 0, entries: null}
+                  if (options.useCached) {
+                    me.genePubMedEntries[geneName] = theEntry;
+                  }
+                  resolve(theEntry)
                 }
-                resolve(theEntry);
-              } else {
-                let theEntry = {geneName: geneName, count: 0, entries: null}
-                if (options.useCached) {
-                  me.genePubMedEntries[geneName] = theEntry;
-                }
-                resolve(theEntry)
-              }
-            })
+              })
+             .fail(function() {
+                console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
+
+                let msg = "Unable to get PubMed links";
+                alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+                 .setHeader("Warning");
+                console.log(msg);
+
+                reject();
+              })
+
+           })
            .fail(function() {
+
+
+              let msg = "Unable to get PubMed links";
+              alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
+               .setHeader("Warning");
+              console.log(msg);
+
+            
               console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
               reject();
-            })
+           })
 
-         })
-         .fail(function() {
-            console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-            reject();
-         })
+         }, 1000)
 
       }
     })
@@ -1343,45 +1360,52 @@ class GeneModel {
 
   }
 
-  getLinks(geneName) {
+  promiseGetLinks(geneName) {
     let me = this;
-    let links = [];
 
-    var geneCoord = null;
-    var geneObject = me.geneObjects[geneName];
-    if (geneObject) {
-      geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
-    }
-    me.promiseGetNCBIGeneSummary(geneName);
+    return new Promise(function(resolve, reject) {
+      let links = [];
 
-    var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
-
-    me.promiseGetNCBIGeneSummary(geneName);
-
-    var geneUID = null;
-    var ncbiInfo = me.geneNCBISummaries[geneName];
-    if (ncbiInfo) {
-      geneUID = ncbiInfo.uid;
-    }
-    for (var linkName in me.linkTemplates) {
-      var theLink = $.extend({}, me.linkTemplates[linkName]);
-      theLink.name = linkName;
-      if (geneUID) {
-        theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
-      }
+      var geneCoord = null;
+      var geneObject = me.geneObjects[geneName];
       if (geneObject) {
-        theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
+        geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
       }
-      if (geneCoord) {
-        theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
-      }
-      if (buildAliasUCSC) {
-        theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
-      }
-      links.push(theLink);
-    }
+      me.promiseGetNCBIGeneSummary(geneName)
+      .then(function() {
+        var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
 
-    return links;
+        var geneUID = null;
+        var ncbiInfo = me.geneNCBISummaries[geneName];
+        if (ncbiInfo) {
+          geneUID = ncbiInfo.uid;
+        }
+        for (var linkName in me.linkTemplates) {
+          var theLink = $.extend({}, me.linkTemplates[linkName]);
+          theLink.name = linkName;
+          if (geneUID) {
+            theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
+          }
+          if (geneObject) {
+            theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
+          }
+          if (geneCoord) {
+            theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
+          }
+          if (buildAliasUCSC) {
+            theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
+          }
+          links.push(theLink);
+        }
+        resolve(links)
+
+
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+
+    })
   }
 
   getVariantLinks(geneName, variant) {

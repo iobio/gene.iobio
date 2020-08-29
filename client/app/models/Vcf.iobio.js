@@ -914,6 +914,26 @@ export default function vcfiobio(theGlobalApp) {
     });
   }
 
+
+  exports.promiseGetClinvarPhenotypes = function(refName, geneObject, transcript) {
+    var me = this;
+
+
+    return new Promise( function(resolve, reject) {
+
+      me._getClinvarPhenotypesImpl(refName, geneObject, transcript, 
+        function(data) {
+          if (data) {
+            resolve(data);
+          } else {
+            reject();
+          }
+        });
+
+    });
+  }
+
+
   exports._getExonRegions = function(transcript) {
 
     return transcript.features
@@ -981,6 +1001,82 @@ export default function vcfiobio(theGlobalApp) {
         idx++;
       });
       callback(results);
+    });
+
+    cmd.on('error', function(error) {
+       console.log(error);
+    });
+
+    cmd.run();
+
+  }
+
+  exports._getClinvarPhenotypesImpl = function(refName, geneObject, transcript, callback) {
+
+    var me = this;
+
+    var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
+    var cmd = me.getEndpoint().getClinvarPhenotypesForGene(clinvarUrl, refName, geneObject);
+
+
+    var summaryData = "";
+    // Get the results from the iobio command
+    cmd.on('data', function(data) {
+       if (data == undefined) {
+          return;
+       }
+       summaryData += data;
+    });
+
+    // We have all of the annotated vcf recs.  Now parse them into vcf objects
+    cmd.on('end', function(data) {
+      var results = [];
+      var records = summaryData.split("\n");
+      var fieldNames = {};
+
+      var idx = 0;
+      records.forEach(function(record) {
+        if (idx == 0) {
+          fieldNames = record.split('\t');
+        } else {
+          if (record.trim().length > 0) {
+            var fields = record.split('\t');
+            var resultRec = {};
+
+            var i = 0;
+            fieldNames.forEach(function(fieldName) {
+              // All fields are numeric
+              resultRec[fieldName] = fields[i];
+              i++;
+            })
+
+            results.push(resultRec);
+          }
+        }
+        idx++;
+      });
+      results = results.map(function(entry) {
+        entry.phenotype = entry.phenotype.split("_").join(" ");
+        return entry;
+      }).filter(function(entry) {
+        return entry.phenotype != "not provided" && entry.phenotype != 'not specified'
+      })
+      let sortedResults = results.sort(function(a,b) {
+        if (+a.total < +b.total) {
+          return 1;
+        } else if (+a.total > +b.total) {
+          return -1;
+        } else {
+          if (a.phenotype < b.phenotype) {
+            return -1
+          } else if (a.phentoype > b.phenotype) {
+            return 1;
+          } else {
+            return 0;
+          }
+        }
+      })
+      callback(sortedResults);
     });
 
     cmd.on('error', function(error) {
