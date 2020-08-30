@@ -24,12 +24,28 @@
       line-height: 15px
 
     .clinvar-phenotype
-      min-width: 250px
-      max-width: 250px
+      min-width: 230px
+      max-width: 230px
+    .clinvar-benign
+      display: inline-block
+      min-width: 20px
+      max-width: 20px
+      color: #7ba506
+      text-align: right
+      font-weight: 500
+    .clinvar-path
+      display: inline-block
+      min-width: 20px
+      max-width: 20px
+      color: $danger-color
+      text-align: right
+      font-weight: 500
     .clinvar-total
       display: inline-block
       min-width: 20px
       max-width: 20px
+      text-align: right
+      font-weight: 500
 </style>
 
 <template>
@@ -43,6 +59,8 @@
       <div class="clinvar-row" v-for="entry in phenotypeEntries" :key="entry.phenotype">
           <span class="clinvar-phenotype" >{{ entry.phenotype }}
           </span>
+          <span class="clinvar-benign">{{ entry.benign }}</span>
+          <span class="clinvar-path">{{ entry.path }}</span>
           <span class="clinvar-total">{{ entry.total }}</span>
       </div>
     </div>
@@ -70,8 +88,10 @@ export default {
   methods: {
     getPhenotypeEntries: function() {
       let self = this;
+      self.phenotypeEntries = [];
       if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
-        self.cohortModel.promiseGetClinvarPhenotypes(self.selectedGene, self.selectedTranscript)
+        self.cohortModel.geneModel.promiseGetClinvarPhenotypes(self.cohortModel, 
+          self.selectedGene, self.selectedTranscript)
         .then(function(data) {
           self.phenotypeEntries = data;          
         })

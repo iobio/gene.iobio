@@ -81,6 +81,8 @@ export default {
   methods: {
     getOMIMEntries: function() {
       let self = this;
+      self.omimEntries = [];
+  
       if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
         self.geneModel.promiseGetOMIMEntries(self.selectedGene.gene_name)
         .then(function(data) {

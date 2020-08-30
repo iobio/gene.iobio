@@ -37,8 +37,8 @@
 
     .pubmed-title
       display: inline-block
-      min-width: 450px
-      max-width: 450px
+      min-width: 350px
+      max-width: 350px
       vertical-align: top
     .pubmed-pub-author
       display: inline-block
@@ -148,6 +148,9 @@ export default {
   methods: {
     getPubMedEntries: function() {
       let self = this;
+      self.pubMedEntries = [];
+      self.pubMedCount = 0;
+      self.matchMessage = "";
       if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
         self.geneModel.promiseGetPubMedEntries(self.selectedGene.gene_name)
         .then(function(data) {

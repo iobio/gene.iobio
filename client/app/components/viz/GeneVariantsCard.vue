@@ -142,6 +142,12 @@
          :geneModel="cohortModel.geneModel">
         </gene-omim-table>
 
+        <gene-clinvar-phenotype-table
+         v-if="selectedGene && cohortModel && cohortModel.isLoaded"
+         :selectedGene="selectedGene" 
+         :cohortModel="cohortModel">
+        </gene-clinvar-phenotype-table>
+
         <gene-pubmed-table
          v-if="selectedGene && cohortModel"
          :selectedGene="selectedGene" 
@@ -154,6 +160,7 @@
 
 <script>
     import GeneOMIMTable        from '../partials/GeneOMIMTable.vue'
+    import GeneClinvarPhenotypeTable from '../partials/GeneClinvarPhenotypeTable.vue'
     import GenePubMedTable      from '../partials/GenePubMedTable.vue'
     import GeneLinksMenu        from "../partials/GeneLinksMenu.vue"
     import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
@@ -162,6 +169,7 @@
         components: {
             'gene-omim-table': GeneOMIMTable,
             'gene-pubmed-table': GenePubMedTable,
+            'gene-clinvar-phenotype-table': GeneClinvarPhenotypeTable,
             GeneLinksMenu,
             TranscriptsMenu,
         },

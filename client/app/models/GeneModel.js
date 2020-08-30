@@ -56,6 +56,7 @@ class GeneModel {
     this.geneNCBISummaries = {};
     this.geneOMIMEntries = {};
     this.genePubMedEntries = {};
+    this.geneClinvarPhenotypes = {};
     this.genePhenotypes = {};
     this.geneObjects = {};
     this.geneToLatestTranscript = {};
@@ -940,7 +941,7 @@ class GeneModel {
                .setHeader("Warning");
               console.log(msg);
 
-            
+
               console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
               reject();
            })
@@ -950,6 +951,29 @@ class GeneModel {
       }
     })
   }
+
+  promiseGetClinvarPhenotypes(cohortModel, geneObject, transcript) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+
+      let theEntry = self.geneClinvarPhenotypes[geneObject.gene_name];
+      if (theEntry) {
+        resolve(theEntry)
+      } else {
+        let geneName = geneObject.gene_name;
+        cohortModel.promiseGetClinvarPhenotypes(geneObject, transcript)
+        .then(function(data) {
+          self.geneClinvarPhenotypes[geneName] = data;
+          resolve(data);
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      }
+    })
+  }
+
+
 
 
   promiseGetOMIMEntries(theGeneName) {
@@ -1116,6 +1140,9 @@ class GeneModel {
     }
     if (self.geneToLatestTranscript && self.geneToLatestTranscript.hasOwnProperty(geneName)) {
       delete self.geneToLatestTranscript[geneName];
+    }
+    if (self.geneClinvarPhenotypes && self.geneClinvarPhenotypes.hasOwnProperty(geneName)) {
+      delete self.geneClinvarPhenotypes[geneName];
     }
   }
 
