@@ -2152,6 +2152,7 @@ export default {
 
     },
     onGeneRegionZoom: function(theStart, theEnd) {
+      console.log("theStart, theEnd", theStart, theEnd);
       this.geneRegionStart = theStart;
       this.geneRegionEnd = theEnd;
 

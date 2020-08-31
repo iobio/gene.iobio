@@ -37,8 +37,8 @@
 
   #variant-pileup-button
     position: absolute
-    top: 0px
-    left: 0px
+    top: 0
+    left: 0
     display: none !important
 
   .header-spacer
@@ -46,12 +46,12 @@
 
   .variant-action-button
     background-color: white
-    padding: 0px
+    padding: 0
     height: 22px !important
     min-width: 70px
     margin-left: 15px
-    margin-right: 0px
-    margin-bottom: 0px
+    margin-right: 0
+    margin-bottom: 0
     vertical-align: top
     margin-top: 4px
 
@@ -65,7 +65,7 @@
         color: $app-color
         font-size: 14px
         padding-right: 2px
-        padding-top: 0px
+        padding-top: 0
 
 
   .coverage-problem-glyph
@@ -77,11 +77,11 @@
       outline: none !important
       font-weight: normal !important
     .axis
-      padding-left: 0px
-      padding-right: 0px
-      margin-top: -10px
-      margin-bottom: 0px
-      padding-bottom: 0px
+      padding-left: 0
+      padding-right: 0
+      margin-top: -10
+      margin-bottom: 0
+      padding-bottom: 0
       text
         font-size: 11px
         fill: rgb(120, 120, 120)
@@ -117,11 +117,11 @@
 
   .zoom-switch
     display: inline-block
-    padding-top: 0px !important
-    margin-top: 0px !important
+    padding-top: 0 !important
+    margin-top: 0 !important
 
     label
-      padding-left: 0px
+      padding-left: 0
       line-height: 18px
       font-family: Poppins, sans-serif !important
       font-size: 13px !important
@@ -130,7 +130,6 @@
       color: $text-color
 
   .badge, .v-badge
-    padding: 0px 5px 0px 0px
     padding: 3px 7px
     background-color: white
     color: $text-color
@@ -147,7 +146,7 @@
         color: $text-color !important
     &.loaded
       padding-top: 4px
-      padding-left: 0px
+      padding-left: 0
       margin-left: 15px
       .badge__badge, .v-badge__badge
         background-color: #efeeee !important
@@ -162,13 +161,13 @@
       font-size: 11px
       font-weight: normal
       width: 24px
-      top: 0px
+      top: 0
       background-color: $light-badge-color !important
 
   #known-variants-chart
-    padding: 0px
-    margin-top: 0px
-    margin-bottom: 0px
+    padding: 0
+    margin-top: 0
+    margin-bottom: 0
 
 
     svg
@@ -202,9 +201,9 @@
 
 
   #sfari-variants-chart
-    padding: 0px
-    margin-top: 0px
-    margin-bottom: 0px
+    padding: 0
+    margin-top: 0
+    margin-bottom: 0
 
   #sfari-chip
     .chip__content
@@ -280,14 +279,14 @@
           stroke: #a9a9a9 !important
 
     #depth-viz
-      min-height: 0px !important
+      min-height: 0 !important
       .circle
         fill: #404040 !important
       .circle-label
         fill: #868686 !important
 
   .btn__content, .v-btn__content
-    padding: 0px
+    padding: 0
 
     i.material-icons
       font-size: 18px
@@ -295,14 +294,14 @@
       opacity: .6
 
 .close-button
-  margin: 0px !important
-  padding: 0px !important
+  margin: 0 !important
+  padding: 0 !important
   min-width: 25px !important
   height: 25px !important
   margin-bottom: 15px !important
 
   .btn__content, .v-btn__content
-    padding: 0px
+    padding: 0
     max-width: 25px
     max-height: 25px
 
@@ -380,7 +379,7 @@
         </div>
 
         <v-switch
-                v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+                v-if="sampleModel.relationship === 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
                 class="zoom-switch" style="max-width:80px;"
                 label="Zoom"
                 v-model="showZoom"
@@ -394,11 +393,11 @@
 
         <v-badge  id="loaded-count" style="padding-top: 2px; margin-left: 0 !important"
         v-if="!isEduMode && !isBasicMode && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="loaded mr-4 " >
-          <span slot="badge" style="padding-top: 0px" > {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
-          {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Variants' }}
+          <span slot="badge" style="padding-top: 0" > {{ sampleModel.relationship !== 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
+          {{ isBasicMode || sampleModel.relationship === 'known-variants' ? 'Count' : 'Variants' }}
         </v-badge>
         <v-badge id="called-count"
-          v-if="sampleModel.relationship != 'known-variants' && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
+          v-if="sampleModel.relationship !== 'known-variants' && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
           class="mr-4  called">
           <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
           Called
@@ -441,11 +440,11 @@
         <div style="text-align: center;clear: both;">
           <div class="loader vcfloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingVariants }" style="display: inline-block;padding-bottom:10px">
             <span class="loader-label">Annotating variants</span>
-            <img src="../../../assets/images/wheel.gif">
+            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
           </div>
           <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;adding-bottom:10px">
             <span class="loader-label">Calling variants</span>
-            <img src="../../../assets/images/wheel.gif">
+            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
           </div>
           <div class="loader covloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingCoverage }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
             <span class="loader-label">Analyzing gene coverage</span>
@@ -678,26 +677,26 @@
           >
           </depth-viz>
 
-          <gene-viz
-                  class="gene-viz"
-                    :modelName="model.name"
-                    :relationship="model.relationship"
-                    :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
-                    v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
-                    :data="[selectedTranscript]"
-                    :margin="geneVizMargin"
-                    :width="width"
-                    :height="40"
-                    :trackHeight="geneVizTrackHeight"
-                    :cdsHeight="geneVizCdsHeight"
-                    :regionStart="regionStart"
-                    :regionEnd="regionEnd"
-                    :showXAxis="geneVizShowXAxis"
-                    :showBrush="false"
-                    :featureClass="getExonClass"
-                    @feature-selected="showExonTooltip"
-          >
-          </gene-viz>
+<!--          <gene-viz-->
+<!--                  class="gene-viz"-->
+<!--                    :modelName="model.name"-->
+<!--                    :relationship="model.relationship"-->
+<!--                    :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"-->
+<!--                    v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"-->
+<!--                    :data="[selectedTranscript]"-->
+<!--                    :margin="geneVizMargin"-->
+<!--                    :width="width"-->
+<!--                    :height="40"-->
+<!--                    :trackHeight="geneVizTrackHeight"-->
+<!--                    :cdsHeight="geneVizCdsHeight"-->
+<!--                    :regionStart="regionStart"-->
+<!--                    :regionEnd="regionEnd"-->
+<!--                    :showXAxis="geneVizShowXAxis"-->
+<!--                    :showBrush="false"-->
+<!--                    :featureClass="getExonClass"-->
+<!--                    @feature-selected="showExonTooltip"-->
+<!--          >-->
+<!--          </gene-viz>-->
 
         </div>
 
@@ -813,6 +812,9 @@ export default {
         bottom: 10,
         left: 4
       },
+
+      zoomStart: null,
+      soomEnd: null,
 
       depthVizMargin: {
         top: 32,
@@ -1357,6 +1359,8 @@ export default {
     },
     onRegionZoom: function(regionStart, regionEnd) {
       this.zoomMessage = "Click to zoom out";
+      this.zoomStart = regionStart;
+      this.zoomEnd = regionEnd;
       this.$emit('gene-region-zoom', regionStart, regionEnd);
     },
     onRegionZoomReset: function() {
@@ -1440,6 +1444,16 @@ export default {
   },
 
   watch: {
+    regionStart: function(){
+      if(this.zoomStart !== this.regionStart && this.showZoom) {
+        this.$emit('gene-region-zoom', this.zoomStart, this.zoomEnd);
+      }
+    },
+    regionEnd: function(){
+      if(this.zoomEnd !== this.regionEnd && this.showZoom) {
+        this.$emit('gene-region-zoom', this.zoomStart, this.zoomEnd);
+      }
+    },
     showZoom: function() {
       if (!this.showZoom) {
         this.zoomMessage = "Drag to zoom";
