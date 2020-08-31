@@ -301,7 +301,6 @@
 
             regionStart: function() {
                 this.regionSpan = this.regionStart + "-" + this.regionEnd;
-                console.log("regionSpan")
             },
             regionEnd: function() {
                 this.regionSpan = this.regionStart + "-" + this.regionEnd;

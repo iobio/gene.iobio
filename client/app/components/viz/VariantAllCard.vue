@@ -49,11 +49,8 @@
     padding: 0
     height: 22px !important
     min-width: 70px
-    margin-left: 15px
-    margin-right: 0
-    margin-bottom: 0
     vertical-align: top
-    margin-top: 4px
+    margin: 4px 0 0 15px
 
     .btn__content, .v-btn__content
       color: $app-color !important
@@ -130,12 +127,11 @@
       color: $text-color
 
   .badge, .v-badge
-    padding: 3px 7px
     background-color: white
     color: $text-color
     font-weight: normal
     font-size: 13px
-    padding-top: 2px
+    padding: 2px 7px 3px
 
     &.called
       vertical-align: top
@@ -393,7 +389,7 @@
 
         <v-badge  id="loaded-count" style="padding-top: 2px; margin-left: 0 !important"
         v-if="!isEduMode && !isBasicMode && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="loaded mr-4 " >
-          <span slot="badge" style="padding-top: 0" > {{ sampleModel.relationship !== 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
+          <span slot="badge" style="padding-top: 0" > {{ sampleModel.relationship !== 'known-variants' || knownVariantsViz === 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
           {{ isBasicMode || sampleModel.relationship === 'known-variants' ? 'Count' : 'Variants' }}
         </v-badge>
         <v-badge id="called-count"
@@ -442,13 +438,13 @@
             <span class="loader-label">Annotating variants</span>
             <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
           </div>
-          <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;adding-bottom:10px">
+          <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
             <span class="loader-label">Calling variants</span>
             <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
           </div>
           <div class="loader covloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingCoverage }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
             <span class="loader-label">Analyzing gene coverage</span>
-            <img src="../../../assets/images/wheel.gif">
+            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
           </div>
           <v-badge v-if="showZoom" class="info" style="margin-bottom:5px">{{ zoomMessage }}</v-badge>
         </div>
@@ -610,7 +606,7 @@
 
 
 
-        <div class="other-samples" style="margin-top:0px" v-for="model in otherModels" :key="model.relationship">
+        <div class="other-samples" style="margin-top:0" v-for="model in otherModels" :key="model.relationship">
           <div class="other-samples-header">
             <span class="chart-label"> {{ getSampleRelLabelOther(model) }}</span>
           </div>
@@ -851,14 +847,14 @@ export default {
 
   methods: {
     depthVizYTickFormat: function(val) {
-      if (val == 0) {
+      if (val === 0) {
         return "";
       } else {
         return val + "x";
       }
     },
     depthVizRegionGlyph: function(exon, regionGroup, regionX, modelName) {
-      var exonId = 'exon' + exon.exon_number.replace("/", "-");
+      let exonId = 'exon' + exon.exon_number.replace("/", "-");
       if (regionGroup.select("g#" + exonId).empty()) {
         regionGroup.append('g')
               .attr("id", exonId)
@@ -921,7 +917,7 @@ export default {
       this.showFilter = showFilter;
     },
 
-    onVariantHover: function(variant, showTooltip=true) {
+    onVariantHover: function(variant) {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
       }
@@ -931,7 +927,7 @@ export default {
       }
       this.$emit('cohort-variant-hover', variant, this);
     },
-    onVariantHoverOther: function(variant, showTooltip=true) {
+    onVariantHoverOther: function(variant) {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
       }
@@ -940,7 +936,7 @@ export default {
         this.showVariantTooltipOther(variant, false);
       }
     },
-    onVariantHoverEnd: function(lock) {
+    onVariantHoverEnd: function() {
       if (this.showDepthViz) {
         this.hideCoverageCircle();
       }
@@ -967,10 +963,10 @@ export default {
         }
 
 
-        var x = variant.screenX;
-        var y = variant.screenY;
+        const x = variant.screenX;
+        const y = variant.screenY;
 
-        var coord = {'x':                  x,
+        const coord = {'x':                  x,
                      'y':                  y,
                      'height':             33,
                      'parentWidth':        self.$el.offsetWidth,
@@ -1013,10 +1009,10 @@ export default {
           }
 
 
-          var x = variant.screenX - 40;
-          var y = variant.screenY - 2;
+          const x = variant.screenX - 40;
+          const y = variant.screenY - 2;
 
-          var coord = {'x':                  x,
+          const coord = {'x':                  x,
                        'y':                  y,
                        'height':             33,
                        'parentWidth':        self.$el.offsetWidth,
@@ -1123,17 +1119,17 @@ export default {
       })
     },
     getVariantViz: function(variant) {
-      return variant.fbCalled && variant.fbCalled == 'Y'
+      return variant.fbCalled && variant.fbCalled === 'Y'
           ? this.$refs.calledVariantVizRef
           : this.$refs.variantVizRef;
     },
     getVariantSVG: function(variant) {
-      return variant.fbCalled && variant.fbCalled == 'Y'
+      return variant.fbCalled && variant.fbCalled === 'Y'
           ? d3.select(this.$el).select('#called-variant-viz > svg')
           : d3.select(this.$el).select('#loaded-variant-viz > svg');
     },
     getOtherVariantSVG: function(variant, relationship) {
-      return variant.fbCalled && variant.fbCalled == 'Y'
+      return variant.fbCalled && variant.fbCalled === 'Y'
           ? d3.select(this.$el).select('#called-variant-viz-' + relationship + ' > svg')
           : d3.select(this.$el).select('#loaded-variant-viz-' + relationship + ' > svg');
     },
@@ -1158,15 +1154,15 @@ export default {
       if (self.showDepthViz && self.sampleModel.coverage != null) {
         let theDepth = null;
         let theAltCount = null;
-        var matchingVariants = self.sampleModel.loadedVariants.features.filter(function(v) {
-          return v.start == variant.start && v.alt == variant.alt && v.ref == variant.ref;
+        const matchingVariants = self.sampleModel.loadedVariants.features.filter(function(v) {
+          return v.start === variant.start && v.alt === variant.alt && v.ref === variant.ref;
         })
 
         if (matchingVariants.length > 0) {
           theDepth = matchingVariants[0].bamDepth;
           // If samtools mpileup didn't return coverage for this position, use the variant's depth
           // field.
-          if (theDepth == null || theDepth == '') {
+          if (theDepth == null || theDepth === '') {
             theDepth = matchingVariants[0].genotypeDepth;
           }
           if (matchingVariants[0].genotype && matchingVariants[0].genotype.altCount) {
@@ -1194,15 +1190,15 @@ export default {
         if (depthVizRef && depthVizRef.model && depthVizRef.model.coverage  && depthVizRef.model.coverage.length > 0) {
           let theDepth = null;
           let theAltCount = null;
-          var matchingVariants = depthVizRef.model.loadedVariants.features.filter(function(v) {
-            return v.start == variant.start && v.alt == variant.alt && v.ref == variant.ref;
+          let matchingVariants = depthVizRef.model.loadedVariants.features.filter(function(v) {
+            return v.start === variant.start && v.alt === variant.alt && v.ref === variant.ref;
           })
 
           if (matchingVariants.length > 0) {
             theDepth = matchingVariants[0].bamDepth;
             // If samtools mpileup didn't return coverage for this position, use the variant's depth
             // field.
-            if (theDepth == null || theDepth == '') {
+            if (theDepth == null || theDepth === '') {
               theDepth = matchingVariants[0].genotypeDepth;
             }
             if (matchingVariants[0].genotype && matchingVariants[0].genotype.altCount) {
@@ -1272,7 +1268,7 @@ export default {
         modelName = e[0][0].attributes.modelName.value;
       }
       for(let i = 0; i < this.otherModels.length; i++){
-        if(modelName == this.otherModels[i].name){
+        if(modelName === this.otherModels[i].name){
           return this.otherModels[i];
         }
       }
@@ -1304,8 +1300,8 @@ export default {
         tooltip.classed("locked", false);
       }
 
-      var coverageRow = function(fieldName, coverageVal, covFields) {
-        var row = '<div>';
+      const coverageRow = function(fieldName, coverageVal, covFields) {
+        let row = '<div>';
         row += '<span style="padding-left:10px;width:60px;display:inline-block">' + fieldName   + '</span>';
         row += '<span style="width:40px;display:inline-block">' + d3.round(coverageVal) + '</span>';
         row += '<span class="' + (covFields[fieldName] ? 'danger' : '') + '">' + (covFields[fieldName] ? covFields[fieldName]: '') + '</span>';
@@ -1332,7 +1328,7 @@ export default {
         })
       }
 
-      var coord = self.globalAppProp.utility.getTooltipCoordinates(featureObject.node(),
+      const coord = self.globalAppProp.utility.getTooltipCoordinates(featureObject.node(),
         tooltip, self.$el.offsetWidth, 0);
 
       tooltip.style("left", (coord.x) + "px")
@@ -1367,7 +1363,7 @@ export default {
       this.zoomMessage = "Drag to zoom";
       this.$emit('gene-region-zoom-reset');
     },
-    onRankedVariantClick: function(variant, sourceComponent, sourceRelationship) {
+    onRankedVariantClick: function(variant) {
       this.showVariantCircle(variant, true);
       this.$emit('cohort-variant-click', variant, this, this.sampleModel.relationship);
       this.showRankedVariantsMenu = false;
@@ -1380,10 +1376,10 @@ export default {
     },
     getSampleRelLabelOther: function(model) {
       let self = this;
-      var label = "";
-      if (model.relationship == 'known-variants') {
+      let label = "";
+      if (model.relationship === 'known-variants') {
         label = "ClinVar"
-      } else if (model == 'sfari-variants') {
+      } else if (model === 'sfari-variants') {
         label = "SFARI"
       } else {
         if (model.cohort.mode === 'trio' &&  model.relationship !== 'known-variants'
@@ -1401,18 +1397,18 @@ export default {
   computed: {
     sampleRelLabel: function() {
       let self = this;
-      var label = "";
+      let label = "";
       if (self.isEduMode) {
         label = self.globalApp.utility.capitalizeFirstLetter(this.sampleModel.name) + "'s Variants";
-      } else if (this.sampleModel.relationship == 'proband') {
+      } else if (this.sampleModel.relationship === 'proband') {
         label = "Variants"
       } else if (this.sampleModel.isAlignmentsOnly()) {
         label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);
         label += " Proband Variants in " + this.selectedGene.gene_name;
       } else {
-        if (this.sampleModel.relationship == 'known-variants') {
+        if (this.sampleModel.relationship === 'known-variants') {
           label = "ClinVar Variants"
-        } else if (this.sampleModel.relationship == 'sfari-variants') {
+        } else if (this.sampleModel.relationship === 'sfari-variants') {
           label = "SFARI Variants"
         } else {
           if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
@@ -1426,21 +1422,17 @@ export default {
       return label;
     },
     sampleLabel: function() {
-      var label = "";
+      let label = "";
       if (this.sampleModel.isAlignmentsOnly()) {
       } else {
-        if (this.sampleModel.relationship == 'known-variants') {
-        } else if (this.sampleModel.relationship == 'sfari-variants') {
+        if (this.sampleModel.relationship === 'known-variants') {
+        } else if (this.sampleModel.relationship === 'sfari-variants') {
         } else {
           label += this.sampleModel.name;
         }
       }
       return label;
     },
-    depthVizHeight: function() {
-      this.showDepthViz ? 0 : 60;
-    }
-
   },
 
   watch: {
