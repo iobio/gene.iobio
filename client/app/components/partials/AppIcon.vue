@@ -182,8 +182,8 @@
         <g transform="translate(0,0)">
           <rect :width="isSimpleMode ? 85 : 35" height="14" class="zyg_het" style="pointer-events: none;">
           </rect>
-          <text x="4" y="11" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 11px !important;">
-          {{ isSimpleMode ? 'Heterozygous' : 'Hom' }}
+          <text x="7" y="11" style="stroke: none !important;fill: white !important; font-weight: bold !important; font-size: 11px !important;">
+          {{ isSimpleMode ? 'Heterozygous' : 'Het' }}
           </text>
         </g>
       </svg>
