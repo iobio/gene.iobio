@@ -11,8 +11,9 @@
 
 #filter-form, #filterSelect
     #dropdownWrapper
-        width: 225px
-        padding-right: 0px
+        width: 100%
+        padding-right: 0
+
 
     .filter-switch
         display: inline-block
@@ -29,9 +30,6 @@
 
     .v-input__slot
         margin-bottom: 0 !important
-
-    .v-select__slot
-        height: 25px !important
 
         label
             font-family: Poppins, sans-serif !important
@@ -119,7 +117,6 @@
                     this.showFilter = false;
                 }
                 this.setFilteredVariants();
-                this.setDropdownWidth();
             },
             selectedGene: function () {
                 this.selectedFilters = [];
@@ -139,28 +136,7 @@
         },
 
         methods: {
-
-            setDropdownWidth: function () {
-                let self = this;
-
-                setTimeout(function () {
-                    let baseWidth = 215;
-                    let totalWidth = 65;
-                    let padding = self.selectedFilters.length * 3;
-
-                    d3.select("#dropdownWrapper").selectAll(".v-chip__content")
-                        .attr("getWidth", function (d, i) {
-                            totalWidth += this.getBoundingClientRect().width;
-                        });
-                    totalWidth += padding;
-
-                    let width = Math.max(baseWidth, totalWidth);
-
-                    d3.select("#dropdownWrapper")
-                        .style("width", width.toString() + "px");
-                }, 100);
-            },
-
+          
             setFilteredVariants() {
               this.filteredVariants = [];
               if(this.variants && this.variants.features) {
