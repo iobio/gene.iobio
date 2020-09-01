@@ -6,7 +6,6 @@
   .title-row
     display: flex
     height: 25px
-    border-bottom: solid .5px #ededed
 
     .table-title
       color: $app-color
@@ -18,7 +17,7 @@
 
   .omim-row
     font-size: 12px
-    border-bottom: solid .5px #ededed
+    padding-bottom: 5px
     >span
       display: inline-block
       vertical-align: top
@@ -45,7 +44,7 @@
     <div class="title-row">
       <div class="table-title">OMIM Phenotypes</div>
     </div>
-    <div style="max-height:130px;min-height:130px;overflow-y:scroll">
+    <div style="max-height:130px;min-height:130px;overflow-y:scroll;padding-top:5px">
       <div class="omim-row" v-for="entry in omimEntries" :key="entry.phenotypeMimNumber">
           <span class="omim-launch" >
             <a :href="getEntryHref(entry.phenotypeMimNumber)" target="_omim">

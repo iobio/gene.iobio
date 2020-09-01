@@ -6,7 +6,6 @@
   .title-row
     display: flex
     height: 25px
-    border-bottom: solid .5px #ededed
 
     .table-title
       color: $app-color
@@ -17,7 +16,7 @@
       padding-top: 1px
   .clinvar-row
     font-size: 12px
-    border-bottom: solid .5px #ededed
+    border-top: solid .5px #ededed
     >span
       display: inline-block
       vertical-align: top
@@ -32,14 +31,24 @@
       max-width: 20px
       color: #7ba506
       text-align: right
-      font-weight: 500
+    .clinvar-other
+      display: inline-block
+      min-width: 20px
+      max-width: 20px
+      color: $clinvar-other-color
+      text-align: right
+    .clinvar-unknown
+      display: inline-block
+      min-width: 20px
+      max-width: 20px
+      color: $clinvar-uc-color
+      text-align: right
     .clinvar-path
       display: inline-block
       min-width: 20px
       max-width: 20px
       color: $danger-color
       text-align: right
-      font-weight: 500
     .clinvar-total
       display: inline-block
       min-width: 20px
@@ -60,6 +69,8 @@
           <span class="clinvar-phenotype" >{{ entry.phenotype }}
           </span>
           <span class="clinvar-benign">{{ entry.benign }}</span>
+          <span class="clinvar-other">{{ entry.other }}</span>
+          <span class="clinvar-unknown">{{ entry.unknown }}</span>
           <span class="clinvar-path">{{ entry.path }}</span>
           <span class="clinvar-total">{{ entry.total }}</span>
       </div>

@@ -36,7 +36,7 @@
             .v-input__slot
                 margin-bottom: 0px
                 input
-                    padding-bottom: 0px
+                  padding-bottom: 0px
         #gene-variants-heading
             color: $app-color
             font-size: 16px
@@ -142,17 +142,20 @@
          :geneModel="cohortModel.geneModel">
         </gene-omim-table>
 
-        <gene-clinvar-phenotype-table
-         v-if="selectedGene && cohortModel && cohortModel.isLoaded"
-         :selectedGene="selectedGene" 
-         :cohortModel="cohortModel">
-        </gene-clinvar-phenotype-table>
-
         <gene-pubmed-table
          v-if="selectedGene && cohortModel"
          :selectedGene="selectedGene" 
-         :geneModel="cohortModel.geneModel">
+         :geneModel="cohortModel.geneModel"
+         :showSource="true"
+         :showAll="true">
         </gene-pubmed-table>
+
+
+        <gene-pubmed-popup  v-if="selectedGene && cohortModel"
+          :geneModel="cohortModel.geneModel"
+          :selectedGene="selectedGene"
+          showAll="true">
+        </gene-pubmed-popup>
     </div>
 
 	</div>
@@ -160,8 +163,8 @@
 
 <script>
     import GeneOMIMTable        from '../partials/GeneOMIMTable.vue'
-    import GeneClinvarPhenotypeTable from '../partials/GeneClinvarPhenotypeTable.vue'
     import GenePubMedTable      from '../partials/GenePubMedTable.vue'
+    import GenePubMedPopup      from '../partials/GenePubMedPopup.vue'
     import GeneLinksMenu        from "../partials/GeneLinksMenu.vue"
     import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
     export default {
@@ -169,7 +172,7 @@
         components: {
             'gene-omim-table': GeneOMIMTable,
             'gene-pubmed-table': GenePubMedTable,
-            'gene-clinvar-phenotype-table': GeneClinvarPhenotypeTable,
+            'gene-pubmed-popup': GenePubMedPopup,
             GeneLinksMenu,
             TranscriptsMenu,
         },
