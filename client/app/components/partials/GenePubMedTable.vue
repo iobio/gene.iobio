@@ -3,9 +3,13 @@
 @import ../../../assets/sass/variables
 
 #pubmed-table
+  .loader
+    width: 582px
+    font-size: 12px
+    margin-top: -20px
+
   .pubmed-header-row
     .v-input.v-text-field
-      margin-left: 20px
       max-width: 230px
       max-width: 230px
       .v-text-field__slot
@@ -45,6 +49,12 @@
       display: inline-block
       vertical-align: top
       line-height: 15px
+
+    .pubmed-item-number
+      min-width: 20px
+      max-width: 20px
+      font-size: 11px
+      padding-top: 1px
 
     .pubmed-launch
       min-width: 20px
@@ -97,14 +107,65 @@
   
 </style>
 
+<style lang="css">
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+.pubmed-title {
+  min-width: 200px !important;
+  max-width: 200px !important;
+}  
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+.pubmed-title {
+  min-width: 200px !important;
+  max-width: 200px !important;
+}  
+
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+.pubmed-title {
+  min-width: 300px !important;
+  max-width: 300px !important;
+}  
+
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+.pubmed-title {
+  min-width: 300px !important;
+  max-width: 300px !important;
+}  
+
+}
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1250px) {
+.pubmed-title {
+  min-width: 350px !important;
+  max-width: 350px !important;
+} 
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1410px) {
+.pubmed-title {
+  min-width: 400px !important;
+  max-width: 400px !important;
+}  
+
+}
+
+</style>
+
+
 <template>
 
-  <div id="pubmed-table" v-if="pubMedEntries && geneModel && selectedGene" style="margin-left:10px">
+  <div id="pubmed-table" v-if="pubMedEntries && geneModel && selectedGene">
     <div class="pubmed-header-row" style="display: flex;align-items: bottom;">
-      <div class="title-row">
-        <span class="table-title">PubMed</span>
-        <span v-if="pubMedCount && pubMedCount > 0" class="count">({{ pubMedCount }})</span>
-      </div>
 
       <v-text-field id="search-input" 
         v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title != 'loading...'"
@@ -113,13 +174,27 @@
         :loading="loading"
         hide-details>
       </v-text-field>
+      
+      <div class="title-row">
+        <span v-if="pubMedCount && pubMedCount > 0" class="count">({{ pubMedCount }})</span>
+      </div>
       <span class="match-message"> {{ matchMessage }} </span>
 
 
 
     </div>
-    <div class="pubmed-rows">
-      <div class="pubmed-row" v-for="entry in pubMedEntries" :key="entry.uid">
+
+    <div class="loader" 
+    v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title == 'loading...'">
+        <span class="loader-label">loading</span>
+        <img src="../../../assets/images/wheel.gif">
+    </div> 
+
+    <div class="pubmed-rows" v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title != 'loading...'">
+           
+
+      <div class="pubmed-row" v-for="entry, idx in pubMedEntries" :key="entry.uid">
+        <span class="pubmed-item-number">{{ idx+1 }}.</span>
         <span class="pubmed-title" v-html="entry.title"></span>
         <span  class="pubmed-launch" >
           <a v-if="entry.uid" :href="getEntryHref(entry.uid)" target="_pubmed">
@@ -184,8 +259,11 @@ export default {
           self.pubMedCount = data.count;
           if (self.showAll) {
             self.matchMessage = "";
+            if (data.count > self.pubMedEntries.length) {
+              self.matchMessage = "top " + self.pubMedEntries.length + " entries.";
+            }
           } else {
-            self.matchMessage = data.count > self.pubMedEntries.length ? "(5 most recent)" : "";
+            self.matchMessage = data.count > self.pubMedEntries.length ? "5 most recent displayed." : "";
           }
         })
         .catch(function(error) {
@@ -272,16 +350,23 @@ export default {
     }    
   },
   watch: {
-    selectedGene: function() {          
-      this.pubMedEntriesAll = null;
-      this.getPubMedEntries();
+    selectedGene: function(oldSelectedGene, newSelectedGene) {
+      if (oldSelectedGene.gene_name != newSelectedGene.gene_name) {
+        this.search = "";
+        this.pubMedEntriesAll = null;
+        this.getPubMedEntries();        
+      }          
     },
     search (val) {
       let self = this;
       if (val && val !== this.select) {
         this.querySelections(val);
       } else if (this.value == null || this.val == "") {
-        self.getPubMedEntries();
+        if (self.showAll) {
+          self.pubMedEntries = self.pubMedEntriesAll;
+        } else {
+          //self.getPubMedEntries();
+        }
       }
     }
   },

@@ -889,9 +889,10 @@ class GeneModel {
       else {
         setTimeout(function() {
           let geneName = theGeneName;
-          var pubMedEntries = []
-          var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title]";
-
+          var pubMedEntries = [];
+          var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title/abstract]";
+          me.pendingNCBIRequests[geneName] = true;
+  
           $.ajax( searchUrl )
            .done(function(data) {
 
@@ -902,6 +903,8 @@ class GeneModel {
               var summaryUrl = me.NCBI_PUBMED_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv + "&retmax=" + options.retmax;
               $.ajax( summaryUrl )
               .done(function(sumData) {
+                delete me.pendingNCBIRequests[geneName];
+  
                 if (sumData.result != null && sumData.result.uids && sumData.result.uids.length > 0) {
                   sumData.result.uids.forEach(function(uid) {
                     var entry = sumData.result[uid];
@@ -921,24 +924,26 @@ class GeneModel {
                   resolve(theEntry)
                 }
               })
-             .fail(function() {
+             .fail(function(error) {
+                delete me.pendingNCBIRequests[geneName];
                 console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
 
-                let msg = "Unable to get PubMed links";
-                alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
-                 .setHeader("Warning");
+                let msg = "Unable to get PubMed entries for " + geneName;
+                //alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+                // .setHeader("Warning");
                 console.log(msg);
 
                 reject();
               })
 
            })
-           .fail(function() {
+           .fail(function(error) {
 
-
-              let msg = "Unable to get PubMed links";
-              alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error+ "</code>")
-               .setHeader("Warning");
+              delete me.pendingNCBIRequests[geneName];
+  
+              let msg = "Unable to get PubMed entries for " + geneName;
+              //alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+              // .setHeader("Warning");
               console.log(msg);
 
 
@@ -946,7 +951,8 @@ class GeneModel {
               reject();
            })
 
-         }, 1000)
+         }, 
+         (Object.keys(me.pendingNCBIRequests).length > 0 ? 5000 : 3000));
 
       }
     })

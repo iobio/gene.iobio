@@ -142,20 +142,25 @@
          :geneModel="cohortModel.geneModel">
         </gene-omim-table>
 
-        <gene-pubmed-table
-         v-if="selectedGene && cohortModel"
-         :selectedGene="selectedGene" 
-         :geneModel="cohortModel.geneModel"
-         :showSource="true"
-         :showAll="true">
-        </gene-pubmed-table>
+        <div>
+          <div style="display:flex;height:25px" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0">
+            <div>PubMed</div>
+            <gene-pubmed-popup  
+            :geneModel="cohortModel.geneModel"
+            :selectedGene="selectedGene"
+            showAll="true">
+            </gene-pubmed-popup>
+          </div>
+          <gene-pubmed-table
+           v-if="selectedGene && cohortModel"
+           :selectedGene="selectedGene" 
+           :geneModel="cohortModel.geneModel"
+           :showSource="true"
+           :showAll="false">
+          </gene-pubmed-table>
+          
+        </div>
 
-
-        <gene-pubmed-popup  v-if="selectedGene && cohortModel"
-          :geneModel="cohortModel.geneModel"
-          :selectedGene="selectedGene"
-          showAll="true">
-        </gene-pubmed-popup>
     </div>
 
 	</div>

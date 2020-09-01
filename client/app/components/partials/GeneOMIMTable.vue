@@ -30,12 +30,64 @@
         font-size: 13px
         color: $link-color
     .omim-phenotype
-      min-width: 200px
-      max-width: 200px
+      min-width: 300px
+      max-width: 300px
     .omim-inheritance
       display: inline-block
       min-width: 100px
       max-width: 100px
+</style>
+
+<style lang="css">
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+.omim-phenotype {
+  min-width: 150px !important;
+  max-width: 150px !important;
+}  
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+.omim-phenotype {
+  min-width: 150px !important;
+  max-width: 150px !important;
+}  
+
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+.omim-phenotype {
+  min-width: 200px !important;
+  max-width: 200px !important;
+}  
+
+}
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+.omim-phenotype {
+  min-width: 200px !important;
+  max-width: 200px !important;
+} 
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+.omim-phenotype {
+  min-width: 200px !important;
+  max-width: 200px !important;
+} 
+}
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1400px) {
+.omim-phenotype {
+  min-width: 300px !important;
+  max-width: 300px !important;
+} 
+}
+
 </style>
 
 <template>

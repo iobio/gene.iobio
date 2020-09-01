@@ -3,6 +3,7 @@
 
 #show-all-pubmed-button
   margin: 0px
+  margin-top: -1px
   height: 20px
   .v-btn__content
     color: $link-color
@@ -27,13 +28,13 @@
 </style>
 <template>
 
-    <v-dialog  style="margin-left: -230px;" width="700"  v-model="showPopup" lazy >
+    <v-dialog  width="700"  v-model="showPopup" lazy >
       <v-btn id="show-all-pubmed-button" flat  slot="activator">
         show all
       </v-btn>
       <v-card class="pubmed-popup full-width">
         <v-card-title v-if="selectedGene" style="justify-content:space-between">
-          <span class="info-title">{{ selectedGene.gene_name }} Publications
+          <span class="info-title">{{ selectedGene.gene_name }} PubMed Entries
           </span>
           <v-btn  @click="onClose" flat class="close-button">
             <v-icon>close</v-icon>
