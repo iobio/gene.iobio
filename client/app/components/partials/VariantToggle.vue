@@ -136,7 +136,7 @@
         },
 
         methods: {
-          
+
             setFilteredVariants() {
               this.filteredVariants = [];
               if(this.variants && this.variants.features) {

@@ -755,6 +755,7 @@ nav.toolbar, nav.v-toolbar
     <v-navigation-drawer
       v-if="!launchedFromClin && showLegendDrawer"
       absolute
+      permanent
       right
       width="200"
       style="z-index:6"
