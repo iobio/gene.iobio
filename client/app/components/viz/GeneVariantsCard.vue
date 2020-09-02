@@ -138,7 +138,7 @@
 		</div>
 
     <div style="display:flex;justify-content:flex-start;margin-top:5px">
-        <gene-omim-table  style="margin-right:20px"
+        <gene-omim-table  style="margin-right:30px"
          v-if="!isCommercial && selectedGene && cohortModel"
          :selectedGene="selectedGene" 
          :geneModel="cohortModel.geneModel">
