@@ -137,8 +137,8 @@
 
 		</div>
 
-    <div style="display:flex;justify-content:space-between;margin-top:5px">
-        <gene-omim-table 
+    <div style="display:flex;justify-content:flex-start;margin-top:5px">
+        <gene-omim-table  style="margin-right:20px"
          v-if="!isCommercial && selectedGene && cohortModel"
          :selectedGene="selectedGene" 
          :geneModel="cohortModel.geneModel">
@@ -153,7 +153,7 @@
             showAll="true">
             </gene-pubmed-popup>
           </div>
-          <gene-pubmed-table
+          <gene-pubmed-table 
            v-if="selectedGene && cohortModel"
            :selectedGene="selectedGene" 
            :geneModel="cohortModel.geneModel"

@@ -114,7 +114,10 @@
 .pubmed-title {
   min-width: 200px !important;
   max-width: 200px !important;
-}  
+} 
+.pubmed-pub-source {
+  display: none !important;
+} 
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
@@ -122,33 +125,45 @@
 .pubmed-title {
   min-width: 200px !important;
   max-width: 200px !important;
-}  
+} 
+.pubmed-pub-source {
+  display: none !important;
+} 
 
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
 .pubmed-title {
-  min-width: 300px !important;
-  max-width: 300px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
 }  
+.pubmed-pub-source {
+  display: none !important;
+}
 
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
 .pubmed-title {
-  min-width: 300px !important;
-  max-width: 300px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
 }  
+.pubmed-pub-source {
+  display: none !important;
+}
 
 }
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1250px) {
 .pubmed-title {
-  min-width: 350px !important;
-  max-width: 350px !important;
+  min-width: 330px !important;
+  max-width: 330px !important;
 } 
+.pubmed-pub-source {
+  display: inline-block !important;
+}
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
@@ -157,6 +172,30 @@
   min-width: 400px !important;
   max-width: 400px !important;
 }  
+.pubmed-pub-source {
+  display: inline-block !important;
+}
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1530px) {
+.pubmed-title {
+  min-width: 500px !important;
+  max-width: 500px !important;
+} 
+.pubmed-pub-source {
+  display: inline-block !important;
+} 
+}
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1630px) {
+.pubmed-title {
+  min-width: 600px !important;
+  max-width: 600px !important;
+}
+.pubmed-pub-source {
+  display: inline-block !important;
+}
 
 }
 
@@ -196,13 +235,13 @@
            
 
       <div class="pubmed-row" v-for="entry, idx in pubMedEntries" :key="entry.uid">
-        <span class="pubmed-item-number">{{ idx+1 }}.</span>
-        <span class="pubmed-title" v-html="entry.title"></span>
+        <span v-if="showAll" class="pubmed-item-number">{{ idx+1 }}.</span>
         <span  class="pubmed-launch" >
           <a v-if="entry.uid" :href="getEntryHref(entry.uid)" target="_pubmed">
             <v-icon>launch</v-icon>
           </a>
         </span>
+        <span class="pubmed-title" v-html="entry.title"></span>
         <span v-if="showSource" class="pubmed-pub-source">{{ entry.source }}</span>
         <span v-if="showAuthor" class="pubmed-pub-author">{{ entry.firstAuthor }}</span>
         <span class="pubmed-pub-date">{{ entry.pubDate }}</span>
