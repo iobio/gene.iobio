@@ -260,7 +260,6 @@ export default {
         }
       },
       hideVariantCircle: function(container, pinned, isCalled, variant) {
-        console.log("hide variant container", container);
         this.variantChart.hideCircle()(container, pinned, isCalled, variant);
       },
       setVariantChart: function() {

@@ -126,8 +126,6 @@ export default function variantD3() {
 
 
   var hideCircle = function(svgContainer, pinned, isCalled, variant) {
-
-    console.log("pinned, isCalled", pinned, isCalled);
     var circleClazz = pinned ? '.pinned.circle' : '.hover.circle';
     var pinnedArrowClazz = 'g.pinned.arrow';
     var hoverArrowClazz  = 'g.hover.arrow';
@@ -140,7 +138,6 @@ export default function variantD3() {
         .style("opacity", 0);
     }
     else if(!isCalled && variant && variant.fbCalled === "Y"){
-
       svgContainer.select('.pinned.circle').transition()
         .duration(500)
         .style("opacity", 0);
