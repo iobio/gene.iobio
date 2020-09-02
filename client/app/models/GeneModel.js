@@ -14,7 +14,7 @@ class GeneModel {
     this.NCBI_PUBMED_SUMMARY_URL   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
     
     this.OMIM_URL                  = "https://api.omim.org/api/";
-
+    this.warnedMissingOMIMApiKey   = false;
 
     this.linkTemplates = {
         omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
@@ -1031,7 +1031,10 @@ class GeneModel {
       let apiKey = process.env.OMIM_API_KEY;
 
       if (apiKey == null || apiKey == "") {
-        alertify.alert("Unable to access OMIM.  API key is required in env.")
+        if (!self.warnedMissingOMIMApiKey) {
+          alertify.alert("Warning", "Unable to access OMIM.  API key is required in env.")
+          self.warnedMissingOMIMApiKey = true;          
+        }
         resolve();
       } else {
         let url = self.OMIM_URL  + 'entry/search'
