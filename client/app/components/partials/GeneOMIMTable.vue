@@ -98,12 +98,12 @@
     </div>
     <div style="max-height:130px;min-height:130px;overflow-y:scroll;padding-top:5px">
       <div class="omim-row" v-for="entry in omimEntries" :key="entry.phenotypeMimNumber">
+          <span class="omim-phenotype" >{{ entry.phenotype }}
+          </span>
           <span class="omim-launch" >
             <a :href="getEntryHref(entry.phenotypeMimNumber)" target="_omim">
               <v-icon>launch</v-icon>
             </a>
-          </span>
-          <span class="omim-phenotype" >{{ entry.phenotype }}
           </span>
           <span class="omim-inheritance">{{ entry.phenotypeInheritance }}</span>
       </div>
