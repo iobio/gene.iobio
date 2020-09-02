@@ -296,12 +296,6 @@ export default {
       this.loading = true;
       this.items = [];
 
-      if (v == "" || v == null) {
-        self.matchMessage = "";
-        self.getPubMedEntries();
-        return;
-      }
-
       let promiseGetAllEntries = null;
       if (self.pubMedEntriesAll && self.pubMedEntriesAll.length > 0) {
         promiseGetAllEntries = Promise.resolve()
@@ -364,11 +358,8 @@ export default {
       if (val && val !== this.select) {
         this.querySelections(val);
       } else if (this.value == null || this.val == "") {
-        if (self.showAll) {
-          self.pubMedEntries = self.pubMedEntriesAll;
-        } else {
-          //self.getPubMedEntries();
-        }
+        self.pubMedEntries = self.pubMedEntriesAll;
+        self.matchMessage = "";
       }
     }
   },
