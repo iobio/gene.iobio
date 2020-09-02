@@ -6,7 +6,8 @@ mkdir deploy/js
 mkdir deploy/app
 mkdir deploy/dist
 
-env.sh
+cp .envTemplate .env
+sh env.sh
 
 # build vue app
 if [[ $1 == "prod" ]]; then
