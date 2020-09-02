@@ -1030,38 +1030,45 @@ class GeneModel {
     return new Promise(function(resolve, reject) {
       let apiKey = process.env.OMIM_API_KEY;
 
-      let url = self.OMIM_URL  + 'entry/search'
-        + '?apiKey=' + apiKey
-        + '&search=approved_gene_symbol:' + geneName
-        + '&format=json'
-        + '&retrieve=geneMap'
-        + '&start=0'
-        + '&limit=10';
+      if (apiKey == null || apiKey == "") {
+        alertify.alert("Unable to access OMIM.  API key is required in env.")
+        resolve();
+      } else {
+        let url = self.OMIM_URL  + 'entry/search'
+          + '?apiKey=' + apiKey
+          + '&search=approved_gene_symbol:' + geneName
+          + '&format=json'
+          + '&retrieve=geneMap'
+          + '&start=0'
+          + '&limit=10';
 
-      $.ajax( url )
-        .done(function(data) {
-            let mimNumber = null;
-            let phenotypes = null;
-            if (data 
-              && data.omim.searchResponse 
-              && data.omim.searchResponse.geneMapList 
-              && data.omim.searchResponse.geneMapList.length > 0) {
-            let geneMap = data.omim.searchResponse.geneMapList[0].geneMap;
-            mimNumber = geneMap.mimNumber;
-            if (geneMap.phenotypeMapList) {
-              phenotypes = geneMap.phenotypeMapList.map(function(entry) {
-                return entry.phenotypeMap;
-              })
+        $.ajax( url )
+          .done(function(data) {
+              let mimNumber = null;
+              let phenotypes = null;
+              if (data 
+                && data.omim.searchResponse 
+                && data.omim.searchResponse.geneMapList 
+                && data.omim.searchResponse.geneMapList.length > 0) {
+              let geneMap = data.omim.searchResponse.geneMapList[0].geneMap;
+              mimNumber = geneMap.mimNumber;
+              if (geneMap.phenotypeMapList) {
+                phenotypes = geneMap.phenotypeMapList.map(function(entry) {
+                  return entry.phenotypeMap;
+                })
+              }
+              resolve({geneName: geneName, mimNumber: mimNumber, phenotypes: phenotypes});
             }
-            resolve({geneName: geneName, mimNumber: mimNumber, phenotypes: phenotypes});
-          }
-        })
-        .fail(function(error) {
-            let msg = "Unable to get phenotype mim number OMIM " + url;
-            console.log(msg);
-            console.log(error)
-            reject(msg + '. Error: ' + error);
-        })
+          })
+          .fail(function(error) {
+              let msg = "Unable to get phenotype mim number OMIM " + url;
+              console.log(msg);
+              console.log(error)
+              reject(msg + '. Error: ' + error);
+          })
+        
+      }
+
     })
   }
 
