@@ -70,7 +70,8 @@
       vertical-align: top
       .matched
         font-weight: 500
-        background-color: #fff8a9
+        background-color: #d3effed4
+        color: black
     .pubmed-pub-author
       display: inline-block
       min-width: 80px
