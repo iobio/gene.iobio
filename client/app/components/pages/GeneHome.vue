@@ -388,6 +388,7 @@ main.content.clin, main.v-content.clin
           :isBasicMode="isBasicMode"
           :isSimpleMode="isSimpleMode"
           :isFullAnalysis="isFullAnalysis"
+          :isCommercial="isCommercial"
           :launchedFromClin="launchedFromClin"
           :launchedFromHub="launchedFromHub"
           :showSfariTrackToggle="cohortModel && cohortModel.isSfariProject"
