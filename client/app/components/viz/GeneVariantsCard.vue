@@ -23,6 +23,9 @@
 <style lang="sass" >
     @import ../../../assets/sass/variables
     #gene-variants-card
+      .pubmed-table-title
+        color: $app-color
+        
         padding-left: 10px
         padding-top: 5px
         padding-right: 10px
@@ -144,7 +147,7 @@
 
         <div>
           <div style="display:flex;height:25px" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0">
-            <div>PubMed</div>
+            <div class="pubmed-table-title">PubMed</div>
             <gene-pubmed-popup  
             :geneModel="cohortModel.geneModel"
             :selectedGene="selectedGene"

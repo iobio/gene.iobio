@@ -173,6 +173,7 @@
         v-model="search" 
         prepend-icon="search"
         :loading="loading"
+        v-tooltip.top-center="`To search multiple terms, enter space between terms.`">
         hide-details>
       </v-text-field>
       

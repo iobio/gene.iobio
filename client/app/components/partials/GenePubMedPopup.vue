@@ -4,10 +4,12 @@
 #show-all-pubmed-button
   margin: 0px
   margin-top: -1px
+  margin-left: 10px
   height: 20px
   .v-btn__content
     color: $link-color
     font-size: 13px
+    font-weight: 500
 
 .pubmed-popup
   padding-top: 10px
@@ -28,7 +30,7 @@
 </style>
 <template>
 
-    <v-dialog  width="700"  v-model="showPopup" lazy >
+    <v-dialog  width="740"  v-model="showPopup" lazy >
       <v-btn id="show-all-pubmed-button" flat  slot="activator">
         show all
       </v-btn>
