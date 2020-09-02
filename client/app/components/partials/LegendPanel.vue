@@ -59,6 +59,8 @@
       fill:  $text-color
       font-size: 12px
 
+
+
   .called-variant
     font-size: 15px
     color: $called-variant-color
@@ -88,7 +90,7 @@
 
   .exon-symbol
     text
-      font-size: 14px
+      font-size: 12px
       fill: $text-color
 
 
@@ -97,6 +99,14 @@
   line-height: 12px !important
 
 .clinvar-legend
+  width: 150px 
+  margin-right:  10px
+  margin-bottom:  15px
+
+  &.narrow
+    width: 115px
+    margin-bottom: 0px
+
   .legend-text
     padding-top: 2px
     display: inline-block
@@ -111,23 +121,30 @@
 
 
 
-    <div class="legend-title" v-if="showLegendTitle" :style="isBasicMode ? 'margin-bottom:10px;' : 'margin-bottom:20px'">
+    <div class="legend-title" v-if="showLegendTitle" :style="isBasicMode || isSimpleMode? 'margin-bottom:10px;' : 'margin-bottom:20px'">
     Legend
     </div>
     <div style="display:flex;flex-wrap:wrap;justify-content:flex-start">
 
 
-      <div v-if="isBasicMode && !isSimpleMode" style="text-align:left;margin-right:10px">
-        <div class="legend-label" style="width:150px">Exon (coding region)</div>
-        <svg id="exon" class="exon-symbol legend-element pl-4" width="130" height="30">
-          <rect class="legend-symbol exon" rx="1" ry="1" x="25" width="9" y="4" height="24">
+      <div v-if="isBasicMode || isSimpleMode" style="text-align:left;margin-right:20px;margin-left:0px;margin-bottom:20px;margin-top:-5px">
+        <svg id="exon" class="exon-symbol legend-element" width="200" height="50">
+          <rect class="legend-symbol exon" rx="1" ry="1" x="100" width="50" y="8" height="16">
           </rect>
-          <line x1="0" x2="60" y1="17" y2="17" style="stroke: #b0b0b0;stroke-width: 1.5px;"></line>
+          <line x1="0" x2="200" y1="17" y2="17" style="stroke: #b0b0b0;stroke-width: 1.5px;"></line>
+          <text  x="0" y="40">Intron</text>
+          <text  x="100" y="40">Exon</text>
         </svg>
+        <div style="display:flex;width:200px">
+          <div class="legend-text" style="width:50%;line-height:12.5px">Part of gene that does not encode a protein.</div>
+          <div class="legend-text" style="width:50%;line-height:12.5px">Part of gene that encodes how to produce a protein.</div>
+        </div>
       </div>
 
       <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
-        <div v-if="!isBasicMode" class="legend-label">Impact</div>
+        <div v-if="!isBasicMode" class="legend-label">Impact
+         <info-popup name="impact"></info-popup>
+        </div>
         <div v-if="isBasicMode" class="legend-label">Predicted Impact</div>
 
 
@@ -202,26 +219,36 @@
 
 
 
-      <div class="clinvar-legend" style="width:150px;margin-right:10px;margin-bottom:15px">
-          <div class="legend-label">Clinvar</div>
+      <div :class="{'clinvar-legend': true}">
+          <div class="legend-label">Clinvar
+            <info-popup name="clinvar"></info-popup>
+          </div>
+         
+          <div>
+            <legend-icon
+            style="display:inline-block"
+            icon="clinvar"
+            width="12"
+            height="12"
+            level="high"
+            label="Pathogenic">
+            </legend-icon>
+            <info-popup style="padding-left:1px" name="pathogenic"></info-popup>
+          </div>
 
-          <legend-icon
-          icon="clinvar"
-          width="12"
-          height="12"
-          level="high"
-          label="Pathogenic">
-          </legend-icon>
+         <div>
+            <legend-icon
+            style="display:inline-block"
+            icon="clinvar"
+            width="12"
+            height="12"
+            level="likely-high"
+            label="Likely path.">
+            </legend-icon>
+            <info-popup style="padding-left:1px" name="likelyPathogenic"></info-popup>
+          </div>
 
-          <legend-icon
-          icon="clinvar"
-          width="12"
-          height="12"
-          level="likely-high"
-          label="Likely pathogenic">
-          </legend-icon>
-
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -229,7 +256,7 @@
           label="Unknown significance">
           </legend-icon>
 
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -237,7 +264,7 @@
           label="Conflicting data">
           </legend-icon>
 
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -245,7 +272,7 @@
           label="Other">
           </legend-icon>
 
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -253,7 +280,7 @@
           label="Benign">
           </legend-icon>
 
-          <legend-icon v-if="!isBasicMode"
+          <legend-icon v-if="!isBasicMode && !isSimpleMode"
           icon="clinvar"
           width="12"
           height="12"
@@ -262,17 +289,23 @@
           </legend-icon>
       </div>
 
-      <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
-          <div class="legend-label">Variant type</div>
+      <div style="text-align:left;width:105px;margin-bottom:15px">
+          <div class="legend-label">Variant type
+            <info-popup name="variantType"></info-popup>
+          </div>
 
-        <legend-icon
-         icon="impact"
-         type="snp"
-         level="none"
-         width="14"
-         height="14"
-         label="SNP">
-        </legend-icon>
+        <div style="display:flex">
+          <legend-icon
+           style="display:inline-block"
+           icon="impact"
+           type="snp"
+           level="none"
+           width="14"
+           height="14"
+           label="SNP">
+          </legend-icon>
+          <info-popup style="padding-left: 1px;" name="snp"></info-popup>
+        </div>
 
         <legend-icon
          icon="impact"
@@ -314,7 +347,7 @@
         </legend-icon>
       </div>
 
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:120px;margin-right:10px;">
+      <div v-if="!isBasicMode && !isSimpleMode" style="width:120px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Called variant</div>
         <legend-icon
           icon="called-variant"
@@ -323,7 +356,7 @@
         </legend-icon>
       </div>
 
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:80px;margin-right:0px;">
+      <div v-if="!isBasicMode && !isSimpleMode" style="width:80px;margin-right:0px;margin-bottom:15px">
           <div class="legend-label">Coverage</div>
 
           <legend-icon
@@ -336,27 +369,6 @@
           </legend-icon>
 
       </div>
-
-
-
-
-     <div v-if="!isBasicMode && !isSimpleMode" style="width:170px;margin-right:10px;margin-bottom:15px">
-       <div class="legend-label">Flagged</div>
-        <legend-icon
-         icon="system-flagged"
-         width="16"
-         height="16"
-         label="Variant passes a filter">
-        </legend-icon>
-        <legend-icon
-         icon="user-flagged"
-         width="16"
-         height="16"
-         label="Flagged by User">
-        </legend-icon>
-      </div>
-
-
 
 
       <div v-if="!isBasicMode && !isSimpleMode" style="width:170px;margin-right:10px;margin-bottom:10px">
@@ -380,7 +392,7 @@
         </legend-icon>
       </div>
 
-     <div v-if="!isBasicMode && !isSimpleMode" style="width:150px;margin-right:10px;margin-bottom:15px">
+     <div v-if="!isBasicMode && !isSimpleMode && false" style="width:150px;margin-right:10px;margin-bottom:15px">
        <div class="legend-label">Affected Siblings</div>
         <legend-icon id="thumbs-green-symbol"
          icon="thumbs-up"
@@ -409,7 +421,7 @@
       </div>
 
 
-     <div v-if="!isBasicMode && !isSimpleMode" style="width:150px;margin-right:10px;margin-bottom:15px">
+     <div v-if="!isBasicMode && !isSimpleMode && false" style="width:150px;margin-right:10px;margin-bottom:15px">
        <div class="legend-label">Unaffected Siblings</div>
         <legend-icon id="thumbs-green-symbol"
          icon="thumbs-up"
@@ -516,12 +528,14 @@
 
 import LegendIcon from "../partials/LegendIcon.vue"
 import AppIcon from "../partials/AppIcon.vue"
+import InfoPopup from "../partials/InfoPopup.vue"
 
 export default {
   name: 'legend-panel',
   components: {
     AppIcon,
-    LegendIcon
+    LegendIcon,
+    InfoPopup
   },
   props: {
     isBasicMode: null,
@@ -533,6 +547,8 @@ export default {
       }
   },
   watch: {
+  },
+  computed: {
   },
   methods: {
   },

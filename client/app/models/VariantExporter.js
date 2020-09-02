@@ -6,6 +6,7 @@ export default class VariantExporter {
   constructor(globalApp) {
     this.globalApp = globalApp;
     this.cohort = null;
+    this.helpMsg = "If this error persists, Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.";
     this.exportFields = [
       {field: 'chrom',            exportVcf: false},
       {field: 'start',            exportVcf: false},
@@ -36,7 +37,6 @@ export default class VariantExporter {
       {field: 'clinvarTrait',     exportVcf: true},
       {field: 'HGVSc',            exportVcf: true},
       {field: 'HGVSp',            exportVcf: true},
-      {field: 'regulatory',       exportVcf: true},
       {field: 'qual',             exportVcf: false},
       {field: 'filter',           exportVcf: false},
       {field: 'zygosityProband',  exportVcf: true},
@@ -55,8 +55,7 @@ export default class VariantExporter {
       {field: 'depthFather',      exportVcf: true},
       {field: 'bamDepthFather',   exportVcf: true},
       {field: 'dbSnpUrl',         exportVcf: false},
-      {field: 'clinvarUrl',       exportVcf: false},
-      {field: 'analysisMode',     exportVcf: false}
+      {field: 'clinvarUrl',       exportVcf: false}
 
     ];
 
@@ -103,6 +102,9 @@ export default class VariantExporter {
         exportRec.ref          = variant.ref;
         exportRec.alt          = variant.alt;
         exportRec.geneName     = variant.gene.gene_name;
+        if (format == 'csv') {
+          exportRec.gene = exportRec.geneName;
+        }
         exportRec.starred      = variant.isFavorite == true ? "Y" : "";
 
         var promise = null;
@@ -111,6 +113,7 @@ export default class VariantExporter {
           var record = data[0];
 
           if (format == 'csv' || format == 'json') {
+
             records.push(record);
           } else if (format == 'vcf') {
             var annotatedVcfRecs = data[1];
@@ -138,10 +141,10 @@ export default class VariantExporter {
           }
         })
         .catch(function(error) {
-          var msg = "Cannot produce export record for variant " + exportRec.gene + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt;
-          alert(msg);
-          console.log(msg);
-          console.log(error);
+          var msg = "Cannot produce export record for variant <code>" + exportRec.gene + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + "</code> Try refreshing the page.";
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+            .setHeader("Non-fatal Error");
+          console.log(msg, error);
         });
 
         promises.push(promise);
@@ -169,6 +172,9 @@ export default class VariantExporter {
 
       })
       .catch(function(error) {
+        let msg = "Could not export variants. Try refreshing the page."
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+          .setHeader("Non-fatal Error");
         reject("Error occurred when exporting variants. " + error);
       });
 
@@ -366,7 +372,7 @@ export default class VariantExporter {
             //
 
             // Make sure we have loaded the variants before calling variants
-            me.cohort.promiseAnnotateVariants(theGeneObject, theTranscript, 
+            me.cohort.promiseAnnotateVariants(theGeneObject, theTranscript,
                 {'isMultiSample': me.mode == 'trio' && me.samplesInSingleVcf(),'isBackground': true})
             .then(function(data) {
               let trioVcfData = data;
@@ -609,7 +615,7 @@ export default class VariantExporter {
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";
     rec.filtersPassed     = variant.filtersPassed  && Array.isArray(variant.filtersPassed) ? variant.filtersPassed.join(",") : (variant.filtersPassed ? variant.filtersPassed : "");
     if (format == 'json') {
-      rec.notes           = variant.notes && variant.notes.length > 0 ? variant.notes : "";    
+      rec.notes           = variant.notes && variant.notes.length > 0 ? variant.notes : "";
     } else {
       rec.notes           = info.notesFlattened;
     }

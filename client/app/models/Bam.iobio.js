@@ -136,7 +136,7 @@ export default class Bam {
     });
 
     cmd.on('error', function(error) {
-      if (me.ignoreErrorMessage(error)) {
+        if (me.ignoreErrorMessage(error)) {
         success = true;
         callback(success)
       } else {
@@ -345,12 +345,7 @@ export default class Bam {
         callback( me.header);
       });
 
-      cmd.on('error', function(error) {
-        console.log(error);
-      });
       cmd.run();
-
-
     }
   }
 
@@ -601,11 +596,6 @@ export default class Bam {
         cmd.on('end', function() {
           callback(geneCoverageData, trRefName, geneObject, transcript);
         });
-
-        cmd.on('error', function(error) {
-          console.log(error);
-        });
-
         cmd.run();
       });
 

@@ -10,7 +10,7 @@ class GlobalApp {
     this.completedTour         = "";
 
 
-    this.version               = "4.0";
+    this.version               = "4.4.1";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
@@ -34,6 +34,8 @@ class GlobalApp {
     this.geneToPhenoServer     = null;
     this.genomeBuildServer     = null;
     this.phenolyzerOnlyServer  = null;
+
+    this.isDirty               = false;
 
 
     // config files
@@ -101,6 +103,7 @@ class GlobalApp {
 
 
       this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
+
       this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
       this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
       this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
@@ -115,9 +118,9 @@ class GlobalApp {
 
     if (process.env.USE_SSL) {
       this.useSSL = process.env.USE_SSL === 'true' ? true : false;
-    } 
+    }
 
-    // These are the public services. 
+    // These are the public services.
     if (useMosaicBackend && process.env.IOBIO_BACKEND_MOSAIC ) {
       this.initBackendSource(process.env.IOBIO_BACKEND_MOSAIC)
     } else if (process.env.IOBIO_BACKEND) {
@@ -128,12 +131,20 @@ class GlobalApp {
 
   }
 
+  getCloseMessage() {
+    if (this.isDirty) {
+      return "Unsaved work. Do you really want to close?";
+    } else {
+      return null;
+    }
+  }
+
   getClinvarUrl(build) {
 
-      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') == 0) {
+      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
         var clinvarUrls = {
-          'GRCh37': "https://mosaic.chpc.utah.edu/static/GRCh37/2019/clinvar_20191021.vcf.gz",
-          'GRCh38': "https://mosaic.chpc.utah.edu/static/GRCh38/2019/clinvar_20191021.vcf.gz"
+          'GRCh37': "https://backend.iobio.io/static/clinvar/GRCh37/clinvar.vcf.gz",
+          'GRCh38': "https://backend.iobio.io/static/clinvar/GRCh38/clinvar.vcf.gz"
         }
         return clinvarUrls[build];
 
@@ -141,8 +152,8 @@ class GlobalApp {
 
 
         var clinvarUrls = {
-          'GRCh37': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/archive_2.0/2018/clinvar_20181202.vcf.gz",
-          'GRCh38': "ftp://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/archive_2.0/2018/clinvar_20181202.vcf.gz",
+          'GRCh37': "https://backend.iobio.io/static/clinvar/GRCh37/clinvar.vcf.gz",
+          'GRCh38': "https://backend.iobio.io/static/clinvar/GRCh38/clinvar.vcf.gz"
         };
         return clinvarUrls[build];
 

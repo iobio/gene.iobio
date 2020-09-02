@@ -2,6 +2,17 @@
 
 @import ../../../assets/sass/variables
 
+#legend-drawer-close-button
+    position: absolute
+    padding-right: 0px
+    position: absolute
+    right: 0px
+    display: inline-block
+    margin-left: 0px
+    min-width: 22px
+    margin-top: 0px
+    top: 0px
+    z-index: 1
 
 .dialog.dialog--active
   button
@@ -107,11 +118,12 @@ aside.navigation-drawer, aside.v-navigation-drawer
       flex-grow: 1
 
     #legend-card
-      margin-top: 5px
-      margin-bottom: 38px
+      margin-top: -10px
+      margin-bottom: 32px
       padding: 0px
-      padding-top: 5px
-      border-top: #d8d6d6 solid 1px !important
+      padding-top: 0px
+      border: #9b9b9b solid 2px !important
+      background-color: #f5f5f5
 
 #side-panel-container
 
@@ -160,6 +172,8 @@ nav.toolbar, nav.v-toolbar
 
   #more-menu-button
     padding: 0px
+    min-width: 40px
+    margin-right: 10px
 
   #coverage-settings-button
     font-size: 16px
@@ -175,6 +189,16 @@ nav.toolbar, nav.v-toolbar
       width: 20px
       font-size: 13px
       font-weight: 500
+
+  #legend-button
+    font-size: 16px
+    height: 36px
+    margin-bottom: 6px
+
+    .v-btn__content
+      padding-top: 2px
+
+
 
   .toolbar__content
     margin-top: 2px
@@ -208,35 +232,7 @@ nav.toolbar, nav.v-toolbar
 
   #phenolyzer-search
     margin-left: 5px
-    margin-right: 60px
 
-  #phenotype-input, #gene-name-input, #phenolyzer-top-input
-    margin-top: 8px
-    .input-group input
-      color: $nav-text-color
-    .input-group
-      padding: 10px 0 0
-    .input-group
-      label
-        font-size: 13px
-        line-height: 14px
-        height: 18px
-        top: 8px
-        font-weight: normal
-    .input-group__input
-      min-height: 0px
-      margin-top: 8px
-    .input-group--text-field input
-      font-size: 13px
-      height: 14px
-    .input-group
-      padding-top: 0px
-    .input-group__selections__comma
-      font-size: 13px
-    .input-group__details:before
-      background-color: $nav-text-color
-    .input-group__details:after
-      background-color: $nav-text-color
 
   #phenolyzer-top-input
     .input-group__input
@@ -271,6 +267,7 @@ nav.toolbar, nav.v-toolbar
       margin-top: 8px
     .v-select__slot input
       padding-bottom: 0px
+
     .v-select__slot label
       top: 9px
     .v-text-field__slot
@@ -533,14 +530,14 @@ nav.toolbar, nav.v-toolbar
          @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
-        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin" id="search-or" style="display:inline-block">
+        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin && !isCommercial" id="search-or" style="display:inline-block">
           or
         </div>
 
 
         <phenotype-search
          id="phenolyzer-search"
-         v-if="!isEduMode && !launchedFromClin && !isSimpleMode"
+         v-if="!isEduMode && !launchedFromClin && !isSimpleMode && !isCommercial"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
@@ -554,14 +551,25 @@ nav.toolbar, nav.v-toolbar
          @hide-snackbar="onHideSnackbar">
         </phenotype-search>
 
-        <v-spacer></v-spacer>
+
 
       </v-toolbar-items>
 
+      <v-spacer></v-spacer>
+
+      <save-button
+        v-if="launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded"
+        :showing-save-modal="showSaveModal"
+        :analysis="analysis"
+        :isDirty="isDirty"
+        @save-modal:set-visibility="toggleSaveModal"
+      />
 
 
-      <v-btn icon @click="onShowTermsOfService" title="Terms of Service">
-        <v-icon>description</v-icon>
+      <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
+
+      <v-btn icon v-if="!isBasicMode" @click="onShowFiles" title="Load files">
+        <v-icon>publish</v-icon>
       </v-btn>
 
       <v-menu>
@@ -569,30 +577,27 @@ nav.toolbar, nav.v-toolbar
           <v-icon style="font-size:32px;">more_vert</v-icon>
         </v-btn>
         <v-list dense style="overflow-y: scroll">
-          <v-list-tile  v-if="!isBasicMode" @click="onShowFiles">
-            <v-list-tile-title>Files</v-list-tile-title>
+
+          <v-list-tile  @click="onShowVersion">
+            <v-list-tile-title>About</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode"
+          <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
+
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode && cohortModel.isLoaded"
             @click="onShowImportVariants">
             <v-list-tile-title dense>Import Variants</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin" @click="onShowExportVariants">
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !isSimpleMode && cohortModel.flaggedVariants && cohortModel.flaggedVariants.length > 0" @click="onShowExportVariants">
             <v-list-tile-title>Export Variants</v-list-tile-title>
-          </v-list-tile>
-
-          <v-divider v-if="!isBasicMode"></v-divider>
-
-          <v-list-tile  v-if="!isBasicMode" @click="onShowLegend">
-            <v-list-tile-title>Legend</v-list-tile-title>
           </v-list-tile>
 
           <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowOptions">
             <v-list-tile-title>Options</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider v-if="!isBasicMode" dense></v-divider>
+          <v-divider ></v-divider>
 
           <v-list-tile  @click="onShowTermsOfService">
             <v-list-tile-title>Terms of Service</v-list-tile-title>
@@ -600,30 +605,25 @@ nav.toolbar, nav.v-toolbar
           <v-list-tile  @click="onShowDisclaimer">
             <v-list-tile-title>Disclaimer</v-list-tile-title>
           </v-list-tile>
-          <v-list-tile  @click="onShowVersion">
-            <v-list-tile-title>About</v-list-tile-title>
-          </v-list-tile>
+
           <v-list-tile  @click="onShowCitations">
             <v-list-tile-title>Software and resources</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider v-if="!isSimpleMode"></v-divider>
+          <v-divider v-if="!isSimpleMode && !isCommercial"></v-divider>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowBlog">
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowBlog">
             <v-list-tile-title>Blog</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowTutorial" >
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowTutorial" >
             <v-list-tile-title>Tutorials</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode " @click="onShowIOBIO" >
+          <v-list-tile v-if="!isSimpleMode && !isCommercial" @click="onShowIOBIO" >
             <v-list-tile-title>iobio</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onSupportIOBIO" >
-            <v-list-tile-title>Support the iobio project</v-list-tile-title>
-          </v-list-tile>
 
         </v-list>
       </v-menu>
@@ -637,7 +637,7 @@ nav.toolbar, nav.v-toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      :width="315"
+      :width="isSimpleMode ? 355 : 315"
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
@@ -725,6 +725,7 @@ nav.toolbar, nav.v-toolbar
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
              @count-changed="onFlaggedVariantCountChanged"
+             @gene-lists-changed="onGeneListsChanged"
              @filter-settings-applied="onFilterSettingsApplied"
              @filter-settings-closed="onFilterSettingsClose"
             >
@@ -736,11 +737,11 @@ nav.toolbar, nav.v-toolbar
 
 
 
-        <v-card id="legend-card" v-if="isBasicMode && !isSimpleMode" >
+        <v-card id="legend-card" v-if="(isBasicMode || isSimpleMode) && cohortModel && cohortModel.isLoaded" >
           <legend-panel
             :isBasicMode="isBasicMode"
             :isSimpleMode="isSimpleMode"
-            :showLegendTitle=true>
+            :showLegendTitle="true">
           </legend-panel>
         </v-card>
 
@@ -748,6 +749,27 @@ nav.toolbar, nav.v-toolbar
 
 
       </div>
+
+    </v-navigation-drawer>
+
+    <v-navigation-drawer
+      v-if="!launchedFromClin"
+      v-model="showLegendDrawer"
+      absolute
+      right
+      width="200"
+      style="z-index:6"
+    >
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="legend-drawer-close-button" class="toolbar-button" flat @click="showLegendDrawer = false">
+          <v-icon >close</v-icon>
+        </v-btn>
+
+        <legend-panel
+           :showLegendTitle="true"
+           :isBasicMode="isBasicMode"
+           :isSimpleMode="isSimpleMode">
+          </legend-panel>
+
 
     </v-navigation-drawer>
 
@@ -776,25 +798,6 @@ nav.toolbar, nav.v-toolbar
      :showDialog="showExportVariants">
     </export-variants>
 
-    <v-dialog v-model="showLegend" max-width="470">
-      <v-card class="full-width">
-      <v-card-title class="headline">Legend</v-card-title>
-        <v-card-text>
-
-           <legend-panel
-           :showLegendTitle=false
-           :isBasicMode="isBasicMode"
-           :isSimpleMode="isSimpleMode"
-          style="max-width:410px">
-          </legend-panel>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn raised  @click.native="showLegend = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
 
     <v-dialog v-model="showDisclaimer" max-width="400">
         <v-card class="full-width">
@@ -1007,6 +1010,7 @@ import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
 import ImportVariants      from '../partials/ImportVariants.vue'
 import ExportVariants      from '../partials/ExportVariants.vue'
 import FilterIcon          from '../partials/FilterIcon.vue'
+import SaveButton         from '../partials/SaveButton.vue'
 
 export default {
   name: 'navigation',
@@ -1020,13 +1024,20 @@ export default {
     PhenotypeSearch,
     ImportVariants,
     ExportVariants,
-    FilterIcon
+    FilterIcon,
+    SaveButton
   },
   props: {
+    showFilesProp: null,
     isEduMode: null,
     isBasicMode: null,
     isSimpleMode: null,
+    isCommercial: null,
     forMyGene2: null,
+    launchedFromSFARI: null,
+    launchedFromHub: null,
+    analysis: null,
+    isDirty: null,
     analyzeAllInProgress: null,
     callAllInProgress: null,
     selectedGene: null,
@@ -1037,6 +1048,7 @@ export default {
     cacheHelper: null,
     activeFilterName: null,
     launchedFromClin: null,
+    showSaveModal: null,
     isFullAnalysis: null,
     isLoaded: null,
     isFullAnalysis: null,
@@ -1055,6 +1067,7 @@ export default {
     let self = this;
     return {
       title: 'gene.iobio',
+      showFiles: false,
 
       lookupGene: {},
       geneEntered: null,
@@ -1062,16 +1075,16 @@ export default {
       leftDrawer: self.forMyGene2 | self.isSimpleMode ? true : false,
       rightDrawer: false,
 
-      showFiles: false,
       showImportVariants: false,
       showExportVariants: false,
-      showLegend: false,
       showTermsOfService: false,
       showDisclaimer: false,
       showOptions: false,
       showVersion: false,
       showCitations: false,
       typeaheadLimit: parseInt(100),
+      showLegendDrawer: false,
+
 
       activeTab: 0,
 
@@ -1093,6 +1106,9 @@ export default {
         this.geneEntered = this.lookupGene.gene_name;
         this.$emit("input", this.lookupGene.gene_name);
       }
+    },
+    showFilesProp: function(){
+      this.showFiles = this.showFilesProp;
     },
     leftDrawer: function() {
       this.$emit("on-left-drawer", this.leftDrawer);
@@ -1209,8 +1225,8 @@ export default {
     onShowFiles: function() {
       this.showFiles = true;
     },
-    onShowLegend: function() {
-      this.showLegend = true;
+    onShowLegendDrawer: function() {
+      this.showLegendDrawer = !this.showLegendDrawer;
     },
     onShowCoverageThreshold: function() {
       this.$emit('show-coverage-threshold', true)
@@ -1264,8 +1280,15 @@ export default {
     onGeneCountChanged: function(count) {
       this.geneCount = count;
     },
+    onGeneListsChanged: function(geneLists){
+      this.$emit("gene-lists-changed", geneLists);
+    },
     onFlaggedVariantCountChanged: function(count) {
       this.flaggedVariantCount = count;
+      if(this.flaggedVariantCount === 0){
+        this.$emit("flagged-variant-selected", null)
+      }
+      this.$emit("variant-count-changed", count);
     },
 
     onFilterSettingsApplied: function() {
@@ -1281,6 +1304,9 @@ export default {
       this.$emit("call-variants", action)
     },
 
+    toggleSaveModal(bool) {
+      this.$emit("toggle-save-modal", bool);
+    },
 
 
   },

@@ -87,7 +87,7 @@
     <p>
       In the left side panel, you will see variants that predicted to underlie a condition according to a database called <a href="https://www.ncbi.nlm.nih.gov/clinvar/intro/">ClinVar</a>. A person who has a variant does not necessarily have the condition. In Basic mode, only variants that have a classification in ClinVar and have a frequency of &lt;1% in the general population are shown. If there are no matching variants, the side panel will be empty. You may have other variants in this gene that are not yet classified in ClinVar. These variants are shown in the 'Variants' panel and can also be seen in Advanced mode.
     </p>
-    <div style="text-align:center">
+    <div style="text-align:center;">
       <a id="intro-less-link" v-if="showIntro" href="javascript:void(0)" @click="showIntro = false">Close</a>
     </div>
   </div>
@@ -98,13 +98,10 @@
     </p>
     <p>
       {{ introParagraph2 }}
+    </p> 
+    <p v-html="introParagraph3">
     </p>
-      {{ introParagraph3 }}       
-      <span style="padding-left: 3px"> 
-        Learn more about <a href="https://www.ncbi.nlm.nih.gov/clinvar/intro/">ClinVar</a>.
-      </span>
-    </p>
-    <div style="text-align:center">
+    <div style="text-align:center;margin-top:-15px">
       <span>
         <a id="intro-less-link" v-if="showIntro" href="javascript:void(0)" @click="showIntro = false">Close</a>
       </span>
@@ -132,7 +129,8 @@ export default {
   },
   data () {
     return {
-      showIntro: true
+      showIntro: true,
+      clinvarLink: '<a href="https://www.ncbi.nlm.nih.gov/clinvar/intro/" target="clinvar">ClinVar</a>'
     }
   },
   watch: {
@@ -165,16 +163,32 @@ export default {
       }
     },
     introParagraph1: function() {
-      return process.env.INTRO_PARAGRAPH_1 ? process.env.INTRO_PARAGRAPH_1 : ""
+      if (process.env.INTRO_PARAGRAPH_1) {
+        return process.env.INTRO_PARAGRAPH_1.replace(/ClinVar/g, this.clinvarLink );
+      } else {
+        return "";
+      }
     },
     introParagraph2: function() {
-      return process.env.INTRO_PARAGRAPH_2 ? process.env.INTRO_PARAGRAPH_2 : ""
+      if (process.env.INTRO_PARAGRAPH_2) {
+        return process.env.INTRO_PARAGRAPH_2.replace(/ClinVar/g, this.clinvarLink );
+      } else {
+        return "";
+      }
     },
     introParagraph3: function() {
-      return process.env.INTRO_PARAGRAPH_3 ? process.env.INTRO_PARAGRAPH_3 : ""
+      if (process.env.INTRO_PARAGRAPH_3) {
+        return process.env.INTRO_PARAGRAPH_3.replace(/ClinVar/g, this.clinvarLink );
+      } else {
+        return ""
+      }
     },
     introParagraph4: function() {
-      return process.env.INTRO_PARAGRAPH_4 ? process.env.INTRO_PARAGRAPH_4 : ""
+      if (process.env.INTRO_PARAGRAPH_4) {
+        return process.env.INTRO_PARAGRAPH_4.replace(/ClinVar/g, this.clinvarLink );
+      } else {
+        return "";
+      }
     },
   }
 }

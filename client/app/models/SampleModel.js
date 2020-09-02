@@ -48,6 +48,8 @@ class SampleModel {
     this.variantHistoData = null;
     this.coverage = [[]];
     this.coverageDangerRegions = [];
+    this.helpMsg = "If this error persists, Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.";
+
 
     this.inProgress = {
       'loadingVariants': false,
@@ -66,7 +68,7 @@ class SampleModel {
   }
 
   promiseSetLoadState(theVcfData, taskName) {
-    var me = this;
+    const me = this;
 
     var resolveIt = function(resolve, theVcfData) {
       if (theVcfData != null) {
@@ -87,9 +89,11 @@ class SampleModel {
           resolveIt(resolve, data.vcfData);
          },
          function(error) {
-          var msg = "A problem occurred in SampleModel.promiseSetLoadState(): " + error;
-          console.log(msg);
-          reject(msg);
+           var msg = "A problem occurred in SampleModel.promiseSetLoadState().  Please try refreshing the page";
+           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+             .setHeader("Fatal Error");
+           console.log(msg);
+           reject(msg);
          })
 
       }
@@ -178,7 +182,7 @@ class SampleModel {
 
 
   promiseGetVcfData(geneObject, selectedTranscript, whenEmptyUseFbData=true) {
-    var me = this;
+    const me = this;
     var dataKind = CacheHelper.VCF_DATA;
     return new Promise(function(resolve, reject) {
       if (geneObject == null) {
@@ -246,9 +250,11 @@ class SampleModel {
 
                },
                function(error) {
-                var msg = "Problem occurred in SampleModel.promiseGetVcfData: " + error;
-                console.log(msg);
-                reject(error);
+                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations().  Try refreshing the page";
+                 alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                   .setHeader("Fatal Error");
+                 console.log(msg);
+                 reject(error);
                });
             } else {
               resolve({model: me, vcfData: theVcfData});
@@ -1336,7 +1342,7 @@ class SampleModel {
   }
 
   promiseGetVariantExtraAnnotations(theGene, theTranscript, variant, format, getHeader = false, sampleNames) {
-    var me = this;
+    const me = this;
 
     return new Promise( function(resolve, reject) {
 
@@ -1377,8 +1383,8 @@ class SampleModel {
                me.globalApp.vepAF, // vepAF
                me.globalApp.useServerCache, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtra && me.relationship != 'known-variants', // get extra gnomad,
-               me.relationship != 'known-variants' // decompose
+               me.globalApp.gnomADExtra, // get extra gnomad,
+               true // decompose
             ).then( function(data) {
 
               var rawVcfRecords = data[0];
@@ -1483,19 +1489,22 @@ class SampleModel {
                             // return the annotated variant
                           resolve(theVariant);
                            }, function(error) {
-                            var msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(): " + error;
+                             let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(). Try refreshing the page.";
+                             alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                               .setHeader("Fatal Error");
                             console.log(msg);
                             reject(msg);
                            });
                            resolve(theVariant);
 
                         } else {
-                          var msg = "Cannot find corresponding variant to update HGVS notation for variant " + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt;
-                          console.log(msg);
+                          var msg = "Cannot find corresponding variant to update HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt + "</code>";
+                          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                            .setHeader("Non-fatal Error");
                           reject(msg);
                         }
                       } else {
-                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant " + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt;
+                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt + "</code>";
                         console.log(msg);
                         reject(msg);
 
@@ -1505,13 +1514,15 @@ class SampleModel {
 
                   }
                 } else {
-                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
+                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt +"</code>. Try refreshing the page.";
                   console.log(msg);
                   if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
                     variant.notFound = true;
                     variant.isUserFlagged = false;
                     resolve([variant, variant, []]);
                   } else {
+                    alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                      .setHeader("Fatal Error");
                    reject(msg);
                   }
 
@@ -1519,7 +1530,7 @@ class SampleModel {
 
 
               } else {
-                var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant " + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt;
+                var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt + "</code>";
                 console.log(msg);
                 if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
                   variant.notFound = true;
@@ -1618,7 +1629,9 @@ class SampleModel {
 
        },
        function(error) {
-        var msg = "A problem occurred in SampleModel.promiseGetImpactfulVariantIds(): " + error;
+         let msg = "A problem occurred in SampleModel.promiseGetImpactfulVariantIds().  Try refreshing the page.";
+         alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+           .setHeader("Non-fatal Error");
         console.log(msg);
         reject(msg);
        })
@@ -1688,7 +1701,11 @@ class SampleModel {
                                       annoResults.push(unwrappedResults);
                                     })
                                     .catch((error) => {
+                                      let msg = "Could not obtain sfari variants.  Try refreshing the page.";
+                                      alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                                        .setHeader("Non-fatal Error");
                                       reject('Problem getting sfari variants: ' + error);
+
                                     });
                                 annoPromises.push(p);
                             });
@@ -1702,6 +1719,9 @@ class SampleModel {
                                         resolve(resultMap);
                                       })
                                       .catch((error) => {
+                                        let msg = "There was a problem combining variants with sfari variants. Try refreshing the page";
+                                        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                                          .setHeader("Non-fatal Error");
                                         reject('Problem in combining variants: ' + error);
                                       })
                               });
@@ -1818,7 +1838,7 @@ class SampleModel {
                regions,   // regions
                isMultiSample, // is multi-sample
                me._getSamplesToRetrieve(),
-               me.getRelationship() === 'known-variants' ? 'none' : me.getAnnotationScheme().toLowerCase(),
+               'none',
                me.getTranslator().clinvarMap,
                me.getGeneModel().geneSource === 'refseq' ? true : false,
                me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
@@ -1826,8 +1846,8 @@ class SampleModel {
                me.globalApp.vepAF,    // vep af
                false, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtraAll && me.relationship != 'known-variants', // get extra gnomad,
-               !me.isEduMode && me.getRelationship() != 'known-variants' // decompose
+               me.globalApp.gnomADExtraAll, // get extra gnomad,
+               !me.isEduMode// decompose
               );
           })
           .then( function(data) {
@@ -1901,25 +1921,35 @@ class SampleModel {
                 });
 
               } else {
-                var error = "ERROR - cannot locate gene object to match with vcf data " + data.ref + " " + data.start + "-" + data.end;
-                console.log(error);
-                reject(error);
+                let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
+                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                  .setHeader("Fatal Error");
+                console.log(msg);
+                reject(msg);
               }
             } else {
-              var error = "ERROR - empty vcf results for " + theGene.gene_name;;
-              console.log(error);
-              reject(error);
+              let msg = "Empty vcf results for " + theGene.gene_name;
+              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                .setHeader("Non-fatal Error");
+              console.log(msg);
+              reject(msg);
             }
 
 
           },
           function(error) {
+            let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
+            alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+              .setHeader("Fatal Error");
             console.log(error);
             reject(error)
           });
         }
       },
       function(error) {
+        let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+          .setHeader("Fatal Error");
         console.log(error);
         reject(error);
       });
@@ -2072,6 +2102,7 @@ class SampleModel {
     // Find the highest value (the least rare AF) betweem exac and 1000g to evaluate
     // as 'lowest' af for all variants in gene
     var afHighest = null;
+
     if ($.isNumeric(variant.afExAC) && $.isNumeric(variant.af1000G)) {
       // Ignore exac n/a.  If exac is higher than 1000g, evaluate exac
       if (variant.afExAC > -100 && variant.afExAC >= variant.af1000G) {
@@ -2940,7 +2971,7 @@ class SampleModel {
             evalObject[evalKey] = {matchCount: 0, notMatchCount: 0};
           }
           if ($.isPlainObject(annotValue)) {
-            for (avKey in annotValue) {
+            for (let avKey in annotValue) {
               var doesMatch = avKey.toLowerCase() == annot.value.toLowerCase();
               incrementEqualityCount(doesMatch, evalObject[evalKey])
             }
@@ -3153,6 +3184,9 @@ class SampleModel {
             reject(message);
           });
         }, function(error) {
+          let msg = "Could not annotate variants due to missing reference file";
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+            .setHeader("Fatal Error");
           console.log("missing reference");
           reject("missing reference");
         });
@@ -3240,7 +3274,9 @@ class SampleModel {
           resolve(data);
          },
          function(error) {
-          var msg = "An error occurred in SampleModel._promiseGetData(): " + error;
+           let msg = "Could not get sample data for gene " +  geneName + ". Try refreshing the page";
+           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+             .setHeader("Non-fatal Error");
           console.log(msg);
           reject(msg);
          })

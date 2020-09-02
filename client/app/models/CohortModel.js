@@ -5,7 +5,7 @@ import SampleModel      from './SampleModel.js'
 class CohortModel {
 
   constructor(globalApp, isEduMode, isBasicMode, endpoint, genericAnnotation, translator, geneModel,
-    variantExporter, cacheHelper, genomeBuildHelper, freebayesSettings) {
+    variantExporter, cacheHelper, genomeBuildHelper, launchedFromClin, freebayesSettings) {
 
     this.globalApp = globalApp;
     this.isEduMode = isEduMode;
@@ -21,6 +21,7 @@ class CohortModel {
     this.cacheHelper = cacheHelper;
     this.genomeBuildHelper = genomeBuildHelper;
     this.freebayesSettings = freebayesSettings;
+    this.launchedFromClin = launchedFromClin
     this.filterModel = null;
     this.featureMatrixModel = null;
 
@@ -922,7 +923,6 @@ class CohortModel {
 
   promiseLoadSfariVariants(theGene, theTranscript) {
       let self = this;
-
       if (self.sfariVariantsViz === 'variants') {
           return self._promiseLoadSfariVariants(theGene, theTranscript);
       } else  {
@@ -2049,8 +2049,32 @@ class CohortModel {
     variant.isFlagged = false;
     variant.isUserFlagged = false;
     this.removeFilterPassed(variant, "userFlagged");
+
     this._removeFlaggedVariantImpl(variant);
-    this._recacheForFlaggedVariant(theGene, theTranscript, variant, {summarizeDanger: true});
+
+    this.getProbandModel().promiseGetDangerSummary(theGene.gene_name)
+    .then(function(dangerSummary) {
+      let reviewedVariants = dangerSummary.badges['reviewed'];
+      var i = 0;
+        if (reviewedVariants) {
+        reviewedVariants.forEach(function(v) {
+          var matches = (
+            self.globalApp.utility.stripRefName(v.chrom) == self.globalApp.utility.stripRefName(variant.chrom)
+            && v.start == variant.start
+            && v.ref == variant.ref
+            && v.alt == variant.alt);
+          if (matches) {
+            index = i;
+          }
+          i++;
+        })
+        if (index >= 0) {
+          reviewedVariants.splice(index, 1);
+          me.geneModel.setDangerSummary(theGene.gene_name, dangerSummary);
+        }
+      }
+      //self._recacheForFlaggedVariant(theGene, theTranscript, variant, {summarizeDanger: true});
+    })
   }
 
   _removeFlaggedVariantImpl(variant) {
@@ -2087,6 +2111,7 @@ class CohortModel {
                       && v.start == variant.start
                       && v.ref == variant.ref
                       && v.alt == variant.alt);
+
         if (matches) {
           v.isFlagged      = variant.isFlagged
           v.isUserFlagged  = variant.isUserFlagged;
@@ -2321,9 +2346,18 @@ class CohortModel {
     // So first, cache all of the gene objects for the imported variants
     var promises = []
 
+    // Workaround - some older saved analysis had empty variant 
+    // records. Bypass these.
+    importRecords = importRecords.filter(function(ir) {
+      if (ir == null) {
+        console.log("WARNING: bypassing null variant record")
+        return false;
+      } else {
+        return true;
+      }
+    })
+
     importRecords.forEach( function(ir) {
-
-
       // Workaround.  variant.gene sometimes an
       // object, sometimes a gene name.  Other times
       // variant.geneName is filled in instead
@@ -2355,11 +2389,7 @@ class CohortModel {
           promises.push(promise);
         }
       }
-
-
     })
-
-
 
     // Now that all of the gene objects have been cached, we can fill in the
     // transcript if necessary and then find load the imported bookmarks
@@ -2385,6 +2415,10 @@ class CohortModel {
         })
 
       });
+      // First callback when flagged variants are now populated by imported records
+      if (callbackPostImport) {
+        callbackPostImport();
+      }
 
 
       var intersectedGenes = {};
@@ -2406,6 +2440,11 @@ class CohortModel {
 
 
       if (me.isLoaded) {
+        me.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
+          me.onImportedGeneAnalyzed(theGene.gene_name, intersectedGenes, theGene, transcript)
+
+        })
+
         me.cacheHelper.promiseAnalyzeSubset(me, Object.keys(genesToAnalyze.load), geneToAltTranscripts, false, false)
         .then(function() {
           if (Object.keys(genesToAnalyze.call).length > 0) {
@@ -2415,139 +2454,19 @@ class CohortModel {
           }
         })
         .then(function() {
-          // First callback when flagged variants are now populated by imported records
-          if (callbackPostImport) {
-            callbackPostImport();
+          // Second callback when every gene has been analyzed
+          if (callbackPostAnalyze) {
+            callbackPostAnalyze();
           }
 
-          // Get all of the cached vcf data
-          let dataPromises = [];
-
-          for (let geneName in intersectedGenes) {
-
-            if (me.geneModel.isCandidateGene(geneName)) {
-            var uniqueTranscripts = {};
-              intersectedGenes[geneName].forEach(function(importedVariant) {
-                if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
-                  console.log("No transcript for importedVariant");
-                  console.log(importedVariant);
-                } else {
-                  uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
-                }
-              })
-
-              for (var transcriptId in uniqueTranscripts) {
-                let dataPromise =  new Promise(function(resolve, reject) {
-
-                  var geneObject = me.geneModel.geneObjects[geneName];
-                  var transcript = uniqueTranscripts[transcriptId];
-                  var importedVariants = intersectedGenes[geneName];
-
-                  me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
-                  .then(function(data) {
-
-                    if (data == null || data.vcfData == null || data.vcfData.features == null) {
-                      var msg = "Unable to get variant vcf data for " + geneObject.gene_name + " " + transcript.transcript_id;
-                      console.log(msg);
-                      resolve();
-                    } else if (importedVariants.length > 0) {
-
-                      // Refresh imported variant records with real variants
-                      importedVariants.forEach(function(importedVariant) {
-                        var matchingVariants = data.vcfData.features.filter(function(v) {
-                           return me.globalApp.utility.stripRefName(v.chrom) == me.globalApp.utility.stripRefName(importedVariant.chrom)
-                           && v.start == importedVariant.start
-                           && v.ref      == importedVariant.ref
-                           && v.alt      == importedVariant.alt;
-                        })
-                        if (matchingVariants.length > 0) {
-                          let matchingVariant = matchingVariants[0];
-
-                          var origImportedVariant = $.extend({}, importedVariant);
-                          importedVariant         = $.extend(importedVariant, matchingVariant);
-
-                          importedVariant.isFlagged      = true;
-                          importedVariant.isImported     = true;
-                          importedVariant.isProxy        = false;
-
-                          importedVariant.gene           = origImportedVariant.gene;
-                          importedVariant.transcript     = origImportedVariant.transcript;
-                          importedVariant.isUserFlagged  = origImportedVariant.isUserFlagged;
-                          importedVariant.featureClass   = origImportedVariant.isUserFlagged ? "flagged" : "";
-                          importedVariant.interpretation = origImportedVariant.interpretation;
-                          importedVariant.notes          = origImportedVariant.notes;
-
-                          matchingVariant.isImported     = true;
-                          matchingVariant.isUserFlagged  = origImportedVariant.isUserFlagged;
-                          matchingVariant.featureClass   = origImportedVariant.isUserFlagged ? "flagged" : "";
-                          matchingVariant.interpretation = origImportedVariant.interpretation;
-                          matchingVariant.notes          = origImportedVariant.notes;
-
-                        } else {
-                          importedVariant.isProxy = true;
-                          importedVariant.notFound = true;
-                          console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
-                        }
-                      })
-
-                      // Make sure that the imported variants are re-assessed to determine the filters they
-                      // pass.  We need this so that the imported variants show up in the left flagged variants
-                      // side panel
-                      me.filterModel.flagImportedVariants(importedVariants);
-
-                      // We need to recache the variants since the isUserFlag has been established
-                      me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
-                      .then(function() {
-
-                        // Now recalc the badge counts on danger summary to reflect imported variants
-                        me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
-                        .then(function(dangerSummary) {
-                          dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
-                          me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
-
-                          resolve();
-
-                          // For every gene, we will analyze the coverage across the exons
-                          // NOTE:  This is an expensive operation!
-
-                          //me.promiseLoadCoverage(geneObject, transcript)
-                          //.then(function() {
-                          //  resolve();
-                          //})
-
-                        });
-                      })
-                    }
-                  })
-                  .catch(function(error) {
-                    resolve();
-                  })
-
-                })
-                dataPromises.push(dataPromise);
-              }
-            }
-
+        })
+        .catch(function(error) {
+          var msg = "An error occurred when analyzing all genes from imported variants. " + error;
+          console.log(msg);
+          if (callbackPostAnalyze) {
+            callbackPostAnalyze();
           }
 
-          // Finished with syncing imported variants for all imported genes.
-          Promise.all(dataPromises)
-          .then(function() {
-
-            // Second callback when every gene has been analyzed
-            if (callbackPostAnalyze) {
-              callbackPostAnalyze();
-            }
-
-          })
-          .catch(function(error) {
-            var msg = "An error occurred when analyzing all genes from imported variants. " + error;
-            console.log(msg);
-            if (callbackPostAnalyze) {
-              callbackPostAnalyze();
-            }
-
-          })
         })
 
       }
@@ -2556,8 +2475,128 @@ class CohortModel {
 
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
+  onImportedGeneAnalyzed(geneName, intersectedGenes, theGeneObject, theTranscript) {
+    let me = this;
+    let dataPromises = [];
+    if (me.geneModel.isCandidateGene(geneName)) {
+      var uniqueTranscripts = {};
+      if(!intersectedGenes[geneName]){
+        intersectedGenes[geneName] = [{}];
+      }
+      if (intersectedGenes[geneName]) {
+        intersectedGenes[geneName].forEach(function(importedVariant) {
+          if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
+            console.log("No transcript for importedVariant");
+            console.log(importedVariant);
+          } else {
+            uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
+          }
+        })
+      }
+      
+      if (theTranscript) {
+        uniqueTranscripts[theTranscript.transcript_id] = theTranscript;
+      }
+      for (var transcriptId in uniqueTranscripts) {
+        let dataPromise =  new Promise(function(resolve, reject) {
+
+          var geneObject = theGeneObject ? theGeneObject : me.geneModel.geneObjects[geneName];
+          var transcript = uniqueTranscripts[transcriptId];
+          var importedVariants = intersectedGenes[geneName];
+
+          me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
+          .then(function(data) {
+
+            if (data == null || data.vcfData == null || data.vcfData.features == null) {
+              var msg = "Unable to get variant vcf data for " + geneObject.gene_name + " " + transcript.transcript_id;
+              console.log(msg);
+              resolve();
+            } else if (importedVariants && importedVariants.length > 0) {
+
+              // Refresh imported variant records with real variants
+              importedVariants.forEach(function(importedVariant) {
+                var matchingVariants = data.vcfData.features.filter(function(v) {
+                   return me.globalApp.utility.stripRefName(v.chrom) == me.globalApp.utility.stripRefName(importedVariant.chrom)
+                   && v.start == importedVariant.start
+                   && v.ref      == importedVariant.ref
+                   && v.alt      == importedVariant.alt;
+                })
+                if (matchingVariants.length > 0) {
+                  let matchingVariant = matchingVariants[0];
+
+                  var origImportedVariant = $.extend({}, importedVariant);
+                  importedVariant         = $.extend(importedVariant, matchingVariant);
+
+                  importedVariant.isFlagged      = true;
+                  importedVariant.isImported     = true;
+                  importedVariant.isProxy        = false;
+
+                  importedVariant.gene           = origImportedVariant.gene;
+                  importedVariant.transcript     = origImportedVariant.transcript;
+                  importedVariant.isUserFlagged  = origImportedVariant.isUserFlagged;
+                  importedVariant.featureClass   = origImportedVariant.isUserFlagged ? "flagged" : "";
+                  importedVariant.interpretation = origImportedVariant.interpretation;
+                  importedVariant.notes          = origImportedVariant.notes;
+
+                  matchingVariant.isImported     = true;
+                  matchingVariant.isUserFlagged  = origImportedVariant.isUserFlagged;
+                  matchingVariant.featureClass   = origImportedVariant.isUserFlagged ? "flagged" : "";
+                  matchingVariant.interpretation = origImportedVariant.interpretation;
+                  matchingVariant.notes          = origImportedVariant.notes;
+
+                } else {
+                  importedVariant.isProxy = true;
+                  importedVariant.notFound = true;
+                  console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
+                }
+              })
+
+              // Make sure that the imported variants are re-assessed to determine the filters they
+              // pass.  We need this so that the imported variants show up in the left flagged variants
+              // side panel
+              me.filterModel.flagImportedVariants(importedVariants);
+
+              // We need to recache the variants since the isUserFlag has been established
+              me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
+              .then(function() {
+
+                // Now recalc the badge counts on danger summary to reflect imported variants
+                me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
+                .then(function(dangerSummary) {
+                  dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
+                  me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
+
+                  resolve();
+
+                  // For every gene, we will analyze the coverage across the exons
+                  // NOTE:  This is an expensive operation!
+
+                  //me.promiseLoadCoverage(geneObject, transcript)
+                  //.then(function() {
+                  //  resolve();
+                  //})
+
+                });
+              })
+            }
+          })
+          .catch(function(error) {
+            resolve();
+          })
+
+        })
+        dataPromises.push(dataPromise);
+      }        
+
+
+
+    }
+    return dataPromises;
+  }
+
+  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, variant, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
     let self = this;
+
     let filters = [];
     for (var filterName in self.filterModel.flagCriteria) {
       if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
@@ -2567,11 +2606,9 @@ class CohortModel {
         if (!options.includeReviewed && filterName == 'reviewed') {
           include = false;
         }
-        if (isFullAnalysis && !options.includeNotCategorized && filterName == 'notCategorized') {
-          include = false;
-        }
+
         if (include) {
-          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options);
+          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
 
           if (sortedGenes.length > 0 || options.includeAll) {
             filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
@@ -2599,7 +2636,7 @@ class CohortModel {
 
         // Sort the variants according to the Ranked Variants table features
         self.featureMatrixModel.setFeaturesForVariants(geneList.variants);
-        geneList.variants = self.featureMatrixModel.sortVariantsByFeatures(geneList.variants)
+        geneList.variants = self.sortVariants(geneList.variants)
 
 
         geneList.variants.forEach(function(variant) {
@@ -2683,7 +2720,7 @@ class CohortModel {
       if (theVariants) {
         // Sort the variants according to the Ranked Variants table features
         self.featureMatrixModel.setFeaturesForVariants(theVariants);
-        let sortedVariants = self.featureMatrixModel.sortVariantsByFeatures(theVariants)
+        let sortedVariants = self.sortVariants(theVariants)
 
         filters.push({filter: theFilter, variants: sortedVariants});
       }
@@ -2718,11 +2755,26 @@ class CohortModel {
   }
 
 
-  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters, options) {
+  _organizeVariantsForFilter(filterName, userFlagged, isFullAnalysis, interpretationFilters, options, variant) {
     let self = this;
     let geneMap        = {};
     let flaggedGenes   = [];
+
     if (this.flaggedVariants) {
+      if(variant) {
+        let isUnique = true;
+        for(let i = 0; i < this.flaggedVariants.length; i++){
+          if((this.launchedFromClin || (!this.launchedFromClin && !variant.variant_id)) && this.flaggedVariants[i].start === variant.start && this.flaggedVariants[i].end === variant.end && this.flaggedVariants[i].ref === variant.ref && this.flaggedVariants[i].alt === variant.alt){
+            this.flaggedVariants[i] = variant;
+            isUnique = false;
+          }
+        }
+        if(isUnique && variant.isUserFlagged && variant.start && variant.end && variant.ref && variant.alt){
+          this.flaggedVariants.push(variant);
+        }
+      }
+
+
       this.flaggedVariants.forEach(function(variant) {
         let isReviewed = (variant.notes && variant.notes.length > 0) ||
             (variant.interpretation != null && (variant.interpretation == "sig" || variant.interpretation == "unknown-sig" || variant.interpretation == "not-sig" || variant.interpretation == "poor-qual"));
@@ -2737,8 +2789,6 @@ class CohortModel {
             matches = true;
           }
         }
-
-
 
         if (matches) {
 
@@ -2765,14 +2815,12 @@ class CohortModel {
         }
       })
 
-      var sortedGenes = flaggedGenes.sort(function(a,b) {
-        return self.geneModel.compareDangerSummary(a.gene.gene_name, b.gene.gene_name);
-      })
+      var sortedGenes = self.sortGenesByVariants(flaggedGenes)
       let i = 0;
       sortedGenes.forEach(function(flaggedGene) {
         // Sort the variants according to the Ranked Variants table features
         self.featureMatrixModel.setFeaturesForVariants(flaggedGene.variants);
-        let sortedVariants = self.featureMatrixModel.sortVariantsByFeatures(flaggedGene.variants)
+        let sortedVariants = self.sortVariants(flaggedGene.variants)
 
         sortedVariants.forEach(function(variant) {
           variant.index = i;
@@ -2786,6 +2834,68 @@ class CohortModel {
       return [];
     }
 
+  }
+
+  sortGenesByVariants(theGenes) {
+    let self = this;
+    let theVariants = [];
+    theGenes.forEach(function(flaggedGene) {
+      let variantsForGene = flaggedGene.variants;
+      variantsForGene.forEach(function(variant) {
+        theVariants.push(variant);
+      })
+    })
+    let sortedVariants = self.sortVariants(theVariants);
+
+    let i = 0;
+    sortedVariants.forEach(function(variant) {
+      variant.sortIndex = i;
+      i++;
+    })
+    theGenes.forEach(function(flaggedGene) {
+      let variantsForGene = flaggedGene.variants;
+      flaggedGene.sortIndex = variantsForGene[0].sortIndex;
+    })
+    return theGenes.sort(function(a,b) {
+      return a.sortIndex - b.sortIndex;
+    })
+
+
+  }
+
+  sortVariants(theVariants) {
+    let self = this;
+    return theVariants.sort(function (a, b) {
+      var featuresA = "";
+      var featuresB = "";
+
+
+      var clinvarA = self.featureMatrixModel.getClinvarRank(a, a.clinvarClinSig)
+      var clinvarB = self.featureMatrixModel.getClinvarRank(b, b.clinvarClinSig)
+
+      var impactA = self.featureMatrixModel.getImpactRank(a, a.vepImpact)
+      var impactB = self.featureMatrixModel.getImpactRank(b, b.vepImpact)
+
+      var inheritanceA = a.inheritance ? (a.inheritance.indexOf('n/a') == -1 ? 1 : 0) : 0;
+      var inheritanceB = b.inheritance ? (b.inheritance.indexOf('n/a') == -1 ? 1 : 0) : 0;
+
+      var afA = a.isImported ? +a.afgnomAD : (a.afHighest ? +a.afHighest : 99);
+      var afB = a.isImported ? +a.afgnomAD : (b.afHighest ? +b.afHighest : 99);
+
+      if (clinvarA == clinvarB) {
+        if (impactA == impactB) {
+          if (inheritanceA == inheritanceB) {
+            return afA - afB;
+          } else {
+            return b.start - a.start;
+          }
+        } else {
+          return impactA - impactB;
+        }
+      } else {
+        return clinvarA - clinvarB;
+      }
+    })
   }
 
   captureFlaggedVariants(dangerSummary, geneObject) {

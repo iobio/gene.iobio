@@ -1,13 +1,15 @@
 
 export default class HubSession {
-  constructor() {
+  constructor(clientApplicationId) {
     this.vcf = null;
     this.samples = null;
     this.url = null;
     this.isMother = false;
     this.isFather = false;
-    this.apiVersion =  '/apiv1';
-    this.client_application_id = null;
+    this.apiVersion =  '/api/v1';
+    this.apiDepricated = null;
+    this.apiVersionDeprecated = '/apiv1'
+    this.client_application_id = clientApplicationId,
     this.variantSetTxtCols = [
       "chrom",
       "start",
@@ -28,13 +30,15 @@ export default class HubSession {
     this.globalApp = null;
   }
 
-  promiseInit(sampleId, source, isPedigree, projectId, geneSetId ) {
+  promiseInit(sampleId, source, isPedigree, projectId, geneSetId, variantSetId ) {
     let self = this;
     self.api = source + self.apiVersion;
+    self.apiDepricated = source + self.apiVersionDeprecated
 
     return new Promise((resolve, reject) => {
       let modelInfos = [];
       let geneSet = null;
+      let variantSet = null;
 
       self.promiseGetCurrentUser()
       .then(function(data) {
@@ -55,17 +59,28 @@ export default class HubSession {
       .then(function(data) {
         geneSet = data;
 
+        if (variantSetId) {
+          return self.promiseGetVariantSet(projectId, variantSetId)
+        } else {
+          return Promise.resolve(null);
+        }
+
+      })
+      .then(function(data) {
+        variantSet = data;
+
         self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then(data => {
 
 
           let promises = [];
 
+          let foundPedigree = data.foundPedigree;
 
-          let pedigree    = isPedigree ? data.pedigree : {'proband': data.proband};
+          let pedigree    = foundPedigree ? data.pedigree : {'proband': data.proband};
           let rawPedigree = data.rawPedigree;
 
           // Let's get the proband info first
-          let probandSample = isPedigree ? pedigree.proband : data.proband;
+          let probandSample = foundPedigree ? pedigree.proband : data.proband;
           self.promiseGetFileMapForSample(projectId, probandSample, 'proband').then(data => {
             probandSample.files = data.fileMap;
           })
@@ -97,8 +112,8 @@ export default class HubSession {
 
                       var modelInfo = {
                         'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
-                        'affectedStatus': isPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
-                        'sex':            isPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
+                        'affectedStatus': foundPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
+                        'sex':            foundPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
                         'name':           theSample.name,
                         'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
                         'vcf':            theSample.files.vcf,
@@ -144,7 +159,13 @@ export default class HubSession {
                 alertify.alert("Error", buf)
               }
 
-              resolve({'modelInfos': modelInfos, 'rawPedigree': rawPedigree, 'geneSet': geneSet, 'isMother': self.isMother, 'isFather': self.isFather});
+              resolve({'modelInfos': modelInfos,
+                'rawPedigree': rawPedigree,
+                'geneSet': geneSet,
+                'variantSet': variantSet,
+                'isMother': self.isMother,
+                'isFather': self.isFather,
+                'foundPedigree': foundPedigree});
             })
             .catch(error => {
               reject(error);
@@ -261,8 +282,10 @@ export default class HubSession {
       })
       .fail(error => {
         console.log("Unable to get file " + fileInfo.url)
-        //alertify.error("Missing file for URL " + fileInfo.url, 20)
 
+        let errorMsg = error.responseJSON.message;
+        let msg = "Unable to get file " + fileInfo.url;
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
         resolve();
       })
 
@@ -272,36 +295,14 @@ export default class HubSession {
 
   promiseGetClientApplication() {
     let self = this;
+
     return new Promise(function(resolve, reject) {
-      $.ajax({
-        url: self.api + '/client-applications',
-        type: 'GET',
-        contentType: 'application/json',
-        headers: {
-          Authorization: localStorage.getItem('hub-iobio-tkn'),
-        },
-      })
-      .done(data => {
-        let clientApps = data.data;
-        let matchingApp = clientApps.filter(function(clientApp) {
-          return clientApp.display_name == 'Gene.iobio';
-        })
-        if (matchingApp.length > 0) {
-          console.log("client_application_id = " + matchingApp[0].id)
-          self.client_application_id = matchingApp[0].id;
-          resolve();
-        } else {
-          reject("Cannot find Mosaic client_application for gene")
-        }
-
-      })
-      .fail(error => {
-        console.log("Error getting applications ");
-        console.log(error);
-        reject(error);
-      })
-
-    })
+      if(self.client_application_id){
+      resolve();
+    }
+      else{
+        reject("Cannot find Mosaic client_application for gene");
+      }})
   }
 
 
@@ -313,6 +314,11 @@ export default class HubSession {
           resolve(data);
       })
       .fail(error => {
+
+        let errorMsg = error.responseJSON.message;
+        let msg = "Unable to get project " + project_id + " from Mosaic"
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+          .setHeader("Fatal Error");
         reject("Error getting project " + project_id + ": " + error);
       });
     });
@@ -323,7 +329,14 @@ export default class HubSession {
     if (isPedigree) {
       return self.promiseGetPedigreeForSample(project_id, sample_id);
     } else {
-      return self.promiseGetSample(project_id, sample_id, 'proband');
+      return new Promise(function(resolve, reject) {
+        self.promiseGetSample(project_id, sample_id, 'proband')
+        .then(function(data) {
+          data.foundPedigree = false;
+          resolve(data)
+        })
+
+      })
     }
   }
 
@@ -343,6 +356,10 @@ export default class HubSession {
         }
       })
       .fail(error => {
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error accessing Mosaic sample for sample_id " + sample_id;
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+          .setHeader("Fatal Error");
         reject("Error getting sample " + sample_id + ": " + error);
       })
     })
@@ -358,18 +375,29 @@ export default class HubSession {
         const rawPedigreeOrig = $.extend({}, rawPedigree);
         let pedigree = self.parsePedigree(rawPedigree, sample_id)
         if (pedigree) {
-          resolve({pedigree: pedigree, rawPedigree: rawPedigreeOrig});
-        } else {
-          reject("Error parsing pedigree");
+          resolve({foundPedigree: true, pedigree: pedigree, rawPedigree: rawPedigreeOrig});
+        }
+        else {
+          self.promiseGetSample(project_id, sample_id, 'proband')
+          .then(function(data) {
+            data.foundPedigree = false;
+            resolve(data);
+          })
         }
       })
       .fail(error => {
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error getting pedigree for sample_id " + sample_id
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+          .setHeader("Fatal Error");
+
         reject("Error getting pedigree for sample " + sample_id + ": " + error);
       })
     })
   }
 
   parsePedigree(raw_pedigree, sample_id) {
+    let self = this;
 
     // This assumes only 1 proband. If there are multiple affected samples then
     // the proband will be overwritten
@@ -416,23 +444,24 @@ export default class HubSession {
         pedigree['father'] = raw_pedigree.splice(fatherIndex, 1)[0]
         this.isFather = true;
       }
+
+      raw_pedigree.forEach(sample => {
+        if (sample.pedigree.maternal_id != null || sample.pedigree.paternal_id != null
+            && sample.pedigree.id != pedigree.proband.id) {
+          pedigree['siblings'] = (pedigree['siblings'] || [] )
+          pedigree['siblings'].push(sample);
+        } else {
+          pedigree['unparsed'] = (pedigree['siblings'] || []).push(sample)
+        }
+      })
+
+      return pedigree;
+
+
     } else {
-      alertify.alert("Error", "Could not load the trio.  Unable to identify a proband (offspring) from this pedigree.")
       return null;
     }
 
-    raw_pedigree.forEach(sample => {
-      if (sample.pedigree.maternal_id != null || sample.pedigree.paternal_id != null
-          && sample.pedigree.id != pedigree.proband.id) {
-        pedigree['siblings'] = (pedigree['siblings'] || [] )
-        pedigree['siblings'].push(sample);
-      } else {
-        pedigree['unparsed'] = (pedigree['siblings'] || []).push(sample)
-      }
-    })
-
-
-    return pedigree;
   }
 
   getPedigreeForSample(project_id, sample_id) {
@@ -518,6 +547,10 @@ export default class HubSession {
         resolve(response.data);
       })
       .fail(error => {
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error getting sample files for sample_id " + sample_id;
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+          .setHeader("Fatal Error");
         console.log("Unable to get files for sample " + sample_id)
         reject(error);
       })
@@ -545,8 +578,13 @@ export default class HubSession {
                   resolve(response);
               })
               .fail(error => {
-                  console.log("Unable to get files for project " + project_id);
-                  reject(error);
+                let msg = "Error getting project files for project_id " + project_id;
+                let errorMsg = error.responseJSON.message;
+                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+                  .setHeader("Fatal Error");
+
+                console.log("Unable to get files for project " + project_id);
+                reject(error);
               })
       })
   }
@@ -572,6 +610,12 @@ export default class HubSession {
         resolve(file);
       })
       .fail(error => {
+
+        let errorMsg = error.responseJSON.message;
+        let msg = "Could not get signed url for file_id  " + file.id;
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+          .setHeader("Fatal Error");
+
         reject(error);
       })
     })
@@ -609,7 +653,30 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error getting gene set from Mosaic with gene_set_id " + geneSetId + ".  The Mosaic servers may be down, or the gene set may not be up to date with the most recent version of Mosaic.";
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
+
         reject("Error getting gene set " + geneSetId + ": " + error);
+      })
+    })
+
+  }
+
+
+  promiseGetVariantSet(projectId, variantSetId) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getVariantSet(projectId, variantSetId)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.";
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
+
+        reject("Error getting variant set " + variantSetId + ": " + error);
       })
     })
 
@@ -623,7 +690,12 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        reject("Error getting analysis " + analysisId + ": " + error);
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error getting analysis " + analysisId + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
+
+        console.log("Error getting analysis  " + analysisId + ": " + errorMsg);
+        reject("Error getting analysis: " + msg + "." )
       })
     })
 
@@ -636,7 +708,11 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        reject("Error adding analysis for project " + projectId + ": " + error);
+        let errorMsg = error.responseJSON.message;
+        let msg = "Error adding analysis " + analysis.id + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
+        console.log("Error adding analysis for project " + projectId + ": " + errorMsg);
+        reject("Error adding analysis: " + msg + "." )
       })
     })
 
@@ -650,7 +726,13 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        reject("Error updating analysis " + analysis.id  + ": " + error);
+        let errorMsg = error.responseJSON.message;
+        console.log("Error updating analysis :" + errorMsg);
+        let msg = "Error updating analysis " + analysis.id + " from Mosaic. The Mosaic servers may be down.  Come back later and try again."
+
+        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
+
+        reject("Error saving analysis: " + msg + "." )
       })
     })
 
@@ -737,6 +819,11 @@ export default class HubSession {
           resolve(response)
         })
         .fail(error => {
+          let errorMsg = error.responseJSON.message;
+          let msg = "Error getting current Mosaic user.  Your authorization may have expired.  Make sure you are still logged into Mosaic, and relaunch the project."
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
+
+
           reject("Error getting currentUser :" + error);
         })
     })
@@ -761,6 +848,24 @@ export default class HubSession {
 
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/genes/sets/' + geneSetId,
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+
+  getVariantSet(projectId, variantSetId) {
+    let self = this;
+
+    return $.ajax({
+      url: self.apiDepricated + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId,
+      data: {
+        include_variant_data: true,
+        annotation_uids: ['gene_symbol'],
+      },
       type: 'GET',
       contentType: 'application/json',
       headers: {
@@ -812,6 +917,4 @@ export default class HubSession {
     cache = [];
     return analysisString;
   }
-
-
 }

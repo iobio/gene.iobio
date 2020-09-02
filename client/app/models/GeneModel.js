@@ -4,7 +4,7 @@ class GeneModel {
     this.globalApp                 = globalApp;
     this.limitGenes                = limitGenes;
     this.launchedFromHub = launchedFromHub;
-    this.phenolyzerServer          = "https://7z68tjgpw4.execute-api.us-east-1.amazonaws.com/dev/phenolyzer/";
+    this.phenolyzerServer          = "https://services.backend.iobio.io/phenolyzer/";
 
     this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
     this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
@@ -14,6 +14,7 @@ class GeneModel {
         omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
         humanmine: { display: 'HumanMine', url: 'http://www.humanmine.org/humanmine/keywordSearchResults.do?searchTerm=+GENESYMBOL&searchSubmit=GO'},
         ncbi:      { display: 'NCBI',      url: 'https://www.ncbi.nlm.nih.gov/gene/GENEUID'},
+        pubmed:    { display: 'PubMed',    url: 'https://pubmed.ncbi.nlm.nih.gov/?from_uid=GENEUID&linkname=gene_pubmed'},
         decipher:  { display: 'DECIPHER',  url: 'https://decipher.sanger.ac.uk/search?q=GENESYMBOL'},
         marrvel:   { display: 'MARRVEL',   url: 'http://marrvel.org/search/gene/GENESYMBOL'},
         genecards: { display: 'GeneCards', url: 'https://www.genecards.org/cgi-bin/carddisp.pl?gene=GENESYMBOL'},
@@ -138,6 +139,17 @@ class GeneModel {
             ranks.push( {'rank': searchTermObject.rank, 'source': 'Phen.'});
           })
         }
+        if (geneEntry.searchTermHpo && geneEntry.searchTermHpo.length > 0) {
+          geneEntry.searchTermHpo.forEach(function(searchTermObject) {
+            var searchTerm = searchTermObject.searchTerm.split(" ").join("_");
+            var ranks = searchTerms[searchTerm];
+            if (ranks == null) {
+              ranks = [];
+              searchTerms[searchTerm] = ranks;
+            }
+            ranks.push( { 'hpoPhenotype': searchTermObject.hpoPhenotype, 'source': 'HPO'});
+          })
+        }
 
       })
 
@@ -194,6 +206,17 @@ class GeneModel {
           self.rankedGenes[phGene.name] = theRankedGene;
         } else {
           theRankedGene.phenolyzerRank = phGene.phenolyzerRank;
+        }
+      })
+    }
+    if (rankedGenes.hpo) {
+      rankedGenes.hpo.forEach(function(hpoGene) {
+        let theRankedGene = self.rankedGenes[hpoGene.name];
+        if (theRankedGene == null) {
+          theRankedGene = { 'name': hpoGene.name, 'hpoRank': hpoGene.hpoRank};
+          self.rankedGenes[hpoGene.name] = theRankedGene;
+        } else {
+          theRankedGene.hpoRank = hpoGene.hpoRank;
         }
       })
     }
@@ -906,14 +929,10 @@ class GeneModel {
       if (phenotypes != null) {
         resolve([phenotypes, geneName]);
       } else {
-        var url = me.globalApp.geneToPhenoServer + "api/gene/" + geneName;
-        $.ajax({
-        url: url,
-        jsonp: "callback",
-        type: "GET",
-        dataType: "jsonp",
-        success: function( response ) {
+        var url = me.globalApp.geneToPhenoServer + geneName;
 
+        fetch(url).then(r => r.json())
+        .then((response) => {
           var phenotypes = response.sort(function(a,b) {
             if (a.hpo_term_name < b.hpo_term_name) {
               return -1;
@@ -926,13 +945,12 @@ class GeneModel {
           me.genePhenotypes[geneName] = phenotypes;
 
           resolve([response, geneName]);
-        },
-        fail: function() {
+        })
+        .catch((e) => {
+          console.error(e);
           reject("unable to get phenotypes for gene " + geneName);
-        }
-       });
+        });
       }
-
     });
   }
 
@@ -966,7 +984,7 @@ class GeneModel {
     var me = this;
     return new Promise(function(resolve, reject) {
 
-      var url = me.globalApp.geneInfoServer + 'api/gene/' + geneName;
+      var url = me.globalApp.geneInfoServer + geneName;
 
       // If current build not specified, default to GRCh37
       var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
@@ -989,35 +1007,83 @@ class GeneModel {
         url += "&build="   + buildName;
 
 
+        fetch(url).then(r => r.json())
+        .then((response) => {
+          if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
+            var theGeneObject = response[0];
+            me.geneObjects[theGeneObject.gene_name] = theGeneObject;
+            resolve(theGeneObject);
+          } else {
+            let msg = "Gene model for " + geneName + " not found.  Empty results returned from " + url;
+            console.log(msg);
+            reject(msg);
+          }
+        })
+        .catch((errorThrown) => {
+          console.log("Gene model for " +  geneName + " not found.  Error occurred.");
+          console.log( "Error: " + errorThrown );
+          reject("Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName);
+        });
+
+      } else {
+        reject("No known gene source for gene " + geneName);
+      }
+
+
+
+    });
+  }
+
+
+  promiseGetGeneForVariant(variant) {
+    var me = this;
+    return new Promise(function(resolve, reject) {
+
+      var url = me.globalApp.geneInfoServer + 'api/region/' + variant.chrom + ":" + variant.start + "-" + variant.start;
+
+      // If current build not specified, default to GRCh37
+      var buildName = me.genomeBuildHelper.getCurrentBuildName() ? me.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
+
+
+      var defaultGeneSource = me.geneSource ? me.geneSource : 'gencode';
+
+
+      if (defaultGeneSource) {
+        url += "?source="  + defaultGeneSource;
+        url += "&species=" + me.genomeBuildHelper.getCurrentSpeciesLatinName();
+        url += "&build="   + buildName;
+        url += "&bound=inner"
+
+
         $.ajax({
           url: url,
           jsonp: "callback",
           type: "GET",
-          dataType: "jsonp",
+          dataType: "json",
           success: function( response ) {
             if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
               var theGeneObject = response[0];
               me.geneObjects[theGeneObject.gene_name] = theGeneObject;
-              resolve(theGeneObject);
+              resolve({'gene': theGeneObject, 'variant': variant});
             } else {
-              let msg = "Gene model for " + geneName + " not found.  Empty results returned from " + url;
+              let msg = "Gene model for region " + variant.chrom + ":" + variant.start + " not found.  Empty results returned from " + url;
               console.log(msg);
               reject(msg);
             }
           },
           error: function( xhr, status, errorThrown ) {
 
-            console.log("Gene model for " +  geneName + " not found.  Error occurred.");
+            console.log("Gene model for region " + variant.chrom + ":" + variant.start + " not found.  Error occurred.");
             console.log( "Error: " + errorThrown );
             console.log( "Status: " + status );
             console.log( xhr );
-            reject("Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName);
+            reject("Error " + errorThrown + " occurred when attempting to get gene for region " +  variant.chrom + ":" + variant.start);
 
           }
         });
 
       } else {
-        reject("No known gene source for gene " + geneName);
+        reject("No known gene source");
       }
 
 
@@ -1104,8 +1170,11 @@ class GeneModel {
     if (geneObject) {
       geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
     }
+    me.promiseGetNCBIGeneSummary(geneName);
 
     var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
+
+    me.promiseGetNCBIGeneSummary(geneName);
 
     var geneUID = null;
     var ncbiInfo = me.geneNCBISummaries[geneName];

@@ -127,8 +127,8 @@
 
                 <v-badge id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
 
-                <span  id="gene-plus-minus-label"  v-if="!isBasicMode"  style="padding-left: 15px">+  -</span>
-                <div id="region-buffer-box" v-if="!isBasicMode" style="display:inline-block;width:40px;height:21px;"  >
+                <span  id="gene-plus-minus-label"  v-if="!isBasicMode && !isSimpleMode"  style="padding-left: 15px">+  -</span>
+                <div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:50px;height:21px;"  >
                     <v-text-field
                             id="gene-region-buffer-input"
                             class="sm fullview"
@@ -204,7 +204,8 @@
                 }
             },
             onGeneRegionBufferChange: _.debounce(function (newGeneRegionBuffer) {
-                this.$emit('gene-region-buffer-change', parseInt(newGeneRegionBuffer));
+                this.regionBuffer = Math.min(parseInt(newGeneRegionBuffer), 99999);
+                this.$emit('gene-region-buffer-change', this.regionBuffer);
             }, 100),
             onClickTranscript: function(link) {
             },

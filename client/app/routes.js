@@ -50,7 +50,7 @@ const routes = [
   {
     name: 'home',
     path: '/',
-    component: GeneHome,
+    component:  GeneHome,
     beforeEnter: (to, from, next) => {
       console.log(to);
       var idx = to.hash.indexOf("#access_token");
@@ -117,7 +117,9 @@ const routes = [
         paramIobioSource:      route.query.iobio_source,
         paramAnalysisId:       route.query.analysis_id,
         paramFrameSource:      route.query.frame_source,
-        paramGeneSetId:        route.query.gene_set_id
+        paramGeneSetId:        route.query.gene_set_id,
+        paramClientApplicationId : route.query.client_application_id,
+        paramVariantSetId:     route.query.variant_set_id
 
 
 
@@ -200,6 +202,14 @@ Vue.mixin({
 
   }
 })
+
+
+//define a global filters
+Vue.filter('to-firstCharacterUppercase', function(value){
+  if (!value) return '';
+  value = value.toString();
+  return value.charAt(0).toUpperCase() + value.slice(1);
+});
 
 
 

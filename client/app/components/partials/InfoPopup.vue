@@ -14,9 +14,9 @@
     max-height: 18px
 
     i.material-icons
-      font-size: 18px
+      font-size: 14px !important
       color: $link-color
-      opacity: .6
+      opacity: .7
 
 .close-button
   margin: 0px !important
@@ -52,11 +52,30 @@
     font-style: italic
     font-size: 13px
     line-height: 16px
+
+.toggle-info-button
+  margin-bottom: 0 !important
+  margin-top: 0 !important
+  margin-right: 30px !important
+  margin-left: 0 !important
+  padding-top: 0 !important
+  padding-left: 5px !important
+  padding-right: 5px !important
+  padding-bottom: 0 !important
+  min-width: 18px !important
+  .btn__content, .v-btn__content
+    padding: 0px
+    max-width: 18px
+    i.material-icons
+      font-size: 18px
+      color: $link-color
+      opacity: .6
 </style>
 <template>
 
     <v-dialog  width="500"  v-model="showPopup" lazy >
-      <v-btn class="info-button" flat  slot="activator">
+      <v-btn   v-bind:class="{ 'info-button': name !== 'variant-toggle', 'toggle-info-button': name === 'variant-toggle' }"
+               flat  slot="activator">
         <v-icon>help</v-icon>
       </v-btn>
       <v-card class="info-card full-width">
@@ -100,6 +119,34 @@ export default {
                 publication: 'gnomAD site',
                 publicationUrl: 'https://gnomad.broadinstitute.org/'
 
+            },
+            'impact':  {
+              title: 'Impact',
+              description: 'Predicted effect of the variant on gene function.'
+            },
+            'clinvar': {
+              title: 'ClinVar',
+              description: 'Clinical significance according to the ClinVar database.'
+            },
+            'variantType': {
+              title: 'Variant type',
+              description: 'How the variant changes the DNA sequence.'
+            },
+            'pathogenic': {
+              title: 'Pathogenic',
+              description: 'Causes disease.'
+            },
+            'likelyPathogenic': {
+              title: 'Likely pathogenic',
+              description: 'Likely causes disease.'
+            },
+            'snp': {
+              title: 'Variant type',
+              description: 'Single nucleotide polymorphism (change in a nucleotide).'
+            },
+            'variant-toggle': {
+              title: 'Filter variant track by inheritance',
+              description: 'Only show variants on variant tracks that pass one of the selected inheritance filters.'
             }
         }
 
