@@ -389,7 +389,7 @@ export default {
           let tbiUrl = sms[i].vcf.tbiUrl;
 
           if (!vcfUrl) {
-            vcfUrl = sms[i].vcf.getVcfFile()
+            vcfUrl = sms[i].vcf.getVcfFile();
             tbiUrl = sms[i].vcf.getTbiURL();
           }
 
@@ -409,7 +409,7 @@ export default {
             self.areAnyDuplicates = true;
             self.loadReady = false;
           }
-          if (vcfUrl.split('.').pop() !== "gz") {
+          if (vcfUrl && vcfUrl.split('.').pop() !== "gz") {
             self.errorTitle = "Vcf file extension warning";
             let errorMsg = "The vcf index file path does not end with a .vcf.gz extension " + vcfUrl;
             self.errorMsgArray.push(errorMsg);
