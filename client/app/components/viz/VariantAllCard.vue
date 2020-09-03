@@ -37,8 +37,8 @@
 
   #variant-pileup-button
     position: absolute
-    top: 0px
-    left: 0px
+    top: 0
+    left: 0
     display: none !important
 
   .header-spacer
@@ -46,14 +46,11 @@
 
   .variant-action-button
     background-color: white
-    padding: 0px
+    padding: 0
     height: 22px !important
     min-width: 70px
-    margin-left: 15px
-    margin-right: 0px
-    margin-bottom: 0px
     vertical-align: top
-    margin-top: 4px
+    margin: 4px 0 0 15px
 
     .btn__content, .v-btn__content
       color: $app-color !important
@@ -65,7 +62,7 @@
         color: $app-color
         font-size: 14px
         padding-right: 2px
-        padding-top: 0px
+        padding-top: 0
 
 
   .coverage-problem-glyph
@@ -77,11 +74,11 @@
       outline: none !important
       font-weight: normal !important
     .axis
-      padding-left: 0px
-      padding-right: 0px
-      margin-top: -10px
-      margin-bottom: 0px
-      padding-bottom: 0px
+      padding-left: 0
+      padding-right: 0
+      margin-top: -10
+      margin-bottom: 0
+      padding-bottom: 0
       text
         font-size: 11px
         fill: rgb(120, 120, 120)
@@ -117,11 +114,11 @@
 
   .zoom-switch
     display: inline-block
-    padding-top: 0px !important
-    margin-top: 0px !important
+    padding-top: 0 !important
+    margin-top: 0 !important
 
     label
-      padding-left: 0px
+      padding-left: 0
       line-height: 18px
       font-family: Poppins, sans-serif !important
       font-size: 13px !important
@@ -130,13 +127,11 @@
       color: $text-color
 
   .badge, .v-badge
-    padding: 0px 5px 0px 0px
-    padding: 3px 7px
     background-color: white
     color: $text-color
     font-weight: normal
     font-size: 13px
-    padding-top: 2px
+    padding: 2px 7px 3px
 
     &.called
       vertical-align: top
@@ -147,7 +142,7 @@
         color: $text-color !important
     &.loaded
       padding-top: 4px
-      padding-left: 0px
+      padding-left: 0
       margin-left: 15px
       .badge__badge, .v-badge__badge
         background-color: #efeeee !important
@@ -162,13 +157,13 @@
       font-size: 11px
       font-weight: normal
       width: 24px
-      top: 0px
+      top: 0
       background-color: $light-badge-color !important
 
   #known-variants-chart
-    padding: 0px
-    margin-top: 0px
-    margin-bottom: 0px
+    padding: 0
+    margin-top: 0
+    margin-bottom: 0
 
 
     svg
@@ -202,9 +197,9 @@
 
 
   #sfari-variants-chart
-    padding: 0px
-    margin-top: 0px
-    margin-bottom: 0px
+    padding: 0
+    margin-top: 0
+    margin-bottom: 0
 
   #sfari-chip
     .chip__content
@@ -280,14 +275,14 @@
           stroke: #a9a9a9 !important
 
     #depth-viz
-      min-height: 0px !important
+      min-height: 0 !important
       .circle
         fill: #404040 !important
       .circle-label
         fill: #868686 !important
 
   .btn__content, .v-btn__content
-    padding: 0px
+    padding: 0
 
     i.material-icons
       font-size: 18px
@@ -295,14 +290,14 @@
       opacity: .6
 
 .close-button
-  margin: 0px !important
-  padding: 0px !important
+  margin: 0 !important
+  padding: 0 !important
   min-width: 25px !important
   height: 25px !important
   margin-bottom: 15px !important
 
   .btn__content, .v-btn__content
-    padding: 0px
+    padding: 0
     max-width: 25px
     max-height: 25px
 
@@ -329,12 +324,8 @@
     font-size: 13px
     line-height: 16px
 
-
-
 </style>
-
 <template>
-
   <v-card tile id="variant-card" class="app-card">
     <div style="display: flex;margin-bottom: 10px; padding-top: 5px">
       <span
@@ -343,7 +334,6 @@
         <span style="display:inline-block"
         v-if="selectedGene"> {{ sampleRelLabel }} in {{ selectedGene.gene_name }}</span>
       </span>
-
       <optional-tracks-menu
               v-show="!isEduMode && !isBasicMode && !isSimpleMode"
               @show-known-variants-card="onShowKnownVariantsCard"
@@ -358,12 +348,9 @@
               :isMother="isMother"
               :isFather="isFather"
       ></optional-tracks-menu>
-
       <div style="width:23px"></div>
-
       <!--When I refactor this to a class, there is some weird styling inheritance, so I'm leaving this as inline styling for now, but will get around to refactoring out all the inline styling-->
       <div v-if="!isSimpleMode && !isBasicMode" style="display: inline-flex; flex-wrap: wrap; justify-content: flex-start;">
-
         <div style="display: inline-flex;">
           <variant-toggle
                   v-if="showVariantViz"
@@ -373,32 +360,27 @@
                   :selectedGene="selectedGene"
                   :selected-variant="selectedVariant"
                   @filtered-variants-update="onFilteredVariantsUpdate"
-                  @show-filter="onShowFilter"
-          >
+                  @show-filter="onShowFilter">
           </variant-toggle>
           <info-popup name="variant-toggle"></info-popup>
         </div>
-
         <v-switch
-                v-if="sampleModel.relationship == 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+                v-if="sampleModel.relationship === 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
                 class="zoom-switch" style="max-width:80px;"
                 label="Zoom"
                 v-model="showZoom"
-                :hide-details="true"
-        >
+                :hide-details="true">
         </v-switch>
-
         <div class="header-spacer"></div>
         <div>
           <div style="height: 4px"></div>
-
         <v-badge  id="loaded-count" style="padding-top: 2px; margin-left: 0 !important"
         v-if="!isEduMode && !isBasicMode && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="loaded mr-4 " >
-          <span slot="badge" style="padding-top: 0px" > {{ sampleModel.relationship != 'known-variants' || knownVariantsViz == 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
-          {{ isBasicMode || sampleModel.relationship == 'known-variants' ? 'Count' : 'Variants' }}
+          <span slot="badge" style="padding-top: 0" > {{ sampleModel.relationship !== 'known-variants' || knownVariantsViz === 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
+          {{ isBasicMode || sampleModel.relationship === 'known-variants' ? 'Count' : 'Variants' }}
         </v-badge>
         <v-badge id="called-count"
-          v-if="sampleModel.relationship != 'known-variants' && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
+          v-if="sampleModel.relationship !== 'known-variants' && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED "
           class="mr-4  called">
           <span v-if="sampleModel.loadedVariants"  slot="badge"> {{ sampleModel.calledVariants.features.length }} </span>
           Called
@@ -407,12 +389,9 @@
           <span slot="badge"> {{ coverageDangerRegions.length }} </span>
           Exons with insufficient coverage
         </v-badge>
-
         </div>
       </div>
-
       </div>
-
       <v-btn id="variant-pileup-button"
        class="variant-action-button"
        v-if="sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship !== 'known-variants'
@@ -422,41 +401,28 @@
         <v-icon>line_style</v-icon>
         Pileup
       </v-btn>
-
-
-
       <sfari-variants-toolbar
         v-if="sampleModel.relationship === 'sfari-variants'"
         @sfariVariantsVizChange="onSfariVariantsVizChange"
         @sfariVariantsFilterChange="onSfariVariantsFilterChange">
       </sfari-variants-toolbar>
-
-
-
-
-
-
       <div style="width:100%">
-
         <div style="text-align: center;clear: both;">
           <div class="loader vcfloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingVariants }" style="display: inline-block;padding-bottom:10px">
             <span class="loader-label">Annotating variants</span>
-            <img src="../../../assets/images/wheel.gif">
+            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
           </div>
-          <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;adding-bottom:10px">
+          <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
             <span class="loader-label">Calling variants</span>
-            <img src="../../../assets/images/wheel.gif">
+            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
           </div>
           <div class="loader covloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingCoverage }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
             <span class="loader-label">Analyzing gene coverage</span>
-            <img src="../../../assets/images/wheel.gif">
+            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
           </div>
           <v-badge v-if="showZoom" class="info" style="margin-bottom:5px">{{ zoomMessage }}</v-badge>
         </div>
-
-
       </div>
-
       <div style="width:100%">
         <gene-viz class="gene-viz-zoom"
         v-if="showZoom"
@@ -473,19 +439,12 @@
         :showBrush="true"
         :featureClass="getExonClass"
         @region-zoom="onRegionZoom"
-        @region-zoom-reset="onRegionZoomReset"
-        >
-
-
-
+        @region-zoom-reset="onRegionZoomReset">
         </gene-viz>
-
         <div class="chart-label"
-        v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0"
-        >
+        v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0">
           called variants
         </div>
-
         <variant-viz id="called-variant-viz"
           ref="calledVariantVizRef"
           v-if="showVariantViz"
@@ -510,13 +469,11 @@
           @variantHover="onVariantHover"
           @variantHoverEnd="onVariantHoverEnd">
         </variant-viz>
-
         <div class="chart-label"
         v-show="!isEduMode && !isBasicMode && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
         >
           {{ isSimpleMode ? '' : 'Proband variants  ' }}  {{ isSimpleMode ? '' : sampleLabel }}
         </div>
-
         <div v-if="(sampleModel.relationship === 'sfari-variants' || sampleModel.isSfariSample) && blacklistedGeneSelected"
             style="text-align: center; padding-bottom: 20px; padding-top: 20px">
           <v-chip id="sfari-chip" class="red red--text" small outline style="font-size: 12px">
@@ -559,13 +516,10 @@
         </variant-viz>
 
         <div class="chart-label"
-        v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
-        >
+        v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)">
           {{ isSimpleMode ? '' : 'Proband' }} coverage
         </div>
-
         <div id="bam-track">
-
           <depth-viz
             v-if="showDepthViz && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
             ref="depthVizRef"
@@ -584,11 +538,9 @@
             :showXAxis="false"
             :regionGlyph="depthVizRegionGlyph"
             :showAlleleBar="false"
-            @region-selected="showExonTooltip"
-          >
+            @region-selected="showExonTooltip">
           </depth-viz>
         </div>
-
         <gene-viz class="gene-viz"
           :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
           v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
@@ -605,13 +557,9 @@
           :showXAxis="geneVizShowXAxis"
           :showBrush="false"
           :featureClass="getExonClass"
-          @feature-selected="showExonTooltip"
-          >
+          @feature-selected="showExonTooltip">
         </gene-viz>
-
-
-
-        <div class="other-samples" style="margin-top:0px" v-for="model in otherModels" :key="model.relationship">
+        <div class="other-samples" style="margin-top:0" v-for="model in otherModels" :key="model.relationship">
           <div class="other-samples-header">
             <span class="chart-label"> {{ getSampleRelLabelOther(model) }}</span>
           </div>
@@ -642,7 +590,6 @@
             @variantHover="onVariantHoverOther"
             @variantHoverEnd="onVariantHoverEnd">
           </variant-viz>
-
           <stacked-bar-chart-viz
             id="known-variants-chart"
             style="width:100%"
@@ -677,39 +624,9 @@
             @region-selected="showExonTooltip"
           >
           </depth-viz>
-
-          <gene-viz
-                  class="gene-viz"
-                    :modelName="model.name"
-                    :relationship="model.relationship"
-                    :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
-                    v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
-                    :data="[selectedTranscript]"
-                    :margin="geneVizMargin"
-                    :width="width"
-                    :height="40"
-                    :trackHeight="geneVizTrackHeight"
-                    :cdsHeight="geneVizCdsHeight"
-                    :regionStart="regionStart"
-                    :regionEnd="regionEnd"
-                    :showXAxis="geneVizShowXAxis"
-                    :showBrush="false"
-                    :featureClass="getExonClass"
-                    @feature-selected="showExonTooltip"
-          >
-          </gene-viz>
-
         </div>
-
-
-
-
       </div>
-
   </v-card>
-
-
-
 </template>
 
 <script>
@@ -776,9 +693,6 @@ export default {
 
   },
 
-
-
-
   data() {
     let self = this;
     return {
@@ -797,7 +711,6 @@ export default {
       variantSymbolHeight: self.isEduMode  || self.isBasicMode ? self.globalAppProp.eduModeVariantSize : 12,
       variantSymbolHeightOther: self.isEduMode  || self.isBasicMode ? self.globalAppProp.eduModeVariantSize : 12,
       variantSymbolPadding: 2,
-
       geneVizMargin: {
         top: 0,
         right: self.isBasicMode || self.isEduMode ? 7 : 2,
@@ -806,13 +719,14 @@ export default {
       },
       geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,
       geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,
-
       geneZoomVizMargin: {
         top: 10,
         right: 2,
         bottom: 10,
         left: 4
       },
+      zoomStart: null,
+      soomEnd: null,
 
       depthVizMargin: {
         top: 32,
@@ -830,33 +744,28 @@ export default {
       coveragePoint: null,
       relationship: null,
       selectedExon: null,
-
       knownVariantsViz: null,
       sfariVariantsViz: null,
       showZoom: false,
       zoomMessage: "Drag to zoom",
-
       showRankedVariantsMenu: false,
       filteredVariants: null,
       pileupStyle: {},
       showFilter: false,
       showPopup: false,
-
-
     }
   },
 
-
   methods: {
     depthVizYTickFormat: function(val) {
-      if (val == 0) {
+      if (val === 0) {
         return "";
       } else {
         return val + "x";
       }
     },
     depthVizRegionGlyph: function(exon, regionGroup, regionX, modelName) {
-      var exonId = 'exon' + exon.exon_number.replace("/", "-");
+      let exonId = 'exon' + exon.exon_number.replace("/", "-");
       if (regionGroup.select("g#" + exonId).empty()) {
         regionGroup.append('g')
               .attr("id", exonId)
@@ -870,9 +779,7 @@ export default {
               .attr('href', '#coverage-problem-symbol')
               .attr('xlink','http://www.w3.org/1999/xlink')
               .data([exon])
-                .attr("modelName", this.sampleModel.name)
-
-        ;
+                .attr("modelName", this.sampleModel.name);
       }
     },
     onVariantClick: function(variant, model) {
@@ -891,7 +798,6 @@ export default {
         let top  = variant.screenY - this.$el.offsetTop - this.variantSymbolHeight - 30;
         this.pileupStyle =  {display: 'flex', 'left': left + 'px', 'top': top + 'px'};
       }
-
       this.$emit('cohort-variant-click', variant, this, model.relationship);
     },
 
@@ -911,7 +817,6 @@ export default {
         this.hideVariantCircle(false);
         this.hideVariantTooltip(this);
       }
-
       this.$emit('cohort-variant-outside-click', this, model.relationship);
     },
 
@@ -919,7 +824,7 @@ export default {
       this.showFilter = showFilter;
     },
 
-    onVariantHover: function(variant, showTooltip=true) {
+    onVariantHover: function(variant) {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
       }
@@ -929,7 +834,7 @@ export default {
       }
       this.$emit('cohort-variant-hover', variant, this);
     },
-    onVariantHoverOther: function(variant, showTooltip=true) {
+    onVariantHoverOther: function(variant) {
       if (this.showDepthViz) {
         this.showCoverageCircle(variant);
       }
@@ -938,7 +843,7 @@ export default {
         this.showVariantTooltipOther(variant, false);
       }
     },
-    onVariantHoverEnd: function(lock) {
+    onVariantHoverEnd: function() {
       if (this.showDepthViz) {
         this.hideCoverageCircle();
       }
@@ -963,12 +868,9 @@ export default {
         } else {
           tooltip.style("pointer-events", "none");
         }
-
-
-        var x = variant.screenX;
-        var y = variant.screenY;
-
-        var coord = {'x':                  x,
+        const x = variant.screenX;
+        const y = variant.screenY;
+        const coord = {'x':                  x,
                      'y':                  y,
                      'height':             33,
                      'parentWidth':        self.$el.offsetWidth,
@@ -976,8 +878,6 @@ export default {
                                              {right:  ['middle', 'top',  'bottom']},
                                              {left:   ['middle', 'top',  'bottom']},
                                              {bottom: ['center', 'right','left'  ]} ] };
-
-
         self.variantTooltip.fillAndPositionTooltip(tooltip,
           variant,
           self.selectedGene,
@@ -989,32 +889,24 @@ export default {
           self.sampleModel.cohort.mode,
           self.sampleModel.cohort.maxAlleleCount);
       }
-
-
     },
     showVariantTooltipOther: function(variant, lock) {
       let self = this;
       if (self.$refs.otherVariantVizRef == null) {
         return;
       }
-
       self.$refs.otherVariantVizRef.forEach(function(vizRef) {
         if (vizRef.model.relationship === 'known-variants'
           || vizRef.model.relationship === 'sfari-variants') {
-
           let tooltip = d3.select("#main-tooltip");
-
           if (lock) {
             tooltip.style("pointer-events", "all");
           } else {
             tooltip.style("pointer-events", "none");
           }
-
-
-          var x = variant.screenX - 40;
-          var y = variant.screenY - 2;
-
-          var coord = {'x':                  x,
+          const x = variant.screenX - 40;
+          const y = variant.screenY - 2;
+          const coord = {'x':                  x,
                        'y':                  y,
                        'height':             33,
                        'parentWidth':        self.$el.offsetWidth,
@@ -1022,8 +914,6 @@ export default {
                                                {right:  ['middle', 'top',  'bottom']},
                                                {left:   ['middle', 'top',  'bottom']},
                                                {bottom: ['center', 'right','left'  ]} ] };
-
-
           self.variantTooltip.fillAndPositionTooltip(tooltip,
             variant,
             self.selectedGene,
@@ -1090,7 +980,6 @@ export default {
         if (container && container[0] && container[0][0] != null) {
             this.$refs.variantVizRef.hideVariantCircle(container, lock, false, this.selectedVariant);
         }
-
         container = d3.select(this.$el).select('#called-variant-viz > svg');
         if (container && container[0] && container[0][0] != null) {
             this.$refs.variantVizRef.hideVariantCircle(container, lock, true, this.selectedVariant);
@@ -1104,7 +993,6 @@ export default {
       if (self.$refs.otherVariantVizRef == null) {
         return;
       }
-
       self.$refs.otherVariantVizRef.forEach(function(vizRef) {
         let container = d3.select(self.$el).select('#loaded-variant-viz-'
                                                    + vizRef.model.relationship + ' > svg');
@@ -1112,7 +1000,6 @@ export default {
         if (container && container[0] && container[0][0] != null) {
             vizRef.hideVariantCircle(container, lock);
         }
-
         container = d3.select(self.$el).select('#called-variant-viz-'
                                                + vizRef.model.relationship + ' > svg');
         if (container && container[0] && container[0][0] != null) {
@@ -1121,17 +1008,17 @@ export default {
       })
     },
     getVariantViz: function(variant) {
-      return variant.fbCalled && variant.fbCalled == 'Y'
+      return variant.fbCalled && variant.fbCalled === 'Y'
           ? this.$refs.calledVariantVizRef
           : this.$refs.variantVizRef;
     },
     getVariantSVG: function(variant) {
-      return variant.fbCalled && variant.fbCalled == 'Y'
+      return variant.fbCalled && variant.fbCalled === 'Y'
           ? d3.select(this.$el).select('#called-variant-viz > svg')
           : d3.select(this.$el).select('#loaded-variant-viz > svg');
     },
     getOtherVariantSVG: function(variant, relationship) {
-      return variant.fbCalled && variant.fbCalled == 'Y'
+      return variant.fbCalled && variant.fbCalled === 'Y'
           ? d3.select(this.$el).select('#called-variant-viz-' + relationship + ' > svg')
           : d3.select(this.$el).select('#loaded-variant-viz-' + relationship + ' > svg');
     },
@@ -1156,31 +1043,25 @@ export default {
       if (self.showDepthViz && self.sampleModel.coverage != null) {
         let theDepth = null;
         let theAltCount = null;
-        var matchingVariants = self.sampleModel.loadedVariants.features.filter(function(v) {
-          return v.start == variant.start && v.alt == variant.alt && v.ref == variant.ref;
+        const matchingVariants = self.sampleModel.loadedVariants.features.filter(function(v) {
+          return v.start === variant.start && v.alt === variant.alt && v.ref === variant.ref;
         })
-
         if (matchingVariants.length > 0) {
           theDepth = matchingVariants[0].bamDepth;
-          // If samtools mpileup didn't return coverage for this position, use the variant's depth
-          // field.
-          if (theDepth == null || theDepth == '') {
+          // If samtools mpileup didn't return coverage for this position, use the variant's depth field
+          if (theDepth == null || theDepth === '') {
             theDepth = matchingVariants[0].genotypeDepth;
           }
           if (matchingVariants[0].genotype && matchingVariants[0].genotype.altCount) {
             theAltCount = matchingVariants[0].genotype.altCount;
           }
         }
-
         // If we have the exact depth for this variant, show it.  Otherwise, we will show
         // the calculated (binned, averaged) depth at this position.
         let currentPoint = {pos: variant.start, depth: theDepth, altCount: theAltCount}
         self.$refs.depthVizRef.showCurrentPoint(currentPoint);
-
       }
       self.showCoverageCircleOther(variant);
-
-
     },
     showCoverageCircleOther(variant) {
       let self = this;
@@ -1188,19 +1069,16 @@ export default {
         return;
       }
       self.$refs.otherDepthVizRef.forEach(function(depthVizRef) {
-
         if (depthVizRef && depthVizRef.model && depthVizRef.model.coverage  && depthVizRef.model.coverage.length > 0) {
           let theDepth = null;
           let theAltCount = null;
-          var matchingVariants = depthVizRef.model.loadedVariants.features.filter(function(v) {
-            return v.start == variant.start && v.alt == variant.alt && v.ref == variant.ref;
-          })
-
+          let matchingVariants = depthVizRef.model.loadedVariants.features.filter(function(v) {
+            return v.start === variant.start && v.alt === variant.alt && v.ref === variant.ref;
+          });
           if (matchingVariants.length > 0) {
             theDepth = matchingVariants[0].bamDepth;
-            // If samtools mpileup didn't return coverage for this position, use the variant's depth
-            // field.
-            if (theDepth == null || theDepth == '') {
+            // If samtools mpileup didn't return coverage for this position, use the variant's depth field
+            if (theDepth == null || theDepth === '') {
               theDepth = matchingVariants[0].genotypeDepth;
             }
             if (matchingVariants[0].genotype && matchingVariants[0].genotype.altCount) {
@@ -1212,7 +1090,6 @@ export default {
           // the calculated (binned, averaged) depth at this position.
           let currentPoint = {pos: variant.start, depth: theDepth, altCount: theAltCount}
           depthVizRef.showCurrentPoint(currentPoint);
-
         }
       })
 
@@ -1250,7 +1127,6 @@ export default {
       let self = this;
       self.$emit("show-sfari-variants-card", showIt);
     },
-
     showFlaggedVariant: function(variant) {
       if (this.showVariantViz) {
         this.getVariantViz(variant).showFlaggedVariant(variant, this.getVariantSVG(variant));
@@ -1263,14 +1139,13 @@ export default {
         return exon.feature_type.toLowerCase();
       }
     },
-
     getSampleFromHover: function(e){
       let modelName = "";
       if(e[0][0].attributes.modelName) {
         modelName = e[0][0].attributes.modelName.value;
       }
       for(let i = 0; i < this.otherModels.length; i++){
-        if(modelName == this.otherModels[i].name){
+        if(modelName === this.otherModels[i].name){
           return this.otherModels[i];
         }
       }
@@ -1279,7 +1154,6 @@ export default {
       }
       return this.sampleModel;
     },
-
     showExonTooltip: function(featureObject, feature, lock) {
       let self = this;
       let tooltip = d3.select("#exon-tooltip");
@@ -1302,23 +1176,21 @@ export default {
         tooltip.classed("locked", false);
       }
 
-      var coverageRow = function(fieldName, coverageVal, covFields) {
-        var row = '<div>';
+      const coverageRow = function(fieldName, coverageVal, covFields) {
+        let row = '<div>';
         row += '<span style="padding-left:10px;width:60px;display:inline-block">' + fieldName   + '</span>';
         row += '<span style="width:40px;display:inline-block">' + d3.round(coverageVal) + '</span>';
         row += '<span class="' + (covFields[fieldName] ? 'danger' : '') + '">' + (covFields[fieldName] ? covFields[fieldName]: '') + '</span>';
         row += "</div>";
         return row;
-      }
-
+      };
       let sample = self.getSampleFromHover(featureObject);
 
       let html = self.globalAppProp.utility.formatExonTooltip(sample.cohort.filterModel,
                                                               sample.relationship,
                                                               coverageRow,
                                                               feature,
-                                                              lock)
-
+                                                              lock);
       tooltip.html(html);
       if (lock) {
         tooltip.select("#exon-tooltip-thresholds").on("click", function() {
@@ -1330,13 +1202,12 @@ export default {
         })
       }
 
-      var coord = self.globalAppProp.utility.getTooltipCoordinates(featureObject.node(),
+      const coord = self.globalAppProp.utility.getTooltipCoordinates(featureObject.node(),
         tooltip, self.$el.offsetWidth, 0);
 
       tooltip.style("left", (coord.x) + "px")
              .style("text-align", 'left')
              .style("top", coord.y + "px");
-
       tooltip.style("z-index", 1032);
       tooltip.transition()
              .duration(200)
@@ -1357,13 +1228,15 @@ export default {
     },
     onRegionZoom: function(regionStart, regionEnd) {
       this.zoomMessage = "Click to zoom out";
+      this.zoomStart = regionStart;
+      this.zoomEnd = regionEnd;
       this.$emit('gene-region-zoom', regionStart, regionEnd);
     },
     onRegionZoomReset: function() {
       this.zoomMessage = "Drag to zoom";
       this.$emit('gene-region-zoom-reset');
     },
-    onRankedVariantClick: function(variant, sourceComponent, sourceRelationship) {
+    onRankedVariantClick: function(variant) {
       this.showVariantCircle(variant, true);
       this.$emit('cohort-variant-click', variant, this, this.sampleModel.relationship);
       this.showRankedVariantsMenu = false;
@@ -1376,10 +1249,10 @@ export default {
     },
     getSampleRelLabelOther: function(model) {
       let self = this;
-      var label = "";
-      if (model.relationship == 'known-variants') {
+      let label = "";
+      if (model.relationship === 'known-variants') {
         label = "ClinVar"
-      } else if (model == 'sfari-variants') {
+      } else if (model === 'sfari-variants') {
         label = "SFARI"
       } else {
         if (model.cohort.mode === 'trio' &&  model.relationship !== 'known-variants'
@@ -1397,18 +1270,18 @@ export default {
   computed: {
     sampleRelLabel: function() {
       let self = this;
-      var label = "";
+      let label = "";
       if (self.isEduMode) {
         label = self.globalApp.utility.capitalizeFirstLetter(this.sampleModel.name) + "'s Variants";
-      } else if (this.sampleModel.relationship == 'proband') {
+      } else if (this.sampleModel.relationship === 'proband') {
         label = "Variants"
       } else if (this.sampleModel.isAlignmentsOnly()) {
         label += this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship);
         label += " Proband Variants in " + this.selectedGene.gene_name;
       } else {
-        if (this.sampleModel.relationship == 'known-variants') {
+        if (this.sampleModel.relationship === 'known-variants') {
           label = "ClinVar Variants"
-        } else if (this.sampleModel.relationship == 'sfari-variants') {
+        } else if (this.sampleModel.relationship === 'sfari-variants') {
           label = "SFARI Variants"
         } else {
           if (this.sampleModel.cohort.mode === 'trio' && this.sampleModel.relationship !== 'known-variants'
@@ -1416,30 +1289,35 @@ export default {
             label = this.globalApp.utility.capitalizeFirstLetter(this.sampleModel.relationship) + " ";
           }
           label += "Variants ";
-
         }
       }
       return label;
     },
     sampleLabel: function() {
-      var label = "";
+      let label = "";
       if (this.sampleModel.isAlignmentsOnly()) {
       } else {
-        if (this.sampleModel.relationship == 'known-variants') {
-        } else if (this.sampleModel.relationship == 'sfari-variants') {
+        if (this.sampleModel.relationship === 'known-variants') {
+        } else if (this.sampleModel.relationship === 'sfari-variants') {
         } else {
           label += this.sampleModel.name;
         }
       }
       return label;
     },
-    depthVizHeight: function() {
-      this.showDepthViz ? 0 : 60;
-    }
-
   },
 
   watch: {
+    regionStart: function(){
+      if(this.zoomStart !== this.regionStart && this.showZoom) {
+        this.$emit('gene-region-zoom', this.zoomStart, this.zoomEnd);
+      }
+    },
+    regionEnd: function(){
+      if(this.zoomEnd !== this.regionEnd && this.showZoom) {
+        this.$emit('gene-region-zoom', this.zoomStart, this.zoomEnd);
+      }
+    },
     showZoom: function() {
       if (!this.showZoom) {
         this.zoomMessage = "Drag to zoom";
@@ -1452,9 +1330,6 @@ export default {
     },
   },
 
-
-
-
   mounted: function() {
     this.relationship = this.sampleModel.relationship;
 
@@ -1463,8 +1338,5 @@ export default {
   created: function() {
     this.depthVizYTickFormatFunc = this.depthVizYTickFormat ? this.depthVizYTickFormat : null;
   }
-
-
-
 }
 </script>
