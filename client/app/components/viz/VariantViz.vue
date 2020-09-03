@@ -259,8 +259,8 @@ export default {
           return matchingVariant;
         }
       },
-      hideVariantCircle: function(container, pinned) {
-        this.variantChart.hideCircle()(container, pinned);
+      hideVariantCircle: function(container, pinned, isCalled, variant) {
+        this.variantChart.hideCircle()(container, pinned, isCalled, variant);
       },
       setVariantChart: function() {
         this.$emit('updateVariantChart', this.variantChart);

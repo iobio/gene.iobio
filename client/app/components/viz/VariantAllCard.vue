@@ -1088,12 +1088,12 @@ export default {
         let container = d3.select(this.$el).select('#loaded-variant-viz > svg');
         // Have to check that container exists for when we hide SFARI track variants for blacklisted genes to prevent circling errors
         if (container && container[0] && container[0][0] != null) {
-            this.$refs.variantVizRef.hideVariantCircle(container, lock);
+            this.$refs.variantVizRef.hideVariantCircle(container, lock, false, this.selectedVariant);
         }
 
         container = d3.select(this.$el).select('#called-variant-viz > svg');
         if (container && container[0] && container[0][0] != null) {
-            this.$refs.variantVizRef.hideVariantCircle(container, lock);
+            this.$refs.variantVizRef.hideVariantCircle(container, lock, true, this.selectedVariant);
         }
       }
       this.hideVariantCircleOther(lock);
