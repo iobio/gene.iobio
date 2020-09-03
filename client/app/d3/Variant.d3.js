@@ -132,7 +132,7 @@ export default function variantD3() {
     svgContainer.select(circleClazz).transition()
                 .duration(500)
                 .style("opacity", 0);
-    if(isCalled && variant.fbCalled !== "Y"){
+    if(isCalled && variant && variant.fbCalled !== "Y"){
       svgContainer.select('.pinned.circle').transition()
         .duration(500)
         .style("opacity", 0);
