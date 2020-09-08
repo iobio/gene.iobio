@@ -76,9 +76,32 @@ export default function geneD3() {
 
     selection.each(function(data) {
 
-       // calculate height
+      let dataNew = [];
+      let uniqueIds = [];
+
+      for (let i = 0; i < data.length; i++) {
+        console.log("data[i]", data[i], data[i].transcript_id);
+        if (!uniqueIds.includes(data[i].transcript_id)) {
+          uniqueIds.push(data[i].transcript_id);
+          dataNew.push(data[i]);
+        }
+      }
+
+      console.log("dataNew",data, dataNew, uniqueIds);
+
+      data = dataNew;
+
+
+
+
+
+
+      // calculate height
        var padding = data.length > 1 ? geneD3_trackHeight/2 : 0;
        geneD3_height = data.length * (geneD3_trackHeight + padding);
+
+
+
 
        // determine inner height (w/o margins)
        var innerHeight = geneD3_height - margin.top - margin.bottom;
@@ -115,6 +138,9 @@ export default function geneD3() {
 
       // Select the svg element, if it exists.
       var svg = container.selectAll("svg").data([0]);
+
+      console.log("geneD3_height", geneD3_height)
+
 
       svg.enter()
         .append("svg")
@@ -186,11 +212,15 @@ export default function geneD3() {
       var transcript = g.selectAll('.transcript')
                         .data(data, function(d) { return d.transcript_id; });
 
+
       transcript.enter().append('g')
           .attr('class', transcriptClass)
           .attr("id", function(d,i) { return 'transcript_' +  d.transcript_id.split(".").join("_"); })
           .attr('transform', function(d,i) { return "translate(0," + y(i+1) + ")"});
       transcript.exit().remove();
+
+
+
 
       transcript.selectAll(".selection-box").remove();
       if (geneD3_showLabel) {
@@ -390,6 +420,7 @@ export default function geneD3() {
       .attr('class', function(d,i) {
             return featureClass(d,i, geneD3_relationship);
       });
+
 
 
 
