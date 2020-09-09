@@ -227,11 +227,6 @@ export default {
           var selection = d3.select(self.$el).datum( [self.variants] );
           self.variantChart(selection);
         }
-        console.log("this.selectedVariant in variantViz update", this.selectedVariant);
-        if(this.selectedVariant){
-          console.log("clicking selected variant");
-          this.onVariantClick(this.selectedVariant);
-        }
       },
       onVariantOutsideClick: function() {
         let self = this;
@@ -306,6 +301,8 @@ export default {
         else{
           this.variants = this.data;
         }
+        this.onVariantClick(this.selectedVariant);
+
       },
 
       showFilter: function(){
