@@ -80,21 +80,13 @@ export default function geneD3() {
       let uniqueIds = [];
 
       for (let i = 0; i < data.length; i++) {
-        console.log("data[i]", data[i], data[i].transcript_id);
         if (!uniqueIds.includes(data[i].transcript_id)) {
           uniqueIds.push(data[i].transcript_id);
           dataNew.push(data[i]);
         }
       }
 
-      console.log("dataNew",data, dataNew, uniqueIds);
-
       data = dataNew;
-
-
-
-
-
 
       // calculate height
        var padding = data.length > 1 ? geneD3_trackHeight/2 : 0;
@@ -138,9 +130,6 @@ export default function geneD3() {
 
       // Select the svg element, if it exists.
       var svg = container.selectAll("svg").data([0]);
-
-      console.log("geneD3_height", geneD3_height)
-
 
       svg.enter()
         .append("svg")

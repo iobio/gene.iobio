@@ -1154,6 +1154,9 @@ export default {
   },
 
   watch: {
+    selectedVariant: function(){
+      console.log("selectedVariant watcher in geneHome", this.selectedVariant);
+    },
     isLeftDrawerOpen: function() {
       let self = this;
       setTimeout(function() {
@@ -2114,9 +2117,26 @@ export default {
     },
     onTranscriptSelected: function(transcript) {
       var self = this;
+      let stashedSelectedVariant = this.selectedVariant;
+      let stashedSelectedVariantKey = this.selectedVariantKey;
+      let stashedSelectedVariantRelationship = this.selectedVariantRelationship;
+      let stashedSelectedVariantInfo = this.selectedVariantInfo;
+      let stashedSelectedVariantInterpretation = this.selectedVariantInterpretation;
+      let stashedSelectedVariantNotes = this.selectedVariantNotes;
+      console.log("this.selectedVariant in on transcriptSelected", this.selectedVariant);
       self.selectedTranscript = transcript;
       self.geneModel.setLatestGeneTranscript(self.selectedGene.gene_name, self.selectedTranscript);
       self.onGeneSelected(self.selectedGene.gene_name);
+
+      setTimeout(function(){
+        self.selectedVariant = stashedSelectedVariant;
+        self.selectedVariantKey = stashedSelectedVariantKey;
+        self.selectedVariantRelationship = stashedSelectedVariantRelationship;
+        self.selectedVariantInfo = stashedSelectedVariantInfo;
+        self.selectedVariantInterpretation = stashedSelectedVariantInterpretation
+        self.selectedVariantNotes = stashedSelectedVariantNotes;
+
+      }, 9000);
     },
     onGeneSourceSelected: function(theGeneSource) {
       var self = this;
@@ -2192,6 +2212,7 @@ export default {
         }
 
         self.calcFeatureMatrixWidthPercent();
+        console.log("onCohortClick variant", variant);
         self.$set(self, "selectedVariant", variant);
         self.$set(self, "selectedVariantKey", self.getVariantKey(self.selectedVariant));
         self.selectedVariantRelationship = sourceRelationship;
@@ -2269,6 +2290,7 @@ export default {
     deselectVariant: function() {
       let self = this;
       self.selectedVariant = null;
+      console.log("deselectVariant");
       self.refreshSelectedVariantInfo();
       self.selectedVariantKey = null;
       self.selectedVariantNotes = null;

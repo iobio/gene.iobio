@@ -1328,6 +1328,9 @@ export default {
       this.showZoom = false;
       this.zoomMessage = "Drag to zoom";
     },
+    selectedVariant: function(){
+      console.log("selected variant watcher in variantAllCard", this.selectedVariant);
+    }
   },
 
   mounted: function() {

@@ -1611,6 +1611,7 @@ export default {
       },
 
     selectedVariant: function() {
+      console.log("selectedVariant in watcher", this.selectedVariant);
       let self = this;
       this.$nextTick(function() {
           this.loadData();
@@ -1645,6 +1646,7 @@ export default {
 
   mounted: function() {
       let self = this;
+      console.log("this.selectedVariant on mounted", this.selectedVariant);
       if(this.selectedVariant){
           this.$nextTick(function() {
               this.loadData();
