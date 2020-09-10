@@ -499,10 +499,10 @@
                     <span v-if="geneRank.source"> {{ geneRank.source }}</span>
                   </v-chip>
                   <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">
-                    {{ geneHit.searchTerm | to-firstCharacterUppercase }}
+                    {{ geneHit.searchTerm | firstCharacterUppercase }}
                   </span>
                   <span v-else-if="geneRank.source==='HPO' && geneRank.hpoPhenotype" class="pheno-search-term">
-                    {{ geneRank.hpoPhenotype | to-firstCharacterUppercase }}
+                    {{ geneRank.hpoPhenotype | firstCharacterUppercase }}
                   </span>
                 </div>
               </div>
@@ -535,7 +535,7 @@
           <div class='variant-column-hint' v-if="isSimpleMode">
             Clinical significance based on variant type, location, and documentation in ClinVar.
           </div>
-          <variant-inspect-row  v-for="clinvar,clinvarIdx in info.clinvarLinks" :key="clinvarIdx"
+          <variant-inspect-row  v-for="(clinvar,clinvarIdx) in info.clinvarLinks" :key="clinvarIdx"
             :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
           </variant-inspect-row>
 
@@ -1611,11 +1611,9 @@ export default {
       },
 
     selectedVariant: function() {
-      console.log("selectedVariant in watcher", this.selectedVariant);
       let self = this;
       this.$nextTick(function() {
           this.loadData();
-
           if (self.selectedVariantRelationship === "known-variants") {
               self.annotateClinVarVariant(self.selectedVariant);
           }
@@ -1624,6 +1622,10 @@ export default {
   },
 
   filters: {
+
+    firstCharacterToUppercase(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1)
+    },
 
     showRelationship: function(buf) {
       if (buf == null) {
@@ -1646,11 +1648,9 @@ export default {
 
   mounted: function() {
       let self = this;
-      console.log("this.selectedVariant on mounted", this.selectedVariant);
       if(this.selectedVariant){
           this.$nextTick(function() {
               this.loadData();
-
               if (self.selectedVariantRelationship === "known-variants") {
                   self.annotateClinVarVariant(self.selectedVariant);
               }

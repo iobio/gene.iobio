@@ -114,9 +114,11 @@ main.content.clin, main.v-content.clin
 .app-card
   margin-bottom: 6px
 
+//noinspection CssInvalidPropertyValue
 .full-width
   max-width: -moz-available !important
   max-width: -webkit-fill-available !important
+
 
 #data-sources-loader, #session-data-loader
   margin-top: 30px
@@ -304,7 +306,7 @@ main.content.clin, main.v-content.clin
             height="540"
             >
 
-          <v-card class='full-width' style="overflow-y:auto;height:height:-moz-available;height:100%">
+          <v-card class='full-width' style="overflow-y:auto;height:100%">
             <pileup id="pileup-container"
               :heading="pileupInfo.title"
               :referenceURL="pileupInfo.referenceURL"
@@ -1154,9 +1156,6 @@ export default {
   },
 
   watch: {
-    selectedVariant: function(){
-      console.log("selectedVariant watcher in geneHome", this.selectedVariant);
-    },
     isLeftDrawerOpen: function() {
       let self = this;
       setTimeout(function() {
@@ -2123,7 +2122,6 @@ export default {
       let stashedSelectedVariantInfo = this.selectedVariantInfo;
       let stashedSelectedVariantInterpretation = this.selectedVariantInterpretation;
       let stashedSelectedVariantNotes = this.selectedVariantNotes;
-      console.log("this.selectedVariant in on transcriptSelected", this.selectedVariant);
       self.selectedTranscript = transcript;
       self.geneModel.setLatestGeneTranscript(self.selectedGene.gene_name, self.selectedTranscript);
       self.onGeneSelected(self.selectedGene.gene_name);
@@ -2136,7 +2134,7 @@ export default {
         self.selectedVariantInterpretation = stashedSelectedVariantInterpretation
         self.selectedVariantNotes = stashedSelectedVariantNotes;
 
-      }, 9000);
+      }, 10000);
     },
     onGeneSourceSelected: function(theGeneSource) {
       var self = this;
@@ -2212,7 +2210,6 @@ export default {
         }
 
         self.calcFeatureMatrixWidthPercent();
-        console.log("onCohortClick variant", variant);
         self.$set(self, "selectedVariant", variant);
         self.$set(self, "selectedVariantKey", self.getVariantKey(self.selectedVariant));
         self.selectedVariantRelationship = sourceRelationship;
@@ -2290,7 +2287,6 @@ export default {
     deselectVariant: function() {
       let self = this;
       self.selectedVariant = null;
-      console.log("deselectVariant");
       self.refreshSelectedVariantInfo();
       self.selectedVariantKey = null;
       self.selectedVariantNotes = null;
