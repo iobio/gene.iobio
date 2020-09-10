@@ -753,14 +753,14 @@ nav.toolbar, nav.v-toolbar
     </v-navigation-drawer>
 
     <v-navigation-drawer
-      v-if="!launchedFromClin && showLegendDrawer"
+      v-if="!launchedFromClin"
+      v-model="showLegendDrawer"
       absolute
-      permanent
       right
       width="200"
       style="z-index:6"
     >
-        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="legend-drawer-close-button" class="toolbar-button" flat @click="onShowLegendDrawer">
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="legend-drawer-close-button" class="toolbar-button" flat @click="showLegendDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
 
@@ -1101,6 +1101,9 @@ export default {
     }
   },
   watch: {
+    geneNames: function(){
+      console.log("wattchung genegeneNames", this.geneNames);
+    },
     lookupGene: function(a, b) {
       if (this.selectedGene && this.lookupGene && this.lookupGene.gene_name) {
         this.geneEntered = this.lookupGene.gene_name;
@@ -1314,7 +1317,7 @@ export default {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
-
+     console.log("geneNames moountted", this.geneNames);
   },
   computed:  {
     knownGenes: function() {

@@ -245,10 +245,14 @@ export default {
       // Create an array of gene summaries for the genes to show in the genes card
       var theGeneNames = self.filteredGeneNames && self.filteredGeneNames.length > 0 ? self.filteredGeneNames : self.geneNames;
       let geneNamesToDisplay = null;
+      console.log("theGeneNames", theGeneNames);
       if (theGeneNames) {
         geneNamesToDisplay = theGeneNames.filter(function(geneName) {
+          console.log(geneName, " -- self.geneModel.isCandidateGene(geneName)", self.geneModel.isCandidateGene(geneName));
           return self.geneModel.isCandidateGene(geneName);
+          // return true;
         })
+        console.log("geneNamesToDisplay", geneNamesToDisplay);
         self.geneSummaries = geneNamesToDisplay.map(function(geneName) {
           let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
 
@@ -259,7 +263,7 @@ export default {
           'dangerSummary': dangerSummary,
           'inProgress': inProgress};
         })
-
+        console.log("self.geneSummaries", self.geneSummaries);
       } else {
         self.geneSummaries = [];
       }
@@ -301,9 +305,11 @@ export default {
   },
   watch: {
     geneNames: function(newGeneNames, oldGeneNames) {
+      console.log("geneNames in geneeepabel", this.geneNames);
       this.updateGeneSummaries();
     },
     filteredGeneNames: function(newGeneNames, oldGeneNames) {
+      console.log("filteredGeneNames in geneeepabel", this.filteredGeneNames);
       this.updateGeneSummaries();
     },
     isFullAnalysis: function() {

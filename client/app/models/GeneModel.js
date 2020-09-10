@@ -96,6 +96,11 @@ class GeneModel {
       self.candidateGenes[gene] = true;
     })
   }
+  
+  getCandidateGenes() {
+    let self = this;
+    return Object.keys(self.candidateGenes);
+  }
 
   isCandidateGene(theGeneName) {
     let self = this;
