@@ -30,8 +30,8 @@
     .v-snack__content
       min-height: 30px !important
       font-size: 12px !important
-      padding-top: 0px !important
-      padding-bottom: 0px !important
+      padding-top: 0 !important
+      padding-bottom: 0 !important
       font-weight: 600 !important
       color: white !important
 
@@ -44,11 +44,11 @@
       outline: none !important
       font-weight: normal !important
     .axis
-      padding-left: 0px
-      padding-right: 0px
+      padding-left: 0
+      padding-right: 0
       margin-top: -10px
-      margin-bottom: 0px
-      padding-bottom: 0px
+      margin-bottom: 0
+      padding-bottom: 0
       text
         font-size: 11px
         fill: rgb(120, 120, 120)
@@ -69,7 +69,7 @@
 
     .gene-viz-zoom
       .current
-      outline: none
+        outline: none
 
       .cds, .exon, .utr
         fill: rgba(159, 159, 159, 0.63)
@@ -96,7 +96,7 @@ main.content, main.v-content
     max-width: 20px
     min-width: 20px
     max-height: 20px
-    margin: 0px
+    margin: 0
 
     i.material-icons
       color: $text-color
@@ -108,7 +108,7 @@ main.content, main.v-content
     padding-bottom: 10px
 
 main.content.clin, main.v-content.clin
-  margin-top: 0px
+  margin-top: 0
 
 
 .app-card
@@ -134,7 +134,7 @@ main.content.clin, main.v-content.clin
 
 .tabs__container
   height: 31px !important
-  margin-left: 0px
+  margin-left: 0
 
   .tabs__item
     color: $app-color
@@ -181,15 +181,14 @@ main.content.clin, main.v-content.clin
   top: 50px !important
 
 #pileup-container
-  margin: 0px
-  padding-top: 0px
-  padding-bottom: 0px
+  padding-top: 0
+  padding-bottom: 0
   width: calc(100% - 10px)
-  margin-left: -10px
+  margin: 0 0 0 -10px
 
   .card, .v-card
-    margin: 0px
-    padding: 0px
+    margin: 0
+    padding: 0
     -webkit-box-shadow: none !important
     box-shadow: none !important
 
@@ -597,7 +596,7 @@ main.content.clin, main.v-content.clin
         class="loader full-width"
         v-bind:class="{ hide: !cohortModel ||  !cohortModel.inProgress.loadingDataSources }">
           <span class="loader-label">Loading files</span>
-          <img src="../../../assets/images/wheel.gif">
+          <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
         </v-card>
 
         <v-card
@@ -605,7 +604,7 @@ main.content.clin, main.v-content.clin
         class="loader"
         v-show="launchedFromClin && (!cohortModel || (!cohortModel.isLoaded && !cohortModel.inProgress.loadingDataSources))">
           <span class="loader-label">Initializing session data</span>
-          <img src="../../../assets/images/wheel.gif">
+          <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
         </v-card>
 
 <!--
@@ -764,8 +763,6 @@ import AppTour               from '../viz/AppTour.vue'
 
 import HubSession         from  '../../models/HubSession.js'
 import HubSessionDeprecated from  '../../models/HubSessionDeprecated.js'
-import Bam                from  '../../models/Bam.iobio.js'
-import vcfiobio           from  '../../models/Vcf.iobio.js'
 import Translator         from  '../../models/Translator.js'
 import EndpointCmd        from  '../../models/EndpointCmd.js'
 import GenericAnnotation  from  '../../models/GenericAnnotation.js'
@@ -869,6 +866,7 @@ export default {
         bottom: 18,
         left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
+      stashedVariant: null,
 
       geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,
       geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,
@@ -1005,8 +1003,8 @@ export default {
       /*
       * This variable controls if gene should show a "simplified" view
       */
-      isSimpleMode: process.env.DEFAULT_MODE == 'simple' ? true : false,
-      isCommercial: process.env.IS_COMMERCIAL && process.env.IS_COMMERCIAL === 'true' ? true : false,
+      isSimpleMode: process.env.DEFAULT_MODE === 'simple',
+      isCommercial: !!(process.env.IS_COMMERCIAL && process.env.IS_COMMERCIAL === 'true'),
 
       showIntro: false,
 
@@ -1084,7 +1082,7 @@ export default {
 
 
 
-    if (process.env.EXHIBIT === 'true' && (!self.paramMode || self.paramMode.length == 0 )) {
+    if (process.env.EXHIBIT === 'true' && (!self.paramMode || self.paramMode.length === 0 )) {
       this.$router.push({ name: 'exhibit' });
     }
 
@@ -1143,7 +1141,7 @@ export default {
       let theModels = [];
       if (this.models && this.models.length > 0) {
         theModels = self.models.filter(function(model) {
-          return model.relationship == 'proband';
+          return model.relationship === 'proband';
         })
       }
       if (theModels.length > 0) {
@@ -1192,7 +1190,7 @@ export default {
       self.cardWidth = window.innerWidth;
 
       // Detect if we are in an iframe
-      if (window.self != window.top) {
+      if (window.self !== window.top) {
         $(document.body).addClass("in-iframe");
       }
 
@@ -1211,7 +1209,7 @@ export default {
 
       // Safari can't use IndexedDB in iframes, so in this situation, use
       // local storage instead.
-      if (window != top && self.utility.detectSafari()) {
+      if (window !== top && self.utility.detectSafari()) {
         self.forceLocalStorage = true;
       }
 
@@ -1315,13 +1313,13 @@ export default {
                   self.showLeftPanelWhenFlaggedVariants();
                 })
               } else {
-                if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length == 0 ) {
+                if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
                   let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
                   self.onShowSnackbar( {message: theMessage, timeout: 5000});
                   self.bringAttention = 'gene';
                 }
 
-                if (!self.isEduMode && !self.isBasicMode && !self.isSimpleMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length == 0 ) {
+                if (!self.isEduMode && !self.isBasicMode && !self.isSimpleMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
                   self.showWelcome = true;
                 }
               }
@@ -1333,7 +1331,7 @@ export default {
         })
 
       },
-      function(error) {
+      function() {
         if (callback) {
           callback();
         }
@@ -1344,12 +1342,8 @@ export default {
 
     hasVariantAssessmentCheck: function(selectedVariant) {
       if (selectedVariant) {
-        if ((selectedVariant.interpretation && selectedVariant.interpretation != 'not-reviewed')
-                || (selectedVariant.notes && selectedVariant.notes != null && selectedVariant.notes.length > 0)) {
-          return true;
-        } else {
-          return false;
-        }
+        return !!((selectedVariant.interpretation && selectedVariant.interpretation !== 'not-reviewed')
+            || (selectedVariant.notes && selectedVariant.notes.length > 0));
       } else {
         return false;
       }
@@ -1372,7 +1366,7 @@ export default {
 
     addCloseListener: function() {
       let self = this;
-      $(window).bind("beforeunload", function(e) {
+      $(window).bind("beforeunload", function() {
         let msg = self.globalApp.getCloseMessage();
         if (msg) {
           return msg;
@@ -1397,7 +1391,7 @@ export default {
 
         self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession(self.paramClientApplicationId);
         self.hubSession.globalApp = self.globalApp;
-        let isPedigree = self.paramIsPedigree && self.paramIsPedigree == 'true' ? true : false;
+        let isPedigree = !!(self.paramIsPedigree && self.paramIsPedigree === 'true');
 
 
 
@@ -1467,7 +1461,7 @@ export default {
               }
             })
             if (bypassedCount > 0) {
-              if (bypassedCount == self.variantSet.variants.length) {
+              if (bypassedCount === self.variantSet.variants.length) {
                 alertify.alert("Error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name.", )
 
               } else {
@@ -1934,10 +1928,10 @@ export default {
       this.geneLists = geneLists;
     },
 
-    onGeneSelected: function(geneName) {
+    onGeneSelected: function(geneName, transcriptChanged) {
       var self = this;
       self.deselectVariant();
-      self.promiseLoadGene(geneName);
+      self.promiseLoadGene(geneName, null, transcriptChanged);
       self.activeGeneVariantTab = "0";
     },
 
@@ -2010,7 +2004,7 @@ export default {
 
     },
 
-    promiseLoadGene: function(geneName, theTranscript) {
+    promiseLoadGene: function(geneName, theTranscript, transcriptChanged) {
       let self = this;
 
       this.showWelcome = false;
@@ -2085,6 +2079,9 @@ export default {
             self.promiseLoadData()
             .then(function() {
               self.clearZoom = false;
+              if(transcriptChanged) {
+                self.onCohortVariantClick(self.stashedVariant);
+              }
               resolve();
             })
             .catch(function(err) {
@@ -2115,26 +2112,11 @@ export default {
       }
     },
     onTranscriptSelected: function(transcript) {
-      var self = this;
-      let stashedSelectedVariant = this.selectedVariant;
-      let stashedSelectedVariantKey = this.selectedVariantKey;
-      let stashedSelectedVariantRelationship = this.selectedVariantRelationship;
-      let stashedSelectedVariantInfo = this.selectedVariantInfo;
-      let stashedSelectedVariantInterpretation = this.selectedVariantInterpretation;
-      let stashedSelectedVariantNotes = this.selectedVariantNotes;
+      const self = this;
+      self.stashedVariant = this.selectedVariant;
       self.selectedTranscript = transcript;
       self.geneModel.setLatestGeneTranscript(self.selectedGene.gene_name, self.selectedTranscript);
-      self.onGeneSelected(self.selectedGene.gene_name);
-
-      setTimeout(function(){
-        self.selectedVariant = stashedSelectedVariant;
-        self.selectedVariantKey = stashedSelectedVariantKey;
-        self.selectedVariantRelationship = stashedSelectedVariantRelationship;
-        self.selectedVariantInfo = stashedSelectedVariantInfo;
-        self.selectedVariantInterpretation = stashedSelectedVariantInterpretation
-        self.selectedVariantNotes = stashedSelectedVariantNotes;
-
-      }, 10000);
+      self.onGeneSelected(self.selectedGene.gene_name, true);
     },
     onGeneSourceSelected: function(theGeneSource) {
       var self = this;
