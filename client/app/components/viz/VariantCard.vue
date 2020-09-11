@@ -707,8 +707,6 @@ export default {
         this.hideVariantCircle(false);
         this.hideVariantTooltip(this);
       }
-
-      this.$emit('cohort-variant-outside-click', this, this.sampleModel.relationship);
     },
     onVariantHover: function(variant, showTooltip=true) {
       if (this.showDepthViz) {

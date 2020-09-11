@@ -817,7 +817,6 @@ export default {
         this.hideVariantCircle(false);
         this.hideVariantTooltip(this);
       }
-      this.$emit('cohort-variant-outside-click', this, model.relationship);
     },
 
     onShowFilter(showFilter){
