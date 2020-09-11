@@ -3330,12 +3330,13 @@ export default {
 
     onResize: function() {
       let self = this;
-      self.mainContentWidth = $('main.content .container').outerWidth();
+      let mainContent = $('main.content .container');
+      self.mainContentWidth = mainContent.outerWidth();
       self.calcFeatureMatrixWidthPercent();
       if (self.mainContentWidth > 905) {
-        self.mainContentWidth.removeClass("small");
+        mainContent.removeClass("small");
       } else {
-        self.mainContentWidth.addClass("small");
+        mainContent.addClass("small");
       }
     },
 
