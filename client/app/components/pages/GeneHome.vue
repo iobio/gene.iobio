@@ -2000,6 +2000,20 @@ export default {
 
     },
 
+    getCorrespondingVariant: function(stashedVariant, cohortModel){
+      let loadedVariants = cohortModel.sampleMap.proband.model.loadedVariants.features;
+      let retVar = stashedVariant
+      loadedVariants.forEach(function(v) {
+        if (v.start === stashedVariant.start
+            && v.end === stashedVariant.end
+            && v.ref === stashedVariant.ref
+            && v.alt === stashedVariant.alt ) {
+          retVar = v;
+        }
+      });
+      return retVar;
+    },
+
     promiseLoadGene: function(geneName, theTranscript, transcriptChanged) {
       const self = this;
       this.showWelcome = false;
@@ -2062,7 +2076,9 @@ export default {
             .then(function() {
               self.clearZoom = false;
               if(transcriptChanged) {
-                self.onCohortVariantClick(self.stashedVariant);
+                console.log("self.cohortModel", self.cohortModel)
+                self.selectedVariant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel);
+                self.onCohortVariantClick(self.selectedVariant);
               }
               resolve();
             })
