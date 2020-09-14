@@ -544,7 +544,7 @@
             <span>{{ info.clinvarTrait }} </span>
           </div>
 
-          <variant-inspect-row
+          <variant-inspect-row v-if="info.vepImpact && info.vepImpact !== ''"
             :clazz="getImpactClass(info.vepImpact)" :value="info.vepConsequence"  :label="``"  >
           </variant-inspect-row>
 
