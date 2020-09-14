@@ -2075,7 +2075,6 @@ export default {
             .then(function() {
               self.clearZoom = false;
               if(transcriptChanged) {
-                console.log("self.cohortModel", self.cohortModel)
                 self.selectedVariant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel.sampleMap.proband.model.loadedVariants.features);
                 self.onCohortVariantClick(self.selectedVariant);
               }
