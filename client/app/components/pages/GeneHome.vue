@@ -2000,8 +2000,7 @@ export default {
 
     },
 
-    getCorrespondingVariant: function(stashedVariant, cohortModel){
-      let loadedVariants = cohortModel.sampleMap.proband.model.loadedVariants.features;
+    getCorrespondingVariant: function(stashedVariant, loadedVariants){
       let retVar = stashedVariant
       loadedVariants.forEach(function(v) {
         if (v.start === stashedVariant.start
@@ -2077,7 +2076,7 @@ export default {
               self.clearZoom = false;
               if(transcriptChanged) {
                 console.log("self.cohortModel", self.cohortModel)
-                self.selectedVariant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel);
+                self.selectedVariant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel.sampleMap.proband.model.loadedVariants.features);
                 self.onCohortVariantClick(self.selectedVariant);
               }
               resolve();
