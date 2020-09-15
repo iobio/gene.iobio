@@ -295,16 +295,13 @@ export default {
         }
       },
 
-      selectedVariant: function(oldData, newData){
-        console.log("newD, oldD", oldData, newData);
+      selectedVariant: function(){
         if(this.showFilter){
           this.intersectVariants();
         }
         else{
           this.variants = this.data;
         }
-        console.log("this.model.relationship", this.model.relationship);
-        console.log("selectedVariantRelationship", this.selectedVariantRelationship)
         if(this.model.relationship === this.selectedVariantRelationship) {
           this.onVariantClick(this.selectedVariant);
         }
