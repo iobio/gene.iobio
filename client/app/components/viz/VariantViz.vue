@@ -301,7 +301,9 @@ export default {
         else{
           this.variants = this.data;
         }
-        this.onVariantClick(this.selectedVariant);
+        if(this.model.relationship === 'proband') {
+          this.onVariantClick(this.selectedVariant);
+        }
 
       },
 
