@@ -150,6 +150,7 @@ export default {
       filteredVariants: null,
       showFilter: false,
       selectedVariant: null,
+      selectedVariantRelationship: null,
     },
     data() {
       return {
@@ -294,17 +295,19 @@ export default {
         }
       },
 
-      selectedVariant: function(){
+      selectedVariant: function(oldData, newData){
+        console.log("newD, oldD", oldData, newData);
         if(this.showFilter){
           this.intersectVariants();
         }
         else{
           this.variants = this.data;
         }
-        if(this.model.relationship === 'proband') {
+        console.log("this.model.relationship", this.model.relationship);
+        console.log("selectedVariantRelationship", this.selectedVariantRelationship)
+        if(this.model.relationship === this.selectedVariantRelationship) {
           this.onVariantClick(this.selectedVariant);
         }
-
       },
 
       showFilter: function(){

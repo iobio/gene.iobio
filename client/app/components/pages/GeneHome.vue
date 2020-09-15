@@ -462,6 +462,7 @@ main.content.clin, main.v-content.clin
         :selectedGene="selectedGene"
         :selectedTranscript="analyzedTranscript"
         :selectedVariant="selectedVariant"
+        :selectedVariantRelationship="selectedVariantRelationship"
         :regionStart="geneRegionStart"
         :regionEnd="geneRegionEnd"
         :featureMatrixModel="featureMatrixModel"
@@ -2075,8 +2076,8 @@ export default {
             .then(function() {
               self.clearZoom = false;
               if(transcriptChanged) {
-                self.selectedVariant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel.sampleMap.proband.model.loadedVariants.features);
-                self.onCohortVariantClick(self.selectedVariant);
+                let variant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel.sampleMap.proband.model.loadedVariants.features);
+                self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
               }
               resolve();
             })

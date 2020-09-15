@@ -495,6 +495,7 @@
           :data="sampleModel.loadedVariants"
           :filtered-variants="filteredVariants"
           :selected-variant="selectedVariant"
+          :selected-variant-relationship="selectedVariantRelationship"
           :selected-gene="selectedGene"
           :model="sampleModel"
           :showFilter="showFilter"
@@ -676,6 +677,7 @@ export default {
     selectedTranscript: {},
 
     selectedVariant: null,
+    selectedVariantRelationship: null,
     regionStart: 0,
     regionEnd: 0,
     width: 0,
