@@ -1101,9 +1101,6 @@ export default {
     }
   },
   watch: {
-    geneNames: function(){
-      console.log("wattchung genegeneNames", this.geneNames);
-    },
     lookupGene: function(a, b) {
       if (this.selectedGene && this.lookupGene && this.lookupGene.gene_name) {
         this.geneEntered = this.lookupGene.gene_name;
@@ -1317,7 +1314,6 @@ export default {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
-     console.log("geneNames moountted", this.geneNames);
   },
   computed:  {
     knownGenes: function() {

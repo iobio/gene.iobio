@@ -1896,9 +1896,11 @@ export default {
 
     onGeneNameEntered: function(geneName) {
       let self = this;
-      let geneArr = self.geneModel.getCandidateGenes();
-      geneArr.push(geneName);
-      self.geneModel.setCandidateGenes(geneArr);
+      if(self.launchedFromClin){
+        let geneArr = self.geneModel.getCandidateGenes();
+        geneArr.push(geneName);
+        self.geneModel.setCandidateGenes(geneArr);
+      }
       self.clearFilter();
       self.deselectVariant();
       self.setDirty(true);
@@ -2013,7 +2015,6 @@ export default {
 
     promiseLoadGene: function(geneName, theTranscript) {
       let self = this;
-      console.log("theTranscript", theTranscript);
       this.showWelcome = false;
 
       if (self.acmgBlacklist[geneName] != null) {
@@ -2043,7 +2044,6 @@ export default {
 
         self.geneModel.promiseAddGeneName(geneName)
         .then(function(justAdded) {
-          console.log("justAdded", justAdded);
           if (justAdded && self.launchedFromHub) {
             return self.promiseUpdateAnalysisGenesData();
           } else {
@@ -2053,7 +2053,6 @@ export default {
         .then(function() {
           return self.geneModel.promiseGetGeneObject(geneName)
         }).then(function(theGeneObject) {
-          console.log("theGeneObject", theGeneObject);
           if (self.bringAttention == 'gene') {
             self.bringAttention = null;
           }
@@ -3659,7 +3658,10 @@ export default {
           }
         }
       } else if(clinObject.type == 'add-new-genes') {
-        self.onGeneNameEntered(clinObject.new_genes)
+        let new_genes = clinObject.new_genes; 
+        new_genes.map(gene => {
+          self.onGeneNameEntered(gene)
+        })
       }
 
 
