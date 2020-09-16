@@ -2162,6 +2162,8 @@ export default {
       this.cohortModel.setCoverage(this.geneRegionStart, this.geneRegionEnd);
     },
     onGeneRegionZoomReset: function() {
+      console.log("onGeneRegionZoomReset");
+      this.showZoom = false;
       this.geneRegionStart = this.selectedGene.start;
       this.geneRegionEnd = this.selectedGene.end;
 
