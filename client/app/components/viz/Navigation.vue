@@ -377,6 +377,11 @@ nav.toolbar, nav.v-toolbar
     i.material-icons
       color:  $nav-text-color-clin !important
 
+.nav-link
+    text-decoration: none
+    color: white
+    cursor: pointer
+
 #versions
   font-size: 14px
   color:  rgb(132,132,132)
@@ -471,7 +476,7 @@ nav.toolbar, nav.v-toolbar
       </v-toolbar-side-icon>
 
 
-      <v-toolbar-title style="font-weight:400" v-text="title">
+      <v-toolbar-title class="nav-link" style="font-weight:400" @click="navigateHome" v-text="title">
       </v-toolbar-title>
 
 
@@ -1014,6 +1019,7 @@ import SaveButton         from '../partials/SaveButton.vue'
 
 export default {
   name: 'navigation',
+
   components: {
     Typeahead,
     GenesMenu,
@@ -1049,7 +1055,6 @@ export default {
     activeFilterName: null,
     launchedFromClin: null,
     showSaveModal: null,
-    isFullAnalysis: null,
     isLoaded: null,
     isFullAnalysis: null,
     isClinFrameVisible: null,
@@ -1128,6 +1133,16 @@ export default {
   methods: {
     onLoadDemoData: function(loadAction) {
       this.$emit("load-demo-data", loadAction);
+    },
+    navigateHome: function(){
+      if(this.analyzeAllInProgress || this.isLoaded) {
+        alertify.confirm('Your analysis will not be saved. Do you want to return to the home page?',
+            function (e) {
+              window.location.href = '/';
+            }
+        ).set('labels', {ok: 'OK', cancel: 'Cancel'}, 'header').setHeader('Return Home')
+      }
+
     },
     onClearCache: function() {
       this.$emit("clear-cache")
