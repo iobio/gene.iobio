@@ -150,6 +150,7 @@ export default {
       filteredVariants: null,
       showFilter: false,
       selectedVariant: null,
+      selectedVariantRelationship: null,
     },
     data() {
       return {
@@ -300,6 +301,9 @@ export default {
         }
         else{
           this.variants = this.data;
+        }
+        if(this.model.relationship === this.selectedVariantRelationship) {
+          this.onVariantClick(this.selectedVariant);
         }
       },
 

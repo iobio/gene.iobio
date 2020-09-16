@@ -99,7 +99,7 @@
   line-height: 12px !important
 
 .clinvar-legend
-  width: 150px 
+  width: 150px
   margin-right:  10px
   margin-bottom:  15px
 
@@ -180,6 +180,14 @@
          height="14"
          label="Low">
         </legend-icon>
+        <legend-icon
+            icon="impact"
+            type="snp"
+            clazz="impact_UNKNOWN"
+            width="14"
+            height="14"
+            label="Unknown">
+        </legend-icon>
 
       </div>
       <div v-if="!isBasicMode && !isSimpleMode" style="text-align:left;width:150px;margin-right:10px;margin-bottom:15px">
@@ -223,7 +231,7 @@
           <div class="legend-label">Clinvar
             <info-popup name="clinvar"></info-popup>
           </div>
-         
+
           <div>
             <legend-icon
             style="display:inline-block"
