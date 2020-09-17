@@ -444,6 +444,7 @@ main.content.clin, main.v-content.clin
         <variant-all-card
         ref="variantCardProbandRef"
         v-if="probandModel"
+        v-show="!showWelcome"
         v-bind:class="[
         { 'full-width': true,
           'hide': showWelcome || (selectedGene && Object.keys(selectedGene).length === 0) || !cohortModel  || cohortModel.inProgress.loadingDataSources,
@@ -531,6 +532,7 @@ main.content.clin, main.v-content.clin
           <variant-inspect-card
           ref="variantInspectRef"
           v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode && selectedVariant"
+          v-show="!showWelcome"
           :isSimpleMode="isSimpleMode"
           :selectedGene="selectedGene"
           :selectedTranscript="analyzedTranscript"

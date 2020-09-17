@@ -533,15 +533,19 @@ $light-gray-color:   #f0f1f3
                   <i class="material-icons">explore</i>
                   RESUME ANALYSIS
                 </v-btn>
-                <v-btn class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
+                <v-btn class="welcome-button"  v-if="resume"  @click="onNew">
+                  <i class="material-icons">explore</i>
+                  START NEW ANALYSIS
+                </v-btn>
+                <v-btn v-if="!resume" class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
                   <i class="material-icons">explore</i>
                   RUN WITH DEMO DATA
                 </v-btn>
-                <v-btn class="welcome-button"  id="uploadData"  @click="onUploadFiles">
+                <v-btn v-if="!resume" class="welcome-button"  id="uploadData"  @click="onUploadFiles">
                   <i class="material-icons">publish</i>
                   LOAD YOUR DATA
                 </v-btn>
-                <v-btn  class="welcome-button"  @click="playVideo('screencast-intro')">
+                <v-btn v-if="!resume"  class="welcome-button"  @click="playVideo('screencast-intro')">
                   <i class="material-icons">play_circle_filled_white</i>
                   WATCH THE VIDEO
                 </v-btn>
@@ -1068,6 +1072,9 @@ export default {
   },
     onResume: function(){
       this.$emit('show-welcome-changed', false);
+    },
+    onNew: function(){
+      window.location.href = "/";
     },
 
     onAppTour: function() {
