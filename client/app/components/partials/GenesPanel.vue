@@ -259,7 +259,6 @@ export default {
           'dangerSummary': dangerSummary,
           'inProgress': inProgress};
         })
-
       } else {
         self.geneSummaries = [];
       }

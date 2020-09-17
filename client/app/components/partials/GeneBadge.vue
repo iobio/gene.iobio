@@ -335,11 +335,12 @@ export default {
     selectedGene: null,
     isEduMode: null,
     isBasicMode: null,
-    launchedFromClin: null,
+    // launchedFromClin: null,
     isSimpleMode: null
   },
   data () {
     return {
+      launchedFromClin: false
     }
   },
   watch: {
