@@ -526,18 +526,31 @@ $light-gray-color:   #f0f1f3
               </div>
             </transition-group>
 
+              <div v-if="resume" style="text-align: center; height: 40px">
+              <v-alert
+                  border
+                  colored-border
+                  outline
+                  dense
+                  type="warning"
+                  elevation="2"
+                  style="display: inline-flex; font-size: 14px; height: 33px"
+              >
+                Analysis in progress...
+              </v-alert>
+              </div>
             <transition-group  name="fadeDown" tag="div" >
               <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group"
                    style="text-align:center;animation-duration: 1s;">
                 <v-btn class="welcome-button"  v-if="resume"  @click="onResume">
-                  <i class="material-icons">explore</i>
+                  <i class="material-icons">play_circle_outline</i>
                   RESUME ANALYSIS
                 </v-btn>
                 <v-btn class="welcome-button"  v-if="resume"  @click="onNew">
-                  <i class="material-icons">explore</i>
+                  <i class="material-icons">history</i>
                   START NEW ANALYSIS
                 </v-btn>
-                <v-btn v-if="!resume" class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
+                  <v-btn v-if="!resume" class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
                   <i class="material-icons">explore</i>
                   RUN WITH DEMO DATA
                 </v-btn>
