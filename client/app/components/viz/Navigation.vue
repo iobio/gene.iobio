@@ -377,6 +377,11 @@ nav.toolbar, nav.v-toolbar
     i.material-icons
       color:  $nav-text-color-clin !important
 
+.nav-link
+    text-decoration: none
+    color: white
+    cursor: pointer
+
 #versions
   font-size: 14px
   color:  rgb(132,132,132)
@@ -471,7 +476,7 @@ nav.toolbar, nav.v-toolbar
       </v-toolbar-side-icon>
 
 
-      <v-toolbar-title style="font-weight:400" v-text="title">
+      <v-toolbar-title class="nav-link" style="font-weight:400" @click="navigateHome" v-text="title">
       </v-toolbar-title>
 
 
@@ -1014,6 +1019,7 @@ import SaveButton         from '../partials/SaveButton.vue'
 
 export default {
   name: 'navigation',
+
   components: {
     Typeahead,
     GenesMenu,
@@ -1049,7 +1055,6 @@ export default {
     activeFilterName: null,
     launchedFromClin: null,
     showSaveModal: null,
-    isFullAnalysis: null,
     isLoaded: null,
     isFullAnalysis: null,
     isClinFrameVisible: null,
@@ -1061,7 +1066,8 @@ export default {
     lastPhenotypeTermEntered: null,
     toClickVariant: null,
     variantSetCounts: null,
-    badgeCounts: null
+    badgeCounts: null,
+    showWelcome: null,
   },
   data () {
     let self = this;
@@ -1110,6 +1116,14 @@ export default {
     showFilesProp: function(){
       this.showFiles = this.showFilesProp;
     },
+    showWelcome: function(){
+      if(this.showWelcome){
+        this.leftDrawer = false;
+      }
+      else{
+        this.leftDrawer = true;
+      }
+    },
     leftDrawer: function() {
       this.$emit("on-left-drawer", this.leftDrawer);
     },
@@ -1128,6 +1142,11 @@ export default {
   methods: {
     onLoadDemoData: function(loadAction) {
       this.$emit("load-demo-data", loadAction);
+    },
+    navigateHome: function(){
+      if(this.analyzeAllInProgress || this.isLoaded) {
+        this.$emit('on-welcome-changed', true);
+      }
     },
     onClearCache: function() {
       this.$emit("clear-cache")
