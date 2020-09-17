@@ -2626,7 +2626,7 @@ export default {
           if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
             let applicableGenes = self.geneModel.geneNames.filter(function(geneName) {
               if (self.isFullAnalysis) {
-                return !self.geneModel.isCandidateGene(geneName);
+                return self.geneModel.isCandidateGene(geneName);
               } else {
                 return self.geneModel.isCandidateGene(geneName);
               }
@@ -2650,19 +2650,13 @@ export default {
 
       })
       .then(function() {
-        if (!self.launchedFromClin) {
-          if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
-            if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
-              self.showLeftPanelForGenes();
-              self.cacheHelper.analyzeAll(self.cohortModel, false);
-              if (callback) {
-                callback();
-              }
+        if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+          if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
+            self.showLeftPanelForGenes();
+            self.cacheHelper.analyzeAll(self.cohortModel, false);
+            if (callback) {
+              callback();
             }
-          }
-        } else {
-          if (callback) {
-            callback();
           }
         }
       })
@@ -3597,8 +3591,18 @@ export default {
       } else if(clinObject.type == 'add-new-genes') {
         let new_genes = clinObject.new_genes; 
         new_genes.map(gene => {
-          self.onGeneNameEntered(gene)
+          let geneArr = self.geneModel.getCandidateGenes();
+          if(!geneArr.includes(gene)){
+            geneArr.push(gene);
+          }
+          self.geneModel.setCandidateGenes(geneArr);
         })
+
+        let options = {isFromClin: true, phenotypes: new_genes};
+        self.onApplyGenes(new_genes.join(), options);
+        // new_genes.map(gene => {
+        //   self.onGeneNameEntered(gene)
+        // })
       }
       let responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), this.clinIobioUrl);
