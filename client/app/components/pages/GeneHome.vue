@@ -265,6 +265,7 @@ main.content.clin, main.v-content.clin
       :variantSetCounts="variantSetCounts"
       :badgeCounts="badgeCounts"
       :showFilesProp="showFiles"
+      :showWelcome="showWelcome"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -291,11 +292,12 @@ main.content.clin, main.v-content.clin
       @isDemo="onIsDemo"
       @variant-count-changed="variantCountChanged"
       @toggle-save-modal="toggleSaveModal(true)"
+      @on-welcome-changed="onWelcomeChanged"
     >
     </navigation>
 
 
-    <v-content  :class="launchedFromClin ? 'clin' : '' ">
+    <v-content   :class="launchedFromClin ? 'clin' : '' ">
       <v-container class="fluidMax">
 
 
@@ -584,9 +586,11 @@ main.content.clin, main.v-content.clin
          :launchedFromClin="launchedFromClin"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
+         :resume="resume"
          @load-demo-data="onLoadDemoData"
          @upload-files="onUploadFiles"
          @take-app-tour="onTakeAppTour"
+         @show-welcome-changed="onWelcomeChanged"
          >
         </welcome>
 
@@ -881,6 +885,7 @@ export default {
       isFather: false,
 
       isDirty: false,
+      resume: false,
 
       launchedFromHub: false,
       launchedFromSFARI: false,
@@ -1132,7 +1137,7 @@ export default {
 
     showGeneVariantsCard: function() {
 
-        return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1))
+        return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1)) && !this.showWelcome
 
     },
 
@@ -1634,6 +1639,11 @@ export default {
           reject(msg);
          })
       })
+    },
+
+    onWelcomeChanged: function(val){
+      this.showWelcome = val;
+      this.resume = val;
     },
 
     promiseClearCache: function() {

@@ -1066,7 +1066,8 @@ export default {
     lastPhenotypeTermEntered: null,
     toClickVariant: null,
     variantSetCounts: null,
-    badgeCounts: null
+    badgeCounts: null,
+    showWelcome: null,
   },
   data () {
     let self = this;
@@ -1115,6 +1116,14 @@ export default {
     showFilesProp: function(){
       this.showFiles = this.showFilesProp;
     },
+    showWelcome: function(){
+      if(this.showWelcome){
+        this.leftDrawer = false;
+      }
+      else{
+        this.leftDrawer = true;
+      }
+    },
     leftDrawer: function() {
       this.$emit("on-left-drawer", this.leftDrawer);
     },
@@ -1136,13 +1145,8 @@ export default {
     },
     navigateHome: function(){
       if(this.analyzeAllInProgress || this.isLoaded) {
-        alertify.confirm('Your analysis will not be saved. Do you want to return to the home page?',
-            function (e) {
-              window.location.href = '/';
-            }
-        ).set('labels', {ok: 'OK', cancel: 'Cancel'}, 'header').setHeader('Return Home')
+        this.$emit('on-welcome-changed', true);
       }
-
     },
     onClearCache: function() {
       this.$emit("clear-cache")

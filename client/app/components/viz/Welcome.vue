@@ -529,6 +529,10 @@ $light-gray-color:   #f0f1f3
             <transition-group  name="fadeDown" tag="div" >
               <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group"
                    style="text-align:center;animation-duration: 1s;">
+                <v-btn class="welcome-button"  v-if="resume"  @click="onResume">
+                  <i class="material-icons">explore</i>
+                  RESUME ANALYSIS
+                </v-btn>
                 <v-btn class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
                   <i class="material-icons">explore</i>
                   RUN WITH DEMO DATA
@@ -916,6 +920,7 @@ export default {
   components: {
   },
   props: {
+    resume: null,
     isBasicMode: null,
     isEduMode: null,
     launchedFromClin: null
@@ -1061,6 +1066,9 @@ export default {
     onUploadFiles: function(){
       this.$emit("upload-files");
   },
+    onResume: function(){
+      this.$emit('show-welcome-changed', false);
+    },
 
     onAppTour: function() {
       this.$emit("take-app-tour");
