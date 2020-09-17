@@ -2606,7 +2606,23 @@ export default {
 
         ).set('labels', {ok:'Replace gene list', cancel:'Combine genes with current list'});
 
-      } else {
+      }
+      else if (self.phenotypeTerm && existingGeneCount > 0 && existingPhenotypeTerm !== self.phenotypeTerm) {
+        let msg = "This will update the gene list with  the following " + genesToApplyCount + " genes <br>'" + self.phenotypeTerm + "'.";
+        alertify.confirm("",
+          msg,
+          function () {
+            // ok
+            options.replace = true;
+            doIt();
+          },
+          function() {
+            // cancel
+          }
+        ).set('labels', {ok:'Ok', cancel:'Cancel'});
+
+      } 
+      else {
         doIt();
       }
 
@@ -2626,7 +2642,7 @@ export default {
           if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
             let applicableGenes = self.geneModel.geneNames.filter(function(geneName) {
               if (self.isFullAnalysis) {
-                return self.geneModel.isCandidateGene(geneName);
+                return !self.geneModel.isCandidateGene(geneName);
               } else {
                 return self.geneModel.isCandidateGene(geneName);
               }
