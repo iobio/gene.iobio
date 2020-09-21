@@ -612,7 +612,9 @@ export default function variantD3() {
 
 
 
-        showCircle(selectedVariant, svg, false, true);
+        if(selectedVariant) {
+          showCircle(selectedVariant, svg, false, true);
+        }
 
         dispatch.d3rendered();
 
