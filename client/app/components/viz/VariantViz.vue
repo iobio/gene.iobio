@@ -206,7 +206,10 @@ export default {
       update: function() {
         var self = this;
 
+        console.log("update");
+
         if (self.variants && self.data.features) {
+          console.log("update if");
             // Set the vertical layer count so that the height of the chart can be recalculated
           if (self.variants.maxLevel == null) {
             self.variants.maxLevel = d3.max(self.variants.features, function(d) { return d.level; });
@@ -270,6 +273,28 @@ export default {
         this.variantChart.showFlaggedVariant(container, variant);
       },
 
+      isEqual: function(a, b) {
+        let isEqual = false
+        if(a.length === b.length) {
+          isEqual = true;
+          for (let i = 0; i < a.length; i++) {
+            let variant = a[i];
+            let v = b[i];
+            if(variant){
+
+            if(variant.start !== v.start ||
+            variant.ref !== v.ref ||
+            variant.alt !== v.alt){
+              isEqual = false;
+            }
+            }
+          }
+      }
+        console.log("isEqual", isEqual);
+        return isEqual;
+      },
+
+
       intersectVariants(){
           let copyVariants = Object.assign({}, this.filteredVariants);
           let features = [];
@@ -291,11 +316,18 @@ export default {
     watch: {
       variants: function(oldVar, newVar) {
         if(oldVar && oldVar.features && newVar && newVar.features){
-          this.update();
+          console.log("oldVar.features", oldVar.features, newVar.features);
+          // if(JSON.stringify(oldVar.features) !== JSON.stringify(newVar.features)) {
+          if(! this.isEqual(oldVar.features, newVar.features)){
+
+            console.log("variants watcher update", oldVar, newVar, "swag");
+            this.update();
+          }
         }
       },
 
       selectedVariant: function(){
+        console.log("selectedVariantWatcher");
         if(this.showFilter){
           this.intersectVariants();
         }
@@ -335,9 +367,11 @@ export default {
         },
 
       regionStart(){
+        console.log("region start update");
         this.update();
       },
       regionEnd(){
+        console.log("region end update");
         this.update();
       }
     }
