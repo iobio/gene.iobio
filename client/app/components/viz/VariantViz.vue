@@ -205,11 +205,7 @@ export default {
       },
       update: function() {
         var self = this;
-
-        console.log("update");
-
         if (self.variants && self.data.features) {
-          console.log("update if");
             // Set the vertical layer count so that the height of the chart can be recalculated
           if (self.variants.maxLevel == null) {
             self.variants.maxLevel = d3.max(self.variants.features, function(d) { return d.level; });
@@ -226,6 +222,7 @@ export default {
           self.variantChart.regionEnd(self.regionEnd);
 
           self.variantChart.width(self.width);
+          self.variantChart.selectedVariant(self.selectedVariant);
 
 
           var selection = d3.select(self.$el).datum( [self.variants] );
@@ -283,14 +280,13 @@ export default {
             if(variant){
 
             if(variant.start !== v.start ||
-            variant.ref !== v.ref ||
-            variant.alt !== v.alt){
-              isEqual = false;
-            }
+              variant.ref !== v.ref ||
+              variant.alt !== v.alt){
+                isEqual = false;
+              }
             }
           }
-      }
-        console.log("isEqual", isEqual);
+        }
         return isEqual;
       },
 
@@ -316,18 +312,13 @@ export default {
     watch: {
       variants: function(oldVar, newVar) {
         if(oldVar && oldVar.features && newVar && newVar.features){
-          console.log("oldVar.features", oldVar.features, newVar.features);
-          // if(JSON.stringify(oldVar.features) !== JSON.stringify(newVar.features)) {
           if(! this.isEqual(oldVar.features, newVar.features)){
-
-            console.log("variants watcher update", oldVar, newVar, "swag");
             this.update();
           }
         }
       },
 
       selectedVariant: function(){
-        console.log("selectedVariantWatcher");
         if(this.showFilter){
           this.intersectVariants();
         }
@@ -367,11 +358,9 @@ export default {
         },
 
       regionStart(){
-        console.log("region start update");
         this.update();
       },
       regionEnd(){
-        console.log("region end update");
         this.update();
       }
     }

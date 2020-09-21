@@ -31,7 +31,8 @@ export default function variantD3() {
       lowestWidth = 3,
       dividerLevel = null,
       container = null,
-      clazz = null;
+      clazz = null,
+      selectedVariant = null;
 
   //  options
   var defaults = {};
@@ -67,8 +68,6 @@ export default function variantD3() {
           } else {
             matchingVariant = variant;
           }
-
-
        }
     });
 
@@ -383,9 +382,6 @@ export default function variantD3() {
         if (showBrush) {
           if (brushHeight == null ) {
             brushHeight = variantHeight;
-            brushY = 0;
-          } else {
-            brushY = 0;
           }
           track.selectAll("g.x.brush").data([0]).enter().append("g")
               .attr("class", "x brush")
@@ -616,6 +612,7 @@ export default function variantD3() {
 
 
 
+        showCircle(selectedVariant, svg, false, true);
 
         dispatch.d3rendered();
 
@@ -753,13 +750,6 @@ export default function variantD3() {
     return chart;
   };
 
-  chart.yAxis = function(_) {
-    if (!arguments.length) return yAxis;
-    yAxis = _;
-    return chart;
-  };
-
-
   chart.variantHeight = function(_) {
     if (!arguments.length) return variantHeight;
     variantHeight = _;
@@ -787,6 +777,11 @@ export default function variantD3() {
   chart.showXAxis = function(_) {
     if (!arguments.length) return showXAxis;
     showXAxis = _;
+    return chart;
+  };
+  chart.selectedVariant = function(_) {
+    if (!arguments.length) return selectedVariant;
+    selectedVariant = _;
     return chart;
   };
 
@@ -862,13 +857,6 @@ export default function variantD3() {
     hideCircle = _;
     return chart;
   }
-  chart.highlightVariant = function(_) {
-    if (!arguments.length) return highlightVariant;
-    highlightVariant = _;
-    return chart;
-  }
-
-
 
   // This adds the "on" methods to our custom exports
   d3.rebind(chart, dispatch, "on");
