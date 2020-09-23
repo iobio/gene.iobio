@@ -86,7 +86,7 @@ class GeneModel {
     this.dispatch = d3.dispatch("geneDangerSummarized");
     d3.rebind(this, this.dispatch, "on");
 
-
+    this.genesAssociatedWithSource = {};
   }
 
   setCandidateGenes(genes) {
@@ -1864,6 +1864,33 @@ class GeneModel {
       return 1;
     }
 
+  }
+  
+  setSourceForGenes(genes, source) {
+    let self = this;
+    let sourceIndicatorMap = {
+      "imported_gene": 1,
+      "phenotype_gene_list": 2
+    }
+    genes.forEach(gene => {
+      if(self.genesAssociatedWithSource[gene] === undefined){
+        self.genesAssociatedWithSource[gene] = {
+          "source": [source],
+          "sourceIndicator": [sourceIndicatorMap[source]]
+        }
+      }
+      else {
+        if(!self.genesAssociatedWithSource[gene].source.includes(source)){
+          self.genesAssociatedWithSource[gene].source.push(source)
+          self.genesAssociatedWithSource[gene].sourceIndicator.push(sourceIndicatorMap[source])
+        }
+      }
+    })
+  }
+  
+  getSourceForGenes() {
+    let self = this;
+    return self.genesAssociatedWithSource;
   }
 
 }

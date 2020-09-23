@@ -3625,12 +3625,11 @@ export default {
           }
           self.geneModel.setCandidateGenes(geneArr);
         })
+        
+        self.geneModel.setSourceForGenes(clinObject.selectedPhenotypeGenes, "phenotype_gene_list")
 
         let options = {isFromClin: true, phenotypes: new_genes};
         self.onApplyGenes(new_genes.join(), options);
-        // new_genes.map(gene => {
-        //   self.onGeneNameEntered(gene)
-        // })
       }
       let responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), this.clinIobioUrl);
@@ -3848,7 +3847,8 @@ export default {
           }
 
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
-
+          self.geneModel.setSourceForGenes(self.clinSetData.genes, "imported_gene");
+          
           setTimeout(function() {
             if (self.geneModel && self.geneModel.sortedGeneNames &&
               self.geneModel.sortedGeneNames.length > 0) {

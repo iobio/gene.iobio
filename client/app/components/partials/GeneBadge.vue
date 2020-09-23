@@ -195,6 +195,10 @@
         <span id="gene-badge-name" style="float:left;margin-left:2px;margin-right:2px">
           {{ gene.name }}
         </span>
+        
+        <span>
+          {{ geneSource }}
+        </span>
 
 
 
@@ -335,12 +339,15 @@ export default {
     selectedGene: null,
     isEduMode: null,
     isBasicMode: null,
-    // launchedFromClin: null,
-    isSimpleMode: null
+    launchedFromClin: null,
+    isSimpleMode: null,
+    geneModel: null,
+    geneSource: null,
   },
   data () {
     return {
-      launchedFromClin: false
+      // geneSource: null,
+      // launchedFromClin: false
     }
   },
   watch: {

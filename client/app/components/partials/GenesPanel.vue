@@ -184,6 +184,8 @@
        :launchedFromClin="launchedFromClin"
        @gene-selected="onGeneSelected"
        @remove-gene="onRemoveGene"
+       :geneModel="geneModel"
+       :geneSource="getGeneSource(gene.name)"
       >
       </gene-badge>
     </div>
@@ -292,6 +294,9 @@ export default {
     },
     onRemoveGene: function(geneName) {
       this.$emit('remove-gene', geneName);
+    },
+    getGeneSource: function(gene) {
+      return this.geneModel.getSourceForGenes()[gene].sourceIndicator.join()
     }
 
   },
