@@ -1872,16 +1872,20 @@ class GeneModel {
       "imported_gene": 1,
       "phenotype_gene_list": 2
     }
+    let sourceMap = {
+      "imported_gene": "imported set",
+      "phenotype_gene_list": "gene list generated from phenotypes"
+    }
     genes.forEach(gene => {
       if(self.genesAssociatedWithSource[gene] === undefined){
         self.genesAssociatedWithSource[gene] = {
-          "source": [source],
+          "source": [sourceMap[source]],
           "sourceIndicator": [sourceIndicatorMap[source]]
         }
       }
       else {
         if(!self.genesAssociatedWithSource[gene].source.includes(source)){
-          self.genesAssociatedWithSource[gene].source.push(source)
+          self.genesAssociatedWithSource[gene].source.push(sourceMap[source])
           self.genesAssociatedWithSource[gene].sourceIndicator.push(sourceIndicatorMap[source])
         }
       }

@@ -196,10 +196,6 @@
           {{ gene.name }}
         </span>
         
-        <span>
-          {{ geneSource }}
-        </span>
-
 
 
 
@@ -312,6 +308,10 @@
 
 
   </a>
+
+  <span>
+    {{ geneSource }}
+  </span>
 
   <div id="gene-badge-remove" v-if="!isEduMode && !launchedFromClin" href="javascript:void(0)"
     @click="removeGene"

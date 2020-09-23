@@ -296,7 +296,7 @@ export default {
       this.$emit('remove-gene', geneName);
     },
     getGeneSource: function(gene) {
-      return this.geneModel.getSourceForGenes()[gene].sourceIndicator.join()
+      return this.geneModel.getSourceForGenes()[gene].sourceIndicator.join(", ")
     }
 
   },
