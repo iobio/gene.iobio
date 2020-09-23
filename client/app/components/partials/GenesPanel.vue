@@ -98,6 +98,10 @@
 .call-variants-button
     width: 100px !important
 
+.source-expansion-panel
+  bottom: 0
+  position: fixed
+  width: 90%
 </style>
 
 <template>
@@ -190,7 +194,24 @@
       </gene-badge>
     </div>
 
-
+    <div class="source-expansion-panel" expand v-model="expansionControl">
+      <v-expansion-panel>
+        <v-expansion-panel-content
+        >
+          <template v-slot:header>
+            <div>Source</div>
+          </template>
+          <v-card>
+            <v-card-text>
+              1. Variants defined in imported set 
+              <br>
+              2. Gene list generated from phenotypes
+              
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </div>
   </div>
 </template>
 <script>
@@ -227,7 +248,8 @@ export default {
       calledPercentage: 0,
       loadedCount: 0,
       calledCount: 0,
-      totalCount: 0
+      totalCount: 0,
+      expansionControl: [true]
     }
   },
   methods: {
