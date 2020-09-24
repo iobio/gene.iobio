@@ -309,7 +309,7 @@
 
   </a>
 
-  <span>
+  <span class="ml-4" style="position: absolute">
     {{ geneSource }}
   </span>
 

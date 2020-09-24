@@ -99,9 +99,29 @@
     width: 100px !important
 
 .source-expansion-panel
-  bottom: 0
+  // bottom: 0
+  margin-top: 200px
   position: fixed
-  width: 90%
+  // width: 90%
+  
+#genes-panel
+  min-height: calc(100vh - 70px) 
+
+.expansion-panel__header, .v-expansion-panel__header
+  border-top: #e1e1e1
+  border-top-style: solid
+  border-top-width: 1px
+  padding:  6px 10px 6px 2px
+  background-color: #f3f3f3
+
+.v-expansion-panel__header
+  min-height: 28px
+  padding-left: 10px
+  padding-right: 8px
+
+  .header__icon
+    i.material-icons
+      color: $app-color
 </style>
 
 <template>
@@ -171,7 +191,11 @@
       </div>
     </div>
 
-
+    <div>
+      <div style="margin-left: 82%">
+        Source
+      </div>
+    </div>
     <div id="gene-badge-container" class="level-basic" style="clear:both;">
 
 
@@ -203,10 +227,11 @@
           </template>
           <v-card>
             <v-card-text>
-              1. Variants defined in imported set 
-              <br>
-              2. Gene list generated from phenotypes
-              
+                <div class="chart-label">
+                  1. Variants defined in imported set 
+                  <br>
+                  2. Gene list generated from phenotypes
+                </div>
             </v-card-text>
           </v-card>
         </v-expansion-panel-content>
