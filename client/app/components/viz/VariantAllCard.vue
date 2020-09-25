@@ -445,9 +445,7 @@
         v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0">
           called variants
         </div>
-        <span class="chart-label" v-if="launchedFromClin && selectedGene.gene_name">
-          {{ sourceIndicatorLabel }}
-        </span> 
+
         <variant-viz id="called-variant-viz"
           ref="calledVariantVizRef"
           v-if="showVariantViz"
@@ -1309,15 +1307,6 @@ export default {
         }
       }
       return label;
-    },
-    sourceIndicatorLabel: function() {
-      if(this.launchedFromClin) {
-        let label = "Variants defined in ";
-        let gene_name = this.selectedGene.gene_name;
-        let source = this.sampleModel.cohort.geneModel.getSourceForGenes()[gene_name].source.join(", ");
-        label += source
-        return label;
-      }
     }
   },
 

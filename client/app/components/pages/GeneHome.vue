@@ -551,6 +551,7 @@ main.content.clin, main.v-content.clin
           :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
           :user="user"
           :showAssessment="hasVariantAssessment || showVariantAssessment"
+          :launchedFromClin="launchedFromClin"
           @show-pileup-for-variant="onShowPileupForVariant"
           @apply-variant-interpretation="onApplyVariantInterpretation"
           @apply-variant-notes="onApplyVariantNotes"
@@ -2621,19 +2622,7 @@ export default {
 
       }
       else if (self.phenotypeTerm && existingGeneCount > 0 && existingPhenotypeTerm !== self.phenotypeTerm) {
-        let msg = "This will update the gene list with  the following " + genesToApplyCount + " genes <br>'" + self.phenotypeTerm + "'.";
-        alertify.confirm("",
-          msg,
-          function () {
-            // ok
-            options.replace = true;
-            doIt();
-          },
-          function() {
-            // cancel
-          }
-        ).set('labels', {ok:'Ok', cancel:'Cancel'});
-
+        doIt();
       } 
       else {
         doIt();

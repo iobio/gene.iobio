@@ -80,7 +80,7 @@
     flex-direction: row
     flex-wrap: wrap
     justify-content: space-around
-    padding-top: 5px
+    padding-top: 10px
 
 
 
@@ -322,6 +322,13 @@
       color: $link-color
       font-size: 17px
       padding-right: 5px
+      
+#source-indicator-text
+  // content: "\a"
+  // white-space: pre
+  font-size: 12px
+  color: $app-color
+  
 </style>
 
 <style lang="css">
@@ -335,13 +342,12 @@
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
     <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:10px">
-      <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
+      <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left" style="display: inline-grid">
         <span class="pr-1" v-if="selectedVariantRelationship != 'proband'">
           <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
         </span>
 
-        Variant in {{ selectedGene.gene_name }}
-
+        <span>Variant in {{ selectedGene.gene_name }}</span>
 
 
       </div>
@@ -416,6 +422,9 @@
 
     </div>
 
+    <span id="source-indicator-text" class="chart-label" v-if="launchedFromClin && selectedGene.gene_name">
+      {{ sourceIndicatorLabel }}
+    </span>
 
 
     <div class="variant-inspect-body">
@@ -762,7 +771,8 @@ export default {
     info: null,
     coverageDangerRegions: null,
     user: null,
-    showAssessment: null
+    showAssessment: null,
+    launchedFromClin: null,
   },
   data() {
     return {
@@ -1600,6 +1610,15 @@ export default {
           }
 
         }
+      }
+    },
+    sourceIndicatorLabel: function() {
+      if(this.launchedFromClin) {
+        let label = "Variants defined in ";
+        let gene_name = this.selectedGene.gene_name;
+        let source = this.cohortModel.geneModel.getSourceForGenes()[gene_name].source.join(", ");
+        label += source
+        return label;
       }
     }
   },
