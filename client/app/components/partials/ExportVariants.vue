@@ -75,6 +75,7 @@
        Export flagged variants
       </v-card-title>
       <v-card-text class="variant-file-body">
+        Export all variants in the left panel
         <div id="save-format" >
           <v-radio-group hide-details v-model="exportFormat" >
                 <v-radio label="Comma separated" value="csv"></v-radio>
