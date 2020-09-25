@@ -480,6 +480,7 @@ main.content.clin, main.v-content.clin
         :isMother="isMother"
         :isFather="isFather"
         :geneLists="geneLists"
+        :launchedFromClin="launchedFromClin"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-outside-click="onCohortVariantOutsideClick"
         @cohort-variant-hover="onCohortVariantHover"

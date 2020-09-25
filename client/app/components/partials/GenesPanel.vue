@@ -191,7 +191,7 @@
       </div>
     </div>
 
-    <div>
+    <div v-if="launchedFromClin">
       <div style="margin-left: 82%">
         Source
       </div>
@@ -343,7 +343,9 @@ export default {
       this.$emit('remove-gene', geneName);
     },
     getGeneSource: function(gene) {
-      return this.geneModel.getSourceForGenes()[gene].sourceIndicator.join(", ")
+      if(this.launchedFromClin) {
+        return this.geneModel.getSourceForGenes()[gene].sourceIndicator.join(", ")
+      }
     }
 
   },

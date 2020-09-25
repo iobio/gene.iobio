@@ -445,7 +445,7 @@
         v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0">
           called variants
         </div>
-        <span class="chart-label" v-if="selectedGene.gene_name">
+        <span class="chart-label" v-if="launchedFromClin && selectedGene.gene_name">
           {{ sourceIndicatorLabel }}
         </span> 
         <variant-viz id="called-variant-viz"
@@ -695,6 +695,7 @@ export default {
 
     blacklistedGeneSelected: false,  // True if selected gene falls in SFARI ACMG blacklist
     geneLists: null,
+    launchedFromClin: null,
 
   },
 
@@ -1310,11 +1311,13 @@ export default {
       return label;
     },
     sourceIndicatorLabel: function() {
-      let label = "Variants defined in ";
-      let gene_name = this.selectedGene.gene_name;
-      let source = this.sampleModel.cohort.geneModel.getSourceForGenes()[gene_name].source.join(", ");
-      label += source
-      return label;
+      if(this.launchedFromClin) {
+        let label = "Variants defined in ";
+        let gene_name = this.selectedGene.gene_name;
+        let source = this.sampleModel.cohort.geneModel.getSourceForGenes()[gene_name].source.join(", ");
+        label += source
+        return label;
+      }
     }
   },
 
@@ -1343,7 +1346,6 @@ export default {
 
   mounted: function() {
     this.relationship = this.sampleModel.relationship;
-    console.log("sampleModel.cohort.geneModel", this.sampleModel.cohort.geneModel.getSourceForGenes());
   },
 
   created: function() {

@@ -309,7 +309,7 @@
 
   </a>
 
-  <span class="ml-4" style="position: absolute">
+  <span class="ml-4" style="position: absolute" v-if="launchedFromClin">
     {{ geneSource }}
   </span>
 
