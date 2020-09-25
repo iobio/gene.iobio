@@ -116,6 +116,7 @@ export default class VariantExporter {
 
             records.push(record);
           } else if (format == 'vcf') {
+            console.log("data", data);
             var annotatedVcfRecs = data[1];
             var theHeaderRecords = null;
             if ((record.hasOwnProperty('fbCalled')        && record.fbCalled == 'Y') ||
@@ -126,6 +127,7 @@ export default class VariantExporter {
             }
 
             if (theHeaderRecords.length == 0) {
+              console.log("annotatedVcfRecs", annotatedVcfRecs);
               annotatedVcfRecs.forEach(function(vcfRecord) {
                 if (vcfRecord.indexOf("#") == 0) {
                   theHeaderRecords.push(vcfRecord);
@@ -141,8 +143,9 @@ export default class VariantExporter {
           }
         })
         .catch(function(error) {
-          var msg = "Cannot produce export record for variant <code>" + exportRec.gene + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + "</code> Try refreshing the page.";
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+          console.log("exportRec", exportRec)
+          var msg = "Cannot produce export record for variant <code>" + exportRec.geneName + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + "</code>";
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>")
             .setHeader("Non-fatal Error");
           console.log(msg, error);
         });

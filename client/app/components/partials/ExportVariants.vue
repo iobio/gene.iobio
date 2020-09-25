@@ -4,36 +4,36 @@
 
 
 .variant-file-body
-  padding-top: 0px
+  padding-top: 0
   padding-bottom: 18px
   margin-bottom: 20px
   margin-top: 20px
 
   .v-input--radio-group__input
     label
-      margin-bottom: 0px
+      margin-bottom: 0
 
   .radio-group.radio-group--column
-    margin-top: 0px
-    padding-top: 0px
-    padding-bottom: 0px
+    margin-top: 0
+    padding-top: 0
+    padding-bottom: 0
 
     >.input-group__input
-      margin-top: 0px
+      margin-top: 0
 
   .input-group--select
     .input-group__selections__comma
       font-size: 14px
-      padding: 0px 0px 0px 0px
+      padding: 0 0 0 0
 
-  .input-group, .v-input--radio-group 
+  .input-group, .v-input--radio-group
     label
       font-size: 14px
       line-height: 20px
       height: 20px
 
   .input-group__input
-    min-height: 0px
+    min-height: 0
     margin-top: 10px
 
   .input-group__input
@@ -48,18 +48,15 @@
     height: 24px
     .input-group__input
       .icon--selection-control
-        height: 0px
+        height: 0
 
 .variant-file-button
   color: $text-color !important
   height: 28px
   margin-top: 10px
   margin-bottom: 10px
-  margin-left: 0px
-  padding-left: 0px
-  padding-right: 0px
-  padding-top: 0px
-  padding-bottom: 0px
+  margin-left: 0
+  padding: 0
 
 
   i.material-icons
@@ -75,7 +72,7 @@
 
     <v-card class="full-width">
       <v-card-title class="headline">
-       Save variants file
+       Export flagged variants
       </v-card-title>
       <v-card-text class="variant-file-body">
         <div id="save-format" >
@@ -88,22 +85,22 @@
         <div style="text-align:center;margin-top:10px"
           v-if="exportInProgress" >
             <img style="width:22px;height:22px"
-                 class="loader  glyph" src="../../../assets/images/wheel.gif"/>
+                 class="loader  glyph" src="../../../assets/images/wheel.gif" alt="Loading Wheel"/>
             Saving variants to file...
         </div>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
-          v-if="!readyToDownload"
+            v-show="!exportInProgress"
           class="variant-file-button" raised @click="onSaveFile">
           <v-icon>save</v-icon>
           Save
         </v-btn>
         <a id="download-file"
-        v-bind:class="(!readyToDownload ? 'hide' : '') + ' btn variant-file-button'"
+        v-show="false"
         download="gene-iobio-variants.csv" href="#">
-          <i class="material-icons" style="padding-right:0px;font-size:20px">file_download</i>
+          <i class="material-icons" style="padding-right:0;font-size:20px">file_download</i>
           <span style="padding-right:8px">Download file</span>
         </a>
         <v-btn class="variant-file-button" raised @click="onClose">Close</v-btn>
@@ -156,6 +153,7 @@ export default {
           output,
           "gene-iobio-flagged-variants." + self.exportFormat );
         self.readyToDownload = true;
+        document.getElementById('download-file').click();
       })
     },
     onClose: function() {
