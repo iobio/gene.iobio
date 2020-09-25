@@ -1880,16 +1880,17 @@ class GeneModel {
       if(self.genesAssociatedWithSource[gene] === undefined){
         self.genesAssociatedWithSource[gene] = {
           "source": [sourceMap[source]],
-          "sourceIndicator": [sourceIndicatorMap[source]]
+          "sourceIndicator": [sourceIndicatorMap[source]],
         }
       }
       else {
-        if(!self.genesAssociatedWithSource[gene].source.includes(source)){
+        if(!self.genesAssociatedWithSource[gene].source.includes(sourceMap[source])){
           self.genesAssociatedWithSource[gene].source.push(sourceMap[source])
           self.genesAssociatedWithSource[gene].sourceIndicator.push(sourceIndicatorMap[source])
         }
       }
     })
+    console.log("self.genesAssociatedWithSource", self.genesAssociatedWithSource);
   }
   
   getSourceForGenes() {
