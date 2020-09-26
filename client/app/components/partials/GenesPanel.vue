@@ -216,7 +216,7 @@
       </gene-badge>
     </div>
 
-    <div class="source-expansion-panel">
+    <div class="source-expansion-panel" v-if="launchedFromClin">
       <v-expansion-panel expand v-model="expansionControl">
         <v-expansion-panel-content
         >

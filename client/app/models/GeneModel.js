@@ -1890,7 +1890,6 @@ class GeneModel {
         }
       }
     })
-    console.log("self.genesAssociatedWithSource", self.genesAssociatedWithSource);
   }
   
   getSourceForGenes() {

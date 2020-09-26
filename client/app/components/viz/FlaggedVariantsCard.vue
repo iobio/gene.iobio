@@ -502,7 +502,13 @@
       margin-left: 0px
 
 
-
+.variant-source-indicator
+  display: inline-block
+  width: 260px
+  line-height: 14px
+  vertical-align: top
+  font-size: 13px
+  white-space: normal
 
 </style>
 
@@ -667,6 +673,9 @@
 
                     </div>
                     <div style="line-height:12px">
+                      <div v-if="launchedFromClin && flaggedGene.gene.gene_name">
+                        <span class="variant-source-indicator"> Source id: {{ getVariantSource(flaggedGene.gene.gene_name)}}</span>
+                      </div>
                       <div  v-if="!isBasicMode && !variant.notFound"
                       style="display:inline-block">
                         <span class="vep-consequence">
@@ -727,6 +736,25 @@
       </v-list>
     </v-expansion-panel-content>
   </v-expansion-panel>
+  
+  <v-expansion-panel v-if="launchedFromClin" expand v-model="variantExpansionControl">
+    <v-expansion-panel-content
+    >
+      <template v-slot:header>
+        <div>Sources</div>
+      </template>
+      <v-card>
+        <v-card-text>
+            <div class="chart-label">
+              1. Variants defined in imported set 
+              <br>
+              2. Gene list generated from phenotypes
+            </div>
+        </v-card-text>
+      </v-card>
+    </v-expansion-panel-content>
+  </v-expansion-panel>
+
   </v-card>
 
   <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
@@ -799,6 +827,7 @@ export default {
       editAddText: 'Edit',
       showPopup: false,
       selectedGeneList: null,
+      variantExpansionControl: [true]
     }
   },
   methods: {
@@ -1204,6 +1233,14 @@ export default {
         }
       }
       return buf;
+    },
+    getVariantSource: function(geneName) {
+      if(this.launchedFromClin) {
+        let label = "";
+        let source = this.cohortModel.geneModel.getSourceForGenes()[geneName].sourceIndicator.join(", ")
+        label += source
+        return label;
+      }
     },
 
     capitalize: function(buf) {
