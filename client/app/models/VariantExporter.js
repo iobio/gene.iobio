@@ -108,7 +108,6 @@ export default class VariantExporter {
         exportRec.starred      = variant.isFavorite == true ? "Y" : "";
 
         var promise = null;
-        console.log("variant", variant);
         promise = me._promiseCreateExportRecord(variant, exportRec, format, getHeader, sampleNames)
         .then(function(data) {
           var record = data[0];
@@ -117,7 +116,6 @@ export default class VariantExporter {
 
             records.push(record);
           } else if (format == 'vcf') {
-            console.log("data", data);
             var annotatedVcfRecs = data[1];
             var theHeaderRecords = null;
             if ((record.hasOwnProperty('fbCalled')        && record.fbCalled == 'Y') ||
@@ -128,7 +126,6 @@ export default class VariantExporter {
             }
 
             if (theHeaderRecords.length == 0) {
-              console.log("annotatedVcfRecs", annotatedVcfRecs);
               annotatedVcfRecs.forEach(function (vcfRecord) {
                 if (vcfRecord.indexOf("#") == 0) {
                   theHeaderRecords.push(vcfRecord);
@@ -144,7 +141,6 @@ export default class VariantExporter {
           }
         })
         .catch(function(error) {
-          console.log("exportRec", exportRec)
           var msg = "Cannot produce export record for variant <code>" + exportRec.geneName + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + "</code>";
           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>")
             .setHeader("Non-fatal Error");
@@ -394,7 +390,6 @@ export default class VariantExporter {
 
                   if (format == 'vcf') {
                     theVcfRecs = me._formatJointVcfRecs(jointVcfRecs, sourceVariant);
-                    console.log("thevcfRecs", theVcfRecs);
                   }
 
                   var sampleNamesToGenotype = me.cohort.getProbandModel().getSampleNamesToGenotype();
@@ -410,10 +405,8 @@ export default class VariantExporter {
                       theVariant = v;
                     }
                   });
-                  console.log("exportRec", exportRec)
                   me._promiseFormatRecord(theVariant, sourceVariant, theVcfRecs, theGeneObject, theTranscript, format, exportRec)
                   .then(function(data) {
-                    debugger;
                     resolve(data);
                   })
               });
