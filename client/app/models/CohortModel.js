@@ -2360,7 +2360,7 @@ class CohortModel {
     // So first, cache all of the gene objects for the imported variants
     var promises = []
 
-    // Workaround - some older saved analysis had empty variant 
+    // Workaround - some older saved analysis had empty variant
     // records. Bypass these.
     importRecords = importRecords.filter(function(ir) {
       if (ir == null) {
@@ -2376,6 +2376,9 @@ class CohortModel {
       // object, sometimes a gene name.  Other times
       // variant.geneName is filled in instead
       // of variant.gene.
+
+      console.log("ir.geneName", ir, ir.gene, ir.geneName);
+
       if (ir.gene == null && ir.geneName) {
         if (isObject(ir.geneName)) {
           ir.gene  = ir.geneName.gene_name
@@ -2388,10 +2391,18 @@ class CohortModel {
         }
       }
 
+
+
+
       if (ir.gene == null) {
+
         console.log("Bypassing import record. Unable to find gene on imported variant ")
-        console.log(ir)
       } else {
+        console.log("ir.geneName", ir.gene);
+        if(ir.gene && fileType === 'csv'){
+          console.log("adding gene name", ir.gene);
+          me.geneModel.promiseAddGeneName(ir.gene);
+        }
         var theGeneObject = me.geneModel.geneObjects[ir.gene];
         if (theGeneObject == null || !ir.transcript || ir.transcript == '') {
           var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true)
@@ -2403,6 +2414,7 @@ class CohortModel {
           promises.push(promise);
         }
       }
+
     })
 
     // Now that all of the gene objects have been cached, we can fill in the
@@ -2507,7 +2519,7 @@ class CohortModel {
           }
         })
       }
-      
+
       if (theTranscript) {
         uniqueTranscripts[theTranscript.transcript_id] = theTranscript;
       }
@@ -2600,7 +2612,7 @@ class CohortModel {
 
         })
         dataPromises.push(dataPromise);
-      }        
+      }
 
 
 
