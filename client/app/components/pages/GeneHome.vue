@@ -2622,6 +2622,7 @@ export default {
 
       }
       else if (self.phenotypeTerm && existingGeneCount > 0 && existingPhenotypeTerm !== self.phenotypeTerm) {
+        options.replace = true;
         doIt();
       } 
       else {

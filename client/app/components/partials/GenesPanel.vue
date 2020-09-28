@@ -191,7 +191,7 @@
 
     <div v-if="launchedFromClin">
       <div style="margin-left: 82%">
-        Source
+        Sources
       </div>
     </div>
     <div id="gene-badge-container" class="level-basic" style="clear:both;">

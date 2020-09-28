@@ -674,7 +674,7 @@
                     </div>
                     <div style="line-height:12px">
                       <div v-if="launchedFromClin && flaggedGene.gene.gene_name">
-                        <span class="variant-source-indicator"> Source id: {{ getVariantSource(flaggedGene.gene.gene_name)}}</span>
+                        <span class="variant-source-indicator"> Source #: {{ getVariantSource(flaggedGene.gene.gene_name)}}</span>
                       </div>
                       <div  v-if="!isBasicMode && !variant.notFound"
                       style="display:inline-block">
