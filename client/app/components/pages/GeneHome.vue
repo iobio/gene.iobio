@@ -480,6 +480,7 @@ main.content.clin, main.v-content.clin
         :isMother="isMother"
         :isFather="isFather"
         :geneLists="geneLists"
+        :launchedFromClin="launchedFromClin"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-outside-click="onCohortVariantOutsideClick"
         @cohort-variant-hover="onCohortVariantHover"
@@ -550,6 +551,7 @@ main.content.clin, main.v-content.clin
           :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
           :user="user"
           :showAssessment="hasVariantAssessment || showVariantAssessment"
+          :launchedFromClin="launchedFromClin"
           @show-pileup-for-variant="onShowPileupForVariant"
           @apply-variant-interpretation="onApplyVariantInterpretation"
           @apply-variant-notes="onApplyVariantNotes"
@@ -2621,19 +2623,8 @@ export default {
 
       }
       else if (self.phenotypeTerm && existingGeneCount > 0 && existingPhenotypeTerm !== self.phenotypeTerm) {
-        let msg = "This will update the gene list with  the following " + genesToApplyCount + " genes <br>'" + self.phenotypeTerm + "'.";
-        alertify.confirm("",
-          msg,
-          function () {
-            // ok
-            options.replace = true;
-            doIt();
-          },
-          function() {
-            // cancel
-          }
-        ).set('labels', {ok:'Ok', cancel:'Cancel'});
-
+        options.replace = true;
+        doIt();
       } 
       else {
         doIt();
@@ -3626,12 +3617,11 @@ export default {
           }
           self.geneModel.setCandidateGenes(geneArr);
         })
+        
+        self.geneModel.setSourceForGenes(clinObject.selectedPhenotypeGenes, "phenotype_gene_list")
 
         let options = {isFromClin: true, phenotypes: new_genes};
         self.onApplyGenes(new_genes.join(), options);
-        // new_genes.map(gene => {
-        //   self.onGeneNameEntered(gene)
-        // })
       }
       let responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), this.clinIobioUrl);
@@ -3849,7 +3839,8 @@ export default {
           }
 
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
-
+          self.geneModel.setSourceForGenes(self.clinSetData.genes, "imported_gene");
+          
           setTimeout(function() {
             if (self.geneModel && self.geneModel.sortedGeneNames &&
               self.geneModel.sortedGeneNames.length > 0) {
