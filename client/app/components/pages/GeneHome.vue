@@ -2625,7 +2625,7 @@ export default {
       else if (self.phenotypeTerm && existingGeneCount > 0 && existingPhenotypeTerm !== self.phenotypeTerm) {
         options.replace = true;
         doIt();
-      } 
+      }
       else {
         doIt();
       }
@@ -3609,7 +3609,7 @@ export default {
           }
         }
       } else if(clinObject.type == 'add-new-genes') {
-        let new_genes = clinObject.new_genes; 
+        let new_genes = clinObject.new_genes;
         new_genes.map(gene => {
           let geneArr = self.geneModel.getCandidateGenes();
           if(!geneArr.includes(gene)){
@@ -3617,7 +3617,7 @@ export default {
           }
           self.geneModel.setCandidateGenes(geneArr);
         })
-        
+
         self.geneModel.setSourceForGenes(clinObject.selectedPhenotypeGenes, "phenotype_gene_list")
 
         let options = {isFromClin: true, phenotypes: new_genes};
@@ -3840,7 +3840,7 @@ export default {
 
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
           self.geneModel.setSourceForGenes(self.clinSetData.genes, "imported_gene");
-          
+
           setTimeout(function() {
             if (self.geneModel && self.geneModel.sortedGeneNames &&
               self.geneModel.sortedGeneNames.length > 0) {
@@ -3930,8 +3930,7 @@ export default {
             }
           })
         })
-
-        if (self.launchedFromClin || (firstFlaggedVariant &&  getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name) || (firstFlaggedVariant && self.paramAnalysisId)) {
+        if (self.launchedFromClin || (firstFlaggedVariant && self.paramAnalysisId)) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
@@ -3942,19 +3941,14 @@ export default {
             })
           })
         }
-
-        else if(firstFlaggedVariant){
+        if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
           self.toClickVariant = firstFlaggedVariant;
           self.showLeftPanelWhenFlaggedVariants();
           self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
             resolve()
           })
         }
-
         else {
-          setTimeout(function() {
-            self.showLeftPanelForGenes();
-          },1000)
           resolve();
         }
 
