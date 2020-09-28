@@ -126,23 +126,23 @@ export default class VariantExporter {
             }
 
             if (theHeaderRecords.length == 0) {
-              annotatedVcfRecs.forEach(function(vcfRecord) {
+              annotatedVcfRecs.forEach(function (vcfRecord) {
                 if (vcfRecord.indexOf("#") == 0) {
                   theHeaderRecords.push(vcfRecord);
                 }
               })
+            }
               annotatedVcfRecs.forEach(function(vcfRecord) {
                 if (vcfRecord.indexOf("#") != 0) {
                   var newRec = me._appendVcfRecordAnnotations(vcfRecord, record);
                   records.push(newRec);
                 }
               });
-            }
           }
         })
         .catch(function(error) {
-          var msg = "Cannot produce export record for variant <code>" + exportRec.gene + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + "</code> Try refreshing the page.";
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+          var msg = "Cannot produce export record for variant <code>" + exportRec.geneName + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + "</code>";
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>")
             .setHeader("Non-fatal Error");
           console.log(msg, error);
         });
@@ -379,12 +379,12 @@ export default class VariantExporter {
 
               // Now perform joint calling on the alignments
               me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, trioVcfData, {sourceVariant: variant, checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
-              .then(function(data) {
-                  var theGeneObject1    = data.gene;
-                  var theTranscript1    = data.transcript;
-                  var jointVcfRecs      = data.jointVcfRecs;
-                  var translatedRefName = data.refName;
-                  var sourceVariant     = data.sourceVariant;
+              .then(function(jointData) {
+                  var theGeneObject1    = jointData.gene;
+                  var theTranscript1    = jointData.transcript;
+                  var jointVcfRecs      = jointData.jointVcfRecs;
+                  var translatedRefName = jointData.refName;
+                  var sourceVariant     = jointData.sourceVariant;
                   var theVariant = null;
                   var theVcfRecs = null;
 
@@ -404,7 +404,7 @@ export default class VariantExporter {
                       && v.alt    == sourceVariant.alt) {
                       theVariant = v;
                     }
-                  })
+                  });
                   me._promiseFormatRecord(theVariant, sourceVariant, theVcfRecs, theGeneObject, theTranscript, format, exportRec)
                   .then(function(data) {
                     resolve(data);
@@ -415,8 +415,6 @@ export default class VariantExporter {
 
 
           } else {
-
-            if (!variant.hasOwnProperty('extraAnnot') || !variant.extraAnnot) {
               me.cohort.getProbandModel()
                .promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variant, format, getHeader, sampleNames)
                .then(function(data) {
@@ -430,13 +428,7 @@ export default class VariantExporter {
                   })
 
               });
-             } else {
-                me.formatDisplay(variant, exportRec, format);
-                resolve([exportRec]);
-             }
           }
-
-
         } else {
           reject("Problem during exporting variants.  Cannot find transcript " + exportRec.transcript + " in gene " + exportRec.gene);
         }
