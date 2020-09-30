@@ -1618,6 +1618,12 @@ export default {
                   self.$refs.navRef.onShowVariantsTab();
                 })
               }
+              else if(self.launchedFromClin){
+                self.promiseSelectFirstFlaggedVariant()
+                    .then(function() {
+                      self.$refs.navRef.onShowVariantsTab();
+                    })
+              }
             }
           }
         });
@@ -1920,11 +1926,13 @@ export default {
       .then(function() {
         if(self.launchedFromFiles) {
           self.showLeftPanelForGenes();
+          self.promiseSelectFirstFlaggedVariant();
+
         }
         self.onSendGenesToClin();
         self.setUrlGeneParameters();
-
       })
+
     },
 
     onGeneClicked: function(geneName) {
@@ -2625,7 +2633,7 @@ export default {
       else if (self.phenotypeTerm && existingGeneCount > 0 && existingPhenotypeTerm !== self.phenotypeTerm) {
         options.replace = true;
         doIt();
-      } 
+      }
       else {
         doIt();
       }
@@ -3609,7 +3617,7 @@ export default {
           }
         }
       } else if(clinObject.type == 'add-new-genes') {
-        let new_genes = clinObject.new_genes; 
+        let new_genes = clinObject.new_genes;
         new_genes.map(gene => {
           let geneArr = self.geneModel.getCandidateGenes();
           if(!geneArr.includes(gene)){
@@ -3617,7 +3625,7 @@ export default {
           }
           self.geneModel.setCandidateGenes(geneArr);
         })
-        
+
         self.geneModel.setSourceForGenes(clinObject.selectedPhenotypeGenes, "phenotype_gene_list")
 
         let options = {isFromClin: true, phenotypes: new_genes};
@@ -3840,7 +3848,7 @@ export default {
 
           self.geneModel.setCandidateGenes(self.clinSetData.genes);
           self.geneModel.setSourceForGenes(self.clinSetData.genes, "imported_gene");
-          
+
           setTimeout(function() {
             if (self.geneModel && self.geneModel.sortedGeneNames &&
               self.geneModel.sortedGeneNames.length > 0) {
@@ -3903,6 +3911,7 @@ export default {
 
 
     promiseSelectFirstFlaggedVariant: function() {
+      console.log("promise flagg first selected variant");
       let self = this;
       if (self.selectedVariant) {
         self.onCohortVariantClick(self.selectedVariant, null, 'proband');
