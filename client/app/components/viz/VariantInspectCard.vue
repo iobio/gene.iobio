@@ -322,13 +322,13 @@
       color: $link-color
       font-size: 17px
       padding-right: 5px
-      
+
 #source-indicator-text
   // content: "\a"
   // white-space: pre
   font-size: 12px
   color: $app-color
-  
+
 </style>
 
 <style lang="css">
@@ -508,10 +508,10 @@
                     <span v-if="geneRank.source"> {{ geneRank.source }}</span>
                   </v-chip>
                   <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">
-                    {{ geneHit.searchTerm | firstCharacterUppercase }}
+                    {{ geneHit.searchTerm | firstCharacterToUppercase }}
                   </span>
                   <span v-else-if="geneRank.source==='HPO' && geneRank.hpoPhenotype" class="pheno-search-term">
-                    {{ geneRank.hpoPhenotype | firstCharacterUppercase }}
+                    {{ geneRank.hpoPhenotype | firstCharacterToUppercase }}
                   </span>
                 </div>
               </div>
@@ -1643,7 +1643,9 @@ export default {
   filters: {
 
     firstCharacterToUppercase(s) {
+      if(s){
       return s.charAt(0).toUpperCase() + s.slice(1)
+      }
     },
 
     showRelationship: function(buf) {
