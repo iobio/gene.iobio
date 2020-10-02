@@ -562,10 +562,7 @@
           @feature-selected="showExonTooltip">
         </gene-viz>
         <div class="other-samples" style="margin-top:0" v-for="model in otherModels" :key="model.relationship">
-          <div class="loader vcfloader" v-bind:class="{ hide: !model.inProgress.loadingVariants }" style="text-align: center; clear: both;width: 100%;display: inline-block;padding-top:5px; padding-bottom: 5px">
-            <span class="loader-label">Annotating variants</span>
-            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
-          </div>
+
           <div class="other-samples-header">
             <span class="chart-label"> {{ getSampleRelLabelOther(model) }}</span>
           </div>
@@ -596,6 +593,10 @@
             @variantHover="onVariantHoverOther"
             @variantHoverEnd="onVariantHoverEnd">
           </variant-viz>
+          <div class="loader vcfloader" v-bind:class="{ hide: !model.inProgress.loadingVariants }" style="text-align: center; clear: both;width: 100%;display: inline-block;padding-top:10px; padding-bottom: 5px">
+            <span class="loader-label">Annotating variants</span>
+            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
+          </div>
           <stacked-bar-chart-viz
             id="known-variants-chart"
             style="width:100%"
