@@ -565,6 +565,12 @@
           <div class="other-samples-header">
             <span class="chart-label"> {{ getSampleRelLabelOther(model) }}</span>
           </div>
+
+          
+          <div class="loader vcfloader" v-bind:class="{ hide: !model.inProgress.loadingVariants }" style="text-align: center; clear: both;width: 100%;display: inline-block;padding-bottom:10px">
+            <span class="loader-label">Annotating variants</span>
+            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
+          </div>
           <variant-viz
             :id="`loaded-variant-viz-` + model.relationship"
             v-bind:class="{hide: (model.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
