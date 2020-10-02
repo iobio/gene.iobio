@@ -3939,8 +3939,7 @@ export default {
             }
           })
         })
-
-        if (self.launchedFromClin || (firstFlaggedVariant &&  getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name) || (firstFlaggedVariant && self.paramAnalysisId)) {
+        if (self.launchedFromClin || (firstFlaggedVariant && self.paramAnalysisId)) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
@@ -3951,19 +3950,14 @@ export default {
             })
           })
         }
-
-        else if(firstFlaggedVariant){
+        if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
           self.toClickVariant = firstFlaggedVariant;
           self.showLeftPanelWhenFlaggedVariants();
           self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
             resolve()
           })
         }
-
         else {
-          setTimeout(function() {
-            self.showLeftPanelForGenes();
-          },1000)
           resolve();
         }
 
