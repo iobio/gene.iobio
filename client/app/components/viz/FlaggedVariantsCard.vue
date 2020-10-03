@@ -1270,7 +1270,6 @@ export default {
     },
     
     getSourceIndicatorBadge: function(gene_name) {
-      console.log("called getSourceIndicatorBadge and gene is ", gene_name);
       if(this.launchedFromClin){
         this.selectedGeneSources.source = this.cohortModel.geneModel.getSourceForGenes()[gene_name].source;
         this.selectedGeneSources.sourceIndicator = this.cohortModel.geneModel.getSourceForGenes()[gene_name].sourceIndicator;

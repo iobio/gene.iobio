@@ -190,8 +190,8 @@
     </div>
 
     <div v-if="launchedFromClin">
-      <div style="margin-left: 82%">
-        Sources
+      <div style="margin-left: 80%">
+        Source
       </div>
     </div>
     <div id="gene-badge-container" class="level-basic" style="clear:both;">

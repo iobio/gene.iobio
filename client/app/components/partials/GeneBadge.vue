@@ -316,8 +316,16 @@
 
   </div>
 
-  <span class="ml-3" style="position: absolute" v-if="launchedFromClin">
-    {{ geneSource }}
+  <span class="ml-1" style="position: absolute" v-if="launchedFromClin">
+    <span v-for="(source, idx) in selectedGeneSources.sourceIndicator" :key="idx">
+      <span
+        v-tooltip.top-center="`${selectedGeneSources.source[idx]}`"
+        class="mr-1">
+        <div left color="grey lighten-1" class="myBadge">
+          <span> {{ source }}</span>
+        </div>
+      </span>
+    </span>
   </span>
 
 
@@ -347,11 +355,15 @@ export default {
   },
   data () {
     return {
+      selectedGeneSources: {},
       // geneSource: null,
       // launchedFromClin: false
     }
   },
   watch: {
+    geneSource: function(){
+      this.getSourceIndicatorBadge(this.gene.name)
+    }
   },
   methods: {
     selectGene: function() {
@@ -396,7 +408,13 @@ export default {
     },
     hasCoverageProblem: function() {
       return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem;
-    }
+    },
+    getSourceIndicatorBadge: function(gene_name) {
+      if(this.launchedFromClin){
+        this.selectedGeneSources.source = this.geneModel.getSourceForGenes()[gene_name].source;
+        this.selectedGeneSources.sourceIndicator = this.geneModel.getSourceForGenes()[gene_name].sourceIndicator;
+      }
+    },
   },
   computed: {
     classObject: function () {
@@ -409,10 +427,12 @@ export default {
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
         'has-phenotypes':        false  //this.phenotypes && this.phenotypes.length > 0,
       }
-    }
+    },
+
 
   },
   mounted: function() {
+    this.getSourceIndicatorBadge(this.gene.name)
   }
 }
 
