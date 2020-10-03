@@ -762,23 +762,6 @@
     </v-expansion-panel-content>
   </v-expansion-panel>
   
-  <v-expansion-panel v-if="launchedFromClin" expand v-model="variantExpansionControl">
-    <v-expansion-panel-content
-    >
-      <template v-slot:header>
-        <div>Sources</div>
-      </template>
-      <v-card>
-        <v-card-text>
-            <div class="chart-label">
-              1. Variants defined in imported set 
-              <br>
-              2. Gene list generated from phenotypes
-            </div>
-        </v-card-text>
-      </v-card>
-    </v-expansion-panel-content>
-  </v-expansion-panel>
 
   </v-card>
 

@@ -162,6 +162,18 @@
 
   visibility: hidden
 
+.myBadge
+  background-color: #efeeee 
+  border-radius: 90px 
+  height: 16px
+  color: #717171 
+  margin-left: 1px 
+  text-align: center 
+  vertical-align: middle
+  width: 16px
+  display: inline-block
+  font-size: 11px
+  font-family: raleway
 </style>
 
 <template>
