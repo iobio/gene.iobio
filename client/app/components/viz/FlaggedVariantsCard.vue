@@ -687,7 +687,6 @@
                     </div>
                     <div style="line-height:12px">
                       <div v-if="launchedFromClin && flaggedGene.gene.gene_name">
-                        <span class="variant-source-indicator"> Source #: {{ getVariantSource(flaggedGene.gene.gene_name)}}</span>
                         <div>
                           <span id="source-indicator-text" class="chart-label">Source: </span>
                           <span v-for="(source, idx) in getSourceIndicatorBadge(flaggedGene.gene.gene_name)" :key="idx">
