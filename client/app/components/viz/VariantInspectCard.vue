@@ -441,8 +441,7 @@
         <span v-for="(source, idx) in getSourceIndicatorBadge" :key="idx">
           <span
             v-tooltip.top-center="`${selectedGeneSources.source[idx]}`"
-            class="ml-1 mr-1"
-          >
+            class="ml-1 mr-1">
             <div left color="grey lighten-1" class="myBadge">
               <span> {{ source }}</span>
             </div>

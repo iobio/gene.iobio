@@ -510,6 +510,19 @@
   font-size: 13px
   white-space: normal
 
+.source-indicator-badge
+  background-color: #efeeee 
+  border-radius: 90px 
+  height: 16px
+  color: #717171 
+  margin-left: 1px 
+  text-align: center 
+  vertical-align: middle
+  width: 16px
+  display: inline-block
+  font-size: 11px
+  font-family: raleway
+  padding-top: 2px
 </style>
 
 <template>
@@ -675,6 +688,18 @@
                     <div style="line-height:12px">
                       <div v-if="launchedFromClin && flaggedGene.gene.gene_name">
                         <span class="variant-source-indicator"> Source #: {{ getVariantSource(flaggedGene.gene.gene_name)}}</span>
+                        <div>
+                          <span id="source-indicator-text" class="chart-label">Source: </span>
+                          <span v-for="(source, idx) in getSourceIndicatorBadge(flaggedGene.gene.gene_name)" :key="idx">
+                            <span
+                              v-tooltip.top-center="`${selectedGeneSources.source[idx]}`"
+                              class="ml-1 mr-1">
+                              <div left color="grey lighten-1" class="source-indicator-badge">
+                                <span> {{ source }}</span>
+                              </div>
+                            </span>
+                          </span>
+                        </div>
                       </div>
                       <div  v-if="!isBasicMode && !variant.notFound"
                       style="display:inline-block">
@@ -827,7 +852,8 @@ export default {
       editAddText: 'Edit',
       showPopup: false,
       selectedGeneList: null,
-      variantExpansionControl: [true]
+      variantExpansionControl: [true],
+      selectedGeneSources: {},
     }
   },
   methods: {
@@ -1240,6 +1266,15 @@ export default {
         let source = this.cohortModel.geneModel.getSourceForGenes()[geneName].sourceIndicator.join(", ")
         label += source
         return label;
+      }
+    },
+    
+    getSourceIndicatorBadge: function(gene_name) {
+      console.log("called getSourceIndicatorBadge and gene is ", gene_name);
+      if(this.launchedFromClin){
+        this.selectedGeneSources.source = this.cohortModel.geneModel.getSourceForGenes()[gene_name].source;
+        this.selectedGeneSources.sourceIndicator = this.cohortModel.geneModel.getSourceForGenes()[gene_name].sourceIndicator;
+        return this.cohortModel.geneModel.getSourceForGenes()[gene_name].sourceIndicator;
       }
     },
 
