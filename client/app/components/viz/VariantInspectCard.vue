@@ -329,6 +329,18 @@
   font-size: 12px
   color: $app-color
 
+.myBadge
+  background-color: #efeeee 
+  border-radius: 90px 
+  height: 16px
+  color: #717171 
+  margin-left: 1px 
+  text-align: center 
+  vertical-align: middle
+  width: 16px
+  display: inline-block
+  font-size: 11px
+  font-family: raleway
 </style>
 
 <style lang="css">
@@ -422,8 +434,20 @@
 
     </div>
 
-    <span id="source-indicator-text" class="chart-label" v-if="launchedFromClin && selectedGene.gene_name">
-      {{ sourceIndicatorLabel }}
+    
+    <span v-if="launchedFromClin && selectedGene.gene_name">
+      <div>
+        <span id="source-indicator-text" class="chart-label">Source: </span>
+        <span v-for="(source, idx) in getSourceIndicatorBadge" :key="idx">
+          <span
+            v-tooltip.top-center="`${selectedGeneSources.source[idx]}`"
+            class="ml-1 mr-1">
+            <div left color="grey lighten-1" class="myBadge">
+              <span> {{ source }}</span>
+            </div>
+          </span>
+        </span>
+      </div>
     </span>
 
 
@@ -829,6 +853,7 @@ export default {
 
       enterCommentsClicked: false,
       showMoreGeneAssociationsDialog: false,
+      selectedGeneSources: {},
     }
   },
 
@@ -1619,6 +1644,14 @@ export default {
         let source = this.cohortModel.geneModel.getSourceForGenes()[gene_name].source.join(", ");
         label += source
         return label;
+      }
+    },
+    
+    getSourceIndicatorBadge: function() {
+      if(this.launchedFromClin){
+        this.selectedGeneSources.source = this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].source;
+        this.selectedGeneSources.sourceIndicator = this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].sourceIndicator;
+        return this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].sourceIndicator;
       }
     }
   },

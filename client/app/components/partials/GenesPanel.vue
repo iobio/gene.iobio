@@ -190,8 +190,8 @@
     </div>
 
     <div v-if="launchedFromClin">
-      <div style="margin-left: 82%">
-        Sources
+      <div style="margin-left: 80%">
+        Source
       </div>
     </div>
     <div id="gene-badge-container" class="level-basic" style="clear:both;">
@@ -216,25 +216,6 @@
       </gene-badge>
     </div>
 
-    <div class="source-expansion-panel" v-if="launchedFromClin">
-      <v-expansion-panel expand v-model="expansionControl">
-        <v-expansion-panel-content
-        >
-          <template v-slot:header>
-            <div>Source</div>
-          </template>
-          <v-card>
-            <v-card-text>
-                <div class="chart-label">
-                  1. Variants defined in imported set 
-                  <br>
-                  2. Gene list generated from phenotypes
-                </div>
-            </v-card-text>
-          </v-card>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </div>
 
   </div>
 </template>
