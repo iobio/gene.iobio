@@ -3204,13 +3204,11 @@ export default {
     onCoverageThresholdApplied: function() {
       let self = this;
 
-        self.refreshCoverageCounts();
-        if (self.selectedGene && self.selectedGene.gene_name) {
-          self.onGeneSelected(self.selectedGene.gene_name);
-        }
-        if (self.launchedFromClin) {
-          self.onSendFiltersToClin();
-        }
+      self.onAnalyzeAll();
+      setTimeout(function(){
+        self.onAnalyzeAll();
+        self.showLeftPanelWhenFlaggedVariantsForGene();
+      }, 3000)
     },
     onLeftDrawer: function(isOpen) {
       if (!this.isEduMode) {
