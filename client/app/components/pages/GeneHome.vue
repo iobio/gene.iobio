@@ -866,7 +866,6 @@ export default {
   data() {
     let self = this;
     return {
-      reAnalyze: false,
       hasVariantAssessment: false,
       geneVizMargin: {
         top: 0,
@@ -1613,25 +1612,9 @@ export default {
                 self.showLeftPanelForGenes();
               }
             } else {
-              console.log("reAnalyze", self.reAnalyze);
-              if(self.reAnalyze){
-                self.onAnalyzeAll();
-                self.reAnalyze = false;
-              }
               self.refreshCoverageCounts();
+              self.promiseSelectFirstFlaggedVariant();
               self.cohortModel.cacheHelper.refreshGeneBadges();
-              if (self.selectedVariant == null) {
-                self.promiseSelectFirstFlaggedVariant()
-                .then(function() {
-                  self.$refs.navRef.onShowVariantsTab();
-                })
-              }
-              else if(self.launchedFromClin){
-                self.promiseSelectFirstFlaggedVariant()
-                    .then(function() {
-                      self.$refs.navRef.onShowVariantsTab();
-                    })
-              }
             }
           }
         });
@@ -3171,7 +3154,7 @@ export default {
     onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
       this.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
     },
-    onFilterSettingsApplied: function() {
+    onFilterSettingsApplied: function(stashedVariant) {
       let self = this;
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
         if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
@@ -3181,6 +3164,11 @@ export default {
         self.refreshCoverageCounts();
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.onGeneSelected(self.selectedGene.gene_name);
+        }
+        console.log("stashedVariant in on filter settings applied renewed", stashedVariant);
+
+        if(stashedVariant) {
+          self.onCohortVariantClick(stashedVariant, null, 'proband');
         }
 
         if (self.launchedFromClin) {
@@ -3212,9 +3200,8 @@ export default {
     onCoverageThresholdApplied: function() {
       let self = this;
 
-      self.reAnalyze = true;
-      self.onFilterSettingsApplied();
-
+      let stashedVariant = self.selectedVariant
+      self.onFilterSettingsApplied(stashedVariant);
     },
     onLeftDrawer: function(isOpen) {
       if (!this.isEduMode) {
@@ -3918,6 +3905,7 @@ export default {
       console.log("promise flagg first selected variant", this.selectedVariant);
       let self = this;
       if (self.selectedVariant) {
+        console.log("onCohortVariantCLick");
         self.onCohortVariantClick(self.selectedVariant, null, 'proband');
         return Promise.resolve();
       }
@@ -3943,7 +3931,9 @@ export default {
             }
           })
         })
-        if (self.launchedFromClin || (firstFlaggedVariant && self.paramAnalysisId)) {
+        console.log("firstFlaggedVariant", firstFlaggedVariant);
+        if (self.launchedFromClin || (firstFlaggedVariant)) {
+          console.log("if");
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
@@ -3954,8 +3944,8 @@ export default {
             })
           })
         }
-        // if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
-        else if(true){
+        else if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
+          console.log("elseIf")
           self.toClickVariant = firstFlaggedVariant;
           self.showLeftPanelWhenFlaggedVariants();
           console.log("else first flagged variant clicked");
