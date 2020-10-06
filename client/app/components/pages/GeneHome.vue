@@ -1613,7 +1613,10 @@ export default {
               }
             } else {
               self.refreshCoverageCounts();
-              self.promiseSelectFirstFlaggedVariant();
+              if(!self.selectedVariant){
+                console.log("self.selectedVariant in onAddCacheListeners", self.selectedVariant);
+                self.promiseSelectFirstFlaggedVariant();
+              }
               self.cohortModel.cacheHelper.refreshGeneBadges();
             }
           }
@@ -3932,7 +3935,7 @@ export default {
           })
         })
         console.log("firstFlaggedVariant", firstFlaggedVariant);
-        if (self.launchedFromClin || (firstFlaggedVariant)) {
+        if (self.launchedFromClin || (self.paramAnalysisId && firstFlaggedVariant)) {
           console.log("if");
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
@@ -3945,15 +3948,14 @@ export default {
           })
         }
         else if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
-          console.log("elseIf")
           self.toClickVariant = firstFlaggedVariant;
           self.showLeftPanelWhenFlaggedVariants();
-          console.log("else first flagged variant clicked");
           self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
             resolve()
           })
         }
         else {
+          self.showLeftPanelWhenFlaggedVariants();
           resolve();
         }
 
