@@ -1619,7 +1619,7 @@ export default {
                 self.reAnalyze = false;
               }
               self.refreshCoverageCounts();
-              self.refreshGeneBadges();
+              self.cohortModel.cacheHelper.refreshGeneBadges();
               if (self.selectedVariant == null) {
                 self.promiseSelectFirstFlaggedVariant()
                 .then(function() {
@@ -3915,7 +3915,7 @@ export default {
 
 
     promiseSelectFirstFlaggedVariant: function() {
-      console.log("promise flagg first selected variant");
+      console.log("promise flagg first selected variant", this.selectedVariant);
       let self = this;
       if (self.selectedVariant) {
         self.onCohortVariantClick(self.selectedVariant, null, 'proband');
@@ -3954,9 +3954,11 @@ export default {
             })
           })
         }
-        if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
+        // if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
+        else if(true){
           self.toClickVariant = firstFlaggedVariant;
           self.showLeftPanelWhenFlaggedVariants();
+          console.log("else first flagged variant clicked");
           self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
             resolve()
           })
