@@ -1614,8 +1614,9 @@ export default {
             } else {
               self.refreshCoverageCounts();
               if(!self.selectedVariant){
-                console.log("self.selectedVariant in onAddCacheListeners", self.selectedVariant);
+                setTimeout(function(){
                 self.promiseSelectFirstFlaggedVariant();
+                }, 2000);
               }
               self.cohortModel.cacheHelper.refreshGeneBadges();
             }
@@ -3168,8 +3169,6 @@ export default {
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.onGeneSelected(self.selectedGene.gene_name);
         }
-        console.log("stashedVariant in on filter settings applied renewed", stashedVariant);
-
         if(stashedVariant) {
           self.onCohortVariantClick(stashedVariant, null, 'proband');
         }
@@ -3905,10 +3904,8 @@ export default {
 
 
     promiseSelectFirstFlaggedVariant: function() {
-      console.log("promise flagg first selected variant", this.selectedVariant);
       let self = this;
       if (self.selectedVariant) {
-        console.log("onCohortVariantCLick");
         self.onCohortVariantClick(self.selectedVariant, null, 'proband');
         return Promise.resolve();
       }
@@ -3934,9 +3931,7 @@ export default {
             }
           })
         })
-        console.log("firstFlaggedVariant", firstFlaggedVariant);
-        if (self.launchedFromClin || (self.paramAnalysisId && firstFlaggedVariant)) {
-          console.log("if");
+        if (self.launchedFromClin || (self.paramAnalysisId && firstFlaggedVariant) || (self.paramVariantSetId && firstFlaggedVariant)) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
