@@ -3202,8 +3202,19 @@ export default {
     onCoverageThresholdApplied: function() {
       let self = this;
 
-      let stashedVariant = self.selectedVariant
-      self.onFilterSettingsApplied(stashedVariant);
+      if(self.paramVariantSetId){
+        self.refreshCoverageCounts();
+        if (self.selectedGene && self.selectedGene.gene_name) {
+          self.onGeneSelected(self.selectedGene.gene_name);
+        }
+        if (self.launchedFromClin) {
+          self.onSendFiltersToClin();
+        }
+      }
+      else {
+        let stashedVariant = self.selectedVariant
+        self.onFilterSettingsApplied(stashedVariant);
+      }
     },
     onLeftDrawer: function(isOpen) {
       if (!this.isEduMode) {
