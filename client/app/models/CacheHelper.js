@@ -272,6 +272,7 @@ CacheHelper.prototype._analyzeAllImpl = function(geneNames, analyzeCalledVariant
 
     me.cohort.geneModel.sortGenes("harmful variants");
 
+    console.log
     me.dispatch.analyzeAllCompleted();
 
     console.log("");

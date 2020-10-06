@@ -866,6 +866,7 @@ export default {
   data() {
     let self = this;
     return {
+      reAnalyze: false,
       hasVariantAssessment: false,
       geneVizMargin: {
         top: 0,
@@ -1612,6 +1613,13 @@ export default {
                 self.showLeftPanelForGenes();
               }
             } else {
+              console.log("reAnalyze", self.reAnalyze);
+              if(self.reAnalyze){
+                self.onAnalyzeAll();
+                self.reAnalyze = false;
+              }
+              self.refreshCoverageCounts();
+              self.refreshGeneBadges();
               if (self.selectedVariant == null) {
                 self.promiseSelectFirstFlaggedVariant()
                 .then(function() {
@@ -3204,11 +3212,9 @@ export default {
     onCoverageThresholdApplied: function() {
       let self = this;
 
-      self.onAnalyzeAll();
-      setTimeout(function(){
-        self.onAnalyzeAll();
-        self.showLeftPanelWhenFlaggedVariantsForGene();
-      }, 3000)
+      self.reAnalyze = true;
+      self.onFilterSettingsApplied();
+
     },
     onLeftDrawer: function(isOpen) {
       if (!this.isEduMode) {
