@@ -423,7 +423,7 @@ export default {
     },
     getSourceIndicatorBadge: function(gene_name) {
       if(this.launchedFromClin){
-        this.selectedGeneSources.source = this.geneModel.getSourceForGenes()[gene_name].source;
+        this.selectedGeneSources.source = this.geneModel.getSourceForGenes()[gene_name].source_gene_tab;
         this.selectedGeneSources.sourceIndicator = this.geneModel.getSourceForGenes()[gene_name].sourceIndicator;
       }
     },
