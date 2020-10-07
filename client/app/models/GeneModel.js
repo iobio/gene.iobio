@@ -1873,20 +1873,26 @@ class GeneModel {
       "phenotype_gene_list": 2
     }
     let sourceMap = {
-      "imported_gene": "Imported set",
-      "phenotype_gene_list": "Gene list generated from phenotypes"
+      "imported_gene": "Variant is a member of an imported set of potentially interesting variants",
+      "phenotype_gene_list": "Variant is in a gene associated with the patient's clinical note"
+    }
+    let sourceGeneTabMap = {
+      "imported_gene": "Genes contains an imported potentially interesting variant",
+      "phenotype_gene_list": "Gene is associated with the patient's clinical note"
     }
     genes.forEach(gene => {
       if(self.genesAssociatedWithSource[gene] === undefined){
         self.genesAssociatedWithSource[gene] = {
           "source": [sourceMap[source]],
           "sourceIndicator": [sourceIndicatorMap[source]],
+          "source_gene_tab": [sourceGeneTabMap[source]],
         }
       }
       else {
         if(!self.genesAssociatedWithSource[gene].source.includes(sourceMap[source])){
           self.genesAssociatedWithSource[gene].source.push(sourceMap[source])
           self.genesAssociatedWithSource[gene].sourceIndicator.push(sourceIndicatorMap[source])
+          self.genesAssociatedWithSource[gene].source_gene_tab.push(sourceGeneTabMap[source])
         }
       }
     })
