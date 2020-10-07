@@ -1613,9 +1613,15 @@ export default {
               }
             } else {
               self.refreshCoverageCounts();
-              if(!self.selectedVariant){
-                setTimeout(function(){
-                self.promiseSelectFirstFlaggedVariant();
+              if(self.launchedFromClin) {
+                self.promiseSelectFirstFlaggedVariant()
+                    .then(function () {
+                      self.$refs.navRef.onShowVariantsTab();
+                    })
+              }
+              else if(!self.selectedVariant) {
+                setTimeout(function () {
+                  self.promiseSelectFirstFlaggedVariant();
                 }, 2000);
               }
               self.cohortModel.cacheHelper.refreshGeneBadges();
@@ -3916,7 +3922,7 @@ export default {
 
     promiseSelectFirstFlaggedVariant: function() {
       let self = this;
-      if (self.selectedVariant) {
+      if (self.selectedVariant && !self.launchedFromClin) {
         self.onCohortVariantClick(self.selectedVariant, null, 'proband');
         return Promise.resolve();
       }
