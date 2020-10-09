@@ -1323,7 +1323,7 @@ export default {
               } else {
                 if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
                   let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
-                  self.onShowSnackbar( {message: theMessage, timeout: 5000});
+                  self.onShowSnackbar( {message: theMessage, timeout: 10000, close: true});
                   self.bringAttention = 'gene';
                 }
 
@@ -1574,7 +1574,7 @@ export default {
               })
             } else {
               let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
-              self.onShowSnackbar( {message: theMessage, timeout: 5000});
+              self.onShowSnackbar( {message: theMessage, timeout: 10000, close: true});
               self.bringAttention = 'gene';
               resolve();
             }
@@ -1824,7 +1824,7 @@ export default {
           }
         } else {
           let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
-          self.onShowSnackbar( {message: theMessage, timeout: 5000});
+          self.onShowSnackbar( {message: theMessage, timeout: 10000, close: true});
           self.bringAttention = 'gene';
           if (callback) {
             callback();
