@@ -940,6 +940,7 @@ export default {
       geneRegionStart: null,
       geneRegionEnd: null,
       geneLists: null,
+      geneClicked: false,
 
       genesInProgress: {},
 
@@ -1938,6 +1939,9 @@ export default {
 
     onGeneClicked: function(geneName) {
       var self = this;
+
+      console.log("onGeneClicked", );
+      self.geneClicked = true;
 
       self.deselectVariant();
 
@@ -3948,7 +3952,7 @@ export default {
             }
           })
         })
-        if (self.launchedFromClin || (self.paramAnalysisId && firstFlaggedVariant) || (self.paramVariantSetId && firstFlaggedVariant)) {
+        if (self.launchedFromClin || (self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
