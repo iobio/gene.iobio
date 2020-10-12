@@ -115,7 +115,7 @@
 </style>
 
 <template>
-   <v-dialog v-model="showFilesDialog" persistent max-width="890" >
+   <v-dialog v-model="showFilesDialog" max-width="890" >
       <v-card class="full-width" style="min-height:0px;max-height:670px;overflow-y:scroll">
           <v-form id="files-form">
 
@@ -341,7 +341,9 @@ export default {
     showDialog: function() {
       if (this.cohortModel && this.showDialog) {
         this.showFilesDialog = true
-        this.mode = this.cohortModel.mode;
+        if(this.mode !== 'trio') {
+          this.mode = this.cohortModel.mode;
+        }
         this.init();
       }
     },
@@ -526,7 +528,7 @@ export default {
         self.mode = 'trio';
       }
 
-      var p = null;
+      let p;
       if (self.cohortModel.getCanonicalModels().length < 3 ) {
         p = self.promiseInitMotherFather();
       } else {
@@ -534,7 +536,7 @@ export default {
       }
       p.then(function() {
         self.cohortModel.demoModelInfos[self.demoAction].forEach(function(modelInfo) {
-          var rel = modelInfo.relationship;
+          let rel = modelInfo.relationship;
           self.modelInfoMap[rel] = modelInfo;
         })
         self.cohortModel.getCanonicalModels().forEach(function(model) {
