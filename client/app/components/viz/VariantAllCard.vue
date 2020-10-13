@@ -1241,6 +1241,7 @@ export default {
       this.$emit('gene-region-zoom', regionStart, regionEnd);
     },
     onRegionZoomReset: function() {
+      this.showZoom = false;
       this.zoomMessage = "Drag to zoom";
       this.$emit('gene-region-zoom-reset');
     },

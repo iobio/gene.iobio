@@ -2194,6 +2194,7 @@ export default {
     },
     onGeneRegionZoomReset: function() {
       this.showZoom = false;
+      this.clearZoom = true;
       this.geneRegionStart = this.selectedGene.start;
       this.geneRegionEnd = this.selectedGene.end;
 
