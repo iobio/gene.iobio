@@ -1116,6 +1116,9 @@ export default {
     showFilesProp: function(){
       this.showFiles = this.showFilesProp;
     },
+    showFiles: function(){
+      this.$emit('show-files', this.showFiles);
+    },
     showWelcome: function(){
       if(this.showWelcome){
         this.leftDrawer = false;

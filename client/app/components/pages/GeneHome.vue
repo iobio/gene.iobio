@@ -294,6 +294,7 @@ main.content.clin, main.v-content.clin
       @variant-count-changed="variantCountChanged"
       @toggle-save-modal="toggleSaveModal(true)"
       @on-welcome-changed="onWelcomeChanged"
+      @show-files="onShowFiles"
     >
     </navigation>
 
@@ -1323,7 +1324,7 @@ export default {
               } else {
                 if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
                   let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
-                  self.onShowSnackbar( {message: theMessage, timeout: 10000, close: true});
+                  self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
                   self.bringAttention = 'gene';
                 }
 
@@ -1976,6 +1977,9 @@ export default {
     onShowVariantAssessment: function(showAssessment) {
       let self = this;
       self.$set(self, "showVariantAssessment", showAssessment);
+    },
+    onShowFiles: function(showFiles){
+      this.showFiles = showFiles;
     },
 
     showLeftPanelWhenFlaggedVariantsForGene: function() {
