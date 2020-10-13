@@ -1940,7 +1940,6 @@ export default {
     onGeneClicked: function(geneName) {
       var self = this;
 
-      console.log("onGeneClicked", );
       self.geneClicked = true;
 
       self.deselectVariant();
