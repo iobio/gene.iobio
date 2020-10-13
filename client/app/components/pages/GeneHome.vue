@@ -3951,7 +3951,7 @@ export default {
             }
           })
         })
-        if ((self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant) {
+        if ((self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant && !getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
