@@ -941,6 +941,7 @@ export default {
       geneRegionStart: null,
       geneRegionEnd: null,
       geneLists: null,
+      geneClicked: false,
 
       genesInProgress: {},
 
@@ -1940,6 +1941,8 @@ export default {
     onGeneClicked: function(geneName) {
       var self = this;
 
+      self.geneClicked = true;
+
       self.deselectVariant();
 
       self.promiseLoadGene(geneName)
@@ -2195,6 +2198,7 @@ export default {
     },
     onGeneRegionZoomReset: function() {
       this.showZoom = false;
+      this.clearZoom = true;
       this.geneRegionStart = this.selectedGene.start;
       this.geneRegionEnd = this.selectedGene.end;
 
@@ -3952,7 +3956,8 @@ export default {
             }
           })
         })
-        if (self.launchedFromClin || (self.paramAnalysisId && firstFlaggedVariant) || (self.paramVariantSetId && firstFlaggedVariant)) {
+        console.log("self.geneClicked", self.geneClicked);
+        if ((self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant &&  (!self.selectedGene || getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name)) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
