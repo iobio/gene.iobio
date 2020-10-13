@@ -3952,7 +3952,7 @@ export default {
             }
           })
         })
-        if (self.launchedFromClin || (self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant) {
+        if ((self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
