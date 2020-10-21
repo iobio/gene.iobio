@@ -102,7 +102,7 @@ export default {
         type: Number,
         default: 0
       },
-      maxDepth: {
+      maxDepthProp: {
         type: Number,
         default: 0
       },
@@ -170,6 +170,7 @@ export default {
     data() {
       return {
         depthChart: {},
+        maxDepth: 0,
         regionSpan: null
       }
     },
@@ -252,6 +253,28 @@ export default {
     },
     watch: {
       data: function() {
+        let self = this;
+        if (self.data) {
+          let coverage = self.data
+          if(self.regionStart && self.regionEnd){
+            self.maxDepth = 0;
+            coverage = self.data.filter(function(d){
+              return d[0] >= self.regionStart && d[0] <= self.regionEnd;
+            });
+          }
+          var max = d3.max(coverage, function(d,i) { return d[1]});
+          if (max > self.maxDepth) {
+            self.maxDepth = max;
+          }
+          if(self.maxDepth = 0){
+            self.maxDepth = 1;
+          }
+        }
+        this.update();
+
+      },
+      maxDepthProp: function() {
+        this.maxDepth = this.maxDepthProp;
         this.update();
       },
       regionStart: function() {
