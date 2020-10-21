@@ -266,7 +266,7 @@ export default {
           if (max > self.maxDepth) {
             self.maxDepth = max;
           }
-          if(self.maxDepth = 0){
+          if(self.maxDepth === 0){
             self.maxDepth = 1;
           }
         }
