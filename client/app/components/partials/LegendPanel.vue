@@ -228,7 +228,7 @@
 
 
       <div :class="{'clinvar-legend': true}">
-          <div class="legend-label">Clinvar
+          <div class="legend-label">ClinVar
             <info-popup name="clinvar"></info-popup>
           </div>
 

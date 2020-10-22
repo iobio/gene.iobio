@@ -126,7 +126,9 @@ export default {
             },
             'clinvar': {
               title: 'ClinVar',
-              description: 'Clinical significance according to the ClinVar database.'
+              description: 'Clinical significance according to the ClinVar database.',
+              publication: 'ClinVar significance',
+              publicationUrl: 'https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/'
             },
             'variantType': {
               title: 'Variant type',
@@ -134,7 +136,9 @@ export default {
             },
             'pathogenic': {
               title: 'Pathogenic',
-              description: 'Causes disease.'
+              description: 'Variant is reported as pathogenic (causing disease), as recommended by ACMG/AMP, for variants interpreted for Mendelian disorders',
+              publication: 'ClinVar significance terminology guidelines',
+              publicationUrl: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4544753/',
             },
             'likelyPathogenic': {
               title: 'Likely pathogenic',
