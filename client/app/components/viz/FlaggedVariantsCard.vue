@@ -847,8 +847,6 @@ export default {
 
     isSelected: function(v){
       let stashedVariant = this.selectedVariant;
-      console.log("v", v);
-      console.log("stashedVariant", stashedVariant);
       return ( v && stashedVariant
           && v.start === stashedVariant.start
           && v.end === stashedVariant.end

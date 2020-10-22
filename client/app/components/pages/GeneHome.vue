@@ -3956,7 +3956,6 @@ export default {
             }
           })
         })
-        console.log("self.geneClicked", self.geneClicked);
         if ((self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant &&  (!self.selectedGene || getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name)) {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
