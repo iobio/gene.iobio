@@ -9,11 +9,11 @@ export default class VariantExporter {
     this.helpMsg = "If this error persists, Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.";
     this.exportFields = [
       {field: 'chrom',            exportVcf: false},
-      {field: 'start',            exportVcf: false},
-      {field: 'end',              exportVcf: false},
+      {field: 'start',            exportVcf: true},
+      {field: 'end',              exportVcf: true},
       {field: 'ref',              exportVcf: false},
       {field: 'alt',              exportVcf: false},
-      {field: 'gene',             exportVcf: true},
+      {field: 'geneName',         exportVcf: true},
       {field: 'transcript',       exportVcf: true},
       {field: 'isUserFlagged',    exportVcf: true},
       {field: 'filtersPassed',    exportVcf: true},
