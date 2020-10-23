@@ -191,7 +191,9 @@
 
       </div>
       <div v-if="!isBasicMode && !isSimpleMode" style="text-align:left;width:150px;margin-right:10px;margin-bottom:15px">
-        <div class="legend-label" style="width:130px">Inheritance</div>
+        <div class="legend-label" style="width:130px">Inheritance
+            <info-popup name="inheritance"></info-popup>
+          </div>
 
         <legend-icon
          icon="autosomal dominant"
@@ -241,7 +243,6 @@
             level="high"
             label="Pathogenic">
             </legend-icon>
-            <info-popup style="padding-left:1px" name="pathogenic"></info-popup>
           </div>
 
          <div>
@@ -251,7 +252,7 @@
             width="12"
             height="12"
             level="likely-high"
-            label="Likely path.">
+            label="Likely pathogenic">
             </legend-icon>
             <info-popup style="padding-left:1px" name="likelyPathogenic"></info-popup>
           </div>
@@ -312,7 +313,6 @@
            height="14"
            label="SNP">
           </legend-icon>
-          <info-popup style="padding-left: 1px;" name="snp"></info-popup>
         </div>
 
         <legend-icon

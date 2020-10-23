@@ -122,32 +122,28 @@ export default {
             },
             'impact':  {
               title: 'Impact',
-              description: 'Predicted effect of the variant on gene function.'
+              description: 'Predicted effect of the variant on gene function based on VEP annotations.',
+              publication: 'VEP impact',
+              publicationUrl: 'http://docs.wuxinextcode.com/csa/resources/vepSettings.html'
+            },
+            'inheritance' : {
+              title: 'Mode of inheritance',
+              description: 'The manner in which a genetic trait or disorder is passed from one generation to the next.',
+              publication: 'Mode of inheritance terminology',
+              publicationUrl: 'https://www.ons.org/genomics-taxonomy/mode-inheritance'
             },
             'clinvar': {
               title: 'ClinVar',
-              description: 'Clinical significance according to the ClinVar database.',
-              publication: 'ClinVar significance',
-              publicationUrl: 'https://www.ncbi.nlm.nih.gov/clinvar/docs/clinsig/'
-            },
+              description: 'Clinical significance according to the ClinVar database.  The guidelines for reporting ClinVar significance are outlined by ACMG/AMP, for variants interpreted for Mendelian disorders.',
+              publication: 'ClinVar significance terminology guidelines',
+              publicationUrl: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4544753/',            },
             'variantType': {
               title: 'Variant type',
-              description: 'How the variant changes the DNA sequence.'
+              description: 'How the variant alters the human reference genome according to the VCF format',
+              publication: 'Variant type classification guidelines',
+              publicationUrl: 'https://genome.sph.umich.edu/wiki/Variant_classification'
             },
-            'pathogenic': {
-              title: 'Pathogenic',
-              description: 'Variant is reported as pathogenic (causing disease), as recommended by ACMG/AMP, for variants interpreted for Mendelian disorders',
-              publication: 'ClinVar significance terminology guidelines',
-              publicationUrl: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4544753/',
-            },
-            'likelyPathogenic': {
-              title: 'Likely pathogenic',
-              description: 'Likely causes disease.'
-            },
-            'snp': {
-              title: 'Variant type',
-              description: 'Single nucleotide polymorphism (change in a nucleotide).'
-            },
+
             'variant-toggle': {
               title: 'Filter variant track by inheritance',
               description: 'Only show variants on variant tracks that pass one of the selected inheritance filters.'
