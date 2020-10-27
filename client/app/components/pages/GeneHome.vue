@@ -3022,7 +3022,7 @@ export default {
 
       // Only select the gene if it hasn't previously been selected or the transcript is different
       let genePromise;
-      if (!options.force && self.selectedGene.gene_name === flaggedVariant.gene.gene_name) {
+      if (!options.force && self.selectedGene && self.selectedGene.gene_name === flaggedVariant.gene.gene_name) {
         genePromise = Promise.resolve();
       } else if (flaggedVariant.transcript == null
         && self.selectedTranscript

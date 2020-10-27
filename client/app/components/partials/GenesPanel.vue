@@ -103,7 +103,7 @@
   margin-top: 45px
   // position: fixed
   width: 100%
-  
+
 .expansion-panel__header, .v-expansion-panel__header
   border-top: #e1e1e1
   border-top-style: solid
@@ -119,7 +119,7 @@
   .header__icon
     i.material-icons
       color: $app-color
-  
+
 </style>
 
 <template>
