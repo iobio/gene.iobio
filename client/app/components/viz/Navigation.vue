@@ -764,7 +764,7 @@ nav.toolbar, nav.v-toolbar
       absolute
       right
       width="200"
-      style="z-index:6; height: 100vh"
+      style="z-index:6; height: calc(100vh - 50px); position: fixed;"
     >
         <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="legend-drawer-close-button" class="toolbar-button" flat @click="showLegendDrawer = false">
           <v-icon >close</v-icon>
