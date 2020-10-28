@@ -1616,9 +1616,9 @@ export default {
             } else {
               if (self.selectedVariant == null) {
                 self.promiseSelectFirstFlaggedVariant()
-                    .then(function() {
-                      self.$refs.navRef.onShowVariantsTab();
-                    })
+                    // .then(function() {
+                    //   self.$refs.navRef.onShowVariantsTab();
+                    // })
               }
               else if(self.launchedFromClin){
 
@@ -2584,7 +2584,6 @@ export default {
     },
     onApplyGenes: function(genesString, options, callback) {
       let self = this;
-
       if (options == null) {
         options = {isFromClin: false};
       } else if (!options.hasOwnProperty("isFromClin")) {
@@ -2658,7 +2657,6 @@ export default {
           self.setUrlGeneParameters();
         }
         let geneNameToSelect = null;
-
         if (self.launchedFromClin) {
           if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
             let applicableGenes = self.geneModel.geneNames.filter(function(geneName) {
@@ -2670,6 +2668,9 @@ export default {
             })
             if (applicableGenes.length > 0) {
               geneNameToSelect = applicableGenes[0];
+            }
+            else{
+              geneNameToSelect = self.geneModel.sortedGeneNames[0];
             }
           }
 
