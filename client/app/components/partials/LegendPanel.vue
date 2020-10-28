@@ -254,7 +254,6 @@
             level="likely-high"
             label="Likely pathogenic">
             </legend-icon>
-            <info-popup style="padding-left:1px" name="likelyPathogenic"></info-popup>
           </div>
 
           <legend-icon v-if="!isBasicMode && !isSimpleMode"
@@ -298,15 +297,28 @@
           </legend-icon>
       </div>
 
-      <div>
-        <div class="legend-label">Evidence for Pathogenic
+      <div style="text-align:left;margin-bottom:15px">
+        <div  class="legend-label">Evidence for Pathogenic
+          <info-popup style="padding-left:1px" name="evidence"></info-popup>
+        </div>
           <legend-icon
               icon="evidence"
               width="16"
               height="16"
               class="level-high"
-              label="evidence"></legend-icon>
-        </div>
+              label="Strong evidence"></legend-icon>
+          <legend-icon
+              icon="evidence"
+              width="16"
+              height="16"
+              class="level-likely-high"
+              label="Moderate evidence"></legend-icon>
+          <legend-icon
+              icon="evidence"
+              width="16"
+              height="16"
+              class="level-medium"
+              label="Supporting evidence"></legend-icon>
       </div>
 
       <div style="text-align:left;width:105px;margin-bottom:15px">

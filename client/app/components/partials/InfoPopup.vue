@@ -120,6 +120,13 @@ export default {
                 publicationUrl: 'https://gnomad.broadinstitute.org/'
 
             },
+            'evidence': {
+              title: 'ClinVar pathogenicity evidence',
+              description: 'Guidelines for classifying evidence supporting ClinVar pathogenicity',
+              publication: 'ClinVar pathenogicity rubric',
+              publicationUrl: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4544753/figure/F1/'
+
+            },
             'impact':  {
               title: 'Impact',
               description: 'Predicted effect of the variant on gene function based on VEP annotations.',
