@@ -298,6 +298,17 @@
           </legend-icon>
       </div>
 
+      <div>
+        <div class="legend-label">Evidence for Pathogenic
+          <legend-icon
+              icon="evidence"
+              width="16"
+              height="16"
+              class="level-high"
+              label="evidence"></legend-icon>
+        </div>
+      </div>
+
       <div style="text-align:left;width:105px;margin-bottom:15px">
           <div class="legend-label">Variant type
             <info-popup name="variantType"></info-popup>
