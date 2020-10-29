@@ -18,7 +18,6 @@ export default class VariantExporter {
       {field: 'isUserFlagged',    exportVcf: true},
       {field: 'filtersPassed',    exportVcf: true},
       {field: 'freebayesCalled',  exportVcf: true},
-      {field: 'notes',            exportVcf: true},
       {field: 'interpretation',   exportVcf: true},
       {field: 'type',             exportVcf: true},
       {field: 'impact',           exportVcf: true},
@@ -55,7 +54,8 @@ export default class VariantExporter {
       {field: 'depthFather',      exportVcf: true},
       {field: 'bamDepthFather',   exportVcf: true},
       {field: 'dbSnpUrl',         exportVcf: false},
-      {field: 'clinvarUrl',       exportVcf: false}
+      {field: 'clinvarUrl',       exportVcf: false},
+      {field: 'notes',            exportVcf: true}
 
     ];
 
@@ -273,7 +273,7 @@ export default class VariantExporter {
     var me = this;
     var fields = vcfRecord.split("\t");
     var info = fields[7];
-
+    me.formatNotesForVcf(record['notes'])
     var buf = "";
     me.exportFields.forEach(function(exportField) {
       if (exportField.exportVcf) {
@@ -289,6 +289,21 @@ export default class VariantExporter {
 
     fields[7] = info;
     return fields.join("\t");
+  }
+  
+  formatNotesForVcf(notes){
+    notes = notes.trim();
+    var formattedNotes = "";
+    if(notes.includes("|")){
+      var notesArray = notes.split("|");
+      formattedNotes = notesArray.map(x => {
+        return x.trim().replace(" ", ":").replace("\t", ":");  
+      }).join("/");
+    }
+    else{
+      formattedNotes = notes.trim().replace(" ", ":").replace("\t", ":")
+    }
+    return formattedNotes;
   }
 
 
