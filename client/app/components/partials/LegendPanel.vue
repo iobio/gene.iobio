@@ -297,7 +297,7 @@
           </legend-icon>
       </div>
 
-      //Evidence for pathogenic
+<!--      Evidence for pathogenic-->
       <div style="text-align:left;margin-bottom:15px">
         <div  class="legend-label">Evidence for Pathogenic
           <info-popup style="padding-left:1px" name="evidence"></info-popup>
@@ -322,7 +322,7 @@
               label="Supporting evidence"></legend-icon>
       </div>
 
-      //Variant Type
+<!--      Variant Type-->
       <div style="text-align:left;width:105px;margin-bottom:15px">
           <div class="legend-label">Variant type
             <info-popup name="variantType"></info-popup>
@@ -369,7 +369,7 @@
 
       </div>
 
-      //Quality control
+<!--      Quality control-->
       <div style="text-align:left;margin-bottom:15px">
         <div  class="legend-label">Quality control</div>
         <legend-icon
@@ -386,7 +386,7 @@
             label="Fails QC">check_circle</legend-icon>
       </div>
 
-      //Allele Frequency
+<!--      Allele Frequency-->
       <div v-if="!isBasicMode && !isSimpleMode" style="width:70px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Allele Frequency</div>
         <legend-icon
@@ -398,7 +398,7 @@
         </legend-icon>
       </div>
 
-      //Called Variants
+<!--      Called Variants-->
       <div v-if="!isBasicMode && !isSimpleMode" style="width:120px;margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Called variant</div>
         <legend-icon
@@ -408,7 +408,7 @@
         </legend-icon>
       </div>
 
-      //Coverage
+<!--      Coverage-->
       <div v-if="!isBasicMode && !isSimpleMode" style="width:80px;margin-right:0px;margin-bottom:15px">
           <div class="legend-label">Coverage</div>
 
@@ -423,7 +423,7 @@
 
       </div>
 
-      //Zygocity
+<!--      Zygocity-->
       <div v-if="!isBasicMode && !isSimpleMode" style="width:170px;margin-right:10px;margin-bottom:10px">
         <div class="legend-label">Zygosity</div>
 
