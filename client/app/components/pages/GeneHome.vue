@@ -2003,7 +2003,7 @@ export default {
       }
     },
 
-    showLeftPanelWhenFlaggedVariants: function() {
+    showLeftPanelWhenFlaggedVariants: function(option) {
       let self = this;
       if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
         if (self.$refs.navRef) {
@@ -2015,6 +2015,11 @@ export default {
         self.$nextTick(function() {
           self.$refs.navRef.activeTab = 1;
         })
+      }
+      if(option === "send-to-clin"){
+        setTimeout(()=>{
+          self.sendAnalysisToClin();
+        }, 2500)
       }
     },
 
@@ -3955,7 +3960,7 @@ export default {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
-              self.showLeftPanelWhenFlaggedVariants();
+              self.showLeftPanelWhenFlaggedVariants("send-to-clin");
               self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
               resolve()
               self.cacheHelper.analyzeAllInProgress = false;
@@ -4012,7 +4017,6 @@ export default {
               })
 
 
-
               if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
                 self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
               }
@@ -4040,7 +4044,6 @@ export default {
         } else {
           resolve();
         }
-
       })
     },
 
