@@ -90,14 +90,13 @@
 <template>
   <div class="variant-row">
     <span v-if="label === 'ClinVar'">
-      <app-icon :class="clazz" width="18" height="18" icon="clinvar"></app-icon>
+      <app-icon :class="getClinVarClass(value)" width="17" height="17" icon="clinvar" style="margin-right: 1px !important"></app-icon>
     </span>
 
-    <app-icon v-if="clazz !== 'level-unremarkable' && label !== 'ClinVar'" :class="clazz" width="18" height="18" icon="evidence"></app-icon>
-    <app-icon v-if="clazz == 'level-unremarkable'" :class="clazz" width="18" height="18"
-              icon="not-significant"></app-icon>
+    <app-icon v-if=" label !== 'ClinVar'" :class="clazz" width="18" height="18" icon="evidence"></app-icon>
 
-    <div v-if="clazz === 'level-unremarkable'" style="padding-bottom: 0px; padding-left: 4px">
+
+    <div v-if="clazz === 'level-unremarkable'" style="padding-left: 4px">
     <span class="variant-text">
       {{ capitalize(value) }} {{ label }}
       <a style="padding-left:4px" v-if="link" :href="link" :target="target">
@@ -106,7 +105,7 @@
     </span>
     </div>
 
-    <span class="variant-text" v-if="clazz !== 'level-unremarkable'">
+    <span class="variant-text" v-if="clazz !== 'level-unremarkable'" style="padding-top: 2px; padding-left: 4px">
       {{ capitalize(value) }} {{ label }}
       <a style="padding-left:4px" v-if="link" :href="link" :target="target">
         <v-icon class="link-icon">open_in_new</v-icon>
@@ -145,6 +144,20 @@ export default {
       } else {
         return "";
       }
+    },
+
+    getClinVarClass: function(val){
+      console.log("value", val);
+      if(val === "Pathogenic"){
+        return "level-high";
+      }
+      else if(val === "Conflicting interpretations of pathogenicity"){
+        return "level-conflicting";
+      }
+      else if(val === "Benign"){
+        return "level-low"
+      }
+
     },
 
 

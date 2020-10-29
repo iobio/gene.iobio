@@ -298,7 +298,8 @@
       </div>
 
 <!--      Evidence for pathogenic-->
-      <div style="text-align:left;margin-bottom:15px">
+      <div
+          style="text-align:left;margin-bottom:15px">
         <div  class="legend-label">Evidence for Pathogenic
           <info-popup style="padding-left:1px" name="evidence"></info-popup>
         </div>
@@ -320,6 +321,12 @@
               height="16"
               class="level-medium"
               label="Supporting evidence"></legend-icon>
+        <legend-icon
+            icon="evidence"
+            width="16"
+            height="16"
+            class="level-insignificant"
+            label="No evidence"></legend-icon>
       </div>
 
 <!--      Variant Type-->
