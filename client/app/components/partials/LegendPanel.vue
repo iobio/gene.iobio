@@ -370,7 +370,7 @@
       </div>
 
 <!--      Quality control-->
-      <div style="text-align:left;margin-bottom:15px">
+      <div style="text-align:left;margin-bottom:15px; width: 100%">
         <div  class="legend-label">Quality control</div>
         <legend-icon
             icon="circle-checkmark"
@@ -379,15 +379,15 @@
             class="level-low"
             label="Passes QC"></legend-icon>
         <legend-icon
-            icon="circle-checkmark"
+            icon="warning"
             width="16"
             height="16"
             class="level-high"
-            label="Fails QC">check_circle</legend-icon>
+            label="Fails QC"></legend-icon>
       </div>
 
 <!--      Allele Frequency-->
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:70px;margin-right:10px;margin-bottom:15px">
+      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Allele Frequency</div>
         <legend-icon
           icon="af"
@@ -399,7 +399,7 @@
       </div>
 
 <!--      Called Variants-->
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:120px;margin-right:10px;margin-bottom:15px">
+      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:15px">
         <div class="legend-label">Called variant</div>
         <legend-icon
           icon="called-variant"
@@ -409,7 +409,7 @@
       </div>
 
 <!--      Coverage-->
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:80px;margin-right:0px;margin-bottom:15px">
+      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:0px;margin-bottom:15px">
           <div class="legend-label">Coverage</div>
 
           <legend-icon
@@ -424,7 +424,7 @@
       </div>
 
 <!--      Zygocity-->
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:170px;margin-right:10px;margin-bottom:10px">
+      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:10px">
         <div class="legend-label">Zygosity</div>
 
         <legend-icon

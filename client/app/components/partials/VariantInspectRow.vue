@@ -1,4 +1,4 @@
-<style lang="sass" >
+<style lang="sass">
 @import ../../../assets/sass/variables
 #variant-inspect
   .variant-inspect-body
@@ -14,7 +14,7 @@
         max-width: 190px
 
       a
-        color:  $link-color !important
+        color: $link-color !important
         cursor: pointer
         font-size: 13px !important
 
@@ -39,10 +39,13 @@
 
         &.level-high
           color: $level-high-color
+
         &.level-medium
           color: $moderate-impact-color
+
         &.sufficient
           color: $success-color
+
         &.level-unremarkable
           color: $not-significant-color
 
@@ -58,6 +61,7 @@
         margin-top: 0px
         margin-bottom: 0px
         margin-right: 0px
+
         .chip__content, .v-chip__content
           padding: 10px !important
           height: 18px !important
@@ -65,9 +69,10 @@
           font-size: 11px !important
           justify-content: center
           color: $text-color
+
         &.high
           .chip__content, .v-chip__content
-            background-color:  $danger-color
+            background-color: $danger-color
             color: white
 
       .pheno-source
@@ -84,11 +89,13 @@
 
 <template>
   <div class="variant-row">
-    <v-icon v-if="clazz != 'level-unremarkable'" :class="clazz">
-      check_circle
-    </v-icon>
-    <app-icon v-if="clazz == 'level-unremarkable'" :class="clazz" width="18" height="18" icon="not-significant">
-    </app-icon>
+    <span v-if="label === 'ClinVar'">
+      <app-icon :class="clazz" width="18" height="18" icon="clinvar"></app-icon>
+    </span>
+
+    <app-icon v-if="clazz !== 'level-unremarkable' && label !== 'ClinVar'" :class="clazz" width="18" height="18" icon="evidence"></app-icon>
+    <app-icon v-if="clazz == 'level-unremarkable'" :class="clazz" width="18" height="18"
+              icon="not-significant"></app-icon>
 
     <div v-if="clazz === 'level-unremarkable'" style="padding-bottom: 0px; padding-left: 4px">
     <span class="variant-text">
@@ -99,20 +106,20 @@
     </span>
     </div>
 
-          <span class="variant-text" v-if="clazz !== 'level-unremarkable'">
+    <span class="variant-text" v-if="clazz !== 'level-unremarkable'">
       {{ capitalize(value) }} {{ label }}
       <a style="padding-left:4px" v-if="link" :href="link" :target="target">
         <v-icon class="link-icon">open_in_new</v-icon>
       </a>
     </span>
 
-    </div>
+  </div>
 </template>
 
 
 <script>
 
-import AppIcon                  from "../partials/AppIcon.vue"
+import AppIcon from "../partials/AppIcon.vue"
 
 export default {
   name: 'variant-inspect-row',
@@ -126,14 +133,13 @@ export default {
     link: null
   },
   data() {
-    return {
-    }
+    return {}
   },
 
 
   methods: {
 
-    capitalize: function(buf) {
+    capitalize: function (buf) {
       if (buf) {
         return this.globalApp.utility.capitalizeFirstLetter(buf);
       } else {
@@ -146,7 +152,7 @@ export default {
 
 
   computed: {
-    target: function() {
+    target: function () {
       if (this.label && this.label.length > 0) {
         return this.label.split(" ").join("_");
       } else {
@@ -156,25 +162,19 @@ export default {
 
   },
 
-  watch: {
+  watch: {},
+
+  filters: {},
+
+  updated: function () {
 
   },
 
-  filters: {
-
-
-
-
+  mounted: function () {
+    console.log(this.props, this.$props);
   },
 
-  updated: function() {
-
-  },
-
-  mounted: function() {
-  },
-
-  created: function() {
+  created: function () {
   }
 
 
