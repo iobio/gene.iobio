@@ -273,14 +273,24 @@ export default class VariantExporter {
     var me = this;
     var fields = vcfRecord.split("\t");
     var info = fields[7];
-    me.formatNotesForVcf(record['notes'])
+    // me.formatNotesForVcf(record['notes'])
     var buf = "";
     me.exportFields.forEach(function(exportField) {
       if (exportField.exportVcf) {
         if (buf.length > 0) {
           buf += "|";
         }
-        buf += exportField.field + "#" + (record[exportField.field] && record[exportField.field] != "" ? record[exportField.field] : ".");
+        // buf += exportField.field + "#" + (record[exportField.field] && record[exportField.field] != "" ? record[exportField.field] : ".");
+        buf += exportField.field + "#" + (record[exportField.field] && record[exportField.field] != "" && exportField.field !== "notes" ? record[exportField.field] : ".");
+        if(exportField.field == "notes"){
+          if(record[exportField.field].trim().length>2){
+            buf += me.formatNotesForVcf(record[exportField.field]);
+          }
+          else{
+            buf += ".";
+          }
+        }
+
       }
     })
 
@@ -297,12 +307,13 @@ export default class VariantExporter {
     if(notes.includes("|")){
       var notesArray = notes.split("|");
       formattedNotes = notesArray.map(x => {
-        return x.trim().replace(" ", ":").replace("\t", ":");  
-      }).join("/");
+        return x.trim().replace(" ", "--").replace("\t", "--");
+      }).join("$/$");
     }
     else{
-      formattedNotes = notes.trim().replace(" ", ":").replace("\t", ":")
+      formattedNotes = notes.trim().replace(" ", "--").replace("\t", "--");
     }
+    console.log("formattedNotes", formattedNotes);
     return formattedNotes;
   }
 
