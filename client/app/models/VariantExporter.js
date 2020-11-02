@@ -18,8 +18,7 @@ export default class VariantExporter {
       {field: 'isUserFlagged',    exportVcf: true},
       {field: 'filtersPassed',    exportVcf: true},
       {field: 'freebayesCalled',  exportVcf: true},
-      {field: 'notes',            exportVcf: false},
-      {field: 'interpretation',   exportVcf: false},
+      {field: 'interpretation',   exportVcf: true},
       {field: 'type',             exportVcf: true},
       {field: 'impact',           exportVcf: true},
       {field: 'highestImpact',    exportVcf: true},
@@ -55,7 +54,8 @@ export default class VariantExporter {
       {field: 'depthFather',      exportVcf: true},
       {field: 'bamDepthFather',   exportVcf: true},
       {field: 'dbSnpUrl',         exportVcf: false},
-      {field: 'clinvarUrl',       exportVcf: false}
+      {field: 'clinvarUrl',       exportVcf: false},
+      {field: 'notes',            exportVcf: true}
 
     ];
 
@@ -94,7 +94,6 @@ export default class VariantExporter {
       var getHeader = format == 'vcf' ? true : false;
 
       variantEntries.forEach(function(variant) {
-
         var exportRec = {};
         exportRec.start        = variant.start;
         exportRec.end          = variant.end;
@@ -273,14 +272,19 @@ export default class VariantExporter {
     var me = this;
     var fields = vcfRecord.split("\t");
     var info = fields[7];
-
     var buf = "";
     me.exportFields.forEach(function(exportField) {
       if (exportField.exportVcf) {
         if (buf.length > 0) {
           buf += "|";
         }
-        buf += exportField.field + "#" + (record[exportField.field] && record[exportField.field] != "" ? record[exportField.field] : ".");
+        buf += exportField.field + "#" + (record[exportField.field] && record[exportField.field] != "" && exportField.field !== "notes" ? record[exportField.field] : ".");
+        if(exportField.field == "notes"){
+          if(record[exportField.field].trim().length>2){
+            buf += me.formatNotesForVcf(record[exportField.field]);
+          }
+        }
+
       }
     })
 
@@ -289,6 +293,21 @@ export default class VariantExporter {
 
     fields[7] = info;
     return fields.join("\t");
+  }
+  
+  formatNotesForVcf(notes){
+    // Exporting notes in VCF with 'tabs' between notes' content adds extra columns. Hence formating it in a different way as compared to exporting in CSV. 
+    var formattedNotes = "";
+    if(notes.includes("|")){ //Indicates that there are multiple notes added to this variant. 
+      var notesArray = notes.split("|");
+      formattedNotes = notesArray.map(x => {
+        return x.replace("\t", "--").replace(" ", "--").replace("\t", "--");
+      }).join("$/$"); // "$/$" is used just as a precaution measure to avoid spliting the string if the character '/' exists in the note.
+    }
+    else{
+      formattedNotes = notes.replace("\t", "--").replace(" ", "--").replace("\t", "--");
+    }
+    return formattedNotes;
   }
 
 
@@ -600,7 +619,7 @@ export default class VariantExporter {
     var me = this;
 
 
-    var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
+    var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode, format);
 
     rec.isProxy           = true;
     rec.analysisMode      = variant.analysisMode;
