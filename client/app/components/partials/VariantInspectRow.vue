@@ -147,9 +147,23 @@ export default {
     },
 
     getClinVarClass: function(val){
-      console.log("value", val);
       if(val === "Pathogenic"){
         return "level-high";
+      }
+      else if(val === "Pathogenic/likely pathogenic"){
+        return "level-likely-high";
+      }
+      else if (val === "Likely pathogenic"){
+        return "level-likely-high";
+      }
+      else if (val === "Uncertain significance"){
+        return "level-unknown-significance";
+      }
+      else if (val === "Likely benign"){
+        return "level-likely-low";
+      }
+      else if (val === "Benign/likely benign"){
+        return "level-likely-low";
       }
       else if(val === "Conflicting interpretations of pathogenicity"){
         return "level-conflicting";
@@ -157,12 +171,13 @@ export default {
       else if(val === "Benign"){
         return "level-low"
       }
-
+      else{
+        return "level-other"
+      }
     },
 
 
   },
-
 
   computed: {
     target: function () {
@@ -184,7 +199,6 @@ export default {
   },
 
   mounted: function () {
-    console.log(this.props, this.$props);
   },
 
   created: function () {

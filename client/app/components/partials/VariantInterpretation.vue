@@ -35,7 +35,7 @@ i.material-icons.interpretation
     .v-input__icon--append
       i.material-icons
         color: white !important
-    
+
 
 .interpretation-choices
   width: 100%
@@ -45,7 +45,7 @@ i.material-icons.interpretation
   padding-left: 4px
   padding-right: 10px
   border-radius: 5px
-  
+
   i.material-icons
     padding-right: 2px
     font-size: 16px !important
@@ -71,8 +71,8 @@ i.material-icons.interpretation
     i.material-icons
       color: $unknown-significance-color !important
 
-  
-    
+
+
 
 .select-interpretation
   font-family: $app-font
@@ -140,8 +140,8 @@ i.material-icons.interpretation
     .v-input__append-inner
       .v-input__icon--append
         i.material-icons
-          color: white !important   
-          margin-top: -4px     
+          color: white !important
+          margin-top: -4px
 
   .v-input__icon
     i.material-icons
@@ -250,8 +250,6 @@ export default {
       interpretation: null
 
     }
-  },
-  watch: {
   },
   computed: {
 

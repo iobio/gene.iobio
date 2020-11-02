@@ -84,12 +84,9 @@
 
 <template>
   <div v-if="selectedVariant.inheritance.indexOf('n/a') == -1" class="variant-row">
-    <v-icon v-if="selectedVariant.inheritance.indexOf('n/a') == -1" class="level-high">
-      check_circle
-    </v-icon>
 
-    <app-icon v-if="selectedVariant.inheritance.indexOf('n/a') >= 0" class="level-unremarkable" width="18" height="18" icon="not-significant" style="padding-top: 1px">
-    </app-icon>
+    <app-icon  v-if="selectedVariant.inheritance.indexOf('n/a') === -1" class="level-high" width="18" height="18" icon="evidence"></app-icon>
+    <app-icon  v-if="selectedVariant.inheritance.indexOf('n/a') >= 0" class="level-unremarkable" width="18" height="18" icon="evidence"></app-icon>
 
     <app-icon v-if="selectedVariant.inheritance.indexOf('n/a') == -1" :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
 
