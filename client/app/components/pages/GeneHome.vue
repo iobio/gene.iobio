@@ -2938,6 +2938,10 @@ export default {
         variant.interpretation = 'unknown-sig';
         self.onApplyVariantInterpretation(variant);
       }
+      
+      if (self.launchedFromClin) {
+        self.promiseUpdateAnalysisVariant(variant, {delay: false});
+      }
 
     },
 
