@@ -1616,9 +1616,9 @@ export default {
             } else {
               if (self.selectedVariant == null) {
                 self.promiseSelectFirstFlaggedVariant()
-                    .then(function() {
-                      self.$refs.navRef.onShowVariantsTab();
-                    })
+                    // .then(function() {
+                    //   self.$refs.navRef.onShowVariantsTab();
+                    // })
               }
               else if(self.launchedFromClin){
 
@@ -2003,7 +2003,7 @@ export default {
       }
     },
 
-    showLeftPanelWhenFlaggedVariants: function() {
+    showLeftPanelWhenFlaggedVariants: function(option) {
       let self = this;
       if (!self.isEduMode && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0 && !self.isLeftDrawerOpen) {
         if (self.$refs.navRef) {
@@ -2015,6 +2015,11 @@ export default {
         self.$nextTick(function() {
           self.$refs.navRef.activeTab = 1;
         })
+      }
+      if(option === "send-to-clin"){
+        setTimeout(()=>{
+          self.sendAnalysisToClin();
+        }, 2500)
       }
     },
 
@@ -2584,7 +2589,6 @@ export default {
     },
     onApplyGenes: function(genesString, options, callback) {
       let self = this;
-
       if (options == null) {
         options = {isFromClin: false};
       } else if (!options.hasOwnProperty("isFromClin")) {
@@ -2658,7 +2662,6 @@ export default {
           self.setUrlGeneParameters();
         }
         let geneNameToSelect = null;
-
         if (self.launchedFromClin) {
           if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
             let applicableGenes = self.geneModel.geneNames.filter(function(geneName) {
@@ -2670,6 +2673,9 @@ export default {
             })
             if (applicableGenes.length > 0) {
               geneNameToSelect = applicableGenes[0];
+            }
+            else{
+              geneNameToSelect = self.geneModel.sortedGeneNames[0];
             }
           }
 
@@ -2931,6 +2937,10 @@ export default {
       if(typeof variant.interpretation === 'undefined' || (variant.interpretation === "not-reviewed")){
         variant.interpretation = 'unknown-sig';
         self.onApplyVariantInterpretation(variant);
+      }
+      
+      if (self.launchedFromClin) {
+        self.promiseUpdateAnalysisVariant(variant, {delay: false});
       }
 
     },
@@ -3954,7 +3964,7 @@ export default {
           self.promiseLoadGene(getGeneName(firstFlaggedVariant))
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
-              self.showLeftPanelWhenFlaggedVariants();
+              self.showLeftPanelWhenFlaggedVariants("send-to-clin");
               self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
               resolve()
               self.cacheHelper.analyzeAllInProgress = false;
@@ -4011,7 +4021,6 @@ export default {
               })
 
 
-
               if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
                 self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
               }
@@ -4039,7 +4048,6 @@ export default {
         } else {
           resolve();
         }
-
       })
     },
 
