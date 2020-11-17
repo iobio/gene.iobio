@@ -131,13 +131,13 @@ export default {
                   '<div>Usually non-coding variants or variants affecting non-coding genes, where predictions are difficult or there is no evidence of impact.</div>' +
                   '<strong>Low impact variant consequence</strong>' +
                   '<div>A variant that is assumed to be mostly harmless or unlikely to change protein behaviour</div>',
+              publication: 'VEP impact guidelines',
+              publicationUrl: 'https://m.ensembl.org/info/genome/variation/prediction/predicted_data.html'
 
             },
           'QC':  {
             title: 'Quality Control',
             description: 'Does the VCF have sufficient coverage for a variant based on the minimum overage thresholds set within gene.iobio (default: 10 reads)',
-            publication: 'VEP impact',
-            publicationUrl: 'https://m.ensembl.org/info/genome/variation/prediction/predicted_data.html'
           },
             'inheritance' : {
               title: 'Inheritance',
