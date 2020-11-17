@@ -461,6 +461,9 @@
       <v-icon v-if="icon == 'called-variant'" class="called-variant">
         check_circle
       </v-icon>
+    <v-icon v-if="icon == 'no-called-variant'" class="called-variant">
+      done
+    </v-icon>
 
       <svg v-if="icon == 'feature-viz'"
        :style="iconStyle"

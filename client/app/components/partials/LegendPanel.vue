@@ -300,7 +300,7 @@
 <!--      Evidence for pathogenic-->
       <div
           style="text-align:left;margin-bottom:15px">
-        <div  class="legend-label">Evidence for Pathogenic
+        <div  class="legend-label">Pathogenic Evidence
           <info-popup style="padding-left:1px" name="evidence"></info-popup>
         </div>
           <legend-icon
@@ -378,47 +378,49 @@
 
 <!--      Quality control-->
       <div style="text-align:left;margin-bottom:15px; width: 100%">
-        <div  class="legend-label">Quality control</div>
+        <div  class="legend-label">Quality control
+          <info-popup style="padding-left:1px" name="QC"></info-popup>
+
+        </div>
         <legend-icon
             icon="circle-checkmark"
             width="16"
             height="16"
             class="level-low"
-            label="Passes QC"></legend-icon>
+            label="Pass"></legend-icon>
         <legend-icon
             icon="warning"
             width="16"
             height="16"
             class="level-high"
-            label="Fails QC"></legend-icon>
-      </div>
-
-<!--      Allele Frequency-->
-      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:15px">
-        <div class="legend-label">Allele Frequency</div>
-        <legend-icon
-          icon="af"
-          width="12"
-          height="12"
-          level="high"
-          label="< 5%">
-        </legend-icon>
+            label="Fail"></legend-icon>
       </div>
 
 <!--      Called Variants-->
-      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:15px">
-        <div class="legend-label">Called variant</div>
+      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:15px; width: 100%">
+        <div class="legend-label">Called variants
+          <info-popup name="called-variants"></info-popup>
+        </div>
+        <legend-icon
+            icon="no-called-variant"
+            label="No new variants called in gene.iobio"
+            style="line-height: 1 !important; padding-bottom: 7px">
+        </legend-icon>
         <legend-icon
           icon="called-variant"
-          label="Variants called from alignments"
-          wrapLabel="true">
+          label="New variants called in gene.iobio"
+          style="line-height: 1 !important;">
         </legend-icon>
+        </div>
       </div>
+
+
 
 <!--      Coverage-->
       <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:0px;margin-bottom:15px">
-          <div class="legend-label">Coverage</div>
-
+          <div class="legend-label">Coverage
+            <info-popup name="coverage"></info-popup>
+          </div>
           <legend-icon
             icon="coverage"
             width="13"
@@ -432,14 +434,14 @@
 
 <!--      Zygocity-->
       <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:10px">
-        <div class="legend-label">Zygosity</div>
+        <div class="legend-label">Variant Zygosity</div>
 
         <legend-icon
          icon="zygosity"
          type="het"
          height="14" width="24"
          iconStyle="margin-top:-2px"
-         label="Heterozygous alternate">
+         label="Heterozygous">
         </legend-icon>
 
         <legend-icon
@@ -447,7 +449,7 @@
          type="hom"
          height="14" width="24"
          iconStyle="margin-top:-2px"
-         label="Homozygous alternate">
+         label="Homozygous">
         </legend-icon>
       </div>
 
