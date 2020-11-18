@@ -120,7 +120,8 @@ export default {
                 publicationUrl: 'https://gnomad.broadinstitute.org/'
 
             },
-            'impact':  {
+          //Todo: check description
+          'impact':  {
               title: 'Impact',
               description: '<div style="font-size: 15px; padding-bottom: 10px; font-style: italic">Predicted effect of the variant on gene function based on VEP annotations. </div>' +
                   ' <strong> High impact variant consequence </strong> ' +
@@ -135,11 +136,13 @@ export default {
               publicationUrl: 'https://m.ensembl.org/info/genome/variation/prediction/predicted_data.html'
 
             },
+          //Todo: Improve description
           'QC':  {
             title: 'Quality Control',
             description: 'Does the VCF have sufficient coverage for a variant based on the minimum overage thresholds set within gene.iobio (default: 10 reads)',
           },
-            'inheritance' : {
+          //Todo: check description
+          'inheritance' : {
               title: 'Inheritance',
               //Matts wording
                 // description: 'The Mendelian mode of inheritance and allele segregation pattern for a given variant',
@@ -147,13 +150,15 @@ export default {
               publication: 'Mode of inheritance terminology',
               publicationUrl: 'https://www.ons.org/genomics-taxonomy/mode-inheritance'
             },
+          //Todo: check description
             'clinvar': {
               title: 'ClinVar',
               description: 'Clinical significance according to the ClinVar database.  The guidelines for reporting ClinVar significance are outlined by ACMG/AMP, for variants interpreted for Mendelian disorders.',
               publication: 'ClinVar significance terminology guidelines',
               publicationUrl: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4544753/',
             },
-            'variantType': {
+          //Todo: check description
+          'variantType': {
               title: 'Variant type',
               description:
                   '<div style="font-size: 15px; padding-bottom: 10px; font-style: italic">How the genetic sequence of the sample differs from the human reference genome </div>' +
@@ -167,12 +172,13 @@ export default {
                   '<div>A genetic sequence where the difference between the human reference genome and the sample that cannot be described by a basic variant type</div>',
             },
 
-          //todo: write better description of evidence
+          //todo: Improve description
               'evidence': {
             title: 'Evidence for Pathogenicity',
             description: 'Support for pathogenicity based on internal, gene.iobio criteria.',
               },
 
+          //todo: Check description
           'coverage': {
             title: 'Coverage',
             description: 'Does the exonic region in the bam file meet the minimum read coverage threshold. This threshold is set with the assess coverage button. (default: min coverage >=10)'
@@ -181,9 +187,8 @@ export default {
           //todo: Improve call variants description.
           'called-variants': {
             title: 'Variants called in gene.iobio',
-            description: 'Variants called in gene.iobio are called from the VCF using freebayes.',
+            description: 'Variants called in gene.iobio are called from the VCF using freebayes, and can be called by pressing the \'Call Variants\' button on the left-hand panel \'Genes\' tab.',
           },
-
 
             'variant-toggle': {
               title: 'Filter variant track by inheritance',

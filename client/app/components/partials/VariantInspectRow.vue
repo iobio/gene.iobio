@@ -93,7 +93,7 @@
       <app-icon :class="getClinVarClass(value)" width="17" height="17" icon="clinvar" style="margin-right: 1px !important"></app-icon>
     </span>
 
-    <app-icon v-if=" label !== 'ClinVar'" :class="clazz" width="18" height="18" icon="evidence"></app-icon>
+    <app-icon v-if=" label !== 'ClinVar'" :class="getEvidenceClass(clazz, value)" width="18" height="18" icon="evidence"></app-icon>
 
 
     <div v-if="clazz === 'level-unremarkable'" style="padding-left: 4px">
@@ -144,6 +144,12 @@ export default {
       } else {
         return "";
       }
+    },
+
+    //Todo: refactor to return Pathogenic evidence impact based on evidence
+    getEvidenceClass: function(clazz, evidence){
+      console.log("clazz, evidence", clazz, evidence);
+      return clazz
     },
 
     getClinVarClass: function(val){

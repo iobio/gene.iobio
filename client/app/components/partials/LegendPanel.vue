@@ -211,7 +211,7 @@
          icon="recessive"
          width="16"
          height="16"
-         label="Recessive">
+         label="Autosomal Recessive">
         </legend-icon>
         <legend-icon
          icon="x-linked"

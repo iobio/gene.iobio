@@ -222,6 +222,7 @@
 
 
 
+<!--    Todo: Change glyph to 'AR'-->
       <svg  v-if="icon == 'recessive'" id="recessive-symbol" viewBox="0 0 27 27" :style="iconStyle" >
         <circle fill="#C1272D" stroke="#000000" stroke-miterlimit="10" cx="7.6" cy="4" r="3.5"/>
         <circle fill="#C1272D" stroke="#000000" stroke-miterlimit="10" cx="16.6" cy="4" r="3.5"/>
