@@ -170,19 +170,18 @@ export default {
           //todo: write better description of evidence
               'evidence': {
             title: 'Evidence for Pathogenicity',
-            description: 'Support for pathogenicity based on internal, gene.iobio criteria.  This evidence is not based on ACMG evidence codes',
+            description: 'Support for pathogenicity based on internal, gene.iobio criteria.',
               },
 
-          //Todo: fill out coverage popout
           'coverage': {
             title: 'Coverage',
-            description: ''
+            description: 'Does the exonic region in the bam file meet the minimum read coverage threshold. This threshold is set with the assess coverage button. (default: min coverage >=10)'
           },
 
-          //todo: fill out called variants description
+          //todo: Improve call variants description.
           'called-variants': {
             title: 'Variants called in gene.iobio',
-            description: '',
+            description: 'Variants called in gene.iobio are called from the VCF using freebayes.',
           },
 
 
