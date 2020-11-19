@@ -291,6 +291,7 @@ main.content.clin, main.v-content.clin
       @call-variants="callVariants"
       @filter-settings-applied="onFilterSettingsApplied"
       @isDemo="onIsDemo"
+      @isTrio="onIsTrio"
       @variant-count-changed="variantCountChanged"
       @toggle-save-modal="toggleSaveModal(true)"
       @on-welcome-changed="onWelcomeChanged"
@@ -1705,6 +1706,7 @@ export default {
     },
 
     onLoadDemoData: function() {
+      console.log(":onLoadDemoData");
       this.launchedFromDemo = true;
       this.isMother = true;
       this.isFather = true;
@@ -3360,9 +3362,15 @@ export default {
       this.cacheHelper.stopAnalysis();
     },
     onIsDemo: function(bool){
+      console.log("onIsDemo", bool);
       this.isMother = bool;
       this.isFather = bool;
       this.launchedFromDemo = bool;
+    },
+    onIsTrio: function(bool){
+      console.log("onIsTrio", bool);
+      this.isMother = bool;
+      this.isFather = bool;
     },
     onShowSnackbar: function(snackbar) {
       if (snackbar && snackbar.message) {

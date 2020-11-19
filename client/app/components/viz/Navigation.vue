@@ -788,6 +788,7 @@ nav.toolbar, nav.v-toolbar
      @load-demo-data="onLoadDemoData"
      @on-cancel="showFiles = false"
      @isDemo="onIsDemo"
+     @isTrio="onIsTrio"
     >
     </files-dialog>
 
@@ -1171,6 +1172,9 @@ export default {
     },
     onIsDemo: function(bool){
       this.$emit("isDemo", bool);
+    },
+    onIsTrio: function(bool){
+      this.$emit("isTrio", bool);
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
