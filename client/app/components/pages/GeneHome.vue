@@ -2771,7 +2771,6 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
-        console.log("promiseInitFromUrl");
 
         // Set the genome build before we access any gene
         // transcripts to ensure we are using the appropriate
@@ -2806,7 +2805,7 @@ export default {
             self.onGeneSelected(self.paramGeneName);
           }
         }
-        console.log("self.paramRelationships", self.paramRelationships);
+
         let isTrio = self.paramRelationships.every(sample => sample);
         if (isTrio) {
           self.isMother = true;
