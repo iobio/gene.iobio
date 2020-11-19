@@ -1706,7 +1706,6 @@ export default {
     },
 
     onLoadDemoData: function() {
-      console.log(":onLoadDemoData");
       this.launchedFromDemo = true;
       this.isMother = true;
       this.isFather = true;
@@ -2772,6 +2771,7 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
+        console.log("promiseInitFromUrl");
 
         // Set the genome build before we access any gene
         // transcripts to ensure we are using the appropriate
@@ -2805,6 +2805,12 @@ export default {
           if (!self.launchedFromHub) {
             self.onGeneSelected(self.paramGeneName);
           }
+        }
+        console.log("self.paramRelationships", self.paramRelationships);
+        let isTrio = self.paramRelationships.every(sample => sample);
+        if (isTrio) {
+          self.isMother = true;
+          self.isFather = true;
         }
 
 
@@ -3362,13 +3368,11 @@ export default {
       this.cacheHelper.stopAnalysis();
     },
     onIsDemo: function(bool){
-      console.log("onIsDemo", bool);
       this.isMother = bool;
       this.isFather = bool;
       this.launchedFromDemo = bool;
     },
     onIsTrio: function(bool){
-      console.log("onIsTrio", bool);
       this.isMother = bool;
       this.isFather = bool;
     },
