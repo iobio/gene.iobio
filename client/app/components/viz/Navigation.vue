@@ -476,7 +476,7 @@ nav.toolbar, nav.v-toolbar
       </v-toolbar-side-icon>
 
 
-      <v-toolbar-title class="nav-link" style="font-weight:400" @click="navigateHome" v-text="title">
+      <v-toolbar-title style="font-weight:400" v-text="title">
       </v-toolbar-title>
 
 
