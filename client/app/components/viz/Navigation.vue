@@ -646,7 +646,7 @@ nav.toolbar, nav.v-toolbar
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
-        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin && !isCommercial" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
 
