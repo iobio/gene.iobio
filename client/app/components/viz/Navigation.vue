@@ -476,7 +476,7 @@ nav.toolbar, nav.v-toolbar
       </v-toolbar-side-icon>
 
 
-      <v-toolbar-title class="nav-link" style="font-weight:400" @click="navigateHome" v-text="title">
+      <v-toolbar-title style="font-weight:400" v-text="title">
       </v-toolbar-title>
 
 
@@ -646,7 +646,7 @@ nav.toolbar, nav.v-toolbar
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
-        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin && !isCommercial" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
 
@@ -788,6 +788,7 @@ nav.toolbar, nav.v-toolbar
      @load-demo-data="onLoadDemoData"
      @on-cancel="showFiles = false"
      @isDemo="onIsDemo"
+     @isTrio="onIsTrio"
     >
     </files-dialog>
 
@@ -1171,6 +1172,9 @@ export default {
     },
     onIsDemo: function(bool){
       this.$emit("isDemo", bool);
+    },
+    onIsTrio: function(bool){
+      this.$emit("isTrio", bool);
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;

@@ -291,6 +291,7 @@ main.content.clin, main.v-content.clin
       @call-variants="callVariants"
       @filter-settings-applied="onFilterSettingsApplied"
       @isDemo="onIsDemo"
+      @isTrio="onIsTrio"
       @variant-count-changed="variantCountChanged"
       @toggle-save-modal="toggleSaveModal(true)"
       @on-welcome-changed="onWelcomeChanged"
@@ -2805,6 +2806,12 @@ export default {
           }
         }
 
+        let isTrio = self.paramRelationships.every(sample => sample);
+        if (isTrio) {
+          self.isMother = true;
+          self.isFather = true;
+        }
+
 
         var modelInfos = [];
         for (var i = 0; i < self.paramRelationships.length; i++) {
@@ -3363,6 +3370,10 @@ export default {
       this.isMother = bool;
       this.isFather = bool;
       this.launchedFromDemo = bool;
+    },
+    onIsTrio: function(bool){
+      this.isMother = bool;
+      this.isFather = bool;
     },
     onShowSnackbar: function(snackbar) {
       if (snackbar && snackbar.message) {

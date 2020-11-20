@@ -513,8 +513,10 @@ export default {
     },
     onModeChanged: function() {
       if (this.mode == 'trio' && this.cohortModel.getCanonicalModels().length < 3 ) {
+        this.$emit('isTrio', true);
         this.promiseInitMotherFather();
       } else if (this.mode == 'single' && this.cohortModel.getCanonicalModels().length > 1) {
+        this.$emit('isTrio', false)
         this.removeMotherFather();
       }
 
