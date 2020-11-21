@@ -236,7 +236,8 @@ main.content.clin, main.v-content.clin
       :isBasicMode="isBasicMode"
       :forMyGene2="forMyGene2"
       :isSimpleMode="isSimpleMode"
-      :isCommercial="isCommercial"
+      :showBlogsAndTutorials="showBlogsAndTutorials"
+      :isPhenolyzerPermitted="isPhenolyzerPermitted"
       :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
       :callAllInProgress="cacheHelper.callAllInProgress"
       :selectedGene="selectedGene"
@@ -393,7 +394,7 @@ main.content.clin, main.v-content.clin
           :isBasicMode="isBasicMode"
           :isSimpleMode="isSimpleMode"
           :isFullAnalysis="isFullAnalysis"
-          :isCommercial="isCommercial"
+          :isOMIMPermitted="isOMIMPermitted"
           :launchedFromClin="launchedFromClin"
           :launchedFromHub="launchedFromHub"
           :showSfariTrackToggle="cohortModel && cohortModel.isSfariProject"
@@ -1015,9 +1016,12 @@ export default {
       * This variable controls if gene should show a "simplified" view
       */
       isSimpleMode: process.env.DEFAULT_MODE === 'simple',
-      isCommercial: !!(process.env.IS_COMMERCIAL && process.env.IS_COMMERCIAL === 'true'),
+      isPhenolyzerPermitted: process.env.PHENOLYZER_PERMITTED && process.env.PHENOLYZER_PERMITTED === 'true',
+      isOMIMPermitted: process.env.OMIM_API_KEY && process.env.OMIM_API_KEY.length > 0,
 
       showIntro: false,
+
+      showBlogsAndTutorials: (process.env.SHOW_BLOGS_AND_TUTORIALS && process.env.SHOW_BLOGS_AND_TUTORIALS === 'true') || !process.env.SHOW_BLOGS_AND_TUTORIALS,
 
 
       closeIntro: false,

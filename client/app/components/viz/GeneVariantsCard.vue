@@ -139,7 +139,7 @@
 
     <div style="display:flex;justify-content:flex-start;margin-top:5px">
         <gene-omim-table  style="margin-right:30px"
-         v-if="!isCommercial && selectedGene && cohortModel"
+         v-if="isOMIMPermitted && selectedGene && cohortModel"
          :selectedGene="selectedGene"
          :geneModel="cohortModel.geneModel">
         </gene-omim-table>
@@ -194,7 +194,7 @@
             isBasicMode: null,
             isSimpleMode: null,
             isFullAnalysis: null,
-            isCommercial: null,
+            isOMIMPermitted: null,
             isLoaded: null,
             launchedFromClin: null,
             launchedFromHub: null
