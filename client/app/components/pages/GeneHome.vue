@@ -3329,6 +3329,10 @@ export default {
       let self = this;
       this.isBasicMode = false;
       this.isSimpleMode = false;
+      this.closeIntro = false;
+      setTimeout(function() {
+          self.closeIntro = true;
+      }, 2000);
       this.featureMatrixModel.isBasicMode = false;
       this.featureMatrixModel.isSimpleMode = false;
       this.filterModel.isBasicMode = false;
@@ -3338,6 +3342,7 @@ export default {
         if (self.forMyGene2) {
           options.query.mygene2 = true;
         }
+       
         self.$router.push(options)
       });
     },
