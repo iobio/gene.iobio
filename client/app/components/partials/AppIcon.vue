@@ -222,22 +222,29 @@
 
 
 
-<!--    Todo: Change glyph to 'AR'-->
-      <svg  v-if="icon == 'recessive'" id="recessive-symbol" viewBox="0 0 27 27" :style="iconStyle" >
-        <circle fill="#C1272D" stroke="#000000" stroke-miterlimit="10" cx="7.6" cy="4" r="3.5"/>
-        <circle fill="#C1272D" stroke="#000000" stroke-miterlimit="10" cx="16.6" cy="4" r="3.5"/>
+      <!--    Todo: Change glyph to 'AR'-->
+      <svg  v-if="icon == 'recessive'" id="recessive-symbol" viewBox="0 0 27 27" :style="iconStyle">
+        <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="7.6" cy="4" r="3.5"/>
+        <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="16.6" cy="4" r="3.5"/>
         <g>
-          <path fill="#717171" d="M7.6,11.2c0.9-0.1,2.2-0.3,3.7-0.3c1.8,0,3.1,0.3,3.9,1c0.7,0.6,1.1,1.4,1.1,2.5c0,1.5-1.1,2.6-2.1,3v0.1
-            c0.8,0.3,1.3,1.2,1.6,2.3c0.4,1.4,0.8,3,1,3.4h-2.8c-0.2-0.3-0.5-1.3-0.8-2.8c-0.3-1.5-0.8-1.9-2-1.9h-0.8v4.8H7.6V11.2z
-             M10.3,16.4h1.1c1.4,0,2.2-0.7,2.2-1.7c0-1.1-0.8-1.7-2-1.7c-0.7,0-1,0.1-1.2,0.1V16.4z"/>
+          <path style="fill:#717171" d="M13.6,11.2c0.9-0.1,2.2-0.3,3.7-0.3c1.8,0,3.1,0.3,3.9,1c0.7,0.6,1.1,1.4,1.1,2.5c0,1.5-1.1,2.6-2.1,3v0.1
+            c0.8,0.3,1.3,1.2,1.6,2.3c0.4,1.4,0.8,3,1,3.4H20c-0.2-0.3-0.5-1.3-0.8-2.8s-0.8-1.9-2-1.9h-0.8v4.8h-2.8V11.2z M16.3,16.4h1.1
+            c1.4,0,2.2-0.7,2.2-1.7c0-1.1-0.8-1.7-2-1.7c-0.7,0-1,0.1-1.2,0.1v3.3H16.3z"/>
+        </g>
+        <g>
+          <path style="fill:#717171" d="M12.8,23.1h-2.7L9,20.3H4.2l-1,2.8H0.5l4.7-12.2h2.6L12.8,23.1z M8.2,18.3l-1.7-4.5l-1.6,4.5H8.2z"/>
         </g>
       </svg>
 
-      <svg v-if="icon == 'x-linked' || icon == 'xlinked' || icon == 'x linked'"  id="x-linked-symbol"  viewBox="0 0 27 27" :style="iconStyle">
+
+      <svg v-if="icon == 'x-linked' || icon == 'xlinked' || icon == 'x linked'"  id="x-linked-symbol"  viewBox="0 0 27 27" :style="iconStyle">        
         <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="13" cy="4" r="3.5"/>
         <g>
-          <path style="fill:#717171;" d="M15.8,21.8l-1.1-2.2c-0.5-0.8-0.7-1.5-1.1-2.2h0c-0.3,0.7-0.6,1.3-0.9,2.2l-1,2.2H8.5l3.5-6.1
-          l-3.4-6h3.2l1.1,2.2c0.4,0.7,0.6,1.3,0.9,2h0c0.3-0.8,0.5-1.3,0.8-2l1-2.2h3.1l-3.4,5.9l3.6,6.2H15.8z"/>
+          <path style="fill:#717171;" d="M9.8,21.8l-1.1-2.2c-0.5-0.8-0.7-1.5-1.1-2.2l0,0c-0.3,0.7-0.6,1.3-0.9,2.2l-1,2.2H2.5L6,15.7l-3.4-6h3.2
+            l1.1,2.2c0.4,0.7,0.6,1.3,0.9,2l0,0c0.3-0.8,0.5-1.3,0.8-2l1-2.2h3.1l-3.4,5.9l3.6,6.2H9.8z"/>
+        </g>
+        <g>
+          <path style="fill:#717171;" d="M14.4,21.6V9.5h2.5v10H23v2H14.4z"/>
         </g>
       </svg>
 
