@@ -27,7 +27,9 @@ jobs:
         echo IOBIO_BACKEND=${{ secrets.IOBIO_BACKEND }} >> .env
         echo IOBIO_BACKEND_MOSAIC=${{ secrets.IOBIO_BACKEND_MOSAIC }} >> .env
         echo USE_SSL=${{ secrets.USE_SSL }} >> .env
-        echo OMIM_API_KEY=${{ secrets.OMIM_API_KEY }} >> .env        
+        echo OMIM_API_KEY=${{ secrets.OMIM_API_KEY }} >> .env
+        echo SHOW_BLOGS_AND_TUTORIALS=${{ secrets.SHOW_BLOGS_AND_TUTORIALS }} >> .env
+        echo PHENOLYZER_PERMITTED=${{ secrets.PHENOLYZER_PERMITTED }} >> .env
     - name: Stage Build
       run: |
         NODE_ENV=production npm run build
