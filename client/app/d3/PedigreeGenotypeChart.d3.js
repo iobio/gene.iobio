@@ -43,7 +43,7 @@ export default function PedigreeGenotypeChartD3() {
         }
         else if(nodeData.sex === "male"){
             parent.append("g")
-                .attr("transform", "translate(-" + (nodeWidth / 1.75) + ", -" + (nodeWidth / 2) + ")")
+                .attr("transform", "translate(-" + (nodeWidth / 1.75) + ", -" + (nodeWidth / 2 -1) + ")")
                 .append("use")
                 .attr("xlink:href", "#affected-symbol")
                 .attr("class", "level-high")
@@ -221,7 +221,7 @@ export default function PedigreeGenotypeChartD3() {
             group
                 .attr("transform", function (d, i) {
                     if (position == "top") {
-                        return "translate(-10,-12)";
+                        return "translate(-10,-18)";
                     } else {
                         return "translate(-10," + (nodeWidth + 20) + ")";
                     }
@@ -232,7 +232,7 @@ export default function PedigreeGenotypeChartD3() {
             group
                 .attr("transform", function (d, i) {
                     if (position == "top") {
-                        return "translate(-10,-12)";
+                        return "translate(-10,-18)";
                     } else {
                         return "translate(-10," + (nodeWidth + 10) + ")";
                     }
