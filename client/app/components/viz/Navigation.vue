@@ -535,14 +535,14 @@ nav.toolbar, nav.v-toolbar
          @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
-        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin && !isCommercial" id="search-or" style="display:inline-block">
+        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin && isPhenolyzerPermitted" id="search-or" style="display:inline-block">
           or
         </div>
 
 
         <phenotype-search
          id="phenolyzer-search"
-         v-if="!isEduMode && !launchedFromClin && !isSimpleMode && !isCommercial"
+         v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
@@ -615,17 +615,17 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Software and resources</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider v-if="!isSimpleMode && !isCommercial"></v-divider>
+          <v-divider v-if="!isSimpleMode && showBlogsAndTutorials"></v-divider>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowBlog">
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && showBlogsAndTutorials" @click="onShowBlog">
             <v-list-tile-title>Blog</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowTutorial" >
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && showBlogsAndTutorials" @click="onShowTutorial" >
             <v-list-tile-title>Tutorials</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isCommercial" @click="onShowIOBIO" >
+          <v-list-tile v-if="!isSimpleMode && showBlogsAndTutorials" @click="onShowIOBIO" >
             <v-list-tile-title>iobio</v-list-tile-title>
           </v-list-tile>
 
@@ -646,7 +646,7 @@ nav.toolbar, nav.v-toolbar
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
-        <v-btn v-if="!isFullAnalysis && !launchedFromClin && !isCommercial" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
 
@@ -1040,7 +1040,8 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     isSimpleMode: null,
-    isCommercial: null,
+    showBlogsAndTutorials: null,
+    isPhenolyzerPermitted: null,
     forMyGene2: null,
     launchedFromSFARI: null,
     launchedFromHub: null,
