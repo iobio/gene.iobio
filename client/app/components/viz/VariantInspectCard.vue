@@ -110,7 +110,7 @@
         font-size: 14px
         color:  $app-color
         margin-top: 5px
-        margin-bottom: 15px
+        margin-bottom: 5px
 
         hr
           margin-top: 1px
@@ -120,10 +120,9 @@
       .variant-column-hint
         font-size: 13px
         line-height: 14px
-        margin-bottom: 10px
-        margin-top: -10px
+        margin-top: -5px
         font-style: italic
-        height: 40px
+        height: 48px
 
       .variant-row
         display: flex
@@ -291,7 +290,7 @@
 
     .proband
       stroke: $current-color !important
-      stroke-width: 3px !important
+      stroke-width: 2px !important
 
     .allele-count-bar
       rect.alt-count
@@ -628,7 +627,7 @@
           </div>
       </div>
 
-      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant && selectedVariant.inheritance.length > 0">
+      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant">
           <div class="variant-column-header">
             Inheritance
             <v-divider></v-divider>
@@ -636,6 +635,7 @@
 
           <variant-inspect-inheritance-row :selectedVariant="selectedVariant" >
           </variant-inspect-inheritance-row>
+
 
           <div class="pedigree-chart">
             <app-icon class="hide" icon="affected"></app-icon>
