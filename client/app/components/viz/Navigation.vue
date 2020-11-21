@@ -573,7 +573,7 @@ nav.toolbar, nav.v-toolbar
 
       <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
 
-      <v-btn icon v-if="!isBasicMode && !isCommercial" @click="onShowFiles" title="Load files">
+      <v-btn icon v-if="!isBasicMode && !isSimpleMode" @click="onShowFiles" title="Load files">
         <v-icon>publish</v-icon>
       </v-btn>
 
