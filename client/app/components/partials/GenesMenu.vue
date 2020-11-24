@@ -34,18 +34,32 @@ textarea#copy-paste-genes
     color: $text-color
     font-size: 16px
 
-#acmg-genes-button, #aclear-all-genes-button,  #apply-button
+#acmg-genes-button, #cancel-button,  #apply-button
   height: 30px !important
+
+#apply-button
+  background-color: $app-button-color !important
+  color: white !important
 
 #enter-genes-input, #phenotype-input
   label
     font-weight: normal
+
+#acmg-genes-button
+  margin-bottom: -10px
+  .v-btn__content
+    color:  $app-button-color 
+    .material-icons
+      font-size: 18px
+      padding-right: 2px
+      color:  $app-button-color 
 
 </style>
 
 <template>
     <v-menu
     offset-y
+    :close-on-click="false"
     :close-on-content-click="false"
     :nudge-width="isEduMode ? 450 : 400"
     bottom
@@ -63,16 +77,16 @@ textarea#copy-paste-genes
        @mouseleave="onMouseLeave()"
        v-tooltip.top-center="{content: tooltipContent, show: showTooltipFlag, trigger: 'manual'}"
       >
-        <v-icon v-if="buttonIcon">
-          {{ buttonIcon }}
-        </v-icon>
-        <span v-if="!buttonIcon">
-          Genes
+        
+        <app-icon icon="dnasearch"  width="24" height="24"></app-icon>
+        <span >
+          Gene list
         </span>
       </v-btn>
 
 
         <div  v-if="isEduMode" class="full-width" style="padding:20px">
+          
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
           <div style="margin-bottom:15px;margin-left:16px;">
               <phenotype-search
@@ -87,28 +101,34 @@ textarea#copy-paste-genes
           </div>
         </div>
 
-      <div class="full-width" style="padding: 20px">
+      <div class="full-width" style="padding: 10px 20px 10px 20px">
+        <div v-if="!isEduMode" style="justify-content:flex-end;display:flex">
+            <v-btn id="acmg-genes-button" flat @click="onACMGGenes">
+              <v-icon>content_copy</v-icon>
+            Use ACMG gene list
+            </v-btn>         
+        </div>
 
           <div id="enter-genes-input">
             <v-textarea
               id="copy-paste-genes"
               multi-line
               rows="12"
-              label="Enter gene names"
+              label="Enter or copy/paste gene names"
               v-model="genesToApply"
             >
             </v-textarea>
           </div>
-          <div v-if="!isEduMode">
-              <v-btn id="aclear-all-genes-button" @click="onClearAllGenes">
-              Clear all
-              </v-btn>
-              <v-btn id="acmg-genes-button" @click="onACMGGenes">
-              ACMG Genes
-              </v-btn>
-              <v-btn id="apply-button" style="float:right" @click="onApplyGenes">
-               Apply
-             </v-btn>
+          <div v-if="!isEduMode" style="display:flex;justify-content:flex-end">
+
+                <v-btn id="apply-button"  @click="onApplyGenes">
+                 Apply
+                </v-btn>
+
+                <v-btn id="cancel-button"  @click="onCancel">
+                 Cancel
+                </v-btn>
+
           </div>
 
 
@@ -119,6 +139,7 @@ textarea#copy-paste-genes
 <script>
 
 import PhenotypeSearch from '../partials/PhenotypeSearch.vue'
+import AppIcon from '../partials/AppIcon.vue'
 
 
 
@@ -127,6 +148,7 @@ export default {
   name: 'genes-menu',
   components: {
     PhenotypeSearch,
+    AppIcon,
   },
   props: {
     geneModel: null,
@@ -158,6 +180,10 @@ export default {
       self.$emit("apply-genes", self.genesToApply, options );
       self.showGenesMenu = false;
     },
+    onCancel: function() {
+      let self = this;
+      self.showGenesMenu = false;
+    },
     onACMGGenes: function() {
       this.genesToApply = this.geneModel.ACMG_GENES.join(", ");
     },
@@ -184,7 +210,6 @@ export default {
     },
     onClearAllGenes: function() {
       this.$emit("clear-all-genes");
-      this.showGenesMenu = false;
     },
     onMouseOver: function() {
       this.showTooltipFlag = true;
