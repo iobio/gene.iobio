@@ -19,11 +19,31 @@
     padding: 0px
     height: 30px !important
 
+nav .v-toolbar__content
+  #file-upload-symbol
+    fill: white !important
+  #dna-search-symbol
+    fill: white !important
+  #show-genes-button
+    margin-left: 5px
+    padding-left: 5px
+    padding-right: 8px
+    height: 34px
+    background-color: $nav-button-color
+    .v-btn__content
+      min-width: 90px
+      span
+        font-size: 14px
+        color: white
+        font-weight: 500 !important
+       
 aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
   z-index: 0
   padding-bottom: 0px
 
+
+  
 
   &.clin
     margin-top: 0px !important
@@ -176,7 +196,12 @@ nav.toolbar, nav.v-toolbar
     margin-right: 10px
 
   #coverage-settings-button
-    font-size: 16px
+    font-size: 14px
+    font-weight: 500
+    background-color: $nav-button-color
+    height: 34px
+    padding-left: 5px
+    padding-right: 8px
 
     .v-btn__content
       padding-top: 2px
@@ -191,7 +216,8 @@ nav.toolbar, nav.v-toolbar
       font-weight: 500
 
   #legend-button
-    font-size: 16px
+    font-size: 14px
+    font-weight: 500
     height: 36px
     margin-bottom: 6px
 
@@ -335,7 +361,7 @@ nav.toolbar, nav.v-toolbar
       margin-top: -4px
 
   #gene-name-input
-    width: 130px
+    width: 140px
     margin-left: 5px
 
   #search-phenotype-button
@@ -492,10 +518,10 @@ nav.toolbar, nav.v-toolbar
       <v-btn v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
         <v-badge right  >
           <v-icon>bar_chart</v-icon>
-          <span style="font-size:15px">
+          <span >
             Assess coverage
           </span>
-          <v-icon class="gene-coverage-problem" style="margin-left:7px" v-if="badgeCounts && badgeCounts.coverage > 0">trending_down</v-icon>
+          <v-icon class="gene-coverage-problem"  v-if="badgeCounts && badgeCounts.coverage > 0">trending_down</v-icon>
           <span v-if="badgeCounts && badgeCounts.coverage"
             slot="badge">{{ badgeCounts.coverage }}</span>
         </v-badge>
@@ -505,15 +531,13 @@ nav.toolbar, nav.v-toolbar
 
       <v-toolbar-items style="flex-grow: 3;padding-top:3px;margin-right:60px">
 
-        <v-icon>
-          search
-        </v-icon>
+        <app-icon icon="dnasearch"  style="margin-top: 12px" width="24" height="24"></app-icon>
 
         <span id="gene-name-input"  style="display:inline-block">
           <v-text-field id="search-gene-name"
           :class="clazzAttention"
           :hide-details="true"
-          v-model="geneEntered" label="Gene" >
+          v-model="geneEntered" label="Gene name" >
           </v-text-field>
           <typeahead v-model="lookupGene"
           force-select v-bind:limit="typeaheadLimit" match-start
@@ -522,12 +546,14 @@ nav.toolbar, nav.v-toolbar
         </span>
 
 
-
+        <div v-if="!launchedFromClin && !isEduMode && !isBasicMode" id="search-or" style="display:inline-block">
+          or
+        </div>
 
         <genes-menu
          ref="genesMenuRef"
          v-if="!launchedFromClin && !isEduMode && !isBasicMode"
-         :buttonIcon="`more_vert`"
+         :buttonIcon="`add_circle`"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
@@ -539,7 +565,9 @@ nav.toolbar, nav.v-toolbar
           or
         </div>
 
-
+        <v-icon v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted">
+          person_search
+        </v-icon>
         <phenotype-search
          id="phenolyzer-search"
          v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted"
@@ -573,8 +601,8 @@ nav.toolbar, nav.v-toolbar
 
       <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
 
-      <v-btn icon v-if="!isBasicMode && !isSimpleMode" @click="onShowFiles" title="Load files">
-        <v-icon>publish</v-icon>
+      <v-btn id="files-button" icon v-if="!isBasicMode && !isSimpleMode" @click="onShowFiles" title="Load files">
+        <app-icon icon="fileupload"  width="24" height="24">publish</app-icon>
       </v-btn>
 
       <v-menu>
@@ -1017,7 +1045,8 @@ import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
 import ImportVariants      from '../partials/ImportVariants.vue'
 import ExportVariants      from '../partials/ExportVariants.vue'
 import FilterIcon          from '../partials/FilterIcon.vue'
-import SaveButton         from '../partials/SaveButton.vue'
+import SaveButton          from '../partials/SaveButton.vue'
+import AppIcon             from '../partials/AppIcon.vue'
 
 export default {
   name: 'navigation',
@@ -1033,7 +1062,8 @@ export default {
     ImportVariants,
     ExportVariants,
     FilterIcon,
-    SaveButton
+    SaveButton,
+    AppIcon
   },
   props: {
     showFilesProp: null,
