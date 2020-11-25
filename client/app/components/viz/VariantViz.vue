@@ -70,7 +70,9 @@
 
 <template>
     <div class="variant-viz">
-
+      <div v-if="data.count<1">
+        <v-badge class="info" style="margin: 20px;">No variants are present in {{ model.relationship }}</v-badge>
+      </div>
     </div>
 </template>
 

@@ -218,6 +218,7 @@ export default {
           })
 
           this.setDepthChart();
+          this.update();
       },
       update: function() {
         var self = this;
