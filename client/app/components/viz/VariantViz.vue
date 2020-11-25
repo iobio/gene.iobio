@@ -70,7 +70,10 @@
 
 <template>
     <div class="variant-viz">
-
+      <div v-if="data.count<1">
+        <v-badge class="info" style="margin: 20px;">Variants are not available {{ model.relationship }}</v-badge>
+        
+      </div>
     </div>
 </template>
 
@@ -162,6 +165,7 @@ export default {
     },
     mounted: function() {
       this.variants = this.data;
+      console.log("this.variants", this.variants);
       this.draw();
       this.update();
     },
