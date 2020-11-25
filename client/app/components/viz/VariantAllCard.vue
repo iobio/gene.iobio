@@ -465,6 +465,7 @@
           :showWhenEmpty="false"
           :showTransition="true"
           :classifySymbolFunc="classifyVariantSymbolFunc"
+          vizRef="calledVariants"
           @variantClick="onVariantClick"
           @variantOutsideClick="onVariantOutsideClick"
           @variantHover="onVariantHover"
@@ -512,6 +513,7 @@
           :showWhenEmpty="true"
           :showTransition="false"
           :classifySymbolFunc="classifyVariantSymbolFunc"
+          vizRef="loadedVariants"
           @variantClick="onVariantClick"
           @variantHover="onVariantHover"
           @variantHoverEnd="onVariantHoverEnd">
@@ -588,6 +590,7 @@
             :showBrush="false"
             :showXAxis="true"
             :showWhenEmpty="false"
+            vizRef="loadedVariants"
             :classifySymbolFunc="model.relationship === 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
             @variantClick="onVariantClick"
             @variantHover="onVariantHoverOther"
