@@ -164,7 +164,6 @@ export default {
     },
     mounted: function() {
       this.variants = this.data;
-      console.log("this.variants", this.variants);
       this.draw();
       this.update();
     },
