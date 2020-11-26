@@ -248,6 +248,22 @@
         </g>
       </svg>
 
+
+      <svg v-if="icon == 'x-linked-female'"  id="x-linked-female-symbol"  viewBox="0 0 27 27" :style="iconStyle">        
+      
+              <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="7.7" cy="4" r="3.5"/>
+        <g>
+          <path class="st1" d="M9.8,21.8l-1.1-2.2c-0.5-0.8-0.7-1.5-1.1-2.2l0,0c-0.3,0.7-0.6,1.3-0.9,2.2l-1,2.2H2.5L6,15.7l-3.4-6h3.2
+            l1.1,2.2c0.4,0.7,0.6,1.3,0.9,2l0,0c0.3-0.8,0.5-1.3,0.8-2l1-2.2h3.1l-3.4,5.9l3.6,6.2H9.8z"/>
+        </g>
+        <g>
+          <path style="fill:#717171;" d="M14.4,21.6V9.5h2.5v10H23v2h-8.6V21.6z"/>
+        </g>
+        <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="17" cy="4" r="3.5"/>
+      </svg>
+
+
+
       <svg v-if="icon == 'compound-het' || icon == 'compound het' || icon == 'compoundHet'"  id="compound-het-symbol" viewBox="0 0 27 27" :style="iconStyle">
         <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="8" cy="4" r="3.5"/>
         <circle style="fill:#DB7F05;stroke:#000000;stroke-miterlimit:10;" cx="17" cy="4" r="3.5"/>

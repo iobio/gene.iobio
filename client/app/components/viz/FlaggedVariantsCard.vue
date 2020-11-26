@@ -658,8 +658,8 @@
 
                           <app-icon
                           style="width: 15px;height: 15px;display: inline-block;margin-top: 2px;"
-                           :icon="variant.inheritance"
-                           v-if="!isBasicMode && variant.inheritance && variant.inhertance != '' && variant.inheritance.indexOf('n/a') == -1"
+                           :icon="variant.inheritanceGlyph ? variant.inheritanceGlyph : variant.inheritance"
+                           v-if="!isBasicMode && variant.inheritance && variant.inheritance != '' && variant.inheritance.indexOf('n/a') == -1"
                            class="inheritance-badge" height="15" width="15">
                           </app-icon>
 

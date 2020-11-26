@@ -169,7 +169,7 @@ export default class VariantTrioModel {
 
       // Fill in the inheritance mode.
       me.probandVcfData.features.forEach(function(variant) {
-        VariantTrioModel.determineInheritance(variant, 'compareMother', 'compareFather', me.motherAffectedInfo.status, me.fatherAffectedInfo.status);
+        VariantTrioModel.determineInheritance(variant, 'compareMother', 'compareFather', me.motherAffectedInfo.status, me.fatherAffectedInfo.status, me.probandAffectedInfo);
       });
 
       if (me.probandVcfData) {
@@ -421,7 +421,7 @@ export default class VariantTrioModel {
  *  denovo     - proband has variant, but not present in mom and dad
  *             (homref parents are also the same as variant not being present)
  */
-VariantTrioModel.determineInheritance = function(variant, fieldCompareMother, fieldCompareFather, motherAffectedStatus, fatherAffectedStatus) {
+VariantTrioModel.determineInheritance = function(variant, fieldCompareMother, fieldCompareFather, motherAffectedStatus, fatherAffectedStatus, probandAffectedInfo) {
   if (variant.zygosity != null && variant.zygosity.toLowerCase() == 'hom'
     && variant.motherZygosity != null && variant.motherZygosity.toLowerCase() == 'het'
     && variant.fatherZygosity != null && variant.fatherZygosity.toLowerCase() == 'het'
@@ -457,6 +457,11 @@ VariantTrioModel.determineInheritance = function(variant, fieldCompareMother, fi
        )
     ){
     variant.inheritance = 'x-linked';
+    if (probandAffectedInfo && probandAffectedInfo.sex && probandAffectedInfo.sex == "female") {
+      variant.inheritanceGlyph = 'x-linked-female'
+    } else {
+      variant.inheritanceGlyph = 'x-linked'
+    }
   } else {
     if (variant.zygosity != null && (variant.zygosity.toLowerCase() == 'het' || variant.zygosity.toLowerCase() == 'hom')) {
       if (
