@@ -255,7 +255,7 @@
 
           <app-icon
            v-if="hasFilteredVariants('xlinked')"
-           icon="xlinked"
+           :icon="getXLinkedIconName()"
            class=" level-edu glyph"
            width="15" height="15">
           </app-icon>
@@ -417,6 +417,19 @@ export default {
         && this.gene.dangerSummary.badges
         && this.gene.dangerSummary.badges[filterName]
         && this.gene.dangerSummary.badges[filterName].length > 0;
+    },
+    getXLinkedIconName: function() {
+      let variantGlyphs = {}
+      this.gene.dangerSummary.badges['xlinked'].forEach(function(variant) {
+        if (variant.inheritanceGlyph) {
+          variantGlyphs[variant.inheritanceGlyph] = true
+        }
+      })
+      if (Object.keys(variantGlyphs).length == 1) {
+        return Object.keys(variantGlyphs)[0]
+      } else {
+        return 'x-linked'
+      }
     },
     hasCoverageProblem: function() {
       return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem;

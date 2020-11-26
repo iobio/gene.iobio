@@ -88,7 +88,7 @@
 
       <app-icon  class="level-high" width="18" height="18" icon="evidence"></app-icon>
 
-      <app-icon  :icon="selectedVariant.inheritance" style="margin-left:4px;margin-right:4px" width="16" height="16"></app-icon>
+      <app-icon  :icon="selectedVariant.inheritanceGlyph ? selectedVariant.inheritanceGlyph : selectedVariant.inheritance" style="margin-left:4px;margin-right:4px" width="16" height="16"></app-icon>
 
       <div  style="padding-bottom: 1px; padding-left: 4px">
         <span style="width:100px;line-height:14px">{{ selectedVariant.inheritance == 'denovo' ? 'De novo' : capitalize(selectedVariant.inheritance) }}</span>
