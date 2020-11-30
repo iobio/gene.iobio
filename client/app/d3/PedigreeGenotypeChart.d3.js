@@ -439,7 +439,7 @@ export default function PedigreeGenotypeChartD3() {
                               let yShift = pedigreeData.father == null && pedigreeData.mother == null ? -60 : 0;
 
                               if (childData.length > 1) {
-                                return "translate(0,30+yShift)";                              
+                                return "translate(0," + (30+yShift) + ")";                              
                               } else {
                                 return "translate(" + (center - nodeWidth/2)  + "," + yShift + ")";
                               }
