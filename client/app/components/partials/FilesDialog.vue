@@ -229,17 +229,19 @@
                  dark small >
                   siblings
                 </span>
-                <span class="siblings-disabled" v-if="!(probandSamples && probandSamples.length > 0)" >
+                <span class="siblings-disabled" v-if="!(possibleSibs && possibleSibs.length > 0)" >
                  **Proband vcf must contain sibling data to enable sibling selection
                </span>
                </v-flex>
                 <v-flex  class=" pl-2 pr-3" >
                  <v-autocomplete
-                  v-bind:disabled="!(probandSamples && probandSamples.length > 0)"
+                  v-bind:disabled="!(possibleSibs && possibleSibs.length > 0)"
                   label="Affected Siblings"
                   multiple
                   v-model="affectedSibs"
-                  :items="probandSamples"
+                  :items="possibleSibs"
+                  item-text="sample"
+                  item-value="sample"                  
                   hide-details
                   >
                 </v-autocomplete>
@@ -247,11 +249,13 @@
 
                <v-flex   class="pr-2">
                  <v-autocomplete
-                  v-bind:disabled="!(probandSamples && probandSamples.length > 0)"
+                  v-bind:disabled="!(possibleSibs && possibleSibs.length > 0)"
                   label="Unaffected Siblings"
                   multiple
                   v-model="unaffectedSibs"
-                  :items="probandSamples"
+                  item-text="sample"
+                  item-value="sample"
+                  :items="possibleSibs"
                   hide-details
                   >
                 </v-autocomplete>
@@ -306,7 +310,7 @@ export default {
       ],
       demoAction: null,
       separateUrlForIndex: false,
-      probandSamples: null,
+      possibleSibs: null,
       affectedSibs: null,
       unaffectedSibs: null,
       inProgress: false
@@ -318,7 +322,13 @@ export default {
       if(self.loadReady) {
         self.cohortModel.promiseAddClinvarSample()
         .then(function () {
-          return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+          let affectedSibList = self.possibleSibs.filter(function(possibleSib) {
+            return self.affectedSibs.indexOf(possibleSib.sample) >= 0;
+          })
+          let unaffectedSibList = self.possibleSibs.filter(function(possibleSib) {
+            return self.unaffectedSibs.indexOf(possibleSib.sample) >= 0;
+          })
+          return self.cohortModel.promiseSetSibs(affectedSibList, unaffectedSibList)
         })
         .then(function () {
           self.cohortModel.setAffectedInfo(true);
@@ -486,7 +496,7 @@ export default {
         self.inProgress = true;
         self.cohortModel.promiseAddClinvarSample()
         .then(function () {
-          return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+          return self.setSibsInCohortModel();
         })
         .then(function () {
           self.cohortModel.setAffectedInfo(true);
@@ -505,6 +515,22 @@ export default {
           self.showFilesDialog = false;
         })
       }
+    },
+    setSibsInCohortModel: function() {
+      let self = this;
+      let affectedSibList = [];
+      if (self.affectedSibs && self.affectedSibs.length > 0) {
+        affectedSibList = self.possibleSibs.filter(function(possibleSib) {
+          return self.affectedSibs && self.affectedSibs.indexOf(possibleSib.sample) >= 0;
+        })
+      }
+      let unaffectedSibList = [];
+      if (self.unaffectedSibs && self.unaffectedSibs.length > 0) {
+        unaffectedSibList = self.possibleSibs.filter(function(possibleSib) {
+          return self.unaffectedSibs.indexOf(possibleSib.sample) >= 0;
+        })
+      }
+      return self.cohortModel.promiseSetSibs(affectedSibList, unaffectedSibList)
     },
     onCancel:  function() {
       let self = this;
@@ -556,7 +582,9 @@ export default {
           if (success) {
             theModelInfo.samples = sampleNames;
             if (theModel.relationship == 'proband') {
-              self.probandSamples = sampleNames;
+              self.possibleSibs = sampleNames.map(function(sampleName) {
+                return {sample: sampleName, sex: null}
+              });
             }
             self.$refs.sampleDataRef.forEach(function(ref) {
               if (ref.modelInfo.relationship == theModel.relationship) {
@@ -596,15 +624,15 @@ export default {
     },
     onSamplesAvailable: function(relationship, samples) {
       if (relationship == 'proband') {
-        this.probandSamples = samples;
+        this.possibleSibs = samples;
         if (this.cohortModel.sampleMapSibs.affected && this.cohortModel.sampleMapSibs.affected.length > 0) {
           this.affectedSibs = this.cohortModel.sampleMapSibs.affected.map(function(sampleModel) {
-            return sampleModel.sampleName;
+             return {sample: sampleModel.sampleName, sex: sampleModel.sex}
           })
         }
         if (this.cohortModel.sampleMapSibs.unaffected && this.cohortModel.sampleMapSibs.unaffected.length > 0) {
           this.unaffectedSibs = this.cohortModel.sampleMapSibs.unaffected.map(function(sampleModel) {
-            return sampleModel.sampleName;
+             return {sample: sampleModel.sampleName, sex: sampleModel.sex}
           })
         }
       }
