@@ -1582,7 +1582,74 @@ export default {
     },
     afGnomAD: function() {
       if (this.selectedVariant) {
-        if (this.globalApp.gnomADExtraAll || (this.globalApp.gnomADExtra && this.selectedVariant.extraAnnot)) {
+        if (this.globalApp.vepAFCustom 
+          && this.selectedVariant.vepAf.gnomADg 
+          && this.selectedVariant.vepAf.gnomADe ) {
+
+
+            // For gnomAD 3.1, we would prefer to use popmax AF (95 CI) rather
+            // than raw popmax AF.
+            let popmax_gnomADg = null;
+            if (this.selectedVariant.vepAf.gnomADg.faf95_popmax 
+              && $.isNumeric(this.selectedVariant.vepAf.gnomADg.faf95_popmax)) {
+              popmax_gnomADg = this.selectedVariant.vepAf.gnomADg.faf95_popmax
+            } else {
+              popmax_gnomADg = this.selectedVariant.vepAf.gnomADg.AF_popmax
+            }
+
+            let afAll        = [this.selectedVariant.vepAf.gnomADg.AF,
+                             this.selectedVariant.vepAf.gnomADe.AF]
+            let anAll        = [this.selectedVariant.vepAf.gnomADg.AN,
+                             this.selectedVariant.vepAf.gnomADe.AN]
+            let acAll        = [this.selectedVariant.vepAf.gnomADg.AC,
+                             this.selectedVariant.vepAf.gnomADe.AC]
+            let nHomAll      = [this.selectedVariant.vepAf.gnomADg.nhomalt_raw,
+                                this.selectedVariant.vepAf.gnomADg['nhomalt-raw'],
+                                this.selectedVariant.vepAf.gnomADe.nhomalt_raw]
+
+            let acTot = acAll.reduce(function(tot, ac) {
+              return tot + ((ac && $.isNumeric(ac)) ? +ac : 0);
+            }, 0)
+            let anTot = anAll.reduce(function(tot, an) {
+              return tot + ((an && $.isNumeric(an)) ? +an : 0);
+            }, 0)
+            let nHomTot = nHomAll.reduce(function(tot, nHom) {
+              return tot + ((nHom && $.isNumeric(nHom)) ? +nHom : 0);
+            }, 0)
+            let afTot = anTot > 0 ? (acTot / anTot) : 0;
+
+            // We prefer to show the popmax from genomes, if available
+            let afPopMax = 0;
+            if (popmax_gnomADg && $.isNumeric(popmax_gnomADg)) {
+              afPopMax = popmax_gnomADg
+            } else if (this.selectedVariant.vepAf.gnomADe.AF_popmax && $.isNumeric(this.selectedVariant.vepAf.gnomADe.AF_popmax)) {
+              afPopMax = this.selectedVariant.vepAf.gnomADe.AF_popmax;
+            }
+            
+
+
+            var gnomAD = {};
+            gnomAD.percent       = afTot == 0 ? '0%' : d3.format(".3%")(afTot);
+            gnomAD.class         = this.getAfClass(afTot);
+            gnomAD.percentPopMax = afPopMax == 0 ? '0%' : d3.format(".3%")(afPopMax);
+            gnomAD.altCount      = acTot;
+            gnomAD.totalCount    = anTot;
+            gnomAD.homCount      = nHomTot;
+
+            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+                          + this.selectedVariant.chrom + "-"
+                          + this.selectedVariant.start + "-"
+                          + this.selectedVariant.ref + "-"
+                          + this.selectedVariant.alt;
+
+            if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
+              gnomAD.link += "?dataset=gnomad_r3"
+            };
+
+            return gnomAD;
+
+        }
+        else if (this.globalApp.gnomADExtraAll || (this.globalApp.gnomADExtra && this.selectedVariant.extraAnnot)) {
           if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
             return {percent: "?", link: null, class: ""};
           } else if (this.selectedVariant.gnomAD.af  == '.') {

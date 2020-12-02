@@ -54,11 +54,14 @@ class GlobalApp {
     // get gnomad extra info for all variants
     this.gnomADExtraAll       = true;
 
+
     // How many genes can be analyzed in one session.  Set to null if no limitation.
     this.maxGeneCount         = null;
 
     // Should vep retrieve allele frequencies (for gnomad, 1000G, ESP)
     this.vepAF                = true ;
+    // Should vep use -custom arg to obtain gnomAD genome and exome info
+    this.vepAFCustom          = true ;
 
     this.vepREVELFile         = './vep-cache/revel_all_chromosomes_for_vep.tsv.gz';
 
@@ -161,21 +164,39 @@ class GlobalApp {
 
   }
 
-  getGnomADUrl(build, chrom) {
+  getGnomADUrl(build, chrom, sequencingScope="genomes", isSecure=true) {
 
+    let prot = isSecure ? 'https' : 'http';
     var gnomADSource = {
       genomes: {
-        'GRCh37': 'https://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/genomes/gnomad.genomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
-        'GRCh38': 'https://storage.googleapis.com/gnomad-public/release/3.0/vcf/genomes/gnomad.genomes.r3.0.sites.chrCHROM-ALIAS.vcf.bgz'
+        'GRCh37': prot + '://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/genomes/gnomad.genomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
+        'GRCh38': prot + '://storage.googleapis.com/gcp-public-data--gnomad/release/3.1/vcf/genomes/gnomad.genomes.v3.1.sites.chrCHROM-ALIAS.vcf.bgz'
+        //'GRCh38': prot + '://storage.googleapis.com/gnomad-public/release/3.1/vcf/genomes/gnomad.genomes.r3.0.sites.chrCHROM-ALIAS.vcf.bgz'
       },
       exomes: {
-        'GRCh37': 'http://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/exomes/gnomad.exomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
+        'GRCh37': prot + '://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/exomes/gnomad.exomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
         'GRCh38': 'ftp://ftp.ensembl.org/pub/data_files/homo_sapiens/GRCh38/variation_genotype/gnomad/r2.1/exomes/gnomad.exomes.r2.1.sites.grch38.chrCHROM-ALIAS_noVEP.vcf.gz'
       }
     }
-    var theUrl = gnomADSource.genomes[build];
+    var theUrl = gnomADSource[sequencingScope][build];
     theUrl = theUrl.replace(/CHROM-ALIAS/g, chrom);
     return theUrl;
+  }
+
+  
+  getGnomADFields(build, sequencingScope="genomes") {
+    var gnomADFields = {
+      genomes: {
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas',
+        'GRCh38': 'AF,AN,AC,nhomalt-raw,AF_popmax,faf95_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas'
+      },
+      exomes: {
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas',
+        // Only annotate with gnomAD v3.1 genomes for GRCh38 (done include lift-over)
+        'GRCh38': null
+      }
+    }
+    return gnomADFields[sequencingScope][build];
   }
 
   getGnomADHeader() {

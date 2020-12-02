@@ -17,6 +17,7 @@ export default class EndpointCmd {
       // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
       this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
+      //this.api = new Client(process.env.IOBIO_BACKEND, { secure: false });
     }
 
     // iobio services
@@ -111,20 +112,39 @@ export default class EndpointCmd {
             const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
             const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
 
-            let gnomadUrl = null;
+
+            let gnomadUrlGenomes = null;
+            let gnomadUrlExomes = null;
             let gnomadRegionStr = null;
+            let gnomadFieldsGenomes = null;
+            let gnomadFieldsExomes = null;
+            let vepCustom = null;
 
             if (gnomadExtra) {
 
               // Get the gnomad vcf based on the genome build
-              gnomadUrl = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
+              gnomadUrlGenomes = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName), "genomes", false);
+              gnomadUrlExomes  = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName), "exomes", false);
+
 
               // Prepare args to annotate with gnomAD
               gnomadRegionStr = "";
               regions.forEach(function(region) {
                 gnomadRegionStr += refName + "\t" + region.start + "\t" + region.end + "\n";
               })
-            }
+
+              // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
+              gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),  "genomes");
+              gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),  "exomes");
+
+              vepCustom = "-custom " 
+                          + gnomadUrlGenomes + ',gnomADg,vcf,exact,0,' + gnomadFieldsGenomes;
+              if (gnomadFieldsExomes) {
+                vepCustom += " -custom " 
+                          + gnomadUrlExomes + ',gnomADe,vcf,exact,0,' + gnomadFieldsExomes;
+      
+              }
+                                      }
 
             const cmd = this.api.streamCommand('annotateVariants', {
                 vcfUrl: vcfSource.vcfUrl,
@@ -140,9 +160,10 @@ export default class EndpointCmd {
                 vepAF,
                 sfariMode,
                 vepREVELFile: this.globalApp.vepREVELFile,
-                gnomadUrl: gnomadUrl ? gnomadUrl : '',
+                gnomadUrl: gnomadUrlGenomes ? gnomadUrlGenomes : '',
                 gnomadRegionStr: gnomadRegionStr ? gnomadRegionStr : '',
-                decompose
+                decompose,
+                vepCustom
             });
 
             cmd.on('error', function(error){

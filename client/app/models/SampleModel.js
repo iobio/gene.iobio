@@ -1847,7 +1847,7 @@ class SampleModel {
                false, // serverside cache
                false, // sfari mode
                me.globalApp.gnomADExtraAll, // get extra gnomad,
-               !me.isEduMode// decompose
+               !me.isEduMode // decompose
               );
           })
           .then( function(data) {
@@ -2099,53 +2099,46 @@ class SampleModel {
 
   _determineHighestAf(variant) {
     var me = this;
-    // Find the highest value (the least rare AF) betweem exac and 1000g to evaluate
-    // as 'lowest' af for all variants in gene
-    var afHighest = null;
+    // Find the highest value (the least rare AF) 
+    variant.afHighest = 0;
+    variant.afFieldHighest = null;
 
-    if ($.isNumeric(variant.afExAC) && $.isNumeric(variant.af1000G)) {
-      // Ignore exac n/a.  If exac is higher than 1000g, evaluate exac
-      if (variant.afExAC > -100 && variant.afExAC >= variant.af1000G) {
-        variant.afFieldHighest = 'afExAC';
-      } else {
-        variant.afFieldHighest = 'af1000G';
+    if (me.globalApp.vepAF) {
+      if ($.isNumeric(variant.vepAf.MAX.AF)) {
+        if (variant.afHighest == null || +variant.vepAf.MAX.AF >= variant.afHighest) {
+          variant.afFieldHighest = 'vepAf.MAX.AF';
+          variant.afHighest = me.getHighestAf(variant);
+        }        
+      } 
+      
+      if (me.globalApp.vepAFCustom 
+        && variant.vepAf.gnomADg 
+        && variant.vepAf.gnomADg.faf95_popmax
+        && $.isNumeric(variant.vepAf.gnomADg.faf95_popmax)) {
+      } else if (me.globalApp.vepAFCustom 
+        && variant.vepAf.gnomADg 
+        && variant.vepAf.gnomADg.faf95_popmax 
+        && $.isNumeric(variant.vepAf.gnomADg.faf95_popmax)) {
+        if (variant.afHighest == null || +variant.vepAf.gnomADg.faf95_popmax  >= variant.afHighest) {
+          variant.afFieldHighest = 'vepAf.gnomADg.faf95_popmax';
+          variant.afHighest = me.getHighestAf(variant);
+        }
       }
-    } else if ($.isNumeric(variant.afExAC)) {
-      variant.afFieldHighest = 'afExAC';
-
-    } else if ($.isNumeric(variant.af1000G)) {
-      variant.afFieldHighest = 'af1000G';
+      
+      if (me.globalApp.vepAFCustom 
+        && variant.vepAf.gnomADe 
+        && variant.vepAf.gnomADe.AF_popmax 
+        && $.isNumeric(variant.vepAf.gnomADe.AF_popmax )) {
+        if (variant.afHighest == null || +variant.vepAf.gnomADe.AF_popmax  >= variant.afHighest) {
+          variant.afFieldHighest = 'vepAf.gnomADe.AF_popmax';
+          variant.afHighest = me.getHighestAf(variant);
+        }
+      }
+    } 
+    if (variant.afHighest == null &&  $.isNumeric(variant.af)) {
+      variant.afFieldHighest = 'af'
+      variant.afHighest = me.getHighestAf(variant);
     }
-    afHighest = me.getHighestAf(variant);
-
-    if ((me.globalApp.gnomADExtraAll && variant.gnomAD) || (me.globalApp.gnomADExtra && variant.gnomAD)) {
-      if ($.isNumeric(variant.gnomAD.af) && afHighest) {
-        if (variant.gnomAD.af >= afHighest) {
-          variant.afFieldHighest = 'gnomAD.af';
-        }
-      } else if ($.isNumeric(variant.gnomAD.af)) {
-        variant.afFieldHighest = 'gnomAD.af';
-      }
-      afHighest = me.getHighestAf(variant);
-      if ($.isNumeric(variant.gnomAD.afPopMax) && afHighest) {
-        if (variant.gnomAD.afPopMax >= afHighest) {
-          variant.afFieldHighest = 'gnomAD.afPopMax';
-        }
-      } else if ($.isNumeric(variant.gnomAD.af)) {
-        variant.afFieldHighest = 'gnomAD.afPopMax';
-      }
-
-
-    } else if (me.globalApp.vepAF) {
-      if ($.isNumeric(variant.vepAf.gnomAD.AF) && afHighest) {
-        if (variant.vepAf.gnomAD.AF >= afHighest) {
-          variant.afFieldHighest = 'afgnomAD';
-        }
-      } else if ($.isNumeric(variant.vepAf.gnomAD.AF)) {
-        variant.afFieldHighest = 'afgnomAD';
-      }
-    }
-    variant.afHighest = me.getHighestAf(variant);
   }
 
   getHighestAf(variant) {
@@ -2156,9 +2149,13 @@ class SampleModel {
       subfields.forEach(function(subfield) {
         current = current[subfield];
       })
-      return current;
+      if (current && $.isNumeric(current)) {
+        return +current;
+      } else {
+        return 0;
+      }
     } else {
-      return null;
+      return 0;
     }
   }
 
