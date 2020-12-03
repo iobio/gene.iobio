@@ -1584,7 +1584,9 @@ export default {
       if (this.selectedVariant) {
         if (this.globalApp.vepAFCustom 
           && this.selectedVariant.vepAf.gnomADg 
-          && this.selectedVariant.vepAf.gnomADe ) {
+          && Object.keys(this.selectedVariant.vepAf.gnomADg).length > 0
+          && this.selectedVariant.vepAf.gnomADe 
+          && Object.keys(this.selectedVariant.vepAf.gnomADe).length > 0) {
 
 
             // For gnomAD 3.1, we would prefer to use popmax AF (95 CI) rather

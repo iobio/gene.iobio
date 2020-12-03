@@ -183,6 +183,25 @@ class GlobalApp {
     return theUrl;
   }
 
+  getGnomADFilePath(build, chrom, sequencingScope="genomes") {
+    let path = "/home/ubuntu/tony/gnomAD/";
+    var gnomADSource = {
+      genomes: {
+        'GRCh37': path + 'gnomad.genomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
+        'GRCh38': path + 'gnomad.genomes.v3.1.sites.chrCHROM-ALIAS.vcf.bgz'
+        //'GRCh38': prot + '://storage.googleapis.com/gnomad-public/release/3.1/vcf/genomes/gnomad.genomes.r3.0.sites.chrCHROM-ALIAS.vcf.bgz'
+      },
+      exomes: {
+        'GRCh37': path + 'gnomad.exomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
+        'GRCh38': path + 'gnomad.exomes.r2.1.sites.grch38.chrCHROM-ALIAS_noVEP.vcf.gz'
+      }
+    }
+
+    var filePath = gnomADSource[sequencingScope][build];
+    filePath = filePath.replace(/CHROM-ALIAS/g, chrom);
+    return filePath;
+  }
+
   
   getGnomADFields(build, sequencingScope="genomes") {
     var gnomADFields = {
