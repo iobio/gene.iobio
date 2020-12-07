@@ -143,7 +143,7 @@
                 </div>
                 <v-btn class="load-button action-button"
                   @click="onLoad"
-                  :disabled="!isValid">
+                  :disabled="!isValid || !buildName">
                   Load
                 </v-btn>
 
@@ -184,6 +184,7 @@
                   hide-details
                   v-model="buildName"
                   :items="buildList"
+                  :class="clazzAttention"
                 ></v-select>
                </v-flex>
 
@@ -745,6 +746,14 @@ export default {
       } else {
         return [];
       }
+    },
+    clazzAttention: function() {
+      if (!this.buildName) {
+        return 'attention';
+      }
+      else {
+        return '';
+      }
     }
   },
   created: function() {
@@ -754,7 +763,6 @@ export default {
   mounted: function() {
     if (this.cohortModel) {
       this.speciesName =  this.cohortModel.genomeBuildHelper.getCurrentSpeciesName();
-      this.buildName   =  this.cohortModel.genomeBuildHelper.getCurrentBuildName();
       this.speciesList =  this.cohortModel.genomeBuildHelper.speciesList.map(function(sp) {
         return sp.name;
       }).filter(function(name) {
