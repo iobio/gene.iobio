@@ -120,31 +120,59 @@ export default class EndpointCmd {
             let gnomadFieldsExomes = null;
             let vepCustom = null;
 
-            if (gnomadExtra) {
+            let gnomadFileGenomes = null;
+            let gnomadFileExomes = null;
+
+            let gnomadRenameChr = me.globalApp.getGnomADRenameChr(me.genomeBuildHelper.getCurrentBuildName(),
+              "genomes",              
+              refName);
+
+            if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_BCFTOOLS) {
 
               // Get the gnomad vcf based on the genome build
-              gnomadUrlGenomes = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName), "genomes", false);
-              gnomadUrlExomes  = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName), "exomes", false);
+              gnomadUrlGenomes = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
+                me.globalApp.utility.stripRefName(refName), "genomes", false);
+              gnomadUrlExomes  = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
+                me.globalApp.utility.stripRefName(refName), "exomes", false);
 
 
               // Prepare args to annotate with gnomAD
               gnomadRegionStr = "";
               regions.forEach(function(region) {
-                gnomadRegionStr += refName + "\t" + region.start + "\t" + region.end + "\n";
+                let gnomadRefName = me.globalApp.getGnomADRefName(me.genomeBuildHelper.getCurrentBuildName(),
+                  "genomes",              
+                  refName)
+                gnomadRegionStr += gnomadRefName + "\t" + region.start + "\t" + region.end + "\n";
               })
+            } else if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
 
               // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
-              gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),  "genomes");
-              gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),  "exomes");
+              gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+               "genomes");
+              gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),  
+                "exomes");
 
+          
               vepCustom = "-custom " 
-                          + gnomadUrlGenomes + ',gnomADg,vcf,exact,0,' + gnomadFieldsGenomes;
+                          + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
+                                                      me.globalApp.utility.stripRefName(refName), 
+                                                      "genomes", 
+                                                      false) 
+                          + ',gnomADg,vcf,exact,0,' 
+                          + gnomadFieldsGenomes;
+              /*
               if (gnomadFieldsExomes) {
                 vepCustom += " -custom " 
-                          + gnomadUrlExomes + ',gnomADe,vcf,exact,0,' + gnomadFieldsExomes;
-      
+                         + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
+                                                      me.globalApp.utility.stripRefName(refName), 
+                                                      "exomes", 
+                                                      false) 
+                         + ',gnomADe,vcf,exact,0,' 
+                         + gnomadFieldsExomes;
               }
-                                      }
+              */
+
+            }
 
             const cmd = this.api.streamCommand('annotateVariants', {
                 vcfUrl: vcfSource.vcfUrl,
@@ -160,10 +188,11 @@ export default class EndpointCmd {
                 vepAF,
                 sfariMode,
                 vepREVELFile: this.globalApp.vepREVELFile,
-                gnomadUrl: gnomadUrlGenomes ? gnomadUrlGenomes : '',
-                gnomadRegionStr: gnomadRegionStr ? gnomadRegionStr : '',
+                gnomadUrl: gnomadUrlGenomes,
+                gnomadRegionStr: gnomadRegionStr,
                 decompose,
-                vepCustom
+                vepCustom,
+                gnomadRenameChr
             });
 
             cmd.on('error', function(error){

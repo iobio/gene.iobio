@@ -1971,8 +1971,8 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
            'ESP': {}, 
            'gnomAD': {}, 
            'MAX': {}, 
-           'gnomADg': (globalApp.vepAFCustom ? {} : null), 
-           'gnomADe': (globalApp.vepAFCustom ? {} : null)
+           'gnomADg': (globalApp.gnomADExtraMethod == globalApp.GNOMAD_METHOD_CUSTOM_VEP ? {} : null), 
+           'gnomADe': (globalApp.gnomADExtraMethod == globalApp.GNOMAD_METHOD_CUSTOM_VEP ? {} : null)
      }
     },
     genericAnnots:  {}
@@ -2205,7 +2205,7 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
               me._parseVepAfAnnot(VEP_FIELDS_AF_ESP,    vepFields, vepTokens, "ESP",    null,     annot);
               me._parseVepAfAnnot(VEP_FIELDS_AF_MAX,    vepFields, vepTokens, "MAX",    "MAX",    annot);
             }
-            if (vepAF && gnomADExtra && globalApp.vepAFCustom) {
+            if (vepAF && gnomADExtra && globalApp.gnomADExtraMethod == globalApp.GNOMAD_METHOD_CUSTOM_VEP ) {
               me._parseVepAfAnnot(VEP_FIELDS_AF_GNOMAD_GENOMES, vepFields, vepTokens, "gnomADg", "gnomADg", annot);
               me._parseVepAfAnnot(VEP_FIELDS_AF_GNOMAD_EXOMES, vepFields, vepTokens, "gnomADe", "gnomADe", annot);
             }

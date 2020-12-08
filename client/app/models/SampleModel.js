@@ -2111,11 +2111,11 @@ class SampleModel {
         }        
       } 
       
-      if (me.globalApp.vepAFCustom 
+      if (me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
         && variant.vepAf.gnomADg 
         && variant.vepAf.gnomADg.faf95_popmax
         && $.isNumeric(variant.vepAf.gnomADg.faf95_popmax)) {
-      } else if (me.globalApp.vepAFCustom 
+      } else if (me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
         && variant.vepAf.gnomADg 
         && variant.vepAf.gnomADg.faf95_popmax 
         && $.isNumeric(variant.vepAf.gnomADg.faf95_popmax)) {
@@ -2124,8 +2124,8 @@ class SampleModel {
           variant.afHighest = me.getHighestAf(variant);
         }
       }
-      
-      if (me.globalApp.vepAFCustom 
+
+      if (me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
         && variant.vepAf.gnomADe 
         && variant.vepAf.gnomADe.AF_popmax 
         && $.isNumeric(variant.vepAf.gnomADe.AF_popmax )) {

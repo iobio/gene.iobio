@@ -1582,7 +1582,7 @@ export default {
     },
     afGnomAD: function() {
       if (this.selectedVariant) {
-        if (this.globalApp.vepAFCustom 
+        if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_CUSTOM_VEP
           && this.selectedVariant.vepAf.gnomADg 
           && Object.keys(this.selectedVariant.vepAf.gnomADg).length > 0
           && this.selectedVariant.vepAf.gnomADe 
