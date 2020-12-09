@@ -46,6 +46,7 @@
     color: $app-color
     margin-top: -5px
 
+
   #notes-input
     margin-top: 8px
     .input-group input
@@ -123,6 +124,18 @@
         margin-top: -5px
         font-style: italic
         height: 48px
+
+      .variant-column-subheader
+        font-size: 13px
+        font-style: italic
+        margin-bottom: 5px
+        color: $app-color
+        margin-top: -5px
+    
+      .variant-column-loading
+        font-size: 12px
+        font-style: italic
+        margin-top: 10px
 
       .variant-row
         display: flex
@@ -608,12 +621,17 @@
 
       <div class="variant-inspect-column" v-if="selectedVariant">
           <div class="variant-column-header">
-              {{ isSimpleMode ? 'Population Frequency' : 'gnomAD' }}
-            <info-popup v-if="!isSimpleMode" name="gnomAD"></info-popup>
+              Population Frequency
+            <info-popup v-if="!isSimpleMode" :name="afGnomAD.infoPopup" 
+            :extraInfo1="afGnomAD.extraInfo1"
+            :extraInfo2="afGnomAD.extraInfo2"></info-popup>
             <v-divider></v-divider>
           </div>
           <div class="variant-column-hint" v-if="isSimpleMode">
             Common variants typically don’t cause diseases.
+          </div>
+          <div class="variant-column-subheader"  v-if="!isSimpleMode">
+            <span>{{ afGnomAD.source }}</span>
           </div>
           <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele frequency`" :link="afGnomAD.link" >
           </variant-inspect-row>
@@ -624,6 +642,14 @@
           </div>
           <div v-if="!isSimpleMode && afGnomAD.homCount > 0"  class="variant-row no-icon">
             <span>{{ afGnomAD.homCount }} homozygotes</span>
+          </div>
+          <div class="variant-column-loading"  v-if="afGnomAD.loading">
+            <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading) && !isSimpleMode"
+              style="margin-top:2px;min-width:80px;margin-left:0px;margin-right:0px"
+               class=" loader vcfloader" >
+              <img src="../../../assets/images/wheel.gif">
+              {{ afGnomAD.loading }} 
+            </span>
           </div>
       </div>
 
@@ -854,6 +880,17 @@ export default {
       enterCommentsClicked: false,
       showMoreGeneAssociationsDialog: false,
       selectedGeneSources: {},
+
+      gnomADFieldToLabel: {
+        'vepAf.gnomADg.faf95_popmax': 'gnomAD genomes pop max allele freq (95% CI)',
+        'vepAf.gnomADg.AF_popmax'   : 'gnomAD genomes pop max allele freq',
+        'vepAf.gnomADe.AF_popmax'   : 'gnomAD exomes pop max allele freq',
+        'gnomAD.afPopMax'           : 'gnomAD genomes pop max allele freq',
+        'vepAf.MAX.AF'              : 'gnomAD (exomes only) pop max allele freq',
+        'vepAf.gnomAD.AF'           : 'gnomAD (exomes only) allele freq'
+      }
+      
+
     }
   },
 
@@ -1512,6 +1549,21 @@ export default {
     },
     onCloseGeneAssociationDialog: function(data){
       this.showMoreGeneAssociationsDialog = false;
+    },
+    getAfFilterInfo: function(additionalText) {
+      let self = this;
+      if (self.selectedVariant.afFieldHighest) {
+        let afPct = self.selectedVariant.afHighest && $.isNumeric(self.selectedVariant.afHighest) && self.selectedVariant.afHighest != 0 ? d3.format(".3%")(self.selectedVariant.afHighest) : '0%' 
+        let msg =  "For filtering purposes, " 
+        + self.gnomADFieldToLabel[self.selectedVariant.afFieldHighest] 
+        + " " + afPct + " was used. ";       
+        msg += (additionalText ? additionalText : "");
+        return msg;
+      } else {
+        let msg =  "For filtering purposes, an allele frequency of 0%, indicating the annotation was not found in gnomAD. "
+        msg += (additionalText ? additionalText : "");
+        return msg;
+      }
     }
   },
 
@@ -1587,6 +1639,22 @@ export default {
           && Object.keys(this.selectedVariant.vepAf.gnomADg).length > 0
           && this.selectedVariant.vepAf.gnomADe 
           && Object.keys(this.selectedVariant.vepAf.gnomADe).length > 0) {
+            let gnomADSource = "";
+
+            if (this.selectedVariant.vepAf.gnomADe 
+              && this.selectedVariant.vepAf.gnomADe.present 
+              && this.selectedVariant.vepAf.gnomADg 
+              && this.selectedVariant.vepAf.gnomADg.present ) {
+              gnomADSource = "gnomAD exomes + genomes";
+            } else if (this.selectedVariant.vepAf.gnomADg 
+              && this.selectedVariant.vepAf.gnomADg.present) {
+              gnomADSource = "gnomAD genomes"
+            } else if (this.selectedVariant.vepAf.gnomADg 
+              && this.selectedVariant.vepAf.gnomADg.present) {
+              gnomADSource = "gnomAD exomes"
+            } else {
+              gnomADSource = "gnomAD exomes + genomes"              
+            }
 
 
             // For gnomAD 3.1, we would prefer to use popmax AF (95 CI) rather
@@ -1637,6 +1705,16 @@ export default {
             gnomAD.altCount      = acTot;
             gnomAD.totalCount    = anTot;
             gnomAD.homCount      = nHomTot;
+            gnomAD.source        = gnomADSource;
+            gnomAD.loading       = null
+            gnomAD.infoPopup     = "gnomADExtraVepCustom"
+            gnomAD.extraInfo1 =  
+                  ' Annotations shown for variant are from gnomAD ' 
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'genomes')
+                  + " genomes, "
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'exomes')
+                  + " exomes."
+            gnomAD.extraInfo2 = this.getAfFilterInfo();
 
             gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
                           + this.selectedVariant.chrom + "-"
@@ -1651,11 +1729,22 @@ export default {
             return gnomAD;
 
         }
-        else if (this.globalApp.gnomADExtraAll || (this.globalApp.gnomADExtra && this.selectedVariant.extraAnnot)) {
+        else if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_BCFTOOLS &&
+          (this.globalApp.gnomADExtraAll || (this.globalApp.gnomADExtra && this.selectedVariant.extraAnnot))) {
+          let source      =  "gnomAD genomes"
+          let infoPopup   = "gnomAD"
+          let extraInfo1  =  
+                  ' Annotations shown for variant are from gnomAD ' 
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'genomes')
+                  + " genomes."
+          let extraInfo2 = this.getAfFilterInfo();
+
           if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
-            return {percent: "?", link: null, class: ""};
+            return {percent: "?", link: null, class: "", source: source, 
+                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2};            
           } else if (this.selectedVariant.gnomAD.af  == '.') {
-            return {percent: "0%", link: null, class: "level-high"};
+            return {percent: "0%", link: null, class: "level-high", source: source,
+                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2};
           } else  {
             var gnomAD = {};
             gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
@@ -1674,14 +1763,23 @@ export default {
             gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
             gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
             gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
+            gnomAD.source        = source;
+            gnomAD.loading       = null;
+            gnomAD.infoPopup     = infoPopup;
+            gnomAD.extraInfo1    = extraInfo1;
+            gnomAD.extraInfo2    = extraInfo2;
+            
             return gnomAD;
 
           }
         } else {
+          let source = "gnomAD exomes";
+
+
           if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
-            return {percent: "?", link: null, class: ""};
+            return {percent: "?", link: null, class: "", source: source, infoPopup: "gnomAD"};
           } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
-            return {percent: "0%", link: null, class: "level-high"};
+            return {percent: "0%", link: null, class: "level-high", source: source, infoPopup: "gnomAD"};
           } else  {
             var gnomAD = {};
             gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
@@ -1700,6 +1798,36 @@ export default {
             gnomAD.altCount      = 0;
             gnomAD.totalCount    = 0;
             gnomAD.homCount      = 0;
+            gnomAD.source        = source;
+            if (this.globalApp.gnomADExtra 
+              && !this.globalApp.gnomADExtraAll 
+              && !this.selectedVariant.extraAnnot) {
+              if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_BCFTOOLS) {
+                gnomAD.loading = 'loading more annotations'
+                gnomAD.infoPopup  = "gnomAD";
+                gnomAD.extraInfo1 =  
+                  'Annotations shown for variant are from gnomAD ' 
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'genomes')
+                  + " genomes."
+                
+              } else {
+                 gnomAD.loading = 'loading more annotations'
+                 gnomAD.infoPopup     = "gnomADExtraVepCustom"
+                 gnomAD.extraInfo1 =  
+                  'Annotations show for variant are from gnomAD ' 
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'genomes')
+                  + " genomes, "
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'exomes')
+                  + " exomes."
+                
+              }
+            } else {
+              gnomAD.infoPopup     = "gnomAD"     
+              gnomAD.extraInfo1 = null         
+            }
+            gnomAD.extraInfo2 = this.getAfFilterInfo();
+
+
             return gnomAD;
           }
 
