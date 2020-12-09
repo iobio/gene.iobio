@@ -201,16 +201,33 @@ class GlobalApp {
     return theUrl;
   }
 
+  getGnomADSourceName(build, chrom, sequencingScope="genomes", isSecure=true) {
+    let prot = isSecure ? 'https' : 'http';
+    var gnomADSource = {
+      genomes: {
+        'GRCh37': 'v2.1',
+        'GRCh38': 'v3.1'
+      },
+      exomes: {
+        'GRCh37': 'v2.1',
+        'GRCh38': 'v2.1 liftover'
+      }
+    }
+    var theUrl = gnomADSource[sequencingScope][build];
+    theUrl = theUrl.replace(/CHROM-ALIAS/g, chrom);
+    return theUrl;
+  }
+
   
   getGnomADFields(build, sequencingScope="genomes") {
     var gnomADFields = {
       genomes: {
-        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas',
-        'GRCh38': 'AF,AN,AC,nhomalt-raw,AF_popmax,faf95_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas'
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
+        'GRCh38': 'AF,AN,AC,nhomalt-raw,AF_popmax,faf95_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
       },
       exomes: {
-        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas',
-        'GRCh38': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AF_nfe,AF_oth,AF_amr,AF_afr,AF_asj,AF_eas,AF_sas'
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
+        'GRCh38': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
       }
     }
     return gnomADFields[sequencingScope][build];
