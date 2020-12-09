@@ -57,7 +57,7 @@ class GlobalApp {
     // how should we get the gnomad extra info?  'bcftools' or 'vepcustom'
     this.GNOMAD_METHOD_BCFTOOLS   = "gnomad_bcftools";
     this.GNOMAD_METHOD_CUSTOM_VEP = "gnomad_custom_vep";
-    this.gnomADExtraMethod        = this.GNOMAD_METHOD_BCFTOOLS;
+    this.gnomADExtraMethod        = this.GNOMAD_METHOD_CUSTOM_VEP;
 
 
     // How many genes can be analyzed in one session.  Set to null if no limitation.

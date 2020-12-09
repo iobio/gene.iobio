@@ -16,8 +16,13 @@ export default class EndpointCmd {
       // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
       // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
-      this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
-      //this.api = new Client(process.env.IOBIO_BACKEND, { secure: false });
+      //this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
+      
+      // TEMPORARY CODE FOR TESTING AGAINST dev.backend.iobio.io
+      //
+      // IMPORTANT - Do not commit this change!!!
+      //
+      this.api = new Client(process.env.IOBIO_BACKEND, { secure: false });
     }
 
     // iobio services
