@@ -2103,41 +2103,58 @@ class SampleModel {
     variant.afHighest = 0;
     variant.afFieldHighest = null;
 
-    if (me.globalApp.vepAF) {
-      if ($.isNumeric(variant.vepAf.MAX.AF)) {
-        if (variant.afHighest == null || +variant.vepAf.MAX.AF >= variant.afHighest) {
-          variant.afFieldHighest = 'vepAf.MAX.AF';
-          variant.afHighest = me.getHighestAf(variant);
-        }        
-      } 
-      
-      if (me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
-        && variant.vepAf.gnomADg 
-        && variant.vepAf.gnomADg.faf95_popmax
-        && $.isNumeric(variant.vepAf.gnomADg.faf95_popmax)) {
-      } else if (me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
-        && variant.vepAf.gnomADg 
-        && variant.vepAf.gnomADg.faf95_popmax 
-        && $.isNumeric(variant.vepAf.gnomADg.faf95_popmax)) {
-        if (variant.afHighest == null || +variant.vepAf.gnomADg.faf95_popmax  >= variant.afHighest) {
-          variant.afFieldHighest = 'vepAf.gnomADg.faf95_popmax';
-          variant.afHighest = me.getHighestAf(variant);
-        }
-      }
-
-      if (me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
-        && variant.vepAf.gnomADe 
-        && variant.vepAf.gnomADe.AF_popmax 
-        && $.isNumeric(variant.vepAf.gnomADe.AF_popmax )) {
-        if (variant.afHighest == null || +variant.vepAf.gnomADe.AF_popmax  >= variant.afHighest) {
-          variant.afFieldHighest = 'vepAf.gnomADe.AF_popmax';
-          variant.afHighest = me.getHighestAf(variant);
-        }
-      }
-    } 
-    if (variant.afHighest == null &&  $.isNumeric(variant.af)) {
-      variant.afFieldHighest = 'af'
+    if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+      && variant.vepAf.gnomADg 
+      && variant.vepAf.gnomADg.faf95_popmax
+      && $.isNumeric(variant.vepAf.gnomADg.faf95_popmax)) {
+      variant.afFieldHighest = 'vepAf.gnomADg.faf95_popmax';
       variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+      && variant.vepAf.gnomADg 
+      && variant.vepAf.gnomADg.AF_popmax 
+      && $.isNumeric(variant.vepAf.gnomADg.AF_popmax)) {
+      variant.afFieldHighest = 'vepAf.gnomADg.AF_popmax';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+      && variant.vepAf.gnomADe 
+      && variant.vepAf.gnomADe.AF_popmax 
+      && $.isNumeric(variant.vepAf.gnomADe.AF_popmax )) {
+      variant.afFieldHighest = 'vepAf.gnomADe.AF_popmax';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_BCFTOOLS
+      && variant.gnomAD
+      && variant.gnomAD.afPopMax 
+      && $.isNumeric(variant.gnomAD.afPopMax)) {
+      variant.afFieldHighest = 'gnomAD.afPopMax';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (!me.globalApp.gnomADExtraAll
+      && me.globalApp.vepAF
+      && variant.vepAf
+      && variant.vepAf.MAX
+      && variant.vepAf.MAX.AF
+      && $.isNumeric(variant.vepAf.MAX.AF)) {
+      variant.afFieldHighest = 'vepAf.MAX.AF';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.vepAF
+      && variant.vepAf
+      && variant.vepAf.gnomAD
+      && variant.vepAf.gnomAD.AF
+      && $.isNumeric(variant.vepAf.gnomAD.AF)) {
+      variant.afFieldHighest = 'vepAf.gnomAD.AF';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.vepAF
+      && variant.vepAf
+      && variant.vepAf.gnomAD
+      && !variant.vepAf.gnomAD.present) {
+      variant.afFieldHighest = 'vepAf.gnomAD.AF';
+      variant.afHighest = 0;
+    } else {
+      variant.afFieldHighest = null;
+      variant.afHighest = 0;
     }
   }
 

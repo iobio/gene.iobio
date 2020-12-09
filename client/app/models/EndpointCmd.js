@@ -160,7 +160,8 @@ export default class EndpointCmd {
                                                       false) 
                           + ',gnomADg,vcf,exact,0,' 
                           + gnomadFieldsGenomes;
-              /*
+              
+              
               if (gnomadFieldsExomes) {
                 vepCustom += " -custom " 
                          + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
@@ -170,7 +171,9 @@ export default class EndpointCmd {
                          + ',gnomADe,vcf,exact,0,' 
                          + gnomadFieldsExomes;
               }
-              */
+              
+              
+              
 
             }
 
