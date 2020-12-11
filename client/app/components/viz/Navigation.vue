@@ -1373,7 +1373,6 @@ export default {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
-     console.log("SHOW_FILES_BUTTON", this.showFilesButton);
   },
   computed:  {
     knownGenes: function() {
