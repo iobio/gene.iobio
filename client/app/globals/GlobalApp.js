@@ -52,13 +52,20 @@ class GlobalApp {
     // get gnomad extra info (on demand)
     this.gnomADExtra          = true;
     // get gnomad extra info for all variants
-    this.gnomADExtraAll       = true;
+    this.gnomADExtraAll       = false;
+
+    // how should we get the gnomad extra info?  'bcftools' or 'vepcustom'
+    this.GNOMAD_METHOD_BCFTOOLS   = "gnomad_bcftools";
+    this.GNOMAD_METHOD_CUSTOM_VEP = "gnomad_custom_vep";
+    this.gnomADExtraMethod        = this.GNOMAD_METHOD_BCFTOOLS;
+
 
     // How many genes can be analyzed in one session.  Set to null if no limitation.
     this.maxGeneCount         = null;
 
-    // Should vep retrieve allele frequencies (for gnomad, 1000G, ESP)
+    // Should vep retrieve allele frequencies (for gnomad exomes)
     this.vepAF                = true ;
+
 
     this.vepREVELFile         = './vep-cache/revel_all_chromosomes_for_vep.tsv.gz';
 
@@ -86,6 +93,21 @@ class GlobalApp {
     // Fields
     this.impactFieldToFilter         = 'highestImpactVep';
     this.impactFieldToColor          = 'vepImpact';
+
+    this.gnomADRenameChr = {
+       genomes: {
+        'GRCh37': {'none': null,     
+                   'chr':  'removeChr'},
+        'GRCh38': {'none': 'addChr', 
+                   'chr':  null}
+      },
+      exomes: {
+        'GRCh37': {'none': null,     
+                   'chr':  'removeChr'},
+        'GRCh38': {'none': null, 
+                   'chr':  'removeChr'}
+      }
+    }
 
   }
 
@@ -161,21 +183,83 @@ class GlobalApp {
 
   }
 
-  getGnomADUrl(build, chrom) {
 
+  getGnomADUrl(build, chrom, sequencingScope="genomes", isSecure=true) {
+    let prot = isSecure ? 'https' : 'http';
     var gnomADSource = {
       genomes: {
-        'GRCh37': 'https://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/genomes/gnomad.genomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
-        'GRCh38': 'https://storage.googleapis.com/gnomad-public/release/3.0/vcf/genomes/gnomad.genomes.r3.0.sites.chrCHROM-ALIAS.vcf.bgz'
+        'GRCh37': prot + '://gnomad-public-us-east-1.s3.amazonaws.com/release/2.1.1/vcf/genomes/gnomad.genomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
+        'GRCh38': prot + '://gnomad-public-us-east-1.s3.amazonaws.com/release/3.1/vcf/genomes/gnomad.genomes.v3.1.sites.chrCHROM-ALIAS.vcf.bgz'
       },
       exomes: {
-        'GRCh37': 'http://storage.googleapis.com/gnomad-public/release/2.1.1/vcf/exomes/gnomad.exomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
-        'GRCh38': 'ftp://ftp.ensembl.org/pub/data_files/homo_sapiens/GRCh38/variation_genotype/gnomad/r2.1/exomes/gnomad.exomes.r2.1.sites.grch38.chrCHROM-ALIAS_noVEP.vcf.gz'
+        'GRCh37': prot + '://gnomad-public-us-east-1.s3.amazonaws.com/release/2.1.1/vcf/exomes/gnomad.exomes.r2.1.1.sites.CHROM-ALIAS.vcf.bgz',
+        'GRCh38': prot + '://gnomad-public-us-east-1.s3.amazonaws.com/release/2.1.1/liftover_grch38/vcf/exomes/gnomad.exomes.r2.1.1.sites.CHROM-ALIAS.liftover_grch38.vcf.bgz'
       }
     }
-    var theUrl = gnomADSource.genomes[build];
+    var theUrl = gnomADSource[sequencingScope][build];
     theUrl = theUrl.replace(/CHROM-ALIAS/g, chrom);
     return theUrl;
+  }
+
+  getGnomADSourceName(build, chrom, sequencingScope="genomes", isSecure=true) {
+    let prot = isSecure ? 'https' : 'http';
+    var gnomADSource = {
+      genomes: {
+        'GRCh37': 'v2.1',
+        'GRCh38': 'v3.1'
+      },
+      exomes: {
+        'GRCh37': 'v2.1',
+        'GRCh38': 'v2.1 liftover'
+      }
+    }
+    var theUrl = gnomADSource[sequencingScope][build];
+    theUrl = theUrl.replace(/CHROM-ALIAS/g, chrom);
+    return theUrl;
+  }
+
+  
+  getGnomADFields(build, sequencingScope="genomes") {
+    var gnomADFields = {
+      genomes: {
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
+        'GRCh38': 'AF,AN,AC,nhomalt-raw,AF_popmax,faf95_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
+      },
+      exomes: {
+        'GRCh37': 'AF,AN,AC,nhomalt_raw,AF_popmax,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas',
+        'GRCh38': 'AF,AN,AC,nhomalt_raw,AF_popmax,AF_fin,AC_fin,AC_nfe,AC_oth,AC_amr,AC_afr,AC_asj,AC_eas,AC_sas,AN_fin,AN_nfe,AN_oth,AN_amr,AN_afr,AN_asj,AN_eas,AN_sas'
+      }
+    }
+    return gnomADFields[sequencingScope][build];
+  }
+
+  getGnomADRenameChr(build, sequencingScope="genomes", refName) {
+    let self = this;
+    let renameCommand = null;
+    let prefix = refName.indexOf('chr') == 0 ? 'chr' : 'none';
+    
+    let action = self.gnomADRenameChr[sequencingScope][build][prefix];
+    if (action && action == 'addChr') {
+      renameCommand = refName + " chr" + refName;
+    } else if (action && action == "removeChr") {
+      renameCommand = refName + " " + self.utility.stripRefName(refName)
+    }
+    return renameCommand
+  }
+
+  getGnomADRefName(build, sequencingScope="genomes", refName) {
+    let self = this;
+    let renameCommand = null;
+    let prefix = refName.indexOf('chr') == 0 ? 'chr' : 'none';
+    
+    let action = self.gnomADRenameChr[sequencingScope][build][prefix];
+    if (action && action == 'addChr') {
+      return "chr" + refName;
+    } else if (action && action == "removeChr") {
+     return self.utility.stripRefName(refName)
+    } else {
+      return refName;
+    }
   }
 
   getGnomADHeader() {

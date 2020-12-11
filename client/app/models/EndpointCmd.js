@@ -111,19 +111,69 @@ export default class EndpointCmd {
             const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
             const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
 
-            let gnomadUrl = null;
-            let gnomadRegionStr = null;
 
-            if (gnomadExtra) {
+            let gnomadUrlGenomes = null;
+            let gnomadUrlExomes = null;
+            let gnomadRegionStr = null;
+            let gnomadFieldsGenomes = null;
+            let gnomadFieldsExomes = null;
+            let vepCustom = null;
+
+            let gnomadFileGenomes = null;
+            let gnomadFileExomes = null;
+
+            let gnomadRenameChr = me.globalApp.getGnomADRenameChr(me.genomeBuildHelper.getCurrentBuildName(),
+              "genomes",              
+              refName);
+
+            if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_BCFTOOLS) {
 
               // Get the gnomad vcf based on the genome build
-              gnomadUrl = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), me.globalApp.utility.stripRefName(refName));
+              gnomadUrlGenomes = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
+                me.globalApp.utility.stripRefName(refName), "genomes", me.globalApp.useSSL);
+              gnomadUrlExomes  = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
+                me.globalApp.utility.stripRefName(refName), "exomes", me.globalApp.useSSL);
+
 
               // Prepare args to annotate with gnomAD
               gnomadRegionStr = "";
               regions.forEach(function(region) {
-                gnomadRegionStr += refName + "\t" + region.start + "\t" + region.end + "\n";
+                let gnomadRefName = me.globalApp.getGnomADRefName(me.genomeBuildHelper.getCurrentBuildName(),
+                  "genomes",              
+                  refName)
+                gnomadRegionStr += gnomadRefName + "\t" + region.start + "\t" + region.end + "\n";
               })
+            } else if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
+
+              // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
+              gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+               "genomes");
+              gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),  
+                "exomes");
+
+          
+              vepCustom = "-custom " 
+                          + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
+                                                      me.globalApp.utility.stripRefName(refName), 
+                                                      "genomes", 
+                                                      false) 
+                          + ',gnomADg,vcf,exact,0,' 
+                          + gnomadFieldsGenomes;
+              
+              
+              if (gnomadFieldsExomes) {
+                vepCustom += " -custom " 
+                         + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
+                                                      me.globalApp.utility.stripRefName(refName), 
+                                                      "exomes", 
+                                                      false) 
+                         + ',gnomADe,vcf,exact,0,' 
+                         + gnomadFieldsExomes;
+              }
+              
+              
+              
+
             }
 
             const cmd = this.api.streamCommand('annotateVariants', {
@@ -140,9 +190,10 @@ export default class EndpointCmd {
                 vepAF,
                 sfariMode,
                 vepREVELFile: this.globalApp.vepREVELFile,
-                gnomadUrl: gnomadUrl ? gnomadUrl : '',
-                gnomadRegionStr: gnomadRegionStr ? gnomadRegionStr : '',
-                decompose
+                gnomadUrl: gnomadUrlGenomes,
+                gnomadRegionStr: gnomadRegionStr,
+                decompose,
+                gnomadRenameChr
             });
 
             cmd.on('error', function(error){

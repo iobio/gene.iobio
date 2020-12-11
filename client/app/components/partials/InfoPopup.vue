@@ -14,7 +14,7 @@
     max-height: 18px
 
     i.material-icons
-      font-size: 14px !important
+      font-size: 16px !important
       color: $link-color
       opacity: .7
 
@@ -44,6 +44,15 @@
 
 .info-description
   font-size: 13px
+
+.info-extra1
+  margin-top: 10px
+  font-size: 13px
+  font-style: italic
+.info-extra2
+  margin-top: 5px
+  font-size: 13px
+  font-style: italic
 
 .info-publication
   margin-top: 20px
@@ -87,6 +96,10 @@
         </v-card-title>
         <v-card-text class="info-description" v-html="info[name].description">
         </v-card-text>
+        <div class="info-extra1" v-if="extraInfo1" v-html="extraInfo1">
+        </div>
+        <div class="info-extra2" v-if="extraInfo2" v-html="extraInfo2">
+        </div>
         <div class="info-publication"  v-if="info[name].publication">
           <a :href="info[name].publicationUrl" target="_info">{{ info[name].publication }}</a>
         </div>
@@ -100,7 +113,9 @@
 export default {
     name: 'info-popup',
     props: {
-      name: String
+      name: String,
+      extraInfo1: String,
+      extraInfo2: String
     },
     data() {
       return {
@@ -115,7 +130,42 @@ export default {
             },
             'gnomAD': {
                 title: 'Allele Frequency from gnomAD',
-                description: 'The variant allele frequency is obtained from gnomAD genomes only. (In an upcoming release, gene.iobio will obtain allele frequencies from gnomAD Exomes as well.)',
+                description: 'The variant allele frequency is obtained from gnomAD genomes only. In an upcoming release, gene.iobio will obtain allele frequencies from gnomAD exomes as well.',
+                publication: 'gnomAD site',
+                publicationUrl: 'https://gnomad.broadinstitute.org/'
+
+            },
+            'gnomADExtraVepCustom': {
+                title: 'Allele Frequency from gnomAD',
+                description: 'The variant allele frequency is obtained from gnomAD genomes and exomes.',
+                publication: 'gnomAD site',
+                publicationUrl: 'https://gnomad.broadinstitute.org/'
+
+            },
+            'filterAf': {
+                title: 'Filtering variants by allele frequency',
+                description: 'Use the <strong><em>max population allele frequency</em></strong> from gnomAD to filter variants. This is  the highest allele frequency observed in any population and is a more restrictive filter than the overall allele frequency. <br><br>When available, the max population frequency will be determined from <strong><em>gnomAD genomes</em></strong>. Otherwise, the max population frequency will be determined from gnomAD exomes.',
+                publication: 'gnomAD site',
+                publicationUrl: 'https://gnomad.broadinstitute.org/'
+
+            },
+            'filterAfGenomesOnly': {
+                title: 'Filtering variants by allele frequency',
+                description: 'Use the <strong><em>max population allele frequency</em></strong> from <strong><em>gnomAD genomes</em></strong> to filter variants. This is  the highest allele frequency observed in any population and is a more restrictive filter than the overall allele frequency.',
+                publication: 'gnomAD site',
+                publicationUrl: 'https://gnomad.broadinstitute.org/'
+
+            },
+            'filterAfExomesOnly': {
+                title: 'Filtering variants by allele frequency',
+                description: 'Use the <strong><em>max population allele frequency</em></strong> from gnomAD to filter variants. This is  the highest allele frequency observed in any population and is a more restrictive filter than the overall allele frequency. <br><br>For performance reasons, the gnomAD population max allele frequency will be determined from <strong><em>gnomAD exomes</em></strong> only.',
+                publication: 'gnomAD site',
+                publicationUrl: 'https://gnomad.broadinstitute.org/'
+
+            },
+            'gnomADExtraVepCustom': {
+                title: 'Allele Frequency from gnomAD',
+                description: 'The variant allele frequency is obtained from gnomAD genomes and exomes.',
                 publication: 'gnomAD site',
                 publicationUrl: 'https://gnomad.broadinstitute.org/'
 

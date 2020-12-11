@@ -56,6 +56,8 @@ export default function vcfiobio(theGlobalApp) {
   var VEP_FIELDS_AF_ESP    = "AA_AF|EA_AF".split("|");
   var VEP_FIELDS_AF_GNOMAD = "gnomAD_AF|gnomAD_AFR_AF|gnomAD_AMR_AF|gnomAD_ASJ_AF|gnomAD_EAS_AF|gnomAD_FIN_AF|gnomAD_NFE_AF|gnomAD_OTH_AF|gnomAD_SAS_AF".split("|");
   var VEP_FIELDS_AF_MAX    = "MAX_AF|MAX_AF_POPS".split("|");
+  var VEP_FIELDS_AF_GNOMAD_GENOMES = "gnomADg_AF|gnomADg_AN|gnomADg_AC|gnomADg_nhomalt_raw|gnomADg_nhomalt-raw|gnomADg_AF_popmax|gnomADg_faf95_popmax|gnomADg_AC_fin|gnomADg_AC_nfe|gnomADg_AC_oth|gnomADg_AC_amr|gnomADg_AC_afr|gnomADg_AC_asj|gnomADg_AC_eas|gnomADg_AC_sas|gnomADg_AC_fin|gnomADg_AN_nfe|gnomADg_AN_oth|gnomADg_AN_amr|gnomADg_AN_afr|gnomADg_AN_asj|gnomADg_AN_eas|gnomADg_AN_sas".split("|");
+  var VEP_FIELDS_AF_GNOMAD_EXOMES  = "gnomADe_AF|gnomADe_AN|gnomADe_AC|gnomADe_nhomalt_raw|gnomADe_AF_popmax|gnomADe_AC_fin|gnomADe_AC_nfe|gnomADe_AC_oth|gnomADe_AC_amr|gnomADe_AC_afr|gnomADe_AC_asj|gnomADe_AC_eas|gnomADe_AC_sas|gnomADe_AC_fin|gnomADe_AN_nfe|gnomADe_AN_oth|gnomADe_AN_amr|gnomADe_AN_afr|gnomADe_AN_asj|gnomADe_AN_eas|gnomADe_AN_sas".split("|");
 
 
   var CLINVAR_CODES = {
@@ -70,11 +72,13 @@ export default function vcfiobio(theGlobalApp) {
     '255': 'other'
   }
 
+  
   var GNOMAD_TAGS = {
     'AF':          'af',
     'AC':          'altCount',
     'AN':          'totalCount',
     'nhomalt_raw': 'homCount',
+    //'nhomalt-raw': 'homCount',
     'AF_popmax':   'afPopMax',
 
     'AF_fin': ['pop', 'fin', 'af'],
@@ -1963,7 +1967,13 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
       polyphen: {},   // need a special field for filtering purposes
       regulatory: {}, // need a special field for filtering purposes
       vepRegs: [],
-      af: {'1000G': {}, 'ESP': {}, 'gnomAD': {}, 'MAX': {}}
+      af: {'1000G': {}, 
+           'ESP': {}, 
+           'gnomAD': {}, 
+           'MAX': {}, 
+           'gnomADg': (globalApp.gnomADExtraMethod == globalApp.GNOMAD_METHOD_CUSTOM_VEP ? {} : null), 
+           'gnomADe': (globalApp.gnomADExtraMethod == globalApp.GNOMAD_METHOD_CUSTOM_VEP ? {} : null)
+     }
     },
     genericAnnots:  {}
   };
@@ -2007,7 +2017,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
 
     } else if (annotToken.indexOf("CSQ") == 0) {
 
-      me._parseVepAnnot(altIdx, isMultiAllelic, annotToken, annot, geneObject, selectedTranscript, selectedTranscriptID, vepAF)
+      me._parseVepAnnot(altIdx, isMultiAllelic, annotToken, annot, geneObject, selectedTranscript, selectedTranscriptID, vepAF, gnomADExtra)
 
     } else if (annotToken.indexOf("AVIA3") == 0) {
       me._parseGenericAnnot("AVIA3", annotToken, annot);
@@ -2038,7 +2048,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
 
 
 */
-exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, geneObject, selectedTranscript, selectedTranscriptID, vepAF) {
+exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, geneObject, selectedTranscript, selectedTranscriptID, vepAF, gnomADExtra) {
   var me = this;
 
   var vepFields = me.infoFields.VEP;
@@ -2195,6 +2205,10 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
               me._parseVepAfAnnot(VEP_FIELDS_AF_ESP,    vepFields, vepTokens, "ESP",    null,     annot);
               me._parseVepAfAnnot(VEP_FIELDS_AF_MAX,    vepFields, vepTokens, "MAX",    "MAX",    annot);
             }
+            if (vepAF && gnomADExtra && globalApp.gnomADExtraMethod == globalApp.GNOMAD_METHOD_CUSTOM_VEP ) {
+              me._parseVepAfAnnot(VEP_FIELDS_AF_GNOMAD_GENOMES, vepFields, vepTokens, "gnomADg", "gnomADg", annot);
+              me._parseVepAfAnnot(VEP_FIELDS_AF_GNOMAD_EXOMES, vepFields, vepTokens, "gnomADe", "gnomADe", annot);
+            }
 
           } else {
             var consequence = vepTokens[vepFields.Consequence];
@@ -2210,15 +2224,27 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
 }
 
 exports._parseVepAfAnnot = function(fieldNames, vepFields, vepTokens, afSource, omitPrefix, annot) {
+  let fieldsPresent = false;
   fieldNames.forEach(function(fieldName) {
     var targetFieldName = omitPrefix ? fieldName.split(omitPrefix + "_")[1] : fieldName;
     var tokenIdx        = vepFields[fieldName];
-    if (tokenIdx && vepTokens[tokenIdx] && vepTokens[tokenIdx].length > 0) {
-      annot.vep.af[afSource][targetFieldName] = vepTokens[tokenIdx];
-    } else {
-      annot.vep.af[afSource][targetFieldName] = ".";
+    if (tokenIdx && vepTokens[tokenIdx]) {
+      fieldsPresent  = true;
     }
   })
+  if (fieldsPresent) {
+    fieldNames.forEach(function(fieldName) {
+      var targetFieldName = omitPrefix ? fieldName.split(omitPrefix + "_")[1] : fieldName;
+      var tokenIdx        = vepFields[fieldName];
+      if (tokenIdx && vepTokens[tokenIdx] && vepTokens[tokenIdx].length > 0) {
+        annot.vep.af[afSource][targetFieldName] = vepTokens[tokenIdx];
+      } else {
+        annot.vep.af[afSource][targetFieldName] = ".";
+      }
+    })    
+  }
+  annot.vep.af[afSource].present = fieldsPresent;
+
 }
 
 exports._parseGnomADAnnot = function(annotTokens, annot) {
