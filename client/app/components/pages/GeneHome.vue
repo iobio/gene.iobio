@@ -232,6 +232,7 @@ main.content.clin, main.v-content.clin
     <navigation
       v-if="geneModel"
       ref="navRef"
+      :showFilesButton="showFilesButton"
       :isEduMode="isEduMode"
       :isBasicMode="isBasicMode"
       :forMyGene2="forMyGene2"
@@ -1020,6 +1021,7 @@ export default {
       isOMIMPermitted: process.env.OMIM_API_KEY && process.env.OMIM_API_KEY.length > 0,
 
       showIntro: false,
+      showFilesButton: true,  // does the files 'upload' button appear in the nav bar?
 
       showBlogsAndTutorials: (process.env.SHOW_BLOGS_AND_TUTORIALS && process.env.SHOW_BLOGS_AND_TUTORIALS === 'true') || !process.env.SHOW_BLOGS_AND_TUTORIALS,
 
@@ -2732,6 +2734,11 @@ export default {
       }
 
       self.showIntro = self.forMyGene2 || process.env.SHOW_INTRO;
+      if (process.env.SHOW_FILES_BUTTON && process.env.SHOW_FILES_BUTTON == 'false') {
+        self.showFilesButton =  false;
+      } else if (self.forMyGene2) {
+        self.showFilesButton = false;
+      }
 
       if (self.paramSampleId && self.paramSampleId.length > 0) {
         self.sampleId = self.paramSampleId;

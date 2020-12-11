@@ -601,7 +601,7 @@ nav.toolbar, nav.v-toolbar
 
       <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
 
-      <v-btn id="files-button" icon v-if="!isBasicMode && !isSimpleMode" @click="onShowFiles" title="Load files">
+      <v-btn id="files-button" icon v-if="showFilesButton" @click="onShowFiles" title="Load files">
         <app-icon icon="fileupload"  width="24" height="24">publish</app-icon>
       </v-btn>
 
@@ -1073,6 +1073,7 @@ export default {
     showBlogsAndTutorials: null,
     isPhenolyzerPermitted: null,
     forMyGene2: null,
+    showFilesButton: null,
     launchedFromSFARI: null,
     launchedFromHub: null,
     analysis: null,
