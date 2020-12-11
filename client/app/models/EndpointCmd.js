@@ -16,13 +16,7 @@ export default class EndpointCmd {
       // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
       // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
-      //this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
-      
-      // TEMPORARY CODE FOR TESTING AGAINST dev.backend.iobio.io
-      //
-      // IMPORTANT - Do not commit this change!!!
-      //
-      this.api = new Client(process.env.IOBIO_BACKEND, { secure: false });
+      this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
     }
 
     // iobio services
@@ -136,9 +130,9 @@ export default class EndpointCmd {
 
               // Get the gnomad vcf based on the genome build
               gnomadUrlGenomes = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
-                me.globalApp.utility.stripRefName(refName), "genomes", false);
+                me.globalApp.utility.stripRefName(refName), "genomes", me.globalApp.useSSL);
               gnomadUrlExomes  = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
-                me.globalApp.utility.stripRefName(refName), "exomes", false);
+                me.globalApp.utility.stripRefName(refName), "exomes", me.globalApp.useSSL);
 
 
               // Prepare args to annotate with gnomAD
@@ -199,7 +193,6 @@ export default class EndpointCmd {
                 gnomadUrl: gnomadUrlGenomes,
                 gnomadRegionStr: gnomadRegionStr,
                 decompose,
-                vepCustom,
                 gnomadRenameChr
             });
 
