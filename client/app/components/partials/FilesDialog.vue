@@ -280,7 +280,8 @@ export default {
   },
   props: {
     cohortModel: null,
-    showDialog: null
+    showDialog: null,
+    launchedFromDemo: null
   },
   data() {
     return {
@@ -361,6 +362,11 @@ export default {
     showFilesDialog: function() {
       if (!this.showFilesDialog) {
         this.$emit("on-cancel");
+      }
+    },
+    launchedFromDemo: function() {
+      if(this.launchedFromDemo) {
+        this.buildName = this.cohortModel.genomeBuildHelper.getCurrentBuildName();
       }
     }
   },
@@ -552,6 +558,8 @@ export default {
     onLoadDemoData: function() {
       let self = this;
       this.$emit('isDemo', true);
+      
+      self.buildName = self.cohortModel.genomeBuildHelper.getCurrentBuildName();
 
       if (self.mode == 'single') {
         self.mode = 'trio';

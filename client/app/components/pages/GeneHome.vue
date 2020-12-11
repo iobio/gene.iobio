@@ -269,6 +269,7 @@ main.content.clin, main.v-content.clin
       :badgeCounts="badgeCounts"
       :showFilesProp="showFiles"
       :showWelcome="showWelcome"
+      :launchedFromDemo="launchedFromDemo"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"

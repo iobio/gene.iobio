@@ -812,6 +812,7 @@ nav.toolbar, nav.v-toolbar
      v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
      :cohortModel="cohortModel"
      :showDialog="showFiles"
+     :launchedFromDemo="launchedFromDemo"
      @on-files-loaded="onFilesLoaded"
      @load-demo-data="onLoadDemoData"
      @on-cancel="showFiles = false"
@@ -1102,6 +1103,7 @@ export default {
     variantSetCounts: null,
     badgeCounts: null,
     showWelcome: null,
+    launchedFromDemo: null,
   },
   data () {
     let self = this;
