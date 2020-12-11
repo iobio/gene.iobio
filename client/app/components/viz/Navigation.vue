@@ -674,7 +674,7 @@ nav.toolbar, nav.v-toolbar
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
-        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin && showFilesButton" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
 
@@ -1373,6 +1373,7 @@ export default {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
+     console.log("SHOW_FILES_BUTTON", this.showFilesButton);
   },
   computed:  {
     knownGenes: function() {
