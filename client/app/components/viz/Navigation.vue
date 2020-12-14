@@ -529,7 +529,7 @@ nav.toolbar, nav.v-toolbar
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items style="flex-grow: 3;padding-top:3px;margin-right:60px">
+      <v-toolbar-items style="flex-grow: 3;padding-top:0px;margin-right:60px">
 
         <app-icon icon="dnasearch"  style="margin-top: 12px" width="24" height="24"></app-icon>
 
