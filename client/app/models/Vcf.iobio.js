@@ -2232,17 +2232,16 @@ exports._parseVepAfAnnot = function(fieldNames, vepFields, vepTokens, afSource, 
       fieldsPresent  = true;
     }
   })
-  if (fieldsPresent) {
-    fieldNames.forEach(function(fieldName) {
-      var targetFieldName = omitPrefix ? fieldName.split(omitPrefix + "_")[1] : fieldName;
-      var tokenIdx        = vepFields[fieldName];
-      if (tokenIdx && vepTokens[tokenIdx] && vepTokens[tokenIdx].length > 0) {
-        annot.vep.af[afSource][targetFieldName] = vepTokens[tokenIdx];
-      } else {
-        annot.vep.af[afSource][targetFieldName] = ".";
-      }
-    })    
-  }
+
+  fieldNames.forEach(function(fieldName) {
+    var targetFieldName = omitPrefix ? fieldName.split(omitPrefix + "_")[1] : fieldName;
+    var tokenIdx        = vepFields[fieldName];
+    if (tokenIdx && vepTokens[tokenIdx] && vepTokens[tokenIdx].length > 0) {
+      annot.vep.af[afSource][targetFieldName] = vepTokens[tokenIdx];
+    } else {
+      annot.vep.af[afSource][targetFieldName] = ".";
+    }
+  })    
   annot.vep.af[afSource].present = fieldsPresent;
 
 }

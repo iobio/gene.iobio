@@ -1778,22 +1778,25 @@ export default {
 
           if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
             return {percent: "?", link: null, class: "", source: source, infoPopup: "gnomAD"};
-          } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
-            return {percent: "0%", link: null, class: "level-high", source: source, infoPopup: "gnomAD"};
           } else  {
             var gnomAD = {};
-            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+            gnomAD.link = null;
+            if ( this.selectedVariant.vepAf.gnomAD.AF != ".") {
+              gnomAD.link = "http://gnomad.broadinstitute.org/variant/"
               + this.selectedVariant.chrom + "-"
               + this.selectedVariant.start + "-"
               + this.selectedVariant.ref + "-"
               + this.selectedVariant.alt;
+            }
 
             if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
               gnomAD.link += "?dataset=gnomad_r3"
             };
 
-            gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
-            gnomAD.class         = this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF);
+            let af = this.selectedVariant.vepAf.gnomAD.AF == "." ? 0 : this.selectedVariant.vepAf.gnomAD.AF;
+
+            gnomAD.percent       = this.globalApp.utility.percentage(af);
+            gnomAD.class         = this.getAfClass(af);
             gnomAD.percentPopMax = 0;
             gnomAD.altCount      = 0;
             gnomAD.totalCount    = 0;
