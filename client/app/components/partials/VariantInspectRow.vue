@@ -90,10 +90,10 @@
 <template>
   <div class="variant-row">
     <span v-if="label === 'ClinVar'">
-      <app-icon :class="getClinVarClass(value)" width="17" height="17" icon="clinvar" style="margin-right: 1px !important"></app-icon>
+      <app-icon :class="getClinVarClass(value)" width="16" height="16" icon="clinvar" style="margin-right: 1px !important"></app-icon>
     </span>
 
-    <app-icon v-if=" label !== 'ClinVar'" :class="getEvidenceClass(clazz, value)" width="18" height="18" icon="evidence"></app-icon>
+    <app-icon v-if=" label !== 'ClinVar'" :class="getEvidenceClass(clazz, value)" width="19" height="19" icon="evidence"></app-icon>
 
 
     <div v-if="clazz === 'level-unremarkable'" style="padding-left: 4px">
@@ -148,7 +148,6 @@ export default {
 
     //Todo: refactor to return Pathogenic evidence impact based on evidence
     getEvidenceClass: function(clazz, evidence){
-      console.log("clazz, evidence", clazz, evidence);
       return clazz
     },
 
