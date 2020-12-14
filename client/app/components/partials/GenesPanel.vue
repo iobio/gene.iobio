@@ -98,6 +98,28 @@
 .call-variants-button
     width: 100px !important
 
+.source-expansion-panel
+  // bottom: 0
+  margin-top: 45px
+  // position: fixed
+  width: 100%
+
+.expansion-panel__header, .v-expansion-panel__header
+  border-top: #e1e1e1
+  border-top-style: solid
+  border-top-width: 1px
+  padding:  6px 10px 6px 2px
+  background-color: #f3f3f3
+
+.v-expansion-panel__header
+  min-height: 28px
+  padding-left: 10px
+  padding-right: 8px
+
+  .header__icon
+    i.material-icons
+      color: $app-color
+
 </style>
 
 <template>
@@ -167,7 +189,11 @@
       </div>
     </div>
 
-
+    <div v-if="launchedFromClin">
+      <div style="margin-left: 80%">
+        Source
+      </div>
+    </div>
     <div id="gene-badge-container" class="level-basic" style="clear:both;">
 
 
@@ -182,6 +208,8 @@
        :isBasicMode="isBasicMode"
        :isEduMode="isEduMode"
        :launchedFromClin="launchedFromClin"
+       :geneModel="geneModel"
+       :geneSource="getGeneSource(gene.name)"
        @gene-selected="onGeneSelected"
        @remove-gene="onRemoveGene"
       >
@@ -225,7 +253,8 @@ export default {
       calledPercentage: 0,
       loadedCount: 0,
       calledCount: 0,
-      totalCount: 0
+      totalCount: 0,
+      expansionControl: [true]
     }
   },
   methods: {
@@ -259,7 +288,6 @@ export default {
           'dangerSummary': dangerSummary,
           'inProgress': inProgress};
         })
-
       } else {
         self.geneSummaries = [];
       }
@@ -293,6 +321,11 @@ export default {
     },
     onRemoveGene: function(geneName) {
       this.$emit('remove-gene', geneName);
+    },
+    getGeneSource: function(gene) {
+      if(this.launchedFromClin) {
+        return this.geneModel.getSourceForGenes()[gene].sourceIndicator.join(", ")
+      }
     }
 
   },

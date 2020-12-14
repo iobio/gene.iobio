@@ -16,6 +16,9 @@
 .level-medium, .level-unknown-significance, .level-unknown
   fill: $level-medium-color
 
+.level-insignificant, .level-unremarkable
+  fill: #cfcdcd 
+
 .level-low
   fill: $level-low-color
 
@@ -221,24 +224,46 @@
       </svg>
 
 
-
-      <svg  v-if="icon == 'recessive'" id="recessive-symbol" viewBox="0 0 27 27" :style="iconStyle" >
-        <circle fill="#C1272D" stroke="#000000" stroke-miterlimit="10" cx="7.6" cy="4" r="3.5"/>
-        <circle fill="#C1272D" stroke="#000000" stroke-miterlimit="10" cx="16.6" cy="4" r="3.5"/>
+      <svg  v-if="icon == 'recessive'" id="recessive-symbol" viewBox="0 0 27 27" :style="iconStyle">
+        <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="7.6" cy="4" r="3.5"/>
+        <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="16.6" cy="4" r="3.5"/>
         <g>
-          <path fill="#717171" d="M7.6,11.2c0.9-0.1,2.2-0.3,3.7-0.3c1.8,0,3.1,0.3,3.9,1c0.7,0.6,1.1,1.4,1.1,2.5c0,1.5-1.1,2.6-2.1,3v0.1
-            c0.8,0.3,1.3,1.2,1.6,2.3c0.4,1.4,0.8,3,1,3.4h-2.8c-0.2-0.3-0.5-1.3-0.8-2.8c-0.3-1.5-0.8-1.9-2-1.9h-0.8v4.8H7.6V11.2z
-             M10.3,16.4h1.1c1.4,0,2.2-0.7,2.2-1.7c0-1.1-0.8-1.7-2-1.7c-0.7,0-1,0.1-1.2,0.1V16.4z"/>
+          <path style="fill:#717171" d="M13.6,11.2c0.9-0.1,2.2-0.3,3.7-0.3c1.8,0,3.1,0.3,3.9,1c0.7,0.6,1.1,1.4,1.1,2.5c0,1.5-1.1,2.6-2.1,3v0.1
+            c0.8,0.3,1.3,1.2,1.6,2.3c0.4,1.4,0.8,3,1,3.4H20c-0.2-0.3-0.5-1.3-0.8-2.8s-0.8-1.9-2-1.9h-0.8v4.8h-2.8V11.2z M16.3,16.4h1.1
+            c1.4,0,2.2-0.7,2.2-1.7c0-1.1-0.8-1.7-2-1.7c-0.7,0-1,0.1-1.2,0.1v3.3H16.3z"/>
+        </g>
+        <g>
+          <path style="fill:#717171" d="M12.8,23.1h-2.7L9,20.3H4.2l-1,2.8H0.5l4.7-12.2h2.6L12.8,23.1z M8.2,18.3l-1.7-4.5l-1.6,4.5H8.2z"/>
         </g>
       </svg>
 
-      <svg v-if="icon == 'x-linked' || icon == 'xlinked' || icon == 'x linked'"  id="x-linked-symbol"  viewBox="0 0 27 27" :style="iconStyle">
+
+      <svg v-if="icon == 'x-linked' || icon == 'xlinked' || icon == 'x linked'"  id="x-linked-symbol"  viewBox="0 0 27 27" :style="iconStyle">        
         <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="13" cy="4" r="3.5"/>
         <g>
-          <path style="fill:#717171;" d="M15.8,21.8l-1.1-2.2c-0.5-0.8-0.7-1.5-1.1-2.2h0c-0.3,0.7-0.6,1.3-0.9,2.2l-1,2.2H8.5l3.5-6.1
-          l-3.4-6h3.2l1.1,2.2c0.4,0.7,0.6,1.3,0.9,2h0c0.3-0.8,0.5-1.3,0.8-2l1-2.2h3.1l-3.4,5.9l3.6,6.2H15.8z"/>
+          <path style="fill:#717171;" d="M9.8,21.8l-1.1-2.2c-0.5-0.8-0.7-1.5-1.1-2.2l0,0c-0.3,0.7-0.6,1.3-0.9,2.2l-1,2.2H2.5L6,15.7l-3.4-6h3.2
+            l1.1,2.2c0.4,0.7,0.6,1.3,0.9,2l0,0c0.3-0.8,0.5-1.3,0.8-2l1-2.2h3.1l-3.4,5.9l3.6,6.2H9.8z"/>
+        </g>
+        <g>
+          <path style="fill:#717171;" d="M14.4,21.6V9.5h2.5v10H23v2H14.4z"/>
         </g>
       </svg>
+
+
+      <svg v-if="icon == 'x-linked-female'"  id="x-linked-female-symbol"  viewBox="0 0 27 27" :style="iconStyle">        
+      
+              <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="7.7" cy="4" r="3.5"/>
+        <g>
+          <path class="st1" d="M9.8,21.8l-1.1-2.2c-0.5-0.8-0.7-1.5-1.1-2.2l0,0c-0.3,0.7-0.6,1.3-0.9,2.2l-1,2.2H2.5L6,15.7l-3.4-6h3.2
+            l1.1,2.2c0.4,0.7,0.6,1.3,0.9,2l0,0c0.3-0.8,0.5-1.3,0.8-2l1-2.2h3.1l-3.4,5.9l3.6,6.2H9.8z"/>
+        </g>
+        <g>
+          <path style="fill:#717171;" d="M14.4,21.6V9.5h2.5v10H23v2h-8.6V21.6z"/>
+        </g>
+        <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="17" cy="4" r="3.5"/>
+      </svg>
+
+
 
       <svg v-if="icon == 'compound-het' || icon == 'compound het' || icon == 'compoundHet'"  id="compound-het-symbol" viewBox="0 0 27 27" :style="iconStyle">
         <circle style="fill:#C1272D;stroke:#000000;stroke-miterlimit:10;" cx="8" cy="4" r="3.5"/>
@@ -264,6 +289,22 @@
         </g>
       </svg>
 
+      <svg v-if="icon == 'dnasearch'" id="dna-search-symbol"
+       :style="iconStyle" viewBox="0 0 24 24">
+        <path d="M19.1,20.2c0.4-0.6,0.6-1.3,0.6-2c0-2.2-1.8-4-4-4s-4,1.8-4,4s1.8,4,4,4c0.7,0,1.4-0.2,2-0.6l2.6,2.6l1.4-1.4L19.1,20.2z
+           M15.6,20.2c-1.1,0-2-0.9-2-2s0.9-2,2-2s2,0.9,2,2S16.7,20.2,15.6,20.2z"/>
+        <path d="M9.3,21.5l-2.2,0c0.4-0.5,1-1,1.6-1.5c-0.1-0.5-0.2-0.9-0.2-1.4c0-0.9,0.2-1.7,0.6-2.5c-0.7-0.5-1.3-1-1.8-1.5l2.8,0
+          c0.6-0.7,1.4-1.3,2.2-1.7l-5.9,0c-0.1-0.3-0.1-0.6-0.1-0.9c0-0.3,0-0.6,0.1-0.9l6.3,0c0.1,0.3,0.1,0.6,0.1,0.9c0,0.3,0,0.5-0.1,0.7
+          c0.8-0.4,1.7-0.6,2.7-0.7c0,0,0,0,0,0c0-3-1.7-4.7-3.5-6c1.7-1.2,3.5-2.9,3.6-5.7c0-0.1,0-0.2-0.1-0.3c-0.1-0.1-0.2-0.1-0.3-0.1
+          l-1.8,0c-0.2,0-0.4,0.2-0.4,0.4c0,0.2,0,0.3-0.1,0.5l-6.4,0c0-0.2,0-0.3-0.1-0.5c0-0.2-0.2-0.4-0.4-0.4l-1.8,0c-0.1,0-0.2,0-0.3,0.1
+          C4,0.1,4,0.2,4,0.3C4.1,3.1,5.8,4.8,7.4,6c-1.8,1.3-3.6,3-3.6,6c0,3,1.7,4.7,3.5,6c-1.7,1.3-3.5,2.9-3.6,5.7c0,0.1,0,0.2,0.1,0.3
+          c0.1,0.1,0.2,0.1,0.3,0.1l1.8,0c0.2,0,0.4-0.2,0.4-0.4c0-0.2,0-0.3,0.1-0.5l4.5,0C10.2,22.7,9.7,22.1,9.3,21.5z M7.4,2.5l4.7,0
+          c-0.6,0.7-1.4,1.3-2.4,2C8.8,3.8,8,3.2,7.4,2.5z M9.7,7.5c0.9,0.6,1.7,1.2,2.2,1.8l-4.5,0C8,8.7,8.8,8.2,9.7,7.5z"/>
+        </svg>
+
+      <svg v-if="icon == 'fileupload'" id="file-upload-symbol" viewBox="0 0 24 24">
+        <path d="M5,17.4v2h14v-2H5z M5,10h4v6h6v-6h4l-7-7L5,10z"/>
+      </svg>
 
 
       <svg v-if="icon == 'clinvar'" id="clinvar-symbol"
@@ -461,6 +502,9 @@
       <v-icon v-if="icon == 'called-variant'" class="called-variant">
         check_circle
       </v-icon>
+    <v-icon v-if="icon == 'no-called-variant'" class="called-variant">
+      done
+    </v-icon>
 
       <svg v-if="icon == 'feature-viz'"
        :style="iconStyle"
@@ -678,6 +722,14 @@
        viewBox="0 0 24 24">
       <path d="M0 0h24v24H0z" fill="none"/>
       <path d="M12.45 16h2.09L9.43 3H7.57L2.46 16h2.09l1.12-3h5.64l1.14 3zm-6.02-5L8.5 5.48 10.57 11H6.43zm15.16.59l-8.09 8.09L9.83 16l-1.41 1.41 5.09 5.09L23 13l-1.41-1.41z"/>
+    </svg>
+
+    <svg v-if="icon==='evidence'"
+         width="24"
+         height="24"
+         :style="iconStyle"
+         viewBox="0 0 24 24">
+     <path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-10 5h-2v-2h2v2zm0-4h-2V7h2v6z"/>
     </svg>
 
     <svg v-if="icon == 'not-significant'" id="not-significant-symbol"

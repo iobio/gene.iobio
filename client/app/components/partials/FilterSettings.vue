@@ -146,8 +146,9 @@
 
 
       <v-flex id="max-af" xs4  class="mt-5 mb-5 mr-4" >
-        <v-text-field label="Max Allele Freq" suffix="%" v-model="maxAf" hide-details>
+        <v-text-field style="display:inline-block" label="Max Population Allele Freq" suffix="%" v-model="maxAf" hide-details>
         </v-text-field>
+        <info-popup :name="gnomADInfoPopup"></info-popup>
       </v-flex>
 
 
@@ -424,6 +425,17 @@ export default {
              this.minGenotypeAltCount;
 
     },
+    gnomADInfoPopup: function() {
+      if (this.globalApp.gnomADExtraAll
+       && this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
+        return "filterAf"
+      } if (this.globalApp.gnomADExtraAll
+       && this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_BCFTOOLS) {
+        return "filterAfGenomesOnly"
+      } else  {
+        return "filterAfExomesOnly"
+      }
+    }
   },
   watch: {
 

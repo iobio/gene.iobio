@@ -76,7 +76,17 @@ export default function geneD3() {
 
     selection.each(function(data) {
 
-       // calculate height
+      let dataNew = [];
+      let uniqueIds = [];
+      for (let i = 0; i < data.length; i++) {
+        if (!uniqueIds.includes(data[i].transcript_id)) {
+          uniqueIds.push(data[i].transcript_id);
+          dataNew.push(data[i]);
+        }
+      }
+      data = dataNew;
+
+      // calculate height
        var padding = data.length > 1 ? geneD3_trackHeight/2 : 0;
        geneD3_height = data.length * (geneD3_trackHeight + padding);
 
@@ -185,6 +195,7 @@ export default function geneD3() {
       // add elements
       var transcript = g.selectAll('.transcript')
                         .data(data, function(d) { return d.transcript_id; });
+
 
       transcript.enter().append('g')
           .attr('class', transcriptClass)
@@ -391,13 +402,10 @@ export default function geneD3() {
             return featureClass(d,i, geneD3_relationship);
       });
 
-
-
       // update
       transcript.transition()
           .duration(700)
           .attr('transform', function(d,i) { return "translate(0," + y(i+1) + ")"});
-
 
       transcript.selectAll('.reference').transition()
         .duration(700)
@@ -408,14 +416,12 @@ export default function geneD3() {
         .duration(700)
         .attr('d', centerArrow);
 
-
       transcript.selectAll('.name').transition()
         .duration(700)
         .attr('x', function(d) { return margin.left > 5 ?  5 - margin.left : 0; })
         .attr('y', function(d) { return margin.left > 5 ? geneD3_trackHeight - (geneD3_trackHeight/2) + 2 : -10; })
         .text(function(d) { return d[1]; })
         .style('fill-opacity', 1);
-
 
       transcript.selectAll('.utr,.cds,.exon').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
         .transition()
@@ -433,8 +439,6 @@ export default function geneD3() {
       svg.select(".x.axis").transition()
           .duration(200)
           .call(xAxis);
-
-
 
       if (geneD3_showBrush) {
         var brushHeight = geneD3_height + margin.top + margin.bottom;
@@ -461,16 +465,7 @@ export default function geneD3() {
           .attr("transform", function(d,i) {
             return i ?  "translate(-4," + (brushHeight/2) + ") rotate(-90)" : "translate(4," + (brushHeight/2) + ") rotate(90)";
           });
-
       }
-
-    });
-
-  }
-  // moves selection to front of svg
-  function moveToFront(selection) {
-    return selection.each(function(){
-       this.parentNode.appendChild(this);
     });
   }
 
@@ -553,15 +548,12 @@ export default function geneD3() {
   }
 
   function tickFormatter (d,i) {
-
     if ((d / 1000000) >= 1)
       d = d / 1000000 + "M";
     else if ((d / 1000) >= 1)
       d = d / 1000 + "K";
     return d;
   }
-
-
 
   chart.transcriptClass = function(_) {
     if (!arguments.length) return transcriptClass;
@@ -635,11 +627,6 @@ export default function geneD3() {
     return chart;
   };
 
-  chart.yAxis = function(_) {
-    if (!arguments.length) return yAxis;
-    yAxis = _;
-    return chart;
-  };
   chart.trackHeight = function(_) {
     if (!arguments.length) return geneD3_trackHeight;
     geneD3_trackHeight = _;

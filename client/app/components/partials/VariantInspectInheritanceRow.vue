@@ -83,22 +83,25 @@
 </style>
 
 <template>
-  <div v-if="selectedVariant.inheritance.indexOf('n/a') == -1" class="variant-row">
-    <v-icon v-if="selectedVariant.inheritance.indexOf('n/a') == -1" class="level-high">
-      check_circle
-    </v-icon>
+  <div>
+    <div v-if="selectedVariant.inheritance.indexOf('n/a') == -1 && selectedVariant.inheritance.length > 0" class="variant-row">
 
-    <app-icon v-if="selectedVariant.inheritance.indexOf('n/a') >= 0" class="level-unremarkable" width="18" height="18" icon="not-significant" style="padding-top: 1px">
-    </app-icon>
+      <app-icon  class="level-high" width="18" height="18" icon="evidence"></app-icon>
 
-    <app-icon v-if="selectedVariant.inheritance.indexOf('n/a') == -1" :icon="selectedVariant.inheritance" style="margin-right:4px" width="16" height="16"></app-icon>
+      <app-icon  :icon="selectedVariant.inheritanceGlyph ? selectedVariant.inheritanceGlyph : selectedVariant.inheritance" style="margin-left:4px;margin-right:4px" width="16" height="16"></app-icon>
 
-    <div  style="padding-bottom: 1px; padding-left: 4px">
-    <span style="width:100px;line-height:14px">{{ selectedVariant.inheritance == 'denovo' ? 'De novo' : capitalize(selectedVariant.inheritance) }}</span>
+      <div  style="padding-bottom: 1px; padding-left: 4px">
+        <span style="width:100px;line-height:14px">{{ selectedVariant.inheritance == 'denovo' ? 'De novo' : capitalize(selectedVariant.inheritance) }}</span>
+      </div>
+
+
     </div>
-
-
-  </div>
+    <div v-if="selectedVariant.inheritance.length == 0" class="variant-row">
+      <div>
+        unknown 
+      </div>
+    </div> 
+  </div> 
 </template>
 
 

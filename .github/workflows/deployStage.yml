@@ -7,11 +7,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [12.x]
-        
+
     steps:
     - uses: actions/checkout@v1
     - name: Use Node.js ${{ matrix.node-version }}
@@ -21,7 +21,16 @@ jobs:
     - name: NPM Install
       run: |
         npm install
-    - name: Dev Build
+    - name: create env file
+      run: |
+        touch .env
+        echo IOBIO_BACKEND=${{ secrets.IOBIO_BACKEND }} >> .env
+        echo IOBIO_BACKEND_MOSAIC=${{ secrets.IOBIO_BACKEND_MOSAIC }} >> .env
+        echo USE_SSL=${{ secrets.USE_SSL }} >> .env
+        echo OMIM_API_KEY=${{ secrets.OMIM_API_KEY }} >> .env
+        echo SHOW_BLOGS_AND_TUTORIALS=${{ secrets.SHOW_BLOGS_AND_TUTORIALS }} >> .env
+        echo PHENOLYZER_PERMITTED=${{ secrets.PHENOLYZER_PERMITTED }} >> .env
+    - name: Stage Build
       run: |
         NODE_ENV=production npm run build
     - name: Deploy to S3 stage bucket - index.html

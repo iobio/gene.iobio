@@ -46,6 +46,7 @@
     color: $app-color
     margin-top: -5px
 
+
   #notes-input
     margin-top: 8px
     .input-group input
@@ -80,7 +81,7 @@
     flex-direction: row
     flex-wrap: wrap
     justify-content: space-around
-    padding-top: 5px
+    padding-top: 10px
 
 
 
@@ -110,7 +111,7 @@
         font-size: 14px
         color:  $app-color
         margin-top: 5px
-        margin-bottom: 15px
+        margin-bottom: 5px
 
         hr
           margin-top: 1px
@@ -120,10 +121,21 @@
       .variant-column-hint
         font-size: 13px
         line-height: 14px
-        margin-bottom: 10px
-        margin-top: -10px
+        margin-top: -5px
         font-style: italic
-        height: 40px
+        height: 48px
+
+      .variant-column-subheader
+        font-size: 13px
+        font-style: italic
+        margin-bottom: 5px
+        color: $app-color
+        margin-top: -5px
+    
+      .variant-column-loading
+        font-size: 12px
+        font-style: italic
+        margin-top: 10px
 
       .variant-row
         display: flex
@@ -291,7 +303,7 @@
 
     .proband
       stroke: $current-color !important
-      stroke-width: 3px !important
+      stroke-width: 2px !important
 
     .allele-count-bar
       rect.alt-count
@@ -322,6 +334,25 @@
       color: $link-color
       font-size: 17px
       padding-right: 5px
+
+#source-indicator-text
+  // content: "\a"
+  // white-space: pre
+  font-size: 12px
+  color: $app-color
+
+.myBadge
+  background-color: #efeeee 
+  border-radius: 90px 
+  height: 16px
+  color: #717171 
+  margin-left: 1px 
+  text-align: center 
+  vertical-align: middle
+  width: 16px
+  display: inline-block
+  font-size: 11px
+  font-family: raleway
 </style>
 
 <style lang="css">
@@ -335,13 +366,12 @@
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
     <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:10px">
-      <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left">
+      <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left" style="display: inline-grid">
         <span class="pr-1" v-if="selectedVariantRelationship != 'proband'">
           <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
         </span>
 
-        Variant in {{ selectedGene.gene_name }}
-
+        <span>Variant in {{ selectedGene.gene_name }}</span>
 
 
       </div>
@@ -416,6 +446,21 @@
 
     </div>
 
+    
+    <span v-if="launchedFromClin && selectedGene.gene_name">
+      <div>
+        <span id="source-indicator-text" class="chart-label">Source: </span>
+        <span v-for="(source, idx) in getSourceIndicatorBadge" :key="idx">
+          <span
+            v-tooltip.top-center="`${selectedGeneSources.source[idx]}`"
+            class="ml-1 mr-1">
+            <div left color="grey lighten-1" class="myBadge">
+              <span> {{ source }}</span>
+            </div>
+          </span>
+        </span>
+      </div>
+    </span>
 
 
     <div class="variant-inspect-body">
@@ -499,10 +544,10 @@
                     <span v-if="geneRank.source"> {{ geneRank.source }}</span>
                   </v-chip>
                   <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">
-                    {{ geneHit.searchTerm | to-firstCharacterUppercase }}
+                    {{ geneHit.searchTerm | firstCharacterToUppercase }}
                   </span>
                   <span v-else-if="geneRank.source==='HPO' && geneRank.hpoPhenotype" class="pheno-search-term">
-                    {{ geneRank.hpoPhenotype | to-firstCharacterUppercase }}
+                    {{ geneRank.hpoPhenotype | firstCharacterToUppercase }}
                   </span>
                 </div>
               </div>
@@ -535,7 +580,7 @@
           <div class='variant-column-hint' v-if="isSimpleMode">
             Clinical significance based on variant type, location, and documentation in ClinVar.
           </div>
-          <variant-inspect-row  v-for="clinvar,clinvarIdx in info.clinvarLinks" :key="clinvarIdx"
+          <variant-inspect-row  v-for="(clinvar,clinvarIdx) in info.clinvarLinks" :key="clinvarIdx"
             :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
           </variant-inspect-row>
 
@@ -544,7 +589,7 @@
             <span>{{ info.clinvarTrait }} </span>
           </div>
 
-          <variant-inspect-row
+          <variant-inspect-row v-if="info.vepImpact && info.vepImpact !== ''"
             :clazz="getImpactClass(info.vepImpact)" :value="info.vepConsequence"  :label="``"  >
           </variant-inspect-row>
 
@@ -576,12 +621,17 @@
 
       <div class="variant-inspect-column" v-if="selectedVariant">
           <div class="variant-column-header">
-              {{ isSimpleMode ? 'Population Frequency' : 'gnomAD' }}
-            <info-popup v-if="!isSimpleMode" name="gnomAD"></info-popup>
+              Population Frequency
+            <info-popup v-if="!isSimpleMode" :name="afGnomAD.infoPopup" 
+            :extraInfo1="afGnomAD.extraInfo1"
+            :extraInfo2="afGnomAD.extraInfo2"></info-popup>
             <v-divider></v-divider>
           </div>
           <div class="variant-column-hint" v-if="isSimpleMode">
             Common variants typically don’t cause diseases.
+          </div>
+          <div class="variant-column-subheader"  v-if="!isSimpleMode">
+            <span>{{ afGnomAD.source }}</span>
           </div>
           <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele frequency`" :link="afGnomAD.link" >
           </variant-inspect-row>
@@ -593,9 +643,17 @@
           <div v-if="!isSimpleMode && afGnomAD.homCount > 0"  class="variant-row no-icon">
             <span>{{ afGnomAD.homCount }} homozygotes</span>
           </div>
+          <div class="variant-column-loading"  v-if="afGnomAD.loading">
+            <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading) && !isSimpleMode"
+              style="margin-top:2px;min-width:80px;margin-left:0px;margin-right:0px"
+               class=" loader vcfloader" >
+              <img src="../../../assets/images/wheel.gif">
+              {{ afGnomAD.loading }} 
+            </span>
+          </div>
       </div>
 
-      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant && selectedVariant.inheritance.length > 0">
+      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant">
           <div class="variant-column-header">
             Inheritance
             <v-divider></v-divider>
@@ -603,6 +661,7 @@
 
           <variant-inspect-inheritance-row :selectedVariant="selectedVariant" >
           </variant-inspect-inheritance-row>
+
 
           <div class="pedigree-chart">
             <app-icon class="hide" icon="affected"></app-icon>
@@ -762,7 +821,8 @@ export default {
     info: null,
     coverageDangerRegions: null,
     user: null,
-    showAssessment: null
+    showAssessment: null,
+    launchedFromClin: null,
   },
   data() {
     return {
@@ -819,6 +879,18 @@ export default {
 
       enterCommentsClicked: false,
       showMoreGeneAssociationsDialog: false,
+      selectedGeneSources: {},
+
+      gnomADFieldToLabel: {
+        'vepAf.gnomADg.faf95_popmax': 'gnomAD genomes pop max allele freq (95% CI)',
+        'vepAf.gnomADg.AF_popmax'   : 'gnomAD genomes pop max allele freq',
+        'vepAf.gnomADe.AF_popmax'   : 'gnomAD exomes pop max allele freq',
+        'gnomAD.afPopMax'           : 'gnomAD genomes pop max allele freq',
+        'vepAf.MAX.AF'              : 'gnomAD (exomes only) pop max allele freq',
+        'vepAf.gnomAD.AF'           : 'gnomAD (exomes only) allele freq'
+      }
+      
+
     }
   },
 
@@ -1477,6 +1549,21 @@ export default {
     },
     onCloseGeneAssociationDialog: function(data){
       this.showMoreGeneAssociationsDialog = false;
+    },
+    getAfFilterInfo: function(additionalText) {
+      let self = this;
+      if (self.selectedVariant.afFieldHighest) {
+        let afPct = self.selectedVariant.afHighest && $.isNumeric(self.selectedVariant.afHighest) && self.selectedVariant.afHighest != 0 ? d3.format(".3%")(self.selectedVariant.afHighest) : '0%' 
+        let msg =  "For filtering purposes, " 
+        + self.gnomADFieldToLabel[self.selectedVariant.afFieldHighest] 
+        + " " + afPct + " was used. ";       
+        msg += (additionalText ? additionalText : "");
+        return msg;
+      } else {
+        let msg =  "For filtering purposes, an allele frequency of 0%, indicating the annotation was not found in gnomAD. "
+        msg += (additionalText ? additionalText : "");
+        return msg;
+      }
     }
   },
 
@@ -1547,11 +1634,117 @@ export default {
     },
     afGnomAD: function() {
       if (this.selectedVariant) {
-        if (this.globalApp.gnomADExtraAll || (this.globalApp.gnomADExtra && this.selectedVariant.extraAnnot)) {
+        if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+          && this.selectedVariant.vepAf.gnomADg 
+          && Object.keys(this.selectedVariant.vepAf.gnomADg).length > 0
+          && this.selectedVariant.vepAf.gnomADe 
+          && Object.keys(this.selectedVariant.vepAf.gnomADe).length > 0) {
+            let gnomADSource = "";
+
+            if (this.selectedVariant.vepAf.gnomADe 
+              && this.selectedVariant.vepAf.gnomADe.present 
+              && this.selectedVariant.vepAf.gnomADg 
+              && this.selectedVariant.vepAf.gnomADg.present ) {
+              gnomADSource = "gnomAD exomes + genomes";
+            } else if (this.selectedVariant.vepAf.gnomADg 
+              && this.selectedVariant.vepAf.gnomADg.present) {
+              gnomADSource = "gnomAD genomes"
+            } else if (this.selectedVariant.vepAf.gnomADg 
+              && this.selectedVariant.vepAf.gnomADg.present) {
+              gnomADSource = "gnomAD exomes"
+            } else {
+              gnomADSource = "gnomAD exomes + genomes"              
+            }
+
+
+            // For gnomAD 3.1, we would prefer to use popmax AF (95 CI) rather
+            // than raw popmax AF.
+            let popmax_gnomADg = null;
+            if (this.selectedVariant.vepAf.gnomADg.faf95_popmax 
+              && $.isNumeric(this.selectedVariant.vepAf.gnomADg.faf95_popmax)) {
+              popmax_gnomADg = this.selectedVariant.vepAf.gnomADg.faf95_popmax
+            } else {
+              popmax_gnomADg = this.selectedVariant.vepAf.gnomADg.AF_popmax
+            }
+
+            let afAll        = [this.selectedVariant.vepAf.gnomADg.AF,
+                             this.selectedVariant.vepAf.gnomADe.AF]
+            let anAll        = [this.selectedVariant.vepAf.gnomADg.AN,
+                             this.selectedVariant.vepAf.gnomADe.AN]
+            let acAll        = [this.selectedVariant.vepAf.gnomADg.AC,
+                             this.selectedVariant.vepAf.gnomADe.AC]
+            let nHomAll      = [this.selectedVariant.vepAf.gnomADg.nhomalt_raw,
+                                this.selectedVariant.vepAf.gnomADg['nhomalt-raw'],
+                                this.selectedVariant.vepAf.gnomADe.nhomalt_raw]
+
+            let acTot = acAll.reduce(function(tot, ac) {
+              return tot + ((ac && $.isNumeric(ac)) ? +ac : 0);
+            }, 0)
+            let anTot = anAll.reduce(function(tot, an) {
+              return tot + ((an && $.isNumeric(an)) ? +an : 0);
+            }, 0)
+            let nHomTot = nHomAll.reduce(function(tot, nHom) {
+              return tot + ((nHom && $.isNumeric(nHom)) ? +nHom : 0);
+            }, 0)
+            let afTot = anTot > 0 ? (acTot / anTot) : 0;
+
+            // We prefer to show the popmax from genomes, if available
+            let afPopMax = 0;
+            if (popmax_gnomADg && $.isNumeric(popmax_gnomADg)) {
+              afPopMax = popmax_gnomADg
+            } else if (this.selectedVariant.vepAf.gnomADe.AF_popmax && $.isNumeric(this.selectedVariant.vepAf.gnomADe.AF_popmax)) {
+              afPopMax = this.selectedVariant.vepAf.gnomADe.AF_popmax;
+            }
+            
+
+
+            var gnomAD = {};
+            gnomAD.percent       = afTot == 0 ? '0%' : d3.format(".3%")(afTot);
+            gnomAD.class         = this.getAfClass(afTot);
+            gnomAD.percentPopMax = afPopMax == 0 ? '0%' : d3.format(".3%")(afPopMax);
+            gnomAD.altCount      = acTot;
+            gnomAD.totalCount    = anTot;
+            gnomAD.homCount      = nHomTot;
+            gnomAD.source        = gnomADSource;
+            gnomAD.loading       = null
+            gnomAD.infoPopup     = "gnomADExtraVepCustom"
+            gnomAD.extraInfo1 =  
+                  ' Annotations shown for variant are from gnomAD ' 
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'genomes')
+                  + " genomes, "
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'exomes')
+                  + " exomes."
+            gnomAD.extraInfo2 = this.getAfFilterInfo();
+
+            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+                          + this.selectedVariant.chrom + "-"
+                          + this.selectedVariant.start + "-"
+                          + this.selectedVariant.ref + "-"
+                          + this.selectedVariant.alt;
+
+            if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
+              gnomAD.link += "?dataset=gnomad_r3"
+            };
+
+            return gnomAD;
+
+        }
+        else if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_BCFTOOLS &&
+          (this.globalApp.gnomADExtraAll || (this.globalApp.gnomADExtra && this.selectedVariant.extraAnnot))) {
+          let source      =  "gnomAD genomes"
+          let infoPopup   = "gnomAD"
+          let extraInfo1  =  
+                  ' Annotations shown for variant are from gnomAD ' 
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'genomes')
+                  + " genomes."
+          let extraInfo2 = this.getAfFilterInfo();
+
           if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
-            return {percent: "?", link: null, class: ""};
+            return {percent: "?", link: null, class: "", source: source, 
+                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2};            
           } else if (this.selectedVariant.gnomAD.af  == '.') {
-            return {percent: "0%", link: null, class: "level-high"};
+            return {percent: "0%", link: null, class: "level-high", source: source,
+                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2};
           } else  {
             var gnomAD = {};
             gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
@@ -1570,36 +1763,95 @@ export default {
             gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
             gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
             gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
+            gnomAD.source        = source;
+            gnomAD.loading       = null;
+            gnomAD.infoPopup     = infoPopup;
+            gnomAD.extraInfo1    = extraInfo1;
+            gnomAD.extraInfo2    = extraInfo2;
+            
             return gnomAD;
 
           }
         } else {
+          let source = "gnomAD exomes";
+
+
           if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
-            return {percent: "?", link: null, class: ""};
-          } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
-            return {percent: "0%", link: null, class: "level-high"};
+            return {percent: "?", link: null, class: "", source: source, infoPopup: "gnomAD"};
           } else  {
             var gnomAD = {};
-            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+            gnomAD.link = null;
+            if ( this.selectedVariant.vepAf.gnomAD.AF != ".") {
+              gnomAD.link = "http://gnomad.broadinstitute.org/variant/"
               + this.selectedVariant.chrom + "-"
               + this.selectedVariant.start + "-"
               + this.selectedVariant.ref + "-"
               + this.selectedVariant.alt;
+            }
 
             if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
               gnomAD.link += "?dataset=gnomad_r3"
             };
 
-            gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
-            gnomAD.class         = this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF);
+            let af = this.selectedVariant.vepAf.gnomAD.AF == "." ? 0 : this.selectedVariant.vepAf.gnomAD.AF;
+
+            gnomAD.percent       = this.globalApp.utility.percentage(af);
+            gnomAD.class         = this.getAfClass(af);
             gnomAD.percentPopMax = 0;
             gnomAD.altCount      = 0;
             gnomAD.totalCount    = 0;
             gnomAD.homCount      = 0;
+            gnomAD.source        = source;
+            if (this.globalApp.gnomADExtra 
+              && !this.globalApp.gnomADExtraAll 
+              && !this.selectedVariant.extraAnnot) {
+              if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_BCFTOOLS) {
+                gnomAD.loading = 'loading more annotations'
+                gnomAD.infoPopup  = "gnomAD";
+                gnomAD.extraInfo1 =  
+                  'Annotations shown for variant are from gnomAD ' 
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'genomes')
+                  + " genomes."
+                
+              } else {
+                 gnomAD.loading = 'loading more annotations'
+                 gnomAD.infoPopup     = "gnomADExtraVepCustom"
+                 gnomAD.extraInfo1 =  
+                  'Annotations show for variant are from gnomAD ' 
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'genomes')
+                  + " genomes, "
+                  + this.globalApp.getGnomADSourceName(this.genomeBuildHelper.getCurrentBuildName(), 'exomes')
+                  + " exomes."
+                
+              }
+            } else {
+              gnomAD.infoPopup     = "gnomAD"     
+              gnomAD.extraInfo1 = null         
+            }
+            gnomAD.extraInfo2 = this.getAfFilterInfo();
+
+
             return gnomAD;
           }
 
         }
+      }
+    },
+    sourceIndicatorLabel: function() {
+      if(this.launchedFromClin) {
+        let label = "Variants defined in ";
+        let gene_name = this.selectedGene.gene_name;
+        let source = this.cohortModel.geneModel.getSourceForGenes()[gene_name].source.join(", ");
+        label += source
+        return label;
+      }
+    },
+    
+    getSourceIndicatorBadge: function() {
+      if(this.launchedFromClin){
+        this.selectedGeneSources.source = this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].source;
+        this.selectedGeneSources.sourceIndicator = this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].sourceIndicator;
+        return this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].sourceIndicator;
       }
     }
   },
@@ -1614,7 +1866,6 @@ export default {
       let self = this;
       this.$nextTick(function() {
           this.loadData();
-
           if (self.selectedVariantRelationship === "known-variants") {
               self.annotateClinVarVariant(self.selectedVariant);
           }
@@ -1623,6 +1874,12 @@ export default {
   },
 
   filters: {
+
+    firstCharacterToUppercase(s) {
+      if(s){
+      return s.charAt(0).toUpperCase() + s.slice(1)
+      }
+    },
 
     showRelationship: function(buf) {
       if (buf == null) {
@@ -1648,7 +1905,6 @@ export default {
       if(this.selectedVariant){
           this.$nextTick(function() {
               this.loadData();
-
               if (self.selectedVariantRelationship === "known-variants") {
                   self.annotateClinVarVariant(self.selectedVariant);
               }

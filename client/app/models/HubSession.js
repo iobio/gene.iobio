@@ -324,20 +324,9 @@ export default class HubSession {
     });
   }
 
-  promiseGetSampleInfo(project_id, sample_id, isPedigree) {
+  promiseGetSampleInfo(project_id, sample_id) {
     let self = this;
-    if (isPedigree) {
-      return self.promiseGetPedigreeForSample(project_id, sample_id);
-    } else {
-      return new Promise(function(resolve, reject) {
-        self.promiseGetSample(project_id, sample_id, 'proband')
-        .then(function(data) {
-          data.foundPedigree = false;
-          resolve(data)
-        })
-
-      })
-    }
+    return self.promiseGetPedigreeForSample(project_id, sample_id);
   }
 
   promiseGetSample(project_id, sample_id, rel) {
@@ -422,6 +411,9 @@ export default class HubSession {
       // Assume proband if there is only one sample in the pedigree
       if (raw_pedigree.length == 1) {
         probandIndex = 0;
+      } else {
+        // Assume proband is the sample selected
+        probandIndex = raw_pedigree.findIndex(d => (d.id == sample_id));
       }
     }
 

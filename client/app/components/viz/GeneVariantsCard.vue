@@ -36,7 +36,7 @@
             .v-input__slot
                 margin-bottom: 0px
                 input
-                    padding-bottom: 0px
+                  padding-bottom: 0px
         #gene-variants-heading
             color: $app-color
             font-size: 16px
@@ -48,6 +48,8 @@
             padding-top: 5px
             padding-bottom: 5px
             align-items: center
+        .pubmed-table-title
+          color: $app-color
         .card-title
             color: $app-color
             font-size: 15px
@@ -84,70 +86,102 @@
 
 <template>
 
-        <div  v-if="selectedGene" class="gene-info text-xs-left">
 
-            <div id="gene-variants-heading">
-                Gene
+	<div v-if="selectedGene">
+		<div   class="gene-info text-xs-left">
+			<div id="gene-variants-heading">
+			Gene
+				<span id="gene-name"> {{ selectedGene.gene_name}} </span>
+			</div>
+			<gene-links-menu v-if="!isBasicMode"
+			             :selectedGene="selectedGene"
+			             :geneModel="cohortModel.geneModel">
+			</gene-links-menu>
 
-                <span id="gene-name"> {{ selectedGene.gene_name}} </span>
-
-
-
-
-
-            </div>
-            <gene-links-menu v-if="!isBasicMode"
-                             :selectedGene="selectedGene"
-                             :geneModel="cohortModel.geneModel">
-            </gene-links-menu>
-
-            <div style="display:inline-block;margin-left: 20px">
-                <transcripts-menu
-                        v-if="analyzedTranscript && analyzedTranscript.transcript_id && !isBasicMode&& !isSimpleMode"
-                        :selectedGene="selectedGene"
-                        :selectedTranscript="analyzedTranscript"
-                        :geneSources="geneSources"
-                        :geneModel="cohortModel.geneModel"
-                        @transcriptMenuOpened="onClickTranscript"
-                        @transcriptSelected="onTranscriptSelected"
-                        @gene-source-selected="onGeneSourceSelected">
-                </transcripts-menu>
-            </div>
+			<div style="display:inline-block;margin-left: 20px">
+				<transcripts-menu
+		        v-if="analyzedTranscript && analyzedTranscript.transcript_id && !isBasicMode&& !isSimpleMode"
+		        :selectedGene="selectedGene"
+		        :selectedTranscript="analyzedTranscript"
+		        :geneSources="geneSources"
+		        :geneModel="cohortModel.geneModel"
+		        @transcriptMenuOpened="onClickTranscript"
+		        @transcriptSelected="onTranscriptSelected"
+		        @gene-source-selected="onGeneSourceSelected">
+				</transcripts-menu>
+			</div>
 
 
 
 
-            <div style="display:inline-block;margin-left:10px">
+			<div style="display:inline-block;margin-left:10px">
 
 
-                <span id="gene-chr" class=" keep-case" >{{ selectedGene.chr }}</span>
-                <span id="gene-region"   class="keep-case">
-        {{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
-        </span>
+				<span id="gene-chr" class=" keep-case" >{{ selectedGene.chr }}</span>
+				<span id="gene-region"   class="keep-case">
+				{{ selectedGene.startOrig | formatRegion }} - {{ selectedGene.endOrig | formatRegion }}
+				</span>
 
-                <v-badge id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
+				<v-badge id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
 
-                <span  id="gene-plus-minus-label"  v-if="!isBasicMode && !isSimpleMode"  style="padding-left: 15px">+  -</span>
-                <div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:50px;height:21px;"  >
-                    <v-text-field
-                            id="gene-region-buffer-input"
-                            class="sm fullview"
-                            v-model="regionBuffer"
-                            v-on:change="onGeneRegionBufferChange">
-                    </v-text-field>
-                </div>
-            </div>
+				<span  id="gene-plus-minus-label"  v-if="!isBasicMode && !isSimpleMode"  style="padding-left: 15px">+  -</span>
+				<div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:50px;height:21px;"  >
+		    		<v-text-field
+		            id="gene-region-buffer-input"
+		            class="sm fullview"
+		            v-model="regionBuffer"
+		            v-on:change="onGeneRegionBufferChange">
+		    		</v-text-field>
+				</div>
+			</div>
+
+		</div>
+
+    <div style="display:flex;justify-content:flex-start;margin-top:5px">
+        <gene-omim-table  style="margin-right:30px"
+         v-if="isOMIMPermitted && selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+         :selectedGene="selectedGene"
+         :geneModel="cohortModel.geneModel">
+        </gene-omim-table>
+
+        <div>
+          <div style="display:flex;height:25px" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
+            <div class="pubmed-table-title">PubMed</div>
+            <gene-pubmed-popup
+            :geneModel="cohortModel.geneModel"
+            :selectedGene="selectedGene"
+            showAll="true">
+            </gene-pubmed-popup>
+          </div>
+          <gene-pubmed-table
+           v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+           :selectedGene="selectedGene"
+           :geneModel="cohortModel.geneModel"
+           :showSource="true"
+           :showAll="false">
+          </gene-pubmed-table>
+
         </div>
+
+    </div>
+
+	</div>
 </template>
 
 <script>
-    import GeneLinksMenu          from "../partials/GeneLinksMenu.vue"
+    import GeneOMIMTable        from '../partials/GeneOMIMTable.vue'
+    import GenePubMedTable      from '../partials/GenePubMedTable.vue'
+    import GenePubMedPopup      from '../partials/GenePubMedPopup.vue'
+    import GeneLinksMenu        from "../partials/GeneLinksMenu.vue"
     import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
     export default {
         name: 'gene-variants-card',
         components: {
+            'gene-omim-table': GeneOMIMTable,
+            'gene-pubmed-table': GenePubMedTable,
+            'gene-pubmed-popup': GenePubMedPopup,
             GeneLinksMenu,
-            TranscriptsMenu
+            TranscriptsMenu,
         },
         props: {
             selectedGene: null,
@@ -160,6 +194,7 @@
             isBasicMode: null,
             isSimpleMode: null,
             isFullAnalysis: null,
+            isOMIMPermitted: null,
             isLoaded: null,
             launchedFromClin: null,
             launchedFromHub: null

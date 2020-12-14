@@ -9,17 +9,16 @@ export default class VariantExporter {
     this.helpMsg = "If this error persists, Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.";
     this.exportFields = [
       {field: 'chrom',            exportVcf: false},
-      {field: 'start',            exportVcf: false},
-      {field: 'end',              exportVcf: false},
+      {field: 'start',            exportVcf: true},
+      {field: 'end',              exportVcf: true},
       {field: 'ref',              exportVcf: false},
       {field: 'alt',              exportVcf: false},
-      {field: 'gene',             exportVcf: true},
+      {field: 'geneName',         exportVcf: true},
       {field: 'transcript',       exportVcf: true},
       {field: 'isUserFlagged',    exportVcf: true},
       {field: 'filtersPassed',    exportVcf: true},
       {field: 'freebayesCalled',  exportVcf: true},
-      {field: 'notes',            exportVcf: false},
-      {field: 'interpretation',   exportVcf: false},
+      {field: 'interpretation',   exportVcf: true},
       {field: 'type',             exportVcf: true},
       {field: 'impact',           exportVcf: true},
       {field: 'highestImpact',    exportVcf: true},
@@ -55,7 +54,8 @@ export default class VariantExporter {
       {field: 'depthFather',      exportVcf: true},
       {field: 'bamDepthFather',   exportVcf: true},
       {field: 'dbSnpUrl',         exportVcf: false},
-      {field: 'clinvarUrl',       exportVcf: false}
+      {field: 'clinvarUrl',       exportVcf: false},
+      {field: 'notes',            exportVcf: true}
 
     ];
 
@@ -94,7 +94,6 @@ export default class VariantExporter {
       var getHeader = format == 'vcf' ? true : false;
 
       variantEntries.forEach(function(variant) {
-
         var exportRec = {};
         exportRec.start        = variant.start;
         exportRec.end          = variant.end;
@@ -126,23 +125,23 @@ export default class VariantExporter {
             }
 
             if (theHeaderRecords.length == 0) {
-              annotatedVcfRecs.forEach(function(vcfRecord) {
+              annotatedVcfRecs.forEach(function (vcfRecord) {
                 if (vcfRecord.indexOf("#") == 0) {
                   theHeaderRecords.push(vcfRecord);
                 }
               })
+            }
               annotatedVcfRecs.forEach(function(vcfRecord) {
                 if (vcfRecord.indexOf("#") != 0) {
                   var newRec = me._appendVcfRecordAnnotations(vcfRecord, record);
                   records.push(newRec);
                 }
               });
-            }
           }
         })
         .catch(function(error) {
-          var msg = "Cannot produce export record for variant <code>" + exportRec.gene + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + "</code> Try refreshing the page.";
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+          var msg = "Cannot produce export record for variant <code>" + exportRec.geneName + " " + exportRec.chrom + " " + exportRec.start + " " + exportRec.ref + "->" + exportRec.alt + "</code>";
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>")
             .setHeader("Non-fatal Error");
           console.log(msg, error);
         });
@@ -273,14 +272,19 @@ export default class VariantExporter {
     var me = this;
     var fields = vcfRecord.split("\t");
     var info = fields[7];
-
     var buf = "";
     me.exportFields.forEach(function(exportField) {
       if (exportField.exportVcf) {
         if (buf.length > 0) {
           buf += "|";
         }
-        buf += exportField.field + "#" + (record[exportField.field] && record[exportField.field] != "" ? record[exportField.field] : ".");
+        buf += exportField.field + "#" + (record[exportField.field] && record[exportField.field] != "" && exportField.field !== "notes" ? record[exportField.field] : ".");
+        if(exportField.field == "notes"){
+          if(record[exportField.field].trim().length>2){
+            buf += me.formatNotesForVcf(record[exportField.field]);
+          }
+        }
+
       }
     })
 
@@ -289,6 +293,21 @@ export default class VariantExporter {
 
     fields[7] = info;
     return fields.join("\t");
+  }
+  
+  formatNotesForVcf(notes){
+    // Exporting notes in VCF with 'tabs' between notes' content adds extra columns. Hence formating it in a different way as compared to exporting in CSV. 
+    var formattedNotes = "";
+    if(notes.includes("|")){ //Indicates that there are multiple notes added to this variant. 
+      var notesArray = notes.split("|");
+      formattedNotes = notesArray.map(x => {
+        return x.replace("\t", "--").replace(" ", "--").replace("\t", "--");
+      }).join("$/$"); // "$/$" is used just as a precaution measure to avoid spliting the string if the character '/' exists in the note.
+    }
+    else{
+      formattedNotes = notes.replace("\t", "--").replace(" ", "--").replace("\t", "--");
+    }
+    return formattedNotes;
   }
 
 
@@ -379,12 +398,12 @@ export default class VariantExporter {
 
               // Now perform joint calling on the alignments
               me.cohort.promiseJointCallVariants(theGeneObject, theTranscript, trioVcfData, {sourceVariant: variant, checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
-              .then(function(data) {
-                  var theGeneObject1    = data.gene;
-                  var theTranscript1    = data.transcript;
-                  var jointVcfRecs      = data.jointVcfRecs;
-                  var translatedRefName = data.refName;
-                  var sourceVariant     = data.sourceVariant;
+              .then(function(jointData) {
+                  var theGeneObject1    = jointData.gene;
+                  var theTranscript1    = jointData.transcript;
+                  var jointVcfRecs      = jointData.jointVcfRecs;
+                  var translatedRefName = jointData.refName;
+                  var sourceVariant     = jointData.sourceVariant;
                   var theVariant = null;
                   var theVcfRecs = null;
 
@@ -404,7 +423,7 @@ export default class VariantExporter {
                       && v.alt    == sourceVariant.alt) {
                       theVariant = v;
                     }
-                  })
+                  });
                   me._promiseFormatRecord(theVariant, sourceVariant, theVcfRecs, theGeneObject, theTranscript, format, exportRec)
                   .then(function(data) {
                     resolve(data);
@@ -415,8 +434,6 @@ export default class VariantExporter {
 
 
           } else {
-
-            if (!variant.hasOwnProperty('extraAnnot') || !variant.extraAnnot) {
               me.cohort.getProbandModel()
                .promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variant, format, getHeader, sampleNames)
                .then(function(data) {
@@ -430,13 +447,7 @@ export default class VariantExporter {
                   })
 
               });
-             } else {
-                me.formatDisplay(variant, exportRec, format);
-                resolve([exportRec]);
-             }
           }
-
-
         } else {
           reject("Problem during exporting variants.  Cannot find transcript " + exportRec.transcript + " in gene " + exportRec.gene);
         }
@@ -608,7 +619,7 @@ export default class VariantExporter {
     var me = this;
 
 
-    var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode);
+    var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode, format);
 
     rec.isProxy           = true;
     rec.analysisMode      = variant.analysisMode;

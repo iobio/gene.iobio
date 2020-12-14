@@ -26,7 +26,7 @@
         font-size: 12px
 
       .material-icons
-        font-size: 22px
+        font-size: 19px
         margin-right: 4px
         color: $unremarkable-color
         margin-top: -2px

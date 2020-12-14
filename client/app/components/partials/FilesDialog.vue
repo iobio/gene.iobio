@@ -143,7 +143,7 @@
                 </div>
                 <v-btn class="load-button action-button"
                   @click="onLoad"
-                  :disabled="!isValid">
+                  :disabled="!isValid || !buildName">
                   Load
                 </v-btn>
 
@@ -184,6 +184,7 @@
                   hide-details
                   v-model="buildName"
                   :items="buildList"
+                  :class="clazzAttention"
                 ></v-select>
                </v-flex>
 
@@ -229,17 +230,19 @@
                  dark small >
                   siblings
                 </span>
-                <span class="siblings-disabled" v-if="!(probandSamples && probandSamples.length > 0)" >
+                <span class="siblings-disabled" v-if="!(possibleSibs && possibleSibs.length > 0)" >
                  **Proband vcf must contain sibling data to enable sibling selection
                </span>
                </v-flex>
                 <v-flex  class=" pl-2 pr-3" >
                  <v-autocomplete
-                  v-bind:disabled="!(probandSamples && probandSamples.length > 0)"
+                  v-bind:disabled="!(possibleSibs && possibleSibs.length > 0)"
                   label="Affected Siblings"
                   multiple
                   v-model="affectedSibs"
-                  :items="probandSamples"
+                  :items="possibleSibs"
+                  item-text="sample"
+                  item-value="sample"                  
                   hide-details
                   >
                 </v-autocomplete>
@@ -247,11 +250,13 @@
 
                <v-flex   class="pr-2">
                  <v-autocomplete
-                  v-bind:disabled="!(probandSamples && probandSamples.length > 0)"
+                  v-bind:disabled="!(possibleSibs && possibleSibs.length > 0)"
                   label="Unaffected Siblings"
                   multiple
                   v-model="unaffectedSibs"
-                  :items="probandSamples"
+                  item-text="sample"
+                  item-value="sample"
+                  :items="possibleSibs"
                   hide-details
                   >
                 </v-autocomplete>
@@ -275,7 +280,8 @@ export default {
   },
   props: {
     cohortModel: null,
-    showDialog: null
+    showDialog: null,
+    launchedFromDemo: null
   },
   data() {
     return {
@@ -306,7 +312,7 @@ export default {
       ],
       demoAction: null,
       separateUrlForIndex: false,
-      probandSamples: null,
+      possibleSibs: null,
       affectedSibs: null,
       unaffectedSibs: null,
       inProgress: false
@@ -318,7 +324,13 @@ export default {
       if(self.loadReady) {
         self.cohortModel.promiseAddClinvarSample()
         .then(function () {
-          return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+          let affectedSibList = self.possibleSibs.filter(function(possibleSib) {
+            return self.affectedSibs.indexOf(possibleSib.sample) >= 0;
+          })
+          let unaffectedSibList = self.possibleSibs.filter(function(possibleSib) {
+            return self.unaffectedSibs.indexOf(possibleSib.sample) >= 0;
+          })
+          return self.cohortModel.promiseSetSibs(affectedSibList, unaffectedSibList)
         })
         .then(function () {
           self.cohortModel.setAffectedInfo(true);
@@ -341,7 +353,9 @@ export default {
     showDialog: function() {
       if (this.cohortModel && this.showDialog) {
         this.showFilesDialog = true
-        this.mode = this.cohortModel.mode;
+        if(this.mode !== 'trio') {
+          this.mode = this.cohortModel.mode;
+        }
         this.init();
       }
     },
@@ -349,73 +363,87 @@ export default {
       if (!this.showFilesDialog) {
         this.$emit("on-cancel");
       }
+    },
+    launchedFromDemo: function() {
+      if(this.launchedFromDemo) {
+        this.buildName = this.cohortModel.genomeBuildHelper.getCurrentBuildName();
+      }
     }
   },
   methods: {
     checkIndexFilesMatch: function(sms){
       let self = this;
-      for(let i = 0; i < sms.length; i++){
-        if(sms[i].bam.baiUri && sms[i].bam.baiUri !== sms[i].bam.bamUri + ".bai"){
-          self.errorTitle = "Bam index warning";
-          let errorMsg = "The bam index file path does not match the bam file path " + sms[i].bam.bamUri;
-          self.errorMsgArray.push(errorMsg);
-          self.warningOpen = true;
-          self.areAnyDuplicates = true;
-          self.loadReady = false;
+      for(let i = 0; i < sms.length; i++) {
+        if (sms[i].bam) {
+          if (sms[i].bam.baiUri && sms[i].bam.baiUri !== sms[i].bam.bamUri + ".bai") {
+            self.errorTitle = "Bam index warning";
+            let errorMsg = "The bam index file path does not match the bam file path " + sms[i].bam.bamUri;
+            self.errorMsgArray.push(errorMsg);
+            self.warningOpen = true;
+            self.areAnyDuplicates = true;
+            self.loadReady = false;
+          }
         }
-      }
-      for(let i = 0; i < sms.length; i++){
-        let vcfUrl = sms[i].vcf.getVcfURL();
-        let tbiUrl = sms[i].vcf.getTbiURL();
-        if(tbiUrl && tbiUrl !== vcfUrl + ".tbi"){
-          self.errorTitle = "Vcf index warning";
-          let errorMsg = "The vcf index file path does not match the vcf file path " + vcfUrl;
-          self.errorMsgArray.push(errorMsg);
-          self.warningOpen = true;
-          self.areAnyDuplicates = true;
-          self.loadReady = false;
+        for (let i = 0; i < sms.length; i++) {
+          let vcfUrl = sms[i].vcf.getVcfURL();
+          let tbiUrl = sms[i].vcf.getTbiURL();
+          if (tbiUrl && tbiUrl !== vcfUrl + ".tbi") {
+            self.errorTitle = "Vcf index warning";
+            let errorMsg = "The vcf index file path does not match the vcf file path " + vcfUrl;
+            self.errorMsgArray.push(errorMsg);
+            self.warningOpen = true;
+            self.areAnyDuplicates = true;
+            self.loadReady = false;
+          }
         }
       }
     },
     checkValidExtensions: function(sms){
       let self = this;
       for(let i = 0; i < sms.length; i++){
-        let bamUrl = sms[i].bam.bamUri;
-        let baiUrl = sms[i].bam.baiUri;
-        let vcfUrl = sms[i].vcf.getVcfURL();
-        let tbiUrl = sms[i].vcf.getTbiURL();
+        if(sms[i].bam && sms[i].vcf) {
+          let bamUrl = sms[i].bam.bamUri;
+          let baiUrl = sms[i].bam.baiUri;
+          let vcfUrl = sms[i].vcf.vcfURL;
+          let tbiUrl = sms[i].vcf.tbiUrl;
 
-        if(bamUrl.split('.').pop() !== "bam"){
-          self.errorTitle = "Bam file extension warning";
-          let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
-          self.errorMsgArray.push(errorMsg);
-          self.warningOpen = true;
-          self.areAnyDuplicates = true;
-          self.loadReady = false;
-        }
-        if(baiUrl && baiUrl.split('.').pop() !== "bai"){
-          self.errorTitle = "Bam index file extension warning";
-          let errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
-          self.errorMsgArray.push(errorMsg);
-          self.warningOpen = true;
-          self.areAnyDuplicates = true;
-          self.loadReady = false;
-        }
-        if(vcfUrl.split('.').pop() !== "gz"){
-          self.errorTitle = "Vcf file extension warning";
-          let errorMsg = "The vcf index file path does not end with a .vcf.gz extension " + vcfUrl;
-          self.errorMsgArray.push(errorMsg);
-          self.warningOpen = true;
-          self.areAnyDuplicates = true;
-          self.loadReady = false;
-        }
-        if(tbiUrl && tbiUrl.split('.').pop() !== "tbi"){
-          self.errorTitle = "Vcf index file extension warning";
-          let errorMsg = "The vcf index file path does not end with a .tbi extension " + tbiUrl;
-          self.errorMsgArray.push(errorMsg);
-          self.warningOpen = true;
-          self.areAnyDuplicates = true;
-          self.loadReady = false;
+          if (!vcfUrl) {
+            vcfUrl = sms[i].vcf.getVcfFile();
+            tbiUrl = sms[i].vcf.getTbiURL();
+          }
+
+          if (bamUrl && bamUrl.split('.').pop() !== "bam") {
+            self.errorTitle = "Bam file extension warning";
+            let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
+            self.errorMsgArray.push(errorMsg);
+            self.warningOpen = true;
+            self.areAnyDuplicates = true;
+            self.loadReady = false;
+          }
+          if (baiUrl && baiUrl.split('.').pop() !== "bai") {
+            self.errorTitle = "Bam index file extension warning";
+            let errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
+            self.errorMsgArray.push(errorMsg);
+            self.warningOpen = true;
+            self.areAnyDuplicates = true;
+            self.loadReady = false;
+          }
+          if (vcfUrl && vcfUrl.split('.').pop() !== "gz") {
+            self.errorTitle = "Vcf file extension warning";
+            let errorMsg = "The vcf index file path does not end with a .vcf.gz extension " + vcfUrl;
+            self.errorMsgArray.push(errorMsg);
+            self.warningOpen = true;
+            self.areAnyDuplicates = true;
+            self.loadReady = false;
+          }
+          if (tbiUrl && tbiUrl.split('.').pop() !== "tbi") {
+            self.errorTitle = "Vcf index file extension warning";
+            let errorMsg = "The vcf index file path does not end with a .tbi extension " + tbiUrl;
+            self.errorMsgArray.push(errorMsg);
+            self.warningOpen = true;
+            self.areAnyDuplicates = true;
+            self.loadReady = false;
+          }
         }
       }
     },
@@ -436,18 +464,20 @@ export default {
         }
       });
 
-      sms.map(function(obj) {
-        return obj.bam.bamUri;
-      }).forEach(function (element, index, arr) {
-        if (arr.indexOf(element) !== index) {
-          self.errorTitle = "Duplicate Bam Files";
-          let errorMsg = "Duplicate Bam detected for file: " + element;
-          self.errorMsgArray.push(errorMsg);
-          self.warningOpen = true;
-          self.areAnyDuplicates = true;
-          self.loadReady = false;
-        }
-      });
+      if(sms[0].bam) {
+        sms.map(function (obj) {
+          return obj.bam.bamUri;
+        }).forEach(function (element, index, arr) {
+          if (arr.indexOf(element) !== index) {
+            self.errorTitle = "Duplicate Bam Files";
+            let errorMsg = "Duplicate Bam detected for file: " + element;
+            self.errorMsgArray.push(errorMsg);
+            self.warningOpen = true;
+            self.areAnyDuplicates = true;
+            self.loadReady = false;
+          }
+        });
+      }
     },
 
     onLoad: function() {
@@ -473,7 +503,7 @@ export default {
         self.inProgress = true;
         self.cohortModel.promiseAddClinvarSample()
         .then(function () {
-          return self.cohortModel.promiseSetSibs(self.affectedSibs, self.unaffectedSibs)
+          return self.setSibsInCohortModel();
         })
         .then(function () {
           self.cohortModel.setAffectedInfo(true);
@@ -493,6 +523,22 @@ export default {
         })
       }
     },
+    setSibsInCohortModel: function() {
+      let self = this;
+      let affectedSibList = [];
+      if (self.affectedSibs && self.affectedSibs.length > 0) {
+        affectedSibList = self.possibleSibs.filter(function(possibleSib) {
+          return self.affectedSibs && self.affectedSibs.indexOf(possibleSib.sample) >= 0;
+        })
+      }
+      let unaffectedSibList = [];
+      if (self.unaffectedSibs && self.unaffectedSibs.length > 0) {
+        unaffectedSibList = self.possibleSibs.filter(function(possibleSib) {
+          return self.unaffectedSibs.indexOf(possibleSib.sample) >= 0;
+        })
+      }
+      return self.cohortModel.promiseSetSibs(affectedSibList, unaffectedSibList)
+    },
     onCancel:  function() {
       let self = this;
       self.$emit("on-cancel");
@@ -500,8 +546,10 @@ export default {
     },
     onModeChanged: function() {
       if (this.mode == 'trio' && this.cohortModel.getCanonicalModels().length < 3 ) {
+        this.$emit('isTrio', true);
         this.promiseInitMotherFather();
       } else if (this.mode == 'single' && this.cohortModel.getCanonicalModels().length > 1) {
+        this.$emit('isTrio', false)
         this.removeMotherFather();
       }
 
@@ -510,12 +558,14 @@ export default {
     onLoadDemoData: function() {
       let self = this;
       this.$emit('isDemo', true);
+      
+      self.buildName = self.cohortModel.genomeBuildHelper.getCurrentBuildName();
 
       if (self.mode == 'single') {
         self.mode = 'trio';
       }
 
-      var p = null;
+      let p;
       if (self.cohortModel.getCanonicalModels().length < 3 ) {
         p = self.promiseInitMotherFather();
       } else {
@@ -523,7 +573,7 @@ export default {
       }
       p.then(function() {
         self.cohortModel.demoModelInfos[self.demoAction].forEach(function(modelInfo) {
-          var rel = modelInfo.relationship;
+          let rel = modelInfo.relationship;
           self.modelInfoMap[rel] = modelInfo;
         })
         self.cohortModel.getCanonicalModels().forEach(function(model) {
@@ -541,7 +591,9 @@ export default {
           if (success) {
             theModelInfo.samples = sampleNames;
             if (theModel.relationship == 'proband') {
-              self.probandSamples = sampleNames;
+              self.possibleSibs = sampleNames.map(function(sampleName) {
+                return {sample: sampleName, sex: null}
+              });
             }
             self.$refs.sampleDataRef.forEach(function(ref) {
               if (ref.modelInfo.relationship == theModel.relationship) {
@@ -581,15 +633,15 @@ export default {
     },
     onSamplesAvailable: function(relationship, samples) {
       if (relationship == 'proband') {
-        this.probandSamples = samples;
+        this.possibleSibs = samples;
         if (this.cohortModel.sampleMapSibs.affected && this.cohortModel.sampleMapSibs.affected.length > 0) {
           this.affectedSibs = this.cohortModel.sampleMapSibs.affected.map(function(sampleModel) {
-            return sampleModel.sampleName;
+             return {sample: sampleModel.sampleName, sex: sampleModel.sex}
           })
         }
         if (this.cohortModel.sampleMapSibs.unaffected && this.cohortModel.sampleMapSibs.unaffected.length > 0) {
           this.unaffectedSibs = this.cohortModel.sampleMapSibs.unaffected.map(function(sampleModel) {
-            return sampleModel.sampleName;
+             return {sample: sampleModel.sampleName, sex: sampleModel.sex}
           })
         }
       }
@@ -702,6 +754,14 @@ export default {
       } else {
         return [];
       }
+    },
+    clazzAttention: function() {
+      if (!this.buildName) {
+        return 'attention';
+      }
+      else {
+        return '';
+      }
     }
   },
   created: function() {
@@ -711,7 +771,6 @@ export default {
   mounted: function() {
     if (this.cohortModel) {
       this.speciesName =  this.cohortModel.genomeBuildHelper.getCurrentSpeciesName();
-      this.buildName   =  this.cohortModel.genomeBuildHelper.getCurrentBuildName();
       this.speciesList =  this.cohortModel.genomeBuildHelper.speciesList.map(function(sp) {
         return sp.name;
       }).filter(function(name) {

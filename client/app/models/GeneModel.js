@@ -10,6 +10,12 @@ class GeneModel {
     this.NCBI_GENE_SUMMARY_URL     = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&usehistory=y&retmode=json";
 
 
+    this.NCBI_PUBMED_SEARCH_URL    = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&usehistory=y&retmode=json";
+    this.NCBI_PUBMED_SUMMARY_URL   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
+    
+    this.OMIM_URL                  = "https://api.omim.org/api/";
+    this.warnedMissingOMIMApiKey   = false;
+
     this.linkTemplates = {
         omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
         humanmine: { display: 'HumanMine', url: 'http://www.humanmine.org/humanmine/keywordSearchResults.do?searchTerm=+GENESYMBOL&searchSubmit=GO'},
@@ -48,6 +54,9 @@ class GeneModel {
 
 
     this.geneNCBISummaries = {};
+    this.geneOMIMEntries = {};
+    this.genePubMedEntries = {};
+    this.geneClinvarPhenotypes = {};
     this.genePhenotypes = {};
     this.geneObjects = {};
     this.geneToLatestTranscript = {};
@@ -77,7 +86,7 @@ class GeneModel {
     this.dispatch = d3.dispatch("geneDangerSummarized");
     d3.rebind(this, this.dispatch, "on");
 
-
+    this.genesAssociatedWithSource = {};
   }
 
   setCandidateGenes(genes) {
@@ -86,6 +95,11 @@ class GeneModel {
     genes.forEach(function(gene) {
       self.candidateGenes[gene] = true;
     })
+  }
+  
+  getCandidateGenes() {
+    let self = this;
+    return Object.keys(self.candidateGenes);
   }
 
   isCandidateGene(theGeneName) {
@@ -869,6 +883,231 @@ class GeneModel {
 
   }
 
+  promiseGetPubMedEntries(theGeneName, options={retmax: 5, useCached: true}) {
+    let me = this;
+    return new Promise( function(resolve, reject) {
+
+      let theEntry = me.genePubMedEntries[theGeneName];
+      if (theEntry && options.useCached) {
+        resolve(theEntry)
+      }
+      else {
+        setTimeout(function() {
+          let geneName = theGeneName;
+          var pubMedEntries = [];
+          var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title/abstract]";
+          me.pendingNCBIRequests[geneName] = true;
+  
+          $.ajax( searchUrl )
+           .done(function(data) {
+
+              // Now that we have the gene ID, get the NCBI gene summary
+              var webenv = data["esearchresult"]["webenv"];
+              var queryKey = data["esearchresult"]["querykey"];
+              var count = data["esearchresult"]["count"]
+              var summaryUrl = me.NCBI_PUBMED_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv + "&retmax=" + options.retmax;
+              $.ajax( summaryUrl )
+              .done(function(sumData) {
+                delete me.pendingNCBIRequests[geneName];
+  
+                if (sumData.result != null && sumData.result.uids && sumData.result.uids.length > 0) {
+                  sumData.result.uids.forEach(function(uid) {
+                    var entry = sumData.result[uid];
+                    pubMedEntries.push({uid: uid, title: entry.title, firstAuthor: entry.sortfirstauthor, pubDate: entry.pubdate, source: entry.source})
+
+                  })
+                  let theEntry = {geneName: geneName, count: count, entries: pubMedEntries};
+                  if (options.useCached) {
+                    me.genePubMedEntries[geneName] = theEntry;
+                  }
+                  resolve(theEntry);
+                } else {
+                  let theEntry = {geneName: geneName, count: 0, entries: null}
+                  if (options.useCached) {
+                    me.genePubMedEntries[geneName] = theEntry;
+                  }
+                  resolve(theEntry)
+                }
+              })
+             .fail(function(error) {
+                delete me.pendingNCBIRequests[geneName];
+                console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
+
+                let msg = "Unable to get PubMed entries for " + geneName;
+                //alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+                // .setHeader("Warning");
+                console.log(msg);
+
+                reject();
+              })
+
+           })
+           .fail(function(error) {
+
+              delete me.pendingNCBIRequests[geneName];
+  
+              let msg = "Unable to get PubMed entries for " + geneName;
+              //alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
+              // .setHeader("Warning");
+              console.log(msg);
+
+
+              console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
+              reject();
+           })
+
+         }, 
+         (Object.keys(me.pendingNCBIRequests).length > 0 ? 5000 : 3000));
+
+      }
+    })
+  }
+
+  promiseGetClinvarPhenotypes(cohortModel, geneObject, transcript) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+
+      let theEntry = self.geneClinvarPhenotypes[geneObject.gene_name];
+      if (theEntry) {
+        resolve(theEntry)
+      } else {
+        let geneName = geneObject.gene_name;
+        cohortModel.promiseGetClinvarPhenotypes(geneObject, transcript)
+        .then(function(data) {
+          self.geneClinvarPhenotypes[geneName] = data;
+          resolve(data);
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      }
+    })
+  }
+
+
+
+
+  promiseGetOMIMEntries(theGeneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+
+      let theEntry = self.geneOMIMEntries[theGeneName];
+      if (theEntry) {
+        resolve(theEntry)
+      } else {
+        let geneName = theGeneName;
+        self._promiseGetOMIMGene(geneName)
+        .then(function(data) {
+          if (data.phenotypes && data.phenotypes.length > 0) {
+            let promises = [];
+            let omimEntries = [];
+            data.phenotypes.forEach(function(phenotype) {
+              let p = self._promiseGetOMIMClinicalSynopsis(data.geneName, phenotype)
+              .then(function(data) {
+                omimEntries.push(data);
+              })      
+              promises.push(p)      
+            })
+            Promise.all(promises)
+            .then(function() {
+              let theEntry = {geneName: geneName, omimEntries: omimEntries};
+              self.geneOMIMEntries[geneName] = theEntry;
+              resolve(theEntry)
+            })
+          } else {
+            let theEntry = {geneName: geneName, omimEntries: null};
+            self.geneOMIMEntries[geneName] = theEntry;
+            resolve(theEntry)
+          }
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+
+      }
+
+    })
+
+  }
+
+  _promiseGetOMIMGene(geneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let apiKey = process.env.OMIM_API_KEY;
+
+      if (apiKey == null || apiKey == "") {
+        if (!self.warnedMissingOMIMApiKey) {
+          alertify.alert("Warning", "Unable to access OMIM.  API key is required in env.")
+          self.warnedMissingOMIMApiKey = true;          
+        }
+        resolve();
+      } else {
+        let url = self.OMIM_URL  + 'entry/search'
+          + '?apiKey=' + apiKey
+          + '&search=approved_gene_symbol:' + geneName
+          + '&format=json'
+          + '&retrieve=geneMap'
+          + '&start=0'
+          + '&limit=10';
+
+        $.ajax( url )
+          .done(function(data) {
+              let mimNumber = null;
+              let phenotypes = null;
+              if (data 
+                && data.omim.searchResponse 
+                && data.omim.searchResponse.geneMapList 
+                && data.omim.searchResponse.geneMapList.length > 0) {
+              let geneMap = data.omim.searchResponse.geneMapList[0].geneMap;
+              mimNumber = geneMap.mimNumber;
+              if (geneMap.phenotypeMapList) {
+                phenotypes = geneMap.phenotypeMapList.map(function(entry) {
+                  return entry.phenotypeMap;
+                })
+              }
+              resolve({geneName: geneName, mimNumber: mimNumber, phenotypes: phenotypes});
+            }
+          })
+          .fail(function(error) {
+              let msg = "Unable to get phenotype mim number OMIM " + url;
+              console.log(msg);
+              console.log(error)
+              reject(msg + '. Error: ' + error);
+          })
+        
+      }
+
+    })
+  }
+
+  _promiseGetOMIMClinicalSynopsis(geneName, phenotype) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let apiKey = process.env.OMIM_API_KEY;
+
+      let url = self.OMIM_URL  + 'clinicalSynopsis'
+        + '?apiKey=' + apiKey
+        + '&mimNumber=' + phenotype.phenotypeMimNumber
+        + '&include=clinicalSynopsis'
+        + '&format=json';
+
+      $.ajax( url )
+        .done(function(data) {
+          let clinicalSynopsis = null;
+          if (data && data.omim.clinicalSynopsisList && data.omim.clinicalSynopsisList.length > 0) {
+            clinicalSynopsis = data.omim.clinicalSynopsisList[0].clinicalSynopsis;
+          } 
+          resolve({geneName: geneName, phenotype: phenotype, clinicalSynopsis: clinicalSynopsis});
+        })
+        .fail(function(error) {
+            let msg = "Unable to get clinical synopsisi from OMIM " + url;
+            console.log(msg);
+            console.log(error)
+            reject(msg + '. Error: ' + error);
+        })
+    })
+  }
+
 
   _setTranscriptExonNumbers(transcript, sortedExons) {
     // Set the exon number on each UTR and CDS within the corresponding exon
@@ -914,9 +1153,17 @@ class GeneModel {
     if (self.geneNCBISummaries && self.geneNCBISummaries.hasOwnProperty(geneName)) {
       delete self.geneNCBISummaries[geneName];
     }
-
+    if (self.geneOMIMEntries && self.geneOMIMEntries.hasOwnProperty(geneName)) {
+      delete self.geneOMIMEntries[geneName];
+    }
+    if (self.genePubMedEntries && self.genePubMedEntries.hasOwnProperty(geneName)) {
+      delete self.genePubMedEntries[geneName];
+    }
     if (self.geneToLatestTranscript && self.geneToLatestTranscript.hasOwnProperty(geneName)) {
       delete self.geneToLatestTranscript[geneName];
+    }
+    if (self.geneClinvarPhenotypes && self.geneClinvarPhenotypes.hasOwnProperty(geneName)) {
+      delete self.geneClinvarPhenotypes[geneName];
     }
   }
 
@@ -1161,45 +1408,52 @@ class GeneModel {
 
   }
 
-  getLinks(geneName) {
+  promiseGetLinks(geneName) {
     let me = this;
-    let links = [];
 
-    var geneCoord = null;
-    var geneObject = me.geneObjects[geneName];
-    if (geneObject) {
-      geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
-    }
-    me.promiseGetNCBIGeneSummary(geneName);
+    return new Promise(function(resolve, reject) {
+      let links = [];
 
-    var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
-
-    me.promiseGetNCBIGeneSummary(geneName);
-
-    var geneUID = null;
-    var ncbiInfo = me.geneNCBISummaries[geneName];
-    if (ncbiInfo) {
-      geneUID = ncbiInfo.uid;
-    }
-    for (var linkName in me.linkTemplates) {
-      var theLink = $.extend({}, me.linkTemplates[linkName]);
-      theLink.name = linkName;
-      if (geneUID) {
-        theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
-      }
+      var geneCoord = null;
+      var geneObject = me.geneObjects[geneName];
       if (geneObject) {
-        theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
+        geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
       }
-      if (geneCoord) {
-        theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
-      }
-      if (buildAliasUCSC) {
-        theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
-      }
-      links.push(theLink);
-    }
+      me.promiseGetNCBIGeneSummary(geneName)
+      .then(function() {
+        var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
 
-    return links;
+        var geneUID = null;
+        var ncbiInfo = me.geneNCBISummaries[geneName];
+        if (ncbiInfo) {
+          geneUID = ncbiInfo.uid;
+        }
+        for (var linkName in me.linkTemplates) {
+          var theLink = $.extend({}, me.linkTemplates[linkName]);
+          theLink.name = linkName;
+          if (geneUID) {
+            theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
+          }
+          if (geneObject) {
+            theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
+          }
+          if (geneCoord) {
+            theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
+          }
+          if (buildAliasUCSC) {
+            theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
+          }
+          links.push(theLink);
+        }
+        resolve(links)
+
+
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+
+    })
   }
 
   getVariantLinks(geneName, variant) {
@@ -1610,6 +1864,43 @@ class GeneModel {
       return 1;
     }
 
+  }
+  
+  setSourceForGenes(genes, source) {
+    let self = this;
+    let sourceIndicatorMap = {
+      "imported_gene": 1,
+      "phenotype_gene_list": 2
+    }
+    let sourceMap = {
+      "imported_gene": "Variant is a member of an imported set of potentially interesting variants",
+      "phenotype_gene_list": "Variant is in a gene associated with the patient's clinical note"
+    }
+    let sourceGeneTabMap = {
+      "imported_gene": "Genes contains an imported potentially interesting variant",
+      "phenotype_gene_list": "Gene is associated with the patient's clinical note"
+    }
+    genes.forEach(gene => {
+      if(self.genesAssociatedWithSource[gene] === undefined){
+        self.genesAssociatedWithSource[gene] = {
+          "source": [sourceMap[source]],
+          "sourceIndicator": [sourceIndicatorMap[source]],
+          "source_gene_tab": [sourceGeneTabMap[source]],
+        }
+      }
+      else {
+        if(!self.genesAssociatedWithSource[gene].source.includes(sourceMap[source])){
+          self.genesAssociatedWithSource[gene].source.push(sourceMap[source])
+          self.genesAssociatedWithSource[gene].sourceIndicator.push(sourceIndicatorMap[source])
+          self.genesAssociatedWithSource[gene].source_gene_tab.push(sourceGeneTabMap[source])
+        }
+      }
+    })
+  }
+  
+  getSourceForGenes() {
+    let self = this;
+    return self.genesAssociatedWithSource;
   }
 
 }

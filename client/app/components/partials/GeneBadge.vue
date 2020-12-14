@@ -162,6 +162,18 @@
 
   visibility: hidden
 
+.myBadge
+  background-color: #efeeee 
+  border-radius: 90px 
+  height: 16px
+  color: #717171 
+  margin-left: 1px 
+  text-align: center 
+  vertical-align: middle
+  width: 16px
+  display: inline-block
+  font-size: 11px
+  font-family: raleway
 </style>
 
 <template>
@@ -195,7 +207,7 @@
         <span id="gene-badge-name" style="float:left;margin-left:2px;margin-right:2px">
           {{ gene.name }}
         </span>
-
+        
 
 
 
@@ -243,7 +255,7 @@
 
           <app-icon
            v-if="hasFilteredVariants('xlinked')"
-           icon="xlinked"
+           :icon="getXLinkedIconName()"
            class=" level-edu glyph"
            width="15" height="15">
           </app-icon>
@@ -308,13 +320,26 @@
 
 
   </a>
-
-  <div id="gene-badge-remove" v-if="!isEduMode && !launchedFromClin" href="javascript:void(0)"
+  
+  <div id="gene-badge-remove" v-if="!isEduMode" href="javascript:void(0)"
     @click="removeGene"
-    style="display: inline-block;cursor: pointer;float:right">
+    style="display: inline-block;cursor: pointer;float:right; margin-right:-10px">
       <i style="vertical-align:middle" class="material-icons">close</i>
 
   </div>
+
+  <span class="ml-1" style="position: absolute" v-if="launchedFromClin">
+    <span v-for="(source, idx) in selectedGeneSources.sourceIndicator" :key="idx">
+      <span
+        v-tooltip.top-center="`${selectedGeneSources.source[idx]}`"
+        class="mr-1">
+        <div left color="grey lighten-1" class="myBadge">
+          <span> {{ source }}</span>
+        </div>
+      </span>
+    </span>
+  </span>
+
 
 </div>
 </template>
@@ -336,13 +361,21 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     launchedFromClin: null,
-    isSimpleMode: null
+    isSimpleMode: null,
+    geneModel: null,
+    geneSource: null,
   },
   data () {
     return {
+      selectedGeneSources: {},
+      // geneSource: null,
+      // launchedFromClin: false
     }
   },
   watch: {
+    geneSource: function(){
+      this.getSourceIndicatorBadge(this.gene.name)
+    }
   },
   methods: {
     selectGene: function() {
@@ -385,9 +418,28 @@ export default {
         && this.gene.dangerSummary.badges[filterName]
         && this.gene.dangerSummary.badges[filterName].length > 0;
     },
+    getXLinkedIconName: function() {
+      let variantGlyphs = {}
+      this.gene.dangerSummary.badges['xlinked'].forEach(function(variant) {
+        if (variant.inheritanceGlyph) {
+          variantGlyphs[variant.inheritanceGlyph] = true
+        }
+      })
+      if (Object.keys(variantGlyphs).length == 1) {
+        return Object.keys(variantGlyphs)[0]
+      } else {
+        return 'x-linked'
+      }
+    },
     hasCoverageProblem: function() {
       return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem;
-    }
+    },
+    getSourceIndicatorBadge: function(gene_name) {
+      if(this.launchedFromClin){
+        this.selectedGeneSources.source = this.geneModel.getSourceForGenes()[gene_name].source_gene_tab;
+        this.selectedGeneSources.sourceIndicator = this.geneModel.getSourceForGenes()[gene_name].sourceIndicator;
+      }
+    },
   },
   computed: {
     classObject: function () {
@@ -400,10 +452,12 @@ export default {
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
         'has-phenotypes':        false  //this.phenotypes && this.phenotypes.length > 0,
       }
-    }
+    },
+
 
   },
   mounted: function() {
+    this.getSourceIndicatorBadge(this.gene.name)
   }
 }
 

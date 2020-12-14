@@ -99,7 +99,7 @@
   line-height: 12px !important
 
 .clinvar-legend
-  width: 150px 
+  width: 150px
   margin-right:  10px
   margin-bottom:  15px
 
@@ -180,10 +180,20 @@
          height="14"
          label="Low">
         </legend-icon>
+        <legend-icon
+            icon="impact"
+            type="snp"
+            clazz="impact_UNKNOWN"
+            width="14"
+            height="14"
+            label="Unknown">
+        </legend-icon>
 
       </div>
       <div v-if="!isBasicMode && !isSimpleMode" style="text-align:left;width:150px;margin-right:10px;margin-bottom:15px">
-        <div class="legend-label" style="width:130px">Inheritance</div>
+        <div class="legend-label" style="width:130px">Inheritance
+            <info-popup name="inheritance"></info-popup>
+          </div>
 
         <legend-icon
          icon="autosomal dominant"
@@ -201,7 +211,7 @@
          icon="recessive"
          width="16"
          height="16"
-         label="Recessive">
+         label="Autosomal Recessive">
         </legend-icon>
         <legend-icon
          icon="x-linked"
@@ -220,10 +230,10 @@
 
 
       <div :class="{'clinvar-legend': true}">
-          <div class="legend-label">Clinvar
+          <div class="legend-label">ClinVar
             <info-popup name="clinvar"></info-popup>
           </div>
-         
+
           <div>
             <legend-icon
             style="display:inline-block"
@@ -233,7 +243,6 @@
             level="high"
             label="Pathogenic">
             </legend-icon>
-            <info-popup style="padding-left:1px" name="pathogenic"></info-popup>
           </div>
 
          <div>
@@ -243,9 +252,8 @@
             width="12"
             height="12"
             level="likely-high"
-            label="Likely path.">
+            label="Likely pathogenic">
             </legend-icon>
-            <info-popup style="padding-left:1px" name="likelyPathogenic"></info-popup>
           </div>
 
           <legend-icon v-if="!isBasicMode && !isSimpleMode"
@@ -289,6 +297,39 @@
           </legend-icon>
       </div>
 
+<!--      Evidence for pathogenic-->
+      <div
+          style="text-align:left;margin-bottom:15px">
+        <div  class="legend-label">Pathogenic Evidence
+          <info-popup style="padding-left:1px" name="evidence"></info-popup>
+        </div>
+          <legend-icon
+              icon="evidence"
+              width="16"
+              height="16"
+              class="level-high"
+              label="Strong evidence"></legend-icon>
+          <legend-icon
+              icon="evidence"
+              width="16"
+              height="16"
+              class="level-likely-high"
+              label="Moderate evidence"></legend-icon>
+          <legend-icon
+              icon="evidence"
+              width="16"
+              height="16"
+              class="level-medium"
+              label="Supporting evidence"></legend-icon>
+        <legend-icon
+            icon="evidence"
+            width="16"
+            height="16"
+            class="level-insignificant"
+            label="No evidence"></legend-icon>
+      </div>
+
+<!--      Variant Type-->
       <div style="text-align:left;width:105px;margin-bottom:15px">
           <div class="legend-label">Variant type
             <info-popup name="variantType"></info-popup>
@@ -304,7 +345,6 @@
            height="14"
            label="SNP">
           </legend-icon>
-          <info-popup style="padding-left: 1px;" name="snp"></info-popup>
         </div>
 
         <legend-icon
@@ -336,29 +376,51 @@
 
       </div>
 
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:70px;margin-right:10px;margin-bottom:15px">
-        <div class="legend-label">Allele Frequency</div>
+<!--      Quality control-->
+      <div style="text-align:left;margin-bottom:15px; width: 100%">
+        <div  class="legend-label">Quality control
+          <info-popup style="padding-left:1px" name="QC"></info-popup>
+
+        </div>
         <legend-icon
-          icon="af"
-          width="12"
-          height="12"
-          level="high"
-          label="< 5%">
-        </legend-icon>
+            icon="circle-checkmark"
+            width="16"
+            height="16"
+            class="level-low"
+            label="Pass"></legend-icon>
+        <legend-icon
+            icon="warning"
+            width="16"
+            height="16"
+            class="level-high"
+            label="Fail"></legend-icon>
       </div>
 
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:120px;margin-right:10px;margin-bottom:15px">
-        <div class="legend-label">Called variant</div>
+<!--      Called Variants-->
+      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:15px; width: 100%">
+        <div class="legend-label">Called variants
+          <info-popup name="called-variants"></info-popup>
+        </div>
+        <legend-icon
+            icon="no-called-variant"
+            label="No new variants called in gene.iobio"
+            style="line-height: 1 !important; padding-bottom: 7px">
+        </legend-icon>
         <legend-icon
           icon="called-variant"
-          label="Variants called from alignments"
-          wrapLabel="true">
+          label="New variants called in gene.iobio"
+          style="line-height: 1 !important;">
         </legend-icon>
+        </div>
       </div>
 
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:80px;margin-right:0px;margin-bottom:15px">
-          <div class="legend-label">Coverage</div>
 
+
+<!--      Coverage-->
+      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:0px;margin-bottom:15px">
+          <div class="legend-label">Coverage
+            <info-popup name="coverage"></info-popup>
+          </div>
           <legend-icon
             icon="coverage"
             width="13"
@@ -370,25 +432,24 @@
 
       </div>
 
-
-      <div v-if="!isBasicMode && !isSimpleMode" style="width:170px;margin-right:10px;margin-bottom:10px">
-        <div class="legend-label">Zygosity</div>
+<!--      Zygocity-->
+      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:10px">
+        <div class="legend-label">Variant Zygosity</div>
 
         <legend-icon
          icon="zygosity"
          type="het"
          height="14" width="24"
          iconStyle="margin-top:-2px"
-         label="Heterozygous alternate">
+         label="Heterozygous">
         </legend-icon>
-
 
         <legend-icon
          icon="zygosity"
          type="hom"
          height="14" width="24"
          iconStyle="margin-top:-2px"
-         label="Homozygous alternate">
+         label="Homozygous">
         </legend-icon>
       </div>
 

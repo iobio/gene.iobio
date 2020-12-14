@@ -1,10 +1,15 @@
 #!/bin/bash
-
 rm -rf deploy
 mkdir deploy
 mkdir deploy/js
 mkdir deploy/app
 mkdir deploy/dist
+
+if test -f ".env"; then
+  echo ".env exists."
+else
+  cp .env.template .env
+fi
 
 # build vue app
 if [[ $1 == "prod" ]]; then

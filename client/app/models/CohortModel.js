@@ -1238,6 +1238,20 @@ class CohortModel {
   }
 
 
+  promiseGetClinvarPhenotypes(geneObject, transcript) {
+    var self = this;
+    return new Promise( function(resolve, reject) {
+      var refName = self.getProbandModel()._stripRefName(geneObject.chr);
+      self.getProbandModel().vcf.promiseGetClinvarPhenotypes(refName, geneObject, transcript)
+      .then(function(results) {
+        resolve(results);
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+    })
+  }
+
 
 
   promiseAnnotateWithClinvar(resultMap, geneObject, transcript, isBackground) {
@@ -2346,7 +2360,7 @@ class CohortModel {
     // So first, cache all of the gene objects for the imported variants
     var promises = []
 
-    // Workaround - some older saved analysis had empty variant 
+    // Workaround - some older saved analysis had empty variant
     // records. Bypass these.
     importRecords = importRecords.filter(function(ir) {
       if (ir == null) {
@@ -2362,6 +2376,7 @@ class CohortModel {
       // object, sometimes a gene name.  Other times
       // variant.geneName is filled in instead
       // of variant.gene.
+
       if (ir.gene == null && ir.geneName) {
         if (isObject(ir.geneName)) {
           ir.gene  = ir.geneName.gene_name
@@ -2373,10 +2388,7 @@ class CohortModel {
           ir.gene  = ir.gene.gene_name;
         }
       }
-
       if (ir.gene == null) {
-        console.log("Bypassing import record. Unable to find gene on imported variant ")
-        console.log(ir)
       } else {
         var theGeneObject = me.geneModel.geneObjects[ir.gene];
         if (theGeneObject == null || !ir.transcript || ir.transcript == '') {
@@ -2384,6 +2396,9 @@ class CohortModel {
           .then(function(theGeneObject) {
             if (theGeneObject.notFound) {
               me.geneModel.promiseAddGeneName(theGeneObject.geneName);
+            }
+            else if(ir.gene && theGeneObject.notFound === undefined){
+              me.geneModel.promiseAddGeneName(ir.gene);
             }
           })
           promises.push(promise);
@@ -2493,7 +2508,7 @@ class CohortModel {
           }
         })
       }
-      
+
       if (theTranscript) {
         uniqueTranscripts[theTranscript.transcript_id] = theTranscript;
       }
@@ -2586,7 +2601,7 @@ class CohortModel {
 
         })
         dataPromises.push(dataPromise);
-      }        
+      }
 
 
 

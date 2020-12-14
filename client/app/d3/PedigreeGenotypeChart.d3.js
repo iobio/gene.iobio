@@ -43,7 +43,7 @@ export default function PedigreeGenotypeChartD3() {
         }
         else if(nodeData.sex === "male"){
             parent.append("g")
-                .attr("transform", "translate(-" + (nodeWidth / 1.75) + ", -" + (nodeWidth / 2) + ")")
+                .attr("transform", "translate(-" + (nodeWidth / 1.75) + ", -" + (nodeWidth / 2 -1) + ")")
                 .append("use")
                 .attr("xlink:href", "#affected-symbol")
                 .attr("class", "level-high")
@@ -221,7 +221,7 @@ export default function PedigreeGenotypeChartD3() {
             group
                 .attr("transform", function (d, i) {
                     if (position == "top") {
-                        return "translate(-10,-12)";
+                        return "translate(-10,-18)";
                     } else {
                         return "translate(-10," + (nodeWidth + 20) + ")";
                     }
@@ -232,7 +232,7 @@ export default function PedigreeGenotypeChartD3() {
             group
                 .attr("transform", function (d, i) {
                     if (position == "top") {
-                        return "translate(-10,-12)";
+                        return "translate(-10,-18)";
                     } else {
                         return "translate(-10," + (nodeWidth + 10) + ")";
                     }
@@ -318,10 +318,6 @@ export default function PedigreeGenotypeChartD3() {
 
     container.selectAll("svg").remove();
 
-    if (pedigreeData.father == null && pedigreeData.mother == null) {
-      return;
-    }
-
     let svg =  container.selectAll("svg")
                          .data([pedigreeData]);
 
@@ -372,27 +368,28 @@ export default function PedigreeGenotypeChartD3() {
             })
     }
 
+    // Only draw the parent lines if we have mother or father in pedigree
+    if (pedigreeData.father != null || pedigreeData.mother != null) {
 
-    let parentLines = parents.selectAll("g.parent-lines")
-                             .data([0]);
-    let parentLinesEnter = parentLines.enter()
-               .append("g")
-               .attr("class", "parent-lines")
-               .attr("transform", "translate(" + (nodeWidth) + "," +  nodeWidth/2   + ")");
+      let parentLines = parents.selectAll("g.parent-lines")
+                               .data([0]);
+      let parentLinesEnter = parentLines.enter()
+                 .append("g")
+                 .attr("class", "parent-lines")
+                 .attr("transform", "translate(" + (nodeWidth) + "," +  nodeWidth/2   + ")");
 
-    parentLinesEnter.append("line")
-                    .attr("x1", 0)
-                    .attr("x2", nodePadding + 0.5)
-                    .attr("y1", 0)
-                    .attr("y2", 0)
+      parentLinesEnter.append("line")
+                      .attr("x1", 0)
+                      .attr("x2", nodePadding + 0.5)
+                      .attr("y1", 0)
+                      .attr("y2", 0)
 
-    parentLinesEnter.append("line")
-                    .attr("x1", (nodePadding/2) + 1.5)
-                    .attr("x2", (nodePadding/2) + 1.5)
-                    .attr("y1", 0)
-                    .attr("y2", nodeVerticalPadding)
-
-
+      parentLinesEnter.append("line")
+                      .attr("x1", (nodePadding/2) + 1.5)
+                      .attr("x2", (nodePadding/2) + 1.5)
+                      .attr("y1", 0)
+                      .attr("y2", nodeVerticalPadding)
+    }
 
 
     let childLines = children.append("g")
@@ -400,8 +397,8 @@ export default function PedigreeGenotypeChartD3() {
                              .attr("transform", "translate(" + nodeWidth / 2 + ",0)");
 
 
-
-    if (childData.length > 1) {
+    // Only draw the child lines if we have at least one child and at least one parent
+    if (childData.length > 1 && (pedigreeData.father != null || pedigreeData.mother != null)) {
       childLines.append("line")
                 .attr("x1", 0)
                 .attr("x2", childLineWidth)
@@ -438,10 +435,13 @@ export default function PedigreeGenotypeChartD3() {
    let childNodeGroup = children.append("g")
                             .attr("class", "child-nodes")
                             .attr("transform", function(d,i) {
+                              // If we don't have parents, shift up the children
+                              let yShift = pedigreeData.father == null && pedigreeData.mother == null ? -60 : 0;
+
                               if (childData.length > 1) {
-                                return "translate(0,30)";
+                                return "translate(0," + (30+yShift) + ")";                              
                               } else {
-                                return "translate(" + (center - nodeWidth/2)  + ",0)";
+                                return "translate(" + (center - nodeWidth/2)  + "," + yShift + ")";
                               }
                             });
 

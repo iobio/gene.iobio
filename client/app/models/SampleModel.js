@@ -1847,7 +1847,7 @@ class SampleModel {
                false, // serverside cache
                false, // sfari mode
                me.globalApp.gnomADExtraAll, // get extra gnomad,
-               !me.isEduMode// decompose
+               !me.isEduMode // decompose
               );
           })
           .then( function(data) {
@@ -2099,53 +2099,63 @@ class SampleModel {
 
   _determineHighestAf(variant) {
     var me = this;
-    // Find the highest value (the least rare AF) betweem exac and 1000g to evaluate
-    // as 'lowest' af for all variants in gene
-    var afHighest = null;
+    // Find the highest value (the least rare AF) 
+    variant.afHighest = 0;
+    variant.afFieldHighest = null;
 
-    if ($.isNumeric(variant.afExAC) && $.isNumeric(variant.af1000G)) {
-      // Ignore exac n/a.  If exac is higher than 1000g, evaluate exac
-      if (variant.afExAC > -100 && variant.afExAC >= variant.af1000G) {
-        variant.afFieldHighest = 'afExAC';
-      } else {
-        variant.afFieldHighest = 'af1000G';
-      }
-    } else if ($.isNumeric(variant.afExAC)) {
-      variant.afFieldHighest = 'afExAC';
-
-    } else if ($.isNumeric(variant.af1000G)) {
-      variant.afFieldHighest = 'af1000G';
+    if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+      && variant.vepAf.gnomADg 
+      && variant.vepAf.gnomADg.faf95_popmax
+      && $.isNumeric(variant.vepAf.gnomADg.faf95_popmax)) {
+      variant.afFieldHighest = 'vepAf.gnomADg.faf95_popmax';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+      && variant.vepAf.gnomADg 
+      && variant.vepAf.gnomADg.AF_popmax 
+      && $.isNumeric(variant.vepAf.gnomADg.AF_popmax)) {
+      variant.afFieldHighest = 'vepAf.gnomADg.AF_popmax';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+      && variant.vepAf.gnomADe 
+      && variant.vepAf.gnomADe.AF_popmax 
+      && $.isNumeric(variant.vepAf.gnomADe.AF_popmax )) {
+      variant.afFieldHighest = 'vepAf.gnomADe.AF_popmax';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_BCFTOOLS
+      && variant.gnomAD
+      && variant.gnomAD.afPopMax 
+      && $.isNumeric(variant.gnomAD.afPopMax)) {
+      variant.afFieldHighest = 'gnomAD.afPopMax';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (!me.globalApp.gnomADExtraAll
+      && me.globalApp.vepAF
+      && variant.vepAf
+      && variant.vepAf.MAX
+      && variant.vepAf.MAX.AF
+      && $.isNumeric(variant.vepAf.MAX.AF)) {
+      variant.afFieldHighest = 'vepAf.MAX.AF';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.vepAF
+      && variant.vepAf
+      && variant.vepAf.gnomAD
+      && variant.vepAf.gnomAD.AF
+      && $.isNumeric(variant.vepAf.gnomAD.AF)) {
+      variant.afFieldHighest = 'vepAf.gnomAD.AF';
+      variant.afHighest = me.getHighestAf(variant);
+    } else if (me.globalApp.vepAF
+      && variant.vepAf
+      && variant.vepAf.gnomAD
+      && !variant.vepAf.gnomAD.present) {
+      variant.afFieldHighest = 'vepAf.gnomAD.AF';
+      variant.afHighest = 0;
+    } else {
+      variant.afFieldHighest = null;
+      variant.afHighest = 0;
     }
-    afHighest = me.getHighestAf(variant);
-
-    if ((me.globalApp.gnomADExtraAll && variant.gnomAD) || (me.globalApp.gnomADExtra && variant.gnomAD)) {
-      if ($.isNumeric(variant.gnomAD.af) && afHighest) {
-        if (variant.gnomAD.af >= afHighest) {
-          variant.afFieldHighest = 'gnomAD.af';
-        }
-      } else if ($.isNumeric(variant.gnomAD.af)) {
-        variant.afFieldHighest = 'gnomAD.af';
-      }
-      afHighest = me.getHighestAf(variant);
-      if ($.isNumeric(variant.gnomAD.afPopMax) && afHighest) {
-        if (variant.gnomAD.afPopMax >= afHighest) {
-          variant.afFieldHighest = 'gnomAD.afPopMax';
-        }
-      } else if ($.isNumeric(variant.gnomAD.af)) {
-        variant.afFieldHighest = 'gnomAD.afPopMax';
-      }
-
-
-    } else if (me.globalApp.vepAF) {
-      if ($.isNumeric(variant.vepAf.gnomAD.AF) && afHighest) {
-        if (variant.vepAf.gnomAD.AF >= afHighest) {
-          variant.afFieldHighest = 'afgnomAD';
-        }
-      } else if ($.isNumeric(variant.vepAf.gnomAD.AF)) {
-        variant.afFieldHighest = 'afgnomAD';
-      }
-    }
-    variant.afHighest = me.getHighestAf(variant);
   }
 
   getHighestAf(variant) {
@@ -2156,9 +2166,13 @@ class SampleModel {
       subfields.forEach(function(subfield) {
         current = current[subfield];
       })
-      return current;
+      if (current && $.isNumeric(current)) {
+        return +current;
+      } else {
+        return 0;
+      }
     } else {
-      return null;
+      return 0;
     }
   }
 

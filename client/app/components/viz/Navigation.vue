@@ -19,11 +19,31 @@
     padding: 0px
     height: 30px !important
 
+nav .v-toolbar__content
+  #file-upload-symbol
+    fill: white !important
+  #dna-search-symbol
+    fill: white !important
+  #show-genes-button
+    margin-left: 5px
+    padding-left: 5px
+    padding-right: 8px
+    height: 34px
+    background-color: $nav-button-color
+    .v-btn__content
+      min-width: 90px
+      span
+        font-size: 14px
+        color: white
+        font-weight: 500 !important
+       
 aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
   z-index: 0
   padding-bottom: 0px
 
+
+  
 
   &.clin
     margin-top: 0px !important
@@ -176,7 +196,12 @@ nav.toolbar, nav.v-toolbar
     margin-right: 10px
 
   #coverage-settings-button
-    font-size: 16px
+    font-size: 14px
+    font-weight: 500
+    background-color: $nav-button-color
+    height: 34px
+    padding-left: 5px
+    padding-right: 8px
 
     .v-btn__content
       padding-top: 2px
@@ -191,7 +216,8 @@ nav.toolbar, nav.v-toolbar
       font-weight: 500
 
   #legend-button
-    font-size: 16px
+    font-size: 14px
+    font-weight: 500
     height: 36px
     margin-bottom: 6px
 
@@ -335,7 +361,7 @@ nav.toolbar, nav.v-toolbar
       margin-top: -4px
 
   #gene-name-input
-    width: 130px
+    width: 140px
     margin-left: 5px
 
   #search-phenotype-button
@@ -376,6 +402,11 @@ nav.toolbar, nav.v-toolbar
 
     i.material-icons
       color:  $nav-text-color-clin !important
+
+.nav-link
+    text-decoration: none
+    color: white
+    cursor: pointer
 
 #versions
   font-size: 14px
@@ -487,10 +518,10 @@ nav.toolbar, nav.v-toolbar
       <v-btn v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
         <v-badge right  >
           <v-icon>bar_chart</v-icon>
-          <span style="font-size:15px">
+          <span >
             Assess coverage
           </span>
-          <v-icon class="gene-coverage-problem" style="margin-left:7px" v-if="badgeCounts && badgeCounts.coverage > 0">trending_down</v-icon>
+          <v-icon class="gene-coverage-problem"  v-if="badgeCounts && badgeCounts.coverage > 0">trending_down</v-icon>
           <span v-if="badgeCounts && badgeCounts.coverage"
             slot="badge">{{ badgeCounts.coverage }}</span>
         </v-badge>
@@ -498,17 +529,15 @@ nav.toolbar, nav.v-toolbar
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items style="flex-grow: 3;padding-top:3px;margin-right:60px">
+      <v-toolbar-items style="flex-grow: 3;padding-top:0px;margin-right:60px">
 
-        <v-icon>
-          search
-        </v-icon>
+        <app-icon icon="dnasearch"  style="margin-top: 12px" width="24" height="24"></app-icon>
 
         <span id="gene-name-input"  style="display:inline-block">
           <v-text-field id="search-gene-name"
           :class="clazzAttention"
           :hide-details="true"
-          v-model="geneEntered" label="Gene" >
+          v-model="geneEntered" label="Gene name" >
           </v-text-field>
           <typeahead v-model="lookupGene"
           force-select v-bind:limit="typeaheadLimit" match-start
@@ -517,12 +546,14 @@ nav.toolbar, nav.v-toolbar
         </span>
 
 
-
+        <div v-if="!launchedFromClin && !isEduMode && !isBasicMode" id="search-or" style="display:inline-block">
+          or
+        </div>
 
         <genes-menu
          ref="genesMenuRef"
          v-if="!launchedFromClin && !isEduMode && !isBasicMode"
-         :buttonIcon="`more_vert`"
+         :buttonIcon="`add_circle`"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
@@ -530,14 +561,16 @@ nav.toolbar, nav.v-toolbar
          @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
-        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin && !isCommercial" id="search-or" style="display:inline-block">
+        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin && isPhenolyzerPermitted" id="search-or" style="display:inline-block">
           or
         </div>
 
-
+        <v-icon v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted">
+          person_search
+        </v-icon>
         <phenotype-search
          id="phenolyzer-search"
-         v-if="!isEduMode && !launchedFromClin && !isSimpleMode && !isCommercial"
+         v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
@@ -568,8 +601,8 @@ nav.toolbar, nav.v-toolbar
 
       <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
 
-      <v-btn icon v-if="!isBasicMode" @click="onShowFiles" title="Load files">
-        <v-icon>publish</v-icon>
+      <v-btn id="files-button" icon v-if="showFilesButton" @click="onShowFiles" title="Load files">
+        <app-icon icon="fileupload"  width="24" height="24">publish</app-icon>
       </v-btn>
 
       <v-menu>
@@ -610,17 +643,17 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Software and resources</v-list-tile-title>
           </v-list-tile>
 
-          <v-divider v-if="!isSimpleMode && !isCommercial"></v-divider>
+          <v-divider v-if="!isSimpleMode && showBlogsAndTutorials"></v-divider>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowBlog">
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && showBlogsAndTutorials" @click="onShowBlog">
             <v-list-tile-title>Blog</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode && !isCommercial" @click="onShowTutorial" >
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode && showBlogsAndTutorials" @click="onShowTutorial" >
             <v-list-tile-title>Tutorials</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isCommercial" @click="onShowIOBIO" >
+          <v-list-tile v-if="!isSimpleMode && showBlogsAndTutorials" @click="onShowIOBIO" >
             <v-list-tile-title>iobio</v-list-tile-title>
           </v-list-tile>
 
@@ -641,7 +674,7 @@ nav.toolbar, nav.v-toolbar
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
-        <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
+        <v-btn v-if="!isFullAnalysis && !launchedFromClin && showFilesButton" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
 
@@ -721,6 +754,7 @@ nav.toolbar, nav.v-toolbar
              :interpretationMap="interpretationMap"
              :toClickVariant="toClickVariant"
              :variantSetCounts="variantSetCounts"
+             :selectedVariant="selectedVariant"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
@@ -758,7 +792,7 @@ nav.toolbar, nav.v-toolbar
       absolute
       right
       width="200"
-      style="z-index:6"
+      style="z-index:6; height: calc(100vh - 50px); position: fixed;"
     >
         <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="legend-drawer-close-button" class="toolbar-button" flat @click="showLegendDrawer = false">
           <v-icon >close</v-icon>
@@ -778,10 +812,12 @@ nav.toolbar, nav.v-toolbar
      v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
      :cohortModel="cohortModel"
      :showDialog="showFiles"
+     :launchedFromDemo="launchedFromDemo"
      @on-files-loaded="onFilesLoaded"
      @load-demo-data="onLoadDemoData"
      @on-cancel="showFiles = false"
      @isDemo="onIsDemo"
+     @isTrio="onIsTrio"
     >
     </files-dialog>
 
@@ -1010,10 +1046,12 @@ import PhenotypeSearch     from '../partials/PhenotypeSearch.vue'
 import ImportVariants      from '../partials/ImportVariants.vue'
 import ExportVariants      from '../partials/ExportVariants.vue'
 import FilterIcon          from '../partials/FilterIcon.vue'
-import SaveButton         from '../partials/SaveButton.vue'
+import SaveButton          from '../partials/SaveButton.vue'
+import AppIcon             from '../partials/AppIcon.vue'
 
 export default {
   name: 'navigation',
+
   components: {
     Typeahead,
     GenesMenu,
@@ -1025,15 +1063,18 @@ export default {
     ImportVariants,
     ExportVariants,
     FilterIcon,
-    SaveButton
+    SaveButton,
+    AppIcon
   },
   props: {
     showFilesProp: null,
     isEduMode: null,
     isBasicMode: null,
     isSimpleMode: null,
-    isCommercial: null,
+    showBlogsAndTutorials: null,
+    isPhenolyzerPermitted: null,
     forMyGene2: null,
+    showFilesButton: null,
     launchedFromSFARI: null,
     launchedFromHub: null,
     analysis: null,
@@ -1049,7 +1090,6 @@ export default {
     activeFilterName: null,
     launchedFromClin: null,
     showSaveModal: null,
-    isFullAnalysis: null,
     isLoaded: null,
     isFullAnalysis: null,
     isClinFrameVisible: null,
@@ -1061,7 +1101,9 @@ export default {
     lastPhenotypeTermEntered: null,
     toClickVariant: null,
     variantSetCounts: null,
-    badgeCounts: null
+    badgeCounts: null,
+    showWelcome: null,
+    launchedFromDemo: null,
   },
   data () {
     let self = this;
@@ -1110,6 +1152,17 @@ export default {
     showFilesProp: function(){
       this.showFiles = this.showFilesProp;
     },
+    showFiles: function(){
+      this.$emit('show-files', this.showFiles);
+    },
+    showWelcome: function(){
+      if(this.showWelcome){
+        this.leftDrawer = false;
+      }
+      else{
+        this.leftDrawer = true;
+      }
+    },
     leftDrawer: function() {
       this.$emit("on-left-drawer", this.leftDrawer);
     },
@@ -1128,6 +1181,11 @@ export default {
   methods: {
     onLoadDemoData: function(loadAction) {
       this.$emit("load-demo-data", loadAction);
+    },
+    navigateHome: function(){
+      if(this.analyzeAllInProgress || this.isLoaded) {
+        this.$emit('on-welcome-changed', true);
+      }
     },
     onClearCache: function() {
       this.$emit("clear-cache")
@@ -1148,6 +1206,9 @@ export default {
     },
     onIsDemo: function(bool){
       this.$emit("isDemo", bool);
+    },
+    onIsTrio: function(bool){
+      this.$emit("isTrio", bool);
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
@@ -1314,7 +1375,6 @@ export default {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
-
   },
   computed:  {
     knownGenes: function() {
