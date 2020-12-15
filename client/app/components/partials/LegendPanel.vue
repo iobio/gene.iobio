@@ -141,7 +141,7 @@
         </div>
       </div>
 
-      <div style="text-align:left;width:80px;margin-right:10px;margin-bottom:15px">
+      <div style="text-align:left;width:80px;margin-right:15px;margin-bottom:15px">
         <div v-if="!isBasicMode" class="legend-label">Impact
          <info-popup name="impact"></info-popup>
         </div>
@@ -299,7 +299,7 @@
 
 <!--      Evidence for pathogenic-->
       <div
-          style="text-align:left;margin-bottom:15px">
+          style="text-align:left;margin-bottom:15px;margin-right:10px">
         <div  class="legend-label">Pathogenic Evidence
           <info-popup style="padding-left:1px" name="evidence"></info-popup>
         </div>

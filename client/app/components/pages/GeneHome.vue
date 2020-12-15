@@ -794,6 +794,7 @@ import Glyph from '../../partials/Glyph.js'
 import VariantTooltip from '../../partials/VariantTooltip.js'
 
 import allGenesData from '../../../data/genes.json'
+import genePanels from '../../../data/gene_panels.json'
 import acmgBlacklist from '../../../data/ACMG_blacklist.json'
 import SplitPane from '../partials/SplitPane.vue'
 import ScrollButton from '../partials/ScrollButton.vue'
@@ -937,6 +938,7 @@ export default {
 
 
       allGenes: allGenesData,
+      genePanels: genePanels,
       acmgBlacklist: acmgBlacklist,
       blacklistedGeneSelected: false,
 
@@ -1248,7 +1250,8 @@ export default {
         let translator = new Translator(self.globalApp, glyph);
         let genericAnnotation = new GenericAnnotation(glyph);
 
-        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage, self.launchedFromHub);
+        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage, 
+          self.launchedFromHub, self.genePanels);
         self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
         self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
         self.geneModel.setAllKnownGenes(self.allGenes);
