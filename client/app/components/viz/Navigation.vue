@@ -36,6 +36,10 @@ nav .v-toolbar__content
         font-size: 14px
         color: white
         font-weight: 500 !important
+  #build-name
+    font-style: italic
+    font-weight: 500
+    color: $nav-label-color
        
 aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
@@ -504,6 +508,12 @@ nav.toolbar, nav.v-toolbar
 
       <v-toolbar-title style="font-weight:400" v-text="title">
       </v-toolbar-title>
+
+      <v-spacer v-if="!isFullAnalysis"></v-spacer>
+
+      <span id="build-name" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
+        {{ currentBuildName }}
+      </span>
 
 
       <v-spacer v-if="!isFullAnalysis"></v-spacer>
@@ -1086,6 +1096,7 @@ export default {
     filteredGeneNames: null,
     geneModel: null,
     cohortModel: null,
+    genomeBuildHelper: null,
     cacheHelper: null,
     activeFilterName: null,
     launchedFromClin: null,
@@ -1386,6 +1397,9 @@ export default {
       } else {
         return self.geneModel.allKnownGenes;
       }
+    },
+    currentBuildName: function() {
+      return this.genomeBuildHelper.getCurrentBuildName()
     },
     clazzAttention: function() {
       if (this.bringAttention && this.bringAttention == 'gene' && this.lookupGene && Object.keys(this.lookupGene).length == 0) {

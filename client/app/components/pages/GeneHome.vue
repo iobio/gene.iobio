@@ -244,6 +244,7 @@ main.content.clin, main.v-content.clin
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
       :cohortModel="cohortModel"
+      :genomeBuildHelper="genomeBuildHelper"
       :cacheHelper="cacheHelper"
       :geneModel="geneModel"
       :analysis="analysis"
