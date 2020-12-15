@@ -739,6 +739,7 @@ nav.toolbar, nav.v-toolbar
              @count-changed="onGeneCountChanged"
              @analyze-all="onAnalyzeAll"
              @call-variants="onCallVariants"
+             @stop-analysis="onStopAnalysis"
             >
             </genes-panel>
 
@@ -1375,7 +1376,9 @@ export default {
     onCallVariants: function(action) {
       this.$emit("call-variants", action)
     },
-
+    onStopAnalysis: function() {
+      this.$emit("stop-analysis");
+    },
     toggleSaveModal(bool) {
       this.$emit("toggle-save-modal", bool);
     },

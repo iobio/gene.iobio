@@ -300,6 +300,7 @@ main.content.clin, main.v-content.clin
       @toggle-save-modal="toggleSaveModal(true)"
       @on-welcome-changed="onWelcomeChanged"
       @show-files="onShowFiles"
+      @stop-analysis="onStopAnalysis"
     >
     </navigation>
 
