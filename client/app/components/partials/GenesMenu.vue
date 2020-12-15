@@ -33,6 +33,26 @@ textarea#copy-paste-genes
     margin: 0px
     color: $text-color
     font-size: 16px
+    
+    .button-label
+      display: inline-block
+      padding-bottom: 5px
+      vertical-align: bottom
+
+    .v-badge__badge
+      background-color: $nav-badge-color !important;
+      left: 80px
+      height: 14px
+      width: 65px
+      top: -11px
+      border-radius: 4px
+
+      span
+        font-size: 12px !important
+        color: white !important
+        font-weight: 500 !important
+        font-style: italic !important
+
 
 #acmg-genes-button, #cancel-button,  #apply-button
   height: 30px !important
@@ -75,13 +95,17 @@ textarea#copy-paste-genes
        slot="activator"
        @mouseover="onMouseOver()"
        @mouseleave="onMouseLeave()"
-       v-tooltip.top-center="{content: tooltipContent, show: showTooltipFlag, trigger: 'manual'}"
+       v-tooltip.bottom-left="{content: tooltipContent, show: showTooltipFlag, trigger: 'manual'}"
       >
         
-        <app-icon icon="dnasearch"  width="24" height="24"></app-icon>
-        <span >
-          Gene list
-        </span>
+        <v-badge right  >
+          <app-icon icon="dnasearch"  width="24" height="24"></app-icon>
+          <span class="button-label">
+            Gene list
+          </span>
+          <span v-if="selectedGenePanelName"
+            slot="badge">{{ selectedGenePanelShortName }}</span>
+        </v-badge>
       </v-btn>
 
 
@@ -102,11 +126,18 @@ textarea#copy-paste-genes
         </div>
 
       <div class="full-width" style="padding: 10px 20px 10px 20px">
+
+
         <div v-if="!isEduMode" style="justify-content:flex-end;display:flex">
-            <v-btn id="acmg-genes-button" flat @click="onACMGGenes">
-              <v-icon>content_copy</v-icon>
-            Use ACMG gene list
-            </v-btn>         
+
+          <v-select
+            :items="genePanelNames"
+            clearable="true"
+            v-model="selectedGenePanelName"
+            @change="onGenePanelSelected"
+            label="Gene panels">
+          </v-select>
+  
         </div>
 
           <div id="enter-genes-input">
@@ -165,7 +196,10 @@ export default {
       genesToApply: null,
 
       showTooltipFlag: false,
-      tooltipContent: null
+      tooltipContent: null,
+
+      selectedGenePanelName: null
+
 
     }
   },
@@ -185,7 +219,13 @@ export default {
       self.showGenesMenu = false;
     },
     onACMGGenes: function() {
-      this.genesToApply = this.geneModel.ACMG_GENES.join(", ");
+      this.genesToApply = this.geneModel.getGenePanelGenes("ACMG 59").join(", ")
+    },
+    onGenePanelSelected: function() {
+      let genes = this.geneModel.getGenePanelGenes(this.selectedGenePanelName);
+      if (genes && genes.length > 0) {
+        this.genesToApply = genes.join(", ");
+      }
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
@@ -234,11 +274,24 @@ export default {
   },
   updated: function() {
   },
+  computed: {
+    genePanelNames: function() {
+      return this.geneModel.getGenePanelNames();
+    },
+    selectedGenePanelShortName: function() {
+      if (this.selectedGenePanelName) {
+        return this.geneModel.getGenePanelShortName(this.selectedGenePanelName)
+      } else {
+        return ""
+      }
+    }
+  },
   watch: {
     showGenesMenu: function() {
       let self = this;
       if (self.showGenesMenu) {
         this.genesToApply = self.geneModel.geneNames.join(", ");
+        this.hideTooltip()
       }
     }
   }

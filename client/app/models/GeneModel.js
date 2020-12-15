@@ -1,5 +1,5 @@
 class GeneModel {
-  constructor(globalApp, limitGenes, launchedFromHub) {
+  constructor(globalApp, limitGenes, launchedFromHub, genePanels) {
 
     this.globalApp                 = globalApp;
     this.limitGenes                = limitGenes;
@@ -47,6 +47,8 @@ class GeneModel {
 
     this.genomeBuildHelper = null;
 
+    this.genePanels = genePanels;
+
     this.geneNames = [];
     this.geneDangerSummaries = {};
     this.sortedGeneNames = [];
@@ -70,8 +72,6 @@ class GeneModel {
 
     this.geneRegionBuffer = 1000;
 
-    this.ACMG_GENES = ["BRCA1", "BRCA2", "TP53", "STK11", "MLH1", "MSH2", "MSH6", "PMS2", "APC", "MUTYH", "VHL", "MEN1", "RET", "PTEN", "RB1", "SDHD", "SDHAF2", "SDHC", "SDHB", "TSC1", "TSC2", "WT1", "NF2", "COL3A1", "FBN1", "TGFBR1", "TGFBR2", "SMAD3", "ACTA2", "MYH11", "MYBPC3", "MYH7", "TNNT2", "TNNI3", "TPM1", "MYL3", "ACTC1", "PRKAG2", "GLA", "MYL2", "LMNA", "RYR2", "PKP2", "DSP", "DSC2", "TMEM43", "DSG2", "KCNQ1", "KCNH2", "SCN5A", "LDLR", "APOB", "PCSK9", "RYR1", "CACNA1S", "ATP7B", "BMPR1A", "SMAD4", "OTC"];
-
     this.NUMBER_PHENOLYZER_GENES = 300;
     this.phenolyzerGenes = [];
 
@@ -87,6 +87,27 @@ class GeneModel {
     d3.rebind(this, this.dispatch, "on");
 
     this.genesAssociatedWithSource = {};
+  }
+
+
+  getGenePanelNames() {
+    return this.genePanels ? Object.keys(this.genePanels) : [];
+  }
+
+  getGenePanelShortName(name) {
+    if (this.genePanels[name]) {
+      return this.genePanels[name].shortName
+    } else {
+      return null;
+    }
+  }
+
+  getGenePanelGenes(name) {
+    if (this.genePanels[name]) {
+      return this.genePanels[name].genes;
+    } else {
+      return null;
+    }
   }
 
   setCandidateGenes(genes) {
@@ -281,7 +302,7 @@ class GeneModel {
   }
 
   ACMGGenes() {
-    this.promiseCopyPasteGenes(this.ACMG_GENES.join(","));
+    this.promiseCopyPasteGenes(this.getGenePanel("ACMG 59").join(","));
   }
 
 
