@@ -542,7 +542,7 @@
         <v-spacer></v-spacer>
         <v-btn  id="import-variants-button" 
           v-if="!isEduMode && !isBasicMode && !launchedFromClin && !launchedFromHub
-           && cohortModel.isLoaded"
+           && !isSimpleMode && cohortModel.isLoaded"
           @click="onShowImportVariants" flat>
           <app-icon icon='import'  height="17" width="17"></app-icon>
           Import
