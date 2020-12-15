@@ -132,7 +132,7 @@ textarea#copy-paste-genes
 
           <v-select
             :items="genePanelNames"
-            clearable="true"
+            :clearable="true"
             v-model="selectedGenePanelName"
             @change="onGenePanelSelected"
             label="Gene panels">

@@ -608,12 +608,19 @@ nav.toolbar, nav.v-toolbar
         @save-modal:set-visibility="toggleSaveModal"
       />
 
-
-      <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
-
-      <v-btn id="files-button" icon v-if="showFilesButton" @click="onShowFiles" title="Load files">
-        <app-icon icon="fileupload"  width="24" height="24">publish</app-icon>
+      <v-btn id="files-button"  style="margin-right:20px" icon v-if="showFilesButton" 
+        @click="onShowFiles" 
+        v-tooltip.bottom-left="{content: 'Load your data'}">
+        <app-icon icon="fileupload"  width="32" height="32"></app-icon>
       </v-btn>
+
+      <v-btn id="legend-button" 
+      icon v-if="!isSimpleMode && !isBasicMode" 
+      @click="onShowLegendDrawer"
+      v-tooltip.bottom-left="{content: 'Show legend'}">
+        <v-icon>info</v-icon>
+      </v-btn>
+
 
       <v-menu>
         <v-btn id="more-menu-button" flat slot="activator">
@@ -759,6 +766,7 @@ nav.toolbar, nav.v-toolbar
              :cohortModel="cohortModel"
              :activeFilterName="activeFilterName"
              :launchedFromClin="launchedFromClin"
+             :launchedFromHub="launchedFromHub"
              :isFullAnalysis="isFullAnalysis"
              :geneNames="geneNames"
              :genesInProgress="genesInProgress"
