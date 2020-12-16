@@ -4,36 +4,54 @@
   margin-top: 10px !important
   padding-bottom: 30px
 
+
+
   #analyze-all-buttons
     margin-bottom: 10px
+    display: flex
 
     #analyze-all-button
-      display: inline-block
-      vertical-align: top
-      margin-top: 10px
-      margin-left: 0px
-      color: $text-color
-      padding-top: 2px
-      padding-bottom: 2px
-      height: 28px
-      padding-left: 10px
-      padding-right: 10px
+      margin: 0px 0px 0px 0px
+      padding: 0px
+      min-width: 90px
+      max-height: 90px
+      padding-right: 5px
+      padding-left: 5px
+
+      .btn__content, .v-btn__content
+        padding-left: 0px
+        padding-right: 0px
+        color: $link-color
+        font-size: 13px
+        font-weight: 500
+
+        i.material-icons
+          font-size: 20px
 
     #call-variants-dropdown
       display: inline-block
-      vertical-align: top
+      vertical-align: middle
       text-align: left
 
       button
-        margin-top: 10px
-        margin-left: 0px
-        color: $text-color
-        padding-top: 2px
-        padding-bottom: 2px
-        height: 28px
-        width: 80px
-        padding-left: 10px
-        padding-right: 10px
+        margin: 0px 0px 0px 0px
+        padding: 0px
+        min-width: 115px
+        max-height: 115px
+        padding-right: 5px
+        padding-left: 5px
+        margin-left: 5px
+
+        .btn__content, .v-btn__content
+          padding-left: 0px
+          padding-right: 0px
+          color: $link-color
+          font-size: 13px
+          font-weight: 500
+
+          i.material-icons
+            font-size: 20px
+            padding-right: 3px
 
     .btn__content, .v-btn__content
       padding: 0 4px
@@ -41,16 +59,20 @@
 
     .stop-analysis-button
       display: inline-block
+      vertical-align: middle
       position: relative
-      min-width: 0px
-      margin-top: 10px
+      min-width: 18px
+      max-width: 18px
+      padding: 0px
+      margin-top: 8px
       height: 22px
       margin-right: 10px
-      margin-left: 0px
-      color: $text-color
+      margin-left: 5px
+      color: $light-badge-color
 
       i.material-icons
         font-size: 18px
+        padding-right: 3px
 
   #analyze-genes-progress
     margin-top: 10px
@@ -130,9 +152,10 @@
         <v-btn  id="analyze-all-button"
         v-if="isLoaded && !isFullAnalysis && !isSimpleMode"
         class="level-edu"
-        raised
+        flat
         @click="onAnalyzeAll"
         v-tooltip.top-center="`Analyze variants in all genes`" >
+          <v-icon>playlist_play</v-icon>
           Analyze all
         </v-btn>
 
@@ -140,19 +163,23 @@
         <v-btn
         v-if="analyzeAllInProgress && !isFullAnalysis && !isSimpleMode"
         class="stop-analysis-button"
-        @click="onStopAnalysis" small raised
+        @click="onStopAnalysis"  flat
         v-tooltip.top-center="`Stop analysis`" >
-          <v-icon>stop</v-icon>
+          <v-icon>pause_circle_filled</v-icon>
         </v-btn>
 
+        <v-spacer></v-spacer>
 
         <div id="call-variants-dropdown"
           v-if="isLoaded && hasAlignments && !isFullAnalysis && !isSimpleMode"
         >
           <v-menu offset-y>
-            <v-btn raised slot="activator"
+            <v-btn  slot="activator" flat
             v-tooltip.top-center="`Call variants from alignments`"
-            class="call-variants-button">Call variants</v-btn>
+            class="call-variants-button">
+              <v-icon>playlist_add</v-icon>
+              Call variants
+            </v-btn>
             <v-list>
                 <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
                 <v-list-tile-title>{{ action }}</v-list-tile-title>
@@ -164,9 +191,9 @@
         <v-btn
         v-if="callAllInProgress && !isFullAnalysis"
         class="stop-analysis-button"
-        @click="onStopAnalysis" small raised
+        @click="onStopAnalysis" flat 
         v-tooltip.top-center="`Stop calling variants`" >
-          <v-icon>stop</v-icon>
+          <v-icon>pause_circle_filled</v-icon>
         </v-btn>
     </div>
     <div id="analyze-genes-progress">

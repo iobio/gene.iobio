@@ -77,7 +77,6 @@
     max-height: 25px
     padding-right: 5px
     padding-left: 5px
-
     .btn__content, .v-btn__content
       padding-left: 0px
       padding-right: 0px
@@ -88,6 +87,8 @@
       svg
         fill: $link-color
         padding-right: 3px
+  #add-filter-button
+    margin-left: 5px
 
   &.v-card
     box-shadow: none !important
