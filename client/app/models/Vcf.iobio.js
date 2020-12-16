@@ -2081,7 +2081,14 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
         // the same transcript.
         // TODO:  Need to sort so that highest impact shows first
         //        and is used for filtering and ranking purposes.
-        if (featureType == 'Transcript' && (feature == selectedTranscriptID || feature == selectedTranscript.transcript_id)) {
+        if (featureType == 'Transcript' && 
+          (feature == selectedTranscriptID 
+            || feature == selectedTranscript.transcript_id
+            // For now, RefSeq transcripts may not match last digit after '.'.
+            // For example, GRCh37 transcript from geneinfo for RAI1 
+            // is NM_030665.3 (a previous patch release)
+            // and VEP shows the transcript NM_030665.4 for GRCh37.p13
+            || feature.indexOf(selectedTranscriptID) == 0)) {
           annot.vep.vepImpact[vepTokens[vepFields.IMPACT]] = vepTokens[vepFields.IMPACT];
 
           var consequence = vepTokens[vepFields.Consequence];

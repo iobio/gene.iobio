@@ -2128,7 +2128,7 @@ export default {
             self.promiseLoadData()
             .then(function() {
               self.clearZoom = false;
-              if(transcriptChanged) {
+              if(transcriptChanged && self.stashedVariant && Object.keys(self.stashedVariant).length > 0) {
                 let variant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel.sampleMap.proband.model.loadedVariants.features);
                 self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
               }
@@ -2163,7 +2163,7 @@ export default {
     },
     onTranscriptSelected: function(transcript) {
       const self = this;
-      self.stashedVariant = this.selectedVariant;
+      self.stashedVariant = $.extend({}, this.selectedVariant);
       self.selectedTranscript = transcript;
       self.geneModel.setLatestGeneTranscript(self.selectedGene.gene_name, self.selectedTranscript);
       self.onGeneSelected(self.selectedGene.gene_name, true);
@@ -2172,6 +2172,14 @@ export default {
       var self = this;
       self.geneModel.geneSource = theGeneSource;
       this.onGeneSelected(this.selectedGene.gene_name);
+    
+      // We have to clear the cache since the gene transcripts have changed
+      self.geneModel.geneToLatestTranscript = {};
+      self.promiseClearCache()
+      self.showLeftPanelForGenes()
+
+              this.onShowSnackbar({message: 'Genes must be re-analyzed based on ' + self.geneSource + ' transcripts', timeout: 4000});
+
     },
 
     onNoDataWarning: function(){
