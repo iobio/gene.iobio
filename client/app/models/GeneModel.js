@@ -826,15 +826,21 @@ class GeneModel {
                   resolve();
                 }
             })
-           .fail(function() {
-              delete me.pendingNCBIRequests[theGeneNames];
+           .fail(function(error) {
+              console.log(error)
+              if (me.pendingNCBIRequests && me.pendingNCBIRequests[theGeneNames]) {
+                delete me.pendingNCBIRequests[theGeneNames];
+              }
               console.log("Error occurred when making http request to NCBI eutils esummary for genes " + geneNames.join(","));
               reject();
             })
 
           })
-          .fail(function() {
-            delete me.pendingNCBIRequests[theGeneNames];
+          .fail(function(error) {
+            console.log(error)
+            if (me.pendingNCBIRequests && me.pendingNCBIRequests[theGeneNames]) {
+              delete me.pendingNCBIRequests[theGeneNames];
+            }
             console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneNames.join(","));
             reject();
           })
