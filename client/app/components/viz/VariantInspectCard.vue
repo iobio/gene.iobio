@@ -1467,6 +1467,11 @@ export default {
 
     showMultiAlignments: function() {
       let self = this;
+      if (this.selectedGene.strand == "-") {
+        self.selectedVariant.refAlt = self.globalApp.utility.getReverseStrandComplement(this.selectedVariant.ref, this.selectedVariant.alt)
+      } else {
+        self.selectedVariant.refAlt = {ref: self.selectedVariant.ref, alt: self.selectedVariant.alt}
+      }
       self.showConservation = false;
       self.hasConservationScores = false;
       self.hasConservationAligns = false;
@@ -1605,6 +1610,13 @@ export default {
             refAlt = self.globalApp.utility.switchGenotype(self.selectedVariant.eduGenotype)
           } else {
             refAlt = self.selectedVariant.eduGenotype;
+          }
+        } else if (self.isSimpleMode) {
+          if (self.selectedGene.strand == "-") {
+            let refAltCompl = self.globalApp.utility.getReverseStrandComplement(self.selectedVariant.ref, self.selectedVariant.alt)
+            refAlt =   refAltCompl.ref + "->" + refAltCompl.alt;
+          } else {
+            refAlt =   self.selectedVariant.ref + "->" + self.selectedVariant.alt;
           }
         } else {
           refAlt =   self.selectedVariant.ref + "->" + self.selectedVariant.alt;
