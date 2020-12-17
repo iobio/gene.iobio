@@ -1502,7 +1502,8 @@ export default {
       let p2 = self.multiAlignModel.promiseGetMultiAlignments(self.selectedGene,
                                                   self.selectedVariant,
                                                   self.genomeBuildHelper.getBuildAlias(self.genomeBuildHelper.ALIAS_UCSC),
-                                                  self.conservationSeqType)
+                                                  self.conservationSeqType,
+                                                  self.selectedGene.strand)
       .then(function(data) {
         if (data) {
           self.multialignSelectedBase = data.selectedBase;

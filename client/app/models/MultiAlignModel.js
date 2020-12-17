@@ -101,12 +101,12 @@ class MultiAlignModel {
     }
 
 
-    promiseGetMultiAlignments(selectedGene, selectedVariant, build, seqType) {
+    promiseGetMultiAlignments(selectedGene, selectedVariant, build, seqType, strand) {
       let self = this;
 
       return new Promise(function(resolve, reject) {
         let promises = [];
-        self._promiseGetMultiAlignmentsImpl(selectedGene.gene_name, selectedVariant.start, build, seqType)
+        self._promiseGetMultiAlignmentsImpl(selectedGene.gene_name, selectedVariant.start, build, seqType, strand)
         .then(function(alignments) {
           self.setMultiAlignSimilarity(alignments);
 
@@ -183,7 +183,12 @@ class MultiAlignModel {
       return {sequences: filteredSequences, selectedBase: selectedBase};
     }
 
-    _promiseGetMultiAlignmentsImpl(geneName, start, build, seqType="nuc") {
+    _reverseString(s) {
+      for (var i = s.length - 1, o = ''; i >= 0; o += s[i--]) { }
+      return o;
+    }
+
+    _promiseGetMultiAlignmentsImpl(geneName, start, build, seqType="nuc", strand="+") {
       let self = this;
 
       return new Promise(function(resolve, reject) {
@@ -217,6 +222,9 @@ class MultiAlignModel {
             if (rec.indexOf("##") == 0) {
 
               if (buf.length > 0) {
+                if (strand == '-') {
+                  buf = self._reverseString(buf);
+                }
                 let sequence = Array.from(buf, function(character, i) {
                   let offset = i;
                   if (seqType == "aa") {
@@ -242,6 +250,9 @@ class MultiAlignModel {
             } else if (rec.indexOf("#") == 0) {
 
               if (buf.length > 0) {
+                if (strand == '-') {
+                  buf = self._reverseString(buf);
+                }
                 let sequence = Array.from(buf, function(character, i) {
                   let offset = i;
                   if (seqType == "aa") {
