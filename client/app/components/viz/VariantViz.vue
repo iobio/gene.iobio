@@ -328,9 +328,6 @@ export default {
         else{
           this.variants = this.data;
         }
-        if(this.model.relationship === this.selectedVariantRelationship) {
-          this.onVariantClick(this.selectedVariant);
-        }
       },
 
       showFilter: function(){
