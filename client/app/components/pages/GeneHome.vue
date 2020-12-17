@@ -2178,7 +2178,8 @@ export default {
       self.promiseClearCache()
       self.showLeftPanelForGenes()
 
-              this.onShowSnackbar({message: 'Genes must be re-analyzed based on ' + self.geneSource + ' transcripts', timeout: 4000});
+      self.onShowSnackbar({message: 'Genes must be re-analyzed based on ' 
+        + self.geneSource + ' transcripts', timeout: 4000});
 
     },
 
