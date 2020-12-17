@@ -1858,14 +1858,14 @@ export default {
 
   watch: {
 
-      selectedPhenotype: function(){
-          this.initGenePhenotypeHits();
-      },
+    selectedPhenotype: function(){
+        this.initGenePhenotypeHits();
+    },
 
     selectedVariant: function() {
       let self = this;
       this.$nextTick(function() {
-          this.loadData();
+          self.loadData();
           if (self.selectedVariantRelationship === "known-variants") {
               self.annotateClinVarVariant(self.selectedVariant);
           }
