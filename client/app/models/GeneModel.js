@@ -91,7 +91,17 @@ class GeneModel {
 
 
   getGenePanelNames() {
-    return this.genePanels ? Object.keys(this.genePanels) : [];
+    let self = this;
+    let siteName = process.env.SITE_NAME;
+    let filteredGenePanelNames = Object.keys(this.genePanels).filter(function(name) {
+      let gp = self.genePanels[name];
+      if (gp.sites == null || (siteName != null && siteName.length > 0 && gp.sites.indexOf(siteName) >= 0)) {
+        return true;
+      } else {
+        return false;
+      }
+    })
+    return filteredGenePanelNames;
   }
 
   getGenePanelShortName(name) {

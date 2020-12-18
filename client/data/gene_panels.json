@@ -1,6 +1,7 @@
 {
 "ACMG 59":      {
 	"shortName": "ACMG 59", 
+	"sites": null,
 	"genes": ["BRCA1", "BRCA2", "TP53", "STK11", "MLH1", "MSH2", "MSH6", 
 		 "PMS2", "APC", "MUTYH", "VHL", "MEN1", "RET", "PTEN", "RB1",
 		 "SDHD", "SDHAF2", "SDHC", "SDHB", "TSC1", "TSC2", "WT1", 
@@ -10,8 +11,9 @@
 		 "DSP", "DSC2", "TMEM43", "DSG2", "KCNQ1", "KCNH2", "SCN5A", "LDLR", 
 		 "APOB", "PCSK9", "RYR1", "CACNA1S", "ATP7B", "BMPR1A", "SMAD4", "OTC"]
 },
-"Cancer panel": {
-	"shortName": "Cancer", 
+"Cancer panel (provided by Nebula Genomics)": {
+	"shortName": "Cancer",
+	"sites": null,
 	"genes": ["APC", "ATM", "AXIN2", "BAP1", "BARD1", "BMPR1A", "BRCA1", "BRCA2", 
 		"BRIP1", "CDC73", "CDH1", "CDK4", "CDKN2A", "CHEK2", "DICER1", "EPCAM", 
 		"FH", "FLCN", "GREM1", "HOXB13", "KIT", "MAX", "MEN1", "MET", "MITF", 
@@ -20,8 +22,9 @@
 		"RAD51C", "RAD51D", "RB1", "RET", "SDHA", "SDHAF2", "SDHB", "SDHC", "SDHD", 
 		"SMAD4", "SMARCA4", "SMARCB1", "STK11", "TMEM127", "TP53", "TSC1", "TSC2", "VHL", "WT1"]
 },
-"Cardio panel": {
+"Cardio panel (provied by Nebula Genomics)": {
 	"shortName": "Cardio",
+	"sites": null,
 	"genes": ["ACTA2", "ACTC1", "ACTN2", "ACVRL1", "APOB", "BAG3", "BMPR2",
 		"CACNA1C", "CACNB2", "CALM1", "CALM2", "CALM3", "CASQ2", "CAV1", 
 		"CAV3", "COL3A1", "CRYAB", "CSRP3", "DES", "DMD", "DSC2", "DSG2", "DSP", 
