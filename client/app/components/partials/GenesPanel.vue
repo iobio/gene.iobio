@@ -71,7 +71,7 @@
       color: $light-badge-color
 
       i.material-icons
-        font-size: 18px
+        font-size: 20px
         padding-right: 3px
 
   #analyze-genes-progress
@@ -165,7 +165,7 @@
         class="stop-analysis-button"
         @click="onStopAnalysis"  flat
         v-tooltip.top-center="`Stop analysis`" >
-          <v-icon>pause_circle_filled</v-icon>
+          <v-icon>stop_circle</v-icon>
         </v-btn>
 
         <v-spacer></v-spacer>
@@ -193,7 +193,7 @@
         class="stop-analysis-button"
         @click="onStopAnalysis" flat 
         v-tooltip.top-center="`Stop calling variants`" >
-          <v-icon>pause_circle_filled</v-icon>
+          <v-icon>stop_circle</v-icon>
         </v-btn>
     </div>
     <div id="analyze-genes-progress">
