@@ -2179,7 +2179,11 @@ export default {
       self.showLeftPanelForGenes()
 
       self.onShowSnackbar({message: 'Genes must be re-analyzed based on ' 
-        + self.geneSource + ' transcripts', timeout: 4000});
+        + self.geneSource + ' transcripts', timeout: 6000});
+
+      setTimeout(function() {
+        self.onAnalyzeAll()
+      },4000)
 
     },
 
