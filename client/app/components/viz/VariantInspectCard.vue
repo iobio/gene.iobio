@@ -1806,7 +1806,15 @@ export default {
               gnomAD.link += "?dataset=gnomad_r3"
             };
 
-            let af = this.selectedVariant.vepAf.gnomAD.AF == "." ? 0 : this.selectedVariant.vepAf.gnomAD.AF;
+            let af = 0;
+            // If the vepAF.gnomAD is filled in use that; otherwise, default the the vepAF MAX af
+            if (this.selectedVariant.vepAf.gnomAD.AF == "." 
+              && this.selectedVariant.vepAf.MAX.present ) {
+              af = this.selectedVariant.vepAf.MAX.AF == "."  ? 0 : this.selectedVariant.vepAf.MAX.AF 
+            } else {
+              af = this.selectedVariant.vepAf.gnomAD.AF == "." ? 0 : this.selectedVariant.vepAf.gnomAD.AF;
+            }
+             
 
             gnomAD.percent       = this.globalApp.utility.percentage(af);
             gnomAD.class         = this.getAfClass(af);
