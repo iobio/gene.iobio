@@ -22,7 +22,7 @@
 		"RAD51C", "RAD51D", "RB1", "RET", "SDHA", "SDHAF2", "SDHB", "SDHC", "SDHD", 
 		"SMAD4", "SMARCA4", "SMARCB1", "STK11", "TMEM127", "TP53", "TSC1", "TSC2", "VHL", "WT1"]
 },
-"Cardio panel (provied by Nebula Genomics)": {
+"Cardio panel (provided by Nebula Genomics)": {
 	"shortName": "Cardio",
 	"sites": null,
 	"genes": ["ACTA2", "ACTC1", "ACTN2", "ACVRL1", "APOB", "BAG3", "BMPR2",
