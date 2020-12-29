@@ -531,7 +531,6 @@ nav.toolbar, nav.v-toolbar
           <span >
             Assess coverage
           </span>
-          <v-icon class="gene-coverage-problem"  v-if="badgeCounts && badgeCounts.coverage > 0">trending_down</v-icon>
           <span v-if="badgeCounts && badgeCounts.coverage"
             slot="badge">{{ badgeCounts.coverage }}</span>
         </v-badge>
