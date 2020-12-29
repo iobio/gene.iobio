@@ -371,33 +371,6 @@ export default {
     }
   },
   methods: {
-    checkIndexFilesMatch: function(sms){
-      let self = this;
-      for(let i = 0; i < sms.length; i++) {
-        if (sms[i].bam) {
-          if (sms[i].bam.baiUri && sms[i].bam.baiUri !== sms[i].bam.bamUri + ".bai") {
-            self.errorTitle = "Bam index warning";
-            let errorMsg = "The bam index file path does not match the bam file path " + sms[i].bam.bamUri;
-            self.errorMsgArray.push(errorMsg);
-            self.warningOpen = true;
-            self.areAnyDuplicates = true;
-            self.loadReady = false;
-          }
-        }
-        for (let i = 0; i < sms.length; i++) {
-          let vcfUrl = sms[i].vcf.getVcfURL();
-          let tbiUrl = sms[i].vcf.getTbiURL();
-          if (tbiUrl && tbiUrl !== vcfUrl + ".tbi") {
-            self.errorTitle = "Vcf index warning";
-            let errorMsg = "The vcf index file path does not match the vcf file path " + vcfUrl;
-            self.errorMsgArray.push(errorMsg);
-            self.warningOpen = true;
-            self.areAnyDuplicates = true;
-            self.loadReady = false;
-          }
-        }
-      }
-    },
     checkValidExtensions: function(sms){
       let self = this;
       for(let i = 0; i < sms.length; i++){
@@ -492,7 +465,6 @@ export default {
       self.loadReady = true;
       self.errorMsgArray = [];
       self.checkForDuplicates(sms);
-      self.checkIndexFilesMatch(sms);
       self.checkValidExtensions(sms);
 
       if(self.errorMsgArray.length > 1){
