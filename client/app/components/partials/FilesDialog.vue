@@ -492,7 +492,6 @@ export default {
       self.loadReady = true;
       self.errorMsgArray = [];
       self.checkForDuplicates(sms);
-      self.checkIndexFilesMatch(sms);
       self.checkValidExtensions(sms);
 
       if(self.errorMsgArray.length > 1){
