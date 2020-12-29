@@ -165,7 +165,7 @@
         class="stop-analysis-button"
         @click="onStopAnalysis"  flat
         v-tooltip.top-center="`Stop analysis`" >
-          <v-icon>stop_circle</v-icon>
+          <v-icon>stop</v-icon>
         </v-btn>
 
         <v-spacer></v-spacer>
@@ -193,7 +193,7 @@
         class="stop-analysis-button"
         @click="onStopAnalysis" flat 
         v-tooltip.top-center="`Stop calling variants`" >
-          <v-icon>stop_circle</v-icon>
+          <v-icon>stop</v-icon>
         </v-btn>
     </div>
     <div id="analyze-genes-progress">
