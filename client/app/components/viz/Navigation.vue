@@ -20,6 +20,7 @@
     height: 30px !important
 
 nav .v-toolbar__content
+  padding-left: 15px !important
   #file-upload-symbol
     fill: white !important
   #dna-search-symbol
@@ -31,7 +32,7 @@ nav .v-toolbar__content
     height: 34px
     background-color: $nav-button-color
     .v-btn__content
-      min-width: 90px
+      min-width: 70px
       span
         font-size: 14px
         color: white
@@ -40,6 +41,7 @@ nav .v-toolbar__content
     font-style: italic
     font-weight: 500
     color: $nav-label-color
+    font-size: 13px !important
        
 aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
@@ -191,13 +193,18 @@ aside.navigation-drawer, aside.v-navigation-drawer
 nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
+  .navbar-outline-button, #show-genes-button
+    background: transparent !important
+    border: .5px solid #7d7d7d !important
+
   .v-toolbar__content
     padding-right: 0px
 
   #more-menu-button
     padding: 0px
-    min-width: 40px
+    min-width: 30px
     margin-right: 10px
+    margin-left: 0px
 
   #coverage-settings-button
     font-size: 14px
@@ -256,8 +263,8 @@ nav.toolbar, nav.v-toolbar
   #search-or
     display: inline-block
     padding-top: 16px
-    margin-left: 10px
-    margin-right: 16px
+    margin-left: 5px
+    margin-right: 6px
     color: $nav-text-color
 
   #phenolyzer-search
@@ -525,7 +532,7 @@ nav.toolbar, nav.v-toolbar
 
 
 
-      <v-btn v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
+      <v-btn class="navbar-outline-button" v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
         <v-badge right  >
           <v-icon>bar_chart</v-icon>
           <span >
@@ -538,9 +545,9 @@ nav.toolbar, nav.v-toolbar
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items style="flex-grow: 3;padding-top:0px;margin-right:60px">
+      <v-toolbar-items style="flex-grow: 3;padding-top:0px;">
 
-        <app-icon icon="dnasearch"  style="margin-top: 12px" width="24" height="24"></app-icon>
+        <v-icon>search</v-icon>
 
         <span id="gene-name-input"  style="display:inline-block">
           <v-text-field id="search-gene-name"
@@ -574,9 +581,6 @@ nav.toolbar, nav.v-toolbar
           or
         </div>
 
-        <v-icon v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted">
-          person_search
-        </v-icon>
         <phenotype-search
          id="phenolyzer-search"
          v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted"
@@ -607,7 +611,7 @@ nav.toolbar, nav.v-toolbar
         @save-modal:set-visibility="toggleSaveModal"
       />
 
-      <v-btn id="files-button"  style="margin-right:20px" icon v-if="showFilesButton" 
+      <v-btn id="files-button"   icon v-if="showFilesButton" 
         @click="onShowFiles" 
         v-tooltip.bottom-left="{content: 'Load your data'}">
         <app-icon icon="fileupload"  width="32" height="32"></app-icon>

@@ -44,8 +44,8 @@ export default {
 <style lang="scss" scoped>
 .analysis-save-button {
  
-  min-width: 140px;
-  width: 140px;
+  min-width: 120px;
+  width: 120px;
   height: 32px;
   z-index: 9;
   text-align: center;
@@ -54,6 +54,8 @@ export default {
   cursor: pointer;
   user-select: none;
   padding-top: 4px;
+  margin-left: 30px;
+  margin-right: 10px;
 
   &:hover {
     text-decoration: none;

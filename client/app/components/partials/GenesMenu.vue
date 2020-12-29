@@ -36,7 +36,6 @@ textarea#copy-paste-genes
     
     .button-label
       display: inline-block
-      padding-bottom: 5px
       vertical-align: bottom
 
     .v-badge__badge
@@ -99,7 +98,6 @@ textarea#copy-paste-genes
       >
         
         <v-badge right  >
-          <app-icon icon="dnasearch"  width="24" height="24"></app-icon>
           <span class="button-label">
             Gene list
           </span>
