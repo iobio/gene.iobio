@@ -933,15 +933,11 @@ nav.toolbar, nav.v-toolbar
                 <div><span class="version-label">REFSEQ Human Reference</span><span class="number">ref_GRCh37.p5, ref_GRCh38.p7</span></div>
                 <div><span class="version-label">Human Phenotype Ontology</span><span class="number">Build #102 (12-15-2015)</span></div>
                 <div><div class="version-label">Phenolyzer</div><div class="number">1.0.5 (02-21-2015)</div></div>
-                <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 92</div></div>
-                <div><div class="version-label">&nbsp;&nbsp;&nbsp;SIFT</div><div class="number">5.2.2</div></div>
-                <div><div class="version-label">&nbsp;&nbsp;&nbsp;PolyPhen</div><div class="number">2.2.2</div></div>
+                <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 101</div></div>               
                 <div><div class="version-label">FreeBayes</div><div class="number">v1.0.2-33-gdbb6160-dirty</div></div>
                 <div><div class="version-label">Samtools</div><div class="number">samtools 1.3.1-33-gb25695b-dirty</div></div>
                 <div><div class="version-label">vt subset, normalize</div><div class="number">0.577</div></div>
-                <div><div class="version-label">gnomAD</div><div class="number">version 2.0.2 (October 3, 2017)</div></div>
-                <div><div class="version-label">ExAC</div><div class="number">Release 0.3.1 (03-13-2016)</div></div>
-                <div><div class="version-label">1000G</div><div class="number">Phase 3 (05-02-2013)</div></div>
+                <div><div class="version-label">gnomAD </div><div class="number">v2.1 (GRCh37, v3 (GRCh38)</div></div>                
                 <div><div class="version-label">ACMG Genes</div> <div class="number">v2.0</div></div>
 
 
