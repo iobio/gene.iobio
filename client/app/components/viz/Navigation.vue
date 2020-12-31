@@ -939,7 +939,7 @@ nav.toolbar, nav.v-toolbar
                 1.9</div></div>
                 <div><div class="version-label">Tabix</div><div class="number">1.9</div></div>
                 <div><div class="version-label">vt subset, normalize</div><div class="number">v0.57721</div></div>
-                <div><div class="version-label">gnomAD </div><div class="number">v2.1 (GRCh37, v3 (GRCh38)</div></div>                
+                <div><div class="version-label">gnomAD </div><div class="number">v2.1 for GRCh37, v3  for GRCh38</div></div>                
                 <div><div class="version-label">ACMG Genes</div> <div class="number">v2.0</div></div>
 
 
