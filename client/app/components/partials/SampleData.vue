@@ -132,7 +132,14 @@ export default {
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
 
-      if (self.modelInfo && self.modelInfo.model) {
+      let tryToLoad = false;
+      if (self.separateUrlForIndex) {
+        tryToLoad = vcfUrl && vcfUrl.length > 0 && tbiUrl && tbiUrl.length > 0
+      } else {
+        tryToLoad = vcfUrl && vcfUrl.length > 0
+      }
+
+      if (tryToLoad && self.modelInfo && self.modelInfo.model) {
         self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
           if (success) {
             self.samples = sampleNames;
