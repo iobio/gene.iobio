@@ -932,7 +932,7 @@ nav.toolbar, nav.v-toolbar
                 <div><span class="version-label">Gencode Human Reference</span><span class="number">19, 25</span></div>
                 <div><span class="version-label">REFSEQ Human Reference</span><span class="number">ref_GRCh37.p5, ref_GRCh38.p7</span></div>
                 <div><span class="version-label">Human Phenotype Ontology</span><span class="number">Build #102 (12-15-2015)</span></div>
-                <div><div class="version-label">Phenolyzer</div><div class="number">1.0.5 (02-21-2015)</div></div>
+                <div><div class="version-label">Phenolyzer</div><div class="number">Oct 2019</div></div>
                 <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 101</div></div>               
                 <div><div class="version-label">FreeBayes</div><div class="number">v1.3.1</div></div>
                 <div><div class="version-label">Samtools</div><div class="number">
