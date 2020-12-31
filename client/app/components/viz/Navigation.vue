@@ -934,9 +934,11 @@ nav.toolbar, nav.v-toolbar
                 <div><span class="version-label">Human Phenotype Ontology</span><span class="number">Build #102 (12-15-2015)</span></div>
                 <div><div class="version-label">Phenolyzer</div><div class="number">1.0.5 (02-21-2015)</div></div>
                 <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 101</div></div>               
-                <div><div class="version-label">FreeBayes</div><div class="number">v1.0.2-33-gdbb6160-dirty</div></div>
-                <div><div class="version-label">Samtools</div><div class="number">samtools 1.3.1-33-gb25695b-dirty</div></div>
-                <div><div class="version-label">vt subset, normalize</div><div class="number">0.577</div></div>
+                <div><div class="version-label">FreeBayes</div><div class="number">v1.3.1</div></div>
+                <div><div class="version-label">Samtools</div><div class="number">
+                1.9</div></div>
+                <div><div class="version-label">Tabix</div><div class="number">1.9</div></div>
+                <div><div class="version-label">vt subset, normalize</div><div class="number">v0.57721</div></div>
                 <div><div class="version-label">gnomAD </div><div class="number">v2.1 (GRCh37, v3 (GRCh38)</div></div>                
                 <div><div class="version-label">ACMG Genes</div> <div class="number">v2.0</div></div>
 
