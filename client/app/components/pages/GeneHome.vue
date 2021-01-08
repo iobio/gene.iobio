@@ -1114,6 +1114,11 @@ export default {
     }
 
 
+
+    self.init();
+
+
+
   },
 
 
