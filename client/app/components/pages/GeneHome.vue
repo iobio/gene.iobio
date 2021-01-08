@@ -1114,29 +1114,6 @@ export default {
     }
 
 
-    // We are seeing problems with Blobs using the Safari browser.
-    // Warn user that Gene.iobio is supported on Chrome and Firefox
-    // browsers
-    if (self.utility.detectSafari()) {
-
-      alertify.confirm("Unsupported Browser",
-        "Gene.iobio is supported on Chrome and Firefox.  Please run on one of these browsers.",
-        function (e) {
-          // ok
-
-        },
-        function() {
-          // cancel
-          self.init()
-        }
-
-      ).set('labels', {ok:'OK', cancel:'Cancel'})
-    } else {
-      self.init();
-    }
-
-
-
   },
 
 
