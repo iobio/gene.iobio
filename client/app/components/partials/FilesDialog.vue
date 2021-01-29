@@ -385,7 +385,9 @@ export default {
             tbiUrl = sms[i].vcf.getTbiURL();
           }
 
-          if (bamUrl && bamUrl.split('.').pop() !== "bam") {
+          if (bamUrl 
+              && bamUrl.split('.').pop() !== "bam" 
+              && bamUrl.split('.').pop() !== "cram") {
             self.errorTitle = "Bam file extension warning";
             let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
             self.errorMsgArray.push(errorMsg);
@@ -393,7 +395,9 @@ export default {
             self.areAnyDuplicates = true;
             self.loadReady = false;
           }
-          if (baiUrl && baiUrl.split('.').pop() !== "bai") {
+          if (baiUrl 
+            && baiUrl.split('.').pop() !== "bai" 
+            && baiUrl.split('.').pop() !== "crai") {
             self.errorTitle = "Bam index file extension warning";
             let errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
             self.errorMsgArray.push(errorMsg);
