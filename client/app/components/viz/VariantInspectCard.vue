@@ -485,7 +485,7 @@
               :coverageMedian="cohortModel.filterModel.geneCoverageMedian"
               :coverageDangerRegions="coverageDangerRegions"
               :currentPoint="coveragePoint"
-              :maxDepth="cohortModel.maxDepth"
+              :maxDepthProp="coverageMaxDepth"
               :regionStart="coverageRegionStart"
               :regionEnd="coverageRegionEnd"
               :width="150"
@@ -834,6 +834,7 @@ export default {
       coverage: null,
       coveragePoint: null,
       selectedExon: null,
+      coverageMaxDepth: null,
 
       filteredTranscript: null,
 
@@ -1249,6 +1250,7 @@ export default {
           self.coverageRegionStart = self.getCoverageRegionStart();
           self.coverageRegionEnd   = self.getCoverageRegionEnd();
           self.conservationSeqType = "nuc";
+          self.coverageMaxDepth    = 0;
 
           let theCoverage = self.cohortModel.getModel(self.selectedVariantRelationship).coverage.filter(function(coveragePoint) {
             return coveragePoint[0] >= self.coverageRegionStart && coveragePoint[0] <= self.coverageRegionEnd;
@@ -1259,7 +1261,11 @@ export default {
             newPoint.push(covPoint[0])
             newPoint.push(covPoint[1])
             clonedCoverage.push(newPoint)
+            if (covPoint[1] > self.coverageMaxDepth) {
+              self.coverageMaxDepth = +covPoint[1]
+            }
           })
+          self.coverageMaxDepth = self.coverageMaxDepth +  (Math.round(self.coverageMaxDepth*.2));
           self.coverage = clonedCoverage
           setTimeout(function() {
             self.showCoverageAlleleBar();
@@ -1378,7 +1384,7 @@ export default {
 
       if (self.exon) {
         let exonWidth = +self.exon.end  -  +self.exon.start;
-        return +self.exon.start - Math.round(exonWidth * .60);
+        return +self.exon.start - exonWidth;
       } else  {
         return +self.selectedVariant.start - 1000;
       }
@@ -1387,7 +1393,7 @@ export default {
       let self = this;
       if (self.exon) {
         let exonWidth = +self.exon.end  -  +self.exon.start;
-        return +self.exon.end + Math.round(exonWidth * .60);
+        return +self.exon.end + exonWidth;
       } else  {
         return +self.selectedVariant.start + 1000;
       }
