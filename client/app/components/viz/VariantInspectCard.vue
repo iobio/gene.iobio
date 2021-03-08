@@ -529,7 +529,7 @@
       </div>
       <div class="variant-inspect-column " v-if="selectedVariant && showGenePhenotypes" >
           <div class="variant-column-header">
-            Gene Associations
+            Gene:Phenotype Associations
             <v-divider></v-divider>
           </div>
           <div v-if="genePhenotypeHits && genePhenotypeHits!==null && genePhenotypeHits.length" >

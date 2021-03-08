@@ -3678,7 +3678,7 @@ export default {
 
         self.geneModel.setSourceForGenes(clinObject.selectedPhenotypeGenes, "phenotype_gene_list")
 
-        let options = {isFromClin: true, phenotypes: new_genes};
+        let options = {isFromClin: true, phenotypes: new_genes, replace: true};
         self.onApplyGenes(new_genes.join(), options);
       }
       let responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
