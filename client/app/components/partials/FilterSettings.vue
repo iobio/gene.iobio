@@ -206,6 +206,12 @@
             <v-text-field :hide-details="true"  style="padding-top:0px;margin-left: 10px;vertical-align:top;width:50px;display:inline-block" v-model="minRevel" >
             </v-text-field>
 
+            <div v-if="minRevel && minRevel != ''"
+                class="amber lighten-5" 
+                style="margin-top: 5px">
+                REVEL scores apply to missense variants only.  Variants of other consequences will automatically be filtered out.
+            </div>
+
       </v-flex>
 
 
@@ -290,41 +296,41 @@ export default {
       ],
       zygosities: ['HOM', 'HET'],
       consequences: [
-        'transcript_ablation',
-        'splice_acceptor_variant',
-        'splice_donor_variant',
-        'stop_gained',
-        'frameshift_variant',
-        'stop_lost',
-        'start_lost',
-        'transcript_amplification',
-        'inframe_insertion',
-        'inframe_deletion',
-        'missense_variant',
-        'protein_altering_variant',
-        'splice_region_variant',
-        'incomplete_terminal_codon_variant',
-        'stop_retained_variant',
-        'synonymous_variant',
-        'coding_sequence_variant',
-        'mature_miRNA_variant',
-        '5_prime_UTR_variant',
         '3_prime_UTR_variant',
-        'non_coding_transcript_exon_variant',
-        'intron_variant',
-        'NMD_transcript_variant',
-        'non_coding_transcript_variant',
-        'upstream_gene_variant',
+        '5_prime_UTR_variant',
+        'coding_sequence_variant',
         'downstream_gene_variant',
-        'TFBS_ablation',
-        'TFBS_amplification',
-        'TF_binding_site_variant',
+        'feature_elongation',
+        'feature_truncation',
+        'frameshift_variant',
+        'incomplete_terminal_codon_variant',
+        'inframe_deletion',
+        'inframe_insertion',
+        'intergenic_variant',
+        'intron_variant',
+        'mature_miRNA_variant',
+        'missense_variant',
+        'NMD_transcript_variant',
+        'non_coding_transcript_exon_variant',
+        'non_coding_transcript_variant',
+        'protein_altering_variant',
         'regulatory_region_ablation',
         'regulatory_region_amplification',
-        'feature_elongation',
         'regulatory_region_variant',
-        'feature_truncation',
-        'intergenic_variant'
+        'splice_acceptor_variant',
+        'splice_donor_variant',
+        'splice_region_variant',
+        'start_lost',
+        'stop_gained',
+        'stop_lost',
+        'stop_retained_variant',
+        'synonymous_variant',
+        'TF_binding_site_variant',
+        'TFBS_ablation',
+        'TFBS_amplification',
+        'transcript_ablation',
+        'transcript_amplification',
+        'upstream_gene_variant'
       ]
     }
   },
@@ -458,7 +464,16 @@ export default {
       this.isDirty = true;
     },
     minRevel: function() {
-      this.isDirty = true;
+      self = this;
+      self.isDirty = true;
+      if (self.minRevel != "") {
+        if (self.selectedConsequences == null) {
+          self.selectedConsequences = []
+        }
+        if (self.selectedConsequences.indexOf("missense_variant") == -1) {
+          self.selectedConsequences.push("missense_variant")
+        }
+      }
     },
     minGenotypeDepth: function() {
       this.isDirty = true;

@@ -2633,6 +2633,7 @@ class CohortModel {
     }
 
     let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
+   
       if (filterObject1.genes.length > 0 && filterObject2.genes.length > 0) {
         return filterObject1.filter.order > filterObject2.filter.order;
       } else if (filterObject1.genes.length > 0) {
@@ -2642,6 +2643,7 @@ class CohortModel {
       } else {
         return filterObject1.filter.order > filterObject2.filter.order;
       }
+   
     })
 
     sortedFilters.forEach(function(filterObject) {

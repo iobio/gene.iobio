@@ -254,6 +254,10 @@
 
       svg
         fill: $link-color
+      .material-icons
+        color: $link-color
+        font-size: 20px
+        padding-bottom: 2px
 
 
     .remove-filter-button
@@ -270,6 +274,10 @@
         display: inline-block
         text-align: left
         width: 175px
+
+      .filter-badge-count
+        font-size: 11px
+        font-weight: 500
 
     .badge__badge.primary, .v-badge__badge.primary
       background-color: $light-badge-color !important
@@ -288,7 +296,7 @@
       .badge__badge.primary, .v-badge__badge.primary
         background-color: #d6d6d6 !important
 
-      .edit-filter-button
+      .edit-filter-button, .remove-filter-button
         i.material-icons
           color: $default-badge-color !important
         svg
@@ -610,8 +618,8 @@
                 </v-card-title>
                 <v-card-text class="remove-filter-description" v-html="' Are you sure you want to remove this filter?'">
                 </v-card-text>
-                <v-btn @click="onClose" color="normal">Cancel</v-btn>
-                <v-btn @click="onRemoveFilter" color="error">Remove filter</v-btn>
+                <v-btn class="edit-filter-button" @click="onClose" color="normal">Cancel</v-btn>
+                <v-btn class="remove-filter-button" @click="onRemoveFilter" color="error">Remove filter</v-btn>
               </v-card>
             </v-dialog>
           </span>
@@ -1144,7 +1152,7 @@ export default {
       flagCriteria.inheritance = null;
       flagCriteria.zygosity = null;
       flagCriteria.genotypeDepth = null;
-      flagCriteria.exclusiveOf = ['reviewed', 'pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked', 'high'];
+      flagCriteria.exclusiveOf = [];
       self.cohortModel.filterModel.flagCriteria[newFilter.name] = flagCriteria;
 
       self.geneLists.push(newGeneList);
