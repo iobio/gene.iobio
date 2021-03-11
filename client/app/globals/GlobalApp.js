@@ -10,7 +10,7 @@ class GlobalApp {
     this.completedTour         = "";
 
 
-    this.version               = "4.4.4";
+    this.version               = "4.4.4.3";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
@@ -52,7 +52,7 @@ class GlobalApp {
     // get gnomad extra info (on demand)
     this.gnomADExtra          = true;
     // get gnomad extra info for all variants
-    this.gnomADExtraAll       = false;
+    this.gnomADExtraAll       = true;
 
     // how should we get the gnomad extra info?  'bcftools' or 'vepcustom'
     this.GNOMAD_METHOD_BCFTOOLS   = "gnomad_bcftools";
