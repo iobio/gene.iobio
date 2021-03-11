@@ -938,14 +938,14 @@ class FilterModel {
       }
       if (badgeCriteria.minRevel == null || badgeCriteria.minRevel == "") {
         passes.revel = true;
-      } else if (Object.keys(variant.vepREVEL).length == 0) {
+      //} //else if (Object.keys(variant.vepREVEL).length == 0) {
         // This isn't a variant with a REVEL score, so don't try to filter
-        passes.revel = true
+        //passes.revel = true
       } else {
         // This is a variant with a revel score, so make sure it passes
         // the min revel score (if non-blank)
         for (var revel in variant.vepREVEL) {
-          if (revel == "" || +revel >= badgeCriteria.minRevel) {
+          if (+revel >= badgeCriteria.minRevel) {
             passes.revel = true;
           }
         }

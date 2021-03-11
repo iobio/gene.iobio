@@ -2100,7 +2100,7 @@ class SampleModel {
   _determineHighestAf(variant) {
     var me = this;
     // Find the highest value (the least rare AF) 
-    variant.afHighest = 0;
+    variant.afHighest = "unknown";
     variant.afFieldHighest = null;
 
     if (me.globalApp.gnomADExtraAll
@@ -2154,7 +2154,7 @@ class SampleModel {
       variant.afHighest = 0;
     } else {
       variant.afFieldHighest = null;
-      variant.afHighest = 0;
+      variant.afHighest = 'unknown';
     }
   }
 
