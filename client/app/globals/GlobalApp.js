@@ -52,7 +52,7 @@ class GlobalApp {
     // get gnomad extra info (on demand)
     this.gnomADExtra          = true;
     // get gnomad extra info for all variants
-    this.gnomADExtraAll       = true;
+    this.gnomADExtraAll       = false;
 
     // how should we get the gnomad extra info?  'bcftools' or 'vepcustom'
     this.GNOMAD_METHOD_BCFTOOLS   = "gnomad_bcftools";
