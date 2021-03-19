@@ -674,18 +674,28 @@ export default class HubSession {
         }
         if (geneSymbolField) {
           data.variants.forEach(function(variant) {
-            variant['gene_symbol'] = variant[geneSymbolField];
+            if (!variant.hasOwnProperty('gene_symbol')) {
+              variant['gene_symbol'] = variant[geneSymbolField];
+            }
           })
         }
 
         resolve(data)
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
-        let msg = "Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.";
-        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
+        self.getVariantSet(projectId, variantSetId, 'old_project')
+        .done(response => {
+          resolve(response)
+        })
+        .fail(error => {
+          let errorMsg = error.responseJSON.message;
+          let msg = "Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.";
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
 
-        reject("Error getting variant set " + variantSetId + ": " + error);
+          reject("Error getting variant set " + variantSetId + ": " + error);
+        })
+
+
       })
     })
 
