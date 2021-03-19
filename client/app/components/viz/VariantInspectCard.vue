@@ -654,12 +654,12 @@
             <span>{{ afGnomAD.homCount }} homozygotes</span>
           </div>
           
-          <div v-if="!isSimpleModel && afGnomAD.hasOwnProperty('percentExomes')" 
+          <div v-if="!isSimpleMode && afGnomAD.hasOwnProperty('percentExomes')" 
           style="margin-top: 0px"  class="variant-column-subheader" >
             <span>gnomAD exomes</span>
           </div>
           <variant-inspect-row 
-            v-if="!isSimpleModel && afGnomAD.hasOwnProperty('percentExomes')"  
+            v-if="!isSimpleMode && afGnomAD.hasOwnProperty('percentExomes')"  
             clazz="level-blank" :value="afGnomAD.percentExomes" label="Allele frequency" >
           </variant-inspect-row>
 
