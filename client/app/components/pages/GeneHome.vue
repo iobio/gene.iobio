@@ -1406,7 +1406,9 @@ export default {
           isPedigree || (self.paramAnalysisId && self.paramAnalysisId.length > 0),
           self.projectId,
           self.paramGeneSetId,
-          self.paramVariantSetId)
+          self.paramVariantSetId,
+          self.paramBuild
+          )
         .then(data => {
           if (isPedigree && !data.foundPedigree) {
             self.onShowSnackbar({message: 'No pedigree for this sample. Loading proband only.', timeout: 5000})
@@ -1436,6 +1438,7 @@ export default {
           // when launching gene.iobio from Mosaic
           if (self.variantSet && self.variantSet.variants) {
             let bypassedCount = 0;
+            let bypassedMessages = [];
             self.variantSet.variants.filter(function(variant) {
               return variant.sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
             })
@@ -1461,7 +1464,9 @@ export default {
                   self.analysis.payload.genes.push(importedVariant.gene);
                 }
               } else {
-                console.log("Bypassing variant " + variant.chr + " " + variant.pos + " because gene not provided")
+                let message = "Bypassing variant chr " + variant.chr + ", position " + variant.pos + " because the gene symbol was not provided.";
+                bypassedMessages.push(message)
+                console.log(message)
                 bypassedCount++;
               }
             })
@@ -1470,7 +1475,7 @@ export default {
                 alertify.alert("Error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name.", )
 
               } else {
-                alertify.alert("Warning", bypassedCount + " variants bypassed due to missing gene name")
+                alertify.alert("Warning", bypassedCount + " variants bypassed." + "<br><br>" + bypassedMessages.join("<br>"))
 
               }
             }
