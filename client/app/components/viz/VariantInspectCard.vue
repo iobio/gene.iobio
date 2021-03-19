@@ -643,14 +643,17 @@
           <div v-if="!isSimpleMode && afGnomAD.homCount > 0"  class="variant-row no-icon">
             <span>{{ afGnomAD.homCount }} homozygotes</span>
           </div>
-          <div class="variant-column-loading"  v-if="afGnomAD.loading">
-            <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading) && !isSimpleMode"
-              style="margin-top:2px;min-width:80px;margin-left:0px;margin-right:0px"
-               class=" loader vcfloader" >
-              <img src="../../../assets/images/wheel.gif">
-              {{ afGnomAD.loading }} 
-            </span>
+
+          
+          <div v-if="!isSimpleMode && afGnomAD.hasOwnProperty('percentExomes')" 
+          style="margin-top: 0px"  class="variant-column-subheader" >
+            <span>gnomAD exomes</span>
           </div>
+          <variant-inspect-row 
+            v-if="!isSimpleMode && afGnomAD.hasOwnProperty('percentExomes')"  
+            clazz="level-blank" :value="afGnomAD.percentExomes" label="Allele frequency" >
+          </variant-inspect-row>
+
       </div>
 
       <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant">
