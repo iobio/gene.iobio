@@ -911,13 +911,13 @@ class SampleModel {
           if (success) {
 
 
-            me.vcfFileOpened = true;
-            me.vcfUrlEntered = false;
+            me.vcfFileOpened = false;
+            me.vcfUrlEntered = true;
             me.getVcfRefName = null;
             me.isMultiSample = false;
 
             // Get the sample names from the vcf header
-              me.vcf.getSampleNames( function(sampleNames) {
+            me.vcf.getSampleNames( function(sampleNames) {
                 me.sampleNames = sampleNames;
                 me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
                 resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
