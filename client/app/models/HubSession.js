@@ -656,7 +656,7 @@ export default class HubSession {
   }
 
 
-promiseGetVariantSet(projectId, variantSetId, build) {
+  promiseGetVariantSet(projectId, variantSetId, build) {
     let self = this;
     return new Promise(function(resolve, reject) {
       self.getVariantSet(projectId, variantSetId, build)
@@ -700,7 +700,6 @@ promiseGetVariantSet(projectId, variantSetId, build) {
     })
 
   }
-
 
 
 

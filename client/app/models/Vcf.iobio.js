@@ -360,9 +360,9 @@ export default function vcfiobio(theGlobalApp) {
   }
 
   exports.openVcfFile = function(fileSelection, callback) {
+    let me = this;
     sourceType = SOURCE_TYPE_FILE;
 
-    console.log("inside openVcfFile");
 
     if (fileSelection.files.length != 2) {
        callback(false, 'must select 2 files, both a .vcf.gz and .vcf.gz.tbi file');
@@ -412,11 +412,11 @@ export default function vcfiobio(theGlobalApp) {
       return;
     }
 
-    this.processVcfFile(vcfFile, tabixFile)
-    callback(true);
-
-    return;
-
+    this.processVcfFile(vcfFile, tabixFile, function(data) {
+      me.openVcfUrl(data.vcf, data.tbi, function(cbData) {
+        callback(cbData)
+      })
+    })
   }
 
 
@@ -1134,7 +1134,7 @@ export default function vcfiobio(theGlobalApp) {
 
   exports.getSampleNames = function(callback) {
     if (sourceType == SOURCE_TYPE_URL) {
-      this._getRemoteSampleNames(callback);
+    this._getRemoteSampleNames(callback);
     } else {
       this._getLocalSampleNames(callback);
     }
@@ -3247,7 +3247,7 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
 
   };
 
-  exports.processVcfFile = function(vcfFile, tbiFile){
+  exports.processVcfFile = function(vcfFile, tbiFile, callback){
 
     let self = this;
 
@@ -3266,6 +3266,7 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
       self.vcfURL = `${baseUrl}${hoster.getHostedPath(vcfPath)}`;
       self.tbiUrl = `${baseUrl}${hoster.getHostedPath(tbiPath)}`;
       self.sourceType = SOURCE_TYPE_URL;
+      callback({vcf: self.vcfURL, tbi: self.tbiUrl })
     });
 
   };

@@ -395,7 +395,6 @@ export default {
             self.areAnyDuplicates = true;
             self.loadReady = false;
           }
-
           if (baiUrl 
             && baiUrl.split('.').pop() !== "bai" 
             && baiUrl.split('.').pop() !== "crai") {

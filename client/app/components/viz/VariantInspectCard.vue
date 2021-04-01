@@ -135,7 +135,7 @@
       .variant-column-loading
         font-size: 12px
         font-style: italic
-        margin-top: 10px
+        margin-bottom: 10px
 
       .variant-row
         display: flex
@@ -630,10 +630,20 @@
           <div class="variant-column-hint" v-if="isSimpleMode">
             Common variants typically don’t cause diseases.
           </div>
+
+          <div class="variant-column-loading"  v-if="afGnomAD.loading">
+            <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading) && !isSimpleMode"
+              style="margin-top:2px;min-width:80px;margin-left:0px;margin-right:0px"
+               class=" loader vcfloader" >
+              <img src="../../../assets/images/wheel.gif">
+              {{ afGnomAD.loading }} 
+            </span>
+          </div>
+
           <div class="variant-column-subheader"  v-if="!isSimpleMode">
             <span>{{ afGnomAD.source }}</span>
           </div>
-          <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="`Allele frequency`" :link="afGnomAD.link" >
+          <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="afGnomAD.label" :link="afGnomAD.link" >
           </variant-inspect-row>
           <variant-inspect-row v-if="!isSimpleMode && afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Population max allele frequency`" >
           </variant-inspect-row>
@@ -643,7 +653,6 @@
           <div v-if="!isSimpleMode && afGnomAD.homCount > 0"  class="variant-row no-icon">
             <span>{{ afGnomAD.homCount }} homozygotes</span>
           </div>
-
           
           <div v-if="!isSimpleMode && afGnomAD.hasOwnProperty('percentExomes')" 
           style="margin-top: 0px"  class="variant-column-subheader" >
@@ -1721,6 +1730,7 @@ export default {
 
 
             var gnomAD = {};
+            gnomAD.label = "Allele frequency"
             gnomAD.percent       = afTot == 0 ? '0%' : d3.format(".3%")(afTot);
             gnomAD.class         = this.getAfClass(afTot);
             gnomAD.percentPopMax = afPopMax == 0 ? '0%' : d3.format(".3%")(afPopMax);
@@ -1761,12 +1771,27 @@ export default {
                   + " genomes."
           let extraInfo2 = this.getAfFilterInfo();
 
+          // We will  show the AF from VEP (exomes) below the AF from gnomAD genomes so that
+          // the user understands that that filtering used this AF rather than the
+          // one from the gnomAD genomes
+          let afExomes = 0
+          if (this.selectedVariant.vepAf.gnomAD.AF == "." 
+            && this.selectedVariant.vepAf.MAX.present ) {
+            afExomes = this.selectedVariant.vepAf.MAX.AF == "."  ? 0 : this.selectedVariant.vepAf.MAX.AF 
+          } else {
+            afExomes = this.selectedVariant.vepAf.gnomAD.AF == "." ? 0 : this.selectedVariant.vepAf.gnomAD.AF;
+          }
+          let percentExomes = this.globalApp.utility.percentage(afExomes);
+
+
           if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
             return {percent: "?", link: null, class: "", source: source, 
-                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2};            
+                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2,
+                    percentExomes: percentExomes};            
           } else if (this.selectedVariant.gnomAD.af  == '.') {
             return {percent: "0%", link: null, class: "level-high", source: source,
-                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2};
+                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2,
+                    percentExomes: percentExomes};
           } else  {
             var gnomAD = {};
             gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
@@ -1779,6 +1804,7 @@ export default {
               gnomAD.link += "?dataset=gnomad_r3"
             };
 
+            gnomAD.label = "Allele frequency"
             gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
             gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
             gnomAD.percentPopMax = this.selectedVariant.gnomAD.afPopMax != '.' ? this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax) : '0%';
@@ -1790,6 +1816,7 @@ export default {
             gnomAD.infoPopup     = infoPopup;
             gnomAD.extraInfo1    = extraInfo1;
             gnomAD.extraInfo2    = extraInfo2;
+            gnomAD.percentExomes = percentExomes
             
             return gnomAD;
 
@@ -1823,20 +1850,24 @@ export default {
             } else {
               af = this.selectedVariant.vepAf.gnomAD.AF == "." ? 0 : this.selectedVariant.vepAf.gnomAD.AF;
             }
-             
 
+             
             gnomAD.percent       = this.globalApp.utility.percentage(af);
             gnomAD.class         = this.getAfClass(af);
+            gnomAD.label         = "Allele frequency"
+            gnomAD.source        = source;
+
             gnomAD.percentPopMax = 0;
             gnomAD.altCount      = 0;
             gnomAD.totalCount    = 0;
             gnomAD.homCount      = 0;
-            gnomAD.source        = source;
+            
             if (this.globalApp.gnomADExtra 
               && !this.globalApp.gnomADExtraAll 
               && !this.selectedVariant.extraAnnot) {
               if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_BCFTOOLS) {
-                gnomAD.loading = 'loading more annotations'
+                gnomAD.loading = 'gnomAD genomes'
+                gnomAD.class = "level-blank"
                 gnomAD.infoPopup  = "gnomAD";
                 gnomAD.extraInfo1 =  
                   'Annotations shown for variant are from gnomAD ' 
@@ -1844,7 +1875,7 @@ export default {
                   + " genomes."
                 
               } else {
-                 gnomAD.loading = 'loading more annotations'
+                 gnomAD.loading = 'loading annotations'
                  gnomAD.infoPopup     = "gnomADExtraVepCustom"
                  gnomAD.extraInfo1 =  
                   'Annotations show for variant are from gnomAD ' 
@@ -1861,7 +1892,7 @@ export default {
             gnomAD.extraInfo2 = this.getAfFilterInfo();
 
 
-            return gnomAD;
+            return gnomAD
           }
 
         }
