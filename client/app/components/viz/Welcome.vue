@@ -1080,6 +1080,7 @@ export default {
 
     onLoadDemoData: function() {
       this.$emit("load-demo-data");
+      this.$ga.event('data_type', 'Demo Data', 'Files demo dataset');
     },
     onUploadFiles: function(){
       this.$emit("upload-files");
