@@ -54,6 +54,10 @@
       margin-left: 15px
       min-width: 90px
 
+  #max-af
+    .v-input.v-text-field 
+      min-width: 200px
+
   .input-group
     label
       font-style: italic !important
@@ -109,7 +113,7 @@
     <v-layout row wrap class=" filter-form">
 
 
-      <v-flex id="name" xs12 class="mb-4" >
+      <v-flex id="name" xs12  >
         <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
         </v-text-field>
       </v-flex>
@@ -143,14 +147,20 @@
         </v-select>
       </v-flex>
 
+      <v-flex xs12 style="margin-top:10px;margin-bottom: 5px"  >
 
+        <v-flex id="max-af"   >
+          <v-text-field style="display:inline-block" label="Max Population Allele Freq" suffix="%" v-model="maxAf" hide-details>
+          </v-text-field>
+          <info-popup :name="gnomADInfoPopup"></info-popup>
+        </v-flex>
+        <div v-if="maxAf && maxAf != '' && gnomADExomesOnly "
+            class="amber lighten-5" 
+            style="margin-top: 5px;padding: 3px;font-size:13px">
+            To speed up filtering, the gnomAD <span style='font-style: italic; font-weight:bold'> exomes only </span> pop max allele frequency is used. Allele frequencies from gnomAD exomes are less complete, so variants may pass this filter and have a higher allele frequency in gnomAD genomes. (After clicking on a variant, the allele frequency from gnomAD genomes will be shown.)
+        </div>
 
-      <v-flex id="max-af" xs5  class="mt-5 mb-5 mr-4" >
-        <v-text-field style="display:inline-block" label="Max Population Allele Freq" suffix="%" v-model="maxAf" hide-details>
-        </v-text-field>
-        <info-popup :name="gnomADInfoPopup"></info-popup>
       </v-flex>
-
 
       <v-flex xs12  >
         <v-select
@@ -208,8 +218,8 @@
 
             <div v-if="minRevel && minRevel != ''"
                 class="amber lighten-5" 
-                style="margin-top: 5px">
-                REVEL scores apply to missense variants only.  Variants of other consequences will automatically be filtered out.
+                style="margin-top: 5px; padding: 3px;font-size: 13px">
+                REVEL scores apply to <span style='font-style: italic; font-weight:bold'> missense variants </span>  only.  Variants of other consequences will automatically be filtered out.
             </div>
 
       </v-flex>
@@ -419,6 +429,9 @@ export default {
     },
   },
   computed: {
+    gnomADExomesOnly: function() {
+      return !this.globalApp.gnomADExtraAll;
+    },
     isValidFilter: function() {
       return this.maxAf ||
              this.minRevel ||

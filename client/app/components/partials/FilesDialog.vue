@@ -315,7 +315,8 @@ export default {
       possibleSibs: null,
       affectedSibs: null,
       unaffectedSibs: null,
-      inProgress: false
+      inProgress: false,
+      isDemo: false
     }
   },
   watch: {
@@ -395,7 +396,6 @@ export default {
             self.areAnyDuplicates = true;
             self.loadReady = false;
           }
-
           if (baiUrl 
             && baiUrl.split('.').pop() !== "bai" 
             && baiUrl.split('.').pop() !== "crai") {
@@ -460,7 +460,12 @@ export default {
 
     onLoad: function() {
       let self = this;
-
+      if(self.isDemo) {
+        self.$ga.event('data_type', 'Demo Data', 'Files demo dataset');
+      }
+      else {
+        self.$ga.event('data_type', 'Custom Data', 'Custom dataset');
+      }
       self.cohortModel.mode = self.mode;
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
@@ -535,6 +540,7 @@ export default {
     onLoadDemoData: function() {
       let self = this;
       this.$emit('isDemo', true);
+      self.isDemo = true;
       
       self.buildName = self.cohortModel.genomeBuildHelper.getCurrentBuildName();
 

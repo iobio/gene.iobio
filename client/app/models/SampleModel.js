@@ -911,13 +911,13 @@ class SampleModel {
           if (success) {
 
 
-            me.vcfFileOpened = true;
-            me.vcfUrlEntered = false;
+            me.vcfFileOpened = false;
+            me.vcfUrlEntered = true;
             me.getVcfRefName = null;
             me.isMultiSample = false;
 
             // Get the sample names from the vcf header
-              me.vcf.getSampleNames( function(sampleNames) {
+            me.vcf.getSampleNames( function(sampleNames) {
                 me.sampleNames = sampleNames;
                 me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
                 resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
@@ -2100,7 +2100,7 @@ class SampleModel {
   _determineHighestAf(variant) {
     var me = this;
     // Find the highest value (the least rare AF) 
-    variant.afHighest = 0;
+    variant.afHighest = "unknown";
     variant.afFieldHighest = null;
 
     if (me.globalApp.gnomADExtraAll
@@ -2154,7 +2154,7 @@ class SampleModel {
       variant.afHighest = 0;
     } else {
       variant.afFieldHighest = null;
-      variant.afHighest = 0;
+      variant.afHighest = 'unknown';
     }
   }
 

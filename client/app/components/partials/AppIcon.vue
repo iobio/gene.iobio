@@ -19,6 +19,9 @@
 .level-insignificant, .level-unremarkable
   fill: #cfcdcd 
 
+.level-blank
+  fill: white
+
 .level-low
   fill: $level-low-color
 
