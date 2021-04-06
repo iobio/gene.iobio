@@ -577,13 +577,13 @@ nav.toolbar, nav.v-toolbar
          @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
-        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin && isPhenolyzerPermitted" id="search-or" style="display:inline-block">
+        <div v-if="!isEduMode  && (!isSimpleMode || isPhenolyzerPermitted) && !launchedFromClin" id="search-or" style="display:inline-block">
           or
         </div>
 
         <phenotype-search
          id="phenolyzer-search"
-         v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted"
+         v-if="!isEduMode && !launchedFromClin && (!isSimpleMode || isPhenolyzerPermitted)"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
