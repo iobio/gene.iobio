@@ -488,6 +488,7 @@ main.content.clin, main.v-content.clin
         :isFather="isFather"
         :geneLists="geneLists"
         :launchedFromClin="launchedFromClin"
+        :forceKnownVariantsViz="forceKnownVariantsViz"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-outside-click="onCohortVariantOutsideClick"
         @cohort-variant-hover="onCohortVariantHover"
@@ -983,6 +984,8 @@ export default {
       showMotherCard: false,
       showFatherCard: false,
 
+      forceKnownVariantsViz: null,
+
       inProgress: {},
 
       badgeCounts: {coverage: 0},
@@ -1262,6 +1265,10 @@ export default {
           self.genomeBuildHelper,
           self.launchedFromClin,
           new FreebayesSettings());
+
+        self.cohortModel.on("knownVariantsVizChange", function(viz) {
+          self.forceKnownVariantsViz = viz;
+        });
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
           self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)

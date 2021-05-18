@@ -369,7 +369,7 @@ class SampleModel {
       return feature.feature_type.toUpperCase() == 'CDS' || feature.feature_type.toUpperCase() == 'CDS';
     }).forEach(function(exon) {
       var exonBin = {point: (+exon.start + ((+exon.end - +exon.start)/2)), start: exon.start, end: exon.end, total: +0, path: +0, benign: +0, unknown: +0, other: +0};
-      results.forEach(function(rec) {
+       results.forEach(function(rec) {
         if (+rec.start >= +exon.start && +rec.end <= +exon.end) {
           exonBin.total    += +rec.total;
           exonBin.path     += +rec.path;
@@ -1841,12 +1841,12 @@ class SampleModel {
                'none',
                me.getTranslator().clinvarMap,
                me.getGeneModel().geneSource === 'refseq' ? true : false,
-               me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
-               me.globalApp.getVariantIdsForGene,  // rsid
-               me.globalApp.vepAF,    // vep af
+               options.getKnownVariants ? false : (me.isBasicMode || me.globalApp.getVariantIdsForGene),  // hgvs notation
+               options.getKnownVariants ? false : me.globalApp.getVariantIdsForGene,  // rsid
+               options.getKnownVariants ? false : me.globalApp.vepAF,    // vep af
                false, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtraAll, // get extra gnomad,
+               options.getKnownVariants ? false : me.globalApp.gnomADExtraAll, // get extra gnomad,
                !me.isEduMode // decompose
               );
           })

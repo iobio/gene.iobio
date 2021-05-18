@@ -144,6 +144,7 @@ export default {
   components: {
   },
   props: {
+    forceViz: null
   },
   data () {
     return {
@@ -171,6 +172,12 @@ export default {
     },
     selectedCategories: function() {
       this.$emit("knownVariantsFilterChange", this.selectedCategories);
+    },
+    forceViz: function(newViz) {
+      let self = this;
+      if (newViz && self.viz != newViz) {
+        self.viz = newViz
+      }
     }
 
   },

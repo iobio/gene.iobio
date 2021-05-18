@@ -75,6 +75,7 @@
           <v-checkbox label="ClinVar" v-model="showKnownVariantsCard"></v-checkbox>
           <known-variants-toolbar
             v-if="showKnownVariantsCard"
+            :forceViz="forceKnownVariantsViz"
             @knownVariantsVizChange="onKnownVariantsVizChange"
             @knownVariantsFilterChange="onKnownVariantsFilterChange"
           >
@@ -101,6 +102,7 @@ export default {
   props: {
     isMother: null,
     isFather: null,
+    forceKnownVariantsViz: null
   },
   data () {
     return {

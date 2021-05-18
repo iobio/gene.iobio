@@ -336,6 +336,7 @@
       </span>
       <optional-tracks-menu
               v-show="!isEduMode && !isBasicMode && !isSimpleMode"
+              :forceKnownVariantsViz="forceKnownVariantsViz"
               @show-known-variants-card="onShowKnownVariantsCard"
               @show-sfari-variants-card="onShowSfariVariantsCard"
               @show-mother-card="onShowMotherCard"
@@ -597,7 +598,12 @@
             @variantHoverEnd="onVariantHoverEnd">
           </variant-viz>
           <div class="loader vcfloader" v-bind:class="{ hide: !model.inProgress.loadingVariants }" style="text-align: center; clear: both;width: 100%;display: inline-block;padding-top:10px; padding-bottom: 5px">
-            <span class="loader-label">Annotating variants</span>
+            <span v-if="model.relationship == 'known-variants'" class="loader-label">
+              Loading ClinVar variants for {{selectedGene.gene_name}} 
+            </span>
+            <span v-if="model.relationship == 'sfari-variants'" class="loader-label">
+              Loading SFARI variants for {{selectedGene.gene_name}} 
+            </span>
             <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
           </div>
           <stacked-bar-chart-viz
@@ -693,6 +699,7 @@ export default {
 
 
     showVariantViz: true,
+    forceKnownVariantsViz: null,
     showGeneViz: true,
     showDepthViz: true,
     geneVizShowXAxis: null,
@@ -702,6 +709,7 @@ export default {
     blacklistedGeneSelected: false,  // True if selected gene falls in SFARI ACMG blacklist
     geneLists: null,
     launchedFromClin: null,
+
 
   },
 
@@ -1263,7 +1271,7 @@ export default {
       let self = this;
       let label = "";
       if (model.relationship === 'known-variants') {
-        label = "ClinVar"
+        label = "ClinVar variants catalogued in " + self.selectedGene.gene_name
       } else if (model === 'sfari-variants') {
         label = "SFARI"
       } else {
