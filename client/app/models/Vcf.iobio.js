@@ -724,7 +724,7 @@ export default function vcfiobio(theGlobalApp) {
       let pathogenicityFilterPhrase = me.getPathogenicityFilter(pathoFilters);
 
       // Call command
-      let cmd = me.getEndpoint().getClinvarVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, pathogenicityFilterPhrase);
+      let cmd = me.getEndpoint().getClinvarVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, pathogenicityFilterPhrase, true);
       let annotatedData = "";
       cmd.on('data', function(data) {
         if (data == null) {
@@ -762,7 +762,7 @@ export default function vcfiobio(theGlobalApp) {
         });
 
         // Parse the vcf object into a variant object that is visualized by the client.
-        let results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, false, false, '', null, false);
+        let results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, false, false, '', null, false, false, true);
         if (annotatedData != null && results) {
           resolve([annotatedData, results]);
         } else {

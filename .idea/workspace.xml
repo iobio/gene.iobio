@@ -4,6 +4,7 @@
     <list default="true" id="b6b6d1a7-8990-47ba-b1ae-3878dd66d077" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/app/models/EndpointCmd.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/EndpointCmd.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/models/Vcf.iobio.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,7 +47,7 @@
       <option name="presentableId" value="Default" />
       <updated>1621437925567</updated>
       <workItem from="1621437928223" duration="538000" />
-      <workItem from="1621439719157" duration="45152000" />
+      <workItem from="1621439719157" duration="48912000" />
     </task>
     <servers />
   </component>
