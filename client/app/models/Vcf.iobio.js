@@ -156,6 +156,25 @@ export default function vcfiobio(theGlobalApp) {
     ['5_prime_UTR_truncation +','utr']
   ];
 
+    // Valid CLNSIG fields as of May 2021
+    var CLNSIG_TERMS = {
+      'clinvar_affects': 'Affects',
+      'clinvar_assoc': 'Association',
+      'clinvar_no_assoc': 'Association_not_found',
+      'clinvar_benign': 'Benign',
+      'clinvar_confers_sens': 'Confers_sensitivity',
+      'clinvar_cd': 'Conflicting_data_from_submitters',
+      'clinvar_drug_resp': 'Drug_response',
+      'clinvar_lbenign': 'Likely_benign',
+      'clinvar_lpath': 'Likely_pathogenic',
+      'clinvar_other': 'Other',
+      'clinvar_not_provided': 'Not_provided',
+      'clinvar_path': 'Pathogenic',
+      'clinvar_protective': 'Protective',
+      'clinvar_risk_factor': 'Risk_factor',
+      'clinvar_uc': 'Uncertain_significance'
+  };
+
   exports.isFile = function() {
     return sourceType != null && sourceType == SOURCE_TYPE_FILE;
   }
@@ -672,6 +691,89 @@ export default function vcfiobio(theGlobalApp) {
           }
 
       });
+  }
+
+  /* Returns filter phrase compatible with bcftools filter function. Filters by CLNSIG field.
+   * By default, returns pathogenic and likely pathogenic filters.
+   * Refer to CLNSIG_TERMS dictionary at file head for valid terms. */
+  exports.getPathogenicityFilter = function(pathogenicityFilters) {
+    let validFilters = [];
+
+    pathogenicityFilters.forEach(filter => {
+      if (CLNSIG_TERMS[filter]) {
+        validFilters.push(CLNSIG_TERMS[filter]);
+      } else {
+        console.log('Could not recognize term: ' + filter + ' - ignoring from filtering');
+      }
+    })
+    return 'INFO/CLNSIG="' + validFilters.join(',') + '"';
+  }
+
+  /* Retrieves clinvar variants for provided gene/region from backend. */
+  exports.promiseGetClinvarVariants = function(refName, geneObject, selectedTranscript, regions, clinvarMap, pathoFilters) {
+    return new Promise((resolve, reject) => {
+      const me = this;
+
+      // Assemble regions
+      if (regions == null || regions.length === 0) {
+        regions = [];
+        regions.push({'name': refName, 'start': geneObject.start, 'end': geneObject.end});
+      }
+
+      // Get pathogenicity filters
+      let pathogenicityFilterPhrase = me.getPathogenicityFilter(pathoFilters);
+
+      // Call command
+      let cmd = me.getEndpoint().getClinvarVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, pathogenicityFilterPhrase);
+      let annotatedData = "";
+      cmd.on('data', function(data) {
+        if (data == null) {
+          return;
+        }
+        annotatedData += data;
+      });
+      cmd.on('end', function() {
+        let annotatedRecs = annotatedData.split("\n");
+        let vcfObjects = [];
+
+        annotatedRecs.forEach(function (record) {
+          if (record.charAt(0) === "#") {
+            me._parseHeaderForInfoFields(record);
+          } else {
+            // Parse the vcf record into its fields
+            let fields = record.split('\t');
+            let pos = fields[1];
+            let id = fields[2];
+            let ref = fields[3];
+            let alt = fields[4];
+            let qual = fields[5];
+            let filter = fields[6];
+            let info = fields[7];
+            let format = fields[8];
+            let genotypes = [];
+
+            // Turn vcf record into a JSON object and add it to an array
+            let vcfObject = {
+              'pos': pos, 'id': id, 'ref': ref, 'alt': alt,
+              'qual': qual, 'filter': filter, 'info': info, 'format': format, 'genotypes': genotypes
+            };
+            vcfObjects.push(vcfObject);
+          }
+        });
+
+        // Parse the vcf object into a variant object that is visualized by the client.
+        let results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, false, false, '', null, false);
+        if (annotatedData != null && results) {
+          resolve([annotatedData, results]);
+        } else {
+          reject();
+        }
+      });
+      cmd.on('error', function(error) {
+        console.log(error);
+      });
+      cmd.run();
+    });
   }
 
 
@@ -1647,7 +1749,7 @@ export default function vcfiobio(theGlobalApp) {
       // keep track of the region start based on the variants.
       var variantRegionStart = geneObject.start;
 
-      // Interate through the vcf records.  For each record, if multiple
+      // Iterate through the vcf records.  For each record, if multiple
       // alternates are provided, iterate through each alternate
       vcfRecs.forEach(function(rec) {
         if (rec.pos && rec.id) {

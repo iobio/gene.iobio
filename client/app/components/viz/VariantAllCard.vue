@@ -1113,9 +1113,9 @@ export default {
       })
 
     },
-    onKnownVariantsVizChange: function(viz) {
+    onKnownVariantsVizChange: function(viz, selectedCategories) {
       this.knownVariantsViz = viz;
-      this.$emit("known-variants-viz-change", viz);
+      this.$emit("known-variants-viz-change", viz, selectedCategories);
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
       this.$emit("known-variants-filter-change", selectedCategories);
@@ -1138,9 +1138,9 @@ export default {
       let self = this;
       self.$emit("show-father-card", showIt);
     },
-    onShowKnownVariantsCard: function(showIt) {
+    onShowKnownVariantsCard: function(showIt, selectedCategories) {
       let self = this;
-      self.$emit("show-known-variants-card", showIt);
+      self.$emit("show-known-variants-card", showIt, selectedCategories);
     },
     onShowSfariVariantsCard: function(showIt) {
       let self = this;

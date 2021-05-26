@@ -884,16 +884,16 @@ class CohortModel {
     }
   }
 
-  promiseLoadKnownVariants(theGene, theTranscript) {
+  promiseLoadKnownVariants(theGene, theTranscript, selectedCategories) {
     let self = this;
     if (self.knownVariantsViz == 'variants') {
-      return self._promiseLoadKnownVariants(theGene, theTranscript);
+      return self._promiseLoadKnownVariants(theGene, theTranscript, selectedCategories);
     } else  {
       return self._promiseLoadKnownVariantCounts(theGene, theTranscript);
     }
   }
 
-  _promiseLoadKnownVariants(theGene, theTranscript) {
+  _promiseLoadKnownVariants(theGene, theTranscript, selectedCategories) {
     let self = this;
     return new Promise(function(resolve, reject) {
 
@@ -903,47 +903,14 @@ class CohortModel {
         binnedCounts.forEach(function(counts) {
           totalPath += counts.path
         })
-
-        if (totalPath > 500) {
-          let warningMessage = "Gene " + theGene.gene_name + " contains " + totalPath + " ClinVar pathogenic variants. Continue?"
-          alertify.confirm("Warning", warningMessage,
-           function(){
-              self._promiseLoadKnownVariantCounts(theGene, theTranscript)
-              .then(function(data) {
-                self.knownVariantsViz = 'histo'
-                self.dispatch.knownVariantsVizChange('histo');
-                resolve(data)                
-              })            
-           },
-           function(){
-              self.getModel('known-variants').inProgress.loadingVariants = true;
-              self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], 
-                {'isMultiSample': false, 'isBackground': false, 'getKnownVariants': true})
-              .then(function(resultMap) {
-                self.getModel('known-variants').inProgress.loadingVariants = false;
-                self.setLoadedVariants(theGene, 'known-variants');
-                resolve(resultMap);
-              })
-           }).set('labels', {cancel:'Continue (expect slow response)', ok:'Show aggregated counts instead'});
-
-
-
-        } else {
-          self.getModel('known-variants').inProgress.loadingVariants = true;
-          self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], 
-            {'isMultiSample': false, 'isBackground': false, 'getKnownVariants': true})
-          .then(function(resultMap) {
-            self.getModel('known-variants').inProgress.loadingVariants = false;
-            self.setLoadedVariants(theGene, 'known-variants');
-            resolve(resultMap);
-          })
-
-        }
+        self.getModel('known-variants').inProgress.loadingVariants = true;
+        self.sampleMap['known-variants'].model.promiseGetClinvarVariants(theGene, theTranscript, self.sampleMap['known-variants'].model, selectedCategories)
+        .then(function(resultMap) {
+          self.getModel('known-variants').inProgress.loadingVariants = false;
+          self.setLoadedVariants(theGene, 'known-variants');
+          resolve(resultMap);
+        })
       })
-
-
-
-
     })
   }
 

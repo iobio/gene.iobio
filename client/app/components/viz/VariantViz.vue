@@ -314,6 +314,10 @@ export default {
     },
     watch: {
       variants: function(oldVar, newVar) {
+        if (this.model.relationship === 'known-variants') {
+          this.update();
+          return;
+        }
         if(oldVar && oldVar.features && newVar && newVar.features){
           if(! this.isEqual(oldVar.features, newVar.features)){
             this.update();

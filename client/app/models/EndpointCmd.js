@@ -16,7 +16,9 @@ export default class EndpointCmd {
       // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
       // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
-      this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
+      // this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
+      this.api = new Client("mosaic.chpc.utah.edu/gru-dev-9003/", { secure: this.globalApp.useSSL });
+      // todo: SJG change back before PR
     }
 
     // iobio services
@@ -102,6 +104,33 @@ export default class EndpointCmd {
             });
             return cmd;
         }
+    }
+
+    /* Retrieves ClinVar variants from backend to populate ClinVar variants track. Only returns variants with
+     * the ClinSig fields matching those described in the provided clinSigFilterObj argument.
+     * NOTE: this service only available for gru-1.0.0 and later */
+    getClinvarVariants(vcfSource, refName, regions, clinSigFilterPhrase) {
+        const me = this;
+        const refNames = this.getHumanRefNames(refName).split(" ");
+        const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
+        const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+
+        const cmd = this.api.streamCommand('getClinvarVariants', {
+            vcfUrl: vcfSource.vcfUrl,
+            tbiUrl: vcfSource.tbiUrl,
+            refNames,
+            regions,
+            refFastaFile,
+            genomeBuildName,
+            clinSigFilterPhrase
+        });
+
+        cmd.on('error', function(error){
+            let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
+            alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                .setHeader("Non-fatal Error");
+        })
+        return cmd;
     }
 
     annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose) {
