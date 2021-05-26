@@ -16,9 +16,7 @@ export default class EndpointCmd {
       // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
       // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
-      // this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
-      this.api = new Client("mosaic.chpc.utah.edu/gru-dev-9003/", { secure: this.globalApp.useSSL });
-      // todo: SJG change back before PR
+      this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
     }
 
     // iobio services
