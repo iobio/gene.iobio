@@ -2260,7 +2260,7 @@ export default {
         self.showVariantAssessment = false;
         self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
 
-        self.showVariantExtraAnnots(sourceComponent ? sourceComponent.relationship : 'proband', variant);
+        self.showVariantExtraAnnots(sourceRelationship ? sourceRelationship : 'proband', variant);
 
         self.getVariantCardRefs().forEach(function(variantCard) {
           if (sourceComponent === null || variantCard !== sourceComponent) {

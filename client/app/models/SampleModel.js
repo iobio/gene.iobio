@@ -1422,6 +1422,7 @@ class SampleModel {
 
               var theVcfData = data[1];
 
+              // todo: left off thinking maybe give tabix the -0 option to indicate zero based coordinate system?
               if (theVcfData != null && theVcfData.features != null && theVcfData.features.length > 0) {
                 // Now update the hgvs notation on the variant
                 var matchingVariants = theVcfData.features.filter(function(aVariant) {
