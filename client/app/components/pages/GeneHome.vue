@@ -2260,7 +2260,7 @@ export default {
         self.showVariantAssessment = false;
         self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
 
-        self.showVariantExtraAnnots(sourceComponent ? sourceComponent.relationship : 'proband', variant);
+        self.showVariantExtraAnnots(sourceRelationship ? sourceRelationship : 'proband', variant);
 
         self.getVariantCardRefs().forEach(function(variantCard) {
           if (sourceComponent === null || variantCard !== sourceComponent) {
@@ -2439,13 +2439,13 @@ export default {
       }
 
     },
-    onKnownVariantsVizChange: function(viz) {
+    onKnownVariantsVizChange: function(viz, selectedCategories) {
       let self = this;
       if (viz) {
         self.cohortModel.knownVariantsViz = viz;
       }
       if (self.showKnownVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
-        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
+        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, selectedCategories);
       }
     },
     onSfariVariantsVizChange: function(viz) {
@@ -2460,8 +2460,11 @@ export default {
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
       let self = this;
-      self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
-      self.cohortModel.setLoadedVariants(self.selectedGene, 'known-variants');
+      if (self.showKnownVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
+        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, selectedCategories);
+      }
+      // self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
+      // self.cohortModel.setLoadedVariants(self.selectedGene, 'known-variants');
     },
     onSfariVariantsFilterChange: function(selectedCategories) {
         let self = this;
@@ -3180,12 +3183,12 @@ export default {
       self.showCoverageThreshold = showIt;
 
     },
-    onShowKnownVariantsCard: function(showIt) {
+    onShowKnownVariantsCard: function(showIt, selectedCategories) {
       let self = this;
       self.showKnownVariantsCard = showIt;
       self.setNonProbandModels();
       if (self.showKnownVariantsCard) {
-        self.onKnownVariantsVizChange();
+        self.onKnownVariantsVizChange(showIt, selectedCategories);
       }
     },
     onShowSfariVariantsCard: function(showIt) {

@@ -854,11 +854,10 @@ export default {
         self.$refs.depthVizRef.showCurrentPoint({pos: variant.start, depth: theDepth, altCount: theAltCount});
       }
 
-
     },
-    onKnownVariantsVizChange: function(viz) {
+    onKnownVariantsVizChange: function(viz, selectedCategories) {
       this.knownVariantsViz = viz;
-      this.$emit("known-variants-viz-change", viz);
+      this.$emit("known-variants-viz-change", viz, selectedCategories);
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
       this.$emit("known-variants-filter-change", selectedCategories);
