@@ -13,11 +13,14 @@ class GeneModel {
     this.NCBI_PUBMED_SEARCH_URL    = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&usehistory=y&retmode=json";
     this.NCBI_PUBMED_SUMMARY_URL   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
     
+    this.ENSEMBL_GENE_URL          = "https://rest.ensembl.org/xrefs/symbol/homo_sapiens/GENESYMBOL?content-type=application/json"
+
     this.OMIM_URL                  = "https://api.omim.org/api/";
     this.warnedMissingOMIMApiKey   = false;
 
     this.linkTemplates = {
         omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
+        opentargets:{ display: 'Open Targets',      url: 'https://platform.opentargets.org/target/ENSEMBL-GENE-ID/associations/'},
         humanmine: { display: 'HumanMine', url: 'http://www.humanmine.org/humanmine/keywordSearchResults.do?searchTerm=+GENESYMBOL&searchSubmit=GO'},
         ncbi:      { display: 'NCBI',      url: 'https://www.ncbi.nlm.nih.gov/gene/GENEUID'},
         pubmed:    { display: 'PubMed',    url: 'https://pubmed.ncbi.nlm.nih.gov/?from_uid=GENEUID&linkname=gene_pubmed'},
@@ -27,8 +30,8 @@ class GeneModel {
         uniprot:   { display: 'UniProt',   url: 'http://www.uniprot.org/uniprot/?query=gene:GENESYMBOL AND organism:"Homo sapiens (Human) [9606]"'},
         gtex:      { display: 'GTex',      url: 'https://www.gtexportal.org/home/gene/GENESYMBOL'},
         humanproteinatlas:
-                   { display: 'Human Protein Atlas', url: 'https://www.proteinatlas.org/search/gene_name:GENESYMBOL'},
-        ucsc:      { display: 'UCSC Browser', url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=GENECOORD'}
+                    { display: 'Human Protein Atlas', url: 'https://www.proteinatlas.org/search/gene_name:GENESYMBOL'},
+        ucsc:       { display: 'UCSC Browser',        url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=GENECOORD'},
     }
 
     this.variantLinkTemplates = {
@@ -62,6 +65,7 @@ class GeneModel {
     this.genePhenotypes = {};
     this.geneObjects = {};
     this.geneToLatestTranscript = {};
+    this.geneToEnsemblId = {};
 
 
     this.allKnownGenes = [];
@@ -1179,8 +1183,11 @@ class GeneModel {
     if (self.geneDangerSummaries && self.geneDangerSummaries.hasOwnProperty(geneName)) {
       delete self.geneDangerSummaries[geneName];
     }
-      if (self.genePhenotypes && self.genePhenotypes.hasOwnProperty(geneName)) {
+    if (self.genePhenotypes && self.genePhenotypes.hasOwnProperty(geneName)) {
       delete self.genePhenotypes[geneName];
+    }
+    if (self.geneToEnsemblId && self.geneToEnsemblId.hasOwnProperty(geneName)) {
+      delete self.geneToEnsemblId[geneName];
     }
 
     if (self.geneObjects && self.geneObjects.hasOwnProperty(geneName)) {
@@ -1202,6 +1209,38 @@ class GeneModel {
     if (self.geneClinvarPhenotypes && self.geneClinvarPhenotypes.hasOwnProperty(geneName)) {
       delete self.geneClinvarPhenotypes[geneName];
     }
+  }
+
+  promiseGetGeneEnsemblId(geneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let ensemblGeneId = self.geneToEnsemblId[geneName]
+      if (ensemblGeneId) {
+        resolve({geneName: geneName, ensemblGeneId: ensemblGeneId});
+      } else {
+        let url = self.ENSEMBL_GENE_URL
+        url = url.replace(/GENESYMBOL/g, geneName );
+        $.ajax( url )
+          .done(function(data) {
+            if (data && Array.isArray(data)) {
+              data.forEach(function(entry) {
+                if (ensemblGeneId == null && entry.type == "gene" && entry.id.startsWith("ENSG")) {
+                  ensemblGeneId = entry.id;
+                }
+              })
+              self.geneToEnsemblId[geneName] = ensemblGeneId;
+              resolve({geneName: geneName, ensemblGeneId: ensemblGeneId});
+            }
+          })
+          .fail(function(error) {
+              let msg = "Unable to get ensembl gene id " + url;
+              console.log(msg);
+              console.log(error)
+              reject(msg + '. Error: ' + error);
+          })
+
+      }
+    })
   }
 
   promiseGetGenePhenotypes(geneName) {
@@ -1456,35 +1495,42 @@ class GeneModel {
       if (geneObject) {
         geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
       }
-      me.promiseGetNCBIGeneSummary(geneName)
+      let ensemblGeneId = null
+      me.promiseGetGeneEnsemblId(geneName)
+      .then(function(data) {
+        ensemblGeneId = data.ensemblGeneId
+        return me.promiseGetNCBIGeneSummary(geneName)
+      })
       .then(function() {
-        var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
+          var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
 
-        var geneUID = null;
-        var ncbiInfo = me.geneNCBISummaries[geneName];
-        if (ncbiInfo) {
-          geneUID = ncbiInfo.uid;
-        }
-        for (var linkName in me.linkTemplates) {
-          var theLink = $.extend({}, me.linkTemplates[linkName]);
-          theLink.name = linkName;
-          if (geneUID) {
-            theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
+          var geneUID = null;
+          var ncbiInfo = me.geneNCBISummaries[geneName];
+          if (ncbiInfo) {
+            geneUID = ncbiInfo.uid;
           }
-          if (geneObject) {
-            theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
-          }
-          if (geneCoord) {
-            theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
-          }
-          if (buildAliasUCSC) {
-            theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
-          }
-          links.push(theLink);
-        }
-        resolve(links)
+          for (var linkName in me.linkTemplates) {
+            var theLink = $.extend({}, me.linkTemplates[linkName]);
+            theLink.name = linkName;
+            if (geneUID) {
+              theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
+            }
+            if (geneObject) {
+              theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
+            }
+            if (geneCoord) {
+              theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
+            }
+            if (buildAliasUCSC) {
+              theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
+            }
+            if (ensemblGeneId) {
+              theLink.url = theLink.url.replace(/ENSEMBL-GENE-ID/g, ensemblGeneId);
+            }
 
-
+            links.push(theLink);
+          }
+          resolve(links)
       })
       .catch(function(error) {
         reject(error)
