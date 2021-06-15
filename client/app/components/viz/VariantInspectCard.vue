@@ -622,10 +622,6 @@
       <div class="variant-inspect-column" v-if="selectedVariant">
           <div class="variant-column-header">
               Population Frequency
-            <info-popup v-if="!isSimpleMode" :name="afGnomAD.infoPopup" 
-            :extraInfo1="afGnomAD.extraInfo1"
-            :extraInfo2="afGnomAD.extraInfo2"></info-popup>
-            <v-divider></v-divider>
           </div>
           <div class="variant-column-hint" v-if="isSimpleMode">
             Common variants typically don’t cause diseases.
@@ -653,6 +649,11 @@
           <div v-if="!isSimpleMode && afGnomAD.homCount > 0"  class="variant-row no-icon">
             <span>{{ afGnomAD.homCount }} homozygotes</span>
           </div>
+
+          <variant-af-pop-menu 
+              v-if="!isSimpleMode && selectedVariant.hasOwnProperty('gnomAD') && selectedVariant.gnomAD.hasOwnProperty('pop') && selectedVariant.gnomAD.af != '.'" 
+              :selectedVariant="selectedVariant">
+          </variant-af-pop-menu>
           
           <div v-if="!isSimpleMode && afGnomAD.hasOwnProperty('percentExomes')" 
           style="margin-top: 0px"  class="variant-column-subheader" >
@@ -785,6 +786,7 @@ import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
 import VariantInspectInheritanceRow from "../partials/VariantInspectInheritanceRow.vue"
 import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
 import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
+import VariantAfPopMenu         from "../partials/VariantAfPopMenu.vue"
 import InfoPopup                from "../partials/InfoPopup.vue"
 import ToggleButton             from '../partials/ToggleButton.vue'
 import DepthViz                 from "../viz/DepthViz.vue"
@@ -805,6 +807,7 @@ export default {
   components: {
     AppIcon,
     InfoPopup,
+    VariantAfPopMenu,
     VariantLinksMenu,
     VariantAliasesMenu,
     VariantInspectRow,
@@ -816,7 +819,8 @@ export default {
     ToggleButton,
     ConservationScoresViz,
     MultialignSeqViz,
-    GeneAssociationsDialog
+    GeneAssociationsDialog,
+
   },
   props: {
     selectedGene: null,
