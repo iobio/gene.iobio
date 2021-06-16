@@ -144,7 +144,7 @@ export default {
             },
             'filterAf': {
                 title: 'Filtering variants by allele frequency',
-                description: 'Use the <strong><em>max population allele frequency</em></strong> from gnomAD to filter variants. This is  the highest allele frequency observed in any population and is a more restrictive filter than the overall allele frequency. <br><br>When available, the max population frequency will be determined from <strong><em>gnomAD genomes</em></strong>. Otherwise, the max population frequency will be determined from gnomAD exomes.',
+                description: 'For GRCh37, filter variants using the gnomAD 2.1.1 genomes max population allele frequency (the maximum frequency in any subpopulation). For GRCh38, filter variants using gnomAD 3.1.1 genomes max population allele frequency (the maximum frequency in any subpopulation).',
                 publication: 'gnomAD site',
                 publicationUrl: 'https://gnomad.broadinstitute.org/'
 
