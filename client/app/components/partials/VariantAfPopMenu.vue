@@ -31,14 +31,14 @@
       padding-right: 3px
 .gnomad-pop-entry-label
    display: inline-block
-   width: 50px
+   width: 40px
    color: $app-color
    font-size: 13px
 
 .gnomad-pop-entry-value
     display: inline-block
     margin-left: 5px
-    width: 80px
+    width: 40px
     font-size: 13px
 
 </style>
