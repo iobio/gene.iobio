@@ -126,11 +126,11 @@
         height: 48px
 
       .variant-column-subheader
-        font-size: 13px
-        font-style: italic
+        font-size: 12px
+        font-weight: 500
+        font-style: normal
         margin-bottom: 5px
         color: $app-color
-        margin-top: -5px
     
       .variant-column-loading
         font-size: 12px
@@ -622,6 +622,7 @@
       <div class="variant-inspect-column" v-if="selectedVariant">
           <div class="variant-column-header">
               Population Frequency
+              <v-divider></v-divider>
           </div>
           <div class="variant-column-hint" v-if="isSimpleMode">
             Common variants typically don’t cause diseases.
