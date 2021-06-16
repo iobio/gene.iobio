@@ -14,7 +14,7 @@ class GeneModel {
     this.NCBI_PUBMED_SUMMARY_URL   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
     
     this.ENSEMBL_GENE_URL          = "https://rest.ensembl.org/xrefs/symbol/homo_sapiens/GENESYMBOL?content-type=application/json"
-
+    this.ENSEMBL_LOOKUP_BY_ID      = "https://rest.ensembl.org/xrefs/id/ENSEMBL-GENE-ID?content-type=application/json"
     this.OMIM_URL                  = "https://api.omim.org/api/";
     this.warnedMissingOMIMApiKey   = false;
 
@@ -1211,6 +1211,7 @@ class GeneModel {
     }
   }
 
+
   promiseGetGeneEnsemblId(geneName) {
     let self = this;
     return new Promise(function(resolve, reject) {
@@ -1223,13 +1224,34 @@ class GeneModel {
         $.ajax( url )
           .done(function(data) {
             if (data && Array.isArray(data)) {
+              let ensemblIds = []
               data.forEach(function(entry) {
                 if (ensemblGeneId == null && entry.type == "gene" && entry.id.startsWith("ENSG")) {
-                  ensemblGeneId = entry.id;
+                  ensemblIds.push(entry.id);
                 }
               })
-              self.geneToEnsemblId[geneName] = ensemblGeneId;
-              resolve({geneName: geneName, ensemblGeneId: ensemblGeneId});
+              let lookupPromises = []
+              let matchingEnsemblGeneId = null
+              ensemblIds.forEach(function(id) {
+                let p = self._promiseLookupEnsemblGene(id)
+                .then(function(data) {
+                  if (data.geneName == geneName) {
+                    matchingEnsemblGeneId = data.ensembleGeneId
+                  }
+                })
+                lookupPromises.push(p)
+              })
+              Promise.all(lookupPromises).then(function() {
+                if (matchingEnsemblGeneId) {
+                  self.geneToEnsemblId[geneName] = matchingEnsemblGeneId;
+                  resolve({geneName: geneName, ensemblGeneId: matchingEnsemblGeneId});                  
+                } else {
+                  let msg = "Unable to find ensembl gene id that matches gene name " + geneName;
+                  console.log(msg);
+                  console.log(error)
+                  reject(msg + '. Error: ' + error);
+                }
+              })
             }
           })
           .fail(function(error) {
@@ -1242,6 +1264,43 @@ class GeneModel {
       }
     })
   }
+
+
+  _promiseLookupEnsemblGene(id) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let ensemblGeneId = id
+      let url = self.ENSEMBL_LOOKUP_BY_ID
+      url = url.replace(/ENSEMBL-GENE-ID/g, id );
+      $.ajax( url )
+      .done(function(data) {
+        if (data && Array.isArray(data)) {
+          let matchedEntry = null;
+          data.forEach(function(entry) {
+            if (entry.dbname ==  'EntrezGene') {
+              matchedEntry = entry;
+            }
+          })
+          if (matchedEntry) {
+            resolve({'ensembleGeneId': ensemblGeneId, 'geneName': matchedEntry.display_id })
+          } else {
+            resolve(null)
+          }
+        } else {
+          let msg  = "No data returned from _promiseLookupEnsemblGene " + url
+          console.log(msg);
+          console.log(error)
+          reject(msg + '. Error: ' + error);
+        }
+      })
+      .fail(function(error) {
+            let msg = "Unable to get lookup by ensembl gene id " + url;
+            console.log(msg);
+            console.log(error)
+            reject(msg + '. Error: ' + error);
+      })
+    })
+  }  
 
   promiseGetGenePhenotypes(geneName) {
     var me = this;
