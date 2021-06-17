@@ -74,44 +74,86 @@ export default function vcfiobio(theGlobalApp) {
 
   
   var GNOMAD_TAGS = {
-    'AF':          'af',
-    'AC':          'altCount',
-    'AN':          'totalCount',
-    'nhomalt_raw': 'homCount',
-    //'nhomalt-raw': 'homCount',
-    'AF_popmax':   'afPopMax',
+    'GRCh37': {
+      'AF':          'af',
+      'AC':          'altCount',
+      'AN':          'totalCount',
+      'nhomalt_raw': 'homCount',
+      //'nhomalt-raw': 'homCount',
+      'AF_popmax':   'afPopMax',
 
-    'AF_fin': ['pop', 'fin', 'af'],
-    'AC_fin': ['pop', 'fin', 'altCount'],
-    'AN_fin': ['pop', 'fin', 'totalCount'],
+      'AF_fin': ['pop', 'fin', 'af'],
+      'AC_fin': ['pop', 'fin', 'altCount'],
+      'AN_fin': ['pop', 'fin', 'totalCount'],
 
-    'AF_nfe': ['pop', 'nfe', 'af'],
-    'AC_nfe': ['pop', 'nfe', 'altCount'],
-    'AN_nfe': ['pop', 'nfe', 'totalCount'],
+      'AF_nfe': ['pop', 'nfe', 'af'],
+      'AC_nfe': ['pop', 'nfe', 'altCount'],
+      'AN_nfe': ['pop', 'nfe', 'totalCount'],
 
-    'AF_oth': ['pop', 'oth', 'af'],
-    'AC_oth': ['pop', 'oth', 'altCount'],
-    'AN_oth': ['pop', 'oth', 'totalCount'],
+      'AF_oth': ['pop', 'oth', 'af'],
+      'AC_oth': ['pop', 'oth', 'altCount'],
+      'AN_oth': ['pop', 'oth', 'totalCount'],
 
-    'AF_amr': ['pop', 'amr', 'af'],
-    'AC_amr': ['pop', 'amr', 'altCount'],
-    'AN_amr': ['pop', 'amr', 'totalCount'],
+      'AF_amr': ['pop', 'amr', 'af'],
+      'AC_amr': ['pop', 'amr', 'altCount'],
+      'AN_amr': ['pop', 'amr', 'totalCount'],
 
-    'AF_afr': ['pop', 'afr', 'af'],
-    'AC_afr': ['pop', 'afr', 'altCount'],
-    'AN_afr': ['pop', 'afr', 'totalCount'],
+      'AF_afr': ['pop', 'afr', 'af'],
+      'AC_afr': ['pop', 'afr', 'altCount'],
+      'AN_afr': ['pop', 'afr', 'totalCount'],
 
-    'AF_asj': ['pop', 'asj', 'af'],
-    'AC_asj': ['pop', 'asj', 'altCount'],
-    'AN_asj': ['pop', 'asj', 'totalCount'],
+      'AF_asj': ['pop', 'asj', 'af'],
+      'AC_asj': ['pop', 'asj', 'altCount'],
+      'AN_asj': ['pop', 'asj', 'totalCount'],
 
-    'AF_eas': ['pop', 'eas', 'af'],
-    'AC_eas': ['pop', 'eas', 'altCount'],
-    'AN_eas': ['pop', 'eas', 'totalCount'],
+      'AF_eas': ['pop', 'eas', 'af'],
+      'AC_eas': ['pop', 'eas', 'altCount'],
+      'AN_eas': ['pop', 'eas', 'totalCount'],
 
-    'AF_sas': ['pop', 'sas', 'af'],
-    'AC_sas': ['pop', 'sas', 'altCount'],
-    'AN_sas': ['pop', 'sas', 'totalCount'],
+      'AF_sas': ['pop', 'sas', 'af'],
+      'AC_sas': ['pop', 'sas', 'altCount'],
+      'AN_sas': ['pop', 'sas', 'totalCount'],
+    },
+  'GRCh38':       {
+      'AF':          'af',
+      'AC':          'altCount',
+      'AN':          'totalCount',
+      'nhomalt_raw': 'homCount',
+      //'nhomalt-raw': 'homCount',
+      'AF_popmax':   'afPopMax',
+
+      'AF-fin': ['pop', 'fin', 'af'],
+      'AC-fin': ['pop', 'fin', 'altCount'],
+      'AN-fin': ['pop', 'fin', 'totalCount'],
+
+      'AF-nfe': ['pop', 'nfe', 'af'],
+      'AC-nfe': ['pop', 'nfe', 'altCount'],
+      'AN-nfe': ['pop', 'nfe', 'totalCount'],
+
+      'AF-oth': ['pop', 'oth', 'af'],
+      'AC-oth': ['pop', 'oth', 'altCount'],
+      'AN-oth': ['pop', 'oth', 'totalCount'],
+
+      'AF-amr': ['pop', 'amr', 'af'],
+      'AC-amr': ['pop', 'amr', 'altCount'],
+      'AN-amr': ['pop', 'amr', 'totalCount'],
+
+      'AF-afr': ['pop', 'afr', 'af'],
+      'AC-afr': ['pop', 'afr', 'altCount'],
+      'AN-afr': ['pop', 'afr', 'totalCount'],
+
+      'AF-asj': ['pop', 'asj', 'af'],
+      'AC-asj': ['pop', 'asj', 'altCount'],
+      'AN_asj': ['pop', 'asj', 'totalCount'],
+
+      'AF-eas': ['pop', 'eas', 'af'],
+      'AC-eas': ['pop', 'eas', 'altCount'],
+      'AN_eas': ['pop', 'eas', 'totalCount'],
+
+      'AF-sas': ['pop', 'sas', 'af'],
+      'AC-sas': ['pop', 'sas', 'altCount'],
+      'AN-sas': ['pop', 'sas', 'totalCount'],
+    }
   }
 
 
@@ -2373,7 +2415,7 @@ exports._parseGnomADAnnot = function(annotTokens, annot) {
     var annotTag   = tagValue[0];
     var annotValue = tagValue[1];
 
-    var gnomADTag         = GNOMAD_TAGS[annotTag];
+    var gnomADTag         = GNOMAD_TAGS[genomeBuildHelper.getCurrentBuildName()][annotTag];
     if (gnomADTag && annotValue) {
       if (Array.isArray(gnomADTag)) {
         var idx = 0
