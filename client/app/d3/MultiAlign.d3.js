@@ -45,7 +45,10 @@ export default function MultiAlignD3() {
       container.select("g.marker text")
                .attr("text-anchor", "middle")
                .text(function() {
-                  if (d.variant.ref.length + d.variant.alt.length < 20) {
+                  // This will take into consideration reverse strand, showing the complement
+                  if (d.variant.refAlt && (d.variant.refAlt.ref.length + d.variant.refAlt.alt.length) < 20) {
+                    return d.variant.refAlt.ref + "->" + d.variant.refAlt.alt;
+                  } else if (d.variant.ref.length + d.variant.alt.length < 20) {
                     return d.variant.ref + "->" + d.variant.alt;
                   } else {
                     return "";

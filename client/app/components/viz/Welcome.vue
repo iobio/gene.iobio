@@ -551,11 +551,11 @@ $light-gray-color:   #f0f1f3
                   START NEW ANALYSIS
                 </v-btn>
                   <v-btn v-if="!resume" class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
-                  <i class="material-icons">explore</i>
+                  <v-icon>model_training</v-icon>
                   RUN WITH DEMO DATA
                 </v-btn>
                 <v-btn v-if="!resume" class="welcome-button"  id="uploadData"  @click="onUploadFiles">
-                  <i class="material-icons">publish</i>
+                  <v-icon>cloud_upload</v-icon>
                   LOAD YOUR DATA
                 </v-btn>
                 <v-btn v-if="!resume"  class="welcome-button"  @click="playVideo('screencast-intro')">
@@ -930,11 +930,12 @@ $light-gray-color:   #f0f1f3
 
 <script>
 
-
+import AppIcon                    from '../partials/AppIcon.vue'
 
 export default {
   name: 'welcome',
   components: {
+    AppIcon
   },
   props: {
     resume: null,
@@ -1079,6 +1080,7 @@ export default {
 
     onLoadDemoData: function() {
       this.$emit("load-demo-data");
+      this.$ga.event('data_type', 'Demo Data', 'Files demo dataset');
     },
     onUploadFiles: function(){
       this.$emit("upload-files");

@@ -314,6 +314,10 @@ export default {
     },
     watch: {
       variants: function(oldVar, newVar) {
+        if (this.model.relationship === 'known-variants') {
+          this.update();
+          return;
+        }
         if(oldVar && oldVar.features && newVar && newVar.features){
           if(! this.isEqual(oldVar.features, newVar.features)){
             this.update();
@@ -327,9 +331,6 @@ export default {
         }
         else{
           this.variants = this.data;
-        }
-        if(this.model.relationship === this.selectedVariantRelationship) {
-          this.onVariantClick(this.selectedVariant);
         }
       },
 

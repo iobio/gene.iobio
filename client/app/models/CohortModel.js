@@ -53,10 +53,29 @@ class CohortModel {
 
 
     this.demoVcf = {
+      'exome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh38.vcf.gz",
+      'genome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_genomes_GRCh38.vcf.gz"
+    }
+    this.demoBams = {
+      'exome': {
+        'proband': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12878.cram',
+        'mother':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12892.cram',
+        'father':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12891.cram',
+        'sibling': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12877.cram'
+      },
+      'genome': {
+        'proband': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12878.cram',
+        'mother':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12892.cram',
+        'father':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12891.cram'
+      }
+    }
+
+
+    this.demoVcf37 = {
       'exome': "https://s3.amazonaws.com/iobio/samples/vcf/platinum-exome.vcf.gz",
       'genome': "https://s3.amazonaws.com/iobio/gene/wgs_platinum/platinum-trio.vcf.gz"
     }
-    this.demoBams = {
+    this.demoBams37 = {
       'exome': {
         'proband': 'https://s3.amazonaws.com/iobio/samples/bam/NA12878.exome.bam',
         'mother':  'https://s3.amazonaws.com/iobio/samples/bam/NA12892.exome.bam',
@@ -71,20 +90,21 @@ class CohortModel {
     }
 
 
-    this.demoGenes = ['RAI1', 'MYLK2', 'PDHA1', 'PDGFB', 'AIRE'];
+
+    this.demoGenes = ['RAI1', 'SCN8A', 'SMARCA2', 'PDHA1', 'PLXNA1', 'ARHGAP8'];
 
 
     this.demoModelInfos = {
       'exome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['proband'], 'bai': this.demoBams.exome['proband'] + '.bai' },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['mother'], 'bai': this.demoBams.exome['mother'] + '.bai'  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['father'], 'bai': this.demoBams.exome['father'] + '.bai' },
-        {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['sibling'], 'bai': this.demoBams.exome['sibling'] + '.bai' },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['proband'], 'crai': this.demoBams.exome['proband'] + '.crai' },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['mother'], 'crai': this.demoBams.exome['mother'] + '.crai'  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['father'], 'crai': this.demoBams.exome['father'] + '.crai' },
+        {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['sibling'], 'crai': this.demoBams.exome['sibling'] + '.crai' },
       ],
       'genome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['proband'], 'bai': this.demoBams.genome['proband'] + '.bai'  },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['mother'],  'bai': this.demoBams.genome['mother'] + '.bai'  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',   'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['father'],  'bai': this.demoBams.genome['father'] + '.bai'  },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['proband'], 'crai': this.demoBams.genome['proband'] + '.crai'  },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['mother'],  'crai': this.demoBams.genome['mother'] + '.crai'  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',   'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['father'],  'crai': this.demoBams.genome['father'] + '.crai'  },
       ]
     }
     this.eduTourModelInfos = {
@@ -106,6 +126,9 @@ class CohortModel {
       "2": ['VKORC1']
     };
     this.myGene2GeneNames = ['KDM1A'];
+
+    this.dispatch = d3.dispatch("knownVariantsVizChange");
+    d3.rebind(this, this.dispatch, "on");
   }
 
   promiseInitDemo(demoKind='exome') {
@@ -881,26 +904,33 @@ class CohortModel {
     }
   }
 
-  promiseLoadKnownVariants(theGene, theTranscript) {
+  promiseLoadKnownVariants(theGene, theTranscript, selectedCategories) {
     let self = this;
     if (self.knownVariantsViz == 'variants') {
-      return self._promiseLoadKnownVariants(theGene, theTranscript);
+      return self._promiseLoadKnownVariants(theGene, theTranscript, selectedCategories);
     } else  {
       return self._promiseLoadKnownVariantCounts(theGene, theTranscript);
     }
   }
 
-  _promiseLoadKnownVariants(theGene, theTranscript) {
+  _promiseLoadKnownVariants(theGene, theTranscript, selectedCategories) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      self.getModel('known-variants').inProgress.loadingVariants = true;
-      self.sampleMap['known-variants'].model.promiseAnnotateVariants(theGene, theTranscript, [self.sampleMap['known-variants'].model], {'isMultiSample': false, 'isBackground': false})
-      .then(function(resultMap) {
-        self.getModel('known-variants').inProgress.loadingVariants = false;
-        self.setLoadedVariants(theGene, 'known-variants');
-        resolve(resultMap);
-      })
 
+      self.sampleMap['known-variants'].model.promiseGetKnownVariantHistoData(theGene, theTranscript, null)
+      .then(function(binnedCounts) {
+        let totalPath = 0
+        binnedCounts.forEach(function(counts) {
+          totalPath += counts.path
+        })
+        self.getModel('known-variants').inProgress.loadingVariants = true;
+        self.sampleMap['known-variants'].model.promiseGetClinvarVariants(theGene, theTranscript, self.sampleMap['known-variants'].model, selectedCategories)
+        .then(function(resultMap) {
+          self.getModel('known-variants').inProgress.loadingVariants = false;
+          self.setLoadedVariants(theGene, 'known-variants');
+          resolve(resultMap);
+        })
+      })
     })
   }
 
@@ -2633,6 +2663,7 @@ class CohortModel {
     }
 
     let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
+   
       if (filterObject1.genes.length > 0 && filterObject2.genes.length > 0) {
         return filterObject1.filter.order > filterObject2.filter.order;
       } else if (filterObject1.genes.length > 0) {
@@ -2642,6 +2673,7 @@ class CohortModel {
       } else {
         return filterObject1.filter.order > filterObject2.filter.order;
       }
+   
     })
 
     sortedFilters.forEach(function(filterObject) {

@@ -1,0 +1,39 @@
+{
+"ACMG 59":      {
+	"shortName": "ACMG 59", 
+	"sites": null,
+	"genes": ["BRCA1", "BRCA2", "TP53", "STK11", "MLH1", "MSH2", "MSH6", 
+		 "PMS2", "APC", "MUTYH", "VHL", "MEN1", "RET", "PTEN", "RB1",
+		 "SDHD", "SDHAF2", "SDHC", "SDHB", "TSC1", "TSC2", "WT1", 
+		 "NF2", "COL3A1", "FBN1", "TGFBR1", "TGFBR2", "SMAD3", 
+		 "ACTA2", "MYH11", "MYBPC3", "MYH7", "TNNT2", "TNNI3", "TPM1", 
+		 "MYL3", "ACTC1", "PRKAG2", "GLA", "MYL2", "LMNA", "RYR2", "PKP2", 
+		 "DSP", "DSC2", "TMEM43", "DSG2", "KCNQ1", "KCNH2", "SCN5A", "LDLR", 
+		 "APOB", "PCSK9", "RYR1", "CACNA1S", "ATP7B", "BMPR1A", "SMAD4", "OTC"]
+},
+"Cancer panel (provided by Nebula Genomics)": {
+	"shortName": "Cancer",
+	"sites": null,
+	"genes": ["APC", "ATM", "AXIN2", "BAP1", "BARD1", "BMPR1A", "BRCA1", "BRCA2", 
+		"BRIP1", "CDC73", "CDH1", "CDK4", "CDKN2A", "CHEK2", "DICER1", "EPCAM", 
+		"FH", "FLCN", "GREM1", "HOXB13", "KIT", "MAX", "MEN1", "MET", "MITF", 
+		"MLH1", "MSH2", "MSH3", "MSH6", "MUTYH", "NBN", "NF1", "NF2", "NTHL1", 
+		"PALB2", "PDGFRA", "PMS2", "POLD1", "POLE", "PRKAR1A", "PTCH1", "PTEN", 
+		"RAD51C", "RAD51D", "RB1", "RET", "SDHA", "SDHAF2", "SDHB", "SDHC", "SDHD", 
+		"SMAD4", "SMARCA4", "SMARCB1", "STK11", "TMEM127", "TP53", "TSC1", "TSC2", "VHL", "WT1"]
+},
+"Cardio panel (provided by Nebula Genomics)": {
+	"shortName": "Cardio",
+	"sites": null,
+	"genes": ["ACTA2", "ACTC1", "ACTN2", "ACVRL1", "APOB", "BAG3", "BMPR2",
+		"CACNA1C", "CACNB2", "CALM1", "CALM2", "CALM3", "CASQ2", "CAV1", 
+		"CAV3", "COL3A1", "CRYAB", "CSRP3", "DES", "DMD", "DSC2", "DSG2", "DSP", 
+		"EMD", "ENG", "F2", "F5", "F9", "FBN1", "FHL1", "FLNC", "GDF2", "GLA", 
+		"GPD1L", "HCN4", "JUP", "KCNE1", "KCNE2", "KCNH2", "KCNJ2", "KCNQ1", 
+		"LAMP2", "LDLR", "LDLRAP1", "LMNA", "MYBPC3", "MYH11", "MYH7", 
+		"MYL2", "MYL3", "MYLK", "NKX2-5", "PCSK9", "PKP2", "PLN", "PRKAG2", "PRKG1", 
+		"PROC", "PROS1", "RBM20", "RYR2", "SCN5A", "SERPINC1", "SGCD", "SMAD3", 
+		"SMAD4", "TCAP", "TGFB2", "TGFB3", "TGFBR1", "TGFBR2", "TMEM43", "TNNC1", 
+		"TNNI3", "TNNT2", "TPM1", "VCL" ]
+}
+}

@@ -1,7 +1,7 @@
 IOBIO_BACKEND=backend.iobio.io
 IOBIO_BACKEND_MOSAIC=mosaic.chpc.utah.edu/gru/api/v1
 SHOW_BLOGS_AND_TUTORIALS=false
-PHENOLYZER_PERMITTED=false
+PHENOLYZER_PERMITTED=true
 SITE_NAME=Nebula Genomics
 SHOW_INTRO=true
 DEFAULT_MODE=simple

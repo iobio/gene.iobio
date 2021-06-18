@@ -133,7 +133,6 @@
         >
         </v-select>
       </div>
-
     </div>
 </template>
 
@@ -144,6 +143,7 @@ export default {
   components: {
   },
   props: {
+    forceViz: null
   },
   data () {
     return {
@@ -155,22 +155,35 @@ export default {
       categories: [
         {'key': 'clinvar', 'selected': true,  value: 'clinvar_path',   text: 'Pathogenic' },
         {'key': 'clinvar', 'selected': true,  value: 'clinvar_lpath',  text: 'Likely pathogenic' },
-        {'key': 'clinvar', 'selected': true,  value: 'clinvar_uc',     text: 'Uncertain significance' },
-        {'key': 'clinvar', 'selected': true,  value: 'clinvar_cd',     text: 'Conflicting data'},
+        {'key': 'clinvar', 'selected': false,  value: 'clinvar_uc',     text: 'Uncertain significance' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_lbenign',text: 'Likely benign' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_benign', text: 'Benign' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_affects', text: 'Affects', description: 'For variants that cause a non-disease phenotype, such as lactose intolerance' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_assoc', text: 'Association', description: 'For variants identified in a GWAS study and further interpreted for their clinical significance' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_no_assoc', text: 'Association not found' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_confers_sens', text: 'Confers sensitivity' },
+        {'key': 'clinvar', 'selected': false,  value: 'clinvar_cd',     text: 'Conflicting interpretations', description: 'Only for submissions from a consortium, where groups within the consortium have conflicting intepretations of a variant but provide a single submission to ClinVar' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_drug_resp', text: 'Drug response', description: 'A general term for a variant that affects a drug response, not a disease' },
         {'key': 'clinvar', 'selected': false, value: 'clinvar_other',  text: 'Other' },
-        {'key': 'clinvar', 'selected': false, value: 'clinvar_benign', text: 'Benign'},
-        {'key': 'clinvar', 'selected': false, value: 'clinvar_lbenign',text: 'Likely benign' }
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_not_provided', text: 'Not provided' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_protective', text: 'Protective', description: 'For variants that decrease the risk of a disorder, including infections' },
+        {'key': 'clinvar', 'selected': false, value: 'clinvar_risk_factor', text: 'Risk factor', description: 'For variants that are interpreted not to cause a disorder but to increase the risk' },
       ],
       selectedCategories: ['clinvar_path', 'clinvar_lpath']
-
     }
   },
   watch: {
     viz: function() {
-      this.$emit("knownVariantsVizChange", this.viz);
+      this.$emit("knownVariantsVizChange", this.viz, this.selectedCategories);
     },
     selectedCategories: function() {
       this.$emit("knownVariantsFilterChange", this.selectedCategories);
+    },
+    forceViz: function(newViz) {
+      let self = this;
+      if (newViz && self.viz != newViz) {
+        self.viz = newViz
+      }
     }
 
   },

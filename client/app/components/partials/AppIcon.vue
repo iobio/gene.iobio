@@ -19,6 +19,9 @@
 .level-insignificant, .level-unremarkable
   fill: #cfcdcd 
 
+.level-blank
+  fill: white
+
 .level-low
   fill: $level-low-color
 
@@ -302,8 +305,46 @@
           c-0.6,0.7-1.4,1.3-2.4,2C8.8,3.8,8,3.2,7.4,2.5z M9.7,7.5c0.9,0.6,1.7,1.2,2.2,1.8l-4.5,0C8,8.7,8.8,8.2,9.7,7.5z"/>
         </svg>
 
-      <svg v-if="icon == 'fileupload'" id="file-upload-symbol" viewBox="0 0 24 24">
+      <svg v-if="icon == 'new_filter'" id="new-filter-symbol" viewBox="0 0 24 24">
+        <g>
+          <path style="fill:none;" d="M0,0h24 M24,24H0"/>
+          <path d="M1.2,4.6C3.3,7.2,7,12,7,12v6c0,0.5,0.4,1,1,1h2c0.6,0,1-0.5,1-1v-6c0,0,3.7-4.8,5.7-7.4C17.2,3.9,16.8,3,16,3H2
+            C1.2,3,0.7,3.9,1.2,4.6z"/>
+          <path style="fill:none;" d="M0,0h24v24H0V0z"/>
+        </g>
+        <polygon points="19,17 19,13 17,13 17,17 13,17 13,19 17,19 17,23 19,23 19,19 23,19 23,17 "/>
+      </svg>
+
+      <svg v-if="icon == 'edit_filter'" id="edit-filter-symbol" viewBox="0 0 24 24">
+        <g>
+          <path style="fill:none;" d="M0,0h24 M24,24H0"/>
+          <path d="M1.2,4.6C3.3,7.2,7,12,7,12v6c0,0.5,0.4,1,1,1h2c0.6,0,1-0.5,1-1v-6c0,0,3.7-4.8,5.7-7.4C17.2,3.9,16.8,3,16,3H2
+            C1.2,3,0.7,3.9,1.2,4.6z"/>
+          <path style="fill:none;" d="M0,0h24v24H0V0z"/>
+        </g>
+        <path d="M22.2,13.9L21,12.8c-0.6-0.6-1.5-0.6-2.1,0L13.6,18v3.3h3.3l5.3-5.3C22.8,15.4,22.8,14.5,22.2,13.9z M16.2,19.8h-1v-1
+  l3.4-3.4l1,1L16.2,19.8z"/>
+      </svg>
+
+
+      <svg v-if="icon == 'fileupload_simple'" id="file-upload-symbol" viewBox="0 0 24 24">
         <path d="M5,17.4v2h14v-2H5z M5,10h4v6h6v-6h4l-7-7L5,10z"/>
+      </svg>
+
+      <svg v-if="icon == 'fileupload'" id="file-upload-symbol" viewBox="0 0 24 24">
+      <g>
+       <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+        </g>
+      </svg>
+
+      <svg v-if="icon == 'export'" id='file-export-symbol' viewBox="0 0 24 24">
+        <path style="fill:none !important" d="M0,0h24v24H0V0z"/>
+        <path d="M4.2,14.4l7.7,6.4l7.9-6.3l-5.9,0l0.1-11.1l-3.9,0l-0.1,11.1L4.2,14.4z"/>
+      </svg>
+
+      <svg v-if="icon == 'import'" id='file-import-symbol' viewBox="0 0 24 24">
+        <path style="fill:none" d="M0,0h24v24H0V0z"/>
+        <path d="M19.8,9.1l-7.7-6.4L4.2,8.9L10,9L9.9,20.1l3.9,0L14,9L19.8,9.1z"/>
       </svg>
 
 

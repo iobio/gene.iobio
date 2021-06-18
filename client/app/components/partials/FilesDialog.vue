@@ -315,7 +315,8 @@ export default {
       possibleSibs: null,
       affectedSibs: null,
       unaffectedSibs: null,
-      inProgress: false
+      inProgress: false,
+      isDemo: false
     }
   },
   watch: {
@@ -371,33 +372,6 @@ export default {
     }
   },
   methods: {
-    checkIndexFilesMatch: function(sms){
-      let self = this;
-      for(let i = 0; i < sms.length; i++) {
-        if (sms[i].bam) {
-          if (sms[i].bam.baiUri && sms[i].bam.baiUri !== sms[i].bam.bamUri + ".bai") {
-            self.errorTitle = "Bam index warning";
-            let errorMsg = "The bam index file path does not match the bam file path " + sms[i].bam.bamUri;
-            self.errorMsgArray.push(errorMsg);
-            self.warningOpen = true;
-            self.areAnyDuplicates = true;
-            self.loadReady = false;
-          }
-        }
-        for (let i = 0; i < sms.length; i++) {
-          let vcfUrl = sms[i].vcf.getVcfURL();
-          let tbiUrl = sms[i].vcf.getTbiURL();
-          if (tbiUrl && tbiUrl !== vcfUrl + ".tbi") {
-            self.errorTitle = "Vcf index warning";
-            let errorMsg = "The vcf index file path does not match the vcf file path " + vcfUrl;
-            self.errorMsgArray.push(errorMsg);
-            self.warningOpen = true;
-            self.areAnyDuplicates = true;
-            self.loadReady = false;
-          }
-        }
-      }
-    },
     checkValidExtensions: function(sms){
       let self = this;
       for(let i = 0; i < sms.length; i++){
@@ -412,7 +386,9 @@ export default {
             tbiUrl = sms[i].vcf.getTbiURL();
           }
 
-          if (bamUrl && bamUrl.split('.').pop() !== "bam") {
+          if (bamUrl 
+              && bamUrl.split('.').pop() !== "bam" 
+              && bamUrl.split('.').pop() !== "cram") {
             self.errorTitle = "Bam file extension warning";
             let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
             self.errorMsgArray.push(errorMsg);
@@ -420,7 +396,9 @@ export default {
             self.areAnyDuplicates = true;
             self.loadReady = false;
           }
-          if (baiUrl && baiUrl.split('.').pop() !== "bai") {
+          if (baiUrl 
+            && baiUrl.split('.').pop() !== "bai" 
+            && baiUrl.split('.').pop() !== "crai") {
             self.errorTitle = "Bam index file extension warning";
             let errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
             self.errorMsgArray.push(errorMsg);
@@ -482,7 +460,12 @@ export default {
 
     onLoad: function() {
       let self = this;
-
+      if(self.isDemo) {
+        self.$ga.event('data_type', 'Demo Data', 'Files demo dataset');
+      }
+      else {
+        self.$ga.event('data_type', 'Custom Data', 'Custom dataset');
+      }
       self.cohortModel.mode = self.mode;
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
@@ -492,7 +475,6 @@ export default {
       self.loadReady = true;
       self.errorMsgArray = [];
       self.checkForDuplicates(sms);
-      self.checkIndexFilesMatch(sms);
       self.checkValidExtensions(sms);
 
       if(self.errorMsgArray.length > 1){
@@ -558,6 +540,7 @@ export default {
     onLoadDemoData: function() {
       let self = this;
       this.$emit('isDemo', true);
+      self.isDemo = true;
       
       self.buildName = self.cohortModel.genomeBuildHelper.getCurrentBuildName();
 

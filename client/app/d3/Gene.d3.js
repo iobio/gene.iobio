@@ -270,7 +270,7 @@ export default function geneD3() {
                     .style("pointer-events", "none");
 
 
-        transcript.selectAll('.type').data(function(d){ return [[d.start, d.transcript_type, (d.isCanonical ? ' CANONICAL' : ''), (d.xref != null ? "(" + d.xref + ")": ''),  d.sort]] })
+        transcript.selectAll('.type').data(function(d){ return [[d.start, (d.transcript_type && d.transcript_type != 'null' ? d.transcript_type : ''), (d.isCanonical ? ' CANONICAL' : ''), (d.xref != null  ? "(" + d.xref + ")": ''),  d.sort]] })
                   .enter().append('text')
                     .attr('class', 'type')
                     .attr('x', function(d) { return (geneD3_width - margin.left - margin.right - 5) + 10 })

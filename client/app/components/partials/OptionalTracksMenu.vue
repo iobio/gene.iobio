@@ -75,6 +75,7 @@
           <v-checkbox label="ClinVar" v-model="showKnownVariantsCard"></v-checkbox>
           <known-variants-toolbar
             v-if="showKnownVariantsCard"
+            :forceViz="forceKnownVariantsViz"
             @knownVariantsVizChange="onKnownVariantsVizChange"
             @knownVariantsFilterChange="onKnownVariantsFilterChange"
           >
@@ -101,6 +102,7 @@ export default {
   props: {
     isMother: null,
     isFather: null,
+    forceKnownVariantsViz: null
   },
   data () {
     return {
@@ -111,11 +113,9 @@ export default {
       showSfariVariantsCard: false
     }
   },
-  watch: {
-  },
   methods: {
-    onKnownVariantsVizChange: function(viz) {
-      this.$emit("known-variants-viz-change", viz);
+    onKnownVariantsVizChange: function(viz, selectedCategories) {
+      this.$emit("known-variants-viz-change", viz, selectedCategories);
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
       this.$emit("known-variants-filter-change", selectedCategories);
@@ -150,7 +150,7 @@ export default {
     },
     showKnownVariantsCard: function() {
       let self = this;
-      self.$emit("show-known-variants-card", self.showKnownVariantsCard);
+      self.$emit("show-known-variants-card", self.showKnownVariantsCard, ['clinvar_path', 'clinvar_lpath']);
     },
     showSfariVariantsCard: function() {
       let self = this;

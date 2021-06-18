@@ -244,6 +244,7 @@ main.content.clin, main.v-content.clin
       :selectedGene="selectedGene"
       :selectedVariant="selectedVariant"
       :cohortModel="cohortModel"
+      :genomeBuildHelper="genomeBuildHelper"
       :cacheHelper="cacheHelper"
       :geneModel="geneModel"
       :analysis="analysis"
@@ -299,6 +300,7 @@ main.content.clin, main.v-content.clin
       @toggle-save-modal="toggleSaveModal(true)"
       @on-welcome-changed="onWelcomeChanged"
       @show-files="onShowFiles"
+      @stop-analysis="onStopAnalysis"
     >
     </navigation>
 
@@ -486,6 +488,7 @@ main.content.clin, main.v-content.clin
         :isFather="isFather"
         :geneLists="geneLists"
         :launchedFromClin="launchedFromClin"
+        :forceKnownVariantsViz="forceKnownVariantsViz"
         @cohort-variant-click="onCohortVariantClick"
         @cohort-variant-outside-click="onCohortVariantOutsideClick"
         @cohort-variant-hover="onCohortVariantHover"
@@ -793,6 +796,7 @@ import Glyph from '../../partials/Glyph.js'
 import VariantTooltip from '../../partials/VariantTooltip.js'
 
 import allGenesData from '../../../data/genes.json'
+import genePanels from '../../../data/gene_panels.json'
 import acmgBlacklist from '../../../data/ACMG_blacklist.json'
 import SplitPane from '../partials/SplitPane.vue'
 import ScrollButton from '../partials/ScrollButton.vue'
@@ -936,6 +940,7 @@ export default {
 
 
       allGenes: allGenesData,
+      genePanels: genePanels,
       acmgBlacklist: acmgBlacklist,
       blacklistedGeneSelected: false,
 
@@ -978,6 +983,8 @@ export default {
       showSfariVariantsCard: false,
       showMotherCard: false,
       showFatherCard: false,
+
+      forceKnownVariantsViz: null,
 
       inProgress: {},
 
@@ -1110,26 +1117,8 @@ export default {
     }
 
 
-    // We are seeing problems with Blobs using the Safari browser.
-    // Warn user that Gene.iobio is supported on Chrome and Firefox
-    // browsers
-    if (self.utility.detectSafari()) {
 
-      alertify.confirm("Unsupported Browser",
-        "Gene.iobio is supported on Chrome and Firefox.  Please run on one of these browsers.",
-        function (e) {
-          // ok
-
-        },
-        function() {
-          // cancel
-          self.init()
-        }
-
-      ).set('labels', {ok:'OK', cancel:'Cancel'})
-    } else {
-      self.init();
-    }
+    self.init();
 
 
 
@@ -1233,7 +1222,7 @@ export default {
 
       self.setAppMode();
 
-      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub, { DEFAULT_BUILD: 'GRCh37' });
+      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub, { DEFAULT_BUILD: 'GRCh38' });
 
       self.promiseAddCacheHelperListeners()
       .then(function() {
@@ -1247,7 +1236,8 @@ export default {
         let translator = new Translator(self.globalApp, glyph);
         let genericAnnotation = new GenericAnnotation(glyph);
 
-        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage, self.launchedFromHub);
+        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage, 
+          self.launchedFromHub, self.genePanels);
         self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
         self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
         self.geneModel.setAllKnownGenes(self.allGenes);
@@ -1275,6 +1265,10 @@ export default {
           self.genomeBuildHelper,
           self.launchedFromClin,
           new FreebayesSettings());
+
+        self.cohortModel.on("knownVariantsVizChange", function(viz) {
+          self.forceKnownVariantsViz = viz;
+        });
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
           self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
@@ -1419,7 +1413,9 @@ export default {
           isPedigree || (self.paramAnalysisId && self.paramAnalysisId.length > 0),
           self.projectId,
           self.paramGeneSetId,
-          self.paramVariantSetId)
+          self.paramVariantSetId,
+          self.paramBuild
+          )
         .then(data => {
           if (isPedigree && !data.foundPedigree) {
             self.onShowSnackbar({message: 'No pedigree for this sample. Loading proband only.', timeout: 5000})
@@ -1449,6 +1445,7 @@ export default {
           // when launching gene.iobio from Mosaic
           if (self.variantSet && self.variantSet.variants) {
             let bypassedCount = 0;
+            let bypassedMessages = [];
             self.variantSet.variants.filter(function(variant) {
               return variant.sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
             })
@@ -1474,7 +1471,9 @@ export default {
                   self.analysis.payload.genes.push(importedVariant.gene);
                 }
               } else {
-                console.log("Bypassing variant " + variant.chr + " " + variant.pos + " because gene not provided")
+                let message = "Bypassing variant chr " + variant.chr + ", position " + variant.pos + " because the gene symbol was not provided.";
+                bypassedMessages.push(message)
+                console.log(message)
                 bypassedCount++;
               }
             })
@@ -1483,7 +1482,7 @@ export default {
                 alertify.alert("Error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name.", )
 
               } else {
-                alertify.alert("Warning", bypassedCount + " variants bypassed due to missing gene name")
+                alertify.alert("Warning", bypassedCount + " variants bypassed." + "<br><br>" + bypassedMessages.join("<br>"))
 
               }
             }
@@ -2123,7 +2122,7 @@ export default {
             self.promiseLoadData()
             .then(function() {
               self.clearZoom = false;
-              if(transcriptChanged) {
+              if(transcriptChanged && self.stashedVariant && Object.keys(self.stashedVariant).length > 0) {
                 let variant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel.sampleMap.proband.model.loadedVariants.features);
                 self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
               }
@@ -2158,7 +2157,7 @@ export default {
     },
     onTranscriptSelected: function(transcript) {
       const self = this;
-      self.stashedVariant = this.selectedVariant;
+      self.stashedVariant = $.extend({}, this.selectedVariant);
       self.selectedTranscript = transcript;
       self.geneModel.setLatestGeneTranscript(self.selectedGene.gene_name, self.selectedTranscript);
       self.onGeneSelected(self.selectedGene.gene_name, true);
@@ -2167,6 +2166,19 @@ export default {
       var self = this;
       self.geneModel.geneSource = theGeneSource;
       this.onGeneSelected(this.selectedGene.gene_name);
+    
+      // We have to clear the cache since the gene transcripts have changed
+      self.geneModel.geneToLatestTranscript = {};
+      self.promiseClearCache()
+      self.showLeftPanelForGenes()
+
+      self.onShowSnackbar({message: 'Genes must be re-analyzed based on ' 
+        + self.geneSource + ' transcripts', timeout: 6000});
+
+      setTimeout(function() {
+        self.onAnalyzeAll()
+      },4000)
+
     },
 
     onNoDataWarning: function(){
@@ -2248,7 +2260,7 @@ export default {
         self.showVariantAssessment = false;
         self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
 
-        self.showVariantExtraAnnots(sourceComponent ? sourceComponent.relationship : 'proband', variant);
+        self.showVariantExtraAnnots(sourceRelationship ? sourceRelationship : 'proband', variant);
 
         self.getVariantCardRefs().forEach(function(variantCard) {
           if (sourceComponent === null || variantCard !== sourceComponent) {
@@ -2427,13 +2439,13 @@ export default {
       }
 
     },
-    onKnownVariantsVizChange: function(viz) {
+    onKnownVariantsVizChange: function(viz, selectedCategories) {
       let self = this;
       if (viz) {
         self.cohortModel.knownVariantsViz = viz;
       }
       if (self.showKnownVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
-        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript);
+        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, selectedCategories);
       }
     },
     onSfariVariantsVizChange: function(viz) {
@@ -2448,8 +2460,11 @@ export default {
     },
     onKnownVariantsFilterChange: function(selectedCategories) {
       let self = this;
-      self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
-      self.cohortModel.setLoadedVariants(self.selectedGene, 'known-variants');
+      if (self.showKnownVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
+        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, selectedCategories);
+      }
+      // self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
+      // self.cohortModel.setLoadedVariants(self.selectedGene, 'known-variants');
     },
     onSfariVariantsFilterChange: function(selectedCategories) {
         let self = this;
@@ -3168,12 +3183,12 @@ export default {
       self.showCoverageThreshold = showIt;
 
     },
-    onShowKnownVariantsCard: function(showIt) {
+    onShowKnownVariantsCard: function(showIt, selectedCategories) {
       let self = this;
       self.showKnownVariantsCard = showIt;
       self.setNonProbandModels();
       if (self.showKnownVariantsCard) {
-        self.onKnownVariantsVizChange();
+        self.onKnownVariantsVizChange(showIt, selectedCategories);
       }
     },
     onShowSfariVariantsCard: function(showIt) {
@@ -3678,7 +3693,7 @@ export default {
 
         self.geneModel.setSourceForGenes(clinObject.selectedPhenotypeGenes, "phenotype_gene_list")
 
-        let options = {isFromClin: true, phenotypes: new_genes};
+        let options = {isFromClin: true, phenotypes: new_genes, replace: true};
         self.onApplyGenes(new_genes.join(), options);
       }
       let responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};

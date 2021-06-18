@@ -7,6 +7,12 @@ class Util {
       LOW:       'Benign'
     }
     this.globalApp = null;
+    this.baseMap = {
+      'A': 'T',
+      'G': 'C',
+      'C': 'G',
+      'T': 'A'
+    }
     this.aminoAcidMap= {A: 'Ala',
                         R: 'Arg',
                         N: 'Asn',
@@ -45,6 +51,19 @@ class Util {
       return decodeURIComponent(url)
     else
       return url;
+  }
+
+  getReverseStrandComplement(ref, alt) {
+    let self = this;
+    let newRef = ""
+    let newAlt = ""
+    for (var i = 0; i < ref.length; i++) {
+      newRef += self.baseMap[ref[i]];
+    }
+    for (var i = 0; i < alt.length; i++) {
+      newAlt += self.baseMap[alt[i]];
+    }
+    return {ref: newRef, alt: newAlt}
   }
 
   formatExonTooltip(filterModel, relationship, coverageRow, feature,  lock) {

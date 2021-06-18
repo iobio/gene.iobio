@@ -20,6 +20,7 @@
     height: 30px !important
 
 nav .v-toolbar__content
+  padding-left: 15px !important
   #file-upload-symbol
     fill: white !important
   #dna-search-symbol
@@ -31,11 +32,16 @@ nav .v-toolbar__content
     height: 34px
     background-color: $nav-button-color
     .v-btn__content
-      min-width: 90px
+      min-width: 70px
       span
         font-size: 14px
         color: white
         font-weight: 500 !important
+  #build-name
+    font-style: italic
+    font-weight: 500
+    color: $nav-label-color
+    font-size: 13px !important
        
 aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
@@ -187,13 +193,18 @@ aside.navigation-drawer, aside.v-navigation-drawer
 nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
+  .navbar-outline-button, #show-genes-button
+    background: transparent !important
+    border: .5px solid #7d7d7d !important
+
   .v-toolbar__content
     padding-right: 0px
 
   #more-menu-button
     padding: 0px
-    min-width: 40px
+    min-width: 30px
     margin-right: 10px
+    margin-left: 0px
 
   #coverage-settings-button
     font-size: 14px
@@ -252,8 +263,8 @@ nav.toolbar, nav.v-toolbar
   #search-or
     display: inline-block
     padding-top: 16px
-    margin-left: 10px
-    margin-right: 16px
+    margin-left: 5px
+    margin-right: 6px
     color: $nav-text-color
 
   #phenolyzer-search
@@ -505,6 +516,12 @@ nav.toolbar, nav.v-toolbar
       <v-toolbar-title style="font-weight:400" v-text="title">
       </v-toolbar-title>
 
+      <v-spacer v-if="!isFullAnalysis"></v-spacer>
+
+      <span id="build-name" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
+        {{ currentBuildName }}
+      </span>
+
 
       <v-spacer v-if="!isFullAnalysis"></v-spacer>
 
@@ -515,13 +532,12 @@ nav.toolbar, nav.v-toolbar
 
 
 
-      <v-btn v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
+      <v-btn class="navbar-outline-button" v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
         <v-badge right  >
           <v-icon>bar_chart</v-icon>
           <span >
             Assess coverage
           </span>
-          <v-icon class="gene-coverage-problem"  v-if="badgeCounts && badgeCounts.coverage > 0">trending_down</v-icon>
           <span v-if="badgeCounts && badgeCounts.coverage"
             slot="badge">{{ badgeCounts.coverage }}</span>
         </v-badge>
@@ -529,9 +545,9 @@ nav.toolbar, nav.v-toolbar
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items style="flex-grow: 3;padding-top:0px;margin-right:60px">
+      <v-toolbar-items style="flex-grow: 3;padding-top:0px;">
 
-        <app-icon icon="dnasearch"  style="margin-top: 12px" width="24" height="24"></app-icon>
+        <v-icon>search</v-icon>
 
         <span id="gene-name-input"  style="display:inline-block">
           <v-text-field id="search-gene-name"
@@ -561,16 +577,13 @@ nav.toolbar, nav.v-toolbar
          @clear-all-genes="onClearAllGenes">
         </genes-menu>
 
-        <div v-if="!isEduMode  && !isSimpleMode && !launchedFromClin && isPhenolyzerPermitted" id="search-or" style="display:inline-block">
+        <div v-if="!isEduMode  && (!isSimpleMode || isPhenolyzerPermitted) && !launchedFromClin" id="search-or" style="display:inline-block">
           or
         </div>
 
-        <v-icon v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted">
-          person_search
-        </v-icon>
         <phenotype-search
          id="phenolyzer-search"
-         v-if="!isEduMode && !launchedFromClin && !isSimpleMode && isPhenolyzerPermitted"
+         v-if="!isEduMode && !launchedFromClin && (!isSimpleMode || isPhenolyzerPermitted)"
          :classAttention="clazzAttention"
          :isNav="true"
          :phenotypeLabel="isBasicMode ? 'Disorder' : 'Phenotype'"
@@ -598,12 +611,19 @@ nav.toolbar, nav.v-toolbar
         @save-modal:set-visibility="toggleSaveModal"
       />
 
-
-      <v-btn id="legend-button" flat v-if="!isSimpleMode && !isBasicMode" @click="onShowLegendDrawer">Legend</v-btn>
-
-      <v-btn id="files-button" icon v-if="showFilesButton" @click="onShowFiles" title="Load files">
-        <app-icon icon="fileupload"  width="24" height="24">publish</app-icon>
+      <v-btn id="files-button"   icon v-if="showFilesButton" 
+        @click="onShowFiles" 
+        v-tooltip.bottom-left="{content: 'Load your data'}">
+        <app-icon icon="fileupload"  width="32" height="32"></app-icon>
       </v-btn>
+
+      <v-btn id="legend-button" 
+      icon v-if="!isSimpleMode && !isBasicMode" 
+      @click="onShowLegendDrawer"
+      v-tooltip.bottom-left="{content: 'Show legend'}">
+        <v-icon>info</v-icon>
+      </v-btn>
+
 
       <v-menu>
         <v-btn id="more-menu-button" flat slot="activator">
@@ -729,6 +749,7 @@ nav.toolbar, nav.v-toolbar
              @count-changed="onGeneCountChanged"
              @analyze-all="onAnalyzeAll"
              @call-variants="onCallVariants"
+             @stop-analysis="onStopAnalysis"
             >
             </genes-panel>
 
@@ -748,6 +769,7 @@ nav.toolbar, nav.v-toolbar
              :cohortModel="cohortModel"
              :activeFilterName="activeFilterName"
              :launchedFromClin="launchedFromClin"
+             :launchedFromHub="launchedFromHub"
              :isFullAnalysis="isFullAnalysis"
              :geneNames="geneNames"
              :genesInProgress="genesInProgress"
@@ -910,16 +932,14 @@ nav.toolbar, nav.v-toolbar
                 <div><span class="version-label">Gencode Human Reference</span><span class="number">19, 25</span></div>
                 <div><span class="version-label">REFSEQ Human Reference</span><span class="number">ref_GRCh37.p5, ref_GRCh38.p7</span></div>
                 <div><span class="version-label">Human Phenotype Ontology</span><span class="number">Build #102 (12-15-2015)</span></div>
-                <div><div class="version-label">Phenolyzer</div><div class="number">1.0.5 (02-21-2015)</div></div>
-                <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 92</div></div>
-                <div><div class="version-label">&nbsp;&nbsp;&nbsp;SIFT</div><div class="number">5.2.2</div></div>
-                <div><div class="version-label">&nbsp;&nbsp;&nbsp;PolyPhen</div><div class="number">2.2.2</div></div>
-                <div><div class="version-label">FreeBayes</div><div class="number">v1.0.2-33-gdbb6160-dirty</div></div>
-                <div><div class="version-label">Samtools</div><div class="number">samtools 1.3.1-33-gb25695b-dirty</div></div>
-                <div><div class="version-label">vt subset, normalize</div><div class="number">0.577</div></div>
-                <div><div class="version-label">gnomAD</div><div class="number">version 2.0.2 (October 3, 2017)</div></div>
-                <div><div class="version-label">ExAC</div><div class="number">Release 0.3.1 (03-13-2016)</div></div>
-                <div><div class="version-label">1000G</div><div class="number">Phase 3 (05-02-2013)</div></div>
+                <div><div class="version-label">Phenolyzer</div><div class="number">Oct 2019</div></div>
+                <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 101</div></div>               
+                <div><div class="version-label">FreeBayes</div><div class="number">v1.3.1</div></div>
+                <div><div class="version-label">Samtools</div><div class="number">
+                1.9</div></div>
+                <div><div class="version-label">Tabix</div><div class="number">1.9</div></div>
+                <div><div class="version-label">vt subset, normalize</div><div class="number">v0.57721</div></div>
+                <div><div class="version-label">gnomAD </div><div class="number">v2.1 for GRCh37, v3  for GRCh38</div></div>                
                 <div><div class="version-label">ACMG Genes</div> <div class="number">v2.0</div></div>
 
 
@@ -1086,6 +1106,7 @@ export default {
     filteredGeneNames: null,
     geneModel: null,
     cohortModel: null,
+    genomeBuildHelper: null,
     cacheHelper: null,
     activeFilterName: null,
     launchedFromClin: null,
@@ -1364,7 +1385,9 @@ export default {
     onCallVariants: function(action) {
       this.$emit("call-variants", action)
     },
-
+    onStopAnalysis: function() {
+      this.$emit("stop-analysis");
+    },
     toggleSaveModal(bool) {
       this.$emit("toggle-save-modal", bool);
     },
@@ -1386,6 +1409,9 @@ export default {
       } else {
         return self.geneModel.allKnownGenes;
       }
+    },
+    currentBuildName: function() {
+      return this.genomeBuildHelper.getCurrentBuildName()
     },
     clazzAttention: function() {
       if (this.bringAttention && this.bringAttention == 'gene' && this.lookupGene && Object.keys(this.lookupGene).length == 0) {

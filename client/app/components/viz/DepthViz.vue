@@ -255,16 +255,15 @@ export default {
     watch: {
       data: function() {
         let self = this;
-        setTimeout(function(){
-          d3.select(".circle-label")
-              .transition()
-              .duration(2000)
-              .style("opacity", 0);
-          d3.selectAll("circle.circle")
-              .transition()
-              .duration(2000)
-              .style("opacity", 0);
-        }, 3000)
+        
+        d3.select(self.$el).select(".circle-label")
+            .transition()
+            .duration(2000)
+            .style("opacity", 0);
+        d3.select(self.$el).selectAll("circle.circle")
+            .transition()
+            .duration(2000)
+            .style("opacity", 0);
         if (self.data) {
           let coverage = self.data
           if(self.regionStart && self.regionEnd){

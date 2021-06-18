@@ -10,7 +10,7 @@ class GlobalApp {
     this.completedTour         = "";
 
 
-    this.version               = "4.4.3";
+    this.version               = "4.5.1";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
@@ -52,7 +52,7 @@ class GlobalApp {
     // get gnomad extra info (on demand)
     this.gnomADExtra          = true;
     // get gnomad extra info for all variants
-    this.gnomADExtraAll       = false;
+    this.gnomADExtraAll       = true;
 
     // how should we get the gnomad extra info?  'bcftools' or 'vepcustom'
     this.GNOMAD_METHOD_BCFTOOLS   = "gnomad_bcftools";
@@ -65,9 +65,6 @@ class GlobalApp {
 
     // Should vep retrieve allele frequencies (for gnomad exomes)
     this.vepAF                = true ;
-
-
-    this.vepREVELFile         = './vep-cache/revel_all_chromosomes_for_vep.tsv.gz';
 
     // What browser cache implementation is used: 'localStorage' or 'indexedDB'
     this.BROWSER_CACHE_LOCAL_STORAGE = 'localStorage';
@@ -162,25 +159,11 @@ class GlobalApp {
   }
 
   getClinvarUrl(build) {
+    return this.IOBIO_SERVICES + 'static/clinvar/' + build + '/clinvar.vcf.gz';
+  }
 
-      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0) {
-        var clinvarUrls = {
-          'GRCh37': "https://backend.iobio.io/static/clinvar/GRCh37/clinvar.vcf.gz",
-          'GRCh38': "https://backend.iobio.io/static/clinvar/GRCh38/clinvar.vcf.gz"
-        }
-        return clinvarUrls[build];
-
-      } else {
-
-
-        var clinvarUrls = {
-          'GRCh37': "https://backend.iobio.io/static/clinvar/GRCh37/clinvar.vcf.gz",
-          'GRCh38': "https://backend.iobio.io/static/clinvar/GRCh38/clinvar.vcf.gz"
-        };
-        return clinvarUrls[build];
-
-      }
-
+  getRevelUrl(build) {
+    return './vep-cache/' + build + '_revel_all_chromosomes_for_vep.tsv.gz';
   }
 
 

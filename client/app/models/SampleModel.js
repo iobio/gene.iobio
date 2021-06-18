@@ -50,6 +50,9 @@ class SampleModel {
     this.coverageDangerRegions = [];
     this.helpMsg = "If this error persists, Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.";
 
+    this.lastFetchedPathoFilters = null;
+    this.lastFetchedClinvarGene = null;
+    this.lastFetchedClinvarTrans = null;
 
     this.inProgress = {
       'loadingVariants': false,
@@ -369,7 +372,7 @@ class SampleModel {
       return feature.feature_type.toUpperCase() == 'CDS' || feature.feature_type.toUpperCase() == 'CDS';
     }).forEach(function(exon) {
       var exonBin = {point: (+exon.start + ((+exon.end - +exon.start)/2)), start: exon.start, end: exon.end, total: +0, path: +0, benign: +0, unknown: +0, other: +0};
-      results.forEach(function(rec) {
+       results.forEach(function(rec) {
         if (+rec.start >= +exon.start && +rec.end <= +exon.end) {
           exonBin.total    += +rec.total;
           exonBin.path     += +rec.path;
@@ -911,13 +914,13 @@ class SampleModel {
           if (success) {
 
 
-            me.vcfFileOpened = true;
-            me.vcfUrlEntered = false;
+            me.vcfFileOpened = false;
+            me.vcfUrlEntered = true;
             me.getVcfRefName = null;
             me.isMultiSample = false;
 
             // Get the sample names from the vcf header
-              me.vcf.getSampleNames( function(sampleNames) {
+            me.vcf.getSampleNames( function(sampleNames) {
                 me.sampleNames = sampleNames;
                 me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
                 resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
@@ -1419,6 +1422,7 @@ class SampleModel {
 
               var theVcfData = data[1];
 
+              // todo: left off thinking maybe give tabix the -0 option to indicate zero based coordinate system?
               if (theVcfData != null && theVcfData.features != null && theVcfData.features.length > 0) {
                 // Now update the hgvs notation on the variant
                 var matchingVariants = theVcfData.features.filter(function(aVariant) {
@@ -1767,6 +1771,110 @@ class SampleModel {
     })
   }
 
+  /* Returns existing cached ClinVar variants if they exist and match the pathogenicityCategories provided.
+   * Otherwise, returns null. */
+  _checkExistingClinvarData(pathogenicityCategories, selectedGene, selectedTranscript, variantModel) {
+    const me = this;
+
+    if (_.isEqual(pathogenicityCategories, me.lastFetchedPathoFilters) && selectedGene === me.lastFetchedClinvarGene
+      && selectedTranscript === me.lastFetchedClinvarTrans) {
+      return variantModel.vcfData;
+    } else {
+      return null;
+    }
+  }
+
+  promiseGetClinvarVariants(theGene, theTranscript, variantModel, pathogenicityCategories) {
+    const me = this;
+
+    // Check to see if pathogenicityCats empty - this can happen when switching genes with clinvar track open
+    // If so, default to last ones set
+    if (pathogenicityCategories == null) {
+      pathogenicityCategories = this.lastFetchedPathoFilters;
+    }
+
+    return new Promise((resolve, reject) => {
+      let resultMap = {};
+
+      // If we haven't changed pathogenicity filters, can re-display variants pulled back
+      let vcfData = me._checkExistingClinvarData(pathogenicityCategories, theGene.gene_name, theTranscript.transcript_id, variantModel);
+      if (vcfData != null && vcfData != '') {
+        resultMap[variantModel.relationship] = vcfData;
+        variantModel.vcfData = vcfData;
+        variantModel.fbData = me.reconstituteFbData(vcfData);
+        resolve(resultMap);
+      } else {
+        // Otherwise call service
+        me._promiseVcfRefName(theGene.chr)
+            .then(() => {
+              let refName = me.getVcfRefName(theGene.chr);
+              let regions = null;
+              return me.vcf.promiseGetClinvarVariants(
+                  refName,
+                  theGene,
+                  theTranscript,
+                  regions,   // regions
+                  me.getTranslator().clinvarMap,
+                  pathogenicityCategories
+              );
+            })
+            .then(function (results) {
+              if (results) {
+                let data = results[1];
+                let theGeneObject = me.getGeneModel().geneObjects[data.gene];
+                if (theGeneObject) {
+                  let resultMap = {};
+                  let model = variantModel;
+
+                  // Set the gene object on each variant
+                  data.gene = theGeneObject;
+                  data.features.forEach(function (variant) {
+                    variant.gene = theGeneObject;
+                  })
+                  resultMap[model.relationship] = data;
+                  model.vcfData = data;
+
+                  // Set the highest allele freq for all variants
+                  for (var key in resultMap) {
+                    let theVcfData = resultMap[key];
+                    if (theVcfData && theVcfData.features) {
+                      theVcfData.features.forEach(function (variant) {
+                        me._determineHighestAf(variant);
+                      })
+                    }
+                  }
+
+                  // Log last fetched pathogenicity categories
+                  me.lastFetchedPathoFilters = pathogenicityCategories;
+                  me.lastFetchedClinvarGene = theGene.gene_name;
+                  me.lastFetchedClinvarTrans = theTranscript.transcript_id;
+
+                  resolve(resultMap);
+
+                } else {
+                  let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
+                  alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
+                      .setHeader("Fatal Error");
+                  console.log(msg);
+                  reject(msg);
+                }
+              } else {
+                let msg = "Empty vcf results for " + theGene.gene_name;
+                alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
+                    .setHeader("Non-fatal Error");
+                console.log(msg);
+                reject(msg);
+              }
+            }).catch(error => {
+          let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
+          alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
+              .setHeader("Fatal Error");
+          console.log(error);
+          reject(error)
+        });
+      }
+    });
+  }
 
   promiseAnnotateVariants(theGene, theTranscript, variantModels, options, onVcfData) {
     var me = this;
@@ -1841,12 +1949,12 @@ class SampleModel {
                'none',
                me.getTranslator().clinvarMap,
                me.getGeneModel().geneSource === 'refseq' ? true : false,
-               me.isBasicMode || me.globalApp.getVariantIdsForGene,  // hgvs notation
-               me.globalApp.getVariantIdsForGene,  // rsid
-               me.globalApp.vepAF,    // vep af
+               options.getKnownVariants ? false : (me.isBasicMode || me.globalApp.getVariantIdsForGene),  // hgvs notation
+               options.getKnownVariants ? false : me.globalApp.getVariantIdsForGene,  // rsid
+               options.getKnownVariants ? false : me.globalApp.vepAF,    // vep af
                false, // serverside cache
                false, // sfari mode
-               me.globalApp.gnomADExtraAll, // get extra gnomad,
+               options.getKnownVariants ? false : me.globalApp.gnomADExtraAll, // get extra gnomad,
                !me.isEduMode // decompose
               );
           })
@@ -1854,8 +1962,6 @@ class SampleModel {
 
             var annotatedRecs = data[0];
             var results = data[1];
-
-
 
             if (!isMultiSample) {
               results = [results];
@@ -2100,7 +2206,7 @@ class SampleModel {
   _determineHighestAf(variant) {
     var me = this;
     // Find the highest value (the least rare AF) 
-    variant.afHighest = 0;
+    variant.afHighest = "unknown";
     variant.afFieldHighest = null;
 
     if (me.globalApp.gnomADExtraAll
@@ -2154,7 +2260,7 @@ class SampleModel {
       variant.afHighest = 0;
     } else {
       variant.afFieldHighest = null;
-      variant.afHighest = 0;
+      variant.afHighest = 'unknown';
     }
   }
 

@@ -239,6 +239,8 @@
   top: -200px !important;
 }
 
-
+.v-toolbar__title:not(:first-child) {
+     margin-left: 0px !important;
+}
 
 

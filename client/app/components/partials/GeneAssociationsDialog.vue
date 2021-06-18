@@ -47,7 +47,7 @@
           <v-btn flat @click="onCancel" class="close-button">
             <v-icon>close</v-icon>
           </v-btn>
-          <v-card-title class="headline" style="padding-top: 10px;">Gene Associations in {{ selectedGene }}</v-card-title>
+          <v-card-title class="headline" style="padding-top: 10px;">Gene:Phenotype Associations in {{ selectedGene }}</v-card-title>
         </div>
         <v-divider id="gene-associations-dialog-divider"></v-divider>
         <v-card-text style="padding-bottom: 0px">

@@ -104,6 +104,85 @@ export default class EndpointCmd {
         }
     }
 
+    /* Retrieves ClinVar variants from backend to populate ClinVar variants track. Only returns variants with
+     * the ClinSig fields matching those described in the provided clinSigFilterObj argument.
+     * NOTE: this service only available for gru-1.0.0 and later */
+    getClinvarVariants(vcfSource, refName, regions, clinSigFilterPhrase, gnomadExtra) {
+        const me = this;
+        const refNames = this.getHumanRefNames(refName).split(" ");
+        const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
+        const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+
+        let gnomadUrlGenomes = null;
+        let gnomadUrlExomes = null;
+        let gnomadRegionStr = null;
+        let gnomadFieldsGenomes = null;
+        let gnomadFieldsExomes = null;
+        let vepCustom = null;
+        let gnomadRenameChr = me.globalApp.getGnomADRenameChr(me.genomeBuildHelper.getCurrentBuildName(),
+            "genomes",
+            refName);
+
+        if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_BCFTOOLS) {
+            // Get the gnomad vcf based on the genome build
+            gnomadUrlGenomes = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
+                me.globalApp.utility.stripRefName(refName), "genomes", me.globalApp.useSSL);
+            gnomadUrlExomes  = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
+                me.globalApp.utility.stripRefName(refName), "exomes", me.globalApp.useSSL);
+
+            // Prepare args to annotate with gnomAD
+            gnomadRegionStr = "";
+            regions.forEach(function(region) {
+                let gnomadRefName = me.globalApp.getGnomADRefName(me.genomeBuildHelper.getCurrentBuildName(),
+                    "genomes",
+                    refName)
+                gnomadRegionStr += gnomadRefName + "\t" + region.start + "\t" + region.end + "\n";
+            })
+        } else if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
+            // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
+            gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+                "genomes");
+            gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+                "exomes");
+            vepCustom = "-custom "
+                + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
+                    me.globalApp.utility.stripRefName(refName),
+                    "genomes",
+                    false)
+                + ',gnomADg,vcf,exact,0,'
+                + gnomadFieldsGenomes;
+            if (gnomadFieldsExomes) {
+                vepCustom += " -custom "
+                    + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
+                        me.globalApp.utility.stripRefName(refName),
+                        "exomes",
+                        false)
+                    + ',gnomADe,vcf,exact,0,'
+                    + gnomadFieldsExomes;
+            }
+        }
+
+        const cmd = this.api.streamCommand('getClinvarVariants', {
+            vcfUrl: vcfSource.vcfUrl,
+            tbiUrl: vcfSource.tbiUrl,
+            refNames,
+            regions,
+            refFastaFile,
+            genomeBuildName,
+            gnomadUrl: gnomadUrlGenomes,
+            gnomadRegionStr: gnomadRegionStr,
+            gnomadRenameChr,
+            clinSigFilterPhrase
+        });
+
+        cmd.on('error', function(error){
+            let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
+            alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                .setHeader("Non-fatal Error");
+        })
+        return cmd;
+    }
+
     annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose) {
         let me = this;
         if (this.gruBackend) {
@@ -148,30 +227,30 @@ export default class EndpointCmd {
               // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
               gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
                "genomes");
-              gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),  
+              gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
                 "exomes");
 
-          
-              vepCustom = "-custom " 
-                          + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
-                                                      me.globalApp.utility.stripRefName(refName), 
-                                                      "genomes", 
-                                                      false) 
-                          + ',gnomADg,vcf,exact,0,' 
+
+              vepCustom = "-custom "
+                          + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
+                                                      me.globalApp.utility.stripRefName(refName),
+                                                      "genomes",
+                                                      false)
+                          + ',gnomADg,vcf,exact,0,'
                           + gnomadFieldsGenomes;
-              
-              
+
+
               if (gnomadFieldsExomes) {
-                vepCustom += " -custom " 
-                         + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
-                                                      me.globalApp.utility.stripRefName(refName), 
-                                                      "exomes", 
-                                                      false) 
-                         + ',gnomADe,vcf,exact,0,' 
+                vepCustom += " -custom "
+                         + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
+                                                      me.globalApp.utility.stripRefName(refName),
+                                                      "exomes",
+                                                      false)
+                         + ',gnomADe,vcf,exact,0,'
                          + gnomadFieldsExomes;
               }
-              
-              
+
+
               
 
             }
@@ -189,7 +268,7 @@ export default class EndpointCmd {
                 getRsId,
                 vepAF,
                 sfariMode,
-                vepREVELFile: this.globalApp.vepREVELFile,
+                vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
                 gnomadUrl: gnomadUrlGenomes,
                 gnomadRegionStr: gnomadRegionStr,
                 decompose,
@@ -362,7 +441,7 @@ export default class EndpointCmd {
                 fbArgs,
                 refNames,
                 genomeBuildName,
-                vepREVELFile: this.globalApp.vepREVELFile,
+                vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
                 vepAF,
                 isRefSeq,
                 clinvarUrl,

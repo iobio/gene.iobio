@@ -74,44 +74,86 @@ export default function vcfiobio(theGlobalApp) {
 
   
   var GNOMAD_TAGS = {
-    'AF':          'af',
-    'AC':          'altCount',
-    'AN':          'totalCount',
-    'nhomalt_raw': 'homCount',
-    //'nhomalt-raw': 'homCount',
-    'AF_popmax':   'afPopMax',
+    'GRCh37': {
+      'AF':          'af',
+      'AC':          'altCount',
+      'AN':          'totalCount',
+      'nhomalt_raw': 'homCount',
+      //'nhomalt-raw': 'homCount',
+      'AF_popmax':   'afPopMax',
 
-    'AF_fin': ['pop', 'fin', 'af'],
-    'AC_fin': ['pop', 'fin', 'altCount'],
-    'AN_fin': ['pop', 'fin', 'totalCount'],
+      'AF_fin': ['pop', 'fin', 'af'],
+      'AC_fin': ['pop', 'fin', 'altCount'],
+      'AN_fin': ['pop', 'fin', 'totalCount'],
 
-    'AF_nfe': ['pop', 'nfe', 'af'],
-    'AC_nfe': ['pop', 'nfe', 'altCount'],
-    'AN_nfe': ['pop', 'nfe', 'totalCount'],
+      'AF_nfe': ['pop', 'nfe', 'af'],
+      'AC_nfe': ['pop', 'nfe', 'altCount'],
+      'AN_nfe': ['pop', 'nfe', 'totalCount'],
 
-    'AF_oth': ['pop', 'oth', 'af'],
-    'AC_oth': ['pop', 'oth', 'altCount'],
-    'AN_oth': ['pop', 'oth', 'totalCount'],
+      'AF_oth': ['pop', 'oth', 'af'],
+      'AC_oth': ['pop', 'oth', 'altCount'],
+      'AN_oth': ['pop', 'oth', 'totalCount'],
 
-    'AF_amr': ['pop', 'amr', 'af'],
-    'AC_amr': ['pop', 'amr', 'altCount'],
-    'AN_amr': ['pop', 'amr', 'totalCount'],
+      'AF_amr': ['pop', 'amr', 'af'],
+      'AC_amr': ['pop', 'amr', 'altCount'],
+      'AN_amr': ['pop', 'amr', 'totalCount'],
 
-    'AF_afr': ['pop', 'afr', 'af'],
-    'AC_afr': ['pop', 'afr', 'altCount'],
-    'AN_afr': ['pop', 'afr', 'totalCount'],
+      'AF_afr': ['pop', 'afr', 'af'],
+      'AC_afr': ['pop', 'afr', 'altCount'],
+      'AN_afr': ['pop', 'afr', 'totalCount'],
 
-    'AF_asj': ['pop', 'asj', 'af'],
-    'AC_asj': ['pop', 'asj', 'altCount'],
-    'AN_asj': ['pop', 'asj', 'totalCount'],
+      'AF_asj': ['pop', 'asj', 'af'],
+      'AC_asj': ['pop', 'asj', 'altCount'],
+      'AN_asj': ['pop', 'asj', 'totalCount'],
 
-    'AF_eas': ['pop', 'eas', 'af'],
-    'AC_eas': ['pop', 'eas', 'altCount'],
-    'AN_eas': ['pop', 'eas', 'totalCount'],
+      'AF_eas': ['pop', 'eas', 'af'],
+      'AC_eas': ['pop', 'eas', 'altCount'],
+      'AN_eas': ['pop', 'eas', 'totalCount'],
 
-    'AF_sas': ['pop', 'sas', 'af'],
-    'AC_sas': ['pop', 'sas', 'altCount'],
-    'AN_sas': ['pop', 'sas', 'totalCount'],
+      'AF_sas': ['pop', 'sas', 'af'],
+      'AC_sas': ['pop', 'sas', 'altCount'],
+      'AN_sas': ['pop', 'sas', 'totalCount'],
+    },
+  'GRCh38':       {
+      'AF':          'af',
+      'AC':          'altCount',
+      'AN':          'totalCount',
+      'nhomalt_raw': 'homCount',
+      //'nhomalt-raw': 'homCount',
+      'AF_popmax':   'afPopMax',
+
+      'AF-fin': ['pop', 'fin', 'af'],
+      'AC-fin': ['pop', 'fin', 'altCount'],
+      'AN-fin': ['pop', 'fin', 'totalCount'],
+
+      'AF-nfe': ['pop', 'nfe', 'af'],
+      'AC-nfe': ['pop', 'nfe', 'altCount'],
+      'AN-nfe': ['pop', 'nfe', 'totalCount'],
+
+      'AF-oth': ['pop', 'oth', 'af'],
+      'AC-oth': ['pop', 'oth', 'altCount'],
+      'AN-oth': ['pop', 'oth', 'totalCount'],
+
+      'AF-amr': ['pop', 'amr', 'af'],
+      'AC-amr': ['pop', 'amr', 'altCount'],
+      'AN-amr': ['pop', 'amr', 'totalCount'],
+
+      'AF-afr': ['pop', 'afr', 'af'],
+      'AC-afr': ['pop', 'afr', 'altCount'],
+      'AN-afr': ['pop', 'afr', 'totalCount'],
+
+      'AF-asj': ['pop', 'asj', 'af'],
+      'AC-asj': ['pop', 'asj', 'altCount'],
+      'AN_asj': ['pop', 'asj', 'totalCount'],
+
+      'AF-eas': ['pop', 'eas', 'af'],
+      'AC-eas': ['pop', 'eas', 'altCount'],
+      'AN_eas': ['pop', 'eas', 'totalCount'],
+
+      'AF-sas': ['pop', 'sas', 'af'],
+      'AC-sas': ['pop', 'sas', 'altCount'],
+      'AN-sas': ['pop', 'sas', 'totalCount'],
+    }
   }
 
 
@@ -155,6 +197,25 @@ export default function vcfiobio(theGlobalApp) {
     ['5_prime_UTR_variant'  ,'utr'],
     ['5_prime_UTR_truncation +','utr']
   ];
+
+    // Valid CLNSIG fields as of May 2021
+    var CLNSIG_TERMS = {
+      'clinvar_affects': 'Affects',
+      'clinvar_assoc': 'Association',
+      'clinvar_no_assoc': 'Association_not_found',
+      'clinvar_benign': 'Benign',
+      'clinvar_confers_sens': 'Confers_sensitivity',
+      'clinvar_cd': 'Conflicting_data_from_submitters',
+      'clinvar_drug_resp': 'Drug_response',
+      'clinvar_lbenign': 'Likely_benign',
+      'clinvar_lpath': 'Likely_pathogenic',
+      'clinvar_other': 'Other',
+      'clinvar_not_provided': 'Not_provided',
+      'clinvar_path': 'Pathogenic',
+      'clinvar_protective': 'Protective',
+      'clinvar_risk_factor': 'Risk_factor',
+      'clinvar_uc': 'Uncertain_significance'
+  };
 
   exports.isFile = function() {
     return sourceType != null && sourceType == SOURCE_TYPE_FILE;
@@ -360,9 +421,9 @@ export default function vcfiobio(theGlobalApp) {
   }
 
   exports.openVcfFile = function(fileSelection, callback) {
+    let me = this;
     sourceType = SOURCE_TYPE_FILE;
 
-    console.log("inside openVcfFile");
 
     if (fileSelection.files.length != 2) {
        callback(false, 'must select 2 files, both a .vcf.gz and .vcf.gz.tbi file');
@@ -412,11 +473,11 @@ export default function vcfiobio(theGlobalApp) {
       return;
     }
 
-    this.processVcfFile(vcfFile, tabixFile)
-    callback(true);
-
-    return;
-
+    this.processVcfFile(vcfFile, tabixFile, function(data) {
+      me.openVcfUrl(data.vcf, data.tbi, function(cbData) {
+        callback(cbData)
+      })
+    })
   }
 
 
@@ -674,6 +735,89 @@ export default function vcfiobio(theGlobalApp) {
       });
   }
 
+  /* Returns filter phrase compatible with bcftools filter function. Filters by CLNSIG field.
+   * By default, returns pathogenic and likely pathogenic filters.
+   * Refer to CLNSIG_TERMS dictionary at file head for valid terms. */
+  exports.getPathogenicityFilter = function(pathogenicityFilters) {
+    let validFilters = [];
+
+    pathogenicityFilters.forEach(filter => {
+      if (CLNSIG_TERMS[filter]) {
+        validFilters.push(CLNSIG_TERMS[filter]);
+      } else {
+        console.log('Could not recognize term: ' + filter + ' - ignoring from filtering');
+      }
+    })
+    return 'INFO/CLNSIG="' + validFilters.join(',') + '"';
+  }
+
+  /* Retrieves clinvar variants for provided gene/region from backend. */
+  exports.promiseGetClinvarVariants = function(refName, geneObject, selectedTranscript, regions, clinvarMap, pathoFilters) {
+    return new Promise((resolve, reject) => {
+      const me = this;
+
+      // Assemble regions
+      if (regions == null || regions.length === 0) {
+        regions = [];
+        regions.push({'name': refName, 'start': geneObject.start, 'end': geneObject.end});
+      }
+
+      // Get pathogenicity filters
+      let pathogenicityFilterPhrase = me.getPathogenicityFilter(pathoFilters);
+
+      // Call command
+      let cmd = me.getEndpoint().getClinvarVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, pathogenicityFilterPhrase, true);
+      let annotatedData = "";
+      cmd.on('data', function(data) {
+        if (data == null) {
+          return;
+        }
+        annotatedData += data;
+      });
+      cmd.on('end', function() {
+        let annotatedRecs = annotatedData.split("\n");
+        let vcfObjects = [];
+
+        annotatedRecs.forEach(function (record) {
+          if (record.charAt(0) === "#") {
+            me._parseHeaderForInfoFields(record);
+          } else {
+            // Parse the vcf record into its fields
+            let fields = record.split('\t');
+            let pos = fields[1];
+            let id = fields[2];
+            let ref = fields[3];
+            let alt = fields[4];
+            let qual = fields[5];
+            let filter = fields[6];
+            let info = fields[7];
+            let format = fields[8];
+            let genotypes = [];
+
+            // Turn vcf record into a JSON object and add it to an array
+            let vcfObject = {
+              'pos': pos, 'id': id, 'ref': ref, 'alt': alt,
+              'qual': qual, 'filter': filter, 'info': info, 'format': format, 'genotypes': genotypes
+            };
+            vcfObjects.push(vcfObject);
+          }
+        });
+
+        // Parse the vcf object into a variant object that is visualized by the client.
+        let results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, false, false, '', null, false, false, true);
+        if (annotatedData != null && results) {
+          resolve([annotatedData, results]);
+        } else {
+          reject();
+        }
+      });
+      cmd.on('error', function(error) {
+        console.log(error);
+      });
+      cmd.run();
+    });
+  }
+
 
   /* When sfariMode = true, variant id field is assigned. */
   exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, gnomADExtra=false, decompose=false) {
@@ -821,8 +965,6 @@ export default function vcfiobio(theGlobalApp) {
       regions = [];
       regions.push({'name': refName, 'start': geneObject.start, 'end': geneObject.end});
     }
-
-
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
@@ -1134,7 +1276,7 @@ export default function vcfiobio(theGlobalApp) {
 
   exports.getSampleNames = function(callback) {
     if (sourceType == SOURCE_TYPE_URL) {
-      this._getRemoteSampleNames(callback);
+    this._getRemoteSampleNames(callback);
     } else {
       this._getLocalSampleNames(callback);
     }
@@ -1647,7 +1789,7 @@ export default function vcfiobio(theGlobalApp) {
       // keep track of the region start based on the variants.
       var variantRegionStart = geneObject.start;
 
-      // Interate through the vcf records.  For each record, if multiple
+      // Iterate through the vcf records.  For each record, if multiple
       // alternates are provided, iterate through each alternate
       vcfRecs.forEach(function(rec) {
         if (rec.pos && rec.id) {
@@ -2081,7 +2223,14 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
         // the same transcript.
         // TODO:  Need to sort so that highest impact shows first
         //        and is used for filtering and ranking purposes.
-        if (featureType == 'Transcript' && (feature == selectedTranscriptID || feature == selectedTranscript.transcript_id)) {
+        if (featureType == 'Transcript' && 
+          (feature == selectedTranscriptID 
+            || feature == selectedTranscript.transcript_id
+            // For now, RefSeq transcripts may not match last digit after '.'.
+            // For example, GRCh37 transcript from geneinfo for RAI1 
+            // is NM_030665.3 (a previous patch release)
+            // and VEP shows the transcript NM_030665.4 for GRCh37.p13
+            || feature.indexOf(selectedTranscriptID) == 0)) {
           annot.vep.vepImpact[vepTokens[vepFields.IMPACT]] = vepTokens[vepFields.IMPACT];
 
           var consequence = vepTokens[vepFields.Consequence];
@@ -2266,7 +2415,7 @@ exports._parseGnomADAnnot = function(annotTokens, annot) {
     var annotTag   = tagValue[0];
     var annotValue = tagValue[1];
 
-    var gnomADTag         = GNOMAD_TAGS[annotTag];
+    var gnomADTag         = GNOMAD_TAGS[genomeBuildHelper.getCurrentBuildName()][annotTag];
     if (gnomADTag && annotValue) {
       if (Array.isArray(gnomADTag)) {
         var idx = 0
@@ -3240,7 +3389,7 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
 
   };
 
-  exports.processVcfFile = function(vcfFile, tbiFile){
+  exports.processVcfFile = function(vcfFile, tbiFile, callback){
 
     let self = this;
 
@@ -3259,6 +3408,7 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
       self.vcfURL = `${baseUrl}${hoster.getHostedPath(vcfPath)}`;
       self.tbiUrl = `${baseUrl}${hoster.getHostedPath(tbiPath)}`;
       self.sourceType = SOURCE_TYPE_URL;
+      callback({vcf: self.vcfURL, tbi: self.tbiUrl })
     });
 
   };
