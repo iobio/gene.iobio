@@ -734,7 +734,7 @@ nav.toolbar, nav.v-toolbar
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
         <v-btn v-if="!isFullAnalysis && !launchedFromClin && showFilesButton" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
-          -icon >close</v-icon>
+          <v-icon >close</v-icon>
         </v-btn>
 
         <v-progress-circular id="overall-progress"  style="padding-top:6px" :size="12"  :width="2" color="blue darken-1"
@@ -823,6 +823,11 @@ nav.toolbar, nav.v-toolbar
              :toClickVariant="toClickVariant"
              :variantSetCounts="variantSetCounts"
              :selectedVariant="selectedVariant"
+             :isLoaded="cohortModel && cohortModel.isLoaded"
+             :analyzeAllInProgress="analyzeAllInProgress"
+             :selectedGene="selectedGene"
+             :callAllInProgress="callAllInProgress"
+             :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
@@ -830,6 +835,9 @@ nav.toolbar, nav.v-toolbar
              @gene-lists-changed="onGeneListsChanged"
              @filter-settings-applied="onFilterSettingsApplied"
              @filter-settings-closed="onFilterSettingsClose"
+             @analyze-all="onAnalyzeAll"
+             @stop-analysis="onStopAnalysis"
+             @call-variants="onCallVariants"
             >
             </flagged-variants-card>
 
@@ -1429,6 +1437,7 @@ export default {
       this.$emit("analyze-all");
     },
     onCallVariants: function(action) {
+      this.activeTab = 0;
       this.$emit("call-variants", action)
     },
     onStopAnalysis: function() {

@@ -534,13 +534,132 @@
   font-size: 11px
   font-family: raleway
   padding-top: 2px
+
+#analyze-all-buttons
+  margin-bottom: 10px
+  display: flex
+
+  #analyze-all-button
+    margin: 0px 0px 0px 0px
+    padding: 0px
+    min-width: 90px
+    max-height: 90px
+    padding-right: 5px
+    padding-left: 5px
+
+    .btn__content, .v-btn__content
+      padding-left: 0px
+      padding-right: 0px
+      color: $link-color
+      font-size: 13px
+      font-weight: 500
+
+      i.material-icons
+        font-size: 20px
+
+  #call-variants-dropdown
+    display: inline-block
+    vertical-align: middle
+    text-align: left
+
+    button
+      margin: 0px 0px 0px 0px
+      padding: 0px
+      min-width: 115px
+      max-height: 115px
+      padding-right: 5px
+      padding-left: 5px
+      margin-left: 5px
+
+      .btn__content, .v-btn__content
+        padding-left: 0px
+        padding-right: 0px
+        color: $link-color
+        font-size: 13px
+        font-weight: 500
+
+        i.material-icons
+          font-size: 20px
+          padding-right: 3px
+
+  .btn__content, .v-btn__content
+    padding: 0 4px
+
+
+  .stop-analysis-button
+    display: inline-block
+    vertical-align: middle
+    position: relative
+    min-width: 18px
+    max-width: 18px
+    padding: 0px
+    margin-top: 8px
+    height: 22px
+    margin-right: 10px
+    margin-left: 5px
+    color: $light-badge-color
+
+    i.material-icons
+      font-size: 20px
+      padding-right: 3px  
+      
 </style>
 
 <template>
 <div>
   <v-card  style="padding: 0px" id="flagged-variants-card" :class="{basic: isBasicMode}">
 
-    <div class="variant-toolbar" >
+      <div class="variant-toolbar" >
+        
+        <div id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
+
+          <v-btn  id="analyze-all-button"
+          v-if="isLoaded && !isFullAnalysis && !isSimpleMode"
+          class="level-edu"
+          flat
+          @click="onAnalyzeAll"
+          v-tooltip.top-center="`Analyze variants in all genes`" >
+            <v-icon>playlist_play</v-icon>
+            Analyze all
+          </v-btn>
+        
+          <v-btn
+          v-if="analyzeAllInProgress && !isFullAnalysis && !isSimpleMode"
+          class="stop-analysis-button"
+          @click="onStopAnalysis"  flat
+          v-tooltip.top-center="`Stop analysis`" >
+            <v-icon>stop</v-icon>
+          </v-btn>
+
+          <v-spacer></v-spacer>
+
+
+          <div id="call-variants-dropdown"
+            v-if="isLoaded && hasAlignments && !isFullAnalysis && !isSimpleMode"
+          >
+            <v-menu offset-y>
+              <v-btn  slot="activator" flat
+              v-tooltip.top-center="`Call variants from alignments`"
+              class="call-variants-button">
+                <v-icon>playlist_add</v-icon>
+                Call variants
+              </v-btn>
+              <v-list>
+                  <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
+                  <v-list-tile-title>{{ action }}</v-list-tile-title>
+                </v-list-tile>
+              </v-list>
+            </v-menu>
+          </div>
+      
+        <v-btn
+        v-if="callAllInProgress && !isFullAnalysis"
+        class="stop-analysis-button"
+        @click="onStopAnalysis" flat 
+        v-tooltip.top-center="`Stop calling variants`" >
+          <v-icon>stop</v-icon>
+        </v-btn>
+      </div>
 
       <div style="display:flex">
         <v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>
@@ -596,12 +715,10 @@
 
 
             <v-badge>
-              <!-- <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span> -->
               <span class="filter-label">{{ geneList.label }}</span>
               <div class="wrapper">
                 <span class="badge-filter">{{ geneList.variantCount }}</span>
               </div>
-
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed' && geneList.label !== 'Filtered variants'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
@@ -872,6 +989,11 @@ export default {
     toClickVariant: null,
     variantSetCounts: null,
     selectedVariant: null,
+    selectedGene: null,
+    isLoaded: null,
+    analyzeAllInProgress: null,
+    callAllInProgress: null,
+    hasAlignments: null,
   },
 
   data() {
@@ -890,10 +1012,23 @@ export default {
       variantExpansionControl: [true],
       selectedGeneSources: {},
       showExportVariants: false,
-      showImportVariants: false
+      showImportVariants: false,
+      callVariantsActions: ['All genes', 'Selected gene'],
     }
   },
   methods: {
+    
+    onAnalyzeAll: function() {
+      this.$emit("analyze-all");
+    },
+    
+    onStopAnalysis: function() {
+      this.$emit("stop-analysis");
+    },
+    
+    onCallVariants: function(action) {
+      this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
+    },
 
     onClose(){
       this.showPopup = false;
