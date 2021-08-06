@@ -596,8 +596,12 @@
 
 
             <v-badge>
-              <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
+              <!-- <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span> -->
               <span class="filter-label">{{ geneList.label }}</span>
+              <div class="wrapper">
+                <span class="badge-filter">{{ geneList.variantCount }}</span>
+              </div>
+
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed' && geneList.label !== 'Filtered variants'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
