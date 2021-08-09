@@ -12,23 +12,26 @@
 
 ## Install the client application
 
-1. Install [nodejs](https://nodejs.org/en/download/)
+### Install [nodejs](https://nodejs.org/en/download/)
 
-2. Create an env file 
+### Create an env file 
 
 [Sample env file](./.env.template)
 ```bash
 cp ./env.template .env
 ```
 
-3. Start the app
+### Start the app
 
 ```
 npm install
 npm start
 ```
 
+### Launch the app in the web browser
 Now open [http://localhost:3000](http://localhost:3000).
 
+
+### Rebuild after client-side changes 
 To watch for client-side file changes, open up a new terminal window and `npm run webpack`.
 
