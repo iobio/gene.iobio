@@ -2,8 +2,7 @@
 
 [gene.iobio](https://gene.iobio) is an interact application for inspecting variants in real-time.
 
-(./client/assets/images/github/screenshot.png)
-
+ ![Screenshot of gene.iobio](./client/assets/images/github/screenshot.png)
 
 # Installation 
 
