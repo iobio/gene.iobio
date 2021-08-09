@@ -11,22 +11,17 @@
 # Installation 
 
 ## Install the client application
-### Create .env file
 
-```bash
-# replace iobio-backend with the url of the gru backend service.
-# replace iobio-backend-mosaic with the url of the gru backend service when launching from mosaic
+1. Install [nodejs](https://nodejs.org/en/download/)
 
-echo "IOBIO_BACKEND=iobio-backend-mosaic" > .env
-echo "IOBIO_BACKEND_MOSAIC=iobio-backend-mosaic" >> .env
-echo "USE_SSL=true" >> .env
-```
+2. Create an env file 
 
 [Sample env file](./.env.template)
+```bash
+cp ./env.template .env
+```
 
-### Starting App
-
-Using node version 8.5.x
+3. Start the app
 
 ```
 npm install
@@ -37,6 +32,3 @@ Now open [http://localhost:3000](http://localhost:3000).
 
 To watch for client-side file changes, open up a new terminal window and `npm run webpack`.
 
-### Running Client-side Tests
-
-`npm test`
