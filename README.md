@@ -1,4 +1,14 @@
-## Create .env file
+# Overview
+
+[gene.iobio](https://gene.iobio) is an interact application for inspecting variants in real-time.
+
+(./client/assets/images/github/screenshot.png)
+
+
+# Installation 
+
+## Install the client application
+### Create .env file
 
 ```bash
 # replace iobio-backend with the url of the gru backend service.
@@ -11,7 +21,7 @@ echo "USE_SSL=true" >> .env
 
 [Sample env file](./.env.template)
 
-## Starting App
+### Starting App
 
 Using node version 8.5.x
 
@@ -24,6 +34,6 @@ Now open [http://localhost:3000](http://localhost:3000).
 
 To watch for client-side file changes, open up a new terminal window and `npm run webpack`.
 
-## Running Client-side Tests
+### Running Client-side Tests
 
 `npm test`
