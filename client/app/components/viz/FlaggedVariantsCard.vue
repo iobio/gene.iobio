@@ -660,6 +660,8 @@
           <v-icon>stop</v-icon>
         </v-btn>
       </div>
+      
+      <v-divider class="mt-1" style="margin-left:10px"></v-divider>
 
       <div style="display:flex">
         <v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>
@@ -717,7 +719,7 @@
             <v-badge>
               <span class="filter-label">{{ geneList.label }}</span>
               <div class="wrapper">
-                <span class="badge-filter">{{ geneList.variantCount }}</span>
+                <span class="badge" style="margin-top: 2px; margin-left: 4px;">{{ geneList.variantCount }}</span>
               </div>
             </v-badge>
 

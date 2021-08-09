@@ -506,22 +506,7 @@ nav.toolbar, nav.v-toolbar
     display: inline-block;
     min-width: 19px;
     padding: 4px 6.5px;
-    border-radius: 50%;
-    font-size: 11px;
-    text-align: center;
-    background: #adabab !important;
-    color: #fefefe !important;
-    margin-top: -6px;
-}
-
-
-.badge-filter {
-    margin-top: 2px;
-    margin-left: 5px;
-    display: inline-block;
-    min-width: 19px;
-    padding: 4px 6.5px;
-    border-radius: 50%;
+    border-radius: 10px;
     font-size: 11px;
     text-align: center;
     background: #adabab !important;
