@@ -4,6 +4,10 @@
 
  ![Screenshot of gene.iobio](./client/assets/images/github/screenshot.png)
 
+ ![How it works](./client/assets/images/github/how-it-works.png)
+
+ ![Features](./client/assets/images/github/features.png)
+
 # Installation 
 
 ## Install the client application
