@@ -403,6 +403,10 @@
       top: 2px
       width: 20px
       height: 20px
+      
+    span.badge 
+      margin-top: 2px
+      margin-left: 4px
 
     &.empty
 
@@ -412,6 +416,9 @@
 
       .badge__badge.primary, .v-badge__badge.primary
         background-color: #d6d6d6 !important
+      
+      span.badge
+        background: #d6d6d6 !important
 
       .edit-filter-button, .remove-filter-button
         i.material-icons
@@ -856,8 +863,8 @@
 
             <v-badge>
               <span class="filter-label">{{ geneList.label }}</span>
-              <div class="wrapper">
-                <span class="badge" style="margin-top: 2px; margin-left: 4px;">{{ geneList.variantCount }}</span>
+              <div class="badge-wrapper">
+                <span class="badge">{{ geneList.variantCount }}</span>
               </div>
             </v-badge>
 

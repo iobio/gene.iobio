@@ -495,7 +495,7 @@ nav.toolbar, nav.v-toolbar
 </style>
 
 <style>
-.wrapper {
+.badge-wrapper {
   display: inline;
   justify-content: center;
   align-items: center;
@@ -735,7 +735,7 @@ nav.toolbar, nav.v-toolbar
           <v-tab v-if="!isBasicMode" >
             <v-badge>
               
-              <div class="wrapper">
+              <div class="badge-wrapper">
                 <span style="margin-right: 3px" class="badge-label"> Genes </span>
                 <span class="badge">{{ geneCount }}</span>
               </div>
@@ -746,7 +746,7 @@ nav.toolbar, nav.v-toolbar
 
             <v-badge>
 
-              <div class="wrapper">
+              <div class="badge-wrapper">
                 <span style="margin-right: 3px" class="badge-label"> Variants </span>
                 <span class="badge">{{ flaggedVariantCount }}</span>
               </div>
