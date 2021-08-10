@@ -184,7 +184,7 @@ export default class Bam {
 
 
     if (fileSelection.files.length != 2) {
-       callback(false, 'must select 2 files, both a .bam and .bam.bai file');
+       callback(false, 'must select 2 files, both a .bam and .bam.bai file (or a .cram and .crai file)');
        return;
     }
 
@@ -194,11 +194,11 @@ export default class Bam {
       return;
     }
 
-    var bamTokens0    = /([^.]*)\.(bam)$/.exec(fileSelection.files[0].name);
-    var bamTokens1    = /([^.]*)\.(bam)$/.exec(fileSelection.files[1].name);
+    var bamTokens0    = /([^.]*)\.(bam|cram)$/.exec(fileSelection.files[0].name);
+    var bamTokens1    = /([^.]*)\.(bam|cram)$/.exec(fileSelection.files[1].name);
 
-    var baiTokens0    = /([^.]*)\.(bai|bam.bai)?$/.exec(fileSelection.files[0].name);
-    var baiTokens1    = /([^.]*)\.(bai|bam.bai)?$/.exec(fileSelection.files[1].name);
+    var baiTokens0    = /([^.]*)\.(bai|bam.bai|crai|cram.crai)?$/.exec(fileSelection.files[0].name);
+    var baiTokens1    = /([^.]*)\.(bai|bam.bai|crai|cram.crai)?$/.exec(fileSelection.files[1].name);
 
 
     var bamFile = null;
@@ -220,16 +220,31 @@ export default class Bam {
         baiFile     = fileSelection.files[0];
         rootBaiFile = baiTokens0[1];
       }
-    }
+    } else if (bamTokens0 && bamTokens0.length > 1 && bamTokens0[bamTokens0.length-1] == 'cram' ) {
+      bamFile     = fileSelection.files[0];
+      rootBamFile = bamTokens0[1];
+      if (baiTokens1 && baiTokens1.length > 1 && (baiTokens1[baiTokens1.length-1] == 'crai' || baiTokens0[baiTokens1.length-1] == 'cram.crai')) {
+        baiFile     = fileSelection.files[1];
+        rootBaiFile = baiTokens1[1];
+      }
+
+    } else if (bamTokens1 && bamTokens1.length > 1 && bamTokens1[bamTokens1.length-1] == 'cram') {
+      bamFile     = fileSelection.files[1];
+      rootBamFile = bamTokens1[1];
+      if (baiTokens0 && baiTokens0.length > 1 && (baiTokens0[baiTokens0.length-1] == 'crai' || baiTokens0[baiTokens0.length-1] == 'cram.crai')) {
+        baiFile     = fileSelection.files[0];
+        rootBaiFile = baiTokens0[1];
+      }
+    } 
 
     if (bamFile == null || baiFile == null) {
-      callback(false, 'You must select BOTH  a compressed bam file  and an index (.bai)  file');
+      callback(false, 'You must select BOTH  a compressed bam file and an index (.bai) file (or a cram file and an index .crai file)');
       return;
     }
 
 
     if (rootBamFile != rootBaiFile) {
-      callback(false, 'The index file must be named ' +  rootBamFile + ".bam.bai" + " or " + rootBamFile + ".bai");
+      callback(false, 'The index file must have the same base file name (the name before the extension) as the bam/cram file.');
       return;
     }
     me.bamFile   = bamFile;
