@@ -403,6 +403,10 @@
       top: 2px
       width: 20px
       height: 20px
+      
+    span.badge 
+      margin-top: 2px
+      margin-left: 4px
 
     &.empty
 
@@ -412,6 +416,9 @@
 
       .badge__badge.primary, .v-badge__badge.primary
         background-color: #d6d6d6 !important
+      
+      span.badge
+        background: #d6d6d6 !important
 
       .edit-filter-button, .remove-filter-button
         i.material-icons
@@ -651,6 +658,75 @@
   font-size: 11px
   font-family: raleway
   padding-top: 2px
+
+#analyze-all-buttons
+  margin-bottom: 10px
+  display: flex
+
+  #analyze-all-button
+    margin: 0px 0px 0px 0px
+    padding: 0px
+    min-width: 90px
+    max-height: 90px
+    padding-right: 5px
+    padding-left: 5px
+
+    .btn__content, .v-btn__content
+      padding-left: 0px
+      padding-right: 0px
+      color: $link-color
+      font-size: 13px
+      font-weight: 500
+
+      i.material-icons
+        font-size: 20px
+
+  #call-variants-dropdown
+    display: inline-block
+    vertical-align: middle
+    text-align: left
+
+    button
+      margin: 0px 0px 0px 0px
+      padding: 0px
+      min-width: 115px
+      max-height: 115px
+      padding-right: 5px
+      padding-left: 5px
+      margin-left: 5px
+
+      .btn__content, .v-btn__content
+        padding-left: 0px
+        padding-right: 0px
+        color: $link-color
+        font-size: 13px
+        font-weight: 500
+
+        i.material-icons
+          font-size: 20px
+          padding-right: 3px
+
+  .btn__content, .v-btn__content
+    padding: 0 4px
+
+
+  .stop-analysis-button
+    display: inline-block
+    vertical-align: middle
+    position: relative
+    min-width: 18px
+    max-width: 18px
+    padding: 0px
+    margin-top: 8px
+    height: 22px
+    margin-right: 10px
+    margin-left: 5px
+    color: $light-badge-color
+
+    i.material-icons
+      font-size: 20px
+      padding-right: 3px  
+      
 </style>
 
 <template>
@@ -726,7 +802,7 @@
     </div>      
 
 
-    <div class="variant-toolbar" >
+      <div class="variant-toolbar" >
 
 
       <div style="display:flex">
@@ -786,8 +862,10 @@
 
 
             <v-badge>
-              <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
               <span class="filter-label">{{ geneList.label }}</span>
+              <div class="badge-wrapper">
+                <span class="badge">{{ geneList.variantCount }}</span>
+              </div>
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed' && geneList.label !== 'Filtered variants'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
