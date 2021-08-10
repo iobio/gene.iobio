@@ -1784,7 +1784,6 @@ export default {
     callVariants: function(theGene) {
       let self = this;
       if (theGene == null) {
-        self.showLeftPanelForGenes();
         self.cacheHelper.analyzeAll(self.cohortModel, true);
       } else {
         self.promiseLoadData()
@@ -2560,7 +2559,6 @@ export default {
     },
 
     onAnalyzeAll: function() {
-      this.showLeftPanelForGenes();
       this.cacheHelper.analyzeAll(this.cohortModel);
     },
     onClearAllGenes: function() {
