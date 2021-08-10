@@ -767,6 +767,8 @@ nav.toolbar, nav.v-toolbar
              :isSimpleMode="isSimpleMode"
              :forMyGene2="forMyGene2"
              :cohortModel="cohortModel"
+             :isLoaded="cohortModel && cohortModel.isLoaded"
+             :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
              :activeFilterName="activeFilterName"
              :launchedFromClin="launchedFromClin"
              :launchedFromHub="launchedFromHub"
@@ -777,6 +779,8 @@ nav.toolbar, nav.v-toolbar
              :toClickVariant="toClickVariant"
              :variantSetCounts="variantSetCounts"
              :selectedVariant="selectedVariant"
+             :analyzeAllInProgress="analyzeAllInProgress"
+             :callAllInProgress="callAllInProgress"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
@@ -784,6 +788,9 @@ nav.toolbar, nav.v-toolbar
              @gene-lists-changed="onGeneListsChanged"
              @filter-settings-applied="onFilterSettingsApplied"
              @filter-settings-closed="onFilterSettingsClose"
+             @analyze-all="onAnalyzeAll"
+             @call-variants="onCallVariants"
+             @stop-analysis="onStopAnalysis"
             >
             </flagged-variants-card>
 
