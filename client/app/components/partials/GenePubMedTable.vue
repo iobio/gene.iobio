@@ -206,7 +206,6 @@
 
   <div id="pubmed-table" v-if="pubMedEntries && geneModel && selectedGene">
     <div v-if="pubMedEntries && pubMedEntries.length > 0" class="pubmed-header-row" style="display: flex;">
-
       <v-text-field id="search-input" 
         v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title != 'loading...'"
         v-model="search" 
@@ -220,9 +219,6 @@
         <span v-if="pubMedCount && pubMedCount > 0" class="count">({{ pubMedCount }})</span>
       </div>
       <span class="match-message"> {{ matchMessage }} </span>
-
-
-
     </div>
 
     <div class="loader" 
