@@ -3716,39 +3716,6 @@ SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverage
   })
 
 
-
-  // if (geneCoverageAll && Object.keys(geneCoverageAll).length > 0) {
-  //   for (var relationship in geneCoverageAll) {
-  //     var geneCoverage = geneCoverageAll[relationship];
-  //     if (geneCoverage) {
-  //       geneCoverage.forEach(function(gc) {
-  //         if (gc.region != 'NA') {
-  //           if (filterModel.isLowCoverage(gc)) {
-  //             dangerObject.geneCoverageProblem = true;
-  // 
-  // 
-  //             // build up the geneCoveragerInfo to show exon numbers with low coverage
-  //             // and for which samples
-  //             //   example:  {'Exon 1/10': {'proband'}, 'Exon 9/10': {'proband', 'mother'}}
-  //             var exon = null;
-  //             if (gc.exon_number) {
-  //               exon =  +gc.exon_number.split("\/")[0];
-  //             } else {
-  //               exon = +gc.id;
-  //             }
-  //             if (dangerObject.geneCoverageInfo[exon] == null) {
-  //               dangerObject.geneCoverageInfo[exon] = {};
-  //             }
-  //             dangerObject.geneCoverageInfo[exon][relationship] = true;
-  //           }
-  // 
-  //         }
-  //       })
-  //     }
-  //   }
-  // 
-  // }
-
   // When we are just showing gene badges for low coverage and not reporting on status of
   // filtered variants, clear out the all of the danger summary object related to variants
   if (clearOtherDanger) {
