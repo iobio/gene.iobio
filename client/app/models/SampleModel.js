@@ -506,7 +506,6 @@ class SampleModel {
         self.coverageDangerRegions.push(feature);
       }
     })
-    console.log("self.coverageDangerRegions", self.coverageDangerRegions);
   }
 
 
