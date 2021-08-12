@@ -24,9 +24,7 @@ export default class VariantExporter {
       {field: 'highestImpact',    exportVcf: true},
       {field: 'highestImpactInfo',exportVcf: true},
       {field: 'consequence',      exportVcf: true},
-      {field: 'afExAC',           exportVcf: true},
-      {field: 'af1000G',          exportVcf: true},
-      {field: 'afgnomAD',         exportVcf: true},
+      {field: 'af',               exportVcf: true},
       {field: 'inheritance',      exportVcf: true},
       {field: 'polyphen',         exportVcf: true},
       {field: 'SIFT',             exportVcf: true},
@@ -93,6 +91,13 @@ export default class VariantExporter {
       var headerRecordsCalledVariants = [];
       var getHeader = format == 'vcf' ? true : false;
 
+      var extraAnnots = true
+      if (variantEntries.length > 50) {
+        alertify.alert("Warning", 
+          "More than 50 variants are being exported. To prevent high system load, the HGVSc and HGVCp annotations will not be provided in the export file.")
+        extraAnnots = false
+      }
+
       variantEntries.forEach(function(variant) {
         var exportRec = {};
         exportRec.start        = variant.start;
@@ -107,7 +112,7 @@ export default class VariantExporter {
         exportRec.starred      = variant.isFavorite == true ? "Y" : "";
 
         var promise = null;
-        promise = me._promiseCreateExportRecord(variant, exportRec, format, getHeader, sampleNames)
+        promise = me._promiseCreateExportRecord(variant, exportRec, format, getHeader, sampleNames, extraAnnots)
         .then(function(data) {
           var record = data[0];
 
@@ -344,7 +349,7 @@ export default class VariantExporter {
 
 
 
-  _promiseCreateExportRecord(variant, exportRec, format, getHeader, sampleNames) {
+  _promiseCreateExportRecord(variant, exportRec, format, getHeader, sampleNames, extraAnnotations=false) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
@@ -424,7 +429,7 @@ export default class VariantExporter {
                       theVariant = v;
                     }
                   });
-                  me._promiseFormatRecord(theVariant, sourceVariant, theVcfRecs, theGeneObject, theTranscript, format, exportRec)
+                  me._promiseFormatRecord(theVariant, sourceVariant, theVcfRecs, theGeneObject, theTranscript, format, exportRec, extraAnnotations)
                   .then(function(data) {
                     resolve(data);
                   })
@@ -433,20 +438,23 @@ export default class VariantExporter {
             })
 
 
-          } else {
+          } else if (extraAnnotations) {
               me.cohort.getProbandModel()
                .promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variant, format, getHeader, sampleNames)
                .then(function(data) {
                 var theVariant = data[0];
                 var sourceVariant = data[1];
                 var theRawVcfRecords = data[2];
-
-                me._promiseFormatRecord(theVariant, sourceVariant, theRawVcfRecords, theGeneObject, theTranscript, format, exportRec)
+                me._promiseFormatRecord(theVariant, sourceVariant, theRawVcfRecords, theGeneObject, theTranscript, format, exportRec, extraAnnotations)
                   .then(function(data) {
                     resolve(data);
                   })
-
               });
+          } else {
+              me._promiseFormatRecord(variant, variant, [], theGeneObject, theTranscript, format, exportRec, extraAnnotations)
+                .then(function(data) {
+                  resolve(data);
+                })
           }
         } else {
           reject("Problem during exporting variants.  Cannot find transcript " + exportRec.transcript + " in gene " + exportRec.gene);
@@ -496,7 +504,7 @@ export default class VariantExporter {
   }
 
 
-  _promiseFormatRecord(theVariant, sourceVariant, theRawVcfRecords, theGeneObject, theTranscript, format, rec) {
+  _promiseFormatRecord(theVariant, sourceVariant, theRawVcfRecords, theGeneObject, theTranscript, format, rec, extraAnnotations) {
     var me = this;
     return new Promise( function(resolve, reject) {
 
@@ -592,7 +600,7 @@ export default class VariantExporter {
           clinvarLoader)
         .then(function() {
 
-          me.formatDisplay(revisedVariant, rec, format);
+          me.formatDisplay(revisedVariant, rec, format, extraAnnotations);
 
           if (format == 'csv' || format == 'json') {
             resolve([rec]);
@@ -601,7 +609,7 @@ export default class VariantExporter {
           }
         })
       } else {
-        me.formatDisplay(revisedVariant, rec, format);
+        me.formatDisplay(revisedVariant, rec, format, extraAnnotations);
 
         if (format == 'csv' || format == 'json') {
             resolve([rec]);
@@ -615,7 +623,7 @@ export default class VariantExporter {
   }
 
 
-  formatDisplay(variant, rec, format) {
+  formatDisplay(variant, rec, format, extraAnnotations) {
     var me = this;
 
 
@@ -646,11 +654,12 @@ export default class VariantExporter {
     rec.clinvarUrl        = info.clinvarUrl;
     rec.clinvarClinSig    = info.clinvarClinSig;
     rec.clinvarTrait      = info.clinvarTrait;
-    rec.HGVSc             = info.HGVSc;
-    rec.HGVSp             = info.HGVSp;
-    rec.afExAC            = (variant.afExAC == -100 ? "n/a" : variant.afExAC);
-    rec.af1000G           = variant.af1000G;
-    rec.afgnomAD          = variant.afgnomAD == "." ? 0 : variant.afgnomAD;
+
+    if (extraAnnotations) {
+      rec.HGVSc             = info.HGVSc;
+      rec.HGVSp             = info.HGVSp;      
+    }
+    rec.af                = variant.af == "." ? 0 : variant.af;
     rec.qual              = variant.qual;
     rec.filter            = variant.filter;
     rec.freebayesCalled   = variant.fbCalled;
