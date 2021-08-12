@@ -176,7 +176,7 @@ export default {
   data () {
     return {
       REC_GENE_NUMBER: 50,
-      STARTING_INPUT: 'Enter or copy/paste gene names',
+      STARTING_INPUT: 'Enter gene names (<50 recommended)',
       showGenesMenu: null,
       openPhenolyzerPanel: this.isEduMode,
       genesToApply: null,
