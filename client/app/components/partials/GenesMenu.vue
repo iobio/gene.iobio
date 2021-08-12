@@ -186,6 +186,7 @@ export default {
       validGenesMap: {},
       showWarning: false,
       disableApplyBtn: false,
+      geneCount: 0,
       geneRules: [
         v => {
           this.disableApplyBtn = false;
