@@ -447,6 +447,14 @@
           Called variants
         </div>
 
+        <div
+          v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length === 0">
+            <v-badge class="info mb-3">
+              No called variants
+            </v-badge>
+        </div>
+
+
         <variant-viz id="called-variant-viz"
           ref="calledVariantVizRef"
           v-if="showVariantViz"
