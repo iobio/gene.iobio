@@ -70,7 +70,7 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      color: $light-badge-color
+      color: $link-color
 
       i.material-icons
         font-size: 20px
