@@ -591,10 +591,10 @@ class SampleModel {
   }
 
 
-  promiseSummarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel) {
+  promiseSummarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, transcript) {
     var me = this;
     return new Promise(function(resolve, reject) {
-      var dangerSummary = SampleModel._summarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme());
+      var dangerSummary = SampleModel._summarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme(), transcript);
       me.promiseCacheDangerSummary(dangerSummary, geneName).then(function() {
         resolve(dangerSummary);
       },
@@ -3450,7 +3450,7 @@ class SampleModel {
 }
 
 
-SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator, annotationScheme) {
+SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator, annotationScheme, transcript) {
   var dangerCounts = $().extend({}, options);
   dangerCounts.CONSEQUENCE = {};
   dangerCounts.IMPACT = {};
@@ -3464,7 +3464,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
   dangerCounts.failedFilter = false;
   dangerCounts.geneName = geneName;
 
-  SampleModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel);
+  SampleModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel, transcript);
 
   dangerCounts.badges = filterModel.flagVariants(theVcfData);
 
@@ -3662,42 +3662,61 @@ SampleModel._determineAffectedStatusForVariant = function(variant, affectedStatu
 
 
 
-SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverageAll, filterModel, clearOtherDanger=false, refreshOnly=false ) {
+SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverageAll, filterModel, transcript, clearOtherDanger=false, refreshOnly=false ) {
   dangerObject.geneCoverageInfo = {};
   dangerObject.geneCoverageProblem = false;
-
-
-  if (geneCoverageAll && Object.keys(geneCoverageAll).length > 0) {
-    for (var relationship in geneCoverageAll) {
-      var geneCoverage = geneCoverageAll[relationship];
-      if (geneCoverage) {
-        geneCoverage.forEach(function(gc) {
-          if (gc.region != 'NA') {
-            if (filterModel.isLowCoverage(gc)) {
-              dangerObject.geneCoverageProblem = true;
-
-
-              // build up the geneCoveragerInfo to show exon numbers with low coverage
-              // and for which samples
-              //   example:  {'Exon 1/10': {'proband'}, 'Exon 9/10': {'proband', 'mother'}}
-              var exon = null;
-              if (gc.exon_number) {
-                exon =  +gc.exon_number.split("\/")[0];
-              } else {
-                exon = +gc.id;
-              }
-              if (dangerObject.geneCoverageInfo[exon] == null) {
-                dangerObject.geneCoverageInfo[exon] = {};
-              }
-              dangerObject.geneCoverageInfo[exon][relationship] = true;
+  
+  transcript.features.forEach(function(feature) {
+    if (geneCoverageAll && Object.keys(geneCoverageAll).length > 0) {
+      for (var relationship in geneCoverageAll) {
+        var geneCoverage = geneCoverageAll[relationship];
+        if (geneCoverage) {
+          var matchingFeatureCoverage = geneCoverage.filter(function(gc) {
+            return feature.start == gc.start && feature.end == gc.end;
+          });
+          
+          //Some exons with UTR does not have coverage. So we cannot flag them with the isLowCoverage() as the coverage is not available.
+          if(matchingFeatureCoverage.length === 0 ){
+            dangerObject.geneCoverageProblem = true;
+            var exon = null;
+            if (feature.exon_number) {
+              exon =  +feature.exon_number.split("\/")[0];
             }
-
+            if (dangerObject.geneCoverageInfo[exon] == null) {
+              dangerObject.geneCoverageInfo[exon] = {};
+            }
+            dangerObject.geneCoverageInfo[exon][relationship] = true;
           }
-        })
-      }
-    }
+          geneCoverage.forEach(function(gc) {
+            if (gc.region != 'NA') {
+              if (filterModel.isLowCoverage(gc)) {
+                dangerObject.geneCoverageProblem = true;
 
-  }
+
+                // build up the geneCoveragerInfo to show exon numbers with low coverage
+                // and for which samples
+                //   example:  {'Exon 1/10': {'proband'}, 'Exon 9/10': {'proband', 'mother'}}
+                var exon = null;
+                if (gc.exon_number) {
+                  exon =  +gc.exon_number.split("\/")[0];
+                } else {
+                  exon = +gc.id;
+                }
+                if (dangerObject.geneCoverageInfo[exon] == null) {
+                  dangerObject.geneCoverageInfo[exon] = {};
+                }
+                dangerObject.geneCoverageInfo[exon][relationship] = true;
+              }
+
+            }
+          })
+        }
+      }
+
+    }
+    
+  })
+
 
   // When we are just showing gene badges for low coverage and not reporting on status of
   // filtered variants, clear out the all of the danger summary object related to variants

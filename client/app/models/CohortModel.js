@@ -1573,7 +1573,7 @@ class CohortModel {
 
           })
           .then(function(theVcfData) {
-              return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel);
+              return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript);
           })
           .then(function(theDangerSummary) {
             self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
@@ -1691,7 +1691,7 @@ class CohortModel {
                   feature.geneCoverage[model.getRelationship()] = gc;
                   feature.danger[model.getRelationship()] = self.filterModel.isLowCoverage(gc);
                 } else {
-                  feature.danger[model.getRelationship()]  = false;
+                  feature.danger[model.getRelationship()]  = true;
                 }
               } else {
                 feature.danger[model.getRelationship()] = false;
