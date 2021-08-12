@@ -39,10 +39,10 @@ textarea#copy-paste-genes
 
     .v-badge__badge
       background-color: $nav-badge-color !important
-      left: 80px
+      left: 38px
       height: 14px
       width: 65px
-      top: -11px
+      top: -17px
       border-radius: 4px
 
       span

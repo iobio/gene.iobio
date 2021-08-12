@@ -1,29 +1,37 @@
-## Create .env file
+# Overview
 
-```bash
-# replace iobio-backend with the url of the gru backend service.
-# replace iobio-backend-mosaic with the url of the gru backend service when launching from mosaic
+[gene.iobio](https://gene.iobio) is an interact application for inspecting variants in real-time.
 
-echo "IOBIO_BACKEND=iobio-backend-mosaic" > .env
-echo "IOBIO_BACKEND_MOSAIC=iobio-backend-mosaic" >> .env
-echo "USE_SSL=true" >> .env
-```
+ ![Screenshot of gene.iobio](./client/assets/images/github/screenshot.png)
+
+ ![How it works](./client/assets/images/github/how-it-works.png)
+
+ ![Features](./client/assets/images/github/features.png)
+
+# Installation 
+
+## Install the client application
+
+### Install [nodejs](https://nodejs.org/en/download/)
+
+### Create an env file 
 
 [Sample env file](./.env.template)
+```bash
+cp ./env.template .env
+```
 
-## Starting App
-
-Using node version 8.5.x
+### Start the app
 
 ```
 npm install
 npm start
 ```
 
+### Launch the app in the web browser
 Now open [http://localhost:3000](http://localhost:3000).
 
+
+### Rebuild after client-side changes 
 To watch for client-side file changes, open up a new terminal window and `npm run webpack`.
 
-## Running Client-side Tests
-
-`npm test`

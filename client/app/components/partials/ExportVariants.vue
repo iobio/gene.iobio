@@ -155,6 +155,7 @@ export default {
           "gene-iobio-flagged-variants." + self.exportFormat );
         self.readyToDownload = true;
         document.getElementById('download-file').click();
+        self.onClose()
       })
     },
     onClose: function() {

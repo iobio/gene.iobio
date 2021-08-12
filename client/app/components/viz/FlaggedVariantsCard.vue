@@ -70,6 +70,123 @@
   padding-bottom: 20px
   background-color: white
 
+
+
+  #analyze-all-buttons
+    margin-bottom: 10px
+    display: flex
+    margin-top: 5px
+    padding-top: 5px
+    padding-right: 20px
+    padding-left: 10px
+
+    #analyze-all-button
+      margin: 0px 0px 0px 0px
+      padding: 0px
+      min-width: 110px
+      padding-right: 5px
+      padding-left: 5px
+      background-color: $link-color
+      height: 28px
+
+      .btn__content, .v-btn__content
+        padding-left: 0px
+        padding-right: 0px
+        color: white
+        font-size: 13px
+        font-weight: 500
+
+        i.material-icons
+          font-size: 20px
+          color: white
+
+    #call-variants-dropdown
+      display: inline-block
+      vertical-align: middle
+      text-align: left
+
+      button
+        margin: 0px 0px 0px 0px
+        padding: 0px
+        min-width: 120px
+        padding-right: 5px
+        padding-left: 5px
+        height: 28px
+        background-color: $link-color
+
+        .btn__content, .v-btn__content
+          padding-left: 0px
+          padding-right: 0px
+          color: white
+          font-size: 13px
+          font-weight: 500
+
+          i.material-icons
+            font-size: 20px
+            padding-right: 3px
+
+    .btn__content, .v-btn__content
+      padding: 0 4px
+
+
+    .stop-analysis-button
+      display: inline-block
+      vertical-align: middle
+      position: relative
+      min-width: 18px
+      max-width: 18px
+      padding: 0px
+      margin-top: 2px
+      height: 22px
+      margin-right: 10px
+      margin-left: 5px
+      color: $link-color
+
+      i.material-icons
+        font-size: 20px
+        padding-right: 3px
+
+  #analyze-genes-progress
+    margin-top: 10px
+    margin-bottom: 20px
+    margin-left: 10px
+
+    .progress-counts
+      padding-left: 4px
+      font-size: 12px
+      color: $text-color
+
+    .progress-bar-label
+      margin-right: 4px
+      width: 55px
+      font-size: 12px
+      display: inline-block
+
+    .loaded-progress
+      height: 5px
+      width: 150px
+      margin: 1px 0
+      display: inline-block
+      .progress-linear__bar__determinate, .v-progress-linear__bar__determinate
+        background-color: $loaded-variant-color !important
+      .progress-linear__background, .v-progress-linear__background
+        background-color: $loaded-variant-color !important
+        height: 20px !important
+
+    .called-progress
+      height: 5px
+      width: 150px
+      margin: 1px 0
+      display: inline-block
+      .progress-linear__bar__determinate, .v-progress-linear__bar__determinate
+        background-color: $called-variant-color !important
+      .progress-linear__background,  .v-progress-linear__background
+        background-color: $called-variant-color !important
+        height: 20px !important
+
+    .progress-linear, .v-progress-linear
+        margin: 1px 0
+
   #add-filter-button, #export-variants-button, #import-variants-button
     margin: 0px 0px 0px 0px
     padding: 0px
@@ -125,7 +242,7 @@
   .variant-toolbar
     padding-right: 20px
     background-color: white
-    margin-bottom: 10px
+    margin-bottom: 5px
     margin-top: 20px
 
     #mygene2-basic-title
@@ -286,6 +403,10 @@
       top: 2px
       width: 20px
       height: 20px
+      
+    span.badge 
+      margin-top: 2px
+      margin-left: 4px
 
     &.empty
 
@@ -295,6 +416,9 @@
 
       .badge__badge.primary, .v-badge__badge.primary
         background-color: #d6d6d6 !important
+      
+      span.badge
+        background: #d6d6d6 !important
 
       .edit-filter-button, .remove-filter-button
         i.material-icons
@@ -534,13 +658,152 @@
   font-size: 11px
   font-family: raleway
   padding-top: 2px
+
+#analyze-all-buttons
+  margin-bottom: 10px
+  display: flex
+
+  #analyze-all-button
+    margin: 0px 0px 0px 0px
+    padding: 0px
+    min-width: 90px
+    max-height: 90px
+    padding-right: 5px
+    padding-left: 5px
+
+    .btn__content, .v-btn__content
+      padding-left: 0px
+      padding-right: 0px
+      color: $link-color
+      font-size: 13px
+      font-weight: 500
+
+      i.material-icons
+        font-size: 20px
+
+  #call-variants-dropdown
+    display: inline-block
+    vertical-align: middle
+    text-align: left
+
+    button
+      margin: 0px 0px 0px 0px
+      padding: 0px
+      min-width: 115px
+      max-height: 115px
+      padding-right: 5px
+      padding-left: 5px
+      margin-left: 5px
+
+      .btn__content, .v-btn__content
+        padding-left: 0px
+        padding-right: 0px
+        color: $link-color
+        font-size: 13px
+        font-weight: 500
+
+        i.material-icons
+          font-size: 20px
+          padding-right: 3px
+
+  .btn__content, .v-btn__content
+    padding: 0 4px
+
+
+  .stop-analysis-button
+    display: inline-block
+    vertical-align: middle
+    position: relative
+    min-width: 18px
+    max-width: 18px
+    padding: 0px
+    margin-top: 8px
+    height: 22px
+    margin-right: 10px
+    margin-left: 5px
+    color: $light-badge-color
+
+    i.material-icons
+      font-size: 20px
+      padding-right: 3px  
+      
 </style>
 
 <template>
 <div>
   <v-card  style="padding: 0px" id="flagged-variants-card" :class="{basic: isBasicMode}">
+    <div id="analyze-all-buttons" v-if="!isEduMode && !isBasicMode" :class="{'clin': launchedFromClin}" >
 
-    <div class="variant-toolbar" >
+      <v-btn  id="analyze-all-button"
+      v-if="isLoaded && !isFullAnalysis && !isSimpleMode"
+      class="level-edu"
+      flat
+      @click="onAnalyzeAll"
+      v-tooltip.top-center="`Analyze variants in all genes`" >
+        <v-icon>playlist_play</v-icon>
+        Analyze all
+      </v-btn>
+
+
+      <v-btn
+      v-if="analyzeAllInProgress && !isFullAnalysis && !isSimpleMode"
+      class="stop-analysis-button"
+      @click="onStopAnalysis"  flat
+      v-tooltip.top-center="`Stop analysis`" >
+        <v-icon>stop</v-icon>
+      </v-btn>
+
+      <v-spacer></v-spacer>
+
+      <div id="call-variants-dropdown"
+        v-if="isLoaded && hasAlignments && !isFullAnalysis && !isSimpleMode"
+      >
+        <v-menu offset-y>
+          <v-btn  slot="activator" flat
+          v-tooltip.top-center="`Call variants from alignments`"
+          class="call-variants-button">
+            <v-icon>playlist_add</v-icon>
+            Call variants
+          </v-btn>
+          <v-list>
+              <v-list-tile v-for="action in callVariantsActions" :key="action" @click="onCallVariants(action)">
+              <v-list-tile-title>{{ action }}</v-list-tile-title>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+      </div>
+      <v-btn
+      v-if="callAllInProgress && !isFullAnalysis"
+      class="stop-analysis-button"
+      @click="onStopAnalysis" flat 
+      v-tooltip.top-center="`Stop calling variants`" >
+        <v-icon>stop</v-icon>
+      </v-btn>      
+    </div>
+
+    <div id="analyze-genes-progress">
+      <div>
+        <div v-if="totalCount > 0">
+          <span class="progress-bar-label">Analyzed</span>
+          <v-progress-linear  class="loaded-progress"   v-model="loadedPercentage">
+          </v-progress-linear>
+          <span class="progress-counts">
+            {{ loadedCount }} of {{ totalCount }}
+          </span>
+        </div>
+        <div v-if="totalCount > 0" style="clear:both">
+          <span v-show="callAllInProgress || calledPercentage > 0" class="progress-bar-label">Called</span>
+          <v-progress-linear v-show="callAllInProgress || calledPercentage > 0" class="called-progress"  v-model="calledPercentage">
+          </v-progress-linear>
+          <span class="progress-counts" v-show="callAllInProgress || calledPercentage > 0">
+            {{ calledCount }} of {{ totalCount }} </span>
+        </div>
+      </div>
+    </div>      
+
+
+      <div class="variant-toolbar" >
+
 
       <div style="display:flex">
         <v-btn v-if="!isSimpleMode && !isBasicMode" id="add-filter-button" @click="onNewFilter" flat>
@@ -565,13 +828,16 @@
         </v-btn>
       </div>
 
-      <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
+
+
+    <span  v-show="isBasicMode && !launchedFromClin && variantCount > 0" id="mygene2-basic-title">
         Clinvar Pathogenic/Likely Pathogenic Variants &lt; 1% frequency
       </span>
 
     </div>
 
-    <div v-if="!isSimpleMode" style="display:flex;justify-content:center;margin-top:15px;margin-bottom:15px">
+    <div v-if="!isSimpleMode && variantSetCounts.total && variantSetCounts.total > 0" 
+    style="display:flex;justify-content:center;margin-top:15px;margin-bottom:15px">
       <v-badge v-if="variantSetCounts.total && variantSetCounts.total > 0" class="info">
        {{ variantSetCounts.total }} variants imported from genome-wide filters</v-badge>
     </div>
@@ -596,8 +862,10 @@
 
 
             <v-badge>
-              <span  class="filter-badge-count" slot="badge">{{ geneList.variantCount }}</span>
               <span class="filter-label">{{ geneList.label }}</span>
+              <div class="badge-wrapper">
+                <span class="badge">{{ geneList.variantCount }}</span>
+              </div>
             </v-badge>
 
             <v-btn v-if="!isSimpleMode && geneList.label != 'Reviewed' && geneList.label !== 'Filtered variants'" flat @click="onEditFilter(geneList)" class="edit-filter-button">
@@ -868,6 +1136,10 @@ export default {
     toClickVariant: null,
     variantSetCounts: null,
     selectedVariant: null,
+    isLoaded: null,
+    hasAlignments: null,
+    analyzeAllInProgress: null,
+    callAllInProgress: null,
   },
 
   data() {
@@ -886,10 +1158,28 @@ export default {
       variantExpansionControl: [true],
       selectedGeneSources: {},
       showExportVariants: false,
-      showImportVariants: false
+      showImportVariants: false,
+
+      callVariantsActions: ['All genes', 'Selected gene'],
+      geneSummaries: [],
+      loadedPercentage: 0,
+      calledPercentage: 0,
+      loadedCount: 0,
+      calledCount: 0,
+      totalCount: 0,
     }
   },
   methods: {
+    onAnalyzeAll: function() {
+      this.$emit("analyze-all");
+    },
+    onCallVariants: function(action) {
+      this.$emit("call-variants", action == 'All genes' ? null : this.selectedGene)
+    },
+    onStopAnalysis: function() {
+      this.$emit("stop-analysis");
+    },
+
 
     onClose(){
       this.showPopup = false;
@@ -1339,6 +1629,53 @@ export default {
         return "";
       }
     },
+    updateProgressCounts: function() {
+      let self = this;
+
+      // Create an array of gene summaries for the genes to show in the genes card
+      var theGeneNames = self.geneNames;
+      let geneNamesToDisplay = null;
+      if (theGeneNames) {
+        geneNamesToDisplay = theGeneNames.filter(function(geneName) {
+          return self.cohortModel.geneModel.isCandidateGene(geneName);
+        })
+        self.geneSummaries = geneNamesToDisplay.map(function(geneName) {
+          let inProgress = self.genesInProgress ? self.genesInProgress.indexOf(geneName) >= 0 : false;
+
+          var dangerSummary = self.cohortModel.geneModel.getDangerSummary(geneName);
+
+          return {'name': geneName,
+          'isFlagged': false,
+          'dangerSummary': dangerSummary,
+          'inProgress': inProgress};
+        })
+      } else {
+        self.geneSummaries = [];
+      }
+
+      // Determine loaded gene and called gene progress
+      if (geneNamesToDisplay && geneNamesToDisplay.length > 0) {
+        self.calledCount = 0;
+        self.loadedCount = 0;
+        self.totalCount = geneNamesToDisplay.length;
+        geneNamesToDisplay.forEach(function(geneName) {
+          var dangerSummary = self.cohortModel.geneModel.getDangerSummary(geneName);
+          if (dangerSummary) {
+            self.loadedCount++;
+          }
+          if (dangerSummary && dangerSummary.CALLED) {
+            self.calledCount++;
+          }
+        })
+
+        self.loadedPercentage = self.loadedCount >  0 ? (self.loadedCount / self.totalCount) * 100 : 0;
+        self.calledPercentage = self.calledCount >  0 ? (self.calledCount / self.totalCount) * 100 : 0;
+      } else {
+        self.loadedPercentage = 0;
+      }
+
+
+    },
 
   },
   mounted: function() {
@@ -1352,6 +1689,7 @@ export default {
   watch: {
     geneNames: function(newGeneNames, oldGeneNames) {
       this.populateGeneLists();
+      this.updateProgressCounts();
     },
     selectedVariant: function(){
       this.clickedVariant = this.selectedVariant;
@@ -1362,6 +1700,9 @@ export default {
     toClickVariant: function() {
       this.populateGeneLists();
       this.clickedVariant = this.toClickVariant;
+    },
+    genesInProgress: function() {
+      this.updateProgressCounts();
     }
   }
 }
