@@ -205,8 +205,7 @@
 <template>
 
   <div id="pubmed-table" v-if="pubMedEntries && geneModel && selectedGene">
-    <div class="pubmed-header-row" style="display: flex;align-items: bottom;">
-
+    <div v-if="pubMedEntries && pubMedEntries.length > 0" class="pubmed-header-row" style="display: flex;">
       <v-text-field id="search-input" 
         v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title != 'loading...'"
         v-model="search" 
@@ -220,9 +219,6 @@
         <span v-if="pubMedCount && pubMedCount > 0" class="count">({{ pubMedCount }})</span>
       </div>
       <span class="match-message"> {{ matchMessage }} </span>
-
-
-
     </div>
 
     <div class="loader" 
@@ -232,8 +228,6 @@
     </div> 
 
     <div class="pubmed-rows" v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title != 'loading...'">
-           
-
       <div class="pubmed-row" v-for="entry, idx in pubMedEntries" :key="entry.uid">
         <span v-if="showAll" class="pubmed-item-number">{{ idx+1 }}.</span>
         <span  class="pubmed-launch" >
@@ -246,6 +240,9 @@
         <span v-if="showAuthor" class="pubmed-pub-author">{{ entry.firstAuthor }}</span>
         <span class="pubmed-pub-date">{{ entry.pubDate }}</span>
       </div>
+    </div>
+    <div class="pubmed-row" v-if="pubMedEntries && pubMedEntries.length === 0">
+      No PubMed entries found for {{ selectedGene.gene_name }}
     </div>
 
   </div>

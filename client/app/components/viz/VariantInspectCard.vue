@@ -640,9 +640,9 @@
           <div class="variant-column-subheader"  v-if="!isSimpleMode">
             <span>{{ afGnomAD.source }}</span>
           </div>
-          <variant-inspect-row :clazz="afGnomAD.class" :value="afGnomAD.percent" :label="afGnomAD.label" :link="afGnomAD.link" >
+          <variant-inspect-row :clazz="afGnomAD.class" :value="gnomadFreq" :label="afGnomAD.label" :link="afGnomAD.link" >
           </variant-inspect-row>
-          <variant-inspect-row v-if="!isSimpleMode && afGnomAD.percentPopMax" :clazz="afGnomAD.class" :value="afGnomAD.percentPopMax" :label="`Population max allele frequency`" >
+          <variant-inspect-row v-if="!isSimpleMode && afGnomAD.freqPopMax" :clazz="afGnomAD.class" :value="gnomadFreqPopMax" :label="`Population max allele frequency`" >
           </variant-inspect-row>
           <div v-if="!isSimpleMode && afGnomAD.totalCount > 0" class="variant-row no-icon">
             <span>{{ afGnomAD.altCount }} alt of {{ afGnomAD.totalCount }} total</span>
@@ -656,13 +656,13 @@
               :selectedVariant="selectedVariant">
           </variant-af-pop-menu>
           
-          <div v-if="!isSimpleMode && afGnomAD.hasOwnProperty('percentExomes')" 
+          <div v-if="!isSimpleMode && afGnomAD.hasOwnProperty('freqExomes')"
           style="margin-top: 0px"  class="variant-column-subheader" >
             <span>gnomAD exomes</span>
           </div>
           <variant-inspect-row 
-            v-if="!isSimpleMode && afGnomAD.hasOwnProperty('percentExomes')"  
-            clazz="level-blank" :value="afGnomAD.percentExomes" label="Allele frequency" >
+            v-if="!isSimpleMode && afGnomAD.hasOwnProperty('freqExomes')"
+            clazz="level-blank" :value="afGnomAD.freqExomes" label="Allele frequency" >
           </variant-inspect-row>
 
       </div>
@@ -943,7 +943,7 @@ export default {
             if (popAF.length > 0) {
               popAF += ", ";
             }
-            popAF += label + " " + (afObject[key] == "." ? "0%" : self.globalApp.utility.percentage(afObject[key]));
+            popAF += label + " " + (afObject[key] == "." ? "0" : d3.format('.3n')(afObject[key]));
           }
         }
       }
@@ -1612,8 +1612,12 @@ export default {
         return 'HGVS';
       }
     },
-
-
+    gnomadFreqPopMax: function() {
+      return this.afGnomAD ? d3.format('.3n')(this.afGnomAD.freqPopMax) : '-';
+    },
+    gnomadFreq: function() {
+      return this.afGnomAD ? d3.format('.3n')(this.afGnomAD.freq) : '-';
+    },
 
       coord: function() {
       let self = this;
@@ -1736,9 +1740,9 @@ export default {
 
             var gnomAD = {};
             gnomAD.label = "Allele frequency"
-            gnomAD.percent       = afTot == 0 ? '0%' : d3.format(".3%")(afTot);
+            gnomAD.freq       = afTot == 0 ? '0' : d3.format(".3n")(afTot);
             gnomAD.class         = this.getAfClass(afTot);
-            gnomAD.percentPopMax = afPopMax == 0 ? '0%' : d3.format(".3%")(afPopMax);
+            gnomAD.freqPopMax    = afPopMax == 0 ? '0' : d3.format(".3n")(afPopMax);
             gnomAD.altCount      = acTot;
             gnomAD.totalCount    = anTot;
             gnomAD.homCount      = nHomTot;
@@ -1786,17 +1790,15 @@ export default {
           } else {
             afExomes = this.selectedVariant.vepAf.gnomAD.AF == "." ? 0 : this.selectedVariant.vepAf.gnomAD.AF;
           }
-          let percentExomes = this.globalApp.utility.percentage(afExomes);
-
 
           if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
-            return {percent: "?", link: null, class: "", source: source, 
+            return {freq: "?", link: null, class: "", source: source,
                     infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2,
-                    percentExomes: percentExomes};            
+                    afExomes: afExomes};
           } else if (this.selectedVariant.gnomAD.af  == '.') {
-            return {percent: "0%", link: null, class: "level-high", source: source,
+            return {freq: "0", link: null, class: "level-high", source: source,
                     infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2,
-                    percentExomes: percentExomes};
+                    afExomes: afExomes};
           } else  {
             var gnomAD = {};
             gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
@@ -1810,9 +1812,9 @@ export default {
             };
 
             gnomAD.label = "Allele frequency"
-            gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
+            gnomAD.freq       = d3.format('.3n')(this.selectedVariant.gnomAD.af);
             gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
-            gnomAD.percentPopMax = this.selectedVariant.gnomAD.afPopMax != '.' ? this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax) : '0%';
+            gnomAD.freqPopMax    = this.selectedVariant.gnomAD.afPopMax != '.' ? this.selectedVariant.gnomAD.afPopMax : '0.0';
             gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
             gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
             gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
@@ -1821,7 +1823,7 @@ export default {
             gnomAD.infoPopup     = infoPopup;
             gnomAD.extraInfo1    = extraInfo1;
             gnomAD.extraInfo2    = extraInfo2;
-            gnomAD.percentExomes = percentExomes
+            gnomAD.afExomes      =  afExomes
             
             return gnomAD;
 
@@ -1831,7 +1833,7 @@ export default {
 
 
           if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
-            return {percent: "?", link: null, class: "", source: source, infoPopup: "gnomAD"};
+            return {freq: "?", link: null, class: "", source: source, infoPopup: "gnomAD"};
           } else  {
             var gnomAD = {};
             gnomAD.link = null;
@@ -1857,12 +1859,12 @@ export default {
             }
 
              
-            gnomAD.percent       = this.globalApp.utility.percentage(af);
+            gnomAD.freq       = d3.format('.3n')(af);
             gnomAD.class         = this.getAfClass(af);
             gnomAD.label         = "Allele frequency"
             gnomAD.source        = source;
 
-            gnomAD.percentPopMax = 0;
+            gnomAD.freqPopMax = 0;
             gnomAD.altCount      = 0;
             gnomAD.totalCount    = 0;
             gnomAD.homCount      = 0;

@@ -65,7 +65,7 @@
             <span class="gnomad-pop-entry-label">
                 {{ popKey }}</span>
             <span class="gnomad-pop-entry-value">
-                {{ getAfPct(pop.af) }}
+                {{ getAf(pop.af) }}
             </span>
         </div>
       </div>
@@ -91,11 +91,9 @@ export default {
       showMenu: null
     }
   },
-  watch: {
-  },
   methods: {
-    getAfPct: function(popAf) {
-      return (popAf == null || popAf == '' || popAf == 0  || popAf == '.' ? '0%' : d3.format(".3%")(popAf))
+    getAf: function(popAf) {
+      return ((popAf == null || popAf == '' || popAf == 0  || popAf == '.') ? '0' : d3.format(".3n")(popAf))
     }
   },
   created: function() {
@@ -105,7 +103,6 @@ export default {
   updated: function() {
   },
   computed: {
-
   },
   watch: {
   }

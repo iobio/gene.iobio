@@ -928,6 +928,7 @@ class CohortModel {
         .then(function(resultMap) {
           self.getModel('known-variants').inProgress.loadingVariants = false;
           self.setLoadedVariants(theGene, 'known-variants');
+          self.getModel('known-variants')
           resolve(resultMap);
         })
       })
@@ -1237,7 +1238,6 @@ class CohortModel {
             for (var rel in resultMap) {
               theResultMap[rel] = resultMap[rel];
             }
-
           }
         });
         annotatePromises.push(p);

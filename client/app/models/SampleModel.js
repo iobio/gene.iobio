@@ -1766,6 +1766,7 @@ class SampleModel {
         }
         // Reassign features for first vcf object & return
         annotationResults[0].features = combinedFeatures;
+        annotationResults[0].count = combinedFeatures.length;
         resolve(annotationResults[0]);
       }
     })
@@ -1841,6 +1842,7 @@ class SampleModel {
                       theVcfData.features.forEach(function (variant) {
                         me._determineHighestAf(variant);
                       })
+                      model.vcfData['count'] = model.vcfData.features.length;
                     }
                   }
 

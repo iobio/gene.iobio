@@ -150,7 +150,7 @@
       <v-flex xs12 style="margin-top:10px;margin-bottom: 5px"  >
 
         <v-flex id="max-af"   >
-          <v-text-field style="display:inline-block" label="Max Population Allele Freq" suffix="%" v-model="maxAf" hide-details>
+          <v-text-field style="display:inline-block" label="Max Population Allele Freq" :rules="numericRules" v-model="maxAf" hide-details>
           </v-text-field>
           <info-popup :name="gnomADInfoPopup"></info-popup>
         </v-flex>
@@ -341,7 +341,13 @@ export default {
         'transcript_ablation',
         'transcript_amplification',
         'upstream_gene_variant'
-      ]
+      ],
+      numericRules: [
+        v => {
+          let valid = v ? (+v > 0.0 && +v < 1.0) : true;
+          return valid || 'Freq must be between 0.0-1.0';
+        }
+      ],
     }
   },
   methods: {
@@ -368,7 +374,7 @@ export default {
       }
       this.name                      = flagCriteria.name;
       this.key                       = flagCriteria.key + flagCriteria.name;
-      this.maxAf                     = flagCriteria.maxAf ? flagCriteria.maxAf * 100 : null;
+      this.maxAf                     = flagCriteria.maxAf;
       this.minRevel                  = flagCriteria.minRevel;
       this.selectedClinvarCategories = flagCriteria.clinvar;
       this.selectedImpacts           = flagCriteria.impact;
@@ -398,7 +404,7 @@ export default {
       }
 
       flagCriteria.key = this.key;
-      flagCriteria.maxAf            = this.maxAf ? this.maxAf / 100 : null;
+      flagCriteria.maxAf            = this.maxAf;
       flagCriteria.minRevel         = this.minRevel;
       flagCriteria.clinvar =          this.selectedClinvarCategories;
       flagCriteria.impact           = this.selectedImpacts;
@@ -433,7 +439,7 @@ export default {
       return !this.globalApp.gnomADExtraAll;
     },
     isValidFilter: function() {
-      return this.maxAf ||
+      return (this.maxAf && this.maxAf > 0 && this.maxAf < 1) ||
              this.minRevel ||
              (this.selectedClinvarCategories && this.selectedClinvarCategories.length > 0) ||
              (this.selectedImpacts && this.selectedImpacts.length > 0) ||

@@ -6,7 +6,6 @@
 textarea#copy-paste-genes
   font-size: 14px
 
-
 .menu__content
   .expansion-panel__header
     padding-left: 10px
@@ -39,7 +38,7 @@ textarea#copy-paste-genes
       vertical-align: bottom
 
     .v-badge__badge
-      background-color: $nav-badge-color !important;
+      background-color: $nav-badge-color !important
       left: 38px
       height: 14px
       width: 65px
@@ -56,13 +55,12 @@ textarea#copy-paste-genes
 #acmg-genes-button, #cancel-button,  #apply-button
   height: 30px !important
 
-#apply-button
-  background-color: $app-button-color !important
-  color: white !important
-
 #enter-genes-input, #phenotype-input
   label
     font-weight: normal
+  .success--text
+    color: #FFB300 !important
+    caret-color: #FFB300 !important
 
 #acmg-genes-button
   margin-bottom: -10px
@@ -83,9 +81,7 @@ textarea#copy-paste-genes
     :nudge-width="isEduMode ? 450 : 400"
     bottom
     :nudge-bottom="isEduMode ? 20 : 0"
-    v-model="showGenesMenu"
-    >
-
+    v-model="showGenesMenu">
       <v-btn id="show-genes-button"
        v-bind:class="{'icon': buttonIcon != null}"
        v-bind:raised="isEduMode"
@@ -94,9 +90,7 @@ textarea#copy-paste-genes
        slot="activator"
        @mouseover="onMouseOver()"
        @mouseleave="onMouseLeave()"
-       v-tooltip.bottom-left="{content: tooltipContent, show: showTooltipFlag, trigger: 'manual'}"
-      >
-        
+       v-tooltip.bottom-left="{content: tooltipContent, show: showTooltipFlag, trigger: 'manual'}">
         <v-badge right  >
           <span class="button-label">
             Gene list
@@ -105,10 +99,7 @@ textarea#copy-paste-genes
             slot="badge">{{ selectedGenePanelShortName }}</span>
         </v-badge>
       </v-btn>
-
-
         <div  v-if="isEduMode" class="full-width" style="padding:20px">
-          
           <div id="phenolyzer-panel" slot="header">Search by Phenotype</div>
           <div style="margin-bottom:15px;margin-left:16px;">
               <phenotype-search
@@ -122,12 +113,8 @@ textarea#copy-paste-genes
               </phenotype-search>
           </div>
         </div>
-
       <div class="full-width" style="padding: 10px 20px 10px 20px">
-
-
         <div v-if="!isEduMode" style="justify-content:flex-end;display:flex">
-
           <v-select
             :items="genePanelNames"
             :clearable="true"
@@ -135,32 +122,34 @@ textarea#copy-paste-genes
             @change="onGenePanelSelected"
             label="Gene panels">
           </v-select>
-  
         </div>
-
           <div id="enter-genes-input">
             <v-textarea
               id="copy-paste-genes"
               multi-line
               rows="12"
-              label="Enter or copy/paste gene names"
+              :label="STARTING_INPUT"
               v-model="genesToApply"
-            >
+              :rules="geneRules"
+              :success="showWarning"
+              :success-messages="warningMessage">
             </v-textarea>
+            <div class="v-text-field__details" style="margin-top: -18px">
+              <div class="v-messages theme--light">
+                <div class="v-messages__wrapper" style="float: right">
+                  {{ geneCount }}
+                </div>
+              </div>
+            </div>
           </div>
           <div v-if="!isEduMode" style="display:flex;justify-content:flex-end">
-
-                <v-btn id="apply-button"  @click="onApplyGenes">
+                <v-btn color="#30638e" :dark="!disableApplyBtn" id="apply-button" :disabled="disableApplyBtn" @click="onApplyGenes">
                  Apply
                 </v-btn>
-
                 <v-btn id="cancel-button"  @click="onCancel">
                  Cancel
                 </v-btn>
-
           </div>
-
-
       </div>
     </v-menu>
 </template>
@@ -169,9 +158,7 @@ textarea#copy-paste-genes
 
 import PhenotypeSearch from '../partials/PhenotypeSearch.vue'
 import AppIcon from '../partials/AppIcon.vue'
-
-
-
+import validGenes from '../../../data/genes.json'
 
 export default {
   name: 'genes-menu',
@@ -188,20 +175,53 @@ export default {
   },
   data () {
     return {
+      REC_GENE_NUMBER: 50,
+      STARTING_INPUT: 'Enter or copy/paste gene names',
       showGenesMenu: null,
       openPhenolyzerPanel: this.isEduMode,
-
       genesToApply: null,
-
       showTooltipFlag: false,
       tooltipContent: null,
-
-      selectedGenePanelName: null
-
-
+      selectedGenePanelName: null,
+      validGenesMap: {},
+      showWarning: false,
+      disableApplyBtn: false,
+      geneCount: 0,
+      geneRules: [
+        v => {
+          this.disableApplyBtn = false;
+          let numGenes = v ? v.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i).length : 0;
+          let isRec = numGenes <= this.REC_GENE_NUMBER;
+          this.showWarning = !isRec;
+          return isRec;
+        },
+        v => {
+          let numGenes = v ? v.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i).length : 0;
+          let isValid = numGenes <= 200;
+          if (!isValid) {
+            this.showWarning = false;
+            this.disableApplyBtn = true;
+          }
+          return isValid || 'Error: maximum number of genes is 200';
+        },
+        v => {
+          const self = this;
+          let invalids = [];
+          let genes = v ? v.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i) : [];
+          genes.forEach((gene) => {
+            if (!self.validGenesMap[gene.toUpperCase()] && gene !== '') {
+              invalids.push(gene.toUpperCase());
+            }
+          });
+          let isValid = invalids.length === 0;
+          if (!isValid) {
+            self.showWarning = false;
+            self.disableApplyBtn = true;
+          }
+          return isValid || 'Cannot process the following genes: ' + invalids.join();
+        },
+      ],
     }
-  },
-  watch: {
   },
   methods: {
     onApplyGenes: function(options) {
@@ -209,7 +229,7 @@ export default {
       if (options == null) {
         options = {isFromClin: false, phenotypes: self.phenotypeTermEntered};
       }
-      self.$emit("apply-genes", self.genesToApply, options );
+      self.$emit("apply-genes", self.genesToApply, options);
       self.showGenesMenu = false;
     },
     onCancel: function() {
@@ -257,20 +277,24 @@ export default {
       this.showTooltipFlag = false;
     },
     showTooltip: function(tooltip) {
-      let self = this;
+      const self = this;
       self.showTooltipFlag = true;
       self.tooltipContent = tooltip;
     },
     hideTooltip: function() {
-      let self = this;
       this.showTooltipFlag = false;
+    },
+    populateValidGenesMap: function () {
+      validGenes.forEach((gene) => {
+        this.validGenesMap[gene['gene_name']] = true;
+      });
     }
   },
   created: function() {
   },
   mounted: function() {
-  },
-  updated: function() {
+    const self = this;
+    self.populateValidGenesMap();
   },
   computed: {
     genePanelNames: function() {
@@ -282,6 +306,13 @@ export default {
       } else {
         return ""
       }
+    },
+    warningMessage: function() {
+      if (this.showWarning) {
+        return 'Warning: recommended gene count is <' + this.REC_GENE_NUMBER + ' for optimal performance';
+      } else {
+        return '';
+      }
     }
   },
   watch: {
@@ -290,6 +321,13 @@ export default {
       if (self.showGenesMenu) {
         this.genesToApply = self.geneModel.geneNames.join(", ");
         this.hideTooltip()
+      }
+    },
+    genesToApply: function () {
+      if (this.genesToApply === this.STARTING_INPUT || this.genesToApply === '') {
+        this.geneCount = 0;
+      } else {
+        this.geneCount = this.genesToApply.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i).length;
       }
     }
   }

@@ -444,7 +444,7 @@
         </gene-viz>
         <div class="chart-label"
         v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0">
-          called variants
+          Called variants
         </div>
 
         <variant-viz id="called-variant-viz"
