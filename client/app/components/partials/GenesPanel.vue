@@ -13,15 +13,16 @@
     #analyze-all-button
       margin: 0px 0px 0px 0px
       padding: 0px
-      min-width: 90px
-      max-height: 90px
+      min-width: 100px
       padding-right: 5px
       padding-left: 5px
+      background-color: $link-color
+      height: 28px
 
       .btn__content, .v-btn__content
         padding-left: 0px
         padding-right: 0px
-        color: $link-color
+        color: white
         font-size: 13px
         font-weight: 500
 
@@ -36,11 +37,11 @@
       button
         margin: 0px 0px 0px 0px
         padding: 0px
-        min-width: 115px
-        max-height: 115px
+        min-width: 120px
         padding-right: 5px
         padding-left: 5px
-        margin-left: 5px
+        background-color: $link-color
+        height: 28px
 
         .btn__content, .v-btn__content
           padding-left: 0px
@@ -48,6 +49,7 @@
           color: $link-color
           font-size: 13px
           font-weight: 500
+          color: white
 
           i.material-icons
             font-size: 20px
@@ -64,11 +66,11 @@
       min-width: 18px
       max-width: 18px
       padding: 0px
-      margin-top: 8px
+      margin-top: 2px
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      color: $light-badge-color
+      color: $link-color
 
       i.material-icons
         font-size: 20px

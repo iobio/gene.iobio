@@ -137,9 +137,11 @@ export default {
       if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
         self.geneModel.promiseGetOMIMEntries(self.selectedGene.gene_name)
         .then(function(data) {
-          self.omimEntries = data.omimEntries.map(function(entry) {
-            return entry.phenotype;
-          });
+          if (data && data.omimEntries) {
+            self.omimEntries = data.omimEntries.map(function(entry) {
+              return entry.phenotype;
+            });
+          }
         })
       } else {
         self.omimEntries = [];

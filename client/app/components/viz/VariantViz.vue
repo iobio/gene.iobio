@@ -70,8 +70,8 @@
 
 <template>
     <div class="variant-viz">
-      <div v-if="data && data.count<1 && vizRef==='loadedVariants'">
-        <v-badge class="info" style="margin: 20px;">No variants are present in {{ model.relationship }}</v-badge>
+      <div v-if="showEmptyLabel">
+        <v-badge class="info" style="margin: 20px;">No variants are present in {{ formattedRelationship }}</v-badge>
       </div>
     </div>
 </template>
@@ -154,6 +154,20 @@ export default {
       selectedVariant: null,
       selectedVariantRelationship: null,
       vizRef: null
+    },
+    computed: {
+      showEmptyLabel: function() {
+        return this.data && this.data.count < 1 && this.vizRef==='loadedVariants';
+      },
+      formattedRelationship: function() {
+        if (this.model && this.model.relationship === 'known-variants') {
+          return "Clinvar database";
+        } else if (this.model && this.model.relationship === 'sfari-variants') {
+          return "Sfari database";
+        } else {
+          return this.model.relationship;
+        }
+      }
     },
     data() {
       return {

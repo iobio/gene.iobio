@@ -96,8 +96,14 @@ aside.navigation-drawer, aside.v-navigation-drawer
           font-size: 11px
           color: white
           top: 0px
-          width: 19px
-          height: 19px
+          min-width: 20px
+          max-width: 30px
+          height: 20px
+          border-radius: 10px !important
+          
+          .badge-count
+            padding-left: 5px
+            padding-right: 5px
 
 
 
@@ -489,6 +495,24 @@ nav.toolbar, nav.v-toolbar
 </style>
 
 <style>
+.badge-wrapper {
+  display: inline;
+  justify-content: center;
+  align-items: center;
+  min-height: 20px;
+}
+
+.badge {
+    display: inline-block;
+    min-width: 19px;
+    padding: 4px 6.5px;
+    border-radius: 10px;
+    font-size: 11px;
+    text-align: center;
+    background: #adabab !important;
+    color: #fefefe !important;
+    position: absolute;
+}
 
 @media only screen and (max-width: 600px) {
 #phenolyzer-search {
@@ -710,16 +734,23 @@ nav.toolbar, nav.v-toolbar
         >
           <v-tab v-if="!isBasicMode" >
             <v-badge>
-              <span class="badge-count" slot="badge">{{ geneCount }}</span>
-              <span class="badge-label">Genes</span>
+              
+              <div class="badge-wrapper">
+                <span style="margin-right: 3px" class="badge-label"> Genes </span>
+                <span class="badge">{{ geneCount }}</span>
+              </div>
             </v-badge>
-
+            
           </v-tab>
           <v-tab>
 
             <v-badge>
-              <span class="badge-count" slot="badge">{{ flaggedVariantCount }}</span>
-              <span class="badge-label">Variants</span>
+
+              <div class="badge-wrapper">
+                <span style="margin-right: 3px" class="badge-label"> Variants </span>
+                <span class="badge">{{ flaggedVariantCount }}</span>
+              </div>
+
             </v-badge>
 
           </v-tab>
@@ -767,6 +798,8 @@ nav.toolbar, nav.v-toolbar
              :isSimpleMode="isSimpleMode"
              :forMyGene2="forMyGene2"
              :cohortModel="cohortModel"
+             :isLoaded="cohortModel && cohortModel.isLoaded"
+             :hasAlignments="cohortModel && cohortModel.isLoaded && cohortModel.hasAlignments()"
              :activeFilterName="activeFilterName"
              :launchedFromClin="launchedFromClin"
              :launchedFromHub="launchedFromHub"
@@ -777,6 +810,8 @@ nav.toolbar, nav.v-toolbar
              :toClickVariant="toClickVariant"
              :variantSetCounts="variantSetCounts"
              :selectedVariant="selectedVariant"
+             :analyzeAllInProgress="analyzeAllInProgress"
+             :callAllInProgress="callAllInProgress"
              @flagged-variant-selected="onFlaggedVariantSelected"
              @apply-variant-notes="onApplyVariantNotes"
              @apply-variant-interpretation="onApplyVariantInterpretation"
@@ -784,6 +819,9 @@ nav.toolbar, nav.v-toolbar
              @gene-lists-changed="onGeneListsChanged"
              @filter-settings-applied="onFilterSettingsApplied"
              @filter-settings-closed="onFilterSettingsClose"
+             @analyze-all="onAnalyzeAll"
+             @call-variants="onCallVariants"
+             @stop-analysis="onStopAnalysis"
             >
             </flagged-variants-card>
 
@@ -1383,6 +1421,7 @@ export default {
       this.$emit("analyze-all");
     },
     onCallVariants: function(action) {
+      this.activeTab = 0;
       this.$emit("call-variants", action)
     },
     onStopAnalysis: function() {

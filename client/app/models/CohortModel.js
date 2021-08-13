@@ -96,15 +96,15 @@ class CohortModel {
 
     this.demoModelInfos = {
       'exome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['proband'], 'crai': this.demoBams.exome['proband'] + '.crai' },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['mother'], 'crai': this.demoBams.exome['mother'] + '.crai'  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['father'], 'crai': this.demoBams.exome['father'] + '.crai' },
-        {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['sibling'], 'crai': this.demoBams.exome['sibling'] + '.crai' },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['proband'], 'bai': this.demoBams.exome['proband'] + '.crai' },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['mother'], 'bai': this.demoBams.exome['mother'] + '.crai'  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['father'], 'bai': this.demoBams.exome['father'] + '.crai' },
+        {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['sibling'], 'bai': this.demoBams.exome['sibling'] + '.crai' },
       ],
       'genome': [
-        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['proband'], 'crai': this.demoBams.genome['proband'] + '.crai'  },
-        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['mother'],  'crai': this.demoBams.genome['mother'] + '.crai'  },
-        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',   'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['father'],  'crai': this.demoBams.genome['father'] + '.crai'  },
+        {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['proband'], 'bai': this.demoBams.genome['proband'] + '.crai'  },
+        {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['mother'],  'bai': this.demoBams.genome['mother'] + '.crai'  },
+        {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',   'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['father'],  'bai': this.demoBams.genome['father'] + '.crai'  },
       ]
     }
     this.eduTourModelInfos = {
@@ -928,6 +928,7 @@ class CohortModel {
         .then(function(resultMap) {
           self.getModel('known-variants').inProgress.loadingVariants = false;
           self.setLoadedVariants(theGene, 'known-variants');
+          self.getModel('known-variants')
           resolve(resultMap);
         })
       })
@@ -1237,7 +1238,6 @@ class CohortModel {
             for (var rel in resultMap) {
               theResultMap[rel] = resultMap[rel];
             }
-
           }
         });
         annotatePromises.push(p);
@@ -1573,7 +1573,7 @@ class CohortModel {
 
           })
           .then(function(theVcfData) {
-              return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel);
+              return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript);
           })
           .then(function(theDangerSummary) {
             self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
@@ -1691,7 +1691,7 @@ class CohortModel {
                   feature.geneCoverage[model.getRelationship()] = gc;
                   feature.danger[model.getRelationship()] = self.filterModel.isLowCoverage(gc);
                 } else {
-                  feature.danger[model.getRelationship()]  = false;
+                  feature.danger[model.getRelationship()]  = true;
                 }
               } else {
                 feature.danger[model.getRelationship()] = false;

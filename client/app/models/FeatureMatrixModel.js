@@ -583,7 +583,7 @@ class FeatureMatrixModel {
           }          
         } else {
           if (key.indexOf(",") > 0) {
-            first_token = key.split(",")[0];
+            let first_token = key.split(",")[0];
             if (me.getTranslator().clinvarMap[key]) { 
               var rank = me.getTranslator().clinvarMap[key].value;
               if (rank < lowestRank) {

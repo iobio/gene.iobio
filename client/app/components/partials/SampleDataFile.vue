@@ -39,14 +39,14 @@
     <v-flex xs9>
       <v-text-field
         v-if="fileType == 'url'"
-        v-bind:label="'Enter ' + label +  ' URL'"
+        v-bind:label="'Enter ' + label +  ' URL' + (label === 'bam' ? ' (optional)' : '')"
         hide-details
         v-model="url"
         @change="onUrlChange"
       ></v-text-field>
       <v-text-field
         v-if="fileType == 'url' && (separateUrlForIndex || indexUrl)"
-        v-bind:label="'Enter ' + indexLabel +  ' URL'"
+        v-bind:label="'Enter ' + indexLabel +  ' URL' + (indexLabel === 'bai' ? ' (optional)' : '')"
         hide-details
         v-model="indexUrl"
         @change="onUrlChange"
