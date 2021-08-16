@@ -1691,7 +1691,7 @@ class CohortModel {
                   feature.geneCoverage[model.getRelationship()] = gc;
                   feature.danger[model.getRelationship()] = self.filterModel.isLowCoverage(gc);
                 } else {
-                  feature.danger[model.getRelationship()]  = true;
+                  feature.danger[model.getRelationship()]  = false;
                 }
               } else {
                 feature.danger[model.getRelationship()] = false;

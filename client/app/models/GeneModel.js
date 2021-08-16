@@ -740,7 +740,7 @@ class GeneModel {
   _getSortedExonsForTranscript(transcript) {
     var sortedExons = transcript
       .features.filter(function(feature) {
-        return feature.feature_type.toUpperCase() == 'UTR' || feature.feature_type.toUpperCase() == 'CDS';
+        return feature.feature_type.toUpperCase() == 'EXON';
       })
       .sort(function(feature1, feature2) {
 
