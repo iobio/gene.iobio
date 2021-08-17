@@ -14,34 +14,36 @@ The University of Utah makes no claims that iobio applications, including gene.i
 
  ![Features](./client/assets/images/github/features.png)
 
-# Installation 
+# Install
 
-## Install the client application
+### Client application install
 
-### Install [nodejs](https://nodejs.org/en/download/)
+Dependencies:
+- [nodejs](https://nodejs.org/en/download/)
+- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm/)
 
-### Create an env file 
+Clone the repo:
+```
+git clone https://github.com/iobio/gene.iobio
+```
 
-[Sample env file](./.env.template)
-```bash
+Copy sample env file
+```
+cd gene.iobio
 cp ./env.template .env
 ```
 
-### Start the app
-
+Start the app
 ```
 npm install
 npm start
 ```
 
-### Launch the app in the web browser
-Now open [http://localhost:4026](http://localhost:4026).
+Launch on your localhost
+@ [http://localhost:4026](http://localhost:4026).
 
-
-### Rebuild after client-side changes 
-To watch for client-side file changes, open up a new terminal window and `npm run webpack`.
+### Updating
+Client-side updates can be retrieved using `npm run webpack`.
 
 ## Install the server application
-
-If you want to do a local install, please contact iobioproject@gmail.com
-
+For help with local installs that include the server and backend computational tools, please contact iobioproject@gmail.com
