@@ -37,11 +37,13 @@ npm start
 ```
 
 ### Launch the app in the web browser
-Now open [http://localhost:3000](http://localhost:4026).
+Now open [http://localhost:4026](http://localhost:4026).
 
 
 ### Rebuild after client-side changes 
 To watch for client-side file changes, open up a new terminal window and `npm run webpack`.
 
 ## Install the server application
+
+If you want to do a local install, please contact iobioproject@gmail.com
 
