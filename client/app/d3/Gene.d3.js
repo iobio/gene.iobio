@@ -426,7 +426,10 @@ export default function geneD3() {
       transcript.selectAll('.utr,.cds,.exon').sort(function(a,b){ return parseInt(a.start) - parseInt(b.start)})
         .transition()
           .duration(700)
-          .attr('x', function(d) { return d3.round(x(d.start))})
+          .attr('x', function(d) {
+            if(d.feature_type.toLowerCase() =='utr') return d3.round(x(d.start));
+            else return d3.round(x(d.start)) + 0.4; //To avoid any overlapping 
+          })
           .attr('width', function(d) { return Math.max(minFtWidth, d3.round(x(d.end) - x(d.start)))})
           .attr('y', function(d) {
             if(d.feature_type.toLowerCase() =='utr') return (geneD3_trackHeight - geneD3_utrHeight)/2;
