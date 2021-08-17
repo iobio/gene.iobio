@@ -1,6 +1,6 @@
 # Overview
 
-[gene.iobio](https://gene.iobio) is an interactive application for inspecting variants in real-time.  This application is free for academic use.
+[gene.iobio](https://gene.iobio) is an interactive application for inspecting variants in real-time.  This application is free for academic use. For all commercial use, please contact admin@frameshift.io
 
  ![Screenshot of gene.iobio](./client/assets/images/github/screenshot.png)
 
