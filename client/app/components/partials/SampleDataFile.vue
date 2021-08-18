@@ -75,7 +75,7 @@
       <div>
         <span> {{ indexFileName }} </span>
         <v-btn small flat id="clear-file-button"
-        @click="clearFile"
+        @click="clearIndexFile"
         v-if="indexFileName != null && indexFileName.length > 0">
           Clear
         </v-btn>
@@ -158,11 +158,11 @@ export default {
     }, 100),
     clearFile: function() {
       this.fileName = '';
-      this.$emit("file-selected");
+      this.$emit("file-selected", false);
     },
     clearIndexFile: function(){
       this.indexFileName = '';
-      this.$emit("index-file-selected");
+      this.$emit("index-file-selected", false);
     }
   },
   created: function() {

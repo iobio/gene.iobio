@@ -171,18 +171,27 @@ export default {
     },
     obTbiFileSelected: function(fileSelection){
       let self = this;
-      self.tbiFileSelected = fileSelection; 
-      if(self.vcfFileSelected && self.tbiFileSelected){
-        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
+      if(fileSelection){
+        self.tbiFileSelected = fileSelection; 
+        if(self.vcfFileSelected && self.tbiFileSelected){
+          self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
+        }
+      }
+      else {
+        self.tbiFileSelected = null;
       }
     },
     onVcfFilesSelected: function(fileSelection){
       let self = this;
-      self.vcfFileSelected = fileSelection; 
-      if(self.vcfFileSelected && self.tbiFileSelected){
-        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
+      if(fileSelection){
+        self.vcfFileSelected = fileSelection; 
+        if(self.vcfFileSelected && self.tbiFileSelected){
+          self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
+        }
       }
-      // this.onVcfAndIndexFilesSelected(fileSelection);
+      else {
+        self.vcfFileSelected = null;
+      }
     }, 
     onVcfAndIndexFilesSelected: function(vcfFile, tbiFile) {
       let self = this;

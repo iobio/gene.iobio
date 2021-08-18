@@ -852,48 +852,6 @@ class SampleModel {
 
   }
 
-  // promiseBamFilesSelected(fileSelection) {
-  //   var me = this;
-  //   return new Promise(function(resolve, reject) {
-  //     me.bamData = null;
-  //     me.fbData = null;
-  // 
-  //     if (fileSelection == null) {
-  //       me.bam = new Bam(me.globalApp);
-  //       me.bamFileOpened = false;
-  //       me.bamRefName = null;
-  //       resolve();
-  //     } else {
-  //       me.bam = new Bam(me.globalApp, me.cohort.endpoint);
-  //       me.bam.openBamFile(fileSelection, function(success, message) {
-  //         if (me.lastBamAlertify) {
-  //           me.lastBamAlertify.dismiss();
-  //         }
-  //         if (success) {
-  //           me.bamFileOpened = true;
-  //           me.getBamRefName = me._stripRefName;
-  //           resolve(me.bam.bamFile.name);
-  // 
-  //         } else {
-  //           if (me.lastBamAlertify) {
-  //             me.lastBamAlertify.dismiss();
-  //           }
-  //           var msg = "<span style='font-size:12px'>" + message + "</span>";
-  //               alertify.set('notifier','position', 'top-right');
-  //           me.lastBamAlertify = alertify.error(msg, 15);
-  // 
-  //           reject(message);
-  // 
-  //         }
-  //       });
-  //     }
-  // 
-  // 
-  // 
-  //   });
-  // 
-  // 
-  // }
 
   onBamUrlEntered(bamUrl, baiUrl, callback) {
     var me = this;
@@ -936,7 +894,6 @@ class SampleModel {
   }
 
   promiseVcfFilesSelected(vcfFile, tbiFile) {
-    console.log("promiseVcfFilesSelected");
     var me = this;
   
     return new Promise( function(resolve, reject) {
@@ -964,8 +921,6 @@ class SampleModel {
             me.getVcfRefName = null;
             me.isMultiSample = false;
   
-            console.log("me.vcf.getVcfFile()", me.vcf.getVcfFile());
-  
             // Get the sample names from the vcf header
             me.vcf.getSampleNames( function(sampleNames) {
                 me.sampleNames = sampleNames;
@@ -987,59 +942,6 @@ class SampleModel {
     });
   }
   
-  
-  
-//   promiseVcfFilesSelected(fileSelection) {
-//   var me = this;
-// 
-//   return new Promise( function(resolve, reject) {
-//     me.sampleName = null;
-//     me.vcfData = null;
-// 
-//     if (fileSelection == null) {
-//       me.vcfFileOpened = false;
-//       me.vcfUrlEntered = false;
-//       me.getVcfRefName = null;
-//       me.isMultiSample = false;
-//       me.vcf.clearVcfFile();
-//       resolve();
-//     } else {
-//       me.vcf.openVcfFile( fileSelection,
-//       function(success, message) {
-//         if (me.lastVcfAlertify) {
-//           me.lastVcfAlertify.dismiss();
-//         }
-//         if (success) {
-// 
-// 
-//           me.vcfFileOpened = false;
-//           me.vcfUrlEntered = true;
-//           me.getVcfRefName = null;
-//           me.isMultiSample = false;
-// 
-//           console.log("me.vcf.getVcfFile()", me.vcf.getVcfFile());
-// 
-//           // Get the sample names from the vcf header
-//           me.vcf.getSampleNames( function(sampleNames) {
-//               me.sampleNames = sampleNames;
-//               me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
-//               resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
-//             });
-//         } else {
-// 
-//           var msg = "<span style='font-size:12px'>" + message + "</span>";
-//             alertify.set('notifier','position', 'top-right');
-//             me.lastVcfAlertify = alertify.error(msg, 15);
-// 
-//           reject(message);
-//         }
-//       });
-//     }
-// 
-// 
-//   });
-// }
-
 
   clearVcf(cardIndex) {
 

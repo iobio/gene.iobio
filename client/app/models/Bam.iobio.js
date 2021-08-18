@@ -180,26 +180,21 @@ export default class Bam {
   }
   
   
-  openBamFile(bamFile, baiFile, callback) {
+  openBamFile(bamInputFile, baiInputFile, callback) {
     var me = this;
 
 
-    // if (fileSelection.files.length != 2) {
-    //    callback(false, 'must select 2 files, both a .bam and .bam.bai file (or a .cram and .crai file)');
-    //    return;
-    // }
-
-    if (me.globalApp.utility.endsWith(bamFile.files[0].name, ".sam") ||
-        me.globalApp.utility.endsWith(baiFile.files[0].name, ".sam")) {
+    if (me.globalApp.utility.endsWith(bamInputFile.files[0].name, ".sam") ||
+        me.globalApp.utility.endsWith(baiInputFile.files[0].name, ".sam")) {
       callback(false, 'You must select a bam file, not a sam file');
       return;
     }
 
-    var bamTokens0    = /([^.]*)\.(bam|cram)$/.exec(bamFile.files[0].name);
-    var bamTokens1    = /([^.]*)\.(bam|cram)$/.exec(baiFile.files[0].name);
+    var bamTokens0    = /([^.]*)\.(bam|cram)$/.exec(bamInputFile.files[0].name);
+    var bamTokens1    = /([^.]*)\.(bam|cram)$/.exec(baiInputFile.files[0].name);
 
-    var baiTokens0    = /([^.]*)\.(bai|bam.bai|crai|cram.crai)?$/.exec(bamFile.files[0].name);
-    var baiTokens1    = /([^.]*)\.(bai|bam.bai|crai|cram.crai)?$/.exec(baiFile.files[0].name);
+    var baiTokens0    = /([^.]*)\.(bai|bam.bai|crai|cram.crai)?$/.exec(bamInputFile.files[0].name);
+    var baiTokens1    = /([^.]*)\.(bai|bam.bai|crai|cram.crai)?$/.exec(baiInputFile.files[0].name);
 
 
     var bamFile = null;
@@ -207,33 +202,33 @@ export default class Bam {
     var rootBamFile = null;
     var rootBaiFile = null
     if (bamTokens0 && bamTokens0.length > 1 && bamTokens0[bamTokens0.length-1] == 'bam' ) {
-      bamFile     = bamFile.files[0];
+      bamFile     = bamInputFile.files[0];
       rootBamFile = bamTokens0[1];
       if (baiTokens1 && baiTokens1.length > 1 && (baiTokens1[baiTokens1.length-1] == 'bai' || baiTokens1[baiTokens1.length-1] == 'bam.bai')) {
-        baiFile     = baiFile.files[0];
+        baiFile     = baiInputFile.files[0];
         rootBaiFile = baiTokens1[1];
       }
 
     } else if (bamTokens1 && bamTokens1.length > 1 && bamTokens1[bamTokens1.length-1] == 'bam') {
-      bamFile     = fileSelection.files[1];
+      bamFile     = baiInputFile.files[0];
       rootBamFile = bamTokens1[1];
       if (baiTokens0 && baiTokens0.length > 1 && (baiTokens0[baiTokens0.length-1] == 'bai' || baiTokens0[baiTokens0.length-1] == 'bam.bai')) {
-        baiFile     = fileSelection.files[0];
+        baiFile     = bamInputFile.files[0];
         rootBaiFile = baiTokens0[1];
       }
     } else if (bamTokens0 && bamTokens0.length > 1 && bamTokens0[bamTokens0.length-1] == 'cram' ) {
-      bamFile     = fileSelection.files[0];
+      bamFile     = bamInputFile.files[0];
       rootBamFile = bamTokens0[1];
-      if (baiTokens1 && baiTokens1.length > 1 && (baiTokens1[baiTokens1.length-1] == 'crai' || baiTokens0[baiTokens1.length-1] == 'cram.crai')) {
-        baiFile     = fileSelection.files[1];
+      if (baiTokens1 && baiTokens1.length > 1 && (baiTokens1[baiTokens1.length-1] == 'crai' || baiTokens1[baiTokens1.length-1] == 'cram.crai')) {
+        baiFile     = baiInputFile.files[0];
         rootBaiFile = baiTokens1[1];
       }
 
     } else if (bamTokens1 && bamTokens1.length > 1 && bamTokens1[bamTokens1.length-1] == 'cram') {
-      bamFile     = fileSelection.files[1];
+      bamFile     = baiInputFile.files[0];
       rootBamFile = bamTokens1[1];
       if (baiTokens0 && baiTokens0.length > 1 && (baiTokens0[baiTokens0.length-1] == 'crai' || baiTokens0[baiTokens0.length-1] == 'cram.crai')) {
-        baiFile     = fileSelection.files[0];
+        baiFile     = bamInputFile.files[0];
         rootBaiFile = baiTokens0[1];
       }
     } 
@@ -258,84 +253,6 @@ export default class Bam {
     return;
   }
 
-
-  // openBamFile(fileSelection, callback) {
-  //   var me = this;
-  // 
-  // 
-  //   if (fileSelection.files.length != 2) {
-  //      callback(false, 'must select 2 files, both a .bam and .bam.bai file (or a .cram and .crai file)');
-  //      return;
-  //   }
-  // 
-  //   if (me.globalApp.utility.endsWith(fileSelection.files[0].name, ".sam") ||
-  //       me.globalApp.utility.endsWith(fileSelection.files[1].name, ".sam")) {
-  //     callback(false, 'You must select a bam file, not a sam file');
-  //     return;
-  //   }
-  // 
-  //   var bamTokens0    = /([^.]*)\.(bam|cram)$/.exec(fileSelection.files[0].name);
-  //   var bamTokens1    = /([^.]*)\.(bam|cram)$/.exec(fileSelection.files[1].name);
-  // 
-  //   var baiTokens0    = /([^.]*)\.(bai|bam.bai|crai|cram.crai)?$/.exec(fileSelection.files[0].name);
-  //   var baiTokens1    = /([^.]*)\.(bai|bam.bai|crai|cram.crai)?$/.exec(fileSelection.files[1].name);
-  // 
-  // 
-  //   var bamFile = null;
-  //   var baiFile = null;
-  //   var rootBamFile = null;
-  //   var rootBaiFile = null
-  //   if (bamTokens0 && bamTokens0.length > 1 && bamTokens0[bamTokens0.length-1] == 'bam' ) {
-  //     bamFile     = fileSelection.files[0];
-  //     rootBamFile = bamTokens0[1];
-  //     if (baiTokens1 && baiTokens1.length > 1 && (baiTokens1[baiTokens1.length-1] == 'bai' || baiTokens1[baiTokens1.length-1] == 'bam.bai')) {
-  //       baiFile     = fileSelection.files[1];
-  //       rootBaiFile = baiTokens1[1];
-  //     }
-  // 
-  //   } else if (bamTokens1 && bamTokens1.length > 1 && bamTokens1[bamTokens1.length-1] == 'bam') {
-  //     bamFile     = fileSelection.files[1];
-  //     rootBamFile = bamTokens1[1];
-  //     if (baiTokens0 && baiTokens0.length > 1 && (baiTokens0[baiTokens0.length-1] == 'bai' || baiTokens0[baiTokens0.length-1] == 'bam.bai')) {
-  //       baiFile     = fileSelection.files[0];
-  //       rootBaiFile = baiTokens0[1];
-  //     }
-  //   } else if (bamTokens0 && bamTokens0.length > 1 && bamTokens0[bamTokens0.length-1] == 'cram' ) {
-  //     bamFile     = fileSelection.files[0];
-  //     rootBamFile = bamTokens0[1];
-  //     if (baiTokens1 && baiTokens1.length > 1 && (baiTokens1[baiTokens1.length-1] == 'crai' || baiTokens0[baiTokens1.length-1] == 'cram.crai')) {
-  //       baiFile     = fileSelection.files[1];
-  //       rootBaiFile = baiTokens1[1];
-  //     }
-  // 
-  //   } else if (bamTokens1 && bamTokens1.length > 1 && bamTokens1[bamTokens1.length-1] == 'cram') {
-  //     bamFile     = fileSelection.files[1];
-  //     rootBamFile = bamTokens1[1];
-  //     if (baiTokens0 && baiTokens0.length > 1 && (baiTokens0[baiTokens0.length-1] == 'crai' || baiTokens0[baiTokens0.length-1] == 'cram.crai')) {
-  //       baiFile     = fileSelection.files[0];
-  //       rootBaiFile = baiTokens0[1];
-  //     }
-  //   } 
-  // 
-  //   if (bamFile == null || baiFile == null) {
-  //     callback(false, 'You must select BOTH  a compressed bam file and an index (.bai) file (or a cram file and an index .crai file)');
-  //     return;
-  //   }
-  // 
-  // 
-  //   if (rootBamFile != rootBaiFile) {
-  //     callback(false, 'The index file must have the same base file name (the name before the extension) as the bam/cram file.');
-  //     return;
-  //   }
-  //   me.bamFile   = bamFile;
-  //   me.baiFile   = baiFile;
-  // 
-  //   me.sourceType = "file";
-  //   me.makeBamBlob( function() {
-  //     callback(true);
-  //   });
-  //   return;
-  // }
 
 
   fetch( name, start, end, callback, options ) {
