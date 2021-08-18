@@ -163,13 +163,13 @@
                   </v-radio-group>
               </v-flex>
 
-              <v-flex style="width:90px;margin-right:10px" class="mt-2" >
+              <!-- <v-flex style="width:90px;margin-right:10px" class="mt-2" >
                   <v-switch  label="Separate URL for index" hide-details v-model="separateUrlForIndex">
                   </v-switch>
-              </v-flex>
+              </v-flex> -->
 
 
-              <v-flex style="max-width:160px" >
+              <v-flex style="max-width:160px" class="ml-5 mt-2">
                 <v-select
                   label="Species"
                   hide-details
@@ -178,7 +178,7 @@
                 ></v-select>
               </v-flex>
 
-              <v-flex style="max-width:160px" class="ml-2">
+              <v-flex style="max-width:160px" class="ml-2 mt-2">
                 <v-select
                   label="Genome Build"
                   hide-details
@@ -188,7 +188,7 @@
                 ></v-select>
                </v-flex>
 
-              <v-flex style="max-width:160px" class="ml-2">
+              <v-flex style="max-width:160px" class="ml-2 mt-2">
                   <v-select
                     :items="demoActions"
                     item-value="value"

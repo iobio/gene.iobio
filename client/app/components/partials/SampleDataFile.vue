@@ -44,16 +44,17 @@
         v-model="url"
         @change="onUrlChange"
       ></v-text-field>
-      <v-text-field
-        v-if="fileType == 'url' && (separateUrlForIndex || indexUrl)"
-        v-bind:label="'Enter ' + indexLabel +  ' URL' + (indexLabel === 'bai/crai' ? ' (optional)' : '')"
-        hide-details
-        v-model="indexUrl"
-        @change="onUrlChange"
-      ></v-text-field>
+      <div>
+        <span> {{ fileName }} </span>
+        <v-btn small flat id="clear-file-button"
+        @click="clearFile"
+        v-if="fileName != null && fileName.length > 0">
+          Clear
+        </v-btn>
+      </div>
     </v-flex>
-
-    <v-flex xs3 class="mt-2" >
+    <v-flex xs3>
+      <br>
       or
       <file-chooser  class="ml-1"
       title="Choose files"
@@ -61,6 +62,26 @@
       :showLabel="false"
       @file-selected="onFileSelected">
       </file-chooser>
+    </v-flex>
+
+    <v-flex xs9>
+      <v-text-field
+        v-if="fileType == 'url' && (separateUrlForIndex || indexUrl)"
+        v-bind:label="'Enter ' + indexLabel +  ' URL' + (indexLabel === 'bai/crai' ? ' (optional)' : '')"
+        hide-details
+        v-model="indexUrl"
+        @change="onUrlChange"
+      ></v-text-field>
+      <div>
+        <span> {{ indexFileName }} </span>
+        <v-btn small flat id="clear-file-button"
+        @click="clearFile"
+        v-if="indexFileName != null && indexFileName.length > 0">
+          Clear
+        </v-btn>
+      </div>
+    </v-flex>
+    <v-flex xs3>
       <br>
       or
       <file-chooser  class="ml-1"
@@ -70,15 +91,7 @@
       @file-selected="onIndexFileSelected">
       </file-chooser>
     </v-flex>
-
-    <v-flex xs12 >
-      <span> {{ fileName }} </span>
-      <v-btn small flat id="clear-file-button"
-      @click="clearFile"
-      v-if="fileName != null && fileName.length > 0">
-        Clear
-      </v-btn>
-    </v-flex>
+  
   </v-layout>
 
 
@@ -110,7 +123,8 @@ export default {
         fileType: 'url',
         url: null,
         indexUrl: null,
-        fileName: null
+        fileName: null,
+        indexFileName: null
     }
   },
   watch: {
@@ -121,7 +135,6 @@ export default {
   },
   methods: {
     onFileSelected: function(event) {
-      console.log("event.target", event.target);
       if (event.target.files.length > 0) {
         this.fileName = event.target.files[0].name;
         this.url = '';
@@ -130,9 +143,8 @@ export default {
       this.$emit("file-selected", event.target);
     },
     onIndexFileSelected: function(event) {
-      console.log("index", event.target);
       if (event.target.files.length > 0) {
-        this.fileName = event.target.files[0].name;
+        this.indexFileName = event.target.files[0].name;
         this.url = '';
         this.indexUrl = '';
       }
@@ -147,6 +159,10 @@ export default {
     clearFile: function() {
       this.fileName = '';
       this.$emit("file-selected");
+    },
+    clearIndexFile: function(){
+      this.indexFileName = '';
+      this.$emit("index-file-selected");
     }
   },
   created: function() {
