@@ -30,7 +30,7 @@ git clone https://github.com/iobio/gene.iobio
 Copy sample env file
 ```
 cd gene.iobio
-cp ./env.template .env
+cp .env.template .env
 ```
 
 Start the app
