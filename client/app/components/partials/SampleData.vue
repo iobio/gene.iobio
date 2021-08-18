@@ -57,7 +57,8 @@
        :fileAccept="fileAccept.vcf"
        :separateUrlForIndex="separateUrlForIndex"
        @url-entered="onVcfUrlEntered"
-       @file-selected="onVcfFilesSelected">
+       @file-selected="onVcfFilesSelected"
+       @index-file-selected="obTbiFileSelected">
       </sample-data-file>
     </v-flex>
 
@@ -76,13 +77,14 @@
       <sample-data-file
        :defaultUrl="modelInfo.bam"
        :defaultIndexUrl="modelInfo.bai"
-       :label="`bam`"
-        :indexLabel="`bai`"
+       :label="`bam/cram`"
+        :indexLabel="`bai/crai`"
        :filePlaceholder="filePlaceholder.bam"
        :fileAccept="fileAccept.bam"
        :separateUrlForIndex="separateUrlForIndex"
        @url-entered="onBamUrlEntered"
-       @file-selected="onBamFilesSelected">
+       @file-selected="onBamFilesSelected"
+       @index-file-selected="onBaiFileSelected">
       </sample-data-file>
     </v-flex>
 
@@ -118,7 +120,11 @@ export default {
         },
         samples: [],
         sample: null,
-        isAffected: true
+        isAffected: true,
+        vcfFileSelected: null,
+        tbiFileSelected: null,
+        bamFileSelected: null,
+        baiFileSelected: null,
 
     }
   },
@@ -163,11 +169,26 @@ export default {
       }
 
     },
-    onVcfFilesSelected: function(fileSelection) {
+    obTbiFileSelected: function(fileSelection){
+      let self = this;
+      self.tbiFileSelected = fileSelection; 
+      if(self.vcfFileSelected && self.tbiFileSelected){
+        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
+      }
+    },
+    onVcfFilesSelected: function(fileSelection){
+      let self = this;
+      self.vcfFileSelected = fileSelection; 
+      if(self.vcfFileSelected && self.tbiFileSelected){
+        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
+      }
+      // this.onVcfAndIndexFilesSelected(fileSelection);
+    }, 
+    onVcfAndIndexFilesSelected: function(vcfFile, tbiFile) {
       let self = this;
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
-      self.modelInfo.model.promiseVcfFilesSelected(fileSelection)
+      self.modelInfo.model.promiseVcfFilesSelected(vcfFile, tbiFile)
       .then(function(data) {
         self.samples = data.sampleNames;
         if (self.modelInfo.sample && self.samples.indexOf(self.modelInfo.sample) >= 0 ) {
@@ -223,15 +244,29 @@ export default {
       }
     },
     onBamFilesSelected: function(fileSelection) {
+      let self = this; 
+      self.bamFileSelected = fileSelection;
+      if(self.bamFileSelected && self.baiFileSelected){
+        self.onBamAndBaiFilesSelected(self.bamFileSelected, self.baiFileSelected);
+      }
+    },
+    onBaiFileSelected: function(fileSelection) {
+      let self = this; 
+      self.baiFileSelected = fileSelection;
+      if(self.bamFileSelected && self.baiFileSelected){
+        self.onBamAndBaiFilesSelected(self.bamFileSelected, self.baiFileSelected);
+      }
+    },
+    onBamAndBaiFilesSelected: function(bamFile, baiFile){
       let self = this;
-      self.modelInfo.model.promiseBamFilesSelected(fileSelection)
+      self.modelInfo.model.promiseBamFilesSelected(bamFile, baiFile)
       .then(function() {
         self.$emit("sample-data-changed");
       })
       .catch(function(error) {
         self.$emit("sample-data-changed");
       })
-    },
+    }
 
 
   },

@@ -39,14 +39,14 @@
     <v-flex xs9>
       <v-text-field
         v-if="fileType == 'url'"
-        v-bind:label="'Enter ' + label +  ' URL' + (label === 'bam' ? ' (optional)' : '')"
+        v-bind:label="'Enter ' + label +  ' URL' + (label === 'bam/cram' ? ' (optional)' : '')"
         hide-details
         v-model="url"
         @change="onUrlChange"
       ></v-text-field>
       <v-text-field
         v-if="fileType == 'url' && (separateUrlForIndex || indexUrl)"
-        v-bind:label="'Enter ' + indexLabel +  ' URL' + (indexLabel === 'bai' ? ' (optional)' : '')"
+        v-bind:label="'Enter ' + indexLabel +  ' URL' + (indexLabel === 'bai/crai' ? ' (optional)' : '')"
         hide-details
         v-model="indexUrl"
         @change="onUrlChange"
@@ -60,6 +60,14 @@
       :isMultiple="true"
       :showLabel="false"
       @file-selected="onFileSelected">
+      </file-chooser>
+      <br>
+      or
+      <file-chooser  class="ml-1"
+      title="Choose files"
+      :isMultiple="true"
+      :showLabel="false"
+      @file-selected="onIndexFileSelected">
       </file-chooser>
     </v-flex>
 
@@ -113,12 +121,22 @@ export default {
   },
   methods: {
     onFileSelected: function(event) {
+      console.log("event.target", event.target);
       if (event.target.files.length > 0) {
         this.fileName = event.target.files[0].name;
         this.url = '';
         this.indexUrl = '';
       }
       this.$emit("file-selected", event.target);
+    },
+    onIndexFileSelected: function(event) {
+      console.log("index", event.target);
+      if (event.target.files.length > 0) {
+        this.fileName = event.target.files[0].name;
+        this.url = '';
+        this.indexUrl = '';
+      }
+      this.$emit("index-file-selected", event.target);
     },
     onUrlChange: _.debounce(function (newUrl) {
       if (newUrl && newUrl.length > 0) {

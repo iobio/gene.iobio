@@ -311,7 +311,7 @@ export default {
         {'display': 'Demo WGS trio', 'value': 'genome'}
       ],
       demoAction: null,
-      separateUrlForIndex: false,
+      separateUrlForIndex: true,
       possibleSibs: null,
       affectedSibs: null,
       unaffectedSibs: null,
@@ -661,7 +661,7 @@ export default {
     },
     initModelInfo: function() {
       let self = this;
-      self.separateUrlForIndex = false;
+      self.separateUrlForIndex = true;
       self.cohortModel.getCanonicalModels().forEach(function(model) {
         var modelInfo = self.modelInfoMap[model.relationship];
         if (modelInfo == null) {
