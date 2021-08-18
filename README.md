@@ -36,6 +36,7 @@ cp .env.template .env
 Start the app
 ```
 npm install
+npm build
 npm start
 ```
 
