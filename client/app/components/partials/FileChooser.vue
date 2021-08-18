@@ -88,7 +88,6 @@
     },
     methods: {
       onFileSelected: function(e) {
-        console.log("e",e);
         let self = this;
         if (e.target.files[0]) {
           self.fileName = e.target.files[0].name;
