@@ -119,7 +119,8 @@ const routes = [
         paramFrameSource:      route.query.frame_source,
         paramGeneSetId:        route.query.gene_set_id,
         paramClientApplicationId : route.query.client_application_id,
-        paramVariantSetId:     route.query.variant_set_id
+        paramVariantSetId:     route.query.variant_set_id,
+        paramExperimentId:     route.query.experiment_id
 
 
 
