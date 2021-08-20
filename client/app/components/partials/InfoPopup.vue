@@ -65,7 +65,7 @@
 .toggle-info-button
   margin-bottom: 0 !important
   margin-top: 0 !important
-  margin-right: 30px !important
+  margin-right: 0px !important
   margin-left: 0 !important
   padding-top: 0 !important
   padding-left: 5px !important

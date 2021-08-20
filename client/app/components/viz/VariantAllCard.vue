@@ -68,6 +68,22 @@
   .coverage-problem-glyph
     fill: $coverage-problem-glyph-color
 
+  .coding-variants-only-switch
+    margin-top: -4px
+    max-width: 180px
+    margin-left: 20px
+    margin-right: 20px
+
+    label
+      line-height: 18px !important
+      color: $text-color !important
+      font-weight: normal !important
+      font-size: 13px !important
+      padding-left: 2px !important
+      padding-top: 6px !important
+
+    .v-input--selection-controls__input
+      margin-right: 0px 
 
   .gene-viz, .gene-viz-zoom
     .transcript.current
@@ -116,6 +132,8 @@
     display: inline-block
     padding-top: 0 !important
     margin-top: 0 !important
+    margin-right: 20px
+    margin-left: 20px
 
     label
       padding-left: 0
@@ -349,9 +367,18 @@
               :isMother="isMother"
               :isFather="isFather"
       ></optional-tracks-menu>
-      <div style="width:23px"></div>
+
+
+
+
       <!--When I refactor this to a class, there is some weird styling inheritance, so I'm leaving this as inline styling for now, but will get around to refactoring out all the inline styling-->
       <div v-if="!isSimpleMode && !isBasicMode" style="display: inline-flex; flex-wrap: wrap; justify-content: flex-start;">
+        <v-switch class="coding-variants-only-switch"
+              label="Coding regions only"
+              v-model="analyzeCodingVariantsOnly"
+              >
+        </v-switch>
+
         <div style="display: inline-flex;">
           <variant-toggle
                   v-if="showVariantViz"
@@ -372,7 +399,6 @@
                 v-model="showZoom"
                 :hide-details="true">
         </v-switch>
-        <div class="header-spacer"></div>
         <div>
           <div style="height: 4px"></div>
         <v-badge  id="loaded-count" style="padding-top: 2px; margin-left: 0 !important"
@@ -781,6 +807,7 @@ export default {
       pileupStyle: {},
       showFilter: false,
       showPopup: false,
+      analyzeCodingVariantsOnly: true,
     }
   },
 
@@ -1355,6 +1382,9 @@ export default {
     clearZoom: function() {
       this.showZoom = false;
       this.zoomMessage = "Drag to zoom";
+    },
+    analyzeCodingVariantsOnly: function() {
+      this.$emit("analyze-coding-variants-only", this.analyzeCodingVariantsOnly)
     },
   },
 

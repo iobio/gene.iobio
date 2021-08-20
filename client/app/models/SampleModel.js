@@ -1938,6 +1938,8 @@ class SampleModel {
                   }
                 }
                 return {name: refName, start: start, end: end};
+              }).sort(function(a,b) {
+                  return a.start - b.start
               });
             }
 

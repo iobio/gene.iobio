@@ -288,7 +288,6 @@ main.content.clin, main.v-content.clin
       @gene-selected="onGeneClicked"
       @gene-lists-changed="onGeneListsChanged"
       @remove-gene="onRemoveGene"
-      @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
       @show-known-variants="onShowKnownVariantsCard"
       @show-coverage-threshold="onShowCoverageThreshold"
       @analyze-all="onAnalyzeAll"
@@ -506,6 +505,8 @@ main.content.clin, main.v-content.clin
         @gene-region-zoom-reset="onGeneRegionZoomReset"
         @show-coverage-cutoffs="showCoverageCutoffs = true;showCoverageThreshold = true"
         @show-pileup-for-variant="onShowPileupForVariant"
+        @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
+
         >
         </variant-all-card>
 
@@ -3212,7 +3213,13 @@ export default {
       self.setNonProbandModels();
     },
     onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
-      this.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
+      let self = this;
+      self.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
+      self.onShowSnackbar( {message: 'Clearing data.', timeout: 2000, bottom: true, right: true});
+      self.promiseClearCache().then(function() {
+        self.onShowSnackbar( {message: 'Click \'Analyze all\' to re-run.', timeout: 2000, bottom: true, right: true});
+
+      })
     },
     onFilterSettingsApplied: function(stashedVariant) {
       let self = this;

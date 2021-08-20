@@ -8,6 +8,7 @@
     justify-content: center
     justify-items: center
     padding-left: 0
+    max-width: 110px
 
 #filter-form, #filterSelect
     #dropdownWrapper
@@ -52,7 +53,7 @@
                           small-chips
                           deletable-chips
                           dense
-                          label="Show variants by inheritance"
+                          label="Inheritance"
                           :items="filterText"
                           item-text='title'
                           item-value='name'
