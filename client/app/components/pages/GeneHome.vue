@@ -871,7 +871,8 @@ export default {
     paramVcfs:             null,
     paramTbis:             null,
     paramAffectedStatuses: null,
-    paramFrameSource:      null
+    paramFrameSource:      null,
+    paramExperimentId:     null,
   },
   data() {
     let self = this;
@@ -1091,6 +1092,7 @@ export default {
       clinShowGeneApp: false,
       variantCount: 0,
       interpretationProgressDialog: false,
+      experimentId: null,
     }
   },
 
@@ -1415,7 +1417,8 @@ export default {
           self.projectId,
           self.paramGeneSetId,
           self.paramVariantSetId,
-          self.paramBuild
+          self.paramBuild,
+          self.experimentId
           )
         .then(data => {
           if (isPedigree && !data.foundPedigree) {
@@ -2759,6 +2762,9 @@ export default {
         self.sampleId = self.paramSampleId;
       } else if (self.paramSampleUuid && self.paramSampleUuid.length > 0) {
         self.sampleId = self.paramSampleUuid;
+      }
+      if(self.paramExperimentId && self.paramExperimentId.length > 0) {
+        self.experimentId = self.paramExperimentId;
       }
       if (self.paramProjectId && self.paramProjectId.length > 0) {
         self.projectId = self.paramProjectId;
