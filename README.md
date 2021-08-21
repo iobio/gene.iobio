@@ -19,7 +19,7 @@ The University of Utah makes no claims that iobio applications, including gene.i
 ### Client application install
 
 Dependencies:
-- node.js v13 [nodejs](https://nodejs.org/en/download/) 
+- [nodejs version 13.x](https://nodejs.org/en/download/releases/) 
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm/)
 
 Clone the repo:
