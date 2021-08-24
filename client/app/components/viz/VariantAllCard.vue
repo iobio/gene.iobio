@@ -373,7 +373,7 @@
 
       <!--When I refactor this to a class, there is some weird styling inheritance, so I'm leaving this as inline styling for now, but will get around to refactoring out all the inline styling-->
       <div v-if="!isSimpleMode && !isBasicMode" style="display: inline-flex; flex-wrap: wrap; justify-content: flex-start;">
-        <v-switch class="coding-variants-only-switch"
+        <v-switch v-if="!isEduMode" class="coding-variants-only-switch"
               label="Coding regions only"
               v-model="analyzeCodingVariantsOnly"
               >
@@ -381,7 +381,7 @@
 
         <div style="display: inline-flex;">
           <variant-toggle
-                  v-if="showVariantViz"
+                  v-if="!isEduMode && showVariantViz"
                   :variants="sampleModel.loadedVariants"
                   :filterModel="sampleModel.cohort.filterModel"
                   :geneLists="geneLists"
@@ -390,7 +390,7 @@
                   @filtered-variants-update="onFilteredVariantsUpdate"
                   @show-filter="onShowFilter">
           </variant-toggle>
-          <info-popup name="variant-toggle"></info-popup>
+          <info-popup v-if="!isEduMode && showVariantViz" name="variant-toggle"></info-popup>
         </div>
         <v-switch
                 v-if="sampleModel.relationship === 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"

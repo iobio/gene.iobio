@@ -27,7 +27,7 @@ class CohortModel {
 
     this.annotationScheme = 'vep';
 
-    this.analyzeCodingVariantsOnly = true;
+    this.analyzeCodingVariantsOnly = isEduMode || isBasicMode ? false : true;
 
     this.isLoaded = false;
     this.isSfariProject = false;  // True if launched from Mosaic w/ SSC project
