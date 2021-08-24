@@ -1225,7 +1225,8 @@ export default {
 
       self.setAppMode();
 
-      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub, { DEFAULT_BUILD: 'GRCh38' });
+      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub, 
+        { DEFAULT_BUILD: self.isEduMode ? 'GRCh37' : 'GRCh38' });
 
       self.promiseAddCacheHelperListeners()
       .then(function() {
