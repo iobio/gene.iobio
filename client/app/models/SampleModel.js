@@ -807,22 +807,21 @@ class SampleModel {
         currVcf.setIsEduMode(this.cohort.isEduMode);
       }
   }
-  
-  
-  promiseBamFilesSelected(bamFile, baiFile) {
+
+  promiseBamFilesSelected(fileSelection) {
     var me = this;
     return new Promise(function(resolve, reject) {
       me.bamData = null;
       me.fbData = null;
 
-      if (bamFile == null || baiFile == null) {
+      if (fileSelection == null) {
         me.bam = new Bam(me.globalApp);
         me.bamFileOpened = false;
         me.bamRefName = null;
         resolve();
       } else {
         me.bam = new Bam(me.globalApp, me.cohort.endpoint);
-        me.bam.openBamFile(bamFile, baiFile, function(success, message) {
+        me.bam.openBamFile(fileSelection, function(success, message) {
           if (me.lastBamAlertify) {
             me.lastBamAlertify.dismiss();
           }
@@ -851,7 +850,6 @@ class SampleModel {
 
 
   }
-
 
   onBamUrlEntered(bamUrl, baiUrl, callback) {
     var me = this;
@@ -893,14 +891,14 @@ class SampleModel {
 
   }
 
-  promiseVcfFilesSelected(vcfFile, tbiFile) {
+  promiseVcfFilesSelected(fileSelection) {
     var me = this;
-  
+
     return new Promise( function(resolve, reject) {
       me.sampleName = null;
       me.vcfData = null;
-  
-      if (vcfFile == null || tbiFile == null) {
+
+      if (fileSelection == null) {
         me.vcfFileOpened = false;
         me.vcfUrlEntered = false;
         me.getVcfRefName = null;
@@ -908,19 +906,19 @@ class SampleModel {
         me.vcf.clearVcfFile();
         resolve();
       } else {
-        me.vcf.openVcfFile( vcfFile, tbiFile,
+        me.vcf.openVcfFile( fileSelection,
         function(success, message) {
           if (me.lastVcfAlertify) {
             me.lastVcfAlertify.dismiss();
           }
           if (success) {
-  
-  
+
+
             me.vcfFileOpened = false;
             me.vcfUrlEntered = true;
             me.getVcfRefName = null;
             me.isMultiSample = false;
-  
+
             // Get the sample names from the vcf header
             me.vcf.getSampleNames( function(sampleNames) {
                 me.sampleNames = sampleNames;
@@ -928,20 +926,19 @@ class SampleModel {
                 resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
               });
           } else {
-  
+
             var msg = "<span style='font-size:12px'>" + message + "</span>";
               alertify.set('notifier','position', 'top-right');
               me.lastVcfAlertify = alertify.error(msg, 15);
-  
+
             reject(message);
           }
         });
       }
-  
-  
+
+
     });
   }
-  
 
   clearVcf(cardIndex) {
 

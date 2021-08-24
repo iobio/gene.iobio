@@ -57,8 +57,7 @@
        :fileAccept="fileAccept.vcf"
        :separateUrlForIndex="separateUrlForIndex"
        @url-entered="onVcfUrlEntered"
-       @file-selected="onVcfFilesSelected"
-       @index-file-selected="obTbiFileSelected">
+       @file-selected="onVcfFilesSelected">
       </sample-data-file>
     </v-flex>
 
@@ -77,14 +76,13 @@
       <sample-data-file
        :defaultUrl="modelInfo.bam"
        :defaultIndexUrl="modelInfo.bai"
-       :label="`bam/cram`"
-        :indexLabel="`bai/crai`"
+       :label="`bam`"
+        :indexLabel="`bai`"
        :filePlaceholder="filePlaceholder.bam"
        :fileAccept="fileAccept.bam"
        :separateUrlForIndex="separateUrlForIndex"
        @url-entered="onBamUrlEntered"
-       @file-selected="onBamFilesSelected"
-       @index-file-selected="onBaiFileSelected">
+       @file-selected="onBamFilesSelected">
       </sample-data-file>
     </v-flex>
 
@@ -120,11 +118,7 @@ export default {
         },
         samples: [],
         sample: null,
-        isAffected: true,
-        vcfFileSelected: null,
-        tbiFileSelected: null,
-        bamFileSelected: null,
-        baiFileSelected: null,
+        isAffected: true
 
     }
   },
@@ -171,27 +165,18 @@ export default {
     },
     obTbiFileSelected: function(fileSelection){
       let self = this;
-      if(fileSelection){
-        self.tbiFileSelected = fileSelection; 
-        if(self.vcfFileSelected && self.tbiFileSelected){
-          self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
-        }
-      }
-      else {
-        self.tbiFileSelected = null;
+      self.tbiFileSelected = fileSelection; 
+      if(self.vcfFileSelected && self.tbiFileSelected){
+        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
       }
     },
     onVcfFilesSelected: function(fileSelection){
       let self = this;
-      if(fileSelection){
-        self.vcfFileSelected = fileSelection; 
-        if(self.vcfFileSelected && self.tbiFileSelected){
-          self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
-        }
+      self.vcfFileSelected = fileSelection; 
+      if(self.vcfFileSelected && self.tbiFileSelected){
+        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
       }
-      else {
-        self.vcfFileSelected = null;
-      }
+      // this.onVcfAndIndexFilesSelected(fileSelection);
     }, 
     onVcfAndIndexFilesSelected: function(vcfFile, tbiFile) {
       let self = this;
@@ -253,29 +238,15 @@ export default {
       }
     },
     onBamFilesSelected: function(fileSelection) {
-      let self = this; 
-      self.bamFileSelected = fileSelection;
-      if(self.bamFileSelected && self.baiFileSelected){
-        self.onBamAndBaiFilesSelected(self.bamFileSelected, self.baiFileSelected);
-      }
-    },
-    onBaiFileSelected: function(fileSelection) {
-      let self = this; 
-      self.baiFileSelected = fileSelection;
-      if(self.bamFileSelected && self.baiFileSelected){
-        self.onBamAndBaiFilesSelected(self.bamFileSelected, self.baiFileSelected);
-      }
-    },
-    onBamAndBaiFilesSelected: function(bamFile, baiFile){
       let self = this;
-      self.modelInfo.model.promiseBamFilesSelected(bamFile, baiFile)
+      self.modelInfo.model.promiseBamFilesSelected(fileSelection)
       .then(function() {
         self.$emit("sample-data-changed");
       })
       .catch(function(error) {
         self.$emit("sample-data-changed");
       })
-    }
+    },
 
 
   },

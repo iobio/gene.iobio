@@ -420,61 +420,65 @@ export default function vcfiobio(theGlobalApp) {
     tabixFile = null;
   }
 
-  exports.openVcfFile = function(vcfFile, tbiFile, callback) {
+  exports.openVcfFile = function(fileSelection, callback) {
     let me = this;
     sourceType = SOURCE_TYPE_FILE;
-  
-    
-    if (endsWith(vcfFile.files[0].name, ".vcf") ||
-        endsWith(tbiFile.files[0].name, ".vcf")) {
+
+
+    if (fileSelection.files.length != 2) {
+       callback(false, 'must select 2 files, both a .vcf.gz and .vcf.gz.tbi file');
+       return;
+    }
+
+    if (endsWith(fileSelection.files[0].name, ".vcf") ||
+        endsWith(fileSelection.files[1].name, ".vcf")) {
       callback(false, 'You must select a compressed vcf file (.vcf.gz), not a vcf file');
       return;
     }
 
-    var fileType0 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(vcfFile.files[0].name);
-    var fileType1 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(tbiFile.files[0].name);
-      
+    var fileType0 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(fileSelection.files[0].name);
+    var fileType1 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(fileSelection.files[1].name);
+
     var fileExt0 = fileType0 && fileType0.length > 1 ? fileType0[2] : null;
     var fileExt1 = fileType1 && fileType1.length > 1 ? fileType1[2] : null;
-  
+
     var rootFileName0 = fileType0 && fileType0.length > 1 ? fileType0[1] : null;
     var rootFileName1 = fileType1 && fileType1.length > 1 ? fileType1[1] : null;
-  
-  
+
+
     if (fileType0 == null || fileType0.length < 3 || fileType1 == null || fileType1.length <  3) {
       callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi)  file');
       return;
     }
-  
-  
+
+
     if (fileExt0 == 'vcf.gz' && fileExt1 == 'vcf.gz.tbi') {
       if (rootFileName0 != rootFileName1) {
         callback(false, 'The index (.tbi) file must be named ' +  rootFileName0 + ".tbi");
         return;
       } else {
-        vcfFile   = vcfFile.files[0];
-        tabixFile = tbiFile.files[0];
+        vcfFile   = fileSelection.files[0];
+        tabixFile = fileSelection.files[1];
       }
     } else if (fileExt1 == 'vcf.gz' && fileExt0 == 'vcf.gz.tbi') {
       if (rootFileName0 != rootFileName1) {
         callback(false, 'The index (.tbi) file must be named ' +  rootFileName1 + ".tbi");
         return;
       } else {
-        vcfFile   = vcfFile.files[0];
-        tabixFile = tbiFile.files[0];
+        vcfFile   = fileSelection.files[1];
+        tabixFile = fileSelection.files[0];
       }
     } else {
       callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi)  file');
       return;
     }
-  
+
     this.processVcfFile(vcfFile, tabixFile, function(data) {
       me.openVcfUrl(data.vcf, data.tbi, function(cbData) {
         callback(cbData)
       })
     })
   }
-
 
 
   function showFileFormatMessage() {
@@ -3388,8 +3392,6 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
   exports.processVcfFile = function(vcfFile, tbiFile, callback){
 
     let self = this;
-    
-    self.setVcfFile(vcfFile);
 
     const proxyAddress = 'lf-proxy.iobio.io';
     const port = 443;
