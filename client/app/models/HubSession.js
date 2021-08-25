@@ -494,7 +494,10 @@ export default class HubSession {
       .then(files => {
         files.filter(file => {
           if(self.experiment_id){
-            return file.experiment_ids[0] == self.experiment_id;
+            return file.experiment_ids.includes(Number(self.experiment_id))
+          }
+          else {
+            return file
           }
         }).filter(file => {
           return file.type
