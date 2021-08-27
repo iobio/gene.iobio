@@ -3224,7 +3224,10 @@ export default {
       self.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
       self.onShowSnackbar( {message: 'Clearing data.', timeout: 2000, bottom: true, right: true});
       self.promiseClearCache().then(function() {
-        self.onShowSnackbar( {message: 'Click \'Analyze all\' to re-run.', timeout: 2000, bottom: true, right: true});
+        setTimeout(function() {
+          let theMessage = 'Click \'Analyze all\' to re-run.'
+          self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
+        }, 2000)
 
       })
     },
