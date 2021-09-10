@@ -5,10 +5,11 @@ import SampleModel      from './SampleModel.js'
 class CohortModel {
 
   constructor(globalApp, isEduMode, isBasicMode, endpoint, genericAnnotation, translator, geneModel,
-    variantExporter, cacheHelper, genomeBuildHelper, launchedFromClin, freebayesSettings) {
+    variantExporter, cacheHelper, genomeBuildHelper, launchedFromClin, freebayesSettings, isSimpleMode) {
 
     this.globalApp = globalApp;
     this.isEduMode = isEduMode;
+    this.isSimpleMode = isSimpleMode;
     this.isBasicMode = isBasicMode;
     this.defaultingToDemoData = false;
 
@@ -27,7 +28,7 @@ class CohortModel {
 
     this.annotationScheme = 'vep';
 
-    this.analyzeCodingVariantsOnly = isEduMode || isBasicMode ? false : true;
+    this.analyzeCodingVariantsOnly = isEduMode || isBasicMode || isSimpleMode ? false : true;
 
     this.isLoaded = false;
     this.isSfariProject = false;  // True if launched from Mosaic w/ SSC project

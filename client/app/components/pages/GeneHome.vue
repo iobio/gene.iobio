@@ -1268,7 +1268,8 @@ export default {
           self.cacheHelper,
           self.genomeBuildHelper,
           self.launchedFromClin,
-          new FreebayesSettings());
+          new FreebayesSettings(),
+          self.isSimpleMode);
 
         self.cohortModel.on("knownVariantsVizChange", function(viz) {
           self.forceKnownVariantsViz = viz;
@@ -3378,6 +3379,7 @@ export default {
       this.featureMatrixModel.isBasicMode = false;
       this.featureMatrixModel.isSimpleMode = false;
       this.filterModel.isBasicMode = false;
+      this.cohortModel.analyzeCodingVariantsOnly = true;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
         let options = { name: 'home', query: { mode: 'advanced'}};
@@ -3393,6 +3395,7 @@ export default {
       this.isBasicMode = true;
       this.featureMatrixModel.isBasicMode = true;
       this.filterModel.isBasicMode = true;
+      this.cohortModel.analyzeCodingVariantsOnly = false;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
         self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 } })
@@ -3404,6 +3407,8 @@ export default {
       this.featureMatrixModel.isBasicMode = false;
       this.featureMatrixModel.isSimpleMode = true;
       this.filterModel.isBasicMode = false;
+      this.cohortModel.isSimpleMode = true;
+      this.cohortModel.analyzeCodingVariantsOnly = false;
       this.calcFeatureMatrixWidthPercent();
       this.onFilesLoaded(true, function() {
         self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 } })
