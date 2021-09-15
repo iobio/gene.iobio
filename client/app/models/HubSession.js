@@ -28,12 +28,14 @@ export default class HubSession {
       'compoundhet': 'compoundHet'
     };
     this.globalApp = null;
+    this.experiment_id = null;
   }
 
-  promiseInit(sampleId, source, isPedigree, projectId, geneSetId, variantSetId, build ) {
+  promiseInit(sampleId, source, isPedigree, projectId, geneSetId, variantSetId, build, experimentId ) {
     let self = this;
     self.api = source + self.apiVersion;
     self.apiDepricated = source + self.apiVersionDeprecated
+    self.experiment_id = experimentId;
 
     return new Promise((resolve, reject) => {
       let modelInfos = [];
@@ -491,6 +493,13 @@ export default class HubSession {
       self.promiseGetFilesForSample(project_id, currentSample.id)
       .then(files => {
         files.filter(file => {
+          if(self.experiment_id){
+            return file.experiment_ids.includes(Number(self.experiment_id))
+          }
+          else {
+            return file
+          }
+        }).filter(file => {
           return file.type
         })
         .forEach(file => {

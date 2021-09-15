@@ -163,11 +163,26 @@ export default {
       }
 
     },
-    onVcfFilesSelected: function(fileSelection) {
+    obTbiFileSelected: function(fileSelection){
+      let self = this;
+      self.tbiFileSelected = fileSelection; 
+      if(self.vcfFileSelected && self.tbiFileSelected){
+        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
+      }
+    },
+    onVcfFilesSelected: function(fileSelection){
+      let self = this;
+      self.vcfFileSelected = fileSelection; 
+      if(self.vcfFileSelected && self.tbiFileSelected){
+        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
+      }
+      // this.onVcfAndIndexFilesSelected(fileSelection);
+    }, 
+    onVcfAndIndexFilesSelected: function(vcfFile, tbiFile) {
       let self = this;
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
-      self.modelInfo.model.promiseVcfFilesSelected(fileSelection)
+      self.modelInfo.model.promiseVcfFilesSelected(vcfFile, tbiFile)
       .then(function(data) {
         self.samples = data.sampleNames;
         if (self.modelInfo.sample && self.samples.indexOf(self.modelInfo.sample) >= 0 ) {

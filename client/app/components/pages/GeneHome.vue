@@ -288,7 +288,6 @@ main.content.clin, main.v-content.clin
       @gene-selected="onGeneClicked"
       @gene-lists-changed="onGeneListsChanged"
       @remove-gene="onRemoveGene"
-      @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
       @show-known-variants="onShowKnownVariantsCard"
       @show-coverage-threshold="onShowCoverageThreshold"
       @analyze-all="onAnalyzeAll"
@@ -506,6 +505,8 @@ main.content.clin, main.v-content.clin
         @gene-region-zoom-reset="onGeneRegionZoomReset"
         @show-coverage-cutoffs="showCoverageCutoffs = true;showCoverageThreshold = true"
         @show-pileup-for-variant="onShowPileupForVariant"
+        @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
+
         >
         </variant-all-card>
 
@@ -870,7 +871,8 @@ export default {
     paramVcfs:             null,
     paramTbis:             null,
     paramAffectedStatuses: null,
-    paramFrameSource:      null
+    paramFrameSource:      null,
+    paramExperimentId:     null,
   },
   data() {
     let self = this;
@@ -1090,6 +1092,7 @@ export default {
       clinShowGeneApp: false,
       variantCount: 0,
       interpretationProgressDialog: false,
+      experimentId: null,
     }
   },
 
@@ -1222,7 +1225,8 @@ export default {
 
       self.setAppMode();
 
-      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub, { DEFAULT_BUILD: 'GRCh38' });
+      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub, 
+        { DEFAULT_BUILD: self.isEduMode ? 'GRCh37' : 'GRCh38' });
 
       self.promiseAddCacheHelperListeners()
       .then(function() {
@@ -1414,7 +1418,8 @@ export default {
           self.projectId,
           self.paramGeneSetId,
           self.paramVariantSetId,
-          self.paramBuild
+          self.paramBuild,
+          self.experimentId
           )
         .then(data => {
           if (isPedigree && !data.foundPedigree) {
@@ -2759,6 +2764,9 @@ export default {
       } else if (self.paramSampleUuid && self.paramSampleUuid.length > 0) {
         self.sampleId = self.paramSampleUuid;
       }
+      if(self.paramExperimentId && self.paramExperimentId.length > 0) {
+        self.experimentId = self.paramExperimentId;
+      }
       if (self.paramProjectId && self.paramProjectId.length > 0) {
         self.projectId = self.paramProjectId;
       }
@@ -3212,7 +3220,13 @@ export default {
       self.setNonProbandModels();
     },
     onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
-      this.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
+      let self = this;
+      self.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
+      self.onShowSnackbar( {message: 'Clearing data.', timeout: 2000, bottom: true, right: true});
+      self.promiseClearCache().then(function() {
+        self.onShowSnackbar( {message: 'Click \'Analyze all\' to re-run.', timeout: 2000, bottom: true, right: true});
+
+      })
     },
     onFilterSettingsApplied: function(stashedVariant) {
       let self = this;

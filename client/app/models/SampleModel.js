@@ -10,6 +10,8 @@ class SampleModel {
     this.sfariVcfs = []; // Used for sfari variant track: 1x sample model w/ multiple vcf endpoints
     this.bam = null;
 
+    this.CODING_REGION_BUFFER = 20;
+
     this.vcfData = null;
     this.fbData = null;
     this.bamData = null;
@@ -1929,8 +1931,8 @@ class SampleModel {
 
               // Capture only of the exon regions with a (5 bp range before and after exon) from the transcript
               regions =  exons.map(function(feature, i) {
-                var start = +feature.start - 5;
-                var end   = +feature.end + 5;
+                var start = +feature.start - me.CODING_REGION_BUFFER;
+                var end   = +feature.end + me.CODING_REGION_BUFFER;
                 if (i > 0) {
                   var prevFeature = exons[i-1];
                   if (+prevFeature.end >= start) {
@@ -1938,6 +1940,8 @@ class SampleModel {
                   }
                 }
                 return {name: refName, start: start, end: end};
+              }).sort(function(a,b) {
+                  return a.start - b.start
               });
             }
 

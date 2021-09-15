@@ -942,13 +942,6 @@ nav.toolbar, nav.v-toolbar
             </v-btn>
           </div>
 
-          <div>
-          <v-switch class="coding-variants-only-switch"
-            label="Coding variants only"
-            v-model="analyzeCodingVariantsOnly"
-            >
-          </v-switch>
-          </div>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -1192,9 +1185,6 @@ export default {
       geneCount: 0,
       flaggedVariantCount: 0,
 
-
-      analyzeCodingVariantsOnly: false,
-
       showKnownVariantsCard: false,
 
 
@@ -1224,9 +1214,6 @@ export default {
     },
     leftDrawer: function() {
       this.$emit("on-left-drawer", this.leftDrawer);
-    },
-    analyzeCodingVariantsOnly: function() {
-      this.$emit("analyze-coding-variants-only", this.analyzeCodingVariantsOnly)
     },
     showKnownVariantsCard: function() {
       this.$emit("show-known-variants", this.showKnownVariantsCard);

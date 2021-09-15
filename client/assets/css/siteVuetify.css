@@ -243,4 +243,8 @@
      margin-left: 0px !important;
 }
 
+.v-select-list .v-list__tile__action {
+  min-width:  initial !important;
+}
+
 
