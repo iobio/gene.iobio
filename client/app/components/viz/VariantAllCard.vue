@@ -373,7 +373,7 @@
 
       <!--When I refactor this to a class, there is some weird styling inheritance, so I'm leaving this as inline styling for now, but will get around to refactoring out all the inline styling-->
       <div v-if="!isSimpleMode && !isBasicMode" style="display: inline-flex; flex-wrap: wrap; justify-content: flex-start;">
-        <v-switch v-if="!isEduMode" class="coding-variants-only-switch"
+        <v-switch v-if="!isEduMode && !isBasicMode" class="coding-variants-only-switch"
               label="Coding regions only"
               v-model="analyzeCodingVariantsOnly"
               >
@@ -807,7 +807,7 @@ export default {
       pileupStyle: {},
       showFilter: false,
       showPopup: false,
-      analyzeCodingVariantsOnly: true,
+      analyzeCodingVariantsOnly: false,
     }
   },
 
