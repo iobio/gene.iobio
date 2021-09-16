@@ -183,7 +183,7 @@ class FilterModel {
           isUserFlagged: false,
           minGenotypeDepth: null,
           minGenotypeAltCount: null,
-          minRevel: .4,
+          minRevel: null,
           exclusiveOf: ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked']
         },
         'userFlagged': {
@@ -389,7 +389,7 @@ class FilterModel {
           isUserFlagged: false,
           minGenotypeDepth: null,
           minGenotypeAltCount: null,
-          minRevel: .75,
+          minRevel: null,
           exclusiveOf: ['pathogenic', 'autosomalDominant', 'recessive', 'denovo', 'compoundHet', 'xlinked']
         },
         'notCategorized': {
