@@ -223,7 +223,7 @@ export default class Bam {
     } else if (bamTokens0 && bamTokens0.length > 1 && bamTokens0[bamTokens0.length-1] == 'cram' ) {
       bamFile     = fileSelection.files[0];
       rootBamFile = bamTokens0[1];
-      if (baiTokens1 && baiTokens1.length > 1 && (baiTokens1[baiTokens1.length-1] == 'crai' || baiTokens0[baiTokens1.length-1] == 'cram.crai')) {
+      if (baiTokens1 && baiTokens1.length > 1 && (baiTokens1[baiTokens1.length-1] == 'crai' || baiTokens1[baiTokens1.length-1] == 'cram.crai')) {
         baiFile     = fileSelection.files[1];
         rootBaiFile = baiTokens1[1];
       }
