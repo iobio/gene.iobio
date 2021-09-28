@@ -14,17 +14,14 @@
     .input-group__input
       min-height: 0px
       margin-top: 0px
-
     .input-group--text-field.input-group--dirty.input-group--select
       label
         -webkit-transform: translate(0, -18px) scale(0.95)
         transform: translate(0, -18px) scale(0.95)
-
     .input-group--text-field.input-group--dirty:not(.input-group--textarea)
       label
         -webkit-transform: translate(0, -18px) scale(0.95)
         transform: translate(0, -18px) scale(0.95)
-
   .sample-label
     span
       margin-top: 2px
@@ -38,7 +35,6 @@
     .switch
       display: inline-block
       width: 100px
-
 </style>
 <template>
 
@@ -92,10 +88,7 @@
 </template>
 
 <script>
-
 import SampleDataFile           from '../partials/SampleDataFile.vue'
-
-
 export default {
   name: 'sample-data',
   components: {
@@ -119,7 +112,6 @@ export default {
         samples: [],
         sample: null,
         isAffected: true
-
     }
   },
   computed: {
@@ -131,14 +123,12 @@ export default {
       let self = this;
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
-
       let tryToLoad = false;
       if (self.separateUrlForIndex) {
         tryToLoad = vcfUrl && vcfUrl.length > 0 && tbiUrl && tbiUrl.length > 0
       } else {
         tryToLoad = vcfUrl && vcfUrl.length > 0
       }
-
       if (tryToLoad && self.modelInfo && self.modelInfo.model) {
         self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
           if (success) {
@@ -156,33 +146,16 @@ export default {
               self.modelInfo.model.sampleName =  null;
             }
             self.$emit("samples-available", self.modelInfo.relationship, self.samples);
-
           }
           self.$emit("sample-data-changed");
         })
       }
-
     },
-    obTbiFileSelected: function(fileSelection){
-      let self = this;
-      self.tbiFileSelected = fileSelection; 
-      if(self.vcfFileSelected && self.tbiFileSelected){
-        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
-      }
-    },
-    onVcfFilesSelected: function(fileSelection){
-      let self = this;
-      self.vcfFileSelected = fileSelection; 
-      if(self.vcfFileSelected && self.tbiFileSelected){
-        self.onVcfAndIndexFilesSelected(self.vcfFileSelected, self.tbiFileSelected)
-      }
-      // this.onVcfAndIndexFilesSelected(fileSelection);
-    }, 
-    onVcfAndIndexFilesSelected: function(vcfFile, tbiFile) {
+    onVcfFilesSelected: function(fileSelection) {
       let self = this;
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
-      self.modelInfo.model.promiseVcfFilesSelected(vcfFile, tbiFile)
+      self.modelInfo.model.promiseVcfFilesSelected(fileSelection)
       .then(function(data) {
         self.samples = data.sampleNames;
         if (self.modelInfo.sample && self.samples.indexOf(self.modelInfo.sample) >= 0 ) {
@@ -247,11 +220,8 @@ export default {
         self.$emit("sample-data-changed");
       })
     },
-
-
   },
   created: function() {
-
   },
   mounted: function() {
     this.samples = this.modelInfo.samples;
@@ -259,8 +229,6 @@ export default {
     if (this.modelInfo.vcf) {
       this.onVcfUrlEntered(this.modelInfo.vcf, this.modelInfo.tbi);
     }
-
   }
 }
-
 </script>
