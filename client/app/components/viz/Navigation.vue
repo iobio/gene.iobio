@@ -659,6 +659,11 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>About</v-list-tile-title>
           </v-list-tile>
 
+          <v-list-tile  @click="onShowPublication">
+            <v-list-tile-title>Cite</v-list-tile-title>
+          </v-list-tile>
+
+
           <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode && cohortModel.isLoaded"
@@ -986,6 +991,22 @@ nav.toolbar, nav.v-toolbar
     </v-dialog>
 
 
+   <v-dialog v-model="showPublication" max-width="600" max-height="">
+        <v-card class="full-width" >
+          <v-card-title class="headline">Cite</v-card-title>
+          <v-card-text>
+
+            <div style="max-width: 550px;min-width: 550px;font-size: 15px;text-align: justify;">
+              Di Sera, T., Velinder, M., Ward, A. et al. Gene.iobio: an interactive web tool for versatile, clinically-driven variant interrogation and prioritization. Sci Rep 11, 20307 (2021). <a href="https://doi.org/10.1038/s41598-021-99752-5" target="_new">https://doi.org/10.1038/s41598-021-99752-5</a>
+            </div>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn raised  @click.native="showPublication = false">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+    </v-dialog>
+
    <v-dialog v-model="showCitations" max-width="700" max-height="">
         <v-card class="full-width" style="overflow-y:scroll;height:500px">
           <v-card-title class="headline">Software and Resources</v-card-title>
@@ -1176,6 +1197,7 @@ export default {
       showOptions: false,
       showVersion: false,
       showCitations: false,
+      showPublication: false,
       typeaheadLimit: parseInt(100),
       showLegendDrawer: false,
 
@@ -1350,6 +1372,9 @@ export default {
     },
     onShowVersion: function() {
       this.showVersion = true;
+    },
+    onShowPublication: function() {
+      this.showPublication = true;
     },
     onShowCitations: function() {
       this.showCitations = true;
