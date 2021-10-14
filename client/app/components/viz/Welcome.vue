@@ -62,7 +62,7 @@ $light-gray-color:   #f0f1f3
         padding-top: 70px
         margin-left: auto
         margin-right: auto
-        padding-bottom: 50px
+        padding-bottom: 30px
 
 
         .main-headline-card
@@ -565,11 +565,19 @@ $light-gray-color:   #f0f1f3
               </div>
             </transition-group>
           </div>
+         
 
         </div>
 
 
 
+      </div>
+
+      <div style="max-width: 550px;min-width: 550px;font-size: 15px;text-align: justify;margin-bottom:30px">
+        <div style="text-align: center;font-size: 28px;font-family: Raleway;font-weight: normal; padding-bottom: 10px; font-weight: normal;text-align: center;color: #818181;">
+            Publication
+        </div>
+        Di Sera, T., Velinder, M., Ward, A. et al. Gene.iobio: an interactive web tool for versatile, clinically-driven variant interrogation and prioritization. Sci Rep 11, 20307 (2021). <a href="https://doi.org/10.1038/s41598-021-99752-5" target="_new">https://doi.org/10.1038/s41598-021-99752-5</a>
       </div>
 
       <v-divider style="margin-top:0px"></v-divider>
