@@ -112,33 +112,10 @@ export default class EndpointCmd {
         const refNames = this.getHumanRefNames(refName).split(" ");
         const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
         const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
-
-        let gnomadUrlGenomes = null;
-        let gnomadUrlExomes = null;
-        let gnomadRegionStr = null;
-        let gnomadFieldsGenomes = null;
-        let gnomadFieldsExomes = null;
+        let gnomadMergeAnnots = gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS 
+        
         let vepCustom = null;
-        let gnomadRenameChr = me.globalApp.getGnomADRenameChr(me.genomeBuildHelper.getCurrentBuildName(),
-            "genomes",
-            refName);
-
-        if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_BCFTOOLS) {
-            // Get the gnomad vcf based on the genome build
-            gnomadUrlGenomes = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
-                me.globalApp.utility.stripRefName(refName), "genomes", me.globalApp.useSSL);
-            gnomadUrlExomes  = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
-                me.globalApp.utility.stripRefName(refName), "exomes", me.globalApp.useSSL);
-
-            // Prepare args to annotate with gnomAD
-            gnomadRegionStr = "";
-            regions.forEach(function(region) {
-                let gnomadRefName = me.globalApp.getGnomADRefName(me.genomeBuildHelper.getCurrentBuildName(),
-                    "genomes",
-                    refName)
-                gnomadRegionStr += gnomadRefName + "\t" + region.start + "\t" + region.end + "\n";
-            })
-        } else if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
+        if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
             // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
             gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
                 "genomes");
@@ -169,9 +146,7 @@ export default class EndpointCmd {
             regions,
             refFastaFile,
             genomeBuildName,
-            gnomadUrl: gnomadUrlGenomes,
-            gnomadRegionStr: gnomadRegionStr,
-            gnomadRenameChr,
+            gnomadMergeAnnots,
             clinSigFilterPhrase
         });
 
@@ -189,40 +164,9 @@ export default class EndpointCmd {
             const refNames = this.getHumanRefNames(refName).split(" ");
             const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
             const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
-
-
-            let gnomadUrlGenomes = null;
-            let gnomadUrlExomes = null;
-            let gnomadRegionStr = null;
-            let gnomadFieldsGenomes = null;
-            let gnomadFieldsExomes = null;
+            let gnomadMergeAnnots = gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS 
             let vepCustom = null;
-
-            let gnomadFileGenomes = null;
-            let gnomadFileExomes = null;
-
-            let gnomadRenameChr = me.globalApp.getGnomADRenameChr(me.genomeBuildHelper.getCurrentBuildName(),
-              "genomes",              
-              refName);
-
-            if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_BCFTOOLS) {
-
-              // Get the gnomad vcf based on the genome build
-              gnomadUrlGenomes = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
-                me.globalApp.utility.stripRefName(refName), "genomes", me.globalApp.useSSL);
-              gnomadUrlExomes  = me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(), 
-                me.globalApp.utility.stripRefName(refName), "exomes", me.globalApp.useSSL);
-
-
-              // Prepare args to annotate with gnomAD
-              gnomadRegionStr = "";
-              regions.forEach(function(region) {
-                let gnomadRefName = me.globalApp.getGnomADRefName(me.genomeBuildHelper.getCurrentBuildName(),
-                  "genomes",              
-                  refName)
-                gnomadRegionStr += gnomadRefName + "\t" + region.start + "\t" + region.end + "\n";
-              })
-            } else if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
+            if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
 
               // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
               gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
@@ -269,10 +213,8 @@ export default class EndpointCmd {
                 vepAF,
                 sfariMode,
                 vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
-                gnomadUrl: gnomadUrlGenomes,
-                gnomadRegionStr: gnomadRegionStr,
+                gnomadMergeAnnots,
                 decompose,
-                gnomadRenameChr
             });
 
             cmd.on('error', function(error){

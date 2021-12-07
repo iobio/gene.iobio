@@ -1770,7 +1770,7 @@ export default {
             return gnomAD;
 
         }
-        else if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_BCFTOOLS &&
+        else if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_MERGED_ANNOTS &&
           (this.globalApp.gnomADExtraAll || (this.globalApp.gnomADExtra && this.selectedVariant.extraAnnot))) {
           let source      =  "gnomAD genomes"
           let infoPopup   = "gnomAD"
@@ -1872,7 +1872,7 @@ export default {
             if (this.globalApp.gnomADExtra 
               && !this.globalApp.gnomADExtraAll 
               && !this.selectedVariant.extraAnnot) {
-              if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_BCFTOOLS) {
+              if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_MERGE_ANNOTS) {
                 gnomAD.loading = 'gnomAD genomes'
                 gnomAD.class = "level-blank"
                 gnomAD.infoPopup  = "gnomAD";

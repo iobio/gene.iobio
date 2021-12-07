@@ -455,7 +455,7 @@ export default {
        && this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
         return "filterAf"
       } if (this.globalApp.gnomADExtraAll
-       && this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_BCFTOOLS) {
+       && this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_MERGE_ANNOTS) {
         return "filterAfGenomesOnly"
       } else  {
         return "filterAfExomesOnly"

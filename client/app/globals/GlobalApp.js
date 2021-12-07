@@ -10,7 +10,7 @@ class GlobalApp {
     this.completedTour         = "";
 
 
-    this.version               = "4.6.3";
+    this.version               = "4.6.4";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
@@ -55,9 +55,9 @@ class GlobalApp {
     this.gnomADExtraAll       = true;
 
     // how should we get the gnomad extra info?  'bcftools' or 'vepcustom'
-    this.GNOMAD_METHOD_BCFTOOLS   = "gnomad_bcftools";
+    this.GNOMAD_METHOD_BCFTOOLS   = "gnomad_merge_annots";
     this.GNOMAD_METHOD_CUSTOM_VEP = "gnomad_custom_vep";
-    this.gnomADExtraMethod        = this.GNOMAD_METHOD_BCFTOOLS;
+    this.gnomADExtraMethod        = this.GNOMAD_METHOD_MERGE_ANNOTS;
 
 
     // How many genes can be analyzed in one session.  Set to null if no limitation.

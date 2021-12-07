@@ -2237,7 +2237,7 @@ class SampleModel {
       variant.afFieldHighest = 'vepAf.gnomADe.AF_popmax';
       variant.afHighest = me.getHighestAf(variant);
     } else if (me.globalApp.gnomADExtraAll
-      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_BCFTOOLS
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS
       && variant.gnomAD
       && variant.gnomAD.afPopMax 
       && $.isNumeric(variant.gnomAD.afPopMax)) {
