@@ -139,7 +139,7 @@ export default class EndpointCmd {
             }
         }
 
-        const cmd = this.api.streamCommand('getClinvarVariants', {
+        const cmd = this.api.streamCommand('getClinvarVariantsV2', {
             vcfUrl: vcfSource.vcfUrl,
             tbiUrl: vcfSource.tbiUrl,
             refNames,
@@ -199,7 +199,7 @@ export default class EndpointCmd {
 
             }
 
-            const cmd = this.api.streamCommand('annotateVariants', {
+            const cmd = this.api.streamCommand('annotateVariantsV2', {
                 vcfUrl: vcfSource.vcfUrl,
                 tbiUrl: vcfSource.tbiUrl,
                 refNames,
