@@ -4,6 +4,7 @@ export default class EndpointCmd {
 
   constructor(globalApp, launchTimestamp, genomeBuildHelper, getHumanRefNamesFunc) {
     this.globalApp         = globalApp;
+    this.DEV_MODE          = true;
     this.launchTimestamp   = launchTimestamp;
     this.genomeBuildHelper = genomeBuildHelper;
     this.getHumanRefNames  = getHumanRefNamesFunc;
@@ -11,8 +12,9 @@ export default class EndpointCmd {
 
     if (this.globalApp.launchedFromUtahMosaic) {
       this.api = new Client(process.env.IOBIO_BACKEND_MOSAIC, { secure: this.globalApp.useSSL });
-    }
-    else {
+    } else if (this.DEV_MODE) {
+        this.api = new Client(process.env.IOBIO_BACKEND_TEST, { secure: this.globalApp.useSSL });
+    } else {
       // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
       // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
@@ -104,6 +106,32 @@ export default class EndpointCmd {
         }
     }
 
+    /* Returns number of variants for single sample in specified region */
+    getVariantCount(vcfSource, refName, regions, vcfSampleName, decompose) {
+        const me = this;
+        const refNames = this.getHumanRefNames(refName).split(" ");
+        const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
+        const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+
+        const cmd = this.api.streamCommand('getVariantCount', {
+            vcfUrl: vcfSource.vcfUrl,
+            tbiUrl: vcfSource.tbiUrl,
+            refNames,
+            regions,
+            vcfSampleName,
+            refFastaFile,
+            genomeBuildName,
+            decompose
+        });
+
+        cmd.on('error', function (error) {
+            let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
+            alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
+                .setHeader("Non-fatal Error");
+        })
+        return cmd;
+    }
+
     /* Retrieves ClinVar variants from backend to populate ClinVar variants track. Only returns variants with
      * the ClinSig fields matching those described in the provided clinSigFilterObj argument.
      * NOTE: this service only available for gru-1.0.0 and later */
@@ -183,7 +211,7 @@ export default class EndpointCmd {
         return cmd;
     }
 
-    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose) {
+    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose, noAnnotationMode) {
         let me = this;
         if (this.gruBackend) {
             const refNames = this.getHumanRefNames(refName).split(" ");
@@ -197,9 +225,6 @@ export default class EndpointCmd {
             let gnomadFieldsGenomes = null;
             let gnomadFieldsExomes = null;
             let vepCustom = null;
-
-            let gnomadFileGenomes = null;
-            let gnomadFileExomes = null;
 
             let gnomadRenameChr = me.globalApp.getGnomADRenameChr(me.genomeBuildHelper.getCurrentBuildName(),
               "genomes",              
@@ -249,10 +274,6 @@ export default class EndpointCmd {
                          + ',gnomADe,vcf,exact,0,'
                          + gnomadFieldsExomes;
               }
-
-
-              
-
             }
 
             const cmd = this.api.streamCommand('annotateVariants', {
@@ -269,10 +290,11 @@ export default class EndpointCmd {
                 vepAF,
                 sfariMode,
                 vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
-                gnomadUrl: gnomadUrlGenomes,
+                gnomadUrl: noAnnotationMode ? null : gnomadUrlGenomes,
                 gnomadRegionStr: gnomadRegionStr,
                 decompose,
-                gnomadRenameChr
+                gnomadRenameChr,
+                noAnnotationMode
             });
 
             cmd.on('error', function(error){

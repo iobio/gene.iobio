@@ -820,7 +820,7 @@ export default function vcfiobio(theGlobalApp) {
 
 
   /* When sfariMode = true, variant id field is assigned. */
-  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, gnomADExtra=false, decompose=false) {
+  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, gnomADExtra=false, decompose=false, noAnnotationMode=false) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
@@ -854,7 +854,7 @@ export default function vcfiobio(theGlobalApp) {
             } else {
               reject();
             }
-          }, null, sfariMode, gnomADExtra, decompose);
+          }, null, sfariMode, gnomADExtra, decompose, noAnnotationMode);
       } else {
         //me._getLocalStats(refName, geneObject.start, geneObject.end, sampleName);
 
@@ -865,7 +865,7 @@ export default function vcfiobio(theGlobalApp) {
               } else {
                 reject();
               }
-            }, null, sfariMode, gnomADExtra, decompose);
+            }, null, sfariMode, gnomADExtra, decompose, noAnnotationMode);
 
       }
 
@@ -873,7 +873,7 @@ export default function vcfiobio(theGlobalApp) {
   }
 
 
-  exports._getLocalVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false) {
+  exports._getLocalVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false, noAnnotationMode=false) {
 
     var me = this;
 
@@ -884,7 +884,7 @@ export default function vcfiobio(theGlobalApp) {
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': me.vcfURL, 'tbiUrl': me.tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose);
+    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': me.vcfURL, 'tbiUrl': me.tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose, noAnnotationMode);
 
     var annotatedData = "";
     // Get the results from the iobio command
@@ -957,7 +957,7 @@ export default function vcfiobio(theGlobalApp) {
 
   }
 
-  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false) {
+  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false, noAnnotationMode=false) {
 
     var me = this;
 
@@ -968,7 +968,7 @@ export default function vcfiobio(theGlobalApp) {
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose);
+    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose, noAnnotationMode);
 
     var annotatedData = "";
     // Get the results from the iobio command
@@ -1881,7 +1881,7 @@ export default function vcfiobio(theGlobalApp) {
                     'level':                    +0,
                     'strand':                   geneObject.strand,
                     'chrom':                    refName,
-                    'type':                     annot.typeAnnotated && annot.typeAnnotated != '' ? annot.typeAnnotated : type,
+                    'type':                     annot.typeAnnotated && annot.typeAnnotated != '' ? annot.typeAnnotated : type, // todo: get rid of?
                     'id':                       currId,
                     'ref':                      rec.ref,
                     'alt':                      alt,
@@ -1890,10 +1890,10 @@ export default function vcfiobio(theGlobalApp) {
 
                     'extraAnnot':               hasExtraAnnot,
 
-                    'gene':                     geneObject,
+                    'gene':                     geneObject, // todo: get rid of?
 
                     // genotype fields
-                    'genotype':                 genotype,
+                    'genotype':                 genotype, // todo: get rid of? redundant... get rid of for sfari
                     'genotypeDepth' :           genotype.genotypeDepth,
                     'genotypeFilteredDepth' :   genotype.filteredDepth,
                     'genotypeAltCount' :        genotype.altCount,
@@ -3413,7 +3413,34 @@ exports._getHighestScore = function(theObject, cullFunction, theTranscriptId) {
 
   };
 
+  exports.promiseGetVariantCount = function(refName, geneObject, selectedTranscript, regions, vcfSampleName, decompose = false) {
+    const me = this;
 
+    return new Promise((resolve, reject) => {
+      if (regions == null || regions.length === 0) {
+        regions = [];
+        regions.push({'name': refName, 'start': geneObject.start, 'end': geneObject.end});
+      }
+
+      let cmd = me.getEndpoint().getVariantCount({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleName, decompose);
+
+      let countData = "";
+      cmd.on('data', function(data) {
+        if (data == null) {
+          return;
+        }
+        countData += data;
+      });
+      cmd.on('end', function() {
+        resolve(countData);
+      });
+      cmd.on('error', function(error) {
+        reject(error);
+      });
+
+      cmd.run();
+    });
+  }
 
 
 

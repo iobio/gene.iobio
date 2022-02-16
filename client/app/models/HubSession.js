@@ -8,8 +8,8 @@ export default class HubSession {
     this.isFather = false;
     this.apiVersion =  '/api/v1';
     this.apiDepricated = null;
-    this.apiVersionDeprecated = '/apiv1'
-    this.client_application_id = clientApplicationId,
+    this.apiVersionDeprecated = '/apiv1';
+    this.client_application_id = clientApplicationId;
     this.variantSetTxtCols = [
       "chrom",
       "start",

@@ -548,6 +548,34 @@ class SampleModel {
     })
   }
 
+  /* Pulls back variant count from backend */
+  promiseFetchVariantCount(theGene, theTranscript, options) {
+    const me = this;
+
+    return new Promise( function(resolve, reject) {
+      me._promiseVcfRefName(theGene.chr)
+          .then(function() {
+            const refName = me.getVcfRefName(theGene.chr);
+
+            return me.vcf.promiseGetVariantCount(
+                refName,
+                theGene,
+                theTranscript,
+                null,   // regions
+                me.sampleName,
+                !me.isEduMode // decompose
+            );
+          }).then(function(data) {
+            if (data == null || data.length === 0) {
+              reject('Could not get variant count for ' + me.sampleName);
+            } else {
+              const count = data.slice(0, -1);  // Trim off new line
+              resolve(count);
+            }
+          })
+    });
+  }
+
 
   promiseGetDangerSummary(geneName) {
     return this._promiseGetData(CacheHelper.DANGER_SUMMARY_DATA, geneName, null);
@@ -1908,8 +1936,6 @@ class SampleModel {
          promises.push(p);
       })
 
-
-
       Promise.all(promises)
       .then(function() {
         if (Object.keys(resultMap).length === variantModels.length) {
@@ -1961,7 +1987,8 @@ class SampleModel {
                false, // serverside cache
                false, // sfari mode
                options.getKnownVariants ? false : me.globalApp.gnomADExtraAll, // get extra gnomad,
-               !me.isEduMode // decompose
+               !me.isEduMode, // decompose
+                options.noAnnotationMode
               );
           })
           .then( function(data) {
