@@ -900,8 +900,7 @@ export default class HubSession {
       annotationUids.push('gene_symbol');
     }
     return $.ajax({
-      // url: 'https://mosaic.chpc.utah.edu/api/v1/projects/' + projectId + '/variants/sets/' + variantSetId + "?include_variant_data=true&include_genotype_data=true",
-      url: self.apiDepricated + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId,
+      url: self.apiDepricated + '/projects/' + projectId + '/variants/sets/' + variantSetId  + "?include_variant_data=true&include_genotype_data=true",
       data: {
         annotation_uids: annotationUids,
       },
