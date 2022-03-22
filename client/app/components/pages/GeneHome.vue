@@ -1459,8 +1459,8 @@ export default {
               if (variant.gene_symbol && variant.gene_symbol.length > 0) {
                 importedVariant.gene  = variant.gene_symbol[0];
                 importedVariant.chrom = variant.chr;
-                importedVariant.start = variant.pos;
-                importedVariant.end   = variant.pos;
+                importedVariant.start = variant.r_start;
+                importedVariant.end   = variant.r_end;
                 importedVariant.ref   = variant.ref;
                 importedVariant.alt   = variant.alt;
                 importedVariant.filtersPassed    = "notCategorized";
