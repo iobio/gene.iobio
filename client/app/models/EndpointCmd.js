@@ -9,6 +9,7 @@ export default class EndpointCmd {
     this.getHumanRefNames  = getHumanRefNamesFunc;
     this.helpMsg = "If this error persists, Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.";
 
+
     if (this.globalApp.launchedFromUtahMosaic) {
       this.api = new Client(process.env.IOBIO_BACKEND_MOSAIC, { secure: this.globalApp.useSSL });
     }
@@ -16,7 +17,8 @@ export default class EndpointCmd {
       // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
       // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
-      this.api = new Client(process.env.IOBIO_BACKEND, { secure: this.globalApp.useSSL });
+      const iobioBackend = (this.globalApp.useSSL ? "https://" : "http://") + process.env.IOBIO_BACKEND;
+      this.api = new Client(iobioBackend);
     }
 
     // iobio services
