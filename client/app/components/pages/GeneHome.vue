@@ -1457,7 +1457,7 @@ export default {
             }).forEach(function(variant) {
               let importedVariant = {};
               if (variant.gene_symbol && variant.gene_symbol.length > 0) {
-                importedVariant.gene  = variant.gene_symbol[0];
+                importedVariant.gene  = variant.gene_symbol;
                 importedVariant.chrom = variant.chr;
                 importedVariant.start = variant.r_start;
                 importedVariant.end   = variant.r_end;
