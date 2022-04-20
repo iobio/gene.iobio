@@ -617,9 +617,9 @@ class CohortModel {
 
                       // Check that we have matching data for all files
                       if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
-                          console.log('Did not obtain matching vcf and tbi/csi files from Hub. Data may not be complete.');
+                          console.log('WARNING: Mismatch on vcf and tbi files pulled from Mosaic for Sfari data. This is a problem.');
                       } else if (sortedVcfFiles.length === 0 || sortedTbiCsiFiles.length === 0) {
-                          console.log('Did not obtain any vcf or tbi files from Hub for Sfari data.');
+                          console.log('Did not obtain any project level files from Mosaic for Sfari data. This might be ok.');
                       }
 
                       // Initialize sample model vcfs once we know how many we need

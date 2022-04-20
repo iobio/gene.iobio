@@ -675,19 +675,35 @@ export default class HubSession {
         // The gene symbol is in a different field depending on the genome build.
         // Set the 'gene_symbol' field so that we can pull it from one field.
         let geneSymbolField = null
+        let impactField = null
+        let consequenceField = null
+        let afField = null
         if (build === "GRCh38"){
-          geneSymbolField = 'gene_symbol_GRCh38';
+          geneSymbolField  = 'gene_symbol_GRCh38';
+          impactField      = 'gene_impact_GRCh38';
+          consequenceField = 'gene_consequence_GRCh38';
+          afField          = 'gnomad_allele_frequency_GRCh38';
         }
         else if (build === "GRCh37"){
-           geneSymbolField = 'gene_symbol_GRCh37';
+          geneSymbolField = 'gene_symbol_GRCh37';
+          impactField      = 'gene_impact_GRCh37';
+          consequenceField = 'gene_consequence_GRCh37';
+          afField          = 'gnomad_allele_frequency_GRCh37';
         }
-        if (geneSymbolField) {
-          data.variants.forEach(function(variant) {
-            if (!variant.hasOwnProperty('gene_symbol')) {
-              variant['gene_symbol'] = variant[geneSymbolField];
-            }
-          })
-        }
+        data.variants.forEach(function(variant) {
+          if (geneSymbolField &&  variant[geneSymbolField].length > 0 && !variant.hasOwnProperty('gene_symbol')) {
+            variant['gene_symbol'] = variant[geneSymbolField][0];
+          }
+          if (impactField && variant[impactField].length > 0) {
+            variant['gene_impact'] = variant[impactField][0];
+          }
+          if (consequenceField && variant[consequenceField].length > 0) {
+            variant['gene_consequence'] = variant[consequenceField][0];
+          }
+          if (afField && variant[afField].length > 0) {
+            variant['gnomad_allele_frequency'] = variant[afField][0];
+          }
+        })
 
         resolve(data)
       })
@@ -889,21 +905,9 @@ export default class HubSession {
 
   getVariantSet(projectId, variantSetId, build) {
     let self = this;
-    let annotationUids = [];
-    if(build === "GRCh38"){
-      annotationUids.push('gene_symbol_GRCh38');
-    }
-    else if(build === "GRCh37"){
-      annotationUids.push('gene_symbol_GRCh37');
-    }
-    else {
-      annotationUids.push('gene_symbol');
-    }
     return $.ajax({
-      // url: 'https://mosaic.chpc.utah.edu/api/v1/projects/' + projectId + '/variants/sets/' + variantSetId + "?include_variant_data=true&include_genotype_data=true",
-      url: self.apiDepricated + '/projects/' + projectId + '/variants?variant_set_id=' + variantSetId,
+      url: self.api + '/projects/' + projectId + '/variants/sets/' + variantSetId + "?include_variant_data=true&include_genotype_data=true",
       data: {
-        annotation_uids: annotationUids,
       },
       type: 'GET',
       contentType: 'application/json',
