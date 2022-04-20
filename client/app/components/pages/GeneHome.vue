@@ -1452,15 +1452,15 @@ export default {
             let bypassedCount = 0;
             let bypassedMessages = [];
             self.variantSet.variants.filter(function(variant) {
-              return variant.sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
-            })
-            .forEach(function(variant) {
+              return variant.het_sample_ids.indexOf(parseInt(self.sampleId)) >= 0 ||
+                  variant.hom_sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
+            }).forEach(function(variant) {
               let importedVariant = {};
               if (variant.gene_symbol && variant.gene_symbol.length > 0) {
-                importedVariant.gene  = variant.gene_symbol;
+                importedVariant.gene  = variant.gene_symbol[0];
                 importedVariant.chrom = variant.chr;
-                importedVariant.start = variant.pos;
-                importedVariant.end   = variant.pos;
+                importedVariant.start = variant.r_start;
+                importedVariant.end   = variant.r_end;
                 importedVariant.ref   = variant.ref;
                 importedVariant.alt   = variant.alt;
                 importedVariant.filtersPassed    = "notCategorized";
