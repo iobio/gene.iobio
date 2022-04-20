@@ -1077,9 +1077,9 @@ class SampleModel {
 
   _promiseVcfRefName(ref, sfariMode = false) {
     var me = this;
-    var theRef = ref != null ? ref : window.gene.chr;
     return new Promise( function(resolve, reject) {
 
+      var theRef = ref != null ? ref : window.gene.chr;
       if (me.getVcfRefName != null) {
         // If we can't find the ref name in the lookup map, show a warning.
         if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
@@ -1106,22 +1106,28 @@ class SampleModel {
               foundRef = true;
             }
 
+          });
+          // Load up a lookup table.  We will use me for validation when
+          // a new gene is loaded to make sure the ref exists.
+          if (foundRef) {
+            refData.forEach( function(refObject) {
+              var refName = refObject.name;
+              var theRefName = me.getVcfRefName(refName);
+              me.vcfRefNamesMap[theRefName] = refName;
             });
-            // Load up a lookup table.  We will use me for validation when
-            // a new gene is loaded to make sure the ref exists.
-            if (foundRef) {
-              refData.forEach( function(refObject) {
-                var refName = refObject.name;
-                var theRefName = me.getVcfRefName(refName);
-                me.vcfRefNamesMap[theRefName] = refName;
-              });
-              resolve();
-            } else  {
+            resolve();
+          } else  {
+            if (theRef.endsWith("_alt")) {
+              me.vcfRefName = theRef;
+              me.vcfRefNamesMap[theRef] = theRef;
+              me.getVcfRefName = me._getRefName;
+              resolve()
+            } else {
+              // If we didn't find the matching ref name, show a warning.
+              reject();
 
-            // If we didn't find the matching ref name, show a warning.
-            reject();
+            }
           }
-
         });
       }
     });
