@@ -358,7 +358,7 @@ class CohortModel {
 
   promiseAddSample(modelInfo, fromSfariProject) {
     let self = this;
-    return new Promise(function(resolve,reject) {
+    return new Promise(function(resolve, reject) {
       var vm = new SampleModel(self.globalApp);
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
@@ -1062,14 +1062,21 @@ class CohortModel {
     self.hubSession = hubSession;
   }
 
+  /* Returns array of sample names. If sample names DNE (as in,
+   * when only coverage bam files provided, returns empty array.
+   */
   getTrioSampleNames() {
     let self = this;
     let sampleNames = [];
-    sampleNames.push(self.sampleMap.proband.model.getSampleName());
-    if (self.sampleMap.mother && self.sampleMap.mother.model) {
+    if (self.sampleMap.proband.model.getSampleName()) {
+      sampleNames.push(self.sampleMap.proband.model.getSampleName());
+    }
+    if (self.sampleMap.mother && self.sampleMap.mother.model
+        && self.sampleMap.mother.model.getSampleName()) {
       sampleNames.push(self.sampleMap.mother.model.getSampleName());
     }
-    if (self.sampleMap.father && self.sampleMap.father.model) {
+    if (self.sampleMap.father && self.sampleMap.father.model
+        && self.sampleMap.father.model.getSampleName()) {
       sampleNames.push(self.sampleMap.father.model.getSampleName());
     }
     return sampleNames;
@@ -1077,7 +1084,6 @@ class CohortModel {
 
   setLoadedVariants(gene, relationship=null) {
     let self = this;
-
 
     var filterAndPileupVariants = function(model, start, end, target='loaded') {
       var filteredVariants = $.extend({}, model.vcfData);
@@ -1822,7 +1828,7 @@ class CohortModel {
               if (theVcfData) {
                 return Promise.resolve({'vcfData': theVcfData});
               } else {
-                return the.promiseGetVcfData(geneObject, theTranscript);
+                return theModel.promiseGetVcfData(geneObject, theTranscript);
               }
             })
             .then(function(data) {
@@ -1835,7 +1841,7 @@ class CohortModel {
               // So initialize the vcfData to 0 features.
               var promise = null;
               if (theFbData && theFbData.features.length > 0 && theVcfData.features.length == 0) {
-                promise = theModel.promiseCacheDummyVcfDataAlignmentsOnly(theFbData, geneObject, theTranscript );
+                promise = theModel.promiseCacheDummyVcfDataAlignmentsOnly(theFbData, geneObject, theTranscript);
               } else {
                 Promise.resolve();
               }
@@ -1848,7 +1854,6 @@ class CohortModel {
                 trioFbData[model.getRelationship()] = theFbData;
                 trioVcfData[model.getRelationship()] = theVcfData;
               })
-
             },
             function(error) {
               me.endGeneProgress(geneObject.gene_name);
@@ -1856,7 +1861,6 @@ class CohortModel {
               console.log(msg);
               reject(msg);
             })
-
             promises.push(p);
           })
           Promise.all(promises).then(function() {
@@ -1880,6 +1884,7 @@ class CohortModel {
 
           showCallingProgress();
 
+          const alignmentOnlyMode = true;
           me.getProbandModel().bam.freebayesJointCall(
             geneObject,
             theTranscript,
@@ -2971,29 +2976,29 @@ class CohortModel {
     }
   }
 
-  getTrioSampleNames() {
-
-    let self = this;
-
-    let sampleNames = [];
-
-    sampleNames.push(self.sampleMap.proband.model.getSampleName());
-
-    if (self.sampleMap.mother && self.sampleMap.mother.model) {
-
-      sampleNames.push(self.sampleMap.mother.model.getSampleName());
-
-    }
-
-    if (self.sampleMap.father && self.sampleMap.father.model) {
-
-      sampleNames.push(self.sampleMap.father.model.getSampleName());
-
-    }
-
-    return sampleNames;
-
-  }
+  // getTrioSampleNames() {
+  //
+  //   let self = this;
+  //
+  //   let sampleNames = [];
+  //
+  //   sampleNames.push(self.sampleMap.proband.model.getSampleName());
+  //
+  //   if (self.sampleMap.mother && self.sampleMap.mother.model) {
+  //
+  //     sampleNames.push(self.sampleMap.mother.model.getSampleName());
+  //
+  //   }
+  //
+  //   if (self.sampleMap.father && self.sampleMap.father.model) {
+  //
+  //     sampleNames.push(self.sampleMap.father.model.getSampleName());
+  //
+  //   }
+  //
+  //   return sampleNames;
+  //
+  // }
 }
 
 export default CohortModel;

@@ -766,6 +766,9 @@ class SampleModel {
 
 
   getSampleName() {
+    // if (!this.sampleName && alignmentOnlyMode) {
+    //   return this.relationship;
+    // }
     return this.sampleName;
   }
 
