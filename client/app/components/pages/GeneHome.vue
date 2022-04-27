@@ -2125,12 +2125,12 @@ export default {
           if (self.cohortModel.isLoaded) {
             self.promiseLoadData()
             .then(function() {
-              self.clearZoom = false;
-              if(transcriptChanged && self.stashedVariant && Object.keys(self.stashedVariant).length > 0) {
-                let variant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel.sampleMap.proband.model.loadedVariants.features);
-                self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
-              }
-              resolve();
+                self.clearZoom = false;
+                if (transcriptChanged && self.stashedVariant && Object.keys(self.stashedVariant).length > 0) {
+                  let variant = self.getCorrespondingVariant(self.stashedVariant, self.cohortModel.sampleMap.proband.model.loadedVariants.features);
+                  self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
+                }
+                resolve();
             })
             .catch(function(err) {
               console.log(err)

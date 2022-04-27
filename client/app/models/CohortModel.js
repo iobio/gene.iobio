@@ -876,7 +876,6 @@ class CohortModel {
             self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
                 .then(function () {
                     self.setLoadedVariants(theGene);
-
                     self.endGeneProgress(theGene.gene_name);
                     resolve(cohortResultMap);
                 })
@@ -1923,6 +1922,7 @@ class CohortModel {
                   .then( function() {
                       me.getCanonicalModels().forEach(function(model) {
                         model.loadCalledTrioGenotypes(trioVcfData[model.getRelationship()], trioFbData[model.getRelationship()]);
+                        //model.setCalledVariants(); // sjg add todo
                       })
                       // Summarize danger for gene
                      return me.promiseSummarizeDanger(geneObject, theTranscript, trioVcfData.proband, {'CALLED': true});
@@ -2049,14 +2049,14 @@ class CohortModel {
         var p = model.promiseGetFbData(geneObject, transcript)
          .then(function(data) {
           if (data.fbData) {
-            cachedCount ++;
+            cachedCount++;
           }
 
          })
         promises.push(p);
       });
       Promise.all(promises).then(function() {
-        resolve(cachedCount == me.getCanonicalModels().length);
+        resolve(cachedCount === me.getCanonicalModels().length);
       })
 
     })

@@ -1083,60 +1083,81 @@ class SampleModel {
     return new Promise( function(resolve, reject) {
 
       var theRef = ref != null ? ref : window.gene.chr;
-      if (me.getVcfRefName != null) {
-        // If we can't find the ref name in the lookup map, show a warning.
-        if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
-          reject();
-        } else {
-          resolve();
-        }
-      } else {
-        me.vcfRefNamesMap = {};
-        let currVcf = me.vcf;
-        if (sfariMode) {
-          currVcf = me.sfariVcfs[0];
-        }
-        currVcf.getReferenceLengths(function(refData) {
-          var foundRef = false;
-          refData.forEach( function(refObject) {
-            var refName = refObject.name;
 
-            if (refName == theRef) {
-              me.getVcfRefName = me._getRefName;
-              foundRef = true;
-            } else if (refName == me._stripRefName(theRef)) {
-              me.getVcfRefName = me._stripRefName;
-              foundRef = true;
+        // We may have a vcf object, and vcf data,
+        // but could be generated from a previous
+        // variant calling on bam-only data
+        // If so, just go off of 37/38 naming conventions
+        if (me.isAlignmentsOnly()) {
+          const build = me.getGenomeBuildHelper().getCurrentBuild();
+          if (build.name === 'GRCh37') {
+            //me.vcfRefName = me._stripRefName(theRef);
+            me.getVcfRefName = me._stripRefName;
+            resolve();
+          } else if (build.name === 'GRCh38') {
+            //me.vcfRefName = theRef;
+            me.getVcfRefName = me._getRefName;
+            resolve();
+          } else {
+            reject('Do not have ref naming conventions for build ' + build + '. Could not get vcfRefName.');
+          }
+        } else {
+          // See if we've already set the ref fxn
+          if (me.getVcfRefName != null) {
+            // If we can't find the ref name in the lookup map, show a warning.
+            if (me.vcfRefNamesMap[me.getVcfRefName(theRef)] == null) {
+              reject();
+            } else {
+              resolve();
+            }
+          } else {
+            me.vcfRefNamesMap = {};
+            let currVcf = me.vcf;
+            if (sfariMode) {
+              currVcf = me.sfariVcfs[0];
             }
 
-          });
-          // Load up a lookup table.  We will use me for validation when
-          // a new gene is loaded to make sure the ref exists.
-          if (foundRef) {
+          // Otherwise, ask vcf model for ref info
+          currVcf.getReferenceLengths(function(refData) {
+            var foundRef = false;
             refData.forEach( function(refObject) {
               var refName = refObject.name;
-              var theRefName = me.getVcfRefName(refName);
-              me.vcfRefNamesMap[theRefName] = refName;
-            });
-            resolve();
-          } else  {
-            if (theRef.endsWith("_alt")) {
-              me.vcfRefName = theRef;
-              me.vcfRefNamesMap[theRef] = theRef;
-              me.getVcfRefName = me._getRefName;
-              resolve()
-            } else {
-              // If we didn't find the matching ref name, show a warning.
-              reject();
 
+              if (refName == theRef) {
+                me.getVcfRefName = me._getRefName;
+                foundRef = true;
+              } else if (refName == me._stripRefName(theRef)) {
+                me.getVcfRefName = me._stripRefName;
+                foundRef = true;
+              }
+
+            });
+            // Load up a lookup table.  We will use me for validation when
+            // a new gene is loaded to make sure the ref exists.
+            if (foundRef) {
+              refData.forEach( function(refObject) {
+                var refName = refObject.name;
+                var theRefName = me.getVcfRefName(refName);
+                me.vcfRefNamesMap[theRefName] = refName;
+              });
+              resolve();
+            } else  {
+              if (theRef.endsWith("_alt")) {
+                me.vcfRefName = theRef;
+                me.vcfRefNamesMap[theRef] = theRef;
+                me.getVcfRefName = me._getRefName;
+                resolve()
+              } else {
+                // If we didn't find the matching ref name, show a warning.
+                reject("No matching ref name found for " + theRef);
+              }
             }
-          }
-        });
+          });
+        }
       }
     });
 
   }
-
 
 
   _getRefName(refName) {
@@ -2833,12 +2854,7 @@ class SampleModel {
             fbVariant.probandZygosity              = source.probandZygosity;
           }
         }
-
-
       });
-
-
-
     }
   }
 
