@@ -2975,30 +2975,6 @@ class CohortModel {
       }
     }
   }
-
-  // getTrioSampleNames() {
-  //
-  //   let self = this;
-  //
-  //   let sampleNames = [];
-  //
-  //   sampleNames.push(self.sampleMap.proband.model.getSampleName());
-  //
-  //   if (self.sampleMap.mother && self.sampleMap.mother.model) {
-  //
-  //     sampleNames.push(self.sampleMap.mother.model.getSampleName());
-  //
-  //   }
-  //
-  //   if (self.sampleMap.father && self.sampleMap.father.model) {
-  //
-  //     sampleNames.push(self.sampleMap.father.model.getSampleName());
-  //
-  //   }
-  //
-  //   return sampleNames;
-  //
-  // }
 }
 
 export default CohortModel;
