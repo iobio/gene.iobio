@@ -130,7 +130,7 @@
                   </div>
                 </v-card-text>
                 <v-btn @click="loadReady = false; warningOpen = false;" color="normal">Cancel</v-btn>
-                <v-btn @click="loadReady = true" color="error">continue</v-btn>
+                <v-btn @click="loadReady = true; warningOpen = false;" color="error">Continue</v-btn>
               </v-card>
             </v-dialog>
 
@@ -326,10 +326,10 @@ export default {
         self.cohortModel.promiseAddClinvarSample()
         .then(function () {
           let affectedSibList = self.possibleSibs.filter(function(possibleSib) {
-            return self.affectedSibs.indexOf(possibleSib.sample) >= 0;
+            return self.affectedSibs != null && self.affectedSibs.indexOf(possibleSib.sample) >= 0;
           })
           let unaffectedSibList = self.possibleSibs.filter(function(possibleSib) {
-            return self.unaffectedSibs.indexOf(possibleSib.sample) >= 0;
+            return self.unaffectedSibs !=null && self.unaffectedSibs.indexOf(possibleSib.sample) >= 0;
           })
           return self.cohortModel.promiseSetSibs(affectedSibList, unaffectedSibList)
         })
@@ -375,15 +375,15 @@ export default {
     checkValidExtensions: function(sms){
       let self = this;
       for(let i = 0; i < sms.length; i++){
-        if(sms[i].bam && sms[i].vcf) {
-          let bamUrl = sms[i].bam.bamUri;
-          let baiUrl = sms[i].bam.baiUri;
-          let vcfUrl = sms[i].vcf.vcfURL;
-          let tbiUrl = sms[i].vcf.tbiUrl;
+        if(sms[i].bam || sms[i].vcf) {
+          let bamUrl = sms[i].bam ? sms[i].bam.bamUri : null;
+          let baiUrl = sms[i].bam ? sms[i].bam.baiUri : null;
+          let vcfUrl = sms[i].vcf ? sms[i].vcf.vcfURL : null;
+          let tbiUrl = sms[i].vcf ? sms[i].vcf.tbiUrl : null;
 
           if (!vcfUrl) {
-            vcfUrl = sms[i].vcf.getVcfFile();
-            tbiUrl = sms[i].vcf.getTbiURL();
+            vcfUrl = sms[i].vcf ? sms[i].vcf.getVcfFile() : null;
+            tbiUrl = sms[i].vcf ? sms[i].vcf.getTbiURL() : null;
           }
 
           if (bamUrl 
