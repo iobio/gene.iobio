@@ -644,6 +644,7 @@ export default {
     },
     init: function() {
       let self = this;
+      self.buildName = self.cohortModel.genomeBuildHelper.getCurrentBuildName()
       self.modelInfoMap = {};
       if (self.cohortModel && self.cohortModel.getCanonicalModels().length > 0) {
         self.initModelInfo();
