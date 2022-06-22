@@ -1674,6 +1674,7 @@ export default {
         if (self.isEduMode) {
           resolve();
         } else {
+          self.geneModel.clearGeneToLatestTranscript()
           self.geneModel.clearDangerSummaries();
           self.refreshCoverageCounts();
           self.cacheHelper.promiseClearCache(self.cacheHelper.launchTimestampToClear)
@@ -3375,15 +3376,18 @@ export default {
       this.featureMatrixModel.isBasicMode = false;
       this.featureMatrixModel.isSimpleMode = false;
       this.filterModel.isBasicMode = false;
-      this.calcFeatureMatrixWidthPercent();
-      this.onFilesLoaded(true, function() {
-        let options = { name: 'home', query: { mode: 'advanced'}};
-        if (self.forMyGene2) {
-          options.query.mygene2 = true;
-        }
-       
-        self.$router.push(options)
-      });
+      this.promiseClearCache()
+      .then(function() {
+        self.calcFeatureMatrixWidthPercent();
+        self.onFilesLoaded(true, function() {
+          let options = { name: 'home', query: { mode: 'advanced'}};
+          if (self.forMyGene2) {
+            options.query.mygene2 = true;
+          }
+         
+          self.$router.push(options)
+        });
+      })
     },
     onBasicMode: function() {
       let self = this;
@@ -3401,10 +3405,13 @@ export default {
       this.featureMatrixModel.isBasicMode = false;
       this.featureMatrixModel.isSimpleMode = true;
       this.filterModel.isBasicMode = false;
-      this.calcFeatureMatrixWidthPercent();
-      this.onFilesLoaded(true, function() {
-        self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 } })
-      });
+      this.promiseClearCache()
+      .then(function() {
+        self.calcFeatureMatrixWidthPercent();
+        self.onFilesLoaded(true, function() {
+          self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 } })
+        });
+      })
     },
     onStopAnalysis: function() {
       this.cohortModel.stopAnalysis();

@@ -470,6 +470,10 @@ class GeneModel {
     this.geneDangerSummaries = {};
   }
 
+  clearGeneToLatestTranscript() {
+    this.geneToLatestTranscript = {}
+  }
+
 
   promiseLoadClinvarGenes() {
     let me = this;
