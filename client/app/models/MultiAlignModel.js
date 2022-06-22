@@ -57,7 +57,7 @@ class MultiAlignModel {
           $.ajax({
             url: get_scores_url ,
             type: 'GET',
-            contentType: 'text'
+            contentType: 'text/plain'
           })
           .done(data => {
 
@@ -202,7 +202,7 @@ class MultiAlignModel {
         $.ajax({
           url: get_multialign_url ,
           type: 'GET',
-          contentType: 'text'
+          contentType: 'text/plain'
         })
         .done(data => {
           let alignments = []

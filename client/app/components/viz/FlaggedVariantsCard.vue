@@ -1363,6 +1363,7 @@ export default {
 
     onEditFilter: function(geneList, text) {
       let self = this;
+      
       if(text === "Add"){
         this.editAddText = 'Add ';
       }
@@ -1374,6 +1375,10 @@ export default {
       setTimeout(function() {
         if (self.$refs.currentFilterSettingRef) {
           self.$refs.currentFilterSettingRef.init();
+          geneList.expand = true;
+          self.expansionControl =  self.geneLists.map(function(geneList) {
+            return geneList.expand;
+          })
         }
       }, 20);
     },

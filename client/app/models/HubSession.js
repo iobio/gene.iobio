@@ -71,7 +71,7 @@ export default class HubSession {
       .then(function(data) {
         variantSet = data;
 
-        self.promiseGetSampleInfo(projectId, sampleId, isPedigree).then(data => {
+        self.promiseGetPedigreeForSample(projectId, sampleId, isPedigree).then(data => {
 
 
           let promises = [];
@@ -326,10 +326,7 @@ export default class HubSession {
     });
   }
 
-  promiseGetSampleInfo(project_id, sample_id) {
-    let self = this;
-    return self.promiseGetPedigreeForSample(project_id, sample_id);
-  }
+
 
   promiseGetSample(project_id, sample_id, rel) {
     let self = this;
@@ -356,34 +353,51 @@ export default class HubSession {
     })
   }
 
-  promiseGetPedigreeForSample(project_id, sample_id) {
+  promiseGetPedigreeForSample(project_id, sample_id, isPedigree) {
     let self = this;
 
     return new Promise(function(resolve, reject) {
-      // Get pedigree for sample
-      self.getPedigreeForSample(project_id, sample_id)
-      .done(rawPedigree => {
-        const rawPedigreeOrig = $.extend({}, rawPedigree);
-        let pedigree = self.parsePedigree(rawPedigree, sample_id)
-        if (pedigree) {
-          resolve({foundPedigree: true, pedigree: pedigree, rawPedigree: rawPedigreeOrig});
-        }
-        else {
-          self.promiseGetSample(project_id, sample_id, 'proband')
-          .then(function(data) {
-            data.foundPedigree = false;
-            resolve(data);
-          })
-        }
-      })
-      .fail(error => {
-        let errorMsg = error.responseJSON.message;
-        let msg = "Error getting pedigree for sample_id " + sample_id
-        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
-          .setHeader("Fatal Error");
+      if (isPedigree) {
+        // If the user click 'Pedigree' from the Mosaic launch dialog, 
+        // get the pedigree for this sample. We will launch gene.iobio 
+        // for the proband of this pedigree, regardless of which sample
+        // was selected. For example, the father could be selected, and
+        // the pedigree will be located for the father, and we will launch
+        // gene.iobio for the proband of that pedigree.
+        self.getPedigreeForSample(project_id, sample_id)
+        .done(rawPedigree => {
+          const rawPedigreeOrig = $.extend({}, rawPedigree);
+          let pedigree = self.parsePedigree(rawPedigree, sample_id)
+          if (pedigree) {
+            resolve({foundPedigree: true, pedigree: pedigree, rawPedigree: rawPedigreeOrig});
+          }
+          else {
+            self.promiseGetSample(project_id, sample_id, 'proband')
+            .then(function(data) {
+              data.foundPedigree = false;
+              resolve(data);
+            })
+          }
+        })
+        .fail(error => {
+          let errorMsg = error.responseJSON.message;
+          let msg = "Error getting pedigree for sample_id " + sample_id
+          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
+            .setHeader("Fatal Error");
 
-        reject("Error getting pedigree for sample " + sample_id + ": " + error);
-      })
+          reject("Error getting pedigree for sample " + sample_id + ": " + error);
+        })
+
+      } else {
+        // If the user clicked 'Individual' from the Mosaic launch dialog, we
+        // will treat the selected sample as the proband.
+        self.promiseGetSample(project_id, sample_id, 'proband')
+        .then(function(data) {
+          data.foundPedigree = false;
+          resolve(data);
+        })
+
+      }
     })
   }
 

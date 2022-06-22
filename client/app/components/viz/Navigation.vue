@@ -83,7 +83,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
 
         .badge, .v-badge
           background-color: transparent
-
+          
           span.badge-label
             color: $app-color
             border-color: none
@@ -105,6 +105,15 @@ aside.navigation-drawer, aside.v-navigation-drawer
             padding-left: 5px
             padding-right: 5px
 
+
+  #side-panel-container
+    .v-tabs
+      .v-tabs__bar
+        .v-tabs__container
+          .v-tabs__div
+            .v-tabs__item
+              .v-badge
+                min-width: 80px !important
 
 
 
