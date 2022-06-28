@@ -353,6 +353,9 @@ class GeneModel {
  }
 
  getCopyPasteGeneCount(genesString) {
+    if (genesString == "") {
+      return 0;
+    }
     genesString = genesString.replace(/\s*$/, "");
     var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
     return geneNameList.length;

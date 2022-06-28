@@ -2552,9 +2552,12 @@ export default {
     onGenesReplaced: function(oldGeneNames, newGeneNames) {
       let self = this;
 
-      var removedGeneNames = oldGeneNames.filter(function(geneName) {
+      // The genes to remove are those in the old list and not in the
+      // new list of genes
+      let removedGeneNames = oldGeneNames.filter(function(geneName) {
         return newGeneNames.indexOf(geneName) === -1;
       })
+
 
       removedGeneNames.forEach(function(geneName) {
         self.cohortModel.removeFlaggedVariantsForGene(geneName);
@@ -2720,8 +2723,25 @@ export default {
 
       })
       .then(function() {
-        if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
+        if (self.geneModel.sortedGeneNames) {
           if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
+            // If all of the genes were removed, prompt the user to enter a 
+            // gene or a phenotype term
+            setTimeout( function() {
+              if (self.geneModel.sortedGeneNames.length == 0) {
+                if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+                  self.$refs.navRef.geneCount = 0
+                  self.$refs.navRef.badgeCounts.coverage = 0
+                  
+                }
+                if (!self.isEduMode) {
+                  let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
+                  self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
+                  self.bringAttention = 'gene';
+                }
+
+              }
+            }, 1000)
             self.showLeftPanelForGenes();
             self.cacheHelper.analyzeAll(self.cohortModel, false);
             if (callback) {
@@ -2729,6 +2749,7 @@ export default {
             }
           }
         }
+        
       })
 
     },
