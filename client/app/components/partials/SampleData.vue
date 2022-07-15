@@ -66,6 +66,10 @@
         @input="onSampleSelected"
         hide-details
       ></v-autocomplete>
+      <div v-show="showLoadingSamples" style="margin-top: 10px;margin-bottom:10px">
+        <span class="loader-label" style="padding-right:4px">Loading samples file vcf</span>
+        <img width="20" height="20" src="../../../assets/images/wheel.gif" alt="Loading Wheel">
+      </div>
     </v-flex>
 
     <v-flex xs12  class="ml-3 "  >
@@ -111,7 +115,8 @@ export default {
         },
         samples: [],
         sample: null,
-        isAffected: true
+        isAffected: true,
+        showLoadingSamples: false
     }
   },
   computed: {
@@ -124,6 +129,8 @@ export default {
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
       let tryToLoad = false;
+      self.showLoadingSamples = true;
+
       if (self.separateUrlForIndex) {
         tryToLoad = vcfUrl && vcfUrl.length > 0 && tbiUrl && tbiUrl.length > 0
       } else {
@@ -145,11 +152,15 @@ export default {
               self.modelInfo.sample = null;
               self.modelInfo.model.sampleName =  null;
             }
+            self.showLoadingSamples = false;
             self.$emit("samples-available", self.modelInfo.relationship, self.samples);
           }
+          self.showLoadingSamples = false;
           self.$emit("sample-data-changed");
         })
       } else {
+        self.showLoadingSamples = false;
+
         if (self.modelInfo && self.modelInfo.model) {
           self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
             self.sample = null
@@ -164,6 +175,7 @@ export default {
       let self = this;
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
+      self.showLoadingSamples = true;
       self.modelInfo.model.promiseVcfFilesSelected(fileSelection)
       .then(function(data) {
         self.samples = data.sampleNames;
@@ -179,10 +191,12 @@ export default {
           self.modelInfo.sample = null;
           self.modelInfo.model.sampleName =  null;
         }
+        self.showLoadingSamples = false;
         self.$emit("sample-data-changed");
         self.$emit("samples-available", self.modelInfo.relationship, self.samples);
       })
       .catch(function(error) {
+        self.showLoadingSamples = false;
         self.$emit("sample-data-changed");
       })
     },

@@ -8,7 +8,7 @@
 
 
 .v-snack--top
-  top: 60px !important
+  top: 80px !important
 
 
 .fluidMax
