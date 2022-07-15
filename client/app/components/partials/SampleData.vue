@@ -149,6 +149,15 @@ export default {
           }
           self.$emit("sample-data-changed");
         })
+      } else {
+        if (self.modelInfo && self.modelInfo.model) {
+          self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
+            self.sample = null
+            self.modelInfo.sample = null;
+            self.modelInfo.model.sampleName = null
+            self.$emit("sample-data-changed");
+          })
+        }
       }
     },
     onVcfFilesSelected: function(fileSelection) {

@@ -147,8 +147,8 @@
                   Load
                 </v-btn>
 
-                <v-btn class="cancer-button action-button" @click="onCancel">
-                 Cancel
+                <v-btn class="cancer-button action-button" @click="onClose">
+                 Close
                </v-btn>
               </v-flex>
             </v-layout>
@@ -521,9 +521,9 @@ export default {
       }
       return self.cohortModel.promiseSetSibs(affectedSibList, unaffectedSibList)
     },
-    onCancel:  function() {
+    onClose:  function() {
       let self = this;
-      self.$emit("on-cancel");
+      self.$emit("on-close");
       self.showFilesDialog = false;
     },
     onModeChanged: function() {
@@ -571,6 +571,7 @@ export default {
         var theModelInfo = self.modelInfoMap[theModel.relationship];
         theModelInfo.model = theModel;
         theModel.onVcfUrlEntered(theModelInfo.vcf, null, function(success, sampleNames) {
+          self.validate();
           if (success) {
             theModelInfo.samples = sampleNames;
             if (theModel.relationship == 'proband') {
@@ -602,15 +603,18 @@ export default {
     },
     validate: function() {
       this.isValid = false;
+      this.cohortModel.isLoaded = false;
       if (this.mode == 'single') {
         if (this.modelInfoMap.proband && this.modelInfoMap.proband.model.isReadyToLoad()) {
           this.isValid = true;
+          this.cohortModel.isLoaded = true;
         }
       } else {
         if (this.modelInfoMap.proband && this.modelInfoMap.proband.model && this.modelInfoMap.proband.model.isReadyToLoad()
             && this.modelInfoMap.mother && this.modelInfoMap.mother.model && this.modelInfoMap.mother.model.isReadyToLoad()
             && this.modelInfoMap.father && this.modelInfoMap.father.model && this.modelInfoMap.father.model.isReadyToLoad()) {
           this.isValid = true;
+          this.cohortModel.isLoaded = true;
         }
       }
     },

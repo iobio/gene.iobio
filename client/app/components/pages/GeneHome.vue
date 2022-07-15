@@ -282,6 +282,7 @@ main.content.clin, main.v-content.clin
       @apply-variant-notes="onApplyVariantNotes"
       @apply-variant-interpretation="onApplyVariantInterpretation"
       @on-files-loaded="onFilesLoaded"
+      @on-close-files-dialog="onCloseFilesDialog"
       @on-left-drawer="onLeftDrawer"
       @show-snackbar="onShowSnackbar"
       @hide-snackbar="onHideSnackbar"
@@ -1142,7 +1143,7 @@ export default {
 
     showGeneVariantsCard: function() {
 
-        return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode && (this.cohortModel.isLoaded || !(Array.isArray(this.models) && this.models.length > 1)) && !this.showWelcome
+        return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode  && !this.showWelcome
 
     },
 
@@ -1151,7 +1152,8 @@ export default {
       let theModels = [];
       if (this.models && this.models.length > 0) {
         theModels = self.models.filter(function(model) {
-          return model.relationship === 'proband';
+          return model.relationship === 'proband' && 
+                 (model.isLoaded() || model.isBamReadyToLoad());
         })
       }
       if (theModels.length > 0) {
@@ -1780,7 +1782,7 @@ export default {
                     reject(error);
                 })
         } else {
-          Promise.resolve();
+          return self.promiseClearCache();
         }
 
       })
@@ -1801,6 +1803,15 @@ export default {
         })
 
       }
+    },
+
+    onCloseFilesDialog: function() {
+      let self = this;
+      self.promiseClearCache()
+      .then(function() {
+        self.featureMatrixModel.init();
+        return self.promiseResetAllGenes();
+      })
     },
 
     onFilesLoaded: function(analyzeAll, callback) {
