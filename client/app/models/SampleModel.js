@@ -815,6 +815,7 @@ class SampleModel {
     return new Promise(function(resolve, reject) {
       me.bamData = null;
       me.fbData = null;
+      me.vcfData = null;
 
       if (fileSelection == null) {
         me.bam = new Bam(me.globalApp);
@@ -857,6 +858,7 @@ class SampleModel {
     var me = this;
     this.bamData = null;
     this.fbData = null;
+    this.vcfData = null;
 
     if (bamUrl == null || bamUrl.trim() == "") {
       this.bamUrlEntered = false;

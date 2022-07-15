@@ -72,8 +72,8 @@
       <sample-data-file
        :defaultUrl="modelInfo.bam"
        :defaultIndexUrl="modelInfo.bai"
-       :label="`bam`"
-        :indexLabel="`bai`"
+       :label="`bam or cram`"
+       :indexLabel="`bai or crai`"
        :filePlaceholder="filePlaceholder.bam"
        :fileAccept="fileAccept.bam"
        :separateUrlForIndex="separateUrlForIndex"
@@ -103,11 +103,11 @@ export default {
         isValid: false,
         filePlaceholder: {
           'vcf': '.vcf.gz and .tbi files',
-          'bam': '.bam and .bai files'
+          'bam': '.bam and .bai files, .cram and .crai files'
         },
         fileAccept: {
           'vcf': '.vcf.gz, .tbi',
-          'bam': '.bam, .bai'
+          'bam': '.bam, .bai, .cram, .crai'
         },
         samples: [],
         sample: null,

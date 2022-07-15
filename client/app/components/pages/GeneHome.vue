@@ -1807,6 +1807,7 @@ export default {
 
     onCloseFilesDialog: function() {
       let self = this;
+      self.stashedVariant = null;
       self.promiseClearCache()
       .then(function() {
         self.featureMatrixModel.init();
