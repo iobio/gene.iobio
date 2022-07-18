@@ -3,6 +3,7 @@
 @import ../../../assets/sass/variables
 
 #omim-table
+  min-width: 400px
   .title-row
     display: flex
     height: 25px
@@ -15,6 +16,7 @@
       margin-left: 10px
       padding-top: 1px
 
+
   .omim-row
     font-size: 12px
     padding-bottom: 5px
@@ -22,7 +24,7 @@
       display: inline-block
       vertical-align: top
       line-height: 15px
-
+    
     .omim-launch
       min-width: 20px
       max-width: 20px
@@ -41,14 +43,21 @@
 <style lang="css">
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
+#omim-table {
+  min-width:  250px !important;
+}
 .omim-phenotype {
   min-width: 150px !important;
   max-width: 150px !important;
 }  
+
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
+#omim-table {
+  min-width:  250px @important;
+}
 .omim-phenotype {
   min-width: 150px !important;
   max-width: 150px !important;
@@ -58,6 +67,9 @@
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
+#omim-table {
+  min-width:  300px !important;
+}
 .omim-phenotype {
   min-width: 200px !important;
   max-width: 200px !important;
@@ -67,36 +79,48 @@
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
+#omim-table {
+  min-width:  300px !important;
+}
 .omim-phenotype {
   min-width: 200px !important;
   max-width: 200px !important;
 } 
+
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
+#omim-table {
+  min-width:  300px !important;
+}
 .omim-phenotype {
   min-width: 200px !important;
   max-width: 200px !important;
 } 
+
 }
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1400px) {
+#omim-table {
+  min-width:  400px !important;
+}
 .omim-phenotype {
   min-width: 300px !important;
   max-width: 300px !important;
 } 
+
 }
 
 </style>
 
 <template>
 
-  <div id="omim-table" v-if="omimEntries && omimEntries.length > 0">
+  <div id="omim-table">
     <div class="title-row">
       <div class="table-title">OMIM Phenotypes</div>
     </div>
-    <div style="max-height:158px;min-height:158px;overflow-y:scroll;padding-top:5px">
+    <div  style="max-height:158px;min-height:158px;overflow-y:scroll;padding-top:5px">
       <div class="omim-row" v-for="entry in omimEntries" :key="entry.phenotypeMimNumber">
           <span class="omim-launch" >
             <a :href="getEntryHref(entry.phenotypeMimNumber)" target="_omim">
@@ -106,6 +130,9 @@
           <span class="omim-phenotype" >{{ entry.phenotype }}
           </span>
           <span class="omim-inheritance">{{ entry.phenotypeInheritance }}</span>
+      </div>
+      <div class="omim-row" v-if="omimEntries && omimEntries.length === 0">
+      No OMIM entries found for {{ selectedGene.gene_name }}
       </div>
     </div>
 
@@ -126,7 +153,7 @@ export default {
   },
   data () {
     return {
-      omimEntries: []
+      omimEntries: null
     }
   },
   methods: {
@@ -137,11 +164,16 @@ export default {
       if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
         self.geneModel.promiseGetOMIMEntries(self.selectedGene.gene_name)
         .then(function(data) {
+          self.omimEntries = []
           if (data && data.omimEntries) {
             self.omimEntries = data.omimEntries.map(function(entry) {
               return entry.phenotype;
             });
           }
+        })
+        .catch(function(error) {
+          console.log("Cannot get OMIM entries for gene " + self.selectedGene.gene_name + ". Error: error")
+          self.omimEntries = [];
         })
       } else {
         self.omimEntries = [];
@@ -164,6 +196,7 @@ export default {
   },
   mounted: function() {
     let self = this;
+    this.omimEntries = null;
     setTimeout(function() {
       self.getOMIMEntries();
     },2000)
