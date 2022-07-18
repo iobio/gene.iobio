@@ -1808,12 +1808,6 @@ export default {
 
     onCloseFilesDialog: function() {
       let self = this;
-      self.stashedVariant = null;
-      self.promiseClearCache()
-      .then(function() {
-        self.featureMatrixModel.init();
-        return self.promiseResetAllGenes();
-      })
     },
 
     onFilesLoaded: function(analyzeAll, callback) {
@@ -1955,7 +1949,9 @@ export default {
       .then(function() {
         if(self.launchedFromFiles) {
           self.showLeftPanelForGenes();
-          self.promiseSelectFirstFlaggedVariant();
+          if (self.cohortModel.isLoaded) {
+            self.promiseSelectFirstFlaggedVariant();
+          }
 
         }
         self.onSendGenesToClin();
