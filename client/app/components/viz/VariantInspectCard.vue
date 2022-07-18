@@ -1656,18 +1656,19 @@ export default {
       return refAlt;
     },
     aminoAcidChange: function() {
-      let aaChange = "";
       let self = this;
+      let aaPos = "";
+      let altRefAA = null;
       if (self.selectedVariant && Object.keys(self.selectedVariant.vepAminoAcids).join("").length > 0) {
         for (let aa in self.selectedVariant.vepAminoAcids) {
-          aaChange += self.globalApp.utility.formatAminoAcidChange(aa)
+          altRefAA = self.globalApp.utility.formatAminoAcidChange(aa)
         }
         if (Object.keys(self.selectedVariant.vepProteinPosition).join("").length > 0) {
-          aaChange += " at " + Object.keys(self.selectedVariant.vepProteinPosition).join(" ");
+          aaPos += Object.keys(self.selectedVariant.vepProteinPosition).join(" ");
         }
       }
-      if (aaChange.length > 0) {
-        return aaChange;
+      if (altRefAA && aaPos) {
+        return altRefAA.ref + aaPos + altRefAA.alt;
       } else {
         return "";
       }
