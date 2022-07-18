@@ -357,7 +357,7 @@ class GeneModel {
       return 0;
     }
     genesString = genesString.replace(/\s*$/, "");
-    var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
+    var geneNameList = genesString.split(/(?:\s+|,\s+|,|\n)/g);
     return geneNameList.length;
  }
 
@@ -367,7 +367,7 @@ class GeneModel {
     return new Promise(function(resolve, reject) {
 
       genesString = genesString.replace(/\s*$/, "");
-      var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
+      var geneNameList = genesString.split(/(?:\s+|,\s+|,|\n)/g);
 
 
 
