@@ -41,7 +41,22 @@
  <v-layout id="sample-data-form" row wrap :class="{'ml-2': true,   'mt-3' : modelInfo.relationship != 'proband', 'mt-1' : modelInfo.relationship == 'proband'}">
     <v-flex xs12 class="sample-label" >
       <span> {{ modelInfo.relationship }} </span>
-      <v-switch  label="Affected" hide-details @change="onIsAffected" v-model="isAffected"></v-switch>
+
+      <div :style="modelInfo.relationship == 'proband' ? 'display: flex;align-items: flex-end;margin-bottom: 20px;' : 'display: flex;align-items: flex-end;margin-bottom:15px'">
+        <div style="max-width: 260px;height: 30px">
+          <v-switch style="display:inline-block" label="Affected" hide-details @change="onIsAffected" v-model="isAffected">
+          </v-switch>
+        </div>
+
+        <div style="margin-left:30px;max-width:160px;margin-top: -15px;" >
+          <v-select v-show="modelInfo.relationship == 'proband'" 
+            label="Sex"
+            hide-details
+            v-model="sex"
+            :items="sexList"
+          ></v-select>
+        </div>
+      </div>
     </v-flex>
     <v-flex xs12  class="ml-3" style="margin-top: -15px">
       <sample-data-file
@@ -116,12 +131,18 @@ export default {
         samples: [],
         sample: null,
         isAffected: true,
-        showLoadingSamples: false
+        showLoadingSamples: false,
+        sex: null,
+        sexList: ['', 'male', 'female']
     }
   },
   computed: {
   },
   watch: {
+    sex: function() {
+      this.modelInfo.sex = this.sex
+      this.modelInfo.model.sex = this.sex
+    }
   },
   methods: {
     onVcfUrlEntered: function(vcfUrl, tbiUrl) {
@@ -249,6 +270,7 @@ export default {
   mounted: function() {
     this.samples = this.modelInfo.samples;
     this.isAffected = this.modelInfo.isAffected;
+    this.sex = this.modelInfo.sex;
     if (this.modelInfo.vcf) {
       this.onVcfUrlEntered(this.modelInfo.vcf, this.modelInfo.tbi);
     }

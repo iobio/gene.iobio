@@ -865,6 +865,7 @@ export default {
     paramUnaffectedSibs:   null,
 
     paramRelationships:    null,
+    paramSexes:            null,
     paramSamples:          null,
     paramNames:            null,
     paramBams:             null,
@@ -1893,6 +1894,7 @@ export default {
       var i = 0;
       self.cohortModel.getCanonicalModels().forEach(function(model) {
         queryObject['rel'+i]    = model.relationship;
+        queryObject['sex'+i]    = model.sex;
         queryObject['vcf'+i]    = model.vcf && model.vcf.getVcfURL() ? model.vcf.getVcfURL() : "";
         queryObject['tbi'+i]    = model.vcf && model.vcf.getTbiURL() ? model.vcf.getTbiURL() : "";
         queryObject['bam'+i]    = model.bam && model.bam.bamUri ? model.bam.bamUri : "";
@@ -2886,6 +2888,7 @@ export default {
           if (rel) {
             var modelInfo            = {'relationship': rel};
             modelInfo.name           = self.paramNames[i];
+            modelInfo.sex            = self.paramSexes[i];
             modelInfo.vcf            = self.paramVcfs[i];
             modelInfo.tbi            = self.paramTbis[i];
             modelInfo.bam            = self.paramBams[i];
