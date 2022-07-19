@@ -164,6 +164,12 @@ export default {
         type: Function,
         default: function(d,i,regionX, modelName) {
         }
+      },
+      formatCircleText: {
+        type: Function,
+        default: function(pos, depth) {
+          return depth + 'x' ;
+        }
       }
 
     },
@@ -206,9 +212,7 @@ export default {
               return val + "x";
             }
           })
-          .formatCircleText( function(pos, depth) {
-            return depth + 'x' ;
-          })
+          .formatCircleText(this.formatCircleText)
           .regionGlyph(function(d, i, regionX, modelName) {
             var parent = d3.select(this.parentNode);
             return self.regionGlyph(d, parent, regionX, modelName);
