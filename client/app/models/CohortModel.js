@@ -363,7 +363,7 @@ class CohortModel {
       vm.init(self);
       vm.setRelationship(modelInfo.relationship);
       vm.affectedStatus = modelInfo.affectedStatus;
-      vm.sex = modelInfo.sex;
+      vm.sex = modelInfo.sex && modelInfo.sex != "" ? modelInfo.sex : null;
       vm.isBasicMode = self.isBasicMode;
       vm.isEduMode = self.isEduMode;
       vm.isSfariSample = fromSfariProject;

@@ -121,7 +121,12 @@ export default class Bam {
 
     var success = null;
     cmd.on('data', function(data) {
-      if (data != undefined) {
+      if (data && data == "GRU_ERROR_SENTINEL") {
+        success = false;
+        if (callback) {
+          callback(success, "Backend unable to read alignment file");
+        }
+      } else if (data != undefined) {
         success = true;
       }
     });
@@ -130,7 +135,7 @@ export default class Bam {
       if (success == null) {
         success = true;
       }
-      if (success) {
+      if (callback) {
         callback(success);
       }
     });
@@ -138,12 +143,16 @@ export default class Bam {
     cmd.on('error', function(error) {
         if (me.ignoreErrorMessage(error)) {
         success = true;
-        callback(success)
+        if (callback) {
+          callback(success)
+        }
       } else {
         if (success == null) {
           success = false;
           me.bamUri = url;
-          callback(success, me.translateErrorMessage(error));
+          if (callback) {
+            callback(success, me.translateErrorMessage(error));
+          }
         }
       }
 

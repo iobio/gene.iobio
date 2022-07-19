@@ -495,6 +495,7 @@
               :showXAxis="false"
               :regionGlyph="depthVizRegionGlyph"
               :showAlleleBar="true"
+              :formatCircleText="formatQCCircleText"
               @region-selected="showExonTooltip"
 
             >
@@ -1301,7 +1302,7 @@ export default {
     },
     showCoverageAlleleBar: function() {
       let self = this;
-      let theDepth = self.selectedVariant.bamDepth;
+      let theDepth = null;
       let theAltCount = null;
       // If samtools mpileup didn't return coverage for this position, use the variant's depth
       // field.
@@ -1324,7 +1325,9 @@ export default {
       this.$emit("apply-variant-interpretation", variant);
     },
 
-
+    formatQCCircleText: function(pos, depth) {
+      return depth + ' reads'
+    },
 
     depthVizRegionGlyph: function(exon, regionGroup, regionX) {
       var exonId = 'exon' + exon.exon_number.replace("/", "-");
@@ -1656,18 +1659,19 @@ export default {
       return refAlt;
     },
     aminoAcidChange: function() {
-      let aaChange = "";
       let self = this;
+      let aaPos = "";
+      let altRefAA = null;
       if (self.selectedVariant && Object.keys(self.selectedVariant.vepAminoAcids).join("").length > 0) {
         for (let aa in self.selectedVariant.vepAminoAcids) {
-          aaChange += self.globalApp.utility.formatAminoAcidChange(aa)
+          altRefAA = self.globalApp.utility.formatAminoAcidChange(aa)
         }
         if (Object.keys(self.selectedVariant.vepProteinPosition).join("").length > 0) {
-          aaChange += " at " + Object.keys(self.selectedVariant.vepProteinPosition).join(" ");
+          aaPos += Object.keys(self.selectedVariant.vepProteinPosition).join(" ");
         }
       }
-      if (aaChange.length > 0) {
-        return aaChange;
+      if (altRefAA && aaPos) {
+        return altRefAA.ref + aaPos + altRefAA.alt;
       } else {
         return "";
       }

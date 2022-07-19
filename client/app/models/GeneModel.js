@@ -353,8 +353,11 @@ class GeneModel {
  }
 
  getCopyPasteGeneCount(genesString) {
+    if (genesString == "") {
+      return 0;
+    }
     genesString = genesString.replace(/\s*$/, "");
-    var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
+    var geneNameList = genesString.split(/(?:\s+|,\s+|,|\n)/g);
     return geneNameList.length;
  }
 
@@ -364,7 +367,7 @@ class GeneModel {
     return new Promise(function(resolve, reject) {
 
       genesString = genesString.replace(/\s*$/, "");
-      var geneNameList = genesString.split(/(?:\s+|,\s+|,|^W|\n)/g);
+      var geneNameList = genesString.split(/(?:\s+|,\s+|,|\n)/g);
 
 
 
@@ -468,6 +471,10 @@ class GeneModel {
 
   clearDangerSummaries() {
     this.geneDangerSummaries = {};
+  }
+
+  clearGeneToLatestTranscript() {
+    this.geneToLatestTranscript = {}
   }
 
 
@@ -1093,12 +1100,12 @@ class GeneModel {
 
         $.ajax( url )
           .done(function(data) {
-              let mimNumber = null;
-              let phenotypes = null;
-              if (data 
-                && data.omim.searchResponse 
-                && data.omim.searchResponse.geneMapList 
-                && data.omim.searchResponse.geneMapList.length > 0) {
+            let mimNumber = null;
+            let phenotypes = null;
+            if (data 
+              && data.omim.searchResponse 
+              && data.omim.searchResponse.geneMapList 
+              && data.omim.searchResponse.geneMapList.length > 0) {
               let geneMap = data.omim.searchResponse.geneMapList[0].geneMap;
               mimNumber = geneMap.mimNumber;
               if (geneMap.phenotypeMapList) {
@@ -1108,6 +1115,10 @@ class GeneModel {
               }
               resolve({geneName: geneName, mimNumber: mimNumber, phenotypes: phenotypes});
             }
+            else {
+              reject("No OMIM entry found for gene " + geneName)
+            }
+          
           })
           .fail(function(error) {
               let msg = "Unable to get phenotype mim number OMIM " + url;
@@ -1235,7 +1246,7 @@ class GeneModel {
               ensemblIds.forEach(function(id) {
                 let p = self._promiseLookupEnsemblGene(id)
                 .then(function(data) {
-                  if (data.geneName == geneName) {
+                  if (data && data.geneName == geneName) {
                     matchingEnsemblGeneId = data.ensembleGeneId
                   }
                 })
@@ -1248,8 +1259,7 @@ class GeneModel {
                 } else {
                   let msg = "Unable to find ensembl gene id that matches gene name " + geneName;
                   console.log(msg);
-                  console.log(error)
-                  reject(msg + '. Error: ' + error);
+                  reject(msg );
                 }
               })
             }

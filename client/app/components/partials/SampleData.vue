@@ -41,7 +41,22 @@
  <v-layout id="sample-data-form" row wrap :class="{'ml-2': true,   'mt-3' : modelInfo.relationship != 'proband', 'mt-1' : modelInfo.relationship == 'proband'}">
     <v-flex xs12 class="sample-label" >
       <span> {{ modelInfo.relationship }} </span>
-      <v-switch  label="Affected" hide-details @change="onIsAffected" v-model="isAffected"></v-switch>
+
+      <div :style="modelInfo.relationship == 'proband' ? 'display: flex;align-items: flex-end;margin-bottom: 20px;' : 'display: flex;align-items: flex-end;margin-bottom:15px'">
+        <div style="max-width: 260px;height: 30px">
+          <v-switch style="display:inline-block" label="Affected" hide-details @change="onIsAffected" v-model="isAffected">
+          </v-switch>
+        </div>
+
+        <div style="margin-left:30px;max-width:160px;margin-top: -15px;" >
+          <v-select v-show="modelInfo.relationship == 'proband'" 
+            label="Sex"
+            hide-details
+            v-model="sex"
+            :items="sexList"
+          ></v-select>
+        </div>
+      </div>
     </v-flex>
     <v-flex xs12  class="ml-3" style="margin-top: -15px">
       <sample-data-file
@@ -66,14 +81,18 @@
         @input="onSampleSelected"
         hide-details
       ></v-autocomplete>
+      <div v-show="showLoadingSamples" style="margin-top: 10px;margin-bottom:10px">
+        <span class="loader-label" style="padding-right:4px">Loading samples file vcf</span>
+        <img width="20" height="20" src="../../../assets/images/wheel.gif" alt="Loading Wheel">
+      </div>
     </v-flex>
 
     <v-flex xs12  class="ml-3 "  >
       <sample-data-file
        :defaultUrl="modelInfo.bam"
        :defaultIndexUrl="modelInfo.bai"
-       :label="`bam`"
-        :indexLabel="`bai`"
+       :label="`bam or cram`"
+       :indexLabel="`bai or crai`"
        :filePlaceholder="filePlaceholder.bam"
        :fileAccept="fileAccept.bam"
        :separateUrlForIndex="separateUrlForIndex"
@@ -103,20 +122,27 @@ export default {
         isValid: false,
         filePlaceholder: {
           'vcf': '.vcf.gz and .tbi files',
-          'bam': '.bam and .bai files'
+          'bam': '.bam and .bai files, .cram and .crai files'
         },
         fileAccept: {
           'vcf': '.vcf.gz, .tbi',
-          'bam': '.bam, .bai'
+          'bam': '.bam, .bai, .cram, .crai'
         },
         samples: [],
         sample: null,
-        isAffected: true
+        isAffected: true,
+        showLoadingSamples: false,
+        sex: null,
+        sexList: ['', 'male', 'female']
     }
   },
   computed: {
   },
   watch: {
+    sex: function() {
+      this.modelInfo.sex = this.sex
+      this.modelInfo.model.sex = this.sex
+    }
   },
   methods: {
     onVcfUrlEntered: function(vcfUrl, tbiUrl) {
@@ -124,6 +150,8 @@ export default {
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
       let tryToLoad = false;
+      self.showLoadingSamples = true;
+
       if (self.separateUrlForIndex) {
         tryToLoad = vcfUrl && vcfUrl.length > 0 && tbiUrl && tbiUrl.length > 0
       } else {
@@ -145,16 +173,30 @@ export default {
               self.modelInfo.sample = null;
               self.modelInfo.model.sampleName =  null;
             }
+            self.showLoadingSamples = false;
             self.$emit("samples-available", self.modelInfo.relationship, self.samples);
           }
+          self.showLoadingSamples = false;
           self.$emit("sample-data-changed");
         })
+      } else {
+        self.showLoadingSamples = false;
+
+        if (self.modelInfo && self.modelInfo.model) {
+          self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
+            self.sample = null
+            self.modelInfo.sample = null;
+            self.modelInfo.model.sampleName = null
+            self.$emit("sample-data-changed");
+          })
+        }
       }
     },
     onVcfFilesSelected: function(fileSelection) {
       let self = this;
       self.$set(self, "sample", null);
       self.$set(self, "samples", []);
+      self.showLoadingSamples = true;
       self.modelInfo.model.promiseVcfFilesSelected(fileSelection)
       .then(function(data) {
         self.samples = data.sampleNames;
@@ -170,10 +212,12 @@ export default {
           self.modelInfo.sample = null;
           self.modelInfo.model.sampleName =  null;
         }
+        self.showLoadingSamples = false;
         self.$emit("sample-data-changed");
         self.$emit("samples-available", self.modelInfo.relationship, self.samples);
       })
       .catch(function(error) {
+        self.showLoadingSamples = false;
         self.$emit("sample-data-changed");
       })
     },
@@ -226,6 +270,7 @@ export default {
   mounted: function() {
     this.samples = this.modelInfo.samples;
     this.isAffected = this.modelInfo.isAffected;
+    this.sex = this.modelInfo.sex;
     if (this.modelInfo.vcf) {
       this.onVcfUrlEntered(this.modelInfo.vcf, this.modelInfo.tbi);
     }
