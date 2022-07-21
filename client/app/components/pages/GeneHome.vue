@@ -928,7 +928,8 @@ export default {
         "nv-prod.iobio.io":                      {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
 
         "https://staging.frameshift.io":         {iobio: "backend.iobio.io",     batchSize: 10},
-        "https://mosaic.frameshift.io":          {iobio: "backend.iobio.io",     batchSize: 10}
+        "https://mosaic.frameshift.io":          {iobio: "backend.iobio.io",     batchSize: 10},
+        "https://udn.mosaic.frameshift.io":      {iobio: "backend.iobio.io", batchSize: 10}
       },
 
       sfariSource:  "https://viewer.sfari.org",
