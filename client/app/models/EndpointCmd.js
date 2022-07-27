@@ -379,7 +379,7 @@ export default class EndpointCmd {
 
             }
 
-            let cmd = this.api.streamCommand('freebayesJointCall', {
+            let cmd = this.api.streamCommand('freebayesJointCallV2', {
                 alignmentSources: bamSources,
                 refFastaFile,
                 region: {
@@ -395,8 +395,6 @@ export default class EndpointCmd {
                 isRefSeq,
                 clinvarUrl,
                 sampleNames,
-                gnomadUrl: gnomadUrl ? gnomadUrl : '',
-                gnomadRegionStr: gnomadRegionStr ? gnomadRegionStr : '',
                 decompose
             });
 
