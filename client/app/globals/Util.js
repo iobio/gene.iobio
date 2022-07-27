@@ -1001,15 +1001,20 @@ class Util {
     let buf = ""
     let self = this;
     let tokens = aaChange.split("/");
+    let refAA = "";
+    let altAA = "";
     tokens.forEach(function(token) {
-      if (buf.length > 0) {
-        buf += " to "
+      if (refAA.length == 0) {
+        Array.from(token).forEach(function(aa) {
+          refAA += self.aminoAcidMap[aa];
+        })
+      } else {
+        Array.from(token).forEach(function(aa) {
+          altAA += self.aminoAcidMap[aa];
+        })
       }
-      Array.from(token).forEach(function(aa) {
-        buf += self.aminoAcidMap[aa];
-      })
     })
-    return buf;
+    return {'ref': refAA, 'alt': altAA};
   }
 
   formatClinvarDisplay(variant, info, translator, isEduMode) {

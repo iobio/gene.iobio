@@ -889,7 +889,7 @@ nav.toolbar, nav.v-toolbar
      :launchedFromDemo="launchedFromDemo"
      @on-files-loaded="onFilesLoaded"
      @load-demo-data="onLoadDemoData"
-     @on-cancel="showFiles = false"
+     @on-close="onCloseFilesDialog"
      @isDemo="onIsDemo"
      @isTrio="onIsTrio"
     >
@@ -1350,6 +1350,10 @@ export default {
     onFilesLoaded: function(analyzeAll) {
       this.showFiles = false;
       this.$emit("on-files-loaded", analyzeAll);
+    },
+    onCloseFilesDialog: function() {
+      this.showFiles = false
+      this.$emit("on-close-files-dialog", false)
     },
     onGeneSelected: function(geneName) {
       this.$emit('gene-selected', geneName);

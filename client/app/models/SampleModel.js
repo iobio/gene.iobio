@@ -815,6 +815,7 @@ class SampleModel {
     return new Promise(function(resolve, reject) {
       me.bamData = null;
       me.fbData = null;
+      me.vcfData = null;
 
       if (fileSelection == null) {
         me.bam = new Bam(me.globalApp);
@@ -857,6 +858,7 @@ class SampleModel {
     var me = this;
     this.bamData = null;
     this.fbData = null;
+    this.vcfData = null;
 
     if (bamUrl == null || bamUrl.trim() == "") {
       this.bamUrlEntered = false;
@@ -877,13 +879,21 @@ class SampleModel {
         if (!success) {
           me.bamUrlEntered = false;
           me.bam = null;
-          var msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + bamUrl + "</span>";
-              alertify.set('notifier','position', 'top-right');
-          me.lastBamAlertify = alertify.error(msg, 15);
-        }
-        if(callback) {
+          setTimeout(function() {
+            var msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + bamUrl + "</span>";
+                alertify.set('notifier','position', 'top-right');
+            me.lastBamAlertify = alertify.error(msg, 15);
+            if(callback) {
 
-          callback(success);
+              callback(success);
+            }
+
+          }, 500)
+        } else {
+          if(callback) {
+            callback(success);
+          }
+
         }
       });
 
@@ -929,7 +939,7 @@ class SampleModel {
               });
           } else {
 
-            var msg = "<span style='font-size:12px'>" + message + "</span>";
+            var msg = "<span style='font-size:12px;min-width:400px'>" + message + "</span>";
               alertify.set('notifier','position', 'top-right');
               me.lastVcfAlertify = alertify.error(msg, 15);
 
@@ -1002,10 +1012,13 @@ class SampleModel {
             });
           } else {
             me.vcfUrlEntered = false;
-            var msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + vcfUrl + "</span>";
-            alertify.set('notifier','position', 'top-right');
-            me.lastVcfAlertify = alertify.error(msg, 15);
-            callback(success);
+            setTimeout(function() {
+              var msg = "<span style='font-size:12px;'>" + errorMsg + "</span><br><span style='font-size:12px'>" + vcfUrl + "</span>";
+              alertify.set('notifier','position', 'top-right');
+              me.lastVcfAlertify = alertify.error(msg, 15);
+              callback(success);
+            }, 500)
+            
           }
         });
 

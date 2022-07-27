@@ -372,6 +372,9 @@ export default function vcfiobio(theGlobalApp) {
           }
         })
         callback(success);
+      } else if (buffer.length == 0) {
+        success = false
+        callback(success, "Unable to read vcf")
       }
     });
 
