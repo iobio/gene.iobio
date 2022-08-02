@@ -602,17 +602,32 @@ class GeneModel {
       var bType = +2;
       if (a.hasOwnProperty("transcript_type") && a.transcript_type == 'protein_coding') {
         aType = +0;
+        a.type = +0;
       } else if (a.hasOwnProperty("gene_type") && a.gene_type == "gene")  {
         aType = +0;
+        a.type = +0;
       } else {
         aType = +1;
+        a.type = +1;
       }
       if (b.hasOwnProperty("transcript_type") && b.transcript_type == 'protein_coding') {
         bType = +0;
+        b.type = +0;
       } else if (b.hasOwnProperty("gene_type") && b.gene_type == "gene")  {
         bType = +0;
+        b.type = +0;
       } else {
         bType = +1;
+        b.type = +1;
+      }
+
+      var aManeSelect = +1;
+      var bManeSelect = +1;
+      if (a.hasOwnProperty("is_mane_select") && a.is_mane_select == 'true') {
+        aManeSelect = +0;
+      }
+      if (b.hasOwnProperty("is_mane_select") && b.is_mane_select == 'true') {
+        bManeSelect = +0;
       }
 
 
@@ -621,9 +636,11 @@ class GeneModel {
       if (me.geneSource.toLowerCase() == 'refseq') {
         if (a.transcript_id.indexOf("NM_") == 0 ) {
           aLevel = +0;
+          a.level = +0;
         }
         if (b.transcript_id.indexOf("NM_") == 0 ) {
           bLevel = +0;
+          b.level = +0;
         }
       } else {
         // Don't consider level for gencode as this seems to point to shorter transcripts many
@@ -638,53 +655,68 @@ class GeneModel {
       if (me.geneSource.toLowerCase() =='refseq') {
         if (a.annotation_source == 'BestRefSeq' ) {
           aSource = +0;
+          a.source = +0;
         }
         if (b.annotation_source == 'BestRefSeq' ) {
           bSource = +0;
+          b.source = +0;
         }
       }
 
       a.sort = aType + ' ' + aLevel + ' ' + aSource + ' ' + a.cdsLength + ' ' + a.order;
       b.sort = bType + ' ' + bLevel + ' ' + bSource + ' ' + b.cdsLength + ' ' + b.order;
 
-      if (aType == bType) {
-        if (aLevel == bLevel) {
-          if (aSource == bSource) {
-            if (+a.cdsLength == +b.cdsLength) {
-              // If all other sort criteria is the same,
-              // we will grab the first transcript listed
-              // for the gene.
-              if (a.order == b.order) {
+      if (aManeSelect == bManeSelect) {
+        if (aType == bType) {
+          if (aLevel == bLevel) {
+            if (aSource == bSource) {
+              if (+a.cdsLength == +b.cdsLength) {
+                // If all other sort criteria is the same,
+                // we will grab the first transcript listed
+                // for the gene.
+                if (a.order == b.order) {
+                  return 0;
+                } else if (a.order < b.order) {
+                  return -1;
+                } else {
+                  return 1;
+                }
                 return 0;
-              } else if (a.order < b.order) {
+              } else if (+a.cdsLength > +b.cdsLength) {
                 return -1;
               } else {
                 return 1;
               }
-              return 0;
-            } else if (+a.cdsLength > +b.cdsLength) {
+            } else if ( aSource < bSource ) {
               return -1;
             } else {
               return 1;
             }
-          } else if ( aSource < bSource ) {
+          } else if (aLevel < bLevel) {
             return -1;
           } else {
             return 1;
           }
-        } else if (aLevel < bLevel) {
+        } else if (aType < bType) {
           return -1;
         } else {
           return 1;
         }
-      } else if (aType < bType) {
+      } else if (aManeSelect < bManeSelect) {
         return -1;
       } else {
         return 1;
       }
     });
     canonical = sortedTranscripts[0];
-    canonical.isCanonical = true;
+    let nextTranscript = sortedTranscripts.length > 1 ? sortedTranscripts[1] : null
+    if (canonical) {
+      canonical.isCanonical = true;
+      canonical.canonical_reason = ''
+      if (canonical.is_mane_select && canonical.is_mane_select == 'true') {
+        canonical.canonical_reason = 'MANE SELECT'
+      }         
+    }
     return canonical;
   }
 
