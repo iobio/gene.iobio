@@ -1421,8 +1421,14 @@ class GeneModel {
         theGeneSource = defaultGeneSource
       } else if (knownGene && knownGene.refseq) {
         theGeneSource = 'refseq';
+        let msg = "No Gencode transcripts for " + geneName + ". Using Refseq transcripts instead.";
+        alertify.set('notifier','position', 'top-right');
+        alertify.error(msg,  10);
       } else if (knownGene && knownGene.gencode) {
-        theGeneSource == 'gencode';
+        let msg = "No Refseq transcripts for " + geneName + ". Using Gencode transcripts instead.";
+        alertify.set('notifier','position', 'top-right');
+        alertify.error(msg,  10);
+        theGeneSource = 'gencode';
       }
 
       if (theGeneSource) {
@@ -1450,6 +1456,10 @@ class GeneModel {
         });
 
       } else {
+        let msg = "No Refseq or Gencode transcripts for " + geneName + ".";
+        alertify.set('notifier','position', 'top-right');
+        alertify.error(msg,  10);
+
         reject("No known gene source for gene " + geneName);
       }
 
@@ -1830,15 +1840,15 @@ class GeneModel {
 
 
     // clinvar badges
-    if (danger1.badges.pathogenic.length !== danger2.badges.pathogenic.length) {
+    if (danger1.badges.pathogenic && danger2.badges.pathogenic && danger1.badges.pathogenic.length !== danger2.badges.pathogenic.length) {
       return danger2.badges.pathogenic.length -  danger1.badges.pathogenic.length;
     }
 
     // inheritance badges
-    if (danger1.badges.recessive.length !== danger2.badges.recessive.length) {
+    if (danger1.badges.recessive && danger2.badges.recessive && danger1.badges.recessive.length !== danger2.badges.recessive.length) {
       return danger2.badges.recessive.length -  danger1.badges.recessive.length;
     }
-    if (danger1.badges.denovo.length !== danger2.badges.denovo.length) {
+    if (danger1.badges.denovo && danger2.badges.denovo && danger1.badges.denovo.length !== danger2.badges.denovo.length) {
       return danger2.badges.denovo.length -  danger1.badges.denovo.length;
     }
 
