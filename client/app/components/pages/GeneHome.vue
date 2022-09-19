@@ -1782,6 +1782,11 @@ export default {
                     self.refreshCoverageCounts()
                 })
                 .catch(function(error) {
+                    self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
+                        .then(function(data) {
+                            self.analyzedTranscript = data.transcript;
+                        })
+
                     reject(error);
                 })
         } else {
