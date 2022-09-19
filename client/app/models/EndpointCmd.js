@@ -21,7 +21,7 @@ export default class EndpointCmd {
       // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
       // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
-      //this.api = new Client( 'http://mosaic.chpc.utah.edu/gru-dev-9003');
+      //this.api = new Client( 'https://mosaic.chpc.utah.edu/gru-dev-9002');
 
       this.api = new Client(httpScheme + process.env.IOBIO_BACKEND);
     }
