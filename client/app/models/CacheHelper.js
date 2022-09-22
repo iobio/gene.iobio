@@ -18,7 +18,7 @@ function CacheHelper(globalApp, forceLocalStorage) {
   this.analyzeAllInProgress = false;
   this.callAllInProgress    = false;
 
-  this.dispatch = d3.dispatch("geneAnalyzed", "analyzeAllCompleted");
+  this.dispatch = d3.dispatch("geneAnalyzed", "geneNotAnalyzed", "analyzeAllCompleted");
   d3.rebind(this, this.dispatch, "on");
 }
 
@@ -486,6 +486,7 @@ CacheHelper.prototype.isGeneInProgress = function(geneName) {
 
 CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants=false, analyzeGeneCoverage=true, callback) {
 
+  this.dispatch.geneNotAnalyzed(geneName);
 
   this.dequeueGene(geneName);
   // Invoke cacheGenes, which will kick off the next batch

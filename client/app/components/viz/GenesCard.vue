@@ -471,7 +471,7 @@ export default {
           if (dangerSummary) {
             for (var badge in self.badgeCounts) {
               // Tally up variants that pass the filter
-              if (dangerSummary.badges[badge] && dangerSummary.badges[badge].length > 0) {
+              if (dangerSummary.badges && dangerSummary.badges[badge] && dangerSummary.badges[badge].length > 0) {
                 self.badgeCounts[badge] += dangerSummary.badges[badge].length;
               }
             }

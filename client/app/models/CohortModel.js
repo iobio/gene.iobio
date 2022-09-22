@@ -861,17 +861,18 @@ class CohortModel {
         let p1 = self.promiseLoadVariants(theGene, theTranscript, options)
             .then(function(data) {
                 cohortResultMap = data.resultMap;
-            });
+            })
         promises.push(p1);
 
         let p2 = self.promiseLoadCoverage(theGene, theTranscript, options)
             .then(function() {
                 self.setCoverage();
-            });
+            })
         promises.push(p2);
 
         Promise.all(promises)
-        .then(function() {
+        .then(function(data) {
+
             // Now summarize the danger for the selected gene
             self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
                 .then(function () {
@@ -883,6 +884,7 @@ class CohortModel {
 
         })
         .catch(function(error) {
+          self.promiseSummarizeError(theGene.gene_name, error)
           self.endGeneProgress(theGene.gene_name);
           reject(error);
         })
@@ -1225,7 +1227,10 @@ class CohortModel {
                         }
                         theResultMap[theRelationship] = resultMap[theRelationship];
                     }
-                });
+                })
+                .catch(function(error) {
+                  model.inProgress.loadingVariants = false;
+                })
               annotatePromises.push(p);
             }
           }
@@ -1263,7 +1268,15 @@ class CohortModel {
           resolve(data)
         })
 
-      });
+      })
+      .catch(function(error) {
+        if (!options.isBackground) {
+          self.getCanonicalModels().forEach(function(model) {
+            model.inProgress.loadingVariants = false;
+          })
+        }
+        reject(error)
+      })
     })
   }
 
@@ -1495,13 +1508,14 @@ class CohortModel {
 
   }
 
-  promiseSummarizeError(error) {
+  promiseSummarizeError(geneName, error) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      self.getProbandModel().promiseSummarizeError(error)
+      let theGeneName = geneName;
+      self.getProbandModel().promiseSummarizeError(geneName, error)
       .then(function(dangerObject) {
-          self.geneModel.setDangerSummary(geneObject.gene_name, dangerObject);
-          resolve();
+          self.geneModel.setDangerSummary(theGeneName, dangerObject);
+          resolve(dangerObject);
       }).
       catch(function(error) {
         reject(error);
