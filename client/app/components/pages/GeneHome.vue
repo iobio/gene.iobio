@@ -1616,6 +1616,9 @@ export default {
             self.promiseLoadData();
           }
         });
+        self.cacheHelper.on("geneNotAnalyzed", function(geneName) {
+          console.log("Gene not analyzed " + geneName)
+        });
         self.cacheHelper.on("analyzeAllCompleted", function() {
           self.delaySave = 1000;
           if (!self.isEduMode) {
@@ -1771,8 +1774,7 @@ export default {
                             self.analyzedTranscript = data.transcript;
 
                             if(self.analyzedTranscript.gene_name !== self.selectedGene.gene_name){
-                              self.geneModel.removeGene(self.selectedGene.gene_name);
-                              self.onShowSnackbar({message: 'Bypassing ' + self.selectedGene.gene_name + '. Unable to find transcripts.', timeout: 5000})
+                              console.log("Unexpected error: the analyzed transcript is for gene " + self.analyzedTranscript.gene_name + " but the selected gene is " + self.selectedGene.gene_name)
                             }
                             resolve();
                         })
@@ -1780,6 +1782,11 @@ export default {
                     self.refreshCoverageCounts()
                 })
                 .catch(function(error) {
+                    self.cohortModel.promiseMarkCodingRegions(self.selectedGene, self.selectedTranscript)
+                        .then(function(data) {
+                            self.analyzedTranscript = data.transcript;
+                        })
+
                     reject(error);
                 })
         } else {
@@ -2153,8 +2160,7 @@ export default {
         })
         .catch(function(error) {
           console.log(error);
-          self.geneModel.removeGene(geneName);
-          self.onShowSnackbar({message: 'Bypassing ' + geneName + '. Unable to find transcripts.', timeout: 5000})
+          self.onShowSnackbar({message: 'Unable to fetch transcripts for ' + geneName, timeout: 5000})
         })
       })
     },

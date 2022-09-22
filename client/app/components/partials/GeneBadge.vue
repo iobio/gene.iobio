@@ -59,6 +59,10 @@
     .gene-badge-loader
       display: inline
 
+  &.has-error
+    #gene-badge-error
+      display: inline
+
 
   &:hover #gene-badge-remove
     visibility: visible
@@ -222,7 +226,7 @@
           </app-icon>
 
           <app-icon
-           v-if="gene && gene.dangerSummary && gene.dangerSummary.badges.pathogenic.length > 0"
+           v-if="gene && gene.dangerSummary && gene.dangerSummary.badges && gene.dangerSummary.badges.pathogenic && gene.dangerSummary.badges.pathogenic.length > 0"
            icon="clinvar"
            level="high"
            id="gene-badge-clinvar"
@@ -390,7 +394,7 @@ export default {
     getImpactClass: function(variantTypes) {
       var self = this;
       var clazz = null;
-      if (self.gene.dangerSummary && this.gene.dangerSummary.badges.high && this.gene.dangerSummary.badges.high.length > 0 ) {
+      if (self.gene.dangerSummary && self.gene.dangerSummary.badges && this.gene.dangerSummary.badges.high && this.gene.dangerSummary.badges.high.length > 0 ) {
         for (var variantType in variantTypes) {
 
 
@@ -450,6 +454,7 @@ export default {
         'loaded':                this.gene.dangerSummary != null,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
+        'has-error':             this.gene.dangerSummary && this.gene.dangerSummary.ERROR && this.gene.dangerSummary.ERROR.length > 0,
         'has-phenotypes':        false  //this.phenotypes && this.phenotypes.length > 0,
       }
     },
