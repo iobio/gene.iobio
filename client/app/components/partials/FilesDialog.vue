@@ -619,16 +619,33 @@ export default {
       }
     },
     onSamplesAvailable: function(relationship, samples) {
+      let self = this;
       if (relationship == 'proband') {
-        this.possibleSibs = samples;
+        this.possibleSibs = samples.map(function(sample) {
+          return {'sample': sample, 'sex': 'unknown'}
+        })
+        this.cohortModel.sampleMapSibs.affected.forEach(function(sampleModel) {
+          self.possibleSibs.forEach(function(possibleSib) {
+            if (possibleSib.sample == sampleModel.sampleName) {
+              possibleSib.sex = sampleModel.sex
+            }
+          })
+        })
+        this.cohortModel.sampleMapSibs.unaffected.forEach(function(sampleModel) {
+          self.possibleSibs.forEach(function(possibleSib) {
+            if (possibleSib.sample == sampleModel.sampleName) {
+              possibleSib.sex = sampleModel.sex
+            }
+          })
+        })
         if (this.cohortModel.sampleMapSibs.affected && this.cohortModel.sampleMapSibs.affected.length > 0) {
           this.affectedSibs = this.cohortModel.sampleMapSibs.affected.map(function(sampleModel) {
-             return {sample: sampleModel.sampleName, sex: sampleModel.sex}
+             return sampleModel.sampleName;
           })
         }
         if (this.cohortModel.sampleMapSibs.unaffected && this.cohortModel.sampleMapSibs.unaffected.length > 0) {
           this.unaffectedSibs = this.cohortModel.sampleMapSibs.unaffected.map(function(sampleModel) {
-             return {sample: sampleModel.sampleName, sex: sampleModel.sex}
+             return sampleModel.sampleName;
           })
         }
       }
