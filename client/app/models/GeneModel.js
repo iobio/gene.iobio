@@ -37,7 +37,7 @@ class GeneModel {
     this.variantLinkTemplates = {
         gnomad:    { display: 'gnomAD',       url: 'http://gnomad.broadinstitute.org/variant/VARIANTCOORD-GNOMAD'},
         varsome:   { display: 'VarSome',      url: 'https://varsome.com/variant/GENOMEBUILD-ALIAS-UCSC/VARIANTCOORD-VARSOME'},
-        dbsnp:     { display: 'dbSNP',        url: 'http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=VARIANT-RSID'},
+        dbsnp:     { display: 'dbSNP',        url: 'http://www.ncbi.nlm.nih.gov/snp/VARIANT-RSID'},
         ucsc:      { display: 'UCSC Browser', url: 'http://genome.ucsc.edu/cgi-bin/hgTracks?db=GENOMEBUILD-ALIAS-UCSC&position=VARIANTCOORD-UCSC'},
         clinvar:   { display: 'ClinVar',      url: 'https://www.ncbi.nlm.nih.gov/clinvar/variation/VARIANT-CLINVAR-UID/'}
     }
