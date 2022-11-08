@@ -924,7 +924,7 @@ class Util {
 
     info.rsId = me.globalApp.utility.getRsId(variant);
     if (info.rsId && info.rsId != '') {
-      info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=" + info.rsId ;
+      info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/snp/" + info.rsId ;
       info.dbSnpLink =  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';
     }
 
