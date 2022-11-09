@@ -301,6 +301,7 @@ main.content.clin, main.v-content.clin
       @on-welcome-changed="onWelcomeChanged"
       @show-files="onShowFiles"
       @stop-analysis="onStopAnalysis"
+      @on-cache-file-loaded="onCacheFileLoaded"
     >
     </navigation>
 
@@ -2205,7 +2206,7 @@ export default {
     onNoDataWarning: function(){
       let warning = "No data has been loaded, please load data through the Files menu or click 'Run With Demo Data' on the landing page";
 
-      if(this.geneModel && (!this.launchedFromDemo && !this.launchedFromHub && !this.launchedFromFiles && !this.launchedFromClin) && !this.isBasicMode && !this.isSimpleMode) {
+      if(this.geneModel && this.cohortModel && this.cohortModel.isLoaded == false) {
         this.onShowSnackbar({message: warning, timeout: 7000});
       }
 
@@ -2632,6 +2633,10 @@ export default {
       if (this.$refs.genesCardRef) {
         this.$refs.genesCardRef.clearFilter();
       }
+    },
+    onCacheFileLoaded: function() {
+      this.onShowSnackbar({message: 'Session loaded.', timeout: 3000, close:true})
+      this.promiseSelectFirstFlaggedVariant()
     },
     onApplyGenes: function(genesString, options, callback) {
       let self = this;

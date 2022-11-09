@@ -1493,8 +1493,12 @@ class CohortModel {
         var cachedPromises = [];
         self.sampleModels.forEach(function(model) {
           if (resultMap[model.getRelationship()]) {
-            var p = model._promiseCacheData(resultMap[model.getRelationship()], dataKind, geneObject.gene_name, theTranscript);
-            cachedPromises.push(p);
+            if (resultMap[model.getRelationship()].cacheState && resultMap[model.getRelationship()].cacheState == 'cached') {
+              cachedPromises.push(Promise.resolve)
+            } else {
+              var p = model._promiseCacheData(resultMap[model.getRelationship()], dataKind, geneObject.gene_name, theTranscript);
+              cachedPromises.push(p);              
+            }
           }
         })
         Promise.all(cachedPromises).then(function() {

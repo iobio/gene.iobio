@@ -767,7 +767,114 @@ CacheHelper.prototype.clearAll = function() {
   .set('labels', {ok:'OK', cancel:'Cancel'});       ;
 }
 
+CacheHelper.prototype.outputCache = function(decompressIt=true, resolveWithKey=true) {  
+  var me = this;
 
+  return new Promise(function(resolve, reject) {
+    me.promiseGetKeys()
+     .then(function(allKeys) {
+
+      var promises = [];
+      var cacheItems = [];
+      allKeys.forEach( function(key) {
+        var p = me.promiseGetData(key, decompressIt, resolveWithKey)
+        .then(function(data) {
+          cacheItems.push(data)
+        })
+        promises.push(p);
+      });
+
+      Promise.all(promises)
+      .then(function() {
+        resolve(cacheItems)
+      })
+      .catch(function(error) {
+        console.log(error)
+        reject(error)
+      })
+    })
+   })
+}
+
+CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection) {
+  var me = this;
+  return new Promise(function(resolve, reject) {
+    var files = fileSelection.currentTarget.files;
+    // Check for the various File API support.
+    if (window.FileReader) {
+      var cacheFile = files[0];
+      var reader = new FileReader();
+
+      reader.readAsText(cacheFile);
+
+      // Handle errors load
+      reader.onload = function(event) {
+        fileSelection.value = null;
+        var dataStr = event.target.result;
+        let cacheData = JSON.parse(dataStr)
+
+        me._promiseClearCache(me.launchTimestampToClear)
+        .then(function() {
+          let promises = []
+
+          cacheData.forEach(function(cacheItem) {
+            // Set the key's launchTimeStamp to this session's timestamp
+            var keyObject = CacheHelper._parseCacheKey(cacheItem.key);
+            keyObject.launchTimestamp = me.launchTimestamp;
+            let key = me.getCacheKey(keyObject)
+
+            // We no longer need the key in the cacheItem
+            if (cacheItem.cache.hasOwnProperty(key)) {
+              delete cacheItem.cache.key
+            }
+
+            // Make sure that any genes encountered in the cache
+            // are added to this session
+            if (keyObject.dataKind == CacheHelper.DANGER_SUMMARY_DATA) {
+              me.cohort.geneModel.promiseAddGeneName(keyObject.gene)
+            }
+
+            // Cache the item in local storage
+            let p = me.promiseCacheData(key, cacheItem.cache, {'compress': true})            
+            promises.push(p)
+          })
+
+          Promise.all(promises)
+          .then(function() {
+            me.refreshGeneBadges(function() {
+              resolve()              
+            })
+          })
+          .catch(function(error) {
+            me.refreshGeneBadges(function() {
+              let msg = "Error loading cache " + error
+              console.log(msg)
+              reject(msg)
+            })
+          })
+        })
+        .catch(function(error) {
+          let msg = "Unable to clear cache. " + error;
+          console.log(msg)
+          reject(msg)
+        })
+      }
+      reader.onerror = function(event) {
+        let msg = "Cannot read file. Error: " + event.target.error.name
+        console.log(msg);
+        console.log(event.toString())
+        reject(msg)
+      }
+
+    } else {
+      let msg = 'FileReader are not supported in this browser.'
+      console.log(msg)
+      reject(msg);
+    }
+
+  })
+
+}
 
 
 CacheHelper.prototype.clearCacheForGene = function(geneName) {
@@ -1031,6 +1138,7 @@ CacheHelper.prototype.promiseCacheData = function(key, data, options) {
       compressPromise
       .then(function(dataStringCompressed) {
         var keyObject = CacheHelper._parseCacheKey(key);
+        console.log("caching " + keyObject.dataKind + " for " + keyObject.gene)
         return me.cacheIndexStore.promiseSetData(keyObject.dataKind, keyObject.gene, key, dataStringCompressed)
       })
       .then(function() {

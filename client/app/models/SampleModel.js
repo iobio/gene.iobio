@@ -3438,6 +3438,9 @@ class SampleModel {
         var key = me._getCacheKey(dataKind, geneName.toUpperCase(), transcript)
         me.getCacheHelper().promiseGetData(key)
          .then(function(data) {
+          if (data) {
+            data.cacheState = 'cached'
+          }
           resolve(data);
          },
          function(error) {

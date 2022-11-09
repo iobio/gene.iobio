@@ -390,6 +390,7 @@ nav.toolbar, nav.v-toolbar
     width: 140px
     margin-left: 5px
 
+
   #search-phenotype-button
     background-color: #ffffff1f
     min-width: 70px
@@ -500,7 +501,26 @@ nav.toolbar, nav.v-toolbar
   .clear-cache-button
     color: $text-color
     margin-left: 0px
+    .v-btn__content
+      width: 200px
+  #load-cache-file-button
+    button
+      color: $text-color
+      margin-left: 0px
+      height: 36px;
+      font-size: 14px;
+      font-weight: normal !important;
+      .v-btn__content
+            width: 200px
 
+    #file-label-area
+      .v-btn__content
+        width: 40px
+  #save-cache-button
+    color: $text-color
+    margin-left: 0px
+    .v-btn__content
+          width: 200px
 </style>
 
 <style>
@@ -643,6 +663,9 @@ nav.toolbar, nav.v-toolbar
         :isDirty="isDirty"
         @save-modal:set-visibility="toggleSaveModal"
       />
+      
+
+
 
       <v-btn id="files-button"   icon v-if="showFilesButton" 
         @click="onShowFiles" 
@@ -956,6 +979,27 @@ nav.toolbar, nav.v-toolbar
             </v-btn>
           </div>
 
+          <div style="margin-bottom:20px">    
+            <v-btn id="save-cache-button"  @click="onSaveCache">
+             Save session cache
+            </v-btn>
+            <a id="download-json-file"
+              v-show="false"
+              download="gene_iobio_session.json" href="#">
+            </a>
+          </div>
+
+          <div style="margin-bottom:20px">    
+            
+            <file-chooser id="load-cache-file-button"
+              title="Load session cache"
+              :isMultiple="false" :accept="`.json`"
+              :showLabel="true"
+              @file-selected="onCacheFileSelected">
+            </file-chooser>
+          </div>
+
+
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -1129,6 +1173,7 @@ import ExportVariants      from '../partials/ExportVariants.vue'
 import FilterIcon          from '../partials/FilterIcon.vue'
 import SaveButton          from '../partials/SaveButton.vue'
 import AppIcon             from '../partials/AppIcon.vue'
+import FileChooser         from '../partials/FileChooser.vue'
 
 export default {
   name: 'navigation',
@@ -1145,7 +1190,8 @@ export default {
     ExportVariants,
     FilterIcon,
     SaveButton,
-    AppIcon
+    AppIcon,
+    FileChooser
   },
   props: {
     showFilesProp: null,
@@ -1286,6 +1332,39 @@ export default {
     },
     onIsTrio: function(bool){
       this.$emit("isTrio", bool);
+    },
+    getCacheHelper: function() {
+      return this.cohortModel.cacheHelper
+    },
+    onSaveCache: function(){
+      let self = this;
+      self.getCacheHelper().outputCache()
+      .then(function(cacheItems) {
+        self.globalApp.utility.createDownloadLink("#download-json-file",
+          JSON.stringify(cacheItems),
+          "gene-iobio-data.json");
+        document.getElementById('download-json-file').click();
+      })
+      .catch(function(error) {
+        console.log("Unable to output cache", error)
+      })
+    },
+    onCacheFileSelected: function(fileSelection) {
+      let me = this;
+      if (this.cohortModel && this.cohortModel.isLoaded == true) {
+        this.getCacheHelper().promiseLoadCacheFromFile(fileSelection)
+        .then(function() {
+          me.showOptions = false;
+          me.onShowVariantsTab();
+          me.$emit("on-cache-file-loaded");
+        })
+        .catch(function(error) {
+          console.log("Error loading cache file file", error)
+          alert("Error.Unable to load cache file file.\n" + error)
+        })        
+      } else {
+        alert("VCF file must be loaded first.")
+      }
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
