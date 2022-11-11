@@ -1340,6 +1340,9 @@ export default {
       let self = this;
       let decompressIt = false;
       let resolveWithKey = true;
+      //let options = {}
+      //options[this.getCacheHelper().BAM_DATA] =  true;
+      //options[this.getCacheHelper().GENE_COVERAGE_DATA] = true;
       self.getCacheHelper().outputCache(decompressIt, resolveWithKey)
       .then(function(cacheItems) {
         self.globalApp.utility.createDownloadLink("#download-json-file",
@@ -1356,7 +1359,11 @@ export default {
       let me = this;
       let start = new Date();
       if (this.cohortModel && this.cohortModel.isLoaded == true) {
-        this.getCacheHelper().promiseLoadCacheFromFile(fileSelection)
+        let dataIsCompressed = true;
+        //let options = {}
+        //options[this.getCacheHelper().BAM_DATA] =  true;
+        //options[this.getCacheHelper().GENE_COVERAGE_DATA] = true;
+        this.getCacheHelper().promiseLoadCacheFromFile(fileSelection, dataIsCompressed)
         .then(function() {
           console.log("Time to load cache from file: " + (new Date() - start) / 1000 + " seconds ");
           me.showOptions = false;

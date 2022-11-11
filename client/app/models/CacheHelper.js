@@ -767,7 +767,7 @@ CacheHelper.prototype.clearAll = function() {
   .set('labels', {ok:'OK', cancel:'Cancel'});       ;
 }
 
-CacheHelper.prototype.outputCache = function(decompressIt=true, resolveWithKey=true) {  
+CacheHelper.prototype.outputCache = function(decompressIt=true, resolveWithKey=true, options) {  
   var me = this;
 
   return new Promise(function(resolve, reject) {
@@ -777,11 +777,31 @@ CacheHelper.prototype.outputCache = function(decompressIt=true, resolveWithKey=t
       var promises = [];
       var cacheItems = [];
       allKeys.forEach( function(key) {
-        var p = me.promiseGetData(key, decompressIt, resolveWithKey)
-        .then(function(data) {
-          cacheItems.push(data)
-        })
-        promises.push(p);
+        var keyObject = CacheHelper._parseCacheKey(key);
+
+        let bypass = false;
+        // If specified in options, bypass loading of bam data
+        if (options 
+          && options[CacheHelper.BAM_DATA] 
+          && options[CacheHelper.BAM_DATA] == false
+          && keyObject.dataKind == CacheHelper.BAM_DATA) {
+          bypass = true;
+        }
+        // If specified in options, bypass loading of gene coverage data
+        if (options 
+          && options[CacheHelper.GENE_COVERAGE_DATA] 
+          && options[CacheHelper.GENE_COVERAGE_DATA] == false
+          && keyObject.dataKind == CacheHelper.GENE_COVERAGE_DATA) {
+          bypass = true;
+        }
+
+        if (!bypass) {
+          var p = me.promiseGetData(key, decompressIt, resolveWithKey)
+          .then(function(data) {
+            cacheItems.push(data)
+          })
+          promises.push(p);          
+        }
       });
 
       Promise.all(promises)
@@ -796,13 +816,14 @@ CacheHelper.prototype.outputCache = function(decompressIt=true, resolveWithKey=t
    })
 }
 
-CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection, dataIsCompressed=true) {
+CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection, dataIsCompressed=true, options) {
   var me = this;
   return new Promise(function(resolve, reject) {
     var files = fileSelection.currentTarget.files;
     // Check for the various File API support.
     if (window.FileReader) {
       var cacheFile = files[0];
+      console.log("reading cache json file")
       var reader = new FileReader();
 
       reader.readAsText(cacheFile);
@@ -811,17 +832,21 @@ CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection, dataIsC
       reader.onload = function(event) {
         fileSelection.value = null;
         var dataStr = event.target.result;
+        console.log("parsing json")
         let cacheData = JSON.parse(dataStr)
 
+        console.log("clearing cache")
         me._promiseClearCache(me.launchTimestampToClear)
         .then(function() {
           let promises = []
 
+          console.log("caching data")
           cacheData.forEach(function(cacheItem) {
             // Set the key's launchTimeStamp to this session's timestamp
             var keyObject = CacheHelper._parseCacheKey(cacheItem.key);
             keyObject.launchTimestamp = me.launchTimestamp;
             let key = me.getCacheKey(keyObject)
+
 
             // Make sure that any genes encountered in the cache
             // are added to this session
@@ -829,14 +854,33 @@ CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection, dataIsC
               me.cohort.geneModel.promiseAddGeneName(keyObject.gene)
             }
 
+            let bypass = false;
+            // If specified in options, bypass loading of bam data
+            if (options 
+              && options[CacheHelper.BAM_DATA] 
+              && options[CacheHelper.BAM_DATA] == false
+              && keyObject.dataKind == CacheHelper.BAM_DATA) {
+              bypass = true;
+            }
+            // If specified in options, bypass loading of gene coverage data
+            if (options 
+              && options[CacheHelper.GENE_COVERAGE_DATA] 
+              && options[CacheHelper.GENE_COVERAGE_DATA] == false
+              && keyObject.dataKind == CacheHelper.GENE_COVERAGE_DATA) {
+              bypass = true;
+            }
             // Put the data in the cache
-            let p = me.promiseCacheData(key, cacheItem.cache, {'compress': dataIsCompressed ? false : true})            
-            promises.push(p)
+            if (!bypass) {
+              let p = me.promiseCacheData(key, cacheItem.cache, {'compress': dataIsCompressed ? false : true})            
+              promises.push(p)              
+            }
           })
 
           Promise.all(promises)
           .then(function() {
+            console.log("refreshing gene badges")
             me.refreshGeneBadges(function() {
+              console.log("done")
               resolve()              
             })
           })
