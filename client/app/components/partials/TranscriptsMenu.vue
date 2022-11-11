@@ -67,6 +67,13 @@
             .input-group__input
                 min-height: 0px
                 margin-top: 10px
+
+    .gene-info
+        .v-badge
+            background-color: white !important
+            border: thin solid #9c9c9c !important
+            color: inherit !important
+
 </style>
 
 <template>
@@ -88,7 +95,7 @@
         >
             <v-icon>linear_scale</v-icon>
             {{ `Transcript ` + selectedTranscript.transcript_id }}
-            <v-badge class="info" style="margin-left:5px;" v-if="!isCanonical">non canonical</v-badge>
+            <v-badge class="info" style="margin-left:5px;" v-if="selectedTranscript.is_mane_select == 'true'">MANE SELECT</v-badge>
         </v-btn>
 
 
