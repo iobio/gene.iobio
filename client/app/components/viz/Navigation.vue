@@ -1338,12 +1338,15 @@ export default {
     },
     onSaveCache: function(){
       let self = this;
-      self.getCacheHelper().outputCache()
+      let decompressIt = false;
+      let resolveWithKey = true;
+      self.getCacheHelper().outputCache(decompressIt, resolveWithKey)
       .then(function(cacheItems) {
         self.globalApp.utility.createDownloadLink("#download-json-file",
           JSON.stringify(cacheItems),
           "gene-iobio-data.json");
         document.getElementById('download-json-file').click();
+        me.showOptions = false;
       })
       .catch(function(error) {
         console.log("Unable to output cache", error)
@@ -1351,9 +1354,11 @@ export default {
     },
     onCacheFileSelected: function(fileSelection) {
       let me = this;
+      let start = new Date();
       if (this.cohortModel && this.cohortModel.isLoaded == true) {
         this.getCacheHelper().promiseLoadCacheFromFile(fileSelection)
         .then(function() {
+          console.log("Time to load cache from file: " + (new Date() - start) / 1000 + " seconds ");
           me.showOptions = false;
           me.onShowVariantsTab();
           me.$emit("on-cache-file-loaded");

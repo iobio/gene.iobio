@@ -796,7 +796,7 @@ CacheHelper.prototype.outputCache = function(decompressIt=true, resolveWithKey=t
    })
 }
 
-CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection) {
+CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection, dataIsCompressed=true) {
   var me = this;
   return new Promise(function(resolve, reject) {
     var files = fileSelection.currentTarget.files;
@@ -823,19 +823,14 @@ CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection) {
             keyObject.launchTimestamp = me.launchTimestamp;
             let key = me.getCacheKey(keyObject)
 
-            // We no longer need the key in the cacheItem
-            if (cacheItem.cache.hasOwnProperty(key)) {
-              delete cacheItem.cache.key
-            }
-
             // Make sure that any genes encountered in the cache
             // are added to this session
             if (keyObject.dataKind == CacheHelper.DANGER_SUMMARY_DATA) {
               me.cohort.geneModel.promiseAddGeneName(keyObject.gene)
             }
 
-            // Cache the item in local storage
-            let p = me.promiseCacheData(key, cacheItem.cache, {'compress': true})            
+            // Put the data in the cache
+            let p = me.promiseCacheData(key, cacheItem.cache, {'compress': dataIsCompressed ? false : true})            
             promises.push(p)
           })
 
@@ -1138,7 +1133,6 @@ CacheHelper.prototype.promiseCacheData = function(key, data, options) {
       compressPromise
       .then(function(dataStringCompressed) {
         var keyObject = CacheHelper._parseCacheKey(key);
-        console.log("caching " + keyObject.dataKind + " for " + keyObject.gene)
         return me.cacheIndexStore.promiseSetData(keyObject.dataKind, keyObject.gene, key, dataStringCompressed)
       })
       .then(function() {
