@@ -286,7 +286,7 @@ export default {
     },
     populateValidGenesMap: function () {
       validGenes.forEach((gene) => {
-        this.validGenesMap[gene['gene_name']] = true;
+        this.validGenesMap[gene['gene_name'].toUpperCase()] = true;
       });
     }
   },
