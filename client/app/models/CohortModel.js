@@ -1236,7 +1236,7 @@ class CohortModel {
           }
         }
       }
-      if (options.getKnownVariants) {
+      if (options.getKnownVariants && (!options.hasOwnProperty('bypassAnnotate') || options.bypassAnnotate == false)) {
         let p = self.promiseLoadKnownVariants(theGene, theTranscript)
         .then(function(resultMap) {
           if (self.knownVariantViz === 'variants') {
@@ -1248,7 +1248,7 @@ class CohortModel {
         annotatePromises.push(p);
       }
 
-      if (options.getSfariVariants) {
+      if (options.getSfariVariants && (!options.hasOwnProperty('bypassAnnotate') || options.bypassAnnotate == false)) {
         let p = self.promiseLoadSfariVariants(theGene, theTranscript)
           .then(function(resultMap) {
             if (self.sfariVariantsViz === 'variants') {
@@ -1263,10 +1263,14 @@ class CohortModel {
       Promise.all(annotatePromises)
       .then(function() {
 
-        self.promiseAnnotateWithClinvar(theResultMap, theGene, theTranscript, options.isBackground)
-        .then(function(data) {
-          resolve(data)
-        })
+        if (!options.hasOwnProperty('bypassAnnotate') || options.bypassAnnotate == false) {
+          self.promiseAnnotateWithClinvar(theResultMap, theGene, theTranscript, options.isBackground)
+          .then(function(data) {
+            resolve(data)
+          })          
+        } else {
+          resolve(theResultMap)
+        }
 
       })
       .catch(function(error) {
@@ -1279,7 +1283,6 @@ class CohortModel {
       })
     })
   }
-
 
   promiseGetClinvarPhenotypes(geneObject, transcript) {
     var self = this;
@@ -1414,6 +1417,10 @@ class CohortModel {
               reject(error);
             })
 
+        })
+        .catch(function(error) {
+          console.log(error)
+          reject(error)
         })
       }
 

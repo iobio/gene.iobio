@@ -768,10 +768,6 @@ class Util {
       HGVScLoading: false,
       HGVSpLoading: false,
       revel: "",
-      sift: "",
-      polyphen: "",
-      regulatory: "",
-      regulatoryMotifLinks: "",
       rsId: "",
       dbSnpUrl: "",
       dbSnpLink: "",
@@ -865,61 +861,12 @@ class Util {
     }
 
 
-    for (var key in variant.vepSIFT) {
-      if (info.sift.length > 0) {
-          info.sift += ", ";
-      }
-      info.sift += key.split("_").join(" ");
-    }
-    for (var key in variant.vepPolyPhen) {
-      if (info.polyphen.length > 0) {
-          info.polyphen += ", ";
-      }
-      if (isEduMode) {
-        info.polyphen = key.split("_").join(" ");
-      } else {
-        info.polyphen += key.split("_").join(" ");
-      }
-    }
+    
     for (var key in variant.vepREVEL) {
       if (info.revel.length > 0) {
           info.revel += ", ";
       }
       info.revel += key;
-    }
-
-    for (var key in variant.regulatory) {
-      // Bypass motif-based features
-      if (key.indexOf("mot_") == 0) {
-        continue;
-      }
-      if (info.regulatory.length > 0) {
-          info.regulatory += ", ";
-      }
-      var value = variant.regulatory[key];
-      info.regulatory += value;
-    }
-
-
-    if (variant.vepRegs) {
-      for (var i = 0; i < variant.vepRegs.length; i++) {
-        var vr = variant.vepRegs[i];
-        if (vr.motifName != null && vr.motifName != '') {
-
-          if (info.regulatoryMotifLinks.length > 0) {
-              info.regulatoryMotifLinks += ", ";
-          }
-
-          var tokens = vr.motifName.split(":");
-          var baseMotifName;
-          if (tokens.length == 2) {
-            baseMotifName = tokens[1];
-          }
-
-          var regUrl = "http://jaspar.genereg.net/cgi-bin/jaspar_db.pl?ID=" + baseMotifName + "&rm=present&collection=CORE"
-          info.regulatoryMotifLinks += '<a href="' + regUrl + '" target="_motif">' + vr.motifName + '</a>';
-        }
-      }
     }
 
     info.rsId = me.globalApp.utility.getRsId(variant);

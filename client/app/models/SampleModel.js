@@ -1987,7 +1987,8 @@ class SampleModel {
                  false, // serverside cache
                  false, // sfari mode
                  options.getKnownVariants ? false : me.globalApp.gnomADExtraAll, // get extra gnomad,
-                 !me.isEduMode // decompose
+                 !me.isEduMod, // decompose
+                 options.bypassAnnotate ? true : false
                 );
             })
             .then( function(data) {
@@ -2110,7 +2111,6 @@ class SampleModel {
     });
 
   }
-
 
   determineAffectedStatus(data, theGene, theTranscript, affectedInfo, callback) {
     var me = this;

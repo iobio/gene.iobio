@@ -165,7 +165,7 @@ export default class EndpointCmd {
         return cmd;
     }
 
-    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose) {
+    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose, bypassAnnotate) {
         let me = this;
         if (this.gruBackend) {
             const refNames = this.getHumanRefNames(refName).split(" ");
@@ -222,6 +222,7 @@ export default class EndpointCmd {
                 vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
                 gnomadMergeAnnots,
                 decompose,
+                bypassAnnotate
             });
 
             cmd.on('error', function(error){
@@ -233,7 +234,7 @@ export default class EndpointCmd {
         }
     }
 
-    normalizeVariants(vcfUrl, tbiUrl, refName, regions) {
+    normalizeVariants(vcfUrl, tbiUrl, refName, regions, vcfSampleNames=null, decompose=false) {
         const me = this;
         if (this.gruBackend) {
             let refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
@@ -248,7 +249,9 @@ export default class EndpointCmd {
                 refName,
                 regions,
                 contigStr,
-                refFastaFile
+                refFastaFile,
+                vcfSampleNames: vcfSampleNames ? vcfSampleNames.split(',') : '',
+                decompose
             });
             cmd.on('error', function(error) {
               let msg = "Could not normalize variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"

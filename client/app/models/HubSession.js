@@ -380,7 +380,7 @@ export default class HubSession {
           }
         })
         .fail(error => {
-          let errorMsg = error.responseJSON.message;
+          let errorMsg = error.responseText
           let msg = "Error getting pedigree for sample_id " + sample_id
           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>")
             .setHeader("Fatal Error");
@@ -708,13 +708,13 @@ export default class HubSession {
           if (geneSymbolField &&  variant[geneSymbolField].length > 0 && !variant.hasOwnProperty('gene_symbol')) {
             variant['gene_symbol'] = variant[geneSymbolField][0];
           }
-          if (impactField && variant[impactField].length > 0) {
+          if (impactField && variant[impactField] && variant[impactField].length > 0) {
             variant['gene_impact'] = variant[impactField][0];
           }
-          if (consequenceField && variant[consequenceField].length > 0) {
+          if (consequenceField && variant[consequenceField] && variant[consequenceField].length > 0) {
             variant['gene_consequence'] = variant[consequenceField][0];
           }
-          if (afField && variant[afField].length > 0) {
+          if (afField && variant[afField] && variant[afField].length > 0) {
             variant['gnomad_allele_frequency'] = variant[afField][0];
           }
         })
@@ -939,24 +939,26 @@ export default class HubSession {
 
     // First get rid of full gene and transcript objects from variants
     // These are too big to stringify and store
-    analysisDataCopy.payload.variants.forEach(function(variant) {
-      if (variant.gene && self.globalApp.utility.isObject(variant.gene)) {
-        variant.gene = variant.gene.gene_name;
-      }
-      if (variant.transcript && self.globalApp.utility.isObject(variant.transcript)) {
-        variant.transcriptId = variant.transcript.transcript_id;
-        variant.transcript = null;
-      }
-//      variant.variantInspect = null;
-      if (variant.variantInspect && variant.variantInspect.geneObject) {
-        variant.variantInspect.geneName = variant.variantInspect.geneObject.gene_name
-        variant.variantInspect.geneObject = null;
-      }
-      if (variant.variantInspect && variant.variantInspect.transcriptObject) {
-        variant.variantInspect.transcriptId = variant.variantInspect.transcriptObject.transcript_id
-        variant.variantInspect.transcriptObject = null;
-      }
-    })
+    if (analysisDataCopy.payload.hasOwnProperty('variants')) {
+      analysisDataCopy.payload.variants.forEach(function(variant) {
+        if (variant.gene && self.globalApp.utility.isObject(variant.gene)) {
+          variant.gene = variant.gene.gene_name;
+        }
+        if (variant.transcript && self.globalApp.utility.isObject(variant.transcript)) {
+          variant.transcriptId = variant.transcript.transcript_id;
+          variant.transcript = null;
+        }
+  //      variant.variantInspect = null;
+        if (variant.variantInspect && variant.variantInspect.geneObject) {
+          variant.variantInspect.geneName = variant.variantInspect.geneObject.gene_name
+          variant.variantInspect.geneObject = null;
+        }
+        if (variant.variantInspect && variant.variantInspect.transcriptObject) {
+          variant.variantInspect.transcriptId = variant.variantInspect.transcriptObject.transcript_id
+          variant.variantInspect.transcriptObject = null;
+        }
+      })
+    }
     analysisDataCopy.payload.filters = null;
 
 

@@ -120,7 +120,7 @@ main.content.clin, main.v-content.clin
   max-width: -webkit-fill-available !important
 
 
-#data-sources-loader, #session-data-loader
+#data-sources-loader, #session-data-loader, #cache-data-loader
   margin-top: 30px
   margin-left: auto
   margin-right: auto
@@ -627,6 +627,14 @@ main.content.clin, main.v-content.clin
           <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
         </v-card>
 
+        <v-card
+        id="cache-data-loader"
+        class="loader"
+        v-show="launchedFromHub && inProgressCache.loading">
+          <span class="loader-label">Initializing session data</span>
+          <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
+        </v-card>
+
 <!--
         <optional-tracks-card
           v-if="cohortModel && cohortModel.isLoaded && probandModel"
@@ -918,6 +926,8 @@ export default {
       analysis: null,
       showSaveModal: false,
       showCoverageThreshold: false,
+
+      inProgressCache: {'loading': false},
 
       hubToIobioSources: {
         "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
@@ -1446,57 +1456,6 @@ export default {
         .then(analysis => {
           self.analysis = analysis;
 
-          if (self.analysis.payload.phenotypeTerm) {
-            self.phenotypeTerm = self.analysis.payload.phenotypeTerm
-          }
-
-          // Now import the variants from the variant set provided
-          // when launching gene.iobio from Mosaic
-          if (self.variantSet && self.variantSet.variants) {
-            let bypassedCount = 0;
-            let bypassedMessages = [];
-            self.variantSet.variants.filter(function(variant) {
-              return variant.het_sample_ids.indexOf(parseInt(self.sampleId)) >= 0 ||
-                  variant.hom_sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
-            }).forEach(function(variant) {
-              let importedVariant = {};
-              if (variant.gene_symbol && variant.gene_symbol.length > 0) {
-                importedVariant.gene  = variant.gene_symbol;
-                importedVariant.chrom = variant.chr;
-                importedVariant.start = variant.r_start;
-                importedVariant.end   = variant.r_end;
-                importedVariant.ref   = variant.ref;
-                importedVariant.alt   = variant.alt;
-                importedVariant.filtersPassed    = "notCategorized";
-                importedVariant.inheritance      = null;
-                importedVariant.afgnomAD         = variant.gnomad_allele_frequency;
-                importedVariant.highestImpact    = variant.gene_impact;
-                importedVariant.consequence      = variant.gene_consequence;
-                importedVariant.isImported       = true;
-                importedVariant.variantSet       = "notCategorized";
-
-                self.analysis.payload.variants.push(importedVariant);
-                if (self.analysis.payload.genes.indexOf(importedVariant.gene) < 0) {
-                  self.analysis.payload.genes.push(importedVariant.gene);
-                }
-              } else {
-                let message = "Bypassing variant chr " + variant.chr + ", position " + variant.pos + " because the gene symbol was not provided.";
-                bypassedMessages.push(message)
-                console.log(message)
-                bypassedCount++;
-              }
-            })
-            if (bypassedCount > 0) {
-              if (bypassedCount === self.variantSet.variants.length) {
-                alertify.alert("Error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name.", )
-
-              } else {
-                alertify.alert("Warning", bypassedCount + " variants bypassed." + "<br><br>" + bypassedMessages.join("<br>"))
-
-              }
-            }
-          }
-
           return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
@@ -1510,13 +1469,39 @@ export default {
             return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject)
         })
         .then(function() {
+
+          if (self.analysis.payload.hasOwnProperty('cache')) {
+            self.inProgressCache.loading = true;
+            return self.cacheHelper.promiseLoadCache(self.analysis.payload.cache)
+            .then(function() {
+              self.inProgressCache.loading = false;
+            })
+          } else {
+            return Promise.resolve();
+          }
+
+        })
+        .then( function() {
+          if (self.analysis.payload.phenotypeTerm) {
+            self.phenotypeTerm = self.analysis.payload.phenotypeTerm
+          }
+
+          if (self.analysis.payload.genePhenotypeHits) {
+            self.geneModel.genePhenotypeHits = self.analysis.payload.genePhenotypeHits;
+          }
+
+          // Now import the variants from the variant set provided
+          // when launching gene.iobio from Mosaic
+          return self.promiseImportVariantSet();
+        })
+        .then(function() {
           if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
             let genePromises = [];
             self.geneSet.genes.forEach(function(geneName) {
               if (self.geneModel.isKnownGene(geneName)) {
                 genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
               }
-              self.analysis.payload.genes.push(geneName);
+              //self.analysis.payload.genes.push(geneName);
               self.delaySave = 1000;
             })
            return Promise.all(genePromises)
@@ -1579,30 +1564,110 @@ export default {
             })
           } else {
 
-            if (self.geneModel.geneNames.length > 0) {
-              self.geneModel.promiseGetCachedGeneObject(self.geneModel.geneNames[0])
-              .then(function(theGeneObject) {
-                let transcript = self.geneModel.getCanonicalTranscript(theGeneObject);
-                self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
-                .then(function() {
-                  self.showLeftPanelForGenes();
-                  self.cacheHelper.analyzeAll(self.cohortModel);
-                  resolve();
-                })
-              })
+            if (self.analysis.payload.cache && self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
+                self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+                self.showLeftPanelWhenFlaggedVariants();
+                self.promiseSelectFirstFlaggedVariant();
             } else {
-              let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
-              self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
-              self.bringAttention = 'gene';
-              resolve();
+              if (self.geneModel.geneNames.length > 0) {
+                self.geneModel.promiseGetCachedGeneObject(self.geneModel.geneNames[0])
+                .then(function(theGeneObject) {
+                  let transcript = self.geneModel.getCanonicalTranscript(theGeneObject);
+                  self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
+                  .then(function() {
+                    self.showLeftPanelForGenes();
+                    self.cacheHelper.analyzeAll(self.cohortModel);
+                    resolve();
+                  })
+                })
+              } else {
+                let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
+                self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
+                self.bringAttention = 'gene';
+                resolve();
+              }
             }
+
           }
+
         })
         .catch(function(error) {
           reject(error);
         })
 
       })
+    },
+
+    promiseImportVariantSet: function() {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        if (self.variantSet && self.variantSet.variants) {
+
+          let variantsToAdd = [];
+          let bypassedCount = 0;
+          let bypassedMessages = [];
+
+          self.variantSet.variants.filter(function(variant) {
+            return variant.het_sample_ids.indexOf(parseInt(self.sampleId)) >= 0 ||
+                variant.hom_sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
+          }).forEach(function(variant) {
+            let importedVariant = {};
+            if (variant.gene_symbol && variant.gene_symbol.length > 0) {
+              importedVariant.gene  = variant.gene_symbol;
+              importedVariant.chrom = variant.chr;
+              importedVariant.start = variant.r_start;
+              importedVariant.end   = variant.r_end;
+              importedVariant.ref   = variant.ref;
+              importedVariant.alt   = variant.alt;
+              importedVariant.filtersPassed    = "notCategorized";
+              importedVariant.inheritance      = null;
+              importedVariant.afgnomAD         = variant.gnomad_allele_frequency;
+              importedVariant.highestImpact    = variant.gene_impact;
+              importedVariant.consequence      = variant.gene_consequence;
+              importedVariant.isImported       = true;
+              importedVariant.variantSet       = "notCategorized";
+
+              //self.analysis.payload.variants.push(importedVariant);
+              //if (self.analysis.payload.genes.indexOf(importedVariant.gene) < 0) {
+              //  self.analysis.payload.genes.push(importedVariant.gene);
+              //}
+              variantsToAdd.push(importedVariant);
+              
+            } else {
+              let message = "Bypassing variant chr " + variant.chr + ", position " + variant.pos + " because the gene symbol was not provided.";
+              bypassedMessages.push(message)
+              console.log(message)
+              bypassedCount++;
+            }
+          })
+
+          if (variantsToAdd.length > 0) {
+            self.cohortModel.importFlaggedVariants('json', variantsToAdd,
+            function() {
+              if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+                self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+                self.showLeftPanelWhenFlaggedVariants();
+              }
+              resolve();      
+            },
+            function() {
+              if (bypassedCount > 0) {
+                if (bypassedCount === self.variantSet.variants.length) {
+                  alertify.alert("Error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name.", )
+
+                } else {
+                  alertify.alert("Warning", bypassedCount + " variants bypassed." + "<br><br>" + bypassedMessages.join("<br>"))
+
+                }
+              } 
+
+            })
+          }
+        } else {
+          resolve();
+        }
+      })
+
     },
 
     promiseAddCacheHelperListeners: function() {
@@ -2585,7 +2650,10 @@ export default {
     },
 
     onAnalyzeAll: function() {
-      this.cacheHelper.analyzeAll(this.cohortModel);
+      this.cacheHelper.analyzeAll(this.cohortModel, false, true, true);
+    },
+    onAnalyzeAllBypassAnnotate: function() {
+      this.cacheHelper.analyzeAll(this.cohortModel, false, false, false);
     },
     onClearAllGenes: function() {
       this.clearFilter();
@@ -4168,9 +4236,11 @@ export default {
               self.analysis = analysis;
 
               // Workaround - remove null variants
-              self.analysis.payload.variants = self.analysis.payload.variants.filter(function(v) {
-                return v != null;
-              })
+              if (self.analysis.payload.hasOwnProperty('variants')) {
+                self.analysis.payload.variants = self.analysis.payload.variants.filter(function(v) {
+                  return v != null;
+                })
+              }
               resolve(self.analysis);
             } else {
               reject("Unable to find/create an analysis " + idAnalysis);
@@ -4178,7 +4248,7 @@ export default {
           })
           .catch(function(error) {
             self.onShowSnackbar( {message: error, timeout: 15000});
-            reject(err);
+            reject(error);
           })
 
         } else {
@@ -4223,18 +4293,11 @@ export default {
 
       return new Promise(function(resolve, reject) {
 
-        self.promiseUpdateAnalysisGenesData()
+        self.promiseUpdateAnalysisCache()
         .then(function() {
 
-          let exportPromises = [];
-          self.cohortModel.flaggedVariants.forEach(function(flaggedVariant) {
-              let p = self.promiseExportAnalysisVariant(flaggedVariant)
-              exportPromises.push(p);
-          })
+          self.analysis.payload.genePhenotypeHits = self.geneModel.genePhenotypeHits;
 
-          return Promise.all(exportPromises)
-        })
-        .then(function() {
           if (self.analysis.id ) {
             if (self.launchedFromClin) {
               self.sendAnalysisToClin();
@@ -4255,12 +4318,6 @@ export default {
               })
             }
           } else {
-            // This is ADIT'S code that I am commenting out for now
-            // while I try to rip out.
-            // This code is suspect b/c it wasn't performed sequentially
-            // so that promiseAddAnalysis would occur only after
-            // promiseUpdateAnalysisGenesData is complete
-            self.promiseUpdateAnalysisGenesData();
 
             self.hubSession.promiseAddAnalysis(self.analysis.project_id, self.analysis)
             .then(function(analysis) {
@@ -4276,6 +4333,8 @@ export default {
             })
           }
         })
+ 
+        
 
       })
 
@@ -4291,6 +4350,7 @@ export default {
     promiseUpdateAnalysisGenesData: function(phenolyzerSearchTerm) {
       let self = this;
       self.analysis.payload.genes              = this.geneModel.geneNames;
+
       if (phenolyzerSearchTerm && phenolyzerSearchTerm.length > 0) {
         self.analysis.payload.phenotypeTerm      = phenolyzerSearchTerm;
       }
@@ -4298,6 +4358,34 @@ export default {
       self.analysis.payload.datetime_last_modified = self.globalApp.utility.getCurrentDateTime();
       self.setDirty(true);
       return Promise.resolve();
+    },
+
+    promiseUpdateAnalysisCache: function() {
+      let self = this;
+
+      return new Promise(function(resolve, reject) {
+        let options = {}
+        options.decompress = false;
+        options[self.cacheHelper.BAM_DATA] =  true;
+        options[self.cacheHelper.GENE_COVERAGE_DATA] = true;
+        self.cacheHelper.promiseOutputCache(options)
+        .then(function(cacheItemsCompressed) {
+          self.analysis.payload.cache = JSON.stringify(cacheItemsCompressed);
+          if (self.analysis.payload.hasOwnProperty('variants')) {
+            delete self.analysis.payload.variants;
+          }
+          if (self.analysis.payload.hasOwnProperty('genes')) {
+            delete self.analysis.payload.genes;
+          }
+          resolve()
+        })
+        .catch(function(error) {
+          console.log("Unable to save cache session to analysis" + error)
+          reject(error)
+        })
+
+      })
+
     },
 
 

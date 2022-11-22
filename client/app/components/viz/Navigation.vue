@@ -1338,18 +1338,29 @@ export default {
     },
     onSaveCache: function(){
       let self = this;
-      let decompressIt = false;
-      let resolveWithKey = true;
-      //let options = {}
-      //options[this.getCacheHelper().BAM_DATA] =  true;
-      //options[this.getCacheHelper().GENE_COVERAGE_DATA] = true;
-      self.getCacheHelper().outputCache(decompressIt, resolveWithKey)
+      let options = {}
+      options.decompress = false;
+      options[this.getCacheHelper().BAM_DATA] =  true;
+      options[this.getCacheHelper().GENE_COVERAGE_DATA] = true;
+      self.getCacheHelper().promiseOutputCache(options)
       .then(function(cacheItems) {
+
+        let cleanedDataStr = JSON.stringify(cacheItems, function(key, value) {
+          if (value && value != '') {
+            if (key == 'gene' && typeof value === 'object' && value.hasOwnProperty('gene_name')) {
+              return value.gene_name
+            } else {
+              return value
+            }
+          } else {
+            return
+          }
+        }, 2)
         self.globalApp.utility.createDownloadLink("#download-json-file",
-          JSON.stringify(cacheItems),
+          cleanedDataStr,
           "gene-iobio-data.json");
         document.getElementById('download-json-file').click();
-        me.showOptions = false;
+        self.showOptions = false;
       })
       .catch(function(error) {
         console.log("Unable to output cache", error)
