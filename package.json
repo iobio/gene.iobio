@@ -13,7 +13,7 @@
     "debug": "^2.6.8",
     "express": "^4.15.3",
     "fibridge-host": "^0.16.0",
-    "iobio-api-client": "^0.9.0",
+    "iobio-api-client": "^0.10.0",
     "jquery": "^3.5.1",
     "lodash": "^4.17.20",
     "serve-favicon": "^2.4.3",
