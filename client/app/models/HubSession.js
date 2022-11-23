@@ -714,7 +714,7 @@ export default class HubSession {
           if (consequenceField && variant[consequenceField].length > 0) {
             variant['gene_consequence'] = variant[consequenceField][0];
           }
-          if (afField && variant[afField].length > 0) {
+          if (afField && variant.hasOwnProperty(afField) && variant[afField].length > 0) {
             variant['gnomad_allele_frequency'] = variant[afField][0];
           }
         })
