@@ -879,7 +879,7 @@ export default class HubSession {
           resolve(response)
         })
         .fail(error => {
-          let errorMsg = error.responseJSON.message;
+          let errorMsg = error.responseText ? error.responseText : "";
           let msg = "Error getting current Mosaic user.  Your authorization may have expired.  Make sure you are still logged into Mosaic, and relaunch the project."
           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:info@frameshift.io'>info@frameshift.io</a> for help resolving this issue.</div><code>" + errorMsg + "</code>").setHeader("Fatal Error");
 
