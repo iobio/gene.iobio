@@ -594,10 +594,18 @@ class SampleModel {
   }
 
 
-  promiseSummarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, transcript) {
+  promiseSummarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, transcript, notFoundVariants=null) {
     var me = this;
     return new Promise(function(resolve, reject) {
       var dangerSummary = SampleModel._summarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme(), transcript);
+      
+      // We need to restore the 'notFound' variants in the badges that we discovered when
+      // the variants were imported. Since they are not in the vcf file, we will lose 
+      // this information unless we restore it here.
+      if (notFoundVariants && dangerSummary.badges) {
+        dangerSummary.badges.notFound = notFoundVariants;
+      }
+
       me.promiseCacheDangerSummary(dangerSummary, geneName).then(function() {
         resolve(dangerSummary);
       },

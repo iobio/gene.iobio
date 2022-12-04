@@ -938,6 +938,10 @@ CacheHelper.prototype.promiseLoadCache = function(cacheDataStr, dataIsCompressed
             let p = CacheHelper.promiseDecompressData(geneToDangerSummary[gene], true)
             .then(function(ds) {
               me.cohort.geneModel.setDangerSummary(ds.geneName, ds);
+              let theGeneObject = me.cohort.geneModel.geneObjects[ds.geneName]
+              if (theGeneObject) {
+                me.cohort.captureFlaggedVariants(ds, theGeneObject)
+              }
             })
             thePromises.push(p)            
           } else {

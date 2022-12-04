@@ -750,7 +750,7 @@ class FilterModel {
 
   flagVariants(theVcfData) {
     let self = this;
-    var badges = {};
+    var badges = {}
     for (var key in this.flagCriteria) {
       if (this.flagCriteria[key].active) {
         badges[key] = [];
@@ -768,7 +768,6 @@ class FilterModel {
 
     }
     return badges;
-
   }
 
   flagImportedVariants(importedVariants) {
@@ -801,6 +800,9 @@ class FilterModel {
 
     if (variant.notFound) {
       badgePassState['notFound'] = true;
+      if (badges["notFound"] == null) {
+        badges["notFound"] = [];
+      }
     } else if (variant.isUserFlagged) {
       badgePassState['userFlagged'] = true;
     } else {
@@ -857,6 +859,16 @@ class FilterModel {
       variant.featureClass = 'flagged';
       variant.filtersPassed = filtersPassed;
       variant.filtersPassedAll = filtersPassedAll;
+    } else if (variant.notFound) {
+      variant.isFlagged = true;
+      variant.isUserFlagged = false;
+      variant.notCategorized = false;
+      variant.featureClass = 'flagged';
+      self.mapGenomeWideFilter(variant);
+      if (badges["notFound"] == null) {
+        badges["notFound"] = [];
+      }
+      badges["notFound"].push($.extend({}, variant))
     } else if (variant.isImported) {
       variant.isFlagged = true;
       variant.isUserFlagged = false;
@@ -866,7 +878,7 @@ class FilterModel {
       if (badges["notCategorized"] == null) {
         badges["notCategorized"] = [];
       }
-      badges["notCategorized"].push(variant)
+      badges["notCategorized"].push($.extend({}, variant))
     }
 
     if (variant.isFlagged) {
@@ -890,11 +902,17 @@ class FilterModel {
       let filter = self.flagCriteria[variant.variantSet];
       if (filter) {
         variant.filtersPassed = variant.variantSet;
+      } else if (variant.notFound) {
+        variant.filtersPassed = 'notFound';
       } else {
         variant.filtersPassed = 'notCategorized';
       }
     } else {
-      variant.filtersPassed = "notCategorized";
+      if (variant.notFound) {
+        variant.filtersPassed = 'notFound'
+      } else {
+        variant.filtersPassed = "notCategorized";
+      }
     }
   }
 

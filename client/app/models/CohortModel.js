@@ -1563,9 +1563,18 @@ class CohortModel {
             geneCoverageAll =  data.geneCoverage;
           }
           var theOptions = null;
+          var notFoundVariants = null;
 
           self.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
           .then(function(dangerSummary) {
+
+              // These are the imported variants that were not found in the vcf
+              // file. If we don't save them here, we will lose this count in
+              // dangerSummary.badges.notFound. We need this to show in the 'not found'
+              // section of the flagged variants panel.
+              if (dangerSummary && dangerSummary.badges && dangerSummary.badges.notFound) {
+                notFoundVariants = dangerSummary.badges.notFound;              
+              }
 
               // Summarize the danger for the gene based on the filtered annotated variants and gene coverage
               var filteredVcfData = null;
@@ -1598,7 +1607,7 @@ class CohortModel {
 
           })
           .then(function(theVcfData) {
-              return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript);
+              return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript, notFoundVariants);
           })
           .then(function(theDangerSummary) {
             self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
@@ -2203,10 +2212,6 @@ class CohortModel {
     this.flaggedVariants = [];
   }
 
-  summarizeDangerForFlaggedVariants(geneName, flaggedVariants) {
-    return SampleModel._summarizeDanger (geneName, {features: flaggedVariants}, {}, [], this.filterModel, this.translator, this.annotationScheme);
-  }
-
 
   syncUpFlaggedSwitch(vcfData) {
     let self = this;
@@ -2580,6 +2585,7 @@ class CohortModel {
           var geneObject = theGeneObject ? theGeneObject : me.geneModel.geneObjects[geneName];
           var transcript = uniqueTranscripts[transcriptId];
           var importedVariants = intersectedGenes[geneName];
+          var notFoundVariants = []
 
           me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
           .then(function(data) {
@@ -2624,14 +2630,17 @@ class CohortModel {
                 } else {
                   importedVariant.isProxy = true;
                   importedVariant.notFound = true;
+                  importedVariant.isFlagged = true;
+                  notFoundVariants.push(importedVariant)
                   console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
+                
                 }
               })
 
               // Make sure that the imported variants are re-assessed to determine the filters they
               // pass.  We need this so that the imported variants show up in the left flagged variants
-              // side panel
-              me.filterModel.flagImportedVariants(importedVariants);
+              // side panel.
+              let badgesFromImported = me.filterModel.flagImportedVariants(importedVariants);
 
               // We need to recache the variants since the isUserFlag has been established
               me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
@@ -2640,10 +2649,17 @@ class CohortModel {
                 // Now recalc the badge counts on danger summary to reflect imported variants
                 me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
                 .then(function(dangerSummary) {
+                  // In addition to the vcf data variants, pass in the notFound imported variants
+                  // so that dangerSummary badges include this under the 'notFound' category.
                   dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
+                  if (badgesFromImported && badgesFromImported.notFound) {
+                    dangerSummary.badges.notFound = badgesFromImported.notFound;
+                  }
                   me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
-
-                  resolve();
+                  me.getProbandModel()._promiseCacheData(dangerSummary, CacheHelper.DANGER_SUMMARY_DATA, geneObject.gene_name)
+                  .then(function() {
+                    resolve()
+                  })
 
                   // For every gene, we will analyze the coverage across the exons
                   // NOTE:  This is an expensive operation!
@@ -2991,10 +3007,12 @@ class CohortModel {
           // Add variants in danger summary (if not already present)
           // to flagged variants
           theFlaggedVariants.forEach(function(variant) {
-            let matchingVariant = self.getFlaggedVariant(variant);
-            if (!matchingVariant) {
-              variant.gene = geneObject
-              self.flaggedVariants.push(variant);
+            if (variant) {
+              let matchingVariant = self.getFlaggedVariant(variant);
+              if (!matchingVariant) {
+                variant.gene = geneObject
+                self.flaggedVariants.push(variant);
+              }              
             }
           })
 
