@@ -905,6 +905,7 @@ export default {
 
       launchedFromHub: false,
       launchedFromSFARI: false,
+      launchedFromCDDRC: false,
       launchedFromFiles: false,
       isHubDeprecated: false,
       sampleId: null,
@@ -918,10 +919,12 @@ export default {
       showSaveModal: false,
       showCoverageThreshold: false,
 
+
       hubToIobioSources: {
         "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
+        "https://cddrc.utah.edu":                {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10}, // todo: double check we don't have cddrc distro of backend
 
         // backward compatible with old clin.iobio
         "mosaic.chpc.utah.edu":                  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
@@ -932,6 +935,7 @@ export default {
       },
 
       sfariSource:  "https://viewer.sfari.org",
+      cddrcSource: "https://cddrc.utah.edu",
 
 
       interpretationMap: {
@@ -2815,7 +2819,9 @@ export default {
         && self.sampleId && self.paramSource) {
         self.launchedFromHub = true;
 
-        if (self.paramSource === self.sfariSource) {
+        if (self.paramSource === self.cddrcSource) {
+          self.launchedFromCDDRC = true;
+        } else if (self.paramSource === self.sfariSource) {
           self.launchedFromSFARI = true;
         }
 
@@ -2824,7 +2830,7 @@ export default {
         if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {
           self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
           self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
-          self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE)
+          self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE);
         } else {
           self.globalApp.IOBIO_SOURCE = self.globalApp.DEFAULT_IOBIO_BACKEND;
           self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE);

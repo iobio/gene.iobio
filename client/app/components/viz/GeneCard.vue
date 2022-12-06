@@ -330,6 +330,7 @@
                       })
             }, 500)
           }
+          // todo: left off here - when are phenotypes displayed?
           self.phenotypes  = self.geneModel.genePhenotypes[self.selectedGene.gene_name]
           if (self.phenotypes) {
             self.phenotypeTerms =  self.phenotypes.map(function(d) {
