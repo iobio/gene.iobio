@@ -271,6 +271,8 @@ main.content.clin, main.v-content.clin
       :showFilesProp="showFiles"
       :showWelcome="showWelcome"
       :launchedFromDemo="launchedFromDemo"
+      :alerts="appAlerts"
+      :alertCounts="appAlertCounts"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -717,6 +719,7 @@ main.content.clin, main.v-content.clin
 
         </v-snackbar>
 
+
       </v-container>
     </v-content>
 
@@ -1106,6 +1109,9 @@ export default {
       variantCount: 0,
       interpretationProgressDialog: false,
       experimentId: null,
+
+      appAlerts: [],
+      appAlertCounts: {'success': 0, 'info': 0, 'warning': 0, 'error': 0}
     }
   },
 
@@ -1287,6 +1293,9 @@ export default {
         self.cohortModel.on("knownVariantsVizChange", function(viz) {
           self.forceKnownVariantsViz = viz;
         });
+        self.cohortModel.on("alertIssued", function(type, message, genes) {
+          self.addAlert(type, message, genes)
+        })
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
           self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
@@ -1521,8 +1530,9 @@ export default {
               }
             })
             if (unknownGenes.length > 0) {
+              self.addAlert("warning", "Bypassing unknown genes" + unknownGenes.join(", "))
               alertify.alert( "Warning", "Bypassing unknown genes " + unknownGenes.join(", "))
-            }
+            } 
             return Promise.all(genePromises);
           } else {
             return Promise.resolve();
@@ -1596,6 +1606,23 @@ export default {
         })
 
       })
+    },
+
+    addAlert: function(type, message, genes=null) {
+      let pad2 = function(n) { return n < 10 ? '0' + n : n }
+      let date = new Date();
+      let timestamp = date.getFullYear().toString() 
+       + pad2(date.getMonth() + 1) 
+       + pad2( date.getDate())
+       + pad2( date.getHours() ) 
+       + pad2( date.getMinutes() ) 
+       + pad2( date.getSeconds() );
+
+      let alert = {'type': type, 'message': message, 'genes': genes, 'timestamp': timestamp}
+      this.appAlerts.unshift(alert)
+
+      this.appAlertCounts[type] += 1
+
     },
 
     promiseImportVariantSet: function() {
@@ -1685,7 +1712,10 @@ export default {
         self.cacheHelper.on("geneNotAnalyzed", function(geneName) {
           console.log("Gene not analyzed " + geneName)
         });
-        self.cacheHelper.on("analyzeAllCompleted", function() {
+        self.cacheHelper.on("analyzeAllCompleted", function(infoObject) {
+          if (infoObject) {          
+            self.addAlert("success", "Analyze all completed in " + infoObject.elapsedSeconds + " seconds")
+          }
           self.delaySave = 1000;
           if (!self.isEduMode) {
             if (self.activeFilterName && self.activeFilterName === 'coverage' && self.launchedFromClin) {

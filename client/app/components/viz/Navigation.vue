@@ -2,7 +2,7 @@
 
 @import ../../../assets/sass/variables
 
-#legend-drawer-close-button
+#legend-drawer-close-button, #error-drawer-close-button, #notification-drawer-close-button
     position: absolute
     padding-right: 0px
     position: absolute
@@ -208,9 +208,12 @@ aside.navigation-drawer, aside.v-navigation-drawer
 nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
-  .navbar-outline-button, #show-genes-button
+  .navbar-outline-button, #show-genes-button, .navbar-icon-button
     background: transparent !important
-    border: .5px solid #7d7d7d !important
+    border: .5px solid transparent !important
+
+  .navbar-icon-button
+    min-width: 40px !important
 
   .v-toolbar__content
     padding-right: 0px
@@ -221,7 +224,7 @@ nav.toolbar, nav.v-toolbar
     margin-right: 10px
     margin-left: 0px
 
-  #coverage-settings-button
+  #coverage-settings-button, #error-button, #notification-button
     font-size: 14px
     font-weight: 500
     background-color: $nav-button-color
@@ -241,6 +244,20 @@ nav.toolbar, nav.v-toolbar
       font-size: 13px
       font-weight: 500
 
+  #coverage-settings-button
+    .v-badge__badge
+      background-color: $coverage-problem-color !important
+
+  #notification-button
+    .v-badge__badge
+      background-color: #777777 !important
+
+  #error-button
+    .v-badge__badge
+      background-color: $error-color !important
+      top: -25px
+      right: 7px
+
   #legend-button
     font-size: 14px
     font-weight: 500
@@ -249,7 +266,6 @@ nav.toolbar, nav.v-toolbar
 
     .v-btn__content
       padding-top: 2px
-
 
 
   .toolbar__content
@@ -582,15 +598,27 @@ nav.toolbar, nav.v-toolbar
         Variants
       </v-btn>
 
-
-
-
-      <v-btn class="navbar-outline-button" v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
+      <v-btn  class="navbar-icon-button" v-if="alerts && alerts.length > 0" id="notification-button"  @click="onShowNotificationDrawer" flat v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
         <v-badge right  >
-          <v-icon>bar_chart</v-icon>
+          <v-icon>notifications</v-icon>
           <span >
-            Assess coverage
           </span>
+          <span v-if="alerts && alerts.length > 0"
+            slot="badge">{{ alerts.length }}</span>
+        </v-badge>
+      </v-btn>
+      <v-btn class="navbar-icon-button" v-if="alertCounts && alertCounts.error && alertCounts.error > 0"  id="error-button" flat>
+        <v-badge right>
+          <span slot="badge" >
+           <v-icon>priority_high</v-icon>
+          </span>
+        </v-badge>
+      </v-btn>
+
+      <v-btn class="navbar-icon-button" v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat 
+         v-tooltip.bottom-left="{content: 'Genes with low sequence coverage, click to adjust thresholds'}">
+        <v-badge right  >
+          <v-icon>trending_down</v-icon>
           <span v-if="badgeCounts && badgeCounts.coverage"
             slot="badge">{{ badgeCounts.coverage }}</span>
         </v-badge>
@@ -677,8 +705,9 @@ nav.toolbar, nav.v-toolbar
       icon v-if="!isSimpleMode && !isBasicMode" 
       @click="onShowLegendDrawer"
       v-tooltip.bottom-left="{content: 'Show legend'}">
-        <v-icon>info</v-icon>
+        <v-icon>map</v-icon>
       </v-btn>
+    
 
 
       <v-menu>
@@ -902,6 +931,19 @@ nav.toolbar, nav.v-toolbar
           </legend-panel>
 
 
+    </v-navigation-drawer>
+
+    <v-navigation-drawer  
+      v-model="showNotificationDrawer"
+      absolute right  width="340"
+      style="z-index:6; height: calc(100vh - 50px); position: fixed;">
+        <v-btn  id="error-drawer-close-button" class="toolbar-button" flat @click="showErrorDrawer = false">
+          <v-icon >close</v-icon>
+        </v-btn>
+        <alert-panel :isBasicMode="isBasicMode"
+           :isSimpleMode="isSimpleMode"
+           :alerts=alerts>
+        </alert-panel>
     </v-navigation-drawer>
 
 
@@ -1174,6 +1216,7 @@ import FilterIcon          from '../partials/FilterIcon.vue'
 import SaveButton          from '../partials/SaveButton.vue'
 import AppIcon             from '../partials/AppIcon.vue'
 import FileChooser         from '../partials/FileChooser.vue'
+import AlertPanel          from '../partials/AlertPanel.vue'
 
 export default {
   name: 'navigation',
@@ -1191,7 +1234,8 @@ export default {
     FilterIcon,
     SaveButton,
     AppIcon,
-    FileChooser
+    FileChooser,
+    AlertPanel
   },
   props: {
     showFilesProp: null,
@@ -1232,6 +1276,8 @@ export default {
     badgeCounts: null,
     showWelcome: null,
     launchedFromDemo: null,
+    alerts: null,
+    alertCounts: null
   },
   data () {
     let self = this;
@@ -1255,6 +1301,8 @@ export default {
       showPublication: false,
       typeaheadLimit: parseInt(100),
       showLegendDrawer: false,
+      showErrorDrawer: false,
+      showNotificationDrawer: false,
 
 
       activeTab: 0,
@@ -1471,6 +1519,12 @@ export default {
     },
     onShowLegendDrawer: function() {
       this.showLegendDrawer = !this.showLegendDrawer;
+    },
+    onShowErrorDrawer: function() {
+      this.showErrorDrawer = !this.showErrorDrawer;
+    },
+    onShowNotificationDrawer: function() {
+      this.showNotificationDrawer = !this.showNotificationDrawer;
     },
     onShowCoverageThreshold: function() {
       this.$emit('show-coverage-threshold', true)

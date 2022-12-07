@@ -127,8 +127,10 @@ class CohortModel {
     };
     this.myGene2GeneNames = ['KDM1A'];
 
-    this.dispatch = d3.dispatch("knownVariantsVizChange");
+    this.dispatch = d3.dispatch("knownVariantsVizChange", "alertIssued");
     d3.rebind(this, this.dispatch, "on");
+
+
   }
 
   promiseInitDemo(demoKind='exome') {
@@ -1573,7 +1575,10 @@ class CohortModel {
               // dangerSummary.badges.notFound. We need this to show in the 'not found'
               // section of the flagged variants panel.
               if (dangerSummary && dangerSummary.badges && dangerSummary.badges.notFound) {
-                notFoundVariants = dangerSummary.badges.notFound;              
+                notFoundVariants = dangerSummary.badges.notFound;    
+                self.dispatch.alertIssued('error', 'Imported variant' 
+                  + (dangerSummary.badges.notFound.length > 1 ? 's (' + dangerSummary.badges.notFound.length + ') ' : ' ')
+                  + 'in gene ' + geneObject.gene_name + ' not found in variant file.', geneObject.gene_name);          
               }
 
               // Summarize the danger for the gene based on the filtered annotated variants and gene coverage

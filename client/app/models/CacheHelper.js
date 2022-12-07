@@ -276,13 +276,15 @@ CacheHelper.prototype._analyzeAllImpl = function(geneNames, analyzeCalledVariant
 
     me.cohort.geneModel.sortGenes("harmful variants");
 
-    me.dispatch.analyzeAllCompleted();
-
     console.log("");
     console.log("******   ANALYZE ALL ELAPSED TIME *******");
-    console.log((new Date() - me.start) / 1000 + " seconds ");
+    let elapsedSeconds = (new Date() - me.start) / 1000
+    console.log(elapsedSeconds + " seconds");
     console.log("*******************************************")
     console.log("");
+
+    me.dispatch.analyzeAllCompleted({'elapsedSeconds': elapsedSeconds})
+
 
   });
 
