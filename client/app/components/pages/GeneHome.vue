@@ -399,6 +399,7 @@ main.content.clin, main.v-content.clin
           :isSimpleMode="isSimpleMode"
           :isFullAnalysis="isFullAnalysis"
           :isOMIMPermitted="isOMIMPermitted"
+          :displayCddrcData="displayCddrcData"
           :launchedFromClin="launchedFromClin"
           :launchedFromHub="launchedFromHub"
           :showSfariTrackToggle="cohortModel && cohortModel.isSfariProject"
@@ -1143,6 +1144,13 @@ export default {
         return this.cohortModel.maxDepth;
       } else {
         return 0;
+      }
+    },
+    displayCddrcData: function() {
+      if (this.globalApp) {
+        return this.globalApp.displayCddrcData;
+      } else {
+        return false;
       }
     },
 

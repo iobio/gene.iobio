@@ -104,8 +104,9 @@ class GlobalApp {
         'GRCh38': {'none': null, 
                    'chr':  'removeChr'}
       }
-    }
+    };
 
+    this.displayCddrcData = true;
   }
 
   initBackendSource(iobioSource) {

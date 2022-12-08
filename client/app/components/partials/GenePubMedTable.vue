@@ -190,9 +190,11 @@
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1630px) {
 .pubmed-title {
-  min-width: 600px !important;
-  max-width: 600px !important;
+  min-width: 525px !important;
+  max-width: 525px !important;
 }
+  /*todo: this was 600 - need to be dynamic based on cddrc*/
+
 .pubmed-pub-source {
   display: inline-block !important;
 }
@@ -238,7 +240,7 @@
         <span class="pubmed-title" v-html="entry.title"></span>
         <span v-if="showSource" class="pubmed-pub-source">{{ entry.source }}</span>
         <span v-if="showAuthor" class="pubmed-pub-author">{{ entry.firstAuthor }}</span>
-        <span class="pubmed-pub-date">{{ entry.pubDate }}</span>
+        <span v-if="showDate" class="pubmed-pub-date">{{ entry.pubDate }}</span>
       </div>
     </div>
     <div class="pubmed-row" v-if="pubMedEntries && pubMedEntries.length === 0">
@@ -261,6 +263,7 @@ export default {
     selectedGene: null,
     showAuthor: null,
     showSource: null,
+    showDate: null,
     showAll: null,
   },
   data () {

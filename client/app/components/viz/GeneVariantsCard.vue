@@ -157,11 +157,19 @@
            v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
            :selectedGene="selectedGene"
            :geneModel="cohortModel.geneModel"
-           :showSource="true"
+           :showDate="!displayCddrcData"
+           :showSource="!displayCddrcData"
            :showAll="false">
           </gene-pubmed-table>
-
         </div>
+
+      <div style="display:flex;height:25px;margin-left:25px" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
+        <gene-cddrc-table
+            v-if="selectedGene && cohortModel && displayCddrcData  && !isSimpleMode && !isBasicMode"
+            :selectedGene="selectedGene"
+            :cohortModel="cohortModel">
+        </gene-cddrc-table>
+      </div>
 
     </div>
 
@@ -174,12 +182,14 @@
     import GenePubMedPopup      from '../partials/GenePubMedPopup.vue'
     import GeneLinksMenu        from "../partials/GeneLinksMenu.vue"
     import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
+    import GeneCddrcTable       from "../partials/GeneCddrcTable.vue";
     export default {
         name: 'gene-variants-card',
         components: {
             'gene-omim-table': GeneOMIMTable,
             'gene-pubmed-table': GenePubMedTable,
             'gene-pubmed-popup': GenePubMedPopup,
+            'gene-cddrc-table': GeneCddrcTable,
             GeneLinksMenu,
             TranscriptsMenu,
         },
@@ -195,6 +205,7 @@
             isSimpleMode: null,
             isFullAnalysis: null,
             isOMIMPermitted: null,
+            displayCddrcData: null,
             isLoaded: null,
             launchedFromClin: null,
             launchedFromHub: null

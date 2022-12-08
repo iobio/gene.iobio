@@ -2,7 +2,7 @@
 
 @import ../../../assets/sass/variables
 
-#omim-table
+#cddrc-table
   min-width: 400px
   .title-row
     display: flex
@@ -17,7 +17,7 @@
       padding-top: 1px
 
 
-  .omim-row
+  .cddrc-row
     font-size: 12px
     padding-bottom: 5px
     >span
@@ -25,16 +25,13 @@
       vertical-align: top
       line-height: 15px
     
-    .omim-launch
+    .cddrc-launch
       min-width: 20px
       max-width: 20px
       i.material-icons
         font-size: 13px
         color: $link-color
-    .omim-phenotype
-      min-width: 250px
-      max-width: 250px
-    .omim-inheritance
+    .cddrc-field
       display: inline-block
       min-width: 100px
       max-width: 100px
@@ -43,10 +40,10 @@
 <style lang="css">
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
-#omim-table {
+#cddrc-table {
   min-width:  250px !important;
 }
-.omim-phenotype {
+.cddrc-field {
   min-width: 150px !important;
   max-width: 150px !important;
 }  
@@ -55,10 +52,10 @@
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
-#omim-table {
+#cddrc-table {
   min-width:  250px @important;
 }
-.omim-phenotype {
+.cddrc-field {
   min-width: 150px !important;
   max-width: 150px !important;
 }  
@@ -67,49 +64,48 @@
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
-#omim-table {
+#cddrc-table {
   min-width:  300px !important;
 }
-.omim-phenotype {
-  min-width: 200px !important;
-  max-width: 200px !important;
+.cddrc-field {
+  min-width: 150px !important;
+  max-width: 150px !important;
 }  
 
 }
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
-#omim-table {
+#cddrc-table {
   min-width:  300px !important;
 }
-.omim-phenotype {
-  min-width: 200px !important;
-  max-width: 200px !important;
+.cddrc-field {
+  min-width: 150px !important;
+  max-width: 150px !important;
 } 
 
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
-#omim-table {
+#cddrc-table {
   min-width:  300px !important;
 }
-.omim-phenotype {
-  min-width: 200px !important;
-  max-width: 200px !important;
+.cddrc-field {
+  min-width: 150px !important;
+  max-width: 150px !important;
 } 
 
 }
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1400px) {
-#omim-table {
+#cddrc-table {
   min-width:  400px !important;
 }
-.omim-phenotype {
-  min-width: 250px !important;
-  max-width: 250px !important;
-}
-/*todo: this was prev 300 - need to make this dynamic*/
+.cddrc-field {
+  min-width: 160px !important;
+  max-width: 160px !important;
+} 
 
 }
 
@@ -117,23 +113,34 @@
 
 <template>
 
-  <div id="omim-table">
+<!--  todo: change styling tags/classes above-->
+
+<!--  todo: put in info tooltip of what cddrc is and link to website-->
+
+  <div id="cddrc-table">
     <div class="title-row">
-      <div class="table-title">OMIM Phenotypes</div>
+      <div class="table-title">CDDRC Orthologous Data</div>
     </div>
     <div  style="max-height:158px;min-height:158px;overflow-y:scroll;padding-top:5px">
-      <div class="omim-row" v-for="entry in omimEntries" :key="entry.phenotypeMimNumber">
-          <span class="omim-launch" >
-            <a :href="getEntryHref(entry.phenotypeMimNumber)" target="_omim">
+      <div class="loader"
+           v-if="cddrcEntries && cddrcEntries.length > 0 && cddrcEntries[0].ensembl_id === 'loading...'">
+        <span class="loader-label">loading</span>
+        <img src="../../../assets/images/wheel.gif">
+      </div>
+      <div v-else class="cddrc-row" v-for="entry in cddrcEntries" :key="entry.ensembl_id">
+          <span class="cddrc-launch">
+            <a :href="getMosaicLink(entry.project_ids)" target="_cddrc">
               <v-icon>launch</v-icon>
             </a>
           </span>
-          <span class="omim-phenotype" >{{ entry.phenotype }}
+          <span class="cddrc-field" >{{ entry.ensembl_id }}
           </span>
-          <span class="omim-inheritance">{{ entry.phenotypeInheritance }}</span>
+        <span class="cddrc-field" >{{ entry.species }}
+          </span>
+<!--          <span class="omim-inheritance">{{ entry.phenotypeInheritance }}</span>-->
       </div>
-      <div class="omim-row" v-if="omimEntries && omimEntries.length === 0">
-      No OMIM entries found for {{ selectedGene.gene_name }}
+      <div class="cddrc-row" v-if="cddrcEntries && cddrcEntries.length === 0">
+      No CDDRC entries found for {{ selectedGene.gene_name }}
       </div>
     </div>
 
@@ -145,49 +152,47 @@
 <script>
 
 export default {
-  name: 'gene-omim-table',
+  name: 'gene-cddrc-table',
   components: {
   },
   props: {
-    geneModel: null,
+    cohortModel: null,
     selectedGene: null,
   },
   data () {
     return {
-      omimEntries: null
+      cddrcEntries: null
     }
   },
   methods: {
-    getOMIMEntries: function() {
-      let self = this;
-      self.omimEntries = [];
+    getCddrcEntries: function() {
+      const self = this;
+      self.cddrcEntries = [ {ensembl_id: 'loading...'}];
   
       if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
-        self.geneModel.promiseGetOMIMEntries(self.selectedGene.gene_name)
-        .then(function(data) {
-          self.omimEntries = []
-          if (data && data.omimEntries) {
-            self.omimEntries = data.omimEntries.map(function(entry) {
-              return entry.phenotype;
-            });
+        self.cohortModel.promiseGetCddrcEntries(self.selectedGene.gene_name)
+        .then(function(entries) {
+          self.cddrcEntries = []
+          if (entries) {
+            self.cddrcEntries = entries;
           }
         })
         .catch(function(error) {
-          console.log("Cannot get OMIM entries for gene " + self.selectedGene.gene_name + ". Error: error")
-          self.omimEntries = [];
+          console.log("Cannot get CDDRC entries for gene " + self.selectedGene.gene_name + ". Error: " + error);
+          self.cddrcEntries = [];
         })
       } else {
-        self.omimEntries = [];
+        self.cddrcEntries = [];
       }
 
     },
-    getEntryHref: function(mimNumber) {
-      return "https://www.omim.org/entry/" + mimNumber;
+    getMosaicLink: function(projectIds) {
+      return 'https://cddrc.utah.edu/#/projects/1047/';
     }
   },
   watch: {
     selectedGene: function() {
-      this.getOMIMEntries();
+      this.getCddrcEntries();
     },
   },
   calculated: {
@@ -197,9 +202,9 @@ export default {
   },
   mounted: function() {
     let self = this;
-    this.omimEntries = null;
+    this.cddrcEntries = null;
     setTimeout(function() {
-      self.getOMIMEntries();
+      self.getCddrcEntries();
     },2000)
   },
 }

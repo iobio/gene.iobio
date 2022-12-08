@@ -31,6 +31,7 @@ class CohortModel {
 
     this.isLoaded = false;
     this.isSfariProject = false;  // True if launched from Mosaic w/ SSC project
+    this.cddrcEntries = [];  // A list of objects fetched from CDDRC Mosaic
 
     this.sampleModels  = [];
     this.sampleMap = {};
@@ -366,9 +367,9 @@ class CohortModel {
       vm.sex = modelInfo.sex && modelInfo.sex != "" ? modelInfo.sex : null;
       vm.isBasicMode = self.isBasicMode;
       vm.isEduMode = self.isEduMode;
-      vm.isSfariSample = fromSfariProject;
-
       var vcfPromise = null;
+
+      vm.isSfariSample = fromSfariProject;
       if (modelInfo.vcf) {
         vcfPromise = new Promise(function(vcfResolve, vcfReject) {
           vm.onVcfUrlEntered(modelInfo.vcf, modelInfo.tbi, function() {
@@ -3007,6 +3008,58 @@ class CohortModel {
 
     return sampleNames;
 
+  }
+
+  // Returns object with list of orthologous ensembl IDs
+  // corresponding to the model organisms in the CDDRC database.
+  promiseGetCddrcEntries(geneName) {
+    const self = this;
+
+    return new Promise((resolve, reject) => {
+      if (!geneName) {
+        reject('No gene name supplied to promiseGetCddrcEntries');
+      }
+
+      if (self.cddrcEntries[geneName]) {
+        resolve(self.cddrcEntries[geneName]);
+      }
+
+      let cddrcList = [];
+      // todo: do call to orthodb backend service
+      // todo: process ensembl ids into objects respective to species (cddrcList)
+      // todo: also put ensembl ids into array to send to mosaic api
+
+      if (geneName === 'RAI1') {
+        cddrcList = [
+          {
+            ensembl_id: 'ENSMUSG00000062115',
+            species: 'mouse',
+            project_ids: [1047]
+          },
+          {
+            ensembl_id: 'ENSDARG00000076679',
+            species: 'zebrafish',
+            project_ids: [1047]
+          }
+        ];
+      } else {
+        cddrcList = [
+          {
+            ensembl_id: 'ENSMUSG00000062115',
+            species: 'mouse',
+            project_ids: [1047]
+          },
+          {
+            ensembl_id: 'ENSDARG00000005775',
+            species: 'zebrafish',
+            project_ids: [1047]
+          }
+        ];
+      }
+
+      self.cddrcEntries[geneName] = cddrcList;
+      resolve(cddrcList);
+    });
   }
 }
 
