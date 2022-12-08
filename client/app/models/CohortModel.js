@@ -1576,9 +1576,6 @@ class CohortModel {
               // section of the flagged variants panel.
               if (dangerSummary && dangerSummary.badges && dangerSummary.badges.notFound) {
                 notFoundVariants = dangerSummary.badges.notFound;    
-                self.dispatch.alertIssued('error', 'Imported variant' 
-                  + (dangerSummary.badges.notFound.length > 1 ? 's (' + dangerSummary.badges.notFound.length + ') ' : ' ')
-                  + 'in gene ' + geneObject.gene_name + ' not found in variant file.', geneObject.gene_name);          
               }
 
               // Summarize the danger for the gene based on the filtered annotated variants and gene coverage
@@ -2096,9 +2093,9 @@ class CohortModel {
     })
   }
 
-  setVariantInterpretation(theGene, theTranscript, variant) {
+  setVariantInterpretation(theGene, theTranscript, variant, options) {
     var self = this;
-    this._recacheForFlaggedVariant(theGene, theTranscript, variant);
+    this._recacheForFlaggedVariant(theGene, theTranscript, variant, options);
   }
 
   addUserFlaggedVariant(theGene, theTranscript, variant) {
@@ -2430,6 +2427,7 @@ class CohortModel {
     importRecords = importRecords.filter(function(ir) {
       if (ir == null) {
         console.log("WARNING: bypassing null variant record")
+        me.dispatch.alertIssued('warning', 'Bypassing blank variant.');          
         return false;
       } else {
         return true;
@@ -2454,6 +2452,7 @@ class CohortModel {
         }
       }
       if (ir.gene == null) {
+        me.dispatch.alertIssued('warning', 'Bypassing variant. Gene symbol is missing.');          
       } else {
         var theGeneObject = me.geneModel.geneObjects[ir.gene];
         if (theGeneObject == null || !ir.transcript || ir.transcript == '') {
@@ -2462,13 +2461,20 @@ class CohortModel {
             if (theGeneObject.notFound) {
               if (me.geneModel.isKnownGene(theGeneObject.notFound)) {
                 me.geneModel.promiseAddGeneName(theGeneObject.notFound);
+              } else {
+                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene ' + theGeneObject.notFound + ".", theGeneObject.notFound);          
               }
             }
             else if (ir.gene && theGeneObject.notFound === undefined){
               if (me.geneModel.isKnownGene(ir.gene)) {
                 me.geneModel.promiseAddGeneName(ir.gene);
+              } else {
+                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene ' + ir.gene + ".", ir.gene);          
               }
             }
+          })
+          .catch(function(error) {
+            me.dispatch.alertIssued('warning', error.message, error.gene)
           })
           promises.push(promise);
         }
@@ -2504,7 +2510,7 @@ class CohortModel {
       });
       // First callback when flagged variants are now populated by imported records
       if (callbackPostImport) {
-        callbackPostImport();
+        callbackPostImport(me.flaggedVariants.length);
       }
 
 
@@ -2575,6 +2581,7 @@ class CohortModel {
           if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
             console.log("No transcript for importedVariant");
             console.log(importedVariant);
+            me.dispatch.alertIssued('warning', 'No transcript specified for imported variant in gene ' + geneName, geneName);
           } else {
             uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
           }
@@ -2637,8 +2644,12 @@ class CohortModel {
                   importedVariant.notFound = true;
                   importedVariant.isFlagged = true;
                   notFoundVariants.push(importedVariant)
+                  
                   console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
-                
+                  
+                  me.dispatch.alertIssued('warning', 'Imported variant ' 
+                  + 'in gene ' + geneObject.gene_name + ' not found in proband variant file.', geneObject.gene_name);          
+
                 }
               })
 

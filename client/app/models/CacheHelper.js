@@ -244,7 +244,7 @@ CacheHelper.prototype.queueGene = function(geneName) {
 }
 
 CacheHelper.prototype.dequeueGene = function(geneName) {
-  var idx = this.cacheQueue.indexOf(geneName);
+  var idx = this.cacheQueue.indexOf(geneName.toUpperCase());
   if (idx >= 0) {
     this.cacheQueue.splice(idx,1);
   }
@@ -790,10 +790,11 @@ CacheHelper.prototype.promiseOutputCache = function(options) {
 
   return new Promise(function(resolve, reject) {
 
-    me.promiseRefreshGeneBadges()
-    .then(function() {
-      return me.promiseGetKeys()
-    })
+    //me.promiseRefreshGeneBadges()
+    //.then(function() {
+    //  return me.promiseGetKeys()
+    //})
+    me.promiseGetKeys()
     .then(function(allKeys) {
       var promises = [];
       var cacheItems = [];

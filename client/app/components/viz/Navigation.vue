@@ -618,6 +618,7 @@ nav.toolbar, nav.v-toolbar
       <v-btn class="navbar-icon-button" v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat 
          v-tooltip.bottom-left="{content: 'Genes with low sequence coverage, click to adjust thresholds'}">
         <v-badge right  >
+          Assess coverage
           <v-icon>trending_down</v-icon>
           <span v-if="badgeCounts && badgeCounts.coverage"
             slot="badge">{{ badgeCounts.coverage }}</span>
@@ -937,7 +938,7 @@ nav.toolbar, nav.v-toolbar
       v-model="showNotificationDrawer"
       absolute right  width="340"
       style="z-index:6; height: calc(100vh - 50px); position: fixed;">
-        <v-btn  id="error-drawer-close-button" class="toolbar-button" flat @click="showErrorDrawer = false">
+        <v-btn  id="error-drawer-close-button" class="toolbar-button" flat @click="showNotificationDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
         <alert-panel :isBasicMode="isBasicMode"
@@ -1525,6 +1526,14 @@ export default {
     },
     onShowNotificationDrawer: function() {
       this.showNotificationDrawer = !this.showNotificationDrawer;
+    },
+    onShowNotificationDrawerShowLast: function() {
+      this.showNotificationDrawer = true;
+      setTimeout(function() {
+        let items = $("#alert-panel .alert-item");
+        let last = items[items.length-1];
+        last.scrollIntoView();
+      }, 1000);
     },
     onShowCoverageThreshold: function() {
       this.$emit('show-coverage-threshold', true)

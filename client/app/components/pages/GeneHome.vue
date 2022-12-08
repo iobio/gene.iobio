@@ -1293,7 +1293,7 @@ export default {
         self.cohortModel.on("knownVariantsVizChange", function(viz) {
           self.forceKnownVariantsViz = viz;
         });
-        self.cohortModel.on("alertIssued", function(type, message, genes) {
+        self.cohortModel.on("alertIssued", function(type, message, genes, details) {
           self.addAlert(type, message, genes)
         })
 
@@ -1305,6 +1305,12 @@ export default {
               self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
             }
           })
+          .catch(function(error) {
+            self.addAlert('warning', error.message, error.gene)
+          })
+        })
+        self.geneModel.on("alertIssued", function(type, message, genes, details) {
+          self.addAlert(type, message, genes)
         })
 
         self.cacheHelper.cohort = self.cohortModel;
@@ -1341,6 +1347,18 @@ export default {
 
             if (self.launchedFromHub) {
               self.promiseInitFromMosaic()
+              .then(function() {
+                if (callback) {
+                  callback();
+                }
+
+              })
+              .catch(function(error) {
+                if (callback) {
+                  callback();
+                }
+              })
+
             } else {
               self.models = self.cohortModel.sampleModels;
 
@@ -1350,6 +1368,9 @@ export default {
                 self.promiseLoadData()
                 .then(function() {
                   self.showLeftPanelWhenFlaggedVariants();
+                  if (callback) {
+                    callback();
+                  }
                 })
               } else {
                 if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
@@ -1361,10 +1382,10 @@ export default {
                 if (!self.isEduMode && !self.isBasicMode && !self.isSimpleMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
                   self.showWelcome = true;
                 }
+                if (callback) {
+                  callback();
+                }
               }
-            }
-            if (callback) {
-              callback();
             }
 
         })
@@ -1465,9 +1486,14 @@ export default {
         .then(analysis => {
           self.analysis = analysis;
 
+          if (self.analysis) {
+            self.addAlert("info", "loading Mosaic analysis " + analysis.title)
+          }
+
           return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
+            self.addAlert("info", 'Mosaic project ' + projObj.name + " loaded.")
             self.isSfariProject = false;
             // Note: going off of names per CM for now until we can get a Sfari project db flag
             if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
@@ -1481,8 +1507,13 @@ export default {
 
           if (self.analysis.payload.hasOwnProperty('cache')) {
             self.inProgressCache.loading = true;
+            let start = new Date()
             return self.cacheHelper.promiseLoadCache(self.analysis.payload.cache)
             .then(function() {
+              self.addAlert("info", "analysis session restored.", null, 
+                [
+                'elapsed time = ' + (new Date() - start) / 1000 + ' seconds'
+                ])
               self.inProgressCache.loading = false;
             })
           } else {
@@ -1505,6 +1536,7 @@ export default {
         })
         .then(function() {
           if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
+            self.setAlert("info", 'loading gene set ' + self.geneSet.name)
             let genePromises = [];
             self.geneSet.genes.forEach(function(geneName) {
               if (self.geneModel.isKnownGene(geneName)) {
@@ -1602,26 +1634,47 @@ export default {
 
         })
         .catch(function(error) {
+          self.addAlert("error", error)
           reject(error);
         })
 
       })
     },
 
-    addAlert: function(type, message, genes=null) {
+    addAlert: function(type, message, genes=null, details=null) {
+      let self = this;
       let pad2 = function(n) { return n < 10 ? '0' + n : n }
+      let pad3 = function(n) { 
+        if (n < 10) {
+          return '00' + n;
+        } else if (n < 100) {
+          return '0' + n;
+        } else {
+          return n;
+        }
+      }
       let date = new Date();
       let timestamp = date.getFullYear().toString() 
        + pad2(date.getMonth() + 1) 
        + pad2( date.getDate())
        + pad2( date.getHours() ) 
        + pad2( date.getMinutes() ) 
-       + pad2( date.getSeconds() );
+       + pad2( date.getSeconds() )
+       + pad3( date.getMilliseconds() );
 
-      let alert = {'type': type, 'message': message, 'genes': genes, 'timestamp': timestamp}
-      this.appAlerts.unshift(alert)
+      let alert = {'type': type, 'message': message, 'genes': genes, 'timestamp': timestamp, 'key': this.appAlerts.length, 'showDetails': false}
+      if (details) {
+        alert.details = details;
+      }
+      this.appAlerts.push(alert)
 
       this.appAlertCounts[type] += 1
+
+      if (type == 'error') {
+        if (this.$refs.navRef) {
+          this.$refs.navRef.onShowNotificationDrawerShowLast();
+        }
+      }
 
     },
 
@@ -1634,10 +1687,14 @@ export default {
           let bypassedCount = 0;
           let bypassedMessages = [];
 
-          self.variantSet.variants.filter(function(variant) {
+
+          let variantSetForProband = self.variantSet.variants.filter(function(variant) {
             return variant.het_sample_ids.indexOf(parseInt(self.sampleId)) >= 0 ||
                 variant.hom_sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
-          }).forEach(function(variant) {
+          })
+          self.addAlert("info", "importing Mosaic variant set " + self.variantSet.name, null, [variantSetForProband.length  + " variants out of " + self.variantSet.variants.length + " to import"])
+
+          variantSetForProband.forEach(function(variant) {
             let importedVariant = {};
             if (variant.gene_symbol && variant.gene_symbol.length > 0) {
               importedVariant.gene  = variant.gene_symbol;
@@ -1667,26 +1724,28 @@ export default {
               bypassedCount++;
             }
           })
+          if (bypassedCount > 0) {
+            if (bypassedCount === self.variantSet.variants.length) {
+              self.addAlert("error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name." )
+
+            } else {
+              self.addAlert("warning", 
+                bypassedCount + " variant" + (bypassedCount > 1 ? 's ' : ' ') + "bypassed due to missing information.", 
+                null, bypassedMessages)
+            }
+          } 
 
           if (variantsToAdd.length > 0) {
             self.cohortModel.importFlaggedVariants('json', variantsToAdd,
-            function() {
+            function(variantCount) {
               if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
                 self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
                 self.showLeftPanelWhenFlaggedVariants();
               }
-              resolve();      
+              resolve();  
+              self.addAlert("success", variantCount + " variants imported.")    
             },
             function() {
-              if (bypassedCount > 0) {
-                if (bypassedCount === self.variantSet.variants.length) {
-                  alertify.alert("Error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name.", )
-
-                } else {
-                  alertify.alert("Warning", bypassedCount + " variants bypassed." + "<br><br>" + bypassedMessages.join("<br>"))
-
-                }
-              } 
 
             })
           }
@@ -3039,6 +3098,7 @@ export default {
           }).
           catch(function(error) {
             reject(error);
+            self.addAlert("error", error)
           })
         } else if (self.isEduMode && self.tourNumber !== '') {
           self.promiseInitTourSample(self.tourNumber, 0)
@@ -3110,7 +3170,8 @@ export default {
       }
 
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
-      self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
+      self.cohortModel.setVariantInterpretation(variant.gene, 
+        theTranscript, variant, {summarizeDanger: true});
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
@@ -3177,7 +3238,8 @@ export default {
       }
 
       let theTranscript = variant.transcript ? variant.transcript : self.geneModel.getCanonicalTranscript(variant.gene)
-      self.cohortModel.setVariantInterpretation(variant.gene, theTranscript, variant);
+      self.cohortModel.setVariantInterpretation(variant.gene, 
+        theTranscript, variant, {summarizeDanger: true});
 
       if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
         self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists(variant);
@@ -4336,6 +4398,7 @@ export default {
               self.hubSession.promiseUpdateAnalysis(self.analysis)
               .then(function(analysis) {
                 self.analysis = analysis;
+                self.addAlert("success", "Mosaic analysis " + self.analysis.title + " saved.")
                 if (options && options.notify) {
                   self.onShowSnackbar( {message: 'analysis saved.', timeout: 2000, bottom: true, right: true});
                 }
@@ -4352,12 +4415,14 @@ export default {
             self.hubSession.promiseAddAnalysis(self.analysis.project_id, self.analysis)
             .then(function(analysis) {
               self.analysis = analysis;
+              self.addAlert("success", "Mosaic analysis " + analysis.title + " saved.")
               console.log("* adding mosaic analysis " + self.analysis.id + " " + " *")
               self.onShowSnackbar( {message: 'new analysis saved.', timeout: 3000, bottom: true, right: true});
               self.setDirty(false);
               resolve();
             })
             .catch(function(error) {
+              self.addAlert("error", "Failed to save analysis.", null, [error])
               self.onShowSnackbar( {message: error, timeout: 15000});
               reject(error);
             })
@@ -4398,6 +4463,7 @@ export default {
         options.decompress = false;
         options[self.cacheHelper.BAM_DATA] =  true;
         options[self.cacheHelper.GENE_COVERAGE_DATA] = true;
+        let start = new Date();
         self.cacheHelper.promiseOutputCache(options)
         .then(function(cacheItemsCompressed) {
           self.analysis.payload.cache = JSON.stringify(cacheItemsCompressed);
@@ -4407,6 +4473,10 @@ export default {
           if (self.analysis.payload.hasOwnProperty('genes')) {
             delete self.analysis.payload.genes;
           }
+          let elapsed = (new Date() - start) / 1000;
+          self.addAlert("info", "session cache ready to save", null, 
+            ["elapsed time = " + elapsed + " seconds",
+             "size = " + new Blob([cacheItemsCompressed]).size + " bytes."])
           resolve()
         })
         .catch(function(error) {

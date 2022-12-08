@@ -87,7 +87,7 @@ class GeneModel {
 
     this.isFullAnalysis = false;
 
-    this.dispatch = d3.dispatch("geneDangerSummarized");
+    this.dispatch = d3.dispatch("geneDangerSummarized", "alertIssued");
     d3.rebind(this, this.dispatch, "on");
 
     this.genesAssociatedWithSource = {};
@@ -299,6 +299,9 @@ class GeneModel {
         .then(function() {
           resolve(true);
         })
+        .catch(function(error) {
+          resolve(false)
+        })
       } else {
         resolve(false);
       }
@@ -414,7 +417,7 @@ class GeneModel {
         var message = "";
         if (Object.keys(unknownGeneNames).length > 0) {
           message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
-          alertify.alert("Warning", message);
+          me.dispatch.alertIssued("warning", message, null, Object.keys(unknownGeneNames))
         }
         if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
           if (message.length > 0) {
@@ -423,7 +426,7 @@ class GeneModel {
           message += "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
         }
         if (message.length > 0) {
-          alertify.alert("Warning", message);
+          me.dispatch.alertIssued("warning", message, null, Object.keys(duplicateGeneNames))
         }
 
         if (me.limitGenes) {
@@ -1446,21 +1449,26 @@ class GeneModel {
           } else {
             let msg = "Gene model for " + geneName + " not found.  Empty results returned from " + url;
             console.log(msg);
-            reject(msg);
+            reject({'message': msg, 'gene': geneName});
           }
         })
         .catch((errorThrown) => {
           console.log("Gene model for " +  geneName + " not found.  Error occurred.");
           console.log( "Error: " + errorThrown );
-          reject("Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName);
+          let msg = "Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName;
+          reject({'message': msg, 'gene': geneName});
         });
 
       } else {
-        let msg = "No Refseq or Gencode transcripts for " + geneName + ".";
-        alertify.set('notifier','position', 'top-right');
-        alertify.error(msg,  10);
+        let msg = ""
+        if (knownGene) {
+          msg = "No Refseq or Gencode transcripts for " + geneName + ".";
+          
+        } else {
+          msg = "Unknown gene " + geneName;
+        }
 
-        reject("No known gene source for gene " + geneName);
+        reject({'message': msg, 'gene': geneName});
       }
 
 
