@@ -11,7 +11,7 @@
   "dependencies": {
     "d3": "^3.5.17",
     "debug": "^2.6.8",
-    "express": "^4.15.3",
+    "express": "^4.17.3",
     "fibridge-host": "^0.16.0",
     "iobio-api-client": "^0.11.0",
     "jquery": "^3.5.1",
