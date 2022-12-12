@@ -158,7 +158,7 @@ export default class EndpointCmd {
         });
 
         cmd.on('error', function(error){
-            let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
+            let msg = "Could not get clinvar variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
             alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
                 .setHeader("Non-fatal Error");
         })
@@ -225,11 +225,6 @@ export default class EndpointCmd {
                 bypassAnnotate
             });
 
-            cmd.on('error', function(error){
-                let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                  .setHeader("Non-fatal Error");
-            })
             return cmd;
         }
     }

@@ -42,7 +42,9 @@
       margin-top: 0px
       height: 20px
       font-size: 11px
+      max-width: 56px
       .v-btn__content
+        padding-right: 0px
         color: $link-color !important
 </style>
 
@@ -65,7 +67,7 @@
     >
       {{alert.message}}
 
-      <div v-if="alert.details" style="display:flex;justify-content:flex-end" >
+      <div v-if="alert.details" style="padding-right:0px ;margin-top:-2px;display:flex;justify-content:flex-end" >
         <v-btn v-if="!alert.showDetails" class="show-details-button" flat @click="alert.showDetails = true">
           Show details
         </v-btn>
@@ -73,8 +75,8 @@
           Hide details
         </v-btn>
       </div>
-      <div v-if="alert.showDetails">
-        <div v-for="detail in alert.details" :key="detail">
+      <div v-if="alert.showDetails" >
+        <div v-for="detail, detailIndex in alert.details" :key="detailIndex">
            {{ detail }}
         </div>
       </div>

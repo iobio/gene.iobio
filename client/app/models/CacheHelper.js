@@ -276,12 +276,8 @@ CacheHelper.prototype._analyzeAllImpl = function(geneNames, analyzeCalledVariant
 
     me.cohort.geneModel.sortGenes("harmful variants");
 
-    console.log("");
-    console.log("******   ANALYZE ALL ELAPSED TIME *******");
     let elapsedSeconds = (new Date() - me.start) / 1000
-    console.log(elapsedSeconds + " seconds");
-    console.log("*******************************************")
-    console.log("");
+    console.log("Analyze all completed in " + elapsedSeconds + " seconds.")
 
     me.dispatch.analyzeAllCompleted({'elapsedSeconds': elapsedSeconds})
 
@@ -1185,7 +1181,7 @@ CacheHelper.promiseCompressData = function(data) {
       var cache = [];
       var dataString = JSON.stringify(data, function(key, value) {
         if (typeof value === 'object' && value !== null) {
-            if (cache.indexOf(value) !== -1) {
+            if (cache.indexOf(value) !== -1 && key != 'genotype') {
                 // Circular reference found, discard key
                 return;
             } 

@@ -120,7 +120,7 @@ main.content.clin, main.v-content.clin
   max-width: -webkit-fill-available !important
 
 
-#data-sources-loader, #session-data-loader, #cache-data-loader
+#data-sources-loader, #session-data-loader, #cache-data-loader, #save-analysis-loader
   margin-top: 30px
   margin-left: auto
   margin-right: auto
@@ -637,6 +637,14 @@ main.content.clin, main.v-content.clin
           <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
         </v-card>
 
+        <v-card
+        id="save-analysis-loader"
+        class="loader"
+        v-show="savingAnalysis">
+          <span class="loader-label">Saving analysis</span>
+          <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
+        </v-card>
+
 <!--
         <optional-tracks-card
           v-if="cohortModel && cohortModel.isLoaded && probandModel"
@@ -1005,6 +1013,7 @@ export default {
       forceKnownVariantsViz: null,
 
       inProgress: {},
+      savingAnalysis: false,
 
       badgeCounts: {coverage: 0},
 
@@ -1486,8 +1495,8 @@ export default {
         .then(analysis => {
           self.analysis = analysis;
 
-          if (self.analysis) {
-            self.addAlert("info", "loading Mosaic analysis " + analysis.title)
+          if (self.analysis && self.analysis.id && self.analysis.id != 0) {
+            self.addAlert("info", "Loading Mosaic analysis " + analysis.title)
           }
 
           return self.hubSession.promiseGetProject(self.projectId)
@@ -1692,7 +1701,9 @@ export default {
             return variant.het_sample_ids.indexOf(parseInt(self.sampleId)) >= 0 ||
                 variant.hom_sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
           })
-          self.addAlert("info", "importing Mosaic variant set " + self.variantSet.name, null, [variantSetForProband.length  + " variants out of " + self.variantSet.variants.length + " to import"])
+          self.addAlert("info", "Importing Mosaic variant set " + self.variantSet.name + ".", null, [
+              self.variantSet.variants.length + " variants in variant set.",
+              variantSetForProband.length  + " variants are in the proband sample."])
 
           variantSetForProband.forEach(function(variant) {
             let importedVariant = {};
@@ -1743,10 +1754,12 @@ export default {
                 self.showLeftPanelWhenFlaggedVariants();
               }
               resolve();  
-              self.addAlert("success", variantCount + " variants imported.")    
+              self.addAlert("info", "Importing " + variantCount + " variants.")    
             },
             function() {
-
+              // FIXME: This isn't a reliable hook. Often, a buried error 
+              // ends up preventing CohortModel.importFlaggedVariants to get  
+              // to the code where the final callback is issued.
             })
           }
         } else {
@@ -1772,9 +1785,6 @@ export default {
           console.log("Gene not analyzed " + geneName)
         });
         self.cacheHelper.on("analyzeAllCompleted", function(infoObject) {
-          if (infoObject) {          
-            self.addAlert("success", "Analyze all completed in " + infoObject.elapsedSeconds + " seconds")
-          }
           self.delaySave = 1000;
           if (!self.isEduMode) {
             if (self.activeFilterName && self.activeFilterName === 'coverage' && self.launchedFromClin) {
@@ -1806,6 +1816,7 @@ export default {
 
         self.globalApp.cacheHelper = self.cacheHelper;
         window.globalCacheHelper = self.cacheHelper;
+        window.globalGeneHome = self;
 
         self.cacheHelper.promiseInit()
          .then(function() {
@@ -4374,9 +4385,19 @@ export default {
     },
 
     onSaveAnalysisFromModal() {
+      let self = this;
       this.showSaveModal = false;
       this.delaySave = 1000;
-      return this.promiseSaveAnalysis({saveTitle: true, autoupdate: false, notify: true});
+      let options = {saveTitle: true, autoupdate: false, notify: true}
+      this.savingAnalysis = true;
+      return this.promiseSaveAnalysis(options)
+      .then(function() {
+        self.savingAnalysis = false;
+      })
+      .catch(function() {
+        self.savingAnalysis = false;
+
+      })
     },
 
 
@@ -4400,7 +4421,7 @@ export default {
                 self.analysis = analysis;
                 self.addAlert("success", "Mosaic analysis " + self.analysis.title + " saved.")
                 if (options && options.notify) {
-                  self.onShowSnackbar( {message: 'analysis saved.', timeout: 2000, bottom: true, right: true});
+                  self.onShowSnackbar( {message: 'Mosaic analysis saved.', timeout: 2000});
                 }
                 self.setDirty(false);
                 resolve();
@@ -4417,13 +4438,12 @@ export default {
               self.analysis = analysis;
               self.addAlert("success", "Mosaic analysis " + analysis.title + " saved.")
               console.log("* adding mosaic analysis " + self.analysis.id + " " + " *")
-              self.onShowSnackbar( {message: 'new analysis saved.', timeout: 3000, bottom: true, right: true});
+              self.onShowSnackbar( {message: 'New analysis saved.', timeout: 2000, bottom: true, right: true});
               self.setDirty(false);
               resolve();
             })
             .catch(function(error) {
               self.addAlert("error", "Failed to save analysis.", null, [error])
-              self.onShowSnackbar( {message: error, timeout: 15000});
               reject(error);
             })
           }
@@ -4474,7 +4494,7 @@ export default {
             delete self.analysis.payload.genes;
           }
           let elapsed = (new Date() - start) / 1000;
-          self.addAlert("info", "session cache ready to save", null, 
+          self.addAlert("info", "Session cache ready to save", null, 
             ["elapsed time = " + elapsed + " seconds",
              "size = " + new Blob([cacheItemsCompressed]).size + " bytes."])
           resolve()

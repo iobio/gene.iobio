@@ -1662,7 +1662,7 @@ export default {
       let self = this;
       let aaPos = "";
       let altRefAA = null;
-      if (self.selectedVariant && Object.keys(self.selectedVariant.vepAminoAcids).join("").length > 0) {
+      if (self.selectedVariant && self.selectedVariant.vepAminoAcids && Object.keys(self.selectedVariant.vepAminoAcids).join("").length > 0) {
         for (let aa in self.selectedVariant.vepAminoAcids) {
           altRefAA = self.globalApp.utility.formatAminoAcidChange(aa)
         }
