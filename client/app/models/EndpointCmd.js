@@ -157,11 +157,6 @@ export default class EndpointCmd {
             clinSigFilterPhrase
         });
 
-        cmd.on('error', function(error){
-            let msg = "Could not get clinvar variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-            alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Non-fatal Error");
-        })
         return cmd;
     }
 
@@ -346,12 +341,7 @@ export default class EndpointCmd {
                 maxPoints,
                 coverageRegions: regions
             });
-
-            cmd.on('error', function(error) {
-              let msg = "Could not get get coverage from region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Bam index file may be invalid. Make sure that the bam index file is properly formatted and accessible<code>" + indexUrl + "<\code>";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Fatal Error");
-            });
+            
             return cmd;
         }
     }
@@ -396,11 +386,6 @@ export default class EndpointCmd {
                 decompose
             });
 
-            cmd.on('error', function(error) {
-              let msg = "Could not perform freebayes joint calling for region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Try refreshing the page";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Non-fatal Error");
-            });
             return cmd;
         }
     }
@@ -421,12 +406,6 @@ export default class EndpointCmd {
                 regions
             });
 
-            cmd.on('error', function(error) {
-              let msg = "Could not get gene coverage from region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible<code>" + indexUrl + "</code>";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-
-                .setHeader("Fatal Error");
-            });
             return cmd;
         }
     }

@@ -404,21 +404,29 @@ class SampleModel {
           if (transcript.features == null || transcript.features.length == 0) {
             resolve({model: me, gene: geneObject, transcript: transcript, 'geneCoverage': []});
           } else {
-            me.bam.getGeneCoverage(geneObject,
+            me.bam.promiseGetGeneCoverage(geneObject,
               transcript,
-              [me.bam],
-              function(theData, trRefName, theGeneObject, theTranscript) {
-                var geneCoverageObjects = me._parseGeneCoverage(theData);
-                if (geneCoverageObjects.length > 0) {
-                  me._setGeneCoverageExonNumbers(transcript, geneCoverageObjects);
-                  me.setGeneCoverageForGene(geneCoverageObjects, theGeneObject, theTranscript);
-                  resolve({model: me, gene: theGeneObject, transcript: theTranscript, 'geneCoverage': geneCoverageObjects});
-                } else {
-                  console.log("Cannot get gene coverage for gene " + theGeneObject.gene_name);
-                  resolve({model: me, gene: theGeneObject, transcript: theTranscript, 'geneCoverage': []});
-                }
+              [me.bam])
+            .then(function(data) {
+              let theData = data.geneCoverage;
+              let trRefName = data.refName;
+              let theGeneObject = data.geneObject;
+              let theTranscript = data.transcript;
+              
+              var geneCoverageObjects = me._parseGeneCoverage(theData);
+              if (geneCoverageObjects.length > 0) {
+                me._setGeneCoverageExonNumbers(transcript, geneCoverageObjects);
+                me.setGeneCoverageForGene(geneCoverageObjects, theGeneObject, theTranscript);
+                resolve({model: me, gene: theGeneObject, transcript: theTranscript, 'geneCoverage': geneCoverageObjects});
+              } else {
+                console.log("Cannot get gene coverage for gene " + theGeneObject.gene_name);
+                resolve({model: me, gene: theGeneObject, transcript: theTranscript, 'geneCoverage': []});
               }
-            );
+            })
+            .catch(function(error) {
+              reject(error)
+            })
+     
           }
         }
 
@@ -1232,79 +1240,71 @@ class SampleModel {
 
 
 
-  getBamDepth(gene, selectedTranscript, callbackDataLoaded) {
+  promiseGetBamDepth(gene, selectedTranscript) {
     var me = this;
 
-
-    if (!this.isBamLoaded()) {
-      if (callbackDataLoaded) {
-        callbackDataLoaded();
+    return new Promise(function(resolve, reject) {
+      if (!me.isBamLoaded()) {
+        reject("Cannot get bam depth because file or URL not specified");
       }
-      return;
-    }
 
-    var performCallbackForCachedData = function(regions, theVcfData, coverageData) {
-      if (regions.length > 0) {
-        me._refreshVariantsWithCoverage(theVcfData, coverageData, function() {
-          if (callbackDataLoaded) {
-                callbackDataLoaded(coverageData);
-              }
-        });
-      } else {
-        if (callbackDataLoaded) {
-              callbackDataLoaded(coverageData);
-            }
-      }
-    }
-
-    var performCallback = function(regions, theVcfData, coverageForRegion, coverageForPoints) {
-      if (regions.length > 0) {
-        me._refreshVariantsWithCoverage(theVcfData, coverageForPoints, function() {
-          if (callbackDataLoaded) {
-                callbackDataLoaded(coverageForRegion);
-              }
-        });
-      } else {
-        if (callbackDataLoaded) {
-              callbackDataLoaded(coverageForRegion, CacheHelper.BAM_DATA);
-            }
-      }
-    }
-
-
-    // A gene has been selected.  Read the bam file to obtain
-    // the read converage.
-    var refName = this.getBamRefName(gene.chr);
-    this.promiseGetVcfData(gene, selectedTranscript)
-     .then(function(data) {
-      var theVcfData = data.vcfData;
-      var regions = [];
-      // We we have variants, get the positions for each variant.  This will
-      // be provided for the service to get coverage data so that specific
-      // base coverage is also returned.
-      if (theVcfData != null) {
-        me.flagDupStartPositions(theVcfData.features);
-        if (theVcfData) {
-          theVcfData.features.forEach( function(variant) {
-            if (!variant.dup) {
-              regions.push({name: refName, start: variant.start - 1, end: variant.start });
-            }
+      var performCallbackForCachedData = function(regions, theVcfData, coverageData) {
+        if (regions.length > 0) {
+          me._refreshVariantsWithCoverage(theVcfData, coverageData, function() {
+            resolve({'coverageData': coverageData, 'model': me})
           });
+        } else {
+          resolve({'coverageData': coverageData, 'model': me})
         }
       }
-      // Get the coverage data for the gene region
-      // First the gene vcf data has been cached, just return
-      // it.  (No need to retrieve the variants from the iobio service.)
-      me._promiseGetData(CacheHelper.BAM_DATA, gene.gene_name)
-       .then(function(data) {
-        if (data != null && data != '') {
-          me.bamData = data;
 
-          performCallbackForCachedData(regions, theVcfData, data.coverage);
-
+      var performCallback = function(regions, theVcfData, coverageForRegion, coverageForPoints) {
+        if (regions.length > 0) {
+          me._refreshVariantsWithCoverage(theVcfData, coverageForPoints, function() {
+            resolve({'coverageData': coverageForRegion, 'model': me})
+          });
         } else {
-          me.bam.getCoverageForRegion(refName, gene.start, gene.end, regions, 2000, me.globalApp.useServerCache,
-            function(coverageForRegion, coverageForPoints) {
+          resolve({'coverageData': coverageForRegion, 'model': me})
+        }
+      }
+
+
+      // A gene has been selected.  Read the bam file to obtain
+      // the read converage.
+      var refName = me.getBamRefName(gene.chr);
+      me.promiseGetVcfData(gene, selectedTranscript)
+      .then(function(data) {
+        var theVcfData = data.vcfData;
+        var regions = [];
+        // We we have variants, get the positions for each variant.  This will
+        // be provided for the service to get coverage data so that specific
+        // base coverage is also returned.
+        if (theVcfData != null) {
+          me.flagDupStartPositions(theVcfData.features);
+          if (theVcfData) {
+            theVcfData.features.forEach( function(variant) {
+              if (!variant.dup) {
+                regions.push({name: refName, start: variant.start - 1, end: variant.start });
+              }
+            });
+          }
+        }
+        // Get the coverage data for the gene region
+        // First the gene vcf data has been cached, just return
+        // it.  (No need to retrieve the variants from the iobio service.)
+        me._promiseGetData(CacheHelper.BAM_DATA, gene.gene_name)
+        .then(function(data) {
+          if (data != null && data != '') {
+            me.bamData = data;
+
+            performCallbackForCachedData(regions, theVcfData, data.coverage);
+
+          } else {
+            me.bam.promiseGetCoverageForRegion(refName, gene.start, gene.end, regions, 2000, me.globalApp.useServerCache)
+            .then( function(data) {
+              let coverageForRegion = data.coverageForRegion;
+              let coverageForPoints = data.coverageForPoints;
+
               if (coverageForRegion != null) {
               me.bamData = {gene: gene.gene_name,
                           ref: refName,
@@ -1326,12 +1326,27 @@ class SampleModel {
                 performCallback(regions, theVcfData, coverageForRegion, coverageForPoints);
               }
 
-          });
-        }
+            })
+            .catch(function (error) {              
+              reject(error)
+            })
+          }
+
+         })
+         .catch(function(error) {
+          reject(error)
+         })
 
        })
+       .catch(function(error) {
+        reject(error)
+       })
 
-     })
+
+
+    })
+
+
   }
 
 
@@ -1838,71 +1853,65 @@ class SampleModel {
       } else {
         // Otherwise call service
         me._promiseVcfRefName(theGene.chr)
-            .then(() => {
-              let refName = me.getVcfRefName(theGene.chr);
-              let regions = null;
-              return me.vcf.promiseGetClinvarVariants(
-                  refName,
-                  theGene,
-                  theTranscript,
-                  regions,   // regions
-                  me.getTranslator().clinvarMap,
-                  pathogenicityCategories
-              );
-            })
-            .then(function (results) {
-              if (results) {
-                let data = results[1];
-                let theGeneObject = me.getGeneModel().geneObjects[data.gene];
-                if (theGeneObject) {
-                  let resultMap = {};
-                  let model = variantModel;
+        .then(() => {
+          let refName = me.getVcfRefName(theGene.chr);
+          let regions = null;
+          return me.vcf.promiseGetClinvarVariants(
+              refName,
+              theGene,
+              theTranscript,
+              regions,   // regions
+              me.getTranslator().clinvarMap,
+              pathogenicityCategories
+          );
+        })
+        .then(function (results) {
+          if (results) {
+            let data = results[1];
+            let theGeneObject = me.getGeneModel().geneObjects[data.gene];
+            if (theGeneObject) {
+              let resultMap = {};
+              let model = variantModel;
 
-                  // Set the gene object on each variant
-                  data.gene = theGeneObject;
-                  data.features.forEach(function (variant) {
-                    variant.gene = theGeneObject;
+              // Set the gene object on each variant
+              data.gene = theGeneObject;
+              data.features.forEach(function (variant) {
+                variant.gene = theGeneObject;
+              })
+              resultMap[model.relationship] = data;
+              model.vcfData = data;
+
+              // Set the highest allele freq for all variants
+              for (var key in resultMap) {
+                let theVcfData = resultMap[key];
+                if (theVcfData && theVcfData.features) {
+                  theVcfData.features.forEach(function (variant) {
+                    me._determineHighestAf(variant);
                   })
-                  resultMap[model.relationship] = data;
-                  model.vcfData = data;
-
-                  // Set the highest allele freq for all variants
-                  for (var key in resultMap) {
-                    let theVcfData = resultMap[key];
-                    if (theVcfData && theVcfData.features) {
-                      theVcfData.features.forEach(function (variant) {
-                        me._determineHighestAf(variant);
-                      })
-                      model.vcfData['count'] = model.vcfData.features.length;
-                    }
-                  }
-
-                  // Log last fetched pathogenicity categories
-                  me.lastFetchedPathoFilters = pathogenicityCategories;
-                  me.lastFetchedClinvarGene = theGene.gene_name;
-                  me.lastFetchedClinvarTrans = theTranscript.transcript_id;
-
-                  resolve(resultMap);
-
-                } else {
-                  let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
-                  alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
-                      .setHeader("Fatal Error");
-                  console.log(msg);
-                  reject(msg);
+                  model.vcfData['count'] = model.vcfData.features.length;
                 }
-              } else {
-                let msg = "Empty vcf results for " + theGene.gene_name;
-                alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
-                    .setHeader("Non-fatal Error");
-                console.log(msg);
-                reject(msg);
               }
-            }).catch(error => {
-          let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-          alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
-              .setHeader("Fatal Error");
-          console.log(error);
+
+              // Log last fetched pathogenicity categories
+              me.lastFetchedPathoFilters = pathogenicityCategories;
+              me.lastFetchedClinvarGene = theGene.gene_name;
+              me.lastFetchedClinvarTrans = theTranscript.transcript_id;
+
+              resolve(resultMap);
+
+            } else {
+              let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
+              alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
+                  .setHeader("Fatal Error");
+              console.log(msg);
+              reject(msg);
+            }
+          } else {
+            let msg = "Empty clinvar vcf results for " + theGene.gene_name;
+            reject(msg, theGene.gene_name)
+          }
+        })
+        .catch(error => {
           reject(error)
         });
       }
@@ -2068,49 +2077,32 @@ class SampleModel {
                   });
 
                 } else {
-                  let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
-                  alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                    .setHeader("Fatal Error");
-                  console.log(msg);
+                  let msg = "Cannot locate gene object to match with vcf data " + data.ref + " " + data.start + "-" + data.end + ".";
                   reject(msg);
                 }
               } else {
                 let msg = "Empty vcf results for " + theGene.gene_name;
-                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                  .setHeader("Non-fatal Error");
-                console.log(msg);
-                reject(msg);
+                reject(msg)
               }
-
-
-            },
-            function(error) {
-              let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Fatal Error");
-              console.log(error);
-              reject(error)
+            })
+            .catch( function(error) {
+              let msg = "Could not annotate variants due to server error. Error: " + error;
+              reject(msg)
             });
           }
-        },
-        function(error) {
-          let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-            .setHeader("Fatal Error");
-          console.log(error);
-          reject(error);
+        })
+        .catch(function(error) {
+          let msg = "Could not annotate variants. An error occurred when getting cached vcf data. Error:  " + error;
+          console.log(msg);
+          reject(msg)
         });
 
       })
       .catch( function(error) {
         let msg = "Could not annotate variants. The variant file does not contain the reference " + theGene.chr;
         msg += " for gene " + theGene.gene_name + ".";
-        console.log(error);
         console.log(msg);
-
-        alertify.set('notifier','position', 'top-right');
-        alertify.error(msg,  10);
-
+        console.log(error)
         reject(msg)
         
       })

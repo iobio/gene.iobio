@@ -120,7 +120,7 @@ main.content.clin, main.v-content.clin
   max-width: -webkit-fill-available !important
 
 
-#data-sources-loader, #session-data-loader, #cache-data-loader, #save-analysis-loader
+#data-sources-loader, #session-data-loader, #cache-data-loader
   margin-top: 30px
   margin-left: auto
   margin-right: auto
@@ -129,6 +129,18 @@ main.content.clin, main.v-content.clin
   height: auto
   padding-top: 15px
   padding-bottom: 15px
+
+#save-analysis-loader
+  width: 300px
+  height: auto
+  position: absolute
+  top: 280px
+  left: calc(100%/2 - 300px)
+  border-color: #a9a6a6 !important
+  border-style: solid !important
+  padding-top: 15px
+  padding-bottom: 15px
+  text-align: center
 
 
 
@@ -1381,6 +1393,9 @@ export default {
                     callback();
                   }
                 })
+                .catch(function(error) {
+                  self.addAlert("error", error, self.selectedGene)
+                })
               } else {
                 if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
                   let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
@@ -1630,6 +1645,9 @@ export default {
                     self.cacheHelper.analyzeAll(self.cohortModel);
                     resolve();
                   })
+                  .catch(function(error) {
+                    reject(error)
+                  })
                 })
               } else {
                 let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
@@ -1778,7 +1796,10 @@ export default {
           self.refreshCoverageCounts()
           if (self.selectedGene && self.selectedGene.hasOwnProperty("gene_name")
               && theGene.gene_name === self.selectedGene.gene_name) {
-            self.promiseLoadData();
+            self.promiseLoadData()
+            .catch(function(error) {
+              self.addAlert("error", error, theGene)
+            })
           }
         });
         self.cacheHelper.on("geneNotAnalyzed", function(geneName) {
@@ -1908,7 +1929,10 @@ export default {
             if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             }
-          });
+          })
+          .catch(function(error) {
+            self.addAlert("error", error, self.selectedGene.gene_name)
+          })
         }
       })
     },
@@ -1975,6 +1999,9 @@ export default {
             self.cohortModel.getCurrentTrioVcfData(),
             {checkCache: false, isBackground: false, gnomADExtra: self.globalApp.gnomADExtra, decompose: true})
         })
+        .catch(function(error) {
+          self.addAlert("error", error, theGene)
+        })
 
       }
     },
@@ -2004,6 +2031,9 @@ export default {
             if (callback) {
               callback();
             }
+          })
+          .catch(function(error) {
+            self.addAlert('error', error, self.selectedGene.gene_name)
           })
 
           if (analyzeAll) {
@@ -2130,6 +2160,9 @@ export default {
         self.onSendGenesToClin();
         self.setUrlGeneParameters();
       })
+      .catch(function(error) {
+        self.addAlert('error', error, geneName)
+      })
 
     },
 
@@ -2144,6 +2177,9 @@ export default {
       .then(function() {
         self.setUrlGeneParameters();
       })
+      .catch(function(error) {
+        self.addAlert('error', error, geneName)
+      })
       self.activeGeneVariantTab = "0";
 
     },
@@ -2155,7 +2191,10 @@ export default {
     onGeneSelected: function(geneName, transcriptChanged) {
       var self = this;
       self.deselectVariant();
-      self.promiseLoadGene(geneName, null, transcriptChanged);
+      self.promiseLoadGene(geneName, null, transcriptChanged)
+      .catch(function(error) {
+        self.addAlert('error', error, geneName)
+      })
       self.activeGeneVariantTab = "0";
     },
 
@@ -2632,7 +2671,10 @@ export default {
         self.cohortModel.knownVariantsViz = viz;
       }
       if (self.showKnownVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
-        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, selectedCategories);
+        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, selectedCategories)
+        .catch(function(error, gene) {
+          self.addAlert("error", error, gene)
+        })
       }
     },
     onSfariVariantsVizChange: function(viz) {
@@ -2648,7 +2690,10 @@ export default {
     onKnownVariantsFilterChange: function(selectedCategories) {
       let self = this;
       if (self.showKnownVariantsCard && self.cohortModel && self.cohortModel.isLoaded && Object.keys(self.selectedGene).length > 0) {
-        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, selectedCategories);
+        self.cohortModel.promiseLoadKnownVariants(self.selectedGene, self.selectedTranscript, selectedCategories)
+        .catch(function(error, gene) {
+          self.addAlert("error", error, gene)
+        })
       }
       // self.filterModel.setModelFilter('known-variants', 'clinvar', selectedCategories);
       // self.cohortModel.setLoadedVariants(self.selectedGene, 'known-variants');
@@ -2724,6 +2769,9 @@ export default {
         .then(function() {
           self.activeGeneVariantTab = "0";
           self.setUrlGeneParameters();
+        })
+        .catch(function(error) {
+          self.addAlert('error', error, newGeneToSelect)
         })
       } else {
         self.setUrlGeneParameters();
@@ -3116,10 +3164,17 @@ export default {
           .then(function() {
             resolve();
           })
+          .catch(function(error) {
+            reject(error)
+            self.addAlert('error', error)
+          })
         } else if (self.forMyGene2) {
           self.promiseInitMyGene2()
           .then(function() {
             resolve();
+          })
+          .catch(function(error) {
+            self.addAlert('error', error)
           })
         } else if (self.isSimpleMode) {
           alertify.confirm("", "No data files specified",
@@ -3155,6 +3210,9 @@ export default {
       self.promiseLoadGene(self.selectedGene.gene_name)
       .then(function() {
         self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
+      })
+      .catch(function(error) {
+        self.addAlert('error', error, self.selectedGene.gene_name)
       })
 
     },
@@ -3397,7 +3455,10 @@ export default {
           },
           500);
 
-      });
+      })
+      .catch(function(error) {
+        self.addAlert('error', error, flaggedVariant.gene)
+      })
     },
     onShowCoverageThreshold: function(showIt) {
       let self = this;
@@ -4438,7 +4499,7 @@ export default {
               self.analysis = analysis;
               self.addAlert("success", "Mosaic analysis " + analysis.title + " saved.")
               console.log("* adding mosaic analysis " + self.analysis.id + " " + " *")
-              self.onShowSnackbar( {message: 'New analysis saved.', timeout: 2000, bottom: true, right: true});
+              self.onShowSnackbar( {message: 'New analysis saved.', timeout: 2000});
               self.setDirty(false);
               resolve();
             })

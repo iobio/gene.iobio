@@ -935,6 +935,9 @@ class CohortModel {
           self.getModel('known-variants')
           resolve(resultMap);
         })
+        .catch(function(error) {
+          reject(error)
+        });
       })
     })
   }
@@ -1015,7 +1018,7 @@ class CohortModel {
         resolve(resultMap);
       })
       .catch(function(error) {
-        self.dispatch("alertIssued", "error", error, theGene)
+        self.dispatch.alertIssued( "error", error, theGene)
         reject(error);
       })
     })
@@ -1681,14 +1684,12 @@ class CohortModel {
       self.getCanonicalModels().forEach(function(model) {
         if (model.isBamLoaded()) {
           model.inProgress.loadingCoverage = true;
-          var p = new Promise(function(innerResolve, innerReject) {
-            var theModel = model;
-            theModel.getBamDepth(theGene, theTranscript, function(coverageData) {
-              theModel.inProgress.loadingCoverage = false;
-              theResultMap[theModel.relationship] = coverageData;
-              innerResolve();
-            });
+          var p = model.promiseGetBamDepth(theGene, theTranscript)
+          .then(function(data) {
+            data.model.inProgress.loadingCoverage = false;
+            theResultMap[data.model.relationship] = data.coverageData;
           });
+
           promises.push(p);
         }
       });
@@ -1696,6 +1697,9 @@ class CohortModel {
       Promise.all(promises)
       .then(function() {
         resolve(theResultMap);
+      })
+      .catch(function(error) {
+        reject(error)
       })
 
     })
@@ -1886,17 +1890,19 @@ class CohortModel {
                 trioVcfData[model.getRelationship()] = theVcfData;
               })
 
-            },
-            function(error) {
+            })
+            .catch(function(error) {
               me.endGeneProgress(geneObject.gene_name);
-              var msg = "A problem occurred in jointCallVariantsImpl(): " + error;
+              var msg = "A problem occurred in joint calling variants. Error: " + error;
               console.log(msg);
+              console.log(error);
               reject(msg);
             })
 
             promises.push(p);
           })
-          Promise.all(promises).then(function() {
+          Promise.all(promises)
+          .then(function() {
             showCalledVariants();
               resolve({
                 'gene': geneObject,
@@ -1906,6 +1912,9 @@ class CohortModel {
                 'trioFbData': trioFbData,
                 'refName': geneObject.chr,
                 'sourceVariant': options.sourceVariant});
+          })
+          .catch(function(error) {
+            reject(error)
           })
 
 
@@ -1917,7 +1926,7 @@ class CohortModel {
 
           showCallingProgress();
 
-          me.getProbandModel().bam.freebayesJointCall(
+          me.getProbandModel().bam.promiseFreebayesJointCall(
             geneObject,
             theTranscript,
             bams,
@@ -1926,72 +1935,81 @@ class CohortModel {
             me.globalApp.vepAF, // vep af
             me.getTrioSampleNames(),
             options.gnomADExtra,
-            options.decompose,
-            function(theData, trRefName) {
+            options.decompose)
+          .then(function(data) {
 
-              var jointVcfRecs =  theData.split("\n");
+            let jointVcfRecs = data.variantData.split("\n");
+            let trRefName    = data.refName;
 
-              if (trioVcfData == null) {
-                trioVcfData = {'proband': makeDummyVcfData(), 'mother': makeDummyVcfData(), 'father': makeDummyVcfData()};
-              }
-
-              // Parse the joint called variants back to variant models
-              var data = me._parseCalledVariants(geneObject, theTranscript, trRefName, jointVcfRecs, trioVcfData, options)
-
-              if (data == null) {
-                endCallProgress();
-              } else {
-                trioFbData = data.trioFbData;
-
-
-                // Annotate called variants with clinvar
-                me.promiseAnnotateWithClinvar(trioFbData, geneObject, theTranscript, true)
-                .then(function() {
-
-                  refreshClinvarAnnots(trioFbData);
-
-                  // Determine inheritance across union of loaded and called variants
-                  me.promiseAnnotateInheritance(geneObject, theTranscript, trioVcfData, {isBackground: options.isBackground, cacheData: true})
-                  .then( function() {
-                      me.getCanonicalModels().forEach(function(model) {
-                        model.loadCalledTrioGenotypes(trioVcfData[model.getRelationship()], trioFbData[model.getRelationship()]);
-                      })
-                      // Summarize danger for gene
-                     return me.promiseSummarizeDanger(geneObject, theTranscript, trioVcfData.proband, {'CALLED': true});
-                  })
-                  .then(function() {
-                    showCalledVariants();
-
-                    var refreshedSourceVariant = null;
-                    if (options.sourceVariant) {
-                      trioVcfData.proband.features.forEach(function(variant) {
-                        if (!refreshedSourceVariant &&
-                          me.globalApp.utility.stripRefName(variant.chrom) == me.globalApp.utility.stripRefName(options.sourceVariant.chrom) &&
-                          variant.start == options.sourceVariant.start &&
-                          variant.ref == options.sourceVariant.ref &&
-                          variant.alt == options.sourceVariant.alt) {
-
-                          refreshedSourceVariant = variant;
-                          refreshedSourceVariant.notes = options.sourceVariant.notes;
-                          refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
-                        }
-                      })
-                    }
-                    resolve({
-                      'gene': geneObject,
-                      'transcript': theTranscript,
-                      'jointVcfRecs': jointVcfRecs,
-                      'trioVcfData': trioVcfData,
-                      'trioFbData': trioFbData,
-                      'refName': trRefName,
-                      'sourceVariant': refreshedSourceVariant ? refreshedSourceVariant : options.sourceVariant });
-                  })
-                });
-              }
-
+            if (trioVcfData == null) {
+              trioVcfData = {'proband': makeDummyVcfData(), 'mother': makeDummyVcfData(), 'father': makeDummyVcfData()};
             }
-          );
 
+            // Parse the joint called variants back to variant models
+            var data = me._parseCalledVariants(data.geneObject, data.transcript, trRefName, jointVcfRecs, trioVcfData, options)
+
+            if (data == null) {
+              endCallProgress();
+              reject("Empty results when parsing called variants for gene " + data.geneObject.gene_name)
+            } else {
+              trioFbData = data.trioFbData;
+
+
+              // Annotate called variants with clinvar
+              return me.promiseAnnotateWithClinvar(trioFbData, geneObject, theTranscript, true)
+              .then(function() {
+
+                refreshClinvarAnnots(trioFbData);
+
+                // Determine inheritance across union of loaded and called variants
+                me.promiseAnnotateInheritance(geneObject, theTranscript, trioVcfData, {isBackground: options.isBackground, cacheData: true})
+                .then( function() {
+                    me.getCanonicalModels().forEach(function(model) {
+                      model.loadCalledTrioGenotypes(trioVcfData[model.getRelationship()], trioFbData[model.getRelationship()]);
+                    })
+                    // Summarize danger for gene
+                   return me.promiseSummarizeDanger(geneObject, theTranscript, trioVcfData.proband, {'CALLED': true});
+                })
+                .then(function() {
+                  showCalledVariants();
+
+                  var refreshedSourceVariant = null;
+                  if (options.sourceVariant) {
+                    trioVcfData.proband.features.forEach(function(variant) {
+                      if (!refreshedSourceVariant &&
+                        me.globalApp.utility.stripRefName(variant.chrom) == me.globalApp.utility.stripRefName(options.sourceVariant.chrom) &&
+                        variant.start == options.sourceVariant.start &&
+                        variant.ref == options.sourceVariant.ref &&
+                        variant.alt == options.sourceVariant.alt) {
+
+                        refreshedSourceVariant = variant;
+                        refreshedSourceVariant.notes = options.sourceVariant.notes;
+                        refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
+                      }
+                    })
+                  }
+                  resolve({
+                    'gene': geneObject,
+                    'transcript': theTranscript,
+                    'jointVcfRecs': jointVcfRecs,
+                    'trioVcfData': trioVcfData,
+                    'trioFbData': trioFbData,
+                    'refName': trRefName,
+                    'sourceVariant': refreshedSourceVariant ? refreshedSourceVariant : options.sourceVariant });
+                })
+                .catch(function(error) {
+                  reject(error)
+                })
+              })
+              .catch(function(error) {
+                reject(error)
+              })
+            }
+
+          })
+          .catch(function(error) {
+            reject(error)
+          })
         }
       })
     })

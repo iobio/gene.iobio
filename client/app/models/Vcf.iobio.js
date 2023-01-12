@@ -841,6 +841,8 @@ export default function vcfiobio(theGlobalApp) {
     return new Promise((resolve, reject) => {
       const me = this;
 
+      let theGeneObject = geneObject;
+
       // Assemble regions
       if (regions == null || regions.length === 0) {
         regions = [];
@@ -859,6 +861,7 @@ export default function vcfiobio(theGlobalApp) {
         }
         annotatedData += data;
       });
+
       cmd.on('end', function() {
         let annotatedRecs = annotatedData.split("\n");
         let vcfObjects = [];
@@ -896,16 +899,26 @@ export default function vcfiobio(theGlobalApp) {
           reject();
         }
       });
-      cmd.on('error', function(error) {
-        console.log(error);
-      });
+
+      cmd.on('error', function(error){
+        let msg = "Could not get clinvar variants for gene " + theGeneObject.gene_name + ". Error: " + error;
+        console.log(msg);
+        console.log(error)
+        reject(msg)          
+      })
+
       cmd.run();
     });
   }
 
 
+
+
   /* When sfariMode = true, variant id field is assigned. */
-  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, gnomADExtra=false, decompose=false, bypassAnnotate=false) {
+  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, 
+    isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, 
+    isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, 
+    gnomADExtra=false, decompose=false, bypassAnnotate=false) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
@@ -932,14 +945,20 @@ export default function vcfiobio(theGlobalApp) {
 
       // sourceType = SOURCE_TYPE_URL;
       if (sourceType == SOURCE_TYPE_URL) {
-        me._getRemoteVariantsImpl(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache,
-          function(annotatedData, results) {
-            if (annotatedData != null && results) {
-              resolve([annotatedData, results]);
-            } else {
-              reject();
-            }
-          }, null, sfariMode, gnomADExtra, decompose, bypassAnnotate);
+        me._promiseGetRemoteVariantsImpl(refName, geneObject, selectedTranscript, 
+          regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, 
+          annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, 
+          vepAF, cache, sfariMode, gnomADExtra, decompose, bypassAnnotate)
+        .then(function(data) {
+          if (data && data.annotatedRecs != null && data.results) {
+            resolve([data.annotatedRecs, data.results]);
+          } else {
+            reject("Empty results returned when annotating variants");
+          }
+        })
+        .catch(function(error) {
+          return(error)
+        })
       } else {
         //me._getLocalStats(refName, geneObject.start, geneObject.end, sampleName);
 
@@ -1042,84 +1061,90 @@ export default function vcfiobio(theGlobalApp) {
 
   }
 
-  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false, bypassAnnotate=false) {
+  exports._promiseGetRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, 
+    sfariMode = false, gnomADExtra = false, decompose=false, bypassAnnotate=false) {
 
     var me = this;
 
-    if (regions == null || regions.length == 0) {
-      regions = [];
-      regions.push({'name': refName, 'start': geneObject.start, 'end': geneObject.end});
-    }
-
-    var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
-
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose, bypassAnnotate);
-
-    var annotatedData = "";
-    // Get the results from the iobio command
-    cmd.on('data', function(data) {
-         if (data == undefined) {
-            return;
-         }
-         annotatedData += data;
-    });
-
-    // We have all of the annotated vcf recs.  Now parse them into vcf objects
-    cmd.on('end', function(data) {
-      var annotatedRecs = annotatedData.split("\n");
-      var vcfObjects = [];
-      var contigHdrRecFound = false;
-
-      annotatedRecs.forEach(function(record) {
-        if (record.charAt(0) == "#") {
-          me._parseHeaderForInfoFields(record);
-
-        } else {
-
-          // Parse the vcf record into its fields
-          var fields = record.split('\t');
-          var pos    = fields[1];
-          var id     = fields[2];
-          var ref    = fields[3];
-          var alt    = fields[4];
-          var qual   = fields[5];
-          var filter = fields[6];
-          var info   = fields[7];
-          var format = fields[8];
-          var genotypes = [];
-
-          // Too much data, crashes app
-          if (sfariMode !== true) {
-            for (var i = 9; i < fields.length; i++) {
-                genotypes.push(fields[i]);
-            }
-          }
-
-
-          // Turn vcf record into a JSON object and add it to an array
-          var vcfObject = {'pos': pos, 'id': id, 'ref': ref, 'alt': alt,
-                           'qual': qual, 'filter': filter, 'info': info, 'format':format, 'genotypes': genotypes};
-          vcfObjects.push(vcfObject);
-        }
-      });
-
-      if (sfariMode === true) {
-        annotatedData = '';
-        annotatedRecs = '';
+    return new Promise(function(resolve, reject) {
+      if (regions == null || regions.length == 0) {
+        regions = [];
+        regions.push({'name': refName, 'start': geneObject.start, 'end': geneObject.end});
       }
 
-      // Parse the vcf object into a variant object that is visualized by the client.
-      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode, gnomADExtra);
+      var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
+
+      var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose, bypassAnnotate);
+
+      var annotatedData = "";
+      // Get the results from the iobio command
+      cmd.on('data', function(data) {
+           if (data == undefined) {
+              return;
+           }
+           annotatedData += data;
+      });
+
+      // We have all of the annotated vcf recs.  Now parse them into vcf objects
+      cmd.on('end', function(data) {
+        var annotatedRecs = annotatedData.split("\n");
+        var vcfObjects = [];
+        var contigHdrRecFound = false;
+
+        annotatedRecs.forEach(function(record) {
+          if (record.charAt(0) == "#") {
+            me._parseHeaderForInfoFields(record);
+
+          } else {
+
+            // Parse the vcf record into its fields
+            var fields = record.split('\t');
+            var pos    = fields[1];
+            var id     = fields[2];
+            var ref    = fields[3];
+            var alt    = fields[4];
+            var qual   = fields[5];
+            var filter = fields[6];
+            var info   = fields[7];
+            var format = fields[8];
+            var genotypes = [];
+
+            // Too much data, crashes app
+            if (sfariMode !== true) {
+              for (var i = 9; i < fields.length; i++) {
+                  genotypes.push(fields[i]);
+              }
+            }
 
 
-      callback(annotatedRecs, results);
-    });
+            // Turn vcf record into a JSON object and add it to an array
+            var vcfObject = {'pos': pos, 'id': id, 'ref': ref, 'alt': alt,
+                             'qual': qual, 'filter': filter, 'info': info, 'format':format, 'genotypes': genotypes};
+            vcfObjects.push(vcfObject);
+          }
+        });
 
-    cmd.on('error', function(error) {
-       console.log(error);
-    });
+        if (sfariMode === true) {
+          annotatedData = '';
+          annotatedRecs = '';
+        }
 
-    cmd.run();
+        // Parse the vcf object into a variant object that is visualized by the client.
+        var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode, gnomADExtra);
+
+
+        resolve({'annotatedRecs': annotatedRecs, 'results': results});
+      });
+
+      cmd.on('error', function(error) {
+         console.log(error);
+         reject(error)
+      });
+
+      cmd.run();
+
+
+    })
 
   }
 

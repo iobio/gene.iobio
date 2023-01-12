@@ -437,131 +437,171 @@ export default class Bam {
   *  the second for coverage of specific positions.  The latter can then be matched to vcf records
   *  , for example, to obtain the coverage for each variant.
   */
-  getCoverageForRegion(refName, regionStart, regionEnd, regions, maxPoints, useServerCache, callback, callbackError) {
+  promiseGetCoverageForRegion(refName, regionStart, regionEnd, regions, maxPoints, useServerCache, callback, callbackError) {
     var me = this;
 
-    this.transformRefName(refName, function(trRefName){
+    return new Promise(function(resolve, reject) {
+      me.transformRefName(refName, function(trRefName){
 
-      var bamSource = {};
-      if (me.sourceType == 'url') {
-        bamSource.bamUrl = me.bamUri;
-        bamSource.baiUrl = me.baiUri;
-      } else {
-        bamSource.writeStream = function(stream) {
-          stream.write(me.header.toStr);
-          me.convert('sam', trRefName, regionStart, regionEnd, function(data,e) {
-            stream.write(data);
-            stream.end();
-          },
-          {noHeader:true});
-        }
-      }
-
-      var serverCacheKey = me._getServerCacheKey("coverage", trRefName, regionStart, regionEnd, {maxPoints: maxPoints});
-
-      var cmd = me.endpoint.getBamCoverage(bamSource, trRefName, regionStart, regionEnd, regions, maxPoints, useServerCache, serverCacheKey);
-
-      var samData = "";
-      cmd.on('data', function(data) {
-        if (data == undefined) {
-          return;
+        var bamSource = {};
+        if (me.sourceType == 'url') {
+          bamSource.bamUrl = me.bamUri;
+          bamSource.baiUrl = me.baiUri;
+        } else {
+          bamSource.writeStream = function(stream) {
+            stream.write(me.header.toStr);
+            me.convert('sam', trRefName, regionStart, regionEnd, function(data,e) {
+              stream.write(data);
+              stream.end();
+            },
+            {noHeader:true});
+          }
         }
 
-        samData += data;
-      });
+        var serverCacheKey = me._getServerCacheKey("coverage", trRefName, regionStart, regionEnd, {maxPoints: maxPoints});
 
-      cmd.on('end', function() {
+        var cmd = me.endpoint.getBamCoverage(bamSource, trRefName, regionStart, regionEnd, regions, maxPoints, useServerCache, serverCacheKey);
 
-        if (samData != "") {
-          var coverage = null;
-          var coverageForPoints = [];
-          var coverageForRegion = [];
-          var lines = samData.split('\n');
-          lines.forEach(function(line) {
-            if (line.indexOf("#specific_points") == 0) {
-              coverage = coverageForPoints;
-            } else if (line.indexOf("#reduced_points") == 0 ) {
-              coverage = coverageForRegion;
-            } else {
-              var fields = line.split('\t');
-              var pos = -1;
-              var depth = -1;
-              if (fields[0] != null && fields[0] != '') {
-                var pos   = +fields[0];
-              }
-              if (fields[1] != null && fields[1] != '') {
-                var depth = +fields[1];
-              }
-              if (coverage){
-                if (pos > -1  && depth > -1) {
-                  coverage.push([pos, depth]);
+        var samData = "";
+        cmd.on('data', function(data) {
+          if (data == undefined) {
+            return;
+          }
+
+          samData += data;
+        });
+
+        cmd.on('end', function() {
+
+          if (samData != "") {
+            var coverage = null;
+            var coverageForPoints = [];
+            var coverageForRegion = [];
+            var lines = samData.split('\n');
+            lines.forEach(function(line) {
+              if (line.indexOf("#specific_points") == 0) {
+                coverage = coverageForPoints;
+              } else if (line.indexOf("#reduced_points") == 0 ) {
+                coverage = coverageForRegion;
+              } else {
+                var fields = line.split('\t');
+                var pos = -1;
+                var depth = -1;
+                if (fields[0] != null && fields[0] != '') {
+                  var pos   = +fields[0];
+                }
+                if (fields[1] != null && fields[1] != '') {
+                  var depth = +fields[1];
+                }
+                if (coverage){
+                  if (pos > -1  && depth > -1) {
+                    coverage.push([pos, depth]);
+                  }
                 }
               }
-            }
-          });
-        }
-        callback(coverageForRegion, coverageForPoints);
-      });
+            });
+          }
+          resolve({'coverageForRegion': coverageForRegion,
+                   'coverageForPoints': coverageForPoints})
+        });
 
-      cmd.on('error', function(error) {
-        console.log(error);
+        cmd.on('error', function(error) {
+          let msg = "Could not get get coverage from region: " + trRefName + ':' + regionStart + '-' + regionEnd + "Bam index file may be invalid. Make sure that the bam index file is properly formatted and accessible<code>" + indexUrl + "<\code>";
+          console.log(msg)
+          console.log(error);
+          reject(msg)
+        });
 
-      });
+        cmd.run();
+      });     
+    })
 
-      cmd.run();
-    });
+
   }
 
 
 
-  freebayesJointCall(geneObject, transcript, bams, isRefSeq, fbArgs, vepAF, sampleNames, gnomADExtra=false, decompose=false, callback) {
+  promiseFreebayesJointCall(geneObject, transcript, bams, isRefSeq, fbArgs, vepAF, sampleNames, gnomADExtra=false, decompose=false) {
     var me = this;
 
-    var refName     = geneObject.chr;
-    var regionStart = geneObject.start;
-    var regionEnd   = geneObject.end;
+    return new Promise(function(resolve, reject) {
+      var refName     = geneObject.chr;
+      var regionStart = geneObject.start;
+      var regionEnd   = geneObject.end;
 
-    this.transformRefName(refName, function(trRefName){
-
-
-      //  Once all bam sources have been established
-      var index = 0;
-      var bamSources = [];
-      me._initializeBamSource(bams, trRefName, regionStart, regionEnd, bamSources, index, function() {
+      me.transformRefName(refName, function(trRefName){
 
 
-        var cmd = me.endpoint.freebayesJointCall(bamSources, trRefName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF, sampleNames, gnomADExtra, decompose, callback);
+        //  Once all bam sources have been established
+        var index = 0;
+        var bamSources = [];
+        me._promiseInitializeBamSource(bams, trRefName, regionStart, regionEnd, bamSources, index)
+        .then(function() {
 
-        var variantData = "";
-        cmd.on('data', function(data) {
-            if (data == undefined) {
-              return;
-            }
 
-            variantData += data;
-        });
+          var cmd = me.endpoint.freebayesJointCall(bamSources, trRefName, regionStart, regionEnd, isRefSeq, fbArgs, vepAF, sampleNames, gnomADExtra, decompose);
 
-        cmd.on('end', function() {
-          callback(variantData, trRefName, geneObject, transcript);
-        });
+          var variantData = "";
+          cmd.on('data', function(data) {
+              if (data == undefined) {
+                return;
+              }
 
-        cmd.on('error', function(error) {
-          console.log(error);
-        });
+              variantData += data;
+          });
 
-        cmd.run();
+          cmd.on('end', function() {
+            resolve( { 'variantData': variantData,
+                       'refName': trRefName,
+                       'geneObject': geneObject,
+                       'transcript': transcript })
+          });
+
+          cmd.on('error', function(error) {
+            let msg = "Could not perform freebayes joint calling for region: " + refName + ':' + regionStart + '-' + regionEnd + ".";
+            console.log(msg)
+            console.log(error)
+            reject(msg)
+          });
+
+          cmd.run();
+        })
+        .catch( function(error) {
+          let msg = "Problem inializing bam source. Error: " + error
+          console.log(msg)
+          console.log(error)
+          reject(msg)
+        })
+
+
       });
 
 
-    });
+    })
 
+
+  }
+
+  _promiseInitializeBamSource(bams, refName, regionStart, regionEnd, bamSources, idx) {
+    let me = this;
+    return new Promise(function(resolve, reject) {
+
+      me._initializeBamSource(bams, refName, regionStart, regionEnd, bamSources, idx, 
+      function() {
+        resolve();
+      },
+      function(error) {
+        reject(error)
+      })
+
+    })
   }
 
   /*
    * Sequentially examine each bam source, either specifying the bamUrl, or creating
    * a blob (for local files)
    */
-  _initializeBamSource(bams, refName, regionStart, regionEnd, bamSources, idx, callback) {
+  _initializeBamSource(bams, refName, regionStart, regionEnd, bamSources, idx, callback, errorCallback) {
     var me  = this;
     if (idx == bams.length) {
       callback();
@@ -572,7 +612,7 @@ export default class Bam {
         idx++;
         me._initializeBamSource(bams, refName, regionStart, regionEnd, bamSources, idx, callback);
       } else {
-        bam.convert('sam', refName, regionStart, regionEnd,
+        let error = bam.convert('sam', refName, regionStart, regionEnd,
           function(data,e) {
             var bamBlob = new Blob([bam.header.toStr + "\n" + data]);
             bamSources.push({'bamBlob': bamBlob});
@@ -581,6 +621,11 @@ export default class Bam {
           },
           {noHeader:true}
         );
+        if (error && error.length > 0) {
+          if (errorCallback) {
+            errorCallback(error)
+          }
+        }
       }
     }
   }
@@ -588,40 +633,53 @@ export default class Bam {
 
 
 
-  getGeneCoverage(geneObject, transcript, bams, callback) {
+  promiseGetGeneCoverage(geneObject, transcript, bams) {
     var me = this;
 
-    var refName     = geneObject.chr;
-    var regionStart = geneObject.start;
-    var regionEnd   = geneObject.end;
+    return new Promise(function(resolve, reject) {
+      var refName     = geneObject.chr;
+      var regionStart = geneObject.start;
+      var regionEnd   = geneObject.end;
 
-    // Capture all of the exon regions from the transcript
-    var regions = [];
-    transcript.features.forEach(function(feature) {
-      if (feature.feature_type.toUpperCase() == 'CDS') {
-        regions.push({start: feature.start, end: feature.end});
-      }
-    });
-
-    this.transformRefName(refName, function(trRefName){
-
-      var index = 0;
-      var bamSources = [];
-      me._initializeBamSource(bams, trRefName, regionStart, regionEnd, bamSources, index, function() {
-        var cmd = me.endpoint.getGeneCoverage(bamSources, trRefName, geneObject.gene_name, regionStart, regionEnd, regions);
-        var geneCoverageData = "";
-        cmd.on('data', function(data) {
-            if (data == undefined) {
-              return;
-            }
-            geneCoverageData += data;
-        });
-
-        cmd.on('end', function() {
-          callback(geneCoverageData, trRefName, geneObject, transcript);
-        });
-        cmd.run();
+      // Capture all of the exon regions from the transcript
+      var regions = [];
+      transcript.features.forEach(function(feature) {
+        if (feature.feature_type.toUpperCase() == 'CDS') {
+          regions.push({start: feature.start, end: feature.end});
+        }
       });
+
+      me.transformRefName(refName, function(trRefName){
+
+        var index = 0;
+        var bamSources = [];
+        me._initializeBamSource(bams, trRefName, regionStart, regionEnd, bamSources, index, function() {
+          var cmd = me.endpoint.getGeneCoverage(bamSources, trRefName, geneObject.gene_name, regionStart, regionEnd, regions);
+          var geneCoverageData = "";
+          cmd.on('data', function(data) {
+              if (data == undefined) {
+                return;
+              }
+              geneCoverageData += data;
+          });
+
+          cmd.on('end', function() {
+            resolve( {
+              'geneCoverage': geneCoverageData, 
+              'refName': trRefName, 
+              'geneObject': geneObject, 
+              'transcript': transcript
+            });
+          });
+          cmd.on('error', function(error) {
+            let msg = "Could not get gene coverage from region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible<code>" + indexUrl + "</code>";
+            reject(msg)    
+          });
+          cmd.run();
+        });
+
+    })
+
 
 
     });

@@ -471,8 +471,8 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       // We are done analyzing this gene.  Move on to the next one.
       cacheResolve({'gene': geneObject, 'transcript': transcript});
 
-    },
-    function(error) {
+    })
+    .catch(function(error) {
       cacheReject({'geneName': theGeneName, 'message': error});
     });
   })
