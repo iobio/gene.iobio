@@ -1688,6 +1688,10 @@ class GeneModel {
       }
 
       variantCoordGNomAD  = me.globalApp.utility.stripRefName(geneObject.chr) + "-" + variant.start + "-" + variant.ref + '-' + variant.alt;
+      if (me.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
+        variantCoordGNomAD += "?dataset=gnomad_r3"
+      };
+
     }
 
     var info = me.globalApp.utility.formatDisplay(variant, me.translator, false);
