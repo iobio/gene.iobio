@@ -285,6 +285,7 @@ main.content.clin, main.v-content.clin
       :launchedFromDemo="launchedFromDemo"
       :alerts="appAlerts"
       :alertCounts="appAlertCounts"
+      :geneToAppAlerts="geneToAppAlerts"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -1132,7 +1133,8 @@ export default {
       experimentId: null,
 
       appAlerts: [],
-      appAlertCounts: {'success': 0, 'info': 0, 'warning': 0, 'error': 0}
+      appAlertCounts: {'success': 0, 'info': 0, 'warning': 0, 'error': 0},
+      geneToAppAlerts: {}
     }
   },
 
@@ -1362,6 +1364,7 @@ export default {
 
         self.promiseInitFromUrl()
         .then(function() {
+            self.addAlert("success", "gene.iobio initialized")
             if (self.isEduMode && self.tourNumber) {
               self.$refs.appTourRef.startTour(self.tourNumber);
             }
@@ -1369,12 +1372,14 @@ export default {
             if (self.launchedFromHub) {
               self.promiseInitFromMosaic()
               .then(function() {
+                slef.addAlert("success", "gene.iobio inititalized from Mosaic")
                 if (callback) {
                   callback();
                 }
 
               })
               .catch(function(error) {
+                self.addAlert("error", "Unable to initialize from Mosaic. " + error)
                 if (callback) {
                   callback();
                 }
@@ -1670,38 +1675,69 @@ export default {
 
     addAlert: function(type, message, genes=null, details=null) {
       let self = this;
-      let pad2 = function(n) { return n < 10 ? '0' + n : n }
-      let pad3 = function(n) { 
-        if (n < 10) {
-          return '00' + n;
-        } else if (n < 100) {
-          return '0' + n;
+
+      let matching = self.appAlerts.filter(function(alert) {
+        if (alert.type == type && 
+            alert.message == message &&
+            alert.genes == genes && 
+            alert.details == details) {
+          return true;
         } else {
-          return n;
+          return false;
         }
-      }
-      let date = new Date();
-      let timestamp = date.getFullYear().toString() 
-       + pad2(date.getMonth() + 1) 
-       + pad2( date.getDate())
-       + pad2( date.getHours() ) 
-       + pad2( date.getMinutes() ) 
-       + pad2( date.getSeconds() )
-       + pad3( date.getMilliseconds() );
+      })
 
-      let alert = {'type': type, 'message': message, 'genes': genes, 'timestamp': timestamp, 'key': this.appAlerts.length, 'showDetails': false}
-      if (details) {
-        alert.details = details;
-      }
-      this.appAlerts.push(alert)
+      if (matching.length == 0) {
+        let pad2 = function(n) { return n < 10 ? '0' + n : n }
+        let pad3 = function(n) { 
+          if (n < 10) {
+            return '00' + n;
+          } else if (n < 100) {
+            return '0' + n;
+          } else {
+            return n;
+          }
+        }
+        let date = new Date();
+        let timestamp = date.getFullYear().toString() 
+         + pad2(date.getMonth() + 1) 
+         + pad2( date.getDate())
+         + pad2( date.getHours() ) 
+         + pad2( date.getMinutes() ) 
+         + pad2( date.getSeconds() )
+         + pad3( date.getMilliseconds() );
 
-      this.appAlertCounts[type] += 1
+        let alert = {'type': type, 'message': message, 'genes': genes, 'timestamp': timestamp, 'key': this.appAlerts.length, 'showDetails': false}
+        if (details) {
+          alert.details = details;
+        }
+        this.appAlerts.push(alert)
+
+        if (genes && genes.length > 0) {
+          genes.split(", ").forEach(function(theGeneName) {
+            let theAlerts = self.geneToAppAlerts[theGeneName];
+            if (theAlerts == null) {
+              theAlerts = [];
+              self.geneToAppAlerts[theGeneName] = theAlerts;
+            }
+            theAlerts.push(alert)
+          }) 
+          if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
+            self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
+          }         
+        }
+
+        this.appAlertCounts[type] += 1 
+        
+      } 
 
       if (type == 'error') {
         if (this.$refs.navRef) {
           this.$refs.navRef.onShowNotificationDrawerShowLast();
         }
       }
+
+
 
     },
 
@@ -1902,6 +1938,7 @@ export default {
               console.log( "Error: " + errorThrown );
               console.log( "Status: " + status );
               console.log( xhr );
+              self.addAlert('error', "unable to load site config. " + errorThrown)
               reject("Error " + errorThrown + " occurred in promiseLoadSiteConfig() when attempting get siteConfig.json ");
             }
         });
@@ -1926,6 +1963,7 @@ export default {
         if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
           self.promiseLoadData()
           .then(function() {
+            self.addAlert("success", "loaded demo data")
             if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             }
@@ -2364,8 +2402,10 @@ export default {
           }
         })
         .catch(function(error) {
+          let msg = 'Bypassing gene ' + geneName + ". Unable to fetch transcripts."
+          console.log(msg)
           console.log(error);
-          self.onShowSnackbar({message: 'Unable to fetch transcripts for ' + geneName, timeout: 5000})
+          self.addAlert('error', msg, geneName)
         })
       })
     },

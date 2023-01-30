@@ -842,6 +842,8 @@ nav.toolbar, nav.v-toolbar
              :callAllInProgress="callAllInProgress"
              :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
              :genesInProgress="cohortModel.genesInProgress"
+             :appAlerts="appAlerts"
+             :geneToAppAlerts="geneToAppAlerts"
              @gene-selected="onGeneSelected"
              @remove-gene="onRemoveGene"
              @count-changed="onGeneCountChanged"
@@ -1279,7 +1281,8 @@ export default {
     showWelcome: null,
     launchedFromDemo: null,
     alerts: null,
-    alertCounts: null
+    alertCounts: null,
+    geneToAppAlerts: null
   },
   data () {
     let self = this;

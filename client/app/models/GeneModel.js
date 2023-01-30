@@ -393,6 +393,10 @@ class GeneModel {
               }
             } else {
               unknownGeneNames[geneName.trim().toUpperCase()] = true;
+              if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
+                  && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
+                genesToAdd.push(geneName.trim().toUpperCase());
+              } 
             }
           })
           promises.push(p);
@@ -417,7 +421,7 @@ class GeneModel {
         var message = "";
         if (Object.keys(unknownGeneNames).length > 0) {
           message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
-          me.dispatch.alertIssued("warning", message, null, Object.keys(unknownGeneNames))
+          me.dispatch.alertIssued("warning", message, Object.keys(unknownGeneNames).join(", "), Object.keys(unknownGeneNames))
         }
         if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
           if (message.length > 0) {
@@ -1424,13 +1428,11 @@ class GeneModel {
         theGeneSource = defaultGeneSource
       } else if (knownGene && knownGene.refseq) {
         theGeneSource = 'refseq';
-        let msg = "No Gencode transcripts for " + geneName + ". Using Refseq transcripts instead.";
-        alertify.set('notifier','position', 'top-right');
-        alertify.error(msg,  10);
+        let msg = "No Gencode transcripts for " + geneName + ". Using Refseq transcripts instead.";        
+        me.dispatch.alertIssued( "warning", msg, geneName)
       } else if (knownGene && knownGene.gencode) {
         let msg = "No Refseq transcripts for " + geneName + ". Using Gencode transcripts instead.";
-        alertify.set('notifier','position', 'top-right');
-        alertify.error(msg,  10);
+        me.dispatch.alertIssued( "warning", msg, geneName)
         theGeneSource = 'gencode';
       }
 

@@ -272,7 +272,9 @@ export default {
     genesInProgress: null,
     loadedDangerSummaries: null,
     geneModel: null,
-    selectedGene: null
+    selectedGene: null,
+    appAlerts: null,
+    geneToAppAlerts: null,
   },
   data () {
     return {
@@ -312,10 +314,23 @@ export default {
 
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
 
+          var appWarnings = [];
+          var appErrors = [];
+          if (self.geneToAppAlerts[geneName]) {
+            appWarnings = self.geneToAppAlerts[geneName].filter(function(alert) {
+              return alert.type == 'warning';
+            });
+            appErrors = self.geneToAppAlerts[geneName].filter(function(alert) {
+              return alert.type == 'error';
+            });
+          }
+
           return {'name': geneName,
           'isFlagged': false,
           'dangerSummary': dangerSummary,
-          'inProgress': inProgress};
+          'inProgress': inProgress,
+          'appWarnings': appWarnings,
+          'appErrors': appErrors };
         })
       } else {
         self.geneSummaries = [];
@@ -372,6 +387,9 @@ export default {
       this.updateGeneSummaries();
     },
     genesInProgress: function() {
+      this.updateGeneSummaries();
+    },
+    appAlerts: function() {
       this.updateGeneSummaries();
     }
   }

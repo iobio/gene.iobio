@@ -63,6 +63,9 @@
     #gene-badge-error
       display: inline
 
+  &.has-warning
+    #gene-badge-warning
+      display: inline
 
   &:hover #gene-badge-remove
     visibility: visible
@@ -123,7 +126,7 @@
 
 #gene-badge-warning
   float: left
-  font-size: 12px
+  font-size: 16px
   color: rgba(230, 126, 30, 0.84)
   padding-top: 0px
   padding-bottom: 1px
@@ -132,7 +135,7 @@
 
 #gene-badge-error
   float: left
-  font-size: 12px
+  font-size: 16px
   color: rgba(204, 29, 7, 0.67)
   padding-top: 0px
   padding-right: 2px
@@ -194,7 +197,7 @@
 
 
         <i id="gene-badge-warning" class="material-icons glyph">warning</i>
-        <i id="gene-badge-error" class="material-icons glyph">report_problem</i>
+        <i id="gene-badge-error" class="material-icons glyph">error</i>
 
 
   </span>
@@ -447,6 +450,18 @@ export default {
   },
   computed: {
     classObject: function () {
+      let hasError = false;
+      if (this.gene.dangerSummary && this.gene.dangerSummary.ERROR && this.gene.dangerSummary.ERROR.length > 0) {
+        hasError = true;
+      } else if (this.gene.appErrors && this.gene.appErrors.length > 0) {
+        hasError = true;
+      }
+
+      let hasWarning = false;
+      if (!hasError) {
+        hasWarning = this.gene.appWarnings && this.gene.appWarnings.length > 0;
+      }
+
       return {
 
         'selected':              this.selectedGene && this.selectedGene.gene_name == this.gene.name,
@@ -454,7 +469,8 @@ export default {
         'loaded':                this.gene.dangerSummary != null,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
-        'has-error':             this.gene.dangerSummary && this.gene.dangerSummary.ERROR && this.gene.dangerSummary.ERROR.length > 0,
+        'has-error':             hasError,
+        'has-warning':           hasWarning,
         'has-phenotypes':        false  //this.phenotypes && this.phenotypes.length > 0,
       }
     },
