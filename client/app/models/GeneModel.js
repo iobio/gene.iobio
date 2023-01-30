@@ -437,12 +437,13 @@ class GeneModel {
           if (me.globalApp.maxGeneCount && me.geneNames.length > me.globalApp.maxGeneCount) {
             var bypassedCount = me.geneNames.length - me.globalApp.maxGeneCount;
             me.geneNames = me.geneNames.slice(0, me.globalApp.maxGeneCount);
-            alertify.alert("Due to browser cache limitations, only the first " + me.globalApp.maxGeneCount
+            let msg = "Due to browser cache limitations, only the first " + me.globalApp.maxGeneCount
               + " genes were added. "
               + bypassedCount.toString()
               + " "
               + (bypassedCount == 1 ? "gene" : "genes")
-              +  " bypassed.");
+              +  " bypassed.";
+            me.dispatch.alertIssued("warning", msg)
           }
 
         }
@@ -1018,28 +1019,21 @@ class GeneModel {
               })
              .fail(function(error) {
                 delete me.pendingNCBIRequests[geneName];
-                console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-
                 let msg = "Unable to get PubMed entries for " + geneName;
-                //alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
-                // .setHeader("Warning");
-                console.log(msg);
-
+                console.log(msg)
+                console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
+                me.dispatch.alertIssues("warning", msg, geneName)
                 reject();
               })
 
            })
            .fail(function(error) {
-
               delete me.pendingNCBIRequests[geneName];
   
               let msg = "Unable to get PubMed entries for " + geneName;
-              //alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
-              // .setHeader("Warning");
               console.log(msg);
-
-
               console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
+              me.dispatch.alertIssues("warning", msg, geneName)
               reject();
            })
 
@@ -1124,7 +1118,8 @@ class GeneModel {
 
       if (apiKey == null || apiKey == "") {
         if (!self.warnedMissingOMIMApiKey) {
-          alertify.alert("Warning", "Unable to access OMIM.  API key is required in env.")
+          let msg ="Unable to access OMIM.  API key is required in env."
+          self.dispatch.alertIssued("warning", msg, geneName)
           self.warnedMissingOMIMApiKey = true;          
         }
         resolve();
@@ -1155,14 +1150,16 @@ class GeneModel {
               resolve({geneName: geneName, mimNumber: mimNumber, phenotypes: phenotypes});
             }
             else {
-              reject("No OMIM entry found for gene " + geneName)
+              let msg = "No OMIM entry found for gene " + geneName;
+              reject(msg)
             }
           
           })
           .fail(function(error) {
-              let msg = "Unable to get phenotype mim number OMIM " + url;
+              let msg = "Unable to get phenotype mim number OMIM for gene " + geneName;
               console.log(msg);
               console.log(error)
+              self.dispatch.alertIssued("warning", msg, geneName)
               reject(msg + '. Error: ' + error);
           })
         

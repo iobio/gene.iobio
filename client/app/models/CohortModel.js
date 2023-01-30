@@ -2432,7 +2432,8 @@ class CohortModel {
     if (me.globalApp.maxGeneCount && importRecords.length > me.globalApp.maxGeneCount) {
       var bypassedCount = importRecords.length - me.globalApp.maxGeneCount;
       importRecords = importRecords.slice(0, me.globalApp.maxGeneCount);
-      alertify.alert("Only first " + me.globalApp.maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.");
+      var msg = "Only first " + me.globalApp.maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.";
+      me.dispatch.alertIssued("warning", msg)
     }
 
 
