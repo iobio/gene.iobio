@@ -224,7 +224,7 @@ nav.toolbar, nav.v-toolbar
     margin-right: 10px
     margin-left: 0px
 
-  #coverage-settings-button, #error-button, #notification-button
+  #coverage-settings-button #notification-button
     font-size: 14px
     font-weight: 500
     background-color: $nav-button-color
@@ -244,19 +244,37 @@ nav.toolbar, nav.v-toolbar
       font-size: 13px
       font-weight: 500
 
+  #notification-button 
+    padding-right: 0px
+    .v-badge__badge
+      right: -14px !important
+      font-weight: 500 !important
+
   #coverage-settings-button
     .v-badge__badge
       background-color: $coverage-problem-color !important
 
   #notification-button
     .v-badge__badge
-      background-color: #777777 !important
+      background-color: transparent !important
 
-  #error-button
-    .v-badge__badge
-      background-color: $error-color !important
-      top: -25px
-      right: 7px
+  #error-badge
+    padding-left: 0px
+    padding-right: 0px
+    margin-left: -0px
+    margin-top: -24px
+    color: #ff5252 !important
+    font-size: 20px
+    min-width: 20px !important
+
+  #warning-badge
+    padding-left: 0px
+    padding-right: 0px
+    margin-left: -0px
+    margin-top: -24px
+    color: orange !important
+    font-size: 20px
+    min-width: 20px !important
 
   #legend-button
     font-size: 14px
@@ -607,18 +625,20 @@ nav.toolbar, nav.v-toolbar
             slot="badge">{{ alerts.length }}</span>
         </v-badge>
       </v-btn>
-      <v-btn class="navbar-icon-button" v-if="alertCounts && alertCounts.error && alertCounts.error > 0"  id="error-button" flat>
-        <v-badge right>
-          <span slot="badge" >
-           <v-icon>priority_high</v-icon>
-          </span>
-        </v-badge>
-      </v-btn>
+      <v-icon class="navbar-icon-button" v-if="alertCounts && alertCounts.warning && alertCounts.warning > 0"  id="warning-badge" 
+        v-tooltip.bottom-left="{content: 'Warning(s) have been issued. Click on notifications button (bell) to see details.'}">
+        warning
+      </v-icon>
+      <v-icon class="navbar-icon-button" v-if="alertCounts && alertCounts.error && alertCounts.error > 0"  id="error-badge" 
+        v-tooltip.bottom-left="{content: 'Error(s) have been issued. Click on notifications button (bell) to see details.'}">
+       error
+      </v-icon>
+
 
       <v-btn class="navbar-icon-button" v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat 
          v-tooltip.bottom-left="{content: 'Genes with low sequence coverage, click to adjust thresholds'}">
         <v-badge right  >
-          Assess coverage
+          
           <v-icon>trending_down</v-icon>
           <span v-if="badgeCounts && badgeCounts.coverage"
             slot="badge">{{ badgeCounts.coverage }}</span>

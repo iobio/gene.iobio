@@ -1364,7 +1364,6 @@ export default {
 
         self.promiseInitFromUrl()
         .then(function() {
-            self.addAlert("success", "gene.iobio initialized")
             if (self.isEduMode && self.tourNumber) {
               self.$refs.appTourRef.startTour(self.tourNumber);
             }
@@ -1372,7 +1371,7 @@ export default {
             if (self.launchedFromHub) {
               self.promiseInitFromMosaic()
               .then(function() {
-                slef.addAlert("success", "gene.iobio inititalized from Mosaic")
+                slef.addAlert("info", "gene.iobio inititalized from Mosaic")
                 if (callback) {
                   callback();
                 }
@@ -1963,7 +1962,7 @@ export default {
         if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
           self.promiseLoadData()
           .then(function() {
-            self.addAlert("success", "loaded demo data")
+            self.addAlert("info", "loaded demo data")
             if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             }

@@ -36,6 +36,14 @@
     &.warning--text
       div
         color: $text-color !important
+    &.error--text
+      border-color: #b32f2f !important
+      border-style: solid !important
+      border-width: 0.5px !important
+      color: $danger-color !important
+      div
+        color: $text-color !important
+        font-weight: 500 !important
 
     .show-details-button, .hide-details-button
       margin: 0px
@@ -63,7 +71,7 @@
       :value="true"
       :color="getColor(alert)"
       :icon="getIcon(alert)"
-      :outline="alert.type == 'error' ? false : true"
+      :outline="true"
     >
       {{alert.message}}
 
