@@ -283,8 +283,8 @@ main.content.clin, main.v-content.clin
       :showFilesProp="showFiles"
       :showWelcome="showWelcome"
       :launchedFromDemo="launchedFromDemo"
-      :alerts="appAlerts"
-      :alertCounts="appAlertCounts"
+      :appAlerts="appAlerts"
+      :appAlertCounts="appAlertCounts"
       :geneToAppAlerts="geneToAppAlerts"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
@@ -401,7 +401,7 @@ main.content.clin, main.v-content.clin
 
 
 
-          <v-card v-show="showGeneVariantsCard" tile id="gene-variants-card" class="app-card full-width">
+      <v-card v-show="showGeneVariantsCard" tile id="gene-variants-card" class="app-card full-width">
         <gene-variants-card
           v-bind:class="{hide : showWelcome, 'full-width': true}"
           v-if="showGeneVariantsCard"
@@ -425,14 +425,13 @@ main.content.clin, main.v-content.clin
           @no-data-warning="onNoDataWarning">
         </gene-variants-card>
 
-              <div
-                      v-if="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
-                      v-show="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
+        <div v-if="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
+          v-show="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
+          style="height: 15px">
+        </div>
 
-                      style="height: 15px"></div>
-
-          <gene-viz class="gene-viz-zoom"
-                    v-if="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin) && !isBasicMode && !isSimpleMode"
+        <gene-viz class="gene-viz-zoom"
+                    v-if="geneModel && selectedGene && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin) && !isBasicMode && !isSimpleMode"
                     v-show="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin) && !isBasicMode && !isSimpleMode"
                     :data="[selectedTranscript]"
                     :margin="geneVizMargin"
@@ -444,30 +443,14 @@ main.content.clin, main.v-content.clin
                     :cdsHeight="geneVizCdsHeight"
                     :regionStart="parseInt(selectedGene.start)"
                     :regionEnd="parseInt(selectedGene.end)"
-                    :showBrush="false"
-          >
-          </gene-viz>
+                    :showBrush="false">
+        </gene-viz>
 
-          </v-card>
+      </v-card>
 
-        <!--selectedGene && selectedGene.length > 0-->
-
-        <!--<v-card class="app-card"-->
-                <!--v-if="geneModel && (!launchedFromDemo && !launchedFromHub)"-->
-                <!--style="overflow-y:scroll;margin-left:5px"-->
-        <!--&gt;-->
-
-
-        <!--geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,-->
-        <!--geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,-->
-
-
-      <!--</v-card>-->
-
-
-        <variant-all-card
+      <variant-all-card
         ref="variantCardProbandRef"
-        v-if="probandModel"
+        v-if="probandModel && selectedGene"
         v-show="!showWelcome"
         v-bind:class="[
         { 'full-width': true,
@@ -522,45 +505,14 @@ main.content.clin, main.v-content.clin
         @gene-region-zoom-reset="onGeneRegionZoomReset"
         @show-coverage-cutoffs="showCoverageCutoffs = true;showCoverageThreshold = true"
         @show-pileup-for-variant="onShowPileupForVariant"
-        @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly"
-
-        >
+        @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly">
         </variant-all-card>
-
-        <variant-detail-card
-          ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && isBasicMode"
-          :isBasicMode="isBasicMode"
-          :isEduMode="isEduMode"
-          :selectedGene="selectedGene"
-          :selectedTranscript="analyzedTranscript"
-          :selectedVariant="selectedVariant"
-          :selectedVariantNotes="selectedVariantNotes"
-          :selectedVariantInterpretation="selectedVariantInterpretation"
-          :selectedVariantRelationship="selectedVariantRelationship"
-          :interpretationMap="interpretationMap"
-          :genomeBuildHelper="genomeBuildHelper"
-          :cohortModel="cohortModel"
-          :info="selectedVariantInfo"
-          :selectedVariantKey="selectedVariantKey"
-          :showGenePhenotypes="launchedFromClin || phenotypeTerm"
-          :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
-          :user="user"
-          :showAssessment="hasVariantAssessment || showVariantAssessment"
-          @show-pileup-for-variant="onShowPileupForVariant"
-          @apply-variant-interpretation="onApplyVariantInterpretation"
-          @apply-variant-notes="onApplyVariantNotes"
-          @show-variant-assessment="onShowVariantAssessment"
-
-          >
-          </variant-detail-card>
-
 
 
         <div style="display:flex;align-items:stretch">
           <variant-inspect-card
           ref="variantInspectRef"
-          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode && selectedVariant"
+          v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode && selectedGene && selectedVariant"
           v-show="!showWelcome"
           :isSimpleMode="isSimpleMode"
           :selectedGene="selectedGene"
@@ -658,69 +610,7 @@ main.content.clin, main.v-content.clin
           <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
         </v-card>
 
-<!--
-        <optional-tracks-card
-          v-if="cohortModel && cohortModel.isLoaded && probandModel"
-          :cohortModel="cohortModel"
-          :isEduMode="isEduMode"
-          :isBasicMode="isBasicMode"
-          :isFullAnalysis="isFullAnalysis"
-          :launchedFromHub="launchedFromHub"
-          :launchedFromClin="launchedFromClin"
-          @show-known-variants-card="onShowKnownVariantsCard"
-          @show-sfari-variants-card="onShowSfariVariantsCard"
-          @show-mother-card="onShowMotherCard"
-          @show-father-card="onShowFatherCard">
-        </optional-tracks-card>
 
-        <variant-card
-        ref="variantCardRef"
-        v-if="nonProbandModels && nonProbandModels.length > 0"
-        v-for="model in nonProbandModels"
-        :key="model.relationship"
-        v-bind:class="[
-        { 'full-width': true, 'hide': showWelcome || Object.keys(selectedGene).length === 0 || !cohortModel  || cohortModel.inProgress.loadingDataSources
-          || (model.relationship === 'known-variants' && showKnownVariantsCard === false) || (model.relationship === 'sfari-variants' && showSfariVariantsCard === false),
-          'edu' : isEduMode
-        },
-        model.relationship
-        ]"
-        :globalAppProp="globalApp"
-        :isEduMode="isEduMode"
-        :isBasicMode="isBasicMode"
-        :clearZoom="clearZoom"
-        :sampleModel="model"
-        :coverageDangerRegions="model.coverageDangerRegions"
-        :classifyVariantSymbolFunc="model.relationship === 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
-        :variantTooltip="variantTooltip"
-        :selectedGene="selectedGene"
-        :selectedTranscript="analyzedTranscript"
-        :selectedVariant="selectedVariant"
-        :regionStart="geneRegionStart"
-        :regionEnd="geneRegionEnd"
-        :featureMatrixModel="featureMatrixModel"
-        :width="cardWidth"
-        :showGeneViz="true"
-        :showDepthViz="model.relationship !== 'known-variants' && model.relationship !== 'sfari-variants'"
-        :showVariantViz="(model.relationship !== 'known-variants' || showKnownVariantsCard) || (model.relationship !== 'sfari-variants' || showSfariVariantsCard)"
-        :geneVizShowXAxis="model.relationship === 'proband' || model.relationship === 'known-variants' || model.relationship === 'sfari-variants'"
-        :blacklistedGeneSelected="blacklistedGeneSelected"
-        @cohort-variant-click="onCohortVariantClick"
-        @cohort-variant-outside-click="onCohortVariantOutsideClick"
-        @cohort-variant-hover="onCohortVariantHover"
-        @cohort-variant-hover-end="onCohortVariantHoverEnd"
-        @known-variants-viz-change="onKnownVariantsVizChange"
-        @known-variants-filter-change="onKnownVariantsFilterChange"
-        @sfari-variants-viz-change="onSfariVariantsVizChange"
-        @sfari-variants-filter-change="onSfariVariantsFilterChange"
-        @gene-region-zoom="onGeneRegionZoom"
-        @gene-region-zoom-reset="onGeneRegionZoomReset"
-        @show-coverage-cutoffs="showCoverageCutoffs = true;showCoverageThreshold = true"
-        @show-pileup-for-variant="onShowPileupForVariant"
-        >
-        </variant-card>
-
--->
 
         <v-snackbar
           :timeout="snackbar.timeout"
@@ -1962,7 +1852,7 @@ export default {
         if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
           self.promiseLoadData()
           .then(function() {
-            self.addAlert("info", "loaded demo data")
+            self.addAlert("info", "Running with demo data.")
             if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             }
@@ -2350,6 +2240,7 @@ export default {
           if (justAdded && self.launchedFromHub) {
             return self.promiseUpdateAnalysisGenesData();
           } else {
+            self.selectedGene = null;
             return Promise.resolve();
           }
         })

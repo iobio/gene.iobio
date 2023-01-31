@@ -414,7 +414,7 @@
         </v-badge>
         <v-badge  v-if="!isSimpleMode && !isBasicMode && sampleModel.loadedVariants && coverageDangerRegions.length > 0 && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="ml-2 mr-2 coverage-problem" >
           <span slot="badge"> {{ coverageDangerRegions.length }} </span>
-          Exons (CDS) with insufficient coverage
+          Low coverage exons
         </v-badge>
         </div>
       </div>

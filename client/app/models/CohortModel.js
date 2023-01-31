@@ -1532,6 +1532,7 @@ class CohortModel {
       self.getProbandModel().promiseSummarizeError(geneName, error)
       .then(function(dangerObject) {
           self.geneModel.setDangerSummary(theGeneName, dangerObject);
+          self.dispatch.alertIssued("error", error + " for gene " + geneName, geneName);
           resolve(dangerObject);
       }).
       catch(function(error) {
@@ -1616,6 +1617,13 @@ class CohortModel {
               return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript, notFoundVariants);
           })
           .then(function(theDangerSummary) {
+            if (theDangerSummary && theDangerSummary.geneCoverageProblem) {
+              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene " + theDangerSummary.geneName + " in proband sample", theDangerSummary.geneName);
+            } 
+            if (theDangerSummary && theDangerSummary.geneCoverageProblemNonProband) {
+              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene " + theDangerSummary.geneName + " in non-proband (e.g. mother, father) sample", theDangerSummary.geneName);
+            } 
+
             self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
             resolve();
           })

@@ -300,6 +300,7 @@ class GeneModel {
           resolve(true);
         })
         .catch(function(error) {
+          console.log("GeneModel.promiseAddGeneName(). Unable to add gene due to error: " + error);
           resolve(false)
         })
       } else {

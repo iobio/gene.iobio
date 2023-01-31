@@ -3713,6 +3713,7 @@ SampleModel._determineAffectedStatusForVariant = function(variant, affectedStatu
 SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverageAll, filterModel, transcript, clearOtherDanger=false, refreshOnly=false ) {
   dangerObject.geneCoverageInfo = {};
   dangerObject.geneCoverageProblem = false;
+  dangerObject.geneCoverageProblemNonProband = false;
 
 
   if (geneCoverageAll && Object.keys(geneCoverageAll).length > 0) {
@@ -3722,8 +3723,12 @@ SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverage
         geneCoverage.forEach(function(gc) {
           if (gc.region != 'NA') {
             if (filterModel.isLowCoverage(gc)) {
-              dangerObject.geneCoverageProblem = true;
-
+              
+              if (relationship == 'proband') {
+                dangerObject.geneCoverageProblem = true;
+              } else {
+                dangerObject.geneCoverageProblemNonProband = true;
+              }
 
               // build up the geneCoveragerInfo to show exon numbers with low coverage
               // and for which samples
@@ -3738,6 +3743,7 @@ SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverage
                 dangerObject.geneCoverageInfo[exon] = {};
               }
               dangerObject.geneCoverageInfo[exon][relationship] = true;
+
             }
 
           }

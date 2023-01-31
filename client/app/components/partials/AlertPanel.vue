@@ -36,6 +36,9 @@
     &.warning--text
       div
         color: $text-color !important
+    &.coverage--text
+      div
+        color: $coverage-problem-color !important
     &.error--text
       border-color: #b32f2f !important
       border-style: solid !important
@@ -65,7 +68,7 @@
     Notifications
     </div>
 
-    <v-alert v-for="alert in alerts"
+    <v-alert v-for="alert in appAlerts"
       class="alert-item"
       :key="alert.key"
       :value="true"
@@ -104,7 +107,7 @@ export default {
   props: {
     isBasicMode: null,
     isSimpleMode: null,
-    alerts: null
+    appAlerts: null
   },
   data () {
       return {
@@ -123,6 +126,8 @@ export default {
         return 'info'
       } else if (alert.type == 'warning') {
         return 'warning'
+      } else if (alert.type == 'coverage') {
+        return 'trending_down'
       } else if (alert.type == 'error') {
         return 'error'
       } 
@@ -134,6 +139,8 @@ export default {
         return 'info'
       } else if (alert.type == 'warning') {
         return 'warning'
+      } else if (alert.type == 'coverage') {
+        return 'info'
       } else if (alert.type == 'error') {
         return 'error'
       } 

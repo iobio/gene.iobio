@@ -127,7 +127,7 @@
 #gene-badge-warning
   float: left
   font-size: 16px
-  color: rgba(230, 126, 30, 0.84)
+  color: $badge-warning-color
   padding-top: 0px
   padding-bottom: 1px
   padding-right: 2px
@@ -136,7 +136,7 @@
 #gene-badge-error
   float: left
   font-size: 16px
-  color: rgba(204, 29, 7, 0.67)
+  color: $badge-error-color
   padding-top: 0px
   padding-right: 2px
   padding-left: 1px

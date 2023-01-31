@@ -246,6 +246,7 @@ nav.toolbar, nav.v-toolbar
 
   #notification-button 
     padding-right: 0px
+    margin-right: -3px
     .v-badge__badge
       right: -14px !important
       font-weight: 500 !important
@@ -258,23 +259,25 @@ nav.toolbar, nav.v-toolbar
     .v-badge__badge
       background-color: transparent !important
 
-  #error-badge
+  #error-badge, #warning-badge, #coverage-badge
     padding-left: 0px
     padding-right: 0px
     margin-left: -0px
     margin-top: -24px
-    color: #ff5252 !important
     font-size: 20px
     min-width: 20px !important
 
+  #error-badge
+    color: $badge-error-color !important
+
   #warning-badge
-    padding-left: 0px
-    padding-right: 0px
-    margin-left: -0px
-    margin-top: -24px
-    color: orange !important
-    font-size: 20px
-    min-width: 20px !important
+    color: $badge-warning-color !important
+
+  #coverage-badge
+    color: $coverage-problem-color !important
+    margin-top: -42px !important
+    margin-left: 4px !important
+
 
   #legend-button
     font-size: 14px
@@ -616,33 +619,30 @@ nav.toolbar, nav.v-toolbar
         Variants
       </v-btn>
 
-      <v-btn  class="navbar-icon-button" v-if="alerts && alerts.length > 0" id="notification-button"  @click="onShowNotificationDrawer" flat v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
+      <v-btn  class="navbar-icon-button" v-if="(appAlerts && appAlerts.length > 0) || (badgeCounts && badgeCounts.coverage)" id="notification-button"  @click="onShowNotificationDrawer" flat 
+        v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
         <v-badge right  >
           <v-icon>notifications</v-icon>
-          <span >
-          </span>
-          <span v-if="alerts && alerts.length > 0"
-            slot="badge">{{ alerts.length }}</span>
         </v-badge>
       </v-btn>
-      <v-icon class="navbar-icon-button" v-if="alertCounts && alertCounts.warning && alertCounts.warning > 0"  id="warning-badge" 
-        v-tooltip.bottom-left="{content: 'Warning(s) have been issued. Click on notifications button (bell) to see details.'}">
-        warning
-      </v-icon>
-      <v-icon class="navbar-icon-button" v-if="alertCounts && alertCounts.error && alertCounts.error > 0"  id="error-badge" 
-        v-tooltip.bottom-left="{content: 'Error(s) have been issued. Click on notifications button (bell) to see details.'}">
+      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.error && appAlertCounts.error > 0"  id="error-badge" 
+        v-tooltip.bottom-left="{content: 'The app has encountered at an error. Click on notifications button (bell) to see details.'}">
        error
       </v-icon>
+      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.warning && appAlertCounts.warning > 0"  id="warning-badge" 
+        v-tooltip.bottom-left="{content: 'The app has issued a warning. Click on notifications button (bell) to see details.'}">
+        warning
+      </v-icon>
+      <app-icon id="coverage-badge" v-if="badgeCounts && badgeCounts.coverage"
+           icon="coverage"
+           class=" glyph navbar-icon"
+           width="15" height="15"
+           v-tooltip.bottom-left="{content: 'Some genes have insufficient sequence coverage (based in user-defined thresholds'}">
+      </app-icon>
 
 
-      <v-btn class="navbar-icon-button" v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat 
+      <v-btn class="navbar-icon-button" v-if="false && cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat 
          v-tooltip.bottom-left="{content: 'Genes with low sequence coverage, click to adjust thresholds'}">
-        <v-badge right  >
-          
-          <v-icon>trending_down</v-icon>
-          <span v-if="badgeCounts && badgeCounts.coverage"
-            slot="badge">{{ badgeCounts.coverage }}</span>
-        </v-badge>
       </v-btn>
       <v-spacer></v-spacer>
 
@@ -965,7 +965,7 @@ nav.toolbar, nav.v-toolbar
         </v-btn>
         <alert-panel :isBasicMode="isBasicMode"
            :isSimpleMode="isSimpleMode"
-           :alerts=alerts>
+           :appAlerts=appAlerts>
         </alert-panel>
     </v-navigation-drawer>
 
@@ -1300,8 +1300,8 @@ export default {
     badgeCounts: null,
     showWelcome: null,
     launchedFromDemo: null,
-    alerts: null,
-    alertCounts: null,
+    appAlerts: null,
+    appAlertCounts: null,
     geneToAppAlerts: null
   },
   data () {
@@ -1555,8 +1555,10 @@ export default {
       this.showNotificationDrawer = true;
       setTimeout(function() {
         let items = $("#alert-panel .alert-item");
-        let last = items[items.length-1];
-        last.scrollIntoView();
+        if (items && items.length > 1) {
+          let last = items[items.length-1];
+          last.scrollIntoView();          
+        }
       }, 1000);
     },
     onShowCoverageThreshold: function() {
