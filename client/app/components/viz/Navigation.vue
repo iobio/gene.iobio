@@ -824,6 +824,13 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Cite</v-list-tile-title>
           </v-list-tile>
 
+          <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
+          
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !isSimpleMode"
+            @click="onShowCoverageThreshold">
+            <v-list-tile-title dense>Set sequencing coverage cutoffs</v-list-tile-title>
+          </v-list-tile>
+
 
           <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
 
