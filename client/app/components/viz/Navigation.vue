@@ -2,6 +2,20 @@
 
 @import ../../../assets/sass/variables
 
+#load-saved-analysis-button
+    button
+      color: $text-color
+      font-size: 14px
+      padding-left: 0px
+      box-shadow: none !important
+      padding: 24px 24px 40px 24px
+      margin: 0px
+      margin-left: -24px
+      margin-right: -24px
+
+      .v-btn__content
+        font-weight: normal
+
 #legend-drawer-close-button, #error-drawer-close-button, #notification-drawer-close-button
     position: absolute
     padding-right: 0px
@@ -253,6 +267,7 @@ nav.toolbar, nav.v-toolbar
       right: -14px !important
       font-weight: 500 !important
 
+
   #coverage-settings-button
     .v-badge__badge
       background-color: $coverage-problem-color !important
@@ -439,6 +454,11 @@ nav.toolbar, nav.v-toolbar
     width: 140px
     margin-left: 5px
 
+  #load-data-button, #save-json-analysis-button
+    margin-left: 8px
+    margin-right: 0px
+    padding-left: 8px
+    padding-right: 8px
 
 
 
@@ -703,16 +723,9 @@ nav.toolbar, nav.v-toolbar
 
       </v-toolbar-items>
 
+      
       <v-spacer></v-spacer>
 
-      <save-button
-        v-if="launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded"
-        :showing-save-modal="showSaveModal"
-        :analysis="analysis"
-        :isDirty="isDirty"
-        @save-modal:set-visibility="toggleSaveModal"
-      />
-    
       <div id="gene-source-box" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
           <v-select
                   v-bind:items="geneSources"
@@ -731,11 +744,62 @@ nav.toolbar, nav.v-toolbar
 
       <v-spacer></v-spacer>
 
-      <v-btn id="files-button"   icon v-if="showFilesButton" 
+      <div class="text-xs-center">
+        <v-menu offset-y>
+          <template v-slot:activator="{ on }">
+            <v-btn id="load-data-button"
+              :outline="cohortModel && !cohortModel.isLoaded"
+              :flat="cohortModel && cohortModel.isLoaded" 
+              v-on="on"
+            >
+              <v-icon>file_upload</v-icon>
+              <span style="font-size:14px;font-weight:500">Load</span>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-tile @click="onShowFiles">
+              <v-list-tile-title>Specify files</v-list-tile-title>
+            </v-list-tile>
+            <v-list-tile @click.stop="">
+                <file-chooser id="load-saved-analysis-button"
+                title="Load saved analysis"
+                :isMultiple="false" :accept="`.json`"
+                :showLabel="true"
+                @file-selected="onCacheFileSelected">
+                </file-chooser>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+      </div>
+
+      <v-btn id="files-button"   icon v-if="showFilesButton && (launchedFromHub || launchedFromSFARI) " 
         @click="onShowFiles" 
         v-tooltip.bottom-left="{content: 'Load your data'}">
         <app-icon icon="fileupload"  width="32" height="32"></app-icon>
       </v-btn>
+
+
+      <v-btn id="save-json-analysis-button" 
+        :outline="cohortModel && cohortModel.isLoaded" 
+        :flat="cohortModel && !cohortModel.isLoaded"
+         v-if="!launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded" 
+        @click="onSaveCache" 
+        v-tooltip.bottom-left="{content: 'Save your analysis'}">
+        <v-icon>file_download</v-icon>
+        Save
+      </v-btn>  
+
+
+      <save-button
+        v-if="launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded"
+        :showing-save-modal="showSaveModal"
+        :analysis="analysis"
+        :isDirty="isDirty"
+        @save-modal:set-visibility="toggleSaveModal"
+      />
+      
+      <v-spacer></v-spacer>
+
 
       <v-btn id="legend-button" 
       icon v-if="!isSimpleMode && !isBasicMode" 
@@ -765,15 +829,15 @@ nav.toolbar, nav.v-toolbar
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode && cohortModel.isLoaded"
             @click="onShowImportVariants">
-            <v-list-tile-title dense>Import Variants</v-list-tile-title>
+            <v-list-tile-title dense>Import filtered variants</v-list-tile-title>
           </v-list-tile>
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !isSimpleMode && cohortModel.flaggedVariants && cohortModel.flaggedVariants.length > 0" @click="onShowExportVariants">
-            <v-list-tile-title>Export Variants</v-list-tile-title>
+            <v-list-tile-title>Export filtered variants</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowOptions">
-            <v-list-tile-title>Options</v-list-tile-title>
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onClearCache">
+            <v-list-tile-title>Clear analysis</v-list-tile-title>
           </v-list-tile>
 
           <v-divider ></v-divider>
@@ -1048,47 +1112,6 @@ nav.toolbar, nav.v-toolbar
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="showOptions" max-width="400">
-      <v-card id="options" class="full-width">
-        <v-card-title class="headline">Options</v-card-title>
-
-        <v-card-text>
-          <div style="margin-bottom:20px">
-            <v-btn class="clear-cache-button" @click="onClearCache">
-              Clear session cache
-            </v-btn>
-          </div>
-
-          <div style="margin-bottom:20px">    
-            <v-btn id="save-cache-button"  @click="onSaveCache">
-             Save session cache
-            </v-btn>
-            <a id="download-json-file"
-              v-show="false"
-              download="gene_iobio_session.json" href="#">
-            </a>
-          </div>
-
-          <div style="margin-bottom:20px">    
-            
-            <file-chooser id="load-cache-file-button"
-              title="Load session cache"
-              :isMultiple="false" :accept="`.json`"
-              :showLabel="true"
-              @file-selected="onCacheFileSelected">
-            </file-chooser>
-          </div>
-
-
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn raised  @click.native="showOptions = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-
     <v-dialog v-model="showVersion" max-width="580">
         <v-card class="full-width">
           <v-card-title class="headline">gene.iobio {{ globalApp.version }}</v-card-title>
@@ -1335,7 +1358,6 @@ export default {
       showExportVariants: false,
       showTermsOfService: false,
       showDisclaimer: false,
-      showOptions: false,
       showVersion: false,
       showCitations: false,
       showPublication: false,
@@ -1426,8 +1448,16 @@ export default {
     getCacheHelper: function() {
       return this.cohortModel.cacheHelper
     },
+    onMenuLoadSavedAnalysis: function() {
+      $('#load-saved-analysis-button button input')[0].click();
+    },
     onSaveCache: function(){
       let self = this;
+
+      let data = {'modelInfos': {}, 'cache': []};
+      data.modelInfos = this.getCacheHelper().cohort.modelInfos;
+
+
       let options = {}
       options.decompress = false;
       options[this.getCacheHelper().BAM_DATA] =  true;
@@ -1435,7 +1465,9 @@ export default {
       self.getCacheHelper().promiseOutputCache(options)
       .then(function(cacheItems) {
 
-        let cleanedDataStr = JSON.stringify(cacheItems, function(key, value) {
+        data.cache = cacheItems;
+
+        let cleanedDataStr = JSON.stringify(data, function(key, value) {
           if (value && value != '') {
             if (key == 'gene' && typeof value === 'object' && value.hasOwnProperty('gene_name')) {
               return value.gene_name
@@ -1450,7 +1482,6 @@ export default {
           cleanedDataStr,
           "gene-iobio-data.json");
         document.getElementById('download-json-file').click();
-        self.showOptions = false;
       })
       .catch(function(error) {
         console.log("Unable to output cache", error)
@@ -1459,25 +1490,19 @@ export default {
     onCacheFileSelected: function(fileSelection) {
       let me = this;
       let start = new Date();
-      if (this.cohortModel && this.cohortModel.isLoaded == true) {
-        let dataIsCompressed = true;
-        //let options = {}
-        //options[this.getCacheHelper().BAM_DATA] =  true;
-        //options[this.getCacheHelper().GENE_COVERAGE_DATA] = true;
-        this.getCacheHelper().promiseLoadCacheFromFile(fileSelection, dataIsCompressed)
-        .then(function() {
-          console.log("Time to load cache from file: " + (new Date() - start) / 1000 + " seconds ");
-          me.showOptions = false;
-          me.onShowVariantsTab();
-          me.$emit("on-cache-file-loaded");
-        })
-        .catch(function(error) {
-          console.log("Error loading cache file file", error)
-          alert("Error.Unable to load cache file file.\n" + error)
-        })        
-      } else {
-        alert("VCF file must be loaded first.")
-      }
+      let dataIsCompressed = true;
+
+      this.getCacheHelper().promiseLoadCacheFromFile(fileSelection, dataIsCompressed)
+      .then(function() {
+        console.log("Time to load cache from file: " + (new Date() - start) / 1000 + " seconds ");
+        me.onShowVariantsTab();
+        me.$emit("on-cache-file-loaded");
+      })
+      .catch(function(error) {
+        console.log("Error loading cache file file", error)
+        alert("Error.Unable to load cache file file.\n" + error)
+      })        
+      
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
@@ -1580,10 +1605,6 @@ export default {
     },
     onShowCoverageThreshold: function() {
       this.$emit('show-coverage-threshold', true)
-    },
-
-    onShowOptions: function() {
-      this.showOptions = true;
     },
     onShowTermsOfService: function(){
       this.showTermsOfService = true;

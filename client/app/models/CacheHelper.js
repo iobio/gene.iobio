@@ -857,10 +857,16 @@ CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection, dataIsC
       reader.onload = function(event) {
         fileSelection.value = null;
         var dataStr = event.target.result;
-        me.promiseLoadCache(dataStr, dataIsCompressed, options)
-        .then(function(){
+        let data = JSON.parse(dataStr);
+
+        me.cohort.promiseInit(data.modelInfos)
+        .then(function() {
+          return me.promiseLoadCache(data.cache, dataIsCompressed, options)
+        })
+        .then(function() {
           resolve();
         })
+
       }
       reader.onerror = function(event) {
         let msg = "Cannot read file. Error: " + event.target.error.name
@@ -879,10 +885,10 @@ CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection, dataIsC
 
 }
 
-CacheHelper.prototype.promiseLoadCache = function(cacheDataStr, dataIsCompressed=true, options) {
+CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsCompressed=true, options) {
   let me = this;
   return new Promise(function(resolve, reject) {
-    let cacheData = JSON.parse(cacheDataStr)
+
 
     let geneToDangerSummary = {};
     let geneToProbandVcfData = {};

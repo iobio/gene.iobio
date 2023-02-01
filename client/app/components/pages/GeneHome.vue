@@ -2787,6 +2787,7 @@ export default {
       }
     },
     onCacheFileLoaded: function() {
+      this.models = this.cohortModel.sampleModels;
       this.onShowSnackbar({message: 'Session loaded.', timeout: 3000, close:true})
       this.promiseSelectFirstFlaggedVariant()
     },

@@ -551,11 +551,11 @@ $light-gray-color:   #f0f1f3
                   START NEW ANALYSIS
                 </v-btn>
                   <v-btn v-if="!resume" class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
-                  <v-icon>model_training</v-icon>
+                  <v-icon>tour</v-icon>
                   RUN WITH DEMO DATA
                 </v-btn>
                 <v-btn v-if="!resume" class="welcome-button"  id="uploadData"  @click="onUploadFiles">
-                  <v-icon>cloud_upload</v-icon>
+                  <v-icon>file_upload</v-icon>
                   LOAD YOUR DATA
                 </v-btn>
                 <v-btn v-if="!resume"  class="welcome-button"  @click="playVideo('screencast-intro')">

@@ -51,6 +51,7 @@ class CohortModel {
     this.knownVariantsViz = 'variants'; // variants, histo, histoExon
       this.sfariVariantsViz = 'variants';
 
+    this.modelInfos = {}
 
     this.demoVcf = {
       'exome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh38.vcf.gz",
@@ -348,6 +349,8 @@ class CohortModel {
         self.setAffectedInfo(true);
         self.inProgress.loadingDataSources = false;
         self.isLoaded = true;
+
+        self.modelInfos = modelInfos;
 
         resolve();
       })
