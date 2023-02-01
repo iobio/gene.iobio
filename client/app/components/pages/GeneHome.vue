@@ -317,6 +317,7 @@ main.content.clin, main.v-content.clin
       @show-files="onShowFiles"
       @stop-analysis="onStopAnalysis"
       @on-cache-file-loaded="onCacheFileLoaded"
+      @gene-source-selected="onGeneSourceSelected"
     >
     </navigation>
 
@@ -2321,19 +2322,24 @@ export default {
     onGeneSourceSelected: function(theGeneSource) {
       var self = this;
       self.geneModel.geneSource = theGeneSource;
-      this.onGeneSelected(this.selectedGene.gene_name);
+
+      if (this.selectedGene && this.selectedGene.geneName) {
+        this.onGeneSelected(this.selectedGene.gene_name);
+      }
     
       // We have to clear the cache since the gene transcripts have changed
       self.geneModel.geneToLatestTranscript = {};
       self.promiseClearCache()
       self.showLeftPanelForGenes()
 
-      self.onShowSnackbar({message: 'Genes must be re-analyzed based on ' 
-        + self.geneSource + ' transcripts', timeout: 6000});
+      if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
+        self.onShowSnackbar({message: 'Genes must be re-analyzed based on ' 
+          + self.geneModel.geneSource + ' transcripts', timeout: 3000});
 
-      setTimeout(function() {
-        self.onAnalyzeAll()
-      },4000)
+        setTimeout(function() {
+          self.onAnalyzeAll()
+        },4000)        
+      }
 
     },
 

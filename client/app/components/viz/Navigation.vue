@@ -38,10 +38,11 @@ nav .v-toolbar__content
         color: white
         font-weight: 500 !important
   #build-name
-    font-style: italic
+    font-style: normal
     font-weight: 500
     color: $nav-label-color
     font-size: 13px !important
+    margin-right: 20px
        
 aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
@@ -231,6 +232,7 @@ nav.toolbar, nav.v-toolbar
     height: 34px
     padding-left: 5px
     padding-right: 8px
+    margin-left: 0px
 
     .v-btn__content
       padding-top: 2px
@@ -275,8 +277,6 @@ nav.toolbar, nav.v-toolbar
 
   #coverage-badge
     color: $coverage-problem-color !important
-    margin-top: -42px !important
-    margin-left: 4px !important
 
 
   #legend-button
@@ -323,20 +323,20 @@ nav.toolbar, nav.v-toolbar
     margin-left: 5px
 
 
-  #phenolyzer-top-input
+  #phenolyzer-top-input, #gene-source-box
     .input-group__input
       height: 14px
-  .primary--text input, .primary--text textarea
-    caret-color: $nav-text-color !important
+    .primary--text input, .primary--text textarea
+      caret-color: $nav-text-color !important
 
-    i.material-icons
-      color:  $nav-text-color-clin !important
-
-
-      color: $text-color
+      i.material-icons
+        color:  $nav-text-color-clin !important
 
 
-  #phenotype-input, #gene-name-input, #phenolyzer-top-input
+        color: $text-color
+
+
+  #phenotype-input, #gene-name-input, #phenolyzer-top-input, #gene-source-box
     margin-top: 4px
     .v-text-field__slot
       margin-top: 4px !important
@@ -366,6 +366,18 @@ nav.toolbar, nav.v-toolbar
       input
         font-size: 14px
         font-weight: 500
+
+
+  #gene-source-box
+    margin-right: 20px
+    margin-top: -4px
+    width: 100px
+    .v-select__selection--comma
+      color: $nav-label-color
+      margin-bottom: 0px
+      font-size: 14px
+      font-weight: 500
+
 
   .clinvar-switch
     padding: 0px
@@ -414,7 +426,7 @@ nav.toolbar, nav.v-toolbar
     padding-bottom: 13px
     min-width: 130px
 
-  #phenotype-input, #gene-name-input, #phenolyzer-top-input
+  #phenotype-input, #gene-name-input, #phenolyzer-top-input, #gene-source-box
     label
       color: $nav-text-color !important
     .material-icons
@@ -426,6 +438,8 @@ nav.toolbar, nav.v-toolbar
   #gene-name-input
     width: 140px
     margin-left: 5px
+
+
 
 
   #search-phenotype-button
@@ -447,7 +461,7 @@ nav.toolbar, nav.v-toolbar
     .btn
       color: $nav-text-color-clin
 
-    #phenotype-input, #gene-name-input, #phenolyzer-top-input
+    #phenotype-input, #gene-name-input, #phenolyzer-top-input, #gene-source-box
       label
         color: $nav-text-color-clin !important
       .material-icons
@@ -455,7 +469,7 @@ nav.toolbar, nav.v-toolbar
       .input-group__selections__comma
         color: $nav-text-color-clin !important
 
-    #phenotype-input, #gene-name-input, #phenolyzer-top-input
+    #phenotype-input, #gene-name-input, #phenolyzer-top-input, #gene-source-box
       .input-group input
         color: $nav-text-color-clin !important
       .input-group__details:before
@@ -599,25 +613,14 @@ nav.toolbar, nav.v-toolbar
   <div>
     <v-toolbar fixed  height="50"   dark  :class="launchedFromClin ? 'clin' : '' " >
 
-      <v-toolbar-side-icon v-if="!isSimpleMode" style="margin-top:7px"  @click.stop="leftDrawer = !leftDrawer">
+      <v-toolbar-side-icon v-if="!isSimpleMode" style="margin-top:5px"  @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
 
-      <v-toolbar-title style="font-weight:400" v-text="title">
+      <v-toolbar-title style="font-weight:400;margin-top:-6px" v-text="title">
       </v-toolbar-title>
 
       <v-spacer v-if="!isFullAnalysis"></v-spacer>
-
-      <span id="build-name" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
-        {{ currentBuildName }}
-      </span>
-
-
-      <v-spacer v-if="!isFullAnalysis"></v-spacer>
-
-      <v-btn v-if="false" id="variants-button" flat @click.stop="leftDrawer = !leftDrawer">
-        Variants
-      </v-btn>
 
       <v-btn  class="navbar-icon-button" v-if="(appAlerts && appAlerts.length > 0) || (badgeCounts && badgeCounts.coverage)" id="notification-button"  @click="onShowNotificationDrawer" flat 
         v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
@@ -633,21 +636,16 @@ nav.toolbar, nav.v-toolbar
         v-tooltip.bottom-left="{content: 'The app has issued a warning. Click on notifications button (bell) to see details.'}">
         warning
       </v-icon>
-      <app-icon id="coverage-badge" v-if="badgeCounts && badgeCounts.coverage"
-           icon="coverage"
-           class=" glyph navbar-icon"
-           width="15" height="15"
+
+      <v-icon id="coverage-badge" class="navbar-icon-button" v-if="badgeCounts && badgeCounts.coverage"
            v-tooltip.bottom-left="{content: 'Some genes have insufficient sequence coverage (based in user-defined thresholds'}">
-      </app-icon>
+        trending_down
+      </v-icon>
 
-
-      <v-btn class="navbar-icon-button" v-if="false && cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat 
-         v-tooltip.bottom-left="{content: 'Genes with low sequence coverage, click to adjust thresholds'}">
-      </v-btn>
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items style="flex-grow: 3;padding-top:0px;">
+      <v-toolbar-items style="flex-grow: 3;padding-top:3px;margin-left: 10px;margin-right:40px">
 
         <v-icon>search</v-icon>
 
@@ -700,6 +698,8 @@ nav.toolbar, nav.v-toolbar
         </phenotype-search>
 
 
+        <v-spacer v-if="!isFullAnalysis"></v-spacer>
+      
 
       </v-toolbar-items>
 
@@ -712,9 +712,24 @@ nav.toolbar, nav.v-toolbar
         :isDirty="isDirty"
         @save-modal:set-visibility="toggleSaveModal"
       />
-      
+    
+      <div id="gene-source-box" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
+          <v-select
+                  v-bind:items="geneSources"
+                  v-model="geneSource"
+                  label="Gene source"
+                  item-value="text"
+                  :hide-details="true"
+                  @input="onGeneSourceSelected">
+          </v-select>
+      </div>
 
 
+      <span id="build-name" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
+        {{ currentBuildName }}
+      </span>
+
+      <v-spacer></v-spacer>
 
       <v-btn id="files-button"   icon v-if="showFilesButton" 
         @click="onShowFiles" 
@@ -1337,6 +1352,8 @@ export default {
 
       showKnownVariantsCard: false,
 
+      geneSource: null,
+      geneSources: ['gencode', 'refseq'],
 
 
     }
@@ -1646,13 +1663,17 @@ export default {
     toggleSaveModal(bool) {
       this.$emit("toggle-save-modal", bool);
     },
-
+    onGeneSourceSelected: function() {
+      let self = this;
+      self.$emit('gene-source-selected', self.geneSource);
+    },
 
   },
   created: function() {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
+     this.geneSource = this.geneModel.geneSource;
   },
   computed:  {
     knownGenes: function() {

@@ -397,84 +397,87 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
         // At this point, we know that the variants are not cached.  So
         // get the gene coverage (if needed), otherwise, continue on to next
         // step to annotate the variants
+        let coveragePromise = null;
         if (analyzeGeneCoverage) {
-          return me.cohort.promiseGetCachedGeneCoverage(geneObject, transcript, false);
+          coveragePromise = me.cohort.promiseGetCachedGeneCoverage(geneObject, transcript, false);
         } else {
-          return Promise.resolve();
+          coveragePromise = Promise.resolve();
         }
+
+        coveragePromise
+        .then(function(data) {
+          // Load and annotate the variants
+          if (analyzeGeneCoverage) {
+            if (data && data.geneCoverage) {
+              geneCoverageAll = data.geneCoverage;
+            } else  {
+              console.log("promiseGetCachedGeneCoverage returning null for " + geneObject.gene_name);
+            }
+          }
+
+          if (me.cohort.isAlignmentsOnly()) {
+            return Promise.resolve(trioVcfData);
+          } else {
+            let annotationOptions = {'isMultiSample': me.cohort.mode == 'trio' && me.cohort.samplesInSingleVcf(),
+                                     'isBackground': true, 'bypassAnnotate': annotateVariants ? false : true};
+            return me.cohort.promiseAnnotateVariants(geneObject, transcript, annotationOptions)
+          }
+        })
+        .then(function(data) {
+          trioVcfData = data;
+
+          // Joint call variants if we are calling variants for all genes in 'Analyze All'
+          if (analyzeCalledVariants) {
+            return me.cohort.promiseJointCallVariants(geneObject, transcript, trioVcfData, {checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
+          } else {
+            return Promise.resolve({'trioFbData': trioFbData, 'trioVcfData': trioVcfData});
+          }
+        })
+        .then(function(data) {
+
+          // Now determine inheritance and cache the annotated loaded and called variants
+          trioFbData = data.trioFbData;
+          trioVcfData = data.trioVcfData;
+
+          return me.cohort.promiseAnnotateInheritance(geneObject, transcript, trioVcfData, {isBackground: true, cacheData: true})
+
+        })
+        .then(function(data) {
+
+          // Now summarize the danger for the  gene
+          return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants, 'GENECOVERAGE': analyzeGeneCoverage})
+        })
+        .then(function() {
+          // Now clear out mother and father from cache (localStorage browser cache only)
+          //if (window.gene == null || window.gene.gene_name != geneObject.gene_name) {
+            if (me.useLocalStorage()) {
+              me.cohort.getModel("mother").clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
+              me.cohort.getModel("father").clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
+            }
+          //}
+          // Clear out the called variants cache since this is now cached in vcf data
+          if (analyzeCalledVariants) {
+            me.cohort.getProbandModel().clearCacheItem(CacheHelper.FB_DATA, geneObject.gene_name, transcript);
+          }
+
+          // We have analyzed the gene, now move on to another gene
+          //if (window.gene && window.gene.gene_name == geneObject.gene_name) {
+            //genesCard.selectGene(geneObject.gene_name);
+          //}
+
+          // We are done analyzing this gene.  Move on to the next one.
+          cacheResolve({'gene': geneObject, 'transcript': transcript});
+
+        })
+        .catch(function(error) {
+          cacheReject({'geneName': theGeneName, 'message': error});
+        });
       }
-    })
-    .then(function(data) {
-      // Load and annotate the variants
-      if (analyzeGeneCoverage) {
-        if (data && data.geneCoverage) {
-          geneCoverageAll = data.geneCoverage;
-        } else {
-          console.log("promiseGetCachedGeneCoverage returning null for " + geneObject.gene_name);
-        }
-      }
-
-      // Show that we are working on this gene
-      //genesCard._geneBadgeLoading(geneObject.gene_name, true);
-
-      // The gene is ready to be analyzed. Annotate the variants
-      if (me.cohort.isAlignmentsOnly()) {
-        return Promise.resolve(trioVcfData);
-      } else {
-        let annotationOptions = {'isMultiSample': me.cohort.mode == 'trio' && me.cohort.samplesInSingleVcf(),
-                                 'isBackground': true, 'bypassAnnotate': annotateVariants ? false : true};
-          return me.cohort.promiseAnnotateVariants(geneObject, transcript, annotationOptions)
-      }
-    })
-    .then(function(data) {
-      trioVcfData = data;
-
-      // Joint call variants if we are calling variants for all genes in 'Analyze All'
-      if (analyzeCalledVariants) {
-        return me.cohort.promiseJointCallVariants(geneObject, transcript, trioVcfData, {checkCache: true, isBackground: true, gnomADExtra: me.globalApp.gnomADExtra, decompose: true})
-      } else {
-        return Promise.resolve({'trioFbData': trioFbData, 'trioVcfData': trioVcfData});
-      }
-    })
-    .then(function(data) {
-
-      // Now determine inheritance and cache the annotated loaded and called variants
-      trioFbData = data.trioFbData;
-      trioVcfData = data.trioVcfData;
-
-      return me.cohort.promiseAnnotateInheritance(geneObject, transcript, trioVcfData, {isBackground: true, cacheData: true})
-
-    })
-    .then(function(data) {
-
-      // Now summarize the danger for the  gene
-      return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants, 'GENECOVERAGE': analyzeGeneCoverage})
-    })
-    .then(function() {
-      // Now clear out mother and father from cache (localStorage browser cache only)
-      //if (window.gene == null || window.gene.gene_name != geneObject.gene_name) {
-        if (me.useLocalStorage()) {
-          me.cohort.getModel("mother").clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
-          me.cohort.getModel("father").clearCacheItem(CacheHelper.VCF_DATA, geneObject.gene_name, transcript);
-        }
-      //}
-      // Clear out the called variants cache since this is now cached in vcf data
-      if (analyzeCalledVariants) {
-        me.cohort.getProbandModel().clearCacheItem(CacheHelper.FB_DATA, geneObject.gene_name, transcript);
-      }
-
-      // We have analyzed the gene, now move on to another gene
-      //if (window.gene && window.gene.gene_name == geneObject.gene_name) {
-        //genesCard.selectGene(geneObject.gene_name);
-      //}
-
-      // We are done analyzing this gene.  Move on to the next one.
-      cacheResolve({'gene': geneObject, 'transcript': transcript});
-
     })
     .catch(function(error) {
       cacheReject({'geneName': theGeneName, 'message': error});
     });
+    
   })
 
 

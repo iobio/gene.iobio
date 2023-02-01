@@ -1617,10 +1617,11 @@ class CohortModel {
               return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript, notFoundVariants);
           })
           .then(function(theDangerSummary) {
-            if (theDangerSummary && theDangerSummary.geneCoverageProblem) {
+            if (theDangerSummary && theDangerSummary.geneCoverageProblem && theDangerSummary.geneCoverageProblemNonProband) {
+              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene " + theDangerSummary.geneName + " in proband and non-proband (e.g. mother, father) samples", theDangerSummary.geneName);
+            } else if (theDangerSummary && theDangerSummary.geneCoverageProblem) {
               self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene " + theDangerSummary.geneName + " in proband sample", theDangerSummary.geneName);
-            } 
-            if (theDangerSummary && theDangerSummary.geneCoverageProblemNonProband) {
+            } else if (theDangerSummary && theDangerSummary.geneCoverageProblemNonProband) {
               self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene " + theDangerSummary.geneName + " in non-proband (e.g. mother, father) sample", theDangerSummary.geneName);
             } 
 

@@ -284,6 +284,7 @@ class GeneModel {
     let me = this;
 
     return new Promise(function(resolve, reject) {
+
       let geneName = theGeneName.toUpperCase();
 
       if (me.geneNames.indexOf(geneName) < 0) {
