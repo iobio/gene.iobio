@@ -316,7 +316,8 @@ main.content.clin, main.v-content.clin
       @on-welcome-changed="onWelcomeChanged"
       @show-files="onShowFiles"
       @stop-analysis="onStopAnalysis"
-      @on-cache-file-loaded="onCacheFileLoaded"
+      @on-analysis-file-loaded="onAnalysisFileLoaded"
+      @on-analysis-file-error="onAnalysisFileError"
       @gene-source-selected="onGeneSourceSelected"
     >
     </navigation>
@@ -2786,10 +2787,14 @@ export default {
         this.$refs.genesCardRef.clearFilter();
       }
     },
-    onCacheFileLoaded: function() {
+    onAnalysisFileLoaded: function(analysisFileName) {
       this.models = this.cohortModel.sampleModels;
-      this.onShowSnackbar({message: 'Session loaded.', timeout: 3000, close:true})
+      this.addAlert("info", 'Analysis file loaded.', null, [analysisFileName])
+      this.onShowSnackbar({message: 'Analysis loaded.', timeout: 3000, close:true})
       this.promiseSelectFirstFlaggedVariant()
+    },
+    onAnalysisFileError: function(msg, error) {
+      this.addAlert('error', msg, null, error)
     },
     onApplyGenes: function(genesString, options, callback) {
       let self = this;

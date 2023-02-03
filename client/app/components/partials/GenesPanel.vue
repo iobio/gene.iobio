@@ -16,7 +16,7 @@
       min-width: 100px
       padding-right: 5px
       padding-left: 5px
-      background-color: $link-color
+      background-color: $button-color-bright
       height: 28px
 
       .btn__content, .v-btn__content
@@ -40,13 +40,12 @@
         min-width: 120px
         padding-right: 5px
         padding-left: 5px
-        background-color: $link-color
+        background-color: $button-color-bright
         height: 28px
 
         .btn__content, .v-btn__content
           padding-left: 0px
           padding-right: 0px
-          color: $link-color
           font-size: 13px
           font-weight: 500
           color: white
@@ -70,7 +69,7 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      color: $link-color
+      color: $button-color-bright
 
       i.material-icons
         font-size: 20px

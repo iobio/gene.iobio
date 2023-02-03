@@ -86,7 +86,7 @@
       min-width: 110px
       padding-right: 5px
       padding-left: 5px
-      background-color: $link-color
+      background-color: $button-color-bright
       height: 28px
 
       .btn__content, .v-btn__content
@@ -112,7 +112,7 @@
         padding-right: 5px
         padding-left: 5px
         height: 28px
-        background-color: $link-color
+        background-color: $button-color-bright
 
         .btn__content, .v-btn__content
           padding-left: 0px
@@ -140,7 +140,7 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      color: $link-color
+      color: $button-color-bright
 
       i.material-icons
         font-size: 20px

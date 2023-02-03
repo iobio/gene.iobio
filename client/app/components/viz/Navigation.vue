@@ -765,7 +765,7 @@ nav.toolbar, nav.v-toolbar
                 title="Load saved analysis"
                 :isMultiple="false" :accept="`.json`"
                 :showLabel="true"
-                @file-selected="onCacheFileSelected">
+                @file-selected="onAnalysisFileSelected">
                 </file-chooser>
             </v-list-tile>
           </v-list>
@@ -788,6 +788,9 @@ nav.toolbar, nav.v-toolbar
         <v-icon>file_download</v-icon>
         Save
       </v-btn>  
+      <a id="download-json-file" v-show="false" download="gene_iobio_analysis.json" href="#">
+      </a>
+
 
 
       <save-button
@@ -1384,6 +1387,8 @@ export default {
       geneSource: null,
       geneSources: ['gencode', 'refseq'],
 
+      analysisFileName: ""
+
 
     }
   },
@@ -1485,30 +1490,39 @@ export default {
             return
           }
         }, 2)
+        let jsonFileName = "gene.iobio.analysis." + 
+                            self.globalApp.utility.formatCurrentDateYMD() + 
+                            ".json"
         self.globalApp.utility.createDownloadLink("#download-json-file",
           cleanedDataStr,
-          "gene-iobio-data.json");
+          jsonFileName);
         document.getElementById('download-json-file').click();
       })
       .catch(function(error) {
         console.log("Unable to output cache", error)
       })
     },
-    onCacheFileSelected: function(fileSelection) {
+    onAnalysisFileSelected: function(fileSelection) {
       let me = this;
-      let start = new Date();
-      let dataIsCompressed = true;
+         
+      if (fileSelection.target.files.length > 0) {
+        let analysisFileName = event.target.files[0].name;  
+        let start = new Date();
+        let dataIsCompressed = true;
 
-      this.getCacheHelper().promiseLoadCacheFromFile(fileSelection, dataIsCompressed)
-      .then(function() {
-        console.log("Time to load cache from file: " + (new Date() - start) / 1000 + " seconds ");
-        me.onShowVariantsTab();
-        me.$emit("on-cache-file-loaded");
-      })
-      .catch(function(error) {
-        console.log("Error loading cache file file", error)
-        alert("Error.Unable to load cache file file.\n" + error)
-      })        
+        this.getCacheHelper().promiseLoadCacheFromFile(fileSelection, dataIsCompressed)
+        .then(function() {
+          console.log("Time to load analysis from file " + analysisFileName + ": " + (new Date() - start) / 1000 + " seconds ");
+          me.onShowVariantsTab();
+          me.$emit("on-analysis-file-loaded", analysisFileName);
+        })
+        .catch(function(error) {
+          let msg = "Error loading analysis .json file " + analysisFileName;
+          console.log(msg, error)
+          me.$emit("on-analysis-file-error", msg, error)
+        })        
+      }
+
       
     },
     onSearchPhenolyzerGenes: function(searchTerm) {

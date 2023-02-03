@@ -30,7 +30,7 @@
   #show-assessment-button
     padding: 0px
     height: 26px !important
-    background-color: $app-button-color !important
+    background-color: $button-color-bright !important
     color: white !important
     margin: 0px
     padding-left: 10px
