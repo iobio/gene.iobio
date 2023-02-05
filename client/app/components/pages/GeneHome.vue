@@ -120,27 +120,26 @@ main.content.clin, main.v-content.clin
   max-width: -webkit-fill-available !important
 
 
-#data-sources-loader, #session-data-loader, #cache-data-loader
-  margin-top: 30px
-  margin-left: auto
-  margin-right: auto
-  text-align: center
-  width: 300px
-  height: auto
-  padding-top: 15px
-  padding-bottom: 15px
 
-#save-analysis-loader
-  width: 300px
-  height: auto
+#app-loader
   position: absolute
-  top: 280px
+  top: 80px
+  height: 100px
+  width: 300px
   left: calc(100%/2 - 300px)
-  border-color: #a9a6a6 !important
+  border-color: #c5c5c5 !important
   border-style: solid !important
-  padding-top: 15px
-  padding-bottom: 15px
+  border-width: 1px !important
+  padding-top: 40px
   text-align: center
+  font-size: 16px
+  background-color: #eceaea
+  color: #1c5f96
+  font-weight: 400
+
+  .v-progress-circular
+    color: $button-color-bright
+
 
 
 
@@ -319,6 +318,8 @@ main.content.clin, main.v-content.clin
       @on-analysis-file-loaded="onAnalysisFileLoaded"
       @on-analysis-file-error="onAnalysisFileError"
       @gene-source-selected="onGeneSourceSelected"
+      @on-show-progress="onShowInProgress"
+      @on-hide-progress="onHideInProgress"
     >
     </navigation>
 
@@ -581,37 +582,19 @@ main.content.clin, main.v-content.clin
         </welcome>
 
         <v-card
-        id="data-sources-loader"
-        class="loader full-width"
-        v-bind:class="{ hide: !cohortModel ||  !cohortModel.inProgress.loadingDataSources }">
-          <span class="loader-label">Loading files</span>
-          <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
-        </v-card>
-
-        <v-card
-        id="session-data-loader"
+        id="app-loader"
         class="loader"
-        v-show="launchedFromClin && (!cohortModel || (!cohortModel.isLoaded && !cohortModel.inProgress.loadingDataSources))">
-          <span class="loader-label">Initializing session data</span>
-          <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
+        v-show="showAppLoader">
+          <span style="padding-right:8px" class="loader-label">
+             {{ appLoaderLabel }}
+          </span>
+          <v-progress-circular
+            indeterminate
+            color="primary"
+            size="16"
+            width="2"
+          ></v-progress-circular>
         </v-card>
-
-        <v-card
-        id="cache-data-loader"
-        class="loader"
-        v-show="launchedFromHub && inProgressCache.loading">
-          <span class="loader-label">Initializing session data</span>
-          <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
-        </v-card>
-
-        <v-card
-        id="save-analysis-loader"
-        class="loader"
-        v-show="savingAnalysis">
-          <span class="loader-label">Saving analysis</span>
-          <img src="../../../assets/images/wheel.gif" alt="Loading Wheel">
-        </v-card>
-
 
 
         <v-snackbar
@@ -843,7 +826,8 @@ export default {
       showSaveModal: false,
       showCoverageThreshold: false,
 
-      inProgressCache: {'loading': false},
+      showAppLoader: false,
+      appLoaderLabel: "",
 
       hubToIobioSources: {
         "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
@@ -918,7 +902,6 @@ export default {
       forceKnownVariantsViz: null,
 
       inProgress: {},
-      savingAnalysis: false,
 
       badgeCounts: {coverage: 0},
 
@@ -1211,6 +1194,12 @@ export default {
         self.cohortModel.on("alertIssued", function(type, message, genes, details) {
           self.addAlert(type, message, genes)
         })
+        self.cohortModel.on("showInProgress", function(message) {
+          self.onShowInProgress(message);
+        })
+        self.cohortModel.on("hideInProgress", function() {
+          self.onHideInProgress();
+        })
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
           self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
@@ -1232,7 +1221,8 @@ export default {
 
         self.variantExporter.cohort = self.cohortModel;
 
-        self.inProgress = self.cohortModel.inProgress;
+        self.appLoaderLabel = "Initializing from Mosaic"
+        self.showAppLoader = true;
 
 
         self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.isSimpleMode, self.tourNumber);
@@ -1263,7 +1253,8 @@ export default {
             if (self.launchedFromHub) {
               self.promiseInitFromMosaic()
               .then(function() {
-                slef.addAlert("info", "gene.iobio inititalized from Mosaic")
+                self.addAlert("info", "gene.iobio inititalized from Mosaic")
+                self.showAppLoader = false;
                 if (callback) {
                   callback();
                 }
@@ -1271,6 +1262,7 @@ export default {
               })
               .catch(function(error) {
                 self.addAlert("error", "Unable to initialize from Mosaic. " + error)
+                self.showAppLoader = false;
                 if (callback) {
                   callback();
                 }
@@ -1286,10 +1278,12 @@ export default {
                 .then(function() {
                   self.showLeftPanelWhenFlaggedVariants();
                   if (callback) {
+                    self.showAppLoader = false;
                     callback();
                   }
                 })
                 .catch(function(error) {
+                  self.showAppLoader = false;
                   self.addAlert("error", error, self.selectedGene)
                 })
               } else {
@@ -1302,6 +1296,8 @@ export default {
                 if (!self.isEduMode && !self.isBasicMode && !self.isSimpleMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
                   self.showWelcome = true;
                 }
+                self.showAppLoader = false;
+
                 if (callback) {
                   callback();
                 }
@@ -1361,6 +1357,18 @@ export default {
         this.globalApp.isDirty = dirtyFlag;
       }
       this.isDirty = dirtyFlag;
+    },
+
+    onShowInProgress: function(message) {
+      if (this.showWelcome) {
+        this.showWelcome = false;
+      }
+      this.appLoaderLabel = message;
+      this.showAppLoader = true;
+    },
+
+    onHideInProgress: function() {
+      this.showAppLoader = false;
     },
 
     promiseInitFromMosaic: function() {
@@ -1426,7 +1434,8 @@ export default {
         .then(function() {
 
           if (self.analysis.payload.hasOwnProperty('cache')) {
-            self.inProgressCache.loading = true;
+            self.appLoaderLabel = "Loading analysis"
+            self.showAppLoader = true;
             let start = new Date()
             return self.cacheHelper.promiseLoadCache(self.analysis.payload.cache)
             .then(function() {
@@ -1434,7 +1443,8 @@ export default {
                 [
                 'elapsed time = ' + (new Date() - start) / 1000 + ' seconds'
                 ])
-              self.inProgressCache.loading = false;
+              self.showAppLoader = false;
+              self.appLoaderLabel = "";
             })
           } else {
             return Promise.resolve();
@@ -4402,13 +4412,14 @@ export default {
       this.showSaveModal = false;
       this.delaySave = 1000;
       let options = {saveTitle: true, autoupdate: false, notify: true}
-      this.savingAnalysis = true;
+      this.showAppLoader = true;
+      this.appLoaderLabel = "Saving analysis"
       return this.promiseSaveAnalysis(options)
       .then(function() {
-        self.savingAnalysis = false;
+        self.showAppLoader = false;
       })
       .catch(function() {
-        self.savingAnalysis = false;
+        self.showAppLoader = false;
 
       })
     },

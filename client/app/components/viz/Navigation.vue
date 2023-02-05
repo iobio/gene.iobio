@@ -783,7 +783,7 @@ nav.toolbar, nav.v-toolbar
         :outline="cohortModel && cohortModel.isLoaded" 
         :flat="cohortModel && !cohortModel.isLoaded"
          v-if="!launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded" 
-        @click="onSaveCache" 
+        @click="onSaveAnalysisFile" 
         v-tooltip.bottom-left="{content: 'Save your analysis'}">
         <v-icon>file_download</v-icon>
         Save
@@ -1461,8 +1461,10 @@ export default {
     getCacheHelper: function() {
       return this.cohortModel.cacheHelper
     },
-    onSaveCache: function(){
+    onSaveAnalysisFile: function(){
       let self = this;
+
+      self.$emit("on-show-progress", "Formatting analysis data")
 
       let data = {'modelInfos': {}, 'cache': []};
       data.modelInfos = this.getCacheHelper().cohort.getModelInfos();
@@ -1491,12 +1493,15 @@ export default {
         let jsonFileName = "gene.iobio.analysis." + 
                             self.globalApp.utility.formatCurrentDateYMD() + 
                             ".json"
+                    
         self.globalApp.utility.createDownloadLink("#download-json-file",
           cleanedDataStr,
           jsonFileName);
+        self.$emit("on-hide-progress")
         document.getElementById('download-json-file').click();
       })
       .catch(function(error) {
+        self.$emit("on-hide-progress")
         console.log("Unable to output cache", error)
       })
     },
@@ -1507,15 +1512,12 @@ export default {
         let analysisFileName = fileSelection.target.files[0].name;  
         let start = new Date();
         let dataIsCompressed = true;
-
-        me.getCacheHelper().promiseLoadCacheFromFile(fileSelection, dataIsCompressed)
+        
+        me.cohortModel.promiseLoadAnalysisFromFile(fileSelection, dataIsCompressed)
         .then(function() {
           console.log("Time to load analysis from file " + analysisFileName + ": " + (new Date() - start) / 1000 + " seconds ");
           me.onShowVariantsTab();
           me.$emit("on-analysis-file-loaded", analysisFileName);
-
-
-
         })
         .catch(function(error) {
           let msg = "Error loading analysis .json file " + analysisFileName;

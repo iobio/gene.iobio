@@ -49,7 +49,7 @@ class CohortModel {
     this.flaggedVariants = [];
 
     this.knownVariantsViz = 'variants'; // variants, histo, histoExon
-      this.sfariVariantsViz = 'variants';
+    this.sfariVariantsViz = 'variants';
 
     this.demoVcf = {
       'exome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh38.vcf.gz",
@@ -126,7 +126,7 @@ class CohortModel {
     };
     this.myGene2GeneNames = ['KDM1A'];
 
-    this.dispatch = d3.dispatch("knownVariantsVizChange", "alertIssued");
+    this.dispatch = d3.dispatch("knownVariantsVizChange", "alertIssued", "showInProgress", "hideInProgress");
     d3.rebind(this, this.dispatch, "on");
 
 
@@ -360,6 +360,82 @@ class CohortModel {
         reject(error);
       })
     })
+  }
+
+
+  promiseLoadAnalysisFromFile(fileSelection, dataIsCompressed=true, options) {
+    var me = this;
+    me.isLoaded = false;
+    me.dispatch.showInProgress("Loading analysis file")
+    return new Promise(function(resolve, reject) {
+      var files = fileSelection.currentTarget.files;
+      // Check for the various File API support.
+      if (window.FileReader) {
+        var analysisFile = files[0];
+        var reader = new FileReader();
+
+        reader.readAsText(analysisFile);
+
+        // Handle errors load
+        reader.onload = function(event) {
+          me.dispatch.hideInProgress()
+          fileSelection.value = null;
+          var dataStr = event.target.result;
+          let data = JSON.parse(dataStr);
+
+          let proxies = [];
+          if (data.modelInfos) {
+            proxies = data.modelInfos.filter(function(modelInfo) {
+              let vcfProxy = modelInfo.vcf && modelInfo.vcf.indexOf('proxy') > 0;
+              let bamProxy = modelInfo.bam && modelInfo.bam.indexOf('proxy') > 0;
+              return vcfProxy || bamProxy;
+            }) 
+          }
+
+          var getInitPromise = function() {
+            if (data.modelInfos && data.modelInfos.length > 0 && proxies.length == 0) {
+              return me.promiseInit(data.modelInfos)
+            } else {
+              return Promise.resolve();
+            }
+
+          }
+
+          me.dispatch.showInProgress("Initializing session data")
+          getInitPromise().then(function() {
+            me.isLoaded = false;
+            return me.cacheHelper.promiseLoadCache(data.cache, dataIsCompressed, options)
+          })
+          .then(function() {
+            me.isLoaded = true;
+            me.dispatch.hideInProgress();
+            resolve();
+          })
+          .catch(function(error) {
+            me.dispatch.hideInProgress();
+            console.log("Unable to load data from saved analysis file " + analysisFile)
+            console.log(error)
+            let msg = 'Unable to load data files due to error: ' + error;
+            reject(msg)
+          }) 
+        }
+        reader.onerror = function(event) {
+          me.dispatch.hideInProgress();
+          let msg = "Cannot read file. Error: " + event.target.error.name
+          console.log(msg);
+          console.log(event.toString())
+          reject(msg)
+        }
+
+      } else {
+        me.dispatch.hideInProgress();
+        let msg = 'FileReader are not supported in this browser.'
+        console.log(msg)
+        reject(msg);
+      }
+
+    })
+
   }
 
 
