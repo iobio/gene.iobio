@@ -848,10 +848,10 @@ CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection, dataIsC
     var files = fileSelection.currentTarget.files;
     // Check for the various File API support.
     if (window.FileReader) {
-      var cacheFile = files[0];
+      var analysisFile = files[0];
       var reader = new FileReader();
 
-      reader.readAsText(cacheFile);
+      reader.readAsText(analysisFile);
 
       // Handle errors load
       reader.onload = function(event) {
@@ -859,14 +859,36 @@ CacheHelper.prototype.promiseLoadCacheFromFile = function(fileSelection, dataIsC
         var dataStr = event.target.result;
         let data = JSON.parse(dataStr);
 
-        me.cohort.promiseInit(data.modelInfos)
-        .then(function() {
+        let proxies = [];
+        if (data.modelInfos) {
+          proxies = data.modelInfos.filter(function(modelInfo) {
+            let vcfProxy = modelInfo.vcf && modelInfo.vcf.indexOf('proxy') > 0;
+            let bamProxy = modelInfo.bam && modelInfo.bam.indexOf('proxy') > 0;
+            return vcfProxy || bamProxy;
+          }) 
+        }
+
+        var getModelPromise = function() {
+          if (data.modelInfos && data.modelInfos.length > 0 && proxies.length == 0) {
+            return me.cohort.promiseInit(data.modelInfos)
+          } else {
+            return Promise.resolve();
+          }
+
+        }
+
+        getModelPromise().then(function() {
           return me.promiseLoadCache(data.cache, dataIsCompressed, options)
         })
         .then(function() {
           resolve();
         })
-
+        .catch(function(error) {
+          console.log("Unable to load data from saved analysis file " + analysisFile)
+          console.log(error)
+          let msg = 'Unable to load data files due to error: ' + error;
+          reject(msg)
+        }) 
       }
       reader.onerror = function(event) {
         let msg = "Cannot read file. Error: " + event.target.error.name

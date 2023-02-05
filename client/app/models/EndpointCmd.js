@@ -53,15 +53,8 @@ export default class EndpointCmd {
     getVcfHeader(vcfUrl, tbiUrl) {
         const me = this;
         if (this.gruBackend) {
-            let header = this.api.streamCommand('variantHeader', {url: vcfUrl, indexUrl: tbiUrl});
-            header.on('error', function(error){
-              let msg = "Error obtaining vcf header for file. Make sure your vcf file is properly formatted, and that the provided URL is accessible. <code>" + vcfUrl + "</code>";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Fatal error")
-               console.log("error in get vcf header", error)
-            })
-
-            return header;
+            let cmd = this.api.streamCommand('variantHeader', {url: vcfUrl, indexUrl: tbiUrl});
+            return cmd;
         }
     }
 

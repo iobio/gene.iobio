@@ -51,8 +51,6 @@ class CohortModel {
     this.knownVariantsViz = 'variants'; // variants, histo, histoExon
       this.sfariVariantsViz = 'variants';
 
-    this.modelInfos = {}
-
     this.demoVcf = {
       'exome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh38.vcf.gz",
       'genome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_genomes_GRCh38.vcf.gz"
@@ -132,6 +130,12 @@ class CohortModel {
     d3.rebind(this, this.dispatch, "on");
 
 
+  }
+
+  getModelInfos() {
+    return this.getCanonicalModels().map(function(sampleModel) {
+        return sampleModel.getModelInfo()
+    })
   }
 
   promiseInitDemo(demoKind='exome') {
@@ -350,8 +354,6 @@ class CohortModel {
         self.inProgress.loadingDataSources = false;
         self.isLoaded = true;
 
-        self.modelInfos = modelInfos;
-
         resolve();
       })
       .catch(function(error) {
@@ -376,7 +378,8 @@ class CohortModel {
       var vcfPromise = null;
       if (modelInfo.vcf) {
         vcfPromise = new Promise(function(vcfResolve, vcfReject) {
-          vm.onVcfUrlEntered(modelInfo.vcf, modelInfo.tbi, function() {
+          vm.promiseLoadVcfUrl(modelInfo.vcf, modelInfo.tbi)
+          .then(function() {
             vm.setSampleName(modelInfo.sample);
             if (modelInfo.name && modelInfo.name != "") {
               vm.setName(modelInfo.name);
@@ -384,10 +387,9 @@ class CohortModel {
               vm.setName(modelInfo.sample);
             }
             vcfResolve();
-          })
-        },
-        function(error) {
-          vcfReject(error);
+          }).catch( function(error) {
+            vcfReject(error);
+          });
         });
       } else {
         vm.sampleName = null;
@@ -501,14 +503,15 @@ class CohortModel {
       var vcfPromise = null;
       if (modelInfo.vcf) {
         vcfPromise = new Promise(function(vcfResolve, vcfReject) {
-          vm.onVcfUrlEntered(modelInfo.vcf, modelInfo.tbi, function() {
+          vm.promiseLoadVcfUrl(modelInfo.vcf, modelInfo.tbi)
+          .then( function() {
             vm.setSampleName(modelInfo.sample);
             vm.setName(modelInfo.relationship + " " + modelInfo.sample);
             vcfResolve();
           })
-        },
-        function(error) {
-          vcfReject(error);
+          .catch(function(error) {
+            vcfReject(error);
+          })
         });
       } else {
         vm.sampleName = null;
@@ -539,15 +542,16 @@ class CohortModel {
         vm.setName('Clinvar')
         var clinvarUrl  = self.globalApp.getClinvarUrl(self.genomeBuildHelper.getCurrentBuildName());
 
-        vm.onVcfUrlEntered(clinvarUrl, null, function() {
+        vm.promiseLoadVcfUrl(clinvarUrl, null)
+        .then(function() {
           self.sampleModels.push(vm);
 
           var sample = {'relationship': 'known-variants', 'model': vm};
           self.sampleMap['known-variants'] = sample;
 
           resolve(sample);
-        },
-        function(error) {
+        })
+        .catch(function(error) {
           reject(error);
         });
       })

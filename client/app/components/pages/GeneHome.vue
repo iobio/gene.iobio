@@ -2788,13 +2788,23 @@ export default {
       }
     },
     onAnalysisFileLoaded: function(analysisFileName) {
+      let self = this;
       this.models = this.cohortModel.sampleModels;
       this.addAlert("info", 'Analysis file loaded.', null, [analysisFileName])
       this.onShowSnackbar({message: 'Analysis loaded.', timeout: 3000, close:true})
-      this.promiseSelectFirstFlaggedVariant()
+      if (this.cohortModel.flaggedVariants && this.cohortModel.flaggedVariants.length > 0) {
+        this.promiseSelectFirstFlaggedVariant()
+      } else {
+        self.showLeftPanelForGenes()
+        if (this.geneModel.sortedGeneNames && this.geneModel.sortedGeneNames.length > 0) {
+          let geneNameToSelect = this.geneModel.sortedGeneNames[0];
+          self.promiseLoadGene(geneNameToSelect)
+        }
+        
+      }
     },
     onAnalysisFileError: function(msg, error) {
-      this.addAlert('error', msg, null, error)
+      this.addAlert('error', msg, null, [error])
     },
     onApplyGenes: function(genesString, options, callback) {
       let self = this;

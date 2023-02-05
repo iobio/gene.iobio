@@ -1024,7 +1024,7 @@ class GeneModel {
                 let msg = "Unable to get PubMed entries for " + geneName;
                 console.log(msg)
                 console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-                me.dispatch.alertIssues("warning", msg, geneName)
+                me.dispatch.alertIssued("warning", msg, geneName)
                 reject();
               })
 
@@ -1035,7 +1035,7 @@ class GeneModel {
               let msg = "Unable to get PubMed entries for " + geneName;
               console.log(msg);
               console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-              me.dispatch.alertIssues("warning", msg, geneName)
+              me.dispatch.alertIssued("warning", msg, geneName)
               reject();
            })
 

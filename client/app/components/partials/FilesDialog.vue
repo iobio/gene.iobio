@@ -570,34 +570,31 @@ export default {
         var theModel = model;
         var theModelInfo = self.modelInfoMap[theModel.relationship];
         theModelInfo.model = theModel;
-        theModel.onVcfUrlEntered(theModelInfo.vcf, null, function(success, sampleNames) {
+        theModel.promiseLoadVcfUrl(theModelInfo.vcf, null)
+        .then( function(sampleNames) {
           self.validate();
-          if (success) {
-            theModelInfo.samples = sampleNames;
-            if (theModel.relationship == 'proband') {
-              self.possibleSibs = sampleNames.map(function(sampleName) {
-                return {sample: sampleName, sex: null}
-              });
-            }
-            self.$refs.sampleDataRef.forEach(function(ref) {
-              if (ref.modelInfo.relationship == theModel.relationship) {
-                theModel.sampleName = theModelInfo.sample;
-                ref.updateSamples(sampleNames, theModelInfo.sample);
-                theModel.name = theModel.sampleName;
-                self.validate();
-              }
-            })
-            theModel.onBamUrlEntered(theModelInfo.bam, null, function(success) {
-              self.validate();
-              if (success) {
-                resolve();
-              } else {
-                reject();
-              }
-            })
-          } else {
-            reject();
+          theModelInfo.samples = sampleNames;
+          if (theModel.relationship == 'proband') {
+            self.possibleSibs = sampleNames.map(function(sampleName) {
+              return {sample: sampleName, sex: null}
+            });
           }
+          self.$refs.sampleDataRef.forEach(function(ref) {
+            if (ref.modelInfo.relationship == theModel.relationship) {
+              theModel.sampleName = theModelInfo.sample;
+              ref.updateSamples(sampleNames, theModelInfo.sample);
+              theModel.name = theModel.sampleName;
+              self.validate();
+            }
+          })
+          theModel.onBamUrlEntered(theModelInfo.bam, null, function(success) {
+            self.validate();
+            if (success) {
+              resolve();
+            } else {
+              reject();
+            }
+          })
         })
       })
     },

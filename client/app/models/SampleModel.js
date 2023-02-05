@@ -38,6 +38,7 @@ class SampleModel {
     this.defaultSampleName = null;
     this.relationship = null;
     this.affectedStatus = null;
+    this.sex = null;
 
     this.lastVcfAlertify = null;
     this.lastBamAlertify = null;
@@ -65,9 +66,21 @@ class SampleModel {
   }
 
 
-
-
-
+  getModelInfo() {
+    let self = this;
+    let modelInfo = {
+      "relationship":   self.relationship,
+      "affectedStatus": self.affectedStatus,
+      "name":           self.name,
+      "sample":         self.sampleName,
+      "sex":            self.sex,
+      "vcf":            self.vcf ? self.vcf.getVcfURL() : null,
+      "tbi":            self.vcf ? self.vcf.getTbiURL() : null,
+      "bam":            self.bam ? self.bam.bamUri : null,
+      "bai":            self.bam ? self.bam.baiUri : null
+    }
+    return modelInfo;
+  }
 
   getSampleIdentifier(theSampleName) {
     var id = this.relationship + "&&" + this.sampleName + "&&" + theSampleName;
@@ -993,54 +1006,46 @@ class SampleModel {
     }
   }
 
-  onVcfUrlEntered(vcfUrl, tbiUrl, callback) {
+  promiseLoadVcfUrl(vcfUrl, tbiUrl) {
     var me = this;
-    this.vcfData = null;
-    var success = true;
-    this.sampleName = null;
 
-    if (vcfUrl == null || vcfUrl == '') {
-      this.vcfUrlEntered = false;
-      this.vcf.clearVcfURL();
-      success = false;
-      if (callback) {
-        callback(success)
-      }
+    return new Promise(function(resolve, reject) {
+      me.vcfData = null;
+      var success = true;
+      me.sampleName = null;
 
-    } else {
-      me.vcfUrlEntered = true;
+      if (vcfUrl == null || vcfUrl == '') {
+        me.vcfUrlEntered = false;
+        me.vcf.clearVcfURL();
+        reject("Unload to load varinat file. No URL has been specified.")
+
+      } else {
+        me.vcfUrlEntered = true;
         me.vcfFileOpened = false;
         me.getVcfRefName = null;
         me.isMultiSample = false;
 
-        success = this.vcf.openVcfUrl(vcfUrl, tbiUrl, function(success, errorMsg) {
+        me.vcf.promiseOpenVcfUrl(vcfUrl, tbiUrl)
+        .then( function() {
           if (me.lastVcfAlertify) {
             me.lastVcfAlertify.dismiss();
           }
-          if (success) {
 
-            me.vcfUrlEntered = true;
-            me.vcfFileOpened = false;
-            me.getVcfRefName = null;
-            // Get the sample names from the vcf header
-            me.vcf.getSampleNames( function(sampleNames) {
-              me.samples = sampleNames;
-              me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
-              callback(success, sampleNames);
-            });
-          } else {
-            me.vcfUrlEntered = false;
-            setTimeout(function() {
-              var msg = "<span style='font-size:12px;'>" + errorMsg + "</span><br><span style='font-size:12px'>" + vcfUrl + "</span>";
-              alertify.set('notifier','position', 'top-right');
-              me.lastVcfAlertify = alertify.error(msg, 15);
-              callback(success);
-            }, 500)
-            
-          }
-        });
-
-    }
+          me.vcfUrlEntered = true;
+          me.vcfFileOpened = false;
+          me.getVcfRefName = null;
+          // Get the sample names from the vcf header
+          me.vcf.getSampleNames( function(sampleNames) {
+            me.samples = sampleNames;
+            me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
+            resolve(sampleNames);
+          });
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      }
+    })
   }
 
   /* Takes in two stably sorted lists of vcfs and tbis. Performs similar functions as onVcfUrlEntered above,

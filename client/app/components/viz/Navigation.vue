@@ -745,7 +745,7 @@ nav.toolbar, nav.v-toolbar
       <v-spacer></v-spacer>
 
       <div class="text-xs-center">
-        <v-menu offset-y>
+        <v-menu offset-y :value="showLoadMenu">
           <template v-slot:activator="{ on }">
             <v-btn id="load-data-button"
               :outline="cohortModel && !cohortModel.isLoaded"
@@ -764,7 +764,7 @@ nav.toolbar, nav.v-toolbar
                 <file-chooser id="load-saved-analysis-button"
                 title="Load saved analysis"
                 :isMultiple="false" :accept="`.json`"
-                :showLabel="true"
+                :showLabel="false"
                 @file-selected="onAnalysisFileSelected">
                 </file-chooser>
             </v-list-tile>
@@ -1375,6 +1375,7 @@ export default {
       showLegendDrawer: false,
       showErrorDrawer: false,
       showNotificationDrawer: false,
+      showLoadMenu: false,
 
 
       activeTab: 0,
@@ -1460,14 +1461,11 @@ export default {
     getCacheHelper: function() {
       return this.cohortModel.cacheHelper
     },
-    onMenuLoadSavedAnalysis: function() {
-      $('#load-saved-analysis-button button input')[0].click();
-    },
     onSaveCache: function(){
       let self = this;
 
       let data = {'modelInfos': {}, 'cache': []};
-      data.modelInfos = this.getCacheHelper().cohort.modelInfos;
+      data.modelInfos = this.getCacheHelper().cohort.getModelInfos();
 
 
       let options = {}
@@ -1504,25 +1502,33 @@ export default {
     },
     onAnalysisFileSelected: function(fileSelection) {
       let me = this;
-         
+
       if (fileSelection.target.files.length > 0) {
-        let analysisFileName = event.target.files[0].name;  
+        let analysisFileName = fileSelection.target.files[0].name;  
         let start = new Date();
         let dataIsCompressed = true;
 
-        this.getCacheHelper().promiseLoadCacheFromFile(fileSelection, dataIsCompressed)
+        me.getCacheHelper().promiseLoadCacheFromFile(fileSelection, dataIsCompressed)
         .then(function() {
           console.log("Time to load analysis from file " + analysisFileName + ": " + (new Date() - start) / 1000 + " seconds ");
           me.onShowVariantsTab();
           me.$emit("on-analysis-file-loaded", analysisFileName);
+
+
+
         })
         .catch(function(error) {
           let msg = "Error loading analysis .json file " + analysisFileName;
           console.log(msg, error)
           me.$emit("on-analysis-file-error", msg, error)
+
+          me.showLoadMenu = true;
+          setTimeout(function() {
+            me.showLoadMenu = false;
+
+          }, 1000)
         })        
       }
-
       
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
@@ -1604,6 +1610,7 @@ export default {
     },
     onShowFiles: function() {
       this.showFiles = true;
+      this.showLoadMenu = false;
     },
     onShowLegendDrawer: function() {
       this.showLegendDrawer = !this.showLegendDrawer;

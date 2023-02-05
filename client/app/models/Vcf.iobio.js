@@ -291,27 +291,36 @@ export default function vcfiobio(theGlobalApp) {
 
 
 
-  exports.openVcfUrl = function(url, theTbiUrl, callback) {
+  exports.promiseOpenVcfUrl = function(url, theTbiUrl) {
     var me = this;
-    sourceType = SOURCE_TYPE_URL;
-    vcfURL = url;
-    tbiUrl = theTbiUrl;
+
+    return new Promise(function(resolve, reject) {
+      sourceType = SOURCE_TYPE_URL;
+      vcfURL = url;
+      tbiUrl = theTbiUrl;
 
 
-    this.checkVcfUrl(url, tbiUrl, function(success, message) {
-        callback(success, message);
-    });
+      return me.promiseCheckVcfUrl(url, tbiUrl) 
+      .then(function() {
+        resolve()
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+    })
 
   }
 
-  exports.getHeader = function(callback) {
-    var me = this;
-    if (sourceType.toLowerCase() == SOURCE_TYPE_URL.toLowerCase() && vcfURL != null) {
 
+  exports.promiseCheckVcfUrl = function(url, tbiUrl) {
+    var me = this;
+
+    return new Promise(function(resolve, reject) {
       var buffer = "";
+      var recordCount = 0;
       var success = false;
 
-      var cmd = me.getEndpoint().getVcfHeader(vcfURL, tbiUrl);
+      var cmd = me.getEndpoint().getVcfHeader(url, tbiUrl);
 
       cmd.on('data', function(data) {
         if (data != undefined) {
@@ -325,73 +334,30 @@ export default function vcfiobio(theGlobalApp) {
           success = true;
         }
         if (success && buffer.length > 0) {
-          callback(buffer);
+          buffer.split("\n").forEach( function(rec) {
+            if (rec.indexOf("#") == 0) {
+              me._parseHeaderForInfoFields(rec);
+            }
+          })
+          resolve(success);
+        } else if (buffer.length == 0) {
+          reject("No data returned for vcf header.")
         }
       });
 
       cmd.on('error', function(error) {
-        console.log(error);
-      })
+        if (me.ignoreErrorMessage(error)) {
+          resolve();
+        } else {
+          reject(me.translateErrorMessage(error));
+        }
+      });
+
       cmd.run();
 
-    } else if (vcfFile) {
-        var vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
-          vcfReader.getHeader( function(theHeader) {
-            callback(theHeader);
-          });
-        });
-    } else {
-      callback(null);
-    }
 
-  }
+    })
 
-
-  exports.checkVcfUrl = function(url, tbiUrl, callback) {
-    var me = this;
-    var success = null;
-    var buffer = "";
-    var recordCount = 0;
-
-    var cmd = me.getEndpoint().getVcfHeader(url, tbiUrl);
-
-    cmd.on('data', function(data) {
-      if (data != undefined) {
-        success = true;
-        buffer += data;
-      }
-    });
-
-    cmd.on('end', function() {
-      if (success == null) {
-        success = true;
-      }
-      if (success && buffer.length > 0) {
-        buffer.split("\n").forEach( function(rec) {
-          if (rec.indexOf("#") == 0) {
-            me._parseHeaderForInfoFields(rec);
-          }
-        })
-        callback(success);
-      } else if (buffer.length == 0) {
-        success = false
-        callback(success, "Unable to read vcf")
-      }
-    });
-
-    cmd.on('error', function(error) {
-      if (me.ignoreErrorMessage(error)) {
-      } else {
-        if (success == null) {
-          success = false;
-          console.log(error);
-          callback(success, me.translateErrorMessage(error));
-        }
-      }
-
-    });
-
-    cmd.run();
   }
 
   exports.ignoreErrorMessage = function(error) {
@@ -478,8 +444,12 @@ export default function vcfiobio(theGlobalApp) {
     }
 
     this.processVcfFile(vcfFile, tabixFile, function(data) {
-      me.openVcfUrl(data.vcf, data.tbi, function(cbData) {
-        callback(cbData)
+      me.promiseOpenVcfUrl(data.vcf, data.tbi)
+      .then(function() {
+        callback(data)
+      })
+      .catch(function(error) {
+        callback(false, error);
       })
     })
   }
@@ -1444,8 +1414,11 @@ export default function vcfiobio(theGlobalApp) {
 
     });
 
+
     cmd.on('error', function(error) {
       console.log(error);
+      let msg = "Error obtaining vcf header for file. Make sure your vcf file is properly formatted, and that the provided URL is accessible. <code>" + vcfUrl + "</code>";
+              
     });
 
     cmd.run();
