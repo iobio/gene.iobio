@@ -1063,6 +1063,8 @@ nav.toolbar, nav.v-toolbar
      v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
      :cohortModel="cohortModel"
      :showDialog="showFiles"
+     :showDialogForAnalysis="showFilesForAnalysis"
+     :infoMessage="filesDialogInfoMessage"
      :launchedFromDemo="launchedFromDemo"
      @on-files-loaded="onFilesLoaded"
      @load-demo-data="onLoadDemoData"
@@ -1311,6 +1313,8 @@ export default {
   },
   props: {
     showFilesProp: null,
+    showFilesForAnalysis: null,
+    filesDialogInfoMessage: null,
     isEduMode: null,
     isBasicMode: null,
     isSimpleMode: null,
@@ -1508,16 +1512,27 @@ export default {
     onAnalysisFileSelected: function(fileSelection) {
       let me = this;
 
+
       if (fileSelection.target.files.length > 0) {
         let analysisFileName = fileSelection.target.files[0].name;  
         let start = new Date();
         let dataIsCompressed = true;
+
+        
+        me.showLoadMenu = true;
+        setTimeout(function() {
+          me.showLoadMenu = false;
+
+        }, 1000)
         
         me.cohortModel.promiseLoadAnalysisFromFile(fileSelection, dataIsCompressed)
-        .then(function() {
+        .then(function(modelInfoProvided) {
+
           console.log("Time to load analysis from file " + analysisFileName + ": " + (new Date() - start) / 1000 + " seconds ");
-          me.onShowVariantsTab();
-          me.$emit("on-analysis-file-loaded", analysisFileName);
+          if (modelInfoProvided) {
+            me.onShowVariantsTab();
+            me.$emit("on-analysis-file-loaded", analysisFileName);            
+          }
         })
         .catch(function(error) {
           let msg = "Error loading analysis .json file " + analysisFileName;

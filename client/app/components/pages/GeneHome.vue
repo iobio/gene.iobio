@@ -280,11 +280,13 @@ main.content.clin, main.v-content.clin
       :variantSetCounts="variantSetCounts"
       :badgeCounts="badgeCounts"
       :showFilesProp="showFiles"
+      :showFilesForAnalysis="showFilesForAnalysis"
       :showWelcome="showWelcome"
       :launchedFromDemo="launchedFromDemo"
       :appAlerts="appAlerts"
       :appAlertCounts="appAlertCounts"
       :geneToAppAlerts="geneToAppAlerts"
+      :filesDialogInfoMessage="filesDialogInfoMessage"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -955,6 +957,8 @@ export default {
 
       siteConfig: null,
       showFiles: false,
+      showFilesForAnalysis: false,
+      filesDialogInfoMessage: null,
 
       showCoverageCutoffs: false,
 
@@ -1199,6 +1203,10 @@ export default {
         })
         self.cohortModel.on("hideInProgress", function() {
           self.onHideInProgress();
+        })
+        self.cohortModel.on("specifyFilesForAnalysis", function(msg) {
+          self.showFilesForAnalysis = true;
+          self.filesDialogInfoMessage = msg;
         })
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
@@ -1877,6 +1885,7 @@ export default {
     },
 
     onUploadFiles: function(){
+      this.filesDialogInfoMessage = null;
       this.showFiles = true;
     },
 
@@ -1949,7 +1958,7 @@ export default {
       let self = this;
     },
 
-    onFilesLoaded: function(analyzeAll, callback) {
+    onFilesLoaded: function(analyzeAll, clearSession, callback) {
       let self = this;
 
       this.launchedFromFiles = true;
@@ -1958,10 +1967,26 @@ export default {
       self.setUrlParameters();
       self.showLeftPanelForGenes();
 
-      self.promiseClearCache()
+      let getClearCachePromise = function() {
+        if (clearSession) {
+          return self.promiseClearCache();
+        } else {
+          return Promise.resolve();
+        }
+      }
+
+      let getClearGenesPromise = function() {
+        if (clearSession) {
+          return self.promiseResetAllGenes();
+        } else {
+          return Promise.resolve();
+        }
+      }
+
+      getClearCachePromise()
       .then(function() {
         self.featureMatrixModel.init();
-        return self.promiseResetAllGenes();
+        return getClearGenesPromise();
       })
       .then(function() {
         if (self.selectedGene && self.selectedGene.gene_name) {
@@ -2155,6 +2180,7 @@ export default {
       self.$set(self, "showVariantAssessment", showAssessment);
     },
     onShowFiles: function(showFiles){
+      this.filesDialogInfoMessage = null;
       this.showFiles = showFiles;
     },
 
@@ -3616,7 +3642,7 @@ export default {
       this.promiseClearCache()
       .then(function() {
         self.calcFeatureMatrixWidthPercent();
-        self.onFilesLoaded(true, function() {
+        self.onFilesLoaded(true, true, function() {
           let options = { name: 'home', query: { mode: 'advanced'}};
           if (self.forMyGene2) {
             options.query.mygene2 = true;
@@ -3632,7 +3658,7 @@ export default {
       this.featureMatrixModel.isBasicMode = true;
       this.filterModel.isBasicMode = true;
       this.calcFeatureMatrixWidthPercent();
-      this.onFilesLoaded(true, function() {
+      this.onFilesLoaded(true, true, function() {
         self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 } })
       });
     },
@@ -3645,7 +3671,7 @@ export default {
       this.promiseClearCache()
       .then(function() {
         self.calcFeatureMatrixWidthPercent();
-        self.onFilesLoaded(true, function() {
+        self.onFilesLoaded(true, true, function() {
           self.$router.push( { name: 'home', query: {mode: 'basic', mygene2: self.forMyGene2 } })
         });
       })

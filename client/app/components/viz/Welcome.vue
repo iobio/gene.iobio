@@ -11,7 +11,7 @@ $button-font:                    Montserrat
 $landing-page-font:              Raleway
 
 
-$accent-color:          $button-color-bright
+$accent-color:          $button-color-welcome
 $accent-color-light:    $color-1
 $powered-by-accent-color: $color-1
 

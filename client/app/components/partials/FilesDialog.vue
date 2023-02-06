@@ -68,6 +68,13 @@
       display: inline-block
       width: 100px
 
+  #info-alert
+    padding: 8px !important
+  #info-message
+    font-size: 13px 
+    color: $text-color
+
+
   button
 
     height: 24px !important;
@@ -155,7 +162,20 @@
 
 
             <v-layout row nowrap class="mt-0">
+              <v-flex xs12 class="mt-2 mb-2 text-xs-left" v-if="infoMessage && infoMessage.length > 0">
+                <v-alert id="info-alert"
+                  :value="true"
+                  color="info"
+                  icon="info"
+                  outline
+                >
+                  <div id="info-message" v-html="infoMessage">
+                  </div>
+                </v-alert>
+              </v-flex>
+            </v-layout>
 
+            <v-layout row nowrap class="mt-0">
               <v-flex class="mt-0" style="max-width: 90px;margin-right: 10px;" >
                   <v-radio-group v-model="mode" @change="onModeChanged"  hide-details column>
                         <v-radio label="Single"  value="single"></v-radio>
@@ -281,7 +301,9 @@ export default {
   props: {
     cohortModel: null,
     showDialog: null,
-    launchedFromDemo: null
+    showDialogForAnalysis: null,
+    launchedFromDemo: null,
+    infoMessage: null
   },
   data() {
     return {
@@ -344,15 +366,31 @@ export default {
           self.cohortModel.sortSampleModels();
         })
         .then(function () {
-          let performAnalyzeAll = self.demoAction ? true : false;
+          let performAnalyzeAll = false;
+          if (self.demoAction) {
+            if (!self.showDialogForAnalysis) {
+              performAnalyzeAll = true;
+            }
+          }
+          let clearSession = !self.showDialogForAnalysis;
+
           self.inProgress = false;
-          self.$emit("on-files-loaded", performAnalyzeAll);
+          self.$emit("on-files-loaded", performAnalyzeAll, clearSession);
           self.showFilesDialog = false;
         });
       }
     },
     showDialog: function() {
       if (this.cohortModel && this.showDialog) {
+        this.showFilesDialog = true
+        if(this.mode !== 'trio') {
+          this.mode = this.cohortModel.mode;
+        }
+        this.init();
+      }
+    },
+    showDialogForAnalysis: function() {
+      if (this.cohortModel && this.showDialogForAnalysis) {
         this.showFilesDialog = true
         if(this.mode !== 'trio') {
           this.mode = this.cohortModel.mode;

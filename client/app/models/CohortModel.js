@@ -126,7 +126,8 @@ class CohortModel {
     };
     this.myGene2GeneNames = ['KDM1A'];
 
-    this.dispatch = d3.dispatch("knownVariantsVizChange", "alertIssued", "showInProgress", "hideInProgress");
+    this.dispatch = d3.dispatch("knownVariantsVizChange", "alertIssued", 
+      "showInProgress", "hideInProgress", "specifyFilesForAnalysis");
     d3.rebind(this, this.dispatch, "on");
 
 
@@ -384,22 +385,41 @@ class CohortModel {
           let data = JSON.parse(dataStr);
 
           let proxies = [];
+          let specifyFilesMsg = "";
           if (data.modelInfos) {
+            specifyFilesMsg = "Analysis loaded. Please specify variant and/or alignment files to proceed."
+            let relToFileName = {}
             proxies = data.modelInfos.filter(function(modelInfo) {
               let vcfProxy = modelInfo.vcf && modelInfo.vcf.indexOf('proxy') > 0;
               let bamProxy = modelInfo.bam && modelInfo.bam.indexOf('proxy') > 0;
               return vcfProxy || bamProxy;
             }) 
+            data.modelInfos.forEach(function(modelInfo) {
+              if (modelInfo.vcf.indexOf('proxy') > 0) {
+                let regexp = /http[s]:\/\/lf-proxy.iobio.io.*\/(.*vcf.gz)/g;
+                let matches = modelInfo.vcf.matchAll(regexp);
+                
+                for (let match of matches) {
+                  if (match.length == 2) {
+                    specifyFilesMsg += '<br>&nbsp;&nbsp;&nbsp;&nbsp;' + modelInfo.relationship + ": " + match[1] + " (" + modelInfo.sample + ")"
+                  }
+                }
+              }
+            })
+          } else {
+            specifyFilesMsg = "Analysis loaded. Please specify variant and/or alignment files to proceed."            
           }
 
+          let hasModelInfo = data.modelInfos && data.modelInfos.length > 0 && proxies.length == 0 ? true : false;
+
           var getInitPromise = function() {
-            if (data.modelInfos && data.modelInfos.length > 0 && proxies.length == 0) {
+            if (hasModelInfo) {
               return me.promiseInit(data.modelInfos)
             } else {
               return Promise.resolve();
             }
-
           }
+
 
           me.dispatch.showInProgress("Initializing session data")
           getInitPromise().then(function() {
@@ -407,9 +427,17 @@ class CohortModel {
             return me.cacheHelper.promiseLoadCache(data.cache, dataIsCompressed, options)
           })
           .then(function() {
-            me.isLoaded = true;
+            me.isLoaded = hasModelInfo;
             me.dispatch.hideInProgress();
-            resolve();
+
+            // If local files were used when analysis was saved, we need to prompt
+            // user to choose these files.
+            if (!hasModelInfo) {
+              me.dispatch.specifyFilesForAnalysis(specifyFilesMsg);
+              resolve(false)
+            } else {
+              resolve(true)
+            }
           })
           .catch(function(error) {
             me.dispatch.hideInProgress();
