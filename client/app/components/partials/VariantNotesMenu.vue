@@ -29,15 +29,13 @@
 
 
 #show-notes-button
-  font-family: 'Open sans'
   min-width: 20px
   margin: 0px
   padding: 0px
   height: auto
   font-size: 12px
   margin-top: 0px
-  margin-left: 2px
-
+  margin-left: -10px
 
   .btn__content
     padding: 0px

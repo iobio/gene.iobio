@@ -30,16 +30,16 @@
   #show-assessment-button
     padding: 0px
     height: 26px !important
-    background-color: $button-color-bright !important
-    color: white !important
+    background-color: white !important
     margin: 0px
     padding-left: 10px
     padding-right: 10px
+    color: $link-color !important
 
-    i.material-icons
-      font-size: 15px
-      padding-right: 3px
-
+    .v-btn__content
+      font-size: 13px
+      font-weight: 500
+  
   .subheader
     padding-bottom: 10px
     font-size: 13px
@@ -376,6 +376,21 @@
 
       </div>
 
+      <variant-interpretation 
+       style="margin-bottom:4px;margin-right:5px;display: inline-block"
+       wrap="true"
+       :variant="selectedVariant"
+       :variantInterpretation="interpretation"
+       :interpretationMap="interpretationMap"
+       :showInterpretationLabel="true"
+       @apply-variant-interpretation="onApplyVariantInterpretation">
+      </variant-interpretation>
+
+      
+      <v-btn v-if="!isSimpleMode && selectedVariant && !showAssessment"  flat id="show-assessment-button" @click="onEnterComments">
+        Notes...
+      </v-btn>
+
 
       <variant-links-menu
       v-if="selectedVariant && info"
@@ -432,19 +447,8 @@
       <span class="pl-3 variant-header aa-change" style="margin-top:2px">{{ aminoAcidChange }}</span>
 
 
-
-
-
-      <v-spacer></v-spacer>
-
-      <div v-if="!isSimpleMode && selectedVariant && !showAssessment" style="margin-left:20px;margin-right:0px">
-        <v-btn raised id="show-assessment-button" @click="onEnterComments">
-          <v-icon>gavel</v-icon>
-          Review
-        </v-btn>
-      </div>
-
     </div>
+
 
     
     <span v-if="launchedFromClin && selectedGene.gene_name">
@@ -783,6 +787,8 @@
 
 import Vue                      from "vue"
 import AppIcon                  from "../partials/AppIcon.vue"
+import VariantInterpretation    from '../partials/VariantInterpretation.vue'
+import VariantNotesDialog       from '../partials/VariantNotesDialog.vue'
 import VariantInspectRow        from "../partials/VariantInspectRow.vue"
 import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
 import VariantInspectInheritanceRow from "../partials/VariantInspectInheritanceRow.vue"
@@ -812,6 +818,8 @@ export default {
     VariantAfPopMenu,
     VariantLinksMenu,
     VariantAliasesMenu,
+    VariantInterpretation,
+    VariantNotesDialog,
     VariantInspectRow,
     VariantInspectQualityRow,
     VariantInspectInheritanceRow,
@@ -840,7 +848,8 @@ export default {
     coverageDangerRegions: null,
     user: null,
     showAssessment: null,
-    launchedFromClin: null,
+    launchedFromClin: null,    
+    interpretationMap: null
   },
   data() {
     return {
@@ -907,7 +916,9 @@ export default {
         'gnomAD.afPopMax'           : 'gnomAD genomes pop max allele freq',
         'vepAf.MAX.AF'              : 'gnomAD (exomes only) pop max allele freq',
         'vepAf.gnomAD.AF'           : 'gnomAD (exomes only) allele freq'
-      }
+      },
+
+      interpretation: null
       
 
     }
@@ -1318,6 +1329,32 @@ export default {
       }
 
     },
+    onAddVariantNote: function(aNote) {
+      let self = this;
+      if (this.selectedVariant.notes == null || this.selectedVariant.notes == "") {
+        this.selectedVariant.notes = []
+      }
+      this.selectedVariant.notes.push({'author': this.user ? this.user.first_name + " " + this.user.last_name : '',
+        'datetime': self.getCurrentDateAndTime(),
+        'note': aNote,
+        'showDialog': false,
+        'showEditDialog': false})
+      this.$emit("apply-variant-notes", this.selectedVariant)
+    },
+    
+    getCurrentDateAndTime: function() {
+      var today = new Date();
+      var date = today.getFullYear()
+                 + '-'
+                 + String(today.getMonth()+1).padStart(2, "0") 
+                 + '-'
+                 + String(today.getDate()).padStart(2, "0");
+      var time = String(today.getHours()).padStart(2, "0") 
+                 + ":" 
+                 + String(today.getMinutes()).padStart(2, "0");
+      return date + ' ' + time;
+    },
+
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
     },
@@ -1973,15 +2010,18 @@ export default {
   },
 
   mounted: function() {
-      let self = this;
-      if(this.selectedVariant){
-          this.$nextTick(function() {
-              this.loadData();
-              if (self.selectedVariantRelationship === "known-variants") {
-                  self.annotateClinVarVariant(self.selectedVariant);
-              }
-          })
-      }
+    let self = this;
+    if(this.selectedVariant){
+        self.$nextTick(function() {
+          self.loadData();
+          if (self.selectedVariantRelationship === "known-variants") {
+              self.annotateClinVarVariant(self.selectedVariant);
+          }
+          self.interpretation = self.selectedVariant.interpretation  && self.selectedVariant.interpretation.length > 0 ? self.selectedVariant.interpretation : "not-reviewed";
+
+        })
+    }
+
 
   },
 

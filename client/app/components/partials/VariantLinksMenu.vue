@@ -53,7 +53,7 @@
        slot="activator"
        v-tooltip.top-center="`External links to variant info (e.g. VarSome, UCSC Browser, etc.`"
       >
-        <v-icon>open_in_new</v-icon> External links
+        <v-icon>open_in_new</v-icon> Links
       </v-btn>
 
       <hr style="margin-top:0px;margin-bottom:0px">

@@ -16,11 +16,13 @@ i.material-icons.interpretation
 .interpretation-label
   color: white  
   padding-left: 4px
+  padding-right: 4px
   font-size: 12px
 
 .not-reviewed
   .interpretation-label
     color: $not-reviewed-text-color !important
+
 
 .select-interpretation
   height: 24px
@@ -28,6 +30,10 @@ i.material-icons.interpretation
   -webkit-box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
   box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
   background-color: $interpretation-background-color
+  color: white !important
+  caret-color: white !important
+  max-width: 170px
+  min-width: 170px
 
   &.not-reviewed
     background-color: $not-reviewed-color !important
@@ -174,7 +180,7 @@ i.material-icons.interpretation
           'unknown-sig' : interpretation == 'unknown-sig',
           'poor-qual'   : interpretation == 'poor-qual'}"
   v-model="interpretation"
-  :hide-details="true"
+  hide-details
   single-line
   >
 
@@ -185,13 +191,7 @@ i.material-icons.interpretation
           'sig'         : item.value == 'sig',
           'unknown-sig' : item.value == 'unknown-sig',
           'poor-qual'   : item.value == 'poor-qual'}">
-<!--
-        <v-icon class="interpretation sig" v-if="item.value == 'sig'">verified_user</v-icon>
-        <v-icon class="interpretation unknown-sig" v-if="item.value == 'unknown-sig'">help</v-icon>
-        <v-icon class="interpretation not-sig" v-if="item.value == 'not-sig'">thumb_down</v-icon>
-        <v-icon class="interpretation poor-qual" v-if="item.value == 'poor-qual'">trending_down</v-icon>
-        <v-icon class="interpretation not-reviewed" v-if="item.value == 'not-reviewed'">visibility_off</v-icon>
--->
+
         <span v-if="showInterpretationLabel" class="interpretation-label"> {{ item.text }} </span>
       </div>
     </template>
@@ -203,13 +203,7 @@ i.material-icons.interpretation
           'sig'         : data.item.value == 'sig',
           'unknown-sig' : data.item.value == 'unknown-sig',
           'poor-qual'   : data.item.value == 'poor-qual'}">
-<!--
-        <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">verified_user</v-icon>
-        <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">help</v-icon>
-        <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">thumb_down</v-icon>
-        <v-icon class="interpretation poor-qual" v-if="data.item.value == 'poor-qual'">trending_down</v-icon>
-        <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">visibility_off</v-icon>
--->
+
         <span class="interpretation-label"> {{ data.item.text }} </span>
       </div>
     </template>

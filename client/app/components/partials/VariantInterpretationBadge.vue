@@ -16,15 +16,9 @@ i.material-icons.interpretation
   font-weight: 500
 
 #badge-interpretation
-  font-family: $app-font
-  padding-left: 3px
-  padding-right: 3px
   font-size: 12px
-  color: white !important
-  width: 165px
-  margin-bottom: 3px
-  padding-top: 2px
-  padding-bottom: 1px
+  width: fit-content
+  margin-bottom: 1px
   border-radius: 4px
   
 

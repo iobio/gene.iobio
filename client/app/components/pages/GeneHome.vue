@@ -85,7 +85,7 @@ main.content, main.v-content
 
   .variant-assessment-heading
     color: $app-color
-    margin-bottom: 20px
+    margin-bottom: 5px
     font-size: 16px
     padding-top: 5px
     display: flex
@@ -535,6 +535,7 @@ main.content.clin, main.v-content.clin
           :user="user"
           :showAssessment="hasVariantAssessment || showVariantAssessment"
           :launchedFromClin="launchedFromClin"
+          :interpretationMap="interpretationMap"
           @show-pileup-for-variant="onShowPileupForVariant"
           @apply-variant-interpretation="onApplyVariantInterpretation"
           @apply-variant-notes="onApplyVariantNotes"
@@ -544,10 +545,10 @@ main.content.clin, main.v-content.clin
           </variant-inspect-card>
 
           <v-card class="app-card"
-            v-if="cohortModel && cohortModel.isLoaded && selectedGene && Object.keys(selectedGene).length > 0 && selectedVariant && !isBasicMode && (hasVariantAssessment || showVariantAssessment)"
+            v-if="cohortModel && cohortModel.isLoaded && selectedGene && selectedVariant && Object.keys(selectedGene).length > 0 && !isBasicMode && (hasVariantAssessment || showVariantAssessment)"
             style="overflow-y:scroll;max-width:320px;margin-left:5px">
             <div class="variant-assessment-heading">
-              Variant Review
+              Variant notes
               <v-btn  id="variant-assessment-close-button" class="toolbar-button" flat @click="showVariantAssessmentClose()">
                 <v-icon >close</v-icon>
               </v-btn>
@@ -1082,6 +1083,7 @@ export default {
         return null;
       }
     },
+
 
   },
 
@@ -3265,20 +3267,11 @@ export default {
       let self = this;
 
       self.setDirty(true);
+      self.hasVariantAssessment = self.hasVariantAssessmentCheck(variant);
 
-      // If this variant is user flagged, but then changed back to unreviewed, we
-      // need to unflag it and remove it from the variant list.
-      /*
-      if (variant.isUserFlagged && variant.interpretation == "not-reviewed" &&
-        (variant.notes == null || variant.notes.length == 0)) {
-        self.onRemoveUserFlaggedVariant(variant);
-        return;
-      }
-      */
 
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
       // user, we will need to initialize variant.gene
-
       if (!variant.gene) {
         variant.gene = this.selectedGene;
       }

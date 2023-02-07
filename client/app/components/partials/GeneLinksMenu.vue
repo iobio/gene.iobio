@@ -74,7 +74,7 @@
        slot="activator"
        v-tooltip.top-center="`External links to ` + selectedGene.gene_name + ` (e.g. OMIM, UCSC brower, GeneCards, etc.`"
       >
-          <v-icon>open_in_new</v-icon> External links
+          <v-icon>open_in_new</v-icon> Links
 
       </v-btn>
 
