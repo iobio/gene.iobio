@@ -514,7 +514,7 @@ main.content.clin, main.v-content.clin
         </variant-all-card>
 
 
-        <div style="display:flex;align-items:stretch">
+        <div id="variant-inspect-and-notes" style="display:flex;align-items:stretch">
           <variant-inspect-card
           ref="variantInspectRef"
           v-if="cohortModel && cohortModel.isLoaded && !isBasicMode && !isEduMode && selectedGene && selectedVariant"
@@ -3418,6 +3418,13 @@ export default {
                 if (self.$refs.variantInspectRef) {
                   self.$refs.variantInspectRef.refresh();
                 }
+
+                setTimeout(function() {
+                  if ($('#variant-inspect-and-notes').length > 0) {
+                    $('#variant-inspect-and-notes')[0].scrollIntoView();
+                  }
+                },500)
+
 
                 if (callback) {
                   callback();
