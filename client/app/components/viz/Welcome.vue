@@ -137,7 +137,7 @@ $light-gray-color:   #f0f1f3
       height: 48px
       width: 310px
       margin-bottom: 10px
-      background-color: $accent-color
+      background-color: white
       color: $accent-color
       font-family: $landing-page-font
       margin-bottom: 30px
@@ -146,11 +146,12 @@ $light-gray-color:   #f0f1f3
       i.material-icons
         font-size: 26px
         width: 26px
-        color: white
+        color: $accent-color
         margin-right: 7px
 
       .btn__content, .v-btn__content
-        color: white
+        color: $accent-color
+        font-weight: 500
 
     button.welcome-button-outline
       font-family:  $button-font

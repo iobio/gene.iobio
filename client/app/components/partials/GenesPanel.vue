@@ -36,6 +36,7 @@
 
       button
         margin: 0px 0px 0px 0px
+        margin-right: 20px
         padding: 0px
         min-width: 120px
         padding-right: 5px
