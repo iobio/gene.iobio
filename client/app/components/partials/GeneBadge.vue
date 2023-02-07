@@ -311,6 +311,12 @@
             width="15" height="15">
           </app-icon>
 
+          <div id="variant-count" v-if="!isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary && gene.dangerSummary.loadedCount != null" 
+            style="display: inline-block;float:right; margin-right:4px;margin-left:4px;font-size:11px">
+              {{ gene.dangerSummary.loadedCount }}
+          </div>
+
+
           <app-icon style="float:right;vertical-align:top"
            v-if="hasCoverageProblem() && !isSimpleMode"
            icon="coverage"
@@ -330,10 +336,11 @@
   
   <div id="gene-badge-remove" v-if="!isEduMode" href="javascript:void(0)"
     @click="removeGene"
-    style="display: inline-block;cursor: pointer;float:right; margin-right:-10px">
+    style="display: inline-block;cursor: pointer;float:right;">
       <i style="vertical-align:middle" class="material-icons">close</i>
 
   </div>
+
 
   <span class="ml-1" style="position: absolute" v-if="launchedFromClin">
     <span v-for="(source, idx) in selectedGeneSources.sourceIndicator" :key="idx">
