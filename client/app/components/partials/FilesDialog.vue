@@ -74,6 +74,15 @@
     font-size: 13px 
     color: $text-color
 
+    pre 
+      display: inline-block
+      vertical-align: top
+      padding-top: 0px
+      padding-bottom: 0px
+      font-size: 13px
+      color: black
+      margin-bottom: 0px
+
 
   button
 
@@ -86,7 +95,7 @@
       min-width: 77px
       color: $app-button-color
 
-      &.cancer-button
+      &.cancel-button
         color: $text-color
 
     &.load-button

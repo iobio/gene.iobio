@@ -239,7 +239,7 @@ nav.toolbar, nav.v-toolbar
     margin-right: 10px
     margin-left: 0px
 
-  #coverage-settings-button #notification-button
+  #coverage-settings-button, #notification-button
     font-size: 14px
     font-weight: 500
     background-color: $nav-button-color
@@ -294,7 +294,7 @@ nav.toolbar, nav.v-toolbar
     color: $coverage-problem-color !important
 
 
-  #legend-button
+  #legend-button, #settings-button
     font-size: 14px
     font-weight: 500
     height: 36px
@@ -711,6 +711,7 @@ nav.toolbar, nav.v-toolbar
          :geneModel="geneModel"
          :phenotypeLookupUrl="phenotypeLookupUrl"
          :lastPhenotypeTermEntered="lastPhenotypeTermEntered"
+         :phenolyzerTopGenes="phenolyzerTopGenes"
          @on-search-genes="onSearchPhenolyzerGenes"
          @on-start-search-genes="onStartSearchPhenolyzerGenes"
          @show-snackbar="onShowSnackbar"
@@ -725,6 +726,13 @@ nav.toolbar, nav.v-toolbar
 
       
       <v-spacer></v-spacer>
+
+
+      <v-btn id="settings-button" flat v-if="!isBasicMode && !isSimpleMode && !launchedFromClin" 
+        @click="onShowSettingsDialog(true)" 
+        v-tooltip.bottom-left="{content: 'App settings'}">
+        <v-icon>settings</v-icon>
+      </v-btn>
 
       <div id="gene-source-box" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
           <v-select
@@ -1087,6 +1095,22 @@ nav.toolbar, nav.v-toolbar
      :showDialog="showExportVariants">
     </export-variants>
 
+    <settings-dialog 
+      :showDialog="showSettingsDialog"
+      :cohortModel="cohortModel"
+      :geneModel="geneModel"
+      :genomeBuildHelper="genomeBuildHelper"
+      :filterModel="filterModel"
+      :settingsCoverageOnly="settingsCoverageOnly"
+      @hide-settings="onShowSettingsDialog(false)"
+      @gene-source-selected="onGeneSourceSelected"
+      @coverage-threshold-applied="onCoverageThresholdApplied"
+      @coverage-threshold-closed="onCoverageThresholdClosed"
+      @phenolyzer-top-changed="onPhenolyzerTopChanged"
+      @genome-build-selected="onGenomeBuildSelected"
+      @coding-variants-only-changed="onCodingVariantsOnlyChange">
+    </settings-dialog>
+
 
     <v-dialog v-model="showDisclaimer" max-width="400">
         <v-card class="full-width">
@@ -1291,6 +1315,7 @@ import SaveButton          from '../partials/SaveButton.vue'
 import AppIcon             from '../partials/AppIcon.vue'
 import FileChooser         from '../partials/FileChooser.vue'
 import AlertPanel          from '../partials/AlertPanel.vue'
+import SettingsDialog      from '../partials/SettingsDialog.vue'
 
 export default {
   name: 'navigation',
@@ -1309,7 +1334,8 @@ export default {
     SaveButton,
     AppIcon,
     FileChooser,
-    AlertPanel
+    AlertPanel,
+    SettingsDialog
   },
   props: {
     showFilesProp: null,
@@ -1334,6 +1360,7 @@ export default {
     geneModel: null,
     cohortModel: null,
     genomeBuildHelper: null,
+    filterModel: null,
     cacheHelper: null,
     activeFilterName: null,
     launchedFromClin: null,
@@ -1343,6 +1370,7 @@ export default {
     isClinFrameVisible: null,
     bringAttention: null,
     phenotypeLookupUrl: null,
+    phenolyzerTopGenes: null,
     geneNames: null,
     genesInProgress: null,
     interpretationMap: null,
@@ -1354,7 +1382,8 @@ export default {
     launchedFromDemo: null,
     appAlerts: null,
     appAlertCounts: null,
-    geneToAppAlerts: null
+    geneToAppAlerts: null,
+    settingsCoverageOnly: null
   },
   data () {
     let self = this;
@@ -1392,7 +1421,9 @@ export default {
       geneSource: null,
       geneSources: ['gencode', 'refseq'],
 
-      analysisFileName: ""
+      analysisFileName: "",
+
+      showSettingsDialog: false
 
 
     }
@@ -1465,6 +1496,12 @@ export default {
     getCacheHelper: function() {
       return this.cohortModel.cacheHelper
     },
+    onCoverageThresholdApplied() {
+      return this.$emit('coverage-threshold-applied')
+    },
+    onCoverageThresholdClosed() {
+      return this.$emit('coverage-threshold-closed')
+    },
     onSaveAnalysisFile: function(){
       let self = this;
 
@@ -1524,7 +1561,7 @@ export default {
           me.showLoadMenu = false;
 
         }, 1000)
-        
+
         me.cohortModel.promiseLoadAnalysisFromFile(fileSelection, dataIsCompressed)
         .then(function(modelInfoProvided) {
 
@@ -1601,6 +1638,9 @@ export default {
           }
         }
       })
+    },
+    onShowSettingsDialog: function(show) {
+      this.showSettingsDialog = show;
     },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)
@@ -1729,10 +1769,22 @@ export default {
     toggleSaveModal(bool) {
       this.$emit("toggle-save-modal", bool);
     },
-    onGeneSourceSelected: function() {
+    onGeneSourceSelected: function(theGeneSource) {
       let self = this;
+      if (geneSource) {
+        self.geneSource = theGeneSource;
+      }
       self.$emit('gene-source-selected', self.geneSource);
     },
+    onPhenolyzerTopChanged: function(phenolyzerTop) {
+      this.$emit('phenolyzer-top-changed', phenolyzerTop)
+    },
+    onCodingVariantsOnlyChange: function(codingVariantsOnly) {
+      this.$emit('coding-variants-only-changed', codingVariantsOnly)
+    },
+    onGenomeBuildSelected: function(buildName) {
+      this.$emit('genome-build-selected', buildName)
+    }
 
   },
   created: function() {

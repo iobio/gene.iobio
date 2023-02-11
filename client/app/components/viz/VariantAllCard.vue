@@ -68,23 +68,6 @@
   .coverage-problem-glyph
     fill: $coverage-problem-glyph-color
 
-  .coding-variants-only-switch
-    margin-top: -4px
-    max-width: 180px
-    margin-left: 20px
-    margin-right: 20px
-
-    label
-      line-height: 18px !important
-      color: $text-color !important
-      font-weight: normal !important
-      font-size: 13px !important
-      padding-left: 2px !important
-      padding-top: 6px !important
-
-    .v-input--selection-controls__input
-      margin-right: 0px 
-
   .gene-viz, .gene-viz-zoom
     .transcript.current
       outline: none !important
@@ -369,18 +352,8 @@
       ></optional-tracks-menu>
 
 
-
-
-      <!--When I refactor this to a class, there is some weird styling inheritance, so I'm leaving this as inline styling for now, but will get around to refactoring out all the inline styling-->
-      <div v-if="!isSimpleMode && !isBasicMode" style="display: inline-flex; flex-wrap: wrap; justify-content: flex-start;">
-        <v-switch v-if="!isEduMode && !isBasicMode" class="coding-variants-only-switch"
-              label="Coding regions only"
-              v-model="analyzeCodingVariantsOnly"
-              >
-        </v-switch>
-
-        <div style="display: inline-flex;">
-          <variant-toggle
+        <div style="display: inline-flex;margin-left: 80px;margin-right: 50px;">
+          <variant-toggle 
                   v-if="!isEduMode && showVariantViz"
                   :variants="sampleModel.loadedVariants"
                   :filterModel="sampleModel.cohort.filterModel"
@@ -807,7 +780,6 @@ export default {
       pileupStyle: {},
       showFilter: false,
       showPopup: false,
-      analyzeCodingVariantsOnly: false,
     }
   },
 
@@ -1249,6 +1221,7 @@ export default {
       if (lock) {
         tooltip.select("#exon-tooltip-thresholds").on("click", function() {
           self.$emit("show-coverage-cutoffs");
+          self.hideExonTooltip(true);
         })
         tooltip.select("#exon-tooltip-close").on("click", function() {
           self.selectedExon = null;
@@ -1382,9 +1355,6 @@ export default {
     clearZoom: function() {
       this.showZoom = false;
       this.zoomMessage = "Drag to zoom";
-    },
-    analyzeCodingVariantsOnly: function() {
-      this.$emit("analyze-coding-variants-only", this.analyzeCodingVariantsOnly)
     },
   },
 

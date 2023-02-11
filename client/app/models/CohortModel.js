@@ -387,27 +387,48 @@ class CohortModel {
           let proxies = [];
           let specifyFilesMsg = "";
           if (data.modelInfos) {
-            specifyFilesMsg = "Analysis loaded. Please specify variant and/or alignment files to proceed."
             let relToFileName = {}
             proxies = data.modelInfos.filter(function(modelInfo) {
               let vcfProxy = modelInfo.vcf && modelInfo.vcf.indexOf('proxy') > 0;
               let bamProxy = modelInfo.bam && modelInfo.bam.indexOf('proxy') > 0;
               return vcfProxy || bamProxy;
             }) 
+            specifyFilesMsg = "Analysis loaded. Please specify the following files to proceed:"
             data.modelInfos.forEach(function(modelInfo) {
-              if (modelInfo.vcf.indexOf('proxy') > 0) {
-                let regexp = /http[s]:\/\/lf-proxy.iobio.io.*\/(.*vcf.gz)/g;
-                let matches = modelInfo.vcf.matchAll(regexp);
-                
-                for (let match of matches) {
-                  if (match.length == 2) {
-                    specifyFilesMsg += '<br>&nbsp;&nbsp;&nbsp;&nbsp;' + modelInfo.relationship + ": " + match[1] + " (" + modelInfo.sample + ")"
+              if (modelInfo.vcf && modelInfo.vcf.length > 0) {
+                if (modelInfo.vcf.indexOf('proxy') > 0 ) {                
+                  let regexp = /http[s]:\/\/lf-proxy.iobio.io.*\/(.*vcf\.gz)/g;
+                  let matches = modelInfo.vcf.matchAll(regexp);
+                  for (let match of matches) {
+                    if (match.length == 2) {
+                      specifyFilesMsg += "<div style='margin-left: 20px'>" 
+                      + "For "
+                      + modelInfo.relationship + ', ' 
+                      + ' choose local variant file ' 
+                      + '<pre>' + match[1] + '</pre>' 
+                      + " and select sample " + '<pre>' +modelInfo.sample + '</pre>' 
+                      + "</div>"
+                    }
                   }
-                }
+                } 
+              }
+              if (modelInfo.bam && modelInfo.bam.length > 0) {
+                if (modelInfo.bam.indexOf('proxy') > 0 ) {                
+                  let regexp = /http[s]:\/\/lf-proxy.iobio.io.*\/(.*\.bam)/g;
+                  let matches = modelInfo.vcf.matchAll(regexp);
+                  for (let match of matches) {
+                    if (match.length == 2) {
+                      specifyFilesMsg += '<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;For ' 
+                      + modelInfo.relationship + ', ' 
+                      + ' choose local alignment file ' 
+                      + match[1] 
+                    }
+                  }
+                } 
               }
             })
           } else {
-            specifyFilesMsg = "Analysis loaded. Please specify variant and/or alignment files to proceed."            
+            specifyFilesMsg = "Analysis loaded. Please specify the variant and alignment files to proceed."            
           }
 
           let hasModelInfo = data.modelInfos && data.modelInfos.length > 0 && proxies.length == 0 ? true : false;
@@ -997,9 +1018,19 @@ class CohortModel {
 
         })
         .catch(function(error) {
-          self.promiseSummarizeError(theGene.gene_name, error)
-          self.endGeneProgress(theGene.gene_name);
-          reject(error);
+          if (error && error.hasOwnProperty('alertType') && error.alertType == 'warning') {
+            if (error.indexOf(geneName) >= 0 ) {
+              self.dispatch.alertIssued('warning', error.message, error.gene);
+            } else {
+              self.dispatch.alertIssued('warning', error + " for gene " + theGene.gene_name, theGene.gene_name);
+            }
+            self.endGeneProgress(theGene.gene_name);
+            reject(error);
+          } else {
+            self.promiseSummarizeError(theGene.gene_name, error)
+            self.endGeneProgress(theGene.gene_name);
+            reject(error);
+          }
         })
       }
     })
@@ -1643,7 +1674,11 @@ class CohortModel {
       self.getProbandModel().promiseSummarizeError(geneName, error)
       .then(function(dangerObject) {
           self.geneModel.setDangerSummary(theGeneName, dangerObject);
-          self.dispatch.alertIssued("error", error + " for gene " + geneName, geneName);
+          if (error.indexOf(geneName) >= 0 ) {
+            self.dispatch.alertIssued('error', error, theGeneName);
+          } else {
+            self.dispatch.alertIssued('error', error + " for gene " + theGeneName, theGeneName);
+          }
           resolve(dangerObject);
       }).
       catch(function(error) {

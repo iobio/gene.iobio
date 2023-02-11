@@ -7,12 +7,15 @@
 @import ../../../assets/sass/variables
 
 
-.v-snack--top
-  top: 80px !important
-
 
 .fluidMax
   max-width: calc(100%) !important
+
+.v-snack--top
+  top: 120px !important
+
+.v-snack--bottom
+  bottom: 120px !important
 
 
 .v-snack--right
@@ -20,23 +23,34 @@
   transform: initial !important
 
 
-  .v-snack__wrapper
-    min-width: 150px !important
-    background-color: #00000080 !important
-    box-shadow: none !important
-    -webkit-box-shadow: none !important
-    margin-right: auto
+.v-snack__wrapper
+  background-color: rgba( 0 , 0 , 0 , 0.70 ) !important
+  box-shadow: none !important
+  -webkit-box-shadow: none !important
+  margin-right: auto
+  margin-left: auto
+  border-radius: 4px 
 
-    .v-snack__content
-      min-height: 30px !important
-      font-size: 12px !important
-      padding-top: 0 !important
-      padding-bottom: 0 !important
-      font-weight: 600 !important
+  .v-snack__content
+    min-height:     100px !important
+    min-width:      100px !important
+    max-height:     500px !important
+    font-size:      15px  !important
+    font-weight:    400   !important
+    padding-top:    20px  !important
+    padding-bottom: 20px  !important
+    padding-left:   20px  !important 
+    padding-right:  0px   !important     
+    color: white !important
+
+    span
       color: white !important
 
-      span
-        color: white !important
+    button
+      position:   relative
+      top:        -28px
+      right:      3px
+      margin-left: 0px !important
 
 
   #gene-viz, #gene-viz-zoom
@@ -257,6 +271,7 @@ main.content.clin, main.v-content.clin
       :cohortModel="cohortModel"
       :genomeBuildHelper="genomeBuildHelper"
       :cacheHelper="cacheHelper"
+      :filterModel="filterModel"
       :geneModel="geneModel"
       :analysis="analysis"
       :isDirty="isDirty"
@@ -273,6 +288,7 @@ main.content.clin, main.v-content.clin
       :bringAttention="bringAttention"
       :phenotypeLookupUrl="phenotypeLookupUrl"
       :lastPhenotypeTermEntered="phenotypeTerm"
+      :phenolyzerTopGenes="phenolyzerTopGenes"
       :geneNames="geneModel.sortedGeneNames"
       :genesInProgress="cohortModel.genesInProgress"
       :interpretationMap="interpretationMap"
@@ -287,6 +303,7 @@ main.content.clin, main.v-content.clin
       :appAlertCounts="appAlertCounts"
       :geneToAppAlerts="geneToAppAlerts"
       :filesDialogInfoMessage="filesDialogInfoMessage"
+      :settingsCoverageOnly="settingsCoverageOnly"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -306,7 +323,7 @@ main.content.clin, main.v-content.clin
       @gene-lists-changed="onGeneListsChanged"
       @remove-gene="onRemoveGene"
       @show-known-variants="onShowKnownVariantsCard"
-      @show-coverage-threshold="onShowCoverageThreshold"
+      @show-coverage-threshold="onShowSettingsForCoverageThreshold"
       @analyze-all="onAnalyzeAll"
       @call-variants="callVariants"
       @filter-settings-applied="onFilterSettingsApplied"
@@ -322,6 +339,10 @@ main.content.clin, main.v-content.clin
       @gene-source-selected="onGeneSourceSelected"
       @on-show-progress="onShowInProgress"
       @on-hide-progress="onHideInProgress"
+      @coverage-threshold-applied="onCoverageThresholdApplied"
+      @genome-build-selected="onGenomeBuildSelected"
+      @phenolyzer-top-changed="onPhenolyzerTopChanged"
+      @coding-variants-only-changed="onAnalyzeCodingVariantsOnly"
     >
     </navigation>
 
@@ -389,7 +410,6 @@ main.content.clin, main.v-content.clin
          :isLeftDrawerOpen="isLeftDrawerOpen"
          :analyzeAllInProgress="cacheHelper.analyzeAllInProgress"
          :callAllInProgress="cacheHelper.callAllInProgress"
-         :showCoverageCutoffs="showCoverageCutoffs"
          :phenotypeLookupUrl="phenotypeLookupUrl"
          :showSfariTrackToggle="cohortModel && cohortModel.isSfariProject"
          @gene-selected="onGeneClicked"
@@ -508,9 +528,8 @@ main.content.clin, main.v-content.clin
         @sfari-variants-filter-change="onSfariVariantsFilterChange"
         @gene-region-zoom="onGeneRegionZoom"
         @gene-region-zoom-reset="onGeneRegionZoomReset"
-        @show-coverage-cutoffs="showCoverageCutoffs = true;showCoverageThreshold = true"
-        @show-pileup-for-variant="onShowPileupForVariant"
-        @analyze-coding-variants-only="onAnalyzeCodingVariantsOnly">
+        @show-coverage-cutoffs="onShowSettingsForCoverageThreshold"
+        @show-pileup-for-variant="onShowPileupForVariant">
         </variant-all-card>
 
 
@@ -639,15 +658,6 @@ main.content.clin, main.v-content.clin
      @on-save-analysis="onSaveAnalysisFromModal"
      @on-cancel-analysis="onCancelAnalysis">
     </save-analysis-popup>
-
-
-    <v-dialog v-model="showCoverageThreshold" persistent max-width="650">
-      <coverage-threshold-card
-       v-if="geneModel"
-       :filterModel="cohortModel.filterModel"
-       @coverage-threshold-applied="onCoverageThresholdApplied"
-       @coverage-threshold-closed="onCoverageThresholdClose">
-     </coverage-threshold-card>
 
 
     </v-dialog>
@@ -827,7 +837,7 @@ export default {
       clinPersistCache: true,
       analysis: null,
       showSaveModal: false,
-      showCoverageThreshold: false,
+
 
       showAppLoader: false,
       appLoaderLabel: "",
@@ -961,7 +971,7 @@ export default {
       showFilesForAnalysis: false,
       filesDialogInfoMessage: null,
 
-      showCoverageCutoffs: false,
+      settingsCoverageOnly: false,
 
       clinIobioUrls: ["http://localhost:4030", "http://tony.iobio.io:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io", "http://dev.clin.iobio.io", "https://stage.clin.iobio.io"],
       clinIobioUrl: "https://clin.iobio.io",
@@ -969,6 +979,7 @@ export default {
       forceLocalStorage: null,
 
       phenotypeLookupUrl: null,
+      phenolyzerTopGenes: null,
 
       showVariantAssessment: false,
 
@@ -1220,7 +1231,7 @@ export default {
             }
           })
           .catch(function(error) {
-            self.addAlert('warning', error.message, error.gene)
+            console.log(error.message)
           })
         })
         self.geneModel.on("alertIssued", function(type, message, genes, details) {
@@ -1231,7 +1242,7 @@ export default {
 
         self.variantExporter.cohort = self.cohortModel;
 
-        self.appLoaderLabel = "Initializing from Mosaic"
+        self.appLoaderLabel = "Initializing"
         self.showAppLoader = true;
 
 
@@ -1287,8 +1298,8 @@ export default {
                 self.promiseLoadData()
                 .then(function() {
                   self.showLeftPanelWhenFlaggedVariants();
+                  self.showAppLoader = false;
                   if (callback) {
-                    self.showAppLoader = false;
                     callback();
                   }
                 })
@@ -1326,10 +1337,9 @@ export default {
 
     },
 
-    hasVariantAssessmentCheck: function(selectedVariant) {
+    hasVariantNotesCheck: function(selectedVariant) {
       if (selectedVariant) {
-        return !!((selectedVariant.interpretation && selectedVariant.interpretation !== 'not-reviewed')
-            || (selectedVariant.notes && selectedVariant.notes.length > 0));
+        return (selectedVariant.notes && selectedVariant.notes.length > 0);
       } else {
         return false;
       }
@@ -1751,6 +1761,9 @@ export default {
         });
         self.cacheHelper.on("geneNotAnalyzed", function(geneName) {
           console.log("Gene not analyzed " + geneName)
+        });
+        self.cacheHelper.on("alertIssued", function(alertType, message, geneName) {
+          self.addAlert(alertType, message, geneName)
         });
         self.cacheHelper.on("analyzeAllCompleted", function(infoObject) {
           self.delaySave = 1000;
@@ -2332,10 +2345,11 @@ export default {
           }
         })
         .catch(function(error) {
-          let msg = 'Bypassing gene ' + geneName + ". Unable to fetch transcripts."
-          console.log(msg)
-          console.log(error);
-          self.addAlert('error', msg, geneName)
+          console.log('Bypassing gene ' + geneName)
+          console.log(error.hasOwnProperty('message') ? error.message : error)
+          self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error', 
+                        error.hasOwnProperty('message') ? error.message : error,
+                        geneName)
         })
       })
     },
@@ -2358,36 +2372,81 @@ export default {
       self.geneModel.setLatestGeneTranscript(self.selectedGene.gene_name, self.selectedTranscript);
       self.onGeneSelected(self.selectedGene.gene_name, true);
     },
+    onPhenolyzerTopChanged: function(topGenes) {
+      this.phenolyzerTopGenes = topGenes;
+    },
+    onGenomeBuildSelected: function(buildName) {
+      let self = this;
+
+      self.onShowSnackbar({message: 'Genes will be reanalyzed based on genome build '  
+        + buildName, timeout: 3000});
+
+      self.genomeBuildHelper.setCurrentBuild(buildName)
+      self.setUrlParameters()
+      self.promiseClearCache()
+      .then(function() {
+        return self.promiseResetAllGenes()
+      })
+      .then(function() {
+        self.showLeftPanelForGenes()
+
+        if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
+          self.onAnalyzeAll()     
+        }
+      })
+    },
     onGeneSourceSelected: function(theGeneSource) {
       var self = this;
       self.geneModel.geneSource = theGeneSource;
 
-      if (this.selectedGene && this.selectedGene.geneName) {
-        this.onGeneSelected(this.selectedGene.gene_name);
-      }
-    
-      // We have to clear the cache since the gene transcripts have changed
-      self.geneModel.geneToLatestTranscript = {};
+      self.onShowSnackbar({message: 'Genes will be re-analyzed based on ' 
+          + theGeneSource + ' transcripts', timeout: 3000});
+      
       self.promiseClearCache()
-      self.showLeftPanelForGenes()
+      .then(function() {
+        return self.promiseResetAllGenes()
+      })
+      .then(function() {
+        self.showLeftPanelForGenes()
 
-      if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
-        self.onShowSnackbar({message: 'Genes must be re-analyzed based on ' 
-          + self.geneModel.geneSource + ' transcripts', timeout: 3000});
+        if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
+          self.onAnalyzeAll()     
+        }
+      })
 
-        setTimeout(function() {
-          self.onAnalyzeAll()
-        },4000)        
+    },
+    onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
+      let self = this;
+      self.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
+
+      if (analyzeCodingVariantsOnly) {
+        self.onShowSnackbar({message: 'Genes will be re-analyzed to only annotate variants in coding regions ', timeout: 3000});        
+      } else {
+          self.onShowSnackbar({message: 'Genes will be re-analyzed to only annotate all variants in genes, including intronic regions ', timeout: 3000});
       }
+
+      self.promiseClearCache()
+      .then(function() {
+        return self.promiseResetAllGenes()
+      })
+      .then(function() {
+        self.showLeftPanelForGenes()
+
+        if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
+          self.onAnalyzeAll()     
+        }
+      })
 
     },
 
     onNoDataWarning: function(){
-      let warning = "No data has been loaded, please load data through the Files menu or click 'Run With Demo Data' on the landing page";
+      let warning = "No data has been loaded.<br>Click 'Load' button or click on menu icon to the right of gene.iobio to return to landing page.";
 
-      if(this.geneModel && this.cohortModel && this.cohortModel.isLoaded == false) {
-        this.onShowSnackbar({message: warning, timeout: 7000});
-      }
+      setTimeout(function() {
+        if(this.geneModel && this.cohortModel && this.cohortModel.isLoaded == false) {
+          this.onShowSnackbar({message: warning, timeout: 8000, 'close': true});
+        }
+      }, 4000)
 
     },
 
@@ -2809,8 +2868,12 @@ export default {
 
           let genesToReapply = $.extend([], self.geneModel.sortedGeneNames);
 
+          self.geneModel.geneObjects = {};
+          self.geneModel.geneToLatestTranscript = {};
           self.geneModel.clearAllGenes();
           self.cohortModel.flaggedVariants = [];
+
+          self.cacheHelper.geneToAltTranscript = {};
 
           self.applyGenesImpl(genesToReapply.join(","), {replace: true, warnOnDup: false, isFromClin: false},
           function() {
@@ -2829,7 +2892,7 @@ export default {
       let self = this;
       this.models = this.cohortModel.sampleModels;
       this.addAlert("info", 'Analysis file loaded.', null, [analysisFileName])
-      this.onShowSnackbar({message: 'Analysis loaded.', timeout: 3000, close:true})
+      this.onShowSnackbar({message: 'Analysis loaded.', timeout: 2000})
       if (this.cohortModel.flaggedVariants && this.cohortModel.flaggedVariants.length > 0) {
         this.promiseSelectFirstFlaggedVariant()
       } else {
@@ -3267,7 +3330,7 @@ export default {
       let self = this;
 
       self.setDirty(true);
-      self.hasVariantAssessment = self.hasVariantAssessmentCheck(variant);
+      self.hasVariantAssessment = self.hasVariantNotesCheck(variant);
 
 
       // If this is a variant that did not pass filters, but flagged (interpreted) by the
@@ -3319,7 +3382,7 @@ export default {
         return;
       }
 
-      this.hasVariantAssessment = this.hasVariantAssessmentCheck(flaggedVariant);
+      this.hasVariantAssessment = this.hasVariantNotesCheck(flaggedVariant);
       this.showVariantAssessment = false;
 
       let canonicalTranscript = self.geneModel.getCanonicalTranscript(flaggedVariant.gene);
@@ -3448,10 +3511,12 @@ export default {
         self.addAlert('error', error, flaggedVariant.gene)
       })
     },
-    onShowCoverageThreshold: function(showIt) {
+    onShowSettingsForCoverageThreshold: function(showIt) {
       let self = this;
-      self.showCoverageThreshold = showIt;
-
+      if (self.$refs.navRef) {
+        self.settingsCoverageOnly = true;
+        self.$refs.navRef.onShowSettingsDialog(true)
+      }
     },
     onShowKnownVariantsCard: function(showIt, selectedCategories) {
       let self = this;
@@ -3483,15 +3548,6 @@ export default {
       self.showFatherCard = showIt;
       self.setNonProbandModels();
     },
-    onAnalyzeCodingVariantsOnly: function(analyzeCodingVariantsOnly) {
-      let self = this;
-      self.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
-      self.onShowSnackbar( {message: 'Clearing data.', timeout: 2000, bottom: true, right: true});
-      self.promiseClearCache().then(function() {
-        self.onShowSnackbar( {message: 'Click \'Analyze all\' to re-run.', timeout: 2000, bottom: true, right: true});
-
-      })
-    },
     onFilterSettingsApplied: function(stashedVariant) {
       let self = this;
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
@@ -3521,28 +3577,28 @@ export default {
       if (self.geneModel.geneNames) {
         self.geneModel.geneNames.forEach(function(geneName) {
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
-
           if (dangerSummary) {
             if (dangerSummary.geneCoverageProblem) {
               self.badgeCounts.coverage++;
-            }
+            }            
           }
         })
       }
     },
-    onCoverageThresholdClose: function() {
-      this.showCoverageThreshold = false;
-    },
     onCoverageThresholdApplied: function() {
       let self = this;
 
-      self.refreshCoverageCounts();
-      if (self.selectedGene && self.selectedGene.gene_name) {
-        self.onGeneSelected(self.selectedGene.gene_name);
-      }
-      if (self.launchedFromClin) {
-        self.onSendFiltersToClin();
-      }
+      self.settingsCoverageOnly = false;
+
+      self.cohortModel.cacheHelper.refreshGeneBadges(function() {
+        self.refreshCoverageCounts();
+        if (self.selectedGene && self.selectedGene.gene_name) {
+          self.onGeneSelected(self.selectedGene.gene_name);
+        }
+        if (self.launchedFromClin) {
+          self.onSendFiltersToClin();
+        }
+      })
     },
     onLeftDrawer: function(isOpen) {
       if (!this.isEduMode) {

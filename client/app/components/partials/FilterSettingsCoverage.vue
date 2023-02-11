@@ -36,7 +36,7 @@
             </v-text-field>
         </v-flex>
 
-        <v-flex  style="display:flex" xs12 class="mt-3 mb-3" >
+        <v-flex v-if="showApplyButton" style="display:flex" xs12 class="mt-3 mb-3" >
           <v-spacer></v-spacer>
           <v-btn :class="{'disabled': !isDirty, 'filter-action-button': true}" @click="apply">
             Apply
@@ -58,7 +58,8 @@ export default {
   components: {
   },
   props: {
-    filterModel: null
+    filterModel: null,
+    showApplyButton: null
   },
   data () {
     return {
@@ -93,14 +94,23 @@ export default {
   computed: {
   },
   watch: {
-    minCoverage: function() {
-      this.isDirty = true;
+    minCoverage: function(newValue, oldValue) {
+      if (oldValue && newValue != oldValue) {
+        this.isDirty = true;
+        this.$emit("gene-coverage-min-changed", newValue)        
+      }
     },
-    medianCoverage: function() {
-      this.isDirty = true;
+    medianCoverage: function(newValue, oldValue) {
+      if (oldValue && newValue != oldValue) {
+        this.isDirty = true;
+        this.$emit("gene-coverage-median-changed", newValue)        
+      }
     },
-    meanCoverage: function() {
-      this.isDirty = true;
+    meanCoverage: function(newValue, oldValue) {
+      if (oldValue && newValue != oldValue) {
+        this.isDirty = true;
+        this.$emit("gene-coverage-mean-changed", newValue)        
+      }
     },
   },
   created: function() {

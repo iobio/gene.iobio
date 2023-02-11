@@ -1448,15 +1448,15 @@ class GeneModel {
             me.geneObjects[theGeneObject.gene_name] = theGeneObject;
             resolve(theGeneObject);
           } else {
-            let msg = "Gene model for " + geneName + " not found.  Empty results returned from " + url;
+            let msg = "Bypassing gene. No " + theGeneSource + " transcripts for gene " + geneName + ".";
             console.log(msg);
-            reject({'message': msg, 'gene': geneName});
+            reject({'message': msg, 'gene': geneName, 'alertType': 'error'});
           }
         })
         .catch((errorThrown) => {
-          console.log("Gene model for " +  geneName + " not found.  Error occurred.");
+          console.log("An error occurred when getting transcripts for gene " +  geneName + ".");
           console.log( "Error: " + errorThrown );
-          let msg = "Error " + errorThrown + " occurred when attempting to get gene model for gene " + geneName;
+          let msg = "Error " + errorThrown + " occurred when attempting to get transcripts for gene " + geneName;
           reject({'message': msg, 'gene': geneName});
         });
 

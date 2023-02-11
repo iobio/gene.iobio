@@ -1017,7 +1017,7 @@ class SampleModel {
       if (vcfUrl == null || vcfUrl == '') {
         me.vcfUrlEntered = false;
         me.vcf.clearVcfURL();
-        reject("Unload to load varinat file. No URL has been specified.")
+        reject("Unable to to load variant file. No URL has been specified.")
 
       } else {
         me.vcfUrlEntered = true;

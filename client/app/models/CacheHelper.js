@@ -18,7 +18,7 @@ function CacheHelper(globalApp, forceLocalStorage) {
   this.analyzeAllInProgress = false;
   this.callAllInProgress    = false;
 
-  this.dispatch = d3.dispatch("geneAnalyzed", "geneNotAnalyzed", "analyzeAllCompleted");
+  this.dispatch = d3.dispatch("geneAnalyzed", "geneNotAnalyzed", "analyzeAllCompleted", "alertIssued");
   d3.rebind(this, this.dispatch, "on");
 }
 
@@ -83,7 +83,8 @@ CacheHelper.prototype._promiseIsCached = function(geneName, analyzeCalledVariant
         resolve(data);
     })
     .catch(function(error) {
-      reject("Error occurred in CacheHelper._promiseIsCached: " + error);
+      let msg = "Unable to get information for gene " + geneName + ". " + error.message;
+      reject(msg);
     })
   })
 }
@@ -331,25 +332,33 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, analyzeGeneCo
     me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants, analyzeGeneCoverage, annotateVariants)
     .then(function(data) {
       me.cacheNextGeneSuccess(data.gene, data.transcript, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
-    },
-    function(error) {
+    })
+    .catch( function(error) {
       // An error occurred.  Set the gene badge with an error glyph
       // and move on to analyzing the next gene
-      //genesCard.setGeneBadgeError(error.geneName);
       console.log("problem caching data for gene " + error.geneName + ". " + error.message);
-      //genesCard._geneBadgeLoading(error.geneName, false);
 
-      me.cohort.promiseSummarizeError(error.geneName, error.message)
+      let getErrorPromise = function() {
+        if (error && error.hasOwnProperty('alertType') && error.alertType == 'warning') {
+          me.dispatch.alertIssued('warning', error.message, error.geneName);            
+          return Promise.resolve({'geneName': error.geneName});
+        } else {
+          return me.cohort.promiseSummarizeError(error.geneName, error.message)
+        }
+      }
+   
+      getErrorPromise()
       .then(function(dangerObject) {
         // take this gene off of the queue and see
         // if next batch of genes should be analyzed
-        me.cacheNextGene(error.geneName, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
-      },
-      function(error) {
+        me.cacheNextGene(dangerObject.geneName, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
+      })
+      .catch( function(error) {
         var msg = "A problem ocurred while summarizing error in CacheHelper.prototype.cacheGene(): " + error;
         console.log(msg);
         me.cacheNextGene(error.geneName, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
       })
+
     })
     count++;
   }
@@ -475,7 +484,13 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       }
     })
     .catch(function(error) {
-      cacheReject({'geneName': theGeneName, 'message': error});
+      if (error.hasOwnProperty('message') && error.hasOwnProperty('gene')) {
+        cacheReject({'geneName': error.gene, 
+                     'message': error.message, 
+                     'alertType': error.hasOwnProperty('alertType') ? error.alertType : null})
+      } else {
+        cacheReject({'geneName': theGeneName, 'message': error});
+      }
     });
     
   })

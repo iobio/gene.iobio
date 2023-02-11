@@ -159,7 +159,7 @@ export default {
       }
       if (tryToLoad && self.modelInfo && self.modelInfo.model) {
         self.modelInfo.model.promiseLoadVcfUrl(vcfUrl, tbiUrl)
-        .then(function(success, sampleNames) {
+        .then(function(sampleNames) {
             self.samples = sampleNames;
             if (self.modelInfo.sample && self.samples.indexOf(self.modelInfo.sample) >= 0 ) {
               self.sample = self.modelInfo.sample;
@@ -185,10 +185,15 @@ export default {
         self.showLoadingSamples = false;
 
         if (self.modelInfo && self.modelInfo.model) {
-          self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
+          self.modelInfo.model.promiseLoadVcfUrl(vcfUrl, tbiUrl)
+          .then(function(sampleNames) {
             self.sample = null
             self.modelInfo.sample = null;
             self.modelInfo.model.sampleName = null
+            self.$emit("sample-data-changed");
+          })
+          .catch(function(error) {
+            self.showLoadingSamples = false;
             self.$emit("sample-data-changed");
           })
         }

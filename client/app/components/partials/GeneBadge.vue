@@ -76,6 +76,14 @@
     &:hover
       text-decoration: underline !important
 
+  #variant-count 
+    width:         25px
+    display:       inline-block
+    float:         right 
+    margin-right:  4px
+    margin-left:   4px
+    font-size:     11px
+
 
 #gene-badge.failed-filter
   opacity: .65
@@ -311,10 +319,6 @@
             width="15" height="15">
           </app-icon>
 
-          <div id="variant-count" v-if="!isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary && gene.dangerSummary.loadedCount != null" 
-            style="display: inline-block;float:right; margin-right:4px;margin-left:4px;font-size:11px">
-              {{ gene.dangerSummary.loadedCount }}
-          </div>
 
 
           <app-icon style="float:right;vertical-align:top"
@@ -330,6 +334,9 @@
 
 
 
+      <div id="variant-count" v-if="!isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary && gene.dangerSummary.loadedCount != null">
+          {{ gene.dangerSummary.loadedCount }}
+      </div>
 
 
   </a>

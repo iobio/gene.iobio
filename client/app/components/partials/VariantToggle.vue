@@ -12,8 +12,9 @@
 
 #filter-form, #filterSelect
     #dropdownWrapper
-        width: 100%
+        min-width: 240px
         padding-right: 0
+        max-width: 250px
 
 
     .filter-switch

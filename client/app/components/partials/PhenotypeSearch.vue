@@ -33,17 +33,7 @@
       :forceSelect="true"
       :preselect="false"/>
     </v-flex>
-    <v-flex id="phenolyzer-top-input" style="display:inline-block;max-width:60px;width:60px;margin-left:5px;">
-      <v-combobox
-      v-model="phenolyzerTop"
-      label="Genes"
-      :hide-details="true"
-      hint="Genes"
-      combobox
-      :items="phenolyzerTopCounts"
-      >
-      </v-combobox>
-    </v-flex>
+
     <v-flex v-if="!isNav" >
       <img style="width:22px;height:22px"
          v-if="phenolyzerStatus == 'queued' || phenolyzerStatus == 'running'"
@@ -70,14 +60,13 @@ export default {
     phenotypeLabel: null,
     classAttention: null,
     phenotypeLookupUrl: null,
-    lastPhenotypeTermEntered: null
+    lastPhenotypeTermEntered: null,
+    phenolyzerTopGenes: null
   },
   data () {
     return {
       genesToApply: null,
 
-      phenolyzerTopCounts: [5, 10, 30, 50, 80, 100],
-      phenolyzerTop: this.defaultTopGenes ? this.defaultTopGenes : (this.isNav ? 10 : 50),
       phenotypeTerm: "",
       phenotypeTermEntered: "",
       allPhenotypeTerms: [],
@@ -92,11 +81,6 @@ export default {
     }
   },
   watch: {
-    phenolyzerTop: function() {
-      if (this.geneModel.phenolyzerGenes.length > 0) {
-        this.onSearch();
-      }
-    },
     phenotypeTerm: function() {
       let self = this;
       if (self.phenotypeTerm && self.phenotypeTerm.value) {
@@ -134,7 +118,7 @@ export default {
                                         close:true });
           self.$emit("on-start-search-genes");
 
-          self.geneModel.searchPhenolyzerGenes(searchTerm, self.phenolyzerTop,
+          self.geneModel.searchPhenolyzerGenes(searchTerm, self.phenolyzerTopGenes ? self.phenolyzerTopGenes : 20,
           function(data) {
             if (data.status == 'done') {
               self.loadingStatus = false;

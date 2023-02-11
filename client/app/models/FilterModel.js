@@ -678,9 +678,9 @@ class FilterModel {
 
   whichLowCoverage(gc) {
     var fields = {};
-    fields.min    = +gc.min    < this.geneCoverageMin    ? '< ' + this.geneCoverageMin : null;
-    fields.median = +gc.median < this.geneCoverageMedian ? '< ' + this.geneCoverageMedian : null;
-    fields.mean   = +gc.mean   < this.geneCoverageMean   ? '< ' + this.geneCoverageMean : null;
+    fields.min    = +gc.min    < this.geneCoverageMin    ? 'should be at least ' + this.geneCoverageMin : null;
+    fields.median = +gc.median < this.geneCoverageMedian ? 'should be at least ' + this.geneCoverageMedian : null;
+    fields.mean   = +gc.mean   < this.geneCoverageMean   ? 'should be at least ' + this.geneCoverageMean : null;
     return fields;
   }
 
