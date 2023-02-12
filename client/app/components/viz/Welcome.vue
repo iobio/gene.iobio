@@ -139,7 +139,6 @@ $light-gray-color:   #f0f1f3
       margin-bottom: 10px
       background-color: white
       color: $accent-color
-      font-family: $landing-page-font
       margin-bottom: 30px
       font-family:  $button-font
 
@@ -155,15 +154,14 @@ $light-gray-color:   #f0f1f3
 
     button.welcome-button-outline
       font-family:  $button-font
-      font-size: 16px !important
+      font-size: 18px !important
       margin-left: 7px
       margin-right: 7px
-      height: 4px
-      width: 230px
+      height: 48px
+      width: 310px
       margin-bottom: 10px
       background-color: white
       color: $accent-color
-      font-family: $landing-page-font
       border: thin solid $accent-color
 
       i.material-icons
@@ -174,6 +172,7 @@ $light-gray-color:   #f0f1f3
 
       .btn__content, .v-btn__content
         color: $accent-color
+        font-weight: 500
 
 
 
@@ -551,15 +550,15 @@ $light-gray-color:   #f0f1f3
                   <i class="material-icons">history</i>
                   START NEW ANALYSIS
                 </v-btn>
-                  <v-btn v-if="!resume" class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
+                  <v-btn v-if="!resume" class="welcome-button-outline"  id="load-demo-data"  @click="onLoadDemoData">
                   <v-icon>tour</v-icon>
                   RUN WITH DEMO DATA
                 </v-btn>
-                <v-btn v-if="!resume" class="welcome-button"  id="uploadData"  @click="onUploadFiles">
+                <v-btn v-if="!resume" class="welcome-button-outline"  id="uploadData"  @click="onUploadFiles">
                   <v-icon>file_upload</v-icon>
                   LOAD YOUR DATA
                 </v-btn>
-                <v-btn v-if="!resume"  class="welcome-button"  @click="playVideo('screencast-intro')">
+                <v-btn v-if="!resume"  class="welcome-button-outline"  @click="playVideo('screencast-intro')">
                   <i class="material-icons">play_circle_filled_white</i>
                   WATCH THE VIDEO
                 </v-btn>

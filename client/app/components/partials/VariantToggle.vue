@@ -8,7 +8,7 @@
     justify-content: center
     justify-items: center
     padding-left: 0
-    max-width: 110px
+
 
 #filter-form, #filterSelect
     #dropdownWrapper

@@ -352,7 +352,7 @@
       ></optional-tracks-menu>
 
 
-        <div style="display: inline-flex;margin-left: 80px;margin-right: 50px;">
+        <div style="display: inline-flex;margin-left: 20px;margin-right: 10px;">
           <variant-toggle 
                   v-if="!isEduMode && showVariantViz"
                   :variants="sampleModel.loadedVariants"
@@ -374,7 +374,7 @@
         </v-switch>
         <div>
           <div style="height: 4px"></div>
-        <v-badge  id="loaded-count" style="padding-top: 2px; margin-left: 0 !important"
+        <v-badge  id="loaded-count" style="padding-top: 2px; margin-left: 10 !important"
         v-if="!isEduMode && !isBasicMode && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="loaded mr-4 " >
           <span slot="badge" style="padding-top: 0" > {{ sampleModel.relationship !== 'known-variants' || knownVariantsViz === 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
           {{ isBasicMode || sampleModel.relationship === 'known-variants' ? 'Count' : 'Variants' }}
