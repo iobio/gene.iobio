@@ -51,12 +51,7 @@ nav .v-toolbar__content
         font-size: 14px
         color: white
         font-weight: 500 !important
-  #build-name
-    font-style: normal
-    font-weight: 500
-    color: $nav-label-color
-    font-size: 13px !important
-    margin-right: 20px
+  
        
 aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
@@ -303,6 +298,26 @@ nav.toolbar, nav.v-toolbar
     .v-btn__content
       padding-top: 2px
 
+  #settings-button 
+    margin-right: 0px
+    padding-right: 0px
+    padding-left: 0px
+    min-width: 40px
+
+  .settings-badge
+    padding: 0px
+    margin: 2px
+    margin-top: -20px
+    margin-left: 0px
+    margin-right: 3px
+    background-color: $nav-badge-color
+
+    .v-chip__content
+      border-radius: 10px
+      height: 22px 
+      padding: 0px 5px
+      font-size: 11px
+      font-weight: 500
 
   .toolbar__content
     margin-top: 2px
@@ -734,21 +749,12 @@ nav.toolbar, nav.v-toolbar
         <v-icon>settings</v-icon>
       </v-btn>
 
-      <div id="gene-source-box" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
-          <v-select
-                  v-bind:items="geneSources"
-                  v-model="geneSource"
-                  label="Gene source"
-                  item-value="text"
-                  :hide-details="true"
-                  @input="onGeneSourceSelected">
-          </v-select>
-      </div>
 
+     <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded" 
+         id="build-name" class="settings-badge" text-color="white">{{ currentBuildName }}</v-chip>
 
-      <span id="build-name" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
-        {{ currentBuildName }}
-      </span>
+     <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded" 
+          id="build-name" class="settings-badge" text-color="white">{{ geneSource }}</v-chip>
 
       <v-spacer></v-spacer>
 
@@ -1771,7 +1777,7 @@ export default {
     },
     onGeneSourceSelected: function(theGeneSource) {
       let self = this;
-      if (geneSource) {
+      if (theGeneSource) {
         self.geneSource = theGeneSource;
       }
       self.$emit('gene-source-selected', self.geneSource);

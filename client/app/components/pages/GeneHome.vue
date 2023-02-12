@@ -32,7 +32,7 @@
   border-radius: 4px 
 
   .v-snack__content
-    min-height:     100px !important
+    min-height:     80px !important
     min-width:      100px !important
     max-height:     500px !important
     font-size:      15px  !important
@@ -40,7 +40,7 @@
     padding-top:    20px  !important
     padding-bottom: 20px  !important
     padding-left:   20px  !important 
-    padding-right:  0px   !important     
+    padding-right:  20px   !important     
     color: white !important
 
     span
