@@ -1522,7 +1522,13 @@ export default {
       let data = {'settings': {}, 'modelInfos': {}, 'cache': []};
       data.modelInfos = this.getCacheHelper().cohort.getModelInfos();
 
-      data.settings = {'genomeBuild': self.currentBuildName, 'geneSource': self.currentGeneSource};
+      data.settings = {'genomeBuild':        self.currentBuildName, 
+                       'geneSource':         self.currentGeneSource,
+                       'coverageThresholds': {'min':    self.filterModel.geneCoverageMin,
+                                              'median': self.filterModel.geneCoverageMedian,
+                                              'mean':   self.filterModel.geneCoverageMean
+                                              }
+                      };
 
       let options = {}
       options.decompress = false;

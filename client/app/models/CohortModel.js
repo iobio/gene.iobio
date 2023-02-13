@@ -391,6 +391,11 @@ class CohortModel {
             if (data.settings.geneSource) {
               me.geneModel.geneSource = data.settings.geneSource;
             }
+            if (data.settings.coverageThresholds) {
+              me.filterModel.geneCoverageMin    = data.settings.coverageThresholds.min;
+              me.filterModel.geneCoverageMedian = data.settings.coverageThresholds.median;
+              me.filterModel.geneCoverageMean   = data.settings.coverageThresholds.mean;
+            }
           }
 
           let proxies = [];

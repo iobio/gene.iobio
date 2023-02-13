@@ -102,6 +102,7 @@
             </v-flex>
           </v-layout>
           <filter-settings-coverage
+            ref="filterSettingsCoverageRef"
             :filterModel="filterModel"
             :filter="coverageFilter"
             :showApplyButton="false"
@@ -276,7 +277,11 @@ export default {
       this.geneCoverageMin    = this.filterModel.geneCoverageMin;
       this.geneCoverageMean   = this.filterModel.geneCoverageMean;
       this.geneCoverageMedian = this.filterModel.geneCoverageMedian;
-      
+
+      if (this.$refs && this.$refs.filterSettingsCoverageRef) {
+        this.$refs.filterSettingsCoverageRef.init();
+      }
+
     }
   },
   mounted: function() {
