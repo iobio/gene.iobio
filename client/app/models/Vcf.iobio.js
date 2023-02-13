@@ -1354,74 +1354,83 @@ export default function vcfiobio(theGlobalApp) {
   }
 
 
-  exports.getSampleNames = function(callback) {
+  exports.promiseGetSampleNames = function(callback) {
     if (sourceType == SOURCE_TYPE_URL) {
-    this._getRemoteSampleNames(callback);
+      return this._promiseGetRemoteSampleNames(callback);
     } else {
-      this._getLocalSampleNames(callback);
+      return this._promiseGetLocalSampleNames(callback);
     }
   }
 
 
-  exports._getLocalSampleNames = function(callback) {
+  exports._promiseGetLocalSampleNames = function() {
     var me = this;
 
-    var vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
-      var sampleNames = [];
-      sampleNames.length = 0;
 
-      var headerRecords = [];
-      vcfReader.getHeader( function(header) {
-         headerRecords = header.split("\n");
-         headerRecords.forEach(function(headerRec) {
-            if (headerRec.indexOf("#CHROM") == 0) {
-              var headerFields = headerRec.split("\t");
-              sampleNames = headerFields.slice(9);
-              callback(sampleNames);
-            }
-         });
+    return new Promise(function(resolve, reject) {
+      var vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
+        var sampleNames = [];
+        sampleNames.length = 0;
 
+        var headerRecords = [];
+        vcfReader.getHeader( function(header) {
+           headerRecords = header.split("\n");
+           headerRecords.forEach(function(headerRec) {
+              if (headerRec.indexOf("#CHROM") == 0) {
+                var headerFields = headerRec.split("\t");
+                sampleNames = headerFields.slice(9);
+                resolve(sampleNames);
+              }
+           });
+
+        })        
       });
-   });
+
+    })
 
   }
 
 
-  exports._getRemoteSampleNames = function(callback) {
+  exports._promiseGetRemoteSampleNames = function() {
     var me = this;
 
+    return new Promise(function(resolve, reject) {
     var cmd = me.getEndpoint().getVcfHeader(vcfURL, tbiUrl);
 
 
-    var headerData = "";
-    // Use Results
-    cmd.on('data', function(data) {
-         if (data == undefined) {
-            return;
-         }
-         headerData += data;
-    });
+      var headerData = "";
+      // Use Results
+      cmd.on('data', function(data) {
+           if (data == undefined) {
+              return;
+           }
+           headerData += data;
+      });
 
-    cmd.on('end', function(data) {
-        var headerRecords = headerData.split("\n");
-         headerRecords.forEach(function(headerRec) {
-              if (headerRec.indexOf("#CHROM") == 0) {
-                var headerFields = headerRec.split("\t");
-                var sampleNames = headerFields.slice(9);
-                callback(sampleNames);
-              }
-         });
+      cmd.on('end', function(data) {
+          var headerRecords = headerData.split("\n");
+           headerRecords.forEach(function(headerRec) {
+                if (headerRec.indexOf("#CHROM") == 0) {
+                  var headerFields = headerRec.split("\t");
+                  var sampleNames = headerFields.slice(9);
+                  resolve(sampleNames);
+                }
+           });
 
-    });
+      });
 
 
-    cmd.on('error', function(error) {
-      console.log(error);
-      let msg = "Error obtaining vcf header for file. Make sure your vcf file is properly formatted, and that the provided URL is accessible. <code>" + vcfUrl + "</code>";
-              
-    });
+      cmd.on('error', function(error) {
+        let msg = "Error obtaining vcf header for file. Make sure your vcf file is properly formatted, and that the provided URL is accessible. " + error;
+        console.log(msg)
+        console.log(error);
+        reject(msg)   
+      });
 
-    cmd.run();
+      cmd.run();
+
+    })
+
 
   }
 

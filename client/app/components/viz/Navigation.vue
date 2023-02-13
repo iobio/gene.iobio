@@ -303,6 +303,7 @@ nav.toolbar, nav.v-toolbar
     padding-right: 0px
     padding-left: 0px
     min-width: 40px
+    margin-left: 20px
 
   .settings-badge
     padding: 0px
@@ -680,7 +681,7 @@ nav.toolbar, nav.v-toolbar
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items style="flex-grow: 3;padding-top:3px;margin-left: 10px;margin-right:40px">
+      <v-toolbar-items style="flex-grow: 6;padding-top:3px;margin-left: 10px;margin-right:0px">
 
         <v-icon>search</v-icon>
 
@@ -716,7 +717,7 @@ nav.toolbar, nav.v-toolbar
           or
         </div>
 
-        <phenotype-search
+        <phenotype-search style="flex-grow:4"
          id="phenolyzer-search"
          v-if="!isEduMode && !launchedFromClin && (!isSimpleMode || isPhenolyzerPermitted)"
          :classAttention="clazzAttention"
@@ -1083,6 +1084,7 @@ nav.toolbar, nav.v-toolbar
      @on-files-loaded="onFilesLoaded"
      @load-demo-data="onLoadDemoData"
      @on-close="onCloseFilesDialog"
+     @on-files-load-error="onFilesLoadError"
      @isDemo="onIsDemo"
      @isTrio="onIsTrio"
     >
@@ -1475,6 +1477,9 @@ export default {
       if(this.analyzeAllInProgress || this.isLoaded) {
         this.$emit('on-welcome-changed', true);
       }
+    },
+    onFilesLoadError: function(error) {
+      this.$emit('on-files-load-error', error)
     },
     onClearCache: function() {
       this.$emit("clear-cache")

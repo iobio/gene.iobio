@@ -333,6 +333,7 @@ main.content.clin, main.v-content.clin
       @toggle-save-modal="toggleSaveModal(true)"
       @on-welcome-changed="onWelcomeChanged"
       @show-files="onShowFiles"
+      @on-files-load-error="onFilesLoadError"
       @stop-analysis="onStopAnalysis"
       @on-analysis-file-loaded="onAnalysisFileLoaded"
       @on-analysis-file-error="onAnalysisFileError"
@@ -1897,6 +1898,9 @@ export default {
           })
         }
       })
+      .catch(function(error) {
+        self.addAlert("error", error)
+      })
     },
 
     onUploadFiles: function(){
@@ -2197,6 +2201,9 @@ export default {
     onShowFiles: function(showFiles){
       this.filesDialogInfoMessage = null;
       this.showFiles = showFiles;
+    },
+    onFilesLoadError: function(error) {
+      this.addAlert('error', error)
     },
 
     showLeftPanelWhenFlaggedVariantsForGene: function() {
@@ -3237,6 +3244,9 @@ export default {
                     self.cohortModel.defaultingToDemoData = true;
                     self.onAnalyzeAll();
                     resolve();
+                  })
+                  .catch(function(error) {
+                    self.addAlert('error', error)
                   })
                },
                function(){

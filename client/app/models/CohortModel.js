@@ -548,6 +548,9 @@ class CohortModel {
 
         resolve();
       })
+      .catch(function(error) {
+        reject(error)
+      })
 
     })
   }

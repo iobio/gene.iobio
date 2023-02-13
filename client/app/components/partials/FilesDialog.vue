@@ -607,8 +607,17 @@ export default {
           self.modelInfoMap[rel] = modelInfo;
         })
         self.cohortModel.getCanonicalModels().forEach(function(model) {
-          self.promiseSetModel(model);
+           self.promiseSetModel(model)
+           .then(function() {
+
+            })
+           .catch(function(error) {
+              self.$emit("on-files-load-error", error)
+            })
         })
+      })
+      .catch(function(error) {
+        self.$emit("on-files-load-error", error)
       })
     },
     promiseSetModel: function(model) {
@@ -642,6 +651,9 @@ export default {
               reject();
             }
           })
+        })
+        .catch(function(error) {
+          reject(error)
         })
       })
     },

@@ -963,11 +963,15 @@ class SampleModel {
             me.isMultiSample = false;
 
             // Get the sample names from the vcf header
-            me.vcf.getSampleNames( function(sampleNames) {
+            me.vcf.promiseGetSampleNames()
+            .then(function(sampleNames) {
                 me.sampleNames = sampleNames;
                 me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
                 resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
-              });
+            })
+            .catch(function(error) {
+              reject(error)
+            })
           } else {
 
             var msg = "<span style='font-size:12px;min-width:400px'>" + message + "</span>";
@@ -1035,11 +1039,15 @@ class SampleModel {
           me.vcfFileOpened = false;
           me.getVcfRefName = null;
           // Get the sample names from the vcf header
-          me.vcf.getSampleNames( function(sampleNames) {
+          me.vcf.promiseGetSampleNames()
+          .then( function(sampleNames) {
             me.samples = sampleNames;
             me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
             resolve(sampleNames);
-          });
+          })
+          .catch(function(error) {
+            reject(error)
+          })
         })
         .catch(function(error) {
           reject(error)
