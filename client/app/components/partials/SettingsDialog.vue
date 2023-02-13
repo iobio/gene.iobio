@@ -261,23 +261,26 @@ export default {
     onGeneCoverageMedianChanged: function(median) {
       this.geneCoverageMedian = median;
       this.emitCoverageCutoffEvent = true;
+    },
+    init: function() {
+      this.buildName   =  this.cohortModel.genomeBuildHelper.getCurrentBuildName();
+      this.speciesName =  this.cohortModel.genomeBuildHelper.getCurrentSpeciesName();
+      this.speciesList =  this.cohortModel.genomeBuildHelper.speciesList.map(function(sp) {
+          return sp.name;
+        }).filter(function(name) {
+          return name == 'Human';
+        });
+
+      this.geneSource = this.geneModel.geneSource;
+
+      this.geneCoverageMin    = this.filterModel.geneCoverageMin;
+      this.geneCoverageMean   = this.filterModel.geneCoverageMean;
+      this.geneCoverageMedian = this.filterModel.geneCoverageMedian;
+      
     }
   },
   mounted: function() {
-    this.buildName   =  this.cohortModel.genomeBuildHelper.getCurrentBuildName();
-    this.speciesName =  this.cohortModel.genomeBuildHelper.getCurrentSpeciesName();
-    this.speciesList =  this.cohortModel.genomeBuildHelper.speciesList.map(function(sp) {
-        return sp.name;
-      }).filter(function(name) {
-        return name == 'Human';
-      });
-
-    this.geneSource = this.geneModel.geneSource;
-
-    this.geneCoverageMin    = this.filterModel.geneCoverageMin;
-    this.geneCoverageMean   = this.filterModel.geneCoverageMean;
-    this.geneCoverageMedian = this.filterModel.geneCoverageMedian;
-
+    this.init();
 
     this.coverageFilter = 
       {name: 'coverage', display: 'Insufficient coverage',

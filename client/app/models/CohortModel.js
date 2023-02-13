@@ -384,6 +384,15 @@ class CohortModel {
           var dataStr = event.target.result;
           let data = JSON.parse(dataStr);
 
+          if (data.hasOwnProperty('settings')) {
+            if (data.settings.genomeBuild) {
+              me.genomeBuildHelper.setCurrentBuild(data.settings.genomeBuild);
+            }
+            if (data.settings.geneSource) {
+              me.geneModel.geneSource = data.settings.geneSource;
+            }
+          }
+
           let proxies = [];
           let specifyFilesMsg = "";
           if (data.modelInfos) {

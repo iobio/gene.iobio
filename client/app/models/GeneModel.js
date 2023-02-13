@@ -207,7 +207,7 @@ class GeneModel {
 
   setGenePhenotypeHitsFromPhenolyzer(phenotypeTerm, phenotypeGenes) {
     let self = this;
-    //this.genePhenotypeHits = {};
+
     if (phenotypeGenes && phenotypeGenes.length > 0) {
       var searchTerm = phenotypeTerm.split(" ").join("_");
       phenotypeGenes.forEach(function(phenotypeGene) {

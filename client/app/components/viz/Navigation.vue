@@ -755,7 +755,7 @@ nav.toolbar, nav.v-toolbar
          id="build-name" class="settings-badge" text-color="white">{{ currentBuildName }}</v-chip>
 
      <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded" 
-          id="build-name" class="settings-badge" text-color="white">{{ geneSource }}</v-chip>
+          id="gene-source-chip" class="settings-badge" text-color="white">{{ currentGeneSource }}</v-chip>
 
       <v-spacer></v-spacer>
 
@@ -1104,6 +1104,7 @@ nav.toolbar, nav.v-toolbar
     </export-variants>
 
     <settings-dialog 
+      ref="settingsDialogRef"
       :showDialog="showSettingsDialog"
       :cohortModel="cohortModel"
       :geneModel="geneModel"
@@ -1518,9 +1519,10 @@ export default {
 
       self.$emit("on-show-progress", "Formatting analysis data")
 
-      let data = {'modelInfos': {}, 'cache': []};
+      let data = {'settings': {}, 'modelInfos': {}, 'cache': []};
       data.modelInfos = this.getCacheHelper().cohort.getModelInfos();
 
+      data.settings = {'genomeBuild': self.currentBuildName, 'geneSource': self.currentGeneSource};
 
       let options = {}
       options.decompress = false;
@@ -1575,6 +1577,10 @@ export default {
 
         me.cohortModel.promiseLoadAnalysisFromFile(fileSelection, dataIsCompressed)
         .then(function(modelInfoProvided) {
+
+          if (me.$refs && me.$refs.settingsDialogRef) {
+            me.$refs.settingsDialogRef.init();
+          }
 
           console.log("Time to load analysis from file " + analysisFileName + ": " + (new Date() - start) / 1000 + " seconds ");
           if (modelInfoProvided) {
@@ -1817,6 +1823,9 @@ export default {
     },
     currentBuildName: function() {
       return this.genomeBuildHelper.getCurrentBuildName()
+    },
+    currentGeneSource: function() {
+      return this.geneModel.geneSource
     },
     clazzAttention: function() {
       if (this.bringAttention && this.bringAttention == 'gene' && this.lookupGene && Object.keys(this.lookupGene).length == 0) {
