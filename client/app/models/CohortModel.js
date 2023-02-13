@@ -127,7 +127,8 @@ class CohortModel {
     this.myGene2GeneNames = ['KDM1A'];
 
     this.dispatch = d3.dispatch("knownVariantsVizChange", "alertIssued", 
-      "showInProgress", "hideInProgress", "specifyFilesForAnalysis");
+      "showInProgress", "hideInProgress", "specifyFilesForAnalysis",
+      "phenolyzerTopGenesSet");
     d3.rebind(this, this.dispatch, "on");
 
 
@@ -395,6 +396,12 @@ class CohortModel {
               me.filterModel.geneCoverageMin    = data.settings.coverageThresholds.min;
               me.filterModel.geneCoverageMedian = data.settings.coverageThresholds.median;
               me.filterModel.geneCoverageMean   = data.settings.coverageThresholds.mean;
+            }
+            if (data.settings.analyzeCodingVariantsOnly) {
+              me.analyzeCodingVariantsOnly = data.settings.analyzeCodingVariantsOnly;
+            }
+            if (data.settings.phenolyzerTopGenes) {
+              me.dispatch.phenolyzerTopGenesSet(data.settings.phenolyzerTopGenes)
             }
           }
 
@@ -1781,11 +1788,11 @@ class CohortModel {
           })
           .then(function(theDangerSummary) {
             if (theDangerSummary && theDangerSummary.geneCoverageProblem && theDangerSummary.geneCoverageProblemNonProband) {
-              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene " + theDangerSummary.geneName + " in proband and non-proband (e.g. mother, father) samples", theDangerSummary.geneName);
+              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in proband and non-proband (e.g. mother, father) samples", theDangerSummary.geneName);
             } else if (theDangerSummary && theDangerSummary.geneCoverageProblem) {
-              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene " + theDangerSummary.geneName + " in proband sample", theDangerSummary.geneName);
+              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in proband sample", theDangerSummary.geneName);
             } else if (theDangerSummary && theDangerSummary.geneCoverageProblemNonProband) {
-              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene " + theDangerSummary.geneName + " in non-proband (e.g. mother, father) sample", theDangerSummary.geneName);
+              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in non-proband (e.g. mother, father) sample", theDangerSummary.geneName);
             } 
 
             self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);

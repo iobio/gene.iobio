@@ -165,7 +165,7 @@ export default {
       geneSource: null,
       geneSources: ['gencode', 'refseq'],
 
-      phenolyzerTop: 20,
+      phenolyzerTop: null,
       phenolyzerTopCounts: [5, 10, 20, 30, 50, 80, 100],
 
       coverageFilter: null,
@@ -264,6 +264,7 @@ export default {
       this.emitCoverageCutoffEvent = true;
     },
     init: function() {
+      let self = this;
       this.buildName   =  this.cohortModel.genomeBuildHelper.getCurrentBuildName();
       this.speciesName =  this.cohortModel.genomeBuildHelper.getCurrentSpeciesName();
       this.speciesList =  this.cohortModel.genomeBuildHelper.speciesList.map(function(sp) {
@@ -281,6 +282,17 @@ export default {
       if (this.$refs && this.$refs.filterSettingsCoverageRef) {
         this.$refs.filterSettingsCoverageRef.init();
       }
+
+      this.analyzeCodingVariantsOnly = this.cohortModel.analyzeCodingVariantsOnly;
+
+      if (this.geneModel.phenolyzerTopGenesToKeep) {
+        if (this.phenolyzerTopCounts.indexOf(this.geneModel.phenolyzerTopGenesToKeep) < 0) {
+          this.phenolyzerTopCounts.push(this.geneModel.phenolyzerTopGenesToKeep)
+        }
+      }
+      setTimeout(function() {
+        self.phenolyzerTop = self.geneModel.phenolyzerTopGenesToKeep;
+      }, 500)
 
     }
   },

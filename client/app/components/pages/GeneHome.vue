@@ -288,7 +288,6 @@ main.content.clin, main.v-content.clin
       :bringAttention="bringAttention"
       :phenotypeLookupUrl="phenotypeLookupUrl"
       :lastPhenotypeTermEntered="phenotypeTerm"
-      :phenolyzerTopGenes="phenolyzerTopGenes"
       :geneNames="geneModel.sortedGeneNames"
       :genesInProgress="cohortModel.genesInProgress"
       :interpretationMap="interpretationMap"
@@ -1221,6 +1220,9 @@ export default {
         self.cohortModel.on("specifyFilesForAnalysis", function(msg) {
           self.showFilesForAnalysis = true;
           self.filesDialogInfoMessage = msg;
+        })
+        self.cohortModel.on("phenolyzerTopGenesSet", function(top) {
+          self.onPhenolyzerTopChanged(top)
         })
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
@@ -2380,7 +2382,7 @@ export default {
       self.onGeneSelected(self.selectedGene.gene_name, true);
     },
     onPhenolyzerTopChanged: function(topGenes) {
-      this.phenolyzerTopGenes = topGenes;
+      this.geneModel.phenolyzerTopGenesToKeep = topGenes;
     },
     onGenomeBuildSelected: function(buildName) {
       let self = this;
@@ -4522,7 +4524,7 @@ export default {
 
       return new Promise(function(resolve, reject) {
 
-        self.promiseUpdateAnalysisCache()
+        self.promiseOutputAnalysisCache()
         .then(function() {
 
           self.analysis.payload.genePhenotypeHits = self.geneModel.genePhenotypeHits;
@@ -4591,7 +4593,7 @@ export default {
       return Promise.resolve();
     },
 
-    promiseUpdateAnalysisCache: function() {
+    promiseOutputAnalysisCache: function() {
       let self = this;
 
       return new Promise(function(resolve, reject) {

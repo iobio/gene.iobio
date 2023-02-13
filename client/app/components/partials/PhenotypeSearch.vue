@@ -118,7 +118,7 @@ export default {
                                         close:true });
           self.$emit("on-start-search-genes");
 
-          self.geneModel.searchPhenolyzerGenes(searchTerm, self.phenolyzerTopGenes ? self.phenolyzerTopGenes : 20,
+          self.geneModel.searchPhenolyzerGenes(searchTerm,
           function(data) {
             if (data.status == 'done') {
               self.loadingStatus = false;

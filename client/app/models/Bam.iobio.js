@@ -506,7 +506,7 @@ export default class Bam {
         });
 
         cmd.on('error', function(error) {
-          let msg = "Could not get get coverage from region: " + trRefName + ':' + regionStart + '-' + regionEnd + "Bam index file may be invalid. Make sure that the bam index file is properly formatted and accessible<code>" + indexUrl + "<\code>";
+          let msg = "Could not get get coverage from region: " + trRefName + ':' + regionStart + '-' + regionEnd + "Bam index file may be invalid. Make sure that the bam index file is properly formatted and accessible<pre>" + indexUrl + "<\pre>";
           console.log(msg)
           console.log(error);
           reject(msg)
@@ -672,7 +672,7 @@ export default class Bam {
             });
           });
           cmd.on('error', function(error) {
-            let msg = "Could not get gene coverage from region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible";
+            let msg = "Could not get gene coverage from region: <pre>" + refName + ':' + regionStart + '-' + regionEnd + "</pre> Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible";
             reject(msg)    
           });
           cmd.run();

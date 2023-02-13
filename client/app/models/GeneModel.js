@@ -77,6 +77,7 @@ class GeneModel {
     this.geneRegionBuffer = 1000;
 
     this.NUMBER_PHENOLYZER_GENES = 300;
+    this.phenolyzerTopGenesToKeep = 20;
     this.phenolyzerGenes = [];
 
     this.pendingNCBIRequests = {};
@@ -1534,7 +1535,7 @@ class GeneModel {
     });
   }
 
-  searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback) {
+  searchPhenolyzerGenes(phenotypeTerm, statusCallback) {
     var me = this;
 
     var url = me.phenolyzerServer + '?term=' + phenotypeTerm;
@@ -1551,17 +1552,17 @@ class GeneModel {
           statusCallback({status:'queued', 'phenotypeTerm': phenotypeTerm});
         }
         setTimeout(function() {
-            me.searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback);
+            me.searchPhenolyzerGenes(phenotypeTerm, statusCallback);
           }, 5000);
       } else if (data.record == 'pending') {
         if (statusCallback) {
           statusCallback({status:'running', 'phenotypeTerm': phenotypeTerm});
         }
         setTimeout(function() {
-            me.searchPhenolyzerGenes(phenotypeTerm, selectGeneCount, statusCallback);
+            me.searchPhenolyzerGenes(phenotypeTerm, statusCallback);
           }, 5000);
       } else {
-        me.parsePhenolyzerGenes(data.record, selectGeneCount, me.NUMBER_PHENOLYZER_GENES);
+        me.parsePhenolyzerGenes(data.record, me.NUMBER_PHENOLYZER_GENES);
         if (statusCallback) {
           me.setGenePhenotypeHitsFromPhenolyzer(phenotypeTerm, me.phenolyzerGenes);
           statusCallback({status:'done', 'phenotypeTerm': phenotypeTerm, 'genes': me.phenolyzerGenes});
@@ -1581,7 +1582,7 @@ class GeneModel {
 
   }
 
-  parsePhenolyzerGenes(data, selectGeneCount, numberPhenolyzerGenes) {
+  parsePhenolyzerGenes(data, numberPhenolyzerGenes) {
     var me = this;
     var count = 0;
     me.phenolyzerGenes = [];
@@ -1594,7 +1595,7 @@ class GeneModel {
           var score                = fields[3];
           var haploInsuffScore     = fields[5];
           var geneIntoleranceScore = fields[6];
-          var selected             = count < selectGeneCount ? true : false;
+          var selected             = count < me.phenolyzerTopGenesToKeep ? true : false;
           me.phenolyzerGenes.push({rank: rank, geneName: geneName, score: score, haploInsuffScore: haploInsuffScore, geneIntoleranceScore: geneIntoleranceScore, selected: selected});
         }
         count++;

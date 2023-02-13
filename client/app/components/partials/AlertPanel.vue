@@ -7,6 +7,14 @@
   margin-top: 5px
   margin-bottom: 0px
 
+  pre 
+    display: inline-block
+    vertical-align: top
+    padding-top: 0px
+    padding-bottom: 0px
+    font-size: 13px
+    color: black
+    margin-bottom: 0px
 
   .alert-title
     color:  $app-color
@@ -75,8 +83,9 @@
       :color="getColor(alert)"
       :icon="getIcon(alert)"
       :outline="true"
+      
     >
-      {{alert.message}}
+      <div v-html="alert.message"></div>
 
       <div v-if="alert.details" style="padding-right:0px ;margin-top:-2px;display:flex;justify-content:flex-end" >
         <v-btn v-if="!alert.showDetails" class="show-details-button" flat @click="alert.showDetails = true">
@@ -87,8 +96,7 @@
         </v-btn>
       </div>
       <div v-if="alert.showDetails" >
-        <div v-for="detail, detailIndex in alert.details" :key="detailIndex">
-           {{ detail }}
+        <div v-for="detail, detailIndex in alert.details" :key="detailIndex" v-html="detail">
         </div>
       </div>
     </v-alert>

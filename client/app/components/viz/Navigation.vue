@@ -727,7 +727,7 @@ nav.toolbar, nav.v-toolbar
          :geneModel="geneModel"
          :phenotypeLookupUrl="phenotypeLookupUrl"
          :lastPhenotypeTermEntered="lastPhenotypeTermEntered"
-         :phenolyzerTopGenes="phenolyzerTopGenes"
+         :phenolyzerTopGenes="geneModel.phenolyzerTopGenesToKeep"
          @on-search-genes="onSearchPhenolyzerGenes"
          @on-start-search-genes="onStartSearchPhenolyzerGenes"
          @show-snackbar="onShowSnackbar"
@@ -1379,7 +1379,6 @@ export default {
     isClinFrameVisible: null,
     bringAttention: null,
     phenotypeLookupUrl: null,
-    phenolyzerTopGenes: null,
     geneNames: null,
     genesInProgress: null,
     interpretationMap: null,
@@ -1527,7 +1526,9 @@ export default {
                        'coverageThresholds': {'min':    self.filterModel.geneCoverageMin,
                                               'median': self.filterModel.geneCoverageMedian,
                                               'mean':   self.filterModel.geneCoverageMean
-                                              }
+                                              },
+                       'analyzeCodingVariantsOnly': self.cohortModel.analyzeCodingVariantsOnly,
+                       'phenolyzerTopGenes': self.geneModel.phenolyzerTopGenesToKeep
                       };
 
       let options = {}
