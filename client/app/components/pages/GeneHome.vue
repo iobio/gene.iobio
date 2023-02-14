@@ -1597,6 +1597,25 @@ export default {
       })
     },
 
+    clearAppAlerts: function(type) {
+      let self = this;
+
+      let matching = self.appAlerts.filter(function(alert) {
+        if (alert.type == type) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+
+      matching.forEach(function(alertToRemove) {
+        let index = self.appAlerts.indexOf(alertToRemove);
+        if (index >= 0) {
+          self.appAlerts.splice(index, index)
+        }
+      })
+    },
+
     addAlert: function(type, message, genes=null, details=null) {
       let self = this;
 
@@ -3601,6 +3620,8 @@ export default {
       let self = this;
 
       self.settingsCoverageOnly = false;
+
+      self.clearAppAlerts('coverage');
 
       self.cohortModel.cacheHelper.refreshGeneBadges(function() {
         self.refreshCoverageCounts();
