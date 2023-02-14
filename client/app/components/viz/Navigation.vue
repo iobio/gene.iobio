@@ -1523,7 +1523,7 @@ export default {
 
       self.$emit("on-show-progress", "Formatting analysis data")
 
-      let data = {'settings': {}, 'modelInfos': {}, 'cache': []};
+      let data = {'settings': {}, 'modelInfos': {}, 'appAlerts': [], 'cache': []};
       data.modelInfos = this.getCacheHelper().cohort.getModelInfos();
 
       data.settings = {'genomeBuild':        self.currentBuildName, 
@@ -1535,6 +1535,8 @@ export default {
                        'analyzeCodingVariantsOnly': self.cohortModel.analyzeCodingVariantsOnly,
                        'phenolyzerTopGenes': self.geneModel.phenolyzerTopGenesToKeep
                       };
+
+      data.appAlerts = self.appAlerts;
 
       let options = {}
       options.decompress = false;

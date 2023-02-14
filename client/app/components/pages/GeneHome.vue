@@ -1224,6 +1224,9 @@ export default {
         self.cohortModel.on("phenolyzerTopGenesSet", function(top) {
           self.onPhenolyzerTopChanged(top)
         })
+        self.cohortModel.on("appAlertsSet", function(appAlerts) {
+          self.onAppAlertsSet(appAlerts)
+        })
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
           self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
@@ -1650,7 +1653,12 @@ export default {
          + pad2( date.getSeconds() )
          + pad3( date.getMilliseconds() );
 
-        let alert = {'type': type, 'message': message, 'genes': genes, 'timestamp': timestamp, 'key': this.appAlerts.length, 'showDetails': false}
+        let alert = {'type': type, 
+        'message': message, 
+        'genes': genes, 
+        'timestamp': timestamp, 
+        'key': timestamp + "-" + this.appAlerts.length, 
+        'showDetails': false}
         if (details) {
           alert.details = details;
         }
@@ -1679,6 +1687,14 @@ export default {
           this.$refs.navRef.onShowNotificationDrawerShowLast();
         }
       }
+    },
+
+    onAppAlertsSet: function(theAppAlerts) {
+      let self = this;
+      theAppAlerts.forEach(function(aa) {
+        self.addAlert(aa.type, aa.message, aa.genes, aa.details)
+      })
+
     },
 
     promiseImportVariantSet: function() {
@@ -2398,11 +2414,14 @@ export default {
       self.onGeneSelected(self.selectedGene.gene_name, true);
     },
     onPhenolyzerTopChanged: function(topGenes) {
-      this.geneModel.phenolyzerTopGenesToKeep = topGenes;
+      let self = this;
+      self.addAlert('info', 'Phenolyzer top genes (count) set to <pre>' + topGenes + '</pre>', null)
+      self.geneModel.phenolyzerTopGenesToKeep = topGenes;
     },
     onGenomeBuildSelected: function(buildName) {
       let self = this;
 
+      self.addAlert('info', 'Genome build <pre>' + buildName + '</pre> selected.');
       self.onShowSnackbar({message: 'Genes will be reanalyzed based on genome build '  
         + buildName, timeout: 3000});
 
@@ -2424,6 +2443,7 @@ export default {
       var self = this;
       self.geneModel.geneSource = theGeneSource;
 
+      self.addAlert('info', 'Gene source <pre>' + theGeneSource + '</pre> selected.');
       self.onShowSnackbar({message: 'Genes will be re-analyzed based on ' 
           + theGeneSource + ' transcripts', timeout: 3000});
       
@@ -2445,8 +2465,11 @@ export default {
       self.cohortModel.analyzeCodingVariantsOnly = analyzeCodingVariantsOnly;
 
       if (analyzeCodingVariantsOnly) {
+        self.addAlert('info', 'Analyze coding variants only set switched <pre>on</pre>.');
+
         self.onShowSnackbar({message: 'Genes will be re-analyzed to only annotate variants in coding regions ', timeout: 3000});        
       } else {
+          self.addAlert('info', 'Analyze coding variants only set switched <pre>off</pre>');
           self.onShowSnackbar({message: 'Genes will be re-analyzed to only annotate all variants in genes, including intronic regions ', timeout: 3000});
       }
 
@@ -3621,6 +3644,11 @@ export default {
     },
     onCoverageThresholdApplied: function() {
       let self = this;
+
+      self.addAlert('info', 'Coverage thresholds changed', null, 
+        ['<pre>min    = ' + self.filterModel.geneCoverageMin + '</pre>',
+         '<pre>median = ' + self.filterModel.geneCoverageMedian + '</pre>',
+         '<pre>mean   = ' + self.filterModel.geneCoverageMean + '</pre>']);
 
       self.settingsCoverageOnly = false;
 

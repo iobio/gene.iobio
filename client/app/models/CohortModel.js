@@ -128,7 +128,7 @@ class CohortModel {
 
     this.dispatch = d3.dispatch("knownVariantsVizChange", "alertIssued", 
       "showInProgress", "hideInProgress", "specifyFilesForAnalysis",
-      "phenolyzerTopGenesSet");
+      "phenolyzerTopGenesSet", "appAlertsSet");
     d3.rebind(this, this.dispatch, "on");
 
 
@@ -403,6 +403,10 @@ class CohortModel {
             if (data.settings.phenolyzerTopGenes) {
               me.dispatch.phenolyzerTopGenesSet(data.settings.phenolyzerTopGenes)
             }
+          }
+
+          if (data.hasOwnProperty('appAlerts')) {
+            me.dispatch.appAlertsSet(data.appAlerts)
           }
 
           let proxies = [];
