@@ -7,14 +7,30 @@
   margin-top: 5px
   margin-bottom: 0px
 
+  #clear-alert-button
+    float: right
+    max-width: 20px
+    min-width: 20px
+    max-height: 20px
+    margin: 0
+
+    .v-btn__content
+      padding-right: 0px !important
+
+      i.material-icons
+        color: $text-color
+        font-size: 13px
+
   pre 
     display: inline-block
     vertical-align: top
     padding-top: 0px
     padding-bottom: 0px
-    font-size: 13px
+    font-size: 11px
     color: black
     margin-bottom: 0px
+    padding-left: 2px 
+    padding-right: 2px
 
   .alert-title
     color:  $app-color
@@ -85,6 +101,10 @@
       :outline="true"
       
     >
+      <v-btn  id="clear-alert-button" flat @click="clearAlert(alert)">
+        <v-icon>close</v-icon>
+      </v-btn>
+
       <div v-html="alert.message"></div>
 
       <div v-if="alert.details" style="padding-right:0px ;margin-top:-2px;display:flex;justify-content:flex-end" >
@@ -152,6 +172,9 @@ export default {
       } else if (alert.type == 'error') {
         return 'error'
       } 
+    },
+    clearAlert: function(alert) {
+      this.$emit("clear-app-alert", alert.key)
     }
   },
   mounted: function() {

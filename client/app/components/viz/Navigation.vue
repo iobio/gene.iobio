@@ -1074,7 +1074,8 @@ nav.toolbar, nav.v-toolbar
         </v-btn>
         <alert-panel :isBasicMode="isBasicMode"
            :isSimpleMode="isSimpleMode"
-           :appAlerts=appAlerts>
+           :appAlerts=appAlerts
+           @clear-app-alert="onClearAppAlert">
         </alert-panel>
     </v-navigation-drawer>
 
@@ -1815,6 +1816,9 @@ export default {
     },
     onGenomeBuildSelected: function(buildName) {
       this.$emit('genome-build-selected', buildName)
+    },
+    onClearAppAlert: function(key) {
+      this.$emit('clear-app-alert', key)
     }
 
   },

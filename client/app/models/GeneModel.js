@@ -1283,7 +1283,7 @@ class GeneModel {
               let lookupPromises = []
               let matchingEnsemblGeneId = null
               ensemblIds.forEach(function(id) {
-                let p = self._promiseLookupEnsemblGene(id)
+                let p = self._promiseLookupEnsemblGene(id, geneName)
                 .then(function(data) {
                   if (data && data.geneName == geneName) {
                     matchingEnsemblGeneId = data.ensembleGeneId
@@ -1301,6 +1301,9 @@ class GeneModel {
                   reject(msg );
                 }
               })
+              .catch(function(error) {
+                reject(error)
+              })
             }
           })
           .fail(function(error) {
@@ -1315,9 +1318,10 @@ class GeneModel {
   }
 
 
-  _promiseLookupEnsemblGene(id) {
+  _promiseLookupEnsemblGene(id, geneName) {
     let self = this;
     return new Promise(function(resolve, reject) {
+      let theGeneName = geneName;
       let ensemblGeneId = id
       let url = self.ENSEMBL_LOOKUP_BY_ID
       url = url.replace(/ENSEMBL-GENE-ID/g, id );
@@ -1338,15 +1342,15 @@ class GeneModel {
         } else {
           let msg  = "No data returned from _promiseLookupEnsemblGene " + url
           console.log(msg);
-          console.log(error)
-          reject(msg + '. Error: ' + error);
+          console.log(error.responseJSON.error)
+          reject("No data returned from ENSEMBL gene lookup for gene <pre>" + theGeneName + "</pre>. "  + error.responseJSON.error);
         }
       })
       .fail(function(error) {
             let msg = "Unable to get lookup by ensembl gene id " + url;
             console.log(msg);
-            console.log(error)
-            reject(msg + '. Error: ' + error);
+            console.log(error.responseJSON.error)
+            reject("An error occurred from ENSEMBL gene lookup for gene <pre>" + theGeneName + "</pre>. "  + error.responseJSON.error);
       })
     })
   }  
@@ -1611,50 +1615,66 @@ class GeneModel {
     return new Promise(function(resolve, reject) {
       let links = [];
 
+
       var geneCoord = null;
       var geneObject = me.geneObjects[geneName];
       if (geneObject) {
         geneCoord = geneObject.chr + ":" + geneObject.start + "-" + geneObject.end;
       }
       let ensemblGeneId = null
+
+      let populateLinks =  function() {
+        var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
+        var geneUID = null;
+        var ncbiInfo = me.geneNCBISummaries[geneName];
+        if (ncbiInfo) {
+          geneUID = ncbiInfo.uid;
+        }
+        for (var linkName in me.linkTemplates) {
+          var theLink = $.extend({}, me.linkTemplates[linkName]);
+          theLink.name = linkName;
+          let resolved = false;
+          if (geneUID && theLink.url.indexOf('GENEUID') >= 0) {
+            theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
+            resolved = true;
+          } 
+          if (geneObject && theLink.url.indexOf('GENESYMBOL') >= 0) {
+            theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
+            resolved = true;
+          } 
+          if (geneCoord && theLink.url.indexOf('GENECOORD') >= 0) {
+            theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
+            resolved = true;
+          }
+          if (buildAliasUCSC && theLink.url.indexOf('GENOMEBUILD-ALIAS-UCSC') >= 0) {
+            theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
+            resolved = true;
+          }
+          if (ensemblGeneId && theLink.url.indexOf('ENSEMBL-GENE-ID') >= 0) {
+            theLink.url = theLink.url.replace(/ENSEMBL-GENE-ID/g, ensemblGeneId);
+            resolved = true;
+          }
+          if (resolved) {
+            links.push(theLink)
+          }
+        }
+      }
+
+
       me.promiseGetGeneEnsemblId(geneName)
       .then(function(data) {
         ensemblGeneId = data.ensemblGeneId
         return me.promiseGetNCBIGeneSummary(geneName)
       })
       .then(function() {
-          var buildAliasUCSC = me.genomeBuildHelper.getBuildAlias('UCSC');
-
-          var geneUID = null;
-          var ncbiInfo = me.geneNCBISummaries[geneName];
-          if (ncbiInfo) {
-            geneUID = ncbiInfo.uid;
-          }
-          for (var linkName in me.linkTemplates) {
-            var theLink = $.extend({}, me.linkTemplates[linkName]);
-            theLink.name = linkName;
-            if (geneUID) {
-              theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
-            }
-            if (geneObject) {
-              theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
-            }
-            if (geneCoord) {
-              theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
-            }
-            if (buildAliasUCSC) {
-              theLink.url = theLink.url.replace(/GENOMEBUILD-ALIAS-UCSC/g, buildAliasUCSC);
-            }
-            if (ensemblGeneId) {
-              theLink.url = theLink.url.replace(/ENSEMBL-GENE-ID/g, ensemblGeneId);
-            }
-
-            links.push(theLink);
-          }
-          resolve(links)
+        populateLinks()
+        resolve(links)
       })
       .catch(function(error) {
-        reject(error)
+        me.dispatch.alertIssued('info', error, geneName)
+        populateLinks()
+        resolve(links)
+
       })
 
     })

@@ -343,6 +343,7 @@ main.content.clin, main.v-content.clin
       @genome-build-selected="onGenomeBuildSelected"
       @phenolyzer-top-changed="onPhenolyzerTopChanged"
       @coding-variants-only-changed="onAnalyzeCodingVariantsOnly"
+      @clear-app-alert="onClearAppAlert"
     >
     </navigation>
 
@@ -1614,7 +1615,26 @@ export default {
       matching.forEach(function(alertToRemove) {
         let index = self.appAlerts.indexOf(alertToRemove);
         if (index >= 0) {
-          self.appAlerts.splice(index, index)
+          self.appAlerts.splice(index, 1)
+        }
+      })
+    },
+
+    onClearAppAlert: function(key) {
+      let self = this;
+
+      let matching = self.appAlerts.filter(function(alert) {
+        if (alert.key == key) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+
+      matching.forEach(function(alertToRemove) {
+        let index = self.appAlerts.indexOf(alertToRemove);
+        if (index >= 0) {
+          self.appAlerts.splice(index, 1)
         }
       })
     },
@@ -3644,6 +3664,8 @@ export default {
     },
     onCoverageThresholdApplied: function() {
       let self = this;
+      
+      self.showLeftPanelForGenes()
 
       self.addAlert('info', 'Coverage thresholds changed', null, 
         ['<pre>min    = ' + self.filterModel.geneCoverageMin + '</pre>',
