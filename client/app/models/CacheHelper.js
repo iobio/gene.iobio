@@ -647,14 +647,18 @@ CacheHelper.prototype.refreshNextGeneBadge = function(keys, callback) {
 
     me.promiseGetDataThreaded(key, keyObject)
     .then(function(cachedData) {
-      var theVcfData    = cachedData.data;
-      var theKeyObject  = cachedData.keyObject;
-      var theGeneObject = me.cohort.geneModel.geneObjects[theKeyObject.gene];
-      var theTranscript = {transcript_id: theKeyObject.transcript};
-      me.cohort.promiseSummarizeDanger(theGeneObject, theTranscript, theVcfData, {})
-      .then(function() {
-        me.refreshNextGeneBadge(keys, callback);
-      })
+      if (cachedData && cachedData.data && cachedData.key) {
+        var theVcfData    = cachedData.data;
+        var theKeyObject  = cachedData.keyObject;
+        var theGeneObject = me.cohort.geneModel.geneObjects[theKeyObject.gene];
+        var theTranscript = {transcript_id: theKeyObject.transcript};
+        me.cohort.promiseSummarizeDanger(theGeneObject, theTranscript, theVcfData, {})
+        .then(function() {
+          me.refreshNextGeneBadge(keys, callback);
+        })
+      } else {
+          me.refreshNextGeneBadge(keys, callback);        
+      }
     });
   }
 }
