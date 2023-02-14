@@ -647,7 +647,7 @@ CacheHelper.prototype.refreshNextGeneBadge = function(keys, callback) {
 
     me.promiseGetDataThreaded(key, keyObject)
     .then(function(cachedData) {
-      if (cachedData && cachedData.data && cachedData.key) {
+      if (cachedData && cachedData.data && cachedData.keyObject) {
         var theVcfData    = cachedData.data;
         var theKeyObject  = cachedData.keyObject;
         var theGeneObject = me.cohort.geneModel.geneObjects[theKeyObject.gene];
