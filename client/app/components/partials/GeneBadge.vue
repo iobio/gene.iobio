@@ -54,6 +54,11 @@
     #gene-badge-has-called-variants
       display: inline
 
+  &.has-coverage-problem
+    #gene-badge-coverage-problem
+      display: initial !important
+      float: right
+
 
   &.in-progress
     .gene-badge-loader
@@ -131,6 +136,8 @@
   float: left
   display: none
 
+#coverage-problem-icon
+  display: none
 
 #gene-badge-warning
   float: left
@@ -321,8 +328,9 @@
 
 
 
-          <app-icon style="float:right;vertical-align:top"
-           v-if="hasCoverageProblem() && !isSimpleMode"
+          <app-icon id="gene-badge-coverage-problem" 
+           style="display:none;vertical-align:top"
+           v-if="!isSimpleMode"
            icon="coverage"
            class=" level-edu glyph"
            width="12" height="11">
@@ -452,9 +460,6 @@ export default {
         return 'x-linked'
       }
     },
-    hasCoverageProblem: function() {
-      return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem;
-    },
     getSourceIndicatorBadge: function(gene_name) {
       if(this.launchedFromClin){
         this.selectedGeneSources.source = this.geneModel.getSourceForGenes()[gene_name].source_gene_tab;
@@ -485,9 +490,10 @@ export default {
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
         'has-error':             hasError,
         'has-warning':           hasWarning,
-        'has-phenotypes':        false  //this.phenotypes && this.phenotypes.length > 0,
+        'has-phenotypes':        false,  //this.phenotypes && this.phenotypes.length > 0,
+        'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem
       }
-    },
+    }
 
 
   },
