@@ -80,23 +80,19 @@
             </v-flex>
           </v-layout>
 
+
           <v-layout v-if="!settingsCoverageOnly" row wrap class="mt-4">
-            <v-flex xs8 id="phenolyzer-top-input">            
-                <v-combobox
-                v-model="phenolyzerTop"
-                label="Keep top n genes (from phenotype search)"
-                :hide-details="true"
-                hint="Number of genes to keep from phenotype-based search"
-                combobox
-                :items="phenolyzerTopCounts"
+            <v-flex xs12>
+              <v-switch 
+                class="coding-variants-only-switch"
+                label="Analyze variants in coding regions only"
+                v-model="analyzeCodingVariantsOnly"
                 >
-                </v-combobox>
-              </v-flex>
+              </v-switch>
             </v-flex>
           </v-layout>
 
-
-          <v-layout row wrap class="mt-4">
+          <v-layout row wrap class="mt-2">
             <v-flex xs12>
             Sequence coverage cutoffs
             </v-flex>
@@ -112,17 +108,23 @@
              @gene-coverage-median-changed="onGeneCoverageMedianChanged">
           </filter-settings-coverage>
 
-
-          <v-layout v-if="!settingsCoverageOnly" row wrap class="mt-3">
-            <v-flex xs12>
-              <v-switch 
-                class="coding-variants-only-switch"
-                label="Analyze variants in coding regions only"
-                v-model="analyzeCodingVariantsOnly"
+          <v-layout v-if="!settingsCoverageOnly" row wrap class="mt-4 mb-2">
+            <v-flex xs8 id="phenolyzer-top-input">            
+                <v-combobox
+                v-model="phenolyzerTop"
+                label="Keep top n genes from phenotype search"
+                :hide-details="true"
+                hint="Number of genes to keep from phenotype-based search"
+                combobox
+                :items="phenolyzerTopCounts"
                 >
-              </v-switch>
+                </v-combobox>
+              </v-flex>
             </v-flex>
           </v-layout>
+
+
+
 
       </v-card-text>
 
