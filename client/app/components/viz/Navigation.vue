@@ -757,6 +757,11 @@ nav.toolbar, nav.v-toolbar
      <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded" 
           id="gene-source-chip" class="settings-badge" text-color="white">{{ currentGeneSource }}</v-chip>
 
+     <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded && cohortModel.analyzeCodingVariantsOnly"
+          id="analyze-coding-variants-only-chip" class="settings-badge" text-color="white">
+          coding regions only
+      </v-chip>
+
       <v-spacer></v-spacer>
 
       <div class="text-xs-center">
