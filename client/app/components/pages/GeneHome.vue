@@ -1679,9 +1679,6 @@ export default {
           this.$refs.navRef.onShowNotificationDrawerShowLast();
         }
       }
-
-
-
     },
 
     promiseImportVariantSet: function() {
@@ -2651,6 +2648,9 @@ export default {
               .then( function(refreshedVariant) {
                 self.refreshVariantExtraAnnots(variant, [refreshedVariant]);
               })
+              .catch(function(error) {
+                self.addAlert('warning', error, self.selectedGene.gene_name)
+              })
         } else if (relationship !== 'sfari-variants'){
           self.cohortModel
             .getModel(relationship)
@@ -2668,6 +2668,12 @@ export default {
                   .then( function(refreshedVariant) {
                     self.refreshVariantExtraAnnots(variant, [refreshedVariant]);
                   })
+                  .catch(function(error) {
+                    self.addAlert('warning', error, self.selectedGene.gene_name)
+                  })
+              },
+              function() {
+                self.addAlert('warning', 'Unable to refresh variants with extra annotations', self.selectedGene.gene_name)
               })
             });
         }
@@ -3420,7 +3426,8 @@ export default {
 
       // Only select the gene if it hasn't previously been selected or the transcript is different
       let genePromise;
-      if (!options.force && self.selectedGene && self.selectedGene.gene_name === flaggedVariant.gene.gene_name) {
+      let forceGeneSelection = options && options.hasOwnProperty('forceGeneSelection') && options.forceGeneSelection == true;
+      if (!forceGeneSelection && self.selectedGene && self.selectedGene.gene_name === flaggedVariant.gene.gene_name) {
         genePromise = Promise.resolve();
       } else if (flaggedVariant.transcript == null
         && self.selectedTranscript
@@ -3431,7 +3438,7 @@ export default {
       } else if (flaggedVariant.transcript
         && self.selectedTranscript
         && self.selectedTranscript.transcript_id === flaggedVariant.transcript.transcript_id) {
-        // No need to reselect the gene if the same transcript on the same gene is already selecte
+        // No need to reselect the gene if the same transcript on the same gene is already selected
         self.selectedGene = flaggedVariant.gene;
         genePromise = Promise.resolve();
       } else {
@@ -3439,11 +3446,7 @@ export default {
         self.geneRegionStart = flaggedVariant.gene.start;
         self.geneRegionEnd   = flaggedVariant.gene.end;
         self.selectedGene = flaggedVariant.gene;
-        if (flaggedVariant.transcript) {
-          self.selectedTranscript = flaggedVariant.transcript;
-        } else {
-          self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
-        }
+        self.selectedTranscript = self.geneModel.getCanonicalTranscript(self.selectedGene);
         self.selectedVariant = null;
         self.refreshSelectedVariantInfo();
         self.selectedVariantKey = null;
@@ -4340,7 +4343,7 @@ export default {
       self.selectedGene = null;
       self.selectedTranscript = null;
       if (self.selectedVariant && self.selectedVariant.hasOwnProperty('gene')) {
-        self.onFlaggedVariantSelected(self.selectedVariant, {force: true})
+        self.onFlaggedVariantSelected(self.selectedVariant, {forceGeneSelection: true})
       }
 
     },
@@ -4379,7 +4382,7 @@ export default {
             .then(function() {
               self.toClickVariant = firstFlaggedVariant;
               self.showLeftPanelWhenFlaggedVariants("send-to-clin");
-              self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
+              self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
               resolve()
               self.cacheHelper.analyzeAllInProgress = false;
             })
@@ -4388,7 +4391,7 @@ export default {
         else if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
           self.toClickVariant = firstFlaggedVariant;
           self.showLeftPanelWhenFlaggedVariants();
-          self.onFlaggedVariantSelected(firstFlaggedVariant, {}, function() {
+          self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
             resolve()
           })
         }

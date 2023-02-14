@@ -1548,26 +1548,24 @@ class SampleModel {
 
                           // re-cache the data
                           me._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
-                           .then(function() {
+                          .then(function() {
                             // return the annotated variant
-                          resolve(theVariant);
-                           }, function(error) {
-                             let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(). Try refreshing the page.";
-                             alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                               .setHeader("Fatal Error");
+                            resolve(theVariant);
+                           })
+                          .catch( function(error) {
+                            let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(). Try refreshing the page.";
                             console.log(msg);
                             reject(msg);
-                           });
-                           resolve(theVariant);
+                          });
+                          resolve(theVariant);
 
                         } else {
-                          var msg = "Cannot find corresponding variant to update HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt + "</code>";
-                          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                            .setHeader("Non-fatal Error");
+                          var msg = "Cannot find corresponding variant to update HGVS notation for variant <pre>" + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt + "</pre> in gene <pre>" + theGene.gene_name + "</pre>";
+                          console.log(msg)
                           reject(msg);
                         }
                       } else {
-                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt + "</code>";
+                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant <pre>" + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt + "</pre> in gene <pre>" + theGene.gene_name + "</pre>";
                         console.log(msg);
                         reject(msg);
 
@@ -1577,21 +1575,16 @@ class SampleModel {
 
                   }
                 } else {
-                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt +"</code>. Try refreshing the page.";
+                  var msg = "Cannot find matching vcf records SampleModel.promiseGetVariantExtraAnnotations() for variant <pre>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt +"</pre>. Try refreshing the page.";
                   console.log(msg);
                   if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
                     variant.notFound = true;
                     variant.isUserFlagged = false;
                     resolve([variant, variant, []]);
                   } else {
-                    alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                      .setHeader("Fatal Error");
                    reject(msg);
                   }
-
                 }
-
-
               } else {
                 var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt + "</code>";
                 console.log(msg);
