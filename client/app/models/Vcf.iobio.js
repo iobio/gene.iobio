@@ -538,149 +538,154 @@ export default function vcfiobio(theGlobalApp) {
 
 
 
-  exports.getReferenceLengths = function(callback) {
+  exports.promiseGetReferenceLengths = function() {
     if (sourceType.toLowerCase() == SOURCE_TYPE_URL.toLowerCase()) {
-      this._getRemoteReferenceLengths(callback);
+      return this._promiseGetRemoteReferenceLengths();
     } else {
-      this._getLocalReferenceLengths(callback);
+      return this._promiseGetLocalReferenceLengths();
     }
   }
 
 
 
 
-  exports._getLocalReferenceLengths = function(callback, callbackError) {
+  exports._promiseGetLocalReferenceLengths = function() {
     var me = this;
 
-    vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
-      var tbiIdx = tbiR;
-      refDensity.length = 0;
+    return new Promise(function(resolve, reject) {
+      vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
+        var tbiIdx = tbiR;
+        refDensity.length = 0;
 
-      if (tbiIdx.idxContent.head.n_ref == 0) {
-        var errorMsg = "Invalid index file.  The number of references is set to zero.  Try recompressing the vcf with bgzip and regenerating the index with tabix."
-        if (callbackError) {
-          callbackError(errorMsg);
+        if (tbiIdx.idxContent.head.n_ref == 0) {
+          var errorMsg = "Invalid index file.  The number of references is set to zero.  Try recompressing the vcf with bgzip and regenerating the index with tabix."
+          console.log(errorMsg);
+          reject(errorMsg);
+        } else {
+          var referenceNames = [];
+          for (var i = 0; i < tbiIdx.idxContent.head.n_ref; i++) {
+            var ref   = tbiIdx.idxContent.head.names[i];
+            referenceNames.push(ref);
+          }
+
+          for (var i = 0; i < referenceNames.length; i++) {
+            var ref   = referenceNames[i];
+
+            var indexseq = tbiIdx.idxContent.indexseq[i];
+            var calcRefLength = indexseq.n_intv * size16kb;
+
+
+            // Load the reference density data.  Exclude reference if 0 points.
+            refData.push( {"name": ref, "calcRefLength": calcRefLength, "idx": i});
+          }
+
+          // Sort ref data so that refs are ordered numerically
+          refData = me.sortRefData(refData);
+
+          resolve(refData)
         }
-        console.log(errorMsg);
-        return;
-      }
-
-      var referenceNames = [];
-      for (var i = 0; i < tbiIdx.idxContent.head.n_ref; i++) {
-        var ref   = tbiIdx.idxContent.head.names[i];
-        referenceNames.push(ref);
-      }
-
-      for (var i = 0; i < referenceNames.length; i++) {
-        var ref   = referenceNames[i];
-
-        var indexseq = tbiIdx.idxContent.indexseq[i];
-        var calcRefLength = indexseq.n_intv * size16kb;
-
-
-        // Load the reference density data.  Exclude reference if 0 points.
-        refData.push( {"name": ref, "calcRefLength": calcRefLength, "idx": i});
-      }
-
-      // Sort ref data so that refs are ordered numerically
-      refData = me.sortRefData(refData);
-
-      if (callback) {
-        callback(refData);
-      }
-
-    });
-
+      });      
+    })
   }
 
 
-  exports._getRemoteReferenceLengths = function(callback, callbackError) {
+  exports._promiseGetRemoteReferenceLengths = function() {
     var me = this;
-    var buffer = "";
-    var refName;
 
-    var cmd = me.getEndpoint().getVcfDepth(vcfURL, tbiUrl)
+    return new Promise(function(resolve, reject) {
+      var buffer = "";
+      var refName;
 
-    cmd.on('data', function(data) {
+      var cmd = me.getEndpoint().getVcfDepth(vcfURL, tbiUrl)
 
-      if (data == undefined) {
-        return;
-      }
+      cmd.on('data', function(data) {
 
-      buffer += data;
+        if (data == undefined) {
+          return;
+        }
 
-    })
+        buffer += data;
 
-    // All data has been streamed.
-    cmd.on('end', function() {
+      })
+
+      // All data has been streamed.
+      cmd.on('end', function() {
 
 
-      var recs = buffer.split("\n");
-      if (recs.length > 0) {
-        for (var i=0; i < recs.length; i++)  {
-          if (recs[i] == undefined) {
-            return;
-          }
+        var recs = buffer.split("\n");
+        if (recs.length > 0) {
+          for (var i=0; i < recs.length; i++)  {
+            if (recs[i] == undefined) {
+              return;
+            }
 
-          var success = true;
-          if ( recs[i][0] == '#' ) {
-            var tokens = recs[i].substr(1).split("\t");
-            if (tokens.length >= 3) {
-              var refNamePrev = refName;
-              var refIndex = tokens[0];
-              var refName = tokens[1];
-              var refLength = tokens[2];
+            var success = true;
+            if ( recs[i][0] == '#' ) {
+              var tokens = recs[i].substr(1).split("\t");
+              if (tokens.length >= 3) {
+                var refNamePrev = refName;
+                var refIndex = tokens[0];
+                var refName = tokens[1];
+                var refLength = tokens[2];
 
-              // Zero fill the previous reference point data and callback with the
-              // data we have loaded so far.
-              if (refData.length > 0) {
-                var refDataPrev = refData[refData.length - 1];
+                // Zero fill the previous reference point data and callback with the
+                // data we have loaded so far.
+                if (refData.length > 0) {
+                  var refDataPrev = refData[refData.length - 1];
+                }
+
+                refData.push({"name": refName,  "calcRefLength": +refLength, "idx": +refIndex});
+
+
+              } else {
+                  success = false;
               }
-
-              refData.push({"name": refName,  "calcRefLength": +refLength, "idx": +refIndex});
-
-
+            }
+            else {
+              // We only care about getting the reference lengths, not the density data
+            }
+            if (success) {
+              buffer = "";
             } else {
-                success = false;
+              buffer += recs[i];
             }
           }
-          else {
-            // We only care about getting the reference lengths, not the density data
-          }
-          if (success) {
-            buffer = "";
-          } else {
-            buffer += recs[i];
-          }
+        } else  {
+          buffer += data;
         }
-      } else  {
-        buffer += data;
-      }
 
-      // sort refData so references or ordered numerically
-      refData = me.sortRefData(refData);
+        // sort refData so references or ordered numerically
+        refData = me.sortRefData(refData);
 
 
-      // Zero fill the previous reference point data and callback with the
-      // for the last reference that was loaded
-      if (refData.length > 0) {
-        var refDataPrev = refData[refData.length - 1];
-      }
-      if (callback) {
-        callback(refData);
-      }
+        // Zero fill the previous reference point data and callback with the
+        // for the last reference that was loaded
+        if (refData.length > 0) {
+          var refDataPrev = refData[refData.length - 1];
+        }
+        resolve(refData);
+      })
+
+      // Catch error event when fired
+      cmd.on('error', function(error) {
+        if(error.includes("Expected compressed file")){
+
+          let msg = "Vcf or vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your vcf files are properly compressed in gzip format <pre>" + vcfUrl + "</pre>";
+          console.log(msg)
+          reject(msg)
+        }
+        else{
+          let msg = "Could not get vcf depth.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted <pre>" + vcfUrl + "</pre>";
+          console.log(msg)
+          reject(msg)
+        }
+
+      })
+
+      // execute command
+      cmd.run();
+
     })
-
-    // Catch error event when fired
-    cmd.on('error', function(error) {
-      console.log("Error occurred in loadRemoteIndex. " +  error);
-      if (callbackError) {
-        callbackError("Error occurred in loadRemoteIndex. " +  error);
-      }
-    })
-
-    // execute command
-    cmd.run();
 
 
 

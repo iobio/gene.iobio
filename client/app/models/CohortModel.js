@@ -1188,7 +1188,7 @@ class CohortModel {
         resolve(resultMap);
       })
       .catch(function(error) {
-        self.dispatch.alertIssued( "error", error, theGene)
+        self.dispatch.alertIssued( "error", error, theGene.gene_name)
         reject(error);
       })
     })

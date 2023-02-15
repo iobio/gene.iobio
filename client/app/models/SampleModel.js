@@ -1137,7 +1137,8 @@ class SampleModel {
         if (sfariMode) {
           currVcf = me.sfariVcfs[0];
         }
-        currVcf.getReferenceLengths(function(refData) {
+        currVcf.promiseGetReferenceLengths()
+        .then(function(refData) {
           var foundRef = false;
           refData.forEach( function(refObject) {
             var refName = refObject.name;
@@ -1172,7 +1173,10 @@ class SampleModel {
 
             }
           }
-        });
+         })
+         .catch(function(error) {
+            reject(error)
+         })
       }
     });
 
@@ -2105,8 +2109,16 @@ class SampleModel {
 
       })
       .catch( function(error) {
-        let msg = "Could not annotate variants. The variant file does not contain the reference " + theGene.chr;
-        msg += " for gene " + theGene.gene_name + ".";
+        let msg = "Could not annotate variants. The variant file does not contain the reference <pre>" + theGene.chr;
+        msg += "</pre> for gene <pre>" + theGene.gene_name + "</pre>.";
+
+        if (theGene.chr.indexOf('alt') > 0 && theGene.gene_name.indexOf("HLA") == 0) {
+          msg += " Many HLA genes reside in a region of the genome that is highly polymorphic. " 
+          + "These regions are represented in alternative references and are often omitted from "
+          + "variant calling pipelines. "
+          + "This variant file does not contain this alternative reference; "
+          + "therefore no information can be shown."
+        }
         console.log(msg);
         console.log(error)
         reject(msg)

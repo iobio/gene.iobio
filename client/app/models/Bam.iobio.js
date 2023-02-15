@@ -672,7 +672,7 @@ export default class Bam {
             });
           });
           cmd.on('error', function(error) {
-            let msg = "Could not get gene coverage from region: <pre>" + refName + ':' + regionStart + '-' + regionEnd + "</pre> Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible";
+            let msg = "Could not get gene coverage for gene <pre>" + geneObject.gene_name + "</pre> from region: <pre>" + refName + ':' + regionStart + '-' + regionEnd + "</pre> Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible.";
             reject(msg)    
           });
           cmd.run();

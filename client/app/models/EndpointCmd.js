@@ -66,19 +66,6 @@ export default class EndpointCmd {
             }
             let cmd = this.api.streamCommand('vcfReadDepth', {url: tbiUrl});
 
-            cmd.on('error', function(error){
-                if(error.includes("Expected compressed file")){
-
-                  let msg = "Vcf or vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your vcf files are properly compressed in gzip format <code>" + vcfUrl + "</code>";
-                  alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                    .setHeader("Fatal Error");
-                }
-                else{
-                  let msg = "Could not get vcf depth.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted <code>" + vcfUrl + "</code>";
-                  alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                    .setHeader("Fatal Error");
-                }
-            })
             return cmd;
         }
     }
