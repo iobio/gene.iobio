@@ -113,7 +113,7 @@
     </div>
 
     <div>
-      <v-btn  id="clear-all-button" flat @click="clearAllAlerts">
+      <v-btn v-if="appAlerts && appAlerts.length > 0" id="clear-all-button" flat @click="clearAllAlerts">
         Clear all
       </v-btn>
     </div>
