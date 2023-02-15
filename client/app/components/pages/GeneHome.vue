@@ -3010,6 +3010,20 @@ export default {
       let genesToApplyCount = self.geneModel.getCopyPasteGeneCount(genesString);
 
       let doIt = function() {
+        let msg = ""
+        let geneCount = genesString.split(",").length
+        if (options && options.replace) {
+          msg = "Replace existing genes with " + geneCount + " genes "
+        } else {
+          msg = "Adding " + geneCount + " genes "
+        }
+        if (self.phenotypeTerm) {
+          msg += " from phenotype search on term <pre>" + self.phenotypeTerm + "</pre>"
+        } else if (options && options.genePanel && options.genePanel.length > 0) {
+          msg += " from gene panel <pre>" + options.genePanel + "</pre>"
+        }
+        self.addAlert("info", msg, genesString, [genesString]);
+
         self.showLeftPanelForGenes();
         let oldGeneNames = $.extend([], self.geneModel.sortedGeneNames);
         self.applyGenesImpl(genesString, options, function() {

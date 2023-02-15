@@ -37,7 +37,7 @@
       padding-right: 0px !important
 
       i.material-icons
-        color: $text-color
+        color: $text-color !important
         font-size: 13px
 
   pre 
@@ -77,6 +77,14 @@
     &.info--text
       div
         color: $text-color !important
+      i.material-icons
+        color: #6c6c6c !important    
+
+    &.info-coverage--text 
+      color: $text-color !important
+      i.material-icons
+        color: $coverage-problem-color !important    
+
     &.warning--text
       div
         color: $text-color !important
@@ -177,7 +185,7 @@ export default {
       if (alert.type == 'success') {
         return 'check_circle'
       } else if (alert.type == 'info') {
-        return 'info'
+        return 'info_outline'
       } else if (alert.type == 'warning') {
         return 'warning'
       } else if (alert.type == 'coverage') {
@@ -194,7 +202,7 @@ export default {
       } else if (alert.type == 'warning') {
         return 'warning'
       } else if (alert.type == 'coverage') {
-        return 'info'
+        return 'info-coverage'
       } else if (alert.type == 'error') {
         return 'error'
       } 

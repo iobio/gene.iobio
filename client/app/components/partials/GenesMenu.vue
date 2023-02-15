@@ -229,6 +229,9 @@ export default {
       if (options == null) {
         options = {isFromClin: false, phenotypes: self.phenotypeTermEntered};
       }
+      if (self.selectedGenePanelName && self.selectedGenePanelName.length > 0) {
+        options.genePanel = self.selectedGenePanelName
+      }
       self.$emit("apply-genes", self.genesToApply, options);
       self.showGenesMenu = false;
     },
