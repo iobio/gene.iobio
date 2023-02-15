@@ -1465,7 +1465,8 @@ export default {
             self.appLoaderLabel = "Loading analysis"
             self.showAppLoader = true;
             let start = new Date()
-            return self.cacheHelper.promiseLoadCache(self.analysis.payload.cache)
+            let cacheData = JSON.parse(self.analysis.payload.cache);
+            return self.cacheHelper.promiseLoadCache(cacheData)
             .then(function() {
               self.addAlert("info", "analysis session restored.", null, 
                 [

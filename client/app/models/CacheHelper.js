@@ -869,7 +869,7 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsCompressed=tr
 
     let geneToDangerSummary = {};
     let geneToProbandVcfData = {};
-    me._promiseClearCache(me.launchTimestampToClear)
+    me._promiseClearCache()
     .then(function() {
       let promises = []
 

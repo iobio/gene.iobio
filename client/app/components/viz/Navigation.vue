@@ -764,7 +764,7 @@ nav.toolbar, nav.v-toolbar
 
       <v-spacer></v-spacer>
 
-      <div class="text-xs-center" v-if="!isSimpleMode && !isBasicMode && !isEduMode">
+      <div class="text-xs-center" v-if="!launchedFromHub && !launchedFromClin && !isSimpleMode && !isBasicMode && !isEduMode">
         <v-menu offset-y :value="showLoadMenu">
           <template v-slot:activator="{ on }">
             <v-btn id="load-data-button"
