@@ -106,15 +106,11 @@ class SampleModel {
         me.promiseGetVcfData(window.gene, window.selectedTranscript)
          .then(function(data) {
           resolveIt(resolve, data.vcfData);
-         },
-         function(error) {
-           var msg = "A problem occurred in SampleModel.promiseSetLoadState().  Please try refreshing the page";
-           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-             .setHeader("Fatal Error");
-           console.log(msg);
-           reject(msg);
          })
-
+         .catch( function(error) {
+           console.log(error);
+           reject(error);
+         });
       }
     })
   }
@@ -247,7 +243,7 @@ class SampleModel {
             // copy the called variants into the vcf data.
             if (whenEmptyUseFbData && me.isAlignmentsOnly()) {
               me.promiseGetFbData(geneObject, selectedTranscript)
-               .then(function(theFbData) {
+              .then(function(theFbData) {
                 // If no variants are loaded, create a dummy vcfData with 0 features
                 if (theFbData && theFbData.features) {
                   theVcfData = $.extend({}, theFbData);
@@ -262,16 +258,17 @@ class SampleModel {
                    .then(function() {
                     me.addCalledVariantsToVcfData(theVcfData, theFbData);
                    })
+                   .catch(function(error) {
+                     reject(error)
+                   })
 
 
                 }
                 resolve({model: me, vcfData: theVcfData});
 
-               },
-               function(error) {
-                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations().  Try refreshing the page";
-                 alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                   .setHeader("Fatal Error");
+               })
+               .catch(function (error) {
+                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations()."
                  console.log(msg);
                  reject(error);
                });
@@ -299,7 +296,7 @@ class SampleModel {
           // Reconstitute called variants from vcf data that contains called variants
           if (theFbData == null || theFbData.features == null) {
             me.promiseGetVcfData(geneObject, selectedTranscript, false)
-             .then(function(data) {
+            .then(function(data) {
               var theVcfData = data.vcfData;
               var dangerSummary = me.promiseGetDangerSummary(geneObject.gene_name)
                .then(function(dangerSummary) {
@@ -316,12 +313,11 @@ class SampleModel {
                 reject(msg);
                })
 
-             },
-             function(error) {
-                var msg = "An error occurred in SampleModel.promiseGetFbData: " + error;
+            })
+            .catch( function(error) {                
                 console.log(msg);
                 reject(msg);
-             });
+            });
           } else {
             resolve({fbData: theFbData, model: me});
           }
@@ -600,15 +596,14 @@ class SampleModel {
         resolveIt(resolve, data);
       } else {
         me.promiseGetVcfData(window.gene, window.selectedTranscript)
-         .then(function(theData) {
+        .then(function(theData) {
           theVcfData = theData.vcfData;
           resolveIt(resolve, theData.vcfData);
-         },
-         function(error) {
-          var msg = "Problem in SampleModel.promiseGetVariantCount(): " + error;
-          console.log(msg);
-          reject(msg);
-         })
+        })
+        .catch(function(error) {
+          console.log(error);
+          reject(error);
+        })
       }
     })
 
@@ -973,11 +968,6 @@ class SampleModel {
               reject(error)
             })
           } else {
-
-            var msg = "<span style='font-size:12px;min-width:400px'>" + message + "</span>";
-              alertify.set('notifier','position', 'top-right');
-              me.lastVcfAlertify = alertify.error(msg, 15);
-
             reject(message);
           }
         });
@@ -1230,15 +1220,14 @@ class SampleModel {
             reject(msg);
           }
         }
-       },
-       function(error) {
-        var msg = "A problem occurred in SampleModel.promiseGetMatchingVariant(): " + error;
-        console.log(msg);
-        if (variant.isProxy && variant.notFound) {
-          resolve(variant);
-        } else {
-          reject(msg);
-        }
+       })
+       .catch( function(error) {
+          console.log(error);
+          if (variant.isProxy && variant.notFound) {
+            resolve(variant);
+          } else {
+            reject(error);
+          }
        })
 
     });
@@ -1507,7 +1496,7 @@ class SampleModel {
                     }
                   } else {
                     me.promiseGetVcfData(theGene, theTranscript)
-                     .then(function(data) {
+                    .then(function(data) {
                       var cachedVcfData = data.vcfData;
                       if (cachedVcfData) {
                         var theVariants = cachedVcfData.features.filter(function(d) {
@@ -1575,8 +1564,11 @@ class SampleModel {
 
                       }
 
-                     })
-
+                    })
+                    .catch(function(error) {
+                      console.log(error)
+                      reject(error)
+                    })
                   }
                 } else {
                   var msg = "Cannot find matching vcf records SampleModel.promiseGetVariantExtraAnnotations() for variant <pre>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt +"</pre>. Try refreshing the page.";
@@ -1687,13 +1679,10 @@ class SampleModel {
           resolve(theVcfData.features);
         }
 
-       },
-       function(error) {
-         let msg = "A problem occurred in SampleModel.promiseGetImpactfulVariantIds().  Try refreshing the page.";
-         alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-           .setHeader("Non-fatal Error");
-        console.log(msg);
-        reject(msg);
+       })
+       .catch( function(error) {
+        console.log(error);
+        reject(error);
        })
 
 
@@ -3368,10 +3357,9 @@ class SampleModel {
             console.log(message);
             reject(message);
           });
-        }, function(error) {
+        })
+        .catch(function(error) {
           let msg = "Could not annotate variants due to missing reference file";
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-            .setHeader("Fatal Error");
           console.log("missing reference");
           reject("missing reference");
         });
@@ -3463,8 +3451,6 @@ class SampleModel {
          },
          function(error) {
            let msg = "Could not get sample data for gene " +  geneName + ". Try refreshing the page";
-           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-             .setHeader("Non-fatal Error");
           console.log(msg);
           reject(msg);
          })
@@ -3494,9 +3480,7 @@ class SampleModel {
        },
        function(error) {
         CacheHelper.showError(key, error);
-        alertify.set('notifier','position', 'top-right');
-        alertify.error("Error occurred when compressing analyzed data before caching.", 15);
-        reject(error);
+        reject("Error occurred when compressing analyzed data before caching." + error);
        })
     })
   }
