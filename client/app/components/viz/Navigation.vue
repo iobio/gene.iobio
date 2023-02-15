@@ -1075,7 +1075,8 @@ nav.toolbar, nav.v-toolbar
         <alert-panel :isBasicMode="isBasicMode"
            :isSimpleMode="isSimpleMode"
            :appAlerts=appAlerts
-           @clear-app-alert="onClearAppAlert">
+           @clear-app-alert="onClearAppAlert"
+           @clear-all-app-alerts="onClearAllAppAlerts">
         </alert-panel>
     </v-navigation-drawer>
 
@@ -1819,6 +1820,9 @@ export default {
     },
     onClearAppAlert: function(key) {
       this.$emit('clear-app-alert', key)
+    },
+    onClearAllAppAlerts: function() {
+      this.$emit('clear-all-app-alerts')
     }
 
   },

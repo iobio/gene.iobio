@@ -7,12 +7,31 @@
   margin-top: 5px
   margin-bottom: 0px
 
-  #clear-alert-button
+  .alert-item
+    clear: both
+
+  #clear-all-button
+    margin: 0px
+    height: 20px
     float: right
+    padding-left: 3px 
+    padding-right: 3px
+    min-width: 50px
+    max-width: 50px
+    margin-right: 0px
+
+    .v-btn__content
+      color: $link-color
+      font-size: 12px
+
+  #clear-alert-button
     max-width: 20px
     min-width: 20px
     max-height: 20px
     margin: 0
+    float: right
+    padding-left: 3px 
+    padding-right: 3px
 
     .v-btn__content
       padding-right: 0px !important
@@ -35,6 +54,7 @@
   .alert-title
     color:  $app-color
     font-size: 15px
+    margin-bottom: 10px
 
   .v-alert 
     font-size: 12px 
@@ -47,7 +67,7 @@
       align-self: flex-start !important
 
     div 
-      padding-right: 10px
+      padding-right: 0px
       max-width: 280px
       overflow-wrap: break-word
 
@@ -88,8 +108,14 @@
 
 
 
-    <div class="alert-title"  :style="isBasicMode || isSimpleMode ? 'margin-bottom:10px;' : 'margin-bottom:20px'">
+    <div class="alert-title">
     Notifications
+    </div>
+
+    <div>
+      <v-btn  id="clear-all-button" flat @click="clearAllAlerts">
+        Clear all
+      </v-btn>
     </div>
 
     <v-alert v-for="alert in appAlerts"
@@ -175,6 +201,20 @@ export default {
     },
     clearAlert: function(alert) {
       this.$emit("clear-app-alert", alert.key)
+    },
+    clearAllAlerts: function(alert) {
+      let self = this;
+      let msg = "Are you sure you want to clear all notifications?"
+      alertify.confirm("",
+        msg,
+        function () {
+          // ok
+          self.$emit("clear-all-app-alerts")
+        },
+        function() {
+          // cancel
+        }
+      ).set('labels', {ok:'OK', cancel:'Cancel'});
     }
   },
   mounted: function() {

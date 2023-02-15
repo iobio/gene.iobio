@@ -344,6 +344,7 @@ main.content.clin, main.v-content.clin
       @phenolyzer-top-changed="onPhenolyzerTopChanged"
       @coding-variants-only-changed="onAnalyzeCodingVariantsOnly"
       @clear-app-alert="onClearAppAlert"
+      @clear-all-app-alerts="clearAppAlerts"
     >
     </navigation>
 
@@ -1603,6 +1604,11 @@ export default {
 
     clearAppAlerts: function(type) {
       let self = this;
+
+      if (type == null) {
+        self.appAlerts = []
+        return;
+      }
 
       let matching = self.appAlerts.filter(function(alert) {
         if (alert.type == type) {
