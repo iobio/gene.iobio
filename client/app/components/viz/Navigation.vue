@@ -764,7 +764,7 @@ nav.toolbar, nav.v-toolbar
 
       <v-spacer></v-spacer>
 
-      <div class="text-xs-center">
+      <div class="text-xs-center" v-if="!isSimpleMode && !isBasicMode && !isEduMode">
         <v-menu offset-y :value="showLoadMenu">
           <template v-slot:activator="{ on }">
             <v-btn id="load-data-button"
@@ -802,7 +802,7 @@ nav.toolbar, nav.v-toolbar
       <v-btn id="save-json-analysis-button" 
         :outline="cohortModel && cohortModel.isLoaded" 
         :flat="cohortModel && !cohortModel.isLoaded"
-         v-if="!launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded" 
+         v-if="!launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded && !isBasicMode && !isSimpleMode" 
         @click="onSaveAnalysisFile" 
         v-tooltip.bottom-left="{content: 'Save your analysis'}">
         <v-icon>file_download</v-icon>
@@ -814,7 +814,7 @@ nav.toolbar, nav.v-toolbar
 
 
       <save-button
-        v-if="launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded"
+        v-if="!isSimpleMode && !isBasicMode && launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded"
         :showing-save-modal="showSaveModal"
         :analysis="analysis"
         :isDirty="isDirty"
