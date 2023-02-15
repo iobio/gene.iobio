@@ -787,7 +787,9 @@ export default function vcfiobio(theGlobalApp) {
         }
       });
       cmd.on('error', function(error) {
-        console.log(error);
+        console.log("Error normalizing variants " + error)
+        let msg = "Unable to normalize variants for <pre>" + geneObject.gene_name + "</pre>. Error: " + error;
+        reject(msg)
       });
       cmd.run();
     });
@@ -1185,12 +1187,12 @@ export default function vcfiobio(theGlobalApp) {
       })
   }
 
-  exports._getKnownVariantsHistoDataImpl = function(refName, geneObject, transcript, binLength, callback) {
+  exports._promiseGetKnownVariantsHistoDataImpl = function(refName, geneObject, transcript, binLength, callback) {
 
     var me = this;
 
-      var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
-      var cmd = me.getEndpoint().getCountsForGene(clinvarUrl, refName, geneObject, binLength, (binLength == null ? me._getExonRegions(transcript) : null), 'clinvar', false);
+    var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
+    var cmd = me.getEndpoint().getCountsForGene(clinvarUrl, refName, geneObject, binLength, (binLength == null ? me._getExonRegions(transcript) : null), 'clinvar', false);
 
 
     var summaryData = "";
@@ -1242,79 +1244,84 @@ export default function vcfiobio(theGlobalApp) {
 
   }
 
-  exports._getClinvarPhenotypesImpl = function(refName, geneObject, transcript, callback) {
+  exports._promiseGetClinvarPhenotypesImpl = function(refName, geneObject, transcript) {
 
     var me = this;
 
-    var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
-    var cmd = me.getEndpoint().getClinvarPhenotypesForGene(clinvarUrl, refName, geneObject);
+    return new Promise(function(resolve, reject) {
+      var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
+      var cmd = me.getEndpoint().getClinvarPhenotypesForGene(clinvarUrl, refName, geneObject);
 
 
-    var summaryData = "";
-    // Get the results from the iobio command
-    cmd.on('data', function(data) {
-       if (data == undefined) {
-          return;
-       }
-       summaryData += data;
-    });
-
-    // We have all of the annotated vcf recs.  Now parse them into vcf objects
-    cmd.on('end', function(data) {
-      var results = [];
-      var records = summaryData.split("\n");
-      var fieldNames = {};
-
-      var idx = 0;
-      records.forEach(function(record) {
-        if (idx == 0) {
-          fieldNames = record.split('\t');
-        } else {
-          if (record.trim().length > 0) {
-            var fields = record.split('\t');
-            var resultRec = {};
-
-            var i = 0;
-            fieldNames.forEach(function(fieldName) {
-              // All fields are numeric
-              resultRec[fieldName] = fields[i];
-              i++;
-            })
-
-            results.push(resultRec);
-          }
-        }
-        idx++;
+      var summaryData = "";
+      // Get the results from the iobio command
+      cmd.on('data', function(data) {
+         if (data == undefined) {
+            return;
+         }
+         summaryData += data;
       });
-      results = results.map(function(entry) {
-        entry.phenotype = entry.phenotype.split("_").join(" ");
-        return entry;
-      }).filter(function(entry) {
-        return entry.phenotype != "not provided" && entry.phenotype != 'not specified'
-      })
-      let sortedResults = results.sort(function(a,b) {
-        if (+a.total < +b.total) {
-          return 1;
-        } else if (+a.total > +b.total) {
-          return -1;
-        } else {
-          if (a.phenotype < b.phenotype) {
-            return -1
-          } else if (a.phentoype > b.phenotype) {
-            return 1;
+
+      // We have all of the annotated vcf recs.  Now parse them into vcf objects
+      cmd.on('end', function(data) {
+        var results = [];
+        var records = summaryData.split("\n");
+        var fieldNames = {};
+
+        var idx = 0;
+        records.forEach(function(record) {
+          if (idx == 0) {
+            fieldNames = record.split('\t');
           } else {
-            return 0;
+            if (record.trim().length > 0) {
+              var fields = record.split('\t');
+              var resultRec = {};
+
+              var i = 0;
+              fieldNames.forEach(function(fieldName) {
+                // All fields are numeric
+                resultRec[fieldName] = fields[i];
+                i++;
+              })
+
+              results.push(resultRec);
+            }
           }
-        }
-      })
-      callback(sortedResults);
-    });
+          idx++;
+        });
+        results = results.map(function(entry) {
+          entry.phenotype = entry.phenotype.split("_").join(" ");
+          return entry;
+        }).filter(function(entry) {
+          return entry.phenotype != "not provided" && entry.phenotype != 'not specified'
+        })
+        let sortedResults = results.sort(function(a,b) {
+          if (+a.total < +b.total) {
+            return 1;
+          } else if (+a.total > +b.total) {
+            return -1;
+          } else {
+            if (a.phenotype < b.phenotype) {
+              return -1
+            } else if (a.phentoype > b.phenotype) {
+              return 1;
+            } else {
+              return 0;
+            }
+          }
+        })
+        resolve(sortedResults);
+      });
 
-    cmd.on('error', function(error) {
-       console.log(error);
-    });
+      cmd.on('error', function(error) {
+         console.log(error);
+         reject(error)
+      });
 
-    cmd.run();
+      cmd.run();
+
+    })
+
 
   }
 

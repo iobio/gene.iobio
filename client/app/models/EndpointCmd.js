@@ -223,11 +223,6 @@ export default class EndpointCmd {
                 vcfSampleNames: vcfSampleNames ? vcfSampleNames.split(',') : '',
                 decompose
             });
-            cmd.on('error', function(error) {
-              let msg = "Could not normalize variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Non-fatal Error");
-            });
             return cmd;
         }
     }
@@ -256,11 +251,6 @@ export default class EndpointCmd {
                 vepArgs: vepArgs
             });
 
-            cmd.on('error', function(error) {
-              let msg = "Could not get variant counts from clinVar. Try refreshing the page."
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Non-fatal Error");
-            });
             return cmd;
         }
     }
@@ -281,11 +271,6 @@ export default class EndpointCmd {
                 annotationMode: 'phenotype'
             });
 
-            cmd.on('error', function(error) {
-              let msg = "Could not get phenotypes from clinVar."
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error + "</code>")
-                .setHeader("Non-fatal Error");
-            });
             return cmd;
         }
     }
@@ -295,13 +280,6 @@ export default class EndpointCmd {
         const me = this;
         if (this.gruBackend) {
             let cmd = this.api.streamCommand('alignmentHeader', {url: bamUrl});
-            cmd.on('error', function(error) {
-
-              let msg = "Could not interpret Bam file.  Make sure that the bam file is properly formatted and accessible <code>" + bamUrl + "</code>";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Fatal Error");
-                console.log(error);
-            });
             return cmd;
         }
     }

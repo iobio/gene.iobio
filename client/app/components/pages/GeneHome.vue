@@ -1457,9 +1457,35 @@ export default {
             } else if (projObj.name === 'SSC GRCh37 WES') {
                 self.isSfariProject = true;
             }
+
+            if (self.analysis.payload.hasOwnProperty('settings')) {
+              if (self.analysis.payload.settings.geneSource) {
+                self.geneModel.geneSource = self.analysis.payload.settings.geneSource;
+              }
+              if (self.analysis.payload.settings.coverageThresholds) {
+                self.filterModel.geneCoverageMin    = self.analysis.payload.settings.coverageThresholds.min;
+                self.filterModel.geneCoverageMedian = self.analysis.payload.settings.coverageThresholds.median;
+                self.filterModel.geneCoverageMean   = self.analysis.payload.settings.coverageThresholds.mean;
+              }
+              if (self.analysis.payload.settings.analyzeCodingVariantsOnly) {
+                self.analyzeCodingVariantsOnly = self.analysis.payload.settings.analyzeCodingVariantsOnly;
+              }
+              if (self.analysis.payload.settings.phenolyzerTopGenes) {
+                self.onPhenolyzerTopChanged(self.analysis.payload.settings.phenolyzerTopGenes)
+              }
+              if (self.$refs.navRef && self.$refs.navRef && self.$refs.navRef.$refs && self.$refs.navRef.$refs.settingsDialogRef) {
+                self.$refs.navRef.$refs.settingsDialogRef.init();
+              }
+            }
+            if (self.analysis.payload.hasOwnProperty('appAlerts')) {
+              self.appAlerts = self.analysis.payload.appAlerts;
+            }
+
+
             return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject)
         })
         .then(function() {
+
 
           if (self.analysis.payload.hasOwnProperty('cache')) {
             self.appLoaderLabel = "Loading analysis"
@@ -4618,6 +4644,18 @@ export default {
       let self = this
 
       return new Promise(function(resolve, reject) {
+
+        self.analysis.payload.settings = {
+         'geneSource':        self.geneModel.geneSource, 
+         'coverageThresholds': {'min':    self.filterModel.geneCoverageMin,
+                                'median': self.filterModel.geneCoverageMedian,
+                                'mean':   self.filterModel.geneCoverageMean
+                                },
+         'analyzeCodingVariantsOnly': self.cohortModel.analyzeCodingVariantsOnly,
+         'phenolyzerTopGenes': self.geneModel.phenolyzerTopGenesToKeep
+        };
+
+        self.analysis.payload.appAlerts = self.appAlerts;
 
         self.promiseOutputAnalysisCache()
         .then(function() {
