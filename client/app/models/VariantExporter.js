@@ -437,7 +437,9 @@ export default class VariantExporter {
 
             })
 
-
+            .catch(function(error) {
+              reject(error)
+            })
           } else if (extraAnnotations) {
               me.cohort.getProbandModel().promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variant, format, getHeader, sampleNames)
               .then(function(data) {
@@ -454,9 +456,12 @@ export default class VariantExporter {
               })
           } else {
               me._promiseFormatRecord(variant, variant, [], theGeneObject, theTranscript, format, exportRec, extraAnnotations)
-                .then(function(data) {
+              .then(function(data) {
                   resolve(data);
-                })
+              })
+              .catch(function(error) {
+                reject(error)
+              })
           }
         } else {
           reject("Problem during exporting variants.  Cannot find transcript " + exportRec.transcript + " in gene " + exportRec.gene);

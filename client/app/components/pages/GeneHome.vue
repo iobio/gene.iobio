@@ -4044,7 +4044,7 @@ export default {
             self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[clinObject.iobioSource].batchSize;
             self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE)
           } else {
-            alertify.warn("Launch Error", "Unable to set IOBIO_SOURCE")
+            self.addAlert("error", "Launch error. Unable to set IOBIO_SOURCE")
           }
         } else {
           self.globalApp.initServices(false);
@@ -4238,8 +4238,7 @@ export default {
           } catch(error) {
             console.log("unable to stringify analysis ")
             console.log(error)
-            console.log(msgObject);
-            alertify.error("Unable to save analysis")
+            self.addAlert('error', 'Unable to send analysis to clin.iobio', null, [error])
           }
           if (msgObjectString && msgObjectString.length > 0) {
              self.interpretationProgressDialog = false;

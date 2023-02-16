@@ -552,13 +552,14 @@ class CohortModel {
       var bamPromise = null;
       if (modelInfo.bam) {
         bamPromise = new Promise(function(bamResolve, bamReject) {
-          vm.onBamUrlEntered(modelInfo.bam, modelInfo.bai, function() {
-            bamResolve();
+          vm.promiseLoadBamUrl(modelInfo.bam, modelInfo.bai)
+          .then(function() {
+            bamResolve()
           })
-        },
-        function(error) {
-          bamReject(error);
-        });
+          .catch(function(error) {
+            bamReject(error);
+          });
+        })
       } else {
         vm.bam = null;
         bamPromise = Promise.resolve();
@@ -714,110 +715,112 @@ class CohortModel {
   promiseAddSfariSample(projectId) {
       let self = this;
       if (self.sampleMap['sfari-variants']) {
-          return Promise.resolve();
+        return Promise.resolve();
       } else {
-          return new Promise(function(resolve,reject) {
-              let vm = new SampleModel(self.globalApp);
-              vm.setRelationship('sfari-variants');
-              vm.setName('SFARI');
+        return new Promise(function(resolve,reject) {
+          let vm = new SampleModel(self.globalApp);
+          vm.setRelationship('sfari-variants');
+          vm.setName('SFARI');
 
-              // Stable sorted url lists
-              let nameList = [],
-                  vcfUrlList = [],
-                  tbiUrlList = [];
+          // Stable sorted url lists
+          let nameList = [],
+              vcfUrlList = [],
+              tbiUrlList = [];
 
-              // Files coming back from Hub
-              let vcfFiles = null,
-                  tbiCsiFiles = null;
+          // Files coming back from Hub
+          let vcfFiles = null,
+              tbiCsiFiles = null;
 
-              self.hubSession.promiseGetFilesForProject(projectId)
-                  .then((data) => {
-                      // Stable sort by file type
-                      vcfFiles = data.data.filter(f => f.type === 'vcf');
-                      tbiCsiFiles = data.data.filter(f => f.type === 'tbi' || f.type === 'csi');
+          self.hubSession.promiseGetFilesForProject(projectId)
+          .then((data) => {
+              // Stable sort by file type
+              vcfFiles = data.data.filter(f => f.type === 'vcf');
+              tbiCsiFiles = data.data.filter(f => f.type === 'tbi' || f.type === 'csi');
 
-                      // Pull out combined vcfs from individual chromosome ones
-                      let sortedVcfFiles = [];
-                      vcfFiles.forEach((file) => {
-                          let phaseFile = false;
-                          let name = file.name;
-                          // SPECIAL CASE for SSC WES 37
-                          if (name === "ssc_wes.vcf.gz") {
-                            phaseFile = true;
-                          } else {
-                              let namePieces = name.split('.');
-                              namePieces.forEach((piece) => {
-                                  if (piece === 'all' || piece.includes('all')) {
-                                      phaseFile = true;
-                                  }
-                              });
-                          }
-                          if (phaseFile) {
-                              sortedVcfFiles.push(file);
-                          }
-                      });
-
-                      let sortedTbiCsiFiles = [];
-                      tbiCsiFiles.forEach((file) => {
-                          let phaseFile = false;
-                          let name = file.name;
-                          // SPECIAL CASE for SSC WES 37
-                          if (name === "ssc_wes.vcf.gz.tbi") {
+              // Pull out combined vcfs from individual chromosome ones
+              let sortedVcfFiles = [];
+              vcfFiles.forEach((file) => {
+                  let phaseFile = false;
+                  let name = file.name;
+                  // SPECIAL CASE for SSC WES 37
+                  if (name === "ssc_wes.vcf.gz") {
+                    phaseFile = true;
+                  } else {
+                      let namePieces = name.split('.');
+                      namePieces.forEach((piece) => {
+                          if (piece === 'all' || piece.includes('all')) {
                               phaseFile = true;
-                          } else {
-                              let namePieces = name.split('.');
-                              namePieces.forEach((piece) => {
-                                  if (piece === 'all' || piece.includes('all')) {
-                                      phaseFile = true;
-                                  }
-                              });
-                          }
-                          if (phaseFile) {
-                              sortedTbiCsiFiles.push(file);
                           }
                       });
+                  }
+                  if (phaseFile) {
+                      sortedVcfFiles.push(file);
+                  }
+              });
 
-                      // Check that we have matching data for all files
-                      if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
-                          console.log('WARNING: Mismatch on vcf and tbi files pulled from Mosaic for Sfari data. This is a problem.');
-                      } else if (sortedVcfFiles.length === 0 || sortedTbiCsiFiles.length === 0) {
-                          console.log('Did not obtain any project level files from Mosaic for Sfari data. This might be ok.');
-                      }
+              let sortedTbiCsiFiles = [];
+              tbiCsiFiles.forEach((file) => {
+                  let phaseFile = false;
+                  let name = file.name;
+                  // SPECIAL CASE for SSC WES 37
+                  if (name === "ssc_wes.vcf.gz.tbi") {
+                      phaseFile = true;
+                  } else {
+                      let namePieces = name.split('.');
+                      namePieces.forEach((piece) => {
+                          if (piece === 'all' || piece.includes('all')) {
+                              phaseFile = true;
+                          }
+                      });
+                  }
+                  if (phaseFile) {
+                      sortedTbiCsiFiles.push(file);
+                  }
+              });
 
-                      // Initialize sample model vcfs once we know how many we need
-                      vm.initSfariSample(sortedVcfFiles.length, self);
+              // Check that we have matching data for all files
+              if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
+                  console.log('WARNING: Mismatch on vcf and tbi files pulled from Mosaic for Sfari data. This is a problem.');
+              } else if (sortedVcfFiles.length === 0 || sortedTbiCsiFiles.length === 0) {
+                  console.log('Did not obtain any project level files from Mosaic for Sfari data. This might be ok.');
+              }
 
-                      // Get urls for both vcf and tbi
-                      let urlPromises = [];
-                      for (let i = 0; i < sortedVcfFiles.length; i++) {
-                          let currVcf = sortedVcfFiles[i];
-                          let currTbi = sortedTbiCsiFiles[i];
-                          let urlP = self.promiseGetSignedUrls(currVcf, currTbi, projectId)
-                              .then((urlObj) => {
-                                  nameList.push(urlObj.name);
-                                  vcfUrlList.push(urlObj.vcf);
-                                  tbiUrlList.push(urlObj.tbi);
-                              });
-                          urlPromises.push(urlP);
-                      }
-                      // Sort data by chromosome once we have all urls
-                      Promise.all(urlPromises)
-                          .then(() => {
-                              vm.onHubVcfUrlsEntered(vcfUrlList, tbiUrlList, function() {
-                                self.sampleModels.push(vm);
-                                let sample = {'relationship': 'sfari-variants', 'model': vm};
-                                self.sampleMap['sfari-variants'] = sample;
-                                resolve(sample);
-                              });
-                          })
-                          .catch((error) => {
-                              reject('There was a problem adding hub data to sample model: ' + error);
-                          });
-                  })
-                  .catch((error) => {
-                    console.log('There was a problem unpacking file data from Hub for Sfari variants: ' + error);
-                  });
+              // Initialize sample model vcfs once we know how many we need
+              vm.initSfariSample(sortedVcfFiles.length, self);
+
+              // Get urls for both vcf and tbi
+              let urlPromises = [];
+              for (let i = 0; i < sortedVcfFiles.length; i++) {
+                  let currVcf = sortedVcfFiles[i];
+                  let currTbi = sortedTbiCsiFiles[i];
+                  let urlP = self.promiseGetSignedUrls(currVcf, currTbi, projectId)
+                      .then((urlObj) => {
+                          nameList.push(urlObj.name);
+                          vcfUrlList.push(urlObj.vcf);
+                          tbiUrlList.push(urlObj.tbi);
+                      });
+                  urlPromises.push(urlP);
+              }
+              // Sort data by chromosome once we have all urls
+              Promise.all(urlPromises)
+              .then(() => {
+                vm.onHubVcfUrlsEntered(vcfUrlList, tbiUrlList, function() {
+                  self.sampleModels.push(vm);
+                  let sample = {'relationship': 'sfari-variants', 'model': vm};
+                  self.sampleMap['sfari-variants'] = sample;
+                  resolve(sample);
+                });
+              })
+              .catch((error) => {
+                console.log(error)
+                self.dispatch.alertIssued('error', 'There was a problem adding hub data to sample model', null, [error]);
+                reject(error);
+              });
           })
+          .catch((error) => {
+            console.log('There was a problem unpacking file data from Hub for Sfari variants: ' + error);
+          });
+        })
       }
   }
 
@@ -1406,6 +1409,7 @@ class CohortModel {
                 })
                 .catch(function(error) {
                   model.inProgress.loadingVariants = false;
+                  reject(error)
                 })
               annotatePromises.push(p);
             }
@@ -1420,7 +1424,10 @@ class CohortModel {
               theResultMap[rel] = resultMap[rel];
             }
           }
-        });
+        })
+        .catch(function(error) {
+          reject(error)
+        })
         annotatePromises.push(p);
       }
 

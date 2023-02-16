@@ -141,20 +141,20 @@ export default class Bam {
     });
 
     cmd.on('error', function(error) {
-        if (me.ignoreErrorMessage(error)) {
+      if (me.ignoreErrorMessage(error)) {
         success = true;
         if (callback) {
           callback(success)
         }
       } else {
-        if (success == null) {
-          success = false;
-          me.bamUri = url;
-          if (callback) {
-            callback(success, me.translateErrorMessage(error));
-          }
+      if (success == null) {
+        success = false;
+        me.bamUri = url;
+        if (callback) {
+          callback(success, me.translateErrorMessage(error));
         }
       }
+    }
 
     });
 

@@ -1145,16 +1145,13 @@ CacheHelper.showError = function(key, cacheError) {
         var message = errorType + " occurred when caching analyzed data for gene " + cacheObject.gene + ". Unable to analyze remaining genes.  Click on 'Clear cache...' link to clear cache.";
         // If we have shown this kind of cache error 2 times already, just show in right hand corner instead
         // of showning dialog with ok/cancel.
-      if (errorCount < 3) {
-        alertify.alert(message, function() {
+        if (errorCount < 3) {
+          self.dispatch.alertIssued('warning', message)
           CacheHelper.recordedCacheErrors[errorKey] = null;
-        });
-      } else if (errorCount < 8) {
-          var msg = "<span style='font-size:12px'>" + message + "</span>";
-          alertify.set('notifier','position', 'top-right');
-          alertify.error(msg,  5);
-        CacheHelper.recordedCacheErrors[errorKey] = null;
-      }
+        } else if (errorCount < 8) {
+          self.dispatch.alertIssued('error', message, null, ['error has occurred more than 5 times'])
+          CacheHelper.recordedCacheErrors[errorKey] = null;
+        }
       }
   }
 

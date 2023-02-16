@@ -246,6 +246,7 @@
                    :separateUrlForIndex="separateUrlForIndex"
                    @sample-data-changed="validate"
                    @samples-available="onSamplesAvailable"
+                   @sample-error="onSampleError"
                   >
                 </sample-data>
                </v-flex>
@@ -620,6 +621,9 @@ export default {
         self.$emit("on-files-load-error", error)
       })
     },
+    onSampleError: function(error) {
+      this.$emit('on-files-load-error', error)
+    },
     promiseSetModel: function(model) {
       let self = this;
       return new Promise(function(resolve, reject) {
@@ -643,13 +647,13 @@ export default {
               self.validate();
             }
           })
-          theModel.onBamUrlEntered(theModelInfo.bam, null, function(success) {
+          theModel.promiseLoadBamUrl(theModelInfo.bam, null)
+          .then(function() {
             self.validate();
-            if (success) {
-              resolve();
-            } else {
-              reject();
-            }
+            resolve();
+          })
+          .catch(function(error) {
+            reject(error);
           })
         })
         .catch(function(error) {

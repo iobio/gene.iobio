@@ -174,10 +174,9 @@ export default class HubSession {
               reject(error);
             })
           })
-
-
-
-
+          .catch(error => {
+            reject(error)
+          })
         })
       })
 
@@ -533,7 +532,7 @@ export default class HubSession {
               fileMap[file.type] = signed.url
               if (file.type == 'vcf') {
                 if (file.vcf_sample_name == null || file.vcf_sample_name == "") {
-                  alertify.error("Missing vcf_sample_name for file " + file.name, 20)
+                  reject("Missing vcf_sample_name for file " + file.name)
                 } else {
                   sample.vcf_sample_name = file.vcf_sample_name;
                 }

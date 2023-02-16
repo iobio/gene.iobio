@@ -180,6 +180,7 @@ export default {
         .catch(function(error) {
           self.showLoadingSamples = false;
           self.$emit("sample-data-changed");
+          self.$emit("sample-error", error)
         })
       } else {
         self.showLoadingSamples = false;
@@ -195,6 +196,7 @@ export default {
           .catch(function(error) {
             self.showLoadingSamples = false;
             self.$emit("sample-data-changed");
+            self.$emit("sample-error", error)
           })
         }
       }
@@ -226,6 +228,7 @@ export default {
       .catch(function(error) {
         self.showLoadingSamples = false;
         self.$emit("sample-data-changed");
+        self.$emit("sample-error", error)
       })
     },
     onIsAffected: function() {
@@ -253,11 +256,13 @@ export default {
     onBamUrlEntered: function(bamUrl, baiUrl) {
       let self = this;
       if (self.modelInfo && self.modelInfo.model) {
-        self.modelInfo.model.onBamUrlEntered(bamUrl, baiUrl, function(success) {
-          if (success) {
-          } else {
-          }
+        self.modelInfo.model.promiseLoadBamUrl(bamUrl, baiUrl)
+        .then(function() {
           self.$emit("sample-data-changed");
+        })
+        .catch(function(error) {
+          self.$emit("sample-data-changed");
+          self.$emit('sample-error', error)
         })
       }
     },
@@ -269,6 +274,8 @@ export default {
       })
       .catch(function(error) {
         self.$emit("sample-data-changed");
+        self.$emit("sample-error", error)
+
       })
     },
   },

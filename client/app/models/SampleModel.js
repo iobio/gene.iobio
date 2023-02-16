@@ -40,9 +40,6 @@ class SampleModel {
     this.affectedStatus = null;
     this.sex = null;
 
-    this.lastVcfAlertify = null;
-    this.lastBamAlertify = null;
-
     this.cohort = null;
 
     this.debugMe = false;
@@ -851,81 +848,51 @@ class SampleModel {
       } else {
         me.bam = new Bam(me.globalApp, me.cohort.endpoint);
         me.bam.openBamFile(fileSelection, function(success, message) {
-          if (me.lastBamAlertify) {
-            me.lastBamAlertify.dismiss();
-          }
           if (success) {
             me.bamFileOpened = true;
             me.getBamRefName = me._stripRefName;
             resolve(me.bam.bamFile.name);
 
           } else {
-            if (me.lastBamAlertify) {
-              me.lastBamAlertify.dismiss();
-            }
-            var msg = "<span style='font-size:12px'>" + message + "</span>";
-                alertify.set('notifier','position', 'top-right');
-            me.lastBamAlertify = alertify.error(msg, 15);
-
             reject(message);
-
           }
         });
       }
-
-
-
     });
 
 
   }
 
-  onBamUrlEntered(bamUrl, baiUrl, callback) {
+  promiseLoadBamUrl(bamUrl, baiUrl) {
     var me = this;
-    this.bamData = null;
-    this.fbData = null;
-    this.vcfData = null;
 
-    if (bamUrl == null || bamUrl.trim() == "") {
-      this.bamUrlEntered = false;
-      this.bam = null;
-      if (callback) {
-        callback(false)
-      }
+    return new Promise(function(resolve, reject) {
+      me.bamData = null;
+      me.fbData = null;
+      me.vcfData = null;
 
-    } else {
+      if (bamUrl == null || bamUrl.trim() == "") {
+        me.bamUrlEntered = false;
+        me.bam = null;
+        reject("No URL provided for bam")
+      } else {
 
-      this.bamUrlEntered = true;
-      this.bam = new Bam(this.globalApp, this.cohort.endpoint, bamUrl, baiUrl);
+        me.bamUrlEntered = true;
+        me.bam = new Bam(me.globalApp, me.cohort.endpoint, bamUrl, baiUrl);
 
-      this.bam.checkBamUrl(bamUrl, baiUrl, function(success, errorMsg) {
-        if (me.lastBamAlertify) {
-          me.lastBamAlertify.dismiss();
-        }
-        if (!success) {
-          me.bamUrlEntered = false;
-          me.bam = null;
-          setTimeout(function() {
-            var msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + bamUrl + "</span>";
-                alertify.set('notifier','position', 'top-right');
-            me.lastBamAlertify = alertify.error(msg, 15);
-            if(callback) {
-
-              callback(success);
-            }
-
-          }, 500)
-        } else {
-          if(callback) {
-            callback(success);
+        me.bam.checkBamUrl(bamUrl, baiUrl, function(success, errorMsg) {
+          if (!success) {
+            me.bamUrlEntered = false;
+            me.bam = null;
+            reject(errorMsg)
+          } else {
+            me.getBamRefName = me._stripRefName;
+            resolve();
           }
+        });
 
-        }
-      });
-
-    }
-
-      this.getBamRefName = this._stripRefName;
+      }
+    })
 
   }
 
@@ -946,12 +913,7 @@ class SampleModel {
       } else {
         me.vcf.openVcfFile( fileSelection,
         function(success, message) {
-          if (me.lastVcfAlertify) {
-            me.lastVcfAlertify.dismiss();
-          }
           if (success) {
-
-
             me.vcfFileOpened = false;
             me.vcfUrlEntered = true;
             me.getVcfRefName = null;
@@ -1021,10 +983,6 @@ class SampleModel {
 
         me.vcf.promiseOpenVcfUrl(vcfUrl, tbiUrl)
         .then( function() {
-          if (me.lastVcfAlertify) {
-            me.lastVcfAlertify.dismiss();
-          }
-
           me.vcfUrlEntered = true;
           me.vcfFileOpened = false;
           me.getVcfRefName = null;
@@ -1076,9 +1034,6 @@ class SampleModel {
       } else {
         // Try to open
         self.sfariVcfs[i].openVcfUrl(currVcf.url, currTbi.url, function(success, errorMsg) {
-            if (self.lastVcfAlertify) {
-                self.lastVcfAlertify.dismiss();
-            }
             if (success) {
                 // Get the sample names from the vcf header
                 self.sfariVcfs[i].getSampleNames(function(sampleNames) {
@@ -1089,9 +1044,7 @@ class SampleModel {
             } else {
                 // If we have a hiccup on one, return false for all
                 self.vcfUrlEntered = false;
-                let msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + currVcf.url + "</span>";
-                alertify.set('notifier','position', 'top-right');
-                self.lastVcfAlertify = alertify.error(msg, 15);
+                reject(errorMsg)
             }
         });
       }
@@ -1749,13 +1702,6 @@ class SampleModel {
                                       unwrappedResults.gene = theGene;
                                       annoResults.push(unwrappedResults);
                                     })
-                                    .catch((error) => {
-                                      let msg = "Could not obtain sfari variants.  Try refreshing the page.";
-                                      alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                                        .setHeader("Non-fatal Error");
-                                      reject('Problem getting sfari variants: ' + error);
-
-                                    });
                                 annoPromises.push(p);
                             });
                             Promise.all(annoPromises)
@@ -1768,12 +1714,12 @@ class SampleModel {
                                         resolve(resultMap);
                                       })
                                       .catch((error) => {
-                                        let msg = "There was a problem combining variants with sfari variants. Try refreshing the page";
-                                        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                                          .setHeader("Non-fatal Error");
                                         reject('Problem in combining variants: ' + error);
                                       })
-                              });
+                              })
+                              .catch((error) => {
+                                reject("Problem in getting SFARI variants: " + error)
+                              })
                         });
                 }
             })
@@ -1899,9 +1845,7 @@ class SampleModel {
               resolve(resultMap);
 
             } else {
-              let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
-              alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
-                  .setHeader("Fatal Error");
+              let msg = "Cannot locate gene object to match with vcf data <pre>" + data.ref + " " + data.start + "-" + data.end + "</pre> Try refreshing the page.";
               console.log(msg);
               reject(msg);
             }
