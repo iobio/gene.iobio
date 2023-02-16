@@ -78,7 +78,7 @@
 
   #analyze-genes-progress
     margin-top: 10px
-    margin-bottom: 20px
+    margin-bottom: 10px
 
     .progress-counts
       padding-left: 4px
@@ -226,6 +226,12 @@
     <div id="gene-badge-container" class="level-basic" style="clear:both;">
 
 
+    <div v-if="geneSummaries && geneSummaries.length > 0"
+      style="font-size: 11px;margin-bottom: 5px;">
+      <span style="width: 45px;display: inline-block;">Status</span>
+      <span style="display: inline-block;width: 180px;">Gene</span>
+      <span>Variants</span>
+    </div>
 
       <gene-badge
        v-for="gene in geneSummaries"

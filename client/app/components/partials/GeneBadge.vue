@@ -74,6 +74,10 @@
 
   &:hover #gene-badge-remove
     visibility: visible
+    i
+      color: #E0292B !important
+      font-weight: bold
+
 
   a
     color:  $text-color !important
@@ -88,6 +92,7 @@
     margin-right:  4px
     margin-left:   4px
     font-size:     11px
+    margin-top:    4px
 
 
 #gene-badge.failed-filter
@@ -177,12 +182,12 @@
   vertical-align: top
 
 #gene-badge-remove
+  margin-top: 3px
   i
-    color: #E0292B !important
-    font-weight: bold
+    color: $text-color 
     font-size: 13px
 
-  visibility: hidden
+  visibility: visible
 
 .myBadge
   background-color: #efeeee 
@@ -340,22 +345,18 @@
 
       </span>
 
-
-
-      <div id="variant-count" v-if="!isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary && gene.dangerSummary.loadedCount != null">
-          {{ gene.dangerSummary.loadedCount }}
-      </div>
-
-
   </a>
-  
+
   <div id="gene-badge-remove" v-if="!isEduMode" href="javascript:void(0)"
     @click="removeGene"
-    style="display: inline-block;cursor: pointer;float:right;">
+    style="float: right;display: inline-block;cursor: pointer;">
       <i style="vertical-align:middle" class="material-icons">close</i>
-
   </div>
 
+  <div id="variant-count" v-if="!isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary && gene.dangerSummary.loadedCount != null">
+      {{ gene.dangerSummary.loadedCount }}
+  </div>
+  
 
   <span class="ml-1" style="position: absolute" v-if="launchedFromClin">
     <span v-for="(source, idx) in selectedGeneSources.sourceIndicator" :key="idx">

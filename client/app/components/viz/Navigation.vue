@@ -185,6 +185,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
       flex-flow: column
       #gene-badge
         margin-bottom: 5px
+        margin-right: 0px !important
 
         #gene-badge-button
           min-width: 150px
