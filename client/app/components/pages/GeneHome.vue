@@ -477,8 +477,8 @@ main.content.clin, main.v-content.clin
 
       <variant-all-card
         ref="variantCardProbandRef"
-        v-if="probandModel && selectedGene"
-        v-show="!showWelcome"
+        v-if="probandModel"
+        v-show="!showWelcome && selectedGene"
         v-bind:class="[
         { 'full-width': true,
           'hide': showWelcome || (selectedGene && Object.keys(selectedGene).length === 0) || !cohortModel  || cohortModel.inProgress.loadingDataSources,
@@ -2387,7 +2387,7 @@ export default {
           if (justAdded && self.launchedFromHub) {
             return self.promiseUpdateAnalysisGenesData();
           } else {
-            self.selectedGene = null;
+            self.selectedGene = {gene_name: ''};
             return Promise.resolve();
           }
         })
@@ -3646,9 +3646,9 @@ export default {
       let self = this;
       self.showKnownVariantsCard = showIt;
       self.setNonProbandModels();
-      if (self.showKnownVariantsCard) {
-        self.onKnownVariantsVizChange(showIt, selectedCategories);
-      }
+      //if (self.showKnownVariantsCard) {
+      //  self.onKnownVariantsVizChange(showIt, selectedCategories);
+      //}
     },
     onShowSfariVariantsCard: function(showIt) {
         let self = this;

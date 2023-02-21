@@ -1278,8 +1278,10 @@ export default {
     getSampleRelLabelOther: function(model) {
       let self = this;
       let label = "";
-      if (model.relationship === 'known-variants') {
+      if (model.relationship === 'known-variants' && self.selectedGene && self.selectedGene.hasOwnProperty('gene_name')) {
         label = "ClinVar variants catalogued in " + self.selectedGene.gene_name
+      } else if (model.relationship === 'known-variants') {
+        label = "ClinVar variants"
       } else if (model === 'sfari-variants') {
         label = "SFARI"
       } else {
