@@ -1126,28 +1126,6 @@ export default function vcfiobio(theGlobalApp) {
   }
 
 
-
-
-
-  exports.promiseGetKnownVariantsHistoData = function(refName, geneObject, transcript, binLength) {
-    var me = this;
-
-
-    return new Promise( function(resolve, reject) {
-
-      me._getKnownVariantsHistoDataImpl(refName, geneObject, transcript, binLength,
-        function(data) {
-          if (data) {
-            resolve(data);
-          } else {
-            reject();
-          }
-        });
-
-    });
-  }
-
-
   exports.promiseGetClinvarPhenotypes = function(refName, geneObject, transcript) {
     var me = this;
 
@@ -1187,60 +1165,65 @@ export default function vcfiobio(theGlobalApp) {
       })
   }
 
-  exports._promiseGetKnownVariantsHistoDataImpl = function(refName, geneObject, transcript, binLength, callback) {
+  exports.promiseGetKnownVariantsHistoData = function(refName, geneObject, transcript, binLength) {
 
     var me = this;
 
-    var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
-    var cmd = me.getEndpoint().getCountsForGene(clinvarUrl, refName, geneObject, binLength, (binLength == null ? me._getExonRegions(transcript) : null), 'clinvar', false);
+    return new Promise(function(resolve, reject) {
+      var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
+      var cmd = me.getEndpoint().getCountsForGene(clinvarUrl, refName, geneObject, binLength, (binLength == null ? me._getExonRegions(transcript) : null), 'clinvar', false);
 
 
-    var summaryData = "";
-    // Get the results from the iobio command
-    cmd.on('data', function(data) {
-         if (data == undefined) {
-            return;
-         }
-         summaryData += data;
-    });
-
-    // We have all of the annotated vcf recs.  Now parse them into vcf objects
-    cmd.on('end', function(data) {
-      var results = [];
-      var records = summaryData.split("\n");
-      var fieldNames = {};
-
-      var idx = 0;
-      records.forEach(function(record) {
-        if (idx == 0) {
-          fieldNames = record.split('\t');
-        } else {
-          if (record.trim().length > 0) {
-            var fields = record.split('\t');
-            var resultRec = {};
-
-            var i = 0;
-            fieldNames.forEach(function(fieldName) {
-              // All fields are numeric
-              resultRec[fieldName] = +fields[i];
-              i++;
-            })
-            // Find the mid-point of the interval (binned region)
-            resultRec.point = resultRec.start + ((resultRec.end - resultRec.start) / 2);
-
-            results.push(resultRec);
-          }
-        }
-        idx++;
+      var summaryData = "";
+      // Get the results from the iobio command
+      cmd.on('data', function(data) {
+           if (data == undefined) {
+              return;
+           }
+           summaryData += data;
       });
-      callback(results);
-    });
 
-    cmd.on('error', function(error) {
-       console.log(error);
-    });
+      // We have all of the annotated vcf recs.  Now parse them into vcf objects
+      cmd.on('end', function(data) {
+        var results = [];
+        var records = summaryData.split("\n");
+        var fieldNames = {};
 
-    cmd.run();
+        var idx = 0;
+        records.forEach(function(record) {
+          if (idx == 0) {
+            fieldNames = record.split('\t');
+          } else {
+            if (record.trim().length > 0) {
+              var fields = record.split('\t');
+              var resultRec = {};
+
+              var i = 0;
+              fieldNames.forEach(function(fieldName) {
+                // All fields are numeric
+                resultRec[fieldName] = +fields[i];
+                i++;
+              })
+              // Find the mid-point of the interval (binned region)
+              resultRec.point = resultRec.start + ((resultRec.end - resultRec.start) / 2);
+
+              results.push(resultRec);
+            }
+          }
+          idx++;
+        });
+        resolve(results);
+      });
+
+      cmd.on('error', function(error) {
+         console.log(error);
+         reject(error)
+      });
+
+      cmd.run();
+
+    })
+
 
   }
 
@@ -1678,6 +1661,7 @@ export default function vcfiobio(theGlobalApp) {
 
       cmd.on('error', function(error) {
         console.log(error);
+        reject(error)
       });
 
       cmd.run();
