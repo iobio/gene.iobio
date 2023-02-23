@@ -104,10 +104,18 @@ CacheHelper.prototype.analyzeAll = function(cohort, analyzeCalledVariants = fals
 
   if (analyzeCalledVariants && !me.cohort.freebayesSettings.visited) {
     me.cohort.freebayesSettings.showDialog(function() {
-      me._analyzeAllImpl(geneNames, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants)
+      me._promiseAnalyzeAllImpl(geneNames, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants)
+      .then(function() {
+        let elapsedSeconds = (new Date() - me.start) / 1000
+        me.dispatch.analyzeAllCompleted({'elapsedSeconds': elapsedSeconds})
+      })
     })
   } else {
-    me._analyzeAllImpl(geneNames, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants)
+    me._promiseAnalyzeAllImpl(geneNames, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants)
+    .then(function() {
+      let elapsedSeconds = (new Date() - me.start) / 1000
+      me.dispatch.analyzeAllCompleted({'elapsedSeconds': elapsedSeconds})
+    })
   }
 
 
@@ -253,37 +261,36 @@ CacheHelper.prototype.dequeueGene = function(geneName) {
 }
 
 
-CacheHelper.prototype._analyzeAllImpl = function(geneNames, analyzeCalledVariants=false, analyzeGeneCoverage=true, annotateVariants=true) {
+CacheHelper.prototype._promiseAnalyzeAllImpl = function(geneNames, analyzeCalledVariants=false, analyzeGeneCoverage=true, annotateVariants=true) {
   var me = this;
 
-  this.analyzeAllInProgress = !analyzeCalledVariants
-  this.callAllInProgress    = analyzeCalledVariants;
+  return new Promise(function(resolve, reject) {
+    me.analyzeAllInProgress = !analyzeCalledVariants
+    me.callAllInProgress    = analyzeCalledVariants;
 
-  this.start = new Date();
+    me.start = new Date();
 
-  if (analyzeCalledVariants) {
-    me.showCallAllProgress = true;
-  }
+    if (analyzeCalledVariants) {
+      me.showCallAllProgress = true;
+    }
 
-  // Start over with a new queue of genes to be analyzed
-  // is all of the genes that need to be analyzed (and cached.)
-  me.genesToCache = geneNames;
-  me.cacheQueue = [];
+    // Start over with a new queue of genes to be analyzed
+    // is all of the genes that need to be analyzed (and cached.)
+    me.genesToCache = geneNames;
+    me.cacheQueue = [];
 
-  me.cacheGenes(analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, function() {
+    me.cacheGenes(analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, function() {
 
-    me.analyzeAllInProgress = false;
-    me.callAllInProgress    = false;
+      me.analyzeAllInProgress = false;
+      me.callAllInProgress    = false;
 
-    me.cohort.geneModel.sortGenes("harmful variants");
+      me.cohort.geneModel.sortGenes("harmful variants");
 
-    let elapsedSeconds = (new Date() - me.start) / 1000
-    console.log("Analyze all completed in " + elapsedSeconds + " seconds.")
+      resolve();
 
-    me.dispatch.analyzeAllCompleted({'elapsedSeconds': elapsedSeconds})
+    });
 
-
-  });
+  })
 
 }
 

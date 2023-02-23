@@ -87,7 +87,7 @@
 <template>
 
 
-	<div v-if="selectedGene">
+	<div v-if="selectedGene && selectedGene.gene_name && selectedGene.gene_name.length > 0">
 		<div   class="gene-info text-xs-left">
 			<div id="gene-variants-heading">
 			Gene
@@ -221,14 +221,17 @@
             //assume that no data is loaded, and analyze transcript inside of GeneVariantsCard
             //If we find out later that data is loaded, this will be overwritten
             populateTranscriptData: function(){
+              if (this.selectedGene && this.selectedGene.gene_name.length > 0) {
                 let self = this;
                 let transcript = this.cohortModel.geneModel.getCanonicalTranscript(this.selectedGene);
                 self.cohortModel.promiseMarkCodingRegions(self.selectedGene, transcript)
-                    .then(function(data) {
-                        self.analyzedTranscript = data.transcript;
-                        self.noData = true;
-                        setTimeout(self.noDataAlert, 2000);
-                    })
+                .then(function(data) {
+                    self.analyzedTranscript = data.transcript;
+                    self.noData = true;
+                    setTimeout(self.noDataAlert, 2000);
+                })
+
+              }
             },
 
             formatCanonicalTranscript: function() {
@@ -286,11 +289,14 @@
             },
 
             selectedGene: function(){
-                if(this.sampleModels.length === 0) {
-                    if(this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
-                        this.populateTranscriptData();
-                    }
+              if(this.sampleModels.length === 0) {
+                if(this.selectedGene && 
+                  this.selectedGene.gene_name && 
+                  this.analyzedTranscript && 
+                  this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
+                    this.populateTranscriptData();
                 }
+              }
             }
         },
         filters: {

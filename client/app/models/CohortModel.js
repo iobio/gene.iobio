@@ -2693,7 +2693,8 @@ class CohortModel {
 
     // Now that all of the gene objects have been cached, we can fill in the
     // transcript if necessary and then find load the imported bookmarks
-    Promise.all(promises).then(function() {
+    Promise.all(promises)
+    .then(function() {
       var genesToAnalyze = {load: [], call: []};
       var geneToAltTranscripts = {};
       importRecords.forEach( function(variant) {
@@ -2774,6 +2775,10 @@ class CohortModel {
 
       }
 
+    })
+    .catch(function(error) {
+      console.log("CohortModel.importFlaggedVariants() failed with error " + error)
+      me.dispatch.alertIssued('warning', error.message, error.gene)
     })
 
   }
