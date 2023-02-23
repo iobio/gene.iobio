@@ -295,14 +295,15 @@ class GeneModel {
         .then(function() {
           return me.promiseGetGenePhenotypes(geneName)
         })
-        //.then(function() {
-        //  return me.promiseGetNCBIGeneSummary(geneName);
-        //})
         .then(function() {
           resolve(true);
         })
         .catch(function(error) {
-          console.log("GeneModel.promiseAddGeneName(). Unable to add gene due to error: " + error);
+          if (error.hasOwnProperty('message')) {
+            console.log(error.message)
+          } else {
+            console.log(error)
+          }
           resolve(false)
         })
       } else {
@@ -333,9 +334,7 @@ class GeneModel {
 
       me._promiseCopyPasteGenesImpl(genesString, options)
       .then(function() {
-        return me.promiseGetNCBIGeneSummaries(me.geneNames)
-      })
-      .then(function() {
+        me.getNCBIGeneSummariesForceWait(me.geneNames)
 
         var promises = [];
         me.geneNames.forEach(function(geneName) {
@@ -822,18 +821,18 @@ class GeneModel {
     return sortedExons;
   }
 
-  promiseGetNCBIGeneSummaries(geneNames) {
+  getNCBIGeneSummariesForceWait(geneNames) {
     let me = this;
     let waitSeconds = 0;
     if (Object.keys(me.geneNCBISummaries).length > 0) {
       waitSeconds = 5000;
     }
     setTimeout(function() {
-      return me.promiseGetNCBIGeneSummariesImpl(geneNames);
+      me.promiseGetNCBIGeneSummaries(geneNames)
     }, waitSeconds);
   }
 
-  promiseGetNCBIGeneSummariesImpl(geneNames) {
+  promiseGetNCBIGeneSummaries(geneNames) {
     let me = this;
     return new Promise( function(resolve, reject) {
 
@@ -842,6 +841,7 @@ class GeneModel {
       let theGeneNames = geneNames.filter(function(geneName) {
         return me.geneNCBISummaries[geneName] == null;
       })
+      console.log("gene names to get ncbi gene info " + theGeneNames)
 
       if (theGeneNames.length == 0) {
         resolve();
@@ -857,6 +857,7 @@ class GeneModel {
             searchGeneExpr += geneName + "[Gene name]";
           }
         })
+        console.log("searching for NCBI gene summaries for " + searchGeneExpr)
         var searchUrl = me.NCBI_GENE_SEARCH_URL + "&term=" + "(9606[Taxonomy ID] AND (" + searchGeneExpr + "))";
         me.pendingNCBIRequests[theGeneNames] = true;
 
@@ -959,6 +960,9 @@ class GeneModel {
           })
           .fail(function() {
             console.log("Error occurred when making http request to NCBI eutils esummary for gene " + geneName);
+            me.dispatch.alertIssued("warning", 
+              "Unable to get NCBI gene summary (esummary) for gene <pre> " + geneName + "</pre>", geneName, 
+              ['Error occurred when making http request to NCBI eutils esummary',summaryUrl])
             me.geneNCBISummaries[geneName] = unknownGeneInfo;
             resolve(unknownGeneInfo);
           })
@@ -966,6 +970,9 @@ class GeneModel {
         })
         .fail(function() {
           console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneName);
+            me.dispatch.alertIssued("warning", 
+              "Unable to get NCBI gene summary (esearch) for gene <pre> " + geneName + "</pre>", geneName, 
+              ['Error occurred when making http request to NCBI eutils esearch',url])
           me.geneNCBISummaries[geneName] = unknownGeneInfo;
           resolve(geneInfo);
         })

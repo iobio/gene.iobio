@@ -1521,7 +1521,7 @@ export default {
         })
         .then(function() {
           if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
-            self.setAlert("info", 'loading gene set ' + self.geneSet.name)
+            self.addAlert("info", 'loading gene set ' + self.geneSet.name)
             let genePromises = [];
             self.geneSet.genes.forEach(function(geneName) {
               if (self.geneModel.isKnownGene(geneName)) {
@@ -1557,6 +1557,8 @@ export default {
         })
         .then(function() {
           self.models = self.cohortModel.sampleModels;
+
+          // We are loading an old analysis that has variants (backward compatibility)
           if (self.analysis.payload.variants && self.analysis.payload.variants.length > 0 ) {
             if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
               self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
@@ -1590,32 +1592,39 @@ export default {
               resolve();
             })
           } else {
-
+            // We are loading an analysis has cache
             if (self.analysis.payload.cache && self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef && self.cohortModel.flaggedVariants && self.cohortModel.flaggedVariants.length > 0) {
                 self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
                 self.showLeftPanelWhenFlaggedVariants();
                 self.promiseSelectFirstFlaggedVariant();
             } else {
-              if (self.geneModel.geneNames.length > 0) {
-                self.geneModel.promiseGetCachedGeneObject(self.geneModel.geneNames[0])
-                .then(function(theGeneObject) {
-                  let transcript = self.geneModel.getCanonicalTranscript(theGeneObject);
-                  self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
-                  .then(function() {
-                    self.showLeftPanelForGenes();
-                    self.cacheHelper.analyzeAll(self.cohortModel);
-                    resolve();
-                  })
-                  .catch(function(error) {
-                    reject(error)
-                  })
-                })
-              } else {
-                let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
-                self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
-                self.bringAttention = 'gene';
+              // We are not loading an analysis. We launched gene.iobio from
+              // Mosaic, entering gene name(s) or a gene set
+              let hasVariantSet = (self.variantSet && self.variantSet.variants)
+              if (hasVariantSet) {
                 resolve();
-              }
+              } else {
+                if (self.geneModel.geneNames.length > 0) {
+                  self.geneModel.promiseGetCachedGeneObject(self.geneModel.geneNames[0])
+                  .then(function(theGeneObject) {
+                    let transcript = self.geneModel.getCanonicalTranscript(theGeneObject);
+                    self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
+                    .then(function() {
+                      self.showLeftPanelForGenes();
+                      self.cacheHelper.analyzeAll(self.cohortModel);
+                      resolve();
+                    })
+                    .catch(function(error) {
+                      reject(error)
+                    })
+                  })
+                } else {
+                  let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
+                  self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
+                  self.bringAttention = 'gene';
+                  resolve();
+                }
+              } 
             }
 
           }
@@ -1814,15 +1823,13 @@ export default {
             function(variantCount) {
               if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
                 self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
-                self.showLeftPanelWhenFlaggedVariants();
+                self.showLeftPanelForGenes();
               }
               resolve();  
               self.addAlert("info", "Importing " + variantCount + " variants.")    
             },
             function() {
-              // FIXME: This isn't a reliable hook. Often, a buried error 
-              // ends up preventing CohortModel.importFlaggedVariants to get  
-              // to the code where the final callback is issued.
+              self.promiseSelectFirstFlaggedVariant();
             })
           }
         } else {

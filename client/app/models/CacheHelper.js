@@ -264,6 +264,7 @@ CacheHelper.prototype.dequeueGene = function(geneName) {
 CacheHelper.prototype._promiseAnalyzeAllImpl = function(geneNames, analyzeCalledVariants=false, analyzeGeneCoverage=true, annotateVariants=true) {
   var me = this;
 
+
   return new Promise(function(resolve, reject) {
     me.analyzeAllInProgress = !analyzeCalledVariants
     me.callAllInProgress    = analyzeCalledVariants;
@@ -299,76 +300,76 @@ CacheHelper.prototype._promiseAnalyzeAllImpl = function(geneNames, analyzeCalled
 CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback) {
   var me = this;
 
+
   // If there are no more genes to cache,
   if (me.genesToCache.length == 0 && me.cacheQueue.length == 0) {
     if (callback) {
       callback();
     }
-  }
-
-
-  // If we are already have the max size of genes in the queue, don't
-  // queue anymore.
-  if (me.cacheQueue.length >= me.globalApp.DEFAULT_BATCH_SIZE) {
+  } else if (me.cacheQueue.length >= me.globalApp.DEFAULT_BATCH_SIZE) {
+    // If we are already have the max size of genes in the queue, don't
+    // queue anymore.
     return;
-  }
+  } else {
+
+    // Figure out how much to replinish in the cache queue
+    var sizeToQueue = me.globalApp.DEFAULT_BATCH_SIZE - me.cacheQueue.length;
+
+    // Just queue genes to the end of the (unanalyzed) genes list
+    if (sizeToQueue > me.genesToCache.length) {
+      sizeToQueue = me.genesToCache.length;
+    }
+    var startingPos = me.cacheQueue.length == 0 ? 0 : me.cacheQueue.length;
+
+    // Place next batch of genes in caching queue
+    for (var i = 0; i < sizeToQueue; i++) {
+      me.queueGene(me.genesToCache[i]);
+    }
+    // Remove this batch of genes from the list of all genes to be cached
+    for (var i = 0; i < sizeToQueue; i++) {
+      me.genesToCache.shift();
+    }
 
 
-  // Figure out how much to replinish in the cache queue
-  var sizeToQueue = me.globalApp.DEFAULT_BATCH_SIZE - me.cacheQueue.length;
-
-  // Just queue genes to the end of the (unanalyzed) genes list
-  if (sizeToQueue > me.genesToCache.length) {
-    sizeToQueue = me.genesToCache.length;
-  }
-  var startingPos = me.cacheQueue.length == 0 ? 0 : me.cacheQueue.length;
-
-  // Place next batch of genes in caching queue
-  for (var i = 0; i < sizeToQueue; i++) {
-    me.queueGene(me.genesToCache[i]);
-  }
-  // Remove this batch of genes from the list of all genes to be cached
-  for (var i = 0; i < sizeToQueue; i++) {
-    me.genesToCache.shift();
-  }
-
-
-  // Invoke method to cache each of the genes in the queue
-  var count = 0;
-  for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue && i < me.cacheQueue.length; i++) {
-    me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants, analyzeGeneCoverage, annotateVariants)
-    .then(function(data) {
-      me.cacheNextGeneSuccess(data.gene, data.transcript, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
-    })
-    .catch( function(error) {
-      // An error occurred.  Set the gene badge with an error glyph
-      // and move on to analyzing the next gene
-      console.log("problem caching data for gene " + error.geneName + ". " + error.message);
-
-      let getErrorPromise = function() {
-        if (error && error.hasOwnProperty('alertType') && error.alertType == 'warning') {
-          me.dispatch.alertIssued('warning', error.message, error.geneName);            
-          return Promise.resolve({'geneName': error.geneName});
-        } else {
-          return me.cohort.promiseSummarizeError(error.geneName, error.message)
-        }
-      }
-   
-      getErrorPromise()
-      .then(function(dangerObject) {
-        // take this gene off of the queue and see
-        // if next batch of genes should be analyzed
-        me.cacheNextGene(dangerObject.geneName, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
+    // Invoke method to cache each of the genes in the queue
+    var count = 0;
+    for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue && i < me.cacheQueue.length; i++) {
+      me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants, analyzeGeneCoverage, annotateVariants)
+      .then(function(data) {
+        me.cacheNextGeneSuccess(data.gene, data.transcript, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
       })
       .catch( function(error) {
-        var msg = "A problem ocurred while summarizing error in CacheHelper.prototype.cacheGene(): " + error;
-        console.log(msg);
-        me.cacheNextGene(error.geneName, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
-      })
+        // An error occurred.  Set the gene badge with an error glyph
+        // and move on to analyzing the next gene
+        console.log("problem caching data for gene " + error.geneName + ". " + error.message);
 
-    })
-    count++;
+        let getErrorPromise = function() {
+          if (error && error.hasOwnProperty('alertType') && error.alertType == 'warning') {
+            me.dispatch.alertIssued('warning', error.message, error.geneName);            
+            return Promise.resolve({'geneName': error.geneName});
+          } else {
+            return me.cohort.promiseSummarizeError(error.geneName, error.message)
+          }
+        }
+     
+        getErrorPromise()
+        .then(function(dangerObject) {
+          // take this gene off of the queue and see
+          // if next batch of genes should be analyzed
+          me.cacheNextGene(dangerObject.geneName, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
+        })
+        .catch( function(error) {
+          var msg = "A problem ocurred while summarizing error in CacheHelper.prototype.cacheGene(): " + error;
+          console.log(msg);
+          me.cacheNextGene(error.geneName, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
+        })
+
+      })
+      count++;
+    }
   }
+
+
 
 
 }
@@ -523,7 +524,6 @@ CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants=f
 
 
 CacheHelper.prototype.cacheNextGeneSuccess = function(theGene, transcript, analyzeCalledVariants=false, analyzeGeneCoverage=true, annotateVariants=true, callback) {
-
   this.dispatch.geneAnalyzed(theGene, transcript);
 
   this.dequeueGene(theGene.gene_name);
