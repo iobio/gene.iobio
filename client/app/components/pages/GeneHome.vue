@@ -1867,10 +1867,10 @@ export default {
               }
             } else {
               if (self.selectedVariant == null) {
-                self.promiseSelectFirstFlaggedVariant()
-                    // .then(function() {
-                    //   self.$refs.navRef.onShowVariantsTab();
-                    // })
+                setTimeout(function() {
+                  self.promiseSelectFirstFlaggedVariant()
+
+                }, 2000)
               }
               else if(self.launchedFromClin){
 
