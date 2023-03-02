@@ -1317,7 +1317,7 @@ export default {
     sortFlattenedGenes: function(flattenedGenes){
       let sig = [];
       let unsig = [];
-      let unknownSig = [];
+      let uncertainSig = [];
       let poorQual = [];
       let sortedGenes = [];
 
@@ -1328,8 +1328,8 @@ export default {
         if(variant.interpretation === "sig"){
           sig.push(flattenedGenes[i]);
         }
-        else if(variant.interpretation === "unknown-sig"){
-          unknownSig.push(flattenedGenes[i]);
+        else if(variant.interpretation === "uncertain-sig"){
+          uncertainSig.push(flattenedGenes[i]);
         }
         else if(variant.interpretation === "not-sig"){
           unsig.push(flattenedGenes[i]);
@@ -1343,9 +1343,9 @@ export default {
         sortedGenes.push(sig[i]);
         ordinalFilter++;
       }
-      for(let i = 0; i < unknownSig.length; i++){
-        unknownSig[i].variants[0].ordinalFilter = ordinalFilter;
-        sortedGenes.push(unknownSig[i]);
+      for(let i = 0; i < uncertainSig.length; i++){
+        uncertainSig[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(uncertainSig[i]);
         ordinalFilter++;
       }
       for(let i = 0; i < unsig.length; i++){

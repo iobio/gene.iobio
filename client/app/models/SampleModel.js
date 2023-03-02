@@ -607,11 +607,13 @@ class SampleModel {
   }
 
 
-  promiseSummarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, transcript, notFoundVariants=null) {
+  promiseSummarizeDanger(geneObject, theVcfData, options, geneCoverageAll, filterModel, transcript, notFoundVariants=null) {
     var me = this;
     return new Promise(function(resolve, reject) {
-      var dangerSummary = SampleModel._summarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme(), transcript);
+      var dangerSummary = SampleModel._summarizeDanger(geneObject.gene_name, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme(), transcript);
       
+      me.cohort.captureFlaggedVariants(dangerSummary, geneObject)
+
       // We need to restore the 'notFound' variants in the badges that we discovered when
       // the variants were imported. Since they are not in the vcf file, we will lose 
       // this information unless we restore it here.
@@ -619,7 +621,7 @@ class SampleModel {
         dangerSummary.badges.notFound = notFoundVariants;
       }
 
-      me.promiseCacheDangerSummary(dangerSummary, geneName).then(function() {
+      me.promiseCacheDangerSummary(dangerSummary, geneObject.gene_name).then(function() {
         resolve(dangerSummary);
       },
       function(error) {
@@ -3461,6 +3463,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
   SampleModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel, transcript);
 
   dangerCounts.badges = filterModel.flagVariants(theVcfData);
+
 
   if (theVcfData == null || theVcfData.features == null ) {
     console.log("unable to summarize danger due to null data");

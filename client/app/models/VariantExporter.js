@@ -636,6 +636,7 @@ export default class VariantExporter {
 
     var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode, format);
 
+    rec.mosaic_id         = variant.mosaic_id
     rec.isProxy           = true;
     rec.analysisMode      = variant.analysisMode;
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";

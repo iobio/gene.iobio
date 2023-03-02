@@ -1795,7 +1795,7 @@ class CohortModel {
 
           })
           .then(function(theVcfData) {
-              return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript, notFoundVariants);
+              return self.getProbandModel().promiseSummarizeDanger(geneObject, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript, notFoundVariants);
           })
           .then(function(theDangerSummary) {
             if (theDangerSummary && theDangerSummary.geneCoverageProblem && theDangerSummary.geneCoverageProblemNonProband) {
@@ -2883,6 +2883,9 @@ class CohortModel {
                   // In addition to the vcf data variants, pass in the notFound imported variants
                   // so that dangerSummary badges include this under the 'notFound' category.
                   dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
+
+                  me.captureFlaggedVariants(dangerSummary, geneObject)
+
                   if (badgesFromImported && badgesFromImported.notFound) {
                     dangerSummary.badges.notFound = badgesFromImported.notFound;
                   }
@@ -3103,7 +3106,7 @@ class CohortModel {
 
       this.flaggedVariants.forEach(function(variant) {
         let isReviewed = (variant.notes && variant.notes.length > 0) ||
-            (variant.interpretation != null && (variant.interpretation == "sig" || variant.interpretation == "unknown-sig" || variant.interpretation == "not-sig" || variant.interpretation == "poor-qual"));
+            (variant.interpretation != null && variant.interpretation != "not-reviewed");
 
 
         let matches = false;
@@ -3240,7 +3243,17 @@ class CohortModel {
           theFlaggedVariants.forEach(function(variant) {
             if (variant) {
               let matchingVariant = self.getFlaggedVariant(variant);
-              if (!matchingVariant) {
+              if (matchingVariant) {
+                // Keep track of the mosaic_id. If we launched from Mosaic with a
+                // variant set, the mosaic_id will be filled in on the flagged (imported)
+                // variant. If we are launching from a Mosaic analysis, the mosaic_id
+                // will be filled in on the dangerSummary.badges variant.
+                if (matchingVariant.mosaic_id && !variant.mosaic_id) {
+                  variant.mosaic_id = matchingVariant.mosaic_id;
+                } else if (!matchingVariant.mosaic_id && variant.mosaic_id) {
+                  matchingVariant.mosaic_id = variant.mosaic_id;
+                }
+              } else {
                 variant.gene = geneObject
                 self.flaggedVariants.push(variant);
               }              

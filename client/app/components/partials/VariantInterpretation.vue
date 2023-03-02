@@ -32,8 +32,8 @@ i.material-icons.interpretation
   background-color: $interpretation-background-color
   color: white !important
   caret-color: white !important
-  max-width: 170px
-  min-width: 170px
+  max-width: 175px
+  min-width: 175px
 
   &.not-reviewed
     background-color: $not-reviewed-color !important
@@ -44,9 +44,9 @@ i.material-icons.interpretation
     background-color: $significant-color !important
   &.not-sig 
     background-color: $not-significant-color !important
-  &.poor-qual
-    background-color: $poor-qual-color !important
   &.unknown-sig
+    background-color: $unknown-significance-color !important
+  &.uncertain-sig
     background-color: $unknown-significance-color !important
 
   .v-input__control
@@ -80,6 +80,8 @@ i.material-icons.interpretation
   &.poor-qual
     background-color: $poor-qual-color !important
   &.unknown-sig
+    background-color: $unknown-significance-color !important
+  &.uncertain-sig
     background-color: $unknown-significance-color !important
 
   i.material-icons
@@ -127,7 +129,7 @@ i.material-icons.interpretation
       font-size: 14px !important
 
   
-  &.unknown-sig, &.not-reviewed, &.sig,  &.not-sig, &.poor-qual
+  &.unknown-sig, &.not-reviewed, &.sig,  &.not-sig, &.poor-qual, &.uncertain-sig
     .v-input__append-inner
       .v-input__icon--append
         i.material-icons
@@ -177,8 +179,7 @@ i.material-icons.interpretation
           'not-reviewed': interpretation == 'not-reviewed',
           'not-sig'     : interpretation == 'not-sig',
           'sig'         : interpretation == 'sig',
-          'unknown-sig' : interpretation == 'unknown-sig',
-          'poor-qual'   : interpretation == 'poor-qual'}"
+          'uncertain-sig' : interpretation == 'uncertain-sig'}"
   v-model="interpretation"
   hide-details
   single-line
@@ -189,8 +190,7 @@ i.material-icons.interpretation
           'not-reviewed': item.value == 'not-reviewed',
           'not-sig'     : item.value == 'not-sig',
           'sig'         : item.value == 'sig',
-          'unknown-sig' : item.value == 'unknown-sig',
-          'poor-qual'   : item.value == 'poor-qual'}">
+          'uncertain-sig' : item.value == 'uncertain-sig'}">
 
         <span v-if="showInterpretationLabel" class="interpretation-label"> {{ item.text }} </span>
       </div>
@@ -201,8 +201,7 @@ i.material-icons.interpretation
           'not-reviewed': data.item.value == 'not-reviewed',
           'not-sig'     : data.item.value == 'not-sig',
           'sig'         : data.item.value == 'sig',
-          'unknown-sig' : data.item.value == 'unknown-sig',
-          'poor-qual'   : data.item.value == 'poor-qual'}">
+          'uncertain-sig' : data.item.value == 'uncertain-sig'}">
 
         <span class="interpretation-label"> {{ data.item.text }} </span>
       </div>

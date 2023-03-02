@@ -33,9 +33,7 @@ i.material-icons.interpretation
     background-color: $significant-color !important
   &.not-sig 
     background-color: $not-significant-color !important
-  &.poor-qual
-    background-color: $poor-qual-color !important
-  &.unknown-sig
+  &.uncertain-sig
     background-color: $unknown-significance-color !important
 
 
@@ -53,15 +51,8 @@ i.material-icons.interpretation
   :class="{
           'not-sig'     : interpretation == 'not-sig',
           'sig'         : interpretation == 'sig',
-          'unknown-sig' : interpretation == 'unknown-sig',
-          'poor-qual'   : interpretation == 'poor-qual'}"
+          'uncertain-sig' : interpretation == 'uncertain-sig'}"
   >
-  <!--
-    <v-icon class="interpretation sig" v-if="interpretation == 'sig'">verified_user</v-icon>
-    <v-icon class="interpretation unknown-sig" v-if="interpretation == 'unknown-sig'">help</v-icon>
-    <v-icon class="interpretation not-sig" v-if="interpretation == 'not-sig'">thumb_down</v-icon>
-    <v-icon class="interpretation poor-qual" v-if="interpretation == 'poor-qual'">trending_down</v-icon>
-  -->
     <span  class="interpretation-label"> {{ intepretationDisplay }} </span>
 
   </div>

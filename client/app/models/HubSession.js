@@ -20,7 +20,8 @@ export default class HubSession {
       "slivarFilter",
       "gene",
       "afgnomAD",
-      "sampleId"
+      "sampleId",
+      "id"
     ]
     this.user = null;
 
@@ -240,7 +241,6 @@ export default class HubSession {
           records.map(function(record) {
             let fields = record.split("\t");
             if (fields.length >= self.variantSetTxtCols.length-1) {
-              let variant = {};
               self.variantSetTxtCols.forEach(function(col, i) {
                 variant[col] = fields[i];
               })
@@ -717,6 +717,7 @@ export default class HubSession {
           if (afField && variant.hasOwnProperty(afField) && variant[afField].length > 0) {
             variant['gnomad_allele_frequency'] = variant[afField][0];
           }
+          variant['mosaic_id'] = variant.id
         })
 
         resolve(data)
@@ -812,6 +813,73 @@ export default class HubSession {
 
   }
 
+
+  promiseGetVariantAnnotations(project_id) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getVariantAnnotations(project_id)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        console.log("Error getting variant annotations for project " + project_id)
+        console.log(error)
+        reject(error);
+      })
+    })
+
+  }
+
+
+
+  promiseCreateInterpretationAnnotation(project_id) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.createInterpretationAnnotation(project_id)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        console.log("Error creating variant annotation " + annotationName + " for project " + project_id)
+        console.log(error)
+        reject(error);
+      })
+    })
+  }
+
+
+
+  promiseAddVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.addVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        console.log("Error adding variant annotation value" + annotationValue + " for project " + project_id)
+        console.log(error)
+        reject(error);
+      })
+    })
+  }
+
+
+  promiseDeleteVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.deleteVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        console.log("Error deleting variant annotation value" + annotationValue + " for project " + project_id)
+        console.log(error)
+        reject(error);
+      })
+    })
+  }
+
   getAnalysis(projectId, analysisId) {
     let self = this;
     return $.ajax({
@@ -898,6 +966,68 @@ export default class HubSession {
       },
     });
 
+  }
+
+
+  getVariantAnnotations(project_id) {
+    let self = this;
+
+    return $.ajax({
+      url: self.api + '/projects/' + project_id + '/variants/annotations',
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+
+  }
+
+  createInterpretationAnnotation(project_id) { 
+    let self = this;
+    let annotationObj = {"name": 'Interpretation', 
+     "value_type": "string",
+     "display_type": "badge", 
+     "privacy_level": "private",
+     "severity": {"Significant": 1, "Uncertain significance": 2, "Not significant": 3, "Not reviewed": 4}};
+    return $.ajax({
+      url: self.api + '/projects/' + project_id + '/variants/annotations',
+      type: 'POST',
+      data: JSON.stringify(annotationObj),
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+
+  addVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue) {
+    let self = this;
+    let annotationValObj = {"value": annotationValue};
+    return $.ajax({
+      url: self.api + '/projects/' + project_id + '/variants/' + variant_id + '/annotations/' + annotation_id,
+      type: 'POST',
+      data: JSON.stringify(annotationValObj),
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+  deleteVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue) {
+    let self = this;
+    let annotationValObj = {"value": annotationValue};
+    return $.ajax({
+      url: self.api + '/projects/' + project_id + '/variants/' + variant_id + '/annotations/' + annotation_id,
+      type: 'DELETE',
+      data: JSON.stringify(annotationValObj),
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
   }
 
   getGeneSet(projectId, geneSetId) {

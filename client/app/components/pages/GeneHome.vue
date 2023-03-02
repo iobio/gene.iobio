@@ -834,6 +834,7 @@ export default {
       projectId: null,
       geneSet: null,
       variantSet: null,
+      variantAnnotationsMap: null,
       launchedWithUrlParms: false,
       clinSetData: null,
       clinPersistCache: true,
@@ -861,11 +862,17 @@ export default {
 
 
       interpretationMap: {
-        'sig': 'Significant',
-        'unknown-sig': 'Unknown significance',
-        'not-sig': 'Not significant',
-        'poor-qual': 'Poor quality',
-        'not-reviewed': 'Not reviewed'
+        'sig':           'Significant',
+        'uncertain-sig': 'Uncertain significance',
+        'not-sig':       'Not significant',
+        'not-reviewed':  'Not reviewed'
+      },
+
+      interpretationMapReversed: {
+        'Significant':            'sig' ,
+        'Uncertain significance': 'uncertain-sig',
+        'Not significant':        'not-sig',
+        'Not reviewed':           'not-reviewed'
       },
 
 
@@ -1233,7 +1240,6 @@ export default {
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
           self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
           .then(function(theGeneObject) {
-            self.cohortModel.captureFlaggedVariants(dangerSummary, theGeneObject)
             if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
               self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
             }
@@ -1485,7 +1491,9 @@ export default {
             return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject)
         })
         .then(function() {
-
+          return self.promiseLoadVariantAnnotationsMap()
+        })
+        .then(function() {
 
           if (self.analysis.payload.hasOwnProperty('cache')) {
             self.appLoaderLabel = "Loading analysis"
@@ -1768,6 +1776,8 @@ export default {
           let bypassedCount = 0;
           let bypassedMessages = [];
 
+          let interpretationAnnot = self.variantAnnotationsMap['Interpretation']
+
 
           let variantSetForProband = self.variantSet.variants.filter(function(variant) {
             return variant.het_sample_ids.indexOf(parseInt(self.sampleId)) >= 0 ||
@@ -1793,11 +1803,21 @@ export default {
               importedVariant.consequence      = variant.gene_consequence;
               importedVariant.isImported       = true;
               importedVariant.variantSet       = "notCategorized";
+              importedVariant.mosaic_id        = variant.mosaic_id;
 
-              //self.analysis.payload.variants.push(importedVariant);
-              //if (self.analysis.payload.genes.indexOf(importedVariant.gene) < 0) {
-              //  self.analysis.payload.genes.push(importedVariant.gene);
-              //}
+              // Initialize the variant interpretation to the Mosaic variant annotation
+              // called 'Intepretation'. This is stored as the display name, so we use 
+              // a mapping to get back to the interpretation code (e.g. 'Signficant' = 'sig')
+              if (interpretationAnnot && 
+                variant.hasOwnProperty(interpretationAnnot.uid) && 
+                variant[interpretationAnnot.uid].length > 0) {
+
+                let label = variant[interpretationAnnot.uid][0];
+                if (self.interpretationMapReversed[label]) {
+                  importedVariant.interpretation = self.interpretationMapReversed[label]
+                }
+              }
+
               variantsToAdd.push(importedVariant);
               
             } else {
@@ -1831,6 +1851,9 @@ export default {
             function() {
               self.promiseSelectFirstFlaggedVariant();
             })
+          } else {
+            self.addAlert("warning", "No variants belong to selected sample.")
+            resolve();
           }
         } else {
           resolve();
@@ -3496,6 +3519,106 @@ export default {
         self.promiseUpdateAnalysisVariant(variant, {delay: false});
       }
 
+      if (self.launchedFromHub && self.selectedVariant.hasOwnProperty('mosaic_id')) {
+        self.promiseUpdateMosaicInterpretation();
+      }
+
+    },
+
+    promiseUpdateMosaicInterpretation() {
+      let self = this;
+
+      return new Promise(function(resolve, reject) {
+        // First, create a variant annotation if one doesn't exist for this Mosaic
+        // project.
+        let existingAnnotation = self.variantAnnotationsMap['Interpretation']
+        let getExistingAnnotPromise = function() {
+          if (!existingAnnotation) {
+            return self.hubSession.promiseCreateInterpretationAnnotation(self.projectId)
+          } else {
+            return Promise.resolve(existingAnnotation);
+          }
+        }
+
+        getExistingAnnotPromise()
+        .then(function(variantAnnotation) {
+
+          self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation
+
+          let mosaic_variants = self.variantSet.variants.filter(function(v) {
+            return v.id == self.selectedVariant.mosaic_id
+          })
+          let mosaic_variant = mosaic_variants.length > 0 ? mosaic_variants[0] : null
+
+          // Now, check of the variant annotation value already exists. For 'badge' variant 
+          // annotations, we cannot use the update API, but instead have to 
+          // delete the annotation value and then add it.
+          let getDeleteAnnotValuePromise = function() {
+            if (mosaic_variant && mosaic_variant.hasOwnProperty(variantAnnotation.uid) && mosaic_variant[variantAnnotation.uid].length > 0) {
+              return self.hubSession.promiseDeleteVariantAnnotationValue(self.projectId, 
+                self.selectedVariant.mosaic_id, variantAnnotation.id, self.selectedVariant.interpretation)
+            } else {
+              return Promise.resolve();
+            }
+          }
+
+          getDeleteAnnotValuePromise()
+          .then(function() {
+
+            if (self.selectedVariant.interpretation != 'not-reviewed') {
+              // Now add the annotation value.
+              return self.hubSession.promiseAddVariantAnnotationValue(self.projectId, 
+                  self.selectedVariant.mosaic_id, 
+                  variantAnnotation.id, 
+                  self.interpretationMap[self.selectedVariant.interpretation])              
+            } else {
+              // No need to update a variant annotation when it is not reviewed. Treat  
+              // this option as 'blank'.
+              return Promise.resolve()
+            }
+          })
+          .then(function() {
+            // Set the Mosaic variant annotation in memory to the refreshed value
+            if (mosaic_variant) {
+              let interpretationLabel = self.interpretationMap[self.selectedVariant.interpretation]
+              mosaic_variant[variantAnnotation.uid] = [interpretationLabel];
+            }
+            resolve();
+
+          })
+          .catch(function(error) {
+            self.addAlert('error', 
+              'Cannot add Mosaic variant annotation <pre>Interpretation</pre> value', 
+              self.selectedGene.gene_name, [error && error.statusText ? error.statusText : 'unable to update variant annotation to the value <pre>' + self.selecteVariant.interpretation])
+            reject();
+          })
+
+        })
+        .catch(function(error) {
+          self.addAlert('error', 
+          'Cannot create Mosaic variant annotation <pre>Interpretation</pre>', 
+          self.selectedGene.gene_name, [error && error.statusText ? error.statusText : 'Unable to create the Mosaic variant annotation called <pre>Interpretation</pre> due to a Mosaic API error'])
+          reject();
+        })
+
+      })
+    },
+
+    promiseLoadVariantAnnotationsMap() {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        self.hubSession.promiseGetVariantAnnotations(self.projectId)
+        .then(function(variantAnnotations) {
+          self.variantAnnotationsMap = {};
+          variantAnnotations.forEach(function(variantAnnotation) {
+            self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation;
+          })
+          resolve();
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      })
     },
 
     isVariantUnique: function(variant){
