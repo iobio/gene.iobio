@@ -2140,9 +2140,23 @@ export default {
             if (self.cohortModel && self.cohortModel.isLoaded) {
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             }
+          } else {
+            setTimeout(function() {
+              self.promiseSelectFirstFlaggedVariant()            
+            },1500)
           }
         } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           self.onGeneSelected(self.geneModel.sortedGeneNames[0]);
+          if (analyzeAll) {
+            if (self.cohortModel && self.cohortModel.isLoaded) {
+              self.cacheHelper.analyzeAll(self.cohortModel, false);
+            }
+          } else {
+            setTimeout(function() {
+              self.promiseSelectFirstFlaggedVariant()            
+            },1500)
+          }
+
           if (callback) {
             callback();
           }
@@ -3457,7 +3471,7 @@ export default {
       }
 
       if(typeof variant.interpretation === 'undefined' || (variant.interpretation === "not-reviewed")){
-        variant.interpretation = 'unknown-sig';
+        variant.interpretation = 'uncertain-sig';
         self.onApplyVariantInterpretation(variant);
       }
       

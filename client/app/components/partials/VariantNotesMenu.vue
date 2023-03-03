@@ -111,7 +111,7 @@
 
         <span v-if="!showNotesIcon">
           <v-icon class="interpretation sig" v-if="interpretation == 'sig'">verified_user</v-icon>
-          <v-icon class="interpretation unknown-sig" v-if="interpretation == 'unknown-sig'">help</v-icon>
+          <v-icon class="interpretation uncertain-sig" v-if="interpretation == 'uncertain-sig'">help</v-icon>
           <v-icon class="interpretation not-sig" v-if="interpretation == 'not-sig'">thumb_down</v-icon>
           <v-icon class="interpretation poor-qual" v-if="interpretation == 'poor-qual'">trending_down</v-icon>
           <v-icon class="interpretation not-reviewed"  v-if="interpretation == 'not-reviewed'">visibility_off</v-icon>

@@ -3242,6 +3242,9 @@ class CohortModel {
           // to flagged variants
           theFlaggedVariants.forEach(function(variant) {
             if (variant) {
+              if (variant.interpretation && variant.interpretation == 'unknown-sig') {
+                variant.interpretation = 'uncertain-sig'
+              }
               let matchingVariant = self.getFlaggedVariant(variant);
               if (matchingVariant) {
                 // Keep track of the mosaic_id. If we launched from Mosaic with a
