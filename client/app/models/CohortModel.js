@@ -2596,8 +2596,8 @@ class CohortModel {
 
 
       if (me.isLoaded) {
-        me.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
-          me.onImportedGeneAnalyzed(theGene.gene_name, intersectedGenes, theGene, transcript)
+        me.cacheHelper.on("geneAnalyzed", function(theGene, transcript, analyzeCalledVariants) {
+          me.onImportedGeneAnalyzed(theGene.gene_name, intersectedGenes, theGene, transcript, analyzeCalledVariants)
 
         })
 
@@ -2635,7 +2635,7 @@ class CohortModel {
 
   }
 
-  onImportedGeneAnalyzed(geneName, intersectedGenes, theGeneObject, theTranscript) {
+  onImportedGeneAnalyzed(geneName, intersectedGenes, theGeneObject, theTranscript, analyzeCalledVariants) {
     let me = this;
     let dataPromises = [];
     if (me.geneModel.isCandidateGene(geneName)) {
@@ -2661,10 +2661,20 @@ class CohortModel {
       for (var transcriptId in uniqueTranscripts) {
         let dataPromise =  new Promise(function(resolve, reject) {
 
+          var notFoundVariants = []
           var geneObject = theGeneObject ? theGeneObject : me.geneModel.geneObjects[geneName];
           var transcript = uniqueTranscripts[transcriptId];
-          var importedVariants = intersectedGenes[geneName];
-          var notFoundVariants = []
+          var importedVariants = intersectedGenes[geneName]
+            .filter(function(importedVariant) {
+              // If the gene analyzed was freebayes joint called, look for
+              // imported variants that were called. Otherwise; look for
+              // imported variants that were loaded from vcf.
+              if (analyzeCalledVariants) {
+                return importedVariant.freebayesCalled && importedVariant.freebayesCalled == 'Y';
+              } else {
+                return !importedVariant.freebayesCalled || importedVariant.freebayesCalled != 'Y';
+              }
+            })
 
           me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
           .then(function(data) {
@@ -2675,13 +2685,14 @@ class CohortModel {
               resolve();
             } else if (importedVariants && importedVariants.length > 0) {
 
-              // Refresh imported variant records with real variants
               importedVariants.forEach(function(importedVariant) {
-                var matchingVariants = data.vcfData.features.filter(function(v) {
-                   return me.globalApp.utility.stripRefName(v.chrom) == me.globalApp.utility.stripRefName(importedVariant.chrom)
-                   && v.start == importedVariant.start
-                   && v.ref      == importedVariant.ref
-                   && v.alt      == importedVariant.alt;
+                data.vcfData.features.filter(function(v) {
+                  let isMatch = me.globalApp.utility.stripRefName(v.chrom) == me.globalApp.utility.stripRefName(importedVariant.chrom)
+                     && v.start == importedVariant.start
+                     && v.ref      == importedVariant.ref
+                     && v.alt      == importedVariant.alt;
+
+                  return isMatch;
                 })
                 if (matchingVariants.length > 0) {
                   let matchingVariant = matchingVariants[0];

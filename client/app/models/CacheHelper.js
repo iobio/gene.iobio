@@ -139,7 +139,13 @@ CacheHelper.prototype.promiseAnalyzeSubset = function(cohort, theGeneNames, gene
     .forEach(function(geneName) {
       var p = me.promiseIsCached(geneName)
       .then(function(data) {
-        if (!data.isCached) {
+        let isCached = false;
+        if (analyzeCalledVariants) {
+          isCached = data.isCachedForCalled;
+        } else {
+          isCached = data.isCached;
+        }
+        if (!isCached) {
           me.genesToCache.push(geneName);
         }
       })
@@ -534,7 +540,7 @@ CacheHelper.prototype.cacheNextGene = function(geneName, analyzeCalledVariants=f
 
 
 CacheHelper.prototype.cacheNextGeneSuccess = function(theGene, transcript, analyzeCalledVariants=false, analyzeGeneCoverage=true, annotateVariants=true, callback) {
-  this.dispatch.geneAnalyzed(theGene, transcript);
+  this.dispatch.geneAnalyzed(theGene, transcript, analyzeCalledVariants);
 
   this.dequeueGene(theGene.gene_name);
   // Invoke cacheGenes, which will kick off the next batch
@@ -566,7 +572,8 @@ CacheHelper.prototype.promiseIsCached = function(geneName) {
     me.cohort.getProbandModel().promiseGetDangerSummary(geneName)
     .then(function(dangerSummary) {
       var isCached = dangerSummary ? true : false;
-      resolve({'gene': geneName, 'isCached': isCached});
+      var isCachedForCalled = dangerSummary && dangerSummary.CALLED ? true : false;
+      resolve({'gene': geneName, 'isCached': isCached, isCachedForCalled: isCachedForCalled});
     })
   })
 }
