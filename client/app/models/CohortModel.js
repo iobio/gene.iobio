@@ -1999,6 +1999,10 @@ class CohortModel {
 
                 refreshClinvarAnnots(trioFbData);
 
+                // We need to cache the vcf data with the merged in called variants (fbCalled=Y)
+                // So, reset the cacheState to blank.
+                trioVcfData.proband.cacheState = null
+
                 // Determine inheritance across union of loaded and called variants
                 me.promiseAnnotateInheritance(geneObject, theTranscript, trioVcfData, {isBackground: options.isBackground, cacheData: true})
                 .then( function() {

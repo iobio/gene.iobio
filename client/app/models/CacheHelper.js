@@ -456,13 +456,23 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
           trioFbData = data.trioFbData;
           trioVcfData = data.trioVcfData;
 
-          return me.cohort.promiseAnnotateInheritance(geneObject, transcript, trioVcfData, {isBackground: true, cacheData: true})
+          // If we called variants, annotate inheritance has already been performed.
+          if (analyzeCalledVariants) {
+            return Promise.resolve();
+          } else {
+            return me.cohort.promiseAnnotateInheritance(geneObject, transcript, trioVcfData, {isBackground: true, cacheData: true})
+          }
 
         })
         .then(function(data) {
 
-          // Now summarize the danger for the  gene
-          return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants, 'GENECOVERAGE': analyzeGeneCoverage})
+          // If we called variants, summarize danger has already been performed
+          if (analyzeCalledVariants) {
+            return Promise.resolve();
+          } else {
+            // Now summarize the danger for the  gene
+            return me.cohort.promiseSummarizeDanger(geneObject, transcript, trioVcfData.proband, {'CALLED': analyzeCalledVariants, 'GENECOVERAGE': analyzeGeneCoverage})            
+          }
         })
         .then(function() {
           // Now clear out mother and father from cache (localStorage browser cache only)
