@@ -1399,7 +1399,8 @@ export default {
     appAlerts: null,
     appAlertCounts: null,
     geneToAppAlerts: null,
-    settingsCoverageOnly: null
+    settingsCoverageOnly: null,
+    analysisModel: null
   },
   data () {
     let self = this;
@@ -1525,52 +1526,17 @@ export default {
       let self = this;
 
       self.$emit("on-show-progress", "Formatting analysis data")
+              
+      self.analysisModel.promiseSaveAnalysisFile(self.appAlerts, 
+          self.currentBuildName, self.currentGeneSource)
+      .then(function(data) {
 
-      let data = {'settings': {}, 'modelInfos': {}, 'appAlerts': [], 'cache': []};
-      data.modelInfos = this.getCacheHelper().cohort.getModelInfos();
-
-      data.settings = {'genomeBuild':        self.currentBuildName, 
-                       'geneSource':         self.currentGeneSource,
-                       'coverageThresholds': {'min':    self.filterModel.geneCoverageMin,
-                                              'median': self.filterModel.geneCoverageMedian,
-                                              'mean':   self.filterModel.geneCoverageMean
-                                              },
-                       'analyzeCodingVariantsOnly': self.cohortModel.analyzeCodingVariantsOnly,
-                       'phenolyzerTopGenes': self.geneModel.phenolyzerTopGenesToKeep
-                      };
-
-      data.appAlerts = self.appAlerts;
-
-      let options = {}
-      options.decompress = false;
-      options[this.getCacheHelper().BAM_DATA] =  true;
-      options[this.getCacheHelper().GENE_COVERAGE_DATA] = true;
-      self.getCacheHelper().promiseOutputCache(options)
-      .then(function(cacheItems) {
-
-        data.cache = cacheItems;
-
-        let cleanedDataStr = JSON.stringify(data, function(key, value) {
-          if (value && value != '') {
-            if (key == 'gene' && typeof value === 'object' && value.hasOwnProperty('gene_name')) {
-              return value.gene_name
-            } else {
-              return value
-            }
-          } else {
-            return
-          }
-        }, 2)
-        let jsonFileName = "gene.iobio.analysis." + 
-                            self.globalApp.utility.formatCurrentDateYMD() + 
-                            ".json"
-                    
         self.globalApp.utility.createDownloadLink("#download-json-file",
-          cleanedDataStr,
-          jsonFileName);
+          data.dataStr,
+          data.jsonFileName);
         self.$emit("on-hide-progress")
         document.getElementById('download-json-file').click();
-      })
+      })      
       .catch(function(error) {
         self.$emit("on-hide-progress")
         console.log("Unable to output cache", error)
@@ -1592,7 +1558,7 @@ export default {
 
         }, 1000)
 
-        me.cohortModel.promiseLoadAnalysisFromFile(fileSelection, dataIsCompressed)
+        me.analysisModel.promiseLoadAnalysisFromFile(fileSelection, dataIsCompressed)
         .then(function(modelInfoProvided) {
 
           if (me.$refs && me.$refs.settingsDialogRef) {

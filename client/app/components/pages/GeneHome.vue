@@ -303,6 +303,7 @@ main.content.clin, main.v-content.clin
       :geneToAppAlerts="geneToAppAlerts"
       :filesDialogInfoMessage="filesDialogInfoMessage"
       :settingsCoverageOnly="settingsCoverageOnly"
+      :analysisModel="analysisModel"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
@@ -710,6 +711,7 @@ import EndpointCmd from '../../models/EndpointCmd.js'
 import GenericAnnotation from '../../models/GenericAnnotation.js'
 import CacheHelper from '../../models/CacheHelper.js'
 import CohortModel from '../../models/CohortModel.js'
+import AnalysisModel from '../../models/AnalysisModel.js'
 import FeatureMatrixModel from '../../models/FeatureMatrixModel.js'
 import FilterModel from '../../models/FilterModel.js'
 import GeneModel from '../../models/GeneModel.js'
@@ -1214,27 +1216,8 @@ export default {
           self.launchedFromClin,
           new FreebayesSettings());
 
-        self.cohortModel.on("knownVariantsVizChange", function(viz) {
-          self.forceKnownVariantsViz = viz;
-        });
         self.cohortModel.on("alertIssued", function(type, message, genes, details) {
           self.addAlert(type, message, genes)
-        })
-        self.cohortModel.on("showInProgress", function(message) {
-          self.onShowInProgress(message);
-        })
-        self.cohortModel.on("hideInProgress", function() {
-          self.onHideInProgress();
-        })
-        self.cohortModel.on("specifyFilesForAnalysis", function(msg) {
-          self.showFilesForAnalysis = true;
-          self.filesDialogInfoMessage = msg;
-        })
-        self.cohortModel.on("phenolyzerTopGenesSet", function(top) {
-          self.onPhenolyzerTopChanged(top)
-        })
-        self.cohortModel.on("appAlertsSet", function(appAlerts) {
-          self.onAppAlertsSet(appAlerts)
         })
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
@@ -1278,6 +1261,25 @@ export default {
         self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
         self.cohortModel.filterModel = self.filterModel;
 
+        self.analysisModel = new AnalysisModel(self.globalApp, self.geneModel, 
+          self.cohortModel, self.cacheHelper, self.genomeBuildHelper, 
+          self.filterModel, self.hubSession)
+        self.analysisModel.on("showInProgress", function(message) {
+          self.onShowInProgress(message);
+        })
+        self.analysisModel.on("hideInProgress", function() {
+          self.onHideInProgress();
+        })
+        self.analysisModel.on("specifyFilesForAnalysis", function(msg) {
+          self.showFilesForAnalysis = true;
+          self.filesDialogInfoMessage = msg;
+        })
+        self.analysisModel.on("phenolyzerTopGenesSet", function(top) {
+          self.onPhenolyzerTopChanged(top)
+        })
+        self.analysisModel.on("appAlertsSet", function(appAlerts) {
+          self.onAppAlertsSet(appAlerts)
+        })
 
         self.promiseInitFromUrl()
         .then(function() {
@@ -4767,88 +4769,37 @@ export default {
 
     onSaveAnalysisFromModal() {
       let self = this;
-      this.showSaveModal = false;
-      this.delaySave = 1000;
-      let options = {saveTitle: true, autoupdate: false, notify: true}
-      this.showAppLoader = true;
-      this.appLoaderLabel = "Saving analysis"
-      return this.promiseSaveAnalysis(options)
-      .then(function() {
-        self.showAppLoader = false;
-      })
-      .catch(function() {
-        self.showAppLoader = false;
 
-      })
-    },
+      if (self.analysis.id && self.launchedFromClin) {
+        self.sendAnalysisToClin();
+      } else {
+        self.showSaveModal = false;
+        self.delaySave = 1000;
+        let options = {saveTitle: true, autoupdate: false, notify: true}
+        self.showAppLoader = true;
+        self.appLoaderLabel = "Saving analysis"
 
+        return self.analysisModel.promiseSaveAnalysis(self.analysis, self.appAlerts, options)
+        .then(function(analysis) {
+          self.analysis = analysis;
+          self.showAppLoader = false;
 
-    promiseSaveAnalysis: function(options) {
-      let self = this
-
-      return new Promise(function(resolve, reject) {
-
-        self.analysis.payload.settings = {
-         'geneSource':        self.geneModel.geneSource, 
-         'coverageThresholds': {'min':    self.filterModel.geneCoverageMin,
-                                'median': self.filterModel.geneCoverageMedian,
-                                'mean':   self.filterModel.geneCoverageMean
-                                },
-         'analyzeCodingVariantsOnly': self.cohortModel.analyzeCodingVariantsOnly,
-         'phenolyzerTopGenes': self.geneModel.phenolyzerTopGenesToKeep
-        };
-
-        self.analysis.payload.appAlerts = self.appAlerts;
-
-        self.promiseOutputAnalysisCache()
-        .then(function() {
-
-          self.analysis.payload.genePhenotypeHits = self.geneModel.genePhenotypeHits;
-
-          if (self.analysis.id ) {
-            if (self.launchedFromClin) {
-              self.sendAnalysisToClin();
-              resolve();
-            } else {
-              self.hubSession.promiseUpdateAnalysis(self.analysis)
-              .then(function(analysis) {
-                self.analysis = analysis;
-                self.addAlert("success", "Mosaic analysis " + self.analysis.title + " saved.")
-                if (options && options.notify) {
-                  self.onShowSnackbar( {message: 'Mosaic analysis saved.', timeout: 2000});
-                }
-                self.setDirty(false);
-                resolve();
-              })
-              .catch(function(error) {
-                self.onShowSnackbar( {message: error, timeout: 15000});
-                reject(error);
-              })
-            }
-          } else {
-
-            self.hubSession.promiseAddAnalysis(self.analysis.project_id, self.analysis)
-            .then(function(analysis) {
-              self.analysis = analysis;
-              self.addAlert("success", "Mosaic analysis " + analysis.title + " saved.")
-              console.log("* adding mosaic analysis " + self.analysis.id + " " + " *")
-              self.onShowSnackbar( {message: 'New analysis saved.', timeout: 2000});
-              self.setDirty(false);
-              resolve();
-            })
-            .catch(function(error) {
-              self.addAlert("error", "Failed to save analysis.", null, [error])
-              reject(error);
-            })
+          self.addAlert("success", "Mosaic analysis " + self.analysis.title + " saved.")
+          if (options && options.notify) {
+            self.onShowSnackbar( {message: 'Mosaic analysis saved.', timeout: 2000});
           }
+          self.setDirty(false);
+
         })
- 
-        
+        .catch(function(error) {
+          self.showAppLoader = false;
+          self.addAlert("error", "Failed to save analysis.", null, [error])
+        })
 
-      })
-
-
+      }
     },
+
+
 
     onCancelAnalysis: function() {
       let self = this;
@@ -4869,38 +4820,6 @@ export default {
       return Promise.resolve();
     },
 
-    promiseOutputAnalysisCache: function() {
-      let self = this;
-
-      return new Promise(function(resolve, reject) {
-        let options = {}
-        options.decompress = false;
-        options[self.cacheHelper.BAM_DATA] =  true;
-        options[self.cacheHelper.GENE_COVERAGE_DATA] = true;
-        let start = new Date();
-        self.cacheHelper.promiseOutputCache(options)
-        .then(function(cacheItemsCompressed) {
-          self.analysis.payload.cache = JSON.stringify(cacheItemsCompressed);
-          if (self.analysis.payload.hasOwnProperty('variants')) {
-            delete self.analysis.payload.variants;
-          }
-          if (self.analysis.payload.hasOwnProperty('genes')) {
-            delete self.analysis.payload.genes;
-          }
-          let elapsed = (new Date() - start) / 1000;
-          self.addAlert("info", "Session cache ready to save", null, 
-            ["elapsed time = " + elapsed + " seconds",
-             "size = " + new Blob([cacheItemsCompressed]).size + " bytes."])
-          resolve()
-        })
-        .catch(function(error) {
-          console.log("Unable to save cache session to analysis" + error)
-          reject(error)
-        })
-
-      })
-
-    },
 
 
     promiseExportAnalysisVariant: function(variantToReplace) {
