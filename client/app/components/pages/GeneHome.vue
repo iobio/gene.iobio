@@ -1444,7 +1444,7 @@ export default {
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
           }
-          return self.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
+          return self.analysisModal.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
 
         })
         .then(analysis => {
@@ -4709,59 +4709,6 @@ export default {
         }
       })
     },
-
-    promiseGetAnalysis: function(idProject, idAnalysis) {
-      let self = this;
-      return new Promise(function(resolve, reject) {
-
-        if (idAnalysis && idAnalysis.length > 0) {
-
-          self.hubSession.promiseGetAnalysis(idProject, idAnalysis)
-          .then(function(analysis) {
-            if (analysis) {
-              self.analysis = analysis;
-
-              // Workaround - remove null variants
-              if (self.analysis.payload.hasOwnProperty('variants')) {
-                self.analysis.payload.variants = self.analysis.payload.variants.filter(function(v) {
-                  return v != null;
-                })
-              }
-              resolve(self.analysis);
-            } else {
-              reject("Unable to find/create an analysis " + idAnalysis);
-            }
-          })
-          .catch(function(error) {
-            self.onShowSnackbar( {message: error, timeout: 15000});
-            reject(error);
-          })
-
-        } else {
-          var newAnalysis = {};
-          newAnalysis.title = "";
-          newAnalysis.description = "";
-          newAnalysis.project_id = idProject;
-          newAnalysis.sample_id  = self.paramSampleId;
-          newAnalysis.payload = {};
-          newAnalysis.payload.project_id = idProject;
-          newAnalysis.payload.sample_id = self.paramSampleId;
-          newAnalysis.payload.is_pedigree = self.paramIsPedigree;
-          newAnalysis.payload.datetime_created = self.globalApp.utility.getCurrentDateTime();
-          newAnalysis.payload.genes = [];
-          if (self.paramGeneName && self.paramGeneName !== '') {
-            newAnalysis.payload.genes.push(self.paramGeneName)
-          }
-          newAnalysis.payload.variants = [];
-          newAnalysis.payload.filters = self.filterModel.flagCriteria;
-          self.analysis = newAnalysis;
-
-          resolve(self.analysis)
-        }
-
-      });
-    },
-
 
     toggleSaveModal(bool) {
       this.showSaveModal = bool;

@@ -20,6 +20,60 @@ class AnalysisModel {
   }
 
 
+  promiseGetAnalysis(idProject, idAnalysis) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+
+      if (idAnalysis && idAnalysis.length > 0) {
+
+        self.hubSession.promiseGetAnalysis(idProject, idAnalysis)
+        .then(function(analysis) {
+          if (analysis) {
+            self.analysis = analysis;
+
+            // Workaround - remove null variants
+            if (self.analysis.payload.hasOwnProperty('variants')) {
+              self.analysis.payload.variants = self.analysis.payload.variants.filter(function(v) {
+                return v != null;
+              })
+            }
+            resolve(self.analysis);
+          } else {
+            reject("Unable to find/create an analysis " + idAnalysis);
+          }
+        })
+        .catch(function(error) {
+          self.onShowSnackbar( {message: error, timeout: 15000});
+          reject(error);
+        })
+
+      } else {
+        var newAnalysis = {};
+        newAnalysis.title = "";
+        newAnalysis.description = "";
+        newAnalysis.project_id = idProject;
+        newAnalysis.sample_id  = self.paramSampleId;
+        newAnalysis.payload = {};
+        newAnalysis.payload.project_id = idProject;
+        newAnalysis.payload.sample_id = self.paramSampleId;
+        newAnalysis.payload.is_pedigree = self.paramIsPedigree;
+        newAnalysis.payload.datetime_created = self.globalApp.utility.getCurrentDateTime();
+        newAnalysis.payload.genes = [];
+        if (self.paramGeneName && self.paramGeneName !== '') {
+          newAnalysis.payload.genes.push(self.paramGeneName)
+        }
+        newAnalysis.payload.variants = [];
+        newAnalysis.payload.filters = self.filterModel.flagCriteria;
+        self.analysis = newAnalysis;
+
+        resolve(self.analysis)
+      }
+
+    });
+  }
+
+
+
   promiseLoadAnalysisFromFile(fileSelection, dataIsCompressed=true, options) {
     var self = this;
     self.cohortModel.isLoaded = false;
@@ -63,6 +117,10 @@ class AnalysisModel {
 
           if (data.hasOwnProperty('appAlerts')) {
             self.dispatch.appAlertsSet(data.appAlerts)
+          }
+
+          if (data.hasOwnProperty('filters')) {
+            self.filterModel.flagCriteria = data.filters;
           }
 
           let proxies = [];
@@ -169,15 +227,11 @@ class AnalysisModel {
   }
 
 
-
-
-  promiseSaveAnalysis(analysis, appAlerts, options) {
-    let self = this
+  _promiseSetAnalysisState(payload, appAlerts, stringifyCache) {
+    let self = this;
 
     return new Promise(function(resolve, reject) {
-      self.analysis = analysis;
-
-      self.analysis.payload.settings = {
+      payload.settings = {
        'geneSource':        self.geneModel.geneSource, 
        'coverageThresholds': {'min':    self.filterModel.geneCoverageMin,
                               'median': self.filterModel.geneCoverageMedian,
@@ -187,23 +241,45 @@ class AnalysisModel {
        'phenolyzerTopGenes': self.geneModel.phenolyzerTopGenesToKeep
       };
 
-      self.analysis.payload.appAlerts = appAlerts;
+      payload.appAlerts = appAlerts;
 
-      self.promiseOutputAnalysisCache()
+      payload.filters = self.filterModel.flagCriteria
+
+      self._promiseOutputAnalysisCache()
       .then(function(cacheItemsCompressed) {
 
-        let cacheItemsStr = JSON.stringify(cacheItemsCompressed, function(key, value) {
-          if (value && value != '') {
-            if (key == 'gene' && typeof value === 'object' && value.hasOwnProperty('gene_name')) {
-              return value.gene_name
+        if (stringifyCache) {
+          let cacheItemsStr = JSON.stringify(cacheItemsCompressed, function(key, value) {
+            if (value && value != '') {
+              if (key == 'gene' && typeof value === 'object' && value.hasOwnProperty('gene_name')) {
+                return value.gene_name
+              } else {
+                return value
+              }
             } else {
-              return value
+              return
             }
-          } else {
-            return
-          }
-        }, 2)
+          }, 2)
 
+          resolve(cacheItemsStr)          
+        } else {
+          resolve(cacheItemsCompressed)
+        }
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+    })
+  }
+
+  promiseSaveAnalysis(analysis, appAlerts, options) {
+    let self = this
+
+    return new Promise(function(resolve, reject) {
+      self.analysis = analysis;
+
+      self._promiseSetAnalysisState(analysis.payload, appAlerts, true)
+      .then(function(cacheItemsStr) {
         self.analysis.payload.cache = cacheItemsStr;
 
         self.analysis.payload.genePhenotypeHits = self.geneModel.genePhenotypeHits;
@@ -250,27 +326,15 @@ class AnalysisModel {
     let self = this;
 
     return new Promise(function(resolve, reject) {
-      let data = {'settings': {}, 'modelInfos': {}, 'appAlerts': [], 'cache': []};
-      data.modelInfos = self.cohortModel.getModelInfos();
+      let analysis = {'settings': {}, 'modelInfos': {}, 'filters': [], 'appAlerts': [], 'cache': []};
+      analysis.modelInfos = self.cohortModel.getModelInfos();
 
-      data.settings = {'genomeBuild':        currentBuildName, 
-                       'geneSource':         currentGeneSource,
-                       'coverageThresholds': {'min':    self.filterModel.geneCoverageMin,
-                                              'median': self.filterModel.geneCoverageMedian,
-                                              'mean':   self.filterModel.geneCoverageMean
-                                              },
-                       'analyzeCodingVariantsOnly': self.cohortModel.analyzeCodingVariantsOnly,
-                       'phenolyzerTopGenes': self.geneModel.phenolyzerTopGenesToKeep
-                      };
-
-      data.appAlerts = self.appAlerts;
-
-      self.promiseOutputAnalysisCache()
+      self._promiseSetAnalysisState(analysis, appAlerts, false)
       .then(function(cacheItemsCompressed) {
 
-        data.cache = cacheItemsCompressed;
+        analysis.cache = cacheItemsCompressed;
 
-        let dataStr = JSON.stringify(data, function(key, value) {
+        let dataStr = JSON.stringify(analysis, function(key, value) {
           if (value && value != '') {
             if (key == 'gene' && typeof value === 'object' && value.hasOwnProperty('gene_name')) {
               return value.gene_name
@@ -294,7 +358,7 @@ class AnalysisModel {
 
   }
 
-  promiseOutputAnalysisCache() {
+  _promiseOutputAnalysisCache() {
     let self = this;
 
     return new Promise(function(resolve, reject) {
