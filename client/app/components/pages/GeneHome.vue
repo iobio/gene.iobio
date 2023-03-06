@@ -1263,7 +1263,7 @@ export default {
 
         self.analysisModel = new AnalysisModel(self.globalApp, self.geneModel, 
           self.cohortModel, self.cacheHelper, self.genomeBuildHelper, 
-          self.filterModel, self.hubSession)
+          self.filterModel)
         self.analysisModel.on("showInProgress", function(message) {
           self.onShowInProgress(message);
         })
@@ -1444,20 +1444,18 @@ export default {
           if (self.hubSession.user) {
             self.user = self.hubSession.user;
           }
-          return self.analysisModal.promiseGetAnalysis(self.projectId, self.paramAnalysisId)
+          self.analysisModel.setHubSession(self.hubSession)
+          return self.analysisModel.promiseGetAnalysis(self.paramAnalysisId, 
+            self.projectId, self.paramSampleId, self.paramIsPedigree)
 
         })
         .then(analysis => {
           self.analysis = analysis;
 
-          if (self.analysis && self.analysis.id && self.analysis.id != 0) {
-            self.addAlert("info", "Loading Mosaic analysis " + analysis.title)
-          }
-
           return self.hubSession.promiseGetProject(self.projectId)
         })
         .then(projObj => {
-            self.addAlert("info", 'Mosaic project ' + projObj.name + " loaded.")
+            self.addAlert("info", 'Mosaic project <pre>' + projObj.name + "</pre> loaded.")
             self.isSfariProject = false;
             // Note: going off of names per CM for now until we can get a Sfari project db flag
             if (projObj && projObj.name === 'SSC GRCh37 WGS' || projObj.name === 'SSC GRCh38 WGS') {
@@ -1466,57 +1464,19 @@ export default {
                 self.isSfariProject = true;
             }
 
-            if (self.analysis.payload.hasOwnProperty('settings')) {
-              if (self.analysis.payload.settings.geneSource) {
-                self.geneModel.geneSource = self.analysis.payload.settings.geneSource;
-              }
-              if (self.analysis.payload.settings.coverageThresholds) {
-                self.filterModel.geneCoverageMin    = self.analysis.payload.settings.coverageThresholds.min;
-                self.filterModel.geneCoverageMedian = self.analysis.payload.settings.coverageThresholds.median;
-                self.filterModel.geneCoverageMean   = self.analysis.payload.settings.coverageThresholds.mean;
-              }
-              if (self.analysis.payload.settings.analyzeCodingVariantsOnly) {
-                self.analyzeCodingVariantsOnly = self.analysis.payload.settings.analyzeCodingVariantsOnly;
-              }
-              if (self.analysis.payload.settings.phenolyzerTopGenes) {
-                self.onPhenolyzerTopChanged(self.analysis.payload.settings.phenolyzerTopGenes)
-              }
-              if (self.$refs.navRef && self.$refs.navRef && self.$refs.navRef.$refs && self.$refs.navRef.$refs.settingsDialogRef) {
-                self.$refs.navRef.$refs.settingsDialogRef.init();
-              }
-            }
-            if (self.analysis.payload.hasOwnProperty('appAlerts')) {
-              self.appAlerts = self.analysis.payload.appAlerts;
+
+            if (self.analysis && self.analysis.id && self.analysis.id != 0) {
+              self.addAlert("info", "Loading Mosaic analysis <pre>" + self.analysis.title + "</pre>")
+              return self.analysisModel.promiseInitAnalysisAndCohort(self.analysis.payload,
+                self.modelInfos, self.projectId, self.isSfariProject )
+            } else {
+              return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject)
             }
 
-
-            return self.cohortModel.promiseInit(self.modelInfos, self.projectId, self.isSfariProject)
-        })
-        .then(function() {
+        }).then(function() {
           return self.promiseLoadVariantAnnotationsMap()
         })
         .then(function() {
-
-          if (self.analysis.payload.hasOwnProperty('cache')) {
-            self.appLoaderLabel = "Loading analysis"
-            self.showAppLoader = true;
-            let start = new Date()
-            let cacheData = JSON.parse(self.analysis.payload.cache);
-            return self.cacheHelper.promiseLoadCache(cacheData)
-            .then(function() {
-              self.addAlert("info", "analysis session restored.", null, 
-                [
-                'elapsed time = ' + (new Date() - start) / 1000 + ' seconds'
-                ])
-              self.showAppLoader = false;
-              self.appLoaderLabel = "";
-            })
-          } else {
-            return Promise.resolve();
-          }
-
-        })
-        .then( function() {
           if (self.analysis.payload.phenotypeTerm) {
             self.phenotypeTerm = self.analysis.payload.phenotypeTerm
           }
@@ -1531,7 +1491,7 @@ export default {
         })
         .then(function() {
           if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
-            self.addAlert("info", 'loading gene set ' + self.geneSet.name)
+            self.addAlert("info", 'loading gene set <pre>' + self.geneSet.name + "</pre>")
             let genePromises = [];
             self.geneSet.genes.forEach(function(geneName) {
               if (self.geneModel.isKnownGene(geneName)) {
@@ -1785,9 +1745,9 @@ export default {
             return variant.het_sample_ids.indexOf(parseInt(self.sampleId)) >= 0 ||
                 variant.hom_sample_ids.indexOf(parseInt(self.sampleId)) >= 0;
           })
-          self.addAlert("info", "Importing Mosaic variant set " + self.variantSet.name + ".", null, [
-              self.variantSet.variants.length + " variants in variant set.",
-              variantSetForProband.length  + " variants are in the proband sample."])
+          self.addAlert("info", "Importing Mosaic variant set <pre>" + self.variantSet.name + "</pre>.", null, [
+              "<pre>" + self.variantSet.variants.length + "</pre> variants in variant set.",
+              "<pre>" + variantSetForProband.length  + "</pre> variants are in the proband sample."])
 
           variantSetForProband.forEach(function(variant) {
             let importedVariant = {};
@@ -1823,7 +1783,7 @@ export default {
               variantsToAdd.push(importedVariant);
               
             } else {
-              let message = "Bypassing variant chr " + variant.chr + ", position " + variant.pos + " because the gene symbol was not provided.";
+              let message = "Bypassing variant <pre>chr " + variant.chr + ", position " + variant.pos + "</pre> because the gene symbol was not provided.";
               bypassedMessages.push(message)
               console.log(message)
               bypassedCount++;
@@ -1831,11 +1791,11 @@ export default {
           })
           if (bypassedCount > 0) {
             if (bypassedCount === self.variantSet.variants.length) {
-              self.addAlert("error", "None of the " + bypassedCount + " variants were loaded because the variants were missing gene name." )
+              self.addAlert("error", "None of the <pre>" + bypassedCount + "</pre> variants were loaded because the variants were missing gene name." )
 
             } else {
               self.addAlert("warning", 
-                bypassedCount + " variant" + (bypassedCount > 1 ? 's ' : ' ') + "bypassed due to missing information.", 
+                "<pre>" + bypassedCount + "</pre> variant" + (bypassedCount > 1 ? 's ' : ' ') + "bypassed due to missing information.", 
                 null, bypassedMessages)
             }
           } 
@@ -1848,7 +1808,7 @@ export default {
                 self.showLeftPanelForGenes();
               }
               resolve();  
-              self.addAlert("info", "Importing " + variantCount + " variants.")    
+              self.addAlert("info", "Importing <pre>" + variantCount + "</pre> variants.")    
             },
             function() {
               self.promiseSelectFirstFlaggedVariant();
@@ -3752,11 +3712,11 @@ export default {
                   self.$refs.variantInspectRef.refresh();
                 }
 
-                setTimeout(function() {
-                  if ($('#variant-inspect-and-notes').length > 0) {
-                    $('#variant-inspect-and-notes')[0].scrollIntoView();
-                  }
-                },500)
+                //setTimeout(function() {
+                //  if ($('#variant-inspect-and-notes').length > 0) {
+                //    $('#variant-inspect-and-notes')[0].scrollIntoView();
+                //  }
+                //},500)
 
 
                 if (callback) {

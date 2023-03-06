@@ -886,7 +886,7 @@ CacheHelper.prototype.refreshDangerSummaries = function() {
 
 
 
-CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsCompressed=true, options) {
+CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsAlreadyCompressed=true, options) {
   let me = this;
   return new Promise(function(resolve, reject) {
 
@@ -929,7 +929,7 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsCompressed=tr
         }
         // Put the data in the cache
         if (!bypass) {
-          let p = me.promiseCacheData(key, cacheItem.cache, {'compress': dataIsCompressed ? false : true})            
+          let p = me.promiseCacheData(key, cacheItem.cache, {'compress': dataIsAlreadyCompressed ? false : true})            
           promises.push(p)              
         }
       })
@@ -943,7 +943,7 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsCompressed=tr
         
         let thePromises = []
         Object.keys(geneToDangerSummary).forEach(function(gene) {
-          if (dataIsCompressed) {
+          if (dataIsAlreadyCompressed) {
             let p = CacheHelper.promiseDecompressData(geneToDangerSummary[gene], true)
             .then(function(ds) {
               me.cohort.geneModel.setDangerSummary(ds.geneName, ds);
