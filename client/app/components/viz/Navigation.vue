@@ -1069,6 +1069,7 @@ nav.toolbar, nav.v-toolbar
     <v-navigation-drawer  
       v-model="showNotificationDrawer"
       absolute right  width="340"
+      :class="launchedFromClin ? 'clin' : '' "
       style="z-index:6; height: calc(100vh - 50px); position: fixed;">
         <v-btn  id="error-drawer-close-button" class="toolbar-button" flat @click="showNotificationDrawer = false">
           <v-icon >close</v-icon>
@@ -1558,7 +1559,7 @@ export default {
 
         }, 1000)
 
-        me.analysisModel.promiseLoadAnalysisFromFile(fileSelection, dataIsCompressed)
+        me.analysisModel.promiseLoadAnalysisFromFile(fileSelection)
         .then(function(modelInfoProvided) {
 
           if (me.$refs && me.$refs.settingsDialogRef) {

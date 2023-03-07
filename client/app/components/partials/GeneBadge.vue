@@ -242,6 +242,7 @@
       <span id="gene-badge-symbols" class="glyph">
 
           <app-icon
+           id="gene-badge-user-flagged"
            v-if="hasFilteredVariants('userFlagged')"
            icon="user-flagged"
            class=" level-edu glyph"
@@ -257,18 +258,19 @@
            width="13" height="14">
           </app-icon>
 
-          <app-icon
+          <app-icon 
            v-if="hasFilteredVariants('autosomalDominant')"
            icon="autosomal dominant"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
 
           <app-icon
+           id=""
            v-if="hasFilteredVariants('recessive')"
            icon="recessive"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
@@ -276,14 +278,14 @@
           <app-icon
            v-if="hasFilteredVariants('denovo')"
            icon="denovo"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
           <app-icon
            v-if="hasFilteredVariants('xlinked')"
            :icon="getXLinkedIconName()"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
@@ -291,7 +293,7 @@
           <app-icon
            v-if="hasFilteredVariants('compoundHet')"
            icon="compound het"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
@@ -353,7 +355,7 @@
       <i style="vertical-align:middle" class="material-icons">close</i>
   </div>
 
-  <div id="variant-count" v-if="!isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary && gene.dangerSummary.loadedCount != null">
+  <div id="variant-count" v-if="!launchedFromClin && !isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary && gene.dangerSummary.loadedCount != null">
       {{ gene.dangerSummary.loadedCount }}
   </div>
   
@@ -420,23 +422,21 @@ export default {
     getImpactClass: function(variantTypes) {
       var self = this;
       var clazz = null;
-      if (self.gene.dangerSummary && self.gene.dangerSummary.badges && this.gene.dangerSummary.badges.high && this.gene.dangerSummary.badges.high.length > 0 ) {
+      if (self.gene.dangerSummary && self.gene.dangerSummary.badges) {
         for (var variantType in variantTypes) {
-
-
-          this.gene.dangerSummary.badges.high.forEach(function(variant) {
-            if (variant.type.toUpperCase() == variantType.toUpperCase()) {
-              if (clazz == null) {
-                if (variant.highestImpactVep.HIGH) {
-                  clazz = 'filter-symbol impact_HIGH';
-                } else {
-                  clazz = 'filter-symbol impact_MODERATE';
+          Object.keys(self.gene.dangerSummary.badges).forEach(function(filterName) {
+            self.gene.dangerSummary.badges[filterName].forEach(function(variant) {
+              if (variant.type.toUpperCase() == variantType.toUpperCase()) {
+                if (clazz == null) {
+                  if (variant.highestImpactVep.HIGH) {
+                    clazz = 'filter-symbol impact_HIGH';
+                  } else {
+                    clazz = 'filter-symbol impact_MODERATE';
+                  }
                 }
               }
-            }
+            })
           })
-
-
         }
       }
       return clazz;

@@ -327,7 +327,7 @@ export default class VariantTooltip {
 
     var polyphenRowSimple = info.polyphen != "" ? me._tooltipWideHeadingRow('Predicted effect', info.polyphen + ' to protein', '2px') : "";
 
-    var genotypeRow = me.isEduMode && me.tourNumber == 2 ? me._tooltipHeaderRow('Genotype', me.globalApp.utility.switchGenotype(variant.eduGenotype), '','')  : "";
+    var genotypeRow = me.isEduMode && me.tourNumber == 2 ? me._tooltipHeaderRow('Genotype', me.globalApp.utility.switchGenotype(variant.genotype.eduGenotype), '','')  : "";
 
     var afRow = me._tooltipHeaderRow('Allele Freq', (variant.afHighest == "." ? "0%" : me.globalApp.utility.percentage(variant.afHighest)),'','', null, "style='text-align:center;padding-bottom:7px;'");
 
@@ -335,8 +335,7 @@ export default class VariantTooltip {
       return (
         genotypeRow
         + me._tooltipMainHeaderRow('Severity - ' + info.vepImpact , '', '', '')
-        + inheritanceModeRow
-        + polyphenRowSimple);
+        + inheritanceModeRow);
     } if (me.isBasicMode) {
       return (
         me._tooltipMainHeaderRow(geneObject ? geneObject.gene_name : "", variant.type ? variant.type.toUpperCase() : "", info.refalt + " " + info.coord, '', 'ref-alt')

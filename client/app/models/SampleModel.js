@@ -1949,7 +1949,7 @@ class SampleModel {
                  false, // serverside cache
                  false, // sfari mode
                  options.getKnownVariants ? false : me.globalApp.gnomADExtraAll, // get extra gnomad,
-                 !me.isEduMod, // decompose
+                 !me.isEduMode, // decompose
                  options.bypassAnnotate ? true : false
                 );
             })

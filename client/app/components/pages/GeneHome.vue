@@ -1035,7 +1035,7 @@ export default {
       experimentId: null,
 
       appAlerts: [],
-      appAlertCounts: {'success': 0, 'info': 0, 'warning': 0, 'error': 0},
+      appAlertCounts: {'total': 0, 'success': 0, 'info': 0, 'warning': 0, 'error': 0},
       geneToAppAlerts: {}
     }
   },
@@ -1284,6 +1284,7 @@ export default {
         self.promiseInitFromUrl()
         .then(function() {
             if (self.isEduMode && self.tourNumber) {
+              self.showAppLoader = false;
               self.$refs.appTourRef.startTour(self.tourNumber);
             }
 
@@ -1711,6 +1712,7 @@ export default {
         }
 
         this.appAlertCounts[type] += 1 
+        this.appAlertCounts.total += 1
         
       } 
 
@@ -1718,6 +1720,9 @@ export default {
         if (this.$refs.navRef) {
           this.$refs.navRef.onShowNotificationDrawerShowLast();
         }
+      }
+      if (this.launchedFromClin) {
+        this.sendAppAlertCountsToClin()
       }
     },
 
@@ -3167,6 +3172,8 @@ export default {
             if (callback) {
               callback();
             }
+          } else if (self.isEduMode) {
+            self.cacheHelper.analyzeAll(self.cohortModel, false, false, true);
           }
         }
         
@@ -4272,6 +4279,10 @@ export default {
 
         let options = {isFromClin: true, phenotypes: new_genes, replace: true};
         self.onApplyGenes(new_genes.join(), options);
+      } else if (clinObject.type == 'show-notifications') {
+        if (self.$refs.navRef) {
+          self.$refs.navRef.onShowNotificationDrawerShowLast();
+        }
       }
       let responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
       window.parent.postMessage(JSON.stringify(responseObject), this.clinIobioUrl);
@@ -4353,6 +4364,20 @@ export default {
 
         })
 
+      }
+
+    },
+
+    sendAppAlertCountsToClin: function() {
+      let self = this;
+      if (this.launchedFromClin) {
+        var msgObject = {
+          success: true,
+          type: 'variants-notifications',
+          sender: 'gene.iobio.io',
+          counts: self.appAlertCounts
+        };
+        window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
       }
 
     },
@@ -4538,14 +4563,16 @@ export default {
 
     applyGenesClin: function(clinObject) {
       let self = this;
+      if (self.geneModel) {
+        self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
+        self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList, 'hpo': clinObject.hpoFullList })
 
-      self.geneModel.setGenePhenotypeHitsFromClin(clinObject.genesReport);
-      self.geneModel.setRankedGenes({'gtr': clinObject.gtrFullList, 'phenolyzer': clinObject.phenolyzerFullList, 'hpo': clinObject.hpoFullList })
+        self.selectedGene = null;
+        self.selectedTranscript = null;
+        if (self.selectedVariant && self.selectedVariant.hasOwnProperty('gene')) {
+          self.onFlaggedVariantSelected(self.selectedVariant, {forceGeneSelection: true})
+        }
 
-      self.selectedGene = null;
-      self.selectedTranscript = null;
-      if (self.selectedVariant && self.selectedVariant.hasOwnProperty('gene')) {
-        self.onFlaggedVariantSelected(self.selectedVariant, {forceGeneSelection: true})
       }
 
     },

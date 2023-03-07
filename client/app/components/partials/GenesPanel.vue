@@ -152,7 +152,7 @@
     <div id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
 
         <v-btn  id="analyze-all-button"
-        v-if="isLoaded && !isFullAnalysis && !isSimpleMode"
+        v-if="isLoaded && !isSimpleMode"
         class="level-edu"
         flat
         @click="onAnalyzeAll"
@@ -163,7 +163,7 @@
 
 
         <v-btn
-        v-if="analyzeAllInProgress && !isFullAnalysis && !isSimpleMode"
+        v-if="analyzeAllInProgress && !isSimpleMode"
         class="stop-analysis-button"
         @click="onStopAnalysis"  flat
         v-tooltip.top-center="`Stop analysis`" >
@@ -173,7 +173,7 @@
         <v-spacer></v-spacer>
 
         <div id="call-variants-dropdown"
-          v-if="isLoaded && hasAlignments && !isFullAnalysis && !isSimpleMode"
+          v-if="isLoaded && hasAlignments && !isSimpleMode"
         >
           <v-menu offset-y>
             <v-btn  slot="activator" flat
@@ -191,7 +191,7 @@
         </div>
 
         <v-btn
-        v-if="callAllInProgress && !isFullAnalysis"
+        v-if="callAllInProgress"
         class="stop-analysis-button"
         @click="onStopAnalysis" flat 
         v-tooltip.top-center="`Stop calling variants`" >
@@ -218,11 +218,6 @@
       </div>
     </div>
 
-    <div v-if="launchedFromClin">
-      <div style="margin-left: 80%">
-        Source
-      </div>
-    </div>
     <div id="gene-badge-container" class="level-basic" style="clear:both;">
 
 
@@ -230,7 +225,8 @@
       style="font-size: 11px;margin-bottom: 5px;">
       <span style="width: 45px;display: inline-block;">Status</span>
       <span style="display: inline-block;width: 180px;">Gene</span>
-      <span>Variants</span>
+      <span v-if="!isFullAnalysis">Variants</span>
+      <span v-if="isFullAnalysis">Source</span>
     </div>
 
       <gene-badge

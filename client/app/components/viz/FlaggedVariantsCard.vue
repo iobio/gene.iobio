@@ -735,7 +735,7 @@
     <div id="analyze-all-buttons" v-if="!isEduMode && !isBasicMode" :class="{'clin': launchedFromClin}" >
 
       <v-btn  id="analyze-all-button"
-      v-if="isLoaded && !isFullAnalysis && !isSimpleMode"
+      v-if="isLoaded && !isSimpleMode"
       class="level-edu"
       flat
       @click="onAnalyzeAll"
@@ -746,7 +746,7 @@
 
 
       <v-btn
-      v-if="analyzeAllInProgress && !isFullAnalysis && !isSimpleMode"
+      v-if="analyzeAllInProgress && !isSimpleMode"
       class="stop-analysis-button"
       @click="onStopAnalysis"  flat
       v-tooltip.top-center="`Stop analysis`" >
@@ -756,7 +756,7 @@
       <v-spacer></v-spacer>
 
       <div id="call-variants-dropdown"
-        v-if="isLoaded && hasAlignments && !isFullAnalysis && !isSimpleMode"
+        v-if="isLoaded && hasAlignments && !isSimpleMode"
       >
         <v-menu offset-y>
           <v-btn  slot="activator" flat
@@ -773,7 +773,7 @@
         </v-menu>
       </div>
       <v-btn
-      v-if="callAllInProgress && !isFullAnalysis"
+      v-if="callAllInProgress "
       class="stop-analysis-button"
       @click="onStopAnalysis" flat 
       v-tooltip.top-center="`Stop calling variants`" >
