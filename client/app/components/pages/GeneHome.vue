@@ -536,6 +536,36 @@ main.content.clin, main.v-content.clin
         </variant-all-card>
 
 
+        <variant-detail-card
+          ref="variantInspectRef"
+          v-if="cohortModel && cohortModel.isLoaded && isBasicMode"
+          :isBasicMode="isBasicMode"
+          :isEduMode="isEduMode"
+          :selectedGene="selectedGene"
+          :selectedTranscript="analyzedTranscript"
+          :selectedVariant="selectedVariant"
+          :selectedVariantNotes="selectedVariantNotes"
+          :selectedVariantInterpretation="selectedVariantInterpretation"
+          :selectedVariantRelationship="selectedVariantRelationship"
+          :interpretationMap="interpretationMap"
+          :genomeBuildHelper="genomeBuildHelper"
+          :cohortModel="cohortModel"
+          :info="selectedVariantInfo"
+          :selectedVariantKey="selectedVariantKey"
+          :showGenePhenotypes="launchedFromClin || phenotypeTerm"
+          :coverageDangerRegions="cohortModel.getProbandModel().coverageDangerRegions"
+          :user="user"
+          :showAssessment="hasVariantAssessment || showVariantAssessment"
+          @show-pileup-for-variant="onShowPileupForVariant"
+          @apply-variant-interpretation="onApplyVariantInterpretation"
+          @apply-variant-notes="onApplyVariantNotes"
+          @show-variant-assessment="onShowVariantAssessment"
+
+          >
+          </variant-detail-card>
+
+
+
         <div id="variant-inspect-and-notes" style="display:flex;align-items:stretch">
           <variant-inspect-card
           ref="variantInspectRef"

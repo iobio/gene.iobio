@@ -2,7 +2,6 @@
 @import ../../../assets/sass/variables
 #variant-detail
   padding-left: 0px
-  max-height: 222px
   min-height: 222px
   padding-top: 0px∂g
   overflow-x: scroll
