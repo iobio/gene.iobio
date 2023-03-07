@@ -354,7 +354,7 @@
 
         <div style="display: inline-flex;margin-left: 20px;margin-right: 10px;">
           <variant-toggle 
-                  v-if="!isBasicMode && !isEduMode && showVariantViz"
+                  v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz"
                   :variants="sampleModel.loadedVariants"
                   :filterModel="sampleModel.cohort.filterModel"
                   :geneLists="geneLists"
@@ -363,7 +363,7 @@
                   @filtered-variants-update="onFilteredVariantsUpdate"
                   @show-filter="onShowFilter">
           </variant-toggle>
-          <info-popup v-if="!isBasicMode && !isEduMode && showVariantViz" name="variant-toggle"></info-popup>
+          <info-popup v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz" name="variant-toggle"></info-popup>
         </div>
         <v-switch
                 v-if="sampleModel.relationship === 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"

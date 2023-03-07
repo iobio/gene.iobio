@@ -377,6 +377,7 @@
       </div>
 
       <variant-interpretation 
+       v-if="!isSimpleMode && selectedVariant"
        style="margin-bottom:4px;margin-right:5px;display: inline-block"
        wrap="true"
        :variant="selectedVariant"
