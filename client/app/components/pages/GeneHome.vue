@@ -1614,6 +1614,7 @@ export default {
 
       if (type == null) {
         self.appAlerts = []
+        self.appAlertCounts = {'total': 0, 'success': 0, 'info': 0, 'warning': 0, 'error': 0};
         return;
       }
 
@@ -1628,6 +1629,9 @@ export default {
       matching.forEach(function(alertToRemove) {
         let index = self.appAlerts.indexOf(alertToRemove);
         if (index >= 0) {
+          self.appAlertCounts[alertToRemove.type] -= 1 
+          self.appAlertCounts.total -= 1;
+
           self.appAlerts.splice(index, 1)
         }
       })
@@ -1647,6 +1651,9 @@ export default {
       matching.forEach(function(alertToRemove) {
         let index = self.appAlerts.indexOf(alertToRemove);
         if (index >= 0) {
+          self.appAlertCounts[alertToRemove.type] -= 1 
+          self.appAlertCounts.total -= 1;
+
           self.appAlerts.splice(index, 1)
         }
       })
