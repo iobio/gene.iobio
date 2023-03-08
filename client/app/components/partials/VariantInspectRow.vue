@@ -63,9 +63,9 @@
         margin-right: 0px
 
         .chip__content, .v-chip__content
-          padding: 10px !important
+          padding: 4px !important
           height: 18px !important
-          width: 70px !important
+          width: 90px !important
           font-size: 11px !important
           justify-content: center
           color: $text-color

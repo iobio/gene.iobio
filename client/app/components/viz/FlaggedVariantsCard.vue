@@ -211,6 +211,28 @@
     box-shadow: none !important
     -webkit-box-shadow: none !important
 
+  .pheno-search-term
+    max-width: 200px
+    display: inline-block
+    vertical-align: text-bottom
+    line-height: 12px
+    overflow-wrap: break-word
+    font-size: 12px
+    white-space: normal
+
+  .gene-phenotype-association.v-chip
+    vertical-align: top
+    margin-top: 3px
+    margin-bottom: 0px
+    margin-right: 0px
+    background-color: $level-high-color
+    color: white
+
+    .v-chip__content
+      padding: 4px !important
+      height: 18px !important
+      font-size: 11px !important
+
   .gene-ranks
     .chip, .v-chip
       margin-top: 0px
@@ -945,11 +967,12 @@
                       <span class="variant-moniker">
                         <span class="gene-name"> {{ flaggedGene.gene.gene_name }}</span>
 
+
                         <span class="variant-glyphs">
                           <app-icon
                            icon="clinvar"
-                           v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
-                           :level="clinvar(variant) == 'clinvar_path' ? 'high' : 'likely-high'"
+                           v-if="isClinvarToShow(variant)"
+                           :level="getClinvarLevel(variant)"
                            class="clinvar-badge" height="13" width="13">
                           </app-icon>
 
@@ -1014,11 +1037,37 @@
 
                         </span>
                         <span v-if="false" :class="getAfClass(variant)">{{ afDisplay(variant) }}</span>
+
                       </div>
                     </div>
                     <div  v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span class="revel">{{ capitalize(revel(variant)) }}</span>
                     </div>
+                    <!--
+                    <v-chip class="gene-phenotype-association" v-for="assocation, idx in genePhenotypeAssociations(flaggedGene.gene.gene_name)" :key="assocation">
+                      {{ assocation }}
+                    </v-chip>
+                    -->
+                    <div v-for="(geneHit, index) in genePhenotypeAssociations(flaggedGene.gene.gene_name)" :key="geneHit.key">
+                      <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
+                        <div>
+                          <v-chip class="gene-phenotype-association" v-if="geneRank.rank">
+                            <span class="mr-1">#{{ geneRank.rank  }}</span>
+                            <span v-if="geneRank.source">{{  geneRank.source }}</span>
+                          </v-chip>
+                          <v-chip class="gene-phenotype-association" v-else >
+                            <span v-if="geneRank.source"> {{ geneRank.source }}</span>
+                          </v-chip>
+                          <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">
+                            {{ geneHit.searchTerm | firstCharacterToUppercase }}
+                          </span>
+                          <span v-else-if="geneRank.source==='HPO' && geneRank.hpoPhenotype" class="pheno-search-term">
+                            {{ geneRank.hpoPhenotype | firstCharacterToUppercase }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
 
 
@@ -1472,6 +1521,34 @@ export default {
         return variant.clinvar ? variant.clinvar : "";
       }
     },
+    isClinvarToShow: function(variant){
+      let val = variant.clinvar;
+      if(val === "clinvar_path"){
+        return true;
+      }
+      else if(val === "clinvar_lpath"){
+        return true;
+      }
+      else if (val === "clinvar_uc"){
+        return true;
+      }
+      else if (val === "clinvar_lbenign"){
+        return false;
+      }
+      else if(val === "clinvar_cd"){
+        return true;
+      }
+      else if(val === "benign"){
+        return false;
+      }
+      else{
+        return false;
+      }
+    },
+    getClinvarLevel: function(variant){
+      return this.globalApp.utility.getClinvarLevel(variant);
+    },
+
     rsId: function(variant) {
       if (variant.isProxy) {
         return variant.rsId;
@@ -1510,6 +1587,19 @@ export default {
       } else {
         return variant.vepConsequence ? Object.keys(variant.vepConsequence).join(" ").split("_").join(" ") : "";
       }
+    },
+    genePhenotypeAssociations: function(geneName) {
+      let self = this;
+      let associations = []
+      let searchTermRecs = self.cohortModel.geneModel.getGenePhenotypeHits(geneName);
+      if (searchTermRecs) {
+        for (var searchTerm in searchTermRecs) {
+          let searchTermLabel = searchTerm.split("_").join(" ");
+          var rankRecs        = searchTermRecs[searchTerm];
+          associations.push( {key: searchTerm, searchTerm: searchTermLabel, geneRanks: rankRecs } );
+        }
+      }
+      return associations;
     },
     highestImpactClass: function(variant) {
       let clazz = "filter-symbol";
@@ -1690,6 +1780,13 @@ export default {
 
 
 
+  },
+  filters: {
+    firstCharacterToUppercase(s) {
+      if(s){
+      return s.charAt(0).toUpperCase() + s.slice(1)
+      }
+    },
   },
   watch: {
     geneNames: function(newGeneNames, oldGeneNames) {

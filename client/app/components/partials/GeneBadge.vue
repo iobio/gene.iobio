@@ -250,9 +250,9 @@
           </app-icon>
 
           <app-icon
-           v-if="gene && gene.dangerSummary && gene.dangerSummary.badges && gene.dangerSummary.badges.pathogenic && gene.dangerSummary.badges.pathogenic.length > 0"
+           v-if="gene && gene.dangerSummary && gene.dangerSummary.badges && showClinvar()"
            icon="clinvar"
-           level="high"
+           :level="getClinvarLevel()"
            id="gene-badge-clinvar"
            class=" level-edu glyph"
            width="13" height="14">
@@ -418,6 +418,44 @@ export default {
       let theGeneName = self.gene.name;
       self.$emit("remove-gene", theGeneName);
 
+    },
+    getClinvarLevel: function() {
+      var self = this;
+      var theLevel = null;
+      if (self.gene.dangerSummary && self.gene.dangerSummary.badges) {
+        Object.keys(self.gene.dangerSummary.badges).forEach(function(filterName) {
+          self.gene.dangerSummary.badges[filterName].forEach(function(variant) {
+            let levelObj = self.globalApp.utility.getClinvarLevelAndOrdinal(variant)
+            if (theLevel == null || levelObj.ordinal < theLevel.ordinal) {
+              theLevel = levelObj;
+            }
+          })
+        })
+      }
+      if (theLevel) {
+        return Object.keys(theLevel)[0];
+      } else {
+        return "none";
+      }
+    },
+    showClinvar: function() {
+      var self = this;
+      var theLevel = null;
+      if (self.gene.dangerSummary && self.gene.dangerSummary.badges) {
+        Object.keys(self.gene.dangerSummary.badges).forEach(function(filterName) {
+          self.gene.dangerSummary.badges[filterName].forEach(function(variant) {
+            let levelObj = self.globalApp.utility.getClinvarLevelAndOrdinal(variant)
+            if (theLevel == null || levelObj.ordinal < theLevel.ordinal) {
+              theLevel = levelObj;
+            }
+          })
+        })
+      }
+      if (theLevel) {
+        return Object.values(theLevel)[0]  <= 4;
+      } else {
+        return false;
+      }
     },
     getImpactClass: function(variantTypes) {
       var self = this;

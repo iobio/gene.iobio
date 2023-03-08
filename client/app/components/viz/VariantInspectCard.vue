@@ -587,7 +587,7 @@
             Clinical significance based on variant type, location, and documentation in ClinVar.
           </div>
           <variant-inspect-row  v-for="(clinvar,clinvarIdx) in info.clinvarLinks" :key="clinvarIdx"
-            :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
+          :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
           </variant-inspect-row>
 
           <div v-if="showClinvarTrait(info)"

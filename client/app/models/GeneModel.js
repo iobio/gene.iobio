@@ -186,7 +186,7 @@ class GeneModel {
               ranks = [];
               searchTerms[searchTerm] = ranks;
             }
-            ranks.push( {'rank': searchTermObject.rank, 'source': 'Phen.'});
+            ranks.push( {'rank': searchTermObject.rank, 'source': 'Phenolyzer'});
           })
         }
         if (geneEntry.searchTermHpo && geneEntry.searchTermHpo.length > 0) {
@@ -222,7 +222,7 @@ class GeneModel {
           ranks = [];
           searchTerms[searchTerm] = ranks;
         }
-        ranks.push( {'rank': phenotypeGene.rank, 'source': 'Phen.'});
+        ranks.push( {'rank': phenotypeGene.rank, 'source': 'Phenolyzer'});
       })
     }
 

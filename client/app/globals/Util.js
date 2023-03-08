@@ -66,6 +66,55 @@ class Util {
     return {ref: newRef, alt: newAlt}
   }
 
+  getClinvarLevel(variant) {
+    let val = variant.clinvar;
+    if(val === "clinvar_path"){
+      return "high";
+    }
+    else if(val === "clinvar_lpath"){
+      return "likely-high";
+    }
+    else if (val === "clinvar_uc"){
+      return "unknown-significance";
+    }
+    else if (val === "clinvar_lbenign"){
+      return "low";
+    }
+    else if(val === "clinvar_cd"){
+      return "conflicting";
+    }
+    else if(val === "benign"){
+      return "low"
+    }
+    else{
+      return "none"
+    }
+  }
+  getClinvarLevelAndOrdinal(variant) {
+    let val = variant.clinvar;
+    if(val === "clinvar_path"){
+      return {"high": 1};
+    }
+    else if(val === "clinvar_lpath"){
+      return {"likely-high": 2};
+    }
+    else if (val === "clinvar_uc"){
+      return {"unknown-significance": 3};
+    }
+    else if(val === "clinvar_cd"){
+      return {"conflicting": 4};
+    }
+    else if (val === "clinvar_lbenign"){
+      return {"low": 5};
+    }
+    else if(val === "benign"){
+      return {"low": 6};
+    }
+    else{
+      return {"none": 99}
+    }
+  }
+
   formatExonTooltip(filterModel, relationship, coverageRow, feature,  lock) {
     let self = this;
 

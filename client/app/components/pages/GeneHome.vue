@@ -1313,29 +1313,37 @@ export default {
 
         self.promiseInitFromUrl()
         .then(function() {
-            if (self.isEduMode && self.tourNumber) {
+          if (self.isEduMode && self.tourNumber) {
+            self.showAppLoader = false;
+            self.$refs.appTourRef.startTour(self.tourNumber);
+          }
+
+          if (self.launchedFromHub) {
+            self.promiseInitFromMosaic()
+            .then(function() {
+              self.addAlert("info", "gene.iobio inititalized from Mosaic")
               self.showAppLoader = false;
-              self.$refs.appTourRef.startTour(self.tourNumber);
-            }
+              if (callback) {
+                callback();
+              }
 
-            if (self.launchedFromHub) {
-              self.promiseInitFromMosaic()
-              .then(function() {
-                self.addAlert("info", "gene.iobio inititalized from Mosaic")
-                self.showAppLoader = false;
-                if (callback) {
-                  callback();
-                }
+            })
+            .catch(function(error) {
+              self.addAlert("error", "Unable to initialize from Mosaic. " + error)
+              self.showAppLoader = false;
+              if (callback) {
+                callback();
+              }
+            })
 
-              })
-              .catch(function(error) {
-                self.addAlert("error", "Unable to initialize from Mosaic. " + error)
-                self.showAppLoader = false;
-                if (callback) {
-                  callback();
-                }
-              })
-
+          } else {
+            if (self.geneModel.sortedGeneNames.length > 0 && self.cohortModel.sampleModels.length == 0) {
+              let warning = "No data has been loaded. Click on the load button to specify the data files."
+              self.onShowSnackbar({message: warning, timeout: 8000, 'close': true});
+              self.showAppLoader = false;
+              if (callback) {
+                callback();
+              }
             } else {
               self.models = self.cohortModel.sampleModels;
 
@@ -1370,7 +1378,9 @@ export default {
                   callback();
                 }
               }
+
             }
+          }
 
         })
 
