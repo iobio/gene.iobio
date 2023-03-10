@@ -793,7 +793,7 @@ nav.toolbar, nav.v-toolbar
         </v-menu>
       </div>
 
-      <v-btn id="files-button"   icon v-if="showFilesButton && (launchedFromHub || launchedFromSFARI) " 
+      <v-btn id="files-button"   icon v-if="showFilesButton && (launchedFromHub || launchedFromSFARI || isSimpleMode || isBasicMode) " 
         @click="onShowFiles" 
         v-tooltip.bottom-left="{content: 'Load your data'}">
         <app-icon icon="fileupload"  width="32" height="32"></app-icon>

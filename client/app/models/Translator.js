@@ -8,7 +8,7 @@ export default class Translator {
     this.clinvarMap     = {
               'pathogenic'            : {value: 1,   badge: true, examineBadge: true, clazz: 'clinvar_path', symbolFunction: this.glyph.showClinVarSymbol},
               'pathogenic/likely_pathogenic' :
-                                        {value: 2,   badge: true, examineBadge: true, clazz: 'clinvar_path', symbolFunction: this.glyph.showClinVarSymbol},
+                                        {value: 2,   badge: true, examineBadge: true, clazz: 'clinvar_lpath', symbolFunction: this.glyph.showClinVarSymbol},
               'likely_pathogenic'     : {value: 3,   badge: true, examineBadge: true, clazz: 'clinvar_lpath', symbolFunction: this.glyph.showClinVarSymbol},
               'uncertain_significance': {value: 4,   badge: true, examineBadge: true, clazz: 'clinvar_uc', symbolFunction: this.glyph.showClinVarSymbol},
               'conflicting_interpretations_of_pathogenicity':

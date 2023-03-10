@@ -129,7 +129,8 @@ export default {
     value: null,
     label: null,
     clazz: null,
-    link: null
+    link: null,
+    translator: null
   },
   data() {
     return {}
@@ -151,33 +152,13 @@ export default {
       return clazz
     },
 
-    getClinVarClass: function(val){
-      if(val === "Pathogenic"){
-        return "level-high";
-      }
-      else if(val === "Pathogenic/likely pathogenic"){
-        return "level-likely-high";
-      }
-      else if (val === "Likely pathogenic"){
-        return "level-likely-high";
-      }
-      else if (val === "Uncertain significance"){
-        return "level-unknown-significance";
-      }
-      else if (val === "Likely benign"){
-        return "level-likely-low";
-      }
-      else if (val === "Benign/likely benign"){
-        return "level-likely-low";
-      }
-      else if(val === "Conflicting interpretations of pathogenicity"){
-        return "level-conflicting";
-      }
-      else if(val === "Benign"){
-        return "level-low"
-      }
-      else{
-        return "level-other"
+    getClinVarClass: function(displayVal){
+      let entry = this.translator.clinvarMap[displayVal.split(" ").join("_").toLowerCase()]
+      if (entry && entry.clazz) {
+        let clinvarLevel = this.globalApp.utility.getClinvarLevel(entry.clazz);
+        return "level-" + clinvarLevel;        
+      } else {
+        return "level-other";
       }
     },
 

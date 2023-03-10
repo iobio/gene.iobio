@@ -431,7 +431,7 @@
        icon="zygosity" v-if="selectedVariant && selectedVariant.zygosity"
        :type="selectedVariant.zygosity.toLowerCase() + '-large'"
        :isSimpleMode="isSimpleMode"
-       height="14" :width="isSimpleMode ? 85 : 35">
+       height="14" :width="isSimpleMode ? 90 : 35">
       </app-icon>
 
       <span v-if="selectedVariant" class="variant-header" style="margin-top:2px">
@@ -587,7 +587,8 @@
             Clinical significance based on variant type, location, and documentation in ClinVar.
           </div>
           <variant-inspect-row  v-for="(clinvar,clinvarIdx) in info.clinvarLinks" :key="clinvarIdx"
-          :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
+          :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" 
+          :translator="cohortModel.translator">
           </variant-inspect-row>
 
           <div v-if="showClinvarTrait(info)"
@@ -1103,27 +1104,16 @@ export default {
         return 'level-unremarkable';
       }
     },
-    getClinvarClass: function(significance) {
-      if (significance == 'clinvar_path' || significance == 'clinvar_lpath') {
-        return 'level-high';
-      } else if(significance == 'clinvar_cd') {
-        return 'level-medium';
-      } else if (significance == 'clinvar_benign' || significance == 'clinvar_lbenign') {
-        return 'level-unremarkable';
-      } else {
-        return '';
-      }
-    },
     showClinvarTrait: function(info) {
       let self = this;
-      let levelHigh = false;
+      let levelSignificant = false;
       info.clinvarLinks.forEach(function(clinvar) {
-        let clazz = self.getClinvarClass(clinvar.significance)
-        if (clazz == 'level-high' || clazz == 'level-medium') {
-          levelHigh = true;
+        let clazz = self.globalApp.utility.getClinvarLevel(clinvar.significance)
+        if (clazz != 'low' && clazz != 'none') {
+          levelSignificant = true;
         }
       })
-      return info.clinvarTrait.length > 0 && (levelHigh || !this.isSimpleMode);
+      return info.clinvarTrait.length > 0 && (levelSignificant || !this.isSimpleMode);
     },
     getConservationScore: function(score) {
       if (score == null) {

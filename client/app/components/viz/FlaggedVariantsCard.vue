@@ -1546,7 +1546,7 @@ export default {
       }
     },
     getClinvarLevel: function(variant){
-      return this.globalApp.utility.getClinvarLevel(variant);
+      return this.globalApp.utility.getClinvarLevel(variant.clinvar);
     },
 
     rsId: function(variant) {
