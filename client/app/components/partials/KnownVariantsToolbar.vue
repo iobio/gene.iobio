@@ -4,8 +4,8 @@
 #known-variants-toolbar
   display: inline-block
   padding-top: 0px
-  margin-left: 20px
-  margin-top: -6px
+  margin-left: 0px
+  margin-top: 4px
 
   .v-input--radio-group
     height: 30px
@@ -15,7 +15,7 @@
     .v-input--radio-group__input
       label
         margin-bottom: 0px
-        font-size: 14px
+        font-size: 13px
 
       .v-select__selection--comma 
         color: $text-color

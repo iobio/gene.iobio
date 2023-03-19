@@ -44,6 +44,7 @@
   .header-spacer
     width: 30px
 
+
   .variant-action-button
     background-color: white
     padding: 0
@@ -335,21 +336,6 @@
         <span style="display:inline-block"
         v-if="selectedGene"> {{ sampleRelLabel }} in {{ selectedGene.gene_name }}</span>
       </span>
-      <optional-tracks-menu
-              v-show="!isEduMode && !isBasicMode && !isSimpleMode"
-              :forceKnownVariantsViz="forceKnownVariantsViz"
-              @show-known-variants-card="onShowKnownVariantsCard"
-              @show-sfari-variants-card="onShowSfariVariantsCard"
-              @show-mother-card="onShowMotherCard"
-              @show-father-card="onShowFatherCard"
-              @optional-track-close="onOptionalTrackClose"
-              @known-variants-viz-change="onKnownVariantsVizChange"
-              @known-variants-filter-change="onKnownVariantsFilterChange"
-              @sfari-variants-viz-change="onSfariVariantsVizChange"
-              @sfari-variants-filter-change="onSfariVariantsFilterChange"
-              :isMother="isMother"
-              :isFather="isFather"
-      ></optional-tracks-menu>
 
 
         <div style="display: inline-flex;margin-left: 20px;margin-right: 10px;">
@@ -571,6 +557,25 @@
           :featureClass="getExonClass"
           @feature-selected="showExonTooltip">
         </gene-viz>
+
+              <optional-tracks-menu
+              v-show="!isEduMode && !isBasicMode && !isSimpleMode"
+              :forceKnownVariantsViz="forceKnownVariantsViz"
+              :condensedView="false"
+              @show-known-variants-card="onShowKnownVariantsCard"
+              @show-sfari-variants-card="onShowSfariVariantsCard"
+              @show-mother-card="onShowMotherCard"
+              @show-father-card="onShowFatherCard"
+              @optional-track-close="onOptionalTrackClose"
+              @known-variants-viz-change="onKnownVariantsVizChange"
+              @known-variants-filter-change="onKnownVariantsFilterChange"
+              @sfari-variants-viz-change="onSfariVariantsVizChange"
+              @sfari-variants-filter-change="onSfariVariantsFilterChange"
+              :isMother="isMother"
+              :isFather="isFather"
+      ></optional-tracks-menu>
+
+
         <div class="other-samples" style="margin-top:0" v-for="model in otherModels" :key="model.relationship">
 
           <div class="other-samples-header">
@@ -647,6 +652,7 @@
             @region-selected="showExonTooltip"
           >
           </depth-viz>
+
         </div>
       </div>
   </v-card>
@@ -779,7 +785,7 @@ export default {
       filteredVariants: null,
       pileupStyle: {},
       showFilter: false,
-      showPopup: false,
+      showPopup: false
     }
   },
 
@@ -1338,6 +1344,7 @@ export default {
   },
 
   watch: {
+  
     regionStart: function(){
       if(this.zoomStart !== this.regionStart && this.showZoom) {
         this.$emit('gene-region-zoom', this.zoomStart, this.zoomEnd);

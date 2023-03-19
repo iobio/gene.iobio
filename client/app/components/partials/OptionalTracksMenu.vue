@@ -43,10 +43,47 @@
   display: flex !important
   flex-flow: column !important
 
+.checkbox-tracks
+  max-width: 100px
+  margin-top: 4px
+
+  label
+    font-size: 13px !important
+    top: 3px !important
+    
+  &.clinvar
+    max-width: 230px
+
+#other-tracks-label
+  color: $link-color
+  font-weight: 500
+  font-size: 13px
+  padding-top: 12px
+  margin-right: 15px
+
 </style>
 
 <template>
-    <v-menu
+  <div>
+
+    <div v-if="!condensedView" style="display:flex;padding-top:10px;padding-bottom:10px">
+       <div id="other-tracks-label">            
+         Other tracks
+       </div>
+       <v-checkbox v-if="isMother" hide-details class="checkbox-tracks" v-model="showMotherCard" label="Mother" value="mother"></v-checkbox>
+       <v-checkbox v-if="isFather" hide-details  class="checkbox-tracks" v-model="showFatherCard" label="Father" value="father"></v-checkbox>
+       <v-checkbox hide-details class="checkbox-tracks clinvar" v-model="showKnownVariantsCard" label="ClinVar (across population)" value="clinvar"></v-checkbox>
+
+          <known-variants-toolbar
+            v-if="showKnownVariantsCard"
+            :forceViz="forceKnownVariantsViz"
+            @knownVariantsVizChange="onKnownVariantsVizChange"
+            @knownVariantsFilterChange="onKnownVariantsFilterChange"
+          >
+          </known-variants-toolbar>
+    </div> 
+
+    <v-menu v-if="condensedView"
     offset-y
     :close-on-content-click="false"
     bottom
@@ -84,6 +121,7 @@
       </div>
 
     </v-menu>
+  </div>
 
 </template>
 
@@ -102,7 +140,8 @@ export default {
   props: {
     isMother: null,
     isFather: null,
-    forceKnownVariantsViz: null
+    forceKnownVariantsViz: null,
+    condensedView: false
   },
   data () {
     return {
