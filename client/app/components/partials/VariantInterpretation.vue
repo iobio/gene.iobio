@@ -61,6 +61,8 @@ i.material-icons.interpretation
       i.material-icons
         color: white !important
 
+  .theme--light.v-text-field > .v-input__control > .v-input__slot:before
+    border-color: transparent !important
 
 .interpretation-choices
   width: 100%
