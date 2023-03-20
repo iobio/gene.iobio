@@ -47,16 +47,19 @@
   max-width: 100px
   margin-top: 4px
 
+  .v-input--selection-controls__input
+    margin-right: 4px !important
+
   label
     font-size: 13px !important
     top: 3px !important
+    font-weight: 400 !important
     
   &.clinvar
     max-width: 230px
 
 #other-tracks-label
-  color: $link-color
-  font-weight: 500
+  font-weight: 400
   font-size: 13px
   padding-top: 12px
   margin-right: 15px
@@ -68,7 +71,7 @@
 
     <div v-if="!condensedView" style="display:flex;padding-top:10px;padding-bottom:10px">
        <div id="other-tracks-label">            
-         Other tracks
+         Show tracks for
        </div>
        <v-checkbox v-if="isMother" hide-details class="checkbox-tracks" v-model="showMotherCard" label="Mother" value="mother"></v-checkbox>
        <v-checkbox v-if="isFather" hide-details  class="checkbox-tracks" v-model="showFatherCard" label="Father" value="father"></v-checkbox>
