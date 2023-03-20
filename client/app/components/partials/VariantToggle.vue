@@ -45,32 +45,41 @@
 </style>
 
 <template>
-    <div id="variant-toggle">
-        <div id="filterSelect">
-            <div id="dropdownWrapper">
-                <v-select class="ma-0 pa-0"
-                          id="v-select-filter"
-                          outlined
-                          multiple
-                          small-chips
-                          deletable-chips
-                          dense
-                          label="Filter by inheritance..."
-                          :items="filterText"
-                          item-text='title'
-                          item-value='name'
-                          clearable
-                          v-model="selectedFilterKeys">
-                </v-select>
+    <div style="display: inline-flex;">
+        <div id="variant-toggle">
+            <div id="filterSelect">
+                <div id="dropdownWrapper">
+                    <v-select class="ma-0 pa-0"
+                              id="v-select-filter"
+                              v-if="filterText && filterText.length > 0"
+                              outlined
+                              multiple
+                              small-chips
+                              deletable-chips
+                              dense
+                              label="Filter by inheritance..."
+                              :items="filterText"
+                              item-text='title'
+                              item-value='name'
+                              clearable
+                              v-model="selectedFilterKeys">
+                    </v-select>
+                </div>
             </div>
         </div>
+        <info-popup v-if="filterText && filterText.length > 0" name="variant-toggle"></info-popup>
+
     </div>
 </template>
 
 <script>
+import InfoPopup            from "../partials/InfoPopup.vue";
 
     export default {
         name: 'variant-toggle',
+        components: {
+            InfoPopup
+        },
         props: {
             variants: null,
             filterModel: null,
@@ -174,9 +183,9 @@
             },
             populateInheritanceOptions() {
                 let self = this;
-                this.filterText = [];
-                let inheritanceInUse = [];
                 if (this.variants && this.variants.features) {
+                    this.filterText = [];
+                    let inheritanceInUse = [];
                     this.variants.features.forEach(function(v) {
                         if (v.inheritance && v.inheritance != "" && 
                             v.inheritance != "none" && 
@@ -187,14 +196,14 @@
                         }
                     })
                     
-                }
-                if (inheritanceInUse.length > 0) {
-                    for (let key in self.filterKeyToDisplay) {
-                        let display = self.filterKeyToDisplay[key]
-                        if (key.indexOf(inheritanceInUse) >= 0) {
-                            self.filterText.push(display)
-                        }
-                    }                    
+                    if (inheritanceInUse.length > 0) {
+                        for (let key in self.filterKeyToDisplay) {
+                            let display = self.filterKeyToDisplay[key]
+                            if (inheritanceInUse.indexOf(key) >= 0) {
+                                self.filterText.push(display)
+                            }
+                        }                    
+                    }
                 }
             }
 

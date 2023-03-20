@@ -367,7 +367,7 @@
         @sfariVariantsFilterChange="onSfariVariantsFilterChange">
       </sfari-variants-toolbar>
 
-      <div style="display: inline-flex;margin-top:8px;margin-left: 20px;margin-right: 0px;" >
+      <div style="margin-top:8px;margin-left: 20px;margin-right: 0px;" >
         <variant-toggle 
                 v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz && (isMother || isFather)"
                 :variants="sampleModel.loadedVariants"
@@ -378,7 +378,6 @@
                 @filtered-variants-update="onFilteredVariantsUpdate"
                 @show-filter="onShowFilter">
         </variant-toggle>
-        <info-popup v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz && (isMother || isFather)" name="variant-toggle"></info-popup>
       </div>
 
     </div>
