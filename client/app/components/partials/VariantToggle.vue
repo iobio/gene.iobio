@@ -122,11 +122,16 @@
                 this.setFilteredVariants();
             },
             selectedGene: function () {
+                let self = this;
                 this.selectedFilters = [];
                 this.selectedFilterKeys = [];
+
             },
             selectedVariant: function () {
                 this.setFilteredVariants();
+            },
+            variants: function() {
+                this.populateInheritanceOptions();
             }
         },
 
@@ -135,6 +140,13 @@
             this.selectedFilterKeys = [];
             this.flagCriteria = this.filterModel.flagCriteria;
             this.filterText = ["Autosomal dominant", "Recessive", "De novo", "Compound het", "X-linked"];
+            this.filterKeyToDisplay = {
+                "autosomal dominant": "Autosomal dominant",
+                "recessive": "Recessive",
+                "denovo": "De novo",
+                "compound het": "Compound het",
+                "x-linked": "X-linked"
+            }
             this.filterKeys = {"Autosomal dominant" :"autosomal dominant", "Recessive" :"recessive", "De novo" : "denovo", "Compound het" : "compound het", "X-linked" : "x-linked"};
         },
 
@@ -160,6 +172,32 @@
                 }
               }
             },
+            populateInheritanceOptions() {
+                let self = this;
+                this.filterText = [];
+                let inheritanceInUse = [];
+                if (this.variants && this.variants.features) {
+                    this.variants.features.forEach(function(v) {
+                        if (v.inheritance && v.inheritance != "" && 
+                            v.inheritance != "none" && 
+                            self.filterKeyToDisplay[v.inheritance] &&
+                            inheritanceInUse.indexOf(v.inheritance) == -1) {
+
+                            inheritanceInUse.push(v.inheritance)                                           
+                        }
+                    })
+                    
+                }
+                if (inheritanceInUse.length > 0) {
+                    for (let key in self.filterKeyToDisplay) {
+                        let display = self.filterKeyToDisplay[key]
+                        if (key.indexOf(inheritanceInUse) >= 0) {
+                            self.filterText.push(display)
+                        }
+                    }                    
+                }
+            }
+
         }
     }
 </script>
