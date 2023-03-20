@@ -114,7 +114,10 @@
 
 
       <v-flex id="name" xs12  >
-        <v-text-field label="Name"  @input="onChangeName" v-model="name" hide-details>
+        <v-text-field label="Name"  
+        @input="onChangeName" 
+        v-model="name" 
+        :rules=[rules.noDuplicates]>
         </v-text-field>
       </v-flex>
 
@@ -348,6 +351,9 @@ export default {
           return valid || 'Freq must be between 0.0-1.0';
         }
       ],
+      rules: {
+          noDuplicates: value => !this.isDuplicateName() || 'Another filter already has this name. Please enter a filter name not already in use.'
+      }
     }
   },
   methods: {
@@ -425,6 +431,16 @@ export default {
     onChangeName: function() {
       this.isDirty = true;
       this.filter.display = this.name;
+
+    },
+    isDuplicateName: function() {
+      let self = this;
+      let dups = Object.keys(this.filterModel.flagCriteria).filter(function(key) {
+        let filter = self.filterModel.flagCriteria[key];
+        return filter.key != self.filter.name  // don't evaluate this filter entry for dups
+               && filter.title == self.filter.display.trim();  // is there another filter with the same name?
+      })
+      return dups.length > 0;
     },
     capitalize: function(buf) {
       if (buf) {
@@ -439,15 +455,18 @@ export default {
       return !this.globalApp.gnomADExtraAll;
     },
     isValidFilter: function() {
-      return (this.maxAf && this.maxAf > 0 && this.maxAf < 1) ||
-             this.minRevel ||
-             (this.selectedClinvarCategories && this.selectedClinvarCategories.length > 0) ||
-             (this.selectedImpacts && this.selectedImpacts.length > 0) ||
-             (this.selectedConsequences && this.selectedConsequences.length > 0) ||
-             (this.selectedInheritanceModes && this.selectedInheritanceModes.length > 0) ||
-             (this.selectedZygosity && this.selectedZygosity.length > 0) ||
-             this.minGenotypeDepth ||
-             this.minGenotypeAltCount;
+      return (!this.isDuplicateName()) &&
+             (
+               (this.maxAf && this.maxAf > 0 && this.maxAf < 1) ||
+               this.minRevel ||
+               (this.selectedClinvarCategories && this.selectedClinvarCategories.length > 0) ||
+               (this.selectedImpacts && this.selectedImpacts.length > 0) ||
+               (this.selectedConsequences && this.selectedConsequences.length > 0) ||
+               (this.selectedInheritanceModes && this.selectedInheritanceModes.length > 0) ||
+               (this.selectedZygosity && this.selectedZygosity.length > 0) ||
+               this.minGenotypeDepth ||
+               this.minGenotypeAltCount
+             );
 
     },
     gnomADInfoPopup: function() {

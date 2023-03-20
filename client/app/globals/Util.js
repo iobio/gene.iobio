@@ -66,10 +66,6 @@ class Util {
     return {ref: newRef, alt: newAlt}
   }
 
-  getClinvarLevelForVariant(variant) {
-    return getClinvarLevel(variant.clinvar)
-  }
-
   getClinvarLevel(val) {
     if(val === "clinvar_path"){
       return "high";
@@ -94,9 +90,7 @@ class Util {
     }
   }
 
-  getClinvarLevelAndOrdinalForVariant(variant) {
-    return getClinvarLevelAndOrdinal(variant.clinvar)
-  }
+
   getClinvarLevelAndOrdinal(val) {
     if(val === "clinvar_path"){
       return {"high": 1};

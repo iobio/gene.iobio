@@ -3,6 +3,7 @@
 
 
 
+
 #filterSelect
     display: inline-flex
     justify-content: center
@@ -54,7 +55,7 @@
                           small-chips
                           deletable-chips
                           dense
-                          label="Inheritance"
+                          label="Filter by inheritance..."
                           :items="filterText"
                           item-text='title'
                           item-value='name'

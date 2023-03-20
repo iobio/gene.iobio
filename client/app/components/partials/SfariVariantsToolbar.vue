@@ -4,7 +4,7 @@
 #sfari-variants-toolbar
   display: inline-block
   padding-top: 0px
-  margin-left: 20px
+  margin-left: 10px
   margin-top: -6px
 
   .input-group.radio
@@ -74,10 +74,9 @@
 
 
 #select-sfari-variants-filter-box
-  min-width: 200px
-  max-width: 500px
+  width: 200px
   display: inline-block
-  margin-left: 10px
+  margin-left: 0px
   float: left
 
   .selectize-input
@@ -105,7 +104,7 @@
 
 <template>
     <div id="sfari-variants-toolbar">
-      <div id="sfari-filter-box" style="margin-left:10px;width:400px;float:left"
+      <div id="sfari-filter-box" style="width:200px;float:left"
        v-if="viz === 'variants'">
         <v-select
                 label="Filter by impact..."

@@ -35,11 +35,6 @@
     font-size: 13px !important
     color: $text-color !important
 
-  #variant-pileup-button
-    position: absolute
-    top: 0
-    left: 0
-    display: none !important
 
   .header-spacer
     width: 30px
@@ -117,7 +112,7 @@
     padding-top: 0 !important
     margin-top: 0 !important
     margin-right: 20px
-    margin-left: 20px
+    margin-left: 10px
 
     label
       padding-left: 0
@@ -337,29 +332,16 @@
         v-if="selectedGene"> {{ sampleRelLabel }} in {{ selectedGene.gene_name }}</span>
       </span>
 
+      <v-switch
+              v-if="sampleModel.relationship === 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+              class="zoom-switch" style="max-width:80px;"
+              label="Zoom"
+              v-model="showZoom"
+              :hide-details="true">
+      </v-switch>
 
-        <div style="display: inline-flex;margin-left: 20px;margin-right: 10px;">
-          <variant-toggle 
-                  v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz"
-                  :variants="sampleModel.loadedVariants"
-                  :filterModel="sampleModel.cohort.filterModel"
-                  :geneLists="geneLists"
-                  :selectedGene="selectedGene"
-                  :selected-variant="selectedVariant"
-                  @filtered-variants-update="onFilteredVariantsUpdate"
-                  @show-filter="onShowFilter">
-          </variant-toggle>
-          <info-popup v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz" name="variant-toggle"></info-popup>
-        </div>
-        <v-switch
-                v-if="sampleModel.relationship === 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
-                class="zoom-switch" style="max-width:80px;"
-                label="Zoom"
-                v-model="showZoom"
-                :hide-details="true">
-        </v-switch>
-        <div>
-          <div style="height: 4px"></div>
+      <div>
+        <div style="height: 4px"></div>
         <v-badge  id="loaded-count" style="padding-top: 2px; margin-left: 10 !important"
         v-if="!isEduMode && !isBasicMode && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && !(sampleModel.isSfariSample && blacklistedGeneSelected)" class="loaded mr-4 " >
           <span slot="badge" style="padding-top: 0" > {{ sampleModel.relationship !== 'known-variants' || knownVariantsViz === 'variants' ? sampleModel.loadedVariants.features.length : sampleModel.variantHistoCount  }} </span>
@@ -375,190 +357,205 @@
           <span slot="badge"> {{ coverageDangerRegions.length }} </span>
           Low coverage exons
         </v-badge>
-        </div>
       </div>
-      </div>
-      <v-btn id="variant-pileup-button"
-       class="variant-action-button"
-       v-if="sampleModel.isBamLoaded() && selectedVariant && sampleModel.relationship !== 'known-variants'
-        && sampleModel.relationship !== 'sfari-variants' && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
-       :style="pileupStyle"
-       @click="onShowPileupForVariant">
-        <v-icon>line_style</v-icon>
-        Pileup
-      </v-btn>
+
+      <v-spacer></v-spacer>
+
       <sfari-variants-toolbar
         v-if="sampleModel.relationship === 'sfari-variants'"
         @sfariVariantsVizChange="onSfariVariantsVizChange"
         @sfariVariantsFilterChange="onSfariVariantsFilterChange">
       </sfari-variants-toolbar>
-      <div style="width:100%">
-        <div style="text-align: center;clear: both;">
-          <div class="loader vcfloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingVariants }" style="display: inline-block;padding-bottom:10px">
-            <span class="loader-label">Annotating variants</span>
-            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
-          </div>
-          <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
-            <span class="loader-label">Calling variants</span>
-            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
-          </div>
-          <div class="loader covloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingCoverage }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
-            <span class="loader-label">Analyzing gene coverage</span>
-            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
-          </div>
-          <v-badge v-if="showZoom" class="info" style="margin-bottom:5px">{{ zoomMessage }}</v-badge>
-        </div>
+
+      <div style="display: inline-flex;margin-top:8px;margin-left: 20px;margin-right: 0px;" >
+        <variant-toggle 
+                v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz && (isMother || isFather)"
+                :variants="sampleModel.loadedVariants"
+                :filterModel="sampleModel.cohort.filterModel"
+                :geneLists="geneLists"
+                :selectedGene="selectedGene"
+                :selected-variant="selectedVariant"
+                @filtered-variants-update="onFilteredVariantsUpdate"
+                @show-filter="onShowFilter">
+        </variant-toggle>
+        <info-popup v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz && (isMother || isFather)" name="variant-toggle"></info-popup>
       </div>
-      <div style="width:100%">
-        <gene-viz class="gene-viz-zoom"
-        v-if="showZoom"
+
+    </div>
+
+
+    <div style="width:100%">
+      <div style="text-align: center;clear: both;">
+        <div class="loader vcfloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingVariants }" style="display: inline-block;padding-bottom:10px">
+          <span class="loader-label">Annotating variants</span>
+          <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
+        </div>
+        <div class="loader fbloader" v-bind:class="{ hide: !sampleModel.inProgress.callingVariants }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
+          <span class="loader-label">Calling variants</span>
+          <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
+        </div>
+        <div class="loader covloader" v-bind:class="{ hide: !sampleModel.inProgress.loadingCoverage }" style="display: inline-block;padding-left: 20px;padding-bottom:10px">
+          <span class="loader-label">Analyzing gene coverage</span>
+          <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
+        </div>
+        <v-badge v-if="showZoom" class="info" style="margin-bottom:5px">{{ zoomMessage }}</v-badge>
+      </div>
+    </div>
+
+    <div style="width:100%">
+      <gene-viz class="gene-viz-zoom"
+      v-if="showZoom"
+      :data="[selectedTranscript]"
+      :modelName="sampleModel.name"
+      :margin="geneZoomVizMargin"
+      :width="width"
+      :height="40"
+      :showXAxis="false"
+      :trackHeight="geneVizTrackHeight + 20"
+      :cdsHeight="geneVizCdsHeight + 20"
+      :regionStart="parseInt(selectedGene.start)"
+      :regionEnd="parseInt(selectedGene.end)"
+      :showBrush="true"
+      :featureClass="getExonClass"
+      @region-zoom="onRegionZoom"
+      @region-zoom-reset="onRegionZoomReset">
+      </gene-viz>
+      <div class="chart-label"
+      v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0">
+        Called variants
+      </div>
+
+      <div
+        v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length === 0">
+          <v-badge class="info mb-3">
+            No called variants
+          </v-badge>
+      </div>
+
+      <variant-viz id="called-variant-viz"
+        ref="calledVariantVizRef"
+        v-if="showVariantViz"
+        v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
+        (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
+        :data="sampleModel.calledVariants"
+        :model="sampleModel"
+        :regionStart="regionStart"
+        :regionEnd="regionEnd"
+        :annotationScheme="annotationScheme"
+        :width="width"
+        :margin="variantVizMargin"
+        :variantHeight="variantSymbolHeight"
+        :variantPadding="variantSymbolPadding"
+        :showBrush="false"
+        :showXAxis="true"
+        :showWhenEmpty="false"
+        :showTransition="true"
+        :classifySymbolFunc="classifyVariantSymbolFunc"
+        vizRef="calledVariants"
+        @variantClick="onVariantClick"
+        @variantOutsideClick="onVariantOutsideClick"
+        @variantHover="onVariantHover"
+        @variantHoverEnd="onVariantHoverEnd">
+      </variant-viz>
+
+      <div class="chart-label"
+      v-show="!isEduMode && !isBasicMode && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+      >
+        {{ isSimpleMode ? '' : 'Proband variants  ' }}  {{ isSimpleMode ? '' : sampleLabel }}
+      </div>
+
+      <div v-if="(sampleModel.relationship === 'sfari-variants' || sampleModel.isSfariSample) && blacklistedGeneSelected"
+          style="text-align: center; padding-bottom: 20px; padding-top: 20px">
+        <v-chip id="sfari-chip" class="red red--text" small outline style="font-size: 12px">
+          Unauthorized SFARI Gene
+          <v-menu id="sfari-menu" open-on-hover transition="slide-x-transition" max-width="400px">
+            <v-btn flat icon small slot="activator">
+              <v-icon small color="red">info_outline</v-icon>
+            </v-btn>
+            <div class="text-xs-center" style="padding: 5px">
+              The SFARI program does not authorize this gene to be viewed or analyzed. Please select another gene.
+            </div>
+          </v-menu>
+        </v-chip>
+      </div>
+
+      <variant-viz v-else-if="showVariantViz" id="loaded-variant-viz"
+        ref="variantVizRef"
+         v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
+          (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
+        :data="sampleModel.loadedVariants"
+        :filtered-variants="filteredVariants"
+        :selected-variant="selectedVariant"
+        :selected-variant-relationship="selectedVariantRelationship"
+        :selected-gene="selectedGene"
+        :model="sampleModel"
+        :showFilter="showFilter"
+        :regionStart="regionStart"
+        :regionEnd="regionEnd"
+        :annotationScheme="annotationScheme"
+        :width="width"
+        :margin="variantVizMargin"
+        :variantHeight="variantSymbolHeight"
+        :variantPadding="variantSymbolPadding"
+        :showBrush="false"
+        :showXAxis="true"
+        :showWhenEmpty="true"
+        :showTransition="false"
+        :classifySymbolFunc="classifyVariantSymbolFunc"
+        vizRef="loadedVariants"
+        @variantClick="onVariantClick"
+        @variantHover="onVariantHover"
+        @variantHoverEnd="onVariantHoverEnd">
+      </variant-viz>
+
+      <div class="chart-label"
+      v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)">
+        {{ isSimpleMode ? '' : 'Proband' }} coverage
+      </div>
+
+      <div id="bam-track">
+        <depth-viz
+          v-if="showDepthViz && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
+          ref="depthVizRef"
+          :data="sampleModel.coverage"
+          :modelName="sampleModel.name"
+          :coverageMedian="sampleModel.cohort.filterModel.geneCoverageMedian"
+          :coverageDangerRegions="!isSimpleMode && !isBasicMode ? coverageDangerRegions : []"
+          :currentPoint="coveragePoint"
+          :maxDepth="sampleModel.cohort.maxDepth"
+          :regionStart="regionStart"
+          :regionEnd="regionEnd"
+          :width="width"
+          :margin="depthVizMargin"
+          :height="60"
+          :showTooltip="false"
+          :showXAxis="false"
+          :regionGlyph="depthVizRegionGlyph"
+          :showAlleleBar="false"
+          @region-selected="showExonTooltip">
+        </depth-viz>
+      </div>
+
+      <gene-viz class="gene-viz"
+        :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
+        v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
         :data="[selectedTranscript]"
         :modelName="sampleModel.name"
-        :margin="geneZoomVizMargin"
+        :relationship="sampleModel.relationship"
+        :margin="geneVizMargin"
         :width="width"
         :height="40"
-        :showXAxis="false"
-        :trackHeight="geneVizTrackHeight + 20"
-        :cdsHeight="geneVizCdsHeight + 20"
-        :regionStart="parseInt(selectedGene.start)"
-        :regionEnd="parseInt(selectedGene.end)"
-        :showBrush="true"
+        :trackHeight="geneVizTrackHeight"
+        :cdsHeight="geneVizCdsHeight"
+        :regionStart="regionStart"
+        :regionEnd="regionEnd"
+        :showXAxis="geneVizShowXAxis"
+        :showBrush="false"
         :featureClass="getExonClass"
-        @region-zoom="onRegionZoom"
-        @region-zoom-reset="onRegionZoomReset">
-        </gene-viz>
-        <div class="chart-label"
-        v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0">
-          Called variants
-        </div>
+        @feature-selected="showExonTooltip">
+      </gene-viz>
 
-        <div
-          v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length === 0">
-            <v-badge class="info mb-3">
-              No called variants
-            </v-badge>
-        </div>
-
-
-        <variant-viz id="called-variant-viz"
-          ref="calledVariantVizRef"
-          v-if="showVariantViz"
-          v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
-          (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
-          :data="sampleModel.calledVariants"
-          :model="sampleModel"
-          :regionStart="regionStart"
-          :regionEnd="regionEnd"
-          :annotationScheme="annotationScheme"
-          :width="width"
-          :margin="variantVizMargin"
-          :variantHeight="variantSymbolHeight"
-          :variantPadding="variantSymbolPadding"
-          :showBrush="false"
-          :showXAxis="true"
-          :showWhenEmpty="false"
-          :showTransition="true"
-          :classifySymbolFunc="classifyVariantSymbolFunc"
-          vizRef="calledVariants"
-          @variantClick="onVariantClick"
-          @variantOutsideClick="onVariantOutsideClick"
-          @variantHover="onVariantHover"
-          @variantHoverEnd="onVariantHoverEnd">
-        </variant-viz>
-        <div class="chart-label"
-        v-show="!isEduMode && !isBasicMode && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
-        >
-          {{ isSimpleMode ? '' : 'Proband variants  ' }}  {{ isSimpleMode ? '' : sampleLabel }}
-        </div>
-        <div v-if="(sampleModel.relationship === 'sfari-variants' || sampleModel.isSfariSample) && blacklistedGeneSelected"
-            style="text-align: center; padding-bottom: 20px; padding-top: 20px">
-          <v-chip id="sfari-chip" class="red red--text" small outline style="font-size: 12px">
-            Unauthorized SFARI Gene
-            <v-menu id="sfari-menu" open-on-hover transition="slide-x-transition" max-width="400px">
-              <v-btn flat icon small slot="activator">
-                <v-icon small color="red">info_outline</v-icon>
-              </v-btn>
-              <div class="text-xs-center" style="padding: 5px">
-                The SFARI program does not authorize this gene to be viewed or analyzed. Please select another gene.
-              </div>
-            </v-menu>
-          </v-chip>
-        </div>
-        <variant-viz v-else-if="showVariantViz" id="loaded-variant-viz"
-          ref="variantVizRef"
-           v-bind:class="{hide: (sampleModel.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
-            (sampleModel.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
-          :data="sampleModel.loadedVariants"
-          :filtered-variants="filteredVariants"
-          :selected-variant="selectedVariant"
-          :selected-variant-relationship="selectedVariantRelationship"
-          :selected-gene="selectedGene"
-          :model="sampleModel"
-          :showFilter="showFilter"
-          :regionStart="regionStart"
-          :regionEnd="regionEnd"
-          :annotationScheme="annotationScheme"
-          :width="width"
-          :margin="variantVizMargin"
-          :variantHeight="variantSymbolHeight"
-          :variantPadding="variantSymbolPadding"
-          :showBrush="false"
-          :showXAxis="true"
-          :showWhenEmpty="true"
-          :showTransition="false"
-          :classifySymbolFunc="classifyVariantSymbolFunc"
-          vizRef="loadedVariants"
-          @variantClick="onVariantClick"
-          @variantHover="onVariantHover"
-          @variantHoverEnd="onVariantHoverEnd">
-        </variant-viz>
-
-        <div class="chart-label"
-        v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)">
-          {{ isSimpleMode ? '' : 'Proband' }} coverage
-        </div>
-        <div id="bam-track">
-          <depth-viz
-            v-if="showDepthViz && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
-            ref="depthVizRef"
-            :data="sampleModel.coverage"
-            :modelName="sampleModel.name"
-            :coverageMedian="sampleModel.cohort.filterModel.geneCoverageMedian"
-            :coverageDangerRegions="!isSimpleMode && !isBasicMode ? coverageDangerRegions : []"
-            :currentPoint="coveragePoint"
-            :maxDepth="sampleModel.cohort.maxDepth"
-            :regionStart="regionStart"
-            :regionEnd="regionEnd"
-            :width="width"
-            :margin="depthVizMargin"
-            :height="60"
-            :showTooltip="false"
-            :showXAxis="false"
-            :regionGlyph="depthVizRegionGlyph"
-            :showAlleleBar="false"
-            @region-selected="showExonTooltip">
-          </depth-viz>
-        </div>
-        <gene-viz class="gene-viz"
-          :style="isEduMode ? `margin-top: 20px` : `margin-top:-5px`"
-          v-bind:class="{ hide: !showGeneViz && !(sampleModel.isSfariSample && blacklistedGeneSelected) }"
-          :data="[selectedTranscript]"
-          :modelName="sampleModel.name"
-          :relationship="sampleModel.relationship"
-          :margin="geneVizMargin"
-          :width="width"
-          :height="40"
-          :trackHeight="geneVizTrackHeight"
-          :cdsHeight="geneVizCdsHeight"
-          :regionStart="regionStart"
-          :regionEnd="regionEnd"
-          :showXAxis="geneVizShowXAxis"
-          :showBrush="false"
-          :featureClass="getExonClass"
-          @feature-selected="showExonTooltip">
-        </gene-viz>
-
-              <optional-tracks-menu
+      <optional-tracks-menu
               v-show="!isEduMode && !isBasicMode && !isSimpleMode"
               :forceKnownVariantsViz="forceKnownVariantsViz"
               :condensedView="false"
@@ -576,85 +573,85 @@
       ></optional-tracks-menu>
 
 
-        <div class="other-samples" style="margin-top:0" v-for="model in otherModels" :key="model.relationship">
+      <div class="other-samples" style="margin-top:0" v-for="model in otherModels" :key="model.relationship">
 
-          <div class="other-samples-header">
-            <span class="chart-label"> {{ getSampleRelLabelOther(model) }}</span>
-          </div>
-          <variant-viz
-            :id="`loaded-variant-viz-` + model.relationship"
-            v-bind:class="{hide: (model.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
-          (model.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
-            style="margin-top:-5px"
-            ref="otherVariantVizRef"
-            :model="model"
-            :data="model.loadedVariants"
-            :filtered-variants="filteredVariants"
-            :selected-variant="selectedVariant"
-            :selected-gene="selectedGene"
-            :showFilter="showFilter"
-            :regionStart="regionStart"
-            :regionEnd="regionEnd"
-            :annotationScheme="annotationScheme"
-            :width="width"
-            :margin="geneVizMargin"
-            :variantHeight="variantSymbolHeightOther"
-            :variantPadding="variantSymbolPadding"
-            :showBrush="false"
-            :showXAxis="true"
-            :showWhenEmpty="false"
-            vizRef="loadedVariants"
-            :classifySymbolFunc="model.relationship === 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
-            @variantClick="onVariantClick"
-            @variantHover="onVariantHoverOther"
-            @variantHoverEnd="onVariantHoverEnd">
-          </variant-viz>
-          <div class="loader vcfloader" v-bind:class="{ hide: !model.inProgress.loadingVariants }" style="text-align: center; clear: both;width: 100%;display: inline-block;padding-top:10px; padding-bottom: 5px">
-            <span v-if="model.relationship == 'known-variants'" class="loader-label">
-              Loading ClinVar variants for {{selectedGene.gene_name}} 
-            </span>
-            <span v-if="model.relationship == 'sfari-variants'" class="loader-label">
-              Loading SFARI variants for {{selectedGene.gene_name}} 
-            </span>
-            <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
-          </div>
-          <stacked-bar-chart-viz
-            id="known-variants-chart"
-            style="width:100%"
-            v-if="model.relationship === 'known-variants' && knownVariantsViz !== 'variants'"
-            :data="model.variantHistoData"
-            :width="width"
-            :xStart="selectedGene.start"
-            :xEnd="selectedGene.end"
-            :regionStart="regionStart"
-            :regionEnd="regionEnd"
-            :categories="['unknown', 'other', 'benign', 'path']"
-          >
-          </stacked-bar-chart-viz>
-          <depth-viz
-            v-if="showDepthViz && !(model.isSfariSample && blacklistedGeneSelected)"
-            ref="otherDepthVizRef"
-            :data="model.coverage"
-            :modelName="model.name"
-            :coverageMedian="model.cohort.filterModel.geneCoverageMedian"
-            :coverageDangerRegions="!isSimpleMode ? model.coverageDangerRegions : []"
-            :currentPoint="coveragePoint"
-            :maxDepth="model.cohort.maxDepth"
-            :regionStart="regionStart"
-            :regionEnd="regionEnd"
-            :width="width"
-            :margin="depthVizMarginOther"
-            :height="40"
-            :showTooltip="false"
-            :showXAxis="false"
-            :regionGlyph="depthVizRegionGlyph"
-            :showAlleleBar="false"
-            @region-selected="showExonTooltip"
-          >
-          </depth-viz>
-
+        <div class="other-samples-header">
+          <span class="chart-label"> {{ getSampleRelLabelOther(model) }}</span>
         </div>
+        <variant-viz
+          :id="`loaded-variant-viz-` + model.relationship"
+          v-bind:class="{hide: (model.relationship === 'known-variants' && knownVariantsViz !== 'variants') ||
+        (model.relationship === 'sfari-variants' && sfariVariantsViz !== 'variants')}"
+          style="margin-top:-5px"
+          ref="otherVariantVizRef"
+          :model="model"
+          :data="model.loadedVariants"
+          :filtered-variants="filteredVariants"
+          :selected-variant="selectedVariant"
+          :selected-gene="selectedGene"
+          :showFilter="showFilter"
+          :regionStart="regionStart"
+          :regionEnd="regionEnd"
+          :annotationScheme="annotationScheme"
+          :width="width"
+          :margin="geneVizMargin"
+          :variantHeight="variantSymbolHeightOther"
+          :variantPadding="variantSymbolPadding"
+          :showBrush="false"
+          :showXAxis="true"
+          :showWhenEmpty="false"
+          vizRef="loadedVariants"
+          :classifySymbolFunc="model.relationship === 'known-variants' ? model.classifyByClinvar : model.classifyByImpact"
+          @variantClick="onVariantClick"
+          @variantHover="onVariantHoverOther"
+          @variantHoverEnd="onVariantHoverEnd">
+        </variant-viz>
+        <div class="loader vcfloader" v-bind:class="{ hide: !model.inProgress.loadingVariants }" style="text-align: center; clear: both;width: 100%;display: inline-block;padding-top:10px; padding-bottom: 5px">
+          <span v-if="model.relationship == 'known-variants'" class="loader-label">
+            Loading ClinVar variants for {{selectedGene.gene_name}} 
+          </span>
+          <span v-if="model.relationship == 'sfari-variants'" class="loader-label">
+            Loading SFARI variants for {{selectedGene.gene_name}} 
+          </span>
+          <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
+        </div>
+        <stacked-bar-chart-viz
+          id="known-variants-chart"
+          style="width:100%"
+          v-if="model.relationship === 'known-variants' && knownVariantsViz !== 'variants'"
+          :data="model.variantHistoData"
+          :width="width"
+          :xStart="selectedGene.start"
+          :xEnd="selectedGene.end"
+          :regionStart="regionStart"
+          :regionEnd="regionEnd"
+          :categories="['unknown', 'other', 'benign', 'path']"
+        >
+        </stacked-bar-chart-viz>
+        <depth-viz
+          v-if="showDepthViz && !(model.isSfariSample && blacklistedGeneSelected)"
+          ref="otherDepthVizRef"
+          :data="model.coverage"
+          :modelName="model.name"
+          :coverageMedian="model.cohort.filterModel.geneCoverageMedian"
+          :coverageDangerRegions="!isSimpleMode ? model.coverageDangerRegions : []"
+          :currentPoint="coveragePoint"
+          :maxDepth="model.cohort.maxDepth"
+          :regionStart="regionStart"
+          :regionEnd="regionEnd"
+          :width="width"
+          :margin="depthVizMarginOther"
+          :height="40"
+          :showTooltip="false"
+          :showXAxis="false"
+          :regionGlyph="depthVizRegionGlyph"
+          :showAlleleBar="false"
+          @region-selected="showExonTooltip"
+        >
+        </depth-viz>
+
       </div>
+    </div>
   </v-card>
 </template>
 

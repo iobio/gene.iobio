@@ -69,7 +69,7 @@
 <template>
   <div>
 
-    <div v-if="!condensedView" style="display:flex;padding-top:10px;padding-bottom:10px">
+    <div v-if="!condensedView" style="display:flex;padding-top:10px;padding-bottom:0px">
        <div id="other-tracks-label">            
          Show tracks for
        </div>
