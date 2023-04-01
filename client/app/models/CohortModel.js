@@ -1091,18 +1091,6 @@ class CohortModel {
     self.hubSession = hubSession;
   }
 
-  getTrioSampleNames() {
-    let self = this;
-    let sampleNames = [];
-    sampleNames.push(self.sampleMap.proband.model.getSampleName());
-    if (self.sampleMap.mother && self.sampleMap.mother.model) {
-      sampleNames.push(self.sampleMap.mother.model.getSampleName());
-    }
-    if (self.sampleMap.father && self.sampleMap.father.model) {
-      sampleNames.push(self.sampleMap.father.model.getSampleName());
-    }
-    return sampleNames;
-  }
 
   setLoadedVariants(gene, relationship=null) {
     let self = this;
@@ -1240,7 +1228,7 @@ class CohortModel {
       } else {
         for (var rel in self.sampleMap) {
           var model = self.sampleMap[rel].model;
-          if (model.isVcfReadyToLoad() || model.isLoaded()) {
+          if (model.isVcfReadyToLoad() ) {
             if (!options.isBackground) {
               model.inProgress.loadingVariants = true;
             }
@@ -1971,7 +1959,7 @@ class CohortModel {
             me.geneModel.geneSource == 'refseq' ? true : false,
             me.freebayesSettings.arguments,
             me.globalApp.vepAF, // vep af
-            me.getTrioSampleNames(),
+            me.getTrioAlignmentSampleNames(),
             options.gnomADExtra,
             options.decompose)
           .then(function(data) {
@@ -3131,28 +3119,23 @@ class CohortModel {
     }
   }
 
-  getTrioSampleNames() {
-
+  getTrioAlignmentSampleNames() {
     let self = this;
-
     let sampleNames = [];
 
-    sampleNames.push(self.sampleMap.proband.model.getSampleName());
+    ['proband', 'mother', 'father'].forEach(function(rel) {
+      let sampleName = self.sampleMap[rel].model.bam.getHeaderSample();
+      if (sampleName == null || sampleName.length == 0) {
+        sampleName = self.sampleMap[rel].model.getSampleName()
+      }
+      if (sampleName == null || sampleName.length == 0) {
+        sampleName = rel;
+      }
+      sampleNames.push(sampleName);
 
-    if (self.sampleMap.mother && self.sampleMap.mother.model) {
-
-      sampleNames.push(self.sampleMap.mother.model.getSampleName());
-
-    }
-
-    if (self.sampleMap.father && self.sampleMap.father.model) {
-
-      sampleNames.push(self.sampleMap.father.model.getSampleName());
-
-    }
+    })
 
     return sampleNames;
-
   }
 }
 

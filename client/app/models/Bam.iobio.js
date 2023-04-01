@@ -373,6 +373,14 @@ export default class Bam {
     }
   }
 
+  getHeaderSample() {
+    if (this.header) {
+      return this.header.sample;
+    } else {
+      return null;
+    }
+  }
+
 
 
    setHeader(headerStr) {
@@ -390,6 +398,18 @@ export default class Bam {
             header.sq.push({name:fHash["SN"], end:1+parseInt(fHash["LN"])});
             header.species = fHash["SP"];
             header.assembly = fHash["AS"];
+            if (!header.sample && fHash["SM"]) {
+              header.sample = fHash["SM"]
+            }
+         } else {
+            var fHash = {};
+            fields.forEach(function(field) {
+              var values = field.split(':');
+              fHash[ values[0] ] = values[1]
+            })
+            if (!header.sample && fHash["SM"]) {
+              header.sample = fHash["SM"]
+            }
          }
       }
       this.header = header;
