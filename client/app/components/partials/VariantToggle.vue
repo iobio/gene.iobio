@@ -51,7 +51,6 @@
                 <div id="dropdownWrapper">
                     <v-select class="ma-0 pa-0"
                               id="v-select-filter"
-                              v-if="filterText && filterText.length > 0"
                               outlined
                               multiple
                               small-chips

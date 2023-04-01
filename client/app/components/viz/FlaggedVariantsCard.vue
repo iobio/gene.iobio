@@ -86,24 +86,25 @@
       min-width: 110px
       padding-right: 5px
       padding-left: 5px
-      background-color: $button-color-bright
+      background-color: $button-color
       height: 28px
 
       .btn__content, .v-btn__content
         padding-left: 0px
         padding-right: 0px
-        color: white
+        color: $button-text-color
         font-size: 13px
         font-weight: 500
 
         i.material-icons
+          color: $button-text-color
           font-size: 20px
-          color: white
 
     #call-variants-dropdown
       display: inline-block
       vertical-align: middle
       text-align: left
+      margin-left: 15px
 
       button
         margin: 0px 0px 0px 0px
@@ -112,12 +113,12 @@
         padding-right: 5px
         padding-left: 5px
         height: 28px
-        background-color: $button-color-bright
+        background-color: $button-color
 
         .btn__content, .v-btn__content
           padding-left: 0px
           padding-right: 0px
-          color: white
+          color: $button-text-color
           font-size: 13px
           font-weight: 500
 
@@ -140,7 +141,11 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      color: $button-color-bright
+      color: $button-text-color
+      visibility: hidden
+
+      &.in-progress
+        visibility: visible
 
       i.material-icons
         font-size: 20px
@@ -692,11 +697,12 @@
     max-height: 90px
     padding-right: 5px
     padding-left: 5px
+    background-color: $button-color
 
     .btn__content, .v-btn__content
       padding-left: 0px
       padding-right: 0px
-      color: $link-color
+      color: $button-text-color
       font-size: 13px
       font-weight: 500
 
@@ -716,11 +722,12 @@
       padding-right: 5px
       padding-left: 5px
       margin-left: 5px
+      background-color: $button-color
 
       .btn__content, .v-btn__content
         padding-left: 0px
         padding-right: 0px
-        color: $link-color
+        color: $button-text-color
         font-size: 13px
         font-weight: 500
 
@@ -743,7 +750,7 @@
     height: 22px
     margin-right: 10px
     margin-left: 5px
-    color: $light-badge-color
+    color: $button-color
 
     i.material-icons
       font-size: 20px
@@ -759,7 +766,6 @@
       <v-btn  id="analyze-all-button"
       v-if="isLoaded && !isSimpleMode"
       class="level-edu"
-      flat
       @click="onAnalyzeAll"
       v-tooltip.top-center="`Analyze variants in all genes`" >
         <v-icon>playlist_play</v-icon>
@@ -768,20 +774,18 @@
 
 
       <v-btn
-      v-if="analyzeAllInProgress && !isSimpleMode"
-      class="stop-analysis-button"
-      @click="onStopAnalysis"  flat
+      v-if="!isSimpleMode"
+      :class="analyzeAllInProgress ? 'stop-analysis-button in-progress' : 'stop-analysis-button'"      @click="onStopAnalysis"  flat
       v-tooltip.top-center="`Stop analysis`" >
         <v-icon>stop</v-icon>
       </v-btn>
 
-      <v-spacer></v-spacer>
 
       <div id="call-variants-dropdown"
         v-if="isLoaded && hasAlignments && !isSimpleMode"
       >
         <v-menu offset-y>
-          <v-btn  slot="activator" flat
+          <v-btn  slot="activator" 
           v-tooltip.top-center="`Call variants from alignments`"
           class="call-variants-button">
             <v-icon>playlist_add</v-icon>
@@ -795,8 +799,8 @@
         </v-menu>
       </div>
       <v-btn
-      v-if="callAllInProgress "
-      class="stop-analysis-button"
+      v-if="isLoaded && hasAlignments && !isSimpleMode"
+      :class="callAllInProgress ? 'stop-analysis-button in-progress' : 'stop-analysis-button'"
       @click="onStopAnalysis" flat 
       v-tooltip.top-center="`Stop calling variants`" >
         <v-icon>stop</v-icon>

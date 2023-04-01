@@ -61,7 +61,7 @@
 #other-tracks-label
   font-weight: 400
   font-size: 13px
-  padding-top: 12px
+  padding-top: 11px
   margin-right: 15px
 
 </style>
@@ -69,7 +69,7 @@
 <template>
   <div>
 
-    <div v-if="!condensedView" style="display:flex;padding-top:10px;padding-bottom:0px">
+    <div v-if="!condensedView" style="display:flex;padding-top:0px;padding-bottom:0px">
        <div id="other-tracks-label">            
          Show tracks for
        </div>

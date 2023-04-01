@@ -35,6 +35,7 @@
     padding-left: 10px
     padding-right: 10px
     color: $link-color !important
+    margin-left: 41px
 
     .v-btn__content
       font-size: 13px
@@ -190,11 +191,11 @@
     font-size: 14px
 
   #variant-heading
-    color: $app-color
+    color: $heading-color
     padding-bottom: 5px
-    font-size: 16px
+    font-size: 17px
     padding-top: 0px
-    min-width: 180px
+    min-width: 193px
     display: flex
     justify-content: flex-start
 
@@ -365,74 +366,16 @@
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
-    <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:10px">
+    <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:5px">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left" style="display: inline-grid">
         <span class="pr-1" v-if="selectedVariantRelationship != 'proband'">
           <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
         </span>
 
-        <span>Variant in {{ selectedGene.gene_name }}</span>
+        <span>{{ selectedGene.gene_name }} VARIANT</span>
 
 
       </div>
-
-      <variant-interpretation 
-       v-if="!isSimpleMode && selectedVariant"
-       style="margin-bottom:4px;margin-right:5px;display: inline-block"
-       wrap="true"
-       :variant="selectedVariant"
-       :variantInterpretation="interpretation"
-       :interpretationMap="interpretationMap"
-       :showInterpretationLabel="true"
-       @apply-variant-interpretation="onApplyVariantInterpretation">
-      </variant-interpretation>
-
-      
-      <v-btn v-if="!isSimpleMode && selectedVariant && !showAssessment"  flat id="show-assessment-button" @click="onEnterComments">
-        Notes...
-      </v-btn>
-
-
-      <variant-links-menu
-      v-if="selectedVariant && info"
-      :selectedGene="selectedGene"
-      :selectedVariant="selectedVariant"
-      :geneModel="cohortModel.geneModel"
-      :info="info">
-      </variant-links-menu>
-
-      <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading) && !isSimpleMode"
-        style="font-size:13px;margin-top:2px;min-width:80px;margin-left:0px;margin-right:0px"
-        v-show="selectedVariantRelationship != 'known-variants'" class=" loader vcfloader" >
-        <img src="../../../assets/images/wheel.gif">
-        HGVS
-      </span>
-
-      <variant-aliases-menu
-      v-show="selectedVariant && (!info.HGVSpLoading || !info.HGVScLoading)"
-      v-if="selectedVariant && selectedVariantRelationship != 'known-variants' && !isSimpleMode"
-      :label="`HGVS`"
-      :selectedGene="selectedGene"
-      :selectedVariant="selectedVariant"
-      :geneModel="cohortModel.geneModel"
-      :info="info">
-      </variant-aliases-menu>
-
-      <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="!isSimpleMode && selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
-
-      <div v-if="info && info.rsId"  class="variant-header rsid"> {{info.rsId}}
-      <a  v-bind:href="info.dbSnpUrl" target="ClinVar" class="rsid-link">
-          <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 3px">open_in_new</i>
-      </a>
-      </div>
-
-      <app-icon
-       style="min-width:70px;margin-top:1px;margin-right:5px;padding-top: 1px;margin-right:10px"
-       icon="zygosity" v-if="selectedVariant && selectedVariant.zygosity"
-       :type="selectedVariant.zygosity.toLowerCase() + '-large'"
-       :isSimpleMode="isSimpleMode"
-       height="14" :width="isSimpleMode ? 90 : 35">
-      </app-icon>
 
       <span v-if="selectedVariant" class="variant-header" style="margin-top:2px">
 
@@ -443,9 +386,71 @@
 
       </span>
 
+      <app-icon
+       style="min-width:70px;margin-top:1px;margin-right:5px;padding-top: 1px;margin-right:10px"
+       icon="zygosity" v-if="selectedVariant && selectedVariant.zygosity"
+       :type="selectedVariant.zygosity.toLowerCase() + '-large'"
+       :isSimpleMode="isSimpleMode"
+       height="14" :width="isSimpleMode ? 90 : 35">
+      </app-icon>
 
+      <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="!isSimpleMode && selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
+
+
+      <div v-if="info && info.rsId"  class="variant-header rsid"> {{info.rsId}}
+        <a  v-bind:href="info.dbSnpUrl" target="ClinVar" class="rsid-link">
+            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 3px">open_in_new</i>
+        </a>
+      </div>
+
+     
+
+      <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading) && !isSimpleMode"
+        style="font-size:13px;margin-top:2px;min-width:80px;margin-left:0px;margin-right:0px"
+        v-show="selectedVariantRelationship != 'known-variants'" class=" loader vcfloader" >
+        <img src="../../../assets/images/wheel.gif">
+        HGVS
+      </span>
+      <variant-aliases-menu
+      v-show="selectedVariant && (!info.HGVSpLoading || !info.HGVScLoading)"
+      v-if="selectedVariant && selectedVariantRelationship != 'known-variants' && !isSimpleMode"
+      :label="`HGVS`"
+      :selectedGene="selectedGene"
+      :selectedVariant="selectedVariant"
+      :geneModel="cohortModel.geneModel"
+      :info="info">
+      </variant-aliases-menu>
 
       <span class="pl-3 variant-header aa-change" style="margin-top:2px">{{ aminoAcidChange }}</span>
+
+
+
+
+      <variant-links-menu
+      v-if="selectedVariant && info"
+      :selectedGene="selectedGene"
+      :selectedVariant="selectedVariant"
+      :geneModel="cohortModel.geneModel"
+      :info="info">
+      </variant-links-menu>
+    </div>
+
+    <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:0px;margin-left:193px">
+      <variant-interpretation 
+       v-if="!isSimpleMode && selectedVariant"
+       style="margin-bottom:4px;margin-right:5px;display: inline-block"
+       wrap="true"
+       :variant="selectedVariant"
+       :variantInterpretation="interpretation"
+       :interpretationMap="interpretationMap"
+       :showInterpretationLabel="true"
+       @apply-variant-interpretation="onApplyVariantInterpretation">
+      </variant-interpretation>
+      
+      <v-btn v-if="!isSimpleMode && selectedVariant && !showAssessment"  flat id="show-assessment-button" @click="onEnterComments">
+        <v-icon style="margin-right:4px">speaker_notes</v-icon>
+        Notes...
+      </v-btn>
 
 
     </div>
@@ -790,7 +795,6 @@
 import Vue                      from "vue"
 import AppIcon                  from "../partials/AppIcon.vue"
 import VariantInterpretation    from '../partials/VariantInterpretation.vue'
-import VariantNotesDialog       from '../partials/VariantNotesDialog.vue'
 import VariantInspectRow        from "../partials/VariantInspectRow.vue"
 import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
 import VariantInspectInheritanceRow from "../partials/VariantInspectInheritanceRow.vue"
@@ -821,7 +825,6 @@ export default {
     VariantLinksMenu,
     VariantAliasesMenu,
     VariantInterpretation,
-    VariantNotesDialog,
     VariantInspectRow,
     VariantInspectQualityRow,
     VariantInspectInheritanceRow,
@@ -1953,11 +1956,14 @@ export default {
         this.selectedGeneSources.sourceIndicator = this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].sourceIndicator;
         return this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].sourceIndicator;
       }
+    },
+
+    refreshVariantInterpretation: function() {
+      this.interpretation = this.selectedVariant.interpretation;
     }
   },
 
   watch: {
-
     selectedPhenotype: function(){
         this.initGenePhenotypeHits();
     },

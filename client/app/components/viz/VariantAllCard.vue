@@ -19,8 +19,8 @@
     min-width: 193px
     max-width: 193px
     padding-top: 2px
-    color: $app-color
-    font-size: 16px
+    color: $heading-color
+    font-size: 17px
 
   #loaded-count
     color: $text-color
@@ -94,8 +94,8 @@
 
 
   .chart-label
-    font-size: 12px
-    color: $app-color
+    font-size: 13px
+    color: $heading-color
 
 
   .gene-viz-zoom
@@ -112,7 +112,7 @@
     padding-top: 0 !important
     margin-top: 0 !important
     margin-right: 20px
-    margin-left: 10px
+    margin-left: 40px
 
     label
       padding-left: 0
@@ -124,7 +124,7 @@
       color: $text-color
 
   .badge, .v-badge
-    background-color: white
+    background-color: transparent !important
     color: $text-color
     font-weight: normal
     font-size: 13px
@@ -140,7 +140,7 @@
     &.loaded
       padding-top: 4px
       padding-left: 0
-      margin-left: 15px
+      margin-left: 10px
       .badge__badge, .v-badge__badge
         background-color: #efeeee !important
         border: thin solid #bfbdbd !important
@@ -324,21 +324,13 @@
 </style>
 <template>
   <v-card tile id="variant-card" class="app-card">
-    <div style="display: flex;margin-bottom: 10px; padding-top: 5px">
+    <div style="display: flex;margin-bottom: 0px; padding-top: 5px">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
         <span style="display:inline-block"
-        v-if="selectedGene"> {{ sampleRelLabel }} in {{ selectedGene.gene_name }}</span>
+        v-if="selectedGene"> {{ selectedGene.gene_name }} {{ sampleRelLabel }}</span>
       </span>
-
-      <v-switch
-              v-if="sampleModel.relationship === 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && !isEduMode && !isBasicMode && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
-              class="zoom-switch" style="max-width:80px;"
-              label="Zoom"
-              v-model="showZoom"
-              :hide-details="true">
-      </v-switch>
 
       <div>
         <div style="height: 4px"></div>
@@ -359,6 +351,15 @@
         </v-badge>
       </div>
 
+
+      <v-switch
+              v-if="sampleModel.relationship === 'proband' && sampleModel.loadedVariants && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name]  && isSimpleMode"
+              class="zoom-switch" style="max-width:80px;"
+              label="Zoom"
+              v-model="showZoom"
+              :hide-details="true">
+      </v-switch>
+
       <v-spacer></v-spacer>
 
       <sfari-variants-toolbar
@@ -367,7 +368,7 @@
         @sfariVariantsFilterChange="onSfariVariantsFilterChange">
       </sfari-variants-toolbar>
 
-      <div style="margin-top:8px;margin-left: 20px;margin-right: 0px;" >
+      <div style="margin-top:8px;margin-left: 20px;margin-right: 0px;margin-bottom:-20px" >
         <variant-toggle 
                 v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz && (isMother || isFather)"
                 :variants="sampleModel.loadedVariants"
@@ -401,7 +402,7 @@
       </div>
     </div>
 
-    <div style="width:100%">
+    <div style="width:100%;margin-top:0px">
       <gene-viz class="gene-viz-zoom"
       v-if="showZoom"
       :data="[selectedTranscript]"
@@ -421,7 +422,7 @@
       </gene-viz>
       <div class="chart-label"
       v-if="showVariantViz && !isSimpleMode && selectedGene && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name] && sampleModel.cohort.geneModel.geneDangerSummaries[selectedGene.gene_name].CALLED && sampleModel.calledVariants && sampleModel.calledVariants.features.length > 0">
-        Called variants
+        {{ sampleLabel }} called variants
       </div>
 
       <div
@@ -460,7 +461,7 @@
       <div class="chart-label"
       v-show="!isEduMode && !isBasicMode && showVariantViz && sampleModel.loadedVariants && sampleModel.relationship !== 'known-variants' && sampleModel.relationship !== 'sfari-variants' && !(sampleModel.isSfariSample && blacklistedGeneSelected)"
       >
-        {{ isSimpleMode ? '' : 'Proband variants  ' }}  {{ isSimpleMode ? '' : sampleLabel }}
+        {{ isSimpleMode ? '' : sampleLabel }} {{ isSimpleMode ? '' : ' variants'}}
       </div>
 
       <div v-if="(sampleModel.relationship === 'sfari-variants' || sampleModel.isSfariSample) && blacklistedGeneSelected"
@@ -509,7 +510,7 @@
 
       <div class="chart-label"
       v-if="showDepthViz && sampleModel.coverage && sampleModel.coverage.length > 1 && !(sampleModel.isSfariSample && blacklistedGeneSelected)">
-        {{ isSimpleMode ? '' : 'Proband' }} coverage
+        {{ isSimpleMode ? '' : sampleModel.name }} coverage
       </div>
 
       <div id="bam-track">
@@ -556,6 +557,7 @@
 
       <optional-tracks-menu
               v-show="!isEduMode && !isBasicMode && !isSimpleMode"
+              style="margin-top:-5px"
               :forceKnownVariantsViz="forceKnownVariantsViz"
               :condensedView="false"
               @show-known-variants-card="onShowKnownVariantsCard"
@@ -658,6 +660,7 @@
 
 
 import GeneViz              from "../viz/GeneViz.vue"
+import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
 import VariantViz           from "../viz/VariantViz.vue"
 import DepthViz             from "../viz/DepthViz.vue"
 import RankedVariantsMenu   from "../viz/RankedVariantsMenu.vue"
@@ -681,6 +684,7 @@ export default {
     SfariVariantsToolbar,
     StackedBarChartViz,
     OptionalTracksMenu,
+    TranscriptsMenu
   },
   props: {
     globalAppProp: null,  //For some reason, global mixin not working on variant card.  possible cause for-item?
@@ -755,7 +759,7 @@ export default {
         left: 4
       },
       zoomStart: null,
-      soomEnd: null,
+      zoomEnd: null,
 
       depthVizMargin: {
         top: 32,
@@ -781,7 +785,15 @@ export default {
       filteredVariants: null,
       pileupStyle: {},
       showFilter: false,
-      showPopup: false
+      showPopup: false,
+
+
+      geneSource: null,
+      noTranscriptsWarning: null,
+      showNoTranscriptsWarning: false,
+      analyzedTranscript: null
+
+
     }
   },
 
@@ -1294,7 +1306,7 @@ export default {
         }
       }
       return label;
-    },
+    }
 
   },
 
@@ -1323,7 +1335,7 @@ export default {
           label += "Variants ";
         }
       }
-      return label;
+      return label.toUpperCase();
     },
     sampleLabel: function() {
       let label = "";
@@ -1340,7 +1352,6 @@ export default {
   },
 
   watch: {
-  
     regionStart: function(){
       if(this.zoomStart !== this.regionStart && this.showZoom) {
         this.$emit('gene-region-zoom', this.zoomStart, this.zoomEnd);
@@ -1360,11 +1371,10 @@ export default {
     clearZoom: function() {
       this.showZoom = false;
       this.zoomMessage = "Drag to zoom";
-    },
+    }
   },
 
   mounted: function() {
-    this.relationship = this.sampleModel.relationship;
   },
 
   created: function() {

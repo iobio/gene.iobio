@@ -42,6 +42,8 @@ class GeneModel {
         clinvar:   { display: 'ClinVar',      url: 'https://www.ncbi.nlm.nih.gov/clinvar/variation/VARIANT-CLINVAR-UID/'}
     }
 
+    this.geneSources = ['gencode', 'refseq'];
+
     this.geneSource = null;
     this.refseqOnly = {};
     this.gencodeOnly = {};
@@ -841,7 +843,6 @@ class GeneModel {
       let theGeneNames = geneNames.filter(function(geneName) {
         return me.geneNCBISummaries[geneName] == null;
       })
-      console.log("gene names to get ncbi gene info " + theGeneNames)
 
       if (theGeneNames.length == 0) {
         resolve();
@@ -857,7 +858,6 @@ class GeneModel {
             searchGeneExpr += geneName + "[Gene name]";
           }
         })
-        console.log("searching for NCBI gene summaries for " + searchGeneExpr)
         var searchUrl = me.NCBI_GENE_SEARCH_URL + "&term=" + "(9606[Taxonomy ID] AND (" + searchGeneExpr + "))";
         me.pendingNCBIRequests[theGeneNames] = true;
 

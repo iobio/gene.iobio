@@ -975,7 +975,7 @@ class SampleModel {
       if (vcfUrl == null || vcfUrl == '') {
         me.vcfUrlEntered = false;
         me.vcf.clearVcfURL();
-        reject("Unable to to load variant file. No URL has been specified.")
+        resolve([])
 
       } else {
         me.vcfUrlEntered = true;
@@ -1231,7 +1231,7 @@ class SampleModel {
 
 
       // A gene has been selected.  Read the bam file to obtain
-      // the read converage.
+      // the read coverage.
       var refName = me.getBamRefName(gene.chr);
       me.promiseGetVcfData(gene, selectedTranscript)
       .then(function(data) {

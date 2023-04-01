@@ -137,19 +137,19 @@ $light-gray-color:   #f0f1f3
       height: 48px
       width: 310px
       margin-bottom: 10px
-      background-color: white
-      color: $accent-color
+      background-color: $accent-color
+      color: white
       margin-bottom: 30px
       font-family:  $button-font
 
       i.material-icons
         font-size: 26px
         width: 26px
-        color: $accent-color
+        color: white
         margin-right: 7px
 
       .btn__content, .v-btn__content
-        color: $accent-color
+        color: white
         font-weight: 500
 
     button.welcome-button-outline
@@ -540,7 +540,7 @@ $light-gray-color:   #f0f1f3
               </v-alert>
               </div>
             <transition-group  name="fadeDown" tag="div" >
-              <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group"
+                <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group"
                    style="text-align:center;animation-duration: 1s;">
                 <v-btn class="welcome-button"  v-if="resume"  @click="onResume">
                   <i class="material-icons">play_circle_outline</i>
@@ -550,16 +550,16 @@ $light-gray-color:   #f0f1f3
                   <i class="material-icons">history</i>
                   START NEW ANALYSIS
                 </v-btn>
-                  <v-btn v-if="!resume" class="welcome-button-outline"  id="load-demo-data"  @click="onLoadDemoData">
-                  <v-icon>tour</v-icon>
+                  <v-btn v-if="!resume" class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
+                  <v-icon>play_circle</v-icon>
                   RUN WITH DEMO DATA
                 </v-btn>
-                <v-btn v-if="!resume" class="welcome-button-outline"  id="uploadData"  @click="onUploadFiles">
+                <v-btn v-if="!resume" class="welcome-button"  id="uploadData"  @click="onUploadFiles">
                   <v-icon>file_upload</v-icon>
                   LOAD YOUR DATA
                 </v-btn>
-                <v-btn v-if="!resume"  class="welcome-button-outline"  @click="playVideo('screencast-intro')">
-                  <i class="material-icons">play_circle_filled_white</i>
+                <v-btn v-if="!resume"  class="welcome-button"  @click="playVideo('screencast-intro')">
+                  <i class="material-icons">movie</i>
                   WATCH THE VIDEO
                 </v-btn>
               </div>

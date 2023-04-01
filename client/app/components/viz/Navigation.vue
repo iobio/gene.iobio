@@ -1437,7 +1437,6 @@ export default {
       showKnownVariantsCard: false,
 
       geneSource: null,
-      geneSources: ['gencode', 'refseq'],
 
       analysisFileName: "",
 
@@ -1649,9 +1648,9 @@ export default {
     onFlaggedVariantsImported: function() {
       this.$emit("flagged-variants-imported")
     },
-    onFilesLoaded: function(analyzeAll) {
+    onFilesLoaded: function(analyzeAll, clearSession) {
       this.showFiles = false;
-      this.$emit("on-files-loaded", analyzeAll);
+      this.$emit("on-files-loaded", analyzeAll, clearSession);
     },
     onCloseFilesDialog: function() {
       this.showFiles = false

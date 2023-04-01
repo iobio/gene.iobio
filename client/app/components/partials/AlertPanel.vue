@@ -50,6 +50,7 @@
     margin-bottom: 0px
     padding-left: 2px 
     padding-right: 2px
+    white-space: normal
 
   .alert-title
     color:  $app-color

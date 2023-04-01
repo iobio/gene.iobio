@@ -61,7 +61,7 @@ i.material-icons.interpretation
       i.material-icons
         color: white !important
 
-  .theme--light.v-text-field > .v-input__control > .v-input__slot:before
+  .v-input__slot:before
     border-color: transparent !important
 
 .interpretation-choices
@@ -137,6 +137,11 @@ i.material-icons.interpretation
         i.material-icons
           color: white !important
           margin-top: -4px
+  &.not-reviewed
+    .v-input__append-inner
+      .v-input__icon--append
+        i.material-icons
+          color: $not-reviewed-text-color !important
 
   .v-input__icon
     i.material-icons

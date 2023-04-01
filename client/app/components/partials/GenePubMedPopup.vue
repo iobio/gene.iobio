@@ -22,6 +22,7 @@
       min-height: 500px
       overflow-y: scroll
       margin-top: 10px
+      font-size: 13px !important
     .v-text-field.v-input
       margin-top: -10px
 
@@ -30,7 +31,7 @@
 </style>
 <template>
 
-    <v-dialog  width="740"  v-model="showPopup" lazy >
+    <v-dialog  width="840"  v-model="showPopup" lazy >
       <v-btn id="show-all-pubmed-button" flat  slot="activator">
         show all
       </v-btn>

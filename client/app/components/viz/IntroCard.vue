@@ -31,9 +31,9 @@
     margin-top: -7px
 
     button
-      background-color: $link-color-bright !important
+      background-color: $button-color !important
       .v-btn__content 
-        color: white !important
+        color: $button-text-color !important
 
 
 </style>

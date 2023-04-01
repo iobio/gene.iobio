@@ -36,8 +36,8 @@
       max-width: 300px
     .omim-inheritance
       display: inline-block
-      min-width: 100px
-      max-width: 100px
+      min-width: 150px
+      max-width: 150px
 </style>
 
 <style lang="css">
@@ -120,7 +120,7 @@
     <div class="title-row">
       <div class="table-title">OMIM Phenotypes</div>
     </div>
-    <div  style="max-height:158px;min-height:158px;overflow-y:scroll;padding-top:5px">
+    <div  style="max-height:108px;min-height:108px;overflow-y:scroll;padding-top:5px">
       <div class="omim-row" v-for="entry in omimEntries" :key="entry.phenotypeMimNumber">
           <span class="omim-launch" >
             <a :href="getEntryHref(entry.phenotypeMimNumber)" target="_omim">

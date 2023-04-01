@@ -69,7 +69,7 @@
           <v-layout v-if="!settingsCoverageOnly" row wrap class="mt-4">
             <v-flex xs6>
               <v-select
-                v-bind:items="geneSources"
+                v-bind:items="geneModel.geneSources"
                 v-model="geneSource"
                 label="Gene source"
                 item-value="text"
@@ -165,7 +165,6 @@ export default {
       buildName: null,
 
       geneSource: null,
-      geneSources: ['gencode', 'refseq'],
 
       phenolyzerTop: null,
       phenolyzerTopCounts: [5, 10, 20, 30, 50, 80, 100],

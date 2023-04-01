@@ -100,10 +100,17 @@ main.content, main.v-content
   .variant-assessment-heading
     color: $app-color
     margin-bottom: 5px
-    font-size: 16px
     padding-top: 5px
     display: flex
-    justify-content: space-between
+    justify-content: flex-start
+
+    .icon-left
+       margin-right: 4px
+       color: $heading-color
+
+    .heading-text
+      color: $heading-color
+      font-size: 17px
 
 
   #variant-assessment-close-button
@@ -152,7 +159,7 @@ main.content.clin, main.v-content.clin
   font-weight: 400
 
   .v-progress-circular
-    color: $button-color-bright
+    color: $button-color
 
 
 
@@ -236,7 +243,6 @@ main.content.clin, main.v-content.clin
 
 .dark-text-important
   color: #626262 !important
-
 
 
 </style>
@@ -447,34 +453,33 @@ main.content.clin, main.v-content.clin
           :launchedFromHub="launchedFromHub"
           :showSfariTrackToggle="cohortModel && cohortModel.isSfariProject"
           :isLoaded="cohortModel && cohortModel.isLoaded"
-          @transcript-selected="onTranscriptSelected"
-          @gene-source-selected="onGeneSourceSelected"
           @gene-region-buffer-change="onGeneRegionBufferChange"
           @no-data-warning="onNoDataWarning">
         </gene-variants-card>
 
-        <div v-if="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
-          v-show="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin"
+        <div v-if="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin && !isSimpleMode && !isBasicMode"
+          v-show="geneModel && (!launchedFromDemo && !launchedFromHub) && !launchedFromFiles && !launchedFromClin && !isSimpleMode && !isBasicMode"
           style="height: 15px">
         </div>
 
-        <gene-viz class="gene-viz-zoom"
-                    v-if="geneModel && selectedGene && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin) && !isBasicMode && !isSimpleMode"
-                    v-show="geneModel && (!launchedFromDemo && !launchedFromHub && !launchedFromFiles && !launchedFromClin) && !isBasicMode && !isSimpleMode"
-                    :data="[selectedTranscript]"
-                    :margin="geneVizMargin"
-                    :height="40"
-                    :width="cardWidth"
-                    :isStandalone="true"
-                    :showXAxis="true"
-                    :trackHeight="geneVizTrackHeight"
-                    :cdsHeight="geneVizCdsHeight"
-                    :regionStart="parseInt(selectedGene.start)"
-                    :regionEnd="parseInt(selectedGene.end)"
-                    :showBrush="false">
-        </gene-viz>
-
       </v-card>
+
+      <transcript-card v-if="!showWelcome && geneModel && !isSimpleMode && !isEduMode && !isBasicMode && geneModel && selectedGene && Object.keys(selectedGene).length > 0 && selectedTranscript" style="margin-bottom:5px"
+        :cardWidth="cardWidth"
+        :selectedGene="selectedGene"
+        :selectedTranscript="selectedTranscript"
+        :analyzedTranscript="analyzedTranscript"
+        :cohortModel="cohortModel"
+        :geneVizMargin="geneVizMargin"
+        :geneVizWidth="cardWidth"
+        :geneVizTrackHeight="geneVizTrackHeight"
+        :geneVizCdsHeight="geneVizCdsHeight"
+        :regionStart="parseInt(selectedGene.start)"
+        :regionEnd="parseInt(selectedGene.end)"
+        @transcriptSelected="onTranscriptSelected"
+        @gene-region-zoom="onGeneRegionZoom"
+        @gene-region-zoom-reset="onGeneRegionZoomReset">    
+      </transcript-card>
 
       <variant-all-card
         ref="variantCardProbandRef"
@@ -600,7 +605,9 @@ main.content.clin, main.v-content.clin
             v-if="cohortModel && cohortModel.isLoaded && selectedGene && selectedVariant && Object.keys(selectedGene).length > 0 && !isBasicMode && (hasVariantAssessment || showVariantAssessment)"
             style="overflow-y:scroll;max-width:320px;margin-left:5px">
             <div class="variant-assessment-heading">
-              Variant notes
+              <v-icon class="icon-left">speaker_notes</v-icon>
+              <span class="heading-text">Variant notes</span>
+              <v-spacer></v-spacer>
               <v-btn  id="variant-assessment-close-button" class="toolbar-button" flat @click="showVariantAssessmentClose()">
                 <v-icon >close</v-icon>
               </v-btn>
@@ -722,6 +729,7 @@ import EduTourBanner from '../viz/EduTourBanner.vue'
 import Welcome from '../viz/Welcome.vue'
 import IntroCard from '../viz/IntroCard.vue'
 import GeneCard from '../viz/GeneCard.vue'
+import TranscriptCard from '../viz/TranscriptCard.vue'
 import VariantDetailCard from '../viz/VariantDetailCard.vue'
 import VariantInspectCard from '../viz/VariantInspectCard.vue'
 import VariantAssessment from "../partials/VariantAssessment.vue"
@@ -763,6 +771,7 @@ import SaveAnalysisPopup from '../partials/SaveAnalysisPopup.vue'
 
 import VuePileup from 'vue-pileup'
 import GeneViz from "../viz/GeneViz.vue"
+import TranscriptsMenu from "../partials/TranscriptsMenu.vue"
 
 
 export default {
@@ -774,6 +783,7 @@ export default {
       Welcome,
       GenesCard,
       GeneCard,
+      TranscriptsMenu,
       GeneViz,
       GeneVariantsCard,
       ScrollButton,
@@ -788,7 +798,8 @@ export default {
       CoverageThresholdCard,
       OptionalTracksCard,
       VariantAssessment,
-      VariantAllCard
+      VariantAllCard,
+      TranscriptCard
   },
   props: {
     paramGene:             null,
@@ -843,8 +854,8 @@ export default {
       },
       stashedVariant: null,
 
-      geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,
-      geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,
+      geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 32,
+      geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 24,
 
       greeting: 'gene.iobio',
       launchedFromClin:   false,
@@ -2475,6 +2486,12 @@ export default {
               self.selectedTranscript = latestTranscript;
             }
           }
+          // The gene might be entered before we the variant data has been loaded;
+          // In this case we want to show the transcript menu and gene viz, so
+          // make sure the analyzedTranscript field is initialized.
+          if (Object.keys(self.analyzedTranscript).length == 0 && self.selectedTranscript != null) {
+            self.analyzedTranscript = self.selectedTranscript;
+          }
           if (self.$refs.scrollButtonRefGene) {
             self.$refs.scrollButtonRefGene.showScrollButtons();
           }
@@ -3488,6 +3505,9 @@ export default {
 
       if(typeof variant.interpretation === 'undefined' || (variant.interpretation === "not-reviewed")){
         variant.interpretation = 'uncertain-sig';
+        if (self.$refs.variantInspectRef) {
+          self.$refs.variantInspectRef.refreshVariantInterpretation();
+        }
         self.onApplyVariantInterpretation(variant);
       }
       

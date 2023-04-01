@@ -548,7 +548,8 @@ export default {
         .then(function () {
           let performAnalyzeAll = self.demoAction ? true : false;
           self.inProgress = false;
-          self.$emit("on-files-loaded", performAnalyzeAll);
+          let clearCache = true;
+          self.$emit("on-files-loaded", performAnalyzeAll, clearCache);
           self.showFilesDialog = false;
         })
       }

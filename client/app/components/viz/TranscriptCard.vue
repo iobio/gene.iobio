@@ -1,0 +1,179 @@
+ <style lang="sass">
+@import ../../../assets/sass/variables
+
+
+#transcript-card
+
+  #sample-label
+    vertical-align: top
+    display: inline-block
+    min-width: 193px
+    max-width: 193px
+    padding-top: 2px
+    color: $heading-color
+    font-size: 17px
+    margin-right: 4px 
+    padding-top: 2px 
+    display: flex 
+    align-items: center
+
+  #edit-transcript-button
+    .v-badge.info 
+      background-color: transparent !important
+
+  .hint 
+    font-style: italic 
+    font-size: 13px
+    padding-left: 10px
+    padding-right: 10px
+    background-color: #e7e7e7
+    border: thin solid #e7e7e7 !important
+    font-weight: 500
+
+    &.emphasize
+      background-color: $hint-background-color !important
+      border: thin solid #a7a3a3 !important
+  
+    
+</style>
+
+<template>
+  <v-card id="transcript-card" @click="onClickOutsideBoundingBox">
+    <div style="display:flex;margin-bottom:10px;align-items:center">
+      <div id="sample-label">
+        <div>{{ selectedGene.gene_name }} TRANSCRIPT</div>
+      </div>
+
+      <div style="display: flex;align-items: center;padding-top: 2px;">
+          <transcripts-menu v-if="selectedGene && Object.keys(selectedGene).length > 0 && selectedTranscript && selectedTranscript.transcript_id && analyzedTranscript && analyzedTranscript.transcript_id"
+          :selectedGene="selectedGene"
+          :selectedTranscript="selectedTranscript"
+          :geneSources="cohortModel.geneModel.geneSources"
+          :geneModel="cohortModel.geneModel"
+          @transcriptSelected="onTranscriptSelected">
+          </transcripts-menu>
+      </div>
+
+      <div  :class="zoomClass" style="margin-left: 30px">{{ zoomMessage }}</div>
+
+    </div>
+
+    <div @click.stop="">
+
+      <gene-viz class="gene-viz-transcript-card"
+      v-if="showZoom"
+      :data="[selectedTranscript]"
+      :margin="geneVizMargin"
+      :height="40"
+      :width="cardWidth"
+      :isStandalone="true"
+      :showXAxis="true"
+      :trackHeight="geneVizTrackHeight"
+      :cdsHeight="geneVizCdsHeight"
+      :regionStart="regionStart"
+      :regionEnd="regionEnd"
+      :showBrush="true"
+      @region-zoom="onRegionZoom"
+      @region-zoom-reset="onRegionZoomReset">
+      </gene-viz>
+
+    </div>
+  </v-card>
+</template>
+
+<script>
+import GeneViz         from '../viz/GeneViz.vue'
+import TranscriptsMenu from '../partials/TranscriptsMenu.vue'
+
+export default {
+  name: 'transcript-card',
+  components: {
+    GeneViz,
+    TranscriptsMenu
+  },
+  props: {
+    selectedGene: null,
+    selectedTranscript: null,
+    analyzedTranscript: null,
+    cohortModel: null,
+    geneVizMargin: null,
+    geneVizWidth: null,
+    geneVizCdsHeight: null,
+    geneVizTrackHeight: null,
+    regionStart: null,
+    regionEnd: null,
+    cardWidth: null,
+  },
+  data () {
+    return {
+      showZoom: true,
+      zoomMessage: "Click and drag to zoom into a region",
+      zoomStart: null,
+      zoomEnd: null,
+      zoomClass: 'hint'
+    }
+  },
+  watch: {
+    regionStart: function(){
+      if(this.zoomStart !== this.regionStart) {
+        this.$emit('gene-region-zoom', this.zoomStart, this.zoomEnd);
+      }
+    },
+    regionEnd: function(){
+      if(this.zoomEnd !== this.regionEnd) {
+        this.$emit('gene-region-zoom', this.zoomStart, this.zoomEnd);
+      }
+    },
+    clearZoom: function() {
+      this.zoomClass = "hint"
+      this.zoomMessage = "Click and drag to zoom into a region";
+    }
+
+  },
+  methods: {
+    onTranscriptSelected: function(transcript) {
+      this.$emit("transcriptSelected", transcript)
+    },
+    getExonClass: function(exon, i, relationship) {
+      if (exon.danger) {
+        return exon.feature_type.toLowerCase() + (exon.danger[relationship] ? " danger" : "");
+      } else {
+        return exon.feature_type.toLowerCase();
+      }
+    },
+    onRegionZoom: function(regionStart, regionEnd) {
+      this.zoomMessage = "Click outside of bounding box to zoom out";
+      this.zoomStart = regionStart;
+      this.zoomEnd = regionEnd;
+      this.zoomClass = "hint emphasize"
+      this.$emit('gene-region-zoom', regionStart, regionEnd);
+    },
+    onRegionZoomReset: function() {
+      
+      this.zoomClass = "hint"
+      this.zoomMessage = "Click and drag to zoom into a region";
+      this.$emit('gene-region-zoom-reset');
+    },
+    onClickOutsideBoundingBox: function() {
+      let self = this;
+      this.zoomClass = "hint"
+      this.zoomMessage = "Click and drag to zoom into a region";
+      this.$emit('gene-region-zoom-reset');
+
+      this.showZoom = false;
+      setTimeout(function() {
+        self.zoomStart = null;
+        self.zoomEnd = null;
+        self.showZoom = true;
+      }, 500)
+    }
+
+
+  },
+  mounted: function() {
+  },
+  computed: {
+  }
+}
+
+</script>
