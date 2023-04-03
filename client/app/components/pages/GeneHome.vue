@@ -48,8 +48,8 @@
 
     button
       position:   relative
-      top:        -28px
-      right:      3px
+      top:        -20px
+      right:      -15px
       margin-left: 0px !important
 
 
@@ -472,8 +472,8 @@ main.content.clin, main.v-content.clin
         :cohortModel="cohortModel"
         :geneVizMargin="geneVizMargin"
         :geneVizWidth="cardWidth"
-        :geneVizTrackHeight="geneVizTrackHeight"
-        :geneVizCdsHeight="geneVizCdsHeight"
+        :geneVizTrackHeight="geneVizTrackHeight + 5"
+        :geneVizCdsHeight="geneVizCdsHeight + 5"
         :regionStart="parseInt(selectedGene.start)"
         :regionEnd="parseInt(selectedGene.end)"
         @transcriptSelected="onTranscriptSelected"

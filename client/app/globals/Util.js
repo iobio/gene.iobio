@@ -126,7 +126,11 @@ class Util {
 
       if (feature.geneCoverage && feature.geneCoverage[relationship]) {
           var covFields = filterModel.whichLowCoverage(feature.geneCoverage[relationship]);
-          html += "<div style='margin-top:4px'>" + "Coverage:"
+          var cutoffHeading = "";
+          if (filterModel.isLowCoverage(feature.geneCoverage[relationship])) {
+            cutoffHeading = "<span>Cutoff not met</span>"
+          }
+          html += "<div style='margin-top:4px'>" + "<span style='display:inline-block;width:80px'>Coverage</span>" + cutoffHeading 
                +  coverageRow('min',    feature.geneCoverage[relationship].min, covFields)
                +  coverageRow('median', feature.geneCoverage[relationship].median, covFields)
                +  coverageRow('mean',   feature.geneCoverage[relationship].mean, covFields)

@@ -324,7 +324,7 @@
 </style>
 <template>
   <v-card tile id="variant-card" class="app-card">
-    <div style="display: flex;margin-bottom: 0px; padding-top: 5px">
+    <div style="display: flex;margin-bottom: 0px;">
       <span
          id="sample-label"
          v-bind:class="sampleModel.relationship">
@@ -1235,6 +1235,7 @@ export default {
       if (lock) {
         tooltip.select("#exon-tooltip-thresholds").on("click", function() {
           self.$emit("show-coverage-cutoffs");
+          self.selectedExon = null;
           self.hideExonTooltip(true);
         })
         tooltip.select("#exon-tooltip-close").on("click", function() {

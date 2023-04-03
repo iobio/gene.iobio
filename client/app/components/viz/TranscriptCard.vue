@@ -26,25 +26,25 @@
     font-size: 13px
     padding-left: 10px
     padding-right: 10px
-    background-color: #e7e7e7
+    margin-top: 8px
     border: thin solid #e7e7e7 !important
-    font-weight: 500
 
     &.emphasize
       background-color: $hint-background-color !important
       border: thin solid #a7a3a3 !important
+      font-weight: 500
   
     
 </style>
 
 <template>
   <v-card id="transcript-card" @click="onClickOutsideBoundingBox">
-    <div style="display:flex;margin-bottom:10px;align-items:center">
+    <div style="display:flex;margin-bottom:5px;align-items:center">
       <div id="sample-label">
         <div>{{ selectedGene.gene_name }} TRANSCRIPT</div>
       </div>
 
-      <div style="display: flex;align-items: center;padding-top: 2px;">
+      <div style="display: flex;align-items: center;padding-top: 8px;">
           <transcripts-menu v-if="selectedGene && Object.keys(selectedGene).length > 0 && selectedTranscript && selectedTranscript.transcript_id && analyzedTranscript && analyzedTranscript.transcript_id"
           :selectedGene="selectedGene"
           :selectedTranscript="selectedTranscript"
@@ -64,7 +64,7 @@
       v-if="showZoom"
       :data="[selectedTranscript]"
       :margin="geneVizMargin"
-      :height="40"
+      :height="geneVizTrackHeight"
       :width="cardWidth"
       :isStandalone="true"
       :showXAxis="true"
