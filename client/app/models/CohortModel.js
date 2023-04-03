@@ -60,7 +60,7 @@ class CohortModel {
         'proband': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12878.cram',
         'mother':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12892.cram',
         'father':  'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12891.cram',
-        'sibling': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12877.cram'
+       // 'sibling': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_exomes/NA12877.cram'
       },
       'genome': {
         'proband': 'https://iobio.s3.amazonaws.com/samples/cram/2021_platinum/GRCh38_genomes/NA12878.cram',
@@ -98,7 +98,7 @@ class CohortModel {
         {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['proband'], 'bai': this.demoBams.exome['proband'] + '.crai' },
         {relationship: 'mother',  affectedStatus: 'unaffected', name: 'NA12892', 'sample': 'NA12892', sex: 'female',  'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['mother'], 'bai': this.demoBams.exome['mother'] + '.crai'  },
         {relationship: 'father',  affectedStatus: 'unaffected', name: 'NA12891', 'sample': 'NA12891', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['father'], 'bai': this.demoBams.exome['father'] + '.crai' },
-        {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['sibling'], 'bai': this.demoBams.exome['sibling'] + '.crai' },
+      //  {relationship: 'sibling', affectedStatus: 'unaffected', name: 'NA12877', 'sample': 'NA12877', sex: 'male',    'vcf': this.demoVcf.exome, 'tbi': this.demoVcf.exome + '.tbi', 'bam': this.demoBams.exome['sibling'], 'bai': this.demoBams.exome['sibling'] + '.crai' },
       ],
       'genome': [
         {relationship: 'proband', affectedStatus: 'affected',   name: 'NA12878', 'sample': 'NA12878', sex: 'female', 'vcf': this.demoVcf.genome, 'tbi': this.demoVcf.genome + '.tbi', 'bam': this.demoBams.genome['proband'], 'bai': this.demoBams.genome['proband'] + '.crai'  },
