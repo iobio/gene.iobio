@@ -224,7 +224,12 @@ class GeneModel {
           ranks = [];
           searchTerms[searchTerm] = ranks;
         }
-        ranks.push( {'rank': phenotypeGene.rank, 'source': 'Phenolyzer'});
+        let matchingRanks = ranks.filter(function(entry) {
+          return entry.source == 'Phenolyzer' && entry.rank == phenotypeGene.rank;
+        })
+        if (matchingRanks.length == 0) {
+          ranks.push( {'rank': phenotypeGene.rank, 'source': 'Phenolyzer'});
+        }
       })
     }
 
