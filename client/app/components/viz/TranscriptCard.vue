@@ -127,6 +127,9 @@ export default {
     clearZoom: function() {
       this.zoomClass = "hint"
       this.zoomMessage = "Click and drag to zoom into a region";
+    },
+    selectedGene: function() {
+      this.onClickOutsideBoundingBox();
     }
 
   },
@@ -156,6 +159,7 @@ export default {
     },
     onClickOutsideBoundingBox: function() {
       let self = this;
+      this.showZoom = false;
       this.zoomClass = "hint"
       this.zoomMessage = "Click and drag to zoom into a region";
       this.$emit('gene-region-zoom-reset');
