@@ -654,31 +654,12 @@ nav.toolbar, nav.v-toolbar
       </v-toolbar-side-icon>
 
 
-      <v-toolbar-title @click="onWelcome" style="font-weight:400;margin-top:-6px" v-text="title">
+      <v-toolbar-title style="font-weight:400;margin-top:-6px" v-text="title">
       </v-toolbar-title>
       <div style="margin-left:4px">v{{ globalApp.version }}</div>
 
       <v-spacer v-if="!isFullAnalysis"></v-spacer>
 
-      <v-btn  class="navbar-icon-button" v-if="(appAlerts && appAlerts.length > 0) || (badgeCounts && badgeCounts.coverage)" id="notification-button"  @click="onShowNotificationDrawer" flat 
-        v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
-        <v-badge right  >
-          <v-icon>notifications</v-icon>
-        </v-badge>
-      </v-btn>
-      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.error && appAlertCounts.error > 0"  id="error-badge" 
-        v-tooltip.bottom-left="{content: 'The app has encountered at an error. Click on notifications button (bell) to see details.'}">
-       error
-      </v-icon>
-      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.warning && appAlertCounts.warning > 0"  id="warning-badge" 
-        v-tooltip.bottom-left="{content: 'The app has issued a warning. Click on notifications button (bell) to see details.'}">
-        warning
-      </v-icon>
-
-      <v-icon id="coverage-badge" class="navbar-icon-button" v-if="badgeCounts && badgeCounts.coverage"
-           v-tooltip.bottom-left="{content: 'Some genes have insufficient sequence coverage (based in user-defined thresholds'}">
-        trending_down
-      </v-icon>
 
       <v-spacer></v-spacer>
 
@@ -744,6 +725,26 @@ nav.toolbar, nav.v-toolbar
 
       
       <v-spacer></v-spacer>
+      
+      <v-btn  class="navbar-icon-button" v-if="(appAlerts && appAlerts.length > 0) || (badgeCounts && badgeCounts.coverage)" id="notification-button"  @click="onShowNotificationDrawer" flat 
+        v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
+        <v-badge right  >
+          <v-icon>notifications</v-icon>
+        </v-badge>
+      </v-btn>
+      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.error && appAlertCounts.error > 0"  id="error-badge" 
+        v-tooltip.bottom-left="{content: 'The app has encountered at an error. Click on notifications button (bell) to see details.'}">
+       error
+      </v-icon>
+      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.warning && appAlertCounts.warning > 0"  id="warning-badge" 
+        v-tooltip.bottom-left="{content: 'The app has issued a warning. Click on notifications button (bell) to see details.'}">
+        warning
+      </v-icon>
+
+      <v-icon id="coverage-badge" class="navbar-icon-button" v-if="badgeCounts && badgeCounts.coverage"
+           v-tooltip.bottom-left="{content: 'Some genes have insufficient sequence coverage (based in user-defined thresholds'}">
+        trending_down
+      </v-icon>
 
 
       <v-btn id="settings-button" flat v-if="!isBasicMode && !isSimpleMode && !launchedFromClin" 
