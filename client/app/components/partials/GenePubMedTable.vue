@@ -21,8 +21,8 @@
         font-size: 17px
 
   .pubmed-rows
-    max-height: 122px 
-    min-height: 122px 
+    max-height: 62px 
+    min-height: 62px 
     overflow-y: scroll
     margin-top: 5px
 

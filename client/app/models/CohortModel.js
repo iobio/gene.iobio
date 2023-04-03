@@ -49,8 +49,7 @@ class CohortModel {
     this.flaggedVariants = [];
 
     this.knownVariantsViz = 'variants'; // variants, histo, histoExon
-      this.sfariVariantsViz = 'variants';
-
+    this.sfariVariantsViz = 'variants';
 
     this.demoVcf = {
       'exome': "https://iobio.s3.amazonaws.com/samples/vcf/2021_platinum/2021_platinum_exomes_GRCh38.vcf.gz",
@@ -127,8 +126,14 @@ class CohortModel {
     };
     this.myGene2GeneNames = ['KDM1A'];
 
-    this.dispatch = d3.dispatch("knownVariantsVizChange");
+    this.dispatch = d3.dispatch("alertIssued");
     d3.rebind(this, this.dispatch, "on");
+  }
+
+  getModelInfos() {
+    return this.getCanonicalModels().map(function(sampleModel) {
+        return sampleModel.getModelInfo()
+    })
   }
 
   promiseInitDemo(demoKind='exome') {
@@ -371,7 +376,8 @@ class CohortModel {
       var vcfPromise = null;
       if (modelInfo.vcf) {
         vcfPromise = new Promise(function(vcfResolve, vcfReject) {
-          vm.onVcfUrlEntered(modelInfo.vcf, modelInfo.tbi, function() {
+          vm.promiseLoadVcfUrl(modelInfo.vcf, modelInfo.tbi)
+          .then(function() {
             vm.setSampleName(modelInfo.sample);
             if (modelInfo.name && modelInfo.name != "") {
               vm.setName(modelInfo.name);
@@ -379,10 +385,9 @@ class CohortModel {
               vm.setName(modelInfo.sample);
             }
             vcfResolve();
-          })
-        },
-        function(error) {
-          vcfReject(error);
+          }).catch( function(error) {
+            vcfReject(error);
+          });
         });
       } else {
         vm.sampleName = null;
@@ -395,13 +400,14 @@ class CohortModel {
       var bamPromise = null;
       if (modelInfo.bam) {
         bamPromise = new Promise(function(bamResolve, bamReject) {
-          vm.onBamUrlEntered(modelInfo.bam, modelInfo.bai, function() {
-            bamResolve();
+          vm.promiseLoadBamUrl(modelInfo.bam, modelInfo.bai)
+          .then(function() {
+            bamResolve()
           })
-        },
-        function(error) {
-          bamReject(error);
-        });
+          .catch(function(error) {
+            bamReject(error);
+          });
+        })
       } else {
         vm.bam = null;
         bamPromise = Promise.resolve();
@@ -415,6 +421,9 @@ class CohortModel {
         self.sampleMap[modelInfo.relationship] = theModel;
 
         resolve();
+      })
+      .catch(function(error) {
+        reject(error)
       })
 
     })
@@ -496,14 +505,15 @@ class CohortModel {
       var vcfPromise = null;
       if (modelInfo.vcf) {
         vcfPromise = new Promise(function(vcfResolve, vcfReject) {
-          vm.onVcfUrlEntered(modelInfo.vcf, modelInfo.tbi, function() {
+          vm.promiseLoadVcfUrl(modelInfo.vcf, modelInfo.tbi)
+          .then( function() {
             vm.setSampleName(modelInfo.sample);
             vm.setName(modelInfo.relationship + " " + modelInfo.sample);
             vcfResolve();
           })
-        },
-        function(error) {
-          vcfReject(error);
+          .catch(function(error) {
+            vcfReject(error);
+          })
         });
       } else {
         vm.sampleName = null;
@@ -534,15 +544,16 @@ class CohortModel {
         vm.setName('Clinvar')
         var clinvarUrl  = self.globalApp.getClinvarUrl(self.genomeBuildHelper.getCurrentBuildName());
 
-        vm.onVcfUrlEntered(clinvarUrl, null, function() {
+        vm.promiseLoadVcfUrl(clinvarUrl, null)
+        .then(function() {
           self.sampleModels.push(vm);
 
           var sample = {'relationship': 'known-variants', 'model': vm};
           self.sampleMap['known-variants'] = sample;
 
           resolve(sample);
-        },
-        function(error) {
+        })
+        .catch(function(error) {
           reject(error);
         });
       })
@@ -552,110 +563,112 @@ class CohortModel {
   promiseAddSfariSample(projectId) {
       let self = this;
       if (self.sampleMap['sfari-variants']) {
-          return Promise.resolve();
+        return Promise.resolve();
       } else {
-          return new Promise(function(resolve,reject) {
-              let vm = new SampleModel(self.globalApp);
-              vm.setRelationship('sfari-variants');
-              vm.setName('SFARI');
+        return new Promise(function(resolve,reject) {
+          let vm = new SampleModel(self.globalApp);
+          vm.setRelationship('sfari-variants');
+          vm.setName('SFARI');
 
-              // Stable sorted url lists
-              let nameList = [],
-                  vcfUrlList = [],
-                  tbiUrlList = [];
+          // Stable sorted url lists
+          let nameList = [],
+              vcfUrlList = [],
+              tbiUrlList = [];
 
-              // Files coming back from Hub
-              let vcfFiles = null,
-                  tbiCsiFiles = null;
+          // Files coming back from Hub
+          let vcfFiles = null,
+              tbiCsiFiles = null;
 
-              self.hubSession.promiseGetFilesForProject(projectId)
-                  .then((data) => {
-                      // Stable sort by file type
-                      vcfFiles = data.data.filter(f => f.type === 'vcf');
-                      tbiCsiFiles = data.data.filter(f => f.type === 'tbi' || f.type === 'csi');
+          self.hubSession.promiseGetFilesForProject(projectId)
+          .then((data) => {
+              // Stable sort by file type
+              vcfFiles = data.data.filter(f => f.type === 'vcf');
+              tbiCsiFiles = data.data.filter(f => f.type === 'tbi' || f.type === 'csi');
 
-                      // Pull out combined vcfs from individual chromosome ones
-                      let sortedVcfFiles = [];
-                      vcfFiles.forEach((file) => {
-                          let phaseFile = false;
-                          let name = file.name;
-                          // SPECIAL CASE for SSC WES 37
-                          if (name === "ssc_wes.vcf.gz") {
-                            phaseFile = true;
-                          } else {
-                              let namePieces = name.split('.');
-                              namePieces.forEach((piece) => {
-                                  if (piece === 'all' || piece.includes('all')) {
-                                      phaseFile = true;
-                                  }
-                              });
-                          }
-                          if (phaseFile) {
-                              sortedVcfFiles.push(file);
-                          }
-                      });
-
-                      let sortedTbiCsiFiles = [];
-                      tbiCsiFiles.forEach((file) => {
-                          let phaseFile = false;
-                          let name = file.name;
-                          // SPECIAL CASE for SSC WES 37
-                          if (name === "ssc_wes.vcf.gz.tbi") {
+              // Pull out combined vcfs from individual chromosome ones
+              let sortedVcfFiles = [];
+              vcfFiles.forEach((file) => {
+                  let phaseFile = false;
+                  let name = file.name;
+                  // SPECIAL CASE for SSC WES 37
+                  if (name === "ssc_wes.vcf.gz") {
+                    phaseFile = true;
+                  } else {
+                      let namePieces = name.split('.');
+                      namePieces.forEach((piece) => {
+                          if (piece === 'all' || piece.includes('all')) {
                               phaseFile = true;
-                          } else {
-                              let namePieces = name.split('.');
-                              namePieces.forEach((piece) => {
-                                  if (piece === 'all' || piece.includes('all')) {
-                                      phaseFile = true;
-                                  }
-                              });
-                          }
-                          if (phaseFile) {
-                              sortedTbiCsiFiles.push(file);
                           }
                       });
+                  }
+                  if (phaseFile) {
+                      sortedVcfFiles.push(file);
+                  }
+              });
 
-                      // Check that we have matching data for all files
-                      if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
-                          console.log('WARNING: Mismatch on vcf and tbi files pulled from Mosaic for Sfari data. This is a problem.');
-                      } else if (sortedVcfFiles.length === 0 || sortedTbiCsiFiles.length === 0) {
-                          console.log('Did not obtain any project level files from Mosaic for Sfari data. This might be ok.');
-                      }
+              let sortedTbiCsiFiles = [];
+              tbiCsiFiles.forEach((file) => {
+                  let phaseFile = false;
+                  let name = file.name;
+                  // SPECIAL CASE for SSC WES 37
+                  if (name === "ssc_wes.vcf.gz.tbi") {
+                      phaseFile = true;
+                  } else {
+                      let namePieces = name.split('.');
+                      namePieces.forEach((piece) => {
+                          if (piece === 'all' || piece.includes('all')) {
+                              phaseFile = true;
+                          }
+                      });
+                  }
+                  if (phaseFile) {
+                      sortedTbiCsiFiles.push(file);
+                  }
+              });
 
-                      // Initialize sample model vcfs once we know how many we need
-                      vm.initSfariSample(sortedVcfFiles.length, self);
+              // Check that we have matching data for all files
+              if (sortedVcfFiles.length !== (sortedTbiCsiFiles.length)) {
+                  console.log('WARNING: Mismatch on vcf and tbi files pulled from Mosaic for Sfari data. This is a problem.');
+              } else if (sortedVcfFiles.length === 0 || sortedTbiCsiFiles.length === 0) {
+                  console.log('Did not obtain any project level files from Mosaic for Sfari data. This might be ok.');
+              }
 
-                      // Get urls for both vcf and tbi
-                      let urlPromises = [];
-                      for (let i = 0; i < sortedVcfFiles.length; i++) {
-                          let currVcf = sortedVcfFiles[i];
-                          let currTbi = sortedTbiCsiFiles[i];
-                          let urlP = self.promiseGetSignedUrls(currVcf, currTbi, projectId)
-                              .then((urlObj) => {
-                                  nameList.push(urlObj.name);
-                                  vcfUrlList.push(urlObj.vcf);
-                                  tbiUrlList.push(urlObj.tbi);
-                              });
-                          urlPromises.push(urlP);
-                      }
-                      // Sort data by chromosome once we have all urls
-                      Promise.all(urlPromises)
-                          .then(() => {
-                              vm.onHubVcfUrlsEntered(vcfUrlList, tbiUrlList, function() {
-                                self.sampleModels.push(vm);
-                                let sample = {'relationship': 'sfari-variants', 'model': vm};
-                                self.sampleMap['sfari-variants'] = sample;
-                                resolve(sample);
-                              });
-                          })
-                          .catch((error) => {
-                              reject('There was a problem adding hub data to sample model: ' + error);
-                          });
-                  })
-                  .catch((error) => {
-                    console.log('There was a problem unpacking file data from Hub for Sfari variants: ' + error);
-                  });
+              // Initialize sample model vcfs once we know how many we need
+              vm.initSfariSample(sortedVcfFiles.length, self);
+
+              // Get urls for both vcf and tbi
+              let urlPromises = [];
+              for (let i = 0; i < sortedVcfFiles.length; i++) {
+                  let currVcf = sortedVcfFiles[i];
+                  let currTbi = sortedTbiCsiFiles[i];
+                  let urlP = self.promiseGetSignedUrls(currVcf, currTbi, projectId)
+                      .then((urlObj) => {
+                          nameList.push(urlObj.name);
+                          vcfUrlList.push(urlObj.vcf);
+                          tbiUrlList.push(urlObj.tbi);
+                      });
+                  urlPromises.push(urlP);
+              }
+              // Sort data by chromosome once we have all urls
+              Promise.all(urlPromises)
+              .then(() => {
+                vm.onHubVcfUrlsEntered(vcfUrlList, tbiUrlList, function() {
+                  self.sampleModels.push(vm);
+                  let sample = {'relationship': 'sfari-variants', 'model': vm};
+                  self.sampleMap['sfari-variants'] = sample;
+                  resolve(sample);
+                });
+              })
+              .catch((error) => {
+                console.log(error)
+                self.dispatch.alertIssued('error', 'There was a problem adding hub data to sample model', null, [error]);
+                reject(error);
+              });
           })
+          .catch((error) => {
+            console.log('There was a problem unpacking file data from Hub for Sfari variants: ' + error);
+          });
+        })
       }
   }
 
@@ -884,9 +897,19 @@ class CohortModel {
 
         })
         .catch(function(error) {
-          self.promiseSummarizeError(theGene.gene_name, error)
-          self.endGeneProgress(theGene.gene_name);
-          reject(error);
+          if (error && error.hasOwnProperty('alertType') && error.alertType == 'warning') {
+            if (error.indexOf(geneName) >= 0 ) {
+              self.dispatch.alertIssued('warning', error.message, error.gene);
+            } else {
+              self.dispatch.alertIssued('warning', error + " for gene " + theGene.gene_name, theGene.gene_name);
+            }
+            self.endGeneProgress(theGene.gene_name);
+            reject(error);
+          } else {
+            self.promiseSummarizeError(theGene.gene_name, error)
+            self.endGeneProgress(theGene.gene_name);
+            reject(error);
+          }
         })
       }
     })
@@ -933,6 +956,9 @@ class CohortModel {
           self.getModel('known-variants')
           resolve(resultMap);
         })
+        .catch(function(error) {
+          reject(error)
+        });
       })
     })
   }
@@ -1013,6 +1039,7 @@ class CohortModel {
         resolve(resultMap);
       })
       .catch(function(error) {
+        self.dispatch.alertIssued( "error", error, theGene.gene_name)
         reject(error);
       })
     })
@@ -1064,18 +1091,6 @@ class CohortModel {
     self.hubSession = hubSession;
   }
 
-  getTrioSampleNames() {
-    let self = this;
-    let sampleNames = [];
-    sampleNames.push(self.sampleMap.proband.model.getSampleName());
-    if (self.sampleMap.mother && self.sampleMap.mother.model) {
-      sampleNames.push(self.sampleMap.mother.model.getSampleName());
-    }
-    if (self.sampleMap.father && self.sampleMap.father.model) {
-      sampleNames.push(self.sampleMap.father.model.getSampleName());
-    }
-    return sampleNames;
-  }
 
   setLoadedVariants(gene, relationship=null) {
     let self = this;
@@ -1213,7 +1228,7 @@ class CohortModel {
       } else {
         for (var rel in self.sampleMap) {
           var model = self.sampleMap[rel].model;
-          if (model.isVcfReadyToLoad() || model.isLoaded()) {
+          if (model.isVcfReadyToLoad() ) {
             if (!options.isBackground) {
               model.inProgress.loadingVariants = true;
             }
@@ -1230,13 +1245,14 @@ class CohortModel {
                 })
                 .catch(function(error) {
                   model.inProgress.loadingVariants = false;
+                  reject(error)
                 })
               annotatePromises.push(p);
             }
           }
         }
       }
-      if (options.getKnownVariants) {
+      if (options.getKnownVariants && (!options.hasOwnProperty('bypassAnnotate') || options.bypassAnnotate == false)) {
         let p = self.promiseLoadKnownVariants(theGene, theTranscript)
         .then(function(resultMap) {
           if (self.knownVariantViz === 'variants') {
@@ -1244,11 +1260,14 @@ class CohortModel {
               theResultMap[rel] = resultMap[rel];
             }
           }
-        });
+        })
+        .catch(function(error) {
+          reject(error)
+        })
         annotatePromises.push(p);
       }
 
-      if (options.getSfariVariants) {
+      if (options.getSfariVariants && (!options.hasOwnProperty('bypassAnnotate') || options.bypassAnnotate == false)) {
         let p = self.promiseLoadSfariVariants(theGene, theTranscript)
           .then(function(resultMap) {
             if (self.sfariVariantsViz === 'variants') {
@@ -1263,10 +1282,14 @@ class CohortModel {
       Promise.all(annotatePromises)
       .then(function() {
 
-        self.promiseAnnotateWithClinvar(theResultMap, theGene, theTranscript, options.isBackground)
-        .then(function(data) {
-          resolve(data)
-        })
+        if (!options.hasOwnProperty('bypassAnnotate') || options.bypassAnnotate == false) {
+          self.promiseAnnotateWithClinvar(theResultMap, theGene, theTranscript, options.isBackground)
+          .then(function(data) {
+            resolve(data)
+          })          
+        } else {
+          resolve(theResultMap)
+        }
 
       })
       .catch(function(error) {
@@ -1279,7 +1302,6 @@ class CohortModel {
       })
     })
   }
-
 
   promiseGetClinvarPhenotypes(geneObject, transcript) {
     var self = this;
@@ -1415,6 +1437,10 @@ class CohortModel {
             })
 
         })
+        .catch(function(error) {
+          console.log(error)
+          reject(error)
+        })
       }
 
 
@@ -1493,8 +1519,12 @@ class CohortModel {
         var cachedPromises = [];
         self.sampleModels.forEach(function(model) {
           if (resultMap[model.getRelationship()]) {
-            var p = model._promiseCacheData(resultMap[model.getRelationship()], dataKind, geneObject.gene_name, theTranscript);
-            cachedPromises.push(p);
+            if (resultMap[model.getRelationship()].cacheState && resultMap[model.getRelationship()].cacheState == 'cached') {
+              cachedPromises.push(Promise.resolve)
+            } else {
+              var p = model._promiseCacheData(resultMap[model.getRelationship()], dataKind, geneObject.gene_name, theTranscript);
+              cachedPromises.push(p);              
+            }
           }
         })
         Promise.all(cachedPromises).then(function() {
@@ -1515,6 +1545,11 @@ class CohortModel {
       self.getProbandModel().promiseSummarizeError(geneName, error)
       .then(function(dangerObject) {
           self.geneModel.setDangerSummary(theGeneName, dangerObject);
+          if (error.indexOf(geneName) >= 0 ) {
+            self.dispatch.alertIssued('error', error, theGeneName);
+          } else {
+            self.dispatch.alertIssued('error', error + " for gene " + theGeneName, theGeneName);
+          }
           resolve(dangerObject);
       }).
       catch(function(error) {
@@ -1552,9 +1587,18 @@ class CohortModel {
             geneCoverageAll =  data.geneCoverage;
           }
           var theOptions = null;
+          var notFoundVariants = null;
 
           self.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
           .then(function(dangerSummary) {
+
+              // These are the imported variants that were not found in the vcf
+              // file. If we don't save them here, we will lose this count in
+              // dangerSummary.badges.notFound. We need this to show in the 'not found'
+              // section of the flagged variants panel.
+              if (dangerSummary && dangerSummary.badges && dangerSummary.badges.notFound) {
+                notFoundVariants = dangerSummary.badges.notFound;    
+              }
 
               // Summarize the danger for the gene based on the filtered annotated variants and gene coverage
               var filteredVcfData = null;
@@ -1587,9 +1631,17 @@ class CohortModel {
 
           })
           .then(function(theVcfData) {
-              return self.getProbandModel().promiseSummarizeDanger(geneObject.gene_name, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript);
+              return self.getProbandModel().promiseSummarizeDanger(geneObject, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript, notFoundVariants);
           })
           .then(function(theDangerSummary) {
+            if (theDangerSummary && theDangerSummary.geneCoverageProblem && theDangerSummary.geneCoverageProblemNonProband) {
+              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in proband and non-proband (e.g. mother, father) samples", theDangerSummary.geneName);
+            } else if (theDangerSummary && theDangerSummary.geneCoverageProblem) {
+              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in proband sample", theDangerSummary.geneName);
+            } else if (theDangerSummary && theDangerSummary.geneCoverageProblemNonProband) {
+              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in non-proband (e.g. mother, father) sample", theDangerSummary.geneName);
+            } 
+
             self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
             resolve();
           })
@@ -1658,14 +1710,12 @@ class CohortModel {
       self.getCanonicalModels().forEach(function(model) {
         if (model.isBamLoaded()) {
           model.inProgress.loadingCoverage = true;
-          var p = new Promise(function(innerResolve, innerReject) {
-            var theModel = model;
-            theModel.getBamDepth(theGene, theTranscript, function(coverageData) {
-              theModel.inProgress.loadingCoverage = false;
-              theResultMap[theModel.relationship] = coverageData;
-              innerResolve();
-            });
+          var p = model.promiseGetBamDepth(theGene, theTranscript)
+          .then(function(data) {
+            data.model.inProgress.loadingCoverage = false;
+            theResultMap[data.model.relationship] = data.coverageData;
           });
+
           promises.push(p);
         }
       });
@@ -1673,6 +1723,9 @@ class CohortModel {
       Promise.all(promises)
       .then(function() {
         resolve(theResultMap);
+      })
+      .catch(function(error) {
+        reject(error)
       })
 
     })
@@ -1863,17 +1916,19 @@ class CohortModel {
                 trioVcfData[model.getRelationship()] = theVcfData;
               })
 
-            },
-            function(error) {
+            })
+            .catch(function(error) {
               me.endGeneProgress(geneObject.gene_name);
-              var msg = "A problem occurred in jointCallVariantsImpl(): " + error;
+              var msg = "A problem occurred in joint calling variants. Error: " + error;
               console.log(msg);
+              console.log(error);
               reject(msg);
             })
 
             promises.push(p);
           })
-          Promise.all(promises).then(function() {
+          Promise.all(promises)
+          .then(function() {
             showCalledVariants();
               resolve({
                 'gene': geneObject,
@@ -1883,6 +1938,9 @@ class CohortModel {
                 'trioFbData': trioFbData,
                 'refName': geneObject.chr,
                 'sourceVariant': options.sourceVariant});
+          })
+          .catch(function(error) {
+            reject(error)
           })
 
 
@@ -1894,81 +1952,94 @@ class CohortModel {
 
           showCallingProgress();
 
-          me.getProbandModel().bam.freebayesJointCall(
+          me.getProbandModel().bam.promiseFreebayesJointCall(
             geneObject,
             theTranscript,
             bams,
             me.geneModel.geneSource == 'refseq' ? true : false,
             me.freebayesSettings.arguments,
             me.globalApp.vepAF, // vep af
-            me.getTrioSampleNames(),
+            me.getTrioAlignmentSampleNames(),
             options.gnomADExtra,
-            options.decompose,
-            function(theData, trRefName) {
+            options.decompose)
+          .then(function(data) {
 
-              var jointVcfRecs =  theData.split("\n");
+            let jointVcfRecs = data.variantData.split("\n");
+            let trRefName    = data.refName;
 
-              if (trioVcfData == null) {
-                trioVcfData = {'proband': makeDummyVcfData(), 'mother': makeDummyVcfData(), 'father': makeDummyVcfData()};
-              }
-
-              // Parse the joint called variants back to variant models
-              var data = me._parseCalledVariants(geneObject, theTranscript, trRefName, jointVcfRecs, trioVcfData, options)
-
-              if (data == null) {
-                endCallProgress();
-              } else {
-                trioFbData = data.trioFbData;
-
-
-                // Annotate called variants with clinvar
-                me.promiseAnnotateWithClinvar(trioFbData, geneObject, theTranscript, true)
-                .then(function() {
-
-                  refreshClinvarAnnots(trioFbData);
-
-                  // Determine inheritance across union of loaded and called variants
-                  me.promiseAnnotateInheritance(geneObject, theTranscript, trioVcfData, {isBackground: options.isBackground, cacheData: true})
-                  .then( function() {
-                      me.getCanonicalModels().forEach(function(model) {
-                        model.loadCalledTrioGenotypes(trioVcfData[model.getRelationship()], trioFbData[model.getRelationship()]);
-                      })
-                      // Summarize danger for gene
-                     return me.promiseSummarizeDanger(geneObject, theTranscript, trioVcfData.proband, {'CALLED': true});
-                  })
-                  .then(function() {
-                    showCalledVariants();
-
-                    var refreshedSourceVariant = null;
-                    if (options.sourceVariant) {
-                      trioVcfData.proband.features.forEach(function(variant) {
-                        if (!refreshedSourceVariant &&
-                          me.globalApp.utility.stripRefName(variant.chrom) == me.globalApp.utility.stripRefName(options.sourceVariant.chrom) &&
-                          variant.start == options.sourceVariant.start &&
-                          variant.ref == options.sourceVariant.ref &&
-                          variant.alt == options.sourceVariant.alt) {
-
-                          refreshedSourceVariant = variant;
-                          refreshedSourceVariant.notes = options.sourceVariant.notes;
-                          refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
-                        }
-                      })
-                    }
-                    resolve({
-                      'gene': geneObject,
-                      'transcript': theTranscript,
-                      'jointVcfRecs': jointVcfRecs,
-                      'trioVcfData': trioVcfData,
-                      'trioFbData': trioFbData,
-                      'refName': trRefName,
-                      'sourceVariant': refreshedSourceVariant ? refreshedSourceVariant : options.sourceVariant });
-                  })
-                });
-              }
-
+            if (trioVcfData == null) {
+              trioVcfData = {'proband': makeDummyVcfData(), 'mother': makeDummyVcfData(), 'father': makeDummyVcfData()};
             }
-          );
 
+            // Parse the joint called variants back to variant models
+            var data = me._parseCalledVariants(data.geneObject, data.transcript, trRefName, jointVcfRecs, trioVcfData, options)
+
+            if (data == null) {
+              endCallProgress();
+              reject("Empty results when parsing called variants for gene " + data.geneObject.gene_name)
+            } else {
+              trioFbData = data.trioFbData;
+
+
+              // Annotate called variants with clinvar
+              return me.promiseAnnotateWithClinvar(trioFbData, geneObject, theTranscript, true)
+              .then(function() {
+
+                refreshClinvarAnnots(trioFbData);
+
+                // We need to cache the vcf data with the merged in called variants (fbCalled=Y)
+                // So, reset the cacheState to blank.
+                trioVcfData.proband.cacheState = null
+
+                // Determine inheritance across union of loaded and called variants
+                me.promiseAnnotateInheritance(geneObject, theTranscript, trioVcfData, {isBackground: options.isBackground, cacheData: true})
+                .then( function() {
+                    me.getCanonicalModels().forEach(function(model) {
+                      model.loadCalledTrioGenotypes(trioVcfData[model.getRelationship()], trioFbData[model.getRelationship()]);
+                    })
+                    // Summarize danger for gene
+                   return me.promiseSummarizeDanger(geneObject, theTranscript, trioVcfData.proband, {'CALLED': true});
+                })
+                .then(function() {
+                  showCalledVariants();
+
+                  var refreshedSourceVariant = null;
+                  if (options.sourceVariant) {
+                    trioVcfData.proband.features.forEach(function(variant) {
+                      if (!refreshedSourceVariant &&
+                        me.globalApp.utility.stripRefName(variant.chrom) == me.globalApp.utility.stripRefName(options.sourceVariant.chrom) &&
+                        variant.start == options.sourceVariant.start &&
+                        variant.ref == options.sourceVariant.ref &&
+                        variant.alt == options.sourceVariant.alt) {
+
+                        refreshedSourceVariant = variant;
+                        refreshedSourceVariant.notes = options.sourceVariant.notes;
+                        refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
+                      }
+                    })
+                  }
+                  resolve({
+                    'gene': geneObject,
+                    'transcript': theTranscript,
+                    'jointVcfRecs': jointVcfRecs,
+                    'trioVcfData': trioVcfData,
+                    'trioFbData': trioFbData,
+                    'refName': trRefName,
+                    'sourceVariant': refreshedSourceVariant ? refreshedSourceVariant : options.sourceVariant });
+                })
+                .catch(function(error) {
+                  reject(error)
+                })
+              })
+              .catch(function(error) {
+                reject(error)
+              })
+            }
+
+          })
+          .catch(function(error) {
+            reject(error)
+          })
         }
       })
     })
@@ -2071,9 +2142,9 @@ class CohortModel {
     })
   }
 
-  setVariantInterpretation(theGene, theTranscript, variant) {
+  setVariantInterpretation(theGene, theTranscript, variant, options) {
     var self = this;
-    this._recacheForFlaggedVariant(theGene, theTranscript, variant);
+    this._recacheForFlaggedVariant(theGene, theTranscript, variant, options);
   }
 
   addUserFlaggedVariant(theGene, theTranscript, variant) {
@@ -2190,10 +2261,6 @@ class CohortModel {
 
   clearFlaggedVariants() {
     this.flaggedVariants = [];
-  }
-
-  summarizeDangerForFlaggedVariants(geneName, flaggedVariants) {
-    return SampleModel._summarizeDanger (geneName, {features: flaggedVariants}, {}, [], this.filterModel, this.translator, this.annotationScheme);
   }
 
 
@@ -2395,7 +2462,8 @@ class CohortModel {
     if (me.globalApp.maxGeneCount && importRecords.length > me.globalApp.maxGeneCount) {
       var bypassedCount = importRecords.length - me.globalApp.maxGeneCount;
       importRecords = importRecords.slice(0, me.globalApp.maxGeneCount);
-      alertify.alert("Only first " + me.globalApp.maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.");
+      var msg = "Only first " + me.globalApp.maxGeneCount + " bookmarks will be imported. " + bypassedCount.toString() + " were bypassed.";
+      me.dispatch.alertIssued("warning", msg)
     }
 
 
@@ -2409,6 +2477,7 @@ class CohortModel {
     importRecords = importRecords.filter(function(ir) {
       if (ir == null) {
         console.log("WARNING: bypassing null variant record")
+        me.dispatch.alertIssued('warning', 'Bypassing blank variant.');          
         return false;
       } else {
         return true;
@@ -2433,6 +2502,7 @@ class CohortModel {
         }
       }
       if (ir.gene == null) {
+        me.dispatch.alertIssued('warning', 'Bypassing variant. Gene symbol is missing.');          
       } else {
         var theGeneObject = me.geneModel.geneObjects[ir.gene];
         if (theGeneObject == null || !ir.transcript || ir.transcript == '') {
@@ -2441,13 +2511,20 @@ class CohortModel {
             if (theGeneObject.notFound) {
               if (me.geneModel.isKnownGene(theGeneObject.notFound)) {
                 me.geneModel.promiseAddGeneName(theGeneObject.notFound);
+              } else {
+                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene ' + theGeneObject.notFound + ".", theGeneObject.notFound);          
               }
             }
             else if (ir.gene && theGeneObject.notFound === undefined){
               if (me.geneModel.isKnownGene(ir.gene)) {
                 me.geneModel.promiseAddGeneName(ir.gene);
+              } else {
+                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene ' + ir.gene + ".", ir.gene);          
               }
             }
+          })
+          .catch(function(error) {
+            me.dispatch.alertIssued('warning', error.message, error.gene)
           })
           promises.push(promise);
         }
@@ -2456,7 +2533,8 @@ class CohortModel {
 
     // Now that all of the gene objects have been cached, we can fill in the
     // transcript if necessary and then find load the imported bookmarks
-    Promise.all(promises).then(function() {
+    Promise.all(promises)
+    .then(function() {
       var genesToAnalyze = {load: [], call: []};
       var geneToAltTranscripts = {};
       importRecords.forEach( function(variant) {
@@ -2483,7 +2561,7 @@ class CohortModel {
       });
       // First callback when flagged variants are now populated by imported records
       if (callbackPostImport) {
-        callbackPostImport();
+        callbackPostImport(me.flaggedVariants.length);
       }
 
 
@@ -2506,8 +2584,8 @@ class CohortModel {
 
 
       if (me.isLoaded) {
-        me.cacheHelper.on("geneAnalyzed", function(theGene, transcript) {
-          me.onImportedGeneAnalyzed(theGene.gene_name, intersectedGenes, theGene, transcript)
+        me.cacheHelper.on("geneAnalyzed", function(theGene, transcript, analyzeCalledVariants) {
+          me.onImportedGeneAnalyzed(theGene.gene_name, intersectedGenes, theGene, transcript, analyzeCalledVariants)
 
         })
 
@@ -2538,10 +2616,14 @@ class CohortModel {
       }
 
     })
+    .catch(function(error) {
+      console.log("CohortModel.importFlaggedVariants() failed with error " + error)
+      me.dispatch.alertIssued('warning', error.message, error.gene)
+    })
 
   }
 
-  onImportedGeneAnalyzed(geneName, intersectedGenes, theGeneObject, theTranscript) {
+  onImportedGeneAnalyzed(geneName, intersectedGenes, theGeneObject, theTranscript, analyzeCalledVariants) {
     let me = this;
     let dataPromises = [];
     if (me.geneModel.isCandidateGene(geneName)) {
@@ -2554,6 +2636,7 @@ class CohortModel {
           if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
             console.log("No transcript for importedVariant");
             console.log(importedVariant);
+            me.dispatch.alertIssued('warning', 'No transcript specified for imported variant in gene ' + geneName, geneName);
           } else {
             uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
           }
@@ -2566,9 +2649,20 @@ class CohortModel {
       for (var transcriptId in uniqueTranscripts) {
         let dataPromise =  new Promise(function(resolve, reject) {
 
+          var notFoundVariants = []
           var geneObject = theGeneObject ? theGeneObject : me.geneModel.geneObjects[geneName];
           var transcript = uniqueTranscripts[transcriptId];
-          var importedVariants = intersectedGenes[geneName];
+          var importedVariants = intersectedGenes[geneName]
+            .filter(function(importedVariant) {
+              // If the gene analyzed was freebayes joint called, look for
+              // imported variants that were called. Otherwise; look for
+              // imported variants that were loaded from vcf.
+              if (analyzeCalledVariants) {
+                return importedVariant.freebayesCalled && importedVariant.freebayesCalled == 'Y';
+              } else {
+                return !importedVariant.freebayesCalled || importedVariant.freebayesCalled != 'Y';
+              }
+            })
 
           me.getProbandModel().promiseGetVcfData(geneObject, transcript, true)
           .then(function(data) {
@@ -2579,13 +2673,14 @@ class CohortModel {
               resolve();
             } else if (importedVariants && importedVariants.length > 0) {
 
-              // Refresh imported variant records with real variants
               importedVariants.forEach(function(importedVariant) {
-                var matchingVariants = data.vcfData.features.filter(function(v) {
-                   return me.globalApp.utility.stripRefName(v.chrom) == me.globalApp.utility.stripRefName(importedVariant.chrom)
-                   && v.start == importedVariant.start
-                   && v.ref      == importedVariant.ref
-                   && v.alt      == importedVariant.alt;
+                data.vcfData.features.filter(function(v) {
+                  let isMatch = me.globalApp.utility.stripRefName(v.chrom) == me.globalApp.utility.stripRefName(importedVariant.chrom)
+                     && v.start == importedVariant.start
+                     && v.ref      == importedVariant.ref
+                     && v.alt      == importedVariant.alt;
+
+                  return isMatch;
                 })
                 if (matchingVariants.length > 0) {
                   let matchingVariant = matchingVariants[0];
@@ -2613,14 +2708,21 @@ class CohortModel {
                 } else {
                   importedVariant.isProxy = true;
                   importedVariant.notFound = true;
+                  importedVariant.isFlagged = true;
+                  notFoundVariants.push(importedVariant)
+                  
                   console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
+                  
+                  me.dispatch.alertIssued('warning', 'Imported variant ' 
+                  + 'in gene ' + geneObject.gene_name + ' not found in proband variant file.', geneObject.gene_name);          
+
                 }
               })
 
               // Make sure that the imported variants are re-assessed to determine the filters they
               // pass.  We need this so that the imported variants show up in the left flagged variants
-              // side panel
-              me.filterModel.flagImportedVariants(importedVariants);
+              // side panel.
+              let badgesFromImported = me.filterModel.flagImportedVariants(importedVariants);
 
               // We need to recache the variants since the isUserFlag has been established
               me.getProbandModel()._promiseCacheData(data.vcfData, CacheHelper.VCF_DATA, geneObject.gene_name, transcript)
@@ -2629,10 +2731,20 @@ class CohortModel {
                 // Now recalc the badge counts on danger summary to reflect imported variants
                 me.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
                 .then(function(dangerSummary) {
+                  // In addition to the vcf data variants, pass in the notFound imported variants
+                  // so that dangerSummary badges include this under the 'notFound' category.
                   dangerSummary.badges = me.filterModel.flagVariants(data.vcfData);
-                  me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
 
-                  resolve();
+                  me.captureFlaggedVariants(dangerSummary, geneObject)
+
+                  if (badgesFromImported && badgesFromImported.notFound) {
+                    dangerSummary.badges.notFound = badgesFromImported.notFound;
+                  }
+                  me.geneModel.setDangerSummary(geneObject.gene_name, dangerSummary);
+                  me.getProbandModel()._promiseCacheData(dangerSummary, CacheHelper.DANGER_SUMMARY_DATA, geneObject.gene_name)
+                  .then(function() {
+                    resolve()
+                  })
 
                   // For every gene, we will analyze the coverage across the exons
                   // NOTE:  This is an expensive operation!
@@ -2845,7 +2957,7 @@ class CohortModel {
 
       this.flaggedVariants.forEach(function(variant) {
         let isReviewed = (variant.notes && variant.notes.length > 0) ||
-            (variant.interpretation != null && (variant.interpretation == "sig" || variant.interpretation == "unknown-sig" || variant.interpretation == "not-sig" || variant.interpretation == "poor-qual"));
+            (variant.interpretation != null && variant.interpretation != "not-reviewed");
 
 
         let matches = false;
@@ -2980,10 +3092,25 @@ class CohortModel {
           // Add variants in danger summary (if not already present)
           // to flagged variants
           theFlaggedVariants.forEach(function(variant) {
-            let matchingVariant = self.getFlaggedVariant(variant);
-            if (!matchingVariant) {
-              variant.gene = geneObject
-              self.flaggedVariants.push(variant);
+            if (variant) {
+              if (variant.interpretation && variant.interpretation == 'unknown-sig') {
+                variant.interpretation = 'uncertain-sig'
+              }
+              let matchingVariant = self.getFlaggedVariant(variant);
+              if (matchingVariant) {
+                // Keep track of the mosaic_id. If we launched from Mosaic with a
+                // variant set, the mosaic_id will be filled in on the flagged (imported)
+                // variant. If we are launching from a Mosaic analysis, the mosaic_id
+                // will be filled in on the dangerSummary.badges variant.
+                if (matchingVariant.mosaic_id && !variant.mosaic_id) {
+                  variant.mosaic_id = matchingVariant.mosaic_id;
+                } else if (!matchingVariant.mosaic_id && variant.mosaic_id) {
+                  matchingVariant.mosaic_id = variant.mosaic_id;
+                }
+              } else {
+                variant.gene = geneObject
+                self.flaggedVariants.push(variant);
+              }              
             }
           })
 
@@ -2992,28 +3119,23 @@ class CohortModel {
     }
   }
 
-  getTrioSampleNames() {
-
+  getTrioAlignmentSampleNames() {
     let self = this;
-
     let sampleNames = [];
 
-    sampleNames.push(self.sampleMap.proband.model.getSampleName());
+    ['proband', 'mother', 'father'].forEach(function(rel) {
+      let sampleName = self.sampleMap[rel].model.bam.getHeaderSample();
+      if (sampleName == null || sampleName.length == 0) {
+        sampleName = self.sampleMap[rel].model.getSampleName()
+      }
+      if (sampleName == null || sampleName.length == 0) {
+        sampleName = rel;
+      }
+      sampleNames.push(sampleName);
 
-    if (self.sampleMap.mother && self.sampleMap.mother.model) {
-
-      sampleNames.push(self.sampleMap.mother.model.getSampleName());
-
-    }
-
-    if (self.sampleMap.father && self.sampleMap.father.model) {
-
-      sampleNames.push(self.sampleMap.father.model.getSampleName());
-
-    }
+    })
 
     return sampleNames;
-
   }
 }
 

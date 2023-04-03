@@ -189,6 +189,7 @@ div.container.small
 
       #gene-badge-symbols
         display: none
+        
 
     &.selected
       border: 1.5px solid $current-color
@@ -208,6 +209,21 @@ div.container.small
       border: 1.5px solid $app-color
       height: 24px
 
+#genes-card.edu   
+  #gene-badge 
+    #gene-status
+      width: 15px 
+    #gene-badge-symbols
+      display: initial !important
+
+      #gene-badge-user-flagged
+        display: none !important
+      #gene-badge-clinvar
+        display: none  !important
+      .gene-badge-inheritance
+        display: none  !important
+      .gene-badge-coverage-problem
+        display: none  !important
 </style>
 
 <template>
@@ -223,7 +239,7 @@ div.container.small
             <span id="analyze-all-buttons" v-if="false" :class="{'clin': launchedFromClin}">
 
               <v-btn  id="analyze-all-button"
-              v-if="isLoaded && !isFullAnalysis"
+              v-if="isLoaded"
               class="level-edu"
               raised
               @click="onAnalyzeAll"
@@ -233,7 +249,7 @@ div.container.small
 
 
               <v-btn
-              v-if="analyzeAllInProgress && !isFullAnalysis"
+              v-if="analyzeAllInProgress"
               class="stop-analysis-button"
               @click="onStopAnalysis" small raised
               v-tooltip.top-center="`Stop analysis`" >
@@ -242,7 +258,7 @@ div.container.small
 
 
               <div id="call-variants-dropdown"
-                v-if="isLoaded && hasAlignments && !isFullAnalysis"
+                v-if="isLoaded && hasAlignments"
               >
                 <v-menu offset-y>
                   <v-btn raised slot="activator"
@@ -256,7 +272,7 @@ div.container.small
               </div>
 
               <v-btn
-              v-if="callAllInProgress && !isFullAnalysis"
+              v-if="callAllInProgress"
               class="stop-analysis-button"
               @click="onStopAnalysis" small raised
               v-tooltip.top-center="`Stop calling variants`" >

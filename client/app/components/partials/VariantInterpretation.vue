@@ -7,22 +7,47 @@ input#select-interpretation
 
 i.material-icons.interpretation
   color: white !important
-  font-size: 13px
+  font-size: 14px
   padding-top: 0px
   padding-bottom: 3px
   padding-right: 4px
   padding-left: 4px
 
 .interpretation-label
-  color: white  !important
-  padding-left: 0px
-  font-size: 13px
+  color: white  
+  padding-left: 4px
+  padding-right: 4px
+  font-size: 12px
+
+.not-reviewed
+  .interpretation-label
+    color: $not-reviewed-text-color !important
+
 
 .select-interpretation
-  height: 26px
+  height: 24px
+  border-radius: 4px
   -webkit-box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
   box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12)
-  background-color: $app-button-color
+  background-color: $interpretation-background-color
+  color: white !important
+  caret-color: white !important
+  max-width: 175px
+  min-width: 175px
+
+  &.not-reviewed
+    background-color: $not-reviewed-color !important
+
+    .interpretation-label 
+      color: $not-reviewed-text-color !important
+  &.sig 
+    background-color: $significant-color !important
+  &.not-sig 
+    background-color: $not-significant-color !important
+  &.unknown-sig
+    background-color: $unknown-significance-color !important
+  &.uncertain-sig
+    background-color: $unknown-significance-color !important
 
   .v-input__control
     border-radius: 4px
@@ -36,41 +61,35 @@ i.material-icons.interpretation
       i.material-icons
         color: white !important
 
+  .v-input__slot:before
+    border-color: transparent !important
 
 .interpretation-choices
   width: 100%
-  background-color:  $app-button-color
+  background-color:  $interpretation-background-color
   padding-top: 2px
   padding-bottom: 2px
   padding-left: 4px
   padding-right: 10px
   border-radius: 5px
 
+  &.not-reviewed
+    background-color: $not-reviewed-color !important
+  &.sig 
+    background-color: $significant-color !important
+  &.not-sig 
+    background-color: $not-significant-color !important
+  &.poor-qual
+    background-color: $poor-qual-color !important
+  &.unknown-sig
+    background-color: $unknown-significance-color !important
+  &.uncertain-sig
+    background-color: $unknown-significance-color !important
+
   i.material-icons
     padding-right: 2px
-    font-size: 16px !important
-
-
-  &.not-reviewed
-    i.material-icons
-      color: $not-reviewed-color !important
-
-  &.sig
-    i.material-icons
-      color: $significant-color !important
-
-  &.not-sig
-    i.material-icons
-      color: $not-significant-color !important
-
-  &.poor-qual
-    i.material-icons
-      color: $poor-qual-color !important
-
-  &.unknown-sig
-    i.material-icons
-      color: $unknown-significance-color !important
-
+    font-size: 14px !important
+    color: white !important
 
 
 
@@ -78,8 +97,7 @@ i.material-icons.interpretation
   font-family: $app-font
   margin: 0px
   padding: 0px
-  width: 18px
-  height: auto
+  height: 24px !important
   font-size: 12px
   margin-top: 0px
 
@@ -98,9 +116,10 @@ i.material-icons.interpretation
     width: initial
 
     .interpretation-label
-      color: white !important
-      font-size: 13px
+      color: white 
+      font-size: 12px
       font-weight: 500
+      padding-left: 4px
 
   .v-input__icon--append
     i.material-icons
@@ -109,39 +128,20 @@ i.material-icons.interpretation
   .interpretation-selection
     i.material-icons
       padding-right: 2px
-      font-size: 16px !important
+      font-size: 14px !important
 
-  &.not-reviewed
-    .input-group__input, .v-input__control
-      i.material-icons
-        color: $not-reviewed-color
-
-  &.sig
-    .input-group__input, .v-input__control
-      i.material-icons
-        color: $significant-color !important
-
-  &.not-sig
-    .input-group__input, .v-input__control
-      i.material-icons
-        color: $not-significant-color !important
-
-  &.poor-qual
-    .input-group__input, .v-input__control
-      i.material-icons
-        color: $poor-qual-color !important
-
-  &.unknown-sig
-    .input-group__input, .v-input__control
-      i.material-icons
-        color: $unknown-significance-color !important
-
-  &.unknown-sig, &.not-reviewed, &.sig,  &.not-sig, &.poor-qual
+  
+  &.unknown-sig, &.not-reviewed, &.sig,  &.not-sig, &.poor-qual, &.uncertain-sig
     .v-input__append-inner
       .v-input__icon--append
         i.material-icons
           color: white !important
           margin-top: -4px
+  &.not-reviewed
+    .v-input__append-inner
+      .v-input__icon--append
+        i.material-icons
+          color: $not-reviewed-text-color !important
 
   .v-input__icon
     i.material-icons
@@ -186,10 +186,9 @@ i.material-icons.interpretation
           'not-reviewed': interpretation == 'not-reviewed',
           'not-sig'     : interpretation == 'not-sig',
           'sig'         : interpretation == 'sig',
-          'unknown-sig' : interpretation == 'unknown-sig',
-          'poor-qual'   : interpretation == 'poor-qual'}"
+          'uncertain-sig' : interpretation == 'uncertain-sig'}"
   v-model="interpretation"
-  :hide-details="true"
+  hide-details
   single-line
   >
 
@@ -198,13 +197,8 @@ i.material-icons.interpretation
           'not-reviewed': item.value == 'not-reviewed',
           'not-sig'     : item.value == 'not-sig',
           'sig'         : item.value == 'sig',
-          'unknown-sig' : item.value == 'unknown-sig',
-          'poor-qual'   : item.value == 'poor-qual'}">
-        <v-icon class="interpretation sig" v-if="item.value == 'sig'">verified_user</v-icon>
-        <v-icon class="interpretation unknown-sig" v-if="item.value == 'unknown-sig'">help</v-icon>
-        <v-icon class="interpretation not-sig" v-if="item.value == 'not-sig'">thumb_down</v-icon>
-        <v-icon class="interpretation poor-qual" v-if="item.value == 'poor-qual'">trending_down</v-icon>
-        <v-icon class="interpretation not-reviewed" v-if="item.value == 'not-reviewed'">visibility_off</v-icon>
+          'uncertain-sig' : item.value == 'uncertain-sig'}">
+
         <span v-if="showInterpretationLabel" class="interpretation-label"> {{ item.text }} </span>
       </div>
     </template>
@@ -214,13 +208,8 @@ i.material-icons.interpretation
           'not-reviewed': data.item.value == 'not-reviewed',
           'not-sig'     : data.item.value == 'not-sig',
           'sig'         : data.item.value == 'sig',
-          'unknown-sig' : data.item.value == 'unknown-sig',
-          'poor-qual'   : data.item.value == 'poor-qual'}">
-        <v-icon class="interpretation sig" v-if="data.item.value == 'sig'">verified_user</v-icon>
-        <v-icon class="interpretation unknown-sig" v-if="data.item.value == 'unknown-sig'">help</v-icon>
-        <v-icon class="interpretation not-sig" v-if="data.item.value == 'not-sig'">thumb_down</v-icon>
-        <v-icon class="interpretation poor-qual" v-if="data.item.value == 'poor-qual'">trending_down</v-icon>
-        <v-icon class="interpretation not-reviewed" v-if="data.item.value == 'not-reviewed'">visibility_off</v-icon>
+          'uncertain-sig' : data.item.value == 'uncertain-sig'}">
+
         <span class="interpretation-label"> {{ data.item.text }} </span>
       </div>
     </template>

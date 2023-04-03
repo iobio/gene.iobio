@@ -158,8 +158,8 @@ export default {
         tryToLoad = vcfUrl && vcfUrl.length > 0
       }
       if (tryToLoad && self.modelInfo && self.modelInfo.model) {
-        self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
-          if (success) {
+        self.modelInfo.model.promiseLoadVcfUrl(vcfUrl, tbiUrl)
+        .then(function(sampleNames) {
             self.samples = sampleNames;
             if (self.modelInfo.sample && self.samples.indexOf(self.modelInfo.sample) >= 0 ) {
               self.sample = self.modelInfo.sample;
@@ -175,19 +175,28 @@ export default {
             }
             self.showLoadingSamples = false;
             self.$emit("samples-available", self.modelInfo.relationship, self.samples);
-          }
+            self.$emit("sample-data-changed");
+        })
+        .catch(function(error) {
           self.showLoadingSamples = false;
           self.$emit("sample-data-changed");
+          self.$emit("sample-error", error)
         })
       } else {
         self.showLoadingSamples = false;
 
         if (self.modelInfo && self.modelInfo.model) {
-          self.modelInfo.model.onVcfUrlEntered(vcfUrl, tbiUrl, function(success, sampleNames) {
+          self.modelInfo.model.promiseLoadVcfUrl(vcfUrl, tbiUrl)
+          .then(function(sampleNames) {
             self.sample = null
             self.modelInfo.sample = null;
             self.modelInfo.model.sampleName = null
             self.$emit("sample-data-changed");
+          })
+          .catch(function(error) {
+            self.showLoadingSamples = false;
+            self.$emit("sample-data-changed");
+            self.$emit("sample-error", error)
           })
         }
       }
@@ -219,6 +228,7 @@ export default {
       .catch(function(error) {
         self.showLoadingSamples = false;
         self.$emit("sample-data-changed");
+        self.$emit("sample-error", error)
       })
     },
     onIsAffected: function() {
@@ -246,11 +256,13 @@ export default {
     onBamUrlEntered: function(bamUrl, baiUrl) {
       let self = this;
       if (self.modelInfo && self.modelInfo.model) {
-        self.modelInfo.model.onBamUrlEntered(bamUrl, baiUrl, function(success) {
-          if (success) {
-          } else {
-          }
+        self.modelInfo.model.promiseLoadBamUrl(bamUrl, baiUrl)
+        .then(function() {
           self.$emit("sample-data-changed");
+        })
+        .catch(function(error) {
+          self.$emit("sample-data-changed");
+          self.$emit('sample-error', error)
         })
       }
     },
@@ -262,6 +274,8 @@ export default {
       })
       .catch(function(error) {
         self.$emit("sample-data-changed");
+        self.$emit("sample-error", error)
+
       })
     },
   },

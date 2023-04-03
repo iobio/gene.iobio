@@ -4,53 +4,38 @@
 
 i.material-icons.interpretation
   color: white !important
-  font-size: 13px
+  font-size: 12px
   padding-top: 0px
   padding-bottom: 3px
   padding-right: 4px
   padding-left: 4px
 
 .interpretation-label
-  color: white  !important
-  padding-left: 0px
+  color: white !important
+  padding-left: 4px
   font-weight: 500
 
 #badge-interpretation
-  font-family: $app-font
-  padding-left: 3px
-  padding-right: 3px
-  font-size: 13px
-  color: white
-  width: 185px
-  margin-bottom: 3px
-  padding-top: 2px
-  padding-bottom: 1px
+  font-size: 12px
+  width: fit-content
+  margin-bottom: 1px
   border-radius: 4px
-  background-color:  $app-button-color
+  
 
   i.material-icons
     padding-right: 0px
-    font-size: 18px
+    font-size: 14px
+    color: white !important
 
   &.not-reviewed
-    i.material-icons
-      color: $not-reviewed-color !important
+    background-color: $not-reviewed-color !important
+  &.sig 
+    background-color: $significant-color !important
+  &.not-sig 
+    background-color: $not-significant-color !important
+  &.uncertain-sig
+    background-color: $unknown-significance-color !important
 
-  &.sig
-    i.material-icons
-      color: $significant-color !important
-
-  &.not-sig
-    i.material-icons
-      color: $not-significant-color !important
-
-  &.poor-qual
-    i.material-icons
-      color: $poor-qual-color !important
-
-  &.unknown-sig
-    i.material-icons
-      color: $unknown-significance-color !important
 
 
 
@@ -66,13 +51,8 @@ i.material-icons.interpretation
   :class="{
           'not-sig'     : interpretation == 'not-sig',
           'sig'         : interpretation == 'sig',
-          'unknown-sig' : interpretation == 'unknown-sig',
-          'poor-qual'   : interpretation == 'poor-qual'}"
+          'uncertain-sig' : interpretation == 'uncertain-sig'}"
   >
-    <v-icon class="interpretation sig" v-if="interpretation == 'sig'">verified_user</v-icon>
-    <v-icon class="interpretation unknown-sig" v-if="interpretation == 'unknown-sig'">help</v-icon>
-    <v-icon class="interpretation not-sig" v-if="interpretation == 'not-sig'">thumb_down</v-icon>
-    <v-icon class="interpretation poor-qual" v-if="interpretation == 'poor-qual'">trending_down</v-icon>
     <span  class="interpretation-label"> {{ intepretationDisplay }} </span>
 
   </div>

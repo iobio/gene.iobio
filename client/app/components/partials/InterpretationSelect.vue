@@ -51,7 +51,7 @@ export default {
       interpretation: null,
       interpretationMap: {
         'sig': 'Significant',
-        'unknown-sig': 'Unknown significance',
+        'uncertain-sig': 'Uncertain significance',
         'not-sig': 'Not significant',
         'poor-qual': 'Poor quality',
         'not-reviewed': 'Not reviewed'

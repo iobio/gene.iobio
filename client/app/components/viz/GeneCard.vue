@@ -144,7 +144,7 @@
                 v-bind:class="{ hide: !showGene }"
                 :selectedGene="selectedGene"
                 :selectedTranscript="selectedTranscript"
-                :geneSources="geneSources"
+                :geneSources="geneModel.geneSources"
                 :geneModel="geneModel"
                 @transcriptSelected="onTranscriptSelected"
                 @gene-source-selected="onGeneSourceSelected">
@@ -270,7 +270,6 @@
         trackHeight: (self.isEduMode || self.isBasicMode ? 32 : 22),
         cdsHeight: (self.isEduMode  || self.isBasicMode  ? 24 : 18),
         geneSource: null,
-        geneSources: ['gencode', 'refseq'],
         noTranscriptsWarning: '',
         showNoTranscriptsWarning: false,
         geneRegionBuffer: null,

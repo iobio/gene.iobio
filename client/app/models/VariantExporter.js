@@ -437,11 +437,12 @@ export default class VariantExporter {
 
             })
 
-
+            .catch(function(error) {
+              reject(error)
+            })
           } else if (extraAnnotations) {
-              me.cohort.getProbandModel()
-               .promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variant, format, getHeader, sampleNames)
-               .then(function(data) {
+              me.cohort.getProbandModel().promiseGetVariantExtraAnnotations(theGeneObject, theTranscript, variant, format, getHeader, sampleNames)
+              .then(function(data) {
                 var theVariant = data[0];
                 var sourceVariant = data[1];
                 var theRawVcfRecords = data[2];
@@ -449,12 +450,18 @@ export default class VariantExporter {
                   .then(function(data) {
                     resolve(data);
                   })
-              });
+              })
+              .catch(function(error) {
+                reject(error)
+              })
           } else {
               me._promiseFormatRecord(variant, variant, [], theGeneObject, theTranscript, format, exportRec, extraAnnotations)
-                .then(function(data) {
+              .then(function(data) {
                   resolve(data);
-                })
+              })
+              .catch(function(error) {
+                reject(error)
+              })
           }
         } else {
           reject("Problem during exporting variants.  Cannot find transcript " + exportRec.transcript + " in gene " + exportRec.gene);
@@ -629,6 +636,7 @@ export default class VariantExporter {
 
     var info    = me.globalApp.utility.formatDisplay(variant, this.cohort.translator, this.cohort.isEduMode, format);
 
+    rec.mosaic_id         = variant.mosaic_id
     rec.isProxy           = true;
     rec.analysisMode      = variant.analysisMode;
     rec.isUserFlagged     = variant.isUserFlagged ? "Y" : "";

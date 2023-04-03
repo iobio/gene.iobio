@@ -86,24 +86,25 @@
       min-width: 110px
       padding-right: 5px
       padding-left: 5px
-      background-color: $link-color
+      background-color: $button-color
       height: 28px
 
       .btn__content, .v-btn__content
         padding-left: 0px
         padding-right: 0px
-        color: white
+        color: $button-text-color
         font-size: 13px
         font-weight: 500
 
         i.material-icons
+          color: $button-text-color
           font-size: 20px
-          color: white
 
     #call-variants-dropdown
       display: inline-block
       vertical-align: middle
       text-align: left
+      margin-left: 15px
 
       button
         margin: 0px 0px 0px 0px
@@ -112,12 +113,12 @@
         padding-right: 5px
         padding-left: 5px
         height: 28px
-        background-color: $link-color
+        background-color: $button-color
 
         .btn__content, .v-btn__content
           padding-left: 0px
           padding-right: 0px
-          color: white
+          color: $button-text-color
           font-size: 13px
           font-weight: 500
 
@@ -140,7 +141,11 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      color: $link-color
+      color: $button-text-color
+      visibility: hidden
+
+      &.in-progress
+        visibility: visible
 
       i.material-icons
         font-size: 20px
@@ -210,6 +215,28 @@
   &.v-card
     box-shadow: none !important
     -webkit-box-shadow: none !important
+
+  .pheno-search-term
+    max-width: 200px
+    display: inline-block
+    vertical-align: text-bottom
+    line-height: 12px
+    overflow-wrap: break-word
+    font-size: 12px
+    white-space: normal
+
+  .gene-phenotype-association.v-chip
+    vertical-align: top
+    margin-top: 3px
+    margin-bottom: 0px
+    margin-right: 0px
+    background-color: $level-high-color
+    color: white
+
+    .v-chip__content
+      padding: 4px !important
+      height: 18px !important
+      font-size: 11px !important
 
   .gene-ranks
     .chip, .v-chip
@@ -670,11 +697,12 @@
     max-height: 90px
     padding-right: 5px
     padding-left: 5px
+    background-color: $button-color
 
     .btn__content, .v-btn__content
       padding-left: 0px
       padding-right: 0px
-      color: $link-color
+      color: $button-text-color
       font-size: 13px
       font-weight: 500
 
@@ -694,11 +722,12 @@
       padding-right: 5px
       padding-left: 5px
       margin-left: 5px
+      background-color: $button-color
 
       .btn__content, .v-btn__content
         padding-left: 0px
         padding-right: 0px
-        color: $link-color
+        color: $button-text-color
         font-size: 13px
         font-weight: 500
 
@@ -721,7 +750,7 @@
     height: 22px
     margin-right: 10px
     margin-left: 5px
-    color: $light-badge-color
+    color: $button-color
 
     i.material-icons
       font-size: 20px
@@ -735,9 +764,8 @@
     <div id="analyze-all-buttons" v-if="!isEduMode && !isBasicMode" :class="{'clin': launchedFromClin}" >
 
       <v-btn  id="analyze-all-button"
-      v-if="isLoaded && !isFullAnalysis && !isSimpleMode"
+      v-if="isLoaded && !isSimpleMode"
       class="level-edu"
-      flat
       @click="onAnalyzeAll"
       v-tooltip.top-center="`Analyze variants in all genes`" >
         <v-icon>playlist_play</v-icon>
@@ -746,20 +774,18 @@
 
 
       <v-btn
-      v-if="analyzeAllInProgress && !isFullAnalysis && !isSimpleMode"
-      class="stop-analysis-button"
-      @click="onStopAnalysis"  flat
+      v-if="!isSimpleMode"
+      :class="analyzeAllInProgress ? 'stop-analysis-button in-progress' : 'stop-analysis-button'"      @click="onStopAnalysis"  flat
       v-tooltip.top-center="`Stop analysis`" >
         <v-icon>stop</v-icon>
       </v-btn>
 
-      <v-spacer></v-spacer>
 
       <div id="call-variants-dropdown"
-        v-if="isLoaded && hasAlignments && !isFullAnalysis && !isSimpleMode"
+        v-if="isLoaded && hasAlignments && !isSimpleMode"
       >
         <v-menu offset-y>
-          <v-btn  slot="activator" flat
+          <v-btn  slot="activator" 
           v-tooltip.top-center="`Call variants from alignments`"
           class="call-variants-button">
             <v-icon>playlist_add</v-icon>
@@ -773,8 +799,8 @@
         </v-menu>
       </div>
       <v-btn
-      v-if="callAllInProgress && !isFullAnalysis"
-      class="stop-analysis-button"
+      v-if="isLoaded && hasAlignments && !isSimpleMode"
+      :class="callAllInProgress ? 'stop-analysis-button in-progress' : 'stop-analysis-button'"
       @click="onStopAnalysis" flat 
       v-tooltip.top-center="`Stop calling variants`" >
         <v-icon>stop</v-icon>
@@ -945,11 +971,12 @@
                       <span class="variant-moniker">
                         <span class="gene-name"> {{ flaggedGene.gene.gene_name }}</span>
 
+
                         <span class="variant-glyphs">
                           <app-icon
                            icon="clinvar"
-                           v-if="clinvar(variant) == 'clinvar_path' || clinvar(variant) == 'clinvar_lpath'"
-                           :level="clinvar(variant) == 'clinvar_path' ? 'high' : 'likely-high'"
+                           v-if="isClinvarToShow(variant)"
+                           :level="getClinvarLevel(variant)"
                            class="clinvar-badge" height="13" width="13">
                           </app-icon>
 
@@ -1014,11 +1041,37 @@
 
                         </span>
                         <span v-if="false" :class="getAfClass(variant)">{{ afDisplay(variant) }}</span>
+
                       </div>
                     </div>
                     <div  v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span class="revel">{{ capitalize(revel(variant)) }}</span>
                     </div>
+                    <!--
+                    <v-chip class="gene-phenotype-association" v-for="assocation, idx in genePhenotypeAssociations(flaggedGene.gene.gene_name)" :key="assocation">
+                      {{ assocation }}
+                    </v-chip>
+                    -->
+                    <div v-for="(geneHit, index) in genePhenotypeAssociations(flaggedGene.gene.gene_name)" :key="geneHit.key">
+                      <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
+                        <div>
+                          <v-chip class="gene-phenotype-association" v-if="geneRank.rank">
+                            <span class="mr-1">#{{ geneRank.rank  }}</span>
+                            <span v-if="geneRank.source">{{  geneRank.source }}</span>
+                          </v-chip>
+                          <v-chip class="gene-phenotype-association" v-else >
+                            <span v-if="geneRank.source"> {{ geneRank.source }}</span>
+                          </v-chip>
+                          <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">
+                            {{ geneHit.searchTerm | firstCharacterToUppercase }}
+                          </span>
+                          <span v-else-if="geneRank.source==='HPO' && geneRank.hpoPhenotype" class="pheno-search-term">
+                            {{ geneRank.hpoPhenotype | firstCharacterToUppercase }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
 
 
@@ -1317,7 +1370,7 @@ export default {
     sortFlattenedGenes: function(flattenedGenes){
       let sig = [];
       let unsig = [];
-      let unknownSig = [];
+      let uncertainSig = [];
       let poorQual = [];
       let sortedGenes = [];
 
@@ -1328,8 +1381,8 @@ export default {
         if(variant.interpretation === "sig"){
           sig.push(flattenedGenes[i]);
         }
-        else if(variant.interpretation === "unknown-sig"){
-          unknownSig.push(flattenedGenes[i]);
+        else if(variant.interpretation === "uncertain-sig"){
+          uncertainSig.push(flattenedGenes[i]);
         }
         else if(variant.interpretation === "not-sig"){
           unsig.push(flattenedGenes[i]);
@@ -1343,9 +1396,9 @@ export default {
         sortedGenes.push(sig[i]);
         ordinalFilter++;
       }
-      for(let i = 0; i < unknownSig.length; i++){
-        unknownSig[i].variants[0].ordinalFilter = ordinalFilter;
-        sortedGenes.push(unknownSig[i]);
+      for(let i = 0; i < uncertainSig.length; i++){
+        uncertainSig[i].variants[0].ordinalFilter = ordinalFilter;
+        sortedGenes.push(uncertainSig[i]);
         ordinalFilter++;
       }
       for(let i = 0; i < unsig.length; i++){
@@ -1472,6 +1525,34 @@ export default {
         return variant.clinvar ? variant.clinvar : "";
       }
     },
+    isClinvarToShow: function(variant){
+      let val = variant.clinvar;
+      if(val === "clinvar_path"){
+        return true;
+      }
+      else if(val === "clinvar_lpath"){
+        return true;
+      }
+      else if (val === "clinvar_uc"){
+        return true;
+      }
+      else if (val === "clinvar_lbenign"){
+        return false;
+      }
+      else if(val === "clinvar_cd"){
+        return true;
+      }
+      else if(val === "benign"){
+        return false;
+      }
+      else{
+        return false;
+      }
+    },
+    getClinvarLevel: function(variant){
+      return this.globalApp.utility.getClinvarLevel(variant.clinvar);
+    },
+
     rsId: function(variant) {
       if (variant.isProxy) {
         return variant.rsId;
@@ -1510,6 +1591,19 @@ export default {
       } else {
         return variant.vepConsequence ? Object.keys(variant.vepConsequence).join(" ").split("_").join(" ") : "";
       }
+    },
+    genePhenotypeAssociations: function(geneName) {
+      let self = this;
+      let associations = []
+      let searchTermRecs = self.cohortModel.geneModel.getGenePhenotypeHits(geneName);
+      if (searchTermRecs) {
+        for (var searchTerm in searchTermRecs) {
+          let searchTermLabel = searchTerm.split("_").join(" ");
+          var rankRecs        = searchTermRecs[searchTerm];
+          associations.push( {key: searchTerm, searchTerm: searchTermLabel, geneRanks: rankRecs } );
+        }
+      }
+      return associations;
     },
     highestImpactClass: function(variant) {
       let clazz = "filter-symbol";
@@ -1690,6 +1784,13 @@ export default {
 
 
 
+  },
+  filters: {
+    firstCharacterToUppercase(s) {
+      if(s){
+      return s.charAt(0).toUpperCase() + s.slice(1)
+      }
+    },
   },
   watch: {
     geneNames: function(newGeneNames, oldGeneNames) {

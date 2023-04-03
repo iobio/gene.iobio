@@ -25,7 +25,7 @@
   padding-right: 5px
   padding-left: 5px
   margin-top: 0px
-  margin-left: 2px
+  margin-left: -10px
 
   .btn__content, .v-btn__content
     padding-left: 0px

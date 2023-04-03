@@ -2,7 +2,6 @@
 @import ../../../assets/sass/variables
 #variant-detail
   padding-left: 0px
-  max-height: 222px
   min-height: 222px
   padding-top: 0px∂g
   overflow-x: scroll
@@ -13,6 +12,11 @@
 
   .rel-header
     font-style: italic
+
+  .sample-label
+    color: $heading-color !important
+    font-size: 17px !important
+
 
   .variant-action-button
     background-color: white
@@ -345,7 +349,7 @@
     <div v-if="selectedVariant && info" tile id="variant-detail"
       :class="{'app-card': true, 'has-notes': notes ? true : false}">
       <div style="width:100%;">
-        <span style="display:inline-block" v-if="showTitle ">Variant</span>
+        <span class="sample-label" style="display:inline-block" v-if="showTitle ">Variant</span>
       </div>
 
       <div  id="variant-heading" v-if="selectedVariant && !isEduMode" class="mt-1 text-xs-left">
@@ -358,9 +362,9 @@
           </app-icon>
           <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
         </span>
-        <span class="pl-1">{{ selectedGene.gene_name }}</span>
-        <span class="pl-1">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-        <span class="pl-1">{{ info.coord }}</span>
+        <span class="pl-1 sample-label">{{ selectedGene.gene_name }}</span>
+        <span class="pl-1 sample-label">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
+        <span style="margin-left:125px">{{ info.coord }}</span>
         <span class="pl-1 refalt">{{ refAlt  }}</span>
         <span class="pl-2">{{ info.HGVSpAbbrev }}</span>
 

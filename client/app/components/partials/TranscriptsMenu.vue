@@ -15,20 +15,35 @@
 
 <style lang="sass">
     @import "../../../assets/sass/_variables.sass";
-    #edit-transcript-button
-        color:  $link-color
+    #edit-transcript-dropdown
+        background-color: $dropdown-button-color
         margin: 0px 8px 0px 0px
         padding: 0px
         padding-left: 8px
-        padding-right: 8px
-        height: 28px
-        .btn__content, .v-btn__content
+        padding-right: 0px
+        height: 24px
+        border-radius: 4px 
+        box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)
+        #edit-transcript-button-content
+            display:flex
+            align-items:center
+            color: $dropdown-text-color
+
+        .v-btn__content
             padding: 0px
             text-align: left
-            line-height: 15px
             font-weight: 500
-            color: $link-color
-            font-size: 13px
+            font-size: 14px
+
+            .left-icon
+                padding-left: 4px
+                padding-right: 6px
+
+            .button-label
+                font-size:  13px
+
+            .right-icon
+                padding-left:  10px
     #select-transcript-viz
         .selected
             outline: solid 1px $current-color
@@ -50,34 +65,19 @@
             padding: 0px
         .btn__content, .v-btn__content
             color: $text-color
-        #gene-source-box
-            display: block
-            margin-top: 0px
-            margin-bottom: 10px
-            width: 200px
-            .input-group--select
-                .input-group__selections__comma
-                    font-size: 14px
-                    padding: 0px 0px 0px 0px
-            .input-group
-                label
-                    font-size: 14px
-                    line-height: 25px
-                    height: 25px
-            .input-group__input
-                min-height: 0px
-                margin-top: 10px
-
+        
     .gene-info
         .v-badge
             background-color: white !important
             border: thin solid #9c9c9c !important
             color: inherit !important
-
+    #transcript-card
+        .v-badge.info.mane-select
+            background-color: transparent !important
 </style>
 
 <template>
-
+    <div>
     <v-menu
             offset-y
             :close-on-content-click="false"
@@ -88,20 +88,21 @@
     >
 
 
-        <v-btn id="edit-transcript-button"
+        <v-btn id="edit-transcript-dropdown"
                slot="activator"
                flat
                v-tooltip.top-center="{content: `Change the current transcript for this gene`}"
         >
-            <v-icon>linear_scale</v-icon>
-            {{ `Transcript ` + selectedTranscript.transcript_id }}
-            <v-badge class="info" style="margin-left:5px;" v-if="selectedTranscript.is_mane_select == 'true'">MANE SELECT</v-badge>
+            <div id="edit-transcript-button-content">
+                <span class="button-label">{{ selectedTranscript.transcript_id }}</span>
+                <v-icon class="right-icon" >arrow_drop_down</v-icon>
+            </div>
         </v-btn>
 
 
 
         <v-card id="select-transcripts-box" class="full-width">
-            <div id="gene-source-box" >
+            <div id="gene-source-box" v-if="false" >
                 <v-select
                         v-bind:items="geneSources"
                         v-model="geneSource"
@@ -135,7 +136,12 @@
 
 
     </v-menu>
+    <v-badge class="info" style="margin-left:5px;" v-if="selectedTranscript.transcript_type != 'null' && selectedTranscript.transcript_type != 'protein_coding'"> {{ selectedTranscript.transcript_type }} </v-badge>
 
+   
+    <v-badge class="info mane-select" style="margin-left:5px;" v-if="selectedTranscript.is_mane_select == 'true'">MANE SELECT</v-badge>
+
+    </div>
 
 
 </template>
@@ -204,9 +210,12 @@
                 }
             },
             selectedGene: function(){
-                if (this.newTranscript) {
+                if (this.newTranscript && this.newTranscript.transcript_id && Object.keys(this.selectedGene).length > 0) {
                     let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
-                    this.isCanonical = canonical.transcript_id == this.newTranscript.transcript_id;
+                    if (canonical && canonical.transcript_id) {
+
+                    this.isCanonical = (canonical.transcript_id == this.newTranscript.transcript_id) ? true : false;                   
+                    }
                 }
             }
 

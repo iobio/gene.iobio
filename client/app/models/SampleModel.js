@@ -38,9 +38,7 @@ class SampleModel {
     this.defaultSampleName = null;
     this.relationship = null;
     this.affectedStatus = null;
-
-    this.lastVcfAlertify = null;
-    this.lastBamAlertify = null;
+    this.sex = null;
 
     this.cohort = null;
 
@@ -65,9 +63,21 @@ class SampleModel {
   }
 
 
-
-
-
+  getModelInfo() {
+    let self = this;
+    let modelInfo = {
+      "relationship":   self.relationship,
+      "affectedStatus": self.affectedStatus,
+      "name":           self.name,
+      "sample":         self.sampleName,
+      "sex":            self.sex,
+      "vcf":            self.vcf ? self.vcf.getVcfURL() : null,
+      "tbi":            self.vcf ? self.vcf.getTbiURL() : null,
+      "bam":            self.bam ? self.bam.bamUri : null,
+      "bai":            self.bam ? self.bam.baiUri : null
+    }
+    return modelInfo;
+  }
 
   getSampleIdentifier(theSampleName) {
     var id = this.relationship + "&&" + this.sampleName + "&&" + theSampleName;
@@ -93,15 +103,11 @@ class SampleModel {
         me.promiseGetVcfData(window.gene, window.selectedTranscript)
          .then(function(data) {
           resolveIt(resolve, data.vcfData);
-         },
-         function(error) {
-           var msg = "A problem occurred in SampleModel.promiseSetLoadState().  Please try refreshing the page";
-           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-             .setHeader("Fatal Error");
-           console.log(msg);
-           reject(msg);
          })
-
+         .catch( function(error) {
+           console.log(error);
+           reject(error);
+         });
       }
     })
   }
@@ -234,7 +240,7 @@ class SampleModel {
             // copy the called variants into the vcf data.
             if (whenEmptyUseFbData && me.isAlignmentsOnly()) {
               me.promiseGetFbData(geneObject, selectedTranscript)
-               .then(function(theFbData) {
+              .then(function(theFbData) {
                 // If no variants are loaded, create a dummy vcfData with 0 features
                 if (theFbData && theFbData.features) {
                   theVcfData = $.extend({}, theFbData);
@@ -249,16 +255,17 @@ class SampleModel {
                    .then(function() {
                     me.addCalledVariantsToVcfData(theVcfData, theFbData);
                    })
+                   .catch(function(error) {
+                     reject(error)
+                   })
 
 
                 }
                 resolve({model: me, vcfData: theVcfData});
 
-               },
-               function(error) {
-                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations().  Try refreshing the page";
-                 alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                   .setHeader("Fatal Error");
+               })
+               .catch(function (error) {
+                 let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations()."
                  console.log(msg);
                  reject(error);
                });
@@ -286,7 +293,7 @@ class SampleModel {
           // Reconstitute called variants from vcf data that contains called variants
           if (theFbData == null || theFbData.features == null) {
             me.promiseGetVcfData(geneObject, selectedTranscript, false)
-             .then(function(data) {
+            .then(function(data) {
               var theVcfData = data.vcfData;
               var dangerSummary = me.promiseGetDangerSummary(geneObject.gene_name)
                .then(function(dangerSummary) {
@@ -303,12 +310,11 @@ class SampleModel {
                 reject(msg);
                })
 
-             },
-             function(error) {
-                var msg = "An error occurred in SampleModel.promiseGetFbData: " + error;
+            })
+            .catch( function(error) {                
                 console.log(msg);
                 reject(msg);
-             });
+            });
           } else {
             resolve({fbData: theFbData, model: me});
           }
@@ -404,21 +410,29 @@ class SampleModel {
           if (transcript.features == null || transcript.features.length == 0) {
             resolve({model: me, gene: geneObject, transcript: transcript, 'geneCoverage': []});
           } else {
-            me.bam.getGeneCoverage(geneObject,
+            me.bam.promiseGetGeneCoverage(geneObject,
               transcript,
-              [me.bam],
-              function(theData, trRefName, theGeneObject, theTranscript) {
-                var geneCoverageObjects = me._parseGeneCoverage(theData);
-                if (geneCoverageObjects.length > 0) {
-                  me._setGeneCoverageExonNumbers(transcript, geneCoverageObjects);
-                  me.setGeneCoverageForGene(geneCoverageObjects, theGeneObject, theTranscript);
-                  resolve({model: me, gene: theGeneObject, transcript: theTranscript, 'geneCoverage': geneCoverageObjects});
-                } else {
-                  console.log("Cannot get gene coverage for gene " + theGeneObject.gene_name);
-                  resolve({model: me, gene: theGeneObject, transcript: theTranscript, 'geneCoverage': []});
-                }
+              [me.bam])
+            .then(function(data) {
+              let theData = data.geneCoverage;
+              let trRefName = data.refName;
+              let theGeneObject = data.geneObject;
+              let theTranscript = data.transcript;
+              
+              var geneCoverageObjects = me._parseGeneCoverage(theData);
+              if (geneCoverageObjects.length > 0) {
+                me._setGeneCoverageExonNumbers(transcript, geneCoverageObjects);
+                me.setGeneCoverageForGene(geneCoverageObjects, theGeneObject, theTranscript);
+                resolve({model: me, gene: theGeneObject, transcript: theTranscript, 'geneCoverage': geneCoverageObjects});
+              } else {
+                console.log("Cannot get gene coverage for gene " + theGeneObject.gene_name);
+                resolve({model: me, gene: theGeneObject, transcript: theTranscript, 'geneCoverage': []});
               }
-            );
+            })
+            .catch(function(error) {
+              reject(error)
+            })
+     
           }
         }
 
@@ -579,26 +593,35 @@ class SampleModel {
         resolveIt(resolve, data);
       } else {
         me.promiseGetVcfData(window.gene, window.selectedTranscript)
-         .then(function(theData) {
+        .then(function(theData) {
           theVcfData = theData.vcfData;
           resolveIt(resolve, theData.vcfData);
-         },
-         function(error) {
-          var msg = "Problem in SampleModel.promiseGetVariantCount(): " + error;
-          console.log(msg);
-          reject(msg);
-         })
+        })
+        .catch(function(error) {
+          console.log(error);
+          reject(error);
+        })
       }
     })
 
   }
 
 
-  promiseSummarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, transcript) {
+  promiseSummarizeDanger(geneObject, theVcfData, options, geneCoverageAll, filterModel, transcript, notFoundVariants=null) {
     var me = this;
     return new Promise(function(resolve, reject) {
-      var dangerSummary = SampleModel._summarizeDanger(geneName, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme(), transcript);
-      me.promiseCacheDangerSummary(dangerSummary, geneName).then(function() {
+      var dangerSummary = SampleModel._summarizeDanger(geneObject.gene_name, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme(), transcript);
+      
+      me.cohort.captureFlaggedVariants(dangerSummary, geneObject)
+
+      // We need to restore the 'notFound' variants in the badges that we discovered when
+      // the variants were imported. Since they are not in the vcf file, we will lose 
+      // this information unless we restore it here.
+      if (notFoundVariants && dangerSummary.badges) {
+        dangerSummary.badges.notFound = notFoundVariants;
+      }
+
+      me.promiseCacheDangerSummary(dangerSummary, geneObject.gene_name).then(function() {
         resolve(dangerSummary);
       },
       function(error) {
@@ -827,81 +850,51 @@ class SampleModel {
       } else {
         me.bam = new Bam(me.globalApp, me.cohort.endpoint);
         me.bam.openBamFile(fileSelection, function(success, message) {
-          if (me.lastBamAlertify) {
-            me.lastBamAlertify.dismiss();
-          }
           if (success) {
             me.bamFileOpened = true;
             me.getBamRefName = me._stripRefName;
             resolve(me.bam.bamFile.name);
 
           } else {
-            if (me.lastBamAlertify) {
-              me.lastBamAlertify.dismiss();
-            }
-            var msg = "<span style='font-size:12px'>" + message + "</span>";
-                alertify.set('notifier','position', 'top-right');
-            me.lastBamAlertify = alertify.error(msg, 15);
-
             reject(message);
-
           }
         });
       }
-
-
-
     });
 
 
   }
 
-  onBamUrlEntered(bamUrl, baiUrl, callback) {
+  promiseLoadBamUrl(bamUrl, baiUrl) {
     var me = this;
-    this.bamData = null;
-    this.fbData = null;
-    this.vcfData = null;
 
-    if (bamUrl == null || bamUrl.trim() == "") {
-      this.bamUrlEntered = false;
-      this.bam = null;
-      if (callback) {
-        callback(false)
-      }
+    return new Promise(function(resolve, reject) {
+      me.bamData = null;
+      me.fbData = null;
+      me.vcfData = null;
 
-    } else {
+      if (bamUrl == null || bamUrl.trim() == "") {
+        me.bamUrlEntered = false;
+        me.bam = null;
+        reject("No URL provided for bam")
+      } else {
 
-      this.bamUrlEntered = true;
-      this.bam = new Bam(this.globalApp, this.cohort.endpoint, bamUrl, baiUrl);
+        me.bamUrlEntered = true;
+        me.bam = new Bam(me.globalApp, me.cohort.endpoint, bamUrl, baiUrl);
 
-      this.bam.checkBamUrl(bamUrl, baiUrl, function(success, errorMsg) {
-        if (me.lastBamAlertify) {
-          me.lastBamAlertify.dismiss();
-        }
-        if (!success) {
-          me.bamUrlEntered = false;
-          me.bam = null;
-          setTimeout(function() {
-            var msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + bamUrl + "</span>";
-                alertify.set('notifier','position', 'top-right');
-            me.lastBamAlertify = alertify.error(msg, 15);
-            if(callback) {
-
-              callback(success);
-            }
-
-          }, 500)
-        } else {
-          if(callback) {
-            callback(success);
+        me.bam.checkBamUrl(bamUrl, baiUrl, function(success, errorMsg) {
+          if (!success) {
+            me.bamUrlEntered = false;
+            me.bam = null;
+            reject(errorMsg)
+          } else {
+            me.getBamRefName = me._stripRefName;
+            resolve();
           }
+        });
 
-        }
-      });
-
-    }
-
-      this.getBamRefName = this._stripRefName;
+      }
+    })
 
   }
 
@@ -922,29 +915,23 @@ class SampleModel {
       } else {
         me.vcf.openVcfFile( fileSelection,
         function(success, message) {
-          if (me.lastVcfAlertify) {
-            me.lastVcfAlertify.dismiss();
-          }
           if (success) {
-
-
             me.vcfFileOpened = false;
             me.vcfUrlEntered = true;
             me.getVcfRefName = null;
             me.isMultiSample = false;
 
             // Get the sample names from the vcf header
-            me.vcf.getSampleNames( function(sampleNames) {
+            me.vcf.promiseGetSampleNames()
+            .then(function(sampleNames) {
                 me.sampleNames = sampleNames;
                 me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
                 resolve({'fileName': me.vcf.getVcfFile().name, 'sampleNames': sampleNames});
-              });
+            })
+            .catch(function(error) {
+              reject(error)
+            })
           } else {
-
-            var msg = "<span style='font-size:12px;min-width:400px'>" + message + "</span>";
-              alertify.set('notifier','position', 'top-right');
-              me.lastVcfAlertify = alertify.error(msg, 15);
-
             reject(message);
           }
         });
@@ -977,54 +964,46 @@ class SampleModel {
     }
   }
 
-  onVcfUrlEntered(vcfUrl, tbiUrl, callback) {
+  promiseLoadVcfUrl(vcfUrl, tbiUrl) {
     var me = this;
-    this.vcfData = null;
-    var success = true;
-    this.sampleName = null;
 
-    if (vcfUrl == null || vcfUrl == '') {
-      this.vcfUrlEntered = false;
-      this.vcf.clearVcfURL();
-      success = false;
-      if (callback) {
-        callback(success)
-      }
+    return new Promise(function(resolve, reject) {
+      me.vcfData = null;
+      var success = true;
+      me.sampleName = null;
 
-    } else {
-      me.vcfUrlEntered = true;
+      if (vcfUrl == null || vcfUrl == '') {
+        me.vcfUrlEntered = false;
+        me.vcf.clearVcfURL();
+        resolve([])
+
+      } else {
+        me.vcfUrlEntered = true;
         me.vcfFileOpened = false;
         me.getVcfRefName = null;
         me.isMultiSample = false;
 
-        success = this.vcf.openVcfUrl(vcfUrl, tbiUrl, function(success, errorMsg) {
-          if (me.lastVcfAlertify) {
-            me.lastVcfAlertify.dismiss();
-          }
-          if (success) {
-
-            me.vcfUrlEntered = true;
-            me.vcfFileOpened = false;
-            me.getVcfRefName = null;
-            // Get the sample names from the vcf header
-            me.vcf.getSampleNames( function(sampleNames) {
-              me.samples = sampleNames;
-              me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
-              callback(success, sampleNames);
-            });
-          } else {
-            me.vcfUrlEntered = false;
-            setTimeout(function() {
-              var msg = "<span style='font-size:12px;'>" + errorMsg + "</span><br><span style='font-size:12px'>" + vcfUrl + "</span>";
-              alertify.set('notifier','position', 'top-right');
-              me.lastVcfAlertify = alertify.error(msg, 15);
-              callback(success);
-            }, 500)
-            
-          }
-        });
-
-    }
+        me.vcf.promiseOpenVcfUrl(vcfUrl, tbiUrl)
+        .then( function() {
+          me.vcfUrlEntered = true;
+          me.vcfFileOpened = false;
+          me.getVcfRefName = null;
+          // Get the sample names from the vcf header
+          me.vcf.promiseGetSampleNames()
+          .then( function(sampleNames) {
+            me.samples = sampleNames;
+            me.isMultiSample = sampleNames && sampleNames.length > 1 ? true : false;
+            resolve(sampleNames);
+          })
+          .catch(function(error) {
+            reject(error)
+          })
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      }
+    })
   }
 
   /* Takes in two stably sorted lists of vcfs and tbis. Performs similar functions as onVcfUrlEntered above,
@@ -1057,9 +1036,6 @@ class SampleModel {
       } else {
         // Try to open
         self.sfariVcfs[i].openVcfUrl(currVcf.url, currTbi.url, function(success, errorMsg) {
-            if (self.lastVcfAlertify) {
-                self.lastVcfAlertify.dismiss();
-            }
             if (success) {
                 // Get the sample names from the vcf header
                 self.sfariVcfs[i].getSampleNames(function(sampleNames) {
@@ -1070,9 +1046,7 @@ class SampleModel {
             } else {
                 // If we have a hiccup on one, return false for all
                 self.vcfUrlEntered = false;
-                let msg = "<span style='font-size:12px'>" + errorMsg + "</span><br><span style='font-size:12px'>" + currVcf.url + "</span>";
-                alertify.set('notifier','position', 'top-right');
-                self.lastVcfAlertify = alertify.error(msg, 15);
+                reject(errorMsg)
             }
         });
       }
@@ -1108,7 +1082,8 @@ class SampleModel {
         if (sfariMode) {
           currVcf = me.sfariVcfs[0];
         }
-        currVcf.getReferenceLengths(function(refData) {
+        currVcf.promiseGetReferenceLengths()
+        .then(function(refData) {
           var foundRef = false;
           refData.forEach( function(refObject) {
             var refName = refObject.name;
@@ -1143,7 +1118,10 @@ class SampleModel {
 
             }
           }
-        });
+         })
+         .catch(function(error) {
+            reject(error)
+         })
       }
     });
 
@@ -1197,15 +1175,14 @@ class SampleModel {
             reject(msg);
           }
         }
-       },
-       function(error) {
-        var msg = "A problem occurred in SampleModel.promiseGetMatchingVariant(): " + error;
-        console.log(msg);
-        if (variant.isProxy && variant.notFound) {
-          resolve(variant);
-        } else {
-          reject(msg);
-        }
+       })
+       .catch( function(error) {
+          console.log(error);
+          if (variant.isProxy && variant.notFound) {
+            resolve(variant);
+          } else {
+            reject(error);
+          }
        })
 
     });
@@ -1224,79 +1201,71 @@ class SampleModel {
 
 
 
-  getBamDepth(gene, selectedTranscript, callbackDataLoaded) {
+  promiseGetBamDepth(gene, selectedTranscript) {
     var me = this;
 
-
-    if (!this.isBamLoaded()) {
-      if (callbackDataLoaded) {
-        callbackDataLoaded();
+    return new Promise(function(resolve, reject) {
+      if (!me.isBamLoaded()) {
+        reject("Cannot get bam depth because file or URL not specified");
       }
-      return;
-    }
 
-    var performCallbackForCachedData = function(regions, theVcfData, coverageData) {
-      if (regions.length > 0) {
-        me._refreshVariantsWithCoverage(theVcfData, coverageData, function() {
-          if (callbackDataLoaded) {
-                callbackDataLoaded(coverageData);
-              }
-        });
-      } else {
-        if (callbackDataLoaded) {
-              callbackDataLoaded(coverageData);
-            }
-      }
-    }
-
-    var performCallback = function(regions, theVcfData, coverageForRegion, coverageForPoints) {
-      if (regions.length > 0) {
-        me._refreshVariantsWithCoverage(theVcfData, coverageForPoints, function() {
-          if (callbackDataLoaded) {
-                callbackDataLoaded(coverageForRegion);
-              }
-        });
-      } else {
-        if (callbackDataLoaded) {
-              callbackDataLoaded(coverageForRegion, CacheHelper.BAM_DATA);
-            }
-      }
-    }
-
-
-    // A gene has been selected.  Read the bam file to obtain
-    // the read converage.
-    var refName = this.getBamRefName(gene.chr);
-    this.promiseGetVcfData(gene, selectedTranscript)
-     .then(function(data) {
-      var theVcfData = data.vcfData;
-      var regions = [];
-      // We we have variants, get the positions for each variant.  This will
-      // be provided for the service to get coverage data so that specific
-      // base coverage is also returned.
-      if (theVcfData != null) {
-        me.flagDupStartPositions(theVcfData.features);
-        if (theVcfData) {
-          theVcfData.features.forEach( function(variant) {
-            if (!variant.dup) {
-              regions.push({name: refName, start: variant.start - 1, end: variant.start });
-            }
+      var performCallbackForCachedData = function(regions, theVcfData, coverageData) {
+        if (regions.length > 0) {
+          me._refreshVariantsWithCoverage(theVcfData, coverageData, function() {
+            resolve({'coverageData': coverageData, 'model': me})
           });
+        } else {
+          resolve({'coverageData': coverageData, 'model': me})
         }
       }
-      // Get the coverage data for the gene region
-      // First the gene vcf data has been cached, just return
-      // it.  (No need to retrieve the variants from the iobio service.)
-      me._promiseGetData(CacheHelper.BAM_DATA, gene.gene_name)
-       .then(function(data) {
-        if (data != null && data != '') {
-          me.bamData = data;
 
-          performCallbackForCachedData(regions, theVcfData, data.coverage);
-
+      var performCallback = function(regions, theVcfData, coverageForRegion, coverageForPoints) {
+        if (regions.length > 0) {
+          me._refreshVariantsWithCoverage(theVcfData, coverageForPoints, function() {
+            resolve({'coverageData': coverageForRegion, 'model': me})
+          });
         } else {
-          me.bam.getCoverageForRegion(refName, gene.start, gene.end, regions, 2000, me.globalApp.useServerCache,
-            function(coverageForRegion, coverageForPoints) {
+          resolve({'coverageData': coverageForRegion, 'model': me})
+        }
+      }
+
+
+      // A gene has been selected.  Read the bam file to obtain
+      // the read coverage.
+      var refName = me.getBamRefName(gene.chr);
+      me.promiseGetVcfData(gene, selectedTranscript)
+      .then(function(data) {
+        var theVcfData = data.vcfData;
+        var regions = [];
+        // We we have variants, get the positions for each variant.  This will
+        // be provided for the service to get coverage data so that specific
+        // base coverage is also returned.
+        if (theVcfData != null) {
+          me.flagDupStartPositions(theVcfData.features);
+          if (theVcfData) {
+            theVcfData.features.forEach( function(variant) {
+              if (!variant.dup) {
+                regions.push({name: refName, start: variant.start - 1, end: variant.start });
+              }
+            });
+          }
+        }
+        // Get the coverage data for the gene region
+        // First the gene vcf data has been cached, just return
+        // it.  (No need to retrieve the variants from the iobio service.)
+        me._promiseGetData(CacheHelper.BAM_DATA, gene.gene_name)
+        .then(function(data) {
+          if (data != null && data != '') {
+            me.bamData = data;
+
+            performCallbackForCachedData(regions, theVcfData, data.coverage);
+
+          } else {
+            me.bam.promiseGetCoverageForRegion(refName, gene.start, gene.end, regions, 2000, me.globalApp.useServerCache)
+            .then( function(data) {
+              let coverageForRegion = data.coverageForRegion;
+              let coverageForPoints = data.coverageForPoints;
+
               if (coverageForRegion != null) {
               me.bamData = {gene: gene.gene_name,
                           ref: refName,
@@ -1318,12 +1287,27 @@ class SampleModel {
                 performCallback(regions, theVcfData, coverageForRegion, coverageForPoints);
               }
 
-          });
-        }
+            })
+            .catch(function (error) {              
+              reject(error)
+            })
+          }
+
+         })
+         .catch(function(error) {
+          reject(error)
+         })
 
        })
+       .catch(function(error) {
+        reject(error)
+       })
 
-     })
+
+
+    })
+
+
   }
 
 
@@ -1467,7 +1451,7 @@ class SampleModel {
                     }
                   } else {
                     me.promiseGetVcfData(theGene, theTranscript)
-                     .then(function(data) {
+                    .then(function(data) {
                       var cachedVcfData = data.vcfData;
                       if (cachedVcfData) {
                         var theVariants = cachedVcfData.features.filter(function(d) {
@@ -1512,50 +1496,46 @@ class SampleModel {
 
                           // re-cache the data
                           me._promiseCacheData(cachedVcfData, CacheHelper.VCF_DATA, theGene.gene_name, theTranscript)
-                           .then(function() {
+                          .then(function() {
                             // return the annotated variant
-                          resolve(theVariant);
-                           }, function(error) {
-                             let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(). Try refreshing the page.";
-                             alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                               .setHeader("Fatal Error");
+                            resolve(theVariant);
+                           })
+                          .catch( function(error) {
+                            let msg = "Problem caching data in SampleModel.promiseGetVariantExtraAnnotations(). Try refreshing the page.";
                             console.log(msg);
                             reject(msg);
-                           });
-                           resolve(theVariant);
+                          });
+                          resolve(theVariant);
 
                         } else {
-                          var msg = "Cannot find corresponding variant to update HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt + "</code>";
-                          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                            .setHeader("Non-fatal Error");
+                          var msg = "Cannot find corresponding variant to update HGVS notation for variant <pre>" + v.chrom + " " + v.start + " " + v.ref + "->" + v .alt + "</pre> in gene <pre>" + theGene.gene_name + "</pre>";
+                          console.log(msg)
                           reject(msg);
                         }
                       } else {
-                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant <code>" + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt + "</code>";
+                        var msg = "Unable to update gene vcfData cache with updated HGVS notation for variant <pre>" + v.chrom + " " + v.start + " " + v.ref + "->" + v.alt + "</pre> in gene <pre>" + theGene.gene_name + "</pre>";
                         console.log(msg);
                         reject(msg);
 
                       }
 
-                     })
-
+                    })
+                    .catch(function(error) {
+                      console.log(error)
+                      reject(error)
+                    })
                   }
                 } else {
-                  var msg = "Cannot find matching vcf records\ SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt +"</code>. Try refreshing the page.";
+                  var msg = "Cannot find matching vcf records SampleModel.promiseGetVariantExtraAnnotations() for variant <pre>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt +"</pre>. Try refreshing the page.";
                   console.log(msg);
                   if (format == 'gemini' || format == 'csv' || format == 'json' || format == 'vcf') {
                     variant.notFound = true;
                     variant.isUserFlagged = false;
                     resolve([variant, variant, []]);
                   } else {
-                    alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                      .setHeader("Fatal Error");
                    reject(msg);
                   }
-
                 }
-
-
               } else {
                 var msg = "Empty results returned from SampleModel.promiseGetVariantExtraAnnotations() for variant <code>" + variant.chrom + " " + variant.start + " " + variant.ref + "->" + variant.alt + "</code>";
                 console.log(msg);
@@ -1654,13 +1634,10 @@ class SampleModel {
           resolve(theVcfData.features);
         }
 
-       },
-       function(error) {
-         let msg = "A problem occurred in SampleModel.promiseGetImpactfulVariantIds().  Try refreshing the page.";
-         alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-           .setHeader("Non-fatal Error");
-        console.log(msg);
-        reject(msg);
+       })
+       .catch( function(error) {
+        console.log(error);
+        reject(error);
        })
 
 
@@ -1727,13 +1704,6 @@ class SampleModel {
                                       unwrappedResults.gene = theGene;
                                       annoResults.push(unwrappedResults);
                                     })
-                                    .catch((error) => {
-                                      let msg = "Could not obtain sfari variants.  Try refreshing the page.";
-                                      alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                                        .setHeader("Non-fatal Error");
-                                      reject('Problem getting sfari variants: ' + error);
-
-                                    });
                                 annoPromises.push(p);
                             });
                             Promise.all(annoPromises)
@@ -1746,12 +1716,12 @@ class SampleModel {
                                         resolve(resultMap);
                                       })
                                       .catch((error) => {
-                                        let msg = "There was a problem combining variants with sfari variants. Try refreshing the page";
-                                        alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                                          .setHeader("Non-fatal Error");
                                         reject('Problem in combining variants: ' + error);
                                       })
-                              });
+                              })
+                              .catch((error) => {
+                                reject("Problem in getting SFARI variants: " + error)
+                              })
                         });
                 }
             })
@@ -1830,71 +1800,63 @@ class SampleModel {
       } else {
         // Otherwise call service
         me._promiseVcfRefName(theGene.chr)
-            .then(() => {
-              let refName = me.getVcfRefName(theGene.chr);
-              let regions = null;
-              return me.vcf.promiseGetClinvarVariants(
-                  refName,
-                  theGene,
-                  theTranscript,
-                  regions,   // regions
-                  me.getTranslator().clinvarMap,
-                  pathogenicityCategories
-              );
-            })
-            .then(function (results) {
-              if (results) {
-                let data = results[1];
-                let theGeneObject = me.getGeneModel().geneObjects[data.gene];
-                if (theGeneObject) {
-                  let resultMap = {};
-                  let model = variantModel;
+        .then(() => {
+          let refName = me.getVcfRefName(theGene.chr);
+          let regions = null;
+          return me.vcf.promiseGetClinvarVariants(
+              refName,
+              theGene,
+              theTranscript,
+              regions,   // regions
+              me.getTranslator().clinvarMap,
+              pathogenicityCategories
+          );
+        })
+        .then(function (results) {
+          if (results) {
+            let data = results[1];
+            let theGeneObject = me.getGeneModel().geneObjects[data.gene];
+            if (theGeneObject) {
+              let resultMap = {};
+              let model = variantModel;
 
-                  // Set the gene object on each variant
-                  data.gene = theGeneObject;
-                  data.features.forEach(function (variant) {
-                    variant.gene = theGeneObject;
+              // Set the gene object on each variant
+              data.gene = theGeneObject;
+              data.features.forEach(function (variant) {
+                variant.gene = theGeneObject;
+              })
+              resultMap[model.relationship] = data;
+              model.vcfData = data;
+
+              // Set the highest allele freq for all variants
+              for (var key in resultMap) {
+                let theVcfData = resultMap[key];
+                if (theVcfData && theVcfData.features) {
+                  theVcfData.features.forEach(function (variant) {
+                    me._determineHighestAf(variant);
                   })
-                  resultMap[model.relationship] = data;
-                  model.vcfData = data;
-
-                  // Set the highest allele freq for all variants
-                  for (var key in resultMap) {
-                    let theVcfData = resultMap[key];
-                    if (theVcfData && theVcfData.features) {
-                      theVcfData.features.forEach(function (variant) {
-                        me._determineHighestAf(variant);
-                      })
-                      model.vcfData['count'] = model.vcfData.features.length;
-                    }
-                  }
-
-                  // Log last fetched pathogenicity categories
-                  me.lastFetchedPathoFilters = pathogenicityCategories;
-                  me.lastFetchedClinvarGene = theGene.gene_name;
-                  me.lastFetchedClinvarTrans = theTranscript.transcript_id;
-
-                  resolve(resultMap);
-
-                } else {
-                  let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
-                  alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
-                      .setHeader("Fatal Error");
-                  console.log(msg);
-                  reject(msg);
+                  model.vcfData['count'] = model.vcfData.features.length;
                 }
-              } else {
-                let msg = "Empty vcf results for " + theGene.gene_name;
-                alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
-                    .setHeader("Non-fatal Error");
-                console.log(msg);
-                reject(msg);
               }
-            }).catch(error => {
-          let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-          alertify.alert("<div class='pb-2 dark-text-important'>" + msg + "</div>" + me.helpMsg)
-              .setHeader("Fatal Error");
-          console.log(error);
+
+              // Log last fetched pathogenicity categories
+              me.lastFetchedPathoFilters = pathogenicityCategories;
+              me.lastFetchedClinvarGene = theGene.gene_name;
+              me.lastFetchedClinvarTrans = theTranscript.transcript_id;
+
+              resolve(resultMap);
+
+            } else {
+              let msg = "Cannot locate gene object to match with vcf data <pre>" + data.ref + " " + data.start + "-" + data.end + "</pre> Try refreshing the page.";
+              console.log(msg);
+              reject(msg);
+            }
+          } else {
+            let msg = "Empty clinvar vcf results for " + theGene.gene_name;
+            reject(msg, theGene.gene_name)
+          }
+        })
+        .catch(error => {
           reject(error)
         });
       }
@@ -1987,7 +1949,8 @@ class SampleModel {
                  false, // serverside cache
                  false, // sfari mode
                  options.getKnownVariants ? false : me.globalApp.gnomADExtraAll, // get extra gnomad,
-                 !me.isEduMode // decompose
+                 !me.isEduMode, // decompose
+                 options.bypassAnnotate ? true : false
                 );
             })
             .then( function(data) {
@@ -2059,49 +2022,40 @@ class SampleModel {
                   });
 
                 } else {
-                  let msg = "Cannot locate gene object to match with vcf data <code>" + data.ref + " " + data.start + "-" + data.end + "</code> Try refreshing the page.";
-                  alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                    .setHeader("Fatal Error");
-                  console.log(msg);
+                  let msg = "Cannot locate gene object to match with vcf data " + data.ref + " " + data.start + "-" + data.end + ".";
                   reject(msg);
                 }
               } else {
                 let msg = "Empty vcf results for " + theGene.gene_name;
-                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                  .setHeader("Non-fatal Error");
-                console.log(msg);
-                reject(msg);
+                reject(msg)
               }
-
-
-            },
-            function(error) {
-              let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Fatal Error");
-              console.log(error);
-              reject(error)
+            })
+            .catch( function(error) {
+              let msg = "Could not annotate variants due to server error. Error: " + error;
+              reject(msg)
             });
           }
-        },
-        function(error) {
-          let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-            .setHeader("Fatal Error");
-          console.log(error);
-          reject(error);
+        })
+        .catch(function(error) {
+          let msg = "Could not annotate variants. An error occurred when getting cached vcf data. Error:  " + error;
+          console.log(msg);
+          reject(msg)
         });
 
       })
       .catch( function(error) {
-        let msg = "Could not annotate variants. The variant file does not contain the reference " + theGene.chr;
-        msg += " for gene " + theGene.gene_name + ".";
-        console.log(error);
+        let msg = "Could not annotate variants. The variant file does not contain the reference <pre>" + theGene.chr;
+        msg += "</pre> for gene <pre>" + theGene.gene_name + "</pre>.";
+
+        if (theGene.chr.indexOf('alt') > 0 && theGene.gene_name.indexOf("HLA") == 0) {
+          msg += " Many HLA genes reside in a region of the genome that is highly polymorphic. " 
+          + "These regions are represented in alternative references and are often omitted from "
+          + "variant calling pipelines. "
+          + "This variant file does not contain this alternative reference; "
+          + "therefore no information can be shown."
+        }
         console.log(msg);
-
-        alertify.set('notifier','position', 'top-right');
-        alertify.error(msg,  10);
-
+        console.log(error)
         reject(msg)
         
       })
@@ -2110,7 +2064,6 @@ class SampleModel {
     });
 
   }
-
 
   determineAffectedStatus(data, theGene, theTranscript, affectedInfo, callback) {
     var me = this;
@@ -3350,10 +3303,9 @@ class SampleModel {
             console.log(message);
             reject(message);
           });
-        }, function(error) {
+        })
+        .catch(function(error) {
           let msg = "Could not annotate variants due to missing reference file";
-          alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-            .setHeader("Fatal Error");
           console.log("missing reference");
           reject("missing reference");
         });
@@ -3438,12 +3390,13 @@ class SampleModel {
         var key = me._getCacheKey(dataKind, geneName.toUpperCase(), transcript)
         me.getCacheHelper().promiseGetData(key)
          .then(function(data) {
+          if (data) {
+            data.cacheState = 'cached'
+          }
           resolve(data);
          },
          function(error) {
            let msg = "Could not get sample data for gene " +  geneName + ". Try refreshing the page";
-           alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-             .setHeader("Non-fatal Error");
           console.log(msg);
           reject(msg);
          })
@@ -3473,9 +3426,7 @@ class SampleModel {
        },
        function(error) {
         CacheHelper.showError(key, error);
-        alertify.set('notifier','position', 'top-right');
-        alertify.error("Error occurred when compressing analyzed data before caching.", 15);
-        reject(error);
+        reject("Error occurred when compressing analyzed data before caching." + error);
        })
     })
   }
@@ -3512,6 +3463,7 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
   SampleModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel, transcript);
 
   dangerCounts.badges = filterModel.flagVariants(theVcfData);
+
 
   if (theVcfData == null || theVcfData.features == null ) {
     console.log("unable to summarize danger due to null data");
@@ -3710,6 +3662,7 @@ SampleModel._determineAffectedStatusForVariant = function(variant, affectedStatu
 SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverageAll, filterModel, transcript, clearOtherDanger=false, refreshOnly=false ) {
   dangerObject.geneCoverageInfo = {};
   dangerObject.geneCoverageProblem = false;
+  dangerObject.geneCoverageProblemNonProband = false;
 
 
   if (geneCoverageAll && Object.keys(geneCoverageAll).length > 0) {
@@ -3719,8 +3672,12 @@ SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverage
         geneCoverage.forEach(function(gc) {
           if (gc.region != 'NA') {
             if (filterModel.isLowCoverage(gc)) {
-              dangerObject.geneCoverageProblem = true;
-
+              
+              if (relationship == 'proband') {
+                dangerObject.geneCoverageProblem = true;
+              } else {
+                dangerObject.geneCoverageProblemNonProband = true;
+              }
 
               // build up the geneCoveragerInfo to show exon numbers with low coverage
               // and for which samples
@@ -3735,6 +3692,7 @@ SampleModel.summarizeDangerForGeneCoverage = function(dangerObject, geneCoverage
                 dangerObject.geneCoverageInfo[exon] = {};
               }
               dangerObject.geneCoverageInfo[exon][relationship] = true;
+
             }
 
           }
