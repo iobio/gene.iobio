@@ -654,8 +654,9 @@ nav.toolbar, nav.v-toolbar
       </v-toolbar-side-icon>
 
 
-      <v-toolbar-title style="font-weight:400;margin-top:-6px" v-text="title">
+      <v-toolbar-title @click="onWelcome" style="font-weight:400;margin-top:-6px" v-text="title">
       </v-toolbar-title>
+      <div style="margin-left:4px">v{{ globalApp.version }}</div>
 
       <v-spacer v-if="!isFullAnalysis"></v-spacer>
 
