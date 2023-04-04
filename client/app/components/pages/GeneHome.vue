@@ -464,7 +464,7 @@ main.content.clin, main.v-content.clin
 
       </v-card>
 
-      <transcript-card v-if="!showWelcome && geneModel && !isSimpleMode && !isEduMode && !isBasicMode && geneModel && selectedGene && Object.keys(selectedGene).length > 0 && selectedTranscript" style="margin-bottom:5px"
+      <transcript-card v-if="!showWelcome && geneModel && !isSimpleMode && !isEduMode && !isBasicMode && geneIsSelected && selectedTranscript" style="margin-bottom:5px"
         :cardWidth="cardWidth"
         :selectedGene="selectedGene"
         :selectedTranscript="selectedTranscript"
@@ -484,7 +484,7 @@ main.content.clin, main.v-content.clin
       <variant-all-card
         ref="variantCardProbandRef"
         v-if="probandModel"
-        v-show="!showWelcome && selectedGene"
+        v-show="!showWelcome && geneIsSelected"
         v-bind:class="[
         { 'full-width': true,
           'hide': showWelcome || (selectedGene && Object.keys(selectedGene).length === 0) || !cohortModel  || cohortModel.inProgress.loadingDataSources,
@@ -1117,6 +1117,9 @@ export default {
 
 
   computed: {
+    geneIsSelected: function() {
+      return this.selectedGene && Object.keys(this.selectedGene).length > 1 && this.selectedGene.gene_name && this.selectedGene.gene_name != "";
+    },
     maxDepth: function() {
       if (this.cohortModel && this.cohortModel.maxDepth) {
         return this.cohortModel.maxDepth;
@@ -1127,7 +1130,7 @@ export default {
 
     showGeneVariantsCard: function() {
 
-        return this.selectedGene && Object.keys(this.selectedGene).length > 0 && !this.isEduMode  && !this.showWelcome
+        return this.geneIsSelected && !this.isEduMode  && !this.showWelcome
 
     },
 
