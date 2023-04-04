@@ -31,7 +31,7 @@
 </style>
 <template>
 
-    <v-dialog  width="840"  v-model="showPopup" lazy >
+    <v-dialog  width="970"  v-model="showPopup" lazy >
       <v-btn id="show-all-pubmed-button" flat  slot="activator">
         show all
       </v-btn>
