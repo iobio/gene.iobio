@@ -219,6 +219,11 @@ aside.navigation-drawer, aside.v-navigation-drawer
 nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
+  #phenotype-input 
+    .v-text-field__slot
+      min-width: 300px !important
+
+
   .navbar-outline-button, #show-genes-button, .navbar-icon-button
     background: transparent !important
     border: .5px solid transparent !important
@@ -399,7 +404,7 @@ nav.toolbar, nav.v-toolbar
         font-size: 14px
         font-weight: 500
 
-
+  
   #gene-source-box
     margin-right: 20px
     margin-top: -4px
@@ -725,7 +730,7 @@ nav.toolbar, nav.v-toolbar
 
       
       <v-spacer></v-spacer>
-      
+
       <v-btn  class="navbar-icon-button" v-if="(appAlerts && appAlerts.length > 0) || (badgeCounts && badgeCounts.coverage)" id="notification-button"  @click="onShowNotificationDrawer" flat 
         v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
         <v-badge right  >
