@@ -427,18 +427,13 @@ class GeneModel {
 
 
 
-        var message = "";
         if (Object.keys(unknownGeneNames).length > 0) {
-          message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
+          var message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
           me.dispatch.alertIssued("warning", message, Object.keys(unknownGeneNames).join(", "), Object.keys(unknownGeneNames))
         }
+
         if (Object.keys(duplicateGeneNames).length > 0 && options.warnOnDup) {
-          if (message.length > 0) {
-            message += "   ";
-          }
-          message += "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
-        }
-        if (message.length > 0) {
+          var message = "Bypassing duplicate gene name(s): " + Object.keys(duplicateGeneNames).join(", ") + ".";
           me.dispatch.alertIssued("warning", message, null, Object.keys(duplicateGeneNames))
         }
 
