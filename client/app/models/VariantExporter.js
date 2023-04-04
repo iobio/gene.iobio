@@ -473,6 +473,7 @@ export default class VariantExporter {
   }
 
   _formatJointVcfRecs(jointVcfRecs, sourceVariant, getHeader) {
+    var me = this;
     var theVcfRecs = [];
     var theVcfRec = null;
 
