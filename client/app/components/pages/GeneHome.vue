@@ -4609,22 +4609,20 @@ export default {
     setNonProbandModels: function() {
       let self = this;
       self.nonProbandModels = [];
-      if (this.models && this.models.length > 0) {
 
-        self.nonProbandModels = self.models.filter(function(model) {
-          let keepIt =  model.relationship !== 'proband';
-          let showIt = false;
-          if (model.relationship === 'father' && self.showFatherCard) {
-            showIt = true;
-          } else if (model.relationship === 'mother' && self.showMotherCard) {
-            showIt = true;
-          } else if (model.relationship === 'known-variants' && self.showKnownVariantsCard) {
-            showIt = true;
-          } else if (model.relationship === 'sfari-variants' && self.showSfariVariantsCard) {
-            showIt = true;
-          }
-          return keepIt && showIt;
-        })
+      if (this.models && this.models.length > 0) {
+        if (self.showMotherCard) {
+          self.nonProbandModels.push(self.cohortModel.getModel('mother'));
+        }
+        if (self.showFatherCard) {
+          self.nonProbandModels.push(self.cohortModel.getModel('father'));
+        }
+        if (self.showKnownVariantsCard) {
+          self.nonProbandModels.push(self.cohortModel.getModel('known-variants'));
+        }
+        if (self.showSfariVariantsCard) {
+          self.nonProbandModels.push(self.cohortModel.getModel('sfari-variants'));
+        }
       }
 
     },

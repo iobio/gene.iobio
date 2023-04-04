@@ -82,7 +82,7 @@ class Util {
     else if(val === "clinvar_cd"){
       return "conflicting";
     }
-    else if(val === "benign"){
+    else if(val === "clinvar_benign"){
       return "low"
     }
     else{
