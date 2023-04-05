@@ -33,8 +33,8 @@
       background-color: $hint-background-color !important
       border: thin solid #a7a3a3 !important
       font-weight: 500
-  
-    
+
+
 </style>
 
 <template>
@@ -50,8 +50,11 @@
           :selectedTranscript="selectedTranscript"
           :geneSources="cohortModel.geneModel.geneSources"
           :geneModel="cohortModel.geneModel"
-          @transcriptSelected="onTranscriptSelected">
+          @transcriptSelected="onTranscriptSelected"
+          @show-settings-for-gene-source="onShowSettingsForGeneSource">
           </transcripts-menu>
+
+
       </div>
 
       <div  :class="zoomClass" style="margin-left: 30px">{{ zoomMessage }}</div>
@@ -134,6 +137,9 @@ export default {
 
   },
   methods: {
+    onShowSettingsForGeneSource: function() {
+      this.$emit('show-settings-for-gene-source')
+    },
     onTranscriptSelected: function(transcript) {
       this.$emit("transcriptSelected", transcript)
     },

@@ -309,6 +309,7 @@ main.content.clin, main.v-content.clin
       :geneToAppAlerts="geneToAppAlerts"
       :filesDialogInfoMessage="filesDialogInfoMessage"
       :settingsCoverageOnly="settingsCoverageOnly"
+      :settingsGeneSourceOnly="settingsGeneSourceOnly"
       :analysisModel="analysisModel"
       @input="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
@@ -352,6 +353,7 @@ main.content.clin, main.v-content.clin
       @coding-variants-only-changed="onAnalyzeCodingVariantsOnly"
       @clear-app-alert="onClearAppAlert"
       @clear-all-app-alerts="clearAppAlerts"
+      @hide-settings-dialog="onHideSettingsDialog"
     >
     </navigation>
 
@@ -478,7 +480,8 @@ main.content.clin, main.v-content.clin
         :regionEnd="parseInt(selectedGene.end)"
         @transcriptSelected="onTranscriptSelected"
         @gene-region-zoom="onGeneRegionZoom"
-        @gene-region-zoom-reset="onGeneRegionZoomReset">    
+        @gene-region-zoom-reset="onGeneRegionZoomReset"
+        @show-settings-for-gene-source="onShowSettingsForGeneSource(true)">    
       </transcript-card>
 
       <variant-all-card
@@ -1024,6 +1027,7 @@ export default {
       filesDialogInfoMessage: null,
 
       settingsCoverageOnly: false,
+      settingsGeneSourceOnly: false,
 
       clinIobioUrls: ["http://localhost:4030", "http://tony.iobio.io:4030", "http://clin.iobio.io", "https://clin.iobio.io", "https://dev.clin.iobio.io", "http://dev.clin.iobio.io", "https://stage.clin.iobio.io"],
       clinIobioUrl: "https://clin.iobio.io",
@@ -2583,6 +2587,9 @@ export default {
         return self.promiseResetAllGenes()
       })
       .then(function() {
+        self.selectedGene = {}
+        self.selectedTranscript = {}
+        self.selectedVariant = null;
         self.showLeftPanelForGenes()
 
         if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
@@ -3818,10 +3825,21 @@ export default {
         self.addAlert('error', error, flaggedVariant.gene)
       })
     },
+    onHideSettingsDialog: function() {
+      this.settingsCoverageOnly = false;
+      this.settingsGeneSourceOnly = false;
+    },
     onShowSettingsForCoverageThreshold: function(showIt) {
       let self = this;
       if (self.$refs.navRef) {
         self.settingsCoverageOnly = true;
+        self.$refs.navRef.onShowSettingsDialog(true)
+      }
+    },
+    onShowSettingsForGeneSource: function(showIt) {
+      let self = this;
+      if (self.$refs.navRef) {
+        self.settingsGeneSourceOnly = true;
         self.$refs.navRef.onShowSettingsDialog(true)
       }
     },

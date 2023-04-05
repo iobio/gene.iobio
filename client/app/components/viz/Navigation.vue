@@ -759,11 +759,8 @@ nav.toolbar, nav.v-toolbar
       </v-btn>
 
 
-     <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded" 
+     <v-chip @click="onShowSettingsDialog(true)" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded" 
          id="build-name" class="settings-badge" text-color="white">{{ currentBuildName }}</v-chip>
-
-     <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded" 
-          id="gene-source-chip" class="settings-badge" text-color="white">{{ currentGeneSource }}</v-chip>
 
      <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded && cohortModel.analyzeCodingVariantsOnly"
           id="analyze-coding-variants-only-chip" class="settings-badge" text-color="white">
@@ -1127,6 +1124,7 @@ nav.toolbar, nav.v-toolbar
       :genomeBuildHelper="genomeBuildHelper"
       :filterModel="filterModel"
       :settingsCoverageOnly="settingsCoverageOnly"
+      :settingsGeneSourceOnly="settingsGeneSourceOnly"
       @hide-settings="onShowSettingsDialog(false)"
       @gene-source-selected="onGeneSourceSelected"
       @coverage-threshold-applied="onCoverageThresholdApplied"
@@ -1408,7 +1406,8 @@ export default {
     appAlertCounts: null,
     geneToAppAlerts: null,
     settingsCoverageOnly: null,
-    analysisModel: null
+    settingsGeneSourceOnly: null,
+    analysisModel: null,
   },
   data () {
     let self = this;
@@ -1647,6 +1646,9 @@ export default {
       })
     },
     onShowSettingsDialog: function(show) {
+      if (!show) {
+        this.$emit("hide-settings-dialog")
+      }
       this.showSettingsDialog = show;
     },
     onFlaggedVariantSelected: function(variant) {

@@ -74,6 +74,24 @@
     #transcript-card
         .v-badge.info.mane-select
             background-color: transparent !important
+
+    #transcript-menu-gene-source-chip.settings-badge
+        padding: 0px
+        margin: 2px
+        margin-left: 10px
+        margin-right: 10px
+        background-color: $nav-badge-color
+        box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)
+
+        .v-chip__content
+          border-radius: 10px
+          height: 22px 
+          padding: 0px 5px
+          font-size: 11px
+          font-weight: 500
+
+  
+
 </style>
 
 <template>
@@ -136,6 +154,11 @@
 
 
     </v-menu>
+
+    <v-chip @click="onShowSettingsForGeneSource" id="transcript-menu-gene-source-chip" class="settings-badge" text-color="white">
+        {{ geneModel.geneSource }}
+    </v-chip>
+
     <v-badge class="info" style="margin-left:5px;" v-if="selectedTranscript.transcript_type != 'null' && selectedTranscript.transcript_type != 'protein_coding'"> {{ selectedTranscript.transcript_type }} </v-badge>
 
    
@@ -178,6 +201,9 @@
             }
         },
         methods: {
+            onShowSettingsForGeneSource: function() {
+                this.$emit("show-settings-for-gene-source");
+            },
             onTranscriptSelected: function(theTranscript) {
                 this.newTranscript = theTranscript;
                 let canonical = this.geneModel.getCanonicalTranscript(this.selectedGene);
