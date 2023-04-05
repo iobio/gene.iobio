@@ -901,7 +901,7 @@ $light-gray-color:   #f0f1f3
         <v-btn style="float:left"   flat @click="stopVideo('screencast-intro')">
           <i class="material-icons">arrow_back</i>
         </v-btn>
-        <h4>Introducing gene.iobio 4.0</h4>
+        <h4>Introducing gene.iobio 4.7</h4>
         <div id="screencast-intro-iframe-placeholder"></div>
       </div>
 
@@ -967,8 +967,8 @@ export default {
       videoStyle: "position:absolute;width:100%;height:100%;left:0",
       videoConfigs : {
         'screencast-intro': {
-          src: "https://www.youtube.com/embed/K7JLbCv2LcA?autoplay=1&rel=0&ecver=2",
-          videoId: 'K7JLbCv2LcA',
+          src: "https://youtu.be/bTRGDnGdEMc?autoplay=1&rel=0&ecver=2",
+          videoId: 'bTRGDnGdEMc',
           width: 670*1.25,
           height: 420*1.25,
           frameborder: "0",

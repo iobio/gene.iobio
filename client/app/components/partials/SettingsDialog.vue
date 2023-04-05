@@ -55,7 +55,7 @@
 
       <v-card-text>
 
-          <v-layout v-if="!settingsCoverageOnly" row wrap class="">
+          <v-layout v-if="!settingsCoverageOnly && !settingsGeneSourceOnly" row wrap class="mb-4">
             <v-flex xs6>
               <v-select
                 label="Genome Build"
@@ -66,7 +66,7 @@
             </v-flex>
           </v-layout>
 
-          <v-layout v-if="!settingsCoverageOnly" row wrap class="mt-4">
+          <v-layout v-if="!settingsCoverageOnly" row wrap class="">
             <v-flex xs6>
               <v-select
                 v-bind:items="geneModel.geneSources"
@@ -81,7 +81,7 @@
           </v-layout>
 
 
-          <v-layout v-if="!settingsCoverageOnly" row wrap class="mt-4">
+          <v-layout v-if="!settingsCoverageOnly && !settingsGeneSourceOnly" row wrap class="mt-4">
             <v-flex xs12>
               <v-switch 
                 class="coding-variants-only-switch"
@@ -92,12 +92,13 @@
             </v-flex>
           </v-layout>
 
-          <v-layout row wrap class="mt-2">
+          <v-layout v-if="!settingsGeneSourceOnly"  row wrap class="mt-2">
             <v-flex xs12>
             Sequence coverage cutoffs
             </v-flex>
           </v-layout>
           <filter-settings-coverage
+            v-if="!settingsGeneSourceOnly" 
             ref="filterSettingsCoverageRef"
             :filterModel="filterModel"
             :filter="coverageFilter"
@@ -108,7 +109,7 @@
              @gene-coverage-median-changed="onGeneCoverageMedianChanged">
           </filter-settings-coverage>
 
-          <v-layout v-if="!settingsCoverageOnly" row wrap class="mt-4 mb-2">
+          <v-layout v-if="!settingsCoverageOnly && !settingsGeneSourceOnly" row wrap class="mt-4 mb-2">
             <v-flex xs8 id="phenolyzer-top-input">            
                 <v-combobox
                 v-model="phenolyzerTop"
@@ -154,7 +155,8 @@ export default {
     cohortModel: null,
     geneModel: null,
     filterModel: null,
-    settingsCoverageOnly: null
+    settingsCoverageOnly: null,
+    settingsGeneSourceOnly: null
 
   },
   data () {
@@ -240,7 +242,7 @@ export default {
 
       this.$emit('hide-settings')
     },
-    onCancel: function() {
+    onCancel: function() {      
       this.$emit('hide-settings')
     },
     onGeneSourceSelected: function() {
