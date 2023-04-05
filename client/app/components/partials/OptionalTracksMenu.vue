@@ -55,7 +55,7 @@
     top: 3px !important
     font-weight: 400 !important
     
-  &.clinvar
+  &.clinvar-checkbox
     max-width: 230px
 
 #other-tracks-label
@@ -75,7 +75,7 @@
        </div>
        <v-checkbox v-if="isMother" hide-details class="checkbox-tracks" v-model="showMotherCard" label="Mother" value="mother"></v-checkbox>
        <v-checkbox v-if="isFather" hide-details  class="checkbox-tracks" v-model="showFatherCard" label="Father" value="father"></v-checkbox>
-       <v-checkbox hide-details class="checkbox-tracks clinvar" v-model="showKnownVariantsCard" label="ClinVar (across population)" value="clinvar"></v-checkbox>
+       <v-checkbox hide-details class="checkbox-tracks clinvar-checkbox" v-model="showKnownVariantsCard" label="ClinVar (across population)" value="clinvar"></v-checkbox>
 
           <known-variants-toolbar
             v-if="showKnownVariantsCard"
