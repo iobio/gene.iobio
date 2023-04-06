@@ -55,7 +55,8 @@
             font-size: 15px
             margin-right: 1px
         #gene-name
-            margin-left: 5px
+            margin-left: 0px
+            margin-right: 4px
             margin-top: 0px
             display:inline-block
             vertical-align: middle
@@ -88,8 +89,7 @@
 	<div v-if="selectedGene && selectedGene.gene_name && selectedGene.gene_name.length > 0">
 		<div   class="gene-info text-xs-left">
 			<div id="gene-variants-heading">
-			GENE
-				<span id="gene-name"> {{ selectedGene.gene_name}} </span>
+				<span id="gene-name">{{ selectedGene.gene_name}} </span> GENE
 			</div>
 
 

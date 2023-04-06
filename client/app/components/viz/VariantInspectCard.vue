@@ -381,7 +381,7 @@
 
         <span style="vertical-align:top">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
         <span style="vertical-align:top" class="pl-1">{{ coord }}</span>
-        <span class="pl-1 refalt">{{ refAlt  }}</span>
+        <span class="pl-1 pr-2 refalt">{{ refAlt  }}</span>
 
 
       </span>
@@ -854,7 +854,8 @@ export default {
     user: null,
     showAssessment: null,
     launchedFromClin: null,    
-    interpretationMap: null
+    interpretationMap: null,
+    //mosaicVariantInterpretation: null
   },
   data() {
     return {
@@ -1964,6 +1965,16 @@ export default {
   },
 
   watch: {
+
+    //mosaicVariantInterpretation: function() {
+    //  let self = this;
+    //  if (self.interpretation == null || self.interpretation == 'not-reviewed') {
+    //    self.$nextTick(function() {
+    //      self.selectedVariant.interpretation = self.mosaicVariantInterpretation;
+    //      self.interpretation = self.mosaicVariantInterpretation;            
+    //    })
+    //  }
+    //},
     selectedPhenotype: function(){
         this.initGenePhenotypeHits();
     },
