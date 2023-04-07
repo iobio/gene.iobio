@@ -3893,6 +3893,9 @@ export default {
                     // it hasn't been entered in yet
                     if (flaggedVariant.interpretation == null || flaggedVariant.interpretation == '' || flaggedVariant.interpretation == 'not-reviewed') {
                       flaggedVariant.interpretation = mosaicInterpretation;
+                      if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+                        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+                      }
                     }
                   }
                   var isUserFlagged = flaggedVariant.isUserFlagged;
