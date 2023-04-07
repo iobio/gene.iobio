@@ -596,6 +596,7 @@ main.content.clin, main.v-content.clin
           :showAssessment="hasVariantAssessment || showVariantAssessment"
           :launchedFromClin="launchedFromClin"
           :interpretationMap="interpretationMap"
+          
           @show-pileup-for-variant="onShowPileupForVariant"
           @apply-variant-interpretation="onApplyVariantInterpretation"
           @apply-variant-notes="onApplyVariantNotes"
@@ -603,6 +604,7 @@ main.content.clin, main.v-content.clin
           @transcript-id-selected="onTranscriptIdSelected"
           >
           </variant-inspect-card>
+          <!--mosaicVariantInterpretation="selectedVariant.mosaic_interpretation" -->
 
           <v-card class="app-card"
             v-if="cohortModel && cohortModel.isLoaded && selectedGene && selectedVariant && Object.keys(selectedGene).length > 0 && !isBasicMode && (hasVariantAssessment || showVariantAssessment)"
@@ -2689,47 +2691,73 @@ export default {
     onCohortVariantClick: function(variant, sourceComponent, sourceRelationship) {
       let self = this;
       if (variant) {
+        self.selectedVariant = null;
 
-        if (self.selectedGene) {
-          self.geneModel.adjustGeneRegion(self.selectedGene);
-          self.geneRegionStart = self.selectedGene.start;
-          self.geneRegionEnd   = self.selectedGene.end;
-        }
-
-        self.calcFeatureMatrixWidthPercent();
-        self.$set(self, "selectedVariant", variant);
-        self.$set(self, "selectedVariantKey", self.getVariantKey(self.selectedVariant));
-        self.selectedVariantRelationship = sourceRelationship;
-        self.refreshSelectedVariantInfo();
-        self.$set(self, "selectedVariantNotes", self.selectedVariant);
-        self.$set(self, "selectedVariantInterpretation", self.selectedVariant);
-        self.showVariantAssessment = false;
-        self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
-
-        self.showVariantExtraAnnots(sourceRelationship ? sourceRelationship : 'proband', variant);
-
-        self.getVariantCardRefs().forEach(function(variantCard) {
-          if (sourceComponent === null || variantCard !== sourceComponent) {
-            variantCard.hideVariantCircle(true);
-            variantCard.showVariantCircle(variant, true);
-            variantCard.showCoverageCircle(variant);
+        self.$nextTick(function() {
+          if (self.selectedGene) {
+            self.geneModel.adjustGeneRegion(self.selectedGene);
+            self.geneRegionStart = self.selectedGene.start;
+            self.geneRegionEnd   = self.selectedGene.end;
           }
+
+          let getMosaicVariantPromise = function(theVariant) {
+            if (self.launchedFromHub) {
+              return self.promiseInitMosaicVariantInterpretation(theVariant)
+            } else {
+              return Promise.resolve(null)
+            }
+          }
+
+          // First, if the app was launched from Mosaic, see if the variant interpretation  
+          // has been saved as a variant annotation.  If so, we will initialize the 
+          // interpretation dropdown to this value.
+          getMosaicVariantPromise(variant)
+          .then(function(mosaicInterpretation) {
+            if (mosaicInterpretation && mosaicInterpretation != 'none') {
+              // Only initialize the interpretation to the mosaic interpretation if 
+              // it hasn't been entered in yet
+              if (variant.interpretation == null || variant.interpretation == '' || variant.interpretation == 'not-reviewed') {
+                variant.interpretation = mosaicInterpretation;
+              }
+            }
+
+            self.calcFeatureMatrixWidthPercent();
+            self.$set(self, "selectedVariant", variant);
+            self.$set(self, "selectedVariantKey", self.getVariantKey(self.selectedVariant));
+            self.selectedVariantRelationship = sourceRelationship;
+            self.refreshSelectedVariantInfo();
+            self.$set(self, "selectedVariantNotes", self.selectedVariant.notes);
+            self.$set(self, "selectedVariantInterpretation", self.selectedVariant.interpretation);
+            self.showVariantAssessment = false;
+            self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
+
+            self.showVariantExtraAnnots(sourceRelationship ? sourceRelationship : 'proband', variant);
+
+
+            self.getVariantCardRefs().forEach(function(variantCard) {
+              if (sourceComponent === null || variantCard !== sourceComponent) {
+                variantCard.hideVariantCircle(true);
+                variantCard.showVariantCircle(variant, true);
+                variantCard.showCoverageCircle(variant);
+              }
+            })
+
+            if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+              self.$refs.navRef.$refs.flaggedVariantsRef.deselectVariant();
+            }
+            if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
+              if (sourceComponent == null || self.$refs.featureMatrixCardRef !== sourceComponent) {
+                self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
+              }
+            }
+            if (self.isEduMode) {
+              self.$refs.appTourRef.checkVariant(variant);
+            }
+            if (self.$refs.scrollButtonRefVariant) {
+              self.$refs.scrollButtonRefVariant.showScrollButtons();
+            }
+          })
         })
-
-        if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-          self.$refs.navRef.$refs.flaggedVariantsRef.deselectVariant();
-        }
-        if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
-          if (sourceComponent == null || self.$refs.featureMatrixCardRef !== sourceComponent) {
-            self.$refs.featureMatrixCardRef.selectVariant(self.selectedVariant);
-          }
-        }
-        if (self.isEduMode) {
-          self.$refs.appTourRef.checkVariant(variant);
-        }
-        if (self.$refs.scrollButtonRefVariant) {
-          self.$refs.scrollButtonRefVariant.showScrollButtons();
-        }
 
       } else {
         self.deselectVariant();
@@ -3579,45 +3607,136 @@ export default {
         self.promiseUpdateAnalysisVariant(variant, {delay: false});
       }
 
-      if (self.launchedFromHub && self.selectedVariant.hasOwnProperty('mosaic_id')) {
+      if (self.launchedFromHub) {
         self.promiseUpdateMosaicInterpretation();
       }
+    },
 
+    promiseInitMosaicVariantInterpretation(theVariant) {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        let interpretationAnnot = self.variantAnnotationsMap['Interpretation'];
+
+        // Check if it is already lazy loaded
+        if (theVariant.mosaic_interpretation) {
+          resolve();
+        } else if (interpretationAnnot == null) {
+          // If the interetation annotation doesn't exist for this project, then 
+          // no need to check variant annotation b/c it doesn't exist.
+          resolve();
+        } else {
+          // Get the mosaic variant
+          self.promiseGetMosaicVariant(theVariant)
+          .then(function(mosaicVariant) {
+            // Check to see that we found the mosaic variant and that it has 
+            // a variant annotation for 'interpretation'
+            if (mosaicVariant && mosaicVariant.hasOwnProperty(interpretationAnnot.uid) && mosaicVariant[interpretationAnnot.uid].length > 0) {
+              let interpretationLabel = mosaicVariant[interpretationAnnot.uid][0]
+              theVariant.mosaic_interpretation = self.interpretationMapReversed[interpretationLabel]
+              resolve(theVariant.mosaic_interpretation)
+            } else {
+              // Warn if there wasn't a matching mosaic variant
+              if (mosaicVariant == null) {
+                theVariant.mosaic_intepretation = "none"
+                let msg = "Cannot find matching mosaic variant " + theVariant.chrom + " " + theVariant.start + " " + theVariant.ref + "->" + theVariant.alt;
+                console.log(msg);
+                self.addAlert("info", 
+                               msg + " for gene <pre>" + self.selectedGene.gene_name + "</pre>",
+                              self.selectedGene.gene_name )
+                resolve(null)
+              } else {
+                theVariant.mosaic_interpretation = "none";
+                resolve(null)
+              }
+            }
+          })
+          .catch(function(error) {
+            theVariant.mosaic_interpretation = "none";
+            console.log(error);
+            self.addAlert("info", 
+                           "Cannot initialize variant interpretation based on Mosaic variant annotation. " + error,
+                           self.selectedGene.gene_name)
+            resolve(null)
+          })
+        }
+      })
+    },
+
+    promiseGetMosaicVariant(theVariant) {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        if (theVariant.mosaic_id && theVariant.mosaic_id != "") {
+          self.hubSession.promiseGetVariant(self.projectId, theVariant.mosaic_id)
+          .then(function(mosaicVariant) {
+            resolve(mosaicVariant)
+          })
+          .catch(function(error) {
+            let msg = "Cannot find Mosaic variant in " + 
+              "<pre>" + self.selectedGene.gene_name + "</pre>" + 
+              " based on lookup by id " + theVariant.mosaic_id;
+            self.addAlert("error", msg, self.selectedGene.gene_name, [error])
+            reject(msg)
+          })
+        } else {
+          self.hubSession.promiseLookupVariantByPosition(self.projectId, theVariant)
+          .then(function(mosaicVariant) {
+            resolve(mosaicVariant)
+          })
+          .catch(function(error) {
+            let msg = "Cannot find Mosaic variant in " + 
+              "<pre>" + self.selectedGene.gene_name + "</pre>" + 
+              " based on lookup by position " + theVariant.chrom + ":" + theVariant.position;
+            self.addAlert("info", msg, self.selectedGene.gene_name)
+            resolve(null)
+          })
+        }          
+      })
     },
 
     promiseUpdateMosaicInterpretation() {
       let self = this;
 
       return new Promise(function(resolve, reject) {
-        // First, create a variant annotation if one doesn't exist for this Mosaic
-        // project.
-        let existingAnnotation = self.variantAnnotationsMap['Interpretation']
-        let getExistingAnnotPromise = function() {
-          if (!existingAnnotation) {
-            return self.hubSession.promiseCreateInterpretationAnnotation(self.projectId)
-          } else {
-            return Promise.resolve(existingAnnotation);
-          }
-        }
 
-        getExistingAnnotPromise()
+        let hasVariantSet = (self.variantSet && self.variantSet.variants)
+        let mosaicVariant = null;
+
+        self.promiseGetMosaicVariant(self.selectedVariant)
+        .then(function(theMosaicVariant) {
+          mosaicVariant = theMosaicVariant;
+          if (self.selectedVariant.mosaic_id == null || self.selectedVariant.mosaic_id == "") {
+            self.selectedVariant.mosaic_id = mosaicVariant.id;
+          }  
+
+          // Create a variant annotation if one doesn't exist for this Mosaic
+          // project.
+          let existingAnnotation = self.variantAnnotationsMap['Interpretation']
+          let getExistingAnnotPromise = function() {
+            if (!existingAnnotation) {
+              return self.hubSession.promiseCreateInterpretationAnnotation(self.projectId)
+            } else {
+              return Promise.resolve(existingAnnotation);
+            }
+          }
+
+          return getExistingAnnotPromise()
+
+        })
         .then(function(variantAnnotation) {
 
           self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation
 
-          let mosaic_variants = self.variantSet.variants.filter(function(v) {
-            return v.id == self.selectedVariant.mosaic_id
-          })
-          let mosaic_variant = mosaic_variants.length > 0 ? mosaic_variants[0] : null
 
           // Now, check of the variant annotation value already exists. For 'badge' variant 
           // annotations, we cannot use the update API, but instead have to 
           // delete the annotation value and then add it.
           let getDeleteAnnotValuePromise = function() {
-            if (mosaic_variant && mosaic_variant.hasOwnProperty(variantAnnotation.uid) && mosaic_variant[variantAnnotation.uid].length > 0) {
+            if (mosaicVariant && mosaicVariant.hasOwnProperty(variantAnnotation.uid) && mosaicVariant[variantAnnotation.uid].length > 0) {
+              console.log("deleting annotation value " + mosaicVariant[variantAnnotation.uid])
               return self.hubSession.promiseDeleteVariantAnnotationValue(self.projectId, 
                 self.selectedVariant.mosaic_id, variantAnnotation.id, self.selectedVariant.interpretation)
             } else {
+              console.log("bypassing delete annotation value")
               return Promise.resolve();
             }
           }
@@ -3639,25 +3758,22 @@ export default {
           })
           .then(function() {
             // Set the Mosaic variant annotation in memory to the refreshed value
-            if (mosaic_variant) {
+            if (mosaicVariant) {
               let interpretationLabel = self.interpretationMap[self.selectedVariant.interpretation]
-              mosaic_variant[variantAnnotation.uid] = [interpretationLabel];
+              mosaicVariant[variantAnnotation.uid] = [interpretationLabel];
             }
             resolve();
 
           })
           .catch(function(error) {
             self.addAlert('error', 
-              'Cannot add Mosaic variant annotation <pre>Interpretation</pre> value', 
-              self.selectedGene.gene_name, [error && error.statusText ? error.statusText : 'unable to update variant annotation to the value <pre>' + self.selecteVariant.interpretation])
+              'Cannot add Mosaic variant annotation <pre>Interpretation</pre> value.' + error)
             reject();
           })
 
         })
         .catch(function(error) {
-          self.addAlert('error', 
-          'Cannot create Mosaic variant annotation <pre>Interpretation</pre>', 
-          self.selectedGene.gene_name, [error && error.statusText ? error.statusText : 'Unable to create the Mosaic variant annotation called <pre>Interpretation</pre> due to a Mosaic API error'])
+          self.addAlert('error', 'Cannot create Mosaic variant annotation <pre>Interpretation</pre>. ' + error, self.selectedGene.gene_name)
           reject();
         })
 
@@ -3698,6 +3814,8 @@ export default {
         this.selectedVariant = null;
         return;
       }
+
+      this.selectedVariant = null;
 
       this.hasVariantAssessment = this.hasVariantNotesCheck(flaggedVariant);
       this.showVariantAssessment = false;
@@ -3757,58 +3875,85 @@ export default {
 
               if (matchingVariant && !matchingVariant.isProxy) {
 
-
-                var isUserFlagged = flaggedVariant.isUserFlagged;
-                var notes = flaggedVariant.notes;
-                var interpretation = flaggedVariant.interpretation;
-                flaggedVariant = $.extend(flaggedVariant, matchingVariant);
-                flaggedVariant.isFlagged = true;
-                flaggedVariant.isUserFlagged = isUserFlagged;
-                flaggedVariant.notes = notes;
-                flaggedVariant.interpretation = interpretation;
-                flaggedVariant.isProxy = false;
-
-                self.$set(self, "selectedVariant", flaggedVariant);
-                self.refreshSelectedVariantInfo();
-                self.$set(self, "selectedVariantRelationship", "proband");
-                self.$set(self, "selectedVariantKey", self.getVariantKey(flaggedVariant));
-                self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
-                self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
-                self.showVariantAssessment = false;
-
-                self.showVariantExtraAnnots('proband', self.selectedVariant);
-
-                self.$refs.variantCardProbandRef.showFlaggedVariant(flaggedVariant);
-
-                if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
-                  self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
+                let getMosaicVariantPromise = function(theFlaggedVariant) {
+                  if (self.launchedFromHub) {
+                    return self.promiseInitMosaicVariantInterpretation(theFlaggedVariant)
+                  } else {
+                    return Promise.resolve(null)
+                  }
                 }
 
+                // First, if the app was launched from Mosaic, see if the variant interpretation  
+                // has been saved as a variant annotation.  If so, we will initialize the 
+                // interpretation dropdown to this value.
+                getMosaicVariantPromise(flaggedVariant)
+                .then(function(mosaicInterpretation) {
+                  if (mosaicInterpretation && mosaicInterpretation != 'none') {
+                    // Only initialize the interpretation to the mosaic interpretation if 
+                    // it hasn't been entered in yet
+                    if (flaggedVariant.interpretation == null || flaggedVariant.interpretation == '' || flaggedVariant.interpretation == 'not-reviewed') {
+                      flaggedVariant.interpretation = mosaicInterpretation;
+                      if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+                        self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+                      }
+                    }
+                  }
+                  var isUserFlagged = flaggedVariant.isUserFlagged;
+                  var notes = flaggedVariant.notes;
+                  var interpretation = flaggedVariant.interpretation;
+                  flaggedVariant = $.extend(flaggedVariant, matchingVariant);
+                  flaggedVariant.isFlagged = true;
+                  flaggedVariant.isUserFlagged = isUserFlagged;
+                  flaggedVariant.notes = notes;
+                  flaggedVariant.interpretation = interpretation;
+                  flaggedVariant.isProxy = false;
 
-                self.getVariantCardRefs().forEach(function(variantCard) {
-                    variantCard.showVariantCircle(flaggedVariant, true);
-                    variantCard.showCoverageCircle(flaggedVariant);
+                  self.$set(self, "selectedVariant", flaggedVariant);
+                  self.refreshSelectedVariantInfo();
+                  self.$set(self, "selectedVariantRelationship", "proband");
+                  self.$set(self, "selectedVariantKey", self.getVariantKey(flaggedVariant));
+                  self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
+                  self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
+                  self.showVariantAssessment = false;
+
+                  self.showVariantExtraAnnots('proband', self.selectedVariant);
+
+                  if (self.launchedFromHub) {
+                    self.promiseInitMosaicVariantInterpretation(self.selectedVariant);
+                  }
+
+                  self.$refs.variantCardProbandRef.showFlaggedVariant(flaggedVariant);
+
+                  if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
+                    self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
+                  }
+
+
+                  self.getVariantCardRefs().forEach(function(variantCard) {
+                      variantCard.showVariantCircle(flaggedVariant, true);
+                      variantCard.showCoverageCircle(flaggedVariant);
+                  })
+
+
+                  self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
+                  if (self.$refs.variantInspectRef) {
+                    self.$refs.variantInspectRef.refresh();
+                  }
+
+                  //setTimeout(function() {
+                  //  if ($('#variant-inspect-and-notes').length > 0) {
+                  //    $('#variant-inspect-and-notes')[0].scrollIntoView();
+                  //  }
+                  //},500)
+
+
+                  if (callback) {
+                    callback();
+                  }
+
+
                 })
-
-
-                self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
-                if (self.$refs.variantInspectRef) {
-                  self.$refs.variantInspectRef.refresh();
-                }
-
-                //setTimeout(function() {
-                //  if ($('#variant-inspect-and-notes').length > 0) {
-                //    $('#variant-inspect-and-notes')[0].scrollIntoView();
-                //  }
-                //},500)
-
-
-                if (callback) {
-                  callback();
-                }
-
               }
-
 
             })
             .catch(function() {

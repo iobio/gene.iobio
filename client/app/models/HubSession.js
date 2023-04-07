@@ -620,7 +620,62 @@ export default class HubSession {
 
   }
 
+  promiseGetVariant(projectId, variant_id, includeAnnotationData=true) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getVariant(projectId, variant_id, includeAnnotationData)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        let errorMsg = error.responseJSON.message;
+        reject("Error getting mosaic variant : " + errorMsg + "." )
+      })
+    })
+  }
 
+  promiseLookupVariantByPosition(projectId, variant) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let chr = self.globalApp.utility.stripRefName(variant.chrom)
+      self.promiseGetVariantsByPosition(projectId, chr, variant.start, true)
+      .then(function(variants) {
+        let matching = variants.filter(function(v) {
+          if (v.chr == chr && 
+              v.r_start == variant.start &&
+              v.alt == variant.alt &&
+              v.ref == variant.ref) {
+            return true;
+          } else {
+            return false;
+          }
+        })
+        if (matching.length > 0) {
+          resolve(matching[0])
+        } else {
+          reject("Cannot find matching Mosaic variant " + variant.chrom + " " + variant.start )
+        }
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+    })
+  }
+
+  promiseGetVariantsByPosition(projectId, chr, start, includeAnnotationData) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getVariantsByPosition(projectId, chr, start, includeAnnotationData)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        let errorMsg = error.responseJSON.message;
+        reject("Error getting mosaic variants by position: " + errorMsg + "." )
+      })
+    })
+
+  }
 
   promiseGetAnalysis(projectId, analysisId) {
     let self = this;
@@ -724,7 +779,7 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        console.log("Error adding variant annotation value" + annotationValue + " for project " + project_id)
+        console.log("Error adding variant annotation value " + annotationValue + " for project " + project_id)
         console.log(error)
         reject(error);
       })
@@ -834,6 +889,37 @@ export default class HubSession {
     });
 
   }
+
+
+
+  getVariant(project_id, variant_id, includeAnnotationData) {
+    let self = this;
+
+    return $.ajax({
+          url: self.api + '/projects/' + project_id + '/variants/'+ variant_id + "?include_annotation_data=" + (includeAnnotationData ? 'true' : 'false'),
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+
+  }
+
+  getVariantsByPosition(project_id, chr, start, includeAnnotationData) {
+    let self = this;
+
+    return $.ajax({
+      url: self.api + '/projects/' + project_id + '/variants/position/' + chr + ":" + start + "?include_annotation_data=" + (includeAnnotationData ? 'true' : 'false'),
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+
+  }
+
 
 
   getVariantAnnotations(project_id) {

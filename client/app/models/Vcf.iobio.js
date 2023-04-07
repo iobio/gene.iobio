@@ -40,6 +40,7 @@ export default function vcfiobio(theGlobalApp) {
   var refDensity = [];
   var refName = "";
   var infoFields =  {};
+  var contigRecords = [];
 
   var regions = [];
   var regionIndex = 0;
@@ -335,6 +336,9 @@ export default function vcfiobio(theGlobalApp) {
         }
         if (success && buffer.length > 0) {
           buffer.split("\n").forEach( function(rec) {
+            if (rec.indexOf("##contig") == 0) {
+              me._parseHeaderForContigFields(rec)
+            }
             if (rec.indexOf("#") == 0) {
               me._parseHeaderForInfoFields(rec);
             }
@@ -396,7 +400,7 @@ export default function vcfiobio(theGlobalApp) {
 
 
     if (fileSelection.files.length != 2) {
-       callback(false, 'must select 2 files, both a .vcf.gz and .vcf.gz.tbi file');
+       callback(false, 'must select 2 files, both a .vcf.gz and .vcf.gz.tbi/csi file');
        return;
     }
 
@@ -406,8 +410,9 @@ export default function vcfiobio(theGlobalApp) {
       return;
     }
 
-    var fileType0 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(fileSelection.files[0].name);
-    var fileType1 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(fileSelection.files[1].name);
+
+    var fileType0 = /([^.]*)\.(vcf\.gz(\.tbi|\.csi)?)$/.exec(fileSelection.files[0].name);
+    var fileType1 = /([^.]*)\.(vcf\.gz(\.tbi|\.csi)?)$/.exec(fileSelection.files[1].name);
 
     var fileExt0 = fileType0 && fileType0.length > 1 ? fileType0[2] : null;
     var fileExt1 = fileType1 && fileType1.length > 1 ? fileType1[2] : null;
@@ -417,29 +422,29 @@ export default function vcfiobio(theGlobalApp) {
 
 
     if (fileType0 == null || fileType0.length < 3 || fileType1 == null || fileType1.length <  3) {
-      callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi)  file');
+      callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi/.csi)  file');
       return;
     }
 
 
-    if (fileExt0 == 'vcf.gz' && fileExt1 == 'vcf.gz.tbi') {
+    if (fileExt0 == 'vcf.gz' && (fileExt1 == 'vcf.gz.tbi' || fileExt1 == 'vcf.gz.csi')) {
       if (rootFileName0 != rootFileName1) {
-        callback(false, 'The index (.tbi) file must be named ' +  rootFileName0 + ".tbi");
+        callback(false, 'The index (.tbi) file must be named ' +  rootFileName0 + ".tbi/.csi");
         return;
       } else {
         vcfFile   = fileSelection.files[0];
         tabixFile = fileSelection.files[1];
       }
-    } else if (fileExt1 == 'vcf.gz' && fileExt0 == 'vcf.gz.tbi') {
+    } else if (fileExt1 == 'vcf.gz' && (fileExt0 == 'vcf.gz.tbi' || fileExt0 == 'vcf.gz.csi')) {
       if (rootFileName0 != rootFileName1) {
-        callback(false, 'The index (.tbi) file must be named ' +  rootFileName1 + ".tbi");
+        callback(false, 'The index (.tbi) file must be named ' +  rootFileName1 + ".tbi/.csi");
         return;
       } else {
         vcfFile   = fileSelection.files[1];
         tabixFile = fileSelection.files[0];
       }
     } else {
-      callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi)  file');
+      callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi/.csi)  file');
       return;
     }
 
@@ -540,11 +545,42 @@ export default function vcfiobio(theGlobalApp) {
 
   exports.promiseGetReferenceLengths = function() {
     if (sourceType.toLowerCase() == SOURCE_TYPE_URL.toLowerCase()) {
-      return this._promiseGetRemoteReferenceLengths();
+      return this._promiseGetChromosomes();
     } else {
       return this._promiseGetLocalReferenceLengths();
     }
   }
+
+
+  exports._parseHeaderForContigFields = function(record) {
+    var me = this;
+    var fieldMap = {'ID': 'name', 'length': 'length', 'assembly': 'assembly'}
+    if (contigRecords == null) {
+      contigRecords = [];
+    }
+    if (record.indexOf("##contig=") >= 0) {
+      record = record.replace("<", "")
+      record = record.replace(">", "")
+      var rest = record.split("##contig=")
+      var parts = rest[1].split(",")
+      var contigRecord = {};
+      for (let i=0; i < parts.length; i++) {
+        let part = parts[i];
+        ['ID', 'length', 'assembly'].forEach(function(key) {
+          if (part.indexOf(key+"=") >= 0) {
+            let theValue = part.split(key+"=")[1]
+            contigRecord[fieldMap[key]] = theValue;
+          }
+        })
+      } 
+      if (contigRecord.hasOwnProperty('name')) {
+        contigRecords.push(contigRecord) 
+      } else {
+        console.log("Bypassing contig record; no ID. " + record)
+      }
+    } 
+  }
+
 
 
 
@@ -588,8 +624,71 @@ export default function vcfiobio(theGlobalApp) {
     })
   }
 
+  exports._promiseGetChromosomes = function() {
+    var me = this;
 
-  exports._promiseGetRemoteReferenceLengths = function() {
+    return new Promise(function(resolve, reject) {
+      var buffer = "";
+
+      var cmd = me.getEndpoint().getChromosomes(vcfURL, tbiUrl);
+
+      cmd.on('data', function(data) {
+        if (data == undefined) {
+          return;
+        }
+
+        buffer += data;
+
+      })
+
+      // All data has been streamed.
+      cmd.on('end', function() {
+
+        var recs = buffer.split("\n");
+        if (recs.length > 0) {
+          for (var i=0; i < recs.length; i++)  {
+
+            var success = true;
+            refData.push({"name": recs[i].trim()})
+          }
+        } 
+
+        // sort refData so references or ordered numerically
+        refData = me.sortRefData(refData);
+
+        resolve(refData);
+      })
+
+      // Catch error event when fired
+      cmd.on('error', function(error) {
+        if(error.includes("Expected compressed file")){
+
+          let msg = "Vcf or vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your vcf files are properly compressed in gzip format <pre>" + vcfUrl + "</pre>";
+          console.log(msg)
+          reject(msg)
+        }
+        else{
+          let msg = "Could not get chromosomes.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted <pre>" + vcfUrl + "</pre>";
+          console.log(msg)
+          reject(msg)
+        }
+
+      })
+
+      // execute command
+      cmd.run();
+
+    })
+
+
+
+
+  };
+
+
+
+
+  exports._promiseGetRemoteReferenceLengthsOld = function() {
     var me = this;
 
     return new Promise(function(resolve, reject) {
@@ -1347,6 +1446,8 @@ export default function vcfiobio(theGlobalApp) {
     }
     return fieldMap;
   }
+
+
 
 
   exports.promiseGetSampleNames = function(callback) {
