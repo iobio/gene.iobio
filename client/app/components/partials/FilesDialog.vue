@@ -462,7 +462,7 @@ export default {
             self.areAnyDuplicates = true;
             self.loadReady = false;
           }
-          if (tbiUrl && tbiUrl.split('.').pop() !== "tbi") {
+          if (tbiUrl && tbiUrl.split('.').pop() !== "tbi" && tbiUrl && tbiUrl.split('.').pop() !== "csi" ) {
             self.errorTitle = "Vcf index file extension warning";
             let errorMsg = "The vcf index file path does not end with a .tbi extension " + tbiUrl;
             self.errorMsgArray.push(errorMsg);

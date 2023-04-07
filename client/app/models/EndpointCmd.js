@@ -29,7 +29,6 @@ export default class EndpointCmd {
     // iobio services
     this.IOBIO = {};
     this.IOBIO.tabix                   = this.globalApp.IOBIO_SERVICES  + (this.globalApp.useOnDemand ? "od_tabix/" : "tabix/");
-    this.IOBIO.vcfReadDepther          = this.globalApp.IOBIO_SERVICES  + "vcfdepther/";
     this.IOBIO.snpEff                  = this.globalApp.IOBIO_SERVICES  + "snpeff/";
     this.IOBIO.vt                      = this.globalApp.IOBIO_SERVICES  + "vt/";
     this.IOBIO.af                      = this.globalApp.IOBIO_SERVICES  + "af/";
@@ -58,13 +57,10 @@ export default class EndpointCmd {
         }
     }
 
-    getVcfDepth(vcfUrl, tbiUrl) {
+    getChromosomes(vcfUrl, tbiUrl) {
         const me = this
         if (this.gruBackend) {
-            if (!tbiUrl) {
-                tbiUrl = vcfUrl + '.tbi';
-            }
-            let cmd = this.api.streamCommand('vcfReadDepth', {url: tbiUrl});
+            let cmd = this.api.streamCommand('getChromosomes', {url: vcfUrl, indexUrl: tbiUrl});
 
             return cmd;
         }
