@@ -2,7 +2,21 @@
 
 @import ../../../assets/sass/variables
 
-#legend-drawer-close-button
+#load-saved-analysis-button
+    button
+      color: $text-color
+      font-size: 14px
+      padding-left: 0px
+      box-shadow: none !important
+      padding: 24px 24px 40px 24px
+      margin: 0px
+      margin-left: -24px
+      margin-right: -24px
+
+      .v-btn__content
+        font-weight: normal
+
+#legend-drawer-close-button, #error-drawer-close-button, #notification-drawer-close-button
     position: absolute
     padding-right: 0px
     position: absolute
@@ -37,11 +51,7 @@ nav .v-toolbar__content
         font-size: 14px
         color: white
         font-weight: 500 !important
-  #build-name
-    font-style: italic
-    font-weight: 500
-    color: $nav-label-color
-    font-size: 13px !important
+  
        
 aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
@@ -175,6 +185,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
       flex-flow: column
       #gene-badge
         margin-bottom: 5px
+        margin-right: 0px !important
 
         #gene-badge-button
           min-width: 150px
@@ -208,9 +219,17 @@ aside.navigation-drawer, aside.v-navigation-drawer
 nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
-  .navbar-outline-button, #show-genes-button
+  #phenotype-input 
+    .v-text-field__slot
+      min-width: 300px !important
+
+
+  .navbar-outline-button, #show-genes-button, .navbar-icon-button
     background: transparent !important
-    border: .5px solid #7d7d7d !important
+    border: .5px solid transparent !important
+
+  .navbar-icon-button
+    min-width: 40px !important
 
   .v-toolbar__content
     padding-right: 0px
@@ -221,13 +240,14 @@ nav.toolbar, nav.v-toolbar
     margin-right: 10px
     margin-left: 0px
 
-  #coverage-settings-button
+  #coverage-settings-button, #notification-button
     font-size: 14px
     font-weight: 500
     background-color: $nav-button-color
     height: 34px
     padding-left: 5px
     padding-right: 8px
+    margin-left: 0px
 
     .v-btn__content
       padding-top: 2px
@@ -241,7 +261,41 @@ nav.toolbar, nav.v-toolbar
       font-size: 13px
       font-weight: 500
 
-  #legend-button
+  #notification-button 
+    padding-right: 0px
+    margin-right: -3px
+    .v-badge__badge
+      right: -14px !important
+      font-weight: 500 !important
+
+
+  #coverage-settings-button
+    .v-badge__badge
+      background-color: $coverage-problem-color !important
+
+  #notification-button
+    .v-badge__badge
+      background-color: transparent !important
+
+  #error-badge, #warning-badge, #coverage-badge
+    padding-left: 0px
+    padding-right: 0px
+    margin-left: -0px
+    margin-top: -24px
+    font-size: 20px
+    min-width: 20px !important
+
+  #error-badge
+    color: $badge-error-color !important
+
+  #warning-badge
+    color: $badge-warning-color !important
+
+  #coverage-badge
+    color: $coverage-problem-color !important
+
+
+  #legend-button, #settings-button
     font-size: 14px
     font-weight: 500
     height: 36px
@@ -250,7 +304,27 @@ nav.toolbar, nav.v-toolbar
     .v-btn__content
       padding-top: 2px
 
+  #settings-button 
+    margin-right: 0px
+    padding-right: 0px
+    padding-left: 0px
+    min-width: 40px
+    margin-left: 20px
 
+  .settings-badge
+    padding: 0px
+    margin: 2px
+    margin-top: -20px
+    margin-left: 0px
+    margin-right: 3px
+    background-color: $nav-badge-color
+
+    .v-chip__content
+      border-radius: 10px
+      height: 22px 
+      padding: 0px 5px
+      font-size: 11px
+      font-weight: 500
 
   .toolbar__content
     margin-top: 2px
@@ -286,20 +360,20 @@ nav.toolbar, nav.v-toolbar
     margin-left: 5px
 
 
-  #phenolyzer-top-input
+  #phenolyzer-top-input, #gene-source-box
     .input-group__input
       height: 14px
-  .primary--text input, .primary--text textarea
-    caret-color: $nav-text-color !important
+    .primary--text input, .primary--text textarea
+      caret-color: $nav-text-color !important
 
-    i.material-icons
-      color:  $nav-text-color-clin !important
-
-
-      color: $text-color
+      i.material-icons
+        color:  $nav-text-color-clin !important
 
 
-  #phenotype-input, #gene-name-input, #phenolyzer-top-input
+        color: $text-color
+
+
+  #phenotype-input, #gene-name-input, #phenolyzer-top-input, #gene-source-box
     margin-top: 4px
     .v-text-field__slot
       margin-top: 4px !important
@@ -329,6 +403,18 @@ nav.toolbar, nav.v-toolbar
       input
         font-size: 14px
         font-weight: 500
+
+  
+  #gene-source-box
+    margin-right: 20px
+    margin-top: -4px
+    width: 100px
+    .v-select__selection--comma
+      color: $nav-label-color
+      margin-bottom: 0px
+      font-size: 14px
+      font-weight: 500
+
 
   .clinvar-switch
     padding: 0px
@@ -377,7 +463,7 @@ nav.toolbar, nav.v-toolbar
     padding-bottom: 13px
     min-width: 130px
 
-  #phenotype-input, #gene-name-input, #phenolyzer-top-input
+  #phenotype-input, #gene-name-input, #phenolyzer-top-input, #gene-source-box
     label
       color: $nav-text-color !important
     .material-icons
@@ -389,6 +475,14 @@ nav.toolbar, nav.v-toolbar
   #gene-name-input
     width: 140px
     margin-left: 5px
+
+  #load-data-button, #save-json-analysis-button
+    margin-left: 8px
+    margin-right: 0px
+    padding-left: 8px
+    padding-right: 8px
+
+
 
   #search-phenotype-button
     background-color: #ffffff1f
@@ -409,7 +503,7 @@ nav.toolbar, nav.v-toolbar
     .btn
       color: $nav-text-color-clin
 
-    #phenotype-input, #gene-name-input, #phenolyzer-top-input
+    #phenotype-input, #gene-name-input, #phenolyzer-top-input, #gene-source-box
       label
         color: $nav-text-color-clin !important
       .material-icons
@@ -417,7 +511,7 @@ nav.toolbar, nav.v-toolbar
       .input-group__selections__comma
         color: $nav-text-color-clin !important
 
-    #phenotype-input, #gene-name-input, #phenolyzer-top-input
+    #phenotype-input, #gene-name-input, #phenolyzer-top-input, #gene-source-box
       .input-group input
         color: $nav-text-color-clin !important
       .input-group__details:before
@@ -500,7 +594,26 @@ nav.toolbar, nav.v-toolbar
   .clear-cache-button
     color: $text-color
     margin-left: 0px
+    .v-btn__content
+      width: 200px
+  #load-cache-file-button
+    button
+      color: $text-color
+      margin-left: 0px
+      height: 36px;
+      font-size: 14px;
+      font-weight: normal !important;
+      .v-btn__content
+            width: 200px
 
+    #file-label-area
+      .v-btn__content
+        width: 40px
+  #save-cache-button
+    color: $text-color
+    margin-left: 0px
+    .v-btn__content
+          width: 200px
 </style>
 
 <style>
@@ -542,43 +655,21 @@ nav.toolbar, nav.v-toolbar
   <div>
     <v-toolbar fixed  height="50"   dark  :class="launchedFromClin ? 'clin' : '' " >
 
-      <v-toolbar-side-icon v-if="!isSimpleMode" style="margin-top:7px"  @click.stop="leftDrawer = !leftDrawer">
+      <v-toolbar-side-icon v-if="!isSimpleMode" style="margin-top:5px"  @click.stop="leftDrawer = !leftDrawer">
       </v-toolbar-side-icon>
 
 
-      <v-toolbar-title style="font-weight:400" v-text="title">
+      <v-toolbar-title style="font-weight:400;margin-top:-6px" v-text="title">
       </v-toolbar-title>
+      <div style="margin-left:4px">v{{ globalApp.version }}</div>
 
       <v-spacer v-if="!isFullAnalysis"></v-spacer>
 
-      <span id="build-name" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded">
-        {{ currentBuildName }}
-      </span>
 
-
-      <v-spacer v-if="!isFullAnalysis"></v-spacer>
-
-      <v-btn v-if="false" id="variants-button" flat @click.stop="leftDrawer = !leftDrawer">
-        Variants
-      </v-btn>
-
-
-
-
-      <v-btn class="navbar-outline-button" v-if="cohortModel.hasAlignments() && !isSimpleMode && !isBasicMode && !isEduMode" id="coverage-settings-button"  @click="onShowCoverageThreshold" flat>
-        <v-badge right  >
-          <v-icon>bar_chart</v-icon>
-          <span >
-            Assess coverage
-          </span>
-          <span v-if="badgeCounts && badgeCounts.coverage"
-            slot="badge">{{ badgeCounts.coverage }}</span>
-        </v-badge>
-      </v-btn>
       <v-spacer></v-spacer>
 
 
-      <v-toolbar-items style="flex-grow: 3;padding-top:0px;">
+      <v-toolbar-items style="flex-grow: 6;padding-top:3px;margin-left: 10px;margin-right:0px">
 
         <v-icon>search</v-icon>
 
@@ -614,7 +705,7 @@ nav.toolbar, nav.v-toolbar
           or
         </div>
 
-        <phenotype-search
+        <phenotype-search style="flex-grow:4"
          id="phenolyzer-search"
          v-if="!isEduMode && !launchedFromClin && (!isSimpleMode || isPhenolyzerPermitted)"
          :classAttention="clazzAttention"
@@ -624,6 +715,7 @@ nav.toolbar, nav.v-toolbar
          :geneModel="geneModel"
          :phenotypeLookupUrl="phenotypeLookupUrl"
          :lastPhenotypeTermEntered="lastPhenotypeTermEntered"
+         :phenolyzerTopGenes="geneModel.phenolyzerTopGenesToKeep"
          @on-search-genes="onSearchPhenolyzerGenes"
          @on-start-search-genes="onStartSearchPhenolyzerGenes"
          @show-snackbar="onShowSnackbar"
@@ -631,31 +723,119 @@ nav.toolbar, nav.v-toolbar
         </phenotype-search>
 
 
+        <v-spacer v-if="!isFullAnalysis"></v-spacer>
+      
 
       </v-toolbar-items>
 
+      
       <v-spacer></v-spacer>
 
-      <save-button
-        v-if="launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded"
-        :showing-save-modal="showSaveModal"
-        :analysis="analysis"
-        :isDirty="isDirty"
-        @save-modal:set-visibility="toggleSaveModal"
-      />
+      <v-btn  class="navbar-icon-button" v-if="(appAlerts && appAlerts.length > 0) || (badgeCounts && badgeCounts.coverage)" id="notification-button"  @click="onShowNotificationDrawer" flat 
+        v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
+        <v-badge right  >
+          <v-icon>notifications</v-icon>
+        </v-badge>
+      </v-btn>
+      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.error && appAlertCounts.error > 0"  id="error-badge" 
+        v-tooltip.bottom-left="{content: 'The app has encountered at an error. Click on notifications button (bell) to see details.'}">
+       error
+      </v-icon>
+      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.warning && appAlertCounts.warning > 0"  id="warning-badge" 
+        v-tooltip.bottom-left="{content: 'The app has issued a warning. Click on notifications button (bell) to see details.'}">
+        warning
+      </v-icon>
 
-      <v-btn id="files-button"   icon v-if="showFilesButton" 
+      <v-icon id="coverage-badge" class="navbar-icon-button" v-if="badgeCounts && badgeCounts.coverage"
+           v-tooltip.bottom-left="{content: 'Some genes have insufficient sequence coverage (based in user-defined thresholds'}">
+        trending_down
+      </v-icon>
+
+
+      <v-btn id="settings-button" flat v-if="!isBasicMode && !isSimpleMode && !launchedFromClin" 
+        @click="onShowSettingsDialog(true)" 
+        v-tooltip.bottom-left="{content: 'App settings'}">
+        <v-icon>settings</v-icon>
+      </v-btn>
+
+
+     <v-chip @click="onShowSettingsDialog(true)" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded" 
+         id="build-name" class="settings-badge" text-color="white">{{ currentBuildName }}</v-chip>
+
+     <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded && cohortModel.analyzeCodingVariantsOnly"
+          id="analyze-coding-variants-only-chip" class="settings-badge" text-color="white">
+          coding regions only
+      </v-chip>
+
+      <v-spacer></v-spacer>
+
+      <div class="text-xs-center" v-if="!launchedFromHub && !launchedFromClin && !isSimpleMode && !isBasicMode && !isEduMode">
+        <v-menu offset-y :value="showLoadMenu">
+          <template v-slot:activator="{ on }">
+            <v-btn id="load-data-button"
+              :outline="cohortModel && !cohortModel.isLoaded"
+              :flat="cohortModel && cohortModel.isLoaded" 
+              v-on="on"
+            >
+              <v-icon>file_upload</v-icon>
+              <span style="font-size:14px;font-weight:500">Load</span>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-tile @click="onShowFiles">
+              <v-list-tile-title>Specify files</v-list-tile-title>
+            </v-list-tile>
+            <v-list-tile @click.stop="">
+                <file-chooser id="load-saved-analysis-button"
+                title="Load saved analysis"
+                :isMultiple="false" :accept="`.json`"
+                :showLabel="false"
+                @file-selected="onAnalysisFileSelected">
+                </file-chooser>
+            </v-list-tile>
+          </v-list>
+        </v-menu>
+      </div>
+
+      <v-btn id="files-button"   icon v-if="showFilesButton && (launchedFromHub || launchedFromSFARI || isSimpleMode || isBasicMode) " 
         @click="onShowFiles" 
         v-tooltip.bottom-left="{content: 'Load your data'}">
         <app-icon icon="fileupload"  width="32" height="32"></app-icon>
       </v-btn>
 
+
+      <v-btn id="save-json-analysis-button" 
+        :outline="cohortModel && cohortModel.isLoaded" 
+        :flat="cohortModel && !cohortModel.isLoaded"
+         v-if="!launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded && !isBasicMode && !isSimpleMode" 
+        @click="onSaveAnalysisFile" 
+        v-tooltip.bottom-left="{content: 'Save your analysis'}">
+        <v-icon>file_download</v-icon>
+        Save
+      </v-btn>  
+      <a id="download-json-file" v-show="false" download="gene_iobio_analysis.json" href="#">
+      </a>
+
+
+
+      <save-button
+        v-if="!isSimpleMode && !isBasicMode && launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded"
+        :showing-save-modal="showSaveModal"
+        :analysis="analysis"
+        :isDirty="isDirty"
+        @save-modal:set-visibility="toggleSaveModal"
+      />
+      
+      <v-spacer></v-spacer>
+
+
       <v-btn id="legend-button" 
       icon v-if="!isSimpleMode && !isBasicMode" 
       @click="onShowLegendDrawer"
       v-tooltip.bottom-left="{content: 'Show legend'}">
-        <v-icon>info</v-icon>
+        <v-icon>map</v-icon>
       </v-btn>
+    
 
 
       <v-menu>
@@ -672,20 +852,27 @@ nav.toolbar, nav.v-toolbar
             <v-list-tile-title>Cite</v-list-tile-title>
           </v-list-tile>
 
+          <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
+          
+          <v-list-tile v-if="!isEduMode && !isBasicMode && !isSimpleMode"
+            @click="onShowCoverageThreshold">
+            <v-list-tile-title dense>Set sequencing coverage cutoffs</v-list-tile-title>
+          </v-list-tile>
+
 
           <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !launchedFromClin && !isSimpleMode && cohortModel.isLoaded"
             @click="onShowImportVariants">
-            <v-list-tile-title dense>Import Variants</v-list-tile-title>
+            <v-list-tile-title dense>Import filtered variants</v-list-tile-title>
           </v-list-tile>
 
           <v-list-tile v-if="!isEduMode && !isBasicMode && !isSimpleMode && cohortModel.flaggedVariants && cohortModel.flaggedVariants.length > 0" @click="onShowExportVariants">
-            <v-list-tile-title>Export Variants</v-list-tile-title>
+            <v-list-tile-title>Export filtered variants</v-list-tile-title>
           </v-list-tile>
 
-          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onShowOptions">
-            <v-list-tile-title>Options</v-list-tile-title>
+          <v-list-tile v-if="!isSimpleMode && !isBasicMode" @click="onClearCache">
+            <v-list-tile-title>Clear analysis</v-list-tile-title>
           </v-list-tile>
 
           <v-divider ></v-divider>
@@ -789,6 +976,8 @@ nav.toolbar, nav.v-toolbar
              :callAllInProgress="callAllInProgress"
              :loadedDangerSummaries="Object.keys(geneModel.geneDangerSummaries)"
              :genesInProgress="cohortModel.genesInProgress"
+             :appAlerts="appAlerts"
+             :geneToAppAlerts="geneToAppAlerts"
              @gene-selected="onGeneSelected"
              @remove-gene="onRemoveGene"
              @count-changed="onGeneCountChanged"
@@ -881,15 +1070,34 @@ nav.toolbar, nav.v-toolbar
 
     </v-navigation-drawer>
 
+    <v-navigation-drawer  
+      v-model="showNotificationDrawer"
+      absolute right  width="340"
+      :class="launchedFromClin ? 'clin' : '' "
+      style="z-index:6; height: calc(100vh - 50px); position: fixed;">
+        <v-btn  id="error-drawer-close-button" class="toolbar-button" flat @click="showNotificationDrawer = false">
+          <v-icon >close</v-icon>
+        </v-btn>
+        <alert-panel :isBasicMode="isBasicMode"
+           :isSimpleMode="isSimpleMode"
+           :appAlerts=appAlerts
+           @clear-app-alert="onClearAppAlert"
+           @clear-all-app-alerts="onClearAllAppAlerts">
+        </alert-panel>
+    </v-navigation-drawer>
+
 
     <files-dialog
      v-if="!isEduMode && !isBasicMode && !isFullAnalysis"
      :cohortModel="cohortModel"
      :showDialog="showFiles"
+     :showDialogForAnalysis="showFilesForAnalysis"
+     :infoMessage="filesDialogInfoMessage"
      :launchedFromDemo="launchedFromDemo"
      @on-files-loaded="onFilesLoaded"
      @load-demo-data="onLoadDemoData"
      @on-close="onCloseFilesDialog"
+     @on-files-load-error="onFilesLoadError"
      @isDemo="onIsDemo"
      @isTrio="onIsTrio"
     >
@@ -907,6 +1115,24 @@ nav.toolbar, nav.v-toolbar
      @close-export-variants="onCloseExportVariants"
      :showDialog="showExportVariants">
     </export-variants>
+
+    <settings-dialog 
+      ref="settingsDialogRef"
+      :showDialog="showSettingsDialog"
+      :cohortModel="cohortModel"
+      :geneModel="geneModel"
+      :genomeBuildHelper="genomeBuildHelper"
+      :filterModel="filterModel"
+      :settingsCoverageOnly="settingsCoverageOnly"
+      :settingsGeneSourceOnly="settingsGeneSourceOnly"
+      @hide-settings="onShowSettingsDialog(false)"
+      @gene-source-selected="onGeneSourceSelected"
+      @coverage-threshold-applied="onCoverageThresholdApplied"
+      @coverage-threshold-closed="onCoverageThresholdClosed"
+      @phenolyzer-top-changed="onPhenolyzerTopChanged"
+      @genome-build-selected="onGenomeBuildSelected"
+      @coding-variants-only-changed="onCodingVariantsOnlyChange">
+    </settings-dialog>
 
 
     <v-dialog v-model="showDisclaimer" max-width="400">
@@ -944,26 +1170,6 @@ nav.toolbar, nav.v-toolbar
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <v-dialog v-model="showOptions" max-width="400">
-      <v-card id="options" class="full-width">
-        <v-card-title class="headline">Options</v-card-title>
-
-        <v-card-text>
-          <div style="margin-bottom:20px">
-            <v-btn class="clear-cache-button" @click="onClearCache">
-              Clear session cache
-            </v-btn>
-          </div>
-
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn raised  @click.native="showOptions = false">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
 
     <v-dialog v-model="showVersion" max-width="580">
         <v-card class="full-width">
@@ -1130,6 +1336,9 @@ import ExportVariants      from '../partials/ExportVariants.vue'
 import FilterIcon          from '../partials/FilterIcon.vue'
 import SaveButton          from '../partials/SaveButton.vue'
 import AppIcon             from '../partials/AppIcon.vue'
+import FileChooser         from '../partials/FileChooser.vue'
+import AlertPanel          from '../partials/AlertPanel.vue'
+import SettingsDialog      from '../partials/SettingsDialog.vue'
 
 export default {
   name: 'navigation',
@@ -1146,10 +1355,15 @@ export default {
     ExportVariants,
     FilterIcon,
     SaveButton,
-    AppIcon
+    AppIcon,
+    FileChooser,
+    AlertPanel,
+    SettingsDialog
   },
   props: {
     showFilesProp: null,
+    showFilesForAnalysis: null,
+    filesDialogInfoMessage: null,
     isEduMode: null,
     isBasicMode: null,
     isSimpleMode: null,
@@ -1169,6 +1383,7 @@ export default {
     geneModel: null,
     cohortModel: null,
     genomeBuildHelper: null,
+    filterModel: null,
     cacheHelper: null,
     activeFilterName: null,
     launchedFromClin: null,
@@ -1187,6 +1402,12 @@ export default {
     badgeCounts: null,
     showWelcome: null,
     launchedFromDemo: null,
+    appAlerts: null,
+    appAlertCounts: null,
+    geneToAppAlerts: null,
+    settingsCoverageOnly: null,
+    settingsGeneSourceOnly: null,
+    analysisModel: null,
   },
   data () {
     let self = this;
@@ -1204,12 +1425,14 @@ export default {
       showExportVariants: false,
       showTermsOfService: false,
       showDisclaimer: false,
-      showOptions: false,
       showVersion: false,
       showCitations: false,
       showPublication: false,
       typeaheadLimit: parseInt(100),
       showLegendDrawer: false,
+      showErrorDrawer: false,
+      showNotificationDrawer: false,
+      showLoadMenu: false,
 
 
       activeTab: 0,
@@ -1219,6 +1442,11 @@ export default {
 
       showKnownVariantsCard: false,
 
+      geneSource: null,
+
+      analysisFileName: "",
+
+      showSettingsDialog: false
 
 
     }
@@ -1265,6 +1493,9 @@ export default {
         this.$emit('on-welcome-changed', true);
       }
     },
+    onFilesLoadError: function(error) {
+      this.$emit('on-files-load-error', error)
+    },
     onClearCache: function() {
       this.$emit("clear-cache")
     },
@@ -1287,6 +1518,78 @@ export default {
     },
     onIsTrio: function(bool){
       this.$emit("isTrio", bool);
+    },
+    getCacheHelper: function() {
+      return this.cohortModel.cacheHelper
+    },
+    onCoverageThresholdApplied() {
+      return this.$emit('coverage-threshold-applied')
+    },
+    onCoverageThresholdClosed() {
+      return this.$emit('coverage-threshold-closed')
+    },
+    onSaveAnalysisFile: function(){
+      let self = this;
+
+      self.$emit("on-show-progress", "Formatting analysis data")
+              
+      self.analysisModel.promiseSaveAnalysisFile(self.appAlerts, 
+          self.currentBuildName, self.currentGeneSource)
+      .then(function(data) {
+
+        self.globalApp.utility.createDownloadLink("#download-json-file",
+          data.dataStr,
+          data.jsonFileName);
+        self.$emit("on-hide-progress")
+        document.getElementById('download-json-file').click();
+      })      
+      .catch(function(error) {
+        self.$emit("on-hide-progress")
+        console.log("Unable to output cache", error)
+      })
+    },
+    onAnalysisFileSelected: function(fileSelection) {
+      let me = this;
+
+
+      if (fileSelection.target.files.length > 0) {
+        let analysisFileName = fileSelection.target.files[0].name;  
+        let start = new Date();
+        let dataIsCompressed = true;
+
+        
+        me.showLoadMenu = true;
+        setTimeout(function() {
+          me.showLoadMenu = false;
+
+        }, 1000)
+
+        me.analysisModel.promiseLoadAnalysisFromFile(fileSelection)
+        .then(function(modelInfoProvided) {
+
+          if (me.$refs && me.$refs.settingsDialogRef) {
+            me.$refs.settingsDialogRef.init();
+          }
+
+          console.log("Time to load analysis from file " + analysisFileName + ": " + (new Date() - start) / 1000 + " seconds ");
+          if (modelInfoProvided) {
+            me.onShowVariantsTab();
+            me.$emit("on-analysis-file-loaded", analysisFileName);            
+          }
+        })
+        .catch(function(error) {
+          let msg = "Error loading analysis .json file " + analysisFileName;
+          console.log(msg, error)
+          me.$emit("on-analysis-file-error", msg, error)
+
+          me.showLoadMenu = true;
+          setTimeout(function() {
+            me.showLoadMenu = false;
+
+          }, 1000)
+        })        
+      }
+      
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
@@ -1342,15 +1645,21 @@ export default {
         }
       })
     },
+    onShowSettingsDialog: function(show) {
+      if (!show) {
+        this.$emit("hide-settings-dialog")
+      }
+      this.showSettingsDialog = show;
+    },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)
     },
     onFlaggedVariantsImported: function() {
       this.$emit("flagged-variants-imported")
     },
-    onFilesLoaded: function(analyzeAll) {
+    onFilesLoaded: function(analyzeAll, clearSession) {
       this.showFiles = false;
-      this.$emit("on-files-loaded", analyzeAll);
+      this.$emit("on-files-loaded", analyzeAll, clearSession);
     },
     onCloseFilesDialog: function() {
       this.showFiles = false
@@ -1367,16 +1676,29 @@ export default {
     },
     onShowFiles: function() {
       this.showFiles = true;
+      this.showLoadMenu = false;
     },
     onShowLegendDrawer: function() {
       this.showLegendDrawer = !this.showLegendDrawer;
     },
+    onShowErrorDrawer: function() {
+      this.showErrorDrawer = !this.showErrorDrawer;
+    },
+    onShowNotificationDrawer: function() {
+      this.showNotificationDrawer = !this.showNotificationDrawer;
+    },
+    onShowNotificationDrawerShowLast: function() {
+      this.showNotificationDrawer = true;
+      setTimeout(function() {
+        let items = $("#alert-panel .alert-item");
+        if (items && items.length > 1) {
+          let last = items[items.length-1];
+          last.scrollIntoView();          
+        }
+      }, 1000);
+    },
     onShowCoverageThreshold: function() {
       this.$emit('show-coverage-threshold', true)
-    },
-
-    onShowOptions: function() {
-      this.showOptions = true;
     },
     onShowTermsOfService: function(){
       this.showTermsOfService = true;
@@ -1456,13 +1778,35 @@ export default {
     toggleSaveModal(bool) {
       this.$emit("toggle-save-modal", bool);
     },
-
+    onGeneSourceSelected: function(theGeneSource) {
+      let self = this;
+      if (theGeneSource) {
+        self.geneSource = theGeneSource;
+      }
+      self.$emit('gene-source-selected', self.geneSource);
+    },
+    onPhenolyzerTopChanged: function(phenolyzerTop) {
+      this.$emit('phenolyzer-top-changed', phenolyzerTop)
+    },
+    onCodingVariantsOnlyChange: function(codingVariantsOnly) {
+      this.$emit('coding-variants-only-changed', codingVariantsOnly)
+    },
+    onGenomeBuildSelected: function(buildName) {
+      this.$emit('genome-build-selected', buildName)
+    },
+    onClearAppAlert: function(key) {
+      this.$emit('clear-app-alert', key)
+    },
+    onClearAllAppAlerts: function() {
+      this.$emit('clear-all-app-alerts')
+    }
 
   },
   created: function() {
   },
   mounted: function() {
      $("#search-gene-name").attr('autocomplete', 'off');
+     this.geneSource = this.geneModel.geneSource;
   },
   computed:  {
     knownGenes: function() {
@@ -1477,6 +1821,9 @@ export default {
     },
     currentBuildName: function() {
       return this.genomeBuildHelper.getCurrentBuildName()
+    },
+    currentGeneSource: function() {
+      return this.geneModel.geneSource
     },
     clazzAttention: function() {
       if (this.bringAttention && this.bringAttention == 'gene' && this.lookupGene && Object.keys(this.lookupGene).length == 0) {

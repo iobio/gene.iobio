@@ -28,6 +28,13 @@
     float: right
     margin-right: 5px
     text-align: right
+    margin-top: -7px
+
+    button
+      background-color: $button-color !important
+      .v-btn__content 
+        color: $button-text-color !important
+
 
 </style>
 
@@ -53,22 +60,22 @@
       <a id="intro-link" v-if="!showIntro" href="javascript:void(0)" @click="showIntro = true">tell me more...</a>
 
       <div class="right-info" v-if="forMyGene2" >
-        <a class="switch-mode" v-show="siteConfig != null && isBasicMode" @click="onAdvancedMode">
+        <v-btn  small raised class="switch-mode" v-show="siteConfig != null && isBasicMode" @click="onAdvancedMode">
            Go to advanced
-        </a>
+        </v-btn>
 
-        <a class="switch-mode" raised v-if="siteConfig != null && !isBasicMode"  @click="onBasicMode">
+        <v-btn class="switch-mode" small raised v-if="siteConfig != null && !isBasicMode"  @click="onBasicMode">
            Go to basic
-        </a>
+        </v-btn>
       </div>
       <div class="right-info" v-if="!forMyGene2">
-        <a class="switch-mode" v-show="isSimpleMode" @click="onAdvancedMode">
+        <v-btn small raised class="switch-mode" v-show="isSimpleMode" @click="onAdvancedMode">
            Go to advanced
-        </a>
+        </v-btn>
 
-        <a class="switch-mode" raised v-if="!isSimpleMode"  @click="onSimpleMode">
+        <v-btn small raised class="switch-mode" raised v-if="!isSimpleMode"  @click="onSimpleMode">
            Go to simplified
-        </a>
+        </v-btn>
       </div>
     </div>
 

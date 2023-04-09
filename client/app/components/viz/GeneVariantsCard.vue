@@ -38,12 +38,12 @@
                 input
                   padding-bottom: 0px
         #gene-variants-heading
-            color: $app-color
-            font-size: 16px
+            color: $heading-color
+            font-size: 17px
             display: flex
             padding-left: 0px
             margin-left: 0px
-            min-width: 170px
+            min-width: 193px
             justify-content: flex-start
             padding-top: 5px
             padding-bottom: 5px
@@ -55,9 +55,8 @@
             font-size: 15px
             margin-right: 1px
         #gene-name
-            font-size: 16px
-            color: $app-color
-            margin-left: 5px
+            margin-left: 0px
+            margin-right: 4px
             margin-top: 0px
             display:inline-block
             vertical-align: middle
@@ -87,30 +86,11 @@
 <template>
 
 
-	<div v-if="selectedGene">
+	<div v-if="selectedGene && selectedGene.gene_name && selectedGene.gene_name.length > 0">
 		<div   class="gene-info text-xs-left">
 			<div id="gene-variants-heading">
-			Gene
-				<span id="gene-name"> {{ selectedGene.gene_name}} </span>
+				<span id="gene-name">{{ selectedGene.gene_name}} </span> GENE
 			</div>
-			<gene-links-menu v-if="!isBasicMode"
-			             :selectedGene="selectedGene"
-			             :geneModel="cohortModel.geneModel">
-			</gene-links-menu>
-
-			<div style="display:inline-block;margin-left: 20px">
-				<transcripts-menu
-		        v-if="analyzedTranscript && analyzedTranscript.transcript_id && !isBasicMode&& !isSimpleMode"
-		        :selectedGene="selectedGene"
-		        :selectedTranscript="analyzedTranscript"
-		        :geneSources="geneSources"
-		        :geneModel="cohortModel.geneModel"
-		        @transcriptMenuOpened="onClickTranscript"
-		        @transcriptSelected="onTranscriptSelected"
-		        @gene-source-selected="onGeneSourceSelected">
-				</transcripts-menu>
-			</div>
-
 
 
 
@@ -134,10 +114,19 @@
 		    		</v-text-field>
 				</div>
 			</div>
+            <gene-links-menu v-if="!isBasicMode"
+                         :selectedGene="selectedGene"
+                         :geneModel="cohortModel.geneModel">
+            </gene-links-menu>
+
+
+
+
 
 		</div>
 
-    <div style="display:flex;justify-content:flex-start;margin-top:5px">
+    <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)" 
+      style="display:flex;justify-content:flex-start;margin-top:5px">
         <gene-omim-table  style="margin-right:30px"
          v-if="isOMIMPermitted && selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
          :selectedGene="selectedGene"
@@ -200,13 +189,12 @@
             launchedFromHub: null
         },
         data() {
+            let self = this;
             return {
                 geneSource: null,
-                geneSources: ['gencode', 'refseq'],
                 noTranscriptsWarning: null,
                 showNoTranscriptsWarning: false,
                 regionBuffer: null,
-                analyzedTranscript: null,
                 noData: null
             }
         },
@@ -221,14 +209,17 @@
             //assume that no data is loaded, and analyze transcript inside of GeneVariantsCard
             //If we find out later that data is loaded, this will be overwritten
             populateTranscriptData: function(){
+              if (this.selectedGene && this.selectedGene.gene_name.length > 0) {
                 let self = this;
                 let transcript = this.cohortModel.geneModel.getCanonicalTranscript(this.selectedGene);
                 self.cohortModel.promiseMarkCodingRegions(self.selectedGene, transcript)
-                    .then(function(data) {
-                        self.analyzedTranscript = data.transcript;
-                        self.noData = true;
-                        setTimeout(self.noDataAlert, 2000);
-                    })
+                .then(function(data) {
+                    self.analyzedTranscript = data.transcript;
+                    self.noData = true;
+                    setTimeout(self.noDataAlert, 2000);
+                })
+
+              }
             },
 
             formatCanonicalTranscript: function() {
@@ -241,35 +232,7 @@
             onGeneRegionBufferChange: _.debounce(function (newGeneRegionBuffer) {
                 this.regionBuffer = Math.min(parseInt(newGeneRegionBuffer), 99999);
                 this.$emit('gene-region-buffer-change', this.regionBuffer);
-            }, 100),
-            onClickTranscript: function(link) {
-            },
-            onTranscriptSelected: function(transcript) {
-                let self = this;
-                if(this.sampleModels.length === 0){
-                    this.analyzedTranscript = transcript;
-                }
-
-                self.$emit('transcript-selected', transcript);
-            },
-            onGeneSourceSelected: function(geneSource) {
-                let self = this;
-                var switchMsg = null;
-                if (self.cohortModel.geneModel.refseqOnly[self.selectedGene.gene_name] && geneSource != 'refseq') {
-                    switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in RefSeq. Switching to this transcript set.';
-                    self.geneSource = 'refseq';
-                } else if (self.cohortModel.geneModel.gencodeOnly[self.selectedGene.gene_name] && geneSource != 'gencode') {
-                    switchMsg = 'Gene ' + self.selectedGene.gene_name + ' only in Gencode. Switching to this transcript set.';
-                    self.geneSource = 'gencode';
-                } else {
-                    self.geneSource = geneSource;
-                }
-                if (switchMsg) {
-                    self.noTranscriptsWarning = switchMsg;
-                    self.showNoTranscriptsWarning = true;
-                }
-                self.$emit('gene-source-selected', self.geneSource);
-            },
+            }, 100)
         },
         computed: {
         },
@@ -286,11 +249,14 @@
             },
 
             selectedGene: function(){
-                if(this.sampleModels.length === 0) {
-                    if(this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
-                        this.populateTranscriptData();
-                    }
+              if(this.sampleModels.length === 0) {
+                if(this.selectedGene && 
+                  this.selectedGene.gene_name && 
+                  this.analyzedTranscript && 
+                  this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
+                    this.populateTranscriptData();
                 }
+              }
             }
         },
         filters: {

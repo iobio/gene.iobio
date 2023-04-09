@@ -30,16 +30,17 @@
   #show-assessment-button
     padding: 0px
     height: 26px !important
-    background-color: $app-button-color !important
-    color: white !important
+    background-color: white !important
     margin: 0px
     padding-left: 10px
     padding-right: 10px
+    color: $link-color !important
+    margin-left: 41px
 
-    i.material-icons
-      font-size: 15px
-      padding-right: 3px
-
+    .v-btn__content
+      font-size: 13px
+      font-weight: 500
+  
   .subheader
     padding-bottom: 10px
     font-size: 13px
@@ -190,11 +191,11 @@
     font-size: 14px
 
   #variant-heading
-    color: $app-color
+    color: $heading-color
     padding-bottom: 5px
-    font-size: 16px
+    font-size: 17px
     padding-top: 0px
-    min-width: 180px
+    min-width: 193px
     display: flex
     justify-content: flex-start
 
@@ -365,25 +366,44 @@
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
-    <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:10px">
+    <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:5px">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left" style="display: inline-grid">
         <span class="pr-1" v-if="selectedVariantRelationship != 'proband'">
           <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
         </span>
 
-        <span>Variant in {{ selectedGene.gene_name }}</span>
+        <span>{{ selectedGene.gene_name }} VARIANT</span>
 
 
       </div>
 
+      <span v-if="selectedVariant" class="variant-header" style="margin-top:2px">
 
-      <variant-links-menu
-      v-if="selectedVariant && info"
-      :selectedGene="selectedGene"
-      :selectedVariant="selectedVariant"
-      :geneModel="cohortModel.geneModel"
-      :info="info">
-      </variant-links-menu>
+        <span style="vertical-align:top">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
+        <span style="vertical-align:top" class="pl-1">{{ coord }}</span>
+        <span class="pl-1 pr-2 refalt">{{ refAlt  }}</span>
+
+
+      </span>
+
+      <app-icon
+       style="min-width:70px;margin-top:1px;margin-right:5px;padding-top: 1px;margin-right:10px"
+       icon="zygosity" v-if="selectedVariant && selectedVariant.zygosity"
+       :type="selectedVariant.zygosity.toLowerCase() + '-large'"
+       :isSimpleMode="isSimpleMode"
+       height="14" :width="isSimpleMode ? 90 : 35">
+      </app-icon>
+
+      <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="!isSimpleMode && selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
+
+
+      <div v-if="info && info.rsId"  class="variant-header rsid"> {{info.rsId}}
+        <a  v-bind:href="info.dbSnpUrl" target="ClinVar" class="rsid-link">
+            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 3px">open_in_new</i>
+        </a>
+      </div>
+
+     
 
       <span v-if="!info || (info.HGVSpLoading && info.HGVScLoading) && !isSimpleMode"
         style="font-size:13px;margin-top:2px;min-width:80px;margin-left:0px;margin-right:0px"
@@ -391,7 +411,6 @@
         <img src="../../../assets/images/wheel.gif">
         HGVS
       </span>
-
       <variant-aliases-menu
       v-show="selectedVariant && (!info.HGVSpLoading || !info.HGVScLoading)"
       v-if="selectedVariant && selectedVariantRelationship != 'known-variants' && !isSimpleMode"
@@ -402,49 +421,40 @@
       :info="info">
       </variant-aliases-menu>
 
-      <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="!isSimpleMode && selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
-
-      <div v-if="info && info.rsId"  class="variant-header rsid"> {{info.rsId}}
-      <a  v-bind:href="info.dbSnpUrl" target="ClinVar" class="rsid-link">
-          <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 3px">open_in_new</i>
-      </a>
-      </div>
-
-      <app-icon
-       style="min-width:70px;margin-top:1px;margin-right:5px;padding-top: 1px;margin-right:10px"
-       icon="zygosity" v-if="selectedVariant && selectedVariant.zygosity"
-       :type="selectedVariant.zygosity.toLowerCase() + '-large'"
-       :isSimpleMode="isSimpleMode"
-       height="14" :width="isSimpleMode ? 85 : 35">
-      </app-icon>
-
-      <span v-if="selectedVariant" class="variant-header" style="margin-top:2px">
-
-        <span style="vertical-align:top">{{ selectedVariant.type ? selectedVariant.type.toUpperCase() : "" }}</span>
-        <span style="vertical-align:top" class="pl-1">{{ coord }}</span>
-        <span class="pl-1 refalt">{{ refAlt  }}</span>
-
-
-      </span>
-
-
-
       <span class="pl-3 variant-header aa-change" style="margin-top:2px">{{ aminoAcidChange }}</span>
 
 
 
 
+      <variant-links-menu
+      v-if="selectedVariant && info"
+      :selectedGene="selectedGene"
+      :selectedVariant="selectedVariant"
+      :geneModel="cohortModel.geneModel"
+      :info="info">
+      </variant-links-menu>
+    </div>
 
-      <v-spacer></v-spacer>
+    <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:0px;margin-left:193px">
+      <variant-interpretation 
+       v-if="!isSimpleMode && selectedVariant"
+       style="margin-bottom:4px;margin-right:5px;display: inline-block"
+       wrap="true"
+       :variant="selectedVariant"
+       :variantInterpretation="interpretation"
+       :interpretationMap="interpretationMap"
+       :showInterpretationLabel="true"
+       @apply-variant-interpretation="onApplyVariantInterpretation">
+      </variant-interpretation>
+      
+      <v-btn v-if="!isSimpleMode && selectedVariant && !showAssessment"  flat id="show-assessment-button" @click="onEnterComments">
+        <v-icon style="margin-right:4px">speaker_notes</v-icon>
+        Notes...
+      </v-btn>
 
-      <div v-if="!isSimpleMode && selectedVariant && !showAssessment" style="margin-left:20px;margin-right:0px">
-        <v-btn raised id="show-assessment-button" @click="onEnterComments">
-          <v-icon>gavel</v-icon>
-          Review
-        </v-btn>
-      </div>
 
     </div>
+
 
     
     <span v-if="launchedFromClin && selectedGene.gene_name">
@@ -582,7 +592,8 @@
             Clinical significance based on variant type, location, and documentation in ClinVar.
           </div>
           <variant-inspect-row  v-for="(clinvar,clinvarIdx) in info.clinvarLinks" :key="clinvarIdx"
-            :clazz="getClinvarClass(clinvar.significance)" :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" >
+          :value="clinvar.clinsig" :label="`ClinVar`" :link="clinvar.url" 
+          :translator="cohortModel.translator">
           </variant-inspect-row>
 
           <div v-if="showClinvarTrait(info)"
@@ -783,6 +794,7 @@
 
 import Vue                      from "vue"
 import AppIcon                  from "../partials/AppIcon.vue"
+import VariantInterpretation    from '../partials/VariantInterpretation.vue'
 import VariantInspectRow        from "../partials/VariantInspectRow.vue"
 import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
 import VariantInspectInheritanceRow from "../partials/VariantInspectInheritanceRow.vue"
@@ -812,6 +824,7 @@ export default {
     VariantAfPopMenu,
     VariantLinksMenu,
     VariantAliasesMenu,
+    VariantInterpretation,
     VariantInspectRow,
     VariantInspectQualityRow,
     VariantInspectInheritanceRow,
@@ -840,7 +853,9 @@ export default {
     coverageDangerRegions: null,
     user: null,
     showAssessment: null,
-    launchedFromClin: null,
+    launchedFromClin: null,    
+    interpretationMap: null,
+    //mosaicVariantInterpretation: null
   },
   data() {
     return {
@@ -907,7 +922,9 @@ export default {
         'gnomAD.afPopMax'           : 'gnomAD genomes pop max allele freq',
         'vepAf.MAX.AF'              : 'gnomAD (exomes only) pop max allele freq',
         'vepAf.gnomAD.AF'           : 'gnomAD (exomes only) allele freq'
-      }
+      },
+
+      interpretation: null
       
 
     }
@@ -1091,27 +1108,16 @@ export default {
         return 'level-unremarkable';
       }
     },
-    getClinvarClass: function(significance) {
-      if (significance == 'clinvar_path' || significance == 'clinvar_lpath') {
-        return 'level-high';
-      } else if(significance == 'clinvar_cd') {
-        return 'level-medium';
-      } else if (significance == 'clinvar_benign' || significance == 'clinvar_lbenign') {
-        return 'level-unremarkable';
-      } else {
-        return '';
-      }
-    },
     showClinvarTrait: function(info) {
       let self = this;
-      let levelHigh = false;
+      let levelSignificant = false;
       info.clinvarLinks.forEach(function(clinvar) {
-        let clazz = self.getClinvarClass(clinvar.significance)
-        if (clazz == 'level-high' || clazz == 'level-medium') {
-          levelHigh = true;
+        let clazz = self.globalApp.utility.getClinvarLevel(clinvar.significance)
+        if (clazz != 'low' && clazz != 'none') {
+          levelSignificant = true;
         }
       })
-      return info.clinvarTrait.length > 0 && (levelHigh || !this.isSimpleMode);
+      return info.clinvarTrait.length > 0 && (levelSignificant || !this.isSimpleMode);
     },
     getConservationScore: function(score) {
       if (score == null) {
@@ -1318,6 +1324,32 @@ export default {
       }
 
     },
+    onAddVariantNote: function(aNote) {
+      let self = this;
+      if (this.selectedVariant.notes == null || this.selectedVariant.notes == "") {
+        this.selectedVariant.notes = []
+      }
+      this.selectedVariant.notes.push({'author': this.user ? this.user.first_name + " " + this.user.last_name : '',
+        'datetime': self.getCurrentDateAndTime(),
+        'note': aNote,
+        'showDialog': false,
+        'showEditDialog': false})
+      this.$emit("apply-variant-notes", this.selectedVariant)
+    },
+    
+    getCurrentDateAndTime: function() {
+      var today = new Date();
+      var date = today.getFullYear()
+                 + '-'
+                 + String(today.getMonth()+1).padStart(2, "0") 
+                 + '-'
+                 + String(today.getDate()).padStart(2, "0");
+      var time = String(today.getHours()).padStart(2, "0") 
+                 + ":" 
+                 + String(today.getMinutes()).padStart(2, "0");
+      return date + ' ' + time;
+    },
+
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
     },
@@ -1662,7 +1694,7 @@ export default {
       let self = this;
       let aaPos = "";
       let altRefAA = null;
-      if (self.selectedVariant && Object.keys(self.selectedVariant.vepAminoAcids).join("").length > 0) {
+      if (self.selectedVariant && self.selectedVariant.vepAminoAcids && Object.keys(self.selectedVariant.vepAminoAcids).join("").length > 0) {
         for (let aa in self.selectedVariant.vepAminoAcids) {
           altRefAA = self.globalApp.utility.formatAminoAcidChange(aa)
         }
@@ -1925,11 +1957,24 @@ export default {
         this.selectedGeneSources.sourceIndicator = this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].sourceIndicator;
         return this.cohortModel.geneModel.getSourceForGenes()[this.selectedGene.gene_name].sourceIndicator;
       }
+    },
+
+    refreshVariantInterpretation: function() {
+      this.interpretation = this.selectedVariant.interpretation;
     }
   },
 
   watch: {
 
+    //mosaicVariantInterpretation: function() {
+    //  let self = this;
+    //  if (self.interpretation == null || self.interpretation == 'not-reviewed') {
+    //    self.$nextTick(function() {
+    //      self.selectedVariant.interpretation = self.mosaicVariantInterpretation;
+    //      self.interpretation = self.mosaicVariantInterpretation;            
+    //    })
+    //  }
+    //},
     selectedPhenotype: function(){
         this.initGenePhenotypeHits();
     },
@@ -1973,15 +2018,18 @@ export default {
   },
 
   mounted: function() {
-      let self = this;
-      if(this.selectedVariant){
-          this.$nextTick(function() {
-              this.loadData();
-              if (self.selectedVariantRelationship === "known-variants") {
-                  self.annotateClinVarVariant(self.selectedVariant);
-              }
-          })
-      }
+    let self = this;
+    if(this.selectedVariant){
+        self.$nextTick(function() {
+          self.loadData();
+          if (self.selectedVariantRelationship === "known-variants") {
+              self.annotateClinVarVariant(self.selectedVariant);
+          }
+          self.interpretation = self.selectedVariant.interpretation  && self.selectedVariant.interpretation.length > 0 ? self.selectedVariant.interpretation : "not-reviewed";
+
+        })
+    }
+
 
   },
 

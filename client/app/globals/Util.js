@@ -66,6 +66,55 @@ class Util {
     return {ref: newRef, alt: newAlt}
   }
 
+  getClinvarLevel(val) {
+    if(val === "clinvar_path"){
+      return "high";
+    }
+    else if(val === "clinvar_lpath"){
+      return "likely-high";
+    }
+    else if (val === "clinvar_uc"){
+      return "unknown-significance";
+    }
+    else if (val === "clinvar_lbenign"){
+      return "low";
+    }
+    else if(val === "clinvar_cd"){
+      return "conflicting";
+    }
+    else if(val === "clinvar_benign"){
+      return "low"
+    }
+    else{
+      return "none"
+    }
+  }
+
+
+  getClinvarLevelAndOrdinal(val) {
+    if(val === "clinvar_path"){
+      return {"high": 1};
+    }
+    else if(val === "clinvar_lpath"){
+      return {"likely-high": 2};
+    }
+    else if (val === "clinvar_uc"){
+      return {"unknown-significance": 3};
+    }
+    else if(val === "clinvar_cd"){
+      return {"conflicting": 4};
+    }
+    else if (val === "clinvar_lbenign"){
+      return {"low": 5};
+    }
+    else if(val === "benign"){
+      return {"low": 6};
+    }
+    else{
+      return {"none": 99}
+    }
+  }
+
   formatExonTooltip(filterModel, relationship, coverageRow, feature,  lock) {
     let self = this;
 
@@ -77,7 +126,11 @@ class Util {
 
       if (feature.geneCoverage && feature.geneCoverage[relationship]) {
           var covFields = filterModel.whichLowCoverage(feature.geneCoverage[relationship]);
-          html += "<div style='margin-top:4px'>" + "Coverage:"
+          var cutoffHeading = "";
+          if (filterModel.isLowCoverage(feature.geneCoverage[relationship])) {
+            cutoffHeading = "<span>Cutoff not met</span>"
+          }
+          html += "<div style='margin-top:4px'>" + "<span style='display:inline-block;width:80px'>Coverage</span>" + cutoffHeading 
                +  coverageRow('min',    feature.geneCoverage[relationship].min, covFields)
                +  coverageRow('median', feature.geneCoverage[relationship].median, covFields)
                +  coverageRow('mean',   feature.geneCoverage[relationship].mean, covFields)
@@ -204,6 +257,21 @@ class Util {
       } else {
         return "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 X Y";
       }
+  }
+
+  formatCurrentDateYMD(delim="") {
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; //January is 0!
+
+    var yyyy = today.getFullYear();
+    if(dd<10){
+        dd='0'+dd
+    }
+    if(mm<10){
+        mm='0'+mm
+    }
+    return yyyy + delim + mm + delim + dd;
   }
 
   formatCurrentDateTime(delim) {
@@ -768,10 +836,6 @@ class Util {
       HGVScLoading: false,
       HGVSpLoading: false,
       revel: "",
-      sift: "",
-      polyphen: "",
-      regulatory: "",
-      regulatoryMotifLinks: "",
       rsId: "",
       dbSnpUrl: "",
       dbSnpLink: "",
@@ -865,61 +929,12 @@ class Util {
     }
 
 
-    for (var key in variant.vepSIFT) {
-      if (info.sift.length > 0) {
-          info.sift += ", ";
-      }
-      info.sift += key.split("_").join(" ");
-    }
-    for (var key in variant.vepPolyPhen) {
-      if (info.polyphen.length > 0) {
-          info.polyphen += ", ";
-      }
-      if (isEduMode) {
-        info.polyphen = key.split("_").join(" ");
-      } else {
-        info.polyphen += key.split("_").join(" ");
-      }
-    }
+    
     for (var key in variant.vepREVEL) {
       if (info.revel.length > 0) {
           info.revel += ", ";
       }
       info.revel += key;
-    }
-
-    for (var key in variant.regulatory) {
-      // Bypass motif-based features
-      if (key.indexOf("mot_") == 0) {
-        continue;
-      }
-      if (info.regulatory.length > 0) {
-          info.regulatory += ", ";
-      }
-      var value = variant.regulatory[key];
-      info.regulatory += value;
-    }
-
-
-    if (variant.vepRegs) {
-      for (var i = 0; i < variant.vepRegs.length; i++) {
-        var vr = variant.vepRegs[i];
-        if (vr.motifName != null && vr.motifName != '') {
-
-          if (info.regulatoryMotifLinks.length > 0) {
-              info.regulatoryMotifLinks += ", ";
-          }
-
-          var tokens = vr.motifName.split(":");
-          var baseMotifName;
-          if (tokens.length == 2) {
-            baseMotifName = tokens[1];
-          }
-
-          var regUrl = "http://jaspar.genereg.net/cgi-bin/jaspar_db.pl?ID=" + baseMotifName + "&rm=present&collection=CORE"
-          info.regulatoryMotifLinks += '<a href="' + regUrl + '" target="_motif">' + vr.motifName + '</a>';
-        }
-      }
     }
 
     info.rsId = me.globalApp.utility.getRsId(variant);

@@ -40,6 +40,7 @@ export default function vcfiobio(theGlobalApp) {
   var refDensity = [];
   var refName = "";
   var infoFields =  {};
+  var contigRecords = [];
 
   var regions = [];
   var regionIndex = 0;
@@ -58,7 +59,8 @@ export default function vcfiobio(theGlobalApp) {
   var VEP_FIELDS_AF_MAX    = "MAX_AF|MAX_AF_POPS".split("|");
   var VEP_FIELDS_AF_GNOMAD_GENOMES = "gnomADg_AF|gnomADg_AN|gnomADg_AC|gnomADg_nhomalt_raw|gnomADg_nhomalt-raw|gnomADg_AF_popmax|gnomADg_faf95_popmax|gnomADg_AC_fin|gnomADg_AC_nfe|gnomADg_AC_oth|gnomADg_AC_amr|gnomADg_AC_afr|gnomADg_AC_asj|gnomADg_AC_eas|gnomADg_AC_sas|gnomADg_AC_fin|gnomADg_AN_nfe|gnomADg_AN_oth|gnomADg_AN_amr|gnomADg_AN_afr|gnomADg_AN_asj|gnomADg_AN_eas|gnomADg_AN_sas".split("|");
   var VEP_FIELDS_AF_GNOMAD_EXOMES  = "gnomADe_AF|gnomADe_AN|gnomADe_AC|gnomADe_nhomalt_raw|gnomADe_AF_popmax|gnomADe_AC_fin|gnomADe_AC_nfe|gnomADe_AC_oth|gnomADe_AC_amr|gnomADe_AC_afr|gnomADe_AC_asj|gnomADe_AC_eas|gnomADe_AC_sas|gnomADe_AC_fin|gnomADe_AN_nfe|gnomADe_AN_oth|gnomADe_AN_amr|gnomADe_AN_afr|gnomADe_AN_asj|gnomADe_AN_eas|gnomADe_AN_sas".split("|");
-
+  var VEP_FIELDS_AF_GNOMAD_EXOMES_SLIM  = "gnomADe_AF|gnomADe_AN|gnomADe_AC|gnomADe_nhomalt_raw|gnomADe_AF_popmax".split("|");
+    
 
   var CLINVAR_CODES = {
     '0':   'not_provided',
@@ -290,27 +292,36 @@ export default function vcfiobio(theGlobalApp) {
 
 
 
-  exports.openVcfUrl = function(url, theTbiUrl, callback) {
+  exports.promiseOpenVcfUrl = function(url, theTbiUrl) {
     var me = this;
-    sourceType = SOURCE_TYPE_URL;
-    vcfURL = url;
-    tbiUrl = theTbiUrl;
+
+    return new Promise(function(resolve, reject) {
+      sourceType = SOURCE_TYPE_URL;
+      vcfURL = url;
+      tbiUrl = theTbiUrl;
 
 
-    this.checkVcfUrl(url, tbiUrl, function(success, message) {
-        callback(success, message);
-    });
+      return me.promiseCheckVcfUrl(url, tbiUrl) 
+      .then(function() {
+        resolve()
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+    })
 
   }
 
-  exports.getHeader = function(callback) {
-    var me = this;
-    if (sourceType.toLowerCase() == SOURCE_TYPE_URL.toLowerCase() && vcfURL != null) {
 
+  exports.promiseCheckVcfUrl = function(url, tbiUrl) {
+    var me = this;
+
+    return new Promise(function(resolve, reject) {
       var buffer = "";
+      var recordCount = 0;
       var success = false;
 
-      var cmd = me.getEndpoint().getVcfHeader(vcfURL, tbiUrl);
+      var cmd = me.getEndpoint().getVcfHeader(url, tbiUrl);
 
       cmd.on('data', function(data) {
         if (data != undefined) {
@@ -324,73 +335,33 @@ export default function vcfiobio(theGlobalApp) {
           success = true;
         }
         if (success && buffer.length > 0) {
-          callback(buffer);
+          buffer.split("\n").forEach( function(rec) {
+            if (rec.indexOf("##contig") == 0) {
+              me._parseHeaderForContigFields(rec)
+            }
+            if (rec.indexOf("#") == 0) {
+              me._parseHeaderForInfoFields(rec);
+            }
+          })
+          resolve(success);
+        } else if (buffer.length == 0) {
+          reject("No data returned for vcf header.")
         }
       });
 
       cmd.on('error', function(error) {
-        console.log(error);
-      })
+        if (me.ignoreErrorMessage(error)) {
+          resolve();
+        } else {
+          reject(me.translateErrorMessage(error));
+        }
+      });
+
       cmd.run();
 
-    } else if (vcfFile) {
-        var vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
-          vcfReader.getHeader( function(theHeader) {
-            callback(theHeader);
-          });
-        });
-    } else {
-      callback(null);
-    }
 
-  }
+    })
 
-
-  exports.checkVcfUrl = function(url, tbiUrl, callback) {
-    var me = this;
-    var success = null;
-    var buffer = "";
-    var recordCount = 0;
-
-    var cmd = me.getEndpoint().getVcfHeader(url, tbiUrl);
-
-    cmd.on('data', function(data) {
-      if (data != undefined) {
-        success = true;
-        buffer += data;
-      }
-    });
-
-    cmd.on('end', function() {
-      if (success == null) {
-        success = true;
-      }
-      if (success && buffer.length > 0) {
-        buffer.split("\n").forEach( function(rec) {
-          if (rec.indexOf("#") == 0) {
-            me._parseHeaderForInfoFields(rec);
-          }
-        })
-        callback(success);
-      } else if (buffer.length == 0) {
-        success = false
-        callback(success, "Unable to read vcf")
-      }
-    });
-
-    cmd.on('error', function(error) {
-      if (me.ignoreErrorMessage(error)) {
-      } else {
-        if (success == null) {
-          success = false;
-          console.log(error);
-          callback(success, me.translateErrorMessage(error));
-        }
-      }
-
-    });
-
-    cmd.run();
   }
 
   exports.ignoreErrorMessage = function(error) {
@@ -429,7 +400,7 @@ export default function vcfiobio(theGlobalApp) {
 
 
     if (fileSelection.files.length != 2) {
-       callback(false, 'must select 2 files, both a .vcf.gz and .vcf.gz.tbi file');
+       callback(false, 'must select 2 files, both a .vcf.gz and .vcf.gz.tbi/csi file');
        return;
     }
 
@@ -439,8 +410,9 @@ export default function vcfiobio(theGlobalApp) {
       return;
     }
 
-    var fileType0 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(fileSelection.files[0].name);
-    var fileType1 = /([^.]*)\.(vcf\.gz(\.tbi)?)$/.exec(fileSelection.files[1].name);
+
+    var fileType0 = /([^.]*)\.(vcf\.gz(\.tbi|\.csi)?)$/.exec(fileSelection.files[0].name);
+    var fileType1 = /([^.]*)\.(vcf\.gz(\.tbi|\.csi)?)$/.exec(fileSelection.files[1].name);
 
     var fileExt0 = fileType0 && fileType0.length > 1 ? fileType0[2] : null;
     var fileExt1 = fileType1 && fileType1.length > 1 ? fileType1[2] : null;
@@ -450,35 +422,39 @@ export default function vcfiobio(theGlobalApp) {
 
 
     if (fileType0 == null || fileType0.length < 3 || fileType1 == null || fileType1.length <  3) {
-      callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi)  file');
+      callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi/.csi)  file');
       return;
     }
 
 
-    if (fileExt0 == 'vcf.gz' && fileExt1 == 'vcf.gz.tbi') {
+    if (fileExt0 == 'vcf.gz' && (fileExt1 == 'vcf.gz.tbi' || fileExt1 == 'vcf.gz.csi')) {
       if (rootFileName0 != rootFileName1) {
-        callback(false, 'The index (.tbi) file must be named ' +  rootFileName0 + ".tbi");
+        callback(false, 'The index (.tbi) file must be named ' +  rootFileName0 + ".tbi/.csi");
         return;
       } else {
         vcfFile   = fileSelection.files[0];
         tabixFile = fileSelection.files[1];
       }
-    } else if (fileExt1 == 'vcf.gz' && fileExt0 == 'vcf.gz.tbi') {
+    } else if (fileExt1 == 'vcf.gz' && (fileExt0 == 'vcf.gz.tbi' || fileExt0 == 'vcf.gz.csi')) {
       if (rootFileName0 != rootFileName1) {
-        callback(false, 'The index (.tbi) file must be named ' +  rootFileName1 + ".tbi");
+        callback(false, 'The index (.tbi) file must be named ' +  rootFileName1 + ".tbi/.csi");
         return;
       } else {
         vcfFile   = fileSelection.files[1];
         tabixFile = fileSelection.files[0];
       }
     } else {
-      callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi)  file');
+      callback(false, 'You must select BOTH  a compressed vcf file (.vcf.gz) and an index (.tbi/.csi)  file');
       return;
     }
 
     this.processVcfFile(vcfFile, tabixFile, function(data) {
-      me.openVcfUrl(data.vcf, data.tbi, function(cbData) {
-        callback(cbData)
+      me.promiseOpenVcfUrl(data.vcf, data.tbi)
+      .then(function() {
+        callback(data)
+      })
+      .catch(function(error) {
+        callback(false, error);
       })
     })
   }
@@ -567,149 +543,248 @@ export default function vcfiobio(theGlobalApp) {
 
 
 
-  exports.getReferenceLengths = function(callback) {
+  exports.promiseGetReferenceLengths = function() {
     if (sourceType.toLowerCase() == SOURCE_TYPE_URL.toLowerCase()) {
-      this._getRemoteReferenceLengths(callback);
+      return this._promiseGetChromosomes();
     } else {
-      this._getLocalReferenceLengths(callback);
+      return this._promiseGetLocalReferenceLengths();
     }
   }
 
 
-
-
-  exports._getLocalReferenceLengths = function(callback, callbackError) {
+  exports._parseHeaderForContigFields = function(record) {
     var me = this;
-
-    vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
-      var tbiIdx = tbiR;
-      refDensity.length = 0;
-
-      if (tbiIdx.idxContent.head.n_ref == 0) {
-        var errorMsg = "Invalid index file.  The number of references is set to zero.  Try recompressing the vcf with bgzip and regenerating the index with tabix."
-        if (callbackError) {
-          callbackError(errorMsg);
-        }
-        console.log(errorMsg);
-        return;
+    var fieldMap = {'ID': 'name', 'length': 'length', 'assembly': 'assembly'}
+    if (contigRecords == null) {
+      contigRecords = [];
+    }
+    if (record.indexOf("##contig=") >= 0) {
+      record = record.replace("<", "")
+      record = record.replace(">", "")
+      var rest = record.split("##contig=")
+      var parts = rest[1].split(",")
+      var contigRecord = {};
+      for (let i=0; i < parts.length; i++) {
+        let part = parts[i];
+        ['ID', 'length', 'assembly'].forEach(function(key) {
+          if (part.indexOf(key+"=") >= 0) {
+            let theValue = part.split(key+"=")[1]
+            contigRecord[fieldMap[key]] = theValue;
+          }
+        })
+      } 
+      if (contigRecord.hasOwnProperty('name')) {
+        contigRecords.push(contigRecord) 
+      } else {
+        console.log("Bypassing contig record; no ID. " + record)
       }
-
-      var referenceNames = [];
-      for (var i = 0; i < tbiIdx.idxContent.head.n_ref; i++) {
-        var ref   = tbiIdx.idxContent.head.names[i];
-        referenceNames.push(ref);
-      }
-
-      for (var i = 0; i < referenceNames.length; i++) {
-        var ref   = referenceNames[i];
-
-        var indexseq = tbiIdx.idxContent.indexseq[i];
-        var calcRefLength = indexseq.n_intv * size16kb;
-
-
-        // Load the reference density data.  Exclude reference if 0 points.
-        refData.push( {"name": ref, "calcRefLength": calcRefLength, "idx": i});
-      }
-
-      // Sort ref data so that refs are ordered numerically
-      refData = me.sortRefData(refData);
-
-      if (callback) {
-        callback(refData);
-      }
-
-    });
-
+    } 
   }
 
 
-  exports._getRemoteReferenceLengths = function(callback, callbackError) {
+
+
+
+  exports._promiseGetLocalReferenceLengths = function() {
     var me = this;
-    var buffer = "";
-    var refName;
 
-    var cmd = me.getEndpoint().getVcfDepth(vcfURL, tbiUrl)
+    return new Promise(function(resolve, reject) {
+      vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
+        var tbiIdx = tbiR;
+        refDensity.length = 0;
 
-    cmd.on('data', function(data) {
+        if (tbiIdx.idxContent.head.n_ref == 0) {
+          var errorMsg = "Invalid index file.  The number of references is set to zero.  Try recompressing the vcf with bgzip and regenerating the index with tabix."
+          console.log(errorMsg);
+          reject(errorMsg);
+        } else {
+          var referenceNames = [];
+          for (var i = 0; i < tbiIdx.idxContent.head.n_ref; i++) {
+            var ref   = tbiIdx.idxContent.head.names[i];
+            referenceNames.push(ref);
+          }
 
-      if (data == undefined) {
-        return;
-      }
+          for (var i = 0; i < referenceNames.length; i++) {
+            var ref   = referenceNames[i];
 
-      buffer += data;
+            var indexseq = tbiIdx.idxContent.indexseq[i];
+            var calcRefLength = indexseq.n_intv * size16kb;
+
+
+            // Load the reference density data.  Exclude reference if 0 points.
+            refData.push( {"name": ref, "calcRefLength": calcRefLength, "idx": i});
+          }
+
+          // Sort ref data so that refs are ordered numerically
+          refData = me.sortRefData(refData);
+
+          resolve(refData)
+        }
+      });      
+    })
+  }
+
+  exports._promiseGetChromosomes = function() {
+    var me = this;
+
+    return new Promise(function(resolve, reject) {
+      var buffer = "";
+
+      var cmd = me.getEndpoint().getChromosomes(vcfURL, tbiUrl);
+
+      cmd.on('data', function(data) {
+        if (data == undefined) {
+          return;
+        }
+
+        buffer += data;
+
+      })
+
+      // All data has been streamed.
+      cmd.on('end', function() {
+
+        var recs = buffer.split("\n");
+        if (recs.length > 0) {
+          for (var i=0; i < recs.length; i++)  {
+
+            var success = true;
+            refData.push({"name": recs[i].trim()})
+          }
+        } 
+
+        // sort refData so references or ordered numerically
+        refData = me.sortRefData(refData);
+
+        resolve(refData);
+      })
+
+      // Catch error event when fired
+      cmd.on('error', function(error) {
+        if(error.includes("Expected compressed file")){
+
+          let msg = "Vcf or vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your vcf files are properly compressed in gzip format <pre>" + vcfUrl + "</pre>";
+          console.log(msg)
+          reject(msg)
+        }
+        else{
+          let msg = "Could not get chromosomes.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted <pre>" + vcfUrl + "</pre>";
+          console.log(msg)
+          reject(msg)
+        }
+
+      })
+
+      // execute command
+      cmd.run();
 
     })
 
-    // All data has been streamed.
-    cmd.on('end', function() {
 
 
-      var recs = buffer.split("\n");
-      if (recs.length > 0) {
-        for (var i=0; i < recs.length; i++)  {
-          if (recs[i] == undefined) {
-            return;
-          }
 
-          var success = true;
-          if ( recs[i][0] == '#' ) {
-            var tokens = recs[i].substr(1).split("\t");
-            if (tokens.length >= 3) {
-              var refNamePrev = refName;
-              var refIndex = tokens[0];
-              var refName = tokens[1];
-              var refLength = tokens[2];
+  };
 
-              // Zero fill the previous reference point data and callback with the
-              // data we have loaded so far.
-              if (refData.length > 0) {
-                var refDataPrev = refData[refData.length - 1];
+
+
+
+  exports._promiseGetRemoteReferenceLengthsOld = function() {
+    var me = this;
+
+    return new Promise(function(resolve, reject) {
+      var buffer = "";
+      var refName;
+
+      var cmd = me.getEndpoint().getVcfDepth(vcfURL, tbiUrl)
+
+      cmd.on('data', function(data) {
+
+        if (data == undefined) {
+          return;
+        }
+
+        buffer += data;
+
+      })
+
+      // All data has been streamed.
+      cmd.on('end', function() {
+
+
+        var recs = buffer.split("\n");
+        if (recs.length > 0) {
+          for (var i=0; i < recs.length; i++)  {
+            if (recs[i] == undefined) {
+              return;
+            }
+
+            var success = true;
+            if ( recs[i][0] == '#' ) {
+              var tokens = recs[i].substr(1).split("\t");
+              if (tokens.length >= 3) {
+                var refNamePrev = refName;
+                var refIndex = tokens[0];
+                var refName = tokens[1];
+                var refLength = tokens[2];
+
+                // Zero fill the previous reference point data and callback with the
+                // data we have loaded so far.
+                if (refData.length > 0) {
+                  var refDataPrev = refData[refData.length - 1];
+                }
+
+                refData.push({"name": refName,  "calcRefLength": +refLength, "idx": +refIndex});
+
+
+              } else {
+                  success = false;
               }
-
-              refData.push({"name": refName,  "calcRefLength": +refLength, "idx": +refIndex});
-
-
+            }
+            else {
+              // We only care about getting the reference lengths, not the density data
+            }
+            if (success) {
+              buffer = "";
             } else {
-                success = false;
+              buffer += recs[i];
             }
           }
-          else {
-            // We only care about getting the reference lengths, not the density data
-          }
-          if (success) {
-            buffer = "";
-          } else {
-            buffer += recs[i];
-          }
+        } else  {
+          buffer += data;
         }
-      } else  {
-        buffer += data;
-      }
 
-      // sort refData so references or ordered numerically
-      refData = me.sortRefData(refData);
+        // sort refData so references or ordered numerically
+        refData = me.sortRefData(refData);
 
 
-      // Zero fill the previous reference point data and callback with the
-      // for the last reference that was loaded
-      if (refData.length > 0) {
-        var refDataPrev = refData[refData.length - 1];
-      }
-      if (callback) {
-        callback(refData);
-      }
+        // Zero fill the previous reference point data and callback with the
+        // for the last reference that was loaded
+        if (refData.length > 0) {
+          var refDataPrev = refData[refData.length - 1];
+        }
+        resolve(refData);
+      })
+
+      // Catch error event when fired
+      cmd.on('error', function(error) {
+        if(error.includes("Expected compressed file")){
+
+          let msg = "Vcf or vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your vcf files are properly compressed in gzip format <pre>" + vcfUrl + "</pre>";
+          console.log(msg)
+          reject(msg)
+        }
+        else{
+          let msg = "Could not get vcf depth.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted <pre>" + vcfUrl + "</pre>";
+          console.log(msg)
+          reject(msg)
+        }
+
+      })
+
+      // execute command
+      cmd.run();
+
     })
-
-    // Catch error event when fired
-    cmd.on('error', function(error) {
-      console.log("Error occurred in loadRemoteIndex. " +  error);
-      if (callbackError) {
-        callbackError("Error occurred in loadRemoteIndex. " +  error);
-      }
-    })
-
-    // execute command
-    cmd.run();
 
 
 
@@ -738,6 +813,89 @@ export default function vcfiobio(theGlobalApp) {
       });
   }
 
+  /* Retrieves clinvar variants for provided gene/region from backend. */
+  exports.promiseGetVariantsBypassAnnotation = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, clinvarMap, decompose=false) {
+    return new Promise((resolve, reject) => {
+      const me = this;
+
+      // This comma separated string of samples to perform vcf subset on
+      var vcfSampleNames = samplesToRetrieve.filter(function(sample) {
+        return (sample.vcfSampleName !== "" && sample.vcfSampleName != null);
+      })
+      .map(function(sample) {
+        return sample.vcfSampleName;
+      })
+      .join(",");
+
+      // This comma separated string of samples to be contained in the maps of genotypes
+      var sampleNamesToGenotype = samplesToRetrieve.map(function(sample) {
+        return sample.sampleName;
+      })
+      .join(",");
+
+      // Assemble regions
+      if (regions == null || regions.length === 0) {
+        regions = [];
+        regions.push({'name': refName, 'start': geneObject.start, 'end': geneObject.end});
+      }
+
+      // Call command
+      let cmd = me.getEndpoint().normalizeVariants(vcfURL, tbiUrl, refName, regions, vcfSampleNames, decompose);
+      let variantData = "";
+      cmd.on('data', function(data) {
+        if (data == null) {
+          return;
+        }
+        variantData += data;
+      });
+      cmd.on('end', function() {
+        let vcfRecs = variantData.split("\n");
+        let vcfObjects = [];
+
+        vcfRecs.forEach(function (record) {
+          if (record.charAt(0) === "#") {
+            me._parseHeaderForInfoFields(record);
+          } else {
+            // Parse the vcf record into its fields
+            let fields = record.split('\t');
+            let pos = fields[1];
+            let id = fields[2];
+            let ref = fields[3];
+            let alt = fields[4];
+            let qual = fields[5];
+            let filter = fields[6];
+            let info = fields[7];
+            let format = fields[8];
+            let genotypes = [];
+
+            // Turn vcf record into a JSON object and add it to an array
+            let vcfObject = {
+              'pos': pos, 'id': id, 'ref': ref, 'alt': alt,
+              'qual': qual, 'filter': filter, 'info': info, 'format': format, 'genotypes': genotypes
+            };
+            vcfObjects.push(vcfObject);
+          }
+        });
+
+        // Parse the vcf object into a variant object that is visualized by the client.
+        let results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, false, isMultiSample, sampleNamesToGenotype, null, false, false, true);
+        if (variantData != null && results) {
+          resolve([variantData, results]);
+        } else {
+          reject();
+        }
+      });
+      cmd.on('error', function(error) {
+        console.log("Error normalizing variants " + error)
+        let msg = "Unable to normalize variants for <pre>" + geneObject.gene_name + "</pre>. Error: " + error;
+        reject(msg)
+      });
+      cmd.run();
+    });
+  }
+
+
+
   /* Returns filter phrase compatible with bcftools filter function. Filters by CLNSIG field.
    * By default, returns pathogenic and likely pathogenic filters.
    * Refer to CLNSIG_TERMS dictionary at file head for valid terms. */
@@ -759,6 +917,8 @@ export default function vcfiobio(theGlobalApp) {
     return new Promise((resolve, reject) => {
       const me = this;
 
+      let theGeneObject = geneObject;
+
       // Assemble regions
       if (regions == null || regions.length === 0) {
         regions = [];
@@ -777,6 +937,7 @@ export default function vcfiobio(theGlobalApp) {
         }
         annotatedData += data;
       });
+
       cmd.on('end', function() {
         let annotatedRecs = annotatedData.split("\n");
         let vcfObjects = [];
@@ -814,16 +975,26 @@ export default function vcfiobio(theGlobalApp) {
           reject();
         }
       });
-      cmd.on('error', function(error) {
-        console.log(error);
-      });
+
+      cmd.on('error', function(error){
+        let msg = "Could not get clinvar variants for gene " + theGeneObject.gene_name + ". Error: " + error;
+        console.log(msg);
+        console.log(error)
+        reject(msg)          
+      })
+
       cmd.run();
     });
   }
 
 
+
+
   /* When sfariMode = true, variant id field is assigned. */
-  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, gnomADExtra=false, decompose=false) {
+  exports.promiseGetVariants = function(refName, geneObject, selectedTranscript, regions, 
+    isMultiSample, samplesToRetrieve, annotationEngine, clinvarMap, 
+    isRefSeq, hgvsNotation, getRsId, vepAF, cache, sfariMode = false, 
+    gnomADExtra=false, decompose=false, bypassAnnotate=false) {
     var me = this;
 
     return new Promise( function(resolve, reject) {
@@ -850,14 +1021,20 @@ export default function vcfiobio(theGlobalApp) {
 
       // sourceType = SOURCE_TYPE_URL;
       if (sourceType == SOURCE_TYPE_URL) {
-        me._getRemoteVariantsImpl(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, cache,
-          function(annotatedData, results) {
-            if (annotatedData != null && results) {
-              resolve([annotatedData, results]);
-            } else {
-              reject();
-            }
-          }, null, sfariMode, gnomADExtra, decompose);
+        me._promiseGetRemoteVariantsImpl(refName, geneObject, selectedTranscript, 
+          regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, 
+          annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, 
+          vepAF, cache, sfariMode, gnomADExtra, decompose, bypassAnnotate)
+        .then(function(data) {
+          if (data && data.annotatedRecs != null && data.results) {
+            resolve([data.annotatedRecs, data.results]);
+          } else {
+            reject("Empty results returned when annotating variants");
+          }
+        })
+        .catch(function(error) {
+          return(error)
+        })
       } else {
         //me._getLocalStats(refName, geneObject.start, geneObject.end, sampleName);
 
@@ -868,7 +1045,7 @@ export default function vcfiobio(theGlobalApp) {
               } else {
                 reject();
               }
-            }, null, sfariMode, gnomADExtra, decompose);
+            }, null, sfariMode, gnomADExtra, decompose, bypassAnnotate);
 
       }
 
@@ -876,7 +1053,7 @@ export default function vcfiobio(theGlobalApp) {
   }
 
 
-  exports._getLocalVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false) {
+  exports._getLocalVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false, bypassAnnotate=false) {
 
     var me = this;
 
@@ -887,7 +1064,7 @@ export default function vcfiobio(theGlobalApp) {
 
     var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': me.vcfURL, 'tbiUrl': me.tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose);
+    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': me.vcfURL, 'tbiUrl': me.tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose, bypassAnnotate);
 
     var annotatedData = "";
     // Get the results from the iobio command
@@ -960,107 +1137,91 @@ export default function vcfiobio(theGlobalApp) {
 
   }
 
-  exports._getRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, callback, errorCallback, sfariMode = false, gnomADExtra = false, decompose=false) {
+  exports._promiseGetRemoteVariantsImpl = function(refName, geneObject, selectedTranscript, regions, isMultiSample, vcfSampleNames, sampleNamesToGenotype, annotationEngine, clinvarMap, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, 
+    sfariMode = false, gnomADExtra = false, decompose=false, bypassAnnotate=false) {
 
     var me = this;
 
-    if (regions == null || regions.length == 0) {
-      regions = [];
-      regions.push({'name': refName, 'start': geneObject.start, 'end': geneObject.end});
-    }
-
-    var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
-
-    var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose);
-
-    var annotatedData = "";
-    // Get the results from the iobio command
-    cmd.on('data', function(data) {
-         if (data == undefined) {
-            return;
-         }
-         annotatedData += data;
-    });
-
-    // We have all of the annotated vcf recs.  Now parse them into vcf objects
-    cmd.on('end', function(data) {
-      var annotatedRecs = annotatedData.split("\n");
-      var vcfObjects = [];
-      var contigHdrRecFound = false;
-
-      annotatedRecs.forEach(function(record) {
-        if (record.charAt(0) == "#") {
-          me._parseHeaderForInfoFields(record);
-
-        } else {
-
-          // Parse the vcf record into its fields
-          var fields = record.split('\t');
-          var pos    = fields[1];
-          var id     = fields[2];
-          var ref    = fields[3];
-          var alt    = fields[4];
-          var qual   = fields[5];
-          var filter = fields[6];
-          var info   = fields[7];
-          var format = fields[8];
-          var genotypes = [];
-
-          // Too much data, crashes app
-          if (sfariMode !== true) {
-            for (var i = 9; i < fields.length; i++) {
-                genotypes.push(fields[i]);
-            }
-          }
-
-
-          // Turn vcf record into a JSON object and add it to an array
-          var vcfObject = {'pos': pos, 'id': id, 'ref': ref, 'alt': alt,
-                           'qual': qual, 'filter': filter, 'info': info, 'format':format, 'genotypes': genotypes};
-          vcfObjects.push(vcfObject);
-        }
-      });
-
-      if (sfariMode === true) {
-        annotatedData = '';
-        annotatedRecs = '';
+    return new Promise(function(resolve, reject) {
+      if (regions == null || regions.length == 0) {
+        regions = [];
+        regions.push({'name': refName, 'start': geneObject.start, 'end': geneObject.end});
       }
 
-      // Parse the vcf object into a variant object that is visualized by the client.
-      var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode, gnomADExtra);
+      var serverCacheKey = me._getServerCacheKey(vcfURL, annotationEngine, refName, geneObject, vcfSampleNames, {refseq: isRefSeq, hgvs: hgvsNotation, rsid: getRsId});
 
+      var cmd = me.getEndpoint().annotateVariants({'vcfUrl': vcfURL, 'tbiUrl': tbiUrl}, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode, gnomADExtra, decompose, bypassAnnotate);
 
-      callback(annotatedRecs, results);
-    });
+      var annotatedData = "";
+      // Get the results from the iobio command
+      cmd.on('data', function(data) {
+           if (data == undefined) {
+              return;
+           }
+           annotatedData += data;
+      });
 
-    cmd.on('error', function(error) {
-       console.log(error);
-    });
+      // We have all of the annotated vcf recs.  Now parse them into vcf objects
+      cmd.on('end', function(data) {
+        var annotatedRecs = annotatedData.split("\n");
+        var vcfObjects = [];
+        var contigHdrRecFound = false;
 
-    cmd.run();
+        annotatedRecs.forEach(function(record) {
+          if (record.charAt(0) == "#") {
+            me._parseHeaderForInfoFields(record);
 
-  }
-
-
-
-
-
-  exports.promiseGetKnownVariantsHistoData = function(refName, geneObject, transcript, binLength) {
-    var me = this;
-
-
-    return new Promise( function(resolve, reject) {
-
-      me._getKnownVariantsHistoDataImpl(refName, geneObject, transcript, binLength,
-        function(data) {
-          if (data) {
-            resolve(data);
           } else {
-            reject();
+
+            // Parse the vcf record into its fields
+            var fields = record.split('\t');
+            var pos    = fields[1];
+            var id     = fields[2];
+            var ref    = fields[3];
+            var alt    = fields[4];
+            var qual   = fields[5];
+            var filter = fields[6];
+            var info   = fields[7];
+            var format = fields[8];
+            var genotypes = [];
+
+            // Too much data, crashes app
+            if (sfariMode !== true) {
+              for (var i = 9; i < fields.length; i++) {
+                  genotypes.push(fields[i]);
+              }
+            }
+
+
+            // Turn vcf record into a JSON object and add it to an array
+            var vcfObject = {'pos': pos, 'id': id, 'ref': ref, 'alt': alt,
+                             'qual': qual, 'filter': filter, 'info': info, 'format':format, 'genotypes': genotypes};
+            vcfObjects.push(vcfObject);
           }
         });
 
-    });
+        if (sfariMode === true) {
+          annotatedData = '';
+          annotatedRecs = '';
+        }
+
+        // Parse the vcf object into a variant object that is visualized by the client.
+        var results = me._parseVcfRecords(vcfObjects, refName, geneObject, selectedTranscript, clinvarMap, (hgvsNotation && getRsId), isMultiSample, sampleNamesToGenotype, null, vepAF, sfariMode, gnomADExtra);
+
+
+        resolve({'annotatedRecs': annotatedRecs, 'results': results});
+      });
+
+      cmd.on('error', function(error) {
+         console.log(error);
+         reject(error)
+      });
+
+      cmd.run();
+
+
+    })
+
   }
 
 
@@ -1103,136 +1264,146 @@ export default function vcfiobio(theGlobalApp) {
       })
   }
 
-  exports._getKnownVariantsHistoDataImpl = function(refName, geneObject, transcript, binLength, callback) {
+  exports.promiseGetKnownVariantsHistoData = function(refName, geneObject, transcript, binLength) {
 
     var me = this;
 
+    return new Promise(function(resolve, reject) {
       var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
       var cmd = me.getEndpoint().getCountsForGene(clinvarUrl, refName, geneObject, binLength, (binLength == null ? me._getExonRegions(transcript) : null), 'clinvar', false);
 
 
-    var summaryData = "";
-    // Get the results from the iobio command
-    cmd.on('data', function(data) {
+      var summaryData = "";
+      // Get the results from the iobio command
+      cmd.on('data', function(data) {
+           if (data == undefined) {
+              return;
+           }
+           summaryData += data;
+      });
+
+      // We have all of the annotated vcf recs.  Now parse them into vcf objects
+      cmd.on('end', function(data) {
+        var results = [];
+        var records = summaryData.split("\n");
+        var fieldNames = {};
+
+        var idx = 0;
+        records.forEach(function(record) {
+          if (idx == 0) {
+            fieldNames = record.split('\t');
+          } else {
+            if (record.trim().length > 0) {
+              var fields = record.split('\t');
+              var resultRec = {};
+
+              var i = 0;
+              fieldNames.forEach(function(fieldName) {
+                // All fields are numeric
+                resultRec[fieldName] = +fields[i];
+                i++;
+              })
+              // Find the mid-point of the interval (binned region)
+              resultRec.point = resultRec.start + ((resultRec.end - resultRec.start) / 2);
+
+              results.push(resultRec);
+            }
+          }
+          idx++;
+        });
+        resolve(results);
+      });
+
+      cmd.on('error', function(error) {
+         console.log(error);
+         reject(error)
+      });
+
+      cmd.run();
+
+    })
+
+
+  }
+
+  exports._promiseGetClinvarPhenotypesImpl = function(refName, geneObject, transcript) {
+
+    var me = this;
+
+    return new Promise(function(resolve, reject) {
+      var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
+      var cmd = me.getEndpoint().getClinvarPhenotypesForGene(clinvarUrl, refName, geneObject);
+
+
+      var summaryData = "";
+      // Get the results from the iobio command
+      cmd.on('data', function(data) {
          if (data == undefined) {
             return;
          }
          summaryData += data;
-    });
-
-    // We have all of the annotated vcf recs.  Now parse them into vcf objects
-    cmd.on('end', function(data) {
-      var results = [];
-      var records = summaryData.split("\n");
-      var fieldNames = {};
-
-      var idx = 0;
-      records.forEach(function(record) {
-        if (idx == 0) {
-          fieldNames = record.split('\t');
-        } else {
-          if (record.trim().length > 0) {
-            var fields = record.split('\t');
-            var resultRec = {};
-
-            var i = 0;
-            fieldNames.forEach(function(fieldName) {
-              // All fields are numeric
-              resultRec[fieldName] = +fields[i];
-              i++;
-            })
-            // Find the mid-point of the interval (binned region)
-            resultRec.point = resultRec.start + ((resultRec.end - resultRec.start) / 2);
-
-            results.push(resultRec);
-          }
-        }
-        idx++;
       });
-      callback(results);
-    });
 
-    cmd.on('error', function(error) {
-       console.log(error);
-    });
+      // We have all of the annotated vcf recs.  Now parse them into vcf objects
+      cmd.on('end', function(data) {
+        var results = [];
+        var records = summaryData.split("\n");
+        var fieldNames = {};
 
-    cmd.run();
-
-  }
-
-  exports._getClinvarPhenotypesImpl = function(refName, geneObject, transcript, callback) {
-
-    var me = this;
-
-    var clinvarUrl = globalApp.getClinvarUrl(me.getGenomeBuildHelper().getCurrentBuildName());
-    var cmd = me.getEndpoint().getClinvarPhenotypesForGene(clinvarUrl, refName, geneObject);
-
-
-    var summaryData = "";
-    // Get the results from the iobio command
-    cmd.on('data', function(data) {
-       if (data == undefined) {
-          return;
-       }
-       summaryData += data;
-    });
-
-    // We have all of the annotated vcf recs.  Now parse them into vcf objects
-    cmd.on('end', function(data) {
-      var results = [];
-      var records = summaryData.split("\n");
-      var fieldNames = {};
-
-      var idx = 0;
-      records.forEach(function(record) {
-        if (idx == 0) {
-          fieldNames = record.split('\t');
-        } else {
-          if (record.trim().length > 0) {
-            var fields = record.split('\t');
-            var resultRec = {};
-
-            var i = 0;
-            fieldNames.forEach(function(fieldName) {
-              // All fields are numeric
-              resultRec[fieldName] = fields[i];
-              i++;
-            })
-
-            results.push(resultRec);
-          }
-        }
-        idx++;
-      });
-      results = results.map(function(entry) {
-        entry.phenotype = entry.phenotype.split("_").join(" ");
-        return entry;
-      }).filter(function(entry) {
-        return entry.phenotype != "not provided" && entry.phenotype != 'not specified'
-      })
-      let sortedResults = results.sort(function(a,b) {
-        if (+a.total < +b.total) {
-          return 1;
-        } else if (+a.total > +b.total) {
-          return -1;
-        } else {
-          if (a.phenotype < b.phenotype) {
-            return -1
-          } else if (a.phentoype > b.phenotype) {
-            return 1;
+        var idx = 0;
+        records.forEach(function(record) {
+          if (idx == 0) {
+            fieldNames = record.split('\t');
           } else {
-            return 0;
+            if (record.trim().length > 0) {
+              var fields = record.split('\t');
+              var resultRec = {};
+
+              var i = 0;
+              fieldNames.forEach(function(fieldName) {
+                // All fields are numeric
+                resultRec[fieldName] = fields[i];
+                i++;
+              })
+
+              results.push(resultRec);
+            }
           }
-        }
-      })
-      callback(sortedResults);
-    });
+          idx++;
+        });
+        results = results.map(function(entry) {
+          entry.phenotype = entry.phenotype.split("_").join(" ");
+          return entry;
+        }).filter(function(entry) {
+          return entry.phenotype != "not provided" && entry.phenotype != 'not specified'
+        })
+        let sortedResults = results.sort(function(a,b) {
+          if (+a.total < +b.total) {
+            return 1;
+          } else if (+a.total > +b.total) {
+            return -1;
+          } else {
+            if (a.phenotype < b.phenotype) {
+              return -1
+            } else if (a.phentoype > b.phenotype) {
+              return 1;
+            } else {
+              return 0;
+            }
+          }
+        })
+        resolve(sortedResults);
+      });
 
-    cmd.on('error', function(error) {
-       console.log(error);
-    });
+      cmd.on('error', function(error) {
+         console.log(error);
+         reject(error)
+      });
 
-    cmd.run();
+      cmd.run();
+
+    })
+
 
   }
 
@@ -1277,71 +1448,85 @@ export default function vcfiobio(theGlobalApp) {
   }
 
 
-  exports.getSampleNames = function(callback) {
+
+
+  exports.promiseGetSampleNames = function(callback) {
     if (sourceType == SOURCE_TYPE_URL) {
-    this._getRemoteSampleNames(callback);
+      return this._promiseGetRemoteSampleNames(callback);
     } else {
-      this._getLocalSampleNames(callback);
+      return this._promiseGetLocalSampleNames(callback);
     }
   }
 
 
-  exports._getLocalSampleNames = function(callback) {
+  exports._promiseGetLocalSampleNames = function() {
     var me = this;
 
-    var vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
-      var sampleNames = [];
-      sampleNames.length = 0;
 
-      var headerRecords = [];
-      vcfReader.getHeader( function(header) {
-         headerRecords = header.split("\n");
-         headerRecords.forEach(function(headerRec) {
-            if (headerRec.indexOf("#CHROM") == 0) {
-              var headerFields = headerRec.split("\t");
-              sampleNames = headerFields.slice(9);
-              callback(sampleNames);
-            }
-         });
+    return new Promise(function(resolve, reject) {
+      var vcfReader = new readBinaryVCF(tabixFile, vcfFile, function(tbiR) {
+        var sampleNames = [];
+        sampleNames.length = 0;
 
+        var headerRecords = [];
+        vcfReader.getHeader( function(header) {
+           headerRecords = header.split("\n");
+           headerRecords.forEach(function(headerRec) {
+              if (headerRec.indexOf("#CHROM") == 0) {
+                var headerFields = headerRec.split("\t");
+                sampleNames = headerFields.slice(9);
+                resolve(sampleNames);
+              }
+           });
+
+        })        
       });
-   });
+
+    })
 
   }
 
 
-  exports._getRemoteSampleNames = function(callback) {
+  exports._promiseGetRemoteSampleNames = function() {
     var me = this;
 
+    return new Promise(function(resolve, reject) {
     var cmd = me.getEndpoint().getVcfHeader(vcfURL, tbiUrl);
 
 
-    var headerData = "";
-    // Use Results
-    cmd.on('data', function(data) {
-         if (data == undefined) {
-            return;
-         }
-         headerData += data;
-    });
+      var headerData = "";
+      // Use Results
+      cmd.on('data', function(data) {
+           if (data == undefined) {
+              return;
+           }
+           headerData += data;
+      });
 
-    cmd.on('end', function(data) {
-        var headerRecords = headerData.split("\n");
-         headerRecords.forEach(function(headerRec) {
-              if (headerRec.indexOf("#CHROM") == 0) {
-                var headerFields = headerRec.split("\t");
-                var sampleNames = headerFields.slice(9);
-                callback(sampleNames);
-              }
-         });
+      cmd.on('end', function(data) {
+          var headerRecords = headerData.split("\n");
+           headerRecords.forEach(function(headerRec) {
+                if (headerRec.indexOf("#CHROM") == 0) {
+                  var headerFields = headerRec.split("\t");
+                  var sampleNames = headerFields.slice(9);
+                  resolve(sampleNames);
+                }
+           });
 
-    });
+      });
 
-    cmd.on('error', function(error) {
-      console.log(error);
-    });
 
-    cmd.run();
+      cmd.on('error', function(error) {
+        let msg = "Error obtaining vcf header for file. Make sure your vcf file is properly formatted, and that the provided URL is accessible. " + error;
+        console.log(msg)
+        console.log(error);
+        reject(msg)   
+      });
+
+      cmd.run();
+
+    })
+
 
   }
 
@@ -1577,6 +1762,7 @@ export default function vcfiobio(theGlobalApp) {
 
       cmd.on('error', function(error) {
         console.log(error);
+        reject(error)
       });
 
       cmd.run();
@@ -1747,7 +1933,7 @@ export default function vcfiobio(theGlobalApp) {
   }
 
 
-  exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF, sfariMode = false, gnomADExtra = false) {
+exports._parseVcfRecordsOld = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF, sfariMode = false, gnomADExtra = false) {
 
       var me = this;
       var selectedTranscriptID = globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
@@ -1978,6 +2164,343 @@ export default function vcfiobio(theGlobalApp) {
                   }
 
                   if (me.getGenericAnnotation() !== undefined && sfariMode === false) {
+                    me.getGenericAnnotation().setSimpleFields(variant);
+                  }
+
+                  allVariants[i].push(variant);
+                }
+
+              }
+
+              if (rec.pos < variantRegionStart) {
+                variantRegionStart = rec.pos;
+              }
+
+            }
+
+            altIdx++;
+
+          });
+        }
+
+      });
+
+      // Here is the result set.  An object representing the entire region with a field called
+      // 'features' that contains an array of variants for this region of interest.
+      var results = [];
+      for (var i = 0; i < allVariants.length; i++) {
+        var data = {
+          'name':              'vcf track',
+          'ref':                refName,
+          'gene':               geneObject.gene_name,
+          'start':              +geneObject.start,
+          'end':                +geneObject.end,
+          'strand':             geneObject.strand,
+          'transcript':         selectedTranscript,
+          'variantRegionStart': variantRegionStart,
+          'loadState':          {},
+          'features':           allVariants[i],
+          'genericAnnotators':  me.infoFields ? Object.keys(me.infoFields) : []
+        };
+        results.push(data);
+      }
+
+      return  parseMultiSample ? results :  results[0];
+      //return  results;
+  };
+
+exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTranscript, clinvarMap, hasExtraAnnot, parseMultiSample, sampleNames, sampleIndex, vepAF, sfariMode = false, gnomADExtra = false) {
+
+      var me = this;
+      var selectedTranscriptID = globalApp.utility.stripTranscriptPrefix(selectedTranscript.transcript_id);
+
+      // Use the sample index to grab the right genotype column from the vcf record
+      // If it isn't provided, assume that the first genotype column is the one
+      // to be evaluated and parsed.  If sampleNames (a comma separated value string) is
+      // provided, evaluate the sample indices as ordinals since vt select will return only those
+      // sample (genotype) columns.
+      var gtSampleIndices = [];
+      var gtSampleNames = null;
+
+      if (sampleNames != null && sampleNames != "") {
+        gtSampleNames   = globalApp.utility.uniq(sampleNames.split(","))
+        gtSampleIndices = gtSampleNames.map(function(sampleName,i) {
+          return i;
+        });
+      }
+      // If no sample name provided, get the genotype for the provided
+      // index.  If no index provided, get the first genotype.
+      if (gtSampleIndices.length == 0) {
+        gtSampleIndices.push(sampleIndex != null ? sampleIndex : 0);
+      }
+      if (gtSampleNames == null) {
+        gtSampleNames = gtSampleIndices.map(function(elem, i) {
+          return elem.toString();
+        })
+      }
+      var allVariants = null;
+      if (parseMultiSample) {
+        allVariants = gtSampleIndices.map(function(element) {
+          return [];
+        })
+      } else {
+        allVariants = [ [] ];
+      }
+
+
+      // The variant region may span more than the specified region.
+      // We will be keeping track of variant depth by relative position
+      // of the region start, so to prevent a negative index, we will
+      // keep track of the region start based on the variants.
+      var variantRegionStart = geneObject.start;
+
+      // Iterate through the vcf records.  For each record, if multiple
+      // alternates are provided, iterate through each alternate
+      vcfRecs.forEach(function(rec) {
+        if (rec.pos && rec.id) {
+          var alts = [];
+          if(rec.alt.indexOf(',') > -1) {
+            // Done split apart multiple alt alleles for education edition
+            if (isEduMode) {
+              alts.push(rec.alt);
+            } else {
+              alts = rec.alt.split(",");
+            }
+          } else {
+            alts.push(rec.alt);
+          }
+          var altIdx = 0;
+          alts.forEach(function(alt) {
+            var len = null;
+            var type = null;
+            var end = null;
+
+            var isMultiAllelic = alts.length > 1;
+
+            if (alt.indexOf("<") == 0 && alt.indexOf(">") > 0) {
+              var annotTokens = rec.info.split(";");
+              annotTokens.forEach(function(annotToken) {
+                if (annotToken.indexOf("SVLEN=") == 0) {
+                  len = Math.abs(+annotToken.substring(6, annotToken.length));
+                } else if (annotToken.indexOf("SVTYPE=") == 0) {
+                  type = annotToken.substring(7, annotToken.length);
+                  //if (type && type.toLowerCase() == 'mnp') {
+                  //  type = 'snp';
+                  //}
+                }
+              });
+              rec.ref = '';
+              alt = '';
+              end = +rec.pos + len;
+
+            } else {
+              len = alt.length;
+              type = 'SNP';
+              if (rec.ref == '.' || alt.length > rec.ref.length ) {
+                type = 'INS';
+                len = alt.length - rec.ref.length;
+              } else if (rec.alt == '.' || alt.length < rec.ref.length) {
+                type = 'DEL';
+                len = rec.ref.length - alt.length;
+              }
+              end = +rec.pos + len;
+
+            }
+
+
+            var annot = me._parseAnnot(rec, altIdx, isMultiAllelic, geneObject, selectedTranscript, selectedTranscriptID, vepAF, gnomADExtra);
+
+            var clinvarResult = me.parseClinvarInfo(rec, clinvarMap);
+
+            var gtResult = me._parseGenotypes(rec, alt, altIdx, gtSampleIndices, gtSampleNames, sfariMode);
+
+            var clinvarObject = me._formatClinvarCoordinates(rec, alt);
+
+            if (gtResult.keep) {
+
+              var highestImpactVep    = me._getHighestImpact(annot.vep.allVep,       me._cullTranscripts, selectedTranscriptID);
+              var highestREVEL        = me._getHighestScore( annot.vep.allREVEL,     me._cullTranscripts, selectedTranscriptID);
+
+              for (var i = 0; i < allVariants.length; i++) {
+                // When vcf data is cached, any circular references are ommitted during JSON.stringify.
+                // To avoid culling out this genotype element from the 'genotypes' field, we
+                // must make the genotype unique.  Here we are copying the element and adding a dummy
+                // attribute
+                var genotype = $.extend({'extraAttr': 1}, gtResult.genotypes[i]);
+
+                // Keep the variant if we are just parsing a single sample (parseMultiSample=false)
+                // or we are parsing multiple samples and this sample's genotype is het or hom
+                if (!parseMultiSample || genotype.keep) {
+                  let currId = rec.id;
+                  if (sfariMode === true) {
+                      currId = ('id_' + rec.pos + '_' + refName + '_' + geneObject.strand + '_' + rec.ref + '_' + rec.alt);  // key = start.chromosome.strand.ref.alt
+                  }
+
+                  var variant = null;
+                  if (hasExtraAnnot) {
+                    variant = {
+                      'start':                    +rec.pos,
+                      'end':                      +end,
+                      'len':                      +len,
+                      'level':                    +0,
+                      'strand':                   geneObject.strand,
+                      'chrom':                    refName,
+                      'type':                     annot.typeAnnotated && annot.typeAnnotated != '' ? annot.typeAnnotated : type,
+                      'id':                       currId,
+                      'ref':                      rec.ref,
+                      'alt':                      alt,
+                      'qual':                     rec.qual,
+                      'recfilter':                rec.filter.split(";").join("-"),
+
+                      'extraAnnot':               hasExtraAnnot,
+
+                      'gene':                     geneObject,
+
+                      // genotype fields
+                      'genotype':                 genotype,
+                      'genotypeDepth' :           genotype.genotypeDepth,
+                      'genotypeFilteredDepth' :   genotype.filteredDepth,
+                      'genotypeAltCount' :        genotype.altCount,
+                      'genotypeRefCount' :        genotype.refCount,
+                      'genotypeAltForwardCount' : genotype.altForwardCount,
+                      'genotypeAltReverseCount' : genotype.altReverseCount,
+                      'genotypeRefForwardCount' : genotype.refForwardCount,
+                      'genotypeRefReverseCount' : genotype.refReverseCount,
+                      'eduGenotype' :             genotype.eduGenotype,
+                      'eduGenotypeReversed':      genotype.eduGenotypeReversed,
+                      'zygosity':                 genotype.zygosity ? genotype.zygosity : 'gt_unknown',
+                      'phased':                   genotype.phased,
+
+                      // fields to init to 'empty'
+                      'consensus':                rec.consensus,
+                      'inheritance':              '',
+
+                      // clinvar coords
+                      'clinvarStart':            clinvarObject.clinvarStart,
+                      'clinvarRef':              clinvarObject.clinvarRef,
+                      'clinvarAlt':              clinvarObject.clinvarAlt,
+
+                      //
+                      // annot fields
+                      //
+                      'rsid' :                    annot.rs,
+                      'combinedDepth':            annot.combinedDepth,
+
+
+                      // multi-allelic (from vt decompose)
+                      'multiallelic':             annot.multiallelic,
+
+                      // vep
+                      'vepConsequence':          annot.vep.vepConsequence,
+                      'vepImpact':               annot.vep.vepImpact,
+                      'vepExon':                 annot.vep.vepExon,
+                      'vepHGVSc':                annot.vep.vepHGVSc,
+                      'vepHGVSp':                annot.vep.vepHGVSp,
+                      'vepAminoAcids':           annot.vep.vepAminoAcids,
+                      'vepProteinPosition':      annot.vep.vepProteinPosition,
+                      'vepVariationIds' :        annot.vep.vepVariationIds,
+                      'vepREVEL':                annot.vep.vepREVEL,
+                      'vepAf':                   annot.vep.af,
+
+                      // gnomAD
+                      'gnomAD':                  gnomADExtra ? annot.gnomAD : null,
+
+
+                      // generic annots
+                      'genericAnnots':           annot.genericAnnots,
+
+                      //  when multiple impacts, pick the highest one (by variant type and transcript)
+                      'highestImpactVep':        highestImpactVep,
+                      'highestREVEL':            highestREVEL
+                    }
+                  } else {
+                    variant = {
+                      'start':                    +rec.pos,
+                      'end':                      +end,
+                      'len':                      +len,
+                      'level':                    +0,
+                      'strand':                   geneObject.strand,
+                      'chrom':                    refName,
+                      'type':                     annot.typeAnnotated && annot.typeAnnotated != '' ? annot.typeAnnotated : type,
+                      'id':                       currId,
+                      'ref':                      rec.ref,
+                      'alt':                      alt,
+                      'qual':                     rec.qual,
+                      'recfilter':                rec.filter.split(";").join("-"),
+
+                      'extraAnnot':               hasExtraAnnot,
+
+                      'gene':                     geneObject,
+
+                      // genotype fields
+                      'genotype':                 genotype,
+                      'genotypeDepth' :           genotype.genotypeDepth,
+                      'genotypeFilteredDepth' :   genotype.filteredDepth,
+                      'genotypeAltCount' :        genotype.altCount,
+                      'genotypeRefCount' :        genotype.refCount,
+                      'genotypeAltForwardCount' : genotype.altForwardCount,
+                      'genotypeAltReverseCount' : genotype.altReverseCount,
+                      'genotypeRefForwardCount' : genotype.refForwardCount,
+                      'genotypeRefReverseCount' : genotype.refReverseCount,
+                      //'eduGenotype' :             genotype.eduGenotype,
+                      //'eduGenotypeReversed':      genotype.eduGenotypeReversed,
+                      'zygosity':                 genotype.zygosity ? genotype.zygosity : 'gt_unknown',
+                      'phased':                   genotype.phased,
+
+                      // fields to init to 'empty'
+                      'consensus':                rec.consensus,
+                      'inheritance':              '',
+
+                      // clinvar coords
+                      'clinvarStart':            clinvarObject.clinvarStart,
+                      'clinvarRef':              clinvarObject.clinvarRef,
+                      'clinvarAlt':              clinvarObject.clinvarAlt,
+
+                      //
+                      // annot fields
+                      //
+                      //'rsid' :                    annot.rs,
+                      'combinedDepth':            annot.combinedDepth,
+
+
+                      // multi-allelic (from vt decompose)
+                      'multiallelic':             annot.multiallelic,
+
+                      // vep
+                      'vepConsequence':          annot.vep.vepConsequence,
+                      'vepImpact':               annot.vep.vepImpact,
+                      'vepExon':                 annot.vep.vepExon,
+                      //'vepHGVSc':                annot.vep.vepHGVSc,
+                      //'vepHGVSp':                annot.vep.vepHGVSp,
+                      'vepAminoAcids':           annot.vep.vepAminoAcids,
+                      'vepProteinPosition':      annot.vep.vepProteinPosition,
+                      'vepVariationIds' :        annot.vep.vepVariationIds,
+                      'vepREVEL':                annot.vep.vepREVEL,
+                      'vepAf':                   annot.vep.af,
+
+                      // gnomAD
+                      'gnomAD':                  gnomADExtra ? annot.gnomAD : null,
+
+
+                      // generic annots
+                      //'genericAnnots':           annot.genericAnnots,
+
+                      //  when multiple impacts, pick the highest one (by variant type and transcript)
+                      'highestImpactVep':        highestImpactVep,
+                      'highestREVEL':            highestREVEL
+                    }                    
+                  }
+
+                  // Too much data for sfari vars
+                  if (sfariMode === false) {
+                      variant['genotypes'] = gtResult.genotypeMap;
+                  }
+
+                  for (var key in clinvarResult) {
+                    variant[key] = clinvarResult[key];
+                  }
+
+                  if (hasExtraAnnot && me.getGenericAnnotation() !== undefined && sfariMode === false) {
                     me.getGenericAnnotation().setSimpleFields(variant);
                   }
 
@@ -2353,8 +2876,8 @@ exports._parseVepAnnot = function(altIdx, isMultiAllelic, annotToken, annot, gen
 
             if (vepAF) {
               me._parseVepAfAnnot(VEP_FIELDS_AF_GNOMAD, vepFields, vepTokens, "gnomAD", "gnomAD", annot);
-              me._parseVepAfAnnot(VEP_FIELDS_AF_1000G,  vepFields, vepTokens, "1000G",  null,     annot);
-              me._parseVepAfAnnot(VEP_FIELDS_AF_ESP,    vepFields, vepTokens, "ESP",    null,     annot);
+              //me._parseVepAfAnnot(VEP_FIELDS_AF_1000G,  vepFields, vepTokens, "1000G",  null,     annot);
+              //me._parseVepAfAnnot(VEP_FIELDS_AF_ESP,    vepFields, vepTokens, "ESP",    null,     annot);
               me._parseVepAfAnnot(VEP_FIELDS_AF_MAX,    vepFields, vepTokens, "MAX",    "MAX",    annot);
             }
             if (vepAF && gnomADExtra && globalApp.gnomADExtraMethod == globalApp.GNOMAD_METHOD_CUSTOM_VEP ) {

@@ -79,7 +79,8 @@
       showLabel: null,
       accept: null,
       selectedCallback: Function,
-      title: String
+      title: String,
+      disabled: false
     },
     data() {
       return {

@@ -457,13 +457,14 @@ export default function geneD3() {
 
         theBrush.selectAll(".resize")
           .append("line")
-          .style("visibility",  "visible" )
+          .style("visibility",  "hidden" )
           .attr("y2", brushHeight);
         theBrush.selectAll(".resize.e rect")
+          .style("visibility",  "hidden" )
           .attr("y0", 0);
         theBrush.selectAll(".resize")
           .append("path")
-          .style("visibility",  "visible")
+          .style("visibility",  "hidden")
           .attr("d", d3.svg.symbol().type("triangle-up").size(20))
           .attr("transform", function(d,i) {
             return i ?  "translate(-4," + (brushHeight/2) + ") rotate(-90)" : "translate(4," + (brushHeight/2) + ") rotate(90)";

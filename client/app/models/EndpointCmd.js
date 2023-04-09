@@ -29,7 +29,6 @@ export default class EndpointCmd {
     // iobio services
     this.IOBIO = {};
     this.IOBIO.tabix                   = this.globalApp.IOBIO_SERVICES  + (this.globalApp.useOnDemand ? "od_tabix/" : "tabix/");
-    this.IOBIO.vcfReadDepther          = this.globalApp.IOBIO_SERVICES  + "vcfdepther/";
     this.IOBIO.snpEff                  = this.globalApp.IOBIO_SERVICES  + "snpeff/";
     this.IOBIO.vt                      = this.globalApp.IOBIO_SERVICES  + "vt/";
     this.IOBIO.af                      = this.globalApp.IOBIO_SERVICES  + "af/";
@@ -53,39 +52,16 @@ export default class EndpointCmd {
     getVcfHeader(vcfUrl, tbiUrl) {
         const me = this;
         if (this.gruBackend) {
-            let header = this.api.streamCommand('variantHeader', {url: vcfUrl, indexUrl: tbiUrl});
-            header.on('error', function(error){
-              let msg = "Error obtaining vcf header for file. Make sure your vcf file is properly formatted, and that the provided URL is accessible. <code>" + vcfUrl + "</code>";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Fatal error")
-               console.log("error in get vcf header", error)
-            })
-
-            return header;
+            let cmd = this.api.streamCommand('variantHeader', {url: vcfUrl, indexUrl: tbiUrl});
+            return cmd;
         }
     }
 
-    getVcfDepth(vcfUrl, tbiUrl) {
+    getChromosomes(vcfUrl, tbiUrl) {
         const me = this
         if (this.gruBackend) {
-            if (!tbiUrl) {
-                tbiUrl = vcfUrl + '.tbi';
-            }
-            let cmd = this.api.streamCommand('vcfReadDepth', {url: tbiUrl});
+            let cmd = this.api.streamCommand('getChromosomes', {url: vcfUrl, indexUrl: tbiUrl});
 
-            cmd.on('error', function(error){
-                if(error.includes("Expected compressed file")){
-
-                  let msg = "Vcf or vcf index file is not compressed. This will prevent variants from being annotated.  Check to make sure your vcf files are properly compressed in gzip format <code>" + vcfUrl + "</code>";
-                  alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                    .setHeader("Fatal Error");
-                }
-                else{
-                  let msg = "Could not get vcf depth.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted <code>" + vcfUrl + "</code>";
-                  alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                    .setHeader("Fatal Error");
-                }
-            })
             return cmd;
         }
     }
@@ -157,15 +133,10 @@ export default class EndpointCmd {
             clinSigFilterPhrase
         });
 
-        cmd.on('error', function(error){
-            let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-            alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Non-fatal Error");
-        })
         return cmd;
     }
 
-    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose) {
+    annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose, bypassAnnotate) {
         let me = this;
         if (this.gruBackend) {
             const refNames = this.getHumanRefNames(refName).split(" ");
@@ -222,18 +193,14 @@ export default class EndpointCmd {
                 vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
                 gnomadMergeAnnots,
                 decompose,
+                bypassAnnotate
             });
 
-            cmd.on('error', function(error){
-                let msg = "Could not annotate variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                  .setHeader("Non-fatal Error");
-            })
             return cmd;
         }
     }
 
-    normalizeVariants(vcfUrl, tbiUrl, refName, regions) {
+    normalizeVariants(vcfUrl, tbiUrl, refName, regions, vcfSampleNames=null, decompose=false) {
         const me = this;
         if (this.gruBackend) {
             let refFastaFile = me.genomeBuildHelper.getFastaPath(refName);
@@ -248,12 +215,9 @@ export default class EndpointCmd {
                 refName,
                 regions,
                 contigStr,
-                refFastaFile
-            });
-            cmd.on('error', function(error) {
-              let msg = "Could not normalize variants.  This is likely an error with the gene.iobio.io backend. The server may be under a heavy load. The server may be under a heavy load. Click 'Analyze all' in the left-hand gene panel to re-analyze the failed gene(s)"
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Non-fatal Error");
+                refFastaFile,
+                vcfSampleNames: vcfSampleNames ? vcfSampleNames.split(',') : '',
+                decompose
             });
             return cmd;
         }
@@ -283,11 +247,6 @@ export default class EndpointCmd {
                 vepArgs: vepArgs
             });
 
-            cmd.on('error', function(error) {
-              let msg = "Could not get variant counts from clinVar. Try refreshing the page."
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Non-fatal Error");
-            });
             return cmd;
         }
     }
@@ -308,11 +267,6 @@ export default class EndpointCmd {
                 annotationMode: 'phenotype'
             });
 
-            cmd.on('error', function(error) {
-              let msg = "Could not get phenotypes from clinVar."
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto:iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div><code>" + error + "</code>")
-                .setHeader("Non-fatal Error");
-            });
             return cmd;
         }
     }
@@ -322,13 +276,6 @@ export default class EndpointCmd {
         const me = this;
         if (this.gruBackend) {
             let cmd = this.api.streamCommand('alignmentHeader', {url: bamUrl});
-            cmd.on('error', function(error) {
-
-              let msg = "Could not interpret Bam file.  Make sure that the bam file is properly formatted and accessible <code>" + bamUrl + "</code>";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Fatal Error");
-                console.log(error);
-            });
             return cmd;
         }
     }
@@ -348,12 +295,7 @@ export default class EndpointCmd {
                 maxPoints,
                 coverageRegions: regions
             });
-
-            cmd.on('error', function(error) {
-              let msg = "Could not get get coverage from region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Bam index file may be invalid. Make sure that the bam index file is properly formatted and accessible<code>" + indexUrl + "<\code>";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Fatal Error");
-            });
+            
             return cmd;
         }
     }
@@ -398,11 +340,6 @@ export default class EndpointCmd {
                 decompose
             });
 
-            cmd.on('error', function(error) {
-              let msg = "Could not perform freebayes joint calling for region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Try refreshing the page";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-                .setHeader("Non-fatal Error");
-            });
             return cmd;
         }
     }
@@ -423,12 +360,6 @@ export default class EndpointCmd {
                 regions
             });
 
-            cmd.on('error', function(error) {
-              let msg = "Could not get gene coverage from region: <code>" + refName + ':' + regionStart + '-' + regionEnd + "</code> Bam index file may be invalid.  Make sure that the bam index file is properly formatted and accessible<code>" + indexUrl + "</code>";
-              alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
-
-                .setHeader("Fatal Error");
-            });
             return cmd;
         }
     }

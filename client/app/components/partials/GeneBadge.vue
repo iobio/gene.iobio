@@ -30,7 +30,7 @@
 
   #gene-status
     display: inline-block
-    width: 45px
+    width: 46px
     vertical-align: top
     padding-top: 5px
 
@@ -54,6 +54,11 @@
     #gene-badge-has-called-variants
       display: inline
 
+  &.has-coverage-problem
+    #gene-badge-coverage-problem
+      display: initial !important
+      float: right
+
 
   &.in-progress
     .gene-badge-loader
@@ -63,15 +68,31 @@
     #gene-badge-error
       display: inline
 
+  &.has-warning
+    #gene-badge-warning
+      display: inline
 
   &:hover #gene-badge-remove
     visibility: visible
+    i
+      color: #E0292B !important
+      font-weight: bold
+
 
   a
     color:  $text-color !important
 
     &:hover
       text-decoration: underline !important
+
+  #variant-count 
+    width:         25px
+    display:       inline-block
+    float:         right 
+    margin-right:  4px
+    margin-left:   4px
+    font-size:     11px
+    margin-top:    4px
 
 
 #gene-badge.failed-filter
@@ -120,11 +141,13 @@
   float: left
   display: none
 
+#coverage-problem-icon
+  display: none
 
 #gene-badge-warning
   float: left
-  font-size: 12px
-  color: rgba(230, 126, 30, 0.84)
+  font-size: 16px
+  color: $badge-warning-color
   padding-top: 0px
   padding-bottom: 1px
   padding-right: 2px
@@ -132,8 +155,8 @@
 
 #gene-badge-error
   float: left
-  font-size: 12px
-  color: rgba(204, 29, 7, 0.67)
+  font-size: 16px
+  color: $badge-error-color
   padding-top: 0px
   padding-right: 2px
   padding-left: 1px
@@ -159,12 +182,12 @@
   vertical-align: top
 
 #gene-badge-remove
+  margin-top: 3px
   i
-    color: #E0292B !important
-    font-weight: bold
+    color: $text-color 
     font-size: 13px
 
-  visibility: hidden
+  visibility: visible
 
 .myBadge
   background-color: #efeeee 
@@ -194,7 +217,7 @@
 
 
         <i id="gene-badge-warning" class="material-icons glyph">warning</i>
-        <i id="gene-badge-error" class="material-icons glyph">report_problem</i>
+        <i id="gene-badge-error" class="material-icons glyph">error</i>
 
 
   </span>
@@ -219,6 +242,7 @@
       <span id="gene-badge-symbols" class="glyph">
 
           <app-icon
+           id="gene-badge-user-flagged"
            v-if="hasFilteredVariants('userFlagged')"
            icon="user-flagged"
            class=" level-edu glyph"
@@ -226,26 +250,27 @@
           </app-icon>
 
           <app-icon
-           v-if="gene && gene.dangerSummary && gene.dangerSummary.badges && gene.dangerSummary.badges.pathogenic && gene.dangerSummary.badges.pathogenic.length > 0"
+           v-if="gene && gene.dangerSummary && gene.dangerSummary.badges && showClinvar()"
            icon="clinvar"
-           level="high"
+           :level="getClinvarLevel()"
            id="gene-badge-clinvar"
            class=" level-edu glyph"
            width="13" height="14">
           </app-icon>
 
-          <app-icon
+          <app-icon 
            v-if="hasFilteredVariants('autosomalDominant')"
            icon="autosomal dominant"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
 
           <app-icon
+           id=""
            v-if="hasFilteredVariants('recessive')"
            icon="recessive"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
@@ -253,14 +278,14 @@
           <app-icon
            v-if="hasFilteredVariants('denovo')"
            icon="denovo"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
           <app-icon
            v-if="hasFilteredVariants('xlinked')"
            :icon="getXLinkedIconName()"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
@@ -268,7 +293,7 @@
           <app-icon
            v-if="hasFilteredVariants('compoundHet')"
            icon="compound het"
-           class=" level-edu glyph"
+           class=" level-edu glyph gene-badge-inheritance"
            width="15" height="15">
           </app-icon>
 
@@ -308,8 +333,11 @@
             width="15" height="15">
           </app-icon>
 
-          <app-icon style="float:right;vertical-align:top"
-           v-if="hasCoverageProblem() && !isSimpleMode"
+
+
+          <app-icon id="gene-badge-coverage-problem" 
+           style="display:none;vertical-align:top"
+           v-if="!isSimpleMode"
            icon="coverage"
            class=" level-edu glyph"
            width="12" height="11">
@@ -319,18 +347,18 @@
 
       </span>
 
-
-
-
-
   </a>
-  
+
   <div id="gene-badge-remove" v-if="!isEduMode" href="javascript:void(0)"
     @click="removeGene"
-    style="display: inline-block;cursor: pointer;float:right; margin-right:-10px">
+    style="float: right;display: inline-block;cursor: pointer;">
       <i style="vertical-align:middle" class="material-icons">close</i>
-
   </div>
+
+  <div id="variant-count" v-if="!launchedFromClin && !isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary && gene.dangerSummary.loadedCount != null">
+      {{ gene.dangerSummary.loadedCount }}
+  </div>
+  
 
   <span class="ml-1" style="position: absolute" v-if="launchedFromClin">
     <span v-for="(source, idx) in selectedGeneSources.sourceIndicator" :key="idx">
@@ -391,26 +419,62 @@ export default {
       self.$emit("remove-gene", theGeneName);
 
     },
+    getClinvarLevel: function() {
+      var self = this;
+      var theLevel = null;
+      if (self.gene.dangerSummary && self.gene.dangerSummary.badges) {
+        Object.keys(self.gene.dangerSummary.badges).forEach(function(filterName) {
+          self.gene.dangerSummary.badges[filterName].forEach(function(variant) {
+            let levelObj = self.globalApp.utility.getClinvarLevelAndOrdinal(variant)
+            if (theLevel == null || levelObj.ordinal < theLevel.ordinal) {
+              theLevel = levelObj;
+            }
+          })
+        })
+      }
+      if (theLevel) {
+        return Object.keys(theLevel)[0];
+      } else {
+        return "none";
+      }
+    },
+    showClinvar: function() {
+      var self = this;
+      var theLevel = null;
+      if (self.gene.dangerSummary && self.gene.dangerSummary.badges) {
+        Object.keys(self.gene.dangerSummary.badges).forEach(function(filterName) {
+          self.gene.dangerSummary.badges[filterName].forEach(function(variant) {
+            let levelObj = self.globalApp.utility.getClinvarLevelAndOrdinal(variant)
+            if (theLevel == null || levelObj.ordinal < theLevel.ordinal) {
+              theLevel = levelObj;
+            }
+          })
+        })
+      }
+      if (theLevel) {
+        return Object.values(theLevel)[0]  <= 4;
+      } else {
+        return false;
+      }
+    },
     getImpactClass: function(variantTypes) {
       var self = this;
       var clazz = null;
-      if (self.gene.dangerSummary && self.gene.dangerSummary.badges && this.gene.dangerSummary.badges.high && this.gene.dangerSummary.badges.high.length > 0 ) {
+      if (self.gene.dangerSummary && self.gene.dangerSummary.badges) {
         for (var variantType in variantTypes) {
-
-
-          this.gene.dangerSummary.badges.high.forEach(function(variant) {
-            if (variant.type.toUpperCase() == variantType.toUpperCase()) {
-              if (clazz == null) {
-                if (variant.highestImpactVep.HIGH) {
-                  clazz = 'filter-symbol impact_HIGH';
-                } else {
-                  clazz = 'filter-symbol impact_MODERATE';
+          Object.keys(self.gene.dangerSummary.badges).forEach(function(filterName) {
+            self.gene.dangerSummary.badges[filterName].forEach(function(variant) {
+              if (variant.type.toUpperCase() == variantType.toUpperCase()) {
+                if (clazz == null) {
+                  if (variant.highestImpactVep.HIGH) {
+                    clazz = 'filter-symbol impact_HIGH';
+                  } else {
+                    clazz = 'filter-symbol impact_MODERATE';
+                  }
                 }
               }
-            }
+            })
           })
-
-
         }
       }
       return clazz;
@@ -435,9 +499,6 @@ export default {
         return 'x-linked'
       }
     },
-    hasCoverageProblem: function() {
-      return this.gene && this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem;
-    },
     getSourceIndicatorBadge: function(gene_name) {
       if(this.launchedFromClin){
         this.selectedGeneSources.source = this.geneModel.getSourceForGenes()[gene_name].source_gene_tab;
@@ -447,6 +508,18 @@ export default {
   },
   computed: {
     classObject: function () {
+      let hasError = false;
+      if (this.gene.dangerSummary && this.gene.dangerSummary.ERROR && this.gene.dangerSummary.ERROR.length > 0) {
+        hasError = true;
+      } else if (this.gene.appErrors && this.gene.appErrors.length > 0) {
+        hasError = true;
+      }
+
+      let hasWarning = false;
+      if (!hasError) {
+        hasWarning = this.gene.appWarnings && this.gene.appWarnings.length > 0;
+      }
+
       return {
 
         'selected':              this.selectedGene && this.selectedGene.gene_name == this.gene.name,
@@ -454,10 +527,12 @@ export default {
         'loaded':                this.gene.dangerSummary != null,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
-        'has-error':             this.gene.dangerSummary && this.gene.dangerSummary.ERROR && this.gene.dangerSummary.ERROR.length > 0,
-        'has-phenotypes':        false  //this.phenotypes && this.phenotypes.length > 0,
+        'has-error':             hasError,
+        'has-warning':           hasWarning,
+        'has-phenotypes':        false,  //this.phenotypes && this.phenotypes.length > 0,
+        'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem
       }
-    },
+    }
 
 
   },

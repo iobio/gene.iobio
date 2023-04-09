@@ -11,7 +11,7 @@ $button-font:                    Montserrat
 $landing-page-font:              Raleway
 
 
-$accent-color:          $color-1
+$accent-color:          $button-color-welcome
 $accent-color-light:    $color-1
 $powered-by-accent-color: $color-1
 
@@ -138,8 +138,7 @@ $light-gray-color:   #f0f1f3
       width: 310px
       margin-bottom: 10px
       background-color: $accent-color
-      color: $accent-color
-      font-family: $landing-page-font
+      color: white
       margin-bottom: 30px
       font-family:  $button-font
 
@@ -151,18 +150,18 @@ $light-gray-color:   #f0f1f3
 
       .btn__content, .v-btn__content
         color: white
+        font-weight: 500
 
     button.welcome-button-outline
       font-family:  $button-font
-      font-size: 16px !important
+      font-size: 18px !important
       margin-left: 7px
       margin-right: 7px
-      height: 4px
-      width: 230px
+      height: 48px
+      width: 310px
       margin-bottom: 10px
       background-color: white
       color: $accent-color
-      font-family: $landing-page-font
       border: thin solid $accent-color
 
       i.material-icons
@@ -173,6 +172,7 @@ $light-gray-color:   #f0f1f3
 
       .btn__content, .v-btn__content
         color: $accent-color
+        font-weight: 500
 
 
 
@@ -540,7 +540,7 @@ $light-gray-color:   #f0f1f3
               </v-alert>
               </div>
             <transition-group  name="fadeDown" tag="div" >
-              <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group"
+                <div v-if="showWelcomeButton" key="welcome-button" class="buttons-group"
                    style="text-align:center;animation-duration: 1s;">
                 <v-btn class="welcome-button"  v-if="resume"  @click="onResume">
                   <i class="material-icons">play_circle_outline</i>
@@ -551,15 +551,15 @@ $light-gray-color:   #f0f1f3
                   START NEW ANALYSIS
                 </v-btn>
                   <v-btn v-if="!resume" class="welcome-button"  id="load-demo-data"  @click="onLoadDemoData">
-                  <v-icon>model_training</v-icon>
+                  <v-icon>play_circle</v-icon>
                   RUN WITH DEMO DATA
                 </v-btn>
                 <v-btn v-if="!resume" class="welcome-button"  id="uploadData"  @click="onUploadFiles">
-                  <v-icon>cloud_upload</v-icon>
+                  <v-icon>file_upload</v-icon>
                   LOAD YOUR DATA
                 </v-btn>
                 <v-btn v-if="!resume"  class="welcome-button"  @click="playVideo('screencast-intro')">
-                  <i class="material-icons">play_circle_filled_white</i>
+                  <i class="material-icons">movie</i>
                   WATCH THE VIDEO
                 </v-btn>
               </div>
@@ -901,7 +901,7 @@ $light-gray-color:   #f0f1f3
         <v-btn style="float:left"   flat @click="stopVideo('screencast-intro')">
           <i class="material-icons">arrow_back</i>
         </v-btn>
-        <h4>Introducing gene.iobio 4.0</h4>
+        <h4>Introducing gene.iobio 4.7</h4>
         <div id="screencast-intro-iframe-placeholder"></div>
       </div>
 
@@ -967,8 +967,8 @@ export default {
       videoStyle: "position:absolute;width:100%;height:100%;left:0",
       videoConfigs : {
         'screencast-intro': {
-          src: "https://www.youtube.com/embed/K7JLbCv2LcA?autoplay=1&rel=0&ecver=2",
-          videoId: 'K7JLbCv2LcA',
+          src: "https://youtu.be/bTRGDnGdEMc?autoplay=1&rel=0&ecver=2",
+          videoId: 'bTRGDnGdEMc',
           width: 670*1.25,
           height: 420*1.25,
           frameborder: "0",

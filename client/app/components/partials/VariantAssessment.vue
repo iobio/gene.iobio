@@ -72,15 +72,7 @@
 
   <div id="variant-assessment" class="app-card">
     <div>
-      <variant-interpretation
-      style="margin-bottom:15px;margin-right:15px;width: 200px;display: inline-block"
-       wrap="true"
-       :variant="variant"
-       :variantInterpretation="interpretation"
-       :interpretationMap="interpretationMap"
-       :showInterpretationLabel="true"
-       @apply-variant-interpretation="onApplyVariantInterpretation">
-      </variant-interpretation>
+
 
       <variant-notes-dialog
         style="display:inline-block;"

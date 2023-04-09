@@ -9,6 +9,7 @@
   #analyze-all-buttons
     margin-bottom: 10px
     display: flex
+    justify-content: flex-start
 
     #analyze-all-button
       margin: 0px 0px 0px 0px
@@ -16,13 +17,13 @@
       min-width: 100px
       padding-right: 5px
       padding-left: 5px
-      background-color: $link-color
+      background-color: $button-color
       height: 28px
 
       .btn__content, .v-btn__content
         padding-left: 0px
         padding-right: 0px
-        color: white
+        color: $button-text-color
         font-size: 13px
         font-weight: 500
 
@@ -33,23 +34,24 @@
       display: inline-block
       vertical-align: middle
       text-align: left
+      margin-left: 15px
 
       button
         margin: 0px 0px 0px 0px
+        margin-right: 0px
         padding: 0px
         min-width: 120px
         padding-right: 5px
         padding-left: 5px
-        background-color: $link-color
+        background-color: $button-color
         height: 28px
 
         .btn__content, .v-btn__content
           padding-left: 0px
           padding-right: 0px
-          color: $link-color
           font-size: 13px
           font-weight: 500
-          color: white
+          color: $button-text-color
 
           i.material-icons
             font-size: 20px
@@ -70,7 +72,11 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      color: $link-color
+      color: $button-text-color
+      visibility: hidden
+
+      &.in-progress
+        visibility: visible
 
       i.material-icons
         font-size: 20px
@@ -78,7 +84,7 @@
 
   #analyze-genes-progress
     margin-top: 10px
-    margin-bottom: 20px
+    margin-bottom: 10px
 
     .progress-counts
       padding-left: 4px
@@ -152,9 +158,8 @@
     <div id="analyze-all-buttons" :class="{'clin': launchedFromClin}">
 
         <v-btn  id="analyze-all-button"
-        v-if="isLoaded && !isFullAnalysis && !isSimpleMode"
+        v-if="isLoaded && !isSimpleMode"
         class="level-edu"
-        flat
         @click="onAnalyzeAll"
         v-tooltip.top-center="`Analyze variants in all genes`" >
           <v-icon>playlist_play</v-icon>
@@ -163,20 +168,19 @@
 
 
         <v-btn
-        v-if="analyzeAllInProgress && !isFullAnalysis && !isSimpleMode"
-        class="stop-analysis-button"
+        v-if="!isSimpleMode"
+        :class="analyzeAllInProgress ? 'stop-analysis-button in-progress' : 'stop-analysis-button'"
         @click="onStopAnalysis"  flat
         v-tooltip.top-center="`Stop analysis`" >
           <v-icon>stop</v-icon>
         </v-btn>
 
-        <v-spacer></v-spacer>
 
         <div id="call-variants-dropdown"
-          v-if="isLoaded && hasAlignments && !isFullAnalysis && !isSimpleMode"
+          v-if="isLoaded && hasAlignments && !isSimpleMode"
         >
           <v-menu offset-y>
-            <v-btn  slot="activator" flat
+            <v-btn  slot="activator" 
             v-tooltip.top-center="`Call variants from alignments`"
             class="call-variants-button">
               <v-icon>playlist_add</v-icon>
@@ -191,8 +195,8 @@
         </div>
 
         <v-btn
-        v-if="callAllInProgress && !isFullAnalysis"
-        class="stop-analysis-button"
+        v-if="isLoaded && hasAlignments && !isSimpleMode"
+        :class="callAllInProgress ? 'stop-analysis-button in-progress' : 'stop-analysis-button'"
         @click="onStopAnalysis" flat 
         v-tooltip.top-center="`Stop calling variants`" >
           <v-icon>stop</v-icon>
@@ -218,14 +222,16 @@
       </div>
     </div>
 
-    <div v-if="launchedFromClin">
-      <div style="margin-left: 80%">
-        Source
-      </div>
-    </div>
     <div id="gene-badge-container" class="level-basic" style="clear:both;">
 
 
+    <div v-if="geneSummaries && geneSummaries.length > 0"
+      style="font-size: 11px;margin-bottom: 5px;">
+      <span style="width: 45px;display: inline-block;">Status</span>
+      <span style="display: inline-block;width: 180px;">Gene</span>
+      <span v-if="!isFullAnalysis">Variants</span>
+      <span v-if="isFullAnalysis">Source</span>
+    </div>
 
       <gene-badge
        v-for="gene in geneSummaries"
@@ -272,7 +278,9 @@ export default {
     genesInProgress: null,
     loadedDangerSummaries: null,
     geneModel: null,
-    selectedGene: null
+    selectedGene: null,
+    appAlerts: null,
+    geneToAppAlerts: null,
   },
   data () {
     return {
@@ -312,10 +320,23 @@ export default {
 
           var dangerSummary = self.geneModel.getDangerSummary(geneName);
 
+          var appWarnings = [];
+          var appErrors = [];
+          if (self.geneToAppAlerts[geneName]) {
+            appWarnings = self.geneToAppAlerts[geneName].filter(function(alert) {
+              return alert.type == 'warning';
+            });
+            appErrors = self.geneToAppAlerts[geneName].filter(function(alert) {
+              return alert.type == 'error';
+            });
+          }
+
           return {'name': geneName,
           'isFlagged': false,
           'dangerSummary': dangerSummary,
-          'inProgress': inProgress};
+          'inProgress': inProgress,
+          'appWarnings': appWarnings,
+          'appErrors': appErrors };
         })
       } else {
         self.geneSummaries = [];
@@ -372,6 +393,9 @@ export default {
       this.updateGeneSummaries();
     },
     genesInProgress: function() {
+      this.updateGeneSummaries();
+    },
+    appAlerts: function() {
       this.updateGeneSummaries();
     }
   }

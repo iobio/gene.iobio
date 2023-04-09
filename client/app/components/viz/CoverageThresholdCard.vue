@@ -38,8 +38,10 @@
 
 
       <filter-settings-coverage
+        :ref="filterSettingsCoverageRef"
         :filterModel="filterModel"
         :filter="coverageFilter"
+        :showApplyButton="true"
          @apply-filter="onApplyFilter">
       </filter-settings-coverage>
 
@@ -80,6 +82,8 @@ export default {
     onClose: function() {
       this.$emit('coverage-threshold-closed');
     }
+  },
+  watch: {
   },
   mounted: function() {
     let self = this;
