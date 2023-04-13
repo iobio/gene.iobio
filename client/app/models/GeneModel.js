@@ -960,7 +960,7 @@ class GeneModel {
           })
           .fail(function() {
             console.log("Error occurred when making http request to NCBI eutils esummary for gene " + geneName);
-            me.dispatch.alertIssued("warning", 
+            me.dispatch.alertIssued("info", 
               "Unable to get NCBI gene summary (esummary) for gene <pre>" + geneName + "</pre>", geneName, 
               ['Error occurred when making http request to NCBI eutils esummary',summaryUrl])
             me.geneNCBISummaries[geneName] = unknownGeneInfo;
@@ -970,7 +970,7 @@ class GeneModel {
         })
         .fail(function() {
           console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneName);
-            me.dispatch.alertIssued("warning", 
+            me.dispatch.alertIssued("info", 
               "Unable to get NCBI gene summary (esearch) for gene <pre>" + geneName + "</pre>", geneName, 
               ['Error occurred when making http request to NCBI eutils esearch',url])
           me.geneNCBISummaries[geneName] = unknownGeneInfo;
