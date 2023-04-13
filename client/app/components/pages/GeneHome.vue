@@ -1662,7 +1662,6 @@ export default {
 
         })
         .catch(function(error) {
-          self.addAlert("error", error)
           reject(error);
         })
 
