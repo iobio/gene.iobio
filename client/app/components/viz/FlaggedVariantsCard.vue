@@ -1305,6 +1305,8 @@ export default {
       }
 
       var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant);
+
+
       self.geneLists = filters.map(function(filterObject, idx) {
         self.variantCount += filterObject.variantCount;
         filterObject.filter.key = filterObject.key;
@@ -1322,7 +1324,16 @@ export default {
           variantCount: filterObject.variantCount,
           expand: true
         }
+      }).sort(function(filterObject1, filterObject2) {
+        if (+filterObject1.filter.order < +filterObject2.filter.order) {
+          return -1;
+        } else if (+filterObject1.filter.order > +filterObject2.filter.order) {
+          return 1;
+        } else {
+          return 0;
+        }
       })
+
 
       self.flattenGenesList();
 
