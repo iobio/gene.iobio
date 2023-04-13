@@ -208,8 +208,8 @@ class FilterModel {
           // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
-          title: "Filtered variants",
-          name: "Variants found during full analysis, but not passing any app filters",
+          title: "Imported variants not passing above filters",
+          name: "Imported variant that don't pass any gene.iobio filters",
           order: 8,
           userFlagged: false,
           maxAf: null,
@@ -227,8 +227,8 @@ class FilterModel {
           // TODO - figure out how to show when variants no longer match filters
           active: false,
           custom: false,
-          title: "Not found",
-          name: "Variants not found",
+          title: "Imported variants not found in variant file",
+          name: "Imported variants that not found in the proband variant file",
           order: 9,
           userFlagged: false,
           maxAf: null,
@@ -456,7 +456,13 @@ class FilterModel {
     }
 
     let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
-      return filterObject1.order > filterObject2.order;
+      if (+filterObject1.order < +filterObject2.order) {
+        return -1;
+      } else if (+filterObject1.order > +filterObject2.order) {
+        return 1;
+      } else {
+        return 0;
+      }
     })
 
     return sortedFilters;
@@ -869,6 +875,12 @@ class FilterModel {
         badges["notFound"] = [];
       }
       badges["notFound"].push($.extend({}, variant))
+      // Activate the notFound filter so it shows in the flagged 
+      // variants panel
+      if (self.flagCriteria['notFound'].active == false) {
+        self.flagCriteria['notFound'].active = true;
+      }
+
     } else if (variant.isImported) {
       variant.isFlagged = true;
       variant.isUserFlagged = false;
@@ -879,6 +891,11 @@ class FilterModel {
         badges["notCategorized"] = [];
       }
       badges["notCategorized"].push($.extend({}, variant))
+      // Activate the 'notCategorized' filter so it shows in the flagged 
+      // variants panel
+      if (self.flagCriteria['notCategorized'].active == false) {
+        self.flagCriteria['notCategorized'].active = true;
+      }
     }
 
     if (variant.isFlagged) {
