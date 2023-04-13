@@ -2512,14 +2512,14 @@ class CohortModel {
               if (me.geneModel.isKnownGene(theGeneObject.notFound)) {
                 me.geneModel.promiseAddGeneName(theGeneObject.notFound);
               } else {
-                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene ' + theGeneObject.notFound + ".", theGeneObject.notFound);          
+                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + theGeneObject.notFound + "</pre>.", theGeneObject.notFound);          
               }
             }
             else if (ir.gene && theGeneObject.notFound === undefined){
               if (me.geneModel.isKnownGene(ir.gene)) {
                 me.geneModel.promiseAddGeneName(ir.gene);
               } else {
-                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene ' + ir.gene + ".", ir.gene);          
+                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + ir.gene + "</pre>.", ir.gene);          
               }
             }
           })
@@ -2636,7 +2636,7 @@ class CohortModel {
           if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
             console.log("No transcript for importedVariant");
             console.log(importedVariant);
-            me.dispatch.alertIssued('warning', 'No transcript specified for imported variant in gene ' + geneName, geneName);
+            me.dispatch.alertIssued('warning', 'No transcript specified for imported variant in gene <pre>' + geneName + '</pre>', geneName);
           } else {
             uniqueTranscripts[importedVariant.transcript.transcript_id] = importedVariant.transcript;
           }
@@ -2674,7 +2674,7 @@ class CohortModel {
             } else if (importedVariants && importedVariants.length > 0) {
 
               importedVariants.forEach(function(importedVariant) {
-                data.vcfData.features.filter(function(v) {
+                let matchingVariants = data.vcfData.features.filter(function(v) {
                   let isMatch = me.globalApp.utility.stripRefName(v.chrom) == me.globalApp.utility.stripRefName(importedVariant.chrom)
                      && v.start == importedVariant.start
                      && v.ref      == importedVariant.ref
@@ -2714,7 +2714,7 @@ class CohortModel {
                   console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
                   
                   me.dispatch.alertIssued('warning', 'Imported variant ' 
-                  + 'in gene ' + geneObject.gene_name + ' not found in proband variant file.', geneObject.gene_name);          
+                  + 'in gene <pre>' + geneObject.gene_name + '</pre> not found in proband variant file.', geneObject.gene_name);          
 
                 }
               })
