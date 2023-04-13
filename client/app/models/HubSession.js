@@ -170,12 +170,12 @@ export default class HubSession {
               }
 
             })
-            .catch(error => {
-              reject(error);
+            .catch(errorMsg => {
+              reject(errorMsg);
             })
           })
           .catch(error => {
-            reject(error)
+            reject(errorMsg)
           })
         })
       })
@@ -183,6 +183,18 @@ export default class HubSession {
     })
 
   }
+  
+  getErrorMessage(error) {
+    if (error.hasOwnProperty('responseJSON') && error.responseJSON.hasOwnProperty('message')) {
+      return error.responseJSON.message;
+    } else if (error.hasOwnProperty('responseText')) {
+      return error.responseText;
+    } else {
+      return error.toString()
+    }
+
+  }
+
 
   hasVariantSets(modelInfos, rel='proband') {
     let proband = modelInfos.filter(function(mi) {
@@ -217,8 +229,7 @@ export default class HubSession {
           resolve(data);
       })
       .fail(error => {
-
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         reject("Error getting project " + project_id + ": " + errorMsg);
       });
     });
@@ -242,7 +253,7 @@ export default class HubSession {
         }
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         reject("Error getting sample " + sample_id + ": " + errorMsg);
       })
     })
@@ -275,7 +286,7 @@ export default class HubSession {
           }
         })
         .fail(error => {
-          let errorMsg = error.responseText
+          let errorMsg = self.getErrorMessage(error);
           reject("Error getting pedigree for sample " + sample_id + ": " + errorMsg);
         })
 
@@ -436,8 +447,8 @@ export default class HubSession {
         .then(response => {
           resolve({'sample': sample, 'relationship': relationship, 'fileMap': fileMap});
         })
-        .catch(error => {
-          reject(error);
+        .catch(errorMsg => {
+          reject(errorMsg);
         })
       })
     })
@@ -453,9 +464,9 @@ export default class HubSession {
         resolve(response.data);
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         console.log("Unable to get files for sample " + sample_id + " error: " + errorMsg)
-        reject(error);
+        reject(errorMsg);
       })
     })
   }
@@ -481,7 +492,7 @@ export default class HubSession {
                   resolve(response);
               })
               .fail(error => {
-                let errorMsg = error.responseJSON.message;
+                let errorMsg = self.getErrorMessage(error);
                 console.log("Unable to get files for project " + project_id + " error: " + errorMsg);
                 reject(errorMsg);
               })
@@ -509,7 +520,7 @@ export default class HubSession {
         resolve(file);
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         let msg = "Could not get signed url for file_id  " + file.id + " error: " + errorMsg;
         console.log(msg)
         reject(msg);
@@ -549,7 +560,7 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         console.log("Error getting gene set from Mosaic with gene_set_id " + geneSetId);
         console.log(errorMsg)
         reject("Error getting gene set " + geneSetId + ": " + errorMsg);
@@ -608,9 +619,9 @@ export default class HubSession {
           resolve(response)
         })
         .fail(error => {
-          let errorMsg = error.responseJSON.message;
+          let errorMsg = self.getErrorMessage(error);
           console.log("Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.");
-          console.log(errorMsg);
+          console.log();
           reject("Error getting variant set " + variantSetId + ": " + errorMsg);
         })
 
@@ -628,7 +639,7 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         reject("Error getting mosaic variant : " + errorMsg + "." )
       })
     })
@@ -657,7 +668,7 @@ export default class HubSession {
         }
       })
       .catch(function(error) {
-        reject(error)
+        reject(self.getErrorMessage(error))
       })
     })
   }
@@ -670,7 +681,7 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         reject("Error getting mosaic variants by position: " + errorMsg + "." )
       })
     })
@@ -685,7 +696,7 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         reject("Error getting analysis: " + errorMsg + "." )
       })
     })
@@ -699,7 +710,7 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         reject("Error adding analysis: " + errorMsg + "." )
       })
     })
@@ -714,7 +725,7 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        let errorMsg = error.responseJSON.message;
+        let errorMsg = self.getErrorMessage(error);
         reject("Error saving analysis: " + errorMsg + "." )
       })
     })
@@ -729,7 +740,8 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
-        reject("Error updating analysis title " + analysis.id + ": " + error);
+        let errorMsg = self.getErrorMessage(error);
+        reject("Error updating analysis title " + analysis.id + ": " + errorMsg);
       })
     })
 
@@ -744,9 +756,10 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
+        let errorMsg = self.getErrorMessage(error);
         console.log("Error getting variant annotations for project " + project_id)
-        console.log(error)
-        reject(error);
+        console.log(errorMsg)
+        reject(errorMsg);
       })
     })
 
@@ -762,9 +775,10 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
+        let errorMsg = self.getErrorMessage(error);
         console.log("Error creating variant annotation " + annotationName + " for project " + project_id)
-        console.log(error)
-        reject(error);
+        console.log(errorMsg)
+        reject(errorMsg);
       })
     })
   }
@@ -779,9 +793,10 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
+        let errorMsg = self.getErrorMessage(error);
         console.log("Error adding variant annotation value " + annotationValue + " for project " + project_id)
-        console.log(error)
-        reject(error);
+        console.log(errorMsg)
+        reject(errorMsg);
       })
     })
   }
@@ -795,9 +810,10 @@ export default class HubSession {
         resolve(response)
       })
       .fail(error => {
+        let errorMsg = self.getErrorMessage(error);
         console.log("Error deleting variant annotation value" + annotationValue + " for project " + project_id)
-        console.log(error)
-        reject(error);
+        console.log(errorMsg)
+        reject(errorMsg);
       })
     })
   }
