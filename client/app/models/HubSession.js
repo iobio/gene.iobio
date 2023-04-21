@@ -114,32 +114,38 @@ export default class HubSession {
 
                     if (!bypass) {
 
-                      var modelInfo = {
-                        'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
-                        'affectedStatus': foundPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
-                        'sex':            foundPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
-                        'name':           theSample.name,
-                        'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
-                        'vcf':            theSample.files.vcf,
-                        'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
-                        'txt':            theSample.files.txt
-                      }
-
-
-                      if (theSample.files.bam != null) {
-                        modelInfo.bam = theSample.files.bam;
-                        if (theSample.files.bai) {
-                          modelInfo.bai = theSample.files.bai;
+                      self.promiseGetSampleHPOTerms(projectId, theSample.id)
+                      .then(function(hpoTerms) {
+                        var modelInfo = {
+                          'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
+                          'affectedStatus': foundPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
+                          'sex':            foundPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
+                          'name':           theSample.name,
+                          'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
+                          'vcf':            theSample.files.vcf,
+                          'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
+                          'txt':            theSample.files.txt,
+                          'hpoTerms':       hpoTerms
                         }
 
-                      } else if (theSample.files.cram != null) {
-                        modelInfo.bam = theSample.files.cram;
-                        if (theSample.files.crai) {
-                          modelInfo.bai = theSample.files.crai;
-                        }
-                      }
 
-                      modelInfos.push(modelInfo);
+                        if (theSample.files.bam != null) {
+                          modelInfo.bam = theSample.files.bam;
+                          if (theSample.files.bai) {
+                            modelInfo.bai = theSample.files.bai;
+                          }
+
+                        } else if (theSample.files.cram != null) {
+                          modelInfo.bam = theSample.files.cram;
+                          if (theSample.files.crai) {
+                            modelInfo.bai = theSample.files.crai;
+                          }
+                        }
+
+                        modelInfos.push(modelInfo);
+
+                      })
+
                     }
 
                   })
@@ -183,7 +189,7 @@ export default class HubSession {
     })
 
   }
-  
+
   getErrorMessage(error) {
     if (error.hasOwnProperty('responseJSON') && error.responseJSON.hasOwnProperty('message')) {
       return error.responseJSON.message;
@@ -818,6 +824,22 @@ export default class HubSession {
     })
   }
 
+  promiseGetSampleHPOTerms(project_id, sample_id) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getSampleHPOTerms(project_id, sample_id)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        let errorMsg = self.getErrorMessage(error);
+        console.log("Error getting sample HPO terms for project " + project_id + " and sample " + sample_id)
+        console.log(errorMsg)
+        reject(errorMsg);
+      })
+    })
+  }
+
   getAnalysis(projectId, analysisId) {
     let self = this;
     return $.ajax({
@@ -1019,6 +1041,21 @@ export default class HubSession {
       url: self.api + '/projects/' + projectId + '/variants/sets/' + variantSetId + "?include_variant_data=true&include_genotype_data=true",
       data: {
       },
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+
+
+  getSampleHPOTerms(project_id, sample_id) {
+    let self = this;
+
+    return $.ajax({
+          url: self.api + '/projects/' + project_id + '/samples/'+ sample_id + "/hpo-terms",
       type: 'GET',
       contentType: 'application/json',
       headers: {

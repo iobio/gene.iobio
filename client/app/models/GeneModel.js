@@ -18,6 +18,8 @@ class GeneModel {
     this.OMIM_URL                  = "https://api.omim.org/api/";
     this.warnedMissingOMIMApiKey   = false;
 
+    this.HPO_URL                   = "https://hpo.jax.org/api/hpo/gene/"
+
     this.linkTemplates = {
         omim:      { display: 'OMIM',      url: 'https://www.omim.org/search/?search=GENESYMBOL'},
         opentargets:{ display: 'Open Targets',      url: 'https://platform.opentargets.org/target/ENSEMBL-GENE-ID/associations/'},
@@ -68,6 +70,7 @@ class GeneModel {
     this.geneObjects = {};
     this.geneToLatestTranscript = {};
     this.geneToEnsemblId = {};
+    this.geneToHPOTerms = {};
 
 
     this.allKnownGenes = [];
@@ -1029,10 +1032,10 @@ class GeneModel {
               })
              .fail(function(error) {
                 delete me.pendingNCBIRequests[geneName];
-                let msg = "Unable to get PubMed entries for " + geneName;
+                let msg = "Unable to get PubMed entries for <pre>" + geneName + "</pre>";
                 console.log(msg)
                 console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-                me.dispatch.alertIssued("warning", msg, geneName)
+                me.dispatch.alertIssued("info", msg, geneName, [error])
                 reject();
               })
 
@@ -1043,7 +1046,7 @@ class GeneModel {
               let msg = "Unable to get PubMed entries for " + geneName;
               console.log(msg);
               console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-              me.dispatch.alertIssued("warning", msg, geneName)
+              me.dispatch.alertIssued("info", msg, geneName, [error])
               reject();
            })
 
@@ -1112,6 +1115,10 @@ class GeneModel {
           }
         })
         .catch(function(error) {
+          let msg = "Cannot get OMIM entries for gene <pre>" + theGeneName + "</pre>."
+          console.log(msg)
+          console.log(error)
+          self.dispatch.alertIssued('warning', msg, theGeneName)
           reject(error)
         })
 
@@ -1119,6 +1126,38 @@ class GeneModel {
 
     })
 
+  }
+
+  promiseGetHPOTermsPublicAPI(geneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let hpoTerms = self.geneToHPOTerms[geneName];
+      if (hpoTerms) {
+        resolve(hpoTerms)
+      } else {
+        self.promiseGetNCBIGeneSummary(geneName)
+        .then(function(ncbiSummary) {
+          if (ncbiSummary && ncbiSummary.uid) {
+            let url = self.HPO_URL + ncbiSummary.uid;
+            $.ajax( url )
+            .done(function(data) {
+              self.geneToHPOTerms[geneName] = data;
+              resolve(data)
+            })
+            .fail(function(error) {
+              let msg = "Unable to get hpo terms for gene " + geneName;
+              console.log(msg);
+              console.log(error)
+              self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>", geneName, [error])
+              reject(msg + '. Error: ' + error);        
+            })
+          } else {
+            self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>. Unable to lookup NCBI id for gene.", geneName)
+            reject("Unable to get gene HPO terms because lookup of NCBI gene returned empty results.")
+          }
+        })
+      }
+    })
   }
 
   _promiseGetOMIMGene(geneName) {
@@ -1245,6 +1284,10 @@ class GeneModel {
     }
     if (self.geneToEnsemblId && self.geneToEnsemblId.hasOwnProperty(geneName)) {
       delete self.geneToEnsemblId[geneName];
+    }
+
+    if (self.geneToHPOTerms && self.geneToHPOTerms.hasOwnProperty(geneName)) {
+      delete self.geneToHPOTerms[geneName]
     }
 
     if (self.geneObjects && self.geneObjects.hasOwnProperty(geneName)) {
@@ -1375,16 +1418,8 @@ class GeneModel {
 
         fetch(url).then(r => r.json())
         .then((response) => {
-          var phenotypes = response.sort(function(a,b) {
-            if (a.hpo_term_name < b.hpo_term_name) {
-              return -1;
-            } else if (a.hpo_term_name > b.hpo_term_name) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-          me.genePhenotypes[geneName] = phenotypes;
+          
+          me.genePhenotypes[geneName] = response;
 
           resolve([response, geneName]);
         })
@@ -1466,7 +1501,7 @@ class GeneModel {
           }
         })
         .catch((errorThrown) => {
-          console.log("An error occurred when getting transcripts for gene " +  geneName + ".");
+          console.log("An error occurred when getting transcripts for gene <pre>" +  geneName + "</pre>.");
           console.log( "Error: " + errorThrown );
           let msg = "Error " + errorThrown + " occurred when attempting to get transcripts for gene " + geneName;
           reject({'message': msg, 'gene': geneName});

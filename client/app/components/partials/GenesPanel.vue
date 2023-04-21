@@ -72,8 +72,8 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      color: $button-text-color
       visibility: hidden
+      background-color: transparent !important
 
       &.in-progress
         visibility: visible
@@ -81,6 +81,7 @@
       i.material-icons
         font-size: 20px
         padding-right: 3px
+        color: $button-color !important
 
   #analyze-genes-progress
     margin-top: 10px

@@ -15,16 +15,21 @@
   padding-top: 10px
   #pubmed-table
     .v-input.v-text-field
-      max-width: 370px
-      min-width: 370px
+      max-width: 370px !important
+      min-width: 370px !important
     .pubmed-rows
-      max-height: 500px
-      min-height: 500px
-      overflow-y: scroll
-      margin-top: 10px
+      max-height: 500px !important
+      min-height: 500px !important
+      overflow-y: scroll !important
+      margin-top: 10px !important
       font-size: 13px !important
     .v-text-field.v-input
-      margin-top: -10px
+      margin-top: -10px !important
+    .pubmed-row 
+      .pubmed-title
+        min-width: 630px !important
+        max-width: 630px !important
+
 
 
 

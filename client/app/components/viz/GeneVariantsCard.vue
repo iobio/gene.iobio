@@ -92,8 +92,6 @@
 				<span id="gene-name">{{ selectedGene.gene_name}} </span> GENE
 			</div>
 
-
-
 			<div style="display:inline-block;margin-left:10px">
 
 
@@ -114,43 +112,56 @@
 		    		</v-text-field>
 				</div>
 			</div>
-            <gene-links-menu v-if="!isBasicMode"
-                         :selectedGene="selectedGene"
-                         :geneModel="cohortModel.geneModel">
-            </gene-links-menu>
 
-
-
-
-
+      <gene-links-menu v-if="!isBasicMode"
+                   :selectedGene="selectedGene"
+                   :geneModel="cohortModel.geneModel">
+      </gene-links-menu>
 		</div>
 
     <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)" 
       style="display:flex;justify-content:flex-start;margin-top:5px">
-        <gene-omim-table  style="margin-right:30px"
-         v-if="isOMIMPermitted && selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
-         :selectedGene="selectedGene"
-         :geneModel="cohortModel.geneModel">
-        </gene-omim-table>
 
-        <div>
-          <div style="display:flex;height:25px" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
-            <div class="pubmed-table-title">PubMed</div>
-            <gene-pubmed-popup
-            :geneModel="cohortModel.geneModel"
-            :selectedGene="selectedGene"
-            showAll="true">
-            </gene-pubmed-popup>
-          </div>
-          <gene-pubmed-table
-           v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
-           :selectedGene="selectedGene"
-           :geneModel="cohortModel.geneModel"
-           :showSource="true"
-           :showAll="false">
-          </gene-pubmed-table>
+      <!-- HPO Terms -->
+      <gene-hpo-term-table  style="margin-right:20px"
+       v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+       :selectedGene="selectedGene"
+       :geneModel="cohortModel.geneModel"
+       :cohortModel="cohortModel">
+      </gene-hpo-term-table>
 
+      <!-- HPO Diseases -->
+      <gene-hpo-disease-table  style="margin-right:20px"
+       v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+       :selectedGene="selectedGene"
+       :geneModel="cohortModel.geneModel">
+      </gene-hpo-disease-table>
+
+      <!-- OMIM -->
+      <gene-omim-table  style="margin-right:30px"
+       v-if="false && isOMIMPermitted && selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+       :selectedGene="selectedGene"
+       :geneModel="cohortModel.geneModel">
+      </gene-omim-table>
+
+      <!-- PubMed -->
+      <div v-if="false">
+        <div style="display:flex;height:25px" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
+          <div class="pubmed-table-title">PubMed</div>
+          <gene-pubmed-popup
+          :geneModel="cohortModel.geneModel"
+          :selectedGene="selectedGene"
+          showAll="true">
+          </gene-pubmed-popup>
         </div>
+        <gene-pubmed-table
+         v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+         :selectedGene="selectedGene"
+         :geneModel="cohortModel.geneModel"
+         :showSource="true"
+         :showAll="false">
+        </gene-pubmed-table>
+      </div>
 
     </div>
 
@@ -161,12 +172,16 @@
     import GeneOMIMTable        from '../partials/GeneOMIMTable.vue'
     import GenePubMedTable      from '../partials/GenePubMedTable.vue'
     import GenePubMedPopup      from '../partials/GenePubMedPopup.vue'
+    import GeneHPOTermTable     from '../partials/GeneHPOTermTable.vue'
+    import GeneHPODiseaseTable  from '../partials/GeneHPODiseaseTable.vue'
     import GeneLinksMenu        from "../partials/GeneLinksMenu.vue"
     import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
     export default {
         name: 'gene-variants-card',
         components: {
             'gene-omim-table': GeneOMIMTable,
+            'gene-hpo-term-table': GeneHPOTermTable,
+            'gene-hpo-disease-table': GeneHPODiseaseTable,
             'gene-pubmed-table': GenePubMedTable,
             'gene-pubmed-popup': GenePubMedPopup,
             GeneLinksMenu,

@@ -141,7 +141,7 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      color: $button-text-color
+      background-color: transparent !important
       visibility: hidden
 
       &.in-progress
@@ -750,11 +750,12 @@
     height: 22px
     margin-right: 10px
     margin-left: 5px
-    color: $button-color
+    background-color: transparent !important
 
     i.material-icons
       font-size: 20px
       padding-right: 3px  
+      color: $button-color !important
       
 </style>
 

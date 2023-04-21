@@ -74,7 +74,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
     margin-bottom: 0px
     overflow-y: hidden
     padding-bottom: 10px
-    height: calc(100% - 15px)
+    height: calc(100% - 25px)
     overflow-y: scroll
 
     .v-tabs
@@ -731,6 +731,11 @@ nav.toolbar, nav.v-toolbar
       
       <v-spacer></v-spacer>
 
+      <v-btn  class="navbar-icon-button" v-if="" id="patient-button"  @click="onShowPatientPhenotypesDialog(true)" flat 
+        v-tooltip.bottom-left="{content: 'Patient phenotypes'}">
+          <v-icon>sensor_occupied</v-icon>
+      </v-btn>
+
       <v-btn  class="navbar-icon-button" v-if="(appAlerts && appAlerts.length > 0) || (badgeCounts && badgeCounts.coverage)" id="notification-button"  @click="onShowNotificationDrawer" flat 
         v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
         <v-badge right  >
@@ -1134,6 +1139,12 @@ nav.toolbar, nav.v-toolbar
       @coding-variants-only-changed="onCodingVariantsOnlyChange">
     </settings-dialog>
 
+    <patient-phenotypes-dialog
+     v-if="cohortModel && launchedFromHub && cohortModel.isLoaded"
+     :showDialog="showPatientPhenotypesDialog"
+     :cohortModel="cohortModel">
+    </patient-phenotypes-dialog>
+
 
     <v-dialog v-model="showDisclaimer" max-width="400">
         <v-card class="full-width">
@@ -1339,6 +1350,8 @@ import AppIcon             from '../partials/AppIcon.vue'
 import FileChooser         from '../partials/FileChooser.vue'
 import AlertPanel          from '../partials/AlertPanel.vue'
 import SettingsDialog      from '../partials/SettingsDialog.vue'
+import PatientPhenotypesDialog  from '../partials/PatientPhenotypesDialog.vue'
+
 
 export default {
   name: 'navigation',
@@ -1358,7 +1371,8 @@ export default {
     AppIcon,
     FileChooser,
     AlertPanel,
-    SettingsDialog
+    SettingsDialog,
+    PatientPhenotypesDialog
   },
   props: {
     showFilesProp: null,
@@ -1446,7 +1460,8 @@ export default {
 
       analysisFileName: "",
 
-      showSettingsDialog: false
+      showSettingsDialog: false,
+      showPatientPhenotypesDialog: false
 
 
     }
@@ -1650,6 +1665,9 @@ export default {
         this.$emit("hide-settings-dialog")
       }
       this.showSettingsDialog = show;
+    },
+    onShowPatientPhenotypesDialog: function(show) {
+      this.showPatientPhenotypesDialog = show;
     },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)

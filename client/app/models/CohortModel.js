@@ -372,6 +372,10 @@ class CohortModel {
       vm.isBasicMode = self.isBasicMode;
       vm.isEduMode = self.isEduMode;
       vm.isSfariSample = fromSfariProject;
+      // We have patient hpo terms when launching from Mosaic
+      if (modelInfo.hasOwnProperty("hpoTerms")) {
+        vm.hpoTerms = modelInfo.hpoTerms;
+      }
 
       var vcfPromise = null;
       if (modelInfo.vcf) {
@@ -2630,8 +2634,7 @@ class CohortModel {
       var uniqueTranscripts = {};
       if(!intersectedGenes[geneName]){
         intersectedGenes[geneName] = [{}];
-      }
-      if (intersectedGenes[geneName]) {
+      } else  {
         intersectedGenes[geneName].forEach(function(importedVariant) {
           if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
             console.log("No transcript for importedVariant");

@@ -40,6 +40,8 @@ class SampleModel {
     this.affectedStatus = null;
     this.sex = null;
 
+    this.hpoTerms = null;
+
     this.cohort = null;
 
     this.debugMe = false;
