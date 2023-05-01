@@ -122,20 +122,23 @@
     <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)" 
       style="display:flex;justify-content:flex-start;margin-top:5px">
 
-      <!-- HPO Terms -->
-      <gene-hpo-term-table  style="margin-right:20px"
+      <!-- Gene:Phenotypes -->
+      <gene-phenotype-table  style="margin-right:20px"
        v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
        :selectedGene="selectedGene"
        :geneModel="cohortModel.geneModel"
-       :cohortModel="cohortModel">
-      </gene-hpo-term-table>
+       :cohortModel="cohortModel"
+       :highlightMatches="true"
+       :showDetailsButton="true"
+       @show-patient-phenotypes-dialog="onShowPatientGenePhenotypeDialog(true)">
+      </gene-phenotype-table>
 
-      <!-- HPO Diseases -->
-      <gene-hpo-disease-table  style="margin-right:20px"
+      <!-- Gene:Diseases -->
+      <gene-disease-table  style="margin-right:20px"
        v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
        :selectedGene="selectedGene"
        :geneModel="cohortModel.geneModel">
-      </gene-hpo-disease-table>
+      </gene-disease-table>
 
       <!-- OMIM -->
       <gene-omim-table  style="margin-right:30px"
@@ -164,28 +167,40 @@
       </div>
 
     </div>
+    
+    <patient-gene-phenotype-dialog
+         v-if="cohortModel && launchedFromHub && cohortModel.isLoaded"
+         :showDialog="showPatientGenePhenotypeDialog"
+         :cohortModel="cohortModel"
+         :selectedGene="selectedGene"
+         @hide-patient-gene-phenotype-dialog="onShowPatientGenePhenotypeDialog(false)">
+    </patient-gene-phenotype-dialog>
 
 	</div>
+
 </template>
 
 <script>
     import GeneOMIMTable        from '../partials/GeneOMIMTable.vue'
     import GenePubMedTable      from '../partials/GenePubMedTable.vue'
     import GenePubMedPopup      from '../partials/GenePubMedPopup.vue'
-    import GeneHPOTermTable     from '../partials/GeneHPOTermTable.vue'
-    import GeneHPODiseaseTable  from '../partials/GeneHPODiseaseTable.vue'
+    import GenePhenotypeTable     from '../partials/GenePhenotypeTable.vue'
+    import GeneDiseaseTable  from '../partials/GeneDiseaseTable.vue'
     import GeneLinksMenu        from "../partials/GeneLinksMenu.vue"
     import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
+    import PatientGenePhenotypeDialog      from '../partials/PatientGenePhenotypeDialog.vue'
+
     export default {
         name: 'gene-variants-card',
         components: {
             'gene-omim-table': GeneOMIMTable,
-            'gene-hpo-term-table': GeneHPOTermTable,
-            'gene-hpo-disease-table': GeneHPODiseaseTable,
+            'gene-phenotype-table': GenePhenotypeTable,
+            'gene-disease-table': GeneDiseaseTable,
             'gene-pubmed-table': GenePubMedTable,
             'gene-pubmed-popup': GenePubMedPopup,
-            GeneLinksMenu,
-            TranscriptsMenu,
+            'gene-links-menu': GeneLinksMenu,
+            'transcripts-menu': TranscriptsMenu,
+            'patient-gene-phenotype-dialog': PatientGenePhenotypeDialog
         },
         props: {
             selectedGene: null,
@@ -210,7 +225,8 @@
                 noTranscriptsWarning: null,
                 showNoTranscriptsWarning: false,
                 regionBuffer: null,
-                noData: null
+                noData: null,
+                showPatientGenePhenotypeDialog: false
             }
         },
         methods: {
@@ -243,6 +259,9 @@
                 } else {
                     return "";
                 }
+            },
+            onShowPatientGenePhenotypeDialog(show) {
+                this.showPatientGenePhenotypeDialog = show;
             },
             onGeneRegionBufferChange: _.debounce(function (newGeneRegionBuffer) {
                 this.regionBuffer = Math.min(parseInt(newGeneRegionBuffer), 99999);

@@ -731,9 +731,9 @@ nav.toolbar, nav.v-toolbar
       
       <v-spacer></v-spacer>
 
-      <v-btn  class="navbar-icon-button" v-if="" id="patient-button"  @click="onShowPatientPhenotypesDialog(true)" flat 
+      <v-btn  class="navbar-icon-button" v-if="" id="patient-button"  @click="onShowPatientPhenotypeDialog(true)" flat 
         v-tooltip.bottom-left="{content: 'Patient phenotypes'}">
-          <v-icon>sensor_occupied</v-icon>
+          <v-icon style="font-size: 26px;padding-top: 3px;">account_box</v-icon>
       </v-btn>
 
       <v-btn  class="navbar-icon-button" v-if="(appAlerts && appAlerts.length > 0) || (badgeCounts && badgeCounts.coverage)" id="notification-button"  @click="onShowNotificationDrawer" flat 
@@ -1139,11 +1139,12 @@ nav.toolbar, nav.v-toolbar
       @coding-variants-only-changed="onCodingVariantsOnlyChange">
     </settings-dialog>
 
-    <patient-phenotypes-dialog
+    <patient-phenotype-dialog
      v-if="cohortModel && launchedFromHub && cohortModel.isLoaded"
-     :showDialog="showPatientPhenotypesDialog"
-     :cohortModel="cohortModel">
-    </patient-phenotypes-dialog>
+     :showDialog="showPatientPhenotypeDialog"
+     :cohortModel="cohortModel"
+     @hide-patient-phenotypes="onShowPatientPhenotypeDialog(false)">
+    </patient-phenotype-dialog>
 
 
     <v-dialog v-model="showDisclaimer" max-width="400">
@@ -1350,7 +1351,8 @@ import AppIcon             from '../partials/AppIcon.vue'
 import FileChooser         from '../partials/FileChooser.vue'
 import AlertPanel          from '../partials/AlertPanel.vue'
 import SettingsDialog      from '../partials/SettingsDialog.vue'
-import PatientPhenotypesDialog  from '../partials/PatientPhenotypesDialog.vue'
+import PatientPhenotypeDialog  from '../partials/PatientPhenotypeDialog.vue'
+
 
 
 export default {
@@ -1372,7 +1374,7 @@ export default {
     FileChooser,
     AlertPanel,
     SettingsDialog,
-    PatientPhenotypesDialog
+    PatientPhenotypeDialog
   },
   props: {
     showFilesProp: null,
@@ -1461,7 +1463,7 @@ export default {
       analysisFileName: "",
 
       showSettingsDialog: false,
-      showPatientPhenotypesDialog: false
+      showPatientPhenotypeDialog: false
 
 
     }
@@ -1666,8 +1668,8 @@ export default {
       }
       this.showSettingsDialog = show;
     },
-    onShowPatientPhenotypesDialog: function(show) {
-      this.showPatientPhenotypesDialog = show;
+    onShowPatientPhenotypeDialog: function(show) {
+      this.showPatientPhenotypeDialog = show;
     },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)

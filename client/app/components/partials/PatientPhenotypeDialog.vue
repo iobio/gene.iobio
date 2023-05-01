@@ -15,7 +15,7 @@
 
 <template>
     <v-dialog
-    width="500" persistent
+    width="650" persistent
     :close-on-content-click="false"
     v-model="showPatientPhenotypesDialog"
     >
@@ -25,18 +25,22 @@
           <v-btn flat @click="onCancel" class="close-button">
             <v-icon>close</v-icon>
           </v-btn>
-          <v-card-title class="headline" style="padding-top: 10px;">Patient Phenotypes</v-card-title>
+          <v-card-title class="headline" style="padding-top: 10px;">
+              <span>Patient Phenotypes</span>
+          </v-card-title>
         </div>
         <v-divider id="patient-phenotypes-dialog-divider"></v-divider>
         <v-card-text style="padding-bottom: 0px">
           <div class="container">
             <div class="row">
+
               <div class="col-md-12">
-              <patient-hpo-term-table 
-               :cohortModel="cohortModel">
-              </patient-hpo-term-table>
+                <patient-phenotype-table 
+                 :cohortModel="cohortModel">
+                </patient-phenotype-table>
               </div>
             </div>
+        
           </div>
         </v-card-text>
 
@@ -45,16 +49,18 @@
 </template>
 
 <script>
-import PatientHPOTermTable  from '../partials/PatientHPOTermTable.vue'
+import PatientPhenotypeTable  from '../partials/PatientPhenotypeTable.vue'
+
 
 export default {
-  name: 'patient-phenotypes-dialog',
+  name: 'patient-phenotype-dialog',
   components: {
-    'patient-hpo-term-table': PatientHPOTermTable
+    'patient-phenotype-table': PatientPhenotypeTable,
   },
   props: {
     cohortModel: null,
     showDialog: null,
+    selectedGene: null
   },
   data () {
     return {
@@ -66,10 +72,8 @@ export default {
   computed: {
   },
   methods: {
-    onApply: function() {
-      this.showPatientPhenotypesDialog = false;
-    },
     onCancel: function() {
+      this.$emit("hide-patient-phenotypes")
       this.showPatientPhenotypesDialog = false;
     }, 
     loadData: function() {

@@ -36,6 +36,8 @@ class CohortModel {
     this.sampleMap = {};
     this.sampleMapSibs = { affected: [], unaffected: []};
 
+    this.phenotypeEntries = null;
+
     this.mode = 'single';
     this.maxAlleleCount = 0;
     this.affectedInfo = null;
@@ -1066,6 +1068,274 @@ class CohortModel {
       })
     })
 
+  }
+
+  getPatientPhenotypes() {
+    let self = this;
+
+    if (self.phenotypeEntries) {
+      return self.phenotypeEntries
+    } else {
+      self.phenotypeEntries = [];
+      let matchingSampleMap = {};
+
+      // Create a list of unique phenotype terms of the proband and associated family
+      // members
+      self.getCanonicalModels().forEach(function(sampleModel) {
+        let relationship = sampleModel.relationship;
+        if (sampleModel.hpoTerms) {
+          sampleModel.hpoTerms.forEach(function(hpoTerm) {
+
+            let dups = self.phenotypeEntries.filter(function(term) {
+              return term.hpo_id == hpoTerm.hpo_id
+            })
+            // Add to the list of unique phenotype terms 
+            if (dups.length == 0) {
+              self.phenotypeEntries.push(hpoTerm)
+            }
+
+            // Keep track of which samples match to a phenotype term.
+            let rels = matchingSampleMap[hpoTerm.hpo_id];
+            if (rels == null) {
+              rels = [];
+            }
+            rels.push(relationship);
+            matchingSampleMap[hpoTerm.hpo_id] = rels;
+          })
+        }
+      })
+
+      // Now we have a union of all phenotypes of the family; For
+      // each phenotype, keep track which family members have this phenotype
+      // and designate a 'match level' so that terms belonging to the phenotype
+      // appear first, followed by terms belong to the phenotype and other 
+      // family members, followed by phenotype associated with mother, then father,
+      // then siblings.
+      let ordinal = 0;
+      self.phenotypeEntries = self.phenotypeEntries.map(function(phenotypeEntry) {
+        let matchLevel = 99;
+        let matchToken = ""
+        let rels = matchingSampleMap[phenotypeEntry.hpo_id];
+        if (rels.indexOf("proband") >= 0 && rels.length == 1) {
+          matchLevel = 0;
+          matchToken = 'Proband'
+        } else if (rels.indexOf("proband") >= 0 && rels.length > 1) {
+          matchLevel = 1;
+          matchToken = "Proband+"
+        } else {
+          if (rels.indexOf("mother") >= 0 && rels.indexOf("father") >= 0) {
+            matchLevel = 5;
+            matchToken = "Parents"
+          } else if (rels.indexOf("mother") >= 0 && rels.length == 1) {
+            matchLevel = 3;
+            matchToken = "Mother"
+          } else if (rels.indexOf("father") >= 0 && rels.length == 1) {
+            matchLevel = 4;
+            matchToken = "Father";
+          } else if (rels.indexOf("sibling") >= 0 && rels.length == 1) {
+            matchLevel = 6;
+            matchToken = "Sibling"
+          } else if (rels.length > 1) {
+            matchLevel = 2;
+            matchToken = "Family"
+          }
+        }
+        return {'match': matchToken, 
+                'matchLevel': matchLevel, 
+                'hpo_term_id': phenotypeEntry.hpo_id, 
+                'hpo_term_name': phenotypeEntry.label, 
+                'ordinal': ordinal++, 
+                'matchingSamples': rels}
+      })
+      // Now sort the phenotype entries so that terms matching the phenotype
+      // appear in the list before phenotypes matching other family members
+      .sort(function(a,b) {
+        if (a.matchLevel != b.matchLevel) {
+          if (a.matchLevel > b.matchLevel) {
+            return 1;
+          } else if (a.matchLevel < b.matchLevel) {
+            return -1;
+          } 
+        } else {
+          if (a.ordinal < b.ordinal) {
+            return -1
+          } else if (a.ordinal > b.ordinal) {
+            return 1
+          } else {
+            return 0;
+          }
+        }
+      })
+      return self.phenotypeEntries;
+    }
+  }
+
+  promiseGetPatientPhenotypesMatchingGene(geneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let patientPhenotypes = []
+      self.getPatientPhenotypes().forEach(function(hpoEntry) {
+        patientPhenotypes.push($.extend({}, hpoEntry))
+      })
+
+      self.promiseGetGenePhenotypeAssociations(geneName)
+      .then(function(data) {
+
+        let genePhenotypeEntries = data.hpoEntries;
+        let hpoTermToGene = {}
+
+        // Create a map for easy lookup
+        genePhenotypeEntries.forEach(function(hpoEntry) {
+          hpoTermToGene[hpoEntry.ontologyId] = geneName;
+        })
+
+        // Set the "match" field based on whether phenotype is associated
+        // with gene
+        patientPhenotypes.forEach(function(patientPhenotype) {
+          let geneName = hpoTermToGene[patientPhenotype.hpo_term_id]
+          if (geneName) {
+            patientPhenotype.match = "Match"
+          } else {
+            patientPhenotype.match = ""
+          }
+        })
+
+        let sortedPatientPhenotypes = patientPhenotypes.sort(function(a,b) {
+          if (a.match != b.match) {
+            if (a.match.length > 0 && b.match.length == 0) {
+              return -1;
+            } else if (a.match.length == 0 && b.match.length > 0)  {
+              return 1;
+            } 
+          } else if (a.matchLevel != b.matchLevel ){
+            if (a.matchLevel > b.matchLevel) {
+              return 1;
+            } else if (a.matchLevel < b.matchLevel) {
+              return -1;
+            } 
+          } else {
+            if (a.ordinal < b.ordinal) {
+              return -1
+            } else if (a.ordinal > b.ordinal) {
+              return 1
+            } else {
+              return 0;
+            }
+          }
+        })
+        resolve(sortedPatientPhenotypes)
+
+
+      })
+      .catch(function(error) {
+        reject(error)
+      })
+
+
+    })
+  }
+
+  promiseGetGenePhenotypeAssociations(geneName, includePatientMatchesOnly=false) {
+    let self = this;
+
+    return new Promise(function(resolve, reject) {
+      let hasMatches = false;
+      let hpoEntries = [];
+      let hpoTermToSample = {};
+      self.getCanonicalModels().forEach(function(sampleModel) {
+        let relationship = sampleModel.relationship;
+        if (sampleModel.hpoTerms) {
+          sampleModel.hpoTerms.forEach(function(hpoTerm) {
+            let rels = hpoTermToSample[hpoTerm.hpo_id];
+            if (rels == null) {
+              rels = [];
+            }
+            rels.push(relationship);
+            hpoTermToSample[hpoTerm.hpo_id] = rels;
+          })
+        }
+      })
+
+      self.geneModel.promiseGetGenePhenotypes(geneName)
+      .then(function(data) {
+
+        let hpoTerms = data[0];
+        let idx = 0;
+        hpoEntries = hpoTerms.map(function(hpoTerm) {
+          let rels = hpoTermToSample[hpoTerm.hpo_term_id];
+          let matchToken = null;
+          let matchLevel = 99;
+          if (rels == null) {
+            matchToken = ""
+          } else if (rels.indexOf("proband") >= 0 && rels.length == 1) {
+            matchToken = "Proband"
+            matchLevel = 0
+          } else if (rels.indexOf("proband") >= 0 && rels.length > 1) {
+            matchToken = "Proband+"
+            matchLevel = 1
+          } else {
+            if (rels.indexOf("mother") >= 0 && rels.indexOf("father") >= 0) {
+              matchToken = "Parents"
+              matchLevel = 2;
+            } else if (rels.indexOf("mother") >= 0 && rels.length == 1) {
+              matchToken = "Mother"
+              matchLevel = 2
+            } else if (rels.indexOf("father") >= 0 && rels.length == 1) {
+              matchToken = "Father"
+              matchLevel = 2
+            } else if (rels.indexOf("sibling") >= 0 && rels.length == 1) {
+              matchToken = "Child"
+              matchLevel = 2
+            } else if (rels.length > 1) {
+              matchToken = "Family"
+              matchLevel = 2
+            }
+          }
+          if (matchToken != "") {
+            hasMatches = true;
+          }
+          idx++;
+          return {'match': matchToken, 
+                  'matchLevel': matchLevel, 
+                  'ontologyId': hpoTerm.hpo_term_id, 
+                  'name': hpoTerm.hpo_term_name, 
+                  'matchingSamples': rels,
+                  'ordinal': idx}
+        })
+        .sort(function(a,b) {
+          if (a.matchLevel != b.matchLevel) {
+            if (a.matchLevel > b.matchLevel) {
+              return 1;
+            } else if (a.matchLevel < b.matchLevel) {
+              return -1;
+            } 
+          } else {
+            if (a.ordinal < b.ordinal) {
+              return -1
+            } else if (a.ordinal > b.ordinal) {
+              return 1
+            } else {
+              return 0;
+            }
+          }
+        })
+        .filter(function(hpoEntry) {
+          if (includePatientMatchesOnly) {
+            return hpoEntry.match != "";
+          } else {
+            return true;
+          }
+        })
+        resolve({'hpoEntries': hpoEntries, 'hasMatches': hasMatches, 'gene': geneName})
+
+      })
+      .catch(function(error) {
+        let msg = "Cannot get HPO terms for gene " + geneName;
+        console.log(msg)
+        console.log(error)
+        reject(msg)
+      })
+    })
   }
 
 
