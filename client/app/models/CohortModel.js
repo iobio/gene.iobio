@@ -3027,14 +3027,49 @@ class CohortModel {
         reject('No gene name supplied to promiseGetCddrcEntries');
       }
 
+      // Check if we've already cached this info
       if (self.cddrcEntries[geneName]) {
         resolve(self.cddrcEntries[geneName]);
       }
 
       let cddrcList = [];
-      // todo: do call to orthodb backend service
-      // todo: process ensembl ids into objects respective to species (cddrcList)
-      // todo: also put ensembl ids into array to send to mosaic api
+
+      // Get orthologs for gene
+      let args = {
+        geneName: geneName,
+        speciesIds: null,
+        taxonLevelId: null
+      }
+      self.geneModel.promiseGetOrthologs(args)
+          .then(orthologIds => {
+            if (orthologIds.length > 0) {
+              const geneSetName = process.env.CDDRC_GENE_SET_ID; // todo: figure out agreed upon name
+              if (!geneSetName) {
+                reject("No CDDRC gene set name variable provided in .env file. Please update .env " +
+                    "file and try again.")
+              }
+              self.hubSession.promiseGetProjectIdsByGeneSet(orthologIds, geneSetName)
+                  .then(payload => {
+                    // todo: this is going to change to a map of ensembl_id: [project_ids] and gene_name: [project_ids]
+                    let projectIds = payload.project_ids;
+                    console.log(projectIds);
+
+                    let ensemblIds = payload.ensembl_ids;
+                    ensemblIds.forEach(ensemblId => {
+                      let projectIds = payload[ensemblId].project_ids;
+                      projectIds.forEach(projectId => {
+                        // todo: format into return object like below
+                      })
+                    })
+                  })
+                  .catch(err => {
+                    reject("Could not get project IDs from Mosaic for the orthologs " + orthologIds.join(",") + ": " + err);
+                  })
+            }
+          })
+          .catch(err => {
+            reject("Could not get orthologs for " + geneName + ": " + err);
+          })
 
       if (geneName === 'RAI1') {
         cddrcList = [

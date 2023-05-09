@@ -1255,8 +1255,8 @@ export default {
         let translator = new Translator(self.globalApp, glyph);
         let genericAnnotation = new GenericAnnotation(glyph);
 
-        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage, 
-          self.launchedFromHub, self.genePanels);
+        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage,
+            self.launchedFromHub, self.genePanels, self.endpoint);
         self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
         self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
         self.geneModel.setAllKnownGenes(self.allGenes);
@@ -3953,10 +3953,15 @@ export default {
         self.globalApp.initServices(self.launchedFromHub );
       }
 
+      const eutilsKey = process.env.EUTILS_KEY;
+      if (!eutilsKey) {
+        console.log("No EUTILS key found in environment file. Any backend calls utilizing EUTILS may not function correctly...");
+      }
       self.cohortModel.endpoint = new EndpointCmd(self.globalApp,
           self.cacheHelper.launchTimestamp,
           self.genomeBuildHelper,
-          self.globalApp.utility.getHumanRefNames
+          self.globalApp.utility.getHumanRefNames,
+          eutilsKey
       );
 
     },

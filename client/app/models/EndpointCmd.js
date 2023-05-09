@@ -2,7 +2,7 @@ import { Client } from 'iobio-api-client';
 
 export default class EndpointCmd {
 
-  constructor(globalApp, launchTimestamp, genomeBuildHelper, getHumanRefNamesFunc) {
+  constructor(globalApp, launchTimestamp, genomeBuildHelper, getHumanRefNamesFunc, eutilsKey) {
     this.globalApp         = globalApp;
     this.launchTimestamp   = launchTimestamp;
     this.genomeBuildHelper = genomeBuildHelper;
@@ -23,7 +23,8 @@ export default class EndpointCmd {
       // the dev server.
       //this.api = new Client( 'https://mosaic.chpc.utah.edu/gru-dev-9002');
 
-      this.api = new Client(httpScheme + process.env.IOBIO_BACKEND);
+      // todo: change back before commit and take out of env file
+      this.api = new Client(httpScheme + process.env.IOBIO_DEV_BACKEND);
     }
 
     // iobio services
@@ -46,6 +47,7 @@ export default class EndpointCmd {
     this.IOBIO.knownvariants           = this.globalApp.IOBIO_SERVICES  + "knownvariants/";
 
     this.gruBackend = true;
+    this.eutilsKey = eutilsKey;
   }
 
 
@@ -124,9 +126,9 @@ export default class EndpointCmd {
         let vepCustom = null;
         if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
             // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
-            gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+            let gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
                 "genomes");
-            gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+            let gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
                 "exomes");
             vepCustom = "-custom "
                 + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
@@ -176,9 +178,9 @@ export default class EndpointCmd {
             if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
 
               // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
-              gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+              let gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
                "genomes");
-              gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+              let gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
                 "exomes");
 
 
@@ -428,6 +430,27 @@ export default class EndpointCmd {
               alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
 
                 .setHeader("Fatal Error");
+            });
+            return cmd;
+        }
+    }
+
+    getOrthologs(geneName, speciesIds, taxonLevelId) {
+        const me = this;
+        let eutilsKey = this.eutilsKey;
+
+        if (this.gruBackend) {
+            let cmd = this.api.streamCommand('getOrthologs', {
+                geneName,
+                speciesIds,
+                taxonLevelId,
+                eutilsKey
+            });
+
+            cmd.on('error', function(error) {
+                let msg = "Could not get orthologs for : <code>" + geneName + "</code>";
+                alertify.alert("<div class='pb-2 dark-text-important'>"+   msg +  "</div>" + me.helpMsg)
+                    .setHeader("Fatal Error");
             });
             return cmd;
         }

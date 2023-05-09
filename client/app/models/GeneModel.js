@@ -1,9 +1,10 @@
 class GeneModel {
-  constructor(globalApp, limitGenes, launchedFromHub, genePanels) {
+  constructor(globalApp, limitGenes, launchedFromHub, genePanels, endpoint) {
 
     this.globalApp                 = globalApp;
     this.limitGenes                = limitGenes;
     this.launchedFromHub = launchedFromHub;
+    this.endpoint = endpoint;
     this.phenolyzerServer          = "https://services.backend.iobio.io/phenolyzer/";
 
     this.NCBI_GENE_SEARCH_URL      = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&usehistory=y&retmode=json";
@@ -12,7 +13,7 @@ class GeneModel {
 
     this.NCBI_PUBMED_SEARCH_URL    = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&usehistory=y&retmode=json";
     this.NCBI_PUBMED_SUMMARY_URL   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
-    
+
     this.ENSEMBL_GENE_URL          = "https://rest.ensembl.org/xrefs/symbol/homo_sapiens/GENESYMBOL?content-type=application/json"
     this.ENSEMBL_LOOKUP_BY_ID      = "https://rest.ensembl.org/xrefs/id/ENSEMBL-GENE-ID?content-type=application/json"
     this.OMIM_URL                  = "https://api.omim.org/api/";
@@ -131,7 +132,7 @@ class GeneModel {
       self.candidateGenes[gene] = true;
     })
   }
-  
+
   getCandidateGenes() {
     let self = this;
     return Object.keys(self.candidateGenes);
@@ -715,7 +716,7 @@ class GeneModel {
       canonical.canonical_reason = ''
       if (canonical.is_mane_select && canonical.is_mane_select == 'true') {
         canonical.canonical_reason = 'MANE SELECT'
-      }         
+      }
     }
     return canonical;
   }
@@ -977,7 +978,7 @@ class GeneModel {
           var pubMedEntries = [];
           var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title/abstract]";
           me.pendingNCBIRequests[geneName] = true;
-  
+
           $.ajax( searchUrl )
            .done(function(data) {
 
@@ -989,7 +990,7 @@ class GeneModel {
               $.ajax( summaryUrl )
               .done(function(sumData) {
                 delete me.pendingNCBIRequests[geneName];
-  
+
                 if (sumData.result != null && sumData.result.uids && sumData.result.uids.length > 0) {
                   sumData.result.uids.forEach(function(uid) {
                     var entry = sumData.result[uid];
@@ -1025,7 +1026,7 @@ class GeneModel {
            .fail(function(error) {
 
               delete me.pendingNCBIRequests[geneName];
-  
+
               let msg = "Unable to get PubMed entries for " + geneName;
               //alertify.alert("<div class='pb-2 dark-text-important'>" +  msg +  "</div>  <div class='pb-2' font-italic>Please email <a href='mailto: iobioproject@gmail.com'>iobioproject@gmail.com</a> for help resolving this issue.</div>")
               // .setHeader("Warning");
@@ -1036,7 +1037,7 @@ class GeneModel {
               reject();
            })
 
-         }, 
+         },
          (Object.keys(me.pendingNCBIRequests).length > 0 ? 5000 : 3000));
 
       }
@@ -1085,8 +1086,8 @@ class GeneModel {
               let p = self._promiseGetOMIMClinicalSynopsis(data.geneName, phenotype)
               .then(function(data) {
                 omimEntries.push(data);
-              })      
-              promises.push(p)      
+              })
+              promises.push(p)
             })
             Promise.all(promises)
             .then(function() {
@@ -1118,7 +1119,7 @@ class GeneModel {
       if (apiKey == null || apiKey == "") {
         if (!self.warnedMissingOMIMApiKey) {
           alertify.alert("Warning", "Unable to access OMIM.  API key is required in env.")
-          self.warnedMissingOMIMApiKey = true;          
+          self.warnedMissingOMIMApiKey = true;
         }
         resolve();
       } else {
@@ -1134,9 +1135,9 @@ class GeneModel {
           .done(function(data) {
             let mimNumber = null;
             let phenotypes = null;
-            if (data 
-              && data.omim.searchResponse 
-              && data.omim.searchResponse.geneMapList 
+            if (data
+              && data.omim.searchResponse
+              && data.omim.searchResponse.geneMapList
               && data.omim.searchResponse.geneMapList.length > 0) {
               let geneMap = data.omim.searchResponse.geneMapList[0].geneMap;
               mimNumber = geneMap.mimNumber;
@@ -1150,7 +1151,7 @@ class GeneModel {
             else {
               reject("No OMIM entry found for gene " + geneName)
             }
-          
+
           })
           .fail(function(error) {
               let msg = "Unable to get phenotype mim number OMIM " + url;
@@ -1158,7 +1159,7 @@ class GeneModel {
               console.log(error)
               reject(msg + '. Error: ' + error);
           })
-        
+
       }
 
     })
@@ -1180,7 +1181,7 @@ class GeneModel {
           let clinicalSynopsis = null;
           if (data && data.omim.clinicalSynopsisList && data.omim.clinicalSynopsisList.length > 0) {
             clinicalSynopsis = data.omim.clinicalSynopsisList[0].clinicalSynopsis;
-          } 
+          }
           resolve({geneName: geneName, phenotype: phenotype, clinicalSynopsis: clinicalSynopsis});
         })
         .fail(function(error) {
@@ -1287,7 +1288,7 @@ class GeneModel {
               Promise.all(lookupPromises).then(function() {
                 if (matchingEnsemblGeneId) {
                   self.geneToEnsemblId[geneName] = matchingEnsemblGeneId;
-                  resolve({geneName: geneName, ensemblGeneId: matchingEnsemblGeneId});                  
+                  resolve({geneName: geneName, ensemblGeneId: matchingEnsemblGeneId});
                 } else {
                   let msg = "Unable to find ensembl gene id that matches gene name " + geneName;
                   console.log(msg);
@@ -1342,7 +1343,7 @@ class GeneModel {
             reject(msg + '. Error: ' + error);
       })
     })
-  }  
+  }
 
   promiseGetGenePhenotypes(geneName) {
     var me = this;
@@ -2063,7 +2064,7 @@ class GeneModel {
     }
 
   }
-  
+
   setSourceForGenes(genes, source) {
     let self = this;
     let sourceIndicatorMap = {
@@ -2095,12 +2096,84 @@ class GeneModel {
       }
     })
   }
-  
+
   getSourceForGenes() {
     let self = this;
     return self.genesAssociatedWithSource;
   }
 
+  // Convenience wrapper
+  promiseGetOrthologs(args) {
+    const self = this;
+    return new Promise((resolve, reject) => {
+      self.getOrthologs(args, (success, data) => {
+        if (!success) {
+          console.log("There was an error retrieving orthologs");
+          reject(data);
+        } else {
+          resolve(data);
+        }
+      })
+    });
+  }
+
+  /* Returns Ensembl IDs corresponding to the provided human gene name, in the provided species.
+   * If no species IDs provided, defaults to zebrafish and mouse for ortholog lookup, along
+   * with Vertebrata taxon level (because Chordata did not work in OrthoDB for some reason).
+   * If new taxon level is used, highly recommend testing with orthoDB first, or just safely
+   * using Eukaryota level instead. */
+  getOrthologs(args, callback) {
+    const self = this;
+
+    let geneName = args["geneName"];
+    let speciesIds = args["speciesIds"];
+    let taxonLevelId = args["taxonLevelId"];
+
+    const ZEBRAFISH_EUTILS_ID = 7955;
+    const MOUSE_EUTILS_ID = 10090;
+    const HUMAN_EUTILS_ID = 9606;
+    const VERTEBRATA_TAXON_ID = 7742;   // This is the narrowest level of convergence between zebrafish, mouse, and human
+    const EUKARYOTA_TAXON_ID = 2759;    // This is probably the narrowest level encompassing any organism we'd want to find orthologs for
+
+    // Main use case, no species ids provided
+    if (!speciesIds || speciesIds.length === 0) {
+      speciesIds = [ZEBRAFISH_EUTILS_ID, MOUSE_EUTILS_ID, HUMAN_EUTILS_ID];
+      taxonLevelId = VERTEBRATA_TAXON_ID;
+    } else if (!taxonLevelId || taxonLevelId === "") {
+      // We provided some species, but not sure of taxon level
+      // Catch all Eukaryota is probably a safe bet
+      taxonLevelId = EUKARYOTA_TAXON_ID;
+    }
+
+    let cmd = self.endpoint.getOrthologs(geneName, speciesIds, taxonLevelId);
+    let success = null;
+    let orthoData = "";
+    cmd.on('data', function(data) {
+      if (data == null) {
+        return;
+      }
+      orthoData += data;
+    });
+
+    cmd.on('end', function() {
+      if (success == null) {
+        success = true;
+      }
+      if (callback) {
+        callback(success, orthoData);
+      }
+    });
+
+    cmd.on('error', function(error) {
+      if (success == null) {
+        success = false;
+        if (callback) {
+          callback(success, error);
+        }
+      }
+    });
+    cmd.run();
+  }
 }
 
 

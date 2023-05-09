@@ -812,6 +812,19 @@ export default class HubSession {
 
   }
 
+  promiseGetProjectIdsByGeneSet(ensemblIds, geneSetName) {
+    const self = this;
+    return new Promise(function(resolve, reject) {
+      self.getProjectIdsByGeneSet(ensemblIds, geneSetName)
+          .done(response => {
+            resolve(response);
+          })
+          .fail(error => {
+            reject("Error getting project ids associated with ensembl ids: " + error);
+          })
+    })
+  }
+
   getAnalysis(projectId, analysisId) {
     let self = this;
     return $.ajax({
@@ -921,6 +934,26 @@ export default class HubSession {
     let self = this;
     return $.ajax({
       url: self.api + '/projects/' + projectId + '/variants/sets/' + variantSetId + "?include_variant_data=true&include_genotype_data=true",
+      data: {
+      },
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+  getProjectIdsByGeneSet(ensemblIds, geneSetName, include_joinable = true) {
+    const self = this;
+
+    let ensemblIdString = "";
+    ensemblIds.forEach(ensemblId => {
+      ensemblIdString += "&ensembl_ids[]=" + ensemblId;
+    });
+
+    return $.ajax({
+      url: self.api + '/project-ids-by-genes/gene_set_name=' + geneSetName + ensemblIdString + '&include_joinable=' + include_joinable,
       data: {
       },
       type: 'GET',
