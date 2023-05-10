@@ -1152,7 +1152,7 @@ class GeneModel {
               reject(msg + '. Error: ' + error);        
             })
           } else {
-            self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>. Unable to lookup NCBI id for gene.", geneName)
+            self.dispatch.alertIssued("info", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>. Unable to lookup NCBI id for gene.", geneName)
             reject("Unable to get gene HPO terms because lookup of NCBI gene returned empty results.")
           }
         })

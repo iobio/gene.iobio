@@ -4,6 +4,7 @@
 
 #hpo-term-table
   min-width: 450px
+
   .title-row
     display: flex
     height: 25px
@@ -11,6 +12,7 @@
 
     .table-title
       color: $app-color
+      margin-right: 10px
     .count
       display: inline-block
       font-size: 12px
@@ -71,7 +73,7 @@
     height: 26px !important
     background-color: white !important
     margin: 0px
-    padding-left: 10px
+    padding-left: 0px
     padding-right: 10px
     color: $link-color !important
     margin-left: 41px
@@ -89,21 +91,21 @@
 
   <div id="hpo-term-table">
     <div class="title-row">
-      <div class="table-title">
+      <div  v-if="showTitle" class="table-title">
         {{ titleText ? titleText : 'Phenotype Associations' }}
       </div>
-      <v-badge v-if="entryCount != ''" class="count entry-count">
+      <v-badge v-if="showTitle && entryCount != ''" class="count entry-count" style="margin-right:40px">
         <span v-if="entryCount != ''" slot="badge">
            {{ entryCount }} 
         </span>
       </v-badge>
-      <v-btn v-if="showDetailsButton" style="margin-left:25px" flat @click="$emit('show-patient-phenotypes-dialog', true)" id="phenotype-details-button">
+      <v-btn v-if="showDetailsButton" style="margin-left:0px" flat @click="$emit('show-patient-phenotypes-dialog', true)" id="phenotype-details-button">
         <v-icon style="padding-right:3px;">account_box</v-icon>
         Details...
       </v-btn>
 
     </div>
-    <div  style="max-height:90px;overflow-y:scroll;padding-top:5px">
+    <div  class="hpo-table-body" style="padding-top:5px">
       <div class="hpo-row patient-match" v-for="entry in hpoEntries" :key="entry.ontologyId">
         <v-chip v-if="highlightMatches  && entry.match != ''" :class="`match-chip match-level-` + entry.matchLevel">
           {{ entry.match }}
@@ -133,12 +135,23 @@ export default {
   components: {
   },
   props: {
-    geneModel: null,
+    // When initialized, the data has been passed in as a prop; otherwise,
+    // the list is generated get the getHPOEntries() method.
+    genePatientPhenotypes: null,  
+
     selectedGene: null,
+    geneModel: null,
     cohortModel: null,
+
+    // Do we want to show a chip in the right hand column that indicates that a
+    // phenotype term listed for the gene is also listed for the proband (or family members)
     highlightMatches: null,
+
+    // Show the details button to the right of the title table. 
     showDetailsButton: true,
-    titleText: null
+
+    titleText: null,
+    showTitle: null
   },
   data () {
     return {
@@ -153,21 +166,29 @@ export default {
       let self = this;
       self.entryCount = "";
       self.hasMatches = false;
-      self.hpoEntries = [];
 
-      self.cohortModel.promiseGetGenePhenotypeAssociations(self.selectedGene.gene_name)
-      .then(function(data) {
-        self.hasMatches = data.hasMatches;
-        self.hpoEntries = data.hpoEntries;
-
+      if (self.genePatientPhenotypes) {
+        self.hpoEntries = self.genePatientPhenotypes;
         self.entryCount = self.hpoEntries.length > 0 ? self.hpoEntries.length : ""
+        self.hasMatches = self.hpoEntries.filter(function(hpoEntry) {
+          return hpoEntry.match != ""
+        }).length > 0;
 
-      })
-      .catch(function(error) {
+      } else {
         self.hpoEntries = [];
-      })
 
+        self.cohortModel.promiseGetGenePhenotypeAssociations(self.selectedGene.gene_name)
+        .then(function(data) {
+          self.hasMatches = data.hasMatches;
+          self.hpoEntries = data.hpoEntries;
+          self.entryCount = self.hpoEntries.length > 0 ? self.hpoEntries.length : ""
 
+        })
+        .catch(function(error) {
+          self.hpoEntries = [];
+        })
+
+      }
 
     },
     getEntryHref: function(ontologyId) {

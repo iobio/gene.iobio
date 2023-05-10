@@ -84,6 +84,16 @@
     justify-content: space-around
     padding-top: 10px
 
+    #hpo-term-table 
+      .hpo-row
+        .hpo-launch
+          min-width: 80px 
+          max-width: 80px
+        .hpo-name 
+          min-width: 100px
+          max-width: 100px
+        .match-chip
+          margin-right: 5px
 
 
     #conservation-track
@@ -538,12 +548,25 @@
           </div>
 
       </div>
-      <div class="variant-inspect-column " v-if="selectedVariant && showGenePhenotypes" >
-          <div class="variant-column-header">
+      <div class="variant-inspect-column " v-if="selectedVariant && (showGenePhenotypes || matchingGenePhenotypes.length > 0)" style="min-width:250px;max-width:250px" >
+          <div class="variant-column-header" >
             Gene:Phenotype Associations
             <v-divider></v-divider>
           </div>
+          <div v-if="matchingGenePhenotypes.length > 0">
+            <gene-phenotype-table 
+                 :selectedGene="selectedGene"
+                 :geneModel="cohortModel.geneModel"
+                 :cohortModel="cohortModel"
+                 :highlightMatches="true"
+                 :showDetailsButton="true"
+                 :genePatientPhenotypes="matchingGenePhenotypes"
+                 :showTitle="false"
+                 @show-patient-phenotypes-dialog="onShowPatientGenePhenotypeDialog(true)">
+            </gene-phenotype-table>
+          </div>
           <div v-if="genePhenotypeHits && genePhenotypeHits!==null && genePhenotypeHits.length" >
+            <div>Phenotype based search hits</div>
             <div v-for="(geneHit, index) in genePhenotypeHits.slice(0,3)" :key="geneHit.key" class="variant-row" style="flex-flow:column">
               <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
                 <div>
@@ -562,7 +585,7 @@
                   </span>
                 </div>
               </div>
-            </div>
+            </div>            
           </div>
           <div v-if="genePhenotypeHits!==null && genePhenotypeHits.length>=4">
             <v-btn id="show-more-gene-association-button"
@@ -785,6 +808,13 @@
       </div>
 
     </div>
+    
+    <patient-gene-phenotype-dialog
+         :showDialog="showPatientGenePhenotypeDialog"
+         :cohortModel="cohortModel"
+         :selectedGene="selectedGene"
+         @hide-patient-gene-phenotype-dialog="onShowPatientGenePhenotypeDialog(false)">
+    </patient-gene-phenotype-dialog>
 
   </v-card>
 
@@ -809,6 +839,8 @@ import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
 import ConservationScoresViz    from "../viz/ConservationScoresViz.vue"
 import MultialignSeqViz         from "../viz/MultialignSeqViz.vue"
 import GeneAssociationsDialog   from "../partials/GeneAssociationsDialog.vue"
+import GenePhenotypeTable       from "../partials/GenePhenotypeTable.vue"
+import PatientGenePhenotypeDialog      from '../partials/PatientGenePhenotypeDialog.vue'
 
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
@@ -835,6 +867,8 @@ export default {
     ConservationScoresViz,
     MultialignSeqViz,
     GeneAssociationsDialog,
+    GenePhenotypeTable,
+    'patient-gene-phenotype-dialog': PatientGenePhenotypeDialog
 
   },
   props: {
@@ -924,7 +958,11 @@ export default {
         'vepAf.gnomAD.AF'           : 'gnomAD (exomes only) allele freq'
       },
 
-      interpretation: null
+      interpretation: null,
+
+      matchingGenePhenotypes: [],
+
+      showPatientGenePhenotypeDialog: false
       
 
     }
@@ -940,7 +978,9 @@ export default {
       this.refreshSelectedVariantInfo();
     },
 
-
+    onShowPatientGenePhenotypeDialog(show) {
+      this.showPatientGenePhenotypeDialog = show;
+    },
 
 
       refreshSelectedVariantInfo: function() {
@@ -1157,7 +1197,13 @@ export default {
         self.initGenePhenotypeHits();
         self.promiseInitCoverage()
         .then(function() {
-          self.showMultiAlignments();
+          return self.showMultiAlignments();
+        })
+        .then(function() {
+          self.cohortModel.promiseGetGenePhenotypeAssociations(self.selectedGene.gene_name, true)
+          .then(function(data) {
+            self.matchingGenePhenotypes = data.hpoEntries;
+          })
         })
       }
     },
@@ -1628,6 +1674,9 @@ export default {
         msg += (additionalText ? additionalText : "");
         return msg;
       }
+    },
+    refreshVariantInterpretation: function() {
+      this.interpretation = this.selectedVariant.interpretation;
     }
   },
 
@@ -1959,9 +2008,7 @@ export default {
       }
     },
 
-    refreshVariantInterpretation: function() {
-      this.interpretation = this.selectedVariant.interpretation;
-    }
+
   },
 
   watch: {
@@ -2007,8 +2054,7 @@ export default {
         // Capitalize first letter
         return buf.charAt(0).toUpperCase() + buf.slice(1);
       }
-    },
-
+    }
 
 
   },

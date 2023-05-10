@@ -64,7 +64,7 @@
         </span>
       </v-badge>
     </div>
-    <div  style="max-height:108px;min-height:108px;overflow-y:scroll;padding-top:5px">
+    <div  class="disease-table-body" style="padding-top:5px">
       <div class="hpo-row" v-for="entry in entries" :key="entry.diseaseId">
           <span class="hpo-launch" >
             <a :href="entry.url" target="_hpo">

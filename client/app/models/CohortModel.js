@@ -1204,7 +1204,7 @@ class CohortModel {
 
           // Set the "match" field based on whether phenotype is associated
           // with gene
-          patientPhenotypes.forEach(function(patientPhenotype) {
+          patientPhenotypeEntries.forEach(function(patientPhenotype) {
             let geneName = hpoTermToGene[patientPhenotype.hpo_term_id]
             if (geneName) {
               patientPhenotype.match = "Match"
@@ -1216,7 +1216,7 @@ class CohortModel {
           // Sort the patient phenotypes so that the proband phenotypes matching
           // the gene phenotype show first, then phenotypes for other family members
           // that match the gene phenotype, then unmatched phenotypes.
-          let sortedPatientPhenotypes = patientPhenotypes.sort(function(a,b) {
+          let sortedPatientPhenotypes = patientPhenotypeEntries.sort(function(a,b) {
             if (a.match != b.match) {
               if (a.match.length > 0 && b.match.length == 0) {
                 return -1;
@@ -3064,64 +3064,89 @@ class CohortModel {
   /* 
    *  Create a structure that organizes variants: filter -> genes -> variants
    */
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, variant, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
+  promiseOrganizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, variant, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
     let self = this;
 
 
+    return new Promise(function(resolve, reject) {
+      let filters = [];
+      for (var filterName in self.filterModel.flagCriteria) {
+        if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
+          let flagCriteria = self.filterModel.flagCriteria[filterName];
+          let include = true;
 
-    let filters = [];
-    for (var filterName in self.filterModel.flagCriteria) {
-      if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
-        let flagCriteria = self.filterModel.flagCriteria[filterName];
-        let include = true;
+          if (!options.includeReviewed && filterName == 'reviewed') {
+            include = false;
+          }
 
-        if (!options.includeReviewed && filterName == 'reviewed') {
-          include = false;
-        }
+          if (include) {
+            var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
 
-        if (include) {
-          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
-
-          if (sortedGenes.length > 0 || options.includeAll) {
-            filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
+            if (sortedGenes.length > 0 || options.includeAll) {
+              filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
+            }
           }
         }
       }
-    }
 
-    let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
-   
-      if (filterObject1.genes.length > 0 && filterObject2.genes.length > 0) {
-        return filterObject1.filter.order > filterObject2.filter.order;
-      } else if (filterObject1.genes.length > 0) {
-        return -1;
-      } else if (filterObject2.genes.length > 0) {
-        return 1;
-      } else {
-        return filterObject1.filter.order > filterObject2.filter.order;
-      }
-   
-    })
+      let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
+     
+        if (filterObject1.genes.length > 0 && filterObject2.genes.length > 0) {
+          return filterObject1.filter.order > filterObject2.filter.order;
+        } else if (filterObject1.genes.length > 0) {
+          return -1;
+        } else if (filterObject2.genes.length > 0) {
+          return 1;
+        } else {
+          return filterObject1.filter.order > filterObject2.filter.order;
+        }
+     
+      })
 
-    sortedFilters.forEach(function(filterObject) {
-      filterObject.variantCount = 0;
-      var variantIndex = 1;
-      filterObject.genes.forEach(function(geneList) {
+      sortedFilters.forEach(function(filterObject) {
+        filterObject.variantCount = 0;
+        var variantIndex = 1;
+        filterObject.genes.forEach(function(geneList) {
 
-        // Sort the variants according to the Ranked Variants table features
-        self.featureMatrixModel.setFeaturesForVariants(geneList.variants);
-        geneList.variants = self.sortVariants(geneList.variants)
+          // Sort the variants according to the Ranked Variants table features
+          self.featureMatrixModel.setFeaturesForVariants(geneList.variants);
+          geneList.variants = self.sortVariants(geneList.variants)
 
 
-        geneList.variants.forEach(function(variant) {
-          variant.ordinalFilter = variantIndex++;
-          filterObject.variantCount++;
+          geneList.variants.forEach(function(variant) {
+            variant.ordinalFilter = variantIndex++;
+            filterObject.variantCount++;
+          })
+
         })
+      })
 
+      let geneToPhenotypes = {}
+      let promises = [];
+      sortedFilters.forEach(function(filterObject) {
+        filterObject.genes.forEach(function(geneList) {
+          let p = self.promiseGetGenePhenotypeAssociations(geneList.gene.gene_name, true)
+          .then(function(data) {
+            geneToPhenotypes[data.gene] = data.hpoEntries;
+          })
+          promises.push(p)
+
+        })
+      })
+
+      Promise.all(promises)
+      .then(function() {
+        sortedFilters.forEach(function(filterObject) {
+          filterObject.genes.forEach(function(geneList) {
+            geneList.matchingPhenotypes = geneToPhenotypes[geneList.gene.gene_name]
+          })
+        })
+        resolve(sortedFilters)
+      })
+      .catch(function(error) {
+        reject(error)
       })
     })
-    return sortedFilters;
-
   }
 
   getFlaggedVariant(theVariant) {

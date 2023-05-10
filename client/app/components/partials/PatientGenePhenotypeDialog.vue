@@ -64,6 +64,7 @@
                  :cohortModel="cohortModel"
                  :highlightMatches="false"
                  :showDetailsButton="false"
+                 :showTitle="true"
                  :titleText="selectedGene.gene_name + ` Phenotype Associations`">
                 </gene-phenotype-table>
               </div>

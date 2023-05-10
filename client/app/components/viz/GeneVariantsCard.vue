@@ -80,6 +80,20 @@
         #select-transcripts-box
             margin-right: 30px
             vertical-align: middle !important
+
+        #hpo-term-table
+
+            .hpo-table-body
+                max-height: 100px
+                min-height: 100px
+                overflow-y: scroll
+
+        #hpo-disease-table
+            .disease-table-body
+                max-height: 100px
+                min-height: 100px
+                overflow-y: scroll
+
 </style>
 
 
@@ -130,6 +144,7 @@
        :cohortModel="cohortModel"
        :highlightMatches="true"
        :showDetailsButton="true"
+       :showTitle="true"
        @show-patient-phenotypes-dialog="onShowPatientGenePhenotypeDialog(true)">
       </gene-phenotype-table>
 
