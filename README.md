@@ -5,7 +5,7 @@
 [![Watch the demo!](https://i.imgur.com/uQBE8MQ.png)](https://www.youtube.com/watch?v=K7JLbCv2LcA)
 
 # Usage
-gene.iobio is free for academic use only. For all other uses, including commercial use, please contact iobioproject@gmail.com. 
+gene.iobio is free for academic use only. For all other uses, including commercial use, please contact iobioproject@gmail.com. gene.iobio is distributed under the MIT licesnse.
 
  ![How it works](./client/assets/images/github/how-it-works.png)
 
