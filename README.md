@@ -1,3 +1,6 @@
+# Terms of Service
+gene.iobio is free for academic use only. For all other uses, including commercial use, please contact info@frameshift.io.
+
 # Purpose 
 [gene.iobio](https://gene.iobio) is a real-time, intuitive and interactive variant interrogation and prioritization web application. gene.iobio enables secure, clinically-driven variant prioritization, bringing clinical care providers’ intimate knowledge of the patient’s disease and phenotype closer to their genetics.  gene.iobio is publicly available at [gene.iobio.io](https://gene.iobio) - where users can try it out with demo data (NA12878 trio) or input their own data (via publicly accessible URLS or local files) using the file input dialog.
 
@@ -5,8 +8,6 @@
 [![Watch the demo!](https://i.imgur.com/uQBE8MQ.png)](https://www.youtube.com/watch?v=K7JLbCv2LcA)
 
 # Usage
-gene.iobio is free for academic use only. For all other uses, including commercial use, please contact iobioproject@gmail.com. gene.iobio is distributed under the MIT licesnse.
-
  ![How it works](./client/assets/images/github/how-it-works.png)
 
  ![Features](./client/assets/images/github/features.png)
