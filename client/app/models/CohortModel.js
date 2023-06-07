@@ -2068,11 +2068,13 @@ class CohortModel {
 
       var theFbData = data.results;
       theFbData.loadState['called'] = true;
+      // Determine the af and highest af for all variants
       theFbData.features.forEach(function(variant) {
         variant.extraAnnot = true;
         variant.fbCalled = "Y";
         variant.extraAnnot = true;
         model._determineHighestAf(variant);
+        model._determineAf(variant)
       })
 
 
