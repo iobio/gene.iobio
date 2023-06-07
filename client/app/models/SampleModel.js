@@ -1830,12 +1830,13 @@ class SampleModel {
               resultMap[model.relationship] = data;
               model.vcfData = data;
 
-              // Set the highest allele freq for all variants
+              // Set the af and highest allele freq for all variants
               for (var key in resultMap) {
                 let theVcfData = resultMap[key];
                 if (theVcfData && theVcfData.features) {
                   theVcfData.features.forEach(function (variant) {
                     me._determineHighestAf(variant);
+                    me._determineAf(variant);
                   })
                   model.vcfData['count'] = model.vcfData.features.length;
                 }
@@ -2008,12 +2009,13 @@ class SampleModel {
                   postProcessNextVariantCard(idx, function() {
 
 
-                    // Set the highest allele freq for all variants
+                    // Set the af and highest allele freq for all variants
                     for (var key in resultMap) {
                       var theVcfData = resultMap[key];
                       if (theVcfData && theVcfData.features) {
                         theVcfData.features.forEach(function(variant) {
                           me._determineHighestAf(variant);
+                          me._determineAf(variant);
                         })
                       }
                     }
@@ -2055,6 +2057,10 @@ class SampleModel {
           + "variant calling pipelines. "
           + "This variant file does not contain this alternative reference; "
           + "therefore no information can be shown."
+        } else if (theGene.chr.indexOf('alt') > 0) {
+          msg += "  There are some 'alternative contigs' that are alternative sequences that are seen in "
+          + "some individuals. Some genes only fall in these alternative contigs, but "
+          + "gene.iobio can only show variants that appear on the main reference."
         }
         console.log(msg);
         console.log(error)
@@ -2204,6 +2210,71 @@ class SampleModel {
   }
 
 
+
+  _determineAf(variant) {
+    var me = this;
+    // Find the gnomAD af (summarized)
+    variant.af = "unknown";
+    variant.afSource = "";
+
+    if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+      && variant.vepAf.gnomADg 
+      && variant.vepAf.gnomADg.AC
+      && variant.vepAf.gnomADg.AN
+      && variant.vepAf.gnomADe 
+      && variant.vepAf.gnomADe.AC 
+      && variant.vepAf.gnomADe.AN) {
+      variant.af = _calculateCombinedAf([variant.vepAf.gnomADg.AC, variant.vepAf.gnomADe.AC],
+                                        [variant.vepAf.gnomADg.AN, variant.vepAf.gnomADe.AN])
+      variant.afSource = "gnomAD genomes + exomes"
+    } else if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+      && variant.vepAf.gnomADg 
+      && variant.vepAf.gnomADg.AF) {
+      variant.af = $.isNumeric(variant.vepAf.gnomADg.AF) ? variant.vepAf.gnomADg.AF : ".";
+      variant.afSource = "gnomAD genomes";
+    } else if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP
+      && variant.vepAf.gnomADe 
+      && variant.vepAf.gnomADe.AF) {
+      variant.af = $.isNumeric(variant.vepAf.gnomADe.AF) ? variant.vepAf.gnomADe.AF : ".";
+      variant.afSource = 'gnomAD exomes';
+    } else if (me.globalApp.gnomADExtraAll
+      && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS
+      && variant.gnomAD
+      && variant.gnomAD.af) {
+      variant.af = $.isNumeric(variant.gnomAD.af) ? variant.gnomAD.af : ".";
+      variant.afSource = 'gnomAD genomes';
+    } else if (me.globalApp.vepAF
+      && variant.vepAf
+      && variant.vepAf.gnomAD
+      && variant.vepAf.gnomAD.present) {
+      variant.af = $.isNumeric(variant.vepAf.gnomAD.AF) ? variant.vepAf.gnomAD.AF : ".";
+      variant.afSource = 'gnomAD exomes'
+    } else if (me.globalApp.vepAF
+      && variant.vepAf
+      && variant.vepAf.gnomAD
+      && variant.vepAf.gnomAD.MAX.present) {
+      variant.af = $.isNumeric(variant.vepAf.gnomAD.MAX.AF) ? variant.vepAf.gnomAD.MAX.AF : ".";
+      variant.afSource = 'gnomAD exomes (max af)'
+    } else {
+      variant.af = null;
+      variant.afSource = 'unknown';
+    }
+  }
+
+  _calculateCombinedAf(alleleCounts, alleleTotals) {
+    let acTot = alleleCounts.reduce(function(tot, ac) {
+              return tot + ((ac && $.isNumeric(ac)) ? +ac : 0);
+            }, 0)
+    let anTot = alleleTotals.reduce(function(tot, an) {
+      return tot + ((an && $.isNumeric(an)) ? +an : 0);
+    }, 0)
+
+    let afTot = anTot > 0 ? (acTot / anTot) : 0;
+    return afTot;
+  }
 
   _determineHighestAf(variant) {
     var me = this;
