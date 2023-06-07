@@ -25,6 +25,8 @@ export default class VariantExporter {
       {field: 'highestImpactInfo',exportVcf: true},
       {field: 'consequence',      exportVcf: true},
       {field: 'af',               exportVcf: true},
+      {field: 'afSource',         exportVcf: true},
+      {field: 'afPopMax',         exportVcf: true},
       {field: 'inheritance',      exportVcf: true},
       {field: 'polyphen',         exportVcf: true},
       {field: 'SIFT',             exportVcf: true},
@@ -668,7 +670,9 @@ export default class VariantExporter {
       rec.HGVSc             = info.HGVSc;
       rec.HGVSp             = info.HGVSp;      
     }
-    rec.af                = variant.af == "." ? 0 : variant.af;
+    rec.af                = variant.af        == "." ? 0 : d3.format(".6n")(variant.af);
+    rec.afSource          = variant.afSource;
+    rec.afPopMax          = variant.afHighest == "." ? 0 : d3.format(".6n")(variant.afHighest);
     rec.qual              = variant.qual;
     rec.filter            = variant.filter;
     rec.freebayesCalled   = variant.fbCalled;
