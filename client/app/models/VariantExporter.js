@@ -28,8 +28,6 @@ export default class VariantExporter {
       {field: 'afSource',         exportVcf: true},
       {field: 'afPopMax',         exportVcf: true},
       {field: 'inheritance',      exportVcf: true},
-      {field: 'polyphen',         exportVcf: true},
-      {field: 'SIFT',             exportVcf: true},
       {field: 'REVEL',            exportVcf: true},
       {field: 'rsId',             exportVcf: true},
       {field: 'clinvarClinSig',   exportVcf: true},
@@ -655,9 +653,7 @@ export default class VariantExporter {
     rec.highestImpact     = info.vepHighestImpactValue;
     rec.highestImpactInfo = info.vepHighestImpactInfo;
     rec.consequence       = info.vepConsequence;
-    rec.polyphen          = info.polyphen;
     rec.type              = variant.type;
-    rec.SIFT              = info.sift;
     rec.regulatory        = info.regulatory;
     rec.REVEL             = info.revel;
     rec.rsId              = info.rsId;
