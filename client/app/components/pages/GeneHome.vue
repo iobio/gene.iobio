@@ -1267,7 +1267,7 @@ export default {
           new FreebayesSettings());
 
         self.cohortModel.on("alertIssued", function(type, message, genes, details) {
-          self.addAlert(type, message, genes)
+          self.addAlert(type, message, genes, details)
         })
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
