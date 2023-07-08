@@ -2547,49 +2547,102 @@ class SampleModel {
 
   }
 
+  getBamDepthAtVariantPosition(variant, coverage) {
+
+    let covIter = 0;
+    let matchingCoverage = null;
+    let currCoverage = null;
+    let nextCoverage = null;
+    for (; covIter < coverage.length && !matchingCoverage && coverage[covIter][0] <= variant.start; 
+         ) {
+
+      currCoverage = coverage[covIter]
+      nextCoverage = (covIter < coverage.length - 1) ? coverage[covIter+1] : null;
+
+      // Variant matches coverage when variant.start == coverage position
+      // or variant.start is between coverage and nextCoverage positions.
+      if (variant.start == currCoverage[0]) {
+        matchingCoverage = currCoverage;
+      } else if (nextCoverage && 
+        (variant.start >= currCoverage[0] && variant.start < nextCoverage[0]) ) {
+        matchingCoverage = currCoverage;
+      }
+      covIter++;
+    }
+
+    if (matchingCoverage) {
+      return matchingCoverage[1];
+    } else {
+      return null;
+    }
+  }
+
   _refreshVariantsWithCoverage(theVcfData, coverage, callback) {
     var me = this;
-    var vcfIter = 0;
-    var covIter = 0;
     if (theVcfData == null || coverage == null) {
       callback();
     }
-    var recs = theVcfData.features;
 
-      me.flagDupStartPositions(recs);
+    let theVariants = theVcfData.features;
 
-    for( var vcfIter = 0, covIter = 0; vcfIter < recs.length; null) {
-      // Bypass duplicates
-      if (recs[vcfIter].dup) {
-        recs[vcfIter].bamDepth = recs[vcfIter-1].bamDepth;
-        vcfIter++;
+    let vcfIter = 0;
+    let covIter = 0;
+    let currCoverage = null;
+    let nextCoverage = null;
+
+    // Iterate through the variants, advancing the index by one each loop. In the case
+    // of multiple variants with the same start position, we advance the index
+    // multiple times (for each duplicate)
+    for(; vcfIter < theVariants.length;) {
+      let variant = theVariants[vcfIter];
+      let nextVariant = (vcfIter < theVariants.length - 1) ? theVariants[vcfIter+1] : null;
+
+      let matchingCoverage = null;
+
+      // Keep iterating through the coverage records until there are no more
+      // coverage records, we found a coverage interval for the variant, or
+      // we have advanced past a coverage position that is beyond the variant's
+      // start position
+      //
+      // coverage is a 2 element array: first element=pos, second element=depth
+      //
+      for (; covIter < coverage.length && !matchingCoverage && coverage[covIter][0] <= variant.start; 
+           ) {
+
+        currCoverage = coverage[covIter]
+        nextCoverage = (covIter < coverage.length - 1) ? coverage[covIter+1] : null;
+
+        // Variant matches coverage when variant.start == coverage position
+        // or variant.start is between coverage and nextCoverage positions.
+        if (variant.start == currCoverage[0]) {
+          matchingCoverage = currCoverage;
+        } else if (nextCoverage && 
+          (variant.start >= currCoverage[0] && variant.start < nextCoverage[0]) ) {
+          matchingCoverage = currCoverage;
+        }
+
+        if (!matchingCoverage) {
+          covIter++;
+        }
       }
-      if (vcfIter >= recs.length) {
 
+      // We found a coverage that spans the interval that contains 
+      // the variant start position
+      if (matchingCoverage) {
+        variant.bamDepth = matchingCoverage[1];
+
+        // If the next variant has the same start position,
+        // don't advance to the next coverage as it will match
+        // the variant on the next variant iteration
+        if (nextVariant && nextVariant.dup) {
+          //console.log("when finding matching bam depth record, we encountered a variant w the same start position " + variant.start)
+        } 
       } else {
-            if (covIter >= coverage.length) {
-              recs[vcfIter].bamDepth = "";
-              vcfIter++;
-          } else {
-          var coverageRow = coverage[covIter];
-          var coverageStart = coverageRow[0];
-          var coverageDepth = coverageRow[1];
-
-          // compare curr variant and curr coverage record
-          if (recs[vcfIter].start == coverageStart) {
-            recs[vcfIter].bamDepth = +coverageDepth;
-            vcfIter++;
-            covIter++;
-          } else if (recs[vcfIter].start < coverageStart) {
-            recs[vcfIter].bamDepth = "";
-            vcfIter++;
-          } else {
-            //console.log("no variant corresponds to coverage at " + coverageStart);
-            covIter++;
-          }
-
-            }
+        console.log("no matching coverage record for variant at start pos " + variant.start + " for gene " + theVcfData.gene)
       }
+
+      // Advance to next variant
+      vcfIter++;
 
     }
     if (!theVcfData.hasOwnProperty('loadState')) {
@@ -2597,9 +2650,9 @@ class SampleModel {
     }
     theVcfData.loadState['coverage'] = true;
     callback();
-
-
   }
+
+ 
 
   _refreshVariantsWithVariantIds(theVcfData, annotatedVcfData) {
 

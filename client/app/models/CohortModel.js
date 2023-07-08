@@ -881,31 +881,29 @@ class CohortModel {
 
         let cohortResultMap = null;
 
-        let p1 = self.promiseLoadVariants(theGene, theTranscript, options)
-            .then(function(data) {
-                cohortResultMap = data.resultMap;
-                self.setLoadedVariants(theGene);
-            })
-        promises.push(p1);
-
-        let p2 = self.promiseLoadCoverage(theGene, theTranscript, options)
-            .then(function() {
-                self.setCoverage();
-            })
-        promises.push(p2);
-
-        Promise.all(promises)
+        // Annotate the variants
+        self.promiseLoadVariants(theGene, theTranscript, options)
         .then(function(data) {
+          cohortResultMap = data.resultMap;
+          self.setLoadedVariants(theGene);
 
-            // Now summarize the danger for the selected gene
-            self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null)
-                .then(function () {
-                    self.setLoadedVariants(theGene);
+          // We have to load coverage AFTER we have loaded the variants
+          // so that we can populate the variant records with bamDepth
+          // (for exporting variants)
+          return self.promiseLoadCoverage(theGene, theTranscript, options)
 
-                    self.endGeneProgress(theGene.gene_name);
-                    resolve(cohortResultMap);
-                })
+        })
+        .then(function() {
+          self.setCoverage();
 
+          // Now summarize the danger for the selected gene
+          return self.promiseSummarizeDanger(theGene, theTranscript, cohortResultMap.proband, null);
+        })
+        .then(function() {
+          self.setLoadedVariants(theGene);
+
+          self.endGeneProgress(theGene.gene_name);
+          resolve(cohortResultMap);
         })
         .catch(function(error) {
           if (error && error.hasOwnProperty('alertType') && error.alertType == 'warning') {
@@ -2305,6 +2303,15 @@ class CohortModel {
                         refreshedSourceVariant = variant;
                         refreshedSourceVariant.notes = options.sourceVariant.notes;
                         refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
+                  
+                        // CohortModel.promiseExportVariants has refreshed the bamDepth
+                        // from the coverage data. We don't want to lose these values
+                        // when we export these called variants
+                        refreshedSourceVariant.bamDepth = options.sourceVariant.bamDepth;
+                        refreshedSourceVariant.bamDepthMother = options.sourceVariant.bamDepthMother;
+                        refreshedSourceVariant.bamDepthFather = options.sourceVariant.bamDepthFather;
+
+
                       }
                     })
                   }
@@ -2587,19 +2594,85 @@ class CohortModel {
     return matchingVariants.length > 0;
   }
 
+  _promiseRefreshFlaggedVariantCoverage(geneObject, transcript, flaggedVariants) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      
+      self.promiseLoadCoverage(geneObject, transcript)
+      .then(function(resultMap) {
+        // Update the coverage for each of the flagged variants and the related
+        // variants for mother, father
+        for (let rel in resultMap) {
+          let coverage = resultMap[rel];
+          flaggedVariants.forEach(function(theVariant) {
+            let bamDepth = self.getModel(rel).getBamDepthAtVariantPosition(theVariant, coverage);
+            if (bamDepth) {
+              if (rel == 'proband') {
+                theVariant.bamDepth = bamDepth;
+              } else {
+                theVariant['bamDepth' + self.globalApp.utility.capitalizeFirstLetter(rel)] = bamDepth;
+              }
+            }
+          })
+        }
+        resolve();
+      })
+      .catch(function(error) {
+        console.log("Cannot refresh flagged variant coverage " + error)
+        reject(error)
+      })
+    })
+  }
+
   promiseExportFlaggedVariants(format = 'csv') {
     let self = this;
-    // If this is a trio, the exporter will be getting the genotype info for proband, mother
-    // and father, so pass in a comma separated value of sample names for trio.  Otherwise,
-    // just pass null, which will default to the proband's sample name
-    var sampleNames = null;
-    if (self.mode == 'trio') {
-      sampleNames = self.getCanonicalModels().map(function(model) {
-        return model.sampleName;
-      })
-    }
 
-    return self.variantExporter.promiseExportVariants(self.flaggedVariants, format, sampleNames);
+    return new Promise(function(resolve, reject) {
+
+      // If this is a trio, the exporter will be getting the genotype info for proband, mother
+      // and father, so pass in a comma separated value of sample names for trio.  Otherwise,
+      // just pass null, which will default to the proband's sample name
+      var sampleNames = null;
+      if (self.mode == 'trio') {
+        sampleNames = self.getCanonicalModels().map(function(model) {
+          return model.sampleName;
+        })
+      }
+
+      let genesToAnalyze = {}
+      self.flaggedVariants.forEach(function(variant) {
+        let geneObject = variant.gene;
+
+        let geneInfo = genesToAnalyze[geneObject.gene_name]
+        if (geneInfo == null) {
+          let transcript = self.geneModel.getCanonicalTranscript(geneObject);
+          let theVariants = [];
+          geneInfo = {'geneObject': geneObject, 'transcript': transcript, 'flaggedVariants': theVariants};
+          genesToAnalyze[geneObject.gene_name] = geneInfo;        
+        } 
+        geneInfo.flaggedVariants.push(variant)
+      })
+
+      let promises = [];
+      Object.keys(genesToAnalyze).forEach(function(geneName) {
+        let geneInfo = genesToAnalyze[geneName]
+        let p = self._promiseRefreshFlaggedVariantCoverage(geneInfo.geneObject, geneInfo.transcript, geneInfo.flaggedVariants)
+        promises.push(p)
+      })
+      Promise.all(promises)
+      .then(function() {
+        return self.variantExporter.promiseExportVariants(self.flaggedVariants, format, sampleNames);
+      })
+      .then(function(output) {
+        resolve(output)
+      })
+      .catch(function(error) {
+        console.log(error)
+        self.dispatch.alertIssued("error", "Unable to export variants", null, [error]);
+        reject(error)
+      })
+    })
+
   }
 
   promiseExportFlaggedVariant(format = 'csv', variant) {

@@ -59,6 +59,10 @@
     border: thin solid $count-badge-border-color !important
     color: $text-color !important
     font-size: 12px !important
+    height: 24px
+    width: 24px
+    font-size: 10.5px !important
+    font-weight: 500
 
   #gene-viz, #gene-viz-zoom
     .transcript.current

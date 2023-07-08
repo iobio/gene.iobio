@@ -72,8 +72,10 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
+      color: $button-color
       visibility: hidden
       background-color: transparent !important
+
 
       &.in-progress
         visibility: visible

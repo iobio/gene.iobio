@@ -4,9 +4,7 @@
 
 #pubmed-table
   .loader
-    width: 582px
     font-size: 12px
-    margin-top: -20px
 
   .pubmed-header-row
     .v-input.v-text-field
@@ -21,17 +19,19 @@
         font-size: 17px
 
   .pubmed-rows
-    max-height: 62px 
-    min-height: 62px 
+    max-height: 90px 
+    min-height: 90px 
     overflow-y: scroll
     margin-top: 5px
 
   .title-row
     display: flex
     height: 25px
+    align-items: center
 
     .table-title
       color: $app-color
+      margin-right: 20px
     .count
       display: inline-block
       font-size: 12px
@@ -74,21 +74,35 @@
         color: black
     .pubmed-pub-author
       display: inline-block
-      min-width: 80px
-      max-width: 80px
+      min-width: 70px
+      max-width: 70px
       vertical-align: top
     .pubmed-pub-source
       display: inline-block
-      min-width: 100px
-      max-width: 100px
+      min-width: 70px
+      max-width: 70px
       vertical-align: top
     .pubmed-pub-date
       display: inline-block
-      min-width: 80px
-      max-width: 80px
+      min-width: 50px
+      max-width: 50px
       vertical-align: top
 
- 
+  button
+    padding: 0px
+    height: 26px !important
+    background-color: white !important
+    margin: 0px
+    padding-left: 0px
+    padding-right: 10px
+    color: $link-color !important
+    margin-left: 41px
+
+    .v-btn__content
+      font-size: 13px
+      font-weight: 500
+      .material-icons
+        font-size: 20px
 
   .v-input input
     color: $text-color
@@ -118,6 +132,9 @@
 .pubmed-pub-source {
   display: none !important;
 } 
+.pubmed-pub-date {
+  display: none !important;
+}
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
@@ -129,7 +146,9 @@
 .pubmed-pub-source {
   display: none !important;
 } 
-
+.pubmed-pub-date {
+  display: none !important;
+}
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
@@ -141,8 +160,11 @@
 .pubmed-pub-source {
   display: none !important;
 }
-
+.pubmed-pub-date {
+  display: none !important;
 }
+}
+
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
@@ -153,51 +175,59 @@
 .pubmed-pub-source {
   display: none !important;
 }
-
+.pubmed-pub-date {
+  display: none !important;
 }
+}
+
+
 /* Extra large devices (large laptops and desktops, 1200px and up) */
 @media only screen and (min-width: 1250px) {
 .pubmed-title {
-  min-width: 330px !important;
-  max-width: 330px !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
 } 
 .pubmed-pub-source {
-  display: inline-block !important;
+  display: none !important;
+}
+.pubmed-pub-date {
+  display: none !important;
 }
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
-@media only screen and (min-width: 1410px) {
+@media only screen and (min-width: 1300px) {
 .pubmed-title {
-  min-width: 400px !important;
-  max-width: 400px !important;
-}  
+  min-width: 200px !important;
+  max-width: 200px !important;
+} 
 .pubmed-pub-source {
-  display: inline-block !important;
+  display: none !important;
+}
+.pubmed-pub-date {
+  display: none !important;
 }
 }
 
-/* Extra large devices (large laptops and desktops, 1200px and up) */
-@media only screen and (min-width: 1530px) {
+
+/* Extra large devices (large laptops and desktops, 1400px and up) */
+@media only screen and (min-width: 1462px) {
 .pubmed-title {
-  min-width: 500px !important;
-  max-width: 500px !important;
+  min-width: 300px !important;
+  max-width: 300px !important;
 } 
+
 .pubmed-pub-source {
   display: inline-block !important;
-} 
+  min-width: 100px !important;
+  max-width: 100px !important;
 }
-/* Extra large devices (large laptops and desktops, 1200px and up) */
-@media only screen and (min-width: 1630px) {
-.pubmed-title {
-  min-width: 600px !important;
-  max-width: 600px !important;
+.pubmed-pub-date {
+  display:  inline-block !important;
 }
-.pubmed-pub-source {
-  display: inline-block !important;
 }
 
-}
+
 
 </style>
 
@@ -205,7 +235,23 @@
 <template>
 
   <div id="pubmed-table" v-if="pubMedEntries && geneModel && selectedGene">
-    <div v-if="pubMedEntries && pubMedEntries.length > 0" class="pubmed-header-row" style="display: flex;">
+    <div class="title-row" v-if="titleText">
+      <div  class="table-title">
+        {{ titleText }}
+      </div>
+      <v-badge v-if="pubMedCount && pubMedCount > 0 && pubMedEntries && pubMedEntries.length > 0" class="count entry-count" style="margin-right:40px">
+        <span slot="badge">
+           {{ pubMedCount }} 
+        </span>
+      </v-badge>
+      <v-btn v-if="showDetailsButton" style="margin-left:0px" flat @click="$emit('show-pubmed-dialog', true)" id="pubmed-details-button">
+        <v-icon style="padding-right:3px;">account_box</v-icon>
+        Details...
+      </v-btn>
+
+    </div>
+
+    <div v-if="!showDetailsButton && pubMedEntries && pubMedEntries.length > 0" class="pubmed-header-row" style="display: flex;">
       <v-text-field id="search-input" 
         v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title != 'loading...'"
         v-model="search" 
@@ -238,12 +284,11 @@
         <span class="pubmed-title" v-html="entry.title"></span>
         <span v-if="showSource" class="pubmed-pub-source">{{ entry.source }}</span>
         <span v-if="showAuthor" class="pubmed-pub-author">{{ entry.firstAuthor }}</span>
-        <span class="pubmed-pub-date">{{ entry.pubDate }}</span>
+        <span v-if="showFullDate" class="pubmed-pub-date">{{ entry.pubDate }}</span>
+        <span v-if="!showFullDate" class="pubmed-pub-date">{{ abbreviateDate(entry.pubDate) }}</span>
       </div>
     </div>
-    <div class="pubmed-row" v-if="pubMedEntries && pubMedEntries.length === 0">
-      No PubMed entries found for {{ selectedGene.gene_name }}
-    </div>
+    
 
   </div>
 
@@ -261,7 +306,10 @@ export default {
     selectedGene: null,
     showAuthor: null,
     showSource: null,
+    showFullDate: null,
+    showDetailsButton: null,
     showAll: null,
+    titleText: null
   },
   data () {
     return {       
@@ -316,6 +364,16 @@ export default {
 
       }
 
+    },
+    abbreviateDate: function(pubDate) {
+      if (pubDate) {
+        let tokens = pubDate.split(" ");
+        if (tokens.length == 3) {
+          return tokens[0] + " " + tokens[1];
+        } else {
+          return pubDate;
+        }
+      }
     },
     getEntryHref: function(uid) {
       return "https://pubmed.ncbi.nlm.nih.gov/" + uid;

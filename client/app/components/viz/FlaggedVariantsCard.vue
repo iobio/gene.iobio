@@ -141,7 +141,7 @@
       height: 22px
       margin-right: 10px
       margin-left: 5px
-      background-color: transparent !important
+      color: $button-color
       visibility: hidden
 
       &.in-progress
@@ -746,24 +746,6 @@
   .btn__content, .v-btn__content
     padding: 0 4px
 
-
-  .stop-analysis-button
-    display: inline-block
-    vertical-align: middle
-    position: relative
-    min-width: 18px
-    max-width: 18px
-    padding: 0px
-    margin-top: 8px
-    height: 22px
-    margin-right: 10px
-    margin-left: 5px
-    background-color: transparent !important
-
-    i.material-icons
-      font-size: 20px
-      padding-right: 3px  
-      color: $button-color !important
       
 </style>
 

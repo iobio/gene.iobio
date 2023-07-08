@@ -137,7 +137,7 @@
       style="display:flex;justify-content:flex-start;margin-top:5px">
 
       <!-- Gene:Phenotypes -->
-      <gene-phenotype-table  style="margin-right:20px"
+      <gene-phenotype-table  style="margin-right:5px"
        v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
        :selectedGene="selectedGene"
        :geneModel="cohortModel.geneModel"
@@ -149,35 +149,32 @@
       </gene-phenotype-table>
 
       <!-- Gene:Diseases -->
-      <gene-disease-table  style="margin-right:20px"
+      <gene-disease-table  style="margin-right:5px"
        v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
        :selectedGene="selectedGene"
        :geneModel="cohortModel.geneModel">
       </gene-disease-table>
 
       <!-- OMIM -->
-      <gene-omim-table  style="margin-right:30px"
+      <gene-omim-table  style="margin-right:5px"
        v-if="false && isOMIMPermitted && selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
        :selectedGene="selectedGene"
        :geneModel="cohortModel.geneModel">
       </gene-omim-table>
 
       <!-- PubMed -->
-      <div v-if="">
-        <div style="display:flex;height:25px" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
-          <div class="pubmed-table-title">PubMed</div>
-          <gene-pubmed-popup
-          :geneModel="cohortModel.geneModel"
-          :selectedGene="selectedGene"
-          showAll="true">
-          </gene-pubmed-popup>
-        </div>
+      <div v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
         <gene-pubmed-table
          v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
          :selectedGene="selectedGene"
          :geneModel="cohortModel.geneModel"
          :showSource="true"
-         :showAll="false">
+         :showFullDate="false"
+         :showDetailsButton="true"
+         :showAll="false"
+         titleText="PubMed"
+         @show-pubmed-dialog="onShowPubMedDialog(true)"
+         >
         </gene-pubmed-table>
       </div>
 
@@ -190,6 +187,13 @@
          :selectedGene="selectedGene"
          @hide-patient-gene-phenotype-dialog="onShowPatientGenePhenotypeDialog(false)">
     </patient-gene-phenotype-dialog>
+
+    <gene-pubmed-popup
+    :geneModel="cohortModel.geneModel"
+    :selectedGene="selectedGene"
+    :showDialog="showPubMedDialog"
+    @hide-pubmed-dialog="onShowPubMedDialog(false)">
+    </gene-pubmed-popup>
 
 	</div>
 
@@ -241,7 +245,8 @@
                 showNoTranscriptsWarning: false,
                 regionBuffer: null,
                 noData: null,
-                showPatientGenePhenotypeDialog: false
+                showPatientGenePhenotypeDialog: false,
+                showPubMedDialog: false
             }
         },
         methods: {
@@ -277,6 +282,9 @@
             },
             onShowPatientGenePhenotypeDialog(show) {
                 this.showPatientGenePhenotypeDialog = show;
+            },
+            onShowPubMedDialog(show) {
+                this.showPubMedDialog = show;
             },
             onGeneRegionBufferChange: _.debounce(function (newGeneRegionBuffer) {
                 this.regionBuffer = Math.min(parseInt(newGeneRegionBuffer), 99999);

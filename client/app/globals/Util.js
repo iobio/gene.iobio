@@ -167,8 +167,6 @@ class Util {
     return d.getMonth() + "-" + d.getDay() + "-" + d.getFullYear() + " " + formatHours(d.getHours()) + ":" + padMinutes(d.getMinutes()) + " " + getAmPm(d.getHours());
   }
 
-
-
   getCurrentDateTime() {
     var dateObj = new Date();
     return dateObj.getTime();

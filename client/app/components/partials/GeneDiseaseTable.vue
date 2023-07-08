@@ -3,7 +3,7 @@
 @import ../../../assets/sass/variables
 
 #hpo-disease-table
-  min-width: 500px
+  min-width: 200px
 
   .entry-count
     margin-left: 5px
@@ -40,12 +40,12 @@
         color: $link-color
         font-weight: 500
     .hpo-name
-      min-width: 300px
-      max-width: 300px
+      min-width: 200px
+      max-width: 200px
 
     .phenotype-inheritance
-      min-width: 100px
-      max-width: 100px
+      min-width: 0px
+      max-width: 75px
    
 </style>
 

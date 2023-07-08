@@ -29,17 +29,20 @@
       .pubmed-title
         min-width: 630px !important
         max-width: 630px !important
-
-
-
+      .pubmed-pub-author
+        min-width: 80px !important
+        max-width: 80px !important
+      .pubmed-pub-source
+        min-width: 100px !important
+        max-width: 100px !important
+      .pubmed-pub-date
+        min-width: 80px !important
+        max-width: 80px !important
 
 </style>
 <template>
 
-    <v-dialog  width="970"  v-model="showPopup" lazy >
-      <v-btn id="show-all-pubmed-button" flat  slot="activator">
-        show all
-      </v-btn>
+    <v-dialog  width="970"  v-model="showPubMedDialog" lazy >
       <v-card class="pubmed-popup full-width">
         <v-card-title v-if="selectedGene" style="justify-content:space-between">
           <span class="info-title">{{ selectedGene.gene_name }} PubMed Entries
@@ -54,9 +57,11 @@
            v-if="selectedGene && geneModel"
            :selectedGene="selectedGene" 
            :geneModel="geneModel"
+           :showDetailsButton="false"
            :showAll="true"
            :showAuthor="true"
-           :showSource="true">
+           :showSource="true"
+           :showFullDate="true">
           </gene-pubmed-table>
         </div>
 
@@ -75,22 +80,24 @@ export default {
     },
     props: {
       geneModel: null,
-      selectedGene: null
+      selectedGene: null,
+      showDialog: null
     },
     data() {
       return {
-        showPopup: false
+        showPubMedDialog: false
       }
     },
     methods: {
 
       onClose: function() {
-        this.showPopup = false;
+        this.$emit("hide-pubmed-dialog")
       }
     },
     watch: {
-      showPopup: function() {
-        if (this.showPopup) {
+      showDialog: function() {
+        this.showPubMedDialog = this.showDialog;
+        if (this.showPubMedDialog) {
           if (this.$refs.pubMedTableRef) {
             this.$refs.pubMedTableRef.getPubMedEntries();
           }

@@ -101,7 +101,8 @@ export default {
   props: {
     cohortModel: null,
     showDialog: null,
-    selectedGene: null
+    selectedGene: null,
+    launchedFromHub: null,
   },
   data () {
     return {

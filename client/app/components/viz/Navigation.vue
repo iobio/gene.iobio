@@ -1143,6 +1143,7 @@ nav.toolbar, nav.v-toolbar
      v-if="cohortModel && launchedFromHub && cohortModel.isLoaded"
      :showDialog="showPatientPhenotypeDialog"
      :cohortModel="cohortModel"
+     :launchedFromHub="launchedFromHub"
      @hide-patient-phenotypes="onShowPatientPhenotypeDialog(false)">
     </patient-phenotype-dialog>
 

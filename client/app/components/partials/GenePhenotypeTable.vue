@@ -3,7 +3,7 @@
 @import ../../../assets/sass/variables
 
 #hpo-term-table
-  min-width: 450px
+  min-width: 300px
 
   .title-row
     display: flex
@@ -35,14 +35,14 @@
         color: $link-color
         font-weight: 500
     .hpo-name
-      min-width: 350px
-      max-width: 350px
+      min-width: 200px
+      max-width: 200px
 
 
     &.patient-match
       .hpo-name
-        min-width: 300px
-        max-width: 300px
+        min-width: 200px
+        max-width: 200px
 
       .match-chip
         width: 70px
