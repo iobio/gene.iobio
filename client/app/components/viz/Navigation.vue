@@ -731,7 +731,7 @@ nav.toolbar, nav.v-toolbar
       
       <v-spacer></v-spacer>
 
-      <v-btn  class="navbar-icon-button" v-if="" id="patient-button"  @click="onShowPatientPhenotypeDialog(true)" flat 
+      <v-btn  class="navbar-icon-button" v-if="cohortModel && launchedFromHub && cohortModel.isLoaded" id="patient-button"  @click="onShowPatientPhenotypeDialog(true)" flat 
         v-tooltip.bottom-left="{content: 'Patient phenotypes'}">
           <v-icon style="font-size: 26px;padding-top: 3px;">account_box</v-icon>
       </v-btn>

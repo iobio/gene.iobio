@@ -143,7 +143,7 @@
        :geneModel="cohortModel.geneModel"
        :cohortModel="cohortModel"
        :highlightMatches="true"
-       :showDetailsButton="true"
+       :showDetailsButton="cohortModel && cohortModel.isLoaded"
        :showTitle="true"
        @show-patient-phenotypes-dialog="onShowPatientGenePhenotypeDialog(true)">
       </gene-phenotype-table>
@@ -163,7 +163,7 @@
       </gene-omim-table>
 
       <!-- PubMed -->
-      <div v-if="false">
+      <div v-if="">
         <div style="display:flex;height:25px" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
           <div class="pubmed-table-title">PubMed</div>
           <gene-pubmed-popup
@@ -184,7 +184,7 @@
     </div>
     
     <patient-gene-phenotype-dialog
-         v-if="cohortModel && launchedFromHub && cohortModel.isLoaded"
+         v-if="cohortModel && cohortModel.isLoaded"
          :showDialog="showPatientGenePhenotypeDialog"
          :cohortModel="cohortModel"
          :selectedGene="selectedGene"

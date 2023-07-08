@@ -50,6 +50,7 @@
             <div class="row">
               <div class="col-md-12">
                 <patient-phenotype-table 
+                 v-if="launchedFromHub"
                  titleText="Patient Phenotypes"
                  :cohortModel="cohortModel"
                  :selectedGene="selectedGene">
@@ -106,10 +107,6 @@ export default {
     return {
       showPatientGenePhenotypeDialog: false,
     }
-  },
-  watch: {
-  },
-  computed: {
   },
   methods: {
     onCancel: function() {
