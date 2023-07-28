@@ -1,4 +1,5 @@
 import CacheIndexStore   from './CacheIndexStore.js'
+import LZString from 'lz-string'
 
 function CacheHelper(globalApp, forceLocalStorage) {
 
