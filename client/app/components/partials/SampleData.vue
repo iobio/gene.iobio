@@ -92,9 +92,9 @@
           @input="onSampleSelected"
           hide-details
         ></v-autocomplete>
-        <span class="inform-user-text"
-        v-bind:class="samples == null || samples.length == 0 ? 'hide' : ''"
-        >Please select a sample before loading</span>
+        <span class="inform-user-text" v-if="samples != null && samples.length > 0 && sample == null">
+        Select a sample from the dropdown
+        </span>
       </div>
       <div v-show="showLoadingSamples" style="margin-top: 10px;margin-bottom:10px">
         <span class="loader-label" style="padding-right:4px">Loading samples file vcf</span>
@@ -148,7 +148,8 @@ export default {
         isAffected: true,
         showLoadingSamples: false,
         sex: null,
-        sexList: ['', 'male', 'female']
+        sexList: ['', 'male', 'female'],
+    
     }
   },
   computed: {
@@ -267,6 +268,7 @@ export default {
         self.modelInfo.model.setName(this.modelInfo.sample);
       }
       self.$emit("sample-data-changed");
+
     },
     onBamUrlEntered: function(bamUrl, baiUrl) {
       let self = this;
