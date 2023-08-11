@@ -437,8 +437,8 @@ export default {
       let self = this;
       let dups = Object.keys(this.filterModel.flagCriteria).filter(function(key) {
         let filter = self.filterModel.flagCriteria[key];
-        return filter.key != self.filter.name  // don't evaluate this filter entry for dups
-               && filter.title == self.filter.display.trim();  // is there another filter with the same name?
+        return filter.key != self.filter.key  // don't evaluate this filter entry for dups
+               && filter.title == self.filter.title.trim();  // is there another filter with the same name?
       })
       return dups.length > 0;
     },
