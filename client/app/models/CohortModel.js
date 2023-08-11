@@ -3199,7 +3199,8 @@ class CohortModel {
     let self = this;
     let sampleNames = [];
 
-    ['proband', 'mother', 'father'].forEach(function(rel) {
+    let rels = self.mode == 'trio' ? ['proband', 'mother', 'father'] : ['proband'];
+    rels.forEach(function(rel) {
       let sampleName = self.sampleMap[rel].model.bam.getHeaderSample();
       if (sampleName == null || sampleName.length == 0) {
         sampleName = self.sampleMap[rel].model.getSampleName()
