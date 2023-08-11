@@ -908,7 +908,11 @@ class FilterModel {
         variant.analysisMode.gene = true;
       }
 
-      badges.flagged.push(variant);
+      // We clone the variant because when we save the analysis 
+      // (stringified JSON of the cache), we want to prevent stringify from
+      // assuming we have recursive data; otherwise stringify will exclude the
+      // variant from the string, showing it as an empty object.
+      badges.flagged.push($.extend({}, variant));
     }
 
   }

@@ -355,8 +355,8 @@
       <i style="vertical-align:middle" class="material-icons">close</i>
   </div>
 
-  <div id="variant-count" v-if="!launchedFromClin && !isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary && gene.dangerSummary.loadedCount != null">
-      {{ gene.dangerSummary.loadedCount }}
+  <div id="variant-count" v-if="!launchedFromClin && !isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary" >
+      {{ variantCount }}
   </div>
   
 
@@ -531,6 +531,17 @@ export default {
         'has-warning':           hasWarning,
         'has-phenotypes':        false,  //this.phenotypes && this.phenotypes.length > 0,
         'has-coverage-problem':  this.gene.dangerSummary && this.gene.dangerSummary.geneCoverageProblem
+      }
+    },
+    variantCount: function() {
+      if (this.gene.dangerSummary.isAlignmentsOnly) {
+        if (this.gene.dangerSummary.CALLED) {
+          return this.gene.dangerSummary.calledCount;
+        } else {
+          return "";
+        }
+      } else {
+        return this.gene.dangerSummary.loadedCount != null ? this.gene.dangerSummary.loadedCount : "";
       }
     }
 
