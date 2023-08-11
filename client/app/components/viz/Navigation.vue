@@ -186,9 +186,10 @@ aside.navigation-drawer, aside.v-navigation-drawer
       #gene-badge
         margin-bottom: 5px
         margin-right: 0px !important
+        display: flex
+        align-items: center
 
         #gene-badge-button
-          min-width: 150px
           border-radius: 4px
           #gene-badge-symbols
             width: 80px
@@ -915,7 +916,7 @@ nav.toolbar, nav.v-toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      :width="isSimpleMode ? 355 : 315"
+      :width="isSimpleMode ? 355 : 305"
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
