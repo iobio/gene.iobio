@@ -28,8 +28,7 @@
       color: red
       font-size: 12px
       font-style: italic
-      margin: 20px
-      display: inline-block
+      margin: 25px 0px 25px 30px
 
 
   .sample-label
@@ -83,7 +82,7 @@
     </v-flex>
 
     <v-flex xs8   id="sample-selection">
-      <div style="display: flex">
+      <div style="display: grid; grid-template-columns: 2fr 2fr">
         <v-autocomplete
           v-bind:class="samples == null || samples.length == 0 ? 'hide' : ''"
           label="Sample"
@@ -92,9 +91,9 @@
           @input="onSampleSelected"
           hide-details
         ></v-autocomplete>
-        <span class="inform-user-text" v-if="samples != null && samples.length > 0 && sample == null">
-        Select a sample from the dropdown
-        </span>
+        <div class="inform-user-text" v-if="samples != null && samples.length > 0 && sample == null">
+          Select a sample from the dropdown
+        </div>
       </div>
       <div v-show="showLoadingSamples" style="margin-top: 10px;margin-bottom:10px">
         <span class="loader-label" style="padding-right:4px">Loading samples file vcf</span>
