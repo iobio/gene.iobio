@@ -32,9 +32,10 @@
   width: 275px
 
   #gene-status
-    display: inline-block
-    width: 46px
-    vertical-align: top
+    display: flex
+    min-width: 50px
+    justify-content: flex-start 
+    align-items: center
     padding-top: 5px
 
   .gene-badge-loader
@@ -64,6 +65,7 @@
   &.in-progress
     .gene-badge-loader
       display: inline
+
 
   &.has-error
     #gene-badge-error
@@ -102,7 +104,7 @@
 
 #gene-badge.loading
   border-left: #d8d8d8  solid 10px
-  //height: 22px
+  height: 22px
 
 
 #gene-badge.loading.selected
@@ -203,16 +205,15 @@
 
   <div id="gene-status">
 
-        <img class="gene-badge-loader  glyph" src="../../../assets/images/wheel.gif">
-
         <i id="gene-badge-loaded" class="material-icons glyph">done</i>
+
+        <img class="gene-badge-loader glyph" src="../../../assets/images/wheel.gif">
+
         <i id="gene-badge-called" class="level-edu material-icons glyph">done</i>
         <i id="gene-badge-has-called-variants" class="level-edu material-icons glyph">check_circle</i>
 
-
         <i id="gene-badge-warning" class="material-icons glyph">warning</i>
         <i id="gene-badge-error" class="material-icons glyph">error</i>
-
 
   </div>
 
@@ -222,7 +223,6 @@
     @click="selectGene"
     rel="tooltip"   data-html="true"
     data-placement="bottom">
-
 
 
         <span id="gene-badge-name" style="margin-left:2px;margin-right:2px">
@@ -521,7 +521,7 @@ export default {
 
         'selected':              this.selectedGene && this.selectedGene.gene_name == this.gene.name,
         'in-progress':           this.gene.inProgress,
-        'loaded':                this.gene.dangerSummary != null,
+        'loaded':                this.gene.dangerSummary != null && !hasError,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
         'has-error':             hasError,
