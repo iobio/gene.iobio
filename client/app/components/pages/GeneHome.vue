@@ -189,7 +189,14 @@
          @on-insufficient-coverage="onInsufficientCoverage">
         </genes-card>
 
-
+      <v-card id="pedigree-genotype-popup" elevation="9">
+        <button id="close-pedigree-genotype-popup">
+          <v-icon>close</v-icon>
+        </button>
+        <div class="variant-column-header">Inheritance
+          <hr class="v-divider theme--light">
+        </div>
+      </v-card>
 
       <v-card v-show="showGeneVariantsCard" tile id="gene-variants-card" class="app-card full-width">
         <gene-variants-card
@@ -4824,8 +4831,6 @@ export default {
 
 @import ../../../assets/sass/variables
 
-
-
 .fluidMax
   max-width: calc(100%) !important
 
@@ -4958,7 +4963,30 @@ main.content.clin, main.v-content.clin
   max-width: -moz-available !important
   max-width: -webkit-fill-available !important
 
+#pedigree-genotype-popup
+  display: flex
+  flex-direction: column
+  justify-content: center
+  align-items: center
+  position: absolute
+  z-index: 100
+  top: 50%
+  left: 50%
+  max-width: 400px
+  max-height: 400px
+  transform: translate(-50%, -50%)
+  border: 1px solid #c5c5c5 !important
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important
+  .variant-column-header
+    width: 100%
+    text-align: center
+  .variant-column-header hr
+    margin-top: 1px
+    margin-bottom: 5px
+    height: 1px
 
+#close-pedigree-genotype-popup
+  align-self: start
 
 #app-loader
   position: absolute
