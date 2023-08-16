@@ -3,6 +3,29 @@
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
+    <!-- Em's New Popup -->
+    <v-card id="pedigree-genotype-popup" elevation="9">
+        <button id="close-pedigree-genotype-popup">
+          <v-icon>close</v-icon>
+        </button>
+        <div class="variant-column-header">Inheritance
+          <hr class="v-divider theme--light">
+        </div>
+
+        <div class="popup-pedigree-chart">
+            <app-icon class="hide" icon="affected"></app-icon>
+            <pedigree-genotype-viz-responsive
+             ref="popupPedigreeGenotypeViz"
+             :margin="{left: 15, right: 14, top: 30, bottom: 4}"
+             :nodeWidth="90"
+             :nodePadding="40"
+             :nodeVerticalPadding="30"
+             :data="pedigreeGenotypeData">
+            </pedigree-genotype-viz-responsive>
+          </div>
+
+      </v-card>
+
     <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:5px">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left" style="display: inline-grid">
         <span class="pr-1" v-if="selectedVariantRelationship != 'proband'">
@@ -443,6 +466,7 @@ import ToggleButton             from '../partials/ToggleButton.vue'
 import DepthViz                 from "../viz/DepthViz.vue"
 import GeneViz                  from "../viz/GeneViz.vue"
 import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
+import PedigreeGenotypeVizResponsive from "./PedigreeGenotypeVizResponsive.vue"
 import ConservationScoresViz    from "../viz/ConservationScoresViz.vue"
 import MultialignSeqViz         from "../viz/MultialignSeqViz.vue"
 import GeneAssociationsDialog   from "../partials/GeneAssociationsDialog.vue"
@@ -472,6 +496,7 @@ export default {
     ConservationScoresViz,
     MultialignSeqViz,
     GeneAssociationsDialog,
+    PedigreeGenotypeVizResponsive,
 
   },
   props: {
@@ -1679,6 +1704,30 @@ export default {
 
 <style lang="sass" >
 @import ../../../assets/sass/variables
+#pedigree-genotype-popup
+  display: flex
+  flex-direction: column
+  justify-content: center
+  align-items: center
+  position: absolute
+  z-index: 100
+  top: 50%
+  left: 50%
+  max-width: 80%
+  transform: translate(-50%, -50%)
+  border: 1px solid #c5c5c5 !important
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important
+  .variant-column-header
+    width: 100%
+    text-align: center
+  .variant-column-header hr
+    margin-top: 1px
+    margin-bottom: 5px
+    height: 1px
+  
+#close-pedigree-genotype-popup
+  align-self: start
+
 #variant-inspect
   padding-left: 10px
   padding-top: 10px
@@ -1688,9 +1737,6 @@ export default {
 
   .multialign-loader
     font-size: 12px
-
-
-
 
   .refalt
     max-width: 200px
