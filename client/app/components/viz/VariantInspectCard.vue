@@ -3,7 +3,6 @@
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
-    <!-- Em's New Popup -->
     <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant && (numOfSiblings > 3)">
         <button id="close-pedigree-genotype-popup" @click="togglePedigreePopup">
           <v-icon>close</v-icon>
@@ -26,7 +25,7 @@
              :nodeVerticalPadding="30"
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz-responsive>
-          </div>
+        </div>
 
     </v-card>
 
@@ -1766,6 +1765,68 @@ export default {
     flex-direction: column
     justify-content: center
     align-items: center
+    circle
+      fill: none
+      stroke: black
+      stroke-width: 1px
+
+    rect
+      stroke: black
+      stroke-width: 1px
+      fill: none
+
+    .half-circle
+      path
+        fill: none
+        stroke: black
+        stroke-width: 1px
+
+    .half-diamond
+      path
+        fill: none
+        stroke: black
+        stroke-width: 1px
+
+    rect.het
+      stroke: none !important
+
+    .het, .hom
+      fill: #c5c5c5 !important
+      stroke: black
+
+    .half-circle
+      path.het
+        fill: #c5c5c5 !important
+        stroke: black
+    .half-diamond
+      path.het
+        fill: #c5c5c5 !important
+        stroke: black
+
+
+    .het.critical.proband, .hom.critical.proband
+      fill: #c5c5c5 !important
+
+    .half-diamond
+      path.het.critical.proband
+        fill: #c5c5c5 !important
+
+    line
+      stroke: black !important
+
+
+    .proband
+      stroke: $current-color !important
+      stroke-width: 2px !important
+
+    .allele-count-bar
+      rect.alt-count
+        fill: $current-color
+        opacity: .65
+
+      text
+        font-size: 14px
+        text-anchor: middle
   button
     height: 5%
     z-index: 2
