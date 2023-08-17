@@ -22,6 +22,15 @@
       label
         -webkit-transform: translate(0, -18px) scale(0.95)
         transform: translate(0, -18px) scale(0.95)
+
+    .inform-user-text
+      font-weight: bold
+      color: red
+      font-size: 12px
+      font-style: italic
+      margin: 25px 0px 25px 30px
+
+
   .sample-label
     span
       margin-top: 2px
@@ -72,15 +81,20 @@
       </sample-data-file>
     </v-flex>
 
-    <v-flex xs4   id="sample-selection">
-      <v-autocomplete
-        v-bind:class="samples == null || samples.length == 0 ? 'hide' : ''"
-        label="Sample"
-        v-model="sample"
-        :items="samples"
-        @input="onSampleSelected"
-        hide-details
-      ></v-autocomplete>
+    <v-flex xs8   id="sample-selection">
+      <div style="display: grid; grid-template-columns: 2fr 2fr">
+        <v-autocomplete
+          v-bind:class="samples == null || samples.length == 0 ? 'hide' : ''"
+          label="Sample"
+          v-model="sample"
+          :items="samples"
+          @input="onSampleSelected"
+          hide-details
+        ></v-autocomplete>
+        <div class="inform-user-text" v-if="samples != null && samples.length > 0 && sample == null">
+          Select a sample from the dropdown
+        </div>
+      </div>
       <div v-show="showLoadingSamples" style="margin-top: 10px;margin-bottom:10px">
         <span class="loader-label" style="padding-right:4px">Loading samples file vcf</span>
         <img width="20" height="20" src="../../../assets/images/wheel.gif" alt="Loading Wheel">
@@ -133,7 +147,8 @@ export default {
         isAffected: true,
         showLoadingSamples: false,
         sex: null,
-        sexList: ['', 'male', 'female']
+        sexList: ['', 'male', 'female'],
+    
     }
   },
   computed: {
@@ -252,6 +267,7 @@ export default {
         self.modelInfo.model.setName(this.modelInfo.sample);
       }
       self.$emit("sample-data-changed");
+
     },
     onBamUrlEntered: function(bamUrl, baiUrl) {
       let self = this;
