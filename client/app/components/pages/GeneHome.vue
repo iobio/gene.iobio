@@ -2,248 +2,7 @@
  * GeneHome.vue
  *
  */
- <style lang="sass">
 
- @import ../../../assets/sass/variables
- 
- .fluidMax
-   max-width: calc(100%) !important
- 
- .v-snack--top
-   top: 120px !important
- 
- .v-snack--bottom
-   bottom: 120px !important
- 
- 
- .v-snack--right
-   top: 2px !important
-   transform: initial !important
- 
- 
- .v-snack__wrapper
-   background-color: rgba( 0 , 0 , 0 , 0.70 ) !important
-   box-shadow: none !important
-   -webkit-box-shadow: none !important
-   margin-right: auto
-   margin-left: auto
-   border-radius: 4px 
- 
-   .v-snack__content
-     min-height:     80px !important
-     min-width:      100px !important
-     max-height:     500px !important
-     font-size:      15px  !important
-     font-weight:    400   !important
-     padding-top:    20px  !important
-     padding-bottom: 20px  !important
-     padding-left:   20px  !important 
-     padding-right:  20px   !important     
-     color: white !important
- 
-     span
-       color: white !important
- 
-     button
-       position:   relative
-       top:        -20px
-       right:      -15px
-       margin-left: 0px !important
- 
- 
-   #gene-viz, #gene-viz-zoom
-     .transcript.current
-       outline: none !important
-       font-weight: normal !important
-     .axis
-       padding-left: 0
-       padding-right: 0
-       margin-top: -10px
-       margin-bottom: 0
-       padding-bottom: 0
-       text
-         font-size: 11px
-         fill: rgb(120, 120, 120)
-       line, path
-         fill: none
-         stroke: lightgrey
-         shape-rendering: crispEdges
-         stroke-width: 1px
-       &.x
-         .tick
-           line
-             transform: translateY(-14px)
-           text
-             transform: translateY(6px)
-         path
-           transform: translateY(-20px)
-           display: none
- 
-     .gene-viz-zoom
-       .current
-         outline: none
- 
-       .cds, .exon, .utr
-         fill: rgba(159, 159, 159, 0.63)
-         stroke: rgb(159, 159, 159)
- 
- .analysis-save-button
-   right: 30px !important
-   bottom: 30px !important
- 
- main.content, main.v-content
-   margin-top: 57px
- 
- 
-   .variant-assessment-heading
-     color: $app-color
-     margin-bottom: 5px
-     padding-top: 5px
-     display: flex
-     justify-content: flex-start
- 
-     .icon-left
-        margin-right: 4px
-        color: $heading-color
- 
-     .heading-text
-       color: $heading-color
-       font-size: 17px
- 
- 
-   #variant-assessment-close-button
-     max-width: 20px
-     min-width: 20px
-     max-height: 20px
-     margin: 0
- 
-     i.material-icons
-       color: $text-color
-       font-size: 22px
- 
-   #gene-card-container
-     margin-top: 10px
-     margin-bottom: 10px
-     padding-bottom: 10px
- 
- main.content.clin, main.v-content.clin
-   margin-top: 0
- 
- 
- .app-card
-   margin-bottom: 6px
- 
- //noinspection CssInvalidPropertyValue
- .full-width
-   max-width: -moz-available !important
-   max-width: -webkit-fill-available !important
- 
- 
- #app-loader
-   position: absolute
-   top: 80px
-   height: 100px
-   width: 300px
-   left: calc(100%/2 - 300px)
-   border-color: #c5c5c5 !important
-   border-style: solid !important
-   border-width: 1px !important
-   padding-top: 40px
-   text-align: center
-   font-size: 16px
-   background-color: #eceaea
-   color: #1c5f96
-   font-weight: 400
- 
-   .v-progress-circular
-     color: $button-color
- 
- 
- 
- 
- .tabs__container
-   height: 31px !important
-   margin-left: 0
- 
-   .tabs__item
-     color: $app-color
-     font-size: 15px
- 
-   .tabs__item--active
-     color:  $app-color
- 
- 
- .tabs.basic
-   .tabs__container
-     .tabs__slider
-       background-color: transparent !important
-       border-color: transparent !important
- 
-     .tabs__item
-       margin-left: -10px
- 
- .tabs__div
-   text-transform: none !important
- 
- .tabs__slider
-   background-color: $app-color !important
-   border-color: $app-color !important
- 
- .gene-badge-coverage-problem
-   color: $coverage-problem-color
-   fill: $coverage-problem-color
- 
- .split-pane-item
-   height: initial !important
-   display: flex !important
- 
- 
- .switch
-   &.accent--text
-     color:  $app-color !important
- 
- .radio
-   &.accent--text
-     color:  $app-color !important
- 
- .in-iframe .v--modal-box
-   top: 50px !important
- 
- #pileup-container
-   padding-top: 0
-   padding-bottom: 0
-   width: calc(100% - 10px)
-   margin: 0 0 0 -10px
- 
-   .card, .v-card
-     margin: 0
-     padding: 0
-     -webkit-box-shadow: none !important
-     box-shadow: none !important
- 
-     .layout.row
-       margin-left: 20px
-       margin-right: 20px
- 
-     .igv-root-div
-       margin-left: -10px
- 
-     .igv-right-hand-gutter
-       right: -10px
-       left: initial
- 
- .ajs-content
-   overflow-wrap: break-word
- 
- .ajs-dialog
-   max-width: 600px !important
- 
- .dark-text-important
-   color: #626262 !important
- 
- 
- </style>
- 
 <template>
   <div>
 
@@ -5059,3 +4818,244 @@ export default {
 }
 </script>
 
+<style lang="sass">
+
+@import ../../../assets/sass/variables
+
+.fluidMax
+  max-width: calc(100%) !important
+
+.v-snack--top
+  top: 120px !important
+
+.v-snack--bottom
+  bottom: 120px !important
+
+
+.v-snack--right
+  top: 2px !important
+  transform: initial !important
+
+
+.v-snack__wrapper
+  background-color: rgba( 0 , 0 , 0 , 0.70 ) !important
+  box-shadow: none !important
+  -webkit-box-shadow: none !important
+  margin-right: auto
+  margin-left: auto
+  border-radius: 4px 
+
+  .v-snack__content
+    min-height:     80px !important
+    min-width:      100px !important
+    max-height:     500px !important
+    font-size:      15px  !important
+    font-weight:    400   !important
+    padding-top:    20px  !important
+    padding-bottom: 20px  !important
+    padding-left:   20px  !important 
+    padding-right:  20px   !important     
+    color: white !important
+
+    span
+      color: white !important
+
+    button
+      position:   relative
+      top:        -20px
+      right:      -15px
+      margin-left: 0px !important
+
+
+  #gene-viz, #gene-viz-zoom
+    .transcript.current
+      outline: none !important
+      font-weight: normal !important
+    .axis
+      padding-left: 0
+      padding-right: 0
+      margin-top: -10px
+      margin-bottom: 0
+      padding-bottom: 0
+      text
+        font-size: 11px
+        fill: rgb(120, 120, 120)
+      line, path
+        fill: none
+        stroke: lightgrey
+        shape-rendering: crispEdges
+        stroke-width: 1px
+      &.x
+        .tick
+          line
+            transform: translateY(-14px)
+          text
+            transform: translateY(6px)
+        path
+          transform: translateY(-20px)
+          display: none
+
+    .gene-viz-zoom
+      .current
+        outline: none
+
+      .cds, .exon, .utr
+        fill: rgba(159, 159, 159, 0.63)
+        stroke: rgb(159, 159, 159)
+
+.analysis-save-button
+  right: 30px !important
+  bottom: 30px !important
+
+main.content, main.v-content
+  margin-top: 57px
+
+
+  .variant-assessment-heading
+    color: $app-color
+    margin-bottom: 5px
+    padding-top: 5px
+    display: flex
+    justify-content: flex-start
+
+    .icon-left
+       margin-right: 4px
+       color: $heading-color
+
+    .heading-text
+      color: $heading-color
+      font-size: 17px
+
+
+  #variant-assessment-close-button
+    max-width: 20px
+    min-width: 20px
+    max-height: 20px
+    margin: 0
+
+    i.material-icons
+      color: $text-color
+      font-size: 22px
+
+  #gene-card-container
+    margin-top: 10px
+    margin-bottom: 10px
+    padding-bottom: 10px
+
+main.content.clin, main.v-content.clin
+  margin-top: 0
+
+
+.app-card
+  margin-bottom: 6px
+
+//noinspection CssInvalidPropertyValue
+.full-width
+  max-width: -moz-available !important
+  max-width: -webkit-fill-available !important
+
+
+#app-loader
+  position: absolute
+  top: 80px
+  height: 100px
+  width: 300px
+  left: calc(100%/2 - 300px)
+  border-color: #c5c5c5 !important
+  border-style: solid !important
+  border-width: 1px !important
+  padding-top: 40px
+  text-align: center
+  font-size: 16px
+  background-color: #eceaea
+  color: #1c5f96
+  font-weight: 400
+
+  .v-progress-circular
+    color: $button-color
+
+
+
+
+.tabs__container
+  height: 31px !important
+  margin-left: 0
+
+  .tabs__item
+    color: $app-color
+    font-size: 15px
+
+  .tabs__item--active
+    color:  $app-color
+
+
+.tabs.basic
+  .tabs__container
+    .tabs__slider
+      background-color: transparent !important
+      border-color: transparent !important
+
+    .tabs__item
+      margin-left: -10px
+
+.tabs__div
+  text-transform: none !important
+
+.tabs__slider
+  background-color: $app-color !important
+  border-color: $app-color !important
+
+.gene-badge-coverage-problem
+  color: $coverage-problem-color
+  fill: $coverage-problem-color
+
+.split-pane-item
+  height: initial !important
+  display: flex !important
+
+
+.switch
+  &.accent--text
+    color:  $app-color !important
+
+.radio
+  &.accent--text
+    color:  $app-color !important
+
+.in-iframe .v--modal-box
+  top: 50px !important
+
+#pileup-container
+  padding-top: 0
+  padding-bottom: 0
+  width: calc(100% - 10px)
+  margin: 0 0 0 -10px
+
+  .card, .v-card
+    margin: 0
+    padding: 0
+    -webkit-box-shadow: none !important
+    box-shadow: none !important
+
+    .layout.row
+      margin-left: 20px
+      margin-right: 20px
+
+    .igv-root-div
+      margin-left: -10px
+
+    .igv-right-hand-gutter
+      right: -10px
+      left: initial
+
+.ajs-content
+  overflow-wrap: break-word
+
+.ajs-dialog
+  max-width: 600px !important
+
+.dark-text-important
+  color: #626262 !important
+
+
+</style>
