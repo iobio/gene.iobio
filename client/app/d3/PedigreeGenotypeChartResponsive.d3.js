@@ -205,6 +205,7 @@ export default function PedigreeGenotypeChartResponsiveD3() {
   
     let createAlleleCountBar = function(parent, position) {
       let nodeData = parent.data()[0]
+
       if(isNaN(nodeData.altRatio)){
           nodeData.altRatio = 1;
       }
@@ -296,7 +297,6 @@ export default function PedigreeGenotypeChartResponsiveD3() {
         }
       }
   
-  
       let childWidth = (childData.length * nodeWidth) + ((childData.length-1) * nodePadding);
       let parentWidth = (2 * nodeWidth) + nodePadding;
       let width = Math.max(childWidth, parentWidth)
@@ -325,7 +325,7 @@ export default function PedigreeGenotypeChartResponsiveD3() {
                         .append("svg")
                         .attr("width", "100%")
                         .attr("height", "100%")
-                        .attr("viewBox", "0 0 " + outerWidth + " " + outerHeight);
+                        .attr("viewBox", "0 0 " + (outerWidth + 30) + " " + (outerHeight + 30));
   
       let group = svgEnter.append("g")
                           .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
