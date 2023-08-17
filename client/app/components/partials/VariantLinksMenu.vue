@@ -14,6 +14,7 @@
   margin-left: 14px
   margin-right: 10px
   padding-bottom: 2px
+  color: #30638e
 
   .btn__content, .v-btn__content
     color:  $text-color
@@ -53,7 +54,8 @@
        slot="activator"
        v-tooltip.top-center="`External links to variant info (e.g. VarSome, UCSC Browser, etc.`"
       >
-        <v-icon>open_in_new</v-icon> Links
+        <v-icon>open_in_new</v-icon> 
+        Links
       </v-btn>
 
       <hr style="margin-top:0px;margin-bottom:0px">
