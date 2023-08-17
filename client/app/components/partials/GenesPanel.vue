@@ -248,6 +248,7 @@
        :geneSource="getGeneSource(gene.name)"
        @gene-selected="onGeneSelected"
        @remove-gene="onRemoveGene"
+       @show-alerts-for-gene="onShowAlertsForGene"
       >
       </gene-badge>
     </div>
@@ -304,6 +305,9 @@ export default {
     },
     onStopAnalysis: function() {
       this.$emit("stop-analysis");
+    },
+    onShowAlertsForGene: function(geneName) {
+      this.$emit('show-alerts-for-gene', geneName)
     },
 
     updateGeneSummaries: function() {

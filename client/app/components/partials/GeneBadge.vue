@@ -70,10 +70,12 @@
   &.has-error
     #gene-badge-error
       display: inline
+      cursor: pointer
 
   &.has-warning
     #gene-badge-warning
       display: inline
+      cursor: pointer
 
   &:hover #gene-badge-remove
     cursor: pointer
@@ -212,8 +214,8 @@
         <i id="gene-badge-called" class="level-edu material-icons glyph">done</i>
         <i id="gene-badge-has-called-variants" class="level-edu material-icons glyph">check_circle</i>
 
-        <i id="gene-badge-warning" class="material-icons glyph">warning</i>
-        <i id="gene-badge-error" class="material-icons glyph">error</i>
+        <i id="gene-badge-warning" @click="onShowGeneAlerts" class="material-icons glyph">warning</i>
+        <i id="gene-badge-error" @click="onShowGeneAlerts" class="material-icons glyph">error</i>
 
   </div>
 
@@ -415,6 +417,9 @@ export default {
       let theGeneName = self.gene.name;
       self.$emit("remove-gene", theGeneName);
 
+    },
+    onShowGeneAlerts: function() {
+      this.$emit('show-alerts-for-gene', this.gene.name)
     },
     getClinvarLevel: function() {
       var self = this;

@@ -3,7 +3,7 @@
 
 #alert-panel
   margin-left: 10px
-  margin-right: 10px
+  margin-right: 15px
   margin-top: 5px
   margin-bottom: 0px
 

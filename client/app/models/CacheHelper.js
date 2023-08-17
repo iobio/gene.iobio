@@ -341,7 +341,8 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, analyzeGeneCo
     // Invoke method to cache each of the genes in the queue
     var count = 0;
     for (var i = startingPos; i < me.globalApp.DEFAULT_BATCH_SIZE && count < sizeToQueue && i < me.cacheQueue.length; i++) {
-      me.promiseCacheGene(me.cacheQueue[i], analyzeCalledVariants, analyzeGeneCoverage, annotateVariants)
+      let geneToAnalyze = me.cacheQueue[i];
+      me.promiseCacheGene(geneToAnalyze, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants)
       .then(function(data) {
         me.cacheNextGeneSuccess(data.gene, data.transcript, analyzeCalledVariants, analyzeGeneCoverage, annotateVariants, callback);
       })
@@ -354,7 +355,12 @@ CacheHelper.prototype.cacheGenes = function(analyzeCalledVariants, analyzeGeneCo
           if (error && error.hasOwnProperty('alertType') && error.alertType == 'warning') {
             me.dispatch.alertIssued('warning', error.message, error.geneName);            
             return Promise.resolve({'geneName': error.geneName});
+          } else if (error && error.hasOwnProperty('alertType') && error.alertType == 'error') {
+            me.dispatch.alertIssued('error', error.message, error.geneName);            
+            return me.cohort.promiseSummarizeError(error.geneName, error.message)
           } else {
+            let geneName = error.hasOwnProperty("geneName") ? error.geneName : geneToAnalyze;
+            me.dispatch.alertIssued('error', error.message);            
             return me.cohort.promiseSummarizeError(error.geneName, error.message)
           }
         }
@@ -504,7 +510,7 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
 
         })
         .catch(function(error) {
-          cacheReject({'geneName': theGeneName, 'message': error});
+          cacheReject({'geneName': theGeneName, 'message': error, 'alertType': 'error'});
         });
       }
     })
@@ -512,9 +518,9 @@ CacheHelper.prototype.promiseCacheGene = function(geneName, analyzeCalledVariant
       if (error.hasOwnProperty('message') && error.hasOwnProperty('gene')) {
         cacheReject({'geneName': error.gene, 
                      'message': error.message, 
-                     'alertType': error.hasOwnProperty('alertType') ? error.alertType : null})
+                     'alertType': error.hasOwnProperty('alertType') ? error.alertType : 'error'})
       } else {
-        cacheReject({'geneName': theGeneName, 'message': error});
+        cacheReject({'geneName': theGeneName, 'message': error, 'alertType': 'error'});
       }
     });
     

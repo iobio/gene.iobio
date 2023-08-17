@@ -356,6 +356,7 @@ main.content.clin, main.v-content.clin
       @hide-settings-dialog="onHideSettingsDialog"
       @show-alert-panel="onAlertPanelShown"
       @hide-alert-panel="onAlertPanelHidden"
+      @show-alerts-for-gene="onShowAlertsForGene"
     >
     </navigation>
 
@@ -1286,6 +1287,9 @@ export default {
         self.geneModel.on("alertIssued", function(type, message, genes, details, options) {
           self.addAlert(type, message, genes, details, options)
         })
+        self.geneModel.on("alertRetracted", function(type, partialMessage, genes) {
+          self.onRetractAppAlert(type, partialMessage, genes)
+        })
 
         self.cacheHelper.cohort = self.cohortModel;
 
@@ -1720,6 +1724,57 @@ export default {
       })
     },
 
+    onRetractAppAlert: function(type, partialMessage, genes) {
+      let self = this;
+
+      let matching = self.appAlerts.filter(function(alert) {
+        if (alert.type == type && 
+            alert.message.indexOf(partialMessage) >= 0 && 
+            alert.genes == genes) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      matching.forEach(function(alertToRemove) {
+        let index = self.appAlerts.indexOf(alertToRemove);
+        if (index >= 0) {
+          self.appAlertCounts[alertToRemove.type] -= 1 
+          self.appAlertCounts.total -= 1;
+
+          self.appAlerts.splice(index, 1)
+
+          // We have removed the alert for appAlerts. Now remove it
+          // from the gene-to-alerts map.
+          if (genes) {
+            genes.split(", ").forEach(function(geneName) {
+              let alertsForGene = self.geneToAppAlerts[geneName]
+              let indexToRemove = null;
+              // Remove alert from array in gene to alerts map 
+              for (let idx = 0; idx < alertsForGene.length; idx++) {
+                let theAlert = alertsForGene[idx];
+                if (theAlert.type == type && 
+                    theAlert.message.indexOf(partialMessage) >= 0 && 
+                    theAlert.genes == genes) {
+                  indexToRemove = idx;
+                  break;
+                }
+              }
+              if (indexToRemove >= 0) {
+                alertsForGene.splice(indexToRemove, 1);
+              }
+
+            })
+          }
+        }
+      })
+      if (matching.length > 0) {
+        if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
+          self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
+        }  
+      }
+    },
+
     onAlertPanelShown: function() {
     },
 
@@ -1800,6 +1855,63 @@ export default {
       }
     },
 
+    onShowAlertsForGene: function(geneName) {
+      let self = this;
+      let alertsForGene = this.geneToAppAlerts[geneName];
+      if (alertsForGene) {
+        alertsForGene.forEach(function(alertToSelect) {
+
+          // Find the location of the alert to select 
+          let itemToSelect = null;
+          let itemsToDeselect = [];
+          for (let i = 0; i < self.appAlerts.length; i++) {
+            let theAlert = self.appAlerts[i];
+            if (alertToSelect && 
+                alertToSelect.type != 'info' &&
+                theAlert.type == alertToSelect.type && 
+                theAlert.message == alertToSelect.message &&
+                theAlert.genes == alertToSelect.genes && 
+                theAlert.details == alertToSelect.details) {
+              itemToSelect = {'index': i, 'alert': theAlert}
+            } else   {
+              let alertFromSameGene = false;
+              // Only deselect alerts for different genes
+              if (alertToSelect.genes) {
+                alertToSelect.genes.split(", ").forEach(function(theGene) {
+                  if (theGene != null && theAlert.genes != null && theAlert.genes.indexOf(theGene) >= 0) {
+                    alertFromSameGene = true;
+                  }
+                })
+              }
+              if (!alertFromSameGene) {
+                itemsToDeselect.push({'index': i, 'alert': theAlert})
+              }
+            }
+          }
+          if (itemToSelect) {
+            let clonedAlert = $.extend({}, itemToSelect.alert)
+            clonedAlert.selected = true;
+            self.appAlerts.splice(itemToSelect.index, 1, clonedAlert)  
+
+            self._refreshGeneToAlerts(clonedAlert)            
+          }
+          // Deselect the alerts. We clone them so that the AlertPanel 
+          // can react to this change
+          itemsToDeselect.forEach(function(itemToDeselect) {
+            let clonedAlert = $.extend({}, itemToDeselect.alert);
+            clonedAlert.selected = false;
+            self.appAlerts.splice(itemToDeselect.index, 1, clonedAlert)
+
+            self._refreshGeneToAlerts(clonedAlert)
+          })
+
+        })
+        if (self.$refs.navRef) {
+          self.$refs.navRef.onShowNotificationDrawerShowSelected();
+        }
+      }
+    },
+
     _getMatchingAlerts: function(type, message, genes, details) {
       let self = this;
       return self.appAlerts.filter(function(alert) {
@@ -1861,20 +1973,22 @@ export default {
       let self = this;
 
       // Set the selected field based on the cloned alert
-      clonedAlert.genes.split(", ").forEach(function(geneName) {
-        let alertsForGene = self.geneToAppAlerts[geneName];
+      if (clonedAlert.genes != null) {
+        clonedAlert.genes.split(", ").forEach(function(geneName) {
+          let alertsForGene = self.geneToAppAlerts[geneName];
 
-        if (alertsForGene) {
-          alertsForGene.forEach(function(a) {
-            if (a.type == clonedAlert.type && 
-                a.message == clonedAlert.message &&
-                a.genes == clonedAlert.genes && 
-                a.details == clonedAlert.details) {
-              a.selected = clonedAlert.selected
-            }
-          })          
-        }
-      })
+          if (alertsForGene) {
+            alertsForGene.forEach(function(a) {
+              if (a.type == clonedAlert.type && 
+                  a.message == clonedAlert.message &&
+                  a.genes == clonedAlert.genes && 
+                  a.details == clonedAlert.details) {
+                a.selected = clonedAlert.selected
+              }
+            })          
+          }
+        })        
+      }
 
     },
 
@@ -2548,7 +2662,7 @@ export default {
       let criticalAlerts = self._getCriticalAlertsForGene(geneName);
       if (self.$refs.navRef) {
         if (criticalAlerts.length > 0) {
-          self.$refs.navRef.onShowNotificationDrawerShowSelected();
+          self.onShowAlertsForGene(geneName)
         } else {
           self.$refs.navRef.showNotificationDrawer = false;
         }

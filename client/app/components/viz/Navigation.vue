@@ -985,6 +985,7 @@ nav.toolbar, nav.v-toolbar
              @analyze-all="onAnalyzeAll"
              @call-variants="onCallVariants"
              @stop-analysis="onStopAnalysis"
+             @show-alerts-for-gene="onShowAlertsForGene"
             >
             </genes-panel>
 
@@ -1817,6 +1818,9 @@ export default {
     },
     onClearAllAppAlerts: function() {
       this.$emit('clear-all-app-alerts')
+    },
+    onShowAlertsForGene: function(geneName) {
+      this.$emit('show-alerts-for-gene', geneName)
     }
 
   },

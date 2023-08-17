@@ -90,7 +90,7 @@ class GeneModel {
 
     this.isFullAnalysis = false;
 
-    this.dispatch = d3.dispatch("geneDangerSummarized", "alertIssued");
+    this.dispatch = d3.dispatch("geneDangerSummarized", "alertIssued", "alertRetracted");
     d3.rebind(this, this.dispatch, "on");
 
     this.genesAssociatedWithSource = {};
@@ -926,6 +926,7 @@ class GeneModel {
       let unknownGeneInfo = {description: ' ', summary: ' '};
 
       if (geneInfo != null && geneInfo.summary != " ") {
+        me.dispatch.alertRetracted("info", "Unable to get NCBI gene summary", geneName)
         resolve(geneInfo);
       } else {
         // Search NCBI based on the gene name to obtain the gene ID
@@ -955,6 +956,7 @@ class GeneModel {
                 var geneInfo = sumData.result[uid];
 
                 me.geneNCBISummaries[geneName] = geneInfo;
+                me.dispatch.alertRetracted("info", "Unable to get NCBI gene summary", geneName)
                 resolve(geneInfo)
               }
           })
@@ -987,6 +989,7 @@ class GeneModel {
 
       let theEntry = me.genePubMedEntries[theGeneName];
       if (theEntry && options.useCached) {
+        me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", theGeneName);
         resolve(theEntry)
       }
       else {
@@ -1018,14 +1021,17 @@ class GeneModel {
                   if (options.useCached) {
                     me.genePubMedEntries[geneName] = theEntry;
                   }
+                  me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
                   resolve(theEntry);
                 } else {
                   let theEntry = {geneName: geneName, count: 0, entries: null}
                   if (options.useCached) {
                     me.genePubMedEntries[geneName] = theEntry;
                   }
+                  me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
                   resolve(theEntry)
                 }
+
               })
              .fail(function(error) {
                 delete me.pendingNCBIRequests[geneName];
@@ -1157,6 +1163,7 @@ class GeneModel {
                   return entry.phenotypeMap;
                 })
               }
+              self.dispatch.alertRetracted("warning", "Unable to get phenotype mim number OMIM", geneName);
               resolve({geneName: geneName, mimNumber: mimNumber, phenotypes: phenotypes});
             }
             else {
