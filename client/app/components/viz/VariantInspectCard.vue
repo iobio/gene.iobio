@@ -1948,9 +1948,9 @@ export default {
         align-items: center
         justify-content: center
         i
-          margin: 3px 2px 3px 3px
+          margin: 3px 2px 1px 3px
         p
-          margin: 3px 3px 3px 1px
+          margin: 3px 3px 1px 1px
           
       #qual-track
         display: flex

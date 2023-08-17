@@ -9,8 +9,8 @@
   padding: 0px
   min-width: 25px
   max-height: 25px
-  padding-right: 5px
-  padding-left: 8px
+  padding-right: 10px
+  padding-left: 10px
   margin-left: 14px
   margin-right: 10px
   padding-bottom: 2px
