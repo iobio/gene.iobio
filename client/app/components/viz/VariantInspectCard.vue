@@ -365,8 +365,8 @@
             </pedigree-genotype-viz>
           </div>
           <v-btn id="expand-popup-button" v-if="this.numOfSiblings && this.numOfSiblings > 3" small flat light @click="togglePedigreePopup">
-            Expand
-            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px; color: rgb(48, 99, 142); padding-bottom: 3px;">open_in_new</i>
+            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 20px; color: rgb(48, 99, 142);">open_in_new</i>
+            <p>Expand</p>
           </v-btn>
 
       </div>
@@ -1943,6 +1943,15 @@ export default {
       #expand-popup-button
         font-weight: 500
         color: #30638e
+        display: flex
+        flex-direction: row
+        align-items: center
+        justify-content: center
+        i
+          margin: 3px 2px 3px 3px
+        p
+          margin: 3px 3px 3px 1px
+          
       #qual-track
         display: flex
         flex-direction: column
