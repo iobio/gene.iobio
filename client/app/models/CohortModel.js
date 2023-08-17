@@ -1035,22 +1035,58 @@ class CohortModel {
     let self = this;
 
     return new Promise(function(resolve, reject) {
-      let theOptions = $.extend({'isMultiSample': self.mode == 'trio' && self.samplesInSingleVcf(), 'isBackground': false}, options);
-      self.promiseAnnotateVariants(theGene, theTranscript, theOptions)
-      .then(function(resultMap) {
-        // Flag bookmarked variants
-        self.syncUpFlaggedSwitch(resultMap.proband);
 
-        // the variants are fully annotated so determine inheritance (if trio).
-        return self.promiseAnnotateInheritance(theGene, theTranscript, resultMap, {isBackground: false, cacheData: true})
-      })
-      .then(function(resultMap) {
-        resolve(resultMap);
-      })
-      .catch(function(error) {
-        self.dispatch.alertIssued( "error", error, theGene.gene_name)
-        reject(error);
-      })
+      if (self.isAlignmentsOnly()) {
+        let resultMap = {};
+        let promises = [];
+        self.getCanonicalModels().forEach(function(model) {
+          model.inProgress.loadingVariants = true;
+          let p = model.promiseGetVcfData(theGene, theTranscript)
+          .then(function(data) {
+            let results = null;
+            if (data == null || data.vcfData == null) {
+              results =  {'features': [], 
+                          'loadState': {}, 
+                          'gene': theGene, 
+                          'transcript': theTranscript }   
+
+            } else {
+              results = data.vcfData;
+            }
+            resultMap[model.relationship] = results;
+          })
+          promises.push(p);
+        });
+        Promise.all(promises)
+        .then(function() {
+          for (var theRelationship in resultMap) {
+            if (options != null && !options.isBackground) {
+              self.getModel(theRelationship).inProgress.loadingVariants = false;
+            }
+          }
+
+          resolve({'resultMap': resultMap, 'gene': theGene, 'transcript': theTranscript});
+        })
+
+      } else {
+        let theOptions = $.extend({'isMultiSample': self.mode == 'trio' && self.samplesInSingleVcf(), 'isBackground': false}, options);
+        self.promiseAnnotateVariants(theGene, theTranscript, theOptions)
+        .then(function(resultMap) {
+          // Flag bookmarked variants
+          self.syncUpFlaggedSwitch(resultMap.proband);
+
+          // the variants are fully annotated so determine inheritance (if trio).
+          return self.promiseAnnotateInheritance(theGene, theTranscript, resultMap, {isBackground: false, cacheData: true})
+        })
+        .then(function(resultMap) {
+          resolve(resultMap);
+        })
+        .catch(function(error) {
+          self.dispatch.alertIssued( "error", error, theGene.gene_name)
+          reject(error);
+        })
+      }
+  
     })
 
   }
@@ -1833,14 +1869,15 @@ class CohortModel {
       self.getProbandModel().promiseSummarizeError(geneName, error)
       .then(function(dangerObject) {
           self.geneModel.setDangerSummary(theGeneName, dangerObject);
-          if (error.indexOf(geneName) >= 0 ) {
-            self.dispatch.alertIssued('error', error, theGeneName);
-          } else {
-            self.dispatch.alertIssued('error', error + " for gene " + theGeneName, theGeneName);
-          }
+          
           resolve(dangerObject);
       }).
       catch(function(error) {
+        if (error.indexOf(geneName) >= 0 ) {
+          self.dispatch.alertIssued('error', error, theGeneName);
+        } else {
+          self.dispatch.alertIssued('error', error + " for gene " + theGeneName, theGeneName);
+        }
         reject(error);
       })
     })
@@ -1855,6 +1892,7 @@ class CohortModel {
 
       return new Promise(function(resolve, reject) {
         var analyzeGeneCoverage = null;
+        var dangerSummaryExisting = null;
         if (options && options.hasOwnProperty('GENECOVERAGE')) {
           analyzeGeneCoverage = options.GENECOVERAGE;
         } else {
@@ -1879,6 +1917,8 @@ class CohortModel {
 
           self.getProbandModel().promiseGetDangerSummary(geneObject.gene_name)
           .then(function(dangerSummary) {
+
+              dangerSummaryExisting = dangerSummary;
 
               // These are the imported variants that were not found in the vcf
               // file. If we don't save them here, we will lose this count in
@@ -1919,7 +1959,7 @@ class CohortModel {
 
           })
           .then(function(theVcfData) {
-              return self.getProbandModel().promiseSummarizeDanger(geneObject, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript, notFoundVariants);
+              return self.getProbandModel().promiseSummarizeDanger(geneObject, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript, notFoundVariants, dangerSummaryExisting);
           })
           .then(function(theDangerSummary) {
             if (theDangerSummary && theDangerSummary.geneCoverageProblem && theDangerSummary.geneCoverageProblemNonProband) {
@@ -2078,10 +2118,17 @@ class CohortModel {
     var trioVcfData = {};
     this.getCanonicalModels().forEach(function(model) {
       var theVcfData = model.vcfData;
-      if (model.isAlignmentsOnly() &&  theVcfData == null) {
-        theVcfData = {};
-        theVcfData.features = [];
-        theVcfData.loadState = {};
+      if (model.isAlignmentsOnly()) {
+        if (theVcfData == null) {
+          theVcfData = {};
+          theVcfData.features = [];
+          theVcfData.loadState = {};          
+        } else {
+          let loadedVariantsOnly = theVcfData.features.filter(function(feature) {
+            return !feature.fbCalled || feature.fbCalled != 'Y';
+          })
+          theVcfData.features = loadedVariantsOnly;
+        }
       }
       trioVcfData[model.getRelationship()] = theVcfData;
     })
@@ -3517,7 +3564,8 @@ class CohortModel {
     let self = this;
     let sampleNames = [];
 
-    ['proband', 'mother', 'father'].forEach(function(rel) {
+    let rels = self.mode == 'trio' ? ['proband', 'mother', 'father'] : ['proband'];
+    rels.forEach(function(rel) {
       let sampleName = self.sampleMap[rel].model.bam.getHeaderSample();
       if (sampleName == null || sampleName.length == 0) {
         sampleName = self.sampleMap[rel].model.getSampleName()

@@ -609,10 +609,10 @@ class SampleModel {
   }
 
 
-  promiseSummarizeDanger(geneObject, theVcfData, options, geneCoverageAll, filterModel, transcript, notFoundVariants=null) {
+  promiseSummarizeDanger(geneObject, theVcfData, options, geneCoverageAll, filterModel, transcript, notFoundVariants=null, dangerSummaryExisting=null) {
     var me = this;
     return new Promise(function(resolve, reject) {
-      var dangerSummary = SampleModel._summarizeDanger(geneObject.gene_name, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme(), transcript);
+      var dangerSummary = SampleModel._summarizeDanger(geneObject.gene_name, theVcfData, options, geneCoverageAll, filterModel, me.getTranslator(), me.getAnnotationScheme(), transcript, me.isAlignmentsOnly());
       
       me.cohort.captureFlaggedVariants(dangerSummary, geneObject)
 
@@ -623,13 +623,75 @@ class SampleModel {
         dangerSummary.badges.notFound = notFoundVariants;
       }
 
-      me.promiseCacheDangerSummary(dangerSummary, geneObject.gene_name).then(function() {
-        resolve(dangerSummary);
-      },
-      function(error) {
-        reject(error);
-      })
+      var cacheIt = true;
+      if (dangerSummaryExisting) {
+        cacheIt = me._isDifferentDangerSummary(dangerSummaryExisting, dangerSummary)
+      }
+
+      if (cacheIt) {
+        me.promiseCacheDangerSummary(dangerSummary, geneObject.gene_name)
+        .then(function() {
+          resolve(dangerSummary);
+        },
+        function(error) {
+          reject(error);
+        })
+      } else {
+        resolve(dangerSummary)
+      }
+      
+
     })
+  }
+
+  _isDifferentDangerSummary(ds1, ds2) {
+    let self = this;
+    let match = true;
+    ['CALLED', 'GENECOVERAGE','AF', 'CLINVAR', 'CONSEQUENCE', 'IMPACT', 'INHERITANCE', 'calledCount', 'loadedCount', 'isAlignmentsOnly']
+    .forEach(function(field) {
+      if (JSON.toString(ds1[field]) != JSON.toString(ds2[field])) {
+        match = false;
+      }
+    })
+    if (match) {
+      Object.keys(self.cohort.filterModel.flagCriteria).forEach(function(filter) {
+        if (match) {
+          let length1 = ds1.badges[filter] ? ds1.badges[filter].length : 0;
+          let length2 = ds2.badges[filter] ? ds2.badges[filter].length : 0;
+
+          let variants1 = [];
+          if (ds1.badges[filter]) {
+            variants1 = ds1.badges[filter].map(function(variant) {
+              if (variant) {
+                return variant.start + "-" + variant.ref + "-" +  variant.alt; 
+              } else {
+                return "?"
+              }
+            })
+          }
+          let variants2 = [];
+          if (ds2.badges[filter]) {
+            variants2 = ds2.badges[filter].map(function(variant) {
+              if (variant) {
+                return variant.start + "-" + variant.ref + "-" +  variant.alt; 
+              } else {
+                return "?"
+              }
+            })
+          }
+
+          if (length1 != length2) {
+            match = false;
+          } else if (variants1.join(",") != variants2.join(",")) {
+            match = false;
+          }    
+        }
+      })
+    } else {
+      console.log(ds1)
+      console.log(ds2)
+    }
+    return !match;
   }
 
   promiseSummarizeError(geneName, error) {
@@ -1079,6 +1141,7 @@ class SampleModel {
           resolve();
         }
       } else {
+        
         me.vcfRefNamesMap = {};
         let currVcf = me.vcf;
         if (sfariMode) {
@@ -1123,7 +1186,8 @@ class SampleModel {
          })
          .catch(function(error) {
             reject(error)
-         })
+         })        
+       
       }
     });
 
@@ -1875,6 +1939,8 @@ class SampleModel {
       let isBackground = options.isBackground;
       let refName = null;
 
+
+
       me._promiseVcfRefName(theGene.chr)
       .then( function() {
         refName = me.getVcfRefName(theGene.chr);
@@ -1903,7 +1969,7 @@ class SampleModel {
 
         Promise.all(promises)
         .then(function() {
-          if (Object.keys(resultMap).length === variantModels.length) {
+          if (Object.keys(resultMap).length === variantModels.length || me.isAlignmentsOnly()) {
             resolve(resultMap);
           } else {
 
@@ -3572,7 +3638,7 @@ class SampleModel {
 }
 
 
-SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator, annotationScheme, transcript) {
+SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator, annotationScheme, transcript, isAlignmentsOnly) {
   var dangerCounts = $().extend({}, options);
   dangerCounts.CONSEQUENCE = {};
   dangerCounts.IMPACT = {};
@@ -3580,11 +3646,14 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
   dangerCounts.INHERITANCE = {};
   dangerCounts.AF = {};
   dangerCounts.featureCount = 0;
+  //if (options && options.CALLED && ) {
+    dangerCounts.calledCount  = 0;
+  //}
   dangerCounts.loadedCount  = 0;
-  dangerCounts.calledCount  = 0;
   dangerCounts.harmfulVariantsInfo = [];
   dangerCounts.failedFilter = false;
   dangerCounts.geneName = geneName;
+  dangerCounts.isAlignmentsOnly = isAlignmentsOnly;
 
   SampleModel.summarizeDangerForGeneCoverage(dangerCounts, geneCoverageAll, filterModel, transcript);
 
@@ -3732,10 +3801,12 @@ SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, gene
     var bypassZyg = SampleModel.isZygosityToBypass(d, 'proband');
     return (!d.hasOwnProperty("fbCalled") || d.fbCalled != 'Y') && !bypassZyg;
   }).length;
-  dangerCounts.calledCount  = theVcfData.features.filter(function(d) {
-    var bypassZyg = SampleModel.isZygosityToBypass(d, 'proband');
-    return d.hasOwnProperty("fbCalled") && d.fbCalled == 'Y' && !bypassZyg;
-  }).length;
+  //if (options && options.CALLED) {
+    dangerCounts.calledCount  = theVcfData.features.filter(function(d) {
+      var bypassZyg = SampleModel.isZygosityToBypass(d, 'proband');
+      return d.hasOwnProperty("fbCalled") && d.fbCalled == 'Y' && !bypassZyg;
+    }).length;    
+  //}
 
   // Indicate if the gene pass the filter (if applicable)
   dangerCounts.failedFilter = filterModel.hasFilters() && dangerCounts.featureCount == 0;
