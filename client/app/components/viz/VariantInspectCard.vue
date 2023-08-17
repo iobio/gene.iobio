@@ -4,27 +4,31 @@
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
     <!-- Em's New Popup -->
-    <v-card id="pedigree-genotype-popup" elevation="9">
-        <button id="close-pedigree-genotype-popup">
+    <v-card id="pedigree-genotype-popup" :class="this.showPedigreePopup ? 'pedigree-popup-show : pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant && (numOfSiblings > 3)">
+        <button id="close-pedigree-genotype-popup" @click="togglePedigreePopup">
           <v-icon>close</v-icon>
         </button>
+
         <div class="variant-column-header">Inheritance
-          <hr class="v-divider theme--light">
+          <v-divider></v-divider>
         </div>
+
+        <variant-inspect-inheritance-row :selectedVariant="selectedVariant">
+        </variant-inspect-inheritance-row>
 
         <div class="popup-pedigree-chart">
             <app-icon class="hide" icon="affected"></app-icon>
             <pedigree-genotype-viz-responsive
              ref="popupPedigreeGenotypeViz"
              :margin="{left: 15, right: 14, top: 30, bottom: 4}"
-             :nodeWidth="90"
+             :nodeWidth="60"
              :nodePadding="40"
              :nodeVerticalPadding="30"
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz-responsive>
           </div>
 
-      </v-card>
+    </v-card>
 
     <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:5px">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left" style="display: inline-grid">
@@ -361,7 +365,7 @@
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz>
           </div>
-
+          <v-btn v-if="this.numOfSiblings && this.numOfSiblings > 3" small round dark color="#4184bf" @click="togglePedigreePopup">Show In Popup</v-btn>
 
       </div>
 
@@ -522,7 +526,8 @@ export default {
   data() {
     return {
       genePhenotypeHits: null,
-
+      showPedigreePopup: false,
+      numOfSiblings: null,
       coverageRegionStart: null,
       coverageRegionEnd: null,
       exon: null,
@@ -591,8 +596,6 @@ export default {
 
     }
   },
-
-
   methods: {
     refresh: function() {
 
@@ -601,10 +604,6 @@ export default {
     annotateClinVarVariant(){
       this.refreshSelectedVariantInfo();
     },
-
-
-
-
       refreshSelectedVariantInfo: function() {
           if (this.selectedVariant) {
               this.selectedVariantInfo =  this.globalApp.utility.formatDisplay(this.selectedVariant, this.cohortModel.translator, this.isEduMode)
@@ -628,6 +627,27 @@ export default {
         }
       }
       return popAF;
+    },
+    togglePedigreePopup() {
+      if (this.showPedigreePopup) {
+        this.showPedigreePopup = false;
+      } else {
+        this.showPedigreePopup = true;
+      }
+    },
+    setNumOfSiblings() {
+      if (this.pedigreeGenotypeData) {
+        let numSiblings = 0;
+        for  (let obj in this.pedigreeGenotypeData){
+          let current = this.pedigreeGenotypeData[obj]
+          if (current["rel"] == "sibling") {
+            numSiblings += 1;
+          }
+        }
+        this.numOfSiblings = numSiblings
+      } else {
+        return null
+      }
     },
     selectTranscript: function(transcriptId) {
       this.$emit("transcript-id-selected", transcriptId);
@@ -660,10 +680,6 @@ export default {
         return "";
       }
     },
-
-
-
-
 
     getNonCanonicalImpact: function(vepHighestImpact) {
       return this.globalApp.utility.capitalizeFirstLetter(vepHighestImpact.toLowerCase());
@@ -901,12 +917,24 @@ export default {
 
       })
       self.$set(self, "pedigreeGenotypeData", thePedigreeGenotypeData);
+      self.setNumOfSiblings();
+
       if (self.$refs.pedigreeGenotypeViz) {
         self.$refs.pedigreeGenotypeViz.update();
       } else {
         setTimeout(function() {
           if (self.$refs.pedigreeGenotypeViz) {
             self.$refs.pedigreeGenotypeViz.update();
+          }
+        },2000)
+      }
+      
+      if (self.$refs.popupPedigreeGenotypeViz) {
+        self.$refs.popupPedigreeGenotypeViz.update();
+      } else {
+        setTimeout(function() {
+          if (self.$refs.popupPedigreeGenotypeViz) {
+            self.$refs.popupPedigreeGenotypeViz.update();
           }
         },2000)
       }
@@ -1710,20 +1738,48 @@ export default {
   justify-content: center
   align-items: center
   position: absolute
+  background-color: white
+  padding: 1em
   z-index: 100
   top: 50%
   left: 50%
-  max-width: 80%
+  width: 80%
+  height: 80%
+  max-width: 1000px
   transform: translate(-50%, -50%)
   border: 1px solid #c5c5c5 !important
   box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important
   .variant-column-header
     width: 100%
     text-align: center
+    padding: 1px
+    height: 10%
   .variant-column-header hr
-    margin-top: 1px
-    margin-bottom: 5px
+    margin-top: 0px
+    margin-bottom: 0px
     height: 1px
+  .popup-pedigree-chart
+    width: 100%
+    height: 80%
+    max-width: 800px
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+  button
+    height: 5%
+    z-index: 2
+  div .variant-row
+    display: flex
+    flex-direction: row
+    margin-top: 5px
+    margin-bottom: 5px
+
+#pedigree-genotype-popup .pedigree-popup-hidden
+  visibility: hidden
+
+#pedigree-genotype-popup .pedigree-popup-show
+  visibility: visible
   
 #close-pedigree-genotype-popup
   align-self: start
