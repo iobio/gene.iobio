@@ -1,9 +1,6 @@
-<style lang="sass">
-</style>
-
 
 <template>
-    <div class="pedigree-genotype-chart">
+    <div class="pedigree-genotype-chart" ref="popupPedigreeChartContainer">
 
     </div>
 </template>
@@ -67,7 +64,7 @@ export default {
       update: function() {
         var self = this;
         if (self.data) {
-          var selection = d3.select(self.$el);
+          var selection = d3.select(self.$refs.popupPedigreeChartContainer);
           self.chart(selection, self.data, self.options);
         }
       },
@@ -85,3 +82,8 @@ export default {
 
 }
 </script>
+
+<style lang="sass" scoped>
+  .pedigree-genotype-chart
+    width: 100%
+</style>
