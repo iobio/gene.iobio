@@ -42,6 +42,7 @@
       .allele-count-bar
         text
           font-size: 13px
+          transform: translateY(2px)
     
   div .variant-row
     display: flex
