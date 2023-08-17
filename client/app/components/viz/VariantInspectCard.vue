@@ -1,3 +1,483 @@
+<style lang="sass" >
+@import ../../../assets/sass/variables
+#pedigree-genotype-popup
+  display: flex
+  flex-direction: column
+  justify-content: center
+  align-items: center
+  position: absolute
+  background-color: white
+  padding: 1em
+  z-index: 100
+  top: 50%
+  left: 50%
+  width: 80%
+  height: 90%
+  max-width: 1000px
+  transform: translate(-50%, -50%)
+  border: 1px solid #c5c5c5 !important
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important
+  .variant-column-header
+    width: 100%
+    text-align: center
+    padding: 1px
+    height: 10%
+  .variant-column-header hr
+    margin-top: 0px
+    margin-bottom: 0px
+    height: 1px
+  .popup-pedigree-chart
+    width: 100%
+    height: 80%
+    max-width: 800px
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    .pedigree-genotype-chart
+      width: 100%
+    circle
+      fill: none
+      stroke: black
+      stroke-width: 1px
+
+    rect
+      stroke: black
+      stroke-width: 1px
+      fill: none
+
+    .half-circle
+      path
+        fill: none
+        stroke: black
+        stroke-width: 1px
+
+    .half-diamond
+      path
+        fill: none
+        stroke: black
+        stroke-width: 1px
+
+    rect.het
+      stroke: none !important
+
+    .het, .hom
+      fill: #c5c5c5 !important
+      stroke: black
+
+    .half-circle
+      path.het
+        fill: #c5c5c5 !important
+        stroke: black
+    .half-diamond
+      path.het
+        fill: #c5c5c5 !important
+        stroke: black
+
+
+    .het.critical.proband, .hom.critical.proband
+      fill: #c5c5c5 !important
+
+    .half-diamond
+      path.het.critical.proband
+        fill: #c5c5c5 !important
+
+    line
+      stroke: black !important
+
+
+    .proband
+      stroke: $current-color !important
+      stroke-width: 2px !important
+
+    .allele-count-bar
+      rect.alt-count
+        fill: $current-color
+        opacity: .65
+
+      text
+        font-size: 14px
+        text-anchor: middle
+  div .variant-row
+    display: flex
+    flex-direction: row
+    margin-top: 5px
+    margin-bottom: 5px
+
+.pedigree-popup-hidden
+  visibility: hidden
+
+.pedigree-popup-show
+  visibility: visible
+  
+#close-pedigree-genotype-popup
+  align-self: end
+  height: 5%
+  z-index: 1
+
+#variant-inspect
+  padding-left: 10px
+  padding-top: 10px
+  padding-right: 10px
+  padding-bottom: 10px
+  margin-bottom: 7px
+
+  .multialign-loader
+    font-size: 12px
+
+  .refalt
+    max-width: 200px
+    white-space: normal
+    display: inline-block
+    word-break: break-all
+    min-width: 100px
+
+  .aa-change
+    max-width: 200px
+    white-space: normal
+    display: inline-block
+    word-break: break-all
+    min-width: 100px
+
+  #show-assessment-button
+    padding: 0px
+    height: 26px !important
+    background-color: white !important
+    margin: 0px
+    padding-left: 10px
+    padding-right: 10px
+    color: $link-color !important
+    margin-left: 41px
+
+    .v-btn__content
+      font-size: 13px
+      font-weight: 500
+  
+  .subheader
+    padding-bottom: 10px
+    font-size: 13px
+    color: $app-color
+    margin-top: -5px
+
+
+  #notes-input
+    margin-top: 8px
+    .input-group input
+      color: $text-color
+    .input-group
+      padding: 10px 0 0
+    .input-group
+      label
+        font-size: 13px
+        line-height: 14px
+        height: 18px
+        top: 8px
+        font-weight: normal
+    .input-group__input
+      min-height: 0px
+      margin-top: 8px
+    .input-group--text-field input
+      font-size: 13px
+      height: 14px
+    .input-group
+      padding-top: 0px
+    .input-group__details:before
+      background-color: $text-color
+    .input-group__details:after
+      background-color: $text-color
+
+  .variant-inspect-body
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    justify-content: space-around
+    padding-top: 10px
+
+    #conservation-track
+      .variant-text
+        max-width: 120px
+
+    .variant-inspect-column
+      display: flex
+      flex-direction: column
+      padding: 5px
+      padding-left: 0px
+      min-width: 150px
+      max-width: 210px
+      margin-bottom: 0px
+      margin-right: 15px
+      padding-top: 0px
+      padding-bottom: 0px
+      #expand-popup-button
+        font-weight: 500
+        color: #30638e
+        display: flex
+        flex-direction: row
+        align-items: center
+        justify-content: center
+        i
+          margin: 3px 2px 1px 3px
+        p
+          margin: 3px 3px 1px 1px
+          
+      #qual-track
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: center
+        .variant-row
+          display: flex
+          flex-direction: row
+          align-items: center
+          justify-content: center
+
+
+
+      &.last
+        border-right: none
+
+      .variant-column-header
+        font-size: 14px
+        color:  $app-color
+        margin-top: 5px
+        margin-bottom: 5px
+
+        hr
+          margin-top: 1px
+          margin-bottom: 5px
+          height: 1px
+
+      .variant-column-hint
+        font-size: 13px
+        line-height: 14px
+        margin-top: -5px
+        font-style: italic
+        height: 48px
+
+      .variant-column-subheader
+        font-size: 12px
+        font-weight: 500
+        font-style: normal
+        margin-bottom: 5px
+        color: $app-color
+    
+      .variant-column-loading
+        font-size: 12px
+        font-style: italic
+        margin-bottom: 10px
+
+      .variant-row
+        display: flex
+        flex-direction: row
+        font-size: 13px
+        margin-bottom: 10px
+        max-width: 260px
+        align-items: flex-start
+
+        &.last
+          margin-bottom: 0px
+
+      .pheno-search-term
+        max-width: 100px
+        display: inline-block
+        vertical-align: top
+        line-height: 14px
+        overflow-wrap: break-word
+
+      #qual-track
+        margin-top: 0px
+        #depth-viz
+          margin-left: 3px
+          .circle-label
+            font-size: 13px !important
+
+          .y.axis
+            .tick
+              text
+                font-size: 10px !important
+
+          .coverage-problem-glyph
+            fill: $coverage-problem-glyph-color
+
+        .gene-viz
+          svg
+            .transcript.current
+              outline: none !important
+
+      #conservation-track
+        .conservation-score-label
+          font-size: 12px
+        .gene-viz
+          svg
+            .transcript.current
+              outline: none !important
+
+  .rel-header
+    font-style: italic
+
+  .variant-header
+    color: $app-color
+    font-size: 14px
+
+  #variant-heading
+    color: $heading-color
+    padding-bottom: 5px
+    font-size: 17px
+    padding-top: 0px
+    min-width: 193px
+    display: flex
+    justify-content: flex-start
+
+
+  .variant-action-button
+      //height: 22px !important
+      min-width: 110px !important
+      //max-width: 110px
+      font-weight: 500
+      font-size: 13px
+      color: $link-color
+      .btn__content, .v-btn__content
+        color: $link-color !important
+        i.material-icons
+          color: $link-color !important
+
+  .variant-action-button-dbSnp
+      color: rgb(113,113,113)
+      font-size: 13px
+      padding-left: 0
+      padding-right: 15px
+      height: 22px !important
+      margin: 0px
+      min-width: 110px !important
+      max-width: 110px
+      font-weight: 500
+
+      .btn__content, .v-btn__content
+          padding-right: 8px
+          font-size: 12px
+
+          i.material-icons
+              color: $link-color !important
+
+  .change-transcript-button
+    font-size: 13px
+    color: $link-color
+    margin: 0px
+    padding: 0px
+    height: 22px
+
+  .rsid
+    padding-right: 20px
+    padding-top: 2px
+    min-width: 130px
+
+    .rsid-link
+      padding-left: 2px
+
+  .pedigree-chart
+    circle
+      fill: none
+      stroke: black
+      stroke-width: 1px
+
+    rect
+      stroke: black
+      stroke-width: 1px
+      fill: none
+
+    .half-circle
+      path
+        fill: none
+        stroke: black
+        stroke-width: 1px
+
+    .half-diamond
+      path
+        fill: none
+        stroke: black
+        stroke-width: 1px
+
+    rect.het
+      stroke: none !important
+
+    .het, .hom
+      fill: #c5c5c5 !important
+      stroke: black
+
+    .half-circle
+      path.het
+        fill: #c5c5c5 !important
+        stroke: black
+    .half-diamond
+      path.het
+        fill: #c5c5c5 !important
+        stroke: black
+
+
+    .het.critical.proband, .hom.critical.proband
+      fill: #c5c5c5 !important
+
+    .half-diamond
+      path.het.critical.proband
+        fill: #c5c5c5 !important
+
+    line
+      stroke: black !important
+
+
+    .proband
+      stroke: $current-color !important
+      stroke-width: 2px !important
+
+    .allele-count-bar
+      rect.alt-count
+        fill: $current-color
+        opacity: .65
+
+      text
+        font-size: 9px
+        text-anchor: middle
+
+#show-more-gene-association-button
+  margin: 0px 0px 0px 0px
+  font-size: 13px
+  height: 26px
+  margin-bottom: 0px
+  padding-left: 0px
+  padding-right: 4px
+  float: right
+  margin-right: 10px
+
+  .btn__content, .v-btn__content
+    color:  $link-color
+    padding-left: 5px
+    padding-right: 5px
+    font-weight: 500
+
+    i.material-icons
+      color: $link-color
+      font-size: 17px
+      padding-right: 5px
+
+#source-indicator-text
+  // content: "\a"
+  // white-space: pre
+  font-size: 12px
+  color: $app-color
+
+.myBadge
+  background-color: #efeeee 
+  border-radius: 90px 
+  height: 16px
+  color: #717171 
+  margin-left: 1px 
+  text-align: center 
+  vertical-align: middle
+  width: 16px
+  display: inline-block
+  font-size: 11px
+  font-family: raleway
+</style>
 
 <template>
 
@@ -1729,484 +2209,3 @@ export default {
 
 }
 </script>
-
-<style lang="sass" >
-@import ../../../assets/sass/variables
-#pedigree-genotype-popup
-  display: flex
-  flex-direction: column
-  justify-content: center
-  align-items: center
-  position: absolute
-  background-color: white
-  padding: 1em
-  z-index: 100
-  top: 50%
-  left: 50%
-  width: 80%
-  height: 90%
-  max-width: 1000px
-  transform: translate(-50%, -50%)
-  border: 1px solid #c5c5c5 !important
-  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important
-  .variant-column-header
-    width: 100%
-    text-align: center
-    padding: 1px
-    height: 10%
-  .variant-column-header hr
-    margin-top: 0px
-    margin-bottom: 0px
-    height: 1px
-  .popup-pedigree-chart
-    width: 100%
-    height: 80%
-    max-width: 800px
-    display: flex
-    flex-direction: column
-    justify-content: center
-    align-items: center
-    .pedigree-genotype-chart
-      width: 100%
-    circle
-      fill: none
-      stroke: black
-      stroke-width: 1px
-
-    rect
-      stroke: black
-      stroke-width: 1px
-      fill: none
-
-    .half-circle
-      path
-        fill: none
-        stroke: black
-        stroke-width: 1px
-
-    .half-diamond
-      path
-        fill: none
-        stroke: black
-        stroke-width: 1px
-
-    rect.het
-      stroke: none !important
-
-    .het, .hom
-      fill: #c5c5c5 !important
-      stroke: black
-
-    .half-circle
-      path.het
-        fill: #c5c5c5 !important
-        stroke: black
-    .half-diamond
-      path.het
-        fill: #c5c5c5 !important
-        stroke: black
-
-
-    .het.critical.proband, .hom.critical.proband
-      fill: #c5c5c5 !important
-
-    .half-diamond
-      path.het.critical.proband
-        fill: #c5c5c5 !important
-
-    line
-      stroke: black !important
-
-
-    .proband
-      stroke: $current-color !important
-      stroke-width: 2px !important
-
-    .allele-count-bar
-      rect.alt-count
-        fill: $current-color
-        opacity: .65
-
-      text
-        font-size: 14px
-        text-anchor: middle
-  div .variant-row
-    display: flex
-    flex-direction: row
-    margin-top: 5px
-    margin-bottom: 5px
-
-.pedigree-popup-hidden
-  visibility: hidden
-
-.pedigree-popup-show
-  visibility: visible
-  
-#close-pedigree-genotype-popup
-  align-self: end
-  height: 5%
-  z-index: 1
-
-#variant-inspect
-  padding-left: 10px
-  padding-top: 10px
-  padding-right: 10px
-  padding-bottom: 10px
-  margin-bottom: 7px
-
-  .multialign-loader
-    font-size: 12px
-
-  .refalt
-    max-width: 200px
-    white-space: normal
-    display: inline-block
-    word-break: break-all
-    min-width: 100px
-
-  .aa-change
-    max-width: 200px
-    white-space: normal
-    display: inline-block
-    word-break: break-all
-    min-width: 100px
-
-  #show-assessment-button
-    padding: 0px
-    height: 26px !important
-    background-color: white !important
-    margin: 0px
-    padding-left: 10px
-    padding-right: 10px
-    color: $link-color !important
-    margin-left: 41px
-
-    .v-btn__content
-      font-size: 13px
-      font-weight: 500
-  
-  .subheader
-    padding-bottom: 10px
-    font-size: 13px
-    color: $app-color
-    margin-top: -5px
-
-
-  #notes-input
-    margin-top: 8px
-    .input-group input
-      color: $text-color
-    .input-group
-      padding: 10px 0 0
-    .input-group
-      label
-        font-size: 13px
-        line-height: 14px
-        height: 18px
-        top: 8px
-        font-weight: normal
-    .input-group__input
-      min-height: 0px
-      margin-top: 8px
-    .input-group--text-field input
-      font-size: 13px
-      height: 14px
-    .input-group
-      padding-top: 0px
-    .input-group__details:before
-      background-color: $text-color
-    .input-group__details:after
-      background-color: $text-color
-
-  .variant-inspect-body
-    display: flex
-    flex-direction: row
-    flex-wrap: wrap
-    justify-content: space-around
-    padding-top: 10px
-
-    #conservation-track
-      .variant-text
-        max-width: 120px
-
-    .variant-inspect-column
-      display: flex
-      flex-direction: column
-      padding: 5px
-      padding-left: 0px
-      min-width: 150px
-      max-width: 210px
-      margin-bottom: 0px
-      margin-right: 15px
-      padding-top: 0px
-      padding-bottom: 0px
-      #expand-popup-button
-        font-weight: 500
-        color: #30638e
-        display: flex
-        flex-direction: row
-        align-items: center
-        justify-content: center
-        i
-          margin: 3px 2px 1px 3px
-        p
-          margin: 3px 3px 1px 1px
-          
-      #qual-track
-        display: flex
-        flex-direction: column
-        align-items: center
-        justify-content: center
-        .variant-row
-          display: flex
-          flex-direction: row
-          align-items: center
-          justify-content: center
-
-
-
-      &.last
-        border-right: none
-
-      .variant-column-header
-        font-size: 14px
-        color:  $app-color
-        margin-top: 5px
-        margin-bottom: 5px
-
-        hr
-          margin-top: 1px
-          margin-bottom: 5px
-          height: 1px
-
-      .variant-column-hint
-        font-size: 13px
-        line-height: 14px
-        margin-top: -5px
-        font-style: italic
-        height: 48px
-
-      .variant-column-subheader
-        font-size: 12px
-        font-weight: 500
-        font-style: normal
-        margin-bottom: 5px
-        color: $app-color
-    
-      .variant-column-loading
-        font-size: 12px
-        font-style: italic
-        margin-bottom: 10px
-
-      .variant-row
-        display: flex
-        flex-direction: row
-        font-size: 13px
-        margin-bottom: 10px
-        max-width: 260px
-        align-items: flex-start
-
-        &.last
-          margin-bottom: 0px
-
-      .pheno-search-term
-        max-width: 100px
-        display: inline-block
-        vertical-align: top
-        line-height: 14px
-        overflow-wrap: break-word
-
-      #qual-track
-        margin-top: 0px
-        #depth-viz
-          margin-left: 3px
-          .circle-label
-            font-size: 13px !important
-
-          .y.axis
-            .tick
-              text
-                font-size: 10px !important
-
-          .coverage-problem-glyph
-            fill: $coverage-problem-glyph-color
-
-        .gene-viz
-          svg
-            .transcript.current
-              outline: none !important
-
-      #conservation-track
-        .conservation-score-label
-          font-size: 12px
-        .gene-viz
-          svg
-            .transcript.current
-              outline: none !important
-
-  .rel-header
-    font-style: italic
-
-  .variant-header
-    color: $app-color
-    font-size: 14px
-
-  #variant-heading
-    color: $heading-color
-    padding-bottom: 5px
-    font-size: 17px
-    padding-top: 0px
-    min-width: 193px
-    display: flex
-    justify-content: flex-start
-
-
-  .variant-action-button
-      //height: 22px !important
-      min-width: 110px !important
-      //max-width: 110px
-      font-weight: 500
-      font-size: 13px
-      color: $link-color
-      .btn__content, .v-btn__content
-        color: $link-color !important
-        i.material-icons
-          color: $link-color !important
-
-  .variant-action-button-dbSnp
-      color: rgb(113,113,113)
-      font-size: 13px
-      padding-left: 0
-      padding-right: 15px
-      height: 22px !important
-      margin: 0px
-      min-width: 110px !important
-      max-width: 110px
-      font-weight: 500
-
-      .btn__content, .v-btn__content
-          padding-right: 8px
-          font-size: 12px
-
-          i.material-icons
-              color: $link-color !important
-
-  .change-transcript-button
-    font-size: 13px
-    color: $link-color
-    margin: 0px
-    padding: 0px
-    height: 22px
-
-  .rsid
-    padding-right: 20px
-    padding-top: 2px
-    min-width: 130px
-
-    .rsid-link
-      padding-left: 2px
-
-  .pedigree-chart
-    circle
-      fill: none
-      stroke: black
-      stroke-width: 1px
-
-    rect
-      stroke: black
-      stroke-width: 1px
-      fill: none
-
-    .half-circle
-      path
-        fill: none
-        stroke: black
-        stroke-width: 1px
-
-    .half-diamond
-      path
-        fill: none
-        stroke: black
-        stroke-width: 1px
-
-    rect.het
-      stroke: none !important
-
-    .het, .hom
-      fill: #c5c5c5 !important
-      stroke: black
-
-    .half-circle
-      path.het
-        fill: #c5c5c5 !important
-        stroke: black
-    .half-diamond
-      path.het
-        fill: #c5c5c5 !important
-        stroke: black
-
-
-    .het.critical.proband, .hom.critical.proband
-      fill: #c5c5c5 !important
-
-    .half-diamond
-      path.het.critical.proband
-        fill: #c5c5c5 !important
-
-    line
-      stroke: black !important
-
-
-    .proband
-      stroke: $current-color !important
-      stroke-width: 2px !important
-
-    .allele-count-bar
-      rect.alt-count
-        fill: $current-color
-        opacity: .65
-
-      text
-        font-size: 9px
-        text-anchor: middle
-
-#show-more-gene-association-button
-  margin: 0px 0px 0px 0px
-  font-size: 13px
-  height: 26px
-  margin-bottom: 0px
-  padding-left: 0px
-  padding-right: 4px
-  float: right
-  margin-right: 10px
-
-  .btn__content, .v-btn__content
-    color:  $link-color
-    padding-left: 5px
-    padding-right: 5px
-    font-weight: 500
-
-    i.material-icons
-      color: $link-color
-      font-size: 17px
-      padding-right: 5px
-
-#source-indicator-text
-  // content: "\a"
-  // white-space: pre
-  font-size: 12px
-  color: $app-color
-
-.myBadge
-  background-color: #efeeee 
-  border-radius: 90px 
-  height: 16px
-  color: #717171 
-  margin-left: 1px 
-  text-align: center 
-  vertical-align: middle
-  width: 16px
-  display: inline-block
-  font-size: 11px
-  font-family: raleway
-</style>
