@@ -3,17 +3,14 @@
 
 #alert-panel
   margin-left: 10px
-  margin-right: 10px
+  margin-right: 15px
   margin-top: 5px
   margin-bottom: 0px
 
-  .alert-item
-    clear: both
 
   #clear-all-button
     margin: 0px
     height: 20px
-    float: right
     padding-left: 3px 
     padding-right: 3px
     min-width: 50px
@@ -61,6 +58,7 @@
     font-size: 12px 
     padding: 4px
     border: none !important
+    
 
     .v-alert__icon
       margin-right: 8px !important
@@ -93,13 +91,13 @@
       div
         color: $coverage-problem-color !important
     &.error--text
-      border-color: #b32f2f !important
-      border-style: solid !important
-      border-width: 0.5px !important
       color: $danger-color !important
       div
         color: $text-color !important
         font-weight: 500 !important
+
+    &.selected
+      border: $current-color solid 2px !important
 
     .show-details-button, .hide-details-button
       margin: 0px
@@ -110,31 +108,37 @@
       .v-btn__content
         padding-right: 0px
         color: $link-color !important
+
+
 </style>
 
 <template>
   <div id="alert-panel" >
 
+    <div style="display:flex">
 
-
-    <div class="alert-title">
-    Notifications
+      <div class="alert-title">
+      Notifications
+      </div>
     </div>
+    <div style="display:flex">
 
-    <div>
-      <v-btn v-if="appAlerts && appAlerts.length > 0" id="clear-all-button" flat @click="clearAllAlerts">
-        Clear all
-      </v-btn>
+      <v-spacer/>
+      <div>
+        <v-btn v-if="appAlerts && appAlerts.length > 0" id="clear-all-button" flat @click="clearAllAlerts">
+          Clear all
+        </v-btn>
+      </div>
+
     </div>
 
     <v-alert v-for="alert in appAlerts"
-      class="alert-item"
+      :class="alert.selected ? 'selected' : ''"
       :key="alert.key"
       :value="true"
       :color="getColor(alert)"
       :icon="getIcon(alert)"
-      :outline="true"
-      
+      :outline="true"  
     >
       <v-btn  id="clear-alert-button" flat @click="clearAlert(alert)">
         <v-icon>close</v-icon>
