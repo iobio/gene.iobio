@@ -191,7 +191,7 @@
               >
             </gene-viz>
 
-            <div class="variant-row " style="padding-top:5px">
+            <div class="variant-row " >
               <v-btn flat v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()  && !isSimpleMode "
               class="variant-action-button"  @click="onShowPileup">
                <v-icon>format_align_center</v-icon>
@@ -364,7 +364,10 @@
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz>
           </div>
-          <v-btn v-if="this.numOfSiblings && this.numOfSiblings > 3" small round dark color="#4184bf" @click="togglePedigreePopup">Show In Popup</v-btn>
+          <v-btn id="expand-popup-button" v-if="this.numOfSiblings && this.numOfSiblings > 3" small flat light @click="togglePedigreePopup">
+            Expand
+            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px; color: rgb(48, 99, 142); padding-bottom: 3px;">open_in_new</i>
+          </v-btn>
 
       </div>
 
@@ -1840,7 +1843,7 @@ export default {
   visibility: visible
   
 #close-pedigree-genotype-popup
-  align-self: start
+  align-self: end
   height: 5%
   z-index: 1
 
@@ -1937,6 +1940,20 @@ export default {
       margin-right: 15px
       padding-top: 0px
       padding-bottom: 0px
+      #expand-popup-button
+        font-weight: 500
+        color: #30638e
+      #qual-track
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: center
+        .variant-row
+          display: flex
+          flex-direction: row
+          align-items: center
+          justify-content: center
+
 
 
       &.last
@@ -1993,6 +2010,7 @@ export default {
       #qual-track
         margin-top: 0px
         #depth-viz
+          margin-left: 3px
           .circle-label
             font-size: 13px !important
 
@@ -2035,20 +2053,14 @@ export default {
 
 
   .variant-action-button
-      padding: 0px
-      height: 22px !important
-      margin: 0px
+      //height: 22px !important
       min-width: 110px !important
-      max-width: 110px
+      //max-width: 110px
       font-weight: 500
+      font-size: 12px
       color: $link-color
-
       .btn__content, .v-btn__content
         color: $link-color !important
-        padding-left: 8px
-        padding-right: 8px
-        font-size: 12px
-
         i.material-icons
           color: $link-color !important
 
