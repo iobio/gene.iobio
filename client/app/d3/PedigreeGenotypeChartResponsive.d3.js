@@ -266,7 +266,7 @@ export default function PedigreeGenotypeChartResponsiveD3() {
                       if (position == "top") {
                           return -5;
                       } else {
-                          return 16;
+                          return 20;
                       }
                   })
                   .text(function (d, i) {

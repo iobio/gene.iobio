@@ -22,7 +22,7 @@
              :margin="{left: 15, right: 14, top: 30, bottom: 4}"
              :nodeWidth="60"
              :nodePadding="40"
-             :nodeVerticalPadding="30"
+             :nodeVerticalPadding="40"
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz-responsive>
         </div>
@@ -1743,7 +1743,7 @@ export default {
   top: 50%
   left: 50%
   width: 80%
-  height: 80%
+  height: 90%
   max-width: 1000px
   transform: translate(-50%, -50%)
   border: 1px solid #c5c5c5 !important
