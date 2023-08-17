@@ -1827,9 +1827,6 @@ export default {
       text
         font-size: 14px
         text-anchor: middle
-  button
-    height: 5%
-    z-index: 2
   div .variant-row
     display: flex
     flex-direction: row
@@ -1844,6 +1841,8 @@ export default {
   
 #close-pedigree-genotype-popup
   align-self: start
+  height: 5%
+  z-index: 1
 
 #variant-inspect
   padding-left: 10px
