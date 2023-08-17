@@ -4,7 +4,7 @@
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
     <!-- Em's New Popup -->
-    <v-card id="pedigree-genotype-popup" :class="this.showPedigreePopup ? 'pedigree-popup-show : pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant && (numOfSiblings > 3)">
+    <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant && (numOfSiblings > 3)">
         <button id="close-pedigree-genotype-popup" @click="togglePedigreePopup">
           <v-icon>close</v-icon>
         </button>
@@ -1775,10 +1775,10 @@ export default {
     margin-top: 5px
     margin-bottom: 5px
 
-#pedigree-genotype-popup .pedigree-popup-hidden
+.pedigree-popup-hidden
   visibility: hidden
 
-#pedigree-genotype-popup .pedigree-popup-show
+.pedigree-popup-show
   visibility: visible
   
 #close-pedigree-genotype-popup
