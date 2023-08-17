@@ -1,4 +1,4 @@
-export default function PedigreeGenotypeChartResponsiveD3() {
+export default function PedigreeGenotypeChartPopupD3() {
 
 
     // variables

@@ -7,11 +7,11 @@
 
 <script>
 
-import PedigreeGenotypeChartResponsiveD3 from '../../d3/PedigreeGenotypeChartResponsive.d3.js'
+import PedigreeGenotypeChartPopupD3 from '../../d3/PedigreeGenotypeChartPopup.d3.js'
 
 export default {
 
-    name: 'pedigree-genotype-viz-responsive',
+    name: 'pedigree-genotype-viz-popup',
     props: {
       data: {},
       margin:{
@@ -53,7 +53,7 @@ export default {
       draw: function() {
         var self = this;
 
-        this.chart =  PedigreeGenotypeChartResponsiveD3()
+        this.chart =  PedigreeGenotypeChartPopupD3()
           .margin(self.margin)
           .nodeWidth(self.nodeWidth)
           .nodePadding(self.nodePadding)

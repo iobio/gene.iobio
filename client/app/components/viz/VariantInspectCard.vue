@@ -17,14 +17,14 @@
 
         <div class="popup-pedigree-chart">
             <app-icon class="hide" icon="affected"></app-icon>
-            <pedigree-genotype-viz-responsive
+            <pedigree-genotype-viz-popup
              ref="popupPedigreeGenotypeViz"
              :margin="{left: 15, right: 14, top: 30, bottom: 4}"
              :nodeWidth="60"
              :nodePadding="40"
              :nodeVerticalPadding="40"
              :data="pedigreeGenotypeData">
-            </pedigree-genotype-viz-responsive>
+            </pedigree-genotype-viz-popup>
         </div>
 
     </v-card>
@@ -472,7 +472,7 @@ import ToggleButton             from '../partials/ToggleButton.vue'
 import DepthViz                 from "../viz/DepthViz.vue"
 import GeneViz                  from "../viz/GeneViz.vue"
 import PedigreeGenotypeViz      from "../viz/PedigreeGenotypeViz.vue"
-import PedigreeGenotypeVizResponsive from "./PedigreeGenotypeVizResponsive.vue"
+import PedigreeGenotypeVizPopup from "./PedigreeGenotypeVizPopup.vue"
 import ConservationScoresViz    from "../viz/ConservationScoresViz.vue"
 import MultialignSeqViz         from "../viz/MultialignSeqViz.vue"
 import GeneAssociationsDialog   from "../partials/GeneAssociationsDialog.vue"
@@ -502,7 +502,7 @@ export default {
     ConservationScoresViz,
     MultialignSeqViz,
     GeneAssociationsDialog,
-    PedigreeGenotypeVizResponsive,
+    PedigreeGenotypeVizPopup,
 
   },
   props: {
