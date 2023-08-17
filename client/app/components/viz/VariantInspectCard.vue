@@ -41,8 +41,7 @@
       width: 100%
       .allele-count-bar
         text
-          font-size: 13px
-          transform: translateY(2px)
+          font-size: 15px
     
   div .variant-row
     display: flex
@@ -447,7 +446,8 @@
              :nodeWidth="60"
              :nodePadding="40"
              :nodeVerticalPadding="40"
-             :data="pedigreeGenotypeData">
+             :data="pedigreeGenotypeData"
+             :options="{context: 'popup'}">
             </pedigree-genotype-viz>
         </div>
 

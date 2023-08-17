@@ -26,7 +26,7 @@ export default {
       options: {
         type: Object,
         default: function() {
-          return {};
+          return {context: "column"};
         }
       },
       nodeWidth: {
