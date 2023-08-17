@@ -2066,7 +2066,7 @@ export default {
       min-width: 110px !important
       //max-width: 110px
       font-weight: 500
-      font-size: 12px
+      font-size: 13px
       color: $link-color
       .btn__content, .v-btn__content
         color: $link-color !important
