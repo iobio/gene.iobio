@@ -17,15 +17,18 @@
   transform: translate(-50%, -50%)
   border: 1px solid #c5c5c5 !important
   box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important
+
   .variant-column-header
     width: 100%
     text-align: center
     padding: 1px
     height: 10%
+
   .variant-column-header hr
     margin-top: 0px
     margin-bottom: 0px
     height: 1px
+
   .popup-pedigree-chart
     width: 100%
     height: 80%
@@ -36,68 +39,10 @@
     align-items: center
     .pedigree-genotype-chart
       width: 100%
-    circle
-      fill: none
-      stroke: black
-      stroke-width: 1px
-
-    rect
-      stroke: black
-      stroke-width: 1px
-      fill: none
-
-    .half-circle
-      path
-        fill: none
-        stroke: black
-        stroke-width: 1px
-
-    .half-diamond
-      path
-        fill: none
-        stroke: black
-        stroke-width: 1px
-
-    rect.het
-      stroke: none !important
-
-    .het, .hom
-      fill: #c5c5c5 !important
-      stroke: black
-
-    .half-circle
-      path.het
-        fill: #c5c5c5 !important
-        stroke: black
-    .half-diamond
-      path.het
-        fill: #c5c5c5 !important
-        stroke: black
-
-
-    .het.critical.proband, .hom.critical.proband
-      fill: #c5c5c5 !important
-
-    .half-diamond
-      path.het.critical.proband
-        fill: #c5c5c5 !important
-
-    line
-      stroke: black !important
-
-
-    .proband
-      stroke: $current-color !important
-      stroke-width: 2px !important
-
-    .allele-count-bar
-      rect.alt-count
-        fill: $current-color
-        opacity: .65
-
-      text
-        font-size: 14px
-        text-anchor: middle
+      .allele-count-bar
+        text
+          font-size: 13px
+    
   div .variant-row
     display: flex
     flex-direction: row
@@ -330,9 +275,7 @@
 
 
   .variant-action-button
-      //height: 22px !important
       min-width: 110px !important
-      //max-width: 110px
       font-weight: 500
       font-size: 13px
       color: $link-color
@@ -495,7 +438,7 @@
         <variant-inspect-inheritance-row :selectedVariant="selectedVariant">
         </variant-inspect-inheritance-row>
 
-        <div class="popup-pedigree-chart">
+        <div class="pedigree-chart popup-pedigree-chart">
             <app-icon class="hide" icon="affected"></app-icon>
             <pedigree-genotype-viz id="popup-pedigree-genotype-viz"
              ref="popupPedigreeGenotypeViz"
