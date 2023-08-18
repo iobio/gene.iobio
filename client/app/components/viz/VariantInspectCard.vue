@@ -54,11 +54,22 @@
 
 .pedigree-popup-show
   visibility: visible
-  
-#close-pedigree-genotype-popup
-  align-self: end
-  height: 5%
-  z-index: 1
+.popup-variant-header
+  display: flex
+  flex-direction: row
+  justify-content: center
+  position: relative
+  #close-pedigree-genotype-popup
+    margin-left: auto
+    height: 5%
+    z-index: 1
+    right: 0px
+    top: -5px
+    position: absolute
+  *:first-child
+    flex: 1
+    text-align: center
+    margin: 0px 0px 0px 0px
 
 #variant-inspect
   padding-left: 10px
@@ -427,11 +438,16 @@
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
     <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant">
-        <button id="close-pedigree-genotype-popup" @click="togglePedigreePopup">
-          <v-icon>close</v-icon>
-        </button>
 
-        <div class="variant-column-header">Inheritance
+
+        <div class="variant-column-header">
+          <div class="popup-variant-header">
+            <p>Inheritance</p>
+            <button id="close-pedigree-genotype-popup" @click="togglePedigreePopup">
+              <v-icon>close</v-icon>
+            </button>
+          </div>
+
           <v-divider></v-divider>
         </div>
 
