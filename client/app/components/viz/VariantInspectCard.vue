@@ -426,7 +426,7 @@
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
-    <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant && (numOfSiblings > 3)">
+    <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant && (Object.keys(pedigreeGenotypeData).length > 5)">
         <button id="close-pedigree-genotype-popup" @click="togglePedigreePopup">
           <v-icon>close</v-icon>
         </button>
@@ -788,7 +788,7 @@
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz>
           </div>
-          <v-btn id="expand-popup-button" v-if="this.numOfSiblings && this.numOfSiblings > 3" small flat light @click="togglePedigreePopup">
+          <v-btn id="expand-popup-button" v-if="Object.keys(pedigreeGenotypeData).length > 5" small flat light @click="togglePedigreePopup">
             <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 20px; color: rgb(48, 99, 142);">open_in_new</i>
             <p>Expand</p>
           </v-btn>
@@ -951,7 +951,6 @@ export default {
     return {
       genePhenotypeHits: null,
       showPedigreePopup: false,
-      numOfSiblings: null,
       coverageRegionStart: null,
       coverageRegionEnd: null,
       exon: null,
@@ -1057,20 +1056,6 @@ export default {
         this.showPedigreePopup = false;
       } else {
         this.showPedigreePopup = true;
-      }
-    },
-    setNumOfSiblings() {
-      if (this.pedigreeGenotypeData) {
-        let numSiblings = 0;
-        for  (let obj in this.pedigreeGenotypeData){
-          let current = this.pedigreeGenotypeData[obj]
-          if (current["rel"] == "sibling") {
-            numSiblings += 1;
-          }
-        }
-        this.numOfSiblings = numSiblings
-      } else {
-        return null
       }
     },
     selectTranscript: function(transcriptId) {
@@ -1341,7 +1326,6 @@ export default {
 
       })
       self.$set(self, "pedigreeGenotypeData", thePedigreeGenotypeData);
-      self.setNumOfSiblings();
 
       if (self.$refs.pedigreeGenotypeViz) {
         self.$refs.pedigreeGenotypeViz.update();
