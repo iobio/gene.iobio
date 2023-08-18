@@ -76,12 +76,12 @@ export default {
       },
 
     },
-    watch: {
-      data: function() {
-        this.update();
-      }
-
+  watch: {
+    data: function() {
+      this.update();
     }
+
+  }
 
 }
 </script>
