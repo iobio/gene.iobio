@@ -426,7 +426,7 @@
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
-    <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant && (pedigreeGenotypeData && Object.keys(pedigreeGenotypeData).length > 5)">
+    <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant">
         <button id="close-pedigree-genotype-popup" @click="togglePedigreePopup">
           <v-icon>close</v-icon>
         </button>
@@ -1327,25 +1327,25 @@ export default {
       })
       self.$set(self, "pedigreeGenotypeData", thePedigreeGenotypeData);
 
-      if (self.$refs.pedigreeGenotypeViz) {
-        self.$refs.pedigreeGenotypeViz.update();
-      } else {
-        setTimeout(function() {
-          if (self.$refs.pedigreeGenotypeViz) {
-            self.$refs.pedigreeGenotypeViz.update();
-          }
-        },2000)
-      }
+      // if (self.$refs.pedigreeGenotypeViz) {
+      //   self.$refs.pedigreeGenotypeViz.update();
+      // } else {
+      //   setTimeout(function() {
+      //     if (self.$refs.pedigreeGenotypeViz) {
+      //       self.$refs.pedigreeGenotypeViz.update();
+      //     }
+      //   },2000)
+      // }
       
-      if (self.$refs.popupPedigreeGenotypeViz) {
-        self.$refs.popupPedigreeGenotypeViz.update();
-      } else {
-        setTimeout(function() {
-          if (self.$refs.popupPedigreeGenotypeViz) {
-            self.$refs.popupPedigreeGenotypeViz.update();
-          }
-        },2000)
-      }
+      // if (self.$refs.popupPedigreeGenotypeViz) {
+      //   self.$refs.popupPedigreeGenotypeViz.update();
+      // } else {
+      //   setTimeout(function() {
+      //     if (self.$refs.popupPedigreeGenotypeViz) {
+      //       self.$refs.popupPedigreeGenotypeViz.update();
+      //     }
+      //   },2000)
+      // }
 
     },
 
