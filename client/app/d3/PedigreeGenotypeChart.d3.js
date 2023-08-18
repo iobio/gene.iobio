@@ -203,7 +203,7 @@ export default function PedigreeGenotypeChartD3() {
 
   }
 
-  let createAlleleCountBar = function(parent, position) {
+  let createAlleleCountBar = function(parent, position, context) {
     let nodeData = parent.data()[0]
     if(isNaN(nodeData.altRatio)){
         nodeData.altRatio = 1;
@@ -262,10 +262,19 @@ export default function PedigreeGenotypeChartD3() {
                     }
                 })
                 .attr("y", function (d, i) {
-                    if (position == "top") {
+                    //the bar is rendered in the popup we need to adjust the y position vs if it is rendered in the small column
+                    if (context == "popup") {
+                      if (position == "top") {
                         return -5;
+                      } else {
+                        return 20;
+                      }
                     } else {
+                      if (position == "top") {
+                        return -5;
+                      } else {
                         return 16;
+                      }
                     }
                 })
                 .text(function (d, i) {
@@ -280,6 +289,9 @@ export default function PedigreeGenotypeChartD3() {
     var me = this;
 
     options = $.extend(defaults, options)
+
+    //Used to determine the context of the chart.  If the chart is being drawn in a popup vs the general column
+    var context = options.context;
 
     container = theContainer;
 
@@ -349,7 +361,7 @@ export default function PedigreeGenotypeChartD3() {
               .append("g")
               .each( function(d,i) {
                   createNode(d3.select(this))
-                  createAlleleCountBar(d3.select(this), "top")
+                  createAlleleCountBar(d3.select(this), "top", context)
               })
       }
 
@@ -364,7 +376,7 @@ export default function PedigreeGenotypeChartD3() {
             .attr("transform", "translate(" + ((nodeWidth + nodePadding)) + ",0" + ")")
             .each( function(d,i) {
                 createNode(d3.select(this))
-                createAlleleCountBar(d3.select(this), "top")
+                createAlleleCountBar(d3.select(this), "top", context)
             })
     }
 
@@ -461,7 +473,7 @@ export default function PedigreeGenotypeChartD3() {
                        })
     childNodes.each(function(d,i) {
       createNode(d3.select(this))
-      createAlleleCountBar(d3.select(this), "bottom")
+      createAlleleCountBar(d3.select(this), "bottom", context)
     })
 
   }
