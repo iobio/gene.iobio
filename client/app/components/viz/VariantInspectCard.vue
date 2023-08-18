@@ -426,7 +426,7 @@
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
 
-    <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant && (Object.keys(pedigreeGenotypeData).length > 5)">
+    <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant && (pedigreeGenotypeData && Object.keys(pedigreeGenotypeData).length > 5)">
         <button id="close-pedigree-genotype-popup" @click="togglePedigreePopup">
           <v-icon>close</v-icon>
         </button>
@@ -788,7 +788,7 @@
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz>
           </div>
-          <v-btn id="expand-popup-button" v-if="Object.keys(pedigreeGenotypeData).length > 5" small flat light @click="togglePedigreePopup">
+          <v-btn id="expand-popup-button" v-if="pedigreeGenotypeData && Object.keys(pedigreeGenotypeData).length > 5" small flat light @click="togglePedigreePopup">
             <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 20px; color: rgb(48, 99, 142);">open_in_new</i>
             <p>Expand</p>
           </v-btn>
