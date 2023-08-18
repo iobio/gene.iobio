@@ -132,7 +132,7 @@
 
             <div style="min-height:100px;max-height: 300px;overflow-y:scroll">
                 <gene-viz id="select-transcript-viz"
-                          :data="selectedGene.transcripts"
+                          :data="orderedTranscripts"
                           :margin=margin
                           :trackHeight=trackHeight
                           :cdsHeight=cdsHeight
@@ -245,6 +245,25 @@
                 }
             }
 
+        },
+        computed: {
+            orderedTranscripts: function() {
+                let transcripts = this.selectedGene.transcripts;
+                let ordered = transcripts;
+                let max = (Object.keys(transcripts).length - 1);
+                for (let transcript in ordered) {
+                    if (ordered[transcript]["is_mane_select"] == "true") {
+                        let last = ordered[max];
+                        if (last == ordered[transcript]) {
+                            return ordered;
+                        } else {
+                            ordered[max] = ordered[transcript];
+                            ordered[transcript] = last;
+                            return ordered;
+                        }
+                    }
+                }
+            }
         }
     }
 </script>
