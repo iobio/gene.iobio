@@ -1327,25 +1327,6 @@ export default {
       })
       self.$set(self, "pedigreeGenotypeData", thePedigreeGenotypeData);
 
-      // if (self.$refs.pedigreeGenotypeViz) {
-      //   self.$refs.pedigreeGenotypeViz.update();
-      // } else {
-      //   setTimeout(function() {
-      //     if (self.$refs.pedigreeGenotypeViz) {
-      //       self.$refs.pedigreeGenotypeViz.update();
-      //     }
-      //   },2000)
-      // }
-      
-      // if (self.$refs.popupPedigreeGenotypeViz) {
-      //   self.$refs.popupPedigreeGenotypeViz.update();
-      // } else {
-      //   setTimeout(function() {
-      //     if (self.$refs.popupPedigreeGenotypeViz) {
-      //       self.$refs.popupPedigreeGenotypeViz.update();
-      //     }
-      //   },2000)
-      // }
 
     },
 
