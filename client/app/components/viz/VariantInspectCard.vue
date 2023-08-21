@@ -1275,8 +1275,8 @@ export default {
           gtObject.rel = model.relationship;
           gtObject.sex = model.sex
           gtObject.affectedStatus = model.affectedStatus;
-          if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.sampleName]) {
-            let gt = self.selectedVariant.genotypes[model.sampleName];
+          if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.getSampleName()]) {
+            let gt = self.selectedVariant.genotypes[model.getSampleName()];
             gtObject.zygosity = gt.zygosity.toLowerCase();
 
             var altAndRef = +gt.refCount + +gt.altCount;
@@ -1311,8 +1311,8 @@ export default {
             gtObject.rel = model.relationship;
             gtObject.sex = model.sex
             gtObject.affectedStatus = model.affectedStatus;
-            if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.sampleName]) {
-              let gt = self.selectedVariant.genotypes[model.sampleName];
+            if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.getSampleName()]) {
+              let gt = self.selectedVariant.genotypes[model.getSampleName()];
               gtObject.zygosity = gt.zygosity.toLowerCase();
 
               var altAndRef = +gt.refCount + +gt.altCount;
