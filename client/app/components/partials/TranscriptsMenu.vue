@@ -132,7 +132,7 @@
 
             <div style="min-height:100px;max-height: 300px;overflow-y:scroll">
                 <gene-viz id="select-transcript-viz"
-                          :data="orderedTranscripts"
+                          :data="reversedTranscripts"
                           :margin=margin
                           :trackHeight=trackHeight
                           :cdsHeight=cdsHeight
@@ -247,22 +247,30 @@
 
         },
         computed: {
-            orderedTranscripts: function() {
+            reversedTranscripts: function() {
+                //Reverses the order of the transcripts
                 let transcripts = this.selectedGene.transcripts;
                 let ordered = transcripts;
-                let max = (Object.keys(transcripts).length - 1);
-                for (let transcript in ordered) {
-                    if (ordered[transcript]["is_mane_select"] == "true") {
-                        let last = ordered[max];
-                        if (last == ordered[transcript]) {
-                            return ordered;
-                        } else {
-                            ordered[max] = ordered[transcript];
-                            ordered[transcript] = last;
-                            return ordered;
-                        }
+
+                let keys = Object.keys(transcripts);
+                keys.reverse();
+                
+                let iter = 0;
+
+                for (let key in ordered) {
+                    // if the iter number is the same as the key or less, then we are done no more need to sort 
+                    if (keys[iter] <= key) {
+                        return ordered;
                     }
+                    let top = ordered[key];
+                    let bottom = ordered[keys[iter]];
+
+                    ordered[key] = bottom;
+                    ordered[keys[iter]] = top;
+
+                    iter += 1;
                 }
+                return ordered;
             }
         }
     }
