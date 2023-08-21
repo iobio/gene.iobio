@@ -173,6 +173,7 @@
          :showDetailsButton="true"
          :showAll="false"
          titleText="PubMed"
+         :showCountOnly="true"
          @show-pubmed-dialog="onShowPubMedDialog(true)"
          >
         </gene-pubmed-table>

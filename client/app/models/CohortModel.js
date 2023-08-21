@@ -1345,10 +1345,12 @@ class CohortModel {
             hasMatches = true;
           }
           idx++;
+          // Backward compatibility - newest gene_phenotype.db has different column names:
+          // hpo_term_id -> hpo_id,  hpo_term_name -> hpo_name
           return {'match': matchToken, 
                   'matchLevel': matchLevel, 
-                  'ontologyId': hpoTerm.hpo_term_id, 
-                  'name': hpoTerm.hpo_term_name, 
+                  'ontologyId': hpoTerm.hasOwnProperty('hpo_term_id') ? hpoTerm.hpo_term_id : hpoTerm.hpo_id, 
+                  'name': hpoTerm.hasOwnProperty('hpo_term_name') ?  hpoTerm.hpo_term_name : hpoTerm.hpo_name, 
                   'matchingSamples': rels,
                   'ordinal': idx}
         })

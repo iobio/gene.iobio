@@ -65,8 +65,10 @@ class GeneModel {
     this.geneNCBISummaries = {};
     this.geneOMIMEntries = {};
     this.genePubMedEntries = {};
+    this.genePubMedCount = {};
     this.geneClinvarPhenotypes = {};
     this.genePhenotypes = {};
+    this.geneDisorders = {};
     this.geneObjects = {};
     this.geneToLatestTranscript = {};
     this.geneToEnsemblId = {};
@@ -345,6 +347,8 @@ class GeneModel {
       me._promiseCopyPasteGenesImpl(genesString, options)
       .then(function() {
         me.getNCBIGeneSummariesForceWait(me.geneNames)
+        .catch(function(error) {
+        })
 
         var promises = [];
         me.geneNames.forEach(function(geneName) {
@@ -900,7 +904,7 @@ class GeneModel {
                 delete me.pendingNCBIRequests[theGeneNames];
               }
               console.log("Error occurred when making http request to NCBI eutils esummary for genes " + geneNames.join(","));
-              reject();
+              reject(error);
             })
 
           })
@@ -910,7 +914,7 @@ class GeneModel {
               delete me.pendingNCBIRequests[theGeneNames];
             }
             console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneNames.join(","));
-            reject();
+            reject(error);
           })
 
       }
@@ -929,7 +933,7 @@ class GeneModel {
       let unknownGeneInfo = {description: ' ', summary: ' '};
 
       if (geneInfo != null && geneInfo.summary != " ") {
-        me.dispatch.alertRetracted("info", "Unable to get NCBI gene summary", geneName)
+        me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
         resolve(geneInfo);
       } else {
         // Search NCBI based on the gene name to obtain the gene ID
@@ -951,6 +955,8 @@ class GeneModel {
                   });
                 }
                 me.geneNCBISummaries[geneName] = unknownGeneInfo;
+                me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
+
                 resolve(unknownGeneInfo);
 
               } else {
@@ -959,13 +965,13 @@ class GeneModel {
                 var geneInfo = sumData.result[uid];
 
                 me.geneNCBISummaries[geneName] = geneInfo;
-                me.dispatch.alertRetracted("info", "Unable to get NCBI gene summary", geneName)
+                me.dispatch.alertRetracted("warning", "Unable to get NCBI gene summary", geneName)
                 resolve(geneInfo)
               }
           })
           .fail(function() {
             console.log("Error occurred when making http request to NCBI eutils esummary for gene " + geneName);
-            me.dispatch.alertIssued("info", 
+            me.dispatch.alertIssued("warning", 
               "Unable to get NCBI gene summary (esummary) for gene <pre>" + geneName + "</pre>", geneName, 
               ['Error occurred when making http request to NCBI eutils esummary',summaryUrl])
             me.geneNCBISummaries[geneName] = unknownGeneInfo;
@@ -975,7 +981,7 @@ class GeneModel {
         })
         .fail(function() {
           console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneName);
-            me.dispatch.alertIssued("info", 
+            me.dispatch.alertIssued("warning", 
               "Unable to get NCBI gene summary (esearch) for gene <pre>" + geneName + "</pre>", geneName, 
               ['Error occurred when making http request to NCBI eutils esearch',url])
           me.geneNCBISummaries[geneName] = unknownGeneInfo;
@@ -984,6 +990,44 @@ class GeneModel {
       }
     });
 
+  }
+
+  promiseGetPubMedCount(theGeneName, options={useCached: true}) {
+    let me = this;
+    return new Promise( function(resolve, reject) {
+
+      let theCount = me.genePubMedCount[theGeneName];
+      if (theCount && options.useCached) {
+        me.dispatch.alertRetracted("warning", "Unable to get PubMed count", theGeneName);
+        resolve(theCount)
+      }
+      else {
+        let geneName = theGeneName;
+        var pubMedCount = null;
+        var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title/abstract]";
+        me.pendingNCBIRequests[geneName] = true;
+
+        $.ajax( searchUrl )
+         .done(function(data) {
+          me.dispatch.alertRetracted("warning", "Unable to get PubMed count", geneName);
+
+          // Now that we have the gene ID, get the NCBI gene summary
+          pubMedCount = data["esearchresult"]["count"]
+          me.genePubMedCount[geneName] = pubMedCount;
+          resolve(pubMedCount)
+
+         })
+         .fail(function(error) {
+            delete me.pendingNCBIRequests[geneName];
+
+            let msg = "Unable to get PubMed count for " + geneName;
+            console.log(msg);
+            console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
+            me.dispatch.alertIssued("warning", msg, geneName, [error])
+            reject();
+         })
+      }
+    })
   }
 
   promiseGetPubMedEntries(theGeneName, options={retmax: 5, useCached: true}) {
@@ -996,68 +1040,65 @@ class GeneModel {
         resolve(theEntry)
       }
       else {
-        setTimeout(function() {
-          let geneName = theGeneName;
-          var pubMedEntries = [];
-          var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title/abstract]";
-          me.pendingNCBIRequests[geneName] = true;
-  
-          $.ajax( searchUrl )
-           .done(function(data) {
 
-              // Now that we have the gene ID, get the NCBI gene summary
-              var webenv = data["esearchresult"]["webenv"];
-              var queryKey = data["esearchresult"]["querykey"];
-              var count = data["esearchresult"]["count"]
-              var summaryUrl = me.NCBI_PUBMED_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv + "&retmax=" + options.retmax;
-              $.ajax( summaryUrl )
-              .done(function(sumData) {
-                delete me.pendingNCBIRequests[geneName];
-  
-                if (sumData.result != null && sumData.result.uids && sumData.result.uids.length > 0) {
-                  sumData.result.uids.forEach(function(uid) {
-                    var entry = sumData.result[uid];
-                    pubMedEntries.push({uid: uid, title: entry.title, firstAuthor: entry.sortfirstauthor, pubDate: entry.pubdate, source: entry.source})
+        let geneName = theGeneName;
+        var pubMedEntries = [];
+        var searchUrl = me.NCBI_PUBMED_SEARCH_URL  + "&term=" + geneName + "[title/abstract]";
+        me.pendingNCBIRequests[geneName] = true;
 
-                  })
-                  let theEntry = {geneName: geneName, count: count, entries: pubMedEntries};
-                  if (options.useCached) {
-                    me.genePubMedEntries[geneName] = theEntry;
-                  }
-                  me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
-                  resolve(theEntry);
-                } else {
-                  let theEntry = {geneName: geneName, count: 0, entries: null}
-                  if (options.useCached) {
-                    me.genePubMedEntries[geneName] = theEntry;
-                  }
-                  me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
-                  resolve(theEntry)
+        $.ajax( searchUrl )
+        .done(function(data) {
+
+            // Now that we have the gene ID, get the NCBI gene summary
+            var webenv = data["esearchresult"]["webenv"];
+            var queryKey = data["esearchresult"]["querykey"];
+            var count = data["esearchresult"]["count"]
+            var summaryUrl = me.NCBI_PUBMED_SUMMARY_URL + "&query_key=" + queryKey + "&WebEnv=" + webenv + "&retmax=" + options.retmax;
+            $.ajax( summaryUrl )
+            .done(function(sumData) {
+              delete me.pendingNCBIRequests[geneName];
+
+              if (sumData.result != null && sumData.result.uids && sumData.result.uids.length > 0) {
+                sumData.result.uids.forEach(function(uid) {
+                  var entry = sumData.result[uid];
+                  pubMedEntries.push({uid: uid, title: entry.title, firstAuthor: entry.sortfirstauthor, pubDate: entry.pubdate, source: entry.source})
+
+                })
+                let theEntry = {geneName: geneName, count: count, entries: pubMedEntries};
+                if (options.useCached) {
+                  me.genePubMedEntries[geneName] = theEntry;
                 }
+                me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
+                resolve(theEntry);
+              } else {
+                let theEntry = {geneName: geneName, count: 0, entries: null}
+                if (options.useCached) {
+                  me.genePubMedEntries[geneName] = theEntry;
+                }
+                me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
+                resolve(theEntry)
+              }
 
-              })
-             .fail(function(error) {
-                delete me.pendingNCBIRequests[geneName];
-                let msg = "Unable to get PubMed entries for <pre>" + geneName + "</pre>";
-                console.log(msg)
-                console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-                me.dispatch.alertIssued("info", msg, geneName, [error])
-                reject();
-              })
-
-           })
+            })
            .fail(function(error) {
               delete me.pendingNCBIRequests[geneName];
-  
-              let msg = "Unable to get PubMed entries for " + geneName;
-              console.log(msg);
+              let msg = "Unable to get PubMed entries for <pre>" + geneName + "</pre>";
+              console.log(msg)
               console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
-              me.dispatch.alertIssued("info", msg, geneName, [error])
+              me.dispatch.alertIssued("warning", msg, geneName, [error])
               reject();
-           })
+            })
 
-         }, 
-         (Object.keys(me.pendingNCBIRequests).length > 0 ? 5000 : 3000));
+        })
+        .fail(function(error) {
+            delete me.pendingNCBIRequests[geneName];
+
+            let msg = "Unable to get PubMed entries for " + geneName;
+            console.log(msg);
+            console.log("Error occurred when making http request to NCBI eutils esummary pubmed for gene " + geneName);
+            me.dispatch.alertIssued("warning", msg, geneName, [error])
+            reject();
+        })
 
       }
     })
@@ -1093,6 +1134,7 @@ class GeneModel {
 
       let theEntry = self.geneOMIMEntries[theGeneName];
       if (theEntry) {
+        self.dispatch.alertRetracted("warning", "Cannot get OMIM entries", theGeneName);
         resolve(theEntry)
       } else {
         let geneName = theGeneName;
@@ -1112,11 +1154,13 @@ class GeneModel {
             .then(function() {
               let theEntry = {geneName: geneName, omimEntries: omimEntries};
               self.geneOMIMEntries[geneName] = theEntry;
+              self.dispatch.alertRetracted("warning", "Cannot get OMIM entries", geneName);
               resolve(theEntry)
             })
           } else {
             let theEntry = {geneName: geneName, omimEntries: null};
             self.geneOMIMEntries[geneName] = theEntry;
+            self.dispatch.alertRetracted("warning", "Cannot get OMIM entries", geneName);
             resolve(theEntry)
           }
         })
@@ -1139,15 +1183,18 @@ class GeneModel {
     return new Promise(function(resolve, reject) {
       let hpoTerms = self.geneToHPOTerms[geneName];
       if (hpoTerms) {
+        self.dispatch.alertRetracted("warning", "Cannot get HPO terms for gene", geneName);
         resolve(hpoTerms)
       } else {
         self.promiseGetNCBIGeneSummary(geneName)
         .then(function(ncbiSummary) {
           if (ncbiSummary && ncbiSummary.uid) {
+            self.dispatch.alertRetracted("warning", "Unable to lookup NCBI id for gene", geneName);
             let url = self.HPO_URL + ncbiSummary.uid;
             $.ajax( url )
             .done(function(data) {
               self.geneToHPOTerms[geneName] = data;
+              self.dispatch.alertRetracted("warning", "Cannot get HPO terms for gene", geneName);
               resolve(data)
             })
             .fail(function(error) {
@@ -1158,7 +1205,7 @@ class GeneModel {
               reject(msg + '. Error: ' + error);        
             })
           } else {
-            self.dispatch.alertIssued("info", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>. Unable to lookup NCBI id for gene.", geneName)
+            self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>. Unable to lookup NCBI id for gene.", geneName)
             reject("Unable to get gene HPO terms because lookup of NCBI gene returned empty results.")
           }
         })
@@ -1289,6 +1336,9 @@ class GeneModel {
     if (self.genePhenotypes && self.genePhenotypes.hasOwnProperty(geneName)) {
       delete self.genePhenotypes[geneName];
     }
+    if (self.geneDisorders && self.geneDisorders.hasOwnProperty(geneName)) {
+      delete self.geneDisorders[geneName];
+    }
     if (self.geneToEnsemblId && self.geneToEnsemblId.hasOwnProperty(geneName)) {
       delete self.geneToEnsemblId[geneName];
     }
@@ -1309,6 +1359,9 @@ class GeneModel {
     }
     if (self.genePubMedEntries && self.genePubMedEntries.hasOwnProperty(geneName)) {
       delete self.genePubMedEntries[geneName];
+    }
+    if (self.genePubMedCount && self.genePubMedCount.hasOwnProperty(geneName)) {
+      delete self.genePubMedCount[geneName];
     }
     if (self.geneToLatestTranscript && self.geneToLatestTranscript.hasOwnProperty(geneName)) {
       delete self.geneToLatestTranscript[geneName];
@@ -1421,18 +1474,47 @@ class GeneModel {
       if (phenotypes != null) {
         resolve([phenotypes, geneName]);
       } else {
-        var url = me.globalApp.geneToPhenoServer + geneName;
+        var url = me.globalApp.geneToPhenoServer + '/associations/' + geneName;
 
         fetch(url).then(r => r.json())
         .then((response) => {
           
-          me.genePhenotypes[geneName] = response;
+          me.genePhenotypes[geneName] = response.phenotypes;
+          me.geneDisorders[geneName] = response.disorders;
 
-          resolve([response, geneName]);
+          resolve([response.phenotypes, geneName]);
         })
         .catch((e) => {
           console.error(e);
           reject("unable to get phenotypes for gene " + geneName);
+        });
+      }
+    });
+  }
+
+
+  promiseGetGeneDisorders(geneName) {
+    var me = this;
+
+    return new Promise( function(resolve, reject) {
+
+      var disorders = me.geneDisorders[geneName];
+      if (disorders != null) {
+        resolve([disorders, geneName]);
+      } else {
+        var url = me.globalApp.geneToPhenoServer + '/associations/' + geneName;
+
+        fetch(url).then(r => r.json())
+        .then((response) => {
+          
+          me.genePhenotypes[geneName] = response.phenotypes;
+          me.geneDisorders[geneName] = response.disorders;
+
+          resolve([response.disorders, geneName]);
+        })
+        .catch((e) => {
+          console.error(e);
+          reject("unable to get disorders for gene " + geneName);
         });
       }
     });
@@ -1736,7 +1818,7 @@ class GeneModel {
         resolve(links)
       })
       .catch(function(error) {
-        me.dispatch.alertIssued('info', error, geneName)
+        me.dispatch.alertIssued('error', error, geneName)
         populateLinks()
         resolve(links)
 

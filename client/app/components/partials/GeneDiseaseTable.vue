@@ -112,90 +112,34 @@ export default {
       let self = this;
       self.entryCount = "";
       self.entries = []
-      self.promiseGetOMIMEntries()
-      .then(function() {
-        self.promiseGetHPOEntries()
-        .then(function() {
-          self.hpoEntries.map(function(hpoEntry) {
-            let matchingOmimEntry = self.omimEntryMap[hpoEntry.dbId]
-            if (matchingOmimEntry) {
-              matchingOmimEntry.match = true;
-              hpoEntry.phenotypeInheritance = matchingOmimEntry.phenotypeInheritance;
-              hpoEntry.url = self.getOMIMEntryHref(matchingOmimEntry.mimNumber)
-            } else {
-              hpoEntry.phenotypeInheritance = "";
-              hpoEntry.url = self.getEntryHref(hpoEntry.diseaseId)
-            }
-            self.entries.push(hpoEntry)
-          })
-          Object.values(self.omimEntryMap).forEach(function(omimEntry) {
-            if (!omimEntry.match) {
-              self.entries.push({'diseaseId': omimEntry.phenotypeMimNumber, 
-                            'phenotypeInheritance': omimEntry.phenotypeInheritance,
-                            'diseaseName': omimEntry.phenotype,
-                            'url': omimEntry.url, })
-            }
-          })
-          self.entryCount = self.entries.length > 0 ? self.entries.length : ""
+      self.geneModel.promiseGetGeneDisorders(self.selectedGene.gene_name)
+      .then(function(data) {
+        let geneDisorders = data[0];
+        let geneName      = data[1]
+        geneDisorders.forEach(function(geneDisorder) {
+          let source = null;
+          let mimNumber = null;
+          let url = null;
+          if (geneDisorder.disease_id && geneDisorder.disease_id.indexOf(":") > 0) {
+            source = geneDisorder.disease_id.split(":")[0];
+            mimNumber = geneDisorder.disease_id.split(":")[1];
+            url = source == 'OMIM' ? self.getOMIMEntryHref(mimNumber) : self.getEntryHref(geneDisorder.disease_id);
+          }
+          self.entries.push({'diseaseId': geneDisorder.disease_id, 
+                        'phenotypeInheritance': geneDisorder.inheritance,
+                        'diseaseName': geneDisorder.disorder,
+                        'url': url })
 
         })
-        .catch(function(error) {
-
-        })
+        self.entryCount = self.entries.length > 0 ? self.entries.length : ""
       })
-      .catch(function() {
+      .catch(function(error) {
+        console.log(error)
 
       })
-    },
-    promiseGetHPOEntries: function() {
-      let self = this;
-      self.hpoEntries = [];
-      return new Promise(function(resolve, reject) {
-
-        if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
-          self.geneModel.promiseGetHPOTermsPublicAPI(self.selectedGene.gene_name)
-          .then(function(data) {
-            self.hpoEntries = data.diseaseAssoc;
-            resolve();
-          })
-          .catch(function(error) {
-            reject(error)
-          })
-        } else {
-          resolve();
-        }
-      })
-  
     },
     getEntryHref: function(diseaseId) {
       return "https://hpo.jax.org/app/browse/disease/" + diseaseId;
-    },
-    promiseGetOMIMEntries: function() {
-      let self = this;
-
-      return new Promise(function(resolve, reject) {
-        self.omimEntryMap = {};
-    
-        if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
-          self.geneModel.promiseGetOMIMEntries(self.selectedGene.gene_name)
-          .then(function(data) {
-            if (data && data.omimEntries) {
-              self.omimEntries = data.omimEntries.map(function(entry) {
-                return entry.phenotype;
-              }).forEach(function(omimEntry) {
-                self.omimEntryMap[omimEntry.phenotypeMimNumber] = omimEntry;
-              })
-
-              resolve()
-            }
-          })
-          .catch(function(error) {
-            reject(error)
-          })
-        } else {
-          resolve();
-        }
-      })
     },
     getOMIMEntryHref: function(mimNumber) {
       return "https://www.omim.org/entry/" + mimNumber;

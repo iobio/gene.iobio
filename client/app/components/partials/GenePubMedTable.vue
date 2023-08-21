@@ -239,7 +239,7 @@
       <div  class="table-title">
         {{ titleText }}
       </div>
-      <v-badge v-if="pubMedCount && pubMedCount > 0 && pubMedEntries && pubMedEntries.length > 0" class="count entry-count" style="margin-right:40px">
+      <v-badge v-if="pubMedCount && pubMedCount >= 0" class="count entry-count" style="margin-right:40px">
         <span slot="badge">
            {{ pubMedCount }} 
         </span>
@@ -251,7 +251,7 @@
 
     </div>
 
-    <div v-if="!showDetailsButton && pubMedEntries && pubMedEntries.length > 0" class="pubmed-header-row" style="display: flex;">
+    <div v-if="!showCountOnly && !showDetailsButton && pubMedEntries && pubMedEntries.length > 0" class="pubmed-header-row" style="display: flex;">
       <v-text-field id="search-input" 
         v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title != 'loading...'"
         v-model="search" 
@@ -268,12 +268,12 @@
     </div>
 
     <div class="loader" 
-    v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title == 'loading...'">
+    v-if="!showCountOnly && pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title == 'loading...'">
         <span class="loader-label">loading</span>
         <img src="../../../assets/images/wheel.gif">
     </div> 
 
-    <div class="pubmed-rows" v-if="pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title != 'loading...'">
+    <div class="pubmed-rows" v-if="!showCountOnly && pubMedEntries && pubMedEntries.length > 0 && pubMedEntries[0].title != 'loading...'">
       <div class="pubmed-row" v-for="entry, idx in pubMedEntries" :key="entry.uid">
         <span v-if="showAll" class="pubmed-item-number">{{ idx+1 }}.</span>
         <span  class="pubmed-launch" >
@@ -309,7 +309,8 @@ export default {
     showFullDate: null,
     showDetailsButton: null,
     showAll: null,
-    titleText: null
+    titleText: null,
+    showCountOnly: null
   },
   data () {
     return {       
@@ -330,33 +331,40 @@ export default {
       self.pubMedEntries = [ {title: 'loading...'}];
       self.pubMedCount = 0;
       self.matchMessage = "";
-      let options = {retmax: 5, useCached: true};
-      if (self.showAll) {
-        options.retmax = 500;
-        options.useCached = false;
-      }
+      let options = self.showCountOnly ? {useCached: true} : {retmax: 500, useCached: true};
       if (self.selectedGene && Object.keys(self.selectedGene).length > 0 ) {
-        self.geneModel.promiseGetPubMedEntries(self.selectedGene.gene_name, options)
-        .then(function(data) {
-          self.pubMedEntries = data.entries;
-          if (self.showAll) {
-            self.pubMedEntriesAll = data.entries;
-          }
-          self.pubMedCount = data.count;
-          if (self.showAll) {
+        if (self.showCountOnly) {
+          self.geneModel.promiseGetPubMedCount(self.selectedGene.gene_name, options )
+          .then(function(count) {
+            self.pubMedCount = count;
+          })
+          .catch(function(error) {
+            self.pubMedCount = null;
             self.matchMessage = "";
-            if (data.count > self.pubMedEntries.length) {
-              self.matchMessage = "top " + self.pubMedEntries.length + " entries.";
+          })            
+        } else {
+          self.geneModel.promiseGetPubMedEntries(self.selectedGene.gene_name, options)
+          .then(function(data) {
+            self.pubMedEntries = data.entries;
+            if (self.showAll) {
+              self.pubMedEntriesAll = data.entries;
             }
-          } else {
-            self.matchMessage = data.count > self.pubMedEntries.length ? "5 most recent displayed." : "";
-          }
-        })
-        .catch(function(error) {
-          self.pubMedEntries = [];
-          self.pubMedCount = 0;
-          self.matchMessage = "";
-        })
+            self.pubMedCount = data.count;
+            if (self.showAll) {
+              self.matchMessage = "";
+              if (data.count > self.pubMedEntries.length) {
+                self.matchMessage = "top " + self.pubMedEntries.length + " entries.";
+              }
+            } else {
+              self.matchMessage = data.count > self.pubMedEntries.length ? "5 most recent displayed." : "";
+            }
+          })
+          .catch(function(error) {
+            self.pubMedEntries = [];
+            self.pubMedCount = 0;
+            self.matchMessage = "";
+          })          
+        }
       } else {
         self.pubMedEntries = [];
         self.pubMedCount = 0;
