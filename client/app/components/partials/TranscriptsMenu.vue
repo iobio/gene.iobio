@@ -222,11 +222,19 @@
                 let self = this;
                 self.$emit('gene-source-selected', self.geneSource);
             },
+            scrollToSelection: function(){
+                let selection = document.getElementsByClassName("transcript current")[0];
+                if (selection) {
+                    selection.scrollIntoView({behavior: "smooth"});
+                }
+            }
         },
         watch:  {
             showTranscriptsMenu: function() {
                 if (this.showTranscriptsMenu) {
                     this.$emit("transcriptMenuOpened");
+
+                    setTimeout(this.scrollToSelection, 100)
                 }
             },
             selectedTranscript: function() {
