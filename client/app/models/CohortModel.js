@@ -1382,9 +1382,14 @@ class CohortModel {
 
       })
       .catch(function(error) {
-        let msg = "Cannot get HPO terms for gene " + geneName;
+        let msg = "Cannot get phenotypes for gene " + geneName;
         console.log(msg)
         console.log(error)
+        self.dispatch.alertIssued("warning", 
+                         "Cannot get phenotypes for gene <pre>" + geneName + "</pre>",
+                         geneName,
+                         [error]
+          )
         reject(msg)
       })
     })

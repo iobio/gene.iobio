@@ -313,8 +313,17 @@ class GeneModel {
         .catch(function(error) {
           if (error.hasOwnProperty('message')) {
             console.log(error.message)
+            me.dispatch.alertIssued("warning", 
+                 "Cannot get phenotypes for gene <pre>" + geneName + "</pre>",
+                 geneName,
+                 [error.message]);
+
           } else {
             console.log(error)
+            me.dispatch.alertIssued("warning", 
+                 "Cannot get phenotypes for gene <pre>" + geneName + "</pre>",
+                 geneName,
+                 [error]);
           }
           resolve(false)
         })
@@ -1476,7 +1485,15 @@ class GeneModel {
       } else {
         var url = me.globalApp.geneToPhenoServer + '/associations/' + geneName;
 
-        fetch(url).then(r => r.json())
+        fetch(url)
+        .then(function(r) {
+          if (r.ok) {
+            return r.json()
+          } else {
+            console.log(r.status)
+            reject("Unable to get phenotypes. status=" + r.status )
+          }
+        })
         .then((response) => {
           
           me.genePhenotypes[geneName] = response.phenotypes;
