@@ -855,7 +855,18 @@ class SampleModel {
 
 
   getSampleName() {
-    return this.sampleName;
+    let self = this;
+    if (this.sampleName) {
+      return this.sampleName;
+    } else if (this.isAlignmentsOnly()) {
+      let sampleName = self.bam.getHeaderSample();
+      if (sampleName == null || sampleName.length == 0) {
+        sampleName = self.relationship;        
+      }
+      return sampleName;
+    } else {
+      return self.relationship;
+    }
   }
 
   getVcfSampleName() {

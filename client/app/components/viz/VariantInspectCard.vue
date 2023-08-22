@@ -1,5 +1,76 @@
 <style lang="sass" >
 @import ../../../assets/sass/variables
+#pedigree-genotype-popup
+  display: flex
+  flex-direction: column
+  justify-content: center
+  align-items: center
+  position: absolute
+  background-color: white
+  padding: 1em
+  z-index: 100
+  top: 50%
+  left: 50%
+  width: 80%
+  height: 90%
+  max-width: 1000px
+  transform: translate(-50%, -50%)
+  border: 1px solid #c5c5c5 !important
+  box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important
+
+  .variant-column-header
+    width: 100%
+    text-align: center
+    padding: 1px
+    height: 10%
+
+  .variant-column-header hr
+    margin-top: 0px
+    margin-bottom: 0px
+    height: 1px
+
+  .popup-pedigree-chart
+    width: 100%
+    height: 80%
+    max-width: 800px
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    .pedigree-genotype-chart
+      width: 100%
+      .allele-count-bar
+        text
+          font-size: 15px
+    
+  div .variant-row
+    display: flex
+    flex-direction: row
+    margin-top: 5px
+    margin-bottom: 5px
+
+.pedigree-popup-hidden
+  visibility: hidden
+
+.pedigree-popup-show
+  visibility: visible
+.popup-variant-header
+  display: flex
+  flex-direction: row
+  justify-content: center
+  position: relative
+  #close-pedigree-genotype-popup
+    margin-left: auto
+    height: 5%
+    z-index: 1
+    right: 0px
+    top: -5px
+    position: absolute
+  *:first-child
+    flex: 1
+    text-align: center
+    margin: 0px 0px 0px 0px
+
 #variant-inspect
   padding-left: 10px
   padding-top: 10px
@@ -9,9 +80,6 @@
 
   .multialign-loader
     font-size: 12px
-
-
-
 
   .refalt
     max-width: 200px
@@ -74,9 +142,6 @@
     .input-group__details:after
       background-color: $text-color
 
-
-
-
   .variant-inspect-body
     display: flex
     flex-direction: row
@@ -95,12 +160,9 @@
         .match-chip
           margin-right: 5px
 
-
     #conservation-track
       .variant-text
         max-width: 120px
-
-
 
     .variant-inspect-column
       display: flex
@@ -113,6 +175,29 @@
       margin-right: 15px
       padding-top: 0px
       padding-bottom: 0px
+      #expand-popup-button
+        font-weight: 500
+        color: #30638e
+        display: flex
+        flex-direction: row
+        align-items: center
+        justify-content: center
+        i
+          margin: 3px 2px 1px 3px
+        p
+          margin: 3px 3px 1px 1px
+          
+      #qual-track
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: center
+        .variant-row
+          display: flex
+          flex-direction: row
+          align-items: center
+          justify-content: center
+
 
 
       &.last
@@ -169,6 +254,7 @@
       #qual-track
         margin-top: 0px
         #depth-viz
+          margin-left: 3px
           .circle-label
             font-size: 13px !important
 
@@ -211,20 +297,12 @@
 
 
   .variant-action-button
-      padding: 0px
-      height: 22px !important
-      margin: 0px
       min-width: 110px !important
-      max-width: 110px
       font-weight: 500
+      font-size: 13px
       color: $link-color
-
       .btn__content, .v-btn__content
         color: $link-color !important
-        padding-left: 8px
-        padding-right: 8px
-        font-size: 12px
-
         i.material-icons
           color: $link-color !important
 
@@ -366,15 +444,41 @@
   font-family: raleway
 </style>
 
-<style lang="css">
-
-
-</style>
-
-
 <template>
 
   <v-card v-show="selectedVariant" id="variant-inspect" class="app-card full-width">
+
+    <v-card id="pedigree-genotype-popup" :class="showPedigreePopup ? 'pedigree-popup-show' : 'pedigree-popup-hidden'" style="min-width:90px;" v-if="!isSimpleMode && selectedVariant">
+
+
+        <div class="variant-column-header">
+          <div class="popup-variant-header">
+            <p>Inheritance</p>
+            <button id="close-pedigree-genotype-popup" @click="togglePedigreePopup">
+              <v-icon>close</v-icon>
+            </button>
+          </div>
+
+          <v-divider></v-divider>
+        </div>
+
+        <variant-inspect-inheritance-row :selectedVariant="selectedVariant">
+        </variant-inspect-inheritance-row>
+
+        <div class="pedigree-chart popup-pedigree-chart">
+            <app-icon class="hide" icon="affected"></app-icon>
+            <pedigree-genotype-viz id="popup-pedigree-genotype-viz"
+             ref="popupPedigreeGenotypeViz"
+             :margin="{left: 15, right: 14, top: 30, bottom: 4}"
+             :nodeWidth="60"
+             :nodePadding="40"
+             :nodeVerticalPadding="40"
+             :data="pedigreeGenotypeData"
+             :options="{context: 'popup'}">
+            </pedigree-genotype-viz>
+        </div>
+
+    </v-card>
 
     <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:5px">
       <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left" style="display: inline-grid">
@@ -538,7 +642,7 @@
               >
             </gene-viz>
 
-            <div class="variant-row " style="padding-top:5px">
+            <div class="variant-row " >
               <v-btn flat v-if="selectedVariantRelationship != 'known-variants' && cohortModel.getModel(selectedVariantRelationship ? selectedVariantRelationship : 'proband').isBamLoaded()  && !isSimpleMode "
               class="variant-action-button"  @click="onShowPileup">
                <v-icon>format_align_center</v-icon>
@@ -724,7 +828,10 @@
              :data="pedigreeGenotypeData">
             </pedigree-genotype-viz>
           </div>
-
+          <v-btn id="expand-popup-button" v-if="pedigreeGenotypeData && Object.keys(pedigreeGenotypeData).length > 5" small flat light @click="togglePedigreePopup">
+            <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 20px; color: rgb(48, 99, 142);">open_in_new</i>
+            <p>Expand</p>
+          </v-btn>
 
       </div>
 
@@ -894,7 +1001,7 @@ export default {
   data() {
     return {
       genePhenotypeHits: null,
-
+      showPedigreePopup: false,
       coverageRegionStart: null,
       coverageRegionEnd: null,
       exon: null,
@@ -967,8 +1074,6 @@ export default {
 
     }
   },
-
-
   methods: {
     refresh: function() {
 
@@ -982,16 +1087,15 @@ export default {
       this.showPatientGenePhenotypeDialog = show;
     },
 
+    refreshSelectedVariantInfo: function() {
+      if (this.selectedVariant) {
+        this.selectedVariantInfo =  this.globalApp.utility.formatDisplay(this.selectedVariant,this.cohortModel.translator, this.isEduMode)
+      } else {
+        this.selectedVariantInfo = null;
+      }
+    },
 
-      refreshSelectedVariantInfo: function() {
-          if (this.selectedVariant) {
-              this.selectedVariantInfo =  this.globalApp.utility.formatDisplay(this.selectedVariant, this.cohortModel.translator, this.isEduMode)
-          } else {
-              this.selectedVariantInfo = null;
-          }
-      },
-
-      formatPopAF: function(afObject) {
+    formatPopAF: function(afObject) {
       let self = this;
       var popAF = "";
       if (afObject['AF'] != ".") {
@@ -1006,6 +1110,13 @@ export default {
         }
       }
       return popAF;
+    },
+    togglePedigreePopup() {
+      if (this.showPedigreePopup) {
+        this.showPedigreePopup = false;
+      } else {
+        this.showPedigreePopup = true;
+      }
     },
     selectTranscript: function(transcriptId) {
       this.$emit("transcript-id-selected", transcriptId);
@@ -1038,10 +1149,6 @@ export default {
         return "";
       }
     },
-
-
-
-
 
     getNonCanonicalImpact: function(vepHighestImpact) {
       return this.globalApp.utility.capitalizeFirstLetter(vepHighestImpact.toLowerCase());
@@ -1218,8 +1325,8 @@ export default {
           gtObject.rel = model.relationship;
           gtObject.sex = model.sex
           gtObject.affectedStatus = model.affectedStatus;
-          if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.sampleName]) {
-            let gt = self.selectedVariant.genotypes[model.sampleName];
+          if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.getSampleName()]) {
+            let gt = self.selectedVariant.genotypes[model.getSampleName()];
             gtObject.zygosity = gt.zygosity.toLowerCase();
 
             var altAndRef = +gt.refCount + +gt.altCount;
@@ -1254,8 +1361,8 @@ export default {
             gtObject.rel = model.relationship;
             gtObject.sex = model.sex
             gtObject.affectedStatus = model.affectedStatus;
-            if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.sampleName]) {
-              let gt = self.selectedVariant.genotypes[model.sampleName];
+            if (self.selectedVariant.genotypes && self.selectedVariant.genotypes[model.getSampleName()]) {
+              let gt = self.selectedVariant.genotypes[model.getSampleName()];
               gtObject.zygosity = gt.zygosity.toLowerCase();
 
               var altAndRef = +gt.refCount + +gt.altCount;
@@ -1285,15 +1392,7 @@ export default {
 
       })
       self.$set(self, "pedigreeGenotypeData", thePedigreeGenotypeData);
-      if (self.$refs.pedigreeGenotypeViz) {
-        self.$refs.pedigreeGenotypeViz.update();
-      } else {
-        setTimeout(function() {
-          if (self.$refs.pedigreeGenotypeViz) {
-            self.$refs.pedigreeGenotypeViz.update();
-          }
-        },2000)
-      }
+
 
     },
 
@@ -2085,8 +2184,3 @@ export default {
 
 }
 </script>
-
-
-
-
-

@@ -2684,7 +2684,7 @@ class CohortModel {
       var sampleNames = null;
       if (self.mode == 'trio') {
         sampleNames = self.getCanonicalModels().map(function(model) {
-          return model.sampleName;
+          return model.getSampleName();
         })
       }
 
@@ -2732,7 +2732,7 @@ class CohortModel {
     var sampleNames = null;
     if (self.mode == 'trio') {
       sampleNames = self.getCanonicalModels().map(function(model) {
-        return model.sampleName;
+        return model.getSampleName();
       })
     }
 
@@ -3568,15 +3568,8 @@ class CohortModel {
 
     let rels = self.mode == 'trio' ? ['proband', 'mother', 'father'] : ['proband'];
     rels.forEach(function(rel) {
-      let sampleName = self.sampleMap[rel].model.bam.getHeaderSample();
-      if (sampleName == null || sampleName.length == 0) {
-        sampleName = self.sampleMap[rel].model.getSampleName()
-      }
-      if (sampleName == null || sampleName.length == 0) {
-        sampleName = rel;
-      }
+      let sampleName = self.sampleMap[rel].model.getSampleName();
       sampleNames.push(sampleName);
-
     })
 
     return sampleNames;
