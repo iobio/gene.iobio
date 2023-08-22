@@ -2,7 +2,7 @@
  * GeneHome.vue
  *
  */
-<style lang="sass">
+ <style lang="sass">
 
 @import ../../../assets/sass/variables
 
@@ -257,9 +257,6 @@ main.content.clin, main.v-content.clin
 
 
 </style>
-
-
-
 <template>
   <div>
 
@@ -448,8 +445,6 @@ main.content.clin, main.v-content.clin
          @show-sfari-variants="onShowSfariVariantsCard"
          @on-insufficient-coverage="onInsufficientCoverage">
         </genes-card>
-
-
 
       <v-card v-show="showGeneVariantsCard" tile id="gene-variants-card" class="app-card full-width">
         <gene-variants-card
@@ -719,7 +714,6 @@ main.content.clin, main.v-content.clin
     </save-analysis-popup>
 
 
-    </v-dialog>
 
 
     <v-dialog v-model="interpretationProgressDialog" persistent max-width="375">
