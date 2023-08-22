@@ -920,6 +920,7 @@
          :showDialog="showPatientGenePhenotypeDialog"
          :cohortModel="cohortModel"
          :selectedGene="selectedGene"
+         :launchedFromHub="launchedFromHub"
          @hide-patient-gene-phenotype-dialog="onShowPatientGenePhenotypeDialog(false)">
     </patient-gene-phenotype-dialog>
 
@@ -996,7 +997,7 @@ export default {
     showAssessment: null,
     launchedFromClin: null,    
     interpretationMap: null,
-    //mosaicVariantInterpretation: null
+    launchedFromHub: null
   },
   data() {
     return {

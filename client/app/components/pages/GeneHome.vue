@@ -597,6 +597,7 @@ main.content.clin, main.v-content.clin
           :genomeBuildHelper="genomeBuildHelper"
           :cohortModel="cohortModel"
           :info="selectedVariantInfo"
+          :launchedFromHub="launchedFromHub"
           :selectedVariantKey="selectedVariantKey"
           :selectedPhenotype="phenotypeTerm"
           :showGenePhenotypes="launchedFromClin || phenotypeTerm"
