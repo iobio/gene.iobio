@@ -1920,11 +1920,13 @@ export default {
 
     _getMatchingAlerts: function(type, message, genes, details) {
       let self = this;
+      let detailsString = details && Array.isArray(details) ? details.join(",") : "";
       return self.appAlerts.filter(function(alert) {
+        let alertDetailString = alert.details && Array.isArray(alert.details) ? alert.details.join(",") : "";
         if (alert.type == type && 
             alert.message == message &&
             alert.genes == genes && 
-            alert.details == details) {
+            alertDetailString == detailsString) {
           return true;
         } else {
           return false;
@@ -5306,3 +5308,4 @@ export default {
   }
 }
 </script>
+
