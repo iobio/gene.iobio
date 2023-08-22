@@ -52,18 +52,6 @@
       right:      -15px
       margin-left: 0px !important
 
-
-.v-badge.count
-  .v-badge__badge
-    background-color: $count-badge-color !important
-    border: thin solid $count-badge-border-color !important
-    color: $text-color !important
-    font-size: 12px !important
-    height: 24px
-    width: 24px
-    font-size: 10.5px !important
-    font-weight: 500
-
   #gene-viz, #gene-viz-zoom
     .transcript.current
       outline: none !important
