@@ -73,8 +73,8 @@ aside.navigation-drawer, aside.v-navigation-drawer
     justify-content: space-between
     margin-bottom: 0px
     overflow-y: hidden
-    padding-bottom: 10px
-    height: calc(100% - 15px)
+    padding-bottom: 55px
+    height: fill-content
     overflow-y: scroll
 
     .v-tabs
@@ -186,9 +186,10 @@ aside.navigation-drawer, aside.v-navigation-drawer
       #gene-badge
         margin-bottom: 5px
         margin-right: 0px !important
+        display: flex
+        align-items: center
 
         #gene-badge-button
-          min-width: 150px
           border-radius: 4px
           #gene-badge-symbols
             width: 80px
@@ -731,7 +732,12 @@ nav.toolbar, nav.v-toolbar
       
       <v-spacer></v-spacer>
 
-      <v-btn  class="navbar-icon-button" v-if="(appAlerts && appAlerts.length > 0) || (badgeCounts && badgeCounts.coverage)" id="notification-button"  @click="onShowNotificationDrawer" flat 
+      <v-btn  class="navbar-icon-button" v-if="cohortModel && launchedFromHub && cohortModel.isLoaded" id="patient-button"  @click="onShowPatientPhenotypeDialog(true)" flat 
+        v-tooltip.bottom-left="{content: 'Patient phenotypes'}">
+          <v-icon style="font-size: 26px;padding-top: 3px;">account_box</v-icon>
+      </v-btn>
+
+      <v-btn  class="navbar-icon-button" v-if="appAlerts" id="notification-button"  @click="onShowNotificationDrawer" flat 
         v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
         <v-badge right  >
           <v-icon>notifications</v-icon>
@@ -915,7 +921,7 @@ nav.toolbar, nav.v-toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      :width="isSimpleMode ? 355 : 315"
+      :width="isSimpleMode ? 355 : 305"
     >
       <div id="side-panel-container" :class="{'basic': isBasicMode}">
 
@@ -984,6 +990,7 @@ nav.toolbar, nav.v-toolbar
              @analyze-all="onAnalyzeAll"
              @call-variants="onCallVariants"
              @stop-analysis="onStopAnalysis"
+             @show-alerts-for-gene="onShowAlertsForGene"
             >
             </genes-panel>
 
@@ -1055,7 +1062,7 @@ nav.toolbar, nav.v-toolbar
       absolute
       right
       width="200"
-      style="z-index:6; height: calc(100vh - 50px); position: fixed;"
+      style="z-index:6; height: calc(100vh - 55px); position: fixed;"
     >
         <v-btn v-if="!isFullAnalysis && !launchedFromClin" id="legend-drawer-close-button" class="toolbar-button" flat @click="showLegendDrawer = false">
           <v-icon >close</v-icon>
@@ -1074,7 +1081,7 @@ nav.toolbar, nav.v-toolbar
       v-model="showNotificationDrawer"
       absolute right  width="340"
       :class="launchedFromClin ? 'clin' : '' "
-      style="z-index:6; height: calc(100vh - 50px); position: fixed;">
+      style="z-index:6; height: calc(100vh - 55px); position: fixed;">
         <v-btn  id="error-drawer-close-button" class="toolbar-button" flat @click="showNotificationDrawer = false">
           <v-icon >close</v-icon>
         </v-btn>
@@ -1133,6 +1140,14 @@ nav.toolbar, nav.v-toolbar
       @genome-build-selected="onGenomeBuildSelected"
       @coding-variants-only-changed="onCodingVariantsOnlyChange">
     </settings-dialog>
+
+    <patient-phenotype-dialog
+     v-if="cohortModel && launchedFromHub && cohortModel.isLoaded"
+     :showDialog="showPatientPhenotypeDialog"
+     :cohortModel="cohortModel"
+     :launchedFromHub="launchedFromHub"
+     @hide-patient-phenotypes="onShowPatientPhenotypeDialog(false)">
+    </patient-phenotype-dialog>
 
 
     <v-dialog v-model="showDisclaimer" max-width="400">
@@ -1339,6 +1354,9 @@ import AppIcon             from '../partials/AppIcon.vue'
 import FileChooser         from '../partials/FileChooser.vue'
 import AlertPanel          from '../partials/AlertPanel.vue'
 import SettingsDialog      from '../partials/SettingsDialog.vue'
+import PatientPhenotypeDialog  from '../partials/PatientPhenotypeDialog.vue'
+
+
 
 export default {
   name: 'navigation',
@@ -1358,7 +1376,8 @@ export default {
     AppIcon,
     FileChooser,
     AlertPanel,
-    SettingsDialog
+    SettingsDialog,
+    PatientPhenotypeDialog
   },
   props: {
     showFilesProp: null,
@@ -1446,7 +1465,8 @@ export default {
 
       analysisFileName: "",
 
-      showSettingsDialog: false
+      showSettingsDialog: false,
+      showPatientPhenotypeDialog: false
 
 
     }
@@ -1651,6 +1671,9 @@ export default {
       }
       this.showSettingsDialog = show;
     },
+    onShowPatientPhenotypeDialog: function(show) {
+      this.showPatientPhenotypeDialog = show;
+    },
     onFlaggedVariantSelected: function(variant) {
       this.$emit("flagged-variant-selected", variant)
     },
@@ -1686,16 +1709,33 @@ export default {
     },
     onShowNotificationDrawer: function() {
       this.showNotificationDrawer = !this.showNotificationDrawer;
+      if (this.showNotificationDrawer){
+        this.$emit('show-alert-panel')
+      } else {
+        this.$emit('hide-alert-panel')
+      }
     },
-    onShowNotificationDrawerShowLast: function() {
-      this.showNotificationDrawer = true;
+    onShowNotificationDrawerShowSelected: function() {
+      let self = this;
       setTimeout(function() {
-        let items = $("#alert-panel .alert-item");
+        let items = $("#alert-panel .selected");
+        // If we have a selected alert, scroll so that
+        // alert is in view
         if (items && items.length > 1) {
-          let last = items[items.length-1];
-          last.scrollIntoView();          
+          let selected = items[items.length-1];
+          selected.scrollIntoView();          
+        } else {
+          // If we don't have a selected alert, scroll 
+          // so that the last alert is in view
+          let items = $("#alert-panel .v-alert");
+          if (items && items.length > 1) {
+            let last = items[items.length-1];
+            last.scrollIntoView(); 
+          }
         }
-      }, 1000);
+        self.showNotificationDrawer = true;
+        self.$emit('show-alert-panel')
+      }, 500);
     },
     onShowCoverageThreshold: function() {
       this.$emit('show-coverage-threshold', true)
@@ -1799,6 +1839,9 @@ export default {
     },
     onClearAllAppAlerts: function() {
       this.$emit('clear-all-app-alerts')
+    },
+    onShowAlertsForGene: function(geneName) {
+      this.$emit('show-alerts-for-gene', geneName)
     }
 
   },

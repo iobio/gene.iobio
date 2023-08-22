@@ -1,6 +1,6 @@
 {
   "name": "gene-iobio-vue",
-  "version": "4.7.2",
+  "version": "4.7.3",
   "scripts": {
     "start": "DEBUG=http ./node_modules/nodemon/bin/nodemon.js --inspect --ignore client/ www.js",
     "build": "./node_modules/webpack/bin/webpack.js",
@@ -16,6 +16,7 @@
     "iobio-api-client": "^0.11.0",
     "jquery": "^3.5.1",
     "lodash": "^4.17.20",
+    "lz-string": "^1.5.0",
     "serve-favicon": "^2.4.3",
     "uiv": "^0.16.0",
     "v-tooltip": "^2.0.0-rc.31",

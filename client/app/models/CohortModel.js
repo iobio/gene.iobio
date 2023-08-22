@@ -36,6 +36,9 @@ class CohortModel {
     this.sampleMap = {};
     this.sampleMapSibs = { affected: [], unaffected: []};
 
+    this.patientPhenotypeEntries = null;
+    this.genePhenotypeEntries = {};
+
     this.mode = 'single';
     this.maxAlleleCount = 0;
     this.affectedInfo = null;
@@ -285,6 +288,9 @@ class CohortModel {
       self.inProgress.loadingDataSources = true;
       self.maxAlleleCount = 0;
 
+      self.patientPhenotypes = [];
+      self.patientPhenotypesMatchingGene = {};
+
       let affectedSibs = modelInfos.filter(function(modelInfo) {
         return modelInfo.relationship == 'sibling' && modelInfo.affectedStatus == 'affected';
       })
@@ -335,7 +341,7 @@ class CohortModel {
       });
       promises.push(self.promiseAddClinvarSample());
 
-      if (self.hubSession != null) {
+      if (self.hubSession != null && isSfariProject) {
         promises.push(self.promiseAddSfariSample(projectId));
       }
 
@@ -372,6 +378,10 @@ class CohortModel {
       vm.isBasicMode = self.isBasicMode;
       vm.isEduMode = self.isEduMode;
       vm.isSfariSample = fromSfariProject;
+      // We have patient hpo terms when launching from Mosaic
+      if (modelInfo.hasOwnProperty("hpoTerms")) {
+        vm.hpoTerms = modelInfo.hpoTerms;
+      }
 
       var vcfPromise = null;
       if (modelInfo.vcf) {
@@ -1097,6 +1107,292 @@ class CohortModel {
       })
     })
 
+  }
+
+  getPatientPhenotypes() {
+    let self = this;
+
+    if (self.patientPhenotypeEntries) {
+      return self.patientPhenotypeEntries
+    } else {
+      self.patientPhenotypeEntries = [];
+      let matchingSampleMap = {};
+
+      // Create a list of unique phenotype terms of the proband and associated family
+      // members
+      self.getCanonicalModels().forEach(function(sampleModel) {
+        let relationship = sampleModel.relationship;
+        if (sampleModel.hpoTerms) {
+          sampleModel.hpoTerms.forEach(function(hpoTerm) {
+
+            let dups = self.patientPhenotypeEntries.filter(function(term) {
+              return term.hpo_id == hpoTerm.hpo_id
+            })
+            // Add to the list of unique phenotype terms 
+            if (dups.length == 0) {
+              self.patientPhenotypeEntries.push(hpoTerm)
+            }
+
+            // Keep track of which samples match to a phenotype term.
+            let rels = matchingSampleMap[hpoTerm.hpo_id];
+            if (rels == null) {
+              rels = [];
+            }
+            rels.push(relationship);
+            matchingSampleMap[hpoTerm.hpo_id] = rels;
+          })
+        }
+      })
+
+      // Now we have a union of all phenotypes of the family; For
+      // each phenotype, keep track which family members have this phenotype
+      // and designate a 'match level' so that terms belonging to the phenotype
+      // appear first, followed by terms belong to the phenotype and other 
+      // family members, followed by phenotype associated with mother, then father,
+      // then siblings.
+      let ordinal = 0;
+      self.patientPhenotypeEntries = self.patientPhenotypeEntries.map(function(phenotypeEntry) {
+        let matchLevel = 99;
+        let matchToken = ""
+        let rels = matchingSampleMap[phenotypeEntry.hpo_id];
+        if (rels.indexOf("proband") >= 0 && rels.length == 1) {
+          matchLevel = 0;
+          matchToken = 'Proband'
+        } else if (rels.indexOf("proband") >= 0 && rels.length > 1) {
+          matchLevel = 1;
+          matchToken = "Proband+"
+        } else {
+          if (rels.indexOf("mother") >= 0 && rels.indexOf("father") >= 0) {
+            matchLevel = 5;
+            matchToken = "Parents"
+          } else if (rels.indexOf("mother") >= 0 && rels.length == 1) {
+            matchLevel = 3;
+            matchToken = "Mother"
+          } else if (rels.indexOf("father") >= 0 && rels.length == 1) {
+            matchLevel = 4;
+            matchToken = "Father";
+          } else if (rels.indexOf("sibling") >= 0 && rels.length == 1) {
+            matchLevel = 6;
+            matchToken = "Sibling"
+          } else if (rels.length > 1) {
+            matchLevel = 2;
+            matchToken = "Family"
+          }
+        }
+        return {'match': matchToken, 
+                'matchLevel': matchLevel, 
+                'hpo_term_id': phenotypeEntry.hpo_id, 
+                'hpo_term_name': phenotypeEntry.label, 
+                'ordinal': ordinal++, 
+                'matchingSamples': rels}
+      })
+      // Now sort the phenotype entries so that terms matching the phenotype
+      // appear in the list before phenotypes matching other family members
+      .sort(function(a,b) {
+        if (a.matchLevel != b.matchLevel) {
+          if (a.matchLevel > b.matchLevel) {
+            return 1;
+          } else if (a.matchLevel < b.matchLevel) {
+            return -1;
+          } 
+        } else {
+          if (a.ordinal < b.ordinal) {
+            return -1
+          } else if (a.ordinal > b.ordinal) {
+            return 1
+          } else {
+            return 0;
+          }
+        }
+      })
+      return self.patientPhenotypeEntries;
+    }
+  }
+
+  promiseGetPatientPhenotypesMatchingGene(geneName) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let patientPhenotypeEntries = self.patientPhenotypesMatchingGene[geneName];
+      if (patientPhenotypeEntries) {
+        resolve(patientPhenotypeEntries)
+      } else {
+
+        // Populate a list of all patient phenotypes. Clone the entries
+        // as we will be designating if the phenotype matches a gene
+        // phenotype
+        patientPhenotypeEntries = []
+        self.getPatientPhenotypes().forEach(function(hpoEntry) {
+          patientPhenotypeEntries.push($.extend({}, hpoEntry))
+        })
+
+        self.promiseGetGenePhenotypeAssociations(geneName)
+        .then(function(data) {
+
+          let genePhenotypeEntries = data.hpoEntries;
+          let hpoTermToGene = {}
+
+          // Create a map for easy lookup
+          genePhenotypeEntries.forEach(function(hpoEntry) {
+            hpoTermToGene[hpoEntry.ontologyId] = geneName;
+          })
+
+          // Set the "match" field based on whether phenotype is associated
+          // with gene
+          patientPhenotypeEntries.forEach(function(patientPhenotype) {
+            let geneName = hpoTermToGene[patientPhenotype.hpo_term_id]
+            if (geneName) {
+              patientPhenotype.match = "Match"
+            } else {
+              patientPhenotype.match = ""
+            }
+          })
+
+          // Sort the patient phenotypes so that the proband phenotypes matching
+          // the gene phenotype show first, then phenotypes for other family members
+          // that match the gene phenotype, then unmatched phenotypes.
+          let sortedPatientPhenotypes = patientPhenotypeEntries.sort(function(a,b) {
+            if (a.match != b.match) {
+              if (a.match.length > 0 && b.match.length == 0) {
+                return -1;
+              } else if (a.match.length == 0 && b.match.length > 0)  {
+                return 1;
+              } 
+            } else if (a.matchLevel != b.matchLevel ){
+              if (a.matchLevel > b.matchLevel) {
+                return 1;
+              } else if (a.matchLevel < b.matchLevel) {
+                return -1;
+              } 
+            } else {
+              if (a.ordinal < b.ordinal) {
+                return -1
+              } else if (a.ordinal > b.ordinal) {
+                return 1
+              } else {
+                return 0;
+              }
+            }
+          })
+          self.patientPhenotypesMatchingGene[geneName] = sortedPatientPhenotypes;
+          resolve(sortedPatientPhenotypes)
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      }
+
+
+    })
+  }
+
+  promiseGetGenePhenotypeAssociations(geneName, includePatientMatchesOnly=false) {
+    let self = this;
+
+    return new Promise(function(resolve, reject) {
+      let hasMatches = false;
+      let hpoEntries = [];
+      let hpoTermToSample = {};
+      self.getCanonicalModels().forEach(function(sampleModel) {
+        let relationship = sampleModel.relationship;
+        if (sampleModel.hpoTerms) {
+          sampleModel.hpoTerms.forEach(function(hpoTerm) {
+            let rels = hpoTermToSample[hpoTerm.hpo_id];
+            if (rels == null) {
+              rels = [];
+            }
+            rels.push(relationship);
+            hpoTermToSample[hpoTerm.hpo_id] = rels;
+          })
+        }
+      })
+
+      self.geneModel.promiseGetGenePhenotypes(geneName)
+      .then(function(data) {
+
+        let hpoTerms = data[0];
+        let idx = 0;
+        hpoEntries = hpoTerms.map(function(hpoTerm) {
+          let rels = hpoTermToSample[hpoTerm.hpo_id];
+          let matchToken = null;
+          let matchLevel = 99;
+          if (rels == null) {
+            matchToken = ""
+          } else if (rels.indexOf("proband") >= 0 && rels.length == 1) {
+            matchToken = "Proband"
+            matchLevel = 0
+          } else if (rels.indexOf("proband") >= 0 && rels.length > 1) {
+            matchToken = "Proband+"
+            matchLevel = 1
+          } else {
+            if (rels.indexOf("mother") >= 0 && rels.indexOf("father") >= 0) {
+              matchToken = "Parents"
+              matchLevel = 2;
+            } else if (rels.indexOf("mother") >= 0 && rels.length == 1) {
+              matchToken = "Mother"
+              matchLevel = 2
+            } else if (rels.indexOf("father") >= 0 && rels.length == 1) {
+              matchToken = "Father"
+              matchLevel = 2
+            } else if (rels.indexOf("sibling") >= 0 && rels.length == 1) {
+              matchToken = "Child"
+              matchLevel = 2
+            } else if (rels.length > 1) {
+              matchToken = "Family"
+              matchLevel = 2
+            }
+          }
+          if (matchToken != "") {
+            hasMatches = true;
+          }
+          idx++;
+          // Backward compatibility - newest gene_phenotype.db has different column names:
+          // hpo_term_id -> hpo_id,  hpo_term_name -> hpo_name
+          return {'match': matchToken, 
+                  'matchLevel': matchLevel, 
+                  'ontologyId': hpoTerm.hasOwnProperty('hpo_term_id') ? hpoTerm.hpo_term_id : hpoTerm.hpo_id, 
+                  'name': hpoTerm.hasOwnProperty('hpo_term_name') ?  hpoTerm.hpo_term_name : hpoTerm.hpo_name, 
+                  'matchingSamples': rels,
+                  'ordinal': idx}
+        })
+        .sort(function(a,b) {
+          if (a.matchLevel != b.matchLevel) {
+            if (a.matchLevel > b.matchLevel) {
+              return 1;
+            } else if (a.matchLevel < b.matchLevel) {
+              return -1;
+            } 
+          } else {
+            if (a.ordinal < b.ordinal) {
+              return -1
+            } else if (a.ordinal > b.ordinal) {
+              return 1
+            } else {
+              return 0;
+            }
+          }
+        })
+        .filter(function(hpoEntry) {
+          if (includePatientMatchesOnly) {
+            return hpoEntry.match != "";
+          } else {
+            return true;
+          }
+        })
+        resolve({'hpoEntries': hpoEntries, 'hasMatches': hasMatches, 'gene': geneName})
+
+      })
+      .catch(function(error) {
+        let msg = "Cannot get phenotypes for gene " + geneName;
+        console.log(msg)
+        console.log(error)
+        self.dispatch.alertIssued("warning", 
+                         "Cannot get phenotypes for gene <pre>" + geneName + "</pre>",
+                         geneName,
+                         [error]
+          )
+        reject(msg)
+      })
+    })
   }
 
 
@@ -2393,7 +2689,7 @@ class CohortModel {
       var sampleNames = null;
       if (self.mode == 'trio') {
         sampleNames = self.getCanonicalModels().map(function(model) {
-          return model.sampleName;
+          return model.getSampleName();
         })
       }
 
@@ -2441,7 +2737,7 @@ class CohortModel {
     var sampleNames = null;
     if (self.mode == 'trio') {
       sampleNames = self.getCanonicalModels().map(function(model) {
-        return model.sampleName;
+        return model.getSampleName();
       })
     }
 
@@ -2753,8 +3049,7 @@ class CohortModel {
       var uniqueTranscripts = {};
       if(!intersectedGenes[geneName]){
         intersectedGenes[geneName] = [{}];
-      }
-      if (intersectedGenes[geneName]) {
+      } else  {
         intersectedGenes[geneName].forEach(function(importedVariant) {
           if (importedVariant.transcript == null || importedVariant.transcript.transcript_id == null) {
             console.log("No transcript for importedVariant");
@@ -2895,62 +3190,92 @@ class CohortModel {
     return dataPromises;
   }
 
-  organizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, variant, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
+  /* 
+   *  Create a structure that organizes variants: filter -> genes -> variants
+   */
+  promiseOrganizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, variant, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
     let self = this;
 
-    let filters = [];
-    for (var filterName in self.filterModel.flagCriteria) {
-      if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
-        let flagCriteria = self.filterModel.flagCriteria[filterName];
-        let include = true;
 
-        if (!options.includeReviewed && filterName == 'reviewed') {
-          include = false;
-        }
+    return new Promise(function(resolve, reject) {
+      let filters = [];
+      for (var filterName in self.filterModel.flagCriteria) {
+        if (activeFilterName == null || activeFilterName == filterName || activeFilterName == 'coverage') {
+          let flagCriteria = self.filterModel.flagCriteria[filterName];
+          let include = true;
 
-        if (include) {
-          var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
+          if (!options.includeReviewed && filterName == 'reviewed') {
+            include = false;
+          }
 
-          if (sortedGenes.length > 0 || options.includeAll) {
-            filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
+          if (include) {
+            var sortedGenes = self._organizeVariantsForFilter(filterName, flagCriteria.userFlagged, isFullAnalysis, interpretationFilters, options, variant);
+
+            if (sortedGenes.length > 0 || options.includeAll) {
+              filters.push({'key': filterName, 'filter': flagCriteria, 'genes': sortedGenes });
+            }
           }
         }
       }
-    }
 
-    let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
-   
-      if (filterObject1.genes.length > 0 && filterObject2.genes.length > 0) {
-        return filterObject1.filter.order > filterObject2.filter.order;
-      } else if (filterObject1.genes.length > 0) {
-        return -1;
-      } else if (filterObject2.genes.length > 0) {
-        return 1;
-      } else {
-        return filterObject1.filter.order > filterObject2.filter.order;
-      }
-   
-    })
+      let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
+     
+        if (filterObject1.genes.length > 0 && filterObject2.genes.length > 0) {
+          return filterObject1.filter.order > filterObject2.filter.order;
+        } else if (filterObject1.genes.length > 0) {
+          return -1;
+        } else if (filterObject2.genes.length > 0) {
+          return 1;
+        } else {
+          return filterObject1.filter.order > filterObject2.filter.order;
+        }
+     
+      })
 
-    sortedFilters.forEach(function(filterObject) {
-      filterObject.variantCount = 0;
-      var variantIndex = 1;
-      filterObject.genes.forEach(function(geneList) {
+      sortedFilters.forEach(function(filterObject) {
+        filterObject.variantCount = 0;
+        var variantIndex = 1;
+        filterObject.genes.forEach(function(geneList) {
 
-        // Sort the variants according to the Ranked Variants table features
-        self.featureMatrixModel.setFeaturesForVariants(geneList.variants);
-        geneList.variants = self.sortVariants(geneList.variants)
+          // Sort the variants according to the Ranked Variants table features
+          self.featureMatrixModel.setFeaturesForVariants(geneList.variants);
+          geneList.variants = self.sortVariants(geneList.variants)
 
 
-        geneList.variants.forEach(function(variant) {
-          variant.ordinalFilter = variantIndex++;
-          filterObject.variantCount++;
+          geneList.variants.forEach(function(variant) {
+            variant.ordinalFilter = variantIndex++;
+            filterObject.variantCount++;
+          })
+
         })
+      })
 
+      let geneToPhenotypes = {}
+      let promises = [];
+      sortedFilters.forEach(function(filterObject) {
+        filterObject.genes.forEach(function(geneList) {
+          let p = self.promiseGetGenePhenotypeAssociations(geneList.gene.gene_name, true)
+          .then(function(data) {
+            geneToPhenotypes[data.gene] = data.hpoEntries;
+          })
+          promises.push(p)
+
+        })
+      })
+
+      Promise.all(promises)
+      .then(function() {
+        sortedFilters.forEach(function(filterObject) {
+          filterObject.genes.forEach(function(geneList) {
+            geneList.matchingPhenotypes = geneToPhenotypes[geneList.gene.gene_name]
+          })
+        })
+        resolve(sortedFilters)
+      })
+      .catch(function(error) {
+        reject(error)
       })
     })
-    return sortedFilters;
-
   }
 
   getFlaggedVariant(theVariant) {
@@ -3248,15 +3573,8 @@ class CohortModel {
 
     let rels = self.mode == 'trio' ? ['proband', 'mother', 'father'] : ['proband'];
     rels.forEach(function(rel) {
-      let sampleName = self.sampleMap[rel].model.bam.getHeaderSample();
-      if (sampleName == null || sampleName.length == 0) {
-        sampleName = self.sampleMap[rel].model.getSampleName()
-      }
-      if (sampleName == null || sampleName.length == 0) {
-        sampleName = rel;
-      }
+      let sampleName = self.sampleMap[rel].model.getSampleName();
       sampleNames.push(sampleName);
-
     })
 
     return sampleNames;

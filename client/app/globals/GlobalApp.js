@@ -9,7 +9,7 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
-    this.version               = "4.7.2";
+    this.version               = "4.8";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
@@ -116,7 +116,8 @@ class GlobalApp {
 
       this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
 
-      this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
+//      this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
+      this.geneToPhenoServer         = "https://mosaic.chpc.utah.edu/gru-dev-9003/" + "gene2pheno/";
       this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
       this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
       this.hpoLookupUrl              = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";

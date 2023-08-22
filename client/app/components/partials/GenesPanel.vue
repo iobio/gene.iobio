@@ -74,6 +74,7 @@
       margin-left: 5px
       color: $button-color
       visibility: hidden
+      background-color: transparent !important
 
 
       &.in-progress
@@ -82,6 +83,7 @@
       i.material-icons
         font-size: 20px
         padding-right: 3px
+        color: $button-color !important
 
   #analyze-genes-progress
     margin-top: 10px
@@ -248,6 +250,7 @@
        :geneSource="getGeneSource(gene.name)"
        @gene-selected="onGeneSelected"
        @remove-gene="onRemoveGene"
+       @show-alerts-for-gene="onShowAlertsForGene"
       >
       </gene-badge>
     </div>
@@ -304,6 +307,9 @@ export default {
     },
     onStopAnalysis: function() {
       this.$emit("stop-analysis");
+    },
+    onShowAlertsForGene: function(geneName) {
+      this.$emit('show-alerts-for-gene', geneName)
     },
 
     updateGeneSummaries: function() {
