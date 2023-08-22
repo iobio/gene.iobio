@@ -151,6 +151,10 @@
                 default: 0,
                 type: Number
             },
+            selectedTranscript: {
+                default: null,
+                type: Object
+            },
             relationship: null,
 
             regionEnd: {
@@ -267,10 +271,20 @@
                     if(this.isStandalone){
                         return "transcript";
                     }
-                    if (d.isCanonical) {
-                        return 'transcript current';
+                    // If no transcript is selected, then the canonical transcript is the current transcript
+                    if (!this.selectedTranscript){
+                        if (d.isCanonical) {
+                            return 'transcript current';
+                        } else {
+                            return 'transcript';
+                        }
+                    // If a transcript is selected, then the selected transcript is the current transcript
                     } else {
-                        return 'transcript';
+                        if (d.transcript_id == this.selectedTranscript.transcript_id) {
+                            return 'transcript current';
+                        } else {
+                            return 'transcript';
+                        }
                     }
             },
 
