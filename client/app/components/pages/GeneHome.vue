@@ -4177,11 +4177,14 @@ export default {
                     self.$refs.variantInspectRef.refresh();
                   }
 
-                  //setTimeout(function() {
-                  //  if ($('#variant-inspect-and-notes').length > 0) {
-                  //    $('#variant-inspect-and-notes')[0].scrollIntoView();
-                  //  }
-                  //},500)
+                  // Scroll down so that the variant inspect card (and the variant all card)
+                  // are in view
+                  setTimeout(function() {
+                    if ($('#loaded-variant-viz').length > 0) {
+                      let element =  $('#loaded-variant-viz')[0]
+                      element.scrollIntoView({ behavior: 'smooth'});
+                    }
+                  },500)
 
 
                   if (callback) {
