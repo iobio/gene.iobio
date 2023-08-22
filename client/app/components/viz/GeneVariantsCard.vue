@@ -127,43 +127,8 @@
 				</div>
 			</div>
 
-      <gene-links-menu v-if="!isBasicMode"
-                   :selectedGene="selectedGene"
-                   :geneModel="cohortModel.geneModel">
-      </gene-links-menu>
-		</div>
-
-    <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)" 
-      style="display:flex;justify-content:flex-start;margin-top:5px">
-
-      <!-- Gene:Phenotypes -->
-      <gene-phenotype-table  style="margin-right:5px"
-       v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
-       :selectedGene="selectedGene"
-       :geneModel="cohortModel.geneModel"
-       :cohortModel="cohortModel"
-       :highlightMatches="true"
-       :showDetailsButton="cohortModel && cohortModel.isLoaded"
-       :showTitle="true"
-       @show-patient-phenotypes-dialog="onShowPatientGenePhenotypeDialog(true)">
-      </gene-phenotype-table>
-
-      <!-- Gene:Diseases -->
-      <gene-disease-table  style="margin-right:5px"
-       v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
-       :selectedGene="selectedGene"
-       :geneModel="cohortModel.geneModel">
-      </gene-disease-table>
-
-      <!-- OMIM -->
-      <gene-omim-table  style="margin-right:5px"
-       v-if="false && isOMIMPermitted && selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
-       :selectedGene="selectedGene"
-       :geneModel="cohortModel.geneModel">
-      </gene-omim-table>
-
       <!-- PubMed -->
-      <div v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
+      <div style="margin-left:30px;" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
         <gene-pubmed-table
          v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
          :selectedGene="selectedGene"
@@ -179,6 +144,43 @@
         </gene-pubmed-table>
       </div>
 
+      <gene-links-menu v-if="!isBasicMode"
+                   :selectedGene="selectedGene"
+                   :geneModel="cohortModel.geneModel">
+      </gene-links-menu>
+		</div>
+
+    <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)" 
+      style="display:flex;justify-content:flex-start;margin-top:5px">
+
+      <!-- Gene:Phenotypes -->
+      <gene-phenotype-table  style="flex-grow:2;margin-right:5px"
+       v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+       :selectedGene="selectedGene"
+       :geneModel="cohortModel.geneModel"
+       :cohortModel="cohortModel"
+       :highlightMatches="true"
+       :showDetailsButton="cohortModel && cohortModel.isLoaded"
+       :showTitle="true"
+       @show-patient-phenotypes-dialog="onShowPatientGenePhenotypeDialog(true)">
+      </gene-phenotype-table>
+
+      <!-- Gene:Diseases -->
+      <gene-disease-table  style="flex-grow:2;margin-right:5px"
+       v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+       :selectedGene="selectedGene"
+       :geneModel="cohortModel.geneModel">
+      </gene-disease-table>
+
+      <!-- OMIM -->
+      <gene-omim-table  style="margin-right:5px"
+       v-if="false && isOMIMPermitted && selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+       :selectedGene="selectedGene"
+       :geneModel="cohortModel.geneModel">
+      </gene-omim-table>
+
+     
+
     </div>
     
     <patient-gene-phenotype-dialog
@@ -186,6 +188,7 @@
          :showDialog="showPatientGenePhenotypeDialog"
          :cohortModel="cohortModel"
          :selectedGene="selectedGene"
+         :launchedFromHub="launchedFromHub"
          @hide-patient-gene-phenotype-dialog="onShowPatientGenePhenotypeDialog(false)">
     </patient-gene-phenotype-dialog>
 

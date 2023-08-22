@@ -31,7 +31,6 @@
 
     .table-title
       color: $app-color
-      margin-right: 20px
     .count
       display: inline-block
       font-size: 12px
@@ -103,6 +102,7 @@
       font-weight: 500
       .material-icons
         font-size: 20px
+        color:  $link-color !important
 
   .v-input input
     color: $text-color
@@ -239,13 +239,13 @@
       <div  class="table-title">
         {{ titleText }}
       </div>
-      <v-badge v-if="pubMedCount && pubMedCount >= 0" class="count entry-count" style="margin-right:40px">
+      <v-badge v-if="pubMedCount && pubMedCount >= 0" class="count entry-count" style="margin-right:20px">
         <span slot="badge">
            {{ pubMedCount }} 
         </span>
       </v-badge>
-      <v-btn v-if="showDetailsButton" style="margin-left:0px" flat @click="$emit('show-pubmed-dialog', true)" id="pubmed-details-button">
-        <v-icon style="padding-right:3px;">account_box</v-icon>
+      <v-btn v-if="showDetailsButton" style="margin-left:10px" flat @click="$emit('show-pubmed-dialog', true)" id="pubmed-details-button">
+        <v-icon style="padding-right:3px;">article</v-icon>
         Details...
       </v-btn>
 

@@ -1312,7 +1312,7 @@ class CohortModel {
         let hpoTerms = data[0];
         let idx = 0;
         hpoEntries = hpoTerms.map(function(hpoTerm) {
-          let rels = hpoTermToSample[hpoTerm.hpo_term_id];
+          let rels = hpoTermToSample[hpoTerm.hpo_id];
           let matchToken = null;
           let matchLevel = 99;
           if (rels == null) {

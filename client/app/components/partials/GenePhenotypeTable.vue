@@ -35,8 +35,8 @@
         color: $link-color
         font-weight: 500
     .hpo-name
-      min-width: 200px
-      max-width: 200px
+      min-width: 300px
+      max-width: 300px
 
 
     &.patient-match

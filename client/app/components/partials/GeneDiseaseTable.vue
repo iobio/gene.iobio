@@ -40,12 +40,12 @@
         color: $link-color
         font-weight: 500
     .hpo-name
-      min-width: 200px
-      max-width: 200px
+      min-width: 350px
+      max-width: 350px
 
     .phenotype-inheritance
       min-width: 0px
-      max-width: 75px
+      max-width: 150px
    
 </style>
 

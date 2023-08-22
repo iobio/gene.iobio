@@ -27,7 +27,7 @@
 
 <template>
     <v-dialog
-    width="550" persistent
+    width="750" persistent
     :close-on-content-click="false"
     v-model="showPatientGenePhenotypeDialog"
     >
@@ -39,7 +39,7 @@
           </v-btn>
           <v-card-title class="headline" style="padding-top: 10px;">
               <span style="padding-left:3px">
-                Phenotypes Associations
+                Phenotype Associations
               </span>
           </v-card-title>
         </div>
