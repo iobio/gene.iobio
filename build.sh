@@ -24,6 +24,10 @@ elif [[ $1 == "learngene" ]]; then
   echo "** Building learngene **"
   cp .envTemplateExhibit .env
   NODE_ENV=production npm run build
+elif [[ $1 == "stage.nebula" ]]; then
+  echo "** Building nebula **"
+  cp .envTemplateNebula .env
+  NODE_ENV=stage npm run build
   
 else
   echo "** Building dev **"
