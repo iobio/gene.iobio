@@ -172,20 +172,29 @@ div.container.small
 #genes-card.edu, #genes-card.basic
   #gene-badge-container
     text-align: center
+    display: flex
+    flex-wrap: wrap
 
   #gene-badge
     border: thin solid #e8e6e6
     height: 28px
+    width: 180px
+    align-items: center
 
     #gene-status
       padding-left: 4px
       width: initial
+      padding-top: 0px
+      margin-top: 0px
+    #gene-badge-remove
+      padding-top: 0px
 
     #gene-badge-button
       height: 28px !important
       font-size: 18px !important
       padding: 5px 6px 2px 6px !important
       border: none
+      margin-top: 4px
 
       #gene-badge-symbols
         display: none
