@@ -90,7 +90,7 @@ class GeneModel {
 
     this.isFullAnalysis = false;
 
-    this.dispatch = d3.dispatch("geneDangerSummarized", "alertIssued");
+    this.dispatch = d3.dispatch("geneDangerSummarized", "alertIssued", "alertRetracted");
     d3.rebind(this, this.dispatch, "on");
 
     this.genesAssociatedWithSource = {};
@@ -926,6 +926,7 @@ class GeneModel {
       let unknownGeneInfo = {description: ' ', summary: ' '};
 
       if (geneInfo != null && geneInfo.summary != " ") {
+        me.dispatch.alertRetracted("info", "Unable to get NCBI gene summary", geneName)
         resolve(geneInfo);
       } else {
         // Search NCBI based on the gene name to obtain the gene ID
@@ -955,6 +956,7 @@ class GeneModel {
                 var geneInfo = sumData.result[uid];
 
                 me.geneNCBISummaries[geneName] = geneInfo;
+                me.dispatch.alertRetracted("info", "Unable to get NCBI gene summary", geneName)
                 resolve(geneInfo)
               }
           })
@@ -987,6 +989,7 @@ class GeneModel {
 
       let theEntry = me.genePubMedEntries[theGeneName];
       if (theEntry && options.useCached) {
+        me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", theGeneName);
         resolve(theEntry)
       }
       else {
@@ -1018,14 +1021,17 @@ class GeneModel {
                   if (options.useCached) {
                     me.genePubMedEntries[geneName] = theEntry;
                   }
+                  me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
                   resolve(theEntry);
                 } else {
                   let theEntry = {geneName: geneName, count: 0, entries: null}
                   if (options.useCached) {
                     me.genePubMedEntries[geneName] = theEntry;
                   }
+                  me.dispatch.alertRetracted("warning", "Unable to get PubMed entries", geneName);
                   resolve(theEntry)
                 }
+
               })
              .fail(function(error) {
                 delete me.pendingNCBIRequests[geneName];
@@ -1157,6 +1163,7 @@ class GeneModel {
                   return entry.phenotypeMap;
                 })
               }
+              self.dispatch.alertRetracted("warning", "Unable to get phenotype mim number OMIM", geneName);
               resolve({geneName: geneName, mimNumber: mimNumber, phenotypes: phenotypes});
             }
             else {
@@ -1440,10 +1447,8 @@ class GeneModel {
       } else if (knownGene && knownGene.refseq) {
         theGeneSource = 'refseq';
         let msg = "No Gencode transcripts for " + geneName + ". Using Refseq transcripts instead.";        
-        me.dispatch.alertIssued( "warning", msg, geneName)
       } else if (knownGene && knownGene.gencode) {
         let msg = "No Refseq transcripts for " + geneName + ". Using Gencode transcripts instead.";
-        me.dispatch.alertIssued( "warning", msg, geneName)
         theGeneSource = 'gencode';
       }
 
@@ -1457,31 +1462,49 @@ class GeneModel {
         .then((response) => {
           if (response.length > 0 && response[0].hasOwnProperty('gene_name')) {
             var theGeneObject = response[0];
-            me.geneObjects[theGeneObject.gene_name] = theGeneObject;
-            resolve(theGeneObject);
+            if (theGeneObject.transcripts == null || theGeneObject.transcripts.length == 0) {
+              let msg = "Bypassing gene <pre>" + geneName + "</pre>. There are no transcripts for this gene.";
+              console.log(msg);
+              reject({'message': msg, 
+                      'gene': geneName, 'alertType': 'error', 
+                      'options': {'showAlertPanel': true, 'selectAlert': true} });
+            } else {
+              me.geneObjects[theGeneObject.gene_name] = theGeneObject;
+              resolve(theGeneObject);              
+            }
           } else {
-            let msg = "Bypassing gene. No " + theGeneSource + " transcripts for gene " + geneName + ".";
+            let msg = "Bypassing gene <pre>" + geneName + "</pre>. There are no " + theGeneSource + " transcripts for this gene.";
             console.log(msg);
-            reject({'message': msg, 'gene': geneName, 'alertType': 'error'});
+            reject({'message': msg, 
+                    'gene': geneName, 
+                    'alertType': 'error',
+                    'options': {'showAlertPanel': true, 'selectAlert': true}
+                  });
           }
         })
         .catch((errorThrown) => {
           console.log("An error occurred when getting transcripts for gene " +  geneName + ".");
           console.log( "Error: " + errorThrown );
-          let msg = "Error " + errorThrown + " occurred when attempting to get transcripts for gene " + geneName;
-          reject({'message': msg, 'gene': geneName});
+          let msg = "Error " + errorThrown + " occurred when attempting to get transcripts for gene <pre>" + geneName + "</pre>";
+          reject({'message': msg, 
+                  'gene': geneName, 
+                  'options': {'showAlertPanel': true, 'selectAlert': true}
+                });
         });
 
       } else {
         let msg = ""
         if (knownGene) {
-          msg = "No Refseq or Gencode transcripts for " + geneName + ".";
+          msg = "No Refseq or Gencode transcripts for gene <pre>" + geneName + "</pre>.";
           
         } else {
           msg = "Unknown gene " + geneName;
         }
 
-        reject({'message': msg, 'gene': geneName});
+        reject({'message': msg, 
+                'gene': geneName,
+                'options': {'showAlertPanel': true, 'selectAlert': true}
+              });
       }
 
 

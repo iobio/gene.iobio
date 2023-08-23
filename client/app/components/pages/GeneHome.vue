@@ -2,7 +2,7 @@
  * GeneHome.vue
  *
  */
-<style lang="sass">
+ <style lang="sass">
 
 @import ../../../assets/sass/variables
 
@@ -51,7 +51,6 @@
       top:        -20px
       right:      -15px
       margin-left: 0px !important
-
 
   #gene-viz, #gene-viz-zoom
     .transcript.current
@@ -246,9 +245,6 @@ main.content.clin, main.v-content.clin
 
 
 </style>
-
-
-
 <template>
   <div>
 
@@ -354,6 +350,9 @@ main.content.clin, main.v-content.clin
       @clear-app-alert="onClearAppAlert"
       @clear-all-app-alerts="clearAppAlerts"
       @hide-settings-dialog="onHideSettingsDialog"
+      @show-alert-panel="onAlertPanelShown"
+      @hide-alert-panel="onAlertPanelHidden"
+      @show-alerts-for-gene="onShowAlertsForGene"
     >
     </navigation>
 
@@ -434,8 +433,6 @@ main.content.clin, main.v-content.clin
          @show-sfari-variants="onShowSfariVariantsCard"
          @on-insufficient-coverage="onInsufficientCoverage">
         </genes-card>
-
-
 
       <v-card v-show="showGeneVariantsCard" tile id="gene-variants-card" class="app-card full-width">
         <gene-variants-card
@@ -705,7 +702,6 @@ main.content.clin, main.v-content.clin
     </save-analysis-popup>
 
 
-    </v-dialog>
 
 
     <v-dialog v-model="interpretationProgressDialog" persistent max-width="375">
@@ -1266,8 +1262,8 @@ export default {
           self.launchedFromClin,
           new FreebayesSettings());
 
-        self.cohortModel.on("alertIssued", function(type, message, genes, details) {
-          self.addAlert(type, message, genes, details)
+        self.cohortModel.on("alertIssued", function(type, message, genes, details, options) {
+          self.addAlert(type, message, genes, details, options)
         })
 
         self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
@@ -1281,8 +1277,11 @@ export default {
             console.log(error.message)
           })
         })
-        self.geneModel.on("alertIssued", function(type, message, genes, details) {
-          self.addAlert(type, message, genes)
+        self.geneModel.on("alertIssued", function(type, message, genes, details, options) {
+          self.addAlert(type, message, genes, details, options)
+        })
+        self.geneModel.on("alertRetracted", function(type, partialMessage, genes) {
+          self.onRetractAppAlert(type, partialMessage, genes)
         })
 
         self.cacheHelper.cohort = self.cohortModel;
@@ -1718,20 +1717,69 @@ export default {
       })
     },
 
-    addAlert: function(type, message, genes=null, details=null) {
+    onRetractAppAlert: function(type, partialMessage, genes) {
       let self = this;
 
       let matching = self.appAlerts.filter(function(alert) {
         if (alert.type == type && 
-            alert.message == message &&
-            alert.genes == genes && 
-            alert.details == details) {
+            alert.message.indexOf(partialMessage) >= 0 && 
+            alert.genes == genes) {
           return true;
         } else {
           return false;
         }
       })
+      matching.forEach(function(alertToRemove) {
+        let index = self.appAlerts.indexOf(alertToRemove);
+        if (index >= 0) {
+          self.appAlertCounts[alertToRemove.type] -= 1 
+          self.appAlertCounts.total -= 1;
 
+          self.appAlerts.splice(index, 1)
+
+          // We have removed the alert for appAlerts. Now remove it
+          // from the gene-to-alerts map.
+          if (genes) {
+            genes.split(", ").forEach(function(geneName) {
+              let alertsForGene = self.geneToAppAlerts[geneName]
+              let indexToRemove = null;
+              // Remove alert from array in gene to alerts map 
+              for (let idx = 0; idx < alertsForGene.length; idx++) {
+                let theAlert = alertsForGene[idx];
+                if (theAlert.type == type && 
+                    theAlert.message.indexOf(partialMessage) >= 0 && 
+                    theAlert.genes == genes) {
+                  indexToRemove = idx;
+                  break;
+                }
+              }
+              if (indexToRemove >= 0) {
+                alertsForGene.splice(indexToRemove, 1);
+              }
+
+            })
+          }
+        }
+      })
+      if (matching.length > 0) {
+        if (self.$refs.navRef && self.$refs.navRef.$refs.genesPanelRef) {
+          self.$refs.navRef.$refs.genesPanelRef.updateGeneSummaries();
+        }  
+      }
+    },
+
+    onAlertPanelShown: function() {
+    },
+
+    onAlertPanelHidden: function() {
+    },
+
+    addAlert: function(type, message, genes=null, details=null, options) {
+      let self = this;
+
+      let matching = self._getMatchingAlerts(type, message, genes, details)
+
+      let alert = null;
       if (matching.length == 0) {
         let pad2 = function(n) { return n < 10 ? '0' + n : n }
         let pad3 = function(n) { 
@@ -1752,15 +1800,17 @@ export default {
          + pad2( date.getSeconds() )
          + pad3( date.getMilliseconds() );
 
-        let alert = {'type': type, 
+        alert = {'type': type, 
         'message': message, 
         'genes': genes, 
         'timestamp': timestamp, 
         'key': timestamp + "-" + this.appAlerts.length, 
-        'showDetails': false}
+        'showDetails': false,
+        'selected': type == 'error' || (options && options.selectAlert) ? true : false}
         if (details) {
           alert.details = details;
         }
+        
         this.appAlerts.push(alert)
 
         if (genes && genes.length > 0) {
@@ -1780,17 +1830,173 @@ export default {
         this.appAlertCounts[type] += 1 
         this.appAlertCounts.total += 1
         
-      } 
+      } else if (matching.length > 0) {
+        alert = matching[0]
+        if (alert && (type == 'error' || (options && options.selectAlert)))  {
+          self._selectAlert(alert)
+        }
+      }
 
-      if (type == 'error') {
+
+      if (type == 'error' || (options && options.showAlertPanel)) {
         if (this.$refs.navRef) {
-          this.$refs.navRef.onShowNotificationDrawerShowLast();
+          this.$refs.navRef.onShowNotificationDrawerShowSelected();
         }
       }
       if (this.launchedFromClin) {
         this.sendAppAlertCountsToClin()
       }
     },
+
+    onShowAlertsForGene: function(geneName) {
+      let self = this;
+      let alertsForGene = this.geneToAppAlerts[geneName];
+      if (alertsForGene) {
+        alertsForGene.forEach(function(alertToSelect) {
+
+          // Find the location of the alert to select 
+          let itemToSelect = null;
+          let itemsToDeselect = [];
+          for (let i = 0; i < self.appAlerts.length; i++) {
+            let theAlert = self.appAlerts[i];
+            if (alertToSelect && 
+                alertToSelect.type != 'info' &&
+                theAlert.type == alertToSelect.type && 
+                theAlert.message == alertToSelect.message &&
+                theAlert.genes == alertToSelect.genes && 
+                theAlert.details == alertToSelect.details) {
+              itemToSelect = {'index': i, 'alert': theAlert}
+            } else   {
+              let alertFromSameGene = false;
+              // Only deselect alerts for different genes
+              if (alertToSelect.genes) {
+                alertToSelect.genes.split(", ").forEach(function(theGene) {
+                  if (theGene != null && theAlert.genes != null && theAlert.genes.indexOf(theGene) >= 0) {
+                    alertFromSameGene = true;
+                  }
+                })
+              }
+              if (!alertFromSameGene) {
+                itemsToDeselect.push({'index': i, 'alert': theAlert})
+              }
+            }
+          }
+          if (itemToSelect) {
+            let clonedAlert = $.extend({}, itemToSelect.alert)
+            clonedAlert.selected = true;
+            self.appAlerts.splice(itemToSelect.index, 1, clonedAlert)  
+
+            self._refreshGeneToAlerts(clonedAlert)            
+          }
+          // Deselect the alerts. We clone them so that the AlertPanel 
+          // can react to this change
+          itemsToDeselect.forEach(function(itemToDeselect) {
+            let clonedAlert = $.extend({}, itemToDeselect.alert);
+            clonedAlert.selected = false;
+            self.appAlerts.splice(itemToDeselect.index, 1, clonedAlert)
+
+            self._refreshGeneToAlerts(clonedAlert)
+          })
+
+        })
+        if (self.$refs.navRef) {
+          self.$refs.navRef.onShowNotificationDrawerShowSelected();
+        }
+      }
+    },
+
+    _getMatchingAlerts: function(type, message, genes, details) {
+      let self = this;
+      return self.appAlerts.filter(function(alert) {
+        if (alert.type == type && 
+            alert.message == message &&
+            alert.genes == genes && 
+            alert.details == details) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+    },
+
+    _selectAlert: function(alertToSelect) {
+      let self = this;
+      let itemsToDeselect = []
+      let itemToSelect = null;
+
+      // Find the location of the alert to select and the 
+      // locations of the alerts to deselect
+      for (let i = 0; i < self.appAlerts.length; i++) {
+        let theAlert = self.appAlerts[i];
+        if (alertToSelect && 
+            theAlert.type == alertToSelect.type && 
+            theAlert.message == alertToSelect.message &&
+            theAlert.genes == alertToSelect.genes && 
+            theAlert.details == alertToSelect.details) {
+          itemToSelect = {'index': i, 'alert': theAlert}
+        } else {
+          if (theAlert.selected) {
+            itemsToDeselect.push({'index': i, 'alert': theAlert});
+          }          
+        }
+      }
+
+      // Deselect the alerts. We clone them so that the AlertPanel 
+      // can react to this change
+      itemsToDeselect.forEach(function(itemToDeselect) {
+        let clonedAlert = $.extend({}, itemToDeselect.alert);
+        clonedAlert.selected = false;
+        self.appAlerts.splice(itemToDeselect.index, 1, clonedAlert)
+
+        self._refreshGeneToAlerts(clonedAlert)
+      })
+
+      // Select the alert. We clone this alert so that AlertPanel 
+      // can react to this change.
+      if (itemToSelect) {
+        let clonedAlert = $.extend({}, alertToSelect)
+        clonedAlert.selected = true;
+        self.appAlerts.splice(itemToSelect.index, 1, clonedAlert)  
+
+        self._refreshGeneToAlerts(clonedAlert)
+      }
+    },
+
+    _refreshGeneToAlerts: function(clonedAlert) {
+      let self = this;
+
+      // Set the selected field based on the cloned alert
+      if (clonedAlert.genes != null) {
+        clonedAlert.genes.split(", ").forEach(function(geneName) {
+          let alertsForGene = self.geneToAppAlerts[geneName];
+
+          if (alertsForGene) {
+            alertsForGene.forEach(function(a) {
+              if (a.type == clonedAlert.type && 
+                  a.message == clonedAlert.message &&
+                  a.genes == clonedAlert.genes && 
+                  a.details == clonedAlert.details) {
+                a.selected = clonedAlert.selected
+              }
+            })          
+          }
+        })        
+      }
+
+    },
+
+    _getCriticalAlertsForGene: function(geneName) {
+      let self = this;
+      let criticalAlerts = [];
+      let alertsForGene = self.geneToAppAlerts[geneName];
+      if (alertsForGene) {
+        criticalAlerts = alertsForGene.filter(function(a) {
+          return a.type == 'error' || a.selected
+        })
+      }
+      return criticalAlerts;
+    },
+
 
     onAppAlertsSet: function(theAppAlerts) {
       let self = this;
@@ -1913,8 +2119,8 @@ export default {
         self.cacheHelper.on("geneNotAnalyzed", function(geneName) {
           console.log("Gene not analyzed " + geneName)
         });
-        self.cacheHelper.on("alertIssued", function(alertType, message, geneName) {
-          self.addAlert(alertType, message, geneName)
+        self.cacheHelper.on("alertIssued", function(alertType, message, geneName, details, options) {
+          self.addAlert(alertType, message, geneName, details, options)
         });
         self.cacheHelper.on("analyzeAllCompleted", function(infoObject) {
           self.delaySave = 1000;
@@ -2038,7 +2244,7 @@ export default {
         if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
           self.promiseLoadData()
           .then(function() {
-            self.addAlert("info", "Running with demo data.")
+            self.addAlert("info", "Running with demo data. ")
             if (self.cohortModel && self.cohortModel.isLoaded && !self.isEduMode) {
               self.cacheHelper.analyzeAll(self.cohortModel, false);
             }
@@ -2444,6 +2650,18 @@ export default {
       this.showWelcome = false;
       self.blacklistedGeneSelected = self.acmgBlacklist[geneName] != null;
 
+      // Show the alert side panel if this gene has errors or is currently 
+      // selected; otherwise, hide the alert side panel.
+      let criticalAlerts = self._getCriticalAlertsForGene(geneName);
+      if (self.$refs.navRef) {
+        if (criticalAlerts.length > 0) {
+          self.onShowAlertsForGene(geneName)
+        } else {
+          self.$refs.navRef.showNotificationDrawer = false;
+        }
+      }
+
+
       return new Promise(function(resolve, reject) {
         if (self.forMyGene2) {
           if (!self.closeIntro) {
@@ -2526,7 +2744,11 @@ export default {
           console.log(error.hasOwnProperty('message') ? error.message : error)
           self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error', 
                         error.hasOwnProperty('message') ? error.message : error,
-                        geneName)
+                        geneName,
+                        null,
+                        error.hasOwnProperty("options") ? error.options : null)
+          let msg = error.hasOwnProperty('message') ? error.message : error;
+          reject(msg)
         })
       })
     },
@@ -4513,7 +4735,7 @@ export default {
         self.onApplyGenes(new_genes.join(), options);
       } else if (clinObject.type == 'show-notifications') {
         if (self.$refs.navRef) {
-          self.$refs.navRef.onShowNotificationDrawerShowLast();
+          self.$refs.navRef.onShowNotificationDrawerShowSelected();
         }
       }
       let responseObject = {success: true, type: 'message-received', sender: 'gene.iobio.io'};
@@ -5066,3 +5288,4 @@ export default {
   }
 }
 </script>
+

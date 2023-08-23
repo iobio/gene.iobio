@@ -603,7 +603,7 @@ $light-gray-color:   #f0f1f3
             <v-avatar class="color4" >
               <v-icon>track_changes</v-icon>
             </v-avatar>
-            <span  class="how-it-works-title">Gene by gene, variants and coverage are are analyzed on powerful IOBIO servers.</span>
+            <span  class="how-it-works-title">Gene by gene, variants and coverage are analyzed on powerful IOBIO servers.</span>
             <div class="how-it-works-image hide" >
               <img  src="../../../assets/images/landing_page/analyzing_genes.gif" ></img>
             </div>

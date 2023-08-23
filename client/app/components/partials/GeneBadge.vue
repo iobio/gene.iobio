@@ -9,14 +9,16 @@
   color: $text-color
   line-height: 15px
   border: thin solid #e8e6e6
+  display: flex
+  width: 180px
 
 
   #gene-badge-symbols
     height: 14px
     padding-left: 4px
     padding-top: 0px
-    float: left
     padding-right: 2px
+    display: flex
 
 
 
@@ -26,18 +28,19 @@
   margin-bottom: 8px
   margin-right: 10px
   height: 21px
-  display: inline-block
+  display: flex
+  width: 275px
 
   #gene-status
-    display: inline-block
-    width: 46px
-    vertical-align: top
+    display: flex
+    min-width: 50px
+    justify-content: flex-start 
+    align-items: center
     padding-top: 5px
 
   .gene-badge-loader
     width: 14px
     height: 14px
-    float: right
     padding-top: 1px
     display: none
 
@@ -57,22 +60,25 @@
   &.has-coverage-problem
     #gene-badge-coverage-problem
       display: initial !important
-      float: right
 
 
   &.in-progress
     .gene-badge-loader
       display: inline
 
+
   &.has-error
     #gene-badge-error
       display: inline
+      cursor: pointer
 
   &.has-warning
     #gene-badge-warning
       display: inline
+      cursor: pointer
 
   &:hover #gene-badge-remove
+    cursor: pointer
     visibility: visible
     i
       color: #E0292B !important
@@ -88,11 +94,11 @@
   #variant-count 
     width:         25px
     display:       inline-block
-    float:         right 
-    margin-right:  4px
-    margin-left:   4px
+    margin-right:  2px
+    margin-left:   2px
     font-size:     11px
     margin-top:    4px
+    text-align:    right
 
 
 #gene-badge.failed-filter
@@ -100,7 +106,7 @@
 
 #gene-badge.loading
   border-left: #d8d8d8  solid 10px
-  //height: 22px
+  height: 22px
 
 
 #gene-badge.loading.selected
@@ -108,11 +114,8 @@
 
 
 #gene-badge.selected
-  border-thickenss:  2px
+  border-width:  2px
   border-color: $current-color
-  //height: 22px
-  #gene-badge-button
-    //box-shadow: 0 6px 10px rgba(0, 0, 0, 0.23), 0 10px 10px rgba(0, 0, 0, 0.19)
 
   #gene-badge-name, #gene-badge-danger-count, #gene-badge-remove i
     font-weight: bold
@@ -125,27 +128,23 @@
   font-size: 14px
   color: $loaded-variant-color
   font-weight: bold
-  float: left
   display: none
 
 #gene-badge-called
   font-size: 14px
   font-weight: bold
   color: $called-variant-color-darker
-  float: left
   display: none
 
 #gene-badge-has-called-variants
   font-size: 14px
   color: $called-variant-color
-  float: left
   display: none
 
 #coverage-problem-icon
   display: none
 
 #gene-badge-warning
-  float: left
   font-size: 16px
   color: $badge-warning-color
   padding-top: 0px
@@ -154,7 +153,6 @@
   display: none
 
 #gene-badge-error
-  float: left
   font-size: 16px
   color: $badge-error-color
   padding-top: 0px
@@ -207,31 +205,29 @@
 
 <div id="gene-badge" v-bind:class="classObject" >
 
-  <span id="gene-status">
-
-        <img class="gene-badge-loader  glyph" src="../../../assets/images/wheel.gif">
+  <div id="gene-status">
 
         <i id="gene-badge-loaded" class="material-icons glyph">done</i>
+
+        <img class="gene-badge-loader glyph" src="../../../assets/images/wheel.gif">
+
         <i id="gene-badge-called" class="level-edu material-icons glyph">done</i>
         <i id="gene-badge-has-called-variants" class="level-edu material-icons glyph">check_circle</i>
 
+        <i id="gene-badge-warning" @click="onShowGeneAlerts" class="material-icons glyph">warning</i>
+        <i id="gene-badge-error" @click="onShowGeneAlerts" class="material-icons glyph">error</i>
 
-        <i id="gene-badge-warning" class="material-icons glyph">warning</i>
-        <i id="gene-badge-error" class="material-icons glyph">error</i>
-
-
-  </span>
+  </div>
 
   <a id="gene-badge-button"
     href="javascript:void(0)"
-    v-bind:class="gene.isFlagged ? 'flagged' : ''"
-    style="display:inline-block" @click="selectGene"
+    v-bind:class="gene.isFlagged ? 'flagged' : ''" 
+    @click="selectGene"
     rel="tooltip"   data-html="true"
     data-placement="bottom">
 
 
-
-        <span id="gene-badge-name" style="float:left;margin-left:2px;margin-right:2px">
+        <span id="gene-badge-name" style="margin-left:2px;margin-right:2px">
           {{ gene.name }}
         </span>
         
@@ -349,15 +345,18 @@
 
   </a>
 
-  <div id="gene-badge-remove" v-if="!isEduMode" href="javascript:void(0)"
-    @click="removeGene"
-    style="float: right;display: inline-block;cursor: pointer;">
-      <i style="vertical-align:middle" class="material-icons">close</i>
-  </div>
 
   <div id="variant-count" v-if="!launchedFromClin && !isEduMode && !isBasicMode && !isSimpleMode && gene && gene.dangerSummary" >
       {{ variantCount }}
   </div>
+
+  <v-spacer/>
+
+  <div id="gene-badge-remove" v-if="!isEduMode" href="javascript:void(0)"
+    @click="removeGene">
+      <i style="vertical-align:middle" class="material-icons">close</i>
+  </div>
+
   
 
   <span class="ml-1" style="position: absolute" v-if="launchedFromClin">
@@ -418,6 +417,9 @@ export default {
       let theGeneName = self.gene.name;
       self.$emit("remove-gene", theGeneName);
 
+    },
+    onShowGeneAlerts: function() {
+      this.$emit('show-alerts-for-gene', this.gene.name)
     },
     getClinvarLevel: function() {
       var self = this;
@@ -524,7 +526,7 @@ export default {
 
         'selected':              this.selectedGene && this.selectedGene.gene_name == this.gene.name,
         'in-progress':           this.gene.inProgress,
-        'loaded':                this.gene.dangerSummary != null,
+        'loaded':                this.gene.dangerSummary != null && !hasError,
         'called':                this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount == 0,
         'has-called-variants':   this.gene.dangerSummary && this.gene.dangerSummary.CALLED && this.gene.dangerSummary.calledCount > 0,
         'has-error':             hasError,
