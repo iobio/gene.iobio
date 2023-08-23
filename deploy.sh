@@ -31,6 +31,14 @@ elif [[ $1 == "stage.mygene2" ]]; then
   aws cloudfront create-invalidation --distribution-id E2XR0DTGGE2U2U --paths /\*
 
 # upload to cloudfront
+elif [[ $1 == "stage.nebula" ]]; then
+
+  echo "** Uploaded to stage.nebula s3 bucket **"
+  aws s3 cp ./deploy/  s3://static.iobio.io/stage/nebulagene.iobio.io/ --recursive
+  echo "** Renew cloudfrount cache **"
+  aws cloudfront create-invalidation --distribution-id E1F15HR71LD7NY --paths /\*
+
+# upload to cloudfront
 elif [[ $1 == "learngene" ]]; then
 
   echo "** Uploaded to exhibit version of gene.iobio to s3 bucket **"
