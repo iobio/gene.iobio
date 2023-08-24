@@ -19,30 +19,53 @@
       margin-left: 10px
       padding-top: 1px
 
+  .hpo-table-body
+    display: flex 
+    flex-flow: column
+
+    &.tabular
+      flex-flow: row 
+      flex-wrap: wrap
+
+      .hpo-row
+        padding-bottom: 5px !important
+
+      .hpo-name
+        min-width: 150px !important
+        max-width: 150px !important
+
+
+      &.patient-match
+        .hpo-name
+          min-width: 150px !important
+          max-width: 150px !important
+
+
 
   .hpo-row
     font-size: 12px
-    padding-bottom: 5px
+    padding-bottom: 2px
+    padding-right:  10px
     >span
       display: inline-block
       vertical-align: top
       line-height: 15px
     
     .hpo-launch
-      min-width: 90px
-      max-width: 90px
+      min-width: 75px
+      max-width: 75px
       a 
         color: $link-color
         font-weight: 500
     .hpo-name
-      min-width: 300px
-      max-width: 300px
+      min-width: 250px 
+      max-width: 250px 
 
 
     &.patient-match
       .hpo-name
-        min-width: 200px
-        max-width: 200px
+        min-width: 250px
+        max-width: 250px
 
       .match-chip
         width: 70px
