@@ -36,10 +36,12 @@
       font-size: 12px
       margin-left: 10px
       padding-top: 1px
+
   .match-message
     display: inline-block
     margin-left: 10px
     font-size: 12px
+    padding-top: 4px
 
   .pubmed-row
     font-size: 12px

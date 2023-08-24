@@ -8,6 +8,9 @@
     margin-top: 10px !important
     margin-bottom: 5px !important
 
+  .table-title
+    font-size: 18px !important
+
   #gene-name-chip
     background-color: $button-color
     color: white
