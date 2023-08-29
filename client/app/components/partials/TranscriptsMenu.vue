@@ -142,6 +142,7 @@
                           :regionEnd="selectedGene.end"
                           :showBrush=false
                           :showXAxis=false
+                          :selectedTranscript="selectedTranscript"
                           @transcript-selected="onTranscriptSelected">
                 </gene-viz>
 
