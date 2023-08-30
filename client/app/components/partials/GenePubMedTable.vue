@@ -40,8 +40,9 @@
   .match-message
     display: inline-block
     margin-left: 10px
-    font-size: 12px
+    font-size: 13px
     padding-top: 4px
+    font-style: italic
 
   .pubmed-row
     font-size: 12px

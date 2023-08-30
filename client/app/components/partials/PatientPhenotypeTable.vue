@@ -20,7 +20,7 @@
 
   .hpo-row
     font-size: 12px
-    padding-bottom: 5px
+    padding-bottom: 2px
     >span
       display: inline-block
       vertical-align: top
@@ -82,7 +82,7 @@
         </span>
       </v-badge>
     </div>
-    <div  style="max-height:500px;overflow-y:scroll;padding-top:5px">
+    <div  style="max-height: 170px;overflow-y: scroll;padding-top: 5px;display: flex;flex-direction: column;flex-wrap: wrap;">
       <div class="hpo-row" v-for="entry in hpoEntries" :key="entry.hpo_term_id">
         
         <v-chip v-if="selectedGene && entry.match != ''" :class="`match-chip match-level-` + entry.matchLevel">

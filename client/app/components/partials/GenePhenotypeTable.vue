@@ -5,6 +5,48 @@
 #hpo-term-table
   min-width: 300px
 
+  .hpo-header-row
+    display: flex  
+    margin-top: 2px 
+    margin-bottom: 5px
+
+    .search-input
+      margin-left: 30px
+      .v-input__control
+        height: 40px
+      .v-input.v-text-field
+        min-width: 270px
+        max-width: 270px
+        align-items: center
+        .v-text-field__slot
+          margin-top: 0px
+        .v-input__icon
+          width: 15px
+          min-width: 15px
+        i.material-icons
+          font-size: 20px
+          padding-bottom: 6px
+      .v-input input
+        color: $text-color
+        font-size: 14px
+        padding-bottom: 2px
+      .v-input
+        padding: 0px 0 0
+      .v-text-field__slot
+        min-height: 0px
+        margin-top: 8px
+      .v-label
+        font-size: 13px
+      
+
+  .search-match-message
+    display: inline-block
+    margin-left: 10px
+    font-size: 13px
+    padding-top: 18px
+    padding-bottom: 10px
+    font-style: italic
+
   .title-row
     display: flex
     height: 25px
@@ -22,25 +64,67 @@
   .hpo-table-body
     display: flex 
     flex-flow: column
+    padding-top: 5px
+    align-content: flex-start
 
     &.tabular
       flex-flow: row 
       flex-wrap: wrap
 
       .hpo-row
-        padding-bottom: 5px !important
+        padding-bottom: 10px !important
 
       .hpo-name
-        min-width: 150px !important
-        max-width: 150px !important
-
+        min-width: 250px !important
+        max-width: 250px !important
 
       &.patient-match
         .hpo-name
-          min-width: 150px !important
-          max-width: 150px !important
+          min-width: 250px !important
+          max-width: 250px !important
+
+    &.tabular-compact
+      flex-flow: row 
+      flex-wrap: wrap
+
+      .hpo-row
+        padding-bottom: 10px !important
+
+      .hpo-name
+        min-width: 250px !important
+        max-width: 250px !important
+
+      .hpo-launch
+        display: none !important
+
+      &.patient-match
+        .hpo-name
+          min-width: 250px !important
+          max-width: 250px !important
 
 
+    &.dense-tags
+      flex-flow: row 
+      flex-wrap: wrap
+
+      .hpo-row
+        padding-bottom: 10px !important
+
+      .hpo-name
+        min-width: 20px !important
+        max-width: 400px !important
+        border: thin solid #d2d1d1
+        padding: 2px
+
+      .hpo-launch
+        display: none !important
+
+      &.patient-match
+        .hpo-name
+          min-width: 20px !important
+          max-width: 400px !important
+          border: thin solid #d2d1d1
+          padding: 2px
 
   .hpo-row
     font-size: 12px
@@ -60,7 +144,11 @@
     .hpo-name
       min-width: 250px 
       max-width: 250px 
-
+      
+      .matched
+        font-weight: 500
+        background-color: #d3effed4
+        color: black
 
     &.patient-match
       .hpo-name
@@ -91,7 +179,7 @@
         &.match-level-1 
           background-color: $level-high-color !important
 
-  button
+  .details-button
     padding: 0px
     height: 26px !important
     background-color: white !important
@@ -106,6 +194,10 @@
       font-weight: 500
       .material-icons
         font-size: 20px
+        color:  $link-color !important
+  
+
+
 </style>
 
 
@@ -113,7 +205,7 @@
 <template>
 
   <div id="hpo-term-table">
-    <div class="title-row">
+    <div class="title-row hpo-header-row">
       <div  v-if="showTitle" class="table-title">
         {{ titleText ? titleText : 'Phenotype Associations' }}
       </div>
@@ -122,13 +214,53 @@
            {{ entryCount }} 
         </span>
       </v-badge>
-      <v-btn v-if="showDetailsButton" style="margin-left:0px" flat @click="$emit('show-patient-phenotypes-dialog', true)" id="phenotype-details-button">
+      <v-btn class="details-button" v-if="showDetailsButton" style="margin-left:0px" flat @click="$emit('show-patient-phenotypes-dialog', true)" id="phenotype-details-button">
         <v-icon style="padding-right:3px;">account_box</v-icon>
         Details...
       </v-btn>
 
+      <v-btn-toggle v-model="viewMode" v-if="showSearch" mandatory style="">
+        <v-btn small flat value="list">
+          <v-icon>view_list</v-icon>
+        </v-btn>
+        <v-btn small flat value="tabular">
+          <v-icon>view_module</v-icon>
+        </v-btn>
+        <v-btn small flat value="tabular-compact">
+          <v-icon>apps</v-icon>
+        </v-btn>
+        <v-btn small flat value="dense-tags">
+          <v-icon>view_comfy</v-icon>
+        </v-btn>
+      </v-btn-toggle>
+
+      <v-btn-toggle style="margin-left: 30px" v-model="sortBy" mandatory v-if="showSearch">
+        <v-btn small flat value="sort-by-priority">
+          <v-icon>sort</v-icon>
+        </v-btn>
+        <v-btn small flat value="sort-by-alpha">
+          <v-icon>sort_by_alpha</v-icon>
+        </v-btn>
+      </v-btn-toggle>
+
+
+     
+      <div class="search-input" v-if="showSearch">
+        <v-text-field id="search-input" 
+          v-if="hpoEntriesAll && hpoEntriesAll.length > 0"
+          v-model="searchTerm" 
+          prepend-icon="search"
+          :loading="loading"
+          label="Search"
+          v-tooltip.top-center="`To search multiple terms, enter space between terms.`">
+          hide-details>
+        </v-text-field>
+      </div>
+      <span class="search-match-message" v-if="showSearch"> {{ searchMatchMessage }} </span>
+
     </div>
-    <div  class="hpo-table-body" style="padding-top:5px">
+
+    <div  :class="`hpo-table-body` + ' ' + viewMode">
       <div class="hpo-row patient-match" v-for="entry in hpoEntries" :key="entry.ontologyId">
         <v-chip v-if="highlightMatches  && entry.match != ''" :class="`match-chip match-level-` + entry.matchLevel">
           {{ entry.match }}
@@ -140,7 +272,7 @@
             {{ entry.ontologyId }}
           </a>
         </span>
-        <span class="hpo-name" >{{ entry.name }}
+        <span class="hpo-name" v-html="entry.name" >
         </span>
       </div>
     </div>
@@ -174,14 +306,25 @@ export default {
     showDetailsButton: true,
 
     titleText: null,
-    showTitle: null
+    showTitle: null,
+
+    showSearch: null
   },
   data () {
     return {
       hpoEntries: null,
+      hpoEntriesAll: null,
       hpoTermToSample: null,
       hasMatches: false,
-      entryCount: ""
+      entryCount: "",
+
+      searchTerm: null,
+      searchMatchCount: null,
+      searchMatchMessage: null,
+      loading: null,
+
+      sortBy:    'sort-by-priority',
+      viewMode:  'list'
     }
   },
   methods: {
@@ -203,7 +346,13 @@ export default {
         self.cohortModel.promiseGetGenePhenotypeAssociations(self.selectedGene.gene_name)
         .then(function(data) {
           self.hasMatches = data.hasMatches;
-          self.hpoEntries = data.hpoEntries;
+          let idx = 0;
+          self.hpoEntries = data.hpoEntries.map(function(entry) {
+            entry.ordinal = idx++;
+            return entry;
+          })
+          self.hpoEntriesAll = self.hpoEntries;
+
           self.entryCount = self.hpoEntries.length > 0 ? self.hpoEntries.length : ""
 
         })
@@ -216,12 +365,80 @@ export default {
     },
     getEntryHref: function(ontologyId) {
       return "https://hpo.jax.org/app/browse/term/" + ontologyId;
-    }
+    },
+    reorderEntries: function() {
+      let self = this;
+      self.hpoEntriesAll = self.hpoEntriesAll.sort(function(a,b) {
+        if (self.sortBy == 'sort-by-priority') {
+          return a.ordinal - b.ordinal;
+        } else if (self.sortBy == 'sort-by-alpha') {
+          return a.name.localeCompare(b.name);
+        }
+      })
+      self.hpoEntries = self.hpoEntriesAll;
+      if (this.searchTerm != null && this.searchTerm != "") {
+        self.searchEntries(this.searchTerm)
+      }
+    },
+    searchEntries: function(v) {
+      let self = this;
+      if (this.loading) {
+        return;
+      }
+      if (v && v.length < 3) {
+        return;
+      }
+
+      this.loading = true;
+      let searchTerms = v.split(" ");
+      let matchedEntries  = self.hpoEntriesAll
+      .filter(function(e) {
+        let matches = searchTerms.filter(function(searchTerm) {
+          return (e.name || '').toLowerCase().indexOf((searchTerm || '').toLowerCase()) > -1;
+        })
+        return matches.length > 0;
+      })
+      .map(function(e) {
+        var regexp = new RegExp('(' + searchTerms.join("|") + ')', 'ig');
+        let newObj = $.extend({}, e);
+        newObj.name = newObj.name.replace(regexp, '<span class="matched">$&</span>');
+
+        return newObj
+      })
+      
+      if (matchedEntries.length > 0) {
+        self.hpoEntries = matchedEntries;
+        self.searchMatchMessage = matchedEntries.length 
+        + (matchedEntries.length > 1 ? " matches" : " match")
+        +  "."
+      } else {
+        self.hpoEntries = [{name: ''}];
+        self.searchMatchMessage = "no matches.";
+      }
+      this.loading = false;
+
+
+      
+    }    
   },
   watch: {
     selectedGene: function() {
       this.getHPOEntries();
     },
+    sortBy: function(newValue, oldValue) {
+      if (this.sortBy != null && oldValue != null) {
+        this.reorderEntries()
+      }
+    },
+    searchTerm: function(newValue, oldValue) {
+      let self = this;
+      if (newValue && oldValue != null) {
+        this.searchEntries(newValue);
+      } else if (this.newValue == null || this.newValue == "") {
+        self.hpoEntries = self.hpoEntriesAll;
+        self.searchMatchMessage = "";
+      }
+    }
   },
   calculated: {
     
