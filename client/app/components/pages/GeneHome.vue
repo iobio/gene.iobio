@@ -52,6 +52,18 @@
       right:      -15px
       margin-left: 0px !important
 
+
+.v-badge.count
+  .v-badge__badge
+    background-color: $count-badge-color !important
+    border: thin solid $count-badge-border-color !important
+    color: $text-color !important
+    font-size: 12px !important
+    height: 24px
+    width: 24px
+    font-size: 10.5px !important
+    font-weight: 500
+
   #gene-viz, #gene-viz-zoom
     .transcript.current
       outline: none !important
@@ -1039,6 +1051,7 @@ export default {
 
       nonProbandModels: [],
 
+      variantSet: null,
       variantSetCounts: {},
 
       lastSave: null,
@@ -1907,11 +1920,13 @@ export default {
 
     _getMatchingAlerts: function(type, message, genes, details) {
       let self = this;
+      let detailsString = details && Array.isArray(details) ? details.join(",") : "";
       return self.appAlerts.filter(function(alert) {
+        let alertDetailString = alert.details && Array.isArray(alert.details) ? alert.details.join(",") : "";
         if (alert.type == type && 
             alert.message == message &&
             alert.genes == genes && 
-            alert.details == details) {
+            alertDetailString == detailsString) {
           return true;
         } else {
           return false;
@@ -5050,36 +5065,41 @@ export default {
 
         // Find first flagged variant in list
         let firstFlaggedVariant = null;
-        let sortedFilters = self.cohortModel.organizeVariantsByFilterAndGene(null, self.isFullAnalysis);
-        sortedFilters.forEach(function(filterObject) {
-          filterObject.genes.forEach(function(geneList) {
-            if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
-              firstFlaggedVariant = geneList.variants[0];
-            }
-          })
-        })
-        if ((self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant &&  (!self.selectedGene || getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name)) {
-          self.promiseLoadGene(getGeneName(firstFlaggedVariant))
-            .then(function() {
-              self.toClickVariant = firstFlaggedVariant;
-              self.showLeftPanelWhenFlaggedVariants("send-to-clin");
-              self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
-              resolve()
-              self.cacheHelper.analyzeAllInProgress = false;
+        self.cohortModel.promiseOrganizeVariantsByFilterAndGene(null, self.isFullAnalysis)
+        .then(function(sortedFilters) {
+
+          sortedFilters.forEach(function(filterObject) {
+            filterObject.genes.forEach(function(geneList) {
+              if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
+                firstFlaggedVariant = geneList.variants[0];
+              }
             })
           })
-        }
-        else if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
-          self.toClickVariant = firstFlaggedVariant;
-          self.showLeftPanelWhenFlaggedVariants();
-          self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
-            resolve()
-          })
-        }
-        else {
-          self.showLeftPanelWhenFlaggedVariants();
-          resolve();
-        }
+          if ((self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant &&  (!self.selectedGene || getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name)) {
+            self.promiseLoadGene(getGeneName(firstFlaggedVariant))
+              .then(function() {
+                self.toClickVariant = firstFlaggedVariant;
+                self.showLeftPanelWhenFlaggedVariants("send-to-clin");
+                self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
+                resolve()
+                self.cacheHelper.analyzeAllInProgress = false;
+              })
+            })
+          }
+          else if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
+            self.toClickVariant = firstFlaggedVariant;
+            self.showLeftPanelWhenFlaggedVariants();
+            self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
+              resolve()
+            })
+          }
+          else {
+            self.showLeftPanelWhenFlaggedVariants();
+            resolve();
+          }
+          
+
+        })
 
       })
     },

@@ -80,6 +80,20 @@
         #select-transcripts-box
             margin-right: 30px
             vertical-align: middle !important
+
+        #hpo-term-table
+
+            .hpo-table-body
+                max-height: 100px
+                min-height: 100px
+                overflow-y: scroll
+
+        #hpo-disease-table
+            .disease-table-body
+                max-height: 100px
+                min-height: 100px
+                overflow-y: scroll
+
 </style>
 
 
@@ -91,8 +105,6 @@
 			<div id="gene-variants-heading">
 				<span id="gene-name">{{ selectedGene.gene_name}} </span> GENE
 			</div>
-
-
 
 			<div style="display:inline-block;margin-left:10px">
 
@@ -114,63 +126,104 @@
 		    		</v-text-field>
 				</div>
 			</div>
-            <gene-links-menu v-if="!isBasicMode"
-                         :selectedGene="selectedGene"
-                         :geneModel="cohortModel.geneModel">
-            </gene-links-menu>
 
+      <!-- PubMed -->
+      <div style="margin-left:30px;" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
+        <gene-pubmed-table
+         v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+         :selectedGene="selectedGene"
+         :geneModel="cohortModel.geneModel"
+         :showSource="true"
+         :showFullDate="false"
+         :showDetailsButton="true"
+         :showAll="false"
+         titleText="PubMed"
+         :showCountOnly="true"
+         @show-pubmed-dialog="onShowPubMedDialog(true)"
+         >
+        </gene-pubmed-table>
+      </div>
 
-
-
-
+      <gene-links-menu v-if="!isBasicMode"
+                   :selectedGene="selectedGene"
+                   :geneModel="cohortModel.geneModel">
+      </gene-links-menu>
 		</div>
 
     <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)" 
       style="display:flex;justify-content:flex-start;margin-top:5px">
-        <gene-omim-table  style="margin-right:30px"
-         v-if="isOMIMPermitted && selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
-         :selectedGene="selectedGene"
-         :geneModel="cohortModel.geneModel">
-        </gene-omim-table>
 
-        <div>
-          <div style="display:flex;height:25px" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
-            <div class="pubmed-table-title">PubMed</div>
-            <gene-pubmed-popup
-            :geneModel="cohortModel.geneModel"
-            :selectedGene="selectedGene"
-            showAll="true">
-            </gene-pubmed-popup>
-          </div>
-          <gene-pubmed-table
-           v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
-           :selectedGene="selectedGene"
-           :geneModel="cohortModel.geneModel"
-           :showSource="true"
-           :showAll="false">
-          </gene-pubmed-table>
+      <!-- Gene:Phenotypes -->
+      <gene-phenotype-table  style="flex-grow:2;margin-right:5px"
+       v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+       :selectedGene="selectedGene"
+       :geneModel="cohortModel.geneModel"
+       :cohortModel="cohortModel"
+       :highlightMatches="true"
+       :showDetailsButton="cohortModel && cohortModel.isLoaded"
+       :showTitle="true"
+       @show-patient-phenotypes-dialog="onShowPatientGenePhenotypeDialog(true)">
+      </gene-phenotype-table>
 
-        </div>
+      <!-- Gene:Diseases -->
+      <gene-disease-table  style="flex-grow:2;margin-right:5px"
+       v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+       :selectedGene="selectedGene"
+       :geneModel="cohortModel.geneModel">
+      </gene-disease-table>
+
+      <!-- OMIM -->
+      <gene-omim-table  style="margin-right:5px"
+       v-if="false && isOMIMPermitted && selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
+       :selectedGene="selectedGene"
+       :geneModel="cohortModel.geneModel">
+      </gene-omim-table>
+
+     
 
     </div>
+    
+    <patient-gene-phenotype-dialog
+         v-if="cohortModel && cohortModel.isLoaded"
+         :showDialog="showPatientGenePhenotypeDialog"
+         :cohortModel="cohortModel"
+         :selectedGene="selectedGene"
+         :launchedFromHub="launchedFromHub"
+         @hide-patient-gene-phenotype-dialog="onShowPatientGenePhenotypeDialog(false)">
+    </patient-gene-phenotype-dialog>
+
+    <gene-pubmed-popup
+    :geneModel="cohortModel.geneModel"
+    :selectedGene="selectedGene"
+    :showDialog="showPubMedDialog"
+    @hide-pubmed-dialog="onShowPubMedDialog(false)">
+    </gene-pubmed-popup>
 
 	</div>
+
 </template>
 
 <script>
     import GeneOMIMTable        from '../partials/GeneOMIMTable.vue'
     import GenePubMedTable      from '../partials/GenePubMedTable.vue'
     import GenePubMedPopup      from '../partials/GenePubMedPopup.vue'
+    import GenePhenotypeTable     from '../partials/GenePhenotypeTable.vue'
+    import GeneDiseaseTable  from '../partials/GeneDiseaseTable.vue'
     import GeneLinksMenu        from "../partials/GeneLinksMenu.vue"
     import TranscriptsMenu      from '../partials/TranscriptsMenu.vue'
+    import PatientGenePhenotypeDialog      from '../partials/PatientGenePhenotypeDialog.vue'
+
     export default {
         name: 'gene-variants-card',
         components: {
             'gene-omim-table': GeneOMIMTable,
+            'gene-phenotype-table': GenePhenotypeTable,
+            'gene-disease-table': GeneDiseaseTable,
             'gene-pubmed-table': GenePubMedTable,
             'gene-pubmed-popup': GenePubMedPopup,
-            GeneLinksMenu,
-            TranscriptsMenu,
+            'gene-links-menu': GeneLinksMenu,
+            'transcripts-menu': TranscriptsMenu,
+            'patient-gene-phenotype-dialog': PatientGenePhenotypeDialog
         },
         props: {
             selectedGene: null,
@@ -195,7 +248,9 @@
                 noTranscriptsWarning: null,
                 showNoTranscriptsWarning: false,
                 regionBuffer: null,
-                noData: null
+                noData: null,
+                showPatientGenePhenotypeDialog: false,
+                showPubMedDialog: false
             }
         },
         methods: {
@@ -228,6 +283,12 @@
                 } else {
                     return "";
                 }
+            },
+            onShowPatientGenePhenotypeDialog(show) {
+                this.showPatientGenePhenotypeDialog = show;
+            },
+            onShowPubMedDialog(show) {
+                this.showPubMedDialog = show;
             },
             onGeneRegionBufferChange: _.debounce(function (newGeneRegionBuffer) {
                 this.regionBuffer = Math.min(parseInt(newGeneRegionBuffer), 99999);
