@@ -114,6 +114,14 @@ export default class HubSession {
 
                     if (!bypass) {
 
+                      let tbiUrl = null;
+                      if (theSample.files.tbi) {
+                        tbiUrl = theSample.files.tbi;
+                      } else if (theSample.files.csi) {
+                        tbiUrl = theSample.files.csi;
+                      } else {
+                        tbiUrl = null;
+                      }
                       self.promiseGetSampleHPOTerms(projectId, theSample.id)
                       .then(function(hpoTerms) {
                         var modelInfo = {
@@ -123,7 +131,7 @@ export default class HubSession {
                           'name':           theSample.name,
                           'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
                           'vcf':            theSample.files.vcf,
-                          'tbi':            theSample.files.tbi == null || theSample.files.tbi.indexOf(theSample.files.vcf) == 0 ? null : theSample.files.tbi,
+                          'tbi':            tbiUrl,
                           'txt':            theSample.files.txt,
                           'hpoTerms':       hpoTerms
                         }
