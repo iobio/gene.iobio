@@ -435,6 +435,9 @@ export default {
     },
     isDuplicateName: function() {
       let self = this;
+      if (self.filter == null || self.filter.title == null) {
+        return false;
+      }
       let dups = Object.keys(this.filterModel.flagCriteria).filter(function(key) {
         let filter = self.filterModel.flagCriteria[key];
         return filter.key != self.filter.key  // don't evaluate this filter entry for dups
