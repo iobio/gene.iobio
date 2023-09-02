@@ -1194,6 +1194,9 @@ CacheHelper.promiseCompressData = function(data) {
     if (data && data != "") {
       var cache = [];
       var dataString = JSON.stringify(data, function(key, value) {
+        if (key == 'bindTo') {
+          return;
+        }
         if (typeof value === 'object' && value !== null) {
             if (cache.indexOf(value) !== -1 && key != 'genotype') {
                 // Circular reference found, discard key
