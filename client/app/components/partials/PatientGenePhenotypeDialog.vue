@@ -8,6 +8,9 @@
     margin-top: 10px !important
     margin-bottom: 5px !important
 
+  .table-title
+    font-size: 18px !important
+
   #gene-name-chip
     background-color: $button-color
     color: white
@@ -21,13 +24,16 @@
     top: 15px !important
     position: absolute !important
     min-width: 40px !important
-
+  .hpo-table-body
+    min-height: 250px
+    max-height: 250px
+    overflow-y: scroll
     
 </style>
 
 <template>
     <v-dialog
-    width="750" persistent
+    width="1100" height="600" persistent
     :close-on-content-click="false"
     v-model="showPatientGenePhenotypeDialog"
     >
@@ -58,7 +64,7 @@
               </div>
             </div>
             <div class="row mt-3" v-if="selectedGene">
-              <div class="col-md-12">
+              <div class="col-md-12" >
                 <gene-phenotype-table 
                  :selectedGene="selectedGene"
                  :geneModel="cohortModel.geneModel"
@@ -66,6 +72,7 @@
                  :highlightMatches="false"
                  :showDetailsButton="false"
                  :showTitle="true"
+                 :showSearch="true"
                  :titleText="selectedGene.gene_name + ` Phenotype Associations`">
                 </gene-phenotype-table>
               </div>
@@ -107,6 +114,8 @@ export default {
   data () {
     return {
       showPatientGenePhenotypeDialog: false,
+      viewMode: 'tabular',
+      sortBy:   'sort-by-priority'
     }
   },
   methods: {

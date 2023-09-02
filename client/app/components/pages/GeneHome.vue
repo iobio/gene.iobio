@@ -370,7 +370,7 @@ main.content.clin, main.v-content.clin
 
 
     <v-content   :class="launchedFromClin ? 'clin' : '' ">
-      <v-container class="fluidMax">
+      <v-container class="fluidMax" style="overflow-y:scroll">
 
 
         <modal name="pileup-modal"
@@ -597,6 +597,7 @@ main.content.clin, main.v-content.clin
           :genomeBuildHelper="genomeBuildHelper"
           :cohortModel="cohortModel"
           :info="selectedVariantInfo"
+          :launchedFromHub="launchedFromHub"
           :selectedVariantKey="selectedVariantKey"
           :selectedPhenotype="phenotypeTerm"
           :showGenePhenotypes="launchedFromClin || phenotypeTerm"
@@ -4176,11 +4177,11 @@ export default {
                     self.$refs.variantInspectRef.refresh();
                   }
 
-                  //setTimeout(function() {
-                  //  if ($('#variant-inspect-and-notes').length > 0) {
-                  //    $('#variant-inspect-and-notes')[0].scrollIntoView();
-                  //  }
-                  //},500)
+                  // Scroll down so that the variant inspect card (and the variant all card)
+                  // are in view
+                  setTimeout(function() {
+                    self.scrollToVariantInspectCard()                  
+                  },50)
 
 
                   if (callback) {
@@ -4205,6 +4206,19 @@ export default {
       .catch(function(error) {
         self.addAlert('error', error, flaggedVariant.gene)
       })
+    },
+    scrollToVariantInspectCard: function() {
+      if ($('#variant-inspect-and-notes').length > 0) {
+        let el = $('#variant-inspect-and-notes')[0]
+        const { top, left, bottom, right } = el.getBoundingClientRect();
+        const { innerHeight, innerWidth } = window;
+        let isVisible = top >= 0 && left >= 0 && bottom <= innerHeight && right <= innerWidth;
+        if (!isVisible) {
+          let y = window.pageYOffset + (bottom - innerHeight);
+          let parentElem = $('.container.fluidMax')[0]
+          parentElem.scrollTo({top: y, behavior: 'smooth'})
+        }
+      }
     },
     onHideSettingsDialog: function() {
       this.settingsCoverageOnly = false;

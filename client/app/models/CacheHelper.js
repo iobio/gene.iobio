@@ -1193,7 +1193,22 @@ CacheHelper.promiseCompressData = function(data) {
   return new Promise(function(resolve, reject) {
     if (data && data != "") {
       var cache = [];
+      if (data.hasOwnProperty("badges")) {
+        Object.keys(data.badges).forEach(function(filterKey) {
+          let variants = data.badges[filterKey];
+          if (variants) {
+            let clonedVariants = variants.map(function(v) {
+              let clonedVariant = $.extend({}, v)
+              return clonedVariant;
+            })
+            data.badges[filterKey] = clonedVariants;            
+          }
+        })
+      }
       var dataString = JSON.stringify(data, function(key, value) {
+        if (key == 'bindTo') {
+          return;
+        }
         if (typeof value === 'object' && value !== null) {
             if (cache.indexOf(value) !== -1 && key != 'genotype') {
                 // Circular reference found, discard key
