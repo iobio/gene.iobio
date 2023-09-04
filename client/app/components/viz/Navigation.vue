@@ -228,6 +228,13 @@ nav.toolbar, nav.v-toolbar
   .navbar-outline-button, #show-genes-button, .navbar-icon-button
     background: transparent !important
     border: .5px solid transparent !important
+    border-radius: 0px
+
+  #show-genes-button 
+    &.attention
+      margin-bottom: 12px
+      height: 30px
+
 
   .navbar-icon-button
     min-width: 40px !important
@@ -695,6 +702,7 @@ nav.toolbar, nav.v-toolbar
          ref="genesMenuRef"
          v-if="!launchedFromClin && !isEduMode && !isBasicMode"
          :buttonIcon="`add_circle`"
+         :attention="clazzAttention && clazzAttention.length > 0 ? true : false"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"

@@ -2416,7 +2416,7 @@ export default {
             callback();
           }
         } else {
-          let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
+          let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name, a gene list, or enter a phenotype term.'
           self.onShowSnackbar( {message: theMessage, timeout: 10000, close: true});
           self.bringAttention = 'gene';
           if (callback) {
