@@ -141,10 +141,16 @@ class AnalysisModel {
           options[self.cacheHelper.BAM_DATA] =  true;
           options[self.cacheHelper.GENE_COVERAGE_DATA] = true;    
 
-          data.cache = JSON.parse(data.cache)      
+          if (data.hasOwnProperty('cache')) {
+            data.cache = JSON.parse(data.cache)      
+          }
         }
 
-        return self.cacheHelper.promiseLoadCache(data.cache, dataIsAlreadyCompressed, options)
+        if (data.hasOwnProperty('cache')) {
+          return self.cacheHelper.promiseLoadCache(data.cache, dataIsAlreadyCompressed, options)
+        } else {
+          return Promise.resolve();
+        }
       })
       .then(function() {
         self.cohortModel.isLoaded = modelInfos || hasModelInfo;
