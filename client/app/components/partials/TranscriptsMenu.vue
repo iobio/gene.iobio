@@ -89,6 +89,7 @@
           padding: 0px 5px
           font-size: 11px
           font-weight: 500
+          cursor: pointer
 
   
 
