@@ -417,7 +417,7 @@
         font-weight: 500
         display: inline-block
         text-align: left
-        width: 175px
+        width: 170px
 
       .filter-badge-count
         font-size: 11px
