@@ -83,7 +83,7 @@ textarea#copy-paste-genes
     :nudge-bottom="isEduMode ? 20 : 0"
     v-model="showGenesMenu">
       <v-btn id="show-genes-button"
-       v-bind:class="{'icon': buttonIcon != null}"
+       v-bind:class="clazz"
        v-bind:raised="isEduMode"
        v-bind:flat="!isEduMode"
        v-bind:small="buttonIcon != null"
@@ -171,7 +171,8 @@ export default {
     isEduMode: null,
     isBasicMode: null,
     buttonIcon: null,
-    phenotypeLookupUrl: null
+    phenotypeLookupUrl: null,
+    attention: null
   },
   data () {
     return {
@@ -229,11 +230,36 @@ export default {
       if (options == null) {
         options = {isFromClin: false, phenotypes: self.phenotypeTermEntered};
       }
+      self.checkForDirtyGenePanel()
       if (self.selectedGenePanelName && self.selectedGenePanelName.length > 0) {
         options.genePanel = self.selectedGenePanelName
       }
       self.$emit("apply-genes", self.genesToApply, options);
       self.showGenesMenu = false;
+    },
+    checkForDirtyGenePanel: function() {
+      let self = this;
+      function difference(setA, setB) {
+        const _difference = new Set(setA);
+        for (const elem of setB) {
+          if (_difference.has(elem)) {
+            _difference.delete(elem);
+          } else {
+            _difference.add(elem);
+          }
+        }
+        return _difference;
+      }
+      if (self.selectedGenePanelName) {
+        let v = self.genesToApply;
+        let newGeneList = v ? v.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i && v.trim() != "") : [];
+        let genesInPanel = self.geneModel.getGenePanelGenes(self.selectedGenePanelName)
+        let newGeneSet = new Set(newGeneList);
+        let oldGeneSet = new Set(genesInPanel);
+        if (difference(newGeneSet, oldGeneSet).size > 0) {
+          self.selectedGenePanelName = null;
+        }
+      } 
     },
     onCancel: function() {
       let self = this;
@@ -250,6 +276,7 @@ export default {
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
+      self.selectedGenePanelName = null;
       if (searchTerm) {
         var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
           return gene.selected;
@@ -300,6 +327,16 @@ export default {
     self.populateValidGenesMap();
   },
   computed: {
+    clazz: function() {
+      let clazz = ""
+      if (this.buttonIcon) {
+        clazz += 'icon ';
+      }
+      if (this.attention) {
+        clazz += "attention"
+      }
+      return clazz;
+    },
     genePanelNames: function() {
       return this.geneModel.getGenePanelNames();
     },
@@ -327,6 +364,7 @@ export default {
       }
     },
     genesToApply: function () {
+      //this.selectedGenePanelName = null;
       if (this.genesToApply === this.STARTING_INPUT || this.genesToApply === '') {
         this.geneCount = 0;
       } else {
