@@ -442,6 +442,28 @@
   display: inline-block
   font-size: 11px
   font-family: raleway
+
+
+.select-annotations-button
+    min-width: 110px !important
+    font-weight: 500
+    font-size: 13px
+    color: $link-color
+    .btn__content, .v-btn__content
+      color: $link-color !important
+      i.material-icons
+        color: $link-color !important
+
+.value-row-container 
+  display: flex
+  justify-content: space-between
+
+
+.value-rows
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  
 </style>
 
 <template>
@@ -911,10 +933,46 @@
               </multialign-seq-viz>
 
             </div>
-          </div>
+          </div>   
       </div>
 
+      <div class="variant-inspect-column" v-if="selectedVariant" style="min-width:250px;max-width:400px" >
+        <div class="header-and-button" style="display: flex; align-items: center;">
+          <div class="variant-column-header">
+            Custom Annotations
+            <v-divider></v-divider>
+          </div>
+      
+          <v-btn flat @click="openVariantAnnotDialog" class="select-annotations-button" style="position: relative; z-index: 1;">
+            <v-icon>search</v-icon>
+            select
+          </v-btn>
+
+        </div>
+
+        <div class="value-row-container" style="margin-left:15px; margin-top:0px">
+          <div class="value-rows">
+            <div v-for="item in selectedInfo" v-if="selectedVariant && selectedVariant.allAnnots && selectedVariant.allAnnots.hasOwnProperty(item)" class="row">
+              <v-icon style="color: #30638e">article</v-icon> {{item}} : {{ annotValues[item] }}
+            </div>
+            <div v-for="item in selectedFormat" v-if="selectedVariant && selectedVariant.formatMap && selectedVariant.formatMap.hasOwnProperty(item)" class="row">
+              <v-icon style="color: #30638e">article</v-icon> {{item}} : {{ formatValues[item] }}
+            </div>
+          </div>
+        </div>
+
+      </div>
+      
     </div>
+
+    <select-variant-annotations-dialog
+      :showDialog="showSelectVariantAnnotationDialog"
+      :infoObject="infoObject"
+      :formatObject="formatObject"
+      @close-variant-annot-dialog="closeVariantAnnotDialog"
+      @apply-variant-annot-dialog="applyVariantAnnotDialog">
+    </select-variant-annotations-dialog>
+ 
     
     <patient-gene-phenotype-dialog
          :showDialog="showPatientGenePhenotypeDialog"
@@ -949,6 +1007,7 @@ import GeneAssociationsDialog   from "../partials/GeneAssociationsDialog.vue"
 import GenePhenotypeTable       from "../partials/GenePhenotypeTable.vue"
 import PatientGenePhenotypeDialog      from '../partials/PatientGenePhenotypeDialog.vue'
 
+import SelectVariantAnnotationsDialog from '../partials/SelectVariantAnnotationsDialog.vue'
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
 import MultiAlignD3             from '../../d3/MultiAlign.d3.js'
@@ -975,7 +1034,9 @@ export default {
     MultialignSeqViz,
     GeneAssociationsDialog,
     GenePhenotypeTable,
-    'patient-gene-phenotype-dialog': PatientGenePhenotypeDialog
+    'patient-gene-phenotype-dialog': PatientGenePhenotypeDialog,
+
+    SelectVariantAnnotationsDialog
 
   },
   props: {
@@ -1069,12 +1130,44 @@ export default {
 
       matchingGenePhenotypes: [],
 
-      showPatientGenePhenotypeDialog: false
+      showPatientGenePhenotypeDialog: false,
+      
+      showSelectVariantAnnotationDialog: false,
+
+      selectedInfo: [],
+      selectedFormat: [],
+
+      annotValues: Object,
+      formatValues: Object,
+
+      
+
+
+
       
 
     }
   },
   methods: {
+    openVariantAnnotDialog() {
+      console.log("openVariantAnnotDialog");
+      this.showSelectVariantAnnotationDialog = true;
+    },
+
+    closeVariantAnnotDialog(selectedInfo, selectedFormat) {
+      this.showSelectVariantAnnotationDialog = false;
+      this.selectedInfo = selectedInfo;
+      this.selectedFormat = selectedFormat;
+
+    },
+
+    applyVariantAnnotDialog(selectedInfo, selectedFormat) {
+      this.showSelectVariantAnnotationDialog = false;
+      this.selectedInfo = selectedInfo;
+      this.selectedFormat = selectedFormat;
+    },
+
+
     refresh: function() {
 
     },
@@ -1776,11 +1869,23 @@ export default {
     },
     refreshVariantInterpretation: function() {
       this.interpretation = this.selectedVariant.interpretation;
-    }
+    },
+
+
   },
 
 
   computed: {
+    infoObject: function(){
+      return this.cohortModel.getModel(this.selectedVariantRelationship).vcf.infoFields.INFO;
+
+    },
+
+    formatObject: function(){
+      return this.cohortModel.getModel(this.selectedVariantRelationship).vcf.infoFields.FORMAT;
+
+    },
+
     hasAlignments: function() {
       if (this.selectedVariantRelationship) {
         return this.cohortModel.getModel(this.selectedVariantRelationship).isBamLoaded();
@@ -2171,16 +2276,14 @@ export default {
               self.annotateClinVarVariant(self.selectedVariant);
           }
           self.interpretation = self.selectedVariant.interpretation  && self.selectedVariant.interpretation.length > 0 ? self.selectedVariant.interpretation : "not-reviewed";
-
         })
     }
-
-
   },
 
-  created: function() {
-  }
-
+  created: function() { 
+      this.annotValues = this.selectedVariant.allAnnots;
+      this.formatValues = this.selectedVariant.formatMap;
+  },
 
 }
 </script>
