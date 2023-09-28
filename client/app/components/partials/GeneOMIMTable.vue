@@ -32,8 +32,8 @@
         font-size: 13px
         color: $link-color
     .omim-phenotype
-      min-width: 300px
-      max-width: 300px
+      min-width: 220px
+      max-width: 220px
     .omim-inheritance
       display: inline-block
       min-width: 150px
@@ -44,7 +44,7 @@
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
 #omim-table {
-  min-width:  250px !important;
+  min-width:  210px !important;
 }
 .omim-phenotype {
   min-width: 150px !important;
@@ -56,7 +56,7 @@
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
 #omim-table {
-  min-width:  250px @important;
+  min-width:  210px @important;
 }
 .omim-phenotype {
   min-width: 150px !important;
@@ -71,8 +71,8 @@
   min-width:  300px !important;
 }
 .omim-phenotype {
-  min-width: 200px !important;
-  max-width: 200px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
 }  
 
 }
@@ -83,8 +83,8 @@
   min-width:  300px !important;
 }
 .omim-phenotype {
-  min-width: 200px !important;
-  max-width: 200px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
 } 
 
 }
@@ -95,8 +95,8 @@
   min-width:  300px !important;
 }
 .omim-phenotype {
-  min-width: 200px !important;
-  max-width: 200px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
 } 
 
 }
@@ -106,8 +106,8 @@
   min-width:  400px !important;
 }
 .omim-phenotype {
-  min-width: 300px !important;
-  max-width: 300px !important;
+  min-width: 210px !important;
+  max-width: 210px !important;
 } 
 
 }
@@ -121,7 +121,7 @@
       <div class="table-title">OMIM Phenotypes</div>
     </div>
     <div  style="max-height:108px;min-height:108px;overflow-y:scroll;padding-top:5px">
-      <div class="omim-row" v-for="entry in omimEntries" :key="entry.phenotypeMimNumber">
+      <div class="omim-row" v-for="entry in omimEntries" :key="entry.phenotype">
           <span class="omim-launch" >
             <a :href="getEntryHref(entry.phenotypeMimNumber)" target="_omim">
               <v-icon>launch</v-icon>
@@ -172,7 +172,7 @@ export default {
           }
         })
         .catch(function(error) {
-          console.log("Cannot get OMIM entries for gene " + self.selectedGene.gene_name + ". Error: error")
+          console.log("Cannot get OMIM entries for gene " + self.selectedGene.gene_name + ". " + error)
           self.omimEntries = [];
         })
       } else {
