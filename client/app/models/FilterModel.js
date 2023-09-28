@@ -36,7 +36,8 @@ class FilterModel {
     this.geneCoverageMean          = 15;
     this.geneCoverageMedian        = 15;
 
-
+    this.dispatch = d3.dispatch("variantFlagged");
+    d3.rebind(this, this.dispatch, "on");
 
     this.flagCriterion = {
       gene: {
@@ -908,11 +909,18 @@ class FilterModel {
         variant.analysisMode.gene = true;
       }
 
+
       // We clone the variant because when we save the analysis 
       // (stringified JSON of the cache), we want to prevent stringify from
       // assuming we have recursive data; otherwise stringify will exclude the
       // variant from the string, showing it as an empty object.
-      badges.flagged.push($.extend({}, variant));
+      let clonedVariant = $.extend({}, variant)
+      badges.flagged.push(clonedVariant);
+
+      // Dispatch an event so that listener (GeneHome) can
+      // update the variant with saved Mosaic variant annotation
+      // for 'Interpretation'
+      self.dispatch.variantFlagged(variant);
     }
 
   }
