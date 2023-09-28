@@ -1,6 +1,6 @@
 {
   "name": "gene-iobio-vue",
-  "version": "4.7.3a",
+  "version": "4.7.3c",
   "scripts": {
     "start": "DEBUG=http ./node_modules/nodemon/bin/nodemon.js --inspect --ignore client/ www.js",
     "build": "./node_modules/webpack/bin/webpack.js",
