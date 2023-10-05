@@ -1398,7 +1398,7 @@ export default {
 
               if (self.analysis && self.analysis.payload && self.analysis.payload.variants && self.analysis.payload.variants.length > 0) {
                 // do nothing -- variants already loaded
-              } else if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+              } else if (self.selectedGene && Object.keys(self.selectedGene).length > 0 && self.selectedGene.gene_name != "") {
                 self.promiseLoadData()
                 .then(function() {
                   self.showLeftPanelWhenFlaggedVariants();
