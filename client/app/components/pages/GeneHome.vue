@@ -605,12 +605,18 @@ main.content.clin, main.v-content.clin
           :showAssessment="hasVariantAssessment || showVariantAssessment"
           :launchedFromClin="launchedFromClin"
           :interpretationMap="interpretationMap"
+          :variantAnnotationsMap="variantAnnotationsMap"
+          :selectedVariantInfo="selectedInfo"
+          :selectedVariantFormat="selectedFormat"
+          :selectedVariantMosaic="selectedMosaic"
+          :mosaicVariant="mosaicVariant"
           
           @show-pileup-for-variant="onShowPileupForVariant"
           @apply-variant-interpretation="onApplyVariantInterpretation"
           @apply-variant-notes="onApplyVariantNotes"
           @show-variant-assessment="onShowVariantAssessment"
           @transcript-id-selected="onTranscriptIdSelected"
+          @variant-annotations-selected="onVariantAnnotationSelected"
           >
           </variant-inspect-card>
           <!--mosaicVariantInterpretation="selectedVariant.mosaic_interpretation" -->
@@ -890,7 +896,7 @@ export default {
       projectId: null,
       geneSet: null,
       variantSet: null,
-      variantAnnotationsMap: null,
+      variantAnnotationsMap: {},
       launchedWithUrlParms: false,
       clinSetData: null,
       clinPersistCache: true,
@@ -1092,7 +1098,12 @@ export default {
 
       appAlerts: [],
       appAlertCounts: {'total': 0, 'success': 0, 'info': 0, 'warning': 0, 'error': 0},
-      geneToAppAlerts: {}
+      geneToAppAlerts: {},
+
+      selectedInfo: [],
+      selectedFormat: [],
+      selectedMosaic: [],
+      mosaicVariant: {},
     }
   },
 
@@ -3904,6 +3915,8 @@ export default {
         if (theVariant.mosaic_id && theVariant.mosaic_id != "") {
           self.hubSession.promiseGetVariant(self.projectId, theVariant.mosaic_id)
           .then(function(mosaicVariant) {
+            self.mosaicVariant = {}
+            self.mosaicVariant = mosaicVariant;
             resolve(mosaicVariant)
           })
           .catch(function(error) {
@@ -3916,6 +3929,8 @@ export default {
         } else {
           self.hubSession.promiseLookupVariantByPosition(self.projectId, theVariant)
           .then(function(mosaicVariant) {
+            self.mosaicVariant = {}
+            self.mosaicVariant = mosaicVariant;
             resolve(mosaicVariant)
           })
           .catch(function(error) {
@@ -5303,7 +5318,13 @@ export default {
         };
         window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
       }
-    }
+    },
+
+    onVariantAnnotationSelected(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations) {
+      this.selectedInfo = selectedInfo;
+      this.selectedFormat = selectedFormat;
+      this.selectedMosaic = selectedMosaicVariantAnnotations;
+    },
 
   }
 }

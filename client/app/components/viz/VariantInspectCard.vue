@@ -445,24 +445,68 @@
 
 
 .select-annotations-button
-    min-width: 110px !important
-    font-weight: 500
-    font-size: 13px
-    color: $link-color
-    .btn__content, .v-btn__content
+  min-width: 70px !important
+  font-weight: 500
+  font-size: 13px
+  color: $link-color
+  padding: 0px
+  margin: 0px
+  .btn__content, .v-btn__content
+    color: $link-color !important
+    margin: 0px
+    i.material-icons
       color: $link-color !important
-      i.material-icons
-        color: $link-color !important
 
+.variant-annots-info-button
+  min-width: 30px !important
+  font-weight: 500
+  font-size: 10px
+  color: $link-color
+  padding: 0px
+  margin: 0px
+  .btn__content, .v-btn__content
+    color: $link-color !important
+    margin: 0px
+    padding: 0px
+    max-width: 20px
+    i.material-icons
+      color: $link-color !important
+      font-size: 20px
+    
 .value-row-container 
   display: flex
   justify-content: space-between
-
 
 .value-rows
   display: flex
   flex-direction: column
   justify-content: space-between
+
+.small-icon
+  font-size: 16px
+  color: #30638e !important
+
+.description-tooltip 
+  position: relative
+  background-color: rgba(0, 0, 0, 0.7)
+  color: white
+  padding: 5px
+  border-radius: 5px
+  z-index: 999
+  max-width: 200px
+  font-size: 12px
+  word-wrap: break-word
+  white-space: normal
+  pointer-events: none
+
+.small-icon:hover + .description-tooltip 
+  display: block
+
+.info-icon
+  font-size: 20px
+  color: #30638e !important
+  maring-left: 5px
+  padding-top: 2px
   
 </style>
 
@@ -937,27 +981,44 @@
       </div>
 
       <div class="variant-inspect-column" v-if="selectedVariant" style="min-width:250px;max-width:400px" >
-        <div class="header-and-button" style="display: flex; align-items: center;">
-          <div class="variant-column-header">
+        <div class="header-and-button" style="display: flex">
+          
+          <div class="variant-column-header" >
             Custom Annotations
             <v-divider></v-divider>
           </div>
-      
+           
+          <v-btn flat @click="openVariantAnnotationInfoDialog" class="variant-annots-info-button" style="position: relative; z-index: 1;">
+            <v-icon>help</v-icon>
+          </v-btn>
+        
           <v-btn flat @click="openVariantAnnotDialog" class="select-annotations-button" style="position: relative; z-index: 1;">
             <v-icon>search</v-icon>
-            select
+            Select
           </v-btn>
-
+      
         </div>
 
-        <div class="value-row-container" style="margin-left:15px; margin-top:0px">
-          <div class="value-rows">
-            <div v-for="item in selectedInfo" v-if="selectedVariant && selectedVariant.allAnnots && selectedVariant.allAnnots.hasOwnProperty(item)" class="row">
-              <v-icon style="color: #30638e">article</v-icon> {{item}} : {{ annotValues[item] }}
+        <div class="value-row-container" style="margin-left:10px; margin-top:0px">
+          <div class="value-rows" style="margin-left: 3px">
+            <div v-for="item in mergedInfoAndFormat" :key="item.id" class="row">
+              <v-icon class="small-icon"
+              @mouseover="showDescription(item.description)"
+              @mouseleave="hideDescription"
+              >article</v-icon> 
+              {{ item.key }} : {{ item.value }}
             </div>
-            <div v-for="item in selectedFormat" v-if="selectedVariant && selectedVariant.formatMap && selectedVariant.formatMap.hasOwnProperty(item)" class="row">
-              <v-icon style="color: #30638e">article</v-icon> {{item}} : {{ formatValues[item] }}
+
+            <div v-if="mosaicValuesMap" v-for="item in mosaicValuesMap" :key="item.id" class="row">
+              <i 
+              @mouseover="showDescription(item.description)"
+              @mouseleave="hideDescription"
+              ><img src="assets/images/mosaic_icon.png" alt="Custom Icon" style="width: 11px; height: 11px; margin-left: 2px; margin-right: 2px" /></i> 
+              {{ item.description }} : {{ item.value }}
             </div>
+
+            <div class="description-tooltip" v-if="hoveredDescription">{{ hoveredDescription }}</div>
+           
           </div>
         </div>
 
@@ -967,11 +1028,23 @@
 
     <select-variant-annotations-dialog
       :showDialog="showSelectVariantAnnotationDialog"
-      :infoObject="infoObject"
-      :formatObject="formatObject"
+      :cohortModel="cohortModel"
+      :selectedVariantRelationship="selectedVariantRelationship"
+      :variantAnnotationsMap="variantAnnotationsMap"
+      :selectedVariantInfo="selectedInfo"
+      :selectedVariantFormat="selectedFormat"
+      :selectedVariantMosaic="selectedVariantMosaic"
       @close-variant-annot-dialog="closeVariantAnnotDialog"
       @apply-variant-annot-dialog="applyVariantAnnotDialog">
     </select-variant-annotations-dialog>
+
+    <variant-annotations-info-popup
+      :showDialog="showVariantAnnotationInfoDialog"
+      :cohortModel="cohortModel"
+      :selectedVariantRelationship="selectedVariantRelationship"
+      :variantAnnotationsMap="variantAnnotationsMap"
+      @close-variant-annot-info-dialog="closeVariantAnnotationInfoDialog">
+    </variant-annotations-info-popup>
  
     
     <patient-gene-phenotype-dialog
@@ -1008,6 +1081,7 @@ import GenePhenotypeTable       from "../partials/GenePhenotypeTable.vue"
 import PatientGenePhenotypeDialog      from '../partials/PatientGenePhenotypeDialog.vue'
 
 import SelectVariantAnnotationsDialog from '../partials/SelectVariantAnnotationsDialog.vue'
+import VariantAnnotationsInfoPopup from "../partials/VariantAnnotationsInfoPopup.vue"
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
 import MultiAlignD3             from '../../d3/MultiAlign.d3.js'
@@ -1036,7 +1110,8 @@ export default {
     GenePhenotypeTable,
     'patient-gene-phenotype-dialog': PatientGenePhenotypeDialog,
 
-    SelectVariantAnnotationsDialog
+    SelectVariantAnnotationsDialog,
+    VariantAnnotationsInfoPopup
 
   },
   props: {
@@ -1058,6 +1133,11 @@ export default {
     launchedFromClin: null,    
     interpretationMap: null,
     //mosaicVariantInterpretation: null
+    variantAnnotationsMap: Object,
+    selectedVariantInfo: null,
+    selectedVariantFormat: null,
+    selectedVariantMosaic: null,
+    mosaicVariant: Object, 
   },
   data() {
     return {
@@ -1133,12 +1213,13 @@ export default {
       showPatientGenePhenotypeDialog: false,
       
       showSelectVariantAnnotationDialog: false,
+      showVariantAnnotationInfoDialog: false,
 
-      selectedInfo: [],
-      selectedFormat: [],
-
-      annotValues: Object,
-      formatValues: Object,
+      selectedInfo: this.selectedVariantInfo,
+      selectedFormat: this.selectedVariantFormat,
+      selectedMosaicVariantAnnotations: this.selectedVariantMosaic,
+      
+      hoveredDescription: '',
 
       
 
@@ -1149,24 +1230,45 @@ export default {
     }
   },
   methods: {
+
+    openVariantAnnotationInfoDialog() {
+      console.log("openVariantAnnotationInfoDialog");
+      this.showVariantAnnotationInfoDialog = true;
+    },
+
+    closeVariantAnnotationInfoDialog() {
+      this.showVariantAnnotationInfoDialog = false;
+
+    },
+
     openVariantAnnotDialog() {
       console.log("openVariantAnnotDialog");
       this.showSelectVariantAnnotationDialog = true;
     },
 
-    closeVariantAnnotDialog(selectedInfo, selectedFormat) {
-      this.showSelectVariantAnnotationDialog = false;
+    closeVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations) {
       this.selectedInfo = selectedInfo;
       this.selectedFormat = selectedFormat;
-
+      this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
+      this.showSelectVariantAnnotationDialog = false;
     },
 
-    applyVariantAnnotDialog(selectedInfo, selectedFormat) {
-      this.showSelectVariantAnnotationDialog = false;
+    applyVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations) {
       this.selectedInfo = selectedInfo;
       this.selectedFormat = selectedFormat;
+      this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
+      this.showSelectVariantAnnotationDialog = false;
+
+      this.$emit("variant-annotations-selected", this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations);
     },
 
+    showDescription(description) {
+      this.hoveredDescription = description;
+    },
+
+    hideDescription() {
+      this.hoveredDescription = '';
+    },
 
     refresh: function() {
 
@@ -1876,14 +1978,84 @@ export default {
 
 
   computed: {
-    infoObject: function(){
-      return this.cohortModel.getModel(this.selectedVariantRelationship).vcf.infoFields.INFO;
 
+    annotValues : function(){
+      return this.selectedVariant ? this.selectedVariant.allAnnots : {};
+ 
     },
 
-    formatObject: function(){
-      return this.cohortModel.getModel(this.selectedVariantRelationship).vcf.infoFields.FORMAT;
+    formatValues : function(){
+      return this.selectedVariant ? this.selectedVariant.formatMap : {};
+    },
 
+
+    mergedInfoAndFormat() {
+      console.log("selectedInfo" , this.selectedInfo)
+      console.log("selectedFormat", this.selectedFormat)
+
+      const merged = [];
+    
+      for (const item of this.selectedInfo) {
+        if (this.selectedVariant && this.selectedVariant.allAnnots)  {
+          let value = "";
+          if (this.selectedVariant.allAnnots.hasOwnProperty(item.key) == false){
+            value = "None";
+          }else{
+            value = this.selectedVariant.allAnnots[item.key];
+          }
+          merged.push({
+            key: item.key,
+            value: value,
+            description: item.value,
+            id: "info" + item.key
+          });
+        }
+      }
+
+      for (const item of this.selectedFormat) {
+        if (this.selectedVariant && this.selectedVariant.formatMap) {
+          let value = "";
+          if (this.selectedVariant.formatMap.hasOwnProperty(item.key) == false){
+            value = "None";
+          }else{
+            value = this.selectedVariant.formatMap[item.key];
+          }
+          merged.push({
+            key: item.key,
+            value: value,
+            description: item.value,
+            id: "format" + item.key
+          });
+        }
+      }
+      console.log("merged", merged)
+      return merged; 
+    },
+
+    mosaicValuesMap() {
+      console.log(this.selectedMosaicVariantAnnotations)
+
+      const mosaicValues = [];
+      for (const item of this.selectedMosaicVariantAnnotations) {
+        if (this.mosaicVariant && this.mosaicVariant.hasOwnProperty(item.key)) {
+          let value = "";
+          if (this.mosaicVariant[item.key].length > 0){
+            console.log("this.mosaicVariant[item.key]", this.mosaicVariant[item.key])
+            value = this.mosaicVariant[item.key].join(", ");
+          }else{
+            value = "None";
+          }
+         
+          mosaicValues.push({
+            key: item.key,
+            value: value,
+            description: item.value,
+            id: "mosaic" + item.key
+          });
+        }
+      }
+      console.log("mosaicValues", mosaicValues)
+      return mosaicValues;
     },
 
     hasAlignments: function() {
@@ -2278,11 +2450,19 @@ export default {
           self.interpretation = self.selectedVariant.interpretation  && self.selectedVariant.interpretation.length > 0 ? self.selectedVariant.interpretation : "not-reviewed";
         })
     }
+
+    console.log("length of allAnnots:" + Object.keys(this.selectedVariant.allAnnots).length);
+    console.log(this.selectedVariant.allAnnots);
+
+    console.log("length of formatMap:" + Object.keys(this.selectedVariant.formatMap).length);
+    console.log(this.selectedVariant.formatMap); 
+
+    console.log(this.mosaicVariant);
+    
   },
 
   created: function() { 
-      this.annotValues = this.selectedVariant.allAnnots;
-      this.formatValues = this.selectedVariant.formatMap;
+    
   },
 
 }

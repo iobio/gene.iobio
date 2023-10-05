@@ -1466,7 +1466,7 @@ export default function vcfiobio(theGlobalApp) {
     if (matches) {
       const Id = matches[1];
       const Type = matches[3];
-      const Description = matches[4];
+      const Description = matches[4].replace(/\([^)]*\)/g, '').trim();
       // infoOrFormat[Id] = { Type: Type, Description: Description, Check: false };
       infoOrFormat = {Id: Id, Description: Description };
       }
