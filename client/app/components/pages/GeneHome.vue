@@ -4137,49 +4137,6 @@ export default {
 
                 self.$refs.variantCardProbandRef.showFlaggedVariant(flaggedVariant);
 
-<<<<<<< HEAD
-                  self.$set(self, "selectedVariant", flaggedVariant);
-                  self.refreshSelectedVariantInfo();
-                  self.$set(self, "selectedVariantRelationship", "proband");
-                  self.$set(self, "selectedVariantKey", self.getVariantKey(flaggedVariant));
-                  self.$set(self, "selectedVariantNotes", flaggedVariant.notes);
-                  self.$set(self, "selectedVariantInterpretation", flaggedVariant.interpretation);
-                  self.showVariantAssessment = false;
-
-                  self.showVariantExtraAnnots('proband', self.selectedVariant);
-
-                  if (self.launchedFromHub) {
-                    self.promiseInitMosaicVariantInterpretation(self.selectedVariant);
-                  }
-
-                  self.$refs.variantCardProbandRef.showFlaggedVariant(flaggedVariant);
-
-                  if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
-                    self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
-                  }
-
-
-                  self.getVariantCardRefs().forEach(function(variantCard) {
-                      variantCard.showVariantCircle(flaggedVariant, true);
-                      variantCard.showCoverageCircle(flaggedVariant);
-                  })
-
-
-                  self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
-                  if (self.$refs.variantInspectRef) {
-                    self.$refs.variantInspectRef.refresh();
-                  }
-
-                  // Scroll down so that the variant inspect card (and the variant all card)
-                  // are in view
-                  setTimeout(function() {
-                    self.scrollToVariantInspectCard()                  
-                  },50)
-
-
-                  if (callback) {
-                    callback();
-                  }
                 if (!self.isBasicMode && self.$refs.featureMatrixCardRef) {
                   self.$refs.featureMatrixCardRef.selectVariant(flaggedVariant);
                 }
