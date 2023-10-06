@@ -356,8 +356,6 @@ class GeneModel {
       me._promiseCopyPasteGenesImpl(genesString, options)
       .then(function() {
         me.getNCBIGeneSummariesForceWait(me.geneNames)
-        .catch(function(error) {
-        })
 
         var promises = [];
         me.geneNames.forEach(function(geneName) {

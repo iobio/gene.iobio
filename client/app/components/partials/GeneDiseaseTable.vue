@@ -3,7 +3,7 @@
 @import ../../../assets/sass/variables
 
 #hpo-disease-table
-  min-width: 200px
+  min-width: 600px
 
   .entry-count
     margin-left: 5px

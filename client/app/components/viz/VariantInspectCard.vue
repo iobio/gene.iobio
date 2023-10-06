@@ -1051,6 +1051,7 @@
          :showDialog="showPatientGenePhenotypeDialog"
          :cohortModel="cohortModel"
          :selectedGene="selectedGene"
+         :launchedFromHub="launchedFromHub"
          @hide-patient-gene-phenotype-dialog="onShowPatientGenePhenotypeDialog(false)">
     </patient-gene-phenotype-dialog>
 
@@ -1138,6 +1139,7 @@ export default {
     selectedVariantFormat: null,
     selectedVariantMosaic: null,
     mosaicVariant: Object, 
+    launchedFromHub: null
   },
   data() {
     return {

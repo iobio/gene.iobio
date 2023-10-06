@@ -89,6 +89,7 @@
           padding: 0px 5px
           font-size: 11px
           font-weight: 500
+          cursor: pointer
 
   
 
@@ -142,6 +143,7 @@
                           :regionEnd="selectedGene.end"
                           :showBrush=false
                           :showXAxis=false
+                          :selectedTranscript="selectedTranscript"
                           @transcript-selected="onTranscriptSelected">
                 </gene-viz>
 
