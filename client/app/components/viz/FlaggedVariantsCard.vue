@@ -1500,6 +1500,7 @@ export default {
       flagCriteria.active = false;
       flagCriteria.name = newFilter.name;
       flagCriteria.maxAf = null;
+      flagCriteria.maxHomozygotes = null;
       flagCriteria.minRevel = null;
       flagCriteria.clinvar = null;
       flagCriteria.impact = null;
