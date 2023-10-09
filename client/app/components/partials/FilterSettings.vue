@@ -58,6 +58,10 @@
     .v-input.v-text-field 
       min-width: 200px
 
+  #max-homozygotes
+    .v-input.v-text-field 
+      min-width: 200px
+
   .input-group
     label
       font-style: italic !important
@@ -163,6 +167,13 @@
             To speed up filtering, the gnomAD <span style='font-style: italic; font-weight:bold'> exomes only </span> pop max allele frequency is used. Allele frequencies from gnomAD exomes are less complete, so variants may pass this filter and have a higher allele frequency in gnomAD genomes. (After clicking on a variant, the allele frequency from gnomAD genomes will be shown.)
         </div>
 
+      </v-flex>
+
+      <v-flex xs12 style="margin-top:10px;margin-bottom: 5px"  >
+        <v-flex id="max-homozygotes"   >
+          <v-text-field style="display:inline-block" label="Max Homozygotes" :rules="wholeNumRules" v-model="maxHomozygotes" hide-details>
+          </v-text-field>
+        </v-flex>
       </v-flex>
 
       <v-flex xs12  >
@@ -279,6 +290,7 @@ export default {
       isDirty: false,
       name: null,
       maxAf: null,
+      maxHomozygotes: null,
       minRevel: null,
       selectedClinvarCategories: null,
       selectedImpacts: null,
@@ -351,6 +363,12 @@ export default {
           return valid || 'Freq must be between 0.0-1.0';
         }
       ],
+      wholeNumRules: [
+        v => {
+          let valid = v ? (+v > 0) : true;
+          return valid || 'Must be a whole number';
+        }
+      ],
       rules: {
           noDuplicates: value => !this.isDuplicateName() || 'Another filter already has this name. Please enter a filter name not already in use.'
       }
@@ -369,6 +387,7 @@ export default {
         flagCriteria.active = false;
         flagCriteria.name = this.filter.display;
         flagCriteria.maxAf = null;
+        flagCriteria.maxHomozygotes = null;
         flagCriteria.minRevel = null;
         flagCriteria.clinvar = null;
         flagCriteria.impact = null;
@@ -381,6 +400,7 @@ export default {
       this.name                      = flagCriteria.name;
       this.key                       = flagCriteria.key + flagCriteria.name;
       this.maxAf                     = flagCriteria.maxAf;
+      this.maxHomozygotes            = flagCriteria.maxHomozygotes;
       this.minRevel                  = flagCriteria.minRevel;
       this.selectedClinvarCategories = flagCriteria.clinvar;
       this.selectedImpacts           = flagCriteria.impact;
@@ -411,6 +431,7 @@ export default {
 
       flagCriteria.key = this.key;
       flagCriteria.maxAf            = this.maxAf;
+      flagCriteria.maxHomozygotes   = this.maxHomozygotes;
       flagCriteria.minRevel         = this.minRevel;
       flagCriteria.clinvar =          this.selectedClinvarCategories;
       flagCriteria.impact           = this.selectedImpacts;
@@ -461,6 +482,7 @@ export default {
       return (!this.isDuplicateName()) &&
              (
                (this.maxAf && this.maxAf > 0 && this.maxAf < 1) ||
+               (this.maxHomozygotes && this.maxHomozygotes > 0) ||
                this.minRevel ||
                (this.selectedClinvarCategories && this.selectedClinvarCategories.length > 0) ||
                (this.selectedImpacts && this.selectedImpacts.length > 0) ||
@@ -487,6 +509,9 @@ export default {
   watch: {
 
     maxAf: function() {
+      this.isDirty = true;
+    },
+    maxHomozygotes: function() {
       this.isDirty = true;
     },
     selectedClinvarCategories: function() {
