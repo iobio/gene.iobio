@@ -171,7 +171,7 @@
 
       <v-flex xs12 style="margin-top:10px;margin-bottom: 5px"  >
         <v-flex id="max-homozygotes"   >
-          <v-text-field style="display:inline-block" label="Max Population Homozygotes" :rules="wholeNumRules" v-model="maxHomozygotes" hide-details>
+          <v-text-field style="display:inline-block" label="Max Number of Homozygotes" :rules="wholeNumRules" v-model="maxHomozygotes" hide-details>
           </v-text-field>
         </v-flex>
       </v-flex>
