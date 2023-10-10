@@ -365,7 +365,7 @@ export default {
       ],
       wholeNumRules: [
         v => {
-          let valid = v ? (+v > 0) : true;
+          let valid = v ? (+v >= 0) : true;
           return valid || 'Must be a whole number';
         }
       ],
@@ -482,7 +482,7 @@ export default {
       return (!this.isDuplicateName()) &&
              (
                (this.maxAf && this.maxAf > 0 && this.maxAf < 1) ||
-               (this.maxHomozygotes && this.maxHomozygotes > 0) ||
+               (this.maxHomozygotes && this.maxHomozygotes >= 0) ||
                this.minRevel ||
                (this.selectedClinvarCategories && this.selectedClinvarCategories.length > 0) ||
                (this.selectedImpacts && this.selectedImpacts.length > 0) ||
