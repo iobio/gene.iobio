@@ -6,22 +6,51 @@
     margin-top: 10px !important
     margin-bottom: 1px !important
 
-.checkbox-container .checkbox-label 
+
+.checkbox-container .checkbox-row
   display: flex
-  align-items: flex-start
-  margin-bottom: 10px
+  margin-bottom: 3px
 
+.checkbox-row
+  padding-top: 0px
+  padding-right:  0px
+  padding-bottom: 0px
+  padding-left: 0px
+  line-height: 15px
+  >span
+    display: inline-block
+    vertical-align: middle
+    font-size: 13px
+    line-height: 15px
 
-.checkbox-container input 
-  margin-right: 8px !important
+  .checkbox-id
+    min-width: 180px
+    max-width: 180px
+     
+  .label-text
+    min-width: 600px 
+    max-width: 600px 
 
-
-.checkbox-container label 
-  font-size: 12px !important
-  color: $text-color !important
+  input
+    display: inline-block
+    margin-right: 10px !important
+    margin-top: 0px !important
+    margin-left: 0px !important
+    margin-bottom: 0px !important
+    padding-top: 0px !important
+    padding-bottom: 0px !important
+    padding-left: 0px !important
+    padding-right: 0px !important
+    width: 15px !important
+    height: 15px !important
+    vertical-align: middle !important
+    position: relative !important
+    top: 0px !important
+    left: 0px !important
 
 .subtitle
-  font-size: 15px !important
+  font-size: 18px !important
+  color: #434343
 
 .apply-btn
   background-color: #30638e !important
@@ -36,7 +65,7 @@
     :close-on-content-click="false" 
     :persistent="true"
     class="variant-annotation-dialog" 
-    width="750px">
+    width="900px">
 
       <v-card id="select-variant-annot-container">
         <div class="container">
@@ -49,47 +78,49 @@
 
         <v-divider id="select-variant-annot-dialog-divider"></v-divider>
        
-        <v-card-title class="subtitle" style="padding-top: 10px; margin-left:20px;">Variant Annotations(From VCF file)</v-card-title>
-        <div style="max-height: 180px; overflow-y: scroll;">
+        <v-card-title class="subtitle" style="padding-top: 10px; margin-left:20px;">Variant Annotations</v-card-title>
+        <div style="max-height: 150px; overflow-y: scroll;">
           <div class="checkbox-container" style="padding-top:15px; margin-left:20px;">
-            <div v-for="key in Object.keys(infoObject)" :key="key" class="checkbox-label">
+            <div v-for="key in Object.keys(infoObject)" :key="key" class="checkbox-row">
               <input
                 type="checkbox"
                 :id="key"
                 :value="{ key, value: infoObject[key] }"
                 v-model="selectedInfo"
               />
-              <label :for="key">{{ infoObject[key] }} ({{ key }})</label>
+              <span :for="key" class="checkbox-id">{{ key }}</span>
+              <span :for="key" class="label-text">{{ infoObject[key] }} </span>
             </div>
           </div>
         </div>
         
-        <v-card-title class="subtitle" style="padding-top: 10px; margin-left:20px;">Genotype Annotations(From VCF file)</v-card-title>
-        <div style="max-height: 180px; overflow-y: scroll;">
+        <v-card-title class="subtitle" style="padding-top: 10px; margin-left:20px;">Genotype Annotations</v-card-title>
+        <div style="max-height: 150px; overflow-y: scroll;">
           <div class="checkbox-container" style="padding-top:15px; margin-left:20px;">
-            <div v-for="key in Object.keys(formatObject)" :key="key" class="checkbox-label">
+            <div v-for="key in Object.keys(formatObject)" :key="key" class="checkbox-row">
               <input
                 type="checkbox"
                 :id="key"
                 :value="{ key, value: formatObject[key] }"
                 v-model="selectedFormat"
               />
-              <label :for="key">{{ formatObject[key] }} ({{ key}})</label>
+              <span :for="key" class="checkbox-id">{{ key }}</span>
+              <span :for="key" class="label-text">{{ formatObject[key] }} </span>
             </div>
           </div>
         </div>
 
-        <v-card-title v-if="Object.keys(variantAnnotationsMap).length > 0" class="subtitle" style="padding-top: 10px; margin-left:20px;">Variant Annotations(From Mosaic)</v-card-title>
-        <div style="max-height: 180px; overflow-y: scroll;">
+        <v-card-title v-if="Object.keys(variantAnnotationsMap).length > 0" class="subtitle" style="padding-top: 10px; margin-left:20px;">Mosaic Variant Annotations</v-card-title>
+        <div style="max-height: 150px; overflow-y: scroll;">
           <div class="checkbox-container" style="padding-top:15px; margin-left:20px;">
-            <div v-if="Object.keys(variantAnnotationsMap).length > 0" v-for="key in Object.keys(variantAnnotationsMap)" :key="key" class="checkbox-label">
+            <div v-if="Object.keys(variantAnnotationsMap).length > 0" v-for="key in Object.keys(variantAnnotationsMap)" :key="key" class="checkbox-row">
               <input
                 type="checkbox"
                 :id="key"
                 :value="{ key: variantAnnotationsMap[key].uid, value: variantAnnotationsMap[key].name }"
                 v-model="selectedMosaicVariantAnnotations"
               />
-              <label :for="key">{{ variantAnnotationsMap[key].name }} </label>
+              <span :for="key" class="label-text">{{ variantAnnotationsMap[key].name }} </span>
             </div>
           </div>
         </div>

@@ -477,10 +477,32 @@
   display: flex
   justify-content: space-between
 
-.value-rows
-  display: flex
-  flex-direction: column
-  justify-content: space-between
+  .value-rows
+    display: flex
+    flex-direction: column
+    justify-content: space-between
+
+  .row
+    font-size: 13px
+    line-height: 15px
+    >span
+      display: inline-block
+      vertical-align: top
+      line-height: 15px
+
+    .checkbox-id
+      font-size: 13px
+      color: $text-color
+      margin-right: 5px
+      min-width: 250px
+      max-width: 250px
+
+    .label-text
+      font-size: 13px
+      color: $text-color
+      min-width: 100px
+      max-width: 100px
+
 
 .small-icon
   font-size: 16px
@@ -987,10 +1009,6 @@
             Custom Annotations
             <v-divider></v-divider>
           </div>
-           
-          <v-btn flat @click="openVariantAnnotationInfoDialog" class="variant-annots-info-button" style="position: relative; z-index: 1;">
-            <v-icon>help</v-icon>
-          </v-btn>
         
           <v-btn flat @click="openVariantAnnotDialog" class="select-annotations-button" style="position: relative; z-index: 1;">
             <v-icon>search</v-icon>
@@ -998,29 +1016,31 @@
           </v-btn>
       
         </div>
+        <div style="max-height: 180px; overflow-y: scroll;">
+          <div class="value-row-container" style="margin-left:10px; margin-top:0px;">
+            <div class="value-rows" style="margin-left: 3px;">
+              <div v-for="item in mergedInfoAndFormat" :key="item.id" class="row">
+                <v-icon class="small-icon"
+                @mouseover="showDescription(item.description)"
+                @mouseleave="hideDescription"
+                >article</v-icon> 
+                <span class="checkbox-id">{{ item.key }}</span>
+                <span class="label-text">{{ item.value }} </span>
+              </div>
 
-        <div class="value-row-container" style="margin-left:10px; margin-top:0px">
-          <div class="value-rows" style="margin-left: 3px">
-            <div v-for="item in mergedInfoAndFormat" :key="item.id" class="row">
-              <v-icon class="small-icon"
-              @mouseover="showDescription(item.description)"
-              @mouseleave="hideDescription"
-              >article</v-icon> 
-              {{ item.key }} : {{ item.value }}
+              <div v-if="mosaicValuesMap" v-for="item in mosaicValuesMap" :key="item.id" class="row">
+                <i 
+                @mouseover="showDescription(item.description)"
+                @mouseleave="hideDescription"
+                ><img src="assets/images/mosaic_icon.png" alt="Custom Icon" style="width: 11px; height: 11px; margin-left: 2px; margin-right: 2px" /></i> 
+                <span class="checkbox-id">{{ item.description }}</span>
+                <span class="label-text">{{ item.value }} </span>
+              </div>
+
             </div>
-
-            <div v-if="mosaicValuesMap" v-for="item in mosaicValuesMap" :key="item.id" class="row">
-              <i 
-              @mouseover="showDescription(item.description)"
-              @mouseleave="hideDescription"
-              ><img src="assets/images/mosaic_icon.png" alt="Custom Icon" style="width: 11px; height: 11px; margin-left: 2px; margin-right: 2px" /></i> 
-              {{ item.description }} : {{ item.value }}
-            </div>
-
-            <div class="description-tooltip" v-if="hoveredDescription">{{ hoveredDescription }}</div>
-           
           </div>
         </div>
+        <div class="description-tooltip" v-if="hoveredDescription">{{ hoveredDescription }}</div>
 
       </div>
       
@@ -1038,15 +1058,6 @@
       @apply-variant-annot-dialog="applyVariantAnnotDialog">
     </select-variant-annotations-dialog>
 
-    <variant-annotations-info-popup
-      :showDialog="showVariantAnnotationInfoDialog"
-      :cohortModel="cohortModel"
-      :selectedVariantRelationship="selectedVariantRelationship"
-      :variantAnnotationsMap="variantAnnotationsMap"
-      @close-variant-annot-info-dialog="closeVariantAnnotationInfoDialog">
-    </variant-annotations-info-popup>
- 
-    
     <patient-gene-phenotype-dialog
          :showDialog="showPatientGenePhenotypeDialog"
          :cohortModel="cohortModel"
@@ -1082,7 +1093,6 @@ import GenePhenotypeTable       from "../partials/GenePhenotypeTable.vue"
 import PatientGenePhenotypeDialog      from '../partials/PatientGenePhenotypeDialog.vue'
 
 import SelectVariantAnnotationsDialog from '../partials/SelectVariantAnnotationsDialog.vue'
-import VariantAnnotationsInfoPopup from "../partials/VariantAnnotationsInfoPopup.vue"
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
 import MultiAlignD3             from '../../d3/MultiAlign.d3.js'
@@ -1112,7 +1122,6 @@ export default {
     'patient-gene-phenotype-dialog': PatientGenePhenotypeDialog,
 
     SelectVariantAnnotationsDialog,
-    VariantAnnotationsInfoPopup
 
   },
   props: {
