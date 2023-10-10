@@ -783,10 +783,10 @@
           </variant-inspect-row>
           <variant-inspect-row v-if="!isSimpleMode && afGnomAD.freqPopMax" :clazz="afGnomAD.class" :value="gnomadFreqPopMax" :label="`Population max allele frequency`" >
           </variant-inspect-row>
-          <div v-if="!isSimpleMode && afGnomAD.totalCount > 0" class="variant-row no-icon">
+          <div v-if="!isSimpleMode && afGnomAD.totalCount >= 0" class="variant-row no-icon">
             <span>{{ afGnomAD.altCount }} alt of {{ afGnomAD.totalCount }} total</span>
           </div>
-          <div v-if="!isSimpleMode && afGnomAD.homCount > 0"  class="variant-row no-icon">
+          <div v-if="!isSimpleMode && afGnomAD.homCount >= 0"  class="variant-row no-icon">
             <span>{{ afGnomAD.homCount }} homozygotes</span>
           </div>
 
@@ -1977,13 +1977,39 @@ export default {
           }
 
           if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
-            return {freq: "?", link: null, class: "", source: source,
-                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2,
-                    afExomes: afExomes};
+            return {
+              link: null,
+              label: "Allele frequency",
+              freq: "?", 
+              class: "",
+              freqPopMax: '0',
+              altCount: '0', 
+              totalCount: '0',
+              homCount: '0',
+              source: source,
+              loading: null,
+              infoPopup: infoPopup, 
+              extraInfo1: extraInfo1, 
+              extraInfo2: extraInfo2,
+              afExomes: afExomes
+            };
           } else if (this.selectedVariant.gnomAD.af  == '.') {
-            return {freq: "0", link: null, class: "level-high", source: source,
-                    infoPopup: infoPopup, extraInfo1: extraInfo1, extraInfo2: extraInfo2,
-                    afExomes: afExomes};
+            return {
+              link: null,
+              label: "Allele frequency",
+              freq: '0',  
+              class: "level-high",
+              freqPopMax: '0',
+              altCount: '0', 
+              totalCount: '0',
+              homCount: '0',
+              source: source,
+              loading: null,
+              infoPopup: infoPopup, 
+              extraInfo1: extraInfo1, 
+              extraInfo2: extraInfo2,
+              afExomes: afExomes
+            };
           } else  {
             var gnomAD = {};
             gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
