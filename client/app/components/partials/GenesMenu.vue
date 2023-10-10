@@ -315,8 +315,11 @@ export default {
       this.showTooltipFlag = false;
     },
     populateValidGenesMap: function () {
+      let self = this;
       validGenes.forEach((gene) => {
-        this.validGenesMap[gene['gene_name'].toUpperCase()] = true;
+        if (gene.hasOwnProperty("gn")) {
+          self.validGenesMap[gene['gn'].toUpperCase()] = true;
+        }
       });
     }
   },

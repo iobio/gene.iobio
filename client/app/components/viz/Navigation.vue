@@ -690,7 +690,7 @@ nav.toolbar, nav.v-toolbar
           <typeahead v-model="lookupGene"
           force-select v-bind:limit="typeaheadLimit" match-start
           target="#search-gene-name" :data="knownGenes"
-          item-key="gene_name"/>
+          item-key="gn"/>
         </span>
 
 
@@ -1481,9 +1481,9 @@ export default {
   },
   watch: {
     lookupGene: function(a, b) {
-      if (this.selectedGene && this.lookupGene && this.lookupGene.gene_name) {
-        this.geneEntered = this.lookupGene.gene_name;
-        this.$emit("input", this.lookupGene.gene_name);
+      if (this.selectedGene && this.lookupGene && this.lookupGene.gn) {
+        this.geneEntered = this.lookupGene.gn;
+        this.$emit("input", this.lookupGene.gn);
       }
     },
     showFilesProp: function(){
