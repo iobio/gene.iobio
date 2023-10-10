@@ -56,11 +56,11 @@
 
   #max-af
     .v-input.v-text-field 
-      min-width: 200px
+      min-width: 220px
 
   #max-homozygotes
     .v-input.v-text-field 
-      min-width: 200px
+      min-width: 220px
 
   .input-group
     label
@@ -171,7 +171,7 @@
 
       <v-flex xs12 style="margin-top:10px;margin-bottom: 5px"  >
         <v-flex id="max-homozygotes"   >
-          <v-text-field style="display:inline-block" label="Max Homozygotes" :rules="wholeNumRules" v-model="maxHomozygotes" hide-details>
+          <v-text-field style="display:inline-block" label="Max Population Homozygotes" :rules="wholeNumRules" v-model="maxHomozygotes" hide-details>
           </v-text-field>
         </v-flex>
       </v-flex>
