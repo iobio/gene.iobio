@@ -3125,20 +3125,13 @@ class SampleModel {
 
 
 
-  filterVariants(data, filterObject, start, end, bypassRangeFilter) {
+  filterVariants(data, filterObject, start, end, bypassRangeFilter, filterModel) {
     var me = this;
 
     if (data == null || data.features == null) {
       console.log("Empty data/features");
       return;
     }
-
-    if (me.relationship === 'known-variants') {
-      return me.filterKnownVariants(data, start, end, bypassRangeFilter);
-    } else if (me.relationship === 'sfari-variants') {
-      return me.filterSfariVariants(data, start, end, bypassRangeFilter);
-    }
-
 
     var impactField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'impact' : me.globalApp.impactFieldToFilter;
     var effectField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'effect' : 'vepConsequence';
@@ -3365,7 +3358,7 @@ class SampleModel {
   filterKnownVariants(data, start, end, bypassRangeFilter, filterModel) {
     var me = this;
 
-    var theFilters = filterModel.getModelSpecificFilters('known-variants').filter(function(theFilter) {
+    var theFilters = filterModel.modelFilters['known-variants'].filter(function(theFilter) {
       return theFilter.value == true;
     })
 
