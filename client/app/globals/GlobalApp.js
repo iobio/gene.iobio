@@ -9,7 +9,7 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
-    this.version               = "4.8";
+    this.version               = "4.9";
 
     this.GREEN_IOBIO           = "nv-green.iobio.io/";  // Must always stay at green to accommodate VEP service
 
@@ -114,7 +114,8 @@ class GlobalApp {
         this.launchedFromUtahMosaic = true;
       }
 
-      this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
+//      this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
+      this.geneInfoServer            = "https://mosaic.chpc.utah.edu/gru/api/v1/geneinfo/";
 
       //this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
       this.geneToPhenoServer         = "https://mosaic.chpc.utah.edu/gru/api/v1/gene2pheno/";

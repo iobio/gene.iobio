@@ -280,7 +280,8 @@
               outline: none !important
 
   .rel-header
-    font-style: italic
+    font-weight: 600
+    padding-right: 4px
 
   .variant-header
     color: $app-color
@@ -481,14 +482,12 @@
     </v-card>
 
     <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:5px">
-      <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left" style="display: inline-grid">
-        <span class="pr-1" v-if="selectedVariantRelationship != 'proband'">
-          <span class="rel-header">{{ selectedVariantRelationship | showRelationship }}</span>
+      <div  id="variant-heading" v-if="selectedVariant" class="text-xs-left" >
+        <span v-if="selectedVariantRelationship != 'proband'" class="rel-header">
+           {{ selectedVariantRelationship | showRelationship }}</span>
         </span>
 
         <span>{{ selectedGene.gene_name }} VARIANT</span>
-
-
       </div>
 
       <span v-if="selectedVariant" class="variant-header" style="margin-top:2px">
@@ -549,7 +548,7 @@
       </variant-links-menu>
     </div>
 
-    <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:0px;margin-left:193px">
+    <div style="display:flex;align-items:flex-start;justify-content:flex-start;margin-bottom:0px;margin-left:193px" v-if="selectedVariantRelationship == 'proband'">
       <variant-interpretation 
        v-if="!isSimpleMode && selectedVariant"
        style="margin-bottom:4px;margin-right:5px;display: inline-block"
@@ -806,7 +805,7 @@
 
       </div>
 
-      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant">
+      <div class="variant-inspect-column" style="min-width:90px" v-if="!isSimpleMode && selectedVariant && selectedVariantRelationship == 'proband'">
           <div class="variant-column-header">
             Inheritance
             <v-divider></v-divider>

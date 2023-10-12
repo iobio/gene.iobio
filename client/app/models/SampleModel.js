@@ -623,24 +623,22 @@ class SampleModel {
         dangerSummary.badges.notFound = notFoundVariants;
       }
 
-      var cacheIt = true;
+      var isDirty = true;
       if (dangerSummaryExisting) {
-        cacheIt = me._isDifferentDangerSummary(dangerSummaryExisting, dangerSummary)
+        isDirty = me._isDifferentDangerSummary(dangerSummaryExisting, dangerSummary)
       }
 
-      if (cacheIt) {
+      if (isDirty) {
         me.promiseCacheDangerSummary(dangerSummary, geneObject.gene_name)
         .then(function() {
-          resolve(dangerSummary);
+          resolve({'dangerSummary': dangerSummary, 'isDirty': true});
         },
         function(error) {
           reject(error);
         })
       } else {
-        resolve(dangerSummary)
+        resolve({'dangerSummary': dangerSummary, 'isDirty': false})
       }
-      
-
     })
   }
 
@@ -649,8 +647,19 @@ class SampleModel {
     let match = true;
     ['CALLED', 'GENECOVERAGE','AF', 'CLINVAR', 'CONSEQUENCE', 'IMPACT', 'INHERITANCE', 'calledCount', 'loadedCount', 'isAlignmentsOnly']
     .forEach(function(field) {
-      if (JSON.toString(ds1[field]) != JSON.toString(ds2[field])) {
-        match = false;
+      if (ds1.hasOwnProperty(field) 
+        && ds2.hasOwnProperty(field)
+        && ds1[field]
+        && ds2[field] 
+        && typeof ds1[field] == 'object' 
+        && typeof ds2[field] == 'object') {
+        if (JSON.toString(ds1[field]) != JSON.toString(ds2[field])) {
+          match = false;
+        }        
+      } else {
+        if (ds1[field] != ds2[field]) {
+          match = false;
+        }    
       }
     })
     if (match) {
@@ -3125,20 +3134,13 @@ class SampleModel {
 
 
 
-  filterVariants(data, filterObject, start, end, bypassRangeFilter) {
+  filterVariants(data, filterObject, start, end, bypassRangeFilter, filterModel) {
     var me = this;
 
     if (data == null || data.features == null) {
       console.log("Empty data/features");
       return;
     }
-
-    if (me.relationship === 'known-variants') {
-      return me.filterKnownVariants(data, start, end, bypassRangeFilter);
-    } else if (me.relationship === 'sfari-variants') {
-      return me.filterSfariVariants(data, start, end, bypassRangeFilter);
-    }
-
 
     var impactField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'impact' : me.globalApp.impactFieldToFilter;
     var effectField = me.getAnnotationScheme().toLowerCase() === 'snpeff' ? 'effect' : 'vepConsequence';
@@ -3365,7 +3367,7 @@ class SampleModel {
   filterKnownVariants(data, start, end, bypassRangeFilter, filterModel) {
     var me = this;
 
-    var theFilters = filterModel.getModelSpecificFilters('known-variants').filter(function(theFilter) {
+    var theFilters = filterModel.modelFilters['known-variants'].filter(function(theFilter) {
       return theFilter.value == true;
     })
 
