@@ -917,9 +917,9 @@
           <template v-for="variant in flaggedGene.variants">
 
             <v-list-tile
-                :class="{'list-item': true, selected: isSelected(variant)}"
+                :class="{'list-item': true, selected: isSelected(variant, geneList)}"
                 :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
-                @click="onVariantSelected(variant)"
+                @click="onVariantSelected(variant, geneList)"
                 ripple>
 
               <v-list-tile-avatar >
@@ -1213,6 +1213,7 @@ export default {
       loadedCount: 0,
       calledCount: 0,
       totalCount: 0,
+
     }
   },
   methods: {
@@ -1231,13 +1232,23 @@ export default {
       this.showPopup = false;
     },
 
-    isSelected: function(v){
+    isSelected: function(v, geneList){
       let stashedVariant = this.selectedVariant;
-      return ( v && stashedVariant
+      let matchesVariant =  v && stashedVariant
           && v.start === stashedVariant.start
           && v.end === stashedVariant.end
           && v.ref === stashedVariant.ref
-          && v.alt === stashedVariant.alt);
+          && v.alt === stashedVariant.alt ? true : false;
+      let matchesFilter = geneList 
+          && this.selectedGeneList 
+          && geneList.label == this.selectedGeneList.label ? true : false;
+      // In the case where we are programatically selected the first filter
+      // in the list, we don't have a selected filter yet to match to, so 
+      // if the variant matches, assume that the filter matches.
+      if (matchesVariant && !matchesFilter && this.selectedGeneList == null) {
+        matchesFilter = true;
+      }
+      return matchesVariant && matchesFilter;
     },
 
     setGenesList(genesList){
@@ -1260,8 +1271,9 @@ export default {
       this.interpretationFilters = interpretation
       this.populateGeneLists();
     },
-    onVariantSelected: function(variant) {
+    onVariantSelected: function(variant, geneList) {
       this.clickedVariant = variant;
+      this.selectedGeneList = geneList;
       this.$emit("flagged-variant-selected", variant);
     },
     onShowExportVariants: function() {
@@ -1279,6 +1291,7 @@ export default {
 
     deselectVariant: function() {
       this.clickedVariant = null;
+      this.selectedGeneList = null;
     },
     populateGeneLists: function(variant) {
       let self = this;
@@ -1814,7 +1827,7 @@ export default {
       this.populateGeneLists();
     },
     toClickVariant: function() {
-      this.populateGeneLists();
+      //this.populateGeneLists();
       this.clickedVariant = this.toClickVariant;
     },
     genesInProgress: function() {

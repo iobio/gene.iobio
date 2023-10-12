@@ -623,24 +623,22 @@ class SampleModel {
         dangerSummary.badges.notFound = notFoundVariants;
       }
 
-      var cacheIt = true;
+      var isDirty = true;
       if (dangerSummaryExisting) {
-        cacheIt = me._isDifferentDangerSummary(dangerSummaryExisting, dangerSummary)
+        isDirty = me._isDifferentDangerSummary(dangerSummaryExisting, dangerSummary)
       }
 
-      if (cacheIt) {
+      if (isDirty) {
         me.promiseCacheDangerSummary(dangerSummary, geneObject.gene_name)
         .then(function() {
-          resolve(dangerSummary);
+          resolve({'dangerSummary': dangerSummary, 'isDirty': true});
         },
         function(error) {
           reject(error);
         })
       } else {
-        resolve(dangerSummary)
+        resolve({'dangerSummary': dangerSummary, 'isDirty': false})
       }
-      
-
     })
   }
 
@@ -649,8 +647,19 @@ class SampleModel {
     let match = true;
     ['CALLED', 'GENECOVERAGE','AF', 'CLINVAR', 'CONSEQUENCE', 'IMPACT', 'INHERITANCE', 'calledCount', 'loadedCount', 'isAlignmentsOnly']
     .forEach(function(field) {
-      if (JSON.toString(ds1[field]) != JSON.toString(ds2[field])) {
-        match = false;
+      if (ds1.hasOwnProperty(field) 
+        && ds2.hasOwnProperty(field)
+        && ds1[field]
+        && ds2[field] 
+        && typeof ds1[field] == 'object' 
+        && typeof ds2[field] == 'object') {
+        if (JSON.toString(ds1[field]) != JSON.toString(ds2[field])) {
+          match = false;
+        }        
+      } else {
+        if (ds1[field] != ds2[field]) {
+          match = false;
+        }    
       }
     })
     if (match) {
