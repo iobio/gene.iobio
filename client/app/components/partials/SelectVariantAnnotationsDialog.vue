@@ -234,16 +234,24 @@
 
       selectAll() {
         if (this.selectedAll) {
-          
-          for (let key in this.infoObject) {
+          const selectedInfoKeys = this.selectedInfo.map(item => item.key);
+          const keysToAdd = Object.keys(this.infoObject).filter(key => !selectedInfoKeys.includes(key));
+          keysToAdd.forEach(key => {
             this.selectedInfo.push({ key, value: this.infoObject[key] });
-          }
-          for (let key in this.formatObject) {
+          });
+
+          const selectedFormatKeys = this.selectedFormat.map(item => item.key);
+          const keysToAddFormat = Object.keys(this.formatObject).filter(key => !selectedFormatKeys.includes(key));
+          keysToAddFormat.forEach(key => {
             this.selectedFormat.push({ key, value: this.formatObject[key] });
-          }
-          for (let key in this.variantAnnotationsMap) {
+          });
+
+          const selectedMosaicVariantAnnotationsKeys = this.selectedMosaicVariantAnnotations.map(item => item.key);
+          const keysToAddMosaic = Object.keys(this.variantAnnotationsMap).filter(key => !selectedMosaicVariantAnnotationsKeys.includes(this.variantAnnotationsMap[key].uid));
+          keysToAddMosaic.forEach(key => {
             this.selectedMosaicVariantAnnotations.push({ key: this.variantAnnotationsMap[key].uid, value: this.variantAnnotationsMap[key].name });
-          }
+          });
+
         } else {
           this.selectedInfo = [];
           this.selectedFormat = [];
