@@ -450,28 +450,15 @@
   font-size: 13px
   color: $link-color
   padding: 0px
-  margin: 0px
+  margin-top: 2px !important
+  margin-bottom: 2px !important
+  margin-left: 4px !important
+  height: 22px !important
   .btn__content, .v-btn__content
     color: $link-color !important
     margin: 0px
     i.material-icons
       color: $link-color !important
-
-.variant-annots-info-button
-  min-width: 30px !important
-  font-weight: 500
-  font-size: 10px
-  color: $link-color
-  padding: 0px
-  margin: 0px
-  .btn__content, .v-btn__content
-    color: $link-color !important
-    margin: 0px
-    padding: 0px
-    max-width: 20px
-    i.material-icons
-      color: $link-color !important
-      font-size: 20px
     
 .value-row-container 
   display: flex
@@ -508,28 +495,6 @@
   font-size: 16px
   color: #30638e !important
 
-.description-tooltip 
-  position: relative
-  background-color: rgba(0, 0, 0, 0.7)
-  color: white
-  padding: 5px
-  border-radius: 5px
-  z-index: 999
-  max-width: 200px
-  font-size: 12px
-  word-wrap: break-word
-  white-space: normal
-  pointer-events: none
-
-.small-icon:hover + .description-tooltip 
-  display: block
-
-.info-icon
-  font-size: 20px
-  color: #30638e !important
-  maring-left: 5px
-  padding-top: 2px
-  
 </style>
 
 <template>
@@ -1003,45 +968,59 @@
       </div>
 
       <div class="variant-inspect-column" v-if="selectedVariant" style="min-width:250px;max-width:400px" >
-        <div class="header-and-button" style="display: flex">
+        <div class="header-and-button" style="display: flex; align-items:center;">
           
           <div class="variant-column-header" >
-            Custom Annotations
+            Annotations
             <v-divider></v-divider>
           </div>
         
           <v-btn flat @click="openVariantAnnotDialog" class="select-annotations-button" style="position: relative; z-index: 1;">
-            <v-icon>search</v-icon>
+            <v-icon style="font-size:22px">search</v-icon>
             Select
           </v-btn>
       
         </div>
         <div style="max-height: 180px; overflow-y: scroll;">
-          <div class="value-row-container" style="margin-left:10px; margin-top:0px;">
+          <div class="value-row-container" style="margin-left:10px; margin-top:0px; padding-bottom: 10px;">
             <div class="value-rows" style="margin-left: 3px;">
               <div v-for="item in mergedInfoAndFormat" :key="item.id" class="row">
-                <v-icon class="small-icon"
-                @mouseover="showDescription(item.description)"
-                @mouseleave="hideDescription"
-                >article</v-icon> 
+                <v-tooltip right color="rgba(0, 0, 0, 0.7)" max-width="200px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon class="small-icon"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                    article
+                    </v-icon>
+                  </template>
+                  <span>{{ item.description }}</span>
+                </v-tooltip>
                 <span class="checkbox-id">{{ item.key }}</span>
-                <span class="label-text">{{ item.value }} </span>
+                <span class="label-text">{{ item.value }} </span> 
               </div>
 
               <div v-if="mosaicValuesMap" v-for="item in mosaicValuesMap" :key="item.id" class="row">
-                <i 
-                @mouseover="showDescription(item.description)"
-                @mouseleave="hideDescription"
-                ><img src="assets/images/mosaic_icon.png" alt="Custom Icon" style="width: 11px; height: 11px; margin-left: 2px; margin-right: 2px" /></i> 
+                <v-tooltip right color="rgba(0, 0, 0, 0.7)" max-width="200px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <span class="small-icon"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <img src="assets/images/mosaic_icon.png" alt="Custom Icon" style="width: 11px; height: 11px; margin-left: 2px; margin-right: 2px" />
+                    </span>
+                  </template>
+                  <span>{{ item.description }}</span>
+                </v-tooltip>
                 <span class="checkbox-id">{{ item.description }}</span>
-                <span class="label-text">{{ item.value }} </span>
-              </div>
-
+                <span class="label-text">{{ item.value }} </span>  
+              </div> 
             </div>
           </div>
         </div>
-        <div class="description-tooltip" v-if="hoveredDescription">{{ hoveredDescription }}</div>
-
+       
+        
+       
       </div>
       
     </div>
@@ -1054,6 +1033,7 @@
       :selectedVariantInfo="selectedInfo"
       :selectedVariantFormat="selectedFormat"
       :selectedVariantMosaic="selectedVariantMosaic"
+      :selectedVariantAllAnnots="selectedAll"
       @close-variant-annot-dialog="closeVariantAnnotDialog"
       @apply-variant-annot-dialog="applyVariantAnnotDialog">
     </select-variant-annotations-dialog>
@@ -1147,6 +1127,7 @@ export default {
     selectedVariantInfo: null,
     selectedVariantFormat: null,
     selectedVariantMosaic: null,
+    selectedVariantAllAnnots: Boolean,
     mosaicVariant: Object, 
     launchedFromHub: null
   },
@@ -1229,6 +1210,7 @@ export default {
       selectedInfo: this.selectedVariantInfo,
       selectedFormat: this.selectedVariantFormat,
       selectedMosaicVariantAnnotations: this.selectedVariantMosaic,
+      selectedAll: this.selectedVariantAllAnnots,
       
       hoveredDescription: '',
 
@@ -1253,32 +1235,26 @@ export default {
     },
 
     openVariantAnnotDialog() {
-      console.log("openVariantAnnotDialog");
       this.showSelectVariantAnnotationDialog = true;
     },
 
-    closeVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations) {
+    closeVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
       this.selectedInfo = selectedInfo;
       this.selectedFormat = selectedFormat;
       this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
       this.showSelectVariantAnnotationDialog = false;
+      this.selectedAll = selectedAll;
+      this.$emit("variant-annotations-selected", this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
     },
 
-    applyVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations) {
+    applyVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
       this.selectedInfo = selectedInfo;
       this.selectedFormat = selectedFormat;
       this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
       this.showSelectVariantAnnotationDialog = false;
+      this.selectedAll = selectedAll;
 
-      this.$emit("variant-annotations-selected", this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations);
-    },
-
-    showDescription(description) {
-      this.hoveredDescription = description;
-    },
-
-    hideDescription() {
-      this.hoveredDescription = '';
+      this.$emit("variant-annotations-selected", this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
     },
 
     refresh: function() {
@@ -2001,9 +1977,6 @@ export default {
 
 
     mergedInfoAndFormat() {
-      console.log("selectedInfo" , this.selectedInfo)
-      console.log("selectedFormat", this.selectedFormat)
-
       const merged = [];
     
       for (const item of this.selectedInfo) {
@@ -2039,19 +2012,15 @@ export default {
           });
         }
       }
-      console.log("merged", merged)
       return merged; 
     },
 
     mosaicValuesMap() {
-      console.log(this.selectedMosaicVariantAnnotations)
-
       const mosaicValues = [];
       for (const item of this.selectedMosaicVariantAnnotations) {
         if (this.mosaicVariant && this.mosaicVariant.hasOwnProperty(item.key)) {
           let value = "";
           if (this.mosaicVariant[item.key].length > 0){
-            console.log("this.mosaicVariant[item.key]", this.mosaicVariant[item.key])
             value = this.mosaicVariant[item.key].join(", ");
           }else{
             value = "None";
@@ -2065,7 +2034,6 @@ export default {
           });
         }
       }
-      console.log("mosaicValues", mosaicValues)
       return mosaicValues;
     },
 
@@ -2462,13 +2430,6 @@ export default {
         })
     }
 
-    console.log("length of allAnnots:" + Object.keys(this.selectedVariant.allAnnots).length);
-    console.log(this.selectedVariant.allAnnots);
-
-    console.log("length of formatMap:" + Object.keys(this.selectedVariant.formatMap).length);
-    console.log(this.selectedVariant.formatMap); 
-
-    console.log(this.mosaicVariant);
     
   },
 

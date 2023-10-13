@@ -14,8 +14,9 @@
 .checkbox-row
   padding-top: 0px
   padding-right:  0px
-  padding-bottom: 0px
+  padding-bottom: 5px
   padding-left: 0px
+  margin-bottom: 0px
   line-height: 15px
   >span
     display: inline-block
@@ -38,7 +39,7 @@
     margin-left: 0px !important
     margin-bottom: 0px !important
     padding-top: 0px !important
-    padding-bottom: 0px !important
+    padding-bottom: 5px !important
     padding-left: 0px !important
     padding-right: 0px !important
     width: 15px !important
@@ -55,6 +56,7 @@
 .apply-btn
   background-color: #30638e !important
   color: white !important
+
 
 
 </style>
@@ -77,8 +79,26 @@
         </div>
 
         <v-divider id="select-variant-annot-dialog-divider"></v-divider>
+        <div class="checkbox-row" style="padding-top: 15px; margin-left:20px;">
+          <input
+            type="checkbox"
+            id="selectAll"
+            v-model="selectedAll"
+            @change="selectAll"
+          />
+          <span for="selectAll" class="checkbox-id">Select All</span>
+
+        </div>
        
-        <v-card-title class="subtitle" style="padding-top: 10px; margin-left:20px;">Variant Annotations</v-card-title>
+        <v-card-title class="subtitle" style="padding-top: 15px; margin-left:20px;">
+          Variant Annotations
+          <v-badge v-if="getLength(infoObject) != ''" class="count" style="margin-left: 10px;">
+            <span v-if="getLength(infoObject) != ''" slot="badge">
+               {{ getLength(infoObject) }} 
+            </span>
+          </v-badge>
+        </v-card-title>
+        
         <div style="max-height: 150px; overflow-y: scroll;">
           <div class="checkbox-container" style="padding-top:15px; margin-left:20px;">
             <div v-for="key in Object.keys(infoObject)" :key="key" class="checkbox-row">
@@ -94,7 +114,15 @@
           </div>
         </div>
         
-        <v-card-title class="subtitle" style="padding-top: 10px; margin-left:20px;">Genotype Annotations</v-card-title>
+        <v-card-title class="subtitle" style="padding-top: 15px; margin-left:20px;">
+          Genotype Annotations
+          <v-badge v-if="getLength(formatObject) != ''" class="count" style="margin-left: 10px;">
+            <span v-if="getLength(formatObject) != ''" slot="badge">
+               {{ getLength(formatObject) }} 
+            </span>
+          </v-badge>
+        </v-card-title>
+       
         <div style="max-height: 150px; overflow-y: scroll;">
           <div class="checkbox-container" style="padding-top:15px; margin-left:20px;">
             <div v-for="key in Object.keys(formatObject)" :key="key" class="checkbox-row">
@@ -110,7 +138,15 @@
           </div>
         </div>
 
-        <v-card-title v-if="Object.keys(variantAnnotationsMap).length > 0" class="subtitle" style="padding-top: 10px; margin-left:20px;">Mosaic Variant Annotations</v-card-title>
+        <v-card-title v-if="Object.keys(variantAnnotationsMap).length > 0" class="subtitle" style="padding-top: 15px; margin-left:20px;">
+          Mosaic Variant Annotations
+          <v-badge v-if="getLength(variantAnnotationsMap) != ''" class="count" style="margin-left: 10px;">
+            <span v-if="getLength(variantAnnotationsMap) != ''" slot="badge">
+               {{ getLength(variantAnnotationsMap) }} 
+            </span>
+          </v-badge>
+        </v-card-title>
+       
         <div style="max-height: 150px; overflow-y: scroll;">
           <div class="checkbox-container" style="padding-top:15px; margin-left:20px;">
             <div v-if="Object.keys(variantAnnotationsMap).length > 0" v-for="key in Object.keys(variantAnnotationsMap)" :key="key" class="checkbox-row">
@@ -148,6 +184,7 @@
       selectedVariantInfo: null,
       selectedVariantFormat: null,
       selectedVariantMosaic: null,
+      selectedVariantAllAnnots: Boolean,
 
     },
     data() {
@@ -161,6 +198,8 @@
         selectedInfo: this.selectedVariantInfo,
         selectedFormat: this.selectedVariantFormat,
         selectedMosaicVariantAnnotations: this.selectedVariantMosaic,
+
+        selectedAll: this.selectedVariantAllAnnots,
     
         
       };
@@ -181,12 +220,38 @@
         this.selectedInfo = [];
         this.selectedFormat = [];
         this.selectedMosaicVariantAnnotations = [];
-        this.$emit('close-variant-annot-dialog', this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations);
+        this.selectedAll = false;
+        this.$emit('close-variant-annot-dialog', this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
       },
 
       applyAnnotations() {
-        this.$emit('apply-variant-annot-dialog', this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations);
+        this.$emit('apply-variant-annot-dialog', this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
       },
+
+      getLength(obj) {
+        return Object.keys(obj).length;
+      },
+
+      selectAll() {
+        if (this.selectedAll) {
+          
+          for (let key in this.infoObject) {
+            this.selectedInfo.push({ key, value: this.infoObject[key] });
+          }
+          for (let key in this.formatObject) {
+            this.selectedFormat.push({ key, value: this.formatObject[key] });
+          }
+          for (let key in this.variantAnnotationsMap) {
+            this.selectedMosaicVariantAnnotations.push({ key: this.variantAnnotationsMap[key].uid, value: this.variantAnnotationsMap[key].name });
+          }
+        } else {
+          this.selectedInfo = [];
+          this.selectedFormat = [];
+          this.selectedMosaicVariantAnnotations = [];
+        }
+      },
+
+
       
     },
 

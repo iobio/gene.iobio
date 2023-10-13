@@ -611,6 +611,7 @@ main.content.clin, main.v-content.clin
           :selectedVariantFormat="selectedFormat"
           :selectedVariantMosaic="selectedMosaic"
           :mosaicVariant="mosaicVariant"
+          :selectedVariantAllAnnots="selectedAll"
           
           @show-pileup-for-variant="onShowPileupForVariant"
           @apply-variant-interpretation="onApplyVariantInterpretation"
@@ -1104,6 +1105,7 @@ export default {
       selectedFormat: [],
       selectedMosaic: [],
       mosaicVariant: {},
+      selectedAll: false,
     }
   },
 
@@ -5308,10 +5310,11 @@ export default {
       }
     },
 
-    onVariantAnnotationSelected(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations) {
+    onVariantAnnotationSelected(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
       this.selectedInfo = selectedInfo;
       this.selectedFormat = selectedFormat;
       this.selectedMosaic = selectedMosaicVariantAnnotations;
+      this.selectedAll = selectedAll;
     },
 
   }
