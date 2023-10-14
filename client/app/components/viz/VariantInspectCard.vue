@@ -146,7 +146,7 @@
     display: flex
     flex-direction: row
     flex-wrap: wrap
-    justify-content: space-around
+    justify-content: space-between
     padding-top: 10px
 
     #hpo-term-table 
@@ -451,10 +451,10 @@
   font-size: 13px
   color: $link-color
   padding: 0px
-  margin-top: 2px !important
-  margin-bottom: 2px !important
-  margin-left: 4px !important
-  height: 22px !important
+  margin-top: 2px 
+  margin-bottom: 2px 
+  margin-left: 10px 
+  height: 22px 
   .btn__content, .v-btn__content
     color: $link-color !important
     margin: 0px
@@ -969,14 +969,14 @@
       <div class="variant-inspect-column" v-if="selectedVariant" style="min-width:250px;max-width:400px" >
         <div class="header-and-button" style="display: flex; align-items:center;">
           
-          <div class="variant-column-header" >
+          <div class="variant-column-header" style="height: 22px" >
             Annotations
             <v-divider></v-divider>
           </div>
         
-          <v-btn flat @click="openVariantAnnotDialog" class="select-annotations-button" style="position: relative; z-index: 1;">
-            <v-icon style="font-size:22px">search</v-icon>
-            Select
+          <v-btn flat @click="openVariantAnnotDialog" class="select-annotations-button" style="position: relative; z-index: 1;margin-left:10px">
+            <v-icon style="font-size:22px;padding-right:3px">playlist_add_check</v-icon>
+            Select...
           </v-btn>
       
         </div>
