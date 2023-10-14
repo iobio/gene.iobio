@@ -5,7 +5,7 @@
   margin-left: 10px
   margin-right: 10px
   margin-top: 5px
-  margin-bottom: 0px
+  margin-bottom: 5px
 
 #legend-tooltip.tooltip
   font-size: 11px
@@ -113,6 +113,14 @@
 
 .legend-title
   color:  $app-color
+  display: flex
+  font-size: 15px
+  align-items: center
+
+#legend-title-icon
+  color: $app-color
+  font-size: 18px
+  padding-right: 5px
 
 </style>
 
@@ -121,8 +129,12 @@
 
 
 
-    <div class="legend-title" v-if="showLegendTitle" :style="isBasicMode || isSimpleMode? 'margin-bottom:10px;' : 'margin-bottom:20px'">
+    <div class="legend-title" v-if="showLegendTitle" :style="isBasicMode || isSimpleMode ? 'margin-bottom:10px;' : 'margin-bottom:20px'">
+    <v-icon id="legend-title-icon">map</v-icon>
     Legend
+    <v-spacer></v-spacer>
+    <v-icon class="legend-title-expand-icon" v-if="allowMinimize && isExpanded" style="font-size:26px" @click="onMinimize">expand_more</v-icon>
+    <v-icon class="legend-title-expand-icon" v-if="allowMinimize && !isExpanded" style="font-size:26px" @click="onMaximize" >expand_less</v-icon>
     </div>
     <div style="display:flex;flex-wrap:wrap;justify-content:flex-start">
 
@@ -330,7 +342,7 @@
       </div>
 
 <!--      Variant Type-->
-      <div style="text-align:left;width:105px;margin-bottom:15px">
+      <div style="text-align:left;width:150px;">
           <div class="legend-label">Variant type
             <info-popup name="variantType"></info-popup>
           </div>
@@ -377,7 +389,7 @@
       </div>
 
 <!--      Quality control-->
-      <div style="text-align:left;margin-bottom:15px; width: 100%">
+      <div style="text-align:left;margin-bottom:15px; width: 130px">
         <div  class="legend-label">Quality control
           <info-popup style="padding-left:1px" name="QC"></info-popup>
 
@@ -432,8 +444,8 @@
 
       </div>
 
-<!--      Zygocity-->
-      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;margin-bottom:10px">
+<!--      Zygosity-->
+      <div v-if="!isBasicMode && !isSimpleMode" style="margin-right:10px;">
         <div class="legend-label">Variant Zygosity</div>
 
         <legend-icon
@@ -601,17 +613,42 @@ export default {
   props: {
     isBasicMode: null,
     isSimpleMode: null,
-    showLegendTitle: true
+    showLegendTitle: true,
+    allowMinimize: false,
+    activeTab: null
   },
   data () {
       return {
+        isExpanded: true
       }
   },
   watch: {
+    activeTab: function() {
+      let self = this;
+      // For Nebula simplified mode, minimize the legend panel
+      // on the variants tab.
+      if (self.isSimpleMode) {
+        if (self.activeTab && self.activeTab == 1) {
+          if (self.isExpanded) {
+            setTimeout(function() {
+              self.onMinimize()
+            }, 100)
+          }
+        }
+      }
+    }
   },
   computed: {
   },
   methods: {
+    onMinimize: function() {
+      this.isExpanded = false;
+      $('#side-panel-container').addClass("minimized-legend")
+    },
+    onMaximize: function() {
+      this.isExpanded = true;
+      $('#side-panel-container').removeClass("minimized-legend")
+    },
   },
   mounted: function() {
   }
