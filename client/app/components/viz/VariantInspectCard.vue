@@ -443,6 +443,59 @@
   display: inline-block
   font-size: 11px
   font-family: raleway
+
+
+.select-annotations-button
+  min-width: 70px !important
+  font-weight: 500
+  font-size: 13px
+  color: $link-color
+  padding: 0px
+  margin-top: 2px !important
+  margin-bottom: 2px !important
+  margin-left: 4px !important
+  height: 22px !important
+  .btn__content, .v-btn__content
+    color: $link-color !important
+    margin: 0px
+    i.material-icons
+      color: $link-color !important
+    
+.value-row-container 
+  display: flex
+  justify-content: space-between
+
+  .value-rows
+    display: flex
+    flex-direction: column
+    justify-content: space-between
+
+  .row
+    font-size: 13px
+    line-height: 15px
+    >span
+      display: inline-block
+      vertical-align: top
+      line-height: 15px
+
+    .checkbox-id
+      font-size: 13px
+      color: $text-color
+      margin-right: 5px
+      min-width: 250px
+      max-width: 250px
+
+    .label-text
+      font-size: 13px
+      color: $text-color
+      min-width: 100px
+      max-width: 100px
+
+
+.small-icon
+  font-size: 16px
+  color: #30638e !important
+
 </style>
 
 <template>
@@ -910,11 +963,80 @@
               </multialign-seq-viz>
 
             </div>
-          </div>
+          </div>   
       </div>
 
+      <div class="variant-inspect-column" v-if="selectedVariant" style="min-width:250px;max-width:400px" >
+        <div class="header-and-button" style="display: flex; align-items:center;">
+          
+          <div class="variant-column-header" >
+            Annotations
+            <v-divider></v-divider>
+          </div>
+        
+          <v-btn flat @click="openVariantAnnotDialog" class="select-annotations-button" style="position: relative; z-index: 1;">
+            <v-icon style="font-size:22px">search</v-icon>
+            Select
+          </v-btn>
+      
+        </div>
+        <div style="max-height: 180px; overflow-y: scroll;">
+          <div class="value-row-container" style="margin-left:10px; margin-top:0px; padding-bottom: 10px;">
+            <div class="value-rows" style="margin-left: 3px;">
+              <div v-for="item in mergedInfoAndFormat" :key="item.id" class="row">
+                <v-tooltip right color="rgba(0, 0, 0, 0.7)" max-width="200px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon class="small-icon"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                    article
+                    </v-icon>
+                  </template>
+                  <span>{{ item.description }}</span>
+                </v-tooltip>
+                <span class="checkbox-id">{{ item.key }}</span>
+                <span class="label-text">{{ item.value }} </span> 
+              </div>
+
+              <div v-if="mosaicValuesMap" v-for="item in mosaicValuesMap" :key="item.id" class="row">
+                <v-tooltip right color="rgba(0, 0, 0, 0.7)" max-width="200px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <span class="small-icon"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      <img src="assets/images/mosaic_icon.png" alt="Custom Icon" style="width: 11px; height: 11px; margin-left: 2px; margin-right: 2px" />
+                    </span>
+                  </template>
+                  <span>{{ item.description }}</span>
+                </v-tooltip>
+                <span class="checkbox-id">{{ item.description }}</span>
+                <span class="label-text">{{ item.value }} </span>  
+              </div> 
+            </div>
+          </div>
+        </div>
+       
+        
+       
+      </div>
+      
     </div>
-    
+
+    <select-variant-annotations-dialog
+      :showDialog="showSelectVariantAnnotationDialog"
+      :cohortModel="cohortModel"
+      :selectedVariantRelationship="selectedVariantRelationship"
+      :variantAnnotationsMap="variantAnnotationsMap"
+      :selectedVariantInfo="selectedInfo"
+      :selectedVariantFormat="selectedFormat"
+      :selectedVariantMosaic="selectedVariantMosaic"
+      :selectedVariantAllAnnots="selectedAll"
+      @close-variant-annot-dialog="closeVariantAnnotDialog"
+      @apply-variant-annot-dialog="applyVariantAnnotDialog">
+    </select-variant-annotations-dialog>
+
     <patient-gene-phenotype-dialog
          :showDialog="showPatientGenePhenotypeDialog"
          :cohortModel="cohortModel"
@@ -949,6 +1071,7 @@ import GeneAssociationsDialog   from "../partials/GeneAssociationsDialog.vue"
 import GenePhenotypeTable       from "../partials/GenePhenotypeTable.vue"
 import PatientGenePhenotypeDialog      from '../partials/PatientGenePhenotypeDialog.vue'
 
+import SelectVariantAnnotationsDialog from '../partials/SelectVariantAnnotationsDialog.vue'
 
 import BarChartD3               from '../../d3/BarChart.d3.js'
 import MultiAlignD3             from '../../d3/MultiAlign.d3.js'
@@ -975,7 +1098,9 @@ export default {
     MultialignSeqViz,
     GeneAssociationsDialog,
     GenePhenotypeTable,
-    'patient-gene-phenotype-dialog': PatientGenePhenotypeDialog
+    'patient-gene-phenotype-dialog': PatientGenePhenotypeDialog,
+
+    SelectVariantAnnotationsDialog,
 
   },
   props: {
@@ -996,6 +1121,13 @@ export default {
     showAssessment: null,
     launchedFromClin: null,    
     interpretationMap: null,
+    //mosaicVariantInterpretation: null
+    variantAnnotationsMap: Object,
+    selectedVariantInfo: null,
+    selectedVariantFormat: null,
+    selectedVariantMosaic: null,
+    selectedVariantAllAnnots: Boolean,
+    mosaicVariant: Object, 
     launchedFromHub: null
   },
   data() {
@@ -1069,12 +1201,61 @@ export default {
 
       matchingGenePhenotypes: [],
 
-      showPatientGenePhenotypeDialog: false
+      showPatientGenePhenotypeDialog: false,
+      
+      showSelectVariantAnnotationDialog: false,
+      showVariantAnnotationInfoDialog: false,
+
+      selectedInfo: this.selectedVariantInfo,
+      selectedFormat: this.selectedVariantFormat,
+      selectedMosaicVariantAnnotations: this.selectedVariantMosaic,
+      selectedAll: this.selectedVariantAllAnnots,
+      
+      hoveredDescription: '',
+
+      
+
+
+
       
 
     }
   },
   methods: {
+
+    openVariantAnnotationInfoDialog() {
+      console.log("openVariantAnnotationInfoDialog");
+      this.showVariantAnnotationInfoDialog = true;
+    },
+
+    closeVariantAnnotationInfoDialog() {
+      this.showVariantAnnotationInfoDialog = false;
+
+    },
+
+    openVariantAnnotDialog() {
+      this.showSelectVariantAnnotationDialog = true;
+    },
+
+    closeVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
+      this.selectedInfo = selectedInfo;
+      this.selectedFormat = selectedFormat;
+      this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
+      this.showSelectVariantAnnotationDialog = false;
+      this.selectedAll = selectedAll;
+      this.$emit("variant-annotations-selected", this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
+    },
+
+    applyVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
+      this.selectedInfo = selectedInfo;
+      this.selectedFormat = selectedFormat;
+      this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
+      this.showSelectVariantAnnotationDialog = false;
+      this.selectedAll = selectedAll;
+
+      this.$emit("variant-annotations-selected", this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
+    },
+
     refresh: function() {
 
     },
@@ -1776,11 +1957,85 @@ export default {
     },
     refreshVariantInterpretation: function() {
       this.interpretation = this.selectedVariant.interpretation;
-    }
+    },
+
+
   },
 
 
   computed: {
+
+    annotValues : function(){
+      return this.selectedVariant ? this.selectedVariant.allAnnots : {};
+ 
+    },
+
+    formatValues : function(){
+      return this.selectedVariant ? this.selectedVariant.formatMap : {};
+    },
+
+
+    mergedInfoAndFormat() {
+      const merged = [];
+    
+      for (const item of this.selectedInfo) {
+        if (this.selectedVariant && this.selectedVariant.allAnnots)  {
+          let value = "";
+          if (this.selectedVariant.allAnnots.hasOwnProperty(item.key) == false){
+            value = "None";
+          }else{
+            value = this.selectedVariant.allAnnots[item.key];
+          }
+          merged.push({
+            key: item.key,
+            value: value,
+            description: item.value,
+            id: "info" + item.key
+          });
+        }
+      }
+
+      for (const item of this.selectedFormat) {
+        if (this.selectedVariant && this.selectedVariant.formatMap) {
+          let value = "";
+          if (this.selectedVariant.formatMap.hasOwnProperty(item.key) == false){
+            value = "None";
+          }else{
+            value = this.selectedVariant.formatMap[item.key];
+          }
+          merged.push({
+            key: item.key,
+            value: value,
+            description: item.value,
+            id: "format" + item.key
+          });
+        }
+      }
+      return merged; 
+    },
+
+    mosaicValuesMap() {
+      const mosaicValues = [];
+      for (const item of this.selectedMosaicVariantAnnotations) {
+        if (this.mosaicVariant && this.mosaicVariant.hasOwnProperty(item.key)) {
+          let value = "";
+          if (this.mosaicVariant[item.key].length > 0){
+            value = this.mosaicVariant[item.key].join(", ");
+          }else{
+            value = "None";
+          }
+         
+          mosaicValues.push({
+            key: item.key,
+            value: value,
+            description: item.value,
+            id: "mosaic" + item.key
+          });
+        }
+      }
+      return mosaicValues;
+    },
+
     hasAlignments: function() {
       if (this.selectedVariantRelationship) {
         return this.cohortModel.getModel(this.selectedVariantRelationship).isBamLoaded();
@@ -2197,16 +2452,15 @@ export default {
               self.annotateClinVarVariant(self.selectedVariant);
           }
           self.interpretation = self.selectedVariant.interpretation  && self.selectedVariant.interpretation.length > 0 ? self.selectedVariant.interpretation : "not-reviewed";
-
         })
     }
 
-
+    
   },
 
-  created: function() {
-  }
-
+  created: function() { 
+    
+  },
 
 }
 </script>

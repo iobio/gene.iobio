@@ -42,6 +42,10 @@ export default function vcfiobio(theGlobalApp) {
   var infoFields =  {};
   var contigRecords = [];
 
+  var infoOrFormat = {};
+  var infoDict = {};
+  var formatDict = {};
+
   var regions = [];
   var regionIndex = 0;
   var stream = null;
@@ -580,9 +584,6 @@ export default function vcfiobio(theGlobalApp) {
       }
     } 
   }
-
-
-
 
 
   exports._promiseGetLocalReferenceLengths = function() {
@@ -1425,6 +1426,19 @@ export default function vcfiobio(theGlobalApp) {
       var fieldMap = me._parseInfoHeaderRecord(record);
       me.infoFields.AVIA3 = fieldMap;
     }
+    else if (record.indexOf("##INFO") == 0 && !record.startsWith("##INFO=CSQ")) {
+      var infoDict = me._parseHeaderForInfoORFormat(record);
+      if (!me.infoFields.INFO) {
+        me.infoFields.INFO = {}; // Initialize INFO
+      }
+      me.infoFields.INFO[infoDict.Id] = infoDict.Description;
+    } else if (record.indexOf("##FORMAT") == 0) {
+      var formatDict = me._parseHeaderForInfoORFormat(record);
+      if (!me.infoFields.FORMAT) {
+        me.infoFields.FORMAT = {}; // Initialize FORMAT
+      }
+      me.infoFields.FORMAT[formatDict.Id] = formatDict.Description;
+    }
   }
 
   exports._parseInfoHeaderRecord = function(record) {
@@ -1445,6 +1459,18 @@ export default function vcfiobio(theGlobalApp) {
       }
     }
     return fieldMap;
+  }
+
+  exports._parseHeaderForInfoORFormat = function(record) {
+    const matches = record.match(/<ID=(\w+),Number=(\w+),Type=(\w+),Description="([^"]+)">/);
+    if (matches) {
+      const Id = matches[1];
+      const Type = matches[3];
+      const Description = matches[4].replace(/\([^)]*\)/g, '').trim();
+      // infoOrFormat[Id] = { Type: Type, Description: Description, Check: false };
+      infoOrFormat = {Id: Id, Description: Description };
+      }
+    return infoOrFormat;
   }
 
 
@@ -2409,6 +2435,12 @@ exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTransc
                       // generic annots
                       'genericAnnots':           annot.genericAnnots,
 
+                      // all annots values
+                      'allAnnots':               annot.allAnnots,
+
+                      // format values
+                      'formatMap':               annot.formatMap,
+
                       //  when multiple impacts, pick the highest one (by variant type and transcript)
                       'highestImpactVep':        highestImpactVep,
                       'highestREVEL':            highestREVEL
@@ -2480,6 +2512,12 @@ exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTransc
 
                       // gnomAD
                       'gnomAD':                  gnomADExtra ? annot.gnomAD : null,
+
+                      // all annots values
+                      'allAnnots':               annot.allAnnots,
+
+                      // format values
+                      'formatMap':               annot.formatMap,
 
 
                       // generic annots
@@ -2562,6 +2600,10 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
       impacts: {},
       allSnpeff: {}
     },
+
+    allAnnots: {},
+    formatMap : {},
+
     gnomAD: gnomADExtra ? {
       af: '.',
       afPopMax: '.',
@@ -2648,11 +2690,21 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
 
   var annotTokens = rec.info.split(";");
 
+  var formatTokens = rec.format.split(":");
+  var formatValues = rec.genotypes[altIdx].split(":");
+ 
+  formatTokens.forEach(function(token, i) {
+    annot.formatMap[token] = formatValues[i];
+  });
+
   if (gnomADExtra) {
     me._parseGnomADAnnot(annotTokens, annot);
   }
 
   annotTokens.forEach(function(annotToken) {
+    let equalIdx = annotToken.indexOf('=');
+    annot.allAnnots[annotToken.substring(0,equalIdx)] = annotToken.substring(equalIdx+1, annotToken.length)
+
     if (annotToken.indexOf("BGAF_1KG=") == 0) {
 
       annot.af1000G = annotToken.substring(9, annotToken.length);
