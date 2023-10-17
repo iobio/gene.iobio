@@ -461,22 +461,24 @@
     i.material-icons
       color: $link-color !important
     
-.value-row-container 
+
+.value-rows
   display: flex
+  flex-direction: column
   justify-content: space-between
+  flex-wrap: wrap 
+  min-height: 100px
+  max-height: 300px
+  overflow-y: scroll
 
-  .value-rows
-    display: flex
-    flex-direction: column
-    justify-content: space-between
 
-  .row
+  .value-row
     font-size: 13px
     line-height: 15px
     >span
       display: inline-block
       vertical-align: top
-      line-height: 15px
+      line-height: 18px
 
     .checkbox-id
       font-size: 13px
@@ -490,6 +492,11 @@
       color: $text-color
       min-width: 100px
       max-width: 100px
+
+  .value-row.abbreviated
+    .checkbox-id
+      min-width: 250px
+      max-width: 250px
 
 
 .small-icon
@@ -887,7 +894,7 @@
 
       </div>
 
-      <div class="variant-inspect-column last" v-if="selectedVariant" style="min-width:130px;max-width:320px">
+      <div class="variant-inspect-column " v-if="selectedVariant" style="min-width:130px;max-width:320px;margin-right:40px">
           <div class="variant-column-header" >
             Conservation
             <v-divider></v-divider>
@@ -966,7 +973,7 @@
           </div>   
       </div>
 
-      <div class="variant-inspect-column" v-if="selectedVariant" style="min-width:250px;max-width:400px" >
+      <div class="variant-inspect-column last" v-if="selectedVariant && !isSimpleMode" style="flex-grow:2;min-width:initial;max-width:none" >
         <div class="header-and-button" style="display: flex; align-items:center;">
           
           <div class="variant-column-header" style="height: 22px" >
@@ -980,43 +987,41 @@
           </v-btn>
       
         </div>
-        <div style="max-height: 180px; overflow-y: scroll;">
-          <div class="value-row-container" style="margin-left:10px; margin-top:0px; padding-bottom: 10px;">
-            <div class="value-rows" style="margin-left: 3px;">
-              <div v-for="item in mergedInfoAndFormat" :key="item.id" class="row">
-                <v-tooltip right color="rgba(0, 0, 0, 0.7)" max-width="200px">
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-icon class="small-icon"
-                      v-bind="attrs"
-                      v-on="on"
-                    >
-                    article
-                    </v-icon>
-                  </template>
-                  <span>{{ item.description }}</span>
-                </v-tooltip>
-                <span class="checkbox-id">{{ item.key }}</span>
-                <span class="label-text">{{ item.value }} </span> 
-              </div>
 
-              <div v-if="mosaicValuesMap" v-for="item in mosaicValuesMap" :key="item.id" class="row">
-                <v-tooltip right color="rgba(0, 0, 0, 0.7)" max-width="200px">
-                  <template v-slot:activator="{ on, attrs }">
-                    <span class="small-icon"
-                      v-bind="attrs"
-                      v-on="on"
-                    >
-                      <img src="assets/images/mosaic_icon.png" alt="Custom Icon" style="width: 11px; height: 11px; margin-left: 2px; margin-right: 2px" />
-                    </span>
-                  </template>
-                  <span>{{ item.description }}</span>
-                </v-tooltip>
-                <span class="checkbox-id">{{ item.description }}</span>
-                <span class="label-text">{{ item.value }} </span>  
-              </div> 
-            </div>
+        <div class="value-rows" >
+          <div v-for="item in mergedInfoAndFormat" :key="item.id" class="value-row abbreviated">
+            <v-tooltip right color="rgba(0, 0, 0, 0.7)" max-width="200px">
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon class="small-icon"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                article
+                </v-icon>
+              </template>
+              <span>{{ item.description }}</span>
+            </v-tooltip>
+            <span class="checkbox-id">{{ item.key }}</span>
+            <span class="label-text">{{ item.value }} </span> 
           </div>
+
+          <div v-if="mosaicValuesMap" v-for="item in mosaicValuesMap" :key="item.id" class="value-row">
+            <v-tooltip right color="rgba(0, 0, 0, 0.7)" max-width="200px">
+              <template v-slot:activator="{ on, attrs }">
+                <span class="small-icon"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <img src="assets/images/mosaic_icon.png" alt="Custom Icon" style="width: 11px; height: 11px; margin-left: 2px; margin-right: 2px" />
+                </span>
+              </template>
+              <span>{{ item.description }}</span>
+            </v-tooltip>
+            <span class="checkbox-id">{{ item.description }}</span>
+            <span class="label-text">{{ item.value }} </span>  
+          </div> 
         </div>
+
        
         
        
