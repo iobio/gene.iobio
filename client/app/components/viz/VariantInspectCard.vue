@@ -465,7 +465,7 @@
 .value-rows
   display: flex
   flex-direction: column
-  justify-content: space-between
+  justify-content: flex-start
   flex-wrap: wrap 
   min-height: 100px
   max-height: 300px
