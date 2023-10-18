@@ -230,21 +230,35 @@
     margin-top: 3px
     margin-bottom: 0px
     margin-right: 0px
-    background-color: $level-high-color
-    color: white
+    background-color: white
+    color: $nav-badge-color
 
     .v-chip__content
       padding: 4px !important
       height: 18px !important
       font-size: 11px !important
+      font-weight: 500
 
     &.match-chip
-      background-color: $nav-badge-color
+      color: $nav-badge-color
+      border-color: $nav-badge-color
+      border-style: solid
+
 
       &.match-level-0 
-        background-color: $level-high-color !important
+        border-color: $level-high-color !important
+        border-style: solid !important
+        background: white !important
+
+        .v-chip__content 
+          color: $level-high-color !important      
       &.match-level-1 
-        background-color: $level-high-color !important
+        border-color: $level-high-color !important
+        border-style: solid !important
+        background: white !important
+
+        .v-chip__content 
+          color: $level-high-color !important      
 
   .gene-ranks
     .chip, .v-chip

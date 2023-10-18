@@ -163,7 +163,10 @@
         margin-left: 0px
         margin-right: 20px
         margin-top: -1px
-        background-color: $nav-badge-color
+        color: $nav-badge-color        
+        border-color: $nav-badge-color
+        border-style: solid
+        background-color: white
         box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)
 
         .v-chip__content 
@@ -172,12 +175,23 @@
           padding: 0px 5px
           font-size: 11px
           font-weight: 500
-          color: white
+          color: $nav-badge-color
 
         &.match-level-0 
-          background-color: $level-high-color !important
+          border-color: $level-high-color !important
+          border-style: solid !important
+          background: white !important
+
+          .v-chip__content 
+            color: $level-high-color !important
         &.match-level-1 
-          background-color: $level-high-color !important
+          border-color: $level-high-color !important
+          border-style: solid !important
+          background: white !important  
+
+          .v-chip__content 
+            color: $level-high-color !important
+
 
   .details-button
     padding: 0px

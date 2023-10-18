@@ -502,6 +502,7 @@
 .small-icon
   font-size: 16px
   color: #30638e !important
+  padding-top: 1px
 
 </style>
 
