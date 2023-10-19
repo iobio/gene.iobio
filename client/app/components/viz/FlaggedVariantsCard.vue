@@ -1293,61 +1293,76 @@ export default {
     },
     populateGeneLists: function(variant) {
       let self = this;
-      self.geneLists = [];
-      self.variantCount = 0;
 
-      if( variant && variant.interpretation && variant.interpretation !== "not-reviewed"){
-        if(variant.filtersPassedAll){
-          if(!variant.filtersPassedAll.includes("reviewed")){
-            variant.filtersPassedAll.push("reviewed");
-          }
-        }
-        else{
-          variant.filtersPassedAll = ["reviewed"];
-        }
-        variant.isUserFlagged = true;
-      }
+      return new Promise(function(resolve, reject) {
+        self.geneLists = [];
+        self.variantCount = 0;
 
-      self.cohortModel.promiseOrganizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant)
-      .then(function(filters) {
-        self.geneLists = filters.map(function(filterObject, idx) {
-          self.variantCount += filterObject.variantCount;
-          filterObject.filter.key = filterObject.key;
-          return {
-            name:  filterObject.key,
-            label: filterObject.filter.title,
-            filter: filterObject.filter,
-            show:  (filterObject.filter.active
-                    && filterObject.filter.title != 'Reviewed'
-                    && filterObject.filter.title != 'Not found'
-                    && filterObject.filter.title != 'Not categorized'
-                    && filterObject.filter.title != 'Flagged by user')
-                   || filterObject.genes.length > 0,
-            genes: filterObject.genes,
-            variantCount: filterObject.variantCount,
-            expand: true
+        let geneLists = [];
+        let variantCount = 0;
+
+        if( variant && variant.interpretation && variant.interpretation !== "not-reviewed"){
+          if(variant.filtersPassedAll){
+            if(!variant.filtersPassedAll.includes("reviewed")){
+              variant.filtersPassedAll.push("reviewed");
+            }
           }
-        }).sort(function(filterObject1, filterObject2) {
-          if (+filterObject1.filter.order < +filterObject2.filter.order) {
-            return -1;
-          } else if (+filterObject1.filter.order > +filterObject2.filter.order) {
-            return 1;
-          } else {
-            return 0;
+          else{
+            variant.filtersPassedAll = ["reviewed"];
           }
+          variant.isUserFlagged = true;
+        }
+
+        self.cohortModel.promiseOrganizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant)
+        .then(function(filters) {
+            geneLists = filters.map(function(filterObject, idx) {
+            variantCount += filterObject.variantCount;
+            filterObject.filter.key = filterObject.key;
+            return {
+              name:  filterObject.key,
+              label: filterObject.filter.title,
+              filter: filterObject.filter,
+              show:  (filterObject.filter.active
+                      && filterObject.filter.title != 'Reviewed'
+                      && filterObject.filter.title != 'Not found'
+                      && filterObject.filter.title != 'Not categorized'
+                      && filterObject.filter.title != 'Flagged by user')
+                     || filterObject.genes.length > 0,
+              genes: filterObject.genes,
+              variantCount: filterObject.variantCount,
+              expand: true
+            }
+          }).sort(function(filterObject1, filterObject2) {
+            if (+filterObject1.filter.order < +filterObject2.filter.order) {
+              return -1;
+            } else if (+filterObject1.filter.order > +filterObject2.filter.order) {
+              return 1;
+            } else {
+              return 0;
+            }
+          })
+
+
+          self.flattenGenesList();
+
+          self.$emit("count-changed", variantCount);
+          self.$emit("gene-lists-changed", geneLists);
+
+          self.variantCount = variantCount;
+          self.geneLists = geneLists;
+          self.expansionControl =  self.geneLists.map(function(geneList) {
+            return geneList.expand;
+          })
+          resolve();
+        })
+        .catch(function(error) {
+          console.log("Error encounted in FlaggedVariantsCard.populateGeneLists()")
+          console.log(error)
+          reject(error)
         })
 
-
-        self.flattenGenesList();
-
-        self.$emit("count-changed", self.variantCount);
-        self.$emit("gene-lists-changed", self.geneLists);
-
-        self.expansionControl =  self.geneLists.map(function(geneList) {
-          return geneList.expand;
-        })
       })
-
+  
 
 
     },
