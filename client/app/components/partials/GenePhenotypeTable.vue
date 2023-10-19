@@ -145,10 +145,14 @@
       min-width: 250px 
       max-width: 250px 
       
-      .matched
-        font-weight: 500
-        background-color: #d3effed4
-        color: black
+      &.matched 
+        color: $nav-badge-color
+        font-weight: 600
+      &.match-level-0
+        color: $level-high-color
+      &.match-level-1
+        color: $level-high-color
+
 
     &.patient-match
       .hpo-name
@@ -167,7 +171,6 @@
         border-color: $nav-badge-color
         border-style: solid
         background-color: white
-        box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)
 
         .v-chip__content 
           border-radius: 10px
@@ -286,7 +289,7 @@
             {{ entry.ontologyId }}
           </a>
         </span>
-        <span class="hpo-name" v-html="entry.name" >
+        <span class="hpo-name" :class="'hpo-name ' + (entry.match != '' ? 'matched match-level-' + entry.matchLevel : '')" v-html="entry.name" >
         </span>
       </div>
     </div>

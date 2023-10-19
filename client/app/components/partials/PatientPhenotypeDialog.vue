@@ -15,7 +15,7 @@
 
 <template>
     <v-dialog
-    width="750" persistent
+    width="750"  persistent
     :close-on-content-click="false"
     v-model="showPatientPhenotypesDialog"
     >

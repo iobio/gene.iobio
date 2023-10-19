@@ -895,7 +895,7 @@
 
       </div>
 
-      <div class="variant-inspect-column " v-if="selectedVariant" style="min-width:130px;max-width:320px;margin-right:40px">
+      <div class="variant-inspect-column " v-if="selectedVariant" style="min-width:130px;max-width:320px;margin-right:40px;margin-bottom: 10px">
           <div class="variant-column-header" >
             Conservation
             <v-divider></v-divider>

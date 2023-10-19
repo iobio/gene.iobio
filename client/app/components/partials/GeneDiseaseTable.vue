@@ -5,6 +5,11 @@
 #hpo-disease-table
   min-width: 600px
 
+  .disease-table-body
+    min-height: 100px 
+    max-height: 100px
+    overflow-y: scroll
+
   .entry-count
     margin-left: 5px
 

@@ -225,40 +225,24 @@
     font-size: 12px
     white-space: normal
 
-  .gene-phenotype-association.v-chip
+  .gene-phenotype-association
     vertical-align: top
     margin-top: 3px
     margin-bottom: 0px
-    margin-right: 0px
+    margin-right: 5px
     background-color: white
     color: $nav-badge-color
+    font-size: 12px
+    font-weight: 600
 
-    .v-chip__content
-      padding: 4px !important
-      height: 18px !important
-      font-size: 11px !important
-      font-weight: 500
 
     &.match-chip
       color: $nav-badge-color
-      border-color: $nav-badge-color
-      border-style: solid
 
-
-      &.match-level-0 
-        border-color: $level-high-color !important
-        border-style: solid !important
-        background: white !important
-
-        .v-chip__content 
-          color: $level-high-color !important      
-      &.match-level-1 
-        border-color: $level-high-color !important
-        border-style: solid !important
-        background: white !important
-
-        .v-chip__content 
-          color: $level-high-color !important      
+    &.match-level-0 
+      color: $level-high-color !important      
+    &.match-level-1 
+      color: $level-high-color !important      
 
   .gene-ranks
     .chip, .v-chip
@@ -1054,9 +1038,9 @@
                     </div>
 
                     <div v-if="flaggedGene.matchingPhenotypes && flaggedGene.matchingPhenotypes.length > 0" style="display: flex;flex-flow: row;flex-wrap: wrap;">
-                      <v-chip :class="`gene-phenotype-association match-chip match-level-` + entry.matchLevel" v-for="entry, idx in flaggedGene.matchingPhenotypes" :key="entry.name">
+                      <span :class="`gene-phenotype-association match-chip match-level-` + entry.matchLevel" v-for="entry, idx in flaggedGene.matchingPhenotypes" :key="entry.name">
                         {{ entry.name }}
-                      </v-chip>
+                      </span>
                     </div>
 
                     <div v-for="(geneHit, index) in genePhenotypeAssociations(flaggedGene.gene.gene_name)" :key="geneHit.key">
