@@ -696,10 +696,7 @@ class SampleModel {
           }    
         }
       })
-    } else {
-      console.log(ds1)
-      console.log(ds2)
-    }
+    } 
     return !match;
   }
 
