@@ -3653,6 +3653,13 @@ class SampleModel {
 
 SampleModel._summarizeDanger = function(geneName, theVcfData, options = {}, geneCoverageAll, filterModel, translator, annotationScheme, transcript, isAlignmentsOnly) {
   var dangerCounts = $().extend({}, options);
+
+  // For comparing danger summaries, we need to make sure this field is always initialized
+  // the same way so that it doesn't show up as different (and needing to be cached)
+  // when in fact it is the same.
+  if (dangerCounts.CALLED == null) {
+    dangerCounts.CALLED = false;
+  }
   dangerCounts.CONSEQUENCE = {};
   dangerCounts.IMPACT = {};
   dangerCounts.CLINVAR = {};
