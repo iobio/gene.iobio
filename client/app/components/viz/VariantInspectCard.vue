@@ -18,6 +18,7 @@
   border: 1px solid #c5c5c5 !important
   box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12) !important
 
+
   .variant-column-header
     width: 100%
     text-align: center
@@ -248,8 +249,10 @@
         max-width: 100px
         display: inline-block
         vertical-align: top
-        line-height: 14px
+        line-height: 13px
         overflow-wrap: break-word
+        font-size: 12px
+        font-weight: 500
 
       #qual-track
         margin-top: 0px
@@ -403,6 +406,29 @@
       text
         font-size: 9px
         text-anchor: middle
+
+  .gene-ranks
+    display: flex 
+    align-items: center
+    .v-chip.search-hit
+      margin-top: 0px !important
+      margin-bottom: 2px !important
+      margin-left: 0px !important
+      margin-right: 4px !important
+      background-color:  white !important
+      color: $high-impact-color !important
+      border-color: $high-impact-color !important
+      border-style: solid !important
+
+      .v-chip__content
+        padding: 0px !important
+        padding-left: 2px !important
+        padding-right: 2px !important
+        height: 18px !important
+        justify-content: center !important
+        font-size:  11px !important
+        color:  $high-impact-color !important
+        font-weight: 600 !important
 
 #show-more-gene-association-button
   margin: 0px 0px 0px 0px
@@ -730,15 +756,15 @@
             </gene-phenotype-table>
           </div>
           <div v-if="genePhenotypeHits && genePhenotypeHits!==null && genePhenotypeHits.length" >
-            <div>Phenotype based search hits</div>
+            <div class="variant-column-subheader">Phenotype based search hits</div>
             <div v-for="(geneHit, index) in genePhenotypeHits.slice(0,3)" :key="geneHit.key" class="variant-row" style="flex-flow:column">
               <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
-                <div>
-                  <v-chip v-if="geneRank.rank" class="high">
+                <div class="gene-ranks">
+                  <v-chip v-if="geneRank.rank" class="search-hit">
                     <span class="mr-1">#{{ geneRank.rank  }}</span>
                     <span v-if="geneRank.source">{{  geneRank.source }}</span>
                   </v-chip>
-                  <v-chip v-else class="high">
+                  <v-chip v-else class="search-hit">
                     <span v-if="geneRank.source"> {{ geneRank.source }}</span>
                   </v-chip>
                   <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">

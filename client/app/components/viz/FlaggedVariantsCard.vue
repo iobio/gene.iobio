@@ -245,19 +245,23 @@
       color: $level-high-color !important      
 
   .gene-ranks
-    .chip, .v-chip
+    .v-chip.search-hit
       margin-top: 0px
       margin-bottom: 2px
       margin-left: 0px
-      margin-right: 0px
+      margin-right: 4px
+      background-color:  white
+      border-color: $high-impact-color
+      border-style: solid
 
-    .chip__content, .v-chip__content
-      padding: 8px
+    .v-chip__content
+      padding: 0px
+      padding-left: 2px
+      padding-right: 2px
       height: 18px
       justify-content: center
       font-size:  11px
-      background-color:  $high-impact-color
-      color:  white
+      color:  $high-impact-color
 
     .pheno-source
       width: 40px
@@ -1043,14 +1047,14 @@
                       </span>
                     </div>
 
-                    <div v-for="(geneHit, index) in genePhenotypeAssociations(flaggedGene.gene.gene_name)" :key="geneHit.key">
+                    <div v-for="(geneHit, index) in genePhenotypeAssociations(flaggedGene.gene.gene_name)" class="gene-ranks" :key="geneHit.key">
                       <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
-                        <div>
-                          <v-chip class="gene-phenotype-association" v-if="geneRank.rank">
+                        <div style="display: flex;align-items:center;margin-top: 2px">
+                          <v-chip class="gene-phenotype-association search-hit" v-if="geneRank.rank">
                             <span class="mr-1">#{{ geneRank.rank  }}</span>
                             <span v-if="geneRank.source">{{  geneRank.source }}</span>
                           </v-chip>
-                          <v-chip class="gene-phenotype-association" v-else >
+                          <v-chip class="gene-phenotype-association search-hit" v-else >
                             <span v-if="geneRank.source"> {{ geneRank.source }}</span>
                           </v-chip>
                           <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">
