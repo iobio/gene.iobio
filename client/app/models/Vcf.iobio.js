@@ -903,14 +903,19 @@ export default function vcfiobio(theGlobalApp) {
   exports.getPathogenicityFilter = function(pathogenicityFilters) {
     let validFilters = [];
 
-    pathogenicityFilters.forEach(filter => {
-      if (CLNSIG_TERMS[filter]) {
-        validFilters.push(CLNSIG_TERMS[filter]);
-      } else {
-        console.log('Could not recognize term: ' + filter + ' - ignoring from filtering');
-      }
-    })
-    return 'INFO/CLNSIG="' + validFilters.join(',') + '"';
+    if (pathogenicityFilters) {
+      pathogenicityFilters.forEach(filter => {
+        if (CLNSIG_TERMS[filter]) {
+          validFilters.push(CLNSIG_TERMS[filter]);
+        } else {
+          console.log('Could not recognize term: ' + filter + ' - ignoring from filtering');
+        }
+      })
+      return 'INFO/CLNSIG="' + validFilters.join(',') + '"';      
+    } else {
+      return null;
+    }
+
   }
 
   /* Retrieves clinvar variants for provided gene/region from backend. */
@@ -2688,10 +2693,19 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
     genericAnnots:  {}
   };
 
-  var annotTokens = rec.info.split(";");
+  var annotTokens = [];
+  if (rec.info) {
+    annotTokens = rec.info.split(";");
+  }
 
-  var formatTokens = rec.format.split(":");
-  var formatValues = rec.genotypes[altIdx].split(":");
+  var formatTokens = [];
+  if (rec.format) {
+    formatTokens = rec.format.split(":");
+  }
+  var formatValues = [];
+  if (rec.genotypes && rec.genotypes.length < altIdx) {
+    formatValues = rec.genotypes[altIdx].split(":");
+  }
  
   formatTokens.forEach(function(token, i) {
     annot.formatMap[token] = formatValues[i];
