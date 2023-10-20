@@ -440,7 +440,9 @@ export default {
   },
   watch: {
     selectedGene: function() {
-      this.getHPOEntries();
+      if (this.selectedGene && this.selectedGene != "" && this.selectedGene.gene_name && this.selectedGene.gene_name != "") {
+        this.getHPOEntries();
+      }
     },
     sortBy: function(newValue, oldValue) {
       if (this.sortBy != null && oldValue != null) {
