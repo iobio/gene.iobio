@@ -672,7 +672,11 @@ class SampleModel {
           if (ds1.badges[filter]) {
             variants1 = ds1.badges[filter].map(function(variant) {
               if (variant) {
-                return variant.start + "-" + variant.ref + "-" +  variant.alt; 
+                let variantNotes = variant.notes ? variant.notes.map(function(elem) {
+                  return elem.note;
+                }).join(",") : "";
+                return variant.start + "-" + variant.ref + "-" +  variant.alt
+                       + "-" + variant.interpretation + "-" + variantNotes; 
               } else {
                 return "?"
               }
@@ -682,7 +686,11 @@ class SampleModel {
           if (ds2.badges[filter]) {
             variants2 = ds2.badges[filter].map(function(variant) {
               if (variant) {
-                return variant.start + "-" + variant.ref + "-" +  variant.alt; 
+                let variantNotes = variant.notes ? variant.notes.map(function(elem) {
+                  return elem.note;
+                }).join(",") : "";
+                return variant.start + "-" + variant.ref + "-" +  variant.alt
+                       + "-" + variant.interpretation + "-" + variantNotes; 
               } else {
                 return "?"
               }
