@@ -1183,7 +1183,7 @@ CacheHelper.promiseCompressData = function(data) {
           }
         })
       }
-      var dataString = JSON.stringify(variant, function(key, value) {
+      var dataString = JSON.stringify(data, function(key, value) {
         if (key == 'bindTo') {
           return;
         }
