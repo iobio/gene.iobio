@@ -1155,10 +1155,8 @@ CacheHelper.showError = function(key, cacheError) {
         // If we have shown this kind of cache error 2 times already, just show in right hand corner instead
         // of showning dialog with ok/cancel.
         if (errorCount < 3) {
-          self.dispatch.alertIssued('warning', message)
           CacheHelper.recordedCacheErrors[errorKey] = null;
         } else if (errorCount < 8) {
-          self.dispatch.alertIssued('error', message, null, ['error has occurred more than 5 times'])
           CacheHelper.recordedCacheErrors[errorKey] = null;
         }
       }
@@ -1280,6 +1278,7 @@ CacheHelper.prototype.promiseCacheData = function(key, data, options) {
       })
       .catch(function(error) {
         var msg = "A problem occurred in CacheHelper.promiseCacheData() when calling cacheIndexStore.promiseSetData(): " + error;
+        console.log(error)
         console.log(msg);
         reject(msg);
       });
