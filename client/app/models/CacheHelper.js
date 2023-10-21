@@ -970,28 +970,6 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsAlreadyCompre
         
       })
       .then(function() {
-        /*
-        let thePromises = []
-        Object.keys(geneToProbandVcfData).forEach(function(gene) {
-          let data = geneToProbandVcfData[gene];
-          let vcfData = data.cache;
-          let keyObject = data.keyObject;
-          let theGeneObject = me.cohort.geneModel.geneObjects[keyObject.gene];
-          let theTranscript = {transcript_id: keyObject.transcript};
-          if (dataIsCompressed) {
-            CacheHelper.promiseDecompressData(data.cache, true)
-            .then(function(theVcfData) {
-              let p = me.cohort.promiseSummarizeDanger(theGeneObject, theTranscript, theVcfData, {})
-            })
-            thePromises.push(p)            
-          } else {
-            let p = me.cohort.promiseSummarizeDanger(theGeneObject, theTranscript, vcfData, {})
-            thePromises.push(p)
-          }
-        })
-        return Promise.all(thePromises)
-        */
-        //me.analyzeAll(me.cohort, false, false, true)
         resolve();
       })
       .catch(function(error) {
@@ -1205,7 +1183,7 @@ CacheHelper.promiseCompressData = function(data) {
           }
         })
       }
-      var dataString = JSON.stringify(data, function(key, value) {
+      var dataString = JSON.stringify(variant, function(key, value) {
         if (key == 'bindTo') {
           return;
         }
