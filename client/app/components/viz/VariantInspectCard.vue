@@ -1292,20 +1292,9 @@ export default {
 
     },
 
-    annotateClinVarVariant(){
-      this.refreshSelectedVariantInfo();
-    },
 
     onShowPatientGenePhenotypeDialog(show) {
       this.showPatientGenePhenotypeDialog = show;
-    },
-
-    refreshSelectedVariantInfo: function() {
-      if (this.selectedVariant) {
-        this.selectedVariantInfo =  this.globalApp.utility.formatDisplay(this.selectedVariant,this.cohortModel.translator, this.isEduMode)
-      } else {
-        this.selectedVariantInfo = null;
-      }
     },
 
     formatPopAF: function(afObject) {
@@ -2442,9 +2431,6 @@ export default {
       let self = this;
       this.$nextTick(function() {
           self.loadData();
-          if (self.selectedVariantRelationship === "known-variants") {
-              self.annotateClinVarVariant(self.selectedVariant);
-          }
       })
     },
   },
@@ -2480,9 +2466,6 @@ export default {
     if(this.selectedVariant){
         self.$nextTick(function() {
           self.loadData();
-          if (self.selectedVariantRelationship === "known-variants") {
-              self.annotateClinVarVariant(self.selectedVariant);
-          }
           self.interpretation = self.selectedVariant.interpretation  && self.selectedVariant.interpretation.length > 0 ? self.selectedVariant.interpretation : "not-reviewed";
         })
     }
