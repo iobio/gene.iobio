@@ -1154,7 +1154,6 @@ export default {
     showAssessment: null,
     launchedFromClin: null,    
     interpretationMap: null,
-    //mosaicVariantInterpretation: null
     variantAnnotationsMap: Object,
     selectedVariantInfo: null,
     selectedVariantFormat: null,
@@ -2415,15 +2414,6 @@ export default {
 
   watch: {
 
-    //mosaicVariantInterpretation: function() {
-    //  let self = this;
-    //  if (self.interpretation == null || self.interpretation == 'not-reviewed') {
-    //    self.$nextTick(function() {
-    //      self.selectedVariant.interpretation = self.mosaicVariantInterpretation;
-    //      self.interpretation = self.mosaicVariantInterpretation;            
-    //    })
-    //  }
-    //},
     selectedPhenotype: function(){
         this.initGenePhenotypeHits();
     },
