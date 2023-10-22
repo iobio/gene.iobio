@@ -1000,7 +1000,7 @@
           </div>   
       </div>
 
-      <div class="variant-inspect-column last" v-if="selectedVariant && !isSimpleMode" style="flex-grow:2;min-width:initial;max-width:none" >
+      <div class="variant-inspect-column last" v-if="selectedVariant && !isSimpleMode && selectedVariantRelationship != 'known-variants'" style="flex-grow:2;min-width:initial;max-width:none" >
         <div class="header-and-button" style="display: flex; align-items:center;">
           
           <div class="variant-column-header" style="height: 22px" >
@@ -1057,6 +1057,7 @@
     </div>
 
     <select-variant-annotations-dialog
+      v-if="selectedVariantRelationship != 'known-variants'"
       :showDialog="showSelectVariantAnnotationDialog"
       :cohortModel="cohortModel"
       :selectedVariantRelationship="selectedVariantRelationship"
