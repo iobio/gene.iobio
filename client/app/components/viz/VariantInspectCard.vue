@@ -1062,7 +1062,7 @@
       :cohortModel="cohortModel"
       :selectedVariantRelationship="selectedVariantRelationship"
       :variantAnnotationsMap="variantAnnotationsMap"
-      :selectedVariantInfo="selectedInfo"
+      :selectedVariantInfo="selectedVariantInfo"
       :selectedVariantFormat="selectedFormat"
       :selectedVariantMosaic="selectedVariantMosaic"
       :selectedVariantAllAnnots="selectedAll"
@@ -1154,13 +1154,16 @@ export default {
     showAssessment: null,
     launchedFromClin: null,    
     interpretationMap: null,
+    launchedFromHub: null,
+
+    // props for showing custom annotations of variant
     variantAnnotationsMap: Object,
     selectedVariantInfo: null,
     selectedVariantFormat: null,
     selectedVariantMosaic: null,
     selectedVariantAllAnnots: Boolean,
-    mosaicVariant: Object, 
-    launchedFromHub: null
+    mosaicVariant: Object
+
   },
   data() {
     return {
@@ -1238,7 +1241,7 @@ export default {
       showSelectVariantAnnotationDialog: false,
       showVariantAnnotationInfoDialog: false,
 
-      selectedInfo: this.selectedVariantInfo,
+      // data fields for showing custom annotations of variant
       selectedFormat: this.selectedVariantFormat,
       selectedMosaicVariantAnnotations: this.selectedVariantMosaic,
       selectedAll: this.selectedVariantAllAnnots,
@@ -1270,22 +1273,20 @@ export default {
     },
 
     closeVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
-      this.selectedInfo = selectedInfo;
       this.selectedFormat = selectedFormat;
       this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
       this.showSelectVariantAnnotationDialog = false;
       this.selectedAll = selectedAll;
-      this.$emit("variant-annotations-selected", this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
+      this.$emit("variant-annotations-selected", selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
     },
 
     applyVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
-      this.selectedInfo = selectedInfo;
       this.selectedFormat = selectedFormat;
       this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
       this.showSelectVariantAnnotationDialog = false;
       this.selectedAll = selectedAll;
 
-      this.$emit("variant-annotations-selected", this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
+      this.$emit("variant-annotations-selected", selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
     },
 
     refresh: function() {
@@ -1999,7 +2000,7 @@ export default {
     mergedInfoAndFormat() {
       const merged = [];
     
-      for (const item of this.selectedInfo) {
+      for (const item of this.selectedVariantInfo) {
         if (this.selectedVariant && this.selectedVariant.allAnnots)  {
           let value = "";
           if (this.selectedVariant.allAnnots.hasOwnProperty(item.key) == false){
