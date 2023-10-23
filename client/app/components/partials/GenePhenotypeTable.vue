@@ -42,10 +42,12 @@
   .search-match-message
     display: inline-block
     margin-left: 10px
-    font-size: 13px
+    font-size: 12px
     padding-top: 18px
     padding-bottom: 10px
     font-style: italic
+    font-weight: 600
+    color: $nav-badge-color
 
   .title-row
     display: flex
@@ -325,7 +327,8 @@ export default {
     titleText: null,
     showTitle: null,
 
-    showSearch: null
+    showSearch: null,
+    initialViewMode: null
   },
   data () {
     return {
@@ -341,7 +344,7 @@ export default {
       loading: null,
 
       sortBy:    'sort-by-priority',
-      viewMode:  'list'
+      viewMode:  this.initialViewMode ? this.initialViewMode : 'list'
     }
   },
   methods: {

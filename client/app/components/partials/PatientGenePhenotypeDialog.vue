@@ -28,12 +28,19 @@
     min-height: 250px
     max-height: 250px
     overflow-y: scroll
-    
+
+  #hpo-disease-table
+
+
+    .disease-table-body
+      min-height: 150px 
+      max-height: 150px
+      
 </style>
 
 <template>
     <v-dialog
-    width="1100" height="600" persistent
+    width="1100" height="launchedFromHub ? 900 : 720" persistent
     :close-on-content-click="false"
     v-model="showPatientGenePhenotypeDialog"
     >
@@ -73,6 +80,7 @@
                  :showDetailsButton="false"
                  :showTitle="true"
                  :showSearch="true"
+                 initialViewMode="dense-tags"
                  :titleText="selectedGene.gene_name + ` Phenotype Associations`">
                 </gene-phenotype-table>
               </div>
