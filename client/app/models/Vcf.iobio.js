@@ -2703,7 +2703,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
     formatTokens = rec.format.split(":");
   }
   var formatValues = [];
-  if (rec.genotypes && rec.genotypes.length < altIdx) {
+  if (rec.genotypes && altIdx < rec.genotypes.length) {
     formatValues = rec.genotypes[altIdx].split(":");
   }
  
