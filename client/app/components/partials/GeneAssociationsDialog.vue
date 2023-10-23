@@ -168,7 +168,7 @@ export default {
         if(geneHit.geneRanks[0].source === "GTR"){
           this.gtrHits.push(geneHit)
         }
-        else if(geneHit.geneRanks[0].source === "Phen."){
+        else if(geneHit.geneRanks[0].source === "Phenolyzer"){
           this.phenolyzerHits.push(geneHit)
         }
         else if(geneHit.geneRanks[0].source === "HPO"){
