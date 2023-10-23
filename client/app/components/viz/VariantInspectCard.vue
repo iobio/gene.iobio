@@ -246,13 +246,13 @@
           margin-bottom: 0px
 
       .pheno-search-term
-        max-width: 100px
+        max-width: 130px
         display: inline-block
         vertical-align: top
         line-height: 13px
         overflow-wrap: break-word
         font-size: 12px
-        font-weight: 500
+        font-weight: 400
 
       #qual-track
         margin-top: 0px
@@ -428,7 +428,7 @@
         justify-content: center !important
         font-size:  11px !important
         color:  $high-impact-color !important
-        font-weight: 600 !important
+        font-weight: 500 !important
 
 #show-more-gene-association-button
   margin: 0px 0px 0px 0px
@@ -437,7 +437,7 @@
   margin-bottom: 0px
   padding-left: 0px
   padding-right: 4px
-  float: right
+  float: left
   margin-right: 10px
 
   .btn__content, .v-btn__content
@@ -448,7 +448,7 @@
 
     i.material-icons
       color: $link-color
-      font-size: 17px
+      font-size: 15px
       padding-right: 5px
 
 #source-indicator-text
@@ -757,7 +757,7 @@
           </div>
           <div v-if="genePhenotypeHits && genePhenotypeHits!==null && genePhenotypeHits.length" >
             <div class="variant-column-subheader">Phenotype based search hits</div>
-            <div v-for="(geneHit, index) in genePhenotypeHits.slice(0,3)" :key="geneHit.key" class="variant-row" style="flex-flow:column">
+            <div v-for="(geneHit, index) in genePhenotypeHits.slice(0,5)" :key="geneHit.key" class="variant-row" style="flex-flow:column;margin-top:0px;margin-bottom:3px;">
               <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
                 <div class="gene-ranks">
                   <v-chip v-if="geneRank.rank" class="search-hit">
@@ -777,7 +777,7 @@
               </div>
             </div>            
           </div>
-          <div v-if="genePhenotypeHits!==null && genePhenotypeHits.length>=4">
+          <div v-if="genePhenotypeHits!==null && genePhenotypeHits.length>=6">
             <v-btn id="show-more-gene-association-button"
               flat small
               slot="activator"
@@ -1610,6 +1610,15 @@ export default {
             var rankRecs        = searchTermRecs[searchTerm];
             self.genePhenotypeHits.push( {key: searchTerm, searchTerm: searchTermLabel, geneRanks: rankRecs } );
           }
+          self.genePhenotypeHits = self.genePhenotypeHits.sort(function(a,b) {
+            if (a.geneRanks[0].rank < b.geneRanks[0].rank) {
+              return -1
+            }else if (a.geneRanks[0].rank > b.geneRanks[0].rank) {
+              return 1;
+            } else {
+              return 0;
+            }
+          })
         }
       }
     },

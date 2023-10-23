@@ -1047,7 +1047,7 @@
                       </span>
                     </div>
 
-                    <div v-for="(geneHit, index) in genePhenotypeAssociations(flaggedGene.gene.gene_name)" class="gene-ranks" :key="geneHit.key">
+                    <div v-if="!launchedFromClin" v-for="(geneHit, index) in genePhenotypeAssociations(flaggedGene.gene.gene_name)" class="gene-ranks" :key="geneHit.key">
                       <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
                         <div style="display: flex;align-items:center;margin-top: 2px">
                           <v-chip class="gene-phenotype-association search-hit" v-if="geneRank.rank">
@@ -1644,7 +1644,16 @@ export default {
           associations.push( {key: searchTerm, searchTerm: searchTermLabel, geneRanks: rankRecs } );
         }
       }
-      return associations;
+      let sortedAssociations = associations.sort(function(a,b) {
+        if (a.geneRanks[0].rank < b.geneRanks[0].rank) {
+          return -1
+        }else if (a.geneRanks[0].rank > b.geneRanks[0].rank) {
+          return 1;
+        } else {
+          return 0;
+        }
+      })
+      return sortedAssociations;
     },
     highestImpactClass: function(variant) {
       let clazz = "filter-symbol";
