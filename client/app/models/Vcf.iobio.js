@@ -1467,7 +1467,7 @@ export default function vcfiobio(theGlobalApp) {
   }
 
   exports._parseHeaderForInfoORFormat = function(record) {
-    const matches = record.match(/<ID=(\w+),Number=(\w+),Type=(\w+),Description="([^"]+)">/);
+    const matches = record.match(/<ID=(\w+),Number=(\w+|\.),Type=(\w+),Description="([^"]+)">/);
     if (matches) {
       const Id = matches[1];
       const Type = matches[3];
@@ -2706,7 +2706,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
   if (rec.genotypes && altIdx < rec.genotypes.length) {
     formatValues = rec.genotypes[altIdx].split(":");
   }
- 
+
   formatTokens.forEach(function(token, i) {
     annot.formatMap[token] = formatValues[i];
   });
