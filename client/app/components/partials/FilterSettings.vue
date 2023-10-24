@@ -4,7 +4,7 @@
 @import ../../../assets/sass/variables
 
 .filter-form
-  padding: 10px 35px 5px 35px
+  padding: 5px 5px 5px 5px
 
   .v-text-field__slot
     height: 24px
@@ -106,8 +106,6 @@
         background-color:  $moderate-impact-color !important
         border-color:  $moderate-impact-color !important
 
-.clin_dialog_scroll
-  height: 475px
 </style>
 
 <template>
@@ -121,13 +119,14 @@
         <v-text-field label="Name"  
         @input="onChangeName" 
         v-model="name" 
+        hide-details
         :rules=[rules.noDuplicates]>
         </v-text-field>
       </v-flex>
 
 
 
-      <v-flex xs12 >
+      <v-flex xs6 >
         <v-select
               label="Inheritance"
               v-bind:items="inheritanceModes"
@@ -142,7 +141,7 @@
         </v-select>
       </v-flex>
 
-      <v-flex xs12 >
+      <v-flex xs6 >
         <v-select
               label="Zygosity"
               v-bind:items="zygosities"
@@ -150,11 +149,12 @@
               single
               clearable
               hide-details
+              style="padding-top: 15px;margin-left: 20px;"
         >
         </v-select>
       </v-flex>
 
-      <v-flex xs12 style="margin-top:10px;margin-bottom: 5px"  >
+      <v-flex xs6 style="margin-top:10px;margin-bottom: 0px"  >
 
         <v-flex id="max-af"   >
           <v-text-field style="display:inline-block" label="Max Population Allele Freq" :rules="numericRules" v-model="maxAf" hide-details>
@@ -169,14 +169,14 @@
 
       </v-flex>
 
-      <v-flex xs12 style="margin-top:10px;margin-bottom: 5px"  >
+      <v-flex xs5 style="margin-left:20px;margin-top:10px;margin-bottom: 5px"  >
         <v-flex id="max-homozygotes"   >
           <v-text-field style="display:inline-block" label="Max Number of Homozygotes" :rules="wholeNumRules" v-model="maxHomozygotes" hide-details>
           </v-text-field>
         </v-flex>
       </v-flex>
 
-      <v-flex xs12  >
+      <v-flex xs12 class="mt-1" >
         <v-select
               label="ClinVar clinical significance"
               v-bind:items="clinvarCategories"
@@ -193,7 +193,7 @@
 
 
 
-      <v-flex xs12 >
+      <v-flex xs6 >
         <v-select
               label="Impact"
               v-bind:items="impacts"
@@ -207,7 +207,7 @@
         </v-select>
       </v-flex>
 
-      <v-flex xs12  >
+      <v-flex xs6  >
         <v-autocomplete
               label="Consequence"
               v-bind:items="consequences"
@@ -215,6 +215,7 @@
               multiple
               autocomplete
               hide-details
+              style="margin-top:8px;margin-left:20px"
         >
         </v-autocomplete>
       </v-flex>
@@ -241,12 +242,12 @@
 
 
 
-      <v-flex  id="min-genotype-depth" xs3 class="mt-3 mb-4 mr-4" >
+      <v-flex  id="min-genotype-depth" xs3 class="mb-4 mr-4" >
         <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
         </v-text-field>
       </v-flex>
 
-      <v-flex  id="min-genotype-alt-count" xs4 class="mt-3 mb-4 mr-4" >
+      <v-flex  id="min-genotype-alt-count" xs4 class=" mb-4 mr-4" >
         <v-text-field label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
         </v-text-field>
       </v-flex>
