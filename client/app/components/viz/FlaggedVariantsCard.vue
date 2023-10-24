@@ -60,10 +60,10 @@
   max-height: 100px
   overflow-y: scroll
 
-.in-iframe .v-dialog--persistent
+.in-iframe #edit-filter-dialog.v-dialog--persistent
   position: sticky !important
-  top: 10px !important
-  max-height: 480px !important
+  top: 50px !important
+  
 
 #flagged-variants-card
   padding-left: 5px
@@ -1109,9 +1109,9 @@
 
   </v-card>
 
-  <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
-      <v-card v-if="currentFilter" class="full-width" style="padding:10px">
-        <v-card-title style="margin-left:20px" class="headline">
+  <v-dialog  v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
+      <v-card v-if="currentFilter" id="edit-filter-dialog-content" class="full-width" style="padding:15px">
+        <v-card-title style="" class="headline">
           {{editAddText}}
           {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>
@@ -1453,7 +1453,7 @@ export default {
 
     onEditFilter: function(geneList, text) {
       let self = this;
-      
+
       if(text === "Add"){
         this.editAddText = 'Add ';
       }
@@ -1461,6 +1461,11 @@ export default {
         this.editAddText = "Edit "
       }
       self.showEditFilter = true;
+
+      setTimeout(function() {
+        $('#edit-filter-dialog-content').parent().attr("id","edit-filter-dialog");
+      },500)
+
       self.currentFilter = geneList.filter;
       setTimeout(function() {
         if (self.$refs.currentFilterSettingRef) {
@@ -1471,6 +1476,7 @@ export default {
           })
         }
       }, 20);
+      
     },
     onApplyFilter: function() {
       let self = this;
