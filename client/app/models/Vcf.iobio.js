@@ -1433,16 +1433,20 @@ export default function vcfiobio(theGlobalApp) {
     }
     else if (record.indexOf("##INFO") == 0 && !record.startsWith("##INFO=CSQ")) {
       var infoDict = me._parseHeaderForInfoORFormat(record);
-      if (!me.infoFields.INFO) {
-        me.infoFields.INFO = {}; // Initialize INFO
+      if (infoDict) {
+        if (!me.infoFields.INFO) {
+          me.infoFields.INFO = {}; // Initialize INFO
+        }
+        me.infoFields.INFO[infoDict.Id] = infoDict.Description;        
       }
-      me.infoFields.INFO[infoDict.Id] = infoDict.Description;
     } else if (record.indexOf("##FORMAT") == 0) {
       var formatDict = me._parseHeaderForInfoORFormat(record);
-      if (!me.infoFields.FORMAT) {
-        me.infoFields.FORMAT = {}; // Initialize FORMAT
+      if (formatDict) {
+        if (!me.infoFields.FORMAT) {
+          me.infoFields.FORMAT = {}; // Initialize FORMAT
+        }
+        me.infoFields.FORMAT[formatDict.Id] = formatDict.Description;        
       }
-      me.infoFields.FORMAT[formatDict.Id] = formatDict.Description;
     }
   }
 
@@ -1474,7 +1478,10 @@ export default function vcfiobio(theGlobalApp) {
       const Description = matches[4].replace(/\([^)]*\)/g, '').trim();
       // infoOrFormat[Id] = { Type: Type, Description: Description, Check: false };
       infoOrFormat = {Id: Id, Description: Description };
-      }
+    } else {
+      console.log("Bypassing vcf annotation " + record + ". Unable to parse.");
+      infoOrFormat = null;
+    }
     return infoOrFormat;
   }
 
