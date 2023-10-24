@@ -1,11 +1,15 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
 
+.in-iframe .v-dialog--persistent
+  position: sticky !important
+  top: 100px !important
+  max-height: none !important
+
 #select-variant-annot-container
   #select-variant-annot-dialog-divider
     margin-top: 10px !important
     margin-bottom: 1px !important
-
 
 .checkbox-container .checkbox-row
   display: flex
@@ -63,11 +67,11 @@
 
 <template>
     <v-dialog 
-    v-model="showSelectVariantAnnotationDialog" 
-    :close-on-content-click="false" 
-    :persistent="true"
-    class="variant-annotation-dialog" 
-    width="900px">
+      v-model="showSelectVariantAnnotationDialog" 
+      :close-on-content-click="false" 
+      :persistent="true"
+      class="variant-annotation-dialog" 
+      width="900px">
 
       <v-card id="select-variant-annot-container">
         <div class="container">
