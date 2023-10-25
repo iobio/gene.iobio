@@ -149,14 +149,14 @@
        
         <div style="max-height: 150px; overflow-y: scroll;">
           <div class="checkbox-container" style="padding-top:15px; margin-left:20px;">
-            <div v-if="Object.keys(variantAnnotationsMap).length > 0" v-for="key in Object.keys(variantAnnotationsMap)" :key="key" class="checkbox-row">
+            <div v-if="Object.keys(variantAnnotationsMapObject).length > 0" v-for="key in Object.keys(variantAnnotationsMapObject)" :key="key" class="checkbox-row">
               <input
                 type="checkbox"
                 :id="key"
-                :value="{ key: variantAnnotationsMap[key].uid, value: variantAnnotationsMap[key].name }"
+                :value="{ key, value: variantAnnotationsMapObject[key].uid }"
                 v-model="selectedMosaicVariantAnnotations"
               />
-              <span :for="key" class="label-text">{{ variantAnnotationsMap[key].name }} </span>
+              <span :for="key" class="label-text">{{ key }} </span>
             </div>
           </div>
         </div>
@@ -193,6 +193,7 @@
         showSelectVariantAnnotationDialog: false,
         infoObject: {},
         formatObject: {},
+        variantAnnotationsMapObject: {},
 
 
         selectedInfo: this.selectedVariantInfo,
@@ -208,12 +209,19 @@
     methods: {
       getInfoObject() {
         this.infoObject = this.cohortModel.getModel(this.selectedVariantRelationship).vcf.infoFields.INFO;
+        this.infoObject = this.sortObject(this.infoObject);
         return this.infoObject;
       },
 
       getFormatObject() {
         this.formatObject = this.cohortModel.getModel(this.selectedVariantRelationship).vcf.infoFields.FORMAT;
+        this.formatObject = this.sortObject(this.formatObject);
         return this.formatObject;
+      },
+
+      getMosaicAnnotationsMap() {
+        this.variantAnnotationsMapObject = this.sortObject(this.variantAnnotationsMap)
+        return this.variantAnnotationsMapObject  
       },
 
       cancelAnnotations() {
@@ -225,6 +233,9 @@
       },
 
       applyAnnotations() {
+        this.selectedInfo = this.sortSelectedArray(this.selectedInfo);
+        this.selectedFormat = this.sortSelectedArray(this.selectedFormat);
+        this.selectedMosaicVariantAnnotations = this.sortSelectedArray(this.selectedMosaicVariantAnnotations);
         this.$emit('apply-variant-annot-dialog', this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
       },
 
@@ -259,13 +270,50 @@
         }
       },
 
+      sortSelectedArray(array) {
+        return array.sort((a, b) => {
+          if (a.key < b.key) {
+            return -1;
+          }
+          if (a.key > b.key) {
+            return 1;
+          }
+          return 0;
+        });
+      },
 
-      
+      sortObject(obj) {
+        const sortedKeys = Object.keys(obj).sort((a, b) => {
+          if (a < b) return -1;
+          if (a > b) return 1;
+          return 0;
+        });
+
+        const upperCaseKeys = sortedKeys.filter(key => key[0] === key[0].toUpperCase());
+        const lowerCaseKeys = sortedKeys.filter(key => key[0] === key[0].toLowerCase());
+
+        upperCaseKeys.sort();
+        lowerCaseKeys.sort();
+
+        const combinedSortedKeys = upperCaseKeys.concat(lowerCaseKeys);
+
+        const sortedObject = combinedSortedKeys.reduce((result, key) => {
+          result[key] = obj[key];
+          return result;
+        }, {});
+
+        return sortedObject;
+        
+      },
+
+
+
     },
 
     mounted() {
       this.getInfoObject();
       this.getFormatObject();
+      this.getMosaicAnnotationsMap();
     },
 
     watch: {
