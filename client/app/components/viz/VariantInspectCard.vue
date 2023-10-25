@@ -2470,9 +2470,6 @@ export default {
           self.interpretation = self.selectedVariant.interpretation  && self.selectedVariant.interpretation.length > 0 ? self.selectedVariant.interpretation : "not-reviewed";
         })
     }
-    console.log('mosaicVariant', this.mosaicVariant);
-    console.log('selectedVariant', this.selectedVariant);
-    console.log('cohortModel', this.cohortModel); 
 
     
   },
