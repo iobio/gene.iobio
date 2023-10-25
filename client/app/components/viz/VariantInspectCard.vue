@@ -1248,12 +1248,12 @@ export default {
       
       hoveredDescription: '',
 
-      
-
-
 
       
 
+
+
+      
     }
   },
   methods: {
@@ -1995,7 +1995,7 @@ export default {
 
 
   computed: {
-
+    
     annotValues : function(){
       return this.selectedVariant ? this.selectedVariant.allAnnots : {};
  
@@ -2048,19 +2048,19 @@ export default {
     mosaicValuesMap() {
       const mosaicValues = [];
       for (const item of this.selectedMosaicVariantAnnotations) {
-        if (this.mosaicVariant && this.mosaicVariant.hasOwnProperty(item.key)) {
+        if (this.mosaicVariant && this.mosaicVariant.hasOwnProperty(item.value)) {
           let value = "";
-          if (this.mosaicVariant[item.key].length > 0){
-            value = this.mosaicVariant[item.key].join(", ");
+          if (this.mosaicVariant[item.value].length > 0){
+            value = this.mosaicVariant[item.value].join(", ");
           }else{
             value = "None";
           }
          
           mosaicValues.push({
-            key: item.key,
+            key: item.value,
             value: value,
-            description: item.value,
-            id: "mosaic" + item.key
+            description: item.key,
+            id: "mosaic" + item.value
           });
         }
       }
