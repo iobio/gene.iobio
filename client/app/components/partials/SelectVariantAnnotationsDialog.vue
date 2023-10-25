@@ -217,10 +217,10 @@
       },
 
       cancelAnnotations() {
-        this.selectedInfo = [];
-        this.selectedFormat = [];
-        this.selectedMosaicVariantAnnotations = [];
-        this.selectedAll = false;
+        this.selectedInfo = this.selectedVariantInfo;
+        this.selectedFormat = this.selectedVariantFormat;
+        this.selectedMosaicVariantAnnotations = this.selectedVariantMosaic;
+        this.selectedAll = this.selectedVariantAllAnnots;
         this.$emit('close-variant-annot-dialog', this.selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
       },
 
