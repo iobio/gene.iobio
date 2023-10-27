@@ -1248,6 +1248,8 @@ export default {
       
       hoveredDescription: '',
 
+      mosaicVariantObject: null,
+
 
       
 
@@ -1257,6 +1259,11 @@ export default {
     }
   },
   methods: {
+
+    updateMosaicVariantObject(mosaicVariant) {
+      this.mosaicVariantObject = mosaicVariant
+      console.log('updatedMosaicVariantObject', this.mosaicVariantObject)
+    },
 
     openVariantAnnotationInfoDialog() {
       console.log("openVariantAnnotationInfoDialog");
@@ -2048,10 +2055,10 @@ export default {
     mosaicValuesMap() {
       const mosaicValues = [];
       for (const item of this.selectedMosaicVariantAnnotations) {
-        if (this.mosaicVariant && this.mosaicVariant.hasOwnProperty(item.value)) {
+        if (this.mosaicVariantObject && this.mosaicVariantObject.hasOwnProperty(item.value)) {
           let value = "";
-          if (this.mosaicVariant[item.value].length > 0){
-            value = this.mosaicVariant[item.value].join(", ");
+          if (this.mosaicVariantObject[item.value].length > 0){
+            value = this.mosaicVariantObject[item.value].join(", ");
           }else{
             value = "None";
           }
@@ -2059,6 +2066,13 @@ export default {
           mosaicValues.push({
             key: item.value,
             value: value,
+            description: item.key,
+            id: "mosaic" + item.value
+          });
+        } else {
+          mosaicValues.push({
+            key: item.value,
+            value: "None",
             description: item.key,
             id: "mosaic" + item.value
           });
@@ -2434,6 +2448,16 @@ export default {
           self.loadData();
       })
     },
+
+    mosaicVariant: {
+      handler(newMosaicVariant, oldMosaicVariant) {
+        if (newMosaicVariant !== oldMosaicVariant) {
+          this.updateMosaicVariantObject(newMosaicVariant);
+        }
+      },
+      deep: true,
+    },
+
   },
 
   filters: {

@@ -1203,7 +1203,22 @@ export default {
           }
         }
       }
-    }
+    },
+    
+    selectedVariant: function() {
+      let self = this;
+      this.promiseGetMosaicVariant(self.selectedVariant)
+      .then((mosaicVariant) => {
+        if(mosaicVariant){
+          self.mosaicVariant = mosaicVariant;
+        }  
+        console.log("mosaic variant", mosaicVariant);       
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    },
+
   },
 
   methods: {
@@ -3911,10 +3926,9 @@ export default {
       let self = this;
       return new Promise(function(resolve, reject) {
         if (theVariant.mosaic_id && theVariant.mosaic_id != "") {
+          cosole.log("looking up mosaic variant by id " + theVariant.mosaic_id)
           self.hubSession.promiseGetVariant(self.projectId, theVariant.mosaic_id)
           .then(function(mosaicVariant) {
-            self.mosaicVariant = {}
-            self.mosaicVariant = mosaicVariant;
             resolve(mosaicVariant)
           })
           .catch(function(error) {
@@ -3927,9 +3941,7 @@ export default {
         } else {
           self.hubSession.promiseLookupVariantByPosition(self.projectId, theVariant)
           .then(function(mosaicVariant) {
-            self.mosaicVariant = {}
-            self.mosaicVariant = mosaicVariant;
-            resolve(mosaicVariant)
+              resolve(mosaicVariant)
           })
           .catch(function(error) {
             let msg = "Cannot find Mosaic variant in " + 
@@ -4042,6 +4054,7 @@ export default {
             self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation;
           })
           resolve();
+          console.log('variant annotations map', self.variantAnnotationsMap)
         })
         .catch(function(error) {
           reject(error)
