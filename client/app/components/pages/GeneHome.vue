@@ -4972,7 +4972,14 @@ export default {
         self.clinSetData = clinObject;
 
         self.setIobioConfigFromClin(self.clinSetData);
-        self.cohortModel.promiseInit(self.clinSetData.modelInfos)
+
+        self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession(self.paramClientApplicationId);
+
+        self.hubSession.init(clinObject.iobioSource)
+        self.promiseLoadVariantAnnotationsMap()
+        .then(function() {
+          return self.cohortModel.promiseInit(self.clinSetData.modelInfos)
+        })
         .then(function() {
           self.onSendFiltersToClin();
           self.models = self.cohortModel.sampleModels;
@@ -5004,8 +5011,10 @@ export default {
           resolve();
         })
         .catch(function(error) {
+          console.log(error)
           reject(error);
         })
+
 
       })
     },

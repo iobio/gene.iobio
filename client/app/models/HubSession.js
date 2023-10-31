@@ -32,6 +32,12 @@ export default class HubSession {
     this.experiment_id = null;
   }
 
+  init(source) {
+    let self = this;
+    self.api = source + self.apiVersion;
+    self.apiDepricated = source + self.apiVersionDeprecated    
+  }
+
   promiseInit(sampleId, source, isPedigree, projectId, geneSetId, variantSetId, build, experimentId ) {
     let self = this;
     self.api = source + self.apiVersion;
