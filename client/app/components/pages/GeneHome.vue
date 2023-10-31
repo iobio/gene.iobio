@@ -4035,17 +4035,21 @@ export default {
     promiseLoadVariantAnnotationsMap() {
       let self = this;
       return new Promise(function(resolve, reject) {
-        self.hubSession.promiseGetVariantAnnotations(self.projectId)
-        .then(function(variantAnnotations) {
-          self.variantAnnotationsMap = {};
-          variantAnnotations.forEach(function(variantAnnotation) {
-            self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation;
+        if (self.projectId) {
+          self.hubSession.promiseGetVariantAnnotations(self.projectId)
+          .then(function(variantAnnotations) {
+            self.variantAnnotationsMap = {};
+            variantAnnotations.forEach(function(variantAnnotation) {
+              self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation;
+            })
+            resolve();
           })
-          resolve();
-        })
-        .catch(function(error) {
-          reject(error)
-        })
+          .catch(function(error) {
+            reject(error)
+          })          
+        } else {
+          resolve(null)
+        }
       })
     },
 
@@ -4972,14 +4976,7 @@ export default {
         self.clinSetData = clinObject;
 
         self.setIobioConfigFromClin(self.clinSetData);
-
-        self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession(self.paramClientApplicationId);
-
-        self.hubSession.init(clinObject.iobioSource)
-        self.promiseLoadVariantAnnotationsMap()
-        .then(function() {
-          return self.cohortModel.promiseInit(self.clinSetData.modelInfos)
-        })
+        self.cohortModel.promiseInit(self.clinSetData.modelInfos)
         .then(function() {
           self.onSendFiltersToClin();
           self.models = self.cohortModel.sampleModels;
