@@ -1207,16 +1207,17 @@ export default {
     
     selectedVariant: function() {
       let self = this;
-      this.promiseGetMosaicVariant(self.selectedVariant)
-      .then((mosaicVariant) => {
-        if(mosaicVariant){
-          self.mosaicVariant = mosaicVariant;
-        }  
-        console.log("mosaic variant", mosaicVariant);       
-      })
-      .catch((error) => {
+      if (this.launchedFromHub && this.selectedVariant) {
+        this.promiseGetMosaicVariant(self.selectedVariant)
+        .then((mosaicVariant) => {
+          if(mosaicVariant){
+            self.mosaicVariant = mosaicVariant;
+          }    
+        })
+        .catch((error) => {
         console.error(error);
-      });
+        });
+      }
     },
 
   },
@@ -3926,7 +3927,6 @@ export default {
       let self = this;
       return new Promise(function(resolve, reject) {
         if (theVariant.mosaic_id && theVariant.mosaic_id != "") {
-          cosole.log("looking up mosaic variant by id " + theVariant.mosaic_id)
           self.hubSession.promiseGetVariant(self.projectId, theVariant.mosaic_id)
           .then(function(mosaicVariant) {
             resolve(mosaicVariant)
@@ -4054,7 +4054,6 @@ export default {
             self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation;
           })
           resolve();
-          console.log('variant annotations map', self.variantAnnotationsMap)
         })
         .catch(function(error) {
           reject(error)

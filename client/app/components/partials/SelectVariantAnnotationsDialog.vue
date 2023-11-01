@@ -314,7 +314,6 @@
       this.getInfoObject();
       this.getFormatObject();
       this.getMosaicAnnotationsMap();
-      console.log('variantAnnotationsMap', this.variantAnnotationsMap)
     },
 
     watch: {

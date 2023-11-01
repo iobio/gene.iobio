@@ -1260,9 +1260,8 @@ export default {
   },
   methods: {
 
-    updateMosaicVariantObject(mosaicVariant) {
+    initializeMosaicVariant(mosaicVariant) {
       this.mosaicVariantObject = mosaicVariant
-      console.log('updatedMosaicVariantObject', this.mosaicVariantObject)
     },
 
     openVariantAnnotationInfoDialog() {
@@ -2057,7 +2056,7 @@ export default {
       for (const item of this.selectedMosaicVariantAnnotations) {
         if (this.mosaicVariantObject && this.mosaicVariantObject.hasOwnProperty(item.value)) {
           let value = "";
-          if (this.mosaicVariantObject[item.value].length > 0){
+          if (Array.isArray(this.mosaicVariantObject[item.value]) && this.mosaicVariantObject[item.value].length > 0){
             value = this.mosaicVariantObject[item.value].join(", ");
           }else{
             value = "None";
@@ -2452,7 +2451,7 @@ export default {
     mosaicVariant: {
       handler(newMosaicVariant, oldMosaicVariant) {
         if (newMosaicVariant !== oldMosaicVariant) {
-          this.updateMosaicVariantObject(newMosaicVariant);
+          this.initializeMosaicVariant(newMosaicVariant);
         }
       },
       deep: true,
