@@ -1203,7 +1203,23 @@ export default {
           }
         }
       }
-    }
+    },
+    
+    selectedVariant: function() {
+      let self = this;
+      if (this.launchedFromHub && this.selectedVariant) {
+        this.promiseGetMosaicVariant(self.selectedVariant)
+        .then((mosaicVariant) => {
+          if(mosaicVariant){
+            self.mosaicVariant = mosaicVariant;
+          }    
+        })
+        .catch((error) => {
+        console.error(error);
+        });
+      }
+    },
+
   },
 
   methods: {
@@ -3913,8 +3929,6 @@ export default {
         if (theVariant.mosaic_id && theVariant.mosaic_id != "") {
           self.hubSession.promiseGetVariant(self.projectId, theVariant.mosaic_id)
           .then(function(mosaicVariant) {
-            self.mosaicVariant = {}
-            self.mosaicVariant = mosaicVariant;
             resolve(mosaicVariant)
           })
           .catch(function(error) {
@@ -3927,9 +3941,7 @@ export default {
         } else {
           self.hubSession.promiseLookupVariantByPosition(self.projectId, theVariant)
           .then(function(mosaicVariant) {
-            self.mosaicVariant = {}
-            self.mosaicVariant = mosaicVariant;
-            resolve(mosaicVariant)
+              resolve(mosaicVariant)
           })
           .catch(function(error) {
             let msg = "Cannot find Mosaic variant in " + 

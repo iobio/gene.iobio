@@ -258,9 +258,9 @@
           });
 
           const selectedMosaicVariantAnnotationsKeys = this.selectedMosaicVariantAnnotations.map(item => item.key);
-          const keysToAddMosaic = Object.keys(this.variantAnnotationsMap).filter(key => !selectedMosaicVariantAnnotationsKeys.includes(this.variantAnnotationsMap[key].uid));
+          const keysToAddMosaic = Object.keys(this.variantAnnotationsMapObject).filter(key => !selectedMosaicVariantAnnotationsKeys.includes(key));
           keysToAddMosaic.forEach(key => {
-            this.selectedMosaicVariantAnnotations.push({ key: this.variantAnnotationsMap[key].uid, value: this.variantAnnotationsMap[key].name });
+            this.selectedMosaicVariantAnnotations.push({ key, value: this.variantAnnotationsMapObject[key].uid });
           });
 
         } else {
