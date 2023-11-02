@@ -1207,7 +1207,7 @@ export default {
     
     selectedVariant: function() {
       let self = this;
-      if (this.launchedFromHub && this.selectedVariant) {
+      if (this.launchedFromHub && this.selectedVariant && this.selectedMosaic && this.selectedMosaic.length > 0) {
         this.promiseGetMosaicVariant(self.selectedVariant)
         .then((mosaicVariant) => {
           if(mosaicVariant){
@@ -1215,7 +1215,7 @@ export default {
           }    
         })
         .catch((error) => {
-        console.error(error);
+          console.error(error);
         });
       }
     },
