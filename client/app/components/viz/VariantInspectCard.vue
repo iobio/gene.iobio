@@ -1063,9 +1063,9 @@
       :selectedVariantRelationship="selectedVariantRelationship"
       :variantAnnotationsMap="variantAnnotationsMap"
       :selectedVariantInfo="selectedVariantInfo"
-      :selectedVariantFormat="selectedFormat"
+      :selectedVariantFormat="selectedVariantFormat"
       :selectedVariantMosaic="selectedVariantMosaic"
-      :selectedVariantAllAnnots="selectedAll"
+      :selectedVariantAllAnnots="selectedVariantAllAnnots"
       @close-variant-annot-dialog="closeVariantAnnotDialog"
       @apply-variant-annot-dialog="applyVariantAnnotDialog">
     </select-variant-annotations-dialog>
@@ -1240,11 +1240,6 @@ export default {
       
       showSelectVariantAnnotationDialog: false,
       showVariantAnnotationInfoDialog: false,
-
-      // data fields for showing custom annotations of variant
-      selectedFormat: this.selectedVariantFormat,
-      selectedMosaicVariantAnnotations: this.selectedVariantMosaic,
-      selectedAll: this.selectedVariantAllAnnots,
       
       hoveredDescription: '',
 
@@ -1279,20 +1274,13 @@ export default {
     },
 
     closeVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
-      this.selectedFormat = selectedFormat;
-      this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
       this.showSelectVariantAnnotationDialog = false;
-      this.selectedAll = selectedAll;
-      this.$emit("variant-annotations-selected", selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
+      this.$emit("variant-annotations-selected", selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll);
     },
 
     applyVariantAnnotDialog(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
-      this.selectedFormat = selectedFormat;
-      this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
       this.showSelectVariantAnnotationDialog = false;
-      this.selectedAll = selectedAll;
-
-      this.$emit("variant-annotations-selected", selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
+      this.$emit("variant-annotations-selected", selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll);
     },
 
     refresh: function() {
@@ -2032,7 +2020,7 @@ export default {
         }
       }
 
-      for (const item of this.selectedFormat) {
+      for (const item of this.selectedVariantFormat) {
         if (this.selectedVariant && this.selectedVariant.formatMap) {
           let value = "";
           if (this.selectedVariant.formatMap.hasOwnProperty(item.key) == false){
@@ -2053,7 +2041,7 @@ export default {
 
     mosaicValuesMap() {
       const mosaicValues = [];
-      for (const item of this.selectedMosaicVariantAnnotations) {
+      for (const item of this.selectedVariantMosaic) {
         if (this.mosaicVariantObject && this.mosaicVariantObject.hasOwnProperty(item.value)) {
           let value = "";
           if (Array.isArray(this.mosaicVariantObject[item.value]) && this.mosaicVariantObject[item.value].length > 0){
