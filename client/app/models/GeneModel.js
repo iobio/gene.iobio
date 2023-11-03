@@ -1481,7 +1481,7 @@ class GeneModel {
       if (phenotypes != null) {
         resolve([phenotypes, geneName]);
       } else {
-        var url = me.globalApp.geneToPhenoServer + '/associations/' + geneName;
+        var url = me.globalApp.geneToPhenoServer + 'associations/' + geneName;
 
         fetch(url)
         .then(function(r) {
@@ -1517,7 +1517,7 @@ class GeneModel {
       if (disorders != null) {
         resolve([disorders, geneName]);
       } else {
-        var url = me.globalApp.geneToPhenoServer + '/associations/' + geneName;
+        var url = me.globalApp.geneToPhenoServer + 'associations/' + geneName;
 
         fetch(url).then(r => r.json())
         .then((response) => {
