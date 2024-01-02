@@ -4186,6 +4186,7 @@ export default {
                   self.$refs.variantInspectRef.refresh();
                 }
 
+
                 // Scroll down so that the variant inspect card (and the variant all card)
                 // are in view
                 setTimeout(function() {
