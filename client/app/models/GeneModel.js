@@ -339,7 +339,7 @@ class GeneModel {
     me.allKnownGenes = allKnownGenes;
     me.allKnownGeneNames = {};
     me.allKnownGenes.forEach(function(gene) {
-      me.allKnownGeneNames[gene.gene_name.toUpperCase()] = gene;
+      me.allKnownGeneNames[gene.gn.toUpperCase()] = gene["d"];
     })
   }
 
@@ -356,8 +356,6 @@ class GeneModel {
       me._promiseCopyPasteGenesImpl(genesString, options)
       .then(function() {
         me.getNCBIGeneSummariesForceWait(me.geneNames)
-        .catch(function(error) {
-        })
 
         var promises = [];
         me.geneNames.forEach(function(geneName) {
@@ -1483,7 +1481,7 @@ class GeneModel {
       if (phenotypes != null) {
         resolve([phenotypes, geneName]);
       } else {
-        var url = me.globalApp.geneToPhenoServer + '/associations/' + geneName;
+        var url = me.globalApp.geneToPhenoServer + 'associations/' + geneName;
 
         fetch(url)
         .then(function(r) {
@@ -1519,7 +1517,7 @@ class GeneModel {
       if (disorders != null) {
         resolve([disorders, geneName]);
       } else {
-        var url = me.globalApp.geneToPhenoServer + '/associations/' + geneName;
+        var url = me.globalApp.geneToPhenoServer + 'associations/' + geneName;
 
         fetch(url).then(r => r.json())
         .then((response) => {
@@ -1576,14 +1574,20 @@ class GeneModel {
       var defaultGeneSource = me.geneSource ? me.geneSource : 'gencode';
       let knownGene = me.getKnownGene(geneName);
       let theGeneSource = null;
-      if (knownGene && knownGene[defaultGeneSource]) {
+      if (knownGene && knownGene[buildName][defaultGeneSource] > 0) {
         theGeneSource = defaultGeneSource
-      } else if (knownGene && knownGene.refseq) {
+      } else if (knownGene && knownGene[buildName].refseq > 0) {
         theGeneSource = 'refseq';
         let msg = "No Gencode transcripts for " + geneName + ". Using Refseq transcripts instead.";        
-      } else if (knownGene && knownGene.gencode) {
+      } else if (knownGene && knownGene[buildName].gencode > 0) {
         let msg = "No Refseq transcripts for " + geneName + ". Using Gencode transcripts instead.";
         theGeneSource = 'gencode';
+      } else {
+        let msg = "Gene <pre>" + geneName + "</pre> is not present for <pre>" + buildName + "</pre> in Gencode or Refseq.";
+        reject({'message': msg, 
+                'gene': geneName, 
+                'alertType': 'error', 
+                'options': {'showAlertPanel': true, 'selectAlert': true} });
       }
 
       if (theGeneSource) {
@@ -1835,7 +1839,7 @@ class GeneModel {
         resolve(links)
       })
       .catch(function(error) {
-        me.dispatch.alertIssued('error', error, geneName)
+        me.dispatch.alertIssued('warning', error, geneName)
         populateLinks()
         resolve(links)
 
@@ -1933,7 +1937,13 @@ class GeneModel {
 
 
   isKnownGene(geneName) {
-    return this.allKnownGeneNames[geneName] != null || this.allKnownGeneNames[geneName.toUpperCase()] != null;
+    if (geneName in this.allKnownGeneNames) {
+      return true;
+    } else if (geneName.toUpperCase() in allKnowGeneNames) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   promiseIsValidGene(geneName) {
@@ -1954,11 +1964,24 @@ class GeneModel {
   }
 
   getKnownGene(geneName) {
+    let d = null;
     if (this.allKnownGeneNames[geneName]) {
-      return this.allKnownGeneNames[geneName];
+      d = this.allKnownGeneNames[geneName];
     } else {
-      return this.allKnownGeneNames[geneName.toUpperCase()]
+      d = this.allKnownGeneNames[geneName.toUpperCase()]
     };
+    if (d) {
+      return {
+              'GRCh37': {'gencode': d[0][0], 'refseq': d[0][1]},
+              'GRCh38': {'gencode': d[1][0], 'refseq': d[1][1]}
+             }
+    } else {
+      return {
+              'GRCh37': {'gencode': 1, 'refseq': 1},
+              'GRCh38': {'gencode': 1, 'refseq': 1}
+             }
+
+    }
   }
 
 

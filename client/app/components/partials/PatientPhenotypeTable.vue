@@ -20,7 +20,7 @@
 
   .hpo-row
     font-size: 12px
-    padding-bottom: 5px
+    padding-bottom: 8px
     >span
       display: inline-block
       vertical-align: top
@@ -33,8 +33,18 @@
         color: $link-color
         font-weight: 500
     .hpo-name
-      min-width: 150px
-      max-width: 150px
+      min-width: 350px
+      max-width: 350px
+
+      &.matched 
+        color: $nav-badge-color
+        font-weight: 600
+
+      &.match-level-0
+        color: $level-high-color
+      &.match-level-1
+        color: $level-high-color
+
 
     .hpo-sample-matches
       min-width: 150px
@@ -48,8 +58,13 @@
       margin-left: 0px
       margin-right: 20px
       margin-top: -1px
-      background-color: $nav-badge-color
+      border-color: $nav-badge-color
+      border-style: solid
+      color: $nav-badge-color
+      background-color: white
+      justify-content: center
       box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)
+
 
       .v-chip__content 
         border-radius: 10px
@@ -57,12 +72,33 @@
         padding: 0px 5px
         font-size: 11px
         font-weight: 500
-        color: white
+        color: $nav-badge-color
+
+      &.match-stamp
+        background-color: gray 
+        border-style: none !important
+        font-weight: 600 
+        box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12)
+        .v-chip__content
+          color: white
 
       &.match-level-0
-        background-color: $level-high-color !important
+        border-color: $level-high-color !important
+        border-style: solid !important
+        background: white !important
+
+        .v-chip__content 
+          color: $level-high-color !important
       &.match-level-1
-        background-color: $level-high-color !important
+        border-color: $level-high-color !important
+        border-style: solid !important
+        background: white !important
+
+        .v-chip__content 
+          color: $level-high-color !important   
+    .match-chip.no-match
+      box-shadow: none !important
+
 
    
 </style>
@@ -82,10 +118,10 @@
         </span>
       </v-badge>
     </div>
-    <div  style="max-height:500px;overflow-y:scroll;padding-top:5px">
+    <div  style="max-height: 170px;overflow-y: scroll;padding-top: 5px;display: flex;flex-direction: column;">
       <div class="hpo-row" v-for="entry in hpoEntries" :key="entry.hpo_term_id">
         
-        <v-chip v-if="selectedGene && entry.match != ''" :class="`match-chip match-level-` + entry.matchLevel">
+        <v-chip v-if="selectedGene && entry.match != ''" :class="'match-chip match-stamp'">
           {{ entry.match }}
         </v-chip>
         <span v-if="selectedGene && hasMatches && entry.match == ''" style="display:inline-block;width:90px"></span>
@@ -94,13 +130,15 @@
             {{ entry.hpo_term_id }}
           </a>
         </span>
-        <span class="hpo-name" >
+        <span :class="'hpo-name ' + (selectedGene && entry.match != '' ? 'matched match-level-' + entry.matchLevel : '')" >
           {{ entry.hpo_term_name }}
         </span>
         <span class="hpo-sample-matches">
-          <span v-for="rel in entry.matchingSamples" :key="rel">
+          <v-chip :class="'match-chip ' 
+          + ('match-level-' + entry.matchLevel) + ' ' 
+          + (!selectedGene || entry.match == '' ? 'no-match' : '')" v-for="rel in entry.matchingSamples" :key="rel">
               {{ rel }}
-          </span>
+          </v-chip>
         </span>
       </div>
     </div>

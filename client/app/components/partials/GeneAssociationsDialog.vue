@@ -1,37 +1,39 @@
 <style lang="sass">
 @import ../../../assets/sass/variables
-.chip, .v-chip
-  vertical-align: top
-  margin-top: 2px
-  margin-bottom: 0px
-  margin-right: 0px
-  &.high_gene_rank
-    .chip__content, .v-chip__content
-      background-color:  $danger-color !important
-      color: white
-      padding: 6px
-      height: 18px
-      width: 40px
-      font-size: 12px
-      justify-content: center
 
-.close-button
-  right: 10px !important
-  top: 15px !important
-  position: absolute !important
-  min-width: 40px !important
+#gene-associations-dialog-content
+  .chip, .v-chip
+    vertical-align: top
+    margin-top: 2px
+    margin-bottom: 0px
+    margin-right: 0px
+    &.high_gene_rank
+      .chip__content, .v-chip__content
+        background-color:  $danger-color !important
+        color: white
+        padding: 6px
+        height: 18px
+        width: 40px
+        font-size: 12px
+        justify-content: center
 
-#gene-associations-dialog-divider
-  margin-top: 10px !important
-  margin-bottom: 5px !important
-  
-.phenotype-search-term
-  max-width: 200px
-  display: inline-block
-  vertical-align: top
-  line-height: 14px
-  padding-top: 5px  
-  overflow-wrap: normal  
+  .close-button
+    right: 10px !important
+    top: 15px !important
+    position: absolute !important
+    min-width: 40px !important
+
+  #gene-associations-dialog-divider
+    margin-top: 10px !important
+    margin-bottom: 5px !important
+    
+  .phenotype-search-term
+    max-width: 200px
+    display: inline-block
+    vertical-align: top
+    line-height: 14px
+    padding-top: 5px  
+    overflow-wrap: normal  
   
 </style>
 
@@ -42,7 +44,7 @@
     v-model="showGeneAssociationDialog"
     >
 
-      <v-card class="full-width">
+      <v-card class="full-width" id="gene-associations-dialog-content">
         <div class="container">
           <v-btn flat @click="onCancel" class="close-button">
             <v-icon>close</v-icon>
@@ -168,7 +170,7 @@ export default {
         if(geneHit.geneRanks[0].source === "GTR"){
           this.gtrHits.push(geneHit)
         }
-        else if(geneHit.geneRanks[0].source === "Phen."){
+        else if(geneHit.geneRanks[0].source === "Phenolyzer"){
           this.phenolyzerHits.push(geneHit)
         }
         else if(geneHit.geneRanks[0].source === "HPO"){

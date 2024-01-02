@@ -49,6 +49,7 @@ class FilterModel {
           order: 0,
           userFlagged: false,
           maxAf: null,
+          maxHomozygotes: null,
           clinvar: null,
           impact: null,
           consequence: null,
@@ -67,6 +68,7 @@ class FilterModel {
           order: 1,
           userFlagged: false,
           maxAf: .05,
+          maxHomozygotes: null,
           clinvar: ['clinvar_path', 'clinvar_lpath'],
           impact: null,
           consequence: null,
@@ -85,6 +87,7 @@ class FilterModel {
           order: 2,
           userFlagged: false,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -103,6 +106,7 @@ class FilterModel {
           order: 3,
           userFlagged: false,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -122,6 +126,7 @@ class FilterModel {
           order: 4,
           userFlagged: false,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -140,6 +145,7 @@ class FilterModel {
           order: 5,
           userFlagged: false,
           maxAf: .05,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -158,6 +164,7 @@ class FilterModel {
           userFlagged: false,
           order: 6,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -176,6 +183,7 @@ class FilterModel {
           order: 7,
           userFlagged: false,
           maxAf: .025,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -214,6 +222,7 @@ class FilterModel {
           order: 8,
           userFlagged: false,
           maxAf: null,
+          maxHomozygotes: null,
           clinvar: null,
           impact: null,
           consequence: null,
@@ -233,6 +242,7 @@ class FilterModel {
           order: 9,
           userFlagged: false,
           maxAf: null,
+          maxHomozygotes: null,
           clinvar: null,
           impact: null,
           consequence: null,
@@ -255,6 +265,7 @@ class FilterModel {
           order: 0,
           userFlagged: false,
           maxAf: null,
+          maxHomozygotes: null,
           clinvar: null,
           impact: null,
           consequence: null,
@@ -273,6 +284,7 @@ class FilterModel {
           order: 1,
           userFlagged: false,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: ['clinvar_path', 'clinvar_lpath'],
           impact: null,
           consequence: null,
@@ -291,6 +303,7 @@ class FilterModel {
           order: 2,
           userFlagged: false,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -309,6 +322,7 @@ class FilterModel {
           order: 3,
           userFlagged: false,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -328,6 +342,7 @@ class FilterModel {
           order: 4,
           userFlagged: false,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -346,6 +361,7 @@ class FilterModel {
           order: 5,
           userFlagged: false,
           maxAf: .05,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -364,6 +380,7 @@ class FilterModel {
           userFlagged: false,
           order: 6,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', 'MODERATE'],
           consequence: null,
@@ -382,6 +399,7 @@ class FilterModel {
           order: 7,
           userFlagged: false,
           maxAf: .01,
+          maxHomozygotes: null,
           clinvar: null,
           impact: ['HIGH', ],
           consequence: null,
@@ -402,6 +420,7 @@ class FilterModel {
           order: 8,
           userFlagged: false,
           maxAf: null,
+          maxHomozygotes: null,
           clinvar: null,
           impact: null,
           consequence: null,
@@ -421,6 +440,7 @@ class FilterModel {
           order: 9,
           userFlagged: false,
           maxAf: null,
+          maxHomozygotes: null,
           clinvar: null,
           impact: null,
           consequence: null,
@@ -951,6 +971,7 @@ class FilterModel {
     var passes = {
       all: false,
       af: false,
+      homozygotes: false,
       impact: false,
       consequence: false,
       clinvar: false,
@@ -982,6 +1003,9 @@ class FilterModel {
     } else {
       if (badgeCriteria.maxAf == null || (variant.afHighest <= badgeCriteria.maxAf)) {
         passes.af = true;
+      }
+      if (badgeCriteria.maxHomozygotes == null || (parseInt(variant.gnomAD.homCount) <= parseInt(badgeCriteria.maxHomozygotes))) {
+        passes.homozygotes = true;
       }
       if (badgeCriteria.minRevel == null || badgeCriteria.minRevel == "") {
         passes.revel = true;
@@ -1037,7 +1061,7 @@ class FilterModel {
           passes[criterion] = true;
         })
       }
-      if (passes.af && passes.revel && passes.depth && passes.altCount && passes.impact && passes.consequence && passes.clinvar && passes.inheritance && passes.zygosity) {
+      if (passes.homozygotes && passes.af && passes.revel && passes.depth && passes.altCount && passes.impact && passes.consequence && passes.clinvar && passes.inheritance && passes.zygosity) {
         passes.all = true;
       }
     }

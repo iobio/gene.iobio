@@ -89,6 +89,7 @@
           padding: 0px 5px
           font-size: 11px
           font-weight: 500
+          cursor: pointer
 
   
 
@@ -142,6 +143,7 @@
                           :regionEnd="selectedGene.end"
                           :showBrush=false
                           :showXAxis=false
+                          :selectedTranscript="selectedTranscript"
                           @transcript-selected="onTranscriptSelected">
                 </gene-viz>
 
@@ -159,7 +161,7 @@
         {{ geneModel.geneSource }}
     </v-chip>
 
-    <v-badge class="info" style="margin-left:5px;" v-if="selectedTranscript.transcript_type != 'null' && selectedTranscript.transcript_type != 'protein_coding'"> {{ selectedTranscript.transcript_type }} </v-badge>
+    <v-badge class="info" style="margin-left:5px;" v-if="selectedTranscript.transcript_type != 'null' && selectedTranscript.transcript_type != '.' && selectedTranscript.transcript_type != 'protein_coding'"> {{ selectedTranscript.transcript_type }} </v-badge>
 
    
     <v-badge class="info mane-select" style="margin-left:5px;" v-if="selectedTranscript.is_mane_select == 'true'">MANE SELECT</v-badge>

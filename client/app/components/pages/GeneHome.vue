@@ -597,6 +597,7 @@ main.content.clin, main.v-content.clin
           :genomeBuildHelper="genomeBuildHelper"
           :cohortModel="cohortModel"
           :info="selectedVariantInfo"
+          :launchedFromHub="launchedFromHub"
           :selectedVariantKey="selectedVariantKey"
           :selectedPhenotype="phenotypeTerm"
           :showGenePhenotypes="launchedFromClin || phenotypeTerm"
@@ -605,12 +606,19 @@ main.content.clin, main.v-content.clin
           :showAssessment="hasVariantAssessment || showVariantAssessment"
           :launchedFromClin="launchedFromClin"
           :interpretationMap="interpretationMap"
+          :variantAnnotationsMap="variantAnnotationsMap"
+          :selectedVariantInfo="selectedInfo"
+          :selectedVariantFormat="selectedFormat"
+          :selectedVariantMosaic="selectedMosaic"
+          :mosaicVariant="mosaicVariant"
+          :selectedVariantAllAnnots="selectedAll"
           
           @show-pileup-for-variant="onShowPileupForVariant"
           @apply-variant-interpretation="onApplyVariantInterpretation"
           @apply-variant-notes="onApplyVariantNotes"
           @show-variant-assessment="onShowVariantAssessment"
           @transcript-id-selected="onTranscriptIdSelected"
+          @variant-annotations-selected="onVariantAnnotationSelected"
           >
           </variant-inspect-card>
           <!--mosaicVariantInterpretation="selectedVariant.mosaic_interpretation" -->
@@ -889,7 +897,7 @@ export default {
       projectId: null,
       geneSet: null,
       variantSet: null,
-      variantAnnotationsMap: null,
+      variantAnnotationsMap: {},
       launchedWithUrlParms: false,
       clinSetData: null,
       clinPersistCache: true,
@@ -1091,7 +1099,13 @@ export default {
 
       appAlerts: [],
       appAlertCounts: {'total': 0, 'success': 0, 'info': 0, 'warning': 0, 'error': 0},
-      geneToAppAlerts: {}
+      geneToAppAlerts: {},
+
+      selectedInfo: [],
+      selectedFormat: [],
+      selectedMosaic: [],
+      mosaicVariant: {},
+      selectedAll: false,
     }
   },
 
@@ -1189,7 +1203,23 @@ export default {
           }
         }
       }
-    }
+    },
+    
+    selectedVariant: function() {
+      let self = this;
+      if (this.launchedFromHub && this.selectedVariant && this.selectedMosaic && this.selectedMosaic.length > 0) {
+        this.promiseGetMosaicVariant(self.selectedVariant)
+        .then((mosaicVariant) => {
+          if(mosaicVariant){
+            self.mosaicVariant = mosaicVariant;
+          }    
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      }
+    },
+
   },
 
   methods: {
@@ -1397,7 +1427,7 @@ export default {
 
               if (self.analysis && self.analysis.payload && self.analysis.payload.variants && self.analysis.payload.variants.length > 0) {
                 // do nothing -- variants already loaded
-              } else if (self.selectedGene && Object.keys(self.selectedGene).length > 0) {
+              } else if (self.selectedGene && Object.keys(self.selectedGene).length > 0 && self.selectedGene.gene_name != "") {
                 self.promiseLoadData()
                 .then(function() {
                   self.showLeftPanelWhenFlaggedVariants();
@@ -2431,7 +2461,7 @@ export default {
             callback();
           }
         } else {
-          let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
+          let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name, a gene list, or enter a phenotype term.'
           self.onShowSnackbar( {message: theMessage, timeout: 10000, close: true});
           self.bringAttention = 'gene';
           if (callback) {
@@ -3911,7 +3941,7 @@ export default {
         } else {
           self.hubSession.promiseLookupVariantByPosition(self.projectId, theVariant)
           .then(function(mosaicVariant) {
-            resolve(mosaicVariant)
+              resolve(mosaicVariant)
           })
           .catch(function(error) {
             let msg = "Cannot find Mosaic variant in " + 
@@ -4017,17 +4047,21 @@ export default {
     promiseLoadVariantAnnotationsMap() {
       let self = this;
       return new Promise(function(resolve, reject) {
-        self.hubSession.promiseGetVariantAnnotations(self.projectId)
-        .then(function(variantAnnotations) {
-          self.variantAnnotationsMap = {};
-          variantAnnotations.forEach(function(variantAnnotation) {
-            self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation;
+        if (self.projectId) {
+          self.hubSession.promiseGetVariantAnnotations(self.projectId)
+          .then(function(variantAnnotations) {
+            self.variantAnnotationsMap = {};
+            variantAnnotations.forEach(function(variantAnnotation) {
+              self.variantAnnotationsMap[variantAnnotation.name] = variantAnnotation;
+            })
+            resolve();
           })
-          resolve();
-        })
-        .catch(function(error) {
-          reject(error)
-        })
+          .catch(function(error) {
+            reject(error)
+          })          
+        } else {
+          resolve(null)
+        }
       })
     },
 
@@ -4152,10 +4186,12 @@ export default {
                   self.$refs.variantInspectRef.refresh();
                 }
 
-                setTimeout(function() {
-                  self.scrollToVariantInspectCard();
-                },50)
 
+                // Scroll down so that the variant inspect card (and the variant all card)
+                // are in view
+                setTimeout(function() {
+                  self.scrollToVariantInspectCard()                  
+                },50)
 
                 if (callback) {
                   callback();
@@ -4985,8 +5021,10 @@ export default {
           resolve();
         })
         .catch(function(error) {
+          console.log(error)
           reject(error);
         })
+
 
       })
     },
@@ -5289,7 +5327,14 @@ export default {
         };
         window.parent.postMessage(JSON.stringify(msgObject), self.clinIobioUrl);
       }
-    }
+    },
+
+    onVariantAnnotationSelected(selectedInfo, selectedFormat, selectedMosaicVariantAnnotations, selectedAll) {
+      this.selectedInfo = selectedInfo;
+      this.selectedFormat = selectedFormat;
+      this.selectedMosaic = selectedMosaicVariantAnnotations;
+      this.selectedAll = selectedAll;
+    },
 
   }
 }

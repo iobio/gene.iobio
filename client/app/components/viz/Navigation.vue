@@ -65,7 +65,6 @@ aside.navigation-drawer, aside.v-navigation-drawer
     margin-top: 0px !important
 
 
-
   #side-panel-container
     display: flex
     flex-flow: column
@@ -115,6 +114,34 @@ aside.navigation-drawer, aside.v-navigation-drawer
             padding-left: 5px
             padding-right: 5px
 
+
+  #side-panel-container.with-legend
+    display: flex
+    flex-flow: column
+    flex: 1 1 auto
+    justify-content: flex-end
+    margin-bottom: 0px
+    overflow-y: hidden
+    height: 100vh
+
+    .v-window__container
+      height: calc(100vh - 520px)
+      overflow-y: scroll
+
+  #side-panel-container.with-legend.minimized-legend
+    .v-tabs
+      margin-bottom: auto
+      .v-window__container
+        height: calc(100vh - 510px + 345px)
+    #legend-card
+      height: 35px !important  
+      background: gray 
+      .legend-title 
+        color: white 
+      #legend-title-icon
+        color: white
+      .legend-title-expand-icon
+        color: white
 
   #side-panel-container
     .v-tabs
@@ -169,12 +196,13 @@ aside.navigation-drawer, aside.v-navigation-drawer
       flex-grow: 1
 
     #legend-card
-      margin-top: -10px
-      margin-bottom: 32px
       padding: 0px
       padding-top: 0px
-      border: #9b9b9b solid 2px !important
-      background-color: #f5f5f5
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.33), 0 3px 10px rgba(0, 0, 0, 0.36) !important
+      border-color: #9b9b9b !important
+      border-width: 1px !important
+      border-style: solid !important
+
 
 #side-panel-container
 
@@ -228,6 +256,13 @@ nav.toolbar, nav.v-toolbar
   .navbar-outline-button, #show-genes-button, .navbar-icon-button
     background: transparent !important
     border: .5px solid transparent !important
+    border-radius: 0px
+
+  #show-genes-button 
+    &.attention
+      margin-bottom: 12px
+      height: 30px
+
 
   .navbar-icon-button
     min-width: 40px !important
@@ -601,9 +636,9 @@ nav.toolbar, nav.v-toolbar
     button
       color: $text-color
       margin-left: 0px
-      height: 36px;
-      font-size: 14px;
-      font-weight: normal !important;
+      height: 36px
+      font-size: 14px
+      font-weight: normal !important
       .v-btn__content
             width: 200px
 
@@ -683,7 +718,7 @@ nav.toolbar, nav.v-toolbar
           <typeahead v-model="lookupGene"
           force-select v-bind:limit="typeaheadLimit" match-start
           target="#search-gene-name" :data="knownGenes"
-          item-key="gene_name"/>
+          item-key="gn"/>
         </span>
 
 
@@ -695,6 +730,7 @@ nav.toolbar, nav.v-toolbar
          ref="genesMenuRef"
          v-if="!launchedFromClin && !isEduMode && !isBasicMode"
          :buttonIcon="`add_circle`"
+         :attention="clazzAttention && clazzAttention.length > 0 ? true : false"
          :geneModel="geneModel"
          :isBasicMode="isBasicMode"
          :isEduMode="isEduMode"
@@ -921,9 +957,9 @@ nav.toolbar, nav.v-toolbar
       :hide-overlay="true"
       v-model="leftDrawer"
       :stateless="true"
-      :width="isSimpleMode ? 355 : 305"
+      :width="355"
     >
-      <div id="side-panel-container" :class="{'basic': isBasicMode}">
+      <div id="side-panel-container" :class="{'basic': isBasicMode, 'with-legend': isBasicMode || isSimpleMode}">
 
         <v-btn v-if="!isFullAnalysis && !launchedFromClin && showFilesButton" id="close-button" class="toolbar-button" flat @click="leftDrawer = false">
           <v-icon >close</v-icon>
@@ -1041,11 +1077,13 @@ nav.toolbar, nav.v-toolbar
 
 
 
-        <v-card id="legend-card" v-if="(isBasicMode || isSimpleMode) && cohortModel && cohortModel.isLoaded" >
+        <v-card id="legend-card" style="" v-if="(isBasicMode || isSimpleMode) && cohortModel && cohortModel.isLoaded" >
           <legend-panel
             :isBasicMode="isBasicMode"
             :isSimpleMode="isSimpleMode"
-            :showLegendTitle="true">
+            :showLegendTitle="true"
+            :allowMinimize="true"
+            :activeTab="activeTab">
           </legend-panel>
         </v-card>
 
@@ -1473,9 +1511,9 @@ export default {
   },
   watch: {
     lookupGene: function(a, b) {
-      if (this.selectedGene && this.lookupGene && this.lookupGene.gene_name) {
-        this.geneEntered = this.lookupGene.gene_name;
-        this.$emit("input", this.lookupGene.gene_name);
+      if (this.selectedGene && this.lookupGene && this.lookupGene.gn) {
+        this.geneEntered = this.lookupGene.gn;
+        this.$emit("input", this.lookupGene.gn);
       }
     },
     showFilesProp: function(){

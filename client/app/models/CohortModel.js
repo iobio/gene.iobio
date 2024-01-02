@@ -1453,7 +1453,7 @@ class CohortModel {
       // For MyGene2 basic mode, we filter the variants to only show those that are clinvar pathogenic rare
       // variants
       if (self.isBasicMode) {
-        filteredVariants = model.filterVariants(filteredVariants, self.filterModel.getFilterObject(),self.filterModel.regionStart, self.filterModel.regionStart, true);
+        filteredVariants = model.filterVariants(filteredVariants, self.filterModel.getFilterObject(),self.filterModel.regionStart, self.filterModel.regionEnd, true, self.filterModel);
       }
 
       var pileupObject = model._pileupVariants(filteredVariants.features, start, end);
@@ -1968,16 +1968,23 @@ class CohortModel {
           .then(function(theVcfData) {
               return self.getProbandModel().promiseSummarizeDanger(geneObject, theVcfData, theOptions, geneCoverageAll, self.filterModel, theTranscript, notFoundVariants, dangerSummaryExisting);
           })
-          .then(function(theDangerSummary) {
-            if (theDangerSummary && theDangerSummary.geneCoverageProblem && theDangerSummary.geneCoverageProblemNonProband) {
-              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in proband and non-proband (e.g. mother, father) samples", theDangerSummary.geneName);
-            } else if (theDangerSummary && theDangerSummary.geneCoverageProblem) {
-              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in proband sample", theDangerSummary.geneName);
-            } else if (theDangerSummary && theDangerSummary.geneCoverageProblemNonProband) {
-              self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in non-proband (e.g. mother, father) sample", theDangerSummary.geneName);
-            } 
+          .then(function(data) {
+            let theDangerSummary = data.dangerSummary;
+            let isDirty          = data.isDirty;
+            // If the danger summary hasn't changed since the last time this gene was selected,
+            // we don't want to re-issue alerts or set the danger summary on the gene model,
+            // which will cause an event to get dispatched.
+            if (isDirty) {
+              if (theDangerSummary && theDangerSummary.geneCoverageProblem && theDangerSummary.geneCoverageProblemNonProband) {
+                self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in proband and non-proband (e.g. mother, father) samples", theDangerSummary.geneName);
+              } else if (theDangerSummary && theDangerSummary.geneCoverageProblem) {
+                self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in proband sample", theDangerSummary.geneName);
+              } else if (theDangerSummary && theDangerSummary.geneCoverageProblemNonProband) {
+                self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in non-proband (e.g. mother, father) sample", theDangerSummary.geneName);
+              } 
 
-            self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
+              self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
+            }
             resolve();
           })
           .catch(function(error) {
