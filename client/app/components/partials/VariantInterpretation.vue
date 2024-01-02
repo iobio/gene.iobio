@@ -32,8 +32,8 @@ i.material-icons.interpretation
   background-color: $interpretation-background-color
   color: white !important
   caret-color: white !important
-  max-width: 175px
-  min-width: 175px
+  max-width: 185px
+  min-width: 185px
 
   &.not-reviewed
     background-color: $not-reviewed-color !important

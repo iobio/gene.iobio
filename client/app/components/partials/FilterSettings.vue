@@ -4,7 +4,7 @@
 @import ../../../assets/sass/variables
 
 .filter-form
-  padding: 10px 35px 5px 35px
+  padding: 5px 5px 5px 5px
 
   .v-text-field__slot
     height: 24px
@@ -56,7 +56,11 @@
 
   #max-af
     .v-input.v-text-field 
-      min-width: 200px
+      min-width: 220px
+
+  #max-homozygotes
+    .v-input.v-text-field 
+      min-width: 220px
 
   .input-group
     label
@@ -102,8 +106,6 @@
         background-color:  $moderate-impact-color !important
         border-color:  $moderate-impact-color !important
 
-.clin_dialog_scroll
-  height: 475px
 </style>
 
 <template>
@@ -117,13 +119,14 @@
         <v-text-field label="Name"  
         @input="onChangeName" 
         v-model="name" 
+        hide-details
         :rules=[rules.noDuplicates]>
         </v-text-field>
       </v-flex>
 
 
 
-      <v-flex xs12 >
+      <v-flex xs6 >
         <v-select
               label="Inheritance"
               v-bind:items="inheritanceModes"
@@ -138,7 +141,7 @@
         </v-select>
       </v-flex>
 
-      <v-flex xs12 >
+      <v-flex xs6 >
         <v-select
               label="Zygosity"
               v-bind:items="zygosities"
@@ -146,11 +149,12 @@
               single
               clearable
               hide-details
+              style="padding-top: 15px;margin-left: 20px;"
         >
         </v-select>
       </v-flex>
 
-      <v-flex xs12 style="margin-top:10px;margin-bottom: 5px"  >
+      <v-flex xs6 style="margin-top:10px;margin-bottom: 0px"  >
 
         <v-flex id="max-af"   >
           <v-text-field style="display:inline-block" label="Max Population Allele Freq" :rules="numericRules" v-model="maxAf" hide-details>
@@ -165,7 +169,14 @@
 
       </v-flex>
 
-      <v-flex xs12  >
+      <v-flex xs5 style="margin-left:20px;margin-top:10px;margin-bottom: 5px"  >
+        <v-flex id="max-homozygotes"   >
+          <v-text-field style="display:inline-block" label="Max Number of Homozygotes" :rules="wholeNumRules" v-model="maxHomozygotes" hide-details>
+          </v-text-field>
+        </v-flex>
+      </v-flex>
+
+      <v-flex xs12 class="mt-1" >
         <v-select
               label="ClinVar clinical significance"
               v-bind:items="clinvarCategories"
@@ -182,7 +193,7 @@
 
 
 
-      <v-flex xs12 >
+      <v-flex xs6 >
         <v-select
               label="Impact"
               v-bind:items="impacts"
@@ -196,7 +207,7 @@
         </v-select>
       </v-flex>
 
-      <v-flex xs12  >
+      <v-flex xs6  >
         <v-autocomplete
               label="Consequence"
               v-bind:items="consequences"
@@ -204,6 +215,7 @@
               multiple
               autocomplete
               hide-details
+              style="margin-top:8px;margin-left:20px"
         >
         </v-autocomplete>
       </v-flex>
@@ -230,12 +242,12 @@
 
 
 
-      <v-flex  id="min-genotype-depth" xs3 class="mt-3 mb-4 mr-4" >
+      <v-flex  id="min-genotype-depth" xs3 class="mb-4 mr-4" >
         <v-text-field label="Min Coverage"  suffix="X" v-model="minGenotypeDepth" hide-details>
         </v-text-field>
       </v-flex>
 
-      <v-flex  id="min-genotype-alt-count" xs4 class="mt-3 mb-4 mr-4" >
+      <v-flex  id="min-genotype-alt-count" xs4 class=" mb-4 mr-4" >
         <v-text-field label="Min Alt Count"  suffix="" v-model="minGenotypeAltCount" hide-details>
         </v-text-field>
       </v-flex>
@@ -279,6 +291,7 @@ export default {
       isDirty: false,
       name: null,
       maxAf: null,
+      maxHomozygotes: null,
       minRevel: null,
       selectedClinvarCategories: null,
       selectedImpacts: null,
@@ -351,6 +364,12 @@ export default {
           return valid || 'Freq must be between 0.0-1.0';
         }
       ],
+      wholeNumRules: [
+        v => {
+          let valid = v ? (+v >= 0) : true;
+          return valid || 'Must be a whole number';
+        }
+      ],
       rules: {
           noDuplicates: value => !this.isDuplicateName() || 'Another filter already has this name. Please enter a filter name not already in use.'
       }
@@ -369,6 +388,7 @@ export default {
         flagCriteria.active = false;
         flagCriteria.name = this.filter.display;
         flagCriteria.maxAf = null;
+        flagCriteria.maxHomozygotes = null;
         flagCriteria.minRevel = null;
         flagCriteria.clinvar = null;
         flagCriteria.impact = null;
@@ -381,6 +401,7 @@ export default {
       this.name                      = flagCriteria.name;
       this.key                       = flagCriteria.key + flagCriteria.name;
       this.maxAf                     = flagCriteria.maxAf;
+      this.maxHomozygotes            = flagCriteria.maxHomozygotes;
       this.minRevel                  = flagCriteria.minRevel;
       this.selectedClinvarCategories = flagCriteria.clinvar;
       this.selectedImpacts           = flagCriteria.impact;
@@ -411,6 +432,7 @@ export default {
 
       flagCriteria.key = this.key;
       flagCriteria.maxAf            = this.maxAf;
+      flagCriteria.maxHomozygotes   = this.maxHomozygotes;
       flagCriteria.minRevel         = this.minRevel;
       flagCriteria.clinvar =          this.selectedClinvarCategories;
       flagCriteria.impact           = this.selectedImpacts;
@@ -461,6 +483,7 @@ export default {
       return (!this.isDuplicateName()) &&
              (
                (this.maxAf && this.maxAf > 0 && this.maxAf < 1) ||
+               (this.maxHomozygotes && this.maxHomozygotes >= 0) ||
                this.minRevel ||
                (this.selectedClinvarCategories && this.selectedClinvarCategories.length > 0) ||
                (this.selectedImpacts && this.selectedImpacts.length > 0) ||
@@ -487,6 +510,9 @@ export default {
   watch: {
 
     maxAf: function() {
+      this.isDirty = true;
+    },
+    maxHomozygotes: function() {
       this.isDirty = true;
     },
     selectedClinvarCategories: function() {

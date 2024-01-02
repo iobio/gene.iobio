@@ -970,28 +970,6 @@ CacheHelper.prototype.promiseLoadCache = function(cacheData, dataIsAlreadyCompre
         
       })
       .then(function() {
-        /*
-        let thePromises = []
-        Object.keys(geneToProbandVcfData).forEach(function(gene) {
-          let data = geneToProbandVcfData[gene];
-          let vcfData = data.cache;
-          let keyObject = data.keyObject;
-          let theGeneObject = me.cohort.geneModel.geneObjects[keyObject.gene];
-          let theTranscript = {transcript_id: keyObject.transcript};
-          if (dataIsCompressed) {
-            CacheHelper.promiseDecompressData(data.cache, true)
-            .then(function(theVcfData) {
-              let p = me.cohort.promiseSummarizeDanger(theGeneObject, theTranscript, theVcfData, {})
-            })
-            thePromises.push(p)            
-          } else {
-            let p = me.cohort.promiseSummarizeDanger(theGeneObject, theTranscript, vcfData, {})
-            thePromises.push(p)
-          }
-        })
-        return Promise.all(thePromises)
-        */
-        //me.analyzeAll(me.cohort, false, false, true)
         resolve();
       })
       .catch(function(error) {
@@ -1177,10 +1155,8 @@ CacheHelper.showError = function(key, cacheError) {
         // If we have shown this kind of cache error 2 times already, just show in right hand corner instead
         // of showning dialog with ok/cancel.
         if (errorCount < 3) {
-          self.dispatch.alertIssued('warning', message)
           CacheHelper.recordedCacheErrors[errorKey] = null;
         } else if (errorCount < 8) {
-          self.dispatch.alertIssued('error', message, null, ['error has occurred more than 5 times'])
           CacheHelper.recordedCacheErrors[errorKey] = null;
         }
       }
@@ -1302,6 +1278,7 @@ CacheHelper.prototype.promiseCacheData = function(key, data, options) {
       })
       .catch(function(error) {
         var msg = "A problem occurred in CacheHelper.promiseCacheData() when calling cacheIndexStore.promiseSetData(): " + error;
+        console.log(error)
         console.log(msg);
         reject(msg);
       });

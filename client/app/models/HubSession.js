@@ -32,6 +32,12 @@ export default class HubSession {
     this.experiment_id = null;
   }
 
+  init(source) {
+    let self = this;
+    self.api = source + self.apiVersion;
+    self.apiDepricated = source + self.apiVersionDeprecated    
+  }
+
   promiseInit(sampleId, source, isPedigree, projectId, geneSetId, variantSetId, build, experimentId ) {
     let self = this;
     self.api = source + self.apiVersion;
@@ -98,57 +104,70 @@ export default class HubSession {
                   samples = [pedigree[rel]];
                 }
                 samples.forEach(s => {
-                  let p =  self.promiseGetFileMapForSample(projectId, s, rel).then(data => {
-                    let theSample = data.sample;
-                    theSample.files = data.fileMap;
+                  let p =  new Promise(function(sampleResolve, sampleReset) {
+                    self.promiseGetFileMapForSample(projectId, s, rel).then(data => {
+                      let theSample = data.sample;
+                      theSample.files = data.fileMap;
 
-                    // gene.iobio only supports siblings in same multi-sample vcf as proband.
-                    // bypass siblings in their own vcf.
-                    let bypass = false;
-                    // TODO:  Need to check if samples exist in proband vcf rather than checking file names
-                    // since mosaic generates different vcf url for sample physical file.
-                    //if (data.relationship == 'siblings' && theSample.files.vcf != probandSample.files.vcf) {
-                    //  bypass = true;
-                    //  console.log("Bypassing sibling " + theSample.id + ".  This sample must reside in the same vcf as the proband in order to be processed.")
-                    //}
+                      // gene.iobio only supports siblings in same multi-sample vcf as proband.
+                      // bypass siblings in their own vcf.
+                      let bypass = false;
+                      // TODO:  Need to check if samples exist in proband vcf rather than checking file names
+                      // since mosaic generates different vcf url for sample physical file.
+                      //if (data.relationship == 'siblings' && theSample.files.vcf != probandSample.files.vcf) {
+                      //  bypass = true;
+                      //  console.log("Bypassing sibling " + theSample.id + ".  This sample must reside in the same vcf as the proband in order to be processed.")
+                      //}
 
-                    if (!bypass) {
-                      let tbiUrl = null;
-                      if (theSample.files.tbi) {
-                        tbiUrl = theSample.files.tbi;
-                      } else if (theSample.files.csi) {
-                        tbiUrl = theSample.files.csi;
-                      } else {
-                        tbiUrl = null;
-                      }
-                      var modelInfo = {
-                        'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
-                        'affectedStatus': foundPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
-                        'sex':            foundPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
-                        'name':           theSample.name,
-                        'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
-                        'vcf':            theSample.files.vcf,
-                        'tbi':            tbiUrl,
-                        'txt':            theSample.files.txt
-                      }
+                      if (!bypass) {
 
-
-                      if (theSample.files.bam != null) {
-                        modelInfo.bam = theSample.files.bam;
-                        if (theSample.files.bai) {
-                          modelInfo.bai = theSample.files.bai;
+                        let tbiUrl = null;
+                        if (theSample.files.tbi) {
+                          tbiUrl = theSample.files.tbi;
+                        } else if (theSample.files.csi) {
+                          tbiUrl = theSample.files.csi;
+                        } else {
+                          tbiUrl = null;
                         }
+                        self.promiseGetSampleHPOTerms(projectId, theSample.id)
+                        .then(function(hpoTerms) {
+                          var modelInfo = {
+                            'relationship':   data.relationship == 'siblings' ? 'sibling' : data.relationship,
+                            'affectedStatus': foundPedigree ? theSample.pedigree.affection_status == 2 ? 'affected' : 'unaffected' : 'affected',
+                            'sex':            foundPedigree ? theSample.pedigree.sex == 1 ? 'male' : (theSample.pedigree.sex == 2 ? 'female' : 'unknown') : 'unknown',
+                            'name':           theSample.name,
+                            'sample':         theSample.files.vcf ? theSample.vcf_sample_name : theSample.name,
+                            'vcf':            theSample.files.vcf,
+                            'tbi':            tbiUrl,
+                            'txt':            theSample.files.txt,
+                            'hpoTerms':       hpoTerms
+                          }
 
-                      } else if (theSample.files.cram != null) {
-                        modelInfo.bam = theSample.files.cram;
-                        if (theSample.files.crai) {
-                          modelInfo.bai = theSample.files.crai;
-                        }
+
+                          if (theSample.files.bam != null) {
+                            modelInfo.bam = theSample.files.bam;
+                            if (theSample.files.bai) {
+                              modelInfo.bai = theSample.files.bai;
+                            }
+
+                          } else if (theSample.files.cram != null) {
+                            modelInfo.bam = theSample.files.cram;
+                            if (theSample.files.crai) {
+                              modelInfo.bai = theSample.files.crai;
+                            }
+                          }
+
+                          modelInfos.push(modelInfo);
+                          sampleResolve();
+
+                        })
+                        .catch(function(error) {
+                          sampleReset(error)
+                        })
+
                       }
 
-                      modelInfos.push(modelInfo);
-                    }
-
+                    })
                   })
                   promises.push(p);
                 })
@@ -190,7 +209,7 @@ export default class HubSession {
     })
 
   }
-  
+
   getErrorMessage(error) {
     if (error.hasOwnProperty('responseJSON') && error.responseJSON.hasOwnProperty('message')) {
       return error.responseJSON.message;
@@ -825,6 +844,22 @@ export default class HubSession {
     })
   }
 
+  promiseGetSampleHPOTerms(project_id, sample_id) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      self.getSampleHPOTerms(project_id, sample_id)
+      .done(response => {
+        resolve(response)
+      })
+      .fail(error => {
+        let errorMsg = self.getErrorMessage(error);
+        console.log("Error getting sample HPO terms for project " + project_id + " and sample " + sample_id)
+        console.log(errorMsg)
+        reject(errorMsg);
+      })
+    })
+  }
+
   getAnalysis(projectId, analysisId) {
     let self = this;
     return $.ajax({
@@ -1026,6 +1061,21 @@ export default class HubSession {
       url: self.api + '/projects/' + projectId + '/variants/sets/' + variantSetId + "?include_variant_data=true&include_genotype_data=true",
       data: {
       },
+      type: 'GET',
+      contentType: 'application/json',
+      headers: {
+        Authorization: localStorage.getItem('hub-iobio-tkn'),
+      },
+    });
+  }
+
+
+
+  getSampleHPOTerms(project_id, sample_id) {
+    let self = this;
+
+    return $.ajax({
+          url: self.api + '/projects/' + project_id + '/samples/'+ sample_id + "/hpo-terms",
       type: 'GET',
       contentType: 'application/json',
       headers: {

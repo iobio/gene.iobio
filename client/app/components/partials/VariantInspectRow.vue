@@ -153,13 +153,32 @@ export default {
     },
 
     getClinVarClass: function(displayVal){
-      let entry = this.translator.clinvarMap[displayVal.split(" ").join("_").toLowerCase()]
-      if (entry && entry.clazz) {
-        let clinvarLevel = this.globalApp.utility.getClinvarLevel(entry.clazz);
-        return "level-" + clinvarLevel;        
+      let self = this;
+      let displayTokens = null;
+      if (displayVal.indexOf(", ") > 0) {
+        displayTokens = displayVal.split(", ")
+      } else if (displayVal.indexOf(",") > 0) {
+        displayTokens = displayVal.split(",")
       } else {
-        return "level-other";
+        displayTokens = [displayVal]
       }
+      let clazz = null;
+      displayTokens.forEach(function(displayToken) {
+        let entry = self.translator.clinvarMap[displayToken.split(" ").join("_").toLowerCase()]
+        if (entry && entry.clazz) {
+          let clinvarLevel = self.globalApp.utility.getClinvarLevel(entry.clazz);
+          // A class other than 'other' is more descriptive and should be used to determine
+          // the level of severity
+          if (clazz == null || clazz == "level-other") {
+            clazz =  "level-" + clinvarLevel;        
+          }
+        } else {
+          if (clazz == null) {
+            clazz = "level-other";
+          }
+        }
+      })
+      return clazz;
     },
 
 

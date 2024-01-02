@@ -60,10 +60,10 @@
   max-height: 100px
   overflow-y: scroll
 
-.in-iframe .v-dialog--persistent
+.in-iframe #edit-filter-dialog.v-dialog--persistent
   position: sticky !important
-  top: 10px !important
-  max-height: 480px !important
+  top: 50px !important
+  
 
 #flagged-variants-card
   padding-left: 5px
@@ -225,33 +225,43 @@
     font-size: 12px
     white-space: normal
 
-  .gene-phenotype-association.v-chip
+  .gene-phenotype-association
     vertical-align: top
     margin-top: 3px
     margin-bottom: 0px
-    margin-right: 0px
-    background-color: $level-high-color
-    color: white
+    margin-right: 5px
+    background-color: white
+    color: $nav-badge-color
+    font-size: 12px
+    font-weight: 600
 
-    .v-chip__content
-      padding: 4px !important
-      height: 18px !important
-      font-size: 11px !important
+
+    &.match-chip
+      color: $nav-badge-color
+
+    &.match-level-0 
+      color: $level-high-color !important      
+    &.match-level-1 
+      color: $level-high-color !important      
 
   .gene-ranks
-    .chip, .v-chip
+    .v-chip.search-hit
       margin-top: 0px
       margin-bottom: 2px
       margin-left: 0px
-      margin-right: 0px
+      margin-right: 4px
+      background-color:  white
+      border-color: $high-impact-color
+      border-style: solid
 
-    .chip__content, .v-chip__content
-      padding: 8px
+    .v-chip__content
+      padding: 0px
+      padding-left: 2px
+      padding-right: 2px
       height: 18px
       justify-content: center
       font-size:  11px
-      background-color:  $high-impact-color
-      color:  white
+      color:  $high-impact-color
 
     .pheno-source
       width: 40px
@@ -738,7 +748,6 @@
   .btn__content, .v-btn__content
     padding: 0 4px
 
- 
       
 </style>
 
@@ -910,9 +919,9 @@
           <template v-for="variant in flaggedGene.variants">
 
             <v-list-tile
-                :class="{'list-item': true, selected: isSelected(variant)}"
+                :class="{'list-item': true, selected: isSelected(variant, geneList)}"
                 :key="variant.start + ' ' + variant.ref + ' ' + variant.alt"
-                @click="onVariantSelected(variant)"
+                @click="onVariantSelected(variant, geneList)"
                 ripple>
 
               <v-list-tile-avatar >
@@ -1031,19 +1040,21 @@
                     <div  v-if="!isBasicMode && !variant.notFound && launchedFromClin">
                       <span class="revel">{{ capitalize(revel(variant)) }}</span>
                     </div>
-                    <!--
-                    <v-chip class="gene-phenotype-association" v-for="assocation, idx in genePhenotypeAssociations(flaggedGene.gene.gene_name)" :key="assocation">
-                      {{ assocation }}
-                    </v-chip>
-                    -->
-                    <div v-for="(geneHit, index) in genePhenotypeAssociations(flaggedGene.gene.gene_name)" :key="geneHit.key">
+
+                    <div v-if="flaggedGene.matchingPhenotypes && flaggedGene.matchingPhenotypes.length > 0" style="display: flex;flex-flow: row;flex-wrap: wrap;">
+                      <span :class="`gene-phenotype-association match-chip match-level-` + entry.matchLevel" v-for="entry, idx in flaggedGene.matchingPhenotypes" :key="entry.name">
+                        {{ entry.name }}
+                      </span>
+                    </div>
+
+                    <div v-if="!launchedFromClin" v-for="(geneHit, index) in genePhenotypeAssociations(flaggedGene.gene.gene_name)" class="gene-ranks" :key="geneHit.key">
                       <div v-for="geneRank in geneHit.geneRanks" :key="geneRank.rank">
-                        <div>
-                          <v-chip class="gene-phenotype-association" v-if="geneRank.rank">
+                        <div style="display: flex;align-items:center;margin-top: 2px">
+                          <v-chip class="gene-phenotype-association search-hit" v-if="geneRank.rank">
                             <span class="mr-1">#{{ geneRank.rank  }}</span>
                             <span v-if="geneRank.source">{{  geneRank.source }}</span>
                           </v-chip>
-                          <v-chip class="gene-phenotype-association" v-else >
+                          <v-chip class="gene-phenotype-association search-hit" v-else >
                             <span v-if="geneRank.source"> {{ geneRank.source }}</span>
                           </v-chip>
                           <span v-if="geneHit.searchTerm && geneRank.source!=='HPO'" class="pheno-search-term">
@@ -1098,9 +1109,9 @@
 
   </v-card>
 
-  <v-dialog v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
-      <v-card v-if="currentFilter" class="full-width" style="padding:10px">
-        <v-card-title style="margin-left:20px" class="headline">
+  <v-dialog  v-model="showEditFilter" persistent :scrollable="launchedFromClin" max-width="650">
+      <v-card v-if="currentFilter" id="edit-filter-dialog-content" class="full-width" style="padding:15px">
+        <v-card-title style="" class="headline">
           {{editAddText}}
           {{ currentFilter.title }}  Filter
           <v-spacer></v-spacer>
@@ -1204,6 +1215,7 @@ export default {
       loadedCount: 0,
       calledCount: 0,
       totalCount: 0,
+
     }
   },
   methods: {
@@ -1222,13 +1234,23 @@ export default {
       this.showPopup = false;
     },
 
-    isSelected: function(v){
+    isSelected: function(v, geneList){
       let stashedVariant = this.selectedVariant;
-      return ( v && stashedVariant
+      let matchesVariant =  v && stashedVariant
           && v.start === stashedVariant.start
           && v.end === stashedVariant.end
           && v.ref === stashedVariant.ref
-          && v.alt === stashedVariant.alt);
+          && v.alt === stashedVariant.alt ? true : false;
+      let matchesFilter = geneList 
+          && this.selectedGeneList 
+          && geneList.label == this.selectedGeneList.label ? true : false;
+      // In the case where we are programatically selected the first filter
+      // in the list, we don't have a selected filter yet to match to, so 
+      // if the variant matches, assume that the filter matches.
+      if (matchesVariant && !matchesFilter && this.selectedGeneList == null) {
+        matchesFilter = true;
+      }
+      return matchesVariant && matchesFilter;
     },
 
     setGenesList(genesList){
@@ -1251,8 +1273,9 @@ export default {
       this.interpretationFilters = interpretation
       this.populateGeneLists();
     },
-    onVariantSelected: function(variant) {
+    onVariantSelected: function(variant, geneList) {
       this.clickedVariant = variant;
+      this.selectedGeneList = geneList;
       this.$emit("flagged-variant-selected", variant);
     },
     onShowExportVariants: function() {
@@ -1270,63 +1293,82 @@ export default {
 
     deselectVariant: function() {
       this.clickedVariant = null;
+      this.selectedGeneList = null;
     },
     populateGeneLists: function(variant) {
       let self = this;
-      self.geneLists = [];
-      self.variantCount = 0;
 
-      if( variant && variant.interpretation && variant.interpretation !== "not-reviewed"){
-        if(variant.filtersPassedAll){
-          if(!variant.filtersPassedAll.includes("reviewed")){
-            variant.filtersPassedAll.push("reviewed");
+      return new Promise(function(resolve, reject) {
+        self.geneLists = [];
+        self.variantCount = 0;
+
+        let geneLists = [];
+        let variantCount = 0;
+
+        if( variant && variant.interpretation && variant.interpretation !== "not-reviewed"){
+          if(variant.filtersPassedAll){
+            if(!variant.filtersPassedAll.includes("reviewed")){
+              variant.filtersPassedAll.push("reviewed");
+            }
           }
+          else{
+            variant.filtersPassedAll = ["reviewed"];
+          }
+          variant.isUserFlagged = true;
         }
-        else{
-          variant.filtersPassedAll = ["reviewed"];
-        }
-        variant.isUserFlagged = true;
-      }
 
-      var filters = self.cohortModel.organizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant);
+        self.cohortModel.promiseOrganizeVariantsByFilterAndGene(self.activeFilterName, self.isFullAnalysis, self.interpretationFilters, variant)
+        .then(function(filters) {
+            geneLists = filters.map(function(filterObject, idx) {
+            variantCount += filterObject.variantCount;
+            filterObject.filter.key = filterObject.key;
+            return {
+              name:  filterObject.key,
+              label: filterObject.filter.title,
+              filter: filterObject.filter,
+              show:  (filterObject.filter.active
+                      && filterObject.filter.title != 'Reviewed'
+                      && filterObject.filter.title != 'Not found'
+                      && filterObject.filter.title != 'Not categorized'
+                      && filterObject.filter.title != 'Flagged by user')
+                     || filterObject.genes.length > 0,
+              genes: filterObject.genes,
+              variantCount: filterObject.variantCount,
+              expand: true
+            }
+          }).sort(function(filterObject1, filterObject2) {
+            if (+filterObject1.filter.order < +filterObject2.filter.order) {
+              return -1;
+            } else if (+filterObject1.filter.order > +filterObject2.filter.order) {
+              return 1;
+            } else {
+              return 0;
+            }
+          })
 
 
-      self.geneLists = filters.map(function(filterObject, idx) {
-        self.variantCount += filterObject.variantCount;
-        filterObject.filter.key = filterObject.key;
-        return {
-          name:  filterObject.key,
-          label: filterObject.filter.title,
-          filter: filterObject.filter,
-          show:  (filterObject.filter.active
-                  && filterObject.filter.title != 'Reviewed'
-                  && filterObject.filter.title != 'Not found'
-                  && filterObject.filter.title != 'Not categorized'
-                  && filterObject.filter.title != 'Flagged by user')
-                 || filterObject.genes.length > 0,
-          genes: filterObject.genes,
-          variantCount: filterObject.variantCount,
-          expand: true
-        }
-      }).sort(function(filterObject1, filterObject2) {
-        if (+filterObject1.filter.order < +filterObject2.filter.order) {
-          return -1;
-        } else if (+filterObject1.filter.order > +filterObject2.filter.order) {
-          return 1;
-        } else {
-          return 0;
-        }
+          self.flattenGenesList();
+
+          self.$emit("count-changed", variantCount);
+          self.$emit("gene-lists-changed", geneLists);
+
+          self.variantCount = variantCount;
+          self.geneLists = geneLists;
+          self.expansionControl =  self.geneLists.map(function(geneList) {
+            return geneList.expand;
+          })
+          resolve();
+        })
+        .catch(function(error) {
+          console.log("Error encounted in FlaggedVariantsCard.populateGeneLists()")
+          console.log(error)
+          reject(error)
+        })
+
       })
+  
 
 
-      self.flattenGenesList();
-
-      self.$emit("count-changed", self.variantCount);
-      self.$emit("gene-lists-changed", self.geneLists);
-
-      self.expansionControl =  self.geneLists.map(function(geneList) {
-        return geneList.expand;
-      })
     },
     onApplyVariantNotes: function(variant) {
       this.$emit("apply-variant-notes", variant);
@@ -1411,7 +1453,7 @@ export default {
 
     onEditFilter: function(geneList, text) {
       let self = this;
-      
+
       if(text === "Add"){
         this.editAddText = 'Add ';
       }
@@ -1419,6 +1461,11 @@ export default {
         this.editAddText = "Edit "
       }
       self.showEditFilter = true;
+
+      setTimeout(function() {
+        $('#edit-filter-dialog-content').parent().attr("id","edit-filter-dialog");
+      },500)
+
       self.currentFilter = geneList.filter;
       setTimeout(function() {
         if (self.$refs.currentFilterSettingRef) {
@@ -1429,6 +1476,7 @@ export default {
           })
         }
       }, 20);
+      
     },
     onApplyFilter: function() {
       let self = this;
@@ -1488,6 +1536,7 @@ export default {
       flagCriteria.active = false;
       flagCriteria.name = newFilter.name;
       flagCriteria.maxAf = null;
+      flagCriteria.maxHomozygotes = null;
       flagCriteria.minRevel = null;
       flagCriteria.clinvar = null;
       flagCriteria.impact = null;
@@ -1587,6 +1636,9 @@ export default {
         return variant.vepConsequence ? Object.keys(variant.vepConsequence).join(" ").split("_").join(" ") : "";
       }
     },
+    matchingGenePhentoypes: function() {
+
+    },
     genePhenotypeAssociations: function(geneName) {
       let self = this;
       let associations = []
@@ -1598,7 +1650,16 @@ export default {
           associations.push( {key: searchTerm, searchTerm: searchTermLabel, geneRanks: rankRecs } );
         }
       }
-      return associations;
+      let sortedAssociations = associations.sort(function(a,b) {
+        if (a.geneRanks[0].rank < b.geneRanks[0].rank) {
+          return -1
+        }else if (a.geneRanks[0].rank > b.geneRanks[0].rank) {
+          return 1;
+        } else {
+          return 0;
+        }
+      })
+      return sortedAssociations;
     },
     highestImpactClass: function(variant) {
       let clazz = "filter-symbol";
@@ -1799,7 +1860,7 @@ export default {
       this.populateGeneLists();
     },
     toClickVariant: function() {
-      this.populateGeneLists();
+      //this.populateGeneLists();
       this.clickedVariant = this.toClickVariant;
     },
     genesInProgress: function() {
