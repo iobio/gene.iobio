@@ -611,17 +611,12 @@
         <img src="../../../assets/images/wheel.gif">
         HGVS
       </span>
-      <variant-aliases-menu
+      <hgvs-labels
       v-show="selectedVariant && (!info.HGVSpLoading || !info.HGVScLoading)"
       v-if="selectedVariant && selectedVariantRelationship != 'known-variants' && !isSimpleMode"
-      :label="`HGVS`"
-      :selectedGene="selectedGene"
-      :selectedVariant="selectedVariant"
-      :geneModel="cohortModel.geneModel"
-      :info="info">
-      </variant-aliases-menu>
+       :info="info">
+      </hgvs-labels>
 
-      <span class="pl-3 variant-header aa-change" style="margin-top:2px">{{ aminoAcidChange }}</span>
 
 
 
@@ -1091,7 +1086,7 @@ import VariantInspectRow        from "../partials/VariantInspectRow.vue"
 import VariantInspectQualityRow from "../partials/VariantInspectQualityRow.vue"
 import VariantInspectInheritanceRow from "../partials/VariantInspectInheritanceRow.vue"
 import VariantLinksMenu         from "../partials/VariantLinksMenu.vue"
-import VariantAliasesMenu       from "../partials/VariantAliasesMenu.vue"
+import HGVSLabels               from "../partials/HGVSLabels.vue"
 import VariantAfPopMenu         from "../partials/VariantAfPopMenu.vue"
 import InfoPopup                from "../partials/InfoPopup.vue"
 import ToggleButton             from '../partials/ToggleButton.vue'
@@ -1118,7 +1113,7 @@ export default {
     InfoPopup,
     VariantAfPopMenu,
     VariantLinksMenu,
-    VariantAliasesMenu,
+    'hgvs-labels': HGVSLabels,
     VariantInterpretation,
     VariantInspectRow,
     VariantInspectQualityRow,
