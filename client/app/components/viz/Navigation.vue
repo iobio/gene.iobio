@@ -716,9 +716,9 @@ nav.toolbar, nav.v-toolbar
           v-model="geneEntered" label="Gene name" >
           </v-text-field>
           <typeahead v-model="lookupGene"
-          force-select v-bind:limit="typeaheadLimit" match-start
+          force-select v-bind:limit="typeaheadLimit" 
           target="#search-gene-name" :data="knownGenes"
-          item-key="gn"/>
+          item-key="gl"/>
         </span>
 
 
@@ -1894,7 +1894,7 @@ export default {
       let self = this;
       if (self.launchedFromClin) {
         return self.geneModel.sortedGeneNames.map(function(geneName) {
-          return {gene_name: geneName};
+          return {gn: geneName};
         });
       } else {
         return self.geneModel.allKnownGenes;

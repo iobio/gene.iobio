@@ -304,19 +304,18 @@ class GeneModel {
         me.geneNames.push(geneName);
         me.sortedGeneNames.push(geneName);
         me.promiseGetGeneObject(geneName)
-        .then(function() {
+        .then(function(geneObject) {
           return me.promiseGetGenePhenotypes(geneName)
         })
-        .then(function() {
+        .then(function(data) {
           resolve(true);
         })
         .catch(function(error) {
           if (error.hasOwnProperty('message')) {
             console.log(error.message)
-            me.dispatch.alertIssued("warning", 
-                 "Cannot get phenotypes for gene <pre>" + geneName + "</pre>",
-                 geneName,
-                 [error.message]);
+            me.dispatch.alertIssued(error.hasOwnProperty("alertType") ? error.alertType : "warning",
+                 error.message,
+                 error.hasOwnProperty('gene') ? error.gene : geneName);
 
           } else {
             console.log(error)
@@ -339,7 +338,15 @@ class GeneModel {
     me.allKnownGenes = allKnownGenes;
     me.allKnownGeneNames = {};
     me.allKnownGenes.forEach(function(gene) {
-      me.allKnownGeneNames[gene.gn.toUpperCase()] = gene["d"];
+      // Gene label is a concantenation of gene name followed by its aliases,
+      // flanked by parens.
+      gene['gl'] = gene['gn'] +
+                   (gene.hasOwnProperty("a") && gene['a'] ? " (" + gene['a'] + ")" : "");
+      let geneObj = $.extend({}, gene["d"]);
+      if (gene.hasOwnProperty("a")) {
+        geneObj['a'] = gene['a']
+      }
+      me.allKnownGeneNames[gene.gn.toUpperCase()] = geneObj
     })
   }
 
@@ -1576,18 +1583,27 @@ class GeneModel {
       let theGeneSource = null;
       if (knownGene && knownGene[buildName][defaultGeneSource] > 0) {
         theGeneSource = defaultGeneSource
-      } else if (knownGene && knownGene[buildName].refseq > 0) {
-        theGeneSource = 'refseq';
-        let msg = "No Gencode transcripts for " + geneName + ". Using Refseq transcripts instead.";        
-      } else if (knownGene && knownGene[buildName].gencode > 0) {
-        let msg = "No Refseq transcripts for " + geneName + ". Using Gencode transcripts instead.";
-        theGeneSource = 'gencode';
       } else {
-        let msg = "Gene <pre>" + geneName + "</pre> is not present for <pre>" + buildName + "</pre> in Gencode or Refseq.";
-        reject({'message': msg, 
-                'gene': geneName, 
-                'alertType': 'error', 
-                'options': {'showAlertPanel': true, 'selectAlert': true} });
+        theGeneSource = null;
+        let msg = "Gene <pre>" + geneName + "</pre> is not present for " + defaultGeneSource + ", build " + buildName + ".";
+        let preferredGeneNames = me.getPreferredGeneNames(geneName, buildName, defaultGeneSource)
+        if (preferredGeneNames && preferredGeneNames.length > 0) {
+          msg += " Analyzing gene <pre>" + preferredGeneNames[0] + "</pre> instead."
+          reject({'message': msg,
+                  'gene': preferredGeneNames[0],
+                  'alertType': 'warning',
+                  'options': {'showAlertPanel': true,
+                              'selectAlert': true},
+                  'useDifferentGene': preferredGeneNames[0] });
+          return;
+        } else {
+          reject({'message': msg,
+                  'gene': geneName,
+                  'alertType': 'error',
+                  'options': {'showAlertPanel': true, 'selectAlert': true} });
+          return;
+
+        }
       }
 
       if (theGeneSource) {
@@ -1937,9 +1953,11 @@ class GeneModel {
 
 
   isKnownGene(geneName) {
-    if (geneName in this.allKnownGeneNames) {
+    if (geneName == null) {
       return true;
-    } else if (geneName.toUpperCase() in allKnowGeneNames) {
+    } else if (geneName in this.allKnownGeneNames) {
+      return true;
+    } else if (geneName.toUpperCase() in this.allKnownGeneNames) {
       return true;
     } else {
       return false;
@@ -1973,15 +1991,50 @@ class GeneModel {
     if (d) {
       return {
               'GRCh37': {'gencode': d[0][0], 'refseq': d[0][1]},
-              'GRCh38': {'gencode': d[1][0], 'refseq': d[1][1]}
+              'GRCh38': {'gencode': d[1][0], 'refseq': d[1][1]},
+              'aliases': d.hasOwnProperty('a') ? d['a'] : null
              }
     } else {
       return {
-              'GRCh37': {'gencode': 1, 'refseq': 1},
-              'GRCh38': {'gencode': 1, 'refseq': 1}
+              'GRCh37': {'gencode': 0, 'refseq': 0},
+              'GRCh38': {'gencode': 0, 'refseq': 0},
+              'aliases': null
              }
 
     }
+
+  }
+
+  getPreferredGeneNames(geneName, build, source) {
+    let self = this;
+
+    if (build == null) {
+      // If current build not specified, default to GRCh37
+      build = self.genomeBuildHelper.getCurrentBuildName() ? self.genomeBuildHelper.getCurrentBuildName() : "GRCh37";
+    }
+    if (source == null) {
+      source = self.geneSource ? self.geneSource : 'gencode';
+    }
+
+    let geneObj = self.getKnownGene(geneName);
+    let preferredGeneNames = null;
+    if (geneObj && geneObj.aliases && geneObj.aliases.length > 0) {
+      let otherGeneNames = geneObj.aliases.split(",");
+      // Filter gene aliases to keep those that have transcripts
+      // for the given build and source.
+      preferredGeneNames = otherGeneNames.filter(function(otherGeneName) {
+        let otherGeneObj = self.getKnownGene(otherGeneName);
+        let matching = false;
+        if (otherGeneObj && otherGeneObj[build] && otherGeneObj[build][source]) {
+          let transcriptCount = otherGeneObj[build][source];
+          if (transcriptCount > 0) {
+            matching = true;
+          }
+        }
+        return matching;
+      })
+    }
+    return preferredGeneNames;
   }
 
 
