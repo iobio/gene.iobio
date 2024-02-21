@@ -1939,7 +1939,7 @@ class GeneModel {
   isKnownGene(geneName) {
     if (geneName in this.allKnownGeneNames) {
       return true;
-    } else if (geneName.toUpperCase() in allKnowGeneNames) {
+    } else if (geneName.toUpperCase() in this.allKnownGeneNames) {
       return true;
     } else {
       return false;
