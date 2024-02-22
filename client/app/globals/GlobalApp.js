@@ -53,10 +53,10 @@ class GlobalApp {
     // get gnomad extra info for all variants
     this.gnomADExtraAll       = true;
 
-    // how should we get the gnomad extra info?  'bcftools' or 'vepcustom'
-    this.GNOMAD_METHOD_BCFTOOLS   = "gnomad_merge_annots";
-    this.GNOMAD_METHOD_CUSTOM_VEP = "gnomad_custom_vep";
-    this.gnomADExtraMethod        = this.GNOMAD_METHOD_MERGE_ANNOTS;
+    // how should we get the gnomad extra info?  'merge annots' or 'cust vep'
+    this.GNOMAD_METHOD_MERGE_ANNOTS   = "gnomad_merge_annots";
+    this.GNOMAD_METHOD_CUSTOM_VEP     = "gnomad_custom_vep";
+    this.gnomADExtraMethod            = this.GNOMAD_METHOD_MERGE_ANNOTS;
 
 
     // How many genes can be analyzed in one session.  Set to null if no limitation.

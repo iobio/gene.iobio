@@ -2253,7 +2253,7 @@ export default {
             return gnomAD;
 
         }
-        else if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_MERGED_ANNOTS &&
+        else if (this.globalApp.gnomADExtraMethod == this.globalApp.GNOMAD_METHOD_MERGE_ANNOTS &&
           (this.globalApp.gnomADExtraAll || (this.globalApp.gnomADExtra && this.selectedVariant.extraAnnot))) {
           let source      =  "gnomAD genomes"
           let infoPopup   = "gnomAD"
