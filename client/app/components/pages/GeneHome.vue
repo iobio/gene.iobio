@@ -2335,6 +2335,9 @@ export default {
             var options = {'getKnownVariants': self.showKnownVariantsCard,
                 'getSfariVariants': (self.showSfariVariantsCard && !self.blacklistedGeneSelected),
                 'blacklistedGeneSelected': self.blacklistedGeneSelected };
+            options.analyzeCodingVariantsOnly = self.cohortModel.analyzeCodingVariantsOnly;
+            options.isBackground = false;
+
 
             self.cohortModel.promiseLoadData(self.selectedGene, self.selectedTranscript, options)
                 .then(function(resultMap) {
