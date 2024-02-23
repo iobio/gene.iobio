@@ -1069,7 +1069,7 @@ class CohortModel {
         })
 
       } else {
-        let theOptions = $.extend({'isMultiSample': self.mode == 'trio' && self.samplesInSingleVcf(), 'isBackground': false}, options);
+        let theOptions = $.extend(options, {'isMultiSample': self.mode == 'trio' && self.samplesInSingleVcf(), 'isBackground': false});
         self.promiseAnnotateVariants(theGene, theTranscript, theOptions)
         .then(function(resultMap) {
           // Flag bookmarked variants
@@ -1545,8 +1545,12 @@ class CohortModel {
             model.inProgress.loadingVariants = true;
           }
         })
-        options.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
-        p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.getCanonicalModels(), options)
+        let theOptions = $.extend({}, options)
+        theOptions.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
+        theOptions.getKnownVariants = false;
+        theOptions.getSfariVariants = false;
+        theOptions.blacklistedGeneSelected = false;
+        p = self.sampleMap['proband'].model.promiseAnnotateVariants(theGene, theTranscript, self.getCanonicalModels(), theOptions)
         .then(function(resultMap) {
           if (!options.isBackground) {
             self.getCanonicalModels().forEach(function(model) {
@@ -1554,6 +1558,9 @@ class CohortModel {
             })
           }
           theResultMap = resultMap;
+        })
+        .catch(function(error) {
+          console.log(error)
         })
         annotatePromises.push(p);
       } else {
@@ -1564,8 +1571,13 @@ class CohortModel {
               model.inProgress.loadingVariants = true;
             }
             if (rel !== 'known-variants' && rel !== 'sfari-variants') {
-              options.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
-              var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], options)
+              let theOptions = $.extend({}, options)
+              theOptions.analyzeCodingVariantsOnly = self.analyzeCodingVariantsOnly;
+              theOptions.getKnownVariants = false;
+              theOptions.getSfariVariants = false;
+              theOptions.blacklistedGeneSelected = false;
+
+              var p = model.promiseAnnotateVariants(theGene, theTranscript, [model], theOptions)
                 .then(function(resultMap) {
                     for (var theRelationship in resultMap) {
                         if (!options.isBackground) {
@@ -1586,13 +1598,14 @@ class CohortModel {
       if (options.getKnownVariants && (!options.hasOwnProperty('bypassAnnotate') || options.bypassAnnotate == false)) {
         let p = self.promiseLoadKnownVariants(theGene, theTranscript)
         .then(function(resultMap) {
-          if (self.knownVariantViz === 'variants') {
+          if (self.knownVariantsViz === 'variants') {
             for (var rel in resultMap) {
               theResultMap[rel] = resultMap[rel];
             }
           }
         })
         .catch(function(error) {
+          console.log(error)
           reject(error)
         })
         annotatePromises.push(p);
@@ -1606,7 +1619,9 @@ class CohortModel {
                   theResultMap[rel] = resultMap[rel];
               }
             }
-          });
+           }).catch(function(error) {
+              console.log(error)
+           })
         annotatePromises.push(p);
       }
 
@@ -1617,7 +1632,10 @@ class CohortModel {
           self.promiseAnnotateWithClinvar(theResultMap, theGene, theTranscript, options.isBackground)
           .then(function(data) {
             resolve(data)
-          })          
+          })
+          .catch(function(error) {
+            console.log(error)
+          })
         } else {
           resolve(theResultMap)
         }
