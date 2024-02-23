@@ -70,7 +70,7 @@
       </v-badge>
     </div>
     <div  class="disease-table-body" style="padding-top:5px">
-      <div class="hpo-row" v-for="entry in entries" :key="entry.key">
+      <div class="hpo-row" v-for="entry in entries" :key="entry.diseaseId">
           <span class="hpo-launch" >
             <a :href="entry.url" target="_hpo">
               {{ entry.diseaseId }}
@@ -133,9 +133,7 @@ export default {
           self.entries.push({'diseaseId': geneDisorder.disease_id, 
                         'phenotypeInheritance': geneDisorder.inheritance,
                         'diseaseName': geneDisorder.disorder,
-                        'url': url,
-                        'key':
-                           geneDisorder.disease_id + "-" + geneDisorder.disorder.replaceAll(" ", "_")})
+                        'url': url })
 
         })
         self.entryCount = self.entries.length > 0 ? self.entries.length : ""

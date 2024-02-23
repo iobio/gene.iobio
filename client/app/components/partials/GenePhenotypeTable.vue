@@ -280,7 +280,7 @@
     </div>
 
     <div  :class="`hpo-table-body` + ' ' + viewMode">
-      <div class="hpo-row patient-match" v-for="entry in hpoEntries" :key="entry.key">
+      <div class="hpo-row patient-match" v-for="entry in hpoEntries" :key="entry.ontologyId">
         <v-chip v-if="highlightMatches  && entry.match != ''" :class="`match-chip match-level-` + entry.matchLevel">
           {{ entry.match }}
         </v-chip>
@@ -354,10 +354,7 @@ export default {
       self.hasMatches = false;
 
       if (self.genePatientPhenotypes) {
-        self.hpoEntries = self.genePatientPhenotypes.map(function(entry) {
-          entry.key = entry.ontologyId + "-" + entry.name.replaceAll(" ", "_")
-          return entry;
-        })
+        self.hpoEntries = self.genePatientPhenotypes;
         self.entryCount = self.hpoEntries.length > 0 ? self.hpoEntries.length : ""
         self.hasMatches = self.hpoEntries.filter(function(hpoEntry) {
           return hpoEntry.match != ""
@@ -372,7 +369,6 @@ export default {
           let idx = 0;
           self.hpoEntries = data.hpoEntries.map(function(entry) {
             entry.ordinal = idx++;
-            entry.key = entry.ontologyId + "-" + entry.name.replaceAll(" ", "_")
             return entry;
           })
           self.hpoEntriesAll = self.hpoEntries;
