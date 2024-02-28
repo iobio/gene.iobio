@@ -2794,6 +2794,7 @@ export default {
           if (self.bringAttention === 'gene') {
             self.bringAttention = null;
           }
+          self.onGeneRegionZoomReset()
           self.geneModel.adjustGeneRegion(theGeneObject);
           self.geneRegionStart = theGeneObject.start;
           self.geneRegionEnd   = theGeneObject.end;
@@ -3043,12 +3044,6 @@ export default {
         self.selectedVariant = null;
 
         self.$nextTick(function() {
-          if (self.selectedGene) {
-            self.geneModel.adjustGeneRegion(self.selectedGene);
-            self.geneRegionStart = self.selectedGene.start;
-            self.geneRegionEnd   = self.selectedGene.end;
-          }
-
 
           self.calcFeatureMatrixWidthPercent();
           self.$set(self, "selectedVariant", variant);
