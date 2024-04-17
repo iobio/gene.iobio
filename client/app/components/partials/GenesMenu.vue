@@ -21,6 +21,9 @@ textarea#copy-paste-genes
     margin: 0px
     color: $text-color
     font-size: 16px
+#enter-genes-input
+  .v-messages__message
+    width: 500px
 
 #show-genes-button.icon
   min-width: 20px
@@ -211,15 +214,26 @@ export default {
           let genes = v ? v.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i) : [];
           genes.forEach((gene) => {
             if (!self.validGenesMap[gene.toUpperCase()] && gene !== '') {
-              invalids.push(gene.toUpperCase());
+              let item = {'geneName': gene.toUpperCase()}
+              invalids.push(item);
             }
           });
           let isValid = invalids.length === 0;
+          let invalidMsg = ""
+          let renameMsg = ""
           if (!isValid) {
             self.showWarning = false;
             self.disableApplyBtn = true;
+            invalids.forEach(function(item) {
+              if (invalidMsg.length == 0) {
+                invalidMsg +=  'Correct or remove the following invalid gene names: ';
+              } else {
+                invalidMsg += ","
+              }
+              invalidMsg += item.geneName;
+            })
           }
-          return isValid || 'Cannot process the following genes: ' + invalids.join();
+          return isValid || invalidMsg + ". " + renameMsg;
         },
       ],
     }
@@ -319,6 +333,12 @@ export default {
       validGenes.forEach((gene) => {
         if (gene.hasOwnProperty("gn")) {
           self.validGenesMap[gene['gn'].toUpperCase()] = true;
+        }
+        let preferredGeneNames = self.geneModel.getPreferredGeneNames(gene['gn'])
+        if (preferredGeneNames) {
+          preferredGeneNames.forEach(function(preferredGeneName) {
+            self.validGenesMap[preferredGeneName] = gene['gn'];
+          })
         }
       });
     }

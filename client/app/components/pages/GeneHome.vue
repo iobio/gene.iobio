@@ -1707,6 +1707,35 @@ export default {
                       reject(error)
                     })
                   })
+                  .catch(function(error) {
+
+                    // The gene that was selected doesn't have any transcripts for the source and
+                    // build. We are adding a gene that is an alias for the gene to user selected.
+                    // This new gene has transcripts for the source and build.
+                    if (error.hasOwnProperty('useDifferentGene')) {
+                      self.removeGeneImpl(self.geneModel.geneNames[0]);
+                      setTimeout(function() {
+                        self.onGeneSelected(error.useDifferentGene)
+                        self.showLeftPanelForGenes();
+
+                        setTimeout(function() {
+                          self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+                                        error.hasOwnProperty('message') ? error.message : error,
+                                        error.useDifferentGene,
+                                        null,
+                                        error.hasOwnProperty("options") ? error.options : null)
+
+                        let msg = error.hasOwnProperty('message') ? error.message : error;
+                        resolve();
+
+                        }, 1000)
+                      },1000)
+                    } else {
+                      reject(error)
+                    }
+
+
+                  })
                 } else {
                   let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
                   self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
@@ -1720,9 +1749,9 @@ export default {
 
         })
         .catch(function(error) {
+          console.log(error)
           reject(error);
         })
-
       })
     },
 
@@ -2431,23 +2460,31 @@ export default {
         if (self.selectedGene && self.selectedGene.gene_name) {
           self.promiseLoadGene(self.selectedGene.gene_name)
           .then(function() {
+            if (analyzeAll) {
+              if (self.cohortModel && self.cohortModel.isLoaded) {
+                self.cacheHelper.analyzeAll(self.cohortModel, false);
+              }
+              if (callback) {
+                callback();
+              }
+            } else {
+              setTimeout(function() {
+                self.promiseSelectFirstFlaggedVariant()
+                if (callback) {
+                  callback();
+                }
+              },1500)
+            }
+
+          })
+          .catch(function(error) {
             if (callback) {
               callback();
             }
-          })
-          .catch(function(error) {
-            self.addAlert('error', error, self.selectedGene.gene_name)
+            // No need to add alert; promiseLoadGene has already
+            // reported on warnings/errors
           })
 
-          if (analyzeAll) {
-            if (self.cohortModel && self.cohortModel.isLoaded) {
-              self.cacheHelper.analyzeAll(self.cohortModel, false);
-            }
-          } else {
-            setTimeout(function() {
-              self.promiseSelectFirstFlaggedVariant()            
-            },1500)
-          }
         } else if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
           self.onGeneSelected(self.geneModel.sortedGeneNames[0]);
           if (analyzeAll) {
@@ -2578,7 +2615,8 @@ export default {
         self.setUrlGeneParameters();
       })
       .catch(function(error) {
-        self.addAlert('error', error, geneName)
+        // No need to add alert as promiseLoadGene has already
+        // done this.
       })
 
     },
@@ -2595,7 +2633,7 @@ export default {
         self.setUrlGeneParameters();
       })
       .catch(function(error) {
-        self.addAlert('error', error, geneName)
+
       })
       self.activeGeneVariantTab = "0";
 
@@ -2610,7 +2648,7 @@ export default {
       self.deselectVariant();
       self.promiseLoadGene(geneName, null, transcriptChanged)
       .catch(function(error) {
-        self.addAlert('error', error, geneName)
+
       })
       self.activeGeneVariantTab = "0";
     },
@@ -2751,11 +2789,12 @@ export default {
           }
         })
         .then(function() {
-          return self.geneModel.promiseGetGeneObject(geneName)
+           return self.geneModel.promiseGetGeneObject(geneName)
         }).then(function(theGeneObject) {
           if (self.bringAttention === 'gene') {
             self.bringAttention = null;
           }
+          self.onGeneRegionZoomReset()
           self.geneModel.adjustGeneRegion(theGeneObject);
           self.geneRegionStart = theGeneObject.start;
           self.geneRegionEnd   = theGeneObject.end;
@@ -2806,13 +2845,39 @@ export default {
         .catch(function(error) {
           console.log('Bypassing gene ' + geneName)
           console.log(error.hasOwnProperty('message') ? error.message : error)
-          self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error', 
-                        error.hasOwnProperty('message') ? error.message : error,
-                        geneName,
-                        null,
-                        error.hasOwnProperty("options") ? error.options : null)
-          let msg = error.hasOwnProperty('message') ? error.message : error;
-          reject(msg)
+
+          // The gene that was selected doesn't have any transcripts for the source and
+          // build. We are adding a gene that is an alias for the gene to user selected.
+          // This new gene has transcripts for the source and build.
+          if (error.hasOwnProperty('useDifferentGene')) {
+            self.removeGeneImpl(geneName);
+            setTimeout(function() {
+              self.onGeneSelected(error.useDifferentGene)
+
+              setTimeout(function() {
+                self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+                              error.hasOwnProperty('message') ? error.message : error,
+                              error.useDifferentGene,
+                              null,
+                              error.hasOwnProperty("options") ? error.options : null)
+
+              let msg = error.hasOwnProperty('message') ? error.message : error;
+              reject(msg)
+
+              }, 1000)
+            },1000)
+          } else {
+            self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+              error.hasOwnProperty('message') ? error.message : error,
+              geneName,
+              null,
+              error.hasOwnProperty("options") ? error.options : null)
+
+              let msg = error.hasOwnProperty('message') ? error.message : error;
+              reject(msg)
+          }
+
+
         })
       })
     },
@@ -2979,12 +3044,6 @@ export default {
         self.selectedVariant = null;
 
         self.$nextTick(function() {
-          if (self.selectedGene) {
-            self.geneModel.adjustGeneRegion(self.selectedGene);
-            self.geneRegionStart = self.selectedGene.start;
-            self.geneRegionEnd   = self.selectedGene.end;
-          }
-
 
           self.calcFeatureMatrixWidthPercent();
           self.$set(self, "selectedVariant", variant);
@@ -3255,7 +3314,7 @@ export default {
 
 
     persistAnalysis: function() {
-      return (this.launchedFromClin || this.launchedFromHub);
+      return (this.launchedFromClin || this.launchedFromHub) && this.analysis;
     },
 
     isNewAnalysis: function() {
@@ -3292,7 +3351,9 @@ export default {
           self.setUrlGeneParameters();
         })
         .catch(function(error) {
-          self.addAlert('error', error, newGeneToSelect)
+          // No need to add alert since promiseLoadGene has already
+          // reported any warnings or warnings
+
         })
       } else {
         self.setUrlGeneParameters();
@@ -3544,6 +3605,10 @@ export default {
         }
         
       })
+      .catch(function(error) {
+        console.log("applyGenesImpl encountered an error: " )
+        console.log(error)
+      })
 
     },
     onSortGenes: function(sortBy) {
@@ -3771,7 +3836,9 @@ export default {
         self.onCohortVariantClick(variant, self.$refs.variantCardProbandRef, 'proband');
       })
       .catch(function(error) {
-        self.addAlert('error', error, self.selectedGene.gene_name)
+        // No need to add alert since promiseLoadGene has already
+        // reported on errors and warnings.
+
       })
 
     },
@@ -4215,7 +4282,8 @@ export default {
 
       })
       .catch(function(error) {
-        self.addAlert('error', error, flaggedVariant.gene)
+        // No need to add alert; promiseLoadGene has already reporting
+        // errors/warnings.
       })
     },
     scrollToVariantInspectCard: function() {
@@ -5111,6 +5179,9 @@ export default {
                 resolve()
                 self.cacheHelper.analyzeAllInProgress = false;
               })
+              .catch(function(error) {
+                resolve();
+              })
             })
           }
           else if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
@@ -5242,6 +5313,10 @@ export default {
 
     promiseUpdateAnalysisGenesData: function(phenolyzerSearchTerm) {
       let self = this;
+      if (self.analysis == null) {
+        console.log("Cannot update analysis genes data b/c analysis not yet initialized")
+        return;
+      }
       self.analysis.payload.genes              = this.geneModel.geneNames;
 
       if (phenolyzerSearchTerm && phenolyzerSearchTerm.length > 0) {

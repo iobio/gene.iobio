@@ -1001,7 +1001,7 @@ class FilterModel {
         passes.all = true;
       }
     } else {
-      if (badgeCriteria.maxAf == null || (variant.afHighest <= badgeCriteria.maxAf)) {
+      if (badgeCriteria.maxAf == null || badgeCriteria.maxAf == "" || (variant.afHighest <= badgeCriteria.maxAf)) {
         passes.af = true;
       }
       if (badgeCriteria.maxHomozygotes == null || (parseInt(variant.gnomAD.homCount) <= parseInt(badgeCriteria.maxHomozygotes))) {

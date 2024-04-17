@@ -30,6 +30,8 @@
         .gene-info
             display: flex
             align-items: center
+            flex-wrap: wrap
+            margin-bottom: 10px
         .v-input
             margin-top: -8px
             padding-top: 0px
@@ -37,6 +39,21 @@
                 margin-bottom: 0px
                 input
                   padding-bottom: 0px
+        #aliases
+          display: flex
+          align-items: center
+          margin-right: 40px
+          #alias-label
+            color: $app-color
+            font-size: 14px
+            line-height: 15px
+          #alias-text
+            color: $text-color
+            font-size: 14px
+            line-height: 15px
+            max-width: 330px
+            min-width: 90px
+
         #gene-variants-heading
             color: $heading-color
             font-size: 17px
@@ -117,7 +134,7 @@
 				<v-badge id="minus-strand"   class="info" style="margin-left:3px;margin-right:10px" v-if="selectedGene.strand == '-'">reverse strand</v-badge>
 
 				<span  id="gene-plus-minus-label"  v-if="!isBasicMode && !isSimpleMode"  style="padding-left: 15px">+  -</span>
-				<div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:50px;height:21px;"  >
+				<div id="region-buffer-box" v-if="!isBasicMode && !isSimpleMode" style="display:inline-block;width:50px;height:21px;margin-right:40px"  >
 		    		<v-text-field
 		            id="gene-region-buffer-input"
 		            class="sm fullview"
@@ -127,8 +144,13 @@
 				</div>
 			</div>
 
+      <div v-if="aliases" id="aliases">
+        <div class="mr-2"id="alias-label">Aliases</div>
+        <div id="alias-text">{{ aliases }}</div>
+      </div>
+
       <!-- PubMed -->
-      <div style="margin-left:30px;" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
+      <div style="margin-right:30px;" v-if="selectedGene && cohortModel && Object.keys(selectedGene).length > 0 && !isSimpleMode && !isBasicMode">
         <gene-pubmed-table
          v-if="selectedGene && cohortModel && !isSimpleMode && !isBasicMode"
          :selectedGene="selectedGene"
@@ -148,6 +170,8 @@
                    :selectedGene="selectedGene"
                    :geneModel="cohortModel.geneModel">
       </gene-links-menu>
+
+
 		</div>
 
     <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)" 
@@ -296,6 +320,16 @@
             }, 100)
         },
         computed: {
+          aliases: function(){
+            let knownGene = this.cohortModel.geneModel.getKnownGene(this.selectedGene.gene_name)
+            let aliases = knownGene['aliases'];
+            if (aliases && aliases.length > 0) {
+              // Add a space after the comma for word wrapping
+              return aliases.split(",").join(", ");
+            } else {
+              return null;
+            }
+          }
         },
         watch: {
 

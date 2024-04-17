@@ -8,7 +8,7 @@
   min-width: 25px
   max-height: 25px
   padding-left: 8px
-  margin-left: 20px
+  margin-left: 0px
 
 
   .btn__content, .v-btn__content
