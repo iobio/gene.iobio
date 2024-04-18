@@ -22,6 +22,7 @@ export default class EndpointCmd {
       // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
       // the dev server.
       //this.api = new Client( 'https://mosaic.chpc.utah.edu/gru-dev-9002');
+      this.apiDev = new Client( 'https://mosaic.chpc.utah.edu/gru-dev-9002');
 
       this.api = new Client(httpScheme + process.env.IOBIO_BACKEND);
     }
@@ -95,8 +96,8 @@ export default class EndpointCmd {
         const refNames = this.getHumanRefNames(refName).split(" ");
         const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
         const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
-        let gnomadMergeAnnots = gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS 
-        
+        let gnomadMergeAnnots = gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS
+
         let vepCustom = null;
         if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
             // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
@@ -137,12 +138,71 @@ export default class EndpointCmd {
     }
 
     annotateVariants(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose, bypassAnnotate) {
+      let me = this;
+      if (this.gruBackend) {
+          const refNames = this.getHumanRefNames(refName).split(" ");
+          const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
+          const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
+          let gnomadMergeAnnots = gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS
+          let vepCustom = null;
+          if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
+
+            // Get the info fields in the gnomAD vcf based on the build and genomes vs exomes
+            gnomadFieldsGenomes = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+             "genomes");
+            gnomadFieldsExomes  = me.globalApp.getGnomADFields(me.genomeBuildHelper.getCurrentBuildName(),
+              "exomes");
+
+
+            vepCustom = "-custom "
+                        + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
+                                                    me.globalApp.utility.stripRefName(refName),
+                                                    "genomes",
+                                                    false)
+                        + ',gnomADg,vcf,exact,0,'
+                        + gnomadFieldsGenomes;
+
+
+            if (gnomadFieldsExomes) {
+              vepCustom += " -custom "
+                       + me.globalApp.getGnomADUrl(me.genomeBuildHelper.getCurrentBuildName(),
+                                                    me.globalApp.utility.stripRefName(refName),
+                                                    "exomes",
+                                                    false)
+                       + ',gnomADe,vcf,exact,0,'
+                       + gnomadFieldsExomes;
+            }
+
+
+
+
+          }
+
+          const cmd = this.apiDev.streamCommand('annotateVariantsV3', {
+              vcfUrl: vcfSource.vcfUrl,
+              tbiUrl: vcfSource.tbiUrl,
+              refNames,
+              regions,
+              vcfSampleNames: vcfSampleNames.split(','),
+              refFastaFile,
+              genomeBuildName,
+              hgvsNotation,
+              vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
+              decompose,
+              bypassAnnotate
+          });
+
+          return cmd;
+      }
+    }
+
+    annotateVariantsV2(vcfSource, refName, regions, vcfSampleNames, annotationEngine, isRefSeq, hgvsNotation, getRsId, vepAF, useServerCache, serverCacheKey, sfariMode = false, gnomadExtra, decompose, bypassAnnotate) {
         let me = this;
         if (this.gruBackend) {
             const refNames = this.getHumanRefNames(refName).split(" ");
             const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
             const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
-            let gnomadMergeAnnots = gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS 
+            let gnomadMergeAnnots = gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_MERGE_ANNOTS
             let vepCustom = null;
             if (gnomadExtra && me.globalApp.gnomADExtraMethod == me.globalApp.GNOMAD_METHOD_CUSTOM_VEP) {
 
@@ -173,7 +233,7 @@ export default class EndpointCmd {
               }
 
 
-              
+
 
             }
 
@@ -295,7 +355,7 @@ export default class EndpointCmd {
                 maxPoints,
                 coverageRegions: regions
             });
-            
+
             return cmd;
         }
     }
