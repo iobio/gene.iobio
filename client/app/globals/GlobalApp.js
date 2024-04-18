@@ -92,15 +92,15 @@ class GlobalApp {
 
     this.gnomADRenameChr = {
        genomes: {
-        'GRCh37': {'none': null,     
+        'GRCh37': {'none': null,
                    'chr':  'removeChr'},
-        'GRCh38': {'none': 'addChr', 
+        'GRCh38': {'none': 'addChr',
                    'chr':  null}
       },
       exomes: {
-        'GRCh37': {'none': null,     
+        'GRCh37': {'none': null,
                    'chr':  'removeChr'},
-        'GRCh38': {'none': null, 
+        'GRCh38': {'none': null,
                    'chr':  'removeChr'}
       }
     }
@@ -138,6 +138,7 @@ class GlobalApp {
       this.initBackendSource(process.env.IOBIO_BACKEND)
     } else {
       console.log("No backend specified")
+      throw new Error("Missing .env or property IOBIO_BACKEND not present")
     }
 
   }
@@ -193,7 +194,7 @@ class GlobalApp {
     return theUrl;
   }
 
-  
+
   getGnomADFields(build, sequencingScope="genomes") {
     var gnomADFields = {
       genomes: {
@@ -212,7 +213,7 @@ class GlobalApp {
     let self = this;
     let renameCommand = null;
     let prefix = refName.indexOf('chr') == 0 ? 'chr' : 'none';
-    
+
     let action = self.gnomADRenameChr[sequencingScope][build][prefix];
     if (action && action == 'addChr') {
       renameCommand = refName + " chr" + refName;
@@ -226,7 +227,7 @@ class GlobalApp {
     let self = this;
     let renameCommand = null;
     let prefix = refName.indexOf('chr') == 0 ? 'chr' : 'none';
-    
+
     let action = self.gnomADRenameChr[sequencingScope][build][prefix];
     if (action && action == 'addChr') {
       return "chr" + refName;
