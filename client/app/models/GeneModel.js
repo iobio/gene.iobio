@@ -12,7 +12,7 @@ class GeneModel {
 
     this.NCBI_PUBMED_SEARCH_URL    = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&usehistory=y&retmode=json";
     this.NCBI_PUBMED_SUMMARY_URL   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&usehistory=y&retmode=json";
-    
+
     this.ENSEMBL_GENE_URL          = "https://rest.ensembl.org/xrefs/symbol/homo_sapiens/GENESYMBOL?content-type=application/json"
     this.ENSEMBL_LOOKUP_BY_ID      = "https://rest.ensembl.org/xrefs/id/ENSEMBL-GENE-ID?content-type=application/json"
     this.OMIM_URL                  = "https://api.omim.org/api/";
@@ -139,7 +139,7 @@ class GeneModel {
       self.candidateGenes[gene] = true;
     })
   }
-  
+
   getCandidateGenes() {
     let self = this;
     return Object.keys(self.candidateGenes);
@@ -319,7 +319,7 @@ class GeneModel {
 
           } else {
             console.log(error)
-            me.dispatch.alertIssued("warning", 
+            me.dispatch.alertIssued("warning",
                  "Cannot get phenotypes for gene <pre>" + geneName + "</pre>",
                  geneName,
                  [error]);
@@ -426,7 +426,7 @@ class GeneModel {
               if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
                   && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
                 genesToAdd.push(geneName.trim().toUpperCase());
-              } 
+              }
             }
           })
           promises.push(p);
@@ -748,7 +748,7 @@ class GeneModel {
       canonical.canonical_reason = ''
       if (canonical.is_mane_select && canonical.is_mane_select == 'true') {
         canonical.canonical_reason = 'MANE SELECT'
-      }         
+      }
     }
     return canonical;
   }
@@ -985,8 +985,8 @@ class GeneModel {
           })
           .fail(function() {
             console.log("Error occurred when making http request to NCBI eutils esummary for gene " + geneName);
-            me.dispatch.alertIssued("warning", 
-              "Unable to get NCBI gene summary (esummary) for gene <pre>" + geneName + "</pre>", geneName, 
+            me.dispatch.alertIssued("warning",
+              "Unable to get NCBI gene summary (esummary) for gene <pre>" + geneName + "</pre>", geneName,
               ['Error occurred when making http request to NCBI eutils esummary',summaryUrl])
             me.geneNCBISummaries[geneName] = unknownGeneInfo;
             resolve(unknownGeneInfo);
@@ -995,8 +995,8 @@ class GeneModel {
         })
         .fail(function() {
           console.log("Error occurred when making http request to NCBI eutils esearch for gene " + geneName);
-            me.dispatch.alertIssued("warning", 
-              "Unable to get NCBI gene summary (esearch) for gene <pre>" + geneName + "</pre>", geneName, 
+            me.dispatch.alertIssued("warning",
+              "Unable to get NCBI gene summary (esearch) for gene <pre>" + geneName + "</pre>", geneName,
               ['Error occurred when making http request to NCBI eutils esearch',url])
           me.geneNCBISummaries[geneName] = unknownGeneInfo;
           resolve(geneInfo);
@@ -1161,8 +1161,8 @@ class GeneModel {
               let p = self._promiseGetOMIMClinicalSynopsis(data.geneName, phenotype)
               .then(function(data) {
                 omimEntries.push(data);
-              })      
-              promises.push(p)      
+              })
+              promises.push(p)
             })
             Promise.all(promises)
             .then(function() {
@@ -1216,7 +1216,7 @@ class GeneModel {
               console.log(msg);
               console.log(error)
               self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>", geneName, [error])
-              reject(msg + '. Error: ' + error);        
+              reject(msg + '. Error: ' + error);
             })
           } else {
             self.dispatch.alertIssued("warning", "Cannot get HPO terms for gene <pre>" + geneName + "</pre>. Unable to lookup NCBI id for gene.", geneName)
@@ -1236,7 +1236,7 @@ class GeneModel {
         if (!self.warnedMissingOMIMApiKey) {
           let msg ="Unable to access OMIM.  API key is required in env."
           self.dispatch.alertIssued("warning", msg, geneName)
-          self.warnedMissingOMIMApiKey = true;          
+          self.warnedMissingOMIMApiKey = true;
         }
         resolve();
       } else {
@@ -1252,9 +1252,9 @@ class GeneModel {
           .done(function(data) {
             let mimNumber = null;
             let phenotypes = null;
-            if (data 
-              && data.omim.searchResponse 
-              && data.omim.searchResponse.geneMapList 
+            if (data
+              && data.omim.searchResponse
+              && data.omim.searchResponse.geneMapList
               && data.omim.searchResponse.geneMapList.length > 0) {
               let geneMap = data.omim.searchResponse.geneMapList[0].geneMap;
               mimNumber = geneMap.mimNumber;
@@ -1270,7 +1270,7 @@ class GeneModel {
               let msg = "No OMIM entry found for gene " + geneName;
               reject(msg)
             }
-          
+
           })
           .fail(function(error) {
               let msg = "Unable to get phenotype mim number OMIM for gene " + geneName;
@@ -1279,7 +1279,7 @@ class GeneModel {
               self.dispatch.alertIssued("warning", msg, geneName)
               reject(msg + '. Error: ' + error);
           })
-        
+
       }
 
     })
@@ -1301,7 +1301,7 @@ class GeneModel {
           let clinicalSynopsis = null;
           if (data && data.omim.clinicalSynopsisList && data.omim.clinicalSynopsisList.length > 0) {
             clinicalSynopsis = data.omim.clinicalSynopsisList[0].clinicalSynopsis;
-          } 
+          }
           resolve({geneName: geneName, phenotype: phenotype, clinicalSynopsis: clinicalSynopsis});
         })
         .fail(function(error) {
@@ -1418,7 +1418,7 @@ class GeneModel {
               Promise.all(lookupPromises).then(function() {
                 if (matchingEnsemblGeneId) {
                   self.geneToEnsemblId[geneName] = matchingEnsemblGeneId;
-                  resolve({geneName: geneName, ensemblGeneId: matchingEnsemblGeneId});                  
+                  resolve({geneName: geneName, ensemblGeneId: matchingEnsemblGeneId});
                 } else {
                   let msg = "Unable to find ensembl gene id that matches gene name " + geneName;
                   console.log(msg);
@@ -1477,7 +1477,7 @@ class GeneModel {
             reject("An error occurred from ENSEMBL gene lookup for gene <pre>" + theGeneName + "</pre>. "  + error.responseJSON.error);
       })
     })
-  }  
+  }
 
   promiseGetGenePhenotypes(geneName) {
     var me = this;
@@ -1500,7 +1500,7 @@ class GeneModel {
           }
         })
         .then((response) => {
-          
+
           me.genePhenotypes[geneName] = response.phenotypes;
           me.geneDisorders[geneName] = response.disorders;
 
@@ -1528,7 +1528,7 @@ class GeneModel {
 
         fetch(url).then(r => r.json())
         .then((response) => {
-          
+
           me.genePhenotypes[geneName] = response.phenotypes;
           me.geneDisorders[geneName] = response.disorders;
 
@@ -1619,18 +1619,18 @@ class GeneModel {
             if (theGeneObject.transcripts == null || theGeneObject.transcripts.length == 0) {
               let msg = "Bypassing gene <pre>" + geneName + "</pre>. There are no transcripts for this gene.";
               console.log(msg);
-              reject({'message': msg, 
-                      'gene': geneName, 'alertType': 'error', 
+              reject({'message': msg,
+                      'gene': geneName, 'alertType': 'error',
                       'options': {'showAlertPanel': true, 'selectAlert': true} });
             } else {
               me.geneObjects[theGeneObject.gene_name] = theGeneObject;
-              resolve(theGeneObject);              
+              resolve(theGeneObject);
             }
           } else {
             let msg = "Bypassing gene <pre>" + geneName + "</pre>. There are no " + theGeneSource + " transcripts for this gene.";
             console.log(msg);
-            reject({'message': msg, 
-                    'gene': geneName, 
+            reject({'message': msg,
+                    'gene': geneName,
                     'alertType': 'error',
                     'options': {'showAlertPanel': true, 'selectAlert': true}
                   });
@@ -1640,8 +1640,8 @@ class GeneModel {
           console.log("An error occurred when getting transcripts for gene <pre>" +  geneName + "</pre>.");
           console.log( "Error: " + errorThrown );
           let msg = "Error " + errorThrown + " occurred when attempting to get transcripts for gene <pre>" + geneName + "</pre>";
-          reject({'message': msg, 
-                  'gene': geneName, 
+          reject({'message': msg,
+                  'gene': geneName,
                   'options': {'showAlertPanel': true, 'selectAlert': true}
                 });
         });
@@ -1650,12 +1650,12 @@ class GeneModel {
         let msg = ""
         if (knownGene) {
           msg = "No Refseq or Gencode transcripts for gene <pre>" + geneName + "</pre>.";
-          
+
         } else {
           msg = "Unknown gene " + geneName;
         }
 
-        reject({'message': msg, 
+        reject({'message': msg,
                 'gene': geneName,
                 'options': {'showAlertPanel': true, 'selectAlert': true}
               });
@@ -1821,11 +1821,11 @@ class GeneModel {
           if (geneUID && theLink.url.indexOf('GENEUID') >= 0) {
             theLink.url = theLink.url.replace(/GENEUID/g, geneUID );
             resolved = true;
-          } 
+          }
           if (geneObject && theLink.url.indexOf('GENESYMBOL') >= 0) {
             theLink.url = theLink.url.replace(/GENESYMBOL/g, geneName);
             resolved = true;
-          } 
+          }
           if (geneCoord && theLink.url.indexOf('GENECOORD') >= 0) {
             theLink.url = theLink.url.replace(/GENECOORD/g, geneCoord);
             resolved = true;
@@ -1928,7 +1928,7 @@ class GeneModel {
       var keep = false;
 
       if (linkName == 'gnomad') {
-        if (variant.vepAf && variant.vepAf.gnomAD && variant.vepAf.gnomAD.AF && variant.vepAf.gnomAD.AF != ".") {
+        if (variant.gnomAD && variant.gnomAD.af && variant.gnomAD.af != ".") {
           keep = true;
         }
       } else if (linkName == 'dbsnp') {
@@ -2333,7 +2333,7 @@ class GeneModel {
     }
 
   }
-  
+
   setSourceForGenes(genes, source) {
     let self = this;
     let sourceIndicatorMap = {
@@ -2365,7 +2365,7 @@ class GeneModel {
       }
     })
   }
-  
+
   getSourceForGenes() {
     let self = this;
     return self.genesAssociatedWithSource;

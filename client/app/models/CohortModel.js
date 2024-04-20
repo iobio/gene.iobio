@@ -1045,10 +1045,10 @@ class CohortModel {
           .then(function(data) {
             let results = null;
             if (data == null || data.vcfData == null) {
-              results =  {'features': [], 
-                          'loadState': {}, 
-                          'gene': theGene, 
-                          'transcript': theTranscript }   
+              results =  {'features': [],
+                          'loadState': {},
+                          'gene': theGene,
+                          'transcript': theTranscript }
 
             } else {
               results = data.vcfData;
@@ -1086,7 +1086,7 @@ class CohortModel {
           reject(error);
         })
       }
-  
+
     })
 
   }
@@ -1128,7 +1128,7 @@ class CohortModel {
             let dups = self.patientPhenotypeEntries.filter(function(term) {
               return term.hpo_id == hpoTerm.hpo_id
             })
-            // Add to the list of unique phenotype terms 
+            // Add to the list of unique phenotype terms
             if (dups.length == 0) {
               self.patientPhenotypeEntries.push(hpoTerm)
             }
@@ -1147,7 +1147,7 @@ class CohortModel {
       // Now we have a union of all phenotypes of the family; For
       // each phenotype, keep track which family members have this phenotype
       // and designate a 'match level' so that terms belonging to the phenotype
-      // appear first, followed by terms belong to the phenotype and other 
+      // appear first, followed by terms belong to the phenotype and other
       // family members, followed by phenotype associated with mother, then father,
       // then siblings.
       let ordinal = 0;
@@ -1179,11 +1179,11 @@ class CohortModel {
             matchToken = "Family"
           }
         }
-        return {'match': matchToken, 
-                'matchLevel': matchLevel, 
-                'hpo_term_id': phenotypeEntry.hpo_id, 
-                'hpo_term_name': phenotypeEntry.label, 
-                'ordinal': ordinal++, 
+        return {'match': matchToken,
+                'matchLevel': matchLevel,
+                'hpo_term_id': phenotypeEntry.hpo_id,
+                'hpo_term_name': phenotypeEntry.label,
+                'ordinal': ordinal++,
                 'matchingSamples': rels}
       })
       // Now sort the phenotype entries so that terms matching the phenotype
@@ -1194,7 +1194,7 @@ class CohortModel {
             return 1;
           } else if (a.matchLevel < b.matchLevel) {
             return -1;
-          } 
+          }
         } else {
           if (a.ordinal < b.ordinal) {
             return -1
@@ -1256,13 +1256,13 @@ class CohortModel {
                 return -1;
               } else if (a.match.length == 0 && b.match.length > 0)  {
                 return 1;
-              } 
+              }
             } else if (a.matchLevel != b.matchLevel ){
               if (a.matchLevel > b.matchLevel) {
                 return 1;
               } else if (a.matchLevel < b.matchLevel) {
                 return -1;
-              } 
+              }
             } else {
               if (a.ordinal < b.ordinal) {
                 return -1
@@ -1347,10 +1347,10 @@ class CohortModel {
           idx++;
           // Backward compatibility - newest gene_phenotype.db has different column names:
           // hpo_term_id -> hpo_id,  hpo_term_name -> hpo_name
-          return {'match': matchToken, 
-                  'matchLevel': matchLevel, 
-                  'ontologyId': hpoTerm.hasOwnProperty('hpo_term_id') ? hpoTerm.hpo_term_id : hpoTerm.hpo_id, 
-                  'name': hpoTerm.hasOwnProperty('hpo_term_name') ?  hpoTerm.hpo_term_name : hpoTerm.hpo_name, 
+          return {'match': matchToken,
+                  'matchLevel': matchLevel,
+                  'ontologyId': hpoTerm.hasOwnProperty('hpo_term_id') ? hpoTerm.hpo_term_id : hpoTerm.hpo_id,
+                  'name': hpoTerm.hasOwnProperty('hpo_term_name') ?  hpoTerm.hpo_term_name : hpoTerm.hpo_name,
                   'matchingSamples': rels,
                   'ordinal': idx}
         })
@@ -1360,7 +1360,7 @@ class CohortModel {
               return 1;
             } else if (a.matchLevel < b.matchLevel) {
               return -1;
-            } 
+            }
           } else {
             if (a.ordinal < b.ordinal) {
               return -1
@@ -1385,7 +1385,7 @@ class CohortModel {
         let msg = "Cannot get phenotypes for gene " + geneName;
         console.log(msg)
         console.log(error)
-        self.dispatch.alertIssued("warning", 
+        self.dispatch.alertIssued("warning",
                          "Cannot get phenotypes for gene <pre>" + geneName + "</pre>",
                          geneName,
                          [error]
@@ -1627,19 +1627,7 @@ class CohortModel {
 
       Promise.all(annotatePromises)
       .then(function() {
-
-        if (!options.hasOwnProperty('bypassAnnotate') || options.bypassAnnotate == false) {
-          self.promiseAnnotateWithClinvar(theResultMap, theGene, theTranscript, options.isBackground)
-          .then(function(data) {
-            resolve(data)
-          })
-          .catch(function(error) {
-            console.log(error)
-          })
-        } else {
           resolve(theResultMap)
-        }
-
       })
       .catch(function(error) {
         if (!options.isBackground) {
@@ -1737,9 +1725,7 @@ class CohortModel {
           unionVcfData.features.push(uniqueVariants[key]);
         }
 
-        var refreshVariantsFunction = self.globalApp.isClinvarOffline || self.globalApp.clinvarSource == 'vcf'
-          ? self.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(self.getProbandModel(), unionVcfData)
-          : self.getProbandModel()._refreshVariantsWithClinvarEutils.bind(self.getProbandModel(), unionVcfData);
+        var refreshVariantsFunction = self.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(self.getProbandModel(), unionVcfData)
 
         self.getProbandModel().vcf.promiseGetClinvarRecords(
             unionVcfData,
@@ -1872,7 +1858,7 @@ class CohortModel {
               cachedPromises.push(Promise.resolve)
             } else {
               var p = model._promiseCacheData(resultMap[model.getRelationship()], dataKind, geneObject.gene_name, theTranscript);
-              cachedPromises.push(p);              
+              cachedPromises.push(p);
             }
           }
         })
@@ -1894,7 +1880,7 @@ class CohortModel {
       self.getProbandModel().promiseSummarizeError(geneName, error)
       .then(function(dangerObject) {
           self.geneModel.setDangerSummary(theGeneName, dangerObject);
-          
+
           resolve(dangerObject);
       }).
       catch(function(error) {
@@ -1950,7 +1936,7 @@ class CohortModel {
               // dangerSummary.badges.notFound. We need this to show in the 'not found'
               // section of the flagged variants panel.
               if (dangerSummary && dangerSummary.badges && dangerSummary.badges.notFound) {
-                notFoundVariants = dangerSummary.badges.notFound;    
+                notFoundVariants = dangerSummary.badges.notFound;
               }
 
               // Summarize the danger for the gene based on the filtered annotated variants and gene coverage
@@ -1999,7 +1985,7 @@ class CohortModel {
                 self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in proband sample", theDangerSummary.geneName);
               } else if (theDangerSummary && theDangerSummary.geneCoverageProblemNonProband) {
                 self.dispatch.alertIssued("coverage", "Insufficient sequence coverage for gene <pre>" + theDangerSummary.geneName + "</pre> in non-proband (e.g. mother, father) sample", theDangerSummary.geneName);
-              } 
+              }
 
               self.geneModel.setDangerSummary(geneObject.gene_name, theDangerSummary);
             }
@@ -2154,7 +2140,7 @@ class CohortModel {
         if (theVcfData == null) {
           theVcfData = {};
           theVcfData.features = [];
-          theVcfData.loadState = {};          
+          theVcfData.loadState = {};
         } else {
           let loadedVariantsOnly = theVcfData.features.filter(function(feature) {
             return !feature.fbCalled || feature.fbCalled != 'Y';
@@ -2325,9 +2311,7 @@ class CohortModel {
             bams,
             me.geneModel.geneSource == 'refseq' ? true : false,
             me.freebayesSettings.arguments,
-            me.globalApp.vepAF, // vep af
             me.getTrioAlignmentSampleNames(),
-            options.gnomADExtra,
             options.decompose)
           .then(function(data) {
 
@@ -2382,7 +2366,7 @@ class CohortModel {
                         refreshedSourceVariant = variant;
                         refreshedSourceVariant.notes = options.sourceVariant.notes;
                         refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
-                  
+
                         // CohortModel.promiseExportVariants has refreshed the bamDepth
                         // from the coverage data. We don't want to lose these values
                         // when we export these called variants
@@ -2440,10 +2424,11 @@ class CohortModel {
       }
 
       theVcfData.loadState['called'] = true;
-      var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx, me.globalApp.vepAF, options.gnomADExtra);
+      var data = model.vcf.parseVcfRecordsForASample(jointVcfRecs, translatedRefName, geneObject, theTranscript, me.translator.clinvarMap, true, (sampleNamesToGenotype ? sampleNamesToGenotype.join(",") : null), idx);
 
       var theFbData = data.results;
       theFbData.loadState['called'] = true;
+
       // Determine the af and highest af for all variants
       theFbData.features.forEach(function(variant) {
         variant.extraAnnot = true;
@@ -2676,7 +2661,7 @@ class CohortModel {
   _promiseRefreshFlaggedVariantCoverage(geneObject, transcript, flaggedVariants) {
     let self = this;
     return new Promise(function(resolve, reject) {
-      
+
       self.promiseLoadCoverage(geneObject, transcript)
       .then(function(resultMap) {
         // Update the coverage for each of the flagged variants and the related
@@ -2727,8 +2712,8 @@ class CohortModel {
           let transcript = self.geneModel.getCanonicalTranscript(geneObject);
           let theVariants = [];
           geneInfo = {'geneObject': geneObject, 'transcript': transcript, 'flaggedVariants': theVariants};
-          genesToAnalyze[geneObject.gene_name] = geneInfo;        
-        } 
+          genesToAnalyze[geneObject.gene_name] = geneInfo;
+        }
         geneInfo.flaggedVariants.push(variant)
       })
 
@@ -2921,7 +2906,7 @@ class CohortModel {
     importRecords = importRecords.filter(function(ir) {
       if (ir == null) {
         console.log("WARNING: bypassing null variant record")
-        me.dispatch.alertIssued('warning', 'Bypassing blank variant.');          
+        me.dispatch.alertIssued('warning', 'Bypassing blank variant.');
         return false;
       } else {
         return true;
@@ -2946,7 +2931,7 @@ class CohortModel {
         }
       }
       if (ir.gene == null) {
-        me.dispatch.alertIssued('warning', 'Bypassing variant. Gene symbol is missing.');          
+        me.dispatch.alertIssued('warning', 'Bypassing variant. Gene symbol is missing.');
       } else {
         var theGeneObject = me.geneModel.geneObjects[ir.gene];
         if (theGeneObject == null || !ir.transcript || ir.transcript == '') {
@@ -2956,14 +2941,14 @@ class CohortModel {
               if (me.geneModel.isKnownGene(theGeneObject.notFound)) {
                 me.geneModel.promiseAddGeneName(theGeneObject.notFound);
               } else {
-                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + theGeneObject.notFound + "</pre>.", theGeneObject.notFound);          
+                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + theGeneObject.notFound + "</pre>.", theGeneObject.notFound);
               }
             }
             else if (ir.gene && theGeneObject.notFound === undefined){
               if (me.geneModel.isKnownGene(ir.gene)) {
                 me.geneModel.promiseAddGeneName(ir.gene);
               } else {
-                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + ir.gene + "</pre>.", ir.gene);          
+                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + ir.gene + "</pre>.", ir.gene);
               }
             }
           })
@@ -2998,7 +2983,7 @@ class CohortModel {
               genesToAnalyze[analyzeKind][variant.gene.gene_name] = theVariants;
             }
             theVariants.push(variant);
-          })         
+          })
         }
 
 
@@ -3153,11 +3138,11 @@ class CohortModel {
                   importedVariant.notFound = true;
                   importedVariant.isFlagged = true;
                   notFoundVariants.push(importedVariant)
-                  
+
                   console.log("Unable to match imported variant to vcf data for " + importedVariant.gene.gene_name + " " + importedVariant.transcript.transcript_id + " " + importedVariant.start)
-                  
-                  me.dispatch.alertIssued('warning', 'Imported variant ' 
-                  + 'in gene <pre>' + geneObject.gene_name + '</pre> not found in proband variant file.', geneObject.gene_name);          
+
+                  me.dispatch.alertIssued('warning', 'Imported variant '
+                  + 'in gene <pre>' + geneObject.gene_name + '</pre> not found in proband variant file.', geneObject.gene_name);
 
                 }
               })
@@ -3215,7 +3200,7 @@ class CohortModel {
     return dataPromises;
   }
 
-  /* 
+  /*
    *  Create a structure that organizes variants: filter -> genes -> variants
    */
   promiseOrganizeVariantsByFilterAndGene(activeFilterName, isFullAnalysis, interpretationFilters, variant, options={includeNotCategorized: false, includeReviewed: true, includeAll: true}) {
@@ -3244,7 +3229,7 @@ class CohortModel {
       }
 
       let sortedFilters = filters.sort(function(filterObject1, filterObject2) {
-     
+
         if (filterObject1.genes.length > 0 && filterObject2.genes.length > 0) {
           return filterObject1.filter.order > filterObject2.filter.order;
         } else if (filterObject1.genes.length > 0) {
@@ -3254,7 +3239,7 @@ class CohortModel {
         } else {
           return filterObject1.filter.order > filterObject2.filter.order;
         }
-     
+
       })
 
       sortedFilters.forEach(function(filterObject) {
@@ -3583,7 +3568,7 @@ class CohortModel {
               } else {
                 variant.gene = geneObject
                 self.flaggedVariants.push(variant);
-              }              
+              }
             }
           })
 

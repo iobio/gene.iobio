@@ -2413,7 +2413,7 @@ export default {
           return self.cohortModel.promiseJointCallVariants(self.selectedGene,
             self.selectedTranscript,
             self.cohortModel.getCurrentTrioVcfData(),
-            {checkCache: false, isBackground: false, gnomADExtra: self.globalApp.gnomADExtra, decompose: true})
+            {checkCache: false, isBackground: false, decompose: true})
         })
         .catch(function(error) {
           self.addAlert("error", error, theGene)
@@ -3221,7 +3221,6 @@ export default {
             'vepPolyPhen',
             'vepRegs',
             'regulatory',
-            'vepAf',
             'highestImpactVep',
             'highestSIFT',
             'highestPolyphen',

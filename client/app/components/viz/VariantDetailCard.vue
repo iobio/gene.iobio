@@ -1125,49 +1125,25 @@ export default {
     },
     afGnomAD: function() {
       if (this.selectedVariant) {
-        if (this.selectedVariant.extraAnnot && this.globalApp.gnomADExtra) {
-          if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
-            return {percent: "?", link: null, class: ""};
-          } else if (this.selectedVariant.gnomAD.af  == '.') {
-            return {percent: "0%", link: null, class: "level-high"};
-          } else  {
-            var gnomAD = {};
-            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
-              + this.selectedVariant.chrom + "-"
-              + this.selectedVariant.start + "-"
-              + this.selectedVariant.ref + "-"
-              + this.selectedVariant.alt;
+        if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
+          return {percent: "?", link: null, class: ""};
+        } else if (this.selectedVariant.gnomAD.af  == '.') {
+          return {percent: "0%", link: null, class: "level-high"};
+        } else  {
+          var gnomAD = {};
+          gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
+            + this.selectedVariant.chrom + "-"
+            + this.selectedVariant.start + "-"
+            + this.selectedVariant.ref + "-"
+            + this.selectedVariant.alt;
 
-            gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
-            gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
-            gnomAD.percentPopMax = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax);
-            gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
-            gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
-            gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
-            return gnomAD;
-
-          }
-        } else {
-          if (this.selectedVariant.vepAf == null || this.selectedVariant.vepAf.gnomAD.AF == null) {
-            return {percent: "?", link: null, class: ""};
-          } else if (this.selectedVariant.vepAf.gnomAD.AF == ".") {
-            return {percent: "0%", link: null, class: "level-high"};
-          } else  {
-            var gnomAD = {};
-            gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
-              + this.selectedVariant.chrom + "-"
-              + this.selectedVariant.start + "-"
-              + this.selectedVariant.ref + "-"
-              + this.selectedVariant.alt;
-
-            gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.vepAf.gnomAD.AF);
-            gnomAD.class         = this.getAfClass(this.selectedVariant.vepAf.gnomAD.AF);
-            gnomAD.percentPopMax = 0;
-            gnomAD.altCount      = 0;
-            gnomAD.totalCount    = 0;
-            gnomAD.homCount      = 0;
-            return gnomAD;
-          }
+          gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
+          gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
+          gnomAD.percentPopMax = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax);
+          gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
+          gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
+          gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
+          return gnomAD;
 
         }
       }

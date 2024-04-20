@@ -130,7 +130,7 @@ class Util {
           if (filterModel.isLowCoverage(feature.geneCoverage[relationship])) {
             cutoffHeading = "<span>Cutoff not met</span>"
           }
-          html += "<div style='margin-top:4px'>" + "<span style='display:inline-block;width:80px'>Coverage</span>" + cutoffHeading 
+          html += "<div style='margin-top:4px'>" + "<span style='display:inline-block;width:80px'>Coverage</span>" + cutoffHeading
                +  coverageRow('min',    feature.geneCoverage[relationship].min, covFields)
                +  coverageRow('median', feature.geneCoverage[relationship].median, covFields)
                +  coverageRow('mean',   feature.geneCoverage[relationship].mean, covFields)
@@ -560,7 +560,7 @@ class Util {
       isIEedge = winNav.userAgent.indexOf("Edge") > -1,
       isIOSChrome = winNav.userAgent.match("CriOS");
 
-    var isChrome = /Chrome/.test(window.navigator.userAgent) && /Google Inc/.test(window.navigator.vendor);  
+    var isChrome = /Chrome/.test(window.navigator.userAgent) && /Google Inc/.test(window.navigator.vendor);
 
     if(isChrome) {
       return true;
@@ -927,15 +927,9 @@ class Util {
     }
 
 
-    
-    for (var key in variant.vepREVEL) {
-      if (info.revel.length > 0) {
-          info.revel += ", ";
-      }
-      info.revel += key;
-    }
+    info.revel = variant.revel;
 
-    info.rsId = me.globalApp.utility.getRsId(variant);
+    info.rsId = variant.rsid;
     if (info.rsId && info.rsId != '') {
       info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/snp/" + info.rsId ;
       info.dbSnpLink =  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';
