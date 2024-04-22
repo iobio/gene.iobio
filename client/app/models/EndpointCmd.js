@@ -128,6 +128,7 @@ export default class EndpointCmd {
               refFastaFile,
               genomeBuildName,
               hgvsNotation,
+              vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
               decompose,
               bypassAnnotate
           });
@@ -325,6 +326,7 @@ export default class EndpointCmd {
               fbArgs,
               refNames,
               genomeBuildName,
+              vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
               isRefSeq,
               clinvarUrl,
               sampleNames,

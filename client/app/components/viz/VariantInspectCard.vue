@@ -833,8 +833,11 @@
 
           </div>
 
-          <variant-inspect-row v-if="info.revel != '' && info.revel"
-            :clazz="getRevelClass(info)" :value="info.revel"   :label="`REVEL`" >
+          <variant-inspect-row v-if="info.vepRevel != '' && info.vepRevel"
+            :clazz="getRevelClass(info)" :value="info.vepRevel"   :label="`REVEL`" >
+          </variant-inspect-row>
+          <variant-inspect-row v-if="selectedVariant.alphamissenseScore != ''"
+            :clazz="getAlphaMissenseClass(selectedVariant.alphamissenseClass)" :value="selectedVariant.alphamissenseScore"   :label="`Alpha Missense`" >
           </variant-inspect-row>
       </div>
 
@@ -1418,7 +1421,7 @@ export default {
       let self = this;
       let clazz = null;
       self.cohortModel.translator.revelMap.forEach(function(revelRange) {
-      if (info.revel >= revelRange.min && info.revel < revelRange.max) {
+      if (info.vepRevel >= revelRange.min && info.vepRevel < revelRange.max) {
           clazz = revelRange.clazz;
         }
       })
@@ -1435,6 +1438,17 @@ export default {
         return 'level-unremarkable';
       }
 
+    },
+    getAlphaMissenseClass: function(clazz) {
+      if (clazz == 'likely_pathogenic') {
+        return 'level-high';
+      } else if (clazz == 'ambiguous') {
+        return 'level-medium';
+      } else if (clazz == 'likely_benign') {
+        return 'level-low';
+      } else {
+        return 'level-unremarkable';
+      }
     },
     getAfClass: function(af) {
       if (af <= .01) {

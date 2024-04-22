@@ -827,6 +827,7 @@ class Util {
       vepHighestImpactValue: "",
       vepHighestImpactRecs: [],
       vepConsequence: "",
+      vepRevel: "",
       HGVSc: "",
       HGVSp: "",
       HGVScAbbrev: "",
@@ -834,6 +835,7 @@ class Util {
       HGVScLoading: false,
       HGVSpLoading: false,
       revel: "",
+
       rsId: "",
       dbSnpUrl: "",
       dbSnpLink: "",
@@ -865,13 +867,6 @@ class Util {
       info.zygosity = "Heterozygous";
     } else if (variant.zygosity && variant.zygosity.toLowerCase() == 'hom') {
       info.zygosity = "Homozygous";
-    }
-
-    if (variant.af1000G) {
-      info.af1000G =  +variant.af1000G >= 0 ? me.globalApp.utility.round(+variant.af1000G * 100, 2) + "%" : "";
-    }
-    if (variant.afgnomAD) {
-      info.afgnomAD =  +variant.afgnomAD >= 0 ? me.globalApp.utility.round(+variant.afgnomAD * 100, 2) + "%" : "";
     }
 
 
@@ -927,7 +922,12 @@ class Util {
     }
 
 
-    info.revel = variant.revel;
+    for (var key in variant.vepREVEL) {
+      if (info.vepRevel.length > 0) {
+          info.vepRevel += ", ";
+      }
+      info.vepRevel += key;
+    }
 
     info.rsId = variant.rsid;
     if (info.rsId && info.rsId != '') {

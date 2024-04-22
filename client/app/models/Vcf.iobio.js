@@ -2472,7 +2472,6 @@ exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTransc
                       // annot fields
                       //
                       'rsid' :                    annot.rsid,
-                      'revel':                    annot.revel,
                       'combinedDepth':            annot.combinedDepth,
                       'alphamissenseClass':       annot.alphamissenseClass,
                       'alphamissenseScore':       annot.alphamissenseScore,
@@ -2586,7 +2585,6 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
     allAnnots: {},
     formatMap : {},
 
-    revel: '',
     alphamissenseClass: '',
     alphamissenseScore: '',
     caddScore: '',
@@ -2686,10 +2684,6 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
     if (annotToken.indexOf("rsid=") == 0) {
 
       annot.rsid = annotToken.substring(5, annotToken.length);
-
-    } else if (annotToken.indexOf("REVEL=") == 0) {
-
-      annot.revel = annotToken.substring(6, annotToken.length);
 
     } else if (annotToken.indexOf("AM_PATH=") == 0) {
 
