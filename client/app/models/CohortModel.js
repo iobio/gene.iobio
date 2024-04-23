@@ -1561,6 +1561,7 @@ class CohortModel {
         })
         .catch(function(error) {
           console.log(error)
+          reject(error)
         })
         annotatePromises.push(p);
       } else {

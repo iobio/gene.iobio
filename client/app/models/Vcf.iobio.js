@@ -1009,7 +1009,7 @@ export default function vcfiobio(theGlobalApp) {
           }
         })
         .catch(function(error) {
-          return(error)
+          reject(error)
         })
       } else {
         //me._getLocalStats(refName, geneObject.start, geneObject.end, sampleName);
