@@ -833,8 +833,8 @@
 
           </div>
 
-          <variant-inspect-row v-if="info.vepRevel != '' && info.vepRevel"
-            :clazz="getRevelClass(info)" :value="info.vepRevel"   :label="`REVEL`" >
+          <variant-inspect-row v-if="info.revel != '' && info.revel"
+            :clazz="getRevelClass(info)" :value="info.revel"   :label="`REVEL`" >
           </variant-inspect-row>
           <variant-inspect-row v-if="selectedVariant.alphamissenseScore != ''"
             :clazz="getAlphaMissenseClass(selectedVariant.alphamissenseClass)" :value="selectedVariant.alphamissenseScore"   :label="`Alpha Missense`" >
@@ -1430,7 +1430,7 @@ export default {
       let self = this;
       let clazz = null;
       self.cohortModel.translator.revelMap.forEach(function(revelRange) {
-      if (info.vepRevel >= revelRange.min && info.vepRevel < revelRange.max) {
+      if (info.revel >= revelRange.min && info.revel < revelRange.max) {
           clazz = revelRange.clazz;
         }
       })

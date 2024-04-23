@@ -827,7 +827,6 @@ class Util {
       vepHighestImpactValue: "",
       vepHighestImpactRecs: [],
       vepConsequence: "",
-      vepRevel: "",
       HGVSc: "",
       HGVSp: "",
       HGVScAbbrev: "",
@@ -923,10 +922,10 @@ class Util {
 
 
     for (var key in variant.vepREVEL) {
-      if (info.vepRevel.length > 0) {
-          info.vepRevel += ", ";
+      if (info.revel.length > 0) {
+          info.revel += ", ";
       }
-      info.vepRevel += key;
+      info.revel += key;
     }
 
     info.rsId = me.getVepRsId(variant)
