@@ -2104,7 +2104,7 @@ exports._parseVcfRecordsOld = function(vcfRecs, refName, geneObject, selectedTra
                     'combinedDepth':            annot.combinedDepth,
                     'alphamissenseClass':       annot.alphamissenseClass,
                     'alphamissenseScore':       annot.alphamissenseScore,
-                    'caddScore':                annot.caddScore,
+                    'caddPhred':                annot.caddPhred,
                     'ccr':                      annot.ccr,
                     'eve':                      annot.eve,
                     'mutscore':                 annot.mutscore,
@@ -2384,7 +2384,7 @@ exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTransc
                       'combinedDepth':            annot.combinedDepth,
                       'alphamissenseClass':       annot.alphamissenseClass,
                       'alphamissenseScore':       annot.alphamissenseScore,
-                      'caddScore':                annot.caddScore,
+                      'caddPhred':                annot.caddPhred,
                       'ccr':                      annot.ccr,
                       'eve':                      annot.eve,
                       'mutscore':                 annot.mutscore,
@@ -2475,7 +2475,7 @@ exports._parseVcfRecords = function(vcfRecs, refName, geneObject, selectedTransc
                       'combinedDepth':            annot.combinedDepth,
                       'alphamissenseClass':       annot.alphamissenseClass,
                       'alphamissenseScore':       annot.alphamissenseScore,
-                      'caddScore':                annot.caddScore,
+                      'caddPhred':                annot.caddPhred,
                       'ccr':                      annot.ccr,
                       'eve':                      annot.eve,
                       'mutscore':                 annot.mutscore,
@@ -2587,7 +2587,7 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
 
     alphamissenseClass: '',
     alphamissenseScore: '',
-    caddScore: '',
+    caddPhred: '',
     ccr: '',
     eve: '',
     mutscore: '',
@@ -2693,9 +2693,9 @@ exports._parseAnnot = function(rec, altIdx, isMultiAllelic, geneObject, selected
 
       annot.alphamissenseScore = annotToken.substring(6, annotToken.length);
 
-    } else if (annotToken.indexOf("CADD_RawScore=") == 0) {
+    } else if (annotToken.indexOf("CADD_Phred=") == 0) {
 
-      annot.caddScore = annotToken.substring(14, annotToken.length);
+      annot.caddPhred = annotToken.substring(11, annotToken.length);
 
     } else if (annotToken.indexOf("CCR=") == 0) {
 

@@ -439,7 +439,7 @@ class Util {
     return out;
   }
 
-  getRsId(variant) {
+  getVepRsId(variant) {
     var rsId = null;
     if (variant.vepVariationIds) {
       for (var key in variant.vepVariationIds) {
@@ -929,7 +929,7 @@ class Util {
       info.vepRevel += key;
     }
 
-    info.rsId = variant.rsid;
+    info.rsId = me.getVepRsId(variant)
     if (info.rsId && info.rsId != '') {
       info.dbSnpUrl   = "http://www.ncbi.nlm.nih.gov/snp/" + info.rsId ;
       info.dbSnpLink =  '<a href="' + info.dbSnpUrl + '" target="_dbsnp"' + '>' + info.rsId  + '</a>';

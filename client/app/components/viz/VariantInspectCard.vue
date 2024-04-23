@@ -597,7 +597,7 @@
       <v-badge class="info" style="margin-top:2px;margin-right:10px" v-if="!isSimpleMode && selectedVariant && selectedVariant.multiallelic && selectedVariant.multiallelic.length > 0">multiallelic</v-badge>
 
 
-      <div v-if="selectedVariant.rsid && info.rsId"  class="variant-header rsid"> {{info.rsId}}
+      <div v-if="info.rsId"  class="variant-header rsid"> {{info.rsId}}
         <a  v-bind:href="info.dbSnpUrl" target="ClinVar" class="rsid-link">
             <i aria-hidden="true" class="v-icon link-icon material-icons theme--light" style="font-size: 15px;color: #30638e; padding-bottom: 3px">open_in_new</i>
         </a>
@@ -839,7 +839,16 @@
           <variant-inspect-row v-if="selectedVariant.alphamissenseScore != ''"
             :clazz="getAlphaMissenseClass(selectedVariant.alphamissenseClass)" :value="selectedVariant.alphamissenseScore"   :label="`Alpha Missense`" >
           </variant-inspect-row>
-      </div>
+          <variant-inspect-row v-if="selectedVariant.eve != ''"
+            :clazz="getEveClass(selectedVariant.eve)" :value="selectedVariant.eve"   :label="`EVE`" >
+          </variant-inspect-row>
+          <variant-inspect-row v-if="selectedVariant.eve != ''"
+            :clazz="getMutScoreClass(selectedVariant.mutscore)" :value="selectedVariant.mutscore"   :label="`MutScore`" >
+          </variant-inspect-row>
+          <variant-inspect-row v-if="selectedVariant.caddPhred != ''"
+            :clazz="getCADDPhredClass(selectedVariant.caddPhred)" :value="selectedVariant.caddPhred"   :label="`CADD Phred`" >
+          </variant-inspect-row>
+        </div>
 
 
       <div class="variant-inspect-column" v-if="selectedVariant">
@@ -1447,6 +1456,37 @@ export default {
       } else if (clazz == 'likely_benign') {
         return 'level-low';
       } else {
+        return 'level-unremarkable';
+      }
+    },
+    getEveClass: function(score) {
+      if (score < .4) {
+        return 'level-low';
+      } else if (score < .6) {
+        return 'level-unremarkable';
+      } else if (score <= 1) {
+        return 'level-high';
+      } else  {
+        return 'level-unremarkable';
+      }
+    },
+    getMutScoreClass: function(score) {
+      if (score < 0.140) {
+        return 'level-low';
+      } else if (score < 0.730) {
+        return 'level-unremarkable';
+      } else if (score <= 1) {
+        return 'level-high';
+      } else  {
+        return 'level-unremarkable';
+      }
+    },
+    getCADDPhredClass: function(caddPhred) {
+      if (caddPhred < 15) {
+        return 'level-low';
+      } else if (caddPhred >= 15) {
+        return 'level-high';
+      } else  {
         return 'level-unremarkable';
       }
     },

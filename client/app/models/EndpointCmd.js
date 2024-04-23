@@ -119,6 +119,7 @@ export default class EndpointCmd {
           const genomeBuildName = this.genomeBuildHelper.getCurrentBuildName();
           const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
 
+
           const cmd = this.apiDev.streamCommand('annotateVariantsV3', {
               vcfUrl: vcfSource.vcfUrl,
               tbiUrl: vcfSource.tbiUrl,
@@ -128,6 +129,7 @@ export default class EndpointCmd {
               refFastaFile,
               genomeBuildName,
               hgvsNotation,
+              getRsId,
               vepREVELFile: this.globalApp.getRevelUrl(this.genomeBuildHelper.getCurrentBuildName()),
               decompose,
               bypassAnnotate

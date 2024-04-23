@@ -9,6 +9,8 @@ class GlobalApp {
     this.tour                  = "";
     this.completedTour         = "";
 
+    this.version                = "4.11";
+
     this.launchedFromUtahMosaic = false;
     this.IOBIO_SERVICES         = null;
     this.HTTP_SERVICES          = null;
@@ -108,6 +110,10 @@ class GlobalApp {
       this.useSSL = process.env.USE_SSL === 'true' ? true : false;
     }
 
+    if (process.env.VUE_APP_VERSION) {
+      this.version = process.VUE_APP_VERSION;
+    }
+
     // These are the public services.
     if (useMosaicBackend && process.env.IOBIO_BACKEND_MOSAIC ) {
       this.initBackendSource(process.env.IOBIO_BACKEND_MOSAIC)
@@ -134,6 +140,23 @@ class GlobalApp {
 
   getRevelUrl(build) {
     return './vep-cache/' + build + '_revel_all_chromosomes_for_vep.tsv.gz';
+  }
+
+  getVepRsId(variant) {
+    var rsId = null;
+    if (variant.vepVariationIds) {
+      for (var key in variant.vepVariationIds) {
+        if (key != 0 && key != '') {
+          var tokens = key.split("&");
+          tokens.forEach( function(id) {
+            if (id.indexOf("rs") == 0) {
+              rsId = id;
+            }
+          });
+        }
+      }
+    }
+    return rsId;
   }
 
 
