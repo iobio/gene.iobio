@@ -144,7 +144,7 @@
 				</div>
 			</div>
 
-      <div v-if="aliases" id="aliases">
+      <div id="aliases" v-if="aliases && !isBasicMode && !isSimpleMode">
         <div class="mr-2"id="alias-label">Aliases</div>
         <div id="alias-text">{{ aliases }}</div>
       </div>
@@ -174,7 +174,7 @@
 
 		</div>
 
-    <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)" 
+    <div v-if="isOMIMPermitted || (selectedGene && cohortModel && !isSimpleMode && !isBasicMode)"
       style="display:flex;justify-content:flex-start;margin-top:5px">
 
       <!-- Gene:Phenotypes -->
@@ -203,10 +203,10 @@
        :geneModel="cohortModel.geneModel">
       </gene-omim-table>
 
-     
+
 
     </div>
-    
+
     <patient-gene-phenotype-dialog
          v-if="cohortModel && cohortModel.isLoaded"
          :showDialog="showPatientGenePhenotypeDialog"
@@ -345,9 +345,9 @@
 
             selectedGene: function(){
               if(this.sampleModels.length === 0) {
-                if(this.selectedGene && 
-                  this.selectedGene.gene_name && 
-                  this.analyzedTranscript && 
+                if(this.selectedGene &&
+                  this.selectedGene.gene_name &&
+                  this.analyzedTranscript &&
                   this.selectedGene.gene_name !== this.analyzedTranscript.gene_name) {
                     this.populateTranscriptData();
                 }
