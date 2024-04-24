@@ -1451,9 +1451,13 @@ export default {
     getAlphaMissenseClass: function(clazz) {
       if (clazz == 'likely_pathogenic') {
         return 'level-high';
+      } else if (clazz == 'pathogenic') {
+        return 'level-high';
       } else if (clazz == 'ambiguous') {
         return 'level-medium';
       } else if (clazz == 'likely_benign') {
+        return 'level-low';
+      } else if (clazz == 'benign') {
         return 'level-low';
       } else {
         return 'level-unremarkable';
@@ -2202,6 +2206,11 @@ export default {
     afGnomAD: function() {
       if (this.selectedVariant) {
         let source      =  "gnomAD genomes"
+        if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
+            source += " v4"
+          } else if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh37') {
+            source += " v2.1.1"
+          };
         let infoPopup   =  "gnomAD"
         let extraInfo1  =
                 ' Annotations shown for variant are from gnomAD '
@@ -2241,6 +2250,8 @@ export default {
 
           if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
             gnomAD.link += "?dataset=gnomad_r4"
+          } else if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh37') {
+            gnomAD.link += "?dataset=gnomad_r2_1"
           };
 
           gnomAD.label = "Allele frequency"

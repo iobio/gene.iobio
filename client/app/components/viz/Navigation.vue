@@ -51,15 +51,15 @@ nav .v-toolbar__content
         font-size: 14px
         color: white
         font-weight: 500 !important
-  
-       
+
+
 aside.navigation-drawer, aside.v-navigation-drawer
   margin-top: 55px !important
   z-index: 0
   padding-bottom: 0px
 
 
-  
+
 
   &.clin
     margin-top: 0px !important
@@ -92,7 +92,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
 
         .badge, .v-badge
           background-color: transparent
-          
+
           span.badge-label
             color: $app-color
             border-color: none
@@ -109,7 +109,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
           max-width: 30px
           height: 20px
           border-radius: 10px !important
-          
+
           .badge-count
             padding-left: 5px
             padding-right: 5px
@@ -134,10 +134,10 @@ aside.navigation-drawer, aside.v-navigation-drawer
       .v-window__container
         height: calc(100vh - 510px + 345px)
     #legend-card
-      height: 35px !important  
-      background: gray 
-      .legend-title 
-        color: white 
+      height: 35px !important
+      background: gray
+      .legend-title
+        color: white
       #legend-title-icon
         color: white
       .legend-title-expand-icon
@@ -248,7 +248,7 @@ aside.navigation-drawer, aside.v-navigation-drawer
 nav.toolbar, nav.v-toolbar
   padding-top: 5px
 
-  #phenotype-input 
+  #phenotype-input
     .v-text-field__slot
       min-width: 300px !important
 
@@ -258,7 +258,7 @@ nav.toolbar, nav.v-toolbar
     border: .5px solid transparent !important
     border-radius: 0px
 
-  #show-genes-button 
+  #show-genes-button
     &.attention
       margin-bottom: 12px
       height: 30px
@@ -297,7 +297,7 @@ nav.toolbar, nav.v-toolbar
       font-size: 13px
       font-weight: 500
 
-  #notification-button 
+  #notification-button
     padding-right: 0px
     margin-right: -3px
     .v-badge__badge
@@ -340,7 +340,7 @@ nav.toolbar, nav.v-toolbar
     .v-btn__content
       padding-top: 2px
 
-  #settings-button 
+  #settings-button
     margin-right: 0px
     padding-right: 0px
     padding-left: 0px
@@ -357,7 +357,7 @@ nav.toolbar, nav.v-toolbar
 
     .v-chip__content
       border-radius: 10px
-      height: 22px 
+      height: 22px
       padding: 0px 5px
       font-size: 11px
       font-weight: 500
@@ -440,7 +440,7 @@ nav.toolbar, nav.v-toolbar
         font-size: 14px
         font-weight: 500
 
-  
+
   #gene-source-box
     margin-right: 20px
     margin-top: -4px
@@ -716,7 +716,7 @@ nav.toolbar, nav.v-toolbar
           v-model="geneEntered" label="Gene name" >
           </v-text-field>
           <typeahead v-model="lookupGene"
-          force-select v-bind:limit="typeaheadLimit" 
+          force-select v-bind:limit="typeaheadLimit"
           target="#search-gene-name" :data="knownGenes"
           item-key="gl"/>
         </span>
@@ -761,29 +761,29 @@ nav.toolbar, nav.v-toolbar
 
 
         <v-spacer v-if="!isFullAnalysis"></v-spacer>
-      
+
 
       </v-toolbar-items>
 
-      
+
       <v-spacer></v-spacer>
 
-      <v-btn  class="navbar-icon-button" v-if="cohortModel && launchedFromHub && cohortModel.isLoaded" id="patient-button"  @click="onShowPatientPhenotypeDialog(true)" flat 
+      <v-btn  class="navbar-icon-button" v-if="cohortModel && launchedFromHub && cohortModel.isLoaded" id="patient-button"  @click="onShowPatientPhenotypeDialog(true)" flat
         v-tooltip.bottom-left="{content: 'Patient phenotypes'}">
           <v-icon style="font-size: 26px;padding-top: 3px;">account_box</v-icon>
       </v-btn>
 
-      <v-btn  class="navbar-icon-button" v-if="appAlerts" id="notification-button"  @click="onShowNotificationDrawer" flat 
+      <v-btn  class="navbar-icon-button" v-if="appAlerts" id="notification-button"  @click="onShowNotificationDrawer" flat
         v-tooltip.bottom-left="{content: 'Notifications (errors, warnings and information). Click to see detailed list.'}">
         <v-badge right  >
           <v-icon>notifications</v-icon>
         </v-badge>
       </v-btn>
-      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.error && appAlertCounts.error > 0"  id="error-badge" 
+      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.error && appAlertCounts.error > 0"  id="error-badge"
         v-tooltip.bottom-left="{content: 'The app has encountered at an error. Click on notifications button (bell) to see details.'}">
        error
       </v-icon>
-      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.warning && appAlertCounts.warning > 0"  id="warning-badge" 
+      <v-icon class="navbar-icon-button" v-if="appAlertCounts && appAlertCounts.warning && appAlertCounts.warning > 0"  id="warning-badge"
         v-tooltip.bottom-left="{content: 'The app has issued a warning. Click on notifications button (bell) to see details.'}">
         warning
       </v-icon>
@@ -794,14 +794,14 @@ nav.toolbar, nav.v-toolbar
       </v-icon>
 
 
-      <v-btn id="settings-button" flat v-if="!isBasicMode && !isSimpleMode && !launchedFromClin" 
-        @click="onShowSettingsDialog(true)" 
+      <v-btn id="settings-button" flat v-if="!isBasicMode && !isSimpleMode && !launchedFromClin"
+        @click="onShowSettingsDialog(true)"
         v-tooltip.bottom-left="{content: 'App settings'}">
         <v-icon>settings</v-icon>
       </v-btn>
 
 
-     <v-chip @click="onShowSettingsDialog(true)" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded" 
+     <v-chip @click="onShowSettingsDialog(true)" v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded"
          id="build-name" class="settings-badge" text-color="white">{{ currentBuildName }}</v-chip>
 
      <v-chip v-if="!isSimpleMode && !isBasicMode && !isEduMode && cohortModel.isLoaded && cohortModel.analyzeCodingVariantsOnly"
@@ -816,7 +816,7 @@ nav.toolbar, nav.v-toolbar
           <template v-slot:activator="{ on }">
             <v-btn id="load-data-button"
               :outline="cohortModel && !cohortModel.isLoaded"
-              :flat="cohortModel && cohortModel.isLoaded" 
+              :flat="cohortModel && cohortModel.isLoaded"
               v-on="on"
             >
               <v-icon>file_upload</v-icon>
@@ -839,22 +839,22 @@ nav.toolbar, nav.v-toolbar
         </v-menu>
       </div>
 
-      <v-btn id="files-button"   icon v-if="showFilesButton && (launchedFromHub || launchedFromSFARI || isSimpleMode || isBasicMode) " 
-        @click="onShowFiles" 
+      <v-btn id="files-button"   icon v-if="showFilesButton && (launchedFromHub || launchedFromSFARI || isSimpleMode || isBasicMode) "
+        @click="onShowFiles"
         v-tooltip.bottom-left="{content: 'Load your data'}">
         <app-icon icon="fileupload"  width="32" height="32"></app-icon>
       </v-btn>
 
 
-      <v-btn id="save-json-analysis-button" 
-        :outline="cohortModel && cohortModel.isLoaded" 
+      <v-btn id="save-json-analysis-button"
+        :outline="cohortModel && cohortModel.isLoaded"
         :flat="cohortModel && !cohortModel.isLoaded"
-         v-if="!launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded && !isBasicMode && !isSimpleMode" 
-        @click="onSaveAnalysisFile" 
+         v-if="!launchedFromHub && !launchedFromSFARI && !launchedFromClin && cohortModel && cohortModel.isLoaded && !isBasicMode && !isSimpleMode"
+        @click="onSaveAnalysisFile"
         v-tooltip.bottom-left="{content: 'Save your analysis'}">
         <v-icon>file_download</v-icon>
         Save
-      </v-btn>  
+      </v-btn>
       <a id="download-json-file" v-show="false" download="gene_iobio_analysis.json" href="#">
       </a>
 
@@ -867,17 +867,17 @@ nav.toolbar, nav.v-toolbar
         :isDirty="isDirty"
         @save-modal:set-visibility="toggleSaveModal"
       />
-      
+
       <v-spacer></v-spacer>
 
 
-      <v-btn id="legend-button" 
-      icon v-if="!isSimpleMode && !isBasicMode" 
+      <v-btn id="legend-button"
+      icon v-if="!isSimpleMode && !isBasicMode"
       @click="onShowLegendDrawer"
       v-tooltip.bottom-left="{content: 'Show legend'}">
         <v-icon>map</v-icon>
       </v-btn>
-    
+
 
 
       <v-menu>
@@ -895,7 +895,7 @@ nav.toolbar, nav.v-toolbar
           </v-list-tile>
 
           <v-divider v-if="!isEduMode && !isBasicMode & !isSimpleMode"></v-divider>
-          
+
           <v-list-tile v-if="!isEduMode && !isBasicMode && !isSimpleMode"
             @click="onShowCoverageThreshold">
             <v-list-tile-title dense>Set sequencing coverage cutoffs</v-list-tile-title>
@@ -977,13 +977,13 @@ nav.toolbar, nav.v-toolbar
         >
           <v-tab v-if="!isBasicMode" >
             <v-badge>
-              
+
               <div class="badge-wrapper">
                 <span style="margin-right: 3px" class="badge-label"> Genes </span>
                 <span class="badge">{{ geneCount }}</span>
               </div>
             </v-badge>
-            
+
           </v-tab>
           <v-tab>
 
@@ -1115,7 +1115,7 @@ nav.toolbar, nav.v-toolbar
 
     </v-navigation-drawer>
 
-    <v-navigation-drawer  
+    <v-navigation-drawer
       v-model="showNotificationDrawer"
       absolute right  width="340"
       :class="launchedFromClin ? 'clin' : '' "
@@ -1161,7 +1161,7 @@ nav.toolbar, nav.v-toolbar
      :showDialog="showExportVariants">
     </export-variants>
 
-    <settings-dialog 
+    <settings-dialog
       ref="settingsDialogRef"
       :showDialog="showSettingsDialog"
       :cohortModel="cohortModel"
@@ -1237,14 +1237,14 @@ nav.toolbar, nav.v-toolbar
                 <div><span class="version-label">REFSEQ Human Reference</span><span class="number">ref_GRCh37.p5, ref_GRCh38.p7</span></div>
                 <div><span class="version-label">Human Phenotype Ontology</span><span class="number">Build #102 (12-15-2015)</span></div>
                 <div><div class="version-label">Phenolyzer</div><div class="number">Oct 2019</div></div>
-                <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 105</div></div>               
+                <div><div class="version-label">Variant Effect Predictor</div><div class="number">Version 105</div></div>
                 <div><div class="version-label">REVEL</div> <div class="number">v1.3</div></div>
                 <div><div class="version-label">FreeBayes</div><div class="number">v1.3.1</div></div>
                 <div><div class="version-label">Samtools</div><div class="number">
                 1.9</div></div>
                 <div><div class="version-label">Tabix</div><div class="number">1.9</div></div>
                 <div><div class="version-label">vt subset, normalize</div><div class="number">v0.57721</div></div>
-                <div><div class="version-label">gnomAD </div><div class="number">v2.1 for GRCh37, v3  for GRCh38</div></div>                
+                <div><div class="version-label">gnomAD </div><div class="number">v2.1 for GRCh37, v4 for GRCh38 </div></div>
                 <div><div class="version-label">ACMG Genes</div> <div class="number">v3.2</div></div>
 
 
@@ -1590,8 +1590,8 @@ export default {
       let self = this;
 
       self.$emit("on-show-progress", "Formatting analysis data")
-              
-      self.analysisModel.promiseSaveAnalysisFile(self.appAlerts, 
+
+      self.analysisModel.promiseSaveAnalysisFile(self.appAlerts,
           self.currentBuildName, self.currentGeneSource)
       .then(function(data) {
 
@@ -1600,7 +1600,7 @@ export default {
           data.jsonFileName);
         self.$emit("on-hide-progress")
         document.getElementById('download-json-file').click();
-      })      
+      })
       .catch(function(error) {
         self.$emit("on-hide-progress")
         console.log("Unable to output cache", error)
@@ -1611,11 +1611,11 @@ export default {
 
 
       if (fileSelection.target.files.length > 0) {
-        let analysisFileName = fileSelection.target.files[0].name;  
+        let analysisFileName = fileSelection.target.files[0].name;
         let start = new Date();
         let dataIsCompressed = true;
 
-        
+
         me.showLoadMenu = true;
         setTimeout(function() {
           me.showLoadMenu = false;
@@ -1632,7 +1632,7 @@ export default {
           console.log("Time to load analysis from file " + analysisFileName + ": " + (new Date() - start) / 1000 + " seconds ");
           if (modelInfoProvided) {
             me.onShowVariantsTab();
-            me.$emit("on-analysis-file-loaded", analysisFileName);            
+            me.$emit("on-analysis-file-loaded", analysisFileName);
           }
         })
         .catch(function(error) {
@@ -1645,9 +1645,9 @@ export default {
             me.showLoadMenu = false;
 
           }, 1000)
-        })        
+        })
       }
-      
+
     },
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
@@ -1761,14 +1761,14 @@ export default {
         // alert is in view
         if (items && items.length > 1) {
           let selected = items[items.length-1];
-          selected.scrollIntoView();          
+          selected.scrollIntoView();
         } else {
-          // If we don't have a selected alert, scroll 
+          // If we don't have a selected alert, scroll
           // so that the last alert is in view
           let items = $("#alert-panel .v-alert");
           if (items && items.length > 1) {
             let last = items[items.length-1];
-            last.scrollIntoView(); 
+            last.scrollIntoView();
           }
         }
         self.showNotificationDrawer = true;

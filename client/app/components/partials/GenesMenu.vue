@@ -35,7 +35,7 @@ textarea#copy-paste-genes
     margin: 0px
     color: $text-color
     font-size: 16px
-    
+
     .button-label
       display: inline-block
       vertical-align: bottom
@@ -68,11 +68,11 @@ textarea#copy-paste-genes
 #acmg-genes-button
   margin-bottom: -10px
   .v-btn__content
-    color:  $app-button-color 
+    color:  $app-button-color
     .material-icons
       font-size: 18px
       padding-right: 2px
-      color:  $app-button-color 
+      color:  $app-button-color
 
 </style>
 
@@ -144,6 +144,11 @@ textarea#copy-paste-genes
                 </div>
               </div>
             </div>
+          </div>
+          <div v-if="isEduMode" style="display:flex;justify-content:flex-end">
+                <v-btn color="#30638e" :dark="!disableApplyBtn" id="search-button" :disabled="disableApplyBtn" @click="onApplyGenes({isFromClin: false, phenotypes: searchTermPhenolyzer})">
+                 Search
+                </v-btn>
           </div>
           <div v-if="!isEduMode" style="display:flex;justify-content:flex-end">
                 <v-btn color="#30638e" :dark="!disableApplyBtn" id="apply-button" :disabled="disableApplyBtn" @click="onApplyGenes">
@@ -273,7 +278,7 @@ export default {
         if (difference(newGeneSet, oldGeneSet).size > 0) {
           self.selectedGenePanelName = null;
         }
-      } 
+      }
     },
     onCancel: function() {
       let self = this;
@@ -291,6 +296,7 @@ export default {
     onSearchPhenolyzerGenes: function(searchTerm) {
       let self = this;
       self.selectedGenePanelName = null;
+      self.searchTermPhenolyzer = searchTerm;
       if (searchTerm) {
         var geneCount = self.geneModel.phenolyzerGenes.filter(function(gene) {
           return gene.selected;
@@ -303,19 +309,17 @@ export default {
           return gene.geneName;
         })
         .join(", ");
-        if (self.isEduMode) {
-          setTimeout(function() {
-            self.onApplyGenes({isFromClin: false, phenotypes: searchTerm});
-          }, 1000);
-        }
+
       }
     },
     onClearAllGenes: function() {
       this.$emit("clear-all-genes");
     },
     onMouseOver: function() {
-      this.showTooltipFlag = true;
-      this.tooltipContent = "Click this button to add / edit the list of genes to be analyzed.  You can add the list of ACMG genes here."
+      if (!this.isEduMode ) {
+        this.showTooltipFlag = true;
+        this.tooltipContent = "Click this button to add / edit the list of genes to be analyzed.  You can add the list of ACMG genes here."
+      }
     },
     onMouseLeave: function() {
       this.showTooltipFlag = false;

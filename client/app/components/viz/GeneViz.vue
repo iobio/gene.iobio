@@ -22,6 +22,18 @@
         stroke: rgb(159, 159, 159);
     }
 
+    .edu .ibo-gene .cds {
+      fill: #2076d1a1 !important;
+    }
+
+    .edu .ibo-gene .exon {
+      fill: #2076d1a1 !important;
+    }
+
+    .edu .ibo-gene .utr {
+      fill: #2076d1a1;
+    }
+
 
     #transcript-menu-item.ibo-gene .transcript.selected .utr,
     #transcript-menu-item.ibo-gene .transcript.selected .exon,

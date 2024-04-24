@@ -758,7 +758,6 @@ import GenesCard from '../viz/GenesCard.vue'
 import CoverageThresholdCard from '../viz/CoverageThresholdCard.vue'
 import GeneVariantsCard from '../viz/GeneVariantsCard.vue'
 import FeatureMatrixCard from '../viz/FeatureMatrixCard.vue'
-import VariantCard from '../viz/VariantCard.vue'
 import VariantAllCard from '../viz/VariantAllCard.vue'
 import AppTour from '../viz/AppTour.vue'
 
@@ -783,7 +782,6 @@ import VariantTooltip from '../../partials/VariantTooltip.js'
 import allGenesData from '../../../data/genes.json'
 import genePanels from '../../../data/gene_panels.json'
 import acmgBlacklist from '../../../data/ACMG_blacklist.json'
-import SplitPane from '../partials/SplitPane.vue'
 import ScrollButton from '../partials/ScrollButton.vue'
 import OptionalTracksCard from '../partials/OptionalTracksCard.vue'
 
@@ -810,8 +808,6 @@ export default {
       VariantInspectCard,
       VariantDetailCard,
       FeatureMatrixCard,
-      VariantCard,
-      SplitPane,
       AppTour,
       SaveAnalysisPopup,
       pileup: VuePileup,
@@ -1280,6 +1276,9 @@ export default {
         self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
         self.geneModel.setAllKnownGenes(self.allGenes);
         self.geneModel.translator = translator;
+        if (self.isEduMode) {
+          self.geneModel.phenolyzerTopGenesToKeep = 5;
+        }
 
 
         // Instantiate helper class than encapsulates IOBIO commands
@@ -4465,6 +4464,7 @@ export default {
           geneName = self.selectedGene.gene_name;
         }
         self.selectedGene = {};
+        self.geneModel.geneDangerSummaries = {}
 
         self.cohortModel.isLoaded = false;
         self.calcFeatureMatrixWidthPercent();

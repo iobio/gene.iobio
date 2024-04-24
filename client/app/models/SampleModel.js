@@ -624,7 +624,7 @@ class SampleModel {
       }
 
       var isDirty = true;
-      if (dangerSummaryExisting) {
+      if (dangerSummaryExisting && !me.isEduMode) {
         isDirty = me._isDifferentDangerSummary(dangerSummaryExisting, dangerSummary)
       }
 
@@ -2034,7 +2034,6 @@ class SampleModel {
                  options.getKnownVariants ? false : me.globalApp.getVariantIdsForGene,  // rsid
                  false, // serverside cache
                  false, // sfari mode
-                 options.getKnownVariants ? false : true, // get extra gnomad,
                  !me.isEduMode, // decompose
                  options.bypassAnnotate ? true : false
                 );

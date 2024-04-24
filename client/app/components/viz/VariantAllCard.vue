@@ -369,7 +369,7 @@
       </sfari-variants-toolbar>
 
       <div style="margin-top:8px;margin-left: 20px;margin-right: 0px;margin-bottom:-20px" >
-        <variant-toggle 
+        <variant-toggle
                 v-if="!isBasicMode && !isSimpleMode && !isEduMode && showVariantViz && (isMother || isFather)"
                 :variants="sampleModel.loadedVariants"
                 :filterModel="sampleModel.cohort.filterModel"
@@ -609,10 +609,10 @@
         </variant-viz>
         <div class="loader vcfloader" v-bind:class="{ hide: !model.inProgress.loadingVariants }" style="text-align: center; clear: both;width: 100%;display: inline-block;padding-top:10px; padding-bottom: 5px">
           <span v-if="model.relationship == 'known-variants'" class="loader-label">
-            Loading ClinVar variants for {{selectedGene.gene_name}} 
+            Loading ClinVar variants for {{selectedGene.gene_name}}
           </span>
           <span v-if="model.relationship == 'sfari-variants'" class="loader-label">
-            Loading SFARI variants for {{selectedGene.gene_name}} 
+            Loading SFARI variants for {{selectedGene.gene_name}}
           </span>
           <img src="../../../assets/images/wheel.gif" alt="Loading wheel">
         </div>
@@ -750,8 +750,8 @@ export default {
         bottom: self.geneVizShowXAxis ? 18 : 0,
         left: self.isBasicMode || self.isEduMode ? 9 : 4
       },
-      geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 32 : 16,
-      geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 24 : 12,
+      geneVizTrackHeight: self.isEduMode || self.isBasicMode ? 42 : 16,
+      geneVizCdsHeight: self.isEduMode || self.isBasicMode ? 34 : 12,
       geneZoomVizMargin: {
         top: 10,
         right: 2,

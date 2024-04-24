@@ -970,7 +970,7 @@ export default {
       let self = this;
       var correct = true;
       if (self.isEduMode && self.tourNumber == 1) {
-        if (self.phenotypeTerm.toLowerCase() != 'colon cancer') {
+        if (self.phenotypeTerm && self.phenotypeTerm.toLowerCase() != 'colon cancer') {
           alert("Please select 'Colon cancer' to continue with this tour.")
           correct = false;
         }
@@ -1056,11 +1056,11 @@ export default {
         $('#animation-container-1 #Stage').html("");
         $('#animation-container-2 #Stage').html("");
         self.globalApp.completedTour = self.tourNumber;
-        self.tourNumber = self.globalApp.completedTour == "1" ? "2" : "1";
-        self.globalApp.tour = self.tourNumber;
+        let tourNumber = self.globalApp.completedTour == "1" ? "2" : "1";
+        self.globalApp.tour = tourNumber;
         self.$router.push(
         { name: 'exhibit-case-complete',
-          query: {mode: 'edu', tour: self.tourNumber}
+          query: {mode: 'edu', tour: tourNumber}
         });
       }
     }
