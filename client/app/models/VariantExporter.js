@@ -591,39 +591,12 @@ export default class VariantExporter {
         }
       });
 
-      if (theVariant.isProxy) {
-        // Set the clinvar start, alt, ref for clinvar web access
-        me.cohort.getProbandModel().vcf._formatClinvarCoordinates(theVariant, theVariant.alt);
+      me.formatDisplay(revisedVariant, rec, format, extraAnnotations);
 
-        // Get the clinvar data and load into the variant record
-        var dummyVcfData  = {features: [revisedVariant]};
-        var clinvarLoader = me.cohort.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(me.cohort.getProbandModel(), dummyVcfData);
-        me.cohort.getProbandModel()
-        .vcf
-        .promiseGetClinvarRecords(dummyVcfData,
-          me.cohort.getProbandModel()._stripRefName(revisedVariant.chrom),
-          theGeneObject,
-          me.cohort.geneModel.clinvarGenes,
-          clinvarLoader)
-        .then(function() {
-
-          me.formatDisplay(revisedVariant, rec, format, extraAnnotations);
-
-          if (format == 'csv' || format == 'json') {
-            resolve([rec]);
-          } else {
-            resolve([rec, theRawVcfRecords]);
-          }
-        })
+      if (format == 'csv' || format == 'json') {
+          resolve([rec]);
       } else {
-        me.formatDisplay(revisedVariant, rec, format, extraAnnotations);
-
-        if (format == 'csv' || format == 'json') {
-            resolve([rec]);
-        } else {
-          resolve([rec, theRawVcfRecords]);
-        }
-
+        resolve([rec, theRawVcfRecords]);
       }
 
     });

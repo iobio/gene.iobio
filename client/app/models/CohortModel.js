@@ -1656,134 +1656,6 @@ class CohortModel {
   }
 
 
-
-  promiseAnnotateWithClinvar(resultMap, geneObject, transcript, isBackground) {
-    let self = this;
-    var formatClinvarKey = function(variant) {
-      var delim = '^^';
-      return variant.chrom + delim + variant.ref + delim + variant.alt + delim + variant.start + delim  + variant.end;
-    }
-
-    var formatClinvarThinVariant = function(key) {
-      var delim = '^^';
-      var tokens = key.split(delim);
-      return {'chrom': tokens[0], 'ref': tokens[1], 'alt': tokens[2], 'start': tokens[3], 'clinvarStart': tokens[4], 'end': tokens[4]};
-    }
-
-    var formatClinvarCoord = function(variant) {
-      return {'chrom':        variant.chrom,
-              'ref':          variant.ref,
-              'alt':          variant.alt,
-              'start':        variant.start,
-              'end':          variant.end,
-              'clinvarRef':   variant.clinvarRef,
-              'clinvarAlt':   variant.clinvarAlt,
-              'clinvarStart': variant.clinvarStart
-            };
-
-    }
-
-
-
-    var refreshVariantsWithClinvarLookup = function(theVcfData, clinvarLookup) {
-      theVcfData.features.forEach(function(variant) {
-        var clinvarAnnot = clinvarLookup[formatClinvarKey(variant)];
-        if (clinvarAnnot) {
-          for (var key in clinvarAnnot) {
-            variant[key] = clinvarAnnot[key];
-          }
-        }
-      })
-      if (theVcfData.loadState == null) {
-        theVcfData.loadState = {};
-      }
-      theVcfData.loadState['clinvar'] = true;
-    }
-
-
-
-    return new Promise(function(resolve, reject) {
-
-      // Combine the trio variants into one set of variants so that we can access clinvar once
-      // instead of on a per sample basis
-      var uniqueVariants = {};
-      var unionVcfData = {features: []}
-      for (var rel in resultMap) {
-        var vcfData = resultMap[rel];
-        if (vcfData) {
-          if (!vcfData.loadState['clinvar'] && rel !== 'known-variants' && rel !== 'sfari-variants') {
-           vcfData.features.forEach(function(feature) {
-              uniqueVariants[formatClinvarKey(feature)] = formatClinvarCoord(feature);
-           })
-          }
-        }
-      }
-      if (Object.keys(uniqueVariants).length == 0) {
-        resolve(resultMap);
-      } else {
-
-        for (var key in uniqueVariants) {
-          unionVcfData.features.push(uniqueVariants[key]);
-        }
-
-        var refreshVariantsFunction = self.getProbandModel()._refreshVariantsWithClinvarVCFRecs.bind(self.getProbandModel(), unionVcfData)
-
-        self.getProbandModel().vcf.promiseGetClinvarRecords(
-            unionVcfData,
-            self.getProbandModel()._stripRefName(geneObject.chr),
-            geneObject,
-            self.geneModel.clinvarGenes,
-            refreshVariantsFunction)
-        .then(function() {
-
-            // Create a hash lookup of all clinvar variants
-            var clinvarLookup = {};
-            unionVcfData.features.forEach(function(variant) {
-              var clinvarAnnot = {};
-
-              for (var key in self.getProbandModel().vcf.getClinvarAnnots()) {
-                  clinvarAnnot[key] = variant[key];
-                  clinvarLookup[formatClinvarKey(variant)] = clinvarAnnot;
-              }
-            })
-
-            var refreshPromises = [];
-
-            // Use the clinvar variant lookup to initialize variants with clinvar annotations
-            for (var rel in resultMap) {
-              var vcfData = resultMap[rel];
-              if (vcfData) {
-                if (!vcfData.loadState['clinvar']) {
-                  var p = refreshVariantsWithClinvarLookup(vcfData, clinvarLookup);
-                  if (!isBackground) {
-                    self.getModel(rel).vcfData = vcfData;
-                  }
-                  //var p = getVariantCard(rel).model._promiseCacheData(vcfData, CacheHelper.VCF_DATA, vcfData.gene.gene_name, vcfData.transcript);
-                  refreshPromises.push(p);
-                }
-              }
-            }
-
-            Promise.all(refreshPromises)
-            .then(function() {
-              resolve(resultMap);
-            })
-            .catch(function(error) {
-              reject(error);
-            })
-
-        })
-        .catch(function(error) {
-          console.log(error)
-          reject(error)
-        })
-      }
-
-
-    })
-  }
-
-
   promiseAnnotateInheritance(geneObject, theTranscript, resultMap, options={isBackground: false, cacheData: true}) {
     let self = this;
 
@@ -2332,69 +2204,59 @@ class CohortModel {
             } else {
               trioFbData = data.trioFbData;
 
+              // We need to cache the vcf data with the merged in called variants (fbCalled=Y)
+              // So, reset the cacheState to blank.
+              trioVcfData.proband.cacheState = null
 
-              // Annotate called variants with clinvar
-              return me.promiseAnnotateWithClinvar(trioFbData, geneObject, theTranscript, true)
+              // Determine inheritance across union of loaded and called variants
+              me.promiseAnnotateInheritance(geneObject, theTranscript, trioVcfData, {isBackground: options.isBackground, cacheData: true})
+              .then( function() {
+                  me.getCanonicalModels().forEach(function(model) {
+                    model.loadCalledTrioGenotypes(trioVcfData[model.getRelationship()], trioFbData[model.getRelationship()]);
+                  })
+                  // Summarize danger for gene
+                  return me.promiseSummarizeDanger(geneObject, theTranscript, trioVcfData.proband, {'CALLED': true});
+              })
               .then(function() {
+                showCalledVariants();
 
-                refreshClinvarAnnots(trioFbData);
+                var refreshedSourceVariant = null;
+                if (options.sourceVariant) {
+                  trioVcfData.proband.features.forEach(function(variant) {
+                    if (!refreshedSourceVariant &&
+                      me.globalApp.utility.stripRefName(variant.chrom) == me.globalApp.utility.stripRefName(options.sourceVariant.chrom) &&
+                      variant.start == options.sourceVariant.start &&
+                      variant.ref == options.sourceVariant.ref &&
+                      variant.alt == options.sourceVariant.alt) {
 
-                // We need to cache the vcf data with the merged in called variants (fbCalled=Y)
-                // So, reset the cacheState to blank.
-                trioVcfData.proband.cacheState = null
+                      refreshedSourceVariant = variant;
+                      refreshedSourceVariant.notes = options.sourceVariant.notes;
+                      refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
 
-                // Determine inheritance across union of loaded and called variants
-                me.promiseAnnotateInheritance(geneObject, theTranscript, trioVcfData, {isBackground: options.isBackground, cacheData: true})
-                .then( function() {
-                    me.getCanonicalModels().forEach(function(model) {
-                      model.loadCalledTrioGenotypes(trioVcfData[model.getRelationship()], trioFbData[model.getRelationship()]);
-                    })
-                    // Summarize danger for gene
-                   return me.promiseSummarizeDanger(geneObject, theTranscript, trioVcfData.proband, {'CALLED': true});
-                })
-                .then(function() {
-                  showCalledVariants();
-
-                  var refreshedSourceVariant = null;
-                  if (options.sourceVariant) {
-                    trioVcfData.proband.features.forEach(function(variant) {
-                      if (!refreshedSourceVariant &&
-                        me.globalApp.utility.stripRefName(variant.chrom) == me.globalApp.utility.stripRefName(options.sourceVariant.chrom) &&
-                        variant.start == options.sourceVariant.start &&
-                        variant.ref == options.sourceVariant.ref &&
-                        variant.alt == options.sourceVariant.alt) {
-
-                        refreshedSourceVariant = variant;
-                        refreshedSourceVariant.notes = options.sourceVariant.notes;
-                        refreshedSourceVariant.interpretation = options.sourceVariant.interpretation;
-
-                        // CohortModel.promiseExportVariants has refreshed the bamDepth
-                        // from the coverage data. We don't want to lose these values
-                        // when we export these called variants
-                        refreshedSourceVariant.bamDepth = options.sourceVariant.bamDepth;
-                        refreshedSourceVariant.bamDepthMother = options.sourceVariant.bamDepthMother;
-                        refreshedSourceVariant.bamDepthFather = options.sourceVariant.bamDepthFather;
+                      // CohortModel.promiseExportVariants has refreshed the bamDepth
+                      // from the coverage data. We don't want to lose these values
+                      // when we export these called variants
+                      refreshedSourceVariant.bamDepth = options.sourceVariant.bamDepth;
+                      refreshedSourceVariant.bamDepthMother = options.sourceVariant.bamDepthMother;
+                      refreshedSourceVariant.bamDepthFather = options.sourceVariant.bamDepthFather;
 
 
-                      }
-                    })
-                  }
-                  resolve({
-                    'gene': geneObject,
-                    'transcript': theTranscript,
-                    'jointVcfRecs': jointVcfRecs,
-                    'trioVcfData': trioVcfData,
-                    'trioFbData': trioFbData,
-                    'refName': trRefName,
-                    'sourceVariant': refreshedSourceVariant ? refreshedSourceVariant : options.sourceVariant });
-                })
-                .catch(function(error) {
-                  reject(error)
-                })
+                    }
+                  })
+                }
+                resolve({
+                  'gene': geneObject,
+                  'transcript': theTranscript,
+                  'jointVcfRecs': jointVcfRecs,
+                  'trioVcfData': trioVcfData,
+                  'trioFbData': trioFbData,
+                  'refName': trRefName,
+                  'sourceVariant': refreshedSourceVariant ? refreshedSourceVariant : options.sourceVariant });
               })
               .catch(function(error) {
                 reject(error)
               })
+
             }
 
           })
