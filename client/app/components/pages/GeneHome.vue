@@ -1414,6 +1414,7 @@ export default {
             })
 
           } else {
+            self.models = self.cohortModel.sampleModels;
             if (self.geneModel.sortedGeneNames.length > 0 && self.cohortModel.sampleModels.length == 0) {
               let warning = "No data has been loaded. Click on the load button to specify the data files."
               self.onShowSnackbar({message: warning, timeout: 8000, 'close': true});
@@ -1422,7 +1423,7 @@ export default {
                 callback();
               }
             } else {
-              self.models = self.cohortModel.sampleModels;
+
 
               if (self.analysis && self.analysis.payload && self.analysis.payload.variants && self.analysis.payload.variants.length > 0) {
                 // do nothing -- variants already loaded

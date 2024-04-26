@@ -971,7 +971,7 @@ nav.toolbar, nav.v-toolbar
         </v-progress-circular>
 
         <v-tabs
-          v-if="cohortModel && cohortModel.isLoaded"
+          v-if="geneModel && cohortModel"
           v-model="activeTab"
           light
         >
