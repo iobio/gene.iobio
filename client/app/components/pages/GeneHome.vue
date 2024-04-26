@@ -1534,7 +1534,9 @@ export default {
 
         self.hubSession = self.isHubDeprecated ? new HubSessionDeprecated() : new HubSession(self.paramClientApplicationId);
         self.hubSession.globalApp = self.globalApp;
-        let isPedigree = !!(self.paramIsPedigree && self.paramIsPedigree === 'true');
+
+        // There is a bug where the is_pedigree url parameter is not provided when a gene is not entered on the Mosaic launch
+        let isPedigree = self.paramIsPedigree && self.paramIsPedigree === 'true'
 
 
 
