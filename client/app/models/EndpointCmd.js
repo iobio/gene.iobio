@@ -16,6 +16,7 @@ export default class EndpointCmd {
 
     if (this.globalApp.launchedFromUtahMosaic) {
       this.api = new Client(httpScheme + process.env.IOBIO_BACKEND_MOSAIC);
+      this.apiDev = new Client( 'https://mosaic.chpc.utah.edu/gru-dev-9002');
     }
     else {
       // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
