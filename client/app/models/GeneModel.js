@@ -806,44 +806,6 @@ class GeneModel {
     return [];
   }
 
-
-
-
-  _getSortedExonsForTranscript(transcript) {
-    var sortedExons = transcript
-      .features.filter(function(feature) {
-        return feature.feature_type.toUpperCase() == 'UTR' || feature.feature_type.toUpperCase() == 'CDS';
-      })
-      .sort(function(feature1, feature2) {
-
-        var compare = 0;
-        if (feature1.start < feature2.start) {
-          compare = -1;
-        } else if (feature1.start > feature2.start) {
-          compare = 1;
-        } else {
-          compare = 0;
-        }
-
-        var strandMultiplier = transcript.strand == "+" ? 1 : -1;
-
-        return compare * strandMultiplier;
-
-      })
-
-    var exonCount = 0;
-    sortedExons.forEach(function(exon) {
-      exonCount++
-    })
-
-    var exonNumber = 1;
-    sortedExons.forEach(function(exon) {
-      exon.exon_number = exonNumber + "/" + exonCount;
-      exonNumber++;
-    })
-    return sortedExons;
-  }
-
   getNCBIGeneSummariesForceWait(geneNames) {
     let me = this;
     let waitSeconds = 0;
@@ -1314,19 +1276,6 @@ class GeneModel {
   }
 
 
-  _setTranscriptExonNumbers(transcript, sortedExons) {
-    // Set the exon number on each UTR and CDS within the corresponding exon
-    transcript.features.forEach(function(feature) {
-      if (feature.feature_type.toUpperCase() == 'CDS' || feature.feature_type.toUpperCase() == 'UTR') {
-        sortedExons.forEach(function(exon) {
-          if (feature.start >= exon.start && feature.end <= exon.end) {
-            feature.exon_number = exon.exon_number;
-          }
-        })
-      }
-    })
-  }
-
   clearAllGenes() {
     this.promiseCopyPasteGenes("");
   }
@@ -1623,6 +1572,9 @@ class GeneModel {
                       'gene': geneName, 'alertType': 'error',
                       'options': {'showAlertPanel': true, 'selectAlert': true} });
             } else {
+              // For each transcript in the gene, determine the exons, creating a new array. Sort the exons and number them.
+              // Apply this number to the coding features (UTR, CDS).
+              me.determineExons(theGeneObject)
               me.geneObjects[theGeneObject.gene_name] = theGeneObject;
               resolve(theGeneObject);
             }
@@ -1666,6 +1618,100 @@ class GeneModel {
     });
   }
 
+
+  /*
+   * Capture the exons for a gene transcript. For the user interface,
+   * this is a convenience function that represents each rectangle on the
+   * transcript diagram, which will be a UTR or a CDS for protein coding
+   * genes. But for non-protein coding genes, just filter by feature type
+   * 'exon'.
+   * This function also numbers the exons and sorts them accordingly. The
+   * strand determines which is the first exon.
+   */
+  determineExons(gene) {
+    let self = this;
+    gene.transcripts.forEach(function(transcript) {
+
+      // Exons are what we use the number the features. Each exon is assigned
+      // a number sequentially. For forward strand, we number exons from
+      // first to last exon; For reverse strand, we number from last to
+      // first exon.
+      let exons = transcript.features.filter(function(feature) {
+        return feature.feature_type.toLowerCase() == 'exon';
+      })
+      .sort(function(a,b) {
+        if (gene.strand == "+") {
+          return a.start - b.start;
+        } else {
+          return (a.start - b.start) * -1;
+        }
+      })
+
+      // These are the features (UTRs and CDSs for protein coding transcripts,
+      // EXONs for non-protein coding transcripts) that we treat as exons, that we
+      // will draw on the trascript diagram
+      let exonicFeatures  = transcript.features.filter(function(feature) {
+        if ( transcript.transcript_type == 'protein_coding'
+            || transcript.transcript_type == 'UNIONED'
+            || feature.transcript_type == 'mRNA'
+            || feature.transcript_type == 'transcript'
+            || feature.transcript_type == 'primary_transcript') {
+          return feature.feature_type.toLowerCase() == 'utr' || feature.feature_type.toLowerCase() == 'cds';
+        } else {
+          return feature.feature_type.toLowerCase() == 'exon';
+        }
+      })
+      .sort(function(a,b) {
+        if (gene.strand == "+") {
+          return a.start - b.start;
+        } else {
+          return (a.start - b.start) * -1;
+        }
+      })
+
+      // Assign the exon number sequentially
+      let count = 1;
+      exons.forEach(function(exon) {
+        exon.number = count++;
+        exon.exon_number = exon.number + ' of ' + exons.length;
+      })
+
+      let getEncapsulatingExon = function(feature) {
+        let matched = exons.filter(function(exon) {
+          return exon.start <= feature.start && exon.end >= feature.end;
+        })
+        if (matched.length > 0) {
+          return matched[0];
+        } else {
+          return null;
+        }
+      }
+
+       // Number the UTR and CDS according to the encapsulating EXON.
+      exonicFeatures.forEach(function(feature) {
+        if (!feature.hasOwnProperty("number")) {
+          let theExon = getEncapsulatingExon(feature, exons)
+          if (theExon) {
+            feature.number = theExon.number;
+            feature.exon_number = theExon.exon_number;
+          } else {
+            console.log("Unable to find encapsulating exon in gene " +
+              gene.gene_name + " for feature " +
+              feature.feature_type + " " +
+              feature.start + "-" + feature.end +
+              ". Feature will not numbered.")
+          }
+
+        }
+      })
+
+
+      transcript.exons = exonicFeatures;
+      transcript.exonsOnly = exons;
+
+    })
+    return gene;
+  }
 
   promiseGetGeneForVariant(variant) {
     var me = this;
