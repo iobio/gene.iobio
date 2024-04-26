@@ -979,7 +979,7 @@ class CohortModel {
       var binLength = null;
       if (self.knownVariantsViz == 'histo') {
         let containerWidth = $('.v-content .container').innerWidth() - 25;
-        binLength = Math.floor(((+theGene.end - +theGene.start) / containerWidth) * .80);
+        binLength = Math.floor(((+theGene.end - +theGene.start) / containerWidth) * 8);
       }
       self.sampleMap['known-variants'].model.promiseGetKnownVariantHistoData(theGene, theTranscript, binLength)
       .then(function(data) {
