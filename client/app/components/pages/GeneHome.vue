@@ -2598,9 +2598,9 @@ export default {
       self.deselectVariant();
       self.setDirty(true);
       self.activeGeneVariantTab = "0";
-      self.showLeftPanelForGenes();
       self.promiseLoadGene(geneName)
       .then(function() {
+        self.showLeftPanelForGenes();
         if(self.launchedFromFiles) {
           self.showLeftPanelForGenes();
           if (self.cohortModel.isLoaded) {
