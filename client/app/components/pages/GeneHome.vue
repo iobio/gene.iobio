@@ -2598,10 +2598,7 @@ export default {
       self.deselectVariant();
       self.setDirty(true);
       self.activeGeneVariantTab = "0";
-      // self.showLeftPanelForGenes();
-      if(self.launchedFromFiles) {
-        self.showLeftPanelForGenes();
-      }
+      self.showLeftPanelForGenes();
       self.promiseLoadGene(geneName)
       .then(function() {
         if(self.launchedFromFiles) {
@@ -2781,6 +2778,7 @@ export default {
         }
         self.geneModel.promiseAddGeneName(geneName)
         .then(function(justAdded) {
+
           if (justAdded && self.launchedFromHub) {
             return self.promiseUpdateAnalysisGenesData();
           } else {
