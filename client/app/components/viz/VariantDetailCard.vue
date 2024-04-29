@@ -92,7 +92,7 @@
           padding-top: 0px !important
 
   .layout.row
-    margin-bottom: 7px
+    margin-bottom: 12px
 
   .layout.row.no-bottom-margin
     margin-bottom: 0px
@@ -183,12 +183,13 @@
     padding-bottom: 5px
 
   .field-label
-    color: #9c9a9a
+    color: $heading-color
     font-style: italic
     padding-left: 0px
     text-align: left
     font-size: 13px
     line-height: 14px
+    font-weight: 500
 
   .field-value
     padding-right: 35px
@@ -418,7 +419,7 @@
 
 
 
-        <div v-if="isBasicMode" style="min-width:300px;margin-left: 10px;">
+        <div v-if="isBasicMode" style="min-width:400px;margin-left: 10px;">
 
             <v-flex v-if="isBasicMode">
               <v-layout  row>
@@ -471,7 +472,7 @@
         </div>
 
 
-        <div style="min-width:330px;max-width:330px;margin-right:10px">
+        <div style="min-width:400px;max-width:400px;margin-right:10px">
 
 
           <v-layout  v-if="selectedVariant && !isEduMode" class="content" column nowrap>
@@ -1125,9 +1126,9 @@ export default {
     },
     afGnomAD: function() {
       if (this.selectedVariant) {
-        if (this.selectedVariant.gnomAD == null || this.selectedVariant.gnomAD.af == null) {
+        if (this.selectedVariant.afHighest == null || this.selectedVariant.afHighest == null) {
           return {percent: "?", link: null, class: ""};
-        } else if (this.selectedVariant.gnomAD.af  == '.') {
+        } else if (this.selectedVariant.afHighest  == '.') {
           return {percent: "0%", link: null, class: "level-high"};
         } else  {
           var gnomAD = {};
@@ -1137,12 +1138,8 @@ export default {
             + this.selectedVariant.ref + "-"
             + this.selectedVariant.alt;
 
-          gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.af);
-          gnomAD.class         = this.getAfClass(this.selectedVariant.gnomAD.af);
-          gnomAD.percentPopMax = this.globalApp.utility.percentage(this.selectedVariant.gnomAD.afPopMax);
-          gnomAD.altCount      = this.selectedVariant.gnomAD.altCount;
-          gnomAD.totalCount    = this.selectedVariant.gnomAD.totalCount;
-          gnomAD.homCount      = this.selectedVariant.gnomAD.homCount;
+          gnomAD.percent       = this.globalApp.utility.percentage(this.selectedVariant.afHighest);
+          gnomAD.class         = this.getAfClass(this.selectedVariant.afHighest);
           return gnomAD;
 
         }
