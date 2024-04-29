@@ -360,8 +360,10 @@ class GeneModel {
 
     return new Promise(function(resolve, reject) {
 
+      let newGenes = null;
       me._promiseCopyPasteGenesImpl(genesString, options)
-      .then(function() {
+      .then(function(results) {
+        newGenes = results && results.hasOwnProperty('newGenes') ? results.newGenes : null;
         me.getNCBIGeneSummariesForceWait(me.geneNames)
 
         var promises = [];
@@ -372,12 +374,12 @@ class GeneModel {
 
         return Promise.all(promises)
       })
-      .then(function() {
-        resolve();
+      .then(function(results) {
+        resolve({'newGenes': newGenes});
       })
       .catch(function(error) {
         console.log(error);
-        resolve();
+        resolve({'newGenes': newGenes});
       })
 
     })
@@ -404,7 +406,8 @@ class GeneModel {
 
 
 
-      var genesToAdd = [];
+      var genesToApply = [];
+      var newGenes = [];
       var unknownGeneNames = {};
       var duplicateGeneNames = {};
       var promises = [];
@@ -413,19 +416,41 @@ class GeneModel {
           let p = me.promiseIsValidGene(geneName.trim())
           .then(function(isValid) {
             if (isValid) {
-              // Make sure this isn't a duplicate.  If we are not replacing the current genes,
-              // make sure to check for dups in the existing gene list as well.
-              if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
-                  && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
-                genesToAdd.push(geneName.trim().toUpperCase());
+              if (options.replace) {
+                // Make sure this isn't a duplicate.
+                if (genesToApply.indexOf(geneName.trim().toUpperCase()) < 0) {
+                  genesToApply.push(geneName.trim().toUpperCase());
+                } else {
+                  duplicateGeneNames[geneName.trim().toUpperCase()] = true;
+                }
+
               } else {
-                duplicateGeneNames[geneName.trim().toUpperCase()] = true;
+
+                // Make sure this isn't a duplicate and check for dups in the existing
+                // gene list as well.
+                if (genesToApply.indexOf(geneName.trim().toUpperCase()) < 0
+                && me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0) {
+                  genesToApply.push(geneName.trim().toUpperCase());
+                } else {
+                  duplicateGeneNames[geneName.trim().toUpperCase()] = true;
+                }
               }
+
+              // Keep track of genes that are not in the current list. We
+              // send this list back in the resolve so that the caller knows
+              // of the genes just added. This is useful when selecting
+              // a variant in the variants tab once all of the genes have
+              // been analyzed.
+              if (me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0) {
+                newGenes.push(geneName.trim().toUpperCase())
+              }
+
             } else {
+              // Add to the invalid gene list if it isn't in the genes json
               unknownGeneNames[geneName.trim().toUpperCase()] = true;
-              if (genesToAdd.indexOf(geneName.trim().toUpperCase()) < 0
+              if (genesToApply.indexOf(geneName.trim().toUpperCase()) < 0
                   && (options.replace || me.geneNames.indexOf(geneName.trim().toUpperCase()) < 0)) {
-                genesToAdd.push(geneName.trim().toUpperCase());
+                genesToApply.push(geneName.trim().toUpperCase());
               }
             }
           })
@@ -436,17 +461,25 @@ class GeneModel {
       Promise.all(promises)
       .then(function() {
 
+
         if (options.replace) {
           me.geneNames = [];
           me.sortedGeneNames = [];
         }
 
-        genesToAdd.forEach(function(geneName) {
+        // Add the genes
+        // Note: We don't have to remove genes because the gene list is either
+        //       replaced or combined with the existing list.
+        //  1. When we copy/paste genes from the nav genes list, the genes are replaced.
+        //  2. When we get a new list of genes from Phenolyzer, the user gets to
+        //     specify if the genes are replaced or combined. In the former case, the
+        //     entire list of genes is replaced, in the latter, genes are added
+        //     to the existing list. In both cases, we don't have to handle removing
+        //     individual genes.
+        genesToApply.forEach(function(geneName) {
           me.geneNames.push(geneName);
           me.sortedGeneNames.push(geneName);
         })
-
-
 
         if (Object.keys(unknownGeneNames).length > 0) {
           var message = "Bypassing unknown genes: " + Object.keys(unknownGeneNames).join(", ") + ".";
@@ -473,7 +506,7 @@ class GeneModel {
 
         }
 
-        resolve();
+        resolve({'newGenes': newGenes});
 
       })
       .catch(function(error) {
@@ -1267,7 +1300,7 @@ class GeneModel {
           resolve({geneName: geneName, phenotype: phenotype, clinicalSynopsis: clinicalSynopsis});
         })
         .fail(function(error) {
-            let msg = "Unable to get clinical synopsisi from OMIM " + url;
+            let msg = "Unable to get clinical synopsis from OMIM " + url;
             console.log(msg);
             console.log(error)
             reject(msg + '. Error: ' + error);
@@ -1673,7 +1706,7 @@ class GeneModel {
       let count = 1;
       exons.forEach(function(exon) {
         exon.number = count++;
-        exon.exon_number = exon.number + ' of ' + exons.length;
+        exon.exon_number = exon.number + '/' + exons.length;
       })
 
       let getEncapsulatingExon = function(feature) {

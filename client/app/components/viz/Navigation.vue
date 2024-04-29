@@ -1513,7 +1513,7 @@ export default {
     lookupGene: function(a, b) {
       if (this.selectedGene && this.lookupGene && this.lookupGene.gn) {
         this.geneEntered = this.lookupGene.gn;
-        this.$emit("input", this.lookupGene.gn);
+        this.$emit("gene-name-entered", this.lookupGene.gn);
       }
     },
     showFilesProp: function(){

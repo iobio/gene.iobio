@@ -319,7 +319,7 @@ main.content.clin, main.v-content.clin
       :settingsCoverageOnly="settingsCoverageOnly"
       :settingsGeneSourceOnly="settingsGeneSourceOnly"
       :analysisModel="analysisModel"
-      @input="onGeneNameEntered"
+      @gene-name-entered="onGeneNameEntered"
       @load-demo-data="onLoadDemoData"
       @clear-cache="promiseClearCache"
       @apply-genes="onApplyGenes"
@@ -2227,19 +2227,9 @@ export default {
                 self.showLeftPanelForGenes();
               }
             } else {
-              if (self.selectedVariant == null) {
-                setTimeout(function() {
-                  self.promiseSelectFirstFlaggedVariant()
-
-                }, 2000)
-              }
-              else if(self.launchedFromClin){
-
+              setTimeout(function() {
                 self.promiseSelectFirstFlaggedVariant()
-                    .then(function () {
-                      self.$refs.navRef.onShowVariantsTab();
-                    })
-              }
+              }, 2000)
             }
           }
         });
@@ -2591,6 +2581,10 @@ export default {
 
     onGeneNameEntered: function(geneName) {
       let self = this;
+      self.showLeftPanelForGenes();
+      self.genesAdded = null;
+      let newGene = self.geneModel.sortedGeneNames.indexOf(geneName) < 0
+
       if(self.launchedFromClin){
         let geneArr = self.geneModel.getCandidateGenes();
         geneArr.push(geneName);
@@ -2602,14 +2596,11 @@ export default {
       self.activeGeneVariantTab = "0";
       self.promiseLoadGene(geneName)
       .then(function() {
-        self.showLeftPanelForGenes();
-        if(self.launchedFromFiles) {
-          self.showLeftPanelForGenes();
-          if (self.cohortModel.isLoaded) {
-            self.promiseSelectFirstFlaggedVariant();
-          }
-
+        if (newGene) {
+          self.genesAdded = [geneName];
+          self.promiseSelectFirstFlaggedVariant();
         }
+
         self.onSendGenesToClin();
         self.setUrlGeneParameters();
       })
@@ -3537,34 +3528,15 @@ export default {
     applyGenesImpl: function(genesString, options, callback) {
       let self = this;
       self.selectedGene = {};
+      self.genesAdded = null;
+      let geneNameToSelect = null;
       self.geneModel.promiseCopyPasteGenes(genesString, options)
-      .then(function() {
+      .then(function(results) {
+        self.genesAdded = results && results.newGenes ? results.newGenes : [];
         if (!self.launchedFromClin) {
           self.setUrlGeneParameters();
         }
-        let geneNameToSelect = null;
-        if (self.launchedFromClin) {
-          if (self.geneModel.geneNames && self.geneModel.geneNames.length > 0) {
-            let applicableGenes = self.geneModel.geneNames.filter(function(geneName) {
-              if (self.isFullAnalysis) {
-                return !self.geneModel.isCandidateGene(geneName);
-              } else {
-                return self.geneModel.isCandidateGene(geneName);
-              }
-            })
-            if (applicableGenes.length > 0) {
-              geneNameToSelect = applicableGenes[0];
-            }
-            else{
-              geneNameToSelect = self.geneModel.sortedGeneNames[0];
-            }
-          }
-
-        } else {
-          if (self.geneModel.sortedGeneNames && self.geneModel.sortedGeneNames.length > 0) {
-            geneNameToSelect = self.geneModel.sortedGeneNames[0];
-          }
-        }
+        geneNameToSelect = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded[0] : self.geneModel.sortedGeneNames[0];
 
         if (geneNameToSelect) {
           return self.promiseLoadGene(geneNameToSelect);
@@ -5149,10 +5121,13 @@ export default {
 
     promiseSelectFirstFlaggedVariant: function() {
       let self = this;
-      if (self.selectedVariant) {
-        self.onCohortVariantClick(self.selectedVariant, null, 'proband');
-        return Promise.resolve();
-      }
+
+      // Examine the flagged variant and choose one to show.
+      //  1. If there aren't any flagged variants, just return as there is no action to be taken.
+      //  2. If there is a flagged variant for a gene just added (through gene search or copy/paste
+      //     or phenoylzer search), select the first flagged variant matching a gene just added.
+      //  3. If there isn't a flagged variant for the gene just added, pick the first
+      //     flagged variant at the top of the list.
       return new Promise(function(resolve) {
 
         let getGeneName = function(variant) {
@@ -5173,37 +5148,48 @@ export default {
           sortedFilters.forEach(function(filterObject) {
             filterObject.genes.forEach(function(geneList) {
               if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
-                firstFlaggedVariant = geneList.variants[0];
+                let candidateVariants = null;
+                if (self.genesAdded && self.genesAdded.length > 0) {
+                  candidateVariants = geneList.variants.filter(function(v) {
+                    return self.genesAdded.indexOf(getGeneName(v)) >= 0
+                  })
+                } else {
+                  candidateVariants = geneList.variants;
+                }
+                if (candidateVariants.length > 0) {
+                  firstFlaggedVariant = candidateVariants[0];
+                }
               }
             })
           })
-          if ((self.paramAnalysisId || self.paramVariantSetId || !self.geneClicked) && firstFlaggedVariant &&  (!self.selectedGene || getGeneName(firstFlaggedVariant) !== self.selectedGene.gene_name)) {
+          if (firstFlaggedVariant) {
+            // Is this flagged variant in a gene we just added?
+            let forAddedGene = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded.indexOf(getGeneName(firstFlaggedVariant)) >= 0 : false;
             self.promiseLoadGene(getGeneName(firstFlaggedVariant))
-              .then(function() {
-                self.toClickVariant = firstFlaggedVariant;
+            .then(function() {
+              self.toClickVariant = firstFlaggedVariant;
+              if ((self.paramAnalysisId || self.paramVariantSetId || self.geneClicked == false) && !forAddedGene) {
                 self.showLeftPanelWhenFlaggedVariants("send-to-clin");
-                self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
+              } else {
+                self.showLeftPanelWhenFlaggedVariants();
+              }
+              self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
+                if ((self.paramAnalysisId || self.paramVariantSetId || self.geneClicked == false) && !forAddedGene) {
+                  self.cacheHelper.analyzeAllInProgress = false;
+                }
+                self.genesAdded = null;
                 resolve()
-                self.cacheHelper.analyzeAllInProgress = false;
-              })
-              .catch(function(error) {
-                resolve();
               })
             })
-          }
-          else if(firstFlaggedVariant && getGeneName(firstFlaggedVariant) === self.selectedGene.gene_name){
-            self.toClickVariant = firstFlaggedVariant;
-            self.showLeftPanelWhenFlaggedVariants();
-            self.onFlaggedVariantSelected(firstFlaggedVariant, {'forceGeneSelection': true}, function() {
-              resolve()
+            .catch(function(error) {
+              self.genesAdded = null;
+              resolve();
             })
           }
           else {
-            self.showLeftPanelWhenFlaggedVariants();
+            self.genesAdded = null;
             resolve();
           }
-
-
         })
 
       })
