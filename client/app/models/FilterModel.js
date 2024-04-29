@@ -1,35 +1,19 @@
 class FilterModel {
 
-  constructor(globalApp, affectedInfo, isBasicMode, isFullAnalysis) {
+  constructor(globalApp, isTrio, affectedInfo, isBasicMode, isFullAnalysis) {
     this.globalApp = globalApp;
+    this.isTrio = isTrio;
     this.affectedInfo = affectedInfo;
 
     this.isBasicMode = isBasicMode;
     this.isFullAnalysis = isFullAnalysis;
 
-    this.annotsToInclude = new Object();
-
     this.regionStart = null;
     this.regionEnd = null;
 
-    this.pathogenicityScheme = "clinvar";
-
-    this.annotClasses     = ".type, .impact, ." + this.globalApp.impactFieldToFilter + ", .effect, .vepConsequence, .sift, .polyphen, .regulatory, .zygosity, .inheritance, .clinvar, .uasibs, .recfilter";
-    this.annotClassLabels = "Type, Impact, VEP Impact, Effect, VEP Consequence, SIFT, PolyPhen, Regulatory, Zygosity, Inheritance mode, ClinVar, Unaffected Sibs, VCF Filter Status";
-
-    this.applyLowCoverageFilter = false;
-
-    // standard filters
-    this.KNOWN_CAUSATIVE           = "known_causative";
-    this.DENOVO                    = "denovo";
-    this.RECESSIVE                 = "recessive";
-    this.FUNCTIONAL_IMPACT         = "functional_impact";
-    this.LOW_COVERAGE              = "low_coverage";
-
-
     this.snpEffEffects = {};
     this.vepConsequences = {};
-    this.exonicOnlyFilter = false;
+    //this.exonicOnlyFilter = false;
     this.recFilters = {};
 
     this.geneCoverageMin           = 10;
@@ -454,14 +438,14 @@ class FilterModel {
       }
     }
 
-    this.flagCriteria = this.isFullAnalysis ? this.flagCriterion.genefull : this.flagCriterion.gene;
+    this.flagCriteria = (this.isFullAnalysis ? this.flagCriterion.genefull : this.flagCriterion.gene)
 
     this.modelFilters = {
       'known-variants': {
         'clinvar': []
       },
       'sfari-variants': {
-      'vepImpact': []
+        'vepImpact': []
       }
     }
   }
@@ -490,7 +474,7 @@ class FilterModel {
   }
 
 
-  getFilterObject() {
+  getDefaultFilter() {
     let self = this;
     // For mygene2 basic mode, return a fixed filter of clinvar path / likely path and AF < 1%
     if (self.isBasicMode) {
@@ -502,18 +486,10 @@ class FilterModel {
       return { afMin: 0, afMax: .01, annotsToInclude: annots };
     }
 
-    var afMin = 0;
-    var afMax = 1;
-    var coverageMin = 0;
-
     return {
-      'coverageMin': coverageMin,
-      'afMin': afMin,
-      'afMax': afMax,
-      'annotsToInclude': this.annotsToInclude,
-      'exonicOnly': $('#exonic-only-cb').is(":checked"),
-      'loadedVariants': $('#loaded-variants-cb').is(":checked"),
-      'calledVariants': $('#called-variants-cb').is(":checked"),
+      'afMin': null,
+      'afMax': null,
+      'annotsToInclude': null,
       'affectedInfo': self.getAffectedFilterInfo()
     };
   }
@@ -561,7 +537,7 @@ class FilterModel {
     let self = this;
 
     var filterString = "";
-    var filterObject = self.getFilterObject();
+    var defaultFilter = self.getDefaultFilter();
 
 
     var AND = function(filterString) {
@@ -585,8 +561,8 @@ class FilterModel {
     }
 
     var affectedFilters = [];
-    if (filterObject.affectedInfo) {
-      affectedFilters = filterObject.affectedInfo.filter(function(info) {
+    if (defaultFilter.affectedInfo) {
+      affectedFilters = defaultFilter.affectedInfo.filter(function(info) {
         return info.filter && info.status == 'affected';
       });
       if (affectedFilters.length > 0) {
@@ -602,8 +578,8 @@ class FilterModel {
     }
 
     var unaffectedFilters = [];
-    if (filterObject.affectedInfo) {
-      unaffectedFilters = filterObject.affectedInfo.filter(function(info) {
+    if (defaultFilter.affectedInfo) {
+      unaffectedFilters = defaultFilter.affectedInfo.filter(function(info) {
         return info.filter  && info.status == 'unaffected';
       });
       if (unaffectedFilters.length > 0) {
@@ -618,28 +594,22 @@ class FilterModel {
       }
     }
 
-
-
-//    if ($('#exonic-only-cb').is(":checked")) {
-//      filterString += AND(filterString) + filterBox("not intronic");
-//    }
-
-    if (filterObject.afMin != null && filterObject.afMax != null) {
-      if (filterObject.afMin >= 0 && filterObject.afMax < 1) {
-        filterString += AND(filterString) + filterBox("Allele freqency between " + filterObject.afMin + " and  " + filterObject.afMax);
+    if (defaultFilter.afMin != null && defaultFilter.afMax != null) {
+      if (defaultFilter.afMin >= 0 && defaultFilter.afMax < 1) {
+        filterString += AND(filterString) + filterBox("Allele freqency between " + defaultFilter.afMin + " and  " + defaultFilter.afMax);
       }
     }
 
-    if (filterObject.coverageMin && filterObject.coverageMin > 0) {
+    if (defaultFilter.coverageMin && defaultFilter.coverageMin > 0) {
       if (filterString.length > 0) {
-        filterString += AND(filterString) +  filterBox("coverage at least " + filterObject.coverageMin + "X");
+        filterString += AND(filterString) +  filterBox("coverage at least " + defaultFilter.coverageMin + "X");
       }
     }
 
 
     var annots = {};
-    for (var key in filterObject.annotsToInclude) {
-      var annot = filterObject.annotsToInclude[key];
+    for (var key in defaultFilter.annotsToInclude) {
+      var annot = defaultFilter.annotsToInclude[key];
       if (annot.state) {
         var annotObject = annots[annot.key];
         if (annotObject == null) {
@@ -896,7 +866,7 @@ class FilterModel {
         badges["notFound"] = [];
       }
       badges["notFound"].push($.extend({}, variant))
-      // Activate the notFound filter so it shows in the flagged 
+      // Activate the notFound filter so it shows in the flagged
       // variants panel
       if (self.flagCriteria['notFound'].active == false) {
         self.flagCriteria['notFound'].active = true;
@@ -912,7 +882,7 @@ class FilterModel {
         badges["notCategorized"] = [];
       }
       badges["notCategorized"].push($.extend({}, variant))
-      // Activate the 'notCategorized' filter so it shows in the flagged 
+      // Activate the 'notCategorized' filter so it shows in the flagged
       // variants panel
       if (self.flagCriteria['notCategorized'].active == false) {
         self.flagCriteria['notCategorized'].active = true;
@@ -930,7 +900,7 @@ class FilterModel {
       }
 
 
-      // We clone the variant because when we save the analysis 
+      // We clone the variant because when we save the analysis
       // (stringified JSON of the cache), we want to prevent stringify from
       // assuming we have recursive data; otherwise stringify will exclude the
       // variant from the string, showing it as an empty object.

@@ -63,7 +63,7 @@
 .in-iframe #edit-filter-dialog.v-dialog--persistent
   position: sticky !important
   top: 50px !important
-  
+
 
 #flagged-variants-card
   padding-left: 5px
@@ -239,10 +239,10 @@
     &.match-chip
       color: $nav-badge-color
 
-    &.match-level-0 
-      color: $level-high-color !important      
-    &.match-level-1 
-      color: $level-high-color !important      
+    &.match-level-0
+      color: $level-high-color !important
+    &.match-level-1
+      color: $level-high-color !important
 
   .gene-ranks
     .v-chip.search-hit
@@ -440,8 +440,8 @@
       top: 2px
       width: 20px
       height: 20px
-      
-    span.badge 
+
+    span.badge
       margin-top: 2px
       margin-left: 4px
 
@@ -453,7 +453,7 @@
 
       .badge__badge.primary, .v-badge__badge.primary
         background-color: #d6d6d6 !important
-      
+
       span.badge
         background: #d6d6d6 !important
 
@@ -461,7 +461,7 @@
         i.material-icons
           color: $default-badge-color !important
         svg
-          fill: $default-badge-color 
+          fill: $default-badge-color
 
       .v-expansion-panel__header__icon
         display: none
@@ -748,7 +748,7 @@
   .btn__content, .v-btn__content
     padding: 0 4px
 
-      
+
 </style>
 
 <template>
@@ -778,7 +778,7 @@
         v-if="isLoaded && hasAlignments && !isSimpleMode"
       >
         <v-menu offset-y>
-          <v-btn  slot="activator" 
+          <v-btn  slot="activator"
           v-tooltip.top-center="`Call variants from alignments`"
           class="call-variants-button">
             <v-icon>playlist_add</v-icon>
@@ -794,10 +794,10 @@
       <v-btn
       v-if="isLoaded && hasAlignments && !isSimpleMode"
       :class="callAllInProgress ? 'stop-analysis-button in-progress' : 'stop-analysis-button'"
-      @click="onStopAnalysis" flat 
+      @click="onStopAnalysis" flat
       v-tooltip.top-center="`Stop calling variants`" >
         <v-icon>stop</v-icon>
-      </v-btn>      
+      </v-btn>
     </div>
 
     <div id="analyze-genes-progress">
@@ -818,7 +818,7 @@
             {{ calledCount }} of {{ totalCount }} </span>
         </div>
       </div>
-    </div>      
+    </div>
 
 
       <div class="variant-toolbar" >
@@ -831,7 +831,7 @@
         </v-btn>
 
         <v-spacer></v-spacer>
-        <v-btn  id="import-variants-button" 
+        <v-btn  id="import-variants-button"
           v-if="!isEduMode && !isBasicMode && !launchedFromClin && !launchedFromHub
            && !isSimpleMode && cohortModel.isLoaded"
           @click="onShowImportVariants" flat>
@@ -839,7 +839,7 @@
           Import
         </v-btn>
 
-        <v-btn  id="export-variants-button" 
+        <v-btn  id="export-variants-button"
           v-if="!isEduMode && !isBasicMode && !launchedFromClin && !launchedFromHub && cohortModel.flaggedVariants && cohortModel.flaggedVariants.length > 0"
           @click="onShowExportVariants" flat>
           <app-icon icon='export'  height="17" width="17"></app-icon>
@@ -855,7 +855,7 @@
 
     </div>
 
-    <div v-if="!isSimpleMode && variantSetCounts.total && variantSetCounts.total > 0" 
+    <div v-if="!isSimpleMode && variantSetCounts.total && variantSetCounts.total > 0"
     style="display:flex;justify-content:center;margin-top:15px;margin-bottom:15px">
       <v-badge v-if="variantSetCounts.total && variantSetCounts.total > 0" class="info">
        {{ variantSetCounts.total }} variants imported from genome-wide filters</v-badge>
@@ -1241,11 +1241,11 @@ export default {
           && v.end === stashedVariant.end
           && v.ref === stashedVariant.ref
           && v.alt === stashedVariant.alt ? true : false;
-      let matchesFilter = geneList 
-          && this.selectedGeneList 
+      let matchesFilter = geneList
+          && this.selectedGeneList
           && geneList.label == this.selectedGeneList.label ? true : false;
       // In the case where we are programatically selected the first filter
-      // in the list, we don't have a selected filter yet to match to, so 
+      // in the list, we don't have a selected filter yet to match to, so
       // if the variant matches, assume that the filter matches.
       if (matchesVariant && !matchesFilter && this.selectedGeneList == null) {
         matchesFilter = true;
@@ -1366,7 +1366,7 @@ export default {
         })
 
       })
-  
+
 
 
     },
@@ -1476,7 +1476,7 @@ export default {
           })
         }
       }, 20);
-      
+
     },
     onApplyFilter: function() {
       let self = this;
@@ -1701,10 +1701,10 @@ export default {
     },
     afDisplay: function(variant) {
       var label = this.isBasicMode ? "freq " : "af ";
-      if (variant.isProxy) {
-        return  label +  this.globalApp.utility.percentage(variant.afgnomAD ? variant.afgnomAD : 0);
-      } else {
+      if (this.isBasicMode) {
         return  label +  this.globalApp.utility.percentage(variant.afHighest ? variant.afHighest : 0);
+      } else {
+        return variant.afHightest;
       }
     },
     zygosity: function(variant) {

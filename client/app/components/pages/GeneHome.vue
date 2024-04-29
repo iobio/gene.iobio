@@ -1348,7 +1348,8 @@ export default {
           self.cohortModel.annotationScheme,
           self.genomeBuildHelper);
 
-        self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
+        self.filterModel = new FilterModel(self.globalApp, self.cohortModel.mode == 'trio' ? true : false,
+                                           self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
         self.cohortModel.filterModel = self.filterModel;
         self.filterModel.on("variantFlagged", function(variant) {
           if (self.launchedFromHub) {
