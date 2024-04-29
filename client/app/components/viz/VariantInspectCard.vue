@@ -1297,11 +1297,6 @@ export default {
       this.$emit("variant-annotations-selected", selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
     },
 
-    refresh: function() {
-
-    },
-
-
     onShowPatientGenePhenotypeDialog(show) {
       this.showPatientGenePhenotypeDialog = show;
     },

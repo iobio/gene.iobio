@@ -554,7 +554,7 @@ main.content.clin, main.v-content.clin
 
 
         <variant-detail-card
-          ref="variantInspectRef"
+          ref="variantDetailRef"
           v-if="cohortModel && cohortModel.isLoaded && isBasicMode"
           :isBasicMode="isBasicMode"
           :isEduMode="isEduMode"
@@ -4230,10 +4230,6 @@ export default {
 
 
                 self.activeGeneVariantTab = self.isBasicMode ? "0" : "1";
-                if (self.$refs.variantInspectRef) {
-                  self.$refs.variantInspectRef.refresh();
-                }
-
 
                 // Scroll down so that the variant inspect card (and the variant all card)
                 // are in view
@@ -4249,8 +4245,9 @@ export default {
               }
 
             })
-            .catch(function() {
+            .catch(function(error) {
               console.log("GeneHome.onFlaggedVariantSelected. Unable to get matching variant");
+              console.log(error)
               if (callback) {
                 callback();
               }
