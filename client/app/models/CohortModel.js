@@ -335,6 +335,10 @@ class CohortModel {
 
       self.mode = modelInfos.length > 1 ? 'trio': 'single';
 
+      if (self.filterModel) {
+        self.filterModel.establishStandardFilters(self.mode == 'trio');
+      }
+
       let promises = [];
       modelInfos.forEach(function(modelInfo) {
         promises.push(self.promiseAddSample(modelInfo, isSfariProject));
@@ -364,6 +368,15 @@ class CohortModel {
         reject(error);
       })
     })
+  }
+
+  setMode(mode) {
+    this.mode = mode;
+
+    if (this.filterModel) {
+      this.filterModel.establishStandardFilters(this.mode == 'trio');
+    }
+
   }
 
 
@@ -1835,10 +1848,10 @@ class CohortModel {
 
               }
 
-              if (filteredVcfData && filteredVcfData.features) {
+              if (filteredVcfData && filteredVcfData.features && self.mode == 'trio') {
                 return self.getProbandModel().promiseDetermineCompoundHets(filteredVcfData, geneObject, theTranscript);
               } else {
-                return Promise.resolve();
+                return Promise.resolve(filteredVcfData);
               }
 
 

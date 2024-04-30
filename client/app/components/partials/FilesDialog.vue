@@ -71,10 +71,10 @@
   #info-alert
     padding: 8px !important
   #info-message
-    font-size: 13px 
+    font-size: 13px
     color: $text-color
 
-    pre 
+    pre
       display: inline-block
       vertical-align: top
       padding-top: 0px
@@ -272,7 +272,7 @@
                   v-model="affectedSibs"
                   :items="possibleSibs"
                   item-text="sample"
-                  item-value="sample"                  
+                  item-value="sample"
                   hide-details
                   >
                 </v-autocomplete>
@@ -434,8 +434,8 @@ export default {
             tbiUrl = sms[i].vcf ? sms[i].vcf.getTbiURL() : null;
           }
 
-          if (bamUrl 
-              && bamUrl.split('.').pop() !== "bam" 
+          if (bamUrl
+              && bamUrl.split('.').pop() !== "bam"
               && bamUrl.split('.').pop() !== "cram") {
             self.errorTitle = "Bam file extension warning";
             let errorMsg = "The bam file path does not end with a .bam extension " + bamUrl;
@@ -444,8 +444,8 @@ export default {
             self.areAnyDuplicates = true;
             self.loadReady = false;
           }
-          if (baiUrl 
-            && baiUrl.split('.').pop() !== "bai" 
+          if (baiUrl
+            && baiUrl.split('.').pop() !== "bai"
             && baiUrl.split('.').pop() !== "crai") {
             self.errorTitle = "Bam index file extension warning";
             let errorMsg = "The bam index file path does not end with a .bai extension " + baiUrl;
@@ -514,7 +514,7 @@ export default {
       else {
         self.$ga.event('data_type', 'Custom Data', 'Custom dataset');
       }
-      self.cohortModel.mode = self.mode;
+      self.cohortModel.setMode(self.mode);
       self.cohortModel.genomeBuildHelper.setCurrentBuild(self.buildName);
       self.cohortModel.genomeBuildHelper.setCurrentSpecies(self.speciesName);
 
@@ -590,7 +590,7 @@ export default {
       let self = this;
       this.$emit('isDemo', true);
       self.isDemo = true;
-      
+
       self.buildName = self.cohortModel.genomeBuildHelper.getCurrentBuildName();
 
       if (self.mode == 'single') {

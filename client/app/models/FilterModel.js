@@ -1,8 +1,7 @@
 class FilterModel {
 
-  constructor(globalApp, isTrio, affectedInfo, isBasicMode, isFullAnalysis) {
+  constructor(globalApp, affectedInfo, isBasicMode, isFullAnalysis) {
     this.globalApp = globalApp;
-    this.isTrio = isTrio;
     this.affectedInfo = affectedInfo;
 
     this.isBasicMode = isBasicMode;
@@ -438,7 +437,7 @@ class FilterModel {
       }
     }
 
-    this.flagCriteria = (this.isFullAnalysis ? this.flagCriterion.genefull : this.flagCriterion.gene)
+    this.flagCriteria = null;
 
     this.modelFilters = {
       'known-variants': {
@@ -448,6 +447,29 @@ class FilterModel {
         'vepImpact': []
       }
     }
+
+    this.establishStandardFilters()
+
+
+  }
+
+  establishStandardFilters(isTrio=true) {
+    let self = this;
+
+    this.flagCriteria = (this.isFullAnalysis ? this.flagCriterion.genefull : this.flagCriterion.gene)
+
+    // Don't include filters with inheritance of this is a single sample
+    if (!isTrio) {
+      let filteredFlagCriteria = {}
+      Object.keys(this.flagCriteria).forEach(function(filterKey) {
+        let filter = self.flagCriteria[filterKey]
+        if (filter.inheritance == null || filter.inheritance.length == 0) {
+          filteredFlagCriteria[filterKey] = filter;
+        }
+      })
+      this.flagCriteria = filteredFlagCriteria;
+    }
+
   }
 
   getSortedActiveFilters() {

@@ -1348,8 +1348,7 @@ export default {
           self.cohortModel.annotationScheme,
           self.genomeBuildHelper);
 
-        self.filterModel = new FilterModel(self.globalApp, self.cohortModel.mode == 'trio' ? true : false,
-                                           self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
+        self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
         self.cohortModel.filterModel = self.filterModel;
         self.filterModel.on("variantFlagged", function(variant) {
           if (self.launchedFromHub) {
@@ -2351,6 +2350,7 @@ export default {
       let self = this;
 
       return new Promise(function(resolve, reject) {
+
 
         if (self.models && self.models.length > 0 && !(self.cohortModel.isSfariProject && self.blacklistedGeneSelected)) {
             self.cardWidth = $('#genes-card').innerWidth();
@@ -3580,6 +3580,7 @@ export default {
       .catch(function(error) {
         console.log("applyGenesImpl encountered an error: " )
         console.log(error)
+        self.addAlert('error', 'Unable to apply genes due to error', null, [error])
       })
 
     },
