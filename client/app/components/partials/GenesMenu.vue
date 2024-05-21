@@ -1,6 +1,8 @@
 
 <style lang="sass">
 
+
+
 @import ../../../assets/sass/variables
 
 textarea#copy-paste-genes
@@ -74,8 +76,84 @@ textarea#copy-paste-genes
       padding-right: 2px
       color:  $app-button-color
 
-</style>
+.gene-warning-error, .gene-warning-info
+  font-size: 13px
+  line-height: 14px
+  width:  440px
+  color:  #595959
+  align-items: flex-start
 
+  pre
+    display: inline-block
+    vertical-align: middle
+    padding-top: 0px
+    padding-bottom: 0px
+    font-size: 12px
+    color: black
+    margin-bottom: 0px
+    padding-left: 2px
+    padding-right: 2px
+    white-space: normal
+
+.gene-warning-error
+  .v-icon
+    color: #cd0c0c
+    font-size: 20px
+    margin-right: 10px
+    max-width: 10px
+.gene-warning-info
+  margin-top: 10px
+  margin-bottom: 5px
+  .v-icon
+    color: #0664b3
+    font-size: 20px
+    margin-right: 10px
+    max-width: 10px
+
+</style>
+<style scoped>
+h3 {
+  margin: 40px 0 0;
+}
+
+li {
+  text-align: left
+}
+
+a {
+  color: #42b983;
+}
+
+.myinput {
+  height: 40px;
+  width: auto;
+  margin: 30px;
+  background-color: #e2e1ee
+}
+
+.npminstall {
+  margin-left: 40px;
+  margin-right: 40px;
+  background-color: black;
+  background-color: #f2f1fe;
+  width: auto;
+}
+
+[data-placeholder]:empty:before{
+  content: attr(data-placeholder);
+  color: #888;
+  font-style: italic;
+}
+
+#container {
+    width: 640px; /*can be in percentage also.*/
+    height: auto;
+    margin: 0 auto;
+    padding: 10px;
+    position: relative;
+}
+
+</style>
 <template>
     <v-menu
     offset-y
@@ -137,6 +215,7 @@ textarea#copy-paste-genes
               :success="showWarning"
               :success-messages="warningMessage">
             </v-textarea>
+
             <div class="v-text-field__details" style="margin-top: -18px">
               <div class="v-messages theme--light">
                 <div class="v-messages__wrapper" style="float: right">
@@ -145,6 +224,13 @@ textarea#copy-paste-genes
               </div>
             </div>
           </div>
+          <div style="min-height:60px">
+            <div  v-for="msg in validateMessages"  :key="msg.text"  :class="`d-flex gene-warning-` + msg.type">
+              <v-icon>{{ msg.type }}</v-icon>
+              <div v-html="msg.text"></div>
+            </div>
+          </div>
+
           <div v-if="isEduMode" style="display:flex;justify-content:flex-end">
                 <v-btn color="#30638e" :dark="!disableApplyBtn" id="search-button" :disabled="disableApplyBtn" @click="onApplyGenes({isFromClin: false, phenotypes: searchTermPhenolyzer})">
                  Search
@@ -166,13 +252,12 @@ textarea#copy-paste-genes
 
 import PhenotypeSearch from '../partials/PhenotypeSearch.vue'
 import AppIcon from '../partials/AppIcon.vue'
-import validGenes from '../../../data/genes.json'
 
 export default {
   name: 'genes-menu',
   components: {
     PhenotypeSearch,
-    AppIcon,
+    AppIcon
   },
   props: {
     geneModel: null,
@@ -192,6 +277,7 @@ export default {
       showTooltipFlag: false,
       tooltipContent: null,
       selectedGenePanelName: null,
+      validateMessages: [],
       validGenesMap: {},
       showWarning: false,
       disableApplyBtn: false,
@@ -212,38 +298,129 @@ export default {
             this.disableApplyBtn = true;
           }
           return isValid || 'Error: maximum number of genes is 200';
-        },
-        v => {
-          const self = this;
-          let invalids = [];
-          let genes = v ? v.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i) : [];
-          genes.forEach((gene) => {
-            if (!self.validGenesMap[gene.toUpperCase()] && gene !== '') {
-              let item = {'geneName': gene.toUpperCase()}
-              invalids.push(item);
-            }
-          });
-          let isValid = invalids.length === 0;
-          let invalidMsg = ""
-          let renameMsg = ""
-          if (!isValid) {
-            self.showWarning = false;
-            self.disableApplyBtn = true;
-            invalids.forEach(function(item) {
-              if (invalidMsg.length == 0) {
-                invalidMsg +=  'Correct or remove the following invalid gene names: ';
-              } else {
-                invalidMsg += ","
-              }
-              invalidMsg += item.geneName;
-            })
-          }
-          return isValid || invalidMsg + ". " + renameMsg;
-        },
+        }
       ],
+
+
     }
   },
   methods: {
+    handleNewHighlights () {
+        // Ugly hack because chrome is stupid
+        // https://stackoverflow.com/questions/26962323/what-is-this-insane-space-character-google-chrome
+        var h = this.customHighlight.replace(new RegExp(String.fromCharCode(32),"g"),String.fromCharCode(160));
+        if (h.length > 0)
+          this.highlight.unshift(h)
+        this.customHighlight = ""
+    },
+
+    promiseValidateGenes: function() {
+      const self = this;
+      if (self.validateInProgress) {
+        Promise.resolve();
+      } else {
+
+        return new Promise(function(resolve, reject) {
+          self.validateInProgress = true;
+          self.validateMessages = [];
+          let genes = self.genesToApply ? self.genesToApply.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i) : [];
+          let invalids = [];
+          let aliases = [];
+          let promises = []
+          genes.forEach((gene) => {
+            if (gene && gene != "" && gene.length >= 3) {
+              let p = self.promiseValidateGene(gene.toUpperCase())
+              .then(function(lookupObject){
+                if (!lookupObject) {
+                  let item = {'geneName': gene.toUpperCase()}
+                  invalids.push(item);
+                } else if (lookupObject.hasOwnProperty('gene_alias')) {
+                  aliases.push(lookupObject)
+                }
+              })
+              promises.push(p)
+
+            }
+          });
+          Promise.all(promises)
+          .then(function() {
+            let isValid = invalids.length === 0;
+            let invalidMsg = ""
+            if (!isValid) {
+              self.showWarning = false;
+              self.disableApplyBtn = true;
+              invalids.forEach(function(item) {
+                if (invalidMsg.length == 0) {
+                  invalidMsg +=  'Correct or remove the following invalid gene names: ';
+                } else {
+                  invalidMsg += ", "
+                }
+                invalidMsg += '<pre>' + item.geneName + '</pre>';
+              })
+              self.validateMessages.push({'title': 'Invalid gene', 'type': 'error', 'icon': 'warning', 'text': invalidMsg})
+            }
+            if (aliases.length > 0) {
+              let aliasMsg = "";
+              aliasMsg += 'The following gene symbols will be used:  ';
+              let i = 0;
+              aliases.forEach(function(alias) {
+                if (i > 0) {
+                  aliasMsg += ", "
+                }
+                aliasMsg +=  '<pre>' + alias.gene_alias + '</pre>' +
+                            " instead of " + '<pre>' + alias.gene_name + '</pre>';
+                i++;
+              })
+              aliasMsg += "."
+              self.validateMessages.push({'title': 'Gene alias', 'type': 'info', 'icon': 'info', 'text': aliasMsg})
+            }
+            self.validateInProgress = false;
+            resolve(isValid)
+
+          })
+          .catch(function(error) {
+            self.validateInProgress = false;
+            console.log(error)
+            reject(error)
+          })
+
+        })
+
+      }
+    },
+    promiseValidateGene: function(geneName) {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        let theGeneName = geneName.toUpperCase();
+        let lookupObject = self.validGenesMap[theGeneName]
+        if (lookupObject) {
+          resolve(lookupObject)
+        } else {
+          self.geneModel.promiseLookupGene(theGeneName)
+          .then(function(lookupObject) {
+            let match = null;
+            if (lookupObject && typeof(lookupObject) == 'string' && lookupObject.toUpperCase() == theGeneName) {
+              match = lookupObject;
+              self.validGenesMap[theGeneName] = theGeneName;
+            } else if (lookupObject && lookupObject.hasOwnProperty('gene_alias') && lookupObject.gene_alias.toUpperCase() == theGeneName) {
+              match = lookupObject;
+              self.validGenesMap[theGeneName] = lookupObject;
+            }
+            if (match == null) {
+              self.validGenesMap[theGeneName] = false;
+            }
+            resolve(match)
+          })
+          .catch(function(error) {
+            console.log("problem validating gene")
+            console.log(error)
+            reject(error)
+          })
+
+        }
+      })
+    },
+
     onApplyGenes: function(options) {
       let self = this;
       if (options == null) {
@@ -253,8 +430,20 @@ export default {
       if (self.selectedGenePanelName && self.selectedGenePanelName.length > 0) {
         options.genePanel = self.selectedGenePanelName
       }
-      self.$emit("apply-genes", self.genesToApply, options);
+      self.$emit("apply-genes", self.replaceGeneAliases(self.genesToApply), options);
       self.showGenesMenu = false;
+    },
+    replaceGeneAliases: function(genesString) {
+      let self = this;
+      let genes = genesString ? genesString.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i) : [];
+      return genes.map(function(geneName) {
+        let theGeneName = geneName;
+        let lookupObject = self.validGenesMap[geneName.toUpperCase()];
+        if (lookupObject && lookupObject.hasOwnProperty('gene_alias')) {
+          theGeneName = lookupObject['gene_name']
+        }
+        return theGeneName;
+      }).join(", ")
     },
     checkForDirtyGenePanel: function() {
       let self = this;
@@ -331,27 +520,11 @@ export default {
     },
     hideTooltip: function() {
       this.showTooltipFlag = false;
-    },
-    populateValidGenesMap: function () {
-      let self = this;
-      validGenes.forEach((gene) => {
-        if (gene.hasOwnProperty("gn")) {
-          self.validGenesMap[gene['gn'].toUpperCase()] = true;
-        }
-        let preferredGeneNames = self.geneModel.getPreferredGeneNames(gene['gn'])
-        if (preferredGeneNames) {
-          preferredGeneNames.forEach(function(preferredGeneName) {
-            self.validGenesMap[preferredGeneName] = gene['gn'];
-          })
-        }
-      });
     }
   },
   created: function() {
   },
   mounted: function() {
-    const self = this;
-    self.populateValidGenesMap();
   },
   computed: {
     clazz: function() {
@@ -391,11 +564,11 @@ export default {
       }
     },
     genesToApply: function () {
-      //this.selectedGenePanelName = null;
       if (this.genesToApply === this.STARTING_INPUT || this.genesToApply === '') {
         this.geneCount = 0;
       } else {
         this.geneCount = this.genesToApply.toUpperCase().split(/[\s,\n]+/).filter((v, i, a) => a.indexOf(v) === i).length;
+        this.promiseValidateGenes();
       }
     }
   }

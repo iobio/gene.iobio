@@ -779,7 +779,6 @@ import FreebayesSettings from '../../models/FreebayesSettings.js'
 import Glyph from '../../partials/Glyph.js'
 import VariantTooltip from '../../partials/VariantTooltip.js'
 
-import allGenesData from '../../../data/genes.json'
 import genePanels from '../../../data/gene_panels.json'
 import acmgBlacklist from '../../../data/ACMG_blacklist.json'
 import ScrollButton from '../partials/ScrollButton.vue'
@@ -935,7 +934,7 @@ export default {
       },
 
 
-      allGenes: allGenesData,
+      //allGenes: allGenesData,
       genePanels: genePanels,
       acmgBlacklist: acmgBlacklist,
       blacklistedGeneSelected: false,
@@ -1274,7 +1273,6 @@ export default {
           self.launchedFromHub, self.genePanels);
         self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
         self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
-        self.geneModel.setAllKnownGenes(self.allGenes);
         self.geneModel.translator = translator;
         if (self.isEduMode) {
           self.geneModel.phenolyzerTopGenesToKeep = 5;
@@ -1419,6 +1417,7 @@ export default {
               let warning = "No data has been loaded. Click on the load button to specify the data files."
               self.onShowSnackbar({message: warning, timeout: 8000, 'close': true});
               self.showAppLoader = false;
+              self.showLeftPanelForGenes();
               if (callback) {
                 callback();
               }
@@ -1612,38 +1611,18 @@ export default {
         })
         .then(function() {
           if (self.geneSet && self.geneSet.genes && self.geneSet.genes.length > 0) {
-            self.addAlert("info", 'loading gene set <pre>' + self.geneSet.name + "</pre>")
-            let genePromises = [];
-            self.geneSet.genes.forEach(function(geneName) {
-              if (self.geneModel.isKnownGene(geneName)) {
-                genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
-              }
-              //self.analysis.payload.genes.push(geneName);
-              self.delaySave = 1000;
-            })
-           return Promise.all(genePromises)
+            self.addAlert("info", 'loading gene set <pre>' + self.geneSet.name + "</pre>");
+            return self.promiseAddGeneNamesOrAliases(self.geneSet.genes);
           } else {
-            return Promise.resolve();
+            return Promise.resolve(true);
           }
         })
         .then(function() {
-          if (self.analysis.payload.genes && self.analysis.payload.genes.length > 0) {
-            let genePromises = [];
-            let unknownGenes = [];
-            self.analysis.payload.genes.forEach(function(geneName) {
-              if (self.geneModel.isKnownGene(geneName)) {
-                genePromises.push( self.geneModel.promiseAddGeneName(geneName) );
-              } else {
-                unknownGenes.push(geneName);
-              }
-            })
-            if (unknownGenes.length > 0) {
-              self.addAlert("warning", "Bypassing unknown genes" + unknownGenes.join(", "))
-              alertify.alert( "Warning", "Bypassing unknown genes " + unknownGenes.join(", "))
-            }
-            return Promise.all(genePromises);
+          if (self.analysis && self.analysis.payload && self.analysis.payload.genes) {
+            let removeInvalidGenes = false;
+            return self.promiseAddGeneNamesOrAliases(self.analysis.payload.genes)
           } else {
-            return Promise.resolve();
+            return Promise.resolve(true);
           }
         })
         .then(function() {
@@ -1696,48 +1675,9 @@ export default {
                 resolve();
               } else {
                 if (self.geneModel.geneNames.length > 0) {
-                  self.geneModel.promiseGetCachedGeneObject(self.geneModel.geneNames[0])
-                  .then(function(theGeneObject) {
-                    let transcript = self.geneModel.getCanonicalTranscript(theGeneObject);
-                    self.promiseLoadGene(self.geneModel.geneNames[0], transcript)
-                    .then(function() {
-                      self.showLeftPanelForGenes();
-                      self.cacheHelper.analyzeAll(self.cohortModel);
-                      resolve();
-                    })
-                    .catch(function(error) {
-                      reject(error)
-                    })
-                  })
-                  .catch(function(error) {
-
-                    // The gene that was selected doesn't have any transcripts for the source and
-                    // build. We are adding a gene that is an alias for the gene to user selected.
-                    // This new gene has transcripts for the source and build.
-                    if (error.hasOwnProperty('useDifferentGene')) {
-                      self.removeGeneImpl(self.geneModel.geneNames[0]);
-                      setTimeout(function() {
-                        self.onGeneSelected(error.useDifferentGene)
-                        self.showLeftPanelForGenes();
-
-                        setTimeout(function() {
-                          self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error',
-                                        error.hasOwnProperty('message') ? error.message : error,
-                                        error.useDifferentGene,
-                                        null,
-                                        error.hasOwnProperty("options") ? error.options : null)
-
-                        let msg = error.hasOwnProperty('message') ? error.message : error;
-                        resolve();
-
-                        }, 1000)
-                      },1000)
-                    } else {
-                      reject(error)
-                    }
-
-
-                  })
+                  self.showLeftPanelForGenes();
+                  self.cacheHelper.analyzeAll(self.cohortModel);
+                  resolve();
                 } else {
                   let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
                   self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
@@ -1754,6 +1694,44 @@ export default {
           console.log(error)
           reject(error);
         })
+      })
+    },
+
+    promiseAddGeneNamesOrAliases: function(genesToAdd, removeInvalidGenes) {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        if (genesToAdd && genesToAdd.length > 0) {
+          // Populate the knownGeneMap with all valid
+          // gene names so that we don't make individual
+          // requests to gene info service to lookup the
+          // gene entry
+          self.geneModel.promiseGetKnownGenes(genesToAdd)
+          .then(function() {
+            let promises = [];
+            genesToAdd.forEach(function(geneName) {
+              // Add the gene or if no transcripts, find an alias
+              // and use it. The second arg indicates that we
+              // don't want to select (show) the gene after
+              // the add
+              // Don't remove invalid genes so that the
+              // user can see the error message
+              // to understand why the gene was bypassed
+              let selectGene = false;
+              let p = self.promiseAddGeneOrAlias(geneName, selectGene)
+              promises.push(p)
+            })
+            Promise.all(promises)
+            .then(function() {
+              resolve(true)
+            })
+            .catch(function(error) {
+              reject(error)
+            })
+
+          })
+        } else {
+          return resolve(true)
+        }
       })
     },
 
@@ -2756,6 +2734,7 @@ export default {
 
 
       return new Promise(function(resolve, reject) {
+        let theGeneName = geneName;
         if (self.forMyGene2) {
           if (!self.closeIntro) {
             setTimeout(function() {
@@ -2770,18 +2749,22 @@ export default {
         if (self.featureMatrixModel) {
           self.featureMatrixModel.clearRankedVariants();
         }
-        self.geneModel.promiseAddGeneName(geneName)
-        .then(function(justAdded) {
-
-          if (justAdded && self.launchedFromHub) {
-            return self.promiseUpdateAnalysisGenesData();
+        self.promiseAddGeneOrAlias(geneName, false)
+        .then(function(result) {
+          let thePromise = null;
+          if (result.success && result.added && self.launchedFromHub) {
+            thePromise = self.promiseUpdateAnalysisGenesData();
           } else {
-            self.selectedGene = {gene_name: ''};
-            return Promise.resolve();
+            thePromise = Promise.resolve();
           }
+          if (result.success && result.geneName != theGeneName) {
+            theGeneName = result.geneName;
+          }
+          self.selectedGene = {gene_name: ''};
+          return thePromise;
         })
         .then(function() {
-           return self.geneModel.promiseGetGeneObject(geneName)
+           return self.geneModel.promiseGetCachedGeneObject(theGeneName)
         }).then(function(theGeneObject) {
           if (self.bringAttention === 'gene') {
             self.bringAttention = null;
@@ -2837,10 +2820,12 @@ export default {
         .catch(function(error) {
           console.log('Bypassing gene ' + geneName)
           console.log(error.hasOwnProperty('message') ? error.message : error)
-
+          let msg = error.hasOwnProperty('message') ? error.message : error;
+          reject(msg)
           // The gene that was selected doesn't have any transcripts for the source and
           // build. We are adding a gene that is an alias for the gene to user selected.
           // This new gene has transcripts for the source and build.
+          /*
           if (error.hasOwnProperty('useDifferentGene')) {
             self.removeGeneImpl(geneName);
             setTimeout(function() {
@@ -2853,8 +2838,8 @@ export default {
                               null,
                               error.hasOwnProperty("options") ? error.options : null)
 
-              let msg = error.hasOwnProperty('message') ? error.message : error;
-              reject(msg)
+                let msg = error.hasOwnProperty('message') ? error.message : error;
+                reject(msg)
 
               }, 1000)
             },1000)
@@ -2868,6 +2853,7 @@ export default {
               let msg = error.hasOwnProperty('message') ? error.message : error;
               reject(msg)
           }
+          */
 
 
         })
@@ -3690,13 +3676,9 @@ export default {
           });
         }
         if (self.paramGene) {
-          self.geneModel.promiseAddGeneName(self.paramGene);
-          self.onGeneSelected(self.paramGene);
+          self.promiseAddGeneOrAlias(self.paramGene)
         } else if (self.paramGeneName) {
-          self.geneModel.promiseAddGeneName(self.paramGeneName);
-          if (!self.launchedFromHub) {
-            self.onGeneSelected(self.paramGeneName);
-          }
+          self.promiseAddGeneOrAlias(self.paramGeneName, !self.lauchedFromHub)
         }
 
         let isTrio = self.paramRelationships.every(sample => sample);
@@ -3799,6 +3781,117 @@ export default {
       })
 
     },
+
+    promiseAddGeneOrAlias: function(geneName,
+                                    selectOriginalGene=true,
+                                    selectReplacementGene=true,
+                                    removeOriginalGeneIfReplaced=true) {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        let theGeneName = geneName.toUpperCase();
+        let geneAdded = false;
+        let checkAliases = true;
+        self.geneModel.promiseAddGeneName(theGeneName, checkAliases)
+        .then(function(response) {
+
+          // We have added the gene, but at this point, we haven't validated it.
+          // Now get the gene object. This promise will reject if the
+          // gene isn't valid and give error information, directly app
+          // to use a gene alias that does have transcripts for the build and
+          // gene source.
+
+          return self.geneModel.promiseGetCachedGeneObject(theGeneName)
+        })
+        .then(function(geneObject) {
+          // The original gene is valid. Optionally, select the gene from the left side panel.
+          if (selectOriginalGene) {
+            self.onGeneSelected(theGeneName)
+          }
+          resolve({'geneName': theGeneName, 'added': geneAdded, 'success': true, 'geneObject': geneObject});
+        })
+        .catch(function(error) {
+          console.log('Bypassing gene ' + geneName)
+          console.log(error.hasOwnProperty('message') ? error.message : error)
+
+          // The gene that was selected doesn't have any transcripts for the source and
+          // build. We are adding a gene that is an alias for the gene to user selected.
+          // This new gene has transcripts for the source and build.
+          if (error.hasOwnProperty('useDifferentGene')) {
+            if (removeOriginalGeneIfReplaced) {
+              self.onRetractAppAlert('warning', error.message, [theGeneName])
+              self.removeGeneImpl(theGeneName);
+            }
+            // Add the replacement gene
+            self.geneModel.promiseAddGeneName(error.useDifferentGene)
+            .then(function(differentGeneAdded) {
+              // We just added the gene alias that has transcripts and retreived the
+              // gene object. At this point, optionally, select the gene (alias) from
+              // the genes side panel. Now add the alert indicating that we are using
+              // the gene alias instead of the gene requested. Resolve, indicating
+              // we have successfully added the gene alias.
+              self.geneModel.promiseGetCachedGeneObject(error.useDifferentGene)
+              .then(function(differentGeneObject) {
+                // The replacement gene (alias) is valid (as expected). Optionally select
+                // the replacement gene (alias) from the left side panel.
+                if (selectReplacementGene) {
+                  setTimeout(function() {
+                    self.onGeneSelected(error.useDifferentGene)
+
+                    setTimeout(function() {
+                      self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+                                    error.hasOwnProperty('message') ? error.message : error,
+                                    error.useDifferentGene,
+                                    null,
+                                    error.hasOwnProperty("options") ? error.options : {'selectAlert' : true, 'showAlertPanel': true})
+                      resolve({'geneName':         error.useDifferentGene,
+                               'added':            differentGeneAdded,
+                               'geneObject':       differentGeneObject,
+                               'success':          true,
+                               'isAlias' :         true,
+                               'originalGeneName': theGeneName});
+                    }, 1000)
+                  },1000)
+                } else {
+                  self.addAlert(error.hasOwnProperty('alertType') ? error.alertType : 'error',
+                                error.hasOwnProperty('message') ? error.message : error,
+                                error.useDifferentGene,
+                                null,
+                                error.hasOwnProperty("options") ? error.options : {'selectAlert' : true, 'showAlertPanel': true})
+                  resolve({'geneName':         error.useDifferentGene,
+                            'added':            differentGeneAdded,
+                            'geneObject':       differentGeneObject,
+                            'success':          true,
+                            'isAlias' :         true,
+                            'originalGeneName': theGeneName});
+                }
+              })
+            })
+
+          } else {
+            // The orginal gene we added isn't present or doesn't have any transcripts
+            // for the build and gene source. And none of its aliases have transcripts
+            // for the build and gene source. Reject and add an alert.
+            self.addAlert(
+              error.hasOwnProperty('alertType') ? error.alertType : 'error',
+              error.hasOwnProperty('message') ? error.message : error,
+              theGeneName,
+              null,
+              error.hasOwnProperty("options") ? error.options : {'selectAlert' : true, 'showAlertPanel': true})
+            if (error.alertType && error.alertType == 'warning') {
+              resolve({'geneName':              theGeneName,
+                        'added':            false,
+                        'geneObject':       null,
+                        'success':          false,
+                        'isAlias' :         false})
+            } else {
+              reject(error)
+            }
+
+          }
+        })
+      })
+    },
+
     onRemoveUserFlaggedVariant: function(variant) {
       let self = this;
 

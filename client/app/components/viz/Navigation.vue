@@ -708,7 +708,7 @@ nav.toolbar, nav.v-toolbar
       <v-toolbar-items style="flex-grow: 6;padding-top:3px;margin-left: 10px;margin-right:0px">
 
         <v-icon>search</v-icon>
-
+<!--
         <span id="gene-name-input"  style="display:inline-block">
           <v-text-field id="search-gene-name"
           :class="clazzAttention"
@@ -719,6 +719,31 @@ nav.toolbar, nav.v-toolbar
           force-select v-bind:limit="typeaheadLimit"
           target="#search-gene-name" :data="knownGenes"
           item-key="gl"/>
+        </span>
+-->
+        <span id="gene-name-input"  style="display:inline-block">
+          <v-text-field id="search-gene-name"
+          :class="clazzAttention"
+          :hide-details="true"
+          v-model="geneEntered" label="Gene name" >
+          </v-text-field>
+          <typeahead v-model="lookupGene"
+          force-select v-bind:limit="typeaheadLimit"
+          target="#search-gene-name"
+          :async-function="asyncLookupGene"
+          item-key="gene_name">
+            <template #item="{ items, activeIndex, select, highlight }">
+              <li
+                v-for="(item, index) in items"
+                :key="item.gene_name"
+                :class="{ active: activeIndex === index }"
+              >
+                <a role="button" @click="select(item)">
+                  <span v-html="geneAndAliases(item)"></span>
+                </a>
+              </li>
+            </template>
+          </typeahead>
         </span>
 
 
@@ -1472,6 +1497,9 @@ export default {
       title: 'gene.iobio',
       showFiles: false,
 
+      searchAlias: 'last',
+      searchTerm: '',
+
       lookupGene: {},
       geneEntered: null,
       clipped: false,
@@ -1511,10 +1539,17 @@ export default {
   },
   watch: {
     lookupGene: function(a, b) {
+      /*
       if (this.selectedGene && this.lookupGene && this.lookupGene.gn) {
         this.geneEntered = this.lookupGene.gn;
         this.$emit("gene-name-entered", this.lookupGene.gn);
       }
+      */
+      if (this.selectedGene && this.lookupGene && this.lookupGene.gene_name) {
+        this.geneEntered = this.lookupGene.gene_name;
+        this.$emit("gene-name-entered", this.lookupGene.gene_name);
+      }
+
     },
     showFilesProp: function(){
       this.showFiles = this.showFilesProp;
@@ -1543,6 +1578,41 @@ export default {
     }
   },
   methods: {
+    geneAndAliases: function(typeaheadObject) {
+      if (typeaheadObject.hasOwnProperty("gene_alias") && typeaheadObject.gene_alias && typeaheadObject.gene_alias != "") {
+        return this.highlightTerm(typeaheadObject.gene_name + " (" + typeaheadObject.gene_alias + ")", this.searchTerm);
+      } else {
+        return this.highlightTerm(typeaheadObject.gene_name, this.searchTerm);
+      }
+    },
+    highlightTerm: function highlight(value, searchTerm) {
+      let newVal = value.replace(searchTerm.toUpperCase(), '<b>' + searchTerm.toUpperCase() + '</b>', 'i');
+      return newVal;
+    },
+
+    asyncLookupGene: function(searchTerm, callback) {
+      this.searchTerm = searchTerm;
+      let url = "https://mosaic.chpc.utah.edu/gru-dev-9002/geneinfo/lookup/"
+                + searchTerm +
+                "?searchAlias=" + this.searchAlias;
+      $.ajax({
+        url: url,
+        jsonp: "callback",
+        type: "GET",
+        dataType: "json",
+        success: function( response ) {
+          if (response && response.hasOwnProperty('genes')) {
+            var genes = response.genes;
+            callback(genes)
+          } else {
+            console.log(msg);
+          }
+        },
+        error: function( xhr, status, errorThrown ) {
+          console.log(msg)
+        }
+      })
+    },
     onLoadDemoData: function(loadAction) {
       this.$emit("load-demo-data", loadAction);
     },

@@ -93,7 +93,8 @@ class GlobalApp {
         this.launchedFromUtahMosaic = true;
       }
 
-      this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
+      //this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
+      this.geneInfoServer = 'https://mosaic.chpc.utah.edu/gru-dev-9002/geneinfo/'
       this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
       this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
       this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
