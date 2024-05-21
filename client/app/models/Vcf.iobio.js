@@ -745,7 +745,7 @@ export default function vcfiobio(theGlobalApp) {
           reject(msg)
         }
         else{
-          let msg = "Could not get vcf depth.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted <pre>" + vcfUrl + "</pre>";
+          let msg = "Could not get vcf depth.  Make sure that your vcf.gz and gz.tbi files are accessible and properly formatted <pre>" + vcfURL + "</pre>";
           console.log(msg)
           reject(msg)
         }
