@@ -121,6 +121,7 @@ export default {
       .then(function(data) {
         let geneDisorders = data[0];
         let geneName      = data[1]
+        let seenKeys = new Set();
         if (geneDisorders) {
           geneDisorders.forEach(function(geneDisorder) {
             let source = null;
@@ -131,12 +132,17 @@ export default {
               mimNumber = geneDisorder.disease_id.split(":")[1];
               url = source == 'OMIM' ? self.getOMIMEntryHref(mimNumber) : self.getEntryHref(geneDisorder.disease_id);
             }
-            self.entries.push({'diseaseId': geneDisorder.disease_id,
+            let key = geneDisorder.disease_id + "-" + geneDisorder.disorder.replaceAll(" ", "_")
+            // Add disorder to list if it is not a duplicate
+            if (!seenKeys.has(key)) {
+              self.entries.push({'diseaseId': geneDisorder.disease_id,
                           'phenotypeInheritance': geneDisorder.inheritance,
                           'diseaseName': geneDisorder.disorder,
                           'url': url,
-                          'key':
-                            geneDisorder.disease_id + "-" + geneDisorder.disorder.replaceAll(" ", "_")})
+                          'key': key
+                            })
+              seenKeys.add(key)
+            }
 
           })
         }
