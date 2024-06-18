@@ -1321,8 +1321,8 @@ export default {
         self.geneModel.on("alertIssued", function(type, message, genes, details, options) {
           self.addAlert(type, message, genes, details, options)
         })
-        self.geneModel.on("alertRetracted", function(type, partialMessage, genes) {
-          self.onRetractAppAlert(type, partialMessage, genes)
+        self.geneModel.on("alertRetracted", function(type, partialMessage, geneName) {
+          self.onRetractAppAlert(type, partialMessage, [geneName])
         })
 
         self.cacheHelper.cohort = self.cohortModel;
@@ -1810,7 +1810,7 @@ export default {
           // We have removed the alert for appAlerts. Now remove it
           // from the gene-to-alerts map.
           if (genes) {
-            genes.split(", ").forEach(function(geneName) {
+            genes.forEach(function(geneName) {
               let alertsForGene = self.geneToAppAlerts[geneName]
               let indexToRemove = null;
               // Remove alert from array in gene to alerts map
@@ -5239,23 +5239,36 @@ export default {
         self.cohortModel.promiseOrganizeVariantsByFilterAndGene(null, self.isFullAnalysis)
         .then(function(sortedFilters) {
 
-          sortedFilters.forEach(function(filterObject) {
-            filterObject.genes.forEach(function(geneList) {
-              if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
-                let candidateVariants = null;
-                if (self.genesAdded && self.genesAdded.length > 0) {
-                  candidateVariants = geneList.variants.filter(function(v) {
-                    return self.genesAdded.indexOf(getGeneName(v)) >= 0
+          if (self.genesAdded && self.genesAdded.length > 0) {
+            sortedFilters.forEach(function(filterObject) {
+              filterObject.genes.forEach(function(geneList) {
+                if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
+                  let candidateVariants = geneList.variants.filter(function(v) {
+                      return self.genesAdded.indexOf(getGeneName(v)) >= 0
                   })
-                } else {
-                  candidateVariants = geneList.variants;
+                  if (candidateVariants.length > 0) {
+                    firstFlaggedVariant = candidateVariants[0];
+                  }
                 }
-                if (candidateVariants.length > 0) {
-                  firstFlaggedVariant = candidateVariants[0];
-                }
-              }
+              })
             })
-          })
+          }
+
+          // We didn't find any variants for genes just added,
+          // so let's draw from the list of all of the filtered variants
+          if (firstFlaggedVariant == null) {
+            sortedFilters.forEach(function(filterObject) {
+              filterObject.genes.forEach(function(geneList) {
+                if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
+                  let candidateVariants = geneList.variants;
+                  if (candidateVariants.length > 0) {
+                    firstFlaggedVariant = candidateVariants[0];
+                  }
+                }
+              })
+            })
+          }
+
           if (firstFlaggedVariant) {
             // Is this flagged variant in a gene we just added?
             let forAddedGene = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded.indexOf(getGeneName(firstFlaggedVariant)) >= 0 : false;
