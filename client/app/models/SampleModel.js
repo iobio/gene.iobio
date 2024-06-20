@@ -1661,7 +1661,11 @@ class SampleModel {
         var theVcfData = data.vcfData;
 
         var regions   = theVcfData.features.filter(function(variant) {
-          if (variant.fbCalled == 'Y')  {
+          if (variant.gnomAD.hasOwnProperty('af')) {
+            // This is a pre 4.11 variant. Refresh so that gnomAD fields
+            // are in expected format
+            return true;
+          } else if (variant.fbCalled == 'Y')  {
             return false;
           } else if (variant.extraAnnot) {
             return false;
