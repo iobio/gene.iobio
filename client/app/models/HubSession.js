@@ -623,7 +623,7 @@ export default class HubSession {
           afField          = 'gnomad_allele_frequency_GRCh37@default';
         }
         data.variants.forEach(function(variant) {
-          if (geneSymbolField &&  variant[geneSymbolField].length > 0 && !variant.hasOwnProperty('gene_symbol')) {
+          if (geneSymbolField &&  variant[geneSymbolField] && variant[geneSymbolField].length > 0 && !variant.hasOwnProperty('gene_symbol')) {
             variant['gene_symbol'] = variant[geneSymbolField][0];
           }
           if (impactField && variant[impactField] && variant[impactField].length > 0) {
