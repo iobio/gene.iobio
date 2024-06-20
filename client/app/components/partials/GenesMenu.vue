@@ -367,8 +367,8 @@ export default {
                 if (i > 0) {
                   aliasMsg += ", "
                 }
-                aliasMsg +=  '<pre>' + alias.gene_alias + '</pre>' +
-                            " instead of " + '<pre>' + alias.gene_name + '</pre>';
+                aliasMsg +=  '<pre>' + alias.gene_name + '</pre>' +
+                            " instead of " + '<pre>' + alias.gene_alias + '</pre>';
                 i++;
               })
               aliasMsg += "."
