@@ -1710,6 +1710,14 @@ class GeneModel {
                  'alertType': result.alertType,
                  'options':   {'showAlertPanel': true, 'selectAlert': true} });
 
+            } else if (result.hasOwnProperty('aliasFound') && result.aliasFound == false) {
+              // There are not any suitable replacement aliases for this gene.
+              reject( {
+                'message':   'Bypassing gene <pre>' + theGeneName +
+                             '</pre>. There are no transcripts for this gene or any of its aliases.',
+                'gene':      theGeneName,
+                'alertType': 'warning',
+                'options':   {'showAlertPanel': true, 'selectAlert': true} });
             } else {
               reject({
                 'message':  'An unexpected problem occurred when getting gene object',
@@ -2233,7 +2241,16 @@ class GeneModel {
                     self.allKnownGeneNames[theGeneName] = false
                   }
                 })
-                resolve()
+                resolve();
+              } else {
+                // No genes were returned. Cache the gene names with false so that we don't
+                // attempt lookup again.
+                genesNotCached.forEach(function(theGeneName) {
+                  if (!self.allKnownGeneNames.hasOwnProperty(theGeneName.toUpperCase())) {
+                    self.allKnownGeneNames[theGeneName] = false
+                  }
+                })
+                resolve();
               }
             } else {
               console.log(msg);
