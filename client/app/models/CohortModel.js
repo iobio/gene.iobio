@@ -3441,6 +3441,11 @@ class CohortModel {
                 }
               } else {
                 variant.gene = geneObject
+
+                // For backward compatibility, we need to move old gnomAD allele
+                // frequency fields to the new fieids
+                //   variant.gnomAD fields -> variant.gnomAD.genomes fields
+                self.convertVariantGnomADFields(variant)
                 self.flaggedVariants.push(variant);
               }
             }
@@ -3448,6 +3453,32 @@ class CohortModel {
 
         }
       }
+    }
+  }
+
+  /*
+   * To support backward compatibility in 4.11, we need to convert
+   * variant gnomAD allele frequency fields to their expected\
+   * fields. In brief, variant.gnomAD fields have been broken out
+   * to variant.gnomAD.genomes and variant.gnomAD.exomes.
+   */
+  convertVariantGnomADFields(variant) {
+    let self = this;
+    if (variant.gnomAD && variant.gnomAD.hasOwnProperty('af')) {
+      variant.gnomAD.genomes = $.extend({}, variant.gnomAD);
+      delete variant.gnomAD.af;
+      delete variant.gnomAD.afPopMax;
+      delete variant.gnomAD.altCount;
+      delete variant.gnomAD.homCount;
+      delete variant.gnomAD.totalCount;
+      variant.gnomAD.genomes.pop = {};
+      ['afr', 'amr', 'asj', 'eas', 'fin', 'nfe', 'sas'].forEach(function(popField) {
+        variant.gnomAD.genomes.pop[popField] = variant.gnomAD.pop[popField];
+      })
+      variant.gnomAD.genomes.pop.remaining = variant.gnomAD.pop.oth;
+      variant.gnomAD.genomes.version = self.genomeBuildHelper.getCurrentBuildName() == 'GRCh38' ? 'v3.1' : 'v2.1.1';
+      delete variant.gnomAD.genomes.pop.oth;
+      variant.afFieldHighest = 'gnomAD.genomes.afPopMax';
     }
   }
 

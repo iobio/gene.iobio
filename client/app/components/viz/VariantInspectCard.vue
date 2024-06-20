@@ -2201,11 +2201,16 @@ export default {
     afGnomAD: function() {
       if (this.selectedVariant) {
         let source      =  "gnomAD genomes"
-        if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
-            source += " v4"
+        if (this.selectedVariant.gnomAD.genomes.hasOwnProperty('version')) {
+              source += " " + this.selectedVariant.gnomAD.genomes.version;
+        } else {
+          if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh38') {
+              source += " v4"
           } else if (this.genomeBuildHelper.getCurrentBuildName() == 'GRCh37') {
             source += " v2.1.1"
           };
+        }
+
         let infoPopup   =  "gnomAD"
         let extraInfo1  =
                 ' Annotations shown for variant are from gnomAD '
@@ -2216,10 +2221,13 @@ export default {
         // We will  show the AF from exomes below the AF from gnomAD genomes so that
         // the user understands that that filtering used this AF rather than the
         // one from the gnomAD genomes
-        let afExomes = this.selectedVariant.gnomAD.exomes.af == '.' ? '0.0' : d3.format('.3n')(this.selectedVariant.gnomAD.exomes.af);
+        let afExomes = null;
+        if (this.selectedVariant.gnomAD.exomes) {
+          afExomes = this.selectedVariant.gnomAD.exomes.af == '.' ? '0.0' : d3.format('.3n')(this.selectedVariant.gnomAD.exomes.af);
+        }
 
         if (this.selectedVariant.gnomAD.genomes.af  == '.') {
-          return {
+          var gnomAD = {
             link: null,
             label: "Allele frequency",
             freq: '0',
@@ -2233,8 +2241,11 @@ export default {
             infoPopup: infoPopup,
             extraInfo1: extraInfo1,
             extraInfo2: extraInfo2,
-            freqExomes: afExomes
           };
+          if (afExomes) {
+            gnomAD.freqExomes = afExomes;
+          }
+          return gnomAD;
         } else  {
           var gnomAD = {};
           gnomAD.link =  "http://gnomad.broadinstitute.org/variant/"
@@ -2261,7 +2272,9 @@ export default {
           gnomAD.infoPopup     = infoPopup;
           gnomAD.extraInfo1    = extraInfo1;
           gnomAD.extraInfo2    = extraInfo2;
-          gnomAD.freqExomes    = afExomes
+          if (afExomes) {
+            gnomAD.freqExomes    = afExomes;
+          }
 
           return gnomAD;
 
