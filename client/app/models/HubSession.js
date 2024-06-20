@@ -610,16 +610,17 @@ export default class HubSession {
         let consequenceField = null
         let afField = null
         if (build === "GRCh38"){
-          geneSymbolField  = 'gene_symbol_GRCh38';
-          impactField      = 'gene_impact_GRCh38';
-          consequenceField = 'gene_consequence_GRCh38';
-          afField          = 'gnomad_allele_frequency_GRCh38';
+          geneSymbolField  = 'gene_symbol_GRCh38@default';
+          impactField      = 'gene_impact_GRCh38@default';
+          consequenceField = 'gene_consequence_GRCh38@default';
+          afField          = 'gnomad_allele_frequency_GRCh38@default';
+          afFieldOther     = ''
         }
         else if (build === "GRCh37"){
-          geneSymbolField = 'gene_symbol_GRCh37';
-          impactField      = 'gene_impact_GRCh37';
-          consequenceField = 'gene_consequence_GRCh37';
-          afField          = 'gnomad_allele_frequency_GRCh37';
+          geneSymbolField = 'gene_symbol_GRCh37@default';
+          impactField      = 'gene_impact_GRCh37@default';
+          consequenceField = 'gene_consequence_GRCh37@default';
+          afField          = 'gnomad_allele_frequency_GRCh37@default';
         }
         data.variants.forEach(function(variant) {
           if (geneSymbolField &&  variant[geneSymbolField].length > 0 && !variant.hasOwnProperty('gene_symbol')) {
