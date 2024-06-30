@@ -4015,8 +4015,9 @@ export default {
               let getDeleteAnnotValuePromise = function() {
                 if (mosaicVariant && mosaicVariant.hasOwnProperty(variantAnnotation.fieldName) && mosaicVariant[variantAnnotation.fieldName].length > 0) {
                   console.log("deleting annotation value " + mosaicVariant[variantAnnotation.fieldName])
+                  let version_id = self.getDefaultAnnotationVersion(variantAnnotation)
                   return self.hubSession.promiseDeleteVariantAnnotationValue(self.projectId,
-                    variant.mosaic_id, variantAnnotation.id)
+                    variant.mosaic_id, variantAnnotation.id, version_id)
                 } else {
                   console.log("bypassing delete annotation value")
                   return Promise.resolve();
@@ -4028,10 +4029,12 @@ export default {
 
                 if (variant.interpretation != 'not-reviewed') {
                   // Now add the annotation value.
+                  let version_id = self.getDefaultAnnotationVersion(variantAnnotation)
                   return self.hubSession.promiseAddVariantAnnotationValue(self.projectId,
                       variant.mosaic_id,
                       variantAnnotation.id,
-                      self.interpretationMap[variant.interpretation])
+                      self.interpretationMap[variant.interpretation],
+                      version_id)
                 } else {
                   // No need to update a variant annotation when it is not reviewed. Treat
                   // this option as 'blank'.
@@ -4064,6 +4067,21 @@ export default {
 
 
       })
+    },
+
+    getDefaultAnnotationVersion: function(variantAnnotation) {
+      if (variantAnnotation.hasOwnProperty('annotation_versions')) {
+        let matched = variantAnnotation.annotation_versions.filter(function(annot) {
+          return annot.version == 'default'
+        })
+        if (matched.length > 0) {
+          return matched[0].id;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
     },
 
     promiseLoadVariantAnnotationsMap() {
