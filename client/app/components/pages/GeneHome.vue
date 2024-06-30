@@ -1204,7 +1204,7 @@ export default {
 
     selectedVariant: function() {
       let self = this;
-      if (this.launchedFromHub && this.selectedVariant && this.selectedMosaic && this.selectedMosaic.length > 0) {
+      if (this.launchedFromHub && this.selectedVariant ) {
         this.promiseGetMosaicVariant(self.selectedVariant)
         .then((mosaicVariant) => {
           if(mosaicVariant){
@@ -2120,10 +2120,10 @@ export default {
               // called 'Intepretation'. This is stored as the display name, so we use
               // a mapping to get back to the interpretation code (e.g. 'Signficant' = 'sig')
               if (interpretationAnnot &&
-                variant.hasOwnProperty(interpretationAnnot.uid) &&
-                variant[interpretationAnnot.uid].length > 0) {
+                variant.hasOwnProperty(interpretationAnnot.fieldName) &&
+                variant[interpretationAnnot.fieldName].length > 0) {
 
-                let label = variant[interpretationAnnot.uid][0];
+                let label = variant[interpretationAnnot.fieldName][0];
                 if (self.interpretationMapReversed[label]) {
                   importedVariant.interpretation = self.interpretationMapReversed[label]
                 }
@@ -4036,8 +4036,8 @@ export default {
           .then(function(mosaicVariant) {
             // Check to see that we found the mosaic variant and that it has
             // a variant annotation for 'interpretation'
-            if (mosaicVariant && mosaicVariant.hasOwnProperty(interpretationAnnot.uid) && mosaicVariant[interpretationAnnot.uid].length > 0) {
-              let interpretationLabel = mosaicVariant[interpretationAnnot.uid][0]
+            if (mosaicVariant && mosaicVariant.hasOwnProperty(interpretationAnnot.fieldName) && mosaicVariant[interpretationAnnot.fieldName].length > 0) {
+              let interpretationLabel = mosaicVariant[interpretationAnnot.fieldName][0]
               theVariant.mosaic_interpretation = self.interpretationMapReversed[interpretationLabel]
               resolve(theVariant.mosaic_interpretation)
             } else {
@@ -4136,10 +4136,10 @@ export default {
               // annotations, we cannot use the update API, but instead have to
               // delete the annotation value and then add it.
               let getDeleteAnnotValuePromise = function() {
-                if (mosaicVariant && mosaicVariant.hasOwnProperty(variantAnnotation.uid) && mosaicVariant[variantAnnotation.uid].length > 0) {
-                  console.log("deleting annotation value " + mosaicVariant[variantAnnotation.uid])
+                if (mosaicVariant && mosaicVariant.hasOwnProperty(variantAnnotation.fieldName) && mosaicVariant[variantAnnotation.fieldName].length > 0) {
+                  console.log("deleting annotation value " + mosaicVariant[variantAnnotation.fieldName])
                   return self.hubSession.promiseDeleteVariantAnnotationValue(self.projectId,
-                    variant.mosaic_id, variantAnnotation.id, variant.interpretation)
+                    variant.mosaic_id, variantAnnotation.id)
                 } else {
                   console.log("bypassing delete annotation value")
                   return Promise.resolve();
@@ -4165,7 +4165,7 @@ export default {
                 // Set the Mosaic variant annotation in memory to the refreshed value
                 if (mosaicVariant) {
                   let interpretationLabel = self.interpretationMap[variant.interpretation]
-                  mosaicVariant[variantAnnotation.uid] = [interpretationLabel];
+                  mosaicVariant[variantAnnotation.fieldName] = [interpretationLabel];
                 }
                 resolve();
 

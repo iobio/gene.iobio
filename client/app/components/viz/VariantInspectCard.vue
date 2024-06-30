@@ -1285,6 +1285,7 @@ export default {
       this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
       this.showSelectVariantAnnotationDialog = false;
       this.selectedAll = selectedAll;
+
       this.$emit("variant-annotations-selected", selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
     },
 
@@ -1293,6 +1294,9 @@ export default {
       this.selectedMosaicVariantAnnotations = selectedMosaicVariantAnnotations;
       this.showSelectVariantAnnotationDialog = false;
       this.selectedAll = selectedAll;
+
+
+      this.loadData();
 
       this.$emit("variant-annotations-selected", selectedInfo, this.selectedFormat, this.selectedMosaicVariantAnnotations, this.selectedAll);
     },
@@ -2095,12 +2099,13 @@ export default {
     },
 
     mosaicValuesMap() {
+      let self = this;
       const mosaicValues = [];
-      for (const item of this.selectedMosaicVariantAnnotations) {
-        if (this.mosaicVariantObject && this.mosaicVariantObject.hasOwnProperty(item.value)) {
+      for (const item of self.selectedMosaicVariantAnnotations) {
+        if (self.mosaicVariantObject && self.mosaicVariantObject.hasOwnProperty(item.value + '@default')) {
           let value = "";
-          if (Array.isArray(this.mosaicVariantObject[item.value]) && this.mosaicVariantObject[item.value].length > 0){
-            value = this.mosaicVariantObject[item.value].join(", ");
+          if (Array.isArray(self.mosaicVariantObject[item.value + '@default']) && self.mosaicVariantObject[item.value + '@default'].length > 0){
+            value = self.mosaicVariantObject[item.value + '@default'].join(", ");
           }else{
             value = "None";
           }
