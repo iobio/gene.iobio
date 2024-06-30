@@ -2566,7 +2566,7 @@ export default {
       .then(function() {
         if (newGene) {
           self.genesAdded = [geneName];
-          self.promiseSelectFirstFlaggedVariant();
+          self.promiseSelectFirstFlaggedVariant(true);
         }
 
         self.onSendGenesToClin();
@@ -5090,7 +5090,7 @@ export default {
     },
 
 
-    promiseSelectFirstFlaggedVariant: function() {
+    promiseSelectFirstFlaggedVariant: function(selectGeneAsFallback=false) {
       let self = this;
 
       // Examine the flagged variant and choose one to show.
@@ -5132,18 +5132,22 @@ export default {
           }
 
           // We didn't find any variants for genes just added,
-          // so let's draw from the list of all of the filtered variants
           if (firstFlaggedVariant == null) {
-            sortedFilters.forEach(function(filterObject) {
-              filterObject.genes.forEach(function(geneList) {
-                if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
-                  let candidateVariants = geneList.variants;
-                  if (candidateVariants.length > 0) {
-                    firstFlaggedVariant = candidateVariants[0];
+            if (selectGeneAsFallback) {
+              // Show the genes tab (for the selected gene)
+            } else {
+              // Draw from the list of all of the filtered variants
+              sortedFilters.forEach(function(filterObject) {
+                filterObject.genes.forEach(function(geneList) {
+                  if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
+                    let candidateVariants = geneList.variants;
+                    if (candidateVariants.length > 0) {
+                      firstFlaggedVariant = candidateVariants[0];
+                    }
                   }
-                }
+                })
               })
-            })
+            }
           }
 
           if (firstFlaggedVariant) {
