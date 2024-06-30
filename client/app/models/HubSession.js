@@ -35,7 +35,7 @@ export default class HubSession {
   init(source) {
     let self = this;
     self.api = source + self.apiVersion;
-    self.apiDepricated = source + self.apiVersionDeprecated    
+    self.apiDepricated = source + self.apiVersionDeprecated
   }
 
   promiseInit(sampleId, source, isPedigree, projectId, geneSetId, variantSetId, build, experimentId ) {
@@ -192,7 +192,7 @@ export default class HubSession {
                   'variantSet': variantSet,
                   'isMother': self.isMother,
                   'isFather': self.isFather,
-                  'foundPedigree': foundPedigree});                
+                  'foundPedigree': foundPedigree});
               }
 
             })
@@ -290,8 +290,8 @@ export default class HubSession {
 
     return new Promise(function(resolve, reject) {
       if (isPedigree) {
-        // If the user click 'Pedigree' from the Mosaic launch dialog, 
-        // get the pedigree for this sample. We will launch gene.iobio 
+        // If the user click 'Pedigree' from the Mosaic launch dialog,
+        // get the pedigree for this sample. We will launch gene.iobio
         // for the proband of this pedigree, regardless of which sample
         // was selected. For example, the father could be selected, and
         // the pedigree will be located for the father, and we will launch
@@ -603,8 +603,10 @@ export default class HubSession {
       .done(response => {
         let data = response;
 
-        // The gene symbol is in a different field depending on the genome build.
-        // Set the 'gene_symbol' field so that we can pull it from one field.
+        // The Mosaic variant should have a field gene_name@default.
+        let geneNameField = 'gene_name@default';
+        // The gene symbol, impact, consequence, and allele frequency values are
+        // in a different fields depending on the genome build.
         let geneSymbolField = null
         let impactField = null
         let consequenceField = null
@@ -614,7 +616,6 @@ export default class HubSession {
           impactField      = 'gene_impact_GRCh38@default';
           consequenceField = 'gene_consequence_GRCh38@default';
           afField          = 'gnomad_allele_frequency_GRCh38@default';
-          afFieldOther     = ''
         }
         else if (build === "GRCh37"){
           geneSymbolField = 'gene_symbol_GRCh37@default';
@@ -623,7 +624,9 @@ export default class HubSession {
           afField          = 'gnomad_allele_frequency_GRCh37@default';
         }
         data.variants.forEach(function(variant) {
-          if (geneSymbolField &&  variant[geneSymbolField] && variant[geneSymbolField].length > 0 && !variant.hasOwnProperty('gene_symbol')) {
+          if (variant[geneNameField] && variant[geneNameField].length > 0) {
+            variant['gene_symbol'] = variant[geneNameField][0];
+          } else if (geneSymbolField &&  variant[geneSymbolField] && variant[geneSymbolField].length > 0 && !variant.hasOwnProperty('gene_symbol')) {
             variant['gene_symbol'] = variant[geneSymbolField][0];
           }
           if (impactField && variant[impactField] && variant[impactField].length > 0) {
@@ -641,18 +644,10 @@ export default class HubSession {
         resolve(data)
       })
       .fail(error => {
-        self.getVariantSet(projectId, variantSetId, 'old_project')
-        .done(response => {
-          resolve(response)
-        })
-        .fail(error => {
-          let errorMsg = self.getErrorMessage(error);
-          console.log("Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.");
-          console.log();
-          reject("Error getting variant set " + variantSetId + ": " + errorMsg);
-        })
-
-
+        let errorMsg = self.getErrorMessage(error);
+        console.log("Error getting variant set " + variantSetId + " from Mosaic. This project may not be up to date with the latest variant annotations.");
+        console.log();
+        reject("Error getting variant set " + variantSetId + ": " + errorMsg);
       })
     })
 
@@ -679,7 +674,7 @@ export default class HubSession {
       self.promiseGetVariantsByPosition(projectId, chr, variant.start, true)
       .then(function(variants) {
         let matching = variants.filter(function(v) {
-          if (v.chr == chr && 
+          if (v.chr == chr &&
               v.r_start == variant.start &&
               v.alt == variant.alt &&
               v.ref == variant.ref) {
@@ -779,8 +774,15 @@ export default class HubSession {
     let self = this;
     return new Promise(function(resolve, reject) {
       self.getVariantAnnotations(project_id)
-      .done(response => {
-        resolve(response)
+      .done(annotations => {
+        // Prepend @default to each field name. Mosaic now uses this convention to
+        // distguish between annotation versions. Example: the value of
+        // hgvsc_42b345dd is in the field hgvsc_42b345dd@default.
+        annotations.forEach(function(annotation) {
+          annotation.fieldName = annotation.uid + '@default'
+        })
+
+        resolve(annotations)
       })
       .fail(error => {
         let errorMsg = self.getErrorMessage(error);
@@ -812,16 +814,17 @@ export default class HubSession {
 
 
 
-  promiseAddVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue) {
+  promiseAddVariantAnnotationValue(project_id, variant_id, annotation_id, annotation_value, annotation_version_id='default') {
     let self = this;
     return new Promise(function(resolve, reject) {
-      self.addVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue)
+      self.addVariantAnnotationValue(project_id, variant_id, annotation_id, annotation_value, annotation_version_id)
       .done(response => {
         resolve(response)
       })
       .fail(error => {
         let errorMsg = self.getErrorMessage(error);
-        console.log("Error adding variant annotation value " + annotationValue + " for project " + project_id)
+        console.log("Error adding variant annotation value.");
+        console.log("variant id=" + variant_id + ", annotation_id=" + annotation.id  + ", project_id=" + project_id + ', annotation_value=' + annotation_value);
         console.log(errorMsg)
         reject(errorMsg);
       })
@@ -829,16 +832,17 @@ export default class HubSession {
   }
 
 
-  promiseDeleteVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue) {
+  promiseDeleteVariantAnnotationValue(project_id, variant_id, annotation_id, annotation_version_id='default') {
     let self = this;
     return new Promise(function(resolve, reject) {
-      self.deleteVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue)
+      self.deleteVariantAnnotationValue(project_id, variant_id, annotation_id, annotation_version_id)
       .done(response => {
         resolve(response)
       })
       .fail(error => {
         let errorMsg = self.getErrorMessage(error);
-        console.log("Error deleting variant annotation value" + annotationValue + " for project " + project_id)
+        console.log("Error deleting annotation value.");
+        console.log("variant id=" + variant_id + ", annotation_id=" + annotation.id  + ", project_id=" + project_id);
         console.log(errorMsg)
         reject(errorMsg);
       })
@@ -995,11 +999,11 @@ export default class HubSession {
 
   }
 
-  createInterpretationAnnotation(project_id) { 
+  createInterpretationAnnotation(project_id) {
     let self = this;
-    let annotationObj = {"name": 'Interpretation', 
+    let annotationObj = {"name": 'Interpretation',
      "value_type": "string",
-     "display_type": "badge", 
+     "display_type": "badge",
      "privacy_level": "private",
      "severity": {"Significant": 1, "Uncertain significance": 2, "Not significant": 3, "Not reviewed": 4}};
     return $.ajax({
@@ -1014,11 +1018,11 @@ export default class HubSession {
   }
 
 
-  addVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue) {
+  addVariantAnnotationValue(project_id, variant_id, annotation_id, annotation_value, annotation_version_id) {
     let self = this;
-    let annotationValObj = {"value": annotationValue};
+    let annotationValObj = {"value": annotation_value};
     return $.ajax({
-      url: self.api + '/projects/' + project_id + '/variants/' + variant_id + '/annotations/' + annotation_id,
+      url: self.api + '/projects/' + project_id + '/variants/' + variant_id + '/annotations/' + annotation_id + '/versions/' + annotation_version_id,
       type: 'POST',
       data: JSON.stringify(annotationValObj),
       contentType: 'application/json',
@@ -1028,19 +1032,19 @@ export default class HubSession {
     });
   }
 
-  deleteVariantAnnotationValue(project_id, variant_id, annotation_id, annotationValue) {
+  deleteVariantAnnotationValue(project_id, variant_id, annotation_id, annotation_version_id) {
     let self = this;
-    let annotationValObj = {"value": annotationValue};
     return $.ajax({
-      url: self.api + '/projects/' + project_id + '/variants/' + variant_id + '/annotations/' + annotation_id,
+      url: self.api + '/projects/' + project_id + '/variants/' + variant_id + '/annotations/' + annotation_id + '/versions/' + annotation_version_id,
       type: 'DELETE',
-      data: JSON.stringify(annotationValObj),
       contentType: 'application/json',
       headers: {
         Authorization: localStorage.getItem('hub-iobio-tkn'),
       },
     });
   }
+
+
 
   getGeneSet(projectId, geneSetId) {
     let self = this;
