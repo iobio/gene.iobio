@@ -836,16 +836,16 @@
           <variant-inspect-row v-if="info.revel != '' && info.revel && !isSimpleMode"
             :clazz="getRevelClass(info)" :value="info.revel"   :label="`REVEL`" >
           </variant-inspect-row>
-          <variant-inspect-row v-if="selectedVariant.alphamissenseScore != '' && !isSimpleMode"
+          <variant-inspect-row v-if="selectedVariant.hasOwnProperty('alphamissenseScore') && selectedVariant.alphamissenseScore != '' && !isSimpleMode"
             :clazz="getAlphaMissenseClass(selectedVariant.alphamissenseClass)" :value="selectedVariant.alphamissenseScore"   :label="`Alpha Missense`" >
           </variant-inspect-row>
-          <variant-inspect-row v-if="selectedVariant.eve != '' && !isSimpleMode"
+          <variant-inspect-row v-if="selectedVariant.hasOwnProperty('eve') && selectedVariant.eve != '' && !isSimpleMode"
             :clazz="getEveClass(selectedVariant.eve)" :value="selectedVariant.eve"   :label="`EVE`" >
           </variant-inspect-row>
-          <variant-inspect-row v-if="selectedVariant.eve != '' && !isSimpleMode"
+          <variant-inspect-row v-if="selectedVariant.hasOwnProperty('mutscore') && selectedVariant.eve != '' && !isSimpleMode"
             :clazz="getMutScoreClass(selectedVariant.mutscore)" :value="selectedVariant.mutscore"   :label="`MutScore`" >
           </variant-inspect-row>
-          <variant-inspect-row v-if="selectedVariant.caddPhred != '' && !isSimpleMode"
+          <variant-inspect-row v-if="selectedVariant.hasOwnProperty('caddPhred') && selectedVariant.caddPhred != '' && !isSimpleMode"
             :clazz="getCADDPhredClass(selectedVariant.caddPhred)" :value="selectedVariant.caddPhred"   :label="`CADD Phred`" >
           </variant-inspect-row>
         </div>
