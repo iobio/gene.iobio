@@ -920,7 +920,7 @@ class CohortModel {
         })
         .catch(function(error) {
           if (error && error.hasOwnProperty('alertType') && error.alertType == 'warning') {
-            if (error.indexOf(geneName) >= 0 ) {
+            if (error.indexOf(geneName) >= 0 && error.hasOwnProperty('gene') ) {
               self.dispatch.alertIssued('warning', error.message, error.gene);
             } else {
               self.dispatch.alertIssued('warning', error + " for gene " + theGene.gene_name, theGene.gene_name);
@@ -2807,23 +2807,36 @@ class CohortModel {
       if (ir.gene == null) {
         me.dispatch.alertIssued('warning', 'Bypassing variant. Gene symbol is missing.');
       } else {
+        let p = me.geneModel.promiseAddGeneOrAlias(ir.gene, false, false, false)
+        .then(function(response) {
+          if (!response.success) {
+            me.dispatch.alertIssued('warning', 'Bypassing variant for ' + response.originalGeneName + ".", null, null, {'showAlertPanel':true, selectAlert: 'true'})
+          }
+        })
+        promises.push(p)
+        /*
         var theGeneObject = me.geneModel.geneObjects[ir.gene];
         if (theGeneObject == null || !ir.transcript || ir.transcript == '') {
           var promise = me.geneModel.promiseGetCachedGeneObject(ir.gene, true)
           .then(function(theGeneObject) {
             if (theGeneObject.notFound) {
-              if (me.geneModel.isKnownGene(theGeneObject.notFound)) {
-                me.geneModel.promiseAddGeneName(theGeneObject.notFound);
-              } else {
-                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + theGeneObject.notFound + "</pre>.", theGeneObject.notFound);
-              }
-            }
-            else if (ir.gene && theGeneObject.notFound === undefined){
-              if (me.geneModel.isKnownGene(ir.gene)) {
-                me.geneModel.promiseAddGeneName(ir.gene);
-              } else {
-                me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + ir.gene + "</pre>.", ir.gene);
-              }
+              me.geneModel.promiseIsKnownGene(theGeneObject.notFound)
+              .then(function(response) {
+                  if (response.isKnownGene) {
+                    me.geneModel.promiseAddGeneName(response.geneName);
+                  } else {
+                    me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + response.geneName + "</pre>.", response.geneName);
+                  }
+              })
+            } else if (ir.gene && theGeneObject.notFound === undefined){
+              me.geneModel.promiseIsKnownGene(ir.gene)
+              .then(function(response) {
+                if (response.isKnownGene) {
+                  me.geneModel.promiseAddGeneName(response.geneName);
+                } else {
+                  me.dispatch.alertIssued('warning', 'Bypassing variant. Unknown gene <pre>' + response.geneName + "</pre>.", response.geneName);
+                }
+              })
             }
           })
           .catch(function(error) {
@@ -2831,6 +2844,7 @@ class CohortModel {
           })
           promises.push(promise);
         }
+        */
       }
     })
 
@@ -2925,6 +2939,8 @@ class CohortModel {
     })
 
   }
+
+
 
   onImportedGeneAnalyzed(geneName, intersectedGenes, theGeneObject, theTranscript, analyzeCalledVariants) {
     let me = this;
