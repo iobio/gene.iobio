@@ -878,7 +878,86 @@ class CohortModel {
     return hasAllSamples;
   }
 
+  promiseValidateBuild(buildName, mode) {
+    let self = this;
+    return new Promise(function(resolve, reject) {
+      let isValidBuild = true;
+      let message = "";
+          
+      if (self.isLoaded) {
+        if (mode == 'single') {
+          self.getModel('proband').promiseGetHeaderRecs()
+          .then(function(headerRecs) {
+            let buildInfo = self.genomeBuildHelper.getBuildFromVcfHeader(headerRecs);
+            let properBuildInfo = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfo);
+            if (properBuildInfo != null && properBuildInfo.build && properBuildInfo.build.name != buildName) {
+              isValidBuild = false;
+              message = "Incorrect build specified. The vcf header indicates that the build should be set to " + properBuildInfo.build.name + "."
+            }
+            resolve({'isValidBuild': isValidBuild, 'message': message});
+          })
+          .catch(function(error) {
+            reject(error)
+          })
+        } else {
+          let promises = [];
+          promises.push(self.getModel('proband').promiseGetHeaderRecs())
+          promises.push(self.getModel('mother').promiseGetHeaderRecs())
+          promises.push(self.getModel('father').promiseGetHeaderRecs())
+          Promise.all(promises)
+          .then(function() {
+            let buildInfoProband       = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('proband').vcf.headerRecs);
+            let properBuildInfoProband = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoProband);
+            
+            let buildInfoMother        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('mother').vcf.headerRecs);
+            let properBuildInfoMother  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoMother);
 
+            let buildInfoFather        = self.genomeBuildHelper.getBuildFromVcfHeader(self.getModel('father').vcf.headerRecs);
+            let properBuildInfoFather  = self.genomeBuildHelper.getProperSpeciesAndBuild(buildInfoFather);
+
+            let invalidRels = [];
+            let vcfBuilds = []
+            if (properBuildInfoProband != null && properBuildInfoProband.build && properBuildInfoProband.build.name != buildName) {
+              isValidBuild = false;
+              invalidRels.push('proband');
+              vcfBuilds.push(properBuildInfoProband.build.name)
+            }
+            if (properBuildInfoMother != null && properBuildInfoMother.build && properBuildInfoMother.build.name != buildName) {
+              isValidBuild = false;
+              invalidRels.push('mother');
+              vcfBuilds.push(properBuildInfoMother.build.name)
+            }
+            if (properBuildInfoFather != null && properBuildInfoFather.build && properBuildInfoFather.build.name != buildName) {
+              isValidBuild = false;
+              invalidRels.push('father');
+              vcfBuilds.push(properBuildInfoFather.build.name)
+            }
+            let uniqueBuilds = new Set(vcfBuilds);
+            if (uniqueBuilds.size == 1 && invalidRels.length == 3) {
+              message = "Incorrect build specified for trio. " +
+                        "The vcf header indicates that the build should be set to " +  Array.from(uniqueBuilds)[0] + ".";
+            } else if (uniqueBuilds.size == 1 && invalidRels.length < 3) {
+              
+              message = "Incompatible builds for trio. " + 
+                        "The vcf header indicates that the build should be set to " + Array.from(uniqueBuilds)[0] + 
+                        " for " + invalidRels.join(" and ") + ". "
+            } else if (vcfBuilds.length > 0) {
+              message = "Incompatible builds for trio. " + 
+                        "The vcf header indicates that the build should be set to " + vcfBuilds.join(" and ") + 
+                        " for " + invalidRels.join(" and ") + " (respectively). "
+            } 
+            resolve({'isValidBuild': isValidBuild, 'message': message});
+          })
+          .catch(function(error) {
+            reject(error)
+          })
+        }        
+      } else {
+        resolve({'isValidBuild': true, 'message': ''});
+      }
+    })
+  }
+  
   promiseLoadData(theGene, theTranscript, options) {
     let self = this;
     let promises = [];

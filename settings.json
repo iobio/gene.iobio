@@ -1,0 +1,6 @@
+{
+    "editor.trimAutoWhitespace": false,
+    "files.trimTrailingWhitespaceInRegexAndStrings": false,
+    "sass.format.deleteWhitespace": false,
+    "editorconfig.generateAuto": false
+}

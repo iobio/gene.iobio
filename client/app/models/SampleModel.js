@@ -1073,7 +1073,7 @@ class SampleModel {
         me.isMultiSample = false;
 
         me.vcf.promiseOpenVcfUrl(vcfUrl, tbiUrl)
-        .then( function() {
+        .then( function(headerRecs) {
           me.vcfUrlEntered = true;
           me.vcfFileOpened = false;
           me.getVcfRefName = null;
@@ -1094,6 +1094,25 @@ class SampleModel {
       }
     })
   }
+  
+   
+  promiseGetHeaderRecs() {
+    let me = this;
+    return new Promise(function(resolve, reject) {
+      if (me.vcfUrlEntered) {
+        me.vcf.promiseGetHeaderRecs()
+        .then(function(headerRecs){
+          resolve(headerRecs)
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      } else {
+        reject("Cannot get header recs. No vcf URL provided.")
+      }
+    })
+  }
+
 
   /* Takes in two stably sorted lists of vcfs and tbis. Performs similar functions as onVcfUrlEntered above,
    * but accommodates multiple vcf files that will be apart of a single sample model. Used specifically for Sfari track. */

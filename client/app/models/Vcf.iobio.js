@@ -275,7 +275,7 @@ export default function vcfiobio(theGlobalApp) {
       tbiUrl = theTbiUrl;
 
 
-      return me.promiseCheckVcfUrl(url, tbiUrl)
+      return me.promiseParseVcfHeader(url, tbiUrl)
       .then(function() {
         resolve()
       })
@@ -287,13 +287,36 @@ export default function vcfiobio(theGlobalApp) {
   }
 
 
-  exports.promiseCheckVcfUrl = function(url, tbiUrl) {
+  exports.promiseGetHeaderRecs = function() {
+    let me = this;
+    return new Promise(function(resolve, reject) {
+      if (me.headerRecs && me.headerRecs.length > 0) {
+        resolve(me.headerRecs);
+      } else if (me.getVcfURL()) {
+        me.promiseParseVcfHeader(me.getVcfURL(), me.getTbiURL())
+        .then(function(theHeaderRecs) {
+          resolve(theHeaderRecs)
+        })
+        .catch(function(error) {
+          reject(error)
+        })
+      } else {
+        resolve([])
+      }
+        
+    })
+  }
+
+
+  exports.promiseParseVcfHeader = function(url, tbiUrl) {
     var me = this;
+    me.headerRecs = null;
 
     return new Promise(function(resolve, reject) {
       var buffer = "";
       var recordCount = 0;
       var success = false;
+      me.headerRecs = null;
 
       var cmd = me.getEndpoint().getVcfHeader(url, tbiUrl);
 
@@ -309,6 +332,7 @@ export default function vcfiobio(theGlobalApp) {
           success = true;
         }
         if (success && buffer.length > 0) {
+          me.headerRecs = []
           buffer.split("\n").forEach( function(rec) {
             if (rec.indexOf("##contig") == 0) {
               me._parseHeaderForContigFields(rec)
@@ -316,8 +340,9 @@ export default function vcfiobio(theGlobalApp) {
             if (rec.indexOf("#") == 0) {
               me._parseHeaderForInfoFields(rec);
             }
+            me.headerRecs.push(rec)
           })
-          resolve(success);
+          resolve(me.headerRecs);
         } else if (buffer.length == 0) {
           reject("No data returned for vcf header.")
         }
@@ -325,7 +350,7 @@ export default function vcfiobio(theGlobalApp) {
 
       cmd.on('error', function(error) {
         if (me.ignoreErrorMessage(error)) {
-          resolve();
+          resolve(me.headerRecs);
         } else {
           reject(me.translateErrorMessage(error));
         }
@@ -337,7 +362,7 @@ export default function vcfiobio(theGlobalApp) {
     })
 
   }
-
+  
   exports.ignoreErrorMessage = function(error) {
     var me = this;
     var ignore = false;
@@ -366,6 +391,7 @@ export default function vcfiobio(theGlobalApp) {
     vcfReader = null;
     vcfFile = null;
     tabixFile = null;
+    headerRecs = null;
   }
 
   exports.openVcfFile = function(fileSelection, callback) {
@@ -485,6 +511,8 @@ export default function vcfiobio(theGlobalApp) {
   exports.setVcfURL = function(url, tbiUrl) {
     vcfURL = url;
     tbiUrl = tbiUrl;
+    headerRecs = null;
+
   }
 
   exports.getSourceType = function() {

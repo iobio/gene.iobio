@@ -222,12 +222,12 @@ export class GenomeBuildHelper {
     return buildInfo;
   }
 
-  getBuildFromVcfHeader(header) {
+  getBuildFromVcfHeader(headerRecs) {
       var me = this;
 
     var buildInfo = {species: null, build: null, references: {}};
-    if (header) {
-      header.split("\n").forEach(function(headerRec) {
+    if (headerRecs) {
+      headerRecs.forEach(function(headerRec) {
         if (headerRec.indexOf("##contig=<") == 0) {
           var allFields = headerRec.split("##contig=<")[1];
 

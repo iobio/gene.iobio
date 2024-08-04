@@ -1603,6 +1603,11 @@ export default {
             }
 
         }).then(function() {
+            return self.cohortModel.promiseValidateBuild(self.paramBuild, self.cohortModel.mode)
+        }).then(function(data) {
+          if (!data.isValidBuild) {
+            self.addAlert('error', data.message)
+          }
           return self.promiseLoadVariantAnnotationsMap()
         })
         .then(function() {
@@ -2875,6 +2880,13 @@ export default {
     onGenomeBuildSelected: function(buildName) {
       let self = this;
 
+      self.cohortModel.promiseValidateBuild(buildName, self.cohortModel.mode)
+      .then(function(data) {
+        if (!data.isValidBuild) {
+          self.addAlert('error', 'The genome build change to ' + buildName + ' resulted in a problem.  ' + data.message)
+        }
+      })
+      
       self.addAlert('info', 'Genome build <pre>' + buildName + '</pre> selected.');
       self.onShowSnackbar({message: 'Genes will be reanalyzed based on genome build '
         + buildName, timeout: 3000});
@@ -3368,7 +3380,7 @@ export default {
       } else {
         return new Promise(function(resolve) {
           self.clearFilter();
-          let geneToSelect   = $.extend(self.selectedGene);
+          let geneNameToSelect   = self.selectedGene && self.selectedGene.hasOwnProperty('gene_name') && self.selectedGene.gene_name ? self.selectedGene.gene_name : null;
           self.selectedGene = {};
           self.selectedTranscript = null;
           self.selectedVariant = null;
@@ -3389,9 +3401,13 @@ export default {
 
           self.cacheHelper.geneToAltTranscript = {};
 
-          self.applyGenesImpl(genesToReapply.join(","), {replace: true, warnOnDup: false, isFromClin: false},
+          let options =  {replace: true, warnOnDup: false, isFromClin: false};
+          if (geneNameToSelect) {
+            options.geneNameToSelect = geneNameToSelect;
+          }
+          
+          self.applyGenesImpl(genesToReapply.join(","), options,
           function() {
-            self.selectedGene = geneToSelect;
             resolve();
           });
         })
@@ -3509,10 +3525,13 @@ export default {
       self.geneModel.promiseCopyPasteGenes(genesString, options)
       .then(function(results) {
         self.genesAdded = results && results.newGenes ? results.newGenes : [];
-        if (!self.launchedFromClin) {
+        if (options && options.hasOwnProperty('geneNameToSelect')) {
+          geneNameToSelect = options.geneNameToSelect;
+        } else if (!self.launchedFromClin) {
           self.setUrlGeneParameters();
+        } else {
+          geneNameToSelect = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded[0] : self.geneModel.sortedGeneNames[0];          
         }
-        geneNameToSelect = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded[0] : self.geneModel.sortedGeneNames[0];
 
         if (geneNameToSelect) {
           return self.promiseLoadGene(geneNameToSelect);
