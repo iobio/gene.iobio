@@ -2200,7 +2200,7 @@ export default {
               }
             } else {
               setTimeout(function() {
-                self.promiseSelectFirstFlaggedVariant()
+                self.promiseSelectFirstFlaggedVariant(true)
               }, 2000)
             }
           }
@@ -5131,7 +5131,8 @@ export default {
       let self = this;
 
       // Examine the flagged variant and choose one to show.
-      //  1. If there aren't any flagged variants, just return as there is no action to be taken.
+      //  1. If there aren't any flagged variants, just return as there is no action to be taken,
+      //     unless selectGeneAsFallback set to true. In that case, select the first gene.
       //  2. If there is a flagged variant for a gene just added (through gene search or copy/paste
       //     or phenoylzer search), select the first flagged variant matching a gene just added.
       //  3. If there isn't a flagged variant for the gene just added, pick the first
@@ -5171,7 +5172,7 @@ export default {
           // We didn't find any variants for genes just added,
           if (firstFlaggedVariant == null) {
             if (selectGeneAsFallback) {
-              // Show the genes tab (for the selected gene)
+
             } else {
               // Draw from the list of all of the filtered variants
               sortedFilters.forEach(function(filterObject) {
@@ -5212,8 +5213,18 @@ export default {
             })
           }
           else {
-            self.genesAdded = null;
-            resolve();
+            if (selectGeneAsFallback && (self.selectedGene == null || !self.selectedGene.hasOwnProperty('gene_name')) && self.geneModel.sortedGeneNames.length > 0) {
+              // Show the genes tab (for the selected gene)
+              let geneNameToSelect = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded[0] : self.geneModel.sortedGeneNames[0];
+              self.promiseLoadGene(geneNameToSelect)
+              .then(function() {
+                self.genesAdded = null;
+                resolve();
+              })
+            } else {
+              self.genesAdded = null;
+              resolve();            
+            }
           }
         })
 
