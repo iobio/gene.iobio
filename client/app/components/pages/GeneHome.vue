@@ -2201,7 +2201,7 @@ export default {
               }
             } else {
               setTimeout(function() {
-                self.promiseSelectFirstFlaggedVariant(true)
+                self.promiseSelectFirstFlaggedVariant()
               }, 2000)
             }
           }
@@ -2572,7 +2572,7 @@ export default {
       .then(function() {
         if (newGene) {
           self.genesAdded = [geneName];
-          self.promiseSelectFirstFlaggedVariant(true);
+          self.promiseSelectFirstFlaggedVariant({'selectAnyVariant': false, 'selectGeneAsFallback': false});
         }
 
         self.onSendGenesToClin();
@@ -5142,16 +5142,16 @@ export default {
     },
 
 
-    promiseSelectFirstFlaggedVariant: function(selectGeneAsFallback=false) {
+    promiseSelectFirstFlaggedVariant: function(options={'selectAnyVariant': true, 'selectGeneAsFallback':true}) {
       let self = this;
 
       // Examine the flagged variant and choose one to show.
       //  1. If there aren't any flagged variants, just return as there is no action to be taken,
-      //     unless selectGeneAsFallback set to true. In that case, select the first gene.
+      //     unless options.selectGeneAsFallback set to true. In that case, select the first gene.
       //  2. If there is a flagged variant for a gene just added (through gene search or copy/paste
       //     or phenoylzer search), select the first flagged variant matching a gene just added.
       //  3. If there isn't a flagged variant for the gene just added, pick the first
-      //     flagged variant at the top of the list.
+      //     flagged variant at the top of the list (if options.selectAnyVariant set to true)
       return new Promise(function(resolve) {
 
         let getGeneName = function(variant) {
@@ -5185,22 +5185,20 @@ export default {
           }
 
           // We didn't find any variants for genes just added,
-          if (firstFlaggedVariant == null) {
-            if (selectGeneAsFallback) {
-
-            } else {
-              // Draw from the list of all of the filtered variants
-              sortedFilters.forEach(function(filterObject) {
-                filterObject.genes.forEach(function(geneList) {
-                  if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
-                    let candidateVariants = geneList.variants;
-                    if (candidateVariants.length > 0) {
-                      firstFlaggedVariant = candidateVariants[0];
-                    }
+          if (firstFlaggedVariant == null && options.selectAnyVariant) {
+            
+            // Draw from the list of all of the filtered variants
+            sortedFilters.forEach(function(filterObject) {
+              filterObject.genes.forEach(function(geneList) {
+                if (!firstFlaggedVariant && geneList.variants && geneList.variants.length > 0) {
+                  let candidateVariants = geneList.variants;
+                  if (candidateVariants.length > 0) {
+                    firstFlaggedVariant = candidateVariants[0];
                   }
-                })
+                }
               })
-            }
+            })
+            
           }
 
           if (firstFlaggedVariant) {
@@ -5228,7 +5226,7 @@ export default {
             })
           }
           else {
-            if (selectGeneAsFallback && (self.selectedGene == null || !self.selectedGene.hasOwnProperty('gene_name')) && self.geneModel.sortedGeneNames.length > 0) {
+            if (options.selectGeneAsFallback && (self.selectedGene == null || !self.selectedGene.hasOwnProperty('gene_name')) && self.geneModel.sortedGeneNames.length > 0) {
               // Show the genes tab (for the selected gene)
               let geneNameToSelect = self.genesAdded && self.genesAdded.length > 0 ? self.genesAdded[0] : self.geneModel.sortedGeneNames[0];
               self.promiseLoadGene(geneNameToSelect)
