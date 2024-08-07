@@ -7,7 +7,7 @@ export default class HubSession {
     this.isMother = false;
     this.isFather = false;
     this.apiVersion =  '/api/v1';
-    this.apiDepricated = null;
+    this.apiDeprecated = null;
     this.apiVersionDeprecated = '/apiv1'
     this.client_application_id = clientApplicationId,
     this.variantSetTxtCols = [
@@ -35,13 +35,13 @@ export default class HubSession {
   init(source) {
     let self = this;
     self.api = source + self.apiVersion;
-    self.apiDepricated = source + self.apiVersionDeprecated
+    self.apiDeprecated = source + self.apiVersionDeprecated
   }
 
   promiseInit(sampleId, source, isPedigree, projectId, geneSetId, variantSetId, build, experimentId ) {
     let self = this;
     self.api = source + self.apiVersion;
-    self.apiDepricated = source + self.apiVersionDeprecated
+    self.apiDeprecated = source + self.apiVersionDeprecated
     self.experiment_id = experimentId;
 
     return new Promise((resolve, reject) => {
