@@ -397,6 +397,10 @@ class GeneModel {
           })
 
         })
+        .catch(function(error) {
+          console.log(error)
+          reject(error)
+        })
       } else {
         return resolve(true)
       }
@@ -2414,8 +2418,9 @@ class GeneModel {
             }
           },
           error: function( xhr, status, errorThrown ) {
-            console.log(errorThrown)
-            reject(errorThrown)
+            console.log(status + " " + errorThrown)
+            let msg = errorThrown && errorThrown.length > 0 ? errorThrown : ' status=' + xhr.status + ", error=" + xhr.responseText + 'url=' + url;
+            reject("Failed to lookup genes. " + msg)
           }
         })
       }
