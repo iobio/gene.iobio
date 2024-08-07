@@ -11,7 +11,6 @@ class GlobalApp {
 
     this.version                = "4.11";
 
-    this.launchedFromUtahMosaic = false;
     this.IOBIO_SERVICES         = null;
     this.HTTP_SERVICES          = null;
 
@@ -86,46 +85,34 @@ class GlobalApp {
 
   }
 
-  initBackendSource(iobioSource) {
-      this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + iobioSource + "/";
-      this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + iobioSource + "/";;
-      if (this.IOBIO_SERVICES.indexOf('mosaic.chpc.utah.edu') >= 0 && this.IOBIO_SERVICES.indexOf("gru-dev") < 0) {
-        this.launchedFromUtahMosaic = true;
+  initServices(iobioSource) {
+      if (process.env.USE_SSL) {
+        this.useSSL = process.env.USE_SSL === 'true' ? true : false;
       }
 
-      //this.geneInfoServer            = this.HTTP_SERVICES + "geneinfo/";
-      this.geneInfoServer = 'https://mosaic.chpc.utah.edu/gru-dev-9002/geneinfo/'
-      this.geneToPhenoServer         = this.HTTP_SERVICES + "gene2pheno/";
-      this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "phenolyzer/";
-      this.genomeBuildServer         = this.HTTP_SERVICES + "genomebuild/"
-      this.hpoLookupUrl              = this.HTTP_SERVICES + "hpo/hot/lookup/?term=";
-
-
-
-      this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   iobioSource + "email/";
+      if (process.env.VUE_APP_VERSION) {
+        this.version = process.VUE_APP_VERSION;
+      }
+      
+      if (iobioSource) {
+        this.IOBIO_SERVICES = (this.useSSL ? "https://" : "http://") + iobioSource;
+        this.HTTP_SERVICES  = (this.useSSL ? "https://" : "http://") + iobioSource;
+  
+  
+        this.geneInfoServer            = this.HTTP_SERVICES + "/geneinfo/";
+        this.geneToPhenoServer         = this.HTTP_SERVICES + "/gene2pheno/";
+        this.phenolyzerOnlyServer      = this.HTTP_SERVICES + "/phenolyzer/";
+        this.genomeBuildServer         = this.HTTP_SERVICES + "/genomebuild/"
+        this.hpoLookupUrl              = this.HTTP_SERVICES + "/hpo/hot/lookup/?term=";
+  
+  
+        this.emailServer           = (this.useSSL ? "wss://" : "ws://") +   iobioSource + "email/";
+      } else {
+        throw new Error("Unable to initialize backend services. IOBIO server not specified.")
+      }
+    
   }
 
-  initServices(useMosaicBackend) {
-
-    if (process.env.USE_SSL) {
-      this.useSSL = process.env.USE_SSL === 'true' ? true : false;
-    }
-
-    if (process.env.VUE_APP_VERSION) {
-      this.version = process.VUE_APP_VERSION;
-    }
-
-    // These are the public services.
-    if (useMosaicBackend && process.env.IOBIO_BACKEND_MOSAIC ) {
-      this.initBackendSource(process.env.IOBIO_BACKEND_MOSAIC)
-    } else if (process.env.IOBIO_BACKEND) {
-      this.initBackendSource(process.env.IOBIO_BACKEND)
-    } else {
-      console.log("No backend specified")
-      throw new Error("Missing .env or property IOBIO_BACKEND not present")
-    }
-
-  }
 
   getCloseMessage() {
     if (this.isDirty) {
@@ -136,7 +123,7 @@ class GlobalApp {
   }
 
   getClinvarUrl(build) {
-    return this.IOBIO_SERVICES + 'static/clinvar/' + build + '/clinvar.vcf.gz';
+    return this.IOBIO_SERVICES + '/static/clinvar/' + build + '/clinvar.vcf.gz';
   }
 
   getRevelUrl(build) {

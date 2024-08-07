@@ -1285,7 +1285,8 @@ export default {
         let endpoint = new EndpointCmd(self.globalApp,
           self.cacheHelper.launchTimestamp,
           self.genomeBuildHelper,
-          self.globalApp.utility.getHumanRefNames);
+          self.globalApp.utility.getHumanRefNames,
+          self.launchedFromHub);
 
         self.variantExporter = new VariantExporter(self.globalApp);
 
@@ -3617,9 +3618,7 @@ export default {
       if (self.paramProjectId && self.paramProjectId.length > 0) {
         self.projectId = self.paramProjectId;
       }
-      if (self.paramIobioSource && self.paramIobioSource.length > 0) {
-        self.globalApp.IOBIO_SOURCE = self.paramIobioSource;
-      }
+      
       if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
         && self.sampleId && self.paramSource) {
         self.launchedFromHub = true;
@@ -3628,27 +3627,42 @@ export default {
           self.launchedFromSFARI = true;
         }
 
-        // Figure out which IOBIO backend we should be using.
-        // TODO - This should be a URL parameter from hub
-        if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource]) {
+        // Determine the iobio backend server. 
+        // 1. If the app is standalone, we use the property IOBIO_BACKEND in the .env file
+        // 2. If the app is launched from Mosaic, we use the URL parameter 'source' to lookup
+        //    the iobio backend server. If there is not a mapping from the Mosaic source
+        //    to the iobio backend server, the app will fallback to using the URL parameter 
+        //    'iobio_source'. If that isn't provided, throw an app error.
+        if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource] && self.hubToIobioSources[self.paramSource].iobio) {
           self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
           self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
-          self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE)
+        } else if (self.paramIobioSource && self.paramIobioSource.length > 0) {
+          self.addAlert('warning', 
+            "Unable to lookup iobio backend server based " +
+            "on the <pre>source</pre> URL parameter. Using <pre>iobio_source</pre> URL parameter instead.",
+            null, ['iobio backend set to ' + self.paramIobioSource], {showAlertPanel: true})
+            self.globalApp.IOBIO_SOURCE = self.paramIobioSource;
         } else {
-          self.globalApp.IOBIO_SOURCE = self.globalApp.DEFAULT_IOBIO_BACKEND;
-          self.globalApp.initBackendSource(self.globalApp.IOBIO_SOURCE);
+          self.addAlert('error', 
+            "Unable to determine the iobio backend server using the URL parameter <pre>source</pre>. " +
+            "Most likely, the lookup hubToIobioSources is missing an entry. Please contact iobio support.",
+            null, null, {showAlertPanel: true});
         }
         self.isHubDeprecated = !self.projectId;
       } else {
+        self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
+      }
+      
+      if (self.globalApp.IOBIO_SOURCE) {
         try {
-          self.globalApp.initServices(self.launchedFromHub);
+          self.globalApp.initServices(self.globalApp.IOBIO_SOURCE)
         } catch(error) {
           self.$nextTick(function() {
             self.addAlert('error', error, null, null, {showAlertPanel: true})
-
           })
         }
       }
+      
       if (self.paramTour) {
         self.tourNumber = self.paramTour;
       }
@@ -5035,7 +5049,8 @@ export default {
       self.cohortModel.endpoint = new EndpointCmd(self.globalApp,
           self.cacheHelper.launchTimestamp,
           self.genomeBuildHelper,
-          self.globalApp.utility.getHumanRefNames
+          self.globalApp.utility.getHumanRefNames,
+          self.launchedFromHub
       );
 
     },

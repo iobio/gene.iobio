@@ -1592,9 +1592,8 @@ export default {
 
     asyncLookupGene: function(searchTerm, callback) {
       this.searchTerm = searchTerm;
-      let url = "https://mosaic.chpc.utah.edu/gru-dev-9002/geneinfo/lookup/"
-                + searchTerm +
-                "?searchAlias=" + this.searchAlias;
+      let url = this.cohortModel.globalApp.geneInfoServer + "lookup/";
+      url += searchTerm + "?searchAlias=" + this.searchAlias;
       $.ajax({
         url: url,
         jsonp: "callback",
@@ -1609,7 +1608,7 @@ export default {
           }
         },
         error: function( xhr, status, errorThrown ) {
-          console.log(msg)
+          console.log(errorThrown)
         }
       })
     },

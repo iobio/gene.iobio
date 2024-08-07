@@ -2,7 +2,7 @@ import { Client } from 'iobio-api-client';
 
 export default class EndpointCmd {
 
-  constructor(globalApp, launchTimestamp, genomeBuildHelper, getHumanRefNamesFunc) {
+  constructor(globalApp, launchTimestamp, genomeBuildHelper, getHumanRefNamesFunc, launchedFromMosaic) {
     this.globalApp         = globalApp;
     this.launchTimestamp   = launchTimestamp;
     this.genomeBuildHelper = genomeBuildHelper;
@@ -14,38 +14,36 @@ export default class EndpointCmd {
     // iobio-api-client to handle that case.
     const httpScheme = this.globalApp.useSSL ? 'https://' : 'http://';
 
-    if (this.globalApp.launchedFromUtahMosaic) {
-      this.api = new Client(httpScheme + process.env.IOBIO_BACKEND_MOSAIC);
-      this.apiDev = new Client( 'https://mosaic.chpc.utah.edu/gru-dev-9002');
+    if (launchedFromMosaic) {
+      // NOTE:  
+      // To point to a non-production server when launching gene.iobio from Mosaic, avoid making
+      // a hardcoded change here. You have a couple of cleaner options to make sure that all of
+      // the backend requests are going to the same iobio backend server.
+      //
+      // Option 1. When Mosaic launches gene.iobio, a URL parameter called 'source' is set to the
+      // Mosaic backend server. In GeneHome.vue setAppMode() the iobio backend source is determined
+      // by a lookup map (hubToIobioSources) where the key is the URL parameter 'source'. 
+      // Modify this lookup map so that the iobio field is set to the dev server. Here is 
+      // example code in GeneHome.vue that points to the dev Mosaic server running on port gru-dev-9002:
+      //   hubToIobioSources: {
+      //      "https://mosaic.chpc.utah.edu":  {iobio: "mosaic.chpc.utah.edu/gru-dev-9002", batchSize: 10},
+      // 
+      // Option 2. When Mosaic launches gene.iobio, add a URL parameter 'iobioSource' that points
+      // to the dev server.  Example:
+      //   http://localhost:4026#access_token=xxxxxxxxxx&iobioSource=mosaic.chpc.utah.edu/gru-dev-9002
+      //
+      this.api = new Client(globalApp.IOBIO_SERVICES);
     }
     else {
-      // NOTE:  to point to a different (for example, a dev.backend.iobio.io:9001),
-      // don't change it here.  Edit the .env file, setting IOBIO_BACKEND to
-      // the dev server.
-      //this.api = new Client( 'https://mosaic.chpc.utah.edu/gru-dev-9002');
-      this.apiDev = new Client( 'https://mosaic.chpc.utah.edu/gru-dev-9002');
-
-      this.api = new Client(httpScheme + process.env.IOBIO_BACKEND);
+      // NOTE:  To point to a different (for example, a dev.backend.iobio.io:9002),
+      // avoid making a hardcoded change here. Instead, a cleaner approach is to edit the .env file, 
+      // setting IOBIO_BACKEND to the dev server. Example in .env:
+      //    IOBIO_BACKEND=mosaic.chpc.utah.edu/gru-dev-9005
+      
+      this.api = new Client(globalApp.IOBIO_SERVICES);
     }
 
-    // iobio services
-    this.IOBIO = {};
-    this.IOBIO.tabix                   = this.globalApp.IOBIO_SERVICES  + (this.globalApp.useOnDemand ? "od_tabix/" : "tabix/");
-    this.IOBIO.snpEff                  = this.globalApp.IOBIO_SERVICES  + "snpeff/";
-    this.IOBIO.vt                      = this.globalApp.IOBIO_SERVICES  + "vt/";
-    this.IOBIO.af                      = this.globalApp.IOBIO_SERVICES  + "af/";
-    this.IOBIO.vep                     = (this.globalApp.launchedFromUtahMosaic === true ? this.globalApp.IOBIO_SERVICES : this.globalApp.GREEN_IOBIO) + "vep/";   // Inside utah mosaic, normal services, else beefy nv-green to accommodate sfari
-    this.IOBIO.contigAppender          = this.globalApp.IOBIO_SERVICES  + "ctgapndr/";
-    this.IOBIO.bcftools                = this.globalApp.IOBIO_SERVICES  + "bcftools/";
-    this.IOBIO.gnomadAnnot             = this.globalApp.DEV_IOBIO       + "gnomad_annot/";
-    this.IOBIO.coverage                = this.globalApp.IOBIO_SERVICES  + "coverage/";
-    this.IOBIO.samtools                = this.globalApp.IOBIO_SERVICES  +  "samtools/";
-    this.IOBIO.samtoolsOnDemand        = this.globalApp.IOBIO_SERVICES  + (this.globalApp.useOnDemand ? "od_samtools/" : "samtools/");
-    this.IOBIO.freebayes               = this.globalApp.IOBIO_SERVICES  + "freebayes/";
-    this.IOBIO.vcflib                  = this.globalApp.IOBIO_SERVICES  + "vcflib/";
-    this.IOBIO.geneCoverage            = this.globalApp.IOBIO_SERVICES  + "genecoverage/";
-    this.IOBIO.knownvariants           = this.globalApp.IOBIO_SERVICES  + "knownvariants/";
-
+    
     this.gruBackend = true;
   }
 
@@ -121,7 +119,7 @@ export default class EndpointCmd {
           const refFastaFile = this.genomeBuildHelper.getFastaPath(refName);
 
 
-          const cmd = this.apiDev.streamCommand('annotateVariantsV3', {
+          const cmd = this.api.streamCommand('annotateVariantsV3', {
               vcfUrl: vcfSource.vcfUrl,
               tbiUrl: vcfSource.tbiUrl,
               refNames,
@@ -318,7 +316,7 @@ export default class EndpointCmd {
           const clinvarUrl = this.globalApp.getClinvarUrl(genomeBuildName);
 
 
-          let cmd = this.apiDev.streamCommand('freebayesJointCallV3', {
+          let cmd = this.api.streamCommand('freebayesJointCallV3', {
               alignmentSources: bamSources,
               refFastaFile,
               region: {
