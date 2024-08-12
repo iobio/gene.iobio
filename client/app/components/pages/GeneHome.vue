@@ -903,7 +903,7 @@ export default {
       appLoaderLabel: "",
 
       hubToIobioSources: {
-        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu/gru-dev-9005", batchSize: 10},
+        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
 
