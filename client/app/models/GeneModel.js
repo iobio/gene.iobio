@@ -2419,7 +2419,7 @@ class GeneModel {
           },
           error: function( xhr, status, errorThrown ) {
             console.log(status + " " + errorThrown)
-            let msg = errorThrown && errorThrown.length > 0 ? errorThrown : ' status=' + xhr.status + ", error=" + xhr.responseText + 'url=' + url;
+            let msg = errorThrown && errorThrown.length > 0 ? errorThrown : ' status=' + xhr.status + ", error=" + xhr.responseText + ' url=' + url;
             reject("Failed to lookup genes. " + msg)
           }
         })

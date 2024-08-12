@@ -834,7 +834,6 @@ export default {
     paramSampleUuid:       null,
     paramIsPedigree:       null,
     paramSource:           null,
-    paramIobioSource:      null,
     paramAnalysisId:       null,
     paramGeneSetId:        null,
     paramClientApplicationId: null,
@@ -904,7 +903,7 @@ export default {
       appLoaderLabel: "",
 
       hubToIobioSources: {
-        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
+        "https://mosaic.chpc.utah.edu":          {iobio: "mosaic.chpc.utah.edu/gru-dev-9005", batchSize: 10},
         "https://mosaic-dev.genetics.utah.edu":  {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
         "http://mosaic-dev.genetics.utah.edu":   {iobio: "mosaic.chpc.utah.edu/gru/api/v1", batchSize: 10},
 
@@ -1255,228 +1254,236 @@ export default {
       }
 
       self.setAppMode();
-
-      self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub,
-        { DEFAULT_BUILD: self.isEduMode ? 'GRCh37' : 'GRCh38' });
-
-      self.promiseAddCacheHelperListeners()
+      
+      // Determine the iobio backend server that gene.iobio should make requests to.
+      // Only continue with initialization if this succeeds.
+      self.promisePointToIobioBackend()
       .then(function() {
-        return self.cacheHelper.promiseClearOlderCache();
-      })
-      .then(function() {
-        return self.promiseLoadSiteConfig();
-      })
-      .then(function() {
-        let glyph = new Glyph();
-        let translator = new Translator(self.globalApp, glyph);
-        let genericAnnotation = new GenericAnnotation(glyph);
+        self.genomeBuildHelper = new GenomeBuildHelper(self.globalApp, self.launchedFromHub,
+          { DEFAULT_BUILD: self.isEduMode ? 'GRCh37' : 'GRCh38' });
 
-        self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage,
-          self.launchedFromHub, self.genePanels);
-        self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
-        self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
-        self.geneModel.translator = translator;
-        if (self.isEduMode) {
-          self.geneModel.phenolyzerTopGenesToKeep = 5;
-        }
-
-
-        // Instantiate helper class than encapsulates IOBIO commands
-        let endpoint = new EndpointCmd(self.globalApp,
-          self.cacheHelper.launchTimestamp,
-          self.genomeBuildHelper,
-          self.globalApp.utility.getHumanRefNames,
-          self.launchedFromHub);
-
-        self.variantExporter = new VariantExporter(self.globalApp);
-
-        self.cohortModel = new CohortModel(
-          self.globalApp,
-          self.isEduMode,
-          self.isBasicMode,
-          endpoint,
-          genericAnnotation,
-          translator,
-          self.geneModel,
-          self.variantExporter,
-          self.cacheHelper,
-          self.genomeBuildHelper,
-          self.launchedFromClin,
-          new FreebayesSettings());
-
-        self.cohortModel.on("alertIssued", function(type, message, genes, details, options) {
-          self.addAlert(type, message, genes, details, options)
-        })
-
-        self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
-          self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
-          .then(function(theGeneObject) {
-            if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-              self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
-            }
-          })
-          .catch(function(error) {
-            console.log(error.message)
-          })
-        })
-        self.geneModel.on("alertIssued", function(type, message, genes, details, options) {
-          self.addAlert(type, message, genes, details, options)
-        })
-        self.geneModel.on("alertRetracted", function(type, partialMessage, geneName) {
-          self.onRetractAppAlert(type, partialMessage, [geneName])
-        })
-        self.geneModel.on("selectGene", function(geneName) {
-          self.onGeneSelected(geneName)
-        })
-        self.geneModel.on("removeGene", function(geneName) {
-          self.removeGeneImpl(geneName)
-        })
-
-
-        self.cacheHelper.cohort = self.cohortModel;
-
-        self.variantExporter.cohort = self.cohortModel;
-
-        self.appLoaderLabel = "Initializing"
-        self.showAppLoader = true;
-
-
-        self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.isSimpleMode, self.tourNumber);
-        self.featureMatrixModel.init();
-        self.cohortModel.featureMatrixModel = self.featureMatrixModel;
-
-        self.variantTooltip = new VariantTooltip(
-          self.globalApp,
-          self.isEduMode,
-          self.isBasicMode,
-          self.tourNumber,
-          genericAnnotation,
-          glyph,
-          translator,
-          self.cohortModel.annotationScheme,
-          self.genomeBuildHelper);
-
-        self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
-        self.cohortModel.filterModel = self.filterModel;
-        self.filterModel.on("variantFlagged", function(variant) {
-          if (self.launchedFromHub) {
-            self.promiseInitMosaicVariantInterpretation(variant)
-            .then(function(mosaicInterpretation) {
-              if (mosaicInterpretation && mosaicInterpretation != 'none') {
-                // Only initialize the interpretation to the mosaic interpretation if
-                // it hasn't been entered in yet
-                if (variant.interpretation == null || variant.interpretation == '' || variant.interpretation == 'not-reviewed') {
-                  variant.interpretation = mosaicInterpretation;
-                  if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
-                    self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
-                  }
-                }
-              }
-            })
-          }
-        })
-
-        self.analysisModel = new AnalysisModel(self.globalApp, self.geneModel,
-          self.cohortModel, self.cacheHelper, self.genomeBuildHelper,
-          self.filterModel)
-        self.analysisModel.on("showInProgress", function(message) {
-          self.onShowInProgress(message);
-        })
-        self.analysisModel.on("hideInProgress", function() {
-          self.onHideInProgress();
-        })
-        self.analysisModel.on("specifyFilesForAnalysis", function(msg) {
-          self.showFilesForAnalysis = true;
-          self.filesDialogInfoMessage = msg;
-        })
-        self.analysisModel.on("phenolyzerTopGenesSet", function(top) {
-          self.onPhenolyzerTopChanged(top)
-        })
-        self.analysisModel.on("appAlertsSet", function(appAlerts) {
-          self.onAppAlertsSet(appAlerts)
-        })
-
-        self.promiseInitFromUrl()
+        self.promiseAddCacheHelperListeners()
         .then(function() {
-          if (self.isEduMode && self.tourNumber) {
-            self.showAppLoader = false;
-            self.$refs.appTourRef.startTour(self.tourNumber);
+          return self.cacheHelper.promiseClearOlderCache();
+        })
+        .then(function() {
+          return self.promiseLoadSiteConfig();
+        })
+        .then(function() {
+          let glyph = new Glyph();
+          let translator = new Translator(self.globalApp, glyph);
+          let genericAnnotation = new GenericAnnotation(glyph);
+
+          self.geneModel = new GeneModel(self.globalApp, self.forceLocalStorage,
+            self.launchedFromHub, self.genePanels);
+          self.geneModel.geneSource = self.forMyGene2 ? "refseq" : "gencode";
+          self.geneModel.genomeBuildHelper = self.genomeBuildHelper;
+          self.geneModel.translator = translator;
+          if (self.isEduMode) {
+            self.geneModel.phenolyzerTopGenesToKeep = 5;
           }
 
-          if (self.launchedFromHub) {
-            self.promiseInitFromMosaic()
-            .then(function() {
-              self.addAlert("info", "gene.iobio inititalized from Mosaic")
-              self.showAppLoader = false;
-              if (callback) {
-                callback();
-              }
 
+          // Instantiate helper class than encapsulates IOBIO commands
+          let endpoint = new EndpointCmd(self.globalApp,
+            self.cacheHelper.launchTimestamp,
+            self.genomeBuildHelper,
+            self.globalApp.utility.getHumanRefNames,
+            self.launchedFromHub);
+
+          self.variantExporter = new VariantExporter(self.globalApp);
+
+          self.cohortModel = new CohortModel(
+            self.globalApp,
+            self.isEduMode,
+            self.isBasicMode,
+            endpoint,
+            genericAnnotation,
+            translator,
+            self.geneModel,
+            self.variantExporter,
+            self.cacheHelper,
+            self.genomeBuildHelper,
+            self.launchedFromClin,
+            new FreebayesSettings());
+
+          self.cohortModel.on("alertIssued", function(type, message, genes, details, options) {
+            self.addAlert(type, message, genes, details, options)
+          })
+
+          self.geneModel.on("geneDangerSummarized", function(dangerSummary) {
+            self.geneModel.promiseGetCachedGeneObject(dangerSummary.geneName)
+            .then(function(theGeneObject) {
+              if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+                self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists()
+              }
             })
             .catch(function(error) {
-              self.addAlert("error", "Unable to initialize from Mosaic. " + error)
-              self.showAppLoader = false;
-              if (callback) {
-                callback();
-              }
+              console.log(error.message)
             })
+          })
+          self.geneModel.on("alertIssued", function(type, message, genes, details, options) {
+            self.addAlert(type, message, genes, details, options)
+          })
+          self.geneModel.on("alertRetracted", function(type, partialMessage, geneName) {
+            self.onRetractAppAlert(type, partialMessage, [geneName])
+          })
+          self.geneModel.on("selectGene", function(geneName) {
+            self.onGeneSelected(geneName)
+          })
+          self.geneModel.on("removeGene", function(geneName) {
+            self.removeGeneImpl(geneName)
+          })
 
-          } else {
-            self.models = self.cohortModel.sampleModels;
-            if (self.geneModel.sortedGeneNames.length > 0 && self.cohortModel.sampleModels.length == 0) {
-              let warning = "No data has been loaded. Click on the load button to specify the data files."
-              self.onShowSnackbar({message: warning, timeout: 8000, 'close': true});
-              self.showAppLoader = false;
-              self.showLeftPanelForGenes();
-              if (callback) {
-                callback();
-              }
-            } else {
+
+          self.cacheHelper.cohort = self.cohortModel;
+
+          self.variantExporter.cohort = self.cohortModel;
+
+          self.appLoaderLabel = "Initializing"
+          self.showAppLoader = true;
 
 
-              if (self.analysis && self.analysis.payload && self.analysis.payload.variants && self.analysis.payload.variants.length > 0) {
-                // do nothing -- variants already loaded
-              } else if (self.selectedGene && Object.keys(self.selectedGene).length > 0 && self.selectedGene.gene_name != "") {
-                self.promiseLoadData()
-                .then(function() {
-                  self.showLeftPanelWhenFlaggedVariants();
-                  self.showAppLoader = false;
-                  if (callback) {
-                    callback();
+          self.featureMatrixModel = new FeatureMatrixModel(self.globalApp, self.cohortModel, self.isEduMode, self.isBasicMode, self.isSimpleMode, self.tourNumber);
+          self.featureMatrixModel.init();
+          self.cohortModel.featureMatrixModel = self.featureMatrixModel;
+
+          self.variantTooltip = new VariantTooltip(
+            self.globalApp,
+            self.isEduMode,
+            self.isBasicMode,
+            self.tourNumber,
+            genericAnnotation,
+            glyph,
+            translator,
+            self.cohortModel.annotationScheme,
+            self.genomeBuildHelper);
+
+          self.filterModel = new FilterModel(self.globalApp, self.cohortModel.affectedInfo, self.isBasicMode, self.isFullAnalysis);
+          self.cohortModel.filterModel = self.filterModel;
+          self.filterModel.on("variantFlagged", function(variant) {
+            if (self.launchedFromHub) {
+              self.promiseInitMosaicVariantInterpretation(variant)
+              .then(function(mosaicInterpretation) {
+                if (mosaicInterpretation && mosaicInterpretation != 'none') {
+                  // Only initialize the interpretation to the mosaic interpretation if
+                  // it hasn't been entered in yet
+                  if (variant.interpretation == null || variant.interpretation == '' || variant.interpretation == 'not-reviewed') {
+                    variant.interpretation = mosaicInterpretation;
+                    if (self.$refs.navRef && self.$refs.navRef.$refs.flaggedVariantsRef) {
+                      self.$refs.navRef.$refs.flaggedVariantsRef.populateGeneLists();
+                    }
                   }
-                })
-                .catch(function(error) {
-                  self.showAppLoader = false;
-                  self.addAlert("error", error, self.selectedGene)
-                })
-              } else {
-                if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
-                  let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
-                  self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
-                  self.bringAttention = 'gene';
                 }
+              })
+            }
+          })
 
-                if (!self.isEduMode && !self.isBasicMode && !self.isSimpleMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
-                  self.showWelcome = true;
-                }
+          self.analysisModel = new AnalysisModel(self.globalApp, self.geneModel,
+            self.cohortModel, self.cacheHelper, self.genomeBuildHelper,
+            self.filterModel)
+          self.analysisModel.on("showInProgress", function(message) {
+            self.onShowInProgress(message);
+          })
+          self.analysisModel.on("hideInProgress", function() {
+            self.onHideInProgress();
+          })
+          self.analysisModel.on("specifyFilesForAnalysis", function(msg) {
+            self.showFilesForAnalysis = true;
+            self.filesDialogInfoMessage = msg;
+          })
+          self.analysisModel.on("phenolyzerTopGenesSet", function(top) {
+            self.onPhenolyzerTopChanged(top)
+          })
+          self.analysisModel.on("appAlertsSet", function(appAlerts) {
+            self.onAppAlertsSet(appAlerts)
+          })
+
+          self.promiseInitFromUrl()
+          .then(function() {
+            if (self.isEduMode && self.tourNumber) {
+              self.showAppLoader = false;
+              self.$refs.appTourRef.startTour(self.tourNumber);
+            }
+
+            if (self.launchedFromHub) {
+              self.promiseInitFromMosaic()
+              .then(function() {
+                self.addAlert("info", "gene.iobio inititalized from Mosaic")
                 self.showAppLoader = false;
-
                 if (callback) {
                   callback();
                 }
-              }
 
+              })
+              .catch(function(error) {
+                self.addAlert("error", "Unable to initialize from Mosaic. " + error)
+                self.showAppLoader = false;
+                if (callback) {
+                  callback();
+                }
+              })
+
+            } else {
+              self.models = self.cohortModel.sampleModels;
+              if (self.geneModel.sortedGeneNames.length > 0 && self.cohortModel.sampleModels.length == 0) {
+                let warning = "No data has been loaded. Click on the load button to specify the data files."
+                self.onShowSnackbar({message: warning, timeout: 8000, 'close': true});
+                self.showAppLoader = false;
+                self.showLeftPanelForGenes();
+                if (callback) {
+                  callback();
+                }
+              } else {
+
+
+                if (self.analysis && self.analysis.payload && self.analysis.payload.variants && self.analysis.payload.variants.length > 0) {
+                  // do nothing -- variants already loaded
+                } else if (self.selectedGene && Object.keys(self.selectedGene).length > 0 && self.selectedGene.gene_name != "") {
+                  self.promiseLoadData()
+                  .then(function() {
+                    self.showLeftPanelWhenFlaggedVariants();
+                    self.showAppLoader = false;
+                    if (callback) {
+                      callback();
+                    }
+                  })
+                  .catch(function(error) {
+                    self.showAppLoader = false;
+                    self.addAlert("error", error, self.selectedGene)
+                  })
+                } else {
+                  if  (self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
+                    let theMessage = self.isSimpleMode || self.isBasicMode ? 'Enter a gene name.' : 'Enter a gene name or enter a phenotype term.'
+                    self.onShowSnackbar( {message: theMessage, timeout: 10000, close:true});
+                    self.bringAttention = 'gene';
+                  }
+
+                  if (!self.isEduMode && !self.isBasicMode && !self.isSimpleMode && !self.launchedFromHub && !self.launchedFromClin && !self.launchedWithUrlParms && self.geneModel.sortedGeneNames.length === 0 ) {
+                    self.showWelcome = true;
+                  }
+                  self.showAppLoader = false;
+
+                  if (callback) {
+                    callback();
+                  }
+                }
+
+              }
             }
+
+          })
+
+        },
+        function() {
+          if (callback) {
+            callback();
           }
 
         })
-
-      },
-      function() {
-        if (callback) {
-          callback();
-        }
-
+      })
+      .catch(function(error) {
+        
       })
 
     },
@@ -3618,55 +3625,67 @@ export default {
       if (self.paramProjectId && self.paramProjectId.length > 0) {
         self.projectId = self.paramProjectId;
       }
-      
-      if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
-        && self.sampleId && self.paramSource) {
-        self.launchedFromHub = true;
-
-        if (self.paramSource === self.sfariSource) {
-          self.launchedFromSFARI = true;
-        }
-
-        // Determine the iobio backend server. 
-        // 1. If the app is standalone, we use the property IOBIO_BACKEND in the .env file
-        // 2. If the app is launched from Mosaic, we use the URL parameter 'source' to lookup
-        //    the iobio backend server. If there is not a mapping from the Mosaic source
-        //    to the iobio backend server, the app will fallback to using the URL parameter 
-        //    'iobio_source'. If that isn't provided, throw an app error.
-        if (self.paramIobioSource == null && self.hubToIobioSources[self.paramSource] && self.hubToIobioSources[self.paramSource].iobio) {
-          self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
-          self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
-        } else if (self.paramIobioSource && self.paramIobioSource.length > 0) {
-          self.addAlert('warning', 
-            "Unable to lookup iobio backend server based " +
-            "on the <pre>source</pre> URL parameter. Using <pre>iobio_source</pre> URL parameter instead.",
-            null, ['iobio backend set to ' + self.paramIobioSource], {showAlertPanel: true})
-            self.globalApp.IOBIO_SOURCE = self.paramIobioSource;
-        } else {
-          self.addAlert('error', 
-            "Unable to determine the iobio backend server using the URL parameter <pre>source</pre>. " +
-            "Most likely, the lookup hubToIobioSources is missing an entry. Please contact iobio support.",
-            null, null, {showAlertPanel: true});
-        }
-        self.isHubDeprecated = !self.projectId;
-      } else {
-        self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
-      }
-      
-      if (self.globalApp.IOBIO_SOURCE) {
-        try {
-          self.globalApp.initServices(self.globalApp.IOBIO_SOURCE)
-        } catch(error) {
-          self.$nextTick(function() {
-            self.addAlert('error', error, null, null, {showAlertPanel: true})
-          })
-        }
-      }
-      
       if (self.paramTour) {
         self.tourNumber = self.paramTour;
       }
-      self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
+    },
+    
+    /* Determine the iobio backend server. 
+     *  1. If the app is standalone, we use the property IOBIO_BACKEND in the .env file
+     *  2. If the app is launched from Mosaic and gene.iobio is served from a production
+     *     site, we use the URL parameter 'source' to lookup the iobio backend server. 
+     *     If there is not a mapping from the Mosaic source to the iobio backend server, 
+     *     the app throw an error.
+     *  3. If the app is launched from Mosaic and gene.iobio is served from localhost
+     *     or staging, use the .env property IOBIO_BACKEND.
+    */
+    promisePointToIobioBackend() {
+      let self = this;
+      return new Promise(function(resolve, reject) {
+        if (localStorage.getItem('hub-iobio-tkn') && localStorage.getItem('hub-iobio-tkn').length > 0
+              && self.sampleId && self.paramSource) {
+          self.launchedFromHub = true;
+
+          if (self.paramSource === self.sfariSource) {
+            self.launchedFromSFARI = true;
+          }
+
+          if (window.document.URL.indexOf("localhost") > 0) {
+            self.addAlert('warning', 
+              "Using .env property <pre>IOBIO_SOURCE</pre> instead of mapping from Mosaic source to iobio backend.",
+              null, ['iobio backend set to ' +  process.env.IOBIO_BACKEND], {showAlertPanel: true})
+              self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
+          } else {
+            if (self.hubToIobioSources[self.paramSource] && self.hubToIobioSources[self.paramSource].iobio && self.hubToIobioSources[self.paramSource].iobio.length > 0) {
+              self.globalApp.IOBIO_SOURCE = self.hubToIobioSources[self.paramSource].iobio;
+              self.globalApp.DEFAULT_BATCH_SIZE = self.hubToIobioSources[self.paramSource].batchSize;
+            } else  {
+              self.addAlert('error', 
+                "Unable to lookup iobio backend server for this Mosaic instance. There is no mapping from " +
+                "the <pre>source</pre> URL parameter to a iobio backend server URL.",
+                null, null, {showAlertPanel: true})
+              reject();
+            } 
+            self.isHubDeprecated = !self.projectId;
+          }
+        } else {
+          // Standalone gene.iobio. Initialize the iobio backend server from the .env property IOBIO_BACKEND.
+          self.globalApp.IOBIO_SOURCE = process.env.IOBIO_BACKEND;
+        }
+        
+        if (self.globalApp.IOBIO_SOURCE) {
+          try {
+            self.globalApp.initServices(self.globalApp.IOBIO_SOURCE)
+            self.phenotypeLookupUrl = self.globalApp.hpoLookupUrl;
+
+            resolve();
+          } catch(error) {
+            self.$nextTick(function() {
+              self.addAlert('error', error, null, null, {showAlertPanel: true})
+            })
+          }    
+        }    
+      })
     },
     promiseInitFromUrl: function() {
       let self = this;
